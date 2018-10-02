@@ -1,26 +1,10 @@
-/*<FILE_LICENSE>
-* NFX (.NET Framework Extension) Unistack Library
-* Copyright 2003-2018 Agnicore Inc. portions ITAdapter Corp. Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-</FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace NFX.DataAccess.CRUD
+namespace Azos.Data
 {
     /// <summary>
     /// Represents a row of data which has a schema only known at run-time.
@@ -28,15 +12,15 @@ namespace NFX.DataAccess.CRUD
     /// This class is not sealed so implementors may override configuration persistence
     /// </summary>
     [Serializable]
-    public class DynamicRow : Row
+    public class DynamicDoc : Doc
     {
         #region .ctor
-            protected DynamicRow()//used by serializer
+            protected DynamicDoc()//used by serializer
             {
 
             }
 
-            public DynamicRow(Schema schema)
+            public DynamicDoc(Schema schema)
             {
                __ctor(schema);
             }
@@ -109,13 +93,13 @@ namespace NFX.DataAccess.CRUD
 
 
     /// <summary>
-    /// Represents a row of data which has a schema only known at run-time that also implements IAmorphousData
+    /// Represents a data doc which has a schema only known at run-time that also implements IAmorphousData
     /// interface that allows this row to store "extra" data that does not comply with the current schema.
-    /// Dynamic rows store data in object[] internally, providing better flexibility(ability to define schema at runtime) than TypedRows at the expense of performance.
+    /// Dynamic docs store data in object[] internally, providing better flexibility(ability to define schema at runtime) than TypedDocs at the expense of performance.
     /// This class is not sealed so implementors may override configuration persistence
     /// </summary>
     [Serializable]
-    public class AmorphousDynamicRow : DynamicRow, IAmorphousData
+    public class AmorphousDynamicDoc : DynamicDoc, IAmorphousData
     {
         #region .ctor
             public AmorphousDynamicRow(Schema schema) : base(schema)

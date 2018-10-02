@@ -32,7 +32,7 @@ namespace Azos.Data
           ///  this method does not check passed type for Row-derivation and returns null instead if type was invalid
           /// </summary>
           /// <param name="schema">Schema, which is used for creation of DynamicRows and their derivatives</param>
-          /// <param name="tRow">
+          /// <param name="tDoc">
           /// A type of row to create, if the type is TypedRow-descending then a parameterless .ctor is called,
           /// otherwise a type must have a .ctor that takes schema as a sole argument
           /// </param>
@@ -40,23 +40,23 @@ namespace Azos.Data
           /// Row instance or null if wrong type was passed. For performance purposes,
           ///  this method does not check passed type for Row-derivation and returns null instead if type was invalid
           /// </returns>
-          public static Row MakeRow(Schema schema, Type tRow = null)
+          public static Doc MakeDoc(Schema schema, Type tDoc = null)
           {
-            if (tRow!=null && tRow != typeof(Row) && tRow != typeof(DynamicRow))
+            if (tDoc != null && tDoc != typeof(Doc) && tDoc != typeof(DynamicDoc))
             {
-                if (typeof(TypedRow).IsAssignableFrom(tRow))
-                    return Activator.CreateInstance(tRow) as Row;
+                if (typeof(TypedDoc).IsAssignableFrom(tDoc))
+                    return Activator.CreateInstance(tDoc) as Doc;
                 else                                         //todo Compile do dynamic functors for speed
-                    return Activator.CreateInstance(tRow, schema) as Row;
+                    return Activator.CreateInstance(tDoc, schema) as Doc;
             }
 
-            return new DynamicRow(schema);
+            return new DynamicDoc(schema);
           }
 
           /// <summary>
-          /// Tries to fill the row with data returning true if field count matched
+          /// Tries to fill the document with data returning true if field count matched
           /// </summary>
-          public static bool TryFillFromJSON(Row row, IJSONDataObject jsonData, SetFieldFunc setFieldFunc = null)
+          public static bool TryFillFromJSON(Doc doc, IJSONDataObject jsonData, SetFieldFunc setFieldFunc = null)
           {
             if (row==null || jsonData==null) return false;
 
@@ -66,7 +66,7 @@ namespace Azos.Data
             {
               foreach(var kvp in map)
               {
-                var fdef = row.Schema[kvp.Key];
+                var fdef = doc.Schema[kvp.Key];
                 if (fdef==null)
                 {
                   var ad = row as IAmorphousData;
@@ -78,34 +78,34 @@ namespace Azos.Data
                 }
 
                 if (setFieldFunc==null)
-                  row.SetFieldValue(fdef, kvp.Value);
+                  doc.SetFieldValue(fdef, kvp.Value);
                 else
                 {
-                  var ok = setFieldFunc(row, fdef, kvp.Value);
+                  var ok = setFieldFunc(doc, fdef, kvp.Value);
                   if (!ok) allMatch = false;
                 }
               }
-              if (map.Count!=row.Schema.FieldCount) allMatch = false;
+              if (map.Count!=doc.Schema.FieldCount) allMatch = false;
             }
             else
             {
               var arr = jsonData as JSONDataArray;
               if (arr==null) return false;
 
-              for(var i=0; i<row.Schema.FieldCount; i++)
+              for(var i=0; i<doc.Schema.FieldCount; i++)
               {
                  if (i==arr.Count) break;
-                 var fdef = row.Schema[i];
+                 var fdef = doc.Schema[i];
 
                  if (setFieldFunc==null)
-                   row.SetFieldValue(fdef, arr[i]);
+                   doc.SetFieldValue(fdef, arr[i]);
                  else
                  {
-                   var ok = setFieldFunc(row, fdef, arr[i]);
+                   var ok = setFieldFunc(doc, fdef, arr[i]);
                    if (!ok) allMatch = false;
                  }
               }
-              if (arr.Count!=row.Schema.FieldCount) allMatch = false;
+              if (arr.Count!=doc.Schema.FieldCount) allMatch = false;
             }
 
             return allMatch;
