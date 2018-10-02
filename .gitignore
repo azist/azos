@@ -23,7 +23,6 @@ out/
 [Rr]eleases/
 x64/
 x86/
-build/
 [Bb]in/
 [Oo]bj/
 BUILD_INFO.txt
