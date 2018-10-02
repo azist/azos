@@ -1,0 +1,16 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+configuration: Release
+
+
+build:
+  verbosity: minimal
+
+
+before_build:
+  - cd .\src
+  - nuget restore
+
+
+##skip testing altogether (temporarily)
+test: off
