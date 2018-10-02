@@ -1,0 +1,24 @@
+<Project>
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+
+    <PreserveCompilationContext>false</PreserveCompilationContext>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <NoWarn>1701;1702;1705;1591</NoWarn>
+
+
+    <Authors>AZist, @dzhabis, @dkh</Authors>
+    <Company>AZist Team</Company>
+    <Description>AZOS - A to Z Application OS</Description>
+    <Copyright>2018 AZist Team</Copyright>
+    <PackageProjectUrl>http://zhabis.com/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/azist/azos</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <PackageTags>atoz;fullstack;full-stacj;appos;net-core;big-memory;pile;slim;glue;wave;cluster;zhabis</PackageTags>
+    <PackageLicenseUrl>https://github.com/azist/azos</PackageLicenseUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/azist/azos/master/elm/logo/logo.50.png</PackageIconUrl>
+    <PackageReleaseNotes>Supports both .NET Framework 4.7.1+ and .NET Core 2.0+</PackageReleaseNotes>
+  </PropertyGroup>
+
+</Project>
