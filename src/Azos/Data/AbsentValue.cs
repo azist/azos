@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Azos
+namespace Azos.Data
 {
   /// <summary>
   /// Represents a special value that signifies the absence of any entity/state/value/data.
