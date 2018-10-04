@@ -1,11 +1,11 @@
-/*
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace Azos
+namespace Azos.Text
 {
   /// <summary>
   /// Represents an immutable string data that is stored in an efficient way that relieves the GC pressure.
@@ -92,7 +92,7 @@ namespace Azos
               /// </summary>
               public SealedString Seal(string value, out bool existed)
               {
-                if (value==null) throw new NFXException(StringConsts.ARGUMENT_ERROR+"SealedString.Scope.Seal(value==null)");
+                if (value==null) throw new AzosException(StringConsts.ARGUMENT_ERROR+"SealedString.Scope.Seal(value==null)");
 
                 SealedString result;
 
@@ -170,7 +170,7 @@ namespace Azos
     /// </summary>
     public SealedString(string value)
     {
-      if (value==null) throw new NFXException(StringConsts.ARGUMENT_ERROR+"SealedString.ctor(value==null)");
+      if (value==null) throw new AzosException(StringConsts.ARGUMENT_ERROR+"SealedString.ctor(value==null)");
 
 
       byte[] encoded;
@@ -200,7 +200,7 @@ namespace Azos
         if (array==null || (array.Length - s_CurrentAddress < totalSize))
         {
           if (s_CurrentSegment==ushort.MaxValue)
-            throw new NFXException(StringConsts.SEALED_STRING_OUT_OF_SPACE_ERROR.Args(ushort.MaxValue));
+            throw new AzosException(StringConsts.SEALED_STRING_OUT_OF_SPACE_ERROR.Args(ushort.MaxValue));
 
 
 
@@ -309,7 +309,7 @@ namespace Azos
       if (result > SEG_MAX_SIZE)
       {
         result = SEG_MAX_SIZE;
-        if (result < atLeast) throw new NFXException(StringConsts.SEALED_STRING_TOO_BIG_ERROR.Args(atLeast));
+        if (result < atLeast) throw new AzosException(StringConsts.SEALED_STRING_TOO_BIG_ERROR.Args(atLeast));
       }
 
       return (int)result;
@@ -317,6 +317,3 @@ namespace Azos
 
   }
 }
-
-
-*/

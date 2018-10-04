@@ -27,14 +27,14 @@
 
   <ItemGroup>
     <None Remove="BUILD_INFO.txt" />
-    <None Remove="Parsing\ConanDoyle.txt" />
-    <None Remove="Parsing\JackLondon.txt" />
+    <None Remove="Text\ConanDoyle.txt" />
+    <None Remove="Text\JackLondon.txt" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="BUILD_INFO.txt" />
-    <EmbeddedResource Include="Parsing\ConanDoyle.txt" />
-    <EmbeddedResource Include="Parsing\JackLondon.txt" />
+    <EmbeddedResource Include="Text\ConanDoyle.txt" />
+    <EmbeddedResource Include="Text\JackLondon.txt" />
   </ItemGroup>
 
 </Project>
