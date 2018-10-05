@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using NFX.Parsing;
+
+using Azos.Text;
 
 namespace Azos.Conf
 {

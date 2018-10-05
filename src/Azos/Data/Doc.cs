@@ -327,17 +327,17 @@ namespace Azos.Data
 
                 if (atr.Kind==DataKind.ScreenName)
                 {
-                    if (!NFX.Parsing.DataEntryUtils.CheckScreenName(value.ToString()))
+                    if (!Azos.Text.DataEntryUtils.CheckScreenName(value.ToString()))
                        return new CRUDFieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_SCREEN_NAME_ERROR);
                 }
                 else if (atr.Kind==DataKind.EMail)
                 {
-                    if (!NFX.Parsing.DataEntryUtils.CheckEMail(value.ToString()))
+                    if (!Azos.Text.DataEntryUtils.CheckEMail(value.ToString()))
                        return new CRUDFieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_EMAIL_ERROR);
                 }
                 else if (atr.Kind==DataKind.Telephone)
                 {
-                    if (!NFX.Parsing.DataEntryUtils.CheckTelephone(value.ToString()))
+                    if (!Azos.Text.DataEntryUtils.CheckTelephone(value.ToString()))
                        return new CRUDFieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_PHONE_ERROR);
                 }
 
@@ -372,7 +372,7 @@ namespace Azos.Data
             /// Override to perform custom row equality comparison.
             /// Default implementation equates rows using their key fields
             /// </summary>
-            public virtual bool Equals(Row other)
+            public virtual bool Equals(Doc other)
             {
                 if (other==null) return false;
                 if (!this.Schema.IsEquivalentTo(other.Schema)) return false;
@@ -389,11 +389,11 @@ namespace Azos.Data
             }
 
             /// <summary>
-            /// Object override - sealed. Override Equals(row) instead
+            /// Object override - sealed. Override Equals(doc) instead
             /// </summary>
             public sealed override bool Equals(object obj)
             {
-                return this.Equals(obj as Row);
+                return this.Equals(obj as Doc);
             }
 
             /// <summary>
@@ -526,7 +526,7 @@ namespace Azos.Data
 
 
                   // 20150224 DKh, addedEra to GDID. Only GDIDS with ERA=0 can be converted to/from INT64
-                  if (fdef.NonNullableType==typeof(NFX.DataAccess.Distributed.GDID))
+                  if (fdef.NonNullableType==typeof(Access.Distributed.GDID))
                   {
                       if (tv==typeof(byte[]))//20151103 DKh GDID support for byte[]
                         value = new Distributed.GDID((byte[])value);

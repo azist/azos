@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-using NFX.Serialization.JSON;
+using Azos.Serialization.JSON;
 
 namespace Azos.Conf
 {

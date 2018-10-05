@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using NFX.Parsing;
-using NFX.IO.FileSystem;
-using NFX.Serialization.JSON;
-using NFX.DataAccess.Distributed;
+using Azos.Text;
+using Azos.IO.FileSystem;
+using Azos.Serialization.JSON;
+using Azos.Data.Access.Distributed;
 
 namespace Azos.Conf
 {
@@ -1212,7 +1212,7 @@ namespace Azos.Conf
 
 
         /// <summary>
-        /// Navigates the path and return the appropriate node. Example: '!/nfx/logger/destination/$file-name'
+        /// Navigates the path and return the appropriate node. Example: '!/azos/logger/destination/$file-name'
         /// </summary>
         /// <param name="path">If path starts from '!' then exception will be thrown if such a node does not exist;
         ///  Use '/' as leading char for root,
@@ -1265,7 +1265,7 @@ namespace Azos.Conf
         }
 
         /// <summary>
-        /// Navigates the path and return the appropriate section node. Example '!/nfx/logger/destination'
+        /// Navigates the path and return the appropriate section node. Example '!/azos/logger/destination'
         /// </summary>
         /// <param name="path">If path starts from '!' then exception will be thrown if such a section node does not exist;
         ///  Use '/' as leading char for root,
@@ -1403,15 +1403,15 @@ namespace Azos.Conf
         /// <summary>
         /// Serializes configuration tree rooted at this node into Laconic format and returns it as a string
         /// </summary>
-        public string ToLaconicString(NFX.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null)
+        public string ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null)
         {
-          return NFX.CodeAnalysis.Laconfig.LaconfigWriter.Write(this, options);
+          return Azos.CodeAnalysis.Laconfig.LaconfigWriter.Write(this, options);
         }
 
         /// <summary>
         /// Serializes configuration tree rooted at this node into JSON configuration format and returns it as a string
         /// </summary>
-        public string ToJSONString(NFX.Serialization.JSON.JSONWritingOptions options = null)
+        public string ToJSONString(Azos.Serialization.JSON.JSONWritingOptions options = null)
         {
           return this.ToConfigurationJSONDataMap().ToJSON(options);
         }
@@ -1432,7 +1432,7 @@ namespace Azos.Conf
         /// <param name="includePragma">Pragma section name, '_include' by default</param>
         /// <returns>True if pragmas were found</returns>
         /// <example>
-        ///  nfx
+        ///  azos
         ///  {
         ///    sectionA{ a=2 b=3}
         ///    _include
@@ -1444,7 +1444,7 @@ namespace Azos.Conf
         ///    _include
         ///    {
         ///      // '_include' will be replaced by whatever root section content in the referenced file
-        ///      fs {type="NFX.Web.IO.FileSystem.SVNFileSystem, NFX.Web"}
+        ///      fs {type="Azos.Web.IO.FileSystem.SVNFileSystem, Azos.Web"}
         ///      session { server-url="https://myhost.com/mySvnRepo/trunk/configs" user-name="user1" user-password="******"}
         ///    }
         ///  }
@@ -1636,7 +1636,7 @@ namespace Azos.Conf
           //2 Try to get content form the file system
           var ndFs = pragma[Configuration.CONFIG_INCLUDE_PRAGMA_FS_SECTION];
 
-          using(var fs = FactoryUtils.MakeAndConfigure<IFileSystemImplementation>(ndFs, typeof(NFX.IO.FileSystem.Local.LocalFileSystem)))
+          using(var fs = FactoryUtils.MakeAndConfigure<IFileSystemImplementation>(ndFs, typeof(Azos.IO.FileSystem.Local.LocalFileSystem)))
           {
             FileSystemSessionConnectParams cParams;
 
@@ -1645,12 +1645,12 @@ namespace Azos.Conf
             if (ndSession.Exists)
               cParams = FileSystemSessionConnectParams.Make<FileSystemSessionConnectParams>(ndSession);
             else
-              cParams = new FileSystemSessionConnectParams(){ User = NFX.Security.User.Fake};
+              cParams = new FileSystemSessionConnectParams(){ User = Azos.Security.User.Fake};
 
             string source = "";
             using(var fsSession = fs.StartSession(cParams))
             {
-              var file = fsSession[fileName] as NFX.IO.FileSystem.FileSystemFile;
+              var file = fsSession[fileName] as Azos.IO.FileSystem.FileSystemFile;
 
               if (file==null)
               {

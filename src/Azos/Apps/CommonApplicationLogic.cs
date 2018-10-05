@@ -499,7 +499,7 @@ namespace Azos.Apps
                }
                catch(Exception error)
                {
-                  throw new NFXException(StringConsts.APP_ASSEMBLY_PRELOAD_ERROR.Args(apath, error.ToMessageWithType()), error);
+                  throw new AzosException(StringConsts.APP_ASSEMBLY_PRELOAD_ERROR.Args(apath, error.ToMessageWithType()), error);
                }
 
                return true;
@@ -522,14 +522,14 @@ namespace Azos.Apps
       {
           if (m_Log==null) return;
 
-          m_Log.Write(new NFX.Log.Message()
+          m_Log.Write(new Azos.Log.Message()
                       {
                         Topic = CoreConsts.APPLICATION_TOPIC,
                         Type = type,
                         From = from,
                         Text = msgText,
                         Exception = error,
-                      }.SetParamsAsObject(NFX.Log.Message.FormatCallerParams(pars, file, line)));
+                      }.SetParamsAsObject(Azos.Log.Message.FormatCallerParams(pars, file, line)));
       }
 
       protected virtual Configuration GetConfiguration()
@@ -565,7 +565,7 @@ namespace Azos.Apps
       protected virtual void InitApplication()
       {
         if (ForceInvariantCulture)
-          NFX.PAL.PlatformAbstractionLayer.SetProcessInvariantCulture();
+          Azos.PAL.PlatformAbstractionLayer.SetProcessInvariantCulture();
 
         PreloadAssemblies();
 
@@ -584,7 +584,7 @@ namespace Azos.Apps
                 }
                 catch (Exception error)
                 {
-                    error = new NFXException(StringConsts.APP_STARTER_BEFORE_ERROR.Args(name, error.ToMessageWithType()), error);
+                    error = new AzosException(StringConsts.APP_STARTER_BEFORE_ERROR.Args(name, error.ToMessageWithType()), error);
                     if (breakOnError) throw error;
                     exceptions.Add(error);
                     //log not available at this point
@@ -607,7 +607,7 @@ namespace Azos.Apps
             }
             catch(Exception error)
             {
-              error = new NFXException(StringConsts.APP_STARTER_AFTER_ERROR.Args(name, error.ToMessageWithType()), error);
+              error = new AzosException(StringConsts.APP_STARTER_AFTER_ERROR.Args(name, error.ToMessageWithType()), error);
               WriteLog(MessageType.CatastrophicError, "InitApplication().After", error.ToMessageWithType(), error);
               if (breakOnError) throw error;
             }
@@ -633,7 +633,7 @@ namespace Azos.Apps
                 }
                 catch(Exception error)
                 {
-                   error = new NFXException(StringConsts.APP_FINISH_NOTIFIABLE_BEFORE_ERROR.Args(name, error.ToMessageWithType()), error);
+                   error = new AzosException(StringConsts.APP_FINISH_NOTIFIABLE_BEFORE_ERROR.Args(name, error.ToMessageWithType()), error);
                    exceptions.Add(error);
                    WriteLog(MessageType.Error, "CleanupApplication()", error.Message);
                 }
@@ -660,7 +660,7 @@ namespace Azos.Apps
                 }
                 catch(Exception error)
                 {
-                  error = new NFXException(StringConsts.APP_FINISH_NOTIFIABLE_AFTER_ERROR.Args(name, error.ToMessageWithType()), error);
+                  error = new AzosException(StringConsts.APP_FINISH_NOTIFIABLE_AFTER_ERROR.Args(name, error.ToMessageWithType()), error);
                   exceptions.Add(error);
                   //log not available at this point
                 }
@@ -675,7 +675,7 @@ namespace Azos.Apps
             foreach(var exception in exceptions)
                 text.AppendLine( exception.ToMessageWithType());
 
-            throw new NFXException(text.ToString());
+            throw new AzosException(text.ToString());
         }
 
       }
@@ -813,7 +813,7 @@ namespace Azos.Apps
           {
             m_Log = FactoryUtils.MakeAndConfigure(node, typeof(LogService)) as ILogImplementation;
 
-            if (m_Log==null) throw new NFXException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
+            if (m_Log==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
                                                     node
                                                    .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
                                                    .ValueAsString(CoreConsts.UNKNOWN));
@@ -830,7 +830,7 @@ namespace Azos.Apps
           }
           catch(Exception error)
           {
-            throw new NFXException(StringConsts.APP_LOG_INIT_ERROR + error.ToMessageWithType(), error);
+            throw new AzosException(StringConsts.APP_LOG_INIT_ERROR + error.ToMessageWithType(), error);
           }
 
         node = m_ConfigRoot[CONFIG_MODULES_SECTION];
@@ -839,7 +839,7 @@ namespace Azos.Apps
           {
             m_Module = FactoryUtils.MakeAndConfigure(node, typeof(HubModule)) as IModuleImplementation;
 
-            if (m_Module==null) throw new NFXException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
+            if (m_Module==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
                                                     node
                                                    .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
                                                    .ValueAsString(CoreConsts.UNKNOWN));
@@ -856,7 +856,7 @@ namespace Azos.Apps
           }
           catch(Exception error)
           {
-            throw new NFXException(StringConsts.APP_MODULE_INIT_ERROR + error.ToMessageWithType(), error);
+            throw new AzosException(StringConsts.APP_MODULE_INIT_ERROR + error.ToMessageWithType(), error);
           }
 
         node = m_ConfigRoot[CONFIG_TIMESOURCE_SECTION];
@@ -866,7 +866,7 @@ namespace Azos.Apps
           {
             m_TimeSource = FactoryUtils.MakeAndConfigure(node, null) as ITimeSourceImplementation;
 
-            if (m_TimeSource==null) throw new NFXException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
+            if (m_TimeSource==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
                                                     node
                                                    .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
                                                    .ValueAsString(CoreConsts.UNKNOWN));
@@ -890,7 +890,7 @@ namespace Azos.Apps
           {
             var msg = StringConsts.APP_TIMESOURCE_INIT_ERROR + error.ToMessageWithType();
             WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new NFXException(msg, error);
+            throw new AzosException(msg, error);
           }
         }
         else
@@ -910,7 +910,7 @@ namespace Azos.Apps
           {
             m_EventTimer = FactoryUtils.MakeAndConfigure(node, typeof(EventTimer)) as IEventTimerImplementation;
 
-            if (m_EventTimer==null) throw new NFXException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
+            if (m_EventTimer==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
                                                     node
                                                    .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
                                                    .ValueAsString(CoreConsts.UNKNOWN));
@@ -929,7 +929,7 @@ namespace Azos.Apps
           {
             var msg = StringConsts.APP_EVENT_TIMER_INIT_ERROR + error.ToMessageWithType();
             WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new NFXException(msg, error);
+            throw new AzosException(msg, error);
           }
         }
 
@@ -942,7 +942,7 @@ namespace Azos.Apps
           {
             m_SecurityManager = FactoryUtils.MakeAndConfigure(node, typeof(ConfigSecurityManager)) as ISecurityManagerImplementation;
 
-            if (m_SecurityManager==null) throw new NFXException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
+            if (m_SecurityManager==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
                                                             node
                                                            .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
                                                            .ValueAsString(CoreConsts.UNKNOWN));
@@ -961,7 +961,7 @@ namespace Azos.Apps
           {
             var msg = StringConsts.APP_SECURITY_MANAGER_INIT_ERROR + error;
             WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new NFXException(msg, error);
+            throw new AzosException(msg, error);
           }
 
         try
@@ -972,7 +972,7 @@ namespace Azos.Apps
         {
            var msg = StringConsts.APP_APPLY_BEHAVIORS_ERROR + error;
            WriteLog(MessageType.Error, FROM, msg, error);
-           throw new NFXException(msg, error);
+           throw new AzosException(msg, error);
         }
 
 
@@ -982,7 +982,7 @@ namespace Azos.Apps
           {
             m_Instrumentation = FactoryUtils.MakeAndConfigure(node, typeof(InstrumentationService)) as IInstrumentationImplementation;
 
-            if (m_Instrumentation==null) throw new NFXException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
+            if (m_Instrumentation==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
                                                     node
                                                    .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
                                                    .ValueAsString(CoreConsts.UNKNOWN));
@@ -1002,7 +1002,7 @@ namespace Azos.Apps
           {
             var msg = StringConsts.APP_INSTRUMENTATION_INIT_ERROR + error;
             WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new NFXException(msg, error);
+            throw new AzosException(msg, error);
           }
 
 
@@ -1012,7 +1012,7 @@ namespace Azos.Apps
           {
             m_DataStore = FactoryUtils.MakeAndConfigure(node) as IDataStoreImplementation;
 
-            if (m_DataStore==null) throw new NFXException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
+            if (m_DataStore==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
                                                     node
                                                    .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
                                                    .ValueAsString(CoreConsts.UNKNOWN));
@@ -1032,7 +1032,7 @@ namespace Azos.Apps
           {
             var msg = StringConsts.APP_DATA_STORE_INIT_ERROR + error;
             WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new NFXException(msg, error);
+            throw new AzosException(msg, error);
           }
 
         node = m_ConfigRoot[CONFIG_OBJECT_STORE_SECTION];
@@ -1041,7 +1041,7 @@ namespace Azos.Apps
           {
             m_ObjectStore = FactoryUtils.MakeAndConfigure(node, typeof(ObjectStoreService)) as IObjectStoreImplementation;
 
-            if (m_ObjectStore==null) throw new NFXException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
+            if (m_ObjectStore==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
                                                             node
                                                            .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
                                                            .ValueAsString(CoreConsts.UNKNOWN));
@@ -1060,16 +1060,16 @@ namespace Azos.Apps
           {
             var msg = StringConsts.APP_OBJECT_STORE_INIT_ERROR + error;
             WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new NFXException(msg, error);
+            throw new AzosException(msg, error);
           }
 
         node = m_ConfigRoot[CONFIG_GLUE_SECTION];
         if (node.Exists)
           try
           {
-            m_Glue = FactoryUtils.MakeAndConfigure(node, typeof(NFX.Glue.Implementation.GlueService)) as IGlueImplementation;
+            m_Glue = FactoryUtils.MakeAndConfigure(node, typeof(Azos.Glue.Implementation.GlueService)) as IGlueImplementation;
 
-            if (m_Glue==null) throw new NFXException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
+            if (m_Glue==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
                                                             node
                                                            .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
                                                            .ValueAsString(CoreConsts.UNKNOWN));
@@ -1088,7 +1088,7 @@ namespace Azos.Apps
           {
             var msg = StringConsts.APP_GLUE_INIT_ERROR + error;
             WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new NFXException(msg, error);
+            throw new AzosException(msg, error);
           }
       }
 
@@ -1107,7 +1107,7 @@ namespace Azos.Apps
           {
             var msg = "Error in call module root .ApplicationAfterInit()" + error.ToMessageWithType();
             WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new NFXException(msg, error);
+            throw new AzosException(msg, error);
           }
         }
 

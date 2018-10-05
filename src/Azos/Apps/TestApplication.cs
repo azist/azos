@@ -39,9 +39,9 @@ namespace Azos.Apps
             Glue = NOPGlue.Instance;
             ModuleRoot = NOPModule.Instance;
             SecurityManager = NOPSecurityManager.Instance;
-            TimeSource = NFX.Time.DefaultTimeSource.Instance;
+            TimeSource = Azos.Time.DefaultTimeSource.Instance;
             TimeLocation = new Time.TimeLocation();
-            EventTimer = NFX.Time.NOPEventTimer.Instance;
+            EventTimer = Azos.Time.NOPEventTimer.Instance;
 
             Realm = new ApplicationRealmBase();
 

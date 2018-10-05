@@ -57,7 +57,7 @@ namespace Azos
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       if (info == null)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
       info.AddValue(FROM_FLD_NAME, m_From);
       base.GetObjectData(info, context);
     }
@@ -93,7 +93,7 @@ namespace Azos
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       if (info == null)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
       info.AddValue(FROM_FLD_NAME, m_From);
       base.GetObjectData(info, context);
     }
@@ -141,13 +141,13 @@ namespace Azos
     /// </summary>
     public WrappedExceptionData(Exception error, bool captureStack = true)
     {
-      if (error==null) throw new NFXException(StringConsts.ARGUMENT_ERROR+"WrappedExceptionData.ctor(error=null)");
+      if (error==null) throw new AzosException(StringConsts.ARGUMENT_ERROR+"WrappedExceptionData.ctor(error=null)");
 
       var tp = error.GetType();
       m_TypeName = tp.FullName;
       m_Message = error.Message;
-      if (error is NFXException)
-        m_Code = ((NFXException)error).Code;
+      if (error is AzosException)
+        m_Code = ((AzosException)error).Code;
 
       m_ApplicationName = ExecutionContext.Application.Name;
 
@@ -323,7 +323,7 @@ namespace Azos
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       if (info == null)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
       info.AddValue(WRAPPED_FLD_NAME, m_Wrapped);
       base.GetObjectData(info, context);
     }

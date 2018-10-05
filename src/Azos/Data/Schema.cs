@@ -207,7 +207,7 @@ namespace Azos.Data
                     var result = attr!=null ? attr.Description : "";
 
                     if (result.IsNullOrWhiteSpace())
-                     result = NFX.Parsing.Utils.ParseFieldNameToDescription(Name, true);
+                     result = Azos.Text.Utils.ParseFieldNameToDescription(Name, true);
 
                     return result;
                   }

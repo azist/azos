@@ -55,7 +55,7 @@ namespace Azos.Data.Access
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       if (info == null)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
       info.AddValue(KEY_VIOLATION_KIND_FLD_NAME, KeyViolationKind);
       info.AddValue(KEY_VIOLATION_FLD_NAME, KeyViolation);
       base.GetObjectData(info, context);

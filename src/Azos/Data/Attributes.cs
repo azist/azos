@@ -521,7 +521,7 @@ namespace Azos.Data
 
 
         // This is moved here for convenience not to repeat volumnous field attributes for Arow serialization as field def already contains all data,
-        // see NFX.Serialization.Arow
+        // see Azos.Serialization.Arow
         /// <summary>
         /// True if this field definition is used by Arow serializer
         /// </summary>

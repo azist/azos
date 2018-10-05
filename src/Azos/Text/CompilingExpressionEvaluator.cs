@@ -24,7 +24,7 @@ namespace Azos.Text
             private class _ScopeData
             {
               internal Assembly Assembly;
-              internal NFXException CompileException;
+              internal AzosException CompileException;
               internal List<CompilingExpressionEvaluator<TContext, TResult, TArg>> m_Expressions = new List<CompilingExpressionEvaluator<TContext, TResult, TArg>>();
 
               internal List<string> m_ReferencedAssemblies = new List<string>();
@@ -37,14 +37,14 @@ namespace Azos.Text
                  m_ReferencedAssemblies.Add("System.Data.dll");
                  m_ReferencedAssemblies.Add("System.Xml.dll");
                  m_ReferencedAssemblies.Add("System.Xml.Linq.dll");
-                 m_ReferencedAssemblies.Add("NFX.dll");
+                 m_ReferencedAssemblies.Add("Azos.dll");
 
                  m_Usings.Add("System");
                  m_Usings.Add("System.Text");
                  m_Usings.Add("System.IO");
                  m_Usings.Add("System.Collections.Generic");
                  m_Usings.Add("System.Linq");
-                 m_Usings.Add("NFX");
+                 m_Usings.Add("Azos");
               }
 
 
@@ -109,10 +109,10 @@ namespace Azos.Text
               }
 
               if (sdata.Assembly!=null)
-                 throw new NFXException(StringConsts.CAN_NOT_CREATE_MORE_SCOPE_EXPRESSIONS_ERROR + scope);
+                 throw new AzosException(StringConsts.CAN_NOT_CREATE_MORE_SCOPE_EXPRESSIONS_ERROR + scope);
 
               if (sdata.CompileException!=null)
-                 throw new NFXException(StringConsts.CAN_NOT_ADD_FAILED_SCOPE_COMPILE_ERROR + scope, sdata.CompileException);
+                 throw new AzosException(StringConsts.CAN_NOT_ADD_FAILED_SCOPE_COMPILE_ERROR + scope, sdata.CompileException);
 
               sdata.m_Expressions.Add(this);
 
@@ -210,7 +210,7 @@ namespace Azos.Text
            //   cp.GenerateInMemory = true;
 
 
-           // var ns = "NFX.Parsing.CompilingExpressionEvaluator."+m_Scope;
+           // var ns = "Azos.Text.CompilingExpressionEvaluator."+m_Scope;
 
            // StringBuilder code = new StringBuilder();
            //   foreach(var use in sdata.m_Usings)
@@ -253,7 +253,7 @@ namespace Azos.Text
            //       error.AppendFormat("{0}\n", err.ErrorText);
            //     }
 
-           //     sdata.CompileException =  new NFXException(StringConsts.EXPRESSION_SCOPE_COMPILE_ERROR + error.ToString());
+           //     sdata.CompileException =  new AzosException(StringConsts.EXPRESSION_SCOPE_COMPILE_ERROR + error.ToString());
            //     return;
            //   }
 

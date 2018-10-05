@@ -29,7 +29,7 @@ namespace Azos.Text
 
     public static readonly string[] DOMAIN_NAMES = new string[]
     {
-       "google.com", "bing.com", "yahoo.com", "facebook.com", "twitter.com", "github.com", "nfx.io",
+       "google.com", "bing.com", "yahoo.com", "facebook.com", "twitter.com", "github.com", "azoslib.io",
        "orbitz.com", "newegg.com", "ebay.com", "amazon.com", "weather.com", "youtube.com", "wikipedia.org",
        "google.co.in", "live.com", "yandex.ru", "linkedin.com", "vk.com", "reddit.com", "msn.com", "wordpress.com",
        "mail.ru", "pinterest.com", "alibaba.com", "google.es", "google.ca", "crailgslist.org", "ok.ru", "google.ru",
@@ -223,7 +223,7 @@ namespace Azos.Text
       if (maxLength<minLength) maxLength = 20;
 
       var text = getRandomTextSource();
-      var i = NFX.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, text.Length-1);
+      var i = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, text.Length-1);
       scrollToWordStart(text, ref i);
 
       var result = new StringBuilder();
@@ -452,9 +452,9 @@ namespace Azos.Text
 
     private static string getRandomTextSource()
     {
-      return NFX.ExternalRandomGenerator.Instance.NextRandomInteger>0
-        ? NFX.EmbeddedResource.GetText(typeof(NaturalTextGenerator), "JackLondon.txt")
-        : NFX.EmbeddedResource.GetText(typeof(NaturalTextGenerator), "ConanDoyle.txt"); //get text does caching internally
+      return Azos.ExternalRandomGenerator.Instance.NextRandomInteger>0
+        ? Azos.EmbeddedResource.GetText(typeof(NaturalTextGenerator), "JackLondon.txt")
+        : Azos.EmbeddedResource.GetText(typeof(NaturalTextGenerator), "ConanDoyle.txt"); //get text does caching internally
     }
 
 

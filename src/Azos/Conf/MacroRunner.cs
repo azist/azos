@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Globalization;
 
 
-using NFX.Time;
+using Azos.Time;
 
 namespace Azos.Conf
 {

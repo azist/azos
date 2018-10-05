@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using NFX.ApplicationModel;
+
+using Azos.Apps;
 
 namespace Azos.Conf
 {
@@ -108,7 +109,7 @@ namespace Azos.Conf
               }
 
               var cinfo = tp.GetConstructors().FirstOrDefault(ci => ci.GetParameters().Length == args.Count);
-              if (cinfo==null) throw new NFXException(".ctor arg count mismatch");
+              if (cinfo==null) throw new AzosException(".ctor arg count mismatch");
 
               //dynamically re-cast argument types
               for(var i=0; i<args.Count; i++)

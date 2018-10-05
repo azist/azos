@@ -100,14 +100,14 @@ namespace Azos.Apps
     {
       var result = TryGet<TModule>(name);
       if (result==null)
-        throw new NFXException(StringConsts.APP_MODULE_GET_BY_NAME_ERROR.Args(name, typeof(TModule).DisplayNameWithExpandedGenericArgs()));
+        throw new AzosException(StringConsts.APP_MODULE_GET_BY_NAME_ERROR.Args(name, typeof(TModule).DisplayNameWithExpandedGenericArgs()));
 
       return result;
     }
 
     public virtual TModule TryGet<TModule>(string name) where TModule : class, IModule
     {
-      if (name.IsNullOrWhiteSpace()) throw new NFXException(StringConsts.ARGUMENT_ERROR + "Module.TryGet(name==null|empty");
+      if (name.IsNullOrWhiteSpace()) throw new AzosException(StringConsts.ARGUMENT_ERROR + "Module.TryGet(name==null|empty");
       var result = m_Children[name] as TModule;
       return result;
     }
@@ -201,7 +201,7 @@ namespace Azos.Apps
       {
         var module = FactoryUtils.MakeAndConfigure<ModuleBase>(mnode, null, new []{this});
         if (!m_Children.Register(module))
-         throw new NFXException(StringConsts.APP_MODULE_DUPLICATE_CHILD_ERROR.Args(this, module));
+         throw new AzosException(StringConsts.APP_MODULE_DUPLICATE_CHILD_ERROR.Args(this, module));
       }
     }
 

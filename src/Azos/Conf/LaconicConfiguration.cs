@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-using NFX.CodeAnalysis.Source;
-using NFX.CodeAnalysis.Laconfig;
+using Azos.CodeAnalysis.Source;
+using Azos.CodeAnalysis.Laconfig;
 
 namespace Azos.Conf
 {
@@ -16,10 +16,10 @@ namespace Azos.Conf
     /// <example>
     /// Example Laconic Configuration Content:
     ///
-    /// nfx //comments are allowed
+    /// azos //comments are allowed
     /// {
-    ///   log-root=$"c:\nfx\"
-    ///   log-csv="NFX.Log.Destinations.CSVFileDestination, NFX"
+    ///   log-root=$"c:\azos\"
+    ///   log-csv="Azos.Log.Destinations.CSVFileDestination, Azos"
     ///   debug-default-action="Log,Throw"
     ///
     ///   log
@@ -36,7 +36,7 @@ namespace Azos.Conf
     ///     }
     ///   }
     ///   /* multiline comments
-    ///    data-store {type="NFX.RecordModel.DataAccess.MongoDB.MongoDBModelDataStore, NFX.MongoDB"
+    ///    data-store {type="Azos.RecordModel.DataAccess.MongoDB.MongoDBModelDataStore, Azos.MongoDB"
     ///                connect-string="mongodb://localhost"
     ///                db-name="test"}
     ///   */

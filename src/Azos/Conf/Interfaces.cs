@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using NFX.Serialization.JSON;
-using NFX.DataAccess.Distributed;
+using Azos.Serialization.JSON;
+using Azos.DataAccess.Distributed;
 
 namespace Azos.Conf
 {
@@ -205,7 +205,7 @@ namespace Azos.Conf
             IConfigAttrNode AttrByIndex(int idx);
 
             /// <summary>
-            /// Navigates the path and return the appropriate node. Example '!/nfx/logger/destination/$file-name'
+            /// Navigates the path and return the appropriate node. Example '!/azos/logger/destination/$file-name'
             /// </summary>
             /// <param name="path">If path starts from '!' then exception will be thrown if such a node does not exist;
             ///  Use '/' as leading char for root,
@@ -216,7 +216,7 @@ namespace Azos.Conf
 
 
             /// <summary>
-            /// Navigates the path and return the appropriate section node. Example '!/nfx/logger/destination'
+            /// Navigates the path and return the appropriate section node. Example '!/azos/logger/destination'
             /// </summary>
             /// <param name="path">If path starts from '!' then exception will be thrown if such a section node does not exist;
             ///  Use '/' as leading char for root,
@@ -246,7 +246,7 @@ namespace Azos.Conf
             /// <summary>
             /// Serializes configuration tree rooted at this node into Laconic format and returns it as a string
             /// </summary>
-            string ToLaconicString(NFX.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null);
+            string ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null);
 
             /// <summary>
             /// Converts this ConfigSectionNode to JSONDataMap. Contrast with ToConfigurationJSONDataMap
@@ -264,7 +264,7 @@ namespace Azos.Conf
             /// <summary>
             /// Serializes configuration tree rooted at this node into JSON configuration format and returns it as a string
             /// </summary>
-            string ToJSONString(NFX.Serialization.JSON.JSONWritingOptions options = null);
+            string ToJSONString(Azos.Serialization.JSON.JSONWritingOptions options = null);
 
             /// <summary>
             /// Returns attribute values as string map

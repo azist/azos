@@ -54,7 +54,7 @@ namespace Azos.CodeAnalysis
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       if (info == null)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
       info.AddValue(ERRORED_ESCAPE_FLD_NAME, ErroredEscape);
       base.GetObjectData(info, context);
     }

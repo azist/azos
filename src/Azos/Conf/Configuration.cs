@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-using NFX.Serialization.JSON;
+using Azos.Serialization.JSON;
 
 namespace Azos.Conf
 {
@@ -63,9 +63,9 @@ namespace Azos.Conf
         {
           get
           {
-            return NFX.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions
-                                            .Concat(NFX.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions)
-                                            .Concat(NFX.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions);
+            return Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions
+                                            .Concat(Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions)
+                                            .Concat(Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions);
           }
         }
 
@@ -81,13 +81,13 @@ namespace Azos.Conf
             //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
             //in future Aum conversion replace with Dictionary<format, configType> lookup
 
-            if (NFX.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
+            if (Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
               return new LaconicConfiguration(fileName);
 
-            if (NFX.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
+            if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
               return new XMLConfiguration(fileName);
 
-            if (NFX.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
+            if (Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
               return new JSONConfiguration(fileName);
 
             throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_LOAD_FILE_ERROR + fileName);
@@ -135,13 +135,13 @@ namespace Azos.Conf
             //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
             //in future Aum conversion replace with Dictionary<format, configType> lookup
 
-            if (NFX.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
+            if (Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
               return LaconicConfiguration.CreateFromString(content);
 
-            if (NFX.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
+            if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
               return XMLConfiguration.CreateFromXML(content);
 
-            if (NFX.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
+            if (Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
               return JSONConfiguration.CreateFromJSON(content);
 
             if (fallbackFormat.IsNotNullOrWhiteSpace())
@@ -158,9 +158,9 @@ namespace Azos.Conf
         {
           if (format.StartsWith(".")) format=format.Remove(0, 1);
 
-          return NFX.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)) ||
-                 NFX.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)) ||
-                 NFX.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase));
+          return Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)) ||
+                 Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)) ||
+                 Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -175,13 +175,13 @@ namespace Azos.Conf
             //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
             //in future Aum conversion replace with Dictionary<format, configType> lookup
 
-            if (NFX.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
+            if (Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
               return new LaconicConfiguration();
 
-            if (NFX.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
+            if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
               return new XMLConfiguration();
 
-            if (NFX.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
+            if (Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
               return new JSONConfiguration();
 
             throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_HANDLE_FILE_ERROR + fileName);
@@ -580,26 +580,26 @@ namespace Azos.Conf
         /// <summary>
         /// Serializes configuration tree into Laconic format and returns it as a string
         /// </summary>
-        public string ToLaconicString(NFX.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null)
+        public string ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null)
         {
-           return NFX.CodeAnalysis.Laconfig.LaconfigWriter.Write(this, options);
+           return Azos.CodeAnalysis.Laconfig.LaconfigWriter.Write(this, options);
         }
 
         /// <summary>
         /// Serializes configuration tree into Laconic format and writes it into stream
         /// </summary>
-        public void ToLaconicStream(Stream stream, NFX.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null, Encoding encoding = null)
+        public void ToLaconicStream(Stream stream, Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null, Encoding encoding = null)
         {
-           NFX.CodeAnalysis.Laconfig.LaconfigWriter.Write(this, stream, options, encoding );
+          Azos.CodeAnalysis.Laconfig.LaconfigWriter.Write(this, stream, options, encoding );
         }
 
         /// <summary>
         /// Serializes configuration tree into Laconic format and writes it into a file
         /// </summary>
-        public void ToLaconicFile(string filename, NFX.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null, Encoding encoding = null)
+        public void ToLaconicFile(string filename, Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null, Encoding encoding = null)
         {
            using(var fs = new FileStream(filename, FileMode.Create))
-              NFX.CodeAnalysis.Laconfig.LaconfigWriter.Write(this, fs, options, encoding);
+             Azos.CodeAnalysis.Laconfig.LaconfigWriter.Write(this, fs, options, encoding);
         }
 
         /// <summary>

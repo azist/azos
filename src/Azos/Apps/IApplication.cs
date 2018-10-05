@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using NFX.Time;
+using Azos.Time;
 
 namespace Azos.Apps
 {
@@ -83,7 +83,7 @@ namespace Azos.Apps
      /// This is used by various app components and services to assess the environment status in which they execute, for example:
      /// a logger may suppress error messages from network in a cluster when the area is about to be upgraded to new software.
      /// One may consider this status as a "message board" where services/system check/report the planned or unexpected outages and
-     /// adjust their behavior accordingly. NFX provides only the base implementation of such classes delegating the specifics to more
+     /// adjust their behavior accordingly. Azos provides only the base implementation of such classes delegating the specifics to more
      /// concrete app containers.
      /// </summary>
      IApplicationRealm Realm { get; }

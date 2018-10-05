@@ -59,7 +59,7 @@ namespace Azos.Conf
       /// <summary>
       /// Creates an instance of the new configuration parsed from command line arguments
       /// </summary>
-      public CommandArgsConfiguration(string[] args) : this(args, NFX.OS.Computer.OSFamily != OS.OSFamily.Windows)
+      public CommandArgsConfiguration(string[] args) : this(args, Azos.OS.Computer.OSFamily != OS.OSFamily.Windows)
       {
       }
 

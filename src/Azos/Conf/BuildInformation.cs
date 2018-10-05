@@ -16,7 +16,7 @@ namespace Azos.Conf
   public class BuildInformation
   {
     #region  CONSTS
-        public const string FRAMEWORK_BUILD_INFO_PATH = "NFX."+BUILD_INFO_RESOURCE;
+        public const string FRAMEWORK_BUILD_INFO_PATH = "Azos."+BUILD_INFO_RESOURCE;
 
         public const string BUILD_INFO_RESOURCE = "BUILD_INFO.txt";
 

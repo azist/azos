@@ -3,7 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NFX.CodeAnalysis.Source;
+
+using Azos.CodeAnalysis.Source;
 
 namespace Azos.CodeAnalysis.JSON
 {
