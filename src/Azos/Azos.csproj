@@ -37,4 +37,8 @@
     <EmbeddedResource Include="Text\JackLondon.txt" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Platform\Abstraction\" />
+  </ItemGroup>
+
 </Project>

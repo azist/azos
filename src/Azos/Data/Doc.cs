@@ -19,7 +19,7 @@ namespace Azos.Data
     /// <summary>
     /// Injects function that tries to set field value. May elect to skip the set and return false to indicate failure(instead of throwing exception)
     /// </summary>
-    public delegate bool SetFieldFunc(Row row, Schema.FieldDef fdef, object val);
+    public delegate bool SetFieldFunc(Doc doc, Schema.FieldDef fdef, object val);
 
 
     /// <summary>
@@ -27,7 +27,7 @@ namespace Azos.Data
     /// Documents are NOT THREAD SAFE by definition
     /// </summary>
     [Serializable]
-    public abstract class Doc : IConfigurable, IConfigurationPersistent, IEquatable<Row>, IEnumerable<Object>, IValidatable, IJSONWritable
+    public abstract class Doc : IConfigurable, IConfigurationPersistent, IEquatable<Doc>, IEnumerable<Object>, IValidatable, IJSONWritable
     {
 
         #region Static
