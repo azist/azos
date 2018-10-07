@@ -16,6 +16,16 @@ namespace Azos
   public static class ConfUtils
   {
     /// <summary>
+    /// Tries to convert object to laconic config content and parse i. This is a shortcut to ObjectValueConversion.AsLaconicConfig(object)
+    /// </summary>
+    public static ConfigSectionNode AsLaconicConfig(this string val,
+                                                    ConfigSectionNode dflt = null,
+                                                    string wrapRootName = "azos",
+                                                    Azos.Data.ConvertErrorHandling handling = Azos.Data.ConvertErrorHandling.ReturnDefault)
+    => Azos.Data.ObjectValueConversion.AsLaconicConfig(val, dflt, wrapRootName, handling);
+
+
+    /// <summary>
     /// Converts dictionary into configuration where every original node gets represented as a sub-section of config's root
     /// </summary>
     public static Configuration ToConfigSections(this IDictionary<string, object> dict)

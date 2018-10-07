@@ -1156,6 +1156,9 @@ namespace Azos
       return new string(buf);
     }
 
+    /// <summary>
+    /// Encodes GUID using predictable Big Endian network byte ordering, use with complementing GuidFromNetworkByteOrder(byte[]) method
+    /// </summary>
     public static byte[] ToNetworkByteOrder(this Guid guid)
     {
       var result = guid.ToByteArray();
@@ -1179,6 +1182,9 @@ namespace Azos
       return result;
     }
 
+    /// <summary>
+    /// Reads GUID using predictable Big Endian network byte ordering, use with complementing ToNetworkByteOrder(guid) method
+    /// </summary>
     public static Guid GuidFromNetworkByteOrder(this byte[] buf, int offset = 0)
     {
       var a = ReadBEInt32(buf, ref offset);
