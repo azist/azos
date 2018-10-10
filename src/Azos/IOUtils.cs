@@ -582,10 +582,10 @@ namespace Azos
     public static short ReadBEShort(this Stream s)
     {
       var b1 = s.ReadByte();
-      if (b1 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEShort()");
+      if (b1 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEShort()");
 
       var b2 = s.ReadByte();
-      if (b2 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEShort()");
+      if (b2 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEShort()");
 
       return (short)(
                    (b1 << 8) +
@@ -599,10 +599,10 @@ namespace Azos
     public static short ReadLEShort(this Stream s)
     {
       var b1 = s.ReadByte();
-      if (b1 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEShort()");
+      if (b1 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEShort()");
 
       var b2 = s.ReadByte();
-      if (b2 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEShort()");
+      if (b2 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEShort()");
 
       return (short)((b2 << 8) + b1);
     }
@@ -613,10 +613,10 @@ namespace Azos
     public static ushort ReadBEUShort(this Stream s)
     {
       var b1 = s.ReadByte();
-      if (b1 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUShort()");
+      if (b1 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUShort()");
 
       var b2 = s.ReadByte();
-      if (b2 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUShort()");
+      if (b2 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUShort()");
 
       return (ushort)(
                    (b1 << 8) +
@@ -630,10 +630,10 @@ namespace Azos
     public static ushort ReadLEUShort(this Stream s)
     {
       var b1 = s.ReadByte();
-      if (b1 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUShort()");
+      if (b1 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUShort()");
 
       var b2 = s.ReadByte();
-      if (b2 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUShort()");
+      if (b2 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUShort()");
 
       return (ushort)((b2 << 8) + b1);
     }
@@ -644,16 +644,16 @@ namespace Azos
     public static Int32 ReadBEInt32(this Stream s)
     {
       var b1 = s.ReadByte();
-      if (b1 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEInt32()");
+      if (b1 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEInt32()");
 
       var b2 = s.ReadByte();
-      if (b2 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEInt32()");
+      if (b2 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEInt32()");
 
       var b3 = s.ReadByte();
-      if (b3 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEInt32()");
+      if (b3 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEInt32()");
 
       var b4 = s.ReadByte();
-      if (b4 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEInt32()");
+      if (b4 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEInt32()");
 
       return (b1 << 24) +
              (b2 << 16) +
@@ -667,16 +667,16 @@ namespace Azos
     public static int ReadLEInt32(this Stream s)
     {
       var b1 = s.ReadByte();
-      if (b1 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEInt32()");
+      if (b1 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEInt32()");
 
       var b2 = s.ReadByte();
-      if (b2 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEInt32()");
+      if (b2 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEInt32()");
 
       var b3 = s.ReadByte();
-      if (b3 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEInt32()");
+      if (b3 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEInt32()");
 
       var b4 = s.ReadByte();
-      if (b4 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEInt32()");
+      if (b4 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEInt32()");
 
       return (b4 << 24) +
              (b3 << 16) +
@@ -690,28 +690,28 @@ namespace Azos
     public static ulong ReadBEUInt64(this Stream s)
     {
       var b1 = s.ReadByte();
-      if (b1 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
+      if (b1 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
 
       var b2 = s.ReadByte();
-      if (b2 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
+      if (b2 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
 
       var b3 = s.ReadByte();
-      if (b3 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
+      if (b3 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
 
       var b4 = s.ReadByte();
-      if (b4 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
+      if (b4 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
 
       var b5 = s.ReadByte();
-      if (b5 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
+      if (b5 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
 
       var b6 = s.ReadByte();
-      if (b6 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
+      if (b6 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
 
       var b7 = s.ReadByte();
-      if (b7 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
+      if (b7 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
 
       var b8 = s.ReadByte();
-      if (b8 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
+      if (b8 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadBEUInt64()");
 
 
 
@@ -731,28 +731,28 @@ namespace Azos
     public static ulong ReadLEUInt64(this Stream s)
     {
       var b1 = s.ReadByte();
-      if (b1 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
+      if (b1 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
 
       var b2 = s.ReadByte();
-      if (b2 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
+      if (b2 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
 
       var b3 = s.ReadByte();
-      if (b3 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
+      if (b3 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
 
       var b4 = s.ReadByte();
-      if (b4 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
+      if (b4 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
 
       var b5 = s.ReadByte();
-      if (b5 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
+      if (b5 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
 
       var b6 = s.ReadByte();
-      if (b6 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
+      if (b6 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
 
       var b7 = s.ReadByte();
-      if (b7 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
+      if (b7 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
 
       var b8 = s.ReadByte();
-      if (b8 < 0) throw new IO.NFXIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
+      if (b8 < 0) throw new IO.AzosIOException(StringConsts.STREAM_READ_EOF_ERROR + "ReadLEUInt64()");
 
       return ((ulong)b8 << 56) +
              ((ulong)b7 << 48) +
@@ -1118,7 +1118,7 @@ namespace Azos
       var l = iso.Length;
 
       if (l > 3)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR + "PackISO3CodeToInt(iso>3)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR + "PackISO3CodeToInt(iso>3)");
 
 
       //note: ISO codes are in ASCII plane

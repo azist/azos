@@ -236,12 +236,12 @@ namespace Azos.Scripting
       {
         m_Out = Configuration.MakeProviderForFile(OutFileName);
         m_Out.Create(this.GetType().FullName);
-        m_Out.Root.AddAttributeNode("runtime", NFX.PAL.PlatformAbstractionLayer.PlatformName);
+        m_Out.Root.AddAttributeNode("runtime", Platform.Abstraction.PlatformAbstractionLayer.PlatformName);
         m_Out.Root.AddAttributeNode("timestamp-local", App.LocalizedTime);
         m_Out.Root.AddAttributeNode("timestamp-utc", App.TimeSource.UTCNow);
         m_Out.Root.AddAttributeNode("user", System.Environment.UserName);
         m_Out.Root.AddAttributeNode("machine", System.Environment.MachineName);
-        m_Out.Root.AddAttributeNode("os", OS.Computer.OSFamily);
+        m_Out.Root.AddAttributeNode("os", Platform.Computer.OSFamily);
         m_Out.Root.AddAttributeNode("cmd", System.Environment.CommandLine);
         m_Out.Root.AddAttributeNode("app-name", App.Name);
         m_Out.Root.AddAttributeNode("app-instance", App.InstanceID);
@@ -273,7 +273,7 @@ namespace Azos.Scripting
       Console.ForegroundColor = ConsoleColor.DarkGray;
       Console.Write("|  Platform runtime: ");
       Console.ForegroundColor = ConsoleColor.Yellow;
-      Console.WriteLine(NFX.PAL.PlatformAbstractionLayer.PlatformName);
+      Console.WriteLine(Azos.Platform.Abstraction.PlatformAbstractionLayer.PlatformName);
 
       Console.ForegroundColor = ConsoleColor.DarkGray;
       Console.Write("|  Total runnables: ");

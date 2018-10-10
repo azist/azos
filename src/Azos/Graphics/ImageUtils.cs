@@ -172,7 +172,7 @@ namespace Azos.Graphics
     public static Image NormalizeCenteredImage(this Image srcImage, int targetWidth = 128, int targetHeight = 128, int xDpi = 96, int yDpi = 96)
     {
       if (srcImage == null || targetWidth < 1 || targetHeight < 1 || xDpi < 1 || yDpi < 1)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR + "NormalizeCenteredImage(...)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR + "NormalizeCenteredImage(...)");
 
       var result = Image.Of(targetWidth, targetHeight, xDpi, yDpi);
 
@@ -230,7 +230,7 @@ namespace Azos.Graphics
                                          Color? bColor = null)
     {
       if (srcImage == null || targetWidth < 1 || targetHeight < 1 || xDpi < 1 || yDpi < 1)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR + "FitCenteredImage(...)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR + "FitCenteredImage(...)");
 
       var result = Image.Of(targetWidth, targetHeight, xDpi, yDpi);
       result.MakeTransparent();

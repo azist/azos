@@ -64,7 +64,7 @@ namespace Azos.Security
                                           UserStatus.Invalid,
                                             "John Doe",
                                             "Fake user",
-                                            NFX.Security.Rights.None);
+                                            Rights.None);
 
       /// <summary>
       /// Returns default instance of the fake user that has no rights
@@ -243,10 +243,10 @@ namespace Azos.Security
 
       /// <summary>
       /// Determines whether the current principal belongs to the specified role.
-      /// This method implements IPrincipal and has little application in NFX framework context
-      /// as NFX permissions are more granular than just boolean. This method really checks user kind (User/Admin/Sys).
+      /// This method implements IPrincipal and has little application in Azos framework context
+      /// as Azos permissions are more granular than just boolean. This method really checks user kind (User/Admin/Sys).
       /// Confusion comes from the fact that what Microsoft calls role really is just a single named permission -
-      ///  a role is a named permission set in NFX.
+      ///  a role is a named permission set in Azos.
       /// </summary>
       public bool IsInRole(string role)
       {

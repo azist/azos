@@ -142,7 +142,7 @@ namespace Azos.Apps
 
         foreach (var type in asm.GetTypes().Where(t => t.IsPublic && t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(T))))
         {
-          if (asmNS.IsNotNullOrWhiteSpace() && !NFX.Parsing.Utils.MatchPattern(type.FullName, asmNS)) continue;
+          if (asmNS.IsNotNullOrWhiteSpace() && !Azos.Text.Utils.MatchPattern(type.FullName, asmNS)) continue;
           var atr = GuidTypeAttribute.GetGuidTypeAttribute<T, A>(type);
 
           Type existing;

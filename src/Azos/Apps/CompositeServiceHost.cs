@@ -270,7 +270,7 @@ namespace Azos.Apps
   ///Thrown by CompositeServiceHost
   /// </summary>
   [Serializable]
-  public class SvcHostException : NFXException
+  public class SvcHostException : AzosException
   {
     public SvcHostException() { }
     public SvcHostException(string message) : base(message) { }

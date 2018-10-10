@@ -160,7 +160,7 @@ namespace Azos.Graphics
     public Image ResizeTo(Size newSize, InterpolationMode interpolation = InterpolationMode.Default)
     {
       if (newSize.Width==0 || newSize.Height==0)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR + "Resize(size is empty)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR + "Resize(size is empty)");
 
       var result = Image.Of(newSize.Width, newSize.Height, XResolution, YResolution, PixelFormat);
 

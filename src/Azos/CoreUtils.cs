@@ -91,10 +91,10 @@ namespace Azos
     /// <summary>
     /// If there is error, converts its details to JSOnDataMap
     /// </summary>
-    public static NFX.Serialization.JSON.JSONDataMap ToJSONDataMap(this Exception error, bool recurse = true, bool stackTrace = false)
+    public static Azos.Serialization.JSON.JSONDataMap ToJSONDataMap(this Exception error, bool recurse = true, bool stackTrace = false)
     {
       if (error == null) return null;
-      var result = new NFX.Serialization.JSON.JSONDataMap(false);
+      var result = new Azos.Serialization.JSON.JSONDataMap(false);
 
       result["Type"] = error.GetType().FullName;
       result["Msg"] = error.Message;

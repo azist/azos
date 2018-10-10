@@ -11,7 +11,7 @@ namespace Azos.Platform.Abstraction
   /// to the higher level code like Azos.Graphics.Canvas, Image etc.
   /// PAL provides process-global injection point for PAL.
   /// The injection of a concrete runtime is done at process entry point which is
-  /// statically linked against a concrete runtime.
+  /// statically linked against the concrete runtime library (such as .NET Framework or .NET Core).
   /// </summary>
   public static class PlatformAbstractionLayer
   {

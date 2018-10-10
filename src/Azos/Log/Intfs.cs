@@ -1,0 +1,47 @@
+
+using System;
+
+
+using Azos.Apps;
+using Azos.Time;
+using Azos.Instrumentation;
+using Azos.Serialization.BSON;
+
+namespace Azos.Log
+{
+  /// <summary>
+  /// Describes entity capable of being written log information to
+  /// </summary>
+  public interface ILog : IApplicationComponent, ILocalizedTimeProvider
+  {
+      void Write(Message msg);
+      void Write(Message msg, bool urgent);
+      void Write(MessageType type, string text, string topic = null, string from = null);
+      void Write(MessageType type, string text, bool urgent, string topic = null, string from = null);
+
+
+      Message LastWarning { get;}
+      Message LastError { get;}
+      Message LastCatastrophe { get;}
+  }
+
+
+  /// <summary>
+  /// Describes entity capable of being written log information to
+  /// </summary>
+  public interface ILogImplementation : ILog, IDisposable, IConfigurable, IInstrumentable
+  {
+
+  }
+
+  /// <summary>
+  /// Marker interface for entities that can be stored in archives, such as access/telemetry logs
+  /// </summary>
+  public interface IArchiveLoggable : IBSONSerializable, IBSONDeserializable
+  {
+
+  }
+
+
+
+}

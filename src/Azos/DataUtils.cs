@@ -96,7 +96,7 @@ namespace Azos
     public static TRow LoadRow<TRow>(this ICRUDOperations operations, Query<TRow> query) where TRow : Row
     {
       if (operations==null || query==null)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR+"LoadRow(ICRUDOperations==null | query==null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadRow(ICRUDOperations==null | query==null)");
 
       return operations.LoadOneRow(query) as TRow;
     }
@@ -107,7 +107,7 @@ namespace Azos
     public static Task<TRow> LoadRowAsync<TRow>(this ICRUDOperations operations, Query<TRow> query) where TRow : Row
     {
       if (operations==null || query==null)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR+"LoadRowAsync(ICRUDOperations==null | query==null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadRowAsync(ICRUDOperations==null | query==null)");
 
       return operations.LoadOneRowAsync(query)
                        .ContinueWith<TRow>( (antecedent) => antecedent.Result as TRow);
@@ -119,7 +119,7 @@ namespace Azos
     public static IEnumerable<TRow> LoadEnumerable<TRow>(this ICRUDOperations operations, Query<TRow> query) where TRow : Row
     {
       if (operations==null || query==null)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR+"LoadEnumerable(ICRUDOperations==null | query==null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadEnumerable(ICRUDOperations==null | query==null)");
 
       return operations.LoadOneRowset(query).AsEnumerableOf<TRow>();
     }
@@ -130,7 +130,7 @@ namespace Azos
     public static Task<IEnumerable<TRow>> LoadEnumerableAsync<TRow>(this ICRUDOperations operations, Query<TRow> query) where TRow : Row
     {
       if (operations==null || query==null)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR+"LoadEnumerableAsync(ICRUDOperations==null | query==null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadEnumerableAsync(ICRUDOperations==null | query==null)");
 
       return operations.LoadOneRowsetAsync(query)
                        .ContinueWith<IEnumerable<TRow>>( (antecedent) => antecedent.Result.AsEnumerableOf<TRow>());

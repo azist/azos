@@ -5,8 +5,7 @@
 </FILE_LICENSE>*/
 using System;
 
-using NFX.Apps;
-using NFX.Conf;
+using Azos.Conf;
 
 namespace Azos.Security
 {

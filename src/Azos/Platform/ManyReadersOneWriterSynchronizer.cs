@@ -43,7 +43,7 @@ namespace Azos.Platform
             if (current>0) return true;//lock taken
 
             if (current==0)
-             throw new NFXException(StringConsts.INVALID_OPERATION_ERROR+GetType().FullName+".GetReadLock() overflow failure");
+             throw new AzosException(StringConsts.INVALID_OPERATION_ERROR+GetType().FullName+".GetReadLock() overflow failure");
 
 
             //Suppose there are 1000 real/physical threads all executing at the same time (which is not physically possible but is used as the worst case)
@@ -80,7 +80,7 @@ namespace Azos.Platform
       {
         var result = Interlocked.Decrement(ref m_Readers);
         if (result<0)
-         throw new NFXException(StringConsts.INVALID_OPERATION_ERROR+GetType().FullName+".ReleaseReadLock() call count mismatched with get lock");
+         throw new AzosException(StringConsts.INVALID_OPERATION_ERROR+GetType().FullName+".ReleaseReadLock() call count mismatched with get lock");
       }
 
 

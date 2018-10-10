@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 namespace Azos.Security
 {
   /// <summary>
-  /// Base exception thrown by the NFX Security framework
+  /// Base exception thrown by the Azos Security framework
   /// </summary>
   [Serializable]
   public class SecurityException : AzosException, ISecurityException
@@ -21,7 +21,7 @@ namespace Azos.Security
   }
 
   /// <summary>
-  /// Thrown by NFX security to indicate the authorization problems, such as permission access denial
+  /// Thrown by Azos security to indicate the authorization problems, such as permission access denial
   /// </summary>
   [Serializable]
   public class AuthorizationException : SecurityException

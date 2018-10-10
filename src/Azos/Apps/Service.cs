@@ -217,11 +217,11 @@ namespace Azos.Apps
             {
                 lock (m_StatusLock)
                 {
-                    if (m_Status == ControlStatus.Inactive) return;
+                    if (m_Status == ServiceStatus.Inactive) return;
 
-                    if (m_Status != ControlStatus.Stopping) SignalStop();
+                    if (m_Status != ServiceStatus.Stopping) SignalStop();
 
-                    if (m_PendingWaitingStop) throw new NFXException(StringConsts.SERVICE_INVALID_STATE + "{0}.{1}".Args(Name,"WaitForCompleteStop() already blocked"));
+                    if (m_PendingWaitingStop) throw new AzosException(StringConsts.SERVICE_INVALID_STATE + "{0}.{1}".Args(Name,"WaitForCompleteStop() already blocked"));
 
                     m_PendingWaitingStop = true;
                     try
@@ -362,7 +362,7 @@ namespace Azos.Apps
             protected void CheckServiceInactive()
             {
                 if (Status!=ControlStatus.Inactive)
-                throw new NFXException(StringConsts.SERVICE_INVALID_STATE + Name);
+                throw new AzosException(StringConsts.SERVICE_INVALID_STATE + Name);
             }
 
             /// <summary>
@@ -370,8 +370,8 @@ namespace Azos.Apps
             /// </summary>
             protected void CheckServiceActive()
             {
-                if (m_Status!=ControlStatus.Active)
-                throw new NFXException(StringConsts.SERVICE_INVALID_STATE + Name);
+                if (m_Status!=ServiceStatus.Active)
+                throw new AzosException(StringConsts.SERVICE_INVALID_STATE + Name);
             }
 
             /// <summary>
@@ -379,8 +379,8 @@ namespace Azos.Apps
             /// </summary>
             protected void CheckServiceActiveOrStarting()
             {
-                if (m_Status!=ControlStatus.Active && m_Status!=ControlStatus.Starting)
-                throw new NFXException(StringConsts.SERVICE_INVALID_STATE + Name);
+                if (m_Status!=ServiceStatus.Active && m_Status!=ServiceStatus.Starting)
+                throw new AzosException(StringConsts.SERVICE_INVALID_STATE + Name);
             }
 
 

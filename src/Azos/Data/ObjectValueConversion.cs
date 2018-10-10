@@ -63,7 +63,7 @@ namespace Azos.Data
          }
 
 
-         public static ConfigSectionNode AsLaconicConfig(this object val, ConfigSectionNode dflt = null, string wrapRootName = "nfx", ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+         public static ConfigSectionNode AsLaconicConfig(this object val, ConfigSectionNode dflt = null, string wrapRootName = "azos", ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
          {
               string content;
               try
@@ -99,7 +99,7 @@ namespace Azos.Data
               }
          }
 
-         public static ConfigSectionNode AsJSONConfig(this object val, ConfigSectionNode dflt = null, string wrapRootName = "nfx", ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+         public static ConfigSectionNode AsJSONConfig(this object val, ConfigSectionNode dflt = null, string wrapRootName = "azos", ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
          {
               string content;
               try
