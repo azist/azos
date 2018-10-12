@@ -540,7 +540,7 @@ namespace Azos.Serialization.BSON
                     {
                         return RowConverter.Decimal_CLRtoBSON(name, (decimal)value);
                     }
-                    else if (value is NFX.Financial.Amount)
+                    else if (value is Azos.Financial.Amount)
                     {
                         return RowConverter.Amount_CLRtoBSON(name, (Financial.Amount)value);
                     }

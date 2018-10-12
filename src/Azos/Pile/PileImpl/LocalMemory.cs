@@ -102,7 +102,7 @@ namespace Azos.Pile
 
     public override string ReadUTF8String(int addr, int size)
     {
-      return NFX.IO.Streamer.UTF8Encoding.GetString(m_Data, addr, size);
+      return Azos.IO.Streamer.UTF8Encoding.GetString(m_Data, addr, size);
     }
 
     [ThreadStatic] private static BufferSegmentReadingStream ts_ReadStream;

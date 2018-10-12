@@ -276,7 +276,7 @@ namespace Azos.Serialization.JSON
                                       lst.Add( null );
                                 }
                                 else if (gat.IsPrimitive ||
-                                    gat==typeof(NFX.DataAccess.Distributed.GDID) ||
+                                    gat==typeof(Azos.Data.Distributed.GDID) ||
                                     gat==typeof(Guid) ||
                                     gat==typeof(DateTime))
                                 {
@@ -288,7 +288,7 @@ namespace Azos.Serialization.JSON
                                 {
                                     var nt = gat.GetGenericArguments()[0];
                                     if (nt.IsPrimitive ||
-                                        nt==typeof(NFX.DataAccess.Distributed.GDID) ||
+                                        nt==typeof(Azos.Data.Distributed.GDID) ||
                                         nt==typeof(Guid) ||
                                         nt==typeof(DateTime))
                                     {

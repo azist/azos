@@ -100,7 +100,7 @@ namespace Azos.Pile
     public override void DeleteAndDispose()
     {
       Dispose();
-      NFX.IOMiscUtils.EnsureFileEventuallyDeleted(m_FullFilePath);
+      Azos.IOUtils.EnsureFileEventuallyDeleted(m_FullFilePath);
     }
 
 
