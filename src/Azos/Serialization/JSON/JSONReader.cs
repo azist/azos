@@ -97,7 +97,7 @@ namespace Azos.Serialization.JSON
 
             /// <summary>
             /// Converts JSONMap into typed row of the requested type.
-            /// The requested type must be derived from NFX.DataAccess.CRUD.TypedRow.
+            /// The requested type must be derived from Azos.Data.TypedDoc.
             /// The extra data found in JSON map will be placed in AmorphousData dictionary if the row implemets IAmorphousData, discarded otherwise.
             /// Note: This method provides "the best match" and does not guarantee that all data will/can be converted from JSON, i.e.
             ///  it can only convert one dimensional arrays and Lists of either primitive or TypeRow-derived entries

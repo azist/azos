@@ -9,7 +9,7 @@ using Azos.Conf;
 using Azos.Financial;
 using Azos.Data;
 using Azos.Data.Distributed;
-using NFX.Serialization.JSON;
+using Azos.Serialization.JSON;
 
 namespace Azos.Serialization.BSON
 {
@@ -494,7 +494,7 @@ namespace Azos.Serialization.BSON
           return DoConvertCLRtoBSON(fieldName, data, tp, targetName);
 
         if (ts_References==null)
-            ts_References = new HashSet<object>(NFX.ReferenceEqualityComparer<object>.Instance);
+            ts_References = new HashSet<object>(Collections.ReferenceEqualityComparer<object>.Instance);
 
         if (ts_References.Contains(data))
             throw new BSONException(StringConsts.CLR_BSON_CONVERSION_REFERENCE_CYCLE_ERROR.Args(tp.FullName));

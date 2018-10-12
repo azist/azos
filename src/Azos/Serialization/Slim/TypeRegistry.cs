@@ -185,8 +185,8 @@ namespace Azos.Serialization.Slim
                yield return typeof(bool?);
                yield return typeof(DateTime?);
                yield return typeof(TimeSpan?);
-               yield return typeof(NFX.DataAccess.Distributed.GDID?);
-               yield return typeof(NFX.FID?);
+               yield return typeof(Azos.Data.Distributed.GDID?);
+               yield return typeof(Apps.FID?);
              }
            }
 

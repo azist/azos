@@ -9,7 +9,7 @@ namespace Azos.Serialization.POD
   /// Base exception thrown by the Portable Object Document serialization format
   /// </summary>
   [Serializable]
-  public class PODException : NFXSerializationException
+  public class PODException : AzosSerializationException
   {
     public PODException() { }
     public PODException(string message) : base(message) { }

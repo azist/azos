@@ -149,7 +149,7 @@ namespace Azos.Serialization.CSV
       private static IEnumerable<Schema.FieldDef> getAcceptableDefs(Schema schema, bool allFields, FieldFilterFunc filter)
       {
         if (schema == null)
-          throw new NFXSerializationException("CSVWriter.getAcceptableDefs(schema=null)");
+          throw new AzosSerializationException("CSVWriter.getAcceptableDefs(schema=null)");
 
         filter = filter ?? ((r, k, fd) => true);
         var filteredFields = schema.FieldDefs.Where(fd => filter(null, null, fd));

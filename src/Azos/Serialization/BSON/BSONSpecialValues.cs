@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 
 using Azos.Data.Distributed;
-using NFX.Serialization.JSON;
+using Azos.Serialization.JSON;
 
 
 namespace Azos.Serialization.BSON
@@ -84,7 +84,7 @@ namespace Azos.Serialization.BSON
     public readonly byte[] Bytes;
 
     /// <summary>
-    /// Interprets BSON/MongoDB object ID as NFX GDID
+    /// Interprets BSON/MongoDB object ID as Azos GDID
     /// </summary>
     public GDID AsGDID { get { return new GDID(Bytes); } }
 

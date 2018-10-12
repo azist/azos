@@ -32,8 +32,8 @@ namespace Azos.Serialization.JSON
            if (langIso.IsNullOrWhiteSpace()) return this;
 
            if (m_Data ==null) m_Data = new List<NDPair>();
-           if (m_Data.Count==MAX_ISO_COUNT) throw new NFXException("Exceeded NLSMap.MAX_ISO_COUNT");
-           m_Data.Add( new NDPair(IOMiscUtils.PackISO3CodeToInt(langIso), n, d) );
+           if (m_Data.Count==MAX_ISO_COUNT) throw new AzosException("Exceeded NLSMap.MAX_ISO_COUNT");
+           m_Data.Add( new NDPair(IOUtils.PackISO3CodeToInt(langIso), n, d) );
            return this;
         }
 

@@ -145,7 +145,7 @@ namespace Azos.Serialization.JSON
             public override bool TryConvert(ConvertBinder binder, out object result)
             {
               var map = m_Data as JSONDataMap;
-              if (map!=null && typeof(NFX.DataAccess.CRUD.TypedRow).IsAssignableFrom(binder.Type))//convert dynamic->CRUD.row
+              if (map!=null && typeof(Azos.Data.TypedDoc).IsAssignableFrom(binder.Type))//convert dynamic->Data.doc
               {
                   result = JSONReader.ToRow(binder.Type, map);
                   return true;

@@ -507,14 +507,14 @@ namespace Azos.Serialization.Arow
         streamer.Write(e);
     }
 
-    public static void Write(WritingStreamer streamer, ulong name, NFX.DataAccess.Distributed.GDID value)
+    public static void Write(WritingStreamer streamer, ulong name, Data.Distributed.GDID value)
     {
       streamer.Write(name);
       streamer.Write((byte)DataType.GDID);
       streamer.Write(value);
     }
 
-    public static void Write(WritingStreamer streamer, ulong name, IEnumerable<NFX.DataAccess.Distributed.GDID> array)
+    public static void Write(WritingStreamer streamer, ulong name, IEnumerable<Data.Distributed.GDID> array)
     {
       streamer.Write(name);
       streamer.Write((byte)DataType.Array);
@@ -541,7 +541,7 @@ namespace Azos.Serialization.Arow
         streamer.Write(e);
     }
 
-    public static void Write(WritingStreamer streamer, ulong name, NFX.ApplicationModel.Pile.PilePointer value)
+    public static void Write(WritingStreamer streamer, ulong name, Apps.Pile.PilePointer value)
     {
       streamer.Write(name);
       streamer.Write((byte)DataType.PilePointer);

@@ -9,7 +9,7 @@ namespace Azos.Serialization.Slim
   /// Base exception thrown by the Slim serialization format
   /// </summary>
   [Serializable]
-  public class SlimException : NFXSerializationException
+  public class SlimException : AzosSerializationException
   {
     public SlimException() { }
     public SlimException(string message) : base(message) { }

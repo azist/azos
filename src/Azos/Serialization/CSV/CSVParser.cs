@@ -234,7 +234,7 @@ namespace Azos.Serialization.CSV
   }
 
   [Serializable]
-  public class CSVParserException : NFXException
+  public class CSVParserException : AzosException
   {
     public const string LINE_FLD_NAME = "CSVPE-L";
     public const string COLUMN_FLD_NAME = "CSVPE-C";
@@ -254,7 +254,7 @@ namespace Azos.Serialization.CSV
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       if (info == null)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
       info.AddValue(LINE_FLD_NAME, Line);
       info.AddValue(COLUMN_FLD_NAME, Column);
       base.GetObjectData(info, context);

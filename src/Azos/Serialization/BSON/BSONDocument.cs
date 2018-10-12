@@ -532,7 +532,7 @@ namespace Azos.Serialization.BSON
                         value = list.ToArray();
                         bType = BSONElementType.Array;
                     }
-                    else if (value is NFX.DataAccess.Distributed.GDID)
+                    else if (value is Data.Distributed.GDID)
                     {
                         return RowConverter.GDID_CLRtoBSON(name, (Data.Distributed.GDID)value);
                     }
