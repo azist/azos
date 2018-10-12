@@ -51,7 +51,7 @@ namespace Azos.Conf
       /// <summary>
       /// Provides read-only configuration node abstraction for section and attribute nodes
       /// </summary>
-      public interface IConfigNode : INamed
+      public interface IConfigNode : Collections.INamed
       {
             /// <summary>
             /// References configuration this node is under

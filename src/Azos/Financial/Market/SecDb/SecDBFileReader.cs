@@ -332,7 +332,7 @@ namespace Azos.Financial.Market.SecDb
         {
           using(var fileStream = file.FileStream)
           {
-             using(var reader = new StreamReader( new NFX.IO.NonClosingStreamWrap(fileStream), Encoding.UTF8))//Warning. Doc seays ASCII! But better use UTF8
+             using(var reader = new StreamReader( new Azos.IO.NonClosingStreamWrap(fileStream), Encoding.UTF8))//Warning. Doc seays ASCII! But better use UTF8
              {
                 while(!reader.EndOfStream)
                 {

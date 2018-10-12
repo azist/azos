@@ -20,7 +20,8 @@ namespace Azos.Standards
       Oz,
       Lb,
       Kg
-    }//add aliases
+    }
+
     public const decimal G_IN_OZ = 28.3495m;
     public const decimal G_IN_LB = 453.592m;
     public const decimal G_IN_KG = 1000.0m;
