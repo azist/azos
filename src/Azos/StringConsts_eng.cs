@@ -856,6 +856,9 @@ namespace Azos
                       "Cache.Table.ctor(bucketCount==recPerPage), two parameters may not be equal because they will cause hash clustering. The 'recPerPage' has been increased by the system";
 
 
+    public const string STANDARDS_DISTANCE_UNIT_TYPE_ERROR = "Unsupported distance unit type: {0}";
+    public const string STANDARDS_WEIGHT_UNIT_TYPE_ERROR = "Unsupported weight unit type: {0}";
+
     public const string LOCAL_INSTALL_ROOT_PATH_NOT_FOUND_ERROR = "Local installation root path '{0}' does not exist";
 
     public const string LOCAL_INSTALL_NOT_STARTED_INSTALL_PACKAGE_ERROR = "Local installation not started but InstallPackage() was called";

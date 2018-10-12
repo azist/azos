@@ -251,8 +251,6 @@ namespace Azos.Instrumentation
        return tp.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
               .Where(pi => pi.CanRead && pi.CanWrite);
      }
-
-
   }
 
 }
