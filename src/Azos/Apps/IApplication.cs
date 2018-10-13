@@ -26,7 +26,7 @@ namespace Azos.Apps
   /// dependency resolution facility for 90+% of various business applications - it significantly simplifies development and debugging as
   /// Application provides a common root for all ApplicationComponents regardless of the app types
   /// </remarks>
-  public interface IApplication : INamed, ILocalizedTimeProvider
+  public interface IApplication : Collections.INamed, ILocalizedTimeProvider
   {
      /// <summary>
      /// True if app is launched as a unit test as set by the app config "unit-test=true"
@@ -164,13 +164,13 @@ namespace Azos.Apps
      ///  underlying app configuration changes
      /// </summary>
      /// <returns>True if settings instance was not found and was added</returns>
-     bool RegisterConfigSettings(Environment.IConfigSettings settings);
+     bool RegisterConfigSettings(Conf.IConfigSettings settings);
 
      /// <summary>
      /// Removes the registration of IConfigSettings from application container
      /// </summary>
      /// <returns>True if settings instance was found and removed</returns>
-     bool UnregisterConfigSettings(Environment.IConfigSettings settings);
+     bool UnregisterConfigSettings(Conf.IConfigSettings settings);
 
      /// <summary>
      /// Forces notification of all registered IConfigSettings-implementers about configuration change
