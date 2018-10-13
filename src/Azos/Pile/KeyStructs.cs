@@ -1,7 +1,8 @@
 
 using System;
 
-using Azos.Data.Distributed;
+using Azos.Data;
+using Azos.Data.Access;
 using Azos.IO.ErrorHandling;
 
 namespace Azos.Pile
@@ -16,14 +17,14 @@ namespace Azos.Pile
     public GDIDWithISOKey(GDID gdid, string iso)
     {
       GDID = gdid;
-      ISO = IOMiscUtils.PackISO3CodeToInt(iso);
+      ISO = IOUtils.PackISO3CodeToInt(iso);
     }
 
     public readonly GDID GDID;
     public readonly int ISO;
 
 
-    public string ISOCode { get{ return IOMiscUtils.UnpackISO3CodeFromInt(ISO);} }
+    public string ISOCode { get{ return IOUtils.UnpackISO3CodeFromInt(ISO);} }
 
 
     public ulong GetDistributedStableHash()
@@ -80,7 +81,7 @@ namespace Azos.Pile
     public DatedGDIDWithISOKey(DateTime date, GDID gdid, string iso)
     {
       GDID = gdid;
-      ISO = IOMiscUtils.PackISO3CodeToInt(iso);
+      ISO = IOUtils.PackISO3CodeToInt(iso);
       YMD = DatedGDIDWithISOKey.DateToYMD(date);
     }
 
@@ -89,7 +90,7 @@ namespace Azos.Pile
     public readonly int  ISO;
 
 
-    public string ISOCode { get{ return IOMiscUtils.UnpackISO3CodeFromInt(ISO);} }
+    public string ISOCode { get{ return IOUtils.UnpackISO3CodeFromInt(ISO);} }
 
     public DateTime DateTime { get{ return YMDtoDate(YMD);} }
 
@@ -136,7 +137,7 @@ namespace Azos.Pile
     {
       GDID1 = gdid1;
       GDID2 = gdid2;
-      ISO = IOMiscUtils.PackISO3CodeToInt(iso);
+      ISO = IOUtils.PackISO3CodeToInt(iso);
       YMD = DatedGDIDWithISOKey.DateToYMD(date);
     }
 
@@ -146,7 +147,7 @@ namespace Azos.Pile
     public readonly int  ISO;
 
 
-    public string ISOCode { get{ return IOMiscUtils.UnpackISO3CodeFromInt(ISO);} }
+    public string ISOCode { get{ return IOUtils.UnpackISO3CodeFromInt(ISO);} }
 
     public DateTime DateTime { get{ return DatedGDIDWithISOKey.YMDtoDate(YMD);} }
 
@@ -196,7 +197,7 @@ namespace Azos.Pile
     {
       GDID1 = gdid1;
       GDID2 = gdid2;
-      ISO = IOMiscUtils.PackISO3CodeToInt(iso);
+      ISO = IOUtils.PackISO3CodeToInt(iso);
     }
 
     public readonly GDID GDID1;
@@ -204,7 +205,7 @@ namespace Azos.Pile
     public readonly int  ISO;
 
 
-    public string ISOCode { get{ return IOMiscUtils.UnpackISO3CodeFromInt(ISO);} }
+    public string ISOCode { get{ return IOUtils.UnpackISO3CodeFromInt(ISO);} }
 
 
     public ulong GetDistributedStableHash()
@@ -362,7 +363,7 @@ namespace Azos.Pile
     {
       GDID1 = gdid1;
       GDID2 = gdid2;
-      ISO = IOMiscUtils.PackISO3CodeToInt(iso);
+      ISO = IOUtils.PackISO3CodeToInt(iso);
       PAYLOAD = payload;
     }
 
@@ -372,7 +373,7 @@ namespace Azos.Pile
     public readonly int  ISO;
 
 
-    public string ISOCode { get{ return IOMiscUtils.UnpackISO3CodeFromInt(ISO);} }
+    public string ISOCode { get{ return IOUtils.UnpackISO3CodeFromInt(ISO);} }
 
 
     public ulong GetDistributedStableHash()
