@@ -35,9 +35,10 @@ namespace Azos.Apps.Volatile
     public bool CheckIn(Guid key, int msTimeout = 0) => true;
     public bool Delete(Guid key) => false;
 
-    private static readonly NOPObjectStore Instance = new NOPObjectStore();
-
-
+    /// <summary>
+    /// Singleton NOP instance
+    /// </summary>
+    public static readonly NOPObjectStore Instance = new NOPObjectStore();
 
     public object Fetch(Guid key, bool touch = false) => null;
 

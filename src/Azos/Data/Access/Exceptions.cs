@@ -18,7 +18,7 @@ namespace Azos.Data.Access
   /// Thrown by data access classes
   /// </summary>
   [Serializable]
-  public class DataException : AzosException
+  public class DataAccessException : DataException
   {
     public const string KEY_VIOLATION_KIND_FLD_NAME = "DAE-KVK";
     public const string KEY_VIOLATION_FLD_NAME = "DAE-KV";

@@ -67,73 +67,73 @@ namespace Azos
     /// <summary>
     /// If source is not null, creates a shallow clone using 'source.CopyFields(copy)'
     /// </summary>
-    public static TRow Clone<TRow>(this TRow source,
+    public static TDoc Clone<TDoc>(this TDoc source,
                                    bool includeAmorphousData = true,
                                    bool invokeAmorphousAfterLoad = true,
                                    Func<string, Schema.FieldDef, bool> fieldFilter = null,
-                                   Func<string, string, bool> amorphousFieldFilter = null) where TRow : Row
+                                   Func<string, string, bool> amorphousFieldFilter = null) where TDoc : Doc
     {
       if (source==null) return null;
-      var copy = Row.MakeRow(source.Schema, source.GetType());//must be GetType() not typeof() as we want to clone possibly more derived row as specified by the instance
+      var copy = Doc.MakeDoc(source.Schema, source.GetType());//must be GetType() not typeof() as we want to clone possibly more derived row as specified by the instance
       source.CopyFields(copy, includeAmorphousData, invokeAmorphousAfterLoad, fieldFilter, amorphousFieldFilter);
-      return (TRow)copy;
+      return (TDoc)copy;
     }
 
 
     /// <summary>
     /// Casts enumerable of rows (such as rowset) to the specified row type, returning empty enumerable if the source is null
     /// </summary>
-    public static IEnumerable<TRow> AsEnumerableOf<TRow>(this IEnumerable<Row> source) where TRow : Row
+    public static IEnumerable<TDoc> AsEnumerableOf<TDoc>(this IEnumerable<Doc> source) where TDoc : Doc
     {
-      if (source==null) return Enumerable.Empty<TRow>();
+      if (source==null) return Enumerable.Empty<TDoc>();
 
-      return source.Cast<TRow>();
+      return source.Cast<TDoc>();
     }
 
     /// <summary>
-    /// Loads one row cast per Query(T) or null
+    /// Loads one document cast per Query(T) or null
     /// </summary>
-    public static TRow LoadRow<TRow>(this ICRUDOperations operations, Query<TRow> query) where TRow : Row
+    public static TDoc LoadDoc<TDoc>(this ICRUDOperations operations, Query<TDoc> query) where TDoc : Doc
     {
       if (operations==null || query==null)
-        throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadRow(ICRUDOperations==null | query==null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadDoc(ICRUDOperations==null | query==null)");
 
-      return operations.LoadOneRow(query) as TRow;
+      return operations.LoadOneRow(query) as TDoc;
     }
 
     /// <summary>
-    /// Async version - loads one row cast per Query(T) or null
+    /// Async version - loads one doc cast per Query(T) or null
     /// </summary>
-    public static Task<TRow> LoadRowAsync<TRow>(this ICRUDOperations operations, Query<TRow> query) where TRow : Row
+    public static Task<TDoc> LoadDocAsync<TDoc>(this ICRUDOperations operations, Query<TDoc> query) where TDoc : Doc
     {
       if (operations==null || query==null)
-        throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadRowAsync(ICRUDOperations==null | query==null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadDocAsync(ICRUDOperations==null | query==null)");
 
       return operations.LoadOneRowAsync(query)
-                       .ContinueWith<TRow>( (antecedent) => antecedent.Result as TRow);
+                       .ContinueWith<TDoc>( (antecedent) => antecedent.Result as TRow);
     }
 
     /// <summary>
-    /// Loads rowset with rows cast per Query(T) or empty enum
+    /// Loads docset with docs cast per Query(T) or empty enum
     /// </summary>
-    public static IEnumerable<TRow> LoadEnumerable<TRow>(this ICRUDOperations operations, Query<TRow> query) where TRow : Row
+    public static IEnumerable<TDoc> LoadEnumerable<TDoc>(this ICRUDOperations operations, Query<TDoc> query) where TDoc : Doc
     {
       if (operations==null || query==null)
         throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadEnumerable(ICRUDOperations==null | query==null)");
 
-      return operations.LoadOneRowset(query).AsEnumerableOf<TRow>();
+      return operations.LoadOneRowset(query).AsEnumerableOf<TDoc>();
     }
 
     /// <summary>
-    /// Async version - loads rowset with rows cast per Query(T) or empty enum
+    /// Async version - loads docset with rows cast per Query(T) or empty enum
     /// </summary>
-    public static Task<IEnumerable<TRow>> LoadEnumerableAsync<TRow>(this ICRUDOperations operations, Query<TRow> query) where TRow : Row
+    public static Task<IEnumerable<TDoc>> LoadEnumerableAsync<TDoc>(this ICRUDOperations operations, Query<TDoc> query) where TDoc : Doc
     {
       if (operations==null || query==null)
         throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadEnumerableAsync(ICRUDOperations==null | query==null)");
 
-      return operations.LoadOneRowsetAsync(query)
-                       .ContinueWith<IEnumerable<TRow>>( (antecedent) => antecedent.Result.AsEnumerableOf<TRow>());
+      return operations.LoadOneDocsetAsync(query)
+                       .ContinueWith<IEnumerable<TDoc>>( (antecedent) => antecedent.Result.AsEnumerableOf<TDoc>());
     }
 
   }

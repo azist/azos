@@ -130,7 +130,7 @@ namespace Azos.Text
     private static byte[] ts_StrBuff;
 
     private static Encoding s_Encoding = new UTF8Encoding(false, false);
-    private static OS.ManyReadersOneWriterSynchronizer s_Sync = new OS.ManyReadersOneWriterSynchronizer();
+    private static Platform.ManyReadersOneWriterSynchronizer s_Sync = new Platform.ManyReadersOneWriterSynchronizer();
 
     private static byte[][] s_Data = new byte[ushort.MaxValue][];
     private static int s_CurrentSegment = -1;

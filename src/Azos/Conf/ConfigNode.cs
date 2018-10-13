@@ -8,10 +8,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Azos.Data;
 using Azos.Text;
 using Azos.IO.FileSystem;
 using Azos.Serialization.JSON;
-using Azos.Data.Access.Distributed;
 
 namespace Azos.Conf
 {

@@ -5,12 +5,9 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
-using Azos.Parsing;
-using Azos.CodeAnalysis;
+using Azos.Text;
 
 namespace Azos.CodeAnalysis.CSharp
 {

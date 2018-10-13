@@ -5,16 +5,13 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
 
 namespace Azos.Data
 {
     /// <summary>
-    /// Represents a row of data which has a schema only known at run-time.
-    /// Dynamic rows store data in object[] internally, providing better flexibility(ability to define schema at runtime) than TypedRows at the expense of performance.
-    /// This class is not sealed so implementors may override configuration persistence
+    /// Represents a data document having schema only known at run-time.
+    /// Dynamic docs store data in object[] internally, providing better flexibility(ability to define schema at runtime) than TypedDocs
+    /// at the expense of performance. This class is not sealed so implementors may override configuration persistence
     /// </summary>
     [Serializable]
     public class DynamicDoc : Doc
@@ -93,12 +90,11 @@ namespace Azos.Data
 
 
         #endregion
-
     }
 
 
     /// <summary>
-    /// Represents a data doc which has a schema only known at run-time that also implements IAmorphousData
+    /// Represents a data document which has a schema only known at run-time that also implements IAmorphousData
     /// interface that allows this row to store "extra" data that does not comply with the current schema.
     /// Dynamic docs store data in object[] internally, providing better flexibility(ability to define schema at runtime) than TypedDocs at the expense of performance.
     /// This class is not sealed so implementors may override configuration persistence

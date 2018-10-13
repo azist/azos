@@ -48,11 +48,11 @@ namespace Azos.Serialization.Arow
     public static void Serialize(TypedDoc doc, WritingStreamer streamer, bool header = true)
     {
       ITypeSerializationCore core;
-      var tRow = row.GetType();
+      var tRow = doc.GetType();
       if (!s_Serializers.TryGetValue(tRow, out core))
         throw new ArowException(StringConsts.AROW_TYPE_NOT_SUPPORTED_ERROR.Args(tRow.FullName));
 
-      var ar = row as IAmorphousData;
+      var ar = doc as IAmorphousData;
       if (ar!=null)
       {
         if (ar.AmorphousDataEnabled) ar.BeforeSave(AROW_TARGET);
@@ -62,34 +62,34 @@ namespace Azos.Serialization.Arow
       if (header) Writer.WriteHeader(streamer);
 
           //2 Body
-          core.Serialize(row, streamer);
+          core.Serialize(doc, streamer);
 
       //3 EORow
       Writer.WriteEORow(streamer);
     }
 
 
-    public static void Deserialize(TypedRow row, ReadingStreamer streamer, bool header = true)
+    public static void Deserialize(TypedDoc doc, ReadingStreamer streamer, bool header = true)
     {
-      var ok = TryDeserialize(row, streamer, header);
+      var ok = TryDeserialize(doc, streamer, header);
       if (!ok)
-        throw new ArowException(StringConsts.AROW_TYPE_NOT_SUPPORTED_ERROR.Args(row.GetType().FullName));
+        throw new ArowException(StringConsts.AROW_TYPE_NOT_SUPPORTED_ERROR.Args(doc.GetType().FullName));
     }
 
-    public static bool TryDeserialize(TypedRow row, ReadingStreamer streamer, bool header = true)
+    public static bool TryDeserialize(TypedDoc doc, ReadingStreamer streamer, bool header = true)
     {
       ITypeSerializationCore core;
-      var tRow = row.GetType();
-      if (!s_Serializers.TryGetValue(tRow, out core))
+      var tDoc = doc.GetType();
+      if (!s_Serializers.TryGetValue(tDoc, out core))
         return false;
 
       //1 Header
       if (header) Reader.ReadHeader(streamer);
 
       //2 Body
-      core.Deserialize(row, streamer);
+      core.Deserialize(doc, streamer);
 
-      var ar = row as IAmorphousData;
+      var ar = doc as IAmorphousData;
       if (ar!=null)
       {
         if (ar.AmorphousDataEnabled) ar.AfterLoad(AROW_TARGET);
@@ -98,9 +98,9 @@ namespace Azos.Serialization.Arow
       return true;
     }
 
-    public static bool IsRowTypeSupported(Type tRow)
+    public static bool IsDocTypeSupported(Type tDoc)
     {
-      return s_Serializers.ContainsKey(tRow);
+      return s_Serializers.ContainsKey(tDoc);
     }
 
     /// <summary>

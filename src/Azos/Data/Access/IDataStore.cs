@@ -15,34 +15,32 @@ using Azos.Instrumentation;
 
 namespace Azos.Data.Access
 {
+  /// <summary>
+  /// Represents a store that can save and retrieve data
+  /// </summary>
+  public interface IDataStore : IApplicationComponent
+  {
       /// <summary>
-      /// Represents a store that can save and retrieve data
+      /// Returns the name of the underlying store technology, example: "ORACLE", "MongoDB" etc.
+      /// This property is used by some metadata-based validation logic which is target-dependent
       /// </summary>
-      public interface IDataStore : IApplicationComponent
-      {
-         /// <summary>
-         /// Returns the name of the underlying store technology, i.e. "ORACLE".
-         /// This property is used by some metadata-based validation logic which is target-dependent
-         /// </summary>
-         string TargetName{get;}
-
-         /// <summary>
-         /// Tests connection and throws an exception if connection could not be established
-         /// </summary>
-         void TestConnection();
-      }
-
+      string TargetName{ get; }
 
       /// <summary>
-      /// Represents a store that can save and retrieve data
+      /// Tests connectivity/operation and throws an exception if connection could not be established
       /// </summary>
-      public interface IDataStoreImplementation : IDataStore, IDisposable, IConfigurable, IInstrumentable
-      {
-         /// <summary>
-         /// Defines log level for data stores
-         /// </summary>
-         StoreLogLevel LogLevel { get; set; }
-      }
+      void TestConnection();
+  }
 
 
+  /// <summary>
+  /// Represents a store that can save and retrieve data
+  /// </summary>
+  public interface IDataStoreImplementation : IDataStore, IDisposable, IConfigurable, IInstrumentable
+  {
+      /// <summary>
+      /// Defines log level for data stores
+      /// </summary>
+      StoreLogLevel LogLevel { get; set; }
+  }
 }

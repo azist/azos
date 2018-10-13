@@ -7,8 +7,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Conf;
 
@@ -17,7 +15,8 @@ using Azos.Serialization.JSON;
 namespace Azos.Data
 {
     /// <summary>
-    /// Injects function that tries to set field value. May elect to skip the set and return false to indicate failure(instead of throwing exception)
+    /// Injects function that tries to set document field value.
+    /// May elect to skip the set and return false to indicate failure(instead of throwing exception)
     /// </summary>
     public delegate bool SetFieldFunc(Doc doc, Schema.FieldDef fdef, object val);
 
@@ -63,7 +62,7 @@ namespace Azos.Data
           /// </summary>
           public static bool TryFillFromJSON(Doc doc, IJSONDataObject jsonData, SetFieldFunc setFieldFunc = null)
           {
-            if (row==null || jsonData==null) return false;
+            if (doc==null || jsonData==null) return false;
 
             var allMatch = true;
             var map = jsonData as JSONDataMap;
@@ -74,7 +73,7 @@ namespace Azos.Data
                 var fdef = doc.Schema[kvp.Key];
                 if (fdef==null)
                 {
-                  var ad = row as IAmorphousData;
+                  var ad = doc as IAmorphousData;
                   if (ad!=null && ad.AmorphousDataEnabled)
                     ad.AmorphousData[kvp.Key] = kvp.Value;
 
@@ -141,7 +140,7 @@ namespace Azos.Data
                     }
                     catch(Exception error)
                     {
-                        throw new CRUDException(StringConsts.CRUD_FIELD_VALUE_GET_ERROR.Args(fieldName, error.ToMessageWithType()), error);
+                        throw new DataException(StringConsts.CRUD_FIELD_VALUE_GET_ERROR.Args(fieldName, error.ToMessageWithType()), error);
                     }
                 }
                 set
@@ -152,7 +151,7 @@ namespace Azos.Data
                     }
                     catch(Exception error)
                     {
-                        throw new CRUDException(StringConsts.CRUD_FIELD_VALUE_SET_ERROR.Args(fieldName, error.ToMessageWithType()), error);
+                        throw new DataException(StringConsts.CRUD_FIELD_VALUE_SET_ERROR.Args(fieldName, error.ToMessageWithType()), error);
                     }
                 }
             }
@@ -170,7 +169,7 @@ namespace Azos.Data
                     }
                     catch(Exception error)
                     {
-                        throw new CRUDException(StringConsts.CRUD_FIELD_VALUE_GET_ERROR.Args("["+fieldIdx+"]", error.ToMessageWithType()), error);
+                        throw new DataException(StringConsts.CRUD_FIELD_VALUE_GET_ERROR.Args("["+fieldIdx+"]", error.ToMessageWithType()), error);
                     }
                 }
                 set
@@ -181,7 +180,7 @@ namespace Azos.Data
                     }
                     catch(Exception error)
                     {
-                        throw new CRUDException(StringConsts.CRUD_FIELD_VALUE_SET_ERROR.Args("["+fieldIdx+"]", error.ToMessageWithType()), error);
+                        throw new DataException(StringConsts.CRUD_FIELD_VALUE_SET_ERROR.Args("["+fieldIdx+"]", error.ToMessageWithType()), error);
                     }
                 }
             }
@@ -190,9 +189,9 @@ namespace Azos.Data
             /// <summary>
             /// Returns values for fields that represent row's primary key
             /// </summary>
-            public IDataStoreKey GetDataStoreKey(string targetName = null)
+            public Access.IDataStoreKey GetDataStoreKey(string targetName = null)
             {
-                var result = new NameValueDataStoreKey();
+                var result = new Access.NameValueDataStoreKey();
                 foreach(var kdef in Schema.GetKeyFieldDefsForTarget(targetName))
                     result.Add(kdef.GetBackendNameForTarget(targetName), this[kdef.Order]);
 
@@ -266,7 +265,7 @@ namespace Azos.Data
             public virtual Exception ValidateField(string targetName, Schema.FieldDef fdef)
             {
                 if (fdef == null)
-                  throw new CRUDFieldValidationException(Schema.Name,
+                  throw new FieldValidationException(Schema.Name,
                                                          StringConsts.NULL_STRING,
                                                          StringConsts.ARGUMENT_ERROR + ".ValidateField(fdef=null)");
 
@@ -277,11 +276,11 @@ namespace Azos.Data
 
                 if (value==null ||
                     (value is string && ((string)value).IsNullOrWhiteSpace()) ||
-                    (value is Distributed.GDID && ((Distributed.GDID)value).IsZero)
+                    (value is GDID && ((GDID)value).IsZero)
                    )
                 {
                    if (atr.Required)
-                    return new CRUDFieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_REQUIRED_ERROR);
+                    return new FieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_REQUIRED_ERROR);
 
                    return null;
                 }
@@ -318,32 +317,32 @@ namespace Azos.Data
                     if (isSimpleKeyStringMap(parsed))
                     {
                       if (!parsed.ContainsKey(value.ToString()))
-                          return new CRUDFieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR);
+                          return new FieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR);
                     }
                 }
 
                 if (atr.MinLength>0)
                     if (value.ToString().Length<atr.MinLength)
-                       return new CRUDFieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR);
+                       return new FieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR);
 
                 if (atr.MaxLength>0)
                     if (value.ToString().Length>atr.MaxLength)
-                       return new CRUDFieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR);
+                       return new FieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR);
 
                 if (atr.Kind==DataKind.ScreenName)
                 {
                     if (!Azos.Text.DataEntryUtils.CheckScreenName(value.ToString()))
-                       return new CRUDFieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_SCREEN_NAME_ERROR);
+                       return new FieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_SCREEN_NAME_ERROR);
                 }
                 else if (atr.Kind==DataKind.EMail)
                 {
                     if (!Azos.Text.DataEntryUtils.CheckEMail(value.ToString()))
-                       return new CRUDFieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_EMAIL_ERROR);
+                       return new FieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_EMAIL_ERROR);
                 }
                 else if (atr.Kind==DataKind.Telephone)
                 {
                     if (!Azos.Text.DataEntryUtils.CheckTelephone(value.ToString()))
-                       return new CRUDFieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_PHONE_ERROR);
+                       return new FieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_PHONE_ERROR);
                 }
 
 
@@ -365,7 +364,7 @@ namespace Azos.Data
                    if (complex || value is string)
                    {
                      if (!System.Text.RegularExpressions.Regex.IsMatch(value.ToString(), atr.FormatRegExp))
-                       return new CRUDFieldValidationException(Schema.Name, fdef.Name,
+                       return new FieldValidationException(Schema.Name, fdef.Name,
                          StringConsts.CRUD_FIELD_VALUE_REGEXP_ERROR.Args(atr.FormatDescription ?? "Input format: {0}".Args(atr.FormatRegExp)));
                    }
                 }
@@ -465,12 +464,12 @@ namespace Azos.Data
 
             IEnumerator IEnumerable.GetEnumerator()
             {
-                return new rowFieldValueEnumerator(this);
+                return new docFieldValueEnumerator(this);
             }
 
             public IEnumerator<Object> GetEnumerator()
             {
-                return new rowFieldValueEnumerator(this);
+                return new docFieldValueEnumerator(this);
             }
 
 
@@ -531,29 +530,29 @@ namespace Azos.Data
 
 
                   // 20150224 DKh, addedEra to GDID. Only GDIDS with ERA=0 can be converted to/from INT64
-                  if (fdef.NonNullableType==typeof(Access.Distributed.GDID))
+                  if (fdef.NonNullableType==typeof(GDID))
                   {
                       if (tv==typeof(byte[]))//20151103 DKh GDID support for byte[]
-                        value = new Distributed.GDID((byte[])value);
+                        value = new GDID((byte[])value);
                       else if (tv==typeof(string))//20160504 Spol GDID support for string
                       {
                         var sv = (string)value;
                         if (sv.IsNotNullOrWhiteSpace())
-                          value = Distributed.GDID.Parse((string)value);
+                          value = GDID.Parse((string)value);
                         else
-                          value = fdef.Type == typeof(Distributed.GDID?) ? (Distributed.GDID?)null : Distributed.GDID.Zero;
+                          value = fdef.Type == typeof(GDID?) ? (GDID?)null : GDID.Zero;
                       }
                       else
-                        value = new Distributed.GDID(0, (UInt64)Convert.ChangeType(value, typeof(UInt64)));
+                        value = new GDID(0, (UInt64)Convert.ChangeType(value, typeof(UInt64)));
 
                       return value;
                   }
 
-                  if (tv==typeof(Distributed.GDID))
+                  if (tv==typeof(GDID))
                   {
                       if (fdef.NonNullableType==typeof(byte[]))
                       {
-                        value = ((Distributed.GDID)value).Bytes;
+                        value = ((GDID)value).Bytes;
                       }
                       else if (fdef.NonNullableType==typeof(string))
                       {
@@ -561,9 +560,9 @@ namespace Azos.Data
                       }
                       else
                       {
-                        var gdid = (Distributed.GDID)value;
+                        var gdid = (GDID)value;
                         if (gdid.Era!=0)
-                          throw new CRUDException(StringConsts.CRUD_GDID_ERA_CONVERSION_ERROR.Args(fdef.Name, fdef.NonNullableType.Name));
+                          throw new DataException(StringConsts.CRUD_GDID_ERA_CONVERSION_ERROR.Args(fdef.Name, fdef.NonNullableType.Name));
                         value = gdid.ID;
                       }
 
@@ -605,7 +604,7 @@ namespace Azos.Data
             /// Copies fields from this row into another row/form.
             /// Note: this is  shallow copy, as field values for complex types are just copied over
             /// </summary>
-            public void CopyFields(Row other,
+            public void CopyFields(Doc other,
                                    bool includeAmorphousData = true,
                                    bool invokeAmorphousAfterLoad = true,
                                    Func<string, Schema.FieldDef, bool> fieldFilter = null,
@@ -613,7 +612,7 @@ namespace Azos.Data
             {
               if (other==null || object.ReferenceEquals(this, other)) return;
 
-              var target = this is FormModel ? ((FormModel)this).DataStoreTargetName : string.Empty;
+              var target = this is FormDoc ? ((FormDoc)this).DataStoreTargetName : string.Empty;
 
               var oad = includeAmorphousData ? other as IAmorphousData : null;
 
@@ -679,7 +678,7 @@ namespace Azos.Data
             {
               var def = Schema[fieldName];
               if (def==null)
-                throw new CRUDException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args(fieldName, Schema));
+                throw new DataException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args(fieldName, Schema));
 
               return def.ValueDescription( GetFieldValue(def), targetName, caseSensitiveKeys);
             }
@@ -691,7 +690,7 @@ namespace Azos.Data
             {
               var def = Schema[fieldIndex];
               if (def==null)
-                throw new CRUDException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args("[{0}]".Args(fieldIndex), Schema));
+                throw new DataException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args("[{0}]".Args(fieldIndex), Schema));
 
               return def.ValueDescription( GetFieldValue(def), targetName, caseSensitiveKeys);
             }
@@ -704,7 +703,7 @@ namespace Azos.Data
             {
               var def = Schema[fieldName];
               if (def==null)
-                throw new CRUDException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args(fieldName, Schema));
+                throw new DataException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args(fieldName, Schema));
 
               return getDisplayFieldValue(targetName, def, transform);
             }
@@ -716,7 +715,7 @@ namespace Azos.Data
             {
               var def = Schema[fieldIndex];
               if (def==null)
-                throw new CRUDException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args("[{0}]".Args(fieldIndex), Schema));
+                throw new DataException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args("[{0}]".Args(fieldIndex), Schema));
 
               return getDisplayFieldValue(targetName, def, transform);
             }
@@ -843,7 +842,7 @@ namespace Azos.Data
                         bound = Convert.ChangeType(bound, tval) as IComparable;
 
                         if (val.CompareTo(bound)<0)
-                            return new CRUDFieldValidationException(Schema.Name, fName, StringConsts.CRUD_FIELD_VALUE_MIN_BOUND_ERROR);
+                            return new FieldValidationException(Schema.Name, fName, StringConsts.CRUD_FIELD_VALUE_MIN_BOUND_ERROR);
                     }
                }
 
@@ -857,7 +856,7 @@ namespace Azos.Data
                         bound = Convert.ChangeType(bound, tval) as IComparable;
 
                         if (val.CompareTo(bound)>0)
-                            return new CRUDFieldValidationException(Schema.Name, fName, StringConsts.CRUD_FIELD_VALUE_MAX_BOUND_ERROR);
+                            return new FieldValidationException(Schema.Name, fName, StringConsts.CRUD_FIELD_VALUE_MAX_BOUND_ERROR);
                     }
                }
 
@@ -909,57 +908,45 @@ namespace Azos.Data
 
         #region .pvt
 
-            private bool isSimpleKeyStringMap(JSONDataMap map)
+          private bool isSimpleKeyStringMap(JSONDataMap map)
+          {
+            if (map == null) return false;
+
+            foreach (var val in map.Values)
+              if (val != null && !(val is string)) return false;
+
+            return true;
+          }
+
+          private struct docFieldValueEnumerator : IEnumerator<object>
+          {
+            internal docFieldValueEnumerator(Doc doc)
             {
-              if (map == null) return false;
-
-              foreach (var val in map.Values)
-                if (val != null && !(val is string)) return false;
-
-              return true;
+              m_Index = -1;
+              m_Doc = doc;
             }
 
-            private class rowFieldValueEnumerator : IEnumerator<object>
+            public void Dispose() { }
+
+            private int m_Index;
+            private Doc m_Doc;
+
+            public object Current => m_Doc[m_Index];
+
+            public bool MoveNext()
             {
-
-                internal rowFieldValueEnumerator(Row row)
-                {
-                    m_Row = row;
-                }
-
-                public void Dispose()
-                {
-
-                }
-
-                private int m_Index = -1;
-                private Row m_Row;
-
-
-
-                public object Current
-                {
-                    get { return m_Row[m_Index]; }
-                }
-
-                public bool MoveNext()
-                {
-                    if (m_Index==m_Row.Schema.FieldCount-1) return false;
-                    m_Index++;
-                    return true;
-                }
-
-                public void Reset()
-                {
-                    m_Index = -1;
-                }
+                if (m_Index == m_Doc.Schema.FieldCount-1) return false;
+                m_Index++;
+                return true;
             }
+
+            public void Reset()
+            {
+                m_Index = -1;
+            }
+          }
 
         #endregion
-
-
     }
-
-
 
 }

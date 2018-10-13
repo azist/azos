@@ -18,11 +18,11 @@
   </PropertyGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="$(ProjectDir)pre-build $(SolutionDir) $(ConfigurationName)" />
+    <Exec Command="rem $(ProjectDir)pre-build $(SolutionDir) $(ConfigurationName)" />
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="$(ProjectDir)post-build $(SolutionDir) $(ConfigurationName)" />
+    <Exec Command="rem $(ProjectDir)post-build $(SolutionDir) $(ConfigurationName)" />
   </Target>
 
   <ItemGroup>

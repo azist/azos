@@ -18,7 +18,7 @@ using Azos.Apps.Volatile;
 
 using Azos.Log;
 using Azos.Instrumentation;
-using Azos.Config;
+using Azos.Conf;
 using Azos.Data.Access;
 using Azos.Glue;
 using Azos.Security;
@@ -421,7 +421,7 @@ namespace Azos.Apps
             {
                 if (m_ShutdownStarted || settings==null) return false;
                 lock(m_ConfigSettings)
-                  if (!m_ConfigSettings.Contains(settings, ReferenceEqualityComparer<IConfigSettings>.Instance))
+                  if (!m_ConfigSettings.Contains(settings, Collections.ReferenceEqualityComparer<IConfigSettings>.Instance))
                   {
                      m_ConfigSettings.Add(settings);
                      return true;
@@ -459,7 +459,7 @@ namespace Azos.Apps
                 if (m_ShutdownStarted || notifiable==null) return false;
 
                 lock(m_FinishNotifiables)
-                  if (!m_FinishNotifiables.Contains(notifiable, ReferenceEqualityComparer<IApplicationFinishNotifiable>.Instance))
+                  if (!m_FinishNotifiables.Contains(notifiable, Collections.ReferenceEqualityComparer<IApplicationFinishNotifiable>.Instance))
                   {
                      m_FinishNotifiables.Add(notifiable);
                      return true;
@@ -568,8 +568,8 @@ namespace Azos.Apps
 
       protected virtual void InitApplication()
       {
-        if (ForceInvariantCulture)
-          Azos.PAL.PlatformAbstractionLayer.SetProcessInvariantCulture();
+        if (ForceInvariantCulture)//used in all server applications
+          Azos.Platform.Abstraction.PlatformAbstractionLayer.SetProcessInvariantCulture();
 
         PreloadAssemblies();
 

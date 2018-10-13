@@ -15,7 +15,7 @@ using Azos.Serialization.JSON;
 namespace Azos.Data
 {
     /// <summary>
-    /// Provides a base for attributes which ar targeted for particular techlology (i.e. "ORACLE")
+    /// Provides a base for attributes which ar targeted for particular techlology (e.g. "ORACLE", "RIAK" etc.)
     /// </summary>
     [Serializable]
     public abstract class TargetedAttribute : Attribute
@@ -79,7 +79,7 @@ namespace Azos.Data
           }
           catch(Exception error)
           {
-              throw new DataAccessException(StringConsts.CRUD_FIELD_ATTR_METADATA_PARSE_ERROR.Args(error.ToMessageWithType(), content), error);
+              throw new DataException(StringConsts.CRUD_FIELD_ATTR_METADATA_PARSE_ERROR.Args(error.ToMessageWithType(), content), error);
           }
         }
 
@@ -233,7 +233,7 @@ namespace Azos.Data
                     ) : base(targetName, metadata)
         {
               if (valueList == null)
-               throw new CRUDException("FieldAttribute(JSONDataMap valueList==null)");
+               throw new DataException("FieldAttribute(JSONDataMap valueList==null)");
 
               StoreFlag = storeFlag;
               BackendName = backendName;
@@ -263,8 +263,8 @@ namespace Azos.Data
 
         public FieldAttribute(Type cloneFromRowType): base(ANY_TARGET, null)
         {
-          if (cloneFromRowType == null || !typeof(TypedRow).IsAssignableFrom(cloneFromRowType))
-            throw new CRUDException("FieldAttribute(tClone isnt TypedRow)");
+          if (cloneFromRowType == null || !typeof(TypedDoc).IsAssignableFrom(cloneFromRowType))
+            throw new DataException("FieldAttribute(tClone isnt TypedDoc)");
           CloneFromRowType = cloneFromRowType;
         }
 
@@ -296,7 +296,7 @@ namespace Azos.Data
                         object isArow        = null
                     ) : base(targetName, null)
         {
-            if (protoType==null || protoFieldName.IsNullOrWhiteSpace()) throw new CRUDException(StringConsts.ARGUMENT_ERROR+"FieldAttr.ctor(protoType|protoFieldName=null|empty)");
+            if (protoType==null || protoFieldName.IsNullOrWhiteSpace()) throw new DataException(StringConsts.ARGUMENT_ERROR+"FieldAttr.ctor(protoType|protoFieldName=null|empty)");
             try
             {
               var schema = Schema.GetForTypedRow(protoType);
@@ -360,7 +360,7 @@ namespace Azos.Data
             }
             catch(Exception error)
             {
-              throw new CRUDException(StringConsts.CRUD_FIELD_ATTR_PROTOTYPE_CTOR_ERROR.Args(error.Message));
+              throw new DataException(StringConsts.CRUD_FIELD_ATTR_PROTOTYPE_CTOR_ERROR.Args(error.Message));
             }
 
         }
@@ -612,15 +612,15 @@ namespace Azos.Data
       public UniqueSequenceAttribute(Type protoRow)
       {
         if (protoRow==null)
-           throw new CRUDException(StringConsts.ARGUMENT_ERROR+"{0}.ctor(protoRow=null)".Args(GetType().Name));
+           throw new DataException(StringConsts.ARGUMENT_ERROR+"{0}.ctor(protoRow=null)".Args(GetType().Name));
 
         Prototype = GetForRowType(protoRow);
 
         if (Prototype==null)
-          throw new CRUDException(StringConsts.ARGUMENT_ERROR+"{0}.ctor(protoRow is not decorated by attr)".Args(GetType().Name));
+          throw new DataException(StringConsts.ARGUMENT_ERROR+"{0}.ctor(protoRow is not decorated by attr)".Args(GetType().Name));
 
         if (Prototype.Prototype!=null)
-           throw new CRUDException(StringConsts.ARGUMENT_ERROR+"{0}.ctor(protoType is pointing to another {0})".Args(GetType().Name));
+           throw new DataException(StringConsts.ARGUMENT_ERROR+"{0}.ctor(protoType is pointing to another {0})".Args(GetType().Name));
 
         Scope = Prototype.Scope;
         Sequence = Prototype.Sequence;
@@ -639,7 +639,7 @@ namespace Azos.Data
       public static UniqueSequenceAttribute GetForRowType(Type tRow)
       {
         if (tRow == null || !typeof(Row).IsAssignableFrom(tRow))
-          throw new CRUDException("UniqueSequenceAttribute.GetForRowType(tRow isnt TypedRow | null)");
+          throw new DataException("UniqueSequenceAttribute.GetForRowType(tRow isnt TypedRow | null)");
 
         UniqueSequenceAttribute result;
 

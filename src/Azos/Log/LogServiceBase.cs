@@ -8,6 +8,7 @@ using System.Linq;
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Log.Sinks;
+using Azos.Instrumentation;
 
 namespace Azos.Log
 {
