@@ -63,7 +63,7 @@ namespace Azos.Time
       return false;
     }
 
-    public void Configure(Environment.IConfigSectionNode node)
+    public void Configure(Conf.IConfigSectionNode node)
     {
 
     }

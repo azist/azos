@@ -106,17 +106,17 @@ namespace Azos.Apps
      /// <summary>
      /// References application configuration root
      /// </summary>
-     Environment.IConfigSectionNode  ConfigRoot { get; }
+     Conf.IConfigSectionNode  ConfigRoot { get; }
 
      /// <summary>
      /// References application command arguments
      /// </summary>
-     Environment.IConfigSectionNode  CommandArgs { get; }
+     Conf.IConfigSectionNode  CommandArgs { get; }
 
      /// <summary>
      /// References application data store
      /// </summary>
-     DataAccess.IDataStore DataStore { get; }
+     Data.Access.IDataStore DataStore { get; }
 
      /// <summary>
      /// References object store that may be used to persist object graphs between volatile application shutdown cycles
