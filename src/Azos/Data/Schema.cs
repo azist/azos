@@ -73,7 +73,7 @@ namespace Azos.Data
                 private void ctor(string name, int order, Type type, IEnumerable<FieldAttribute> attrs, PropertyInfo memberInfo = null)
                 {
                     if (name.IsNullOrWhiteSpace() || type==null || attrs==null)
-                        throw new CRUDException(StringConsts.ARGUMENT_ERROR + "FieldDef.ctor(..null..)");
+                        throw new DataException(StringConsts.ARGUMENT_ERROR + "FieldDef.ctor(..null..)");
 
                     m_Name = name;
                     m_Order = order;
@@ -81,7 +81,7 @@ namespace Azos.Data
                     m_Attrs = new List<FieldAttribute>(attrs);
 
                     if (m_Attrs.Count<1)
-                     throw new CRUDException(StringConsts.CRUD_FIELDDEF_ATTR_MISSING_ERROR.Args(name));
+                     throw new DataException(StringConsts.CRUD_FIELDDEF_ATTR_MISSING_ERROR.Args(name));
 
                     //add ANY_TARGET attribute
                     if (!m_Attrs.Any(a => a.TargetName == TargetedAttribute.ANY_TARGET))
@@ -404,22 +404,23 @@ namespace Azos.Data
             public static Schema FromJSON(JSONDataMap map, bool readOnly = false)
             {
               if (map==null || map.Count==0)
-                 throw new CRUDException(StringConsts.ARGUMENT_ERROR+"Schema.FromJSON(map==null|empty)");
+                 throw new DataException(StringConsts.ARGUMENT_ERROR+"Schema.FromJSON(map==null|empty)");
 
               var name = map["Name"].AsString();
               if (name.IsNullOrWhiteSpace())
-                throw new CRUDException(StringConsts.ARGUMENT_ERROR+"Schema.FromJSON(map.Name=null|empty)");
+                throw new DataException(StringConsts.ARGUMENT_ERROR+"Schema.FromJSON(map.Name=null|empty)");
 
               var adefs = map["FieldDefs"] as JSONDataArray;
               if (adefs==null || adefs.Count==0)
-                throw new CRUDException(StringConsts.ARGUMENT_ERROR+"Schema.FromJSON(map.FieldDefs=null|empty)");
+                throw new DataException(StringConsts.ARGUMENT_ERROR+"Schema.FromJSON(map.FieldDefs=null|empty)");
 
               var defs = new List<Schema.FieldDef>();
               foreach(var mdef in adefs.Cast<JSONDataMap>())
               {
                 var fname = mdef["Name"].AsString();
                 if (fname.IsNullOrWhiteSpace())
-                  throw new CRUDException(StringConsts.ARGUMENT_ERROR+"Schema.FromJSON(map.FierldDefs[name=null|empty])");
+                  throw new DataException(StringConsts.ARGUMENT_ERROR+"Schema.FromJSON(map.FierldDefs[name=null|empty])");
+
                 var req = mdef["IsRequired"].AsBool();
                 var key = mdef["IsKey"].AsBool();
                 var vis = mdef["Visible"].AsBool();
@@ -455,21 +456,21 @@ namespace Azos.Data
 
 
             /// <summary>
-            /// Returns schema instance for the TypedRow instance by fetching schema object from cache or
+            /// Returns schema instance for the TypedDoc instance by fetching schema object from cache or
             ///  creating it if it has not been cached yet
             /// </summary>
-            public static Schema GetForTypedRow(TypedRow row)
+            public static Schema GetForTypedDoc(TypedDoc doc)
             {
-                return GetForTypedRow(row.GetType());
+                return GetForTypedDoc(doc.GetType());
             }
 
             /// <summary>
             /// Returns schema instance for the TypedRow instance by fetching schema object from cache or
             ///  creating it if it has not been cached yet
             /// </summary>
-            public static Schema GetForTypedRow<TRow>() where TRow : TypedRow
+            public static Schema GetForTypedDoc<TDoc>() where TDoc : TypedDoc
             {
-                return GetForTypedRow(typeof(TRow));
+                return GetForTypedDoc(typeof(TDoc));
             }
 
 
@@ -477,12 +478,12 @@ namespace Azos.Data
             /// Returns schema instance for the TypedRow instance by fetching schema object from cache or
             ///  creating it if it has not been cached yet
             /// </summary>
-            public static Schema GetForTypedRow(Type trow)
+            public static Schema GetForTypedDoc(Type tdoc)
             {
-                if (!typeof(TypedRow).IsAssignableFrom(trow))
-                    throw new CRUDException(StringConsts.CRUD_TYPE_IS_NOT_DERIVED_FROM_TYPED_ROW_ERROR.Args(trow.FullName));
+                if (!typeof(TypedDoc).IsAssignableFrom(tdoc))
+                    throw new DataException(StringConsts.CRUD_TYPE_IS_NOT_DERIVED_FROM_TYPED_ROW_ERROR.Args(tdoc.FullName));
 
-                var name = trow.AssemblyQualifiedName;
+                var name = tdoc.AssemblyQualifiedName;
 
                 var schema = s_TypedRegistry[name];
 
@@ -492,7 +493,7 @@ namespace Azos.Data
                 {
                     schema = s_TypedRegistry[name];
                     if (schema!=null) return schema;
-                    schema = new Schema(trow);
+                    schema = new Schema(tdoc);
                     return schema;
                 }
             }
@@ -504,7 +505,7 @@ namespace Azos.Data
                 lock(s_TypeLatch)
                 {
                   if (s_TypeLatch.Contains(trow))
-                   throw new CRUDException(StringConsts.CRUD_TYPED_ROW_RECURSIVE_FIELD_DEFINITION_ERROR.Args(trow.FullName));
+                   throw new DataException(StringConsts.CRUD_TYPED_ROW_RECURSIVE_FIELD_DEFINITION_ERROR.Args(trow.FullName));
 
                   s_TypeLatch.Add(trow);
                   try
@@ -529,15 +530,15 @@ namespace Azos.Data
                           for(var i=0; i<fattrs.Length; i++)
                           {
                             var attr = fattrs[i];
-                            if (attr.CloneFromRowType==null) continue;
+                            if (attr.CloneFromDocType==null) continue;
 
                             if (fattrs.Length>1)
-                             throw new CRUDException(StringConsts.CRUD_TYPED_ROW_SINGLE_CLONED_FIELD_ERROR.Args(trow.FullName, prop.Name));
+                             throw new DataException(StringConsts.CRUD_TYPED_ROW_SINGLE_CLONED_FIELD_ERROR.Args(trow.FullName, prop.Name));
 
-                            var clonedSchema = Schema.GetForTypedRow(attr.CloneFromRowType);
+                            var clonedSchema = Schema.GetForTypedRow(attr.CloneFromDocType);
                             var clonedDef = clonedSchema[prop.Name];
                             if (clonedDef==null)
-                             throw new CRUDException(StringConsts.CRUD_TYPED_ROW_CLONED_FIELD_NOTEXISTS_ERROR.Args(trow.FullName, prop.Name));
+                             throw new DataException(StringConsts.CRUD_TYPED_ROW_CLONED_FIELD_NOTEXISTS_ERROR.Args(trow.FullName, prop.Name));
 
                             fattrs = clonedDef.Attrs.ToArray();//replace these attrs from the cloned target
                             break;
@@ -576,10 +577,10 @@ namespace Azos.Data
             public Schema(string name, bool readOnly, IEnumerable<FieldDef> fieldDefs, IEnumerable<TableAttribute> tableAttributes = null)
             {
                 if (name.IsNullOrWhiteSpace())
-                    throw new CRUDException(StringConsts.ARGUMENT_ERROR + "CRUD.Schema.ctor(name==null|empty)");
+                    throw new DataException(StringConsts.ARGUMENT_ERROR + "CRUD.Schema.ctor(name==null|empty)");
 
                 if (fieldDefs==null || !fieldDefs.Any())
-                    throw new CRUDException(StringConsts.ARGUMENT_ERROR + "CRUD.Schema.ctor(fieldDefs==null|empty)");
+                    throw new DataException(StringConsts.ARGUMENT_ERROR + "CRUD.Schema.ctor(fieldDefs==null|empty)");
 
                 m_Name = name;
                 m_ReadOnly = readOnly;
@@ -711,7 +712,7 @@ namespace Azos.Data
             public FieldDef GetFieldDefByIndex(int index)
             {
                 var result = this[index];
-                if (result==null) throw new CRUDException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args("["+index+"]", Name));
+                if (result==null) throw new DataException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args("["+index+"]", Name));
                 return result;
             }
 
@@ -721,7 +722,7 @@ namespace Azos.Data
             public FieldDef GetFieldDefByName(string fieldName)
             {
                 var result = this[fieldName];
-                if (result==null) throw new CRUDException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args(fieldName, Name));
+                if (result==null) throw new DataException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args(fieldName, Name));
                 return result;
             }
 

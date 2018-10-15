@@ -265,7 +265,7 @@ namespace Azos.Data
         {
           if (cloneFromRowType == null || !typeof(TypedDoc).IsAssignableFrom(cloneFromRowType))
             throw new DataException("FieldAttribute(tClone isnt TypedDoc)");
-          CloneFromRowType = cloneFromRowType;
+          CloneFromDocType = cloneFromRowType;
         }
 
 
@@ -299,7 +299,7 @@ namespace Azos.Data
             if (protoType==null || protoFieldName.IsNullOrWhiteSpace()) throw new DataException(StringConsts.ARGUMENT_ERROR+"FieldAttr.ctor(protoType|protoFieldName=null|empty)");
             try
             {
-              var schema = Schema.GetForTypedRow(protoType);
+              var schema = Schema.GetForTypedDoc(protoType);
               var protoTargetName = targetName;
               var segs = protoFieldName.Split(':');
               if (segs.Length>1)
@@ -367,9 +367,9 @@ namespace Azos.Data
 
 
         /// <summary>
-        /// When set, points to a Typed-Row derivative that is used as a full clone
+        /// When set, points to a Typed-Doc derivative that is used as a full clone
         /// </summary>
-        public readonly Type CloneFromRowType;
+        public readonly Type CloneFromDocType;
 
         /// <summary>
         /// Determines whether field should be loaded/stored from/to storage

@@ -257,50 +257,53 @@ namespace Azos.Data
         #region Public
 
             /// <summary>
-            /// Inserts the row. Returns insertion index
+            /// Inserts the doc. Returns insertion index
             /// </summary>
-            public int Insert(Row row)
+            public int Insert(Doc doc)
             {
-                Check(row);
-                var idx = DoInsert(row);
-                if (idx>=0 && m_Changes!=null) m_Changes.Add( new DocChange(DocChangeType.Insert, row, null) );
+                Check(doc);
+                var idx = DoInsert(doc);
+                if (idx>=0 && m_Changes!=null) m_Changes.Add( new DocChange(DocChangeType.Insert, doc, null) );
                 return idx;
             }
 
 
             /// <summary>
-            /// Updates the row, Returns the row index or -1
+            /// Updates the doc, Returns the row index or -1
             /// </summary>
-            public UpdateResult Update(Row row, IDataStoreKey key = null, Func<Row, Row, Row> rowUpgrade = null)
+            public UpdateResult Update(Doc doc, Access.IDataStoreKey key = null, Func<Doc, Doc, Doc> docUpgrade = null)
             {
-                Check(row);
-                var idx = DoUpdate(row, key, rowUpgrade);
-                if (idx>=0 && m_Changes!=null) m_Changes.Add( new DocChange(DocChangeType.Update, row, key) );
+                Check(doc);
+                var idx = DoUpdate(doc, key, docUpgrade);
+                if (idx>=0 && m_Changes!=null) m_Changes.Add( new DocChange(DocChangeType.Update, doc, key) );
                 return new UpdateResult(idx, true);
             }
 
 
             /// <summary>
-            /// Tries to find a row for update and if found, updates it and returns true,
-            ///  otherwise inserts the row (if schemas match) and returns false. Optionally pass updateWhere condition
+            /// Tries to find a doc for update and if found, updates it and returns true,
+            ///  otherwise inserts the doc (if schemas match) and returns false. Optionally pass updateWhere condition
             ///   that may check whether update needs to be performed
             /// </summary>
-            public UpdateResult Upsert(Row row, Func<Row, bool> updateWhere = null, Func<Row, Row, Row> rowUpgrade = null)
+            public UpdateResult Upsert(Doc doc, Func<Doc, bool> updateWhere = null, Func<Doc, Doc, Doc> rowUpgrade = null)
             {
-               Check(row);
-               var update = DoUpsert(row, updateWhere, rowUpgrade);
-               if (m_Changes!=null) m_Changes.Add( new DocChange(DocChangeType.Upsert, row, null) );
+               Check(doc);
+               var update = DoUpsert(doc, updateWhere, rowUpgrade);
+               if (m_Changes!=null) m_Changes.Add( new DocChange(DocChangeType.Upsert, doc, null) );
                return update;
             }
 
             /// <summary>
             /// Tries to find a row with the same set of key fields in this table and if found, deletes it and returns its index, otherwise -1
             /// </summary>
-            public int Delete(Row row, IDataStoreKey key = null)
+            public int Delete(Doc doc, Access.IDataStoreKey key = null)
             {
-               Check(row);
-               var idx = DoDelete(row, key);
-               if (idx>=0 && m_Changes!=null) m_Changes.Add( new DocChange(DocChangeType.Delete, row, null) );
+               Check(doc);
+               var idx = DoDelete(doc, key);
+
+               if (idx>=0 && m_Changes!=null)
+                 m_Changes.Add( new DocChange(DocChangeType.Delete, doc, null) );
+
                return idx;
             }
 
@@ -309,7 +312,7 @@ namespace Azos.Data
             /// </summary>
             public int Delete(params object[] keys)
             {
-               return Delete(KeyRowFromValues(keys));
+               return Delete(KeyDocFromValues(keys));
             }
 
             /// <summary>
@@ -344,17 +347,17 @@ namespace Azos.Data
             /// <summary>
             /// Creates key row out of field values for keys
             /// </summary>
-            public Row KeyRowFromValues(params object[] keys)
+            public Doc KeyDocFromValues(params object[] keys)
             {
-               return DoKeyRowFromValues(new DynamicRow(Schema), keys);
+               return DoKeyDocFromValues(new DynamicDoc(Schema), keys);
             }
 
             /// <summary>
             /// Tries to find a row by specified keyset and returns it or null if not found
             /// </summary>
-            public Row FindByKey(Row keyRow)
+            public Doc FindByKey(Doc keyDoc)
             {
-               return FindByKey(keyRow, null);
+               return FindByKey(keyDoc, null);
             }
 
             /// <summary>
@@ -362,9 +365,9 @@ namespace Azos.Data
             /// This method does not perform well on Rowsets instances as a rowset is unordered list which does linear search.
             /// In contrast, Tables are always ordered and perform binary search instead
             /// </summary>
-            public Row FindByKey(params object[] keys)
+            public Doc FindByKey(params object[] keys)
             {
-               return FindByKey(KeyRowFromValues(keys), null);
+               return FindByKey(KeyDocFromValues(keys), null);
             }
 
 
@@ -373,12 +376,12 @@ namespace Azos.Data
             /// This method does not perform well on Rowsets instances as a rowset is unordered list which does linear search.
             /// In contrast, Tables are always ordered and perform binary search instead
             /// </summary>
-            public Row FindByKey(Row row, Func<Row, bool> extraWhere)
+            public Doc FindByKey(Doc doc, Func<Doc, bool> extraWhere)
             {
-               Check(row);
+               Check(doc);
 
                int insertIndex;
-               int idx = SearchForRow(row, out insertIndex);
+               int idx = SearchForDoc(doc, out insertIndex);
                if (idx<0)
                   return null;
 
@@ -391,20 +394,20 @@ namespace Azos.Data
             }
 
             /// <summary>
-            /// Tries to find a row index by specified keyset and extra WHERE clause and returns it or null if not found
+            /// Tries to find a doc index by specified keyset and extra WHERE clause and returns it or null if not found
             /// </summary>
-            public Row FindByKey(Func<Row, bool> extraWhere, params object[] keys)
+            public Doc FindByKey(Func<Doc, bool> extraWhere, params object[] keys)
             {
-               return FindByKey(KeyRowFromValues(keys), extraWhere);
+               return FindByKey(KeyDocFromValues(keys), extraWhere);
             }
 
 
             /// <summary>
-            /// Tries to find a row index by specified keyset and returns it or null if not found
+            /// Tries to find a doc index by specified keyset and returns it or null if not found
             /// </summary>
-            public int FindIndexByKey(Row keyRow)
+            public int FindIndexByKey(Doc keyDoc)
             {
-               return FindIndexByKey(keyRow, null);
+               return FindIndexByKey(keyDoc, null);
             }
 
             /// <summary>
@@ -414,7 +417,7 @@ namespace Azos.Data
             /// </summary>
             public int FindIndexByKey(params object[] keys)
             {
-               return FindIndexByKey(KeyRowFromValues(keys), null);
+               return FindIndexByKey(KeyDocFromValues(keys), null);
             }
 
 
@@ -423,12 +426,12 @@ namespace Azos.Data
             /// This method does not perform well on Rowsets instances as a rowset is unordered list which does linear search.
             /// In contrast, Tables are always ordered and perform binary search instead
             /// </summary>
-            public int FindIndexByKey(Row row, Func<Row, bool> extraWhere)
+            public int FindIndexByKey(Doc doc, Func<Doc, bool> extraWhere)
             {
-               Check(row);
+               Check(doc);
 
                int insertIndex;
-               int idx = SearchForRow(row, out insertIndex);
+               int idx = SearchForDoc(doc, out insertIndex);
                if (idx<0)
                   return idx;
 
@@ -438,9 +441,9 @@ namespace Azos.Data
             /// <summary>
             /// Tries to find a row index by specified keyset and extra WHERE clause and returns it or null if not found
             /// </summary>
-            public int FindIndexByKey(Func<Row, bool> extraWhere, params object[] keys)
+            public int FindIndexByKey(Func<Doc, bool> extraWhere, params object[] keys)
             {
-               return FindIndexByKey(KeyRowFromValues(keys), extraWhere);
+               return FindIndexByKey(KeyDocFromValues(keys), extraWhere);
             }
 
             /// <summary>
@@ -480,13 +483,13 @@ namespace Azos.Data
           /// <summary>
           /// Compares two rows
           /// </summary>
-          public abstract int Compare(Row rowA, Row rowB);
+          public abstract int Compare(Doc docA, Doc docB);
         #endregion
 
 
         #region IEnumerable Members
 
-            public IEnumerator<Row> GetEnumerator()
+            public IEnumerator<Doc> GetEnumerator()
             {
               return m_List.GetEnumerator();
             }
@@ -501,20 +504,20 @@ namespace Azos.Data
 
          #region IList
 
-           public int IndexOf(Row row)
+           public int IndexOf(Doc doc)
            {
-               Check(row);
-               return m_List.IndexOf(row);
+               Check(doc);
+               return m_List.IndexOf(doc);
            }
 
            /// <summary>
            /// Inserts row at index
            /// </summary>
-           public virtual void Insert(int index, Row row)
+           public virtual void Insert(int index, Doc doc)
            {
-               Check(row);
-               m_List.Insert(index, row);
-               if (m_Changes!=null) m_Changes.Add( new DocChange(DocChangeType.Insert, row, null) );
+               Check(doc);
+               m_List.Insert(index, doc);
+               if (m_Changes!=null) m_Changes.Add( new DocChange(DocChangeType.Insert, doc, null) );
            }
 
            /// <summary>
@@ -528,7 +531,7 @@ namespace Azos.Data
            /// <summary>
            /// This method performs update on set
            /// </summary>
-           public virtual Row this[int index]
+           public virtual Doc this[int index]
            {
                get
                {
@@ -582,7 +585,7 @@ namespace Azos.Data
            /// <summary>
            /// Performs row delete
            /// </summary>
-           public bool Remove(Row item)
+           public bool Remove(Doc item)
            {
                return Delete(item)>=0;
            }
@@ -625,22 +628,23 @@ namespace Azos.Data
            /// <summary>
            /// Checks argument for being non-null and of the same schema with this rowset
            /// </summary>
-           protected void Check(Row row)
+           protected void Check(Doc doc)
            {
-             if (row==null || m_Schema!=row.Schema) throw new CRUDException(StringConsts.CRUD_ROWSET_OPERATION_ROW_IS_NULL_OR_SCHEMA_MISMATCH_ERROR);
+             if (doc == null || m_Schema != doc.Schema)
+               throw new DataException(StringConsts.CRUD_ROWSET_OPERATION_ROW_IS_NULL_OR_SCHEMA_MISMATCH_ERROR);
            }
 
 
            /// <summary>
            /// Provides rowsearching. Override to do binary search in sorted rowsets
            /// </summary>
-           /// <param name="row">A row to search for</param>
+           /// <param name="doc">A doc to search for</param>
            /// <param name="index">An index where search collapsed without finding the match. Used for sorted insertions</param>
-           protected virtual int SearchForRow(Row row, out int index)
+           protected virtual int SearchForDoc(Doc doc, out int index)
            {
               for(int i=0; i<m_List.Count; i++)
               {
-                if (m_List[i].Equals(row))
+                if (m_List[i].Equals(doc))
                 {
                      index = i;
                      return i;
@@ -653,15 +657,15 @@ namespace Azos.Data
 
 
            /// <summary>
-            /// Tries to insert a row. If another row with the same set of key fields already in the table returns -1, otherwise
+            /// Tries to insert a document. If another doc with the same set of key fields already in the table returns -1, otherwise
             ///  returns insertion index
             /// </summary>
-            protected virtual int DoInsert(Row row)
+            protected virtual int DoInsert(Doc doc)
             {
                 int idx = 0;
-                if (SearchForRow(row, out idx) >=0) return -1;
+                if (SearchForDoc(doc, out idx) >=0) return -1;
 
-                m_List.Insert(idx, row);
+                m_List.Insert(idx, doc);
 
                 return idx;
             }
@@ -670,76 +674,76 @@ namespace Azos.Data
             /// Tries to find a row with the same set of key fields in this table and if found, replaces it and returns its index,
             /// otherwise returns -1
             /// </summary>
-            /// <param name="row">Row</param>
+            /// <param name="doc">Document instance</param>
             /// <param name="key">Primary key</param>
-            /// <param name="rowUpgrade">
-            ///   When not null, is called with old and new instance of the row to be updated. It returns
-            ///   the row to be saved. Note that the returned row must have the same key and schema or else the function will throw.
+            /// <param name="docUpgrade">
+            ///   When not null, is called with old and new instance of the doc to be updated. It returns
+            ///   the doc to be saved. Note that the returned doc must have the same key and schema or else the function will throw.
             /// </param>
-            protected virtual int DoUpdate(Row row, IDataStoreKey key = null, Func<Row, Row, Row> rowUpgrade = null)
+            protected virtual int DoUpdate(Doc doc, Access.IDataStoreKey key = null, Func<Doc, Doc, Doc> docUpgrade = null)
             {
                int dummy;
-               var idx = SearchForRow(row, out dummy);
+               var idx = SearchForDoc(doc, out dummy);
                if (idx<0) return -1;
 
-               DoUpgrade(dummy, row, rowUpgrade);
+               DoUpgrade(dummy, doc, docUpgrade);
 
                return idx;
             }
 
             /// <summary>
-            /// Apply rowUpgrade function to the row stored at index "idx" and the new "row" passed as second argument,
-            /// and store the returned row back at index "idx".
+            /// Apply docUpgrade function to the doc stored at index "idx" and the new "doc" passed as second argument,
+            /// and store the returned doc back at index "idx".
             /// </summary>
-            protected virtual void DoUpgrade(int idx, Row newRow, Func<Row, Row, Row> rowUpgrade)
+            protected virtual void DoUpgrade(int idx, Doc newDoc, Func<Doc, Doc, Doc> docUpgrade)
             {
-               if (rowUpgrade == null)
+               if (docUpgrade == null)
                {
-                 m_List[idx] = newRow;
+                 m_List[idx] = newDoc;
                  return;
                }
 
-               var upgradedRow = rowUpgrade(m_List[idx], newRow);
+               var upgradedRow = docUpgrade(m_List[idx], newDoc);
                // Ensure that the Schema hasn't been changed
                Check(upgradedRow);
                // Check that the row's key is unmodified
                int dummy;
-               int idxUpgraded = SearchForRow(upgradedRow, out dummy);
+               int idxUpgraded = SearchForDoc(upgradedRow, out dummy);
                if (idxUpgraded != idx)
-                 throw new CRUDException(StringConsts.CRUD_ROW_UPGRADE_KEY_MUTATION_ERROR);
+                 throw new DataException(StringConsts.CRUD_ROW_UPGRADE_KEY_MUTATION_ERROR);
 
                m_List[idx] = upgradedRow;
             }
 
             /// <summary>
-            /// Tries to find a row with the same set of key fields in this table and if found, replaces it and returns true,
-            ///  otherwise inserts the row (if schemas match) and returns false. Optionally pass updateWhere condition
+            /// Tries to find a doc with the same set of key fields in this table and if found, replaces it and returns true,
+            ///  otherwise inserts the doc (if schemas match) and returns false. Optionally pass updateWhere condition
             ///   that may check whether update needs to be performed
             /// </summary>
-            protected virtual UpdateResult DoUpsert(Row row, Func<Row, bool> updateWhere, Func<Row, Row, Row> rowUpgrade = null)
+            protected virtual UpdateResult DoUpsert(Doc doc, Func<Doc, bool> updateWhere, Func<Doc, Doc, Doc> docUpgrade = null)
             {
                int insertIndex;
-               int idx = SearchForRow(row, out insertIndex);
+               int idx = SearchForDoc(doc, out insertIndex);
                if (idx<0)
                {
-                  m_List.Insert(insertIndex, row);
+                  m_List.Insert(insertIndex, doc);
                   return new UpdateResult(insertIndex, false);
                }
 
                if (updateWhere!=null && !updateWhere(m_List[idx]))
                   return new UpdateResult(-1, false);//where did not match
 
-               DoUpgrade(idx, row, rowUpgrade);
+               DoUpgrade(idx, doc, docUpgrade);
                return new UpdateResult(idx, true);
             }
 
             /// <summary>
             /// Tries to find a row with the same set of key fields in this table and if found, deletes it and returns its index, otherwise -1
             /// </summary>
-            protected virtual int DoDelete(Row row, IDataStoreKey key = null)
+            protected virtual int DoDelete(Doc doc, Access.IDataStoreKey key = null)
             {
                int dummy;
-               int idx = SearchForRow(row, out dummy);
+               int idx = SearchForDoc(doc, out dummy);
                if (idx<0) return -1;
 
                m_List.RemoveAt(idx);
@@ -747,19 +751,20 @@ namespace Azos.Data
             }
 
 
-            protected T DoKeyRowFromValues<T>(T krow, params object[] keys)
-               where T : Row
+            protected T DoKeyDocFromValues<T>(T kdoc, params object[] keys) where T : Doc
             {
-               Check(krow);
+               Check(kdoc);
                var idx = 0;
                foreach(var kdef in Schema.AnyTargetKeyFieldDefs)
                {
-                    if (idx>keys.Length-1) throw new CRUDException(StringConsts.CRUD_FIND_BY_KEY_LENGTH_ERROR);
-                    krow[kdef.Order] = keys[idx];
-                    idx++;
+                  if (idx>keys.Length-1)
+                    throw new DataException(StringConsts.CRUD_FIND_BY_KEY_LENGTH_ERROR);
+
+                  kdoc[kdef.Order] = keys[idx];
+                  idx++;
                }
 
-               return krow;
+               return kdoc;
             }
 
         #endregion
@@ -768,10 +773,10 @@ namespace Azos.Data
 
     public struct UpdateResult
     {
-          public UpdateResult(int idx, bool updated) { Index=idx; Updated=updated; }
+      public UpdateResult(int idx, bool updated) { Index=idx; Updated=updated; }
 
-          public readonly int  Index;
-          public readonly bool Updated;
+      public readonly int  Index;
+      public readonly bool Updated;
     }
 
 }
