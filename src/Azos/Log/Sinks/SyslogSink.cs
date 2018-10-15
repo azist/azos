@@ -74,7 +74,7 @@ namespace Azos.Log.Sinks
       #region Protected
 
 
-        protected override void DoConfigure(Environment.IConfigSectionNode node)
+        protected override void DoConfigure(Conf.IConfigSectionNode node)
         {
             base.DoConfigure(node);
             m_Client.Configure(node);

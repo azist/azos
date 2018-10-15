@@ -665,14 +665,14 @@ namespace Azos.IO
                 return null;
               }
 
-          public override Azos.Data.Distributed.GDID ReadGDID()
+          public override Data.GDID ReadGDID()
           {
             var era = this.ReadUInt();
             var id = this.ReadULong();
-            return new Azos.Data.Distributed.GDID(era, id);
+            return new Data.GDID(era, id);
           }
 
-              public override Azos.Data.Distributed.GDID? ReadNullableGDID()
+              public override Data.GDID? ReadNullableGDID()
               {
                 var has = this.ReadBool();
 
@@ -707,7 +707,7 @@ namespace Azos.IO
             return new Apps.FID(id);
           }
 
-              public override FID? ReadNullableFID()
+              public override Apps.FID? ReadNullableFID()
               {
                 var has = this.ReadBool();
 

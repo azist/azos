@@ -11,6 +11,7 @@ using System.Text;
 
 using System.Net.NetworkInformation;
 
+using Azos.Collections;
 
 namespace Azos.Platform
 {
@@ -94,7 +95,7 @@ namespace Azos.Platform
                                     {
                                        var uaddr = (UnicastIPAddressInformation)addr;
                                        m_UnicastIPv4Mask = uaddr.IPv4Mask.GetAddressBytes();
-                                       if (!OS.Computer.IsMono)
+                                       if (!Computer.IsMono)
                                        {
                                          m_UnicastPreferredLifetimeSec = uaddr.AddressPreferredLifetime;
                                          m_UnicastValidLifetimeSec = uaddr.AddressValidLifetime;

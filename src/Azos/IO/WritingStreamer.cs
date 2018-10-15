@@ -165,18 +165,18 @@ namespace Azos.IO
 
               public abstract void Write(Guid? value);
 
-          public abstract void Write(Azos.Data.Distributed.GDID value);
+          public abstract void Write(Data.GDID value);
 
-              public abstract void Write(Azos.Data.Distributed.GDID? value);
+              public abstract void Write(Data.GDID? value);
 
 
           public abstract void Write(Azos.Glue.Protocol.TypeSpec spec);
           public abstract void Write(Azos.Glue.Protocol.MethodSpec spec);
 
 
-           public abstract void Write(FID value);
+           public abstract void Write(Apps.FID value);
 
-              public abstract void Write(FID? value);
+              public abstract void Write(Apps.FID? value);
 
            public abstract void Write(Azos.Pile.PilePointer value);
 

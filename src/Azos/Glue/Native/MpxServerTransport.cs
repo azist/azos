@@ -3,14 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Text;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Azos.Glue;
+using Azos.Collections;
 using Azos.Glue.Protocol;
 
 namespace Azos.Glue.Native
@@ -330,7 +328,7 @@ namespace Azos.Glue.Native
              if (!isManager) return;
              if (spins>MAX_SPINS) return;
              spins++;
-             Thread.Sleep(10 + ExternalRandomGenerator.Instance.NextScaledRandomInteger(1, 10));
+             Thread.Sleep(10 + Platform.RandomGenerator.Instance.NextScaledRandomInteger(1, 10));
            }
 
            try

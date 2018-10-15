@@ -97,7 +97,7 @@ namespace Azos.Pile
   ///   a Get does not impose a lock on ALL concurrent writes throught the pile (a write does not block all gets either).
   /// The enumeration of the pile is thread-safe, however it does not guarantee the snapshot stability as parallel mutations may happen while enumeration takes place.
   /// </summary>
-  public interface IPile : IPileStatus, IEnumerable<PileEntry>, IApplicationComponent
+  public interface IPile : IPileStatus, IEnumerable<PileEntry>, Apps.IApplicationComponent
   {
     /// <summary>
     /// Puts a CLR object into the pile and returns a newly-allocated pointer.
@@ -181,7 +181,7 @@ namespace Azos.Pile
   }
 
 
-  public interface IPileImplementation : IPile, ServiceModel.IService, IInstrumentable
+  public interface IPileImplementation : IPile, Apps.IService, IInstrumentable
   {
     /// <summary>
     /// Defines modes of allocation: space/time tradeoff

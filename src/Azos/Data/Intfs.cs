@@ -4,6 +4,15 @@ using System.Text;
 
 namespace Azos.Data
 {
+
+  /// <summary>
+  /// Provides filter predicate for CRUD operations. Return true to include the specified field
+  /// </summary>
+  /// <param name="doc">Data document instance that filetring is performed on</param>
+  /// <param name="key">If not null, the override key passed to Update() (if any)</param>
+  /// <param name="fdef">A field that filtering is done for</param>
+  public delegate bool FieldFilterFunc(Doc doc, Access.IDataStoreKey key, Schema.FieldDef fdef);
+
   /// <summary>
   /// Denotes an entity that supports validation
   /// </summary>

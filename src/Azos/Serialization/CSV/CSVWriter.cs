@@ -74,14 +74,14 @@ namespace Azos.Serialization.CSV
 
       foreach(var item in rowset.AsReadonlyIList)
       {
-        var row = item as Row;
-        if (row == null) continue;
+        var doc = item as Doc;
+        if (doc == null) continue;
 
-        writeRow(row, defs, wri, options);
+        writeRow(doc, defs, wri, options);
       }
     }
 
-    public static void WriteToFile(Row row,
+    public static void WriteToFile(Doc doc,
                                    string fileName,
                                    CSVWritingOptions options = null,
                                    Encoding encoding = null,
@@ -89,36 +89,36 @@ namespace Azos.Serialization.CSV
     {
       using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
       {
-        Write(row, fs, options, encoding, filter);
+        Write(doc, fs, options, encoding, filter);
       }
     }
 
-    public static byte[] WriteToBuffer(Row row,
+    public static byte[] WriteToBuffer(Doc doc,
                                        CSVWritingOptions options = null,
                                        Encoding encoding = null,
                                        FieldFilterFunc filter = null)
     {
       using(var ms = new MemoryStream())
       {
-        Write(row, ms, options, encoding, filter);
+        Write(doc, ms, options, encoding, filter);
         return ms.ToArray();
       }
     }
 
-    public static string Write(Row row,
+    public static string Write(Doc doc,
                                CSVWritingOptions options = null,
                                FieldFilterFunc filter = null)
     {
       var sb = new StringBuilder();
       using(var wri = new StringWriter(sb))
       {
-        Write(row, wri, options, filter);
+        Write(doc, wri, options, filter);
       }
 
       return sb.ToString();
     }
 
-    public static void Write(Row row,
+    public static void Write(Doc doc,
                              Stream stream,
                              CSVWritingOptions options = null,
                              Encoding encoding = null,
@@ -126,23 +126,23 @@ namespace Azos.Serialization.CSV
     {
       using (var wri = new StreamWriter(stream, encoding ?? Encoding.UTF8))
       {
-        Write(row, wri, options, filter);
+        Write(doc, wri, options, filter);
       }
     }
 
-    public static void Write(Row row,
+    public static void Write(Doc doc,
                              TextWriter wri,
                              CSVWritingOptions options = null,
                              FieldFilterFunc filter = null)
     {
-      if (row == null) return;
+      if (doc == null) return;
       if (options == null) options = CSVWritingOptions.Default;
 
-      var defs = getAcceptableDefs(row.Schema, options.LoadAllFields, filter);
+      var defs = getAcceptableDefs(doc.Schema, options.LoadAllFields, filter);
 
       if (options.IncludeHeader) writeHeader(defs, wri, options);
 
-      writeRow(row, defs, wri, options);
+      writeRow(doc, defs, wri, options);
     }
 
     #region .pvt
@@ -184,14 +184,14 @@ namespace Azos.Serialization.CSV
         if (newline) wri.WriteLine();
       }
 
-      private static void writeRow(Row row, IEnumerable<Schema.FieldDef> defs, TextWriter wri, CSVWritingOptions options)
+      private static void writeRow(Doc doc, IEnumerable<Schema.FieldDef> defs, TextWriter wri, CSVWritingOptions options)
       {
         var first = true;
         var newline = false;
         foreach(var def in defs)
         {
           if (!first) wri.Write(options.FieldDelimiter);
-          var val = row.GetFieldValue(def);
+          var val = doc.GetFieldValue(def);
           writeValue(val, wri, options);
 
           first = false;

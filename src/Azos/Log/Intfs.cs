@@ -29,7 +29,7 @@ namespace Azos.Log
   /// <summary>
   /// Describes entity capable of being written log information to
   /// </summary>
-  public interface ILogImplementation : ILog, IDisposable, IConfigurable, IInstrumentable
+  public interface ILogImplementation : ILog, IDisposable, Conf.IConfigurable, IInstrumentable
   {
 
   }

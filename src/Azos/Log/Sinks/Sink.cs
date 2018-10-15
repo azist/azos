@@ -64,9 +64,9 @@ namespace Azos.Log.Sinks
 
     #region .ctor
 
-        public Destination() : this(null) {}
+        public Sink() : this(null) {}
 
-        public Destination(string name)
+        public Sink(string name)
         {
           m_Name = name;
           m_Levels = new LevelsList();
@@ -81,7 +81,7 @@ namespace Azos.Log.Sinks
 
     #region Pvt/Protected Fields
 
-        protected internal CompositeDestination m_Owner;
+        protected internal CompositeSink m_Owner;
 
 
 
@@ -132,9 +132,9 @@ namespace Azos.Log.Sinks
 
 
         /// <summary>
-        /// Returns a composite destination that ownes this destination or null
+        /// Returns a composite sink that ownes this sink or null
         /// </summary>
-        public CompositeDestination Owner
+        public CompositeSink Owner
         {
           get { return m_Owner;}
         }
@@ -427,17 +427,6 @@ namespace Azos.Log.Sinks
         }
 
         /// <summary>
-        /// Allows to insert a destination right before this one
-        /// </summary>
-        public volatile Destination Before;
-
-        /// <summary>
-        /// Allows to insert a destination right after this one
-        /// </summary>
-        public volatile Destination After;
-
-
-        /// <summary>
         /// Sends the message into destination doing filter checks first.
         /// </summary>
         public void Send(Message msg)
@@ -479,10 +468,6 @@ namespace Azos.Log.Sinks
                      return;
             }
 
-            //to avoid possible thread collisions
-            var before = Before;
-            var after = After;
-
             if (
                 (!m_MinLevel.HasValue   || msg.Type >= m_MinLevel.Value) &&
                 (!m_MaxLevel.HasValue   || msg.Type <= m_MaxLevel.Value) &&
@@ -493,8 +478,6 @@ namespace Azos.Log.Sinks
                 (!m_EndTime.HasValue    || msg.TimeStamp.TimeOfDay <= m_EndTime.Value)
                )
             {
-                if (before != null) before.Send(msg);
-
                 if (!m_MaxProcessingTimeMs.HasValue)
                  DoSend(msg);
                 else
@@ -515,8 +498,6 @@ namespace Azos.Log.Sinks
                                                          m_MaxProcessingTimeMs,
                                                          m_StopWatch.ElapsedMilliseconds));
                 }
-
-                if (after != null) after.Send(msg);
 
                 if (m_LastError != null) SetError(null, msg);//clear-out error
             }

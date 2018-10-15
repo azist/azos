@@ -1,10 +1,9 @@
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 using Azos.Conf;
+using Azos.Instrumentation;
 
 namespace Azos.Log.Sinks
 {
@@ -20,12 +19,12 @@ namespace Azos.Log.Sinks
 
 
        #region .ctor
-        public MemoryBufferDestination() : base(null)
+        public MemoryBufferSink() : base(null)
         {
 
         }
 
-        public MemoryBufferDestination(string name) : base(name)
+        public MemoryBufferSink(string name) : base(name)
         {
         }
 

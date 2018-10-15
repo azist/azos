@@ -91,17 +91,17 @@ namespace Azos.Serialization.Arow
       {typeof(Guid[]),     null},
       {typeof(List<Guid>), null},
 
-      {typeof(Data.Distributed.GDID),       null},
-      {typeof(Data.Distributed.GDID[]),     null},
-      {typeof(List<Data.Distributed.GDID>), null},
+      {typeof(Data.GDID),       null},
+      {typeof(Data.GDID[]),     null},
+      {typeof(List<Data.GDID>), null},
 
       {typeof(Apps.FID),       null},
       {typeof(Apps.FID[]),     null},
       {typeof(List<Apps.FID>), null},
 
-      {typeof(Apps.Pile.PilePointer),       null},
-      {typeof(Apps.Pile.PilePointer[]),     null},
-      {typeof(List<Apps.Pile.PilePointer>), null},
+      {typeof(Pile.PilePointer),       null},
+      {typeof(Pile.PilePointer[]),     null},
+      {typeof(List<Pile.PilePointer>), null},
 
       {typeof(Serialization.JSON.NLSMap),       null},
       {typeof(Serialization.JSON.NLSMap[]),     null},
@@ -136,18 +136,18 @@ namespace Azos.Serialization.Arow
       streamer.Write((byte)DataType.Null);
     }
 
-    public static void WriteRow(WritingStreamer streamer, ulong name, TypedRow row)
+    public static void WriteRow(WritingStreamer streamer, ulong name, TypedDoc doc)
     {
       streamer.Write(name);
-      streamer.Write((byte)DataType.Row);
-      ArowSerializer.Serialize(row, streamer, false);
+      streamer.Write((byte)DataType.Doc);
+      ArowSerializer.Serialize(doc, streamer, false);
     }
 
-    public static void WriteRowArray(WritingStreamer streamer, ulong name, IEnumerable<TypedRow> array)
+    public static void WriteRowArray(WritingStreamer streamer, ulong name, IEnumerable<TypedDoc> array)
     {
       streamer.Write(name);
       streamer.Write((byte)DataType.Array);
-      streamer.Write((byte)DataType.Row);
+      streamer.Write((byte)DataType.Doc);
       streamer.Write(array.Count());
       foreach(var row in array)
       {
@@ -507,14 +507,14 @@ namespace Azos.Serialization.Arow
         streamer.Write(e);
     }
 
-    public static void Write(WritingStreamer streamer, ulong name, Data.Distributed.GDID value)
+    public static void Write(WritingStreamer streamer, ulong name, Data.GDID value)
     {
       streamer.Write(name);
       streamer.Write((byte)DataType.GDID);
       streamer.Write(value);
     }
 
-    public static void Write(WritingStreamer streamer, ulong name, IEnumerable<Data.Distributed.GDID> array)
+    public static void Write(WritingStreamer streamer, ulong name, IEnumerable<Data.GDID> array)
     {
       streamer.Write(name);
       streamer.Write((byte)DataType.Array);
@@ -524,14 +524,14 @@ namespace Azos.Serialization.Arow
         streamer.Write(e);
     }
 
-    public static void Write(WritingStreamer streamer, ulong name, FID value)
+    public static void Write(WritingStreamer streamer, ulong name, Apps.FID value)
     {
       streamer.Write(name);
       streamer.Write((byte)DataType.FID);
       streamer.Write(value);
     }
 
-    public static void Write(WritingStreamer streamer, ulong name, IEnumerable<FID> array)
+    public static void Write(WritingStreamer streamer, ulong name, IEnumerable<Apps.FID> array)
     {
       streamer.Write(name);
       streamer.Write((byte)DataType.Array);
@@ -541,14 +541,14 @@ namespace Azos.Serialization.Arow
         streamer.Write(e);
     }
 
-    public static void Write(WritingStreamer streamer, ulong name, Apps.Pile.PilePointer value)
+    public static void Write(WritingStreamer streamer, ulong name, Pile.PilePointer value)
     {
       streamer.Write(name);
       streamer.Write((byte)DataType.PilePointer);
       streamer.Write(value);
     }
 
-    public static void Write(WritingStreamer streamer, ulong name, IEnumerable<Apps.Pile.PilePointer> array)
+    public static void Write(WritingStreamer streamer, ulong name, IEnumerable<Pile.PilePointer> array)
     {
       streamer.Write(name);
       streamer.Write((byte)DataType.Array);
@@ -558,14 +558,14 @@ namespace Azos.Serialization.Arow
         streamer.Write(e);
     }
 
-    public static void Write(WritingStreamer streamer, ulong name, Serialization.JSON.NLSMap value)
+    public static void Write(WritingStreamer streamer, ulong name, JSON.NLSMap value)
     {
       streamer.Write(name);
       streamer.Write((byte)DataType.NLSMap);
       streamer.Write(value);
     }
 
-    public static void Write(WritingStreamer streamer, ulong name, IEnumerable<Serialization.JSON.NLSMap> array)
+    public static void Write(WritingStreamer streamer, ulong name, IEnumerable<JSON.NLSMap> array)
     {
       streamer.Write(name);
       streamer.Write((byte)DataType.Array);

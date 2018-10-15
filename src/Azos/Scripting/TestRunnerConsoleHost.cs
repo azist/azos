@@ -11,8 +11,8 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
+using Azos.Apps;
 using Azos.Conf;
-using Azos.IO;
 
 namespace Azos.Scripting
 {

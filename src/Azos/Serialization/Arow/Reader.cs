@@ -129,10 +129,10 @@ namespace Azos.Serialization.Arow
       {typeof(Guid[]),     null},
       {typeof(List<Guid>), null},
 
-      {typeof(Azos.Data.Distributed.GDID?),       null},
-      {typeof(Azos.Data.Distributed.GDID),       null},
-      {typeof(Azos.Data.Distributed.GDID[]),     null},
-      {typeof(List<Azos.Data.Distributed.GDID>), null},
+      {typeof(Azos.Data.GDID?),       null},
+      {typeof(Azos.Data.GDID),       null},
+      {typeof(Azos.Data.GDID[]),     null},
+      {typeof(List<Azos.Data.GDID>), null},
 
 
       {typeof(Azos.Apps.FID?),       null},
@@ -140,10 +140,10 @@ namespace Azos.Serialization.Arow
       {typeof(Apps.FID[]),     null},
       {typeof(List<Apps.FID>), null},
 
-      {typeof(Apps.Pile.PilePointer?),       null},
-      {typeof(Apps.Pile.PilePointer),       null},
-      {typeof(Apps.Pile.PilePointer[]),     null},
-      {typeof(List<Apps.Pile.PilePointer>), null},
+      {typeof(Pile.PilePointer?),       null},
+      {typeof(Pile.PilePointer),       null},
+      {typeof(Pile.PilePointer[]),     null},
+      {typeof(List<Pile.PilePointer>), null},
 
       {typeof(JSON.NLSMap?),      null},
       {typeof(JSON.NLSMap),       null},
@@ -174,25 +174,25 @@ namespace Azos.Serialization.Arow
     }
 
 
-    public static TRow[] ReadRowArray<TRow>(TypedRow rowScope, ReadingStreamer streamer, string name) where TRow : TypedRow, new()
+    public static TDoc[] ReadRowArray<TDoc>(TypedDoc docScope, ReadingStreamer streamer, string name) where TDoc : TypedDoc, new()
     {
        var len = Reader.ReadArrayLength(streamer);
-       var arr = new TRow[len];
+       var arr = new TDoc[len];
        for(var i=0; i<len; i++)
        {
          var has = streamer.ReadBool();
          if (!has) continue;
-         var vrow = new TRow();
-         if (Reader.TryReadRow(rowScope, vrow, streamer, name+'_'+i.ToString()))
+         var vrow = new TDoc();
+         if (Reader.TryReadRow(docScope, vrow, streamer, name+'_'+i.ToString()))
            arr[i] = vrow;
        }
        return arr;
     }
 
-    public static List<TRow> ReadRowList<TRow>(TypedRow rowScope, ReadingStreamer streamer, string name) where TRow : TypedRow, new()
+    public static List<TDoc> ReadRowList<TDoc>(TypedDoc docScope, ReadingStreamer streamer, string name) where TDoc : TypedDoc, new()
     {
        var len = Reader.ReadArrayLength(streamer);
-       var lst = new List<TRow>(len);
+       var lst = new List<TDoc>(len);
        for(var i=0; i<len; i++)
        {
          var has = streamer.ReadBool();
@@ -201,29 +201,29 @@ namespace Azos.Serialization.Arow
            lst.Add(null);
            continue;
          }
-         var vrow = new TRow();
-         if (Reader.TryReadRow(rowScope, vrow, streamer, name+'_'+i.ToString()))
+         var vrow = new TDoc();
+         if (Reader.TryReadRow(docScope, vrow, streamer, name+'_'+i.ToString()))
            lst.Add( vrow );
        }
        return lst;
     }
 
 
-    public static bool TryReadRow(TypedRow rowScope, TypedRow newRow, ReadingStreamer streamer, string name)
+    public static bool TryReadRow(TypedDoc docScope, TypedDoc newDoc, ReadingStreamer streamer, string name)
     {
-       var ok = ArowSerializer.TryDeserialize(newRow, streamer, false);
+       var ok = ArowSerializer.TryDeserialize(newDoc, streamer, false);
        if (ok) return true;
 
        var map = readRowAsMap(streamer);//unconditionaly to advance stream
 
-       var arow = rowScope as IAmorphousData;
+       var arow = docScope as IAmorphousData;
        if (arow==null) return false;
        if (!arow.AmorphousDataEnabled) return false;
        arow.AmorphousData[name] = map;
        return false;
     }
 
-    public static object ConsumeUnmatched(TypedRow row, ReadingStreamer streamer, string name, DataType dt, DataType? atp)
+    public static object ConsumeUnmatched(TypedDoc doc, ReadingStreamer streamer, string name, DataType dt, DataType? atp)
     {
        object value = null;
 
@@ -238,7 +238,7 @@ namespace Azos.Serialization.Arow
            var arr = new object[len];
            for(var i=0; i<arr.Length; i++)
            {
-             if (atp.Value==DataType.Row)
+             if (atp.Value==DataType.Doc)
              {
                var has = streamer.ReadBool();
                if (!has) continue;
@@ -252,7 +252,7 @@ namespace Azos.Serialization.Arow
            value = readOneAsObject(streamer, dt);
          }
        }
-       var arow = row as IAmorphousData;
+       var arow = doc as IAmorphousData;
        if (arow==null) return value;
        if (!arow.AmorphousDataEnabled) return value;
        arow.AmorphousData[name] = value;
@@ -280,7 +280,7 @@ namespace Azos.Serialization.Arow
       switch(dt)
       {
         case DataType.Null: return null;
-        case DataType.Row:  return readRowAsMap(streamer);
+        case DataType.Doc:  return readRowAsMap(streamer);
 
         case DataType.Boolean     :  return ReadBoolean     (streamer);
         case DataType.Char        :  return ReadChar        (streamer);
@@ -373,13 +373,13 @@ namespace Azos.Serialization.Arow
     public static Guid                                   ReadGuid         (ReadingStreamer streamer){ return streamer.ReadGuid     (); }
 
     [MethodImpl( MethodImplOptions.AggressiveInlining)]
-    public static Data.Distributed.GDID                  ReadGDID         (ReadingStreamer streamer){ return streamer.ReadGDID(); }
+    public static Data.GDID                  ReadGDID         (ReadingStreamer streamer){ return streamer.ReadGDID(); }
 
     [MethodImpl( MethodImplOptions.AggressiveInlining)]
     public static Apps.FID                               ReadFID          (ReadingStreamer streamer){ return streamer.ReadFID();  }
 
     [MethodImpl( MethodImplOptions.AggressiveInlining)]
-    public static Apps.Pile.PilePointer                  ReadPilePointer  (ReadingStreamer streamer){ return streamer.ReadPilePointer(); }
+    public static Pile.PilePointer                       ReadPilePointer  (ReadingStreamer streamer){ return streamer.ReadPilePointer(); }
 
     [MethodImpl( MethodImplOptions.AggressiveInlining)]
     public static JSON.NLSMap                            ReadNLSMap       (ReadingStreamer streamer){ return streamer.ReadNLSMap(); }

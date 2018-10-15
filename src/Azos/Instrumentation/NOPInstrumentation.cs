@@ -92,7 +92,7 @@ namespace Azos.Instrumentation
            return Enumerable.Empty<string>();
          }
 
-         public void Configure(Environment.IConfigSectionNode node)
+         public void Configure(Conf.IConfigSectionNode node)
          {
 
          }

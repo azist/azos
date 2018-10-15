@@ -106,14 +106,14 @@ namespace Azos.Serialization.JSON
             /// <param name="jsonMap">JSON data to convert into row</param>
             /// <param name="fromUI">When true indicates that data came from UI, hence NonUI-marked fields should be skipped. True by default</param>
             /// <param name="nameBinding">Used for backend name matching or null (any target)</param>
-            public static TypedRow ToRow(Type type, JSONDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null)
+            public static TypedDoc ToDoc(Type type, JSONDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null)
             {
-              if (!typeof(TypedRow).IsAssignableFrom(type) || jsonMap==null)
+              if (!typeof(TypedDoc).IsAssignableFrom(type) || jsonMap==null)
                throw new JSONDeserializationException(StringConsts.ARGUMENT_ERROR+"JSONReader.ToRow(type|jsonMap=null)");
               var field = "";
               try
               {
-                return toTypedRow(type, nameBinding, jsonMap, ref field, fromUI);
+                return toTypedDoc(type, nameBinding, jsonMap, ref field, fromUI);
               }
               catch(Exception error)
               {
@@ -125,9 +125,9 @@ namespace Azos.Serialization.JSON
             /// Generic version of ToRow(Type, JSONDataMap, bool)/>
             /// </summary>
             /// <typeparam name="T">TypedRow</typeparam>
-            public static T ToRow<T>(JSONDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null) where T: TypedRow
+            public static T ToRow<T>(JSONDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null) where T: TypedDoc
             {
-              return ToRow(typeof(T), jsonMap, fromUI, nameBinding) as T;
+              return ToDoc(typeof(T), jsonMap, fromUI, nameBinding) as T;
             }
 
 
@@ -137,18 +137,18 @@ namespace Azos.Serialization.JSON
             /// Note: This method provides "the best match" and does not guarantee that all data will/can be converted from JSON, i.e.
             ///  it can only convert one dimensional arrays and Lists of either primitive or TypeRow-derived entries
             /// </summary>
-            /// <param name="row">Row instance to convert into</param>
+            /// <param name="doc">Data document instance to convert into</param>
             /// <param name="jsonMap">JSON data to convert into row</param>
             /// <param name="fromUI">When true indicates that data came from UI, hence NonUI-marked fields should be skipped. True by default</param>
             /// <param name="nameBinding">Used for backend name matching or null (any target)</param>
-            public static void ToRow(Row row, JSONDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null)
+            public static void ToDoc(Doc doc, JSONDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null)
             {
-              if (row == null || jsonMap == null)
+              if (doc == null || jsonMap == null)
                 throw new JSONDeserializationException(StringConsts.ARGUMENT_ERROR + "JSONReader.ToRow(row|jsonMap=null)");
               var field = "";
               try
               {
-                toRow(row, nameBinding.HasValue ? nameBinding.Value : NameBinding.ByCode, jsonMap, ref field, fromUI);
+                toDoc(doc, nameBinding.HasValue ? nameBinding.Value : NameBinding.ByCode, jsonMap, ref field, fromUI);
               }
               catch (Exception error)
               {
@@ -159,16 +159,16 @@ namespace Azos.Serialization.JSON
 
 
 
-            private static TypedRow toTypedRow(Type type, NameBinding? nameBinding, JSONDataMap jsonMap, ref string field, bool fromUI)
+            private static TypedDoc toTypedDoc(Type type, NameBinding? nameBinding, JSONDataMap jsonMap, ref string field, bool fromUI)
             {
-              var row = (TypedRow)Activator.CreateInstance(type);
-              toRow(row, nameBinding.HasValue ? nameBinding.Value : NameBinding.ByCode, jsonMap, ref field, fromUI);
-              return row;
+              var doc = (TypedDoc)Activator.CreateInstance(type);
+              toDoc(doc, nameBinding.HasValue ? nameBinding.Value : NameBinding.ByCode, jsonMap, ref field, fromUI);
+              return doc;
             }
 
-            private static void toRow(Row row, NameBinding nameBinding, JSONDataMap jsonMap, ref string field, bool fromUI)
+            private static void toDoc(Doc doc, NameBinding nameBinding, JSONDataMap jsonMap, ref string field, bool fromUI)
             {
-              var amorph = row as IAmorphousData;
+              var amorph = doc as IAmorphousData;
               foreach(var mfld in jsonMap)
               {
                     field = mfld.Key;
@@ -177,9 +177,9 @@ namespace Azos.Serialization.JSON
                     //20170420 DKh+Ogee multitargeting for deserilization to ROW from JSON
                     Schema.FieldDef rfd;
                     if (nameBinding.BindBy==NameBinding.By.CodeName)
-                       rfd = row.Schema[field];
+                       rfd = doc.Schema[field];
                     else
-                      rfd = row.Schema.TryFindFieldByTargetedBackendName(nameBinding.TargetName, field);//what about case sensitive json name?
+                      rfd = doc.Schema.TryFindFieldByTargetedBackendName(nameBinding.TargetName, field);//what about case sensitive json name?
 
                     if (rfd==null)
                     {
@@ -194,28 +194,28 @@ namespace Azos.Serialization.JSON
                     if (fromUI && rfd.NonUI) continue;//skip NonUI fields
 
                     if (fv==null)
-                          row.SetFieldValue(rfd, null);
+                      doc.SetFieldValue(rfd, null);
                     else
                     if (fv is JSONDataMap)
                     {
-                          if (typeof(TypedRow).IsAssignableFrom(rfd.Type))
-                           row.SetFieldValue(rfd, ToRow(rfd.Type, (JSONDataMap)fv, fromUI, nameBinding));
+                          if (typeof(TypedDoc).IsAssignableFrom(rfd.Type))
+                            doc.SetFieldValue(rfd, ToDoc(rfd.Type, (JSONDataMap)fv, fromUI, nameBinding));
                           else
-                           row.SetFieldValue(rfd, fv);//try to set row's field to MAP directly
+                            doc.SetFieldValue(rfd, fv);//try to set row's field to MAP directly
                     }
                     else if (rfd.NonNullableType==typeof(TimeSpan) && (fv is ulong || fv is long || fv is int || fv is uint))
                     {
                          var lt = Convert.ToInt64(fv);
-                         row.SetFieldValue(rfd, TimeSpan.FromTicks(lt));
+                         doc.SetFieldValue(rfd, TimeSpan.FromTicks(lt));
                     }
                     else if (fv is int || fv is long || fv is ulong || fv is double || fv is bool)
-                          row.SetFieldValue(rfd, fv);
+                          doc.SetFieldValue(rfd, fv);
                     else if (fv is byte[] && rfd.Type==typeof(byte[]))//optimization byte array assignment without copies
                     {
                           var passed = (byte[])fv;
                           var arr = new byte[passed.Length];
                           Array.Copy(passed, arr, passed.Length);
-                          row.SetFieldValue(rfd, arr);
+                          doc.SetFieldValue(rfd, arr);
                     }
                     else if (fv is JSONDataArray || fv.GetType().IsArray)
                     {
@@ -231,12 +231,12 @@ namespace Azos.Serialization.JSON
                           if (rfd.Type.IsArray)
                           {
                                 var raet = rfd.Type.GetElementType();//row array element type
-                                if (typeof(TypedRow).IsAssignableFrom(raet))
+                                if (typeof(TypedDoc).IsAssignableFrom(raet))
                                 {
                                   var narr = Array.CreateInstance(raet, arr.Count);
                                   for(var i=0; i<narr.Length; i++)
-                                    narr.SetValue( ToRow(raet, arr[i] as JSONDataMap, fromUI, nameBinding), i);
-                                  row.SetFieldValue(rfd, narr);
+                                    narr.SetValue( ToDoc(raet, arr[i] as JSONDataMap, fromUI, nameBinding), i);
+                                  doc.SetFieldValue(rfd, narr);
                                 }//else primitives
                                 else
                                 {
@@ -245,7 +245,7 @@ namespace Azos.Serialization.JSON
                                     if (arr[i]!=null)
                                       narr.SetValue( StringValueConversion.AsType(arr[i].ToString(), raet, false), i);
 
-                                  row.SetFieldValue(rfd, narr);
+                                  doc.SetFieldValue(rfd, narr);
                                 }
                           }
                           else if (rfd.Type.IsGenericType && rfd.Type.GetGenericTypeDefinition() == typeof(List<>))//List
@@ -254,11 +254,11 @@ namespace Azos.Serialization.JSON
 
                                 var lst = Activator.CreateInstance(rfd.Type) as System.Collections.IList;
 
-                                if (typeof(TypedRow).IsAssignableFrom(gat))
+                                if (typeof(TypedDoc).IsAssignableFrom(gat))
                                 {
                                   for(var i=0; i<arr.Count; i++)
                                     if (arr[i] is JSONDataMap)
-                                      lst.Add( ToRow(gat, arr[i] as JSONDataMap, fromUI, nameBinding) );
+                                      lst.Add( ToDoc(gat, arr[i] as JSONDataMap, fromUI, nameBinding) );
                                     else
                                       lst.Add(null);
                                 }
@@ -276,7 +276,7 @@ namespace Azos.Serialization.JSON
                                       lst.Add( null );
                                 }
                                 else if (gat.IsPrimitive ||
-                                    gat==typeof(Azos.Data.Distributed.GDID) ||
+                                    gat==typeof(Data.GDID) ||
                                     gat==typeof(Guid) ||
                                     gat==typeof(DateTime))
                                 {
@@ -288,7 +288,7 @@ namespace Azos.Serialization.JSON
                                 {
                                     var nt = gat.GetGenericArguments()[0];
                                     if (nt.IsPrimitive ||
-                                        nt==typeof(Azos.Data.Distributed.GDID) ||
+                                        nt==typeof(Data.GDID) ||
                                         nt==typeof(Guid) ||
                                         nt==typeof(DateTime))
                                     {
@@ -301,7 +301,7 @@ namespace Azos.Serialization.JSON
                                     }
                                 }
 
-                                row.SetFieldValue(rfd, lst);
+                                doc.SetFieldValue(rfd, lst);
 
                           }
                     }
@@ -313,35 +313,35 @@ namespace Azos.Serialization.JSON
                             var sfv = (string)fv;
                             if (rfd.Type==typeof(string))
                             {
-                              row.SetFieldValue(rfd, sfv);
+                              doc.SetFieldValue(rfd, sfv);
                               continue;
                             }
 
-                            if (typeof(TypedRow).IsAssignableFrom(rfd.Type))
+                            if (typeof(TypedDoc).IsAssignableFrom(rfd.Type))
                             {
                              if (sfv.IsNotNullOrWhiteSpace())
-                                row.SetFieldValue(rfd, ToRow(rfd.Type, (JSONDataMap)deserializeObject( read(sfv, true)), fromUI, nameBinding));
+                                doc.SetFieldValue(rfd, ToDoc(rfd.Type, (JSONDataMap)deserializeObject( read(sfv, true)), fromUI, nameBinding));
                              continue;
                             }
                             if (typeof(IJSONDataObject).IsAssignableFrom(rfd.Type))
                             {
                              if (sfv.IsNotNullOrWhiteSpace())
-                                row.SetFieldValue(rfd, deserializeObject( read(sfv, true)));//try to set row's field to MAP directly
+                                doc.SetFieldValue(rfd, deserializeObject( read(sfv, true)));//try to set row's field to MAP directly
                              continue;
                             }
                           }
 
-                          row.SetFieldValue(rfd, StringValueConversion.AsType(fv.ToString(), rfd.Type, false));//<--Type conversion
+                          doc.SetFieldValue(rfd, StringValueConversion.AsType(fv.ToString(), rfd.Type, false));//<--Type conversion
                     }
               }//foreach
 
               //20140914 DKh
-              var form = row as FormModel;
+              var form = doc as FormDoc;
               if (form != null)
               {
-                form.FormMode  = jsonMap[FormModel.JSON_MODE_PROPERTY].AsEnum<FormMode>(FormMode.Unspecified);
-                form.CSRFToken = jsonMap[FormModel.JSON_CSRF_PROPERTY].AsString();
-                var roundtrip  = jsonMap[FormModel.JSON_ROUNDTRIP_PROPERTY].AsString();
+                form.FormMode  = jsonMap[FormDoc.JSON_MODE_PROPERTY].AsEnum<FormMode>(FormMode.Unspecified);
+                form.CSRFToken = jsonMap[FormDoc.JSON_CSRF_PROPERTY].AsString();
+                var roundtrip  = jsonMap[FormDoc.JSON_ROUNDTRIP_PROPERTY].AsString();
                 if (roundtrip.IsNotNullOrWhiteSpace())
                  form.SetRoundtripBagFromJSONString(roundtrip);
               }

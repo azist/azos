@@ -17,7 +17,7 @@ namespace Azos.Pile
 
     static LocalCacheTable()
     {
-      s_GetPutLocks = new object[ IntMath.GetPrimeCapacityOfAtLeast( System.Environment.ProcessorCount * 2)];
+      s_GetPutLocks = new object[ IntUtils.GetPrimeCapacityOfAtLeast( System.Environment.ProcessorCount * 2)];
       for(var i=0; i<s_GetPutLocks.Length; i++)
         s_GetPutLocks[i] = new object();
     }
@@ -152,7 +152,7 @@ namespace Azos.Pile
                      {
                        Table = table;
                        var capacity = (int)(table.m_Options.InitialCapacity) / BUCKETS;
-                       capacity = IntMath.GetPrimeCapacityOfAtLeast(capacity);
+                       capacity = IntUtils.GetPrimeCapacityOfAtLeast(capacity);
                        Entries = makeEntriesArray(capacity);
                      }
 
@@ -160,7 +160,7 @@ namespace Azos.Pile
                      public _entry[] Entries;
 
                      //be careful not to make this field readonly as interlocked(ref) just does not work in runtime
-                     public OS.ManyReadersOneWriterSynchronizer RWSynchronizer;
+                     public Platform.ManyReadersOneWriterSynchronizer RWSynchronizer;
 
 
                      public long COUNT;
@@ -186,11 +186,11 @@ namespace Azos.Pile
 
                        if (loadf > options.LoadFactorHWM)
                        {
-                         var newCapacity = IntMath.GetCapacityFactoredToPrime(Entries.Length, options.GrowthFactor);
+                         var newCapacity = IntUtils.GetCapacityFactoredToPrime(Entries.Length, options.GrowthFactor);
                          if (options.MaximumCapacity>0)
                          {
                            var capacityPerBucket = (int)(options.MaximumCapacity / BUCKETS);
-                           if (newCapacity>capacityPerBucket) newCapacity = IntMath.GetAdjacentPrimeNumberLessThanOrEqualTo(capacityPerBucket);
+                           if (newCapacity>capacityPerBucket) newCapacity = IntUtils.GetAdjacentPrimeNumberLessThanOrEqualTo(capacityPerBucket);
                          }
                          if (resize(newCapacity))
                          {
@@ -221,15 +221,15 @@ namespace Azos.Pile
                              ((utcNow - m_LastShrunkTime).TotalSeconds > SHRINK_WAIT_AFTER_LAST_SHRINK_SEC)
                             )
                          {
-                             var newCapacity = COUNT>0 ? IntMath.GetCapacityFactoredToPrime(Entries.Length, options.ShrinkFactor) : 0;
+                             var newCapacity = COUNT>0 ? IntUtils.GetCapacityFactoredToPrime(Entries.Length, options.ShrinkFactor) : 0;
                              if (options.MinimumCapacity>0)
                              {
                                var capacityPerBucket = (int)(options.MinimumCapacity / BUCKETS);
-                               if (newCapacity<capacityPerBucket) newCapacity = IntMath.GetPrimeCapacityOfAtLeast(capacityPerBucket);
+                               if (newCapacity<capacityPerBucket) newCapacity = IntUtils.GetPrimeCapacityOfAtLeast(capacityPerBucket);
                              }
 
                              var initialCapacityPerBucket = (int)(options.InitialCapacity / BUCKETS);
-                             if (newCapacity<initialCapacityPerBucket) newCapacity = IntMath.GetPrimeCapacityOfAtLeast(initialCapacityPerBucket);
+                             if (newCapacity<initialCapacityPerBucket) newCapacity = IntUtils.GetPrimeCapacityOfAtLeast(initialCapacityPerBucket);
 
                              if (resize(newCapacity))
                              {

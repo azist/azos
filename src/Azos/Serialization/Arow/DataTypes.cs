@@ -8,7 +8,7 @@ namespace Azos.Serialization.Arow
   public enum DataType
   {
     Null = 0,
-    Row,
+    Doc,
     Array,
     POD,
 

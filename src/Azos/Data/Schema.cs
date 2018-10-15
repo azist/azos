@@ -47,7 +47,7 @@ namespace Azos.Data
                     ctor(name, 0, type, attrs, null);
                 }
 
-                public FieldDef(string name, Type type, QuerySource.ColumnDef columnDef)
+                public FieldDef(string name, Type type, Access.QuerySource.ColumnDef columnDef)
                 {
                     FieldAttribute attr;
                     if (columnDef!=null)
@@ -535,7 +535,7 @@ namespace Azos.Data
                             if (fattrs.Length>1)
                              throw new DataException(StringConsts.CRUD_TYPED_ROW_SINGLE_CLONED_FIELD_ERROR.Args(trow.FullName, prop.Name));
 
-                            var clonedSchema = Schema.GetForTypedRow(attr.CloneFromDocType);
+                            var clonedSchema = Schema.GetForTypedDoc(attr.CloneFromDocType);
                             var clonedDef = clonedSchema[prop.Name];
                             if (clonedDef==null)
                              throw new DataException(StringConsts.CRUD_TYPED_ROW_CLONED_FIELD_NOTEXISTS_ERROR.Args(trow.FullName, prop.Name));

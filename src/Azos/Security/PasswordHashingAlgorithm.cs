@@ -7,6 +7,8 @@ using System;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Instrumentation;
+
 
 namespace Azos.Security
 {

@@ -29,10 +29,10 @@ namespace Azos.Data
     /// <summary>
     /// Creates a shallow copy from another rowset, optionally applying a filter
     /// </summary>
-    public Rowset(RowsetBase other, Func<Row, bool> filter = null) : base(other.Schema)
+    public Rowset(RowsetBase other, Func<Doc, bool> filter = null) : base(other.Schema)
     {
       if (filter == null)
-        m_List = new List<Row>(other.m_List);
+        m_List = new List<Doc>(other.m_List);
       else
         m_List = other.Where(filter).ToList();
 
@@ -84,17 +84,17 @@ namespace Azos.Data
 
     #region IComparer<Row> Members
 
-    public override int Compare(Row rowA, Row rowB)
+    public override int Compare(Doc docA, Doc docB)
     {
-      if (rowA == null && rowB != null) return -1;
+      if (docA == null && docB != null) return -1;
 
-      if (rowA != null && rowB == null) return 1;
+      if (docA != null && docB == null) return 1;
 
-      if (rowA == null && rowB == null) return 0;
+      if (docA == null && docB == null) return 0;
 
-      if (object.ReferenceEquals(rowA, rowB)) return 0;
+      if (object.ReferenceEquals(docA, docB)) return 0;
 
-      if (rowA.Schema != rowB.Schema) return 1;
+      if (docA.Schema != docB.Schema) return 1;
 
 
       foreach (var sortDef in m_SortFieldList)
@@ -114,8 +114,8 @@ namespace Azos.Data
         var fld = m_Schema[sfld];
         if (fld == null) return 1;//safeguard
 
-        var obj1 = rowA[fld.Order] as IComparable;
-        var obj2 = rowB[fld.Order] as IComparable;
+        var obj1 = docA[fld.Order] as IComparable;
+        var obj2 = docB[fld.Order] as IComparable;
 
         if (obj1 == null && obj2 == null) continue;
         if (obj1 == null) return desc ? 1 : -1;
@@ -132,9 +132,9 @@ namespace Azos.Data
 
     #region Protected
 
-    protected override int DoInsert(Row row)
+    protected override int DoInsert(Doc doc)
     {
-      m_List.Add(row);
+      m_List.Add(doc);
       return m_List.Count - 1;
     }
 

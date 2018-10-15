@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Text;
 
+using Azos.Apps;
 using Azos.Conf;
 
 namespace Azos.Glue.Native
@@ -381,7 +382,7 @@ namespace Azos.Glue.Native
   /// This struct identifies the calling client by supplying machine/host name and calling application instance ID
   /// </summary>
   [Serializable]
-  public struct ClientSite : INamed
+  public struct ClientSite : Collections.INamed
   {
       public const int MAGIC = 0x5555AAAA;
 

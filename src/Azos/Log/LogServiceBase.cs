@@ -27,7 +27,7 @@ namespace Azos.Log
         public class SinkList : List<Sink> {}
 
         #region CONSTS
-            internal const string CONFIG_DESTINATION_SECTION   = "destination";
+            internal const string CONFIG_SINK_SECTION   = "sink";
             internal const string CONFIG_DEFAULT_FAILOVER_ATTR = "default-failover";
         #endregion
 
@@ -72,7 +72,7 @@ namespace Azos.Log
             private int             m_NestedFailureCount;
             private string          m_DefaultFailover;
 
-            private Sink            m_FailoverErrorDestination;
+            private Sink            m_FailoverErrorSink;
             private Exception       m_FailoverError;
 
             private Message m_LastWarning;
@@ -108,9 +108,9 @@ namespace Azos.Log
             /// <summary>
             /// Returns registered destinations. This call is thread safe
             /// </summary>
-            public IEnumerable<Destination> Destinations
+            public IEnumerable<Sink> Sinks
             {
-                get { lock (m_Destinations) return m_Destinations.ToList(); }
+                get { lock (m_Sinks) return m_Sinks.ToList(); }
             }
 
 
@@ -148,7 +148,7 @@ namespace Azos.Log
             /// <summary>
             /// Returns a destination that threw last exception that happened durng failover. This kind of exceptions is never propagated and always handled
             /// </summary>
-            public Destination FailoverErrorDestination { get { return m_FailoverErrorDestination; } }
+            public Sink FailoverErrorSink { get { return m_FailoverErrorSink; } }
 
             /// <summary>
             /// Returns last exception that happened during failover. This kind of exceptions is never propagated and always handled
@@ -213,7 +213,7 @@ namespace Azos.Log
             /// make an effort to write the message to its destinations urgently</param>
             public void Write(Message msg, bool urgent)
             {
-                if (Status != ControlStatus.Active) return;
+                if (Status != ServiceStatus.Active) return;
 
 
                 if (msg==null) return;
@@ -232,31 +232,31 @@ namespace Azos.Log
             /// <summary>
             /// Adds a destination to this service active destinations. Negative index to append
             /// </summary>
-            public void RegisterDestination(Destination dest, int atIdx = -1)
+            public void RegisterSink(Sink sink, int atIdx = -1)
             {
-                if (dest == null) return;
+                if (sink == null) return;
 
-                lock (m_Destinations)
+                lock (m_Sinks)
                 {
-                    if (m_Destinations.Count==0 || atIdx<0 || atIdx > m_Destinations.Count)
-                     m_Destinations.Add(dest);
+                    if (m_Sinks.Count==0 || atIdx<0 || atIdx > m_Sinks.Count)
+                      m_Sinks.Add(sink);
                     else
-                     m_Destinations.Insert(atIdx, dest);
-                    dest.__setLogSvc(this);
+                      m_Sinks.Insert(atIdx, sink);
+                    sink.__setLogSvc(this);
                 }
             }
 
             /// <summary>
             /// Removes a destiantion from this service active destinations, returns true if destination was found and removed
             /// </summary>
-            public bool UnRegisterDestination(Destination dest)
+            public bool UnRegisterSink(Sink sink)
             {
-                if (dest == null) return false;
+                if (sink == null) return false;
 
-                lock (m_Destinations)
+                lock (m_Sinks)
                 {
-                    bool r = m_Destinations.Remove(dest);
-                    if (r) dest.__setLogSvc(null);
+                    bool r = m_Sinks.Remove(sink);
+                    if (r) sink.__setLogSvc(null);
                     return r;
                 }
             }
@@ -287,10 +287,10 @@ namespace Azos.Log
                 base.DoConfigure(node);
 
                 foreach (ConfigSectionNode dnode in
-                    node.Children.Where(n => n.IsSameName(CONFIG_DESTINATION_SECTION)))
+                    node.Children.Where(n => n.IsSameName(CONFIG_SINK_SECTION)))
                 {
-                    Destination dest = FactoryUtils.MakeAndConfigure<Destination>(dnode);
-                    this.RegisterDestination(dest);
+                    Sink sink = FactoryUtils.MakeAndConfigure<Sink>(dnode);
+                    this.RegisterSink(sink);
                 }
             }
 
@@ -335,7 +335,7 @@ namespace Azos.Log
             /// <summary>
             /// When error=null => error cleared. When msg==null => exceptions surfaced from DoPulse()
             /// </summary>
-            internal void FailoverDestination(Destination destination, Exception error, Message msg)
+            internal void FailoverDestination(Sink sink, Exception error, Message msg)
             {
               if (m_NestedFailureCount>=MAX_NESTED_FAILURES) return;//stop cascade recursion
 
@@ -344,9 +344,9 @@ namespace Azos.Log
               {
                       if (error==null)//error lifted
                       {
-                        if (destination==m_FailoverErrorDestination)
+                        if (sink==m_FailoverErrorSink)
                         {
-                          m_FailoverErrorDestination = null;
+                          m_FailoverErrorSink = null;
                           m_FailoverError = null;
                         }
                         return;
@@ -354,36 +354,36 @@ namespace Azos.Log
 
                       if (msg==null) return; //i.e. OnPulse()
 
-                      var failoverName = destination.Failover;
+                      var failoverName = sink.Failover;
                       if (string.IsNullOrEmpty(failoverName))
                          failoverName = this.DefaultFailover;
                       if (string.IsNullOrEmpty(failoverName))  return;//nowhere to failover
 
-                      Destination failover = null;
-                      lock(m_Destinations)
-                         failover = m_Destinations.FirstOrDefault(d => string.Equals(d.Name , failoverName, StringComparison.InvariantCultureIgnoreCase));
+                      Sink failover = null;
+                      lock(m_Sinks)
+                         failover = m_Sinks.FirstOrDefault(d => string.Equals(d.Name , failoverName, StringComparison.InvariantCultureIgnoreCase));
 
 
                       if (failover==null) return;
 
-                      if (failover==destination) return;//circular reference, cant fail into destination that failed
+                      if (failover==sink) return;//circular reference, cant fail into destination that failed
 
                       try
                       {
                         failover.SendRegularAndFailures(msg);
 
-                          if (destination.GenerateFailoverMessages || failover.GenerateFailoverMessages)
+                          if (sink.GenerateFailoverMessages || failover.GenerateFailoverMessages)
                           {
                             var emsg = new Message();
                             emsg.Type = MessageType.Error;
-                            emsg.From = destination.Name;
+                            emsg.From = sink.Name;
                             emsg.Topic = CoreConsts.LOG_TOPIC;
                             emsg.Text = string.Format(
                                    StringConsts.LOGSVC_FAILOVER_MSG_TEXT,
                                    msg.Guid,
-                                   destination.Name,
+                                   sink.Name,
                                    failover.Name,
-                                   destination.AverageProcessingTimeMs);
+                                   sink.AverageProcessingTimeMs);
                             emsg.RelatedTo = msg.Guid;
                             emsg.Exception = error;
 
@@ -395,7 +395,7 @@ namespace Azos.Log
                       }
                       catch(Exception failoverError)
                       {
-                        m_FailoverErrorDestination = failover;
+                        m_FailoverErrorSink = failover;
                         m_FailoverError = failoverError;
                       }
               }

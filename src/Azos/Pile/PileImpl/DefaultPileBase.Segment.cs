@@ -67,7 +67,7 @@ namespace Azos.Pile{ public abstract partial class DefaultPileBase{
 
 
       //be careful not to make this field readonly as interlocked(ref) just does not work in runtime
-      public OS.ManyReadersOneWriterSynchronizer RWSynchronizer;
+      public Platform.ManyReadersOneWriterSynchronizer RWSynchronizer;
 
       public bool LOADED_AND_CRAWLED;
       public int DELETED;
@@ -130,7 +130,7 @@ namespace Azos.Pile{ public abstract partial class DefaultPileBase{
       // returns -1 when could not find spot. does not do crawl
       public int Allocate(byte[] payloadBuffer, int serializedSize, int allocPayloadSize, byte serVer, bool isLink)
       {
-        allocPayloadSize = IntMath.Align8(allocPayloadSize);
+        allocPayloadSize = IntUtils.Align8(allocPayloadSize);
         var allocSize = allocPayloadSize + CHUNK_HDER_SZ;
 
         var fcs = Pile.FreeChunkSizes;

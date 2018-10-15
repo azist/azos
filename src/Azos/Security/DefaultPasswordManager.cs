@@ -11,6 +11,7 @@ using System.Collections.Generic;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Collections;
 
 namespace Azos.Security
 {
@@ -102,7 +103,7 @@ namespace Azos.Security
     #region Properties
 
       [Config(Default = false)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_PAY)]
+      [Instrumentation.ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_PAY)]
       public override bool InstrumentationEnabled
       {
         get { return m_InstrumentationEnabled; }
@@ -375,7 +376,7 @@ namespace Azos.Security
             int score = 0;
             while (true)
             {
-              using (var password = ExternalRandomGenerator.Instance.NextRandomWebSafeSecureBuffer(getMinLengthForLevel(family, level), getMaxLengthForLevel(family, level)))
+              using (var password = Platform.RandomGenerator.Instance.NextRandomWebSafeSecureBuffer(getMinLengthForLevel(family, level), getMaxLengthForLevel(family, level)))
               {
                 score = CalculateStrenghtScore(family, password);
 
@@ -398,9 +399,9 @@ namespace Azos.Security
             var min = getMinLengthForLevel(family, level);
             var max = getMaxLengthForLevel(family, level);
 
-            var minValue = (int)IntMath.Pow(10, min - 1);
-            var maxValue = (int)IntMath.Pow(10, max) - 1;
-            var value = (uint)ExternalRandomGenerator.Instance.NextScaledRandomInteger(minValue, maxValue);
+            var minValue = (int)IntUtils.Pow(10, min - 1);
+            var maxValue = (int)IntUtils.Pow(10, max) - 1;
+            var value = (uint)Platform.RandomGenerator.Instance.NextScaledRandomInteger(minValue, maxValue);
 
             var content = value.ToString();
             var reprContent = new byte[content.Length];

@@ -185,19 +185,19 @@ namespace Azos.IO
               public abstract Guid? ReadNullableGuid();
 
 
-          public abstract Azos.Data.Distributed.GDID ReadGDID();
+          public abstract Data.GDID ReadGDID();
 
 
-              public abstract Azos.Data.Distributed.GDID? ReadNullableGDID();
+              public abstract Data.GDID? ReadNullableGDID();
 
          public abstract Azos.Glue.Protocol.TypeSpec ReadTypeSpec();
          public abstract Azos.Glue.Protocol.MethodSpec ReadMethodSpec();
 
 
-             public abstract FID ReadFID();
+             public abstract Apps.FID ReadFID();
 
 
-              public abstract FID? ReadNullableFID();
+              public abstract Apps.FID? ReadNullableFID();
 
             public abstract Azos.Pile.PilePointer ReadPilePointer();
 

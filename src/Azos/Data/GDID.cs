@@ -60,7 +60,7 @@ namespace Azos.Data
         public GDID(uint era, int authority, UInt64 counter)
         {
           if (authority>AUTHORITY_MAX || counter>COUNTER_MAX)
-            throw new DistributedDataAccessException(StringConsts.DISTRIBUTED_DATA_GDID_CTOR_ERROR.Args(authority, AUTHORITY_MAX, counter, COUNTER_MAX));
+            throw new DataException(StringConsts.DISTRIBUTED_DATA_GDID_CTOR_ERROR.Args(authority, AUTHORITY_MAX, counter, COUNTER_MAX));
 
           Era = era;
           ID = (((UInt64)authority)<<60) | (counter & COUNTER_MASK);
@@ -69,7 +69,7 @@ namespace Azos.Data
         public GDID(byte[] bytes, int startIdx = 0)
         {
           if (bytes==null || startIdx <0 || (bytes.Length-startIdx)<sizeof(uint)+sizeof(ulong))
-            throw new DistributedDataAccessException(StringConsts.ARGUMENT_ERROR+"GDID.ctor(bytes==null<minsz)");
+            throw new DataException(StringConsts.ARGUMENT_ERROR+"GDID.ctor(bytes==null<minsz)");
 
           Era = bytes.ReadBEUInt32();
           ID =  bytes.ReadBEUInt64(4);
@@ -206,7 +206,7 @@ namespace Azos.Data
         {
           GDID result;
           if (!TryParse(str, out result))
-            throw new DistributedDataAccessException(StringConsts.DISTRIBUTED_DATA_GDID_PARSE_ERROR.Args(str));
+            throw new DataException(StringConsts.DISTRIBUTED_DATA_GDID_PARSE_ERROR.Args(str));
 
           return result;
         }

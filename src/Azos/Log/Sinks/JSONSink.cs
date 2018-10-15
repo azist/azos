@@ -15,8 +15,8 @@ namespace Azos.Log.Sinks
     {
       private const string CONFIG_JSON_OPT_SECTION = "json-options";
 
-      public JSONDestination() : this(null) { }
-      public JSONDestination(string name = null) : base(name)
+      public JSONSink() : this(null) { }
+      public JSONSink(string name = null) : base(name)
       {
          m_Options = JSONWritingOptions.CompactASCII;
       }

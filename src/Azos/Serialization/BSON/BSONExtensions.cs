@@ -1,7 +1,6 @@
 ﻿using System;
 
 using Azos.Data;
-using Azos.Data.Distributed;
 
 namespace Azos.Serialization.BSON
 {
@@ -27,7 +26,7 @@ namespace Azos.Serialization.BSON
         case TypeCode.UInt64:   return document.Set(new BSONInt64Element(name, (long)(ulong)value));
         case TypeCode.Single:   return document.Set(new BSONDoubleElement(name, (float)value));
         case TypeCode.Double:   return document.Set(new BSONDoubleElement(name, (double)value));
-        case TypeCode.Decimal:  return document.Set(RowConverter.Decimal_CLRtoBSON(name, (decimal)value));
+        case TypeCode.Decimal:  return document.Set(DataDocConverter.Decimal_CLRtoBSON(name, (decimal)value));
         case TypeCode.DateTime: return document.Set(new BSONDateTimeElement(name, (DateTime)value));
         case TypeCode.String:   return document.Set(new BSONStringElement(name, (string)value));
         case TypeCode.Object:
@@ -42,7 +41,7 @@ namespace Azos.Serialization.BSON
             {
               var gdid = (GDID)value;
               if (gdid.IsZero) return onNullOrEmpty(document, name, skipNull, required);
-              return document.Set(RowConverter.GDID_CLRtoBSON(name, gdid));
+              return document.Set(DataDocConverter.GDID_CLRtoBSON(name, gdid));
             }
             else if (value is TimeSpan)     return document.Set(new BSONInt64Element(name, ((TimeSpan)value).Ticks));
             else if (value is BSONDocument) return document.Set(new BSONDocumentElement(name, (BSONDocument)value));

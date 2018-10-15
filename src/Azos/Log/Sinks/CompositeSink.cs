@@ -28,7 +28,7 @@ namespace Azos.Log.Sinks
             {
               if (inner==null) return;
               foreach(var d in inner)
-                RegisterDestination(d);
+                RegisterSink(d);
             }
 
             protected override void Destructor()
@@ -63,30 +63,30 @@ namespace Azos.Log.Sinks
             {
                 base.Open();
 
-                lock(m_Destinations)
-                 foreach(var dest in m_Destinations)
+                lock(m_Sinks)
+                 foreach(var dest in m_Sinks)
                     dest.Open();
             }
 
             public override void Close()
             {
-               lock(m_Destinations)
-                 foreach(var dest in m_Destinations)
-                    dest.Close();
+               lock(m_Sinks)
+                 foreach(var sink in m_Sinks)
+                    sink.Close();
                 base.Close();
             }
 
             /// <summary>
             /// Adds a destination to this wrapper
             /// </summary>
-            public void RegisterDestination(Destination dest)
+            public void RegisterSink(Sink sink)
             {
-              lock (m_Destinations)
+              lock (m_Sinks)
               {
-                if (!m_Destinations.Contains(dest))
+                if (!m_Sinks.Contains(sink))
                 {
-                  m_Destinations.Add(dest);
-                  dest.m_Owner = this;
+                  m_Sinks.Add(sink);
+                  sink.m_Owner = this;
                 }
               }
             }
@@ -94,12 +94,12 @@ namespace Azos.Log.Sinks
             /// <summary>
             /// Removes a destiantion from this wrapper, returns true if destination was found and removed
             /// </summary>
-            public bool UnRegisterDestination(Destination dest)
+            public bool UnRegisterSink(Sink sink)
             {
-              lock (m_Destinations)
+              lock (m_Sinks)
               {
-                bool r = m_Destinations.Remove(dest);
-                if (r) dest.m_Owner = null;
+                bool r = m_Sinks.Remove(sink);
+                if (r) sink.m_Owner = null;
                 return r;
               }
             }
@@ -109,14 +109,14 @@ namespace Azos.Log.Sinks
 
       #region Protected
 
-            protected override void DoConfigure(Environment.IConfigSectionNode node)
+            protected override void DoConfigure(Conf.IConfigSectionNode node)
             {
                 base.DoConfigure(node);
 
-                  foreach (var dnode in node.Children.Where(n => n.Name.EqualsIgnoreCase(LogServiceBase.CONFIG_DESTINATION_SECTION)))
+                  foreach (var dnode in node.Children.Where(n => n.Name.EqualsIgnoreCase(LogServiceBase.CONFIG_SINK_SECTION)))
                   {
-                    var dest = FactoryUtils.MakeAndConfigure(dnode) as Destination;
-                    this.RegisterDestination(dest);
+                    var dest = FactoryUtils.MakeAndConfigure(dnode) as Sink;
+                    this.RegisterSink(dest);
                   }
 
             }
@@ -125,9 +125,9 @@ namespace Azos.Log.Sinks
 
             protected internal override void DoSend(Message entry)
             {
-                lock(m_Destinations)
-                   foreach(var dest in m_Destinations)
-                        dest.DoSend(entry);
+                lock(m_Sinks)
+                   foreach(var sink in m_Sinks)
+                        sink.DoSend(entry);
             }
 
       #endregion

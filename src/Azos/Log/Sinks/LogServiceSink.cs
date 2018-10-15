@@ -14,12 +14,12 @@ namespace Azos.Log.Sinks
     public class LogServiceSink : Sink
     {
        #region .ctor
-        public LogServiceDestination() : base(null)
+        public LogServiceSink() : base(null)
         {
 
         }
 
-        public LogServiceDestination(string name) : base(name)
+        public LogServiceSink(string name) : base(name)
         {
         }
 

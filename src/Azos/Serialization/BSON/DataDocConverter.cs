@@ -8,7 +8,6 @@ using System.Text;
 using Azos.Conf;
 using Azos.Financial;
 using Azos.Data;
-using Azos.Data.Distributed;
 using Azos.Serialization.JSON;
 
 namespace Azos.Serialization.BSON
@@ -16,7 +15,7 @@ namespace Azos.Serialization.BSON
   /// <summary>
   /// Provides methods for Doc to/from BSONDocument conversion
   /// </summary>
-  public class DocConverter: IConfigurable
+  public class DataDocConverter: IConfigurable
   {
     #region CONST
 
@@ -84,23 +83,23 @@ namespace Azos.Serialization.BSON
 
     #region .ctor / static
 
-        private static DocConverter s_DefaultInstance;
+        private static DataDocConverter s_DefaultInstance;
 
         /// <summary>
         /// Returns the default instance
         /// </summary>
-        public static DocConverter DefaultInstance
+        public static DataDocConverter DefaultInstance
         {
           get
           {
             if (s_DefaultInstance==null) //does not have to be thread-safe as the instance is stateless and lightweight 2nd copy is OK
-              s_DefaultInstance = new DocConverter();
+              s_DefaultInstance = new DataDocConverter();
 
             return s_DefaultInstance;
           }
         }
 
-        public DocConverter()
+        public DataDocConverter()
         {
           m_CLRtoBSON = new Dictionary<Type,Func<string, object,BSONElement>>(s_CLRtoBSON);
           m_BSONtoCLR = new Dictionary<Type,Func<BSONElement,object>>(s_BSONtoCLR);
@@ -146,27 +145,27 @@ namespace Azos.Serialization.BSON
 
 
 
-    #region BSONDocumentToRow
+    #region BSONDocumentToDoc
 
     /// <summary>
-    /// Converts BSON document into Row by filling the supplied row instance making necessary type transforms to
+    /// Converts BSON document into data document by filling the supplied row instance making necessary type transforms to
     ///  suit Row.Schema field definitions per target name. If the passed row supports IAmorphousData, then
     /// the fields either not found in row, or the fields that could not be type-converted to CLR type will be
     /// stowed in amorphous data dictionary
     /// </summary>
-    public virtual void BSONDocumentToRow(BSONDocument doc, Row row, string targetName, bool useAmorphousData = true, Func<BSONDocument, BSONElement, bool> filter = null)
+    public virtual void BSONDocumentToDataDoc(BSONDocument bsonDoc, Doc dataDoc, string targetName, bool useAmorphousData = true, Func<BSONDocument, BSONElement, bool> filter = null)
     {
-      if (doc==null || row==null) throw new BSONException(StringConsts.ARGUMENT_ERROR+"BSONDocumentToRow(doc|row=null)");
+      if (bsonDoc==null || dataDoc==null) throw new BSONException(StringConsts.ARGUMENT_ERROR+"BSONDocumentToRow(doc|row=null)");
 
-      var amrow = row as IAmorphousData;
+      var amrow = dataDoc as IAmorphousData;
 
-      foreach(var elm in doc)
+      foreach(var elm in bsonDoc)
       {
         if (filter!=null)
-          if (!filter(doc, elm)) continue;
+          if (!filter(bsonDoc, elm)) continue;
 
         // 2015.03.01 Introduced caching
-        var fld = MapBSONFieldNameToSchemaFieldDef(row.Schema, targetName, elm.Name);
+        var fld = MapBSONFieldNameToSchemaFieldDef(dataDoc.Schema, targetName, elm.Name);
 
 
         if (fld==null)
@@ -176,7 +175,7 @@ namespace Azos.Serialization.BSON
             continue;
         }
 
-        var wasSet = TrySetFieldAsCLR(row, fld, elm, targetName, filter);
+        var wasSet = TrySetFieldAsCLR(dataDoc, fld, elm, targetName, filter);
         if (!wasSet)//again dump it in amorphous
         {
           if (amrow!=null && useAmorphousData && amrow.AmorphousDataEnabled)
@@ -199,11 +198,11 @@ namespace Azos.Serialization.BSON
     //}
 
 
-        protected virtual bool TrySetFieldAsCLR(Row row, Schema.FieldDef field, BSONElement value, string targetName, Func<BSONDocument, BSONElement, bool> filter)
+        protected virtual bool TrySetFieldAsCLR(Doc doc, Schema.FieldDef field, BSONElement value, string targetName, Func<BSONDocument, BSONElement, bool> filter)
         {
           object clrValue;
           if (!TryConvertBSONtoCLR(field.NonNullableType, value, targetName, out clrValue, filter)) return false;
-          row.SetFieldValue(field, clrValue);
+          doc.SetFieldValue(field, clrValue);
           return true;
         }
 
@@ -276,13 +275,13 @@ namespace Azos.Serialization.BSON
 
           clrValue = null;
 
-          if (target.IsSubclassOf(typeof(TypedRow)))
+          if (target.IsSubclassOf(typeof(TypedDoc)))
           {
             var bsonDocumentElement = element as BSONDocumentElement;
             var doc = bsonDocumentElement != null ? bsonDocumentElement.Value : null;
             if (doc==null) return false;//not document
-            var tr = (TypedRow)Activator.CreateInstance(target);
-            BSONDocumentToRow(doc, tr, targetName, filter: filter);
+            var tr = (TypedDoc)Activator.CreateInstance(target);
+            BSONDocumentToDataDoc(doc, tr, targetName, filter: filter);
             clrValue = tr;
             return true;
           }
@@ -435,9 +434,9 @@ namespace Azos.Serialization.BSON
       /// Pass target name (name of particular store/epoch/implementation) to get targeted field metadata.
       /// Note: the supplied row MAY NOT CONTAIN REFERENCE CYCLES - either direct or transitive
       /// </summary>
-      public virtual BSONDocument RowToBSONDocument(Row row, string targetName, bool useAmorphousData = true, FieldFilterFunc filter = null)
+      public virtual BSONDocument DataDocToBSONDocument(Doc doc, string targetName, bool useAmorphousData = true, FieldFilterFunc filter = null)
       {
-        var el = RowToBSONDocumentElement(row, targetName, useAmorphousData, filter: filter);
+        var el = DataDocToBSONDocumentElement(doc, targetName, useAmorphousData, filter: filter);
         return el.Value;
       }
 
@@ -446,28 +445,28 @@ namespace Azos.Serialization.BSON
       /// Pass target name (name of particular store/epoch/implementation) to get targeted field metadata.
       /// Note: the supplied row MAY NOT CONTAIN REFERENCE CYCLES - either direct or transitive
       /// </summary>
-      public virtual BSONDocumentElement RowToBSONDocumentElement(Row row, string targetName, bool useAmorphousData = true, string name= null, FieldFilterFunc filter = null)
+      public virtual BSONDocumentElement DataDocToBSONDocumentElement(Doc doc, string targetName, bool useAmorphousData = true, string name= null, FieldFilterFunc filter = null)
       {
-        if (row==null) return null;
+        if (doc==null) return null;
 
-        var amrow = row as IAmorphousData;
+        var amrow = doc as IAmorphousData;
         if (amrow!=null && useAmorphousData && amrow.AmorphousDataEnabled)
         {
             amrow.BeforeSave(targetName);
         }
 
         var result = new BSONDocument();
-        foreach(var field in row.Schema)
+        foreach(var field in doc.Schema)
         {
             var attr = field[targetName];
             if (attr!=null && attr.StoreFlag!=StoreFlag.OnlyStore && attr.StoreFlag!=StoreFlag.LoadAndStore) continue;
 
             if (filter!=null)//20160210 Dkh+SPol
             {
-              if (!filter(row, null, field)) continue;
+              if (!filter(doc, null, field)) continue;
             }
 
-            var el = GetFieldAsBSON(row, field, targetName);
+            var el = GetFieldAsBSON(doc, field, targetName);
             result.Set( el );
         }
 
@@ -517,10 +516,10 @@ namespace Azos.Serialization.BSON
             return el;
           }
 
-          protected virtual BSONElement GetFieldAsBSON(Row row, Schema.FieldDef field, string targetName)
+          protected virtual BSONElement GetFieldAsBSON(Doc doc, Schema.FieldDef field, string targetName)
           {
             var name = field.GetBackendNameForTarget(targetName);
-            var fvalue = row.GetFieldValue(field);
+            var fvalue = doc.GetFieldValue(field);
             var el = ConvertCLRtoBSON(name, fvalue, targetName);
             return el;
           }
@@ -539,8 +538,8 @@ namespace Azos.Serialization.BSON
               return name != null ? new BSONStringElement(name, data.ToString()) : new BSONStringElement(data.ToString());
 
             //3 Complex Types
-            if (data is Row)
-              return this.RowToBSONDocumentElement((Row)data, targetName, name: name);
+            if (data is Doc)
+              return this.DataDocToBSONDocumentElement((Doc)data, targetName, name: name);
 
             //IDictionary //must be before IEnumerable
             if (data is IDictionary)

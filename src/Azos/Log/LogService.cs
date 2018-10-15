@@ -6,7 +6,7 @@ using System.Threading;
 
 using Azos.Apps;
 using Azos.Conf;
-using Azos.Log.Sinks;
+using Azos.Instrumentation;
 
 
 namespace Azos.Log
@@ -78,7 +78,7 @@ namespace Azos.Log
         public int WriteInterval
         {
           get { return m_WriteInterval; }
-          set { m_WriteInterval = IntMath.MinMax(MIN_INTERVAL_MSEC, value, MAX_INTERVAL_MSEC); }
+          set { m_WriteInterval = IntUtils.MinMax(MIN_INTERVAL_MSEC, value, MAX_INTERVAL_MSEC); }
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace Azos.Log
 
                 do
                 {
-                    if (this.Status != ControlStatus.Active || !m_Queue.IsEmpty) break;
+                    if (this.Status != ServiceStatus.Active || !m_Queue.IsEmpty) break;
                     if (m_Wakeup.WaitOne(sleepInterval)) break;
                 }
                 while (this.Now < wakeupTime);
@@ -204,7 +204,7 @@ namespace Azos.Log
 
         private void write()
         {
-          lock (m_Destinations) //the lock on destinations here is on purpose, so while write takes place no other thread can remove destinations
+          lock (m_Sinks) //the lock on destinations here is on purpose, so while write takes place no other thread can remove destinations
           {
             Message msg;
             while (m_Queue.TryDequeue(out msg))
@@ -220,7 +220,7 @@ namespace Azos.Log
                   s.V++;
                 }
 
-                foreach (var destination in m_Destinations)
+                foreach (var destination in m_Sinks)
                 {
                     //20130318 DKh
                     if (!m_Reliable && !this.Running)

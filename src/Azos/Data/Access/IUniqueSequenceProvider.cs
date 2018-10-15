@@ -178,7 +178,7 @@ namespace Azos.Data.Access
     GDID[] TryGenerateManyConsecutiveGDIDs(string scopeName,
                                                         string sequenceName,
                                                         int gdidCount,
-                                                        ulong? vicinity = Distributed.GDID.COUNTER_MAX,
+                                                        ulong? vicinity = GDID.COUNTER_MAX,
                                                         bool noLWM = false);
 
     /// <summary>

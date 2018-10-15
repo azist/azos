@@ -3,11 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
 using Azos.Log;
 using Azos.Conf;
+using Azos.Collections;
 using Azos.Apps;
 
 namespace Azos.IO.Net.Gate
@@ -217,7 +217,7 @@ namespace Azos.IO.Net.Gate
 
     #region Protected
 
-      protected override void DoConfigure(Environment.IConfigSectionNode node)
+      protected override void DoConfigure(Conf.IConfigSectionNode node)
       {
         if (node==null) return;
         m_IncomingState.configure(node[CONFIG_INCOMING_SECTION]);

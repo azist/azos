@@ -102,68 +102,58 @@ namespace Azos.Data
     [Serializable]
     public class AmorphousDynamicDoc : DynamicDoc, IAmorphousData
     {
-        #region .ctor
-            public AmorphousDynamicRow(Schema schema) : base(schema)
-            {
-            }
-        #endregion
+      public AmorphousDynamicDoc(Schema schema) : base(schema)
+      {
+      }
 
-        #region Fields
-
-            private Dictionary<string, object> m_AmorphousData;
-
-        #endregion
-
-        #region Properties
-
-            /// <summary>
-            /// True by default for rows
-            /// </summary>
-            public virtual bool AmorphousDataEnabled { get{return true;}}
-
-            /// <summary>
-            /// Returns data that does not comply with known schema (dynamic data). The field names are NOT case-sensitive
-            /// </summary>
-            public IDictionary<string, object> AmorphousData
-            {
-              get
-              {
-                if (m_AmorphousData==null)
-                  m_AmorphousData = new Dictionary<string,object>(StringComparer.OrdinalIgnoreCase);
-
-                return m_AmorphousData;
-              }
-            }
-
-        #endregion
+      private Dictionary<string, object> m_AmorphousData;
 
 
-        #region Public
-            /// <summary>
-            /// Invoked to allow the row to transform its state into AmorphousData bag.
-            /// For example, this may be usefull to store extra data that is not a part of established business schema.
-            /// The operation is performed per particular targetName (name of physical backend). Simply put, this method allows
-            ///  business code to "specify what to do before object gets saved in THE PARTICULAR TARGET backend store"
-            /// </summary>
-            public virtual void BeforeSave(string targetName)
-            {
+      /// <summary>
+      /// True by default for rows
+      /// </summary>
+      public virtual bool AmorphousDataEnabled => true;
 
-            }
+      /// <summary>
+      /// Returns data that does not comply with known schema (dynamic data). The field names are NOT case-sensitive
+      /// </summary>
+      public IDictionary<string, object> AmorphousData
+      {
+        get
+        {
+          if (m_AmorphousData==null)
+          m_AmorphousData = new Dictionary<string,object>(StringComparer.OrdinalIgnoreCase);
 
-            /// <summary>
-            /// Invoked to allow the row to hydrate its fields/state from AmorphousData bag.
-            /// For example, this may be used to reconstruct some temporary object state that is not stored as a part of established business schema.
-            /// The operation is performed per particular targetName (name of physical backend).
-            /// Simply put, this method allows business code to "specify what to do after object gets loaded from THE PARTICULAR TARGET backend store".
-            /// An example: suppose current MongoDB collection stores 3 fields for name, and we want to collapse First/Last/Middle name fields into one field.
-            /// If we change rowschema then it will only contain 1 field which is not present in the database, however those 'older' fields will get populated
-            /// into AmorphousData giving us an option to merge older 3 fields into 1 within AfterLoad() implementation
-            /// </summary>
-            public virtual void AfterLoad(string targetName)
-            {
+          return m_AmorphousData;
+        }
+      }
 
-            }
-        #endregion
+
+
+      /// <summary>
+      /// Invoked to allow the doc to transform its state into AmorphousData bag.
+      /// For example, this may be usefull to store extra data that is not a part of established business schema.
+      /// The operation is performed per particular targetName (name of physical backend). Simply put, this method allows
+      ///  business code to "specify what to do before object gets saved in THE PARTICULAR TARGET backend store"
+      /// </summary>
+      public virtual void BeforeSave(string targetName)
+      {
+
+      }
+
+      /// <summary>
+      /// Invoked to allow the doc to hydrate its fields/state from AmorphousData bag.
+      /// For example, this may be used to reconstruct some temporary object state that is not stored as a part of established business schema.
+      /// The operation is performed per particular targetName (name of physical backend).
+      /// Simply put, this method allows business code to "specify what to do after object gets loaded from THE PARTICULAR TARGET backend store".
+      /// An example: suppose current MongoDB collection stores 3 fields for name, and we want to collapse First/Last/Middle name fields into one field.
+      /// If we change rowschema then it will only contain 1 field which is not present in the database, however those 'older' fields will get populated
+      /// into AmorphousData giving us an option to merge older 3 fields into 1 within AfterLoad() implementation
+      /// </summary>
+      public virtual void AfterLoad(string targetName)
+      {
+
+      }
     }
 
 

@@ -7,7 +7,7 @@
 using System;
 using System.Text;
 
-using Azos.Parsing;
+using Azos.Text;
 
 namespace Azos.CodeAnalysis.JSON
 {

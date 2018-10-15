@@ -16,7 +16,7 @@ namespace Azos.Log.Sinks
       #endregion
 
       #region .ctor
-        protected FileDestination(string name) : base(name)
+        protected FileSink(string name) : base(name)
         {
         }
       #endregion

@@ -18,8 +18,8 @@ namespace Azos.Log.Sinks
     private const string DEF_LOG_TIME_FORMAT = "HH:mm:ss";
 
 
-    public ConsoleDestination() : this(null) { }
-    public ConsoleDestination(string name) : base (name) { }
+    public ConsoleSink() : this(null) { }
+    public ConsoleSink(string name) : base (name) { }
 
     [Config]
     public bool Colored { get; set;}

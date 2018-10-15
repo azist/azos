@@ -51,7 +51,7 @@ namespace Azos.Data.Modeling
     /// Represents a compiler that can turn source schema into particular target script/schema, i.e. into database creation script for particular technology
     ///  (i.e. Oracle, MySQL, PostgreSQL, etc..) or some other code/script (i.e. RecordModel classes, JavaScript classes)
     /// </summary>
-    public abstract class Compiler : IConfigurable, INamed
+    public abstract class Compiler : IConfigurable, Collections.INamed
     {
                        #region inner classes
                             public sealed class Outputs : IEnumerable<KeyValuePair<string, StringBuilder>>
@@ -205,7 +205,7 @@ namespace Azos.Data.Modeling
             /// </summary>
             public StringComparison NameComparison
             {
-                get { return m_NameCaseSensitivity== RelationalModel.NameCaseSensitivity.AsIs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase; }
+                get { return m_NameCaseSensitivity== NameCaseSensitivity.AsIs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase; }
             }
 
             /// <summary>

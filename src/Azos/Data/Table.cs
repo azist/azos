@@ -21,16 +21,16 @@ namespace Azos.Data
             /// </summary>
             public Table(Schema schema) : base(schema)
             {
-                m_List =  new List<Row>();
+                m_List =  new List<Doc>();
             }
 
             /// <summary>
             /// Creates a shallow copy from another table, optionally applying a filter
             /// </summary>
-            public Table(Table other, Func<Row, bool> filter = null) : base(other.Schema)
+            public Table(Table other, Func<Doc, bool> filter = null) : base(other.Schema)
             {
               if (filter==null)
-                m_List =  new List<Row>(other.m_List);
+                m_List =  new List<Doc>(other.m_List);
               else
                 m_List = other.Where(filter).ToList();
             }
@@ -38,14 +38,14 @@ namespace Azos.Data
             /// <summary>
             /// Creates a shallow copy from another rowset resorting data per schema key definition, optionally applying a filter
             /// </summary>
-            public Table(Rowset other, Func<Row, bool> filter = null) : base(other.Schema)
+            public Table(Rowset other, Func<Doc, bool> filter = null) : base(other.Schema)
             {
-              m_List =  new List<Row>();
+              m_List =  new List<Doc>();
 
               var src = filter==null ? other : other.Where(filter);
 
-              foreach(var row in src)
-                 Insert(row);
+              foreach(var doc in src)
+                 Insert(doc);
             }
 
         #endregion
@@ -55,7 +55,7 @@ namespace Azos.Data
             /// <summary>
             /// Performs binary search on a sorted table
             /// </summary>
-            protected override int SearchForRow(Row row, out int index)
+            protected override int SearchForDoc(Doc doc, out int index)
             {
                 int top = 0;
                 int bottom = m_List.Count - 1;
@@ -67,7 +67,7 @@ namespace Azos.Data
 
                     index = top + ((bottom - top) / 2);
 
-                    int cmpResult  = Compare(row, m_List[index]);
+                    int cmpResult  = Compare(doc, m_List[index]);
 
                     if (cmpResult == 0)
                     {
@@ -90,12 +90,12 @@ namespace Azos.Data
 
         #endregion
 
-        #region IComparer<Row> Members
+        #region IComparer<Doc> Members
 
           /// <summary>
           /// Compares two rows based on their key fields. Always compares in ascending direction
           /// </summary>
-          public override int Compare(Row rowA, Row rowB)
+          public override int Compare(Doc rowA, Doc rowB)
           {
               return CompareRows(m_Schema, rowA, rowB);
           }
@@ -103,7 +103,7 @@ namespace Azos.Data
           /// <summary>
           /// Compares two rows based on their key fields. Always compares in ascending direction
           /// </summary>
-          public static int CompareRows(Schema schema, Row rowA, Row rowB)
+          public static int CompareRows(Schema schema, Doc rowA, Doc rowB)
           {
               if (rowA==null && rowB!=null) return -1;
 
@@ -141,7 +141,7 @@ namespace Azos.Data
            /// <summary>
            /// This is IList member implementation, index is ignored
            /// </summary>
-           public override void Insert(int index, Row item)
+           public override void Insert(int index, Doc item)
            {
                Insert(item);
            }
@@ -149,16 +149,16 @@ namespace Azos.Data
            /// <summary>
            /// This method does not support setting rows in table
            /// </summary>
-           public override Row this[int index]
+           public override Doc this[int index]
            {
-               get
-               {
-                   return m_List[index];
-               }
-               set
-               {
-                   throw new CRUDException(StringConsts.CRUD_OPERATION_NOT_SUPPORTED_ERROR+"Table[idx].set()");
-               }
+              get
+              {
+                  return m_List[index];
+              }
+              set
+              {
+                  throw new DataException(StringConsts.CRUD_OPERATION_NOT_SUPPORTED_ERROR+"Table[idx].set()");
+              }
            }
 
         #endregion

@@ -668,13 +668,13 @@ namespace Azos.IO
                 this.Write(false);
               }
 
-          public override void Write(Azos.Data.Distributed.GDID value)
+          public override void Write(Data.GDID value)
           {
             this.Write(value.Era);
             this.Write(value.ID);
           }
 
-              public override void Write(Azos.Data.Distributed.GDID? value)
+              public override void Write(Data.GDID? value)
               {
                 if (value.HasValue)
                 {

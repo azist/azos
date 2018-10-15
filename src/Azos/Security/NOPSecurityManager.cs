@@ -39,7 +39,7 @@ namespace Azos.Security
 
     public User Authenticate(Credentials credentials) { return User.Fake; }
 
-    public void Configure(Environment.IConfigSectionNode node) {}
+    public void Configure(Conf.IConfigSectionNode node) {}
 
     public User Authenticate(AuthenticationToken token) { return User.Fake; }
 
@@ -51,7 +51,7 @@ namespace Azos.Security
     public Log.MessageType LogLevel { get; set;}
 
 
-    public Environment.IConfigSectionNode GetUserLogArchiveDimensions(IIdentityDescriptor identity)
+    public Conf.IConfigSectionNode GetUserLogArchiveDimensions(IIdentityDescriptor identity)
     {
       return null;
     }

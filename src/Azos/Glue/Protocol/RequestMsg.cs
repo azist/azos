@@ -91,13 +91,13 @@ namespace Azos.Glue.Protocol
 
 
         [NonSerialized]
-        private ApplicationModel.ISession m_Session;
+        private Apps.ISession m_Session;
 
 
            /// <summary>
            /// Returns request ID for this instance. Every request is uniquely identified
            /// </summary>
-           public override FID RequestID
+           public override Apps.FID RequestID
            {
              get { return ID;}
            }
@@ -161,7 +161,7 @@ namespace Azos.Glue.Protocol
            /// Session reference that can be used to pass session object that was already determined by transport (i.e. HttpServerTransport)
            ///  into Glue server handler. This property is NOT transmitted/serialized over wire
            /// </summary>
-           public ApplicationModel.ISession Session { get{ return m_Session; }  set{ m_Session = value;} }
+           public Apps.ISession Session { get{ return m_Session; }  set{ m_Session = value;} }
 
     }
 

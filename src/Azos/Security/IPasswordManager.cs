@@ -55,7 +55,7 @@ namespace Azos.Security
     int CalculateStrenghtPercent(PasswordFamily family, SecureBuffer password, int maxScore = 0);
     IEnumerable<PasswordRepresentation> GeneratePassword(PasswordFamily family, PasswordRepresentationType type, PasswordStrengthLevel level = PasswordStrengthLevel.Default);
 
-    IRegistry<PasswordHashingAlgorithm> Algorithms { get; }
+    Collections.IRegistry<PasswordHashingAlgorithm> Algorithms { get; }
   }
 
   public interface IPasswordManagerImplementation : IPasswordManager, IDisposable, IConfigurable, IInstrumentable, IService

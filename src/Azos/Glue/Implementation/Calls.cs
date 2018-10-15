@@ -52,7 +52,7 @@ namespace Azos.Glue.Implementation
       /// Tries to get, return and remove CallSlot instance by its RequestID from the list.
       /// Returns null if CallSlot with such an id does not exist and nothing was removed
       /// </summary>
-      public CallSlot TryGetAndRemove(FID requestID)
+      public CallSlot TryGetAndRemove(Apps.FID requestID)
       {
           //getBucket() inlined for performance
           var idx = (requestID.GetHashCode() & CoreConsts.ABS_HASH_MASK) % m_BucketCount;

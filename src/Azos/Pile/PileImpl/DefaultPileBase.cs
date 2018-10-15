@@ -7,10 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 
 
-using Azos.IO;
 using Azos.Apps;
-using Azos.Serialization.Slim;
 using Azos.Conf;
+using Azos.IO;
+using Azos.Instrumentation;
+using Azos.Serialization.Slim;
 
 
 namespace Azos.Pile
@@ -289,7 +290,7 @@ namespace Azos.Pile
           set
           {
             CheckServiceInactive();
-            value = IntMath.Align16(value);
+            value = IntUtils.Align16(value);
             m_SegmentSize = value < SEG_SIZE_MIN ? SEG_SIZE_MIN : value > SEG_SIZE_MAX ? SEG_SIZE_MAX : value;
           }
         }
@@ -511,8 +512,8 @@ namespace Azos.Pile
           buffer = serialize(obj, out serializedSize, out serializerVersion);
         }
 
-        var payloadSize = IntMath.Align8(serializedSize);
-        if (preallocateBlockSize>payloadSize) payloadSize =  IntMath.Align8(preallocateBlockSize);
+        var payloadSize = IntUtils.Align8(serializedSize);
+        if (preallocateBlockSize>payloadSize) payloadSize = IntUtils.Align8(preallocateBlockSize);
         var chunkSize = CHUNK_HDER_SZ + payloadSize;
 
 
@@ -568,8 +569,8 @@ namespace Azos.Pile
                      var utcNow = DateTime.UtcNow;
                      var secSinceLastCrawl = (utcNow - seg.LastCrawl).TotalSeconds;
                      if (
-                         (secSinceLastCrawl > IntMath.ChangeByRndPct(isSpeed ? 600 : 180, -0.25f)) ||
-                         (seg.FreeBytesChangePctSinceLastCrawl > 0.1f && (secSinceLastCrawl > IntMath.ChangeByRndPct(isSpeed ? 60 : 10, -0.5f)))
+                         (secSinceLastCrawl > IntUtils.ChangeByRndPct(isSpeed ? 600 : 180, -0.25f)) ||
+                         (seg.FreeBytesChangePctSinceLastCrawl > 0.1f && (secSinceLastCrawl > IntUtils.ChangeByRndPct(isSpeed ? 60 : 10, -0.5f)))
                         )
                      {
                          //could not fit, try to reclaim
@@ -1385,10 +1386,11 @@ namespace Azos.Pile
 
             if (count>1000)
             {
-              if (mc%3==0) ExternalRandomGenerator.Instance.FeedExternalEntropySample((int)count);
-              ExternalRandomGenerator.Instance.FeedExternalEntropySample((int)mc);
-              ExternalRandomGenerator.Instance.FeedExternalEntropySample((int)ub);
-              ExternalRandomGenerator.Instance.FeedExternalEntropySample((int)((m_stat_PutCount << 25) ^ (m_stat_GetCount << 14) ^ m_stat_DeleteCount));
+              var rnd = Platform.RandomGenerator.Instance;
+              if (mc%3==0) rnd.FeedExternalEntropySample((int)count);
+              rnd.FeedExternalEntropySample((int)mc);
+              rnd.FeedExternalEntropySample((int)ub);
+              rnd.FeedExternalEntropySample((int)((m_stat_PutCount << 25) ^ (m_stat_GetCount << 14) ^ m_stat_DeleteCount));
             }
 
 

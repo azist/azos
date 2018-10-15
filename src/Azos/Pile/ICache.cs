@@ -1,13 +1,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Apps;
-using Azos.Conf;
+using Azos.Collections;
 using Azos.Instrumentation;
-using Azos.Data.Distributed;
 
 namespace Azos.Pile
 {
@@ -272,7 +269,7 @@ namespace Azos.Pile
                   DateTime? putAbsoluteExpirationUTC = null);
   }
 
-  public interface ICacheImplementation : ICache, ServiceModel.IService, IInstrumentable
+  public interface ICacheImplementation : ICache, Apps.IService, IInstrumentable
   {
     /// <summary>
     /// Imposes a limit on maximum number of bytes that a pile can allocate of the system heap.

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 
+using Azos.Apps;
 using Azos.Conf;
 using Azos.Text;
 

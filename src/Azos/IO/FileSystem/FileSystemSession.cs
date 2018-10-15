@@ -51,7 +51,7 @@ namespace Azos.IO.FileSystem
     /// <summary>
     /// Represents a user-impersonated session of working with a file system. This class is NOT thread-safe
     /// </summary>
-    public class FileSystemSession : DisposableObject, INamed
+    public class FileSystemSession : DisposableObject, Collections.INamed
     {
       #region .ctor
 
@@ -200,7 +200,7 @@ namespace Azos.IO.FileSystem
         /// <summary>
         /// Returns unique sequence provider for the system or null if it is not supported
         /// </summary>
-        public DataAccess.IUniqueSequenceProvider UniqueSequenceProvider { get { return null; }}
+        public Data.Access.IUniqueSequenceProvider UniqueSequenceProvider { get { return null; }}
 
       #endregion
 

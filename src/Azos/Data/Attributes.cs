@@ -634,22 +634,22 @@ namespace Azos.Data
       private static volatile Dictionary<Type, UniqueSequenceAttribute> s_ScopeCache = new Dictionary<Type, UniqueSequenceAttribute>();
 
       /// <summary>
-      /// Returns UniqueSequenceAttribute or null for row type
+      /// Returns UniqueSequenceAttribute or null for doc type
       /// </summary>
-      public static UniqueSequenceAttribute GetForRowType(Type tRow)
+      public static UniqueSequenceAttribute GetForRowType(Type tDoc)
       {
-        if (tRow == null || !typeof(Row).IsAssignableFrom(tRow))
-          throw new DataException("UniqueSequenceAttribute.GetForRowType(tRow isnt TypedRow | null)");
+        if (tDoc == null || !typeof(Doc).IsAssignableFrom(tDoc))
+          throw new DataException("UniqueSequenceAttribute.GetForRowType(tDoc isnt TypedDoc | null)");
 
         UniqueSequenceAttribute result;
 
-        if (s_ScopeCache.TryGetValue(tRow, out result)) return result;
+        if (s_ScopeCache.TryGetValue(tDoc, out result)) return result;
 
-        result = tRow.GetCustomAttributes(typeof(UniqueSequenceAttribute), false)
+        result = tDoc.GetCustomAttributes(typeof(UniqueSequenceAttribute), false)
                      .FirstOrDefault() as UniqueSequenceAttribute;
 
         var dict = new Dictionary<Type, UniqueSequenceAttribute>(s_ScopeCache);
-        dict[tRow] = result;
+        dict[tDoc] = result;
         s_ScopeCache = dict; // atomic
 
         return result;

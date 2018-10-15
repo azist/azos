@@ -5,7 +5,8 @@
 </FILE_LICENSE>*/
 using System;
 
-using Azos.PAL;
+
+using Azos.Platform.Abstraction;
 
 namespace Azos.Platform
 {

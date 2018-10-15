@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Serialization.BSON
@@ -12,7 +13,7 @@ namespace Azos.Serialization.BSON
   /// <summary>
   /// Very base class for BSON elements
   /// </summary>
-  public abstract class BSONElement : INamed, IConvertible, IJSONWritable
+  public abstract class BSONElement : Collections.INamed, IConvertible, IJSONWritable
   {
 
     private static readonly Dictionary<BSONElementType, Func<Stream, BSONElement>> s_ELEMENTSTREAMCTORS = new Dictionary<BSONElementType, Func<Stream, BSONElement>>
@@ -223,7 +224,7 @@ namespace Azos.Serialization.BSON
 
       public DateTime ToDateTime(IFormatProvider provider)
       {
-        return this.ObjectValue.AsDateTime(dflt: MiscUtils.UNIX_EPOCH_START_DATE, handling: ConvertErrorHandling.Throw);
+        return this.ObjectValue.AsDateTime(dflt: DateUtils.UNIX_EPOCH_START_DATE, handling: ConvertErrorHandling.Throw);
       }
 
       public decimal ToDecimal(IFormatProvider provider)
