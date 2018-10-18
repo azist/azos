@@ -68,7 +68,7 @@ namespace Azos.Sky
     public const string METABASE_FS_CONNECTION_ERROR = "Metabase file system {0}('{1}','{2}') connection error: {3}";
 
     public const string METABASE_NOT_AVAILABLE_ERROR =
-      "Metabase is needed by '{0}' but it is not available as AgniSystem.Metabase==null. The AgniApplication is not allocated yet or BootConfLoader.LoadForTest() was not called";
+      "Metabase is needed by '{0}' but it is not available as SkySystem.Metabase==null. The SkyApplication is not allocated yet or BootConfLoader.LoadForTest() was not called";
 
     public const string METABASE_INVALID_OPERTATION_ERROR = "Invalid metabase operation: ";
     public const string METABASE_CONFIG_LOAD_ERROR = "Metabase config file '{0}' load error: {1}";
@@ -89,7 +89,7 @@ namespace Azos.Sky
      "Metadata '{0}' could not be created. A 'name' attribute must be declared on the root config node level having its value equal to '{1}', however it is equal to '{2}'";
 
     public const string METABASE_METADATA_CTOR_3_ERROR =
-     "Metadata '{0}' could not be created. The name '{1}' is invalid agni entity name. See .IsValidName() function. Path: {2}";
+     "Metadata '{0}' could not be created. The name '{1}' is invalid sky entity name. See .IsValidName() function. Path: {2}";
 
 
     public const string METABASE_STRUCTURE_NOTEXISTS_ERROR = "Metadabase structure error: '{0}' does not exist ";
@@ -107,7 +107,7 @@ namespace Azos.Sky
        "App name '{0}' does not resolve to an existing app in the app catalog";
 
     public const string METABASE_HOST_ROLE_APP_MISMATCH_ERROR =
-       "App name '{0}' is not a part of agni role '{1}' that this host has";
+       "App name '{0}' is not a part of sky role '{1}' that this host has";
 
     public const string METABASE_VALIDATION_ROLE_APP_ERROR =
        "Role '{0}' declares app '{1}' which was not found in app catalog";
@@ -209,7 +209,7 @@ namespace Azos.Sky
        "NOC '{0}' specifies ParentNOCZonePath of '{1}' which has no common root with this NOC";
 
     public const string METABASE_REG_NOC_PARENT_NOC_ZONE_LEVEL_ERROR =
-       "NOC '{0}' specifies ParentNOCZonePath of '{1}' which must be higher in agni hierarchy than this NOC, but it is not";
+       "NOC '{0}' specifies ParentNOCZonePath of '{1}' which must be higher in sky hierarchy than this NOC, but it is not";
 
     public const string METABASE_REG_GEO_CENTER_ERROR =
        "Error in region catalog section {0}('{1}').$'geo-center' = '{2}'. Error: {3}";
@@ -314,22 +314,22 @@ namespace Azos.Sky
     public const string AZGOV_REGISTER_SUBORDINATE_HOST_ERROR = "ZoneGovernorService can not register subordinate host '{0}' because of the error: {1}";
     public const string AZGOV_REGISTER_SUBORDINATE_HOST_PARENT_ERROR = "This zone governor '{0}' is not a direct or indirect parent of the host '{1}' in this NOC";
 
-    public const string INSTR_SEND_TELEMETRY_TOP_LOST_ERROR = "Could not send instrumentation telemetry up the zone gov agni chain as the very root reached. Error: {0}";
+    public const string INSTR_SEND_TELEMETRY_TOP_LOST_ERROR = "Could not send instrumentation telemetry up the zone gov sky chain as the very root reached. Error: {0}";
 
-    public const string LOG_SEND_TOP_LOST_ERROR = "Could not send log up the zone gov agni chain as the very root reached. Error: {0}";
+    public const string LOG_SEND_TOP_LOST_ERROR = "Could not send log up the zone gov sky chain as the very root reached. Error: {0}";
 
 
     public const string UNIT_NAME_TIME = "times";
 
 
-    public const string AGNI_SVC_CLIENT_HUB_SINGLETON_CTOR_ERROR = "Error while making singleton instance of service client hub implementation '{0}'. Error: {1}";
-    public const string AGNI_SVC_CLIENT_HUB_MAPPING_ERROR = "Service hub error mapping a client for '{0}' service: {1}";
-    public const string AGNI_SVC_CLIENT_HUB_MAKE_INSTANCE_ERROR = "Service hub error making a client instance for contract mapping '{0}'. Activation error: {1}";
-    public const string AGNI_SVC_CLIENT_HUB_NET_RESOLVE_ERROR = "Service hub error resolving service node for contract mapping '{0}'. Resolver error: {1}";
-    public const string AGNI_SVC_CLIENT_HUB_CALL_RETRY_FAILED_ERROR = "Service hub error calling '{0}'  after {1} retries tried";
-    public const string AGNI_SVC_CLIENT_HUB_SETUP_INSTANCE_ERROR = "Service hub error from setup a client instance for contract mapping '{0}'. Setup error: {1}";
-    public const string AGNI_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR = "Service hub error calling '{0}' service on '{1}'";
-    public const string AGNI_SVC_CLIENT_MAPPING_CTOR_ERROR = "Service hub ContractMapping.ctor(' {0} ') error: {1}";
+    public const string SKY_SVC_CLIENT_HUB_SINGLETON_CTOR_ERROR = "Error while making singleton instance of service client hub implementation '{0}'. Error: {1}";
+    public const string SKY_SVC_CLIENT_HUB_MAPPING_ERROR = "Service hub error mapping a client for '{0}' service: {1}";
+    public const string SKY_SVC_CLIENT_HUB_MAKE_INSTANCE_ERROR = "Service hub error making a client instance for contract mapping '{0}'. Activation error: {1}";
+    public const string SKY_SVC_CLIENT_HUB_NET_RESOLVE_ERROR = "Service hub error resolving service node for contract mapping '{0}'. Resolver error: {1}";
+    public const string SKY_SVC_CLIENT_HUB_CALL_RETRY_FAILED_ERROR = "Service hub error calling '{0}'  after {1} retries tried";
+    public const string SKY_SVC_CLIENT_HUB_SETUP_INSTANCE_ERROR = "Service hub error from setup a client instance for contract mapping '{0}'. Setup error: {1}";
+    public const string SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR = "Service hub error calling '{0}' service on '{1}'";
+    public const string SKY_SVC_CLIENT_MAPPING_CTOR_ERROR = "Service hub ContractMapping.ctor(' {0} ') error: {1}";
 
 
 

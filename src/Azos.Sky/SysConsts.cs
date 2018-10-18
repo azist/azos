@@ -34,22 +34,22 @@ namespace Azos.Sky
     public const string UNKNOWN_ENTITY = "<unknown>";
     public const string NULL = "<null>";
 
-    public const string GDID_NS_DYNAMIC_HOST = "SYS-AgniDynamicHost";
+    public const string GDID_NS_DYNAMIC_HOST = "SYS-SkyDynamicHost";
     public const string GDID_NAME_DYNAMIC_HOST = "DYNHOST";
 
-    public const string GDID_NS_WORKER = "SYS-AgniWORKER";
+    public const string GDID_NS_WORKER = "SYS-SkyWORKER";
     public const string GDID_NAME_WORKER_TODO = "TODO";
     public const string GDID_NAME_WORKER_PROCESS = "PROCESS";
     public const string GDID_NAME_WORKER_SIGNAL = "SIGNAL";
 
-    public const string GDID_NS_MESSAGING = "SYS-AgniMESSAGING";
+    public const string GDID_NS_MESSAGING = "SYS-SkyMESSAGING";
     public const string GDID_NAME_MESSAGING_MESSAGE = "MESSAGE";
 
     /// <summary>
-    /// The name of application config root section that agni-related components should nest under.
-    /// This is needed not to cause an collision in inner section names with possible existing root-level non-agni names
+    /// The name of application config root section that sky-related components should nest under.
+    /// This is needed not to cause an collision in inner section names with possible existing root-level non-sky names
     /// </summary>
-    public const string APPLICATION_CONFIG_ROOT_SECTION = "agni";
+    public const string APPLICATION_CONFIG_ROOT_SECTION = "sky";
 
     public const string EXT_PARAM_GROUP_METABASE = "metabase";
     public const string EXT_PARAM_GROUP_WORKER = "worker";
