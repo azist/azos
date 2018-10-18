@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Security.CAPTCHA
@@ -159,20 +160,20 @@ namespace Azos.Security.CAPTCHA
       double wvar2 = wvar / 2d;
       double hvar2 = hvar / 2d;
 
-      var x = 1 + (int)(wvar2 * ExternalRandomGenerator.Instance.NextRandomDouble);
+      var x = 1 + (int)(wvar2 * App.Random.NextRandomDouble);
       int ybase = (int)hvar + 1;
 
       var puzzleWidth = 0;
       var maxHeight = 0;
       foreach (var ch in alphabet)
       {
-        int w = boxWidth + (int)(-wvar2 + (wvar * ExternalRandomGenerator.Instance.NextRandomDouble));
-        int h = boxHeight + (int)(-hvar2 + (hvar * ExternalRandomGenerator.Instance.NextRandomDouble));
+        int w = boxWidth + (int)(-wvar2 + (wvar * App.Random.NextRandomDouble));
+        int h = boxHeight + (int)(-hvar2 + (hvar * App.Random.NextRandomDouble));
 
         if (w < minBoxWidth) w = minBoxWidth;
         if (h < minBoxHeight) h = minBoxHeight;
 
-        int y = ybase + (int)(-hvar2 + (hvar * ExternalRandomGenerator.Instance.NextRandomDouble));
+        int y = ybase + (int)(-hvar2 + (hvar * App.Random.NextRandomDouble));
 
         var cbox = new CharBox();
         cbox.Char = ch;
@@ -189,11 +190,11 @@ namespace Azos.Security.CAPTCHA
         {
           puzzleWidth = 0;
           ybase += maxHeight + 2;
-          x = 1 + (int)(wvar2 * ExternalRandomGenerator.Instance.NextRandomDouble);
+          x = 1 + (int)(wvar2 * App.Random.NextRandomDouble);
           continue;
         }
 
-        x += w + 2 + (int)(wvar2 * ExternalRandomGenerator.Instance.NextRandomDouble);
+        x += w + 2 + (int)(wvar2 * App.Random.NextRandomDouble);
       }
 
     }
@@ -206,7 +207,7 @@ namespace Azos.Security.CAPTCHA
         var c = arr[i];
         int idx;
         do
-          idx = ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, result.Length * 2);
+          idx = App.Random.NextScaledRandomInteger(0, result.Length * 2);
         while (idx > result.Length - 1 || result[idx] > 0);
         result[idx] = c;
       }

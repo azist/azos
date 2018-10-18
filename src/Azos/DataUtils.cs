@@ -98,7 +98,7 @@ namespace Azos
       if (operations==null || query==null)
         throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadDoc(ICRUDOperations==null | query==null)");
 
-      return operations.LoadOneRow(query) as TDoc;
+      return operations.LoadOneDoc(query) as TDoc;
     }
 
     /// <summary>
@@ -109,8 +109,8 @@ namespace Azos
       if (operations==null || query==null)
         throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadDocAsync(ICRUDOperations==null | query==null)");
 
-      return operations.LoadOneRowAsync(query)
-                       .ContinueWith<TDoc>( (antecedent) => antecedent.Result as TRow);
+      return operations.LoadOneDocAsync(query)
+                       .ContinueWith<TDoc>( (antecedent) => antecedent.Result as TDoc);
     }
 
     /// <summary>
@@ -132,8 +132,8 @@ namespace Azos
       if (operations==null || query==null)
         throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadEnumerableAsync(ICRUDOperations==null | query==null)");
 
-      return operations.LoadOneDocsetAsync(query)
-                       .ContinueWith<IEnumerable<TDoc>>( (antecedent) => antecedent.Result.AsEnumerableOf<TDoc>());
+      return operations.LoadOneRowsetAsync(query)
+                       .ContinueWith( (antecedent) => antecedent.Result.AsEnumerableOf<TDoc>());
     }
 
   }

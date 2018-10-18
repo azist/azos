@@ -336,12 +336,12 @@ namespace Azos.Serialization.JSON
               }//foreach
 
               //20140914 DKh
-              var form = doc as FormDoc;
+              var form = doc as Form;
               if (form != null)
               {
-                form.FormMode  = jsonMap[FormDoc.JSON_MODE_PROPERTY].AsEnum<FormMode>(FormMode.Unspecified);
-                form.CSRFToken = jsonMap[FormDoc.JSON_CSRF_PROPERTY].AsString();
-                var roundtrip  = jsonMap[FormDoc.JSON_ROUNDTRIP_PROPERTY].AsString();
+                form.FormMode  = jsonMap[Form.JSON_MODE_PROPERTY].AsEnum<FormMode>(FormMode.Unspecified);
+                form.CSRFToken = jsonMap[Form.JSON_CSRF_PROPERTY].AsString();
+                var roundtrip  = jsonMap[Form.JSON_ROUNDTRIP_PROPERTY].AsString();
                 if (roundtrip.IsNotNullOrWhiteSpace())
                  form.SetRoundtripBagFromJSONString(roundtrip);
               }

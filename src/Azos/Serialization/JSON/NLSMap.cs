@@ -6,6 +6,7 @@ using System.Text;
 using System.IO;
 
 using Azos.Conf;
+using Azos.Data;
 
 namespace Azos.Serialization.JSON
 {
@@ -119,7 +120,7 @@ namespace Azos.Serialization.JSON
         get
         {
           return m_Data!=null
-                  ? this[IOMiscUtils.PackISO3CodeToInt(langIso)]
+                  ? this[IOUtils.PackISO3CodeToInt(langIso)]
                   : new NDPair();
         }
       }
@@ -302,7 +303,7 @@ namespace Azos.Serialization.JSON
           JSONWriter.WriteMap(wri, nestingLevel, options,
                               m_Data.Select
                               (
-                                e => new System.Collections.DictionaryEntry(IOMiscUtils.UnpackISO3CodeFromInt(e.ISO), e)
+                                e => new System.Collections.DictionaryEntry(IOUtils.UnpackISO3CodeFromInt(e.ISO), e)
                               ).ToArray() );
 
           return;
@@ -324,7 +325,7 @@ namespace Azos.Serialization.JSON
       public IEnumerator<KeyValuePair<string, NLSMap.NDPair>> GetEnumerator()
       {
         return m_Data==null ? Enumerable.Empty<KeyValuePair<string, NLSMap.NDPair>>().GetEnumerator()
-                            : m_Data.Select( nd => new KeyValuePair<string, NLSMap.NDPair>( IOMiscUtils.UnpackISO3CodeFromInt(nd.ISO), nd)).GetEnumerator()
+                            : m_Data.Select( nd => new KeyValuePair<string, NLSMap.NDPair>( IOUtils.UnpackISO3CodeFromInt(nd.ISO), nd)).GetEnumerator()
         ;
       }
 

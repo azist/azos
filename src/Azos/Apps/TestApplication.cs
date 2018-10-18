@@ -16,7 +16,6 @@ using Azos.Glue;
 using Azos.Instrumentation;
 using Azos.Log;
 using Azos.Security;
-using Azos.Throttling;
 
 namespace Azos.Apps
 {
@@ -50,12 +49,12 @@ namespace Azos.Apps
 
             Realm = new ApplicationRealmBase();
 
-            ApplicationModel.ExecutionContext.__BindApplication(this);
+            Apps.ExecutionContext.__BindApplication(this);
         }
 
         protected override void Destructor()
         {
-            ApplicationModel.ExecutionContext.__UnbindApplication(this);
+            Apps.ExecutionContext.__UnbindApplication(this);
         }
 
         public virtual bool IsUnitTest { get; set; }

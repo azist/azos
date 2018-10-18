@@ -314,12 +314,12 @@ namespace Azos.Data.Modeling
                     entity.TransformedShortName = entity.TransformedName;
                 }
 
-                if (NameCaseSensitivity==RelationalModel.NameCaseSensitivity.ToUpper)
+                if (NameCaseSensitivity==NameCaseSensitivity.ToUpper)
                 {
                     entity.TransformedName = entity.TransformedName.ToUpperInvariant();
                     entity.TransformedShortName = entity.TransformedShortName.ToUpperInvariant();
                 }
-                 else if (NameCaseSensitivity==RelationalModel.NameCaseSensitivity.ToLower)
+                 else if (NameCaseSensitivity==NameCaseSensitivity.ToLower)
                 {
                     entity.TransformedName = entity.TransformedName.ToLowerInvariant();
                     entity.TransformedShortName = entity.TransformedShortName.ToLowerInvariant();

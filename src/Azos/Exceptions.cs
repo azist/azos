@@ -7,6 +7,7 @@
 using System;
 using System.Runtime.Serialization;
 
+using Azos.Data;
 using Azos.Apps;
 using Azos.Serialization.BSON;
 

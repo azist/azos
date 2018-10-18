@@ -23,7 +23,10 @@ namespace Azos.Apps
   public static class ExecutionContext
   {
     private static volatile IApplication s_Application;
+
+    #warning NEEDS Revision!!!
     private static volatile ISession s_Session;
+
     private static Stack<IApplication> s_AppStack = new Stack<IApplication>();
 
     /// <summary>

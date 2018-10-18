@@ -96,7 +96,7 @@ namespace Azos.Apps
                 get
                 {
                   var status = m_Status;
-                  return status == ControlStatus.Active || status == ControlStatus.Starting;
+                  return status == ServiceStatus.Active || status == ServiceStatus.Starting;
                 }
             }
 
@@ -162,18 +162,18 @@ namespace Azos.Apps
             {
                 EnsureObjectNotDisposed();
                 lock (m_StatusLock)
-                    if (m_Status == ControlStatus.Inactive)
+                    if (m_Status == ServiceStatus.Inactive)
                     {
-                        m_Status = ControlStatus.Starting;
+                        m_Status = ServiceStatus.Starting;
                         try
                         {
                           Behavior.ApplyBehaviorAttributes(this);
                           DoStart();
-                          m_Status = ControlStatus.Active;
+                          m_Status = ServiceStatus.Active;
                         }
                         catch
                         {
-                          m_Status = ControlStatus.Inactive;
+                          m_Status = ServiceStatus.Inactive;
                           throw;
                         }
                     }
@@ -185,9 +185,9 @@ namespace Azos.Apps
             public void SignalStop()
             {
                 lock (m_StatusLock)
-                    if (m_Status == ControlStatus.Active)
+                    if (m_Status == ServiceStatus.Active)
                     {
-                        m_Status = ControlStatus.Stopping;
+                        m_Status = ServiceStatus.Stopping;
                         DoSignalStop();
                     }
             }
@@ -200,9 +200,9 @@ namespace Azos.Apps
             {
                 lock (m_StatusLock)
                 {
-                    if (m_Status == ControlStatus.Inactive) return true;
+                    if (m_Status == ServiceStatus.Inactive) return true;
 
-                    if (m_Status == ControlStatus.Stopping)
+                    if (m_Status == ServiceStatus.Stopping)
                         return DoCheckForCompleteStop();
                     else
                         return false;
@@ -233,7 +233,7 @@ namespace Azos.Apps
                       m_PendingWaitingStop = false;
                     }
 
-                    m_Status = ControlStatus.Inactive;
+                    m_Status = ServiceStatus.Inactive;
                 }
             }
 
@@ -315,7 +315,7 @@ namespace Azos.Apps
                         text:   "Service.AbortStart() must be called from within DoStart()",
                         action: DebugAction.ThrowAndLog);
 
-                m_Status = ControlStatus.AbortingStart;
+                m_Status = ServiceStatus.AbortingStart;
             }
 
             /// <summary>
@@ -337,7 +337,7 @@ namespace Azos.Apps
             /// </summary>
             protected virtual bool DoCheckForCompleteStop()
             {
-                return m_Status == ControlStatus.Inactive;
+                return m_Status == ServiceStatus.Inactive;
             }
 
             /// <summary>
@@ -361,7 +361,7 @@ namespace Azos.Apps
             /// </summary>
             protected void CheckServiceInactive()
             {
-                if (Status!=ControlStatus.Inactive)
+                if (Status!= ServiceStatus.Inactive)
                 throw new AzosException(StringConsts.SERVICE_INVALID_STATE + Name);
             }
 

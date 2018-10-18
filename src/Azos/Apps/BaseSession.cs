@@ -27,7 +27,7 @@ namespace Azos.Apps
             public BaseSession(Guid id)
             {
               m_ID = id;
-              m_IDSecret = ExternalRandomGenerator.Instance.NextRandomUnsignedLong;
+              m_IDSecret = App.Random.NextRandomUnsignedLong;
               m_IsNew = true;
             }
         #endregion
@@ -216,7 +216,7 @@ namespace Azos.Apps
               if (m_OldID.HasValue) return;
               m_OldID = m_ID;
               m_ID = Guid.NewGuid();
-              m_IDSecret = ExternalRandomGenerator.Instance.NextRandomUnsignedLong;
+              m_IDSecret = App.Random.NextRandomUnsignedLong;
             }
 
 

@@ -232,7 +232,7 @@ namespace Azos.Instrumentation
             /// </summary>
             public void Record(Datum datum)
             {
-              if (Status != ControlStatus.Active) return;
+              if (Status != ServiceStatus.Active) return;
               if (datum==null) return;
               if (Overflown) return;
 

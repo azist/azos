@@ -500,25 +500,25 @@ namespace Azos.Data
 
             private static HashSet<Type> s_TypeLatch = new HashSet<Type>();
 
-            private Schema(Type trow)
+            private Schema(Type tdoc)
             {
                 lock(s_TypeLatch)
                 {
-                  if (s_TypeLatch.Contains(trow))
-                   throw new DataException(StringConsts.CRUD_TYPED_ROW_RECURSIVE_FIELD_DEFINITION_ERROR.Args(trow.FullName));
+                  if (s_TypeLatch.Contains(tdoc))
+                   throw new DataException(StringConsts.CRUD_TYPED_ROW_RECURSIVE_FIELD_DEFINITION_ERROR.Args(tdoc.FullName));
 
-                  s_TypeLatch.Add(trow);
+                  s_TypeLatch.Add(tdoc);
                   try
                   {
-                      m_Name = trow.AssemblyQualifiedName;
+                      m_Name = tdoc.AssemblyQualifiedName;
 
 
-                      var tattrs = trow.GetCustomAttributes(typeof(TableAttribute), false).Cast<TableAttribute>();
+                      var tattrs = tdoc.GetCustomAttributes(typeof(TableAttribute), false).Cast<TableAttribute>();
                       m_TableAttrs = new List<TableAttribute>( tattrs );
 
 
                       m_FieldDefs = new OrderedRegistry<FieldDef>();
-                      var props = GetFieldMembers(trow);
+                      var props = GetFieldMembers(tdoc);
                       var order = 0;
                       foreach(var prop in props)
                       {
@@ -533,12 +533,12 @@ namespace Azos.Data
                             if (attr.CloneFromDocType==null) continue;
 
                             if (fattrs.Length>1)
-                             throw new DataException(StringConsts.CRUD_TYPED_ROW_SINGLE_CLONED_FIELD_ERROR.Args(trow.FullName, prop.Name));
+                             throw new DataException(StringConsts.CRUD_TYPED_ROW_SINGLE_CLONED_FIELD_ERROR.Args(tdoc.FullName, prop.Name));
 
                             var clonedSchema = Schema.GetForTypedDoc(attr.CloneFromDocType);
                             var clonedDef = clonedSchema[prop.Name];
                             if (clonedDef==null)
-                             throw new DataException(StringConsts.CRUD_TYPED_ROW_CLONED_FIELD_NOTEXISTS_ERROR.Args(trow.FullName, prop.Name));
+                             throw new DataException(StringConsts.CRUD_TYPED_ROW_CLONED_FIELD_NOTEXISTS_ERROR.Args(tdoc.FullName, prop.Name));
 
                             fattrs = clonedDef.Attrs.ToArray();//replace these attrs from the cloned target
                             break;
@@ -550,11 +550,11 @@ namespace Azos.Data
                           order++;
                       }
                       s_TypedRegistry.Register(this);
-                      m_TypedRowType = trow;
+                      m_TypedDocType = tdoc;
                   }
                   finally
                   {
-                    s_TypeLatch.Remove(trow);
+                    s_TypeLatch.Remove(tdoc);
                   }
                 }//lock
             }
@@ -606,7 +606,7 @@ namespace Azos.Data
 
             private string m_Name;
             private bool m_ReadOnly;
-            private Type m_TypedRowType;
+            private Type m_TypedDocType;
 
             private List<TableAttribute> m_TableAttrs;
             private OrderedRegistry<FieldDef> m_FieldDefs;
@@ -633,11 +633,11 @@ namespace Azos.Data
             }
 
             /// <summary>
-            /// Returns a type of TypedRow if schema was created for TypedRow, or null
+            /// Returns a type of TypedDoc if schema was created for TypedRow, or null
             /// </summary>
-            public Type TypedRowType
+            public Type TypedDocType
             {
-                get { return m_TypedRowType;}
+                get { return m_TypedDocType;}
             }
 
             /// <summary>

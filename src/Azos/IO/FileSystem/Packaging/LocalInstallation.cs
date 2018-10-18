@@ -177,8 +177,8 @@ namespace Azos.IO.FileSystem.Packaging
       {
         if (m_InstallationStarted) return;
 
-        IOMiscUtils.EnsureDirectoryDeleted(m_RootPath);
-        IOMiscUtils.EnsureAccessibleDirectory(m_RootPath);
+        IOUtils.EnsureDirectoryDeleted(m_RootPath);
+        IOUtils.EnsureAccessibleDirectory(m_RootPath);
 
         m_InstallationStarted = true;
 
@@ -196,7 +196,7 @@ namespace Azos.IO.FileSystem.Packaging
         if (package.RelativePath.IsNotNullOrWhiteSpace())
         {
          path = Path.Combine(path, package.RelativePath);
-         IOMiscUtils.EnsureAccessibleDirectory(path);
+         IOUtils.EnsureAccessibleDirectory(path);
         }
 
         var packageName = package.Name;

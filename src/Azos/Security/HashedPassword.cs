@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Security

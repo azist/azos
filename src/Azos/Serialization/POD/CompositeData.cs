@@ -35,7 +35,7 @@ namespace Azos.Serialization.POD
                 var dict = document.m_CompositeDataDict;
                 if (dict==null)
                 {
-                    dict = new Dictionary<object, int>(ReferenceEqualityComparer<object>.Instance);
+                    dict = new Dictionary<object, int>(Collections.ReferenceEqualityComparer<object>.Instance);
                     document.m_CompositeDataDict = dict;
                 }
 

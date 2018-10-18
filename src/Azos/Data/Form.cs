@@ -19,14 +19,14 @@ namespace Azos.Data
   /// Form models are statically typed - contain fields and can contain "extra amorphous" data
   /// </summary>
   [Serializable]
-  public abstract class FormDoc : AmorphousTypedDoc
+  public abstract class Form : AmorphousTypedDoc
   {
       public const string JSON_MODE_PROPERTY = "__FormMode";
       public const string JSON_CSRF_PROPERTY = CoreConsts.CSRF_TOKEN_NAME;
       public const string JSON_ROUNDTRIP_PROPERTY = "__Roundtrip";
 
 
-      protected FormDoc() {}
+      protected Form() {}
 
 
       /// <summary>

@@ -612,7 +612,7 @@ namespace Azos.Data
             {
               if (other==null || object.ReferenceEquals(this, other)) return;
 
-              var target = this is FormDoc ? ((FormDoc)this).DataStoreTargetName : string.Empty;
+              var target = this is Form ? ((Form)this).DataStoreTargetName : string.Empty;
 
               var oad = includeAmorphousData ? other as IAmorphousData : null;
 

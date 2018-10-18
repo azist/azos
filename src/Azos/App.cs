@@ -187,7 +187,7 @@ namespace Azos
 
       /// <summary>
       /// References application-wide RandomGenerator.
-      /// For now, it is a shortcut to the default instance of Platform.RandomGenerator.Instance
+      /// By default, it is a shortcut to the default instance of Platform.RandomGenerator.Instance
       /// </summary>
       public static Platform.RandomGenerator Random => Platform.RandomGenerator.Instance;
 

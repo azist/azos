@@ -197,7 +197,7 @@ namespace Azos
     /// </summary>
     public static int ChangeByRndPct(this int value, float pct)
     {
-      return value + (int)((value * pct) * ExternalRandomGenerator.Instance.NextRandomDouble);
+      return value + (int)((value * pct) * App.Random.NextRandomDouble);
     }
 
     /// <summary>
@@ -205,7 +205,7 @@ namespace Azos
     /// </summary>
     public static long ChangeByRndPct(this long value, float pct)
     {
-      return value + (long)((value * pct) * ExternalRandomGenerator.Instance.NextRandomDouble);
+      return value + (long)((value * pct) * App.Random.NextRandomDouble);
     }
 
   }

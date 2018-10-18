@@ -15,6 +15,7 @@ namespace Azos
   /// </summary>
   public static class ConfUtils
   {
+
     /// <summary>
     /// Tries to convert object to laconic config content and parse i. This is a shortcut to ObjectValueConversion.AsLaconicConfig(object)
     /// </summary>
@@ -23,6 +24,7 @@ namespace Azos
                                                     string wrapRootName = "azos",
                                                     Azos.Data.ConvertErrorHandling handling = Azos.Data.ConvertErrorHandling.ReturnDefault)
     => Azos.Data.ObjectValueConversion.AsLaconicConfig(val, dflt, wrapRootName, handling);
+
 
 
     /// <summary>

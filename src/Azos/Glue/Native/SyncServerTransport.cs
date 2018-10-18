@@ -156,7 +156,7 @@ namespace Azos.Glue.Native
                }
                catch(Exception error)
                {
-                   if (this.Status != ControlStatus.Stopping)//then this is a bad error
+                   if (this.Status != ServiceStatus.Stopping)//then this is a bad error
                    {
                      Binding.WriteLog(LogSrc.Server,
                                       Log.MessageType.CatastrophicError,

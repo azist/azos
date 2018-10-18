@@ -254,7 +254,7 @@ namespace Azos.Pile.Instrumentation
 
     public static void Happened(string tableName)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
+      var inst = App.Instrumentation;
       if (inst.Enabled)
         inst.Record(new CacheTableSwept(tableName));
     }

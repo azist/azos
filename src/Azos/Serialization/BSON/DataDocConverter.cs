@@ -212,7 +212,7 @@ namespace Azos.Serialization.BSON
         /// </summary>
         protected static Schema.FieldDef MapBSONFieldNameToSchemaFieldDef(Schema schema, string targetName, string bsonFieldName)
         {
-          if (schema.TypedRowType==null)
+          if (schema.TypedDocType==null)
             return mapBSONFieldNameToSchemaFieldDef(schema, targetName, bsonFieldName);
 
           if (targetName==null) targetName = FieldAttribute.ANY_TARGET;

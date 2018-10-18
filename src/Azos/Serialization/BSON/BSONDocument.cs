@@ -514,7 +514,7 @@ namespace Azos.Serialization.BSON
                     else if (value is double || value is float) bType = BSONElementType.Double;
                     else if (value is byte[])
                     {
-                        return RowConverter.ByteBuffer_CLRtoBSON(name, (byte[])value);
+                        return DataDocConverter.ByteBuffer_CLRtoBSON(name, (byte[])value);
                     }
                     else if (value is JSONDataMap)
                     {
@@ -532,17 +532,17 @@ namespace Azos.Serialization.BSON
                         value = list.ToArray();
                         bType = BSONElementType.Array;
                     }
-                    else if (value is Data.Distributed.GDID)
+                    else if (value is Data.GDID)
                     {
-                        return RowConverter.GDID_CLRtoBSON(name, (Data.Distributed.GDID)value);
+                        return DataDocConverter.GDID_CLRtoBSON(name, (Data.GDID)value);
                     }
                     else if (value is decimal)
                     {
-                        return RowConverter.Decimal_CLRtoBSON(name, (decimal)value);
+                        return DataDocConverter.Decimal_CLRtoBSON(name, (decimal)value);
                     }
                     else if (value is Azos.Financial.Amount)
                     {
-                        return RowConverter.Amount_CLRtoBSON(name, (Financial.Amount)value);
+                        return DataDocConverter.Amount_CLRtoBSON(name, (Financial.Amount)value);
                     }
                     else if (value.GetType().IsEnum)
                       bType = BSONElementType.String;

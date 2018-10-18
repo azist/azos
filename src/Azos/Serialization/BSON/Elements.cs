@@ -302,7 +302,7 @@ namespace Azos.Serialization.BSON
 
     public override void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
-      if (Value.ToUniversalTime() >= MiscUtils.UNIX_EPOCH_START_DATE)
+      if (Value.ToUniversalTime() >= DateUtils.UNIX_EPOCH_START_DATE)
       {
         JSONWriter.WriteMap(wri,
           nestingLevel + 1,

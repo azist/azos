@@ -20,11 +20,11 @@ namespace Azos.Log.Sinks
             {
             }
 
-            public CompositeSink(params CompositeSink[] inner) : this(null, inner)
+            public CompositeSink(params Sink[] inner) : this(null, inner)
             {
             }
 
-            public CompositeSink(string name, params CompositeSink[] inner) : base (name)
+            public CompositeSink(string name, params Sink[] inner) : base (name)
             {
               if (inner==null) return;
               foreach(var d in inner)

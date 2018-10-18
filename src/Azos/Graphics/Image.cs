@@ -11,6 +11,7 @@ using System.Drawing;
 using System.IO;
 
 
+using Azos.Platform.Abstraction;
 using Azos.Platform.Abstraction.Graphics;
 
 namespace Azos.Graphics

@@ -184,7 +184,7 @@ namespace Azos.Collections
       finally
       {
         if (!DisposeStarted)
-          Task.Delay(IntMath.ChangeByRndPct(THREAD_GRANULARITY_MS, 0.25f))
+          Task.Delay(IntUtils.ChangeByRndPct(THREAD_GRANULARITY_MS, 0.25f))
               .ContinueWith( _ => visit() );
       }
     }

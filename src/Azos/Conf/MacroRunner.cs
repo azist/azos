@@ -5,14 +5,10 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Reflection;
 using System.Globalization;
 
-
+using Azos.Data;
 using Azos.Time;
 
 namespace Azos.Conf
@@ -137,8 +133,8 @@ namespace Azos.Conf
             }
             else if (string.Equals(macroName, "ctx-name", StringComparison.InvariantCultureIgnoreCase))
             {
-               if (context is INamed)
-                return ((INamed)context).Name;
+               if (context is Collections.INamed)
+                return ((Collections.INamed)context).Name;
             }
 
 

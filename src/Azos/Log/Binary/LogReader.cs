@@ -103,7 +103,7 @@ namespace Azos.Log.Binary
 
       public IEnumerable<object> read(bool includeMetadata)
       {
-        DateTime current = MiscUtils.UNIX_EPOCH_START_DATE;
+        DateTime current = DateUtils.UNIX_EPOCH_START_DATE;
         while(App.Active)
         {
             while(App.Active)
@@ -112,7 +112,7 @@ namespace Azos.Log.Binary
                 if (h==Format.PageHeaderReadStatus.OK) break;
                 if (h==Format.PageHeaderReadStatus.EOF) yield break;
                 var pos = Stream.Position;
-                var newPos = IntMath.Align16( pos );
+                var newPos = IntUtils.Align16( pos );
                 var delta = newPos - pos;
 
                 var eof = true;
@@ -136,7 +136,7 @@ namespace Azos.Log.Binary
                   DateTime ts = DateTime.MinValue;
                   try{ ts = Format.ReadTimeStamp(m_Stream);} catch{}
 
-                  if (ts<=MiscUtils.UNIX_EPOCH_START_DATE || ts<current)//corruption
+                  if (ts<=DateUtils.UNIX_EPOCH_START_DATE || ts<current)//corruption
                   {
                     if (includeMetadata) yield return LogCorruption.Instance;
                     break;
@@ -178,7 +178,7 @@ namespace Azos.Log.Binary
           throw new BinLogException(StringConsts.BINLOG_STREAM_CORRUPTED_ERROR+"bad type");
 
         var pos = stream.Position;
-        var start = IntMath.Align16(pos);
+        var start = IntUtils.Align16(pos);
         while(pos<start)
          if (Format.ReadByte(stream)!=0)
           throw new BinLogException(StringConsts.BINLOG_STREAM_CORRUPTED_ERROR+"bad header pad");

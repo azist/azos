@@ -6,6 +6,7 @@
 using System;
 
 using Azos.Conf;
+using Azos.Data;
 
 namespace Azos.Security
 {
@@ -61,7 +62,7 @@ namespace Azos.Security
       {
         return new MD5PasswordHashingOptions
         {
-          Salt = ExternalRandomGenerator.Instance.NextRandomBytes(SaltMinLenght, SaltMaxLenght)
+          Salt = App.Random.NextRandomBytes(SaltMinLenght, SaltMaxLenght)
         };
       }
     }

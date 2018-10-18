@@ -92,7 +92,7 @@ namespace Azos.Serialization.Arow
 
     protected virtual IEnumerable<Type> GetRowTypes(Assembly asm)
     {
-      var types = asm.GetTypes().Where( t => t.IsClass && Attribute.IsDefined(t, typeof(ArowAttribute), false) && typeof(TypedRow).IsAssignableFrom(t))
+      var types = asm.GetTypes().Where( t => t.IsClass && Attribute.IsDefined(t, typeof(ArowAttribute), false) && typeof(TypedDoc).IsAssignableFrom(t))
                                 .OrderBy( t => t.Namespace )
                                 .ToArray();
       return types;
@@ -173,20 +173,20 @@ namespace Azos.Serialization.Arow
       source.AppendLine("//EOF");
     }
 
-    protected virtual void EmitITypeSerializationCore(StringBuilder source, Type tRow)
+    protected virtual void EmitITypeSerializationCore(StringBuilder source, Type tDoc)
     {
       if (source==null) return;
-      var cname = "{0}_arow_core".Args(tRow.Name);
+      var cname = "{0}_arow_core".Args(tDoc.Name);
       source.AppendLine("  ///<summary>");
-      source.AppendLine("  /// ITypeSerializationCore for {0}".Args(tRow.FullName));
+      source.AppendLine("  /// ITypeSerializationCore for {0}".Args(tDoc.FullName));
       source.AppendLine("  ///</summary>");
       source.AppendLine("  internal class {0} : Azos.Serialization.Arow.ITypeSerializationCore".Args(cname));
       source.AppendLine("  {");
-      var schema = Schema.GetForTypedRow(tRow);
+      var schema = Schema.GetForTypedDoc(tDoc);
 
       source.AppendLine("    void ITypeSerializationCore.Register()");
       source.AppendLine("    {");
-      source.AppendLine("       ArowSerializer.Register(typeof({0}), this);".Args(tRow.FullName));
+      source.AppendLine("       ArowSerializer.Register(typeof({0}), this);".Args(tDoc.FullName));
       source.AppendLine("    }");
       source.AppendLine();
 
@@ -202,9 +202,9 @@ namespace Azos.Serialization.Arow
 
     protected virtual void EmitSerialize(StringBuilder source, Schema schema)
     {
-      source.AppendLine("    void ITypeSerializationCore.Serialize(TypedRow aRow, WritingStreamer streamer)");
+      source.AppendLine("    void ITypeSerializationCore.Serialize(TypedDoc aDoc, WritingStreamer streamer)");
       source.AppendLine("    {");
-      source.AppendLine("      var row = ({0})aRow;".Args(schema.TypedRowType.FullName));
+      source.AppendLine("      var doc = ({0})aDoc;".Args(schema.TypedDocType.FullName));
          EmitSerializeBody(source, schema);
       source.AppendLine("    }");
     }
@@ -272,9 +272,9 @@ namespace Azos.Serialization.Arow
 
     protected virtual void EmitDeserialize(StringBuilder source, Schema schema)
     {
-      source.AppendLine("    void ITypeSerializationCore.Deserialize(TypedRow aRow, ReadingStreamer streamer)");
+      source.AppendLine("    void ITypeSerializationCore.Deserialize(TypedDoc aDoc, ReadingStreamer streamer)");
       source.AppendLine("    {");
-      source.AppendLine("      var row = ({0})aRow;".Args(schema.TypedRowType.FullName));
+      source.AppendLine("      var row = ({0})aRow;".Args(schema.TypedDocType.FullName));
          EmitDeserializeBody(source, schema);
       source.AppendLine("    }");
     }
@@ -285,7 +285,7 @@ namespace Azos.Serialization.Arow
       source.AppendLine("      {");
 
       source.AppendLine("         var name = Reader.ReadName(streamer);");
-      source.AppendLine("         if (name==0) break;//EORow");
+      source.AppendLine("         if (name==0) break;//EODoc");
       source.AppendLine("         var dt = Reader.ReadDataType(streamer);");
       source.AppendLine("         DataType? atp = null;");
       source.AppendLine("         switch(name)");
@@ -327,7 +327,7 @@ namespace Azos.Serialization.Arow
       if (!Reader.DESER_TYPE_MAP.TryGetValue(t, out code))
       {
         if (isNullable || !isValueType)
-          source.AppendLine("           if (dt==DataType.Null) {{ row.{0} = null; continue;}} ".Args(prop));
+          source.AppendLine("           if (dt==DataType.Null) {{ doc.{0} = null; continue;}} ".Args(prop));
 
         if (t.IsEnum)
         {

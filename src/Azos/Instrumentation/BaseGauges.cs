@@ -1,9 +1,7 @@
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
+using Azos.Data;
 using Azos.Financial;
 using Azos.Serialization.BSON;
 
@@ -138,13 +136,13 @@ namespace Azos.Instrumentation
     public override void SerializeToBSON(BSONSerializer serializer, BSONDocument doc, IBSONSerializable parent, ref object context)
     {
       base.SerializeToBSON(serializer, doc, parent, ref context);
-      doc.Set(RowConverter.Decimal_CLRtoBSON(BSON_FLD_VALUE, m_Value));
+      doc.Set(DataDocConverter.Decimal_CLRtoBSON(BSON_FLD_VALUE, m_Value));
     }
 
     public override void DeserializeFromBSON(BSONSerializer serializer, BSONDocument doc, ref object context)
     {
       base.DeserializeFromBSON(serializer, doc, ref context);
-      m_Value = RowConverter.Decimal_BSONtoCLR(doc[BSON_FLD_VALUE]);
+      m_Value = DataDocConverter.Decimal_BSONtoCLR(doc[BSON_FLD_VALUE]);
     }
 
     [NonSerialized]
@@ -210,13 +208,13 @@ namespace Azos.Instrumentation
     public override void SerializeToBSON(BSONSerializer serializer, BSONDocument doc, IBSONSerializable parent, ref object context)
     {
       base.SerializeToBSON(serializer, doc, parent, ref context);
-      doc.Set(RowConverter.Amount_CLRtoBSON(BSON_FLD_VALUE, m_Value));
+      doc.Set(DataDocConverter.Amount_CLRtoBSON(BSON_FLD_VALUE, m_Value));
     }
 
     public override void DeserializeFromBSON(BSONSerializer serializer, BSONDocument doc, ref object context)
     {
       base.DeserializeFromBSON(serializer, doc, ref context);
-      m_Value = RowConverter.Amount_BSONtoCLR((BSONDocumentElement)doc[BSON_FLD_VALUE]);
+      m_Value = DataDocConverter.Amount_BSONtoCLR((BSONDocumentElement)doc[BSON_FLD_VALUE]);
     }
 
     [NonSerialized]

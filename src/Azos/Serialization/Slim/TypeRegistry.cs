@@ -72,40 +72,32 @@ namespace Azos.Serialization.Slim
            {
              get
              {
-               yield return typeof(DataAccess.IDataStoreKey);
-               yield return typeof(DataAccess.CRUD.TableAttribute);
-               yield return typeof(DataAccess.CRUD.FieldAttribute);
-               yield return typeof(DataAccess.CRUD.FieldAttribute[]);
-               yield return typeof(List<DataAccess.CRUD.FieldAttribute>);
-               yield return typeof(DataAccess.CRUD.Schema);
-               yield return typeof(DataAccess.CRUD.Schema.FieldDef);
-               yield return typeof(OrderedRegistry<DataAccess.CRUD.Schema.FieldDef>);
-               yield return typeof(RegistryDictionary<DataAccess.CRUD.Schema.FieldDef>);
-               yield return typeof(List<DataAccess.CRUD.Schema.FieldDef>);
-               yield return typeof(DataAccess.CRUD.RowChange);
-               yield return typeof(DataAccess.CRUD.RowChange[]);
-               yield return typeof(List<DataAccess.CRUD.RowChange>);
+               yield return typeof(Data.Access.IDataStoreKey);
+               yield return typeof(Data.TableAttribute);
+               yield return typeof(Data.FieldAttribute);
+               yield return typeof(Data.FieldAttribute[]);
+               yield return typeof(List<Data.FieldAttribute>);
+               yield return typeof(Data.Schema);
+               yield return typeof(Data.Schema.FieldDef);
+               yield return typeof(Collections.OrderedRegistry<Data.Schema.FieldDef>);
+               yield return typeof(Collections.RegistryDictionary<Data.Schema.FieldDef>);
+               yield return typeof(List<Data.Schema.FieldDef>);
+               yield return typeof(Data.DocChange);
+               yield return typeof(Data.DocChange[]);
+               yield return typeof(List<Data.DocChange>);
 
-               yield return typeof(DataAccess.CRUD.Row);
-               yield return typeof(DataAccess.CRUD.Row[]);
-               yield return typeof(List<DataAccess.CRUD.Row>);
+               yield return typeof(Data.Doc);
+               yield return typeof(Data.Doc[]);
+               yield return typeof(List<Data.Doc>);
 
-               yield return typeof(DataAccess.CRUD.DynamicRow);
-               yield return typeof(DataAccess.CRUD.TypedRow);
-               yield return typeof(DataAccess.CRUD.Query);
-               yield return typeof(DataAccess.CRUD.Query.Param);
-               yield return typeof(DataAccess.CRUD.Query.Param[]);
-               yield return typeof(DataAccess.CRUD.Rowset);
-               yield return typeof(DataAccess.CRUD.Table);
-               yield return typeof(DataAccess.CRUD.FormModel);
-
-               yield return typeof(DataAccess.Distributed.Command);
-               yield return typeof(DataAccess.Distributed.Command.Param);
-               yield return typeof(DataAccess.Distributed.Command.Param[]);
-               yield return typeof(DataAccess.Distributed.Parcel);
-               yield return typeof(DataAccess.Distributed.Parcel[]);
-               yield return typeof(DataAccess.Distributed.IReplicationVersionInfo);
-
+               yield return typeof(Data.DynamicDoc);
+               yield return typeof(Data.TypedDoc);
+               yield return typeof(Data.Access.Query);
+               yield return typeof(Data.Access.Query.Param);
+               yield return typeof(Data.Access.Query.Param[]);
+               yield return typeof(Data.Rowset);
+               yield return typeof(Data.Table);
+               yield return typeof(Data.Form);
              }
            }
 
@@ -158,7 +150,7 @@ namespace Azos.Serialization.Slim
                yield return typeof(bool);
                yield return typeof(DateTime);
                yield return typeof(TimeSpan);
-               yield return typeof(Data.Distributed.GDID);
+               yield return typeof(Data.GDID);
                yield return typeof(Apps.FID);
              }
            }
@@ -185,7 +177,7 @@ namespace Azos.Serialization.Slim
                yield return typeof(bool?);
                yield return typeof(DateTime?);
                yield return typeof(TimeSpan?);
-               yield return typeof(Azos.Data.Distributed.GDID?);
+               yield return typeof(Data.GDID?);
                yield return typeof(Apps.FID?);
              }
            }
@@ -209,7 +201,7 @@ namespace Azos.Serialization.Slim
                yield return typeof(POD.CompositeCustomData);
                yield return typeof(POD.CompositeReflectedData);
                yield return typeof(POD.CustomTypedEntry);
-               yield return typeof(Environment.BuildInformation);
+               yield return typeof(Conf.BuildInformation);
                yield return typeof(List<POD.MetaType>);
                yield return typeof(POD.MetaType[]);
                yield return typeof(List<POD.CompositeData>);

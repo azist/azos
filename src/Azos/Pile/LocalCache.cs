@@ -617,7 +617,7 @@ namespace Azos.Pile
                                .Args(error.ToMessageWithType()), error );
                     }
 
-                    m_Trigger.WaitOne(THREAD_MIN_GRANULARITY_MS + ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, THREAD_GRANULARITY_VARIANCE_MS));
+                    m_Trigger.WaitOne(THREAD_MIN_GRANULARITY_MS + App.Random.NextScaledRandomInteger(0, THREAD_GRANULARITY_VARIANCE_MS));
                   }//while
 
               }
