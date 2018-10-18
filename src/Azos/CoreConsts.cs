@@ -17,8 +17,11 @@ namespace Azos
 
       public const string CSRF_TOKEN_NAME = "__CSRFToken";
 
+
+    public static readonly Geometry.LatLng DEFAULT_GEO_LOCATION = new Geometry.LatLng("41.4996374,-81.6936649", "Cleveland, OH, USA");
+
     #region External parameters
-      public const string EXT_PARAM_CONTENT_LACONIC = "laconic://";
+    public const string EXT_PARAM_CONTENT_LACONIC = "laconic://";
       public const string EXT_PARAM_CONTENT_JSON = "json://";
 
       public const string EXT_PARAM_GROUP_PILE = "pile";
