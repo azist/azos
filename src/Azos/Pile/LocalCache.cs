@@ -363,15 +363,15 @@ namespace Azos.Pile
         {
           if (node==null || !node.Exists)
                 {
-                    node = App.ConfigRoot[DataAccess.Cache.CacheStore.CONFIG_CACHE_SECTION]
+                    node = App.ConfigRoot[Data.Access.Cache.CacheStore.CONFIG_CACHE_SECTION]
                               .Children
-                              .FirstOrDefault(s => s.IsSameName(DataAccess.Cache.CacheStore.CONFIG_STORE_SECTION) && s.IsSameNameAttr(Name) );
+                              .FirstOrDefault(s => s.IsSameName(Data.Access.Cache.CacheStore.CONFIG_STORE_SECTION) && s.IsSameNameAttr(Name) );
                     if (node==null)
                     {
 
-                        node = App.ConfigRoot[DataAccess.Cache.CacheStore.CONFIG_CACHE_SECTION]
+                        node = App.ConfigRoot[Data.Access.Cache.CacheStore.CONFIG_CACHE_SECTION]
                                .Children
-                               .FirstOrDefault(s => s.IsSameName(DataAccess.Cache.CacheStore.CONFIG_STORE_SECTION) && !s.AttrByName(Configuration.CONFIG_NAME_ATTR).Exists);
+                               .FirstOrDefault(s => s.IsSameName(Data.Access.Cache.CacheStore.CONFIG_STORE_SECTION) && !s.AttrByName(Configuration.CONFIG_NAME_ATTR).Exists);
                         if (node==null) return;
                     }
                 }
@@ -379,7 +379,7 @@ namespace Azos.Pile
                 ConfigAttribute.Apply(this, node);
 
                 m_TableOptions = new Registry<TableOptions>();
-                foreach(var tn in node.Children.Where(cn => cn.IsSameName(DataAccess.Cache.CacheStore.CONFIG_TABLE_SECTION)) )
+                foreach(var tn in node.Children.Where(cn => cn.IsSameName(Data.Access.Cache.CacheStore.CONFIG_TABLE_SECTION)) )
                 {
                     var tbl = new TableOptions(tn);
                     m_TableOptions.Register( tbl );
