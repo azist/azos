@@ -7,6 +7,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos", "Azos\Azos.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azos.Sky", "Azos.Sky\Azos.Sky.csproj", "{56467E57-0C42-42C9-B9B0-359A2A061BA0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runtimes", "runtimes", "{344ACA28-AC93-4CA9-9203-78C93A4918CD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{ABC662BC-C8F5-4D1F-A411-E45DCFC5417E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "netf", "netf", "{F572F5AC-8BDE-4D36-BE8A-ED42299C576F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azos.Platform.NetFramework", "runtimes\netf\Azos.Platform.NetFramework\Azos.Platform.NetFramework.csproj", "{9A912017-D9C0-4739-A725-2CA4C9E9E63B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C2217C23-C12B-4CE7-B8B6-7222662EB16A}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,9 +34,18 @@ Global
 		{56467E57-0C42-42C9-B9B0-359A2A061BA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56467E57-0C42-42C9-B9B0-359A2A061BA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56467E57-0C42-42C9-B9B0-359A2A061BA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A912017-D9C0-4739-A725-2CA4C9E9E63B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A912017-D9C0-4739-A725-2CA4C9E9E63B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A912017-D9C0-4739-A725-2CA4C9E9E63B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A912017-D9C0-4739-A725-2CA4C9E9E63B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{ABC662BC-C8F5-4D1F-A411-E45DCFC5417E} = {344ACA28-AC93-4CA9-9203-78C93A4918CD}
+		{F572F5AC-8BDE-4D36-BE8A-ED42299C576F} = {344ACA28-AC93-4CA9-9203-78C93A4918CD}
+		{9A912017-D9C0-4739-A725-2CA4C9E9E63B} = {F572F5AC-8BDE-4D36-BE8A-ED42299C576F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75EF590C-FE75-45E7-B941-B225EF484F5F}

@@ -8,10 +8,10 @@
     <NoWarn>1701;1702;1705;1591</NoWarn>
 
 
-    <Authors>AZist, @dzhabis, @dkh</Authors>
-    <Company>AZist Team</Company>
+    <Authors>Azist, @dzhabis, @dkh</Authors>
+    <Company>Azist Group</Company>
     <Description>AZOS - A to Z Application OS</Description>
-    <Copyright>2018 AZist Team</Copyright>
+    <Copyright>2018 Azist Group</Copyright>
     <PackageProjectUrl>http://zhabis.com/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/azist/azos</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
