@@ -1,0 +1,76 @@
+﻿<push>
+<f color=magenta>
+ Usage:
+<f color=white>
+   trun <f color=green>assembly1 assemblyN <f color=darkCyan>[/h | /? | /help]
+              [/r | /runner
+                  [<f color=darkRed>type<f color=darkCyan>=type_name]
+                  [<f color=darkRed>categories<f color=darkCyan>=cat1[;catN]]
+                  [<f color=darkRed>methods<f color=darkCyan>=m1[;mN]]
+                  [<f color=darkRed>names<f color=darkCyan>=case1[;caseN]]
+                  [<f color=darkRed>emulate<f color=darkCyan>=bool]
+                  [... runner type-specific attributes]
+              ]
+              [/host
+                  [<f color=darkRed>type<f color=darkCyan>=type_name]
+                  [<f color=darkRed>out<f color=darkCyan>=out_file]
+                  [... host type-specific attributes]
+              ]
+
+<f color=gray>
+Executes tests in classes marked with [Runnable] attribute, methods marked with [Run].
+The execution is performed under the global application container which allows override.
+
+Pass <f color=darkCyan>-r <f color=darkRed>emulate<f color=darkCyan>=true<f color=gray> to skip run method bodies. This is used to check for method setup problems.
+
+<f color=magenta>
+ Specifiers:
+
+<f color=green>assembly<f color=gray> - fully qualified assembly path
+<f color=green>type_name<f color=gray> - fully qualified CLR type name
+<f color=green>out_file<f color=gray> - output file path ending in <f color=darkRed>XML|JSON|LACONF<f color=gray>
+
+The following filters specifiers respect pattern matches having:
+  <f color=cyan>'?'<f color=gray> - represents a single character
+  <f color=cyan>'*'<f color=gray> - represents any number of characters
+<f color=green>cat<f color=gray> - category names
+<f color=green>m<f color=gray> - full method name (with type), i.e. "Class.Method"
+<f color=green>case<f color=gray> - case names as declared in [Run], i.e. [Run("case1"...)]
+Use <f color=cyan>'!'<f color=gray> in [Run] declaration for explicit case naming:
+explicitly-named cases get invoked ONLY when the case filter is specified (and matched)
+
+
+<f color=magenta>
+ Examples:
+
+<f color=yellow> trun mytests.dll -r namespaces=MyLogic.Core*;MyLogic.DB* methods=Align*;Concat*<f color=gray>
+Runs all test methods starting from 'Align' or 'Concat' in the specified namespaces
+
+
+<f color=yellow> trun mytests.dll -r methods=RunnerTests.InjectComp* names=case?<f color=gray>
+Runs all methods in RunnerTests class, starting from 'InjectComp' prefix having run case names
+starting with 'case' and ending in any single character
+
+
+<f color=yellow> trun mytests.dll -r names=case1,case2<f color=gray>
+Runs just the two named test cases; start case names with '!' to run the cases only if their names are supplied:
+<f color=darkgray>
+ [Run("!case1"....)]  vs  [Run("case2"....)]<f color=gray>
+ 'case1' will run only when the name is supplied in 'names=...' pattern match
+
+
+<f color=yellow> trun mytests.dll -r names=cli-args args="a1='Abc' a2=149"<f color=gray>
+Passes named args to test case 'cli-args':<f color=darkgray>
+  [Run("!cli-args", "cliArg1=$(~@a1) cliArg2=$(~@a2)")]
+  public void RunnerArgs(string cliArg1, int cliArg2){...}
+
+<f color=yellow> trun mytests.dll -host out="c:\azos\result.laconf"<f color=gray>
+Only emulates running all test cases
+
+<f color=yellow> trun mytests.dll -r emulate=true<f color=gray>
+Only emulates running all test cases
+
+
+<f color=darkcyan>For more detailed test run case examples see <f color=cyan>"src/testing/Azos.UTest/RunnerTests.cs"
+
+<pop>

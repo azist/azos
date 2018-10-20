@@ -27,7 +27,7 @@ namespace Azos.Conf
 
 
       /// <summary>
-      /// Designates entities that may persist their parameters/state in configuration
+      /// Designates entities that may persist their parameters/state into configuration
       /// </summary>
       public interface IConfigurationPersistent
       {

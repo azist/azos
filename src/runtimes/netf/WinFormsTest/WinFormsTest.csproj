@@ -1,0 +1,274 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7139004B-13F5-4732-A177-D964FD283555}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>WinFormsTest</RootNamespace>
+    <AssemblyName>WinFormsTest</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <_HasReferenceToSystemRuntime>true</_HasReferenceToSystemRuntime>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+    <SccProjectName>Svn</SccProjectName>
+    <SccLocalPath>Svn</SccLocalPath>
+    <SccAuxPath>Svn</SccAuxPath>
+    <SccProvider>SubversionScc</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\out\Debug\run-netf\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\..\out\Release\run-netf\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BSONTestForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BSONTestForm.Designer.cs">
+      <DependentUpon>BSONTestForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CacheTest.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CacheTest.Designer.cs">
+      <DependentUpon>CacheTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ConsoleUtils\ConsoleUtilsFrm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConsoleUtils\ConsoleUtilsFrm.Designer.cs">
+      <DependentUpon>ConsoleUtilsFrm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GlueForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GlueForm.Designer.cs">
+      <DependentUpon>GlueForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Glue\JokeHelper.cs" />
+    <Compile Include="Glue\JokeCalculatorClientForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Glue\JokeCalculatorClientForm.Designer.cs">
+      <DependentUpon>JokeCalculatorClientForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LogForm.Designer.cs">
+      <DependentUpon>LogForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MenuForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MenuForm.Designer.cs">
+      <DependentUpon>MenuForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PileForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PileForm.Designer.cs">
+      <DependentUpon>PileForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SerializerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SerializerForm.Designer.cs">
+      <DependentUpon>SerializerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SerializerForm2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SerializerForm2.Designer.cs">
+      <DependentUpon>SerializerForm2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FIDForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FIDForm.Designer.cs">
+      <DependentUpon>FIDForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="BSONTestForm.resx">
+      <DependentUpon>BSONTestForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CacheTest.resx">
+      <DependentUpon>CacheTest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConsoleUtils\ConsoleUtilsFrm.resx">
+      <DependentUpon>ConsoleUtilsFrm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GlueForm.resx">
+      <DependentUpon>GlueForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Glue\JokeCalculatorClientForm.resx">
+      <DependentUpon>JokeCalculatorClientForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LogForm.resx">
+      <DependentUpon>LogForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MenuForm.resx">
+      <DependentUpon>MenuForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PileForm.resx">
+      <DependentUpon>PileForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="SerializerForm.resx">
+      <DependentUpon>SerializerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SerializerForm2.resx">
+      <DependentUpon>SerializerForm2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FIDForm.resx">
+      <DependentUpon>FIDForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="app.config" />
+    <None Include="glue-client-test.configuration">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="post-build" />
+    <None Include="post-build.cmd" />
+    <None Include="pre-build" />
+    <None Include="pre-build.cmd" />
+    <None Include="Z1.laconf">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="WinFormsTest.configuration">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ConsoleUtils\Help.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ConsoleUtils\Welcome.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ConsoleUtils\ConsoleUtils.Default.htm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ConsoleUtils\Calibration.htm" />
+    <Content Include="Resources\20140601_204233 - 2.jpg" />
+    <None Include="Resources\20140601_204233.jpg" />
+    <EmbeddedResource Include="ConsoleUtils\ConsoleUtils.Modern.htm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Azos\Azos.csproj">
+      <Project>{c2bf5275-c8c2-46cc-86c7-a83a75c2be0d}</Project>
+      <Name>Azos</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Azos.Platform.NetFramework\Azos.Platform.NetFramework.csproj">
+      <Project>{9a912017-d9c0-4739-a725-2ca4c9e9e63b}</Project>
+      <Name>Azos.Platform.NetFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Azos.WinForms\Azos.WinForms.csproj">
+      <Project>{e4eb3e71-6121-4a9b-b967-a8fd233d003a}</Project>
+      <Name>Azos.WinForms</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>$(ProjectDir)pre-build $(SolutionDir)</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>$(ProjectDir)post-build $(SolutionDir)</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

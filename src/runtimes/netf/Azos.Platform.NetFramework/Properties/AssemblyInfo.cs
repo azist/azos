@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Azos platform abstraction for the full .NET Framework")]
 [assembly: AssemblyCompany("Azist Group")]
 [assembly: AssemblyProduct("Azos.Platform.NetFramework")]
-[assembly: AssemblyCopyright("Copyright © 2018 Azist")]
+[assembly: AssemblyCopyright("Copyright © 2018 Azist Group")]
 [assembly: AssemblyTrademark("Azos")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCulture("")]

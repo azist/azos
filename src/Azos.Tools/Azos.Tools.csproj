@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Azos Tools Assembly</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\out\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\out\Release\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Arow\Help.txt" />
+    <None Remove="Arow\Welcome.txt" />
+    <None Remove="Gluec\Help.txt" />
+    <None Remove="Gluec\Welcome.txt" />
+    <None Remove="Ntc\Help.txt" />
+    <None Remove="Ntc\Welcome.txt" />
+    <None Remove="Phash\Help.txt" />
+    <None Remove="Phash\Welcome.txt" />
+    <None Remove="Rsc\Help.txt" />
+    <None Remove="Rsc\Welcome.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Arow\Help.txt" />
+    <EmbeddedResource Include="Arow\Welcome.txt" />
+    <EmbeddedResource Include="Gluec\Help.txt" />
+    <EmbeddedResource Include="Gluec\Welcome.txt" />
+    <EmbeddedResource Include="Ntc\Help.txt" />
+    <EmbeddedResource Include="Ntc\Welcome.txt" />
+    <EmbeddedResource Include="Phash\Help.txt" />
+    <EmbeddedResource Include="Phash\Welcome.txt" />
+    <EmbeddedResource Include="Rsc\Help.txt" />
+    <EmbeddedResource Include="Rsc\Welcome.txt" />
+    <EmbeddedResource Include="Trun\Help.txt" />
+    <EmbeddedResource Include="Trun\Welcome.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Azos\Azos.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="trun.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="phash.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="general.rschema">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Sample.rschema">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="settings.rschema">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

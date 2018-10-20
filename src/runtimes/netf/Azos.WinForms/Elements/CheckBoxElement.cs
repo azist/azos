@@ -1,0 +1,60 @@
+
+
+using System.Windows.Forms;
+
+namespace Azos.WinForms.Elements
+{
+  public class CheckBoxElement : CheckableElement
+  {
+    #region .ctor
+
+    public CheckBoxElement(ElementHostControl host)
+      : base(host)
+    {
+    }
+
+    #endregion
+
+
+    #region Private Fields
+
+
+    #endregion
+
+
+    #region Properties
+
+
+    #endregion
+
+
+    #region Public
+
+
+    #endregion
+
+
+    #region Protected
+
+    protected internal override void Paint(System.Drawing.Graphics gr)
+    {
+      base.Paint(gr);
+      //BaseApplication.Theme.PartRenderer.CheckBox(gr, Region, MouseIsOver, FieldControlContext, Checked);
+    }
+
+    protected internal override void OnMouseClick(MouseEventArgs e)
+    {
+      Checked = ! Checked;
+      base.OnMouseClick(e);
+    }
+
+    #endregion
+
+
+    #region Private Utils
+
+
+    #endregion
+
+  }
+}
