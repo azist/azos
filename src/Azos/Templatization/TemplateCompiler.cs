@@ -74,7 +74,7 @@ namespace Azos.Templatization
               m_ReferencedAssemblies.Add("System.Data.dll");
               m_ReferencedAssemblies.Add("System.Xml.dll");
               m_ReferencedAssemblies.Add("System.Xml.Linq.dll");
-              m_ReferencedAssemblies.Add("NFX.dll");
+              m_ReferencedAssemblies.Add("Azos.dll");
            }
 
            protected TemplateCompiler(params ITemplateSource[] sources) : this()

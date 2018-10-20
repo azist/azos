@@ -13,7 +13,7 @@ namespace Azos.Templatization
     /// <example>
      /// <code>
      ///  #&lt;conf&gt;
-     ///   &lt;compiler base-class-name="NFX.Web.Templatization.SimpleWebTemplate"
+     ///   &lt;compiler base-class-name="Azos.Web.Templatization.SimpleWebTemplate"
      ///             namespace="TestWebApp.Templates"
      ///             abstract="true"
      ///             summary="Test master page"
@@ -54,7 +54,7 @@ namespace Azos.Templatization
     {
        #region CONSTS
 
-         public const string DEFAULT_BASE_TEMPLATE_CLASS_NAME = "NFX.Templatization.Template<object, NFX.Templatization.IRenderingTarget, object>";
+         public const string DEFAULT_BASE_TEMPLATE_CLASS_NAME = "Azos.Templatization.Template<object, Azos.Templatization.IRenderingTarget, object>";
 
          public const string CONFIG_START = "#<conf>";
          public const string CONFIG_END = "#</conf>";

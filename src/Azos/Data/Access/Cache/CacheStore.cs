@@ -25,8 +25,8 @@ namespace Azos.Data.Access.Cache
     /// </summary>
     /// <remarks>
     /// Perfomance testing of this class vs. System.Runtime.Caching.MemoryCache storing a typical database record identified by a long key:
-    ///  NFX is 2.5-5 times faster for concurrent reads and takes 20% less ram.
-    ///  NFX is 1.3-2.5 times faster for writes
+    ///  Azos is 2.5-5 times faster for concurrent reads and takes 20% less ram.
+    ///  Azos is 1.3-2.5 times faster for writes
     /// </remarks>
     public sealed class CacheStore : ApplicationComponent, INamed, IConfigurable, IInstrumentable
     {
