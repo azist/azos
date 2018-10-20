@@ -1,0 +1,76 @@
+﻿nfx
+{
+  log
+  {
+    reliable=true
+   // destination{type="NFX.Log.Destinations.ConsoleDestination, NFX" colored=false}
+    destination{type="NFX.Log.Destinations.MemoryBufferDestination, NFX"}
+  }
+
+  glue
+  {
+    server-log-level="Debug"
+    client-log-level="Debug"
+
+    providers
+    {
+     // provider { name="zmq" type="NFX.ZeroMQ.ZeroMQProvider, NFX.ZeroMQ" max-sockets="2048" }
+    }
+
+    bindings
+    {
+      binding
+      {
+        name="sync"
+        type="NFX.Glue.Native.SyncBinding"
+        // max-msg-size="65536"
+        // server-dump="Message"
+        // dump-path=$(@/$disk-root)msg.dump
+        // dump-format="Hex"
+        // measure-stat-times="true"
+
+        //client-inspectors
+        //{
+        // inspector { type="BusinessLogic.TextInfoReporter, BusinessLogic" }
+        //}
+
+        //client-transport
+        //{
+        //  rcv-buf-size="500"
+        //  snd-buf-size="500"
+        //  rcv-timeout="10000"
+        //  snd-timeout="10000"
+        //}
+
+        //server-transport
+        //{
+        // instrument-transport-stat="true"
+        // rcv-buf-size="524288"
+        // snd-buf-size="524288"
+        //}
+      }
+
+      binding { name="inproc" type="NFX.Glue.Native.InProcBinding, NFX" }
+
+      binding
+      {
+         name="mpx" type="NFX.Glue.Native.MpxBinding, NFX"
+         //server-dump="Message"
+         //dump-path=$(@/$disk-root)msg.dump
+         // measure-stat-times="true"
+
+         server-transport
+         {
+           idle-timeout-ms=120000
+           // instrument-transport-stat="true"
+         }
+      }
+    }
+  }//glue
+
+
+  security
+  {
+  }
+
+}

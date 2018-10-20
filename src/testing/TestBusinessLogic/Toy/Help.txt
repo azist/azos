@@ -1,0 +1,29 @@
+﻿<push>
+<f color=magenta>
+ Examples:
+
+<f color=yellow>
+  toy -config toy-server.laconf <f color=gray>
+Starts toy Glue server daemon
+
+<f color=yellow>
+  toy echo sync://127.0.0.1:8090 -n 5000<f color=gray>
+Makes 5000 test Glue echo calls from a single thread to the specified node
+
+<f color=yellow>
+  toy echo sync://127.0.0.1:8090 -n 250111 -p 2<f color=gray>
+Makes 250111 test Glue echo calls from a a maximum of 2 threads to the specified node
+
+<f color=yellow>
+  toy wave -config toy-wave.laconf<f color=gray>
+Starts WaveTestSite
+
+
+<f color=yellow>
+  toy pile -t 12 -sz 256 -c 150000000<f color=gray>
+Starts series of Big Memory Pile tests using 12 threads, byte arrays size of 256 bytes,
+strings of 256 chars, 150M objects
+
+
+
+<pop>

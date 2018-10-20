@@ -1,0 +1,138 @@
+#<laconf>
+    compiler
+    {
+    base-class-name="WaveTestSite.Pages.Master"
+    namespace="WaveTestSite.Pages"
+    abstract="false"
+    summary="Image Box test page"
+    }
+#</laconf>
+
+#[class]
+
+#[override renderHeader()]
+
+<script src="/stock/site/script/jquery-2.1.4.min.js"></script>
+<script src="/stock/site/script/wv.js"></script>
+<script src="/stock/site/script/wv.gui.js"></script>
+
+#[override renderHeader()]
+<h1>
+  Testing Image Box
+</h1> 
+
+#[override renderBody()]
+
+<style>
+  .wvIBoxDivFrame {
+    height: 400px;
+    width: 50%;
+  }
+
+  .wvIBoxDivMainImage {
+    background-color: #f4f4f4;
+  }
+
+  .wvIBoxDivThumbsContainer {
+    width: 15%;
+    height: 100%;
+  }
+
+  .wvIBoxDivThumb {
+    border: 1px solid white;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+  }
+
+  .wvIBoxDivThumb:hover {
+    border: 1px solid black;
+  }
+</style>
+
+<div id="divIBox0" style="margin-bottom: 40px;"></div>
+<div style="margin: 30px;"></div>
+<div id="divIBox1" style="margin-bottom: 40px;"></div>
+<textarea id="logArea" style="resize: none; height:500px; margin-top: 30px; width: 100%;" readonly></textarea>
+
+<script>
+
+  $(function() {
+
+      var init0 =
+      {
+          images: {
+              "2":  "https://probaway.files.wordpress.com/2013/06/vladimir_lenin_2.jpg",
+              "g":  "https://www.google.ru/images/nav_logo225.png",
+              "g1": "https://www.google.ru/images/srpr/logo11w.png",
+          },
+          thumbs: [
+              { bigSrc: "2",  thumbSrc: "2" },
+              { bigSrc: "g1", thumbSrc: "g", h: 37, w: 95, l: 0, t: -41 },
+              { bigSrc: "2",  thumbSrc: "2" },
+              { bigSrc: "g1", thumbSrc: "g", h: 37, w: 95, l: 0, t: -41 },
+              { bigSrc: "2",  thumbSrc: "2" },
+              { bigSrc: "g1", thumbSrc: "g", h: 37, w: 95, l: 0, t: -41 },
+              { bigSrc: "20", thumbSrc: "21" }
+              //,{ bigSrc: "g1", thumbSrc: "g0", h: 37, w: 95, l: 0, t: -41 },
+              //{ bigSrc: "2",  thumbSrc: "20" },
+              //{ bigSrc: "g1", thumbSrc: "g", h: 37, w: 95, l: 0, t: -41 }
+          ],
+          defaultImageSrc: "d",
+          defaultThumbSrc: "d",
+          thumbsPosition: "left",
+          thumbsScrollDelta: 0.7
+      };
+
+      var imageBox0 = new WAVE.GUI.IBox('divIBox0', init0);
+
+      imageBox0.eventBind(WAVE.GUI.EVT_IBOX_IMAGE_CHANGED, function (sender, url) {
+        var logArea = WAVE.id('logArea');
+        if (url.length > 256) url = url.substring(0, 256) + "...";
+        logArea.innerHTML += 'IBOX #1 image changed to ' + url + '\r\n';
+      });
+
+      imageBox0.eventBind(WAVE.GUI.EVT_IBOX_ERROR, function (sender, data) {
+        var logArea = WAVE.id('logArea');
+        logArea.innerHTML += 'IBOX #1 ERROR: src=' + data.src + ', message=' + data.message + '\r\n';
+      });
+
+      var init1 =
+      {
+        images: {
+          "2": "https://probaway.files.wordpress.com/2013/06/vladimir_lenin_2.jpg",
+          "g": "https://www.google.ru/images/nav_logo225.png",
+          "g1": "https://www.google.ru/images/srpr/logo11w.png",
+        },
+        thumbs: [
+            { bigSrc: "2",  thumbSrc: "2" },
+            { bigSrc: "g1", thumbSrc: "g", h: 37, w: 95, l: 0, t: -41 },
+            { bigSrc: "2",  thumbSrc: "2" },
+            { bigSrc: "g1", thumbSrc: "g", h: 37, w: 95, l: 0, t: -41 },
+            { bigSrc: "2",  thumbSrc: "2" },
+            { bigSrc: "g1", thumbSrc: "g", h: 37, w: 95, l: 0, t: -41 },
+            { bigSrc: "20", thumbSrc: "21" }
+            //,{ bigSrc: "g1", thumbSrc: "g0", h: 37, w: 95, l: 0, t: -41 },
+            //{ bigSrc: "2",  thumbSrc: "20" },
+            //{ bigSrc: "g1", thumbSrc: "g", h: 37, w: 95, l: 0, t: -41 }
+        ],
+        defaultImageSrc: "d",
+        defaultThumbSrc: "d",
+        thumbsPosition: "bottom",
+        thumbsScrollDelta: 0.7
+      };
+
+      var imageBox1 = new WAVE.GUI.IBox('divIBox1', init1);
+
+      imageBox1.eventBind(WAVE.GUI.EVT_IBOX_IMAGE_CHANGED, function (sender, url) {
+        var logArea = WAVE.id('logArea');
+        if (url.length > 256) url = url.substring(0, 256) + "...";
+        logArea.innerHTML += 'IBOX #2 image changed to ' + url + '\r\n';
+      });
+
+      imageBox1.eventBind(WAVE.GUI.EVT_IBOX_ERROR, function (sender, data) {
+        var logArea = WAVE.id('logArea');
+        logArea.innerHTML += 'IBOX #2 ERROR: src=' + data.src + ', message=' + data.message + '\r\n';
+      });
+  });
+
+</script>

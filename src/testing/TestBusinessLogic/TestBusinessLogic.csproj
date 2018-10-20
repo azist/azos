@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>NFX - .NET Unistack Testing Business Logic</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\..\out\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\..\out\Release\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Toy\Help.txt" />
+    <None Remove="Toy\Welcome.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="WaveTestSite\Pages\.tc\AboutUs.htm.auto.cs" />
+    <Compile Include="WaveTestSite\Pages\.tc\ImageBoxTest.htm.auto.cs" />
+    <Compile Include="WaveTestSite\Pages\.tc\Master.htm.auto.cs" />
+    <Compile Include="WaveTestSite\Pages\.tc\RecordTest.htm.auto.cs" />
+    <Compile Include="WaveTestSite\Pages\.tc\SocialLogin.htm.auto.cs" />
+    <Compile Include="WaveTestSite\Pages\.tc\Welcome.htm.auto.cs" />
+    <Compile Include="WaveTestSite\Pages\SubTopic\.tc\Latest.htm.auto.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Toy\Help.txt" />
+    <EmbeddedResource Include="Toy\Welcome.txt" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Update="toy-server.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="toy.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="toy-wave.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Azos\Azos.csproj" />
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="$(ProjectDir)pre-build $(SolutionDir) $(ConfigurationName)" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(ProjectDir)post-build $(SolutionDir) $(ConfigurationName)" />
+  </Target>
+
+</Project>
