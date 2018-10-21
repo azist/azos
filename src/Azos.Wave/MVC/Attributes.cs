@@ -2,12 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 
-using Azos.Environment;
+using Azos.Conf;
 
-namespace Azos.Wave.MVC
+namespace Azos.Wave.Mvc
 {
   /// <summary>
   /// Decorates MVC Actions

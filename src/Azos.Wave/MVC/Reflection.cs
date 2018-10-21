@@ -11,7 +11,7 @@ namespace Azos.Wave.MVC
     /// Provides reflection information about controller type.
     /// This is a framework internal method which is not intended to be used by business logic developers
     /// </summary>
-    public sealed class ControllerInfo : INamed
+    public sealed class ControllerInfo : Collections.INamed
     {
       public static string TypeToKeyName(Type type)
       {

@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Azos.Conf;
 using Azos.Instrumentation;
-using Azos.Environment;
 
 namespace Azos.Wave
 {
@@ -13,7 +13,7 @@ namespace Azos.Wave
   /// Represents a portal theme. Theme groups various resources (such as css, scripts etc..)
   /// within a portal. Do not inherit your themes from this class directly, instead use Theme(TPortal)
   /// </summary>
-  public abstract class Theme : INamed
+  public abstract class Theme : Collections.INamed
   {
 
     protected Theme(Portal portal, IConfigSectionNode conf)

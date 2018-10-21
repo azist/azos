@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 
-using Azos.ApplicationModel;
+using Azos.Apps;
 using Azos.Web.GeoLookup;
 
 namespace Azos.Wave
@@ -19,7 +19,7 @@ namespace Azos.Wave
         protected WaveSession():base(){} //used by serializer
         public WaveSession(Guid id) : base(id)
         {
-           m_CSRFToken = ExternalRandomGenerator.Instance.NextRandomWebSafeString();
+           m_CSRFToken = App.Random.NextRandomWebSafeString();
         }
 
         private string m_CSRFToken;

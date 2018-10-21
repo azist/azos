@@ -9,7 +9,7 @@ using Azos.Graphics;
 using Azos.Environment;
 using Azos.DataAccess.CRUD;
 using Azos.Serialization.JSON;
-using Azos.Wave.MVC;
+using Azos.Wave.Mvc;
 using Azos.Wave.Templatization;
 
 

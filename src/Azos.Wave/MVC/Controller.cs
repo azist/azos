@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-namespace Azos.Wave.MVC
+namespace Azos.Wave.Mvc
 {
   /// <summary>
   /// Represents controller that all MVC controllers must inherit from

@@ -7,7 +7,7 @@ using Azos.Graphics;
 using Azos.Data;
 using Azos.Serialization.JSON;
 
-namespace Azos.Wave.MVC
+namespace Azos.Wave.Mvc
 {
   /// <summary>
   /// Decorates entities that get returned by MVC actions and can get executed to generate some result action (command pattern)
