@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Azos - Web Wave Assembly</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\out\Debug\</OutputPath>
+    <DocumentationFile>..\..\out\Debug\Azos.Wave.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\out\Release\</OutputPath>
+    <DocumentationFile>..\..\out\Release\Azos.Wave.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Templatization/StockContent/Embedded/script/mtest/**" />
+    <Compile Remove="Templatization/StockContent/Embedded/script/utest/**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templatization\StockContent\Embedded\flags\**" />
+    <EmbeddedResource Include="Templatization\StockContent\Embedded\stl\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="BUILD_INFO.txt" />
+    <None Remove="Templatization\StockContent\Embedded\script\jquery-2.1.4.js" />
+    <None Remove="Templatization\StockContent\Embedded\script\jquery-2.1.4.min.js" />
+    <None Remove="Templatization\StockContent\Embedded\script\wv.all.min.js" />
+    <None Remove="Templatization\StockContent\Embedded\script\wv.braintree.js" />
+    <None Remove="Templatization\StockContent\Embedded\script\wv.chart.svg.js" />
+    <None Remove="Templatization\StockContent\Embedded\script\wv.gui.js" />
+    <None Remove="Templatization\StockContent\Embedded\script\wv.js" />
+    <None Remove="Templatization\StockContent\Embedded\script\wv.stripe.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Templatization\StockContent\.tc\Error.htm.auto.cs" />
+    <Compile Include="Templatization\StockContent\.tc\Master.htm.auto.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="BUILD_INFO.txt" />
+    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\jquery-2.1.4.js" />
+    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\jquery-2.1.4.min.js" />
+    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\wv.all.min.js" />
+    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\wv.braintree.js" />
+    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\wv.chart.svg.js" />
+    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\wv.gui.js" />
+    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\wv.js" />
+    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\wv.stripe.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Azos.Web\Azos.Web.csproj" />
+    <ProjectReference Include="..\Azos\Azos.csproj" />
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="$(ProjectDir)pre-build $(SolutionDir) $(ConfigurationName)" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(ProjectDir)post-build $(SolutionDir) $(ConfigurationName)" />
+  </Target>
+
+</Project>

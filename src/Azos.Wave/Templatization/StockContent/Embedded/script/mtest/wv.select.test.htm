@@ -1,0 +1,293 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="../jquery-2.1.4.js"></script>
+  <script src="../wv.js"></script>
+  <script src="../wv.gui.js"></script>
+  <title></title>
+</head>
+<body>
+
+  <div class="tests">
+    <div class="test">
+      <h2>Single test</h2>
+      <div id="divSingle"></div>
+    </div>
+    <div class="test">
+      <h2>Multi-select test</h2>
+      <div id="divMulti"></div>
+    </div>
+    <div class="test">
+      <h2>Update data test</h2>
+      <div id="divUpdate"></div>
+      <input type="button" value="Change Select Data" onclick="swapData()" />
+    </div>
+    <div class="test">
+      <h2>Empty data test</h2>
+      <div id="divEmpty"></div>
+    </div>
+    <div class="test">
+      <h2>Choice without select</h2>
+      <div id="divChoice"></div>
+    </div>
+  </div>
+
+  <script>
+
+    var states =
+    {
+      "Alaskan/Hawaiian Time Zone" : [
+        {"AK" : "Alaska"},
+        {"HI": "Hawaii"}
+      ],
+      "Pacific Time Zone" : [
+        {"CA" : "California"},
+        {"NV" : "Nevada"},
+        {"OR" : "Oregon"},
+        {"WA" : "Washington"},
+      ],
+      "Mountain Time Zone" : [
+        {"AZ" : "Arizona"},
+        {"CO" : "Colorado"},
+        {"ID" : "Idaho"},
+        {"MT" : "Montana"},
+        {"NE" : "Nebraska"},
+        {"NM" : "New Mexico"},
+        {"ND" : "North Dakota"},
+        {"UT" : "Utah"},
+        {"WY" : "Wyoming"},
+      ],
+      "Central Time Zone" : [
+        {"AL" : "Alabama"},
+        {"AR" : "Arkansas"},
+        {"IL" : "Illinois"},
+        {"IA" : "Iowa"},
+        {"KS" : "Kansas"},
+        {"KY" : "Kentucky"},
+        {"LA" : "Louisiana"},
+        {"MN" : "Minnesota"},
+        {"MS" : "Mississippi"},
+        {"MO" : "Missouri"},
+        {"OK" : "Oklahoma"},
+        {"SD" : "South Dakota"},
+        {"TX" : "Texas"},
+        {"TN" : "Tennessee"},
+        {"WI" : "Wisconsin"},
+      ],
+      "Eastern Time Zone" : [
+        {"CT" : "Connecticut"},
+        {"DE" : "Delaware"},
+        {"FL" : "Florida"},
+        {"GA" : "Georgia"},
+        {"IN" : "Indiana"},
+        {"ME" : "Maine"},
+        {"MD" : "Maryland"},
+        {"MA" : "Massachusetts"},
+        {"MI" : "Michigan"},
+        {"NH" : "New Hampshire"},
+        {"NJ" : "New Jersey"},
+        {"NY" : "New York"},
+        {"NC" : "North Carolina"},
+        {"OH" : "Ohio"},
+        {"PA" : "Pennsylvania"},
+        {"RI" : "Rhode Island"},
+        {"SC" : "South Carolina"},
+        {"VT" : "Vermont"},
+        {"VA" : "Virginia"},
+        {"WV" : "West Virginia"},
+      ]
+    };
+
+    var cities = [
+      "Sydney",
+      "Albury",
+      "Armidale",
+      "Bathurst",
+      "Blue Mountains",
+      "Broken Hill",
+      "Campbelltown",
+      "Cessnock",
+      "Dubbo",
+      "Goulburn",
+      "Grafton",
+      "Lithgow",
+      "Liverpool",
+      "Newcastle",
+      "Orange",
+      "Parramatta",
+      "Penrith",
+      "Queanbeyan",
+      "Tamworth",
+      "Wagga Wagga",
+      "Wollongong",
+    ];
+
+    var singleCbo = new WAVE.GUI.Select({
+      DIV: "divSingle",
+      data : states,
+      mode: WAVE.GUI.SELECT_MODES.Single,
+      formName: "single",
+      autocomlete: true
+    });
+
+    var multiCbo = new WAVE.GUI.Select({DIV: "divMulti", data : states, mode: WAVE.GUI.SELECT_MODES.Multi});
+
+    var updateCbo = new WAVE.GUI.Select({DIV: "divUpdate", data : states, mode: WAVE.GUI.SELECT_MODES.Single});
+
+    var curd = 0;
+    function swapData() {
+      if (curd === 0) {
+        updateCbo.data(cities);
+        curd = 1;
+      } else {
+        updateCbo.data(states);
+        curd = 0;
+      }
+    }
+
+    var updateCbo = new WAVE.GUI.Select({DIV: "divEmpty", data : [], mode: WAVE.GUI.SELECT_MODES.Single});
+
+    var justChoices = new WAVE.GUI.Choice({data:states, DIV:WAVE.id("divChoice")});
+
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      line-height: 1.5;
+    }
+
+    body {
+      background-color: #fef8ff;
+      font-size: 16px;
+      padding: 20px 20px 40px;
+    }
+
+    .tests {
+      width: 300px;
+      margin: 0 auto;
+    }
+
+    .wvSelectContainer {
+      width: 300px;
+    }
+
+    .wvSelectDropdown {
+      background-color: #fff;
+      border: 1px solid #404040;
+      max-height: 250px;
+      overflow: auto;
+      margin-bottom: 20px;
+      position: absolute;
+      width: 300px;
+    }
+
+      .wvSelectDropdown.wvHidden {
+        display: none;
+      }
+
+    .wvSelectCombobox {
+      background-color: #999;
+      min-height: calc(1.5 * 16px + 4px);
+      padding: 2px;
+      position: relative;
+    }
+
+    .wvSelectContainer.wvSingle .wvSelectDisplay {
+      padding-right: calc(1.5 * 16px + 2px);
+    }
+
+    .wvSelectContainer.wvSingle .wvSelectArrow {
+      background-color: #0094ff;
+      height: calc(1.5 * 16px);
+      right: 2px;
+      position: absolute;
+      top: 2px;
+      width: calc(1.5 * 16px);
+    }
+
+    .wvSelectContainer.wvMulti .wvSelectArrow {
+      display: none;
+    }
+
+    .wvChoice {
+      cursor: pointer;
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+
+
+
+      .wvChoice.wvSelected {
+        background-color: #efefef;
+        cursor: default;
+      }
+
+      .wvChoice:hover {
+        background-color: #ccc;
+      }
+    /*.wvChoiceParent + .wvChoiceParent {
+  padding-left: 25px;
+}*/
+    .wvChoiceLabel {
+      background-color: #404040;
+      color: #f0f0f0;
+      padding: 3px 6px;
+    }
+
+    .wvChoiceParentLabeled {
+      padding: 0;
+    }
+
+    .wvChoiceValueBox {
+      background-color: #f0f0f0;
+      padding-left: 3px;
+      padding-right: calc(1.5 * 16px);
+      position: relative;
+    }
+
+      .wvChoiceValueBox > div {
+        padding-right: 10px;
+      }
+
+      .wvChoiceValueBox .wvChoiseUnselect {
+        background-color: salmon;
+        cursor: pointer;
+        height: calc(1.5 * 16px - 4px);
+        right: 2px;
+        position: absolute;
+        top: 2px;
+        width: calc(1.5 * 16px - 4px);
+      }
+
+    .wvSelectContainer.wvMulti .wvChoiceValueBox {
+      margin: 1.5px;
+    }
+
+    .wvSelectContainer.wvMulti .wvSelectDisplay {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .wvSelectAutocomplete {
+      border: none;
+      height: 25px;
+      padding: 0 2px;
+      width: 100%;
+    }
+
+    .wvSelectContainer.wvMulti .wvSelectDisplay .wvChoiceValueBox,
+    .wvSelectContainer.wvMulti .wvSelectDisplay .wvSelectAutocomplete {
+    }
+
+    #divChoice {
+      border: 1px solid #404040;
+      height: 300px;
+      overflow: auto;
+    }
+  </style>
+</body>
+</html>

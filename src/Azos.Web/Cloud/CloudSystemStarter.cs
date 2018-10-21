@@ -1,0 +1,20 @@
+﻿using System;
+
+using Azos.Apps;
+using Azos.Conf;
+
+namespace Azos.Web.Cloud
+{
+  public sealed class CloudSystemStarter : IApplicationStarter
+  {
+    [Config] public string Name { get; set; }
+
+    [Config] public bool ApplicationStartBreakOnException { get; set; }
+
+    public void ApplicationStartBeforeInit(IApplication application) { }
+
+    public void ApplicationStartAfterInit(IApplication application) { CloudSystem.AutoStart(); }
+
+    public void Configure(IConfigSectionNode node) { ConfigAttribute.Apply(this, node); }
+  }
+}

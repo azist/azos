@@ -50,6 +50,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "testing", "testing", "{0FC6
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestBusinessLogic", "testing\TestBusinessLogic\TestBusinessLogic.csproj", "{27C8EE85-4E00-4471-B81B-C4D51C9D03D0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Web", "Azos.Web\Azos.Web.csproj", "{9902D057-8385-44A8-B4C1-053E17AC7FE7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Wave", "Azos.Wave\Azos.Wave.csproj", "{26E0A0E2-9EB5-4905-A9B2-DF5B08E0121C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -124,6 +128,14 @@ Global
 		{27C8EE85-4E00-4471-B81B-C4D51C9D03D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27C8EE85-4E00-4471-B81B-C4D51C9D03D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27C8EE85-4E00-4471-B81B-C4D51C9D03D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9902D057-8385-44A8-B4C1-053E17AC7FE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9902D057-8385-44A8-B4C1-053E17AC7FE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9902D057-8385-44A8-B4C1-053E17AC7FE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9902D057-8385-44A8-B4C1-053E17AC7FE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26E0A0E2-9EB5-4905-A9B2-DF5B08E0121C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26E0A0E2-9EB5-4905-A9B2-DF5B08E0121C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26E0A0E2-9EB5-4905-A9B2-DF5B08E0121C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26E0A0E2-9EB5-4905-A9B2-DF5B08E0121C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
