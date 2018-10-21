@@ -1,19 +1,4 @@
-/*<FILE_LICENSE>
-* NFX (.NET Framework Extension) Unistack Library
-* Copyright 2003-2018 Agnicore Inc. portions ITAdapter Corp. Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-</FILE_LICENSE>*/
+
 namespace WinFormsTest
 {
   partial class BSONTestForm
@@ -55,9 +40,9 @@ namespace WinFormsTest
       this.button6 = new System.Windows.Forms.Button();
       this.label3 = new System.Windows.Forms.Label();
       this.SuspendLayout();
-      // 
+      //
       // button1
-      // 
+      //
       this.button1.Location = new System.Drawing.Point(20, 114);
       this.button1.Name = "button1";
       this.button1.Size = new System.Drawing.Size(139, 35);
@@ -65,9 +50,9 @@ namespace WinFormsTest
       this.button1.Text = "Empty";
       this.button1.UseVisualStyleBackColor = true;
       this.button1.Click += new System.EventHandler(this.button1_Click);
-      // 
+      //
       // button2
-      // 
+      //
       this.button2.Location = new System.Drawing.Point(20, 155);
       this.button2.Name = "button2";
       this.button2.Size = new System.Drawing.Size(139, 35);
@@ -75,9 +60,9 @@ namespace WinFormsTest
       this.button2.Text = "String";
       this.button2.UseVisualStyleBackColor = true;
       this.button2.Click += new System.EventHandler(this.button2_Click);
-      // 
+      //
       // button3
-      // 
+      //
       this.button3.Location = new System.Drawing.Point(20, 196);
       this.button3.Name = "button3";
       this.button3.Size = new System.Drawing.Size(139, 35);
@@ -85,9 +70,9 @@ namespace WinFormsTest
       this.button3.Text = "Double";
       this.button3.UseVisualStyleBackColor = true;
       this.button3.Click += new System.EventHandler(this.button3_Click);
-      // 
+      //
       // button4
-      // 
+      //
       this.button4.Location = new System.Drawing.Point(20, 237);
       this.button4.Name = "button4";
       this.button4.Size = new System.Drawing.Size(139, 35);
@@ -95,27 +80,27 @@ namespace WinFormsTest
       this.button4.Text = "Gagarin";
       this.button4.UseVisualStyleBackColor = true;
       this.button4.Click += new System.EventHandler(this.button4_Click);
-      // 
+      //
       // label1
-      // 
+      //
       this.label1.AutoSize = true;
       this.label1.Location = new System.Drawing.Point(12, 18);
       this.label1.Name = "label1";
       this.label1.Size = new System.Drawing.Size(356, 20);
       this.label1.TabIndex = 4;
       this.label1.Text = "Click on button to get output BSON file: test.bson";
-      // 
+      //
       // label2
-      // 
+      //
       this.label2.AutoSize = true;
       this.label2.Location = new System.Drawing.Point(16, 42);
       this.label2.Name = "label2";
       this.label2.Size = new System.Drawing.Size(414, 20);
       this.label2.TabIndex = 5;
       this.label2.Text = "The use bsondump.exe to convert it to readable json. See";
-      // 
+      //
       // linkLabel1
-      // 
+      //
       this.linkLabel1.AutoSize = true;
       this.linkLabel1.Location = new System.Drawing.Point(16, 66);
       this.linkLabel1.Name = "linkLabel1";
@@ -124,9 +109,9 @@ namespace WinFormsTest
       this.linkLabel1.TabStop = true;
       this.linkLabel1.Text = "http://docs.mongodb.org/v2.6/reference/program/bsondump/";
       this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
-      // 
+      //
       // button5
-      // 
+      //
       this.button5.Location = new System.Drawing.Point(20, 278);
       this.button5.Name = "button5";
       this.button5.Size = new System.Drawing.Size(139, 135);
@@ -134,9 +119,9 @@ namespace WinFormsTest
       this.button5.Text = "Export All";
       this.button5.UseVisualStyleBackColor = true;
       this.button5.Click += new System.EventHandler(this.button5_Click);
-      // 
+      //
       // button6
-      // 
+      //
       this.button6.Location = new System.Drawing.Point(233, 114);
       this.button6.Name = "button6";
       this.button6.Size = new System.Drawing.Size(244, 51);
@@ -144,18 +129,18 @@ namespace WinFormsTest
       this.button6.Text = "Write byte array or many bytes to stream?";
       this.button6.UseVisualStyleBackColor = true;
       this.button6.Click += new System.EventHandler(this.button6_Click);
-      // 
+      //
       // label3
-      // 
+      //
       this.label3.AutoSize = true;
       this.label3.Location = new System.Drawing.Point(229, 170);
       this.label3.Name = "label3";
       this.label3.Size = new System.Drawing.Size(51, 20);
       this.label3.TabIndex = 9;
       this.label3.Text = "label3";
-      // 
+      //
       // BSONTestForm
-      // 
+      //
       this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(507, 425);
