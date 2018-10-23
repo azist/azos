@@ -1,8 +1,8 @@
 
 using System.Linq;
 
-using Azos.ApplicationModel;
-using Azos.Environment;
+using Azos.Apps;
+using Azos.Conf;
 using Azos.IO.FileSystem;
 
 namespace Azos.Wave

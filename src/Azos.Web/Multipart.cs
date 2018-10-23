@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+using Azos.Data;
 using Azos.Collections;
 using Azos.Serialization.JSON;
 
@@ -65,7 +66,7 @@ namespace Azos.Web
         public Part(string name)
         {
           if (name.IsNullOrWhiteSpace())
-            throw new NFXException(StringConsts.MULTIPART_PART_EMPTY_NAME_ERROR);
+            throw new WebException(StringConsts.MULTIPART_PART_EMPTY_NAME_ERROR);
 
           m_Name = name;
           m_PartName = name;
@@ -124,7 +125,7 @@ namespace Azos.Web
       public static Multipart ReadFromStream(Stream stream, ref string boundary, Encoding encoding = null)
       {
         if (stream == null || !stream.CanRead)
-          throw new NFXException(StringConsts.MULTIPART_STREAM_NOT_NULL_MUST_SUPPORT_READ_ERROR);
+          throw new WebException(StringConsts.MULTIPART_STREAM_NOT_NULL_MUST_SUPPORT_READ_ERROR);
 
         encoding = encoding ?? Encoding.UTF8;
 
@@ -140,7 +141,7 @@ namespace Azos.Web
           var part = partParse(segment.Array, segment.Count, encoding);
           var success = registerPart(result.Parts, part);
           if (!success)
-            throw new NFXException(StringConsts.MULTIPART_PART_IS_ALREADY_REGISTERED_ERROR.Args(part.Name));
+            throw new WebException(StringConsts.MULTIPART_PART_IS_ALREADY_REGISTERED_ERROR.Args(part.Name));
         }
 
         return result;
@@ -172,14 +173,14 @@ namespace Azos.Web
       public Multipart(IEnumerable<Part> parts)
       {
         if (parts == null || parts.Count() == 0)
-          throw new NFXException(StringConsts.MULTIPART_PARTS_COULDNT_BE_EMPTY_ERROR);
+          throw new WebException(StringConsts.MULTIPART_PARTS_COULDNT_BE_EMPTY_ERROR);
 
         m_Parts = new Registry<Part>(caseSensitive: true);
         foreach (var part in parts)
         {
           var success = registerPart(m_Parts, part);
           if (!success)
-            throw new NFXException(StringConsts.MULTIPART_PART_IS_ALREADY_REGISTERED_ERROR.Args(part.Name));
+            throw new WebException(StringConsts.MULTIPART_PART_IS_ALREADY_REGISTERED_ERROR.Args(part.Name));
         }
       }
 
@@ -225,7 +226,7 @@ namespace Azos.Web
       public EncodedContent Encode(MemoryStream stream, Encoding encoding = null)
       {
         if (stream == null || !stream.CanWrite)
-          throw new NFXException(StringConsts.MULTIPART_STREAM_NOT_NULL_MUST_SUPPORT_WRITE_ERROR);
+          throw new WebException(StringConsts.MULTIPART_STREAM_NOT_NULL_MUST_SUPPORT_WRITE_ERROR);
 
         encoding = encoding ?? Encoding.UTF8;
         long startIdx = stream.Position;
@@ -296,7 +297,7 @@ namespace Azos.Web
         }
 
         if (!found)
-          throw new NFXException(StringConsts.MULTIPART_SPECIFIED_BOUNDARY_ISNT_FOUND_ERROR);
+          throw new WebException(StringConsts.MULTIPART_SPECIFIED_BOUNDARY_ISNT_FOUND_ERROR);
 
         return boundaryBytes;
       }
@@ -329,15 +330,15 @@ namespace Azos.Web
         }
 
         if (!foundEOL)
-          throw new NFXException(StringConsts.MULTIPART_NO_LF_NOR_CRLF_ISNT_FOUND_ERROR);
+          throw new WebException(StringConsts.MULTIPART_NO_LF_NOR_CRLF_ISNT_FOUND_ERROR);
 
         // set boundary
         byte[] boundaryBytes = boundaryBytesList.ToArray();
         var fullBoundary = encoding.GetString(boundaryBytes);
         if (fullBoundary.Length < 3)
-          throw new NFXException(StringConsts.MULTIPART_BOUNDARY_IS_TOO_SHORT);
+          throw new WebException(StringConsts.MULTIPART_BOUNDARY_IS_TOO_SHORT);
         if (fullBoundary[0] != HYPHEN || fullBoundary[1] != HYPHEN)
-          throw new NFXException(StringConsts.MULTIPART_BOUNDARY_SHOULD_START_WITH_HYPHENS);
+          throw new WebException(StringConsts.MULTIPART_BOUNDARY_SHOULD_START_WITH_HYPHENS);
 
         boundary = fullBoundary.Substring(2); // remove two leading hyphens
 
@@ -386,14 +387,14 @@ namespace Azos.Web
       private static Part partParse(byte[] buf, int length, Encoding encoding)
       {
         if (buf == null || length == 0)
-          throw new NFXException(StringConsts.MULTIPART_PART_COULDNT_BE_EMPTY_ERROR);
+          throw new WebException(StringConsts.MULTIPART_PART_COULDNT_BE_EMPTY_ERROR);
 
         if (buf.Length < 2 || buf[length - 2] != CR || buf[length - 1] != LF)
-            throw new NFXException(StringConsts.MULTIPART_PART_MUST_BE_ENDED_WITH_EOL_ERROR);
+            throw new WebException(StringConsts.MULTIPART_PART_MUST_BE_ENDED_WITH_EOL_ERROR);
 
         int separatorPos = findIndex(buf, 0, length, DOUBLE_EOL);
         if (separatorPos == NOT_FOUND_POS)
-          throw new NFXException(StringConsts.MULTIPART_DOUBLE_EOL_ISNT_FOUND_AFTER_HEADER_ERROR);
+          throw new WebException(StringConsts.MULTIPART_DOUBLE_EOL_ISNT_FOUND_AFTER_HEADER_ERROR);
 
         var result = new Part();
         // The multipart delimiters and header fields are always 7-bit ASCII in any case, and data within the body parts can be encoded on a part-by-part basis,
@@ -409,7 +410,8 @@ namespace Azos.Web
         if (result.ContentType.IsNullOrWhiteSpace())
         {
           if (result.FileName.IsNotNullOrEmpty())
-            throw new NFXException();
+            throw new WebException();//todo:  what is this?????????????????
+          #warning What is the empty throw????
           result.Content = encoding.GetString(rawContent);
         }
         else if (isTextContent(result.ContentType))
@@ -452,7 +454,7 @@ namespace Azos.Web
           if (key == PARAM_NAME)
           {
             if (val.IsNullOrEmpty())
-              throw new NFXException(StringConsts.MULTIPART_PART_EMPTY_NAME_ERROR);
+              throw new WebException(StringConsts.MULTIPART_PART_EMPTY_NAME_ERROR);
             part.____SetName(val);
           }
           else if (key == PARAM_FILENAME)
@@ -527,8 +529,8 @@ namespace Azos.Web
           {
             var eof = new byte[EOF.Length];
             Array.Copy(seekBuf, 0, eof, 0, EOF.Length);
-            if (delimeterNotFound && !IOMiscUtils.MemBufferEquals(eof, EOF))
-              throw new NFXException(StringConsts.MULTIPART_TERMINATOR_ISNT_FOUND_ERROR);
+            if (delimeterNotFound && !IOUtils.MemBufferEquals(eof, EOF))
+              throw new WebException(StringConsts.MULTIPART_TERMINATOR_ISNT_FOUND_ERROR);
             break;
           }
 

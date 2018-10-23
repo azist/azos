@@ -2,12 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-using Azos.DataAccess;
-using Azos.DataAccess.CRUD;
-using Azos.DataAccess.Distributed;
-using Azos.Environment;
+using Azos.Conf;
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Wave.Client
@@ -29,19 +26,19 @@ namespace Azos.Wave.Client
   /// This event is invoked ONLY for fields that DO NOT have valueList specified
   /// </summary>
   /// <param name="sender">Generator</param>
-  /// <param name="row">Row that data model is generated for</param>
+  /// <param name="doc">Doc that data model is generated for</param>
   /// <param name="fdef">Field definition</param>
   /// <param name="target">Target name</param>
   /// <param name="isoLang">Desired isoLang for localization</param>
   /// <returns>JSONDataMap populated by business logic or null to indicate that no lookup values are available</returns>
   public delegate JSONDataMap ModelFieldValueListLookupFunc(RecordModelGenerator sender,
-                                                            Row  row,
+                                                            Doc  doc,
                                                             Schema.FieldDef fdef,
                                                             string target,
                                                             string isoLang);
 
   /// <summary>
-  /// Facilitates tasks of JSON generation for record models/rows as needed by WV.RecordModel client library.
+  /// Facilitates tasks of JSON generation for record models/data docs as needed by WV.RecordModel client library.
   /// This class does not generate nested models, only flat models for particular row
   /// (i.e. id row has a complex type field, it will be serialized as "object")
   /// </summary>
@@ -112,7 +109,7 @@ namespace Azos.Wave.Client
       ///  may get attributes for client data entry screen that sees field metadata differently, in which case target will reflect the name
       ///   of the screen
       /// </summary>
-      public virtual JSONDataMap RowToRecordInitJSON(Row row,
+      public virtual JSONDataMap RowToRecordInitJSON(Doc doc,
                                                      Exception validationError,
                                                      string recID = null,
                                                      string target = null,
@@ -120,7 +117,7 @@ namespace Azos.Wave.Client
                                                      ModelFieldValueListLookupFunc valueListLookup = null)
       {
         var result = new JSONDataMap();
-        if (row==null) return result;
+        if (doc==null) return result;
         if (recID.IsNullOrWhiteSpace()) recID = Guid.NewGuid().ToString();
 
         result["OK"] = true;
@@ -129,35 +126,35 @@ namespace Azos.Wave.Client
           result["ISOLang"] = isoLang;
 
         //20140914 DKh
-        var form = row as FormModel;
+        var form = doc as Form;
         if (form != null)
         {
-          result[FormModel.JSON_MODE_PROPERTY] = form.FormMode;
-          result[FormModel.JSON_CSRF_PROPERTY] = form.CSRFToken;
+          result[Form.JSON_MODE_PROPERTY] = form.FormMode;
+          result[Form.JSON_CSRF_PROPERTY] = form.CSRFToken;
 
           //20160123 DKh
           if (form.HasRoundtripBag)
-            result[FormModel.JSON_ROUNDTRIP_PROPERTY] = form.RoundtripBag.ToJSON(JSONWritingOptions.CompactASCII);
+            result[Form.JSON_ROUNDTRIP_PROPERTY] = form.RoundtripBag.ToJSON(JSONWritingOptions.CompactASCII);
         }
 
         var fields = new JSONDataArray();
         result["fields"] = fields;
 
-        var schemaName = row.Schema.Name;
-        if (row.Schema.TypedRowType!=null) schemaName = row.Schema.TypedRowType.FullName;
+        var schemaName = doc.Schema.Name;
+        if (doc.Schema.TypedDocType!=null) schemaName = doc.Schema.TypedDocType.FullName;
 
-        foreach(var sfdef in row.Schema.FieldDefs.Where(fd=>!fd.NonUI))
+        foreach(var sfdef in doc.Schema.FieldDefs.Where(fd=>!fd.NonUI))
         {
-          var fdef = row.GetClientFieldDef(this, sfdef, target, isoLang);
+          var fdef = doc.GetClientFieldDef(this, sfdef, target, isoLang);
           if (fdef==null || fdef.NonUI) continue;
 
           var fld = new JSONDataMap();
           fields.Add(fld);
-          fld["def"] = FieldDefToJSON(row, schemaName, fdef, target, isoLang, valueListLookup);
-          var val = row.GetClientFieldValue(this, sfdef, target, isoLang);
+          fld["def"] = FieldDefToJSON(doc, schemaName, fdef, target, isoLang, valueListLookup);
+          var val = doc.GetClientFieldValue(this, sfdef, target, isoLang);
           if (val is GDID && ((GDID)val).IsZero) val = null;
           fld["val"] = val;
-          var ferr = validationError as CRUDFieldValidationException;
+          var ferr = validationError as FieldValidationException;
           //field level exception
           if (ferr!= null && ferr.FieldName==fdef.Name)
           {
@@ -167,7 +164,7 @@ namespace Azos.Wave.Client
         }
 
         //record level
-        if (validationError!=null && !(validationError is CRUDFieldValidationException))
+        if (validationError!=null && !(validationError is FieldValidationException))
         {
           result["error"] = validationError.ToMessageWithType();
           result["errorText"] = OnLocalizeString(schemaName, "errorText", validationError.Message, isoLang);
@@ -177,7 +174,7 @@ namespace Azos.Wave.Client
       }
 
 
-      protected virtual JSONDataMap FieldDefToJSON(Row row,
+      protected virtual JSONDataMap FieldDefToJSON(Doc doc,
                                                    string schema,
                                                    Schema.FieldDef fdef,
                                                    string target,
@@ -222,8 +219,8 @@ namespace Azos.Wave.Client
             }
             else
             {
-              var valueList = valueListLookup!=null ? valueListLookup(this, row, fdef, target, isoLang)
-                                                    : row.GetClientFieldValueList(this, fdef, target, isoLang);
+              var valueList = valueListLookup!=null ? valueListLookup(this, doc, fdef, target, isoLang)
+                                                    : doc.GetClientFieldValueList(this, fdef, target, isoLang);
 
               if (valueList==null && attr.HasValueList)
                 valueList = attr.ParseValueList();

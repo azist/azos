@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 
 using Azos.Conf;
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Web.Social
@@ -108,10 +109,10 @@ namespace Azos.Web.Social
       /// </summary>
       public sealed override SocialNetID ID { get { return SocialNetID.LIN; } }
 
-      [Azos.Environment.Config]
+      [Config]
       public string ApiKey { get; set; }
 
-      [Azos.Environment.Config]
+      [Config]
       public string SecretKey { get; set; }
 
       /// <summary>
@@ -140,7 +141,7 @@ namespace Azos.Web.Social
         var code = request[ACCESSTOKEN_CODE_PARAMNAME].AsString();
 
         if (code.IsNullOrWhiteSpace())
-          throw new NFXException( StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetUserInfo(request should contain code)");
+          throw new SocialException( StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetUserInfo(request should contain code)");
 
         var liUserInfo = userInfo as LinkedInSocialUserInfo;
 

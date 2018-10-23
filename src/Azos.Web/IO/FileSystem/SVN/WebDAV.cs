@@ -7,6 +7,8 @@ using System.Net;
 using System.Text;
 using System.Xml.Linq;
 
+using Azos.Data;
+
 namespace Azos.IO.FileSystem.SVN
 {
   /// <summary>
@@ -320,7 +322,7 @@ namespace Azos.IO.FileSystem.SVN
       public static IEnumerable<Version> GetVersions(string rootURL, string uName, string uPwd)
       {
         if (rootURL.IsNullOrWhiteSpace())
-          throw new NFXException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(WebDAV).Name + ".GetVersions(rootURL == null|empty)");
+          throw new AzosIOException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(WebDAV).Name + ".GetVersions(rootURL == null|empty)");
 
         Azos.Web.WebSettings.RequireInitializedSettings();
 
@@ -336,7 +338,7 @@ namespace Azos.IO.FileSystem.SVN
         Azos.Web.WebSettings.RequireInitializedSettings();
 
         if (rootURL.IsNullOrWhiteSpace())
-          throw new NFXException(Azos.Web.StringConsts.ARGUMENT_ERROR + this.GetType().Name + ".ctor(path == null|empty)");
+          throw new AzosIOException(Azos.Web.StringConsts.ARGUMENT_ERROR + this.GetType().Name + ".ctor(path == null|empty)");
 
         m_RootUri = new Uri(rootURL);
 
@@ -519,7 +521,7 @@ namespace Azos.IO.FileSystem.SVN
             }
           }
           else
-            throw new NFXException(Azos.Web.StringConsts.HTTP_OPERATION_ERROR + typeof(WebDAV).Name +
+            throw new AzosIOException(Azos.Web.StringConsts.HTTP_OPERATION_ERROR + typeof(WebDAV).Name +
               ".listVersions: response.StatusCode=\"{0}\"".Args(response.StatusCode));
         }
       }
@@ -580,7 +582,7 @@ namespace Azos.IO.FileSystem.SVN
             }
           }
           else
-            throw new NFXException(Azos.Web.StringConsts.HTTP_OPERATION_ERROR + this.GetType().Name +
+            throw new AzosIOException(Azos.Web.StringConsts.HTTP_OPERATION_ERROR + this.GetType().Name +
               ".getFileContent: response.StatusCode=\"{0}\"".Args(response.StatusCode));
         }
       }
@@ -644,7 +646,7 @@ namespace Azos.IO.FileSystem.SVN
             }
           }
           else
-            throw new NFXException(Azos.Web.StringConsts.HTTP_OPERATION_ERROR + this.GetType().Name +
+            throw new AzosIOException(Azos.Web.StringConsts.HTTP_OPERATION_ERROR + this.GetType().Name +
               "getFileContent: response.StatusCode=\"{0}\"".Args(response.StatusCode));
         }
       }

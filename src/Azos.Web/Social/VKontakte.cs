@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 
 using Azos.Conf;
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Web.Social
@@ -76,10 +77,10 @@ namespace Azos.Web.Social
       /// </summary>
       public sealed override SocialNetID ID { get { return SocialNetID.VKT; } }
 
-      [Azos.Environment.Config]
+      [Config]
       public string ClientCode { get; set; }
 
-      [Azos.Environment.Config]
+      [Config]
       public string ClientSecret { get; set; }
 
       /// <summary>
@@ -121,7 +122,7 @@ namespace Azos.Web.Social
         var code = request[ACCESSTOKEN_CODE_PARAMNAME].AsString();
 
         if (code.IsNullOrWhiteSpace())
-          throw new NFXException( StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetUserInfo(request should contain code)");
+          throw new SocialException( StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetUserInfo(request should contain code)");
 
         VKontakteSocialUserInfo vkUserInfo = userInfo as VKontakteSocialUserInfo;
 

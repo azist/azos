@@ -93,10 +93,10 @@ namespace Azos.Web.Social
       /// </summary>
       public sealed override SocialNetID ID { get { return SocialNetID.GPS; } }
 
-      [Azos.Environment.Config]
+      [Config]
       public string ClientCode { get; set; }
 
-      [Azos.Environment.Config]
+      [Config]
       public string ClientSecret { get; set; }
 
       /// <summary>

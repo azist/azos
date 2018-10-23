@@ -6,10 +6,8 @@ using System.Text;
 using System.Threading;
 using System.Net;
 
-
-using Azos.Environment;
+using Azos.Conf;
 using Azos.Web.GeoLookup;
-
 
 namespace Azos.Wave.Filters
 {

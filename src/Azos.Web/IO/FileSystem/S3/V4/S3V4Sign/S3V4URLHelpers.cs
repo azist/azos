@@ -52,7 +52,7 @@ namespace Azos.IO.FileSystem.S3.V4.S3V4Sign
       }
       catch (UriFormatException)
       {
-        throw new NFXException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(S3V4URLHelpers) + ".Parse(path should be a valid Uri)");
+        throw new AzosIOException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(S3V4URLHelpers) + ".Parse(path should be a valid Uri)");
       }
 
       Parse( uri, out bucket, out region, out itemLocalPath, out queryParams);
@@ -63,7 +63,7 @@ namespace Azos.IO.FileSystem.S3.V4.S3V4Sign
       bucket = region = itemLocalPath = null;
 
       if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
-        throw new NFXException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(S3V4URLHelpers) + ".Parse(path should be a http or https Uri)");
+        throw new AzosIOException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(S3V4URLHelpers) + ".Parse(path should be a http or https Uri)");
 
       itemLocalPath = uri.LocalPath.TrimStart('/');
 
@@ -84,18 +84,18 @@ namespace Azos.IO.FileSystem.S3.V4.S3V4Sign
 
       string[] hostFragments = uri.Host.Split('.');
       if (hostFragments.Length != 4)
-        throw new NFXException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(S3V4URLHelpers) + ".Parse(path host should be [BUCKET].s3.amazonaws.com or [BUCKET].s3-[REGION].amazonaws.com)");
+        throw new AzosIOException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(S3V4URLHelpers) + ".Parse(path host should be [BUCKET].s3.amazonaws.com or [BUCKET].s3-[REGION].amazonaws.com)");
 
       string zoneFragment = hostFragments[hostFragments.Length - 1];
       string domainFragment = hostFragments[hostFragments.Length - 2];
       if (zoneFragment != "com" || domainFragment != "amazonaws")
-        throw new NFXException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(S3V4URLHelpers) + ".Parse(path should have domain amazonaws.com)");
+        throw new AzosIOException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(S3V4URLHelpers) + ".Parse(path should have domain amazonaws.com)");
 
       bucket = hostFragments[0];
 
       string s3Fragment = hostFragments[1];
       if (!s3Fragment.StartsWith("s3"))
-        throw new NFXException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(S3V4URLHelpers) + ".Parse(path host should be [BUCKET].s3.amazonaws.com or [BUCKET].s3-[REGION].amazonaws.com)");
+        throw new AzosIOException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(S3V4URLHelpers) + ".Parse(path host should be [BUCKET].s3.amazonaws.com or [BUCKET].s3-[REGION].amazonaws.com)");
 
       if (s3Fragment == "s3")
       {
@@ -104,7 +104,7 @@ namespace Azos.IO.FileSystem.S3.V4.S3V4Sign
       else
       {
         if (!s3Fragment.StartsWith("s3-"))
-          throw new NFXException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(S3V4URLHelpers) + ".Parse(path host should be [BUCKET].s3.amazonaws.com or [BUCKET].s3-[REGION].amazonaws.com)");
+          throw new AzosIOException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(S3V4URLHelpers) + ".Parse(path host should be [BUCKET].s3.amazonaws.com or [BUCKET].s3-[REGION].amazonaws.com)");
 
         region = s3Fragment.Substring("s3-".Length);
       }

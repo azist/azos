@@ -5,8 +5,8 @@ using System.Linq;
 using System.IO;
 using System.Text;
 
-
 using Azos.Conf;
+using Azos.Data;
 using Azos.IO.FileSystem.S3.V4.S3V4Sign;
 
 namespace Azos.IO.FileSystem.S3.V4
@@ -124,7 +124,7 @@ namespace Azos.IO.FileSystem.S3.V4
       {
         S3V4FileSystemSessionConnectParams s3CParams = cParams ?? (DefaultSessionConnectParams as S3V4FileSystemSessionConnectParams);
         if (s3CParams == null)
-          throw new NFXException(Azos.Web.StringConsts.FS_SESSION_BAD_PARAMS_ERROR + this.GetType() + ".StartSession");
+          throw new AzosIOException(Azos.Web.StringConsts.FS_SESSION_BAD_PARAMS_ERROR + this.GetType() + ".StartSession");
 
         return new S3V4FileSystemSession(this, null, s3CParams);
       }
@@ -262,7 +262,7 @@ namespace Azos.IO.FileSystem.S3.V4
           return size;
         }
 
-        throw new NFXException(Azos.Web.StringConsts.ARGUMENT_ERROR + this.GetType().Name + ".DoGetItemSize(item is FileSystemFile or FileSystemDirectory)");
+        throw new AzosIOException(Azos.Web.StringConsts.ARGUMENT_ERROR + this.GetType().Name + ".DoGetItemSize(item is FileSystemFile or FileSystemDirectory)");
       }
 
       protected internal override FileSystemStream DoGetPermissionsStream(FileSystemSessionItem item, Action<FileSystemStream> disposeAction)

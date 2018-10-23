@@ -7,7 +7,7 @@ using System.Threading;
 
 using Azos.Web;
 using Azos.Serialization.JSON;
-using Azos.Environment;
+using Azos.Conf;
 using Azos.Wave.Templatization;
 using ErrorPage = Azos.Wave.Templatization.StockContent.Error;
 
@@ -165,8 +165,8 @@ namespace Azos.Wave.Filters
           if (actual is FilterPipelineException)
             actual = ((FilterPipelineException)actual).RootException;
 
-          if (actual is MVCException)
-            actual = ((MVCException)actual).InnerException;
+          if (actual is MvcException)
+            actual = ((MvcException)actual).InnerException;
 
 
           var securityError = Azos.Security.AuthorizationException.IsDenotedBy(actual);

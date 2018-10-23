@@ -1,7 +1,6 @@
 
 using System;
 using System.Runtime.Serialization;
-using System.Collections.Generic;
 
 using Azos.Web;
 
@@ -22,15 +21,15 @@ namespace Azos.Wave
 
 
   /// <summary>
-  /// Base exception thrown by the MVC-related framework
+  /// Base exception thrown by the Mvc-related framework
   /// </summary>
   [Serializable]
-  public class MVCException : WaveException
+  public class MvcException : WaveException
   {
-    public MVCException() { }
-    public MVCException(string message) : base(message) { }
-    public MVCException(string message, Exception inner) : base(message, inner) { }
-    protected MVCException(SerializationInfo info, StreamingContext context): base(info, context) { }
+    public MvcException() { }
+    public MvcException(string message) : base(message) { }
+    public MvcException(string message, Exception inner) : base(message, inner) { }
+    protected MvcException(SerializationInfo info, StreamingContext context): base(info, context) { }
   }
 
 
@@ -38,28 +37,28 @@ namespace Azos.Wave
   /// Wraps inner exceptions capturing stack trace in inner implementing blocks
   /// </summary>
   [Serializable]
-  public class MVCActionException : MVCException
+  public class MvcActionException : MvcException
   {
     public const string CONTROLLER_FLD_NAME = "MVCAE-C";
     public const string ACTION_FLD_NAME = "MVCAE-A";
 
-    public static MVCActionException WrapActionBodyError(string controller, string action, Exception src)
+    public static MvcActionException WrapActionBodyError(string controller, string action, Exception src)
     {
-      if (src==null) throw new WaveException(StringConsts.ARGUMENT_ERROR+typeof(MVCActionException).Name+"Wrap(src=null)");
+      if (src==null) throw new WaveException(StringConsts.ARGUMENT_ERROR+typeof(MvcActionException).Name+"Wrap(src=null)");
 
       var trace = src.StackTrace;
-      return new MVCActionException(controller,
+      return new MvcActionException(controller,
                                     action,
                                     "Controller action body: '{0}'.'{1}'. Exception: {2} Trace: \r\n {3}".Args(controller, action, src.ToMessageWithType(), trace),
                                     src);
     }
 
-    public static MVCActionException WrapActionResultError(string controller, string action, object result, Exception src)
+    public static MvcActionException WrapActionResultError(string controller, string action, object result, Exception src)
     {
-      if (src==null) throw new WaveException(StringConsts.ARGUMENT_ERROR+typeof(MVCActionException).Name+"Wrap(src=null)");
+      if (src==null) throw new WaveException(StringConsts.ARGUMENT_ERROR+typeof(MvcActionException).Name+"Wrap(src=null)");
 
       var trace = src.StackTrace;
-      return new MVCActionException(controller,
+      return new MvcActionException(controller,
                                     action,
                                     "Controller action result processing: '{0}'.'{1}' -> {2}. Exception: {3} Trace: \r\n {4}".Args(controller,
                                                                                                                                  action,
@@ -69,13 +68,13 @@ namespace Azos.Wave
                                     src);
     }
 
-    protected MVCActionException(string controller, string action, string msg, Exception inner): base(msg, inner)
+    protected MvcActionException(string controller, string action, string msg, Exception inner): base(msg, inner)
     {
       Controller = controller;
       Action = action;
     }
 
-    protected MVCActionException(SerializationInfo info, StreamingContext context): base(info, context)
+    protected MvcActionException(SerializationInfo info, StreamingContext context): base(info, context)
     {
       Controller = info.GetString(CONTROLLER_FLD_NAME);
       Action = info.GetString(ACTION_FLD_NAME);
@@ -87,7 +86,7 @@ namespace Azos.Wave
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       if (info == null)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
       info.AddValue(CONTROLLER_FLD_NAME, Controller);
       info.AddValue(ACTION_FLD_NAME, Action);
       base.GetObjectData(info, context);
@@ -188,7 +187,7 @@ namespace Azos.Wave
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       if (info == null)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
       info.AddValue(FILTER_TYPE_FLD_NAME, FilterType);
       info.AddValue(FILTER_NAME_FLD_NAME, FilterName);
       info.AddValue(FILTER_ORDER_FLD_NAME, FilterOrder);
@@ -308,7 +307,7 @@ namespace Azos.Wave
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       if (info == null)
-        throw new NFXException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
+        throw new AzosException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
       info.AddValue(STATUS_CODE_FLD_NAME, StatusCode);
       info.AddValue(STATUS_DESCRIPTION_FLD_NAME, StatusDescription);
       base.GetObjectData(info, context);

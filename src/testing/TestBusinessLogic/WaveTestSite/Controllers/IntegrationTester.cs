@@ -8,7 +8,7 @@ using Azos;
 using Azos.Data;
 using Azos.Security;
 using Azos.Serialization.JSON;
-using Azos.Wave.MVC;
+using Azos.Wave.Mvc;
 
 namespace WaveTestSite.Controllers
 {
@@ -18,12 +18,12 @@ namespace WaveTestSite.Controllers
 
       public enum TestStatus { Ok, Err};
 
-      public class SpanRow: TypedRow
+      public class SpanDoc: TypedDoc
       {
         [Field] public TimeSpan Span { get; set; }
       }
 
-      public class TestRow: TypedRow
+      public class TestDoc: TypedDoc
       {
         [Field] public int ID { get; set; }
         [Field] public string Name { get; set; }
@@ -50,12 +50,12 @@ namespace WaveTestSite.Controllers
         [Field] public double? DoubleNullable { get; set; }
       }
 
-      public class TestComplexRow: TypedRow
+      public class TestComplexDoc: TypedDoc
       {
         [Field] public int ID { get; set; }
-        [Field] public TestRow Row1 { get; set; }
-        [Field] public TestRow Row2 { get; set; }
-        [Field] public TestRow[] ErrorRows { get; set; }
+        [Field] public TestDoc Doc1 { get; set; }
+        [Field] public TestDoc Doc2 { get; set; }
+        [Field] public TestDoc[] ErrorDocs { get; set; }
       }
 
     #endregion
@@ -148,7 +148,7 @@ namespace WaveTestSite.Controllers
     [Action("RowGet", 0, "match{methods=GET}")]
     public object RowGet()
     {
-      var row = new TestRow(){
+      var row = new TestDoc(){
         ID = 777,
         Name = "Test Name",
         Date = DateTime.Now,
@@ -160,43 +160,43 @@ namespace WaveTestSite.Controllers
     }
 
     [Action("RowSet", 0, "match{methods=POST}")]
-    public object RowSet(TestRow row)
+    public object RowSet(TestDoc doc)
     {
-      row.Date = DateTime.Now;
-      return row;
+      doc.Date = DateTime.Now;
+      return doc;
     }
 
     [Action("ComplexRowSet", 0, "match{methods=POST}")]
-    public object ComplexRowSet(TestComplexRow row)
+    public object ComplexRowSet(TestComplexDoc doc)
     {
-      row.ID += 1;
-      row.Row1.ID += 2;
-      row.ErrorRows[2].Date = row.ErrorRows[2].Date.AddDays(-2);
-      return row;//new JSONResult(row, JSONWritingOptions.CompactRowsAsMap);
+      doc.ID += 1;
+      doc.Doc1.ID += 2;
+      doc.ErrorDocs[2].Date = doc.ErrorDocs[2].Date.AddDays(-2);
+      return doc;//new JSONResult(row, JSONWritingOptions.CompactRowsAsMap);
     }
 
     [Action]
-    public object RowAndPrimitive_RowFirst(TestRow row, int n, string s)
+    public object RowAndPrimitive_RowFirst(TestDoc doc, int n, string s)
     {
-      row.ID = n;
-      row.Name = s;
-      return row;//new JSONResult(row, JSONWritingOptions.CompactRowsAsMap);
+      doc.ID = n;
+      doc.Name = s;
+      return doc;//new JSONResult(row, JSONWritingOptions.CompactRowsAsMap);
     }
 
     [Action]
-    public object RowAndPrimitive_RowLast(int n, string s, TestRow row)
+    public object RowAndPrimitive_RowLast(int n, string s, TestDoc doc)
     {
-      row.ID = n;
-      row.Name = s;
-      return row;//new JSONResult(row, JSONWritingOptions.CompactRowsAsMap);
+      doc.ID = n;
+      doc.Name = s;
+      return doc;//new JSONResult(row, JSONWritingOptions.CompactRowsAsMap);
     }
 
     [Action]
-    public object RowAndPrimitive_RowMiddle(int n, TestRow row, string s)
+    public object RowAndPrimitive_RowMiddle(int n, TestDoc doc, string s)
     {
-      row.ID = n;
-      row.Name = s;
-      return row;//new JSONResult(row, JSONWritingOptions.CompactRowsAsMap);
+      doc.ID = n;
+      doc.Name = s;
+      return doc;//new JSONResult(row, JSONWritingOptions.CompactRowsAsMap);
     }
 
     [Action]
@@ -224,9 +224,9 @@ namespace WaveTestSite.Controllers
     }
 
     [Action]
-    public object RowDifferentFieldTypes(TestRow row)
+    public object RowDifferentFieldTypes(TestDoc doc)
     {
-      return row;// new JSONResult(row, JSONWritingOptions.CompactRowsAsMap);
+      return doc;// new JSONResult(row, JSONWritingOptions.CompactRowsAsMap);
     }
 
     //[Action]
@@ -285,11 +285,11 @@ namespace WaveTestSite.Controllers
     }
 
     [Action]
-    public void MultipartRow(MultipartTestRow row)
+    public void MultipartRow(MultipartTestDoc doc)
     {
-      var fld = Encoding.UTF8.GetBytes(row.Field);
-      var txt = Encoding.UTF8.GetBytes(row.Text);
-      var bin = row.Bin;
+      var fld = Encoding.UTF8.GetBytes(doc.Field);
+      var txt = Encoding.UTF8.GetBytes(doc.Text);
+      var bin = doc.Bin;
       var output = WorkContext.Response.GetDirectOutputStreamForWriting();
       output.Write(fld, 0, fld.Length);
       output.Write(txt, 0, txt.Length);
@@ -326,7 +326,7 @@ namespace WaveTestSite.Controllers
     //public object RowSet(TestRow row, int a, string b)
     //match{is-local=false}
 
-    public class MultipartTestRow : TypedRow
+    public class MultipartTestDoc : TypedDoc
     {
       [Field]
       public string Field { get; set;}

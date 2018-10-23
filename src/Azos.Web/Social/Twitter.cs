@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 
 using Azos.Conf;
+using Azos.Data;
 using Azos.Serialization.JSON;
 using Azos.Web.IO;
 
@@ -82,10 +83,10 @@ namespace Azos.Web.Social
       /// </summary>
       public sealed override SocialNetID ID { get { return SocialNetID.TWT; } }
 
-      [Azos.Environment.Config]
+      [Config]
       public string ClientCode { get; set; }
 
-      [Azos.Environment.Config]
+      [Config]
       public string ClientSecret { get; set; }
 
       /// <summary>
@@ -173,7 +174,7 @@ namespace Azos.Web.Social
           {OAUTH_CONSUMERKEY_PARAMNAME, ClientCode},
           {OAUTH_NONCE_PARAMNAME, GenerateNonce()},
           {OAUTH_SIGNATUREMETHOD_PARAMNAME, OAUTH_SIGNATUREMETHOD_PARAMVALUE},
-          {OAUTH_TIMESTAMP_PARAMNAME, MiscUtils.ToSecondsSinceUnixEpochStart(DateTime.Now).ToString()},
+          {OAUTH_TIMESTAMP_PARAMNAME, DateUtils.ToSecondsSinceUnixEpochStart(DateTime.Now).ToString()},
           {OAUTH_VERSION_PARAMNAME, OAUTH_VERSION_PARAMVALUE}
         };
 
@@ -201,7 +202,7 @@ namespace Azos.Web.Social
           {OAUTH_CONSUMERKEY_PARAMNAME, ClientCode},
           {OAUTH_NONCE_PARAMNAME, GenerateNonce()},
           {OAUTH_SIGNATUREMETHOD_PARAMNAME, OAUTH_SIGNATUREMETHOD_PARAMVALUE},
-          {OAUTH_TIMESTAMP_PARAMNAME, MiscUtils.ToSecondsSinceUnixEpochStart(DateTime.Now).ToString()},
+          {OAUTH_TIMESTAMP_PARAMNAME, DateUtils.ToSecondsSinceUnixEpochStart(DateTime.Now).ToString()},
           {OAUTH_TOKEN_PARAMNAME, twUserInfo.OAuthRequestToken},
           {OAUTH_VERSION_PARAMNAME, OAUTH_VERSION_PARAMVALUE}
         };
@@ -236,7 +237,7 @@ namespace Azos.Web.Social
         var oauthVerifier = inboundParams[OAUTH_VERIFIER_PARAMNAME].AsString();
 
         if (oauthToken.IsNullOrWhiteSpace() || oauthVerifier.IsNullOrWhiteSpace())
-            throw new NFXException(StringConsts.ARGUMENT_ERROR + GetType().Name
+            throw new SocialException(StringConsts.ARGUMENT_ERROR + GetType().Name
               + ".ExtractVerifier(inboundParams.Contains({0}&{1}))".Args(OAUTH_TOKEN_PARAMNAME, OAUTH_VERIFIER_PARAMNAME));
 
         return oauthVerifier;
@@ -250,7 +251,7 @@ namespace Azos.Web.Social
           {OAUTH_CONSUMERKEY_PARAMNAME, ClientCode},
           {OAUTH_NONCE_PARAMNAME, GenerateNonce()},
           {OAUTH_SIGNATUREMETHOD_PARAMNAME, OAUTH_SIGNATUREMETHOD_PARAMVALUE},
-          {OAUTH_TIMESTAMP_PARAMNAME, MiscUtils.ToSecondsSinceUnixEpochStart(DateTime.Now).ToString()},
+          {OAUTH_TIMESTAMP_PARAMNAME, DateUtils.ToSecondsSinceUnixEpochStart(DateTime.Now).ToString()},
           {OAUTH_TOKEN_PARAMNAME, twUserInfo.OAuthAccessToken},
           {OAUTH_VERSION_PARAMNAME, OAUTH_VERSION_PARAMVALUE}
         };
@@ -285,7 +286,7 @@ namespace Azos.Web.Social
         }
         catch (Exception ex)
         {
-          throw new NFXException(SocialStringConsts.POSTFAILED_ERROR + this.GetType().Name + ".twit", ex);
+          throw new SocialException(SocialStringConsts.POSTFAILED_ERROR + this.GetType().Name + ".twit", ex);
         }
       }
 
@@ -296,7 +297,7 @@ namespace Azos.Web.Social
           {OAUTH_CONSUMERKEY_PARAMNAME, ClientCode},
           {OAUTH_NONCE_PARAMNAME, GenerateNonce()},
           {OAUTH_SIGNATUREMETHOD_PARAMNAME, OAUTH_SIGNATUREMETHOD_PARAMVALUE},
-          {OAUTH_TIMESTAMP_PARAMNAME, MiscUtils.ToSecondsSinceUnixEpochStart(DateTime.Now).ToString()},
+          {OAUTH_TIMESTAMP_PARAMNAME, DateUtils.ToSecondsSinceUnixEpochStart(DateTime.Now).ToString()},
           {OAUTH_TOKEN_PARAMNAME, acessToken},
           {OAUTH_VERSION_PARAMNAME, OAUTH_VERSION_PARAMVALUE}
         };
@@ -325,7 +326,7 @@ namespace Azos.Web.Social
         }
         catch (Exception ex)
         {
-          throw new NFXException(SocialStringConsts.POSTFAILED_ERROR + this.GetType().Name + ".twit", ex);
+          throw new SocialException(SocialStringConsts.POSTFAILED_ERROR + this.GetType().Name + ".twit", ex);
         }
       }
 

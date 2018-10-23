@@ -6,8 +6,8 @@ using System.IO;
 
 using Azos.Web;
 using Azos.Graphics;
-using Azos.Environment;
-using Azos.DataAccess.CRUD;
+using Azos.Conf;
+using Azos.Data;
 using Azos.Serialization.JSON;
 using Azos.Wave.Mvc;
 using Azos.Wave.Templatization;
@@ -94,7 +94,7 @@ namespace Azos.Wave.Handlers
               var cause = ((TargetInvocationException)error).InnerException;
               if (cause!=null) error = cause;
             }
-            throw MVCActionException.WrapActionBodyError(target.GetType().FullName, action, error);
+            throw MvcActionException.WrapActionBodyError(target.GetType().FullName, action, error);
           }
 
           if (mi.ReturnType==typeof(void)) return;
@@ -107,7 +107,7 @@ namespace Azos.Wave.Handlers
             }
             catch(Exception error)
             {
-              throw MVCActionException.WrapActionResultError(target.GetType().FullName, action, result, error);
+              throw MvcActionException.WrapActionResultError(target.GetType().FullName, action, result, error);
             }
           }
           finally
@@ -123,9 +123,9 @@ namespace Azos.Wave.Handlers
       /// </summary>
       protected override void DoError(WorkContext work, Exception error)
       {
-        if (error is MVCException) throw error;
+        if (error is MvcException) throw error;
 
-        throw new MVCException(StringConsts.MVC_HANDLER_WORK_PROCESSING_ERROR.Args(error.ToMessageWithType()), error);
+        throw new MvcException(StringConsts.MVC_HANDLER_WORK_PROCESSING_ERROR.Args(error.ToMessageWithType()), error);
       }
 
       /// <summary>

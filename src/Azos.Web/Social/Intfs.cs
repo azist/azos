@@ -53,7 +53,7 @@ namespace Azos.Web.Social
   /// <summary>
   /// Describes an entity that can perform social functions (i.e. login, post)
   /// </summary>
-  public interface ISocialNetwork: INamed
+  public interface ISocialNetwork: Collections.INamed
   {
     /// <summary>
     /// Globally uniquelly identifies social network architype

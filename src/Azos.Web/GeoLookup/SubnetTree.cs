@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
+using Azos.Data;
+
 namespace Azos.Web.GeoLookup
 {
   public struct Subnet : IEnumerable<bool>

@@ -4,7 +4,7 @@ using System.Reflection;
 
 using Azos.Web;
 
-namespace Azos.Wave.MVC
+namespace Azos.Wave.Mvc
 {
 
   /// <summary>

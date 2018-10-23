@@ -1,6 +1,5 @@
 
 using System;
-using System.Linq;
 
 using Azos.Web;
 using Azos.Graphics;
@@ -139,7 +138,7 @@ namespace Azos.Wave.Mvc
   /// </summary>
   public struct ClientRecord : IActionResult
   {
-    public ClientRecord(Row row,
+    public ClientRecord(Doc doc,
                         Exception validationError,
                         string recID = null,
                         string target = null,
@@ -147,14 +146,14 @@ namespace Azos.Wave.Mvc
                         Client.ModelFieldValueListLookupFunc valueListLookupFunc = null)
     {
       RecID = recID;
-      Row = row;
+      Doc = doc;
       ValidationError = validationError;
       Target = target;
       IsoLang = isoLang;
       ValueListLookupFunc = valueListLookupFunc;
     }
 
-    public ClientRecord(Row row,
+    public ClientRecord(Doc doc,
                         Exception validationError,
                         Func<Schema.FieldDef, JSONDataMap> simpleValueListLookupFunc,
                         string recID = null,
@@ -162,7 +161,7 @@ namespace Azos.Wave.Mvc
                         string isoLang = null)
     {
       RecID = recID;
-      Row = row;
+      Doc = doc;
       ValidationError = validationError;
       Target = target;
       IsoLang = isoLang;
@@ -173,7 +172,7 @@ namespace Azos.Wave.Mvc
     }
 
     public readonly string RecID;
-    public readonly Row Row;
+    public readonly Doc Doc;
     public readonly Exception ValidationError;
     public readonly string Target;
     public readonly string IsoLang;
@@ -185,7 +184,7 @@ namespace Azos.Wave.Mvc
       var gen = (work.Portal!=null) ? work.Portal.RecordModelGenerator
                                     : Client.RecordModelGenerator.DefaultInstance;
 
-      work.Response.WriteJSON( gen.RowToRecordInitJSON(Row, ValidationError, RecID, Target, IsoLang, ValueListLookupFunc) );
+      work.Response.WriteJSON( gen.RowToRecordInitJSON(Doc, ValidationError, RecID, Target, IsoLang, ValueListLookupFunc) );
     }
   }
 

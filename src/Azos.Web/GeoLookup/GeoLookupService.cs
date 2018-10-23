@@ -7,6 +7,7 @@ using System.Net;
 using System.Threading.Tasks;
 
 using Azos.Apps;
+using Azos.Data;
 using Azos.Conf;
 using Azos.Log;
 using Azos.Text;
@@ -108,7 +109,7 @@ namespace Azos.Web.GeoLookup
       /// <summary>
       /// Returns true to indoicate that service has loaded and ready to serve data
       /// </summary>
-      public bool Available { get{ return Status== ControlStatus.Active;} }
+      public bool Available { get{ return Status== ServiceStatus.Active;} }
 
 
       /// <summary>

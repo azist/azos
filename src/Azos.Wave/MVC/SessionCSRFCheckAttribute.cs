@@ -2,7 +2,9 @@
 using System;
 using System.Reflection;
 
-namespace Azos.Wave.MVC
+using Azos.Data;
+
+namespace Azos.Wave.Mvc
 {
   /// <summary>
   /// Decorates controller classes or actions that need to check CSRF token on POST against the user session
@@ -49,7 +51,7 @@ namespace Azos.Wave.MVC
 
       var bad = session==null;
 
-      if (!bad && session.LastLoginType!=ApplicationModel.SessionLoginType.Robot)
+      if (!bad && session.LastLoginType!=Apps.SessionLoginType.Robot)
          bad = !session.CSRFToken.EqualsOrdSenseCase(supplied);
 
       if (bad) throw new HTTPStatusException(Azos.Web.WebConsts.STATUS_400, Azos.Web.WebConsts.STATUS_400_DESCRIPTION, "CSRF failed");

@@ -159,7 +159,7 @@ namespace Azos.Web.Messaging
 
     #region Protected
 
-    protected override void DoConfigure(Environment.IConfigSectionNode node)
+    protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
 

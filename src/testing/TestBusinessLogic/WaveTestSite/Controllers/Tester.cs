@@ -8,7 +8,7 @@ using System.Threading;
 
 using Azos;
 using Azos.Graphics;
-using Azos.Wave.MVC;
+using Azos.Wave.Mvc;
 using Azos.Security.CAPTCHA;
 using Azos.Serialization.JSON;
 using Azos.Data;
@@ -31,8 +31,8 @@ namespace WaveTestSite.Controllers
       [Action]
       public void SlowImage(string url, int dbDelayMs = 100, int netDelayMs = 0)
       {
-        WorkContext.Response.ContentType = NFX.Web.ContentType.JPEG;
-        WorkContext.Response.SetCacheControlHeaders(NFX.Web.CacheControl.PrivateMaxAgeSec(2), false);
+        WorkContext.Response.ContentType = Azos.Web.ContentType.JPEG;
+        WorkContext.Response.SetCacheControlHeaders(Azos.Web.CacheControl.PrivateMaxAgeSec(2), false);
 
         // emulate a pause accessing DB
         Thread.Sleep(dbDelayMs);
@@ -51,7 +51,7 @@ namespace WaveTestSite.Controllers
             stream.Write(buffer, 0, count);
 
             // emulate slow network
-            Thread.Sleep(ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, netDelayMs));
+            Thread.Sleep(App.Random.NextScaledRandomInteger(0, netDelayMs));
           }
         }
       }
@@ -105,7 +105,7 @@ namespace WaveTestSite.Controllers
          for(var i=from;i<to;i++)
            list.Add(  new
                      {
-                       RandomNumber = ExternalRandomGenerator.Instance.NextRandomInteger,
+                       RandomNumber = App.Random.NextRandomInteger,
                        When = DateTime.Now
                      });
 
@@ -117,7 +117,7 @@ namespace WaveTestSite.Controllers
       {
          return new
               {
-                RandomNumber = ExternalRandomGenerator.Instance.NextRandomInteger,
+                RandomNumber = App.Random.NextRandomInteger,
                 When = DateTime.Now
               };
       }
@@ -147,7 +147,7 @@ namespace WaveTestSite.Controllers
       }
 
 
-      [NFX.Security.AdHocPermission("test", "SpecialPermission", 10)]
+      [Azos.Security.AdHocPermission("test", "SpecialPermission", 10)]
       [Action]
       public string SpecialCase()
       {
@@ -202,16 +202,16 @@ namespace WaveTestSite.Controllers
       }
 
       [Action("person", 1, "match{methods=POST}")]
-      public object PersonPost(Person row)
+      public object PersonPost(Person doc)
       {
         var puzzlePass = false;
         WorkContext.NeedsSession();
-        if (WorkContext.Session != null && row.Puzzle != null)
+        if (WorkContext.Session != null && doc.Puzzle != null)
         {
           var pk = WorkContext.Session["PersonPuzzle"] as PuzzleKeypad;
           if (pk != null)
           {
-            var answer = row.Puzzle["Answer"] as JSONDataArray;
+            var answer = doc.Puzzle["Answer"] as JSONDataArray;
             if (answer != null)
               puzzlePass = pk.DecipherCoordinates(answer) == pk.Code;
           }
@@ -220,17 +220,17 @@ namespace WaveTestSite.Controllers
         Exception error = null;
         if (puzzlePass)
         {
-          row.YearsInService++;
-          error = row.Validate();
+          doc.YearsInService++;
+          error = doc.Validate();
         }
         else
-          error = new CRUDFieldValidationException("Person", "Puzzle", "Please answer the question correctly");
+          error = new FieldValidationException("Person", "Puzzle", "Please answer the question correctly");
 
-        if (row.Puzzle != null)
-          row.Puzzle.Remove("Answer");
+        if (doc.Puzzle != null)
+        doc.Puzzle.Remove("Answer");
 
         makePuzzle();
-        return new ClientRecord(row, error);
+        return new ClientRecord(doc, error);
       }
 
       [Action]
@@ -244,7 +244,7 @@ namespace WaveTestSite.Controllers
       }
 
       [Action]
-      public object MultipartRow(MultipartTestRow data, bool map = true)
+      public object MultipartRow(MultipartTestDoc data, bool map = true)
       {
         var result = new
         {
@@ -293,7 +293,7 @@ namespace WaveTestSite.Controllers
 
       static Tester()
       {
-        NFX.Wave.Client.RecordModelGenerator.DefaultInstance.ModelLocalization += (_, schema, prop, val, lang) =>
+        Azos.Wave.Client.RecordModelGenerator.DefaultInstance.ModelLocalization += (_, schema, prop, val, lang) =>
         {
           if (prop=="Description" && val=="Private Status") return "Частный Статус";
           if (prop=="Description" && val=="Salary") return "Заработная Плата";
@@ -333,7 +333,7 @@ namespace WaveTestSite.Controllers
         public enum StatusCode{None=0 , Beginner, Advanced, Master}
 
 
-        public class Person : TypedRow
+        public class Person : TypedDoc
         {
           [Field]
           public string ID { get; set;}
@@ -371,7 +371,7 @@ namespace WaveTestSite.Controllers
         }
 
 
-        public class MultipartTestRow : TypedRow
+        public class MultipartTestDoc : TypedDoc
         {
           [Field]
           public string CustomerNumber { get; set;}

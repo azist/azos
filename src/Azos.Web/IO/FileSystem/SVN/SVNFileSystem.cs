@@ -54,7 +54,7 @@ namespace Azos.IO.FileSystem.SVN
       {
         var svnCParams = cParams ?? (DefaultSessionConnectParams as SVNFileSystemSessionConnectParams);
         if (svnCParams == null)
-          throw new NFXException(Azos.Web.StringConsts.FS_SESSION_BAD_PARAMS_ERROR + this.GetType() + ".StartSession");
+          throw new AzosIOException(Azos.Web.StringConsts.FS_SESSION_BAD_PARAMS_ERROR + this.GetType() + ".StartSession");
 
         return new SVNFileSystemSession(this, null, svnCParams);
       }
@@ -146,7 +146,7 @@ namespace Azos.IO.FileSystem.SVN
         var dir = wdItem as WebDAV.Directory;
         if (dir != null) return GetDirectorySize(dir);
 
-        throw new NFXException(Azos.Web.StringConsts.ARGUMENT_ERROR + this.GetType().Name + ".DoGetItemSize(item is FileSystemFile or FileSystemDirectory)");
+        throw new AzosIOException(Azos.Web.StringConsts.ARGUMENT_ERROR + this.GetType().Name + ".DoGetItemSize(item is FileSystemFile or FileSystemDirectory)");
       }
 
       private ulong GetDirectorySize(WebDAV.Directory dir)

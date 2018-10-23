@@ -124,7 +124,7 @@ namespace Azos.IO.FileSystem.S3.V4
       var s3cp = cParams as S3V4FileSystemSessionConnectParams;
 
       if (s3cp.Bucket.IsNullOrWhiteSpace() || s3cp.Region.IsNullOrWhiteSpace())
-        throw new NFXIOException(WSC.FS_S3_PARAMS_SERVER_URL_ERROR);
+        throw new AzosIOException(WSC.FS_S3_PARAMS_SERVER_URL_ERROR);
     }
   } //S3V4FileSystemSession
 

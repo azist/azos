@@ -41,7 +41,7 @@ namespace Azos.IO.FileSystem.GoogleDrive.V2
 
         if (gdParams == null)
         {
-          throw new NFXException(Azos.Web.StringConsts.FS_SESSION_BAD_PARAMS_ERROR + this.GetType() + ".StartSession");
+          throw new AzosIOException(Azos.Web.StringConsts.FS_SESSION_BAD_PARAMS_ERROR + this.GetType() + ".StartSession");
         }
 
         return new GoogleDriveSession(this, null, gdParams);
@@ -175,7 +175,7 @@ namespace Azos.IO.FileSystem.GoogleDrive.V2
           return size;
         }
 
-        throw new NFXException(Azos.Web.StringConsts.ARGUMENT_ERROR + this.GetType().Name + ".DoGetItemSize(item is FileSystemFile or FileSystemDirectory)");
+        throw new AzosIOException(Azos.Web.StringConsts.ARGUMENT_ERROR + this.GetType().Name + ".DoGetItemSize(item is FileSystemFile or FileSystemDirectory)");
       }
 
       protected internal override FileSystemStream DoGetPermissionsStream(FileSystemSessionItem item, Action<FileSystemStream> disposeAction)

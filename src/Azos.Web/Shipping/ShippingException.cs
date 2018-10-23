@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
 
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Web.Shipping

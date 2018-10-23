@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Azos.Conf;
+using Azos.Data;
 using Azos.Security;
 
 using WSC = Azos.Web.StringConsts;
@@ -135,7 +136,7 @@ namespace Azos.IO.FileSystem.SVN
       var svnp = (SVNFileSystemSessionConnectParams)cParams;
 
       if (svnp.ServerURL.IsNullOrWhiteSpace())
-      throw new NFXIOException(WSC.FS_SVN_PARAMS_SERVER_URL_ERROR);
+      throw new AzosIOException(WSC.FS_SVN_PARAMS_SERVER_URL_ERROR);
     }
 
   }

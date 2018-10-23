@@ -2,13 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
+using Azos.Apps;
+using Azos.Conf;
 using Azos.Log;
 using Azos.Serialization.JSON;
-using Azos.ApplicationModel;
 using Azos.Instrumentation;
-using Azos.Environment;
 
 namespace Azos.Wave
 {
@@ -16,7 +15,7 @@ namespace Azos.Wave
   /// Represents a web portal that controls the mapping of types and themes within the site.
   /// Portals allow to host differently-looking/behaving sites in the same web application
   /// </summary>
-  public abstract class Portal : ApplicationComponent, INamed, IInstrumentable
+  public abstract class Portal : ApplicationComponent, Collections.INamed, IInstrumentable
   {
     #region CONSTS
       public const string CONFIG_THEME_SECTION = "theme";

@@ -2,13 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 
 namespace Azos.Wave.Mvc
 {
   /// <summary>
-  /// Represents controller that all MVC controllers must inherit from
+  /// Represents controller from which all Mvc controllers inherit
   /// </summary>
   public abstract class Controller : DisposableObject
   {

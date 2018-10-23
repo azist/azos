@@ -2,7 +2,7 @@
 using System;
 using System.Reflection;
 
-namespace Azos.Wave.MVC
+namespace Azos.Wave.Mvc
 {
   /// <summary>
   /// Decorates controller classes or actions that set NoCache headers in response. By default Force = true

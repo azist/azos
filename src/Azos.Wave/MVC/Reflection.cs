@@ -2,10 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 
-namespace Azos.Wave.MVC
+namespace Azos.Wave.Mvc
 {
     /// <summary>
     /// Provides reflection information about controller type.
