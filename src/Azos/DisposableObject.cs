@@ -41,14 +41,7 @@ namespace Azos
       {
         if (0 == Interlocked.CompareExchange(ref m_DisposeStarted, 1, 0))
         {
-          try
-          {
-            Destructor();
-          }
-          finally
-          {
-            m_Disposed = true;
-          }
+          Destructor();
         }
       }
 
@@ -56,33 +49,24 @@ namespace Azos
 
     #region Private Fields
       private int m_DisposeStarted;
-      private volatile bool m_Disposed;
     #endregion
 
     #region Properties
 
       /// <summary>
-      /// Indicates whether this object Dispose() has been called and dispose started but not finished yet
+      /// Indicates whether this object Dispose() has been called and dispose started (but
+      /// may not have finished yet). Thread safe
       /// </summary>
-      public bool DisposeStarted
-      {
-        get { return Thread.VolatileRead(ref m_DisposeStarted) != 0; }
-      }
+      public bool Disposed => Thread.VolatileRead(ref m_DisposeStarted) != 0;
 
-      /// <summary>
-      /// Indicates whether this object was already disposed - the Dispose() has finished
-      /// </summary>
-      public bool Disposed
-      {
-        get { return m_Disposed; }
-      }
     #endregion
 
 
     #region Public/Protected
 
     /// <summary>
-    /// Override this method to do actual destructor work
+    /// Override this method to do actual destructor work.
+    /// Destructor should not throw exceptions - must handle internally
     /// </summary>
     protected virtual void Destructor()
     {
@@ -93,7 +77,7 @@ namespace Azos
     /// </summary>
     public void EnsureObjectNotDisposed()
     {
-      if (DisposeStarted || m_Disposed)
+      if (Disposed)
         throw new DisposedObjectException(StringConsts.OBJECT_DISPOSED_ERROR+" {0}".Args(this.GetType().FullName));
     }
 
@@ -106,22 +90,20 @@ namespace Azos
         /// </summary>
         public void Dispose()
         {
-            if (0 == Interlocked.CompareExchange(ref m_DisposeStarted, 1, 0))
+          if (0 == Interlocked.CompareExchange(ref m_DisposeStarted, 1, 0))
+          {
+            try
             {
-                try
-                {
-                    Destructor();
-                }
-                finally
-                {
-                    m_Disposed = true;
-                    GC.SuppressFinalize(this);
-                }
+              Destructor();
             }
+            finally
+            {
+              GC.SuppressFinalize(this);
+            }
+          }
         }
 
     #endregion
-
   }
 
 

@@ -5,50 +5,37 @@ using System.Collections.Generic;
 namespace Azos.Data.Access
 {
   /// <summary>
-  /// Represents a buffer-less unidicrectional reader that binds IEnumerable(Row) and the backend resource
+  /// Represents a buffer-less unidicrectional reader that binds IEnumerable(Doc) and the backend resource
   /// (such as SQLReader or other object which is internal to the backend).
   /// The cursor is NOT thread-safe and must be disposed properly by closing all resources associated with it.
   /// Only one iteration (one call to GetEnumerator) is possible
   /// </summary>
   public abstract class Cursor : DisposableObject, IEnumerable<Doc>
   {
-              protected class enumerator : IEnumerator<Doc>
-              {
-                internal enumerator(Cursor cursor,IEnumerator<Doc> original)
-                {
-                   Original = original;
-                   Cursor = cursor;
-                }
+    protected class enumerator : IEnumerator<Doc>
+    {
+      internal enumerator(Cursor cursor, IEnumerator<Doc> original)
+      {
+        Original = original;
+        Cursor = cursor;
+      }
 
-                private readonly IEnumerator<Doc> Original;
-                private readonly Cursor Cursor;
+      private readonly IEnumerator<Doc> Original;
+      private readonly Cursor Cursor;
 
-                public Doc Current
-                {
-                  get { return Original.Current; }
-                }
+      public Doc Current => Original.Current;
 
-                public void Dispose()
-                {
-                  Original.Dispose();
-                  if (!Cursor.DisposeStarted) Cursor.Dispose();
-                }
+      public void Dispose()
+      {
+        Original.Dispose();
+        Cursor.Dispose();
+      }
 
-                object System.Collections.IEnumerator.Current
-                {
-                  get { return Original.Current; }
-                }
+      object System.Collections.IEnumerator.Current => Original.Current;
 
-                public bool MoveNext()
-                {
-                  return Original.MoveNext();
-                }
-
-                public void Reset()
-                {
-                  Original.Reset();
-                }
-              }
+      public bool MoveNext() => Original.MoveNext();
+      public void Reset() => Original.Reset();
+    }
 
     /// <summary>
     /// This method is not inteded to be called by application developers
@@ -60,7 +47,7 @@ namespace Azos.Data.Access
 
     protected override void Destructor()
     {
-      DisposableObject.DisposeAndNull(ref m_Enumerator);
+      DisposeAndNull(ref m_Enumerator);
     }
 
     protected IEnumerable<Doc>  m_Source;
@@ -93,7 +80,5 @@ namespace Azos.Data.Access
     {
     }
   }
-
-
 
 }

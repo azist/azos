@@ -13,8 +13,9 @@ namespace Azos.Collections
   /// </summary>
   public sealed class CappedSet<T> : DisposableObject, IEnumerable<KeyValuePair<T, DateTime>>
   {
-    public const int BUCKET_COUNT = 251;
-    public const int THREAD_GRANULARITY_MS = 5000;
+    private const int BUCKET_COUNT = 251;
+    private const int VISIT_GRANULARITY_MS = 5000;
+    private const int MUST_LOCK_BUCKET_SEC = 179;
 
     private class bucket : Dictionary<T, DateTime>
     {
@@ -32,7 +33,7 @@ namespace Azos.Collections
       for(var i=0; i<m_Data.Length; i++)
         m_Data[i] = new bucket(m_Comparer);
 
-      Task.Delay(THREAD_GRANULARITY_MS).ContinueWith( _ => visit() );
+      Task.Delay(VISIT_GRANULARITY_MS).ContinueWith( _ => visit() );
     }
 
 
@@ -183,8 +184,8 @@ namespace Azos.Collections
       }
       finally
       {
-        if (!DisposeStarted)
-          Task.Delay(IntUtils.ChangeByRndPct(THREAD_GRANULARITY_MS, 0.25f))
+        if (!Disposed)
+          Task.Delay(IntUtils.ChangeByRndPct(VISIT_GRANULARITY_MS, 0.25f))
               .ContinueWith( _ => visit() );
       }
     }
@@ -208,7 +209,7 @@ namespace Azos.Collections
       for(var i=0; i<m_Data.Length; i++)
       {
         var dict = m_Data[i];
-        var mustLock = (now - dict.m_LastLock).TotalMinutes > 5;
+        var mustLock = (now - dict.m_LastLock).TotalSeconds > MUST_LOCK_BUCKET_SEC;
 
         if (!mustLock)
         {
@@ -244,9 +245,7 @@ namespace Azos.Collections
           Monitor.Exit(dict);
         }
       }
-
-
-    }
+    }//visitCore
 
     #endregion
   }

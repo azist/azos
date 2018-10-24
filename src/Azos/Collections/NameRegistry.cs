@@ -6,9 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace Azos.Collections
 {
@@ -191,7 +189,7 @@ namespace Azos.Collections
 
                 JustRegistered(item);
 
-                m_Data = data;
+                m_Data = data; //atomic
             }
 
             return true;
@@ -211,26 +209,29 @@ namespace Azos.Collections
           /// </summary>
           public bool RegisterOrReplace(T item, out T existing)
           {
+            bool hadExisting;
             lock(m_Sync)
             {
-                var data = new RegistryDictionary<T>(m_CaseSensitive, m_Data);
+              var data = new RegistryDictionary<T>(m_CaseSensitive, m_Data);
 
-                if (data.TryGetValue(item.Name, out existing))
-                {
-                   data[item.Name] = item;
-                   JustReplaced(existing, item);
-                }
-                else
-                {
-                   existing = default(T);//safeguard
-                   data.Add(item.Name, item);
-                   JustRegistered(item);
-                }
+              if (data.TryGetValue(item.Name, out existing))
+              {
+                  hadExisting = true;
+                  data[item.Name] = item;
+                  JustReplaced(existing, item);
+              }
+              else
+              {
+                  hadExisting = false;
+                  existing = default(T);//safeguard
+                  data.Add(item.Name, item);
+                  JustRegistered(item);
+              }
 
-                m_Data = data;
+              m_Data = data; //atomic
             }
 
-            return existing == null;
+            return hadExisting;
           }
 
           /// <summary>
@@ -247,7 +248,7 @@ namespace Azos.Collections
 
                 JustUnregistered(item);
 
-                m_Data = data;
+                m_Data = data; //atomic
             }
 
             return true;
@@ -268,7 +269,7 @@ namespace Azos.Collections
 
                 JustUnregistered(item);
 
-                m_Data = data;
+                m_Data = data; //atomic
             }
 
             return true;

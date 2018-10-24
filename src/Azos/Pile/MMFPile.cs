@@ -197,7 +197,7 @@ namespace Azos.Pile
           if (!getWriteLock(segment)) return;//service shutting down, no need to continue
           try
           {
-             if (Thread.VolatileRead(ref segment.DELETED)!=0 || segment.DisposeStarted) continue;
+             if (Thread.VolatileRead(ref segment.DELETED)!=0 || segment.Disposed) continue;
              //crawl
              var status = segment.Crawl();
              //assign status

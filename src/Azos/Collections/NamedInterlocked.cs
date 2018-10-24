@@ -22,11 +22,9 @@ namespace Azos.Collections
   {
           private class slot : INamed
           {
-            public slot(string name) { m_Name = name; }
+            public slot(string name) { Name = name; }
 
-            private string m_Name;
-
-            public string Name { get { return m_Name; } }
+            public string Name { get; }
             public long Long;
           }
 
