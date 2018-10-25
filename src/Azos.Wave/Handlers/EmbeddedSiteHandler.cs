@@ -7,6 +7,7 @@ using System.Net;
 
 using Azos.Web;
 using Azos.Conf;
+using Azos.Collections;
 
 namespace Azos.Wave.Handlers
 {

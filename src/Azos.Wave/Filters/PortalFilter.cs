@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Azos.Apps;
 using Azos.Conf;
+using Azos.Collections;
+using Azos.Data;
 
 namespace Azos.Wave.Filters
 {

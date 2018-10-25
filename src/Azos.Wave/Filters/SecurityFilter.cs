@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Azos.Conf;
+using Azos.Collections;
 using Azos.Security;
 
 namespace Azos.Wave.Filters

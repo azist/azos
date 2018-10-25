@@ -5,6 +5,7 @@ using System.Linq;
 using Azos.Apps;
 using Azos.Conf;
 using Azos.IO.FileSystem;
+using Azos.Instrumentation;
 
 namespace Azos.Wave.CMS
 {

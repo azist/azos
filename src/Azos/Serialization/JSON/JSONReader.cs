@@ -96,20 +96,20 @@ namespace Azos.Serialization.JSON
             }
 
             /// <summary>
-            /// Converts JSONMap into typed row of the requested type.
+            /// Converts JSONMap into typed data document of the requested type.
             /// The requested type must be derived from Azos.Data.TypedDoc.
             /// The extra data found in JSON map will be placed in AmorphousData dictionary if the row implemets IAmorphousData, discarded otherwise.
             /// Note: This method provides "the best match" and does not guarantee that all data will/can be converted from JSON, i.e.
             ///  it can only convert one dimensional arrays and Lists of either primitive or TypeRow-derived entries
             /// </summary>
-            /// <param name="type">TypedRow subtype to convert into</param>
-            /// <param name="jsonMap">JSON data to convert into row</param>
+            /// <param name="type">TypedDoc subtype to convert into</param>
+            /// <param name="jsonMap">JSON data to convert into data doc</param>
             /// <param name="fromUI">When true indicates that data came from UI, hence NonUI-marked fields should be skipped. True by default</param>
             /// <param name="nameBinding">Used for backend name matching or null (any target)</param>
             public static TypedDoc ToDoc(Type type, JSONDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null)
             {
               if (!typeof(TypedDoc).IsAssignableFrom(type) || jsonMap==null)
-               throw new JSONDeserializationException(StringConsts.ARGUMENT_ERROR+"JSONReader.ToRow(type|jsonMap=null)");
+               throw new JSONDeserializationException(StringConsts.ARGUMENT_ERROR+"JSONReader.ToDoc(type|jsonMap=null)");
               var field = "";
               try
               {

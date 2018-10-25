@@ -7,6 +7,7 @@ using System.IO;
 using Azos.Web;
 using Azos.Graphics;
 using Azos.Conf;
+using Azos.Collections;
 using Azos.Data;
 using Azos.Serialization.JSON;
 using Azos.Wave.Mvc;
@@ -49,7 +50,7 @@ namespace Azos.Wave.Handlers
           //1. try controller instance to resolve action
           var mi = target.FindMatchingAction(work, action, out args);
 
-          //2. if controller did not resolve the resolve by framework (most probable case)
+          //2. if controller did not resolve then resolve by framework (most probable case)
           if (mi==null)
            mi = FindMatchingAction(target, work, action, out args);
 
@@ -205,11 +206,11 @@ namespace Azos.Wave.Handlers
             args[i] = requested;
             continue;
           }
-          if (typeof(TypedRow).IsAssignableFrom(ctp))
+          if (typeof(TypedDoc).IsAssignableFrom(ctp))
           {
             try
             {
-              args[i] = JSONReader.ToRow(ctp, requested);
+              args[i] = JSONReader.ToDoc(ctp, requested);
               continue;
             }
             catch(Exception error)

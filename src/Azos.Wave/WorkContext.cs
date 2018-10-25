@@ -477,13 +477,13 @@ namespace Azos.Wave
       }
 
       /// <summary>
-      /// Returns true if the whole request (body or matched vars) contains any names matching any field names of the specified row
+      /// Returns true if the whole request (body or matched vars) contains any names matching any field names of the specified document
       /// </summary>
-      public bool HasAnyVarsMatchingFieldNames(Row row)
+      public bool HasAnyVarsMatchingFieldNames(Data.Doc doc)
       {
-        if (row==null) return false;
+        if (doc == null) return false;
 
-        foreach(var fdef in row.Schema)
+        foreach(var fdef in doc.Schema)
          if (WholeRequestAsJSONDataMap.ContainsKey(fdef.Name)) return true;
 
         return false;

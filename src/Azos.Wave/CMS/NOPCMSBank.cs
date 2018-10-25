@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-
-using Azos.Environment;
 using Azos.IO.FileSystem;
 
 namespace Azos.Wave.CMS
@@ -31,7 +27,7 @@ namespace Azos.Wave.CMS
 
     public void Dispose(){ }
 
-    public void Configure(Environment.IConfigSectionNode node){ }
+    public void Configure(Conf.IConfigSectionNode node){ }
 
     public bool InstrumentationEnabled {  get {return false; } set{ } }
 
@@ -81,7 +77,7 @@ namespace Azos.Wave.CMS
 
     public IFileSystemVersion Version { get { return m_Version; } }
 
-    public Resource TryNavigate(string path, DataAccess.CRUD.ICacheParams caching = null)
+    public Resource TryNavigate(string path, Data.ICacheParams caching = null)
     {
       return null;
     }

@@ -99,8 +99,10 @@ namespace Azos.Apps
             get
             {
               ApplicationComponent[] result;
+
               lock(s_Instances)
-               result = s_Instances.Values.ToArray();
+                result = s_Instances.Values.ToArray();
+
               return result;
             }
           }
@@ -113,7 +115,7 @@ namespace Azos.Apps
             ApplicationComponent result;
 
             lock(s_Instances)
-             if (s_Instances.TryGetValue(sid, out result)) return result;
+              if (s_Instances.TryGetValue(sid, out result)) return result;
 
             return null;
           }

@@ -48,9 +48,11 @@ namespace Azos
   public static class IOUtils
   {
 
-    public const int FS_IO_WAIT_GRANULARITY_MS = 200;
-    public const int FS_IO_WAIT_MIN_TIMEOUT = 100;
-    public const int FS_IO_WAIT_DEFAULT_TIMEOUT = 2000;
+    private const int FS_IO_WAIT_GRANULARITY_MS = 200;
+    private const int FS_IO_WAIT_MIN_TIMEOUT = 100;
+    private const int FS_IO_WAIT_DEFAULT_TIMEOUT = 2000;
+
+    private const int CHAR_BUFFER_SZ = 4 * 1024;
 
     /// <summary>
     /// Walks all file names that match the pattern in a directory
@@ -994,13 +996,14 @@ namespace Azos
       s.WriteByte((byte)(value >> 56));
     }
 
-    //todo:  WHo uses this???
-    /*
+    /// <summary>
+    /// Treats Stream contents as a enumerable of chars
+    /// </summary>
     public static IEnumerable<char> AsCharEnumerable(this Stream stream)
     {
       using (var reader = new StreamReader(stream))
       {
-        char[] chars = new char[4096];
+        char[] chars = new char[CHAR_BUFFER_SZ];
         int length;
         while ((length = reader.Read(chars, 0, chars.Length)) != 0)
           for (int i = 0; i < length; i++)
@@ -1008,15 +1011,18 @@ namespace Azos
       }
     }
 
+    /// <summary>
+    /// Treats TextReader contents as a enumerable of chars
+    /// </summary>
     public static IEnumerable<char> AsCharEnumerable(this TextReader reader)
     {
-      char[] chars = new char[4096];
+      char[] chars = new char[CHAR_BUFFER_SZ];
       int length;
       while ((length = reader.Read(chars, 0, chars.Length)) != 0)
         for (int i = 0; i < length; i++)
           yield return chars[i];
     }
-    */
+
 
     /// <summary>
     /// Deleted file if it exists - does not block until file is deleted, the behavior is up to the OS

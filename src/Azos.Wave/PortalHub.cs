@@ -3,6 +3,7 @@ using System.Linq;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Collections;
 using Azos.IO.FileSystem;
 
 namespace Azos.Wave
