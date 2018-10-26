@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -18,11 +18,11 @@
   </PropertyGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="rem $(ProjectDir)pre-build $(SolutionDir) $(ConfigurationName)" />
+    <Exec Command="$(ProjectDir)_build/pre-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="rem $(ProjectDir)post-build $(SolutionDir) $(ConfigurationName)" />
+    <Exec Command="$(ProjectDir)_build/post-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
   </Target>
 
   <ItemGroup>
@@ -33,12 +33,13 @@
 
   <ItemGroup>
     <!--EmbeddedResource Include="BUILD_INFO.txt" /-->
+    <EmbeddedResource Include="BUILD_INFO.txt" />
     <EmbeddedResource Include="Text\ConanDoyle.txt" />
     <EmbeddedResource Include="Text\JackLondon.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Platform\Abstraction\" />
+    <Folder Include="_build\" />
   </ItemGroup>
 
 </Project>
