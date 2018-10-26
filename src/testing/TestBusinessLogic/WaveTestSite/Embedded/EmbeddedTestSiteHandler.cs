@@ -1,14 +1,12 @@
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-using NFX;
-using NFX.Web;
-using NFX.Wave;
-using NFX.Wave.Handlers;
-using NFX.Environment;
+using Azos;
+using Azos.Conf;
+using Azos.Data;
+using Azos.Web;
+using Azos.Wave;
+using Azos.Wave.Handlers;
 
 namespace WaveTestSite.Embedded
 {

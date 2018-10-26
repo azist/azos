@@ -1,8 +1,8 @@
 ﻿<!-- Comment-->
-<nfx
-       log-root="$(~NFX_TEST_ROOT)\"
-       log-csv="Azos.Log.Destinations.CSVFileDestination, NFX"
-       log-debug="Azos.Log.Destinations.DebugDestination, NFX"
+<app
+       log-root="$(~AZOS_TEST_ROOT)\"
+       log-csv="Azos.Log.Destinations.CSVFileDestination, Azos"
+       log-debug="Azos.Log.Destinations.DebugDestination, Azos"
        log-mongo="Azos.Log.Destinations.MongoDBDestination, Azos.MongoDB"
        application-name="Manual Win Forms Test App(WinFormsTest.exe)"
        log-name="test-client"
@@ -65,7 +65,7 @@
           />
 
    /*
-    <destination  type="Azos.Log.Destinations.LogServiceDestination, NFX"
+    <destination  type="Azos.Log.Destinations.LogServiceDestination, Azos"
                   name="subLog"
                   min-level="Error">
 
@@ -90,7 +90,7 @@
     </destination>
 
 
-    <destination  type="Azos.Log.Destinations.CompositeDestination, NFX"
+    <destination  type="Azos.Log.Destinations.CompositeDestination, Azos"
      name="Errors Only"
      min-level="Error"
     >
@@ -124,7 +124,7 @@
       max-level="Warning"
     />
 
-    <destination type="Azos.Log.Destinations.FloodFilter, NFX"
+    <destination type="Azos.Log.Destinations.FloodFilter, Azos"
                  interval-sec="10"
                  max-count="10"
                  max-text-length="128000"
@@ -138,23 +138,23 @@
                         name-time-format="yyyyMMdd"
                       />
 
-                      <destination  type="Azos.Log.Destinations.SMTPDestination, NFX"
+                      <destination  type="Azos.Log.Destinations.SMTPDestination, Azos"
                         name="G-Mail"
 
                         smtp-host="smtp.gmail.com"
                         smtp-port="587"
                         smtp-ssl="true"
 
-                        from-address="nfx.smtp@gmail.com"
-                        from-name="Anton Kutz (.NFX Team)"
+                        from-address="azos.smtp@gmail.com"
+                        from-name="Anton Kutz (.Azos Team)"
 
-                        to-address="nfx.smtp@gmail.com, dmitriy@itadapter.com"
+                        to-address="azos.smtp@gmail.com, d@zhabis.com"
 
-                        credentials-id="nfx.smtp@gmail.com"
-                        credentials-password="smtp.nfx"
+                        credentials-id="azos.smtp@gmail.com"
+                        credentials-password="smtp.azos"
 
-                        subject="NFX Log"
-                        body="My friend, this came from NFX log:  "
+                        subject="Azos Log"
+                        body="My friend, this came from Azos log:  "
 
 
                       />
@@ -163,7 +163,7 @@
 
     </destination>
 
-    <destination  type="Azos.Log.Destinations.SyslogDestination, NFX"
+    <destination  type="Azos.Log.Destinations.SyslogDestination, Azos"
      name=".NIX SYSLOG"
      host="unix_host_name"
      port="514"
@@ -197,7 +197,7 @@
         <provider name="Disk Object Store Provider"
                   type="Azos.ApplicationModel.Volatile.FileObjectStoreProvider"
                   load-limit="0"
-                  root-path="$(~NFX_TEST_ROOT)\"
+                  root-path="$(~AZOS_TEST_ROOT)\"
 
             />
 
@@ -264,7 +264,7 @@
 
         </binding>
 
-       <binding name="inproc" type="Azos.Glue.Native.InProcBinding, NFX"/>
+       <binding name="inproc" type="Azos.Glue.Native.InProcBinding, Azos"/>
 
     </bindings>
   </glue>
@@ -287,4 +287,4 @@
     </sink>
   </messaging>
 
-</nfx>
+</app>

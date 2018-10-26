@@ -2,7 +2,7 @@
 
 using Azos;
 
-namespace BusinessLogic.Toy
+namespace TestBusinessLogic.Toy
 {
 
     internal static class MachineSpeed

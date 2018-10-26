@@ -314,7 +314,7 @@ namespace WaveTestSite.Controllers
       WorkContext.Response.GetDirectOutputStreamForWriting().Write(fld, 0, fld.Length);
     }
 
-    //protected override System.Reflection.MethodInfo FindMatchingAction(NFX.Wave.WorkContext work, string action, out object[] args)
+    //protected override System.Reflection.MethodInfo FindMatchingAction(Azos.Wave.WorkContext work, string action, out object[] args)
     //{
     //  return base.FindMatchingAction(work, action, out args);
     //}

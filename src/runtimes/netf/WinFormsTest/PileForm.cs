@@ -42,7 +42,7 @@ namespace WinFormsTest
 
       private static ulong _id;
 
-      public class Person : TypedRow
+      public class Person : TypedDoc
       {
         public static Person MakeFake()
         {
@@ -158,7 +158,7 @@ namespace WinFormsTest
       else
       {
         m_Pile = new MMFPile(null);
-        ((MMFPile)m_Pile).DataDirectoryRoot = @"c:\nfx";
+        ((MMFPile)m_Pile).DataDirectoryRoot = @"c:\Azos";
       }
 
       m_Pile.Configure(null);
@@ -176,18 +176,18 @@ namespace WinFormsTest
 
     private void tmrStatus_Tick(object sender, EventArgs e)
     {
-      btnStart.Enabled = m_Pile.Status==ControlStatus.Inactive;
-      tbMaxMemoryMb.Enabled = tbSegmentSize.Enabled = m_Pile.Status==ControlStatus.Inactive;
-      btnStop.Enabled = m_Pile.Status==ControlStatus.Active;
-      btnPurge.Enabled = m_Pile.Status==ControlStatus.Active;
-      btnCrawl.Enabled = m_Pile.Status==ControlStatus.Active;
-      btnCompact.Enabled = m_Pile.Status==ControlStatus.Active;
-      chkSpeed.Enabled = m_Pile.Status==ControlStatus.Active;
+      btnStart.Enabled = m_Pile.Status==ServiceStatus.Inactive;
+      tbMaxMemoryMb.Enabled = tbSegmentSize.Enabled = m_Pile.Status== ServiceStatus.Inactive;
+      btnStop.Enabled = m_Pile.Status== ServiceStatus.Active;
+      btnPurge.Enabled = m_Pile.Status== ServiceStatus.Active;
+      btnCrawl.Enabled = m_Pile.Status== ServiceStatus.Active;
+      btnCompact.Enabled = m_Pile.Status== ServiceStatus.Active;
+      chkSpeed.Enabled = m_Pile.Status== ServiceStatus.Active;
 
       btnPersonPut.Enabled = btnPersonParaPut.Enabled = btnPersonParaGet.Enabled =
-      btnStruct.Enabled = btnPersonGet.Enabled = btnPersonDelete.Enabled = m_Pile.Status==ControlStatus.Active;
+      btnStruct.Enabled = btnPersonGet.Enabled = btnPersonDelete.Enabled = m_Pile.Status== ServiceStatus.Active;
 
-      sbTraxDeletes.Enabled = sbTraxWrites.Enabled = m_Pile.Status==ControlStatus.Active;
+      sbTraxDeletes.Enabled = sbTraxWrites.Enabled = m_Pile.Status== ServiceStatus.Active;
 
 
       var count = m_Pile.ObjectCount;
@@ -448,14 +448,14 @@ namespace WinFormsTest
                           {
                             var p = Person.MakeFake();
                             if (__payloadVariance>0)
-                              p.BinData = new byte[ IntMath.ChangeByRndPct(__payloadVariance, -0.25f) ];
+                              p.BinData = new byte[ IntUtils.ChangeByRndPct(__payloadVariance, -0.25f) ];
                             payload = p;
                           }
                           else if (__payloadType== ptype.Person2)
                           {
                             var p = Person2.MakeFake2();
                             if (__payloadVariance>0)
-                              p.BinData = new byte[ IntMath.ChangeByRndPct(__payloadVariance, -0.25f) ];
+                              p.BinData = new byte[IntUtils.ChangeByRndPct(__payloadVariance, -0.25f) ];
                             payload = p;
                           }
                           else if (__payloadType== ptype.String) payload = new string(' ', __payloadVariance);

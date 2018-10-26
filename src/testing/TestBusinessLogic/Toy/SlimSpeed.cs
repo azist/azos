@@ -4,7 +4,7 @@
 using Azos;
 using Azos.Serialization;
 
-namespace BusinessLogic.Toy
+namespace TestBusinessLogic.Toy
 {
     [Serializable]
     public class SimpleObject
@@ -93,13 +93,13 @@ namespace BusinessLogic.Toy
       private static void bodySlimSerializer(int CNT, object payload)
       {
         var ms = new System.IO.MemoryStream();
-        var ser1 = new NFX.Serialization.Slim.SlimSerializer();
-        ser1.TypeMode = NFX.Serialization.Slim.TypeRegistryMode.Batch;
+        var ser1 = new Azos.Serialization.Slim.SlimSerializer();
+        ser1.TypeMode = Azos.Serialization.Slim.TypeRegistryMode.Batch;
 
         ser1.Serialize(ms, payload); //warmup outside timer
 
-        var ser2 = new NFX.Serialization.Slim.SlimSerializer();
-        ser2.TypeMode = NFX.Serialization.Slim.TypeRegistryMode.Batch;
+        var ser2 = new Azos.Serialization.Slim.SlimSerializer();
+        ser2.TypeMode = Azos.Serialization.Slim.TypeRegistryMode.Batch;
         ms.Position =0;
         var got = ser2.Deserialize(ms); //warmup outside timer
 

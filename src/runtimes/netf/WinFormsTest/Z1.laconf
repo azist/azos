@@ -1,7 +1,7 @@
 ﻿app
 {
-       log-root=$(~NFX_TEST_ROOT)\
-       log-csv="Azos.Log.Destinations.CSVFileDestination, NFX"
+       log-root=$(~AZOS_TEST_ROOT)\
+       log-csv="Azos.Log.Destinations.CSVFileDestination, Azos"
        debug-default-action="Log,Throw"
 
   starters
@@ -204,7 +204,7 @@
               name="Disk Object Store Provider"
               type="Azos.ApplicationModel.Volatile.FileObjectStoreProvider"
               load-limit="0"
-              root-path=$(~NFX_TEST_ROOT)\
+              root-path=$(~AZOS_TEST_ROOT)\
               Zformat="msbinary"
 
                   known-types
@@ -237,7 +237,7 @@
                type="Azos.Glue.Native.SyncBinding"
                max-msg-size="65536"
                Xclient-dump="Message, Wire"
-               dump-path=$"$(~NFX_TEST_ROOT)\msg.dump"
+               dump-path=$"$(~AZOS_TEST_ROOT)\msg.dump"
                dump-format="Binary"
                dump-wire-format="Decimal"
 
@@ -255,7 +255,7 @@
       }
 
 
-      binding { name="inproc" type="Azos.Glue.Native.InProcBinding, NFX" }
+      binding { name="inproc" type="Azos.Glue.Native.InProcBinding, Azos" }
     }
 
     servers
@@ -279,4 +279,4 @@
 
   }//glue
 
-}//nfx
+}

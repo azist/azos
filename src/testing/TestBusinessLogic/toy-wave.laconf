@@ -1,7 +1,7 @@
-﻿nfx
+﻿app
 {
-       log-root=$(~NFX_TEST_ROOT)\
-       log-csv="NFX.Log.Destinations.CSVFileDestination, NFX"
+       log-root=$(~AZOS_TEST_ROOT)\
+       log-csv="Azos.Log.Destinations.CSVFileDestination, Azos"
        debug-default-action="Log,Throw"
 
     starters
@@ -9,7 +9,7 @@
       starter
       {
         name='Payment Processing'
-        type='NFX.Web.Pay.PaySystemStarter, NFX.Web'
+        type='Azos.Web.Pay.PaySystemStarter, Azos.Web'
         application-start-break-on-exception='true'
       }
     }
@@ -21,14 +21,14 @@
     {
         provider
         {
-          type="NFX.Web.Social.Facebook, NFX.Web"
+          type="Azos.Web.Social.Facebook, Azos.Web"
           app-id="410577972401564"
           client-secret="ffd9140afcd6b1e743e7affa9613d7f4"
         }
 
         provider
         {
-          type="NFX.Web.Social.Twitter, NFX.Web"
+          type="Azos.Web.Social.Twitter, Azos.Web"
           client-code="7wzQlicXz5sdM5ScrxSrNg"
           client-secret="OEb6gMSFwMBLew2BhHp3y6FgK4vxfoQmJBYG2Exb4E"
         }
@@ -62,7 +62,7 @@
     provider
     {
               name="Disk Object Store Provider"
-              type="NFX.ApplicationModel.Volatile.FileObjectStoreProvider"
+              type="Azos.ApplicationModel.Volatile.FileObjectStoreProvider"
               load-limit="0"
               root-path=$(/$log-root)
     }
@@ -76,7 +76,7 @@
       provider
       {
          name="Telemetry Instrumentation Provider"
-         type="NFX.Instrumentation.Telemetry.TelemetryInstrumentationProvider"
+         type="Azos.Instrumentation.Telemetry.TelemetryInstrumentationProvider"
          use-log="false"
          receiver-node="sync://127.0.0.1:8300"
       }
@@ -86,7 +86,7 @@
   {
     bindings
     {
-      binding { name="sync" type="NFX.Glue.Native.SyncBinding" }
+      binding { name="sync" type="Azos.Glue.Native.SyncBinding" }
     }
   }//glue
 
@@ -96,12 +96,12 @@
     pay-system
     {
       name="Stripe1"
-      type="NFX.Web.Pay.Stripe.StripeSystem, NFX.Web"
+      type="Azos.Web.Pay.Stripe.StripeSystem, Azos.Web"
       auto-start=true
 
       default-session-connect-params
       {
-        type="NFX.Web.Pay.Stripe.StripeConnectionParameters, NFX.Web"
+        type="Azos.Web.Pay.Stripe.StripeConnectionParameters, Azos.Web"
         secret-key='akauji-kopopajauadgdyqgydgd'
         email="stripe_user@mail.com"
       }
@@ -110,12 +110,12 @@
     pay-system
     {
       name="Mock"
-      type="NFX.Web.Pay.Mock.MockSystem, NFX.Web"
+      type="Azos.Web.Pay.Mock.MockSystem, Azos.Web"
       auto-start=true
 
       default-session-connect-params
       {
-        type="NFX.Web.Pay.Mock.MockConnectionParameters, NFX.Web"
+        type="Azos.Web.Pay.Mock.MockConnectionParameters, Azos.Web"
         email="mock_user@mail.com"
         cards
         {
@@ -129,7 +129,7 @@
 /*
   geo-lookup
   {
-    data-path=$(~NFX_GEODATA)
+    data-path=$(~AZOS_GEODATA)
     resolution="city"
   }
 */
@@ -185,11 +185,11 @@
 
         dispatcher
         {
-           // type="NFX.Wave.MultithreadedDispatcher"
+           // type="Azos.Wave.MultithreadedDispatcher"
 
 // filter
 // {
- // name="Log All" order=0 type="NFX.Wave.Filters.LoggingFilter, NFX.Wave"
+ // name="Log All" order=0 type="Azos.Wave.Filters.LoggingFilter, Azos.Wave"
  // before
  // {
     // match
@@ -219,7 +219,7 @@
 
             filter
             {
-              name="Errors" order=0 type="NFX.Wave.Filters.ErrorFilter, NFX.Wave"
+              name="Errors" order=0 type="Azos.Wave.Filters.ErrorFilter, Azos.Wave"
               show-dump
               {
                 match{name="localhost" order=1 is-local=true }
@@ -231,15 +231,15 @@
                log
                {
                  //match{name="all" var{name="aaa" default="1223"} }
-                 //match{name="allButSecurity" type="NFX.Wave.NotAuthorizationExceptionMatch, NFX.Wave"}
+                 //match{name="allButSecurity" type="Azos.Wave.NotAuthorizationExceptionMatch, Azos.Wave"}
                  match
                  {
                    name="composite"
-                   type="NFX.Wave.CompositeWorkMatch, NFX.Wave"
+                   type="Azos.Wave.CompositeWorkMatch, Azos.Wave"
                    and
                    {
-                     match{name="butSecurity" type="NFX.Wave.NotAuthorizationExceptionMatch, NFX.Wave"}
-                   //  match{name="but404" type="NFX.Wave.HttpResponseStatusCodeMatch, NFX.Wave" code=404 is-not=true}
+                     match{name="butSecurity" type="Azos.Wave.NotAuthorizationExceptionMatch, Azos.Wave"}
+                   //  match{name="but404" type="Azos.Wave.HttpResponseStatusCodeMatch, Azos.Wave" code=404 is-not=true}
                    }
                    or{}
                  }
@@ -249,7 +249,7 @@
             |*
             filter
             {
-              name="BlockNonDevs" order=1 type="NFX.Wave.Filters.RedirectFilter, NFX.Wave"
+              name="BlockNonDevs" order=1 type="Azos.Wave.Filters.RedirectFilter, Azos.Wave"
               match
               {
                 not-path="/mvc/tester/zekret"
@@ -262,7 +262,7 @@
 
             filter
             {
-              name="sessions" order=2 type="NFX.Wave.Filters.SessionFilter, NFX.Wave"
+              name="sessions" order=2 type="Azos.Wave.Filters.SessionFilter, Azos.Wave"
              //session-timeout-ms="60000"
              // session-cookie-name="GANBA-BILLY-GATSY"
             }
@@ -270,7 +270,7 @@
 
             filter
             {
-              name="Old Redirects" order=3 type="NFX.Wave.Filters.RedirectFilter, NFX.Wave"
+              name="Old Redirects" order=3 type="Azos.Wave.Filters.RedirectFilter, Azos.Wave"
               match{ path="old/w.html" var{name="redirect-url" default="/pages/Welcome"} }
               match{ path="old/au.html" var{name="redirect-url" default="/pages/AboutUs"} }
             }
@@ -280,7 +280,7 @@
             {
                 name="Mvc Testing"
                 order=0
-                type="NFX.Wave.Handlers.MVCHandler, NFX.Wave"
+                type="Azos.Wave.Handlers.MVCHandler, Azos.Wave"
 
                 type-location { name="local" assembly="BusinessLogic.dll" ns{ name="WaveTestSite.Controllers"} }
 
@@ -291,7 +291,7 @@
             {
                 name="Dumper"
                 order=1
-                type="NFX.Wave.Handlers.ContextDumpHandler, NFX.Wave"
+                type="Azos.Wave.Handlers.ContextDumpHandler, Azos.Wave"
 
                 match
                 {
@@ -313,7 +313,7 @@
             {
                 name="Pages"
                 order=3
-                type="NFX.Wave.Handlers.TemplateHandler, NFX.Wave"
+                type="Azos.Wave.Handlers.TemplateHandler, Azos.Wave"
                 //default-type="Welcome"
                 //cloak-type=$($default-type)
                 not-found-redirect-url="/pages/Welcome"
@@ -323,7 +323,7 @@
                 filter
                 {
                     name="geoLocation"
-                    type="NFX.Wave.Filters.GeoLookupFilter, NFX.Wave"
+                    type="Azos.Wave.Filters.GeoLookupFilter, Azos.Wave"
                 }
 
             }
@@ -332,7 +332,7 @@
             {
                 name="Stock Content Embedded Site"
                 order=4
-                type="NFX.Wave.Handlers.StockContentSiteHandler, NFX.Wave"
+                type="Azos.Wave.Handlers.StockContentSiteHandler, Azos.Wave"
                 match{ path="stock/{*path}"}
             }
 
@@ -341,12 +341,12 @@
 
                 filter
                 {
-                 name="Security" order=0 type="NFX.Wave.Filters.SecurityFilter, NFX.Wave"
+                 name="Security" order=0 type="Azos.Wave.Filters.SecurityFilter, Azos.Wave"
                  permissions
                    {
                         permission
                         {
-                         type="NFX.Security.AdHocPermission, NFX"
+                         type="Azos.Security.AdHocPermission, Azos"
                          arg0="SpecialPermissions/Cooking"
                          arg1="BBQOperator"
                          arg2=7
@@ -357,7 +357,7 @@
 
                 filter
                 {
-                 name="Stopper" order=1 type="NFX.Wave.Filters.StopFilter, NFX.Wave"
+                 name="Stopper" order=1 type="Azos.Wave.Filters.StopFilter, Azos.Wave"
                  before
                  {
                     match
@@ -371,7 +371,7 @@
 
                 filter
                 {
-                 name="Logger" order=3 type="NFX.Wave.Filters.LoggingFilter, NFX.Wave"
+                 name="Logger" order=3 type="Azos.Wave.Filters.LoggingFilter, Azos.Wave"
                  before
                  {
                     match
@@ -391,7 +391,7 @@
                        {
                             permission //only those who have this permission will be logged
                             {
-                             type="NFX.Security.AdHocPermission, NFX"
+                             type="Azos.Security.AdHocPermission, Azos"
                              arg0="CanLogAfter"
                              arg1="SpecialPermissions"
                              arg2=3
@@ -404,7 +404,7 @@
 
                 name="Downloader"
                 order=5
-                type="NFX.Wave.Handlers.FileDownloadHandler, NFX.Wave"
+                type="Azos.Wave.Handlers.FileDownloadHandler, Azos.Wave"
                 throw=true
 
                 root-path=$"c:\users\anton\desktop"
@@ -435,12 +435,12 @@
             {
                 name="Catch All"
                 order=6
-                type="NFX.Wave.Handlers.NOPHandler, NFX.Wave"
+                type="Azos.Wave.Handlers.NOPHandler, Azos.Wave"
                 match{ }
 
                 filter
                 {
-                  name="Default" type="NFX.Wave.Filters.RedirectFilter, NFX.Wave"
+                  name="Default" type="Azos.Wave.Filters.RedirectFilter, Azos.Wave"
                   match{ var{name="redirect-url" default="/pages/Welcome"} }
                 }
             }
@@ -454,7 +454,7 @@
 
   security
   {
-    type="NFX.Security.ConfigSecurityManager, NFX"
+    type="Azos.Security.ConfigSecurityManager, Azos"
     users
     {
       user
@@ -480,4 +480,4 @@
 
 
 
-}//nfx
+}

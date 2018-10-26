@@ -18,7 +18,7 @@ using Azos;
 using Azos.Data;
 using Azos.Serialization.Slim;
 
-using BusinessLogic;
+using TestBusinessLogic;
 
 namespace WinFormsTest
 {
@@ -114,7 +114,7 @@ namespace WinFormsTest
 
          var clk = Stopwatch.StartNew();
         // for(var i=1; i<1000; i++)
-           using (var fs = new FileStream(@"c:\NFX\SLIM.slim", FileMode.Create))
+           using (var fs = new FileStream(@"c:\Azos\SLIM.slim", FileMode.Create))
               {
                 var s = new SlimSerializer(tr);
 
@@ -126,7 +126,7 @@ namespace WinFormsTest
          Text = clk.ElapsedMilliseconds.ToString();
 
          clk.Restart();
-           using (var fs = new FileStream(@"c:\NFX\FORMATTER.bin", FileMode.Create))
+           using (var fs = new FileStream(@"c:\Azos\FORMATTER.bin", FileMode.Create))
               {
                 var bf = new BinaryFormatter();
 
@@ -156,7 +156,7 @@ namespace WinFormsTest
 
 
 
-              using (var ms = new FileStream(@"c:\NFX\PERSON2.slim", FileMode.Create) )//new MemoryStream())
+              using (var ms = new FileStream(@"c:\Azos\PERSON2.slim", FileMode.Create) )//new MemoryStream())
               {
                 var s = new SlimSerializer(tr);
 
@@ -176,7 +176,7 @@ namespace WinFormsTest
 
               //BINARY formatterr
 
-              using (var ms = new FileStream(@"c:\NFX\PERSON2.bin", FileMode.Create) ) //new MemoryStream())
+              using (var ms = new FileStream(@"c:\Azos\PERSON2.bin", FileMode.Create) ) //new MemoryStream())
               {
                 var s = new BinaryFormatter();
 
@@ -293,7 +293,7 @@ namespace WinFormsTest
 
 
            var clk = Stopwatch.StartNew();
-           using (var fs = new FileStream(@"c:\NFX\SLIM.slim", FileMode.Create, FileAccess.Write, FileShare.None, 1024*1024))
+           using (var fs = new FileStream(@"c:\Azos\SLIM.slim", FileMode.Create, FileAccess.Write, FileShare.None, 1024*1024))
            {
                 var s = new SlimSerializer(tr);
 
@@ -302,7 +302,7 @@ namespace WinFormsTest
            Text = "SLIM took {0} ms ".Args(clk.ElapsedMilliseconds);
 
           clk.Restart();
-           using (var fs = new FileStream(@"c:\NFX\FORMATTER.bin", FileMode.Create, FileAccess.Write, FileShare.None, 1024*1024))
+           using (var fs = new FileStream(@"c:\Azos\FORMATTER.bin", FileMode.Create, FileAccess.Write, FileShare.None, 1024*1024))
            {
              var bf = new BinaryFormatter();
              bf.Serialize(fs,  lst);

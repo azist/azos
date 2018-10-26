@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 
 using Azos.Apps;
+using Azos.Data;
 using Azos.Conf;
 
 namespace Azos.Wave.Filters
@@ -152,7 +153,7 @@ namespace Azos.Wave.Filters
         if (work.GeoEntity!=null)
           session.GeoEntity = work.GeoEntity;
         work.m_Session = session;
-        ApplicationModel.ExecutionContext.__SetThreadLevelSessionContext(session);
+        Apps.ExecutionContext.__SetThreadLevelSessionContext(session);
 
         work.SetAuthenticated(session.User.IsAuthenticated);
       }
@@ -210,7 +211,7 @@ namespace Azos.Wave.Filters
         {
           session.Release();
           work.m_Session = null;
-          ApplicationModel.ExecutionContext.__SetThreadLevelSessionContext(null);
+          Apps.ExecutionContext.__SetThreadLevelSessionContext(null);
         }
       }
 

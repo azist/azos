@@ -1,6 +1,7 @@
 
 using Azos.Serialization.JSON;
 using Azos.Conf;
+using Azos.Data;
 using Azos.Wave.Templatization;
 using ErrorPage=Azos.Wave.Templatization.StockContent.Error;
 

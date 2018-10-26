@@ -100,7 +100,7 @@ namespace Azos.Wave
       public WaveServer() : base()
       {
         m_Prefixes = new EventedList<string,WaveServer>(this, true);
-        m_Prefixes.GetReadOnlyEvent = (l) => Status != ControlStatus.Inactive;
+        m_Prefixes.GetReadOnlyEvent = (l) => Status != ServiceStatus.Inactive;
       }
 
       public WaveServer(string name) : this()
@@ -311,7 +311,7 @@ namespace Azos.Wave
         set
         {
           m_DrainEntityBodyTimeoutSec = value;
-          if (m_Listener != null && m_Listener.IsListening && !OS.Computer.IsMono)
+          if (m_Listener != null && m_Listener.IsListening && !Platform.Computer.IsMono)
             m_Listener.TimeoutManager.DrainEntityBody = TimeSpan.FromSeconds(m_DrainEntityBodyTimeoutSec);
         }
       }
@@ -323,7 +323,7 @@ namespace Azos.Wave
         set
         {
           m_EntityBodyTimeoutSec = value;
-          if (m_Listener != null && m_Listener.IsListening && !OS.Computer.IsMono)
+          if (m_Listener != null && m_Listener.IsListening && !Platform.Computer.IsMono)
             m_Listener.TimeoutManager.EntityBody = TimeSpan.FromSeconds(m_EntityBodyTimeoutSec);
         }
       }
@@ -335,7 +335,7 @@ namespace Azos.Wave
         set
         {
           m_HeaderWaitTimeoutSec = value;
-          if (m_Listener != null && m_Listener.IsListening && !OS.Computer.IsMono)
+          if (m_Listener != null && m_Listener.IsListening && !Platform.Computer.IsMono)
             m_Listener.TimeoutManager.HeaderWait = TimeSpan.FromSeconds(m_HeaderWaitTimeoutSec);
         }
       }
@@ -347,7 +347,7 @@ namespace Azos.Wave
         set
         {
           m_IdleConnectionTimeoutSec = value;
-          if (m_Listener != null && m_Listener.IsListening && !OS.Computer.IsMono)
+          if (m_Listener != null && m_Listener.IsListening && !Platform.Computer.IsMono)
             m_Listener.TimeoutManager.IdleConnection = TimeSpan.FromSeconds(m_IdleConnectionTimeoutSec);
         }
       }
@@ -359,7 +359,7 @@ namespace Azos.Wave
         set
         {
           m_RequestQueueTimeoutSec = value;
-          if (m_Listener != null && m_Listener.IsListening && !OS.Computer.IsMono)
+          if (m_Listener != null && m_Listener.IsListening && !Platform.Computer.IsMono)
             m_Listener.TimeoutManager.RequestQueue = TimeSpan.FromSeconds(m_RequestQueueTimeoutSec);
         }
       }
@@ -371,7 +371,7 @@ namespace Azos.Wave
         set
         {
           m_MinSendBytesPerSecond = value;
-          if (m_Listener != null && m_Listener.IsListening && !OS.Computer.IsMono)
+          if (m_Listener != null && m_Listener.IsListening && !Platform.Computer.IsMono)
             m_Listener.TimeoutManager.MinSendBytesPerSecond = m_MinSendBytesPerSecond;
         }
       }
@@ -880,7 +880,7 @@ namespace Azos.Wave
             i.Record( new Instrumentation.ServerPortalRequest(Name+"."+kvp.Key, kvp.Value) );
 
         var sample = (int)m_stat_WorkContextBufferedResponseBytes;
-        if (sample!=0) ExternalRandomGenerator.Instance.FeedExternalEntropySample(sample);
+        if (sample!=0) Platform.RandomGenerator.Instance.FeedExternalEntropySample(sample);
      }
 
     #endregion

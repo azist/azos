@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using Azos;
+using Azos.Apps;
 using Azos.Data;
 
 namespace WinFormsTest

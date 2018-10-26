@@ -1,7 +1,7 @@
 
 using System;
 
-using Azos.Wave.MVC;
+using Azos.Wave.Mvc;
 
 namespace WaveTestSite.Controllers
 {

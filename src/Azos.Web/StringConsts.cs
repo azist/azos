@@ -12,8 +12,6 @@ namespace Azos.Web
     public const string MAILER_LOG_TOPIC = "Mailer";
 
 
-    public const string NFX_WEB_APP_CONFIGURATION_FILE = "NFXWebApp.configuration";
-
     public const string GUID_KEY = "GUID";
 
     public const string NAME_KEY = "NAME";

@@ -10,7 +10,7 @@ using Azos;
 using Azos.Glue.Protocol;
 using Azos.Security;
 
-using BusinessLogic;
+using TestBusinessLogic;
 
 namespace WinFormsTest.Glue
 {

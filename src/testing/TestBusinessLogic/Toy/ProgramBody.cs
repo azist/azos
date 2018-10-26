@@ -35,7 +35,7 @@ namespace TestBusinessLogic.Toy
     public static void run(string[] args)
     {
       ConsoleUtils.WriteMarkupContent( typeof(ProgramBody).GetText("Welcome.txt") );
-      ConsoleUtils.Info("Running on a `{0}` platform".Args(NFX.PAL.PlatformAbstractionLayer.PlatformName));
+      ConsoleUtils.Info("Running on a `{0}` platform".Args(Azos.Platform.Abstraction.PlatformAbstractionLayer.PlatformName));
 
       Console.WriteLine("Init app container...");
 

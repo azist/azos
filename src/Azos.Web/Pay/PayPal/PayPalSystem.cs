@@ -34,8 +34,8 @@ namespace Azos.Web.Pay.PayPal
 
     private const string DEFAULT_API_URI = URI_API_SANDBOX;
     private const int    DEFAULT_TOKEN_EXPIRATION_MARGIN = 3600; // 1 hour default margin to check oauth token expiration;
-    private const string DEFAULT_PAYOUT_EMAIL_SUBJECT = "Payout from NFX";
-    private const string DEFAULT_PAYOUT_NOTE = "Thanks for using NFX!";
+    private const string DEFAULT_PAYOUT_EMAIL_SUBJECT = "Payout from Azos";
+    private const string DEFAULT_PAYOUT_NOTE = "Thanks for using Azos!";
     private const bool   DEFAULT_SYNC_MODE = true;
     #endregion
 

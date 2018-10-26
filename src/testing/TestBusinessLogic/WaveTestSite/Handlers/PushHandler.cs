@@ -41,7 +41,7 @@ namespace WaveTestSite.Handlers
     protected override void DoHandleWork(WorkContext work)
     {
       //Prepare connection for SSE
-      work.Response.ContentType = NFX.Web.ContentType.SSE;
+      work.Response.ContentType = Azos.Web.ContentType.SSE;
       work.Response.Buffered = false;//
    //   work.Response.Write("".PadLeft(1000, ' '));//Microsoft bug. need 1000 chars at first to start buffer flushing
    //   work.Response.Write("Connection srarted at {0}\n".Args(App.TimeSource.UTCNow));
@@ -85,7 +85,7 @@ namespace WaveTestSite.Handlers
        }
        catch(Exception error)
        {
-         App.Log.Write(new NFX.Log.Message{Type = NFX.Log.MessageType.Error, Text = error.ToMessageWithType(), Exception = error});
+         App.Log.Write(new Azos.Log.Message{Type = Azos.Log.MessageType.Error, Text = error.ToMessageWithType(), Exception = error});
          lock(m_Works) m_Works.Remove(w);
          w.Dispose();
        }

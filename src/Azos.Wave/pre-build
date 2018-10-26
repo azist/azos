@@ -7,8 +7,8 @@ SOLUTION_DIR=$1
 PROJECT_DIR=${SCRIPTPATH}/
 
 mono buildinfo.exe > "${PROJECT_DIR}BUILD_INFO.txt"
-mono ntc.exe "${PROJECT_DIR}Templatization/StockContent/*.htm" -r -ext ".auto.cs" -src -c "Azos.Templatization.NHTCompiler, NFX"
-mono ntc.exe "${PROJECT_DIR}Templatization/StockContent/Embedded/script/ljs/*.ntc.js" -ext ".js" -replace ".ntc.js" -dest "${PROJECT_DIR}Templatization/StockContent/Embedded/script" -src -c "Azos.Templatization.TextJSTemplateCompiler, NFX" -o dom-gen="cmp{pretty=1}"
+mono ntc.exe "${PROJECT_DIR}Templatization/StockContent/*.htm" -r -ext ".auto.cs" -src -c "Azos.Templatization.NHTCompiler, Azos"
+mono ntc.exe "${PROJECT_DIR}Templatization/StockContent/Embedded/script/ljs/*.ntc.js" -ext ".js" -replace ".ntc.js" -dest "${PROJECT_DIR}Templatization/StockContent/Embedded/script" -src -c "Azos.Templatization.TextJSTemplateCompiler, Azos" -o dom-gen="cmp{pretty=1}"
 
 hash java 2>/dev/null || { echo >&2 "I require JAVA but it's not installed. Aborting."; exit 0; }
 

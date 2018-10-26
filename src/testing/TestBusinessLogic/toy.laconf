@@ -1,10 +1,10 @@
-﻿nfx
+﻿app
 {
   log
   {
     reliable=true
-   // destination{type="NFX.Log.Destinations.ConsoleDestination, NFX" colored=false}
-    destination{type="NFX.Log.Destinations.MemoryBufferDestination, NFX"}
+   // destination{type="Azos.Log.Destinations.ConsoleDestination, Azos" colored=false}
+    destination{type="Azos.Log.Destinations.MemoryBufferDestination, Azos"}
   }
 
   glue
@@ -14,7 +14,7 @@
 
     providers
     {
-     // provider { name="zmq" type="NFX.ZeroMQ.ZeroMQProvider, NFX.ZeroMQ" max-sockets="2048" }
+     // provider { name="zmq" type="Azos.ZeroMQ.ZeroMQProvider, Azos.ZeroMQ" max-sockets="2048" }
     }
 
     bindings
@@ -22,7 +22,7 @@
       binding
       {
         name="sync"
-        type="NFX.Glue.Native.SyncBinding"
+        type="Azos.Glue.Native.SyncBinding"
         // max-msg-size="65536"
         // server-dump="Message"
         // dump-path=$(@/$disk-root)msg.dump
@@ -50,11 +50,11 @@
         //}
       }
 
-      binding { name="inproc" type="NFX.Glue.Native.InProcBinding, NFX" }
+      binding { name="inproc" type="Azos.Glue.Native.InProcBinding, Azos" }
 
       binding
       {
-         name="mpx" type="NFX.Glue.Native.MpxBinding, NFX"
+         name="mpx" type="Azos.Glue.Native.MpxBinding, Azos"
          //server-dump="Message"
          //dump-path=$(@/$disk-root)msg.dump
          // measure-stat-times="true"

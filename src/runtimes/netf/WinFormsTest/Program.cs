@@ -17,7 +17,7 @@ namespace WinFormsTest
     {
       new Azos.Platform.Abstraction.NetFramework.DotNetFrameworkRuntime();
 
-      //This line initializes  NFX Application Model dependency injection services container
+      //This line initializes  Azos Application Model dependency injection services container
       //Separate class was needed because Application  class is sealed
       using (new ServiceBaseApplication(args, null))
       {

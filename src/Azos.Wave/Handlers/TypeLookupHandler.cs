@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 
 using Azos.Apps;
+using Azos.Data;
 using Azos.Conf;
 
 namespace Azos.Wave.Handlers

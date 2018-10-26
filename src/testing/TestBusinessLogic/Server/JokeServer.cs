@@ -16,7 +16,7 @@ namespace TestBusinessLogic.Server
 
           //StringBuilder sb = null;
           //TextInfoHeader th = null;
-          //foreach(var h in NFX.Glue.ServerCallContext.Request.Headers)
+          //foreach(var h in Azos.Glue.ServerCallContext.Request.Headers)
           //{
           //  if (sb==null) sb = new StringBuilder();
           //  if (h is TextInfoHeader) th = (TextInfoHeader)h;
@@ -28,7 +28,7 @@ namespace TestBusinessLogic.Server
           //ExecutionContext.Application.Log.Write(MessageType.Info, "MarazmServer.Echo. Headers: " + sb.ToString(), from: text + (th==null?string.Empty : th.Text + th.Info));
 
 
-          //NFX.Glue.ServerCallContext.ResponseHeaders.Add( new MyHeader());
+          //Azos.Glue.ServerCallContext.ResponseHeaders.Add( new MyHeader());
           return "Server echoed " + text;// + "' on "+App.LocalizedTime.ToString();
         }
 
@@ -53,11 +53,11 @@ namespace TestBusinessLogic.Server
            {
               ID = new Azos.Data.GDID(0, (ulong) i),
               Age = i,
-               Name = "abuxazn"+i,// NFX.Parsing.NaturalTextGenerator.Generate(10),
+               Name = "abuxazn"+i,// Azos.Text.NaturalTextGenerator.Generate(10),
                 Date = DateTime.Now,
                  Bool1 = i % 18 ==0,
-                Str1 = "jsaudhasuhdasiuhduhd", // NFX.Parsing.NaturalTextGenerator.Generate(25),
-                Str2 = "dsadas sdas ",//NFX.Parsing.NaturalTextGenerator.Generate(25),
+                Str1 = "jsaudhasuhdasiuhduhd", // Azos.Text.NaturalTextGenerator.Generate(25),
+                Str2 = "dsadas sdas ",//Azos.Text.NaturalTextGenerator.Generate(25),
                 Salary = 1234d * i
             };
           }
@@ -77,10 +77,10 @@ namespace TestBusinessLogic.Server
         //    var rec = new object[8];
         //    rec[0] = id;
         //    rec[1] = i;
-        //    rec[2] = NFX.Parsing.NaturalTextGenerator.Generate(10);
+        //    rec[2] = Azos.Text.NaturalTextGenerator.Generate(10);
         //    rec[3] = i % 18 ==0;
-        //    rec[4] = NFX.Parsing.NaturalTextGenerator.Generate(25);
-        //    rec[5] = NFX.Parsing.NaturalTextGenerator.Generate(25);
+        //    rec[4] = Azos.Text.NaturalTextGenerator.Generate(25);
+        //    rec[5] = Azos.Text.NaturalTextGenerator.Generate(25);
         //    rec[6] = DateTime.Now;
         //    rec[7] = 1234d * i;
         //    result.Add( rec );

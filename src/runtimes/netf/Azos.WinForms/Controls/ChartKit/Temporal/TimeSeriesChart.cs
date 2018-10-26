@@ -668,7 +668,7 @@ namespace Azos.WinForms.Controls.ChartKit.Temporal
 
     ////protected override bool ProcessKeyPreview(ref Message m)
     ////{
-    ////  if (m.Msg == (int)NFX.WinApi.Messages.WM_KEYDOWN)
+    ////  if (m.Msg == (int)Azos.WinApi.Messages.WM_KEYDOWN)
     ////  {
     ////   var e = new KeyEventArgs(((Keys)((int)((long)m.WParam))) | ModifierKeys);
 

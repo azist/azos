@@ -498,10 +498,10 @@ namespace WinFormsTest
 
             var rnds = new int[800];
             for(var i=0; i<rnds.Length; i++)
-              rnds[i] = ExternalRandomGenerator.Instance.NextScaledRandomInteger(CNT / 2, CNT-1);
+              rnds[i] = App.Random.NextScaledRandomInteger(CNT / 2, CNT-1);
 
             var lst = new Perzon[CNT];
-            var dict = new Dictionary<object, int>(128, ReferenceEqualityComparer<object>.Instance);
+            var dict = new Dictionary<object, int>(128, Azos.Collections.ReferenceEqualityComparer<object>.Instance);
             for(var i=0; i<lst.Length; i++)
             {
               var person = new Perzon();
@@ -711,10 +711,10 @@ IF         {5:n0} ms at @ {6:n0} ops/sec".Args(CNT,
          {
            return new TradingRec
            {
-            Symbol = Azos.Parsing.NaturalTextGenerator.GenerateFirstName(),
-            Volume = ExternalRandomGenerator.Instance.NextScaledRandomInteger(-25000, 25000),
-            Bet = ExternalRandomGenerator.Instance.NextScaledRandomInteger(-250000, 250000) * 10000L,
-            Price = ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 1000000) * 10000L
+            Symbol = Azos.Text.NaturalTextGenerator.GenerateFirstName(),
+            Volume = App.Random.NextScaledRandomInteger(-25000, 25000),
+            Bet = App.Random.NextScaledRandomInteger(-250000, 250000) * 10000L,
+            Price = App.Random.NextScaledRandomInteger(0, 1000000) * 10000L
            };
          }
     }

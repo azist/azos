@@ -89,7 +89,7 @@ namespace Azos.Web.Pay
   }
 
   /// <summary>
-  /// Describes an entity that can perform pay functions with several usefull interfaces in NFX style
+  /// Describes an entity that can perform pay functions with several usefull interfaces in Azos style
   /// </summary>
   public interface IPaySystemImplementation: IPaySystem, IConfigurable, IInstrumentable
   {

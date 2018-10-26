@@ -1,8 +1,8 @@
 ﻿<!-- Comment-->
-<nfx
-       log-root="$(~NFX_TEST_ROOT)\"
-       log-csv="Azos.Log.Destinations.CSVFileDestination, NFX"
-       log-debug="Azos.Log.Destinations.DebugDestination, NFX"
+<app
+       log-root="$(~AZOS_TEST_ROOT)\"
+       log-csv="Azos.Log.Destinations.CSVFileDestination, Azos"
+       log-debug="Azos.Log.Destinations.DebugDestination, Azos"
        debug-default-action="LogAndThrow"
        debug-conf-refresh="false"
        app-name="test-client"
@@ -75,8 +75,8 @@
                     snd-hwm="0"
                 />
             </REM-binding>
-            <binding name="inproc" type="Azos.Glue.Native.InProcBinding, NFX"/>
+            <binding name="inproc" type="Azos.Glue.Native.InProcBinding, Azos"/>
         </bindings>
     </glue>
 
-</nfx>
+</app>

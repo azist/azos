@@ -22,7 +22,7 @@ namespace Azos.IO.FileSystem.GoogleDrive.V2
         private const string ROOT = "root";
         private const string MY_DRIVE = "My Drive";
         private const string GRANT_TYPE = "refresh_token";
-        private const string USER_AGENT = "NFX";
+        private const string USER_AGENT = "Azos";
 
         private const string HEADER_AUTHORIZATION = "Authorization";
         private const string HEADER_LOCATION = "Location";

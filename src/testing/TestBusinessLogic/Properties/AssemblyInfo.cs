@@ -1,2 +1,1 @@
 
-[assembly: NFX.Inventorization.Inventory]

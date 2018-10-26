@@ -371,7 +371,7 @@ namespace Azos.Web.Pay.Braintree
     private string buildDescriptor(string issuerName, string description)
     {
       if (description.IsNullOrWhiteSpace()) return null;
-      if (issuerName.IsNullOrWhiteSpace()) issuerName = "NFX";
+      if (issuerName.IsNullOrWhiteSpace()) issuerName = "Azos";
 
       var sb = new StringBuilder();
       foreach (var ch in description)

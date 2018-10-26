@@ -19,17 +19,18 @@ using System.Threading.Tasks;
 
 
 using Azos;
+using Azos.Data;
 using Azos.Glue;
 using Azos.Glue.Protocol;
 using Azos.Security;
-using BusinessLogic;
+using TestBusinessLogic;
 
 namespace WinFormsTest
 {
   #pragma warning disable 0649,0169,0067
 
-    public partial class GlueForm : Form
-    {
+    public partial class GlueForm : System.Windows.Forms.Form
+  {
         public class BadContract : ClientEndPoint
         {
            public BadContract(string node, Azos.Glue.Binding binding = null) : base(node, binding) {}
@@ -493,7 +494,7 @@ namespace WinFormsTest
                             try
                             {
                               calls.Enqueue( new Call(client.Async_DBWork(i.ToString(), rCount,
-                                                                                        waitFrom > 0 ? ExternalRandomGenerator.Instance.NextScaledRandomInteger(waitFrom,waitTo) : 0)));
+                                                                                        waitFrom > 0 ? App.Random.NextScaledRandomInteger(waitFrom,waitTo) : 0)));
                                                        //ExternalRandomGenerator.Instance.NextScaledRandomInteger(1,100),
                                                        //ExternalRandomGenerator.Instance.NextScaledRandomInteger(0,50))) );
                             }
@@ -549,7 +550,7 @@ namespace WinFormsTest
 
             if (chkAutoDispatch.Checked)
             {
-              tmrAuto.Interval = 1000 + ExternalRandomGenerator.Instance.NextScaledRandomInteger(100, 10000);
+              tmrAuto.Interval = 1000 + App.Random.NextScaledRandomInteger(100, 10000);
               tmrAuto.Enabled = true;
 
             }

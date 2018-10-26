@@ -3,7 +3,7 @@ using System;
 using System.Net;
 
 using Azos;
-using Azos.Wave.MVC;
+using Azos.Wave.Mvc;
 
 namespace WaveTestSite.Controllers
 {

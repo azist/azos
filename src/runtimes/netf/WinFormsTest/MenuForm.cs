@@ -171,8 +171,8 @@ Performance
              System.Environment.ProcessorCount,
              System.Environment.Is64BitProcess,
              System.Environment.Is64BitOperatingSystem,
-             Azos.OS.Computer.OSFamily,
-             Azos.OS.Computer.UniqueNetworkSignature,
+             Azos.Platform.Computer.OSFamily,
+             Azos.Platform.Computer.UniqueNetworkSignature,
 
              ops, time1, ops / (time1/ 1000d),
              ops, time2, ops / (time2/ 1000d),

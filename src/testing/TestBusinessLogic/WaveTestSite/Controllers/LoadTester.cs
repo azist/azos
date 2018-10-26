@@ -9,7 +9,7 @@ using Azos;
 using Azos.Data;
 using Azos.Security;
 using Azos.Serialization.JSON;
-using Azos.Wave.MVC;
+using Azos.Wave.Mvc;
 using Azos.Text;
 
 namespace WaveTestSite.Controllers
@@ -21,7 +21,7 @@ namespace WaveTestSite.Controllers
       public enum PatientStatus { Admitted, Discharged};
 
 
-      public class Patient: TypedRow
+      public class Patient: TypedDoc
       {
         [Field] public int ID { get; set; }
         [Field] public string Name { get; set; }
@@ -35,7 +35,7 @@ namespace WaveTestSite.Controllers
         [Field] public byte[] BinData{ get; set;}
       }
 
-      public class Doctor: TypedRow
+      public class Doctor: TypedDoc
       {
         [Field] public int ID { get; set; }
         [Field] public string Name { get; set; }
@@ -68,7 +68,7 @@ namespace WaveTestSite.Controllers
              Patients = new List<Patient>()
         };
 
-        var pcount = ExternalRandomGenerator.Instance.NextScaledRandomInteger(minPatientCount, maxPatientCount);
+        var pcount = App.Random.NextScaledRandomInteger(minPatientCount, maxPatientCount);
         for (var j=0; j<pcount; j++)
         {
           var patient = new Patient
@@ -81,16 +81,16 @@ namespace WaveTestSite.Controllers
                    Status = i%7==0?PatientStatus.Admitted:PatientStatus.Discharged,
           };
 
-          patient.BinData = new byte[ExternalRandomGenerator.Instance.NextScaledRandomInteger(0,7)];
+          patient.BinData = new byte[App.Random.NextScaledRandomInteger(0,7)];
           for(var k=0; k<patient.BinData.Length; k++)
-           patient.BinData[k] = (byte)ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 255);
+           patient.BinData[k] = (byte)App.Random.NextScaledRandomInteger(0, 255);
 
           doctor.Patients.Add(patient);
 
         }
 
         if (sleepMs>0)//Simulate some kind of DB access
-           System.Threading.Thread.Sleep(ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, sleepMs));
+           System.Threading.Thread.Sleep(App.Random.NextScaledRandomInteger(0, sleepMs));
 
         result.Add(doctor);
       }
@@ -101,7 +101,7 @@ namespace WaveTestSite.Controllers
 
 
 
-    //protected override System.Reflection.MethodInfo FindMatchingAction(NFX.Wave.WorkContext work, string action, out object[] args)
+    //protected override System.Reflection.MethodInfo FindMatchingAction(Azos.Wave.WorkContext work, string action, out object[] args)
     //{
     //  return base.FindMatchingAction(work, action, out args);
     //}

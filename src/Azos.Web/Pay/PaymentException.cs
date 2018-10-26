@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace Azos.Web.Pay
 {
   /// <summary>
-  /// General NFX payment system specific exception
+  /// General ancestor for payment-related exceptions
   /// </summary>
   [Serializable]
   public class PaymentException: WebException

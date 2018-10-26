@@ -1,6 +1,7 @@
 
 using Azos.Log;
 using Azos.Conf;
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Wave.Filters

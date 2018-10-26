@@ -15,7 +15,7 @@ namespace TestBusinessLogic
   /// May inject client-level inspectors here like so:
   ///   client.MsgInspectors.Register( new YOUR_CLIENT_INSPECTOR_TYPE());
   ///</summary>
-  public class JokeContractClient : ClientEndPoint, @BusinessLogic.@IJokeContract
+  public class JokeContractClient : ClientEndPoint, @TestBusinessLogic.@IJokeContract
   {
 
   #region Static Members
@@ -33,7 +33,7 @@ namespace TestBusinessLogic
      //static .ctor
      static JokeContractClient()
      {
-         var t = typeof(@BusinessLogic.@IJokeContract);
+         var t = typeof(@TestBusinessLogic.@IJokeContract);
          s_ts_CONTRACT = new TypeSpec(t);
          @s_ms_Echo_0 = new MethodSpec(t.GetMethod("Echo", new Type[]{ typeof(@System.@String) }));
          @s_ms_UnsecureEcho_1 = new MethodSpec(t.GetMethod("UnsecureEcho", new Type[]{ typeof(@System.@String) }));
@@ -62,7 +62,7 @@ namespace TestBusinessLogic
 
      public override Type Contract
      {
-       get { return typeof(@BusinessLogic.@IJokeContract); }
+       get { return typeof(@TestBusinessLogic.@IJokeContract); }
      }
 
 
@@ -144,7 +144,7 @@ namespace TestBusinessLogic
          ///</summary>
          public CallSlot Async_UnsecEchoMar(@System.@String  @text)
          {
-            var request = new @BusinessLogic.@RequestMsg_IJokeContract_UnsecEchoMar(s_ts_CONTRACT, @s_ms_UnsecEchoMar_2, false, RemoteInstance)
+            var request = new @TestBusinessLogic.@RequestMsg_IJokeContract_UnsecEchoMar(s_ts_CONTRACT, @s_ms_UnsecEchoMar_2, false, RemoteInstance)
             {
                MethodArg_0_text = @text,
             };
@@ -201,7 +201,7 @@ namespace TestBusinessLogic
          ///</summary>
          public CallSlot Async_SimpleWorkMar(@System.@String  @s, @System.@Int32  @i1, @System.@Int32  @i2, @System.@Boolean  @b, @System.@Double  @d)
          {
-            var request = new @BusinessLogic.@RequestMsg_IJokeContract_SimpleWorkMar(s_ts_CONTRACT, @s_ms_SimpleWorkMar_4, false, RemoteInstance)
+            var request = new @TestBusinessLogic.@RequestMsg_IJokeContract_SimpleWorkMar(s_ts_CONTRACT, @s_ms_SimpleWorkMar_4, false, RemoteInstance)
             {
                MethodArg_0_s = @s,
                MethodArg_1_i1 = @i1,
