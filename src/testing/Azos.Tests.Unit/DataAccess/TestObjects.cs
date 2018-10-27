@@ -3,23 +3,23 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 using Azos.Apps;
-using Azos.DataAccess.CRUD;
-using Azos.DataAccess.Distributed;
+using Azos.Data;
+
 
 namespace Azos.Tests.Unit.DataAccess
 {
 
     [Serializable]
     [Table(targetName: "SPARTA_SYSTEM", name: "dimperson")]
-    public class Person : TypedRow
+    public class Person : TypedDoc
     {
         public Person() {}
 
@@ -63,7 +63,7 @@ namespace Azos.Tests.Unit.DataAccess
 
 
     [Serializable]
-    public class WithCompositeKey : TypedRow
+    public class WithCompositeKey : TypedDoc
     {
         public WithCompositeKey() {}
 
@@ -79,7 +79,7 @@ namespace Azos.Tests.Unit.DataAccess
     }
 
     [Serializable]
-    public class HistoryItem : TypedRow
+    public class HistoryItem : TypedDoc
     {
         public HistoryItem() {}
 
@@ -98,7 +98,7 @@ namespace Azos.Tests.Unit.DataAccess
           if (error!=null) return error;
 
           if (!Description.Contains("Chaplin"))
-            return new CRUDFieldValidationException("Chaplin is required in description", "Description");
+            return new FieldValidationException("Chaplin is required in description", "Description");
 
           return null;
         }
@@ -138,10 +138,14 @@ namespace Azos.Tests.Unit.DataAccess
     }
 
     [Serializable]
-    public class Empty : TypedRow
+    public class Empty : TypedDoc
     {
         public Empty() {}
     }
+
+
+#warning REVIEW Parcel!!!
+/***
 
     [DataParcel(schemaName: "Testing", areaName: "Testing", replicationChannel: "General")]
     public class PeopleNamesParcel : Parcel<List<string>>
@@ -163,7 +167,7 @@ namespace Azos.Tests.Unit.DataAccess
 
        public enum HumanStatus{Ok, NotOk, Unknown}
 
-       public class Human : TypedRow
+       public class Human : TypedDoc
        {
          [Field]public GDID ID{ get; set;}
          [Field]public string Name{ get; set;}
@@ -293,4 +297,5 @@ namespace Azos.Tests.Unit.DataAccess
         get { throw new NotImplementedException(); }
       }
     }
+***/
 }

@@ -15,13 +15,13 @@ using System.Threading;
 using System.Threading.Tasks;
 
 
-using NFX;
-using Azos.Apps.Pile;
-using Azos.DataAccess.Distributed;
+
+using Azos.Pile;
+
 using Azos.Scripting;
 
 
-namespace Azos.Tests.Unit.AppModel.Pile
+namespace Azos.Tests.Unit.Pile
 {
   [Runnable(TRUN.BASE)]
   public class KeyStructTest

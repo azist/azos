@@ -3,25 +3,23 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 using Azos.Scripting;
 
 using Azos.Serialization.BSON;
-using Azos.DataAccess.CRUD;
+using Azos.Data;
 using Azos.Serialization.JSON;
-using Azos.DataAccess.Distributed;
 using Azos.Financial;
 
 namespace Azos.Tests.Unit.Serialization
 {
   [Runnable(TRUN.BASE)]
-  public class RowConverterTest
+  public class DataDocConverterTest
   {
     #region Tests
 
@@ -36,9 +34,9 @@ namespace Azos.Tests.Unit.Serialization
            G_GDID = null
         };
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var doc = rc.RowToBSONDocument(rowA, "A");
+        var doc = rc.DataDocToBSONDocument(rowA, "A");
 
         Console.WriteLine(doc["LastName"]);
         Console.WriteLine(doc["G_GDID"]);
@@ -46,7 +44,7 @@ namespace Azos.Tests.Unit.Serialization
 
         var row2 = new RowWithNulls();
 
-        rc.BSONDocumentToRow(doc, row2, "A");
+        rc.BSONDocumentToDataDoc(doc, row2, "A");
 
         Aver.AreEqual("Vladimir", row2.FirstName);
         Aver.IsNull(row2.LastName);
@@ -63,15 +61,15 @@ namespace Azos.Tests.Unit.Serialization
           EFlags1 = EFlags.FirstSecond
         };
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var docOriginal = rc.RowToBSONDocument(row1, "A");
+        var docOriginal = rc.DataDocToBSONDocument(row1, "A");
         var doc = fullCopy(docOriginal);
 
         Console.WriteLine(doc.ToString());
 
         var row2 = new EnumRow();
-        rc.BSONDocumentToRow(doc, row2, "A");
+        rc.BSONDocumentToDataDoc(doc, row2, "A");
 
         Aver.AreObjectsEqual(row1, row2);
 
@@ -130,9 +128,9 @@ namespace Azos.Tests.Unit.Serialization
           EFlags2 = null
         };
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var docOriginal = rc.RowToBSONDocument(row, "A");
+        var docOriginal = rc.DataDocToBSONDocument(row, "A");
         var doc = fullCopy(docOriginal);
 
         Console.WriteLine(doc.ToString());
@@ -141,7 +139,7 @@ namespace Azos.Tests.Unit.Serialization
         //Aver.IsTrue(doc["Bytes2"] is global::MongoDB.Bson.BsonNull);
 
         var row2 = new RowA();
-        rc.BSONDocumentToRow(doc, row2, "A");
+        rc.BSONDocumentToDataDoc(doc, row2, "A");
 
         Aver.IsTrue(row.Equals(row2));
         Aver.IsTrue(BIN.SequenceEqual(row2.Bytes1));
@@ -169,16 +167,16 @@ namespace Azos.Tests.Unit.Serialization
           ETest1 = 0, EFlags1 = 0, ETest2 = null, EFlags2 = null
         };
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var docOriginal = rc.RowToBSONDocument( row, "A" );
+        var docOriginal = rc.DataDocToBSONDocument( row, "A" );
 
         var doc = fullCopy( docOriginal );
 
         Console.WriteLine(doc.ToString());
 
         var row2 = new RowA();
-        rc.BSONDocumentToRow(doc, row2, "A");
+        rc.BSONDocumentToDataDoc(doc, row2, "A");
 
         Aver.AreEqual("Mudaker", row2.String1);
         Aver.IsNull( row2.String2);
@@ -228,14 +226,14 @@ namespace Azos.Tests.Unit.Serialization
           ETest2 = ETest.Two, EFlags2 = EFlags.Second | EFlags.Third
         };
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var doc = rc.RowToBSONDocument( row, "A" );
+        var doc = rc.DataDocToBSONDocument( row, "A" );
 
         Console.WriteLine(doc.ToString());
 
         var row2 = new RowA();
-        rc.BSONDocumentToRow(doc, row2, "A");
+        rc.BSONDocumentToDataDoc(doc, row2, "A");
 
         Aver.AreEqual("Mudaker", row2.String1);
         Aver.AreEqual("Kapernik", row2.String2);
@@ -270,18 +268,18 @@ namespace Azos.Tests.Unit.Serialization
           String1 = "Mudaker", String2 = "Someone",
         };
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var doc = rc.RowToBSONDocument( row, "A" );
+        var doc = rc.DataDocToBSONDocument( row, "A" );
         Console.WriteLine(doc.ToString());
         Aver.AreEqual( "Someone", doc["s2"].ObjectValue.ToString());
 
-        doc = rc.RowToBSONDocument( row, "B" );
+        doc = rc.DataDocToBSONDocument( row, "B" );
         Console.WriteLine(doc.ToString());
         Aver.AreEqual( "Someone", doc["STRING-2"].ObjectValue.ToString());
 
 
-        doc = rc.RowToBSONDocument( row, "NonExistent" );
+        doc = rc.DataDocToBSONDocument( row, "NonExistent" );
         Console.WriteLine(doc.ToString());
         Aver.AreEqual( "Someone", doc["String2"].ObjectValue.ToString());
       }
@@ -321,14 +319,14 @@ namespace Azos.Tests.Unit.Serialization
           }
         };
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var doc = rc.RowToBSONDocument( row, "A" );
+        var doc = rc.DataDocToBSONDocument( row, "A" );
 
         Console.WriteLine(doc.ToString());
 
         var row2 = new RowB();
-        rc.BSONDocumentToRow(doc, row2, "A");
+        rc.BSONDocumentToDataDoc(doc, row2, "A");
 
         Aver.IsTrue( row.Equals( row2 ) );
       }
@@ -341,19 +339,19 @@ namespace Azos.Tests.Unit.Serialization
          Row2 = new RowA  { String1 = "Zar", String2 = "Boris"}
         };
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var doc = rc.RowToBSONDocument( row, "A" );
+        var doc = rc.DataDocToBSONDocument( row, "A" );
         Console.WriteLine(doc.ToString());
         Aver.AreEqual( "Someone", ((BSONDocumentElement)doc["Row1"]).Value["s2"].ObjectValue.ToString());
         Aver.AreEqual( "Boris", ((BSONDocumentElement)doc["Row2"]).Value["s2"].ObjectValue.ToString());
 
-        doc = rc.RowToBSONDocument( row, "B" );
+        doc = rc.DataDocToBSONDocument( row, "B" );
         Console.WriteLine(doc.ToString());
         Aver.AreEqual( "Someone", ((BSONDocumentElement)doc["Row1"]).Value["STRING-2"].ObjectValue.ToString());
         Aver.AreEqual( "Boris", ((BSONDocumentElement)doc["Row2"]).Value["STRING-2"].ObjectValue.ToString());
 
-        doc = rc.RowToBSONDocument( row, "NonExistent" );
+        doc = rc.DataDocToBSONDocument( row, "NonExistent" );
         Console.WriteLine(doc.ToString());
         Aver.AreEqual( "Someone", ((BSONDocumentElement)doc["Row1"]).Value["String2"].ObjectValue.ToString());
         Aver.AreEqual( "Boris", ((BSONDocumentElement)doc["Row2"]).Value["String2"].ObjectValue.ToString());
@@ -371,13 +369,13 @@ namespace Azos.Tests.Unit.Serialization
           MapList = new List<JSONDataMap>{ new JSONDataMap{{"abc",0},{"buba", new GDID(2, 1223)}},  new JSONDataMap{{"nothing",null}} }
         };
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var doc = rc.RowToBSONDocument(row, "A");
+        var doc = rc.DataDocToBSONDocument(row, "A");
         Console.WriteLine( doc.ToString() );
 
         var row2 = new RowC();
-        rc.BSONDocumentToRow(doc, row2, "A");
+        rc.BSONDocumentToDataDoc(doc, row2, "A");
 
         Aver.AreEqual(2, row2.Map.Count);
         Aver.AreObjectsEqual("Xerson", row2.Map["Name"]);
@@ -424,15 +422,15 @@ namespace Azos.Tests.Unit.Serialization
            Age =  DateTime.Now.Year - 1870
         };
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var doc = rc.RowToBSONDocument(rowA, "A");
+        var doc = rc.DataDocToBSONDocument(rowA, "A");
 
         Console.WriteLine( doc.ToString() );
 
         var rowB = new RowVersionB();
 
-        rc.BSONDocumentToRow(doc, rowB, "MyLegacySystem");
+        rc.BSONDocumentToDataDoc(doc, rowB, "MyLegacySystem");
 
         Aver.AreEqual("Vladimir", rowB.FirstName);
         Aver.AreEqual("Lenin", rowB.LastName);
@@ -450,20 +448,20 @@ namespace Azos.Tests.Unit.Serialization
                 new Schema.FieldDef("Bytes", typeof(byte[]), new List<FieldAttribute>{ new FieldAttribute(required: true)})
           );
 
-          var row = new DynamicRow(schema);
+          var row = new DynamicDoc(schema);
 
           row["ID"] = 123;
           row["Description"] = "T-90 Tank";
           row["Bytes"] = BYTES;
 
-          var rc = new RowConverter();
+          var rc = new DataDocConverter();
 
-          var doc = rc.RowToBSONDocument( row, "A" );
+          var doc = rc.DataDocToBSONDocument( row, "A" );
 
           Console.WriteLine(doc.ToString());
 
-          var row2 = new DynamicRow(schema);
-          rc.BSONDocumentToRow(doc, row2, "A");
+          var row2 = new DynamicDoc(schema);
+          rc.BSONDocumentToDataDoc(doc, row2, "A");
 
           Aver.AreObjectsEqual(123, row2["ID"]);
           Aver.AreObjectsEqual("T-90 Tank", row2["Description"]);
@@ -480,14 +478,14 @@ namespace Azos.Tests.Unit.Serialization
           root.InnerRow.SomeInt = 567;
           root.InnerRow.InnerRow = null; //NO CYCLE!!!!
 
-          var rc = new RowConverter();
+          var rc = new DataDocConverter();
 
-          var doc = rc.RowToBSONDocument( root, "A" );
+          var doc = rc.DataDocToBSONDocument( root, "A" );
 
           Console.WriteLine(doc.ToString());
 
           var root2 = new RowCycle();
-          rc.BSONDocumentToRow(doc, root2, "A");
+          rc.BSONDocumentToDataDoc(doc, root2, "A");
 
           Aver.AreEqual(1234, root2.SomeInt);
           Aver.IsNotNull( root2.InnerRow );
@@ -503,9 +501,9 @@ namespace Azos.Tests.Unit.Serialization
           root.SomeInt = 1234;
           root.InnerRow = root; //Direct cycle
 
-          var rc = new RowConverter();
+          var rc = new DataDocConverter();
 
-          var doc = rc.RowToBSONDocument( root, "A" );  //exception
+          var doc = rc.DataDocToBSONDocument( root, "A" );  //exception
       }
 
       [Run]
@@ -519,9 +517,9 @@ namespace Azos.Tests.Unit.Serialization
           root.InnerRow.SomeInt = 567;
           root.InnerRow.InnerRow = root; //TRANSITIVE(via another instance) CYCLE!!!!
 
-          var rc = new RowConverter();
+          var rc = new DataDocConverter();
 
-          var doc = rc.RowToBSONDocument( root, "A" );  //exception
+          var doc = rc.DataDocToBSONDocument( root, "A" );  //exception
       }
 
       [Run]
@@ -537,9 +535,9 @@ namespace Azos.Tests.Unit.Serialization
           root.InnerRow.InnerRow.SomeInt = 890;
           root.InnerRow.InnerRow.InnerRow = root.InnerRow;  //TRANSITIVE(via another instance) CYCLE!!!!
 
-          var rc = new RowConverter();
+          var rc = new DataDocConverter();
 
-          var doc = rc.RowToBSONDocument( root, "A" );  //exception
+          var doc = rc.DataDocToBSONDocument( root, "A" );  //exception
       }
 
       [Run]
@@ -552,7 +550,7 @@ namespace Azos.Tests.Unit.Serialization
           root["b"] = true;
           root["array"] = new JSONDataArray(){1,2,3,true,true,root};  //TRANSITIVE(via another instance) CYCLE!!!!
 
-          var rc = new RowConverter();
+          var rc = new DataDocConverter();
 
           var doc = rc.ConvertCLRtoBSON(null, root, "A");//exception
       }
@@ -567,9 +565,9 @@ namespace Azos.Tests.Unit.Serialization
            Age =  DateTime.Now.Year - 1870
         };
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var doc = rc.RowToBSONDocument(rowA, "A");
+        var doc = rc.DataDocToBSONDocument(rowA, "A");
 
         Console.WriteLine( doc.ToString() );
 
@@ -590,9 +588,9 @@ namespace Azos.Tests.Unit.Serialization
            Age =  DateTime.Now.Year - 1870
         };
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var doc = rc.RowToBSONDocument(rowA, "A");
+        var doc = rc.DataDocToBSONDocument(rowA, "A");
 
         Console.WriteLine( doc.ToString() );
 
@@ -613,15 +611,15 @@ namespace Azos.Tests.Unit.Serialization
            Age =  DateTime.Now.Year - 1870
         };
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var doc = rc.RowToBSONDocument(rowA, "A", useAmorphousData: false);
+        var doc = rc.DataDocToBSONDocument(rowA, "A", useAmorphousData: false);
 
         Console.WriteLine( doc.ToString() );
 
         var rowB = new RowVersionB();
 
-        rc.BSONDocumentToRow(doc, rowB, "MyLegacySystem", useAmorphousData: false);
+        rc.BSONDocumentToDataDoc(doc, rowB, "MyLegacySystem", useAmorphousData: false);
 
         Aver.AreEqual("Vladimir", rowB.FirstName);
         Aver.AreEqual("Lenin", rowB.LastName);
@@ -638,15 +636,15 @@ namespace Azos.Tests.Unit.Serialization
            Age =  DateTime.Now.Year - 1870
         };
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var doc = rc.RowToBSONDocument(rowA, "A", useAmorphousData: false);
+        var doc = rc.DataDocToBSONDocument(rowA, "A", useAmorphousData: false);
 
         Console.WriteLine( doc.ToString() );
 
         var rowB = new RowVersionB();
 
-        rc.BSONDocumentToRow(doc, rowB, "MyLegacySystem", useAmorphousData: false, filter: (d,e) => e.Name!="LastName");
+        rc.BSONDocumentToDataDoc(doc, rowB, "MyLegacySystem", useAmorphousData: false, filter: (d,e) => e.Name!="LastName");
 
         Aver.AreEqual("Vladimir", rowB.FirstName);
         Aver.IsNull( rowB.LastName );
@@ -668,15 +666,15 @@ namespace Azos.Tests.Unit.Serialization
         rowA.AmorphousData["AABB"] = "extra data";
         rowA.AmorphousData["Bytes"] = BYTES;
 
-        var rc = new RowConverter();
+        var rc = new DataDocConverter();
 
-        var doc = rc.RowToBSONDocument(rowA, "A", useAmorphousData: true);
+        var doc = rc.DataDocToBSONDocument(rowA, "A", useAmorphousData: true);
 
         Console.WriteLine( doc.ToString() );
 
         var rowB = new RowVersionB();
 
-        rc.BSONDocumentToRow(doc, rowB, "MyLegacySystem", useAmorphousData: true);
+        rc.BSONDocumentToDataDoc(doc, rowB, "MyLegacySystem", useAmorphousData: true);
 
         Aver.AreEqual("Vladimir", rowB.FirstName);
         Aver.AreEqual("Lenin", rowB.LastName);
@@ -696,7 +694,7 @@ namespace Azos.Tests.Unit.Serialization
         doc.Set( new BSONInt32Element("Age", 123) );
         doc.Set( new BSONBooleanElement("IsGood", true) );
 
-        var c = new RowConverter();
+        var c = new DataDocConverter();
 
         var schema = c.InferSchemaFromBSONDocument(doc);
 
@@ -710,8 +708,8 @@ namespace Azos.Tests.Unit.Serialization
         Aver.AreObjectsEqual(typeof(object), schema["Age"].NonNullableType);
         Aver.AreObjectsEqual(typeof(object), schema["IsGood"].NonNullableType);
 
-        var row = new DynamicRow(schema);
-        c.BSONDocumentToRow(doc, row, null);
+        var row = new DynamicDoc(schema);
+        c.BSONDocumentToDataDoc(doc, row, null);
 
         Aver.AreObjectsEqual("Alex Bobby", row[0]);
         Aver.AreObjectsEqual(123,          row[1]);
@@ -746,7 +744,7 @@ namespace Azos.Tests.Unit.Serialization
 
     #region Mocks
 
-         public class RowWithNulls : AmorphousTypedRow
+         public class RowWithNulls : AmorphousTypedDoc
          {
            [Field] public string FirstName{get;set;}
            [Field] public string LastName{get;set;}
@@ -759,12 +757,12 @@ namespace Azos.Tests.Unit.Serialization
          [Flags]
          public enum EFlags { First = 0x01, Second = 0x02, Third = 0x04, Fifth = 0x0f, FirstSecond = First | Second }
 
-         public class EnumRow: TypedRow
+         public class EnumRow: TypedDoc
          {
            [Field] public ETest ETest1 {get; set;}
            [Field] public EFlags EFlags1 {get; set;}
 
-           public override bool Equals(Row other)
+           public override bool Equals(Doc other)
            {
              var or = other as EnumRow;
              if (or==null) return false;
@@ -789,7 +787,7 @@ namespace Azos.Tests.Unit.Serialization
            }
          }
 
-         public class RowA : TypedRow
+         public class RowA : TypedDoc
          {
            [Field] public string String1{get; set;}
 
@@ -843,7 +841,7 @@ namespace Azos.Tests.Unit.Serialization
            [Field] public EFlags EFlags1 {get; set;}
            [Field] public EFlags? EFlags2 {get; set;}
 
-           public override bool Equals(Row other)
+           public override bool Equals(Doc other)
            {
              var or = other as RowA;
              if (or==null) return false;
@@ -874,13 +872,13 @@ namespace Azos.Tests.Unit.Serialization
          }
 
 
-         public class RowB : TypedRow
+         public class RowB : TypedDoc
          {
            [Field] public RowA Row1{get; set;}
            [Field] public RowA Row2{get; set;}
          }
 
-         public class RowC : TypedRow
+         public class RowC : TypedDoc
          {
            [Field] public JSONDataMap  Map{get; set;}
            [Field] public object[]  ObjectArray{get; set;}
@@ -890,14 +888,14 @@ namespace Azos.Tests.Unit.Serialization
          }
 
 
-         public class RowVersionA : AmorphousTypedRow
+         public class RowVersionA : AmorphousTypedDoc
          {
            [Field] public string FirstName{get;set;}
            [Field] public string LastName{get;set;}
            [Field] public int Age{get;set;} //suppose we designed it a few years back and made a mistake - keeping an age as an INT (instread of a date)
          }
 
-         public class RowVersionB : AmorphousTypedRow
+         public class RowVersionB : AmorphousTypedDoc
          {
            [Field] public string FirstName{get;set;}
            [Field] public string LastName{get;set;}
@@ -920,7 +918,7 @@ namespace Azos.Tests.Unit.Serialization
          }
 
 
-         public class RowCycle : TypedRow
+         public class RowCycle : TypedDoc
          {
            [Field] public int SomeInt{get; set;}
            [Field] public RowCycle InnerRow{get; set;}

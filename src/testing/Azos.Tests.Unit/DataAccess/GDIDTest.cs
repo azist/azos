@@ -3,16 +3,16 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Azos.DataAccess.CRUD;
-using Azos.DataAccess.Distributed;
+using Azos.Data;
+
 using Azos.Scripting;
 using Azos.Serialization.JSON;
 using static Azos.Aver.ThrowsAttribute;
@@ -32,14 +32,14 @@ namespace Azos.Tests.Unit.DataAccess
       }
 
       [Run]
-      [Aver.Throws(typeof(DistributedDataAccessException), Message="GDID can not be created from the supplied", MsgMatch=MatchType.Contains) ]
+      [Aver.Throws(typeof(DataException), Message="GDID can not be created from the supplied", MsgMatch=MatchType.Contains) ]
       public void GDID_2()
       {
         var gdid = new GDID(0, 16, 89078);
       }
 
       [Run]
-      [Aver.Throws(typeof(DistributedDataAccessException), Message="GDID can not be created from the supplied", MsgMatch=MatchType.Contains) ]
+      [Aver.Throws(typeof(DataException), Message="GDID can not be created from the supplied", MsgMatch=MatchType.Contains) ]
       public void GDID_3()
       {
         var gdid = new GDID(0, 12, GDID.COUNTER_MAX+1);
@@ -261,8 +261,8 @@ namespace Azos.Tests.Unit.DataAccess
         var err = row.Validate();
 
         Aver.IsNotNull(err);
-        Aver.IsTrue(err is CRUDFieldValidationException);
-        Aver.AreEqual("GDID", ((CRUDFieldValidationException)err).FieldName);
+        Aver.IsTrue(err is FieldValidationException);
+        Aver.AreEqual("GDID", ((FieldValidationException)err).FieldName);
 
         row.GDID = new GDID(1,1,1);
         err = row.Validate();
@@ -272,8 +272,8 @@ namespace Azos.Tests.Unit.DataAccess
         err = row.Validate();
 
         Aver.IsNotNull(err);
-        Aver.IsTrue(err is CRUDFieldValidationException);
-        Aver.AreEqual("GDID", ((CRUDFieldValidationException)err).FieldName);
+        Aver.IsTrue(err is FieldValidationException);
+        Aver.AreEqual("GDID", ((FieldValidationException)err).FieldName);
       }
 
       [Run()]
@@ -283,8 +283,8 @@ namespace Azos.Tests.Unit.DataAccess
         var err = row.Validate();
 
         Aver.IsNotNull(err);
-        Aver.IsTrue(err is CRUDFieldValidationException);
-        Aver.AreEqual("GDID", ((CRUDFieldValidationException)err).FieldName);
+        Aver.IsTrue(err is FieldValidationException);
+        Aver.AreEqual("GDID", ((FieldValidationException)err).FieldName);
 
         row.GDID = new GDID(1,1,1);
         err = row.Validate();
@@ -295,23 +295,23 @@ namespace Azos.Tests.Unit.DataAccess
         err = row.Validate();
 
         Aver.IsNotNull(err);
-        Aver.IsTrue(err is CRUDFieldValidationException);
-        Aver.AreEqual("GDID", ((CRUDFieldValidationException)err).FieldName);
+        Aver.IsTrue(err is FieldValidationException);
+        Aver.AreEqual("GDID", ((FieldValidationException)err).FieldName);
 
         row.GDID = null;//Nullable
         err = row.Validate();
 
         Aver.IsNotNull(err);
-        Aver.IsTrue(err is CRUDFieldValidationException);
-        Aver.AreEqual("GDID", ((CRUDFieldValidationException)err).FieldName);
+        Aver.IsTrue(err is FieldValidationException);
+        Aver.AreEqual("GDID", ((FieldValidationException)err).FieldName);
       }
 
-      public class GDIDRow: TypedRow
+      public class GDIDRow: TypedDoc
       {
         [Field(required: true)] public GDID GDID {get; set;}
       }
 
-      public class NullableGDIDRow: TypedRow
+      public class NullableGDIDRow: TypedDoc
       {
         [Field(required: true)] public GDID? GDID {get; set;}
       }

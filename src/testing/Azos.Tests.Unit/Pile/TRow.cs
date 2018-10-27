@@ -3,25 +3,19 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-using NFX;
+
+using System;
+
+using Azos.Data;
 using Azos.Financial;
-using Azos.DataAccess.CRUD;
-using Azos.DataAccess.Distributed;
 using Azos.Serialization.JSON;
 
-namespace Azos.Tests.Unit.AppModel.Pile
+namespace Azos.Tests.Unit.Pile
 {
   public enum Sex { Male, Female, Unspecified};
 
-  public class CheckoutRow: TypedRow
+  public class CheckoutRow: TypedDoc
   {
     [Field(backendName: "_id")] public GDID ID { get; set; }
 
@@ -48,8 +42,8 @@ namespace Azos.Tests.Unit.AppModel.Pile
         StartOffset = gdid.ID * 20,
         G_Block = gdid,
 
-        Address1 = Azos.Parsing.NaturalTextGenerator.GenerateAddressLine(),
-        Address2 = (gdid.ID % 7) == 0 ? Azos.Parsing.NaturalTextGenerator.GenerateAddressLine() : null
+        Address1 = Text.NaturalTextGenerator.GenerateAddressLine(),
+        Address2 = (gdid.ID % 7) == 0 ? Text.NaturalTextGenerator.GenerateAddressLine() : null
       };
 
       var chCnt = (int)(gdid.ID % 10);
@@ -61,14 +55,14 @@ namespace Azos.Tests.Unit.AppModel.Pile
       return ch;
     }
 
-    public override bool Equals(Row other)
+    public override bool Equals(Doc other)
     {
       if (other==null) return false;
       return this.ToJSON() == other.ToJSON();
     }
   }
 
-  public class ChargeRow: TypedRow
+  public class ChargeRow: TypedDoc
   {
     [Field(backendName: "amt")] public Amount Amount { get; set; }
     [Field(backendName: "qty")] public int Qty { get; set; }
@@ -89,7 +83,7 @@ namespace Azos.Tests.Unit.AppModel.Pile
     }
   }
 
-  public class PersonRow: TypedRow
+  public class PersonRow: TypedDoc
   {
     [Field(backendName: "_id")] public GDID ID { get; set; }
 
@@ -135,7 +129,7 @@ namespace Azos.Tests.Unit.AppModel.Pile
       var pers = new PersonRow()
       {
         ID = parentGdid,
-        Name = Azos.Parsing.NaturalTextGenerator.GenerateFullName(true),
+        Name = Text.NaturalTextGenerator.GenerateFullName(true),
         Age = age,
         DOB = DateTime.Now.AddYears(-age),
         Sex = (parentGdid.ID % 2) == 0 ? Sex.Male : Sex.Female,
@@ -145,15 +139,15 @@ namespace Azos.Tests.Unit.AppModel.Pile
         Notes = parentGdid.ToString(),
         Voter = (parentGdid.ID % 2) == 0 ? (bool?)null : true,
         MilitarySvc = (parentGdid.ID % 2) == 0 ? (bool?)null : false,
-        Address1 = Azos.Parsing.NaturalTextGenerator.GenerateAddressLine(),
-        Address2 = (parentGdid.ID % 7) == 0 ? Azos.Parsing.NaturalTextGenerator.GenerateAddressLine() : null,
-        City = Azos.Parsing.NaturalTextGenerator.GenerateCityName(),
+        Address1 = Text.NaturalTextGenerator.GenerateAddressLine(),
+        Address2 = (parentGdid.ID % 7) == 0 ? Text.NaturalTextGenerator.GenerateAddressLine() : null,
+        City = Text.NaturalTextGenerator.GenerateCityName(),
         State = "OH",
         Zip = "44000" + (parentGdid.ID % 999),
         Phone1 = "(555) 222-3222",
         Phone2 = (parentGdid.ID % 3) == 0 ? "(555) 737-9789" : null,
-        Email1 = Azos.Parsing.NaturalTextGenerator.GenerateEMail(),
-        Email2 = (parentGdid.ID % 5) == 0 ? Azos.Parsing.NaturalTextGenerator.GenerateEMail() : null,
+        Email1 = Text.NaturalTextGenerator.GenerateEMail(),
+        Email2 = (parentGdid.ID % 5) == 0 ? Text.NaturalTextGenerator.GenerateEMail() : null,
         URL = (parentGdid.ID % 2) == 0 ? "https://ibm.com/products/" + parentGdid.ID : null,
         Tags = tags
       };

@@ -12,7 +12,7 @@ using System.Text;
 using Azos.Scripting;
 
 
-using Azos.DataAccess.CRUD;
+using Azos.Data;
 
 
 namespace Azos.Tests.Unit.DataAccess

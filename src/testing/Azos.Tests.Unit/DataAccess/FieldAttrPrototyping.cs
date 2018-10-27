@@ -12,8 +12,8 @@ using System.Text;
 using System.IO;
 using Azos.Scripting;
 
-using Azos.DataAccess;
-using Azos.DataAccess.CRUD;
+
+using Azos.Data;
 
 
 namespace Azos.Tests.Unit.DataAccess
@@ -24,7 +24,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void FieldProperties()
         {
-           var schema = Schema.GetForTypedRow(typeof(RowB));
+           var schema = Schema.GetForTypedDoc(typeof(RowB));
            Aver.AreEqual(7, schema["FirstName"]["A"].MinLength);
            Aver.AreEqual(10, schema["FirstName"]["A"].MaxLength);
            Aver.AreEqual(true, schema["FirstName"]["A"].Required);
@@ -39,7 +39,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void MetadataProperties()
         {
-           var schema = Schema.GetForTypedRow(typeof(RowB));
+           var schema = Schema.GetForTypedDoc(typeof(RowB));
            Aver.IsTrue( schema["FirstName"]["A"].Metadata.AttrByName("ABC").ValueAsBool() );
            Aver.IsTrue( schema["FirstName"]["A"].Metadata.AttrByName("DEF").ValueAsBool() );
            Aver.IsTrue( schema["FirstName"]["A"].Metadata["Another"].Exists );
@@ -52,10 +52,10 @@ namespace Azos.Tests.Unit.DataAccess
 
 
         [Run]
-        [Aver.Throws(typeof(CRUDException), Message="recursive field definition", MsgMatch= Aver.ThrowsAttribute.MatchType.Contains)]
+        [Aver.Throws(typeof(DataAccessException), Message="recursive field definition", MsgMatch= Aver.ThrowsAttribute.MatchType.Contains)]
         public void Recursive()
         {
-           var schema = Schema.GetForTypedRow(typeof(RowC));
+           var schema = Schema.GetForTypedDoc(typeof(RowC));
         }
 
 
@@ -63,7 +63,7 @@ namespace Azos.Tests.Unit.DataAccess
     }
 
 
-              public class RowA : TypedRow
+              public class RowA : TypedDoc
               {
                 [Field(targetName: "A", storeFlag: StoreFlag.LoadAndStore, key: true, minLength: 5, maxLength: 10, required: true, metadata: "abc=true")]
                 [Field(targetName: "B", storeFlag: StoreFlag.OnlyLoad, key: true, minLength: 5, maxLength: 15, required: true, metadata: "abc=false")]
@@ -74,7 +74,7 @@ namespace Azos.Tests.Unit.DataAccess
                 public string LastName{get; set;}
               }
 
-              public class RowB : TypedRow
+              public class RowB : TypedDoc
               {
                 [Field(protoType: typeof(RowA), protoFieldName: "FirstName", targetName: "A", minLength: 7, metadata: "def=true another{}")]
                 [Field(protoType: typeof(RowA), protoFieldName: "FirstName", targetName: "B", key: false, minLength: 8, metadata: "abc=true def=false")]
@@ -85,19 +85,19 @@ namespace Azos.Tests.Unit.DataAccess
                 public string LastName{get; set;}
               }
 
-              public class RowC : TypedRow
+              public class RowC : TypedDoc
               {
                 [Field(protoType: typeof(RowE), protoFieldName: "FirstName")]
                 public string FirstName{get; set;}
               }
 
-              public class RowD : TypedRow
+              public class RowD : TypedDoc
               {
                 [Field(protoType: typeof(RowC), protoFieldName: "FirstName")]
                 public string FirstName{get; set;}
               }
 
-              public class RowE : TypedRow
+              public class RowE : TypedDoc
               {
                 [Field(protoType: typeof(RowD), protoFieldName: "FirstName")]
                 public string FirstName{get; set;}

@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.IO;
 using System.Text;
@@ -14,7 +14,7 @@ using System.Diagnostics;
 
 using Azos.Scripting;
 
-using Azos.DataAccess.CRUD;
+using Azos.Data;
 using Azos.CodeAnalysis;
 using Azos.CodeAnalysis.Source;
 using Azos.CodeAnalysis.JSON;
@@ -203,18 +203,18 @@ namespace Azos.Tests.Unit.Serialization
             var expected=
 @"
 {
-  ""Important"": true, 
-  ""Patient"": 
+  ""Important"": true,
+  ""Patient"":
     {
-      ""LastName"": ""Kozloff"", 
-      ""FirstName"": ""Alexander"", 
+      ""LastName"": ""Kozloff"",
+      ""FirstName"": ""Alexander"",
       ""Occupation"": ""Idiot""
-    }, 
-  ""Salaries"": [30000, 78000, 125000, 4000000], 
-  ""Cars"": [""Buick"", ""Ferrari"", ""Lada"", 
+    },
+  ""Salaries"": [30000, 78000, 125000, 4000000],
+  ""Cars"": [""Buick"", ""Ferrari"", ""Lada"",
       {
-        ""Make"": ""Zaporozhets"", 
-        ""Model"": ""Gorbatiy"", 
+        ""Make"": ""Zaporozhets"",
+        ""Model"": ""Gorbatiy"",
         ""Year"": 1971
       }]
 }";
@@ -468,7 +468,7 @@ namespace Azos.Tests.Unit.Serialization
             Aver.AreEqual(@"{""a"":23,""b"":true,""d"":11,""e"":""aaa""}", json);
         }
 
-            private class OptRow: TypedRow
+            private class OptRow: TypedDoc
             {
               [Field]
               public string ID { get; set;}
@@ -477,7 +477,7 @@ namespace Azos.Tests.Unit.Serialization
               [Field(targetName: "BBB", backendName: "bln")]
               public string LongName{get; set;}
 
-              [Field(targetName: "AAA", storeFlag: Azos.DataAccess.StoreFlag.None)]
+              [Field(targetName: "AAA", storeFlag: Azos.Data.StoreFlag.None)]
               public string Hidden{get; set;}
             }
 
@@ -518,7 +518,7 @@ namespace Azos.Tests.Unit.Serialization
         }
 
 
-            private class FieldWithDefaultsRow: TypedRow
+            private class FieldWithDefaultsRow: TypedDoc
             {
               [Field]
               public string ID { get; set;}

@@ -6,9 +6,9 @@
  
 using System;
 
-using NFX;
+
 using Azos.Scripting;
-using Azos.DataAccess.Distributed;
+
 
 namespace Azos.Tests.Unit
 {

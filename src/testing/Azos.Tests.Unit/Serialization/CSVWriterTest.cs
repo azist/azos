@@ -3,19 +3,15 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Azos.Scripting;
-
-using Azos.DataAccess;
-using Azos.DataAccess.CRUD;
-using Azos.Serialization.CSV;
 using System.IO;
+using System.Text;
+
+using Azos.Apps;
+using Azos.Data;
+using Azos.Scripting;
+using Azos.Serialization.CSV;
 
 namespace Azos.Tests.Unit.Serialization
 {
@@ -151,7 +147,7 @@ namespace Azos.Tests.Unit.Serialization
 
       var test = encoding.GetBytes(m_Header + m_Data);
 
-      Aver.IsTrue(IOMiscUtils.MemBufferEquals(test, buffer));
+      Aver.IsTrue(IOUtils.MemBufferEquals(test, buffer));
     }
 
     [Run]
@@ -172,7 +168,7 @@ namespace Azos.Tests.Unit.Serialization
     [Run]
     public void NullRowOrRowset()
     {
-      var res = CSVWriter.Write((Row)null);
+      var res = CSVWriter.Write((Doc)null);
       Aver.IsTrue(res == string.Empty);
 
       res = CSVWriter.Write((Rowset)null);
@@ -197,7 +193,7 @@ namespace Azos.Tests.Unit.Serialization
       Aver.AreEqual(test, res);
     }
 
-    private class TeztRow : TypedRow
+    private class TeztRow : TypedDoc
     {
       [Field] public string   SimpleStr  { get; set; }
       [Field] public int      IntValue   { get; set; }
@@ -212,7 +208,7 @@ namespace Azos.Tests.Unit.Serialization
       [Field] public string   Comma      { get; set; }
     }
 
-    private class NonWritable : TypedRow
+    private class NonWritable : TypedDoc
     {
       [Field(nonUI:true)] public string FieldA { get; set; }
       [Field(storeFlag: StoreFlag.None)] public string FieldB { get; set; }

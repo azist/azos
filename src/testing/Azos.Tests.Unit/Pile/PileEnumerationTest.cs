@@ -17,10 +17,10 @@ using System.Threading.Tasks;
 
 using Azos.Scripting;
 
-using NFX;
-using Azos.Apps.Pile;
 
-namespace Azos.Tests.Unit.AppModel.Pile
+using Azos.Pile;
+
+namespace Azos.Tests.Unit.Pile
 {
   [Runnable]
   public class PileEnumerationTest : IRunHook

@@ -14,11 +14,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
-using Azos.Apps.Pile;
+using Azos.Pile;
 using Azos.Conf;
-using Azos.DataAccess.Distributed;
 
-namespace Azos.Tests.Unit.AppModel.Pile
+
+namespace Azos.Tests.Unit.Pile
 {
     public static class PileCacheTestCore
     {

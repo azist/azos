@@ -12,8 +12,8 @@ using System.Text;
 
 using Azos.Scripting;
 
-using NFX;
-using Azos.DataAccess.Distributed;
+
+
 
 namespace Azos.Tests.Unit
 {

@@ -11,7 +11,7 @@ using System.Text;
 using Azos.Scripting;
 
 
-using Azos.DataAccess.CRUD;
+using Azos.Data;
 
 
 namespace Azos.Tests.Unit.DataAccess
@@ -23,7 +23,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void BuildUsingTypedSchema()
         {
-            var person = new DynamicRow(Schema.GetForTypedRow(typeof(Person)));
+            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
 
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
@@ -60,7 +60,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void SetValuesAsDifferentTypes()
         {
-            var person = new DynamicRow(Schema.GetForTypedRow(typeof(Person)));
+            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
 
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
@@ -101,7 +101,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void SetGetAndValidate_NoError()
         {
-            var person = new DynamicRow(Schema.GetForTypedRow(typeof(Person)));
+            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
 
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
@@ -122,7 +122,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Validate_Error_StringRequired()
         {
-            var person = new DynamicRow(Schema.GetForTypedRow(typeof(Person)));
+            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] = null;
@@ -138,7 +138,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Validate_Error_NullableIntRequired()
         {
-            var person = new DynamicRow(Schema.GetForTypedRow(typeof(Person)));
+            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] ="Popov";
@@ -154,7 +154,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Validate_Error_DecimalMinMax_1()
         {
-            var person = new DynamicRow(Schema.GetForTypedRow(typeof(Person)));
+            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] ="Popov";
@@ -172,7 +172,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Validate_Error_DecimalMinMax_2()
         {
-            var person = new DynamicRow(Schema.GetForTypedRow(typeof(Person)));
+            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] ="Popov";
@@ -191,7 +191,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Validate_Error_DateTimeMinMax_1()
         {
-            var person = new DynamicRow(Schema.GetForTypedRow(typeof(Person)));
+            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] ="Popov";
@@ -210,7 +210,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Validate_Error_DateTimeMinMax_DifferentTarget()
         {
-            var person = new DynamicRow(Schema.GetForTypedRow(typeof(Person)));
+            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] ="Popov";
@@ -225,7 +225,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Validate_Error_MaxLength()
         {
-            var person = new DynamicRow(Schema.GetForTypedRow(typeof(Person)));
+            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] ="Popov";
@@ -245,7 +245,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Validate_Error_ValueList()
         {
-             var person = new DynamicRow(Schema.GetForTypedRow(typeof(Person)));
+             var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] ="Popov";
@@ -275,7 +275,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Equality()
         {
-            var person1 = new DynamicRow(Schema.GetForTypedRow(typeof(Person)));
+            var person1 = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
             person1["ID"] = "POP1";
             person1["FirstName"] = "Oleg";
             person1["LastName"] = "Popov";
@@ -284,7 +284,7 @@ namespace Azos.Tests.Unit.DataAccess
             person1["Amount"] = 100;
             person1["Description"]="Wanted to go to the moon";
 
-            var person2 = new DynamicRow(Schema.GetForTypedRow(typeof(Person)));
+            var person2 = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
             person2["ID"] = "POP1";
             person2["FirstName"] = "Egor";
             person2["LastName"] = "Pedorov";

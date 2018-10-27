@@ -12,7 +12,7 @@ using System.Text;
 using System.IO;
 using Azos.Scripting;
 
-using Azos.DataAccess.CRUD;
+using Azos.Data;
 
 
 namespace Azos.Tests.Unit.DataAccess
@@ -70,17 +70,17 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void SchemaEquivalence()
         {
-            Aver.IsTrue( Schema.GetForTypedRow(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedRow(typeof(MyCar2)), false ));
-            Aver.IsFalse( Schema.GetForTypedRow(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedRow(typeof(MyCarDiffOrder)), false ));
+            Aver.IsTrue( Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCar2)), false ));
+            Aver.IsFalse( Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCarDiffOrder)), false ));
 
-            Aver.IsFalse( Schema.GetForTypedRow(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedRow(typeof(MyCar3)), false ));
-            Aver.IsFalse( Schema.GetForTypedRow(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedRow(typeof(MyCar4)), false ));
-            Aver.IsFalse( Schema.GetForTypedRow(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedRow(typeof(MyCar5)), false ));
+            Aver.IsFalse( Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCar3)), false ));
+            Aver.IsFalse( Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCar4)), false ));
+            Aver.IsFalse( Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCar5)), false ));
         }
     }
 
 
-    public class MyCar : TypedRow
+    public class MyCar : TypedDoc
     {
       
       [Field(formatRegExp: @"^[A-Z0-9\-]+$",
@@ -94,7 +94,7 @@ namespace Azos.Tests.Unit.DataAccess
       public string Sex{ get; set;}
     }
 
-    public class MyCar2 : TypedRow
+    public class MyCar2 : TypedDoc
     {
       
       [Field(formatRegExp: @"^[A-Z0-9\-]+$",
@@ -108,7 +108,7 @@ namespace Azos.Tests.Unit.DataAccess
       public string Sex{ get; set;}
     }
 
-    public class MyCarDiffOrder : TypedRow
+    public class MyCarDiffOrder : TypedDoc
     {
       
       [Field(formatRegExp: @"^[A-Z0-9\-]+$",
@@ -122,7 +122,7 @@ namespace Azos.Tests.Unit.DataAccess
       public string Sex{ get; set;}
     }
 
-    public class MyCar3 : TypedRow
+    public class MyCar3 : TypedDoc
     {
       
       [Field(formatRegExp: @"^[A-Z0-8\-]+$",  //difference in regexp
@@ -133,7 +133,7 @@ namespace Azos.Tests.Unit.DataAccess
       public int Milage{ get; set;}
     }
 
-    public class MyCar4 : TypedRow
+    public class MyCar4 : TypedDoc
     {
       
       [Field(formatRegExp: @"^[A-Z0-9\-]+$",
@@ -145,7 +145,7 @@ namespace Azos.Tests.Unit.DataAccess
     }
 
 
-    public class MyCar5 : TypedRow
+    public class MyCar5 : TypedDoc
     {
       
       [Field(formatRegExp: @"^[A-Z0-9\-]+$",

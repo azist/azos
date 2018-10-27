@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,9 +69,9 @@ static string conf3 = @"
             {
                 app.Log.Write(Log.MessageType.Info, "Khello!");
 
-                Aver.AreEqual(1, ((LogService)app.Log).Destinations.Count());
+                Aver.AreEqual(1, ((LogService)app.Log).Sinks.Count());
                 System.Threading.Thread.Sleep(1000);//wait for flush
-                Aver.IsNotNull( ((listDestination)((LogService)app.Log).Destinations.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
+                Aver.IsNotNull( ((listDestination)((LogService)app.Log).Sinks.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
             }
 
         }
@@ -84,9 +84,9 @@ static string conf3 = @"
             {
                 app.Log.Write(Log.MessageType.Info, "Khello!");
 
-                Aver.AreEqual(1, ((LogService)app.Log).Destinations.Count());
+                Aver.AreEqual(1, ((LogService)app.Log).Sinks.Count());
                 System.Threading.Thread.Sleep(1000);//wait for flush
-                Aver.IsNotNull( ((listDestination)((LogService)app.Log).Destinations.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
+                Aver.IsNotNull( ((listDestination)((LogService)app.Log).Sinks.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
             }
 
         }
@@ -107,7 +107,7 @@ static string conf3 = @"
 
 
 
-                        internal class listDestination : Azos.Log.Destinations.Destination
+                        internal class listDestination : Log.Sinks.Sink
                         {
                             public MessageList List = new MessageList();
 
@@ -118,7 +118,7 @@ static string conf3 = @"
                         }
 
 
-                        public class AlwaysLogBehavior : Azos.Conf.Behavior
+                        public class AlwaysLogBehavior : Conf.Behavior
                         {
                             public AlwaysLogBehavior() : base() {}
 
@@ -128,7 +128,7 @@ static string conf3 = @"
                                 {
                                    var svc = (Log.LogService)target;
 
-                                   svc.RegisterDestination( new listDestination());
+                                   svc.RegisterSink( new listDestination());
                                 }
                             }
                         }

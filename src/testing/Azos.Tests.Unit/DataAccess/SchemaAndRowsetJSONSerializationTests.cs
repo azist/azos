@@ -12,9 +12,9 @@ using System.Linq;
 using System.Text;
 using Azos.Scripting;
 
-using Azos.DataAccess;
-using Azos.DataAccess.CRUD;
-using Azos.DataAccess.Distributed;
+
+using Azos.Data;
+
 using Azos.Serialization.JSON;
 
 
@@ -424,13 +424,13 @@ namespace Azos.Tests.Unit.DataAccess
         Aver.IsTrue(trg["FieldWithAttrs2"].Attrs.SequenceEqual(src["FieldWithAttrs2"].Attrs));
       }
 
-      public class Person : TypedRow
+      public class Person : TypedDoc
       {
         [Field] public string Name { get; set; }
         [Field] public int Age { get; set; }
       }
 
-      private class TeztRow : TypedRow
+      private class TeztRow : TypedDoc
       {
         [Field] public bool BoolField { get; set;}
         [Field] public char CharField { get; set;}

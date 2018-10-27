@@ -3,27 +3,20 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 
 
-using NFX;
-using Azos.Apps.Pile;
-using Azos.DataAccess.Distributed;
-using Azos.DataAccess.CRUD;
+using Azos.Apps;
+using Azos.Data;
+using Azos.Pile;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
 
-namespace Azos.Tests.Unit.AppModel.Pile
+namespace Azos.Tests.Unit.Pile
 {
   [Runnable]
   public class PileTests3 : IRunHook
@@ -102,9 +95,9 @@ Read 111,000 in 6,247 ms at 17,906 ops/sec
 
 
       [Serializable]
-      public class HeavyProductRow : TypedRow
+      public class HeavyProductRow : TypedDoc
       {
-          public class SKURow : TypedRow
+          public class SKURow : TypedDoc
           {
             [Field] public GDID GDID { get; set;}
             [Field] public string SKU { get; set;}
@@ -117,7 +110,7 @@ Read 111,000 in 6,247 ms at 17,906 ops/sec
             [Field] public string[] Options { get; set;}
           }
 
-          public class PriceRow : TypedRow
+          public class PriceRow : TypedDoc
           {
             [Field] public GDID GDID { get; set;}
             [Field] public int Qty { get; set;}

@@ -3,9 +3,10 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 
+using Azos.Apps;
 using Azos.Conf;
 using Azos.Scripting;
 using Azos.Web.Social;
@@ -18,7 +19,7 @@ namespace Azos.Tests.Unit.Social
     [Run]
     public void SerializeDeserializeFB()
     {
-      using(var app = new ApplicationModel.TestApplication(m_RootCfg))
+      using(var app = new TestApplication(m_RootCfg))
       {
         var ui = new FacebookSocialUserInfo(Facebook.Instance);
 

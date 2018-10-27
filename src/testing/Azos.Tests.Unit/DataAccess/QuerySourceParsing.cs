@@ -10,8 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Azos.DataAccess;
-using Azos.DataAccess.CRUD;
+
+using Azos.Data;
 using Azos.Scripting;
 
 namespace Azos.Tests.Unit.DataAccess

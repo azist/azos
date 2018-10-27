@@ -3,28 +3,24 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 
+using Azos.Apps;
+using Azos.Data;
+using Azos.Financial;
+using Azos.Pile;
 using Azos.Scripting;
-
-using Azos.Apps.Pile;
-using Azos.IO;
 using Azos.Serialization.Arow;
 using Azos.Serialization.JSON;
-using Azos.DataAccess.CRUD;
-using Azos.Financial;
-using Azos.DataAccess.Distributed;
+
 
 namespace Azos.Tests.Unit.Serialization
 {
   [Runnable(TRUN.BASE)]
-  public class SimplePersonRow : TypedRow
+  public class SimplePersonRow : TypedDoc
   {
     [Field(backendName: "id",   isArow: true)]public GDID ID{get; set;}
     [Field(backendName: "name", isArow: true)]public string Name{get; set;}
@@ -46,7 +42,7 @@ namespace Azos.Tests.Unit.Serialization
 
 
   [Arow]
-  public class FamilyRow : TypedRow
+  public class FamilyRow : TypedDoc
   {
     [Field(backendName: "id",   isArow: true)] public GDID ID{get; set;}
     [Field(backendName: "fam",  isArow: true)] public string Name{get; set;}
@@ -63,7 +59,7 @@ namespace Azos.Tests.Unit.Serialization
 
 
   [Arow]
-  public class AllArowTypesRow : TypedRow
+  public class AllArowTypesRow : TypedDoc
   {
     [Field(backendName: "bool1",   isArow: true)]public bool       Bool1{get; set;}
     [Field(backendName: "bool2",   isArow: true)]public bool?      Bool2{get; set;}
@@ -233,7 +229,7 @@ namespace Azos.Tests.Unit.Serialization
 
 
   [Arow]
-  public class Ver1Row : AmorphousTypedRow
+  public class Ver1Row : AmorphousTypedDoc
   {
     [Field(backendName: "a", isArow: true)]public string A {get; set;}
     [Field(backendName: "b", isArow: true)]public int    B {get; set;}
@@ -245,7 +241,7 @@ namespace Azos.Tests.Unit.Serialization
   }
 
   [Arow]
-  public class Ver2Row : AmorphousTypedRow
+  public class Ver2Row : AmorphousTypedDoc
   {
     [Field(backendName: "a", isArow: true)]public string  A {get; set;}
     [Field(backendName: "be", isArow: true)]public int    B {get; set;}

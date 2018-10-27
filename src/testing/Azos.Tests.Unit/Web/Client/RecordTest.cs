@@ -12,8 +12,8 @@ using System.Text;
 
 using Azos.Scripting;
 
-using Azos.DataAccess;
-using Azos.DataAccess.CRUD;
+
+using Azos.Data;
 using Azos.Serialization.JSON;
 using Azos.Wave;
 using Azos.Wave.Client;

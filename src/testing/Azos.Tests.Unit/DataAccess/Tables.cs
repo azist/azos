@@ -11,7 +11,7 @@ using System.Text;
 using Azos.Scripting;
 
 
-using Azos.DataAccess.CRUD;
+using Azos.Data;
 
 
 namespace Azos.Tests.Unit.DataAccess
@@ -23,7 +23,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void PopulateAndFindKey_TypedRows()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<1000; i++)
              tbl.Insert( new Person{
@@ -52,7 +52,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void PopulateAndCloneThenFindKey_TypedRows()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<1000; i++)
              tbl.Insert( new Person{
@@ -84,7 +84,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void PopulateAndFindKey_MixedRows()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<1000; i++)
             {
@@ -126,7 +126,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void FindIndexByKey_DynamicRows()
         {
-          var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+          var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
           for (var i = 0; i < 10; i++)
           {
@@ -157,7 +157,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void FindIndexByKey_TypedRows()
         {
-          var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+          var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
           for (var i = 0; i < 10; i++)
             tbl.Insert(new Person
@@ -185,7 +185,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void PopulateAndFindKey_DynamicRows()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<1000; i++)
             {
@@ -218,7 +218,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void PopulateAndFindCompositeKey_TypedRows()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(WithCompositeKey)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(WithCompositeKey)));
 
             for(var i=0; i<1000; i++)
              tbl.Insert( new WithCompositeKey{
@@ -271,7 +271,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void PopulateAndUpdateExisting()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<1000; i++)
              tbl.Insert( new Person{
@@ -304,7 +304,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void PopulateAndUpdateNonExisting()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<1000; i++)
              tbl.Insert( new Person{
@@ -336,7 +336,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void PopulateAndUpsertExisting()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<1000; i++)
              tbl.Insert( new Person{
@@ -369,7 +369,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void PopulateAndUpsertExistingWithMigration()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<20; i++)
              tbl.Insert( new Person{
@@ -423,7 +423,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void PopulateAndUpsertNonExisting()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<1000; i++)
              tbl.Insert( new Person{
@@ -463,7 +463,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void PopulateAndDeleteExisting()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<1000; i++)
              tbl.Insert( new Person{
@@ -490,7 +490,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void PopulateAndDeleteNonExisting()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<1000; i++)
              tbl.Insert( new Person{
@@ -517,7 +517,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void PopulateAndDeleteExisting_UsingValues()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<1000; i++)
              tbl.Insert( new Person{
@@ -541,7 +541,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void LogChanges_Insert()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
             tbl.LogChanges = true;
 
             tbl.Insert( new Person{
@@ -561,7 +561,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void LogChanges_Update()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
 
             tbl.Insert( new Person{
@@ -584,7 +584,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void LogChanges_Upsert()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             tbl.LogChanges = true;
 
@@ -606,7 +606,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void LogChanges_Delete()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
 
             tbl.Insert( new Person{

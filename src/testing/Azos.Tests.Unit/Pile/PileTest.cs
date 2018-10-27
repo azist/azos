@@ -3,25 +3,19 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 
-using NFX;
+
+using System;
+using System.Reflection;
+
+
 using Azos.Apps;
-using Azos.Apps.Pile;
-using Azos.DataAccess.Distributed;
+using Azos.Data;
+using Azos.Pile;
+
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit.AppModel.Pile
+namespace Azos.Tests.Unit.Pile
 {
   [Runnable(TRUN.BASE, 7)]
   public class PileTest : IRunHook
@@ -312,7 +306,7 @@ namespace Azos.Tests.Unit.AppModel.Pile
 
           for (ulong i = 0; i < CNT; i++)
           {
-            var str = Azos.Parsing.NaturalTextGenerator.Generate(179);
+            var str = Text.NaturalTextGenerator.Generate(179);
             ppp[i] = new Tuple<PilePointer,string>( ipile.Put(str), str);
           }
 

@@ -3,22 +3,17 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
-using NFX;
-using Azos.Apps.Pile;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+
+using Azos.Pile;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit.AppModel.Pile
+namespace Azos.Tests.Unit.Pile
 {
   [Runnable(TRUN.BASE, 8)]
   public class PointerCacheTest

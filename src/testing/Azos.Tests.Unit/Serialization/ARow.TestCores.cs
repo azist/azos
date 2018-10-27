@@ -9,9 +9,9 @@
 
 using System;
 using System.Collections.Generic;
-using NFX;
+
 using Azos.IO;
-using Azos.DataAccess.CRUD;
+using Azos.Data;
 using Azos.Serialization.Arow;
 using AW = Azos.Serialization.Arow.Writer;
 
@@ -27,7 +27,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
        ArowSerializer.Register(typeof(Azos.Tests.Unit.Serialization.SimplePersonRow), this);
     }
 
-    void ITypeSerializationCore.Serialize(TypedRow aRow, WritingStreamer streamer)
+    void ITypeSerializationCore.Serialize(TypedDoc aRow, WritingStreamer streamer)
     {
       var row = (Azos.Tests.Unit.Serialization.SimplePersonRow)aRow;
       // 'id' = 26980
@@ -54,7 +54,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
       AW.Write(streamer, 7564402, row.Salary);
     }
 
-    void ITypeSerializationCore.Deserialize(TypedRow aRow, ReadingStreamer streamer)
+    void ITypeSerializationCore.Deserialize(TypedDoc aRow, ReadingStreamer streamer)
     {
       var row = (Azos.Tests.Unit.Serialization.SimplePersonRow)aRow;
       while(true)
@@ -124,7 +124,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
        ArowSerializer.Register(typeof(Azos.Tests.Unit.Serialization.SimplePersonWithEnumRow), this);
     }
 
-    void ITypeSerializationCore.Serialize(TypedRow aRow, WritingStreamer streamer)
+    void ITypeSerializationCore.Serialize(TypedDoc aRow, WritingStreamer streamer)
     {
       var row = (Azos.Tests.Unit.Serialization.SimplePersonWithEnumRow)aRow;
       // 'id' = 26980
@@ -153,7 +153,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
       Writer.Write(streamer, 7168370, (int)row.Married);
     }
 
-    void ITypeSerializationCore.Deserialize(TypedRow aRow, ReadingStreamer streamer)
+    void ITypeSerializationCore.Deserialize(TypedDoc aRow, ReadingStreamer streamer)
     {
       var row = (Azos.Tests.Unit.Serialization.SimplePersonWithEnumRow)aRow;
       while(true)
@@ -229,7 +229,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
        ArowSerializer.Register(typeof(Azos.Tests.Unit.Serialization.FamilyRow), this);
     }
 
-    void ITypeSerializationCore.Serialize(TypedRow aRow, WritingStreamer streamer)
+    void ITypeSerializationCore.Serialize(TypedDoc aRow, WritingStreamer streamer)
     {
       var row = (Azos.Tests.Unit.Serialization.FamilyRow)aRow;
       // 'id' = 26980
@@ -262,7 +262,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
       else AW.WriteNull(streamer, 6382710);
     }
 
-    void ITypeSerializationCore.Deserialize(TypedRow aRow, ReadingStreamer streamer)
+    void ITypeSerializationCore.Deserialize(TypedDoc aRow, ReadingStreamer streamer)
     {
       var row = (Azos.Tests.Unit.Serialization.FamilyRow)aRow;
       while(true)
@@ -345,7 +345,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
        ArowSerializer.Register(typeof(Azos.Tests.Unit.Serialization.AllArowTypesRow), this);
     }
 
-    void ITypeSerializationCore.Serialize(TypedRow aRow, WritingStreamer streamer)
+    void ITypeSerializationCore.Serialize(TypedDoc aRow, WritingStreamer streamer)
     {
       var row = (Azos.Tests.Unit.Serialization.AllArowTypesRow)aRow;
       // 'bool1' = 422776368177
@@ -664,7 +664,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
       else AW.WriteNull(streamer, 1919710068);
     }
 
-    void ITypeSerializationCore.Deserialize(TypedRow aRow, ReadingStreamer streamer)
+    void ITypeSerializationCore.Deserialize(TypedDoc aRow, ReadingStreamer streamer)
     {
       var row = (Azos.Tests.Unit.Serialization.AllArowTypesRow)aRow;
       while(true)
@@ -1558,7 +1558,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
        ArowSerializer.Register(typeof(Azos.Tests.Unit.Serialization.Ver1Row), this);
     }
 
-    void ITypeSerializationCore.Serialize(TypedRow aRow, WritingStreamer streamer)
+    void ITypeSerializationCore.Serialize(TypedDoc aRow, WritingStreamer streamer)
     {
       var row = (Azos.Tests.Unit.Serialization.Ver1Row)aRow;
       // 'a' = 97
@@ -1587,7 +1587,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
       else AW.WriteNull(streamer, 103);
     }
 
-    void ITypeSerializationCore.Deserialize(TypedRow aRow, ReadingStreamer streamer)
+    void ITypeSerializationCore.Deserialize(TypedDoc aRow, ReadingStreamer streamer)
     {
       var row = (Azos.Tests.Unit.Serialization.Ver1Row)aRow;
       while(true)
@@ -1663,7 +1663,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
        ArowSerializer.Register(typeof(Azos.Tests.Unit.Serialization.Ver2Row), this);
     }
 
-    void ITypeSerializationCore.Serialize(TypedRow aRow, WritingStreamer streamer)
+    void ITypeSerializationCore.Serialize(TypedDoc aRow, WritingStreamer streamer)
     {
       var row = (Azos.Tests.Unit.Serialization.Ver2Row)aRow;
       // 'a' = 97
@@ -1692,7 +1692,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
       else AW.WriteNull(streamer, 26469);
     }
 
-    void ITypeSerializationCore.Deserialize(TypedRow aRow, ReadingStreamer streamer)
+    void ITypeSerializationCore.Deserialize(TypedDoc aRow, ReadingStreamer streamer)
     {
       var row = (Azos.Tests.Unit.Serialization.Ver2Row)aRow;
       while(true)

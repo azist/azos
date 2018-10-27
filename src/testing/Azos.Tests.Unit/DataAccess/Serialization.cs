@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using Azos.Scripting;
 
-using Azos.DataAccess.CRUD;
+using Azos.Data;
 using Azos.Serialization.Slim;
 using Azos.Serialization.JSON;
 
@@ -25,7 +25,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Slim_SerializeTable_TypedRows()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<1000; i++)
              tbl.Insert( new Person{
@@ -58,7 +58,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Slim_SerializeTable_DynamicRows()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<1000; i++)
             {
@@ -93,7 +93,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Slim_SerializeTable_ComplexTypedRows()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(PersonWithNesting)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(PersonWithNesting)));
 
             for(var i=0; i<1000; i++)
              tbl.Insert( new PersonWithNesting{
@@ -179,7 +179,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void JSON_SerializeRowset_TypedRows()
         {
-            var rowset = new Rowset(Schema.GetForTypedRow(typeof(Person)));
+            var rowset = new Rowset(Schema.GetForTypedDoc(typeof(Person)));
 
             for(var i=0; i<10; i++)
              rowset.Insert( new Person{
@@ -199,7 +199,7 @@ namespace Azos.Tests.Unit.DataAccess
 
             Aver.AreEqual("Popov-1", rowset2.Rows[1][2]);
 
-            RowsetBase rowset3 = new Rowset(Schema.GetForTypedRow(typeof(Person)));
+            RowsetBase rowset3 = new Rowset(Schema.GetForTypedDoc(typeof(Person)));
             var res = Rowset.FromJSON<Person>(json, ref rowset3);
 
             Aver.AreEqual(10, res);
@@ -227,7 +227,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void JSON_SerializeRowset_ComplexTypedRows_Array()
         {
-            var rowset = new Rowset(Schema.GetForTypedRow(typeof(PersonWithNesting)));
+            var rowset = new Rowset(Schema.GetForTypedDoc(typeof(PersonWithNesting)));
 
             for(var i=0; i<10; i++)
              rowset.Insert( new PersonWithNesting{
@@ -259,7 +259,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void JSON_SerializeRowset_ComplexTypedRows_Map()
         {
-            var rowset = new Rowset(Schema.GetForTypedRow(typeof(PersonWithNesting)));
+            var rowset = new Rowset(Schema.GetForTypedDoc(typeof(PersonWithNesting)));
 
             for(var i=0; i<10; i++)
              rowset.Insert( new PersonWithNesting{

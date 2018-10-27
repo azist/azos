@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 using Azos.Scripting;
 
-using NFX;
+
 //using Azos.Security.CAPTCHA;
 
 namespace Azos.Tests.Unit.Security

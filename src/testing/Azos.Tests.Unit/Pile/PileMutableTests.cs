@@ -16,11 +16,11 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-using NFX;
-using Azos.Apps.Pile;
+
+using Azos.Pile;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit.AppModel.Pile
+namespace Azos.Tests.Unit.Pile
 {
   [Runnable(TRUN.BASE, 9)]
   public class PileMutableTests : IRunHook

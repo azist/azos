@@ -16,17 +16,17 @@ using System.Threading.Tasks;
 
 using Azos.Scripting;
 
-using NFX;
+
 using Azos.Apps;
-using Azos.Apps.Pile;
-using Azos.DataAccess;
-using Azos.DataAccess.Distributed;
+using Azos.Pile;
+
+
 using Azos.IO;
 using Azos.Serialization.Slim;
 using Azos.Conf;
 
 
-namespace Azos.Tests.Unit.AppModel.Pile
+namespace Azos.Tests.Unit.Pile
 {
   [Runnable(TRUN.BASE, 7)]
   public class CacheTest

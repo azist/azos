@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +12,9 @@ using System.Text;
 
 using Azos.Scripting;
 
-using Azos.DataAccess.CRUD;
+using Azos.Data;
 using Azos.Serialization.JSON;
-using Azos.DataAccess.Distributed;
+
 
 namespace Azos.Tests.Unit.Serialization
 {
@@ -30,7 +30,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithArrays();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual("Orlov", row.Name);
 
@@ -49,7 +49,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithArrays();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(255, row.UInt8);
 
@@ -73,7 +73,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithArrays();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(-56, row.Int8);
 
@@ -97,7 +97,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithArrays();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(12345, row.Int16);
 
@@ -121,7 +121,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithArrays();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(123, row.UInt16);
 
@@ -145,7 +145,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithArrays();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(123, row.Int32);
 
@@ -169,7 +169,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithArrays();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.IsTrue(123 == row.UInt32);
 
@@ -193,7 +193,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithArrays();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(123, row.Int64);
 
@@ -217,7 +217,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithArrays();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.IsTrue(123 == row.UInt64);
 
@@ -241,7 +241,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithArrays();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(123.456F, row.Single);
 
@@ -265,7 +265,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithArrays();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(123.456D, row.Double);
 
@@ -292,7 +292,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithArrays();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(guid1, row.Guid);
 
@@ -319,7 +319,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithArrays();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(gdid1, row.GDID);
 
@@ -350,7 +350,7 @@ namespace Azos.Tests.Unit.Serialization
             }";
 
             var row = new RowWithArrays();
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.IsNotNull(row.Row);
             Aver.AreEqual("Ivan", row.Row.Name);
@@ -381,7 +381,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithLists();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual("Orlov", row.Name);
 
@@ -400,7 +400,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithLists();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(255, row.UInt8);
 
@@ -424,7 +424,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithLists();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(-56, row.Int8);
 
@@ -448,7 +448,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithLists();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(12345, row.Int16);
 
@@ -472,7 +472,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithLists();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(123, row.UInt16);
 
@@ -496,7 +496,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithLists();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(123, row.Int32);
 
@@ -520,7 +520,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithLists();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.IsTrue(123 == row.UInt32);
 
@@ -544,7 +544,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithLists();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(123, row.Int64);
 
@@ -568,7 +568,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithLists();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.IsTrue(123 == row.UInt64);
 
@@ -592,7 +592,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithLists();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(123.456F, row.Single);
 
@@ -616,7 +616,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithLists();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(123.456D, row.Double);
 
@@ -643,7 +643,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithLists();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(guid1, row.Guid);
 
@@ -670,7 +670,7 @@ namespace Azos.Tests.Unit.Serialization
 
             var row = new RowWithLists();
 
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(gdid1, row.GDID);
 
@@ -701,7 +701,7 @@ namespace Azos.Tests.Unit.Serialization
             }";
 
             var row = new RowWithLists();
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.IsNotNull(row.Row);
             Aver.AreEqual("Ivan", row.Row.Name);
@@ -730,8 +730,8 @@ namespace Azos.Tests.Unit.Serialization
         {
             var str = @"{ Name_1: ""Orlov"", StringArray_1: [""a"", null, ""b""]}";
 
-            var row = new AmorphousRow(Schema.GetForTypedRow(typeof(RowWithArrays)));
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            var row = new AmorphousRow(Schema.GetForTypedDoc(typeof(RowWithArrays)));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreObjectsEqual("Orlov", row.AmorphousData["Name_1"]);
 
@@ -748,8 +748,8 @@ namespace Azos.Tests.Unit.Serialization
         {
             var str = @"{UInt8_1: 255, UInt8Array_1: [1, 0, 255], UInt8NArray_1: [null, 0, 124]}";
 
-            var row = new AmorphousRow(Schema.GetForTypedRow(typeof(RowWithArrays)));
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            var row = new AmorphousRow(Schema.GetForTypedDoc(typeof(RowWithArrays)));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreObjectsEqual(255, row.AmorphousData["UInt8_1"]);
 
@@ -773,8 +773,8 @@ namespace Azos.Tests.Unit.Serialization
         {
             var str = @"{Int8_1: -56, Int8Array_1: [-1, 0, 127], Int8NArray_1: [null, 0, 127]}";
 
-            var row = new AmorphousRow(Schema.GetForTypedRow(typeof(RowWithArrays)));
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            var row = new AmorphousRow(Schema.GetForTypedDoc(typeof(RowWithArrays)));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreObjectsEqual(-56, row.AmorphousData["Int8_1"]);
 
@@ -798,8 +798,8 @@ namespace Azos.Tests.Unit.Serialization
         {
             var str = @"{Int16_1: 12345, Int16Array_1: [32767, 0, -32768], Int16NArray_1: [null, 0, 32767]}";
 
-            var row = new AmorphousRow(Schema.GetForTypedRow(typeof(RowWithArrays)));
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            var row = new AmorphousRow(Schema.GetForTypedDoc(typeof(RowWithArrays)));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreObjectsEqual(12345, row.AmorphousData["Int16_1"]);
 
@@ -823,8 +823,8 @@ namespace Azos.Tests.Unit.Serialization
         {
             var str = @"{UInt16_1: 123, UInt16Array_1: [65535, 0, 12345], UInt16NArray_1: [null, 0, 65535]}";
 
-            var row = new AmorphousRow(Schema.GetForTypedRow(typeof(RowWithArrays)));
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            var row = new AmorphousRow(Schema.GetForTypedDoc(typeof(RowWithArrays)));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreObjectsEqual(123, row.AmorphousData["UInt16_1"]);
 
@@ -848,8 +848,8 @@ namespace Azos.Tests.Unit.Serialization
         {
             var str = @"{Int32_1: 123, Int32Array_1: [2147483647, 0, -2147483648], Int32NArray_1: [null, 0, 2147483647]}";
 
-            var row = new AmorphousRow(Schema.GetForTypedRow(typeof(RowWithArrays)));
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            var row = new AmorphousRow(Schema.GetForTypedDoc(typeof(RowWithArrays)));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreObjectsEqual(123, row.AmorphousData["Int32_1"]);
 
@@ -873,8 +873,8 @@ namespace Azos.Tests.Unit.Serialization
         {
             var str = @"{UInt32_1: 123, UInt32Array_1: [4294967295, 0, 124], UInt32NArray_1: [null, 0, 4294967295]}";
 
-            var row = new AmorphousRow(Schema.GetForTypedRow(typeof(RowWithArrays)));
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            var row = new AmorphousRow(Schema.GetForTypedDoc(typeof(RowWithArrays)));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreObjectsEqual(123, row.AmorphousData["UInt32_1"]);
 
@@ -898,8 +898,8 @@ namespace Azos.Tests.Unit.Serialization
         {
             var str = @"{Int64_1: 123, Int64Array_1: [9223372036854775807, 0, -9223372036854775808], Int64NArray_1: [null, 0, 9223372036854775807]}";
 
-            var row = new AmorphousRow(Schema.GetForTypedRow(typeof(RowWithArrays)));
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            var row = new AmorphousRow(Schema.GetForTypedDoc(typeof(RowWithArrays)));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreObjectsEqual(123, row.AmorphousData["Int64_1"]);
 
@@ -923,8 +923,8 @@ namespace Azos.Tests.Unit.Serialization
         {
             var str = @"{UInt64_1: 123, UInt64Array_1: [18446744073709551615, 0, 124], UInt64NArray_1: [null, 0, 18446744073709551615]}";
 
-            var row = new AmorphousRow(Schema.GetForTypedRow(typeof(RowWithArrays)));
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            var row = new AmorphousRow(Schema.GetForTypedDoc(typeof(RowWithArrays)));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreObjectsEqual(123, row.AmorphousData["UInt64_1"]);
 
@@ -948,8 +948,8 @@ namespace Azos.Tests.Unit.Serialization
         {
             var str = @"{Single_1: 123.456, SingleArray_1: [3.4028E+38, 0, -3.402E+38], SingleNArray_1: [null, 0, 3.4028]}";
 
-            var row = new AmorphousRow(Schema.GetForTypedRow(typeof(RowWithArrays)));
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            var row = new AmorphousRow(Schema.GetForTypedDoc(typeof(RowWithArrays)));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(123.456F, row.AmorphousData["Single_1"].AsFloat());
 
@@ -973,8 +973,8 @@ namespace Azos.Tests.Unit.Serialization
         {
             var str = @"{Double_1: 123.456, DoubleArray_1: [1.79769E+308, 0, -1.7976931E+308], DoubleNArray_1: [null, 0, 3.482347E+38]}";
 
-            var row = new AmorphousRow(Schema.GetForTypedRow(typeof(RowWithArrays)));
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            var row = new AmorphousRow(Schema.GetForTypedDoc(typeof(RowWithArrays)));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreObjectsEqual(123.456D, row.AmorphousData["Double_1"]);
 
@@ -1001,8 +1001,8 @@ namespace Azos.Tests.Unit.Serialization
             var guid3 = Guid.NewGuid();
             var str = "{" + @"Guid_1: ""{0}"", GuidArray_1: [""{0}"", ""{1}"", ""{2}""], GuidNArray_1: [""{0}"", null, ""{2}""]".Args(guid1, guid2, guid3) + "}";
 
-            var row = new AmorphousRow(Schema.GetForTypedRow(typeof(RowWithArrays)));
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            var row = new AmorphousRow(Schema.GetForTypedDoc(typeof(RowWithArrays)));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(guid1, row.AmorphousData["Guid_1"].AsGUID(Guid.Empty));
 
@@ -1029,8 +1029,8 @@ namespace Azos.Tests.Unit.Serialization
             var gdid3 = new GDID(123, 123456789);
             var str = @"{" + @"GDID_1: ""{0}"", GDIDArray_1: [""{0}"", ""{1}"", ""{2}""], GDIDNArray_1: [""{0}"", null, ""{2}""]".Args(gdid1, gdid2, gdid3) + "}";
 
-            var row = new AmorphousRow(Schema.GetForTypedRow(typeof(RowWithArrays)));
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            var row = new AmorphousRow(Schema.GetForTypedDoc(typeof(RowWithArrays)));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             Aver.AreEqual(gdid1, row.AmorphousData["GDID_1"].AsGDID());
 
@@ -1062,8 +1062,8 @@ namespace Azos.Tests.Unit.Serialization
                     ]
             }";
 
-            var row = new AmorphousRow(Schema.GetForTypedRow(typeof(RowWithArrays)));
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+            var row = new AmorphousRow(Schema.GetForTypedDoc(typeof(RowWithArrays)));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
             var innerRow = row.AmorphousData["Row_1"] as JSONDataMap;
             Aver.IsNotNull(innerRow);
@@ -1107,7 +1107,7 @@ namespace Azos.Tests.Unit.Serialization
             }";
 
             var row = new RowWithTargetedNames();
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap, nameBinding: JSONReader.NameBinding.ByBackendName(null));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap, nameBinding: JSONReader.NameBinding.ByBackendName(null));
             Aver.AreEqual( "Ivan",    row.FirstName);
             Aver.AreEqual( "Kozelov", row.LastName);
             Aver.AreEqual( 123,       row.Age);
@@ -1120,7 +1120,7 @@ namespace Azos.Tests.Unit.Serialization
             }";
 
             row = new RowWithTargetedNames();
-            JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap, nameBinding: JSONReader.NameBinding.ByBackendName("MY-TARGET"));
+            JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap, nameBinding: JSONReader.NameBinding.ByBackendName("MY-TARGET"));
             Aver.AreEqual( "Ivan",    row.FirstName);
             Aver.AreEqual( "Kozelov", row.LastName);
             Aver.AreEqual( 123,       row.Age);
@@ -1131,7 +1131,7 @@ namespace Azos.Tests.Unit.Serialization
 
         #region Types
 
-        public class RowWithArrays : TypedRow
+        public class RowWithArrays : TypedDoc
         {
             [Field]
             public string Name { get; set; }
@@ -1228,7 +1228,7 @@ namespace Azos.Tests.Unit.Serialization
             public RowWithArrays[] RowArray { get; set; }
         }
 
-        public class RowWithLists : TypedRow
+        public class RowWithLists : TypedDoc
         {
             [Field]
             public string Name { get; set; }
@@ -1325,7 +1325,7 @@ namespace Azos.Tests.Unit.Serialization
             public List<RowWithLists> RowList { get; set; }
         }
 
-        public class AmorphousRow : AmorphousDynamicRow
+        public class AmorphousRow : AmorphousDynamicDoc
         {
             public AmorphousRow(Schema schema) : base(schema)
             {
@@ -1333,7 +1333,7 @@ namespace Azos.Tests.Unit.Serialization
         }
 
 
-        public class RowWithTargetedNames : TypedRow
+        public class RowWithTargetedNames : TypedDoc
         {
           [Field(backendName: "fn")]
           public string FirstName{ get; set;}

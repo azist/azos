@@ -13,7 +13,7 @@ using System.Runtime.Serialization;
 
 using Azos.Scripting;
 
-using NFX;
+
 using Azos.Serialization.Slim;
 
 

@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +12,12 @@ using System.IO;
 
 using Azos.Scripting;
 
-using Azos.IO;
-using Azos.Conf;
-using Azos.Serialization.Slim;
 using Azos.Apps;
+using Azos.Data;
+using Azos.Conf;
+using Azos.Collections;
+using Azos.IO;
+using Azos.Serialization.Slim;
 
 namespace Azos.Tests.Unit.Serialization
 {

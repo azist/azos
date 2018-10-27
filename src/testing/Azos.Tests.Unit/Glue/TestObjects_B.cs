@@ -292,7 +292,7 @@ namespace Azos.Tests.Unit.Glue
      {
          var t = typeof(Azos.Tests.Unit.Glue.ITestContractB);
          s_ts_CONTRACT = new TypeSpec(t);
-         @s_ms_SetPersonOfTheDay_0 = new MethodSpec(t.GetMethod("SetPersonOfTheDay", new Type[]{ typeof(@Azos.@UTest.@Glue.@PersonData) }));
+         @s_ms_SetPersonOfTheDay_0 = new MethodSpec(t.GetMethod("SetPersonOfTheDay", new Type[]{ typeof(@Azos.@Tests.@Unit.@Glue.@PersonData) }));
          @s_ms_GetPersonOfTheDay_1 = new MethodSpec(t.GetMethod("GetPersonOfTheDay", new Type[]{  }));
          @s_ms_GetName_2 = new MethodSpec(t.GetMethod("GetName", new Type[]{  }));
          @s_ms_GetName_3 = new MethodSpec(t.GetMethod("GetName", new Type[]{ typeof(@System.@Int32) }));
@@ -335,7 +335,7 @@ namespace Azos.Tests.Unit.Glue
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          /// RemoteException is thrown if the server generated exception during method execution.
          ///</summary>
-         public void @SetPersonOfTheDay(@Azos.@UTest.@Glue.@PersonData  @person)
+         public void @SetPersonOfTheDay(@Azos.@Tests.@Unit.@Glue.@PersonData  @person)
          {
             var call = Async_SetPersonOfTheDay(@person);
             call.CheckVoidValue();
@@ -347,7 +347,7 @@ namespace Azos.Tests.Unit.Glue
          ///  returning no exception or WrappedExceptionData instance.
          /// CallSlot is returned that can be queried for CallStatus, ResponseMsg and result.
          ///</summary>
-         public CallSlot Async_SetPersonOfTheDay(@Azos.@UTest.@Glue.@PersonData  @person)
+         public CallSlot Async_SetPersonOfTheDay(@Azos.@Tests.@Unit.@Glue.@PersonData  @person)
          {
             var request = new RequestAnyMsg(s_ts_CONTRACT, @s_ms_SetPersonOfTheDay_0, false, RemoteInstance, new object[]{@person});
             return DispatchCall(request);
@@ -358,14 +358,14 @@ namespace Azos.Tests.Unit.Glue
          ///<summary>
          /// Synchronous invoker for  'Azos.Tests.Unit.Glue.ITestContractB.GetPersonOfTheDay'.
          /// This is a two-way call per contract specification, meaning - the server sends the result back either
-         ///  returning '@Azos.@UTest.@Glue.@PersonData' or WrappedExceptionData instance.
+         ///  returning '@Azos.@Tests.@Unit.@Glue.@PersonData' or WrappedExceptionData instance.
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          /// RemoteException is thrown if the server generated exception during method execution.
          ///</summary>
-         public @Azos.@UTest.@Glue.@PersonData @GetPersonOfTheDay()
+         public @Azos.@Tests.@Unit.@Glue.@PersonData @GetPersonOfTheDay()
          {
             var call = Async_GetPersonOfTheDay();
-            return call.GetValue<@Azos.@UTest.@Glue.@PersonData>();
+            return call.GetValue<@Azos.@Tests.@Unit.@Glue.@PersonData>();
          }
 
          ///<summary>
@@ -499,14 +499,14 @@ namespace Azos.Tests.Unit.Glue
          ///<summary>
          /// Synchronous invoker for  'Azos.Tests.Unit.Glue.ITestContractB.GetPersonalData'.
          /// This is a two-way call per contract specification, meaning - the server sends the result back either
-         ///  returning '@System.@Collections.@Generic.@List<@Azos.@UTest.@Glue.@PersonData>' or WrappedExceptionData instance.
+         ///  returning '@System.@Collections.@Generic.@List<@Azos.@Tests.@Unit.@Glue.@PersonData>' or WrappedExceptionData instance.
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          /// RemoteException is thrown if the server generated exception during method execution.
          ///</summary>
-         public @System.@Collections.@Generic.@List<@Azos.@UTest.@Glue.@PersonData> @GetPersonalData(@System.@Int32[]  @ids)
+         public @System.@Collections.@Generic.@List<@Azos.@Tests.@Unit.@Glue.@PersonData> @GetPersonalData(@System.@Int32[]  @ids)
          {
             var call = Async_GetPersonalData(@ids);
-            return call.GetValue<@System.@Collections.@Generic.@List<@Azos.@UTest.@Glue.@PersonData>>();
+            return call.GetValue<@System.@Collections.@Generic.@List<@Azos.@Tests.@Unit.@Glue.@PersonData>>();
          }
 
          ///<summary>
@@ -526,14 +526,14 @@ namespace Azos.Tests.Unit.Glue
          ///<summary>
          /// Synchronous invoker for  'Azos.Tests.Unit.Glue.ITestContractB.GetPersonalData'.
          /// This is a two-way call per contract specification, meaning - the server sends the result back either
-         ///  returning '@System.@Collections.@Generic.@List<@Azos.@UTest.@Glue.@PersonData>' or WrappedExceptionData instance.
+         ///  returning '@System.@Collections.@Generic.@List<@Azos.@Tests.@Unit.@Glue.@PersonData>' or WrappedExceptionData instance.
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          /// RemoteException is thrown if the server generated exception during method execution.
          ///</summary>
-         public @System.@Collections.@Generic.@List<@Azos.@UTest.@Glue.@PersonData> @GetPersonalData(@System.@Int32[]  @ids, @System.@Boolean  @onlyCertified, @System.@Decimal  @maxSalary)
+         public @System.@Collections.@Generic.@List<@Azos.@Tests.@Unit.@Glue.@PersonData> @GetPersonalData(@System.@Int32[]  @ids, @System.@Boolean  @onlyCertified, @System.@Decimal  @maxSalary)
          {
             var call = Async_GetPersonalData(@ids, @onlyCertified, @maxSalary);
-            return call.GetValue<@System.@Collections.@Generic.@List<@Azos.@UTest.@Glue.@PersonData>>();
+            return call.GetValue<@System.@Collections.@Generic.@List<@Azos.@Tests.@Unit.@Glue.@PersonData>>();
          }
 
          ///<summary>
@@ -553,14 +553,14 @@ namespace Azos.Tests.Unit.Glue
          ///<summary>
          /// Synchronous invoker for  'Azos.Tests.Unit.Glue.ITestContractB.GetDailyStatuses'.
          /// This is a two-way call per contract specification, meaning - the server sends the result back either
-         ///  returning '@System.@Collections.@Generic.@Dictionary<@System.@Nullable<@System.@DateTime>, @System.@Collections.@Generic.@List<@Azos.@UTest.@Glue.@PersonData>>' or WrappedExceptionData instance.
+         ///  returning '@System.@Collections.@Generic.@Dictionary<@System.@Nullable<@System.@DateTime>, @System.@Collections.@Generic.@List<@Azos.@Tests.@Unit.@Glue.@PersonData>>' or WrappedExceptionData instance.
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          /// RemoteException is thrown if the server generated exception during method execution.
          ///</summary>
-         public @System.@Collections.@Generic.@Dictionary<@System.@Nullable<@System.@DateTime>, @System.@Collections.@Generic.@List<@Azos.@UTest.@Glue.@PersonData>> @GetDailyStatuses(@System.@Int32  @count)
+         public @System.@Collections.@Generic.@Dictionary<@System.@Nullable<@System.@DateTime>, @System.@Collections.@Generic.@List<@Azos.@Tests.@Unit.@Glue.@PersonData>> @GetDailyStatuses(@System.@Int32  @count)
          {
             var call = Async_GetDailyStatuses(@count);
-            return call.GetValue<@System.@Collections.@Generic.@Dictionary<@System.@Nullable<@System.@DateTime>, @System.@Collections.@Generic.@List<@Azos.@UTest.@Glue.@PersonData>>>();
+            return call.GetValue<@System.@Collections.@Generic.@Dictionary<@System.@Nullable<@System.@DateTime>, @System.@Collections.@Generic.@List<@Azos.@Tests.@Unit.@Glue.@PersonData>>>();
          }
 
          ///<summary>

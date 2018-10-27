@@ -10,10 +10,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using NFX;
+
 using Azos.Web;
 using Azos.Web.Social;
-using Azos.Wave.MVC;
+using Azos.Wave.Mvc;
 
 namespace Azos.Tests.Unit.Web
 {

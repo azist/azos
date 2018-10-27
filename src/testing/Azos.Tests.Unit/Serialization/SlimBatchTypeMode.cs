@@ -13,7 +13,7 @@ using System.IO;
 
 using Azos.Scripting;
 
-using NFX;
+
 using Azos.Serialization.Slim;
 
 namespace Azos.Tests.Unit.Serialization

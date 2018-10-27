@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Azos.DataAccess.CRUD;
+using Azos.Data;
 using Azos.Scripting;
 using Azos.Serialization.Slim;
 
@@ -24,7 +24,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void TypedRows()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
 
              tbl.Insert( new Person{
@@ -58,7 +58,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void DynamicRows()
         {
-            var tbl = new Table(Schema.GetForTypedRow(typeof(Person)));
+            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
 
                 var row = new DynamicRow( tbl.Schema );

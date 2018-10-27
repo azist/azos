@@ -19,8 +19,8 @@ using Azos.Serialization.Arow;
 using Azos.Serialization.JSON;
 using Azos.Apps;
 using Azos.Financial;
-using Azos.DataAccess.Distributed;
-using Azos.Apps.Pile;
+
+using Azos.Pile;
 
 namespace Azos.Tests.Unit.Serialization
 {

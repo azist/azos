@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ using System.Text;
 
 using Azos.Scripting;
 
-using Azos.DataAccess.CRUD;
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 
@@ -227,9 +227,9 @@ namespace Azos.Tests.Unit.Serialization
         {
           var str = @"{name: ""Orlov"", dob: ""02/12/2007 6:45 PM"", certified: true, serviceyears: 12, salary: 145000}";
 
-          var row = new DynamicRow(Schema.GetForTypedRow(typeof(MySimpleData)));
+          var row = new DynamicDoc(Schema.GetForTypedDoc(typeof(MySimpleData)));
 
-          JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+          JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
           Aver.AreObjectsEqual("Orlov", row["Name"]);
           Aver.AreObjectsEqual(new DateTime(2007, 2, 12, 18, 45, 0), row["DOB"]);
@@ -243,9 +243,9 @@ namespace Azos.Tests.Unit.Serialization
         {
           var str = @"{name: ""Orlov"", dob: ""02/12/2007 6:45 PM"", certified: true, serviceyears: 12, salary: 145000, extra: -1, yes: true}";
 
-          var row = new AmorphousDynamicRow(Schema.GetForTypedRow(typeof(MySimpleData)));
+          var row = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(MySimpleData)));
 
-          JSONReader.ToRow(row, str.JSONToDataObject() as JSONDataMap);
+          JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
 
           Aver.AreObjectsEqual("Orlov", row["Name"]);
           Aver.AreObjectsEqual(new DateTime(2007, 2, 12, 18, 45, 0), row["DOB"]);
@@ -295,7 +295,7 @@ namespace Azos.Tests.Unit.Serialization
 
             DataWithGDID row = str.JSONToDynamic();
 
-            Aver.AreEqual(new Azos.DataAccess.Distributed.GDID(12, 4, 5), row.ID);
+            Aver.AreEqual(new GDID(12, 4, 5), row.ID);
             Aver.AreEqual("Orlov", row.Name);
         }
 
@@ -304,7 +304,7 @@ namespace Azos.Tests.Unit.Serialization
         {
             var row1 = new DataWithGDID
             {
-              ID = new Azos.DataAccess.Distributed.GDID(1,189),
+              ID = new GDID(1,189),
               Name = "Graf Orlov"
             };
 
@@ -314,7 +314,7 @@ namespace Azos.Tests.Unit.Serialization
 
             DataWithGDID row2 = str.JSONToDynamic();
 
-            Aver.AreEqual(new Azos.DataAccess.Distributed.GDID(1, 189), row2.ID);
+            Aver.AreEqual(new GDID(1, 189), row2.ID);
             Aver.AreEqual("Graf Orlov", row2.Name);
         }
 
@@ -588,12 +588,12 @@ namespace Azos.Tests.Unit.Serialization
         }
 
 
-                     private class DataWithGDID : TypedRow
+                     private class DataWithGDID : TypedDoc
                      {
-                       [Field] public Azos.DataAccess.Distributed.GDID ID { get; set;}
+                       [Field] public Azos.Data.GDID ID { get; set;}
                        [Field] public string Name { get; set;}
 
-                       public override bool Equals(Row other)
+                       public override bool Equals(Doc other)
                        {
                          var b = other as DataWithGDID;
                          if (b==null) return false;
@@ -603,7 +603,7 @@ namespace Azos.Tests.Unit.Serialization
                      }
 
 
-                     private class MySimpleData : TypedRow
+                     private class MySimpleData : TypedDoc
                      {
                        [Field] public string Name { get; set;}
                        [Field] public DateTime DOB { get; set;}
@@ -611,7 +611,7 @@ namespace Azos.Tests.Unit.Serialization
                        [Field] public int ServiceYears { get; set;}
                        [Field] public decimal Salary { get; set;}
 
-                       public override bool Equals(Row other)
+                       public override bool Equals(Doc other)
                        {
                          var b = other as MySimpleData;
                          if (b==null) return false;
@@ -623,7 +623,7 @@ namespace Azos.Tests.Unit.Serialization
                        }
                      }
 
-                     private class MySimpleAmorphousData : AmorphousTypedRow
+                     private class MySimpleAmorphousData : AmorphousTypedDoc
                      {
                        [Field] public string Name { get; set;}
                        [Field] public DateTime DOB { get; set;}
@@ -631,7 +631,7 @@ namespace Azos.Tests.Unit.Serialization
                        [Field] public int ServiceYears { get; set;}
                        [Field] public decimal Salary { get; set;}
 
-                       public override bool Equals(Row other)
+                       public override bool Equals(Doc other)
                        {
                          var b = other as MySimpleAmorphousData;
                          if (b==null) return false;
@@ -645,13 +645,13 @@ namespace Azos.Tests.Unit.Serialization
 
 
 
-                     private class MyComplexData : TypedRow
+                     private class MyComplexData : TypedDoc
                      {
                        [Field] public long ID { get; set;}
                        [Field] public MySimpleData D1 { get; set;}
                        [Field] public MySimpleData D2 { get; set;}
 
-                       public override bool Equals(Row other)
+                       public override bool Equals(Doc other)
                        {
                          var b = other as MyComplexData;
                          if (b==null) return false;
@@ -661,12 +661,12 @@ namespace Azos.Tests.Unit.Serialization
                        }
                      }
 
-                     private class MyComplexDataWithArray : TypedRow
+                     private class MyComplexDataWithArray : TypedDoc
                      {
                        [Field] public long ID { get; set;}
                        [Field] public MySimpleData[] Data { get; set;}
 
-                       public override bool Equals(Row other)
+                       public override bool Equals(Doc other)
                        {
                          var b = other as MyComplexDataWithArray;
                          if (b==null) return false;
@@ -675,12 +675,12 @@ namespace Azos.Tests.Unit.Serialization
                        }
                      }
 
-                     private class MyComplexDataWithList : TypedRow
+                     private class MyComplexDataWithList : TypedDoc
                      {
                        [Field] public long ID { get; set;}
                        [Field] public List<MySimpleData> Data { get; set;}
 
-                       public override bool Equals(Row other)
+                       public override bool Equals(Doc other)
                        {
                          var b = other as MyComplexDataWithList;
                          if (b==null) return false;
@@ -689,12 +689,12 @@ namespace Azos.Tests.Unit.Serialization
                        }
                      }
 
-                     private class MyComplexDataWithPrimitiveArray : TypedRow
+                     private class MyComplexDataWithPrimitiveArray : TypedDoc
                      {
                        [Field] public long ID { get; set;}
                        [Field] public int[] Data { get; set;}
 
-                       public override bool Equals(Row other)
+                       public override bool Equals(Doc other)
                        {
                          var b = other as MyComplexDataWithPrimitiveArray;
                          if (b==null) return false;
@@ -703,12 +703,12 @@ namespace Azos.Tests.Unit.Serialization
                        }
                      }
 
-                     private class MyComplexDataWithPrimitiveList : TypedRow
+                     private class MyComplexDataWithPrimitiveList : TypedDoc
                      {
                        [Field] public long ID { get; set;}
                        [Field] public List<int> Data { get; set;}
 
-                       public override bool Equals(Row other)
+                       public override bool Equals(Doc other)
                        {
                          var b = other as MyComplexDataWithPrimitiveList;
                          if (b==null) return false;
@@ -718,14 +718,14 @@ namespace Azos.Tests.Unit.Serialization
                      }
 
 
-                     private class RowWithSubDocuments : TypedRow
+                     private class RowWithSubDocuments : TypedDoc
                      {
                        [Field] public IJSONDataObject Data { get; set;}
                        [Field] public JSONDataMap Map { get; set;}
                      }
 
 
-                     private class RowWithBinaryData : TypedRow
+                     private class RowWithBinaryData : TypedDoc
                      {
                        [Field] public string FileName { get; set;}
                        [Field] public string ContentType { get; set;}
