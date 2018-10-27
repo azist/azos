@@ -86,6 +86,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "providers", "providers", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Erlang", "providers\Azos.Erlang\Azos.Erlang.csproj", "{CCFD3FE2-838B-4198-9476-5792DBEFEED0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.MongoDb", "providers\Azos.MongoDb\Azos.MongoDb.csproj", "{B3831368-8B6F-4EB6-AFC8-8D52609FB6A4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -220,6 +222,10 @@ Global
 		{CCFD3FE2-838B-4198-9476-5792DBEFEED0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCFD3FE2-838B-4198-9476-5792DBEFEED0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCFD3FE2-838B-4198-9476-5792DBEFEED0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3831368-8B6F-4EB6-AFC8-8D52609FB6A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3831368-8B6F-4EB6-AFC8-8D52609FB6A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3831368-8B6F-4EB6-AFC8-8D52609FB6A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3831368-8B6F-4EB6-AFC8-8D52609FB6A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -254,6 +260,7 @@ Global
 		{356D2ACB-2AC7-4BE7-96F4-655F50B0152E} = {0FC66524-0EE2-410C-B971-97170166D2D6}
 		{C6EC5D85-4A06-4E82-BDCE-06EF013F349E} = {0FC66524-0EE2-410C-B971-97170166D2D6}
 		{CCFD3FE2-838B-4198-9476-5792DBEFEED0} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
+		{B3831368-8B6F-4EB6-AFC8-8D52609FB6A4} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75EF590C-FE75-45E7-B941-B225EF484F5F}

@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>5.0.0</Version>
+    <Authors>Agnicore Inc., DKh aka ITADAPTER</Authors>
+    <Company>Agnicore Inc.</Company>
+    <Description>NFX - .NET Unistack MySQL DB Assembly</Description>
+    <Copyright>2003-2017 Agnicore Inc; ITAdapter Corp. Inc.</Copyright>
+    <PackageProjectUrl>http://nfxlib.com/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/agnicore/nfx</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <PackageTags>UNISTACK CORE BIGMEMORY NFX PILE SLIM WAVE MONGO</PackageTags>
+    <PackageLicenseUrl>https://github.com/aumcode/nfx</PackageLicenseUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/aumcode/nfx/master/Elements/NFXLogo/New.NFX.Logo.50.png</PackageIconUrl>
+    <PackageReleaseNotes>This NFX release supports both .NET Framework 4.6+ and .NET Core 2.0+</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\..\out\Debug\</OutputPath>
+    <DocumentationFile>..\..\..\out\Debug\NFX.MySQL.xml</DocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\..\out\Release\</OutputPath>
+    <DocumentationFile>..\..\..\out\Release\NFX.MySQL.xml</DocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="System.Buffers" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\NFX\NFX.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="MySqlConnector\" />
+  </ItemGroup>
+
+</Project>

@@ -153,8 +153,8 @@ namespace Azos.Serialization.BSON
     #region BSONDocumentToDoc
 
     /// <summary>
-    /// Converts BSON document into data document by filling the supplied row instance making necessary type transforms to
-    ///  suit Row.Schema field definitions per target name. If the passed row supports IAmorphousData, then
+    /// Converts BSON document into data document by filling the supplied doc instance making necessary type transforms to
+    ///  suit Doc.Schema field definitions per target name. If the passed data document supports IAmorphousData, then
     /// the fields either not found in row, or the fields that could not be type-converted to CLR type will be
     /// stowed in amorphous data dictionary
     /// </summary>
