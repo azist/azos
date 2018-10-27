@@ -1,36 +1,12 @@
-/*<FILE_LICENSE>
-* NFX (.NET Framework Extension) Unistack Library
-* Copyright 2003-2018 Agnicore Inc. portions ITAdapter Corp. Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-</FILE_LICENSE>*/
-
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Azos.Log;
 using MySql.Data.MySqlClient;
 
-using NFX;
-using NFX.Log;
-using NFX.DataAccess;
-using NFX.DataAccess.CRUD;
-using NFX.DataAccess.Distributed;
-
-
-namespace NFX.DataAccess.MySQL
+namespace Azos.Data.Access.MySql
 {
 
   /// <summary>
@@ -85,7 +61,7 @@ namespace NFX.DataAccess.MySQL
               where = s.ToString();
             }
             else
-              throw new MySQLDataAccessException(StringConsts.INVALID_KEY_TYPE_ERROR);
+              throw new MySqlDataAccessException(StringConsts.INVALID_KEY_TYPE_ERROR);
 
           return where;
         }
@@ -102,7 +78,7 @@ namespace NFX.DataAccess.MySQL
         {
             if (level==StoreLogLevel.None) return;
             if (!App.Available) return;
-            
+
             MessageType mt = level==StoreLogLevel.Debug ? MessageType.DebugSQL : MessageType.TraceSQL;
 
             var descr = new StringBuilder(512);
@@ -117,7 +93,7 @@ namespace NFX.DataAccess.MySQL
             }
 
             var msg = new Message
-            {             
+            {
                 Type = mt,
                 From = from,
                 Topic = "DataStore",

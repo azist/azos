@@ -1,39 +1,14 @@
-/*<FILE_LICENSE>
-* NFX (.NET Framework Extension) Unistack Library
-* Copyright 2003-2018 Agnicore Inc. portions ITAdapter Corp. Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-</FILE_LICENSE>*/
 
-
-/* NFX by ITAdapter
- * Originated: 2008.03
- * Revision: NFX 1.0  2011.02.06
- */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-
-using NFX.Environment;
-using NFX.ApplicationModel;
-using NFX.DataAccess.CRUD;
-
+using Azos.Apps;
+using Azos.Conf;
+using Azos.Instrumentation;
 using MySql.Data.MySqlClient;
 
 
-namespace NFX.DataAccess.MySQL
+namespace Azos.Data.Access.MySql
 {
   /// <summary>
   /// Implements MySQL store base functionality
@@ -181,12 +156,12 @@ namespace NFX.DataAccess.MySQL
             cmd.CommandType = System.Data.CommandType.Text;
             cmd.CommandText = "SELECT 1+1 from DUAL";
             if (cmd.ExecuteScalar().ToString() != "2")
-              throw new MySQLDataAccessException(StringConsts.SQL_STATEMENT_FAILED_ERROR);
+              throw new MySqlDataAccessException(StringConsts.SQL_STATEMENT_FAILED_ERROR);
           }
         }
         catch (Exception error)
         {
-          throw new MySQLDataAccessException(string.Format(StringConsts.CONNECTION_TEST_FAILED_ERROR, error.Message), error);
+          throw new MySqlDataAccessException(string.Format(StringConsts.CONNECTION_TEST_FAILED_ERROR, error.Message), error);
         }
       }
 

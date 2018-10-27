@@ -41,17 +41,16 @@ namespace Azos.Data.Access
         [Serializable]
         public sealed class Param : Collections.INamed
         {
-          public Param(string name, object value = null)
+          public Param(string name, object value = null, bool hasValue = true)
           {
-              m_Name = name;
-              m_Value = value;
+            Name = name;
+            Value = value;
+            HasValue = hasValue;
           }
 
-          private string m_Name;
-          private object m_Value;
-
-          public string Name   => m_Name;
-          public object Value  => m_Value;
+          public string Name     { get; }
+          public object Value    { get; }
+          public bool   HasValue { get; }
         }
       #endregion
 

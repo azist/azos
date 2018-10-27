@@ -1,47 +1,25 @@
-/*<FILE_LICENSE>
-* NFX (.NET Framework Extension) Unistack Library
-* Copyright 2003-2018 Agnicore Inc. portions ITAdapter Corp. Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-</FILE_LICENSE>*/
-
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
-using NFX;
-using NFX.DataAccess;
 using MySql.Data.MySqlClient;
-using NFX.DataAccess.CRUD;
-using NFX.DataAccess.Distributed;
 
-namespace NFX.DataAccess.MySQL
+namespace Azos.Data.Access.MySql
 {
 
   internal static class CRUDGenerator
   {
 
-      public static int CRUDInsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Row row, FieldFilterFunc filter)
+      public static int CRUDInsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
       {
         try
         {
-            return crudInsert(store, cnn, trans, row, filter);
+            return crudInsert(store, cnn, trans, doc, filter);
         }
         catch(Exception error)
         {
-           throw new MySQLDataAccessException(
+           throw new MySqlDataAccessException(
                           StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("insert", error.ToMessageWithType(), error),
                           error,
                           KeyViolationKind.Unspecified,
@@ -49,15 +27,15 @@ namespace NFX.DataAccess.MySQL
         }
       }
 
-      public static int CRUDUpdate(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Row row, IDataStoreKey key, FieldFilterFunc filter)
+      public static int CRUDUpdate(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
       {
         try
         {
-            return crudUpdate(store, cnn, trans, row, key, filter);
+            return crudUpdate(store, cnn, trans, doc, key, filter);
         }
         catch(Exception error)
         {
-           throw new MySQLDataAccessException(
+           throw new MySqlDataAccessException(
                          StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("update",
                          error.ToMessageWithType(), error),
                          error,
@@ -67,15 +45,15 @@ namespace NFX.DataAccess.MySQL
         }
       }
 
-      public static int CRUDUpsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Row row, FieldFilterFunc filter)
+      public static int CRUDUpsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
       {
         try
         {
-            return crudUpsert(store, cnn, trans, row, filter);
+            return crudUpsert(store, cnn, trans, doc, filter);
         }
         catch(Exception error)
         {
-           throw new MySQLDataAccessException(
+           throw new MySqlDataAccessException(
                         StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("upsert", error.ToMessageWithType(), error),
                         error,
                         KeyViolationKind.Unspecified,
@@ -83,15 +61,15 @@ namespace NFX.DataAccess.MySQL
         }
       }
 
-      public static int CRUDDelete(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Row row, IDataStoreKey key)
+      public static int CRUDDelete(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key)
       {
         try
         {
-            return crudDelete(store, cnn, trans, row, key);
+            return crudDelete(store, cnn, trans, doc, key);
         }
         catch(Exception error)
         {
-           throw new MySQLDataAccessException(StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("delete", error.ToMessageWithType(), error), error);
+           throw new MySqlDataAccessException(StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("delete", error.ToMessageWithType(), error), error);
         }
       }
 
@@ -116,8 +94,8 @@ namespace NFX.DataAccess.MySQL
     {
       string tableName = schema.Name;
 
-      if (schema.TypedRowType!=null)
-        tableName = "tbl_" + schema.TypedRowType.Name;//without namespace
+      if (schema.TypedDocType!=null)
+        tableName = "tbl_" + schema.TypedDocType.Name;//without namespace
 
       var tableAttr = schema.GetTableAttrForTarget(target);
       if (tableAttr!=null && tableAttr.Name.IsNotNullOrWhiteSpace()) tableName = tableAttr.Name;
@@ -125,14 +103,14 @@ namespace NFX.DataAccess.MySQL
     }
 
 
-    private static int crudInsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Row row, FieldFilterFunc filter)
+    private static int crudInsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var cnames = new StringBuilder();
       var values = new StringBuilder();
       var vparams = new List<MySqlParameter>();
       var vpidx = 0;
-      foreach (var fld in row.Schema.FieldDefs)
+      foreach (var fld in doc.Schema.FieldDefs)
       {
         var fattr = fld[target];
         if (fattr==null) continue;
@@ -141,12 +119,12 @@ namespace NFX.DataAccess.MySQL
 
         if (filter!=null)//20160210 Dkh+SPol
         {
-          if (!filter(row, null, fld)) continue;
+          if (!filter(doc, null, fld)) continue;
         }
 
         var fname = fld.GetBackendNameForTarget(target);
 
-        var fvalue = getFieldValue(row, fld.Order, store);
+        var fvalue = getFieldValue(doc, fld.Order, store);
 
 
         cnames.AppendFormat(" `{0}`,", fname);
@@ -179,7 +157,7 @@ namespace NFX.DataAccess.MySQL
         return 0;//nothing to do
 
 
-      string tableName = getTableName(row.Schema, target);
+      string tableName = getTableName(doc.Schema, target);
 
       using(var cmd = cnn.CreateCommand())
       {
@@ -206,13 +184,13 @@ namespace NFX.DataAccess.MySQL
 
 
 
-    private static int crudUpdate(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Row row, IDataStoreKey key, FieldFilterFunc filter)
+    private static int crudUpdate(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var values = new StringBuilder();
       var vparams = new List<MySqlParameter>();
       var vpidx = 0;
-      foreach (var fld in row.Schema.FieldDefs)
+      foreach (var fld in doc.Schema.FieldDefs)
       {
         var fattr = fld[target];
         if (fattr==null) continue;
@@ -227,11 +205,11 @@ namespace NFX.DataAccess.MySQL
 
         if (filter!=null)//20160210 Dkh+SPol
         {
-          if (!filter(row, key, fld)) continue;
+          if (!filter(doc, key, fld)) continue;
         }
 
 
-        var fvalue = getFieldValue(row, fld.Order, store);
+        var fvalue = getFieldValue(doc, fld.Order, store);
 
 
         if ( fvalue != null)
@@ -261,23 +239,23 @@ namespace NFX.DataAccess.MySQL
         return 0;//nothing to do
 
 
-      string tableName = getTableName(row.Schema, target);
+      string tableName = getTableName(doc.Schema, target);
 
       using(var cmd = cnn.CreateCommand())
       {
         var sql = string.Empty;
 
-        var pk = key ?? row.GetDataStoreKey(target);
+        var pk = key ?? doc.GetDataStoreKey(target);
 
         if (pk == null)
-            throw new MySQLDataAccessException(StringConsts.KEY_UNAVAILABLE_ERROR);
+            throw new MySqlDataAccessException(StringConsts.KEY_UNAVAILABLE_ERROR);
 
         var where = GeneratorUtils.KeyToWhere(pk, cmd.Parameters);
 
         if (!string.IsNullOrEmpty(where))
             sql = "UPDATE `{0}` T1  SET {1} WHERE {2}".Args( tableName, values, where);
         else
-            throw new MySQLDataAccessException(StringConsts.BROAD_UPDATE_ERROR);//20141008 DKh BROAD update
+            throw new MySqlDataAccessException(StringConsts.BROAD_UPDATE_ERROR);//20141008 DKh BROAD update
 
         cmd.Transaction = trans;
         cmd.CommandText = sql;
@@ -299,7 +277,7 @@ namespace NFX.DataAccess.MySQL
     }
 
 
-    private static int crudUpsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Row row, FieldFilterFunc filter)
+    private static int crudUpsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var cnames = new StringBuilder();
@@ -307,7 +285,7 @@ namespace NFX.DataAccess.MySQL
       var upserts = new StringBuilder();
       var vparams = new List<MySqlParameter>();
       var vpidx = 0;
-      foreach (var fld in row.Schema.FieldDefs)
+      foreach (var fld in doc.Schema.FieldDefs)
       {
         var fattr = fld[target];
         if (fattr==null) continue;
@@ -317,12 +295,12 @@ namespace NFX.DataAccess.MySQL
 
         if (filter!=null)//20160210 Dkh+SPol
         {
-          if (!filter(row, null, fld)) continue;
+          if (!filter(doc, null, fld)) continue;
         }
 
         var fname = fld.GetBackendNameForTarget(target);
 
-        var fvalue = getFieldValue(row, fld.Order, store);
+        var fvalue = getFieldValue(doc, fld.Order, store);
 
 
         cnames.AppendFormat(" `{0}`,", fname);
@@ -360,7 +338,7 @@ namespace NFX.DataAccess.MySQL
         return 0;//nothing to do
 
 
-      string tableName = getTableName(row.Schema, target);
+      string tableName = getTableName(doc.Schema, target);
 
       using(var cmd = cnn.CreateCommand())
       {
@@ -390,17 +368,17 @@ namespace NFX.DataAccess.MySQL
 
 
 
-    private static int crudDelete(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Row row, IDataStoreKey key)
+    private static int crudDelete(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key)
     {
       var target = store.TargetName;
-      string tableName = getTableName(row.Schema, target);
+      string tableName = getTableName(doc.Schema, target);
 
       using (var cmd = cnn.CreateCommand())
       {
-        var pk = key ?? row.GetDataStoreKey(target);
+        var pk = key ?? doc.GetDataStoreKey(target);
 
         if (pk == null)
-            throw new MySQLDataAccessException(StringConsts.KEY_UNAVAILABLE_ERROR);
+            throw new MySqlDataAccessException(StringConsts.KEY_UNAVAILABLE_ERROR);
 
         var where = GeneratorUtils.KeyToWhere(pk, cmd.Parameters);
 
@@ -428,9 +406,9 @@ namespace NFX.DataAccess.MySQL
       }//using command
     }
 
-    private static object getFieldValue(Row row, int order, MySQLDataStoreBase store)
+    private static object getFieldValue(Doc doc, int order, MySQLDataStoreBase store)
     {
-      var result = row[order];
+      var result = doc[order];
 
       MySqlDbType? convertedDbType;
       return CLRValueToDB(store, result, out convertedDbType);
