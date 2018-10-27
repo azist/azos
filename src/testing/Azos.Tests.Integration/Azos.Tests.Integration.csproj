@@ -1,0 +1,98 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Azos - Integration Tests Assembly (not to deploy)</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\..\out\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\..\out\Release\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="CRUD\Doctor.List.mys.sql" />
+    <None Remove="CRUD\Echo.erl.qry" />
+    <None Remove="CRUD\FullGDID.Load.mys.sql" />
+    <None Remove="CRUD\InsertPerzons.mon.json" />
+    <None Remove="CRUD\LoadAllMyData.mon.json" />
+    <None Remove="CRUD\LoadInvoice.mon.json" />
+    <None Remove="CRUD\LoadMuchData.mon.json" />
+    <None Remove="CRUD\LoadPerzon.mon.json" />
+    <None Remove="CRUD\LoadPerzonAge.mon.json" />
+    <None Remove="CRUD\LoadPerzonsInAgeSpan.mon.json" />
+    <None Remove="CRUD\Patient.List.mys.sql" />
+    <None Remove="CRUD\Patient.UpdateAmount.mys.sql" />
+    <None Remove="CRUD\Queries\Employee\DeleteBySalaryMax.mys.sql" />
+    <None Remove="CRUD\Queries\Employee\FetchAll.mys.sql" />
+    <None Remove="CRUD\Queries\Employee\FetchByDepartment.mys.sql" />
+    <None Remove="CRUD\Queries\Employee\FetchByGDID.mys.sql" />
+    <None Remove="CRUD\Queries\Employee\UpdateByGDID.mys.sql" />
+    <None Remove="CRUD\SecDef.ByExchange.erl.qry" />
+    <None Remove="CRUD\SECDEF.erl.qry" />
+    <None Remove="CRUD\Tuple.LoadAll.mys.sql" />
+    <None Remove="CRUD\Types.Load.mys.sql" />
+    <None Remove="CRUD\UpdatePerzons.mon.json" />
+    <None Remove="CRUD\WorldNews.erl.qry" />
+    <None Remove="ExternalCfg.laconf" />
+    <None Remove="Graphics\test_mc.jpg" />
+    <None Remove="Graphics\test_mc.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="CRUD\Echo.erl.qry" />
+    <EmbeddedResource Include="CRUD\FullGDID.Load.mys.sql" />
+    <EmbeddedResource Include="CRUD\InsertPerzons.mon.json" />
+    <EmbeddedResource Include="CRUD\LoadAllMyData.mon.json" />
+    <EmbeddedResource Include="CRUD\LoadInvoice.mon.json" />
+    <EmbeddedResource Include="CRUD\LoadMuchData.mon.json" />
+    <EmbeddedResource Include="CRUD\LoadPerzon.mon.json" />
+    <EmbeddedResource Include="CRUD\LoadPerzonAge.mon.json" />
+    <EmbeddedResource Include="CRUD\LoadPerzonsInAgeSpan.mon.json" />
+    <EmbeddedResource Include="CRUD\Doctor.List.mys.sql" />
+    <EmbeddedResource Include="CRUD\Patient.UpdateAmount.mys.sql" />
+    <EmbeddedResource Include="CRUD\Patient.List.mys.sql" />
+    <EmbeddedResource Include="CRUD\Queries\Employee\DeleteBySalaryMax.mys.sql" />
+    <EmbeddedResource Include="CRUD\Queries\Employee\FetchByDepartment.mys.sql" />
+    <EmbeddedResource Include="CRUD\Queries\Employee\UpdateByGDID.mys.sql" />
+    <EmbeddedResource Include="CRUD\Queries\Employee\FetchByGDID.mys.sql" />
+    <EmbeddedResource Include="CRUD\Queries\Employee\FetchAll.mys.sql" />
+    <EmbeddedResource Include="CRUD\SecDef.ByExchange.erl.qry" />
+    <EmbeddedResource Include="CRUD\SECDEF.erl.qry" />
+    <EmbeddedResource Include="CRUD\Tuple.LoadAll.mys.sql" />
+    <EmbeddedResource Include="CRUD\Types.Load.mys.sql" />
+    <EmbeddedResource Include="CRUD\UpdatePerzons.mon.json" />
+    <EmbeddedResource Include="CRUD\WorldNews.erl.qry" />
+    <EmbeddedResource Include="ExternalCfg.laconf" />
+    <EmbeddedResource Include="Graphics\test_mc.jpg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Graphics\test_mc.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Azos.Erlang\Azos.Erlang.csproj" />
+    <ProjectReference Include="..\..\Azos.Wave\Azos.Wave.csproj" />
+    <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
+    <ProjectReference Include="..\..\Azos\Azos.csproj" />
+    <ProjectReference Include="..\..\providers\Azos.MongoDB\Azos.MongoDB.csproj" />
+    <ProjectReference Include="..\..\providers\Azos.MySQL\Azos.MySQL.csproj" />
+    <ProjectReference Include="..\TestBusinessLogic\TestBusinessLogic.csproj" />
+    <ProjectReference Include="..\Azos.Tests.Unit\Azos.Tests.Unit.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Graphics\test.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Graphics\test.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

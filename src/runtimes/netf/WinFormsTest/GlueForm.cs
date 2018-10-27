@@ -1,3 +1,8 @@
+/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
 
 // Configure Windows 8.1 Undefined Cable Network to be Private (PowerShell/PSH)
 // 1. Get-NetConnectionProfile

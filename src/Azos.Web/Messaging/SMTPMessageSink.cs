@@ -1,3 +1,8 @@
+/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
 
 using System;
 using System.Linq;
@@ -137,7 +142,7 @@ namespace Azos.Web.Messaging
 
       var from = fmtEmail(fa, fn);
       var wasSent = false;
-      // todo поддерживает ли MailMessageTo многих адресатов через запятую в однйо строке, если да - убрать цикл foreach
+      // todo пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ MailMessageTo пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ foreach
       foreach (var addressee in addressTo)
       {
         var to = fmtEmail(addressee.ChannelAddress, addressee.Name);

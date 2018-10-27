@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Azos - Base Unit Tests Assembly (not to deploy)</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\..\out\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\..\out\Release\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Web\MultiPart\Resources\bmp.dat" />
+    <None Remove="Web\MultiPart\Resources\test.dat" />
+    <None Remove="Web\MultiPart\Resources\txt.dat" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Web\MultiPart\Resources\bmp.dat" />
+    <EmbeddedResource Include="Web\MultiPart\Resources\test.dat" />
+    <EmbeddedResource Include="Web\MultiPart\Resources\txt.dat" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Azos.Wave\Azos.Wave.csproj" />
+    <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
+    <ProjectReference Include="..\..\Azos\Azos.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="UTEZT_DATA\SubDir1\" />
+    <Folder Include="UTEZT_DATA\SubDir2\a\" />
+    <Folder Include="UTEZT_DATA\SubDir2\b\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="UTEZT-1.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="UTEZT_DATA\Gagarin.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="UTEZT_DATA\SubDir1\Bitmap1.bmp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="UTEZT_DATA\SubDir1\Some Text File With Spaces.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="UTEZT_DATA\SubDir2\a\Icon1.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="UTEZT_DATA\SubDir2\b\About.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="UTEZT_DATA\TextFile1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>NFX - .NET Unistack Testing Business Logic</Description>
+    <Description>Azos - Various Fake Business Logic used for testing (not to deploy)</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
