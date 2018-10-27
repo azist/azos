@@ -1,4 +1,4 @@
-echo +++++ [Azos] Post Build
+echo +++++ [Azos.Sky] Post Build
 
 set SOLUTION_DIR=%1
 set PROJECT_DIR=%2
@@ -15,4 +15,4 @@ rem ---------------------------------------------
 echo Nothing To Do
 
 rem ---------------------------------------------
-echo +++++ [Azos] Post Build
+echo +++++ [Azos.Sky] Post Build

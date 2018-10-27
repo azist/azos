@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -6,6 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="BUILD_INFO.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="BUILD_INFO.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Azos.Wave\Azos.Wave.csproj" />
+    <ProjectReference Include="..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\Azos\Azos.csproj" />
   </ItemGroup>
 
@@ -20,5 +30,13 @@
     <DocumentationFile>..\..\out\Release\Azos.Sky.xml</DocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="$(ProjectDir)_build/pre-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(ProjectDir)_build/post-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
+  </Target>
 
 </Project>

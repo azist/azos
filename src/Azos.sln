@@ -4,6 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos", "Azos\Azos.csproj", "{C2BF5275-C8C2-46CC-86C7-A83A75C2BE0D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A9434D3F-E520-41A4-B844-0891D4D8C2D4} = {A9434D3F-E520-41A4-B844-0891D4D8C2D4}
+		{AB869DBB-623B-4A34-8D06-D11FAEE2B8F1} = {AB869DBB-623B-4A34-8D06-D11FAEE2B8F1}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Sky", "Azos.Sky\Azos.Sky.csproj", "{56467E57-0C42-42C9-B9B0-359A2A061BA0}"
 EndProject

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 
   <PropertyGroup>
@@ -17,6 +17,14 @@
     <DocumentationFile>..\..\out\Release\Azos.Web.xml</DocumentationFile>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="BUILD_INFO.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="BUILD_INFO.txt" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.4.0" />
@@ -26,5 +34,13 @@
   <ItemGroup>
     <ProjectReference Include="..\Azos\Azos.csproj" />
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="$(ProjectDir)_build/pre-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(ProjectDir)_build/post-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
+  </Target>
 
 </Project>

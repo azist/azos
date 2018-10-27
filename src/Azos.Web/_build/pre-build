@@ -5,11 +5,8 @@ exit 1;
 
 
 
-
 SCRIPT=`realpath -s $0`
 SCRIPTPATH=`dirname $SCRIPT`
 
 SOLUTION_DIR=$1
-CONFIG=$2
 PROJECT_DIR=${SCRIPTPATH}/
-TOOL_DIR=${SOLUTION_DIR}/../out/${CONFIG}/run-core/netcoreapp2.0/

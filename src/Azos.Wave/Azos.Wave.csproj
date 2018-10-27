@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -60,11 +60,11 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="$(ProjectDir)pre-build $(SolutionDir) $(ConfigurationName)" />
+    <Exec Command="$(ProjectDir)_build/pre-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="$(ProjectDir)post-build $(SolutionDir) $(ConfigurationName)" />
+    <Exec Command="$(ProjectDir)_build/post-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
   </Target>
 
 </Project>

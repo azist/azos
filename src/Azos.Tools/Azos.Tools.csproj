@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -16,6 +16,7 @@
   <ItemGroup>
     <None Remove="Arow\Help.txt" />
     <None Remove="Arow\Welcome.txt" />
+    <None Remove="BUILD_INFO.txt" />
     <None Remove="Gluec\Help.txt" />
     <None Remove="Gluec\Welcome.txt" />
     <None Remove="Ntc\Help.txt" />
@@ -29,6 +30,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Arow\Help.txt" />
     <EmbeddedResource Include="Arow\Welcome.txt" />
+    <EmbeddedResource Include="BUILD_INFO.txt" />
     <EmbeddedResource Include="Gluec\Help.txt" />
     <EmbeddedResource Include="Gluec\Welcome.txt" />
     <EmbeddedResource Include="Ntc\Help.txt" />
@@ -62,5 +64,13 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="$(ProjectDir)_build/pre-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(ProjectDir)_build/post-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
+  </Target>
 
 </Project>
