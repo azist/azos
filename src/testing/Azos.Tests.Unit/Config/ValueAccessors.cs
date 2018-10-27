@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 
+using Azos.Data;
 using Azos.Scripting;
 
 namespace Azos.Tests.Unit.Config

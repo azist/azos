@@ -61,7 +61,7 @@ namespace Azos.Tests.Unit.DataAccess
             var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
 
-                var row = new DynamicRow( tbl.Schema );
+                var row = new DynamicDoc( tbl.Schema );
 
                 row["ID"] = "POP1";
                 row["FirstName"] = "Oleg";

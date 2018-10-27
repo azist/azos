@@ -575,7 +575,7 @@ value 2--
     private byte[] getEmbeddedFileBytes(string resourceName)
     {
       var resourceFullName = "Resources." + resourceName;
-      using (var stream = Azos.EmbeddedResource.GetBinaryStream(typeof(MultipartTests), resourceFullName))
+      using (var stream = Platform.EmbeddedResource.GetBinaryStream(typeof(MultipartTests), resourceFullName))
       {
         var buf = new byte[stream.Length];
         stream.Read(buf, 0, buf.Length);

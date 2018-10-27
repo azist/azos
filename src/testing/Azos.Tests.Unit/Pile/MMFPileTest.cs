@@ -289,7 +289,7 @@ namespace Azos.Tests.Unit.Pile
 
           for (ulong i = 0; i < CNT; i++)
           {
-            var str = Azos.Parsing.NaturalTextGenerator.Generate(179);
+            var str = Text.NaturalTextGenerator.Generate(179);
             ppp[i] = new Tuple<PilePointer,string>( ipile.Put(str), str);
           }
 

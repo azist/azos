@@ -3,14 +3,15 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
 using System.Linq;
 using System.Collections.Generic;
 
 using Azos.Scripting;
 using Azos.Data;
+using Azos.Data.Access;
 
 namespace Azos.Tests.Unit.DataAccess
 {
@@ -214,7 +215,7 @@ namespace Azos.Tests.Unit.DataAccess
                 YearsWithCompany = null
             };
 
-            var to = new AmorphousDynamicRow(Schema.GetForTypedDoc(typeof(Empty)));
+            var to = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(Empty)));
             to.AmorphousData["field1"] = 123;
             to.AmorphousData["FirstName"] = "John";
 
@@ -238,7 +239,7 @@ namespace Azos.Tests.Unit.DataAccess
                 YearsWithCompany = null
             };
 
-            var to = new AmorphousDynamicRow(Schema.GetForTypedDoc(typeof(Empty)));
+            var to = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(Empty)));
             to.AmorphousData["field1"] = 123;
             to.AmorphousData["FirstName"] = "John";
 
@@ -266,7 +267,7 @@ namespace Azos.Tests.Unit.DataAccess
                 Info = "extended info"
             };
 
-            var to = new AmorphousDynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var to = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             to.AmorphousData["field1"] = 123;
             to.AmorphousData["FirstName"] = "John";
 
@@ -288,7 +289,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void CopyFields_DynamicRow()
         {
-            var from = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var from = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             from["FirstName"] = "Ivan";
             from["LastName"] = "Petrov";
             from["Amount"] = 10;
@@ -301,7 +302,7 @@ namespace Azos.Tests.Unit.DataAccess
             from["YearsInSpace"] = 20;
             from["YearsWithCompany"] = null;
 
-            var to = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var to = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             to["Description"] = "descr";
             to["YearsWithCompany"] = 30;
 
@@ -324,7 +325,7 @@ namespace Azos.Tests.Unit.DataAccess
         public void CopyFields_DynamicRow_To_Extended()
         {
             var schema = Schema.GetForTypedDoc(typeof(Person));
-            var from = new DynamicRow(schema);
+            var from = new DynamicDoc(schema);
             from["FirstName"] = "Ivan";
             from["Amount"] = 10;
             from["DOB"] = new DateTime(1990, 2, 16);
@@ -335,7 +336,7 @@ namespace Azos.Tests.Unit.DataAccess
             fieldDefs.Add(new Schema.FieldDef("Count", typeof(long), new QuerySource.ColumnDef("Info")));
             var extendedSchema = new Schema("sname", fieldDefs.ToArray());
 
-            var to = new DynamicRow(extendedSchema);
+            var to = new DynamicDoc(extendedSchema);
             to["Info"] = "extended info";
             to["Count"] = long.MaxValue;
 
@@ -358,7 +359,7 @@ namespace Azos.Tests.Unit.DataAccess
             fieldDefs.Add(new Schema.FieldDef("Count", typeof(long), new QuerySource.ColumnDef("Info")));
             var extendedSchema = new Schema("sname", fieldDefs.ToArray());
 
-            var from = new DynamicRow(extendedSchema);
+            var from = new DynamicDoc(extendedSchema);
             from["FirstName"] = "Ivan";
             from["Amount"] = 10;
             from["DOB"] = new DateTime(1990, 2, 16);
@@ -366,7 +367,7 @@ namespace Azos.Tests.Unit.DataAccess
             from["Info"] = "extended info";
             from["Count"] = long.MaxValue;
 
-            var to = new DynamicRow(schema);
+            var to = new DynamicDoc(schema);
 
             from.CopyFields(to);
 
@@ -380,13 +381,13 @@ namespace Azos.Tests.Unit.DataAccess
         public void CopyFields_DynamicRow_To_Amorphous_NotIncludeAmorphous()
         {
             var schema = Schema.GetForTypedDoc(typeof(Person));
-            var from = new DynamicRow(schema);
+            var from = new DynamicDoc(schema);
             from["FirstName"] = "Ivan";
             from["Amount"] = 10;
             from["DOB"] = new DateTime(1990, 2, 16);
             from["GoodPerson"] = true;
 
-            var to = new AmorphousDynamicRow(Schema.GetForTypedDoc(typeof(Empty)));
+            var to = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(Empty)));
             to.AmorphousData["field1"] = 123;
             to.AmorphousData["FirstName"] = "John";
 
@@ -402,13 +403,13 @@ namespace Azos.Tests.Unit.DataAccess
         public void CopyFields_DynamicRow_To_Amorphous_IncludeAmorphous()
         {
             var schema = Schema.GetForTypedDoc(typeof(Person));
-            var from = new DynamicRow(schema);
+            var from = new DynamicDoc(schema);
             from["FirstName"] = "Ivan";
             from["Amount"] = 10;
             from["DOB"] = new DateTime(1990, 2, 16);
             from["GoodPerson"] = true;
 
-            var to = new AmorphousDynamicRow(Schema.GetForTypedDoc(typeof(Empty)));
+            var to = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(Empty)));
             to.AmorphousData["field1"] = 123;
             to.AmorphousData["FirstName"] = "John";
 
@@ -426,7 +427,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void CopyFields_AmorphousDynamicRow_To_TypedRow()
         {
-            var from = new AmorphousDynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var from = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             from["FirstName"] = "Ivan";
             from["LuckRatio"] = 12345.6789D;
             from.AmorphousData["field1"] = "some data";
@@ -449,12 +450,12 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void CopyFields_AmorphousDynamicRow_To_DynamicRow()
         {
-            var from = new AmorphousDynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var from = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             from["FirstName"] = "Ivan";
             from["LuckRatio"] = 12345.6789D;
             from.AmorphousData["field1"] = "some data";
 
-            var to = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var to = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             to["Description"] = "descr";
             to["YearsWithCompany"] = 30;
 
@@ -470,12 +471,12 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void CopyFields_AmorphousDynamicRow_NotIncludeAmorphous()
         {
-            var from = new AmorphousDynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var from = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             from["FirstName"] = "Ivan";
             from["LuckRatio"] = 12345.6789D;
             from.AmorphousData["field1"] = "some data";
 
-            var to = new AmorphousDynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var to = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             from["FirstName"] = "Jack";
             from["YearsInSpace"] = 20;
 
@@ -491,11 +492,11 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void CopyFields_AmorphousDynamicRow_IncludeAmorphous()
         {
-            var from = new AmorphousDynamicRow(Schema.GetForTypedDoc(typeof(Empty)));
+            var from = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(Empty)));
             from.AmorphousData["field1"] = "some data";
             from.AmorphousData["field2"] = 123;
 
-            var to = new AmorphousDynamicRow(Schema.GetForTypedDoc(typeof(Empty)));
+            var to = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(Empty)));
             to.AmorphousData["field2"] = "234";
             to.AmorphousData["field3"] = 1.2D;
 
@@ -510,12 +511,12 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void CopyFields_AmorphousDynamicRow_Filter()
         {
-            var from = new AmorphousDynamicRow(Schema.GetForTypedDoc(typeof(Empty)));
+            var from = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(Empty)));
             from.AmorphousData["field1"] = "some data";
             from.AmorphousData["field2"] = 123;
             from.AmorphousData["field3"] = "info";
 
-            var to = new AmorphousDynamicRow(Schema.GetForTypedDoc(typeof(Empty)));
+            var to = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(Empty)));
             to.AmorphousData["field2"] = "234";
             to.AmorphousData["field3"] = 1.2D;
             to.AmorphousData["field4"] = 12345;

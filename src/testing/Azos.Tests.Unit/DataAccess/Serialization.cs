@@ -3,8 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -62,7 +62,7 @@ namespace Azos.Tests.Unit.DataAccess
 
             for(var i=0; i<1000; i++)
             {
-                var row = new DynamicRow( tbl.Schema );
+                var row = new DynamicDoc( tbl.Schema );
 
                 row["ID"] = "POP{0}".Args(i);
                 row["FirstName"] = "Oleg";

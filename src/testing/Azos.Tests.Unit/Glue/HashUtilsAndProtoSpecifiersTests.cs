@@ -3,13 +3,10 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 
+using System;
+
+using Azos.Collections;
 using Azos.Scripting;
 
 using Azos.Glue.Protocol;
@@ -58,8 +55,8 @@ namespace Azos.Tests.Unit.Glue
         [Run]
         public void HashID_4()
         {
-            var h1 = HashUtils.StringIDHash("Aum.Cluster.Glue");
-            var h2 = HashUtils.StringIDHash("Aum.Cluster.Glue");
+            var h1 = HashUtils.StringIDHash("Azos.Sky.Glue");
+            var h2 = HashUtils.StringIDHash("Azos.Sky.Glue");
 
             Console.WriteLine(h1);
             Console.WriteLine(h2);
@@ -71,8 +68,8 @@ namespace Azos.Tests.Unit.Glue
         [Run]
         public void TypeHash_1()
         {
-            var h1 = HashUtils.TypeHash(typeof(Azos.INamed));
-            var h2 = HashUtils.TypeHash(typeof(Azos.INamed));
+            var h1 = HashUtils.TypeHash(typeof(INamed));
+            var h2 = HashUtils.TypeHash(typeof(INamed));
 
             Console.WriteLine(h1);
             Console.WriteLine(h2);
@@ -83,8 +80,8 @@ namespace Azos.Tests.Unit.Glue
         [Run]
         public void TypeHash_2()
         {
-            var h1 = HashUtils.TypeHash(typeof(Azos.INamed));
-            var h2 = HashUtils.TypeHash(typeof(Azos.IOrdered));
+            var h1 = HashUtils.TypeHash(typeof(INamed));
+            var h2 = HashUtils.TypeHash(typeof(IOrdered));
 
             Console.WriteLine(h1);
             Console.WriteLine(h2);
@@ -95,7 +92,7 @@ namespace Azos.Tests.Unit.Glue
         [Run]
         public void TypeHash_3()
         {
-            var h1 = HashUtils.TypeHash(typeof(Azos.INamed));
+            var h1 = HashUtils.TypeHash(typeof(INamed));
             var h2 = HashUtils.TypeHash(typeof(Azos.Wave.WaveServer));
 
             Console.WriteLine(h1);
@@ -108,8 +105,8 @@ namespace Azos.Tests.Unit.Glue
         [Run]
         public void TypeSpec_1()
         {
-            var s1 = new TypeSpec(typeof(Azos.INamed));
-            var s2 = new TypeSpec(typeof(Azos.INamed));
+            var s1 = new TypeSpec(typeof(INamed));
+            var s2 = new TypeSpec(typeof(INamed));
 
             Console.WriteLine(s1);
             Console.WriteLine(s2);
@@ -121,8 +118,8 @@ namespace Azos.Tests.Unit.Glue
         [Run]
         public void TypeSpec_2()
         {
-            var s1 = new TypeSpec(typeof(Azos.INamed));
-            var s2 = new TypeSpec(typeof(Azos.IOrdered));
+            var s1 = new TypeSpec(typeof(INamed));
+            var s2 = new TypeSpec(typeof(IOrdered));
 
             Console.WriteLine(s1);
             Console.WriteLine(s2);
@@ -135,8 +132,8 @@ namespace Azos.Tests.Unit.Glue
         [Run]
         public void TypeSpec_3()
         {
-            var s1 = new TypeSpec(typeof(Azos.Registry<Azos.ServiceModel.Service>));
-            var s2 = new TypeSpec(typeof(Azos.Registry<Azos.Glue.Binding>));
+            var s1 = new TypeSpec(typeof(Registry<Azos.Apps.Service>));
+            var s2 = new TypeSpec(typeof(Registry<Azos.Glue.Binding>));
 
             Console.WriteLine(s1);
             Console.WriteLine(s2);
@@ -148,8 +145,8 @@ namespace Azos.Tests.Unit.Glue
         [Run]
         public void MethodSpec_1()
         {
-            var s1 = new MethodSpec(typeof(Azos.Registry<Azos.ServiceModel.Service>).GetMethod("Register"));
-            var s2 = new MethodSpec(typeof(Azos.Registry<Azos.ServiceModel.Service>).GetMethod("Register"));
+            var s1 = new MethodSpec(typeof(Registry<Apps.Service>).GetMethod("Register"));
+            var s2 = new MethodSpec(typeof(Registry<Apps.Service>).GetMethod("Register"));
 
             Console.WriteLine(s1);
             Console.WriteLine(s2);
@@ -161,8 +158,8 @@ namespace Azos.Tests.Unit.Glue
         [Run]
         public void MethodSpec_2()
         {
-            var s1 = new MethodSpec(typeof(Azos.Registry<Azos.ServiceModel.Service>).GetMethod("Register"));
-            var s2 = new MethodSpec(typeof(Azos.Registry<Azos.ServiceModel.Service>).GetMethod("Unregister", new Type[]{typeof(string)}));
+            var s1 = new MethodSpec(typeof(Registry<Azos.Apps.Service>).GetMethod("Register"));
+            var s2 = new MethodSpec(typeof(Registry<Azos.Apps.Service>).GetMethod("Unregister", new Type[]{typeof(string)}));
 
             Console.WriteLine(s1);
             Console.WriteLine(s2);
@@ -174,8 +171,8 @@ namespace Azos.Tests.Unit.Glue
         [Run]
         public void MethodSpec_3()
         {
-            var s1 = new MethodSpec(typeof(Azos.Registry<Azos.ServiceModel.Service>).GetMethod("Register"));
-            var s2 = new MethodSpec(typeof(Azos.MiscUtils).GetMethod("ToSecondsSinceUnixEpochStart"));
+            var s1 = new MethodSpec(typeof(Registry<Apps.Service>).GetMethod("Register"));
+            var s2 = new MethodSpec(typeof(DateUtils).GetMethod("ToSecondsSinceUnixEpochStart"));
 
             Console.WriteLine(s1);
             Console.WriteLine(s2);

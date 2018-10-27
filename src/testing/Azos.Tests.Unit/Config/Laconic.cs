@@ -9,6 +9,7 @@ using System.Linq;
 using Azos.Scripting;
 
 using Azos.Conf;
+using Azos.Data;
 using Azos.CodeAnalysis.Laconfig;
 
 namespace Azos.Tests.Unit.Config
