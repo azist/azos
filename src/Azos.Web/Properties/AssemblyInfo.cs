@@ -6,4 +6,5 @@
 using System;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Azos.UTest")]
+[assembly: InternalsVisibleTo("Azos.Tests.Unit")]
+[assembly: InternalsVisibleTo("Azos.Tests.Integration")]
