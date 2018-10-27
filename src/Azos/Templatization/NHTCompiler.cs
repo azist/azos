@@ -65,7 +65,7 @@ namespace Azos.Templatization
     #endregion
 
     #region .pvt
-    public TextJSTemplateCompiler getJSCompiler()
+    private TextJSTemplateCompiler getJSCompiler()
     {
       if (m_JSConfig.IsNotNullOrWhiteSpace())
       {

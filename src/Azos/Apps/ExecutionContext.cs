@@ -23,10 +23,6 @@ namespace Azos.Apps
   public static class ExecutionContext
   {
     private static volatile IApplication s_Application;
-
-    #warning NEEDS Revision!!!
-    private static volatile ISession s_Session;
-
     private static Stack<IApplication> s_AppStack = new Stack<IApplication>();
 
     /// <summary>
@@ -46,9 +42,8 @@ namespace Azos.Apps
       get
       {
         var threadSession = Thread.CurrentPrincipal as ISession;
-        return threadSession ?? s_Session ?? NOPSession.Instance;
+        return threadSession ?? NOPSession.Instance;
       }
-      //get { return ts_Session ?? s_Session ?? NOPSession.Instance; }
     }
 
     /// <summary>
@@ -62,7 +57,6 @@ namespace Azos.Apps
         var threadSession = Thread.CurrentPrincipal as ISession;
         return threadSession != null  &&  threadSession.GetType() != typeof(NOPSession);
       }
-      //get { return ts_Session != null && ts_Session.GetType()!=typeof(NOPSession); }
     }
 
     /// <summary>
@@ -108,7 +102,6 @@ namespace Azos.Apps
     public static void __SetThreadLevelSessionContext(ISession session)
     {
       Thread.CurrentPrincipal = session;
-      //ts_Session = session;
     }
   }
 }
