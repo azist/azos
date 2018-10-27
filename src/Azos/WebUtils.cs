@@ -20,6 +20,29 @@ namespace Azos
   {
     public static readonly char[] PATH_JOIN_TRIM_CHARS = new char[] { '/', ' ', '\\' };
 
+    /// <summary>
+    /// JavaScript reserved words
+    /// </summary>
+    public static readonly HashSet<string> JS_RESERVED_WORDS = new HashSet<string>(StringComparer.Ordinal)
+    {
+      "abstract"  ,"arguments"   ,"await"          ,"boolean"     ,
+      "break"     ,"byte"        ,"case"           ,"catch"       ,
+      "char"      ,"class"       ,"const"          ,"continue"    ,
+      "debugger"  ,"default"     ,"delete"         ,"do"          ,
+      "double"    ,"else"        ,"enum"           ,"eval"        ,
+      "export"    ,"extends"     ,"false"          ,"final"       ,
+      "finally"   ,"float"       ,"for"            ,"function"    ,
+      "goto"      ,"if"          ,"implements"     ,"import"      ,
+      "in"        ,"instanceof"  ,"int"            ,"interface"   ,
+      "let"       ,"long"        ,"native"         ,"new"         ,
+      "null"      ,"package"     ,"private"        ,"protected"   ,
+      "public"    ,"return"      ,"short"          ,"static"      ,
+      "super"     ,"switch"      ,"synchronized"   ,"this"        ,
+      "throw"     ,"throws"      ,"transient"      ,"true"        ,
+      "try"       ,"typeof"      ,"var"            ,"void"        ,
+      "volatile"  ,"while"       ,"with"           ,"yield"       ,
+    };
+
 
     /// <summary>
     /// Strip simple html from string
@@ -28,6 +51,26 @@ namespace Azos
     {
       return WebUtility.HtmlDecode(Regex.Replace(str, @"<[^>]+>|&nbsp;", "").Trim());
     }
+
+    /// <summary>
+    /// Returns true when supplied name can be used for JS identifier naming (var names, func/class names etc..)
+    /// </summary>
+    public static bool IsValidJSIdentifier(this string id)
+    {
+      if (id.IsNullOrWhiteSpace()) return false;
+
+      if (JS_RESERVED_WORDS.Contains(id)) return false;
+
+      for (int i = 0; i < id.Length; i++)
+      {
+        char c = id[i];
+        if (c == '$' || c == '_') continue;
+        if (!Char.IsLetterOrDigit(c) || (i == 0 && !Char.IsLetter(c))) return false;
+      }
+
+      return true;
+    }
+
     /// <summary>
     /// Escapes JS literal, replacing / \ \r \n " ' &lt; &gt; &amp; chars with their hex codes
     /// </summary>

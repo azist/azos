@@ -3,15 +3,14 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
+using Azos.Data;
 using Azos.Serialization.BSON;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
@@ -43,7 +42,7 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(sizeof(int)), BitConverter.GetBytes(5))); // ensure content length is 1
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(sizeof(int)), BitConverter.GetBytes(5))); // ensure content length is 1
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
 
         Aver.AreEqual(stream.Position, 5); // ensure whole document readed
@@ -67,11 +66,11 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(17))); // ensure content length is 17
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(17))); // ensure content length is 17
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Double); // ensure element type is double 0x01
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(2), Encoding.UTF8.GetBytes("pi"))); // ensure element name is 'pi'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(2), Encoding.UTF8.GetBytes("pi"))); // ensure element name is 'pi'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(8), BitConverter.GetBytes(Math.PI))); // ensure element value is Math.PI
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(8), BitConverter.GetBytes(Math.PI))); // ensure element value is Math.PI
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
 
         Aver.AreEqual(stream.Position, 17); // ensure whole document readed
@@ -95,12 +94,12 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(sizeof(int)), BitConverter.GetBytes(33))); // ensure content length is 33
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(sizeof(int)), BitConverter.GetBytes(33))); // ensure content length is 33
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.String); // ensure element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(9), Encoding.UTF8.GetBytes("greetings"))); // ensure element name is 'greetings'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(9), Encoding.UTF8.GetBytes("greetings"))); // ensure element name is 'greetings'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(sizeof(int)), BitConverter.GetBytes(13))); // ensure string content length is 13
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(12), Encoding.UTF8.GetBytes("Hello World!"))); // ensure element value is 'Hello World!'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(sizeof(int)), BitConverter.GetBytes(13))); // ensure string content length is 13
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(12), Encoding.UTF8.GetBytes("Hello World!"))); // ensure element value is 'Hello World!'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure string value terminator 0x00 is present
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
 
@@ -125,11 +124,11 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(16))); // ensure content length is 16
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(16))); // ensure content length is 16
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Int32); // ensure element type is int32 0x10
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("lucky"))); // ensure element name is 'lucky'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("lucky"))); // ensure element name is 'lucky'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(7))); // ensure element value is 7
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(7))); // ensure element value is 7
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
 
         Aver.AreEqual(stream.Position, 16); // ensure whole document readed
@@ -153,11 +152,11 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(34))); // ensure content length is 34
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(34))); // ensure content length is 34
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Int64); // ensure element type is int64 0x12
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(19), Encoding.UTF8.GetBytes("solarSystemDiameter"))); // ensure element name is 'solarSystemDiameter'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(19), Encoding.UTF8.GetBytes("solarSystemDiameter"))); // ensure element name is 'solarSystemDiameter'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(8), BitConverter.GetBytes(10000000000000))); // ensure element value is 10000000000000
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(8), BitConverter.GetBytes(10000000000000))); // ensure element value is 10000000000000
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
 
         Aver.AreEqual(stream.Position, 34); // ensure whole document readed
@@ -183,31 +182,31 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(57)));        // document's content length is 57
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(57)));        // document's content length is 57
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Array);                    // element type is array 0x04
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("fruits"))); // element name is 'fruits'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("fruits"))); // element name is 'fruits'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                     // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(44)));        // array's content length is 44
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(44)));        // array's content length is 44
 
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.String);               // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("0")));    // element name is '0'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("0")));    // element name is '0'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                 // last byte is terminator 0x00
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(6)));       // string content length is 6
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("apple"))); // string content length is 'apple'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(6)));       // string content length is 6
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("apple"))); // string content length is 'apple'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                 // last byte is terminator 0x00
 
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.String);                   // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("1")));      // element name is '1'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("1")));      // element name is '1'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                     // last byte is terminator 0x00
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(7)));         // string content length is 7
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("orange"))); // string content length is 'orange'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(7)));         // string content length is 7
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("orange"))); // string content length is 'orange'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                     // last byte is terminator 0x00
 
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.String);                // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("2")));     // element name is '2'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("2")));     // element name is '2'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                  // last byte is terminator 0x00
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(5)));        // string content length is 5
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), Encoding.UTF8.GetBytes("plum")));   // string content length is 'plum'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(5)));        // string content length is 5
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), Encoding.UTF8.GetBytes("plum")));   // string content length is 'plum'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                  // last byte is terminator 0x00
 
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
@@ -236,26 +235,26 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(38)));       // document's content length is 38
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(38)));       // document's content length is 38
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Array);                 // element type is array 0x04
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("years"))); // element name is 'years'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("years"))); // element name is 'years'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                  // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(26)));       // array's content length is 26
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(26)));       // array's content length is 26
 
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Int32);             // element type is int32 0x10
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("0"))); // element name is '0'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("0"))); // element name is '0'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                              // last byte is terminator 0x00
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(1963))); // value is 1963
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(1963))); // value is 1963
 
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Int32);             // element type is int32 0x10
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("1"))); // element name is '1'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("1"))); // element name is '1'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                              // last byte is terminator 0x00
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(1984))); // value is 1984
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(1984))); // value is 1984
 
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Int32);             // element type is int32 0x10
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("2"))); // element name is '2'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("2"))); // element name is '2'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                              // last byte is terminator 0x00
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(2015))); // value is 2015
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(2015))); // value is 2015
 
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
@@ -283,28 +282,28 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(48)));       // document's content length is 48
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(48)));       // document's content length is 48
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Array);                   // element type is array 0x04
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("stuff"))); // element name is 'stuff'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("stuff"))); // element name is 'stuff'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                    // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(36)));       // array's content length is 36
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(36)));       // array's content length is 36
 
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.String);                  // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("0")));     // element name is '0'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("0")));     // element name is '0'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                    // last byte is terminator 0x00
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(6)));        // string content length is 6
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("apple"))); // string content length is 'apple'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(6)));        // string content length is 6
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("apple"))); // string content length is 'apple'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                    // last byte is terminator 0x00
 
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Int32);               // element type is int32 0x10
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("1"))); // element name is '1'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("1"))); // element name is '1'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                // last byte is terminator 0x00
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(3)));    // value is 3
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(3)));    // value is 3
 
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Double);               // element type is double 0x01
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("2")));  // element name is '2'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("2")));  // element name is '2'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                 // last byte is terminator 0x00
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(8), BitConverter.GetBytes(2.14D))); // value is 2.14
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(8), BitConverter.GetBytes(2.14D))); // value is 2.14
 
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
@@ -331,18 +330,18 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(sizeof(int)), BitConverter.GetBytes(34))); // ensure content length is 34
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(sizeof(int)), BitConverter.GetBytes(34))); // ensure content length is 34
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.String); // ensure element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), Encoding.UTF8.GetBytes("name"))); // ensure element name is 'name'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), Encoding.UTF8.GetBytes("name"))); // ensure element name is 'name'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(sizeof(int)), BitConverter.GetBytes(8))); // ensure string content length is 8
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(7), Encoding.UTF8.GetBytes("Gagarin")));  // ensure element value is 'Gagarin'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(sizeof(int)), BitConverter.GetBytes(8))); // ensure string content length is 8
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(7), Encoding.UTF8.GetBytes("Gagarin")));  // ensure element value is 'Gagarin'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure string value terminator 0x00 is present
 
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Int32); // ensure element type is int 0x10
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("birth"))); // ensure element name is 'birth'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("birth"))); // ensure element name is 'birth'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(1934))); // ensure element value is int 1934
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(1934))); // ensure element value is int 1934
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
 
         Aver.AreEqual(stream.Position, 34); // ensure whole document readed
@@ -368,17 +367,17 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(sizeof(int)), BitConverter.GetBytes(38))); // content length is 38
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(sizeof(int)), BitConverter.GetBytes(38))); // content length is 38
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Document);                    // element type is document 0x03
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("nested")));    // element name is 'nested'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("nested")));    // element name is 'nested'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                        // string name terminator 0x00 is present
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(25)));         // nested document length is 25
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(25)));         // nested document length is 25
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.String);                    // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(7), Encoding.UTF8.GetBytes("capital"))); // element name is 'capital'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(7), Encoding.UTF8.GetBytes("capital"))); // element name is 'capital'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                      // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(7)));          // string length is 7
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("Moscow")));  // element value is 'Moscow'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(7)));          // string length is 7
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("Moscow")));  // element value is 'Moscow'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // last byte is terminator 0x00
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // last byte is terminator 0x00
 
@@ -407,13 +406,13 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(37))); // content length is 37
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(37))); // content length is 37
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Binary); // element type is binary 0x05
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("binary"))); // element name is 'binary'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("binary"))); // element name is 'binary'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(19))); // byte length is 19
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(19))); // byte length is 19
         Aver.AreEqual(reader.ReadByte(), (byte)BSONBinaryType.BinaryOld); // binary type is BinaryOld 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(19), data)); // byte content is correct
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(19), data)); // byte content is correct
 
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
 
@@ -444,11 +443,11 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(27))); // content length is 27
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(27))); // content length is 27
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.ObjectID); // element type is objectID 0x07
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(8), Encoding.UTF8.GetBytes("objectId"))); // element name is 'objectId'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(8), Encoding.UTF8.GetBytes("objectId"))); // element name is 'objectId'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);  // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(12), data)); // byte content is correct
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(12), data)); // byte content is correct
 
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
 
@@ -473,9 +472,9 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(19))); // content length is 19
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(19))); // content length is 19
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Boolean); // element type is boolean 0x08
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(11), Encoding.UTF8.GetBytes("booleanTrue"))); // element name is 'booleanTrue'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(11), Encoding.UTF8.GetBytes("booleanTrue"))); // element name is 'booleanTrue'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // string name terminator 0x00 is present
         Aver.AreEqual(reader.ReadByte(), (byte)BSONBoolean.True); // byte content is correct
 
@@ -502,9 +501,9 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(20))); // content length is 20
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(20))); // content length is 20
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Boolean); // element type is boolean 0x08
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(12), Encoding.UTF8.GetBytes("booleanFalse"))); // element name is 'booleanFalse'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(12), Encoding.UTF8.GetBytes("booleanFalse"))); // element name is 'booleanFalse'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // string name terminator 0x00 is present
         Aver.AreEqual(reader.ReadByte(), (byte)BSONBoolean.False); // byte content is correct
 
@@ -531,9 +530,9 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(11))); // content length is 11
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(11))); // content length is 11
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Null); // element type is null 0x0a
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), Encoding.UTF8.GetBytes("null"))); // element name is 'null'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), Encoding.UTF8.GetBytes("null"))); // element name is 'null'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // string name terminator 0x00 is present
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // last byte is terminator 0x00
 
@@ -559,11 +558,11 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(18))); // ensure content length is 18
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(18))); // ensure content length is 18
         Aver.AreEqual(reader.ReadByte(), (byte) BSONElementType.DateTime); // ensure element type is DateTime 0x09
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("now"))); // ensure element name is 'now'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("now"))); // ensure element name is 'now'
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00); // ensure string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(8), BitConverter.GetBytes(now.ToMillisecondsSinceUnixEpochStart()))); // ensure element value is correct
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(8), BitConverter.GetBytes(now.ToMillisecondsSinceUnixEpochStart()))); // ensure element value is correct
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00); // ensure last byte is terminator 0x00
 
         Aver.AreEqual(stream.Position, 18); // ensure whole document readed
@@ -612,15 +611,15 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(55)));       // ensure content length is 55
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(55)));       // ensure content length is 55
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.RegularExpression);     // ensure element type is RegularExpression 0x0b
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("email"))); // ensure element name is 'email'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("email"))); // ensure element name is 'email'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                  // ensure string name terminator 0x00 is present
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(38), Encoding.UTF8.GetBytes(pattern))); // ensure element value is pattern
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(38), Encoding.UTF8.GetBytes(pattern))); // ensure element value is pattern
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                   // ensure string value terminator 0x00 is present
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("imu"))); // ensure element value is options in BSON format
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("imu"))); // ensure element value is options in BSON format
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                // ensure string value terminator 0x00 is present
 
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
@@ -647,13 +646,13 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(58)));      // content length is 58
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(58)));      // content length is 58
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.JavaScript);           // element type is JavaScript 0x0d
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), Encoding.UTF8.GetBytes("code"))); // element name is 'code'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), Encoding.UTF8.GetBytes("code"))); // element name is 'code'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                 // string name terminator 0x00 is present
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(43)));     // js code content length is 43
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(42), Encoding.UTF8.GetBytes(code))); // element value is code
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(43)));     // js code content length is 43
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(42), Encoding.UTF8.GetBytes(code))); // element value is code
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                // string value terminator 0x00 is present
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                // last byte is terminator 0x00
 
@@ -682,21 +681,21 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(83)));       // content length is 83
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(83)));       // content length is 83
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.JavaScriptWithScope);   // element type is JavaScriptWithScope 0x0f
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(13), Encoding.UTF8.GetBytes("codeWithScope"))); // element name is 'codeWithScope'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(13), Encoding.UTF8.GetBytes("codeWithScope"))); // element name is 'codeWithScope'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                  // string name terminator 0x00 is present
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(63)));     // full content length is 63
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(43)));     // content length is 43
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(42), Encoding.UTF8.GetBytes(code))); // element value is code
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(63)));     // full content length is 63
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(43)));     // content length is 43
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(42), Encoding.UTF8.GetBytes(code))); // element value is code
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                // string value terminator 0x00 is present
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(12)));   // full scope content length is 12
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(12)));   // full scope content length is 12
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Int32);             // element type is int 0x10
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("z"))); // element name is 'z'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(1), Encoding.UTF8.GetBytes("z"))); // element name is 'z'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                              // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(23)));   // z variable value is 23
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(23)));   // z variable value is 23
 
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // last byte is terminator 0x00
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // last byte is terminator 0x00
@@ -724,12 +723,12 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(20)));       // content length is 20
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(20)));       // content length is 20
         Aver.AreEqual(reader.ReadByte(), (byte) BSONElementType.TimeStamp);            // element type is TimeStamp 0x11
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("stamp"))); // element name is 'now'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("stamp"))); // element name is 'now'
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                                 // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(123)));      // increment is correct
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes((int)now.ToSecondsSinceUnixEpochStart()))); // datetime is correct
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(123)));      // increment is correct
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes((int)now.ToSecondsSinceUnixEpochStart()))); // datetime is correct
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                                 // last byte is terminator 0x00
 
         Aver.AreEqual(stream.Position, 20); // ensure whole document readed
@@ -753,9 +752,9 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(13)));        // ensure content length is 13
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(13)));        // ensure content length is 13
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.MinKey);                 // ensure element type is MinKey 0xff
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("minkey"))); // ensure element name is 'minkey'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("minkey"))); // ensure element name is 'minkey'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                   // ensure string name terminator 0x00 is present
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                   // ensure last byte is terminator 0x00
 
@@ -780,9 +779,9 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(13))); // ensure content length is 13
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(13))); // ensure content length is 13
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.MaxKey);                 // ensure element type is MaxKey 0x7f
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("maxkey"))); // ensure element name is 'maxkey'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("maxkey"))); // ensure element name is 'maxkey'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                   // ensure string name terminator 0x00 is present
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                   // ensure last byte is terminator 0x00
 
@@ -828,83 +827,83 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(232)));    // content length is 232
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(232)));    // content length is 232
 
         Aver.AreEqual(reader.ReadByte(), (byte) BSONElementType.String);             // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("eng"))); // element name is 'eng'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("eng"))); // element name is 'eng'
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(6)));      // string content length is 6
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("hello")));
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(6)));      // string content length is 6
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(5), Encoding.UTF8.GetBytes("hello")));
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string value terminator 0x00 is present
 
         Aver.AreEqual(reader.ReadByte(), (byte) BSONElementType.String);             // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("rus"))); // element name is 'rus'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("rus"))); // element name is 'rus'
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(13)));     // string content length is 13
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(12), Encoding.UTF8.GetBytes("привет")));
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(13)));     // string content length is 13
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(12), Encoding.UTF8.GetBytes("привет")));
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string value terminator 0x00 is present
 
         Aver.AreEqual(reader.ReadByte(), (byte) BSONElementType.String);             // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("chi"))); // element name is 'chi'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("chi"))); // element name is 'chi'
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(7)));      // string content length is 7
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("你好")));
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(7)));      // string content length is 7
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("你好")));
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string value terminator 0x00 is present
 
         Aver.AreEqual(reader.ReadByte(), (byte) BSONElementType.String);             // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("jap"))); // element name is 'jap'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("jap"))); // element name is 'jap'
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(16)));     // string content length is 16
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(15), Encoding.UTF8.GetBytes("こんにちは")));
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(16)));     // string content length is 16
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(15), Encoding.UTF8.GetBytes("こんにちは")));
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string value terminator 0x00 is present
 
         Aver.AreEqual(reader.ReadByte(), (byte) BSONElementType.String);             // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("gre"))); // element name is 'gre'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("gre"))); // element name is 'gre'
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(16)));     // string content length is 16
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(15), Encoding.UTF8.GetBytes("γεια σας")));
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(16)));     // string content length is 16
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(15), Encoding.UTF8.GetBytes("γεια σας")));
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string value terminator 0x00 is present
 
         Aver.AreEqual(reader.ReadByte(), (byte) BSONElementType.String);             // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("alb"))); // element name is 'alb'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("alb"))); // element name is 'alb'
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(15)));     // string content length is 15
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(14), Encoding.UTF8.GetBytes("përshëndetje")));
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(15)));     // string content length is 15
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(14), Encoding.UTF8.GetBytes("përshëndetje")));
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string value terminator 0x00 is present
 
         Aver.AreEqual(reader.ReadByte(), (byte) BSONElementType.String);             // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("arm"))); // element name is 'arm'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("arm"))); // element name is 'arm'
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(18)));     // string content length is 18
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(17), Encoding.UTF8.GetBytes("բարեւ Ձեզ")));
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(18)));     // string content length is 18
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(17), Encoding.UTF8.GetBytes("բարեւ Ձեզ")));
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string value terminator 0x00 is present
 
         Aver.AreEqual(reader.ReadByte(), (byte) BSONElementType.String);             // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("vie"))); // element name is 'vie'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("vie"))); // element name is 'vie'
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(10)));     // string content length is 10
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(9), Encoding.UTF8.GetBytes("xin chào")));
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(10)));     // string content length is 10
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(9), Encoding.UTF8.GetBytes("xin chào")));
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string value terminator 0x00 is present
 
         Aver.AreEqual(reader.ReadByte(), (byte) BSONElementType.String);             // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("por"))); // element name is 'por'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("por"))); // element name is 'por'
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(5)));      // string content length is 5
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), Encoding.UTF8.GetBytes("Olá")));
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(5)));      // string content length is 5
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), Encoding.UTF8.GetBytes("Olá")));
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string value terminator 0x00 is present
 
         Aver.AreEqual(reader.ReadByte(), (byte) BSONElementType.String);             // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("ukr"))); // element name is 'ukr'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("ukr"))); // element name is 'ukr'
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(13)));     // string content length is 13
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(12), Encoding.UTF8.GetBytes("Привіт")));
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(13)));     // string content length is 13
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(12), Encoding.UTF8.GetBytes("Привіт")));
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string value terminator 0x00 is present
 
         Aver.AreEqual(reader.ReadByte(), (byte) BSONElementType.String);             // element type is string 0x02
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("ger"))); // element name is 'ger'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(3), Encoding.UTF8.GetBytes("ger"))); // element name is 'ger'
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(9)));      // string content length is 9
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(8), Encoding.UTF8.GetBytes("wünsche")));
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(9)));      // string content length is 9
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(8), Encoding.UTF8.GetBytes("wünsche")));
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00);                               // string value terminator 0x00 is present
 
         Aver.AreEqual(reader.ReadByte(), (byte) 0x00); // ensure last byte is terminator 0x00
@@ -938,12 +937,12 @@ namespace Azos.Tests.Unit.Serialization
 
           stream.Seek(0, SeekOrigin.Begin);
 
-          Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(16 + i))); // content length is 16+i
+          Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(16 + i))); // content length is 16+i
           Aver.AreEqual(reader.ReadByte(), (byte) BSONElementType.String); // element type is string 0x02
-          Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), Encoding.UTF8.GetBytes("vary"))); // element name is 'vary'
+          Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), Encoding.UTF8.GetBytes("vary"))); // element name is 'vary'
           Aver.AreEqual(reader.ReadByte(), (byte) 0x00); // string name terminator 0x00 is present
-          Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(i + 1))); // string content length is 13
-          Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(i), Encoding.UTF8.GetBytes(value))); // element value is value
+          Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(i + 1))); // string content length is 13
+          Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(i), Encoding.UTF8.GetBytes(value))); // element value is value
           Aver.AreEqual(reader.ReadByte(), (byte) 0x00); // string value terminator 0x00 is present
           Aver.AreEqual(reader.ReadByte(), (byte) 0x00); // last byte is terminator 0x00
 
@@ -988,27 +987,27 @@ namespace Azos.Tests.Unit.Serialization
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(63)));           // content length is 63
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(63)));           // content length is 63
 
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Int32);                     // element type is int32 0x10
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("intMin")));    // element name is 'intMin'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("intMin")));    // element name is 'intMin'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                      // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(int.MinValue))); // element value is int.MinValue
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(int.MinValue))); // element value is int.MinValue
 
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Int32);                     // element type is int32 0x10
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("intMax")));    // element name is 'intMax'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(6), Encoding.UTF8.GetBytes("intMax")));    // element name is 'intMax'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                      // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(int.MaxValue))); // element value is int.MaxValue
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(4), BitConverter.GetBytes(int.MaxValue))); // element value is int.MaxValue
 
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Int64);                      // element type is int64 0x12
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(7), Encoding.UTF8.GetBytes("longMin")));    // element name is 'longMin'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(7), Encoding.UTF8.GetBytes("longMin")));    // element name is 'longMin'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                       // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(8), BitConverter.GetBytes(long.MinValue))); // element value is long.MinValue
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(8), BitConverter.GetBytes(long.MinValue))); // element value is long.MinValue
 
         Aver.AreEqual(reader.ReadByte(), (byte)BSONElementType.Int64);                      // element type is int64 0x12
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(7), Encoding.UTF8.GetBytes("longMax")));    // element name is 'longMax'
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(7), Encoding.UTF8.GetBytes("longMax")));    // element name is 'longMax'
         Aver.AreEqual(reader.ReadByte(), (byte)0x00);                                       // string name terminator 0x00 is present
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(reader.ReadBytes(8), BitConverter.GetBytes(long.MaxValue))); // element value is long.MaxValue
+        Aver.IsTrue(IOUtils.MemBufferEquals(reader.ReadBytes(8), BitConverter.GetBytes(long.MaxValue))); // element value is long.MaxValue
 
 
         Aver.AreEqual(reader.ReadByte(), (byte)0x00); // ensure last byte is terminator 0x00
@@ -1453,7 +1452,7 @@ namespace Azos.Tests.Unit.Serialization
         Aver.IsNotNull(element);
         Aver.IsTrue(element.ElementType == BSONElementType.Binary);
         Aver.AreEqual(element.Name, "binary");
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(element.Value.Data, data));
+        Aver.IsTrue(IOUtils.MemBufferEquals(element.Value.Data, data));
         Aver.IsTrue(element.Value.Type == BSONBinaryType.BinaryOld);
 
         Aver.AreEqual(stream.Position, 37); // ensure whole document readed
@@ -1484,7 +1483,7 @@ namespace Azos.Tests.Unit.Serialization
         Aver.IsNotNull(element);
         Aver.IsTrue(element.ElementType == BSONElementType.ObjectID);
         Aver.AreEqual(element.Name, "objectId");
-        Aver.IsTrue(IOMiscUtils.MemBufferEquals(element.Value.Bytes, data));
+        Aver.IsTrue(IOUtils.MemBufferEquals(element.Value.Bytes, data));
 
         Aver.AreEqual(stream.Position, 27); // ensure whole document readed
       }
@@ -2698,20 +2697,20 @@ namespace Azos.Tests.Unit.Serialization
       Aver.IsNotNull(qryGDID["gdid"]);
       Aver.IsTrue(qryGDID["gdid"] is BSONBinaryElement);
       var binGDID = ((BSONBinaryElement)qryGDID["gdid"]).Value.Data;
-      var expectedGDID = ((BSONBinaryElement)RowConverter.GDID_CLRtoBSON("gdid", gdid)).Value.Data;
-      Aver.IsTrue(IOMiscUtils.MemBufferEquals(expectedGDID, binGDID));
+      var expectedGDID = ((BSONBinaryElement)DataDocConverter.GDID_CLRtoBSON("gdid", gdid)).Value.Data;
+      Aver.IsTrue(IOUtils.MemBufferEquals(expectedGDID, binGDID));
 
       Aver.AreEqual(qryDecimal.Count, 1);
       Aver.IsNotNull(qryDecimal["decimal"]);
       Aver.IsTrue(qryDecimal["decimal"] is BSONInt64Element);
-      Aver.AreObjectsEqual(RowConverter.Decimal_CLRtoBSON("decimal", dec).ObjectValue, qryDecimal["decimal"].ObjectValue);
+      Aver.AreObjectsEqual(DataDocConverter.Decimal_CLRtoBSON("decimal", dec).ObjectValue, qryDecimal["decimal"].ObjectValue);
 
       Aver.AreEqual(qryAmount.Count, 1);
       Aver.IsNotNull(qryAmount["amount"]);
       Aver.IsTrue(qryAmount["amount"] is BSONDocumentElement);
       var docAmount = ((BSONDocumentElement)qryAmount["amount"]).Value;
       Aver.AreEqual("RUB", docAmount["c"].ObjectValue.AsString());
-      Aver.AreObjectsEqual(RowConverter.Decimal_CLRtoBSON("decimal", dec).ObjectValue, docAmount["v"].ObjectValue);
+      Aver.AreObjectsEqual(DataDocConverter.Decimal_CLRtoBSON("decimal", dec).ObjectValue, docAmount["v"].ObjectValue);
     }
 
     [Run]

@@ -3,18 +3,16 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO;
 
+using Azos.Data;
+using Azos.Collections;
 using Azos.Scripting;
-
 using Azos.IO;
 using Azos.Serialization.JSON;
-using Azos.Collections;
 
 namespace Azos.Tests.Unit.IO
 {
@@ -628,7 +626,7 @@ namespace Azos.Tests.Unit.IO
               r.BindStream(ms);
             w.BindStream(ms);
 
-                            var gdid = new Azos.DataAccess.Distributed.GDID(5, 123);
+                            var gdid = new GDID(5, 123);
 
                             w.Write(gdid);
 
@@ -649,7 +647,7 @@ namespace Azos.Tests.Unit.IO
               r.BindStream(ms);
             w.BindStream(ms);
 
-                            var gdid = new Azos.DataAccess.Distributed.GDID(11, 0xffffffffffffffe0);
+                            var gdid = new GDID(11, 0xffffffffffffffe0);
 
                             w.Write(gdid);
 
@@ -670,10 +668,10 @@ namespace Azos.Tests.Unit.IO
               r.BindStream(ms);
             w.BindStream(ms);
 
-                            var gdid = new Azos.DataAccess.Distributed.GDID(0, 123);
+                            var gdid = new GDID(0, 123);
 
-                            w.Write((Azos.DataAccess.Distributed.GDID?)null);
-                            w.Write((Azos.DataAccess.Distributed.GDID?)gdid);
+                            w.Write((GDID?)null);
+                            w.Write((GDID?)gdid);
 
                             ms.Seek(0, SeekOrigin.Begin);
 
@@ -693,10 +691,10 @@ namespace Azos.Tests.Unit.IO
               r.BindStream(ms);
             w.BindStream(ms);
 
-                            var gdid = new Azos.DataAccess.Distributed.GDID(12, 0xffffffffffffffe0);
+                            var gdid = new GDID(12, 0xffffffffffffffe0);
 
-                            w.Write((Azos.DataAccess.Distributed.GDID?)null);
-                            w.Write((Azos.DataAccess.Distributed.GDID?)gdid);
+                            w.Write((GDID?)null);
+                            w.Write((GDID?)gdid);
 
                             ms.Seek(0, SeekOrigin.Begin);
 
@@ -1442,7 +1440,7 @@ namespace Azos.Tests.Unit.IO
                             r.BindStream(ms);
                             w.BindStream(ms);
 
-                            var pp = new Azos.Apps.Pile.PilePointer(10,20,30);
+                            var pp = new Azos.Pile.PilePointer(10,20,30);
 
                             w.Write(pp);
 
@@ -1463,9 +1461,9 @@ namespace Azos.Tests.Unit.IO
                             r.BindStream(ms);
                             w.BindStream(ms);
 
-                            var pp = new Azos.Apps.Pile.PilePointer(10,20,30);
+                            var pp = new Azos.Pile.PilePointer(10,20,30);
 
-                            w.Write((Azos.Apps.Pile.PilePointer?)null);
+                            w.Write((Azos.Pile.PilePointer?)null);
                             w.Write(pp);
 
                             ms.Seek(0, SeekOrigin.Begin);

@@ -3,8 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +52,7 @@ namespace Azos.Tests.Unit.DataAccess
 
 
         [Run]
-        [Aver.Throws(typeof(DataAccessException), Message="recursive field definition", MsgMatch= Aver.ThrowsAttribute.MatchType.Contains)]
+        [Aver.Throws(typeof(DataException), Message="recursive field definition", MsgMatch= Aver.ThrowsAttribute.MatchType.Contains)]
         public void Recursive()
         {
            var schema = Schema.GetForTypedDoc(typeof(RowC));

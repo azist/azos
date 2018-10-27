@@ -706,12 +706,12 @@ namespace Azos.IO
           }
 
 
-          public override void Write(Apps.FID value)
+          public override void Write(FID value)
           {
             m_Stream.WriteBEUInt64( value.ID );
           }
 
-              public override void Write(Apps.FID? value)
+              public override void Write(FID? value)
               {
                 if (value.HasValue)
                 {
@@ -722,14 +722,14 @@ namespace Azos.IO
                 this.Write(false);
               }
 
-          public override void Write(Azos.Pile.PilePointer value)
+          public override void Write(Pile.PilePointer value)
           {
             this.Write(value.NodeID);
             this.Write(value.Segment);
             this.Write(value.Address);
           }
 
-              public override void Write(Azos.Pile.PilePointer? value)
+              public override void Write(Pile.PilePointer? value)
               {
                 if (value.HasValue)
                 {

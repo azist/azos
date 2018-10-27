@@ -706,13 +706,13 @@ namespace Azos.IO
          }
 
 
-         public override Apps.FID ReadFID()
+         public override FID ReadFID()
           {
             var id = m_Stream.ReadBEUInt64();
-            return new Apps.FID(id);
+            return new FID(id);
           }
 
-              public override Apps.FID? ReadNullableFID()
+              public override FID? ReadNullableFID()
               {
                 var has = this.ReadBool();
 
@@ -721,7 +721,7 @@ namespace Azos.IO
                 return null;
               }
 
-         public override Azos.Pile.PilePointer ReadPilePointer()
+         public override Pile.PilePointer ReadPilePointer()
           {
             var node = this.ReadInt();
             var seg  = this.ReadInt();
@@ -729,7 +729,7 @@ namespace Azos.IO
             return new Azos.Pile.PilePointer(node, seg, adr);
           }
 
-              public override Azos.Pile.PilePointer? ReadNullablePilePointer()
+              public override Pile.PilePointer? ReadNullablePilePointer()
               {
                 var has = this.ReadBool();
 

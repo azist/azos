@@ -14,36 +14,36 @@ namespace Azos.Tests.Unit.Web
     [Run]
     public void Empty()
     {
-      Aver.AreEqual(null, MiscUtils.EscapeJSLiteral(null));
-      Aver.AreEqual("", MiscUtils.EscapeJSLiteral(""));
-      Aver.AreEqual("   ", MiscUtils.EscapeJSLiteral("   "));
+      Aver.AreEqual(null, WebUtils.EscapeJSLiteral(null));
+      Aver.AreEqual("", WebUtils.EscapeJSLiteral(""));
+      Aver.AreEqual("   ", WebUtils.EscapeJSLiteral("   "));
     }
 
     [Run]
     public void Quotes()
     {
-      Aver.AreEqual(@"Mc\x27Cloud", MiscUtils.EscapeJSLiteral("Mc'Cloud"));
-      Aver.AreEqual(@"Mc\x22Cloud", MiscUtils.EscapeJSLiteral("Mc\"Cloud"));
-      Aver.AreEqual(@"Mc\x22\x27Cloud", MiscUtils.EscapeJSLiteral("Mc\"'Cloud"));
+      Aver.AreEqual(@"Mc\x27Cloud", WebUtils.EscapeJSLiteral("Mc'Cloud"));
+      Aver.AreEqual(@"Mc\x22Cloud", WebUtils.EscapeJSLiteral("Mc\"Cloud"));
+      Aver.AreEqual(@"Mc\x22\x27Cloud", WebUtils.EscapeJSLiteral("Mc\"'Cloud"));
 
     }
 
     [Run]
     public void Script()
     {
-      Aver.AreEqual(@"not \x3C\x2Fscript\x3E the end", MiscUtils.EscapeJSLiteral("not </script> the end"));
+      Aver.AreEqual(@"not \x3C\x2Fscript\x3E the end", WebUtils.EscapeJSLiteral("not </script> the end"));
     }
 
     [Run]
     public void RN()
     {
-      Aver.AreEqual(@"not \x0D \x0A the end", MiscUtils.EscapeJSLiteral("not \r \n the end"));
+      Aver.AreEqual(@"not \x0D \x0A the end", WebUtils.EscapeJSLiteral("not \r \n the end"));
     }
 
     [Run]
     public void Various()
     {
-      Aver.AreEqual(@"not\x27s \x22\x26amp;\x22 the\x5Cs\x2F end", MiscUtils.EscapeJSLiteral(@"not's ""&amp;"" the\s/ end"));
+      Aver.AreEqual(@"not\x27s \x22\x26amp;\x22 the\x5Cs\x2F end", WebUtils.EscapeJSLiteral(@"not's ""&amp;"" the\s/ end"));
     }
   }
 }

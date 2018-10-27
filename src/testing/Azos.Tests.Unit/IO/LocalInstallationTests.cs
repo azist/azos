@@ -55,7 +55,7 @@ namespace Azos.Tests.Unit.IO
               }
               finally
               {
-                IOMiscUtils.EnsureFileEventuallyDeleted(fn);
+                IOUtils.EnsureFileEventuallyDeleted(fn);
               }
 
             }

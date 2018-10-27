@@ -3,8 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +18,7 @@ using Azos.Data;
 namespace Azos.Tests.Unit.DataAccess
 {
     [Runnable(TRUN.BASE, 3)]
-    public class TypedRows
+    public class TypedDocuments
     {
         [Run]
         public void RowFieldValueEnumerator()
@@ -109,8 +109,8 @@ namespace Azos.Tests.Unit.DataAccess
                                    };
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("LastName", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("LastName", ((FieldValidationException)error).FieldName);
         }
 
         [Run]
@@ -124,8 +124,8 @@ namespace Azos.Tests.Unit.DataAccess
                                    };
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("YearsInSpace", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("YearsInSpace", ((FieldValidationException)error).FieldName);
         }
 
         [Run]
@@ -141,8 +141,8 @@ namespace Azos.Tests.Unit.DataAccess
                                    };
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("Amount", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("Amount", ((FieldValidationException)error).FieldName);
             Aver.IsTrue( error.Message.Contains("is below") );
         }
 
@@ -159,8 +159,8 @@ namespace Azos.Tests.Unit.DataAccess
                                    };
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("Amount", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("Amount", ((FieldValidationException)error).FieldName);
             Aver.IsTrue( error.Message.Contains("is above") );
         }
 
@@ -178,8 +178,8 @@ namespace Azos.Tests.Unit.DataAccess
                                    };
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("DOB", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("DOB", ((FieldValidationException)error).FieldName);
             Aver.IsTrue( error.Message.Contains("is below") );
         }
 
@@ -212,8 +212,8 @@ namespace Azos.Tests.Unit.DataAccess
                                    };
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("Description", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("Description", ((FieldValidationException)error).FieldName);
             Aver.IsTrue( error.Message.Contains("exceeds max length") );
         }
 
@@ -233,8 +233,8 @@ namespace Azos.Tests.Unit.DataAccess
                                    };
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("Classification", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("Classification", ((FieldValidationException)error).FieldName);
             Aver.IsTrue( error.Message.Contains("not in list of permitted values") );
 
             person.Classification = "good";
@@ -296,8 +296,8 @@ namespace Azos.Tests.Unit.DataAccess
                                    };
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("History2", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("History2", ((FieldValidationException)error).FieldName);
         }
 
         [Run]
@@ -316,8 +316,8 @@ namespace Azos.Tests.Unit.DataAccess
                                    };
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("Description", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("Description", ((FieldValidationException)error).FieldName);
             Aver.IsTrue(error.Message.Contains("Chaplin"));
         }
 
@@ -337,8 +337,8 @@ namespace Azos.Tests.Unit.DataAccess
                                    };
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("ID", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("ID", ((FieldValidationException)error).FieldName);
         }
 
 

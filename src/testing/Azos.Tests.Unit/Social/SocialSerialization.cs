@@ -36,7 +36,7 @@ namespace Azos.Tests.Unit.Social
     [Run]
     public void SerializeDeserializeTWT()
     {
-      using (var app = new ApplicationModel.TestApplication(m_RootCfg))
+      using (var app = new TestApplication(m_RootCfg))
       {
         var ui = new TwitterSocialUserInfo(Twitter.Instance);
 

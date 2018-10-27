@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 
 
 using System;
@@ -13,7 +13,7 @@ using System.Linq;
 using System.Diagnostics;
 using Azos.Scripting;
 
-using Azos.Parsing;
+using Azos.Text;
 
 
 namespace Azos.Tests.Unit.Parsing

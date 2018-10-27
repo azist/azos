@@ -3,21 +3,16 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-using Azos.Scripting;
 
+using Azos.Data;
 using Azos.Log;
 
+using Azos.Scripting;
 using Azos.Serialization.BSON;
 using Azos.Serialization.JSON;
-using Azos.Financial;
 
 
 namespace Azos.Tests.Unit.Serialization
@@ -169,11 +164,11 @@ namespace Azos.Tests.Unit.Serialization
         DoubleNaN    = doc.TryGetObjectValueOf(BSON_FLD_DOUBLENAN).AsDouble();
         DoublePosInf = doc.TryGetObjectValueOf(BSON_FLD_DOUBLEPOSINF).AsDouble();
         DoubleNegInf = doc.TryGetObjectValueOf(BSON_FLD_DOUBLENEGINF).AsDouble();
-        DecimalMin   = RowConverter.Decimal_BSONtoCLR(doc[BSON_FLD_DECIMALMIN]);
-        DecimalMax   = RowConverter.Decimal_BSONtoCLR(doc[BSON_FLD_DECIMALMAX]);
-        DecimalZero  = RowConverter.Decimal_BSONtoCLR(doc[BSON_FLD_DECIMALZERO]);
-        DecimalOne   = RowConverter.Decimal_BSONtoCLR(doc[BSON_FLD_DECIMALONE]);
-        DecimalMOne  = RowConverter.Decimal_BSONtoCLR(doc[BSON_FLD_DECIMALMONE]);
+        DecimalMin   = DataDocConverter.Decimal_BSONtoCLR(doc[BSON_FLD_DECIMALMIN]);
+        DecimalMax   = DataDocConverter.Decimal_BSONtoCLR(doc[BSON_FLD_DECIMALMAX]);
+        DecimalZero  = DataDocConverter.Decimal_BSONtoCLR(doc[BSON_FLD_DECIMALZERO]);
+        DecimalOne   = DataDocConverter.Decimal_BSONtoCLR(doc[BSON_FLD_DECIMALONE]);
+        DecimalMOne  = DataDocConverter.Decimal_BSONtoCLR(doc[BSON_FLD_DECIMALMONE]);
         DateTimeMin  = doc.TryGetObjectValueOf(BSON_FLD_DATETIMEMIN).AsDateTime();
         DateTimeMax  = doc.TryGetObjectValueOf(BSON_FLD_DATETIMEMAX).AsDateTime();
         DateTimeNow  = doc.TryGetObjectValueOf(BSON_FLD_DATETIMENOW).AsDateTime();
@@ -226,8 +221,8 @@ namespace Azos.Tests.Unit.Serialization
         DoubleNaN = Double.NaN,
         DoublePosInf = Double.PositiveInfinity,
         DoubleNegInf = Double.NegativeInfinity,
-        DecimalMin = RowConverter.MIN_DECIMAL,
-        DecimalMax = RowConverter.MAX_DECIMAL,
+        DecimalMin = DataDocConverter.MIN_DECIMAL,
+        DecimalMax = DataDocConverter.MAX_DECIMAL,
         DecimalZero = Decimal.Zero,
         DecimalOne = Decimal.One,
         DecimalMOne = Decimal.MinusOne,

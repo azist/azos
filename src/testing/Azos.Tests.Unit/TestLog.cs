@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,9 +57,9 @@ namespace Azos.Tests.Unit
     {
         protected override void DoWrite(Message msg, bool urgent)
         {
-            lock (m_Destinations)
-                foreach (var destination in m_Destinations)
-                    destination.Send(msg);
+            lock (m_Sinks)
+              foreach (var sink in m_Sinks)
+                  sink.Send(msg);
         }
     }
 }

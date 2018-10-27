@@ -156,7 +156,7 @@ namespace Azos.Serialization.Slim
                yield return typeof(DateTime);
                yield return typeof(TimeSpan);
                yield return typeof(Data.GDID);
-               yield return typeof(Apps.FID);
+               yield return typeof(FID);
              }
            }
 
@@ -183,7 +183,7 @@ namespace Azos.Serialization.Slim
                yield return typeof(DateTime?);
                yield return typeof(TimeSpan?);
                yield return typeof(Data.GDID?);
-               yield return typeof(Apps.FID?);
+               yield return typeof(FID?);
              }
            }
 

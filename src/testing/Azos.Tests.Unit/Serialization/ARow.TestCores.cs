@@ -209,7 +209,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
                      }
            case 7168370: { // 'mar'
            if (dt!=DataType.Int32) break;
-           var ev = (@Azos.@UTest.@Serialization.@SimplePersonWithEnumRow.@MaritalStatus)Reader.ReadInt32(streamer);
+           var ev = (@Azos.@Tests.@Unit.@Serialization.@SimplePersonWithEnumRow.@MaritalStatus)Reader.ReadInt32(streamer);
            row.Married = ev;
            continue;
                      }
@@ -291,7 +291,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
                      }
            case 6709620: { // 'fat'
            if (dt==DataType.Null) { row.Father = null; continue;}
-           if (dt!=DataType.Row) break;
+           if (dt!=DataType.Doc) break;
            var vrow = new Azos.Tests.Unit.Serialization.SimplePersonRow();
            if (Reader.TryReadRow(row, vrow, streamer, CodeGenerator.GetName(name)))
              row.Father = vrow;
@@ -299,7 +299,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
                      }
            case 7171956: { // 'mot'
            if (dt==DataType.Null) { row.Mother = null; continue;}
-           if (dt!=DataType.Row) break;
+           if (dt!=DataType.Doc) break;
            var vrow = new Azos.Tests.Unit.Serialization.SimplePersonRow();
            if (Reader.TryReadRow(row, vrow, streamer, CodeGenerator.GetName(name)))
              row.Mother = vrow;
@@ -309,7 +309,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
            if (dt==DataType.Null) { row.Brothers = null; continue;}
            if (dt!=DataType.Array) break;
            atp = Reader.ReadDataType(streamer);
-           if (atp!=DataType.Row) break;
+           if (atp!=DataType.Doc) break;
            row.Brothers = Reader.ReadRowArray<Azos.Tests.Unit.Serialization.SimplePersonRow>(row, streamer, CodeGenerator.GetName(name));
            continue;
                      }
@@ -317,7 +317,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
            if (dt==DataType.Null) { row.Sisters = null; continue;}
            if (dt!=DataType.Array) break;
            atp = Reader.ReadDataType(streamer);
-           if (atp!=DataType.Row) break;
+           if (atp!=DataType.Doc) break;
            row.Sisters = Reader.ReadRowArray<Azos.Tests.Unit.Serialization.SimplePersonRow>(row, streamer, CodeGenerator.GetName(name));
            continue;
                      }
@@ -325,7 +325,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
            if (dt==DataType.Null) { row.Advisers = null; continue;}
            if (dt!=DataType.Array) break;
            atp = Reader.ReadDataType(streamer);
-           if (atp!=DataType.Row) break;
+           if (atp!=DataType.Doc) break;
            row.Advisers = Reader.ReadRowList<Azos.Tests.Unit.Serialization.SimplePersonRow>(row, streamer, CodeGenerator.GetName(name));
            continue;
                      }
@@ -1389,7 +1389,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
               atp = Reader.ReadDataType(streamer);
               if (atp!=DataType.GDID) break;
               var len = Reader.ReadArrayLength(streamer);
-              var arr = new Azos.DataAccess.Distributed.GDID[len];
+              var arr = new GDID[len];
               for(var i=0; i<len; i++) arr[i] = Reader.ReadGDID(streamer);
               row.GDID3 = arr;
            }
@@ -1403,7 +1403,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
               atp = Reader.ReadDataType(streamer);
               if (atp!=DataType.GDID) break;
               var len = Reader.ReadArrayLength(streamer);
-              var lst = new List<Azos.DataAccess.Distributed.GDID>(len);
+              var lst = new List<GDID>(len);
               for(var i=0; i<len; i++) lst.Add( Reader.ReadGDID(streamer) );
               row.GDID4 = lst;
            }
@@ -1467,7 +1467,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
               atp = Reader.ReadDataType(streamer);
               if (atp!=DataType.PilePointer) break;
               var len = Reader.ReadArrayLength(streamer);
-              var arr = new Azos.Apps.Pile.PilePointer[len];
+              var arr = new Azos.Pile.PilePointer[len];
               for(var i=0; i<len; i++) arr[i] = Reader.ReadPilePointer(streamer);
               row.PilePointer3 = arr;
            }
@@ -1481,7 +1481,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
               atp = Reader.ReadDataType(streamer);
               if (atp!=DataType.PilePointer) break;
               var len = Reader.ReadArrayLength(streamer);
-              var lst = new List<Azos.Apps.Pile.PilePointer>(len);
+              var lst = new List<Azos.Pile.PilePointer>(len);
               for(var i=0; i<len; i++) lst.Add( Reader.ReadPilePointer(streamer) );
               row.PilePointer4 = lst;
            }
@@ -1530,7 +1530,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
            if (dt==DataType.Null) { row.RowArray = null; continue;}
            if (dt!=DataType.Array) break;
            atp = Reader.ReadDataType(streamer);
-           if (atp!=DataType.Row) break;
+           if (atp!=DataType.Doc) break;
            row.RowArray = Reader.ReadRowArray<Azos.Tests.Unit.Serialization.AllArowTypesRow>(row, streamer, CodeGenerator.GetName(name));
            continue;
                      }
@@ -1538,7 +1538,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
            if (dt==DataType.Null) { row.RowList = null; continue;}
            if (dt!=DataType.Array) break;
            atp = Reader.ReadDataType(streamer);
-           if (atp!=DataType.Row) break;
+           if (atp!=DataType.Doc) break;
            row.RowList = Reader.ReadRowList<Azos.Tests.Unit.Serialization.AllArowTypesRow>(row, streamer, CodeGenerator.GetName(name));
            continue;
                      }
@@ -1643,7 +1643,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
            if (dt==DataType.Null) { row.G = null; continue;}
            if (dt!=DataType.Array) break;
            atp = Reader.ReadDataType(streamer);
-           if (atp!=DataType.Row) break;
+           if (atp!=DataType.Doc) break;
            row.G = Reader.ReadRowList<Azos.Tests.Unit.Serialization.Ver1Row>(row, streamer, CodeGenerator.GetName(name));
            continue;
                      }
@@ -1749,7 +1749,7 @@ namespace Azos.Tests.Unit.Serialization.Arow
            if (dt==DataType.Null) { row.G = null; continue;}
            if (dt!=DataType.Array) break;
            atp = Reader.ReadDataType(streamer);
-           if (atp!=DataType.Row) break;
+           if (atp!=DataType.Doc) break;
            row.G = Reader.ReadRowList<Azos.Tests.Unit.Serialization.Ver2Row>(row, streamer, CodeGenerator.GetName(name));
            continue;
                      }

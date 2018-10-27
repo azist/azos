@@ -3,28 +3,16 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Azos.Scripting;
-
 
 using Azos.Apps;
+using Azos.Data;
 using Azos.Pile;
-
-
-using Azos.IO;
-using Azos.Serialization.Slim;
-using Azos.Conf;
-
+using Azos.Scripting;
 
 namespace Azos.Tests.Unit.Pile
 {
@@ -140,8 +128,8 @@ namespace Azos.Tests.Unit.Pile
         Aver.AreObjectsEqual("avalue", tA.Get("aaa"));
 
         cache.WaitForCompleteStop();
-        Aver.IsTrue(Azos.ServiceModel.ControlStatus.Inactive == cache.Status);
-        Aver.IsTrue(Azos.ServiceModel.ControlStatus.Inactive == cache.Pile.Status);
+        Aver.IsTrue(ServiceStatus.Inactive == cache.Status);
+        Aver.IsTrue(ServiceStatus.Inactive == cache.Pile.Status);
       }
 
       [Run(TRUN.BASE, null, 8)]
@@ -187,9 +175,9 @@ namespace Azos.Tests.Unit.Pile
               Aver.AreEqual(2, pile.ObjectCount);
 
               cache.WaitForCompleteStop();
-              Aver.IsTrue(Azos.ServiceModel.ControlStatus.Inactive == cache.Status);
+              Aver.IsTrue(ServiceStatus.Inactive == cache.Status);
 
-              Aver.IsTrue(Azos.ServiceModel.ControlStatus.Active == pile.Status);
+              Aver.IsTrue(ServiceStatus.Active == pile.Status);
               Aver.AreEqual(0, pile.ObjectCount);
 
               cache = new LocalCache();
@@ -219,15 +207,15 @@ namespace Azos.Tests.Unit.Pile
               Aver.AreEqual(6, pile.ObjectCount);
 
               cache.WaitForCompleteStop();
-              Aver.IsTrue(Azos.ServiceModel.ControlStatus.Active == pile.Status);
+              Aver.IsTrue(ServiceStatus.Active == pile.Status);
               Aver.AreEqual(2, pile.ObjectCount);
 
               cache2.WaitForCompleteStop();
-              Aver.IsTrue(Azos.ServiceModel.ControlStatus.Active == pile.Status);
+              Aver.IsTrue(ServiceStatus.Active == pile.Status);
               Aver.AreEqual(0, pile.ObjectCount);
 
               pile.WaitForCompleteStop();
-              Aver.IsTrue(Azos.ServiceModel.ControlStatus.Inactive == pile.Status);
+              Aver.IsTrue(ServiceStatus.Inactive == pile.Status);
         }
         finally
         {

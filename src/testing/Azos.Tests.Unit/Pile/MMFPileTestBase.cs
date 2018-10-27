@@ -31,7 +31,7 @@ namespace Azos.Tests.Unit.Pile
       bool IRunHook.Epilogue(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error)
       {
         GC.Collect();
-        Azos.IOMiscUtils.EnsureDirectoryDeleted(LOCAL_ROOT);
+        Azos.IOUtils.EnsureDirectoryDeleted(LOCAL_ROOT);
         return false;
       }
 

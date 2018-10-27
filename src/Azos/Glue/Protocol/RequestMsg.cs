@@ -102,7 +102,7 @@ namespace Azos.Glue.Protocol
            /// <summary>
            /// Returns request ID for this instance. Every request is uniquely identified
            /// </summary>
-           public override Apps.FID RequestID
+           public override FID RequestID
            {
              get { return ID;}
            }

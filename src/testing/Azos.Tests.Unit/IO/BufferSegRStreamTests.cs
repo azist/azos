@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -187,17 +187,17 @@ namespace Azos.Tests.Unit.IO
             Aver.AreEqual(4, s.ReadByte());
         }
 
-       
+
         [Run]
         public void T7()
         {
             var arr = new byte[]{1,2,3,4,5};
             var s = new BufferSegmentReadingStream();
 
-            Aver.Throws<NFXIOException>( () =>  s.BindBuffer(arr, 22, 3) );
-            Aver.Throws<NFXIOException>( () =>  s.BindBuffer(arr, 0, 23) );
-            Aver.Throws<NFXIOException>( () =>  s.BindBuffer(arr, -1, 1) );
-            Aver.Throws<NFXIOException>( () =>  s.BindBuffer(arr, 0, -1) );
+            Aver.Throws<AzosIOException>( () =>  s.BindBuffer(arr, 22, 3) );
+            Aver.Throws<AzosIOException>( () =>  s.BindBuffer(arr, 0, 23) );
+            Aver.Throws<AzosIOException>( () =>  s.BindBuffer(arr, -1, 1) );
+            Aver.Throws<AzosIOException>( () =>  s.BindBuffer(arr, 0, -1) );
         }
 
         [Run]
@@ -221,7 +221,7 @@ namespace Azos.Tests.Unit.IO
               Aver.AreEqual(3, s.Position);
 
             var arr2 = new byte[]{101,102,103,104,105,106,107,108,109,110};
-            
+
             s.BindBuffer(arr2, 2, 3);
 
             Aver.AreEqual(3, s.Length);

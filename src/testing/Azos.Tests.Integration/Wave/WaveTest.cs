@@ -734,7 +734,7 @@ namespace Azos.Tests.Integration.Wave
             var txtFileSize = Encoding.UTF8.GetBytes(partTxtFile.Content.AsString()).Length;
             Aver.AreEqual(partField.Content.AsString(), Encoding.UTF8.GetString(returned.Take(fieldSize).ToArray()));
             Aver.AreEqual(partTxtFile.Content.AsString(), Encoding.UTF8.GetString(returned.Skip(fieldSize).Take(txtFileSize).ToArray()));
-            Aver.IsTrue(Azos.IOMiscUtils.MemBufferEquals(partBinFile.Content as byte[], returned.Skip(fieldSize + txtFileSize).ToArray()));
+            Aver.IsTrue(Azos.IOUtils.MemBufferEquals(partBinFile.Content as byte[], returned.Skip(fieldSize + txtFileSize).ToArray()));
           }
         }
 

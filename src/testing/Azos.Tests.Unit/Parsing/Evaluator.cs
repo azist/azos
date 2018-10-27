@@ -3,17 +3,9 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
 
-
-using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
 using Azos.Scripting;
-
-
-using E = Azos.Parsing.Evaluator;
+using E = Azos.Text.Evaluator;
 
 namespace Azos.Tests.Unit.Parsing
 {
@@ -66,7 +58,7 @@ namespace Azos.Tests.Unit.Parsing
         public void StringArithmeticWithVars()
         {
            var e = new E("'cold='+(-(2+2)*x)");
-           e.OnIdentifierLookup += new Azos.Parsing.IdentifierLookup((ident)=>ident=="x"?"100":ident);
+           e.OnIdentifierLookup += new Text.IdentifierLookup((ident)=>ident=="x"?"100":ident);
            Aver.AreEqual("cold=-400",  e.Evaluate());
         }
 
@@ -95,11 +87,11 @@ namespace Azos.Tests.Unit.Parsing
         public void ConditionalWithVars()
         {
            var e = new E("'less:'+(?x<y;'yes';'no')");
-           
+
            var x = "10";
            var y = "20";
-           e.OnIdentifierLookup += new Azos.Parsing.IdentifierLookup((ident)=>ident=="x"?x:ident=="y"?y:ident);
-          
+           e.OnIdentifierLookup += new Text.IdentifierLookup((ident)=>ident=="x"?x:ident=="y"?y:ident);
+
            Aver.AreEqual("less:yes",  e.Evaluate());
 
            y = "0";
@@ -110,10 +102,10 @@ namespace Azos.Tests.Unit.Parsing
         public void ConditionalWithVars_Lambda()
         {
            var e = new E("'less:'+(?x<y;'yes';'no')");
-           
+
            var x = "10";
            var y = "20";
-          
+
            Aver.AreEqual("less:yes",  e.Evaluate((ident)=>ident=="x"?x:ident=="y"?y:ident));
 
            y = "0";

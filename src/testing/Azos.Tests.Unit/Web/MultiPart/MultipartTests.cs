@@ -4,13 +4,11 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using Azos.Scripting;
 
+using Azos.Data;
 using Azos.Web;
 
 namespace Azos.Tests.Unit.Web.MultiPart
@@ -78,7 +76,7 @@ namespace Azos.Tests.Unit.Web.MultiPart
 
       Aver.AreEqual(encCont.Boundary, boundary);
       Aver.AreEqual(1, mpD.Parts.Count);
-      Aver.IsTrue(IOMiscUtils.MemBufferEquals(part.Content as byte[], mpD.Parts[part.Name].Content as byte[]));
+      Aver.IsTrue(IOUtils.MemBufferEquals(part.Content as byte[], mpD.Parts[part.Name].Content as byte[]));
       Aver.AreEqual(part.FileName, mpD.Parts[part.Name].FileName);
       Aver.AreEqual(part.ContentType, mpD.Parts[part.Name].ContentType);
     }
@@ -103,7 +101,7 @@ namespace Azos.Tests.Unit.Web.MultiPart
       Aver.IsNull(mpD.Parts[partField.Name].FileName);
       Aver.AreEqual(partFile.FileName, mpD.Parts[partFile.Name].FileName);
       Aver.AreEqual(partFile.ContentType, mpD.Parts[partFile.Name].ContentType);
-      Aver.IsTrue(IOMiscUtils.MemBufferEquals(partFile.Content as byte[], mpD.Parts[partFile.Name].Content as byte[]));
+      Aver.IsTrue(IOUtils.MemBufferEquals(partFile.Content as byte[], mpD.Parts[partFile.Name].Content as byte[]));
     }
 
     [Run]
@@ -132,7 +130,7 @@ namespace Azos.Tests.Unit.Web.MultiPart
       Aver.IsNull(mpD.Parts[partField.Name].FileName);
       Aver.AreEqual(partFile.FileName, mpD.Parts[partFile.Name].FileName);
       Aver.AreEqual(partFile.ContentType, mpD.Parts[partFile.Name].ContentType);
-      Aver.IsTrue(IOMiscUtils.MemBufferEquals(partFile.Content as byte[], mpD.Parts[partFile.Name].Content as byte[]));
+      Aver.IsTrue(IOUtils.MemBufferEquals(partFile.Content as byte[], mpD.Parts[partFile.Name].Content as byte[]));
     }
 
     [Run]
@@ -149,7 +147,7 @@ namespace Azos.Tests.Unit.Web.MultiPart
       Aver.AreEqual(partField.Content.AsString(), map[partField.Name].AsString());
       Aver.AreEqual(partFile.FileName, map[partFile.Name + POSTFIX_FILENAME].AsString());
       Aver.AreEqual(partFile.ContentType, map[partFile.Name + POSTFIX_CONTENT_TYPE].AsString());
-      Aver.IsTrue(IOMiscUtils.MemBufferEquals(partFile.Content as byte[], map[partFile.Name] as byte[]));
+      Aver.IsTrue(IOUtils.MemBufferEquals(partFile.Content as byte[], map[partFile.Name] as byte[]));
     }
 
     [Run]
@@ -166,7 +164,7 @@ namespace Azos.Tests.Unit.Web.MultiPart
       Aver.IsNull(mp.Parts["name"].FileName);
 
       var bmp = getEmbeddedFileBytes("bmp.dat");
-      Aver.IsTrue(IOMiscUtils.MemBufferEquals(bmp, mp.Parts["content1"].Content as byte[]));
+      Aver.IsTrue(IOUtils.MemBufferEquals(bmp, mp.Parts["content1"].Content as byte[]));
       Aver.AreEqual("image/bmp", mp.Parts["content1"].ContentType);
       Aver.AreEqual("bmp.dat", mp.Parts["content1"].FileName);
 
@@ -190,7 +188,7 @@ namespace Azos.Tests.Unit.Web.MultiPart
       Aver.AreEqual("value", map["name"].AsString());
 
       var bmp = getEmbeddedFileBytes("bmp.dat");
-      Aver.IsTrue(IOMiscUtils.MemBufferEquals(bmp, map["content1"] as byte[]));
+      Aver.IsTrue(IOUtils.MemBufferEquals(bmp, map["content1"] as byte[]));
       Aver.AreEqual("image/bmp", map["content1" + POSTFIX_CONTENT_TYPE].AsString());
       Aver.AreEqual("bmp.dat", map["content1" + POSTFIX_FILENAME].AsString());
 

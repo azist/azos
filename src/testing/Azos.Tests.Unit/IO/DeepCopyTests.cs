@@ -29,7 +29,7 @@ namespace Azos.Tests.Unit.IO
             var p1 = ManifestUtilsTests.Get_TEZT_PATH();
             var p2 = p1+"_2";
 
-            IOMiscUtils.EnsureDirectoryDeleted(p2);
+            IOUtils.EnsureDirectoryDeleted(p2);
             Directory.CreateDirectory(p2);
 
             using(var fs = new LocalFileSystem("L1"))

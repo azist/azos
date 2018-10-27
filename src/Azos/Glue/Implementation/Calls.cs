@@ -4,13 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections.Concurrent;
-
-using Azos.Glue.Protocol;
 
 namespace Azos.Glue.Implementation
 {
@@ -20,7 +15,7 @@ namespace Azos.Glue.Implementation
     /// </summary>
     internal class Calls
     {
-          private class _dict : ConcurrentDictionary<Apps.FID, CallSlot>{}//ConcurrentDictionary Sets levelof parallelism to CPU count * 4
+          private class _dict : ConcurrentDictionary<FID, CallSlot>{}//ConcurrentDictionary Sets levelof parallelism to CPU count * 4
 
       public Calls(int bucketCount)
       {
@@ -57,7 +52,7 @@ namespace Azos.Glue.Implementation
       /// Tries to get, return and remove CallSlot instance by its RequestID from the list.
       /// Returns null if CallSlot with such an id does not exist and nothing was removed
       /// </summary>
-      public CallSlot TryGetAndRemove(Apps.FID requestID)
+      public CallSlot TryGetAndRemove(FID requestID)
       {
           //getBucket() inlined for performance
           var idx = (requestID.GetHashCode() & CoreConsts.ABS_HASH_MASK) % m_BucketCount;

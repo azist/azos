@@ -1729,7 +1729,7 @@ namespace Azos.Tests.Unit.Serialization
            {
              var sb = new StringBuilder(sz);
              while(sb.Length<sz)
-              sb.Append( Azos.Parsing.NaturalTextGenerator.Generate(50));
+              sb.Append( Text.NaturalTextGenerator.Generate(50));
 
              data.Add( sb.ToString());
            }

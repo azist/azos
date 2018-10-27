@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ using Azos.Scripting;
 
 
 using Azos.Log;
-using Azos.Log.Destinations;
+using Azos.Log.Sinks;
 using Azos.Conf;
 using Azos.Apps;
 
@@ -41,7 +41,7 @@ namespace Azos.Tests.Unit.Logging
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC1);
             using( var app = new ServiceBaseApplication(null, conf.Root))
             {
-                var mbd = ((LogService)app.Log).Destinations.First() as MemoryBufferDestination;
+                var mbd = ((LogService)app.Log).Sinks.First() as MemoryBufferSink;
 
                 System.Threading.Thread.Sleep( 3000 );
                 mbd.ClearBuffer();
@@ -70,7 +70,7 @@ namespace Azos.Tests.Unit.Logging
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC1);
             using( var app = new ServiceBaseApplication(null, conf.Root))
             {
-                var mbd = ((LogService)app.Log).Destinations.First() as MemoryBufferDestination;
+                var mbd = ((LogService)app.Log).Sinks.First() as MemoryBufferSink;
 
                 System.Threading.Thread.Sleep( 3000 );
                 mbd.BufferSize = 10;

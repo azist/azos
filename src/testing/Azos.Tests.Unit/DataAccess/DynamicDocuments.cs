@@ -17,13 +17,13 @@ using Azos.Data;
 namespace Azos.Tests.Unit.DataAccess
 {
     [Runnable(TRUN.BASE, 3)]
-    public class DynamicRows
+    public class DynamicDocuments
     {
 
         [Run]
         public void BuildUsingTypedSchema()
         {
-            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var person = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
 
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
@@ -47,7 +47,7 @@ namespace Azos.Tests.Unit.DataAccess
                            new Schema.FieldDef("Description", typeof(string), new List<FieldAttribute>{ new FieldAttribute(required: true)})
             );
 
-            var person = new DynamicRow(schema);
+            var person = new DynamicDoc(schema);
 
             person["ID"] = 123;
             person["Description"] = "Tank";
@@ -60,7 +60,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void SetValuesAsDifferentTypes()
         {
-            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var person = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
 
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
@@ -101,7 +101,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void SetGetAndValidate_NoError()
         {
-            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var person = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
 
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
@@ -122,7 +122,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Validate_Error_StringRequired()
         {
-            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var person = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] = null;
@@ -131,14 +131,14 @@ namespace Azos.Tests.Unit.DataAccess
 
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("LastName", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("LastName", ((FieldValidationException)error).FieldName);
         }
 
         [Run]
         public void Validate_Error_NullableIntRequired()
         {
-            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var person = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] ="Popov";
@@ -147,14 +147,14 @@ namespace Azos.Tests.Unit.DataAccess
 
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("YearsInSpace", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("YearsInSpace", ((FieldValidationException)error).FieldName);
         }
 
         [Run]
         public void Validate_Error_DecimalMinMax_1()
         {
-            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var person = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] ="Popov";
@@ -164,15 +164,15 @@ namespace Azos.Tests.Unit.DataAccess
 
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("Amount", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("Amount", ((FieldValidationException)error).FieldName);
             Aver.IsTrue( error.Message.Contains("is below") );
         }
 
         [Run]
         public void Validate_Error_DecimalMinMax_2()
         {
-            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var person = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] ="Popov";
@@ -182,8 +182,8 @@ namespace Azos.Tests.Unit.DataAccess
 
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("Amount", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("Amount", ((FieldValidationException)error).FieldName);
             Aver.IsTrue( error.Message.Contains("is above") );
         }
 
@@ -191,7 +191,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Validate_Error_DateTimeMinMax_1()
         {
-            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var person = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] ="Popov";
@@ -202,15 +202,15 @@ namespace Azos.Tests.Unit.DataAccess
 
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("DOB", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("DOB", ((FieldValidationException)error).FieldName);
             Aver.IsTrue( error.Message.Contains("is below") );
         }
 
         [Run]
         public void Validate_Error_DateTimeMinMax_DifferentTarget()
         {
-            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var person = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] ="Popov";
@@ -225,7 +225,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Validate_Error_MaxLength()
         {
-            var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var person = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] ="Popov";
@@ -236,8 +236,8 @@ namespace Azos.Tests.Unit.DataAccess
 
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("Description", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("Description", ((FieldValidationException)error).FieldName);
             Aver.IsTrue( error.Message.Contains("exceeds max length") );
         }
 
@@ -245,7 +245,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Validate_Error_ValueList()
         {
-             var person = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+             var person = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             person["ID"] = "POP1";
             person["FirstName"] = "Oleg";
             person["LastName"] ="Popov";
@@ -257,8 +257,8 @@ namespace Azos.Tests.Unit.DataAccess
 
             var error = person.Validate();
             Console.WriteLine( error );
-            Aver.IsTrue(error is CRUDFieldValidationException);
-            Aver.AreEqual("Classification", ((CRUDFieldValidationException)error).FieldName);
+            Aver.IsTrue(error is FieldValidationException);
+            Aver.AreEqual("Classification", ((FieldValidationException)error).FieldName);
             Aver.IsTrue( error.Message.Contains("not in list of permitted values") );
 
             person["Classification"] = "good";
@@ -275,7 +275,7 @@ namespace Azos.Tests.Unit.DataAccess
         [Run]
         public void Equality()
         {
-            var person1 = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var person1 = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             person1["ID"] = "POP1";
             person1["FirstName"] = "Oleg";
             person1["LastName"] = "Popov";
@@ -284,7 +284,7 @@ namespace Azos.Tests.Unit.DataAccess
             person1["Amount"] = 100;
             person1["Description"]="Wanted to go to the moon";
 
-            var person2 = new DynamicRow(Schema.GetForTypedDoc(typeof(Person)));
+            var person2 = new DynamicDoc(Schema.GetForTypedDoc(typeof(Person)));
             person2["ID"] = "POP1";
             person2["FirstName"] = "Egor";
             person2["LastName"] = "Pedorov";

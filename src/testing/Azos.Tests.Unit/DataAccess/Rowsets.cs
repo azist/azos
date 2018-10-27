@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -146,7 +146,7 @@ namespace Azos.Tests.Unit.DataAccess
 
             for(var i=0; i<1000; i++)
             {
-                 var row =  new DynamicRow(tbl.Schema);
+                 var row =  new DynamicDoc(tbl.Schema);
 
                  row["ID"] = "DYN{0}".Args(i);
                  row["FirstName"] = "Oleg";
@@ -169,7 +169,7 @@ namespace Azos.Tests.Unit.DataAccess
 
             var match1 = tbl.FindByKey("DYN35");
             Aver.IsNotNull( match1 );
-            Aver.IsTrue( match1 is DynamicRow );
+            Aver.IsTrue( match1 is DynamicDoc);
             Aver.AreObjectsEqual("DynamicPopov-35", match1["LastName"]);
 
             var match2 = tbl.FindByKey("TYPED36") as Person;
@@ -188,7 +188,7 @@ namespace Azos.Tests.Unit.DataAccess
 
             for(var i=0; i<1000; i++)
             {
-                 var row =  new DynamicRow(tbl.Schema);
+                 var row =  new DynamicDoc(tbl.Schema);
 
                  row["ID"] = "POP{0}".Args(i);
                  row["FirstName"] = "Oleg";
@@ -205,7 +205,7 @@ namespace Azos.Tests.Unit.DataAccess
             Aver.IsNotNull( match1 );
             Aver.AreObjectsEqual("Popov-35", match1["LastName"]);
 
-            var match2 = tbl.FindByKey("POP36") as DynamicRow;
+            var match2 = tbl.FindByKey("POP36") as DynamicDoc;
             Aver.IsNotNull( match2 );
             Aver.AreObjectsEqual("Popov-36", match2["LastName"]);
 
@@ -248,7 +248,7 @@ namespace Azos.Tests.Unit.DataAccess
 
             for(var i=0; i<1000; i++)
             {
-                 var row =  new DynamicRow(tbl.Schema);
+                 var row =  new DynamicDoc(tbl.Schema);
 
                  row["ID"] = i;
                  row["Description"] = "Item-{0}".Args(i);
@@ -497,7 +497,7 @@ namespace Azos.Tests.Unit.DataAccess
 
             Aver.AreEqual(1, tbl.ChangeCount);
 
-            Aver.IsTrue(RowChangeType.Insert == tbl.GetChangeAt(0).Value.ChangeType);
+            Aver.IsTrue(DocChangeType.Insert == tbl.GetChangeAt(0).Value.ChangeType);
         }
 
         [Run]
@@ -520,7 +520,7 @@ namespace Azos.Tests.Unit.DataAccess
 
             Aver.AreEqual(1, tbl.ChangeCount);
 
-            Aver.IsTrue(RowChangeType.Update == tbl.GetChangeAt(0).Value.ChangeType);
+            Aver.IsTrue(DocChangeType.Update == tbl.GetChangeAt(0).Value.ChangeType);
         }
 
         [Run]
@@ -542,7 +542,7 @@ namespace Azos.Tests.Unit.DataAccess
 
             Aver.AreEqual(1, tbl.ChangeCount);
 
-            Aver.IsTrue(RowChangeType.Upsert == tbl.GetChangeAt(0).Value.ChangeType);
+            Aver.IsTrue(DocChangeType.Upsert == tbl.GetChangeAt(0).Value.ChangeType);
         }
 
          [Run]
@@ -566,7 +566,7 @@ namespace Azos.Tests.Unit.DataAccess
             Aver.AreEqual(1, tbl.ChangeCount);
             Aver.AreEqual(0, tbl.Count);
 
-            Aver.IsTrue(RowChangeType.Delete == tbl.GetChangeAt(0).Value.ChangeType);
+            Aver.IsTrue(DocChangeType.Delete == tbl.GetChangeAt(0).Value.ChangeType);
         }
     }
 }

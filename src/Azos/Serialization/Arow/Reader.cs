@@ -140,10 +140,10 @@ namespace Azos.Serialization.Arow
       {typeof(List<Azos.Data.GDID>), null},
 
 
-      {typeof(Azos.Apps.FID?),       null},
-      {typeof(Apps.FID),       null},
-      {typeof(Apps.FID[]),     null},
-      {typeof(List<Apps.FID>), null},
+      {typeof(FID?),       null},
+      {typeof(FID),       null},
+      {typeof(FID[]),     null},
+      {typeof(List<FID>), null},
 
       {typeof(Pile.PilePointer?),       null},
       {typeof(Pile.PilePointer),       null},
@@ -378,10 +378,10 @@ namespace Azos.Serialization.Arow
     public static Guid                                   ReadGuid         (ReadingStreamer streamer){ return streamer.ReadGuid     (); }
 
     [MethodImpl( MethodImplOptions.AggressiveInlining)]
-    public static Data.GDID                  ReadGDID         (ReadingStreamer streamer){ return streamer.ReadGDID(); }
+    public static GDID                                   ReadGDID         (ReadingStreamer streamer){ return streamer.ReadGDID(); }
 
     [MethodImpl( MethodImplOptions.AggressiveInlining)]
-    public static Apps.FID                               ReadFID          (ReadingStreamer streamer){ return streamer.ReadFID();  }
+    public static FID                                    ReadFID          (ReadingStreamer streamer){ return streamer.ReadFID();  }
 
     [MethodImpl( MethodImplOptions.AggressiveInlining)]
     public static Pile.PilePointer                       ReadPilePointer  (ReadingStreamer streamer){ return streamer.ReadPilePointer(); }

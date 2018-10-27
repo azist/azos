@@ -100,9 +100,9 @@ namespace Azos.Serialization.Arow
       {typeof(Data.GDID[]),     null},
       {typeof(List<Data.GDID>), null},
 
-      {typeof(Apps.FID),       null},
-      {typeof(Apps.FID[]),     null},
-      {typeof(List<Apps.FID>), null},
+      {typeof(FID),       null},
+      {typeof(FID[]),     null},
+      {typeof(List<FID>), null},
 
       {typeof(Pile.PilePointer),       null},
       {typeof(Pile.PilePointer[]),     null},
@@ -529,14 +529,14 @@ namespace Azos.Serialization.Arow
         streamer.Write(e);
     }
 
-    public static void Write(WritingStreamer streamer, ulong name, Apps.FID value)
+    public static void Write(WritingStreamer streamer, ulong name, FID value)
     {
       streamer.Write(name);
       streamer.Write((byte)DataType.FID);
       streamer.Write(value);
     }
 
-    public static void Write(WritingStreamer streamer, ulong name, IEnumerable<Apps.FID> array)
+    public static void Write(WritingStreamer streamer, ulong name, IEnumerable<FID> array)
     {
       streamer.Write(name);
       streamer.Write((byte)DataType.Array);

@@ -305,7 +305,7 @@ namespace Azos
     /// This function does not offer any real protection (as it is easy to decipher the original value), just visual.
     /// The name comes from non-existing science "Burmatography" used in "Neznaika" kids books
     /// </summary>
-    public static string Burmatographize(string src, bool rtl = false)//no need to make this an extension method - hence no "this"
+    public static string Burmatographize(this string src, bool rtl = false)//no need to make this an extension method - hence no "this"
     {
       if (src.IsNullOrWhiteSpace()) return src;
       var sb = new StringBuilder(src.Length);

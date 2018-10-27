@@ -9,6 +9,8 @@ using System.Reflection;
 using Azos.Graphics;
 using Azos.Scripting;
 
+using Azos.Apps;
+
 namespace Azos.Tests.Unit.Graphics
 {
   public static class TestExtensions

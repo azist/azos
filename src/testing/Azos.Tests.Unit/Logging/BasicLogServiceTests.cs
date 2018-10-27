@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 
 
 using System;
@@ -17,11 +17,9 @@ using Azos.Scripting;
 using Azos.Conf;
 
 using Azos.Log;
+using Azos.Log.Sinks;
 using LSVC = Azos.Log.LogService;
 using TSLS = Azos.Tests.Unit.TestSyncLog;
-using Azos.Log.Destinations;
-using Azos.Apps;
-using System.Threading;
 using System.Reflection;
 
 namespace Azos.Tests.Unit.Logging
@@ -38,13 +36,13 @@ namespace Azos.Tests.Unit.Logging
         var FNAME = TNAME + ".csv.log";
 
         var fname = Path.Combine(TEST_DIR, FNAME);
-        IOMiscUtils.EnsureFileEventuallyDeleted(fname);
+        IOUtils.EnsureFileEventuallyDeleted(fname);
 
         using (var svc = new LSVC())
-        using (Scope.OnExit(() => File.Delete(fname)))
+        try
         {
-          svc.RegisterDestination(
-            new CSVFileDestination(TNAME) { Path = TEST_DIR, FileName = FNAME });
+          svc.RegisterSink(
+            new CSVFileSink(TNAME) { Path = TEST_DIR, FileName = FNAME });
 
           svc.Start();
 
@@ -57,6 +55,10 @@ namespace Azos.Tests.Unit.Logging
 
           Aver.IsTrue(File.Exists(fname));
           Aver.AreEqual(4, File.ReadAllLines(fname).Length);
+        }
+        finally
+        {
+          File.Delete(fname);
         }
       }
 
@@ -75,10 +77,10 @@ namespace Azos.Tests.Unit.Logging
                    </log>".Args(TNAME, DATE);
 
         var fname = Path.Combine(TEST_DIR, DATE + "-" + FNAME);
-        IOMiscUtils.EnsureFileEventuallyDeleted(fname);
+        IOUtils.EnsureFileEventuallyDeleted(fname);
 
         using (var svc = new LSVC())
-        using (Scope.OnExit(() => File.Delete(fname)))
+        try
         {
           var cfg = XMLConfiguration.CreateFromXML(xml);
           cfg.EnvironmentVarResolver = new Vars ( new VarsDictionary{ { "path", TEST_DIR } } );
@@ -95,6 +97,10 @@ namespace Azos.Tests.Unit.Logging
           Aver.IsTrue(File.Exists(fname));
           Aver.AreEqual(3, File.ReadAllLines(fname).Length);
         }
+        finally
+        {
+          File.Delete(fname);
+        }
       }
 
       [Run]
@@ -109,10 +115,10 @@ namespace Azos.Tests.Unit.Logging
                    </log>".Args(TNAME, TEST_DIR);
 
         var fname = Path.Combine(TEST_DIR, FNAME);
-        IOMiscUtils.EnsureFileEventuallyDeleted(fname);
+        IOUtils.EnsureFileEventuallyDeleted(fname);
 
         using (var svc = new LSVC())
-        using (Scope.OnExit(() => File.Delete(fname)))
+        try
         {
           svc.Configure(XMLConfiguration.CreateFromXML(xml).Root);
 
@@ -126,6 +132,10 @@ namespace Azos.Tests.Unit.Logging
 
           Aver.IsTrue(File.Exists(fname));
           Aver.AreEqual(3, File.ReadAllLines(fname).Length);
+        }
+        finally
+        {
+          File.Delete(fname);
         }
       }
 
@@ -151,10 +161,10 @@ namespace Azos.Tests.Unit.Logging
         cnf.EnvironmentVarResolver = new Vars( new VarsDictionary { { "path", TEST_DIR}} );
 
         var fname = Path.Combine(TEST_DIR, DATE + "-" + FNAME);
-        IOMiscUtils.EnsureFileEventuallyDeleted(fname);
+        IOUtils.EnsureFileEventuallyDeleted(fname);
 
         using (var svc = new LSVC())
-        using (Scope.OnExit(() => File.Delete(fname)))
+        try
         {
           svc.Configure(cnf.Root);
 
@@ -169,6 +179,10 @@ namespace Azos.Tests.Unit.Logging
           Aver.IsTrue(File.Exists(fname));
           Aver.AreEqual(3, File.ReadAllLines(fname).Length);
         }
+        finally
+        {
+          File.Delete(fname);
+        }
       }
 
       [Run]
@@ -178,13 +192,13 @@ namespace Azos.Tests.Unit.Logging
         var FNAME = TNAME + ".csv.log";
 
         var fname = Path.Combine(TEST_DIR, FNAME);
-        IOMiscUtils.EnsureFileEventuallyDeleted(fname);
+        IOUtils.EnsureFileEventuallyDeleted(fname);
 
         var svc = new LSVC();
         try
         {
-          svc.RegisterDestination(
-            new FloodFilter(new CSVFileDestination(TNAME) {Path = TEST_DIR, FileName = FNAME })
+          svc.RegisterSink(
+            new FloodSink(new CSVFileSink(TNAME) {Path = TEST_DIR, FileName = FNAME })
             {
               IntervalSec = 10,
               MaxCount = 1000,
@@ -216,19 +230,24 @@ namespace Azos.Tests.Unit.Logging
         var FNAME = TNAME + ".csv";
 
         var fname = Path.Combine(TEST_DIR, FNAME);
-        IOMiscUtils.EnsureFileEventuallyDeleted(fname);
+        IOUtils.EnsureFileEventuallyDeleted(fname);
 
         using (var svc = new TSLS())
-        using (Scope.OnExit(() => File.Delete(fname)))
+        try
         {
-          svc.RegisterDestination(
-            new CSVFileDestination(TNAME) { Path = TEST_DIR, FileName = FNAME });
+          svc.RegisterSink(
+            new CSVFileSink(TNAME) { Path = TEST_DIR, FileName = FNAME });
           svc.Start();
 
           Aver.IsTrue(File.Exists(fname));
 
           svc.WaitForCompleteStop();
         }
+        finally
+        {
+          File.Delete(fname);
+        }
+
       }
 
       [Run]
@@ -240,7 +259,7 @@ namespace Azos.Tests.Unit.Logging
         var FNAME = "{0}-{1:yyyyMMdd}{2}".Args(TNAME, now, ".csv");
 
         var fname = Path.Combine(TEST_DIR, FNAME);
-        IOMiscUtils.EnsureFileEventuallyDeleted(fname);
+        IOUtils.EnsureFileEventuallyDeleted(fname);
 
         var xml= @"<log>
                         <destination type='Azos.Log.Destinations.CSVFileDestination, NFX'
@@ -248,7 +267,7 @@ namespace Azos.Tests.Unit.Logging
                     </log>".Args(TNAME, TEST_DIR, FNAME);
 
         using (var svc = new TSLS())
-        using (Scope.OnExit(() => File.Delete(fname)))
+        try
         {
           svc.Configure(XMLConfiguration.CreateFromXML(xml).Root);
           svc.Start();
@@ -256,6 +275,10 @@ namespace Azos.Tests.Unit.Logging
           Aver.IsTrue(File.Exists(fname));
 
           svc.WaitForCompleteStop();
+        }
+        finally
+        {
+          File.Delete(fname);
         }
       }
 
@@ -265,17 +288,21 @@ namespace Azos.Tests.Unit.Logging
         var TNAME = "TestDest-" + MethodBase.GetCurrentMethod().Name;
         var FNAME = Path.Combine(TEST_DIR, TNAME + ".log");
 
-        IOMiscUtils.EnsureFileEventuallyDeleted(FNAME);
+        IOUtils.EnsureFileEventuallyDeleted(FNAME);
 
         using (var svc = new TSLS())
-        using (Scope.OnExit(() => File.Delete(FNAME)))
+        try
         {
-          svc.RegisterDestination(new DebugDestination(TNAME) { FileName = FNAME });
+          svc.RegisterSink(new DebugSink(TNAME) { FileName = FNAME });
           svc.Start();
 
           Aver.IsTrue(File.Exists(FNAME));
 
           svc.WaitForCompleteStop();
+        }
+        finally
+        {
+          File.Delete(FNAME);
         }
       }
 
@@ -288,7 +315,7 @@ namespace Azos.Tests.Unit.Logging
         var FNAME = "{0:yyyyMMdd}-{1}.log".Args(now, TNAME);
 
         var fname = Path.Combine(TEST_DIR, FNAME);
-        IOMiscUtils.EnsureFileEventuallyDeleted(fname);
+        IOUtils.EnsureFileEventuallyDeleted(fname);
 
         var xml= @"<log>
                      <destination type='Azos.Log.Destinations.DebugDestination, NFX'
@@ -298,7 +325,7 @@ namespace Azos.Tests.Unit.Logging
                    </log>".Args(TNAME, TEST_DIR, FNAME);
 
         using (var svc = new TSLS())
-        using (Scope.OnExit(() => File.Delete(fname)))
+        try
         {
           svc.Configure(XMLConfiguration.CreateFromXML(xml).Root);
           svc.Start();
@@ -306,6 +333,10 @@ namespace Azos.Tests.Unit.Logging
           Aver.IsTrue(File.Exists(fname));
 
           svc.WaitForCompleteStop();
+        }
+        finally
+        {
+          File.Delete(fname);
         }
       }
 
@@ -315,18 +346,22 @@ namespace Azos.Tests.Unit.Logging
         var FNAME = "{0:yyyyMMdd}.log.csv".Args(App.LocalizedTime);
 
         var fname = Path.Combine(TEST_DIR, FNAME);
-        IOMiscUtils.EnsureFileEventuallyDeleted(fname);
+        IOUtils.EnsureFileEventuallyDeleted(fname);
 
         using (var svc = new TSLS())
-        using (Scope.OnExit(() => File.Delete(fname)))
+        try
         {
-          svc.RegisterDestination(
-            new CSVFileDestination() {Path = TEST_DIR});
+          svc.RegisterSink(
+            new CSVFileSink() {Path = TEST_DIR});
           svc.Start();
 
           Aver.IsTrue(File.Exists(fname));
 
           svc.WaitForCompleteStop();
+        }
+        finally
+        {
+          File.Delete(fname);
         }
       }
 
@@ -337,13 +372,13 @@ namespace Azos.Tests.Unit.Logging
         var FNAME = TNAME + ".log";
 
         var fname = Path.Combine(TEST_DIR, FNAME);
-        IOMiscUtils.EnsureFileEventuallyDeleted(FNAME);
+        IOUtils.EnsureFileEventuallyDeleted(FNAME);
 
         using (var svc = new TSLS())
-        using (Scope.OnExit(() => File.Delete(fname)))
+        try
         {
-          svc.RegisterDestination(
-            new DebugDestination(TNAME) { FileName = FNAME, Path = TEST_DIR });
+          svc.RegisterSink(
+            new DebugSink(TNAME) { FileName = FNAME, Path = TEST_DIR });
           svc.Start();
 
           DateTime now = new DateTime(2013, 1, 2, 3, 4, 5);
@@ -365,6 +400,10 @@ namespace Azos.Tests.Unit.Logging
             return 0;
           }).ToArray();
         }
+        finally
+        {
+          File.Delete(fname);
+        }
       }
 
       [Run]
@@ -377,7 +416,7 @@ namespace Azos.Tests.Unit.Logging
         var FNAME = "{0:yyyyMMdd}-{1}.log".Args(now, TNAME);
 
         var fname = Path.Combine(TEST_DIR, FNAME);
-        IOMiscUtils.EnsureFileEventuallyDeleted(FNAME);
+        IOUtils.EnsureFileEventuallyDeleted(FNAME);
 
         var xml= @"<log>
                         <destination type='Azos.Log.Destinations.DebugDestination, NFX'
@@ -386,7 +425,7 @@ namespace Azos.Tests.Unit.Logging
                     </log>".Args(TNAME, TEST_DIR, FNAME);
 
         using (var svc = new TSLS())
-        using (Scope.OnExit(() => File.Delete(fname)))
+        try
         {
           svc.Configure(XMLConfiguration.CreateFromXML(xml).Root);
           svc.Start();
@@ -421,34 +460,38 @@ namespace Azos.Tests.Unit.Logging
             return 0;
           }).ToArray();
         }
+        finally
+        {
+          File.Delete(fname);
+        }
 
         Aver.IsTrue(
-          (new Destination.LevelsList { new Tuple<MessageType, MessageType>(MessageType.DebugA, MessageType.DebugZ) }).SequenceEqual(
-            Destination.ParseLevels("DebugA-DebugZ")));
+          (new Sink.LevelsList { new Tuple<MessageType, MessageType>(MessageType.DebugA, MessageType.DebugZ) }).SequenceEqual(
+            Sink.ParseLevels("DebugA-DebugZ")));
 
         Aver.IsTrue(
-          (new Destination.LevelsList { new Tuple<MessageType, MessageType>(MessageType.Debug, MessageType.Info) }).SequenceEqual(
-            Destination.ParseLevels("-Info")));
+          (new Sink.LevelsList { new Tuple<MessageType, MessageType>(MessageType.Debug, MessageType.Info) }).SequenceEqual(
+            Sink.ParseLevels("-Info")));
 
         Aver.IsTrue(
-          (new Destination.LevelsList { new Tuple<MessageType, MessageType>(MessageType.Info, MessageType.CatastrophicError) }).SequenceEqual(
-            Destination.ParseLevels("Info-")));
+          (new Sink.LevelsList { new Tuple<MessageType, MessageType>(MessageType.Info, MessageType.CatastrophicError) }).SequenceEqual(
+            Sink.ParseLevels("Info-")));
 
         Aver.IsTrue(
-          (new Destination.LevelsList { new Tuple<MessageType, MessageType>(MessageType.Trace, MessageType.TraceZ),
+          (new Sink.LevelsList { new Tuple<MessageType, MessageType>(MessageType.Trace, MessageType.TraceZ),
                                         new Tuple<MessageType, MessageType>(MessageType.Info, MessageType.CatastrophicError) }).SequenceEqual(
-            Destination.ParseLevels("Trace - TraceZ, Info-")));
+            Sink.ParseLevels("Trace - TraceZ, Info-")));
 
         Aver.IsTrue(
-          (new Destination.LevelsList { new Tuple<MessageType, MessageType>(MessageType.Trace, MessageType.Trace),
+          (new Sink.LevelsList { new Tuple<MessageType, MessageType>(MessageType.Trace, MessageType.Trace),
                                         new Tuple<MessageType, MessageType>(MessageType.Info, MessageType.Info),
                                         new Tuple<MessageType, MessageType>(MessageType.Warning, MessageType.Warning) }).SequenceEqual(
-            Destination.ParseLevels("Trace | Info | Warning")));
+            Sink.ParseLevels("Trace | Info | Warning")));
 
         Aver.IsTrue(
-          (new Destination.LevelsList { new Tuple<MessageType, MessageType>(MessageType.Trace, MessageType.Trace),
+          (new Sink.LevelsList { new Tuple<MessageType, MessageType>(MessageType.Trace, MessageType.Trace),
                                          new Tuple<MessageType, MessageType>(MessageType.Info, MessageType.Info) }).SequenceEqual(
-            Destination.ParseLevels("Trace; Info")));
+            Sink.ParseLevels("Trace; Info")));
       }
     }
 }

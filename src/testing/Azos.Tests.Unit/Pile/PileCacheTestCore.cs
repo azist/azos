@@ -3,19 +3,19 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
-using Azos.Pile;
+using Azos.Data;
 using Azos.Conf;
+using Azos.Pile;
 
 
 namespace Azos.Tests.Unit.Pile
@@ -143,7 +143,7 @@ namespace Azos.Tests.Unit.Pile
                     var tbl = cache.GetOrCreateTable<FID>(t.ToString());
 
                     var key = FID.Generate();
-                    var data = Azos.Parsing.NaturalTextGenerator.Generate(0);
+                    var data = Azos.Text.NaturalTextGenerator.Generate(0);
 
                     var pr = tbl.Put(key, data);
                     dicts[t].TryAdd(key, data);
@@ -232,7 +232,7 @@ namespace Azos.Tests.Unit.Pile
                               for (var j = 0; j < put; j++)
                                   if (PutResult.Inserted == tbl.Put(
                                                             Azos.App.Random.NextScaledRandomInteger(0, 1000000).ToString(),
-                                                            Azos.Parsing.NaturalTextGenerator.Generate()
+                                                            Azos.Text.NaturalTextGenerator.Generate()
                                                           )) Interlocked.Increment(ref putInsert);
 
                               for (var j = 0; j < remove; j++)
@@ -317,7 +317,7 @@ namespace Azos.Tests.Unit.Pile
                               Console.WriteLine("Thread {0} Population done, now checking the buffers... {1}", Thread.CurrentThread.ManagedThreadId, DateTime.Now);
 
                               foreach (var entry in dict)
-                                  Aver.IsTrue(Azos.IOMiscUtils.MemBufferEquals(entry.Value.bin, (pile.Get(entry.Key) as dummy).bin));
+                                  Aver.IsTrue(Azos.IOUtils.MemBufferEquals(entry.Value.bin, (pile.Get(entry.Key) as dummy).bin));
 
                               Console.WriteLine("Thread {0} DONE. {1}", Thread.CurrentThread.ManagedThreadId, DateTime.Now);
                           })
@@ -391,7 +391,7 @@ namespace Azos.Tests.Unit.Pile
                               Console.WriteLine("Thread {0} Population done, now checking the buffers... {1}", Thread.CurrentThread.ManagedThreadId, DateTime.Now);
 
                               foreach (var entry in dict)
-                                  Aver.IsTrue(Azos.IOMiscUtils.MemBufferEquals(entry.Value.bin, (pile.Get(entry.Key) as dummy).bin));
+                                  Aver.IsTrue(Azos.IOUtils.MemBufferEquals(entry.Value.bin, (pile.Get(entry.Key) as dummy).bin));
 
                               Console.WriteLine("Thread {0} DONE. {1}", Thread.CurrentThread.ManagedThreadId, DateTime.Now);
                           })

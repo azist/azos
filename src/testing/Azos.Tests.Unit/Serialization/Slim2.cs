@@ -3,17 +3,15 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using System.Runtime.Serialization;
 
+
 using Azos.Scripting;
-
-
 using Azos.Serialization.Slim;
 
 
@@ -432,12 +430,12 @@ namespace Azos.Tests.Unit.Serialization
       {
         var s = new SlimSerializer();
 
-        var s1 = new Azos.Apps.Pile.PilePointer(10,231,223421);
+        var s1 = new Azos.Pile.PilePointer(10,231,223421);
 
         s.Serialize(ms, s1);
         ms.Seek(0, SeekOrigin.Begin);
 
-        var s2 = (Azos.Apps.Pile.PilePointer)s.Deserialize(ms);
+        var s2 = (Azos.Pile.PilePointer)s.Deserialize(ms);
 
         Console.WriteLine( Azos.Serialization.JSON.JSONWriter.Write(s1));
         Console.WriteLine( Azos.Serialization.JSON.JSONWriter.Write(s2));

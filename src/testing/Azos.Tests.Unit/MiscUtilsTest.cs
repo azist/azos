@@ -3,8 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -604,26 +604,26 @@ f
         [Run]
         public void URI_Join()
         {
-          Aver.AreEqual("static/site/content",  URIUtils.JoinPathSegs("static","site","content"));
-          Aver.AreEqual("static/site/content",  URIUtils.JoinPathSegs(" static","  site  "," content"));
-          Aver.AreEqual("static/site/content",  URIUtils.JoinPathSegs(" static"," \\ site  "," // content"));
-          Aver.AreEqual("static/site/content",  URIUtils.JoinPathSegs(" static/","//site  "," // content"));
-          Aver.AreEqual("static/site/content",  URIUtils.JoinPathSegs(" static/","/","/site","// content"));
-          Aver.AreEqual("/static/site/content", URIUtils.JoinPathSegs("/static/","/","/site","// content"));
-          Aver.AreEqual("/static/site/content", URIUtils.JoinPathSegs("      /static/","site","\\content"));
-          Aver.AreEqual("/static/site/content", URIUtils.JoinPathSegs(" ", null, "      /static/","site","\\content"));
-          Aver.AreEqual("static/site/content",  URIUtils.JoinPathSegs("static", null, "site","", "", "\\content"));
+          Aver.AreEqual("static/site/content",  WebUtils.JoinPathSegs("static","site","content"));
+          Aver.AreEqual("static/site/content",  WebUtils.JoinPathSegs(" static","  site  "," content"));
+          Aver.AreEqual("static/site/content",  WebUtils.JoinPathSegs(" static"," \\ site  "," // content"));
+          Aver.AreEqual("static/site/content",  WebUtils.JoinPathSegs(" static/","//site  "," // content"));
+          Aver.AreEqual("static/site/content",  WebUtils.JoinPathSegs(" static/","/","/site","// content"));
+          Aver.AreEqual("/static/site/content", WebUtils.JoinPathSegs("/static/","/","/site","// content"));
+          Aver.AreEqual("/static/site/content", WebUtils.JoinPathSegs("      /static/","site","\\content"));
+          Aver.AreEqual("/static/site/content", WebUtils.JoinPathSegs(" ", null, "      /static/","site","\\content"));
+          Aver.AreEqual("static/site/content",  WebUtils.JoinPathSegs("static", null, "site","", "", "\\content"));
         }
 
         [Run]
         public void ComposeURLQueryString_Empty()
         {
           Dictionary<string, object> pars = null;
-          var result = URIUtils.ComposeURLQueryString(pars);
+          var result = WebUtils.ComposeURLQueryString(pars);
           Aver.AreEqual(string.Empty, result);
 
           pars = new Dictionary<string, object>();
-          result = URIUtils.ComposeURLQueryString(pars);
+          result = WebUtils.ComposeURLQueryString(pars);
           Aver.AreEqual(string.Empty, result);
         }
 
@@ -634,21 +634,21 @@ f
           {
             { "name", null }
           };
-          var result = URIUtils.ComposeURLQueryString(pars);
+          var result = WebUtils.ComposeURLQueryString(pars);
           Aver.AreEqual("name", result);
 
           pars = new Dictionary<string, object>
           {
             { "name", string.Empty },
           };
-          result = URIUtils.ComposeURLQueryString(pars);
+          result = WebUtils.ComposeURLQueryString(pars);
           Aver.AreEqual("name=", result);
 
           pars = new Dictionary<string, object>
           {
             { string.Empty, "ABBA" }
           };
-          result = URIUtils.ComposeURLQueryString(pars);
+          result = WebUtils.ComposeURLQueryString(pars);
           Aver.AreEqual(string.Empty, result);
 
           pars = new Dictionary<string, object>
@@ -657,7 +657,7 @@ f
             { "name2", string.Empty },
             { string.Empty, "ABBA" }
           };
-          result = URIUtils.ComposeURLQueryString(pars);
+          result = WebUtils.ComposeURLQueryString(pars);
           Aver.AreEqual("name1&name2=", result);
 
           pars = new Dictionary<string, object>
@@ -667,7 +667,7 @@ f
             { string.Empty, "ABBA" },
             { "name3", "John" }
           };
-          result = URIUtils.ComposeURLQueryString(pars);
+          result = WebUtils.ComposeURLQueryString(pars);
           Aver.AreEqual("name1=&name2&name3=John", result);
         }
 
@@ -676,7 +676,7 @@ f
         {
           var pars = new Dictionary<string, object> { { "name", "Petrov" }, { "age", 19 }, { "spec", @" -y~!@#$%^&*()_?><|';:\/=+" } };
 
-          var result = URIUtils.ComposeURLQueryString(pars);
+          var result = WebUtils.ComposeURLQueryString(pars);
           Aver.AreEqual("name=Petrov&age=19&spec=%20-y%7E%21%40%23%24%25%5E%26%2A%28%29_%3F%3E%3C%7C%27%3B%3A%5C%2F%3D%2B", result);
         }
 
@@ -693,7 +693,7 @@ f
             { "float", -12.34F }
           };
 
-          var result = URIUtils.ComposeURLQueryString(pars);
+          var result = WebUtils.ComposeURLQueryString(pars);
           Aver.AreEqual("int=-257&bool=True&double=1.9&string=data%26data&dec=23.45&float=-12.34", result);
         }
 
@@ -711,7 +711,7 @@ f
             { "नमस्कार", "hind" }
           };
 
-          var result = URIUtils.ComposeURLQueryString(pars);
+          var result = WebUtils.ComposeURLQueryString(pars);
           Aver.AreEqual("eng=Hello%21&jap=%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF&chi=%E4%B9%85%E6%9C%89%E5%BD%92%E5%A4%A9%E6%84%BF&chi2=%E4%BD%A0%E5%A5%BD&fra=All%C3%B4&%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82=rus&%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%95%E0%A4%BE%E0%A4%B0=hind", result);
         }
 
@@ -729,7 +729,7 @@ f
             { "नमस्कार", null }
           };
 
-          var result = URIUtils.ComposeURLQueryString(pars);
+          var result = WebUtils.ComposeURLQueryString(pars);
           Aver.AreEqual("eng=Hello%21&jap&chi=%E4%B9%85%E6%9C%89%E5%BD%92%E5%A4%A9%E6%84%BF&chi2=12&%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82=&%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%95%E0%A4%BE%E0%A4%B0", result);
         }
 
@@ -742,7 +742,7 @@ f
             { "rus", "Привет Ленин!" }
           };
 
-          var result = URIUtils.ComposeURLQueryString(pars);
+          var result = WebUtils.ComposeURLQueryString(pars);
           Aver.AreEqual("eng=Hello%20Lenin%21&rus=%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82%20%D0%9B%D0%B5%D0%BD%D0%B8%D0%BD%21", result);
         }
 
@@ -802,19 +802,19 @@ f
         [Run]
         public void PackISO3CodeToInt()
         {
-          var p = IOMiscUtils.PackISO3CodeToInt("abc");
+          var p = IOUtils.PackISO3CodeToInt("abc");
           Aver.AreEqual(0,   (p & 0xff000000));
           Aver.AreEqual('C', (p & 0x00ff0000) >> 16);
           Aver.AreEqual('B', (p & 0x0000ff00) >> 8);
           Aver.AreEqual('A', (p & 0x000000ff) >> 0);
 
-          p = IOMiscUtils.PackISO3CodeToInt("us");
+          p = IOUtils.PackISO3CodeToInt("us");
           Aver.AreEqual(0,   (p & 0xff000000));
           Aver.AreEqual(0,   (p & 0x00ff0000));
           Aver.AreEqual('S', (p & 0x0000ff00) >> 8);
           Aver.AreEqual('U', (p & 0x000000ff) >> 0);
 
-          p = IOMiscUtils.PackISO3CodeToInt("z");
+          p = IOUtils.PackISO3CodeToInt("z");
           Aver.AreEqual(0,   (p & 0xff000000));
           Aver.AreEqual(0,   (p & 0x00ff0000));
           Aver.AreEqual(0,   (p & 0x0000ff00));
@@ -824,37 +824,37 @@ f
         [Run]
         public void PackISO3CodeToInt_Null()
         {
-          Aver.AreEqual(0, IOMiscUtils.PackISO3CodeToInt(null));
+          Aver.AreEqual(0, IOUtils.PackISO3CodeToInt(null));
         }
 
         [Run]
         public void PackISO3CodeToInt_Empty()
         {
-          Aver.AreEqual(0, IOMiscUtils.PackISO3CodeToInt(""));
-          Aver.AreEqual(0, IOMiscUtils.PackISO3CodeToInt("                    "));
+          Aver.AreEqual(0, IOUtils.PackISO3CodeToInt(""));
+          Aver.AreEqual(0, IOUtils.PackISO3CodeToInt("                    "));
         }
 
         [Run]
         [Aver.Throws(typeof(AzosException), Message = "iso>3", MsgMatch = MatchType.Contains)]
         public void PackISO3CodeToInt_Bad3()
         {
-          IOMiscUtils.PackISO3CodeToInt("1234");
+          IOUtils.PackISO3CodeToInt("1234");
         }
 
         [Run]
         public void UnpackISO3CodeFromInt()
         {
           var p = 0;
-          Aver.IsNull( IOMiscUtils.UnpackISO3CodeFromInt(p) );
+          Aver.IsNull( IOUtils.UnpackISO3CodeFromInt(p) );
 
-          p = IOMiscUtils.PackISO3CodeToInt("abc");
-          Aver.AreEqual("ABC", IOMiscUtils.UnpackISO3CodeFromInt(p), StringComparison.Ordinal);
+          p = IOUtils.PackISO3CodeToInt("abc");
+          Aver.AreEqual("ABC", IOUtils.UnpackISO3CodeFromInt(p), StringComparison.Ordinal);
 
-          p = IOMiscUtils.PackISO3CodeToInt("Us");
-          Aver.AreEqual("US", IOMiscUtils.UnpackISO3CodeFromInt(p), StringComparison.Ordinal);
+          p = IOUtils.PackISO3CodeToInt("Us");
+          Aver.AreEqual("US", IOUtils.UnpackISO3CodeFromInt(p), StringComparison.Ordinal);
 
-          p = IOMiscUtils.PackISO3CodeToInt("Z");
-          Aver.AreEqual("Z", IOMiscUtils.UnpackISO3CodeFromInt(p), StringComparison.Ordinal);
+          p = IOUtils.PackISO3CodeToInt("Z");
+          Aver.AreEqual("Z", IOUtils.UnpackISO3CodeFromInt(p), StringComparison.Ordinal);
         }
 
         [Run]
@@ -951,7 +951,6 @@ f
           Aver.IsTrue( "a".IsValidJSIdentifier() );
           Aver.IsTrue( "b".IsValidJSIdentifier() );
 
-          Aver.IsTrue( "b7878".IsValidJSIdentifier() );
           Aver.IsTrue( "_b7878".IsValidJSIdentifier() );
           Aver.IsTrue( "_7878".IsValidJSIdentifier() );
           Aver.IsTrue( "$1".IsValidJSIdentifier() );
