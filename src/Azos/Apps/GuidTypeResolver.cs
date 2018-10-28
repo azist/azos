@@ -19,7 +19,7 @@ namespace Azos.Apps
   public interface IGuidTypeResolver
   {
     /// <summary>
-    /// Tries to resolves the GUID into type or return null
+    /// Tries to resolves the GUID into type or returns null
     /// </summary>
     Type TryResolve(Guid guid);
 

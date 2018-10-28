@@ -5,20 +5,18 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
 
 using Azos.Time;
 
 namespace Azos.Apps
 {
   /// <summary>
-  /// Describes general application model - usually a root service locator with dependency injection container
-  ///  that governs application initialization, state management, logging etc.
+  /// Establishes a general model for applications -  root service composite governs app initialization,
+  /// module linking (service location), state management, logging, security, and other process-wide activities.
   /// An applications is usually implemented with a singleton class that has static
-  ///  conduits to instance properties via App shortcut.
-  /// Application instances may get passed by reference to simplify mocking
+  ///  conduits to instance properties via App shortcut for ambient use.
+  /// For testing, Application instances may get passed by reference
   /// </summary>
   /// <remarks>
   /// This pattern is used on purpose based on careful evaluation of various DI frameworks use-cases in various projects,
@@ -33,15 +31,16 @@ namespace Azos.Apps
      /// The general use of this flag is discouraged as code constructs should not form special cases just for unit testing,
      /// however in some cases this flag is useful. It is not exposed via App. static accessors
      /// </summary>
-     bool IsUnitTest{ get;}
+     bool IsUnitTest{ get; }
 
       /// <summary>
-     /// True when the app should force the process-wide invariant culture regardless of machine-level culture
+     /// True when the app should force the process-wide invariant culture regardless of machine-level culture.
+     /// This is used in server applications
      /// </summary>
-     bool ForceInvariantCulture{ get;}
+     bool ForceInvariantCulture{ get; }
 
      /// <summary>
-     /// Provides access to "environment-name" attribute
+     /// Provides access to "environment-name" attribute, e.g. "DEV" vs "PROD"
      /// </summary>
      string EnvironmentName { get; }
 
@@ -62,8 +61,9 @@ namespace Azos.Apps
 
 
      /// <summary>
-     /// Returns true when application instance is active and working. This property returns false as soon as application finalization starts on shutdown or Stop() was called
-     /// Use to exit long-running loops and such
+     /// Returns true when application instance is active and working. This property returns false as soon as
+     /// application finalization starts on shutdown or Stop() was called.
+     /// Used to exit background workers gracefuly (e.g. reactor completion threads, abort pending tasks etc.)
      /// </summary>
      bool Active { get; }
 
@@ -78,7 +78,8 @@ namespace Azos.Apps
      bool ShutdownStarted { get;}
 
      /// <summary>
-     /// Initiates the stop of the application by setting its Stopping to true and Active to false so dependent services may start to terminate
+     /// Initiates the stop of the application by setting its Stopping to true and Active to false so
+     /// dependent workers may start to complete
      /// </summary>
      void Stop();
 
@@ -109,7 +110,7 @@ namespace Azos.Apps
      Conf.IConfigSectionNode  ConfigRoot { get; }
 
      /// <summary>
-     /// References application command arguments
+     /// References application launch command arguments
      /// </summary>
      Conf.IConfigSectionNode  CommandArgs { get; }
 
@@ -124,12 +125,12 @@ namespace Azos.Apps
      Volatile.IObjectStore ObjectStore { get; }
 
      /// <summary>
-     /// References glue implementation that may be used to "glue" remote instances/processes/contracts together
+     /// References glue implementation that is used to "glue" remote instances/processes/contracts together (IPC)
      /// </summary>
      Glue.IGlue Glue { get; }
 
      /// <summary>
-     /// References security manager that performs user authentication based on passed credentials and other security-related global tasks
+     /// References security manager that performs user authentication based on passed credentials and other security-related general tasks
      /// </summary>
      Security.ISecurityManager SecurityManager { get; }
 
@@ -140,7 +141,7 @@ namespace Azos.Apps
      Time.ITimeSource TimeSource { get; }
 
      /// <summary>
-     /// References event timer - an entity that maintains and runs scheduled instances of Event
+     /// References event timer - an entity that maintains and runs scheduled instances of Event class
      /// </summary>
      Time.IEventTimer EventTimer { get; }
 

@@ -12,6 +12,9 @@ using Azos.Conf;
 
 namespace Azos.Templatization
 {
+  /// <summary>
+  /// Facilitates generation of DOM manipulation code a-la React/JSX
+  /// </summary>
   public class DOMGenerator : IConfigurable
   {
     #region CONSTS

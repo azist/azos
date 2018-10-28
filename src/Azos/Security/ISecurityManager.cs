@@ -20,7 +20,7 @@ namespace Azos.Security
     public interface ISecurityManager : IApplicationComponent
     {
        /// <summary>
-       /// References an entity that manages passwords such as: computes and verified hash tokens
+       /// References an entity that manages passwords such as: computes and verifies hash tokens
        /// and provides password strength verification
        /// </summary>
        IPasswordManager PasswordManager { get; }

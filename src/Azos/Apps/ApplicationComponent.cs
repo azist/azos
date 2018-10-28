@@ -13,7 +13,7 @@ namespace Azos.Apps
 {
     /// <summary>
     /// Provides marker contract requirement for an ApplicationComponent.
-    /// This interface must be implemented only by ApplicationComponent class
+    /// This interface must be implemented only by the ApplicationComponent class
     /// </summary>
     public interface IApplicationComponent
     {
@@ -165,7 +165,6 @@ namespace Azos.Apps
             get { return m_ComponentDirector; }
           }
           internal void __setComponentDirector(object director) { m_ComponentDirector = director; }
-
 
         #endregion
     }

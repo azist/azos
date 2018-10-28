@@ -26,31 +26,24 @@ namespace Azos.Apps
     {
         #region CONSTS
               public const string CONFIG_NAME_ATTR = "name";
-
         #endregion
 
-
-
         #region .ctor
+          protected Service() : base()
+          {
+          }
 
+          protected Service(object director) : base(director)
+          {
+          }
 
-                protected Service() : base()
-                {
-                }
+          protected override void Destructor()
+          {
+              SignalStop();
+              WaitForCompleteStop();
 
-                protected Service(object director) : base(director)
-                {
-                }
-
-                protected override void Destructor()
-                {
-                   SignalStop();
-                   WaitForCompleteStop();
-
-                   base.Destructor();
-                }
-
-
+              base.Destructor();
+          }
         #endregion
 
         #region Private Fields
@@ -403,19 +396,8 @@ namespace Azos.Apps
             {
               return m_StatusLock;
             }
-
         #endregion
-
-
-        #region Private Utils
-
-
-        #endregion
-
-
     }
-
-
 
     /// <summary>
     /// Represents service with typed ComponentDirector property
@@ -435,8 +417,6 @@ namespace Azos.Apps
         {
             get { return (TDirector)base.ComponentDirector; }
         }
-
     }
-
 
 }

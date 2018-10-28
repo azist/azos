@@ -10,10 +10,10 @@ using System.Threading;
 namespace Azos.Apps
 {
   /// <summary>
-  /// Provides access to execution context - that groups Application, Request, Response and Session objects.
-  /// All objects may be either application-global or thread-level.
+  /// Provides access to execution context - that groups Application and Session objects.
+  /// All objects may be either application-global or (logical)thread-level.
   /// Effectively ExecutionContext.Application is the central DI/service locator facility per process.
-  /// The async code should flow the context by passing it to functors.
+  /// The async code flows Session context automatically via Thread.Principal, however custom contexts should flow via passing it to functors.
   /// </summary>
   /// <remarks>
   /// This pattern is used on purpose based on careful evaluation of various DI frameworks use-cases in various projects,
@@ -34,7 +34,7 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Returns Session object for current thread or async flow context, or if it is null, app-global-level object is returned.
+    /// Returns Session object for current thread or async flow context, or if it is null NOPSession object is returned.
     /// Note: Thread.CurrentPrincipal auto-flows by async/await and other TAP
     /// </summary>
     public static ISession Session

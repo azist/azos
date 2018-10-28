@@ -19,7 +19,7 @@ using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Unit.Serialization
 {
-  [Runnable(TRUN.BASE)]
+  [Arow]
   public class SimplePersonRow : TypedDoc
   {
     [Field(backendName: "id",   isArow: true)]public GDID ID{get; set;}
