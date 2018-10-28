@@ -31,17 +31,17 @@ This document describes the source code naming conventions for the Azos project.
 
 
 ### File Naming
-* Types > 100 LOC should be kept in a file per type
-* It is ok to combine **many related trivial** types in one file (when each type does not have much code, e.g. custom exceptions)
+* Types > 100 LOC should be kept in their own file - **a file per type**
+* It is ok to combine **many related trivial** types in single file (when each type does not have much code, e.g. custom exceptions)
 * Group related interfaces (if they are short and related) under "Intfs.cs"
-* For type per file: file name should equal its single type
-* For multiple types per file, use reasonable common name, e.g. "Exceptions.cs"
-* Break large types *(should be a good reason to have a large type)* into partials, naming files accordingly: "Pile.Allocator.cs", "Pile.Properties.cs" etc.
+* For type per file: file name should equal its single type name, e.g. "CustomPipe.cs"
+* For multiple types per file, use reasonable common name, e.g. "Exceptions.cs", "Pipes.cs", "Connectivity.cs" etc.
+* Break large types *(there should be a good reason to have a large type)* into partials, naming files accordingly: "Pile.Allocator.cs", "Pile.Properties.cs" etc.
 
 ### File Structure
-The uniform file structure shall be adhered to, unless the described type is trivial, 
-for example: there is not need to declare regions for a struct with 2 fields. 
-The rules below apply to the classes with "body" over 100 LOC give or take. The following
+The uniform file structure per every type shall be adhered to unless the described type is trivial, 
+for example: there is not need to declare regions for a struct with 2 fields. **Always use common sense.**
+The rules below apply to the classes with "body" over 100+ LOC give or take. The following
 structure is good for general class readability as inter-dependent items (such as ctor, dctor, fields) 
 are co-located visually. 
 
