@@ -4,3 +4,5 @@
 
 NOTE: The source files for various assets rather than "primary code" (such as
 vector graphics/SVGs etc.) are under `/elm`
+
+Check out [Naming Conventions](./naming-conventions.md)

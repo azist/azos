@@ -21,8 +21,8 @@ namespace Azos.Time
 
 
 
-       private static TimeLocation s_Parent = new TimeLocation(true);
-       private static TimeLocation s_UTC = new TimeLocation(TimeSpan.Zero, "UTC", true);
+       private readonly static TimeLocation s_Parent = new TimeLocation(true);
+       private readonly static TimeLocation s_UTC = new TimeLocation(TimeSpan.Zero, "UTC", true);
 
 
        /// <summary>
