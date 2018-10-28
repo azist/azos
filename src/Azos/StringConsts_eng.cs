@@ -477,9 +477,6 @@ namespace Azos
     public const string POD_DONT_KNOW_HOWTO_DESERIALIZE_FROM_CUSTOM_DATA =
         "PortableObjectDocument can not deserialize an instance of '{0}' as the type foes not provide neither PortableObjectDocumentDeserializationTransform nor ISerializable impmenetation";
 
-    public const string CODE_LOGIC_ERROR =
-        "Logic error in code: ";
-
 
     public const string IO_FS_ITEM_IS_READONLY_ERROR =
         "FileSystem '{0}' item '{1}' is read only";
@@ -941,20 +938,6 @@ namespace Azos
 
     public const string PILE_CACHE_TBL_KEYCOMPARER_MISMATCH_ERROR =
       "Key comparer mismatch for pile cache table '{0}'. Existing: '{1}' Requested: '{2}'";
-
-
-    public const string PDF_UNIT_INCONSISTENCY_ERROR =
-        "PDF Unit '{0}' is inconsistently defined";
-
-    public const string PDF_UNIT_DOESNOTEXIST_ERROR =
-        "PDF Unit '{0}' does not exist";
-
-    public const string PDF_COLOR_DOESNOTEXIST_ERROR =
-        "PDF Color '{0}' does not exist";
-
-    public const string PDF_COLOR_INCONSISTENCY_ERROR =
-        "PDF Color '{0}' is inconsistently defined";
-
 
 
     public const string BSON_DOCUMENT_SIZE_EXCEEDED_ERROR =

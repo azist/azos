@@ -92,6 +92,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.MySql", "providers\Azo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.MsSql", "providers\Azos.MsSql\Azos.MsSql.csproj", "{A82E327A-2492-4016-A9C5-BB1BE889A08E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Media", "providers\Azos.Media\Azos.Media.csproj", "{96C1D999-FFD7-4599-831B-FBD37606AD36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -238,6 +240,10 @@ Global
 		{A82E327A-2492-4016-A9C5-BB1BE889A08E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A82E327A-2492-4016-A9C5-BB1BE889A08E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A82E327A-2492-4016-A9C5-BB1BE889A08E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96C1D999-FFD7-4599-831B-FBD37606AD36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96C1D999-FFD7-4599-831B-FBD37606AD36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96C1D999-FFD7-4599-831B-FBD37606AD36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96C1D999-FFD7-4599-831B-FBD37606AD36}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -275,6 +281,7 @@ Global
 		{B3831368-8B6F-4EB6-AFC8-8D52609FB6A4} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
 		{2CF0DBE7-3CEA-4E19-BAD4-1F0BCFB74D44} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
 		{A82E327A-2492-4016-A9C5-BB1BE889A08E} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
+		{96C1D999-FFD7-4599-831B-FBD37606AD36} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75EF590C-FE75-45E7-B941-B225EF484F5F}

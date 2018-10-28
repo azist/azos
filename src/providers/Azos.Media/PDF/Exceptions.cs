@@ -1,0 +1,18 @@
+
+using System;
+using System.Runtime.Serialization;
+
+namespace Azos.Media.PDF
+{
+  /// <summary>
+  /// Base exception thrown by the PDF framework
+  /// </summary>
+  [Serializable]
+  public class PdfException : AzosException
+  {
+    public PdfException() { }
+    public PdfException(string message) : base(message) { }
+    public PdfException(string message, Exception inner) : base(message, inner) { }
+    protected PdfException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+  }
+}
