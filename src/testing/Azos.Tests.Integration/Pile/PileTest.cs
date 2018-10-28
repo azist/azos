@@ -7,16 +7,15 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Azos.Scripting;
 
-using Azos.ApplicationModel.Pile;
-using Azos.DataAccess.Distributed;
-using Azos.UTest.AppModel.Pile;
+using Azos.Pile;
+using Azos.Data;
+using Azos.Tests.Unit.Pile;
 
-namespace Azos.Tests.Integration.AppModel.Pile
+namespace Azos.Tests.Integration.Pile
 {
   [Runnable]
   public class PileTest

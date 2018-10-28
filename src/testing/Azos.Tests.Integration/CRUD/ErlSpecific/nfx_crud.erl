@@ -52,10 +52,10 @@ subscribe(ReqID, Mod, Fun, Args)
         {ReqID, {error, ?GEN_ERROR, Reason}}
     end.
 
-%% Example: Row = {secdef, Key, Field, ...}
--spec write(Row::tuple()) -> {ok, integer()} | {error, any()}.
-write(Row) when is_tuple(Row) ->
-    case mnesia:dirty_write(Row) of
+%% Example: Doc = {secdef, Key, Field, ...}
+-spec write(Doc::tuple()) -> {ok, integer()} | {error, any()}.
+write(Doc) when is_tuple(Doc) ->
+    case mnesia:dirty_write(Doc) of
     ok    -> {ok, 1};
     Error -> {error, Error}
     end.

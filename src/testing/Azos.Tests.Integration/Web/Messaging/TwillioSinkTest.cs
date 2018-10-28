@@ -7,7 +7,8 @@ using System;
 using System.Linq;
 using Azos.Scripting;
 
-using Azos.ApplicationModel;
+using Azos.Apps;
+using Azos.Data;
 using Azos.Web.Messaging;
 
 namespace Azos.Tests.Integration.Web.Messaging

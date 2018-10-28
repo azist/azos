@@ -5,14 +5,13 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
+using Azos.Apps;
+using Azos.Data;
 using Azos.IO.FileSystem;
 using Azos.IO.FileSystem.SVN;
 using Azos.Scripting;
-using Azos.Security;
 using FS = Azos.IO.FileSystem.FileSystem;
 
 namespace Azos.Tests.Integration.IO.FileSystem.SVN
@@ -36,7 +35,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void NavigateRootDir()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         using(var fs = new SVNFileSystem("Azos-SVN"))
         {
@@ -53,7 +52,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void Size()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.Instances["Azos-SVN"];
 
@@ -75,7 +74,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void NavigateChildDir()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.Instances["Azos-SVN"];
 
@@ -103,7 +102,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void NavigateChildFile()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.Instances["Azos-SVN"];
         using (var session = fs.StartSession())
@@ -119,7 +118,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void GetFileContent()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.Instances["Azos-SVN"];
         using (var session = fs.StartSession())
@@ -134,7 +133,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void GetVersions()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.Instances["Azos-SVN"];
         using (var session = fs.StartSession())
@@ -152,7 +151,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void GetVersionedFiles()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         IList<WebDAV.Version> versions = WebDAV.GetVersions(SVN_ROOT, SVN_UNAME, SVN_UPSW).ToList();
 
@@ -179,7 +178,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Aver.Throws(typeof(System.Net.WebException), Message = "timed out", MsgMatch = Aver.ThrowsAttribute.MatchType.Contains)]
     public void FailedFastTimeout()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.Instances["Azos-SVN"];
         using (var session = fs.StartSession(CONN_PARAMS_TIMEOUT))

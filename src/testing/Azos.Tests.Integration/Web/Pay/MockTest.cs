@@ -3,27 +3,20 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
-using Azos.ApplicationModel;
-using Azos.Environment;
+using Azos.Apps;
 using Azos.Scripting;
 using Azos.Web;
 using Azos.Web.Pay;
 using Azos.Web.Pay.Mock;
-using static Azos.Aver.ThrowsAttribute;
 
 namespace Azos.Tests.Integration.Web.Pay
 {
   [Runnable]
-  public class MockTest: Azos.Tests.Integration.ExternalCfg
+  public class MockTest: ExternalCfg
   {
-    #region Tests
 
       //[Run]
       //public void MakePaySystem()
@@ -57,7 +50,7 @@ namespace Azos.Tests.Integration.Web.Pay
       }
 
       [Run]
-      [Aver.Throws(typeof(PaymentMockException), Message = "declined", MsgMatch = MatchType.Contains)]
+      [Aver.Throws(typeof(PaymentMockException), Message = "declined")]
       public void ChargeCardDeclined()
       {
         var conf = LACONF.AsLaconicConfig();
@@ -74,7 +67,7 @@ namespace Azos.Tests.Integration.Web.Pay
       }
 
       [Run]
-      [Aver.Throws(typeof(PaymentMockException), Message = "is incorrect", MsgMatch = MatchType.Contains)]
+      [Aver.Throws(typeof(PaymentMockException), Message = "is incorrect")]
       public void ChargeCardLuhnErr()
       {
         var conf = LACONF.AsLaconicConfig();
@@ -91,7 +84,7 @@ namespace Azos.Tests.Integration.Web.Pay
       }
 
       [Run]
-      [Aver.Throws(typeof(PaymentMockException), Message = "Invalid card expiration", MsgMatch = MatchType.Contains)]
+      [Aver.Throws(typeof(PaymentMockException), Message = "Invalid card expiration")]
       public void ChargeCardExpYearErr()
       {
         var conf = LACONF.AsLaconicConfig();
@@ -108,7 +101,7 @@ namespace Azos.Tests.Integration.Web.Pay
       }
 
       [Run]
-      [Aver.Throws(typeof(PaymentMockException), Message = "Invalid card expiration", MsgMatch = MatchType.Contains)]
+      [Aver.Throws(typeof(PaymentMockException), Message = "Invalid card expiration")]
       public void ChargeCardExpMonthErr()
       {
         var conf = LACONF.AsLaconicConfig();
@@ -125,7 +118,7 @@ namespace Azos.Tests.Integration.Web.Pay
       }
 
       [Run]
-      [Aver.Throws(typeof(PaymentMockException), Message = "Invalid card CVC", MsgMatch = MatchType.Contains)]
+      [Aver.Throws(typeof(PaymentMockException), Message = "Invalid card CVC")]
       public void ChargeCardVCErr()
       {
         var conf = LACONF.AsLaconicConfig();
@@ -292,8 +285,6 @@ namespace Azos.Tests.Integration.Web.Pay
         }
       }
 
-
-    #endregion
     #region .pvt/implementation
 
       private PaySystem getPaySystem()

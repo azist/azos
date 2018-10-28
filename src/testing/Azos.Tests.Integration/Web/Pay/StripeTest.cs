@@ -4,20 +4,18 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Linq;
 
-using Azos.ApplicationModel;
+using Azos.Apps;
 using Azos.Scripting;
 using Azos.Web;
 using Azos.Web.Pay;
 using Azos.Web.Pay.Stripe;
-using static Azos.Aver.ThrowsAttribute;
 
 namespace Azos.Tests.Integration.Web.Pay
 {
   [Runnable]
-  public class StripeTest : Azos.Tests.Integration.ExternalCfg
+  public class StripeTest : ExternalCfg
   {
     [Run]
     public void Charge()
@@ -36,7 +34,7 @@ namespace Azos.Tests.Integration.Web.Pay
     }
 
     [Run]
-    [Aver.Throws(typeof(PaymentStripeException), Message = "declined", MsgMatch = MatchType.Contains)]
+    [Aver.Throws(typeof(PaymentStripeException), Message = "declined")]
     public void ChargeCardDeclined()
     {
       var conf = LACONF.AsLaconicConfig();
@@ -53,7 +51,7 @@ namespace Azos.Tests.Integration.Web.Pay
     }
 
     [Run]
-    [Aver.Throws(typeof(PaymentStripeException), Message = "card number is incorrect", MsgMatch = MatchType.Contains)]
+    [Aver.Throws(typeof(PaymentStripeException), Message = "card number is incorrect")]
     public void ChargeCardLuhnErr()
     {
       var conf = LACONF.AsLaconicConfig();
@@ -70,7 +68,7 @@ namespace Azos.Tests.Integration.Web.Pay
     }
 
     [Run]
-    [Aver.Throws(typeof(PaymentStripeException), Message = "expiration year is invalid", MsgMatch = MatchType.Contains)]
+    [Aver.Throws(typeof(PaymentStripeException), Message = "expiration year is invalid")]
     public void ChargeCardExpYearErr()
     {
       var conf = LACONF.AsLaconicConfig();
@@ -87,7 +85,7 @@ namespace Azos.Tests.Integration.Web.Pay
     }
 
     [Run]
-    [Aver.Throws(typeof(PaymentStripeException), Message = "expiration month is invalid", MsgMatch = MatchType.Contains)]
+    [Aver.Throws(typeof(PaymentStripeException), Message = "expiration month is invalid")]
     public void ChargeCardExpMonthErr()
     {
       var conf = LACONF.AsLaconicConfig();
@@ -104,7 +102,7 @@ namespace Azos.Tests.Integration.Web.Pay
     }
 
     [Run]
-    [Aver.Throws(typeof(PaymentStripeException), Message = "security code is invalid", MsgMatch = MatchType.Contains)]
+    [Aver.Throws(typeof(PaymentStripeException), Message = "security code is invalid")]
     public void ChargeCardVCErr()
     {
       var conf = LACONF.AsLaconicConfig();
@@ -120,7 +118,6 @@ namespace Azos.Tests.Integration.Web.Pay
       }
     }
 
-    // dlatushkin 20141201:
     //   refund reason
     //   actualaccountdata: +zip
     //   charge: + other address attributes

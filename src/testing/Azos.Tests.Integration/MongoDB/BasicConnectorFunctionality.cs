@@ -4,21 +4,17 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text;
-using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
-using Azos.DataAccess.MongoDB;
-using Azos.DataAccess.MongoDB.Connector;
+using Azos.Data;
+using Azos.Data.Access.MongoDb.Connector;
 using Azos.Scripting;
 using Azos.Serialization.BSON;
 
-namespace Azos.Tests.Integration.MongoDB
+namespace Azos.Tests.Integration.MongoDb
 {
   [Runnable]
   public class BasicConnectorFunctionality
@@ -75,7 +71,7 @@ namespace Azos.Tests.Integration.MongoDB
         var collections = db.GetCollectionNames();
         collectionCount = collections.Length;
 
-        // Different MongoDB Server versions treat system collection differently (newer versions dont count)
+        // Different MongoDb Server versions treat system collection differently (newer versions dont count)
         Aver.IsTrue(collectionCount == 2 || collectionCount == 3);
         Aver.IsTrue( collections.Contains("t1"));
         Aver.IsTrue( collections.Contains("t2"));

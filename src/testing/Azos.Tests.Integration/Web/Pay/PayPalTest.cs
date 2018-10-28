@@ -5,10 +5,10 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Linq;
 using System.Threading;
 
-using Azos.ApplicationModel;
+using Azos.Apps;
+using Azos.Data;
 using Azos.Financial;
 using Azos.Scripting;
 using Azos.Web.Pay;
@@ -274,7 +274,7 @@ namespace Azos.Tests.Integration.Web.Pay
     {
       for (var i = 0; i < 5; i++)
       {
-        var sleep = ExternalRandomGenerator.Instance.NextScaledRandomInteger(5000, 8000);
+        var sleep = App.Random.NextScaledRandomInteger(5000, 8000);
         Thread.Sleep(sleep);
         if (transaction.Refresh()) return;
       }

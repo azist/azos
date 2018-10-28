@@ -6,16 +6,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 using Azos;
 using Azos.Glue;
-using Azos.DataAccess.CRUD;
-using Azos.DataAccess.Distributed;
-using Azos.DataAccess.MongoDB;
+using Azos.Data;
+using Azos.Data.Access;
+using Azos.Data.Access.MongoDb;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
 
@@ -29,16 +27,16 @@ namespace Azos.Tests.Integration.CRUD
   {
       private const string SCRIPT_ASM = "Azos.Tests.Integration";
 
-      private static readonly Node CONNECT_NODE = Azos.DataAccess.MongoDB.Connector.Connection.DEFAUL_LOCAL_NODE;
+      private static readonly Node CONNECT_NODE = Azos.Data.Access.MongoDb.Connector.Connection.DEFAUL_LOCAL_NODE;
       private static readonly string CONNECT_STR = CONNECT_NODE.ConnectString;
       private const string DB_NAME = "nfxtest";
 
 
-      private MongoDBDataStore store;
+      private MongoDbDataStore store;
 
       bool IRunHook.Prologue(Runner runner, FID id, MethodInfo method, RunAttribute attr, ref object[] args)
       {
-         store = new MongoDBDataStore(CONNECT_STR, DB_NAME);
+         store = new MongoDbDataStore(CONNECT_STR, DB_NAME);
          store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
          store.QueryResolver.RegisterHandlerLocation("Azos.Tests.Integration.CRUD.MongoSpecific, Azos.Tests.Integration");
          clearAll();
@@ -53,7 +51,7 @@ namespace Azos.Tests.Integration.CRUD
 
       private void clearAll()
       {
-        using (var db = Azos.DataAccess.MongoDB.Connector.MongoClient.Instance[CONNECT_NODE][DB_NAME])
+        using (var db = Azos.Data.Access.MongoDb.Connector.MongoClient.Instance[CONNECT_NODE][DB_NAME])
         {
           foreach( var cn in db.GetCollectionNames())
            db[cn].Drop();
@@ -84,10 +82,10 @@ namespace Azos.Tests.Integration.CRUD
           store.Insert(row);
         }
 
-        using (var db = Azos.DataAccess.MongoDB.Connector.MongoClient.Instance[CONNECT_NODE][DB_NAME])
+        using (var db = Data.Access.MongoDb.Connector.MongoClient.Instance[CONNECT_NODE][DB_NAME])
         {
           var collection = db["MyPerzon"];
-          var query = new Azos.DataAccess.MongoDB.Connector.Query();
+          var query = new Data.Access.MongoDb.Connector.Query();
 
           var cur = collection.Find(query, skip, fetchBy);
           using(cur)
@@ -123,7 +121,7 @@ namespace Azos.Tests.Integration.CRUD
 
           store.Insert(row);
 
-          var row2 = store.LoadOneRow(new Query("CRUD.LoadPerzon", typeof(MyPerzon))
+          var row2 = store.LoadOneDoc(new Query("CRUD.LoadPerzon", typeof(MyPerzon))
                            {
                              new Query.Param("id", row.GDID)
                            }) as MyPerzon;
@@ -146,7 +144,7 @@ namespace Azos.Tests.Integration.CRUD
 
           store.Insert(row);
 
-          var row2 = store.LoadOneRow(new Query("CRUD.LoadPerzonAge", typeof(MyPerzon))
+          var row2 = store.LoadOneDoc(new Query("CRUD.LoadPerzonAge", typeof(MyPerzon))
                            {
                              new Query.Param("id", row.GDID)
                            }) as MyPerzon;
@@ -169,7 +167,7 @@ namespace Azos.Tests.Integration.CRUD
 
           store.Insert(row);
 
-          var row2 = store.LoadRow(new Query<DynamicRow>("CRUD.LoadPerzon")
+          var row2 = store.LoadDoc(new Query<DynamicDoc>("CRUD.LoadPerzon")
                            {
                              new Query.Param("id", row.GDID)
                            });
@@ -228,7 +226,7 @@ namespace Azos.Tests.Integration.CRUD
           {
             var cursor = store.OpenCursor(  new Query("CRUD.LoadAllMyData", typeof(MyData))  );
             Aver.IsNotNull( cursor );
-            var lst = new List<Row>();
+            var lst = new List<Doc>();
             foreach(var row in cursor)
              lst.Add(row);
 
@@ -245,7 +243,7 @@ namespace Azos.Tests.Integration.CRUD
  Console.WriteLine("A");
           {
             Cursor cursor;
-            var lst = new List<Row>();
+            var lst = new List<Doc>();
 
             using(cursor = store.OpenCursor(  new Query("CRUD.LoadAllMyData", typeof(MyData))  ))
             {
@@ -432,7 +430,7 @@ Console.WriteLine("C");
       [Run]
       public void Save()
       {
-          var rowset = new Rowset(Schema.GetForTypedRow(typeof(MyPerzon)));
+          var rowset = new Rowset(Schema.GetForTypedDoc(typeof(MyPerzon)));
           rowset.LogChanges = true;
 
           for(var i=0; i<100; i++)
@@ -507,7 +505,7 @@ Console.WriteLine("C");
          Aver.AreEqual(2, schema["Age"].Order);
          Aver.AreEqual(3, schema["Data"].Order);
 
-         var row2 = new DynamicRow(schema);//Notice: We are creating dynamic row with schema taken from Mongo
+         var row2 = new DynamicDoc(schema);//Notice: We are creating dynamic row with schema taken from Mongo
 
          row2["_id"] = new GDID(10,10,10);
          row2["Name"] = "Kozloff";
@@ -574,7 +572,7 @@ Console.WriteLine("C");
                            {
                              new Query.Param("id", person.GDID)
                            };
-            var persisted = store.LoadRow(query);
+            var persisted = store.LoadDoc(query);
             Aver.AreEqual(person.Name, persisted.Name);
             Aver.AreEqual(0, persisted.Age);
         }
@@ -594,12 +592,12 @@ Console.WriteLine("C");
                            {
                              new Query.Param("id", person.GDID)
                            };
-            var persisted = store.LoadRow(query);
+            var persisted = store.LoadDoc(query);
             persisted.Name = "Ivan";
             persisted.Age = 56;
 
             var affected = store.Update(persisted, null, (r, k, f) => f.Name != "Name");
-            var updated = store.LoadRow(query);
+            var updated = store.LoadDoc(query);
 
             Aver.AreEqual(1, affected);
             Aver.AreEqual(person.Name, updated.Name);
@@ -621,12 +619,12 @@ Console.WriteLine("C");
                            {
                              new Query.Param("id", person.GDID)
                            };
-            var persisted = store.LoadRow(query);
+            var persisted = store.LoadDoc(query);
             persisted.Name = "Ivan";
             persisted.Age = 56;
 
             var affected = store.Upsert(persisted, (r, k, f) => f.Name != "Name");
-            var upserted = store.LoadRow(query);
+            var upserted = store.LoadDoc(query);
 
             Aver.AreEqual(1, affected);
             Aver.AreEqual(null, upserted.Name);
@@ -651,12 +649,12 @@ Console.WriteLine("C");
             var affected = store.ExecuteWithoutFetch(query);
             Aver.AreEqual(1, affected);
 
-            var c = Azos.DataAccess.MongoDB.Connector.MongoClient.Instance.DefaultLocalServer["nfxtest"]["MyPerzon"];
-            var entries = c.FindAndFetchAll(new Azos.DataAccess.MongoDB.Connector.Query());
+            var c = Azos.Data.Access.MongoDb.Connector.MongoClient.Instance.DefaultLocalServer["nfxtest"]["MyPerzon"];
+            var entries = c.FindAndFetchAll(new Azos.Data.Access.MongoDb.Connector.Query());
             Aver.AreEqual(3, entries.Count);
 
             var query1 = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id1) };
-            var person1 = store.LoadRow(query1);
+            var person1 = store.LoadDoc(query1);
             Aver.IsNotNull(person1);
             Aver.AreEqual(id1, person1.GDID);
             Aver.AreEqual("Jack London", person1.Name);
@@ -664,14 +662,14 @@ Console.WriteLine("C");
             Aver.IsTrue(data.MemBufferEquals(person1.Data));
 
             var query2 = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id2) };
-            var person2 = store.LoadRow(query2);
+            var person2 = store.LoadDoc(query2);
             Aver.IsNotNull(person2);
             Aver.AreEqual(id2, person2.GDID);
             Aver.AreEqual("Ivan Poddubny", person2.Name);
             Aver.AreEqual(41, person2.Age);
 
             var query3 = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id3) };
-            var person3 = store.LoadRow(query3);
+            var person3 = store.LoadDoc(query3);
             Aver.IsNotNull(person3);
             Aver.AreEqual(id3, person3.GDID);
             Aver.AreEqual("Anna Smith", person3.Name);
@@ -704,21 +702,21 @@ Console.WriteLine("C");
             Aver.AreEqual(1, affected);
 
             query = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id1) };
-            var person1 = store.LoadRow(query);
+            var person1 = store.LoadDoc(query);
             Aver.IsNotNull(person1);
             Aver.AreEqual(id1, person1.GDID);
             Aver.AreEqual("Jack London", person1.Name);
             Aver.AreEqual(56, person1.Age);
 
             query = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id2) };
-            var person2 = store.LoadRow(query);
+            var person2 = store.LoadDoc(query);
             Aver.IsNotNull(person2);
             Aver.AreEqual(id2, person2.GDID);
             Aver.AreEqual("John", person2.Name);
             Aver.AreEqual(0, person2.Age); // update without $set removed Age field
 
             query = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id3) };
-            var person3 = store.LoadRow(query);
+            var person3 = store.LoadDoc(query);
             Aver.IsNotNull(person3);
             Aver.AreEqual(id3, person3.GDID);
             Aver.AreEqual("Anna Smith", person3.Name);
@@ -750,21 +748,21 @@ Console.WriteLine("C");
             Aver.AreEqual(2, affected);
 
             var query = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id1) };
-            var person1 = store.LoadRow(query);
+            var person1 = store.LoadDoc(query);
             Aver.IsNotNull(person1);
             Aver.AreEqual(id1, person1.GDID);
             Aver.AreEqual("Jack London", person1.Name);
             Aver.AreEqual(56, person1.Age);
 
             query = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id2) };
-            var person2 = store.LoadRow(query);
+            var person2 = store.LoadDoc(query);
             Aver.IsNotNull(person2);
             Aver.AreEqual(id2, person2.GDID);
             Aver.AreEqual("John", person2.Name);
             Aver.AreEqual(0, person2.Age); // update without $set removed Age field
 
             query = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id3) };
-            var person3 = store.LoadRow(query);
+            var person3 = store.LoadDoc(query);
             Aver.IsNotNull(person3);
             Aver.AreEqual(id3, person3.GDID);
             Aver.AreEqual("Anna Smith", person3.Name);
@@ -790,7 +788,7 @@ Console.WriteLine("C");
 
           store.Insert(row);
 
-          var row2 = store.LoadRow(new Query<MyInvoice>("CRUD.LoadInvoice")
+          var row2 = store.LoadDoc(new Query<MyInvoice>("CRUD.LoadInvoice")
                            {
                              new Query.Param("id", row.GDID)
                            });
@@ -888,7 +886,7 @@ Console.WriteLine("C");
           Console.WriteLine("Did {0} in {1} ms at {2} ops/sec".Args(CNT, elp, CNT / (elp / 1000d)));
 
 
-          var row2 = store.LoadRow(new Query<MuchData>("CRUD.LoadMuchData")
+          var row2 = store.LoadDoc(new Query<MuchData>("CRUD.LoadMuchData")
                            {
                              new Query.Param("id", row.GDID)
                            });
@@ -920,10 +918,10 @@ Console.WriteLine("C");
         }
         catch(Exception error)
         {
-          var dae = error as MongoDBDataAccessException;
+          var dae = error as MongoDbDataAccessException;
           Aver.IsNotNull( dae );
           Aver.IsNotNull( dae.KeyViolation);
-          Aver.IsTrue( dae.KeyViolationKind == Azos.DataAccess.KeyViolationKind.Primary);
+          Aver.IsTrue( dae.KeyViolationKind == KeyViolationKind.Primary);
           Console.WriteLine(error.ToMessageWithType());
 
           Console.WriteLine("Key violation is: "+dae.KeyViolation);
@@ -939,7 +937,7 @@ Console.WriteLine("C");
       }
 
 
-        public class MyPerzon : TypedRow
+        public class MyPerzon : TypedDoc
         {
           [Field(backendName: "_id")]
           public GDID GDID { get; set;}
@@ -954,7 +952,7 @@ Console.WriteLine("C");
           public byte[] Data {get; set; }
         }
 
-        public class MyData : TypedRow
+        public class MyData : TypedDoc
         {
           [Field(backendName: "_id")]
           public long ID { get; set;}
@@ -965,7 +963,7 @@ Console.WriteLine("C");
 
 
 
-        public class MyInvoice : TypedRow
+        public class MyInvoice : TypedDoc
         {
           [Field(backendName: "_id")]
           public GDID GDID { get; set;}
@@ -980,7 +978,7 @@ Console.WriteLine("C");
           public MyInvoiceLine[] Lines {get; set; }
         }
 
-        public class MyInvoiceLine : TypedRow
+        public class MyInvoiceLine : TypedDoc
         {
           [Field(backendName: "ln")]
           public int LineNo { get; set;}
@@ -994,7 +992,7 @@ Console.WriteLine("C");
 
 
 
-        public class MuchData : TypedRow
+        public class MuchData : TypedDoc
         {
           [Field(backendName: "_id")]
           public GDID GDID { get; set;}

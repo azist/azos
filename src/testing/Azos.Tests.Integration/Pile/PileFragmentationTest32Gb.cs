@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 using Azos.Scripting;
 
-namespace Azos.Tests.Integration.AppModel.Pile
+namespace Azos.Tests.Integration.Pile
 {
   [Runnable]
   public class PileFragmentationTest32Gb : HighMemoryLoadTest32RAM

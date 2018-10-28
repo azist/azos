@@ -5,11 +5,9 @@
 </FILE_LICENSE>*/
 using System;
 
-using Azos.ApplicationModel.Pile;
-using Azos.Environment;
 using Azos.Scripting;
 
-namespace Azos.Tests.Integration.AppModel.Pile
+namespace Azos.Tests.Integration.Pile
 {
     /// <summary>
     /// Base for all high-load tests
@@ -21,7 +19,7 @@ namespace Azos.Tests.Integration.AppModel.Pile
         void IRunnableHook.Prologue(Runner runner, FID id)
         {
             System.GC.Collect();
-            var ms = Azos.OS.Computer.GetMemoryStatus();
+            var ms = Platform.Computer.GetMemoryStatus();
 
             var has = ms.TotalPhysicalBytes;
             if (has < MinRAM)

@@ -5,14 +5,13 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Text;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 
-using Azos.DataAccess.CRUD;
-using Azos.DataAccess.CRUD.Subscriptions;
-using Azos.DataAccess.Erlang;
+using Azos.Data;
+using Azos.Data.Access;
+using Azos.Data.Access.Subscriptions;
+using Azos.Data.Access.Erlang;
 using Azos.Erlang;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
@@ -92,7 +91,7 @@ namespace Azos.Tests.Integration.CRUD
           new Query.Param("Msg", "Lenin!")
         };
 
-      var row = store.LoadOneRow(qry);
+      var row = store.LoadOneDoc(qry);
 
       Aver.IsNotNull(row);
       Aver.AreObjectsEqual("You said: Lenin!", row["echoed_msg"]);
@@ -110,7 +109,7 @@ namespace Azos.Tests.Integration.CRUD
 
       for(var i=0; i<cnt; i++)
       {
-        var row = store.LoadOneRow(qry);
+        var row = store.LoadOneDoc(qry);
 
         Aver.IsNotNull(row);
         Aver.AreObjectsEqual("You said: Lenin!", row["echoed_msg"]);
@@ -127,7 +126,7 @@ namespace Azos.Tests.Integration.CRUD
     public void ErlInsert()
     {
       var schema = store.GetSchema(new Query("CRUD.SECDEF"));
-      var row = new DynamicRow(schema);
+      var row = new DynamicDoc(schema);
 
       row.ApplyDefaultFieldValues(store.TargetName);
 
@@ -156,7 +155,7 @@ namespace Azos.Tests.Integration.CRUD
 
       for (var i = 0; i < CCY_PAIRS.Length; i++)
       {
-        var row = new DynamicRow(schema);
+        var row = new DynamicDoc(schema);
 
         row.ApplyDefaultFieldValues(store.TargetName);
 
@@ -202,7 +201,7 @@ namespace Azos.Tests.Integration.CRUD
 
       for (var i = 0; i < CCY_PAIRS.Length; i++)
       {
-        var row = new DynamicRow(schema);
+        var row = new DynamicDoc(schema);
 
         row.ApplyDefaultFieldValues(store.TargetName);
 
@@ -239,7 +238,7 @@ namespace Azos.Tests.Integration.CRUD
 
       Aver.AreEqual(CCY_PAIRS.Length, data.Count);
 
-      var del = new DynamicRow(schema);
+      var del = new DynamicDoc(schema);
 
       del["xchg"]   = "CLE";
       del["symbol"] = "USDMXN";
@@ -292,7 +291,7 @@ namespace Azos.Tests.Integration.CRUD
 
       mail.Receipt += delegate(Subscription subscription, Mailbox recipient, CRUDSubscriptionEvent data, Exception error)
       {
-        if (data.Row!=null)
+        if (data.Doc!=null)
         {
           System.Threading.Interlocked.Increment(ref callCount);
           if (callCount >= CNT)
@@ -339,7 +338,7 @@ namespace Azos.Tests.Integration.CRUD
 
       mail.Receipt += delegate(Subscription subscription, Mailbox recipient, CRUDSubscriptionEvent data, Exception error)
       {
-        if (data.Row!=null)
+        if (data.Doc!=null)
         {
           if (System.Threading.Interlocked.Increment(ref callCount)==CUTOFF)
           {

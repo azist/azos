@@ -12,13 +12,13 @@ using System.Collections.Concurrent;
 
 using Azos.Scripting;
 
-using Azos.UTest.AppModel.Pile;
-using Azos.ApplicationModel.Pile;
+using Azos.Tests.Unit.Pile;
+using Azos.Pile;
 
-namespace Azos.Tests.Integration.AppModel.Pile
+namespace Azos.Tests.Integration.Pile
 {
     [Runnable]
-    public class PileTest32Gb : HighMemoryLoadTest32RAM
+    public class PileTest64Gb : HighMemoryLoadTest64RAM
     {
         [Run("fromSize=32  toSize=3200   fromObjCount=1  toObjCount=50   taskCount=8")]
         [Run("fromSize=32  toSize=12800  fromObjCount=1  toObjCount=100  taskCount=16")]
@@ -60,7 +60,7 @@ namespace Azos.Tests.Integration.AppModel.Pile
 
                         for (int i = 0; i < PUTTER_OP_CNT; i++)
                         {
-                            var str = Azos.Parsing.NaturalTextGenerator.Generate();
+                            var str = Azos.Text.NaturalTextGenerator.Generate();
                             var pp = ipile.Put(str);
                             data.TryAdd(pp, str);
                         }
@@ -84,7 +84,7 @@ namespace Azos.Tests.Integration.AppModel.Pile
                                 System.Threading.Thread.Yield();
                                 continue;
                             }
-                            var idx = ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, data.Count - 1);
+                            var idx = App.Random.NextScaledRandomInteger(0, data.Count - 1);
                             var kvp = data.ElementAt(idx);
                             try
                             {
@@ -115,7 +115,7 @@ namespace Azos.Tests.Integration.AppModel.Pile
                                 System.Threading.Thread.Yield();
                                 continue;
                             }
-                            var idx = ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, data.Count - 1);
+                            var idx = App.Random.NextScaledRandomInteger(0, data.Count - 1);
                             var kvp = data.ElementAt(idx);
                             try
                             {
@@ -146,63 +146,17 @@ namespace Azos.Tests.Integration.AppModel.Pile
             }
         }
 
-        [Run("isParallel=false  cnt=1000000  minSz=0      maxSz=40      speed=true")]
-        [Run("isParallel=false  cnt=100000   minSz=0      maxSz=50000   speed=true")]
-        [Run("isParallel=false  cnt=50000    minSz=0      maxSz=150000  speed=true")]
-        [Run("isParallel=false  cnt=10000    minSz=70000  maxSz=150000  speed=true")]
-
-        [Run("isParallel=true  cnt=1000000  minSz=0      maxSz=40      speed=true")]
-        [Run("isParallel=true  cnt=100000   minSz=0      maxSz=50000   speed=true")]
-        [Run("isParallel=true  cnt=10000    minSz=70000  maxSz=150000  speed=true")]
-
-        [Run("isParallel=false  cnt=1000000  minSz=0      maxSz=40      speed=false")]
-        [Run("isParallel=false  cnt=100000   minSz=0      maxSz=50000   speed=false")]
-        [Run("isParallel=false  cnt=10000    minSz=70000  maxSz=150000  speed=false")]
-        [Run("isParallel=false  cnt=50000    minSz=0      maxSz=150000  speed=false")]
-
-        [Run("isParallel=true  cnt=1000000  minSz=0      maxSz=40      speed=false")]
-        [Run("isParallel=true  cnt=100000   minSz=0      maxSz=50000   speed=false")]
-        [Run("isParallel=true  cnt=10000    minSz=70000  maxSz=150000  speed=false")]
+        [Run("isParallel=true  cnt=50000  minSz=0  maxSz=150000  speed=true")]
+        [Run("isParallel=true  cnt=50000  minSz=0  maxSz=150000  speed=false")]
         public void VarSizes_Checkboard(bool isParallel, int cnt, int minSz, int maxSz, bool speed)
         {
             PileCacheTestCore.VarSizes_Checkboard(isParallel, cnt, minSz, maxSz, speed);
         }
 
-        [Run("isParallel=false  cnt=1000000  minSz=0      maxSz=256     speed=false  rnd=true")]
-        [Run("isParallel=false  cnt=250000   minSz=0      maxSz=8000    speed=false  rnd=true")]
-        [Run("isParallel=false  cnt=150000   minSz=0      maxSz=24000   speed=false  rnd=true")]
-        [Run("isParallel=false  cnt=21000    minSz=65000  maxSz=129000  speed=false  rnd=true")]
-
-        [Run("isParallel=true  cnt=1000000  minSz=0      maxSz=256     speed=false  rnd=true")]
-        [Run("isParallel=true  cnt=250000   minSz=0      maxSz=8000    speed=false  rnd=true")]
-        [Run("isParallel=true  cnt=150000   minSz=0      maxSz=24000   speed=false  rnd=true")]
-        [Run("isParallel=true  cnt=21000    minSz=65000  maxSz=129000  speed=false  rnd=true")]
-
-        [Run("isParallel=false  cnt=1000000  minSz=0      maxSz=256     speed=true  rnd=true")]
-        [Run("isParallel=false  cnt=250000   minSz=0      maxSz=8000    speed=true  rnd=true")]
-        [Run("isParallel=false  cnt=150000   minSz=0      maxSz=24000   speed=true  rnd=true")]
-        [Run("isParallel=false  cnt=21000    minSz=65000  maxSz=129000  speed=true  rnd=true")]
-
-        [Run("isParallel=true  cnt=1000000  minSz=0      maxSz=256     speed=true  rnd=true")]
-        [Run("isParallel=true  cnt=250000   minSz=0      maxSz=8000    speed=true  rnd=true")]
-        [Run("isParallel=true  cnt=150000   minSz=0      maxSz=24000   speed=true  rnd=true")]
-        [Run("isParallel=true  cnt=21000    minSz=65000  maxSz=129000  speed=true  rnd=true")]
-
-        [Run("isParallel=false  cnt=1000000  minSz=0      maxSz=256     speed=false  rnd=false")]
-        [Run("isParallel=false  cnt=250000   minSz=0      maxSz=8000    speed=false  rnd=false")]
-        [Run("isParallel=false  cnt=150000   minSz=0      maxSz=24000   speed=false  rnd=false")]
-        [Run("isParallel=false  cnt=12000    minSz=65000  maxSz=129000  speed=false  rnd=false")]
-
-        [Run("isParallel=true  cnt=1000000  minSz=0      maxSz=256     speed=false  rnd=false")]
-        [Run("isParallel=true  cnt=250000   minSz=0      maxSz=8000    speed=false  rnd=false")]
-        [Run("isParallel=true  cnt=12000    minSz=65000  maxSz=129000  speed=false  rnd=false")]
-
-        [Run("isParallel=false  cnt=1000000  minSz=0      maxSz=256     speed=true  rnd=false")]
-        [Run("isParallel=false  cnt=250000   minSz=0      maxSz=8000    speed=true  rnd=false")]
-        [Run("isParallel=false  cnt=150000   minSz=0      maxSz=24000   speed=true  rnd=false")]
-        [Run("isParallel=false  cnt=12000    minSz=65000  maxSz=129000  speed=true  rnd=false")]
-
-        [Run("isParallel=true  cnt=250000  minSz=0  maxSz=8000  speed=true  rnd=false")]
+        [Run("isParallel=true  cnt=150000   minSz=0      maxSz=24000   speed=false  rnd=false")]
+        [Run("isParallel=true  cnt=1000000  minSz=0      maxSz=256     speed=true   rnd=false")]
+        [Run("isParallel=true  cnt=150000   minSz=0      maxSz=24000   speed=true   rnd=false")]
+        [Run("isParallel=true  cnt=12000    minSz=65000  maxSz=129000  speed=true   rnd=false")]
         public void VarSizes_Increasing_Random(bool isParallel, int cnt, int minSz, int maxSz, bool speed, bool rnd)
         {
             PileCacheTestCore.VarSizes_Increasing_Random(isParallel, cnt, minSz, maxSz, speed, rnd);

@@ -8,6 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+
+using Azos.Apps;
+using Azos.Data;
 using Azos.IO.FileSystem.SVN;
 using Azos.Scripting;
 using Azos.Web;
@@ -20,7 +23,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void ItemProperties()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var client = new WebDAV(SVN_ROOT, 0, SVN_UNAME, SVN_UPSW);
 
@@ -45,7 +48,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void DirectoryChildren()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var client = new WebDAV(SVN_ROOT, 0, SVN_UNAME, SVN_UPSW);
 
@@ -65,7 +68,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void NavigatePathFolder()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var client = new WebDAV(SVN_ROOT, 0, SVN_UNAME, SVN_UPSW);
 
@@ -88,7 +91,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void NavigatePathFile()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var client = new WebDAV(SVN_ROOT, 0, SVN_UNAME, SVN_UPSW);
 
@@ -110,7 +113,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void ContentType()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var client = new WebDAV(SVN_ROOT, 0, SVN_UNAME, SVN_UPSW);
 
@@ -127,7 +130,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void FileContent()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var client = new WebDAV(SVN_ROOT, 0, SVN_UNAME, SVN_UPSW);
 
@@ -146,7 +149,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void GetVersions()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         IList<WebDAV.Version> versions = WebDAV.GetVersions(SVN_ROOT, SVN_UNAME, SVN_UPSW).ToList();
 
@@ -166,7 +169,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void DifferentDirectoryVersions()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         IList<WebDAV.Version> versions = WebDAV.GetVersions(SVN_ROOT, SVN_UNAME, SVN_UPSW).ToList();
 
@@ -191,7 +194,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void DifferentFileVersions()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         IList<WebDAV.Version> versions = WebDAV.GetVersions(SVN_ROOT, SVN_UNAME, SVN_UPSW).ToList();
 
@@ -224,7 +227,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void NonExistingItem()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var client = new WebDAV(SVN_ROOT, 0, SVN_UNAME, SVN_UPSW);
 
@@ -241,7 +244,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void GetHeadRootVersion()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var client = new WebDAV(SVN_ROOT, 0, SVN_UNAME, SVN_UPSW);
 
@@ -253,7 +256,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void EscapeDir()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var client = new WebDAV(SVN_ROOT, 0, SVN_UNAME, SVN_UPSW);
 
@@ -273,7 +276,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void EscapeFile()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var client = new WebDAV(SVN_ROOT, 0, SVN_UNAME, SVN_UPSW);
 
@@ -289,7 +292,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     [Run]
     public void GetManyFiles()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var client = new WebDAV(SVN_ROOT, 0, SVN_UNAME, SVN_UPSW);
 
@@ -316,7 +319,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.SVN
     {
       var conf = LACONF.AsLaconicConfig();
 
-      using (var app = new Azos.ApplicationModel.ServiceBaseApplication(new string[] {}, conf))
+      using (var app = new ServiceBaseApplication(new string[] {}, conf))
       {
         try
         {

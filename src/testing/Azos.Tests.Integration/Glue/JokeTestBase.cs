@@ -39,7 +39,7 @@ namespace Azos.Tests.Integration.Glue
     void IRunnableHook.Prologue(Runner runner, FID id)
     {
       ProcessStartInfo start;
-      if (PAL.PlatformAbstractionLayer.IsNetCore)
+      if (Platform.Abstraction.PlatformAbstractionLayer.IsNetCore)
         start = new ProcessStartInfo()
         {
           FileName = "dotnet",

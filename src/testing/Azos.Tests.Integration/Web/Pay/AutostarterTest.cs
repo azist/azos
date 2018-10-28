@@ -4,7 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.ApplicationModel;
+using Azos.Apps;
 using Azos.Scripting;
 using Azos.Web.Pay;
 

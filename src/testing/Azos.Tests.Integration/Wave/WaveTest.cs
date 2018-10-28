@@ -4,22 +4,20 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.IO;
 
 using Azos;
+using Azos.Data;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
-using Azos.DataAccess.CRUD;
-using TestRow = WaveTestSite.Controllers.IntegrationTester.TestRow;
+using TestRow = WaveTestSite.Controllers.IntegrationTester.TestDoc;
 using TestStatus = WaveTestSite.Controllers.IntegrationTester.TestStatus;
-using TestComplexRow = WaveTestSite.Controllers.IntegrationTester.TestComplexRow;
+using TestComplexRow = WaveTestSite.Controllers.IntegrationTester.TestComplexDoc;
 
 namespace Azos.Tests.Integration.Wave
 {
@@ -325,12 +323,12 @@ namespace Azos.Tests.Integration.Wave
         [Run]
         public void TypeRowConversion()
         {
-          var r = new WaveTestSite.Controllers.IntegrationTester.SpanRow() { Span = TimeSpan.FromTicks(1) };
+          var r = new WaveTestSite.Controllers.IntegrationTester.SpanDoc() { Span = TimeSpan.FromTicks(1) };
 
           var str = r.ToJSON(JSONWritingOptions.CompactRowsAsMap);
 
           var map = JSONReader.DeserializeDataObject(str) as JSONDataMap;
-          var gotRow = JSONReader.ToRow<WaveTestSite.Controllers.IntegrationTester.SpanRow>(map);
+          var gotRow = JSONReader.ToRow<WaveTestSite.Controllers.IntegrationTester.SpanDoc>(map);
         }
 
         [Run]
@@ -357,13 +355,13 @@ namespace Azos.Tests.Integration.Wave
 
           initalRow.ID = 777;
 
-          initalRow.Row1 = new TestRow(){ID = 101, Name = "Test Row 1", Date = DateTime.Now};
-          initalRow.Row2 = new TestRow(){ID = 102, Name = "Test Row 2", Date = DateTime.Now};
+          initalRow.Doc1 = new TestRow(){ID = 101, Name = "Test Doc 1", Date = DateTime.Now};
+          initalRow.Doc2 = new TestRow(){ID = 102, Name = "Test Doc 2", Date = DateTime.Now};
 
-          initalRow.ErrorRows = new TestRow[] {
-            new TestRow() {ID = 201, Name = "Err Row 1", Date = DateTime.Now},
-            new TestRow() {ID = 202, Name = "Err Row 2", Date = DateTime.Now},
-            new TestRow() {ID = 203, Name = "Err Row 3", Date = DateTime.Now}
+          initalRow.ErrorDocs = new TestRow[] {
+            new TestRow() {ID = 201, Name = "Err Doc 1", Date = DateTime.Now},
+            new TestRow() {ID = 202, Name = "Err Doc 2", Date = DateTime.Now},
+            new TestRow() {ID = 203, Name = "Err Doc 3", Date = DateTime.Now}
           };
 
           var str = initalRow.ToJSON(JSONWritingOptions.CompactRowsAsMap);
@@ -379,8 +377,8 @@ namespace Azos.Tests.Integration.Wave
             var gotRow = JSONReader.ToRow<TestComplexRow>(map);
 
             Aver.AreEqual(initalRow.ID + 1, gotRow.ID);
-            Aver.AreEqual(initalRow.Row1.ID + 2, gotRow.Row1.ID);
-            Aver.IsTrue(gotRow.ErrorRows[2].Date - initalRow.ErrorRows[2].Date.AddDays(-2) < TimeSpan.FromMilliseconds(1) ); // dlat 20140617: date string format preservs 3 signs after decimal second instead of 7 digits preserved by .NET DateTime type
+            Aver.AreEqual(initalRow.Doc1.ID + 2, gotRow.Doc1.ID);
+            Aver.IsTrue(gotRow.ErrorDocs[2].Date - initalRow.ErrorDocs[2].Date.AddDays(-2) < TimeSpan.FromMilliseconds(1) ); // dlat 20140617: date string format preservs 3 signs after decimal second instead of 7 digits preserved by .NET DateTime type
           }
         }
 

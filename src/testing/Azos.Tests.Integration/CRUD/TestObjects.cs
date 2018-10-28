@@ -4,17 +4,13 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-using Azos.DataAccess;
-using Azos.DataAccess.CRUD;
-using Azos.DataAccess.Distributed;
+using Azos.Data;
+
 
 namespace Azos.Tests.Integration.CRUD
 {
-    public abstract class Perzon : TypedRow
+    public abstract class Perzon : TypedDoc
     {
         [Field(required: true, key: true)]
         public long COUNTER {get; set;}
@@ -110,7 +106,7 @@ namespace Azos.Tests.Integration.CRUD
     }
 
 
-    public class Types : TypedRow
+    public class Types : TypedDoc
     {
       [Field(key: true)]
       public GDID GDID{ get; set;}
@@ -142,7 +138,7 @@ namespace Azos.Tests.Integration.CRUD
     }
 
 
-    public class FullGDID : TypedRow
+    public class FullGDID : TypedDoc
     {
       [Field]
       public GDID GDID{ get; set;}
@@ -158,7 +154,7 @@ namespace Azos.Tests.Integration.CRUD
 
     [Serializable]
     [Table(name: "tbl_tuple")]
-    public class TupleData : TypedRow
+    public class TupleData : TypedDoc
     {
         public TupleData() {}
 

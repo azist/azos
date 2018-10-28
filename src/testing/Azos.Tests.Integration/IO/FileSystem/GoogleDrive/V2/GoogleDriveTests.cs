@@ -543,9 +543,9 @@ namespace Azos.Tests.Integration.IO.FileSystem.GoogleDrive.V2
       }
     }
 
-    private Azos.ApplicationModel.ServiceBaseApplication CreateApplication()
+    private Apps.ServiceBaseApplication CreateApplication()
     {
-      return new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig());
+      return new Apps.ServiceBaseApplication(null, LACONF.AsLaconicConfig());
     }
 
     private GoogleDriveFileSystem GetFileSystem()

@@ -48,7 +48,7 @@ namespace Azos.Tests.Integration.Wave
       try
       {
         ProcessStartInfo start;
-        if (PAL.PlatformAbstractionLayer.IsNetCore)
+        if (Platform.Abstraction.PlatformAbstractionLayer.IsNetCore)
           start = new ProcessStartInfo()
           {
             FileName = "dotnet",

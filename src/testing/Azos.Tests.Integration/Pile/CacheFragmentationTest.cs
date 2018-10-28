@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 
 using Azos.Scripting;
 
-using Azos.ApplicationModel.Pile;
-using Azos.DataAccess.Distributed;
+using Azos.Pile;
+using Azos.Data;
 
-namespace Azos.Tests.Integration.AppModel.Pile
+namespace Azos.Tests.Integration.Pile
 {
   [Runnable]
   class CacheFragmentationTest : IRunHook
@@ -57,10 +57,10 @@ namespace Azos.Tests.Integration.AppModel.Pile
               {
                 if ((DateTime.UtcNow - startTime).TotalSeconds >= durationSec) break;
 
-                var payloadSize = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
+                var payloadSize = App.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
                 var val = new byte[payloadSize];
-                val[0] = (byte)Azos.ExternalRandomGenerator.Instance.NextRandomInteger;
-                val[payloadSize - 1] = (byte)Azos.ExternalRandomGenerator.Instance.NextRandomInteger;
+                val[0] = (byte)App.Random.NextRandomInteger;
+                val[payloadSize - 1] = (byte)App.Random.NextRandomInteger;
 
                 var key = new GDID((uint)Thread.CurrentThread.ManagedThreadId, (ulong)i);
                 tA.Put(key, val);
@@ -72,7 +72,7 @@ namespace Azos.Tests.Integration.AppModel.Pile
                 {
                   while (true && list.Count > 0)
                   {
-                    var idx = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
                     key = list[idx].Key;
                     var removed = tA.Remove(key);
                     list.RemoveAt(idx);
@@ -82,16 +82,16 @@ namespace Azos.Tests.Integration.AppModel.Pile
                 }
 
                 // get several random elements
-                if (list.Count > 64 && Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 100) > 98)
+                if (list.Count > 64 && App.Random.NextScaledRandomInteger(0, 100) > 98)
                 {
-                  var toRead = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(8, 64);
+                  var toRead = App.Random.NextScaledRandomInteger(8, 64);
                   wlc++;
                   if (wlc % 125 == 0)
                     Console.WriteLine("Thread {0} is reading {1} elements, total {2}"
                       .Args(Thread.CurrentThread.ManagedThreadId, toRead, list.Count));
                   for (var k = 0; k < toRead && list.Count > 0; k++)
                   {
-                    var idx = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
                     var element = list[idx];
                     var buf = tA.Get(element.Key) as byte[];
                     if (buf == null)
@@ -153,11 +153,10 @@ namespace Azos.Tests.Integration.AppModel.Pile
               {
                 if ((DateTime.UtcNow - startTime).TotalSeconds >= durationSec) break;
 
-                var payloadSize = Azos.ExternalRandomGenerator
-                                    .Instance.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
+                var payloadSize = App.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
                 var val = new byte[payloadSize];
-                val[0] = (byte)Azos.ExternalRandomGenerator.Instance.NextRandomInteger;
-                val[payloadSize - 1] = (byte)Azos.ExternalRandomGenerator.Instance.NextRandomInteger;
+                val[0] = (byte)App.Random.NextRandomInteger;
+                val[payloadSize - 1] = (byte)App.Random.NextRandomInteger;
 
                 var key = new GDID((uint)Thread.CurrentThread.ManagedThreadId, (ulong)i);
                 tA.Put(key, val);
@@ -174,16 +173,16 @@ namespace Azos.Tests.Integration.AppModel.Pile
                 }
 
                 // get several random elements
-                if (list.Count > 64 && Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 100) > 98)
+                if (list.Count > 64 && App.Random.NextScaledRandomInteger(0, 100) > 98)
                 {
-                  var toRead = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(8, 64);
+                  var toRead = App.Random.NextScaledRandomInteger(8, 64);
                   wlc++;
                   if (wlc % 125 == 0)
                     Console.WriteLine("Thread {0} is reading {1} elements, total {2}"
                       .Args(Thread.CurrentThread.ManagedThreadId, toRead, list.Count));
                   for (var k = 0; k < toRead && list.Count > 0; k++)
                   {
-                    var idx = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
                     element = list[idx];
                     var buf = tA.Get(element.Key) as byte[];
                     if (buf == null)
@@ -247,14 +246,13 @@ namespace Azos.Tests.Integration.AppModel.Pile
               {
                 if ((DateTime.UtcNow - startTime).TotalSeconds >= durationSec) break;
 
-                var putCount = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(putMin, putMax);
+                var putCount = App.Random.NextScaledRandomInteger(putMin, putMax);
                 for (int i = 0; i < putCount; i++)
                 {
-                  var payloadSize = Azos.ExternalRandomGenerator
-                                      .Instance.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
+                  var payloadSize = App.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
                   var val = new byte[payloadSize];
-                  val[0] = (byte)Azos.ExternalRandomGenerator.Instance.NextRandomInteger;
-                  val[payloadSize - 1] = (byte)Azos.ExternalRandomGenerator.Instance.NextRandomInteger;
+                  val[0] = (byte)App.Random.NextRandomInteger;
+                  val[payloadSize - 1] = (byte)App.Random.NextRandomInteger;
                   var key = new GDID((uint)Thread.CurrentThread.ManagedThreadId, k);
 
                   tA.Put(key, val);
@@ -268,7 +266,7 @@ namespace Azos.Tests.Integration.AppModel.Pile
                 {
                   while (true && list.Count > 0)
                   {
-                    var idx = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
                     var key = list[idx].Key;
                     var removed = tA.Remove(key);
                     list.RemoveAt(idx);
@@ -278,16 +276,16 @@ namespace Azos.Tests.Integration.AppModel.Pile
                 }
 
                 // get several random elements
-                if (list.Count > 64 && Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 100) > 98)
+                if (list.Count > 64 && App.Random.NextScaledRandomInteger(0, 100) > 98)
                 {
-                  var toRead = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(8, 64);
+                  var toRead = App.Random.NextScaledRandomInteger(8, 64);
                   wlc++;
                   if (wlc % 125 == 0)
                     Console.WriteLine("Thread {0} is reading {1} elements, total {2}"
                       .Args(Thread.CurrentThread.ManagedThreadId, toRead, list.Count));
                   for (var j = 0; j < toRead && list.Count > 0; j++)
                   {
-                    var idx = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
                     var element = list[idx];
                     var buf = tA.Get(element.Key) as byte[];
                     if (buf == null)
@@ -347,14 +345,13 @@ namespace Azos.Tests.Integration.AppModel.Pile
 
                 if (put)
                 {
-                  var cnt = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(countMin, countMax);
+                  var cnt = App.Random.NextScaledRandomInteger(countMin, countMax);
                   for (int i = 0; i < cnt; i++)
                   {
-                    var payloadSize = Azos.ExternalRandomGenerator
-                                        .Instance.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
+                    var payloadSize = App.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
                     var val = new byte[payloadSize];
-                    val[0] = (byte)Azos.ExternalRandomGenerator.Instance.NextRandomInteger;
-                    val[payloadSize - 1] = (byte)Azos.ExternalRandomGenerator.Instance.NextRandomInteger;
+                    val[0] = (byte)App.Random.NextRandomInteger;
+                    val[payloadSize - 1] = (byte)App.Random.NextRandomInteger;
                     var key = new GDID((uint)Thread.CurrentThread.ManagedThreadId, (ulong)i);
 
                     tA.Put(key, val);
@@ -416,13 +413,12 @@ namespace Azos.Tests.Integration.AppModel.Pile
               {
                 if ((DateTime.UtcNow - startTime).TotalSeconds >= durationSec) break;
 
-                var payloadSize = Azos.ExternalRandomGenerator
-                                    .Instance.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
+                var payloadSize = App.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
                 var val = new byte[payloadSize];
-                val[0] = (byte)Azos.ExternalRandomGenerator.Instance.NextRandomInteger;
-                val[payloadSize - 1] = (byte)Azos.ExternalRandomGenerator.Instance.NextRandomInteger;
+                val[0] = (byte)App.Random.NextRandomInteger;
+                val[payloadSize - 1] = (byte)App.Random.NextRandomInteger;
 
-                var tableId = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, list.Count - 1);
+                var tableId = App.Random.NextScaledRandomInteger(0, list.Count - 1);
                 var table = tableId == 0 ? tA : tB;
                 var key = new GDID((uint)Thread.CurrentThread.ManagedThreadId, (ulong)i);
 
@@ -435,7 +431,7 @@ namespace Azos.Tests.Integration.AppModel.Pile
                 {
                   while (true && list.Count > 0)
                   {
-                    var idx = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
                     var element = list[idx];
 
                     table = element.Item1 == 0 ? tA : tB;
@@ -450,16 +446,16 @@ namespace Azos.Tests.Integration.AppModel.Pile
                 }
 
                 // get several random elements
-                if (list.Count > 64 && Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 100) > 98)
+                if (list.Count > 64 && App.Random.NextScaledRandomInteger(0, 100) > 98)
                 {
-                  var toRead = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(8, 64);
+                  var toRead = App.Random.NextScaledRandomInteger(8, 64);
                   wlc++;
                   if (wlc % 125 == 0)
                     Console.WriteLine("Thread {0} is reading {1} elements"
                       .Args(Thread.CurrentThread.ManagedThreadId, toRead));
                   for (var j = 0; j < toRead && list.Count > 0; j++)
                   {
-                    var idx = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
                     var element = list[idx];
                     table = element.Item1 == 0 ? tA : tB;
                     var buf = table.Get(element.Item2) as byte[];
@@ -525,16 +521,15 @@ namespace Azos.Tests.Integration.AppModel.Pile
               {
                 if ((DateTime.UtcNow - startTime).TotalSeconds >= durationSec) break;
 
-                var putCount = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(putMin, putMax);
+                var putCount = App.Random.NextScaledRandomInteger(putMin, putMax);
                 for (int i = 0; i < putCount; i++)
                 {
-                  var payloadSize = Azos.ExternalRandomGenerator
-                                      .Instance.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
+                  var payloadSize = App.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
                   var val = new byte[payloadSize];
-                  val[0] = (byte)Azos.ExternalRandomGenerator.Instance.NextRandomInteger;
-                  val[payloadSize - 1] = (byte)Azos.ExternalRandomGenerator.Instance.NextRandomInteger;
+                  val[0] = (byte)App.Random.NextRandomInteger;
+                  val[payloadSize - 1] = (byte)App.Random.NextRandomInteger;
 
-                  var tableId = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 1);
+                  var tableId = App.Random.NextScaledRandomInteger(0, 1);
                   var table = tableId == 0 ? tA : tB;
                   var key = new GDID((uint)Thread.CurrentThread.ManagedThreadId, k);
 
@@ -549,7 +544,7 @@ namespace Azos.Tests.Integration.AppModel.Pile
                 {
                   while (true && list.Count > 0)
                   {
-                    var idx = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
                     var element = list[idx];
                     var table = element.Item1 == 0 ? tA : tB;
                     var key = element.Item2;
@@ -562,16 +557,16 @@ namespace Azos.Tests.Integration.AppModel.Pile
                 }
 
                 // get several random elements
-                if (list.Count > 64 && Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 100) > 98)
+                if (list.Count > 64 && App.Random.NextScaledRandomInteger(0, 100) > 98)
                 {
-                  var toRead = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(8, 64);
+                  var toRead = App.Random.NextScaledRandomInteger(8, 64);
                   wlc++;
                   if (wlc % 125 == 0)
                     Console.WriteLine("Thread {0} is reading {1} elements"
                       .Args(Thread.CurrentThread.ManagedThreadId, toRead));
                   for (var j = 0; j < toRead && list.Count > 0; j++)
                   {
-                    var idx = Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
                     var element = list[idx];
                     var table = element.Item1 == 0 ? tA : tB;
                     var key = element.Item2;

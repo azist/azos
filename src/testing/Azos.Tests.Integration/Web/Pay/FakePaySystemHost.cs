@@ -6,11 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-using Azos.Environment;
-using Azos.Financial;
+using Azos.Data;
+using Azos.Conf;
 using Azos.Web.Pay;
 using Azos.Web.Pay.Mock;
 
@@ -282,19 +280,19 @@ namespace Azos.Tests.Integration.Web.Pay
     #endregion
 
     #region IPaySystemHostImplementation
-    protected override Transaction DoFetchTransaction(PaySession session, object id)
+    protected internal override Transaction DoFetchTransaction(PaySession session, object id)
     {
       return s_TransactionList.SingleOrDefault(ta => ta.ID == id);
     }
 
-    protected override IActualAccountData DoFetchAccountData(PaySession session, Account account)
+    protected internal override IActualAccountData DoFetchAccountData(PaySession session, Account account)
     {
       return s_MockActualAccountDatas.SingleOrDefault(m => m.Account == account);
     }
 
     public override ICurrencyMarket CurrencyMarket { get { return m_Market; } }
 
-    protected override object DoGenerateTransactionID(PaySession session, TransactionType type)
+    protected internal override object DoGenerateTransactionID(PaySession session, TransactionType type)
     {
       if (m_NextTransactionID != null)
       {
@@ -302,11 +300,11 @@ namespace Azos.Tests.Integration.Web.Pay
         m_NextTransactionID = null;
         return id;
       }
-      var eLink = new ELink((((ulong)ExternalRandomGenerator.Instance.NextRandomInteger) << 32) + ((ulong)ExternalRandomGenerator.Instance.NextRandomInteger), null);
+      var eLink = new ELink((((ulong)App.Random.NextRandomInteger) << 32) + ((ulong)App.Random.NextRandomInteger), null);
       return eLink.Link;
     }
 
-    protected override void DoStoreTransaction(PaySession session, Transaction tran)
+    protected internal override void DoStoreTransaction(PaySession session, Transaction tran)
     {
       lock (s_TransactionList)
       {
@@ -315,7 +313,7 @@ namespace Azos.Tests.Integration.Web.Pay
       }
     }
 
-    protected override void DoStoreAccountData(PaySession session, IActualAccountData accoundData)
+    protected internal override void DoStoreAccountData(PaySession session, IActualAccountData accoundData)
     {
       lock (s_MockActualAccountDatas)
       {

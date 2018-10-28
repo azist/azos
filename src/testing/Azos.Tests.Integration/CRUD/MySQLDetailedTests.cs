@@ -8,14 +8,14 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 using MySql.Data.MySqlClient;
 
-using Azos.DataAccess.CRUD;
-using Azos.DataAccess.Distributed;
-using Azos.DataAccess.MySQL;
+using Azos.Data;
+using Azos.Data.Access;
+using Azos.Data.Access.MySql;
 using Azos.Scripting;
 
 namespace Azos.Tests.Integration.CRUD
@@ -119,7 +119,7 @@ CREATE TABLE `tbl_employee` (
         ds.ExecuteWithoutFetch(qry);
 
         var loadQry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Ivanov") };
-        var result = ds.LoadRow(loadQry);
+        var result = ds.LoadDoc(loadQry);
 
         Aver.IsTrue(result is Patient);
         Aver.AreEqual(110.99M, result.Amount);
@@ -193,13 +193,13 @@ CREATE TABLE `tbl_employee` (
         ds.Insert(row1);
 
         var loadQry = new Query<Doctor>("CRUD.Doctor.List") { new Query.Param("pSSN", "%") };
-        var result = ds.LoadRow(loadQry);
+        var result = ds.LoadDoc(loadQry);
 
         Aver.AreEqual(row1.Last_Name, result.Last_Name);
 
         // updates due to unique index on SSN column
         ds.Upsert(row2);
-        result = ds.LoadRow(loadQry);
+        result = ds.LoadDoc(loadQry);
 
         Aver.AreEqual(row2.Last_Name, result.Last_Name);
       }
@@ -225,7 +225,7 @@ CREATE TABLE `tbl_employee` (
     }
 
     [Run]
-    [Aver.Throws(ExceptionType = typeof(MySQLDataAccessException), Message = "Duplicate entry '123456'", MsgMatch = Aver.ThrowsAttribute.MatchType.Contains)]
+    [Aver.Throws(ExceptionType = typeof(MySqlDataAccessException), Message = "Duplicate entry '123456'")]
     public void IndexViolation ()
     {
       var row1 = new Doctor
@@ -275,7 +275,7 @@ CREATE TABLE `tbl_employee` (
         ds.Insert(doctor);
 
         var docQry = new Query<Doctor>("CRUD.Doctor.List") { new Query.Param("pSSN", "%") };
-        var doc = ds.LoadRow(docQry);
+        var doc = ds.LoadDoc(docQry);
         patient1.C_DOCTOR = doc.COUNTER;
 
         ds.Insert(patient1);
@@ -313,7 +313,7 @@ CREATE TABLE `tbl_employee` (
 
         ds.Update(patient, filter: "SSN,Address1".OnlyTheseFields());
         var qry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "%") };
-        var result = ds.LoadRow(qry);
+        var result = ds.LoadDoc(qry);
 
         Aver.AreEqual("Stambul", result.City);
         Aver.AreEqual("Petrov", result.Last_Name);
@@ -360,7 +360,7 @@ CREATE TABLE `tbl_employee` (
         using (var ds = makeDataStore())
         {
           ds.Insert(row);
-          Thread.Sleep(ExternalRandomGenerator.Instance.NextScaledRandomInteger(1000, 3000));
+          Thread.Sleep(App.Random.NextScaledRandomInteger(1000, 3000));
 
           var qry = new Query("CRUD.Patient.UpdateAmount")
           {
@@ -368,10 +368,10 @@ CREATE TABLE `tbl_employee` (
             new Query.Param("pSSN", row.SSN)
           };
           ds.ExecuteWithoutFetch(qry);
-          Thread.Sleep(ExternalRandomGenerator.Instance.NextScaledRandomInteger(1000, 3000));
+          Thread.Sleep(App.Random.NextScaledRandomInteger(1000, 3000));
 
           var listQry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString())};
-          var result = ds.LoadRow(listQry);
+          var result = ds.LoadDoc(listQry);
 
           Aver.AreEqual(row.Last_Name, result.Last_Name);
           Aver.AreEqual(row.SSN, result.SSN);
@@ -399,7 +399,7 @@ CREATE TABLE `tbl_employee` (
           ds.ExecuteWithoutFetch(qry);
 
           var listQry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString())};
-          var result = ds.LoadRow(listQry);
+          var result = ds.LoadDoc(listQry);
 
           Aver.AreEqual(row.Last_Name, result.Last_Name);
           Aver.AreEqual(row.SSN, result.SSN);
@@ -449,20 +449,20 @@ CREATE TABLE `tbl_employee` (
         // try load deleted
         var fetchByGDIDQry = new Query<Employee>("CRUD.Queries.Employee.FetchByGDID")
                              { new Query.Param("pGDID", list.First(e=>e.Salary > 210).GDID) };
-        row = ds.LoadRow(fetchByGDIDQry);
+        row = ds.LoadDoc(fetchByGDIDQry);
         Aver.IsNull(row);
 
         fetchByGDIDQry = new Query<Employee>("CRUD.Queries.Employee.FetchByGDID")
                          { new Query.Param("pGDID", rest.First().GDID) };
 
-        row = ds.LoadRow(fetchByGDIDQry);
+        row = ds.LoadDoc(fetchByGDIDQry);
         Aver.IsNotNull(row);
         Aver.IsTrue(rest.First().Equals(row));
         var code = Guid.NewGuid();
         row.Code = code;
         ds.Update(row);
 
-        row = ds.LoadRow(fetchByGDIDQry);
+        row = ds.LoadDoc(fetchByGDIDQry);
         Aver.IsNotNull(row);
         Aver.AreObjectsEqual(code, row.Code);
       }
@@ -504,18 +504,18 @@ CREATE TABLE `tbl_employee` (
 
             if (stored.Any())
             {
-              var idx = ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, stored.Count());
+              var idx = App.Random.NextScaledRandomInteger(0, stored.Count());
               var toLoad = stored.ElementAt(idx);
               var emp = data.First(e => e.GDID == toLoad.GDID);
 
               var fetchOne = new Query<Employee>("CRUD.Queries.Employee.FetchByGDID")
                              { new Query.Param("pGDID", toLoad.GDID) };
-              var row = ds.LoadRow(fetchOne);
+              var row = ds.LoadDoc(fetchOne);
               if (row == null) continue; // element was deleted from database by another thread
               Aver.IsTrue(emp.Equals(row));
 
               // random deletion
-              if (ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 2) == 1)
+              if (App.Random.NextScaledRandomInteger(0, 2) == 1)
               {
                 ds.Delete(row);
                 deleted.Add(row);
@@ -523,7 +523,7 @@ CREATE TABLE `tbl_employee` (
             }
 
             // random insertion
-            if (ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 2) == 1)
+            if (App.Random.NextScaledRandomInteger(0, 2) == 1)
             {
               var newRow = makeEmployee(new GDID((uint)(i + 1), 0, (ulong)(cnt + ii + 1)));
               newRow.Department = department;
@@ -596,18 +596,18 @@ CREATE TABLE `tbl_employee` (
 
             if (stored.Any())
             {
-              var idx = ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, stored.Count());
+              var idx = App.Random.NextScaledRandomInteger(0, stored.Count());
               var toLoad = stored.ElementAt(idx);
               var emp = data.First(e => e.GDID == toLoad.GDID);
 
               var fetchOne = new Query<Employee>("CRUD.Queries.Employee.FetchByGDID")
                               { new Query.Param("pGDID", toLoad.GDID) };
-              var row = ds.LoadRow(fetchOne);
+              var row = ds.LoadDoc(fetchOne);
               if (row == null) continue; // element was deleted from database by another thread
               Aver.IsTrue(emp.Equals(row));
 
               // random deletion
-              if (ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 2) == 1)
+              if (App.Random.NextScaledRandomInteger(0, 2) == 1)
               {
                 ds.Delete(row);
                 deleted.Add(row);
@@ -615,7 +615,7 @@ CREATE TABLE `tbl_employee` (
             }
 
             // random insertion
-            if (ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 2) == 1)
+            if (App.Random.NextScaledRandomInteger(0, 2) == 1)
             {
               var newRow = makeEmployee(new GDID((uint)(i + 1), 0, (ulong)(cnt + ii + 1)));
               newRow.Department = department;
@@ -740,9 +740,9 @@ CREATE TABLE `tbl_employee` (
 
     #region .pvt
 
-    private MySQLDataStore makeDataStore()
+    private MySqlDataStore makeDataStore()
     {
-      var datastore = new MySQLDataStore(m_ConnectionString);
+      var datastore = new MySqlDataStore(m_ConnectionString);
       datastore.QueryResolver.ScriptAssembly = "Azos.Tests.Integration";
       return datastore;
     }
@@ -750,20 +750,20 @@ CREATE TABLE `tbl_employee` (
     private Employee makeEmployee(GDID gdid)
     {
       var counter = gdid.Counter;
-      var dob = new DateTime(ExternalRandomGenerator.Instance.NextScaledRandomInteger(1970, 1990),
-                             ExternalRandomGenerator.Instance.NextScaledRandomInteger(1, 12),
-                             ExternalRandomGenerator.Instance.NextScaledRandomInteger(1, 28));
-      var salary = ExternalRandomGenerator.Instance.NextScaledRandomDouble(100, 300).AsDecimal();
+      var dob = new DateTime(App.Random.NextScaledRandomInteger(1970, 1990),
+                             App.Random.NextScaledRandomInteger(1, 12),
+                             App.Random.NextScaledRandomInteger(1, 28));
+      var salary = App.Random.NextScaledRandomDouble(100, 300).AsDecimal();
       return new Employee
         {
           GDID = gdid,
-          Name = Parsing.NaturalTextGenerator.GenerateFullName(),
+          Name = Text.NaturalTextGenerator.GenerateFullName(),
           Code = Guid.NewGuid(),
           DOB = dob,
           Department = "DPT" + (counter % 3).ToString(),
           IsManager = (counter % 10) == 0,
-          Experience = ExternalRandomGenerator.Instance.NextScaledRandomInteger(10, 20),
-          Rate = ExternalRandomGenerator.Instance.NextScaledRandomDouble(1.0, 2.0),
+          Experience = App.Random.NextScaledRandomInteger(10, 20),
+          Rate = App.Random.NextScaledRandomDouble(1.0, 2.0),
           Salary = Math.Round(salary, 2),
           Note = "This is employee #" + gdid.ToString()
         };
@@ -776,7 +776,7 @@ CREATE TABLE `tbl_employee` (
           First_Name = "Oleg",
           Last_Name = ln,
           DOB = new DateTime(1980, 8, 29),
-          SSN = ExternalRandomGenerator.Instance.NextScaledRandomInteger(100000, 500000).ToString(),
+          SSN = App.Random.NextScaledRandomInteger(100000, 500000).ToString(),
           Amount = 10.23M
         };
     }
@@ -788,7 +788,7 @@ CREATE TABLE `tbl_employee` (
 
     [Serializable]
     [Table(name: "tbl_employee")]
-    public class Employee : TypedRow
+    public class Employee : TypedDoc
     {
       [Field(required: true, key: true)]
       public GDID GDID { get; set; }
@@ -820,7 +820,7 @@ CREATE TABLE `tbl_employee` (
       [Field]
       public string Note { get; set; }
 
-      public override bool Equals(Row other)
+      public override bool Equals(Doc other)
       {
         var o = other as Employee;
         if (o == null) return false;

@@ -4,17 +4,13 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
-using Azos.ApplicationModel.Pile;
+using Azos.Pile;
 using Azos.Scripting;
-using Azos.UTest.AppModel.Pile;
+using Azos.Tests.Unit.Pile;
 
-namespace Azos.Tests.Integration.AppModel.Pile
+namespace Azos.Tests.Integration.Pile
 {
     [Runnable]
     public class CacheTest32Gb : HighMemoryLoadTest32RAM

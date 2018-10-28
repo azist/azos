@@ -4,24 +4,22 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Diagnostics;
 
-using Azos;
-using Azos.DataAccess.CRUD;
-using Azos.DataAccess.MongoDB;
+using Azos.Data;
+using Azos.Data.Access;
+using Azos.Data.Access.MongoDb;
 
 namespace Azos.Tests.Integration.CRUD.MongoSpecific
 {
   /// <summary>
   /// Performs a server-side cursor count
   /// </summary>
-  public class CountPerzons : MongoDBCRUDQueryHandlerBase
+  public class CountPerzons : MongoDbCRUDQueryHandlerBase
   {
 
-    public CountPerzons(MongoDBDataStore store, string name) : base(store, new QuerySource(name,
+    public CountPerzons(MongoDbDataStore store, string name) : base(store, new QuerySource(name,
         @"#pragma
 modify=MyPerzon
 
@@ -31,9 +29,9 @@ modify=MyPerzon
 
     public override RowsetBase Execute(ICRUDQueryExecutionContext context, Query query, bool oneRow = false)
     {
-      var ctx = (MongoDBCRUDQueryExecutionContext)context;
+      var ctx = (MongoDbCRUDQueryExecutionContext)context;
 
-      Azos.DataAccess.MongoDB.Connector.Collection collection;
+      Azos.Data.Access.MongoDb.Connector.Collection collection;
       var qry = MakeQuery(ctx.Database, query, Source, out collection);
 
       var rrow = new TResult();
@@ -44,12 +42,12 @@ modify=MyPerzon
 
       rrow.Interval = sw.Elapsed;
 
-      var result = new Rowset(Schema.GetForTypedRow(typeof(TResult)));
+      var result = new Rowset(Schema.GetForTypedDoc(typeof(TResult)));
       result.Add(rrow);
       return result;
     }
 
-    public class TResult : TypedRow
+    public class TResult : TypedDoc
     {
       [Field]
       public long Count{ get; set;}

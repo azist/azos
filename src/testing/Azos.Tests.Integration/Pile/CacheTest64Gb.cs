@@ -10,10 +10,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Azos.UTest.AppModel.Pile;
+using Azos.Tests.Unit.Pile;
 using Azos.Scripting;
 
-namespace Azos.Tests.Integration.AppModel.Pile
+namespace Azos.Tests.Integration.Pile
 {
     [Runnable]
     public class CacheTest64gb : HighMemoryLoadTest64RAM

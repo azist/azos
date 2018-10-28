@@ -5,22 +5,18 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
+using Azos.Data;
 using Azos.Serialization.BSON;
-using Azos.DataAccess.MongoDB;
-using Azos.DataAccess.MongoDB.Connector;
+using Azos.Data.Access.MongoDb.Connector;
 using Azos.Financial;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
 
-namespace Azos.Tests.Integration.MongoDB
+namespace Azos.Tests.Integration.MongoDb
 {
   [Runnable]
   public class CRUDwithRowConverter
@@ -52,7 +48,7 @@ namespace Azos.Tests.Integration.MongoDB
           Bool2 = null,
           Guid1 = new Guid("{9195F7DB-FE21-4BB2-B006-2496F4E24D14}"),
           Guid2 = null,
-          Gdid1 = new Azos.DataAccess.Distributed.GDID(0, 12345),
+          Gdid1 = new GDID(0, 12345),
           Gdid2 = null,
           Float1 = 127.0123f,
           Float2 = null,
@@ -88,15 +84,15 @@ namespace Azos.Tests.Integration.MongoDB
           EFlags2 = null
         };
 
-        var rc = new Azos.Serialization.BSON.RowConverter();
-        var doc = rc.RowToBSONDocument(row, "A");
+        var rc = new DataDocConverter();
+        var doc = rc.DataDocToBSONDocument(row, "A");
         Aver.AreEqual(1, t1.Insert(doc).TotalDocumentsAffected);
 
         var got = db["t1"].FindOne(Query.ID_EQ_Int32(1));
         Aver.IsNotNull( got );
 
         var row1 = new TestRow();
-        rc.BSONDocumentToRow(got, row1, "A");
+        rc.BSONDocumentToDataDoc(got, row1, "A");
 
         Aver.AreObjectsEqual(row, row1);
       }
@@ -119,7 +115,7 @@ namespace Azos.Tests.Integration.MongoDB
 
         var rows = new TestRow[CNT];
 
-        var rc = new Azos.Serialization.BSON.RowConverter();
+        var rc = new DataDocConverter();
 
         var sw = new Stopwatch();
 
@@ -138,7 +134,7 @@ namespace Azos.Tests.Integration.MongoDB
             Bool2 = null,
             Guid1 = new Guid("{9195F7DB-FE21-4BB2-B006-2496F4E24D14}"),
             Guid2 = null,
-            Gdid1 = new Azos.DataAccess.Distributed.GDID(0, 12345),
+            Gdid1 = new GDID(0, 12345),
             Gdid2 = null,
             Float1 = 127.0123f,
             Float2 = null,
@@ -176,7 +172,7 @@ namespace Azos.Tests.Integration.MongoDB
 
           rows[i] = row;
 
-          var doc = rc.RowToBSONDocument(row, "A");
+          var doc = rc.DataDocToBSONDocument(row, "A");
           Aver.AreEqual(1, t1.Insert(doc).TotalDocumentsAffected);
 
         });
@@ -191,7 +187,7 @@ namespace Azos.Tests.Integration.MongoDB
           Aver.IsNotNull( got );
 
           var row1 = new TestRow();
-          rc.BSONDocumentToRow(got, row1, "A");
+          rc.BSONDocumentToDataDoc(got, row1, "A");
 
           Aver.AreObjectsEqual(rows[row1._id], row1);
         });
@@ -226,7 +222,7 @@ namespace Azos.Tests.Integration.MongoDB
           Bool2 = null,
           Guid1 = new Guid("{9195F7DB-FE21-4BB2-B006-2496F4E24D14}"),
           Guid2 = null,
-          Gdid1 = new Azos.DataAccess.Distributed.GDID(0, 12345),
+          Gdid1 = new GDID(0, 12345),
           Gdid2 = null,
           Float1 = 127.0123f,
           Float2 = null,
@@ -262,14 +258,14 @@ namespace Azos.Tests.Integration.MongoDB
           EFlags2 = null
         };
 
-        var rc = new Azos.Serialization.BSON.RowConverter();
-        var doc = rc.RowToBSONDocument(row, "A");
+        var rc = new DataDocConverter();
+        var doc = rc.DataDocToBSONDocument(row, "A");
         Aver.AreEqual(1, t1.Insert(doc).TotalDocumentsAffected);
 
         row.String1 = "makaka";
         row.Int1 = 9789;
 
-        doc = rc.RowToBSONDocument(row, "A");
+        doc = rc.DataDocToBSONDocument(row, "A");
 
         var r = t1.Save(doc);
         Aver.AreEqual(1, r.TotalDocumentsAffected);
@@ -280,7 +276,7 @@ namespace Azos.Tests.Integration.MongoDB
         Aver.IsNotNull( got );
 
         var row1 = new TestRow();
-        rc.BSONDocumentToRow(got, row1, "A");
+        rc.BSONDocumentToDataDoc(got, row1, "A");
 
         Aver.AreObjectsEqual(row, row1);
 
@@ -304,7 +300,7 @@ namespace Azos.Tests.Integration.MongoDB
 
         var rows = new TestRow[CNT];
 
-        var rc = new Azos.Serialization.BSON.RowConverter();
+        var rc = new DataDocConverter();
 
         var sw = new Stopwatch();
 
@@ -324,7 +320,7 @@ namespace Azos.Tests.Integration.MongoDB
             Bool2 = null,
             Guid1 = new Guid("{9195F7DB-FE21-4BB2-B006-2496F4E24D14}"),
             Guid2 = null,
-            Gdid1 = new Azos.DataAccess.Distributed.GDID(0, 12345),
+            Gdid1 = new GDID(0, 12345),
             Gdid2 = null,
             Float1 = 127.0123f,
             Float2 = null,
@@ -362,7 +358,7 @@ namespace Azos.Tests.Integration.MongoDB
 
           rows[i] = row;
 
-          var doc = rc.RowToBSONDocument(row, "A");
+          var doc = rc.DataDocToBSONDocument(row, "A");
           Aver.AreEqual(1, t1.Insert(doc).TotalDocumentsAffected);
         });
         sw.Stop();
@@ -374,7 +370,7 @@ namespace Azos.Tests.Integration.MongoDB
           row.String1 = "makaka" + i.ToString();
           row.Int1 = 9789 + (i * 100);
 
-          var doc = rc.RowToBSONDocument(row, "A");
+          var doc = rc.DataDocToBSONDocument(row, "A");
 
           var r = t1.Save(doc);
           Aver.AreEqual(1, r.TotalDocumentsAffected);
@@ -392,7 +388,7 @@ namespace Azos.Tests.Integration.MongoDB
           Aver.IsNotNull( got );
 
           var row1 = new TestRow();
-          rc.BSONDocumentToRow(got, row1, "A");
+          rc.BSONDocumentToDataDoc(got, row1, "A");
 
           Aver.AreObjectsEqual(rows[j], row1);
         });
@@ -423,13 +419,13 @@ namespace Azos.Tests.Integration.MongoDB
           String1 = "Mudaker",
         };
 
-        var rc = new Azos.Serialization.BSON.RowConverter();
-        var doc = rc.RowToBSONDocument(row, "A");
+        var rc = new DataDocConverter();
+        var doc = rc.DataDocToBSONDocument(row, "A");
         Aver.AreEqual(1, t1.Insert(doc).TotalDocumentsAffected);
 
         var updateResult = t1.Update
         (
-          new Azos.DataAccess.MongoDB.Connector.UpdateEntry
+          new UpdateEntry
           (
             Query.ID_EQ_Int32(1),
             new Update("{'String1': '$$VAL'}", true, new TemplateArg("VAL", BSONElementType.String, "makaka")),
@@ -442,7 +438,7 @@ namespace Azos.Tests.Integration.MongoDB
         Aver.IsNotNull( got );
 
         var row1 = new TestRow();
-        rc.BSONDocumentToRow(got, row1, "A");
+        rc.BSONDocumentToDataDoc(got, row1, "A");
 
         Aver.AreEqual("makaka", row1.String1);
       }
@@ -470,15 +466,15 @@ namespace Azos.Tests.Integration.MongoDB
           MapList = new List<JSONDataMap>{ new JSONDataMap{{"abc",0},{"buba", -40.0789}},  new JSONDataMap{{"nothing",null}} }
         };
 
-        var rc = new Azos.Serialization.BSON.RowConverter();
-        var doc = rc.RowToBSONDocument(row, "A");
+        var rc = new DataDocConverter();
+        var doc = rc.DataDocToBSONDocument(row, "A");
         Aver.AreEqual(1, t1.Insert(doc).TotalDocumentsAffected);
 
         var got = db["t1"].FindOne(Query.ID_EQ_Int32(1));
         Aver.IsNotNull( got );
 
         var row1 = new ArrayRow();
-        rc.BSONDocumentToRow(got, row1, "A");
+        rc.BSONDocumentToDataDoc(got, row1, "A");
 
         Aver.AreObjectsEqual(row, row1);
       }
@@ -494,74 +490,74 @@ namespace Azos.Tests.Integration.MongoDB
     [Flags]
     public enum EFlags { First = 0x01, Second = 0x02, Third = 0x04, Fifth = 0x0f, FirstSecond = First | Second }
 
-    public class ArrayRow : Azos.DataAccess.CRUD.TypedRow
+    public class ArrayRow : TypedDoc
     {
-      [Azos.DataAccess.CRUD.Field] public int _id {get; set;}
+      [Field] public int _id {get; set;}
 
-      [Azos.DataAccess.CRUD.Field] public JSONDataMap  Map{get; set;}
-      [Azos.DataAccess.CRUD.Field] public object[]  ObjectArray{get; set;}
-      [Azos.DataAccess.CRUD.Field] public JSONDataMap[]  MapArray{get; set;}
-      [Azos.DataAccess.CRUD.Field] public List<object> List{get; set;}
-      [Azos.DataAccess.CRUD.Field] public List<JSONDataMap> MapList{get; set;}
+      [Field] public JSONDataMap  Map{get; set;}
+      [Field] public object[]  ObjectArray{get; set;}
+      [Field] public JSONDataMap[]  MapArray{get; set;}
+      [Field] public List<object> List{get; set;}
+      [Field] public List<JSONDataMap> MapList{get; set;}
     }
 
-    public class TestRow : Azos.DataAccess.CRUD.TypedRow
+    public class TestRow : TypedDoc
     {
-      [Azos.DataAccess.CRUD.Field] public int _id {get; set;}
+      [Field] public int _id {get; set;}
 
-      [Azos.DataAccess.CRUD.Field] public string String1{get; set;}
+      [Field] public string String1{get; set;}
 
-      [Azos.DataAccess.CRUD.Field(targetName: "A", backendName: "s2")]
-      [Azos.DataAccess.CRUD.Field(targetName: "B", backendName: "STRING-2")]
+      [Field(targetName: "A", backendName: "s2")]
+      [Field(targetName: "B", backendName: "STRING-2")]
       public string String2{get; set;}
 
-      [Azos.DataAccess.CRUD.Field] public byte Byte1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public sbyte SByte1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public short Short1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public ushort UShort1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public int Int1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public uint Uint1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public long Long1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public ulong ULong1{get; set;}
+      [Field] public byte Byte1{get; set;}
+      [Field] public sbyte SByte1{get; set;}
+      [Field] public short Short1{get; set;}
+      [Field] public ushort UShort1{get; set;}
+      [Field] public int Int1{get; set;}
+      [Field] public uint Uint1{get; set;}
+      [Field] public long Long1{get; set;}
+      [Field] public ulong ULong1{get; set;}
 
-      [Azos.DataAccess.CRUD.Field] public byte?   Byte2{get; set;}
-      [Azos.DataAccess.CRUD.Field] public sbyte?  SByte2{get; set;}
-      [Azos.DataAccess.CRUD.Field] public short?  Short2{get; set;}
-      [Azos.DataAccess.CRUD.Field] public ushort? UShort2{get; set;}
-      [Azos.DataAccess.CRUD.Field] public int?    Int2{get; set;}
-      [Azos.DataAccess.CRUD.Field] public uint?   Uint2{get; set;}
-      [Azos.DataAccess.CRUD.Field] public long?   Long2{get; set;}
-      [Azos.DataAccess.CRUD.Field] public ulong?  ULong2{get; set;}
+      [Field] public byte?   Byte2{get; set;}
+      [Field] public sbyte?  SByte2{get; set;}
+      [Field] public short?  Short2{get; set;}
+      [Field] public ushort? UShort2{get; set;}
+      [Field] public int?    Int2{get; set;}
+      [Field] public uint?   Uint2{get; set;}
+      [Field] public long?   Long2{get; set;}
+      [Field] public ulong?  ULong2{get; set;}
 
 
 
-      [Azos.DataAccess.CRUD.Field] public DateTime Date1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public DateTime? Date2{get; set;}
-      [Azos.DataAccess.CRUD.Field] public bool Bool1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public bool? Bool2{get; set;}
-      [Azos.DataAccess.CRUD.Field] public Guid Guid1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public Guid? Guid2{get; set;}
-      [Azos.DataAccess.CRUD.Field] public Azos.DataAccess.Distributed.GDID Gdid1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public Azos.DataAccess.Distributed.GDID? Gdid2{get; set;}
+      [Field] public DateTime Date1{get; set;}
+      [Field] public DateTime? Date2{get; set;}
+      [Field] public bool Bool1{get; set;}
+      [Field] public bool? Bool2{get; set;}
+      [Field] public Guid Guid1{get; set;}
+      [Field] public Guid? Guid2{get; set;}
+      [Field] public GDID Gdid1{get; set;}
+      [Field] public GDID? Gdid2{get; set;}
 
-      [Azos.DataAccess.CRUD.Field] public float Float1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public float? Float2{get; set;}
-      [Azos.DataAccess.CRUD.Field] public double Double1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public double? Double2{get; set;}
-      [Azos.DataAccess.CRUD.Field] public decimal Decimal1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public decimal? Decimal2{get; set;}
-      [Azos.DataAccess.CRUD.Field] public Amount Amount1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public Amount? Amount2{get; set;}
-      [Azos.DataAccess.CRUD.Field] public byte[] Bytes1{get; set;}
-      [Azos.DataAccess.CRUD.Field] public byte[] Bytes2{get; set;}
+      [Field] public float Float1{get; set;}
+      [Field] public float? Float2{get; set;}
+      [Field] public double Double1{get; set;}
+      [Field] public double? Double2{get; set;}
+      [Field] public decimal Decimal1{get; set;}
+      [Field] public decimal? Decimal2{get; set;}
+      [Field] public Amount Amount1{get; set;}
+      [Field] public Amount? Amount2{get; set;}
+      [Field] public byte[] Bytes1{get; set;}
+      [Field] public byte[] Bytes2{get; set;}
 
-      [Azos.DataAccess.CRUD.Field] public ETest ETest1 {get; set;}
-      [Azos.DataAccess.CRUD.Field] public ETest? ETest2 {get; set;}
+      [Field] public ETest ETest1 {get; set;}
+      [Field] public ETest? ETest2 {get; set;}
 
-      [Azos.DataAccess.CRUD.Field] public EFlags EFlags1 {get; set;}
-      [Azos.DataAccess.CRUD.Field] public EFlags? EFlags2 {get; set;}
+      [Field] public EFlags EFlags1 {get; set;}
+      [Field] public EFlags? EFlags2 {get; set;}
 
-      public override bool Equals(Azos.DataAccess.CRUD.Row other)
+      public override bool Equals(Doc other)
       {
         var or = other as TestRow;
         if (or==null) return false;

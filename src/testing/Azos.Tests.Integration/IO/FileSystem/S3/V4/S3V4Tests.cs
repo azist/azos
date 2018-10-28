@@ -3,11 +3,10 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO;
+
+using Azos.Apps;
 using Azos.IO.FileSystem.S3.V4;
 using Azos.Scripting;
 
@@ -19,7 +18,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void PutFolder()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         string fullFolderName = S3_DXW_ROOT;
         S3V4URI folderUri = S3V4URI.CreateFolder(fullFolderName);
@@ -31,7 +30,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
 
         PutFile();
 
-        S3V4.RemoveFolder(folderUri, S3_ACCESSKEY, S3_SECRETKEY, 0); 
+        S3V4.RemoveFolder(folderUri, S3_ACCESSKEY, S3_SECRETKEY, 0);
       }
     }
 
@@ -56,7 +55,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
         Aver.AreEqual(S3_CONTENTSTR1, s3FileContentStr);
       }
 
-      S3V4.RemoveFile(fileUri, S3_ACCESSKEY, S3_SECRETKEY, 0); 
+      S3V4.RemoveFile(fileUri, S3_ACCESSKEY, S3_SECRETKEY, 0);
     }
   }
 }

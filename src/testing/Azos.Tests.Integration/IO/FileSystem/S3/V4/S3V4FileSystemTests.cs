@@ -11,11 +11,11 @@ using System.Text;
 using System.Threading.Tasks;
 using S3V4FSH = Azos.IO.FileSystem.S3.V4.S3V4FileSystem.S3V4FSH;
 
-using Azos;
-using Azos.Environment;
+using Azos.Apps;
+using Azos.Conf;
+using Azos.Data;
 using Azos.IO.FileSystem;
 using Azos.IO.FileSystem.S3.V4;
-using Azos.Security;
 using FS = Azos.IO.FileSystem;
 
 using Azos.Scripting;
@@ -118,7 +118,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void Connect_NavigateRootDir()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         using (var fs = new S3V4FileSystem("S3-1"))
         {
@@ -136,7 +136,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void CreateFile()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.FileSystem.Instances[NFX_S3];
 
@@ -158,7 +158,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void CreateFileAsync()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.FileSystem.Instances[NFX_S3];
 
@@ -184,7 +184,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void CreateDeleteFile()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.FileSystem.Instances[NFX_S3];
 
@@ -217,7 +217,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void CreateWriteCopyReadFile()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.FileSystem.Instances[NFX_S3];
 
@@ -257,7 +257,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void CreateWriteReadFile_1()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.FileSystem.Instances[NFX_S3];
 
@@ -294,7 +294,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void CreateWriteReadFile_2()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.FileSystem.Instances[NFX_S3];
 
@@ -318,7 +318,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void CreateWriteReadFile_3()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.FileSystem.Instances[NFX_S3];
 
@@ -343,7 +343,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void CreateWriteReadFile_3_Async()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.FileSystem.Instances[NFX_S3];
 
@@ -389,7 +389,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void CreateDeleteDir()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.FileSystem.Instances[NFX_S3];
 
@@ -419,7 +419,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void CreateDirCreateFileDeleteDir()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.FileSystem.Instances[NFX_S3];
 
@@ -462,7 +462,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void CreateRefreshDeleteDirAsync()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.FileSystem.Instances[NFX_S3];
 
@@ -481,7 +481,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void Parallel_CreateWriteReadFile()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.FileSystem.Instances[NFX_S3];
 
@@ -513,7 +513,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void Parallel_CreateWriteReadFile_Async()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.FileSystem.Instances[NFX_S3];
 
@@ -586,7 +586,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Aver.Throws(typeof(System.Net.WebException), MsgMatch = Aver.ThrowsAttribute.MatchType.Contains)]
     public void FailedFastTimeout()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         var fs = FS.FileSystem.Instances[NFX_S3];
 
@@ -602,7 +602,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
 
     private void cleanUp()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         deleteFile(FN2_FS_FULLPATH);
 
@@ -620,7 +620,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
 
     private void initialize()
     {
-      using(new Azos.ApplicationModel.ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
       {
         using (Stream s = new FileStream(FN2_FS_FULLPATH, FileMode.Create, FileAccess.Write))
         {

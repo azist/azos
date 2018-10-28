@@ -3,20 +3,14 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
 
-using Azos.ApplicationModel;
+using Azos.Apps;
 using Azos.Glue;
 using Azos.Glue.Native;
 using Azos.Glue.Protocol;
 using Azos.Scripting;
-using static Azos.Aver.ThrowsAttribute;
 
-using BusinessLogic;
+using TestBusinessLogic;
 
 namespace Azos.Tests.Integration.Glue
 {
@@ -183,7 +177,7 @@ namespace Azos.Tests.Integration.Glue
         }
 
         [Run]
-        [Aver.Throws(typeof(RemoteException), Message="Azos.Security.AuthorizationException", MsgMatch = MatchType.Contains)]
+        [Aver.Throws(typeof(RemoteException), Message="Azos.Security.AuthorizationException")]
         public void Sync_JokeContract_Expected_Security_Exception()
         {
           using (JokeHelper.MakeApp())
@@ -195,7 +189,7 @@ namespace Azos.Tests.Integration.Glue
         }
 
         [Run]
-        [Aver.Throws(typeof(RemoteException), Message="Azos.Security.AuthorizationException", MsgMatch = MatchType.Contains)]
+        [Aver.Throws(typeof(RemoteException), Message="Azos.Security.AuthorizationException")]
         public void MPX_JokeContract_Expected_Security_Exception()
         {
           using (JokeHelper.MakeApp())

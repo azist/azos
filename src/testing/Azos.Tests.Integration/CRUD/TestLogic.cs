@@ -10,10 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Azos;
-using Azos.DataAccess.CRUD;
-using Azos.DataAccess.Distributed;
+using Azos.Data;
+using Azos.Data.Access;
 using Azos.Serialization.JSON;
-using Azos.Scripting;
 
 namespace Azos.Tests.Integration.CRUD
 {
@@ -28,7 +27,7 @@ namespace Azos.Tests.Integration.CRUD
             var rowset = result[0];
             Aver.AreEqual(0, rowset.Count);
 
-            var row = new DynamicRow(rowset.Schema);
+            var row = new DynamicDoc(rowset.Schema);
 
             row["ssn"] = "999-88-9012";
             row["First_Name"] = "Jack";
@@ -59,7 +58,7 @@ namespace Azos.Tests.Integration.CRUD
             var rowset = task.Result[0];
             Aver.AreEqual(0, rowset.Count);
 
-            var row = new DynamicRow(rowset.Schema);
+            var row = new DynamicDoc(rowset.Schema);
 
             row["ssn"] = "999-88-9012";
             row["First_Name"] = "Jack";
@@ -149,7 +148,7 @@ namespace Azos.Tests.Integration.CRUD
 
         public static void QueryInsertQuery_DynamicRow(ICRUDDataStore store)
         {
-            var query = new Query<DynamicRow>("CRUD.Patient.List") { new Query.Param("LN", "%ruman") };
+            var query = new Query<DynamicDoc>("CRUD.Patient.List") { new Query.Param("LN", "%ruman") };
             var result = store.Load( query );
 
             Aver.AreEqual(1, result.Count);
@@ -168,10 +167,10 @@ namespace Azos.Tests.Integration.CRUD
             store.Insert(row);
 
 
-            var row2 = store.LoadRow( query );
+            var row2 = store.LoadDoc( query );
 
             Aver.IsNotNull(row2);
-            Aver.IsTrue( row2 is DynamicRow );
+            Aver.IsTrue( row2 is DynamicDoc );
             Aver.AreObjectsEqual("Mans", row2["First_Name"]);
 
         }
@@ -179,7 +178,7 @@ namespace Azos.Tests.Integration.CRUD
 
         public static void InsertManyUsingLogChanges_TypedRow(ICRUDDataStore store)
         {
-            var rowset = new Rowset( Schema.GetForTypedRow(typeof(Patient)));
+            var rowset = new Rowset( Schema.GetForTypedDoc(typeof(Patient)));
             rowset.LogChanges = true;
 
             for(var i=0; i<1000; i++)
@@ -217,7 +216,7 @@ namespace Azos.Tests.Integration.CRUD
 
         public static void ASYNC_InsertManyUsingLogChanges_TypedRow(ICRUDDataStore store)
         {
-            var rowset = new Rowset( Schema.GetForTypedRow(typeof(Patient)));
+            var rowset = new Rowset( Schema.GetForTypedDoc(typeof(Patient)));
             rowset.LogChanges = true;
 
             for(var i=0; i<1000; i++)
@@ -581,7 +580,7 @@ namespace Azos.Tests.Integration.CRUD
         {
             var schema = store.GetSchema(new Query("CRUD.Types.Load"));
 
-            var row = new DynamicRow(schema);
+            var row = new DynamicDoc(schema);
             row["GDID"] = new GDID(0, 145);
             row["SCREEN_NAME"] = "User1";
             row["STRING_NAME"] = "Some user 1";
@@ -595,7 +594,7 @@ namespace Azos.Tests.Integration.CRUD
 
             store.Insert( row );
 
-            var row2 = store.LoadOneRow(new Query("CRUD.Types.Load", new GDID(0, 145)));
+            var row2 = store.LoadOneDoc(new Query("CRUD.Types.Load", new GDID(0, 145)));
 
             Aver.IsNotNull(row2);
             Aver.AreObjectsEqual(145, row2["GDID"].AsInt());
@@ -618,7 +617,7 @@ namespace Azos.Tests.Integration.CRUD
         {
             var schema = store.GetSchemaAsync(new Query("CRUD.Types.Load")).Result;
 
-            var row = new DynamicRow(schema);
+            var row = new DynamicDoc(schema);
             row["GDID"] = new GDID(0, 145);
             row["SCREEN_NAME"] = "User1";
             row["STRING_NAME"] = "Some user 1";
@@ -632,7 +631,7 @@ namespace Azos.Tests.Integration.CRUD
 
             store.Insert( row );
 
-            var row2 = store.LoadOneRow(new Query("CRUD.Types.Load", new GDID(0, 145)));
+            var row2 = store.LoadOneDoc(new Query("CRUD.Types.Load", new GDID(0, 145)));
 
             Aver.IsNotNull(row2);
             Aver.AreObjectsEqual(145, row2["GDID"].AsInt());
@@ -669,7 +668,7 @@ namespace Azos.Tests.Integration.CRUD
 
             store.Insert( row );
 
-            var row2 = store.LoadRow(new Query<Types>("CRUD.Types.Load", new GDID(0, 234)));
+            var row2 = store.LoadDoc(new Query<Types>("CRUD.Types.Load", new GDID(0, 234)));
 
             Aver.IsNotNull(row2);
             Aver.AreEqual(new GDID(0,0,234), row2.GDID);
@@ -691,7 +690,7 @@ namespace Azos.Tests.Integration.CRUD
             row.DOB = null;
             store.Update(row);
 
-            var row3 = store.LoadRow(new Query<Types>("CRUD.Types.Load", new GDID(0, 234)));
+            var row3 = store.LoadDoc(new Query<Types>("CRUD.Types.Load", new GDID(0, 234)));
             Aver.IsFalse(row3.Age.HasValue);
             Aver.IsFalse(row3.Bool_Bool.HasValue);
             Aver.IsFalse(row3.DOB.HasValue);
@@ -712,7 +711,7 @@ namespace Azos.Tests.Integration.CRUD
 
             store.Insert( row );
 
-            var row2 = store.LoadOneRow(new Query("CRUD.FullGDID.Load", new GDID(123, 2, 8907893234), typeof(FullGDID))) as FullGDID;
+            var row2 = store.LoadOneDoc(new Query("CRUD.FullGDID.Load", new GDID(123, 2, 8907893234), typeof(FullGDID))) as FullGDID;
 
             Aver.IsNotNull(row2);
             Aver.AreEqual(new GDID(123, 2, 8907893234), row2.GDID);
@@ -725,7 +724,7 @@ namespace Azos.Tests.Integration.CRUD
         {
             var schema = store.GetSchema(new Query("CRUD.FullGDID.Load"));
 
-            var row = new DynamicRow(schema);
+            var row = new DynamicDoc(schema);
 
             var key = new GDID(179, 1, 1234567890);
             Console.WriteLine( key.Bytes.ToDumpString(DumpFormat.Hex));
@@ -738,7 +737,7 @@ namespace Azos.Tests.Integration.CRUD
 
             store.Insert( row );
 
-            var row2 = store.LoadOneRow(new Query("CRUD.FullGDID.Load", key, typeof(FullGDID))) as FullGDID;
+            var row2 = store.LoadOneDoc(new Query("CRUD.FullGDID.Load", key, typeof(FullGDID))) as FullGDID;
 
             Aver.IsNotNull(row2);
             Aver.AreEqual(key, row2.GDID);
@@ -753,7 +752,7 @@ namespace Azos.Tests.Integration.CRUD
             Aver.AreEqual(1, affected);
 
             var query = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "%%") };
-            var persisted = store.LoadRow(query);
+            var persisted = store.LoadDoc(query);
             Aver.IsNotNull(persisted);
             Aver.AreEqual(patient.First_Name, persisted.First_Name);
             Aver.AreEqual(patient.Last_Name, persisted.Last_Name);
@@ -777,7 +776,7 @@ namespace Azos.Tests.Integration.CRUD
             var affected = store.Insert(patient);
             Aver.AreEqual(1, affected);
             var query = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "%%") };
-            var persisted = store.LoadRow(query);
+            var persisted = store.LoadDoc(query);
 
             persisted.Zip = "010203";
             persisted.First_Name = "John";
@@ -785,7 +784,7 @@ namespace Azos.Tests.Integration.CRUD
             affected = store.Update(persisted, null, (r, k, f) => f.Name != "First_Name" && f.Name != "Zip");
             Aver.AreEqual(1, affected);
 
-            var updated = store.LoadRow(query);
+            var updated = store.LoadDoc(query);
             Aver.IsNotNull(updated);
             Aver.AreEqual(persisted.SSN, updated.SSN);
             Aver.AreEqual(persisted.City, updated.City);
@@ -808,7 +807,7 @@ namespace Azos.Tests.Integration.CRUD
             var affected = store.Insert(patient);
             Aver.AreEqual(1, affected);
             var query = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "%%") };
-            var persisted = store.LoadRow(query);
+            var persisted = store.LoadDoc(query);
 
             persisted.Zip = "010203";
             persisted.First_Name = "John";
@@ -816,7 +815,7 @@ namespace Azos.Tests.Integration.CRUD
             affected = store.Upsert(persisted, (r, k, f) => f.Name != "Zip");
             Aver.AreEqual(2, affected);
 
-            var updated = store.LoadRow(query);
+            var updated = store.LoadDoc(query);
             Aver.IsNotNull(updated);
             Aver.AreEqual(persisted.SSN, updated.SSN);
             Aver.AreEqual(persisted.City, updated.City);

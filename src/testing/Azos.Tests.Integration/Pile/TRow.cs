@@ -9,16 +9,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Azos;
 using Azos.Financial;
-using Azos.DataAccess.CRUD;
-using Azos.DataAccess.Distributed;
+using Azos.Data;
 
-namespace Azos.Tests.Integration.AppModel.Pile
+namespace Azos.Tests.Integration.Pile
 {
   public enum Sex { Male, Female, Unspecified};
 
-  public class CheckoutRow: TypedRow
+  public class CheckoutRow: TypedDoc
   {
     [Field(backendName: "_id")] public GDID ID { get; set; }
 
@@ -42,8 +40,8 @@ namespace Azos.Tests.Integration.AppModel.Pile
         StartOffset = gdid.ID * 20,
         G_Block = gdid,
 
-        Address1 = Azos.Parsing.NaturalTextGenerator.Generate(50),
-        Address2 = (gdid.ID % 7) == 0 ? Azos.Parsing.NaturalTextGenerator.Generate(50) : null
+        Address1 = Text.NaturalTextGenerator.Generate(50),
+        Address2 = (gdid.ID % 7) == 0 ? Text.NaturalTextGenerator.Generate(50) : null
       };
 
       var chCnt = (int)(gdid.ID % 10);
@@ -56,7 +54,7 @@ namespace Azos.Tests.Integration.AppModel.Pile
     }
   }
 
-  public class ChargeRow: TypedRow
+  public class ChargeRow: TypedDoc
   {
     [Field(backendName: "amt")] public Amount Amount { get; set; }
     [Field(backendName: "qty")] public int Qty { get; set; }
@@ -77,7 +75,7 @@ namespace Azos.Tests.Integration.AppModel.Pile
     }
   }
 
-  //public class PurchaseRow: TypedRow
+  //public class PurchaseRow: TypedDoc
   //{
   //  [Field(backendName: "_id")] public GDID ID { get; set; }
 
@@ -120,7 +118,7 @@ namespace Azos.Tests.Integration.AppModel.Pile
   //  //}
   //}
 
-  public class PersonRow: TypedRow
+  public class PersonRow: TypedDoc
   {
     [Field(backendName: "_id")] public GDID ID { get; set; }
 
@@ -155,7 +153,7 @@ namespace Azos.Tests.Integration.AppModel.Pile
     {
       var age = (int)(parentGdid.ID % 99);
 
-      var tags = Azos.ExternalRandomGenerator.Instance.NextRandomInteger > 0 ? new string[Azos.ExternalRandomGenerator.Instance.NextScaledRandomInteger(1, 20)] : null;
+      var tags = App.Random.NextRandomInteger > 0 ? new string[App.Random.NextScaledRandomInteger(1, 20)] : null;
 
       if (tags != null)
         for (int i = 0; i < tags.Length; i++)
@@ -166,7 +164,7 @@ namespace Azos.Tests.Integration.AppModel.Pile
       var pers = new PersonRow()
       {
         ID = parentGdid,
-        Name = Azos.Parsing.NaturalTextGenerator.Generate(30),
+        Name = Text.NaturalTextGenerator.Generate(30),
         Age = age,
         DOB = DateTime.Now.AddYears(-age),
         Sex = (parentGdid.ID % 2) == 0 ? Sex.Male : Sex.Female,
@@ -176,8 +174,8 @@ namespace Azos.Tests.Integration.AppModel.Pile
         Notes = parentGdid.ToString(),
         Voter = (parentGdid.ID % 2) == 0 ? (bool?)null : true,
         MilitarySvc = (parentGdid.ID % 2) == 0 ? (bool?)null : false,
-        Address1 = Azos.Parsing.NaturalTextGenerator.Generate(50),
-        Address2 = (parentGdid.ID % 7) == 0 ? Azos.Parsing.NaturalTextGenerator.Generate(50) : null,
+        Address1 = Text.NaturalTextGenerator.Generate(50),
+        Address2 = (parentGdid.ID % 7) == 0 ? Text.NaturalTextGenerator.Generate(50) : null,
         City = (parentGdid.ID % 2) == 0 ? "Magdaburg" : "Odessa On Don",
         State = "OH",
         Zip = "44000" + (parentGdid.ID % 999),
