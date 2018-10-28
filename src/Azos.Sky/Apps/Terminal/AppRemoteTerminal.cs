@@ -200,8 +200,8 @@ namespace Azos.Sky.Apps.Terminal
         return StringConsts.RT_CMDLET_DONTKNOW_ERROR.Args(cname);
 
       //Check cmdlet security
-      Security.Permission.AuthorizeAndGuardAction(tp);
-      Security.Permission.AuthorizeAndGuardAction(tp.GetMethod(nameof(Execute)));
+      Permission.AuthorizeAndGuardAction(tp);
+      Permission.AuthorizeAndGuardAction(tp.GetMethod(nameof(Execute)));
 
       var cmdlet = Activator.CreateInstance(tp, this, command) as Cmdlet;
       if (cmdlet == null)

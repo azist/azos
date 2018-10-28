@@ -69,7 +69,7 @@ namespace Azos.Sky.Apps
       public SystemApplicationType SystemApplicationType { get {return BootConfLoader.SystemApplicationType; } }
 
 
-      public string MetabaseApplicationName { get{ return Agni.AgniSystem.MetabaseApplicationName; } }
+      public string MetabaseApplicationName { get{ return SkySystem.MetabaseApplicationName; } }
 
 
       public IConfigSectionNode BootConfigRoot { get { return m_BootConfigRoot; } }
@@ -109,10 +109,6 @@ namespace Azos.Sky.Apps
 
         var FROM = GetType().FullName+".DoInitApplication()";
 
-        var csvc = new AgniSystemBase(this);
-        csvc.Start();
-
-        m_TheSystem = csvc;
         var metabase = BootConfLoader.Metabase;
 
         try

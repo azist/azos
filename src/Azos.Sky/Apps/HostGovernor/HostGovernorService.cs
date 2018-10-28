@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using System.Threading;
 
-using NFX;
-using NFX.Log;
-using NFX.Environment;
-using NFX.Collections;
-using NFX.ApplicationModel;
-using NFX.ServiceModel;
-using NFX.IO.FileSystem;
-using NFX.IO.FileSystem.Packaging;
+using Azos.Log;
+using Azos.Conf;
+using Azos.Collections;
+using Azos.Apps;
 
 using Azos.Sky.Metabase;
 

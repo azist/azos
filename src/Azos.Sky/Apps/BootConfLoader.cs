@@ -6,7 +6,7 @@ using Azos.Security;
 using Azos.IO.FileSystem;
 
 using Azos.Identification;
-using Azos.Metabase;
+using Azos.Sky.Metabase;
 
 namespace Azos.Sky.Apps
 {
@@ -268,7 +268,7 @@ namespace Azos.Sky.Apps
         {
           if (!s_Loaded) return;
           s_Loaded = false;
-          s_SystemApplicationType = AppModel.SystemApplicationType.Unspecified;
+          s_SystemApplicationType = Apps.SystemApplicationType.Unspecified;
           s_HostName = null;
           s_DynamicHostNameSuffix = null;
           s_ParentZoneGovernorPrimaryHostName = null;
@@ -309,16 +309,16 @@ namespace Azos.Sky.Apps
 
               if (s_HostName.IsNullOrWhiteSpace())
               {
-                  bootApp.writeLog(NFX.Log.MessageType.Warning, "Host name was not specified in config, trying to take from machine env var {0}".Args(ENV_VAR_HOST_NAME));
+                  bootApp.writeLog(Log.MessageType.Warning, "Host name was not specified in config, trying to take from machine env var {0}".Args(ENV_VAR_HOST_NAME));
                   s_HostName = System.Environment.GetEnvironmentVariable(ENV_VAR_HOST_NAME);
               }
               if (s_HostName.IsNullOrWhiteSpace())
               {
-                  bootApp.writeLog(NFX.Log.MessageType.Warning, "Host name was not specified in neither config nor env var, taking from local computer name");
+                  bootApp.writeLog(Log.MessageType.Warning, "Host name was not specified in neither config nor env var, taking from local computer name");
                   s_HostName = "{0}/{1}".Args(DEFAULT_HOST_ZONE_PATH, System.Environment.MachineName);
               }
 
-              bootApp.writeLog(NFX.Log.MessageType.Info, "Host name: " + s_HostName);
+              bootApp.writeLog(Log.MessageType.Info, "Host name: " + s_HostName);
           }
 
 
@@ -335,26 +335,26 @@ namespace Azos.Sky.Apps
             var fsRoot = mNode[CONFIG_FS_SECTION].AttrByName(CONFIG_ROOT_ATTR).Value;
             if (fsRoot.IsNullOrWhiteSpace())
             {
-              bootApp.writeLog(NFX.Log.MessageType.Info,
+              bootApp.writeLog(Log.MessageType.Info,
                                "Metabase fs root is null in config, trying to take from machine env var {0}".Args(ENV_VAR_METABASE_FS_ROOT));
               fsRoot = System.Environment.GetEnvironmentVariable(ENV_VAR_METABASE_FS_ROOT);
             }
 
 
-            bootApp.writeLog(NFX.Log.MessageType.Info, "Metabase FS root: " + fsRoot);
+            bootApp.writeLog(Log.MessageType.Info, "Metabase FS root: " + fsRoot);
 
 
-            bootApp.writeLog(NFX.Log.MessageType.Info, "Mounting metabank...");
+            bootApp.writeLog(Log.MessageType.Info, "Mounting metabank...");
             try
             {
               s_Metabase = new Metabank(fs, fsSessionConnectParams, fsRoot );
             }
             catch(Exception error)
             {
-              bootApp.writeLog(NFX.Log.MessageType.CatastrophicError, error.ToMessageWithType());
+              bootApp.writeLog(Log.MessageType.CatastrophicError, error.ToMessageWithType());
               throw error;
             }
-            bootApp.writeLog(NFX.Log.MessageType.Info, "...Metabank mounted");
+            bootApp.writeLog(Log.MessageType.Info, "...Metabank mounted");
           }
 
 
@@ -364,7 +364,7 @@ namespace Azos.Sky.Apps
           {
             Configuration result = null;
 
-            bootApp.writeLog(NFX.Log.MessageType.Info, "Getting effective app config for '{0}'...".Args(SkySystem.MetabaseApplicationName));
+            bootApp.writeLog(Log.MessageType.Info, "Getting effective app config for '{0}'...".Args(SkySystem.MetabaseApplicationName));
             try
             {
               var host = s_Metabase.CatalogReg.NavigateHost(s_HostName);
@@ -376,10 +376,10 @@ namespace Azos.Sky.Apps
             }
             catch(Exception error)
             {
-              bootApp.writeLog(NFX.Log.MessageType.CatastrophicError, error.ToMessageWithType());
+              bootApp.writeLog(Log.MessageType.CatastrophicError, error.ToMessageWithType());
               throw error;
             }
-            bootApp.writeLog(NFX.Log.MessageType.Info, "...config obtained");
+            bootApp.writeLog(Log.MessageType.Info, "...config obtained");
 
             return result;
           }
@@ -406,19 +406,19 @@ namespace Azos.Sky.Apps
               }
               catch(Exception error)
               {
-                bootApp.writeLog(NFX.Log.MessageType.CatastrophicError, error.ToMessageWithType());
+                bootApp.writeLog(Log.MessageType.CatastrophicError, error.ToMessageWithType());
                 throw error;
               }
-              bootApp.writeLog(NFX.Log.MessageType.Info,
+              bootApp.writeLog(Log.MessageType.Info,
                                "Metabase application name from config set to: "+SkySystem.MetabaseApplicationName);
             }
             else
             {
-              bootApp.writeLog(NFX.Log.MessageType.Info,
+              bootApp.writeLog(Log.MessageType.Info,
                                "Metabase application name defined in code: "+SkySystem.MetabaseApplicationName);
 
               if (mNode.AttrByName(CONFIG_APPLICATION_NAME_ATTR).Exists)
-                bootApp.writeLog(NFX.Log.MessageType.Warning,
+                bootApp.writeLog(Log.MessageType.Warning,
                                  "Metabase application name defined in code but the boot config also defines the name which was ignored");
             }
           }
@@ -430,12 +430,12 @@ namespace Azos.Sky.Apps
           {
             IFileSystem result = null;
 
-            bootApp.writeLog(NFX.Log.MessageType.Info, "Making metabase FS instance...");
+            bootApp.writeLog(Log.MessageType.Info, "Making metabase FS instance...");
 
             var fsNode = mNode[CONFIG_FS_SECTION];
 
             var fsFallbackTypeName = Environment.GetEnvironmentVariable(ENV_VAR_METABASE_FS_TYPE);
-            var fsFallbackType = typeof(NFX.IO.FileSystem.Local.LocalFileSystem);
+            var fsFallbackType = typeof(IO.FileSystem.Local.LocalFileSystem);
 
             if (fsFallbackTypeName.IsNotNullOrWhiteSpace())
                fsFallbackType = Type.GetType(fsFallbackTypeName, true);
@@ -458,8 +458,8 @@ namespace Azos.Sky.Apps
                 cParams = new FileSystemSessionConnectParams(){ User = User.Fake};
             }
 
-            bootApp.writeLog(NFX.Log.MessageType.Info, "...Metabase FS FileSystemSessionConnectParams instance of '{0}' made".Args(cParams.GetType().FullName));
-            bootApp.writeLog(NFX.Log.MessageType.Info, "...Metabase FS instance of '{0}' made".Args(result.GetType().FullName));
+            bootApp.writeLog(Log.MessageType.Info, "...Metabase FS FileSystemSessionConnectParams instance of '{0}' made".Args(cParams.GetType().FullName));
+            bootApp.writeLog(Log.MessageType.Info, "...Metabase FS instance of '{0}' made".Args(result.GetType().FullName));
 
             return result;
           }
