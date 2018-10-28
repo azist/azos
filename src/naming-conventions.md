@@ -63,5 +63,7 @@ Code fold/regions:
 
 --------------------
 
-**Note on Microsoft Code Analysis Rules** 
-Azos project follows its own standard and MSFT-defined typical .Net/FxCop rules do not apply by design
+## Microsoft Code Analysis Rules
+Azos project **follows its own standard** and MSFT-defined typical .Net/FxCop rules do not apply by design. 
+We tried to use FxCop and Roslyn-based CA and found that required customizations (supression/change attributes)
+add much complexity and do not add any value for Azos which des not follow .Net guidelines.
