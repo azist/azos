@@ -22,7 +22,7 @@ namespace Azos.Sky.Metabase
     /// Metabase is organized as a hierarchical directory structure with various files such as:
     /// * configuration files that describe structure, policies, settings, hosts etc.
     /// * configs files for particular components (i.e.: application, region, zone, db bank etc.)
-    /// * binary packages - resources necessary to distribute and run code across agni (assemblies, images, static data files etc.)
+    /// * binary packages - resources necessary to distribute and run code across Sky (assemblies, images, static data files etc.)
     /// Metabase is usually stored in a version-controlled system, such as SVN or GIT so the whole distribution
     ///  is versioned so any change can be rolled-back. This class is thread safe for using its instance methods
     /// </summary>

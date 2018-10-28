@@ -116,10 +116,10 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
           svc.IsNullOrWhiteSpace())
          throw new MetabaseException(StringConsts.ARGUMENT_ERROR + "Metabase.ResolveNetSvc(host|net|svc==null|empty)");
 
-      if (fromHost.IsNullOrWhiteSpace()) fromHost = AgniSystem.HostName;
+      if (fromHost.IsNullOrWhiteSpace()) fromHost = SkySystem.HostName;
 
       if (fromHost.IsNullOrWhiteSpace())
-         throw new MetabaseException(StringConsts.ARGUMENT_ERROR + "Metabase.ResolveNetSvc(fromHost==null|empty & AgniSystem is not avail)");
+         throw new MetabaseException(StringConsts.ARGUMENT_ERROR + "Metabase.ResolveNetSvc(fromHost==null|empty & SkySystem is not avail)");
 
       var sb = new StringBuilder();
       sb.Append(host); sb.Append(';');
