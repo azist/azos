@@ -5,17 +5,17 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
-using MySql.Data.MySqlClient;
+using System.Data.SqlClient;
 
-namespace Azos.Data.Access.MySql
+namespace Azos.Data.Access.MsSql
 {
     /// <summary>
-    /// Executes MySql CRUD script-based queries
+    /// Executes MsSql CRUD script-based queries
     /// </summary>
-    public sealed class MySqlCRUDScriptQueryHandler : CRUDQueryHandler<MySqlDataStore>
+    public sealed class MsSqlCRUDScriptQueryHandler : CRUDQueryHandler<MsSqlDataStore>
     {
         #region .ctor
-            public MySqlCRUDScriptQueryHandler(MySqlDataStore store, QuerySource source) : base(store, source) { }
+            public MsSqlCRUDScriptQueryHandler(MsSqlDataStore store, QuerySource source) : base(store, source) { }
         #endregion
 
         #region ICRUDQueryHandler
@@ -35,7 +35,7 @@ namespace Azos.Data.Access.MySql
 
                     cmd.Transaction = ctx.Transaction;
 
-                    MySqlDataReader reader = null;
+                    SqlDataReader reader = null;
 
                     try
                     {
@@ -78,7 +78,7 @@ namespace Azos.Data.Access.MySql
 
                     cmd.Transaction = ctx.Transaction;
 
-                    MySqlDataReader reader = null;
+                    SqlDataReader reader = null;
 
                     try
                     {
@@ -109,7 +109,7 @@ namespace Azos.Data.Access.MySql
 
               Schema.FieldDef[] toLoad;
               Schema schema = null;
-              MySqlDataReader reader = null;
+              SqlDataReader reader = null;
               var cmd = ctx.Connection.CreateCommand();
               try
               {
@@ -142,10 +142,10 @@ namespace Azos.Data.Access.MySql
               }
 
               var enumerable = execEnumerable(ctx, cmd, reader, schema, toLoad, query);
-              return new MySqlCursor( ctx, cmd, reader, enumerable );
+              return new MsSqlCursor( ctx, cmd, reader, enumerable );
             }
 
-                      private IEnumerable<Doc> execEnumerable(MySqlCRUDQueryExecutionContext ctx, MySqlCommand cmd, MySqlDataReader reader, Schema schema, Schema.FieldDef[] toLoad, Query query)
+                      private IEnumerable<Doc> execEnumerable(MySqlCRUDQueryExecutionContext ctx, SqlCommand cmd, SqlDataReader reader, Schema schema, Schema.FieldDef[] toLoad, Query query)
                       {
                         using(cmd)
                          using(reader)
@@ -201,7 +201,7 @@ namespace Azos.Data.Access.MySql
             /// <summary>
             /// Reads data from reader into rowset. the reader is NOT disposed
             /// </summary>
-            public static Rowset PopulateRowset(MySqlCRUDQueryExecutionContext context, MySqlDataReader reader, string target, Query query, QuerySource qSource, bool oneDoc)
+            public static Rowset PopulateRowset(MySqlCRUDQueryExecutionContext context, SqlDataReader reader, string target, Query query, QuerySource qSource, bool oneDoc)
             {
               Schema.FieldDef[] toLoad;
               Schema schema = GetSchemaForQuery(target, query, reader, qSource, out toLoad);
@@ -222,7 +222,7 @@ namespace Azos.Data.Access.MySql
             /// <summary>
             /// Reads data from reader into rowset. the reader is NOT disposed
             /// </summary>
-            public static Doc PopulateDoc(MySqlCRUDQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, MySqlDataReader reader)
+            public static Doc PopulateDoc(MySqlCRUDQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, SqlDataReader reader)
             {
               var store= context.DataStore;
               var row = Doc.MakeDoc(schema, tDoc);
@@ -266,10 +266,10 @@ namespace Azos.Data.Access.MySql
 
 
             /// <summary>
-            /// Populates MySqlCommand with parameters from CRUD Query object
+            /// Populates SqlCommand with parameters from CRUD Query object
             /// Note: this code was purposely made provider specific because other providers may treat some nuances differently
             /// </summary>
-            public void PopulateParameters(MySqlCommand cmd, Query query)
+            public void PopulateParameters(SqlCommand cmd, Query query)
             {
                foreach(var par in query.Where(p => p.HasValue))
                 cmd.Parameters.AddWithValue(par.Name, par.Value);
@@ -288,7 +288,7 @@ namespace Azos.Data.Access.MySql
             /// If source is null then all columns from reader are copied.
             /// Note: this code was purposely made provider specific because other providers may treat some nuances differently
             /// </summary>
-            public static Schema GetSchemaFromReader(string name, QuerySource source, MySqlDataReader reader)
+            public static Schema GetSchemaFromReader(string name, QuerySource source, SqlDataReader reader)
             {
                var table = name;
                var fdefs = new List<Schema.FieldDef>();
@@ -313,7 +313,7 @@ namespace Azos.Data.Access.MySql
             /// <summary>
             /// Gets schema from reader taking Query.ResultDocType in consideration
             /// </summary>
-            public static Schema GetSchemaForQuery(string target, Query query, MySqlDataReader reader, QuerySource qSource, out Schema.FieldDef[] toLoad)
+            public static Schema GetSchemaForQuery(string target, Query query, SqlDataReader reader, QuerySource qSource, out Schema.FieldDef[] toLoad)
             {
               Schema schema;
               var rtp = query.ResultDocType;

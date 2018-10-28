@@ -2,33 +2,28 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>Azos - MySql Data Access Assembly</Description>
+    <Description>Azos - MsSql Data Access Assembly</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\out\Debug\</OutputPath>
-    <DocumentationFile>..\..\..\out\Debug\Azos.MySql.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\out\Debug\Azos.MsSql.xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>..\..\..\out\Release\</OutputPath>
-    <DocumentationFile>..\..\..\out\Release\Azos.MySql.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\out\Release\Azos.MsSql.xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
-
-  <ItemGroup>
-    <PackageReference Include="System.Buffers" Version="4.3.0" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.3.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Azos\Azos.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="MySqlConnector\" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

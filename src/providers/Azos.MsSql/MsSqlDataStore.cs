@@ -6,15 +6,15 @@ using System.Data;
 using System.Threading.Tasks;
 
 using Azos.Conf;
-using MySql.Data.MySqlClient;
+using System.Data.SqlClient;
 
-namespace Azos.Data.Access.MySql
+namespace Azos.Data.Access.MsSql
 {
   /// <summary>
-  /// Implements MySQL general data store that auto-generates SQLs for record models and supports CRUD operations.
+  /// Implements MsSQL general data store that auto-generates SQLs for record models and supports CRUD operations.
   /// This class IS thread-safe load/save/delete operations
   /// </summary>
-  public class MySqlDataStore : MySQLDataStoreBase, ICRUDDataStoreImplementation
+  public class MsSqlDataStore : MsSqlDataStoreBase, ICRUDDataStoreImplementation
   {
     #region CONSTS
         public const string SCRIPT_FILE_SUFFIX = ".mys.sql";
@@ -22,9 +22,9 @@ namespace Azos.Data.Access.MySql
 
     #region .ctor/.dctor
 
-      public MySqlDataStore() : base() => ctor();
-      public MySqlDataStore(object director) : base(director) => ctor();
-      public MySqlDataStore(string connectString) : base(connectString) => ctor();
+      public MsSqlDataStore() : base() => ctor();
+      public MsSqlDataStore(object director) : base(director) => ctor();
+      public MsSqlDataStore(string connectString) : base(connectString) => ctor();
 
       private void ctor()
       {
@@ -54,7 +54,7 @@ namespace Azos.Data.Access.MySql
                                                 TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
         {
             var cnn = GetConnection();
-            return new MySqlCRUDTransaction(this, cnn, iso, behavior);
+            return new MsSqlCRUDTransaction(this, cnn, iso, behavior);
         }
 
         public Task<CRUDTransaction> BeginTransactionAsync(IsolationLevel iso = IsolationLevel.ReadCommitted,
@@ -68,6 +68,8 @@ namespace Azos.Data.Access.MySql
             get { return true; }
         }
 
+        //todo: Add support for SqlClient true asynchrony
+        #warning This must be updated to support true async APIs for SqlClient
         public bool SupportsTrueAsynchrony
         {
             get { return false; }
@@ -230,7 +232,7 @@ namespace Azos.Data.Access.MySql
 
         public CRUDQueryHandler MakeScriptQueryHandler(QuerySource querySource)
         {
-            return new MySqlCRUDScriptQueryHandler(this, querySource);
+            return new MsSqlCRUDScriptQueryHandler(this, querySource);
         }
 
 
@@ -254,7 +256,7 @@ namespace Azos.Data.Access.MySql
         /// <summary>
         ///  Performs CRUD load without fetching data only returning schema. Override to do custom Query interpretation
         /// </summary>
-        protected internal virtual Schema DoGetSchema(MySqlConnection cnn, MySqlTransaction transaction, Query query)
+        protected internal virtual Schema DoGetSchema(SqlConnection cnn, SqlTransaction transaction, Query query)
         {
             if (query==null) return null;
 
@@ -265,7 +267,7 @@ namespace Azos.Data.Access.MySql
             }
             catch (Exception error)
             {
-              throw new MySqlDataAccessException(
+              throw new MsSqlDataAccessException(
                               StringConsts.GET_SCHEMA_ERROR + error.ToMessageWithType(),
                               error,
                               KeyViolationKind.Unspecified,
@@ -277,7 +279,7 @@ namespace Azos.Data.Access.MySql
         /// <summary>
         ///  Performs CRUD load. Override to do custom Query interpretation
         /// </summary>
-        protected internal virtual List<RowsetBase> DoLoad(MySqlConnection cnn, MySqlTransaction transaction, Query[] queries, bool oneDoc = false)
+        protected internal virtual List<RowsetBase> DoLoad(SqlConnection cnn, SqlTransaction transaction, Query[] queries, bool oneDoc = false)
         {
             var result = new List<RowsetBase>();
             if (queries==null) return result;
@@ -292,7 +294,7 @@ namespace Azos.Data.Access.MySql
               }
               catch (Exception error)
               {
-                throw new MySqlDataAccessException(
+                throw new MsSqlDataAccessException(
                                 StringConsts.LOAD_ERROR + error.ToMessageWithType(),
                                 error,
                                 KeyViolationKind.Unspecified,
@@ -308,7 +310,7 @@ namespace Azos.Data.Access.MySql
         /// <summary>
         ///  Performs CRUD load. Override to do custom Query interpretation
         /// </summary>
-        protected internal virtual Cursor DoOpenCursor(MySqlConnection cnn, MySqlTransaction transaction, Query query)
+        protected internal virtual Cursor DoOpenCursor(SqlConnection cnn, SqlTransaction transaction, Query query)
         {
             var context = new MySqlCRUDQueryExecutionContext(this, cnn, transaction);
             var handler = QueryResolver.Resolve(query);
@@ -318,7 +320,7 @@ namespace Azos.Data.Access.MySql
             }
             catch (Exception error)
             {
-              throw new MySqlDataAccessException(
+              throw new MsSqlDataAccessException(
                               StringConsts.OPEN_CURSOR_ERROR + error.ToMessageWithType(),
                               error,
                               KeyViolationKind.Unspecified,
@@ -329,7 +331,7 @@ namespace Azos.Data.Access.MySql
         /// <summary>
         ///  Performs CRUD execution of queries that do not return result set. Override to do custom Query interpretation
         /// </summary>
-        protected internal virtual int DoExecuteWithoutFetch(MySqlConnection cnn, MySqlTransaction transaction, Query[] queries)
+        protected internal virtual int DoExecuteWithoutFetch(SqlConnection cnn, SqlTransaction transaction, Query[] queries)
         {
             if (queries==null) return 0;
 
@@ -344,7 +346,7 @@ namespace Azos.Data.Access.MySql
               }
               catch (Exception error)
               {
-                throw new MySqlDataAccessException(
+                throw new MsSqlDataAccessException(
                                StringConsts.EXECUTE_WITHOUT_FETCH_ERROR + error.ToMessageWithType(),
                                error,
                                KeyViolationKind.Unspecified,
@@ -358,7 +360,7 @@ namespace Azos.Data.Access.MySql
         /// <summary>
         /// Performs CRUD batch save. Override to do custom batch saving
         /// </summary>
-        protected internal virtual int DoSave(MySqlConnection cnn, MySqlTransaction transaction, RowsetBase[] rowsets)
+        protected internal virtual int DoSave(SqlConnection cnn, SqlTransaction transaction, RowsetBase[] rowsets)
         {
             if (rowsets==null) return 0;
 
@@ -385,7 +387,7 @@ namespace Azos.Data.Access.MySql
         /// <summary>
         /// Performs CRUD row insert. Override to do custom insertion
         /// </summary>
-        protected internal virtual int DoInsert(MySqlConnection cnn, MySqlTransaction transaction, Doc row, FieldFilterFunc filter = null)
+        protected internal virtual int DoInsert(SqlConnection cnn, SqlTransaction transaction, Doc row, FieldFilterFunc filter = null)
         {
              checkReadOnly(row.Schema, "insert");
              return CRUDGenerator.CRUDInsert(this, cnn, transaction, row, filter);
@@ -394,7 +396,7 @@ namespace Azos.Data.Access.MySql
         /// <summary>
         /// Performs CRUD row upsert. Override to do custom upsertion
         /// </summary>
-        protected internal virtual int DoUpsert(MySqlConnection cnn, MySqlTransaction transaction, Doc row, FieldFilterFunc filter = null)
+        protected internal virtual int DoUpsert(SqlConnection cnn, SqlTransaction transaction, Doc row, FieldFilterFunc filter = null)
         {
             checkReadOnly(row.Schema, "upsert");
             return CRUDGenerator.CRUDUpsert(this, cnn, transaction, row, filter);
@@ -403,7 +405,7 @@ namespace Azos.Data.Access.MySql
         /// <summary>
         /// Performs CRUD row update. Override to do custom update
         /// </summary>
-        protected internal virtual int DoUpdate(MySqlConnection cnn, MySqlTransaction transaction, Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
+        protected internal virtual int DoUpdate(SqlConnection cnn, SqlTransaction transaction, Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
         {
             checkReadOnly(row.Schema, "update");
             return CRUDGenerator.CRUDUpdate(this, cnn, transaction, row, key, filter);
@@ -412,7 +414,7 @@ namespace Azos.Data.Access.MySql
         /// <summary>
         /// Performs CRUD row deletion. Override to do custom deletion
         /// </summary>
-        protected internal virtual int DoDelete(MySqlConnection cnn, MySqlTransaction transaction, Doc row, IDataStoreKey key = null)
+        protected internal virtual int DoDelete(SqlConnection cnn, SqlTransaction transaction, Doc row, IDataStoreKey key = null)
         {
             checkReadOnly(row.Schema, "delete");
             return CRUDGenerator.CRUDDelete(this, cnn, transaction, row, key);
@@ -426,7 +428,7 @@ namespace Azos.Data.Access.MySql
         private void checkReadOnly(Schema schema, string operation)
         {
             if (schema.ReadOnly)
-                throw new MySqlDataAccessException(StringConsts.CRUD_READONLY_SCHEMA_ERROR.Args(schema.Name, operation));
+                throw new MsSqlDataAccessException(StringConsts.CRUD_READONLY_SCHEMA_ERROR.Args(schema.Name, operation));
         }
 
 
