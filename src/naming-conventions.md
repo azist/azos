@@ -2,7 +2,9 @@
 
 This document describes the source code naming conventions for the Azos project.
 
-## Constants
+## C# Codebase
+
+### Constants
 * Constants shall be in UPPER_CASE delimited by '_' underscores, e.g. "MAX_TCP_DELAY_SEC"
 * The constant unit must be stated at the end of const name, e.g. "SOCKET_TIMEOUT_MSEC = 780"
 * Common time units/suffixes are: _MSEC, _SEC, _HR, _MIN, _TIMES, _COUNT
@@ -11,24 +13,24 @@ This document describes the source code naming conventions for the Azos project.
 * Configuration section names shall end with "_SECT" or "_SECTION"
 * Configuration attribute names shall end with "_ATTR" or "_ATTRIBUTE", e.g. "CONFIG_APPLIED_ATTR"
 
-## Public
+### Public
 
-* All public members (even in non-public types), must be in PascalCase, e.g. "DatabaseConnection", "UpdateRecord()", "button.MaxSize = ..."
+* All public members must be in PascalCase, e.g. "DatabaseConnection", "UpdateRecord()", "button.MaxSize = ..."
 * Public fields should not be exposed directly, shall a need arise to keep fields exposed - use PascalCase per rule above
 
-## Non-Public
+### Non-Public
 * Private members start with camelCase, e.g. `private void makeLogger(...)`
-* Protected memebers shall be named as public, e.g. `protected void DoConnect()`
+* Protected members shall be named in PascalCase, e.g. `protected void DoConnect()`
 * Instance member fields shall start with "m_" prefix, e.g. `private int m_Width;`
 * Thread static member fields shall start with "ts_" prefix, e.g. `private slot[] ts_SlotCache;`
 * Async Local/static member fields shall start with "ats_" prefix, e.g. `private WorkContext ats_Context;`
 * Members with names starting with one or more underscores "_" signify the special behavior which shall be avoided, e.g. `__setParent(p)`
 
-## Protected/Template Methods
+### Protected/Template Methods
 * Template Method design pattern, the virtual methods have "Do" prefix, e.g. `public void Connect()` does some checks and calls internally `protected virtual void DoConnect()`
 
 
-## File Naming
+### File Naming
 * Types > 100 LOC should be kept in a file per type
 * It is ok to combine **many related trivial** types in one file (when each type does not have much code, e.g. custom exceptions)
 * Group related interfaces (if they are short and related) under "Intfs.cs"
@@ -36,7 +38,7 @@ This document describes the source code naming conventions for the Azos project.
 * For multiple types per file, use reasonable common name, e.g. "Exceptions.cs"
 * Break large types *(should be a good reason to have a large type)* into partials, naming files accordingly: "Pile.Allocator.cs", "Pile.Properties.cs" etc.
 
-## File Structure
+### File Structure
 The uniform file structure shall be adhered to, unless the described type is trivial, 
 for example: there is not need to declare regions for a struct with 2 fields. 
 The rules below apply to the classes with "body" over 100 LOC give or take. The following
