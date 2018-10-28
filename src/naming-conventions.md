@@ -22,8 +22,8 @@ This document describes the source code naming conventions for the Azos project.
 * Private members start with camelCase, e.g. `private void makeLogger(...)`
 * Protected members shall be named in PascalCase, e.g. `protected void DoConnect()`
 * Instance member fields shall start with "m_" prefix, e.g. `private int m_Width;`
-* Thread static member fields shall start with "ts_" prefix, e.g. `private slot[] ts_SlotCache;`
-* Async Local/static member fields shall start with "ats_" prefix, e.g. `private WorkContext ats_Context;`
+* Thread static member fields shall start with "ts_" prefix, e.g. `[ThreadStatic] private slot[] ts_SlotCache;`
+* Async Local/static member fields shall start with "ats_" prefix, e.g. `private AsyncLocal<WorkContext> ats_Current;`
 * Members with names starting with one or more underscores "_" signify the special behavior which shall be avoided, e.g. `__setParent(p)`
 
 ### Protected/Template Methods
