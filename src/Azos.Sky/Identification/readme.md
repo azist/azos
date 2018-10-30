@@ -23,7 +23,7 @@ GDIDs meet all requirements for IDs in a distributed system:
 * **Global Uniqueness** within the system
 * **Monotonically increasing** homogeneous (1,2,3,4,5…) segments
 * **Large resolution** - Named sequences in scopes each having 2^96 resolution
-* Ability to obtain consecutive **GDIDs in batches** (i.e. request 25 sequential IDs)
+* Ability to obtain consecutive **GDIDs in batches** (e.g. request X sequential IDs)
 * **No single point of failure** guaranteed by up to 16 independent ID authorities (see below)
 * **Compact** design - only 12 bytes (era(4) + id(64))
 * Stored as **byte[12]** - good performance for keys in MongoDB and MySQL (and others)
@@ -76,7 +76,9 @@ There can be up to 16 different authorities in the Sky OS instance, virtually el
   }
 ```
 
-where [`GdidBlock`](../Contracts/IGdidAuthority.cs#L36) is a unit of allocation. The [`IGdidAuthority`](../Contracts/IGdidAuthority.cs) service is used in [`Sky.Identification.GDIDGenerator`](GDIDGenerator.cs) - the main class responsible for GDID generation in cluster apps.
+where [`GdidBlock`](../Contracts/IGdidAuthority.cs#L33) is a unit of allocation. 
+The [`IGdidAuthority`](../Contracts/IGdidAuthority.cs) service is used 
+in [`Sky.Identification.GdidGenerator`](GdidGenerator.cs) - the main class responsible for GDID generation in cluster apps.
 
 GDIDs are generated within logical ‘Scopes’ and ‘Sequences’ and are unique within (scope, sequence) pair. One can think about a scope and a sequence as a database name and a table name inside a database correspondingly.
 
@@ -84,12 +86,12 @@ A consumer of GDIDs obtains them via a [`GdidGenerator`](GdidGenerator.cs) insta
 
 ```CSharp
   /// <summary> References distributed GDID provider </summary>
-  public static IGDIDProvider GdidProvider { get; }
+  public static IGdidProvider GdidProvider { get; }
 ```
 
 Used like this: 
 ```CSharp
-var gdid = SkySystem.GdidProvider.GenerateOneGDID("My Namespace", "Sequence A");
+var gdid = SkySystem.GdidProvider.GenerateOneGdid("My Namespace", "Sequence A");
 ```
 
 The provider will automatically select a **closest authority** to the host which originates the call, and **retry** on the next
