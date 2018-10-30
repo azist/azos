@@ -23,7 +23,7 @@ GDIDs meet all requirements for IDs in a distributed system:
 * **Global Uniqueness** within the system
 * **Monotonically increasing** homogeneous (1,2,3,4,5…) segments
 * **Large resolution** - Named sequences in scopes each having 2^96 resolution
-* Ability to obtain consecutive **GDIDs in batches** (i.e. request 25 sequential IDs)
+* Ability to obtain consecutive **GDIDs in batches** (e.g. request X sequential IDs)
 * **No single point of failure** guaranteed by up to 16 independent ID authorities (see below)
 * **Compact** design - only 12 bytes (era(4) + id(64))
 * Stored as **byte[12]** - good performance for keys in MongoDB and MySQL (and others)
@@ -84,12 +84,12 @@ A consumer of GDIDs obtains them via a [`GdidGenerator`](GdidGenerator.cs) insta
 
 ```CSharp
   /// <summary> References distributed GDID provider </summary>
-  public static IGDIDProvider GdidProvider { get; }
+  public static IGdidProvider GdidProvider { get; }
 ```
 
 Used like this: 
 ```CSharp
-var gdid = SkySystem.GdidProvider.GenerateOneGDID("My Namespace", "Sequence A");
+var gdid = SkySystem.GdidProvider.GenerateOneGdid("My Namespace", "Sequence A");
 ```
 
 The provider will automatically select a **closest authority** to the host which originates the call, and **retry** on the next
