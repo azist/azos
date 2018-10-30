@@ -140,7 +140,7 @@ namespace Azos.Sky
     /// <summary>
     /// References distributed GDID provider
     /// </summary>
-    public static IGDIDProvider GDIDProvider { get { return Application.GDIDProvider; } }
+    public static IGdidProvider GdidProvider { get { return Application.GdidProvider; } }
 
     /// <summary>
     /// Returns Sky distributed process manager

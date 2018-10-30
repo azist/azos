@@ -76,26 +76,26 @@ There can be up to 16 different authorities in the Sky OS instance, virtually el
   }
 ```
 
-where [`GDIDBlock`](../Contracts/IGDIDAuthority.cs#L36) is a unit of allocation. The [`IGDIDAuthority`](../Contracts/IGDIDAuthority.cs) service is used in [`Sky.Identification.GDIDGenerator`](GDIDGenerator.cs) - the main class responsible for GDID generation in cluster apps.
+where [`GdidBlock`](../Contracts/IGdidAuthority.cs#L36) is a unit of allocation. The [`IGdidAuthority`](../Contracts/IGdidAuthority.cs) service is used in [`Sky.Identification.GDIDGenerator`](GDIDGenerator.cs) - the main class responsible for GDID generation in cluster apps.
 
 GDIDs are generated within logical ‘Scopes’ and ‘Sequences’ and are unique within (scope, sequence) pair. One can think about a scope and a sequence as a database name and a table name inside a database correspondingly.
 
-A consumer of GDIDs obtains them via a [`GDIDGenerator`](GDIDGenerator.cs) instance. SkyOS exposes a global GDID generation service to any app: 
+A consumer of GDIDs obtains them via a [`GdidGenerator`](GdidGenerator.cs) instance. SkyOS exposes a global GDID generation service to any app: 
 
 ```CSharp
   /// <summary> References distributed GDID provider </summary>
-  public static IGDIDProvider GDIDProvider { get; }
+  public static IGDIDProvider GdidProvider { get; }
 ```
 
 Used like this: 
 ```CSharp
-var gdid = SkySystem.GDIDProvider.GenerateOneGDID("My Namespace", "Sequence A");
+var gdid = SkySystem.GdidProvider.GenerateOneGDID("My Namespace", "Sequence A");
 ```
 
 The provider will automatically select a **closest authority** to the host which originates the call, and **retry** on the next
-closest authority if the first call fails. GDIDProvider also caches the ID block and **adjusts the block size** dynamically - 
+closest authority if the first call fails. GdidProvider also caches the ID block and **adjusts the block size** dynamically - 
 so if the process consumes an ID infrequently the system will allocate a few IDs, if the consumption picks up the IDGenerator 
-will ask for **larger blocks** - to make less calls. GDIDGenerator **replenishes blocks asynchronously** - when the block depletes
+will ask for **larger blocks** - to make less calls. GdidGenerator **replenishes blocks asynchronously** - when the block depletes
 below LWM (low water mark) level. 
 
 The following illustrates the GDID generation process: 

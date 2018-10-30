@@ -40,7 +40,7 @@ namespace Azos.Sky.Apps
 
     public Locking.ILockManager LockManager { get { return Locking.NOPLockManager.Instance; } }
 
-    public IGDIDProvider GDIDProvider { get { throw new NotSupportedException("NOPApp.GDIDProvider"); } }
+    public IGdidProvider GdidProvider { get { throw new NotSupportedException("NOPApp.GDIDProvider"); } }
 
     public IProcessManager ProcessManager { get { throw new NotSupportedException("NOPApp.ProcessManager"); } }
 

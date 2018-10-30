@@ -59,7 +59,7 @@ namespace Azos.Sky.Apps
     /// <summary>
     /// References distributed GDID provider
     /// </summary>
-    IGDIDProvider GDIDProvider { get; }
+    IGdidProvider GdidProvider { get; }
 
     /// <summary>
     /// References distributed process manager

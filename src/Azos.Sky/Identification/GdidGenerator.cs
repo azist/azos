@@ -17,7 +17,7 @@ namespace Azos.Sky.Identification
   /// Generates Global Distributed IDs (GDID).
   /// This class is thread safe (for calling Generate)
   /// </summary>
-  public sealed class GdidGenerator : ApplicationComponent, IConfigurable, IGDIDProvider
+  public sealed class GdidGenerator : ApplicationComponent, IConfigurable, IGdidProvider
   {
           #region CONSTS
             public const string CONFIG_GDID_SECTION  = "gdid";

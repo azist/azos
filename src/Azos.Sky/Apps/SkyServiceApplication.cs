@@ -83,7 +83,7 @@ namespace Azos.Sky.Apps
 
       public Locking.ILockManager LockManager { get{ return m_LockManager ?? Locking.NOPLockManager.Instance; } }
 
-      public IGDIDProvider GDIDProvider { get {  return m_GDIDProvider; } }
+      public IGdidProvider GdidProvider { get {  return m_GDIDProvider; } }
 
       public Workers.IProcessManager ProcessManager { get { return m_ProcessManager; } }
 

@@ -142,7 +142,7 @@ namespace Azos.Data.Access
   /// Represents an entity that provides unique Global Distributed IDs (GDIDs) via named sequences.
   /// Note: GDID.Zero is never returned as it indicates the absence of a value
   /// </summary>
-  public interface IGDIDProvider : IUniqueSequenceProvider
+  public interface IGdidProvider : IUniqueSequenceProvider
   {
     /// <summary>
     /// Generates Globally-Unique distributed ID (GDID) for the supplied sequence name.
