@@ -550,7 +550,7 @@ namespace Azos.Sky.Identification
       private GdidBlock allocateBlockInTesting(string scopeName, string sequenceName, int blockSize, ulong? vicinity)
       {
         Instrumentation.AllocBlockRequestedEvent.Happened(scopeName, sequenceName);
-        using(var cl = new Clients.GDIDAuthority(m_TestingAuthorityNode))
+        using(var cl = new Clients.GdidAuthority(m_TestingAuthorityNode))
         {
             try
             {
@@ -580,7 +580,7 @@ namespace Azos.Sky.Identification
           {
             using(var cl = SkySystem.IsMetabase
                            ? ServiceClientHub.New<IGdidAuthorityClient>( node.Name )
-                           : new Clients.GDIDAuthority( node.Name )
+                           : new Clients.GdidAuthority( node.Name )
                  )
               result = cl.AllocateBlock(scopeName, sequenceName, blockSize, vicinity);
 

@@ -21,7 +21,7 @@ namespace Azos.Sky.Clients
   /// May inject client-level inspectors here like so:
   ///   client.MsgInspectors.Register( new YOUR_CLIENT_INSPECTOR_TYPE());
   ///</summary>
-  public class GDIDAuthority : ClientEndPoint, @Azos.@Sky.@Contracts.IGdidAuthorityClient
+  public class GdidAuthority : ClientEndPoint, @Azos.@Sky.@Contracts.IGdidAuthorityClient
   {
 
   #region Static Members
@@ -30,7 +30,7 @@ namespace Azos.Sky.Clients
      private static MethodSpec @s_ms_AllocateBlock_0;
 
      //static .ctor
-     static GDIDAuthority()
+     static GdidAuthority()
      {
          var t = typeof(@Azos.@Sky.@Contracts.IGdidAuthority);
          s_ts_CONTRACT = new TypeSpec(t);
@@ -39,10 +39,10 @@ namespace Azos.Sky.Clients
   #endregion
 
   #region .ctor
-     public GDIDAuthority(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public GDIDAuthority(Node node, Binding binding = null) : base(node, binding) { ctor(); }
-     public GDIDAuthority(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
-     public GDIDAuthority(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
+     public GdidAuthority(string node, Binding binding = null) : base(node, binding) { ctor(); }
+     public GdidAuthority(Node node, Binding binding = null) : base(node, binding) { ctor(); }
+     public GdidAuthority(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
+     public GdidAuthority(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 
      //common instance .ctor body
      private void ctor()
