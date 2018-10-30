@@ -12,7 +12,7 @@ namespace Azos.Sky.Identification
   /// <summary>
   /// Generates Global Distributed IDs - singleton, only one instance of this service may be allocated per process
   /// </summary>
-  public sealed class GDIDAuthorityService : GDIDAuthorityServiceBase, IGDIDAuthority
+  public sealed class GdidAuthorityService : GdidAuthorityServiceBase, IGdidAuthority
   {
     #region Inner Classes
       private class scope : INamed
@@ -33,18 +33,18 @@ namespace Azos.Sky.Identification
 
     #region Static
       private static object s_InstanceLock = new object();
-      private static volatile GDIDAuthorityService s_Instance;
+      private static volatile GdidAuthorityService s_Instance;
 
       /// <summary>
       /// Returns singleton instance or throws if service has not been allocated yet
       /// </summary>
-      public static GDIDAuthorityService Instance
+      public static GdidAuthorityService Instance
       {
         get
         {
           var instance = s_Instance;
           if (instance==null)
-            throw new GDIDException(StringConsts.GDIDAUTH_INSTANCE_NOT_ALLOCATED_ERROR);
+            throw new GdidException(StringConsts.GDIDAUTH_INSTANCE_NOT_ALLOCATED_ERROR);
 
           return instance;
         }
@@ -56,12 +56,12 @@ namespace Azos.Sky.Identification
       /// <summary>
       /// Creates a singleton instance or throws if instance is already created
       /// </summary>
-      public GDIDAuthorityService() : base()
+      public GdidAuthorityService() : base()
       {
         lock(s_InstanceLock)
         {
           if (s_Instance!=null)
-            throw new GDIDException(StringConsts.GDIDAUTH_INSTANCE_ALREADY_ALLOCATED_ERROR);
+            throw new GdidException(StringConsts.GDIDAUTH_INSTANCE_ALREADY_ALLOCATED_ERROR);
 
           s_Instance = this;
         }
@@ -102,7 +102,7 @@ namespace Azos.Sky.Identification
 
           foreach(var id in value)
            if (id<0 || id>GDID.AUTHORITY_MAX)
-             throw new GDIDException(StringConsts.GDIDAUTH_IDS_INVALID_AUTHORITY_VALUE_ERROR.Args(id));
+             throw new GdidException(StringConsts.GDIDAUTH_IDS_INVALID_AUTHORITY_VALUE_ERROR.Args(id));
 
           m_AuthorityIDs = value;
           Log(MessageType.Warning, "AuthorityIDs.set()", StringConsts.GDIDAUTH_AUTHORITY_ASSIGNMENT_WARNING.Args(value.ToDumpString(DumpFormat.Hex)));
@@ -115,16 +115,16 @@ namespace Azos.Sky.Identification
       /// <summary>
       /// Performs block allocation
       /// </summary>
-      public GDIDBlock AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity)
+      public GdidBlock AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity)
       {
         if (!Running)
-          throw new GDIDException(StringConsts.GDIDAUTH_INSTANCE_NOT_RUNNING_ERROR);
+          throw new GdidException(StringConsts.GDIDAUTH_INSTANCE_NOT_RUNNING_ERROR);
 
         CheckNameValidity(scopeName);
         CheckNameValidity(sequenceName);
 
         if (blockSize<=0)
-          throw new GDIDException(StringConsts.ARGUMENT_ERROR+"AllocateBlock(blockSize<=0)");
+          throw new GdidException(StringConsts.ARGUMENT_ERROR+"AllocateBlock(blockSize<=0)");
 
         scopeName = scopeName.ToUpperInvariant();//different cases for readability
         sequenceName = sequenceName.ToLowerInvariant();
@@ -144,14 +144,14 @@ namespace Azos.Sky.Identification
       protected override void DoStart()
       {
         if (m_AuthorityIDs==null || m_AuthorityIDs.Length<1)
-           throw new GDIDException(StringConsts.GDIDAUTH_IDS_INVALID_AUTHORITY_VALUE_ERROR.Args("<no ids>"));
+           throw new GdidException(StringConsts.GDIDAUTH_IDS_INVALID_AUTHORITY_VALUE_ERROR.Args("<no ids>"));
         base.DoStart();
       }
     #endregion
 
     #region .pvt
 
-      private GDIDBlock allocate(byte authority, string scopeName, string sequenceName, int blockSize, ulong? vicinity)
+      private GdidBlock allocate(byte authority, string scopeName, string sequenceName, int blockSize, ulong? vicinity)
       {
         var scopeKey = "{0}://{1}".Args(AuthorityPathSeg(authority), scopeName);
 
@@ -159,7 +159,7 @@ namespace Azos.Sky.Identification
 
         var sequence = scope.Sequences.GetOrRegister(sequenceName,(_) => new sequence{Name = sequenceName, New=true}, 0);//with NEW=TRUE
 
-        var result = new GDIDBlock()
+        var result = new GdidBlock()
         {
            ScopeName = scopeName,
            SequenceName = sequenceName,
@@ -197,7 +197,7 @@ namespace Azos.Sky.Identification
              {
                var txt = StringConsts.GDIDAUTH_ERA_EXHAUSTED_ERROR.Args(scopeName, sequenceName);
                Log(MessageType.CatastrophicError, "allocate()", txt);
-               throw new GDIDException( txt );
+               throw new GdidException( txt );
              }
 
              era++;

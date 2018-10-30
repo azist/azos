@@ -10,9 +10,9 @@ using Azos.Log;
 namespace Azos.Sky.Identification
 {
   /// <summary>
-  /// Base for GDIDAuthority and GDIDPersistenceLocation services
+  /// Base for GdidAuthority and GdidPersistenceLocation services
   /// </summary>
-  public abstract partial class GDIDAuthorityServiceBase : Service
+  public abstract partial class GdidAuthorityServiceBase : Service
   {
     #region CONSTS
       public const int MAX_PATH_LENGTH = 240;//dictated by Windows
@@ -41,10 +41,10 @@ namespace Azos.Sky.Identification
           try
           {
             if (content.IsNullOrWhiteSpace())
-             throw new GDIDException("<null|empty>");
+             throw new GdidException("<null|empty>");
 
             var i = content.IndexOf(SEPARATOR);
-            if (i<=0) throw new GDIDException("no "+SEPARATOR);
+            if (i<=0) throw new GdidException("no "+SEPARATOR);
 
             var sera = content.Substring(0, i);
             var sid = content.Substring(i+SEPARATOR.Length);
@@ -54,7 +54,7 @@ namespace Azos.Sky.Identification
           }
           catch(Exception error)
           {
-            throw new GDIDException(StringConsts.GDIDAUTH_ID_DATA_PARSING_ERROR.Args(content, error.ToMessageWithType()), error);
+            throw new GdidException(StringConsts.GDIDAUTH_ID_DATA_PARSING_ERROR.Args(content, error.ToMessageWithType()), error);
           }
         }
 
@@ -88,7 +88,7 @@ namespace Azos.Sky.Identification
       {
         if (name.IsNullOrWhiteSpace() ||
             name.Length>MAX_NAME_LENGTH)
-            throw new GDIDException(StringConsts.GDIDAUTH_NAME_INVALID_LEN_ERROR.Args(name, MAX_NAME_LENGTH));
+            throw new GdidException(StringConsts.GDIDAUTH_NAME_INVALID_LEN_ERROR.Args(name, MAX_NAME_LENGTH));
 
         for(var i=0; i<name.Length; i++)
         {
@@ -97,7 +97,7 @@ namespace Azos.Sky.Identification
           if (c>='A' && c<='Z') continue;
           if (c>='a' && c<='z') continue;
           if (i!=0 && (c=='_'||c=='.'||c=='-') && i!=name.Length-1) continue;
-          throw new GDIDException(StringConsts.GDIDAUTH_NAME_INVALID_CHARS_ERROR.Args(name));
+          throw new GdidException(StringConsts.GDIDAUTH_NAME_INVALID_CHARS_ERROR.Args(name));
         }
       }
 
@@ -109,7 +109,7 @@ namespace Azos.Sky.Identification
     #endregion
 
     #region .ctor/.dctor
-      protected GDIDAuthorityServiceBase() : base(null)
+      protected GdidAuthorityServiceBase() : base(null)
       {
       }
     #endregion
@@ -162,7 +162,7 @@ namespace Azos.Sky.Identification
          }
 
         if (error!=null)
-          throw new GDIDException(StringConsts.GDIDAUTH_LOCATIONS_CONFIG_ERROR + error);
+          throw new GdidException(StringConsts.GDIDAUTH_LOCATIONS_CONFIG_ERROR + error);
       }
 
       //blocking call and throws if can not write to any devices
@@ -195,7 +195,7 @@ namespace Azos.Sky.Identification
 
           Instrumentation.AuthLocationWriteTotalFailureEvent.Happened();//TOTAL-LEVEL(for all locations)
 
-          throw new GDIDException(txt);
+          throw new GdidException(txt);
         }
       }
 
@@ -250,7 +250,7 @@ namespace Azos.Sky.Identification
 
           Instrumentation.AuthLocationReadTotalFailureEvent.Happened();//TOTAL-LEVEL
 
-          throw new GDIDException(txt);
+          throw new GdidException(txt);
         }
 
         return result ?? new _id(0, 0);

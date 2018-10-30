@@ -5,7 +5,7 @@ using System.IO;
 using Azos.Conf;
 using Azos.Collections;
 
-namespace Azos.Sky.Identification{ public partial class GDIDAuthorityServiceBase {
+namespace Azos.Sky.Identification{ public partial class GdidAuthorityServiceBase {
 
 
   public abstract class PersistenceLocation : INamed, IOrdered
@@ -13,12 +13,12 @@ namespace Azos.Sky.Identification{ public partial class GDIDAuthorityServiceBase
     protected PersistenceLocation(IConfigSectionNode node)
     {
       if (node==null)
-        throw new GDIDException(StringConsts.ARGUMENT_ERROR + "PersistenceLocation(node=null)");
+        throw new GdidException(StringConsts.ARGUMENT_ERROR + "PersistenceLocation(node=null)");
 
       Name  = node.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
       Order = node.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt();
       if (Name.IsNullOrWhiteSpace())
-        throw new GDIDException(StringConsts.ARGUMENT_ERROR + "PersistenceLocation(name=null|empty)");
+        throw new GdidException(StringConsts.ARGUMENT_ERROR + "PersistenceLocation(name=null|empty)");
     }
 
     public string Name  { get; private set; }
@@ -45,7 +45,7 @@ namespace Azos.Sky.Identification{ public partial class GDIDAuthorityServiceBase
     {
       DiskPath  = node.AttrByName(CONFIG_PATH_ATTR).Value;
       if (DiskPath.IsNullOrWhiteSpace())
-        throw new GDIDException(StringConsts.ARGUMENT_ERROR + "DiskPersistenceLocation(path=null|empty)");
+        throw new GdidException(StringConsts.ARGUMENT_ERROR + "DiskPersistenceLocation(path=null|empty)");
     }
 
     public string DiskPath  { get; private set; }
@@ -74,7 +74,7 @@ namespace Azos.Sky.Identification{ public partial class GDIDAuthorityServiceBase
       var fname = getFileName(DiskPath, authority, scopeName, sequenceName);
 
       if (fname.Length>MAX_PATH_LENGTH)
-        throw new GDIDException(StringConsts.GDIDAUTH_DISK_PATH_TOO_LONG_ERROR.Args(fname));
+        throw new GdidException(StringConsts.GDIDAUTH_DISK_PATH_TOO_LONG_ERROR.Args(fname));
 
       var authDir = Path.Combine(DiskPath, AuthorityPathSeg(authority));
       if (!Directory.Exists(authDir))
@@ -126,7 +126,7 @@ namespace Azos.Sky.Identification{ public partial class GDIDAuthorityServiceBase
     {
       Host  = node.AttrByName(CONFIG_HOST_ATTR).Value;
       if (Host.IsNullOrWhiteSpace())
-        throw new GDIDException(StringConsts.ARGUMENT_ERROR + "RemotePersistenceLocation(host=null|empty)");
+        throw new GdidException(StringConsts.ARGUMENT_ERROR + "RemotePersistenceLocation(host=null|empty)");
     }
 
     public string Host  { get; private set; }

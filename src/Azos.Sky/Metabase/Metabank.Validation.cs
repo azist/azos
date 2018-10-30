@@ -73,7 +73,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
 
               try
               {
-                Contracts.ServiceClientHub.TestSetupOf<Contracts.IGDIDAuthorityClient>(host.RegionPath);
+                Contracts.ServiceClientHub.TestSetupOf<Contracts.IGdidAuthorityClient>(host.RegionPath);
               }
               catch(Exception error)
               {

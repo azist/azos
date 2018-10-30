@@ -10,11 +10,11 @@ namespace Azos.Sky.Identification
   /// Thrown to indicate GDID generation related problems
   /// </summary>
   [Serializable]
-  public class GDIDException : SkyException
+  public class GdidException : SkyException
   {
-    public GDIDException() : base() { }
-    public GDIDException(string message) : base(message) { }
-    public GDIDException(string message, Exception inner) : base(message, inner) { }
-    protected GDIDException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    public GdidException() : base() { }
+    public GdidException(string message) : base(message) { }
+    public GdidException(string message, Exception inner) : base(message, inner) { }
+    protected GdidException(SerializationInfo info, StreamingContext context) : base(info, context) { }
   }
 }

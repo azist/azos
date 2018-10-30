@@ -54,7 +54,7 @@ namespace Azos.Sky.Apps
       private WaveServer m_WebManagerServer;
 
       private Locking.ILockManagerImplementation m_LockManager;
-      private GDIDGenerator m_GDIDProvider;
+      private GdidGenerator m_GDIDProvider;
       private Workers.IProcessManagerImplementation m_ProcessManager;
       private Dynamic.IHostManagerImplementation m_DynamicHostManager;
 
@@ -118,7 +118,7 @@ namespace Azos.Sky.Apps
 
         try
         {
-          m_GDIDProvider = new GDIDGenerator("Sky", this);
+          m_GDIDProvider = new GdidGenerator("Sky", this);
 
           foreach(var ah in metabase.GDIDAuthorities)
           {

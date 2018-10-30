@@ -466,11 +466,11 @@ namespace Azos.Sky.Metabase
           /// <summary>
           /// Returns enumeration of Global Distributed ID generation Authorities declared in root metabase level
           /// </summary>
-          public IEnumerable<Identification.GDIDGenerator.AuthorityHost> GDIDAuthorities
+          public IEnumerable<Identification.GdidGenerator.AuthorityHost> GDIDAuthorities
           {
             get
             {
-              return Identification.GDIDGenerator.AuthorityHost.FromConfNode(m_RootConfig[CONFIG_GDID_SECTION]);
+              return Identification.GdidGenerator.AuthorityHost.FromConfNode(m_RootConfig[CONFIG_GDID_SECTION]);
             }
           }
 

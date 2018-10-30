@@ -17,7 +17,7 @@ namespace Azos.Sky.Identification
   /// Generates Global Distributed IDs (GDID).
   /// This class is thread safe (for calling Generate)
   /// </summary>
-  public sealed class GDIDGenerator : ApplicationComponent, IConfigurable, IGDIDProvider
+  public sealed class GdidGenerator : ApplicationComponent, IConfigurable, IGDIDProvider
   {
           #region CONSTS
             public const string CONFIG_GDID_SECTION  = "gdid";
@@ -37,10 +37,10 @@ namespace Azos.Sky.Identification
                  {
                     internal scope Scope {get; set; }
                     public string Name { get ; set; }
-                    public GDIDBlock Block;
+                    public GdidBlock Block;
 
                     //the following are used for LWM condition handling
-                    public volatile GDIDBlock NextBlock;
+                    public volatile GdidBlock NextBlock;
                     public volatile Task FetchingNextBlock;
                     public DateTime LastAllocationUTC = DateTime.UtcNow.AddSeconds(-1000);
 
@@ -169,7 +169,7 @@ namespace Azos.Sky.Identification
                         if (name.IsNullOrWhiteSpace())
                           continue;
 
-                        yield return new Identification.GDIDGenerator.AuthorityHost(name);
+                        yield return new Identification.GdidGenerator.AuthorityHost(name);
                       }
                     }
 
@@ -212,9 +212,9 @@ namespace Azos.Sky.Identification
 
     #region .ctor
 
-      public GDIDGenerator() : this(null, null, null, null) {}
-      public GDIDGenerator(string name, object director) : this(name, director, null, null) {}
-      public GDIDGenerator(string name, object director, string scopePrefix, string sequencePrefix) : base(director)
+      public GdidGenerator() : this(null, null, null, null) {}
+      public GdidGenerator(string name, object director) : this(name, director, null, null) {}
+      public GdidGenerator(string name, object director, string scopePrefix, string sequencePrefix) : base(director)
       {
         if (name.IsNullOrWhiteSpace())
           name = Guid.NewGuid().ToString();
@@ -298,7 +298,7 @@ namespace Azos.Sky.Identification
         set
         {
          if (m_BlockWasAllocated)
-            throw new GDIDException(StringConsts.GDIDGEN_SET_TESTING_ERROR);
+            throw new GdidException(StringConsts.GDIDGEN_SET_TESTING_ERROR);
           m_TestingAuthorityNode = value;
         }
       }
@@ -328,7 +328,7 @@ namespace Azos.Sky.Identification
       public IEnumerable<SequenceInfo> GetSequenceInfos(string scopeName)
       {
         if (scopeName==null)
-          throw new GDIDException(StringConsts.ARGUMENT_ERROR+GetType().Name+".GetSequenceInfos(scopeName=null)");
+          throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".GetSequenceInfos(scopeName=null)");
 
         if (m_ScopePrefix!=null)
          scopeName = m_ScopePrefix + scopeName;
@@ -379,7 +379,7 @@ namespace Azos.Sky.Identification
       public GDID GenerateOneGDID(string scopeName, string sequenceName, int blockSize=0, ulong? vicinity = GDID.COUNTER_MAX, bool noLWM = false)
       {
         if (scopeName==null || sequenceName==null)
-          throw new GDIDException(StringConsts.ARGUMENT_ERROR+GetType().Name+".GenerateOneGDID(scopeName|sequenceName=null)");
+          throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".GenerateOneGDID(scopeName|sequenceName=null)");
 
         if (m_ScopePrefix!=null) scopeName = m_ScopePrefix + scopeName;
         if (m_SequencePrefix!=null) sequenceName = m_SequencePrefix + sequenceName;
@@ -387,8 +387,8 @@ namespace Azos.Sky.Identification
         scopeName = scopeName.Trim();
         sequenceName = sequenceName.Trim();
 
-        GDIDAuthorityService.CheckNameValidity(scopeName);
-        GDIDAuthorityService.CheckNameValidity(sequenceName);
+        GdidAuthorityService.CheckNameValidity(scopeName);
+        GdidAuthorityService.CheckNameValidity(sequenceName);
 
         var scope = m_Scopes.GetOrRegister(scopeName, (snm) => new scope{Name = snm}, scopeName);
 
@@ -465,10 +465,10 @@ namespace Azos.Sky.Identification
       public GDID[] TryGenerateManyConsecutiveGDIDs(string scopeName, string sequenceName, int gdidCount, ulong? vicinity = GDID.COUNTER_MAX, bool noLWM = false)
       {
         if (scopeName==null || sequenceName==null)
-          throw new GDIDException(StringConsts.ARGUMENT_ERROR+GetType().Name+".TryGenerateManyConsecutiveGDIDs(scopeName|sequenceName=null)");
+          throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".TryGenerateManyConsecutiveGDIDs(scopeName|sequenceName=null)");
 
         if (gdidCount<=0)
-          throw new GDIDException(StringConsts.ARGUMENT_ERROR+GetType().Name+".TryGenerateManyConsecutiveGDIDs(gdidCount<=0)");
+          throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".TryGenerateManyConsecutiveGDIDs(gdidCount<=0)");
 
         if (m_ScopePrefix!=null) scopeName = m_ScopePrefix + scopeName;
         if (m_SequencePrefix!=null) sequenceName = m_SequencePrefix + sequenceName;
@@ -476,8 +476,8 @@ namespace Azos.Sky.Identification
         scopeName = scopeName.Trim();
         sequenceName = sequenceName.Trim();
 
-        GDIDAuthorityService.CheckNameValidity(scopeName);
-        GDIDAuthorityService.CheckNameValidity(sequenceName);
+        GdidAuthorityService.CheckNameValidity(scopeName);
+        GdidAuthorityService.CheckNameValidity(sequenceName);
 
         var scope = m_Scopes.GetOrRegister(scopeName, (snm) => new scope{Name = snm}, scopeName);
 
@@ -516,7 +516,7 @@ namespace Azos.Sky.Identification
          private const double NORM_AUTH_CALL_EVERY_SEC = 5.0;//normal case, call authority every seconds
          private const double MIN_TIME_SLICE_SEC = 0.01d;//10ms
 
-      private GDIDBlock allocateBlock(sequence seq, int blockSize, ulong? vicinity = GDID.COUNTER_MAX)
+      private GdidBlock allocateBlock(sequence seq, int blockSize, ulong? vicinity = GDID.COUNTER_MAX)
       {
         m_BlockWasAllocated = true;
 
@@ -547,7 +547,7 @@ namespace Azos.Sky.Identification
       }
 
 
-      private GDIDBlock allocateBlockInTesting(string scopeName, string sequenceName, int blockSize, ulong? vicinity)
+      private GdidBlock allocateBlockInTesting(string scopeName, string sequenceName, int blockSize, ulong? vicinity)
       {
         Instrumentation.AllocBlockRequestedEvent.Happened(scopeName, sequenceName);
         using(var cl = new Clients.GDIDAuthority(m_TestingAuthorityNode))
@@ -566,11 +566,11 @@ namespace Azos.Sky.Identification
         }
       }
 
-      private GDIDBlock allocateBlockInSystem(string scopeName, string sequenceName, int blockSize, ulong? vicinity)
+      private GdidBlock allocateBlockInSystem(string scopeName, string sequenceName, int blockSize, ulong? vicinity)
       {
         Instrumentation.AllocBlockRequestedEvent.Happened(scopeName, sequenceName);
 
-        GDIDBlock result = null;
+        GdidBlock result = null;
         var batch = Guid.NewGuid();
         var list = "";
         foreach(var node in this.AuthorityHosts.OrderBy(h => h.DistanceKm))//in the order of distances, closest first
@@ -579,7 +579,7 @@ namespace Azos.Sky.Identification
           try
           {
             using(var cl = SkySystem.IsMetabase
-                           ? ServiceClientHub.New<IGDIDAuthorityClient>( node.Name )
+                           ? ServiceClientHub.New<IGdidAuthorityClient>( node.Name )
                            : new Clients.GDIDAuthority( node.Name )
                  )
               result = cl.AllocateBlock(scopeName, sequenceName, blockSize, vicinity);
@@ -601,7 +601,7 @@ namespace Azos.Sky.Identification
           if (list.IsNullOrWhiteSpace()) list = "<none>";
           log(MessageType.Emergency, GetType().Name+".allocateBlock()", StringConsts.GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR + list, batch: batch);
           Instrumentation.AllocBlockRequestFailureEvent.Happened(scopeName, sequenceName);
-          throw new GDIDException(StringConsts.GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR + list);
+          throw new GdidException(StringConsts.GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR + list);
         }
 
         return result;

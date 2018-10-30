@@ -233,8 +233,8 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
             var appConfig = GetEffectiveAppConfig(app);
             if (Metabank.INVSTRCMP.Equals(app, SysConsts.APP_NAME_GDIDA))
             {
-              var authorityIDs = appConfig[Identification.GDIDAuthorityService.CONFIG_GDID_AUTHORITY_SECTION]
-                               .AttrByName( Identification.GDIDAuthorityService.CONFIG_AUTHORITY_IDS_ATTR ).ValueAsByteArray();
+              var authorityIDs = appConfig[Identification.GdidAuthorityService.CONFIG_GDID_AUTHORITY_SECTION]
+                               .AttrByName( Identification.GdidAuthorityService.CONFIG_AUTHORITY_IDS_ATTR ).ValueAsByteArray();
 
               if (authorityIDs==null || authorityIDs.Length<1)
               {

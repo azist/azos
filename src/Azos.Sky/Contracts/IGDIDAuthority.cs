@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Glue;
 using Azos.Data;
@@ -15,15 +12,15 @@ namespace Azos.Sky.Contracts
     /// </summary>
     [Glued]
     [LifeCycle(ServerInstanceMode.Singleton)]
-    public interface IGDIDAuthority : ISkyService
+    public interface IGdidAuthority : ISkyService
     {
-        GDIDBlock AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity = GDID.COUNTER_MAX);
+        GdidBlock AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity = GDID.COUNTER_MAX);
     }
 
     /// <summary>
     /// Contract for client for IGDIDAuthority service
     /// </summary>
-    public interface IGDIDAuthorityClient : ISkyServiceClient, IGDIDAuthority
+    public interface IGdidAuthorityClient : ISkyServiceClient, IGdidAuthority
     {
 
     }
@@ -33,7 +30,7 @@ namespace Azos.Sky.Contracts
     /// Provides Global Distributed ID block allocated by authority
     /// </summary>
     [Serializable]
-    public sealed class GDIDBlock
+    public sealed class GdidBlock
     {
         public string   ScopeName    { get; internal set;}
         public string   SequenceName { get; internal set;}
@@ -54,16 +51,16 @@ namespace Azos.Sky.Contracts
     /// </summary>
     [Glued]
     [LifeCycle(ServerInstanceMode.Singleton)]
-    public interface IGDIDPersistenceRemoteLocation : ISkyService
+    public interface IGdidPersistenceRemoteLocation : ISkyService
     {
         GDID? Read(byte authority, string sequenceName, string scopeName);
         void Write(string sequenceName, string scopeName, GDID value);
     }
 
     /// <summary>
-    /// Contract for client for IGDIDPersistenceRemoteLocation service
+    /// Contract for client for IGdidPersistenceRemoteLocation service
     /// </summary>
-    public interface IGDIDPersistenceRemoteLocationClient : ISkyServiceClient, IGDIDPersistenceRemoteLocation
+    public interface IGdidPersistenceRemoteLocationClient : ISkyServiceClient, IGdidPersistenceRemoteLocation
     {
 
     }

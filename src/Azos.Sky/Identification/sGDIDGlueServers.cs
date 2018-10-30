@@ -9,23 +9,23 @@ namespace Azos.Sky.Identification
   /// Implements GDIDAuthority contract trampoline that uses a singleton instance of GDIDAuthorityService to
   ///  allocate blocks
   /// </summary>
-  public sealed class GDIDAuthority : IGDIDAuthority
+  public sealed class GdidAuthority : IGdidAuthority
   {
     /// <summary>
     /// Implements IGDIDAuthority contract - allocates block
     /// </summary>
-    public GDIDBlock AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity = GDID.COUNTER_MAX)
+    public GdidBlock AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity = GDID.COUNTER_MAX)
     {
       Instrumentation.AuthAllocBlockCalledEvent.Happened(scopeName, sequenceName);
-      return GDIDAuthorityService.Instance.AllocateBlock(scopeName, sequenceName, blockSize, vicinity);
+      return GdidAuthorityService.Instance.AllocateBlock(scopeName, sequenceName, blockSize, vicinity);
     }
   }
 
   /// <summary>
-  /// Implements IGDIDPersistenceLocation contract trampoline that uses a singleton instance of GDIDPersistenceLocationService to
+  /// Implements IGdidPersistenceLocation contract trampoline that uses a singleton instance of GDIDPersistenceLocationService to
   ///  store gdids
   /// </summary>
-  public sealed class GDIPersistenceRemoteLocation : IGDIDPersistenceRemoteLocation
+  public sealed class GdidPersistenceRemoteLocation : IGdidPersistenceRemoteLocation
   {
     public GDID? Read(byte authority, string sequenceName, string scopeName)
     {

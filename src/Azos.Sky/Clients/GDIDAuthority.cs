@@ -21,7 +21,7 @@ namespace Azos.Sky.Clients
   /// May inject client-level inspectors here like so:
   ///   client.MsgInspectors.Register( new YOUR_CLIENT_INSPECTOR_TYPE());
   ///</summary>
-  public class GDIDAuthority : ClientEndPoint, @Azos.@Sky.@Contracts.@IGDIDAuthorityClient
+  public class GDIDAuthority : ClientEndPoint, @Azos.@Sky.@Contracts.IGdidAuthorityClient
   {
 
   #region Static Members
@@ -32,7 +32,7 @@ namespace Azos.Sky.Clients
      //static .ctor
      static GDIDAuthority()
      {
-         var t = typeof(@Azos.@Sky.@Contracts.@IGDIDAuthority);
+         var t = typeof(@Azos.@Sky.@Contracts.IGdidAuthority);
          s_ts_CONTRACT = new TypeSpec(t);
          @s_ms_AllocateBlock_0 = new MethodSpec(t.GetMethod("AllocateBlock", new Type[]{ typeof(@System.@String), typeof(@System.@String), typeof(@System.@Int32), typeof(@System.@Nullable<@System.@UInt64>) }));
      }
@@ -54,7 +54,7 @@ namespace Azos.Sky.Clients
 
      public override Type Contract
      {
-       get { return typeof(@Azos.@Sky.@Contracts.@IGDIDAuthority); }
+       get { return typeof(@Azos.@Sky.@Contracts.IGdidAuthority); }
      }
 
 
@@ -68,10 +68,10 @@ namespace Azos.Sky.Clients
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          /// RemoteException is thrown if the server generated exception during method execution.
          ///</summary>
-         public @Azos.@Sky.@Contracts.@GDIDBlock @AllocateBlock(@System.@String  @scopeName, @System.@String  @sequenceName, @System.@Int32  @blockSize, @System.@Nullable<@System.@UInt64>  @vicinity)
+         public @Azos.@Sky.@Contracts.GdidBlock @AllocateBlock(@System.@String  @scopeName, @System.@String  @sequenceName, @System.@Int32  @blockSize, @System.@Nullable<@System.@UInt64>  @vicinity)
          {
             var call = Async_AllocateBlock(@scopeName, @sequenceName, @blockSize, @vicinity);
-            return call.GetValue<@Azos.@Sky.@Contracts.@GDIDBlock>();
+            return call.GetValue<@Azos.@Sky.@Contracts.GdidBlock>();
          }
 
          ///<summary>

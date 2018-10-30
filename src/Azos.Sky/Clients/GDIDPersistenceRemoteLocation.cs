@@ -21,7 +21,7 @@ namespace Azos.Sky.Clients
   /// May inject client-level inspectors here like so:
   ///   client.MsgInspectors.Register( new YOUR_CLIENT_INSPECTOR_TYPE());
   ///</summary>
-  public class GDIDPersistenceRemoteLocation : ClientEndPoint, @Azos.@Sky.@Contracts.@IGDIDPersistenceRemoteLocationClient
+  public class GDIDPersistenceRemoteLocation : ClientEndPoint, @Azos.@Sky.@Contracts.IGdidPersistenceRemoteLocationClient
   {
 
   #region Static Members
@@ -33,7 +33,7 @@ namespace Azos.Sky.Clients
      //static .ctor
      static GDIDPersistenceRemoteLocation()
      {
-         var t = typeof(@Azos.@Sky.@Contracts.@IGDIDPersistenceRemoteLocation);
+         var t = typeof(@Azos.@Sky.@Contracts.IGdidPersistenceRemoteLocation);
          s_ts_CONTRACT = new TypeSpec(t);
          @s_ms_Read_0 = new MethodSpec(t.GetMethod("Read", new Type[]{ typeof(@System.@Byte), typeof(@System.@String), typeof(@System.@String) }));
          @s_ms_Write_1 = new MethodSpec(t.GetMethod("Write", new Type[]{ typeof(@System.@String), typeof(@System.@String), typeof(@NFX.@DataAccess.@Distributed.@GDID) }));
@@ -56,7 +56,7 @@ namespace Azos.Sky.Clients
 
      public override Type Contract
      {
-       get { return typeof(@Azos.@Sky.@Contracts.@IGDIDPersistenceRemoteLocation); }
+       get { return typeof(@Azos.@Sky.@Contracts.IGdidPersistenceRemoteLocation); }
      }
 
 
