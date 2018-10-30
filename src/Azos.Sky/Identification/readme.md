@@ -78,7 +78,7 @@ There can be up to 16 different authorities in the Sky OS instance, virtually el
 
 where [`GdidBlock`](../Contracts/IGdidAuthority.cs#L33) is a unit of allocation. 
 The [`IGdidAuthority`](../Contracts/IGdidAuthority.cs) service is used 
-in [`Sky.Identification.GdidGenerator`](GdidGenerator.cs) - the main class responsible for GDID generation in cluster apps.
+in [`Sky.Identification.GdidGenerator`](GdidGenerator.cs) - the main class responsible for GDID generation in distributed apps.
 
 GDIDs are generated within logical ‘Scopes’ and ‘Sequences’ and are unique within (scope, sequence) pair. One can think about a scope and a sequence as a database name and a table name inside a database correspondingly.
 
