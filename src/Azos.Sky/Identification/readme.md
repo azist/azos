@@ -67,9 +67,9 @@ There can be up to 16 different authorities in the Sky OS instance, virtually el
 ```CSharp
   [Glued]
   [LifeCycle(ServerInstanceMode.Singleton)]
-  public interface IGDIDAuthority : IClusterService
+  public interface IGdidAuthority : ISkyService
   {
-    GDIDBlock AllocateBlock(string scopeName, 
+    GdidBlock AllocateBlock(string scopeName, 
                             string sequenceName, 
                             int blockSize,
                             ulong? vicinity = GDID.COUNTER_MAX);
