@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Collections;
 using Azos.Data;
 using Azos.Data.Access;
 using Azos.Log;
@@ -345,19 +346,19 @@ namespace Azos.Sky.Identification
         return this.GetSequenceInfos(scopeName);
       }
 
-      ulong IUniqueSequenceProvider.GenerateOneSequenceID(string scopeName, string sequenceName, int blockSize, ulong? vicinity, bool noLWM)
+      ulong IUniqueSequenceProvider.GenerateOneSequenceId(string scopeName, string sequenceName, int blockSize, ulong? vicinity, bool noLWM)
       {
-        return GenerateOneGDID(scopeName, sequenceName, blockSize, vicinity, noLWM).ID;
+        return GenerateOneGdid(scopeName, sequenceName, blockSize, vicinity, noLWM).ID;
       }
 
-      ConsecutiveUniqueSequenceIDs IUniqueSequenceProvider.TryGenerateManyConsecutiveSequenceIDs(string scopeName,
+      ConsecutiveUniqueSequenceIds IUniqueSequenceProvider.TryGenerateManyConsecutiveSequenceIds(string scopeName,
                                                                                 string sequenceName,
                                                                                 int idCount,
                                                                                 ulong? vicinity,
                                                                                 bool noLWM)
       {
-        var gdids = TryGenerateManyConsecutiveGDIDs(scopeName, sequenceName, idCount, vicinity, noLWM);
-        return new ConsecutiveUniqueSequenceIDs(gdids[0].ID, gdids.Length);
+        var gdids = TryGenerateManyConsecutiveGdids(scopeName, sequenceName, idCount, vicinity, noLWM);
+        return new ConsecutiveUniqueSequenceIds(gdids[0].ID, gdids.Length);
       }
 
 
@@ -376,7 +377,7 @@ namespace Azos.Sky.Identification
       ///  The provider may disregard this flag
       /// </param>
       /// <returns>The GDID instance</returns>
-      public GDID GenerateOneGDID(string scopeName, string sequenceName, int blockSize=0, ulong? vicinity = GDID.COUNTER_MAX, bool noLWM = false)
+      public GDID GenerateOneGdid(string scopeName, string sequenceName, int blockSize=0, ulong? vicinity = GDID.COUNTER_MAX, bool noLWM = false)
       {
         if (scopeName==null || sequenceName==null)
           throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".GenerateOneGDID(scopeName|sequenceName=null)");
@@ -462,7 +463,7 @@ namespace Azos.Sky.Identification
       ///  The provider may disregard this flag
       /// </param>
       /// <returns>The GDID instance array which may be shorter than requested</returns>
-      public GDID[] TryGenerateManyConsecutiveGDIDs(string scopeName, string sequenceName, int gdidCount, ulong? vicinity = GDID.COUNTER_MAX, bool noLWM = false)
+      public GDID[] TryGenerateManyConsecutiveGdids(string scopeName, string sequenceName, int gdidCount, ulong? vicinity = GDID.COUNTER_MAX, bool noLWM = false)
       {
         if (scopeName==null || sequenceName==null)
           throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".TryGenerateManyConsecutiveGDIDs(scopeName|sequenceName=null)");

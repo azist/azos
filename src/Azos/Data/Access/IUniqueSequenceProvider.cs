@@ -67,9 +67,9 @@ namespace Azos.Data.Access
   /// <summary>
   /// Represents a starting ID along with the number of consecutive generated IDs of the sequence
   /// </summary>
-  public struct ConsecutiveUniqueSequenceIDs
+  public struct ConsecutiveUniqueSequenceIds
   {
-    public ConsecutiveUniqueSequenceIDs(ulong startInclusive, int count)
+    public ConsecutiveUniqueSequenceIds(ulong startInclusive, int count)
     {
       this.StartInclusive = startInclusive;
       this.Count = count;
@@ -111,7 +111,7 @@ namespace Azos.Data.Access
     ///  The provider may disregard this flag
     /// </param>
     /// <returns>The new ULONG sequence value</returns>
-    ulong GenerateOneSequenceID(string scopeName,
+    ulong GenerateOneSequenceId(string scopeName,
                                 string sequenceName,
                                 int blockSize = 0,
                                 ulong? vicinity = ulong.MaxValue,
@@ -131,7 +131,7 @@ namespace Azos.Data.Access
     ///  The provider may disregard this flag
     /// </param>
     /// <returns>The first uniqueID along with the number of Consecutive IDs that the system could allocate which can be less than requested number of IDs</returns>
-    ConsecutiveUniqueSequenceIDs TryGenerateManyConsecutiveSequenceIDs(string scopeName,
+    ConsecutiveUniqueSequenceIds TryGenerateManyConsecutiveSequenceIds(string scopeName,
                                                                         string sequenceName,
                                                                         int idCount,
                                                                         ulong? vicinity = ulong.MaxValue,
@@ -159,7 +159,7 @@ namespace Azos.Data.Access
     ///  The provider may disregard this flag
     /// </param>
     /// <returns>The GDID instance</returns>
-    GDID GenerateOneGDID(string scopeName,
+    GDID GenerateOneGdid(string scopeName,
                                       string sequenceName,
                                       int blockSize = 0,
                                       ulong? vicinity = GDID.COUNTER_MAX,
@@ -180,7 +180,7 @@ namespace Azos.Data.Access
     ///  The provider may disregard this flag
     /// </param>
     /// <returns>The GDID[] instance which may have less elements than requested by gdidCount</returns>
-    GDID[] TryGenerateManyConsecutiveGDIDs(string scopeName,
+    GDID[] TryGenerateManyConsecutiveGdids(string scopeName,
                                                         string sequenceName,
                                                         int gdidCount,
                                                         ulong? vicinity = GDID.COUNTER_MAX,
