@@ -23,7 +23,7 @@ namespace Azos.Glue
     /// It is possible to obtain an instance of CallSlot.AsTask in which case that instance is registered with the framework-internal reactor
     ///  so task does complete normally even on timeout, however, in high-throughput apps (10K+ calls per second) this method is not the most efficient one
     ///  as it allocates additional objects (task, list entry etc.) that eventually increase GC load for long runs.
-    ///  Note: A 3.2 Ghz 4-Core I7 server with 8Gb of ram can easily handle 40K 2-way calls a second (given little business server logic and simple payload).
+    ///  Note: A 3.2 Ghz 4-Core I7 server with 8Gb of ram can easily handle 50K+ 2-way calls a second (given little business server logic and simple payload).
     ///  See also: CallReactor class
     /// </summary>
     public sealed class CallSlot
