@@ -196,7 +196,7 @@ namespace Azos.Sky.Coordination
 
       if (hosts == null || hosts.Length == 0) return new HostPair();
 
-      if (shardingKey == null) shardingKey = ExternalRandomGenerator.Instance.NextRandomInteger;
+      if (shardingKey == null) shardingKey = App.Random.NextRandomInteger;
 
       var idx = (uint)MDB.ShardingUtils.ObjectToShardingID(shardingKey) % hosts.Length;
 
