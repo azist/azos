@@ -131,9 +131,10 @@ namespace Azos
     }
 
     /// <summary>
-    /// Converts to Guid by copying ID twice
+    /// Converts to Guid by copying ID twice - this is used when in corellation in logs to associate multiple messages into topic.
+    /// Warning: the returned Guid is a fake one (hence the name), and not really unique pe UUID spec
     /// </summary>
-    public Guid ToGuid()
+    public Guid ToFakeGuidTag()
     {
       var b = new byte[16];
       b.WriteBEUInt64(0, ID);

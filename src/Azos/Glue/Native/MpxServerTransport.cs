@@ -391,7 +391,7 @@ namespace Azos.Glue.Native
                         LogSrc.Server,
                         Log.MessageType.Warning,
                         StringConsts.GLUE_CLIENT_THREAD_ERROR + "couldn't deliver response to client's request: " + e.Message,
-                        relatedTo: response.RequestID.ToGuid(),
+                        relatedTo: response.RequestID.ToFakeGuidTag(),
                         from: "MpxServerTransport.sendResponse",
                         exception: e);
                   }
