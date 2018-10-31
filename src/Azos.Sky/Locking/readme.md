@@ -33,28 +33,33 @@ Call norm calculation works like this. We measure the call rate in ops/sec, then
 EMA(Exponential moving average) filter. The filter renders the "average" insensible to suddent "spikes" in traffic - 
 the EMA coefficient is attuned to "not feel" the traffic spikes lasting for split seconds. We now apply a decay function,
  which lowers the norm with time, thus when the server becomes idle, the "norm expectation" diminishes. The "TRUST" level 
-is a ration of  `current_load / NORM` - which is basically a QOS (Quality of Service) indicator. 
+is a ratio of  `current_load / NORM` - which is basically a **QOS (Quality of Service)** indicator. 
 
 Suppose a server handles 20 req/sec - if this rate sustains for a few seconds, the NORM jumps to around 20/sec. Now,
  something happens to the network/switch and the calls drop to 2 req/sec - the NORM is going to hang around 20 ops/sec
  for some time until it decays into the lower range, at that time the TRUST is going to be low because of the abrupt drop
  in traffic. As stated above, **this is purely speculative way of** assessing the server "accuracy", for example - it declines
- transactions after "bouts" of activity caused by other services - but this is well expected and eventually the system evens-out. The chief benefit is the absence of complexity and latency - this solution does not make any extra calls.
+ transactions after "bouts" of activity caused by other services - but this is well expected and eventually the system evens-out.
+ The chief benefit is the absence of complexity and latency - **this solution avoids making any extra calls completely**!
 
 > *Many high-scalability architectures rely on the Paxos, Vector Clocks, Raft, Byzantine Fault Tolerance and other complex 
-> algorithms of achieving the consensus in the distributed systems. These methods are usually very complex to implement/test
+> algorithms of achieving the consensus in a distributed systems. These methods are usually very complex to implement/test
 >  properly and they cause extra network traffic as required by multi-phase protocols. Our approach obviates the need to execute
 >  multi-phase (multiple) networking calls as the currency/uptime of the system may be asserted with a single call with 
 > acceptable degree of probability...*
 
 ## Locking Data Structures
 
-The locking/coordination structures are based on the **named tables** *(called variables)* with primary keys. The most typical
+The locking/coordination structures are based on the **named tables** *(called "variables")* with primary keys. The most typical
  locking operation is an attempt to **insert a key in the table** and **get a key violation** that would indicate that other 
-process has already placed the record. The locking server executes transactions in the caller's 
+process has already placed the record for that particular key. The locking server executes transactions in the caller's 
 **session context which has an expiration lifespan**. Shall a caller never roll-back the transactions/kill session, the 
 **server would delete ALL variable entries from its memory upon expiration**. On a typical server machine with 8 Gb of RAM and 
-4 cores the locking server can support hundred of thousands of lock var entries executing over 200,000+ transactions a second. 
+4 cores the locking server can support hundred of thousands of lock var entries executing over 200,000+ transactions a second.
+
+In practice these data structures are used to coordinate co-operating tasks such as mapreduce, full scans and the like where a 
+swarm of hosts exchange data describing "chunks" of work that they perform. In reality this leads to generation of 10s-100s of 
+variable entries at most, which makes this solution **VERY efficient for real-time multi-worker coordination**. See [Distributed Coordination](../Coordination)
 
 <img src="/doc/img/locking-ns.svg">
 
