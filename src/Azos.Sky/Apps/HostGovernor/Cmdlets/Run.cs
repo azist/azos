@@ -38,7 +38,7 @@ namespace Azos.Sky.Apps.HostGovernor.Cmdlets
 
 
            bool timedOut;
-           var result = NFX.OS.ProcessRunner.Run(cmd, args, out timedOut, timeout);
+           var result = OS.ProcessRunner.Run(cmd, args, out timedOut, timeout);
 
            if (timedOut)
             result += "\n ....Process TIMED OUT....";

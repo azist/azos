@@ -233,7 +233,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
               {
                 foreach(var addr in nic.Addresses.Where(a => a.Unicast))
                 {
-                  if (NFX.Parsing.Utils.MatchPattern(addr.Name, pattern))
+                  if (Parsing.Utils.MatchPattern(addr.Name, pattern))
                    return new NetSvcPeer(addr.Name, toPeer.Port, toPeer.Group );
                 }
               }

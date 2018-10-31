@@ -27,9 +27,9 @@ namespace Azos.Sky.Apps.HostGovernor.Cmdlets
            var force =  m_Args.AttrByName(CONFIG_FORCE_ATTR).ValueAsBool(false);
 
            if (force)
-            App.Log.Write( new NFX.Log.Message
+            App.Log.Write( new Log.Message
               {
-                 Type = NFX.Log.MessageType.Warning,
+                 Type = Log.MessageType.Warning,
                  Topic = SysConsts.LOG_TOPIC_APP_MANAGEMENT,
                  From = "{0}.Force".Args(GetType().FullName),
                  Text = "Installation with force=true initiated"
@@ -39,9 +39,9 @@ namespace Azos.Sky.Apps.HostGovernor.Cmdlets
 
            var progress = list.Aggregate(new StringBuilder(), (sb, s) => sb.AppendLine(s)).ToString();
 
-            App.Log.Write( new NFX.Log.Message
+            App.Log.Write( new Log.Message
               {
-                 Type = NFX.Log.MessageType.Warning,
+                 Type = Log.MessageType.Warning,
                  Topic = SysConsts.LOG_TOPIC_APP_MANAGEMENT,
                  From = "{0}.Force".Args(GetType().FullName),
                  Text = "Installation finished. Installed anew: " + anew,

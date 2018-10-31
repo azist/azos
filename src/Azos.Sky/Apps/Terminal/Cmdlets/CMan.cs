@@ -156,7 +156,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
           if (param.IsNotNullOrWhiteSpace())
           {
             sb.AppendLine("<f color=gray>Trying to set parameter <f color=yellow>'{0}'<f color=gray> to value  <f color=cyan>'{1}'".Args(param, value ?? "<null>"));
-            if (!NFX.ExternalParameterAttribute.SetParameter(cmp, param, value))
+            if (!ExternalParameterAttribute.SetParameter(cmp, param, value))
             {
              sb.AppendLine("<f color=red>Parameter <f color=yellow>'{0}'<f color=red> set did NOT SUCCEED".Args(param));
              return;
@@ -179,7 +179,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
           sb.AppendLine(pfx+"<f color=gray>Start Time (local): <f color=yellow> "+cmp.ComponentStartTime);
           sb.AppendLine(pfx+"<f color=gray>Type: <f color=yellow> "+cmp.GetType().FullName);
           sb.AppendLine(pfx+"<f color=gray>Assembly: <f color=yellow> "+cmp.GetType().Assembly.FullName);
-          sb.AppendLine(pfx+"<f color=gray>Service: <f color=yellow> "+(cmp is NFX.ServiceModel.Service ? "Yes" : "No") );
+          sb.AppendLine(pfx+"<f color=gray>Service: <f color=yellow> "+(cmp is ServiceModel.Service ? "Yes" : "No") );
           if (cmp is INamed)
            sb.AppendLine(pfx+"<f color=gray>Name: <f color=green> "+((INamed)cmp).Name);
 
@@ -195,12 +195,12 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
           sb.AppendLine(pfx+"Parameters: ");
           sb.AppendLine();
 
-          var pars = NFX.ExternalParameterAttribute.GetParametersWithAttrs(cmp.GetType());
+          var pars = ExternalParameterAttribute.GetParametersWithAttrs(cmp.GetType());
           foreach(var p in pars)
           {
             var nm = p.Item1;
             object val;
-            if (!NFX.ExternalParameterAttribute.GetParameter(cmp, nm, out val)) val = "?";
+            if (!ExternalParameterAttribute.GetParameter(cmp, nm, out val)) val = "?";
             var tp = p.Item2;
             var atr = p.Item3;
             sb.AppendLine(pfx+"<f color=gray>{0,-35}: <f color=white>{1,-10} <f color=darkyellow>({2})  <f color=darkgreen>{3}".Args(

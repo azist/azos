@@ -181,7 +181,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
       /// <summary>
       /// Called by subordinate nodes to report telemetry
       /// </summary>
-      public int SendTelemetry(string host, NFX.Instrumentation.Datum[] data)
+      public int SendTelemetry(string host, Instrumentation.Datum[] data)
       {
         if (!Running || data==null) return 0;
         var sis = m_SubInstr;
@@ -216,7 +216,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
       /// <summary>
       /// Called by subordinate nodes to report log
       /// </summary>
-      public int SendLog(string host, string appName, NFX.Log.Message[] data)
+      public int SendLog(string host, string appName, Log.Message[] data)
       {
         if (!Running || data == null) return 0;
         var slg = m_SubLog;
@@ -267,7 +267,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
         var matches = hostNameSearchPattern.IsNullOrWhiteSpace()
                     ? m_SubHosts
-                    : m_SubHosts.Where(h => NFX.Parsing.Utils.MatchPattern(h.Name, hostNameSearchPattern, senseCase: false));
+                    : m_SubHosts.Where(h => Parsing.Utils.MatchPattern(h.Name, hostNameSearchPattern, senseCase: false));
 
         return matches.ToArray();
       }
@@ -521,7 +521,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
         private void updateCPULoadFactor()
         {
-           var cpu = (NFX.OS.Computer.CurrentProcessorUsagePct + m_CPU_1 + m_CPU_2 + m_CPU_3) / 4;
+           var cpu = (OS.Computer.CurrentProcessorUsagePct + m_CPU_1 + m_CPU_2 + m_CPU_3) / 4;
            m_CPU_3 = m_CPU_2;
            m_CPU_2 = m_CPU_1;
            m_CPU_1 = cpu;
@@ -586,7 +586,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
         internal void log(MessageType type, string from, string text, Exception error = null, Guid? related = null)
         {
-           var msg = new NFX.Log.Message
+           var msg = new Log.Message
               {
                  Type = type,
                  Topic = SysConsts.LOG_TOPIC_ZONE_MANAGEMENT,

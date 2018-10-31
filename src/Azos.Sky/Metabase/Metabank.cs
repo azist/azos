@@ -532,7 +532,7 @@ namespace Azos.Sky.Metabase
          /// </remarks>
          /// <param name="output">
          /// A list where output such as erros and warnings is redirected.
-         /// May use NFX.Collections.EventedList for receiving notifications upon list addition
+         /// May use Collections.EventedList for receiving notifications upon list addition
          /// </param>
          public void Validate(IList<MetabaseValidationMsg> output)
          {
@@ -863,7 +863,7 @@ namespace Azos.Sky.Metabase
         }
 
 
-              private Dictionary<Thread, _fss> m_FSSessionCache = new Dictionary<Thread, _fss>(NFX.ReferenceEqualityComparer<Thread>.Instance);
+              private Dictionary<Thread, _fss> m_FSSessionCache = new Dictionary<Thread, _fss>(ReferenceEqualityComparer<Thread>.Instance);
               private Thread m_FSSessionCacheThread;
               private AutoResetEvent m_FSSessionCacheThreadWaiter;
 

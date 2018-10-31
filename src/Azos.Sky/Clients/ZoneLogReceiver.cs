@@ -34,7 +34,7 @@ namespace Azos.Sky.Clients
      {
          var t = typeof(@Azos.@Sky.@Contracts.@IZoneLogReceiver);
          s_ts_CONTRACT = new TypeSpec(t);
-         @s_ms_SendLog_0 = new MethodSpec(t.GetMethod("SendLog", new Type[]{ typeof(@System.@String), typeof(@System.@String), typeof(@NFX.@Log.@Message[]) }));
+         @s_ms_SendLog_0 = new MethodSpec(t.GetMethod("SendLog", new Type[]{ typeof(@System.@String), typeof(@System.@String), typeof(@@Log.@Message[]) }));
      }
   #endregion
 
@@ -68,7 +68,7 @@ namespace Azos.Sky.Clients
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          /// RemoteException is thrown if the server generated exception during method execution.
          ///</summary>
-         public @System.@Int32 @SendLog(@System.@String  @host, @System.@String  @appName, @NFX.@Log.@Message[]  @data)
+         public @System.@Int32 @SendLog(@System.@String  @host, @System.@String  @appName, @@Log.@Message[]  @data)
          {
             var call = Async_SendLog(@host, @appName, @data);
             return call.GetValue<@System.@Int32>();
@@ -80,7 +80,7 @@ namespace Azos.Sky.Clients
          ///  returning no exception or WrappedExceptionData instance.
          /// CallSlot is returned that can be queried for CallStatus, ResponseMsg and result.
          ///</summary>
-         public CallSlot Async_SendLog(@System.@String  @host, @System.@String  @appName, @NFX.@Log.@Message[]  @data)
+         public CallSlot Async_SendLog(@System.@String  @host, @System.@String  @appName, @@Log.@Message[]  @data)
          {
             var request = new RequestAnyMsg(s_ts_CONTRACT, @s_ms_SendLog_0, false, RemoteInstance, new object[]{@host, @appName, @data});
             return DispatchCall(request);

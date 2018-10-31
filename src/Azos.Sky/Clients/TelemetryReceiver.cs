@@ -34,7 +34,7 @@ namespace Azos.Sky.Clients
      {
          var t = typeof(@Azos.@Sky.@Contracts.@ITelemetryReceiver);
          s_ts_CONTRACT = new TypeSpec(t);
-         @s_ms_SendDatums_0 = new MethodSpec(t.GetMethod("SendDatums", new Type[]{ typeof(@NFX.@Instrumentation.@Datum[]) }));
+         @s_ms_SendDatums_0 = new MethodSpec(t.GetMethod("SendDatums", new Type[]{ typeof(@@Instrumentation.@Datum[]) }));
      }
   #endregion
 
@@ -67,7 +67,7 @@ namespace Azos.Sky.Clients
          /// there is no result that server could return back to the caller.
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          ///</summary>
-         public void @SendDatums(@NFX.@Instrumentation.@Datum[]  @data)
+         public void @SendDatums(@@Instrumentation.@Datum[]  @data)
          {
             var call = Async_SendDatums(@data);
             if (call.CallStatus != CallStatus.Dispatched)
@@ -80,7 +80,7 @@ namespace Azos.Sky.Clients
          /// there is no result that server could return back to the caller.
          /// CallSlot is returned that can be queried for CallStatus, ResponseMsg.
          ///</summary>
-         public CallSlot Async_SendDatums(@NFX.@Instrumentation.@Datum[]  @data)
+         public CallSlot Async_SendDatums(@@Instrumentation.@Datum[]  @data)
          {
             var request = new @Azos.@Sky.@Contracts.@RequestMsg_ITelemetryReceiver_SendDatums(s_ts_CONTRACT, @s_ms_SendDatums_0, true, RemoteInstance)
             {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 using Azos.Glue;
-using NFX.Instrumentation;
+using Instrumentation;
 
 
 namespace Azos.Sky.Contracts

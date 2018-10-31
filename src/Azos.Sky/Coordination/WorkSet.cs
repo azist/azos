@@ -215,7 +215,7 @@ namespace Azos.Sky.Coordination
       var needAssign = sinceAssign.TotalSeconds > RoundDurationSec;
 
       if (needAssign)
-       m_Round = NFX.ExternalRandomGenerator.Instance.NextRandomWebSafeString();
+       m_Round = ExternalRandomGenerator.Instance.NextRandomWebSafeString();
 
       //in case of lock server failure, we need to update who we are, where, and what we do
       if (needReg || needAssign)

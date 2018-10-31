@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 
 using Azos.Glue;
-using NFX.Log;
+using Log;
 
 
 namespace Azos.Sky.Contracts

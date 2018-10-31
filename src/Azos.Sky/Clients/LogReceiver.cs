@@ -36,9 +36,9 @@ namespace Azos.Sky.Clients
      {
          var t = typeof(@Azos.@Sky.@Contracts.@ILogReceiver);
          s_ts_CONTRACT = new TypeSpec(t);
-         @s_ms_SendLog_0 = new MethodSpec(t.GetMethod("SendLog", new Type[]{ typeof(@NFX.@Log.@Message) }));
+         @s_ms_SendLog_0 = new MethodSpec(t.GetMethod("SendLog", new Type[]{ typeof(@@Log.@Message) }));
          @s_ms_GetByID_1 = new MethodSpec(t.GetMethod("GetByID", new Type[]{ typeof(@System.@Guid), typeof(@System.@String) }));
-         @s_ms_List_2 = new MethodSpec(t.GetMethod("List", new Type[]{ typeof(@System.@String), typeof(@System.@DateTime), typeof(@System.@DateTime), typeof(@System.@Nullable<@NFX.@Log.@MessageType>), typeof(@System.@String), typeof(@System.@String), typeof(@System.@String), typeof(@System.@Nullable<@System.@Guid>), typeof(@System.@Int32) }));
+         @s_ms_List_2 = new MethodSpec(t.GetMethod("List", new Type[]{ typeof(@System.@String), typeof(@System.@DateTime), typeof(@System.@DateTime), typeof(@System.@Nullable<@@Log.@MessageType>), typeof(@System.@String), typeof(@System.@String), typeof(@System.@String), typeof(@System.@Nullable<@System.@Guid>), typeof(@System.@Int32) }));
      }
   #endregion
 
@@ -71,7 +71,7 @@ namespace Azos.Sky.Clients
          /// there is no result that server could return back to the caller.
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          ///</summary>
-         public void @SendLog(@NFX.@Log.@Message  @data)
+         public void @SendLog(@@Log.@Message  @data)
          {
             var call = Async_SendLog(@data);
             if (call.CallStatus != CallStatus.Dispatched)
@@ -84,7 +84,7 @@ namespace Azos.Sky.Clients
          /// there is no result that server could return back to the caller.
          /// CallSlot is returned that can be queried for CallStatus, ResponseMsg.
          ///</summary>
-         public CallSlot Async_SendLog(@NFX.@Log.@Message  @data)
+         public CallSlot Async_SendLog(@@Log.@Message  @data)
          {
             var request = new @Azos.@Sky.@Contracts.@RequestMsg_ILogReceiver_SendLog(s_ts_CONTRACT, @s_ms_SendLog_0, true, RemoteInstance)
             {
@@ -98,14 +98,14 @@ namespace Azos.Sky.Clients
          ///<summary>
          /// Synchronous invoker for  'Azos.Sky.Contracts.ILogReceiver.GetByID'.
          /// This is a two-way call per contract specification, meaning - the server sends the result back either
-         ///  returning '@NFX.@Log.@Message' or WrappedExceptionData instance.
+         ///  returning '@@Log.@Message' or WrappedExceptionData instance.
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          /// RemoteException is thrown if the server generated exception during method execution.
          ///</summary>
-         public @NFX.@Log.@Message @GetByID(@System.@Guid  @id, @System.@String  @channel)
+         public @@Log.@Message @GetByID(@System.@Guid  @id, @System.@String  @channel)
          {
             var call = Async_GetByID(@id, @channel);
-            return call.GetValue<@NFX.@Log.@Message>();
+            return call.GetValue<@@Log.@Message>();
          }
 
          ///<summary>
@@ -125,14 +125,14 @@ namespace Azos.Sky.Clients
          ///<summary>
          /// Synchronous invoker for  'Azos.Sky.Contracts.ILogReceiver.List'.
          /// This is a two-way call per contract specification, meaning - the server sends the result back either
-         ///  returning '@System.@Collections.@Generic.@IEnumerable<@NFX.@Log.@Message>' or WrappedExceptionData instance.
+         ///  returning '@System.@Collections.@Generic.@IEnumerable<@@Log.@Message>' or WrappedExceptionData instance.
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          /// RemoteException is thrown if the server generated exception during method execution.
          ///</summary>
-         public @System.@Collections.@Generic.@IEnumerable<@NFX.@Log.@Message> @List(@System.@String  @archiveDimensionsFilter, @System.@DateTime  @startDate, @System.@DateTime  @endDate, @System.@Nullable<@NFX.@Log.@MessageType>  @type, @System.@String  @host, @System.@String  @channel, @System.@String  @topic, @System.@Nullable<@System.@Guid>  @relatedTo, @System.@Int32  @skipCount)
+         public @System.@Collections.@Generic.@IEnumerable<@@Log.@Message> @List(@System.@String  @archiveDimensionsFilter, @System.@DateTime  @startDate, @System.@DateTime  @endDate, @System.@Nullable<@@Log.@MessageType>  @type, @System.@String  @host, @System.@String  @channel, @System.@String  @topic, @System.@Nullable<@System.@Guid>  @relatedTo, @System.@Int32  @skipCount)
          {
             var call = Async_List(@archiveDimensionsFilter, @startDate, @endDate, @type, @host, @channel, @topic, @relatedTo, @skipCount);
-            return call.GetValue<@System.@Collections.@Generic.@IEnumerable<@NFX.@Log.@Message>>();
+            return call.GetValue<@System.@Collections.@Generic.@IEnumerable<@@Log.@Message>>();
          }
 
          ///<summary>
@@ -141,7 +141,7 @@ namespace Azos.Sky.Clients
          ///  returning no exception or WrappedExceptionData instance.
          /// CallSlot is returned that can be queried for CallStatus, ResponseMsg and result.
          ///</summary>
-         public CallSlot Async_List(@System.@String  @archiveDimensionsFilter, @System.@DateTime  @startDate, @System.@DateTime  @endDate, @System.@Nullable<@NFX.@Log.@MessageType>  @type, @System.@String  @host, @System.@String  @channel, @System.@String  @topic, @System.@Nullable<@System.@Guid>  @relatedTo, @System.@Int32  @skipCount)
+         public CallSlot Async_List(@System.@String  @archiveDimensionsFilter, @System.@DateTime  @startDate, @System.@DateTime  @endDate, @System.@Nullable<@@Log.@MessageType>  @type, @System.@String  @host, @System.@String  @channel, @System.@String  @topic, @System.@Nullable<@System.@Guid>  @relatedTo, @System.@Int32  @skipCount)
          {
             var request = new RequestAnyMsg(s_ts_CONTRACT, @s_ms_List_2, false, RemoteInstance, new object[]{@archiveDimensionsFilter, @startDate, @endDate, @type, @host, @channel, @topic, @relatedTo, @skipCount});
             return DispatchCall(request);

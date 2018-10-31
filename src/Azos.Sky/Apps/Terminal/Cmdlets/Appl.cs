@@ -33,9 +33,9 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
             if (stopNowHour == app.LocalizedTime.Hour)
             {
               var text = StringConsts.APPL_CMD_STOPPING_INFO.Args(m_Terminal.Name, m_Terminal.WhenConnected, m_Terminal.Who);
-              App.Log.Write( new NFX.Log.Message
+              App.Log.Write( new Log.Message
               {
-                 Type = NFX.Log.MessageType.Warning,
+                 Type = Log.MessageType.Warning,
                  Topic = SysConsts.LOG_TOPIC_APP_MANAGEMENT,
                  From = "{0}.StopNow".Args(GetType().FullName),
                  Text = text

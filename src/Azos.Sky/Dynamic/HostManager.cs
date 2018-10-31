@@ -27,9 +27,9 @@ namespace Azos.Sky.Dynamic
 
     #region Fields
     private bool m_InstrumentationEnabled;
-    private NFX.Time.Event m_InstrumentationEvent;
+    private Time.Event m_InstrumentationEvent;
 
-    private NFX.Collections.NamedInterlocked m_Stats = new NFX.Collections.NamedInterlocked();
+    private Collections.NamedInterlocked m_Stats = new Collections.NamedInterlocked();
     #endregion
 
     #region Properties
@@ -48,7 +48,7 @@ namespace Azos.Sky.Dynamic
         {
           if (!value) return;
           m_Stats.Clear();
-          m_InstrumentationEvent = new NFX.Time.Event(App.EventTimer, null, e => AcceptManagerVisit(this, e.LocalizedTime), INSTRUMENTATION_INTERVAL);
+          m_InstrumentationEvent = new Time.Event(App.EventTimer, null, e => AcceptManagerVisit(this, e.LocalizedTime), INSTRUMENTATION_INTERVAL);
         }
         else
         {
