@@ -2,7 +2,7 @@
  Distributed locking feature facilitates global synchronization at any system topography level with just a few 
 lines of code. It is also used for coordination/scheduling of running processes. The data contained in the
  locking servers is considered to be ephemeral, there is no need to persist it, consequently
- **Sky OS locking is a pure in-memory solution** without making any disc copies or cross-device state synchronization. 
+ **Sky OS locking is a pure in-memory solution** without making any on-disk copies or cross-device state synchronization. 
 
  ## Probability-based Speculative Synchronization
 
