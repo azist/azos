@@ -43,6 +43,9 @@ namespace Azos.Web
     bool Pipelined { get; }
   }
 
+
+#warning WebClient::This needs review per http://www.diogonunes.com/blog/webclient-vs-httpclient-vs-httpwebrequest/
+
   /// <summary>
   /// Facilitates working with external services provided via HTTP
   /// </summary>

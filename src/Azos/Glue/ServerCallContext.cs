@@ -5,9 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Glue.Protocol;
 
@@ -20,10 +17,10 @@ namespace Azos.Glue
     public static class ServerCallContext
     {
         [ThreadStatic]
-        private static RequestMsg ts_Request;
+        private static RequestMsg ts_Request;    eto nado perepisat na AsyncLocal<RequestMsg>
 
         [ThreadStatic]
-        private static Headers ts_ResponseHeaders;
+        private static Headers ts_ResponseHeaders;   eto nado perepisat na AsyncLocal<Headers>
 
 
         /// <summary>
