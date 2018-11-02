@@ -1,6 +1,6 @@
 # Todo Quick Stickers
-~This section has quick todo list which is not in project issue list
- (can migrate of GitHub)~
+^This section has quick todo list which is not in project issue list
+ (can migrate of GitHub)^
 
 
 ## Runnable
