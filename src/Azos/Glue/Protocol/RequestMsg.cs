@@ -16,7 +16,6 @@ namespace Azos.Glue.Protocol
     [Serializable]
     public abstract class RequestMsg : Msg
     {
-
         /// <summary>
         /// Constructs request message from method information and arguments for call invocation.
         /// This constructor is slower as it uses reflection
@@ -30,7 +29,6 @@ namespace Azos.Glue.Protocol
             m_RemoteInstance = instance;
         }
 
-
         /// <summary>
         /// Constructs request message from pre-computed  specs obtained by reflection.
         /// This constructor is the fastest as it does not use reflection
@@ -42,7 +40,6 @@ namespace Azos.Glue.Protocol
             m_OneWay = oneWay;
             m_RemoteInstance = instance;
         }
-
 
         /// <summary>
         /// This .ctor is handy for message inspectors.
@@ -57,7 +54,6 @@ namespace Azos.Glue.Protocol
            CloneState(inspectedOriginal, cloneHeaders, cloneCorrelation);
         }
 
-
         /// <summary>
         /// This .ctor is handy for message inspectors.
         /// Creates a substitute message for the original one with new values.
@@ -70,8 +66,6 @@ namespace Azos.Glue.Protocol
           m_ServerTransport = inspectedOriginal.m_ServerTransport;
           CloneState(inspectedOriginal, cloneHeaders, cloneCorrelation);
         }
-
-
 
 
 
@@ -163,11 +157,10 @@ namespace Azos.Glue.Protocol
            public ServerTransport ServerTransport { get { return m_ServerTransport; } }
 
            /// <summary>
-           /// Session reference that can be used to pass session object that was already determined by transport (i.e. HttpServerTransport)
+           /// Session reference that can be used to pass session object that was already determined by transport (e.g. HttpServerTransport)
            ///  into Glue server handler. This property is NOT transmitted/serialized over wire
            /// </summary>
            public Apps.ISession Session { get{ return m_Session; }  set{ m_Session = value;} }
-
     }
 
 
@@ -185,7 +178,7 @@ namespace Azos.Glue.Protocol
         /// </summary>
         public RequestAnyMsg(MethodInfo method, Guid? instance, object[] args) : base(method, instance)
         {
-           m_Arguments = args;
+          m_Arguments = args;
         }
 
         /// <summary>
@@ -194,7 +187,7 @@ namespace Azos.Glue.Protocol
         /// </summary>
         public RequestAnyMsg(TypeSpec contract, MethodSpec method, bool oneWay, Guid? instance, object[] args) : base(contract, method, oneWay, instance)
         {
-            m_Arguments = args;
+          m_Arguments = args;
         }
 
         /// <summary>
@@ -219,21 +212,21 @@ namespace Azos.Glue.Protocol
                           TypeSpec contract, MethodSpec method, bool oneWay, Guid? instance, object[] args,
                           bool cloneHeaders = true, bool cloneCorrelation = true) : base(inspectedOriginal, contract, method, oneWay, instance, cloneHeaders, cloneCorrelation)
         {
-         m_Arguments = args;
+          m_Arguments = args;
         }
 
 
 
-           private object[] m_Arguments;
+        private object[] m_Arguments;
 
 
-           /// <summary>
-           /// Returns call arguments
-           /// </summary>
-           public object[] Arguments
-           {
-             get { return m_Arguments;}
-           }
+        /// <summary>
+        /// Returns call arguments
+        /// </summary>
+        public object[] Arguments
+        {
+          get { return m_Arguments;}
+        }
     }
 
 

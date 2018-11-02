@@ -5,68 +5,68 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Threading;
 
 using Azos.Glue.Protocol;
 
 namespace Azos.Glue
 {
+  /// <summary>
+  /// In the server side code, provides access to server call context. Use to access Headers
+  /// </summary>
+  public static class ServerCallContext
+  {
+    private static AsyncLocal<RequestMsg> ats_Request = new AsyncLocal<RequestMsg>();
+    private static AsyncLocal<Headers>    ats_ResponseHeaders = new AsyncLocal<Headers>();
+
 
     /// <summary>
-    /// Provides access to server call context. Use to access Headers
+    /// Returns RequestMsg which is being processed. Access incoming headers through Request.Headers
     /// </summary>
-    public static class ServerCallContext
+    public static RequestMsg Request => ats_Request.Value;
+
+    /// <summary>
+    /// Returns Headers instance that will be appended to response.
+    /// If headers are null, they will get created
+    /// </summary>
+    public static Headers ResponseHeaders
     {
-        [ThreadStatic]
-        private static RequestMsg ts_Request;    eto nado perepisat na AsyncLocal<RequestMsg>
-
-        [ThreadStatic]
-        private static Headers ts_ResponseHeaders;   eto nado perepisat na AsyncLocal<Headers>
-
-
-        /// <summary>
-        /// Returns RequestMsg which is being processed. Access incoming headers through Request.Headers
-        /// </summary>
-        public static RequestMsg Request
+      get
+      {
+        var result = ats_ResponseHeaders.Value;
+        if (result==null)
         {
-          get { return ts_Request; }
+          result = new Headers();
+          ats_ResponseHeaders.Value = result;
         }
-
-        /// <summary>
-        /// Returns Headers instance that will be appended to response
-        /// </summary>
-        public static Headers ResponseHeaders
-        {
-          get
-          {
-            if (ts_ResponseHeaders==null) ts_ResponseHeaders = new Headers();
-            return ts_ResponseHeaders;
-          }
-        }
-
-
-
-        /// <summary>
-        /// Internal framework-only method to bind thread-level context
-        /// </summary>
-        public static void __SetThreadLevelContext(RequestMsg request)
-        {
-          ts_Request = request;
-        }
-
-        /// <summary>
-        /// Internal framework-only method to clear thread-level context
-        /// </summary>
-        public static void __ResetThreadLevelContext()
-        {
-          ts_Request = null;
-          ts_ResponseHeaders = null;
-        }
-
-        public static Headers GetResponseHeadersOrNull()
-        {
-          return ts_ResponseHeaders;
-        }
-
+        return result;
+      }
     }
+
+    /// <summary>
+    /// Returns response headers if allocated or null
+    /// </summary>
+    public static Headers GetResponseHeadersOrNull()
+    {
+      return ats_ResponseHeaders.Value;
+    }
+
+    /// <summary>
+    /// Internal framework-only method to bind thread-level context
+    /// </summary>
+    public static void __SetThreadLevelContext(RequestMsg request)
+    {
+      ats_Request.Value = request;
+    }
+
+    /// <summary>
+    /// Internal framework-only method to clear thread-level context
+    /// </summary>
+    public static void __ResetThreadLevelContext()
+    {
+      ats_Request.Value = null;
+      ats_ResponseHeaders.Value = null;
+    }
+  }
 
 }
