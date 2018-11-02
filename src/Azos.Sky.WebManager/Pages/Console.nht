@@ -1,0 +1,97 @@
+﻿#<laconf>
+  compiler 
+  {
+     using{ns="NFX.Wave"} 
+     using{ns="Agni.WebManager.Controls"} 
+     base-class-name="Master, IConsolePage"
+     namespace="Agni.WebManager.Pages"
+     abstract="false"
+     summary="Process Status Page"
+     
+  }
+#</laconf>
+#[override renderHeader()]
+ <h1>?[AgniSystem.MetabaseApplicationName] Remote Console </h1>
+#[override renderBody()]
+ 
+  <link rel="stylesheet" type="text/css" href='?[SURI.StockStyle("console.modern.css")]' media="all">
+ 
+  <style>
+
+    .stdio 
+    {
+      font-family: 'Courier New';
+      font-size: 12px;
+      width: 100%; 
+      height: auto;
+      overflow: auto;
+      padding: 2px;
+      background-color: #000000;
+      border: solid 2px gray;
+      color: #a0e000;
+    }
+
+    hr
+    {
+      color: white;
+      height: 2px;
+      width: 100%;
+    }
+
+  </style>
+  
+
+ <script>
+
+$.get( "mvc/remoteterminal/connect",
+         function( data )
+         {
+            $( "#divStdOut" ).append( JSON.stringify(data) );
+         });
+
+
+ function runCommand()
+ {
+    var cmd = $("#taCmd").val();
+    $( "#divStdOut" ).append( "<hr>" );
+    $( "#divStdOut" ).append("<pre>"+cmd+"</pre><br>");
+
+    $.get( "mvc/remoteterminal/execute?command=" + escape(cmd),
+         function( data )
+         {
+           if (data.Status=="OK")
+           {
+               if (data.PlainText)
+                $( "#divStdOut" ).append("<pre>" + data.Result + "</pre>");
+               else
+                $( "#divStdOut" ).append( data.Result );
+           }
+           else
+           {
+             $( "#divStdOut" ).append( WAVE.strHTMLTemplate("<div class='conForeColor_Red'>@Exception@</div>", data) );
+           }
+
+           $("html, body").animate({ scrollTop: $(document).height() }, 1000);
+         });
+ }
+
+ function purge()
+ {
+    $( '#divStdOut' ).html( 'Purged.<br>' );
+ }
+
+
+ </script>
+
+<div id="divStdOut" class="stdio">
+
+ &nbsp;
+
+</div>
+
+<textarea id="taCmd" rows="2" cols="80" class="stdio">
+help
+</textarea> 
+
+ <button class="uiButton" onclick="runCommand();">Send</button>
+ <button class="uiButton" onclick="purge();">Purge</button>

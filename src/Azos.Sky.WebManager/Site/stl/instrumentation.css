@@ -1,0 +1,172 @@
+#dvComponents {
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.clsComponent {
+    background-color: #505050;
+    /*border: 1px solid #c0c0c0;*/
+    border-radius: 8px;
+    box-shadow: 2px 2px 6px #808080;
+    color: #c0c0c0;
+    display: block;
+    font-size: 11px;
+    margin: 4px;
+    padding: 6px;
+}
+
+.clsComponentName {
+    background: linear-gradient(#202020 0%, #505040 50%, #404040 51%, #202020 100%);
+    border: 1px solid #606060;
+    border-radius: 8px;
+    color: white;
+    padding: 2px;
+    margin-bottom: 4px;
+}
+
+.imgInstr { width: 16px; height: 16px; vertical-align: text-top; position: relative; top: -1px; }
+
+.chkInstrumentation { display: inline !important; vertical-align: top; }
+
+.consoleSID { color: #ffffff; font-size: 14px; font-weight: 700; }
+.consoleDate { color: #f0f080; font-size: 10px; }
+.consoleType { color: #b0b0b0; font-size: 10px; text-shadow: 0 0 4px #000000; }
+.consoleCommon { color: #ff70ff; font-size: 14px; text-shadow: 0 0 10px #ff4040; }
+.consoleName { color: #50ff20; font-size: 12px; text-shadow: 0 0 8px #70c000; }
+.consoleDirector { color: #40a0f0; font-size: 10px; }
+
+.clsComponentParams { }
+.clsComponentParam {
+    background: linear-gradient(90deg, #404040 0%, #606060 50%, rgba(64, 64, 64, 0.1) 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
+    border-bottom: 1px dotted #909090;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(100, 200, 255, 0.2) inset;
+    color: #c0c0c0;
+    display: block;
+    margin-top: 0;
+    padding: 1px 2px;
+    cursor: pointer;
+}
+  .clsComponentParam:hover {
+    color: white;
+    box-shadow: 0 0 10px rgba(255, 250, 100, 0.7) inset;
+  }
+.consolePName { }
+.consolePValue {
+    color: #c0b040;
+    font-size: 11px;
+    font-weight: 700;
+    text-shadow: 0 0 6px #202020;
+}
+
+#cmbGroup {
+    -moz-appearance: toolbarbutton-dropdown;
+    -webkit-appearance: menulist;
+    background-color: #f0f0a0;
+    border: 1px solid #c0c0c0;
+    border-radius: 2px;
+    box-shadow: none;
+    font-size: 1em;
+    padding: 2px;
+    width: auto;
+}
+
+#dvParamSheet {
+}
+
+  #dvParamSheet > select {
+    -moz-appearance: toolbarbutton-dropdown;
+    -webkit-appearance: menulist;
+    background-color: #f0f0a0;
+    border: 1px solid #c0c0c0;
+    border-radius: 2px;
+    box-shadow: none;
+    font-size: 1em;
+    padding: 1px;
+    width: auto;
+  }
+
+  #dvParamSheet > input[type="textbox"] {
+    background-color: #f0f0a0;
+    border: 1px solid #c0c0c0;
+    border-radius: 2px;
+    box-shadow: none;
+    font-size: 1em;
+    padding: 1px;
+    width: auto;
+  }
+
+#dvEditorErr {
+  display: none;
+  margin: 4px;
+  color: #c04040;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.wvTreeNode {
+  display: table;
+  margin-bottom: 3px;
+  margin-top: 3px;
+}
+
+.wvTreeNodeRootWithChildren {
+  background-color: #f0f0f0;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  margin: 3px;
+  margin-top: 8px;
+}
+
+.wvTreeNodeButtonExpanded {
+  display: table-cell;
+  color: rgba(0,0,0,0);
+  cursor: pointer;
+  padding-left: 20px;
+  background: url('/static/site/img/tv.node-minus.24x24.png');
+  background-size: 17px 17px;
+  background-position: 1px 6px;
+  background-repeat: no-repeat;
+}
+
+.wvTreeNodeButtonCollapsed {
+  display: table-cell;
+  color: rgba(0,0,0,0);
+  cursor: pointer;
+  padding-left: 20px;
+  background: url('/static/site/img/tv.node-plus.24x24.png');
+  background-size: 19px 19px;
+  background-position: 1px 5px;
+  background-repeat: no-repeat;
+}
+
+.wvTreeNodeContent {
+  display: table-cell;
+}
+
+.wvTreeNodeOwn {
+  display: block;
+  width: intrinsic;           /* Safari/WebKit uses a non-standard name */
+  width: -moz-max-content;    /* Firefox/Gecko */
+  width: -webkit-max-content; /* Chrome */
+}
+
+.wvTreeNodeOwnSelected {
+  display: table;
+  background: linear-gradient(0deg, rgba(160, 170, 255, 0.7), rgba(240, 240, 255, 0.9), rgba(160, 170, 255, 0.3));
+  font-weight: bold;
+}
+
+.wvTreeNodeChildren { display: block; height: auto; }
+
+.wvTreeNodeChildrenFlex { flex-wrap: wrap; }
+
+#dvObjectInspector { height: 300px; overflow: auto; }
+
+  #dvObjectInspector .wvTreeNodeButtonCollapsed {
+    background-size: 17px 17px;
+    background-position: 1px 2px;
+  }

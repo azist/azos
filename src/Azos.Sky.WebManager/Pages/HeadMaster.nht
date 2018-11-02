@@ -1,0 +1,54 @@
+﻿#<laconf>
+  compiler
+  {
+    using{ns="NFX"}
+    using{ns="NFX.Security"}
+    using{ns="Azos.Sky.WebManager.Controls"}
+    base-class-name="AWMPage"
+    namespace="Azos.Sky.WebManager.Pages"
+    abstract="true"
+    summary="Master page that contains general document head"
+  }
+#</laconf>
+
+#[class]
+  protected abstract void renderDocumentHEAD();
+  protected abstract void renderDocumentBODY();
+
+#[render]
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="?[Description]">
+  <meta name="keywords" content="?[Keywords]">
+  <meta name="viewport" content="?[:Viewport]">
+  <meta name="generator" content="?[SkySystem.MetabaseApplicationName +"@"+ SkySystem.HostName]">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <title>?[Title]</title>
+
+  <link rel="icon" href="?[:FAVICON_PNG]">
+
+  <link rel="apple-touch-icon"  href="?[:FAVICON_PNG]">
+  <link rel="apple-touch-startup-image" href="?[:FAVICON_PNG]">
+
+  <link rel="stylesheet" type="text/css" href="?[:BASE_CSS]" media="all">
+
+  <script type="text/javascript" src="?[:JQUERY_JS]"></script>
+  <script type="text/javascript" src="?[:WV_JS]"></script>
+  <script type="text/javascript" src="?[:WV_GUI_JS]"></script>
+  <script type="text/javascript" src="?[:WV_CHART_JS]"></script>
+  <script type="text/javascript" src="?[:AWM_JS]"></script>
+
+  @[renderDocumentHEAD();]
+</head>
+
+<body>
+  @[renderDocumentBODY();]
+</body>
+
+</html>

@@ -1,0 +1,385 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	/*vertical-align: baseline;*/
+}
+
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section 
+{
+	display: block;
+}
+
+body 
+{
+    background: white;
+}
+
+ol, ul
+ {
+	list-style: none;
+}
+
+blockquote, q 
+{
+	quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after 
+{
+	content: '';
+	content: none;
+}
+table
+ {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+
+
+/* Font Faces */
+@font-face
+{
+  font-family: 'Play';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Play'), url(/static/site/fnt/Play-Regular.woff) format('woff');
+}
+
+@font-face 
+{
+  font-family: 'Play';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Play-Bold'), url(/static/site/fnt/Play-Bold.woff) format('woff');
+}
+
+body
+{
+    font-family: 'Play', 'Verdana', 'sans-serif';
+    min-width: 380px;
+}
+
+h1
+{
+    font-size: 1.5em;
+    font-weight: 700;
+    -webkit-text-stroke: 1px rgba(45,45,45,0.4)
+}
+
+h2
+{
+    font-size: 1.2em;
+    font-weight: 700;
+    -webkit-text-stroke: 1px rgba(45,45,45,0.3)
+}
+
+h3
+{
+    font-size: 1em;
+    font-weight: 400;
+}
+
+a
+{
+  outline: none;
+  text-decoration: none;
+}
+
+.uiButton 
+{
+  font-family: inherit;
+  font-size: 1.2em;
+  color: white;
+  background-color: #4080e0;
+  border-radius: 4px;
+  border: 1px solid #3070d0;
+  padding: 4px 12px;
+  white-space: nowrap;
+
+  /* IOS fix */
+  -webkit-appearance: none;
+  -webkit-border-radius: 4px;
+}
+
+  .uiButton:hover { background-color: #4095ff; }
+
+  .uiButton:active { background-color: #3070c0; position: relative; top: 1px; left: 1px; }
+
+.uiCentered 
+{
+  display: block;
+  margin-left: auto; margin-right: auto;
+}
+
+.wvError 
+{
+   color: red;
+   background-color: #fff0e0;
+   background: linear-gradient(to right, rgba(255,161,79,0) 0%,rgba(255,161,79,0.15) 2%,rgba(254,171,86,0.23) 3%,rgba(247,229,131,0.22) 9%,rgba(255,180,114,0.2) 18%,rgba(239,239,239,0.08) 69%,rgba(239,239,239,0) 100%);
+   padding-left: 8px;
+}
+.wvRequired 
+{
+  font-weight: bold;      
+}
+
+.wvRequired:before 
+{
+  content: "* "
+}
+
+.wvModified
+ {
+  border-bottom: 2px dotted #80de40;
+}
+
+.wvToast
+{
+    display: block;
+    position: fixed;
+    background: black;
+    border: 1px solid #808080;
+    width: auto;
+    padding: 8px;
+    top: 45%;
+    left: 50%;
+    color: white;
+    box-shadow: 2px 2px 10px #888888;
+}
+
+
+.wvToast_hint_top 
+{
+    display: block;
+    position: fixed;
+    background-color: #e6f0a3;
+    background: linear-gradient(to bottom, #e6f0a3 0%,#d2e638 50%,#c3d825 51%,#dbf043 100%);
+    border: 1px solid #c0c0c0;
+    border-radius: 8px;
+    width: auto;
+    padding: 8px;
+    top: 2%;
+    left: 50%;
+    color: #202020;
+    box-shadow: 2px 2px 10px #202020;
+    font-size: 0.85em;
+}
+
+.wvToast_hint_bottom 
+{
+    display: block;
+    position: fixed;
+    background-color: #e6f0a3;
+    background: linear-gradient(to bottom, #e6f0a3 0%,#d2e638 50%,#c3d825 51%,#dbf043 100%);
+    border: 1px solid #c0c0c0;
+    border-radius: 8px;
+    width: auto;
+    padding: 8px;
+    top: 85%;
+    left: 50%;
+    color: #202020;
+    box-shadow: 2px 2px 10px #202020;
+    font-size: 0.85em;
+}
+
+.wvToast_warning 
+{
+    display: block;
+    position: fixed;
+    background: yellow;
+    border: 1px solid #bcbc00;
+    width: auto;
+    padding: 8px;
+    top: 45%;
+    left: 50%;
+    color: black;
+    box-shadow: 2px 2px 10px #888888;
+}
+
+.wvToast_error 
+{
+    display: block;
+    position: fixed;
+    background: #ff2020;
+    border: 1px solid #ff8080;
+    width: auto;
+    padding: 8px;
+    top: 45%;
+    left: 50%;
+    color: white;
+    box-shadow: 2px 2px 10px #888888;
+}
+
+
+
+
+/* Dialogs */
+.wvCurtain,
+.wvDialogBase 
+{
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAF0lEQVQImWNgQAW+cAKJxs3xZWBgYAAANwIBz+0UkPgAAAAASUVORK5CYII=) repeat;
+}
+        
+.wvDialogContent
+{
+    display: block;
+    position: fixed;
+    background: #3866de;
+    border: 1px solid #808080;
+    border-radius: 4px;
+    padding: 6px;
+    color: white;
+    box-shadow: 6px 6px 10px #888888;
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.dlgYellow .wvDialogContent{ background: #ffff00;  }
+.dlgGreen .wvDialogContent
+ {
+    background: linear-gradient(to bottom, #bfd255 0%,#8eb92a 50%,#588701 51%,#9ecb2d 100%);
+}
+
+.wvDialogHeader 
+{
+    background: #2020c0;
+    color: white;
+    font-size: 1.37em;
+    font-weight: bold;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.dlgYellow .wvDialogHeader 
+{
+    background: red;
+}
+
+.dlgGreen .wvDialogHeader 
+{
+    background: linear-gradient(to bottom, #45484d 0%,#000000 100%);
+}
+
+.wvDialogBody
+{
+    display: block;
+    background: #fefef0;
+    color: black;
+    border: 1px solid #7070ff;
+    padding: 4px;
+    margin-top: 6px;
+    border-radius: 4px;
+    overflow: auto;
+    max-height: calc(100% - 46px);
+}
+
+
+.wvPuzzle {
+    display: inline-block;
+    width: auto;
+}
+.wvPuzzleHelp {
+    display: block;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    background: #ff7070;
+    color: white;
+    border: 1px solid #808080;
+    border-bottom: none;
+    padding: 6px;
+    font-size: 0.75em;
+}
+.wvPuzzleQuestion {
+    display: block;
+    border-top: none;
+    border-bottom: none;
+    background: #ff7070;
+    color: white;
+    border-left: 1px solid #808080;
+    border-right: 1px solid #808080;
+    padding: 6px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.wvPuzzleInputs {
+    display: block;
+    border-top: none;
+    border-bottom: none;
+    background: #d0d0ff;
+    border-left: 1px solid #808080;
+    border-right: 1px solid #808080;
+    padding: 4px;
+}
+
+.wvPuzzleInputs > input[type="text"]:disabled {
+    font-size: 2em;
+    font-weight: bold;
+    color: blue;
+    background: white;
+    width: 65%;
+    height: 40px;
+    padding: 0px;
+    padding-left: 8px;
+    padding-right: 8px;
+    letter-spacing: 6px
+}
+.wvPuzzleInputs > button {
+    font-size: 1.2em;
+    font-weight: bold;
+    width: 20%;
+    height: 40px;
+    float: right;
+}
+
+.wvPuzzleImg {
+    display: block;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    background: #f8f8f8;
+    border: 1px solid #808080;
+    padding: 4px;
+}
+
+.wvPuzzleImg > img { margin-top: -20px; margin-bottom: -10px;  }
+
+/* Dialog Boxes */
+.wvDialogBase .wvDialogContent {
+    background-color: #757575;
+    box-shadow: 6px 6px 10px #555;
+}
+.wvDialogBase .wvDialogHeader {
+    background-color: transparent;
+}
+.wvDialogBase .wvDialogBody {
+    border-color: #808080;
+}

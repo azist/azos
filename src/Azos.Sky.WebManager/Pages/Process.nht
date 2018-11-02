@@ -1,0 +1,211 @@
+﻿#<laconf>
+  compiler
+  {
+    using{ns="NFX.Wave"}
+    using{ns="Azos.Sky.WebManager.Controls"}
+    base-class-name="Master, IHomePage"
+    namespace="Azos.Sky.WebManager.Pages"
+    abstract="false"
+    summary="Process Status Page"
+  }
+#</laconf>
+
+#[override renderHeader()]
+<h1>?[SkySystem.MetabaseApplicationName] Process Status </h1>
+
+#[override renderBody()]
+<h2>Host Status</h2>
+
+<style>
+    rect.wvSvgBkgr { fill: white; }
+    line.wvAxisLine { stroke: #606060; stroke-width: 1; }
+    line.wvAxisTickLine { stroke: #404040;}
+
+    line.wvGridLine { stroke: #505050; stroke-width: 1; stroke-dasharray: 1,2; }
+
+    rect.wvXZoneBackground { fill: #a0a0a0; }
+    text.wvAxisLabel { fill: #000000; font-family: play; font-size: 9px; text-anchor: start; }
+
+
+    rect.wvSZoneBackground { fill: #101010; }
+
+    path.chart-line-CPU { stroke: #90ff60; stroke-width: 2; fill: none;  }
+    path.chart-line-RAM { stroke: #fff060; stroke-width: 1; fill: none;  }
+
+    .chart-point-warning     { fill: #ffff60; stroke: #606020; stroke-width: 1;}
+    .chart-point-error       { fill: #ffa060; stroke: #b04020; stroke-width: 1;}
+    .chart-point-catastrophe { fill: #ff2020; stroke: #601010; stroke-width: 2;}
+
+    #tblLast td:last-child { padding-left: 10px;   font-size: 12px; color: #4040e0; }
+    #tblGeneralInfo td:last-child { padding-left: 20px;   font-size: 14px; color: #4040e0; }
+
+    .wvChartPointTitle rect { fill: rgba(230, 230, 230, 0.5); stroke: rgba(0, 0, 0, 0.25); }
+    .wvChartPointTitle text { fill: #e0e0e0; font-family: Play; font-size: 9px; }
+    .wvChartPointTitle line {
+      stroke: #808090;
+    }
+
+    #svgLOAD
+    {
+      border: 1px solid #404040;
+      border-radius: 8px;
+      box-shadow: 1px 1px 16px #405060;
+    }
+</style>
+
+ <table id="tblStatusCharts" style="width: 100%">
+ <tr>
+    <td style="width: 50%">
+
+        <table id="tblLast">
+          <tr> <td>Last Update</td>   <td id="cellLastUpdate">&nbsp;</td> </tr>
+          <tr> <td>CPU Load</td>      <td id="cellCPU">&nbsp;</td> </tr>
+          <tr> <td>RAM Load</td>      <td id="cellRAM">&nbsp;</td> </tr>
+          <tr> <td>Allocated</td>     <td id="cellAllocated">&nbsp;</td> </tr>
+          <tr> <td>Max RAM</td>       <td id="cellMaxRAM">&nbsp;</td> </tr>
+        </table>
+
+    </td>
+
+    <td style="width: 50%">
+       <svg id="svgLOAD" width="100%" height="190" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+          <defs>
+            <marker id="markerLegStart" markerWidth="8" markerHeight="8" refx="5" refy="5">
+                <circle cx="5" cy="5" r="2" style="stroke: none; fill:#808090;"/>
+            </marker>
+
+            <marker id="markerLegEnd" markerWidth="8" markerHeight="8" refx="5" refy="5">
+                <circle cx="5" cy="5" r="3" style="stroke: none; fill:#808090;"/>
+            </marker>
+          </defs>
+        </svg>
+    </td>
+ </tr>
+ </table>
+
+ <h2>General Information</h2>
+
+ <img src='?[:SURI.Image("Cogs.64x64.png")]'>
+
+ <table id="tblGeneralInfo">
+   @[var app = SkySystem.Application;
+      trow("Name", app.Name);
+      trow("Host", SkySystem.HostName );
+      trow("Parent Zone Governor", SkySystem.ParentZoneGovernorPrimaryHostName ?? SysConsts.NULL );
+      trow("Role", SkySystem.HostMetabaseSection.RoleName );
+      trow("Role Apps", SkySystem.HostMetabaseSection.Role.AppNames.Aggregate(" ",(r,a)=>r+a+", ") );
+      trow("Metabase App", app.MetabaseApplicationName );
+      trow("Instance ID", app.InstanceID );
+      trow("Start Time", app.StartTime );
+      trow("Running Time", app.LocalizedTime - app.StartTime );
+      trow("Type", app.GetType().FullName );
+      trow("Active", app.Active);
+      trow("Boot Conf Root", app.BootConfigRoot );
+      trow("Conf Root", app.ConfigRoot );
+      trow("Data Store", app.DataStore.GetType().FullName );
+      trow("Glue", app.Glue.GetType().FullName );
+      trow("Instrumentation", app.Instrumentation.GetType().FullName );
+      trow("Localized Time", app.LocalizedTime );
+      trow("Time Location", app.TimeLocation );
+      trow("Log", app.Log.GetType().FullName );
+      trow("Object Store", app.ObjectStore.GetType().FullName );
+      trow("Security Manager", app.SecurityManager.GetType().FullName );
+      trow("Module Root", app.ModuleRoot.GetType().FullName );
+      trow("TimeSource", app.TimeSource.GetType().FullName );
+   ]
+ </table>
+
+ <h2>Glue Status</h2>
+
+<script>
+  var chartLOAD = new WAVE.Chart.SVG.Chart(WAVE.id("svgLOAD"));
+  chartLOAD.yAxis().min(0);
+  chartLOAD.yAxis().max(101);
+  chartLOAD.lZone().enabled(false);
+  chartLOAD.yZone().enabled(false);
+  chartLOAD.sZone().showPointTitleLeg(false);
+
+  function pad(n) { return n < 10 ? '0' + n : n }
+
+  chartLOAD.xAxis().labelValToStr = function (dt) {
+        return (pad(dt.getHours()))+":"+pad(dt.getMinutes())+":"+pad(dt.getSeconds());
+      };
+
+  chartLOAD.xAxis().dataType(WAVE.Chart.SVG.DataType.DATE);
+
+  var serLoadCPU = chartLOAD.addSeries({ title: "CPU Usage", lineClass: "chart-line-CPU" });
+  var serLoadRAM = chartLOAD.addSeries({ title: "RAM Usage", lineClass: "chart-line-RAM" });
+  var serLoadWarning     = chartLOAD.addSeries({ title: "Warning",     chartType: WAVE.Chart.SVG.ChartType.POINT, pointClass: "chart-point-warning", showPointTitle: true});
+  var serLoadError       = chartLOAD.addSeries({ title: "Error",       chartType: WAVE.Chart.SVG.ChartType.POINT, pointClass: "chart-point-error", showPointTitle: true });
+  var serLoadCatastrophy = chartLOAD.addSeries({ title: "Catastrophe", chartType: WAVE.Chart.SVG.ChartType.POINT, pointClass: "chart-point-catastrophe", showPointTitle: true });
+
+
+
+   var lastErrorSample = null;
+
+   var tmrRefresh = null;
+
+   function fetchData(){
+       if (tmrRefresh !== null) {
+          clearTimeout(tmrRefresh);
+          tmrRefresh = null;
+       }
+
+       $.getJSON("?[:URIS.PUB_API_HOST_PERFORMANCE]?lastErrorSample="+(lastErrorSample ? escape(WAVE.toUSDateTimeString(lastErrorSample)) : ""), function(data)
+                {
+                  var load = data.Load;
+                  drawChart(load);
+
+                  tmrRefresh = setTimeout(fetchData, 2000);
+
+                  var last = null;
+                  if (load!=null && load.length>0)
+                     last = load[load.length-1];
+
+                  if (last!=null)
+                  {
+                      $("#cellLastUpdate").html(last.at);
+                      $("#cellCPU").html(last.cpu+" %");
+                      $("#cellRAM").html(last.ram+" %");
+                  }
+                  $("#cellAllocated").html(data.ProcessAllocated+" bts.");
+                  $("#cellMaxRAM").html(data.MaxRamMb+" mbts.");
+                });
+   }
+   fetchData();
+
+
+
+   function drawChart(load) {
+        chartLOAD.beginUpdate();
+
+        var threshold = new Date(new Date().getTime() - 120 * 1000);
+        function processSeries(ds) {
+          ds.removePointIf(function(p) { return p.x < threshold });
+        }
+
+        chartLOAD.seriesListWalkable().wSelect(function(s) { return s.dataSet() }).wEach(processSeries);
+
+        for(var i in load)
+        {
+          sample = load[i];
+          serLoadCPU.dataSet().addPoint(new Date(sample.at), sample.cpu);
+          serLoadRAM.dataSet().addPoint(new Date(sample.at), sample.ram);
+
+          if (sample.warning)     serLoadWarning.dataSet().addPoint(new Date(sample.at), sample.cpu, sample.warning);
+          if (sample.error)       serLoadError.dataSet().addPoint(new Date(sample.at), sample.cpu, sample.error);
+          if (sample.catastrophy) serLoadCatastrophy.dataSet().addPoint(new Date(sample.at), sample.cpu, sample.catastrophy);
+
+          if (sample.LastErrorSample) lastErrorSample = new Date(sample.LastErrorSample);
+        }
+
+
+        chartLOAD.endUpdate();
+      }
+
+</script>
+
+ #[trow(string name, object val)]
+ <tr><td>?[name]</td><td>?[(val ?? " ").ToString()]</td></tr>
+
+

@@ -1,0 +1,65 @@
+﻿#<laconf>
+  compiler
+  {
+     using{ns="NFX"}
+     using{ns="NFX.Wave"}
+     using{ns="Azos.Sky.WebManager.Controls"}
+     base-class-name="Master"
+     namespace="Azos.Sky.WebManager.Pages"
+     abstract="false"
+     summary="Process Status Page"
+  }
+#</laconf>
+
+#[class]
+  public Login(string msg)
+  {
+    m_Message = msg;
+  }
+
+  private string m_Message;
+
+#[override renderDocumentHEAD()]
+@[base.renderDocumentHEAD();]
+<link rel="stylesheet" type="text/css" href="?[SURI.Style("login.css")]" media="all">
+
+#[override renderHeader()]
+<h1>?[SkySystem.MetabaseApplicationName] Sky Web Manager Log-In </h1>
+
+#[override renderBody()]
+@[if (m_Message.IsNotNullOrWhiteSpace()){]
+  <div>Login result: ?[m_Message]</div>
+@[}]
+
+<form id="frmLogin" data-wv-rid="V1" action="/login" method="post">
+  <div class="fView" data-wv-fname="id"></div>
+  <div class="fView" data-wv-fname="pwd"></div>
+  <br>
+  <input type="submit" value="Login" class="uiButton"/>
+</form>
+
+
+
+
+<script>
+  WAVE.GUI.SUPPRESS_UNLOAD_CHECK = true;
+
+  var REC =  new WAVE.RecordModel.Record(
+                    {ID: 'R1',
+                      fields: [
+                      {def: {Name: 'id', Description: "User ID", Type: 'string', Required: true, Placeholder: 'User ID'}, val: null},
+                      {def: {Name: 'pwd', Description: "Password", Type: 'string', Required: true, Placeholder: 'Password', Password: true}, val: null},
+                      ]}
+                    );
+  var RVIEW = new WAVE.RecordModel.RecordView("V1", REC);
+
+  $("#frmLogin").submit(function(e){
+    if (!REC.validate())
+    {
+      alert("Please correct validation errors");
+      e.preventDefault();
+      return false;
+    }
+    return true;
+  });
+</script>

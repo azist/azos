@@ -1,0 +1,352 @@
+﻿#<laconf>
+  compiler
+  {
+    using{ns="Azos"}
+    using{ns="Azos.Apps"}
+    using{ns="Azos.Instrumentation"}
+    using{ns="Azos.Wave"}
+    using{ns="Azos.Sky.WebManager.Controls"}
+    using{ns="Azos.Sky.WebManager.Controllers"}
+    base-class-name="Master, IInstrumentationPage"
+    namespace="Azos.Sky.WebManager.Pages"
+    abstract=false
+    summary="Instrumentation Page"
+  }
+#</laconf>
+
+#[override renderDocumentHEAD()]
+@[base.renderDocumentHEAD();]
+<link rel="stylesheet" type="text/css" href="?[SURI.Style("instrumentation.css")]" media="all">
+
+#[override renderHeader()]
+  <h1>Instrumentation Tree Page</h1>
+
+  <script type="text/javascript">
+    function truncPrmStr(str) { return WAVE.strTrunc(str, 24); }
+  </script>
+
+#[override renderBody()]
+  <h2>Instrumentation</h2>
+  <br>
+  &nbsp;
+  <a class="uiButton" onclick="newChartsWin()">Charts</a>
+  &nbsp;
+  <a class="uiButton" href="?[URIS.INSTRUMENTATION_LOGS]" target="_blank">Logs</a>
+  &nbsp;&nbsp;
+  <span id="spnGroup">Parameter Group</span>
+  <select id="cmbGroup" onchange="loadComponentTree()" >
+    <option>--ALL--</option>
+  </select>
+
+  <br><br>
+
+  <div id="dvComponents" onmousemove="resetTimer()">
+  </div>
+
+  <script>
+
+    WAVE.GUI.connectorEnsure();
+
+    WAVE.GUI.rulerEventBind(WAVE.GUI.EVT_RULER_MOUSE_MOVE, function (src, masterRes, scopeNames) {
+      window.Connector.callWindowFunc(function (w) {
+        w.WAVE.GUI.rulerMouseMove(masterRes, scopeNames);
+      });
+    });
+
+    WAVE.GUI.rulerEventBind(WAVE.GUI.EVT_RULER_MOUSE_ENTER, function (src, scopeNames) {
+      window.Connector.callWindowFunc(function (w) {
+        w.WAVE.GUI.rulerMouseEnter(scopeNames);
+      });
+    });
+
+    WAVE.GUI.rulerEventBind(WAVE.GUI.EVT_RULER_MOUSE_LEAVE, function (src, scopeNames) {
+      window.Connector.callWindowFunc(function (w) {
+        w.WAVE.GUI.rulerMouseLeave(scopeNames);
+      });
+    });
+
+    function newChartsWin() {
+      window.Connector.openWindow("?[URIS.INSTRUMENTATION_CHARTS]");
+    }
+
+    var ComponentItemIDSeed = 0;
+    var PrmItemIDSeed = 0;
+
+    var tree = new WAVE.GUI.Tree({DIV: WAVE.id("dvComponents"), childrenDisplayVisible: "block", treeSelectionType: WAVE.GUI.TREE_SELECTION_NONE});
+    tree.DEFAULT_NODE_EXPANDED_CONTENT = '';
+    tree.DEFAULT_NODE_COLLAPSED_CONTENT = '';
+
+    var tmrGroups = null;
+    function loadGroups() {
+      if (tmrGroups != null) {
+        clearTimeout(tmrGroups);
+        tmrGroups = null;
+      }
+
+      $.getJSON("?[:URIS.INSTRUMENTATION_MVC]/LoadComponentParamGroups", function(data) {
+        groupsLoaded(data);
+
+        tmrGroups = setTimeout(loadGroups, 500000);
+      });
+    }
+
+    function groupsLoaded(data) {
+      if (!data.OK) return;
+
+      var cmbGroup = WAVE.id("cmbGroup");
+
+      var cmbWlk = WAVE.arrayWalkable(cmbGroup.options);
+      var groupsWlk = WAVE.arrayWalkable(data.groups);
+
+      groupsWlk.wExcept(cmbWlk, function(g, o) { return g == o.value }).wEach(function(g) {
+        var optionEl = document.createElement("option");
+        optionEl.text = g;
+        optionEl.value = g;
+        cmbGroup.add(optionEl);
+      });
+    }
+
+
+    var fTmrUpdate = null;
+
+    function purgeTimer() {
+      if (fTmrUpdate != null) {
+        clearTimeout(fTmrUpdate);
+        fTmrUpdate = null;
+      }
+    }
+
+    resetTimer = function(timeoutMS) {
+      purgeTimer();
+      fTmrUpdate = setTimeout(loadComponentTree, timeoutMS || 5000);
+    }
+
+    function loadComponentTree() {
+      purgeTimer();
+
+      var cmbGroup = WAVE.id("cmbGroup");
+      var group = (cmbGroup.selectedIndex <= 0) ? null : cmbGroup.options[cmbGroup.selectedIndex].text;
+      var url = "?[:URIS.INSTRUMENTATION_MVC]/LoadComponentTree";
+      if (group) url += "?group=" + group;
+
+      $.getJSON(url, function(data) {
+        if (data.OK) componentTreeLoaded(data);
+        resetTimer(10000);
+      });
+    }
+
+    function componentTreeLoaded(data) {
+
+      var troot = tree.root();
+
+      var rootComponents = data.tree.root.concat(data.tree.other);
+
+      if (data.tree.root) showLevel(data.tree.root, troot, rootComponents);
+
+      if (data.tree.other) showLevel(data.tree.other, troot, rootComponents);
+    }
+
+    function showLevel(components, troot, allComponentsInRoot) {
+
+                    function buildComponent(cmp) {
+                      var CMP_TEMPLATE =
+                          '<div id="cmp_@sid@" class="clsComponent">' +
+                          '  <div class="clsComponentName">' +
+                          '    @instrumantableChk@'+
+                          '    <span class="consoleSID">@SID@</span>&nbsp;<span class="consoleDate">@startTime@</span><br>' +
+                          '    <span class="consoleType">@tp@</span><br> '+
+                          '    @commonName@ ' +
+                          '    @name@' +
+                          '    @director@' +
+                          '  </div>' +
+                          '  <div id="dv_params_@id@" class="clsComponentParams">@params@</div>' +
+                          '</div>';
+
+                      var PARAM_TEMPLATE =
+                          '<a id="prm_@sid@_@key@" class="clsComponentParam" onclick=\'showEditor(\"@sid@\", \"@tp@\", \"@key@\", this.children[1], @plist@)\'>' +
+                          '  <span class="consolePName">@key@</span>' +
+                          '  :&nbsp;&nbsp;&nbsp;' +
+                          '  <span id="spn_pval_@sid@_@key@" class="consolePValue" val="@fullVal@">@briefVal@</span>' +
+                          '</a>';
+
+                                    function buildParam(sid, tp, prm) {
+                                      PrmItemIDSeed++;
+                                      //var fElmID = PrmItemIDSeed;
+
+                                      var prmValFull, prmVal;
+                                      if (prm.ct === "obj" && prm.val !== null) {
+                                        var objStr = JSON.stringify(prm.val);
+                                        prmValFull = objStr;
+                                        prmVal = truncPrmStr(objStr);
+                                      } else {
+                                        prmValFull = prmVal;
+                                        prmVal = prm.val;
+                                      }
+
+                                      var prmInnerHtml = WAVE.strTemplate(PARAM_TEMPLATE, { //id: fElmID,
+                                                                                            key: prm.key,
+                                                                                            fullVal: prmValFull,
+                                                                                            briefVal: prmVal,
+                                                                                            sid: sid,
+                                                                                            tp: tp,
+                                                                                            plist: prm.plist ? JSON.stringify(prm.plist) : "null"});
+
+                                      return prmInnerHtml;
+                                    }
+
+                      ComponentItemIDSeed++;
+
+                      var fElmID = ComponentItemIDSeed;
+
+                      var instrumantableChk = cmp.instrumentable ?
+                          '<img src="?[:SURI.Image("tv.gauge.24x24.png")]" class="imgInstr"><input id="chk_ie_' + fElmID +
+                          '" type="checkbox" class="chkInstrumentation" ' + (cmp.instrumentationEnabled ? 'checked' : "") +
+                          ' onclick="setInstrumentationEnabled(' + cmp.SID + ', this.checked)" />' : "";
+                      var commonName = cmp.commonName ? '<span class="consoleCommon">' + cmp.commonName + '</span><br>' : "";
+                      var name = cmp.name ? '<span class="consoleName">' + cmp.name + '</span><br>' : "";
+                      var director = cmp.director ? '<span class="consoleDirector">' + cmp.director + '</span><br>' : "";
+
+                      var paramsHtml = "";
+                      for(var i in cmp.params) {
+                        var paramData = cmp.params[i];
+                        var paramHtml = buildParam(cmp.SID, cmp.tp, paramData);
+                        paramsHtml += paramHtml + "\r\n";
+                      }
+
+                      var itemInnerHtml = WAVE.strTemplate(CMP_TEMPLATE, {
+                        id: fElmID,
+                        instrumantableChk: instrumantableChk,
+                        SID: cmp.SID,
+                        startTime: cmp.startTime,
+                        tp: cmp.tp,
+                        commonName: commonName,
+                        name: name,
+                        director: director,
+                        params: paramsHtml
+                      });
+
+                      return itemInnerHtml;
+                    }
+
+      var lastLevel = true;
+
+      var componentsWlk = WAVE.arrayWalkable(components);
+
+      var allComponentsInRootWlk = (typeof(allComponentsInRoot) === "undefined") ? componentsWlk : WAVE.arrayWalkable(allComponentsInRoot);
+      WAVE.arrayWalkable(troot.children()).wExcept(allComponentsInRootWlk, function(n, c) { return n.id() == c.SID }).wEach(function(n) { n.remove(); });
+
+      componentsWlk.wEach(function(c) {
+        var n = troot.getChild(c.SID);
+        if (n === null) {
+          n = troot.addChild({id: c.SID, html: ""});
+        }
+
+        var cmpHtml = buildComponent(c);
+
+        n.cmp = c;
+        if (n.html() != cmpHtml) n.html(cmpHtml);
+
+        if (c.children) {
+          lastLevel = false;
+          n.wvTreeNode(n.wvTreeNode() + " wvTreeNodeRootWithChildren");
+          showLevel(c.children, n);
+        }
+      });
+
+      if (lastLevel && troot != tree.root()) {
+        troot.childrenDisplayVisible("flex");
+        troot.wvTreeNodeChildren("wvTreeNodeChildren wvTreeNodeChildrenFlex");
+      }
+    }
+
+                                var EDITOR_TEMPLATE =
+                                  '<div id="dvParamSheet">' +
+                                  '  <label for="edtPrm">@key@</label><br>' +
+                                  '  &nbsp;@input@<br><br>' +
+                                  '  <div id="dvEditorErr"></div>' +
+                                  '  &nbsp;&nbsp;<button id="btnEditOk" class="uiButton">Ok</button>&nbsp;&nbsp;' +
+                                  '  <button id="btnEditCancel" class="uiButton">Cancel</button>' +
+                                  '</div>';
+
+                                function showEditor(sid, tp, key, el, plist) {
+                                  var node = tree.root().getChild(sid, true);
+                                  var prm = WAVE.arrayWalkable(node.cmp.params).wFirst(function(p) { return p.key === key });
+
+                                  var val = prm.val;
+                                  var input = "";
+                                  if (plist) {
+                                    input = '<select id="edtPrm">\r\n';
+                                    for(var i in plist) {
+                                      var optVal = plist[i];
+                                      input += '<option ' + (('' + optVal == '' + val) ? 'selected' : '') + '>' + optVal + '</option>\r\n';
+                                    }
+                                    input += "</select>\r\n";
+                                  } else {
+                                    if(prm.ct === "obj" && prm.val !== null) {
+                                      var objStr = JSON.stringify(prm.val);
+                                      input = '<div id="dvObjectInspector"></div>';
+                                    } else {
+                                      input = '<input type="textbox" id="edtPrm" value="' + val + '">\r\n';
+                                    }
+                                  }
+
+                                  var html = WAVE.strTemplate(EDITOR_TEMPLATE, {key: key, input: input});
+
+                                  var dlg = new WAVE.GUI.Dialog({ header: sid + '&nbsp;-&nbsp;' + tp, body: html});
+
+                                  var dvObjectInspector = WAVE.id("dvObjectInspector");
+                                  if (dvObjectInspector !== null) {
+                                    var insp = new WAVE.GUI.ObjectInspector(prm.val, { div: dvObjectInspector });
+                                  }
+
+                                  WAVE.id("btnEditOk").addEventListener("click", function() { editParam(sid, key, !plist, el, prm) });
+                                  WAVE.id("btnEditCancel").addEventListener("click", closeEditor);
+
+                                  purgeTimer();
+                                }
+
+                                function closeEditor() {
+                                  var dvErr = WAVE.id("dvEditorErr");
+                                  dvErr.style.display = "none";
+                                  dvErr.innerHTML = "";
+                                  WAVE.GUI.currentDialog().cancel();
+                                  resetTimer();
+                                }
+
+                                function editParam(sid, key, isTextInput, el, prm) {
+                                  var valStr;
+                                  if(prm.ct === "obj") {
+                                    valStr = JSON.stringify(prm.val);
+                                  } else {
+                                    var input = WAVE.id("edtPrm");
+                                    valStr = isTextInput ? input.value : input.options[input.selectedIndex].text;
+                                  }
+
+                                  var url = "?[:URIS.INSTRUMENTATION_MVC]/SetComponentParameter?sid="
+                                              + sid + "&key=" + key + "&val=" + encodeURIComponent(valStr);
+                                  $.getJSON(url, function(data) {
+                                    var dvErr = WAVE.id("dvEditorErr");
+                                    if (!data.OK) {
+                                      dvErr.style.display = "block";
+                                      dvErr.innerHTML = data.err;
+                                    } else {
+                                      dvErr.style.display = "none";
+                                      dvErr.innerHTML = "";
+
+                                      el.innerHTML = prm.ct === "obj" ? truncPrmStr(JSON.stringify(data.val)) : data.val;
+                                      WAVE.GUI.currentDialog().cancel();
+                                      resetTimer();
+                                    }
+                                  });
+                                }
+
+                                function setInstrumentationEnabled(sid, enabled) {
+                                  var url = "?[:URIS.INSTRUMENTATION_MVC]/SetComponentParameter?sid="
+                                          + sid + "&key=InstrumentationEnabled&val=" + enabled;
+                                  $.getJSON(url, function(data) {} );
+                                }
+
+    loadGroups();
+    loadComponentTree();
+
+  </script>

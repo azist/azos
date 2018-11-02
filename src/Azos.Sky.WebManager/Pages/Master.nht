@@ -1,0 +1,79 @@
+﻿#<laconf>
+  compiler
+  {
+    using{ns="Azos"}
+    using{ns="Azos.Security"}
+    using{ns="Azos.Sky.WebManager.Controls"}
+    base-class-name="HeadMaster"
+    namespace="Azos.Sky.WebManager.Pages"
+    abstract="true"
+    summary="Master page for main pages in AWM site"
+  }
+#</laconf>
+
+#[class]
+  protected abstract void renderHeader();
+  protected virtual  void renderGutter() {}
+  protected abstract void renderBody();
+  protected virtual  void renderBottom() {}
+
+#[override renderDocumentHEAD()]
+<link rel="stylesheet" type="text/css" href="?[:MASTER_CSS]" media="all">
+<script type="text/javascript" src="?[:MASTER_JS]"></script>
+
+#[override renderDocumentBODY()]
+<header id="hdrTop">
+  <a href="/"><div id="divLogo"></div></a>
+  <div id="divTitleBox">
+    <div id="divTitleWrapper">
+      <div id="divTitle">?[SkySystem.MetabaseApplicationName]</div>
+      <div id="divSubTitle">?[SkySystem.HostName]</div>
+    </div>
+  </div>
+  <div id="dropdown">
+    <button id="btnNavMenu"></button>
+    <nav id="navTopMenu">
+      <a @[MenuHREF<IHomePage>(URIS.HOME);      ]>?[Localizer.Content("mnuHome")]</a>
+      <a @[MenuHREF<IConsolePage> (URIS.CONSOLE);    ]>?[Localizer.Content("mnuConsole")]</a>
+      <a @[MenuHREF<IInstrumentationPage> (URIS.INSTRUMENTATION);  ]>?[Localizer.Content("mnuInstrumentation")]</a>
+      <a @[MenuHREF<ITheSystemPage>(URIS.THE_SYSTEM); ]>?[Localizer.Content("mnuTheSystem")]</a>
+    </nav>
+  </div>
+</header>
+
+<section id="sectPageTitle">
+  @[renderHeader();]
+</section>
+
+<section id="sectContent">
+  <section id="sectGutter">
+    <div id="divUserInfo" style="display: block; font-size: 0.8em">
+      @[if (Session!=null && Session.User.Status!=UserStatus.Invalid){]
+        ?[Session.User.ToString()], <a href="/logout">logout</a>
+        <nav id="navProcessMenu">
+          ?[:MenuBuilder.BuildMenu(null)]
+        </nav>
+        @[}]
+    </div>
+    @[renderGutter();]
+    </section>
+  <section id="sectBody">@[renderBody();]</section>
+</section>
+
+<section id="sectBottom">
+  @[renderBottom();]
+</section>
+
+<footer>
+  <div id="divFooterMenu">
+    <a href="http://zhabis.com" target="_blank" class="aFooterMenuItem">Zhabis</a>
+    <a href="http://github.com/azist" target="_blank" class="aFooterMenuItem">Azist GitHub</a>
+  </div>
+  <div id="divTailContent">
+    &copy; 2019&nbsp;&nbsp;Azist Group
+    <br>
+    This site is served by the <strong>Azos.Wave</strong> framework
+    <br>
+    Generated on ?[DateTime.Now] for ?[Context.EffectiveCallerIPEndPoint]
+  </div>
+</footer>

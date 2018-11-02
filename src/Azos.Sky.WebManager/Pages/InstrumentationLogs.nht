@@ -1,0 +1,377 @@
+﻿#<laconf>
+  compiler
+  {
+    using{ns="NFX.Wave"}
+    using{ns="NFX.Log"}
+    using{ns="Azos"}
+    using{ns="Azos.Apps"}
+    using{ns="Azos.Apps.ZoneGovernor"}
+    using{ns="Azos.Sky.WebManager.Controls"}
+    base-class-name="HeadMaster"
+    namespace="Azos.Sky.WebManager.Pages"
+    abstract=false
+    summary="Instrumentation Page"
+  }
+#</laconf>
+#[class]
+  public override string Title { get { return "Instrumentation - " + SkySystem.MetabaseApplicationName + "@" + SkySystem.HostName;}}
+#[override renderDocumentHEAD()]
+  <style>
+    * { box-sizing: border-box;}
+
+    html, body, section, div { margin: 0px; padding: 0px; }
+
+    input[type="checkbox"] { vertical-align: sub; }
+
+    #divLogo {
+      position: absolute;
+      width: 24px; height: 24px;
+      left: 4px; top: 4px;
+      background-image: url('?[:SURI.Image("awm.logo.ita.64x64.png")]');
+      background-repeat: no-repeat;
+      background-size: 24px 24px;
+    }
+
+    #sectToolbar {
+      background: linear-gradient(#e0e0e0 0%, #f8f8f0 62%, #e0e0e5 78%, #ffffff) repeat scroll 0 0 rgba(0, 0, 0, 0);
+      bottom: calc(100vh - 32px);
+      font-size: 12px;
+      left: 0;
+      padding: 4px 4px 4px 32px;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100%;
+    }
+
+    #sectToolbar select {
+      font-size: inherit;
+      background: linear-gradient(#ffffff 0%, #d0d0c0 62%, #e0e0e5 78%, #ffffff);
+    	border: 1px solid #c0c0c0;
+    }
+
+    #spnAppName { font-weight: 700; color: #4050ff; }
+
+    #divRec { color: #a0a0a0; }
+
+    #imgAntenna {
+      display: block;
+      margin: 0;
+      padding-left: 4px;
+      position: absolute;
+      top: 0;
+    }
+
+    #spnReceived { color: #404075; }
+    #spnRecCount { color: #606060; }
+    #spnRecFree { color: #606060; }
+
+    #sectLogWrapper {
+      background-color: #f0f0e5;
+      left: 0;
+      overflow: scroll;
+      position: absolute;
+      right: 0;
+      top: 34px;
+      bottom: 0px;
+      width: 100%;
+    }
+
+    #sectLog {
+      display: flex;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      align-items: stretch;
+      width: 2000px;
+    }
+
+    .clsLogRow {
+      display: flex;
+      flex-direction: row;
+      flex-flow: row;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      align-items: center;
+
+      background-color: #f0f0f0;
+      border-bottom: 1px dotted #c0c0c0;
+      color: #606060;
+      font-size: 10px;
+      width: 100%;
+    }
+
+      .clsLogRow:hover {
+        box-shadow: inset 0 0 18px #404040;
+        border-radius: 6px;
+        position: relative;
+        top: -1px; left: -1px;
+      }
+
+      .clsLogRow > div {
+        display: block;
+        margin: 0px;
+        padding: 1px;
+        word-wrap: break-word;
+      }
+
+    .clsLogRow__Debug    { background-color: rgba(040, 255, 180, 0.1); }
+    .clsLogRow__Trace    { background-color: rgba(040, 180, 255, 0.1); }
+    .clsLogRow__Info     { /*background-color: rgba(120, 255, 040, 0.1);*/ }
+    .clsLogRow__Warning  { background-color: rgba(255, 255, 040, 0.1); }
+    .clsLogRow__Error    { background-color: rgba(255, 020, 000, 0.3); }
+    .clsLogRow__Critical { background-color: rgba(255, 000, 000, 0.5); }
+
+    .clsColMsgID { width: 220px; }
+    .clsColMsgTimestamp { width: 70px; text-align: center; }
+
+    .clsColMsgType { width: 60px; margin: 2px !important; margin-right: 4px !important;     border-radius: 4px;   text-align: center; }
+    .clsLogRow__Debug .clsColMsgType    { box-shadow: inset 0 0 10px rgba(040, 255, 180, 0.5); }
+    .clsLogRow__Trace .clsColMsgType    { box-shadow: inset 0 0 10px rgba(040, 180, 255, 0.5); }
+    .clsLogRow__Info .clsColMsgType     { box-shadow: inset 0 0 10px rgba(040, 255, 000, .75); }
+    .clsLogRow__Warning .clsColMsgType  { box-shadow: inset 0 0 10px rgba(255, 255, 000, .75); color: black; }
+    .clsLogRow__Error .clsColMsgType    { box-shadow: inset 0 0 10px rgba(255, 020, 000, 0.5); color: black; }
+    .clsLogRow__Critical .clsColMsgType { box-shadow: inset 0 0 10px rgba(255, 000, 000, 0.5); color: yellow; }
+
+    .clsColMsgHost { width: 180px; }
+    .clsColMsgTopic { width: 120px; }
+
+    .clsColMsgFrom { width: 250px; }
+    .clsColMsgSrc { width: 32px; }
+
+    .clsColMsgText { width: 1000px; }
+    .clsLogRow__Error .clsColMsgText    { color: black; }
+    .clsLogRow__Critical .clsColMsgText { color: black; }
+
+    .clsRelated { color: #70a0ff; }
+
+  </style>
+
+#[override renderDocumentBODY()]
+
+    <section id="sectToolbar">
+      <div id="divLogo"></div>
+      <div style="display: table-row">
+        <div style="display: table-cell">
+          <span id="spnAppName">?[SkySystem.MetabaseApplicationName]</span>@?[SkySystem.HostName]
+        </div>
+        <div style="display: table-cell">
+          &nbsp;
+          <select id="cmbRange" onchange="update(true)">
+            <option value="1">1 min</option>
+            <option value="2">2 min</option>
+            <option value="5">5 min</option>
+            <option value="7">7 min</option>
+            <option value="10">10 min</option>
+            <option value="15">15 min</option>
+            <option value="20">20 min</option>
+            <option value="30">30 min</option>
+          </select>
+        </div>
+        <div id="dvFromType" style="display: table-cell;">
+          &nbsp;
+          <select id="cmbFromType" onchange="update(true)">
+          @[foreach(var mt in Enum.GetValues(typeof(MessageType)).OfType<NFX.Log.MessageType>().OrderBy(e => e)) {]
+            <option>?[mt]</option>
+          @[}]
+          </select>
+        </div>
+        @[if (SkySystem.SystemApplicationType == SystemApplicationType.ZoneGovernor && ZoneGovernorService.IsZoneGovernor) {]
+        @[/*if (true) {*/]
+          <div style="display: table-cell">
+            <input id="chkForZone" type="checkbox" onclick="update(true)" />
+            <label for="chkForZone">For Zone</label>
+          </div>
+        @[}]
+        <div id="divRec" style="display: table-cell">
+          <img id="imgAntenna" src="?[:SURI.Image("Antenna.ERROR.gif")]" >
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          &nbsp;&nbsp;Received:&nbsp;<span id="spnReceived">0</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="sectLogWrapper">
+      <section id="sectLog">
+      </section>
+    </section>
+
+  <script>
+
+    var LogMsgIDSeed = 0;
+
+    var MSG_TEMPLATE =  '<div class="clsColMsgID">@id@</div>' +
+                        '<div class="clsColMsgTimestamp">@ts@</div>' +
+                        '<div class="clsColMsgType">@tp@</div>' +
+                        '<div class="clsColMsgHost"><a href="?[URIS.INSTRUMENTATION_MVC]/NavigateToHost?metabasePath=@host@" target="_blank">@host@</a></div>' +
+                        '<div class="clsColMsgTopic">@topic@</div>' +
+                        '<div class="clsColMsgFrom">@from@</div>' +
+                        '<div class="clsColMsgSrc">@src@</div>' +
+                        '<div class="clsColMsgText">@text@</div>';
+
+                function createMsg(data, insertBeforeEl) {
+                  LogMsgIDSeed++;
+
+                  var idHtml = WAVE.strEmpty(data.rid) ? data.id : data.id + '<br><span class="clsRelated">' + data.rid + '</span>';
+
+                  var html = WAVE.strTemplate(MSG_TEMPLATE, {   id: idHtml,
+                                                                ts: formatDate(data.ts),
+                                                                host: data.host,
+                                                                tp: data.tp,
+                                                                topic: WAVE.strEscapeHTML(data.topic),
+                                                                from: WAVE.strEscapeHTML(data.from),
+                                                                src: data.src,
+                                                                text: WAVE.strEscapeHTML(data.txt)});
+
+                  var fDIV = document.createElement("div");
+                  fDIV.id = "lr_" + LogMsgIDSeed;
+                  fDIV.l_id = data.id;
+                  fDIV.l_ts = data.ts;
+                  fDIV.className = "clsLogRow " + this.getClsByType(data.tp);
+                  fDIV.innerHTML = html;
+
+                  if (insertBeforeEl)
+                    WAVE.id("sectLog").insertChild(fDIV, insertBeforeEl);
+                  else
+                    WAVE.id("sectLog").appendChild(fDIV);
+                }
+
+                function getClsByType(tp) {
+                  var cls = "";
+
+                  if (WAVE.strStartsWith(tp, "Debug")) cls = "clsLogRow__Debug";
+                  else if (WAVE.strStartsWith(tp, "Trace")) cls = "clsLogRow__Trace";
+                  else if (WAVE.strStartsWith(tp, "Info")) cls = "clsLogRow__Info";
+                  else if (WAVE.strStartsWith(tp, "Warning")) cls = "clsLogRow__Warning";
+                  else if (WAVE.strStartsWith(tp, "Error")) cls = "clsLogRow__Error";
+                  else if (WAVE.strStartsWith(tp, "Critical") ||
+                           WAVE.strStartsWith(tp, "Emergency") ||
+                           WAVE.strStartsWith(tp, "Catastrophic")) cls = "clsLogRow__Critical";
+
+                  return cls;
+                }
+
+      var MAX_MSGS_CNT = 500;
+
+      var cmbRange = WAVE.id("cmbRange");
+      var cmdRangeVal = cmbRange.options[cmbRange.selectedIndex].value;
+      var fRange = { from: null, to: null};
+
+      var tmrUpdate = null;
+
+      function update(fullReload) {
+        if (tmrUpdate !== null) {
+          clearTimeout(tmrUpdate);
+          tmrUpdate = null;
+        }
+
+        var from;
+        if (fullReload || fRange.to === null) {
+          var cmbRange = WAVE.id("cmbRange");
+          var fromMinutes = cmbRange.options[cmbRange.selectedIndex].value;
+          from = new Date();
+          from.setMinutes(from.getMinutes() - fromMinutes);
+        } else {
+          from = fRange.to;
+          from.setSeconds(from.getSeconds() - 10);
+        }
+
+        var cmbFromType = WAVE.id("cmbFromType");
+        var msgType = cmbFromType.options[cmbFromType.selectedIndex].text;
+
+        var forZone = WAVE.id("chkForZone") !== null ? WAVE.id("chkForZone").checked : false;
+
+        var url = "?[:URIS.INSTRUMENTATION_MVC]/LoadLogMessages?fromType=" + msgType +
+                                                                "&from=" + encodeURIComponent(from.toUTCString()) +
+                                                                "&forZone=" + forZone;
+        $.getJSON(url, function(data) {
+          if (fullReload) removeAllChildren();
+
+          if (data.OK) {
+            fRange.from = from;
+            fRange.to = new Date(data.to);
+
+            //console.log("fRange.from: ", fRange.from, "fRange.to: ", fRange.to);
+
+            WAVE.id("imgAntenna").src = '?[:SURI.Image("Antenna.OK.gif")]';
+            WAVE.id("spnReceived").innerHTML = data.buf.length;
+
+            applyLogData(data);
+
+            tmrUpdate = setTimeout(update, 5000);
+          } else {
+            if (data.IsAuthorization) {
+               var dlg = new WAVE.GUI.Dialog({
+                      header: 'Session Expired',
+                      body: 'Your session has expired.<br>' +
+                             'You will have to log in.<br>' +
+                             '<button onclick="WAVE.GUI.currentDialog().cancel()">Dismiss</button>'
+                      });
+               setTimeout(function() {dlg.cancel(); window.location.href = "/"; }, 10000);
+
+              return;
+            }
+
+            WAVE.id("imgAntenna").src = '?[:SURI.Image("Antenna.ERROR.gif")]';
+            WAVE.id("spnReceived").innerHTML = "Error";
+
+            tmrUpdate = setTimeout(update, 10000);
+          }
+        }).fail(function() {
+          WAVE.id("imgAntenna").src = '?[:SURI.Image("Antenna.ERROR.gif")]';
+          WAVE.id("spnReceived").innerHTML = "Error";
+
+          tmrUpdate = setTimeout(update, 10000);
+        });
+      }
+
+      function removeAllChildren() {
+        var sectLog = WAVE.id("sectLog");
+        while(sectLog.firstChild) {
+          sectLog.removeChild( sectLog.firstChild);
+        }
+      }
+
+      function trimExcess() {
+        var sectLog = WAVE.id("sectLog");
+        while(sectLog.children.length > MAX_MSGS_CNT) {
+          sectLog.removeChild( sectLog.firstChild);
+        }
+      }
+
+      function applyLogData(data) {
+        var scr = WAVE.id("sectLogWrapper");
+        var autos = scr.scrollHeight - scr.scrollTop <  scr.clientHeight + 25;
+
+        var sectLogs = WAVE.id("sectLog");
+        var chWlk = WAVE.arrayWalkable(sectLogs.children);
+
+
+        for(var i in data.buf) {
+          var msg = data.buf[i];
+          msg.ts = new Date(msg.ts);
+
+          if (chWlk.wFirst(function(e) { return e.l_id == msg.id })) continue;
+
+          var msgWithGreaterTS = chWlk.wFirst(function (e) { return e.l_ts > msg.ts });
+          createMsg(msg, msgWithGreaterTS);
+        }
+
+        trimExcess();
+
+        if (autos) scr.scrollTop = scr.scrollHeight;
+      }
+
+      function pad(n, sn) {
+        var s = n + '';
+        while(s.length < sn) s = '0' + s;
+        return s;
+      }
+
+      function formatDate(dt) { return (pad(dt.getHours(), 2) + ":" +
+                                        pad(dt.getMinutes(), 2) + ":" +
+                                        pad(dt.getSeconds(), 2) + "." +
+                                        pad(dt.getMilliseconds(), 3)); }
+
+    update(true);
+  </script>

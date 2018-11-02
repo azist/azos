@@ -1,0 +1,553 @@
+﻿#<laconf>
+  compiler
+  {
+    using{ns="Azos"}
+    using{ns="Azos.Wave"}
+    using{ns="Azos.Sky.WebManager.Controls"}
+    using{ns="Azos.Serialization.JSON"}
+
+    base-class-name="Master, ITheSystemPage"
+    namespace="Azos.Sky.WebManager.Pages"
+    abstract="false"
+    summary="Sky Navigation Page"
+  }
+#</laconf>
+
+#[override renderHeader()]
+  <h1>Sky Navigation Page</h1>
+
+#[override renderBody()]
+  <h2>Sky Navigation Map</h2>
+
+  <style>
+
+    #sectBody {
+      padding: 10px;
+    }
+
+    #tvTheSystem {
+      width: 25%;
+      min-width: 200px;
+      border: 1px solid #e5e5e5;
+      padding: 2px;
+      background-color: #f8f8f0;
+      font-size: 16px;
+    }
+
+    #dvPath {
+      font-size: 14px;
+      color: #000000;
+      background: linear-gradient(#c0d0e4, #70b0c0);
+      text-align: center;
+      padding-top: 2px; padding-bottom: 2px;
+      margin-left: -2px;
+      margin-right: -2px;
+      margin-top: -2px;
+      margin-bottom: 2px;
+    }
+
+    #lstTheSystem {
+      width: 75%;
+      min-width: 200px;
+      border: 1px solid #e5e5e5;
+      padding: 2px;
+      vertical-align: top;
+      background-color: #f5f5f0;
+    }
+
+    #dvList {
+      margin-top: 1px;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      height: 100%;
+      margin:10px 0px;
+    }
+
+    #dvButtons {
+      margin: 5px 5px;
+      padding: 5px 5px;
+    }
+
+      .dvHost {
+        width: auto;
+        height: auto;
+        margin: 2px;
+        font-size: 8px;
+        cursor: pointer;
+      }
+
+      .imgHostGraph {
+        border: 1px solid #a0a0a0;
+        width: 66px;
+        height: 66px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .imgZoneGraph { width: 130px; }
+
+      .dvHostName { text-align: center; }
+      .spnHostName { font-size: 11px; color: #2060ff; }
+      .spnHostRole { font-size: 8px; }
+
+      #dvHostDetailsWrapper {
+        width: 400px; height: auto;
+      }
+
+      #imgHostGraphDlg {
+        width: 400px; height: 200px;
+      }
+
+      #dvHostNameDlg {
+      }
+
+      #spnHostNameDlg {
+      }
+
+      #spnHostRoleDlg {
+      }
+
+      #dvApps { font-size: 14px; }
+
+      #clsDivConstructed { font-size: 30px; color: #c01010; text-align: center; }
+
+      #dvButtonsDlg {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+    .wvTreeNode {
+      display: table;
+      margin-bottom: 3px;
+      margin-top: 3px;
+    }
+
+    .wvTreeNode_host {
+      display: table;
+      font-size: 12px;
+    }
+
+    .wvTreeNodeButtonExpanded {
+      display: table-cell;
+      color: rgba(0,0,0,0);
+      cursor: pointer;
+      padding-left: 20px;
+      background: url('?[:SURI.Image("tv.node-minus.24x24.png")]');
+      background-size: 17px 17px;
+      background-position: 1px 1px;
+      background-repeat: no-repeat;
+    }
+
+    .wvTreeNodeButtonCollapsed {
+      display: table-cell;
+      color: rgba(0,0,0,0);
+      cursor: pointer;
+      padding-left: 20px;
+      background: url('?[:SURI.Image("tv.node-plus.24x24.png")]');
+      background-size: 19px 19px;
+      background-repeat: no-repeat;
+    }
+
+    .wvTreeNodeContent {
+      display: table-cell;
+    }
+
+    .wvTreeNodeOwn {
+      display: block;
+    }
+
+    .wvTreeNodeOwnSelected {
+      display: table;
+      background: linear-gradient(0deg, rgba(160, 170, 255, 0.7), rgba(240, 240, 255, 0.9), rgba(160, 170, 255, 0.3));
+      font-weight: bold;
+    }
+
+    .wvTreeNodeChildren {
+      display: block;
+      height: auto;
+    }
+
+    .tv_reg  { padding-left: 22px; background: url('?[:SURI.Image("Earth.64x64.png")]');  background-size: 20px 20px; background-repeat: no-repeat; }
+
+    .tv_noc  { padding-left: 22px; background: url('?[:SURI.Image("Factory.64x64.png")]'); background-size: 20px 20px; background-repeat: no-repeat;}
+
+    .tv_zone { padding-left: 22px; background: url('?[:SURI.Image("Zone.64x64.png")]'); background-size: 20px 20px; background-repeat: no-repeat;}
+
+    .tv_host { padding-left: 14px; background: url('?[:SURI.Image("Computer.64x64.png")]'); background-size: 12px 12px; background-repeat: no-repeat;}
+
+    .tv_dynamic { padding-left: 14px; background: url('?[:SURI.Image("DynamicComputer.64x64.png")]'); background-size: 12px 12px; background-repeat: no-repeat;}
+
+  </style>
+
+  <table style="width: 100%">
+    <tr>
+      <td id="tvTheSystem"></td>
+
+      <td id="lstTheSystem">
+        <div>
+          <div id="dvPath">&nbsp;</div>
+          <div id="dvButtons" >
+            <a class="uiButton" onClick="viewProcesses()"  href='#'>Processes</a>
+          </div>
+          <div id="dvList">
+          </div>
+
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <script>
+
+    var fTheSystemItemIDSeed = 0;
+
+    var MY_PATH = "?[:SkySystem.HostMetabaseSection.RegionPath.Trim('/')]";
+
+    function onImageError(img) {
+      var url = '?[:SURI.Image("Computer.64x64.png")]';
+      if (!WAVE.strSame(img.src, url)) img.src = url;
+    }
+
+        function TheSystemList(listInit) {
+
+          var ITEM_TEMPLATE = '  <img class="imgHostGraph" id="graph_@id@" src="?[:SURI.Image("@img@")]" onerror="onImageError(this)" ></img>' +
+                              '  <div class="dvHostName">' +
+                              '    <span class="spnHostName">@name@</span><br>' +
+                              '    <span class="spnHostRole">@role@</span>' +
+                              '  </div>';
+
+                      function TheSystemListItem(itemInit) {
+                        itemInit = itemInit || {};
+
+                        var item = this;
+
+                        fTheSystemItemIDSeed++;
+
+                        var fElmID = fTheSystemItemIDSeed;
+
+                        var fData = itemInit.data;
+                        this.data = function() { return fData; }
+
+                        var hostURL = "http://localhost:8082"; // for local testing
+                        //var hostURL = fData.adminURL;
+
+                        var img = fData.dynamic ? "DynamicComputer.64x64.png" : "Computer.64x64.png";
+
+                        var itemInnerHtml = WAVE.strTemplate(ITEM_TEMPLATE, {id: fElmID, name: fData.name, role: fData.role, img: img});
+
+                        var fDIV = document.createElement("div");
+                        fDIV.id = "li_" + fElmID;
+                        fDIV.className  = "dvHost";
+                        fDIV.innerHTML = itemInnerHtml;
+                        fDIV.onclick = onClick;
+                        fListDIV.appendChild(fDIV);
+
+                        var fIMGHostGraph = WAVE.id("graph_" + fElmID);
+                        if (fData.isZGov) fIMGHostGraph.className += " imgZoneGraph";
+
+                        this.updateStatus = function() {
+                          if (!fData.dynamic)
+                            fIMGHostGraph.src = hostURL + "/pub-api/PerformanceImg?width=130&height=66&lookbackSec=300&ts=" + (new Date()).getTime();
+                        }
+
+                        function onClick() {
+                          if (!fData.dynamic) showRegularDlg(); else showDynamicDlg();
+                        }
+
+                        function showDynamicDlg() {
+                          var DLG_DYNAMIC_TEMPLATE =
+                            '<img id="imgHostGraphDlg" src="?[:SURI.Image("DynamicComputer.64x64.png")]" onerror="onImageError(this)" ></img>' +
+                            '<div id="clsDivConstructed">Is being constructed</div>' +
+                            '<div class="dvHostNameDlg">' +
+                            '  <span class="spnHostNameDlg">@path@</span>-' +
+                            '  <span class="spnHostRoleDlg">@role@</span>' +
+                            '</div>' +
+                            '<div id="dvApps">@apps@</div>' +
+                            '<div id="dvButtonsDlg">' +
+                            '  <button class="uiCentered uiButton" id="btnHostDetailsClose" onclick="WAVE.GUI.currentDialog().cancel();">Close</button>' +
+                            '</div>';
+
+                          var appHtml = "";
+                          for(var i in fData.apps) {
+                            var app = fData.apps[i];
+                            appHtml += app;
+                          }
+
+                          var html = WAVE.strTemplate(DLG_DYNAMIC_TEMPLATE, {name: fData.name, path: fData.path, role: fData.role, apps: appHtml});
+
+                          var dlg = new WAVE.GUI.Dialog({ header: fData.name + ' Details', body: html, cls: 'dlgGreen'});
+                        }
+
+                        function showRegularDlg() {
+                          var DLG_REGULAR_TEMPLATE =
+                            '<img id="imgHostGraphDlg" src="?[:SURI.Image("Computer.64x64.png")]" onerror="onImageError(this)" ></img>' +
+                            '<div class="dvHostNameDlg">' +
+                            '  <span class="spnHostNameDlg">@path@</span>-' +
+                            '  <span class="spnHostRoleDlg">@role@</span>' +
+                            '</div>' +
+                            '<div id="dvApps">@apps@</div>' +
+                            '<div id="dvButtonsDlg">' +
+                            '  <button class="uiCentered uiButton" id="btnHostDetailsClose">Close</button>' +
+                            '</div>';
+
+                          var appHtml = "";
+                          for(var i in fData.apps) {
+                            var app = fData.apps[i];
+                            appHtml += '<a href="?[URIS.THE_SYSTEM_MVC]/Navigate?metabasePath=' + fData.path + '&appName=' + app + '" target="_blank">' + app + '</a>\r\n';
+                          }
+
+                          var html = WAVE.strTemplate(DLG_REGULAR_TEMPLATE, {name: fData.name, path: fData.path, role: fData.role, apps: appHtml});
+
+                          var dlg = new WAVE.GUI.Dialog({ header: fData.name + ' Details', body: html, cls: 'dlgGreen'});
+
+                          WAVE.id("btnHostDetailsClose").addEventListener("click", onDlgClose);
+
+                          updateDlg();
+                        }
+
+                        function onDlgClose() {
+                          killDlgTimer();
+                          WAVE.id("btnHostDetailsClose").removeEventListener("click", onDlgClose);
+                          WAVE.GUI.currentDialog().cancel();
+                        }
+
+                        function killDlgTimer() {
+                          if (tmrDlg !== null) {
+                            clearTimeout(tmrDlg);
+                            tmrDlg = null;
+                          }
+                        }
+
+                        var tmrDlg = null;
+                        function updateDlg() {
+                          killDlgTimer();
+
+                          var imgHostGraphDlg = WAVE.id("imgHostGraphDlg");
+                          var width = imgHostGraphDlg.width;
+                          var height = imgHostGraphDlg.height;
+                          imgHostGraphDlg.src = hostURL + "/pub-api/PerformanceImg?width=" + width +
+                                                          "&height=" + height +
+                                                          "&lookbackSec=300&ts=" + (new Date()).getTime();
+
+                          tmrDlg = setTimeout(updateDlg, 2500);
+                        }
+                      }
+
+          if (typeof(listInit)===undefined || listInit===null || typeof(listInit.DIV)===undefined || listInit.DIV===null)
+            throw "TheSystemList.ctor(init.DIV)";
+
+          var list = this;
+          WAVE.extend(list, WAVE.EventManager);
+
+          var fListDIV = listInit.DIV;
+
+          var fItems = [];
+          this.items = function() { return WAVE.shallowCopy(fItems); }
+
+          var fCurrentNode = null;
+
+          this.showLevel = function(node) {
+            if (node == fCurrentNode) return;
+
+            fCurrentNode = node;
+
+            removeAllItems();
+            var divPath = WAVE.id("dvPath");
+
+            if (!node) {
+              divPath.innerHTML = "&nbsp;";
+              return;
+            }
+
+            divPath.innerHTML = node.data().path;
+
+            itemToUpdateIdx = 0;
+
+            var nodeChildren = node.children();
+            for(var i in nodeChildren) {
+              var nodeChild = nodeChildren[i];
+
+              var isHost = WAVE.strSame(nodeChild.data().tp, "host");
+              if (!isHost) continue;
+
+              var childData = nodeChild.data();
+              var itemInit = {data: childData, lastUpdated: null};
+              var item = addItem(itemInit);
+            }
+
+            tmrUpdateItemsIntervalMS = 5000 / (fItems.length > 0 ? fItems.length : 1);
+
+            updateItems();
+          }
+
+          var tmrUpdateItems = null;
+          var itemToUpdateIdx = 0;
+          var tmrUpdateItemsIntervalMS = 5000;
+          function updateItems() {
+            if (tmrUpdateItems != null) {
+              clearTimeout(tmrUpdateItems);
+              tmrUpdateItems = null;
+            }
+
+            if (fItems.length > 0) {
+
+              if(itemToUpdateIdx >= fItems.length) {
+                itemToUpdateIdx = 0;
+              }
+
+              var item = fItems[itemToUpdateIdx];
+              item.updateStatus();
+
+              itemToUpdateIdx++;
+            }
+
+            tmrUpdateItems = setTimeout(updateItems, tmrUpdateItemsIntervalMS);
+          }
+
+          function removeAllItems() {
+            while(fListDIV.firstChild) fListDIV.removeChild(fListDIV.firstChild);
+            fItems.splice(0, fItems.length);
+          }
+
+          function addItem(itemInit) {
+            var item = new TheSystemListItem(itemInit);
+            fItems.push(item);
+            return item;
+          }
+
+          this.viewProcesses = function() {
+            var zone = fCurrentNode.data().path;
+            var link = "?[URIS.PROCESS_MANAGER]"+"?zone="+escape(zone);
+            window.open(link,'_blank');
+          }
+
+        }//TheSystemList
+
+    var list = new TheSystemList({DIV: WAVE.id("dvList")});
+    var tree = new WAVE.GUI.Tree({DIV: WAVE.id("tvTheSystem"), treeSelectionType: WAVE.GUI.TREE_SELECTION_SINGLE});
+    tree.DEFAULT_NODE_EXPANDED_CONTENT = '';
+    tree.DEFAULT_NODE_COLLAPSED_CONTENT = '';
+
+    tree.eventBind(WAVE.GUI.EVT_TREE_NODE_EXPANSION, function(sender, args) {
+      if (args.phase !== WAVE.GUI.EVT_PHASE_BEFORE) return;
+      if (args.node.HAS_LOADED === true) return;
+      unveilNode(args.node.path());
+    });
+
+    var tmrUnselectNode = null;
+    tree.eventBind(WAVE.GUI.EVT_TREE_NODE_SELECTION, function(sender, args) {
+      if (tmrUnselectNode != null) {
+        clearTimeout( tmrUnselectNode);
+        tmrUnselectNode = null;
+      }
+
+      if (args.phase === WAVE.GUI.EVT_PHASE_AFTER && args.value === false) {
+        tmrUnselectNode = setTimeout(function() { list.showLevel(null); }, 100);
+        return;
+      }
+
+      if (args.phase !== WAVE.GUI.EVT_PHASE_AFTER || args.value !== true) return;
+
+      var node = args.node;
+      var isHost = WAVE.strSame(args.node.data().tp, "host");
+
+      if (!args.node.HAS_LOADED && !isHost) {
+        loadNodeChildren(args.node.path(), function(data) {
+          buildLevel(args.node, data);
+          list.showLevel(args.node);
+        });
+      } else {
+        if (isHost) node = node.parent();
+        list.showLevel(node);
+      }
+    });
+
+    function showChildren(node) {
+      if (!node.HAS_LOADED) {
+        loadNodeChildren(node.path(), function(data) {
+          buildLevel(node, data);
+          showChildren(node);
+        });
+        return;
+      }
+
+      var children = node.children();
+      for(var i in children) {
+        var childNode = children[i];
+
+      }
+    }
+
+    function buildLevel(node, data) {
+      if (node.HAS_LOADED) return;
+
+      node.removeAllChildren();
+      node.HAS_LOADED = true;
+
+      for(var i in data.children) {
+        var childData = data.children[i];
+
+        var isHost = WAVE.strSame(childData.tp, "host");
+
+        var roleHtml = WAVE.strEmpty(childData.role) ? "" : "&nbsp;-&nbsp;" + childData.role;
+        var descrHtml = WAVE.strEmpty(childData.descr) ? "" : "&nbsp;-&nbsp;" + childData.descr;
+        var meHtml = childData.me ? "[ME]&nbsp;" : "";
+
+        var cls = childData.dynamic ? "tv_dynamic" : "tv_" + childData.tp;
+        var html = "<div class='" + cls + "'>" + meHtml + childData.name + roleHtml + descrHtml + "</div>";
+
+        var nodeInit = {id: childData.name, html: html, data: childData};
+        if (isHost) nodeInit.wvTreeNode = "wvTreeNode_host";
+        var childNode = node.addChild(nodeInit);
+
+        childNode.HAS_LOADED = isHost;
+        if (!childNode.HAS_LOADED) childNode.addChild({html: "..."});
+      }
+    }
+
+    function unveilNode(fullPath, select) {
+      var segs = fullPath.split(/[\\/]+/);
+      var node = tree.root();
+      for(var i in segs) {
+        var seg = segs[i];
+
+        if (!node.HAS_LOADED) {
+          loadNodeChildren(node.path(), function(data) {
+            buildLevel(node, data);
+            unveilNode(fullPath, select);
+          });
+          return;
+        }
+
+        var childNode = node.getChild(seg);
+        if (childNode === null) throw "Invalid path";
+
+        if (!childNode.HAS_LOADED) {
+          loadNodeChildren(childNode.path(), function(data) {
+            buildLevel(childNode, data);
+            unveilNode(fullPath, select);
+          });
+          return;
+        }
+
+        node.expanded(true);
+        if (select && WAVE.strSame(childNode.path(), fullPath)) childNode.selected(true);
+        node = childNode;
+      }
+    }
+
+    function loadNodeChildren(path, onLoad) {
+      $.getJSON("?[:URIS.THE_SYSTEM_MVC]/LoadLevel?hosts=true&path=" + path, function(data) {
+        onLoad(data);
+      });
+    }
+
+    function viewProcesses() {
+      console.log('View processes');
+      list.viewProcesses();
+    }
+
+    unveilNode(MY_PATH, true);
+
+  </script>

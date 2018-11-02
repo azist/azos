@@ -1,0 +1,1191 @@
+﻿#<laconf>
+  compiler
+  {
+    using{ns="Azos.Wave"}
+    using{ns="Azos"}
+    using{ns="Azos.Apps"}
+    using{ns="Azos.Sky.Apps.ZoneGovernor"}
+    using{ns="Azos.Sky.WebManager.Controls"}
+    base-class-name="HeadMaster"
+    namespace="Azos.Sky.WebManager.Pages"
+    abstract=false
+    summary="Instrumentation Page"
+  }
+#</laconf>
+#[class]
+  public override string Title { get { return "Instrumentation - " + SkySystem.MetabaseApplicationName + "@" + SkySystem.HostName;}}
+
+#[override renderDocumentHEAD()]
+  <style>
+    * { box-sizing: border-box;}
+
+    html, body, section, div { margin: 0px; padding: 0px; }
+
+    body { overflow: hidden; }
+
+    input[type="checkbox"] { vertical-align: middle; }
+
+    #divLogo {
+      position: absolute;
+      width: 24px; height: 24px;
+      left: 4px; top: 4px;
+      background-image: url('?[:SURI.Image("awm.logo.ita.64x64.png")]');
+      background-repeat: no-repeat;
+      background-size: 24px 24px;
+    }
+
+    #sectToolbar {
+      width: 100%; height: 32px;
+      padding: 4px; padding-left: 32px;
+      font-size: 12px;
+      background: linear-gradient(#e0e0e0 0%, #f8f8f0 62%, #e0e0e5 78%, #ffffff);
+    }
+
+    #sectToolbar select {
+      font-size: inherit;
+      background: linear-gradient(#ffffff 0%, #d0d0c0 62%, #e0e0e5 78%, #ffffff);
+    	border: 1px solid #c0c0c0;
+    }
+
+    #spnAppName { font-weight: 700; color: #4050ff; }
+
+    #divRec { color: #a0a0a0; }
+
+    #imgAntenna {
+      display: block;
+      margin: 0;
+      padding-left: 4px;
+      position: absolute;
+      top: 0;
+    }
+
+    #spnReceived { color: #404075; }
+    #spnRecCount { color: #606060; }
+    #spnRecFree { color: #606060; }
+
+    #sectLayout {
+      height: calc(100vh - 34px);
+      width: 100%;
+      background-color: white;
+      position: relative;
+    }
+
+      #sectTree {
+        position: absolute;
+        left: 0px; top: 0px; bottom: 0px;
+        width: 350px;
+        height: 100%;
+        overflow: scroll;
+        border: 1px solid #e5e5e5;
+        background-color: #f8f8f0;
+        font-size: 16px;
+      }
+
+      #sectCharts {
+        position: absolute;
+        left: 354px; top: 0px; right: 0px; bottom: 0px;
+        height: 100%;
+        overflow: scroll;
+        border: 1px solid #e5e5e5;
+        background-color: #f5f5e8;
+      }
+
+        .chartWrapper {
+          background-color: #707070;
+          color: white;
+          width: calc(100% - 0px);
+          height: 200px;
+          position: relative;
+          border-bottom: 2px solid #707070;
+        }
+
+        .chartUnit {
+          position: absolute;
+          left: 0px; top: 0px;
+          height: 12px;
+          width: 200px;
+          text-align: center;
+          font-size: 12px;
+          transform-origin: 0px 1em;
+          transform: rotate(90deg) translateY(-4px) translateX(-10px);
+        }
+
+        .chartDIV {
+          position: absolute;
+          left: 14px; top: 0px; right: 0px; bottom: 0px;
+          background-color: #e0c0e0;
+
+        }
+
+        .chartSVG {
+          width: 100%; height: 100%;
+          background-color: #c0e0e0;
+        }
+
+    .wvTreeNode {
+      display: table;
+      padding: 2px;
+      position: relative;
+      left: -16px;
+    }
+
+    #sectTree > .wvTreeNode {
+      left: 0px;
+    }
+
+    .wvTreeNode_evt_gau {
+      font-size: 12px;
+    }
+
+    .wvTreeNode_evt_gau_info {
+      font-size: 10px;
+      color: #7070a0;
+      font-style: italic;
+      border-left: 1px dotted #b0b0b0;
+      margin-left: 6px;
+    }
+
+    .wvTreeNodeButtonExpanded {
+      display: table-cell;
+      color: rgba(0,0,0,0);
+      width: 1em;
+      cursor: pointer;
+      padding-left: 22px;
+      background: url('?[:SURI.Image("tv.node-minus.24x24.png")]');
+      background-size: 17px 17px;
+      background-position: 1px 1px;
+      background-repeat: no-repeat;
+    }
+
+    .wvTreeNodeButtonExpanded_evt_gau {
+      padding-left: 18px;
+      background-size: 16px 16px;
+      background-position: 1px 0px;
+    }
+
+    .wvTreeNodeButtonCollapsed {
+      display: table-cell;
+      color: rgba(0,0,0,0);
+      width: 1em;
+      cursor: pointer;
+      padding-left: 22px;
+      background: url('?[:SURI.Image("tv.node-plus.24x24.png")]');
+      background-size: 19px 19px;
+      background-position: 0px 0px;
+      background-repeat: no-repeat;
+    }
+
+    .wvTreeNodeButtonCollapsed_evt_gau {
+      padding-left: 18px;
+      background-size: 16px 16px;
+      background-position: 1px 0px;
+    }
+
+    .wvTreeNodeContent {
+      display: table-cell;
+    }
+
+    .wvTreeNodeOwn {
+      display: block;
+    }
+
+      .childSelected::before { content: "√"; color: #2233cc; }
+
+    .wvTreeNodeOwnSelected {
+      display: table;
+      background: linear-gradient(0deg, rgba(160, 170, 255, 0.7), rgba(240, 240, 255, 0.9), rgba(160, 170, 255, 0.3));
+      font-weight: bold;
+    }
+
+    .wvTreeNodeChildren {
+      display: block;
+      height: auto;
+    }
+
+    .tv_cls { padding-left: 26px; background: url('?[:SURI.Image("tv.class.24x24.png")]');  background-size: 24px 24px; background-repeat: no-repeat; }
+    .tv_ns  { padding-left: 22px; background: url('?[:SURI.Image("tv.ns.24x24.png")]');  background-size: 20px 20px; background-repeat: no-repeat; }
+
+    .tv_evt { font-size: 14px; padding-left: 22px; background: url('?[:SURI.Image("tv.event.24x24.png")]');  background-size: 18px 18px; background-repeat: no-repeat; }
+    .tv_evt_err { font-size: 14px; padding-left: 22px; background: url('?[:SURI.Image("tv.error-event.24x24.png")]');  background-size: 18px 18px; background-repeat: no-repeat; }
+
+    .tv_gau { font-size: 14px; padding-left: 22px; background: url('?[:SURI.Image("tv.gauge.24x24.png")]');  background-size: 18px 18px; background-repeat: no-repeat; }
+    .tv_gau_err { font-size: 14px; padding-left: 22px; background: url('?[:SURI.Image("tv.error-gauge.24x24.png")]');  background-size: 18px 18px; background-repeat: no-repeat; }
+
+    .tv_src { font-size: 10px; margin-left: 6px; padding: 0px; border-left: 1px dotted #b0b0b0; background: url('?[:SURI.Image("tv.src.18x18.png")]');  background-size: 10px 10px; background-position: 10px 2px; background-repeat: no-repeat; }
+    .tv_src_err { font-size: 10px; margin-left: 6px; padding: 0px; border-left: 1px dotted #b0b0b0; background: url('?[:SURI.Image("tv.error-src.18x18.png")]');  background-size: 10px 10px; background-position: 10px 2px; background-repeat: no-repeat; }
+
+        /*chart {*/
+            rect.wvSvgBkgr { fill: #f0f0d0; }
+
+            line.wvAxisLine { stroke: #c0c0c0; stroke-width: 1; }
+            line.wvAxisTickLine { stroke: #909090; stroke-width: 0.5; }
+            line.wvGridLine { stroke: #505050; stroke-width: 1; stroke-dasharray: 1,2; stroke-width: 0.5; }
+
+            text.wvAxisLabel { fill: #000000; font-family: play; font-size: 9px; text-anchor: start; }
+            text.wvYAxisLabel { fill: #000000; font-family: play; font-size: 9px; text-anchor: end; }
+
+            rect.wvSZoneBackground { fill: #e0e0c0; }
+
+            rect.wvLZoneBackground { fill: #c0e0e0; fill-opacity: 0.5; stroke: #a0a0a0; stroke-opacity: 0.5; stroke-width: 0.2; }
+            text.wvLegendName { fill: #000000; font-family: play; font-size: 10px; stroke: none; }
+            .wvSeriesLine { stroke-width: 2px; stroke-opacity: .7; }
+            .wvSeriesPoint { stroke-width: 2px; stroke-opacity: .7; }
+
+            .series_0 { stroke: #901010; fill: none; stroke-width: 1px; }
+              .series_0 text.wvLegendName { fill: #901010; }
+
+            .series_1 { stroke: #109010; fill: none; stroke-width: 1px; }
+              .series_1 text.wvLegendName { fill: #109010; }
+
+            .series_2 { stroke: #101090; fill: none; stroke-width: 1px; }
+              .series_2 text.wvLegendName { fill: #101090; }
+
+            .series_3 { stroke: #109090; fill: none; stroke-width: 1px; }
+              .series_3 text.wvLegendName { fill: #109090; }
+
+            .series_4 { stroke: #901090; fill: none; stroke-width: 1px; }
+              .series_4 text.wvLegendName { fill: #901090; }
+
+            .series_5 { stroke: #909010; fill: none; stroke-width: 1px; }
+              .series_5 text.wvLegendName { fill: #909010; }
+        /*} chart*/
+
+    .clsDvPresets {
+      width: 300px; height: 200px;
+      display: flex;
+      overflow: scroll;
+      flex-flow: row wrap;
+      align-items: flex-start;
+      justify-content: flex-start;
+      background-color: #f0f8f0;
+      padding: 2px;
+    }
+
+    #dvButtonDlg {
+      margin-left: auto;
+      margin-right: auto;
+      padding: 4px;
+      width: intrinsic;           /* Safari/WebKit uses a non-standard name */
+      width: -moz-max-content;    /* Firefox/Gecko */
+      width: -webkit-max-content; /* Chrome */
+    }
+
+      #dvButtonDlg button { display: inline; }
+
+    .clsDvPresetItem {
+      background-color: #eeeeee;
+      border-radius: 3px;
+      box-shadow: 0 0 2px #aaaaaa inset;
+      margin: 2px;
+      padding: 3px;
+    }
+
+    .clsDvPresetItemName { font-size: 15px; cursor: pointer; margin-left: 3px; margin-right: 3px; }
+
+    .clsDvPresetItemRemove { font-size: 12px; cursor: pointer; color: #2222cc; }
+
+    .wvRulerHint {
+      background-color: rgba(238, 238, 204, .8);
+      border: 1px solid #aaaaaa;
+      border-radius: 3px;
+      padding: 2px;
+      pointer-events: none;
+      z-index: 10000;
+    }
+
+    .wvRulerSight {
+      border-left: 1px dashed #444444;
+      border-top: 1px dashed #444444;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+  </style>
+
+#[override renderDocumentBODY()]
+
+    <section id="sectToolbar">
+      <div id="divLogo"></div>
+      <div style="display: table-row">
+        <div style="display: table-cell">
+          <span id="spnAppName">?[SkySystem.MetabaseApplicationName]</span>@?[SkySystem.HostName]
+        </div>
+        <div style="display: table-cell">
+          &nbsp;
+          <input id="chkShowTree" type="checkbox" checked onclick="showTree(this.checked)" />
+          <label for="chkShowTree">Tree</label>
+        </div>
+        <div style="display: table-cell">
+          &nbsp;
+          <select id="cmbGrouping" onchange="loadTree(true)">
+            <option value="ns">Name</option>
+            <option value="intf">Class</option>
+          </select>
+        </div>
+        <div style="display: table-cell">
+          &nbsp;
+          <select id="cmbRange" onchange="chartDateRange.set(60 * this.value)">
+            <option value="5">5 min</option>
+            <option value="7">7 min</option>
+            <option value="10">10 min</option>
+            <option value="15">15 min</option>
+            <option value="20">20 min</option>
+            <option value="30">30 min</option>
+            <option value="45">45 min</option>
+            <option value="60">1 hour</option>
+          </select>
+        </div>
+        <div style="display: table-cell">
+          &nbsp;
+          <input id="chkShowRuler" type="checkbox" checked onclick="showRuler(this.checked)" />
+          <label for="chkShowRuler">Ruler</label>
+        </div>
+        @[if (SkySystem.SystemApplicationType == SystemApplicationType.ZoneGovernor && ZoneGovernorService.IsZoneGovernor) {]
+        @[/*if (true) {*/]
+          <div style="display: table-cell">
+            <input id="chkForZone" type="checkbox" onclick="loadTree(true); loadData(true);" />
+            <label for="chkForZone">For Zone</label>
+          </div>
+        @[}]
+        <div id="divRec" style="display: table-cell">
+          <img id="imgAntenna" src="?[:SURI.Image("Antenna.ERROR.gif")]" >
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          &nbsp;&nbsp;Received&nbsp;<span id="spnReceived">0</span>&nbsp;recs.&nbsp;
+          &nbsp;&nbsp;Service:&nbsp;<span id="spnRecCount">0</span>&nbsp;recs.&nbsp;<span id="spnRecFree">100</span>&nbsp;free
+        </div>
+
+        <div style="display: table-cell">
+          &nbsp;
+          <button onclick="showPresets()">PreSets</button>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="sectLayout">
+        <section id="sectTree">
+        </section>
+
+        <section id="sectCharts">
+        </section>
+    </section>
+
+  <script>
+
+    var CLS_HAS_CHILD_SELECTED = "childSelected";
+
+    var PRESET_PREFIX = "preset_";
+
+    WAVE.GUI.connectorEnsure();
+
+    WAVE.GUI.rulerEventBind(WAVE.GUI.EVT_RULER_MOUSE_MOVE, function (src, masterRes, scopeNames) {
+      window.Connector.callWindowFunc(function (w) {
+        w.WAVE.GUI.rulerMouseMove(masterRes, scopeNames);
+      });
+    });
+
+    WAVE.GUI.rulerEventBind(WAVE.GUI.EVT_RULER_MOUSE_ENTER, function (src, scopeNames) {
+      window.Connector.callWindowFunc(function (w) {
+        w.WAVE.GUI.rulerMouseEnter(scopeNames);
+      });
+    });
+
+    WAVE.GUI.rulerEventBind(WAVE.GUI.EVT_RULER_MOUSE_LEAVE, function (src, scopeNames) {
+      window.Connector.callWindowFunc(function (w) {
+        w.WAVE.GUI.rulerMouseLeave(scopeNames);
+      });
+    });
+
+    var tree = new WAVE.GUI.Tree({DIV: WAVE.id("sectTree"), treeSelectionType: WAVE.GUI.TREE_SELECTION_MULTI});
+    tree.DEFAULT_NODE_EXPANDED_CONTENT = '';
+    tree.DEFAULT_NODE_COLLAPSED_CONTENT = '';
+
+    tree.eventBind(WAVE.GUI.EVT_TREE_NODE_SELECTION, function(sender, args) {
+      if (args.phase !== WAVE.GUI.EVT_PHASE_AFTER) return;
+
+      tree.supressEvents(true);
+
+      markParentNodes(args.node);
+
+      // check that all "equal"/(with same ns and src) nodes are synchronized {
+      if (tree.BUILT_BY_CLASS === true) {
+        var ns = args.node.data().ns;
+        var src = args.node.data().src;
+        tree.root().getDescendants().wEach(function(e) {
+          var n = e.node;
+          if (!n.data()) return;
+          if (n.data().ns == ns && n.data().src == src && n !== args.node && n.selected() != args.node.selected()) {
+            n.selected(args.node.selected());
+            n.unveil();
+            markParentNodes(n);
+          }
+        });
+      }
+      // } check that all "equal"/(with same ns and src) nodes are synchronized
+
+      buildChartsFromTree();
+
+      tree.supressEvents(false);
+    });
+
+    function ensureClsInNodeClass(cls, include, clsFunc) {
+      var nodeCls = clsFunc();
+      var nodeClsNew = ensureSubstr(nodeCls, cls, include);
+      if (nodeCls != nodeClsNew) clsFunc(nodeClsNew);
+    }
+
+    function ensureSubstr(str, substr, include) {
+
+                function inExcludeSubstr(str, subStr, include) {
+                  var res = "";
+                  var first = true;
+                  var segs = str.split(" ");
+                  for (var i in segs) {
+                    var seg = segs[i];
+                    if (!seg || seg.length === 0) continue;
+                    if (!include && substr == seg) continue;
+                    if (first) first = false; else res += " ";
+                    res += seg;
+                  }
+
+                  if (include) {
+                    if (res.length !== 0) res += " ";
+                    res += substr;
+                  }
+
+                  return res;
+                }
+
+      var idx = str.indexOf(substr);
+      if (idx !== -1 && include || idx === -1 && !include) return str;
+
+      return inExcludeSubstr(str, substr, include);
+    }
+
+    function markParentNodes(node) {
+
+      if (node.selectable()) {
+
+        var parentNode = node.parent();
+        var siblings = parentNode.children();
+        var allSiblingsUnselected = WAVE.arrayWalkable(parentNode.children()).wAll(function(s) { return !s.selected() });
+
+        while(parentNode && parentNode.parent()) {
+          ensureClsInNodeClass(CLS_HAS_CHILD_SELECTED, !allSiblingsUnselected, parentNode.wvTreeNodeOwn);
+          ensureClsInNodeClass(CLS_HAS_CHILD_SELECTED, !allSiblingsUnselected, parentNode.wvTreeNodeOwnSelected);
+
+          parentNode = parentNode.parent();
+        }
+      }
+    }
+
+    var chartDateRange = new (function() {
+      this.rangeSec = 300;
+      this.filledTo = new Date();
+      this.filledFrom = new Date();
+
+      this.rangeToFill = function() {
+        if (this.filledTo === this.filledFrom || rangeReset) {
+          var to = new Date();
+          var from = new Date(to.getTime() - this.rangeSec * 1000);
+          return {update: {from: from, to: to}, add: {from: from, to: to}};
+        } else {
+          var to = new Date();
+          var from = this.filledTo;
+          return {update: {from: from, to: to}, add: {from: this.filledFrom, to: to}};
+        }
+      }
+
+      var rangeReset = false;
+
+      this.rangeFilled = function(to) {
+        rangeReset = false;
+        this.filledFrom = new Date(to.getTime() - this.rangeSec * 1000);
+        this.filledTo = to;
+      }
+
+      this.set = function(val) {
+        this.rangeSec = val;
+        rangeReset = true;
+        loadData(rangeReset);
+      }
+    });
+
+    // structure: [{
+    //              k: {unit, chart},
+    //              v: [{
+    //                  ns, src,
+    //                  series: [{sd, ed, cnt, rate, val}]
+    //                  isNew}]
+    //            }]
+    var chartography = [];
+
+    function buildChartsFromTree() {
+      var treeSelectedNodesWlk = WAVE.arrayWalkable(tree.selectedNodes()
+                                            .wSelect(function(el) { return {unit: el.node.data().data.unit, ns: el.node.data().ns, src: el.node.id()} } )
+                                            .wDistinct(function(a, b) { return a.ns == b.ns && a.src == b.src } )
+                                            .wToArray());
+
+      var chartographyNewWlk = treeSelectedNodesWlk
+                            .wGroup(function(e) { return e.unit }, function(e) { return e })
+                            .wSelect(function(g) {
+                                        return {
+                                          k: {unit: g.k, chart: null},
+                                          v: g.v.wSelect(function(e) { return { ns: e.ns, src: e.src, series: [], isNew: true} })
+                                        }
+                                      });
+
+      var chartographyNew = chartographyNewWlk.wGroupIntoArray();
+
+      buildCharts(chartographyNew);
+    }
+
+    function buildCharts(chartographyNew) {
+      chartographyNewWlk = WAVE.groupWalkable(chartographyNew); // "materialize" walkable
+
+      chartographyWlkbl = WAVE.groupWalkable(chartography); // make walkable from previous state
+
+      // initialize existing chart fields {
+      chartographyNewWlk.wEach(function(gn) {
+        var existingGroup = chartographyWlkbl.wFirst(function(go) { return go.k.unit == gn.k.unit });
+        if (existingGroup !== null) {
+          gn.k.chart = existingGroup.k.chart;
+          gn.k.isHigh = existingGroup.k.isHigh;
+        } else {
+          gn.k.chart = null;
+        }
+      });
+      // } initialize existing chart fields
+
+      // remove part {
+      var chartographyToRemove = chartographyWlkbl.wExcept(chartographyNewWlk, function(a, b) { return a.k.unit == b.k.unit });
+      chartographyToRemove.wEach( function(e) {
+        var chartWrapperEl = e.k.chart.svgEl().parentNode.parentNode;
+        chartWrapperEl.parentNode.removeChild(chartWrapperEl);
+      });
+      // } remove part
+
+      // create new charts {
+      var chartsEl = WAVE.id("sectCharts");
+      chartographyNewWlk.wWhere(function(g) { return g.k.chart === null}).wEach(function(g) {
+        var chart = addChart(g.k.unit);
+        g.k.chart = chart;
+      });
+      // } create new charts
+
+      chartographyNewWlk.wEach(function(g) {
+        buildSeries(g.k.chart, g.v);
+        g.k.chart.xZone().enabled(false);
+      });
+
+      configChartsXZone(chartographyNewWlk.wSelect(function (g) { return g.k.chart; }));
+
+      chartographyNewWlk.wEach(function (g) {
+        var chk = WAVE.id("chkIsHigh_" + g.k.chart.idSeed);
+
+        chk.checked = g.k.isHigh;
+      });
+
+      chartography = chartographyNewWlk.wGroupIntoArray(); // materialize new chartography
+    }
+
+    function buildSeries(chart, sources) {
+      chart.seriesListWalkable()
+            .wExcept(sources, function(chs, exs) { return chs.id().ns == exs.ns && chs.id().src == exs.src })
+            .wEach(function(sr) { chart.removeSeries(sr) });
+
+      sources.wEach(function(s) {
+        var existingSeries = chart.seriesListWalkable().wFirst(function(chs) { return chs.id().ns == s.ns && chs.id().src == s.src} );
+        if (existingSeries === null) {
+          var minStyleIdx = WAVE.arrayWalkable([0,1,2,3,4,5])
+                      .wSelect(function(n) {
+                        return {n: n, qty: chart.seriesListWalkable().wCount(function(chs) { return chs.class() === ("series_" + n)  }) }
+                      })
+                      .wMin(function(a, b) { return a.qty < b.qty });
+
+
+          var segs = s.ns.split('.');
+          var title = segs.length > 0 ? segs[segs.length-1] : "";
+          title += "." + s.src;
+          var chr = chart.addSeries({id: {ns: s.ns, src: s.src}, title: title, class: "series_" + minStyleIdx.n});
+        }
+      });
+    }
+
+    function configChartsXZone(charts) {
+      var qty = charts.wCount();
+      if (qty === 0) return;
+      if (qty === 1) {
+        var chart = charts.wAt(0);
+        chart.xZone().enabled(true);
+        chart.xAxis().isBottom(true);
+      } else {
+        charts
+          .wOrder(function(ch0, ch1) { return ch0.id() - ch1.id() } )
+          .wEach(function(chart, i) {
+            if (i === 0) { // first
+              chart.xZone().enabled(true);
+              chart.xAxis().isBottom(false);
+            } else if (i === qty - 1) { // last
+              chart.xZone().enabled(true);
+              chart.xAxis().isBottom(true);
+            } else { // middle
+              chart.xZone().enabled(false);
+            }
+          });
+      }
+    }
+
+    var chartIdSeed = 0;
+    function pad(n) { return n < 10 ? '0' + n : n }
+    function formatDate(dt) { return (pad(dt.getHours()))+":"+pad(dt.getMinutes())+":"+pad(dt.getSeconds()); }
+    function addChart(unit) {
+      var template =  '<div class="chartUnit">' +
+                      '@unit@ ' +
+                      '<input id="chkIsLog_@id@" type="checkbox" onclick="changeChartIsLog(\'@unit@\', this.checked)" /> ' +
+                      '<input id="chkIsHigh_@id@" type="checkbox" onclick="changeChartIsHigh(\'@unit@\', this.checked)" /> ' +
+                      '</div>' +
+                      '<div class="chartDIV">' +
+                      '  <svg id="svg_@id@" class="chartSVG" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">' +
+                      '  </svg>' +
+                      '</div>';
+
+      chartIdSeed++;
+
+      var chartsEl = WAVE.id("sectCharts");
+
+      var chartWrapper = document.createElement("div");
+      chartWrapper.id = "ch_wr_" + chartIdSeed;
+      chartWrapper.className = "chartWrapper";
+      chartsEl.appendChild(chartWrapper);
+
+      var html = WAVE.strTemplate(template, {id: chartIdSeed, unit: unit});
+
+      chartWrapper.innerHTML = html;
+
+      var chartSVGEl = WAVE.id("svg_" + chartIdSeed);
+      var chart = new WAVE.Chart.SVG.Chart(chartSVGEl);
+
+      chart.idSeed = chartIdSeed;
+
+      chart.beginUpdate();
+
+      chart.sZone().chartType(WAVE.Chart.SVG.ChartType.LINE | WAVE.Chart.SVG.ChartType.POINT);
+      chart.sZone().pointSize(1);
+      chart.sZone().showDefaultRuler(WAVE.id("chkShowTree").checked);
+      chart.sZone().rulerCheckYContains(false);
+
+      chart.xAxis().dataType(WAVE.Chart.SVG.DataType.DATE);
+      chart.xAxis().min(chartDateRange.filledFrom); chart.xAxis().max(chartDateRange.filledTo);
+
+      chart.xAxis().labelValToStr = formatDate;
+
+      chart.yAxis().minMargin(0); chart.yAxis().maxMargin(1);
+      chart.yAxis().minWidth(50);
+
+      chart.lZone().corner(WAVE.Chart.SVG.RectCorner.LEFTTOP);
+      chart.lZone().legendMargin(5);
+
+      chart.endUpdate();
+
+      return chart;
+    }
+
+    function showTree(val) {
+      var treeWidth, chartsLeft;
+      if (val) {
+        treeWidth = "350px";
+        chartsLeft = "354px";
+      } else {
+        treeWidth = "0px";
+        chartsLeft = "0px";
+      }
+      WAVE.id("sectTree").style.width = treeWidth;
+      WAVE.id("sectCharts").style.left = chartsLeft;
+
+      WAVE.groupWalkable(chartography).wEach(function(g) { g.k.chart.draw(); });
+    }
+
+    function showRuler(val) {
+      WAVE.groupWalkable(chartography).wEach(function (g) { g.k.chart.sZone().showDefaultRuler(val); });
+    }
+
+    function changeChartIsLog(unit, isLog) {
+      var chartographyNewWlk = WAVE.groupWalkable(chartography); // "materialize" walkable
+
+      var el = chartographyNewWlk.wFirst(function(g) { return g.k.unit == unit });
+      if (el === null) return;
+
+      el.k.isLog = isLog === true;
+      el.k.chart.yAxis().isLinear(!el.k.isLog);
+    }
+
+    function changeChartIsHigh(unit, isHigh) {
+      var chartographyNewWlk = WAVE.groupWalkable(chartography); // "materialize" walkable
+
+      var el = chartographyNewWlk.wFirst(function (g) { return g.k.unit == unit });
+      if (el === null) return;
+
+      el.k.isHigh = isHigh === true;
+
+      syncChartHeight(el.k);
+    }
+
+    function syncChartHeight(k) { // k = {unit: [UNIT], chart: [CHART], chartCfg: {isLog: [TRUE/FALSE], isHigh: [TRUE/FALSE]}}
+      var chartWrapperEl = k.chart.svgEl().parentNode.parentNode;
+
+      chartWrapperEl.style.height = k.isHigh ? '400px' : '200px';
+
+      k.chart.draw();
+    }
+
+    // leaf/src node structure:
+    // {id: src, data: {ns, src, data: {descr, unit}}, html: src}
+    function buildTree(data) {
+      var byClass = WAVE.strOneOf(data.grouping, ["Intf", "Interface", "Interfaces", "Class", "Classes"]);
+
+      var byClassChanged = typeof(tree.BUILT_BY_CLASS) === "undefined"  || tree.BUILT_BY_CLASS != byClass;
+      if (byClassChanged) {
+        tree.root().removeAllChildren();
+        var selectedSrcsWlkbl = WAVE.arrayWalkable([]);
+        WAVE.groupWalkable(chartography).wEach(function(g) { g.v.wEach(function(s) { selectedSrcsWlkbl.OriginalArray.push(s) }) });
+      }
+
+                    function build(troot, droot) {
+
+                      for(var tdn in droot) {
+                        var node = troot;
+
+                        var tdatum = droot[tdn];
+                        var segs = tdn.split('.');
+
+                        for(var i in segs) {
+                          var seg = segs[i];
+                          var isDatum = (i == segs.length-1);
+                          var cn = node.getChild(seg);
+                          if (cn === null) {
+                            cn = node.addChild({id: seg, html: seg, selectable: false});
+                            if (isDatum) {
+                              cn.wvTreeNode("wvTreeNode wvTreeNode_evt_gau");
+                              cn.wvTreeNodeButtonExpanded("wvTreeNodeButtonExpanded wvTreeNodeButtonExpanded_evt_gau");
+                              cn.wvTreeNodeButtonCollapsed("wvTreeNodeButtonCollapsed wvTreeNodeButtonCollapsed_evt_gau");
+                              var imgStl = tdatum.gauge ? "tv_gau" : "tv_evt";
+                              if (tdatum.error) imgStl += "_err";
+                              cn.wvTreeNodeOwn("vwTreeNodeOwn " + imgStl);
+
+                              var hInfo = tdatum.descr + "&nbsp;(" + tdatum.unit + ")";
+                              cn.addChild({id: seg + "_i", html: hInfo, selectable: false, wvTreeNode: "wvTreeNode wvTreeNode_evt_gau_info"});
+                            } else {
+                              cn.wvTreeNodeOwn("vwTreeNodeOwn tv_ns");
+                            }
+                          }
+                          node = cn;
+                        }
+
+                        for(var iSrc in tdatum.data) {
+                          var src = tdatum.data[iSrc];
+                          var cn = node.getChild(src);
+                          if (cn === null) {
+                            var data = {ns: tdn, src: src, data: tdatum};
+
+                            var selected = false;
+                            if (byClassChanged) {
+                              selected = selectedSrcsWlkbl.wAny(function(s) { return s.ns == tdn && s.src == src });
+                            }
+
+                            var srcHtml = src;
+                            if(srcHtml.length < 2) srcHtml += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+
+                            cn = node.addChild({id: src, data: data, html: srcHtml, selected: selected,
+                                                wvTreeNode: "wvTreeNode " + (tdatum.error ? "tv_src_err" : "tv_src") });
+
+                            if (byClassChanged && selected) {
+                              cn.unveil();
+                              markParentNodes(cn);
+                            }
+                          }
+                        }
+                      }
+      }
+
+      if (byClass) {
+        for(var idn in data.tree) {
+          var nn = tree.root().getChild(idn);
+          if (nn === null) {
+            // interface picture
+            nn = tree.root().addChild({id: idn, html: idn, selectable: false, wvTreeNode: "wvTreeNode tv_cls"});
+          }
+          build(nn, data.tree[idn]);
+        }
+      } else {
+        build(tree.root(), data.tree);
+      }
+
+      tree.BUILT_BY_CLASS = byClass;
+    }
+
+    var tmrTreeRefresh = null;
+
+    function loadTree(longWindow) {
+      if (tmrTreeRefresh !== null){
+       clearTimeout(tmrTreeRefresh);
+       tmrTreeRefresh = null;
+      }
+
+      var forZone = WAVE.id("chkForZone") !== null ? WAVE.id("chkForZone").checked : false;
+      var grouping = WAVE.id("cmbGrouping").value;
+      $.getJSON("?[:URIS.INSTRUMENTATION_MVC]/GetTree?forZone=" + forZone + "&grouping=" + grouping,
+                function(data) {
+                  //todo Show in label "data.processingIntervalMS"
+                  buildTree(data);
+                  tmrTreeRefresh = setTimeout(loadTree, 10000);
+                } );
+    }
+
+    var tmrChartsRefresh = null;
+    var chartProcessingIntervalMS = null;
+
+    function loadData(reset) {
+      if (tmrChartsRefresh !== null) {
+        clearTimeout(tmrChartsRefresh);
+        tmrChartsRefresh = null;
+      }
+
+      var NSDescrs = [];
+
+      var chartographyWlkbl = WAVE.groupWalkable(chartography);
+
+      var range = chartDateRange.rangeToFill();
+
+      chartographyWlkbl.wEach(function(g) {
+        g.v.wGroup(function(nsSrc) { return nsSrc.ns }, function(nsSrc) { return nsSrc }).wEach(function(ns) {
+
+          var NSDescr = {NS: ns.k, Sources: []};
+
+          ns.v.wEach(function(s) {
+            if (s.isNew) {
+              NSDescr.Sources.push({SRC: s.src, FromUTC: range.add.from });
+            }
+            else {
+              var from = new Date(range.update.from);
+              from.setMilliseconds(from.getMilliseconds() - 2 * chartProcessingIntervalMS);
+              NSDescr.Sources.push({SRC: s.src, FromUTC: from });
+            }
+          });
+
+          NSDescrs.push(NSDescr);
+        });
+      });
+
+      var dataRequest = {Namespaces: NSDescrs, ToUTC: range.add.to.toUTCString()};
+
+      var forZone = WAVE.id("chkForZone") !== null ? WAVE.id("chkForZone").checked : false;
+      $.ajax({
+        url: "?[:URIS.INSTRUMENTATION_MVC]/GetData?forZone=" + forZone,
+        type: "post",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(dataRequest),
+        success: function(data) {
+          if (data.OK)
+          {
+            WAVE.id("imgAntenna").src = '?[:SURI.Image("Antenna.OK.gif")]';
+            WAVE.id("spnReceived").innerHTML = data.total;
+            WAVE.id("spnRecCount").innerHTML = data.recordCount;
+            WAVE.id("spnRecFree").innerHTML = (100 - Math.trunc((data.recordCount / data.maxRecordCount) * 100)) + "%";
+
+            datumReceived(data, reset);
+            chartProcessingIntervalMS = data.processingIntervalMS;
+            tmrChartsRefresh = setTimeout(loadData, chartProcessingIntervalMS + 1000);
+          }
+          else
+          {
+            if (data.IsAuthorization) {
+               var dlg = new WAVE.GUI.Dialog({
+                      header: 'Session Expired',
+                      body: 'Your session has expired.<br>' +
+                            'You will have to log in.<br>' +
+                            '<button onclick="WAVE.GUI.currentDialog().cancel()">Dismiss</button>'
+                      });
+               setTimeout(function() {dlg.cancel(); window.location.href = "/"; }, 10000);
+
+
+              return;
+            }
+
+            WAVE.id("imgAntenna").src = '?[:SURI.Image("Antenna.ERROR.gif")]';
+            WAVE.id("spnReceived").innerHTML = "Error " + data.Error;
+            WAVE.id("spnRecCount").innerHTML = "?";
+            WAVE.id("spnRecFree").innerHTML = "?";
+
+            tmrChartsRefresh = setTimeout(loadData, 10000);
+          }
+        },
+        error: function() {
+          WAVE.id("imgAntenna").src = '?[:SURI.Image("Antenna.ERROR.gif")]';
+          WAVE.id("spnReceived").innerHTML = "Error";
+          WAVE.id("spnRecCount").innerHTML = "?";
+          WAVE.id("spnRecFree").innerHTML = "?";
+
+          tmrChartsRefresh = setTimeout(loadData, 20000);
+        }
+      });
+    }
+
+    function datumReceived(data, reset) {
+      chartDateRange.rangeFilled(new Date(data.to));
+
+      var sources = [];
+      var sourcesWlkbl = WAVE.arrayWalkable(sources);
+
+      chgrWlkbl = WAVE.groupWalkable(chartography);
+      chgrWlkbl.wEach(function(ek) {
+        ek.v.wEach(function(ev) { sources.push(ev) });
+      });
+
+      for(var iNs in data.data) {
+        var ns = data.data[iNs] || {};
+        for(var iSrc in ns) {
+          var source = sourcesWlkbl.wFirst(function(e) { return e.ns == iNs && e.src == iSrc });
+          if (source === null) continue;
+
+          var series = source.series || [];
+          if (reset) series.splice(0, series.length);
+          source.isNew = false;
+          var seriesWlkbl = WAVE.arrayWalkable(series);
+
+          var samples = ns[iSrc] || [];
+
+          var samplesWlkbl = WAVE.arrayWalkable(samples);
+          samplesWlkbl.wEach(function(s) {
+            s.sd = new Date(s.sd);
+            s.ed = new Date(s.ed);
+          });
+
+          samplesWlkbl.wOrder(function(s0, s1) { return s0.sd.getTime() - s1.sd.getTime() }).wEach(function(sample) {
+            var existingSample = seriesWlkbl.wFirst(function(e) { return e.sd.getTime() === sample.sd.getTime() });
+            if (existingSample !== null) {
+              existingSample.ed = sample.ed;
+              existingSample.cnt = sample.cnt;
+              existingSample.rate = sample.rate;
+              existingSample.val = sample.val;
+            } else {
+              series.push(sample);
+            }
+          });
+
+          // remove obsolete samples {
+          var from = chartDateRange.filledFrom;
+          var firstIdxWithinFrom = seriesWlkbl.wFirstIdx(function(s) { return s.sd >= from } );
+          var seriesCnt = seriesWlkbl.wCount();
+          if (seriesCnt > 1 && firstIdxWithinFrom > 1) {
+              series.splice(0, firstIdxWithinFrom-1);
+          } else {
+            series.splice(0, firstIdxWithinFrom);
+          }
+          // } remove obsolete samples
+
+          source.series = series;
+        }
+      }
+
+      updateChartData();
+    }
+
+    function updateChartData() {
+
+      WAVE.groupWalkable(chartography).wEach(function(gc) {
+        var chart = gc.k.chart;
+
+        chart.beginUpdate();
+
+        chart.xAxis().min(chartDateRange.filledFrom); chart.xAxis().max(chartDateRange.filledTo);
+
+        gc.v.wEach(function(s) {
+
+          var existingSeries = chart.seriesListWalkable().wFirst(function(chs) { return chs.id().ns == s.ns && chs.id().src == s.src} );
+          var ds = existingSeries.dataSet();
+
+          ds.removeAllPoints();
+
+          for(var iSample in s.series) {
+            var sample = s.series[iSample];
+            ds.addPoint(sample.sd, sample.plt);
+          }
+
+        });
+
+        chart.endUpdate();
+      });
+    }
+
+          function getPresetsHtml() {
+            var ITEM_TEMPLATE = '<div id="dvi_@id@" class="clsDvPresetItem">' +
+                                '  <span class="clsDvPresetItemName" onclick="applyPreset(\'@id@\')">@name@</span>' +
+                                '  <span class="clsDvPresetItemRemove" onclick="removePreset(\'@id@\')">Remove</span>' +
+                                '</div>';
+
+            var items = "";
+            WAVE.arrayWalkable(getPresetHeads()).wEach(function(h) {
+              var item = WAVE.strTemplate(ITEM_TEMPLATE, h);
+              items += item + "\r\n";
+            });
+
+            return items;
+          }
+
+          function showPresets() {
+            var DLG_TEMPLATE = '<div id="dvDlgContent" class="clsDvPresets"></div>' +
+                               '<div id="dvButtonDlg">' +
+                               '  <button class="uiCentered uiButton" id="btnDlgPresetsSave" onclick="savePreset()">Save</button>' +
+                               '  <button class="uiCentered uiButton" id="btnDlgPresetsClose" onclick="WAVE.GUI.currentDialog().cancel();">Close</button>' +
+                               '</div>';
+
+            var content = WAVE.strTemplate(DLG_TEMPLATE, {});
+
+            var dlg = new WAVE.GUI.Dialog({ header: 'Presets', body: content});
+
+            WAVE.id("dvDlgContent").innerHTML = getPresetsHtml();
+          }
+
+          function savePreset() {
+            var presetName = prompt("Enter preset name");
+            if(presetName === null) return;
+
+            var presetContent = JSON.stringify(chartography);
+            var chartographyToSave = JSON.parse(presetContent);
+
+            WAVE.groupWalkable(chartographyToSave).wEach(function(g) {
+              delete g.k.chart;
+              for(var i in g.v) {
+                g.v.wEach(function(v) {
+                  delete v.series;
+                  v.isNew = true;
+                });
+              }
+            });
+
+            var presetObj = {};
+            presetObj.chartography = chartographyToSave;
+            presetObj.showRuler = WAVE.id("chkShowRuler").checked;
+            presetObj.showTree = WAVE.id("chkShowTree").checked;
+            presetObj.range = WAVE.id("cmbRange").value;
+            presetObj.grouping = WAVE.id("cmbGrouping").value;
+            @[if (SkySystem.SystemApplicationType == SystemApplicationType.ZoneGovernor && ZoneGovernorService.IsZoneGovernor) {]
+            @[/*if (true) {*/]
+              presetObj.forZone = WAVE.id("chkForZone").checked;
+            @[}]
+            presetContent = JSON.stringify(presetObj);
+
+            localStorage.setItem(PRESET_PREFIX + presetName, presetContent);
+
+            WAVE.id("dvDlgContent").innerHTML = getPresetsHtml();
+          }
+
+          function getPresetHeads() {
+            var arr = [];
+
+            for (var i = 0; i <= localStorage.length-1; i++) {
+              key = localStorage.key(i);
+              if (!WAVE.strStartsWith(key, PRESET_PREFIX)) continue;
+              arr.push({id: key, name: key.substring(PRESET_PREFIX.length)});
+            }
+
+            return arr;
+          }
+
+          function removePreset(id) {
+            if (!confirm("Remove PreSet \"" + id + "\"?")) return;
+
+            WAVE.arrayWalkable(getPresetHeads()).wWhere(function(h) { return h.id == id }).wEach(function(h) {
+              localStorage.removeItem(h.id);
+              var dlgItemEl = WAVE.id("dvi_" + id);
+              dlgItemEl.parentElement.removeChild(dlgItemEl);
+            });
+          }
+
+          function applyPreset(id) {
+            var content = localStorage.getItem(id);
+            var presetObj = JSON.parse(content);
+            var chartographyNew = presetObj.chartography;
+
+            tree.supressEvents(true);
+
+            var allNodes = tree.root().getDescendants().wToArray();
+            var allNodesWlk = WAVE.arrayWalkable(allNodes);
+
+            allNodesWlk.wEach(function(n) {
+              var node = n.node;
+              if (node.selectable()) {
+                node.selected(false);
+              } else {
+                node.expanded(false);
+
+                ensureClsInNodeClass(CLS_HAS_CHILD_SELECTED, false, node.wvTreeNodeOwn);
+                ensureClsInNodeClass(CLS_HAS_CHILD_SELECTED, false, node.wvTreeNodeOwnSelected);
+              }
+            });
+
+            WAVE.groupWalkable(chartographyNew).wEach(function (g) {
+
+              g.v.wEach(function(v) {
+
+                allNodesWlk.wWhere(function(n) {
+                  var ndata = n.node.data();
+                  if (!ndata) return false;
+                  return ndata.ns == v.ns && ndata.src == v.src }).wEach(function(n) {
+
+                    n.node.selected(true);
+                    n.node.unveil();
+
+                    markParentNodes(n.node);
+                  });
+              });
+            });
+
+            tree.supressEvents(false);
+
+            buildChartsFromTree();
+
+            WAVE.id("chkShowRuler").checked = presetObj.showRuler;
+            showRuler(presetObj.showRuler);
+            WAVE.id("chkShowTree").checked = presetObj.showTree;
+            showTree(presetObj.showTree);
+            if (presetObj.range) {
+              WAVE.id("cmbRange").value = presetObj.range;
+              chartDateRange.set(60 * presetObj.range);
+            }
+            if (presetObj.grouping) {
+              WAVE.id("cmbGrouping").value = presetObj.grouping;
+              loadTree(true);
+            }
+            @[if (SkySystem.SystemApplicationType == SystemApplicationType.ZoneGovernor && ZoneGovernorService.IsZoneGovernor) {]
+            @[/*if (true) {*/]
+              WAVE.id("chkForZone").checked = presetObj.forZone;
+              loadData(true);
+            @[}]
+
+            var chartographyWlkbl = WAVE.groupWalkable(chartography); // make walkable from previous state
+            var chartographyWlkblFromStore = WAVE.groupWalkable(chartographyNew);
+
+            // initialize existing chart fields {
+            chartographyWlkbl.wEach(function (gc) {
+
+              var existingGroup = chartographyWlkblFromStore.wFirst(function (gs) { return gs.k.unit == gc.k.unit });
+
+              gc.k.isLog = existingGroup.k.isLog;
+              var chkIsLog = WAVE.id("chkIsLog_" + gc.k.chart.idSeed);
+              chkIsLog.checked = gc.k.isLog === true;
+              changeChartIsLog(gc.k.unit, gc.k.isLog);
+
+              gc.k.isHigh = existingGroup.k.isHigh;
+              var chkIsHigh = WAVE.id("chkIsHigh_" + gc.k.chart.idSeed);
+              chkIsHigh.checked = gc.k.isHigh === true;
+              syncChartHeight(gc.k);
+            });
+          }
+
+    loadTree();
+    loadData();
+
+  </script>

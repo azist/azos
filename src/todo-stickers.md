@@ -18,3 +18,6 @@ a thread pool and properly awaited for
 * Revise Glue use of async methods in contracts
 * Make CallSlot custom awaitable
 * [2018-11-01]~~Glue Server call context - get rid of ThreadStatic~~
+
+## MVC
+* Bring back async pipeline in a separate branch

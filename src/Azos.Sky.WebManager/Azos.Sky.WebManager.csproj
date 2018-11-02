@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Azos - Sky Operating System Web Manager Assembly</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="BUILD_INFO.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Pages\.tc\Console.nht.auto.cs" />
+    <Compile Include="Pages\.tc\HeadMaster.nht.auto.cs" />
+    <Compile Include="Pages\.tc\Instrumentation.nht.auto.cs" />
+    <Compile Include="Pages\.tc\InstrumentationCharts.nht.auto.cs" />
+    <Compile Include="Pages\.tc\InstrumentationLogs.nht.auto.cs" />
+    <Compile Include="Pages\.tc\Login.nht.auto.cs" />
+    <Compile Include="Pages\.tc\Master.nht.auto.cs" />
+    <Compile Include="Pages\.tc\Process.nht.auto.cs" />
+    <Compile Include="Pages\.tc\ProcessManager.nht.auto.cs" />
+    <Compile Include="Pages\.tc\TheSystem.nht.auto.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="BUILD_INFO.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Azos.Wave\Azos.Wave.csproj" />
+    <ProjectReference Include="..\Azos.Web\Azos.Web.csproj" />
+    <ProjectReference Include="..\Azos\Azos.csproj" />
+    <ProjectReference Include="..\Azos\Azos.Sky.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\out\Debug\</OutputPath>
+    <DocumentationFile>..\..\out\Debug\Azos.Sky.WebManager.xml</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\out\Release\</OutputPath>
+    <DocumentationFile>..\..\out\Release\Azos.Sky.WebManager.xml</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="$(ProjectDir)_build/pre-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(ProjectDir)_build/post-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
+  </Target>
+
+</Project>
