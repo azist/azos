@@ -36,7 +36,7 @@ namespace Azos.Sky.WebManager.Controllers
         var sd = startDate != null ?  new DateTime(startDate.Value.Year, startDate.Value.Month, startDate.Value.Day, 0, 0, 0) : DateTime.MinValue;
         var ed = endDate != null ?  new DateTime(endDate.Value.Year, endDate.Value.Month, endDate.Value.Day, 23, 59, 59) : DateTime.MaxValue;
 
-        var result = AgniSystem.ProcessManager
+        var result = SkySystem.ProcessManager
           .List(zone)
           .Where(descriptor => (signal.IsNullOrEmpty() || signal.EqualsOrdIgnoreCase("ALL") || descriptor.Status.Equals(status) ) &&
                                ( sd <= descriptor.Timestamp && descriptor.Timestamp <= ed ) &&
@@ -56,7 +56,7 @@ namespace Azos.Sky.WebManager.Controllers
     {
       var pid = new PID(map);
       var cancel = Signal.MakeNew<CancelSignal>(pid);
-      var result = AgniSystem.ProcessManager.Dispatch(cancel);
+      var result = SkySystem.ProcessManager.Dispatch(cancel);
       return new {Status = result.GetType().Name};
     }
 
@@ -65,7 +65,7 @@ namespace Azos.Sky.WebManager.Controllers
     {
       var pid = new PID(map);
       var terminate = Signal.MakeNew<TerminateSignal>(pid);
-      var result = AgniSystem.ProcessManager.Dispatch(terminate);
+      var result = SkySystem.ProcessManager.Dispatch(terminate);
       return new {Status = result.GetType().Name};
     }
 
@@ -78,7 +78,7 @@ namespace Azos.Sky.WebManager.Controllers
         var _signal = map["signal"];
         var pid = new PID(_pid);
         var conf = _signal.AsLaconicConfig();
-        var result = AgniSystem.ProcessManager.Dispatch(pid, conf);
+        var result = SkySystem.ProcessManager.Dispatch(pid, conf);
         return new {Status = result.GetType().Name};
       }
       catch (Exception ex)
@@ -92,7 +92,7 @@ namespace Azos.Sky.WebManager.Controllers
     {
       var _pid = pidMap["pid"] as JSONDataMap;
       var pid = new PID(_pid);
-      var result = AgniSystem.ProcessManager.Get<Process>(pid);
+      var result = SkySystem.ProcessManager.Get<Process>(pid);
       return result;
     }
 

@@ -46,13 +46,13 @@ namespace Azos.Sky.WebManager.Controllers
     [Action]
     public object NavigateToHost(string metabasePath)
     {
-      var host = AgniSystem.Metabase.CatalogReg[metabasePath] as Metabank.SectionHost;
+      var host = SkySystem.Metabase.CatalogReg[metabasePath] as Metabank.SectionHost;
       if (host != null)
       {
         string hostURL;
         try
         {
-          hostURL = AgniSystem.Metabase.ResolveNetworkServiceToConnectString(
+          hostURL = SkySystem.Metabase.ResolveNetworkServiceToConnectString(
                                 metabasePath,
                                 SysConsts.NETWORK_INTERNOC,
                                 host.IsZGov ? SysConsts.NETWORK_SVC_ZGOV_WEB_MANAGER : SysConsts.NETWORK_SVC_HGOV_WEB_MANAGER);
@@ -82,13 +82,13 @@ namespace Azos.Sky.WebManager.Controllers
       //};
 
       var log = App.Log as LogServiceBase;
-      if (log == null) return NFX.Wave.SysConsts.JSON_RESULT_ERROR;
+      if (log == null) return Azos.Wave.SysConsts.JSON_RESULT_ERROR;
 
       from = (from == null) ? log.LocalizedTime.AddSeconds(-600) : log.UniversalTimeToLocalizedTime(from.Value.ToUniversalTime());
 
       IEnumerable<Message> buf;
       if (forZone &&
-          AgniSystem.SystemApplicationType == SystemApplicationType.ZoneGovernor &&
+          SkySystem.SystemApplicationType == SystemApplicationType.ZoneGovernor &&
           ZoneGovernorService.IsZoneGovernor)
         buf = ZoneGovernorService.Instance.GetSubordinateInstrumentationLogBuffer(true);
       else
@@ -147,9 +147,9 @@ namespace Azos.Sky.WebManager.Controllers
       parameterized.ExternalGetParameter(key, out setVal);
 
       var valStr = setVal.AsString();
-      if (valStr.IsNotNullOrWhiteSpace() && valStr.StartsWith(NFX.CoreConsts.EXT_PARAM_CONTENT_LACONIC))
+      if (valStr.IsNotNullOrWhiteSpace() && valStr.StartsWith(Azos.CoreConsts.EXT_PARAM_CONTENT_LACONIC))
       {
-        valStr = valStr.Substring(NFX.CoreConsts.EXT_PARAM_CONTENT_LACONIC.Length);
+        valStr = valStr.Substring(Azos.CoreConsts.EXT_PARAM_CONTENT_LACONIC.Length);
         return new { OK = true, val = valStr.AsLaconicConfig().ToJSONDataMap()};
       }
       else
@@ -238,7 +238,7 @@ namespace Azos.Sky.WebManager.Controllers
       cmpMap["instrumentable"] = instrumentable != null;
       cmpMap["instrumentationEnabled"] = instrumentable != null ? instrumentable.InstrumentationEnabled : false;
       cmpMap["SID"] = cmp.ComponentSID;
-      cmpMap["startTime"] = Agni.AppModel.Terminal.Cmdlets.Appl.fdt( cmp.ComponentStartTime );
+      cmpMap["startTime"] = Sky.Apps.Terminal.Cmdlets.Appl.fdt( cmp.ComponentStartTime );
       cmpMap["tp"] = cmp.GetType().FullName;
       if (cmp.ComponentCommonName.IsNotNullOrWhiteSpace()) cmpMap["commonName"] = cmp.ComponentCommonName;
       if (cmp is INamed) cmpMap["name"] = ((INamed)cmp).Name;
@@ -270,9 +270,9 @@ namespace Azos.Sky.WebManager.Controllers
         parameterMap["plist"] = plist;
 
         var valStr = val.AsString();
-        if (valStr.IsNotNullOrWhiteSpace() && valStr.StartsWith(NFX.CoreConsts.EXT_PARAM_CONTENT_LACONIC))
+        if (valStr.IsNotNullOrWhiteSpace() && valStr.StartsWith(CoreConsts.EXT_PARAM_CONTENT_LACONIC))
         {
-          valStr = valStr.Substring(NFX.CoreConsts.EXT_PARAM_CONTENT_LACONIC.Length);
+          valStr = valStr.Substring(Azos.CoreConsts.EXT_PARAM_CONTENT_LACONIC.Length);
           parameterMap["val"] = valStr.AsLaconicConfig().ToJSONDataMap();
 //          parameterMap["val"] = @" {
 //                                  'detailed-instrumentation': true,
@@ -327,7 +327,7 @@ namespace Azos.Sky.WebManager.Controllers
         componentMap["instrumentable"] = instrumentable != null;
         componentMap["instrumentationEnabled"] = instrumentable != null ? instrumentable.InstrumentationEnabled : false;
         componentMap["SID"] = cmp.ComponentSID;
-        componentMap["startTime"] = Agni.AppModel.Terminal.Cmdlets.Appl.fdt( cmp.ComponentStartTime );
+        componentMap["startTime"] = Sky.AppModel.Terminal.Cmdlets.Appl.fdt( cmp.ComponentStartTime );
         componentMap["tp"] = cmp.GetType().FullName;
         if (cmp.ComponentCommonName.IsNotNullOrWhiteSpace()) componentMap["commonName"] = cmp.ComponentCommonName;
         if (cmp is INamed) componentMap["name"] = ((INamed)cmp).Name;
@@ -377,7 +377,7 @@ namespace Azos.Sky.WebManager.Controllers
       var instrumentation = App.Instrumentation;
 
       if (forZone &&
-          AgniSystem.SystemApplicationType == SystemApplicationType.ZoneGovernor &&
+          SkySystem.SystemApplicationType == SystemApplicationType.ZoneGovernor &&
           ZoneGovernorService.IsZoneGovernor)
         instrumentation = ZoneGovernorService.Instance.SubordinateInstrumentation;
 
@@ -403,7 +403,7 @@ namespace Azos.Sky.WebManager.Controllers
       var instrumentation = App.Instrumentation;
 
       if (forZone &&
-          AgniSystem.SystemApplicationType == SystemApplicationType.ZoneGovernor &&
+          SkySystem.SystemApplicationType == SystemApplicationType.ZoneGovernor &&
           ZoneGovernorService.IsZoneGovernor)
         instrumentation = ZoneGovernorService.Instance.SubordinateInstrumentation;
 

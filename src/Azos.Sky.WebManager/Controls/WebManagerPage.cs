@@ -44,7 +44,7 @@ namespace Azos.Sky.WebManager.Controls
 
     public virtual string Title
     {
-      get {return m_Title.IsNullOrWhiteSpace() ? (AgniSystem.MetabaseApplicationName + "@" + AgniSystem.HostName)
+      get {return m_Title.IsNullOrWhiteSpace() ? (SkySystem.MetabaseApplicationName + "@" + SkySystem.HostName)
                                                : m_Title;}
       set {m_Title = value;}
     }

@@ -1,17 +1,17 @@
 ﻿#<laconf>
   compiler 
   {
-     using{ns="NFX.Wave"} 
-     using{ns="Agni.WebManager.Controls"} 
+     using{ns="Azos.Wave"} 
+     using{ns="Azos.Sky.WebManager.Controls"} 
      base-class-name="Master, IConsolePage"
-     namespace="Agni.WebManager.Pages"
+     namespace="Azos.Sky.WebManager.Pages"
      abstract="false"
      summary="Process Status Page"
      
   }
 #</laconf>
 #[override renderHeader()]
- <h1>?[AgniSystem.MetabaseApplicationName] Remote Console </h1>
+ <h1>?[SkySystem.MetabaseApplicationName] Remote Console </h1>
 #[override renderBody()]
  
   <link rel="stylesheet" type="text/css" href='?[SURI.StockStyle("console.modern.css")]' media="all">

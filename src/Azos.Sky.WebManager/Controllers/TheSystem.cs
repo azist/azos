@@ -27,7 +27,7 @@ namespace Azos.Sky.WebManager.Controllers
 
       try
       {
-        var url = AgniSystem.Metabase.ResolveNetworkServiceToConnectString(metabasePath,
+        var url = SkySystem.Metabase.ResolveNetworkServiceToConnectString(metabasePath,
                   SysConsts.NETWORK_INTERNOC,
                   svc);
 
@@ -54,8 +54,8 @@ namespace Azos.Sky.WebManager.Controllers
       Metabank.SectionRegionBase section = null;
       if (path.IsNotNullOrWhiteSpace() && path != "/" && path != "\\")
       {
-        section = AgniSystem.Metabase.CatalogReg[path];
-        if (section == null) return NFX.Wave.SysConsts.JSON_RESULT_ERROR;
+        section = SkySystem.Metabase.CatalogReg[path];
+        if (section == null) return Aozs.Wave.SysConsts.JSON_RESULT_ERROR;
 
         if (section is Metabank.SectionRegion)
         {
@@ -76,19 +76,19 @@ namespace Azos.Sky.WebManager.Controllers
             children = children.Concat(zone.HostNames.OrderBy(h => h).Select(h => (Metabank.SectionRegionBase)zone.GetHost(h)));
         }
         else
-          return NFX.Wave.SysConsts.JSON_RESULT_ERROR;
+          return Azos.Wave.SysConsts.JSON_RESULT_ERROR;
       }
       else
       {
-        children = AgniSystem.Metabase.CatalogReg.Regions;
+        children = SkySystem.Metabase.CatalogReg.Regions;
       }
 
       return new
       {
         OK=true,
         path=path,
-        myPath=AgniSystem.HostMetabaseSection.RegionPath,
-        myPathSegs=AgniSystem.HostMetabaseSection.SectionsOnPath.Select(s => s.Name).ToArray(),
+        myPath=SkySystem.HostMetabaseSection.RegionPath,
+        myPathSegs=SkySystem.HostMetabaseSection.SectionsOnPath.Select(s => s.Name).ToArray(),
         children=makeChildren(children)
       };
     }
@@ -103,7 +103,7 @@ namespace Azos.Sky.WebManager.Controllers
 
         d["name"] = child.Name;
         d["path"] = child.RegionPath;
-        d["me"] = child.IsLogicallyTheSame(AgniSystem.HostMetabaseSection);
+        d["me"] = child.IsLogicallyTheSame(SkySystem.HostMetabaseSection);
         d["tp"] = child.SectionMnemonicType;
         d["descr"] = child.Description;
 
@@ -121,7 +121,7 @@ namespace Azos.Sky.WebManager.Controllers
           string adminURL = null;
           try
           {
-            adminURL = AgniSystem.Metabase.ResolveNetworkServiceToConnectString(host.RegionPath,
+            adminURL = SkySystem.Metabase.ResolveNetworkServiceToConnectString(host.RegionPath,
               SysConsts.NETWORK_INTERNOC,
               isZGov ? SysConsts.NETWORK_SVC_ZGOV_WEB_MANAGER : SysConsts.NETWORK_SVC_HGOV_WEB_MANAGER);
           }

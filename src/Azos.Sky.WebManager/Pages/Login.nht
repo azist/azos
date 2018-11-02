@@ -1,8 +1,8 @@
 ﻿#<laconf>
   compiler
   {
-     using{ns="NFX"}
-     using{ns="NFX.Wave"}
+     using{ns="Azos"}
+     using{ns="Azos.Wave"}
      using{ns="Azos.Sky.WebManager.Controls"}
      base-class-name="Master"
      namespace="Azos.Sky.WebManager.Pages"

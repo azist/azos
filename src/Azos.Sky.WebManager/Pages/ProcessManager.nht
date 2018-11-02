@@ -1,7 +1,7 @@
 #<laconf>
   compiler 
   {
-     using{ns="NFX.Wave"} 
+     using{ns="Azos.Wave"} 
      using{ns="Azos.Sky.WebManager.Controls"} 
      base-class-name="HeadMaster, IProcessManagerPage"
      namespace="Azos.Sky.WebManager.Pages"

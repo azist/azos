@@ -1,8 +1,8 @@
 ﻿#<laconf>
   compiler
   {
-    using{ns="NFX.Wave"}
-    using{ns="NFX.Log"}
+    using{ns="Azos.Wave"}
+    using{ns="Azos.Log"}
     using{ns="Azos"}
     using{ns="Azos.Apps"}
     using{ns="Azos.Apps.ZoneGovernor"}
@@ -171,7 +171,7 @@
         <div id="dvFromType" style="display: table-cell;">
           &nbsp;
           <select id="cmbFromType" onchange="update(true)">
-          @[foreach(var mt in Enum.GetValues(typeof(MessageType)).OfType<NFX.Log.MessageType>().OrderBy(e => e)) {]
+          @[foreach(var mt in Enum.GetValues(typeof(MessageType)).OfType<Azos.Log.MessageType>().OrderBy(e => e)) {]
             <option>?[mt]</option>
           @[}]
           </select>

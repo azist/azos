@@ -1,8 +1,8 @@
 ﻿#<laconf>
   compiler
   {
-    using{ns="NFX"}
-    using{ns="NFX.Security"}
+    using{ns="Azos"}
+    using{ns="Azos.Security"}
     using{ns="Azos.Sky.WebManager.Controls"}
     base-class-name="AWMPage"
     namespace="Azos.Sky.WebManager.Pages"
