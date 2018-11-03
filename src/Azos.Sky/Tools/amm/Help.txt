@@ -1,0 +1,44 @@
+﻿<push>
+<f color=magenta>
+ Usage:
+<f color=white>
+   amm <f color=green>metabase_path <f color=darkCyan>[/h | /? | /help]
+              [/s | /silent]
+              [/host | /from host]
+              [/config config_file]
+              [/gbm]
+
+ <f color=green>metabase_path<f color=gray> - Local metabase path (i.e. "C:\mbase")
+
+<f color=magenta>
+ Options:
+
+ <f color=darkCyan>/h | /help | /?<f color=gray> - displays help message
+ <f color=darkCyan>/s | /silent<f color=gray> - suppresses logo and other info messages
+ <f color=darkCyan>/gbm<f color=gray> - (re)/generate binary package manifests
+ <f color=darkCyan>/host | /from host<f color=gray> - specifies the host that operation
+  is performed from (THIS host). If omitted then SKY_HOST_NAME environment
+  variable is queried instead.
+  host is full host path i.e.: "all/us/east/cle/a/i/machine001"
+ <f color=darkCyan>/config<f color=gray> - specifies alternate configuration. This option is
+  usefull when multiple tool instances need to run and they may conflict
+  while writing to the common logger location.
+  Inject an alternate config file to divert log output to a different place or
+  use a NOP loggger/destination.
+  An alternate config file "nolog.laconf" is provided for NOP-logger config
+
+<f color=magenta>
+ Examples:
+
+<f color=yellow>
+  amm "c:\azos\mbase\dev" <f color=gray>
+Checks the local metabase at the specified path for errors. Assumes that
+SKY_HOST_NAME local environment var holds local host path
+
+<f color=yellow>
+  amm "c:\azos\mbase\dev" /from "us/east/cle/A/II/wmed001" <f color=gray>
+Checks the local metabase at the specified path for errors as if calling from
+the specified host
+
+
+<pop>

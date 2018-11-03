@@ -17,9 +17,16 @@ namespace Azos.Security
   {
     #region CONSTS
 
+      /// <summary> Access denied level: bearer has no access/zero </summary>
       public const int DENIED = 0;
+
+      /// <summary> View-only level: bearer has read-only access, so data can be viewed but can not be modified</summary>
       public const int VIEW = 1;
+
+      /// <summary> Change lelvel: bearer can view and change (add, edit) data but not delete it</summary>
       public const int VIEW_CHANGE = 2;
+
+      /// <summary> Full CRUD level: bearer can view, add, update, and delete data</summary>
       public const int VIEW_CHANGE_DELETE = 3;
 
       public const string CONFIG_LEVEL_ATTR = "level";

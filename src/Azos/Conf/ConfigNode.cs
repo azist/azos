@@ -1259,7 +1259,7 @@ namespace Azos.Conf
             if (error is ConfigException)
              throw error;
             else
-             throw new ConfigException(StringConsts.CONFIGURATION_NAVIGATION_BAD_PATH_ERROR + path ?? StringConsts.NULL_STRING);
+             throw new ConfigException(StringConsts.CONFIGURATION_NAVIGATION_BAD_PATH_ERROR + path ?? CoreConsts.NULL_STRING);
           }
         }
 
@@ -1302,7 +1302,7 @@ namespace Azos.Conf
             if (error is ConfigException)
              throw error;
             else
-             throw new ConfigException(StringConsts.CONFIGURATION_NAVIGATION_BAD_PATH_ERROR + path ?? StringConsts.NULL_STRING);
+             throw new ConfigException(StringConsts.CONFIGURATION_NAVIGATION_BAD_PATH_ERROR + path ?? CoreConsts.NULL_STRING);
           }
         }
 
@@ -1847,7 +1847,7 @@ namespace Azos.Conf
                }
                catch(Exception error)
                {
-                    throw new ConfigException(string.Format(StringConsts.CONFIG_VARS_EVAL_ERROR, name ?? StringConsts.NULL_STRING, error.ToMessageWithType()), error);
+                    throw new ConfigException(string.Format(StringConsts.CONFIG_VARS_EVAL_ERROR, name ?? CoreConsts.NULL_STRING, error.ToMessageWithType()), error);
                }
         }
 

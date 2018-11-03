@@ -219,7 +219,6 @@ namespace Azos
     public const string SECURITY_REPRESENT_CREDENTIALS_FORGOTTEN =
         "Credentials can not be represented as they are forgotten";
 
-    public const string NULL_STRING = "<null>";
     public const string UNKNOWN_STRING = "unknown";
 
 

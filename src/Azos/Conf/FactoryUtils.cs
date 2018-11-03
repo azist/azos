@@ -72,7 +72,7 @@ namespace Azos.Conf
             catch(Exception error)
             {
                 throw new ConfigException(string.Format(StringConsts.CONFIGURATION_TYPE_CREATION_ERROR,
-                                                         (node!=null) ? node.RootPath : StringConsts.NULL_STRING,
+                                                         (node!=null) ? node.RootPath : CoreConsts.NULL_STRING,
                                                          error.ToMessageWithType()
                                                        ),
                                           error);

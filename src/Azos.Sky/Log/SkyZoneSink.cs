@@ -96,7 +96,7 @@ namespace Azos.Sky.Log
 
     private void log(MessageType type, string from, string text, Exception error = null, Guid? related = null)
     {
-      var msg = new NFX.Log.Message
+      var msg = new Message
       {
         Type = type,
         Topic = SysConsts.LOG_TOPIC_INSTRUMENTATION,

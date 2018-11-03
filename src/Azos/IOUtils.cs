@@ -104,7 +104,7 @@ namespace Azos
     /// <returns>IPEndPoint instance or null supplied string could not be parsed</returns>
     public static IPEndPoint ToIPEndPoint(this string epoint, int dfltPort = 0)
     {
-      if (string.IsNullOrWhiteSpace(epoint)) throw new AzosException(string.Format(StringConsts.INVALID_EPOINT_ERROR, StringConsts.NULL_STRING, "null arg"));
+      if (string.IsNullOrWhiteSpace(epoint)) throw new AzosException(string.Format(StringConsts.INVALID_EPOINT_ERROR, CoreConsts.NULL_STRING, "null arg"));
 
       try
       {

@@ -340,7 +340,7 @@ namespace Azos.Data.Modeling
                 if (fn==null || !File.Exists(fn))
                     throw new SchemaCompilationException(node.RootPath,
                                                          StringConsts.RELATIONAL_COMPILER_INCLUDE_SCRIPT_NOT_FOUND_ERROR
-                                                                     .Args(node.ValueAsString(StringConsts.NULL_STRING), node.RootPath));
+                                                                     .Args(node.ValueAsString(CoreConsts.NULL_STRING), node.RootPath));
 
                 var content = File.ReadAllText(fn);
 

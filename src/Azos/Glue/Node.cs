@@ -46,7 +46,7 @@ namespace Azos.Glue
       /// The form of the address is: <code>binding://host:service</code>. The "host" and "service" segment syntaxes depend on binding and may not contain the ':' char.
       /// An example of some 'mytest' binding: 'mytest://adr=1.1.1.1,nic=eth001:job,chat,backup'
       /// </summary>
-      public string ConnectString { get { return m_ConnectString ?? StringConsts.NULL_STRING; }  }
+      public string ConnectString { get { return m_ConnectString ?? CoreConsts.NULL_STRING; }  }
 
 
       /// <summary>

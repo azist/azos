@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 
-using NFX;
 using Azos.Glue;
 using Azos.Glue.Protocol;
 
@@ -28,11 +27,12 @@ namespace Azos.Sky.Contracts
   public sealed class RequestMsg_IZoneHostReplicator_PostDynamicHostInfo : RequestMsg
   {
     public RequestMsg_IZoneHostReplicator_PostDynamicHostInfo(MethodInfo method, Guid? instance) : base(method, instance) { }
-    public RequestMsg_IZoneHostReplicator_PostDynamicHostInfo(TypeSpec contract, MethodSpec method, bool oneWay, Guid? instance) : base(contract, method, oneWay, instance) { }
+    public RequestMsg_IZoneHostReplicator_PostDynamicHostInfo(TypeSpec contract, MethodSpec method, bool oneWay, Guid? instance)
+                                                             : base(contract, method, oneWay, instance) { }
 
     public DynamicHostID MethodArg_0_id;
-    public DateTime MethodArg_1_stamp;
-    public string MethodArg_2_owner;
-    public int MethodArg_3_votes;
+    public DateTime      MethodArg_1_stamp;
+    public string        MethodArg_2_owner;
+    public int           MethodArg_3_votes;
   }
 }

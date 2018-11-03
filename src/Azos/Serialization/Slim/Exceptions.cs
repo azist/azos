@@ -66,7 +66,7 @@ namespace Azos.Serialization.Slim
   {
     protected SlimSerializationProhibitedException() { }
     public SlimSerializationProhibitedException(Type type)
-      : base(StringConsts.SLIM_SER_PROHIBIT_ERROR.Args(type != null ? type.FullName : StringConsts.NULL_STRING,
+      : base(StringConsts.SLIM_SER_PROHIBIT_ERROR.Args(type != null ? type.FullName : CoreConsts.NULL_STRING,
                                                         typeof(SlimSerializationProhibitedAttribute).Name)) { }
 
     protected SlimSerializationProhibitedException(SerializationInfo info, StreamingContext context) : base(info, context) { }

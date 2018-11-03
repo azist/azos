@@ -108,7 +108,7 @@ namespace Azos.Conf
          {
            cattr.evalAttributeVars(etp);
 
-           var path = cattr.Path ?? StringConsts.NULL_STRING;
+           var path = cattr.Path ?? CoreConsts.NULL_STRING;
            node = node.Navigate(path) as ConfigSectionNode;
            if (node==null)
             throw new ConfigException(string.Format(StringConsts.CONFIGURATION_NAVIGATION_REQUIRED_ERROR, cattr.Path));

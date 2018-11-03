@@ -391,7 +391,7 @@ namespace Azos.Serialization.Slim
               }
               catch
               {
-                throw new SlimInvalidTypeHandleException("TypeRegistry[handle] is invalid: " + (handle ?? StringConsts.NULL_STRING));
+                throw new SlimInvalidTypeHandleException("TypeRegistry[handle] is invalid: " + (handle ?? CoreConsts.NULL_STRING));
               }
             }
            }

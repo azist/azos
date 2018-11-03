@@ -11,6 +11,8 @@ namespace Azos
   /// </summary>
   public static class CoreConsts
   {
+      public const string NULL_STRING = "<null>";
+
       public const int ABS_HASH_MASK = 0x7FFFFFFF;
 
       public const int MAX_BYTE_BUFFER_SIZE = 2147483647 - 256 - 15; // 2 Gbyte - 256 (reserved for object headers etc.) - 15 bytes (16-aligned)

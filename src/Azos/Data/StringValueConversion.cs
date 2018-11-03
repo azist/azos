@@ -487,11 +487,11 @@ namespace Azos.Data
                 catch(Exception error)
                 {
                   throw new AzosException(string.Format(StringConsts.STRING_VALUE_COULD_NOT_BE_GOTTEN_AS_TYPE_ERROR,
-                                                        val ?? StringConsts.NULL_STRING, tp.FullName), error);
+                                                        val ?? CoreConsts.NULL_STRING, tp.FullName), error);
                 }
 
                 throw new AzosException(string.Format(StringConsts.STRING_VALUE_COULD_NOT_BE_GOTTEN_AS_TYPE_ERROR,
-                                                        val ?? StringConsts.NULL_STRING, tp.FullName));
+                                                        val ?? CoreConsts.NULL_STRING, tp.FullName));
               }
 
 

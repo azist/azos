@@ -332,6 +332,9 @@ namespace Azos.Sky
     public const string SKY_SVC_CLIENT_MAPPING_CTOR_ERROR = "Service hub ContractMapping.ctor(' {0} ') error: {1}";
 
 
+    public const string SECURITY_AUTH_TOKEN_SERIALIZATION_ERROR = "{0} can not serialize unexpected data '{1}'. Token.Data must be of a 'string' type";
+    public const string SECURITY_AUTH_TOKEN_DESERIALIZATION_ERROR = "{0} could not deserialize unexpected data. Caught: {1}";
+
 
     public const string LOCK_SESSION_PATH_ERROR = "LockSession can not be created at the path '{0}'. Error: {1}";
     public const string LOCK_SESSION_ZGOV_SETUP_ERROR = "Invalid metabase setup. Locking failover host count is different from primary host count in the zone '{0}'";

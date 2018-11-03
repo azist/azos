@@ -266,7 +266,7 @@ namespace Azos.Data
             {
                 if (fdef == null)
                   throw new FieldValidationException(Schema.Name,
-                                                         StringConsts.NULL_STRING,
+                                                         CoreConsts.NULL_STRING,
                                                          StringConsts.ARGUMENT_ERROR + ".ValidateField(fdef=null)");
 
                 var atr = fdef[targetName];

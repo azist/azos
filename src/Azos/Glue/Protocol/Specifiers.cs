@@ -97,7 +97,7 @@ namespace Azos.Glue.Protocol
         {
           Type result;
 
-          if (m_Name==null) throw new ServerContractException(StringConsts.GLUE_TYPE_SPEC_ERROR + StringConsts.NULL_STRING);
+          if (m_Name==null) throw new ServerContractException(StringConsts.GLUE_TYPE_SPEC_ERROR + CoreConsts.NULL_STRING);
 
           if (s_Types.TryGetValue(m_Name, out result)) return result;
 

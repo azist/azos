@@ -1,0 +1,28 @@
+﻿<push>
+<f color=magenta>
+ Usage:
+<f color=white>
+   agm <f color=green>auth_node scope sequence [block_size]<f color=darkCyan>[/h | /? | /help]
+              [/s | /silent]
+
+ <f color=green>auth_node<f color=gray> - Authority glue node (i.e. "async://127.0.0.1:2300")
+ <f color=green>scope<f color=gray> - Sequence scope name (namespace)
+ <f color=green>sequence<f color=gray> - Name of sequence
+ <f color=green>block_size<f color=gray> - Howe many values to reserve at once
+
+<f color=magenta>
+ Options:
+
+ <f color=darkCyan>/h | /help | /?<f color=gray> - displays help message
+ <f color=darkCyan>/s | /silent<f color=gray> - suppresses logo and other info messages
+ <f color=darkCyan>/j | /json<f color=gray> - output JSON results
+ <f color=darkCyan>/array<f color=gray> - delimit data as array
+
+<f color=magenta>
+ Examples:
+
+<f color=yellow>
+  agm "async://192.168.1.123:2300" DEV patient 25 <f color=gray>
+Get next 25 'patient' sequence values in the scope 'DEV'
+
+<pop>

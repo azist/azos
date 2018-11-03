@@ -289,7 +289,7 @@ namespace Azos.Conf
                             {
                                 InitStatement(setStatement);
 
-                                var path = setStatement.AttrByName("path").Value ?? StringConsts.NULL_STRING;
+                                var path = setStatement.AttrByName("path").Value ?? CoreConsts.NULL_STRING;
                                 var to =  setStatement.AttrByName("to").Value;
 
                                 to = EvaluateAnyExpression(setStatement, to);

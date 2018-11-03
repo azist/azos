@@ -445,7 +445,7 @@ namespace Azos
       {
          const int MAX_LEN = 96;
 
-         if (arg==null) return StringConsts.NULL_STRING;
+         if (arg==null) return CoreConsts.NULL_STRING;
 
          var sarg = arg as string;
          if (sarg!=null)

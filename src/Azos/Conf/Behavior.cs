@@ -54,7 +54,7 @@ namespace Azos.Conf
                                           .OrderBy(c=> c.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt());
                         foreach(var bnode in bnodes)
                         {
-                            descr = " config path: '{0}', type: '{1}'".Args(bnode.RootPath, bnode.AttrByName(FactoryUtils.CONFIG_TYPE_ATTR).ValueAsString(StringConsts.NULL_STRING));
+                            descr = " config path: '{0}', type: '{1}'".Args(bnode.RootPath, bnode.AttrByName(FactoryUtils.CONFIG_TYPE_ATTR).ValueAsString(CoreConsts.NULL_STRING));
                             var behavior = FactoryUtils.MakeAndConfigure<Behavior>(bnode);
                             behavior.Apply(target);
                         }

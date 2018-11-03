@@ -85,7 +85,7 @@ namespace Azos.Sky.Contracts
           unchecked(641 * cpu * ((int)ram.AvailablePhysicalBytes % 65171));
         //we purposely want to have "low" entropy so higher bytes are USUALLY 0
 
-        App.Random.FeedExternalEntropySample(entropy);
+        RandomGenerator.Instance.FeedExternalEntropySample(entropy);
       }
 
       if (
