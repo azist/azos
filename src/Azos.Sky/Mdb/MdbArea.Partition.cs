@@ -261,6 +261,6 @@ namespace Azos.Sky.Mdb
 
 
     }//Partition
-  }//MDBArea
+  }//MdbArea
 
 }

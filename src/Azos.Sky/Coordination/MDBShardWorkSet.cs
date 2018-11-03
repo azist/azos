@@ -1,26 +1,26 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-using Azos.Sky.MDB;
+using Azos.Sky.Mdb;
 
 namespace Azos.Sky.Coordination
 {
   /// <summary>
   /// Coordinates work on multiple shards in the MDB area
   /// </summary>
-  public class MDBShardWorkSet : WorkSet<MDBArea.Partition.Shard>
+  public class MDBShardWorkSet : WorkSet<MdbArea.Partition.Shard>
   {
-    public MDBShardWorkSet(MDBArea area, string name = null)
+    public MDBShardWorkSet(MdbArea area, string name = null)
       : this(null, area, name)
     { }
 
-    public MDBShardWorkSet(string path, MDBArea area, string name = null) : base(path, "{0}.{1}".Args(area.NonNull(text: "area==null)").Name, name))
+    public MDBShardWorkSet(string path, MdbArea area, string name = null) : base(path, "{0}.{1}".Args(area.NonNull(text: "area==null)").Name, name))
     {
       Area = area;
       Touch();
     }
 
-    public readonly MDBArea Area;
+    public readonly MdbArea Area;
 
     protected override void AssignWorkSegment()
     {
@@ -28,10 +28,10 @@ namespace Azos.Sky.Coordination
       m_MyWorkCount = TaskUtils.AssignWorkSegment(m_TotalWorkCount, WorkerCount, MyIndex, out m_MyFirstWorkIndex);
     }
 
-    protected override IEnumerator<MDBArea.Partition.Shard> GetSegmentEnumerator()
+    protected override IEnumerator<MdbArea.Partition.Shard> GetSegmentEnumerator()
     {
       if (m_MyFirstWorkIndex<0 || m_MyWorkCount<=0)
-        return Enumerable.Empty<MDBArea.Partition.Shard>().GetEnumerator();
+        return Enumerable.Empty<MdbArea.Partition.Shard>().GetEnumerator();
 
       return Area.AllShards
                   .Skip(m_MyFirstWorkIndex)

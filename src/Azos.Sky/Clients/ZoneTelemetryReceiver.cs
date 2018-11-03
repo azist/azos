@@ -34,7 +34,7 @@ namespace Azos.Sky.Clients
      {
          var t = typeof(@Azos.@Sky.@Contracts.@IZoneTelemetryReceiver);
          s_ts_CONTRACT = new TypeSpec(t);
-         @s_ms_SendTelemetry_0 = new MethodSpec(t.GetMethod("SendTelemetry", new Type[]{ typeof(@System.@String), typeof(@@Instrumentation.@Datum[]) }));
+         @s_ms_SendTelemetry_0 = new MethodSpec(t.GetMethod("SendTelemetry", new Type[]{ typeof(@System.@String), typeof(@Azos.@Instrumentation.@Datum[]) }));
      }
   #endregion
 
@@ -68,7 +68,7 @@ namespace Azos.Sky.Clients
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          /// RemoteException is thrown if the server generated exception during method execution.
          ///</summary>
-         public @System.@Int32 @SendTelemetry(@System.@String  @host, @@Instrumentation.@Datum[]  @data)
+         public @System.@Int32 @SendTelemetry(@System.@String  @host, @Azos.@Instrumentation.@Datum[]  @data)
          {
             var call = Async_SendTelemetry(@host, @data);
             return call.GetValue<@System.@Int32>();
@@ -80,7 +80,7 @@ namespace Azos.Sky.Clients
          ///  returning no exception or WrappedExceptionData instance.
          /// CallSlot is returned that can be queried for CallStatus, ResponseMsg and result.
          ///</summary>
-         public CallSlot Async_SendTelemetry(@System.@String  @host, @@Instrumentation.@Datum[]  @data)
+         public CallSlot Async_SendTelemetry(@System.@String  @host, @Azos.@Instrumentation.@Datum[]  @data)
          {
             var request = new RequestAnyMsg(s_ts_CONTRACT, @s_ms_SendTelemetry_0, false, RemoteInstance, new object[]{@host, @data});
             return DispatchCall(request);

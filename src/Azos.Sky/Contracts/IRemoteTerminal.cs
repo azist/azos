@@ -1,8 +1,9 @@
 ﻿using System;
 
+using Azos.Data;
 using Azos.Glue;
 using Azos.Serialization.JSON;
-using Azos.Security.Permissions.Admin;
+using Azos.Sky.Security.Permissions.Admin;
 
 namespace Azos.Sky.Contracts
 {

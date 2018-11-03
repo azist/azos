@@ -309,14 +309,14 @@ namespace Azos.Sky.Clients
          ///<summary>
          /// Synchronous invoker for  'Azos.Sky.Contracts.IWebMessageSystem.FetchMailboxMessageAttachment'.
          /// This is a two-way call per contract specification, meaning - the server sends the result back either
-         ///  returning '@@Web.@Messaging.@Message.@Attachment' or WrappedExceptionData instance.
+         ///  returning '@Azos.@Web.@Messaging.@Message.@Attachment' or WrappedExceptionData instance.
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          /// RemoteException is thrown if the server generated exception during method execution.
          ///</summary>
-         public @@Web.@Messaging.@Message.@Attachment @FetchMailboxMessageAttachment(@Azos.@Sky.@WebMessaging.@MailboxMsgID  @mid, @System.@Int32  @attachmentIndex)
+         public @Azos.@Web.@Messaging.@Message.@Attachment @FetchMailboxMessageAttachment(@Azos.@Sky.@WebMessaging.@MailboxMsgID  @mid, @System.@Int32  @attachmentIndex)
          {
             var call = Async_FetchMailboxMessageAttachment(@mid, @attachmentIndex);
-            return call.GetValue<@@Web.@Messaging.@Message.@Attachment>();
+            return call.GetValue<@Azos.@Web.@Messaging.@Message.@Attachment>();
          }
 
          ///<summary>

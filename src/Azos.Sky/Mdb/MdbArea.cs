@@ -29,7 +29,7 @@ namespace Azos.Sky.Mdb
       protected MdbArea(MdbDataStore store, IConfigSectionNode node) : base(store)
       {
         if (store==null || node==null || !node.Exists)
-          throw new MdbException(StringConsts.ARGUMENT_ERROR+"MDBArea.ctor(store==null|node==null|!Exists)");
+          throw new MdbException(StringConsts.ARGUMENT_ERROR+"MdbArea.ctor(store==null|node==null|!Exists)");
 
 
         ConfigAttribute.Apply(this, node);

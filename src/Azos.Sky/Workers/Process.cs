@@ -61,7 +61,7 @@ namespace Azos.Sky.Workers
 
     public override int GetHashCode() { return m_SysDescriptor.GetHashCode(); }
 
-    public override bool Equals(Row other)
+    public override bool Equals(Doc other)
     {
       var otherProcess = other as Process;
       if (otherProcess==null) return false;
