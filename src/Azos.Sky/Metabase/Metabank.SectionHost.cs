@@ -255,7 +255,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
 
               foreach(var aid in authorityIDs)
               {
-                if (aid> DataAccess.Distributed.GDID.AUTHORITY_MAX)
+                if (aid> Data.GDID.AUTHORITY_MAX)
                   output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error,
                                                     Catalog,
                                                     this,

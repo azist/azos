@@ -161,7 +161,7 @@ namespace Azos.Sky.Apps.HostGovernor
 
         private void processExited(object sender, EventArgs args)
         {
-          if (Status!=ControlStatus.Active) return;//do not use Running here as it also checks for Starting
+          if (Status != ServiceStatus.Active) return;//do not use Running here as it also checks for Starting
 
           try
           {

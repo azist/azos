@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-using Azos;
 using Azos.Apps;
 using Azos.Data;
+using Azos.Collections;
 using Azos.Instrumentation;
 using Azos.Log;
 using Azos.Serialization.JSON;
 using Azos.Web;
 using Azos.Wave.Mvc;
 
+using Azos.Sky.Apps;
+using Azos.Sky.Apps.ZoneGovernor;
 using Azos.Sky.Metabase;
-using Azos.Sky.AppModel;
-using Azos.Sky.AppModel.ZoneGovernor;
 
 namespace Azos.Sky.WebManager.Controllers
 {
@@ -31,13 +31,13 @@ namespace Azos.Sky.WebManager.Controllers
     #endregion
 
     #region Nested classes
-          public class DatumRequest : TypedRow
-          {
-            [Field] public NSDescr[] Namespaces { get; set; }
-            [Field] public DateTime ToUTC { get; set; }
-            public class NSDescr: TypedRow   {   [Field] public string NS { get; set; }  [Field] public SRCDescr[] Sources { get; set; }      }
-            public class SRCDescr : TypedRow {   [Field] public string SRC{ get; set; }  [Field] public DateTime FromUTC { get; set; }        }
-          }
+      public class DatumRequest : TypedDoc
+      {
+        [Field] public NSDescr[] Namespaces { get; set; }
+        [Field] public DateTime ToUTC { get; set; }
+        public class NSDescr: TypedDoc   {   [Field] public string NS { get; set; }  [Field] public SRCDescr[] Sources { get; set; }      }
+        public class SRCDescr : TypedDoc {   [Field] public string SRC{ get; set; }  [Field] public DateTime FromUTC { get; set; }        }
+      }
     #endregion
 
     /// <summary>
@@ -238,7 +238,7 @@ namespace Azos.Sky.WebManager.Controllers
       cmpMap["instrumentable"] = instrumentable != null;
       cmpMap["instrumentationEnabled"] = instrumentable != null ? instrumentable.InstrumentationEnabled : false;
       cmpMap["SID"] = cmp.ComponentSID;
-      cmpMap["startTime"] = Sky.Apps.Terminal.Cmdlets.Appl.fdt( cmp.ComponentStartTime );
+      cmpMap["startTime"] = Sky.Apps.Terminal.Cmdlets.Appl.DetailedComponentDateTime( cmp.ComponentStartTime );
       cmpMap["tp"] = cmp.GetType().FullName;
       if (cmp.ComponentCommonName.IsNotNullOrWhiteSpace()) cmpMap["commonName"] = cmp.ComponentCommonName;
       if (cmp is INamed) cmpMap["name"] = ((INamed)cmp).Name;
@@ -327,7 +327,7 @@ namespace Azos.Sky.WebManager.Controllers
         componentMap["instrumentable"] = instrumentable != null;
         componentMap["instrumentationEnabled"] = instrumentable != null ? instrumentable.InstrumentationEnabled : false;
         componentMap["SID"] = cmp.ComponentSID;
-        componentMap["startTime"] = Sky.AppModel.Terminal.Cmdlets.Appl.fdt( cmp.ComponentStartTime );
+        componentMap["startTime"] = Apps.Terminal.Cmdlets.Appl.DetailedComponentDateTime( cmp.ComponentStartTime );
         componentMap["tp"] = cmp.GetType().FullName;
         if (cmp.ComponentCommonName.IsNotNullOrWhiteSpace()) componentMap["commonName"] = cmp.ComponentCommonName;
         if (cmp is INamed) componentMap["name"] = ((INamed)cmp).Name;

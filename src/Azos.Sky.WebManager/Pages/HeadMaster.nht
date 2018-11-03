@@ -4,7 +4,7 @@
     using{ns="Azos"}
     using{ns="Azos.Security"}
     using{ns="Azos.Sky.WebManager.Controls"}
-    base-class-name="AWMPage"
+    base-class-name="WebManagerPage"
     namespace="Azos.Sky.WebManager.Pages"
     abstract="true"
     summary="Master page that contains general document head"

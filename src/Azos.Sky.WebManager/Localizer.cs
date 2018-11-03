@@ -6,8 +6,8 @@ using System.Text;
 
 using Azos;
 using Azos.Log;
-using Azos.ApplicationModel;
-using Azos.Environment;
+using Azos.Apps;
+using Azos.Conf;
 using Azos.Wave;
 using Azos.Serialization.JSON;
 using Azos.Sky.WebManager.Controls;
@@ -134,12 +134,12 @@ namespace Azos.Sky.WebManager
 
 
 
-    public static string Money(decimal amount, MoneyFormat format = MoneyFormat.WithCurrencySymbol, AWMWebSession session = null)
+    public static string Money(decimal amount, MoneyFormat format = MoneyFormat.WithCurrencySymbol, WebManagerSession session = null)
     {
       return amount.ToString(); //todo Implement
     }
 
-    public static string DateTime(DateTime dt, DateTimeFormat format = DateTimeFormat.LongDateTime, AWMWebSession session = null)
+    public static string DateTime(DateTime dt, DateTimeFormat format = DateTimeFormat.LongDateTime, WebManagerSession session = null)
     {
       return dt.ToString();//todo implement
     }
@@ -170,7 +170,7 @@ namespace Azos.Sky.WebManager
     /// <summary>
     /// Makes localized page instance per session
     /// </summary>
-    public static AWMPage MakePage<TPage>(params object[] ctorArgs) where TPage : AWMPage
+    public static WebManagerPage MakePage<TPage>(params object[] ctorArgs) where TPage : WebManagerPage
     {
       return MakePage<TPage>(typeof(TPage), WorkContext.Current, ctorArgs);
     }
@@ -178,7 +178,7 @@ namespace Azos.Sky.WebManager
     /// <summary>
     /// Makes localized page instance per session
     /// </summary>
-    public static AWMPage MakePage<TPage>(Type type, WorkContext work, object[] ctorArgs) where TPage : AWMPage
+    public static WebManagerPage MakePage<TPage>(Type type, WorkContext work, object[] ctorArgs) where TPage : WebManagerPage
     {
       string tname = string.Empty;
       try
@@ -204,11 +204,11 @@ namespace Azos.Sky.WebManager
           if (localizedType==null) localizedType = type;
 
           tname = type.FullName;
-          return (AWMPage)Activator.CreateInstance(localizedType, ctorArgs);
+          return (WebManagerPage)Activator.CreateInstance(localizedType, ctorArgs);
       }
       catch(Exception error)
       {
-        throw new AWMException("Error making localized page '{0}'. Error: {1}".Args(tname, error.ToMessageWithType()), error);
+        throw new WebManagerException("Error making localized page '{0}'. Error: {1}".Args(tname, error.ToMessageWithType()), error);
       }
     }
 
@@ -222,7 +222,7 @@ namespace Azos.Sky.WebManager
 
       string lang = null;
 
-      var session = work.Session as AWMWebSession;
+      var session = work.Session as WebManagerSession;
       if (session!=null)
         lang = session.LanguageISOCode;
       else

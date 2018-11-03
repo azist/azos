@@ -101,13 +101,13 @@ namespace Azos.Sky.Mdb
     public RowsetBase LoadOneRowset(Query query)
     {
       using(new CRUDOperationCallContext{ConnectString = Shard.EffectiveConnectionString})
-        return Shard.Area.PhysicalDataStore.LoadOneDocset(query);
+        return Shard.Area.PhysicalDataStore.LoadOneRowset(query);
     }
 
     public Task<RowsetBase> LoadOneRowsetAsync(Query query)
     {
       using(new CRUDOperationCallContext{ConnectString = Shard.EffectiveConnectionString})
-        return Shard.Area.PhysicalDataStore.LoadOneDocsetAsync(query);
+        return Shard.Area.PhysicalDataStore.LoadOneRowsetAsync(query);
     }
 
     public Cursor OpenCursor(Query query)

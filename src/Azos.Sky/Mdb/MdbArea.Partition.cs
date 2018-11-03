@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-
 using Azos.Conf;
 using Azos.Data;
+using Azos.Instrumentation;
 
 namespace Azos.Sky.Mdb
 {
@@ -216,7 +216,7 @@ namespace Azos.Sky.Mdb
       /// </summary>
       public Shard GetShardForID(object idSharding)
       {
-        ulong subid = MDB.ShardingUtils.ObjectToShardingID(idSharding);
+        ulong subid = ShardingUtils.ObjectToShardingID(idSharding);
 
         return Shards[ subid % (ulong)Shards.Length ];
       }

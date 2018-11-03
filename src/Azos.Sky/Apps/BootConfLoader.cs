@@ -9,8 +9,8 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Security;
 using Azos.IO.FileSystem;
+using Azos.Log;
 
-using Azos.Identification;
 using Azos.Sky.Metabase;
 
 namespace Azos.Sky.Apps
@@ -179,9 +179,9 @@ namespace Azos.Sky.Apps
         }
 
 
-        private static void writeLog(this ServiceBaseApplication app, Log.MessageType type, string text)
+        private static void writeLog(this ServiceBaseApplication app, Azos.Log.MessageType type, string text)
         {
-          app.Log.Write( new Log.Message{
+          app.Log.Write( new Message{
                                     Type = type,
                                     From = LOG_FROM_BOOTLOADER,
                                     Text = "Entering Sky app bootloader..."
@@ -211,11 +211,11 @@ namespace Azos.Sky.Apps
                 //init Boot app container
                 using(var bootApp = new ServiceBaseApplication(cmdArgs, bootConfig.Root))
                 {
-                   bootApp.writeLog(Log.MessageType.Info, "Entering Sky app bootloader...");
+                   bootApp.writeLog(MessageType.Info, "Entering Sky app bootloader...");
 
                    determineHostName(bootApp);
 
-                   Log.Message.DefaultHostName = s_HostName;
+                   Message.DefaultHostName = s_HostName;
 
                    mountMetabank(bootApp);
 
@@ -227,17 +227,17 @@ namespace Azos.Sky.Apps
 
                    if (isDynamicHost)
                    {
-                     bootApp.writeLog(Log.MessageType.Info, "The meatabase host '{0}' is dynamic".Args(s_HostName));
+                     bootApp.writeLog(MessageType.Info, "The meatabase host '{0}' is dynamic".Args(s_HostName));
                      s_DynamicHostNameSuffix = thisMachineDynamicNameSuffix();
-                     bootApp.writeLog(Log.MessageType.Info, "Obtained actual host dynamic suffix: '{0}' ".Args(s_DynamicHostNameSuffix));
+                     bootApp.writeLog(MessageType.Info, "Obtained actual host dynamic suffix: '{0}' ".Args(s_DynamicHostNameSuffix));
                      s_HostName = s_HostName + s_DynamicHostNameSuffix;//no spaces between
-                     bootApp.writeLog(Log.MessageType.Info, "The actual dynamic instance host name is: '{0}'".Args(s_HostName));
+                     bootApp.writeLog(MessageType.Info, "The actual dynamic instance host name is: '{0}'".Args(s_HostName));
 
-                     Log.Message.DefaultHostName = s_HostName;
+                     Message.DefaultHostName = s_HostName;
                    }
 
 
-                   bootApp.writeLog(Log.MessageType.Info, "...exiting Sky app bootloader");
+                   bootApp.writeLog(MessageType.Info, "...exiting Sky app bootloader");
                 }
 
                 return result;
@@ -314,16 +314,16 @@ namespace Azos.Sky.Apps
 
               if (s_HostName.IsNullOrWhiteSpace())
               {
-                  bootApp.writeLog(Log.MessageType.Warning, "Host name was not specified in config, trying to take from machine env var {0}".Args(ENV_VAR_HOST_NAME));
+                  bootApp.writeLog(MessageType.Warning, "Host name was not specified in config, trying to take from machine env var {0}".Args(ENV_VAR_HOST_NAME));
                   s_HostName = System.Environment.GetEnvironmentVariable(ENV_VAR_HOST_NAME);
               }
               if (s_HostName.IsNullOrWhiteSpace())
               {
-                  bootApp.writeLog(Log.MessageType.Warning, "Host name was not specified in neither config nor env var, taking from local computer name");
+                  bootApp.writeLog(MessageType.Warning, "Host name was not specified in neither config nor env var, taking from local computer name");
                   s_HostName = "{0}/{1}".Args(DEFAULT_HOST_ZONE_PATH, System.Environment.MachineName);
               }
 
-              bootApp.writeLog(Log.MessageType.Info, "Host name: " + s_HostName);
+              bootApp.writeLog(MessageType.Info, "Host name: " + s_HostName);
           }
 
 
@@ -340,26 +340,26 @@ namespace Azos.Sky.Apps
             var fsRoot = mNode[CONFIG_FS_SECTION].AttrByName(CONFIG_ROOT_ATTR).Value;
             if (fsRoot.IsNullOrWhiteSpace())
             {
-              bootApp.writeLog(Log.MessageType.Info,
+              bootApp.writeLog(MessageType.Info,
                                "Metabase fs root is null in config, trying to take from machine env var {0}".Args(ENV_VAR_METABASE_FS_ROOT));
               fsRoot = System.Environment.GetEnvironmentVariable(ENV_VAR_METABASE_FS_ROOT);
             }
 
 
-            bootApp.writeLog(Log.MessageType.Info, "Metabase FS root: " + fsRoot);
+            bootApp.writeLog(MessageType.Info, "Metabase FS root: " + fsRoot);
 
 
-            bootApp.writeLog(Log.MessageType.Info, "Mounting metabank...");
+            bootApp.writeLog(MessageType.Info, "Mounting metabank...");
             try
             {
               s_Metabase = new Metabank(fs, fsSessionConnectParams, fsRoot );
             }
             catch(Exception error)
             {
-              bootApp.writeLog(Log.MessageType.CatastrophicError, error.ToMessageWithType());
+              bootApp.writeLog(MessageType.CatastrophicError, error.ToMessageWithType());
               throw error;
             }
-            bootApp.writeLog(Log.MessageType.Info, "...Metabank mounted");
+            bootApp.writeLog(MessageType.Info, "...Metabank mounted");
           }
 
 
@@ -369,7 +369,7 @@ namespace Azos.Sky.Apps
           {
             Configuration result = null;
 
-            bootApp.writeLog(Log.MessageType.Info, "Getting effective app config for '{0}'...".Args(SkySystem.MetabaseApplicationName));
+            bootApp.writeLog(MessageType.Info, "Getting effective app config for '{0}'...".Args(SkySystem.MetabaseApplicationName));
             try
             {
               var host = s_Metabase.CatalogReg.NavigateHost(s_HostName);
@@ -381,10 +381,10 @@ namespace Azos.Sky.Apps
             }
             catch(Exception error)
             {
-              bootApp.writeLog(Log.MessageType.CatastrophicError, error.ToMessageWithType());
+              bootApp.writeLog(MessageType.CatastrophicError, error.ToMessageWithType());
               throw error;
             }
-            bootApp.writeLog(Log.MessageType.Info, "...config obtained");
+            bootApp.writeLog(MessageType.Info, "...config obtained");
 
             return result;
           }
@@ -396,11 +396,11 @@ namespace Azos.Sky.Apps
             {
               var appName = bootApp.CommandArgs[CMD_ARG_SKY_SWITCH].AttrByName(CMD_ARG_APP_NAME).Value;
               if (appName.IsNotNullOrWhiteSpace())
-                bootApp.writeLog(Log.MessageType.Info,
+                bootApp.writeLog(MessageType.Info,
                                  "Metabase application name was not defined in code, but is injected from cmd arg '-{0} {1}=<app name>'".Args(CMD_ARG_SKY_SWITCH, CMD_ARG_APP_NAME));
               else
               {
-                bootApp.writeLog(Log.MessageType.Warning,
+                bootApp.writeLog(MessageType.Warning,
                                  "Metabase application name was not defined in code or cmd switch, reading from '{0}/${1}'".Args(CONFIG_METABASE_SECTION, CONFIG_APPLICATION_NAME_ATTR));
                 appName = mNode.AttrByName(CONFIG_APPLICATION_NAME_ATTR).Value;
               }
@@ -411,19 +411,19 @@ namespace Azos.Sky.Apps
               }
               catch(Exception error)
               {
-                bootApp.writeLog(Log.MessageType.CatastrophicError, error.ToMessageWithType());
+                bootApp.writeLog(MessageType.CatastrophicError, error.ToMessageWithType());
                 throw error;
               }
-              bootApp.writeLog(Log.MessageType.Info,
+              bootApp.writeLog(MessageType.Info,
                                "Metabase application name from config set to: "+SkySystem.MetabaseApplicationName);
             }
             else
             {
-              bootApp.writeLog(Log.MessageType.Info,
+              bootApp.writeLog(MessageType.Info,
                                "Metabase application name defined in code: "+SkySystem.MetabaseApplicationName);
 
               if (mNode.AttrByName(CONFIG_APPLICATION_NAME_ATTR).Exists)
-                bootApp.writeLog(Log.MessageType.Warning,
+                bootApp.writeLog(MessageType.Warning,
                                  "Metabase application name defined in code but the boot config also defines the name which was ignored");
             }
           }
@@ -435,7 +435,7 @@ namespace Azos.Sky.Apps
           {
             IFileSystem result = null;
 
-            bootApp.writeLog(Log.MessageType.Info, "Making metabase FS instance...");
+            bootApp.writeLog(MessageType.Info, "Making metabase FS instance...");
 
             var fsNode = mNode[CONFIG_FS_SECTION];
 
@@ -463,8 +463,8 @@ namespace Azos.Sky.Apps
                 cParams = new FileSystemSessionConnectParams(){ User = User.Fake};
             }
 
-            bootApp.writeLog(Log.MessageType.Info, "...Metabase FS FileSystemSessionConnectParams instance of '{0}' made".Args(cParams.GetType().FullName));
-            bootApp.writeLog(Log.MessageType.Info, "...Metabase FS instance of '{0}' made".Args(result.GetType().FullName));
+            bootApp.writeLog(MessageType.Info, "...Metabase FS FileSystemSessionConnectParams instance of '{0}' made".Args(cParams.GetType().FullName));
+            bootApp.writeLog(MessageType.Info, "...Metabase FS instance of '{0}' made".Args(result.GetType().FullName));
 
             return result;
           }

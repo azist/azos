@@ -123,7 +123,7 @@ namespace Azos.Sky.Coordination
       {
         m_HeartbeatScan = new Event(App.EventTimer,
                                     body: e => DoHeartbeat(),
-                                    interval: TimeSpan.FromSeconds(heartbeatSec + ExternalRandomGenerator.Instance.NextScaledRandomInteger(-5, 5)),
+                                    interval: TimeSpan.FromSeconds(heartbeatSec + App.Random.NextScaledRandomInteger(-5, 5)),
                                     bodyAsyncModel: EventBodyAsyncModel.AsyncTask,
                                     enabled: false)
         {
@@ -198,7 +198,7 @@ namespace Azos.Sky.Coordination
 
       if (shardingKey == null) shardingKey = App.Random.NextRandomInteger;
 
-      var idx = (uint)MDB.ShardingUtils.ObjectToShardingID(shardingKey) % hosts.Length;
+      var idx = (uint)Mdb.ShardingUtils.ObjectToShardingID(shardingKey) % hosts.Length;
 
       var idx1 = -1L;
       for (var c = 0; c < hosts.Length; c++)

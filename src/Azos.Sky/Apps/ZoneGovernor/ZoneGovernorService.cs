@@ -181,7 +181,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
       /// <summary>
       /// Called by subordinate nodes to report telemetry
       /// </summary>
-      public int SendTelemetry(string host, Instrumentation.Datum[] data)
+      public int SendTelemetry(string host, Azos.Instrumentation.Datum[] data)
       {
         if (!Running || data==null) return 0;
         var sis = m_SubInstr;
@@ -216,7 +216,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
       /// <summary>
       /// Called by subordinate nodes to report log
       /// </summary>
-      public int SendLog(string host, string appName, Log.Message[] data)
+      public int SendLog(string host, string appName, Azos.Log.Message[] data)
       {
         if (!Running || data == null) return 0;
         var slg = m_SubLog;
@@ -229,7 +229,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
           slg.Write(msg);
         }
 
-        return (int)(Log.SkyZoneDestination.MAX_BUF_SIZE * m_CPULoadFactor);
+        return (int)(Log.SkyZoneSink.MAX_BUF_SIZE * m_CPULoadFactor);
       }
 
       /// <summary>
@@ -267,7 +267,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
         var matches = hostNameSearchPattern.IsNullOrWhiteSpace()
                     ? m_SubHosts
-                    : m_SubHosts.Where(h => Parsing.Utils.MatchPattern(h.Name, hostNameSearchPattern, senseCase: false));
+                    : m_SubHosts.Where(h => Text.Utils.MatchPattern(h.Name, hostNameSearchPattern, senseCase: false));
 
         return matches.ToArray();
       }
@@ -300,7 +300,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
         var host = SkySystem.Metabase.CatalogReg.NavigateHost(hostPath) as Metabank.SectionHost;
         if (!host.Dynamic) throw new AZGOVException("TODO: Host '0' is not dynamic".Args(hostPath));
 
-        if (id == null) id = SkySystem.GDIDProvider.GenerateOneGDID(SysConsts.GDID_NS_DYNAMIC_HOST, SysConsts.GDID_NAME_DYNAMIC_HOST).ToString();
+        if (id == null) id = SkySystem.GdidProvider.GenerateOneGdid(SysConsts.GDID_NS_DYNAMIC_HOST, SysConsts.GDID_NAME_DYNAMIC_HOST).ToString();
 
         var hid = new Contracts.DynamicHostID(id, zone.RegionPath);
 
@@ -521,7 +521,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
         private void updateCPULoadFactor()
         {
-           var cpu = (OS.Computer.CurrentProcessorUsagePct + m_CPU_1 + m_CPU_2 + m_CPU_3) / 4;
+           var cpu = (Platform.Computer.CurrentProcessorUsagePct + m_CPU_1 + m_CPU_2 + m_CPU_3) / 4;
            m_CPU_3 = m_CPU_2;
            m_CPU_2 = m_CPU_1;
            m_CPU_1 = cpu;
@@ -581,12 +581,12 @@ namespace Azos.Sky.Apps.ZoneGovernor
           }
 
           if (host.RandomSample.HasValue)
-            ExternalRandomGenerator.Instance.FeedExternalEntropySample(host.RandomSample.Value);
+            Platform.RandomGenerator.Instance.FeedExternalEntropySample(host.RandomSample.Value);
         }
 
         internal void log(MessageType type, string from, string text, Exception error = null, Guid? related = null)
         {
-           var msg = new Log.Message
+           var msg = new Azos.Log.Message
               {
                  Type = type,
                  Topic = SysConsts.LOG_TOPIC_ZONE_MANAGEMENT,

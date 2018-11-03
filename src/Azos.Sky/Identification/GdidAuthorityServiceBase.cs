@@ -258,7 +258,7 @@ namespace Azos.Sky.Identification
 
       protected void Log(MessageType type, string from, string msg, Exception error = null, Guid? batch = null)
       {
-        var lm = new Log.Message{
+        var lm = new Message{
                Type = type,
                Topic = SysConsts.LOG_TOPIC_ID_GEN,
                 From = "{0}.{1}".Args(GetType().Name, from),

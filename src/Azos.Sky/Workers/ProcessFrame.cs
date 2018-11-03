@@ -68,7 +68,7 @@ namespace Azos.Sky.Workers
         byte[] content;
         try
         {
-          var cdoc = RowConverter.DefaultInstance.RowToBSONDocument(process, null);
+          var cdoc = DataDocConverter.DefaultInstance.DataDocToBSONDocument(process, null);
           content = cdoc.WriteAsBSONToNewArray();
         }
         catch (Exception error)
@@ -112,7 +112,7 @@ namespace Azos.Sky.Workers
       try
       {
         var docContent = BSONDocument.FromArray(Content);
-        DataDocConverter.DefaultInstance.BSONDocumentToRow(docContent, result, null);
+        DataDocConverter.DefaultInstance.BSONDocumentToDataDoc(docContent, result, null);
       }
       catch(Exception error)
       {

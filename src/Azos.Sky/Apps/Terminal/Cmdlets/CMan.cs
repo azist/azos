@@ -9,6 +9,8 @@ using System.Text;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Collections;
+using Azos.Instrumentation;
 
 namespace Azos.Sky.Apps.Terminal.Cmdlets
 {
@@ -129,7 +131,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
                                     .Args(
                                           level==0 ? "white" : level>1 ? "darkcyan" : "cyan",
                                           cmp.ComponentSID,
-                                          Appl.fdt(cmp.ComponentStartTime),
+                                          Appl.DetailedComponentDateTime(cmp.ComponentStartTime),
                                           cmp.ComponentCommonName,
                                           (cmp is INamed ? ((INamed)cmp).Name : "" )));
 
@@ -179,7 +181,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
           sb.AppendLine(pfx+"<f color=gray>Start Time (local): <f color=yellow> "+cmp.ComponentStartTime);
           sb.AppendLine(pfx+"<f color=gray>Type: <f color=yellow> "+cmp.GetType().FullName);
           sb.AppendLine(pfx+"<f color=gray>Assembly: <f color=yellow> "+cmp.GetType().Assembly.FullName);
-          sb.AppendLine(pfx+"<f color=gray>Service: <f color=yellow> "+(cmp is ServiceModel.Service ? "Yes" : "No") );
+          sb.AppendLine(pfx+"<f color=gray>Service: <f color=yellow> "+(cmp is Azos.Apps.Service ? "Yes" : "No") );
           if (cmp is INamed)
            sb.AppendLine(pfx+"<f color=gray>Name: <f color=green> "+((INamed)cmp).Name);
 

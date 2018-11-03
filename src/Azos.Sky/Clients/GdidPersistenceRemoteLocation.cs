@@ -66,7 +66,7 @@ namespace Azos.Sky.Clients
          ///<summary>
          /// Synchronous invoker for  'Azos.Sky.Contracts.IGDIDPersistenceRemoteLocation.Read'.
          /// This is a two-way call per contract specification, meaning - the server sends the result back either
-         ///  returning '@System.@Nullable<@Azos.@Data.@GDID>' or WrappedExceptionData instance.
+         ///  returning '@System.@Nullable[@Azos.@Data.@GDID]' or WrappedExceptionData instance.
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          /// RemoteException is thrown if the server generated exception during method execution.
          ///</summary>

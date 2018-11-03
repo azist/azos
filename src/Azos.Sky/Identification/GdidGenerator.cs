@@ -610,7 +610,7 @@ namespace Azos.Sky.Identification
 
       private void log(MessageType type, string from, string msg, Exception error = null, Guid? batch = null)
       {
-        var lm = new Log.Message{
+        var lm = new Message{
                Type = type,
                Topic = SysConsts.LOG_TOPIC_ID_GEN,
                 From = from,

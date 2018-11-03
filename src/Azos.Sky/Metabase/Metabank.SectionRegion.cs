@@ -56,7 +56,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
         {
           if (this.GeoCenter.HasValue) return this.GeoCenter.Value;
           if (ParentSection==null)
-            return SysConsts.DEFAULT_GEO_LOCATION;//very default
+            return CoreConsts.DEFAULT_GEO_LOCATION;//very default
 
           return ParentSection.EffectiveGeoCenter;
         }

@@ -39,18 +39,7 @@ namespace Azos.Sky.Mdb
     {
       //WARNING! Never use GetHashCode here as it is platform-dependent, but this function must be 100% deterministic
 
-      if (key == null) return 0;
-
-      var cnt = 0;
-      while (key != null && key is IShardingPointerProvider)
-      {
-        key = ((IShardingPointerProvider)key).ShardingPointer.ID;
-        cnt++;
-        if (cnt > 10)
-          throw new MdbException(StringConsts.MDB_POSSIBLE_SHARDING_ID_CYCLE_ERROR);
-      }
-
-      if (key == null) return 0;
+      if (key == null || key is AbsentValue) return 0;
 
       if (key is IDistributedStableHashProvider) return ((IDistributedStableHashProvider)key).GetDistributedStableHash();//covers GDID
       if (key is string) return StringToShardingID((string)key);
@@ -185,7 +174,7 @@ That is why, if your want to do case insensitive comparisons you convert the str
     public CompositeShardingID(params object[] data)
     {
       if (data == null || data.Length == 0)
-        throw new DistributedDataAccessException(StringConsts.ARGUMENT_ERROR + "CompositeShardingID.ctor(data==null|empty)");
+        throw new DataAccessException(StringConsts.ARGUMENT_ERROR + "CompositeShardingID.ctor(data==null|empty)");
 
       m_Data = data;
 

@@ -13,6 +13,7 @@ echo +++ Tool      -  %TOOL_DIR%
 rem ---------------------------------------------
 
 dotnet "%TOOL_DIR%buildinfo.dll" > "%PROJECT_DIR%BUILD_INFO.txt"
+dotnet "%TOOL_DIR%ntc.dll" "%PROJECT_DIR%Pages\*.nht" -sub -r -ext ".auto.cs" -src -c "Azos.Templatization.NHTCompiler, Azos"
 
 rem ---------------------------------------------
 echo +++++ [Azos.Sky.WebManager] Pre Build

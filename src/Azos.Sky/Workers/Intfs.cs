@@ -165,7 +165,7 @@ namespace Azos.Sky.Workers
     IGuidTypeResolver SignalTypeResolver { get; }
     IGuidTypeResolver TodoTypeResolver { get; }
 
-    IRegistry<HostSet> HostSets { get; }
+    Collections.IRegistry<HostSet> HostSets { get; }
   }
 
 

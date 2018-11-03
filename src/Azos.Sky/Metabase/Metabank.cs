@@ -544,7 +544,7 @@ namespace Azos.Sky.Metabase
          {
             var output = ctx.Output;
 
-            var fromHost =  AppModel.BootConfLoader.HostName;
+            var fromHost =  Apps.BootConfLoader.HostName;
 
             if (fromHost.IsNullOrWhiteSpace())
             {
@@ -556,7 +556,7 @@ namespace Azos.Sky.Metabase
             if (host==null)
             {
               output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, null, null, StringConsts.METABASE_VALIDATION_WRONG_HOST_ERROR.Args(fromHost)) );
-              output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Info, null, null, StringConsts.METABASE_VALIDATION_WRONG_HOST_INFO.Args(AppModel.BootConfLoader.ENV_VAR_HOST_NAME)) );
+              output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Info, null, null, StringConsts.METABASE_VALIDATION_WRONG_HOST_INFO.Args(Apps.BootConfLoader.ENV_VAR_HOST_NAME)) );
             }
 
             validateMetabase(ctx);

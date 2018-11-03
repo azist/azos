@@ -60,7 +60,7 @@ namespace Azos.Sky.Glue
       var authc = data["auth-cred"].AsString();
       if (authc!=null)
       {
-        var hdr = new AuthenticationHeader(Security.IDPasswordCredentials.FromBasicAuth(authc));
+        var hdr = new AuthenticationHeader(Azos.Security.IDPasswordCredentials.FromBasicAuth(authc));
         result.Headers.Add(hdr);
       }
 

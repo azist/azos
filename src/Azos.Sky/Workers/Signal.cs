@@ -67,7 +67,7 @@ namespace Azos.Sky.Workers
 
     public override int GetHashCode() { return m_SysID.GetHashCode(); }
 
-    public override bool Equals(Row other)
+    public override bool Equals(Doc other)
     {
       var otherSignal = other as Signal;
       if (otherSignal == null) return false;
@@ -91,7 +91,7 @@ namespace Azos.Sky.Workers
       if (ve != null) return ve;
 
       if (SysID.IsZero)
-        return new CRUDFieldValidationException(this, "SysID", "SysID.IsZero, use MakeNew<>() to make new instances");
+        return new FieldValidationException(this, "SysID", "SysID.IsZero, use MakeNew<>() to make new instances");
 
       return null;
     }

@@ -9,8 +9,8 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Data.Access;
 
-using Azos.Dynamic;
-using Azos.Workers;
+using Azos.Sky.Dynamic;
+using Azos.Sky.Workers;
 
 namespace Azos.Sky.Apps
 {

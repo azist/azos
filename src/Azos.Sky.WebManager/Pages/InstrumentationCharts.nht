@@ -3,7 +3,7 @@
   {
     using{ns="Azos.Wave"}
     using{ns="Azos"}
-    using{ns="Azos.Apps"}
+    using{ns="Azos.Sky.Apps"}
     using{ns="Azos.Sky.Apps.ZoneGovernor"}
     using{ns="Azos.Sky.WebManager.Controls"}
     base-class-name="HeadMaster"

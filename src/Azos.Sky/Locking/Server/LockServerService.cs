@@ -488,7 +488,7 @@ namespace Azos.Sky.Locking.Server
 
         internal void log(MessageType type, string from, string text, Exception error = null, Guid? related = null)
         {
-           var msg = new Log.Message
+           var msg = new Message
               {
                  Type = type,
                  Topic = SysConsts.LOG_TOPIC_LOCKING,

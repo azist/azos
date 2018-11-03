@@ -330,19 +330,6 @@ namespace Azos.Sky.Apps
             WriteLog(MessageType.Error, FROM, "ERROR finalizing GDIDProvider: " + error.ToMessageWithType());
           }
         }
-
-        //Turn off Node - must be right before shutdown
-        WriteLog(MessageType.Info, FROM, "Finalizing TheSystem");
-        try
-        {
-          DisposableObject.DisposeAndNull(ref m_TheSystem);
-          WriteLog(MessageType.Info, FROM, "TheSystem DISPOSED");
-        }
-        catch(Exception error)
-        {
-          WriteLog(MessageType.CatastrophicError, FROM, "ERROR finalizing TheSystem: " + error.ToMessageWithType());
-        }
-
         // Shutdown - must be last
         base.DoCleanupApplication();
       }

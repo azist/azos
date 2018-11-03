@@ -3,6 +3,7 @@
 using Azos.Conf;
 using Azos.Log;
 using Azos.Log.Sinks;
+using Azos.Instrumentation;
 
 using Azos.Sky.Contracts;
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Azos.Apps;
+using Azos.Data;
 using Azos.Collections;
 using Azos.Sky.Locking;
 using SrvVar=Azos.Sky.Locking.Server.Variable;
@@ -215,7 +216,7 @@ namespace Azos.Sky.Coordination
       var needAssign = sinceAssign.TotalSeconds > RoundDurationSec;
 
       if (needAssign)
-       m_Round = ExternalRandomGenerator.Instance.NextRandomWebSafeString();
+        m_Round = App.Random.NextRandomWebSafeString();
 
       //in case of lock server failure, we need to update who we are, where, and what we do
       if (needReg || needAssign)

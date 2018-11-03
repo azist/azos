@@ -148,7 +148,7 @@ namespace Azos.Sky.Apps.HostGovernor
       {
         get
         {
-          var isCore = PAL.PlatformAbstractionLayer.IsNetCore;
+          var isCore = Platform.Abstraction.PlatformAbstractionLayer.IsNetCore;
           return Path.Combine(m_RootPath, isCore ? SysConsts.HGOV_RUN_CORE_DIR : SysConsts.HGOV_RUN_NETF_DIR);
         }
       }
@@ -233,7 +233,7 @@ namespace Azos.Sky.Apps.HostGovernor
       /// <returns>True if physical install was performed and AHGOV needs to restart so ARD may respawn it</returns>
       public bool CheckAndPerformLocalSoftwareInstallation(IList<string> progress, bool force = false)
       {
-        IOMiscUtils.EnsureDirectoryDeleted(UpdatePath);
+        IOUtils.EnsureDirectoryDeleted(UpdatePath);
 
         var anew =  SkySystem.Metabase.CatalogBin.CheckAndPerformLocalSoftwareInstallation(progress, force);
         if (!anew) return false;
@@ -415,7 +415,7 @@ namespace Azos.Sky.Apps.HostGovernor
           //20151016 DKh added IF so if there is no ZGov it does not get bombarded
           if (ok)
           {
-            m_ScheduledZGovRegistration = now.AddMilliseconds(5000 + ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 25000));
+            m_ScheduledZGovRegistration = now.AddMilliseconds(5000 + App.Random.NextScaledRandomInteger(0, 25000));
             m_ConsecutiveZGovRegFailures = 0;
           }
           else
@@ -424,12 +424,12 @@ namespace Azos.Sky.Apps.HostGovernor
             {
               m_ConsecutiveZGovRegFailures++;
               if (m_ConsecutiveZGovRegFailures<CONSECUTIVE_ZGOV_REG_FAIL_LONG_RETRY_THRESHOLD)
-                m_ScheduledZGovRegistration = now.AddSeconds(25 + ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 30));
+                m_ScheduledZGovRegistration = now.AddSeconds(25 + App.Random.NextScaledRandomInteger(0, 30));
               else
-                m_ScheduledZGovRegistration = now.AddSeconds(60 + ExternalRandomGenerator.Instance.NextScaledRandomInteger(10, 300));
+                m_ScheduledZGovRegistration = now.AddSeconds(60 + App.Random.NextScaledRandomInteger(10, 300));
             }
             else//try to re-read Metabase once an hour +
-             m_ScheduledZGovRegistration = now.AddMinutes(60 + ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, 120));
+             m_ScheduledZGovRegistration = now.AddMinutes(60 + App.Random.NextScaledRandomInteger(0, 120));
           }
         }
 
@@ -495,7 +495,7 @@ namespace Azos.Sky.Apps.HostGovernor
 
         internal void log(MessageType type, string from, string text, Exception error = null, Guid? related = null)
         {
-           var msg = new Log.Message
+           var msg = new Message
               {
                  Type = type,
                  Topic = SysConsts.LOG_TOPIC_APP_MANAGEMENT,

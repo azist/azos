@@ -82,7 +82,7 @@ namespace Azos.Sky.WebManager.Controls
       }
     }
 
-    public string FormJSON(FormModel form, Exception validationError = null, string recID = null, string target = null)
+    public string FormJSON(Form form, Exception validationError = null, string recID = null, string target = null)
     {
       var lang = Localizer.GetLanguage();
       return RecordModelGenerator.DefaultInstance.RowToRecordInitJSON(form, validationError, recID, target, lang).ToJSON();

@@ -222,7 +222,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
       {
         var ids = ProcessorMap.Keys.ToArray();
         if (ids.Length == 0) throw new MetabaseException("TODO: MapShardingKeyToProcessorID(ProcessorMap is empty)");
-        var hash = MDB.ShardingUtils.StringToShardingID(shardingKey);
+        var hash = Mdb.ShardingUtils.StringToShardingID(shardingKey);
         var idx = hash % (ulong)ids.Length;
         return ids[idx];
       }

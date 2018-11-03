@@ -55,7 +55,7 @@ namespace Azos.Sky.WebManager.Controllers
       if (path.IsNotNullOrWhiteSpace() && path != "/" && path != "\\")
       {
         section = SkySystem.Metabase.CatalogReg[path];
-        if (section == null) return Aozs.Wave.SysConsts.JSON_RESULT_ERROR;
+        if (section == null) return Wave.SysConsts.JSON_RESULT_ERROR;
 
         if (section is Metabank.SectionRegion)
         {

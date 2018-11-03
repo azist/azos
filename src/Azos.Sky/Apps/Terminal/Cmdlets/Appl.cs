@@ -4,12 +4,12 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Collections;
 
 namespace Azos.Sky.Apps.Terminal.Cmdlets
 {
@@ -33,9 +33,9 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
             if (stopNowHour == app.LocalizedTime.Hour)
             {
               var text = StringConsts.APPL_CMD_STOPPING_INFO.Args(m_Terminal.Name, m_Terminal.WhenConnected, m_Terminal.Who);
-              App.Log.Write( new Log.Message
+              App.Log.Write( new Azos.Log.Message
               {
-                 Type = Log.MessageType.Warning,
+                 Type = Azos.Log.MessageType.Warning,
                  Topic = SysConsts.LOG_TOPIC_APP_MANAGEMENT,
                  From = "{0}.StopNow".Args(GetType().FullName),
                  Text = text
@@ -97,7 +97,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
               if (named!=null) name = named.Name;
 
               sb.AppendLine("<f color=white>SID: <f color=yellow>{0,-4:D4}<f color=gray> {1} {2} <f color=magenta>{3} <f color=green>{4}".Args(cmp.ComponentSID,
-                                                                                                                                              fdt(cmp.ComponentStartTime),
+                                                                                                                                              DetailedComponentDateTime(cmp.ComponentStartTime),
                                                                                                                                               cmp.GetType().FullName,
                                                                                                                                               cmp.ComponentCommonName, name));
 
@@ -108,7 +108,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
                 var cnamed = child as INamed;
                 if (cnamed!=null) cname = cnamed.Name;
                 sb.AppendLine("<f color=darkgray> -> <f color=cyan>{0,-6:D4}<f color=darkgray> {1} {2} <f color=magenta>{3} <f color=darkgreen>{4}".Args(child.ComponentSID,
-                                                                                                                                              fdt(child.ComponentStartTime),
+                                                                                                                                              DetailedComponentDateTime(child.ComponentStartTime),
                                                                                                                                               child.GetType().Name,
                                                                                                                                               child.ComponentCommonName,
                                                                                                                                               cname));
@@ -134,7 +134,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
 ";
         }
 
-        internal static string fdt(DateTime date)
+        public static string DetailedComponentDateTime(DateTime date)
         {
           return "[{0:D2}/{1:D2} {2:D2}:{3:D2}:{4:D2}.{5:D3}]".Args(date.Month,
                                                       date.Day,

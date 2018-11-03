@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 
 using Azos.Conf;
+using Azos.Log;
 
 namespace Azos.Sky.Apps.HostGovernor.Cmdlets
 {
@@ -27,9 +28,9 @@ namespace Azos.Sky.Apps.HostGovernor.Cmdlets
            var force =  m_Args.AttrByName(CONFIG_FORCE_ATTR).ValueAsBool(false);
 
            if (force)
-            App.Log.Write( new Log.Message
+            App.Log.Write( new Message
               {
-                 Type = Log.MessageType.Warning,
+                 Type = MessageType.Warning,
                  Topic = SysConsts.LOG_TOPIC_APP_MANAGEMENT,
                  From = "{0}.Force".Args(GetType().FullName),
                  Text = "Installation with force=true initiated"
@@ -39,9 +40,9 @@ namespace Azos.Sky.Apps.HostGovernor.Cmdlets
 
            var progress = list.Aggregate(new StringBuilder(), (sb, s) => sb.AppendLine(s)).ToString();
 
-            App.Log.Write( new Log.Message
+            App.Log.Write( new Message
               {
-                 Type = Log.MessageType.Warning,
+                 Type = MessageType.Warning,
                  Topic = SysConsts.LOG_TOPIC_APP_MANAGEMENT,
                  From = "{0}.Force".Args(GetType().FullName),
                  Text = "Installation finished. Installed anew: " + anew,

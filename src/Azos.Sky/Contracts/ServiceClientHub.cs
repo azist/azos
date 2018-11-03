@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Glue;
 using Azos.Conf;
+using Azos.Collections;
 using Azos.Glue.Protocol;
 using Azos.Serialization.BSON;
 
@@ -239,9 +240,9 @@ namespace Azos.Sky.Contracts
           catch (Exception error)
           {
             App.Log.Write(
-              new Log.Message
+              new Azos.Log.Message
               {
-                Type = Log.MessageType.Error,
+                Type = Azos.Log.MessageType.Error,
                 Topic = SysConsts.LOG_TOPIC_SVC,
                 From = "{0}.CallWithRetry()".Args(Instance.GetType().Name),
                 Source = 248,
@@ -295,9 +296,9 @@ namespace Azos.Sky.Contracts
           catch (Exception error)
           {
             App.Log.Write(
-              new Log.Message
+              new Azos.Log.Message
               {
-                Type = Log.MessageType.Error,
+                Type = Azos.Log.MessageType.Error,
                 Topic = SysConsts.LOG_TOPIC_SVC,
                 From = "{0}.CallWithRetry()".Args(Instance.GetType().Name),
                 Source = 248,
@@ -376,9 +377,9 @@ namespace Azos.Sky.Contracts
         }
         catch (Exception ex)
         {
-          App.Log.Write(new Log.Message
+          App.Log.Write(new Azos.Log.Message
           {
-            Type = Log.MessageType.Error,
+            Type = Azos.Log.MessageType.Error,
             Topic = SysConsts.LOG_TOPIC_SVC,
             From = "{0}.CallWithRetryAsync()".Args(Instance.GetType().Name),
             Source = 304,
@@ -418,9 +419,9 @@ namespace Azos.Sky.Contracts
             {
               var innerException = err.GetBaseException();
 
-              App.Log.Write(new Log.Message
+              App.Log.Write(new Azos.Log.Message
               {
-                Type = Log.MessageType.Error,
+                Type = Azos.Log.MessageType.Error,
                 Topic = SysConsts.LOG_TOPIC_SVC,
                 From = "{0}.CallWithRetryAsync()".Args(Instance.GetType().Name),
                 Source = 304,

@@ -29,10 +29,10 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
             var glue = App.Glue;
 
             var attr = m_Args.AttrByName("client-log-level");
-            if (attr.Exists) glue.ClientLogLevel = attr.ValueAsEnum<Log.MessageType>(glue.ClientLogLevel);
+            if (attr.Exists) glue.ClientLogLevel = attr.ValueAsEnum<Azos.Log.MessageType>(glue.ClientLogLevel);
 
             attr = m_Args.AttrByName("server-log-level");
-            if (attr.Exists) glue.ServerLogLevel = attr.ValueAsEnum<Log.MessageType>(glue.ServerLogLevel);
+            if (attr.Exists) glue.ServerLogLevel = attr.ValueAsEnum< Azos.Log.MessageType>(glue.ServerLogLevel);
 
             attr = m_Args.AttrByName("server-instance-lock-timeout-ms");
             if (attr.Exists) glue.ServerInstanceLockTimeoutMs = attr.ValueAsInt(glue.ServerInstanceLockTimeoutMs);

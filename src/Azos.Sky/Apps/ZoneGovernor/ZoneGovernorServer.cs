@@ -5,8 +5,6 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 
 namespace Azos.Sky.Apps.ZoneGovernor
@@ -20,12 +18,12 @@ namespace Azos.Sky.Apps.ZoneGovernor
                                            Azos.Sky.Contracts.IZoneHostReplicator,
                                            Azos.Sky.Contracts.ILocker
   {
-    public int SendTelemetry(string host, Instrumentation.Datum[] data)
+    public int SendTelemetry(string host, Azos.Instrumentation.Datum[] data)
     {
       return ZoneGovernorService.Instance.SendTelemetry(host, data);
     }
 
-    public int SendLog(string host, string appName, Log.Message[] data)
+    public int SendLog(string host, string appName, Azos.Log.Message[] data)
     {
       return ZoneGovernorService.Instance.SendLog(host, appName, data);
     }

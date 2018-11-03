@@ -112,7 +112,7 @@ namespace Azos.Sky.Workers.Server
           if (granMs>0)
             Thread.Sleep(granMs);
           else
-            Thread.Sleep(THREAD_GRANULARITY_MS + ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, THREAD_GRANULARITY_MS / 5));
+            Thread.Sleep(THREAD_GRANULARITY_MS + App.Random.NextScaledRandomInteger(0, THREAD_GRANULARITY_MS / 5));
 
           var utcNow = App.TimeSource.UTCNow;
           if ((utcNow - startTime).TotalSeconds < m_StartupDelaySec) continue;

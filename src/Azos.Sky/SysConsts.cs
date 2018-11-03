@@ -196,9 +196,7 @@ namespace Azos.Sky
             (char)0,
             (char)0x0d,
             (char)0x0a,
-            #warning Must FIX this!!!
-            (char)0xfaca, //<------------ WARNING!!!!!
-            #warning Bring back instead of #faca above: Metabase.Metabank.HOST_DYNAMIC_SUFFIX_SEPARATOR,
+            Metabase.Metabank.HOST_DYNAMIC_SUFFIX_SEPARATOR,
             '@', '#', ',' , ';' , ':' , '%', '&',
             '/' , '\\' , '\'' , '"' , '|' ,
             '*' , '?',
