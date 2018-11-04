@@ -5,7 +5,7 @@
 
 ## Runnable
 * Runnable - consider invoking async methods and properly awaiting them - 
- this is needed for example to make sure that tests epilog is ran to completion on 
+ this is needed for example to make sure that tests epilogue is ran to completion on 
 a thread pool and properly awaited for
 
 ## WebClient vs HttpClient + async
@@ -21,3 +21,10 @@ a thread pool and properly awaited for
 
 ## MVC
 * Bring back async pipeline in a separate branch
+
+## Data Access
+* Revise async CRUDOperationContext
+* Revise MySql, Mongo and MsSql async implementation of data stores
+
+## File System
+* Revise async access functions

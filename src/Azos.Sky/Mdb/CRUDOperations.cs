@@ -9,7 +9,7 @@ namespace Azos.Sky.Mdb
 {
   /// <summary>
   /// Provides facade for ICrudOperations and ICRUDTransactionOperations
-  /// executed against the particular shard returned by the MDB areas partition / routing
+  /// executed against the particular shard returned by the Mdb areas partition / routing
   /// </summary>
   public struct CRUDOperations : ICRUDOperations, ICRUDTransactionOperations
   {
@@ -32,10 +32,10 @@ namespace Azos.Sky.Mdb
         return Shard.Area.PhysicalDataStore.Delete(doc, key);
     }
 
-    public Task<int> DeleteAsync(Doc doc, IDataStoreKey key = null)
+    public async Task<int> DeleteAsync(Doc doc, IDataStoreKey key = null)
     {
       using(new CRUDOperationCallContext{ConnectString = Shard.EffectiveConnectionString})
-        return Shard.Area.PhysicalDataStore.DeleteAsync(doc, key);
+        return await Shard.Area.PhysicalDataStore.DeleteAsync(doc, key);
     }
 
     public int ExecuteWithoutFetch(params Query[] queries)
@@ -44,10 +44,10 @@ namespace Azos.Sky.Mdb
         return Shard.Area.PhysicalDataStore.ExecuteWithoutFetch(queries);
     }
 
-    public Task<int> ExecuteWithoutFetchAsync(params Query[] queries)
+    public async Task<int> ExecuteWithoutFetchAsync(params Query[] queries)
     {
       using(new CRUDOperationCallContext{ConnectString = Shard.EffectiveConnectionString})
-        return Shard.Area.PhysicalDataStore.ExecuteWithoutFetchAsync(queries);
+        return await Shard.Area.PhysicalDataStore.ExecuteWithoutFetchAsync(queries);
     }
 
     public Schema GetSchema(Query query)
@@ -56,10 +56,10 @@ namespace Azos.Sky.Mdb
         return Shard.Area.PhysicalDataStore.GetSchema(query);
     }
 
-    public Task<Schema> GetSchemaAsync(Query query)
+    public async Task<Schema> GetSchemaAsync(Query query)
     {
       using(new CRUDOperationCallContext{ConnectString = Shard.EffectiveConnectionString})
-        return Shard.Area.PhysicalDataStore.GetSchemaAsync(query);
+        return await Shard.Area.PhysicalDataStore.GetSchemaAsync(query);
     }
 
     public int Insert(Doc doc, FieldFilterFunc filter = null)
@@ -68,10 +68,10 @@ namespace Azos.Sky.Mdb
         return Shard.Area.PhysicalDataStore.Insert(doc, filter);
     }
 
-    public Task<int> InsertAsync(Doc doc, FieldFilterFunc filter = null)
+    public async Task<int> InsertAsync(Doc doc, FieldFilterFunc filter = null)
     {
       using(new CRUDOperationCallContext{ConnectString = Shard.EffectiveConnectionString})
-        return Shard.Area.PhysicalDataStore.InsertAsync(doc, filter);
+        return await Shard.Area.PhysicalDataStore.InsertAsync(doc, filter);
     }
 
     public List<RowsetBase> Load(params Query[] queries)
@@ -80,10 +80,10 @@ namespace Azos.Sky.Mdb
         return Shard.Area.PhysicalDataStore.Load(queries);
     }
 
-    public Task<List<RowsetBase>> LoadAsync(params Query[] queries)
+    public async Task<List<RowsetBase>> LoadAsync(params Query[] queries)
     {
       using(new CRUDOperationCallContext{ConnectString = Shard.EffectiveConnectionString})
-        return Shard.Area.PhysicalDataStore.LoadAsync(queries);
+        return await Shard.Area.PhysicalDataStore.LoadAsync(queries);
     }
 
     public Doc LoadOneDoc(Query query)
@@ -92,10 +92,10 @@ namespace Azos.Sky.Mdb
         return Shard.Area.PhysicalDataStore.LoadOneDoc(query);
     }
 
-    public Task<Doc> LoadOneDocAsync(Query query)
+    public async Task<Doc> LoadOneDocAsync(Query query)
     {
       using(new CRUDOperationCallContext{ConnectString = Shard.EffectiveConnectionString})
-        return Shard.Area.PhysicalDataStore.LoadOneDocAsync(query);
+        return await Shard.Area.PhysicalDataStore.LoadOneDocAsync(query);
     }
 
     public RowsetBase LoadOneRowset(Query query)
@@ -104,10 +104,10 @@ namespace Azos.Sky.Mdb
         return Shard.Area.PhysicalDataStore.LoadOneRowset(query);
     }
 
-    public Task<RowsetBase> LoadOneRowsetAsync(Query query)
+    public async Task<RowsetBase> LoadOneRowsetAsync(Query query)
     {
       using(new CRUDOperationCallContext{ConnectString = Shard.EffectiveConnectionString})
-        return Shard.Area.PhysicalDataStore.LoadOneRowsetAsync(query);
+        return await Shard.Area.PhysicalDataStore.LoadOneRowsetAsync(query);
     }
 
     public Cursor OpenCursor(Query query)
@@ -116,10 +116,10 @@ namespace Azos.Sky.Mdb
         return Shard.Area.PhysicalDataStore.OpenCursor(query);
     }
 
-    public Task<Cursor> OpenCursorAsync(Query query)
+    public async Task<Cursor> OpenCursorAsync(Query query)
     {
       using(new CRUDOperationCallContext{ConnectString = Shard.EffectiveConnectionString})
-        return Shard.Area.PhysicalDataStore.OpenCursorAsync(query);
+        return await Shard.Area.PhysicalDataStore.OpenCursorAsync(query);
     }
 
     public int Save(params RowsetBase[] rowsets)
@@ -128,10 +128,10 @@ namespace Azos.Sky.Mdb
         return Shard.Area.PhysicalDataStore.Save(rowsets);
     }
 
-    public Task<int> SaveAsync(params RowsetBase[] rowsets)
+    public async Task<int> SaveAsync(params RowsetBase[] rowsets)
     {
       using(new CRUDOperationCallContext{ConnectString = Shard.EffectiveConnectionString})
-        return Shard.Area.PhysicalDataStore.SaveAsync(rowsets);
+        return await Shard.Area.PhysicalDataStore.SaveAsync(rowsets);
     }
 
     public bool SupportsTrueAsynchrony
@@ -145,10 +145,10 @@ namespace Azos.Sky.Mdb
         return Shard.Area.PhysicalDataStore.Update(doc, key, filter);
     }
 
-    public Task<int> UpdateAsync(Doc doc, IDataStoreKey key = null, FieldFilterFunc filter = null)
+    public async Task<int> UpdateAsync(Doc doc, IDataStoreKey key = null, FieldFilterFunc filter = null)
     {
       using(new CRUDOperationCallContext{ConnectString = Shard.EffectiveConnectionString})
-        return Shard.Area.PhysicalDataStore.UpdateAsync(doc, key, filter);
+        return await Shard.Area.PhysicalDataStore.UpdateAsync(doc, key, filter);
     }
 
     public int Upsert(Doc doc, FieldFilterFunc filter = null)
@@ -157,10 +157,10 @@ namespace Azos.Sky.Mdb
         return Shard.Area.PhysicalDataStore.Upsert(doc, filter);
     }
 
-    public Task<int> UpsertAsync(Doc doc, FieldFilterFunc filter = null)
+    public async Task<int> UpsertAsync(Doc doc, FieldFilterFunc filter = null)
     {
       using(new CRUDOperationCallContext{ConnectString = Shard.EffectiveConnectionString})
-        return Shard.Area.PhysicalDataStore.UpsertAsync(doc, filter);
+        return await Shard.Area.PhysicalDataStore.UpsertAsync(doc, filter);
     }
 
     public CRUDTransaction BeginTransaction(IsolationLevel iso = IsolationLevel.ReadCommitted,
@@ -170,11 +170,11 @@ namespace Azos.Sky.Mdb
         return Shard.Area.PhysicalDataStore.BeginTransaction(iso, behavior);
     }
 
-    public Task<CRUDTransaction> BeginTransactionAsync(IsolationLevel iso = IsolationLevel.ReadCommitted,
-                                                       TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
+    public async Task<CRUDTransaction> BeginTransactionAsync(IsolationLevel iso = IsolationLevel.ReadCommitted,
+                                                             TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
     {
       using(new CRUDOperationCallContext{ConnectString = Shard.EffectiveConnectionString})
-        return Shard.Area.PhysicalDataStore.BeginTransactionAsync(iso, behavior);
+        return await Shard.Area.PhysicalDataStore.BeginTransactionAsync(iso, behavior);
     }
 
     public bool SupportsTransactions

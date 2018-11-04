@@ -4,24 +4,22 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Azos.Data.Access
 {
 
   /// <summary>
-  /// Establishes a thead-static context which surrounds CRUD operations. You can derive your own classes, the .ctor must be chained.
-  /// The context can be nested. A call to .ctor must be balanced with .Dispose().
-  /// This is needed to pass some out-of-band information in some special cases to CRUD operations without changing
-  /// the caller interface, i.e. to swap database connection string.
-  /// This class IS NOT THREAD SAFE, so in cases of async operations, the context captures extra parameters ONLY for initial ASYNC INVOCATION, that is-
-  ///  a true ASYNC implementation must pass the reference along the task execution line (in which case the object may be already Disposed but usable for property access
+  /// Establishes an async-safe context which surrounds CRUD operations. You can derive your own classes,
+  /// the .ctor must be chained. The context flows between async operations and can be nested. Logical flow
+  /// must be observed: a call to .ctor must be balanced with eventual call to .Dispose() (which may be async).
+  /// This class is used to pass some out-of-band information to CRUD operations without changing the caller interface,
+  /// i.e. to swap database connection string
   /// </summary>
   public class CRUDOperationCallContext : DisposableObject
   {
-      [ThreadStatic]
-      private static Stack<CRUDOperationCallContext> ts_Instances;
+      private static AsyncLocal<Stack<CRUDOperationCallContext>> ats_Instances = new AsyncLocal<Stack<CRUDOperationCallContext>>();
 
       /// <summary>
       /// Returns the current set CRUDOperationCallContext or null
@@ -30,23 +28,29 @@ namespace Azos.Data.Access
       {
         get
         {
-          return ts_Instances!=null && ts_Instances.Count>0 ? ts_Instances.Peek() : null;
+          return ats_Instances.Value!=null && ats_Instances.Value.Count>0 ? ats_Instances.Value.Peek() : null;
         }
       }
 
       public CRUDOperationCallContext()
       {
-        if (ts_Instances==null)
-           ts_Instances = new Stack<CRUDOperationCallContext>();
+        if (ats_Instances.Value==null)
+           ats_Instances.Value = new Stack<CRUDOperationCallContext>();
 
-        ts_Instances.Push(this);
+        ats_Instances.Value.Push(this);
       }
 
       protected override void Destructor()
       {
-        if (ts_Instances.Count>0)
+        if (ats_Instances.Value.Count>0)
         {
-          if (ts_Instances.Pop()==this) return;
+          if (ats_Instances.Value.Pop()==this)
+          {
+            if (ats_Instances.Value.Count == 0)
+              ats_Instances.Value = null;
+
+            return;
+          }
         }
 
         throw new DataAccessException(StringConsts.CRUD_OPERATION_CALL_CONTEXT_SCOPE_MISMATCH_ERROR);
