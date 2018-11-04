@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,7 +20,7 @@ namespace Azos.IO.FileSystem
     /// <summary>
     /// Provides a base for various file system abstractions.
     /// FileSystem abstractions are mostly useful for working with components/classes that may need to inter-operate not only with local file system
-    ///  but also with distributed systems like ApacheHDFS, SVN, GIT, or Aum Cluster Big-Transactional File System (BoltFS).
+    ///  but also with distributed systems like ApacheHDFS, SVN, GIT, or Sky Cluster Big-Transactional File System (BoltFS).
     ///  Azos library provides compatibility wrapper 'Azos.IO.FileSystem.Local.LocalFileSystem' for access to local machine file system
     ///  (which is based on this class and is implemented using a traditional System.IO.* set of classes).
     /// The FileSystem abstraction supports the following concepts: versioning, transactions, metadata, security; however it does not guarantee that
@@ -239,7 +238,7 @@ namespace Azos.IO.FileSystem
           /// <summary>
           /// Override in particular file systems to see if item can change, i.e.
           ///  for file systems that support versioning throw exception if item is in session
-          ///   which "looks" at a sealed/closed version and can not change. This method may be called by miltiple threads
+          ///   which "looks" at a sealed/closed version and can not change. This method may be called by multiple threads
           /// </summary>
           protected internal virtual void DoCheckCanChange(FileSystemSessionItem item)
           {
@@ -257,7 +256,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override in particular file systems that support versioning to get latest version object that this session can work with.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal virtual IFileSystemVersion DoGetLatestVersion (FileSystemSession session)
           {
@@ -277,7 +276,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override in particular file systems that support versioning to get version object for session.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal virtual IFileSystemVersion DoGetVersion(FileSystemSession session)
           {
@@ -295,8 +294,8 @@ namespace Azos.IO.FileSystem
                   }
 
           /// <summary>
-          /// Override in particular file systems that support versioning to set seesion to specific version.
-          /// This method may be called by miltiple threads
+          /// Override in particular file systems that support versioning to set session to specific version.
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal virtual void DoSetVersion (FileSystemSession session, IFileSystemVersion version) {}
 
@@ -316,7 +315,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override in particular file systems that support transactions to begin transaction in specified session.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal virtual IFileSystemTransactionHandle DoBeginTransaction   (FileSystemSession session)
           {
@@ -337,7 +336,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override in particular file systems that support transactions to commit transaction in specified session.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal virtual void  DoCommitTransaction  (FileSystemSession session) {}
 
@@ -354,7 +353,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override in particular file systems that support transactions to rollback transaction in specified session.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal virtual void  DoRollbackTransaction(FileSystemSession session) {}
 
@@ -371,7 +370,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to refresh item state, i.e. re-fetch remote information.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal virtual void DoRefresh(FileSystemSessionItem item) {}
 
@@ -388,7 +387,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to get subdirectory names of directory. If directory is null then root is assumed.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract IEnumerable<string> DoGetSubDirectoryNames(FileSystemDirectory directory, bool recursive);
 
@@ -404,7 +403,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to get file names in directory. If directory is null then root is assumed.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract IEnumerable<string> DoGetFileNames(FileSystemDirectory directory, bool recursive);
 
@@ -421,7 +420,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to get file or directory from specified path. Return null if item does not exist.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract FileSystemSessionItem DoNavigate(FileSystemSession session, string path);
 
@@ -437,7 +436,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to rename item return true on success.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract bool DoRenameItem(FileSystemSessionItem item, string newName);
 
@@ -453,7 +452,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to delete item.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract void DoDeleteItem(FileSystemSessionItem item);
 
@@ -470,7 +469,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to create a file.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract FileSystemFile DoCreateFile(FileSystemDirectory dir, string name, int size);
 
@@ -486,7 +485,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to create a file from local file.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract FileSystemFile DoCreateFile(FileSystemDirectory dir, string name, string localFile, bool readOnly);
 
@@ -502,7 +501,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to create a directory.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract FileSystemDirectory DoCreateDirectory(FileSystemDirectory dir, string name);
 
@@ -535,7 +534,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to get the byte size of item (directory or file).
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract ulong DoGetItemSize(FileSystemSessionItem item);
 
@@ -552,7 +551,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to get permissions stream for item (directory or file).
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract FileSystemStream DoGetPermissionsStream(FileSystemSessionItem item, Action<FileSystemStream> disposeAction);
 
@@ -568,7 +567,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to get metadata stream for item (directory or file).
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract FileSystemStream DoGetMetadataStream(FileSystemSessionItem item, Action<FileSystemStream> disposeAction);
 
@@ -584,7 +583,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to get file stream.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract FileSystemStream DoGetFileStream(FileSystemFile file, Action<FileSystemStream> disposeAction);
 
@@ -600,25 +599,25 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to get item creation timestamp.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract DateTime? DoGetCreationTimestamp(FileSystemSessionItem item);
 
           /// <summary>
           /// Override to get item modification timestamp.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract DateTime? DoGetModificationTimestamp(FileSystemSessionItem item);
 
           /// <summary>
           /// Override to get item last access timestamp.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract DateTime? DoGetLastAccessTimestamp(FileSystemSessionItem item);
 
           /// <summary>
           /// Override to set item creation timestamp.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract void DoSetCreationTimestamp(FileSystemSessionItem item, DateTime timestamp);
 
@@ -634,7 +633,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to set item modification timestamp.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract void DoSetModificationTimestamp(FileSystemSessionItem item, DateTime timestamp);
 
@@ -650,7 +649,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to set item last access timestamp.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract void DoSetLastAccessTimestamp(FileSystemSessionItem item, DateTime timestamp);
 
@@ -666,13 +665,13 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override to get item readonly status.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract bool DoGetReadOnly(FileSystemSessionItem item);
 
           /// <summary>
           /// Override to set item readonly status.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal abstract void DoSetReadOnly(FileSystemSessionItem item, bool readOnly);
 
@@ -689,7 +688,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override in particular file systems to get user who created item.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal virtual User DoGetCreationUser(FileSystemSessionItem item)
           {
@@ -708,7 +707,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override in particular file systems to get user who was the last user modifying the item.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal virtual User  DoGetModificationUser(FileSystemSessionItem item)
           {
@@ -727,7 +726,7 @@ namespace Azos.IO.FileSystem
 
           /// <summary>
           /// Override in particular file systems to get user who was the last user accessing the item.
-          /// This method may be called by miltiple threads
+          /// This method may be called by multiple threads
           /// </summary>
           protected internal virtual User  DoGetLastAccessUser(FileSystemSessionItem item)
           {

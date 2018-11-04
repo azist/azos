@@ -28,3 +28,6 @@ a thread pool and properly awaited for
 
 ## File System
 * Revise async access functions
+
+## General
+Research and replace TaskUtils.AsCompletedTask() with Task.FromResult(t) - are they different?
