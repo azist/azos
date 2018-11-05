@@ -102,14 +102,17 @@ below LWM (low water mark) level.
 
 The following illustrates the GDID generation process: 
 
-<img src="/doc/img/agdida-01.svg">
+<img src="/doc/img/agdida-01.svg" align="left" width="65%">  
 
 **ID leaks are expected**, for example when process asks for IDs, system allocates a block of 10 IDs and then only uses a few,
 however this is normal and expected because of the dynamic block sizing it is unlikely that system gets large blocks and does not
 use them to the fullest.
 
-These are more of a low-level ways of obtaining GDIDs and should be rarely used, instead unique IDs are usually injected in a declarative
-fashion via attributes: 
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+
+The methods that obtain new GDIDs by calling the aforementioned functions are more of a low-level
+way and should be rarely used, unless you are writing some system code. In business applications developers should
+instead generate unique IDs in a declarative fashion via metadata attributes (see `UniqueSequence1`): 
 
 ```CSharp
   ///<summary> Represents User root record data <summary>
