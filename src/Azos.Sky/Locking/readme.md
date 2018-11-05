@@ -11,7 +11,7 @@ lines of code. It is also used for coordination/scheduling of running processes.
  The failures are handled based on a **reliability contract/expectation** which is stipulated by every transaction.
  The approach is based on an efficient one-phase client-server protocol that **statistically ensures** 
 (*but does not guarantee*) that **client caller can rely on the server state**. It achieves high throughput by 
- **completely eliminating state macine sync inter-node communication** - so typical in systems that use Raft or Paxos. 
+ **completely eliminating state machine sync inter-node communication** - so typical in systems that use Raft or Paxos. 
 Sky locking system ensures that the client transaction/call succeeds only when the
  **minimum probable server state/data currency claim is satisfied**.
 
@@ -57,7 +57,7 @@ process has already placed the record for that particular key. The locking serve
 **server would delete ALL variable entries from its memory upon expiration**. On a typical server machine with 8 Gb of RAM and 
 4 cores the locking server can support hundred of thousands of lock var entries executing over 200,000+ transactions a second.
 
-In practice these data structures are used to coordinate co-operating tasks such as mapreduce, full scans and the like where a 
+In practice these data structures are used to coordinate co-operating tasks such as map-reduce, full scans and the like where a 
 swarm of hosts exchange data describing "chunks" of work that they perform. In reality this leads to generation of 10s-100s of 
 variable entries at most, which makes this solution **VERY efficient for real-time multi-worker coordination**. See [Distributed Coordination](../Coordination)
 

@@ -8,7 +8,7 @@ for DB keys because GUIDs are not monotonic/homogeneous and consequential databa
 which really impedes the performance. IDs are usually used in database indexes - 
 **sequential IDs are a much better** fit because the BTree index pages are better organized. 
 For example, PK(primary key) index-organized tables perform  quick lookups of data by PK, but need
- to re-organize records on insert if PKs are not consequitive.
+ to re-organize records on insert if PKs are not consecutive.
 
 Another important benefit of monotonically increasing IDs is the **range partitioning**. It is used 
 to organize large volumes of data by ranges. This would have been impossible to accomplish with scattered ids.
@@ -102,7 +102,7 @@ below LWM (low water mark) level.
 
 The following illustrates the GDID generation process: 
 
-<img src="/doc/img/agdida.svg">
+<img src="/doc/img/agdida-01.svg">
 
 **ID leaks are expected**, for example when process asks for IDs, system allocates a block of 10 IDs and then only uses a few,
 however this is normal and expected because of the dynamic block sizing it is unlikely that system gets large blocks and does not
