@@ -112,7 +112,7 @@ use them to the fullest.
 
 The methods that obtain new GDIDs by calling the aforementioned functions are more of a low-level
 way and should be rarely used, unless you are writing some system code. In business applications developers should
-instead generate unique IDs in a declarative fashion via metadata attributes (see `UniqueSequence1`): 
+instead generate unique IDs in a declarative fashion via metadata attributes (see `UniqueSequence`): 
 
 ```CSharp
   ///<summary> Represents User root record data <summary>
