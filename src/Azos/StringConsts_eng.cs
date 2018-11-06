@@ -147,9 +147,9 @@ namespace Azos
         public const string CONFIGURATION_OVERRIDE_PROHOBITED_ERROR = "Section override failed because it is prohibited by base node: ";
 
 
-        public const string CONFIGURATION_PATH_ICONFIGURABLE_SECTION_ERROR = "Instance of '{0}' could not be configured using ConfigAttribute because its memeber '{1}' is IConfigurable, however config path did not yield a IConfigSectionNode instance";
+        public const string CONFIGURATION_PATH_ICONFIGURABLE_SECTION_ERROR = "Instance of '{0}' could not be configured using ConfigAttribute because its member '{1}' is IConfigurable, however config path did not yield a IConfigSectionNode instance";
 
-        public const string CONFIGURATION_PATH_ICONFIGSECTION_SECTION_ERROR = "Instance of '{0}' could not be configured using ConfigAttribute because its memeber '{1}' is IConfigSection, however config path did not yield a IConfigSectionNode instance";
+        public const string CONFIGURATION_PATH_ICONFIGSECTION_SECTION_ERROR = "Instance of '{0}' could not be configured using ConfigAttribute because its member '{1}' is IConfigSection, however config path did not yield a IConfigSectionNode instance";
 
 
         public const string CONFIGURATION_ATTR_APPLY_VALUE_ERROR = "Error applying config attribute to property/field '{0}' for the instance of '{1}'. Exception: {2}";
@@ -163,7 +163,7 @@ namespace Azos
 
         public const string CONFIGURATION_SCRIPT_EXPRESSION_EVAL_ERROR = "Configuration script expression '{0}' evaluation at node '{1}'. Error: {2}";
 
-        public const string CONFIGURATION_SCRIPT_SYNTAX_ERROR = "Script sysntax error: ";
+        public const string CONFIGURATION_SCRIPT_SYNTAX_ERROR = "Script syntax error: ";
 
         public const string CONFIGURATION_SCRIPT_ELSE_NOT_AFTER_IF_ERROR = CONFIGURATION_SCRIPT_SYNTAX_ERROR + "ELSE clause '{0}' is not after IF clause";
 
@@ -302,7 +302,7 @@ namespace Azos
         "Error while applying behavior to {0}. Error: {1}";
 
     public const string CONFIG_JSON_MAP_ERROR =
-        "JSONConfig must be represented by a valid JSON map(hash) with a single root key, not array or multikey map";
+        "JSONConfig must be represented by a valid JSON map(hash) with a single root key, not array or multi-key map";
 
     public const string CONFIG_JSON_STRUCTURE_ERROR =
         "JSONConfig was supplied content with invalid logical structure, all members of an array must be non-null maps that represent config sub-sections";
@@ -474,7 +474,7 @@ namespace Azos
         "ISerializable object does not implement .ctor(SerializationInfo, StreamingContext): ";
 
     public const string POD_DONT_KNOW_HOWTO_DESERIALIZE_FROM_CUSTOM_DATA =
-        "PortableObjectDocument can not deserialize an instance of '{0}' as the type foes not provide neither PortableObjectDocumentDeserializationTransform nor ISerializable impmenetation";
+        "PortableObjectDocument can not deserialize an instance of '{0}' as the type foes not provide neither PortableObjectDocumentDeserializationTransform nor ISerializable implementation";
 
 
     public const string IO_FS_ITEM_IS_READONLY_ERROR =
@@ -539,7 +539,7 @@ namespace Azos
         "Method '{0}'.'{1}' is unsupported by Glue as it contains '{2}' parameter which is either generic, OUT or REF";
 
     public const string GLUE_METHOD_ARGS_MARSHAL_LAMBDA_ERROR =
-        "Could not compile dynamic lamda for args marshalling for method '{0}'.'{1}'. Exception: {2}";
+        "Could not compile dynamic lambda for args marshaling for method '{0}'.'{1}'. Exception: {2}";
 
 
     public const string GLUE_NO_SERVER_INSTANCE_ERROR =
@@ -697,11 +697,11 @@ namespace Azos
 
     public const string CRUD_FIELD_ATTR_PROTOTYPE_CTOR_ERROR = "Field attribute construction from prototype error: {0}";
 
-    public const string CRUD_TYPED_ROW_RECURSIVE_FIELD_DEFINITION_ERROR = "Typedrow '{0}' recursive field definition. Check for [Field(prototype..)] cycle";
+    public const string CRUD_TYPED_DOC_RECURSIVE_FIELD_DEFINITION_ERROR = "TypedDoc '{0}' recursive field definition. Check for [Field(prototype..)] cycle";
 
-    public const string CRUD_TYPED_ROW_SINGLE_CLONED_FIELD_ERROR = "Typedrow '{0}' defines field clone via [Field(....)]]'{1}' in which case only a single [Field(....)] decoration is allowed";
+    public const string CRUD_TYPED_DOC_SINGLE_CLONED_FIELD_ERROR = "TypedDoc '{0}' defines field clone via [Field(....)]]'{1}' in which case only a single [Field(....)] decoration is allowed";
 
-    public const string CRUD_TYPED_ROW_CLONED_FIELD_NOTEXISTS_ERROR = "Typedrow '{0}' defines field clone via [Field(....)]]'{1}' but there is no field with such name in the cloned-from type";
+    public const string CRUD_TYPED_DOC_CLONED_FIELD_NOTEXISTS_ERROR = "TypedDoc '{0}' defines field clone via [Field(....)]]'{1}' but there is no field with such name in the cloned-from type";
 
     public const string CRUD_TYPE_IS_NOT_DERIVED_FROM_ROW_ERROR = "CRUD supplied type of '{0}' is not a Row-derivative";
 
@@ -772,7 +772,7 @@ namespace Azos
     public const string ERL_DS_CRUD_WRITE_FAILED_ERROR        = "ErlDataStore CRUD write failed: ";
     public const string ERL_DS_CRUD_RESP_SCH_MISMATCH_ERROR   = "ErlDataStore map can not convert to row erlang tuple named '{0}' per supplied schema name '{1}'";
     public const string ERL_DS_CRUD_RESP_SCH_FLD_COUNT_ERROR  =
-           "ErlDataStore map can not convert to row erlang tuple named '{0}' per supplied CRUD schema name '{1}' as field count differ";
+           "ErlDataStore map can not convert to row Erlang tuple named '{0}' per supplied CRUD schema name '{1}' as field count differ";
     public const string ERL_DS_INTERNAL_MAPPING_ERROR         = "ErlDataStore internal mapping error: ";
 
     public const string ERL_ATOM_SIZE_TOO_LONG_ERROR          = "Atom size is too long!";
@@ -783,7 +783,7 @@ namespace Azos
     public const string ERL_CANNOT_CLONE_INSTANCE_ERROR       = "Cannot clone instance of type {0}";
     public const string ERL_CANNOT_READ_FROM_STREAM_ERROR     = "Cannot read from input stream";
     public const string ERL_CONFIG_SINGLE_NODE_ERROR          = "Configuration must contain a single local node (found: {0} local nodes)";
-    public const string ERL_CONNECTION                        = "connecton {0} {1} {2}";
+    public const string ERL_CONNECTION                        = "connection {0} {1} {2}";
     public const string ERL_CONN_ACCEPT_FROM                  = "Accept from {0}:{1}";
     public const string ERL_CONN_ACCEPT_ERROR                 = "Error accepting connection from {0}";
     public const string ERL_CONN_ALREADY_CONNECTED_ERROR      = "Already connected";
@@ -995,13 +995,13 @@ namespace Azos
         "CLR value of type '{0}' could not be converted into BSON as there is a reference cycle";
 
     public const string DECIMAL_OUT_OF_RANGE_ERROR =
-        "Decimal value of {0} is outside of to-int64 convertable range of {1}..{2}";
+        "Decimal value of {0} is outside of to-int64 convertible range of {1}..{2}";
 
     public const string BUFFER_LONGER_THAN_ALLOWED_ERROR =
         "Byte[] buffer has a length of {0} bytes which is over the allowed maximum of {1} bytes";
 
     public const string BSON_DECIMAL_INT32_INT64_CONVERTION_ERROR =
-        "Either BSONInt32 or BSONInt64 required for convertion to decimal";
+        "Either BSONInt32 or BSONInt64 required for conversion to decimal";
 
     public const string BSON_DESERIALIZER_DOC_MISSING_TID_ERROR =
         "BSONSerializer.Deserialize() document missing the '{0}' type id string field";
@@ -1021,7 +1021,7 @@ namespace Azos
     public const string BSON_GUID_BUFFER_ERROR =
         "Error converting GUID data buffer: {0}";
 
-    public const string SECDB_FILE_HEADER_ERROR = "Eror while parsing the SecDB file header: ";
+    public const string SECDB_FILE_HEADER_ERROR = "Error while parsing the SecDB file header: ";
 
     public const string SECDB_FS_SEEK_STREAM_ERROR =
        "SecDB requires a file system that supports random file access with content stream seek. Passed '{0}' does not";

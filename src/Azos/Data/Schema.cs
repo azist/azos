@@ -505,7 +505,7 @@ namespace Azos.Data
                 lock(s_TypeLatch)
                 {
                   if (s_TypeLatch.Contains(tdoc))
-                   throw new DataException(StringConsts.CRUD_TYPED_ROW_RECURSIVE_FIELD_DEFINITION_ERROR.Args(tdoc.FullName));
+                   throw new DataException(StringConsts.CRUD_TYPED_DOC_RECURSIVE_FIELD_DEFINITION_ERROR.Args(tdoc.FullName));
 
                   s_TypeLatch.Add(tdoc);
                   try
@@ -533,12 +533,12 @@ namespace Azos.Data
                             if (attr.CloneFromDocType==null) continue;
 
                             if (fattrs.Length>1)
-                             throw new DataException(StringConsts.CRUD_TYPED_ROW_SINGLE_CLONED_FIELD_ERROR.Args(tdoc.FullName, prop.Name));
+                             throw new DataException(StringConsts.CRUD_TYPED_DOC_SINGLE_CLONED_FIELD_ERROR.Args(tdoc.FullName, prop.Name));
 
                             var clonedSchema = Schema.GetForTypedDoc(attr.CloneFromDocType);
                             var clonedDef = clonedSchema[prop.Name];
                             if (clonedDef==null)
-                             throw new DataException(StringConsts.CRUD_TYPED_ROW_CLONED_FIELD_NOTEXISTS_ERROR.Args(tdoc.FullName, prop.Name));
+                             throw new DataException(StringConsts.CRUD_TYPED_DOC_CLONED_FIELD_NOTEXISTS_ERROR.Args(tdoc.FullName, prop.Name));
 
                             fattrs = clonedDef.Attrs.ToArray();//replace these attrs from the cloned target
                             break;
