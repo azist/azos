@@ -4,15 +4,15 @@
 
 
 ## Runnable
-* Runnable - consider invoking async methods and properly awaiting them - 
+*[2018-11-06] ~~Runnable - consider invoking async methods and properly awaiting them - 
  this is needed for example to make sure that tests epilogue is ran to completion on 
-a thread pool and properly awaited for
+a thread pool and properly awaited for~~
 
 ## WebClient vs HttpClient + async
 * Revise Azos.Web.WebClient to use proper async model
 
 ## Async reflection
-* ReflectionUtils -add method to test a method for being async
+*[2018-11-06] ~~ReflectionUtils -add method to test a method for being async~~
 
 ## Glue
 * Revise Glue use of async methods in contracts
