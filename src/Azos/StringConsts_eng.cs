@@ -92,6 +92,9 @@ namespace Azos
         public const string RUN_RUNNER_RUN_LEAKED2_ERROR =
           "Runner.SafeRunMethod() leaked error: {0} \n then Run epilogue threw: {1}";
 
+        public const string RUN_ASYNC_VOID_NOT_SUPPORTED_METHOD_ERROR =
+          "Runnable async method '{0}' must either return a Task or Task<T>; async void is not runnable";
+
 
 
         public const string CONFIGURATION_FILE_UNKNOWN_ERROR = "Configuration file is unknown/not set ";

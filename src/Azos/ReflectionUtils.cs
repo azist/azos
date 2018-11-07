@@ -5,9 +5,8 @@
 </FILE_LICENSE>*/
 using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace Azos
 {
@@ -55,6 +54,15 @@ namespace Azos
     {
       var type = (mem is Type) ? ((Type)mem).FullName : (mem.DeclaringType != null) ? mem.DeclaringType.FullName : CoreConsts.UNKNOWN;
       return string.Format("{0}{{{1} '{2}'}}", type, mem.MemberType, mem.Name);
+    }
+
+    /// <summary>
+    /// Returns true if the supplied method is an async method
+    /// </summary>
+    public static bool IsAsyncMethod(this MethodInfo method)
+    {
+      if (method==null) return false;
+      return Attribute.IsDefined(method, typeof(AsyncStateMachineAttribute), inherit: false);
     }
 
   }

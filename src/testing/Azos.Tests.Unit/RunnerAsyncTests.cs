@@ -26,41 +26,27 @@ namespace Azos.Tests.Unit
       }
 
       [Run(order: -1000)]
-      public async void Empty_async_void()
+      public async Task Empty_async()
       {
         await delay();
       }
 
       [Run(order: -900)]
-      public async Task Empty_async_task()
-      {
-        await delay();
-      }
-
-      [Run(order: -800)]
       public async Task<int> Empty_async_taskT()
       {
         await delay();
         return 5;
       }
 
-      [Run(order: -100)]
-      public async void MultipleDelayReturning_async_void()
+      [Run(order: -800)]
+      public async Task MultipleDelayReturning_async()
       {
         var x = await delayReturning(123, 150);
         var y = await delayReturning(7, 5);
         Aver.AreEqual(130, x+y);
       }
 
-      [Run(order: -90)]
-      public async Task MultipleDelayReturning_async_task()
-      {
-        var x = await delayReturning(123, 150);
-        var y = await delayReturning(7, 5);
-        Aver.AreEqual(130, x + y);
-      }
-
-      [Run(order: -80)]
+      [Run(order: -790)]
       public async Task<int> MultipleDelayReturning_async_taskT_sequential()
       {
         var x = await delayReturning(123, 150);
@@ -70,7 +56,7 @@ namespace Azos.Tests.Unit
         return result;
       }
 
-      [Run(order: -70)]
+      [Run(order: -780)]
       public async Task<int> MultipleDelayReturning_async_taskT_parallel()
       {
         var x = delayReturning(123, 150);
@@ -84,37 +70,21 @@ namespace Azos.Tests.Unit
       /// <summary>
       /// Makes sure that the whole async chain gets executed correctly
       /// </summary>
-      [Run(order: -10)]
+      [Run(order: -100)]
       [Run, Aver.Throws(typeof(NotSupportedException), ExactType = true, Message = "Special Text 1", MsgMatch = Aver.ThrowsAttribute.MatchType.Exact)]
-      public async void Multiple_async_void()
+      public async Task Multiple_async()
       {
         await delay(10);
         Aver.Equals(1, 1);
         await delay(20);
         Aver.Equals(2, 2);
         await delay(30);
-        Console.WriteLine("This gets printed)");
+        Console.WriteLine("This gets printed");
         throw new NotSupportedException("Special Text 1");
       }
 
-      /// <summary>
-      /// Makes sure that the whole async chain gets executed correctly
-      /// </summary>
-      [Run(order: -5)]
-      [Run, Aver.Throws(typeof(NotSupportedException), ExactType = true, Message = "Special Text 2", MsgMatch = Aver.ThrowsAttribute.MatchType.Exact)]
-      public async Task Multiple_async_task()
-      {
-        await delay(10);
-        Aver.Equals(1, 1);
-        await delay(20);
-        Aver.Equals(2, 2);
-        await delay(30);
-        Console.WriteLine("This gets printed)");
-        throw new NotSupportedException("Special Text 2");
-      }
-
       [Run("a=1 b=-1 sect{a=100 b=200}")]
-      public async void Section(int a, int b, IConfigSectionNode sect)
+      public async Task Section(int a, int b, IConfigSectionNode sect)
       {
           Aver.AreEqual(1, a);
           Aver.AreEqual(-1, b);
@@ -124,7 +94,7 @@ namespace Azos.Tests.Unit
       }
 
       [Run("a{ x=10 y=20 log{ good=true }}")]
-      public async void InjectConfig_IConfigSectionNode(int x, int y, IConfigSectionNode log)
+      public async Task InjectConfig_IConfigSectionNode(int x, int y, IConfigSectionNode log)
       {
           Aver.AreEqual(10, x);
           Aver.AreEqual(20, y);
@@ -144,7 +114,7 @@ namespace Azos.Tests.Unit
 
       [Run("case1", "a{ expectName='aaa' expectAge=-125 person{ name='aaa' age=-125}}")]
       [Run("case2", "expectName='kozel' expectAge=125 person{ name='kozel' age=125}")]
-      public async void InjectComplexType(string expectName, int expectAge, Person person)
+      public async Task InjectComplexType(string expectName, int expectAge, Person person)
       {
         Aver.IsNotNull(person);
         await delay();
@@ -154,7 +124,7 @@ namespace Azos.Tests.Unit
 
       [Run("case1", "a{ expectName='aaa' expectAge=-125 person{ name='aaa' age=-125}}")]
       [Run("case2", "expectName='kozel' expectAge=125 person{ name='kozel' age=125}")]
-      public async void InjectComplexType_delayReturning(string expectName, int expectAge, Person person)
+      public async Task InjectComplexType_delayReturning(string expectName, int expectAge, Person person)
       {
         Aver.IsNotNull(person);
 

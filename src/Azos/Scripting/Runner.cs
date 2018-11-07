@@ -8,9 +8,9 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 
-using Azos.Apps;
 using Azos.Conf;
 using Azos.Text;
+using System.Threading.Tasks;
 
 namespace Azos.Scripting
 {
@@ -249,7 +249,12 @@ namespace Azos.Scripting
         foreach(var attr in attrs)
         {
           if (FilterMethod(tRunnable, mi, attr, hasMethodLevelCategories))
+          {
+            if (mi.IsAsyncMethod() && mi.ReturnType==typeof(void))
+              throw new RunnerException(StringConsts.RUN_ASYNC_VOID_NOT_SUPPORTED_METHOD_ERROR.Args(mi.ToDescription()));
+
             yield return (mi, attr);
+          }
         }
       }
     }
@@ -348,7 +353,13 @@ namespace Azos.Scripting
           if (!alreadyHandled)
           {
             if (!this.Emulate)
-              method.mi.Invoke(runnable, args); //<------------------ MAKE  A CALL !!!!!
+            {
+              var ret = method.mi.Invoke(runnable, args); //<------------------ MAKE  A CALL !!!!!
+              if (ret is Task t)
+              {
+                t.GetAwaiter().GetResult();//discard the result, if this throws it throws as-if from Invoke()
+              }
+            }
 
             if (hook!=null) hook.Epilogue(this, fid, method.mi, method.attr, null);
           }
