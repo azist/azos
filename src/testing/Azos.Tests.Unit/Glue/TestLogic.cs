@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +16,7 @@ using Azos.Conf;
 using Azos.Glue.Native;
 using Azos.Glue;
 using Azos.IO;
-
+using System.Threading.Tasks;
 
 namespace Azos.Tests.Unit.Glue
 {
@@ -82,6 +82,54 @@ namespace Azos.Tests.Unit.Glue
             }
         }
 
+        public static async Task ASYNC_AWAIT_CALL_TestContractA_TwoWayCall(string CONF_SRC)
+        {
+          TestServerA.s_Accumulator = 0;
+
+          var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
+          using (var app = new ServiceBaseApplication(null, conf.Root))
+          {
+            var cl = new TestContractAClient(App.ConfigRoot.AttrByName("cs").Value);
+
+            var call = cl.Async_Method1(12);
+
+            await call;//this will wait and come back on either timeout or result delivery
+
+            Aver.IsTrue(call.Available);
+
+            Aver.AreEqual("12", call.GetValue<string>());
+            Aver.AreEqual(12, TestServerA.s_Accumulator);
+          }
+        }
+
+        public static async Task ASYNC_MANY_AWAITS_TestContractA_TwoWayCall(string CONF_SRC)
+        {
+          TestServerA.s_Accumulator = 0;
+
+          var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
+          using (var app = new ServiceBaseApplication(null, conf.Root))
+          {
+            var cl = new TestContractAClient(App.ConfigRoot.AttrByName("cs").Value);
+
+            var call = cl.Async_Method1(234);
+
+            var result = await call.AsTaskReturning<string>();
+
+            Aver.IsTrue(call.Available);
+
+            Aver.AreEqual("234", result);
+
+            Aver.AreEqual("234", (await call).GetValue<string>());//this will instantly return as it is completed already
+            Aver.AreEqual("234", (await call).GetValue<string>());//so will this
+            Aver.AreEqual("234", (await call).GetValue<string>());//and this... and so on.... can do many awaits
+
+            Aver.AreEqual(234, TestServerA.s_Accumulator);
+          }
+        }
+
+
+
+
 
         public static void TestContractA_TwoWayCall_Timeout(string CONF_SRC)
         {
@@ -144,6 +192,37 @@ namespace Azos.Tests.Unit.Glue
             }
         }
 
+        public static async Task ASYNC_TestContractA_TwoWayCall_Timeout(string CONF_SRC)
+        {
+          TestServerA.s_Accumulator = 0;
+
+          var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
+          using (var app = new ServiceBaseApplication(null, conf.Root))
+          {
+            var cl = new TestContractAClient(App.ConfigRoot.AttrByName("cs").Value);
+            cl.TimeoutMs = 2000;
+
+            CallSlot call = null;
+            try
+            {
+              call = await cl.Async_Sleeper(10000);
+              call.GetValue<int>();
+            }
+            catch (ClientCallException err)
+            {
+              Aver.IsTrue(CallStatus.Timeout == err.Status);
+              return;
+            }
+            catch (System.IO.IOException err) //sync binding throws IO exception
+            {
+              Aver.IsTrue(err.Message.Contains("after a period of time"));
+              return;
+            }
+
+            Aver.Fail("Invalid Call status: " + (call != null ? call.CallStatus.ToString() : "call==null"));
+          }
+        }
+
 
 
         public static void TestContractA_OneWayCall(string CONF_SRC)
@@ -157,11 +236,31 @@ namespace Azos.Tests.Unit.Glue
 
                 cl.Method2(93);
 
+                //since this is one-way call, we wait 10 sec tops for server-side state becoming 93
                 for(var cnt=0; cnt<10 && TestServerA.s_Accumulator!=93 ; cnt++)
                     System.Threading.Thread.Sleep(1000);
 
                 Aver.AreEqual(93,TestServerA.s_Accumulator);
             }
+        }
+
+        public static async Task ASYNC_TestContractA_OneWayCall(string CONF_SRC)
+        {
+          TestServerA.s_Accumulator = 0;
+
+          var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
+          using (var app = new ServiceBaseApplication(null, conf.Root))
+          {
+            var cl = new TestContractAClient(App.ConfigRoot.AttrByName("cs").Value);
+
+            await cl.Async_Method2(93);//this should instantly return as call already dispatched
+
+            //since this is one-way call, we wait 10 sec tops for server-side state becoming 93
+            for (var cnt = 0; cnt < 10 && TestServerA.s_Accumulator != 93; cnt++)
+              System.Threading.Thread.Sleep(1000);
+
+            Aver.AreEqual(93, TestServerA.s_Accumulator);
+          }
         }
 
 

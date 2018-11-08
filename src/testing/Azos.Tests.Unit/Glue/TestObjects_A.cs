@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,7 @@ using Azos.Glue.Protocol;
 
 namespace Azos.Tests.Unit.Glue
 {
-   
+
         [Glued]
         public interface ITestContractA
         {
@@ -33,7 +33,7 @@ namespace Azos.Tests.Unit.Glue
             public string Method1(int x)
             {
                 s_Accumulator += x;
-                return s_Accumulator.ToString();  
+                return s_Accumulator.ToString();
             }
 
             public void Method2(int x)
@@ -48,7 +48,7 @@ namespace Azos.Tests.Unit.Glue
             }
         }
 
- 
+
   ///<summary>
   /// Client for glued contract Azos.Tests.Unit.Glue.ITestContractA server.
   /// Each contract method has synchronous and asynchronous versions, the later denoted by 'Async_' prefix.
@@ -169,5 +169,5 @@ namespace Azos.Tests.Unit.Glue
 
   }//class
 
-        
+
 }

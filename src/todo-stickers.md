@@ -16,11 +16,12 @@ a thread pool and properly awaited for~~
 
 ## Glue
 * Revise Glue use of async methods in contracts
+* Does it make sense to implement async Glue server methods (on the server side?)
 * Make CallSlot custom awaitable
 * [2018-11-01]~~Glue Server call context - get rid of ThreadStatic~~
 
 ## MVC
-* Bring back async pipeline in a separate branch
+* Bring back async Web pipeline in a separate branch
 
 ## Data Access
 * Revise async CRUDOperationContext

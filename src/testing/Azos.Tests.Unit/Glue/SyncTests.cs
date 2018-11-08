@@ -3,29 +3,17 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
+
+using System.Threading.Tasks;
 using Azos.Scripting;
-
-
-
-using Azos.Apps;
-using Azos.Conf;
-using Azos.Glue.Native;
-using Azos.Glue;
-using Azos.IO;
 
 namespace Azos.Tests.Unit.Glue
 {
     [Runnable(TRUN.BASE, 7)]
     public class SyncTests
     {
-   const string CONF_SRC_SYNC =@"
- nfx
+   const string CONF_SRC_SYNC = @"
+ app
  {
   cs='sync://127.0.0.1:5432'
   cs2='sync://127.0.0.1:5433'
@@ -33,14 +21,14 @@ namespace Azos.Tests.Unit.Glue
   object-store
   {
     guid='B05D3038-A821-4BE0-96AA-E6D24DFA746F'
-    provider {name='nop' type='Azos.Apps.Volatile.NOPObjectStoreProvider, NFX'}
+    provider {name='nop' type='Azos.Apps.Volatile.NOPObjectStoreProvider, Azos'}
   }
 
   glue
   {
      bindings
      {
-        binding { name=sync type='Azos.Glue.Native.SyncBinding, NFX' max-msg-size=900000}
+        binding { name=sync type='Azos.Glue.Native.SyncBinding, Azos' max-msg-size=900000}
      }
 
      servers
@@ -53,8 +41,8 @@ namespace Azos.Tests.Unit.Glue
  ";
 
 
-        const string CONF_SRC_SYNC_TRANSPORTS_A =@"
- nfx
+        const string CONF_SRC_SYNC_TRANSPORTS_A = @"
+ app
  {
   cs='sync://127.0.0.1:5432'
   cs2='sync://127.0.0.1:5433'
@@ -62,7 +50,7 @@ namespace Azos.Tests.Unit.Glue
   object-store
   {
     guid='B05D3038-A821-4BE0-96AA-E6D24DFA746F'
-    provider {name='nop' type='Azos.Apps.Volatile.NOPObjectStoreProvider, NFX'}
+    provider {name='nop' type='Azos.Apps.Volatile.NOPObjectStoreProvider, Azos'}
   }
 
   glue
@@ -71,7 +59,7 @@ namespace Azos.Tests.Unit.Glue
      {
         binding 
         {
-          name=sync type='Azos.Glue.Native.SyncBinding, NFX'
+          name=sync type='Azos.Glue.Native.SyncBinding, Azos'
           max-msg-size=900000
           client-transport {  max-count=1 }
         }
@@ -108,6 +96,20 @@ namespace Azos.Tests.Unit.Glue
             TestLogic.TASKReturning_TestContractA_TwoWayCall(CONF_SRC_SYNC);
         }
 
+
+        [Run(TRUN.BASE, null, 7)]
+        public async Task Sync_ASYNC_AWAIT_CALL_TestContractA_TwoWayCall()
+        {
+            await TestLogic.ASYNC_AWAIT_CALL_TestContractA_TwoWayCall(CONF_SRC_SYNC);
+        }
+
+        [Run(TRUN.BASE, null, 7)]
+        public async Task Sync_ASYNC_MANY_AWAITS_TestContractA_TwoWayCall()
+        {
+            await TestLogic.ASYNC_MANY_AWAITS_TestContractA_TwoWayCall(CONF_SRC_SYNC);
+        }
+
+
         [Run]
         public void Sync_A_TwoWayCall_Timeout()
         {
@@ -120,10 +122,23 @@ namespace Azos.Tests.Unit.Glue
             TestLogic.TASK_TestContractA_TwoWayCall_Timeout(CONF_SRC_SYNC);
         }
 
+        [Run]
+        public async Task Sync_ASYNC_TestContractA_TwoWayCall_Timeout()
+        {
+          await TestLogic.ASYNC_TestContractA_TwoWayCall_Timeout(CONF_SRC_SYNC);
+        }
+
+
         [Run(TRUN.BASE, null, 7, null)]
         public void Sync_A_OneWayCall()
         {
             TestLogic.TestContractA_OneWayCall(CONF_SRC_SYNC);
+        }
+
+        [Run(TRUN.BASE, null, 7, null)]
+        public async Task Sync_ASYNC_TestContractA_OneWayCall()
+        {
+          await TestLogic.ASYNC_TestContractA_OneWayCall(CONF_SRC_SYNC);
         }
 
         [Run(TRUN.BASE, null, 7)]

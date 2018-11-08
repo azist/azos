@@ -19,6 +19,8 @@
     <ProjectReference Include="..\..\..\Azos\Azos.csproj" />
     <ProjectReference Include="..\..\..\Azos.Wave\Azos.Wave.csproj" />
     <ProjectReference Include="..\..\..\Azos.Web\Azos.Web.csproj" />
+    <ProjectReference Include="..\..\..\testing\Azos.Tests.Integration\Azos.Tests.Integration.csproj" />
+    <ProjectReference Include="..\..\..\testing\Azos.Tests.Unit\Azos.Tests.Unit.csproj" />
     <ProjectReference Include="..\..\..\testing\TestBusinessLogic\TestBusinessLogic.csproj" />
     <ProjectReference Include="..\Azos.Platform.NetCore20\Azos.Platform.NetCore20.csproj" />
   </ItemGroup>

@@ -17,7 +17,7 @@ namespace Azos.Glue
     /// <summary>
     /// Represents a class that is immediately returned after transport sends RequestMsg.
     /// This class provides CallStatus and RequestID properties where the later is used to match the incoming ResponseMsg.
-    /// CallSlots are kinds of "spirit-less" mailboxes that keep state about the call, but do not posess any threads/call events.
+    /// CallSlots are kinds of "spirit-less" mailboxes that keep state about the call, but do not own any threads/call events.
     /// Working with CallSlots from calling code's existing thread of execution is the most efficient way of working with Glue (in high load cases), as
     ///  it does not create extra object instances (tasks do) for asynchronous coordination and continuation.
     /// It is possible to obtain an instance of CallSlot.AsTask in which case that instance is registered with the framework-internal reactor
@@ -26,7 +26,7 @@ namespace Azos.Glue
     ///  Note: A 3.2 Ghz 4-Core I7 server with 8Gb of ram can easily handle 50K+ 2-way calls a second (given little business server logic and simple payload).
     ///  See also: CallReactor class
     /// </summary>
-    public sealed class CallSlot
+    public sealed partial class CallSlot
     {
       public const int DEFAULT_TIMEOUT_MS = 20000;
 
@@ -92,14 +92,14 @@ namespace Azos.Glue
       }
 
 
-      private object m_Sync = new Object();
+      private object m_Sync = new Object();//todo: extra allocation - lock on (this)even though it is not safe
 
       private ClientEndPoint m_Client;
       private ClientTransport m_ClientTransport;
       private FID m_RequestID;
       private bool m_OneWay;
 
-      internal TaskCompletionSource<CallSlot> m_TaskCompletionSource;
+      internal volatile TaskCompletionSource<CallSlot> m_TaskCompletionSource;//only used for tasks and async/wait cases
 
       private DateTime m_StartTime;
       private volatile CallStatus m_CallStatus;
@@ -136,14 +136,14 @@ namespace Azos.Glue
 
 
       /// <summary>
-      /// Returns current call status. Timeout is returned when response has not arrived from the other side in alotted time. This is a non-blocking call
+      /// Returns current call status. Timeout is returned when response has not arrived from the other side in allotted time. This is a non-blocking call
       /// </summary>
       public CallStatus CallStatus
       {
         get
         {
           if (m_CallStatus==CallStatus.Dispatched && !m_OneWay)
-           lock(m_Sync)
+            lock(m_Sync)
               if (m_CallStatus==CallStatus.Dispatched)//check for timeout
               {
                 if ((DateTime.UtcNow - m_StartTime).TotalMilliseconds>m_TimeoutMs)
@@ -152,6 +152,7 @@ namespace Azos.Glue
                   completePendingTask(); //task completes on timeout
                 }
               }
+
           return m_CallStatus;
         }
       }
@@ -230,7 +231,7 @@ namespace Azos.Glue
           if (m_TaskCompletionSource!=null) return m_TaskCompletionSource.Task;
           lock(m_Sync)
           {
-            if (m_TaskCompletionSource!=null) return m_TaskCompletionSource.Task;
+            if (m_TaskCompletionSource!=null) return m_TaskCompletionSource.Task;//dbl check under lock
             var tcs = new TaskCompletionSource<CallSlot>(this);
 
             if (Available) tcs.SetResult(this);//Complete tasks for OneWay or already completed calls
@@ -247,16 +248,16 @@ namespace Azos.Glue
 
       /// <summary>
       /// Creates a wrapper task around CallSlot.AsTask and returns CallSlot.GetValue() as TCallResult-returning Task.
-      /// Note: the created wrapper task is not cached
+      /// Note: the created wrapper task is not cached. For less allocations '(await slot).GetValue&lt;T&gt;()' instead
       /// </summary>
       public Task<TCallResult> AsTaskReturning<TCallResult>()
       {
-        return this.AsTask.ContinueWith<TCallResult>( (cst) => cst.Result.GetValue<TCallResult>() , TaskContinuationOptions.ExecuteSynchronously);
+        return this.AsTask.ContinueWith( (cst) => cst.Result.GetValue<TCallResult>() , TaskContinuationOptions.ExecuteSynchronously);
       }
 
       /// <summary>
       /// Creates a wrapper task around CallSlot.AsTask and returns CallSlot.CheckVoidValue()
-      /// Note: the created wrapper task is not cached
+      /// Note: the created wrapper task is not cached. For less allocations '(await slot).CheckVoidValue()' instead
       /// </summary>
       public Task AsTaskReturningVoid()
       {
@@ -289,8 +290,6 @@ namespace Azos.Glue
 
               completePendingTask();//result arrived - normal case
         }
-
-
       }
 
       /// <summary>
@@ -438,6 +437,13 @@ namespace Azos.Glue
          return "CallSlot[{0}/{1}/{2}]".Args(m_RequestID, m_OneWay ? "OneWay" : "TwoWay", m_CallStatus);
        }
 
+       /// <summary>
+       /// Awaits task status change - either timeout or value delivery. Already completed for one-way calls
+       /// </summary>
+       public System.Runtime.CompilerServices.TaskAwaiter<CallSlot> GetAwaiter()
+       {
+         return this.AsTask.GetAwaiter();
+       }
 
        //this must be called from under lock(m_Sync)
        private void completePendingTask()
@@ -451,159 +457,5 @@ namespace Azos.Glue
        }
 
     }
-
-
-                      /// <summary>
-                      /// Internal class that polls call slots for timeout
-                      /// </summary>
-                      internal static class TimeoutReactor
-                      {
-                        private const int BUCKETS = 127;//prime
-                        private const int GRANULARITY_MS = 500;
-
-                        private static LinkedList<CallSlot>[] s_Calls = new LinkedList<CallSlot>[BUCKETS];
-                        private static volatile Thread s_Thread;
-
-                        static TimeoutReactor()
-                        {
-                          for(var i=0; i<BUCKETS; i++) s_Calls[i] = new LinkedList<CallSlot>();
-                        }
-
-                        public static void Subscribe(CallSlot call)
-                        {
-                          var bucket = s_Calls[(call.GetHashCode() & CoreConsts.ABS_HASH_MASK) % BUCKETS];
-
-                          lock(bucket) bucket.AddLast(call);
-                          if (s_Thread==null)
-                          {
-                            lock(typeof(TimeoutReactor))
-                              if (s_Thread==null)
-                              {
-                                s_Thread = new Thread(threadSpin);
-                                s_Thread.IsBackground = true;
-                                s_Thread.Name = typeof(TimeoutReactor).FullName;
-                                s_Thread.Start();
-                              }
-                          }
-                        }
-
-                         private static void threadSpin()
-                         {
-                           while(App.Active)
-                           {
-                             try
-                             {
-                               scanOnce();
-                             }
-                             catch(Exception err)
-                             {
-                               App.Log.Write(new Log.Message {
-                                 Type = Log.MessageType.Critical,
-                                 Topic = CoreConsts.GLUE_TOPIC,
-                                 From = typeof(TimeoutReactor).FullName + ".scanOnce()",
-                                 Text = "Exception leaked: " + err.ToMessageWithType(),
-                                 Exception = err
-                               });
-                             }
-
-                             Thread.Sleep(GRANULARITY_MS);
-                           }
-                           s_Thread = null;
-                         }
-
-                         private static void scanOnce()
-                         {
-                             for(var i=0;i<BUCKETS; i++)
-                             {
-                               var  bucket = s_Calls[i];
-                               lock(bucket)
-                               {
-                                 var node = bucket.First;
-                                 while(node!=null)
-                                 {
-                                    var call = node.Value;
-                                    var status = call.CallStatus; //this will detect timeout
-                                    if (status!=CallStatus.Dispatched || call.OneWay)//oneway check for clarity, one way calls do no get registered here anyway
-                                    {
-                                      var toDelete = node;
-                                      node = node.Next;
-                                      bucket.Remove( toDelete );
-                                      continue;
-                                    }
-                                    node = node.Next;
-                                 }
-                               }
-                             }
-                         }
-
-                      }//TimeoutReactor
-
-
-
-
-
-
-
-
-
-
-
-
-    /// <summary>
-    /// Provides a higher-level wrapper around CallSlot returned value by Glue.
-    /// All property accessors evaluate synchronously on the calling thread.
-    /// This struct should not be used with One-Way calls or calls that return void
-    /// </summary>
-    public struct Future<T>
-    {
-        public Future(CallSlot call)
-        {
-          Call = call;
-        }
-
-        /// <summary>
-        /// Returns the underlying CallSlot object
-        /// </summary>
-        public readonly CallSlot Call;
-
-        /// <summary>
-        /// Non-blocking call that returns true if result arrived, false otherwise
-        /// </summary>
-        public bool Available { get{ return Call.Available;} }
-
-        /// <summary>
-        /// Blocking call that waits for return value. Use non-blocking Available to see if result arrived
-        /// </summary>
-        public T Value { get{ return Call.GetValue<T>(); } }
-    }
-
-    /// <summary>
-    /// Provides a higher-level wrapper around CallSlot returned by Glue.
-    /// All property accessors evaluate synchronously on the calling thread.
-    /// This struct should not be used with One-Way calls
-    /// </summary>
-    public struct FutureVoid
-    {
-        public FutureVoid(CallSlot call)
-        {
-          Call = call;
-        }
-
-        /// <summary>
-        /// Returns the underlying CallSlot object
-        /// </summary>
-        public readonly CallSlot Call;
-
-        /// <summary>
-        /// Non-blocking call that returns true if result arrived, false otherwise
-        /// </summary>
-        public bool Available { get{ return Call.Available;} }
-
-        /// <summary>
-        /// Blocking call that waits for call completion. Use non-blocking Available to see if call has completed
-        /// </summary>
-        public void Wait() { Call.CheckVoidValue(); }
-    }
-
 
 }
