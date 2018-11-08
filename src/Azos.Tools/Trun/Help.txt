@@ -40,6 +40,15 @@ Use <f color=cyan>'!'<f color=gray> in [Run] declaration for explicit case namin
 explicitly-named cases get invoked ONLY when the case filter is specified (and matched)
 
 
+<f color=gray>Runner supports async methods:
+<f color=darkgray>
+  [Run]
+  public <f color=darkmagenta>async<f color=darkgray> Task TestMe()
+  {
+    var x = <f color=darkgreen>await<f color=darkgray> something();
+    <f color=darkgreen>await<f color=darkgray> somethingElse( x );
+  }
+
 <f color=magenta>
  Examples:
 
@@ -71,6 +80,8 @@ Only emulates running all test cases
 Only emulates running all test cases
 
 
-<f color=darkcyan>For more detailed test run case examples see <f color=cyan>"src/testing/Azos.UTest/RunnerTests.cs"
+<f color=darkcyan>For more detailed test run case examples see:<f color=cyan>
+  "src/testing/Azos.Tests.Unit/RunnerTests.cs"
+  "src/testing/Azos.Tests.Unit/RunnerAsyncTests.cs"
 
 <pop>
