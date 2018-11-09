@@ -1,6 +1,6 @@
 ﻿# Data Schema Metadata
 This section described accessing/working with Data in Azos.
-See also [Data Access Overview](readme.md).
+See also [Data Access Overview](readme.md) [Data Validation with Domains](domains.md)
 
 ## Overview
 `Azos.Data` namespace implements data `Schema` class which provides definitions for data documents. This is 
@@ -18,7 +18,7 @@ framework such as (not a complete list):
   * Protocol Frames
 
 **COMPARISON** 
-The following projects/frameworks use schema:
+The following projects/frameworks use "schema" concept to decorate CLR type members:
 * Libraries like Protobuf.Net or Thrift use special schema definitions to "shape" data
 * .Net DataContractSerializer uses its own annotations
 * .Net Data Annotations provide metadata for data validation
@@ -86,7 +86,7 @@ if you obtain the schema **for the same type you will get the same instance for 
 
 ## Field Attribute
 
-The [`FieldAttribute`](Attributes.cs#L159) class is the cornerstone for metadata definition. Public class properties must
+The [`FieldAttribute`](Attributes.cs#L159) class is the cornerstone of metadata specification. Public class properties must
 be decorated by one or more (in case of multi-targeting) `[Field]` attributes. 
 
 The following table describes `FieldAttribute` properties (that is: metadata for fields in data documents):
@@ -114,8 +114,70 @@ formatRegExp|string|When set, contains regular expression that validates the dat
 displayFormat|string|When set, provides a mask for .ToString()/display on UI
 isArow|bool|True to include the field in Arow serialization
 
+These properties are usually set directly at the document properties declaration site like so:
+```CSharp
+...
+  [Field(required: true,
+         kind: DataKind.ScreenName,
+         charCase: CharCase.Upper,
+         minLength: Domains.MyiScreenName.MIN_LEN,
+         maxLength: Domains.MyiScreenName.MAX_LEN,
+         description: "Screen Name",
+         metadata: @"Placeholder='Screen Name'
+                     Hint='The value of this field uniquely identifies you in the system and is publicly-visible'")]
+  public string Screen_Name { get; set; }
+
+  [Field(required: true,
+         kind: DataKind.EMail,
+         maxLength: Domains.MyiEMail.MAX_LEN,
+         description: "Primary EMail",
+         metadata: @"Placeholder='Primary EMail'
+                     Hint='E Mail that you use most often. We are not sharing your email with anyone unless you tell us to'
+                     ControlType='Text'")]
+  public string Primary_EMail { get; set; }
+...
+```
+Notable features above: the min/max length checking is isolated into `Domains` namespace (see [Data Validation with Domains](domains.md)),
+also **custom metadata is used** to introduce `Placeholder`, `Hint`, and `ControlType` extra attributes which are used by the
+client-side view system.
+
+## Form Models
+There are many cases when multiple models are needed around the same data source. A good example would be a "UserRow" of data containing 
+fields for password hash, however user enter ID and password twice. The password hash gets computed and stored, the password fields are not 
+stored at all.
+
+To facilitate UI/consumer-driven modeling (vs backend/domain-driven) Azos provides [`Form`](Form.cs) class that signifies the purpose - forms
+are used as a projection of data documents to provide an alternate view of data for user entry. Forms are data documents, the difference
+is in the intent.
+
+When you declare a form you usually clone many fields from existing data doc model. The copious field declaration would have been prohibitively
+  inconvenient to say the least. Azos provides a prototypical pattern for solving the issue as illustrated:
+```CSharp
+...
+  [Field(typeof(UserRow))] //Take all metadata from the field with the same name in UserRow class
+  public string Screen_Name { get; set; }
+  
+  [Field(typeof(UserRow))]
+  public string Primary_EMail { get; set; }
+...
+```
+The example above is based on the prior one. We have just brought in 2 fields from a different schema - we **cloned all field metadata** so
+we do not need to repeat it.
+
+If you need to make some changes to metadata in a prototypical field, you can do so by specifying those override on the declaration level
+```CSharp
+  //We are going to override backendName and required constraint
+  //take the rest of definition from UserRow.Lazzzt_Name
+  [Field(typeof(UserRow), "Lazzzt_Name",  backendName: "abra", required: false)]
+  public string Last_Name { get; set; }
+```
+
+
+
+
 
 
 
 See also:
 - [Data Access Overview](readme.md)
+- [Data Validation with Domains](domains.md)
