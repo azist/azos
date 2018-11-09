@@ -135,7 +135,7 @@ suppose we use `CONNECT BY` in ORACLE version of the script, then we need to sup
 does not support `CONNECT BY` directly, but can emulate the same result with multiple DB calls. A code-based handler
 can execute those calls into the data store returning the same logical result as ORACLE's `CONNECT BY` would.
 
-See [Azos.Tests.Integration](/../../testing/Azos.Tests.Integration) for more use-cases.
+See [Azos.Tests.Integration](/src/testing/Azos.Tests.Integration) for more use-cases.
 
 
 ### CRUD Data Store
