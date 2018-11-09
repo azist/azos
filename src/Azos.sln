@@ -22,6 +22,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C2217C23-C12B-4CE7-B8B6-7222662EB16A}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
+		documentation-index.md = documentation-index.md
 		naming-conventions.md = naming-conventions.md
 		readme.md = readme.md
 		todo-stickers.md = todo-stickers.md
