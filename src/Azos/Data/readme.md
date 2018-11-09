@@ -26,7 +26,7 @@ marker interface for the application container (accessible via  a [`Azos.App.Dat
 
 Every system may select a combination of the following strategies that fit the particular case the best:
 
-* Calling 3rd party services (i.e. via REST) - pulling data via some API calls
+* Calling 3rd party services (e.g. via REST/SOAP/RPC) - pulling data via some API calls
 * Read/Write some data via app-specific APIs (classes/props/methods) - similar to ORM
 * Work with data via CRUD facade (i.e. DataStore.Insert(new Doc{......}) - similar to the [**Active Record**](https://en.wikipedia.org/wiki/Active_record_pattern) pattern/Entity framework
 * Work with higher-level facade to any of the aforementioned ways
@@ -40,20 +40,22 @@ example may return a domain object `MyCar`.
 Azos.Data namespace provides a very convenient base for business logic/domain models
  building blocks, which are also typically used in a CRUD scenarios:
 
-* Azos.Data.Schema - defines "schema" - a field structure with constraints and other metadata for **data documents**
-* Azos.Data.Doc/DynamicDoc/TypedDoc - represent data vectors aka "**data documents**". Documents are either flat (a la traditional RDBMS rows), or contain hierarchical data (like Json objects)
-* Azos.Data.RowsetBase/Rowset/Table - a set of data documents of the same schema (like a RDBMS table)
-* Azos.Data.Access.Query - a [command object](https://en.wikipedia.org/wiki/Command_pattern) sent into the provider for execution
+* `Azos.Data.Schema` - defines "schema" - a field structure with constraints and other metadata for **data documents**
+* `Azos.Data.Doc`/`DynamicDoc`/`TypedDoc` - represent data vectors aka "**data documents**". Documents are either flat (a la traditional RDBMS rows), or contain hierarchical data (like Json objects)
+* `Azos.Data.RowsetBase`/`Rowset`/`Table` - a set of data documents of the same schema (like a RDBMS table)
+* `Azos.Data.Access.Query` - a [command object](https://en.wikipedia.org/wiki/Command_pattern) sent into the provider for execution
 
 ### Schema
 [Schema](Schema.cs) defines the structure of data documents, it consists of FieldDef instances that define attributes 
-for every field. Fields may be of complex types (i.e. TypedDoc). So Schema basically shapes the data
+for every field. Fields may be of complex types (e.g. a field of type `List<PatientDataDoc>`). So Schema basically shapes the data
 contained in Docs.
 
-### Doc
+### Data Documents
 A data document "[Doc](Doc.cs)" is a string of data, it consists of fields where every field is defined by a FieldDef from Schema.
-A `Schema` is a property of a `Doc`. `FieldDef` is a property of a field within a document. There are two 
-types of data documents:
+Think of a doc as a classes directly or indirectly inheriting from `Doc`, where properties decorated with `[Field]` attribute serve as fields.
+Documents can nest - they contain fields of complex types, thus forming hierarchical data structures. You have to keep in mind though, that
+for the best backend portability it is better to use linear row-like "data strings" (on-level rows with primitive types only).
+A `Schema` is a property of a `Doc`. `FieldDef` is a property of a field within a document. There are two types of data documents:
 
 * Dynamic Data Documents
 * Typed Data Documents
@@ -135,7 +137,7 @@ suppose we use `CONNECT BY` in ORACLE version of the script, then we need to sup
 does not support `CONNECT BY` directly, but can emulate the same result with multiple DB calls. A code-based handler
 can execute those calls into the data store returning the same logical result as ORACLE's `CONNECT BY` would.
 
-See [Azos.Tests.Integration](/src/testing/Azos.Tests.Integration) for more use-cases.
+See [Azos.Tests.Integration](/src/testing/Azos.Tests.Integration/CRUD) for more use-cases.
 
 
 ### CRUD Data Store
