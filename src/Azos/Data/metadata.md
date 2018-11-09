@@ -1,4 +1,4 @@
-﻿# Data Schema and Metadata
+﻿# Data Schema Metadata
 This section described accessing/working with Data in Azos.
 See also [Data Access Overview](readme.md).
 
@@ -84,9 +84,35 @@ if you obtain the schema **for the same type you will get the same instance for 
  }
 ```
 
+## Field Attribute
 
+The [`FieldAttribute`](Attributes.cs#L159) class is the cornerstone for metadata definition. Public class properties must
+be decorated by one or more (in case of multi-targeting) `[Field]` attributes. 
 
+The following table describes `FieldAttribute` properties (that is: metadata for fields in data documents):
 
+ Name |Type| Description
+ ---- |----|-----------
+ storeFlag |StoreFlag| Specifies whether field is skipped, stored, loaded or stored and loaded
+ key |bool| True to indicate that this field is (a part of) primary key
+ kind |DataKind| Specifies data kinds such as: `Text, ScreenName, Color, Date, DateTime, DateTimeLocal, EMail, Month, Number, Range, Money, Search, Telephone, Time, Url, Week`
+ required|bool| True to indicate that field must be non-null value
+ visible|bool| True indicates that field is shown on UI (used for MVVM)
+valueList|string| A delimited list of permissible lookup values (lookup dictionary)
+dflt|object|Default field value (if any)
+min|object|Minimum permissible value or null
+max|object|Maximum permissible value or null
+minLength|int|Minimum data length, 0 = no limit
+maxLength|int|Maximum data length, 0 = no limit
+charCase|CharCase|Defaults to `AsIs`. CharCases are: `AsIs, Upper, Lower, Caps` *The first and subsequent chars after space or '.' are capitalized, the rest left intact*, `CapsNorm` - *The first and subsequent chars after space or '.' are capitalized, the rest is lower-cased*
+backendName|string|Specifies how this field is called in the backend, e.g. a field/property `DateOfBirth` may be called `dob` in the database
+backendType|string|Defines db-specific (per target) type for the field, e.g. "binary image"
+description|string|Textual description usually shown as data entry field caption
+metadata|string|Laconic configuration vector providing extra ad-hoc metadata for the decorated field
+nonUI|bool|Set to True to exclude the field from transportation to client side (such as Web UI); this is used to not send sensitive/internal data to the client
+formatRegExp|string|When set, contains regular expression that validates the data
+displayFormat|string|When set, provides a mask for .ToString()/display on UI
+isArow|bool|True to include the field in Arow serialization
 
 
 
