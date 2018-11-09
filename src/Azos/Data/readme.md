@@ -52,9 +52,11 @@ contained in Docs.
 
 ### Data Documents
 A data document "[Doc](Doc.cs)" is a string of data, it consists of fields where every field is defined by a FieldDef from Schema.
-Think of a doc as a classes directly or indirectly inheriting from `Doc`, where properties decorated with `[Field]` attribute serve as fields.
-Documents can nest - they contain fields of complex types, thus forming hierarchical data structures. You have to keep in mind though, that
-for the best backend portability it is better to use linear row-like "data strings" (on-level rows with primitive types only).
+Think of data doc as a classes directly or indirectly inheriting from `Doc`, where properties decorated with `[Field]` attribute get read/written 
+from/to actual data store. 
+**Documents can nest** - they **can contain fields of complex types**, thus forming hierarchical data structures. *You have to keep in mind though,
+that for the best backend portability it is better to use linear row-like "data strings" (on-level rows with primitive types only).*
+
 A `Schema` is a property of a `Doc`. `FieldDef` is a property of a field within a document. There are two types of data documents:
 
 * Dynamic Data Documents
@@ -71,13 +73,16 @@ features:
     person[0] = 123;
     Aver.AreEqual(123, person["id"]);
     person["name"] = "Frank Drebin";
-    var error = person.Validate();
+    var error = person.Validate(); //ensure metadata invariants
     Aver.IsNull(error);
     ...
     var person2 = new PersonDoc();//no schema needs to be passed as it is a typed doc
     person.CopyTo(person2);//copies all fields
     ...
 ```
+
+Docs may override `Validate()` method to **ensure cross-field constraint adherence**.
+See [Schema Metadata](./)
 
 ### Rowset
 Rowsets are collections of data documents of the same schema - this is used for accessing table-like data consisting of rows - hence the name.
