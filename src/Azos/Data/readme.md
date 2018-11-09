@@ -48,7 +48,7 @@ Azos.Data namespace provides a very convenient base for business logic/domain mo
 ### Schema
 [Schema](Schema.cs) defines the structure of data documents, it consists of FieldDef instances that define attributes 
 for every field. Fields may be of complex types (e.g. a field of type `List<PatientDataDoc>`). So Schema basically shapes the data
-contained in Docs.
+contained in Docs. See [Schema Metadata](metadata.md) for more details.
 
 ### Data Documents
 A data document "[Doc](Doc.cs)" is a string of data, it consists of fields where every field is defined by a FieldDef from Schema.
@@ -235,5 +235,8 @@ Or a typical case of use with Azos.Wave.Mvc Web Api:
 
 As illustrated above, the Azos.Wave framework performs **data document injection into the Mvc actions** - a form
 of automatic data binding, which is very convenient in CRUD applications.
+
+See also:
+- [Schema Metadata](metadata.md)
 
 

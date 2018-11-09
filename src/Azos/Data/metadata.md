@@ -1,5 +1,6 @@
 ﻿# Data Schema and Metadata
 This section described accessing/working with Data in Azos.
+See also [Data Access Overview](readme.md).
 
 ## Overview
 `Azos.Data` namespace implements data `Schema` class which provides definitions for data documents. This is 
@@ -33,9 +34,18 @@ which allows for any number/structure of custom config vectors attached to very 
 [Schema](Schema.cs) provides definition of data contained in **data documents** aka. [`Doc`](Doc.cs) instances.
 Every field definition in schema is represented by an instance of [`FieldDef`](Schema.cs#L37) class.
 
-<img src="/doc/img/data-schema.png">
+Schemas are **named immutable objects**. The following diagram depicts schema as a composite of `FieldDefs` each having
+one or more **targeted attributes** which describe metadata. Lets compare "ORACLE" vs "MySQL-Legacy" below:
+* Logical field "Name" is called "name" for "ORACLE" and "nm" for "MySQL-Legacy" targets
+* See that min/max string sizes are different for these targets
+* The field "DOB" is kept as "date_birth" for both targets (see "Target: *")
 
-Schemas are **named immutable objects**. You can create an arbitrary schema like so:
+**Note:** targets may represent not only a particular backend technology but also a different backend
+version/structure, as in the example below, older system has slightly different schema
+
+<img src="/doc/img/data-schema.png" height="500px">
+
+ You can create an arbitrary schema like so:
 ```CSharp
   var schema = new Schema("TEZT",
        new Schema.FieldDef("ID", typeof(int), new []{ new FieldAttribute(required: true, key: true)}),
@@ -73,3 +83,13 @@ if you obtain the schema **for the same type you will get the same instance for 
    ...
  }
 ```
+
+
+
+
+
+
+
+
+See also:
+- [Data Access Overview](readme.md)
