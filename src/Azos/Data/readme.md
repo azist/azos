@@ -82,7 +82,7 @@ features:
 ```
 
 Docs may override `Validate()` method to **ensure cross-field constraint adherence**.
-See [Schema Metadata](./)
+See [Schema Metadata](metadata.md)
 
 ### Rowset
 Rowsets are collections of data documents of the same schema - this is used for accessing table-like data consisting of rows - hence the name.

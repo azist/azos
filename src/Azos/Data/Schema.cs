@@ -378,7 +378,7 @@ namespace Azos.Data
         #region .ctor / static
 
             /// <summary>
-            /// Gets all property members of TypedRow that are tagged as [Field]
+            /// Gets all property members of TypedDoc that are tagged as [Field]
             /// </summary>
             public static IEnumerable<PropertyInfo> GetFieldMembers(Type type)
             {
