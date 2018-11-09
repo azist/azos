@@ -6,9 +6,9 @@ Azos takes a hybrid approach to data access. It is not a strict ORM or strict CR
 combination of different techniques that are most beneficial for business applications. The ORM
 part may be better described as **just OM (Object Mapping)** without the [R]elational part - this is because 
 it is necessary to support **non-relational/RDBMS** data sources (e.g. services, NoSql, BigData etc.) as easily
-as traditional ones.
+as the traditional ones.
 
-The data modeling introduced by **schema/data documents** provide foundation metadata for serialization
+Azos data modeling introduced with **schema/data documents** provides foundational metadata for serialization
 (including version-tolerant)(JSON/BSON/Arow), inter-process communication with Glue and Sky net (Todo, Processes) and
 general per-document/per-field metadata for [business domain validation rules / class invariants](https://en.wikipedia.org/wiki/Class_invariant).
 
@@ -21,8 +21,8 @@ Azos data access was designed with the following data-store types in mind:
 * **Unstructured** data accessed via custom APIs(parse CSV files etc.)
 * **Non-homogeneous** data: all/some of the aforementioned sources may be needed in the same system
 
-The data access is facilitated via the [`Azos.Data.Access.IDataStore`](IDataStore.cs) interface which is just a 
-marker interface for the application container (accessible via  a [`Azos.App.DataStore`](../App.cs) shortcut).
+The data access is facilitated via the [`Azos.Data.Access.IDataStore`](Access/IDataStore.cs) interface which is just a 
+marker interface for the application container (accessible via  a [`Azos.App.DataStore`](../App.cs#L152) shortcut).
 
 Every system may select a combination of the following strategies that fit the particular case the best:
 

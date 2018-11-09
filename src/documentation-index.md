@@ -19,7 +19,7 @@
   * XML configuration
   * Json configuration
 * [Data Access](/src/Azos/Data)
-* [Glue](/src/srcAzos/Glue) - interprocess communication
+* [Glue](/src/Azos/Glue) - interprocess communication
 * [Logging](/src/Azos/Log) - logging and sinks
 * [Instrumentation](/src/Azos/Instrumentation) - telemetry with gauges and events
 * IO
