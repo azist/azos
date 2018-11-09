@@ -173,6 +173,44 @@ If you need to make some changes to metadata in a proto-cloned field, you can do
   public string Last_Name { get; set; }
 ```
 
+## Data Validation
+Data documents validate data by calling  [`Doc.Validate()`](Doc.cs#L238) which in turn loops though all fields
+ and calls [`ValidateField()`](Doc.cs#L242) for each.
+
+`Doc.Validate(target)` is virtual - this is where you write custom code to perform cross-field validation of your documents. 
+Do not forget to call the base  method which loops through fields:
+```CSharp
+  public override Exception Validate(string targetName)
+  {
+    var error = base.Validate(targetName);//call base first
+    if (error != null) return error;      //return on error
+
+    if (field1>field2)//perform cross-field validation check
+      return new FieldValidationException(Schema.Name, "field1", "Field1 must be below field2");
+
+    return null; //no errors
+  }
+```
+The base call would validate field-by-field via [`ValidateField()`](Doc.cs#L242) call. You can override it to
+perform custom actions in the same manner as you do for the whole doc. Do not forget to call the base method (unless you purposely do not need it).
+
+The default implementation of Doc.[`ValidateField()`](Doc.cs#L242) performs the following checks which are all based on
+metadata supplied via `[Field]` attributes:
+1. Check required value
+2. If value is [`IValidatable`](Intfs.cs#L24) - call it - this allows you to do custom complex validations
+3. If value is `IEnumerable<IValidatable>` - validate each item in the enumeration (`Doc` is IValidatable, so this case covers `Doc[]` and `List<Doc>`)
+4. If value is `IEnumerable<KeyValuePair<string, IValidatable>>` - validate each entry
+5. If metadata defines lookup dictionary constraint via `ValueList` - validate value against permissible keys
+6. Check Min/Max lengths if constraint is set
+7. Check  screen name correctness if constraint is set ("ALEX-1" is ok, "-ALEX1" is bad, "ALEX--1" is bad etc.)
+8. Check Email constraint if set
+9. Check Telephone constraint if set
+10. If value is `IComparable` and min/max are set - check
+11. Check Regexp if set, using value.ToString()
+
+
+
+
 
 
 
