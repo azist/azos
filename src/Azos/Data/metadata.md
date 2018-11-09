@@ -124,7 +124,7 @@ These properties are usually set directly at the document properties declaration
          maxLength: Domains.MyiScreenName.MAX_LEN,
          description: "Screen Name",
          metadata: @"Placeholder='Screen Name'
-                     Hint='The value of this field uniquely identifies you in the system and is publicly-visible'")]
+                     Hint='The value of this field uniquely identifies you in the system'")]
   public string Screen_Name { get; set; }
 
   [Field(required: true,
@@ -132,7 +132,7 @@ These properties are usually set directly at the document properties declaration
          maxLength: Domains.MyiEMail.MAX_LEN,
          description: "Primary EMail",
          metadata: @"Placeholder='Primary EMail'
-                     Hint='E Mail that you use most often. We are not sharing your email with anyone unless you tell us to'
+                     Hint='E Mail that you use most often. We are not sharing your email with anyone!'
                      ControlType='Text'")]
   public string Primary_EMail { get; set; }
 ...
@@ -143,16 +143,17 @@ client-side view system.
 
 ## Form Models
 There are many cases when multiple models are needed around the same data source. A good example would be a "UserRow" of data containing 
-fields for password hash, however user enter ID and password twice. The password hash gets computed and stored, the password fields are not 
+fields for password hash, however users enter ID and password twice. The password hash gets computed and stored, the password fields are not 
 stored at all.
 
-To facilitate UI/consumer-driven modeling (vs backend/domain-driven) Azos provides [`Form`](Form.cs) class that signifies the purpose - forms
-are used as a projection of data documents to provide an alternate view of data for user entry. Forms are data documents, the difference
+To facilitate UI/consumer-driven modeling (vs backend/domain-driven) Azos provides [`Form`](Form.cs) class that signifies the purpose - **forms
+are used as a projection of data documents to provide an alternate view of data** (usually for user entry). Forms are data documents, the difference
 is in the intent.
 
 When you declare a form you usually clone many fields from existing data doc model. The copious field declaration would have been prohibitively
-  inconvenient to say the least. Azos provides a prototypical pattern for solving the issue as illustrated:
+  inconvenient to say the least. Azos provides a **prototypical metadata cloning pattern** for solving the issue as illustrated:
 ```CSharp
+//We are in another doc or form, e.g. UserRegistrationForm
 ...
   [Field(typeof(UserRow))] //Take all metadata from the field with the same name in UserRow class
   public string Screen_Name { get; set; }
@@ -162,9 +163,9 @@ When you declare a form you usually clone many fields from existing data doc mod
 ...
 ```
 The example above is based on the prior one. We have just brought in 2 fields from a different schema - we **cloned all field metadata** so
-we do not need to repeat it.
+we do not need to repeat it here again.
 
-If you need to make some changes to metadata in a prototypical field, you can do so by specifying those override on the declaration level
+If you need to make some changes to metadata in a proto-cloned field, you can do so by specifying those override on the declaration level:
 ```CSharp
   //We are going to override backendName and required constraint
   //take the rest of definition from UserRow.Lazzzt_Name
