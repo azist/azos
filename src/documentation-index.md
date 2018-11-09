@@ -5,29 +5,29 @@
 * Building
 * Testing
   * Unit Testing overview + `Aver` library
-  * [Scripting](/Azos/Scripting) is used for writing tests
+  * [Scripting](/src/Azos/Scripting) is used for writing tests
 * Platform Abstraction
 
 ## Azos Core Functionality
-* [Application Chassis](/Azos/Apps)
+* [Application Chassis](/src/Azos/Apps)
   * App Components
   * Modules
   * Volatile Store
   * Service Model
-* [Configuration](/Azos/Conf)
+* [Configuration](/src/Azos/Conf)
   * Laconic configuration
   * XML configuration
   * Json configuration
-* [Data Access](/Azos/Data)
-* [Glue](/Azos/Glue) - interprocess communication
-* [Logging](/Azos/Log) - logging and sinks
-* [Instrumentation](/Azos/Instrumentation) - telemetry with gauges and events
+* [Data Access](/src/Azos/Data)
+* [Glue](/src/srcAzos/Glue) - interprocess communication
+* [Logging](/src/Azos/Log) - logging and sinks
+* [Instrumentation](/src/Azos/Instrumentation) - telemetry with gauges and events
 * IO
-  * [Virtual File Systems](/Azos/IO/FileSystem) - pluggable file system
-* [Big Memory Pile](/Azos/Pile) - utilization of large amounts of RAM
-* [Scripting](/Azos/Scripting)
-* [Security](/Azos/Security) - user identity, authentication, authorization, permissions
-* [Serialization](/Azos/Serialization)
+  * [Virtual File Systems](/src/Azos/IO/FileSystem) - pluggable file system
+* [Big Memory Pile](/src/Azos/Pile) - utilization of large amounts of RAM
+* [Scripting](/src/Azos/Scripting)
+* [Security](/src/Azos/Security) - user identity, authentication, authorization, permissions
+* [Serialization](/src/Azos/Serialization)
   * Slim
   * Json
   * Arow
@@ -40,11 +40,11 @@
 ## Sky Distributed OS
 * Sky App Chassis
 * Distributed Worker Coordination
-* [Locking](/Azos.Sky/Locking)
-* [Global ID Generation/GDID](/Azos.Sky/Identification)
-* [MDB - Database Router](/Azos.Sky/Mdb)
-* [Metabase](/Azos.Sky/Metabase)
-* [Distributed Workers](/Azos.Sky/Workers)
-  * [Processes](/Azos.Sky/Workers/processes.md) 
-  * [Todos](/Azos.Sky/Workers/todos.md)
+* [Locking](/src/Azos.Sky/Locking)
+* [Global ID Generation/GDID](/src/Azos.Sky/Identification)
+* [MDB - Database Router](/src/Azos.Sky/Mdb)
+* [Metabase](/src/Azos.Sky/Metabase)
+* [Distributed Workers](/src/Azos.Sky/Workers)
+  * [Processes](/src/Azos.Sky/Workers/processes.md) 
+  * [Todos](/src/Azos.Sky/Workers/todos.md)
 
