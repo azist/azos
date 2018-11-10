@@ -40,7 +40,7 @@ namespace Azos.Data
   public interface IAmorphousData
   {
     /// <summary>
-    /// When true, enabled amorphous data behaviour, i.e. copying of amorphous data between rows.
+    /// When true, enabled amorphous data behavior, i.e. copying of amorphous data between rows.
     /// When false, the amorphous data is ignored as-if the type did not implement this interface
     /// This is needed for security, i.e. on the web returning false will prevent injection via posted forms
     /// </summary>

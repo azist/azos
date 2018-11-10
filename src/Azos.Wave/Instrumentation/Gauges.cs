@@ -80,7 +80,7 @@ namespace Azos.Wave.Instrumentation
 
 
   /// <summary>
-  /// Provides the count of exceptions that server had to handle as no other memebr of processing chain did
+  /// Provides the count of exceptions that server had to handle as no other member of processing chain did
   /// </summary>
   [Serializable]
   [BSONSerializable("E9F9A864-7A11-401C-B641-8A4F9F9AC330")]
@@ -88,7 +88,7 @@ namespace Azos.Wave.Instrumentation
   {
     internal ServerHandleException(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "Provides the count of exceptions that server had to handle as no other memebr of processing chain did"; } }
+    public override string Description { get { return "Provides the count of exceptions that server had to handle as no other member of processing chain did"; } }
 
     public override string ValueUnitName { get { return Azos.CoreConsts.UNIT_NAME_EXCEPTION; } }
 

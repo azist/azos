@@ -1,0 +1,10 @@
+role
+{
+  name="MixedServer"
+  application { name=AHGov        auto-run=1 }
+  application { name=APH          auto-run=2 }
+  application { name=WebApp       auto-run=3 }
+  application { name=WinFormsTest auto-run=4 }
+  application { name=AGDIDA       auto-run=5 }
+  application { name=WebApp1      auto-run=6 }
+}

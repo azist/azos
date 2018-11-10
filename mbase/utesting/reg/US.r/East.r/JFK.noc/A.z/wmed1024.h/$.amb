@@ -1,0 +1,4 @@
+host
+{
+  name="wmed1024" role="MixedServer" os="win7"
+}

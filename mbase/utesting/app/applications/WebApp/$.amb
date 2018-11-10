@@ -1,0 +1,14 @@
+application
+{
+  name="WebApp"
+  description="Web Application"
+
+  exe-file="aws.exe"
+  exe-args="-sky app-name=WebApp"
+
+  packages
+  {
+    package { name="core" }
+    package { name="aws" }
+  }
+}

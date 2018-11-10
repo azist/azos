@@ -1,0 +1,110 @@
+application
+{
+  application-name="Host Governor"
+
+  _include//example of how to include external file
+  {
+    file=$"/etc/conf/myfile.laconf"
+    required=false
+    //fs{type="" ....}
+    //session{....}
+  }
+
+  host-governor
+  {
+    startup-install-check=false
+  }
+
+  remote-terminal
+  {
+    type="ahgov.HGovRemoteTerminal, ahgov"
+  }
+
+  log
+  {
+    instrumentation-enabled=true
+    name="Logger" reliable="true"
+    destination {type="$(/gv/types/$log-csv)" name="ahgov.Log" path="$(/gv/paths/$log-root)" file-name="{0:yyyyMMdd}-$($name).csv.log"}
+  }
+
+  object-store { guid="7629499F-03BD-4877-8119-00168A22AFEF" }
+
+  instrumentation
+  {
+    os-instrumentation-interval-ms=1000
+  }
+
+  glue
+  {
+    servers
+    {
+      server//the sync and async ports are open for testing only in HGOV
+      {
+        name="TerminalSync"
+        node="sync://*:3017"
+        contract-servers="Azos.Sky.Hosts.ahgov.HGovRemoteTerminal, Azos.Sky"
+      }
+
+      server//the sync and async ports are open for testing only in HGOV
+      {
+        name="TerminalAsync"
+        node="async://*:3018"
+        contract-servers="Azos.Sky.Hosts.ahgov.HGovRemoteTerminal, Azos.Sky"
+      }
+      
+      server
+      {
+        name="TerminalApterm"
+        node="apterm://*:$(/gv/services/$hgov-appterm)"
+        contract-servers="Azos.Sky.Hosts.ahgov.HGovRemoteTerminal, Azos.Sky"
+      }
+    }
+  }//glue
+
+  web-manager
+  {
+    enabled=true
+    prefix{ name="http://+:$(/gv/services/$web-hgov)/" }
+
+    //When some process wants to add custom handlers, it can do so by installing
+    //custom routes and adding menu  so user can navigate to custom routes
+    dispatcher
+    {
+      handler
+      {
+        name="Dynamic Content"
+        handler
+        {
+          name="MVC"
+          match{ name="HGOV" order=0 path="/hgov/{mvc-action}" var{query-name="*"} var{name="type" default="AHGov"}}
+        }
+      }
+    }
+    //This is how menu is organized
+    //localized text is appended with ISO lang suffix
+    menu
+    {
+      item
+      {
+        text="HGOV Menu"
+
+        item{text="Do something 1" href="/hgov/do-something1"}
+        item{text="Do something 2" href="/hgov/do-something2"}
+      }
+      item
+      {
+        text="Search Engines"
+
+        item{text="Yahoo" text_deu="Ein Yahoo!" href="http://yahoo.com"}
+        item{text="Google" href="http://google.com"}
+        item{text="Bing" href="http://bing.com"}
+      }
+      item
+      {
+        text="Azos Support"
+
+        item{text="Azist" href="http://zhabis.com"}
+      }
+    }
+  }
+}

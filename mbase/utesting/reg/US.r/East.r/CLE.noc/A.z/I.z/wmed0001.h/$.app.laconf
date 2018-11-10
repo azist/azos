@@ -1,0 +1,11 @@
+application
+{
+  name="wmed0001"
+
+  clown="Popov"
+
+  glue
+  {
+    serebro=da
+  }
+}

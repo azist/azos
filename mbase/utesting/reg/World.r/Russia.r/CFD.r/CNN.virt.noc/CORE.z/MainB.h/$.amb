@@ -1,0 +1,12 @@
+host
+{
+  name="MainB" role="Main" os="w2016"
+
+  process-host=true
+
+  network-routing
+  {
+    route{ network="nocgov" to-address="*103"}
+    route{ network="internoc" to-address="*109"}
+  }
+}

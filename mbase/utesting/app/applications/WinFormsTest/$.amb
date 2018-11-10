@@ -1,0 +1,8 @@
+application
+{ 
+  name="WinFormsTest" description="App for win forms testing" exe-file="WinFormsTest.exe"     
+
+  packages
+  {
+  }
+}

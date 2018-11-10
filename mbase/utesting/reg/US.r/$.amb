@@ -1,0 +1,13 @@
+region
+{
+  name="US"
+
+  network-routing
+  {
+    //route filters: network, service, binding, from
+    route{ network="internoc" to-address="us.*"}
+    route{ network="internoc" from="/US/East" to-address="us1.*"}
+    route{ network="internoc" from="/US/West" to-address="us2.*"}
+    route{ network="internoc" from="/Europe"  to-address="us3.*"}
+  }
+}

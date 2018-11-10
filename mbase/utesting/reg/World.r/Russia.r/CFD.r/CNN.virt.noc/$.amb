@@ -1,0 +1,10 @@
+noc
+{
+  name="CNN.virt"
+
+  network-routing
+  {
+    route{ network="nocgov" to-address="10.0.0.*"}
+    route{ network="internoc" to-address="192.168.0.*"}
+  }
+}

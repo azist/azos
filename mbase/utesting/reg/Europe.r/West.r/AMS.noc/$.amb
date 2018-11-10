@@ -1,0 +1,9 @@
+noc
+{
+  name="AMS" geo-center="52.3747158,4.8986166"
+
+  network-routing
+  {
+    route{ network="nocgov" to-address="192.168" }
+  }
+}

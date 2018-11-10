@@ -97,7 +97,7 @@ namespace Azos.Serialization.JSON
           CaseSensitive = caseSensitive;
         }
 
-        private JSONDataMap(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context)
+        protected JSONDataMap(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context)
         {
 
         }

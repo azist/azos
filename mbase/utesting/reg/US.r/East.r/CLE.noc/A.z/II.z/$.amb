@@ -1,0 +1,9 @@
+zone
+{
+  name="II"
+
+  processor-set
+  {
+    host{ id=0 relative-path=wmed0004 }
+  }
+}

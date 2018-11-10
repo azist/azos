@@ -1,0 +1,159 @@
+//Network/Services registry
+
+/*
+  Example:
+
+  var node = Metabase.ResolveNetworkService("US/East/CLE/A/I/wmed0001", //host
+                                            "backend",                  //network name
+                                            "aws",                      //service
+                                            "async");                   //optional binding. If omitted then default one is returned
+  node => async://192.168.1.105:7100   // return Glue.Node
+*/
+
+networks
+{
+  network
+  {
+    name="nocgov"
+    description="NOC gov network"
+    scope="noc" // any|noc|group|nocgroup
+
+    service
+    {
+      name="$(~SysConsts.NETWORK_SVC_ZGOVTELEMETRY)"
+      description="Zone Governor Telemetry"
+      default-binding="async"
+
+      bindings
+      {
+        async { port="$(~SysConsts.NETWORK_SVC_ZGOVTELEMETRY_ASYNC_PORT)" }
+        //sync  { port="$(~SysConsts.NETWORK_SVC_ZGOVTELEMETRY_SYNC_PORT)" }
+      }
+    }
+
+    service
+    {
+      name="hgov"
+      description="Host Governor"
+      default-binding="async"
+
+      bindings
+      {
+          async { port="9200" }
+          sync { port="9201" }
+      }
+    }
+
+    group { name="any" description="Anything goes"}
+    group { name="any2" description="Another one...Anything goes2"}
+  }
+
+  network
+  {
+    name="internoc"
+    scope="any"
+
+    service 
+    {
+      name="socialgraphtodoqueue"
+      description="Socila todo queue"
+      default-binding="sync"
+
+      bindings
+      {
+        sync { port="27800" }
+        async { port="27801" }
+      }
+    }
+
+    service
+    {
+      name="$(~SysConsts.NETWORK_SVC_ZGOV_WEB_MANAGER)"
+      description="Zone Governor Web Manager"
+      default-binding="http"
+
+      bindings
+      {
+        http { address="internoc.zhabis.com" port="$(~SysConsts.DEFAULT_ZONE_GOV_WEB_PORT)" }
+      }
+    }
+
+    service
+    {
+      name="$(~SysConsts.NETWORK_SVC_HGOV_WEB_MANAGER)"
+      description="Host Governor Web Manager"
+      default-binding="http"
+
+      bindings
+      {
+        http { address="internoc.zhabis.com" port="$(~SysConsts.DEFAULT_HOST_GOV_WEB_PORT)" }
+      }
+    }
+
+    service
+    {
+      name="zgov"
+      description="Zone Governor"
+      default-binding="async"
+
+      bindings
+      {
+          async { address="internoc.zhabis.com"  port="9200" }
+          sync { address="internoc.zhabis.com"  port="9201"}
+      }
+    }
+
+    service
+    {
+      name="gdida"
+      description="GDID Generation Authority"
+      default-binding="async"
+      bindings
+      {
+          async { address="localhost"  port="4001" }
+          sync { address="localhost"  port="4000"}
+      }
+    }
+  }
+
+  
+  network
+  {
+    name="shard"
+    description="Shard inner network"
+    scope="noc"
+
+    service
+    {
+      name="mongo"
+      description="Mongo DB"
+      default-binding="sync"
+
+      bindings
+      {
+          sync  { port="27017" }
+      }
+    }
+  }
+  
+
+  network
+  {
+    name="utesting"
+    description="Unit Testing Framework"
+    scope="any"
+
+    service
+    {
+      name="$(~SysConsts.NETWORK_SVC_TESTER)"
+      description="Testing service"
+      default-binding="sync"
+
+      bindings
+      {
+        sync  { address="0.0.0.0" port="$(~SysConsts.NETWORK_SVC_TESTER_SYNC_PORT)" }
+        async { address="0.0.0.0" port="$(~SysConsts.NETWORK_SVC_TESTER_ASYNC_PORT)" }
+      }
+    }
+  }
+}

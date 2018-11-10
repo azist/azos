@@ -1,0 +1,6 @@
+role
+{
+	name="Agdida"
+
+	application { name=AGDIDA auto-run=1 }
+}

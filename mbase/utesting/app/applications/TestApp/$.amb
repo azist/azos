@@ -1,0 +1,13 @@
+application
+{
+  name="TestApp"
+  description="App for unit testing"
+  exe-file="testApp"
+
+  packages
+  {
+    package { name="TestPackage1" }
+    package { name="TestPackage2" version="older" }
+    package { name="TestPackage3" }
+  }
+}

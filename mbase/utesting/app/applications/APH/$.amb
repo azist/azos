@@ -1,0 +1,14 @@
+application
+{
+  name="APH"
+  description="Azos.Sky Process Host"
+
+  exe-file="aph.exe"
+  exe-args=""
+
+  packages
+  {
+    package { name="core" }
+    package { name="aph" }
+  }
+}

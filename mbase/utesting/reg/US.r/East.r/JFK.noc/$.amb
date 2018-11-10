@@ -1,0 +1,5 @@
+noc
+{
+  name="JFK" geo-center="40.6458585,-73.7847362"
+  parent-noc-zone="US/USNational/Controller.z"
+}

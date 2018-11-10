@@ -71,7 +71,7 @@ namespace Azos.Data
 
 
       /// <summary>
-      /// False by default for forms, safer for web. For example, no injection of un-inteded fields can be done via web form post
+      /// False by default for forms, safer for web. For example, no injection of unexpected fields can be done via web form post
       /// </summary>
       public override bool AmorphousDataEnabled { get{return false;}}
 
@@ -88,7 +88,7 @@ namespace Azos.Data
 
       /// <summary>
       /// Saves form into data store. The form is validated first and validation error is returned which indicates that save did not succeed due to validation error/s.
-      /// The core implementation is in DoSave() that can also abort by either returning execption when predictable failure happens on save (i.e. key violation).
+      /// The core implementation is in DoSave() that can also abort by either returning exception when predictable failure happens on save (i.e. key violation).
       /// Other exceptions are thrown.
       /// Returns extra result obtained during save i.e. a db-assigned auto-inc field
       /// </summary>
@@ -104,7 +104,7 @@ namespace Azos.Data
 
       /// <summary>
       /// Saves form into data store. The form is validated first and validation error is returned which indicates that save did not succeed due to validation error/s.
-      /// The core implementation is in DoSave() that can also abort by either returning execption when predictable failure happens on save (i.e. key violation).
+      /// The core implementation is in DoSave() that can also abort by either returning exception when predictable failure happens on save (i.e. key violation).
       /// Other exceptions are thrown.
       /// Returns extra result obtained during save i.e. a db-assigned auto-inc field
       /// </summary>
@@ -125,7 +125,7 @@ namespace Azos.Data
 
       /// <summary>
       /// Override to save model into data store. Return "predictable" exception (such as key violation) as a value instead of throwing.
-      /// Throw only in "un-predictable" cases (such as DB connection is down, not enough space etc...).
+      /// Throw only in "unpredictable" cases (such as DB connection is down, not enough space etc...).
       /// Return extra result obtained during save i.e. a db-assigned auto-inc field
       /// </summary>
       protected abstract Exception DoSave(out object saveResult);

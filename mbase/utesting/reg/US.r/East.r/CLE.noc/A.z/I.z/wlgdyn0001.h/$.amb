@@ -1,0 +1,10 @@
+host
+{
+  name="wlgdyn0001" role="TestServer" os="win7" dynamic=true
+
+  network-routing
+  {
+    route{ network="nocgov" to-address="*.1"}
+    route{ network="internoc" to-address="$(/$name).*"}
+  }
+}

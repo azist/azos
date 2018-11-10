@@ -1,0 +1,11 @@
+application
+{
+  cleveland
+  {
+	Solon=true
+	Euclid=false
+	Twinsburg=true
+	Hudson=false
+  }
+
+}

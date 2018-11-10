@@ -1,0 +1,12 @@
+host
+{
+  name="Dynamic" role="Dynamic" os="w10"
+
+  //dynamic=true
+
+  network-routing
+  {
+    route{ network="nocgov"   to-address="*101"}
+    route{ network="internoc" to-address="*103"}
+  }
+}

@@ -1,0 +1,10 @@
+host
+{
+  name="zgov0456" role="ZoneGovernor" os="win7"
+
+  network-routing
+  {
+    route{ network="nocgov" to-address="*.123"}
+    route{ network="internoc" to-address="$(/$name).*"}
+  }
+}

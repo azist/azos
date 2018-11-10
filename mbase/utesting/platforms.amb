@@ -1,0 +1,23 @@
+//Platform/OS registry
+platforms
+{
+  platform
+  {
+    name="Win64"
+    os{ name="win7"    description="Windows 7"           app-config{ windows7{ build="1.2.0890b"} } }
+    os{ name="w2003k"  description="Windows 2003 Server" app-config{} }
+  }
+
+  platform
+  {
+    name="Linux64"
+    os{ name="fedora20" description="Fedora 20 Server" app-config{} }
+  }
+
+  platform
+  {
+    name="Android"
+    os{ name="JellyBean4.1" description="Android 4.1 JellyBean API level 16" app-config{} }
+    os{ name="KitKat4.4" description="Android 4.4 KitKat API level 19" app-config{} }
+  }
+}

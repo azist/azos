@@ -1,0 +1,59 @@
+application
+{
+  application-name="GDID Authority"
+
+  object-store { guid="DC2CB31C-4919-465E-8FA5-6AD50AE3C126" }
+  remote-terminal { type="agdida.GDIDAuthorityRemoteTerminal, agdida" }
+
+  log
+  {
+    name="Logger" reliable="true"
+    destination {type="$(/gv/types/$log-csv)" name="agdida.Log" path="$(/gv/paths/$log-root)" file-name="{0:yyyyMMdd}-$($name).csv.log"}
+  }
+
+  gdid-authority
+  {
+    authority-ids='0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f'
+    //authority-ids='0,3,7,f'
+    persistence
+    {
+      location { name="1" order=1 path=$(/gv/paths/$gdid-root) }
+      location { name="2" order=2 path=$(/gv/paths/$gdid-root)-2 }
+      location { name="3" order=3 path=$(/gv/paths/$gdid-root)-3 }
+    }
+  }
+
+  glue
+  {
+    servers
+    {
+      server
+      {
+        name="IGDIDAuthorityAsync"
+        node="async://*:$(/gv/services/$async-gdid)"
+        contract-servers="Azos.Sky.Identification.GDIDAuthority, Azos.Sky"
+      }
+      server
+      {
+        name="IGDIDAuthoritySync"
+        node="sync://*:$(/gv/services/$sync-gdid)"
+        contract-servers="Azos.Sky.Identification.GDIDAuthority, Azos.Sky"
+      }
+      server
+      {
+        name="Terminal"
+        node="apterm://*:$(/gv/services/$gdid-appterm)"
+        contract-servers="Azos.Sky.Hosts.agdida.GDIDAuthorityRemoteTerminal, Azos.Sky"
+      }
+    }
+  }
+
+  web-manager
+  {
+    enabled=true
+    prefix{ name="http://+:$(/gv/services/$web-gdid)/" }
+    client-vars-cookie-name="AGDIDA_CV"
+  }
+
+
+}

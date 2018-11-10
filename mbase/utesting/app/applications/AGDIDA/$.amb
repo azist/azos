@@ -1,0 +1,14 @@
+application
+{
+  name="AGDIDA"
+  description="Azos.Sky GDID Authority"
+
+  exe-file="agdida.exe"
+  exe-args=""
+
+  packages
+  {
+    package { name="core" }
+    package { name="agdida" }
+  }
+}

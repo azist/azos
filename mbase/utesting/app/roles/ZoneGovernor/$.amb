@@ -1,0 +1,7 @@
+role
+{
+	name="ZoneGovernor"
+
+	application { name=AHGov auto-run=1 }
+	application { name=AZGov auto-run=2 }
+}

@@ -1,0 +1,205 @@
+application
+{
+  application-name="WinFormsTest"
+
+  process-manager
+  {
+    process-type-resolver
+    {
+      assembly{ name='WinFormsTest.exe' ns='WinFormsTest.Workers.*'}
+    }
+
+    todo-type-resolver
+    {
+      assembly{ name='WinFormsTest.exe' ns='WinFormsTest.Workers.*'}
+      assembly{ name='Azos.Sky.Social.dll' ns='Azos.Sky.Social.Graph.Server.Workers.*'}
+    }
+
+    host-set { name=socialgraphtodo  path='us/east/cle/a/i' }
+    host-set { name=subsdeliverytodo path='us/east/cle/a/i' }
+    host-set { name=removetodo       path='us/east/cle/a/i' }
+  }
+
+  event-timer
+  {
+    resolution-ms=150
+  }
+
+  starters
+  {
+    starter
+    {
+      name='Stripe'
+      type='Azos.Web.Pay.PaySystemStarter, Azos.Web'
+      application-start-break-on-exception=true
+    }
+    
+    starter
+    {
+      name='GraphContext'
+      type='Azos.Sky.Social.Graph.Server.GraphOperationContext, Azos.Sky.Social'
+      application-start-break-on-exception=true
+    
+      graph-host
+      {
+        type="WinFormsTest.Social.TestGraphHost, WinFormsTest"
+      } 
+      
+      data-store
+      {
+        type='Azos.Sky.MDB.MDBDataStore, Azos.Sky'
+
+        target-name='MDB.GRAPH'
+        schema-name="graph"
+        bank-name="bank0"
+	
+		area
+		{
+		  name='central'
+		  data-store
+		  {
+			type='Azos.DataAccess.MySQL.MySQLDataStore, Azos.MySQL'
+			target-name='MDB.GRAPH.MYSQL'
+			script-assembly='Azos.Sky.Social'
+			handler-location{ ns='Azos.Sky.Social, Azos.Sky.Social' }
+			log-level='debug'
+		  }
+                  shard{ order=0 primary-cs='Server=localhost;Database=central0;Uid=$(~MYSQL_ADMIN_USERID);Pwd=$(~MYSQL_ADMIN_PASSWORD)' secondary-cs='Server=localhost;Database=central0;Uid=$(~MYSQL_ADMIN_USERID);Pwd=$(~MYSQL_ADMIN_PASSWORD)' }
+                  shard{ order=1 primary-cs='Server=localhost;Database=central1;Uid=$(~MYSQL_ADMIN_USERID);Pwd=$(~MYSQL_ADMIN_PASSWORD)' secondary-cs='Server=localhost;Database=central1;Uid=$(~MYSQL_ADMIN_USERID);Pwd=$(~MYSQL_ADMIN_PASSWORD)' }
+		}
+
+		area
+		{
+		  name='node'
+		  data-store
+		  {
+			type='Azos.DataAccess.MySQL.MySQLDataStore, Azos.MySQL'
+			target-name='MDB.GRAPH.MYSQL'
+			script-assembly='Azos.Sky.Social'
+			handler-location{ ns='Azos.Sky.Social, Azos.Sky.Social' }
+			log-level='debug'
+		  }
+		  partition
+		  {
+			start-gdid='0:0:0'
+                    shard{ order=0 primary-cs='Server=localhost;Database=test-node0;Uid=$(~MYSQL_ADMIN_USERID);Pwd=$(~MYSQL_ADMIN_PASSWORD)' secondary-cs='Server=localhost;Database=test-node0;Uid=$(~MYSQL_ADMIN_USERID);Pwd=$(~MYSQL_ADMIN_PASSWORD)' }
+                    shard{ order=1 primary-cs='Server=localhost;Database=test-node1;Uid=$(~MYSQL_ADMIN_USERID);Pwd=$(~MYSQL_ADMIN_PASSWORD)' secondary-cs='Server=localhost;Database=test-node1;Uid=$(~MYSQL_ADMIN_USERID);Pwd=$(~MYSQL_ADMIN_PASSWORD)' }
+		  }
+		}
+
+		area
+		{
+		  name='comment'
+		  data-store
+		  {
+			type='Azos.DataAccess.MySQL.MySQLDataStore, Azos.MySQL'
+			target-name='MDB.GRAPH.MYSQL'
+			script-assembly='Azos.Sky.Social'
+			handler-location{ ns='Azos.Sky.Social, Azos.Sky.Social' }
+			log-level='debug'
+		  }
+		  partition
+		  {
+			start-gdid='0:0:0'
+                    shard{ order=0 primary-cs='Server=localhost;Database=test-rate0;Uid=$(~MYSQL_ADMIN_USERID);Pwd=$(~MYSQL_ADMIN_PASSWORD)' secondary-cs='Server=localhost;Database=test-rate0;Uid=$(~MYSQL_ADMIN_USERID);Pwd=$(~MYSQL_ADMIN_PASSWORD)' }
+                    shard{ order=1 primary-cs='Server=localhost;Database=test-rate1;Uid=$(~MYSQL_ADMIN_USERID);Pwd=$(~MYSQL_ADMIN_PASSWORD)' secondary-cs='Server=localhost;Database=test-rate1;Uid=$(~MYSQL_ADMIN_USERID);Pwd=$(~MYSQL_ADMIN_PASSWORD)' }
+		  }
+		}
+
+
+
+        }
+   }	
+
+    /*
+    starter
+    {
+      name='Social Processing'
+      type='Azos.Web.Social.SocialNetworkStarter, Azos.Web'
+      application-start-break-on-exception=true
+    }
+    */
+  }
+
+  log
+  {
+    instrumentation-enabled=true
+    name="Logger" reliable="true"
+    destination {type="$(/gv/types/$log-csv)" name="winformstest.Log" path="$(/gv/paths/$log-root)" file-name="{0:yyyyMMdd}-$($name).csv.log"}
+  }
+
+  object-store
+  {
+    guid="0120FEB8-E80E-4E69-B9B0-229F64DDCC1A"
+  }
+
+  instrumentation
+  {
+    //os-instrumentation-interval-ms=1000
+  }
+
+  web-manager
+  {
+    enabled=true
+    prefix {name="http://+:8091/"}
+  }
+
+  web-settings
+  {
+    payment-processing
+    {
+      //_include { file="$(/gv/paths/$home-root)payment-processing.laconf" required=true }
+    }
+  }
+  
+  glue
+  {
+    servers
+    {
+      
+      server
+      {
+        name="TodoQueueAsync"
+        node="async://*:27801"
+        contract-servers=$(/gv/types/$srv-todo-queue)
+      }
+
+      server
+      {
+        name="TodoQueueSync"
+        node="sync://*:27800"
+        contract-servers=$(/gv/types/$srv-todo-queue)
+      }
+
+      server
+      {
+        name="TrendingAsync"
+        node="async://*:$(/gv/services/$async-trending)"
+        contract-servers=$(/gv/types/$trendingsystem-receiver)
+      }
+      server
+      {
+        name="GraphNodeAsync"
+        node="async://*:$(/gv/services/$async-graphnode)"
+        contract-servers=$(/gv/types/$graphnodesystem-receiver)
+      }
+
+      server
+      {
+        name="GraphEventAsync"
+        node="async://*:$(/gv/services/$async-graphevent)"
+        contract-servers=$(/gv/types/$grapheventsystem-receiver)
+      }
+
+      server
+      {
+        name="GraphCommentAsync"
+        node="async://*:$(/gv/services/$async-graphcomment)"
+        contract-servers=$(/gv/types/$graphcommentsystem-receiver)
+      }
+
+    }
+  }
+
+
+}

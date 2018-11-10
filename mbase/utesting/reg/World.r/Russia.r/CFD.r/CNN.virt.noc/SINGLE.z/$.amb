@@ -1,0 +1,16 @@
+zone
+{
+  name="SINGLE"
+
+  processor-set
+  {
+    host{ id=0 primary-path=Single secondary-path=Single }
+  }
+
+  host-set
+  {
+    name="Todo"
+
+    host{ order=0 name=Single }
+  }
+}

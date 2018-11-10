@@ -16,7 +16,7 @@ namespace Azos.Wave.Handlers
 {
   /// <summary>
   /// Downloads local files or files from portal content file system.
-  /// Be carefull with this handler as the incorrect root setup may allow users to download system-internal files
+  /// Be careful with this handler as the incorrect root setup may allow users to download system-internal files
   /// </summary>
   public class FileDownloadHandler : WorkHandler
   {

@@ -1,0 +1,14 @@
+application
+{
+  name="AZGov"
+  description="Azos.Sky Zone Governor"
+
+  exe-file="azgov.exe"
+  exe-args=""
+
+  packages
+  {
+    package { name="core" }
+    package { name="azgov"  path="" }
+  }
+}

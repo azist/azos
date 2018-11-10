@@ -1,0 +1,13 @@
+region
+{
+  name="Europe"
+
+  network-routing
+  {
+    route{ network="internoc" to-address="eu.*"}
+
+    route{ network="internoc" from="/Europe/East" to-address="eu1.*"}
+    route{ network="internoc" from="/Europe/West" to-address="eu2.*"}
+    route{ network="internoc" from="/US"  to-address="eu3.*"}
+  }
+}

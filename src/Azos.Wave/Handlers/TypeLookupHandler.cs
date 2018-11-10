@@ -16,7 +16,7 @@ using Azos.Conf;
 namespace Azos.Wave.Handlers
 {
     /// <summary>
-    /// Represents a base handler for all handlers that dynamicaly resolve type that performs actual work
+    /// Represents a base handler for all handlers that dynamically resolve type that performs actual work
     /// </summary>
     public abstract class TypeLookupHandler<TTarget> : WorkHandler where TTarget : class
     {
@@ -271,7 +271,7 @@ namespace Azos.Wave.Handlers
 
 
            /// <summary>
-           /// Factory method - Override to create and init more particular template implementation (i.e. based on model)
+           /// Factory method - Override to create and initialize more particular template implementation (i.e. based on model)
            /// </summary>
            protected virtual TTarget CreateTargetInstance(WorkContext work, Type tt)
            {
@@ -315,7 +315,7 @@ namespace Azos.Wave.Handlers
 
            /// <summary>
            /// Override to handle error processing, i.e. may elect to write error data into response.
-           /// The dafault implementation throws the error. It is recommended to handle errors with filters instead
+           /// The default implementation throws the error. It is recommended to handle errors with filters instead
            /// </summary>
            protected virtual void DoError(WorkContext work, Exception error)
            {

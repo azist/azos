@@ -1,0 +1,17 @@
+zone
+{
+  name="CORE"
+
+  processor-set
+  {
+    host{ id=0 primary-path=MainA secondary-path=MainB }
+    host{ id=1 primary-path=MainB secondary-path=MainA }
+  }
+
+  host-set
+  {
+    name="Todo"
+
+    host{ order=0 name=Dynamic }
+  }
+}

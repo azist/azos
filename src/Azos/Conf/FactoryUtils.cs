@@ -28,7 +28,7 @@ namespace Azos.Conf
 
         /// <summary>
         /// Creates and configures an instance of appropriate configurable object as specified in supplied config node.
-        /// Applies configured behaviours
+        /// Applies configured behaviors
         /// </summary>
         public static IConfigurable MakeAndConfigure(IConfigSectionNode node, Type defaultType = null, object[] args = null)
         {
@@ -37,7 +37,7 @@ namespace Azos.Conf
 
         /// <summary>
         /// Creates and configures an instance of appropriate configurable object as specified in supplied config node.
-        /// Applies configured behaviours
+        /// Applies configured behaviors
         /// </summary>
         public static T MakeAndConfigure<T>(IConfigSectionNode node, Type defaultType = null, object[] args = null)
             where T : IConfigurable

@@ -1,0 +1,8 @@
+application
+{
+  east-block
+  {
+    // _override="fail"
+    something=123
+  }
+}

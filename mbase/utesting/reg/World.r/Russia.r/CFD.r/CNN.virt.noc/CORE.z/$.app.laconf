@@ -1,0 +1,10 @@
+application
+{
+  sky
+  {
+    zone
+    {
+      _override="fail"
+    }
+  }
+}

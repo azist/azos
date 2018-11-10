@@ -1,0 +1,12 @@
+region
+{
+  name="Africa"
+
+  network-routing
+  {
+     //route filters: network, service, binding, from
+    route{ network="internoc"                to-address="africa.com"}
+    route{ network="internoc" from="/US"     to-address="us.africa.com"}
+    route{ network="internoc" from="/Europe" to-address="eu.africa.com"}
+  }
+}

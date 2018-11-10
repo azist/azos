@@ -1,0 +1,12 @@
+application
+{
+  glue
+  {
+    zoloto=da
+  }
+
+  cleveland
+  {
+    hudson=true
+  }
+}

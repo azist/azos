@@ -1,0 +1,5 @@
+role
+{
+	name="TestServer"
+	application { name=TestApp }
+}

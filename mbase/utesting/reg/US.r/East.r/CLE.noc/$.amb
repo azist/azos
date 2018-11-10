@@ -1,0 +1,19 @@
+noc
+{
+  name="CLE" geo-center="41.4996374,-81.6936649"
+  parent-noc-zone="US/USNational/Controller.z"
+
+  network-routing
+  {
+    route{ network="nocgov" to-address="192.168"}
+  }
+
+  host-set
+  {
+    name="ImageCompressors"
+    dynamic=false//allows to have dynamic members, may add members
+
+    host{ order=0 name="a/i/wmed0001.h" }
+    host{ order=1 name="a/i/wmed0002.h" }
+  }
+}

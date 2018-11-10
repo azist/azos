@@ -1,0 +1,14 @@
+application
+{
+  name="AHGov"
+  description="Azos.Sky Host Governor"
+
+  exe-file="ahgov.exe"
+  exe-args=""
+
+  packages
+  {
+    package { name="core" }
+    package { name="ahgov"  path="" }
+  }
+}

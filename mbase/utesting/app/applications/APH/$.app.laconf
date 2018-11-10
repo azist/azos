@@ -1,0 +1,25 @@
+application
+{
+  application-name="Azos.Sky Process Host"
+
+  log
+  {
+    name="Logger" reliable="true"
+    destination {type="$(/gv/types/$log-csv)" name="aph.Log" path="$(/gv/paths/$log-root)" file-name="{0:yyyyMMdd}-$($name).csv.log"}
+  }
+
+  object-store { guid="8F7EEA95-1EC9-4004-9406-5FAEF7B0D39A" }
+
+  glue
+  {
+    servers
+    {
+      server
+      {
+        name="Terminal"
+        node="apterm://*:$(/gv/services/$ph-appterm)"
+        contract-servers="Azos.Sky.Hosts.aph.ProcessHostRemoteTerminal, Azos.Sky"
+      }
+    }
+  }
+}

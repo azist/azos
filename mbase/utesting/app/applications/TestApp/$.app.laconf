@@ -1,0 +1,15 @@
+application
+{
+	application-name="TestApp"
+
+  instrumentation
+  {
+    os-instrumentation-interval-ms=1000
+  }
+
+  web-manager
+  {
+    enabled=true
+    prefix {name="http://+:8091/"}
+  }
+}

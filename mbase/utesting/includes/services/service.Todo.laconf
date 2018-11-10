@@ -1,0 +1,16 @@
+service
+{
+  name=CoreTodo
+  type=$(/gv/types/$svc-todo-queue)
+
+  queue { name="TodoQueue"   mode="ParallelByKey" }
+
+  queue-store
+  {
+    type=$(/gv/types/$qs-mongo)
+
+    fetch-by=1024
+
+    mongo="mongo{server='localhost:27017' db=Todo}"
+  }
+}

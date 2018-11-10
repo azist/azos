@@ -1,0 +1,13 @@
+host
+{
+
+  name="Single" role="Single" os="w2016"
+
+  process-host=true
+
+  network-routing
+  {
+    route{ network="nocgov" to-address="localhost"}
+    route{ network="internoc" to-address="localhost"}
+  }
+}

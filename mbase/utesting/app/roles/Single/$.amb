@@ -1,0 +1,14 @@
+role
+{
+  name="Single"
+  application { name=AHGov        auto-run=1 }
+  application { name=AGDIDA       auto-run=2 }
+  application { name=AZGov        auto-run=3 }
+  application { name=ALog         auto-run=4 }
+  application { name=DemoPH       auto-run=5 }
+  application { name=Demo         auto-run=6 }
+  application { name=DemoTodo     auto-run=7 }
+  application { name=WebApp       auto-run=8 }
+  application { name=WinFormsTest auto-run=9 }
+
+}

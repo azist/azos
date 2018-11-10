@@ -1,0 +1,12 @@
+host
+{
+	name="wmed0004" role="MixedServer" os="win7"
+    
+  network-routing
+  {
+    route{ network="nocgov" to-address="*.4" }
+    route{ network="internoc" to-address="$(/$name).*" }
+    route{ network="utesting" to-address="127.0.0.1"}
+    route{ network="$(~SysConsts.NETWORK_SHARD)" to-address="127.0.0.1" to-port=""}
+  }
+}

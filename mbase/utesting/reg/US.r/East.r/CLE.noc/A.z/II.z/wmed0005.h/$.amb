@@ -1,0 +1,10 @@
+host
+{
+  name="wmed0005" role="TestServer" os="win7"
+
+  network-routing
+  {
+    route{ network="nocgov" to-address="*.5"}
+    route{ network="internoc" to-address="$(/$name).*"}
+  }
+}

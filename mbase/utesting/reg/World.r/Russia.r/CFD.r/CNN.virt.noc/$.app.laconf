@@ -1,0 +1,12 @@
+application
+{
+  sky
+  {
+    noc
+    {
+      _override="fail"
+      name="CNN.virt.noc"
+      description="cNoNim Virtual NOC"
+    }
+  }
+}

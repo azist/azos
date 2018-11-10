@@ -1,0 +1,10 @@
+host
+{
+	name="wmed0003" role="ZoneGovernor" os="win7"
+    
+  network-routing
+  {
+    route{ network="nocgov" to-address="*.3"}
+    route{ network="internoc" to-address="$(/$name).*"}
+  }
+}

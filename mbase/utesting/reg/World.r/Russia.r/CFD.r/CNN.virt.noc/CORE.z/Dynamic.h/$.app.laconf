@@ -1,0 +1,4 @@
+application
+{
+  host-governor { dynamic-host-id=$(~SKY_DYNAMIC_HOST_ID) }
+}

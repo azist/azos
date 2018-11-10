@@ -1,0 +1,11 @@
+host
+{
+  name="zgov0001" role="ZoneGovernor" os="win7"
+  // zgov-lock-failover=true
+
+  network-routing
+  {
+    route{ network="nocgov" to-address="*.3"}
+    route{ network="internoc" to-address="$(/$name).*"}
+  }
+}

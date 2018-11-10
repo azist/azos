@@ -1,0 +1,86 @@
+//this is file contains contract resolution and setup
+contracts
+{
+  service-client-hub
+  {
+    |*
+    map
+    {
+      client-contract="...type specification..."
+      local //used if caller and callee are in the same NOC
+      {
+          implementor="...type specification..."
+          service="...service name..."
+          net="...network name..."
+          binding="...binding name..."
+          call-timeout-ms=12000
+          reserve-transport=false
+          options { }
+      }
+
+      global //used if caller and callee are in different NOCs
+      {
+          implementor="...type specification..."
+          service="...service name..."
+          net="...network name..."
+          binding="...binding name..."
+          call-timeout-ms=12000
+          reserve-transport=false
+          options { }
+      }
+    }
+    *|
+
+    map
+    {
+      client-contract="Azos.Sky.Contracts.ITodoQueueClient, Azos.Sky"
+      implementor="Azos.Sky.Clients.TodoQueue, Azos.Sky"
+      net=$(~SysConsts.NETWORK_INTERNOC)
+    }
+
+    map
+    {
+      client-contract="Azos.Sky.Contracts.IGDIDAuthorityClient, Azos.Sky"
+      implementor="Azos.Sky.Clients.GDIDAuthority, Azos.Sky"
+      service=$(~SysConsts.NETWORK_SVC_GDID_AUTHORITY)
+      net=$(~SysConsts.NETWORK_INTERNOC)
+    }
+
+    map
+    {
+      client-contract="Azos.Sky.Contracts.IRemoteTerminalClient, Azos.Sky"
+      implementor="Azos.Sky.Clients.RemoteTerminal, Azos.Sky"
+      net=$(~SysConsts.NETWORK_INTERNOC)
+    }
+
+    map
+    {
+      client-contract="Azos.Sky.Contracts.IZoneHostRegistryClient, Azos.Sky"
+      implementor="Azos.Sky.Clients.ZoneHostRegistry, Azos.Sky"
+      service=$(~SysConsts.NETWORK_SVC_ZGOVHOSTREG)
+    }
+
+    map
+    {
+      client-contract="Azos.Sky.Contracts.IZoneLogReceiverClient, Azos.Sky"
+      implementor="Azos.Sky.Clients.ZoneLogReceiver, Azos.Sky"
+      service=$(~SysConsts.NETWORK_SVC_ZGOVLOG)
+    }
+
+    map
+    {
+      client-contract="Azos.Sky.Contracts.IZoneTelemetryReceiverClient, Azos.Sky"
+      implementor="Azos.Sky.Clients.ZoneTelemetryReceiver, Azos.Sky"
+      service=$(~SysConsts.NETWORK_SVC_ZGOVTELEMETRY)
+    }
+
+    map
+    {
+      client-contract="Azos.Sky.Contracts.ITesterClient, Azos.Sky"
+      implementor="Azos.Sky.Clients.Tester, Azos.Sky"
+      service=$(~SysConsts.NETWORK_SVC_TESTER)
+      net=$(~SysConsts.NETWORK_UTESTING)
+      binding=$(~SysConsts.SYNC_BINDING)
+    }
+  }
+}

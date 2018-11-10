@@ -1,0 +1,25 @@
+zone
+{
+  name="I"
+
+  host-set
+  {
+    name="socialgraphtodo"
+
+    host{ order=0 name=wmed0001 }
+  }
+
+  host-set
+  {
+    name="subsdeliverytodo"
+
+    host{ order=0 name=wmed0001 }
+  }
+
+  host-set
+  {
+    name="removetodo"
+
+    host{ order=0 name=wmed0001 }
+  }
+}

@@ -1,0 +1,260 @@
+application
+{
+  _override="all"
+  app-name="Undefined"
+  trace-disable=true
+
+  _include //test
+  {
+    provider
+    {
+      file="/includes/test.laconf"
+      type="Azos.Sky.Metabase.MetabankFileConfigNodeProvider, Azos.Sky"
+    }
+  }
+
+  gv //contains global application container variables
+  {
+    _override="fail"
+    a="A"
+    b="B"
+
+    paths
+    {
+      home-root=$(~SKY_HOME_ROOT)
+      disk-root=$(~SKY_HOME_ROOT)disk\
+      log-root=$($disk-root)
+      gdid-root=$($disk-root)gdid
+    }
+
+    types //Provider Types for log, glue, instrumentation etc.
+    {
+      srv-todo-queue="Azos.Sky.Workers.Server.Queue.TodoQueueServer, Azos.Sky"
+
+      log-csv="Azos.Log.Destinations.CSVFileDestination, Azos"
+      glue-async="Azos.Glue.Native.MpxBinding"
+      glue-sync="Azos.Glue.Native.SyncBinding"
+      glue-apterm="Azos.Sky.Glue.AppTermBinding, Azos.Sky"
+      sec-config="Azos.Security.ConfigSecurityManager, Azos"
+      volatile-file="Azos.ApplicationModel.Volatile.FileObjectStoreProvider"
+      instr-telemetry="Azos.Instrumentation.Telemetry.TelemetryInstrumentationProvider"
+      instr-nop="Azos.Instrumentation.NOPInstrumentationProvider"
+      mb-fs="Azos.Sky.Metabase.MetabankFSView, Azos.Sky"
+      
+      trendingsystem="Azos.Sky.Social.Trending.Server.TrendingSystemService, Azos.Sky.Social"
+      trendingsystem-receiver="Azos.Sky.Social.Trending.Server.TrendingSystemServer, Azos.Sky.Social"
+      trendingsystem-mongovolume="Azos.Sky.MongoDB.Social.Trending.MongoDBVolume, Azos.Sky.MongoDB.Social"
+
+      graphnodesystem="Azos.Sky.Social.Graph.Server.GraphSystemService, Azos.Sky.Social"
+      graphnodesystem-receiver="Azos.Sky.Social.Graph.Server.GraphNodeSystemServer, Azos.Sky.Social"
+
+      grapheventsystem="Azos.Sky.Social.Graph.Server.GraphSystemService, Azos.Sky.Social"
+      grapheventsystem-receiver="Azos.Sky.Social.Graph.Server.GraphEventSystemServer, Azos.Sky.Social"
+
+      graphcommentsystem="Azos.Sky.Social.Graph.Server.GraphSystemService, Azos.Sky.Social"
+      graphcommentsystem-receiver="Azos.Sky.Social.Graph.Server.GraphCommentSystemServer, Azos.Sky.Social"
+    }
+
+    services
+    {
+      web-zgov=$(~SysConsts.DEFAULT_ZONE_GOV_WEB_PORT)
+      sync-zgov=$(~SysConsts.DEFAULT_ZONE_GOV_SVC_SYNC_PORT)
+      zgov-appterm=$(~SysConsts.DEFAULT_ZONE_GOV_APPTERM_PORT)
+      async-zgov=$(~SysConsts.DEFAULT_ZONE_GOV_SVC_ASYNC_PORT)
+      sync-zgov-telemetry=$(~SysConsts.NETWORK_SVC_ZGOVTELEMETRY_SYNC_PORT)
+      async-zgov-telemetry=$(~SysConsts.NETWORK_SVC_ZGOVTELEMETRY_ASYNC_PORT)
+
+      web-hgov=$(~SysConsts.DEFAULT_HOST_GOV_WEB_PORT)
+      sync-hgov=$(~SysConsts.DEFAULT_HOST_GOV_SVC_SYNC_PORT)
+      hgov-appterm=$(~SysConsts.DEFAULT_HOST_GOV_APPTERM_PORT)
+      async-hgov=$(~SysConsts.DEFAULT_HOST_GOV_SVC_ASYNC_PORT)
+      
+
+      web-gdid=$(~SysConsts.DEFAULT_GDID_AUTH_WEB_PORT)
+      sync-gdid=$(~SysConsts.DEFAULT_GDID_AUTH_SVC_SYNC_PORT)
+      gdid-appterm=$(~SysConsts.DEFAULT_GDID_AUTH_APPTERM_PORT)
+      async-gdid=$(~SysConsts.DEFAULT_GDID_AUTH_SVC_ASYNC_PORT)
+      
+      web-ph=$(~SysConsts.DEFAULT_PH_WEB_PORT)
+      sync-ph=$(~SysConsts.DEFAULT_PH_SVC_SYNC_PORT)
+      ph-appterm=$(~SysConsts.DEFAULT_PH_APPTERM_PORT)
+      async-ph=$(~SysConsts.DEFAULT_PH_SVC_ASYNC_PORT)
+      
+      web-aws=$(~SysConsts.DEFAULT_AWS_WEB_PORT)
+      sync-aws=$(~SysConsts.DEFAULT_AWS_SVC_SYNC_PORT)
+      aws-appterm=$(~SysConsts.DEFAULT_AWS_APPTERM_PORT)
+      async-aws=$(~SysConsts.DEFAULT_AWS_SVC_ASYNC_PORT)
+      
+      sync-telemetry=$(~SysConsts.DEFAULT_TELEMETRY_SYNC_PORT)
+      async-telemetry=$(~SysConsts.DEFAULT_TELEMETRY_ASYNC_PORT)
+      
+      sync-trending=27300
+      async-trending=27301
+      
+      sync-graphnode=27600
+      async-graphnode=27601
+
+      sync-graphevent=27700
+      async-graphevent=27701
+
+      sync-graphcomment=27900
+      async-graphcomment=27901
+      
+      sync-todoqueue=27800
+      async-todoqueue=27801
+    }
+  }
+
+  instrumentation
+  {
+    name="Instruments"
+    interval-ms="4395"
+    self-instrumented=true
+
+    provider
+    {
+      name="Telemetry Instrumentation Provider"
+      type=$(/gv/types/$instr-nop)
+    }
+    /*provider
+    {
+      name="Telemetry Instrumentation Provider"
+      type=$(/gv/types/$instr-telemetry)
+      use-log="false"
+      receiver-node="sync://127.0.0.1:$(/gv/services/$sync-telemetry)"
+    }*/
+  }
+
+
+  object-store
+  {
+    object-life-span-ms="180000"
+    bucket-count="1024"
+
+    provider
+    {
+      name="Disk Object Store Provider"
+      type=$(/gv/types/$volatile-file)
+      load-limit="0"
+      root-path=$(/gv/paths/$disk-root)
+      //format="msbinary"
+    }
+  }
+
+  glue
+  {
+    bindings
+    {
+      binding { name=$(~SysConsts.ASYNC_BINDING)  type=$(/gv/types/$glue-async) }
+      binding { name=$(~SysConsts.SYNC_BINDING)   type=$(/gv/types/$glue-sync) }
+      binding { name=$(~SysConsts.APTERM_BINDING) type=$(/gv/types/$glue-apterm) }
+    }
+  }//glue
+
+  security
+  {
+    type=$(/gv/types/$sec-config)
+
+    users
+    {
+      user
+      {
+        name="Dima"
+        description="D Kh"
+        status="User" //System grants everything
+        id="dima"
+        password='{"algo":"MD5","fam":"Text","hash":"ZcrDK120Iwj08Qqfzvz95w==","salt":"e0K7BA4Ylby2kWAp3nCR3A9jSw=="}'//thejake
+        rights
+        {
+          Azos.Sky{Security{Permissions{Admin{
+            AppRemoteTerminal{ level=1 }
+            RemoteTerminalOperator{ level=1 }
+          }}}}
+        }
+      }
+    }//users
+  }//security
+
+  web-manager
+  {
+    enabled=true
+    instrumentation-enabled=true
+    default-error-handler { show-dump { match{name=all} } log {  match{name=all} } }
+    gate { name="AWM Gate" enabled = false }
+
+    dispatcher
+    {
+      filter
+      { name="Errors" order=10 type="Azos.Wave.Filters.ErrorFilter, Azos.Wave"
+        show-dump { match { /*is-local=true*/ } }
+        log { match { var{name="WWW" default="Request Error"} } }
+        security-redirect-url="/login"
+      }
+
+      // Static Handlers
+      handler
+      {
+        name="Stock Content Embedded Site"
+        order=1000
+        cache-control { max-age-sec=86400 }
+        type="Azos.Wave.Handlers.StockContentSiteHandler, Azos.Wave"
+        match { path="/static/stock/{*path}"}
+      }
+
+      handler
+      {
+        name="AWM Content Embedded Site"
+        order=2000
+        cache-control { max-age-sec=86400 }
+        type="Azos.Sky.WebManager.AWMStockContentSiteHandler, Azos.Sky"
+        match { path="static/{*path}"}
+      }
+
+      handler
+      {
+        name="Public MVC API"
+        order=3000
+        type="Azos.Wave.Handlers.MVCHandler, Azos.Wave"
+        type-location { name="local" assembly="Azos.Sky.dll" ns{ name="Azos.Sky.WebManager.Controllers"} }
+        match { order=1 path="pub-api/{mvc-action}" var{query-name="*"} var{name="type" default="PublicAPI"} }
+      }
+
+      handler
+      {
+        name="Dynamic Content"
+        order=4000
+        type="Azos.Wave.Handlers.CompositeHandler, Azos.Wave"
+        match {name="Any MVC"}
+
+        filter
+        {
+          name="Sessions" order=10 type="Azos.Sky.WebManager.AWMSessionFilter, Azos.Sky"
+          session-timeout-ms="600000"
+          session-cookie-name="AWM.Session"
+        }
+
+        filter
+        {
+          name="Security" order=20 type="Azos.Wave.Filters.SecurityFilter, Azos.Wave"
+          bypass {    match{ path="/login"}    }
+
+          permissions
+          {
+            permission { type="Azos.Sky.Security.Permissions.Admin.RemoteTerminalOperatorPermission, Azos.Sky" }
+            permission { type="Azos.Sky.Security.Permissions.Admin.AppRemoteTerminalPermission, Azos.Sky" }
+          }
+        }
+
+        handler
+        {
+          name="MVC"
+          order=10000
+          type="Azos.Wave.Handlers.MVCHandler, Azos.Wave"
+          type-location { name="local" assembly="Azos.Sky.dll" ns{ name="Azos.Sky.WebManager.Controllers"} }
+          match { name="Typed" order=1 path="mvc/{type}/{mvc-action}" var{query-name="*"} }
+          match { name="Home" order=2 path="{mvc-action}" var{query-name="*"} var{name="type" default="Home"} }
+        }
+      }
+    }
+  }//web-manager
+}

@@ -1,0 +1,10 @@
+noc
+{
+  name="LAX" geo-center="33.9431226,-118.4067249"
+  parent-noc-zone="US/USNational/Controller.z"
+
+  network-routing
+  {
+    route{ network="nocgov" to-address="192.168"}
+  }
+}

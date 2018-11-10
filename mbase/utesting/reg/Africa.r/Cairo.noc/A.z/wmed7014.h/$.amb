@@ -1,0 +1,9 @@
+host
+{
+  name="wmed7014" role="MixedServer" os="win7"
+
+  network-routing
+  {
+    route{ network="internoc" to-address="$(/$name).*"}
+  }
+}

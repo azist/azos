@@ -1,0 +1,19 @@
+//this is a very root of the metabase configuration. Contains attributes for the metabank class itself
+metabase
+{
+  instrumentation-enabled=true
+  //resolve-dynamic-host-net-svc-timeout-ms=5000
+
+  //app-config-include-pragma="_include"
+  //app-config-include-pragmas-disabled=false
+
+  gdid
+  {
+    authority{ host="US/East/CLE/A/I/wmed0001" }
+  }
+  
+  host-set-builder
+  {
+   //inject a custom builder if needed, otherwise default is used
+  }
+}

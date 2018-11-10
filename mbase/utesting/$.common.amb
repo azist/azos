@@ -1,0 +1,11 @@
+//Common metabase level configuration.
+//All metabase "$" level files (not application level "$.app") get inherited from this one
+//This file is useful for declaring global metabase variables/policies
+metabase
+{
+  common
+  {
+    //declare common global vars here
+    var1="value1"
+  }
+}
