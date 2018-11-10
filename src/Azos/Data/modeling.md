@@ -1,7 +1,21 @@
 ﻿# Azos Data Modeling
 
 Azos provides a built-in abstraction for declaring data models - **a relational schema** configuration
-language. This article describes the relational schema compiler tool.
+language. 
+
+The modeling data types are defined in the [Azos.Data.Modeling](./Modeling) namespace.
+
+The idea is to script the model using hierarchical config file, nodes representing tables with child columns
+ and constraints. The RSC tool (described below) takes these files and generates DDL (Data Definition Language)
+for the particular backend technology taking care of nuances such as auto-inc keys and other syntactic differences.
+It is also possible to generate code (e.g. CSharp classes) for data documents directly from the schema definitions.
+
+<img src="/doc/img/rsc-1.svg">
+
+
+This rest of this article describes the relational schema compiler tool.
+
+---
 
 The purpose of **Relational Schema (RS)** is to abstract away the declarative (such as DDL) database 
 design nuances. The syntaxes for the majority of RDBMS solutions (i.e. compare Microsoft SQL and 
@@ -20,6 +34,8 @@ The main advantage of using Azos Relational Schema over other tools (i.e. Entity
 is that this approach allows for **multi database targeting within the same application code base**
 as Azos allows for model [`Field`](Field.cs) attribute multi-targeting and virtual queries against hybrid data 
 stores. Please see the [Data Access](/readme.md) topic. 
+
+The `rsc` is usually included in the build script directly or via Ms Build `exec` step.
 
 
 ```css
@@ -162,7 +178,7 @@ delimiter ;.
 The following snippet declares a mixin called "names" which can be invoked from multiple places 
 throughout the project:
 
-```cs
+```CSharp
 schema
 {
   PK_COLUMN="counter"
@@ -181,7 +197,7 @@ schema
 
 Mixing-in the columns by invoking the mixin script `_call=/scripts/names{}` 
 
-```cs
+```CSharp
 schema
 {
   include="name-of-script-file"{}
