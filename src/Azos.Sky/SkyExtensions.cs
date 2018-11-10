@@ -12,15 +12,7 @@ namespace Azos.Sky
   public static class SkyExtensions
   {
       /// <summary>
-      /// Tries to resolve mnemonic name of the Agni service into port, i.e. "hgov" into int port number
-      /// </summary>
-      public static Node ToResolvedServiceNode(this string connectString, bool appTerminal = false)
-      {
-        return ToResolvedServiceNode(new Node(connectString), appTerminal);
-      }
-
-      /// <summary>
-      /// Tries to resolve mnemonic name of the Agni service into port, i.e. "hgov" into int port number
+      /// Tries to resolve mnemonic name of the Sky service into port, i.e. "hgov" into int port number
       /// </summary>
       public static Node ToResolvedServiceNode(this Node node, bool appTerminal = false)
       {
@@ -35,6 +27,14 @@ namespace Azos.Sky
         var sync = node.Binding.Trim().EqualsIgnoreCase(SysConsts.SYNC_BINDING);
         var port = ServiceNameToPort(node.Service, sync, appTerminal);
         return new Node("{0}://{1}:{2}".Args(node.Binding, node.Host, port));
+      }
+
+      /// <summary>
+      /// Tries to resolve mnemonic name of the Sky service into port, i.e. "hgov" into int port number
+      /// </summary>
+      public static Node ToResolvedServiceNode(this string connectString, bool appTerminal = false)
+      {
+        return ToResolvedServiceNode(new Node(connectString), appTerminal);
       }
 
       /// <summary>

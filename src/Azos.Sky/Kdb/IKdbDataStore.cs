@@ -100,7 +100,7 @@ namespace Azos.Sky.Kdb
     bool Delete(string table, byte[] key);
   }
 
-  public interface IKDBDataStoreImplementation : IKdbDataStore, IDataStoreImplementation
+  public interface IKdbDataStoreImplementation : IKdbDataStore, IDataStoreImplementation
   {
 
   }
