@@ -1,6 +1,11 @@
 ﻿# Azos Data Access
 This section described accessing/working with Data in Azos.
 
+See also:
+- [Data Schema](metadata.md)
+- [Data Validation with Domains](domains.md)
+- [Data Modeling](modeling.md)
+
 ## Overview
 Azos takes a hybrid approach to data access. It is not a strict ORM or strict CRUD, rather a 
 combination of different techniques that are most beneficial for business applications. The ORM
@@ -237,6 +242,8 @@ As illustrated above, the Azos.Wave framework performs **data document injection
 of automatic data binding, which is very convenient in CRUD applications.
 
 See also:
-- [Schema Metadata](metadata.md)
+- [Data Schema](metadata.md)
+- [Data Validation with Domains](domains.md)
+- [Data Modeling](modeling.md)
 
 
