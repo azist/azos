@@ -1,9 +1,12 @@
 ﻿# Data Schema Metadata
+Back to [Documentation Index](/src/documentation-index.md)
+
 This section described accessing/working with Data in Azos.
 See also:
 - [Data Access Overview](readme.md) 
 - [Data Validation with Domains](domains.md)
 - [Data Modeling](modeling.md)
+
 
 ## Overview
 `Azos.Data` namespace implements data `Schema` class which provides definitions for data documents. This is 
@@ -97,14 +100,14 @@ The following table describes `FieldAttribute` properties (that is: metadata for
  Name |Type| Description
  ---- |----|-----------
  storeFlag |StoreFlag| Specifies whether field is skipped, stored, loaded or stored and loaded
- key |bool| True to indicate that this field is (a part of) primary key
+ key |bool| True to indicate that this field is a (part of) primary key
  kind |DataKind| Specifies data kinds such as: `Text, ScreenName, Color, Date, DateTime, DateTimeLocal, EMail, Month, Number, Range, Money, Search, Telephone, Time, Url, Week`
- required|bool| True to indicate that field must be non-null value
- visible|bool| True indicates that field is shown on UI (used for MVVM)
+ required|bool| True to indicate that field must have a non-null value
+ visible|bool| True indicates that field is shown on the UI (used for MVVM)
 valueList|string| A delimited list of permissible lookup values (lookup dictionary)
 dflt|object|Default field value (if any)
-min|object|Minimum permissible value or null
-max|object|Maximum permissible value or null
+min|object|Minimum allowed value or null
+max|object|Maximum allowed value or null
 minLength|int|Minimum data length, 0 = no limit
 maxLength|int|Maximum data length, 0 = no limit
 charCase|CharCase|Defaults to `AsIs`. CharCases are: `AsIs, Upper, Lower, Caps` *The first and subsequent chars after space or '.' are capitalized, the rest left intact*, `CapsNorm` - *The first and subsequent chars after space or '.' are capitalized, the rest is lower-cased*
@@ -240,3 +243,5 @@ See also:
 - [Data Access Overview](readme.md)
 - [Data Validation with Domains](domains.md)
 - [Data Modeling](modeling.md)
+
+Back to [Documentation Index](/src/documentation-index.md)
