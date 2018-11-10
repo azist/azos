@@ -36,9 +36,6 @@ namespace Azos.Tests.Unit.Sky
       [Run]
       public void GlobalVarsPassThroughToOS()
       {
-        //This test requires OS var AGNI_MESSAGE_UTEST = "Hello AGNI!".
-        //Please set it up on your machine
-
         var conf = Configuration.ProviderLoadFromString(
         @"
            sky
