@@ -40,8 +40,8 @@ contracts
 
     map
     {
-      client-contract="Azos.Sky.Contracts.IGDIDAuthorityClient, Azos.Sky"
-      implementor="Azos.Sky.Clients.GDIDAuthority, Azos.Sky"
+      client-contract="Azos.Sky.Contracts.IGdidAuthorityClient, Azos.Sky"
+      implementor="Azos.Sky.Clients.GdidAuthority, Azos.Sky"
       service=$(~SysConsts.NETWORK_SVC_GDID_AUTHORITY)
       net=$(~SysConsts.NETWORK_INTERNOC)
     }

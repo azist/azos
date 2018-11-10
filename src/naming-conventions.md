@@ -53,8 +53,8 @@ Code fold/regions:
 * Static methods
 * .ctors
 * .dctors (override Destroy() if any)
-* Private fields/state holder (near cotr visually = easier to read)
-* Properties (ususally reference provate fields)
+* Private fields/state holder (near .ctor visually = easier to read)
+* Properties (usually reference private fields)
 * Public methods
 * Protected methods
 * .pvt implementation (at the very end)
@@ -65,5 +65,5 @@ Code fold/regions:
 
 ## Microsoft Code Analysis Rules
 Azos project **follows its own standard** and MSFT-defined typical .Net/FxCop rules do not apply by design. 
-We tried to use FxCop and Roslyn-based CA and found that required customizations (supression/change attributes)
-add much complexity and do not add any value for Azos which des not follow .Net guidelines.
+We tried to use FxCop and Roslyn-based CA and found that required customizations (suppression/change attributes)
+add much complexity and do not add any value for Azos which does not follow the default .Net guidelines.
