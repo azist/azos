@@ -10,7 +10,7 @@ The idea is to script the model using hierarchical config file, nodes representi
 for the particular backend technology taking care of nuances such as auto-inc keys and other syntactic differences.
 It is also possible to generate code (e.g. CSharp classes) for data documents directly from the schema definitions.
 
-<img src="/doc/img/rsc-1.svg">
+<img src="/doc/img/rsc-1.png">
 
 
 This rest of this article describes the relational schema compiler tool.
