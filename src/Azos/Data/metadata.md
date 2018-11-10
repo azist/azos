@@ -1,6 +1,9 @@
 ﻿# Data Schema Metadata
 This section described accessing/working with Data in Azos.
-See also [Data Access Overview](readme.md) [Data Validation with Domains](domains.md)
+See also:
+- [Data Access Overview](readme.md) 
+- [Data Validation with Domains](domains.md)
+- [Data Modeling](modeling.md)
 
 ## Overview
 `Azos.Data` namespace implements data `Schema` class which provides definitions for data documents. This is 
@@ -173,6 +176,22 @@ If you need to make some changes to metadata in a proto-cloned field, you can do
   public string Last_Name { get; set; }
 ```
 
+Here is an example how forms being used in `Azos.Wave.Mvc` controller:
+```CSharp
+  [SiteUserPermission, UserSocialVisibilityPermission]
+  [Action("response", 0, "match{methods=POST accept-json=true}")]
+  public object ResponsePost(ResponseForm form)
+  {
+    var error = form.Validate();
+    object data;
+    if (error == null)
+        error = form.Save(out data);
+    return new JSONResult(new { OK = error == null, error?.Message }, JSONWritingOptions.Compact);
+  }
+```
+
+
+
 ## Data Validation
 Data documents validate data by calling  [`Doc.Validate()`](Doc.cs#L238) which in turn loops though all fields
  and calls [`ValidateField()`](Doc.cs#L242) for each.
@@ -220,3 +239,4 @@ metadata supplied via `[Field]` attributes:
 See also:
 - [Data Access Overview](readme.md)
 - [Data Validation with Domains](domains.md)
+- [Data Modeling](modeling.md)
