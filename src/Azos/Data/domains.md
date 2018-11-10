@@ -230,7 +230,9 @@ have required the significant increase in an overall solution complexity and cre
 * compare older schema db instance with newer schema instance (just generated) - most tools will generate ALTER scripts automatically
 * keep in mind that applying ALTER table may get dangerous on large datasets - **always talk to your DBA** (e.g. db may need to have a double free space for a temp table rewrite during ALTERation of clustered keys, addition of many columns etc.)
 
-
+Additional info:
+- [Altering a Large MySQL Table without Downtime](https://dba.stackexchange.com/questions/182330/alter-large-table-without-downtime)
+- [Altering a Column in a Large Table](https://sqlstudies.com/2016/07/14/altering-a-column-in-a-large-table-a-case-study/)
 
 See also:
 - [Data Access Overview](readme.md)
