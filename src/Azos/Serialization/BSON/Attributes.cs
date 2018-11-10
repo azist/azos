@@ -9,7 +9,8 @@ using System;
 namespace Azos.Serialization.BSON
 {
   /// <summary>
-  /// Denotes types that support BSON serialization by GUID
+  /// Denotes types that support BSON serialization identified by GUID.
+  /// The Guid is used to rehydrate an actual CLR type from BSON stream
   /// </summary>
   [AttributeUsage( AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
   public class BSONSerializableAttribute : Apps.GuidTypeAttribute

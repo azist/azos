@@ -91,9 +91,9 @@ namespace Azos.Tests.Unit.Sky.Metabase
           var mb = Metabase;
 
           Aver.AreEqual("async://localhost:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/I/wmed0001", "internoc", "zgov", null, "US/East/JFK/A/wmed1024"));
-          Aver.AreEqual("async://wmed0002.us1.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/I/wmed0002", "internoc", "zgov", null, "US/East/JFK/A/wmed1024"));
-          Aver.AreEqual("async://wmed0003.us1.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0003", "internoc", "zgov", null, "US/East/JFK/A/wmed1024"));
-          Aver.AreEqual("async://wmed0004.us1.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0004", "internoc", "zgov", null, "US/East/JFK/A/wmed1024"));
+          Aver.AreEqual("async://wmed0002.us1.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/I/wmed0002", "internoc", "zgov", null, "US/East/JFK/A/wmed1024"));
+          Aver.AreEqual("async://wmed0003.us1.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0003", "internoc", "zgov", null, "US/East/JFK/A/wmed1024"));
+          Aver.AreEqual("async://wmed0004.us1.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0004", "internoc", "zgov", null, "US/East/JFK/A/wmed1024"));
       }
 
       [Run]
@@ -103,13 +103,13 @@ namespace Azos.Tests.Unit.Sky.Metabase
 
           //AMS->CLE
           Aver.AreEqual("async://localhost:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/I/wmed0001", "internoc", "zgov", null,  "Europe/West/AMS/A/wmed2024"));
-          Aver.AreEqual("async://wmed0002.us3.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/I/wmed0002", "internoc", "zgov", null,  "Europe/West/AMS/A/wmed2024"));
-          Aver.AreEqual("async://wmed0003.us3.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0003", "internoc", "zgov", null, "Europe/West/AMS/A/wmed2024"));
-          Aver.AreEqual("async://wmed0004.us3.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0004", "internoc", "zgov", null, "Europe/West/AMS/A/wmed2024"));
+          Aver.AreEqual("async://wmed0002.us3.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/I/wmed0002", "internoc", "zgov", null,  "Europe/West/AMS/A/wmed2024"));
+          Aver.AreEqual("async://wmed0003.us3.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0003", "internoc", "zgov", null, "Europe/West/AMS/A/wmed2024"));
+          Aver.AreEqual("async://wmed0004.us3.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0004", "internoc", "zgov", null, "Europe/West/AMS/A/wmed2024"));
 
           //CLE->AMS
-          Aver.AreEqual("async://wmed2024.eu3.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("Europe/West/AMS/A/wmed2024", "internoc", "zgov", null,  "US/East/CLE/A/I/wmed0001"));
-          Aver.AreEqual("async://wmed2025.eu3.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("Europe/West/AMS/A/wmed2025", "internoc", "zgov", null,  "US/East/CLE/A/I/wmed0001"));
+          Aver.AreEqual("async://wmed2024.eu3.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("Europe/West/AMS/A/wmed2024", "internoc", "zgov", null,  "US/East/CLE/A/I/wmed0001"));
+          Aver.AreEqual("async://wmed2025.eu3.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("Europe/West/AMS/A/wmed2025", "internoc", "zgov", null,  "US/East/CLE/A/I/wmed0001"));
       }
 
       [Run]
@@ -176,19 +176,19 @@ namespace Azos.Tests.Unit.Sky.Metabase
 
           //AMS->CLE
           Aver.AreEqual("async://localhost:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/I/wmed0001", "internoc", "zgov", null,  "Europe/West/AMS/A/wmed2024"));
-          Aver.AreEqual("async://wmed0002.us3.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/I/wmed0002", "internoc", "zgov", null,  "Europe/West/AMS/A/wmed2024"));
-          Aver.AreEqual("async://wmed0003.us3.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0003", "internoc", "zgov", null, "Europe/West/AMS/A/wmed2024"));
-          Aver.AreEqual("async://wmed0004.us3.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0004", "internoc", "zgov", null, "Europe/West/AMS/A/wmed2024"));
+          Aver.AreEqual("async://wmed0002.us3.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/I/wmed0002", "internoc", "zgov", null,  "Europe/West/AMS/A/wmed2024"));
+          Aver.AreEqual("async://wmed0003.us3.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0003", "internoc", "zgov", null, "Europe/West/AMS/A/wmed2024"));
+          Aver.AreEqual("async://wmed0004.us3.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0004", "internoc", "zgov", null, "Europe/West/AMS/A/wmed2024"));
 
 
           //CLE->AMS
-          Aver.AreEqual("async://wmed2024.eu3.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("Europe/West/AMS/A/wmed2024", "internoc", "zgov", null,  "US/East/CLE/A/I/wmed0001"));
-          Aver.AreEqual("async://wmed2025.eu3.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("Europe/West/AMS/A/wmed2025", "internoc", "zgov", null,  "US/East/CLE/A/I/wmed0001"));
+          Aver.AreEqual("async://wmed2024.eu3.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("Europe/West/AMS/A/wmed2024", "internoc", "zgov", null,  "US/East/CLE/A/I/wmed0001"));
+          Aver.AreEqual("async://wmed2025.eu3.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("Europe/West/AMS/A/wmed2025", "internoc", "zgov", null,  "US/East/CLE/A/I/wmed0001"));
 
           Aver.AreEqual("async://localhost:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/I/wmed0001", "internoc", "zgov", null, "US/East/JFK/A/wmed1024"));
-          Aver.AreEqual("async://wmed0002.us1.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/I/wmed0002", "internoc", "zgov", null, "US/East/JFK/A/wmed1024"));
-          Aver.AreEqual("async://wmed0003.us1.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0003", "internoc", "zgov", null, "US/East/JFK/A/wmed1024"));
-          Aver.AreEqual("async://wmed0004.us1.internoc.agnicore.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0004", "internoc", "zgov", null, "US/East/JFK/A/wmed1024"));
+          Aver.AreEqual("async://wmed0002.us1.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/I/wmed0002", "internoc", "zgov", null, "US/East/JFK/A/wmed1024"));
+          Aver.AreEqual("async://wmed0003.us1.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0003", "internoc", "zgov", null, "US/East/JFK/A/wmed1024"));
+          Aver.AreEqual("async://wmed0004.us1.internoc.zhabis.com:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/II/wmed0004", "internoc", "zgov", null, "US/East/JFK/A/wmed1024"));
 
 
           Aver.AreEqual("async://localhost:9200", mb.ResolveNetworkServiceToConnectString("US/East/CLE/A/I/wmed0001", "nocgov", "hgov", null, "US/East/CLE/A/I/wmed0001"));
