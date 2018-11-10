@@ -1,4 +1,5 @@
 ﻿# Azos Data Modeling
+Back to [Documentation Index](/src/documentation-index.md)
 
 Azos provides a built-in abstraction for declaring data models - **a relational schema** configuration
 language. 
@@ -224,3 +225,5 @@ See also:
 - [Data Access Overview](readme.md)
 - [Data Schema](metadata.md)
 - [Data Validation with Domains](domains.md)
+
+Back to [Documentation Index](/src/documentation-index.md)

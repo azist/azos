@@ -1,4 +1,7 @@
 ﻿# Azos Data Access
+
+Back to [Documentation Index](/src/documentation-index.md)
+
 This section described accessing/working with Data in Azos.
 
 See also:
@@ -245,5 +248,7 @@ See also:
 - [Data Schema](metadata.md)
 - [Data Validation with Domains](domains.md)
 - [Data Modeling](modeling.md)
+
+Back to [Documentation Index](/src/documentation-index.md)
 
 

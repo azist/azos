@@ -19,6 +19,10 @@
   * XML configuration
   * Json configuration
 * [Data Access](/src/Azos/Data)
+  * [Data Access Overview](/src/Azos/Data) 
+  * [Schema Metadata](/src/Azos/Data/metadata.md)
+  * [Data Validation with Domains](/src/Azos/Data/domains.md)
+  * [Data Modeling](/src/Azos/Data/modeling.md)
 * [Glue](/src/Azos/Glue) - interprocess communication
 * [Logging](/src/Azos/Log) - logging and sinks
 * [Instrumentation](/src/Azos/Instrumentation) - telemetry with gauges and events
