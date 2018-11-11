@@ -8,7 +8,7 @@ application
   {
     provider
     {
-      file="/includes/test.laconf"
+      file="/inc/test.laconf"
       type="Azos.Sky.Metabase.MetabankFileConfigNodeProvider, Azos.Sky"
     }
   }
