@@ -64,7 +64,7 @@ Metabase sections contain multiple config files, the **`$` symbol** in the name 
 
 Pattern|Purpose
 |-|-|
-|$.amb|Metabase data (Azos Metabase) config file. Contains metabase data, not application config
+|$.sky|Metabase data (Azos Sky Metabase) configuration file. Contains metabase data, not application config
 |$.app.laconf|Provides application configuration override for any app
 |$.XYZ.app.laconf|Provides application configuration override for app called XYZ
 

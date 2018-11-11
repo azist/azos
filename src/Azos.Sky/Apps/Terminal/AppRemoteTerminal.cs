@@ -23,7 +23,7 @@ namespace Azos.Sky.Apps.Terminal
 {
 
   /// <summary>
-  /// Provides basic app-management capabilities
+  /// Provides base for terminal application management capabilities
   /// </summary>
   [Serializable]
   public class AppRemoteTerminal : ApplicationComponent, IRemoteTerminal, INamed, IDeserializationCallback, IConfigurable

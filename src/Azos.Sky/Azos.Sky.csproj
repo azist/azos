@@ -7,10 +7,12 @@
 
   <ItemGroup>
     <None Remove="BUILD_INFO.txt" />
+    <None Remove="Hosts\agdida\Welcome.txt" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="BUILD_INFO.txt" />
+    <EmbeddedResource Include="Hosts\agdida\Welcome.txt" />
   </ItemGroup>
 
   <ItemGroup>

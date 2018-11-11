@@ -32,12 +32,13 @@ namespace Azos.CodeAnalysis.Laconfig
     {
         get
         {
-            yield return "lac";
-            yield return "lacon";
+            //move most commonly used names to the top for faster search
             yield return "laconf";
-            yield return "laconfig";
+            yield return "sky";
             yield return "rschema";
-            yield return "amb";
+            yield return "laconfig";
+            yield return "laconic";
+            yield return "lcf";
         }
     }
 

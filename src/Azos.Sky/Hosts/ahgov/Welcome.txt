@@ -1,0 +1,6 @@
+﻿<push><b color=black><f color=white>
+Azos Sky Host Governor<f color=gray>
+Copyright (c) 2018 Azist Group
+Version 1.0 / Nov 2018
+
+<pop>
