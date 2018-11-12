@@ -12,5 +12,5 @@ before_build:
   - nuget restore
 
 
-##skip testing altogether (temporarily)
+##skip testing altogether (temporarily, then use runner)
 test: off
