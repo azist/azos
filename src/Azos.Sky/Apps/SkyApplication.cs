@@ -19,7 +19,7 @@ namespace Azos.Sky.Apps
   /// Provides base implementation of ISkyApplication for applications like services and console apps.
   /// This class IS thread safe
   /// </summary>
-  public class SkyServiceApplication : ServiceBaseApplication, ISkyApplication
+  public class SkyApplication : ServiceBaseApplication, ISkyApplication
   {
     #region CONSTS
 
@@ -35,7 +35,7 @@ namespace Azos.Sky.Apps
 
     #region .ctor
 
-      public SkyServiceApplication(SystemApplicationType sysAppType, string[] args, ConfigSectionNode rootConfig)
+      public SkyApplication(SystemApplicationType sysAppType, string[] args, ConfigSectionNode rootConfig)
         : base(BootConfLoader.SetSystemApplicationType(sysAppType, args), rootConfig)
       {}
 
@@ -63,9 +63,9 @@ namespace Azos.Sky.Apps
     #region Properties
 
       /// <summary>
-      /// References a singleton instance of SkyServiceApplication
+      /// References a singleton instance of SkyApplication
       /// </summary>
-      public static SkyServiceApplication Instance {  get{ return App.Instance as SkyServiceApplication; }  }
+      public static SkyApplication Instance {  get{ return App.Instance as SkyApplication; }  }
 
       /// <summary>
       /// Denotes system application/process type that this app container has, i.e.:  HostGovernor, WebServer, etc.

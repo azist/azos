@@ -32,7 +32,7 @@ namespace Azos.Sky.WebManager
      /// </summary>
      public static string BuildMenu(string isoLang)
      {
-       var menu = App.ConfigRoot[SkyServiceApplication.CONFIG_WEB_MANAGER_SECTION][CONFIG_MENU_SECTION];
+       var menu = App.ConfigRoot[SkyApplication.CONFIG_WEB_MANAGER_SECTION][CONFIG_MENU_SECTION];
        if (!menu.Exists) return string.Empty;
        var result = new StringBuilder();
 

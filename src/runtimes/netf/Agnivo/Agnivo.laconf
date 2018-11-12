@@ -1,0 +1,14 @@
+﻿app
+{
+  app-name="agnivo"
+  log-csv="Azos.Log.Sinks.CSVFileSink, Azos"
+  log-debug="Azos.Log.Sinks.DebugSink, Azos"
+  debug-default-action="LogAndThrow"
+  trace-disable=true
+
+  log
+  {
+    name=$(/$app-name)
+    sink { type=$(/$log-csv) name="csv" path="" file-name="{0:yyyyMMdd}-$($name).csv.log" }
+  }
+}

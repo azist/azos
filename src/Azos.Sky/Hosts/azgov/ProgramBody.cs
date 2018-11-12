@@ -33,7 +33,7 @@ namespace Azos.Sky.Hosts.azgov
     {
       const string FROM = "AZGOV.Program";
 
-      using (var app = new SkyServiceApplication(SystemApplicationType.ZoneGovernor, args, null))
+      using (var app = new SkyApplication(SystemApplicationType.ZoneGovernor, args, null))
       {
         try
         {

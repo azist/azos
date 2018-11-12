@@ -47,7 +47,7 @@ namespace Azos.Sky.Hosts.ash
     {
       const string FROM = "ASH.Program";
 
-      using (var app = new SkyServiceApplication(SystemApplicationType.ServiceHost, args, null))
+      using (var app = new SkyApplication(SystemApplicationType.ServiceHost, args, null))
       {
         try
         {

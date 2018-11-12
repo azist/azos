@@ -33,7 +33,7 @@ namespace Azos.Sky.Hosts.agdida
     {
       const string FROM = "AGDIDA.Program";
 
-      using (var app = new SkyServiceApplication(SystemApplicationType.GDIDAuthority, args, null))
+      using (var app = new SkyApplication(SystemApplicationType.GDIDAuthority, args, null))
       {
         try
         {

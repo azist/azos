@@ -47,7 +47,7 @@ namespace Azos.Sky.Hosts.aws
     {
       const string FROM = "AWS.Program";
 
-      using (var app = new SkyServiceApplication(SystemApplicationType.WebServer, args, null))
+      using (var app = new SkyApplication(SystemApplicationType.WebServer, args, null))
       {
         try
         {

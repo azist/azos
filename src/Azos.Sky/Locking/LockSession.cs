@@ -6,7 +6,6 @@ using Azos.Collections;
 
 namespace Azos.Sky.Locking
 {
-
   /// <summary>
   /// Identifies a locking session
   /// </summary>

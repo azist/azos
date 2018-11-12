@@ -42,7 +42,7 @@ namespace Azos.Sky.Workers
     private ProcessDescriptor m_SysDescriptor;
 
     /// <summary>
-    /// Infrustructure method, developers do not call
+    /// Infrastructure method, developers do not call
     /// </summary>
     public void ____Deserialize(ProcessDescriptor descriptor)
     { m_SysDescriptor = descriptor; }
@@ -70,7 +70,7 @@ namespace Azos.Sky.Workers
 
     /// <summary>
     /// Executes merge operation on the existing process and another instance which tries to get spawned.
-    /// This method MUST execute be VERY FAST and only contain merge logic, do not make externall IO calls -
+    /// This method MUST execute be VERY FAST and only contain merge logic, do not make external IO calls -
     /// all business data must already be contained in the original and another instance
     /// </summary>
     protected internal abstract void Merge(IProcessHost host, DateTime utcNow, Process another);
@@ -85,7 +85,7 @@ namespace Azos.Sky.Workers
       if (signal is TerminateSignal)
       {
         var finish = signal as TerminateSignal;
-        UpdateStatus(host, ProcessStatus.Terminated, "Treminated!!!!", App.TimeSource.UTCNow, finish.SysAbout);
+        UpdateStatus(host, ProcessStatus.Terminated, "Terminated!!!!", App.TimeSource.UTCNow, finish.SysAbout);
         host.Update(this, true);
         return OkSignal.Make(this);
       }

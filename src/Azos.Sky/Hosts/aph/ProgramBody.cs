@@ -47,7 +47,7 @@ namespace Azos.Sky.Hosts.aph
     {
       const string FROM = "APH.Program";
 
-      using (var app = new SkyServiceApplication(SystemApplicationType.ProcessHost, args, null))
+      using (var app = new SkyApplication(SystemApplicationType.ProcessHost, args, null))
       {
         try
         {

@@ -1,0 +1,24 @@
+﻿settings
+{
+  windows
+  {
+    window
+    {
+      name=MainForm
+      width=520
+      height=240
+      left=590
+      top=430
+      state=Normal
+    }
+    window
+    {
+      name=DecodedBSONForm
+      width=630
+      height=447
+      left=255
+      top=130
+      state=Normal
+    }
+  }
+}
