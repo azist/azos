@@ -10,4 +10,9 @@ vector graphics/SVGs etc.) are under `/elm`
 
 Check out: [Naming Conventions](naming-conventions.md)
 
-See: [Azos Documentation Index](documentation-index.md)
+See Also: 
+- [Azos Documentation Index](documentation-index.md)
+
+External resources:
+- [Monorepo Project Structure (Wikipedia)](https://en.wikipedia.org/wiki/Monorepo)
+- [Pattern: Microservice Chassis](https://microservices.io/patterns/microservice-chassis.html)
