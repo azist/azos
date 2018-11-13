@@ -15,7 +15,7 @@ function global_READY()
             location.href = $( event.target ).attr("href");
         });
   }
-};
+}
 
 
 WAVE.LOCALIZER.rus =

@@ -657,7 +657,7 @@ WAVE.RecordModel.GUI = (function () {
             var divErrorParent = fldView.__ve.parentNode;
             if (divErrorParent) divErrorParent.removeChild(fldView.__ve);
             fldView.__ve = null;
-          };
+          }
 
           if (!fldView.__tabs || (ve && !fldView.__ve)) {
             var idMDEText = "mde_text" + ids,
