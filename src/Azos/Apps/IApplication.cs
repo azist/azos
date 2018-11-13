@@ -63,7 +63,7 @@ namespace Azos.Apps
      /// <summary>
      /// Returns true when application instance is active and working. This property returns false as soon as
      /// application finalization starts on shutdown or Stop() was called.
-     /// Used to exit background workers gracefuly (e.g. reactor completion threads, abort pending tasks etc.)
+     /// Used to exit background workers gracefully (e.g. reactor completion threads, abort pending tasks etc.)
      /// </summary>
      bool Active { get; }
 

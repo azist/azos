@@ -339,7 +339,7 @@ namespace Azos.Tests.Unit.Glue
 
                 cl.ForgetRemoteInstance();
 
-                Aver.AreEqual("Felix", cl.GetName()); //this will allocate the new isntance
+                Aver.AreEqual("Felix", cl.GetName()); //this will allocate the new instance
 
                 sum = cl.SummarizeAndFinish(); // this will kill the instance again
                 Aver.AreEqual("That is all! but no person of the day was set", sum);

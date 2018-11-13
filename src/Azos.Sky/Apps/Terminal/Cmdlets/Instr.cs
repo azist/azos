@@ -72,7 +72,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
 
                 default:
                 {
-                    break;//dont change anything
+                    break;//don't change anything
                 }
             }
 

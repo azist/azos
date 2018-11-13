@@ -50,8 +50,8 @@ namespace Azos.Collections
 
     /// <summary>
     /// If set > 0, imposes a limit on the maximum number of entries.
-    /// When Count exceeds the limit the set asynchronously capps the capacity by
-    /// removing older entries. The limit does not guarantee the instant or exact consistency with the Count property
+    /// When Count exceeds the limit the set asynchronously caps the total number of entries by
+    /// removing the older elements. The limit does not guarantee the instantaneous or exact consistency with the Count property
     /// </summary>
     public int SizeLimit
     {
@@ -113,7 +113,7 @@ namespace Azos.Collections
     }
 
     /// <summary>
-    /// Atomic operation which tries to remove and existing memeber returning true
+    /// Atomic operation which tries to remove and existing member returning true
     /// </summary>
     public bool Remove(T item)
     {

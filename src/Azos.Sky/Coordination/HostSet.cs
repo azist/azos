@@ -16,7 +16,7 @@ namespace Azos.Sky.Coordination
 {
   /// <summary>
   /// Represents a set of hosts that perform some common work.
-  /// Pramarily used for sharding work among hosts in the set.
+  /// Primarily used for sharding work among hosts in the set.
   /// The data is fed from the Metabase, and supports static and dynamic sets.
   /// Static sets have a metabase-fixed number of hosts, whereas dynamic sets
   /// may include dynamic hosts (as allocated by IaaS provider).
@@ -192,7 +192,7 @@ namespace Azos.Sky.Coordination
     /// </summary>
     public virtual HostPair AssignHost(object shardingKey)
     {
-      var hosts = m_Hosts;//thread-safe copy, as during excecution another may swap
+      var hosts = m_Hosts;//thread-safe copy, as during execution another may swap
 
       if (hosts == null || hosts.Length == 0) return new HostPair();
 

@@ -21,7 +21,7 @@ namespace Azos.Collections
   /// i.e. this is needed to keep a count of calls to remote host identified by their names.
   /// This class is NOT designed for frequent additions/deletions of named slots, nor was it designed
   /// to keep millions of slots. Use it in cases when there are thousands at most slots and new slots
-  /// appear infrequently. You must delete un-needed slots
+  /// appear infrequently. You must delete unneeded slots
   /// </summary>
   public class NamedInterlocked
   {
@@ -54,7 +54,7 @@ namespace Azos.Collections
 
       /// <summary>
       /// Enumerates all named integers. This operation is thread-safe, and returns a snapshot of the instance taken at the time of the first call.
-      /// If exchange is specified, atomicaly flips the value of every slot
+      /// If exchange is specified, atomically flips the value of every slot
       /// </summary>
       public IEnumerable<KeyValuePair<string, long>> SnapshotAllLongs(long? exchange = null)
       {
@@ -66,7 +66,7 @@ namespace Azos.Collections
 
       /// <summary>
       /// Enumerates all named amounts. This operation is thread-safe, and returns a snapshot of the instance taken at the time of the first call
-      /// If exchange is specified, atomicaly flips the value of every slot
+      /// If exchange is specified, atomically flips the value of every slot
       /// </summary>
       public IEnumerable<KeyValuePair<string, Amount>> SnapshotAllAmounts(decimal? exchange = null)
       {
@@ -81,7 +81,7 @@ namespace Azos.Collections
 
       /// <summary>
       /// Records a snapshot of all longs converted into TDatum. The TDatum must have a public .ctor(string, long) or runtime exception is thrown
-      /// (this is because C# does not have a contract/constraint for parameterized cosntructors)
+      /// (this is because C# does not have a contract/constraint for parameterized constructors)
       /// </summary>
       public void SnapshotAllLongsInto<TDatum>(long? exchange = null, Instrumentation.IInstrumentation instrumentation = null) where TDatum : Instrumentation.Datum
       {

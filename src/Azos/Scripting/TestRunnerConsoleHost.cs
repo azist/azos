@@ -346,7 +346,7 @@ namespace Azos.Scripting
           Console.Write("[Error[{0}]]".Args(nesting));
         Console.ForegroundColor = error is ScriptingException ? ConsoleColor.Cyan : ConsoleColor.Magenta;
         Console.WriteLine(" "+error.ToMessageWithType());
-        Console.WriteLine(error.StackTrace); //todo stack trace conditionaly
+        Console.WriteLine(error.StackTrace); //todo stack trace conditionally
         Console.WriteLine();
 
         error = error.InnerException;

@@ -14,7 +14,7 @@ using Azos.Conf;
 namespace Azos.Sky.Apps.Terminal
 {
     /// <summary>
-    /// Provides generalizatin for commandlet - terminal command handler
+    /// Provides generalization for commandlet - terminal command handler
     /// </summary>
     public abstract class Cmdlet : DisposableObject
     {

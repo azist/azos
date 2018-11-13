@@ -22,14 +22,14 @@ namespace Azos
       {
         /// <summary>
         /// The application may use memory in a regular way without restraints. For example, a component
-        /// may pre-allocate a few hundred megabayte lookup table on stratup trading space for speed.
+        /// may preallocate a few hundred megabyte lookup table on startup trading space for speed.
         /// </summary>
         Regular = 0,
 
         /// <summary>
         /// The application must try to use memory sparingly and not allocate large cache and buffers.
         /// This mode is typically used in a constrained 32bit apps and smaller servers. This mode gives
-        /// a hint to components not to pre-allocate too much (e.g. do not pre-load 100 mb ZIP code database on startup)
+        /// a hint to components not to preallocate too much (e.g. do not preload 100 mb ZIP code database on startup)
         /// on startup. Trades performance for lower memory consumption
         /// </summary>
         Compact = -1,
@@ -58,8 +58,8 @@ namespace Azos
 
       /// <summary>
       /// Sets the memory utilization model for the whole app.
-      /// This setting is NOT configurable. It may be set at process entrypoint via a call to
-      /// App.SetMemoryModel() before the app contrainer spawns.
+      /// This setting is NOT configurable. It may be set at process entry-point via a call to
+      /// App.SetMemoryModel() before the app container spawns.
       /// Typical applications should not change the defaults.
       /// Some system service providers may examine this property to allocate less cache and temp buffers
       /// in the memory-constrained environments
@@ -80,7 +80,7 @@ namespace Azos
 
 
       /// <summary>
-      /// Returns current session, this is a shortuct to ExecutionContext.Session
+      /// Returns current session, this is a shortcut to ExecutionContext.Session
       /// </summary>
       public static ISession Session =>  ExecutionContext.Session;
 
