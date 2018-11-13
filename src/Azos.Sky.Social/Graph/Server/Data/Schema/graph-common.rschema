@@ -1,0 +1,49 @@
+schema
+{
+  PK_COLUMN = "GDID"
+
+  TRUE='T'
+  FALSE='F'
+
+  //Domain types used by Graph System
+  TRequiredGDID    = "GSRequiredGDID"
+  TRequiredGDIDRef = "GSRequiredGDIDRef"
+  TNullableGDID    = "GSNullableGDID"
+  TNullableGDIDRef = "GSNullableGDIDRef"
+
+  TBool    = "GSBool"
+  TCounter = "GSCounter"
+
+  TRUE  = 'T'
+  FALSE = 'F'
+
+  TTimestamp     = "GSTimestamp"
+  TDescription   = "GSDescription"
+  TBSONData      = "GSBSONData"
+  TParameters    = "GSParameters"
+
+  TNodeType      = "GSNodeType"
+  TNodeName      = "GSNodeName"
+
+  TFriendListID           = "GSFriendListID"
+  TFriendListIDs          = "GSFriendListIDs"
+  TFriendStatus           = "GSFriendStatus"
+  TFriendshipReqDirection = "GSFriendshipRequestDirection"
+  TFriendVisibility       = "GSFriendVisibility"
+
+  TMessageType = "GSMessageType"
+
+  TRating        = "GSRating"
+  TCommentMessage = "GSCommentMessage"
+  TLike          = "GSLike"
+
+  TPublicationState = "GSPublicationState"
+  TDimension = "GSDimension"
+
+  scripts
+  {
+    script-only=true
+    gdid   { column=$(/$PK_COLUMN) { type=$(/$TRequiredGDID)} primary-key{ column=$(/$PK_COLUMN){} } }
+    in-use { column=In_Use         { type=$(/$TBool) required=true  comment="Logical Deletion flag"} }
+  }
+}

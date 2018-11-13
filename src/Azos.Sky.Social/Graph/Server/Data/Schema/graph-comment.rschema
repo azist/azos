@@ -1,0 +1,43 @@
+﻿schema
+{
+  include="graph-common.rschema"{}
+
+  table=Comment
+  {
+    comment="Hold comments and rating"
+
+    _call=/scripts/gdid{}
+
+    column=VOL  { type=$(/$TRequiredGDIDRef)                 comment="Briefcase rating message" }
+    column=ATR  { type=$(/$TRequiredGDIDRef)                 comment="Author" }
+    column=TRG  { type=$(/$TRequiredGDIDRef)                 comment="What rated" }
+
+    column=DIM  { type=$(/$TDimension)        required=true  comment="Dimension"}
+    column=ROOT { type=$(/$TBool)             required=true  comment="Is root"}
+    column=PAR  { type=$(/$TNullableGDIDRef)                 comment="This is a response to parent" }
+    column=MSG  { type=$(/$TCommentMessage)   required=false comment="Comment message"}
+    column=DAT  { type=$(/$TBSONData)         required=false comment="Comment message data. BSON"}
+    column=CDT  { type=$(/$TTimestamp)        required=true  comment="The UTC date of volume creation"}
+    column=LKE  { type=$(/$TLike)             required=true  comment="Liked"}
+    column=DIS  { type=$(/$TLike)             required=true  comment="Disliked"}
+    column=CMP  { type=$(/$TLike)             required=true  comment="Count of complaints"}
+    column=PST  { type=$(/$TPublicationState) required=true  comment="Publication state"}
+    column=RTG  { type=$(/$TRating)           required=true  comment="Rating 1-5"}
+    column=RCNT { type=$(/$TCounter)          required=true  comment="Response count"}
+
+    _call=/scripts/in-use{}
+  }
+
+  table=complaint
+  {
+    _call=/scripts/gdid {}
+    column=CMT  { type=$(/$TRequiredGDIDRef) comment="Reference to comment that complaint is for" }
+    column=ATH  { type=$(/$TRequiredGDIDRef) comment="Author graph node" }
+    column=KND  { type=$(/$TMessageType)     required=true  comment="Kind of complaint" }
+    column=MSG  { type=$(/$TCommentMessage)  required=false comment="Complaint message" }
+    column=CDT  { type=$(/$TTimestamp)       required=true  comment="The UTC date of complaint creation" }
+    _call=/scripts/in-use{}
+
+    index=cmt {column=CMT{}}
+  }
+}

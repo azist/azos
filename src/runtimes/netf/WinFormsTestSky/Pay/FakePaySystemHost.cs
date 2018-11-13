@@ -7,6 +7,7 @@ using System.Linq;
 using Azos;
 using Azos.Conf;
 using Azos.Web.Pay;
+using Azos.Data;
 using Azos.Web.Pay.Mock;
 using Azos.Serialization.Slim;
 using Azos.Financial;
@@ -221,7 +222,7 @@ namespace WinFormsTestSky.Pay
 
       private static ConcurrentDictionary<object, byte[]> m_Transactions = new ConcurrentDictionary<object,byte[]>();
 
-      private ICurrencyMarket m_CurrencyMarket = new NFX.Web.Pay.ConfigBasedCurrencyMarket();
+      private ICurrencyMarket m_CurrencyMarket = new Azos.Web.Pay.ConfigBasedCurrencyMarket();
     #endregion
 
     #region IPaySystemHostImplementation
@@ -236,7 +237,7 @@ namespace WinFormsTestSky.Pay
       protected override Transaction DoFetchTransaction(PaySession session, object id)
       {
         byte[] buf;
-        if (!m_Transactions.TryGetValue(id, out buf)) throw new NFXException("Couldn't find transaction by id '{0}'".Args(id));
+        if (!m_Transactions.TryGetValue(id, out buf)) throw new AzosException("Couldn't find transaction by id '{0}'".Args(id));
 
         var ta = deserializeTransaction(buf);
         return ta;
@@ -264,7 +265,7 @@ namespace WinFormsTestSky.Pay
     #region Private
       private string generateUniqueID()
       {
-        ulong id = (((ulong)ExternalRandomGenerator.Instance.NextRandomInteger) << 32) + ((ulong)ExternalRandomGenerator.Instance.NextRandomInteger);
+        ulong id = (((ulong)App.Random.NextRandomInteger) << 32) + ((ulong)App.Random.NextRandomInteger);
         var eLink = new ELink(id, new byte[] { });
         return eLink.Link;
       }

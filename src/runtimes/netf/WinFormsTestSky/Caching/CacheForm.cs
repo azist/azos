@@ -82,7 +82,7 @@ namespace WinFormsTestSky.Caching
              Long1 = i,
              Long2 = i * 178,
              SD = DateTime.UtcNow,
-             Bin = (binF >= 0 && binT >= 0) ? new byte[ExternalRandomGenerator.Instance.NextScaledRandomInteger(binF, binT)] : null
+             Bin = (binF >= 0 && binT >= 0) ? new byte[App.Random.NextScaledRandomInteger(binF, binT)] : null
            };//,
          //  new SomeReplicationVersionInfo(utcNow)
          // );//"My data object #"+key.ToString()
@@ -200,7 +200,7 @@ namespace WinFormsTestSky.Caching
        {
          var cnt = tbAutoGet.Text.AsInt();
          var key = new GDID(0, (ulong)(m_Key - cnt));
-         var tbl = m_Cache.GetOrCreateTable<GDID>(chkAutoRandTbl.Checked ? "T-"+ExternalRandomGenerator.Instance.NextScaledRandomInteger(0,99).ToString() : tbTable.Text);
+         var tbl = m_Cache.GetOrCreateTable<GDID>(chkAutoRandTbl.Checked ? "T-"+App.Random.NextScaledRandomInteger(0,99).ToString() : tbTable.Text);
          for(var i=0; i<cnt; i++)
          {
            var obj = tbl.Get(key);
@@ -208,7 +208,7 @@ namespace WinFormsTestSky.Caching
            if (obj==null) stat_GetMiss++; else stat_GetHit++;
 
            if (chkAutoRandKey.Checked)
-            key = new GDID(0, (ulong)NFX.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, m_Key));
+            key = new GDID(0, (ulong)App.Random.NextScaledRandomInteger(0, m_Key));
            else
             key = new GDID(0, key.ID+1);
          }
@@ -218,7 +218,7 @@ namespace WinFormsTestSky.Caching
        {
          var cnt = tbAutoPut.Text.AsInt();
          var key = new GDID(0, (ulong)m_Key);
-         var tbl = m_Cache.GetOrCreateTable<GDID>(chkAutoRandTbl.Checked ? "T-"+ExternalRandomGenerator.Instance.NextScaledRandomInteger(0,99).ToString() : tbTable.Text);
+         var tbl = m_Cache.GetOrCreateTable<GDID>(chkAutoRandTbl.Checked ? "T-"+App.Random.NextScaledRandomInteger(0,99).ToString() : tbTable.Text);
 
          var binF = tbBinFrom.Text.AsInt();
          var binT = tbBinTo.Text.AsInt();
@@ -227,6 +227,7 @@ namespace WinFormsTestSky.Caching
 
          for(var i=0; i<cnt; i++)
          {
+        /*
            var data = new SomeDataParcel(key,
            new SomeData
            {
@@ -236,17 +237,18 @@ namespace WinFormsTestSky.Caching
              Long1 = i,
              Long2 = i * 178,
              SD = DateTime.UtcNow,
-             Bin = (binF>=0 && binT>=0) ? new byte[ExternalRandomGenerator.Instance.NextScaledRandomInteger(binF, binT)] : null
+             Bin = (binF>=0 && binT>=0) ? new byte[App.Random.NextScaledRandomInteger(binF, binT)] : null
            },
            new SomeReplicationVersionInfo(utcNow)
           );//"My data object #"+key.ToString()
 
           tbl.Put(key, data);
+*/
 
            stat_Put++;
 
            if (chkAutoRandKey.Checked)
-            key = new GDID(0, (ulong)NFX.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, m_Key));
+            key = new GDID(0, (ulong)App.Random.NextScaledRandomInteger(0, m_Key));
            else
              key = new GDID(0, key.ID+1);
 
@@ -259,7 +261,7 @@ namespace WinFormsTestSky.Caching
        {
          var cnt = tbAutoRemove.Text.AsInt();
          var key = new GDID(0, (ulong)(m_Key - cnt));
-         var tbl = m_Cache.GetOrCreateTable<GDID>(chkAutoRandTbl.Checked ? "T-"+ExternalRandomGenerator.Instance.NextScaledRandomInteger(0,99).ToString() : tbTable.Text);
+         var tbl = m_Cache.GetOrCreateTable<GDID>(chkAutoRandTbl.Checked ? "T-"+App.Random.NextScaledRandomInteger(0,99).ToString() : tbTable.Text);
          for(var i=0; i<cnt; i++)
          {
            var rem = tbl.Remove(key);
@@ -267,13 +269,13 @@ namespace WinFormsTestSky.Caching
            if (rem) stat_RemoveHit++; else stat_RemoveMiss++;
 
            if (chkAutoRandKey.Checked)
-            key = new GDID(0, (ulong)NFX.ExternalRandomGenerator.Instance.NextScaledRandomInteger(0, m_Key));
+            key = new GDID(0, (ulong)App.Random.NextScaledRandomInteger(0, m_Key));
            else
             key = new GDID(0, key.ID+1);
          }
        }
 
-
+    /*
       [DataParcel("TestSchema", "TestArea")]
       public class SomeDataParcel : Parcel<SomeData>
       {
@@ -346,7 +348,7 @@ namespace WinFormsTestSky.Caching
                this.VersionUTCTimestamp.Equals(other.VersionUTCTimestamp);
       }
     }
-
+*/
 
     public class SomeData
        {

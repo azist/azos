@@ -1,0 +1,1 @@
+﻿SELECT count(*) AS CNT FROM tbl_subvol WHERE G_OWN = ?pNode

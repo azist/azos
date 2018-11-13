@@ -2,13 +2,14 @@
 using System.Windows.Forms;
 
 using Azos;
+using Azos.Data;
 
 using Azos.Sky;
 using Azos.Sky.Workers;
 
 namespace WinFormsTestSky.Workers
 {
-  public partial class ProcessForm : Form
+  public partial class ProcessForm : System.Windows.Forms.Form
   {
     public ProcessForm()
     {

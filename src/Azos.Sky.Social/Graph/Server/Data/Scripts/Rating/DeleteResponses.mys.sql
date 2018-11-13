@@ -1,0 +1,1 @@
+﻿DELETE FROM tbl_comment WHERE G_PAR = ?pParent AND G_VOL = ?gVolume

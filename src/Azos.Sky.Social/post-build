@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+SCRIPT=`realpath -s $0`
+SCRIPTPATH=`dirname $SCRIPT`
+
+SOLUTION_DIR=$1
+PROJECT_DIR=${SCRIPTPATH}/
+
+
+mono rsc "${PROJECT_DIR}/Graph/Server/Data/Schema/graph-node.rschema" -o out-name-prefix="Graph.Node." domain-search-paths="Azos.Sky.Social.Graph.Server.Data.Schema.*, Azos.Sky.Social"
+mono rsc "${PROJECT_DIR}/Graph/Server/Data/Schema/graph-comment.rschema" -o out-name-prefix="Graph.Comment." domain-search-paths="Azos.Sky.Social.Graph.Server.Data.Schema.*, Azos.Sky.Social"

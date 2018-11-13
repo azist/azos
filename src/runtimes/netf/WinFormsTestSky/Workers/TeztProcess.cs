@@ -13,7 +13,7 @@ namespace WinFormsTestSky.Workers
     protected override ResultSignal DoAccept(IProcessHost host, Signal signal) { return null; }
 
 
-    protected override void Merge(IProcessHost host, DateTime utcNow, Process another)
+    protected internal override void Merge(IProcessHost host, DateTime utcNow, Process another)
     {
     }
   }

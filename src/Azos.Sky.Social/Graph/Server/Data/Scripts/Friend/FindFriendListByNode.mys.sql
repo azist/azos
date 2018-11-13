@@ -1,0 +1,1 @@
+﻿SELECT * FROM tbl_friendlist WHERE G_OWN = ?pgnode

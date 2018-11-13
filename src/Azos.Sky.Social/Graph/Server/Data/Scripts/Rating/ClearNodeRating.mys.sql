@@ -1,0 +1,1 @@
+﻿UPDATE tbl_noderating SET RTG1=0, RTG2=0, RTG3=0, RTG4=0, RTG5=0, CTD=?pCDT, WHERE G_NOD = ?pNode AND DIM = ?pDIM

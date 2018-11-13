@@ -1,0 +1,1 @@
+﻿UPDATE tbl_node SET IN_USE = ?pInUse WHERE GDID = ?pgnode

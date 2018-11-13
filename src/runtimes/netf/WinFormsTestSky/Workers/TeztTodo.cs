@@ -29,7 +29,7 @@ namespace WinFormsTestSky.Workers
 
     public static int TotalProcessed;
 
-    protected override ExecuteState Execute(ITodoHost host, DateTime utcBatchNow)
+    protected internal override ExecuteState Execute(ITodoHost host, DateTime utcBatchNow)
     {
        System.Threading.Interlocked.Increment(ref TotalProcessed);
 
@@ -59,7 +59,7 @@ namespace WinFormsTestSky.Workers
     public int IntervalSec { get; set;}
 
 
-    protected override ExecuteState Execute(ITodoHost host, DateTime utcBatchNow)
+    protected internal override ExecuteState Execute(ITodoHost host, DateTime utcBatchNow)
     {
        Count--;
        if (Count<0) return ExecuteState.Complete;
@@ -89,7 +89,7 @@ namespace WinFormsTestSky.Workers
 
     public static int TotalProcessed;
 
-    protected override ExecuteState Execute(ITodoHost host, DateTime utcBatchNow)
+    protected internal override ExecuteState Execute(ITodoHost host, DateTime utcBatchNow)
     {
        System.Threading.Interlocked.Increment(ref TotalProcessed);
 
@@ -112,7 +112,7 @@ namespace WinFormsTestSky.Workers
        return ExecuteState.Complete;
     }
 
-    protected override MergeResult Merge(ITodoHost host, DateTime utcNow, CorrelatedTodo another)
+    protected internal override MergeResult Merge(ITodoHost host, DateTime utcNow, CorrelatedTodo another)
     {
       var at = another as CorrelatedTeztTodo;
       if (at==null) return MergeResult.None;

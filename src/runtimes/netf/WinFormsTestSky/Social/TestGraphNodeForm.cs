@@ -91,7 +91,7 @@ namespace WinFormsTestSky.Social
 
     private void btnCreateNode_Click(object sender, EventArgs e)
     {
-      GraphNode graphNode = GraphNode.MakeNew("TEST", GDID.Zero, GDID.Zero, "TEST{0}".Args(ExternalRandomGenerator.Instance.NextScaledRandomInteger(10000)), null, FriendVisibility.Anyone);
+      GraphNode graphNode = GraphNode.MakeNew("TEST", GDID.Zero, GDID.Zero, "TEST{0}".Args(App.Random.NextScaledRandomInteger(10000)), null, FriendVisibility.Anyone);
       var status = m_NodeClient.SaveNode(graphNode);
       if(status == GraphChangeStatus.Added)
       {

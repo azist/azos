@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+SCRIPT=`realpath -s $0`
+SCRIPTPATH=`dirname $SCRIPT`
+
+SOLUTION_DIR=$1
+PROJECT_DIR=${SCRIPTPATH}/
+
+mono buildinfo.exe > "${PROJECT_DIR}BUILD_INFO.txt"
+# mono ntc.exe "${PROJECT_DIR}/WebManager/Pages/*.nht" -r -ext ".auto.cs" -src

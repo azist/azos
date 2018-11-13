@@ -1,0 +1,1 @@
+﻿DELETE tbl_friend WHERE G_OWN = ?gNode

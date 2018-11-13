@@ -226,7 +226,7 @@ namespace WinFormsTestSky.Pay
               lstTransactions.Items.Add(ta);
             }
           }
-          catch (NFXException ex)
+          catch (AzosException ex)
           {
             lstTransactions.Items.Add(ex.Message);
           }

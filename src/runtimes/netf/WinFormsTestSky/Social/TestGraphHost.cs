@@ -74,13 +74,13 @@ namespace WinFormsTestSky.Social
       //throw new NotImplementedException();
     }
 
-    public override TypedRow NodeBinaryDataToObject(string nodeType, byte[] data)
+    public override TypedDoc NodeBinaryDataToObject(string nodeType, byte[] data)
     {
       return null;
       //throw new NotImplementedException();
     }
 
-    public override byte[] ObjectToNodeBinaryData(string nodeType, TypedRow data)
+    public override byte[] ObjectToNodeBinaryData(string nodeType, TypedDoc data)
     {
       return null;
       //throw new NotImplementedException();
