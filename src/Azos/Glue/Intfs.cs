@@ -62,7 +62,7 @@ namespace Azos.Glue
 
 
         /// <summary>
-        /// Specifies default ms timout for call dispatch only
+        /// Specifies default ms timeout for call dispatch only
         /// </summary>
         int DefaultDispatchTimeoutMs { get; set;}
 
@@ -83,7 +83,7 @@ namespace Azos.Glue
         Azos.Log.MessageType ServerLogLevel { get; set; }
 
         /// <summary>
-        /// Specifies ms timout for non-threadsafe server instance lock
+        /// Specifies ms timeout for non-thread-safe server instance lock
         /// </summary>
         int ServerInstanceLockTimeoutMs { get; set;}
 
