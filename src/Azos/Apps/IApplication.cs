@@ -5,8 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-
-
+using System.Collections.Generic;
 using Azos.Time;
 
 namespace Azos.Apps
@@ -152,6 +151,11 @@ namespace Azos.Apps
      IModule ModuleRoot{ get; }
 
      /// <summary>
+     /// Returns all components that this application contains
+     /// </summary>
+     IEnumerable<IApplicationComponent> AllComponents {  get; }
+
+     /// <summary>
      /// Factory method that creates new session object suitable for particular application type
      /// </summary>
      /// <param name="sessionID">Session identifier</param>
@@ -159,13 +163,22 @@ namespace Azos.Apps
      /// <returns>New session object</returns>
      ISession MakeNewSessionInstance(Guid sessionID, Security.User user = null);
 
+     /// <summary>
+     /// Returns a component by SID or null
+     /// </summary>
+     IApplicationComponent GetComponentBySID(ulong sid);
+
+     /// <summary>
+     /// Returns an existing application component instance by its ComponentCommonName or null. The search is case-insensitive
+     /// </summary>
+     IApplicationComponent GetComponentByCommonName(string name);
 
      /// <summary>
      /// Registers an instance of IConfigSettings with application container to receive a call when
      ///  underlying app configuration changes
      /// </summary>
      /// <returns>True if settings instance was not found and was added</returns>
-     bool RegisterConfigSettings(Conf.IConfigSettings settings);
+    bool RegisterConfigSettings(Conf.IConfigSettings settings);
 
      /// <summary>
      /// Removes the registration of IConfigSettings from application container

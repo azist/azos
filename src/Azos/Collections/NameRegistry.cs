@@ -12,7 +12,7 @@ namespace Azos.Collections
 {
 
     /// <summary>
-    /// Denotes an entity that has a Name property.
+    /// Denotes an entity that has a container-unique Name property.
     /// This interface is primarily used with Registry[INamed] class that allows for
     ///  string-based addressing (getting instances by object instance name).
     /// The names are ideal for many system functions, like naming components in configs and admin tools

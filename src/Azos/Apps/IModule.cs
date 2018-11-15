@@ -52,11 +52,6 @@ namespace Azos.Apps
     /// If module is not found then returns null. Contrast with Get()
     /// </summary>
     TModule TryGet<TModule>(string name) where TModule : class, IModule;
-
-    /// <summary>
-    /// Determines the effective log level for this module, taking it from parent if it is not defined on this level
-    /// </summary>
-    Azos.Log.MessageType ModuleEffectiveLogLevel { get; }
   }
 
   /// <summary>
@@ -81,17 +76,5 @@ namespace Azos.Apps
     /// The implementation is expected to handle internal exceptions gracefully (i.e. use log etc.)
     /// </summary>
     void ApplicationBeforeCleanup(IApplication application);
-
-
-    /// <summary>
-    /// Defines log level for this module, if not defined then the component logger uses the parent log level
-    /// via the ModuleEffectiveLogLevel property
-    /// </summary>
-    Log.MessageType? ModuleLogLevel { get; set; }
-
-    /// <summary>
-    /// Writes a log message through logic module; returns the new log msg GDID for correlation, or GDID.Empty if no message was logged
-    /// </summary>
-    Guid ModuleLog(Log.MessageType type, string from, string text, Exception error = null, Guid? related = null, string pars = null);
   }
 }

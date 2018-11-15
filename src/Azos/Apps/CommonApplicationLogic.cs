@@ -350,6 +350,11 @@ namespace Azos.Apps
             get { return UniversalTimeToLocalizedTime(TimeSource.UTCNow); }
         }
 
+        /// <summary>
+        /// Enumerates all components of this application
+        /// </summary>
+        public IEnumerable<IApplicationComponent> AllComponents => ApplicationComponent.AllComponents(this);
+
 
     #endregion
 
@@ -509,6 +514,21 @@ namespace Azos.Apps
                return true;
             }
 
+            /// <summary>
+            /// Returns a component by SID or null
+            /// </summary>
+            public IApplicationComponent GetComponentBySID(ulong sid)
+            {
+               return ApplicationComponent.GetAppComponentBySID(this, sid);
+            }
+
+            /// <summary>
+            /// Returns an existing application component instance by its ComponentCommonName or null. The search is case-insensitive
+            /// </summary>
+            public IApplicationComponent GetComponentByCommonName(string name)
+            {
+              return ApplicationComponent.GetAppComponentByCommonName(this, name);
+            }
 
     #endregion
 
@@ -516,7 +536,7 @@ namespace Azos.Apps
     #region Protected
 
 
-      protected void WriteLog(MessageType type,
+    protected void WriteLog(MessageType type,
                               string from,
                               string msgText,
                               Exception error = null,
