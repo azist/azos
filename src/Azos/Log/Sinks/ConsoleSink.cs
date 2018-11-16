@@ -4,11 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Conf;
 using Azos.IO;
@@ -18,23 +14,26 @@ namespace Azos.Log.Sinks
   /// <summary>
   /// Logs messages in stdio.console
   /// </summary>
-  public class ConsoleSink : Sink
+  public sealed class ConsoleSink : Sink
   {
     private const string DEF_LOG_TIME_FORMAT = "HH:mm:ss";
 
 
-    public ConsoleSink() : this(null) { }
-    public ConsoleSink(string name) : base (name) { }
+    public ConsoleSink(ISinkOwner owner) : base(owner)
+    {
+    }
 
+    public ConsoleSink(ISinkOwner owner, string name, int order) : base(owner, name, order)
+    {
+    }
+
+    /// <summary>Set to true to colorize the console background/foreground per message type </summary>
     [Config]
     public bool Colored { get; set;}
 
-    /// <summary>
-    /// Time format for log line entries
-    /// </summary>
+    /// <summary>Time format for log line entries </summary>
     [Config]
     public string LogTimeFormat{ get; set;}
-
 
     protected internal override void DoSend(Message msg)
     {
@@ -57,7 +56,7 @@ namespace Azos.Log.Sinks
       var tf = LogTimeFormat;
       if (tf.IsNullOrWhiteSpace()) tf = DEF_LOG_TIME_FORMAT;
 
-      return string.Format("{0}|{1}|{2}|{3}| {4}",
+      return "{0}|{1}|{2}|{3}| {4}".Args(
                     msg.TimeStamp.ToString(tf),
                     msg.Type,
                     msg.Source,

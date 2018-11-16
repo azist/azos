@@ -5,10 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.IO;
 
 using Azos.Conf;
 
@@ -19,11 +16,16 @@ namespace Azos.Log.Sinks
   /// </summary>
   public class CSVFileSink : TextFileSink
   {
-    public const string DEFAULT_LOG_TIME_FORMAT       = "yyyyMMdd-HHmmss";
-    private  const string DEF_FILENAME = "{0:yyyyMMdd}.log.csv";
+    public  const string DEFAULT_LOG_TIME_FORMAT  = "yyyyMMdd-HHmmss";
+    private const string DEFAULT_FILENAME         = "{0:yyyyMMdd}.log.csv";
 
-    public CSVFileSink() : this(null) { }
-    public CSVFileSink(string name) : base(name) { }
+    public CSVFileSink(ISinkOwner owner) : base(owner)
+    {
+    }
+
+    public CSVFileSink(ISinkOwner owner, string name, int order) : base(owner, name, order)
+    {
+    }
 
 
     /// <summary>
@@ -59,15 +61,12 @@ namespace Azos.Log.Sinks
         return line.ToString();
     }
 
-    protected override string DefaultFileName  { get { return DEF_FILENAME;  } }
+    protected override string DefaultFileName =>  DEFAULT_FILENAME;
 
     /// <summary>
     /// Spools instance data in CSV format for storage in a file destination
     /// </summary>
-    protected override string DoFormatMessage(Message msg)
-    {
-      return MessageToCSVLine(msg, LogTimeFormat);
-    }
+    protected override string DoFormatMessage(Message msg) => MessageToCSVLine(msg, LogTimeFormat);
 
 
     private static string escape(string str)

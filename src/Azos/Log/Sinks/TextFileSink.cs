@@ -14,7 +14,13 @@ namespace Azos.Log.Sinks
   public abstract class TextFileSink : FileSink
   {
 
-    protected TextFileSink(string name) : base(name) { }
+    protected TextFileSink(ISinkOwner owner) : base(owner)
+    {
+    }
+
+    protected TextFileSink(ISinkOwner owner, string name, int order) : base(owner, name, order)
+    {
+    }
 
 
     private StreamWriter m_Writer;
