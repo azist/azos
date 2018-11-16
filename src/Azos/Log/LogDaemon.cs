@@ -21,7 +21,7 @@ namespace Azos.Log
   /// This is an asynchronous service, meaning that Write(msg) never blocks for long.
   /// </summary>
   [ConfigMacroContext]
-  public class LogService : LogServiceBase
+  public class LogDaemon : LogDaemonBase
   {
     #region CONSTS
         private const int MIN_INTERVAL_MSEC = 10;
@@ -45,13 +45,13 @@ namespace Azos.Log
         /// <summary>
         /// Creates a new logging service instance
         /// </summary>
-        public LogService() : base(null) {}
+        public LogDaemon() : base(null) {}
 
 
         /// <summary>
         /// Creates a new logging service instance
         /// </summary>
-        public LogService(Daemon director = null) : base(director) {}
+        public LogDaemon(Daemon director = null) : base(director) {}
 
     #endregion
 

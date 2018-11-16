@@ -69,10 +69,6 @@ namespace Azos.Apps
 
       protected CommonApplicationLogic(bool allowNesting, Configuration cmdLineArgs, ConfigSectionNode rootConfig)
       {
-        m_NOPModule = new NOPModule(this);
-        m_NOPObjectStore = new NOPObjectStore(this);
-        m_NOPGlue = new NOPGlue(this);
-
         m_AllowNesting = allowNesting;
         m_CommandArgs = (cmdLineArgs ?? new MemoryConfiguration()).Root;
         m_ConfigRoot  = rootConfig ?? GetConfiguration().Root;
@@ -115,7 +111,6 @@ namespace Azos.Apps
       protected ConfigSectionNode m_ConfigRoot;
 
       protected IModuleImplementation m_Module;
-      protected IModuleImplementation m_NOPModule;
 
       protected ILogImplementation m_Log;
 
@@ -124,10 +119,8 @@ namespace Azos.Apps
       protected IDataStoreImplementation m_DataStore;
 
       protected IObjectStoreImplementation m_ObjectStore;
-      protected IObjectStoreImplementation m_NOPObjectStore;
 
       protected IGlueImplementation m_Glue;
-      protected IGlueImplementation m_NOPGlue;
 
       protected ISecurityManagerImplementation m_SecurityManager;
 
@@ -247,19 +240,13 @@ namespace Azos.Apps
         /// <summary>
         /// References application logger
         /// </summary>
-        public ILog Log
-        {
-          get { return (ILog)m_Log ?? NOPLog.Instance; }
-        }
+        public ILog Log => m_Log ?? m_NOPLog;
 
 
         /// <summary>
         /// References application instrumentation
         /// </summary>
-        public IInstrumentation Instrumentation
-        {
-          get { return m_Instrumentation ?? NOPInstrumentation.Instance; }
-        }
+        public IInstrumentation Instrumentation => m_Instrumentation ?? m_NOPInstrumentation;
 
         /// <summary>
         /// Provides access to configuration root for the whole application
@@ -833,7 +820,7 @@ namespace Azos.Apps
         if (node.Exists)
           try
           {
-            m_Log = FactoryUtils.MakeAndConfigure(node, typeof(LogService)) as ILogImplementation;
+            m_Log = FactoryUtils.MakeAndConfigure(node, typeof(LogDaemon)) as ILogImplementation;
 
             if (m_Log==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
                                                     node

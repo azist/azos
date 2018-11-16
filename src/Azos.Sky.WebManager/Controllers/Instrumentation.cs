@@ -81,7 +81,7 @@ namespace Azos.Sky.WebManager.Controllers
       //  new Message() { Type = MessageType.Emergency, Text="test111111111111111111"}
       //};
 
-      var log = App.Log as LogServiceBase;
+      var log = App.Log as LogDaemonBase;
       if (log == null) return Azos.Wave.SysConsts.JSON_RESULT_ERROR;
 
       from = (from == null) ? log.LocalizedTime.AddSeconds(-600) : log.UniversalTimeToLocalizedTime(from.Value.ToUniversalTime());

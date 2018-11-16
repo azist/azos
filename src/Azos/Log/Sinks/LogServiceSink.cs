@@ -36,7 +36,7 @@ namespace Azos.Log.Sinks
 
        #region Pvt Fields
 
-        private LogService  m_Service = new LogService(null);
+        private LogDaemon  m_Service = new LogDaemon(null);
       #endregion
 
 

@@ -53,8 +53,8 @@ namespace Azos
 
         public const string FILE_NOT_FOUND_ERROR = "File not found: ";
 
-        public const string LOGSVC_DESTINATION_OPEN_ERROR =
-            "Log service '{0}' could not open destination '{1}'. Destination.TestOnStart = {2}. Destination exception:\n   {3}";
+        public const string LOGDAEMON_SINK_START_ERROR =
+            "Log daemon '{0}' could not start sink '{1}'. Sink.TestOnStart = {2}. Sink exception:\n   {3}";
 
         public const string LOGSVC_DESTINATION_EXCEEDS_MAX_PROCESSING_TIME_ERROR =
             "Destination '{0}' exceeded allowed max processing time. Allowed {1} ms, took {2} ms";

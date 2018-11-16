@@ -7,18 +7,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Linq;
 
 using Azos.Apps;
+using Azos.Collections;
 using Azos.Conf;
 using Azos.Log.Sinks;
 using Azos.Instrumentation;
 
 namespace Azos.Log
 {
-
-
     /// <summary>
     /// Based class for implementing test and non-test logging services.
     /// Destinations may fail and the message will be failed-over into another destination in the same logger
@@ -27,10 +25,8 @@ namespace Azos.Log
     ///  get sent into destinations synchronously by internal thread so specifying too many destinations may
     ///  limit overall LogService throughput. In complex scenarios consider using LogServiceDestination instead.
     /// </summary>
-    public abstract class LogServiceBase : DaemonWithInstrumentation<object>, ILogImplementation
+    public abstract class LogDaemonBase : DaemonWithInstrumentation<IApplicationComponent>, ILogImplementation, ISinkOwnerRegistration
     {
-        public class SinkList : List<Sink> {}
-
         #region CONSTS
             internal const string CONFIG_SINK_SECTION   = "sink";
             internal const string CONFIG_DEFAULT_FAILOVER_ATTR = "default-failover";
@@ -39,39 +35,37 @@ namespace Azos.Log
 
         #region .ctor
 
-            /// <summary>
-            /// Creates a new logging service instance
-            /// </summary>
-            protected LogServiceBase() : base(null) { ctor();  }
+          /// <summary>
+          /// Creates a new logging daemon instance
+          /// </summary>
+          protected LogDaemonBase(IApplication app) : this(app, null) {  }
 
 
-            /// <summary>
-            /// Creates a new logging service instance
-            /// </summary>
-            protected LogServiceBase(Daemon director = null) : base(director) { ctor(); }
+          /// <summary>
+          /// Creates a new logging daemon instance
+          /// </summary>
+          protected LogDaemonBase(IApplication app, IApplicationComponent director) : base(app, director)
+          {
+            m_InstrBuffer = new MemoryBufferSink();
+            m_InstrBuffer.__setLogSvc(this);
+          }
 
-            private void ctor()
-            {
-              m_InstrBuffer = new MemoryBufferSink();
-              m_InstrBuffer.__setLogSvc(this);
-            }
+          protected override void Destructor()
+          {
+              base.Destructor();
 
-            protected override void Destructor()
-            {
-                base.Destructor();
+              foreach (var sink in m_Sinks)
+                  sink.Dispose();
 
-                foreach (var sink in m_Sinks)
-                    sink.Dispose();
-
-                m_InstrBuffer.Dispose();
-            }
+              m_InstrBuffer.Dispose();
+          }
 
         #endregion
 
 
         #region Private Fields
 
-            protected SinkList m_Sinks = new SinkList();
+            protected OrderedRegistry<Sink> m_Sinks = new OrderedRegistry<Sink>();
 
             private int             MAX_NESTED_FAILURES = 8;
             private int             m_NestedFailureCount;
@@ -93,30 +87,29 @@ namespace Azos.Log
 
         #region Properties
 
-            public override string ComponentCommonName { get { return "log"; }}
+            public override string ComponentCommonName => "log";
+
+            public override string ComponentLogTopic => CoreConsts.LOG_TOPIC;
 
             /// <summary>
             /// Latches last problematic msg
             /// </summary>
-            public Message LastWarning     { get {return m_LastWarning;}}
+            public Message LastWarning     => m_LastWarning;
 
             /// <summary>
             /// Latches last problematic msg
             /// </summary>
-            public Message LastError       { get {return m_LastError;}}
+            public Message LastError       =>  m_LastError;
 
             /// <summary>
             /// Latches last problematic msg
             /// </summary>
-            public Message LastCatastrophe { get {return m_LastCatastrophy;}}
+            public Message LastCatastrophe => m_LastCatastrophy;
 
             /// <summary>
-            /// Returns registered destinations. This call is thread safe
+            /// Returns sinks. This call is thread safe
             /// </summary>
-            public IEnumerable<Sink> Sinks
-            {
-                get { lock (m_Sinks) return m_Sinks.ToList(); }
-            }
+            public IEnumerable<Sink> Sinks => m_Sinks.OrderedValues;
 
 
             /// <summary>
@@ -151,7 +144,7 @@ namespace Azos.Log
             }
 
             /// <summary>
-            /// Returns a destination that threw last exception that happened durng failover. This kind of exceptions is never propagated and always handled
+            /// Returns a destination that threw last exception that happened during failover. This kind of exceptions is never propagated and always handled
             /// </summary>
             public Sink FailoverErrorSink { get { return m_FailoverErrorSink; } }
 
@@ -161,18 +154,12 @@ namespace Azos.Log
             public Exception FailoverError { get { return m_FailoverError; } }
 
             /// <summary>
-            /// Returns localized log time
-            /// </summary>
-            public DateTime Now { get { return this.LocalizedTime; } }
-
-
-            /// <summary>
             /// Indicates whether the service can operate without any destinations registered, i.e. some test loggers may not need
-            ///  any destinations to operate as they synchronously write to some buffer without any extra destinations
+            ///  any destinations to operate as they synchronously write to some buffer without any extra sinks
             /// </summary>
-            public virtual bool DestinationsAreOptional
+            public virtual bool SinksAreOptional
             {
-              get{ return false;}
+              get{ return false; }
             }
 
         #endregion
@@ -235,38 +222,6 @@ namespace Azos.Log
             }
 
             /// <summary>
-            /// Adds a destination to this service active destinations. Negative index to append
-            /// </summary>
-            public void RegisterSink(Sink sink, int atIdx = -1)
-            {
-                if (sink == null) return;
-
-                lock (m_Sinks)
-                {
-                    if (m_Sinks.Count==0 || atIdx<0 || atIdx > m_Sinks.Count)
-                      m_Sinks.Add(sink);
-                    else
-                      m_Sinks.Insert(atIdx, sink);
-                    sink.__setLogSvc(this);
-                }
-            }
-
-            /// <summary>
-            /// Removes a destiantion from this service active destinations, returns true if destination was found and removed
-            /// </summary>
-            public bool UnRegisterSink(Sink sink)
-            {
-                if (sink == null) return false;
-
-                lock (m_Sinks)
-                {
-                    bool r = m_Sinks.Remove(sink);
-                    if (r) sink.__setLogSvc(null);
-                    return r;
-                }
-            }
-
-            /// <summary>
             /// Returns instrumentation buffer if instrumentation enabled
             /// </summary>
             public IEnumerable<Message> GetInstrumentationBuffer(bool asc)
@@ -289,52 +244,63 @@ namespace Azos.Log
 
             protected override void DoConfigure(IConfigSectionNode node)
             {
-                base.DoConfigure(node);
+              base.DoConfigure(node);
 
-                foreach (ConfigSectionNode dnode in
-                    node.Children.Where(n => n.IsSameName(CONFIG_SINK_SECTION)))
-                {
-                    Sink sink = FactoryUtils.MakeAndConfigure<Sink>(dnode);
-                    this.RegisterSink(sink);
-                }
+              foreach (var dnode in node.Children.Where(n => n.IsSameName(CONFIG_SINK_SECTION)))
+              {
+                var sink = FactoryUtils.MakeAndConfigure<Sink>(dnode, typeof(CSVFileSink), new[]{ this });
+              }
             }
 
             protected override void DoStart()
             {
-                base.DoStart();
+              base.DoStart();
 
-                lock (m_Sinks)
+              if (!SinksAreOptional && m_Sinks.Count == 0)
+                throw new AzosException(StringConsts.LOGSVC_NODESTINATIONS_ERROR);
+
+              foreach (var sink in m_Sinks.OrderedValues)
+                try
                 {
-                    if (!DestinationsAreOptional && m_Sinks.Count == 0)
-                        throw new AzosException(StringConsts.LOGSVC_NODESTINATIONS_ERROR);
-
-                    foreach (var sink in m_Sinks)
-                        try
-                        {
-                            sink.Open();
-                        }
-                        catch (Exception error)
-                        {
-                            throw new AzosException(
-                                StringConsts.LOGSVC_DESTINATION_OPEN_ERROR.Args(Name, sink.Name, sink.TestOnStart, error.Message),
-                                error);
-                        }
+                  sink.Start();
                 }
+                catch (Exception error)
+                {
+                  throw new AzosException(
+                        StringConsts.LOGDAEMON_SINK_START_ERROR.Args(Name, sink.Name, sink.TestOnStart, error.Message),
+                        error);
+                }
+            }
+
+            protected override void DoSignalStop()
+            {
+              base.DoSignalStop();
+              //Attention!!! It is important here NOT TO NOTIFY sinks of pending shutdown,
+              //so that LogDaemon may start terminating all by itself and it commits all messages to sinks
+              //that should be still operational.
             }
 
             protected override void DoWaitForCompleteStop()
             {
-                base.DoWaitForCompleteStop();
+              base.DoWaitForCompleteStop();
+              // at this point the thread has stopped and we can now stop the sinks
 
-                foreach (var sink in m_Sinks)
-                    try { sink.Close(); } catch {}  // Can't do much here in case of an error
+              foreach (var sink in m_Sinks.OrderedValues.Reverse())
+              {
+                  try
+                  {
+                    sink.WaitForCompleteStop();
+                  } catch
+                  {
+        #warning REVISE - must not eat exceptions
+                  }  // Can't do much here in case of an error
+              }
             }
 
             protected void Pulse()
             {
-                lock (m_Sinks)
-                    foreach (var sink in m_Sinks)
-                        sink.Pulse();
+              foreach (var sink in m_Sinks.OrderedValues)
+                sink.Pulse();
             }
 
             /// <summary>
@@ -342,67 +308,65 @@ namespace Azos.Log
             /// </summary>
             internal void FailoverDestination(Sink sink, Exception error, Message msg)
             {
+              if (!Running) return;
               if (m_NestedFailureCount>=MAX_NESTED_FAILURES) return;//stop cascade recursion
 
               m_NestedFailureCount++;
               try
               {
-                      if (error==null)//error lifted
-                      {
-                        if (sink==m_FailoverErrorSink)
-                        {
-                          m_FailoverErrorSink = null;
-                          m_FailoverError = null;
-                        }
-                        return;
-                      }
+                if (error==null)//error lifted
+                {
+                  if (sink==m_FailoverErrorSink)
+                  {
+                    m_FailoverErrorSink = null;
+                    m_FailoverError = null;
+                  }
+                  return;
+                }
 
-                      if (msg==null) return; //i.e. OnPulse()
+                if (msg==null) return; //i.e. OnPulse()
 
-                      var failoverName = sink.Failover;
-                      if (string.IsNullOrEmpty(failoverName))
-                         failoverName = this.DefaultFailover;
-                      if (string.IsNullOrEmpty(failoverName))  return;//nowhere to failover
+                var failoverName = sink.Failover;
+                if (string.IsNullOrEmpty(failoverName))
+                    failoverName = this.DefaultFailover;
+                if (string.IsNullOrEmpty(failoverName))  return;//nowhere to failover
 
-                      Sink failover = null;
-                      lock(m_Sinks)
-                         failover = m_Sinks.FirstOrDefault(d => string.Equals(d.Name , failoverName, StringComparison.InvariantCultureIgnoreCase));
+                var failover = m_Sinks[failoverName];
 
+                if (failover==null) return;
 
-                      if (failover==null) return;
+                if (failover==sink) return;//circular reference, cant fail into destination that failed
 
-                      if (failover==sink) return;//circular reference, cant fail into destination that failed
+                try
+                {
+                  failover.SendRegularAndFailures(msg);
 
-                      try
-                      {
-                        failover.SendRegularAndFailures(msg);
-
-                          if (sink.GenerateFailoverMessages || failover.GenerateFailoverMessages)
-                          {
-                            var emsg = new Message();
-                            emsg.Type = MessageType.Error;
-                            emsg.From = sink.Name;
-                            emsg.Topic = CoreConsts.LOG_TOPIC;
-                            emsg.Text = string.Format(
-                                   StringConsts.LOGSVC_FAILOVER_MSG_TEXT,
-                                   msg.Guid,
-                                   sink.Name,
-                                   failover.Name,
-                                   sink.AverageProcessingTimeMs);
-                            emsg.RelatedTo = msg.Guid;
-                            emsg.Exception = error;
+                    if (sink.GenerateFailoverMessages || failover.GenerateFailoverMessages)
+                    {
+                      var emsg = new Message();
+                      emsg.Type = MessageType.Error;
+                      emsg.From = sink.Name;
+                      emsg.Topic = CoreConsts.LOG_TOPIC;
+                      emsg.Text = string.Format(
+                              StringConsts.LOGSVC_FAILOVER_MSG_TEXT,
+                              msg.Guid,
+                              sink.Name,
+                              failover.Name,
+                              sink.AverageProcessingTimeMs);
+                      emsg.RelatedTo = msg.Guid;
+                      emsg.Exception = error;
 
 
-                            failover.SendRegularAndFailures(emsg);
-                          }
+                      failover.SendRegularAndFailures(emsg);
+                    }
 
-                        failover.DoPulse();
-                      }
-                      catch(Exception failoverError)
-                      {
-                        m_FailoverErrorSink = failover;
-                        m_FailoverError = failoverError;
-                      }
+                  failover.DoPulse();
+                }
+                catch(Exception failoverError)
+                {
+                  m_FailoverErrorSink = failover;
+                  m_FailoverError = failoverError;
+                }
               }
               finally
               {
@@ -411,6 +375,10 @@ namespace Azos.Log
 
             }
 
-        #endregion
-    }
+            LogDaemonBase ISinkOwner.LogDaemon => this;
+            void ISinkOwnerRegistration.Register(Sink sink) => m_Sinks.Register(sink);
+            void ISinkOwnerRegistration.Unregister(Sink sink) => m_Sinks.Unregister(sink);
+
+         #endregion
+  }
 }

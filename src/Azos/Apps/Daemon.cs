@@ -69,7 +69,7 @@ namespace Azos.Apps
             /// </summary>
             public bool ApplicationDontAutoStartService
             {
-              get{ return Attribute.IsDefined(GetType(), typeof(ApplicationDontAutoStartDaemonAttributeAttribute));}
+              get{ return Attribute.IsDefined(GetType(), typeof(ApplicationDontAutoStartDaemonAttribute));}
             }
 
             /// <summary>
@@ -98,7 +98,7 @@ namespace Azos.Apps
             /// </summary>
             public string Name
             {
-                get { return m_Name ?? this.GetType().Name; }
+                get { return m_Name.IsNullOrWhiteSpace() ? GetType().Name : m_Name; }
                 protected set { m_Name = value; }
             }
 
@@ -296,13 +296,13 @@ namespace Azos.Apps
           #endregion
 
 
-    #region Protected
+          #region Protected
 
-    /// <summary>
-    /// Allows to abort unsuccessful DoStart() overridden implementation.
-    /// This method must be called from within DoStart()
-    /// </summary>
-    protected void AbortStart()
+            /// <summary>
+            /// Allows to abort unsuccessful DoStart() overridden implementation.
+            /// This method must be called from within DoStart()
+            /// </summary>
+            protected void AbortStart()
             {
                 var trace = new StackTrace(1, false);
 

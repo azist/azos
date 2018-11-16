@@ -6,9 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 using Azos.Apps;
 
 namespace Azos.Log
@@ -17,32 +14,23 @@ namespace Azos.Log
   /// <summary>
   /// Represents log that does not do anything
   /// </summary>
-  public sealed class NOPLog : ApplicationComponent, ILog
+  public sealed class NOPLog : ApplicationComponent, ILogImplementation
   {
-      private static NOPLog s_Instance = new NOPLog();
 
+    internal NOPLog(IApplication app): base(app)
+    {
 
-      private NOPLog(): base()
-      {
-
-      }
-
-      /// <summary>
-      /// Returns a singlelton instance of the log that does not do anything
-      /// </summary>
-      public static NOPLog Instance
-      {
-        get { return s_Instance; }
-      }
+    }
 
     #region ILog Members
 
+        public override string ComponentLogTopic => CoreConsts.LOG_TOPIC;
 
-            public Message LastWarning     { get {return null;}}
+        public Message LastWarning     { get {return null;}}
 
-            public Message LastError       { get {return null;}}
+        public Message LastError       { get {return null;}}
 
-            public Message LastCatastrophe { get {return null;}}
+        public Message LastCatastrophe { get {return null;}}
 
 
         public void Write(Message msg)
@@ -86,6 +74,23 @@ namespace Azos.Log
             return App.LocalizedTimeToUniversalTime(local);
         }
 
+        public bool InstrumentationEnabled { get { return false; } set { } }
+        public IEnumerable<KeyValuePair<string, Type>> ExternalParameters { get { return null; } }
+        public IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups) { return null; }
+        public bool ExternalGetParameter(string name, out object value, params string[] groups)
+        {
+          value = null;
+          return false;
+        }
+        public bool ExternalSetParameter(string name, object value, params string[] groups)
+        {
+          return false;
+        }
+
+        public void Configure(Conf.IConfigSectionNode node)
+        {
+
+        }
 
     #endregion
 

@@ -16,11 +16,11 @@ namespace Azos.Tests.Unit
     /// A log class for writing messages to memory.
     /// This class is intended for testing purposes only!!!
     /// </summary>
-    public class TestMemoryLog : LogServiceBase
+    public class TestMemoryLog : LogDaemonBase
     {
         private MessageList m_List = new MessageList();
 
-        public override bool DestinationsAreOptional
+        public override bool SinksAreOptional
         {
           get
           {
@@ -53,7 +53,7 @@ namespace Azos.Tests.Unit
     /// A log class for writing messages synchronously to destinations.
     /// This class is intended for testing purposes only!!!
     /// </summary>
-    public class TestSyncLog : LogServiceBase
+    public class TestSyncLog : LogDaemonBase
     {
         protected override void DoWrite(Message msg, bool urgent)
         {

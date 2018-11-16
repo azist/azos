@@ -6,15 +6,33 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Collections;
 using Azos.Time;
 using Azos.Instrumentation;
 
 namespace Azos.Log.Sinks
 {
+  /// <summary>
+  /// Common type for entities that own sinks: LogDaemon and CompositeSink is a good example
+  /// </summary>
+  public interface ISinkOwner : IApplicationComponent
+  {
+    LogDaemonBase LogDaemon {  get; }
+    IEnumerable<Sink> Sinks {  get; }
+  }
+
+  /// <summary>
+  /// Provides internal plumbing for sink registration - regular code should never call this
+  /// </summary>
+  internal interface ISinkOwnerRegistration : ISinkOwner
+  {
+    void Register(Sink sink);
+    void Unregister(Sink sink);
+  }
+
   /// <summary>
   /// Delegate for message filtering
   /// </summary>
@@ -27,7 +45,7 @@ namespace Azos.Log.Sinks
   /// Destinations also provide optional SLA on the time it takes to perform actual message write - once exceeded destination is considered to have failed.
   /// Basic efficient filtering is provided for times, dates and levels. Complex C# expression-based filtering is also supported
   /// </summary>
-  public abstract class Sink : ApplicationComponent, IConfigurable, IExternallyParameterized
+  public abstract class Sink : DaemonWithInstrumentation<ISinkOwner>, IConfigurable, INamed, IOrdered
   {
     #region Local Classes
 
@@ -36,7 +54,6 @@ namespace Azos.Log.Sinks
     #endregion
 
     #region CONSTS
-        public const string CONFIG_NAME_ATTR = "name";
         public const string CONFIG_FAILOVER_ATTR = "failover";
         public const string CONFIG_GENERATE_FAILOVER_MSG_ATTR = "generate-failover-msg";
         public const string CONFIG_ONLY_FAILURES_ATTR = "only-failures";
@@ -50,7 +67,6 @@ namespace Azos.Log.Sinks
         public const string CONFIG_END_TIME_ATTR = "end-time";
         public const string CONFIG_FILTER_ATTR = "filter";
         public const string CONFIG_TEST_ON_START_ATTR = "test-on-start";
-        public const string CONFIG_NAME_DEFAULT = "Un-named log destination";
 
         public const string CONFIG_MAX_PROCESSING_TIME_MS_ATTR = "max-processing-time-ms";
         public const int CONFIG_MAX_PROCESSING_TIME_MS_MIN_VALUE = 25;
@@ -69,29 +85,31 @@ namespace Azos.Log.Sinks
 
     #region .ctor
 
-        public Sink() : this(null) {}
+      protected Sink(ISinkOwner owner) : this(owner, null, 0)
+      {
+      }
 
-        public Sink(string name)
-        {
-          m_Name = name;
-          m_Levels = new LevelsList();
-        }
+      protected Sink(ISinkOwner owner, string name, int order) : base(owner.NonNull().LogDaemon.App, owner)
+      {
+        m_Levels = new LevelsList();
+        m_Name = name;
+        m_Order = order;
+        ((ISinkOwnerRegistration)owner).Register(this);
+      }
 
-        protected override void Destructor()
-        {
-          Close();
-          base.Destructor();
-        }
+      protected override void Destructor()
+      {
+        ((ISinkOwnerRegistration)ComponentDirector).Unregister(this);
+        base.Destructor();
+      }
     #endregion
 
     #region Pvt/Protected Fields
 
-        protected internal CompositeSink m_Owner;
-
-
 
         private Exception m_LastError;
-        protected string m_Name;
+        [Config]protected string m_Name;
+        [Config]protected int m_Order;
 
         private DateTime? m_LastErrorTimestamp;
 
@@ -124,36 +142,19 @@ namespace Azos.Log.Sinks
 
     #region Properties
 
-        public LogServiceBase DirectorLog { get { return this.ComponentDirector as LogServiceBase; } }
-        internal void __setLogSvc(LogServiceBase svc) { __setComponentDirector(svc); }
+        /// <summary>
+        /// Provides log-wide sink processing order
+        /// </summary>
+        public int Order => m_Order;
+
+        public override string ComponentLogTopic => CoreConsts.LOG_TOPIC;
 
         /// <summary>
-        /// References a log service that this destination services
+        /// Implements IInstrumentable
         /// </summary>
-        public LogServiceBase Service
-        {
-          get { return DirectorLog ?? (m_Owner != null ? m_Owner.Service : null); }
-        }
-
-
-        /// <summary>
-        /// Returns a composite sink that ownes this sink or null
-        /// </summary>
-        public CompositeSink Owner
-        {
-          get { return m_Owner;}
-        }
-
-
-        /// <summary>
-        /// Provides mnemonic destination name
-        /// </summary>
-        [Config("$" + CONFIG_NAME_ATTR, CONFIG_NAME_DEFAULT)]
-        public string Name
-        {
-          get { return m_Name ?? string.Empty; }
-          set { m_Name = value; }
-        }
+        [Config]
+        [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+        public override bool InstrumentationEnabled {  get; set; }
 
 
         /// <summary>
@@ -187,7 +188,7 @@ namespace Azos.Log.Sinks
         }
 
         /// <summary>
-        /// Returns last error timestamp (if any)
+        /// Returns last error timestamp (if any)in localized time
         /// </summary>
         private DateTime? LastErrorTimestamp
         {
@@ -385,57 +386,17 @@ namespace Azos.Log.Sinks
           set { m_RestartProcessingAfterMs = value; }
         }
 
-
-            /// <summary>
-            /// Returns named parameters that can be used to control this component
-            /// </summary>
-            public virtual IEnumerable<KeyValuePair<string, Type>> ExternalParameters{ get { return ExternalParameterAttribute.GetParameters(this); } }
-
-            /// <summary>
-            /// Returns named parameters that can be used to control this component
-            /// </summary>
-            public virtual IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups)
-            {
-              return ExternalParameterAttribute.GetParameters(this, groups);
-            }
-
-
     #endregion
 
 
     #region Public
 
         /// <summary>
-        /// Configures specified destination
-        /// </summary>
-        public void Configure(IConfigSectionNode fromNode)
-        {
-          DoConfigure(fromNode);
-          ConfigAttribute.Apply(this, fromNode);
-        }
-
-
-        /// <summary>
-        /// Activates destination by preparing it to start operation
-        /// </summary>
-        public virtual void Open()
-        {
-
-        }
-
-        /// <summary>
-        /// Deactivates destination
-        /// </summary>
-        public virtual void Close()
-        {
-
-        }
-
-        /// <summary>
         /// Sends the message into destination doing filter checks first.
         /// </summary>
         public void Send(Message msg)
         {
+          if (!Running) return;
           if (m_OnlyFailures) return;
 
           SendRegularAndFailures(msg);
@@ -443,11 +404,13 @@ namespace Azos.Log.Sinks
 
         internal void SendRegularAndFailures(Message msg)
         {
-          //When there was failure and it was not long enough
-          if (m_LastErrorTimestamp.HasValue)
-           if ((DirectorLog.Now - m_LastErrorTimestamp.Value).TotalMilliseconds < m_RestartProcessingAfterMs)
+           if (!Running) return;
+
+           //When there was failure and it was not long enough
+           if (m_LastErrorTimestamp.HasValue)
+           if ((LocalizedTime - m_LastErrorTimestamp.Value).TotalMilliseconds < m_RestartProcessingAfterMs)
            {
-             //this is afster than throwing exception
+             //this is after than throwing exception
              var error = new AzosException(string.Format(StringConsts.LOGSVC_DESTINATION_IS_OFFLINE_ERROR, Name));
              SetError(error, msg);
              return;
@@ -491,7 +454,7 @@ namespace Azos.Log.Sinks
                     DoSend(msg);
                    m_StopWatch.Stop();
 
-                   if (m_LastError != null) m_AverageProcessingTimeMs = 0f;//reset average time to 0 after 1st successfull execution after prior failure
+                   if (m_LastError != null) m_AverageProcessingTimeMs = 0f;//reset average time to 0 after 1st successful execution after prior failure
 
                    //EMA filter
                    m_AverageProcessingTimeMs = ( PROCESSING_TIME_EMA_FILTER * m_StopWatch.ElapsedMilliseconds) +
@@ -522,6 +485,7 @@ namespace Azos.Log.Sinks
         /// </summary>
         public void Pulse()
         {
+           if (!Running) return;
            try
            {
               DoPulse();
@@ -576,22 +540,6 @@ namespace Azos.Log.Sinks
         }
 
 
-            /// <summary>
-            /// Gets external parameter value returning true if parameter was found
-            /// </summary>
-            public virtual bool ExternalGetParameter(string name, out object value, params string[] groups)
-            {
-                return ExternalParameterAttribute.GetParameter(this, name, out value, groups);
-            }
-
-            /// <summary>
-            /// Sets external parameter value returning true if parameter was found and set
-            /// </summary>
-            public virtual bool ExternalSetParameter(string name, object value, params string[] groups)
-            {
-              return ExternalParameterAttribute.SetParameter(this, name, value, groups);
-            }
-
         #endregion
 
 
@@ -600,9 +548,9 @@ namespace Azos.Log.Sinks
         /// <summary>
         /// Override to perform derivative-specific configuration
         /// </summary>
-        protected virtual void DoConfigure(IConfigSectionNode node)
+        protected override void DoConfigure(IConfigSectionNode node)
         {
-          ConfigAttribute.Apply(this, node);
+          base.DoConfigure(node);
 
           var expr = node.AttrByName(CONFIG_FILTER_ATTR).Value;
           if (!string.IsNullOrWhiteSpace(expr))
@@ -618,14 +566,14 @@ namespace Azos.Log.Sinks
         {
           if (error != null)
           {
-            DirectorLog.FailoverDestination(this, error, msg);
+            ComponentDirector.LogDaemon.FailoverDestination(this, error, msg);
             m_LastError = error;
-            m_LastErrorTimestamp = DirectorLog.Now;
+            m_LastErrorTimestamp = LocalizedTime;
           }
           else
           {
             m_LastError = null;
-            DirectorLog.FailoverDestination(this, null, null);
+            ComponentDirector.LogDaemon.FailoverDestination(this, null, null);
             m_LastErrorTimestamp = null;
           }
         }
@@ -647,7 +595,7 @@ namespace Azos.Log.Sinks
     #endregion
 
 
-    #region Private Utils
+    #region .pvt
 
         private bool satisfyFilter(Message msg)
         {

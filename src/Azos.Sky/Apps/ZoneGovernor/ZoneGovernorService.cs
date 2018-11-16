@@ -89,7 +89,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
           m_SubInstrReductionLevels = new Dictionary<string,int>();
           m_SubInstrCallers = new ConcurrentDictionary<string, DateTime>();
 
-          m_SubLog = new LogService(this);
+          m_SubLog = new LogDaemon(this);
 
           m_SubHosts = new Registry<Contracts.HostInfo>();
           m_DynamicHostSlots = new Registry<Contracts.DynamicHostInfo>();
@@ -134,7 +134,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
       private ConcurrentDictionary<string, DateTime> m_SubInstrCallers;
       private int m_SubInstrCallerCount;
 
-      private LogService m_SubLog;
+      private LogDaemon m_SubLog;
 
       private Registry<Contracts.HostInfo> m_SubHosts;
       private Registry<Contracts.DynamicHostInfo> m_DynamicHostSlots;

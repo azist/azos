@@ -69,9 +69,9 @@ static string conf3 = @"
             {
                 app.Log.Write(Log.MessageType.Info, "Khello!");
 
-                Aver.AreEqual(1, ((LogService)app.Log).Sinks.Count());
+                Aver.AreEqual(1, ((LogDaemon)app.Log).Sinks.Count());
                 System.Threading.Thread.Sleep(1000);//wait for flush
-                Aver.IsNotNull( ((listDestination)((LogService)app.Log).Sinks.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
+                Aver.IsNotNull( ((listDestination)((LogDaemon)app.Log).Sinks.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
             }
 
         }
@@ -84,9 +84,9 @@ static string conf3 = @"
             {
                 app.Log.Write(Log.MessageType.Info, "Khello!");
 
-                Aver.AreEqual(1, ((LogService)app.Log).Sinks.Count());
+                Aver.AreEqual(1, ((LogDaemon)app.Log).Sinks.Count());
                 System.Threading.Thread.Sleep(1000);//wait for flush
-                Aver.IsNotNull( ((listDestination)((LogService)app.Log).Sinks.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
+                Aver.IsNotNull( ((listDestination)((LogDaemon)app.Log).Sinks.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
             }
 
         }
@@ -124,9 +124,9 @@ static string conf3 = @"
 
                             public override void Apply(object target)
                             {
-                                if (target is Log.LogService)
+                                if (target is Log.LogDaemon)
                                 {
-                                   var svc = (Log.LogService)target;
+                                   var svc = (Log.LogDaemon)target;
 
                                    svc.RegisterSink( new listDestination());
                                 }

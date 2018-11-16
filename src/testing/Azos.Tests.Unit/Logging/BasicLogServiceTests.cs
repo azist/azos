@@ -18,7 +18,7 @@ using Azos.Conf;
 
 using Azos.Log;
 using Azos.Log.Sinks;
-using LSVC = Azos.Log.LogService;
+using LSVC = Azos.Log.LogDaemon;
 using TSLS = Azos.Tests.Unit.TestSyncLog;
 using System.Reflection;
 
