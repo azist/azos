@@ -36,7 +36,7 @@ namespace Azos.Sky.Social.Trending
             }
 
 
-    public TrendingSystemInstrumentationProvider(InstrumentationService director) : base(director)
+    public TrendingSystemInstrumentationProvider(InstrumentationDaemon director) : base(director)
     {
     }
 

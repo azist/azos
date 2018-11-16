@@ -22,7 +22,7 @@ namespace Azos.Sky.Instrumentation
 
     #region .ctor
     public SkyInstrumentationProvider() : base(null) {}
-    public SkyInstrumentationProvider(InstrumentationService director) : base(director) {}
+    public SkyInstrumentationProvider(InstrumentationDaemon director) : base(director) {}
     #endregion
 
     #region Fields

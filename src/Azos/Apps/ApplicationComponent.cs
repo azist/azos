@@ -51,7 +51,7 @@ namespace Azos.Apps
     /// Sets the log level for this component, if not defined then the component logger uses the director/log level
     /// via the ComponentEffectiveLogLevel property
     /// </summary>
-    Log.MessageType? ComponentLogLevel { get; }
+    Log.MessageType? ComponentLogLevel { get; set; }
 
 
     /// <summary>

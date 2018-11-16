@@ -4,22 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Threading;
-
-
-using Azos.Log;
-using Azos.Conf;
-using Azos.Serialization;
-using Azos.Serialization.Slim;
 
 namespace Azos.Apps.Volatile
 {
@@ -28,38 +14,22 @@ namespace Azos.Apps.Volatile
   /// </summary>
   public class NOPObjectStoreProvider : ObjectStoreProvider
   {
-    #region .ctor
-        public NOPObjectStoreProvider() : base(null)
-        {
+    internal NOPObjectStoreProvider(ObjectStoreDaemon director) : base(director)
+    {
 
-        }
+    }
 
-        public NOPObjectStoreProvider(ObjectStoreDaemon director) : base(director)
-        {
+    public override IEnumerable<ObjectStoreEntry> LoadAll()
+    {
+      return Enumerable.Empty<ObjectStoreEntry>();
+    }
 
-        }
-    #endregion
+    public override void Write(ObjectStoreEntry entry)
+    {
+    }
 
-
-    #region Public
-
-        public override IEnumerable<ObjectStoreEntry> LoadAll()
-        {
-            return Enumerable.Empty<ObjectStoreEntry>();
-        }
-
-        public override void Write(ObjectStoreEntry entry)
-        {
-
-        }
-
-        public override void Delete(ObjectStoreEntry entry)
-        {
-
-        }
-
-
-    #endregion
-
+    public override void Delete(ObjectStoreEntry entry)
+    {
+    }
   }
 }

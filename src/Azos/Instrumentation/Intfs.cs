@@ -94,7 +94,7 @@ namespace Azos.Instrumentation
       IEnumerable<Datum> GetBufferedResults(int count=0);
 
       /// <summary>
-      /// Returns samples starting around the the specified UTCdate in the near-chronological order,
+      /// Returns samples starting around the specified UTCdate in the near-chronological order,
       /// meaning that data is already sorted by time MOST of the TIME, however sorting is NOT GUARANTEED for all
       ///  result records returned as enumeration is a lazy procedure that does not make copies/take locks.
       /// The enumeration is empty if ResultBufferSize is less or equal to zero entries

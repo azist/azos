@@ -25,7 +25,7 @@ namespace Azos.Apps.Volatile
   /// This class is thread-safe unless specified otherwise on a property/method level
   /// </summary>
   [ConfigMacroContext]
-  public class ObjectStoreDaemon : DaemonWithInstrumentation<object>, IObjectStoreImplementation
+  public class ObjectStoreDaemon : DaemonWithInstrumentation<IApplicationComponent>, IObjectStoreImplementation
   {
     #region CONSTS
 
@@ -51,21 +51,20 @@ namespace Azos.Apps.Volatile
 
     #region .ctor
 
-        /// <summary>
-        /// Creates instance of the store service
-        /// </summary>
-        public ObjectStoreDaemon() : this(new Guid())
-        {
-        }
+      /// <summary>
+      /// Creates instance of the store service
+      /// </summary>
+      public ObjectStoreDaemon(IApplication app) : base(app)
+      {
+      }
 
 
-        /// <summary>
-        /// Creates instance of the store service with the state identified by "storeGUID". Refer to "StoreGUID" property.
-        /// </summary>
-        public ObjectStoreDaemon(Guid storeGUID) : base(null)
-        {
-          m_StoreGUID = storeGUID;
-        }
+      /// <summary>
+      /// Creates instance of the store service with the state identified by "storeGUID". Refer to "StoreGUID" property.
+      /// </summary>
+      public ObjectStoreDaemon(IApplication app, IApplicationComponent director) : base(app, director)
+      {
+      }
 
     #endregion
 
@@ -75,7 +74,7 @@ namespace Azos.Apps.Volatile
         private int m_ObjectLifeSpanMS = DEFAULT_OBJECT_LEFESPAN_MS;
 
 
-        private Guid m_StoreGUID;
+        private Guid m_StoreGUID = Guid.NewGuid();
 
         private ObjectStoreProvider m_Provider;
 
@@ -95,11 +94,13 @@ namespace Azos.Apps.Volatile
 
         public override string ComponentCommonName { get { return "objstore"; }}
 
+        public override string ComponentLogTopic => CoreConsts.OBJSTORE_TOPIC;
+
 
         /// <summary>
         /// Returns unique identifier that identifies this particular store.
         /// This ID is used to load store's state from external medium upon start-up.
-        /// One may think of this ID as of a "pointer/handle" that survives phisical object destroy/create cycle
+        /// One may think of this ID as of a "pointer/handle" that survives physical object destroy/create cycle
         /// </summary>
         public Guid StoreGUID
         {

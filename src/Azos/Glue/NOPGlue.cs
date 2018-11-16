@@ -17,13 +17,12 @@ namespace Azos.Glue
 {
     public class NOPGlue : ApplicationComponent, IGlueImplementation
     {
-        private static NOPGlue s_Instance = new NOPGlue();
 
-        private NOPGlue():base() {}
-
-        public static NOPGlue Instance { get { return s_Instance;} }
+         internal NOPGlue(IApplication app) : base(app) {}
 
 
+
+         public override string ComponentLogTopic => CoreConsts.GLUE_TOPIC;
          public bool InstrumentationEnabled{ get{return false;} set{}}
          public IEnumerable<KeyValuePair<string, Type>> ExternalParameters{ get{ return null;}}
          public IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups){ return null;}
@@ -97,19 +96,19 @@ namespace Azos.Glue
 
         public int DefaultDispatchTimeoutMs
         {
-            get { return GlueService.DEFAULT_DISPATCH_TIMEOUT_MS; }
+            get { return Implementation.GlueDaemon.DEFAULT_DISPATCH_TIMEOUT_MS; }
             set {}
         }
 
         public int DefaultTimeoutMs
         {
-            get { return GlueService.DEFAULT_TIMEOUT_MS; }
+            get { return Implementation.GlueDaemon.DEFAULT_TIMEOUT_MS; }
             set {}
         }
 
          public int ServerInstanceLockTimeoutMs
         {
-            get { return GlueService.DEFAULT_SERVER_INSTANCE_LOCK_TIMEOUT_MS; }
+            get { return Implementation.GlueDaemon.DEFAULT_SERVER_INSTANCE_LOCK_TIMEOUT_MS; }
             set {}
         }
 

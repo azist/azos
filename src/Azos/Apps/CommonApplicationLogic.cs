@@ -71,11 +71,12 @@ namespace Azos.Apps
       {
         m_NOPModule = new NOPModule(this);
         m_NOPObjectStore = new NOPObjectStore(this);
+        m_NOPGlue = new NOPGlue(this);
 
         m_AllowNesting = allowNesting;
         m_CommandArgs = (cmdLineArgs ?? new MemoryConfiguration()).Root;
         m_ConfigRoot  = rootConfig ?? GetConfiguration().Root;
-        m_Realm = new ApplicationRealmBase();
+        m_Realm = new ApplicationRealmBase(this);
       }
 
       protected override void Destructor()
@@ -126,6 +127,7 @@ namespace Azos.Apps
       protected IObjectStoreImplementation m_NOPObjectStore;
 
       protected IGlueImplementation m_Glue;
+      protected IGlueImplementation m_NOPGlue;
 
       protected ISecurityManagerImplementation m_SecurityManager;
 
@@ -294,10 +296,7 @@ namespace Azos.Apps
         /// <summary>
         /// References glue that can be used to interconnect remote instances
         /// </summary>
-        public IGlue Glue
-        {
-          get { return m_Glue ?? NOPGlue.Instance; }
-        }
+        public IGlue Glue => m_Glue ?? m_NOPGlue;
 
 
         /// <summary>
@@ -1003,7 +1002,7 @@ namespace Azos.Apps
         if (node.Exists)
           try
           {
-            m_Instrumentation = FactoryUtils.MakeAndConfigure(node, typeof(InstrumentationService)) as IInstrumentationImplementation;
+            m_Instrumentation = FactoryUtils.MakeAndConfigure(node, typeof(InstrumentationDaemon)) as IInstrumentationImplementation;
 
             if (m_Instrumentation==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
                                                     node
@@ -1090,7 +1089,7 @@ namespace Azos.Apps
         if (node.Exists)
           try
           {
-            m_Glue = FactoryUtils.MakeAndConfigure(node, typeof(Azos.Glue.Implementation.GlueService)) as IGlueImplementation;
+            m_Glue = FactoryUtils.MakeAndConfigure(node, typeof(Azos.Glue.Implementation.GlueDaemon)) as IGlueImplementation;
 
             if (m_Glue==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
                                                             node

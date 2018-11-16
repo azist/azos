@@ -23,7 +23,7 @@ namespace Azos.Glue.Implementation
     /// Provides default implementation for IGlue. This is the root context for all other glue objects
     /// </summary>
     [ConfigMacroContext]
-    public sealed class GlueService : DaemonWithInstrumentation<object>, IGlueImplementation
+    public sealed class GlueDaemon : DaemonWithInstrumentation<IApplicationComponent>, IGlueImplementation
     {
         #region CONSTS
            public const string CONFIG_PROVIDERS_SECTION = "providers";
@@ -55,15 +55,15 @@ namespace Azos.Glue.Implementation
 
         #region .ctors
 
-            public GlueService() : base()
-            {
+          public GlueDaemon(IApplication app) : base(app)
+          {
 
-            }
+          }
 
-            public GlueService(object director) : base(director)
-            {
+          public GlueDaemon(IApplication app, IApplicationComponent director) : base(app, director)
+          {
 
-            }
+          }
         #endregion
 
         #region Fields
@@ -103,120 +103,122 @@ namespace Azos.Glue.Implementation
         #endregion
 
 
-                #region Properties
+        #region Properties
 
-                    public override string ComponentCommonName { get { return "glue"; }}
+            public override string ComponentCommonName => "glue";
 
-                    /// <summary>
-                    /// Implements IInstrumentable
-                    /// </summary>
-                    [Config(Default=false)]
-                    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_GLUE, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-                    public override bool InstrumentationEnabled
-                    {
-                      get { return m_InstrumentationEnabled;}
-                      set { m_InstrumentationEnabled = value;}
-                    }
+            public override string ComponentLogTopic => CoreConsts.GLUE_TOPIC;
 
-                    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_GLUE)]
-                    public int DefaultDispatchTimeoutMs
-                    {
-                      get { return m_DefaultDispatchTimeoutMs; }
-                      set { m_DefaultDispatchTimeoutMs = value>0 ? value : 0; }
-                    }
+            /// <summary>
+            /// Implements IInstrumentable
+            /// </summary>
+            [Config(Default=false)]
+            [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_GLUE, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+            public override bool InstrumentationEnabled
+            {
+              get { return m_InstrumentationEnabled;}
+              set { m_InstrumentationEnabled = value;}
+            }
 
-                    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_GLUE)]
-                    public int DefaultTimeoutMs
-                    {
-                      get { return m_DefaultTimeoutMs; }
-                      set { m_DefaultTimeoutMs = value>0 ? value : 0; }
-                    }
+            [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_GLUE)]
+            public int DefaultDispatchTimeoutMs
+            {
+              get { return m_DefaultDispatchTimeoutMs; }
+              set { m_DefaultDispatchTimeoutMs = value>0 ? value : 0; }
+            }
 
-                    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_GLUE, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-                    public MessageType ClientLogLevel
-                    {
-                      get { return m_ClientLogLevel; }
-                      set { m_ClientLogLevel = value; }
-                    }
+            [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_GLUE)]
+            public int DefaultTimeoutMs
+            {
+              get { return m_DefaultTimeoutMs; }
+              set { m_DefaultTimeoutMs = value>0 ? value : 0; }
+            }
 
-                    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_GLUE, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-                    public MessageType ServerLogLevel
-                    {
-                      get { return m_ServerLogLevel; }
-                      set { m_ServerLogLevel = value; }
-                    }
+            [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_GLUE, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+            public MessageType ClientLogLevel
+            {
+              get { return m_ClientLogLevel; }
+              set { m_ClientLogLevel = value; }
+            }
 
-                    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_GLUE)]
-                    public int ServerInstanceLockTimeoutMs
-                    {
-                      get { return m_ServerInstanceLockTimeoutMs; }
-                      set { m_ServerInstanceLockTimeoutMs = value<MINIMUM_SERVER_INSTANCE_LOCK_TIMEOUT_MS ? MINIMUM_SERVER_INSTANCE_LOCK_TIMEOUT_MS : value; }
-                    }
+            [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_GLUE, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+            public MessageType ServerLogLevel
+            {
+              get { return m_ServerLogLevel; }
+              set { m_ServerLogLevel = value; }
+            }
 
-                    public IRegistry<Provider> Providers
-                    {
-                        get { return m_Providers; }
-                    }
+            [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_GLUE)]
+            public int ServerInstanceLockTimeoutMs
+            {
+              get { return m_ServerInstanceLockTimeoutMs; }
+              set { m_ServerInstanceLockTimeoutMs = value<MINIMUM_SERVER_INSTANCE_LOCK_TIMEOUT_MS ? MINIMUM_SERVER_INSTANCE_LOCK_TIMEOUT_MS : value; }
+            }
 
-                    public IRegistry<Binding> Bindings
-                    {
-                        get { return m_Bindings; }
-                    }
+            public IRegistry<Provider> Providers
+            {
+                get { return m_Providers; }
+            }
 
-                    public IRegistry<ServerEndPoint> Servers
-                    {
-                        get { return m_Servers; }
-                    }
+            public IRegistry<Binding> Bindings
+            {
+                get { return m_Bindings; }
+            }
 
-
-
-                    public IConfigSectionNode GlueConfiguration
-                    {
-                      get { return App.ConfigRoot[CommonApplicationLogic.CONFIG_GLUE_SECTION];}
-                    }
-
-                    public IConfigSectionNode ProvidersConfigurationSection
-                    {
-                      get { return GlueConfiguration[CONFIG_PROVIDERS_SECTION]; }
-                    }
-
-                    public IEnumerable<IConfigSectionNode> ProviderConfigurations
-                    {
-                      get { return ProvidersConfigurationSection.Children.Where(n=> n.IsSameName(CONFIG_PROVIDER_SECTION)); }
-                    }
-
-                    public IConfigSectionNode BindingsConfigurationSection
-                    {
-                      get { return GlueConfiguration[CONFIG_BINDINGS_SECTION]; }
-                    }
-
-                    public IEnumerable<IConfigSectionNode> BindingConfigurations
-                    {
-                       get { return BindingsConfigurationSection.Children.Where(n=> n.IsSameName(CONFIG_BINDING_SECTION)); }
-                    }
-
-                    public IConfigSectionNode ServersConfigurationSection
-                    {
-                      get { return GlueConfiguration[CONFIG_SERVERS_SECTION]; }
-                    }
-
-                    public IEnumerable<IConfigSectionNode> ServerConfigurations
-                    {
-                      get { return ServersConfigurationSection.Children.Where(n=> n.IsSameName(CONFIG_SERVER_SECTION)); }
-                    }
-
-                    /// <summary>
-                    /// Returns client message inspectors for this instance
-                    /// </summary>
-                    public OrderedRegistry<IClientMsgInspector> ClientMsgInspectors { get { return m_ClientMsgInspectors; } }
-
-                    /// <summary>
-                    /// Returns server message inspectors for this instance
-                    /// </summary>
-                    public OrderedRegistry<IServerMsgInspector> ServerMsgInspectors { get { return m_ServerMsgInspectors; } }
+            public IRegistry<ServerEndPoint> Servers
+            {
+                get { return m_Servers; }
+            }
 
 
-                #endregion
+
+            public IConfigSectionNode GlueConfiguration
+            {
+              get { return App.ConfigRoot[CommonApplicationLogic.CONFIG_GLUE_SECTION];}
+            }
+
+            public IConfigSectionNode ProvidersConfigurationSection
+            {
+              get { return GlueConfiguration[CONFIG_PROVIDERS_SECTION]; }
+            }
+
+            public IEnumerable<IConfigSectionNode> ProviderConfigurations
+            {
+              get { return ProvidersConfigurationSection.Children.Where(n=> n.IsSameName(CONFIG_PROVIDER_SECTION)); }
+            }
+
+            public IConfigSectionNode BindingsConfigurationSection
+            {
+              get { return GlueConfiguration[CONFIG_BINDINGS_SECTION]; }
+            }
+
+            public IEnumerable<IConfigSectionNode> BindingConfigurations
+            {
+                get { return BindingsConfigurationSection.Children.Where(n=> n.IsSameName(CONFIG_BINDING_SECTION)); }
+            }
+
+            public IConfigSectionNode ServersConfigurationSection
+            {
+              get { return GlueConfiguration[CONFIG_SERVERS_SECTION]; }
+            }
+
+            public IEnumerable<IConfigSectionNode> ServerConfigurations
+            {
+              get { return ServersConfigurationSection.Children.Where(n=> n.IsSameName(CONFIG_SERVER_SECTION)); }
+            }
+
+            /// <summary>
+            /// Returns client message inspectors for this instance
+            /// </summary>
+            public OrderedRegistry<IClientMsgInspector> ClientMsgInspectors { get { return m_ClientMsgInspectors; } }
+
+            /// <summary>
+            /// Returns server message inspectors for this instance
+            /// </summary>
+            public OrderedRegistry<IServerMsgInspector> ServerMsgInspectors { get { return m_ServerMsgInspectors; } }
+
+
+        #endregion
 
 
 

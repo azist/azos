@@ -49,7 +49,7 @@ namespace Azos.Sky.Instrumentation
       {
       }
 
-      public SkyZoneInstrumentationProvider(InstrumentationService director) : base(director)
+      public SkyZoneInstrumentationProvider(InstrumentationDaemon director) : base(director)
       {
       }
     #endregion

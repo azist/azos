@@ -28,7 +28,7 @@ namespace Azos.Tests.Integration.Glue
         public void GlueConfiguredByCode()
         {
             //This is an example of how to use Glue without pre-configured app container
-            var glue = new Azos.Glue.Implementation.GlueService();
+            var glue = new Azos.Glue.Implementation.GlueDaemon();
             glue.Start();
             try
             {
@@ -45,7 +45,7 @@ namespace Azos.Tests.Integration.Glue
         public void GlueConfiguredByCode_MPX()
         {
             //This is an example of how to use Glue without pre-configured app container
-            var glue = new Azos.Glue.Implementation.GlueService();
+            var glue = new Azos.Glue.Implementation.GlueDaemon();
             glue.Start();
             try
             {
@@ -66,7 +66,7 @@ namespace Azos.Tests.Integration.Glue
         {
             //This is an example of how to use Glue without pre-configured app container
             var app = new TestApplication(){ Active = true };
-            var glue = new Azos.Glue.Implementation.GlueService(app);
+            var glue = new Azos.Glue.Implementation.GlueDaemon(app);
             glue.Start();
             try
             {
@@ -93,7 +93,7 @@ namespace Azos.Tests.Integration.Glue
         {
             //This is an example of how to use Glue without pre-configured app container
             var app = new TestApplication(){ Active = true };
-            var glue = new Azos.Glue.Implementation.GlueService();
+            var glue = new Azos.Glue.Implementation.GlueDaemon();
             glue.Start();
             try
             {

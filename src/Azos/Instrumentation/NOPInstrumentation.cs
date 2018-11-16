@@ -17,23 +17,14 @@ namespace Azos.Instrumentation
     /// </summary>
     public sealed class NOPInstrumentation : ApplicationComponent, IInstrumentationImplementation
     {
-         private static NOPInstrumentation s_Instance = new NOPInstrumentation();
 
-         private NOPInstrumentation() : base()
+         internal NOPInstrumentation(IApplication app) : base(app)
          {
 
          }
-
-         /// <summary>
-         /// Returns a singlelton instance of the NOPInstrumentation
-         /// </summary>
-         public static NOPInstrumentation Instance
-         {
-           get { return s_Instance; }
-         }
-
 
          public bool InstrumentationEnabled{ get{return false;} set{}}
+         public override string ComponentLogTopic => CoreConsts.INSTRUMENTATION_TOPIC;
          public IEnumerable<KeyValuePair<string, Type>> ExternalParameters{ get{ return null;}}
          public IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups){ return null;}
          public bool ExternalGetParameter(string name, out object value, params string[] groups)

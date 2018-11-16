@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
 using Azos.Apps;
@@ -21,13 +20,13 @@ namespace Azos.Instrumentation
     /// Implements IInstrumentation. This service aggregates data by type,source and sends result into provider
     /// </summary>
     [ConfigMacroContext]
-    public sealed class InstrumentationService : DaemonWithInstrumentation<object>, IInstrumentationImplementation
+    public sealed class InstrumentationDaemon : DaemonWithInstrumentation<IApplicationComponent>, IInstrumentationImplementation
     {
         #region CONSTS
             private const int MIN_INTERVAL_MSEC = 500;
-            private const int DEFAULT_INTERVAL_MSEC = 7000;
+            private const int DEFAULT_INTERVAL_MSEC = 7397;
 
-            private const string THREAD_NAME = "InstrumentationSvc Thread";
+            private const string THREAD_NAME = "Instrumentation Daemon Thread";
 
 
             public const string CONFIG_PROVIDER_SECTION = "provider";
@@ -44,15 +43,15 @@ namespace Azos.Instrumentation
 
         #region .ctor
 
-            /// <summary>
-            /// Creates a instrumentation service instance
-            /// </summary>
-            public InstrumentationService() : base(null) {}
+          /// <summary>
+          /// Creates a instrumentation service instance
+          /// </summary>
+          public InstrumentationDaemon(IApplication app) : base(app) {}
 
-            /// <summary>
-            /// Creates a instrumentation service instance
-            /// </summary>
-            public InstrumentationService(object director) : base(director) {}
+          /// <summary>
+          /// Creates a instrumentation service instance
+          /// </summary>
+          public InstrumentationDaemon(IApplication app, IApplicationComponent director) : base(app, director) {}
 
 
         #endregion
@@ -88,18 +87,14 @@ namespace Azos.Instrumentation
 
             public override string ComponentCommonName { get { return "instr"; }}
 
-            public bool Enabled
-            {
-                get { return true; }
-            }
+            public override string ComponentLogTopic => CoreConsts.INSTRUMENTATION_TOPIC;
+
+            public bool Enabled => true;
 
             /// <summary>
             /// Returns true to indicate that instrumentation does not have any space left to record more data
             /// </summary>
-            public bool Overflown
-            {
-                get { return m_RecordCount>m_MaxRecordCount;}
-            }
+            public bool Overflown => m_RecordCount>m_MaxRecordCount;
 
 
             /// <summary>
@@ -222,10 +217,6 @@ namespace Azos.Instrumentation
                 return bucketed.Keys.ToArray();
               }
             }
-
-            [Config(Default = MessageType.Warning)]
-            [ExternalParameter]
-            public MessageType LogLevel { get; set; }
 
         #endregion
 
@@ -502,56 +493,31 @@ namespace Azos.Instrumentation
                           throw new AzosException(StringConsts.DAEMON_INVALID_STATE + msg);
                 }
 
-                public Guid Log(MessageType type,
-                                string from,
-                                string message,
-                                Exception error = null,
-                                Guid? relatedMessageID = null,
-                                string parameters = null)
-                {
-                  if (type < LogLevel) return Guid.Empty;
-
-                  var logMessage = new Message
-                  {
-                    Topic = "term",
-                    Text = message ?? string.Empty,
-                    Type = type,
-                    From = "{0}.{1}".Args(this.GetType().Name, from),
-                    Exception = error,
-                    Parameters = parameters
-                  };
-                  if (relatedMessageID.HasValue) logMessage.RelatedTo = relatedMessageID.Value;
-
-                  App.Log.Write(logMessage);
-
-                  return logMessage.Guid;
-                }
-
                 private void threadSpin()
                 {
-                     try
-                     {
-                          while (Running)
-                          {
-                            if (m_SelfInstrumented)
-                             instrumentSelf();
+                  try
+                  {
+                    while (Running)
+                    {
+                      if (m_SelfInstrumented)
+                        instrumentSelf();
 
-                            write();
+                      write();
 
-                            if (m_OSInstrumentationIntervalMS <= 0)
-                              m_Trigger.WaitOne(m_ProcessingIntervalMS);
-                            else
-                              instrumentOS();
-                          }//while
+                      if (m_OSInstrumentationIntervalMS <= 0)
+                        m_Trigger.WaitOne(m_ProcessingIntervalMS);
+                      else
+                        instrumentOS();
+                    }//while
 
-                          write();
-                     }
-                     catch(Exception e)
-                     {
-                         Log(MessageType.Emergency, " threadSpin() leaked exception", e.Message);
-                     }
+                    write();
+                  }
+                  catch(Exception e)
+                  {
+                    WriteLog(MessageType.Emergency, " threadSpin() leaked exception", e.Message);
+                  }
 
-                     Log(MessageType.Info, "Exiting threadSpin()", null);
+                  WriteLog(MessageType.Info, "Exiting threadSpin()", null);
                 }
 
                 //adds data that described this very instance
@@ -634,7 +600,7 @@ namespace Azos.Instrumentation
                             catch (Exception error)
                             {
                               var et = error.ToMessageWithType();
-                              Log(MessageType.Error, string.Format("{0}.Aggregate(IEnumerable<Datum>) leaked {1}",
+                              WriteLog(MessageType.Error, string.Format("{0}.Aggregate(IEnumerable<Datum>) leaked {1}",
                                                                     datum.GetType().FullName,
                                                                     et), et);
                             }
@@ -647,7 +613,7 @@ namespace Azos.Instrumentation
                             catch (Exception error)
                             {
                               var et = error.ToMessageWithType();
-                              Log(MessageType.CatastrophicError, string.Format("{0}.Write(datum) leaked {1}",
+                              WriteLog(MessageType.CatastrophicError, string.Format("{0}.Write(datum) leaked {1}",
                                                                     m_Provider.GetType().FullName,
                                                                     et), et);
                             }
@@ -662,7 +628,7 @@ namespace Azos.Instrumentation
                       catch (Exception error)
                       {
                         var et = error.ToMessageWithType();
-                        Log(MessageType.CatastrophicError, string.Format("{0}.BeforeType() leaked {1}",
+                        WriteLog(MessageType.CatastrophicError, string.Format("{0}.BeforeType() leaked {1}",
                                                               m_Provider.GetType().FullName,
                                                               et), et);
                       }
@@ -672,7 +638,7 @@ namespace Azos.Instrumentation
                   catch(Exception error)
                   {
                     var et = error.ToMessageWithType();
-                    Log(MessageType.CatastrophicError, string.Format("{0}.BeforeBatch() leaked {1}",
+                    WriteLog(MessageType.CatastrophicError, string.Format("{0}.BeforeBatch() leaked {1}",
                                                           m_Provider.GetType().FullName,
                                                           et), et);
                   }

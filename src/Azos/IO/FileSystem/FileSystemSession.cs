@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Conf;
@@ -150,7 +149,11 @@ namespace Azos.IO.FileSystem
         /// <returns>FileSystemSessionItem instance - a directory or a file or null if it does not exist</returns>
         public FileSystemSessionItem this[string path]
         {
-          get { return m_FileSystem.DoNavigate(this, path); }
+          get
+          {
+            CheckDisposed();
+            return m_FileSystem.DoNavigate(this, path);
+          }
         }
 
                 /// <summary>
@@ -158,6 +161,7 @@ namespace Azos.IO.FileSystem
                 /// </summary>
                 public Task<FileSystemSessionItem> GetItemAsync(string path)
                 {
+                  CheckDisposed();
                   return m_FileSystem.DoNavigateAsync(this, path);
                 }
 
@@ -166,16 +170,24 @@ namespace Azos.IO.FileSystem
         /// </summary>
         public virtual IFileSystemVersion Version
         {
-          get { return m_FileSystem.DoGetVersion( this ); }
-          set { m_FileSystem.DoSetVersion( this, value ); }
+          get
+          {
+            CheckDisposed();
+            return m_FileSystem.DoGetVersion( this );
+          }
+          set
+          {
+            CheckDisposed();
+            m_FileSystem.DoSetVersion( this, value );
+          }
         }
 
                 /// <summary>
                 /// Async version of <see cref="P:Version"/>
                 /// </summary>
-                /// <returns></returns>
                 public virtual Task SetFileSystemVersionAsync(IFileSystemVersion version)
                 {
+                  CheckDisposed();
                   return m_FileSystem.DoSetVersionAsync(this, version);
                 }
 
@@ -184,7 +196,11 @@ namespace Azos.IO.FileSystem
         /// </summary>
         public virtual IFileSystemVersion LatestVersion
         {
-          get { return m_FileSystem.DoGetLatestVersion( this );}
+          get
+          {
+            CheckDisposed();
+            return m_FileSystem.DoGetLatestVersion( this );
+          }
         }
 
                 /// <summary>
@@ -193,6 +209,7 @@ namespace Azos.IO.FileSystem
                 /// <returns></returns>
                 public virtual Task<IFileSystemVersion> GetLatestVersionAsync()
                 {
+                  CheckDisposed();
                   return m_FileSystem.DoGetLatestVersionAsync(this);
                 }
 
@@ -200,12 +217,12 @@ namespace Azos.IO.FileSystem
         /// Returns security manager that services this file system session. This may be useful in cases when file system implements
         ///  its own permission structure and user directory
         /// </summary>
-        public ISecurityManager SecurityManager { get { return App.SecurityManager; }}
+        public virtual ISecurityManager SecurityManager { get { return App.SecurityManager; }}
 
         /// <summary>
         /// Returns unique sequence provider for the system or null if it is not supported
         /// </summary>
-        public Data.Access.IUniqueSequenceProvider UniqueSequenceProvider { get { return null; }}
+        public virtual Data.Access.IUniqueSequenceProvider UniqueSequenceProvider { get { return null; }}
 
       #endregion
 
@@ -216,6 +233,7 @@ namespace Azos.IO.FileSystem
         /// </summary>
         public IFileSystemTransactionHandle BeginTransaction()
         {
+          CheckDisposed();
           m_TransactionHandle = m_FileSystem.DoBeginTransaction( this );
           return m_TransactionHandle;
         }
@@ -225,6 +243,7 @@ namespace Azos.IO.FileSystem
                 /// </summary>
                 public Task<IFileSystemTransactionHandle> BeginTransactionAsync()
                 {
+                  CheckDisposed();
                   return m_FileSystem.DoBeginTransactionAsync(this);
                 }
 
@@ -233,6 +252,7 @@ namespace Azos.IO.FileSystem
         /// </summary>
         public void CommitTransaction()
         {
+          CheckDisposed();
           m_FileSystem.DoCommitTransaction( this );
         }
 
@@ -241,6 +261,7 @@ namespace Azos.IO.FileSystem
                 /// </summary>
                 public Task CommitTransactionAsync()
                 {
+                  CheckDisposed();
                   return m_FileSystem.DoCommitTransactionAsync(this);
                 }
 
@@ -250,7 +271,8 @@ namespace Azos.IO.FileSystem
         /// </summary>
         public void RollbackTransaction()
         {
-          m_FileSystem.DoRollbackTransaction( this );
+           CheckDisposed();
+           m_FileSystem.DoRollbackTransaction( this );
         }
 
                 /// <summary>
@@ -258,6 +280,7 @@ namespace Azos.IO.FileSystem
                 /// </summary>
                 public Task RollbackTransactionAsync()
                 {
+                  CheckDisposed();
                   return m_FileSystem.DoRollbackTransactionAsync(this);
                 }
 
@@ -284,6 +307,12 @@ namespace Azos.IO.FileSystem
         protected virtual void ValidateConnectParams(FileSystemSessionConnectParams cParams)
         {
 
+        }
+
+        protected internal void CheckDisposed()
+        {
+           this.EnsureObjectNotDisposed();
+           this.m_FileSystem.EnsureObjectNotDisposed();
         }
 
       #endregion

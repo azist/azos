@@ -15,7 +15,7 @@ namespace Azos.IO.FileSystem
     /// <summary>
     /// Stipulates contract for various file system abstractions.
     /// FileSystem abstractions are mostly useful for working with components/classes that may need to inter-operate not only with local file system
-    ///  but also with distributed systems like ApacheHDFS, SVN, GIT, or Aum Cluster File System (ACFS).
+    ///  but also with distributed systems like ApacheHDFS, SVN, GIT, or Sky Cluster File System.
     ///  Azos library provides compatibility wrapper 'Azos.IO.FileSystem.Local.LocalFileSystem' for access to local machine file system
     ///  (which is based on this class and is implemented using a traditional System.IO.* set of classes).
     /// The FileSystem abstraction supports the following concepts: versioning, transactions, metadata, security; however it does not guarantee that
@@ -51,7 +51,7 @@ namespace Azos.IO.FileSystem
         string CombinePaths(string first, params string[] others);
     }
 
-    public interface IFileSystemImplementation : IFileSystem, IConfigurable
+    public interface IFileSystemImplementation : IFileSystem, IConfigurable, IDisposable
     {
 
     }

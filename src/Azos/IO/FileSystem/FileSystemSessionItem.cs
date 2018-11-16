@@ -302,6 +302,7 @@ namespace Azos.IO.FileSystem
         /// </summary>
         public void CheckCanChange()
         {
+          CheckDisposed();
           FileSystem.DoCheckCanChange( this );
           if (IsReadOnly)
             throw new AzosIOException(StringConsts.IO_FS_ITEM_IS_READONLY_ERROR.Args(this.m_FileSystem, this));
@@ -312,6 +313,7 @@ namespace Azos.IO.FileSystem
                 /// </summary>
                 public Task CheckCanChangeAsync()
                 {
+                  CheckDisposed();
                   return FileSystem.DoCheckCanChangeAsync(this);
                 }
 
@@ -321,7 +323,6 @@ namespace Azos.IO.FileSystem
         public void Rename( string newName)
         {
           CheckCanChange();
-          EnsureObjectNotDisposed();
           if (m_Session.FileSystem.DoRenameItem(this, newName))
             m_Modified = true;
         }
@@ -332,7 +333,7 @@ namespace Azos.IO.FileSystem
                 public Task RenameAsync( string newName)
                 {
                   return CheckCanChangeAsync().ContinueWith(t => {
-                    EnsureObjectNotDisposed();
+                    CheckDisposed();
                     m_Session.FileSystem.DoRenameItemAsync(this, newName).ContinueWith(t1 => {
                       if (t1.Result) m_Modified = true;
                     }, TaskContinuationOptions.OnlyOnRanToCompletion);
@@ -346,7 +347,6 @@ namespace Azos.IO.FileSystem
         public void Delete()
         {
           CheckCanChange();
-          EnsureObjectNotDisposed();
           m_FileSystem.DoDeleteItem(this);
           Dispose();
         }
@@ -357,7 +357,7 @@ namespace Azos.IO.FileSystem
                 public Task DeleteAsync()
                 {
                   return CheckCanChangeAsync().ContinueWith(t => {
-                    EnsureObjectNotDisposed();
+                    CheckDisposed();
                     m_Session.FileSystem.DoDeleteItemAsync(this).ContinueWith(t1 => {
                       Dispose();
                     }, TaskContinuationOptions.OnlyOnRanToCompletion);
@@ -369,6 +369,7 @@ namespace Azos.IO.FileSystem
         /// </summary>
         public void Refresh()
         {
+          CheckDisposed();
           m_FileSystem.DoRefresh( this );
         }
 
@@ -377,6 +378,7 @@ namespace Azos.IO.FileSystem
                 /// </summary>
                 public Task RefreshAsync()
                 {
+                  CheckDisposed();
                   return m_FileSystem.DoRefreshAsync(this);
                 }
 
@@ -385,6 +387,11 @@ namespace Azos.IO.FileSystem
           return "{0}({1})".Args(GetType().Name, Path);
         }
 
-      #endregion
-    }
+        protected void CheckDisposed()
+        {
+          this.EnsureObjectNotDisposed();
+          this.m_Session.CheckDisposed();
+        }
+    #endregion
+  }
 }

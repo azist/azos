@@ -13,7 +13,7 @@ namespace Azos.Instrumentation
   public class LogInstrumentationProvider : InstrumentationProvider
   {
     #region .ctor
-    public LogInstrumentationProvider(InstrumentationService director) : base(director) { }
+    public LogInstrumentationProvider(InstrumentationDaemon director) : base(director) { }
     #endregion
 
     protected internal override void Write(Datum aggregatedDatum, object batchContext, object typeContext) { App.Log.Write(toMsg(aggregatedDatum)); }
@@ -23,7 +23,7 @@ namespace Azos.Instrumentation
       var msg = new Message
       {
         Type = MessageType.PerformanceInstrumentation,
-        Topic = CoreConsts.INSTRUMENTATIONSVC_TOPIC,
+        Topic = CoreConsts.INSTRUMENTATION_TOPIC,
         From = datum.GetType().FullName,
         Text = datum.ToString()
       };

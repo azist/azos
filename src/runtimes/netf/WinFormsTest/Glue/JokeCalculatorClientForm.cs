@@ -80,7 +80,7 @@ namespace WinFormsTest.Glue
           m_txtLog.AppendText(Environment.NewLine);
         }
 
-        var glue = App.Glue as Azos.Glue.Implementation.GlueService;
+        var glue = App.Glue as Azos.Glue.Implementation.GlueDaemon;
         var binding = glue.Bindings["async"];
         var active = binding.ClientTransports.ToList();
         foreach (var ct in active)
@@ -137,7 +137,7 @@ namespace WinFormsTest.Glue
           }
 
           // close all transports
-          var glue = App.Glue as Azos.Glue.Implementation.GlueService;
+          var glue = App.Glue as Azos.Glue.Implementation.GlueDaemon;
           var binding = glue.Bindings["async"];
           var active = binding.ClientTransports.ToList();
           foreach (var ct in active)

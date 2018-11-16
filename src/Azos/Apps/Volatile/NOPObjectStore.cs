@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections.Generic;
 
 namespace Azos.Apps.Volatile
 {
@@ -15,8 +16,26 @@ namespace Azos.Apps.Volatile
   public sealed class NOPObjectStore : ApplicationComponent, IObjectStoreImplementation
   {
 
-    public NOPObjectStore(IApplication app): base(app){}
+    internal NOPObjectStore(IApplication app): base(app){}
 
+    public override string ComponentLogTopic => CoreConsts.OBJSTORE_TOPIC;
+    public bool InstrumentationEnabled { get { return false; } set { } }
+    public IEnumerable<KeyValuePair<string, Type>> ExternalParameters { get { return null; } }
+    public IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups) { return null; }
+    public bool ExternalGetParameter(string name, out object value, params string[] groups)
+    {
+      value = null;
+      return false;
+    }
+    public bool ExternalSetParameter(string name, object value, params string[] groups)
+    {
+      return false;
+    }
+
+    public void Configure(Conf.IConfigSectionNode node)
+    {
+
+    }
 
     public object CheckOut(Guid key) => null;
     public bool UndoCheckout(Guid key) => false;

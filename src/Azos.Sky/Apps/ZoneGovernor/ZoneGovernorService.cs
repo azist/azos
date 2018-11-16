@@ -85,7 +85,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
           if (s_Instance!=null)
             throw new AZGOVException(StringConsts.AZGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
 
-          m_SubInstr = new InstrumentationService(this);
+          m_SubInstr = new InstrumentationDaemon(this);
           m_SubInstrReductionLevels = new Dictionary<string,int>();
           m_SubInstrCallers = new ConcurrentDictionary<string, DateTime>();
 
@@ -129,7 +129,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
     #region Fields
 
-      private InstrumentationService m_SubInstr;
+      private InstrumentationDaemon m_SubInstr;
       private Dictionary<string, int> m_SubInstrReductionLevels;
       private ConcurrentDictionary<string, DateTime> m_SubInstrCallers;
       private int m_SubInstrCallerCount;

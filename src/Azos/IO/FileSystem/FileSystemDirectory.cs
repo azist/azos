@@ -41,7 +41,11 @@ namespace Azos.IO.FileSystem
         /// </summary>
         public IEnumerable<string> SubDirectoryNames
         {
-           get { return m_FileSystem.DoGetSubDirectoryNames(this, false); }
+          get
+          {
+            CheckDisposed();
+            return m_FileSystem.DoGetSubDirectoryNames(this, false);
+          }
         }
 
                 /// <summary>
@@ -49,6 +53,7 @@ namespace Azos.IO.FileSystem
                 /// </summary>
                 public Task<IEnumerable<string>> GetSubDirectoryNamesAsync()
                 {
+                   CheckDisposed();
                    return m_FileSystem.DoGetSubDirectoryNamesAsync(this, false);
                 }
 
@@ -57,7 +62,11 @@ namespace Azos.IO.FileSystem
         /// </summary>
         public IEnumerable<string> FileNames
         {
-          get { return m_FileSystem.DoGetFileNames(this, false); }
+          get
+          {
+            CheckDisposed();
+            return m_FileSystem.DoGetFileNames(this, false);
+          }
         }
 
                 /// <summary>
@@ -65,6 +74,7 @@ namespace Azos.IO.FileSystem
                 /// </summary>
                 public Task<IEnumerable<string>> GetFileNamesAsync()
                 {
+                   CheckDisposed();
                    return m_FileSystem.DoGetFileNamesAsync(this, false);
                 }
 
@@ -73,7 +83,11 @@ namespace Azos.IO.FileSystem
         /// </summary>
         public IEnumerable<string> RecursiveSubDirectoryNames
         {
-          get { return m_FileSystem.DoGetSubDirectoryNames(this, true); }
+          get
+          {
+            CheckDisposed();
+            return m_FileSystem.DoGetSubDirectoryNames(this, true);
+          }
         }
 
                 /// <summary>
@@ -81,7 +95,8 @@ namespace Azos.IO.FileSystem
                 /// </summary>
                 public Task<IEnumerable<string>> GetRecursiveSubDirectoryNamesAsync()
                 {
-                   return m_FileSystem.DoGetSubDirectoryNamesAsync(this, true);
+                  CheckDisposed();
+                  return m_FileSystem.DoGetSubDirectoryNamesAsync(this, true);
                 }
 
         /// <summary>
@@ -89,7 +104,11 @@ namespace Azos.IO.FileSystem
         /// </summary>
         public IEnumerable<string> RecursiveFileNames
         {
-          get { return m_FileSystem.DoGetFileNames(this, true); }
+          get
+          {
+            CheckDisposed();
+            return m_FileSystem.DoGetFileNames(this, true);
+          }
         }
 
                 /// <summary>
@@ -97,6 +116,7 @@ namespace Azos.IO.FileSystem
                 /// </summary>
                 public Task<IEnumerable<string>> GetRecursiveFileNamesAsync()
                 {
+                   CheckDisposed();
                    return m_FileSystem.DoGetFileNamesAsync(this, true);
                 }
 
@@ -107,7 +127,11 @@ namespace Azos.IO.FileSystem
         /// <returns>FileSystemSessionItem instance - a directory or a file</returns>
         public FileSystemSessionItem this[string path]
         {
-          get { return m_FileSystem.DoNavigate(m_Session, m_FileSystem.CombinePaths(Path, path)); }
+          get
+          {
+            CheckDisposed();
+            return m_FileSystem.DoNavigate(m_Session, m_FileSystem.CombinePaths(Path, path));
+          }
         }
 
                 /// <summary>
@@ -115,6 +139,7 @@ namespace Azos.IO.FileSystem
                 /// </summary>
                 public Task<FileSystemSessionItem> GetItemAsync(string path)
                 {
+                  CheckDisposed();
                   return m_FileSystem.DoNavigateAsync(m_Session, m_FileSystem.CombinePaths(Path, path));
                 }
 
@@ -141,7 +166,7 @@ namespace Azos.IO.FileSystem
                 }
 
         /// <summary>
-        /// Gets dubdirectory in this directory or null if it does not exist or not a directory
+        /// Gets subdirectory in this directory or null if it does not exist or not a directory
         /// </summary>
         public FileSystemDirectory GetSubDirectory(string name)
         {
@@ -175,7 +200,7 @@ namespace Azos.IO.FileSystem
                 public Task<FileSystemFile> CreateFileAsync(string name, int size = 0)
                 {
                   return CheckCanChangeAsync()
-                    .ContinueWith(t => m_FileSystem.DoCreateFileAsync(this, name, size), TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap()
+                    .ContinueWith(t => {CheckDisposed(); return m_FileSystem.DoCreateFileAsync(this, name, size);}, TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap()
                     .ContinueWith(t => {
                       m_Modified = true;
                       return t.Result;
@@ -187,7 +212,7 @@ namespace Azos.IO.FileSystem
         /// </summary>
         /// <param name="name">File system file name</param>
         /// <param name="localFilePath">Local system file name</param>
-        /// <param name="readOnly">Indictaes whether the newly created file should be readonly</param>
+        /// <param name="readOnly">Indicates whether the newly created file should be readonly</param>
         /// <returns>FileSystemFile instance</returns>
         public FileSystemFile CreateFile(string name, string localFilePath, bool readOnly = false)
         {
@@ -203,7 +228,7 @@ namespace Azos.IO.FileSystem
                 public Task<FileSystemFile> CreateFileAsync(string name, string localFilePath, bool readOnly = false)
                 {
                   return CheckCanChangeAsync()
-                    .ContinueWith(t => m_FileSystem.DoCreateFileAsync(this, name, localFilePath, readOnly), TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap()
+                    .ContinueWith(t => { CheckDisposed(); return m_FileSystem.DoCreateFileAsync(this, name, localFilePath, readOnly); } , TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap()
                     .ContinueWith(t => {
                       m_Modified = true;
                       return t.Result;
@@ -228,7 +253,7 @@ namespace Azos.IO.FileSystem
                 public Task<FileSystemDirectory> CreateDirectoryAsync(string name)
                 {
                   return CheckCanChangeAsync()
-                    .ContinueWith(t => m_FileSystem.DoCreateDirectoryAsync(this, name), TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap()
+                    .ContinueWith(t => { CheckDisposed(); return m_FileSystem.DoCreateDirectoryAsync(this, name); }, TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap()
                     .ContinueWith(t => {
                       m_Modified = true;
                       return t.Result;

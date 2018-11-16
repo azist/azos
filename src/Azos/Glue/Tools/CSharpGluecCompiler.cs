@@ -211,7 +211,7 @@ namespace Azos.Glue.Tools
             {
               sb.AppendLine("         ///<summary>");
               sb.AppendLine("         /// Synchronous invoker for  '"+ tc.FullName + "."+mi.Name+"'.");
-              sb.AppendLine("         /// This is a one-way call per contract specification, meaning - the server sends no acknowledgement of this call receipt and");
+              sb.AppendLine("         /// This is a one-way call per contract specification, meaning - the server sends no acknowledgment of this call receipt and");
               sb.AppendLine("         /// there is no result that server could return back to the caller.");
               sb.AppendLine("         /// ClientCallException is thrown if the call could not be placed in the outgoing queue.");
               sb.AppendLine("         ///</summary>");
@@ -261,7 +261,7 @@ namespace Azos.Glue.Tools
             sb.AppendLine("         /// Asynchronous invoker for  '"+ tc.FullName + "."+mi.Name+"'.");
             if (oneWay)
             {
-              sb.AppendLine("         /// This is a one-way call per contract specification, meaning - the server sends no acknowledgement of this call receipt and");
+              sb.AppendLine("         /// This is a one-way call per contract specification, meaning - the server sends no acknowledgment of this call receipt and");
               sb.AppendLine("         /// there is no result that server could return back to the caller.");
             }
             else
@@ -285,7 +285,7 @@ namespace Azos.Glue.Tools
             {
               sb.AppendLine("            var request = new RequestAnyMsg(s_ts_CONTRACT, {0}, {1}, RemoteInstance, new object[]{2});".Args(msName(mi), oneWay.ToString().ToLower(), mSig(mi, false, true)));
             }
-            else//use arg marsgalling attribute
+            else//use arg marshaling attribute
             {
               sb.AppendLine("            var request = new {0}(s_ts_CONTRACT, {1}, {2}, RemoteInstance)".Args(TypeToStr(argmatr.RequestMsgType),msName(mi), oneWay.ToString().ToLower()));
               sb.AppendLine("            {");
@@ -328,10 +328,6 @@ Do not modify this file by hand if you plan to regenerate this file again by the
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 
 using Azos.Glue;
 using Azos.Glue.Protocol;

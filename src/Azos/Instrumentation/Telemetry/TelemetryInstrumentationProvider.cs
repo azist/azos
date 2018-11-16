@@ -20,7 +20,7 @@ namespace Azos.Instrumentation.Telemetry
   public class TelemetryInstrumentationProvider : LogInstrumentationProvider
   {
     #region .ctor
-    public TelemetryInstrumentationProvider(InstrumentationService director) : base(director) { }
+    public TelemetryInstrumentationProvider(InstrumentationDaemon director) : base(director) { }
 
     protected override void Destructor()
     {
@@ -56,7 +56,7 @@ namespace Azos.Instrumentation.Telemetry
     #region Public
     protected internal override void Write(Datum aggregatedDatum, object batchContext, object typeContext)
     {
-      if (!App.Available) return;
+      if (!App.Active) return;
 
       if (UseLog)
         base.Write(aggregatedDatum, batchContext, typeContext);

@@ -16,7 +16,7 @@ namespace Azos.IO
 {
 
     /// <summary>
-    /// Describes a format - apair of readers/writers along with their capabilities - what types format supports natively
+    /// Describes a format - a pair of readers/writers along with their capabilities - what types format supports natively
     /// </summary>
     public abstract class StreamerFormat
     {
@@ -70,7 +70,7 @@ namespace Azos.IO
 
 
      /// <summary>
-    /// Describes a format - apair of readers/writers along with their capabilities.
+    /// Describes a format - a pair of readers/writers along with their capabilities.
     /// Developers may derive new formats that support custom serialization schemes
     /// </summary>
     public abstract class StreamerFormat<TReader, TWriter> : StreamerFormat where TReader : ReadingStreamer

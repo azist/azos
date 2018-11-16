@@ -14,12 +14,12 @@ using Azos.Log;
 namespace Azos.Instrumentation
 {
   /// <summary>
-  /// Defines a base provider for InstrumentationService
+  /// Defines a base provider for InstrumentationDaemon
   /// </summary>
-  public abstract class InstrumentationProvider : Daemon<InstrumentationService>, IExternallyParameterized
+  public abstract class InstrumentationProvider : Daemon<InstrumentationDaemon>, IExternallyParameterized
   {
     #region .ctor
-    protected InstrumentationProvider(InstrumentationService director) : base(director) {}
+      protected InstrumentationProvider(InstrumentationDaemon director) : base(director.NonNull().App, director) {}
     #endregion
 
     #region Public
@@ -60,6 +60,9 @@ namespace Azos.Instrumentation
     #endregion
 
     #region Properties
+
+    public override string ComponentLogTopic => CoreConsts.INSTRUMENTATION_TOPIC;
+
     /// <summary>
     /// Returns named parameters that can be used to control this component
     /// </summary>

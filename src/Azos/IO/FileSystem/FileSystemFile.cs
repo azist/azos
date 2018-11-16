@@ -59,7 +59,11 @@ namespace Azos.IO.FileSystem
         /// </summary>
         public FileSystemStream FileStream
         {
-            get { return m_FileStream ?? (m_FileStream = FileSystem.DoGetFileStream(this, (s) => m_FileStream = null));}
+          get
+          {
+            CheckDisposed();
+            return m_FileStream ?? (m_FileStream = FileSystem.DoGetFileStream(this, (s) => m_FileStream = null));
+          }
         }
 
       #endregion

@@ -19,7 +19,7 @@ namespace Azos.Instrumentation
   public class CompositeInstrumentationProvider : InstrumentationProvider
   {
     #region .ctor
-    public CompositeInstrumentationProvider(InstrumentationService director) : base(director) { }
+    public CompositeInstrumentationProvider(InstrumentationDaemon director) : base(director) { }
     #endregion
 
     #region Fields
@@ -60,7 +60,7 @@ namespace Azos.Instrumentation
     {
       base.DoConfigure(node);
 
-      foreach (var dnode in node.Children.Where(n => n.Name.EqualsIgnoreCase(InstrumentationService.CONFIG_PROVIDER_SECTION)))
+      foreach (var dnode in node.Children.Where(n => n.Name.EqualsIgnoreCase(InstrumentationDaemon.CONFIG_PROVIDER_SECTION)))
       {
         var dest = FactoryUtils.MakeAndConfigure(dnode, args: new[] { ComponentDirector }) as InstrumentationProvider;
         this.RegisterProvider(dest);

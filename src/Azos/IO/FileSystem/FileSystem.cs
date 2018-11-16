@@ -33,82 +33,31 @@ namespace Azos.IO.FileSystem
     {
       #region CONSTS
 
-        public const string CONFIG_FILESYSTEMS_SECTION = "file-systems";
         public const string CONFIG_FILESYSTEM_SECTION = "file-system";
-        public const string CONFIG_AUTO_START_ATTR = "auto-start";
-
         public const string CONFIG_NAME_ATTR = "name";
         public const string CONFIG_DEFAULT_SESSION_CONNECT_PARAMS_SECTION = "default-session-connect-params";
 
       #endregion
 
-      #region static
+      #region .ctor
 
-        private static Registry<FileSystem> s_Instances = new Registry<FileSystem>();
-
-        /// <summary>
-        /// Returns the read-only registry view of file systems currently activated
-        /// </summary>
-        public static IRegistry<FileSystem> Instances { get { return s_Instances; } }
-
-        /// <summary>
-        /// Automatically starts systems designated in config with auto-start attribute
-        /// </summary>
-        public static void AutoStartSystems()
+        protected FileSystem(IApplication app, IApplicationComponent director) : base(app, director)
         {
-          foreach (var fsNode in App.ConfigRoot[CONFIG_FILESYSTEMS_SECTION].Children.Where(cn => cn.IsSameName(CONFIG_FILESYSTEM_SECTION)))
-          {
-            var name = fsNode.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
-            if (!fsNode.AttrByName(CONFIG_AUTO_START_ATTR).ValueAsBool()) continue;
-
-            var system = FactoryUtils.MakeAndConfigure<FileSystem>(fsNode, typeof(FileSystem), new object[] {name, fsNode});
-
-            if (s_Instances[system.Name] != null) // already started
-              throw new FileSystemException("AutoStart: " + StringConsts.FS_DUPLICATE_NAME_ERROR.Args(system.GetType().FullName, system.Name));
-
-            s_Instances.Register(system);
-          }
+          m_Sessions = new List<FileSystemSession>();
         }
 
-        public static TParam Make<TParam>(IConfigSectionNode node) where TParam: FileSystem
+        protected override void Destructor()
         {
-          string name = node.AttrByName(CONFIG_NAME_ATTR).ValueAsString();
-          return FactoryUtils.MakeAndConfigure<TParam>(node, typeof(TParam), args: new object[] {name});
-        }
-
-        public static TParam Make<TParam>(string cfgStr, string format = Configuration.CONFIG_LACONIC_FORMAT) where TParam: FileSystem
-        {
-          var node = Configuration.ProviderLoadFromString(cfgStr, format).Root;
-          return Make<TParam>(node);
+          var sessions = this.Sessions;//thread-safe copy
+          sessions.ForEach( s => s.Dispose() );
+          base.Destructor();
         }
 
       #endregion
 
-      #region .ctor
-
-          protected FileSystem(string name, IConfigSectionNode node = null): base(name)
-          {
-            Configure(node);
-
-            m_Name = name.IsNullOrWhiteSpace() ? Guid.NewGuid().ToString() : name;
-
-            m_Sessions = new List<FileSystemSession>();
-          }
-
-          protected override void Destructor()
-          {
-            //delete from tail not to re-alloc list
-            while(m_Sessions.Count>0)
-              m_Sessions[m_Sessions.Count-1].Dispose();
-
-            base.Destructor();
-          }
-
-        #endregion
-
         #region Fields
 
-          protected readonly string m_Name;
+          [Config] protected string m_Name = Guid.NewGuid().ToString();
           protected internal readonly List<FileSystemSession> m_Sessions;
 
           private FileSystemSessionConnectParams m_DefaultSessionConnectParams = new FileSystemSessionConnectParams();

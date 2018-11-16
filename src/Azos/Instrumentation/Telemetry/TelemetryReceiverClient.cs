@@ -10,10 +10,6 @@ Do not modify this file by hand if you plan to regenerate this file again by the
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 
 using Azos.Glue;
 using Azos.Glue.Protocol;
@@ -69,7 +65,7 @@ namespace Azos.Instrumentation.Telemetry
 
          ///<summary>
          /// Synchronous invoker for  'Azos.Instrumentation.Telemetry.ITelemetryReceiver.Send'.
-         /// This is a one-way call per contract specification, meaning - the server sends no acknowledgement of this call receipt and
+         /// This is a one-way call per contract specification, meaning - the server sends no acknowledgment of this call receipt and
          /// there is no result that server could return back to the caller.
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          ///</summary>
@@ -82,7 +78,7 @@ namespace Azos.Instrumentation.Telemetry
 
          ///<summary>
          /// Asynchronous invoker for  'Azos.Instrumentation.Telemetry.ITelemetryReceiver.Send'.
-         /// This is a one-way call per contract specification, meaning - the server sends no acknowledgement of this call receipt and
+         /// This is a one-way call per contract specification, meaning - the server sends no acknowledgment of this call receipt and
          /// there is no result that server could return back to the caller.
          /// CallSlot is returned that can be queried for CallStatus, ResponseMsg.
          ///</summary>

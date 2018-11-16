@@ -72,10 +72,8 @@ namespace Azos
       public const string APPLICATION_TOPIC = "App";
       public const string LOG_TOPIC = "Log";
       public const string INSTRUMENTATION_TIMEFRAME_TOPIC = "inst.timeframe";
-      public const string OBJSTORESVC_TOPIC = "ObjectStoreService";
-      public const string OBJSTORESVC_PROVIDER_TOPIC = "ObjectStoreServiceProvider";
-      public const string INSTRUMENTATIONSVC_TOPIC = "InstrumentationService";
-      public const string INSTRUMENTATIONSVC_PROVIDER_TOPIC = "InstrumentationServiceProvider";
+      public const string OBJSTORE_TOPIC = "ObjectStore";
+      public const string INSTRUMENTATION_TOPIC = "Instrumentation";
       public const string THROTTLINGSVC_TOPIC = "ThrottlingService";
       public const string SCHEDULE_TOPIC = "Sched";//Scheduled jobs, i.e. cleanup files etc...
       public const string DEBUG_TOPIC = "Debug";
