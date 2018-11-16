@@ -22,7 +22,7 @@ namespace Azos.Sky.Instrumentation.Server
   /// <summary>
   /// Provides server implementation of Contracts.ITelemetryReceiver
   /// </summary>
-  public sealed class TelemetryReceiverService : ServiceWithInstrumentationBase<object>, Contracts.ITelemetryReceiver
+  public sealed class TelemetryReceiverService : DaemonWithInstrumentation<object>, Contracts.ITelemetryReceiver
   {
     #region CONSTS
     public const string CONFIG_ARCHIVE_STORE_SECTION = "archive-store";
@@ -144,19 +144,19 @@ namespace Azos.Sky.Instrumentation.Server
       if (m_ArchiveStore == null)
         throw new TelemetryArchiveException("{0} does not have archive store injected".Args(GetType().Name));
 
-      if (m_ArchiveStore is IService) ((IService)m_ArchiveStore).Start();
+      if (m_ArchiveStore is IDaemon) ((IDaemon)m_ArchiveStore).Start();
       base.DoStart();
     }
 
     protected override void DoSignalStop()
     {
-      if (m_ArchiveStore is IService) ((IService)m_ArchiveStore).SignalStop();
+      if (m_ArchiveStore is IDaemon) ((IDaemon)m_ArchiveStore).SignalStop();
       base.DoSignalStop();
     }
 
     protected override void DoWaitForCompleteStop()
     {
-      if (m_ArchiveStore is IService) ((IService)m_ArchiveStore).WaitForCompleteStop();
+      if (m_ArchiveStore is IDaemon) ((IDaemon)m_ArchiveStore).WaitForCompleteStop();
       base.DoWaitForCompleteStop();
     }
     #endregion

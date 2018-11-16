@@ -6,11 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 using Azos.Conf;
 using Azos.Instrumentation;
-using Azos.Log;
 
 namespace Azos.Apps
 {
@@ -22,17 +20,17 @@ namespace Azos.Apps
     /// <summary>
     /// Creates a root module without a parent
     /// </summary>
-    protected ModuleBase() : base(){ }
+    protected ModuleBase(IApplication application) : base(application){ }
 
     /// <summary>
     /// Creates a module under a parent module, such as HubModule
     /// </summary>
-    protected ModuleBase(IModule parent) : base(parent) { }
+    protected ModuleBase(IApplication application, IModule parent) : base(application, parent) { }
 
     /// <summary>
     /// Creates a module under a parent module with the specified order, such as HubModule
     /// </summary>
-    protected ModuleBase(IModule parent, int order) : base(parent) { m_Order = order; }
+    protected ModuleBase(IApplication application, IModule parent, int order) : base(application, parent) { m_Order = order; }
 
     protected override void Destructor()
     {
@@ -54,16 +52,6 @@ namespace Azos.Apps
     [Config] private int m_Order;
 
     protected Collections.OrderedRegistry<ModuleBase> m_Children = new Collections.OrderedRegistry<ModuleBase>();
-
-    public MessageType? ModuleLogLevel { get; set; }
-
-    public virtual MessageType ModuleEffectiveLogLevel
-    {
-      get
-      {
-        return ModuleLogLevel ?? ParentModule?.ModuleEffectiveLogLevel ?? MessageType.Info;
-      }
-    }
 
     public override string ComponentCommonName => m_Name.IsNotNullOrWhiteSpace() ? m_Name : GetType().FullName;
 
@@ -159,35 +147,9 @@ namespace Azos.Apps
       return DoExternalSetParameter(name, value, groups);
     }
 
-    public virtual Guid ModuleLog(MessageType type,
-                                  string from,
-                                  string text,
-                                  Exception error = null,
-                                  Guid? related = null,
-                                  string pars = null)
-    {
-      if (type<ModuleEffectiveLogLevel) return Guid.Empty;
-
-      var msg = new Message
-      {
-        Topic = CoreConsts.APP_MODULE_TOPIC,
-        From = "{0}.{1}".Args(this, from),
-        Type = type,
-        Text = text,
-        Exception = error,
-        Parameters = pars,
-      };
-
-      if (related.HasValue) msg.RelatedTo = related.Value;
-
-      App.Log.Write( msg );
-
-      return msg.Guid;
-    }
-
     public override string ToString()
     {
-      return "Module {0}('{1}', {2})".Args(GetType().DisplayNameWithExpandedGenericArgs(), Name, Order);
+      return "Module {0}(@{1}, '{2}', [{3}])".Args(GetType().DisplayNameWithExpandedGenericArgs(), ComponentSID, Name, Order);
     }
 
     /// <summary> Override to configure the instance </summary>
@@ -204,7 +166,7 @@ namespace Azos.Apps
       var allModules = DoGetAllChildModuleConfigNodes(node);
       foreach(var mnode in allModules)
       {
-        var module = FactoryUtils.MakeAndConfigure<ModuleBase>(mnode, null, new []{this});
+        var module = FactoryUtils.MakeAndConfigureModuleComponent<ModuleBase>(App, this, mnode);
         if (!m_Children.Register(module))
          throw new AzosException(StringConsts.APP_MODULE_DUPLICATE_CHILD_ERROR.Args(this, module));
       }

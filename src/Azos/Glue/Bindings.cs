@@ -29,7 +29,7 @@ namespace Azos.Glue
     /// Bindings are services, meaning - they can have state/threads that
     /// manage transport channels that operate under binding
     /// </summary>
-    public abstract class Binding : GlueComponentService
+    public abstract class Binding : GlueDaemon
     {
         #region CONSTS
 
@@ -80,26 +80,16 @@ namespace Azos.Glue
 
         #region .ctor
 
-            private void __ctor()
+            protected Binding(IApplication app, IGlueImplementation glue, string name = null, Provider provider = null)
+                : base(app, glue, name)
             {
+                m_Provider = provider;
                 if (string.IsNullOrWhiteSpace(Name))
                     throw new GlueException(StringConsts.CONFIGURATION_ENTITY_NAME_ERROR + this.GetType().FullName);
                 Glue.RegisterBinding(this);
 
                 for(var i=0; i< m_ClientTransportAllocatorLocks.Length; i++)
                   m_ClientTransportAllocatorLocks[i] = new object();
-            }
-
-            protected Binding(string name)
-                : this((IGlueImplementation)ExecutionContext.Application.Glue, name)
-            {
-            }
-
-            protected Binding(IGlueImplementation glue, string name = null, Provider provider = null)
-                : base(glue, name)
-            {
-                m_Provider = provider;
-                __ctor();
             }
 
             protected override void Destructor()
@@ -196,7 +186,7 @@ namespace Azos.Glue
               {
                 return  ComponentDirector
                         .BindingConfigurations
-                        .FirstOrDefault(n => Name.EqualsIgnoreCase(n.AttrByName(Service.CONFIG_NAME_ATTR).Value)
+                        .FirstOrDefault(n => Name.EqualsIgnoreCase(n.AttrByName(Daemon.CONFIG_NAME_ATTR).Value)
                                        ) ?? App.ConfigRoot.Configuration.EmptySection;
               }
             }

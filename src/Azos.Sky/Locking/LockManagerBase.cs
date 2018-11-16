@@ -12,7 +12,7 @@ namespace Azos.Sky.Locking
   /// <summary>
   /// Base for Facades used for calling locking APIs from client code
   /// </summary>
-  public abstract class LockManagerBase : ServiceWithInstrumentationBase<object>, ILockManagerImplementation
+  public abstract class LockManagerBase : DaemonWithInstrumentation<object>, ILockManagerImplementation
   {
     #region CONSTS
       private static readonly TimeSpan INSTR_INTERVAL = TimeSpan.FromMilliseconds(3700);

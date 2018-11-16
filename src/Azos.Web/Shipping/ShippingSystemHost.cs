@@ -12,7 +12,7 @@ namespace Azos.Web.Shipping
   /// <summary>
   /// Represents a process-global host for a shipping systems
   /// </summary>
-  public class ShippingSystemHost : ServiceWithInstrumentationBase<object>, IShippingSystemHostImplementation
+  public class ShippingSystemHost : DaemonWithInstrumentation<object>, IShippingSystemHostImplementation
   {
     #region .ctor
 

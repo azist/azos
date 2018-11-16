@@ -19,7 +19,7 @@ namespace Azos.Web.Messaging
   /// <summary>
   /// Provides implementation for IMessenger service
   /// </summary>
-  public sealed class MessageService : ServiceWithInstrumentationBase<object>, IMessengerImplementation
+  public sealed class MessageService : DaemonWithInstrumentation<object>, IMessengerImplementation
   {
     #region CONSTS
 
@@ -119,7 +119,7 @@ namespace Azos.Web.Messaging
       get { return m_Sink; }
       set
       {
-        CheckServiceInactive();
+        CheckDaemonInactive();
 
         if (value != null && value.ComponentDirector != this)
           throw new WebException(StringConsts.MESSAGE_SINK_IS_NOT_OWNED_ERROR);
@@ -132,7 +132,7 @@ namespace Azos.Web.Messaging
       get { return m_FallbackSink; }
       set
       {
-        CheckServiceInactive();
+        CheckDaemonInactive();
 
         if (value != null && value.ComponentDirector != this)
           throw new WebException(StringConsts.MESSAGE_SINK_IS_NOT_OWNED_ERROR);

@@ -18,7 +18,7 @@ namespace Azos.Sky.Kdb
   /// <summary>
   /// Provides default implementation of IKdbDataStore
   /// </summary>
-  public sealed partial class DefaultKdbStore : ServiceWithInstrumentationBase<object>, IKdbDataStoreImplementation
+  public sealed partial class DefaultKdbStore : DaemonWithInstrumentation<object>, IKdbDataStoreImplementation
   {
     private static readonly TimeSpan INSTR_INTERVAL = TimeSpan.FromMilliseconds(3250);
     public const string Kdb_TARGET = "kdb";

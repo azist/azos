@@ -16,7 +16,7 @@ namespace Azos.Sky.Mdb
   /// <summary>
   /// Represents a MDB data store - consisting of areas with partitions
   /// </summary>
-  public class MdbDataStore : ServiceWithInstrumentationBase<object>, IMdbDataStore, IDataStoreImplementation
+  public class MdbDataStore : DaemonWithInstrumentation<object>, IMdbDataStore, IDataStoreImplementation
   {
 
     #region .ctor
@@ -55,7 +55,7 @@ namespace Azos.Sky.Mdb
         get{ return m_SchemaName;}
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           m_SchemaName = value;
         }
       }
@@ -66,7 +66,7 @@ namespace Azos.Sky.Mdb
         get{ return m_BankName;}
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           m_BankName = value;
         }
       }
@@ -98,7 +98,7 @@ namespace Azos.Sky.Mdb
         get { return m_TargetName; }
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           m_TargetName = value;
         }
       }
@@ -138,7 +138,7 @@ namespace Azos.Sky.Mdb
       /// </summary>
       public CRUDOperations PartitionedOperationsFor(string areaName, GDID idBriefcase)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         var area = m_Areas[areaName] as MdbPartitionedArea;
         if (area==null)
          throw new MdbException(StringConsts.MDB_PARTITIONED_AREA_MISSING_ERROR.Args(areaName));
@@ -172,7 +172,7 @@ namespace Azos.Sky.Mdb
       /// </summary>
       public CRUDOperations CentralOperationsFor(object shardingID)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return m_CentralArea.ShardedOperationsFor(shardingID);
       }
     #endregion

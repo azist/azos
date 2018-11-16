@@ -56,7 +56,7 @@ namespace Azos.Apps.Volatile
 
         }
 
-        public FileObjectStoreProvider(ObjectStoreService director) : base(director)
+        public FileObjectStoreProvider(ObjectStoreDaemon director) : base(director)
         {
 
         }
@@ -124,8 +124,8 @@ namespace Azos.Apps.Volatile
           get { return m_RootPath ?? string.Empty; }
           set
           {
-            if (Status != ServiceStatus.Inactive)
-              throw new AzosException(StringConsts.SERVICE_INVALID_STATE + "FileObjectStoreProvider.Path.set()");
+            if (Status != DaemonStatus.Inactive)
+              throw new AzosException(StringConsts.DAEMON_INVALID_STATE + "FileObjectStoreProvider.Path.set()");
 
             checkPath(value);
 
@@ -156,7 +156,7 @@ namespace Azos.Apps.Volatile
 
             if (m_LoadLimit > 0 && m_LoadSize > m_LoadLimit)
             {
-              WriteLog(MessageType.Info, "Load limit imposed", m_LoadLimit.ToString() + " bytes", FROM);
+              WriteLog(MessageType.Info, FROM, "Load limit imposed:" + m_LoadLimit.ToString() + " bytes");
               break;
             }
 
@@ -260,7 +260,7 @@ namespace Azos.Apps.Volatile
             if (t!=null)
              treg.Add(t);
             else
-             WriteLog(MessageType.Warning, "Specified known type could not be found: " + tn, tn, "getSerializer(slim)");
+             WriteLog(MessageType.Warning, "getSerializer(slim)", "Specified known type could not be found: " + tn);
           }
           return  new SlimSerializer(treg);
         }
@@ -278,7 +278,7 @@ namespace Azos.Apps.Volatile
               }
               catch (Exception error)
               {
-                WriteLog(MessageType.Error, "Deserialization error: " + error.Message, fname, FROM);
+                WriteLog(MessageType.Error, FROM, "Deserialization error in file '{0}': {1}".Args(fname, error.Message));
                 return null;
               }
 
@@ -286,7 +286,7 @@ namespace Azos.Apps.Volatile
 
               if (m_LoadSize-priorLoadSize > 32*1024*1024)
               {
-               WriteLog(MessageType.Info, string.Format("Loaded disk bytes {0} in {1}", LoadSize, clock.Elapsed), null, FROM);
+               WriteLog(MessageType.Info, FROM, "Loaded disk bytes {0} in {1}".Args(LoadSize, clock.Elapsed));
                priorLoadSize = m_LoadSize;
               }
 

@@ -105,7 +105,7 @@ namespace Azos.Tests.Unit.Security
       }
       catch (AzosException e)
       {
-        Aver.AreEqual(e.Message, StringConsts.SERVICE_INVALID_STATE +
+        Aver.AreEqual(e.Message, StringConsts.DAEMON_INVALID_STATE +
                                    typeof(DefaultPasswordManager).Name);
       }
 
@@ -203,7 +203,7 @@ namespace Azos.Tests.Unit.Security
       }
       catch (AzosException e)
       {
-        Aver.AreEqual(e.Message, StringConsts.SERVICE_INVALID_STATE +
+        Aver.AreEqual(e.Message, StringConsts.DAEMON_INVALID_STATE +
                                    typeof(DefaultPasswordManager).Name);
       }
     }

@@ -66,7 +66,7 @@ namespace Azos.Sky.WebMessaging.Server
   /// <summary>
   /// Provides server implementation of Contracts.IWebMessageSystem
   /// </summary>
-  public sealed class WebMessageSystemService : ServiceWithInstrumentationBase<object>, Contracts.IWebMessageSystem
+  public sealed class WebMessageSystemService : DaemonWithInstrumentation<object>, Contracts.IWebMessageSystem
   {
     #region CONSTS
       public const string CONFIG_CHANNEL_SECTION = "channel";

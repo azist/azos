@@ -45,7 +45,7 @@ namespace Azos.Erlang
   /// the system environment "HOME", which may not be automatically set
   /// on all platforms
   /// </remarks>
-  public abstract class ErlAbstractNode : Service
+  public abstract class ErlAbstractNode : Daemon
   {
   #region CONSTS / Enums
 

@@ -59,7 +59,6 @@ namespace Azos.Apps
     protected IApplicationRealmImplementation m_Realm;
 
 
-
     #region IApplication Members
 
 
@@ -223,14 +222,6 @@ namespace Azos.Apps
         }
 
     #endregion
-
-
-
-
-
-
-
-
 
   }
 }

@@ -12,8 +12,8 @@ namespace Azos.Apps
   /// Designates service-derivative classes that should NOT be auto-started by the app container
   /// </summary>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
-  public class ApplicationDontAutoStartServiceAttribute : Attribute
+  public class ApplicationDontAutoStartDaemonAttribute : Attribute
   {
-    public ApplicationDontAutoStartServiceAttribute(){}
+    public ApplicationDontAutoStartDaemonAttribute(){}
   }
 }

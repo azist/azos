@@ -24,7 +24,7 @@ namespace Azos.Pile
   /// <summary>
   /// Provides base for default implementation of IPile which stores objects on a local machine in memory or in the MMF
   /// </summary>
-  public abstract partial class DefaultPileBase : ServiceWithInstrumentationBase<object>, IPileImplementation
+  public abstract partial class DefaultPileBase : DaemonWithInstrumentation<object>, IPileImplementation
   {
       private static int CPU_COUNT = System.Environment.ProcessorCount;
       private static readonly TimeSpan INSTR_INTERVAL = TimeSpan.FromMilliseconds(3700);
@@ -162,7 +162,7 @@ namespace Azos.Pile
           get{ return m_Identity;}
           set
           {
-            CheckServiceInactive();
+            CheckDaemonInactive();
             m_Identity = value;
           }
         }
@@ -240,7 +240,7 @@ namespace Azos.Pile
           get { return m_FreeChunkSizes;}
           set
           {
-            CheckServiceInactive();
+            CheckDaemonInactive();
             ensureFreeChunkSizes(value);
             m_FreeChunkSizes = value;
           }
@@ -256,7 +256,7 @@ namespace Azos.Pile
           get { return m_FreeListSize;}
           set
           {
-            CheckServiceInactive();
+            CheckDaemonInactive();
             m_FreeListSize = value < FREE_LST_SIZE_MIN ? FREE_LST_SIZE_MIN : value > FREE_LST_SIZE_MAX ? FREE_LST_SIZE_MAX : value;
           }
         }
@@ -276,7 +276,7 @@ namespace Azos.Pile
           }
           set
           {
-            CheckServiceInactive();
+            CheckDaemonInactive();
             m_MaxSegmentLimit = value>0 ? value: 0;
           }
         }
@@ -294,7 +294,7 @@ namespace Azos.Pile
           }
           set
           {
-            CheckServiceInactive();
+            CheckDaemonInactive();
             value = IntUtils.Align16(value);
             m_SegmentSize = value < SEG_SIZE_MIN ? SEG_SIZE_MIN : value > SEG_SIZE_MAX ? SEG_SIZE_MAX : value;
           }

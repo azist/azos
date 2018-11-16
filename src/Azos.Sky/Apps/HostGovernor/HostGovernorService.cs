@@ -22,7 +22,7 @@ namespace Azos.Sky.Apps.HostGovernor
   /// <summary>
   /// Provides Host Governor Services - this is a singleton class
   /// </summary>
-  public sealed class HostGovernorService : Service, Contracts.IPinger
+  public sealed class HostGovernorService : Daemon, Contracts.IPinger
   {
     #region CONSTS
       public const string THREAD_NAME = "HostGovernorService";

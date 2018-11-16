@@ -23,7 +23,7 @@ namespace Azos.Pile
   /// Provides default implementation of a cache that stores the mapping locally.
   /// The mapped-to objects may reside in local or distributed pile as configured
   /// </summary>
-  public sealed class LocalCache : ServiceWithInstrumentationBase<object>, ICacheImplementation
+  public sealed class LocalCache : DaemonWithInstrumentation<object>, ICacheImplementation
   {
     #region CONSTS
       public const string DEFAULT_TABLE_OPTIONS_SECTION = "default-table-options";
@@ -155,7 +155,7 @@ namespace Azos.Pile
           get{ return m_Pile;}
           set
           {
-            CheckServiceInactive();
+            CheckDaemonInactive();
             m_Pile = value;
           }
         }
@@ -509,7 +509,7 @@ namespace Azos.Pile
 
         private void ensureRunning(string operation)
         {
-          if (!Running) throw new PileCacheException(StringConsts.SERVICE_INVALID_STATE+"{0}.{1} needs running".Args(Name, operation));
+          if (!Running) throw new PileCacheException(StringConsts.DAEMON_INVALID_STATE+"{0}.{1} needs running".Args(Name, operation));
         }
 
         private void log(MessageType type, string from, string message, Exception error = null)

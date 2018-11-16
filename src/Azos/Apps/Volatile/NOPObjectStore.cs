@@ -10,12 +10,12 @@ namespace Azos.Apps.Volatile
 {
 
   /// <summary>
-  /// Implements ObjectStore service that does nothing on checkin, always returning null for chekout/fetch
+  /// Implements ObjectStore service that does nothing on checkin, always returning null for checkout/fetch
   /// </summary>
-  public sealed class NOPObjectStore : ApplicationComponent, IObjectStore
+  public sealed class NOPObjectStore : ApplicationComponent, IObjectStoreImplementation
   {
 
-    public NOPObjectStore(): base(){}
+    public NOPObjectStore(IApplication app): base(app){}
 
 
     public object CheckOut(Guid key) => null;
@@ -39,11 +39,6 @@ namespace Azos.Apps.Volatile
     /// </summary>
     public bool CheckIn(Guid key, int msTimeout = 0) => true;
     public bool Delete(Guid key) => false;
-
-    /// <summary>
-    /// Singleton NOP instance
-    /// </summary>
-    public static readonly NOPObjectStore Instance = new NOPObjectStore();
 
     public object Fetch(Guid key, bool touch = false) => null;
 

@@ -26,7 +26,7 @@ namespace Azos.Web.Social
     /// <summary>
     /// Defines an abstraction for social networks
     /// </summary>
-    public abstract class SocialNetwork: ServiceWithInstrumentationBase<object>, IWebClientCaller, ISocialNetworkImplementation
+    public abstract class SocialNetwork: DaemonWithInstrumentation<object>, IWebClientCaller, ISocialNetworkImplementation
     {
       #region Const
         public const string CONFIG_AUTO_START_ATTR = "auto-start";

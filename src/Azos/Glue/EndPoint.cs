@@ -11,7 +11,7 @@ namespace Azos.Glue
 {
 
     /// <summary>
-    /// Abstarction of server and client endpoints. And endpoint is a logically-connected entity per: ABC rule - Address/Binding/Contract(s)
+    /// Abstraction of server and client endpoints. And endpoint is a logically-connected entity per: ABC rule - Address/Binding/Contract(s)
     /// </summary>
     public abstract class EndPoint : DisposableObject
     {

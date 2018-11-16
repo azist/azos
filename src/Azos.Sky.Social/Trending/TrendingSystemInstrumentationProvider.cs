@@ -60,7 +60,7 @@ namespace Azos.Sky.Social.Trending
         get { return m_HostsetName; }
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           m_HostsetName = value;
         }
       }

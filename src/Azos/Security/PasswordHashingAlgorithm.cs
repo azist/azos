@@ -22,7 +22,7 @@ namespace Azos.Security
   /// <summary>
   /// Represents an abstraction of password algorithm that performs hashing and verification of passwords supplied as SecureBuffer
   /// </summary>
-  public abstract class PasswordHashingAlgorithm : ServiceWithInstrumentationBase<IPasswordManagerImplementation>, Collections.INamed
+  public abstract class PasswordHashingAlgorithm : DaemonWithInstrumentation<IPasswordManagerImplementation>, Collections.INamed
   {
     #region .ctor
       protected PasswordHashingAlgorithm(IPasswordManagerImplementation director, string name) : base(director)
@@ -73,7 +73,7 @@ namespace Azos.Security
         if (!password.IsSealed)
           throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordManager.ComputeHash(!password.IsSealed)");
 
-        CheckServiceActive();
+        CheckDaemonActive();
 
         return DoComputeHash(family, password);
       }
@@ -123,7 +123,7 @@ namespace Azos.Security
       if (!password.IsSealed)
         throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordManager.ComputeHash(!password.IsSealed)");
 
-      CheckServiceActive();
+      CheckDaemonActive();
 
       return DoComputeHash(family, password, options);
     }

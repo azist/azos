@@ -128,8 +128,8 @@ namespace Azos.Tests.Unit.Pile
         Aver.AreObjectsEqual("avalue", tA.Get("aaa"));
 
         cache.WaitForCompleteStop();
-        Aver.IsTrue(ServiceStatus.Inactive == cache.Status);
-        Aver.IsTrue(ServiceStatus.Inactive == cache.Pile.Status);
+        Aver.IsTrue(DaemonStatus.Inactive == cache.Status);
+        Aver.IsTrue(DaemonStatus.Inactive == cache.Pile.Status);
       }
 
       [Run(TRUN.BASE, null, 8)]
@@ -175,9 +175,9 @@ namespace Azos.Tests.Unit.Pile
               Aver.AreEqual(2, pile.ObjectCount);
 
               cache.WaitForCompleteStop();
-              Aver.IsTrue(ServiceStatus.Inactive == cache.Status);
+              Aver.IsTrue(DaemonStatus.Inactive == cache.Status);
 
-              Aver.IsTrue(ServiceStatus.Active == pile.Status);
+              Aver.IsTrue(DaemonStatus.Active == pile.Status);
               Aver.AreEqual(0, pile.ObjectCount);
 
               cache = new LocalCache();
@@ -207,15 +207,15 @@ namespace Azos.Tests.Unit.Pile
               Aver.AreEqual(6, pile.ObjectCount);
 
               cache.WaitForCompleteStop();
-              Aver.IsTrue(ServiceStatus.Active == pile.Status);
+              Aver.IsTrue(DaemonStatus.Active == pile.Status);
               Aver.AreEqual(2, pile.ObjectCount);
 
               cache2.WaitForCompleteStop();
-              Aver.IsTrue(ServiceStatus.Active == pile.Status);
+              Aver.IsTrue(DaemonStatus.Active == pile.Status);
               Aver.AreEqual(0, pile.ObjectCount);
 
               pile.WaitForCompleteStop();
-              Aver.IsTrue(ServiceStatus.Inactive == pile.Status);
+              Aver.IsTrue(DaemonStatus.Inactive == pile.Status);
         }
         finally
         {

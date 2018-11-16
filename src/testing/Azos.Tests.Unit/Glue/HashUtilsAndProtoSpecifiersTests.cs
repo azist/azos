@@ -132,7 +132,7 @@ namespace Azos.Tests.Unit.Glue
         [Run]
         public void TypeSpec_3()
         {
-            var s1 = new TypeSpec(typeof(Registry<Azos.Apps.Service>));
+            var s1 = new TypeSpec(typeof(Registry<Azos.Apps.Daemon>));
             var s2 = new TypeSpec(typeof(Registry<Azos.Glue.Binding>));
 
             Console.WriteLine(s1);
@@ -145,8 +145,8 @@ namespace Azos.Tests.Unit.Glue
         [Run]
         public void MethodSpec_1()
         {
-            var s1 = new MethodSpec(typeof(Registry<Apps.Service>).GetMethod("Register"));
-            var s2 = new MethodSpec(typeof(Registry<Apps.Service>).GetMethod("Register"));
+            var s1 = new MethodSpec(typeof(Registry<Apps.Daemon>).GetMethod("Register"));
+            var s2 = new MethodSpec(typeof(Registry<Apps.Daemon>).GetMethod("Register"));
 
             Console.WriteLine(s1);
             Console.WriteLine(s2);
@@ -158,8 +158,8 @@ namespace Azos.Tests.Unit.Glue
         [Run]
         public void MethodSpec_2()
         {
-            var s1 = new MethodSpec(typeof(Registry<Azos.Apps.Service>).GetMethod("Register"));
-            var s2 = new MethodSpec(typeof(Registry<Azos.Apps.Service>).GetMethod("Unregister", new Type[]{typeof(string)}));
+            var s1 = new MethodSpec(typeof(Registry<Azos.Apps.Daemon>).GetMethod("Register"));
+            var s2 = new MethodSpec(typeof(Registry<Azos.Apps.Daemon>).GetMethod("Unregister", new Type[]{typeof(string)}));
 
             Console.WriteLine(s1);
             Console.WriteLine(s2);
@@ -171,7 +171,7 @@ namespace Azos.Tests.Unit.Glue
         [Run]
         public void MethodSpec_3()
         {
-            var s1 = new MethodSpec(typeof(Registry<Apps.Service>).GetMethod("Register"));
+            var s1 = new MethodSpec(typeof(Registry<Apps.Daemon>).GetMethod("Register"));
             var s2 = new MethodSpec(typeof(DateUtils).GetMethod("ToSecondsSinceUnixEpochStart"));
 
             Console.WriteLine(s1);

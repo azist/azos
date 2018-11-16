@@ -31,7 +31,7 @@ namespace Azos.Web.Messaging
       get { return m_Sinks; }
       set
       {
-        CheckServiceInactive();
+        CheckDaemonInactive();
         if (m_Sinks != null && m_Sinks.Any() && m_Sinks.First().ComponentDirector != this.ComponentDirector)
           throw new WebException(StringConsts.MESSAGE_SINK_IS_NOT_OWNED_ERROR);
         m_Sinks = value;

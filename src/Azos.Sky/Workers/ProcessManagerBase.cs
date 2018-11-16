@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Azos.Sky.Workers
 {
-  public abstract class ProcessManagerBase : ServiceWithInstrumentationBase<ISkyApplication>, IProcessManagerImplementation
+  public abstract class ProcessManagerBase : DaemonWithInstrumentation<ISkyApplication>, IProcessManagerImplementation
   {
     #region CONSTS
     public const string CONFIG_PROCESS_MANAGER_SECTION = "process-manager";

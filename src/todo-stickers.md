@@ -31,4 +31,7 @@ a thread pool and properly awaited for~~
 * Revise async access functions
 
 ## General
-Research and replace TaskUtils.AsCompletedTask() with Task.FromResult(t) - are they different?
+* Research and replace TaskUtils.AsCompletedTask() with Task.FromResult(t) - are they different?
+* Make IApplication required by component .ctors, get rid of Global App.
+* Revise all components to use component-level WriteLog() methods
+

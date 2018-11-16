@@ -69,6 +69,9 @@ namespace Azos.Apps
 
       protected CommonApplicationLogic(bool allowNesting, Configuration cmdLineArgs, ConfigSectionNode rootConfig)
       {
+        m_NOPModule = new NOPModule(this);
+        m_NOPObjectStore = new NOPObjectStore(this);
+
         m_AllowNesting = allowNesting;
         m_CommandArgs = (cmdLineArgs ?? new MemoryConfiguration()).Root;
         m_ConfigRoot  = rootConfig ?? GetConfiguration().Root;
@@ -111,6 +114,7 @@ namespace Azos.Apps
       protected ConfigSectionNode m_ConfigRoot;
 
       protected IModuleImplementation m_Module;
+      protected IModuleImplementation m_NOPModule;
 
       protected ILogImplementation m_Log;
 
@@ -119,6 +123,7 @@ namespace Azos.Apps
       protected IDataStoreImplementation m_DataStore;
 
       protected IObjectStoreImplementation m_ObjectStore;
+      protected IObjectStoreImplementation m_NOPObjectStore;
 
       protected IGlueImplementation m_Glue;
 
@@ -283,10 +288,7 @@ namespace Azos.Apps
         /// <summary>
         /// References application object store. Objects will survive application termination
         /// </summary>
-        public IObjectStore ObjectStore
-        {
-          get { return (IObjectStore)m_ObjectStore ?? NOPObjectStore.Instance; }
-        }
+        public IObjectStore ObjectStore => m_ObjectStore ?? m_NOPObjectStore;
 
 
         /// <summary>
@@ -328,10 +330,7 @@ namespace Azos.Apps
         /// References the root module (such as business domain logic root) for this application. This is a dependency injection root
         /// provided for any application type
         /// </summary>
-        public IModule ModuleRoot
-        {
-          get { return m_Module ?? NOPModule.Instance; }
-        }
+        public IModule ModuleRoot => m_Module ?? m_NOPModule;
 
         /// <summary>
         /// Returns time location of this LocalizedTimeProvider implementation
@@ -846,9 +845,9 @@ namespace Azos.Apps
 
             BeforeLogStart(m_Log);
 
-            if (m_Log is Service)
+            if (m_Log is Daemon)
             {
-              if (((Service)m_Log).StartByApplication())
+              if (((Daemon)m_Log).StartByApplication())
                 WriteLog(MessageType.Info, FROM, "Log started, msg times are localized of machine-local time until time source starts");
             }
           }
@@ -861,7 +860,7 @@ namespace Azos.Apps
         if (node.Exists)
           try
           {
-            m_Module = FactoryUtils.MakeAndConfigure(node, typeof(HubModule)) as IModuleImplementation;
+            m_Module = FactoryUtils.MakeAndConfigure(node, typeof(HubModule), new []{ this }) as IModuleImplementation;
 
             if (m_Module==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
                                                     node
@@ -872,9 +871,9 @@ namespace Azos.Apps
 
             BeforeModuleStart(m_Module);
 
-            if (m_Module is Service)
+            if (m_Module is Daemon)
             {
-              if (((Service)m_Module).StartByApplication())
+              if (((Daemon)m_Module).StartByApplication())
                 WriteLog(MessageType.Info, FROM, "Module root started");
             }
           }
@@ -899,9 +898,9 @@ namespace Azos.Apps
 
             BeforeTimeSourceStart(m_TimeSource);
 
-            if (m_TimeSource is Service)
+            if (m_TimeSource is Daemon)
             {
-              if (((Service)m_TimeSource).StartByApplication())
+              if (((Daemon)m_TimeSource).StartByApplication())
                 WriteLog(MessageType.Info, FROM, "TimeSource started");
             }
 
@@ -943,9 +942,9 @@ namespace Azos.Apps
 
             BeforeEventTimerStart(m_EventTimer);
 
-            if (m_EventTimer is Service)
+            if (m_EventTimer is Daemon)
             {
-              if (((Service)m_EventTimer).StartByApplication())
+              if (((Daemon)m_EventTimer).StartByApplication())
                 WriteLog(MessageType.Info, FROM, "EventTimer started");
             }
           }
@@ -975,9 +974,9 @@ namespace Azos.Apps
 
             BeforeSecurityManagerStart(m_SecurityManager);
 
-            if (m_SecurityManager is Service)
+            if (m_SecurityManager is Daemon)
             {
-              if (((Service)m_SecurityManager).StartByApplication())
+              if (((Daemon)m_SecurityManager).StartByApplication())
                 WriteLog(MessageType.Info, FROM, "Security Manager started");
             }
           }
@@ -1015,9 +1014,9 @@ namespace Azos.Apps
 
             BeforeInstrumentationStart(m_Instrumentation);
 
-            if (m_Instrumentation is Service)
+            if (m_Instrumentation is Daemon)
             {
-              if (((Service)m_Instrumentation).StartByApplication())
+              if (((Daemon)m_Instrumentation).StartByApplication())
                 WriteLog(MessageType.Info, FROM, "Instrumentation started");
             }
 
@@ -1046,9 +1045,9 @@ namespace Azos.Apps
 
             BeforeDataStoreStart(m_DataStore);
 
-            if (m_DataStore is Service)
+            if (m_DataStore is Daemon)
             {
-              if (((Service)m_DataStore).StartByApplication())
+              if (((Daemon)m_DataStore).StartByApplication())
                 WriteLog(MessageType.Info, FROM, "DataStore started");
             }
           }
@@ -1063,7 +1062,7 @@ namespace Azos.Apps
         if (node.Exists)
           try
           {
-            m_ObjectStore = FactoryUtils.MakeAndConfigure(node, typeof(ObjectStoreService)) as IObjectStoreImplementation;
+            m_ObjectStore = FactoryUtils.MakeAndConfigure(node, typeof(ObjectStoreDaemon)) as IObjectStoreImplementation;
 
             if (m_ObjectStore==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
                                                             node
@@ -1074,9 +1073,9 @@ namespace Azos.Apps
 
             BeforeObjectStoreStart(m_ObjectStore);
 
-            if (m_ObjectStore is Service)
+            if (m_ObjectStore is Daemon)
             {
-              if (((Service)m_ObjectStore).StartByApplication())
+              if (((Daemon)m_ObjectStore).StartByApplication())
                 WriteLog(MessageType.Info, FROM, "ObjectStore started");
             }
           }
@@ -1102,9 +1101,9 @@ namespace Azos.Apps
 
             BeforeGlueStart(m_Glue);
 
-            if (m_Glue is Service)
+            if (m_Glue is Daemon)
             {
-              if (((Service)m_Glue).StartByApplication())
+              if (((Daemon)m_Glue).StartByApplication())
                 WriteLog(MessageType.Info, FROM, "Glue started");
             }
           }
@@ -1171,10 +1170,10 @@ namespace Azos.Apps
            WriteLog(MessageType.Info, FROM, "Finalizing Glue");
            try
            {
-             if (m_Glue is Service)
+             if (m_Glue is Daemon)
              {
-                 ((Service)m_Glue).SignalStop();
-                 ((Service)m_Glue).WaitForCompleteStop();
+                 ((Daemon)m_Glue).SignalStop();
+                 ((Daemon)m_Glue).WaitForCompleteStop();
                  WriteLog(MessageType.Info, FROM, "Glue stopped");
              }
 
@@ -1193,10 +1192,10 @@ namespace Azos.Apps
            WriteLog(MessageType.Info, FROM, "Finalizing ObjectStore");
            try
            {
-             if (m_ObjectStore is Service)
+             if (m_ObjectStore is Daemon)
              {
-                 ((Service)m_ObjectStore).SignalStop();
-                 ((Service)m_ObjectStore).WaitForCompleteStop();
+                 ((Daemon)m_ObjectStore).SignalStop();
+                 ((Daemon)m_ObjectStore).WaitForCompleteStop();
                  WriteLog(MessageType.Info, FROM, "ObjectStore stopped");
              }
 
@@ -1215,10 +1214,10 @@ namespace Azos.Apps
            WriteLog(MessageType.Info, FROM, "Finalizing DataStore");
            try
            {
-             if (m_DataStore is Service)
+             if (m_DataStore is Daemon)
              {
-                 ((Service)m_DataStore).SignalStop();
-                 ((Service)m_DataStore).WaitForCompleteStop();
+                 ((Daemon)m_DataStore).SignalStop();
+                 ((Daemon)m_DataStore).WaitForCompleteStop();
                  WriteLog(MessageType.Info, FROM, "DataStore stopped");
              }
              m_DataStore.Dispose();
@@ -1236,10 +1235,10 @@ namespace Azos.Apps
            WriteLog(MessageType.Info, FROM, "Finalizing Instrumentation");
            try
            {
-             if (m_Instrumentation is Service)
+             if (m_Instrumentation is Daemon)
              {
-                 ((Service)m_Instrumentation).SignalStop();
-                 ((Service)m_Instrumentation).WaitForCompleteStop();
+                 ((Daemon)m_Instrumentation).SignalStop();
+                 ((Daemon)m_Instrumentation).WaitForCompleteStop();
                  WriteLog(MessageType.Info, FROM, "Instrumentation stopped");
              }
 
@@ -1258,10 +1257,10 @@ namespace Azos.Apps
            WriteLog(MessageType.Info, FROM, "Finalizing Security Manager");
            try
            {
-             if (m_SecurityManager is Service)
+             if (m_SecurityManager is Daemon)
              {
-                 ((Service)m_SecurityManager).SignalStop();
-                 ((Service)m_SecurityManager).WaitForCompleteStop();
+                 ((Daemon)m_SecurityManager).SignalStop();
+                 ((Daemon)m_SecurityManager).WaitForCompleteStop();
                  WriteLog(MessageType.Info, FROM, "Security Manager stopped");
              }
 
@@ -1280,10 +1279,10 @@ namespace Azos.Apps
            WriteLog(MessageType.Info, FROM, "Finalizing EventTimer");
            try
            {
-             if (m_EventTimer is Service)
+             if (m_EventTimer is Daemon)
              {
-                 ((Service)m_EventTimer).SignalStop();
-                 ((Service)m_EventTimer).WaitForCompleteStop();
+                 ((Daemon)m_EventTimer).SignalStop();
+                 ((Daemon)m_EventTimer).WaitForCompleteStop();
                  WriteLog(MessageType.Info, FROM, "EventTimer stopped");
              }
 
@@ -1302,10 +1301,10 @@ namespace Azos.Apps
            WriteLog(MessageType.Info, FROM, "Finalizing TimeSource");
            try
            {
-             if (m_TimeSource is Service)
+             if (m_TimeSource is Daemon)
              {
-                 ((Service)m_TimeSource).SignalStop();
-                 ((Service)m_TimeSource).WaitForCompleteStop();
+                 ((Daemon)m_TimeSource).SignalStop();
+                 ((Daemon)m_TimeSource).WaitForCompleteStop();
                  WriteLog(MessageType.Info, FROM, "TimeSource stopped");
              }
 
@@ -1324,10 +1323,10 @@ namespace Azos.Apps
              WriteLog(MessageType.Info, FROM, "Stopping logger. This is the last message");
              try
              {
-               if (m_Log is Service)
+               if (m_Log is Daemon)
                {
-                   ((Service)m_Log).SignalStop();
-                   ((Service)m_Log).WaitForCompleteStop();
+                   ((Daemon)m_Log).SignalStop();
+                   ((Daemon)m_Log).WaitForCompleteStop();
                }
                m_Log.Dispose();
              }

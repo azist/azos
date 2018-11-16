@@ -181,18 +181,18 @@ namespace WinFormsTest
 
     private void tmrStatus_Tick(object sender, EventArgs e)
     {
-      btnStart.Enabled = m_Pile.Status==ServiceStatus.Inactive;
-      tbMaxMemoryMb.Enabled = tbSegmentSize.Enabled = m_Pile.Status== ServiceStatus.Inactive;
-      btnStop.Enabled = m_Pile.Status== ServiceStatus.Active;
-      btnPurge.Enabled = m_Pile.Status== ServiceStatus.Active;
-      btnCrawl.Enabled = m_Pile.Status== ServiceStatus.Active;
-      btnCompact.Enabled = m_Pile.Status== ServiceStatus.Active;
-      chkSpeed.Enabled = m_Pile.Status== ServiceStatus.Active;
+      btnStart.Enabled = m_Pile.Status==DaemonStatus.Inactive;
+      tbMaxMemoryMb.Enabled = tbSegmentSize.Enabled = m_Pile.Status== DaemonStatus.Inactive;
+      btnStop.Enabled = m_Pile.Status== DaemonStatus.Active;
+      btnPurge.Enabled = m_Pile.Status== DaemonStatus.Active;
+      btnCrawl.Enabled = m_Pile.Status== DaemonStatus.Active;
+      btnCompact.Enabled = m_Pile.Status== DaemonStatus.Active;
+      chkSpeed.Enabled = m_Pile.Status== DaemonStatus.Active;
 
       btnPersonPut.Enabled = btnPersonParaPut.Enabled = btnPersonParaGet.Enabled =
-      btnStruct.Enabled = btnPersonGet.Enabled = btnPersonDelete.Enabled = m_Pile.Status== ServiceStatus.Active;
+      btnStruct.Enabled = btnPersonGet.Enabled = btnPersonDelete.Enabled = m_Pile.Status== DaemonStatus.Active;
 
-      sbTraxDeletes.Enabled = sbTraxWrites.Enabled = m_Pile.Status== ServiceStatus.Active;
+      sbTraxDeletes.Enabled = sbTraxWrites.Enabled = m_Pile.Status== DaemonStatus.Active;
 
 
       var count = m_Pile.ObjectCount;

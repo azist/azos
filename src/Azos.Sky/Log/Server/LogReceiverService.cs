@@ -35,7 +35,7 @@ namespace Azos.Sky.Log.Server
   /// <summary>
   /// Provides server implementation of Contracts.ILogReceiver
   /// </summary>
-  public sealed class LogReceiverService : ServiceWithInstrumentationBase<object>, Contracts.ILogReceiver
+  public sealed class LogReceiverService : DaemonWithInstrumentation<object>, Contracts.ILogReceiver
   {
     #region CONSTS
     public const string CONFIG_ARCHIVE_MAPPER_SECTION = "archive-mapper";
@@ -175,19 +175,19 @@ namespace Azos.Sky.Log.Server
       if (m_ArchiveStore == null)
         throw new LogArchiveException("{0} does not have archive store injected".Args(GetType().Name));
 
-      if (m_ArchiveStore is IService) ((IService)m_ArchiveStore).Start();
+      if (m_ArchiveStore is IDaemon) ((IDaemon)m_ArchiveStore).Start();
       base.DoStart();
     }
 
     protected override void DoSignalStop()
     {
-      if (m_ArchiveStore is IService) ((IService)m_ArchiveStore).SignalStop();
+      if (m_ArchiveStore is IDaemon) ((IDaemon)m_ArchiveStore).SignalStop();
       base.DoSignalStop();
     }
 
     protected override void DoWaitForCompleteStop()
     {
-      if (m_ArchiveStore is IService) ((IService)m_ArchiveStore).WaitForCompleteStop();
+      if (m_ArchiveStore is IDaemon) ((IDaemon)m_ArchiveStore).WaitForCompleteStop();
       base.DoWaitForCompleteStop();
     }
     #endregion

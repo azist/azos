@@ -92,7 +92,7 @@ namespace Azos.Sky.Identification
         get{ return m_AuthorityIDs; }
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
 
           if (value==null)
           {

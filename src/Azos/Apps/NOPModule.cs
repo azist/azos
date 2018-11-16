@@ -10,19 +10,14 @@ namespace Azos.Apps
   /// </summary>
   public sealed class NOPModule : ModuleBase
   {
-    private static NOPModule s_Instance = new NOPModule();
 
-    private NOPModule() : base(){ }
-
-    /// <summary>
-    /// Returns a singleton instance of the NOPModule
-    /// </summary>
-    public static NOPModule Instance
-    {
-      get { return s_Instance; }
-    }
+    public NOPModule(IApplication application) : base(application) { }
+    public NOPModule(IApplication application, IModule parent) : base(application, parent) { }
+    public NOPModule(IApplication application, IModule parent, int order) : base(application, parent, order) { }
 
     public override bool IsHardcodedModule => true;
+
+    public override string ComponentLogTopic => CoreConsts.APPLICATION_TOPIC;
 
     protected override void DoConfigureChildModules(Conf.IConfigSectionNode node)
     {

@@ -51,7 +51,7 @@ namespace Azos.Web.Pay
   /// </summary>
   public interface IPaySessionContext { }
 
-  public abstract class PaySystemHost : ServiceWithInstrumentationBase<object>, IPaySystemHostImplementation
+  public abstract class PaySystemHost : DaemonWithInstrumentation<object>, IPaySystemHostImplementation
   {
     #region CONST
     private const string LOG_TOPIC = "PaySystemHost";

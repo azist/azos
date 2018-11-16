@@ -51,7 +51,7 @@ namespace Azos.Log
         /// <summary>
         /// Creates a new logging service instance
         /// </summary>
-        public LogService(Service director = null) : base(director) {}
+        public LogService(Daemon director = null) : base(director) {}
 
     #endregion
 
@@ -196,7 +196,7 @@ namespace Azos.Log
 
                 do
                 {
-                    if (this.Status != ServiceStatus.Active || !m_Queue.IsEmpty) break;
+                    if (this.Status != DaemonStatus.Active || !m_Queue.IsEmpty) break;
                     if (m_Wakeup.WaitOne(sleepInterval)) break;
                 }
                 while (this.Now < wakeupTime);

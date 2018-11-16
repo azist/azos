@@ -125,7 +125,7 @@ namespace Azos.Sky.Workers.Server.Queue
 
       Task ITodoHost.LocalEnqueueAsync(IEnumerable<Todo> todos)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return Task.Factory.StartNew(() => this.Enqueue(todos) );
       }
 
@@ -140,7 +140,7 @@ namespace Azos.Sky.Workers.Server.Queue
 
       public int Enqueue(TodoFrame[] todos)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         if (todos == null || todos.Length == 0)
           return FULL_BATCH_SIZE;
 

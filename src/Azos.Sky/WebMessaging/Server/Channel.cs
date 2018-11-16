@@ -9,7 +9,7 @@ namespace Azos.Sky.WebMessaging.Server
   /// <summary>
   /// Represents a messaging channel that hosts message boxes of the particular type
   /// </summary>
-  public abstract class Channel : ServiceWithInstrumentationBase<WebMessageSystemService>
+  public abstract class Channel : DaemonWithInstrumentation<WebMessageSystemService>
   {
     protected Channel(WebMessageSystemService director) : base(director)
     {

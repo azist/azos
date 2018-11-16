@@ -19,7 +19,7 @@ namespace Azos.Time
   /// <summary>
   /// Provides default implementation for IEventTimer
   /// </summary>
-  public sealed class EventTimer : ServiceWithInstrumentationBase<object>, IEventTimerImplementation
+  public sealed class EventTimer : DaemonWithInstrumentation<object>, IEventTimerImplementation
   {
     #region CONSTS
       public const int DEFAULT_RESOLUTION_MS = 500;

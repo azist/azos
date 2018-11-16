@@ -15,7 +15,7 @@ using Azos.Instrumentation;
 
 namespace Azos.Web.Cloud
 {
-  public abstract class CloudSystem : ServiceWithInstrumentationBase<object>, IWebClientCaller, ICloudSystemImplementation
+  public abstract class CloudSystem : DaemonWithInstrumentation<object>, IWebClientCaller, ICloudSystemImplementation
   {
     #region CONSTS
     public const string CONFIG_CLOUD_SECTION = "cloud";

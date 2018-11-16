@@ -15,7 +15,7 @@ namespace Azos.Security
   /// <summary>
   /// Provides security manager implementation that authenticates and authorizes users from configuration
   /// </summary>
-  public class ConfigSecurityManager : ServiceWithInstrumentationBase<object>, ISecurityManagerImplementation
+  public class ConfigSecurityManager : DaemonWithInstrumentation<object>, ISecurityManagerImplementation
   {
     #region CONSTS
       public const string CONFIG_USERS_SECTION = "users";

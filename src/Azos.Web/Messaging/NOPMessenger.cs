@@ -11,7 +11,7 @@ namespace Azos.Web.Messaging
   /// <summary>
   /// Implements NOP Mailer that does nothing
   /// </summary>
-  public sealed class NOPMessenger : Service, IMessengerImplementation
+  public sealed class NOPMessenger : Daemon, IMessengerImplementation
   {
     public NOPMessenger() : base(){}
 

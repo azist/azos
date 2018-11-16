@@ -99,7 +99,7 @@ namespace Azos.Glue
 
         /// <summary>
         /// Indicates whether transport instance should not be released after a call and be reserved per this endpoint instance.
-        /// Be carefull when setting this property to true as this action can really impede the system performance as transport is reserved
+        /// Be careful when setting this property to true as this action can really impede the system performance as transport is reserved
         ///  until this property is either reset to false or endpoint instance is disposed. Transport reservation reduces call latency
         ///   and is mostly beneficial in synchronous bindings. Warning: client endpoint with reserved transport is NOT THREAD SAFE for making
         ///  parallel calls! Set this property to true only when latency is very critical and only 1 dedicated thread is working with this
@@ -144,7 +144,7 @@ namespace Azos.Glue
         }
 
         /// <summary>
-        /// Sets RemoteInstance to null. This method is needed when the same instance of client endpoint is used to make subsequent statefull calls
+        /// Sets RemoteInstance to null. This method is needed when the same instance of client endpoint is used to make subsequent stateful calls
         ///  to different server instances. Call this method before calling [Constructor]-decorated remote method or making the first call to
         ///   InstanceLifetime.AutoconstructedStateful servers.
         /// </summary>

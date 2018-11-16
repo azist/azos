@@ -186,7 +186,7 @@ namespace Azos.Pile
   }
 
 
-  public interface IPileImplementation : IPile, Apps.IService, IInstrumentable
+  public interface IPileImplementation : IPile, Apps.IDaemon, IInstrumentable
   {
     /// <summary>
     /// Defines modes of allocation: space/time tradeoff

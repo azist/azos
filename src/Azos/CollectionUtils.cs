@@ -168,6 +168,7 @@ namespace Azos
       return source.FirstOrDefault();
     }
 
+#warning Cover by unit tests
     /// <summary>
     /// Returns a new array that contains source elements with additional elements appended at the end
     /// </summary>
@@ -182,6 +183,19 @@ namespace Azos
       source.CopyTo(result, 0);
       elements.CopyTo(result, source.Length);
 
+      return result;
+    }
+
+#warning Cover by unit tests
+    /// <summary>
+    /// Returns an array concatenated from the first element and the rest, similar to JS rest spread operator: let x = [first, ...rest];
+    /// </summary>
+    public static T[] ConcatArray<T>(this T first, params T[] theRest)
+    {
+      if (theRest==null) return new[] { first };
+      var result = new T[theRest.Length+1];
+      result[0] = first;
+      theRest.CopyTo(result, 1);
       return result;
     }
 

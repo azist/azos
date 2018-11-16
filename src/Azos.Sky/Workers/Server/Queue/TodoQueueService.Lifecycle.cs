@@ -54,19 +54,19 @@ namespace Azos.Sky.Workers.Server.Queue { public sealed partial class TodoQueueS
         if (m_Queues.Count == 0)
           throw new WorkersException("{0} does not have any queues injected".Args(GetType().Name));
 
-        if (m_QueueStore is IService) ((IService)m_QueueStore).Start();
+        if (m_QueueStore is IDaemon) ((IDaemon)m_QueueStore).Start();
         base.DoStart();
       }
 
       protected override void DoSignalStop()
       {
-        if (m_QueueStore is IService) ((IService)m_QueueStore).SignalStop();
+        if (m_QueueStore is IDaemon) ((IDaemon)m_QueueStore).SignalStop();
         base.DoSignalStop();
       }
 
       protected override void DoWaitForCompleteStop()
       {
-        if (m_QueueStore is IService) ((IService)m_QueueStore).WaitForCompleteStop();
+        if (m_QueueStore is IDaemon) ((IDaemon)m_QueueStore).WaitForCompleteStop();
         base.DoWaitForCompleteStop();
         m_CorrelationLocker.Clear();
         m_Duplicates.Clear();

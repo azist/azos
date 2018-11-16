@@ -23,7 +23,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
   /// <summary>
   /// Provides Zone Governor Services - this is a singleton class
   /// </summary>
-  public sealed class ZoneGovernorService : Service
+  public sealed class ZoneGovernorService : Daemon
   {
     #region CONSTS
        public const string THREAD_NAME = "ZoneGovernorService";

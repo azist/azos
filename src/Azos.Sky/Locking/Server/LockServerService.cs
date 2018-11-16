@@ -13,7 +13,7 @@ namespace Azos.Sky.Locking.Server
   /// <summary>
   /// Implements lock server. Usually this service is activated by Zone gov process
   /// </summary>
-  public sealed class LockServerService : ServiceWithInstrumentationBase<object>, Contracts.ILocker
+  public sealed class LockServerService : DaemonWithInstrumentation<object>, Contracts.ILocker
   {
     #region CONSTS
        public const string THREAD_NAME = "LockServerService";

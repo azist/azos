@@ -8,7 +8,7 @@ using Azos.Log;
 
 namespace Azos.Sky.Workers.Server
 {
-  public abstract class AgentServiceBase : ServiceWithInstrumentationBase<object>
+  public abstract class AgentServiceBase : DaemonWithInstrumentation<object>
   {
     public const int THREAD_GRANULARITY_MS = 1750;
     public const int DEFAULT_INSTRUMENTATION_GRANULARITY_MS = 5000;

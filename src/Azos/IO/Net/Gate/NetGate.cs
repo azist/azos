@@ -21,7 +21,7 @@ namespace Azos.IO.Net.Gate
   /// Represents a network gate - a logical filter of incoming network traffic.
   /// Network gate is somewhat similar to a firewall - it allows/denies the int/out traffic based on the set of rules
   /// </summary>
-  public class NetGate : Service, INetGateImplementation
+  public class NetGate : Daemon, INetGateImplementation
   {
     #region CONSTS
       public const string CONFIG_INCOMING_SECTION = "incoming";

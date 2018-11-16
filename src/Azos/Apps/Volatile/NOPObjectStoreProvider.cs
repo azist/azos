@@ -34,7 +34,7 @@ namespace Azos.Apps.Volatile
 
         }
 
-        public NOPObjectStoreProvider(ObjectStoreService director) : base(director)
+        public NOPObjectStoreProvider(ObjectStoreDaemon director) : base(director)
         {
 
         }

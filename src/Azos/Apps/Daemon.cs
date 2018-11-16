@@ -18,22 +18,22 @@ using Azos.Time;
 namespace Azos.Apps
 {
     /// <summary>
-    /// Represents a lightweight service that can be controlled by Start/SignalStop-like commands.
+    /// Represents a lightweight daemon that can be controlled by Start/SignalStop-like commands.
     /// This class serves a a base for various implementations (i.e. LogService) including their composites.
     /// This class is thread-safe
     /// </summary>
-    public abstract class Service : ApplicationComponent, IService, ILocalizedTimeProvider
+    public abstract class Daemon : ApplicationComponent, IDaemon, ILocalizedTimeProvider
     {
         #region CONSTS
               public const string CONFIG_NAME_ATTR = "name";
         #endregion
 
         #region .ctor
-          protected Service() : base()
+          protected Daemon(IApplication application) : base(application)
           {
           }
 
-          protected Service(object director) : base(director)
+          protected Daemon(IApplication application, IApplicationComponent director) : base(application, director)
           {
           }
 
@@ -49,7 +49,7 @@ namespace Azos.Apps
         #region Private Fields
 
             private object m_StatusLock = new object();
-            private volatile ServiceStatus m_Status;
+            private volatile DaemonStatus m_Status;
 
             private volatile bool m_PendingWaitingStop;
 
@@ -69,13 +69,13 @@ namespace Azos.Apps
             /// </summary>
             public bool ApplicationDontAutoStartService
             {
-              get{ return Attribute.IsDefined(GetType(), typeof(ApplicationDontAutoStartServiceAttribute));}
+              get{ return Attribute.IsDefined(GetType(), typeof(ApplicationDontAutoStartDaemonAttributeAttribute));}
             }
 
             /// <summary>
             /// Current service status
             /// </summary>
-            public ServiceStatus Status
+            public DaemonStatus Status
             {
                 get { return m_Status; }
             }
@@ -89,7 +89,7 @@ namespace Azos.Apps
                 get
                 {
                   var status = m_Status;
-                  return status == ServiceStatus.Active || status == ServiceStatus.Starting;
+                  return status == DaemonStatus.Active || status == DaemonStatus.Starting;
                 }
             }
 
@@ -132,7 +132,7 @@ namespace Azos.Apps
                 EnsureObjectNotDisposed();
                 lock (m_StatusLock)
                 {
-                    CheckServiceInactive();
+                    CheckDaemonInactive();
                     ConfigAttribute.Apply(this, fromNode);
                     DoConfigure(fromNode);
                 }
@@ -155,18 +155,18 @@ namespace Azos.Apps
             {
                 EnsureObjectNotDisposed();
                 lock (m_StatusLock)
-                    if (m_Status == ServiceStatus.Inactive)
+                    if (m_Status == DaemonStatus.Inactive)
                     {
-                        m_Status = ServiceStatus.Starting;
+                        m_Status = DaemonStatus.Starting;
                         try
                         {
                           Behavior.ApplyBehaviorAttributes(this);
                           DoStart();
-                          m_Status = ServiceStatus.Active;
+                          m_Status = DaemonStatus.Active;
                         }
                         catch
                         {
-                          m_Status = ServiceStatus.Inactive;
+                          m_Status = DaemonStatus.Inactive;
                           throw;
                         }
                     }
@@ -178,9 +178,9 @@ namespace Azos.Apps
             public void SignalStop()
             {
                 lock (m_StatusLock)
-                    if (m_Status == ServiceStatus.Active)
+                    if (m_Status == DaemonStatus.Active)
                     {
-                        m_Status = ServiceStatus.Stopping;
+                        m_Status = DaemonStatus.Stopping;
                         DoSignalStop();
                     }
             }
@@ -193,9 +193,9 @@ namespace Azos.Apps
             {
                 lock (m_StatusLock)
                 {
-                    if (m_Status == ServiceStatus.Inactive) return true;
+                    if (m_Status == DaemonStatus.Inactive) return true;
 
-                    if (m_Status == ServiceStatus.Stopping)
+                    if (m_Status == DaemonStatus.Stopping)
                         return DoCheckForCompleteStop();
                     else
                         return false;
@@ -210,11 +210,11 @@ namespace Azos.Apps
             {
                 lock (m_StatusLock)
                 {
-                    if (m_Status == ServiceStatus.Inactive) return;
+                    if (m_Status == DaemonStatus.Inactive) return;
 
-                    if (m_Status != ServiceStatus.Stopping) SignalStop();
+                    if (m_Status != DaemonStatus.Stopping) SignalStop();
 
-                    if (m_PendingWaitingStop) throw new AzosException(StringConsts.SERVICE_INVALID_STATE + "{0}.{1}".Args(Name,"WaitForCompleteStop() already blocked"));
+                    if (m_PendingWaitingStop) throw new AzosException(StringConsts.DAEMON_INVALID_STATE + "{0}.{1}".Args(Name,"WaitForCompleteStop() already blocked"));
 
                     m_PendingWaitingStop = true;
                     try
@@ -226,7 +226,7 @@ namespace Azos.Apps
                       m_PendingWaitingStop = false;
                     }
 
-                    m_Status = ServiceStatus.Inactive;
+                    m_Status = DaemonStatus.Inactive;
                 }
             }
 
@@ -288,18 +288,21 @@ namespace Azos.Apps
                 }
             }
 
+            public override string ToString()
+            {
+              return "Daemon {0}('{1}' @{2})".Args(GetType().DisplayNameWithExpandedGenericArgs(), Name, ComponentSID);
+            }
+
+          #endregion
 
 
-        #endregion
+    #region Protected
 
-
-        #region Protected
-
-            /// <summary>
-            /// Allows to abort unsuccessful DoStart() overridden implementation.
-            /// This method must be called from within DoStart()
-            /// </summary>
-            protected void AbortStart()
+    /// <summary>
+    /// Allows to abort unsuccessful DoStart() overridden implementation.
+    /// This method must be called from within DoStart()
+    /// </summary>
+    protected void AbortStart()
             {
                 var trace = new StackTrace(1, false);
 
@@ -308,7 +311,7 @@ namespace Azos.Apps
                         text:   "Service.AbortStart() must be called from within DoStart()",
                         action: DebugAction.ThrowAndLog);
 
-                m_Status = ServiceStatus.AbortingStart;
+                m_Status = DaemonStatus.AbortingStart;
             }
 
             /// <summary>
@@ -330,7 +333,7 @@ namespace Azos.Apps
             /// </summary>
             protected virtual bool DoCheckForCompleteStop()
             {
-                return m_Status == ServiceStatus.Inactive;
+                return m_Status == DaemonStatus.Inactive;
             }
 
             /// <summary>
@@ -350,32 +353,31 @@ namespace Azos.Apps
             }
 
             /// <summary>
+            /// Checks for service activity and throws exception if service is not in ControlStatus.Active state
+            /// </summary>
+            protected void CheckDaemonActiveOrStarting()
+            {
+                if (m_Status!=DaemonStatus.Active && m_Status!=DaemonStatus.Starting)
+                throw new AzosException(StringConsts.DAEMON_INVALID_STATE + Name);
+            }
+
+            /// <summary>
             /// Checks for service inactivity and throws exception if service is running (started, starting or stopping)
             /// </summary>
-            protected void CheckServiceInactive()
+            protected void CheckDaemonInactive()
             {
-                if (Status!= ServiceStatus.Inactive)
-                throw new AzosException(StringConsts.SERVICE_INVALID_STATE + Name);
+                if (Status!= DaemonStatus.Inactive)
+                throw new AzosException(StringConsts.DAEMON_INVALID_STATE + Name);
             }
 
             /// <summary>
             /// Checks for service activity and throws exception if service is not in ControlStatus.Active state
             /// </summary>
-            protected void CheckServiceActive()
+            protected void CheckDaemonActive()
             {
-                if (m_Status!=ServiceStatus.Active)
-                throw new AzosException(StringConsts.SERVICE_INVALID_STATE + Name);
+                if (m_Status!=DaemonStatus.Active)
+                throw new AzosException(StringConsts.DAEMON_INVALID_STATE + Name);
             }
-
-            /// <summary>
-            /// Checks for service activity and throws exception if service is not in ControlStatus.Active state
-            /// </summary>
-            protected void CheckServiceActiveOrStarting()
-            {
-                if (m_Status!=ServiceStatus.Active && m_Status!=ServiceStatus.Starting)
-                throw new AzosException(StringConsts.SERVICE_INVALID_STATE + Name);
-            }
-
 
             /// <summary>
             /// Accepts a visit from external manager. Base implementation does nothing.
@@ -387,6 +389,7 @@ namespace Azos.Apps
 
             }
 
+    #warning Revise: what is this used for?
             /// <summary>
             /// WARNING: Developers never call this method!!!
             /// It is used by advanced derived implementations that need to synchronize status updates.
@@ -402,21 +405,11 @@ namespace Azos.Apps
     /// <summary>
     /// Represents service with typed ComponentDirector property
     /// </summary>
-    public class Service<TDirector> : Service where TDirector : class
+    public abstract class Daemon<TDirector> : Daemon where TDirector : IApplicationComponent
     {
+      protected Daemon(IApplication application) : base(application) { }
+      protected Daemon(IApplication application, TDirector director) : base(application, director) { }
 
-        protected Service() : base()
-        {
-        }
-
-        protected Service(TDirector director) : base(director)
-        {
-        }
-
-        public new TDirector ComponentDirector
-        {
-            get { return (TDirector)base.ComponentDirector; }
-        }
+      public new TDirector ComponentDirector => (TDirector)base.ComponentDirector;
     }
-
 }

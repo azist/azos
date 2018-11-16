@@ -58,7 +58,7 @@ namespace Azos.Security
     Collections.IRegistry<PasswordHashingAlgorithm> Algorithms { get; }
   }
 
-  public interface IPasswordManagerImplementation : IPasswordManager, IDisposable, IConfigurable, IInstrumentable, IService
+  public interface IPasswordManagerImplementation : IPasswordManager, IDisposable, IConfigurable, IInstrumentable, IDaemon
   {
     bool Register(PasswordHashingAlgorithm algo);
     bool Unregister(PasswordHashingAlgorithm algo);

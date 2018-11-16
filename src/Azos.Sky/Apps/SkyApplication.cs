@@ -167,9 +167,9 @@ namespace Azos.Sky.Apps
 
           WriteLog(MessageType.Info, FROM, "Lock Manager made");
 
-          if (m_LockManager is Service)
+          if (m_LockManager is Daemon)
           {
-            ((Service)m_LockManager).Start();
+            ((Daemon)m_LockManager).Start();
             WriteLog(MessageType.Info, FROM, "Lock Manager STARTED");
           }
         }
@@ -192,9 +192,9 @@ namespace Azos.Sky.Apps
 
           WriteLog(MessageType.Info, FROM, "Process Manager made");
 
-          if (m_ProcessManager is Service)
+          if (m_ProcessManager is Daemon)
           {
-            ((Service)m_ProcessManager).Start();
+            ((Daemon)m_ProcessManager).Start();
             WriteLog(MessageType.Info, FROM, "Process Manager STARTED");
           }
         }
@@ -217,9 +217,9 @@ namespace Azos.Sky.Apps
 
           WriteLog(MessageType.Info, FROM, "Dynamic Host Manager made");
 
-          if (m_DynamicHostManager is Service)
+          if (m_DynamicHostManager is Daemon)
           {
-            ((Service)m_DynamicHostManager).Start();
+            ((Daemon)m_DynamicHostManager).Start();
             WriteLog(MessageType.Info, FROM, "Dynamic Host Manager STARTED");
           }
         }
@@ -245,10 +245,10 @@ namespace Azos.Sky.Apps
           WriteLog(MessageType.Info, FROM, "Finalizing Dynamic Host Manager");
           try
           {
-            if (m_DynamicHostManager is Service)
+            if (m_DynamicHostManager is Daemon)
             {
-              ((Service)m_DynamicHostManager).SignalStop();
-              ((Service)m_DynamicHostManager).WaitForCompleteStop();
+              ((Daemon)m_DynamicHostManager).SignalStop();
+              ((Daemon)m_DynamicHostManager).WaitForCompleteStop();
               WriteLog(MessageType.Info, FROM, "Dynamic Host Manager STOPPED");
             }
 
@@ -266,10 +266,10 @@ namespace Azos.Sky.Apps
           WriteLog(MessageType.Info, FROM, "Finalizing Process Manager");
           try
           {
-            if (m_ProcessManager is Service)
+            if (m_ProcessManager is Daemon)
             {
-              ((Service)m_ProcessManager).SignalStop();
-              ((Service)m_ProcessManager).WaitForCompleteStop();
+              ((Daemon)m_ProcessManager).SignalStop();
+              ((Daemon)m_ProcessManager).WaitForCompleteStop();
               WriteLog(MessageType.Info, FROM, "Process Manager STOPPED");
             }
 
@@ -287,10 +287,10 @@ namespace Azos.Sky.Apps
           WriteLog(MessageType.Info, FROM, "Finalizing Lock Manager");
           try
           {
-            if (m_LockManager is Service)
+            if (m_LockManager is Daemon)
             {
-                ((Service)m_LockManager).SignalStop();
-                ((Service)m_LockManager).WaitForCompleteStop();
+                ((Daemon)m_LockManager).SignalStop();
+                ((Daemon)m_LockManager).WaitForCompleteStop();
                 WriteLog(MessageType.Info, FROM, "Lock Manager STOPPED");
             }
 

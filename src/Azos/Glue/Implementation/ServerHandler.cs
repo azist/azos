@@ -24,7 +24,7 @@ namespace Azos.Glue.Implementation
     /// <summary>
     /// Executes server work - handles requests synchronously or asynchronously.
     /// </summary>
-    public class ServerHandler : GlueComponentService
+    public class ServerHandler : GlueDaemon
     {
        #region CONSTS
 
@@ -51,10 +51,10 @@ namespace Azos.Glue.Implementation
        #endregion
 
        #region .ctor
-            public ServerHandler(IGlueImplementation glue) : base(glue)
-            {
+          public ServerHandler(IApplication app, IGlueImplementation glue) : base(app, glue)
+          {
 
-            }
+          }
        #endregion
 
 

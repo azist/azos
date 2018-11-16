@@ -17,7 +17,7 @@ using Azos.Log;
 
 namespace Azos.Web.Shipping
 {
-  public abstract class ShippingSystem : ServiceWithInstrumentationBase<object>, IWebClientCaller, IShippingSystemImplementation
+  public abstract class ShippingSystem : DaemonWithInstrumentation<object>, IWebClientCaller, IShippingSystemImplementation
   {
     #region CONSTS
 

@@ -16,7 +16,7 @@ namespace Azos.Instrumentation
   /// <summary>
   /// Defines a base provider for InstrumentationService
   /// </summary>
-  public abstract class InstrumentationProvider : Service<InstrumentationService>, IExternallyParameterized
+  public abstract class InstrumentationProvider : Daemon<InstrumentationService>, IExternallyParameterized
   {
     #region .ctor
     protected InstrumentationProvider(InstrumentationService director) : base(director) {}

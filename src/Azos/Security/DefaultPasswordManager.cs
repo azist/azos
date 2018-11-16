@@ -18,7 +18,7 @@ namespace Azos.Security
   /// <summary>
   /// Provides default implementation for password managment functionality based on injectable algorithms and default password strength calculation
   /// </summary>
-  public class DefaultPasswordManager : ServiceWithInstrumentationBase<ISecurityManagerImplementation>, IPasswordManagerImplementation
+  public class DefaultPasswordManager : DaemonWithInstrumentation<ISecurityManagerImplementation>, IPasswordManagerImplementation
   {
     #region CONSTS
       public const string CONFIG_ALGORITHM_SECTION = "algo";
@@ -126,7 +126,7 @@ namespace Azos.Security
         if (!password.IsSealed)
           throw new SecurityException(StringConsts.ARGUMENT_ERROR + "DefaultPasswordManager.ComputeHash(!password.IsSealed)");
 
-        CheckServiceActive();
+        CheckDaemonActive();
 
         return DoComputeHash(family, password, level == PasswordStrengthLevel.Default ? DefaultStrengthLevel : level);
       }
@@ -150,7 +150,7 @@ namespace Azos.Security
         if (a == null || b == null) return false;
         if (a.AlgoName != b.AlgoName) return false;
 
-        CheckServiceInactive();
+        CheckDaemonInactive();
 
         return DoAreEquivalent(a, b);
       }
@@ -161,7 +161,7 @@ namespace Azos.Security
           throw new SecurityException(StringConsts.ARGUMENT_ERROR + "DefaultPasswordManager.CalculateStrenghtScore(password==null)");
         if (!password.IsSealed)
           throw new SecurityException(StringConsts.ARGUMENT_ERROR + "DefaultPasswordManager.CalculateStrenghtScore(!password.IsSealed)");
-        CheckServiceActive();
+        CheckDaemonActive();
         return DoCalculateStrenghtScore(family, password);
       }
 
@@ -183,7 +183,7 @@ namespace Azos.Security
         if (algo == null)
           throw new SecurityException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".Register(algo==null)");
 
-        CheckServiceInactive();
+        CheckDaemonInactive();
 
         if (algo.ComponentDirector != this)
           throw new SecurityException(GetType().Name + ".Register(director!=this)");
@@ -196,7 +196,7 @@ namespace Azos.Security
         if (algo == null)
           throw new SecurityException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".Register(algo==null)");
 
-        CheckServiceInactive();
+        CheckDaemonInactive();
 
         if (algo.ComponentDirector != this)
           throw new SecurityException(GetType().Name + ".Unregister(director!=this)");
@@ -209,7 +209,7 @@ namespace Azos.Security
         if (algoName.IsNullOrWhiteSpace())
           throw new SecurityException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".Register(algoName.IsNullOrWhiteSpace)");
 
-        CheckServiceInactive();
+        CheckDaemonInactive();
         return m_Algorithms.Unregister(algoName);
       }
 

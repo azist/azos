@@ -1,13 +1,12 @@
-
-using System;
-using System.Collections.Generic;
 /*<FILE_LICENSE>
  * Azos (A to Z Application Operating System) Framework
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Runtime.Serialization;
 
 using Azos.Conf;
@@ -19,22 +18,22 @@ namespace Azos.Apps
 {
 
   /// <summary>
-  /// Child service entry as managed by CompositeServiceHost class
+  /// Child service entry as managed by CompositeDaemon class
   /// </summary>
-  public struct ChildService : Collections.INamed, Collections.IOrdered
+  public struct ChildService : INamed, IOrdered
   {
-    public ChildService(Service svc, int order, bool abortStart)
+    public ChildService(Daemon svc, int order, bool abortStart)
     {
       m_Service = svc;
       m_Order = order;
       m_AbortStart = abortStart;
     }
 
-    private Service m_Service;
+    private Daemon m_Service;
     private int m_Order;
     private bool m_AbortStart;
 
-    public Service Service { get { return m_Service;}}
+    public Daemon Service { get { return m_Service;}}
     public string Name { get { return m_Service.Name;}}
     public int Order { get { return m_Order;}}
     public bool AbortStart { get {return m_AbortStart;}}
@@ -49,24 +48,22 @@ namespace Azos.Apps
 
 
   /// <summary>
-  /// Represents a service that contains other child services.
+  /// Represents a daemon that contains other child daemons.
   /// Start/Stop commands translate into child sub-commands.
   /// This class is used to host other services in various job/background process hosts
   /// </summary>
-  public class CompositeServiceHost : Service
+  public class CompositeDaemon : Daemon
   {
     #region CONSTS
-    public const string CONFIG_SERVICE_HOST_SECTION = "service-host";
-    public const string CONFIG_SERVICE_SECTION = "service";
+    public const string CONFIG_DAEMON_COMPOSITE_SECTION = "daemon-composite";
+    public const string CONFIG_DAEMON_SECTION = "daemon";
     public const string CONFIG_ABORT_START_ATTR = "abort-start";
-    public const string CONFIG_IGNORE_THIS_SERVICE_ATTR = "ignore-this-service";
+    public const string CONFIG_IGNORE_THIS_DAEMON_ATTR = "ignore-this-daemon";
     #endregion
 
     #region .ctor
-    public CompositeServiceHost(object director) : base(director)
-    {
-
-    }
+    protected CompositeDaemon(IApplication application) : base(application) { }
+    protected CompositeDaemon(IApplication application, IApplicationComponent director) : base(application, director) { }
 
     protected override void Destructor()
     {
@@ -107,9 +104,9 @@ namespace Azos.Apps
     /// Returns true if child service was registered, false if it was already registered prior tp this call.
     /// The method may only be called on stopped (this) service
     /// </summary>
-    public bool RegisterService(Service service, int order, bool abortStart)
+    public bool RegisterService(Daemon service, int order, bool abortStart)
     {
-      this.CheckServiceInactive();
+      this.CheckDaemonInactive();
       var csvc = new ChildService(service, order, abortStart);
       return m_Services.Register(csvc);
     }
@@ -118,9 +115,9 @@ namespace Azos.Apps
     /// Returns true if child service was unregistered, false if it did not exist.
     /// The method may only be called on stopped (this) service
     /// </summary>
-    public bool UnregisterService(Service service)
+    public bool UnregisterService(Daemon service)
     {
-      this.CheckServiceInactive();
+      this.CheckDaemonInactive();
       var csvc = new ChildService(service, 0, false);
       return m_Services.Unregister(csvc);
     }
@@ -129,24 +126,27 @@ namespace Azos.Apps
 
 
     #region Protected
+
+    public override string ComponentLogTopic => CoreConsts.APPLICATION_TOPIC;
+
     protected override void DoConfigure(IConfigSectionNode node)
     {
       if (node == null)
-        node = App.ConfigRoot[CONFIG_SERVICE_HOST_SECTION];
+        node = App.ConfigRoot[CONFIG_DAEMON_COMPOSITE_SECTION];
 
       foreach (var snode in node.Children
-                                .Where(cn => cn.IsSameName(CONFIG_SERVICE_SECTION))
+                                .Where(cn => cn.IsSameName(CONFIG_DAEMON_SECTION))
                                 .OrderBy(cn => cn.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt(0)))//the order here is needed so that child services get CREATED in order,
                                                                                                              // not only launched in order
       {
-        var ignored = snode.AttrByName(CONFIG_IGNORE_THIS_SERVICE_ATTR).ValueAsBool(false);
+        var ignored = snode.AttrByName(CONFIG_IGNORE_THIS_DAEMON_ATTR).ValueAsBool(false);
         if (ignored)
         {
           log(MessageType.Warning, "DoConfigure()", "Service {0} is ignored".Args(snode.AttrByName("name").Value));
           continue;
         }
 
-        var svc = FactoryUtils.MakeAndConfigure<Service>(snode, args: new object[] { this });
+        var svc = FactoryUtils.MakeAndConfigure<Daemon>(snode, args: new object[] { this });
         var abort = snode.AttrByName(CONFIG_ABORT_START_ATTR).ValueAsBool(true);
         RegisterService(svc, snode.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt(0), abort);
       }
@@ -154,7 +154,7 @@ namespace Azos.Apps
 
     protected override void DoStart()
     {
-      var started = new List<Service>();
+      var started = new List<Daemon>();
 
       foreach (var csvc in m_Services.OrderedValues)
         try
@@ -178,7 +178,7 @@ namespace Azos.Apps
               {
                 log(MessageType.CriticalAlert, "DoStart('{0}').WaitForCompleteStop('{1}')".Args(csvc, service.GetType().Name), ex.ToMessageWithType(), ex, guid);
               }
-            throw new SvcHostException(StringConsts.SERVICE_COMPOSITE_CHILD_START_ABORT_ERROR.Args(csvc, error.ToMessageWithType()), error);
+            throw new CompositeDaemonException(StringConsts.DAEMON_COMPOSITE_CHILD_START_ABORT_ERROR.Args(csvc, error.ToMessageWithType()), error);
           }
         }
     }
@@ -268,14 +268,14 @@ namespace Azos.Apps
 
 
   /// <summary>
-  ///Thrown by CompositeServiceHost
+  ///Thrown by CompositeDaemon
   /// </summary>
   [Serializable]
-  public class SvcHostException : AzosException
+  public class CompositeDaemonException : AzosException
   {
-    public SvcHostException() { }
-    public SvcHostException(string message) : base(message) { }
-    public SvcHostException(string message, Exception inner) : base(message, inner) { }
-    protected SvcHostException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    public CompositeDaemonException() { }
+    public CompositeDaemonException(string message) : base(message) { }
+    public CompositeDaemonException(string message, Exception inner) : base(message, inner) { }
+    protected CompositeDaemonException(SerializationInfo info, StreamingContext context) : base(info, context) { }
   }
 }

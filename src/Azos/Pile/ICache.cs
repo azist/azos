@@ -274,7 +274,7 @@ namespace Azos.Pile
                   DateTime? putAbsoluteExpirationUTC = null);
   }
 
-  public interface ICacheImplementation : ICache, Apps.IService, IInstrumentable
+  public interface ICacheImplementation : ICache, Apps.IDaemon, IInstrumentable
   {
     /// <summary>
     /// Imposes a limit on maximum number of bytes that a pile can allocate of the system heap.

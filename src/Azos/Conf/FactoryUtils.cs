@@ -9,10 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
+using Azos.Apps;
 using Azos.Data;
 
 namespace Azos.Conf
 {
+#warning Must revise test coverage
   /// <summary>
   /// Provides helper methods for dynamic object creation and configuration
   /// </summary>
@@ -27,7 +29,7 @@ namespace Azos.Conf
     #region Public
 
         /// <summary>
-        /// Creates and configures an instance of appropriate configurable object as specified in supplied config node.
+        /// Creates and configures an instance of appropriate configurable object as specified by the supplied config node.
         /// Applies configured behaviors
         /// </summary>
         public static IConfigurable MakeAndConfigure(IConfigSectionNode node, Type defaultType = null, object[] args = null)
@@ -36,11 +38,34 @@ namespace Azos.Conf
         }
 
         /// <summary>
-        /// Creates and configures an instance of appropriate configurable object as specified in supplied config node.
+        /// Creates and configures an instance of appropriate configurable component object as specified by the supplied config node.
+        /// Applies configured behaviors. By convention passes application as the first constructor argument.
+        /// Extra arguments shall not contain application
+        /// </summary>
+        public static T MakeAndConfigureComponent<T>(IApplication app, IConfigSectionNode node, Type defaultType = null, object[] extraArgs = null)
+                where T : IApplicationComponent, IConfigurable
+        {
+          return MakeAndConfigure<T>(node, defaultType, app.ConcatArray(extraArgs));
+        }
+
+        /// <summary>
+        /// Creates and configures an instance of appropriate configurable module component object as specified by the supplied config node.
+        /// Applies configured behaviors. By convention passes application and parent module as the first constructor arguments.
+        /// Extra arguments shall not contain application and parent module
+        /// </summary>
+        public static T MakeAndConfigureModuleComponent<T>(IApplication app, IModule parent, IConfigSectionNode node, Type defaultType = null, object[] extraArgs = null)
+                where T : IModuleImplementation
+        {
+          return MakeAndConfigure<T>(node, defaultType, app.ConcatArray(parent.ConcatArray(extraArgs)));
+        }
+
+
+        /// <summary>
+        /// Creates and configures an instance of appropriate configurable object as specified by the supplied config node.
         /// Applies configured behaviors
         /// </summary>
         public static T MakeAndConfigure<T>(IConfigSectionNode node, Type defaultType = null, object[] args = null)
-            where T : IConfigurable
+                where T : IConfigurable
         {
             var result = Make<T>(node, defaultType, args);
 
@@ -59,7 +84,18 @@ namespace Azos.Conf
         }
 
         /// <summary>
-        /// Creates an instance of appropriate configurable object as specified in supplied config node.
+        /// Creates an instance of appropriate component object as specified by the supplied config node.
+        /// By convention passes application as the first constructor argument.
+        /// Extra arguments shall not contain application
+        /// </summary>
+        public static T MakeComponent<T>(IApplication app, IConfigSectionNode node, Type defaultType = null, object[] extraArgs = null)
+                where T : IApplicationComponent
+        {
+          return Make<T>(node, defaultType, app.ConcatArray(extraArgs));
+        }
+
+        /// <summary>
+        /// Creates an instance of appropriate configurable object as specified by the supplied config node.
         /// This function does not configure the instance
         /// </summary>
         public static T Make<T>(IConfigSectionNode node, Type defaultType = null, object[] args = null)

@@ -14,7 +14,7 @@ namespace Azos.Sky.Social.Trending.Server
   /// <summary>
   /// Implements ITrendingSystem contract
   /// </summary>
-  public sealed class TrendingSystemService : ServiceWithInstrumentationBase<object>, ITrendingSystem
+  public sealed class TrendingSystemService : DaemonWithInstrumentation<object>, ITrendingSystem
   {
     #region CONSTS
       public const string CONFIG_VOLUME_SECTION = "volume";

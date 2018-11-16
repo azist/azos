@@ -43,7 +43,7 @@ namespace Azos.Sky.Social.Trending.Server
   /// Represents an entity that stores trending data per the specified detalization level.
   /// This class is NOT thread-safe
   /// </summary>
-  public abstract class Volume : ServiceWithInstrumentationBase<TrendingSystemService>
+  public abstract class Volume : DaemonWithInstrumentation<TrendingSystemService>
   {
     #region CONSTS
       public const int MIN_HISTORY_LENGTH_DAYS = 30;
@@ -144,7 +144,7 @@ namespace Azos.Sky.Social.Trending.Server
         }
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           m_DetalizationLevel = value;
         }
       }
@@ -159,7 +159,7 @@ namespace Azos.Sky.Social.Trending.Server
         }
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           m_OldDataPurgeFrequencyMin =
             value < MIN_OLD_DATA_PURGE_FREQUENCY_MINUTES ? MIN_OLD_DATA_PURGE_FREQUENCY_MINUTES : value;
         }

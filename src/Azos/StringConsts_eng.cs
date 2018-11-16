@@ -30,11 +30,11 @@ namespace Azos
         public const string LOGSVC_NODESTINATIONS_ERROR =
             "No log destinations registered. Log service could not start";
 
-        public const string SERVICE_INVALID_STATE =
-            "Service is in inappropriate state for requested operation: ";
+        public const string DAEMON_INVALID_STATE =
+            "Daemon is in inappropriate state for requested operation: ";
 
-        public const string SERVICE_COMPOSITE_CHILD_START_ABORT_ERROR =
-            "Composite service host start aborted due to exception from child service '{0}' start: {1} ";
+        public const string DAEMON_COMPOSITE_CHILD_START_ABORT_ERROR =
+            "Composite daemon start aborted due to exception from child service '{0}' start: {1} ";
 
         public const string ARGUMENT_ERROR = "Argument error: ";
 
@@ -226,7 +226,7 @@ namespace Azos
 
 
     public const string APP_MODULE_DUPLICATE_CHILD_ERROR =
-        "Application module duplicate name: '{0}' module already contains a child module named '{1}'";
+        "Application module duplicate name: '{0}' module already contains a child module named: '{1}'";
 
     public const string APP_MODULE_GET_BY_TYPE_ERROR =
         "Application could not get the requested module of type `{0}`";

@@ -21,7 +21,7 @@ namespace Azos.Instrumentation
     /// Implements IInstrumentation. This service aggregates data by type,source and sends result into provider
     /// </summary>
     [ConfigMacroContext]
-    public sealed class InstrumentationService : ServiceWithInstrumentationBase<object>, IInstrumentationImplementation
+    public sealed class InstrumentationService : DaemonWithInstrumentation<object>, IInstrumentationImplementation
     {
         #region CONSTS
             private const int MIN_INTERVAL_MSEC = 500;
@@ -203,7 +203,7 @@ namespace Azos.Instrumentation
               get { return m_ResultBufferSize;}
               set
               {
-                CheckServiceInactive();
+                CheckDaemonInactive();
                 if (value>MAX_RESULT_BUFFER_SIZE) value = MAX_RESULT_BUFFER_SIZE;
                 m_ResultBufferSize = value;
               }
@@ -237,7 +237,7 @@ namespace Azos.Instrumentation
             /// </summary>
             public void Record(Datum datum)
             {
-              if (Status != ServiceStatus.Active) return;
+              if (Status != DaemonStatus.Active) return;
               if (datum==null) return;
               if (Overflown) return;
 
@@ -401,7 +401,7 @@ namespace Azos.Instrumentation
 
                 //pre-flight checks
                 if (m_Provider == null)
-                  throw new AzosException(StringConsts.SERVICE_INVALID_STATE + "InstrumentationService.DoStart(Provider=null)");
+                  throw new AzosException(StringConsts.DAEMON_INVALID_STATE + "InstrumentationService.DoStart(Provider=null)");
 
 
                 m_BufferOldestDatumUTC = null;
@@ -498,8 +498,8 @@ namespace Azos.Instrumentation
 
                 private void ensureInactive(string msg)
                 {
-                  if (Status != ServiceStatus.Inactive)
-                          throw new AzosException(StringConsts.SERVICE_INVALID_STATE + msg);
+                  if (Status != DaemonStatus.Inactive)
+                          throw new AzosException(StringConsts.DAEMON_INVALID_STATE + msg);
                 }
 
                 public Guid Log(MessageType type,

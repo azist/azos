@@ -12,7 +12,7 @@ using Azos.Sky.WebMessaging;
 
 namespace Azos.Sky.Social.Graph.Server
 {
-  public partial class GraphSystemService : ServiceWithInstrumentationBase<object>
+  public partial class GraphSystemService : DaemonWithInstrumentation<object>
     , IGraphEventSystem
     , IGraphFriendSystem
     , IGraphNodeSystem

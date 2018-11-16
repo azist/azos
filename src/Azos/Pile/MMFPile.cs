@@ -57,7 +57,7 @@ namespace Azos.Pile
         get{ return m_DataDirectoryRoot ?? string.Empty;}
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           m_DataDirectoryRoot = value;
         }
       }

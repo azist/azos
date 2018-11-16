@@ -18,14 +18,14 @@ namespace Azos.Apps.Volatile
 
   /// <summary>
   /// Implements service that stores object in proccess's memory, asynchronously saving objects to external non-volatile storage
-  /// upon change and synchronously saving objects upon service stop. This service is useful for scenarious like ASP.NET
+  /// upon change and synchronously saving objects upon service stop. This service is useful for scenarios like ASP.NET
   /// volatile domain that can be torn down at any time.
   /// Note for ASP.NET uses: the key difference of this approach from .NET session state management is the fact that this service never blocks
   ///  object CheckIn() operations as backing store is being updated asynchronously.
   /// This class is thread-safe unless specified otherwise on a property/method level
   /// </summary>
   [ConfigMacroContext]
-  public class ObjectStoreService : ServiceWithInstrumentationBase<object>, IObjectStoreImplementation
+  public class ObjectStoreDaemon : DaemonWithInstrumentation<object>, IObjectStoreImplementation
   {
     #region CONSTS
 
@@ -54,7 +54,7 @@ namespace Azos.Apps.Volatile
         /// <summary>
         /// Creates instance of the store service
         /// </summary>
-        public ObjectStoreService() : this(new Guid())
+        public ObjectStoreDaemon() : this(new Guid())
         {
         }
 
@@ -62,7 +62,7 @@ namespace Azos.Apps.Volatile
         /// <summary>
         /// Creates instance of the store service with the state identified by "storeGUID". Refer to "StoreGUID" property.
         /// </summary>
-        public ObjectStoreService(Guid storeGUID) : base(null)
+        public ObjectStoreDaemon(Guid storeGUID) : base(null)
         {
           m_StoreGUID = storeGUID;
         }
@@ -180,7 +180,7 @@ namespace Azos.Apps.Volatile
     /// </summary>
     public object Fetch(Guid key, bool touch = false)
     {
-      if (this.Status != ServiceStatus.Active) return null;
+      if (this.Status != DaemonStatus.Active) return null;
 
       var bucket = getBucket(key);
 
@@ -206,7 +206,7 @@ namespace Azos.Apps.Volatile
     /// </summary>
     public object CheckOut(Guid key)
     {
-      if (this.Status != ServiceStatus.Active) return null;
+      if (this.Status != DaemonStatus.Active) return null;
 
       var bucket = getBucket(key);
 
@@ -233,7 +233,7 @@ namespace Azos.Apps.Volatile
     /// </summary>
     public bool UndoCheckout(Guid key)
     {
-      if (this.Status != ServiceStatus.Active) return false;
+      if (this.Status != DaemonStatus.Active) return false;
 
       var bucket = getBucket(key);
 
@@ -262,7 +262,7 @@ namespace Azos.Apps.Volatile
     /// </summary>
     public void CheckIn(Guid key, object value, int msTimeout = 0)
     {
-      if (Status != ServiceStatus.Active) return;
+      if (Status != DaemonStatus.Active) return;
 
       if (value==null)
       {
@@ -315,7 +315,7 @@ namespace Azos.Apps.Volatile
     /// </summary>
     public void CheckInUnderNewKey(Guid oldKey, Guid newKey, object value, int msTimeout = 0)
     {
-      if (Status != ServiceStatus.Active) return;
+      if (Status != DaemonStatus.Active) return;
 
       if (value==null)
       {
@@ -349,7 +349,7 @@ namespace Azos.Apps.Volatile
     /// </summary>
     public bool CheckIn(Guid key, int msTimeout = 0)
     {
-      if (Status != ServiceStatus.Active) return false;
+      if (Status != DaemonStatus.Active) return false;
 
       var bucket = getBucket(key);
 
@@ -383,7 +383,7 @@ namespace Azos.Apps.Volatile
     /// </summary>
     public bool Delete(Guid key)
     {
-      if (Status != ServiceStatus.Active) return false;
+      if (Status != DaemonStatus.Active) return false;
 
 
       var bucket = getBucket(key);
@@ -449,7 +449,7 @@ namespace Azos.Apps.Volatile
 
         //pre-flight checks
         if (m_Provider == null)
-          throw new AzosException(StringConsts.SERVICE_INVALID_STATE + "ObjectStoreService.DoStart(Provider=null)");
+          throw new AzosException(StringConsts.DAEMON_INVALID_STATE + "ObjectStoreService.DoStart(Provider=null)");
 
         m_Provider.Start();
 
@@ -563,8 +563,8 @@ namespace Azos.Apps.Volatile
 
                 private void ensureInactive(string msg)
                 {
-                  if (Status != ServiceStatus.Inactive)
-                          throw new AzosException(StringConsts.SERVICE_INVALID_STATE + msg);
+                  if (Status != DaemonStatus.Inactive)
+                          throw new AzosException(StringConsts.DAEMON_INVALID_STATE + msg);
                 }
 
 

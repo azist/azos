@@ -181,7 +181,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
           sb.AppendLine(pfx+"<f color=gray>Start Time (local): <f color=yellow> "+cmp.ComponentStartTime);
           sb.AppendLine(pfx+"<f color=gray>Type: <f color=yellow> "+cmp.GetType().FullName);
           sb.AppendLine(pfx+"<f color=gray>Assembly: <f color=yellow> "+cmp.GetType().Assembly.FullName);
-          sb.AppendLine(pfx+"<f color=gray>Service: <f color=yellow> "+(cmp is Azos.Apps.Service ? "Yes" : "No") );
+          sb.AppendLine(pfx+"<f color=gray>Service: <f color=yellow> "+(cmp is Azos.Apps.Daemon ? "Yes" : "No") );
           if (cmp is INamed)
            sb.AppendLine(pfx+"<f color=gray>Name: <f color=green> "+((INamed)cmp).Name);
 

@@ -25,7 +25,7 @@ namespace Azos.Web.GeoLookup
   /// This implementation uses free data from: http://dev.maxmind.com/geoip/geoip2/geolite2/.
   /// Must include MaxMind attribution on the public site that uses this data (see License section on maxmind.com)
   /// </summary>
-  public class GeoLookupService : Service, IGeoLookup
+  public class GeoLookupService : Daemon, IGeoLookup
   {
     #region CONSTS
 
@@ -114,7 +114,7 @@ namespace Azos.Web.GeoLookup
       /// <summary>
       /// Returns true to indoicate that service has loaded and ready to serve data
       /// </summary>
-      public bool Available { get{ return Status== ServiceStatus.Active;} }
+      public bool Available { get{ return Status== DaemonStatus.Active;} }
 
 
       /// <summary>
@@ -126,7 +126,7 @@ namespace Azos.Web.GeoLookup
         get { return m_DataPath ?? string.Empty; }
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           m_DataPath = value;
         }
       }
@@ -140,7 +140,7 @@ namespace Azos.Web.GeoLookup
         get { return m_Resolution; }
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           m_Resolution = value;
         }
       }
@@ -159,7 +159,7 @@ namespace Azos.Web.GeoLookup
       /// </summary>
       public GeoEntity Lookup(IPAddress address)
       {
-        if (Status!=ServiceStatus.Active || address==null) return null;
+        if (Status!=DaemonStatus.Active || address==null) return null;
 
         var block = m_SubnetBST[new Subnet(address)];
         Location location;

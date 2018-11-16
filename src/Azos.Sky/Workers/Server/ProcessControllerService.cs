@@ -39,7 +39,7 @@ namespace Azos.Sky.Workers.Server
     }
   }
 
-  public class ProcessControllerService : ServiceWithInstrumentationBase<object>, Contracts.IProcessController, IProcessHost
+  public class ProcessControllerService : DaemonWithInstrumentation<object>, Contracts.IProcessController, IProcessHost
   {
     #region CONSTS
     public const string CONFIG_PROCESS_CONTROLLER_SECTION = "process-controller";
@@ -117,19 +117,19 @@ namespace Azos.Sky.Workers.Server
       if (m_ProcessStore == null)
         throw new WorkersException("{0} does not have process store injected".Args(GetType().Name));
 
-      if (m_ProcessStore is IService) ((IService)m_ProcessStore).Start();
+      if (m_ProcessStore is IDaemon) ((IDaemon)m_ProcessStore).Start();
       base.DoStart();
     }
 
     protected override void DoSignalStop()
     {
-      if (m_ProcessStore is IService) ((IService)m_ProcessStore).SignalStop();
+      if (m_ProcessStore is IDaemon) ((IDaemon)m_ProcessStore).SignalStop();
       base.DoSignalStop();
     }
 
     protected override void DoWaitForCompleteStop()
     {
-      if (m_ProcessStore is IService) ((IService)m_ProcessStore).WaitForCompleteStop();
+      if (m_ProcessStore is IDaemon) ((IDaemon)m_ProcessStore).WaitForCompleteStop();
       base.DoWaitForCompleteStop();
     }
 
@@ -137,7 +137,7 @@ namespace Azos.Sky.Workers.Server
 
     public void Spawn(ProcessFrame frame)
     {
-      CheckServiceActive();
+      CheckDaemonActive();
 
       var tx = m_ProcessStore.BeginTransaction();
       try
@@ -197,7 +197,7 @@ namespace Azos.Sky.Workers.Server
 
     public void Update(ProcessFrame frame, bool sysOnly)
     {
-      CheckServiceActive();
+      CheckDaemonActive();
 
       var tx = m_ProcessStore.BeginTransaction();
       try
@@ -222,7 +222,7 @@ namespace Azos.Sky.Workers.Server
 
     public void Finalize(ProcessFrame frame)
     {
-      CheckServiceActive();
+      CheckDaemonActive();
 
       var tx = m_ProcessStore.BeginTransaction();
       try
@@ -243,7 +243,7 @@ namespace Azos.Sky.Workers.Server
 
     public IEnumerable<ProcessDescriptor> List(int processorID)
     {
-      CheckServiceActive();
+      CheckDaemonActive();
 
       return m_ProcessStore.List(processorID);
     }

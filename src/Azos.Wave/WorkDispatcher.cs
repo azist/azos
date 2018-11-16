@@ -17,7 +17,7 @@ namespace Azos.Wave
   /// Represents a default dispatcher that dispatches WorkContext calls on the same thread that calls Dispatch(work).
   /// May extend this class to implement custom dispatchers, i.e. the once that maintain their won work queue/worker threads
   /// </summary>
-  public class WorkDispatcher : Service<WaveServer>
+  public class WorkDispatcher : Daemon<WaveServer>
   {
       public WorkDispatcher(WaveServer director) : base(director)
       {

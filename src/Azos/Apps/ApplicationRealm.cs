@@ -139,7 +139,7 @@ namespace Azos.Apps
   /// </summary>
   public class ApplicationRealmBase : ApplicationComponent, IApplicationRealmImplementation
   {
-    public ApplicationRealmBase(): base()
+    public ApplicationRealmBase(IApplication app) : base(app)
     {
       m_Areas = new Collections.Registry<IApplicationRealmArea>();
     }
@@ -150,6 +150,8 @@ namespace Azos.Apps
 
     public bool RegisterArea(IApplicationRealmArea area)   => m_Areas.Register(area);
     public bool UnregisterArea(IApplicationRealmArea area) => m_Areas.Unregister(area);
+
+    public override string ComponentLogTopic => CoreConsts.APPLICATION_TOPIC;
 
   }
 

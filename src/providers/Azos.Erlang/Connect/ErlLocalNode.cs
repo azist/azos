@@ -326,7 +326,7 @@ namespace Azos.Erlang
     /// </summary>
     public ErlMbox CreateMbox(string name = null)
     {
-      CheckServiceActiveOrStarting();
+      CheckDaemonActiveOrStarting();
       return name.IsNullOrWhiteSpace() ? m_Mailboxes.Create()
                                        : CreateMbox(new ErlAtom(name));
     }
@@ -337,7 +337,7 @@ namespace Azos.Erlang
     /// </summary>
     public ErlMbox CreateMbox(ErlAtom name)
     {
-      CheckServiceActiveOrStarting();
+      CheckDaemonActiveOrStarting();
       return m_Mailboxes.Create(name);
     }
 

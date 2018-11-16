@@ -12,7 +12,7 @@ namespace Azos.Sky.Identification
   /// <summary>
   /// Base for GdidAuthority and GdidPersistenceLocation services
   /// </summary>
-  public abstract partial class GdidAuthorityServiceBase : Service
+  public abstract partial class GdidAuthorityServiceBase : Daemon
   {
     #region CONSTS
       public const int MAX_PATH_LENGTH = 240;//dictated by Windows

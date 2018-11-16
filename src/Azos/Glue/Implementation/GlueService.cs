@@ -23,7 +23,7 @@ namespace Azos.Glue.Implementation
     /// Provides default implementation for IGlue. This is the root context for all other glue objects
     /// </summary>
     [ConfigMacroContext]
-    public sealed class GlueService : ServiceWithInstrumentationBase<object>, IGlueImplementation
+    public sealed class GlueService : DaemonWithInstrumentation<object>, IGlueImplementation
     {
         #region CONSTS
            public const string CONFIG_PROVIDERS_SECTION = "providers";

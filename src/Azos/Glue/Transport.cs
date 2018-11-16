@@ -17,7 +17,7 @@ using Azos.Serialization;
 namespace Azos.Glue
 {
     /// <summary>
-    /// Defines kinds of trasport
+    /// Defines kinds of transport
     /// </summary>
     public enum TransportKind
     {
@@ -30,7 +30,7 @@ namespace Azos.Glue
     /// and ServerProcessor when bindings operate in OperationFlow.Asynchronous mode.
     /// Transports are acquired by the thread that creates them
     /// </summary>
-    public abstract class Transport : Service<Binding>
+    public abstract class Transport : Daemon<Binding>
     {
         #region CONSTS
 
@@ -41,7 +41,7 @@ namespace Azos.Glue
 
         #region .ctor
 
-            protected Transport(Binding binding, TransportKind kind) : base(binding)
+            protected Transport(Binding binding, TransportKind kind) : base(binding.NonNull(text: "binding").App, binding)
             {
                 m_TransportKind = kind;
                 m_Glue = binding.Glue;

@@ -26,7 +26,7 @@ namespace Azos.Web.Messaging
   /// <summary>
   /// Base for ALL implementations that work under MailerService
   /// </summary>
-  public abstract class MessageSink : ServiceWithInstrumentationBase<MessageService>, IMessageSink, IConfigurable
+  public abstract class MessageSink : DaemonWithInstrumentation<MessageService>, IMessageSink, IConfigurable
   {
     private const string LOG_TOPIC = "Messaging.MessageSink";
 

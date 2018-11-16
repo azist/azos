@@ -12,63 +12,23 @@ using Azos.Conf;
 namespace Azos.Apps.Volatile
 {
   /// <summary>
-  /// Defines a base provider that stores objects for ObjectStoreService class
+  /// Defines a base provider that stores objects for ObjectStoreDaemon class
   /// </summary>
-  public abstract class ObjectStoreProvider : Service<ObjectStoreService>
+  public abstract class ObjectStoreProvider : Daemon<ObjectStoreDaemon>
   {
-    #region CONSTS
+    protected ObjectStoreProvider(ObjectStoreDaemon store) : base(store.NonNull(text: "store").App, store)
+    {
 
-    #endregion
+    }
 
-    #region .ctor
+    public abstract IEnumerable<ObjectStoreEntry> LoadAll();
+    public abstract void Write(ObjectStoreEntry entry);
+    public abstract void Delete(ObjectStoreEntry entry);
+    public override string ComponentLogTopic => CoreConsts.OBJSTORESVC_PROVIDER_TOPIC;
 
-        protected ObjectStoreProvider(ObjectStoreService director) : base(director)
-        {
-
-        }
-    #endregion
-
-
-    #region Private Fields
-
-    #endregion
-
-
-    #region Public
-
-        public abstract IEnumerable<ObjectStoreEntry> LoadAll();
-
-        public abstract void Write(ObjectStoreEntry entry);
-
-        public abstract void Delete(ObjectStoreEntry entry);
-
-    #endregion
-
-
-    #region Protected
-        protected override void DoConfigure(IConfigSectionNode node)
-        {
-          base.DoConfigure(node);
-        }
-
-        protected void WriteLog(MessageType type, string message, string parameters, string from = null)
-        {
-          App.Log.Write(
-                                    new Log.Message
-                                    {
-                                      Text = message ?? string.Empty,
-                                      Type = type,
-                                      Topic = CoreConsts.OBJSTORESVC_PROVIDER_TOPIC,
-                                      From = from,
-                                      Parameters = parameters ?? string.Empty
-                                    });
-        }
-
-
-    #endregion
-
-
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+        base.DoConfigure(node);
+    }
   }
-
-
 }

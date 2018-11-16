@@ -20,7 +20,7 @@ namespace Azos.Apps.Volatile
   /// Outlines interface for object stores. Object stores are special kind of zero-latency storage of application state
   /// which needs to be persisted between application/process restart (hence the name "volatile process") with expiration.
   /// For example, an app may keep user session context (or any other call context)in this store to ensure the survival
-  /// of these contexts between voilatile app lifecycle.
+  /// of these contexts between volatile app lifecycle.
   /// Azos framework provides an abstraction of store "providers" which store objects in
   /// files, database or other media. The usage of Object stores unifies the access to such data.
   /// Object stores are by-design expected to be in-memory/fast, therefore they do not expose ASYNC apis.

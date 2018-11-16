@@ -7,8 +7,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Instrumentation;
 
@@ -17,16 +15,12 @@ namespace Azos.Apps
   /// <summary>
   /// Provides base implementation for Service with IInstrumentable logic
   /// </summary>
-  public abstract class ServiceWithInstrumentationBase<TDirector> : Service<TDirector>, IInstrumentable where TDirector : class
+  public abstract class DaemonWithInstrumentation<TDirector> : Daemon<TDirector>, IInstrumentable
+                  where TDirector : IApplicationComponent
   {
 
-    protected ServiceWithInstrumentationBase() : base()
-    {
-    }
-
-    protected ServiceWithInstrumentationBase(TDirector director) : base(director)
-    {
-    }
+    protected DaemonWithInstrumentation(IApplication application) : base(application) { }
+    protected DaemonWithInstrumentation(IApplication application, TDirector director) : base(application, director) { }
 
     /// <summary>
     /// Turns instrumentation on/off

@@ -7,7 +7,7 @@
 namespace Azos
 {
   /// <summary>
-  /// Central non-lozalizable Azos system constants
+  /// Central non-localizable Azos system constants
   /// </summary>
   public static class CoreConsts
   {
@@ -19,11 +19,10 @@ namespace Azos
 
       public const string CSRF_TOKEN_NAME = "__CSRFToken";
 
-
-    public static readonly Geometry.LatLng DEFAULT_GEO_LOCATION = new Geometry.LatLng("41.4996374,-81.6936649", "Cleveland, OH, USA");
+      public static readonly Geometry.LatLng DEFAULT_GEO_LOCATION = new Geometry.LatLng("41.4996374,-81.6936649", "Cleveland, OH, USA");
 
     #region External parameters
-    public const string EXT_PARAM_CONTENT_LACONIC = "laconic://";
+      public const string EXT_PARAM_CONTENT_LACONIC = "laconic://";
       public const string EXT_PARAM_CONTENT_JSON = "json://";
 
       public const string EXT_PARAM_GROUP_PILE = "pile";
@@ -72,7 +71,6 @@ namespace Azos
       public const string LOG_NET_TOPIC = "NET";
       public const string APPLICATION_TOPIC = "App";
       public const string LOG_TOPIC = "Log";
-      public const string APP_MODULE_TOPIC = "Mod";
       public const string INSTRUMENTATION_TIMEFRAME_TOPIC = "inst.timeframe";
       public const string OBJSTORESVC_TOPIC = "ObjectStoreService";
       public const string OBJSTORESVC_PROVIDER_TOPIC = "ObjectStoreServiceProvider";

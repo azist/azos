@@ -9,7 +9,6 @@ using Azos.Instrumentation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Azos.Apps
 {
@@ -92,7 +91,11 @@ namespace Azos.Apps
 
       protected ApplicationComponent(IApplication application, IApplicationComponent director)
       {
-        application.NonNull(text: nameof(application));
+        if (application==null)
+          throw new AzosException(StringConsts.ARGUMENT_ERROR + nameof(ApplicationComponent) + ".ctor(application==null)");
+
+        if (director is DisposableObject d && d.Disposed)
+          throw new AzosException(StringConsts.ARGUMENT_ERROR+nameof(ApplicationComponent)+".ctor(director.Disposed)");
 
         m_App = application;
         m_ComponentDirector = director;
@@ -262,7 +265,7 @@ namespace Azos.Apps
       /// <summary>
       /// Writes a log message for this component; returns the new log msg GDID for correlation, or GDID.Empty if no message was logged
       /// </summary>
-      public Guid WriteLog(Log.MessageType type, string from, string text, Exception error = null, Guid? related = null, string pars = null)
+      public virtual Guid WriteLog(Log.MessageType type, string from, string text, Exception error = null, Guid? related = null, string pars = null)
       {
         if (type < ComponentEffectiveLogLevel) return Guid.Empty;
 

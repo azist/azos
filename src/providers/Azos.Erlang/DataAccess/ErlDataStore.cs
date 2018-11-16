@@ -28,7 +28,7 @@ namespace Azos.Data.Access.Erlang
   /// <summary>
   /// Represents a CRUD data store that uses Erlang backend
   /// </summary>
-  public class ErlDataStore : ServiceWithInstrumentationBase<object>, ICRUDDataStoreImplementation, ICRUDSubscriptionStoreImplementation
+  public class ErlDataStore : DaemonWithInstrumentation<object>, ICRUDDataStoreImplementation, ICRUDSubscriptionStoreImplementation
   {
     #region CONSTS
       public const string ERL_FILE_SUFFIX = ".erl.qry";
@@ -111,7 +111,7 @@ namespace Azos.Data.Access.Erlang
         get { return m_TargetName;}
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
 
           if (value.IsNullOrWhiteSpace())
             value = DEFAULT_TARGET_NAME;
@@ -129,7 +129,7 @@ namespace Azos.Data.Access.Erlang
         get { return !m_RemoteName.IsNull() ? m_RemoteName.ToString() : string.Empty;}
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           m_RemoteName = value.IsNullOrWhiteSpace() ? null : new ErlAtom(value);
         }
       }
@@ -140,7 +140,7 @@ namespace Azos.Data.Access.Erlang
         get { return !m_RemoteCookie.Empty ? m_RemoteCookie.ToString() : string.Empty;}
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           m_RemoteCookie = value.IsNullOrWhiteSpace() ? null : new ErlAtom(value);
         }
       }
@@ -183,45 +183,45 @@ namespace Azos.Data.Access.Erlang
 
       public void TestConnection()
       {
-        CheckServiceActiveOrStarting();
+        CheckDaemonActiveOrStarting();
         var map = Map;//causes bonjour
       }
 
       public Subscription Subscribe(string name, Query query, Mailbox recipient, object correlate = null)
       {
-        CheckServiceActiveOrStarting();
+        CheckDaemonActiveOrStarting();
         return new ErlCRUDSubscription(this, name, query, recipient, correlate);
       }
 
       public Mailbox OpenMailbox(string name)
       {
-        CheckServiceActiveOrStarting();
+        CheckDaemonActiveOrStarting();
         return new ErlCRUDMailbox(this, name);
       }
 
       public CRUDQueryHandler MakeScriptQueryHandler(QuerySource querySource)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return new ErlCRUDScriptQueryHandler(this, querySource);
       }
 
       public Schema GetSchema(Query query)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         var handler = QueryResolver.Resolve(query);
         return handler.GetSchema(new ErlCRUDQueryExecutionContext(this), query);
       }
 
       public Task<Schema> GetSchemaAsync(Query query)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         var handler = QueryResolver.Resolve(query);
         return handler.GetSchemaAsync(new ErlCRUDQueryExecutionContext(this), query);
       }
 
       public virtual List<RowsetBase> Load(params Query[] queries)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         var result = new List<RowsetBase>();
         if (queries==null) return result;
 
@@ -237,38 +237,38 @@ namespace Azos.Data.Access.Erlang
 
       public virtual Task<List<RowsetBase>> LoadAsync(params Query[] queries)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return TaskUtils.AsCompletedTask( () => this.Load(queries) );
       }
 
       public virtual RowsetBase LoadOneRowset(Query query)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return Load(query).FirstOrDefault();
       }
 
       public virtual Task<RowsetBase> LoadOneRowsetAsync(Query query)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return this.LoadAsync(query)
                    .ContinueWith( antecedent => antecedent.Result.FirstOrDefault());
       }
 
       public virtual Doc LoadOneDoc(Query query)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return LoadOneRowset(query).FirstOrDefault();
       }
 
       public virtual Task<Doc> LoadOneDocAsync(Query query)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return TaskUtils.AsCompletedTask( () => this.LoadOneDoc(query) );
       }
 
       public virtual int Save(params RowsetBase[] rowsets)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         if (rowsets==null) return 0;
 
         var affected = 0;
@@ -292,73 +292,73 @@ namespace Azos.Data.Access.Erlang
 
       public virtual Task<int> SaveAsync(params RowsetBase[] rowsets)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return TaskUtils.AsCompletedTask( () => this.Save(rowsets) );
       }
 
       public virtual int ExecuteWithoutFetch(params Query[] queries)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         throw new NotImplementedException();
       }
 
       public virtual Task<int> ExecuteWithoutFetchAsync(params Query[] queries)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         throw new NotImplementedException();
       }
 
       //todo: Implement filter
       public virtual int Insert(Doc row, FieldFilterFunc filter = null)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return CRUDWrite(row);
       }
 
       //todo: Implement filter
       public virtual Task<int> InsertAsync(Doc row, FieldFilterFunc filter = null)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return TaskUtils.AsCompletedTask( () => Insert(row) );
       }
 
       //todo: Implement filter
       public virtual int Upsert(Doc row, FieldFilterFunc filter = null)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return CRUDWrite(row);
       }
 
       //todo: Implement filter
       public virtual Task<int> UpsertAsync(Doc row, FieldFilterFunc filter = null)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return TaskUtils.AsCompletedTask( () => Upsert(row) );
       }
 
       //todo: Implement filter
       public virtual int Update(Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return CRUDWrite(row);
       }
 
       //todo: Implement filter
       public virtual Task<int> UpdateAsync(Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return TaskUtils.AsCompletedTask( () => Update(row) );
       }
 
       public virtual int Delete(Doc row, IDataStoreKey key = null)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return CRUDWrite(row, true);
       }
 
       public virtual Task<int> DeleteAsync(Doc row, IDataStoreKey key = null)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         return TaskUtils.AsCompletedTask( () => Delete(row) );
       }
 
@@ -375,13 +375,13 @@ namespace Azos.Data.Access.Erlang
 
       public virtual CRUDTransaction BeginTransaction(IsolationLevel iso = IsolationLevel.ReadCommitted, TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         throw new NotSupportedException("Erl.BeginTransaction");
       }
 
       public virtual Task<CRUDTransaction> BeginTransactionAsync(IsolationLevel iso = IsolationLevel.ReadCommitted, TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
       {
-        CheckServiceActive();
+        CheckDaemonActive();
         throw new NotSupportedException("Erl.BeginTransactionAsync");
       }
     #endregion
@@ -531,7 +531,7 @@ namespace Azos.Data.Access.Erlang
       {
         get
         {
-          CheckServiceActive();
+          CheckDaemonActive();
 
           var result = m_Map;
 

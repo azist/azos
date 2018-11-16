@@ -21,7 +21,7 @@ namespace Azos.Sky.Apps.HostGovernor
   /// Represents an application managed by the HostGovernorService instance - the Sky application that gets installed/updated/executed by
   ///  the Sky Governor Process. The standard service's Start/Stop commands launch the actual application process
   /// </summary>
-  public sealed class ManagedApp : Service<HostGovernorService>
+  public sealed class ManagedApp : Daemon<HostGovernorService>
   {
       #region CONSTS
 
@@ -161,7 +161,7 @@ namespace Azos.Sky.Apps.HostGovernor
 
         private void processExited(object sender, EventArgs args)
         {
-          if (Status != ServiceStatus.Active) return;//do not use Running here as it also checks for Starting
+          if (Status != DaemonStatus.Active) return;//do not use Running here as it also checks for Starting
 
           try
           {

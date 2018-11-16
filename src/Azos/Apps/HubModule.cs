@@ -15,10 +15,12 @@ namespace Azos.Apps
   /// </summary>
   public sealed class HubModule : ModuleBase
   {
-    public HubModule() : base(){ }
-    public HubModule(IModule parent) : base(parent){ }
-    public HubModule(IModule parent, int order) : base(parent, order){ }
+    public HubModule(IApplication application) : base(application){ }
+    public HubModule(IApplication application, IModule parent) : base(application, parent){ }
+    public HubModule(IApplication application, IModule parent, int order) : base(application, parent, order){ }
     public override bool IsHardcodedModule => false;
+
+    public override string ComponentLogTopic => CoreConsts.APPLICATION_TOPIC;
 
     //Hub module returns children declared right within it (without "modules" sub-section)
     protected override IEnumerable<Conf.IConfigSectionNode> DoGetAllChildModuleConfigNodes(Conf.IConfigSectionNode node)

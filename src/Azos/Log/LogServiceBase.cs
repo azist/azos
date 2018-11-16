@@ -27,7 +27,7 @@ namespace Azos.Log
     ///  get sent into destinations synchronously by internal thread so specifying too many destinations may
     ///  limit overall LogService throughput. In complex scenarios consider using LogServiceDestination instead.
     /// </summary>
-    public abstract class LogServiceBase : ServiceWithInstrumentationBase<object>, ILogImplementation
+    public abstract class LogServiceBase : DaemonWithInstrumentation<object>, ILogImplementation
     {
         public class SinkList : List<Sink> {}
 
@@ -48,7 +48,7 @@ namespace Azos.Log
             /// <summary>
             /// Creates a new logging service instance
             /// </summary>
-            protected LogServiceBase(Service director = null) : base(director) { ctor(); }
+            protected LogServiceBase(Daemon director = null) : base(director) { ctor(); }
 
             private void ctor()
             {
@@ -218,7 +218,7 @@ namespace Azos.Log
             /// make an effort to write the message to its destinations urgently</param>
             public void Write(Message msg, bool urgent)
             {
-                if (Status != ServiceStatus.Active) return;
+                if (Status != DaemonStatus.Active) return;
 
 
                 if (msg==null) return;

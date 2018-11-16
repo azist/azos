@@ -12,17 +12,17 @@ namespace Azos.Apps
   /// <summary>
   /// Stipulates service control phase statuses like: Active/Inactive etc...
   /// </summary>
-  public enum ServiceStatus { Inactive = 0, Starting, AbortingStart, Active, Stopping }
+  public enum DaemonStatus { Inactive = 0, Starting, AbortingStart, Active, Stopping }
 
   /// <summary>
   /// Defines abstraction for an entity that is controlled by Start/Stop commands and has a status
   /// </summary>
-  public interface IService : Collections.INamed, IConfigurable
+  public interface IDaemon : Collections.INamed, IConfigurable
   {
     /// <summary>
     /// Current service status
     /// </summary>
-    ServiceStatus Status { get;}
+    DaemonStatus Status { get;}
 
     /// <summary>
     /// Returns true when service is active or about to become active.

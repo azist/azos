@@ -47,7 +47,7 @@ namespace Azos.Wave.CMS
   /// Provides CMS backend access services.
   /// This class is injected via PortalHub.Instance.CMSBank
   /// </summary>
-  public class CMSBank : ServiceWithInstrumentationBase<object>, ICMSBankImplementation
+  public class CMSBank : DaemonWithInstrumentation<object>, ICMSBankImplementation
   {
     public const int VERSION_HISTORY_LENGTH = 8;
     public const int REFRESH_VERSION_INTERVAL_SEC = 5 * 60;

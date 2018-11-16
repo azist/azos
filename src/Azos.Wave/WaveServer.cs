@@ -44,7 +44,7 @@ namespace Azos.Wave
   ///   (a) much increased implementation/maintenance complexity
   ///   (b) many additional task/thread context switches and extra objects that facilitate the event loops/messages/tasks etc...
   /// </remarks>
-  public class WaveServer : ServiceWithInstrumentationBase<object>
+  public class WaveServer : DaemonWithInstrumentation<object>
   {
     #region CONSTS
 
@@ -105,7 +105,7 @@ namespace Azos.Wave
       public WaveServer() : base()
       {
         m_Prefixes = new EventedList<string,WaveServer>(this, true);
-        m_Prefixes.GetReadOnlyEvent = (l) => Status != ServiceStatus.Inactive;
+        m_Prefixes.GetReadOnlyEvent = (l) => Status != DaemonStatus.Inactive;
       }
 
       public WaveServer(string name) : this()
@@ -203,7 +203,7 @@ namespace Azos.Wave
         get { return m_EnvironmentName ?? string.Empty;}
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           m_EnvironmentName = value;
         }
       }
@@ -239,7 +239,7 @@ namespace Azos.Wave
         get { return m_IgnoreClientWriteErrors;}
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           m_IgnoreClientWriteErrors = value;
         }
       }
@@ -265,7 +265,7 @@ namespace Azos.Wave
         get { return m_KernelHttpQueueLimit;}
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           if (value < MIN_KERNEL_HTTP_QUEUE_LIMIT) value = MIN_KERNEL_HTTP_QUEUE_LIMIT;
            else
             if (value > MAX_KERNEL_HTTP_QUEUE_LIMIT) value = MAX_KERNEL_HTTP_QUEUE_LIMIT;
@@ -282,7 +282,7 @@ namespace Azos.Wave
         get { return m_ParallelAccepts;}
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           if (value < MIN_PARALLEL_ACCEPTS) value = MIN_PARALLEL_ACCEPTS;
            else
             if (value > MAX_PARALLEL_ACCEPTS) value = MAX_PARALLEL_ACCEPTS;
@@ -300,7 +300,7 @@ namespace Azos.Wave
         get { return m_ParallelWorks;}
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           if (value < MIN_PARALLEL_WORKS) value = MIN_PARALLEL_WORKS;
            else
             if (value > MAX_PARALLEL_WORKS) value = MAX_PARALLEL_WORKS;
@@ -395,7 +395,7 @@ namespace Azos.Wave
         get { return m_Gate;}
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           m_Gate = value;
         }
       }
@@ -415,7 +415,7 @@ namespace Azos.Wave
         get { return m_Dispatcher;}
         set
         {
-          CheckServiceInactive();
+          CheckDaemonInactive();
           if (value!=null && value.ComponentDirector!=this)
             throw new WaveException(StringConsts.DISPATCHER_NOT_THIS_SERVER_ERROR);
           m_Dispatcher = value;
@@ -552,8 +552,8 @@ namespace Azos.Wave
         try
         {
            if (m_Gate!=null)
-             if (m_Gate is Service)
-               ((Service)m_Gate).Start();
+             if (m_Gate is Daemon)
+               ((Daemon)m_Gate).Start();
 
 
            if (m_Dispatcher==null)
@@ -597,8 +597,8 @@ namespace Azos.Wave
           if (m_AcceptThread!=null) { m_AcceptThread = null;}
           if (m_Dispatcher!=null) m_Dispatcher.WaitForCompleteStop();
 
-          if (m_Gate!=null && m_Gate is Service)
-            ((Service)m_Gate).WaitForCompleteStop();
+          if (m_Gate!=null && m_Gate is Daemon)
+            ((Daemon)m_Gate).WaitForCompleteStop();
 
           s_Servers.Unregister(this);
 
@@ -619,8 +619,8 @@ namespace Azos.Wave
               m_InstrumentationThreadWaiter.Set();
 
         if (m_Gate!=null)
-          if (m_Gate is Service)
-             ((Service)m_Gate).SignalStop();
+          if (m_Gate is Daemon)
+             ((Daemon)m_Gate).SignalStop();
       }
 
       protected override void DoWaitForCompleteStop()
@@ -646,8 +646,8 @@ namespace Azos.Wave
         {
            m_Dispatcher.WaitForCompleteStop();
            if (m_Gate!=null)
-             if (m_Gate is Service)
-                ((Service)m_Gate).WaitForCompleteStop();
+             if (m_Gate is Daemon)
+                ((Daemon)m_Gate).WaitForCompleteStop();
         }
         finally
         {

@@ -24,7 +24,7 @@ namespace Azos.Web.Pay
   /// Instances of descendants of this class is typically created and configured in PaySystemStarter class.
   /// Then particular pay system can be obtained from PaySystem.Instances[PAY_SYSTEM_NAME] indexer
   /// </summary>
-  public abstract class PaySystem : ServiceWithInstrumentationBase<object>, IWebClientCaller, IPaySystemImplementation
+  public abstract class PaySystem : DaemonWithInstrumentation<object>, IWebClientCaller, IPaySystemImplementation
   {
     #region CONSTS
       public const string CONFIG_PAYMENT_PROCESSING_SECTION = "payment-processing";
