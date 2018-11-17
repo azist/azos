@@ -29,7 +29,7 @@ namespace Azos.Glue
     /// Bindings are services, meaning - they can have state/threads that
     /// manage transport channels that operate under binding
     /// </summary>
-    public abstract class Binding : GlueDaemon
+    public abstract class Binding : GlueComponent
     {
         #region CONSTS
 
@@ -80,8 +80,8 @@ namespace Azos.Glue
 
         #region .ctor
 
-            protected Binding(IApplication app, IGlueImplementation glue, string name = null, Provider provider = null)
-                : base(app, glue, name)
+            protected Binding(IGlueImplementation glue, string name = null, Provider provider = null)
+                : base(glue, name)
             {
                 m_Provider = provider;
                 if (string.IsNullOrWhiteSpace(Name))

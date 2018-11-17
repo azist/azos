@@ -34,7 +34,7 @@ namespace Azos.Time
     AsyncTask = 0,
 
     /// <summary>
-    /// The body should be called as a long-runnig task. The system may dedicate it a thread.
+    /// The body should be called as a long-running task. The system may dedicate it a thread.
     /// Use this ONLY for events that fire infrequently (i.e. once every X minutes+) and take long time to execute (seconds+)
     /// </summary>
     LongRunningAsyncTask,
@@ -86,7 +86,13 @@ namespace Azos.Time
 
       public Event(IEventTimer timer, IConfigSectionNode config) : this(timer, null, config: config) {}
 
-      public Event(IEventTimer timer, string name = null, TimerEvent body = null, TimeSpan? interval = null, IConfigSectionNode config = null, EventBodyAsyncModel bodyAsyncModel = EventBodyAsyncModel.AsyncTask, bool enabled = true) : base(timer)
+      public Event(IEventTimer timer,
+                   string name = null,
+                   TimerEvent body = null,
+                   TimeSpan? interval = null,
+                   IConfigSectionNode config = null,
+                   EventBodyAsyncModel bodyAsyncModel = EventBodyAsyncModel.AsyncTask,
+                   bool enabled = true) : base(timer)
       {
          if ((timer as IEventTimerImplementation) == null)
           throw new TimeException(StringConsts.ARGUMENT_ERROR + "Event.ctor(timer=null | timer!=IEventTimerImplementation)");
@@ -160,6 +166,7 @@ namespace Azos.Time
 
     #region Properties
 
+      public override string ComponentLogTopic => CoreConsts.TIME_TOPIC;
 
       public IEventTimer Timer  { get { return m_Timer; }}
       public string      Name   { get { return m_Name;  }}
@@ -198,7 +205,7 @@ namespace Azos.Time
 
       /// <summary>
       /// Event body that gets called when the event is due. The body is always invoked ASYNCHRONOUSLY
-      /// unless Fire(syncronous=true) is called in which case it gets called on a thread that called Fire(true)
+      /// unless Fire(synchronous=true) is called in which case it gets called on a thread that called Fire(true)
       /// </summary>
       public event TimerEvent Body;
 
@@ -358,7 +365,7 @@ namespace Azos.Time
       public DateTime LastCall{ get { return m_LastCall; } }
 
       /// <summary>
-      /// Returns the last exception thrown from event handler or nul if no error happened
+      /// Returns the last exception thrown from event handler or null if no error happened
       /// </summary>
       public Exception LastError{ get { return m_LastError;}}
 

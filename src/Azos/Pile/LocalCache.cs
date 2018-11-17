@@ -23,7 +23,7 @@ namespace Azos.Pile
   /// Provides default implementation of a cache that stores the mapping locally.
   /// The mapped-to objects may reside in local or distributed pile as configured
   /// </summary>
-  public sealed class LocalCache : DaemonWithInstrumentation<object>, ICacheImplementation
+  public sealed class LocalCache : DaemonWithInstrumentation<IApplicationComponent>, ICacheImplementation
   {
     #region CONSTS
       public const string DEFAULT_TABLE_OPTIONS_SECTION = "default-table-options";
@@ -41,24 +41,19 @@ namespace Azos.Pile
     #endregion
 
     #region .ctor
-      public LocalCache():base()
+      public LocalCache(IApplication app) : base(app)
       {
       }
 
-      public LocalCache(string name, object director):base(director)
+      public LocalCache(IApplicationComponent director, string name) : base(director)
       {
         Name = name;
       }
 
-      public LocalCache(IPileImplementation pile, object director, string name):base(director)
+      public LocalCache(IApplicationComponent director, string name, IPileImplementation pile) : base(director)
       {
         m_Pile = pile;
         Name = name;
-      }
-
-      protected override void Destructor()
-      {
-        base.Destructor();
       }
 
     #endregion
@@ -86,6 +81,7 @@ namespace Azos.Pile
 
     #region Properties
 
+        public override string ComponentLogTopic => CoreConsts.CACHE_TOPIC;
 
         /// <summary>
         /// Implements IInstrumentable
@@ -401,7 +397,7 @@ namespace Azos.Pile
 
         protected override void DoStart()
         {
-          log(MessageType.Info, "DoStart()", "Entering...");
+          WriteLog(MessageType.Info, "DoStart()", "Entering...");
 
           try
           {
@@ -433,7 +429,7 @@ namespace Azos.Pile
               try {m_Pile.WaitForCompleteStop();}
               catch(Exception pe)
               {
-                log(MessageType.Error, "DoStart().pileAbort", "Exception: " + pe.ToMessageWithType(), pe);
+                WriteLog(MessageType.Error, "DoStart().pileAbort", "Exception: " + pe.ToMessageWithType(), pe);
               }
 
              if (m_Thread != null)
@@ -447,16 +443,16 @@ namespace Azos.Pile
                 m_Trigger = null;
              }
 
-             log(MessageType.CatastrophicError, "DoStart()", "Exception: " + error.ToMessageWithType(), error);
+             WriteLog(MessageType.CatastrophicError, "DoStart()", "Exception: " + error.ToMessageWithType(), error);
 
              throw error;
           }
-          log(MessageType.Info, "DoStart()", "...Exiting");
+          WriteLog(MessageType.Info, "DoStart()", "...Exiting");
         }
 
         protected override void DoSignalStop()
         {
-           log(MessageType.Info, "DoSignalStop()", "Entering...");
+           WriteLog(MessageType.Info, "DoSignalStop()", "Entering...");
 
            try
            {
@@ -465,16 +461,16 @@ namespace Azos.Pile
            }
            catch (Exception error)
            {
-             log(MessageType.CatastrophicError, "DoSignalStop()", "Exception: " + error.ToMessageWithType(), error);
+             WriteLog(MessageType.CatastrophicError, "DoSignalStop()", "Exception: " + error.ToMessageWithType(), error);
              throw;
            }
 
-           log(MessageType.Info, "DoSignalStop()", "...Exiting");
+           WriteLog(MessageType.Info, "DoSignalStop()", "...Exiting");
         }
 
         protected override void DoWaitForCompleteStop()
         {
-          log(MessageType.Info, "DoWaitForCompleteStop()", "Entering...");
+          WriteLog(MessageType.Info, "DoWaitForCompleteStop()", "Entering...");
 
           try
           {
@@ -496,11 +492,11 @@ namespace Azos.Pile
           }
           catch (Exception error)
           {
-            log(MessageType.CatastrophicError, "DoWaitForCompleteStop()", "Exception leaked: " + error.ToMessageWithType(), error);
+            WriteLog(MessageType.CatastrophicError, "DoWaitForCompleteStop()", "Exception leaked: " + error.ToMessageWithType(), error);
             throw error;
           }
 
-          log(MessageType.Info, "DoWaitForCompleteStop()", "...Exiting");
+          WriteLog(MessageType.Info, "DoWaitForCompleteStop()", "...Exiting");
         }
 
     #endregion
@@ -511,21 +507,6 @@ namespace Azos.Pile
         {
           if (!Running) throw new PileCacheException(StringConsts.DAEMON_INVALID_STATE+"{0}.{1} needs running".Args(Name, operation));
         }
-
-        private void log(MessageType type, string from, string message, Exception error = null)
-        {
-          App.Log.Write(
-                  new Log.Message
-                  {
-                    Text = message ?? string.Empty,
-                    Type = type,
-                    From = "{0}('{1}').{2}".Args(GetType().Name, Name, from ?? "*"),
-                    Topic = CoreConsts.CACHE_TOPIC,
-                    Exception = error
-                  }
-                );
-        }
-
 
         private void purgeAll()
         {
@@ -538,7 +519,7 @@ namespace Azos.Pile
         {
               var lastPileCompact = DateTime.UtcNow;
 
-              log(MessageType.Info, "threadSpin()", "Entering...");
+              WriteLog(MessageType.Info, "threadSpin()", "Entering...");
               try
               {
                   var wasActive = App.Active;//remember whether app was active during start
@@ -583,7 +564,7 @@ namespace Azos.Pile
                        }
                        catch(Exception error)
                        {
-                         log(MessageType.Critical,
+                         WriteLog(MessageType.Critical,
                              "threadSpin().foreach.Sweep",
                              "Leaked exception while sweeping table '{0}': {1}'"
                                .Args(table.Name, error.ToMessageWithType()), error );
@@ -597,7 +578,7 @@ namespace Azos.Pile
                     }
                     catch(Exception error)
                     {
-                         log(MessageType.Critical,
+                         WriteLog(MessageType.Critical,
                              "threadSpin().dumpInstruments",
                              "Leaked exception dumping instrumentation: {0}'"
                                .Args(error.ToMessageWithType()), error );
@@ -611,12 +592,12 @@ namespace Azos.Pile
                          var freed = m_Pile.Compact();
                          lastPileCompact = utcNow;
                          if (freed>0)
-                          log(MessageType.Info, "threadSpin().pile.compact()", "Freed {0:n0} bytes".Args(freed));
+                          WriteLog(MessageType.Info, "threadSpin().pile.compact()", "Freed {0:n0} bytes".Args(freed));
                       }
                     }
                     catch(Exception error)
                     {
-                         log(MessageType.Critical,
+                         WriteLog(MessageType.Critical,
                              "threadSpin().pile.compact()",
                              "Leaked exception compacting pile: {0}'"
                                .Args(error.ToMessageWithType()), error );
@@ -628,10 +609,10 @@ namespace Azos.Pile
               }
               catch(Exception e)
               {
-                  log(MessageType.Emergency, "threadSpin()", "Leaked exception, the tables are not swept anymore"+e.ToMessageWithType(), e);
+                  WriteLog(MessageType.Emergency, "threadSpin()", "Leaked exception, the tables are not swept anymore"+e.ToMessageWithType(), e);
               }
 
-              log(MessageType.Info, "threadSpin()", "...Exiting");
+              WriteLog(MessageType.Info, "threadSpin()", "...Exiting");
         }
 
 

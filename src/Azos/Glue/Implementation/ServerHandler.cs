@@ -8,12 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Azos.Apps;
 using Azos.Log;
 using Azos.Glue.Protocol;
 using Azos.Security;
@@ -24,7 +22,7 @@ namespace Azos.Glue.Implementation
     /// <summary>
     /// Executes server work - handles requests synchronously or asynchronously.
     /// </summary>
-    public class ServerHandler : GlueDaemon
+    public class ServerHandler : GlueComponent
     {
        #region CONSTS
 
@@ -51,7 +49,7 @@ namespace Azos.Glue.Implementation
        #endregion
 
        #region .ctor
-          public ServerHandler(IApplication app, IGlueImplementation glue) : base(app, glue)
+          public ServerHandler(IGlueImplementation glue) : base(glue)
           {
 
           }
@@ -679,9 +677,9 @@ namespace Azos.Glue.Implementation
                       user = App.SecurityManager.Authenticate(ah.Token);
 
                    if (Apps.ExecutionContext.HasThreadContextSession)
-                        Apps.ExecutionContext.Session.User = user;
+                       Apps.ExecutionContext.Session.User = user;
                    else
-                        Apps.ExecutionContext.__SetThreadLevelSessionContext( App.Instance.MakeNewSessionInstance(Guid.NewGuid(), user) );
+                       Apps.ExecutionContext.__SetThreadLevelSessionContext( App.MakeNewSessionInstance(Guid.NewGuid(), user) );
 
                 }
 

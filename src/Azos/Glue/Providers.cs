@@ -9,11 +9,12 @@ using Azos.Collections;
 
 namespace Azos.Glue
 {
+#warning Needs revision - this can be superseded with modules
     /// <summary>
     /// Represents a base type for providers - providers are facades for some
     /// low-level implementation that transports use, for example ZeroMQ.
     /// </summary>
-    public abstract class Provider : GlueDaemon
+    public abstract class Provider : GlueComponent
     {
       protected Provider(IApplication app, IGlueImplementation glue, string name = null) : base(app, glue, name)
       {

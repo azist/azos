@@ -47,6 +47,7 @@ namespace Azos.Security
     #endregion
 
     #region Properties
+      public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
       [Config(Default = false)]
       [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_PAY)]

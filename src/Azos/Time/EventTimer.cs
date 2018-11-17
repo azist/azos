@@ -19,7 +19,7 @@ namespace Azos.Time
   /// <summary>
   /// Provides default implementation for IEventTimer
   /// </summary>
-  public sealed class EventTimer : DaemonWithInstrumentation<object>, IEventTimerImplementation
+  public sealed class EventTimer : DaemonWithInstrumentation<IApplicationComponent>, IEventTimerImplementation
   {
     #region CONSTS
       public const int DEFAULT_RESOLUTION_MS = 500;
@@ -30,6 +30,8 @@ namespace Azos.Time
     #endregion
 
     #region .ctor
+      public EventTimer(IApplication app) : base(app) { }
+      public EventTimer(IApplicationComponent director) : base(director) { }
 
     #endregion
 
@@ -44,6 +46,9 @@ namespace Azos.Time
     #endregion
 
     #region Properties
+
+     public override string ComponentLogTopic => CoreConsts.TIME_TOPIC;
+
      /// <summary>
      /// Timer resolution in milliseconds
      /// </summary>
@@ -170,7 +175,7 @@ namespace Azos.Time
              }
              catch(Exception evtError)
              {
-               log(MessageType.Error, "Event: "+evt.Name, "Event processing leaked: "+evtError.ToMessageWithType(), evtError);
+               WriteLog(MessageType.Error, "Event: "+evt.Name, "Event processing leaked: " + evtError.ToMessageWithType(), evtError);
              }
            }
 
@@ -179,26 +184,10 @@ namespace Azos.Time
         }
         catch(Exception error)
         {
-          log(MessageType.CatastrophicError, "visitAll()", "Exception leaked: "+error.ToMessageWithType(), error);
+          WriteLog(MessageType.CatastrophicError, nameof(visitAll), "Exception leaked: " + error.ToMessageWithType(), error);
         }
       }
 
-
-      private void log(MessageType tp, string from ,string text, Exception error)
-      {
-        App.Log.Write(new Message
-        {
-          Type = tp,
-          Topic = CoreConsts.TIME_TOPIC,
-          From = "{0}.{1}".Args(GetType().Name, from),
-          Text = text,
-          Exception = error
-        });
-      }
-
-
     #endregion
-
-
   }
 }

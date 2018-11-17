@@ -17,13 +17,13 @@ namespace Azos.Glue
   /// <summary>
   /// Provides base functionality for internal glue component implementations
   /// </summary>
-  public abstract class GlueDaemon : DaemonWithInstrumentation<IGlueImplementation>
+  public abstract class GlueComponent : DaemonWithInstrumentation<IGlueImplementation>
   {
-    internal GlueDaemon(IGlueImplementation glue) : base(glue)
+    internal GlueComponent(IGlueImplementation glue) : base(glue)
     {
     }
 
-    protected GlueDaemon(IGlueImplementation glue, string name) : base(glue)
+    protected GlueComponent(IGlueImplementation glue, string name) : base(glue)
     {
       if (string.IsNullOrWhiteSpace(name))
           name = Guid.NewGuid().ToString();

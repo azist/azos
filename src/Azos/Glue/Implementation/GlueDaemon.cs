@@ -60,7 +60,7 @@ namespace Azos.Glue.Implementation
 
           }
 
-          public GlueDaemon(IApplication app, IApplicationComponent director) : base(app, director)
+          public GlueDaemon(IApplicationComponent director) : base(director)
           {
 
           }
