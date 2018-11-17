@@ -97,6 +97,11 @@ namespace Azos.Log.Sinks
         ((ISinkOwnerRegistration)owner).Register(this);
       }
 
+      internal Sink(ISinkOwner owner, bool _) : base(owner.NonNull().LogDaemon.App, owner)
+      {
+        m_Levels = new LevelsList();
+      }
+
       protected override void Destructor()
       {
         ((ISinkOwnerRegistration)ComponentDirector).Unregister(this);

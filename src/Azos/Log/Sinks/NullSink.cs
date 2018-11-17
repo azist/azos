@@ -12,14 +12,17 @@ namespace Azos.Log.Sinks
   public class NullSink : Sink
   {
 
-    public NullSink() { }
-
-    public NullSink(string name) : base(name) { }
-
-    protected internal override void DoSend(Message entry)
+    public NullSink(ISinkOwner owner) : base(owner)
     {
 
     }
 
+    public NullSink(ISinkOwner owner, string name, int order) : base(owner, name, order)
+    {
+    }
+
+    protected internal override void DoSend(Message entry)
+    {
+    }
   }
 }

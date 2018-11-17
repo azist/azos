@@ -29,6 +29,14 @@ namespace Azos.Log.Sinks
     {
     }
 
+    protected override void Destructor()
+    {
+      base.Destructor();
+
+      foreach (var sink in m_Sinks.OrderedValues.Reverse())
+        sink.Dispose();
+    }
+
     private OrderedRegistry<Sink> m_Sinks = new OrderedRegistry<Sink>();
 
 

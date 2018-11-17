@@ -46,18 +46,17 @@ namespace Azos.Log
           /// </summary>
           protected LogDaemonBase(IApplication app, IApplicationComponent director) : base(app, director)
           {
-            m_InstrBuffer = new MemoryBufferSink();
-            m_InstrBuffer.__setLogSvc(this);
+            m_InstrBuffer = new MemoryBufferSink(this, false);//does not get registered in sinks
           }
 
           protected override void Destructor()
           {
-              base.Destructor();
+            base.Destructor();
 
-              foreach (var sink in m_Sinks)
-                  sink.Dispose();
+            foreach (var sink in m_Sinks.OrderedValues.Reverse())
+              sink.Dispose();
 
-              m_InstrBuffer.Dispose();
+            DisposeAndNull(ref m_InstrBuffer);
           }
 
         #endregion
