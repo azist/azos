@@ -16,7 +16,7 @@ using Azos.Collections;
 namespace Azos.Security
 {
   /// <summary>
-  /// Provides default implementation for password managment functionality based on injectable algorithms and default password strength calculation
+  /// Provides default implementation for password management functionality based on injectable algorithms and default password strength calculation
   /// </summary>
   public class DefaultPasswordManager : DaemonWithInstrumentation<ISecurityManagerImplementation>, IPasswordManagerImplementation
   {
@@ -86,7 +86,10 @@ namespace Azos.Security
 
     #region .ctor
 
-      public DefaultPasswordManager() : this(null) { }
+      public DefaultPasswordManager(IApplication app) : base(app)
+      {
+        DefaultStrengthLevel = PasswordStrengthLevel.Normal;
+      }
 
       public DefaultPasswordManager(ISecurityManagerImplementation director) : base(director)
       {
@@ -101,6 +104,8 @@ namespace Azos.Security
     #endregion
 
     #region Properties
+
+      public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
       [Config(Default = false)]
       [Instrumentation.ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_PAY)]

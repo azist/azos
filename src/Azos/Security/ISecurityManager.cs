@@ -25,39 +25,41 @@ namespace Azos.Security
        /// </summary>
        IPasswordManager PasswordManager { get; }
 
-       /// <summary>
-       /// Authenticates user by checking the supplied credentials against the
-       /// authentication store that this manager represents.
-       /// If credential are invalid then UserKind.Invalid is returned.
-       /// This method may populate user access rights completely or partially - depending on store implementation.
-       /// If rights are computed on authentication than Authorize() just checks existing in-memory structure, otherwise
-       ///  Authorize() may re-fetch permissions from store on every call or cache them for the specified interval in memory
-       /// </summary>
-       /// <param name="credentials">User credentials.
-       /// Particular manager implementation may elect to support multiple credential types, i.e.
-       /// IdPassword, Twitter, Facebook, OAuth, LegacySystemA/B/C etc.
-       /// </param>
-       /// <returns>
-       /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
-       /// </returns>
-       User Authenticate(Credentials credentials);
+#warning needs Async version
+      /// <summary>
+      /// Authenticates user by checking the supplied credentials against the
+      /// authentication store that this manager represents.
+      /// If credential are invalid then UserKind.Invalid is returned.
+      /// This method may populate user access rights completely or partially - depending on store implementation.
+      /// If rights are computed on authentication than Authorize() just checks existing in-memory structure, otherwise
+      ///  Authorize() may re-fetch permissions from store on every call or cache them for the specified interval in memory
+      /// </summary>
+      /// <param name="credentials">User credentials.
+      /// Particular manager implementation may elect to support multiple credential types, i.e.
+      /// IdPassword, Twitter, Facebook, OAuth, LegacySystemA/B/C etc.
+      /// </param>
+      /// <returns>
+      /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
+      /// </returns>
+      User Authenticate(Credentials credentials);
+
+#warning needs Async version
+      /// <summary>
+      /// Authenticates user by checking the supplied token against the
+      /// authentication store that this manager represents.
+      /// If token is invalid then UserKind.Invalid is returned.
+      /// This method may populate user access rights completely or partially - depending on store implementation.
+      /// If rights are computed on authentication than Authorize() just checks existing in-memory structure, otherwise
+      ///  Authorize() may re-fetch permissions from store on every call or cache them for the specified interval in memory
+      /// </summary>
+      /// <param name="token">User authentication token </param>
+      /// <returns>
+      /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
+      /// </returns>
+      User Authenticate(AuthenticationToken token);
 
 
-       /// <summary>
-       /// Authenticates user by checking the supplied token against the
-       /// authentication store that this manager represents.
-       /// If token is invalid then UserKind.Invalid is returned.
-       /// This method may populate user access rights completely or partially - depending on store implementation.
-       /// If rights are computed on authentication than Authorize() just checks existing in-memory structure, otherwise
-       ///  Authorize() may re-fetch permissions from store on every call or cache them for the specified interval in memory
-       /// </summary>
-       /// <param name="token">User authentication token </param>
-       /// <returns>
-       /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
-       /// </returns>
-       User Authenticate(AuthenticationToken token);
-
-
+#warning needs Async version
        /// <summary>
        /// Authenticates user by checking the supplied user's token against the
        /// authentication store that this manager represents.
@@ -70,8 +72,7 @@ namespace Azos.Security
        /// <param name="user">User object which is checked and updated</param>
        void Authenticate(User user);
 
-
-
+#warning needs Async version
        /// <summary>
        /// Authorizes user by finding appropriate access level to permission by supplied path.
        /// Depending on particular implementation, rights may be fully or partially cached in memory.
@@ -93,7 +94,7 @@ namespace Azos.Security
        IConfigSectionNode GetUserLogArchiveDimensions(IIdentityDescriptor identity);
 
        /// <summary>
-       /// Logs security-related message
+       /// Logs security-related message via security channel
        /// </summary>
        /// <param name="action">Action that was performed</param>
        /// <param name="msg">A message to log</param>
@@ -108,13 +109,13 @@ namespace Azos.Security
     public interface ISecurityManagerImplementation : ISecurityManager, IDisposable, IConfigurable
     {
       /// <summary>
-      /// Defines what events ehould be logged by the system
+      /// Defines what security events should be sec-channel logged by the system
       /// </summary>
-      SecurityLogMask LogMask{ get; set;}
+      SecurityLogMask SecurityLogMask{ get; set;}
 
       /// <summary>
-      /// Defines the level above which the messages are logged
+      /// Defines the level above which the security channel messages are logged
       /// </summary>
-      MessageType LogLevel{ get; set;}
+      MessageType SecurityLogLevel{ get; set;}
     }
 }

@@ -69,7 +69,7 @@ namespace Azos.Security
       /// <summary>
       /// Returns default instance of the fake user that has no rights
       /// </summary>
-      public static User Fake{ get{ return s_FakeUserInstance; } }
+      public static User Fake => s_FakeUserInstance;
     #endregion
 
     #region .ctor

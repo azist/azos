@@ -27,7 +27,7 @@ namespace Azos.Apps
   public sealed class NOPApplication : IApplication
   {
 
-     private static NOPApplication s_Instance = new NOPApplication();
+     private static readonly NOPApplication s_Instance = new NOPApplication();
 
      private NOPApplication()
      {

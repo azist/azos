@@ -15,7 +15,7 @@ namespace Azos.Security
   /// <summary>
   /// Provides security manager implementation that authenticates and authorizes users from configuration
   /// </summary>
-  public class ConfigSecurityManager : DaemonWithInstrumentation<object>, ISecurityManagerImplementation
+  public class ConfigSecurityManager : DaemonWithInstrumentation<IApplicationComponent>, ISecurityManagerImplementation
   {
     #region CONSTS
       public const string CONFIG_USERS_SECTION = "users";
@@ -35,12 +35,12 @@ namespace Azos.Security
       /// <summary>
       /// Constructs security manager that authenticates users listed in application configuration
       /// </summary>
-      public ConfigSecurityManager() : base() { }
+      public ConfigSecurityManager(IApplication app) : base(app) { }
 
       /// <summary>
       /// Constructs security manager that authenticates users listed in the supplied configuration section
       /// </summary>
-      public ConfigSecurityManager(object director) : base(director) { }
+      public ConfigSecurityManager(IApplicationComponent director) : base(director) { }
     #endregion
 
     #region Fields
@@ -50,6 +50,7 @@ namespace Azos.Security
     #endregion
 
     #region Properties
+      public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
       [Config(Default = false)]
       [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_PAY)]
@@ -71,10 +72,10 @@ namespace Azos.Security
 
       [Config(Default = SecurityLogMask.Custom)]
       [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
-      public SecurityLogMask LogMask { get; set;}
+      public SecurityLogMask SecurityLogMask { get; set;}
 
       [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
-      public Log.MessageType LogLevel { get; set;}
+      public Log.MessageType SecurityLogLevel { get; set;}
 
 
     #endregion
@@ -94,9 +95,9 @@ namespace Azos.Security
 
       public void LogSecurityMessage(SecurityLogAction action, Log.Message msg, IIdentityDescriptor identity = null)
       {
-        if ((LogMask & action.ToMask()) == 0) return;
+        if ((SecurityLogMask & action.ToMask()) == 0) return;
         if (msg==null) return;
-        if (LogLevel > msg.Type) return;
+        if (SecurityLogLevel > msg.Type) return;
         if (msg.ArchiveDimensions.IsNullOrWhiteSpace())
         {
           if (identity==null)
@@ -159,7 +160,7 @@ namespace Azos.Security
 
       public void Authenticate(User user)
       {
-        if (user == null) return;
+        if (user == null || user==User.Fake) return;
         var token = user.AuthToken;
         var reuser = Authenticate(token);
 
@@ -181,7 +182,10 @@ namespace Azos.Security
       {
         base.DoConfigure(node);
         m_Config = node;
-        m_PasswordManager = FactoryUtils.MakeAndConfigure<IPasswordManagerImplementation>(node[CONFIG_PASSWORD_MANAGER_SECTION], typeof(DefaultPasswordManager), new object[] { this });
+        m_PasswordManager = FactoryUtils.MakeAndConfigureComponent<IPasswordManagerImplementation>(
+                                               App,
+                                               node[CONFIG_PASSWORD_MANAGER_SECTION],
+                                               typeof(DefaultPasswordManager));
       }
 
       protected override void DoStart()
@@ -243,9 +247,6 @@ namespace Azos.Security
       }
 
     #endregion
-
-
-
 
   }
 }

@@ -68,22 +68,24 @@ namespace Azos
     #endregion
 
     #region Topics
+      //note: Topics must be short as they are emitted into every log line
       public const string LOG_NET_TOPIC = "NET";
       public const string APPLICATION_TOPIC = "App";
       public const string LOG_TOPIC = "Log";
       public const string INSTRUMENTATION_TIMEFRAME_TOPIC = "inst.timeframe";
-      public const string OBJSTORE_TOPIC = "ObjectStore";
-      public const string INSTRUMENTATION_TOPIC = "Instrumentation";
-      public const string THROTTLINGSVC_TOPIC = "ThrottlingService";
+      public const string OBJSTORE_TOPIC = "Objstr";
+      public const string INSTRUMENTATION_TOPIC = "Instr";
+      public const string THROTTLINGSVC_TOPIC = "Thrtl";
       public const string SCHEDULE_TOPIC = "Sched";//Scheduled jobs, i.e. cleanup files etc...
       public const string DEBUG_TOPIC = "Debug";
       public const string TRACE_TOPIC = "Trace";
+      public const string SECURITY_TOPIC = "Sec";
       public const string ASSERT_TOPIC = "Assert";
       public const string TIME_TOPIC = "Time";
       public const string GLUE_TOPIC = "Glue";
-      public const string ERLANG_TOPIC = "Erlang";
-      public const string CACHE_TOPIC = "Data.Cache";
-      public const string LOCALIZATION_TOPIC = "Localization";
+      public const string ERLANG_TOPIC = "Erl";
+      public const string CACHE_TOPIC = "Cache";
+      public const string LOCALIZATION_TOPIC = "Lcl";
       public const string PILE_TOPIC = "Pile";
 
       public const string LOG_CHANNEL_SECURITY = "security";

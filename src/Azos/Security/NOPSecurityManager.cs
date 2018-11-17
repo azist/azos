@@ -3,12 +3,9 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Apps;
+using Azos.Log;
 
 namespace Azos.Security
 {
@@ -17,7 +14,7 @@ namespace Azos.Security
   /// </summary>
   public sealed class NOPSecurityManager : ApplicationComponent, ISecurityManagerImplementation
   {
-    private NOPSecurityManager() : base()
+    public NOPSecurityManager(IApplication app) : base(app)
     {
       m_PasswordManager = new DefaultPasswordManager(this);
       m_PasswordManager.Start();
@@ -31,25 +28,22 @@ namespace Azos.Security
 
     private IPasswordManagerImplementation m_PasswordManager;
 
-    private static NOPSecurityManager s_Instance = new NOPSecurityManager();
-
-    public static NOPSecurityManager Instance { get { return s_Instance; } }
+    public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
     public IPasswordManager PasswordManager { get { return m_PasswordManager; } }
 
-    public User Authenticate(Credentials credentials) { return User.Fake; }
+    public User Authenticate(Credentials credentials) => User.Fake;
 
     public void Configure(Conf.IConfigSectionNode node) {}
 
-    public User Authenticate(AuthenticationToken token) { return User.Fake; }
+    public User Authenticate(AuthenticationToken token) => User.Fake;
 
     public void Authenticate(User user) {}
 
     public AccessLevel Authorize(User user, Permission permission) { return new AccessLevel(user, permission, Rights.None.Root); }
 
-    public SecurityLogMask LogMask{ get; set;}
-    public Log.MessageType LogLevel { get; set;}
-
+    public SecurityLogMask SecurityLogMask{ get; set;}
+    public MessageType SecurityLogLevel { get; set; }
 
     public Conf.IConfigSectionNode GetUserLogArchiveDimensions(IIdentityDescriptor identity)
     {
@@ -58,7 +52,6 @@ namespace Azos.Security
 
     public void LogSecurityMessage(SecurityLogAction action, Log.Message msg, IIdentityDescriptor identity = null)
     {
-
     }
   }
 }

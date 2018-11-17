@@ -36,18 +36,18 @@ namespace Azos.Apps
 
             Active = true;
             StartTime = DateTime.Now;
-            Log = NOPLog.Instance;
-            Instrumentation = NOPInstrumentation.Instance;
-            DataStore = NOPDataStore.Instance;
-            ObjectStore = NOPObjectStore.Instance;
-            Glue = NOPGlue.Instance;
-            ModuleRoot = NOPModule.Instance;
-            SecurityManager = NOPSecurityManager.Instance;
-            TimeSource = Azos.Time.DefaultTimeSource.Instance;
-            TimeLocation = new Time.TimeLocation();
-            EventTimer = Azos.Time.NOPEventTimer.Instance;
+            Log = new NOPLog(this);
+            Instrumentation = new NOPInstrumentation(this);
+            DataStore = new NOPDataStore(this);
+            ObjectStore = new NOPObjectStore(this);
+            Glue = new NOPGlue(this);
+            ModuleRoot = new NOPModule(this);
+            SecurityManager = new NOPSecurityManager(this);
+            TimeSource = new DefaultTimeSource(this);
+            TimeLocation = TimeLocation.Parent;
+            EventTimer = new NOPEventTimer(this);
 
-            Realm = new ApplicationRealmBase();
+            Realm = new ApplicationRealmBase(this);
 
             Apps.ExecutionContext.__BindApplication(this);
         }
