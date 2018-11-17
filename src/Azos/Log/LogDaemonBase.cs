@@ -38,16 +38,20 @@ namespace Azos.Log
           /// <summary>
           /// Creates a new logging daemon instance
           /// </summary>
-          protected LogDaemonBase(IApplication app) : this(app, null) {  }
-
+          protected LogDaemonBase(IApplication app) : base(app)
+          {
+            ctor();
+          }
 
           /// <summary>
           /// Creates a new logging daemon instance
           /// </summary>
-          protected LogDaemonBase(IApplication app, IApplicationComponent director) : base(app, director)
+          protected LogDaemonBase(IApplicationComponent director) : base(director)
           {
-            m_InstrBuffer = new MemoryBufferSink(this, false);//does not get registered in sinks
+            ctor();
           }
+
+          private void ctor() => m_InstrBuffer = new MemoryBufferSink(this, false);//does not get registered in sinks
 
           protected override void Destructor()
           {

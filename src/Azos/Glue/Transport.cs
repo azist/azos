@@ -41,18 +41,18 @@ namespace Azos.Glue
 
         #region .ctor
 
-            protected Transport(Binding binding, TransportKind kind) : base(binding.NonNull(text: "binding").App, binding)
-            {
-                m_TransportKind = kind;
-                m_Glue = binding.Glue;
-                binding._Register(this);
-            }
+          protected Transport(Binding binding, TransportKind kind) : base(binding.NonNull(text: "binding").App, binding)
+          {
+              m_TransportKind = kind;
+              m_Glue = binding.Glue;
+              binding._Register(this);
+          }
 
-            protected override void Destructor()
-            {
-                Binding._Unregister(this);
-                base.Destructor();
-            }
+          protected override void Destructor()
+          {
+              Binding._Unregister(this);
+              base.Destructor();
+          }
 
         #endregion
 
@@ -65,10 +65,12 @@ namespace Azos.Glue
             private DateTime? m_ExpirationStart;
             private IGlueImplementation m_Glue;
 
-        #endregion
+    #endregion
 
 
-        #region Properties Pub and Protected
+          #region Properties Pub and Protected
+
+            public override string ComponentLogTopic => CoreConsts.GLUE_TOPIC;
 
             /// <summary>
             /// Returns true when this transport instance has been acquired by some operation and is busy

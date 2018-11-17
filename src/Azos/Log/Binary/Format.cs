@@ -15,7 +15,7 @@ using Azos.IO;
 namespace Azos.Log.Binary
 {
   /// <summary>
-  /// Facilittates reading primitive values from stream
+  /// Facilitates reading primitive values from stream
   /// </summary>
   internal static class Format
   {

@@ -19,12 +19,11 @@ namespace Azos.Glue
   /// </summary>
   public abstract class GlueDaemon : DaemonWithInstrumentation<IGlueImplementation>
   {
-    internal GlueDaemon(IApplication app, IGlueImplementation glue) : base(app, glue)
+    internal GlueDaemon(IGlueImplementation glue) : base(glue)
     {
     }
 
-    protected GlueDaemon(IApplication app, IGlueImplementation glue, string name)
-      : base(app, glue)
+    protected GlueDaemon(IGlueImplementation glue, string name) : base(glue)
     {
       if (string.IsNullOrWhiteSpace(name))
           name = Guid.NewGuid().ToString();
@@ -36,7 +35,7 @@ namespace Azos.Glue
 
 
 
-    public IGlueImplementation Glue { get { return ComponentDirector; } }
+    public IGlueImplementation Glue => ComponentDirector;
 
     /// <summary>
     /// Implements IInstrumentable

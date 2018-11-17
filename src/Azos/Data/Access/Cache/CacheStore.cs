@@ -21,7 +21,7 @@ namespace Azos.Data.Access.Cache
 {
     /// <summary>
     /// Represents an efficient in-memory cache of expiring optionally-prioritized objects.
-    /// This class is higly optimized for caching of business objects in data store implementations and does not guarantee that
+    /// This class is highly optimized for caching of business objects in data store implementations and does not guarantee that
     /// all hash collisions are handled, that is - some data may be overridden. The implementation relies on 2 stage hashing, where the second collision replaces the
     ///  existing item with the colliding one if items are equal in their priorities. The degree of collisions is controlled by 'bucketSize' and 'recPerPage' parameters that
     ///  are passed to the store per table, so basically the tables are capped at a certain size and can not change (bucketSize*recPerPage).
@@ -29,7 +29,7 @@ namespace Azos.Data.Access.Cache
     /// This class is thread safe for reading and writing cache items, however it does not guarantee instant read/write consistency between threads.
     /// </summary>
     /// <remarks>
-    /// Perfomance testing of this class vs. System.Runtime.Caching.MemoryCache storing a typical database record identified by a long key:
+    /// Performance testing of this class vs. System.Runtime.Caching.MemoryCache storing a typical database record identified by a long key:
     ///  Azos is 2.5-5 times faster for concurrent reads and takes 20% less ram.
     ///  Azos is 1.3-2.5 times faster for writes
     /// </remarks>
@@ -46,11 +46,11 @@ namespace Azos.Data.Access.Cache
 
         #region .ctor
 
-            public CacheStore() : this(null)
+            public CacheStore(IApplication app) : this(app, null, null)
             {
             }
 
-            public CacheStore(string name)
+            public CacheStore(IApplication app, IApplicationComponent director, string name) : base(app, director)
             {
                 if (name.IsNullOrWhiteSpace())
                     m_Name =  Guid.NewGuid().ToString();
@@ -97,9 +97,11 @@ namespace Azos.Data.Access.Cache
 
             private bool m_ParallelSweep;
             private bool m_InstrumentationEnabled;
-        #endregion
+    #endregion
 
         #region Properties
+
+            public override string ComponentLogTopic => CoreConsts.CACHE_TOPIC;
 
             /// <summary>
             /// Returns store name which can be used to identify stores in registries and instrumentation/telemetry outputs
@@ -266,59 +268,44 @@ namespace Azos.Data.Access.Cache
             return m_Tables.Unregister( name );
           }
 
+          public override string ToString() => "Cache.MemStore({0})".Args(Name);
 
         #endregion
 
 
         #region .pvt
 
-            internal void log(MessageType type, string message, Exception error = null, string parameters = null)
-            {
-                App.Log.Write(
-                        new Message
-                        {
-                            Text = message ?? string.Empty,
-                            Type = type,
-                            From = "Cache.MemStore({0})".Args(Name),
-                            Topic = CoreConsts.CACHE_TOPIC,
-                            Parameters = parameters ?? string.Empty,
-                            Exception = error
-                        }
-                    );
-            }
-
-
             private void threadSpin()
             {
-                 try
-                 {
-                      var rnd = new Random();
-                      var wasActive = App.Active;//remember whether app was active during start
-                                                 //this is needed so that CacheStore works without app container (using NOPApplication) in which case
-                                                 //service must be .Disposed() to stop this thread
-                      while ((App.Active | !wasActive) && m_Running)
-                      {
-                        try
-                        {
-                          if (m_ParallelSweep)
-                              Parallel.ForEach(m_Tables, (tbl) => tbl.Sweep() );
-                          else
-                              m_Tables.ForEach( (tbl) => tbl.Sweep() );
+              try
+              {
+                var rnd = new Random();
+                var wasActive = App.Active;//remember whether app was active during start
+                                            //this is needed so that CacheStore works without app container (using NOPApplication) in which case
+                                            //service must be .Disposed() to stop this thread
+                while ((App.Active | !wasActive) && m_Running)
+                {
+                  try
+                  {
+                    if (m_ParallelSweep)
+                        Parallel.ForEach(m_Tables, (tbl) => tbl.Sweep() );
+                    else
+                        m_Tables.ForEach( (tbl) => tbl.Sweep() );
 
-                          updateInstruments();
-                        }
-                        catch(Exception innerE)
-                        {
-                          log(MessageType.Emergency, " threadSpin().while body leaked exception: "+ innerE.ToMessageWithType(), innerE);
-                        }
+                    updateInstruments();
+                  }
+                  catch(Exception innerE)
+                  {
+                    WriteLog(MessageType.Emergency, nameof(threadSpin), "while body leaked exception: "+ innerE.ToMessageWithType(), innerE);
+                  }
 
-                        m_Trigger.WaitOne(2000 + rnd.Next(2000));
-                      }//while
-                 }
-                 catch(Exception e)
-                 {
-                     log(MessageType.CatastrophicError, " threadSpin() leaked exception. Cache is not swept anymore. Error: "+e.ToMessageWithType(), e);
-                 }
+                  m_Trigger.WaitOne(2000 + rnd.Next(2000));
+                }//while
+              }
+              catch(Exception e)
+              {
+                  WriteLog(MessageType.CatastrophicError, nameof(threadSpin), "leaked exception. Cache is not swept anymore. Error: "+e.ToMessageWithType(), e);
+              }
             }
 
 
@@ -350,34 +337,34 @@ namespace Azos.Data.Access.Cache
 
                 foreach(var tbl in m_Tables)
                 {
-                    var ts = "{0}.{1}".Args(Name, tbl.Name);
-                    instr.Record( new Instrumentation.RecordCount(ts, tbl.Count) );            store_Count  += tbl.Count;
-                    instr.Record( new Instrumentation.PageCount  (ts, tbl.PageCount) );        store_PageCount  += tbl.PageCount;
-                    instr.Record( new Instrumentation.BucketPageLoadFactor  (ts, tbl.BucketPageLoadFactor) ); store_BucketPageLoadFactor  += tbl.BucketPageLoadFactor;
-                    instr.Record( new Instrumentation.HitCount   (ts, tbl.stat_HitCount)  );   store_HitCount  += Interlocked.Exchange( ref tbl.stat_HitCount, 0);
-                    instr.Record( new Instrumentation.MissCount  (ts, tbl.stat_MissCount) );   store_MissCount += Interlocked.Exchange( ref tbl.stat_MissCount, 0);
+                  var ts = "{0}.{1}".Args(Name, tbl.Name);
+                  instr.Record( new Instrumentation.RecordCount(ts, tbl.Count) );            store_Count  += tbl.Count;
+                  instr.Record( new Instrumentation.PageCount  (ts, tbl.PageCount) );        store_PageCount  += tbl.PageCount;
+                  instr.Record( new Instrumentation.BucketPageLoadFactor  (ts, tbl.BucketPageLoadFactor) ); store_BucketPageLoadFactor  += tbl.BucketPageLoadFactor;
+                  instr.Record( new Instrumentation.HitCount   (ts, tbl.stat_HitCount)  );   store_HitCount  += Interlocked.Exchange( ref tbl.stat_HitCount, 0);
+                  instr.Record( new Instrumentation.MissCount  (ts, tbl.stat_MissCount) );   store_MissCount += Interlocked.Exchange( ref tbl.stat_MissCount, 0);
 
-                    instr.Record( new Instrumentation.ValueFactoryCount(ts, tbl.stat_ValueFactoryCount) ); store_ValueFactoryCount += Interlocked.Exchange( ref tbl.stat_ValueFactoryCount, 0);
+                  instr.Record( new Instrumentation.ValueFactoryCount(ts, tbl.stat_ValueFactoryCount) ); store_ValueFactoryCount += Interlocked.Exchange( ref tbl.stat_ValueFactoryCount, 0);
 
-                    instr.Record( new Instrumentation.SweepTableCount (ts, tbl.stat_SweepTableCount) );  store_SweepTableCount  += Interlocked.Exchange( ref tbl.stat_SweepTableCount, 0);
-                    instr.Record( new Instrumentation.SweepPageCount  (ts, tbl.stat_SweepPageCount) );   store_SweepPageCount   += Interlocked.Exchange( ref tbl.stat_SweepPageCount, 0);
-                    instr.Record( new Instrumentation.SweepRemoveCount(ts, tbl.stat_SweepRemoveCount) ); store_SweepRemoveCount += Interlocked.Exchange( ref tbl.stat_SweepRemoveCount, 0);
+                  instr.Record( new Instrumentation.SweepTableCount (ts, tbl.stat_SweepTableCount) );  store_SweepTableCount  += Interlocked.Exchange( ref tbl.stat_SweepTableCount, 0);
+                  instr.Record( new Instrumentation.SweepPageCount  (ts, tbl.stat_SweepPageCount) );   store_SweepPageCount   += Interlocked.Exchange( ref tbl.stat_SweepPageCount, 0);
+                  instr.Record( new Instrumentation.SweepRemoveCount(ts, tbl.stat_SweepRemoveCount) ); store_SweepRemoveCount += Interlocked.Exchange( ref tbl.stat_SweepRemoveCount, 0);
 
-                    instr.Record( new Instrumentation.PutCount          (ts, tbl.stat_PutCount) );           store_PutCount           += Interlocked.Exchange( ref tbl.stat_PutCount, 0);
-                    instr.Record( new Instrumentation.PutInsertCount    (ts, tbl.stat_PutInsertCount) );     store_PutInsertCount     += Interlocked.Exchange( ref tbl.stat_PutInsertCount, 0);
-                    instr.Record( new Instrumentation.PutReplaceCount   (ts, tbl.stat_PutReplaceCount) );    store_PutReplaceCount    += Interlocked.Exchange( ref tbl.stat_PutReplaceCount, 0);
-                    instr.Record( new Instrumentation.PutPageCreateCount(ts, tbl.stat_PutPageCreateCount) ); store_PutPageCreateCount += Interlocked.Exchange( ref tbl.stat_PutPageCreateCount, 0);
-                    instr.Record( new Instrumentation.PutCollisionCount (ts, tbl.stat_PutCollisionCount) );  store_PutCollisionCount  += Interlocked.Exchange( ref tbl.stat_PutCollisionCount, 0);
-                    instr.Record( new Instrumentation.PutPriorityPreventedCollisionCount
-                                                                        (ts, tbl.stat_PutPriorityPreventedCollisionCount) );
-                                                                                                             store_PutPriorityPreventedCollisionCount
-                                                                                                                                      += Interlocked.Exchange( ref tbl.stat_PutPriorityPreventedCollisionCount, 0);
+                  instr.Record( new Instrumentation.PutCount          (ts, tbl.stat_PutCount) );           store_PutCount           += Interlocked.Exchange( ref tbl.stat_PutCount, 0);
+                  instr.Record( new Instrumentation.PutInsertCount    (ts, tbl.stat_PutInsertCount) );     store_PutInsertCount     += Interlocked.Exchange( ref tbl.stat_PutInsertCount, 0);
+                  instr.Record( new Instrumentation.PutReplaceCount   (ts, tbl.stat_PutReplaceCount) );    store_PutReplaceCount    += Interlocked.Exchange( ref tbl.stat_PutReplaceCount, 0);
+                  instr.Record( new Instrumentation.PutPageCreateCount(ts, tbl.stat_PutPageCreateCount) ); store_PutPageCreateCount += Interlocked.Exchange( ref tbl.stat_PutPageCreateCount, 0);
+                  instr.Record( new Instrumentation.PutCollisionCount (ts, tbl.stat_PutCollisionCount) );  store_PutCollisionCount  += Interlocked.Exchange( ref tbl.stat_PutCollisionCount, 0);
+                  instr.Record( new Instrumentation.PutPriorityPreventedCollisionCount
+                                                                      (ts, tbl.stat_PutPriorityPreventedCollisionCount) );
+                                                                                                            store_PutPriorityPreventedCollisionCount
+                                                                                                                                    += Interlocked.Exchange( ref tbl.stat_PutPriorityPreventedCollisionCount, 0);
 
-                    instr.Record( new Instrumentation.RemovePageCount(ts, tbl.stat_RemovePageCount) );  store_RemovePageCount += Interlocked.Exchange( ref tbl.stat_RemovePageCount, 0);
-                    instr.Record( new Instrumentation.RemoveHitCount (ts, tbl.stat_RemoveHitCount) );   store_RemoveHitCount  += Interlocked.Exchange( ref tbl.stat_RemoveHitCount, 0);
-                    instr.Record( new Instrumentation.RemoveMissCount(ts, tbl.stat_RemoveMissCount) );  store_RemoveMissCount += Interlocked.Exchange( ref tbl.stat_RemoveMissCount, 0);
+                  instr.Record( new Instrumentation.RemovePageCount(ts, tbl.stat_RemovePageCount) );  store_RemovePageCount += Interlocked.Exchange( ref tbl.stat_RemovePageCount, 0);
+                  instr.Record( new Instrumentation.RemoveHitCount (ts, tbl.stat_RemoveHitCount) );   store_RemoveHitCount  += Interlocked.Exchange( ref tbl.stat_RemoveHitCount, 0);
+                  instr.Record( new Instrumentation.RemoveMissCount(ts, tbl.stat_RemoveMissCount) );  store_RemoveMissCount += Interlocked.Exchange( ref tbl.stat_RemoveMissCount, 0);
 
-                    cnt++;
+                  cnt++;
                 }
 
                 var src = Name;

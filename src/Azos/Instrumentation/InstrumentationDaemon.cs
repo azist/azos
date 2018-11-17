@@ -51,7 +51,7 @@ namespace Azos.Instrumentation
           /// <summary>
           /// Creates a instrumentation service instance
           /// </summary>
-          public InstrumentationDaemon(IApplication app, IApplicationComponent director) : base(app, director) {}
+          public InstrumentationDaemon(IApplicationComponent director) : base(director) {}
 
 
         #endregion
@@ -385,7 +385,7 @@ namespace Azos.Instrumentation
 
             protected override void DoStart()
             {
-              Log(MessageType.Info, "Entering DoStart()", null);
+              WriteLog(MessageType.Info, nameof(DoStart), "Entering");
 
               try
               {
@@ -424,16 +424,16 @@ namespace Azos.Instrumentation
 
                 m_ResultBuffer = null;
 
-                Log(MessageType.CatastrophicError, "DoStart() exception: " + error.Message, null);
+                WriteLog(MessageType.CatastrophicError, nameof(DoStart), "Leaked exception: " + error.Message);
                 throw error;
               }
 
-             Log(MessageType.Info, "Exiting DoStart()", null);
+             WriteLog(MessageType.Info, nameof(DoStart), "Exiting");
           }
 
             protected override void DoSignalStop()
             {
-              Log(MessageType.Info, "Entering DoSignalStop()", null);
+              WriteLog(MessageType.Info, nameof(DoSignalStop), "Entering");
 
               try
               {
@@ -445,16 +445,16 @@ namespace Azos.Instrumentation
               }
               catch (Exception error)
               {
-                Log(MessageType.CatastrophicError, "DoSignalStop() exception: " + error.Message, null);
+                WriteLog(MessageType.CatastrophicError, nameof(DoSignalStop), "Leaked exception: " + error.Message);
                 throw error;
               }
 
-              Log(MessageType.Info, "Exiting DoSignalStop()", null);
+              WriteLog(MessageType.Info, nameof(DoSignalStop), "Exiting ");
             }
 
             protected override void DoWaitForCompleteStop()
             {
-              Log(MessageType.Info, "Entering DoWaitForCompleteStop()", null);
+              WriteLog(MessageType.Info, nameof(DoWaitForCompleteStop), "Entering");
 
               try
               {
@@ -470,11 +470,11 @@ namespace Azos.Instrumentation
               }
               catch (Exception error)
               {
-                Log(MessageType.CatastrophicError, "DoWaitForCompleteStop() exception: " + error.Message, null);
+                WriteLog(MessageType.CatastrophicError, nameof(DoWaitForCompleteStop), "Leaked exception: " + error.Message);
                 throw error;
               }
 
-              Log(MessageType.Info, "Exiting DoWaitForCompleteStop()", null);
+              WriteLog(MessageType.Info, nameof(DoWaitForCompleteStop), "Exiting");
             }
 
 

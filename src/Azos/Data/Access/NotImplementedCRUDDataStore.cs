@@ -6,13 +6,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 
 namespace Azos.Data.Access
 {
+
+#warning Who uses this class - delete?
+  /*
   public sealed class NotImplementedCRUDDataStore : ICRUDDataStoreImplementation
   {
 
@@ -249,4 +250,5 @@ namespace Azos.Data.Access
       throw new NotImplementedException();
     }
   }
+  */
 }

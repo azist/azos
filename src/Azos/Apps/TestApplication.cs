@@ -81,6 +81,11 @@ namespace Azos.Apps
 
         public virtual Instrumentation.IInstrumentation Instrumentation { get; set; }
 
+        /// <summary>
+        /// Enumerates all components of this application
+        /// </summary>
+        public IEnumerable<IApplicationComponent> AllComponents => ApplicationComponent.AllComponents(this);
+
         public virtual IConfigSectionNode ConfigRoot
         {
            get{return m_ConfigRoot;}
@@ -234,5 +239,21 @@ namespace Azos.Apps
         {
 
         }
-    }
+
+        /// <summary>
+        /// Returns a component by SID or null
+        /// </summary>
+        public IApplicationComponent GetComponentBySID(ulong sid)
+        {
+          return ApplicationComponent.GetAppComponentBySID(this, sid);
+        }
+
+        /// <summary>
+        /// Returns an existing application component instance by its ComponentCommonName or null. The search is case-insensitive
+        /// </summary>
+        public IApplicationComponent GetComponentByCommonName(string name)
+        {
+          return ApplicationComponent.GetAppComponentByCommonName(this, name);
+        }
+  }
 }

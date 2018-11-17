@@ -24,12 +24,12 @@ namespace Azos.Apps
   ///  this application does not log, does not store data and does not do anything else
   /// still satisfying its contract
   /// </summary>
-  public class NOPApplication : IApplication
+  public sealed class NOPApplication : IApplication
   {
 
      private static NOPApplication s_Instance = new NOPApplication();
 
-     protected NOPApplication()
+     private NOPApplication()
      {
         m_Configuration = new MemoryConfiguration();
         m_Configuration.Create();
@@ -38,8 +38,18 @@ namespace Azos.Apps
         m_CommandArgsConfiguration.Create();
 
         m_StartTime = DateTime.Now;
-        m_Realm = new ApplicationRealmBase();
-     }
+        m_Realm = new ApplicationRealmBase(this);
+
+        m_Log = new NOPLog(this);
+        m_Instrumentation = new NOPInstrumentation(this);
+        m_ObjectStore = new NOPObjectStore(this);
+        m_Glue = new NOPGlue(this);
+        m_DataStore = new NOPDataStore(this);
+        m_SecurityManager = new NOPSecurityManager(this);
+        m_Module = new NOPModule(this);
+        m_TimeSource = new TimeSource(this);
+        m_EventTimer = new EventTimer(this);;
+    }
 
 
 
@@ -54,9 +64,21 @@ namespace Azos.Apps
 
     private Guid m_InstanceID = Guid.NewGuid();
     private DateTime m_StartTime;
-    protected MemoryConfiguration m_Configuration;
-    protected MemoryConfiguration m_CommandArgsConfiguration;
-    protected IApplicationRealmImplementation m_Realm;
+    private MemoryConfiguration m_Configuration;
+    private MemoryConfiguration m_CommandArgsConfiguration;
+    private IApplicationRealmImplementation m_Realm;
+    private ILog               m_Log;
+    private IInstrumentation   m_Instrumentation;
+    private IObjectStore       m_ObjectStore;
+    private IGlue              m_Glue;
+    private IDataStore         m_DataStore;
+    private ISecurityManager   m_SecurityManager;
+    private IModule            m_Module;
+    private ITimeSource        m_TimeSource;
+    private IEventTimer        m_EventTimer;
+
+
+
 
 
     #region IApplication Members
@@ -83,41 +105,24 @@ namespace Azos.Apps
             get { return m_StartTime; }
         }
 
-        public bool Active
-        {
-          get { return false;}//20140128 DKh was true before
-        }
+        public bool Active => false;//20140128 DKh was true before
 
+        public IApplicationRealm Realm => m_Realm;
 
-        public IApplicationRealm Realm
-        {
-          get { return m_Realm;}
-        }
+        public bool Stopping => false;
 
-        public bool Stopping
-        {
-          get { return false;}
-        }
+        public bool ShutdownStarted => false;
 
-        public bool ShutdownStarted
-        {
-          get { return false;}
-        }
+        public string Name => GetType().FullName;
 
-        public string Name
-        {
-          get { return GetType().FullName; }
-        }
+        /// <summary>
+        /// Enumerates all components of this application
+        /// </summary>
+        public IEnumerable<IApplicationComponent> AllComponents => ApplicationComponent.AllComponents(this);
 
-        public ILog Log
-        {
-          get { return NOPLog.Instance; }
-        }
+        public ILog Log => m_Log;
 
-        public IInstrumentation Instrumentation
-        {
-          get { return NOPInstrumentation.Instance; }
-        }
+        public IInstrumentation Instrumentation => m_Instrumentation;
 
         public IConfigSectionNode ConfigRoot
         {
@@ -129,41 +134,13 @@ namespace Azos.Apps
           get { return m_CommandArgsConfiguration.Root; }
         }
 
-        public IDataStore DataStore
-        {
-          get { return NOPDataStore.Instance; }
-        }
-
-        public IObjectStore ObjectStore
-        {
-          get { return NOPObjectStore.Instance; }
-        }
-
-        public IGlue Glue
-        {
-          get { return NOPGlue.Instance; }
-        }
-
-        public ISecurityManager SecurityManager
-        {
-          get { return NOPSecurityManager.Instance; }
-        }
-
-        public IModule ModuleRoot
-        {
-          get { return NOPModule.Instance; }
-        }
-
-        public ITimeSource TimeSource
-        {
-            get { return DefaultTimeSource.Instance; }
-        }
-
-
-        public IEventTimer EventTimer
-        {
-            get { return NOPEventTimer.Instance; }
-        }
+        public IDataStore DataStore => m_DataStore;
+        public IObjectStore ObjectStore => m_ObjectStore;
+        public IGlue Glue => m_Glue;
+        public ISecurityManager SecurityManager => m_SecurityManager;
+        public IModule ModuleRoot => m_Module;
+        public ITimeSource TimeSource => m_TimeSource;
+        public IEventTimer EventTimer => m_EventTimer;
 
 
         public TimeLocation TimeLocation
@@ -219,6 +196,22 @@ namespace Azos.Apps
         public void Stop()
         {
 
+        }
+
+        /// <summary>
+        /// Returns a component by SID or null
+        /// </summary>
+        public IApplicationComponent GetComponentBySID(ulong sid)
+        {
+          return ApplicationComponent.GetAppComponentBySID(this, sid);
+        }
+
+        /// <summary>
+        /// Returns an existing application component instance by its ComponentCommonName or null. The search is case-insensitive
+        /// </summary>
+        public IApplicationComponent GetComponentByCommonName(string name)
+        {
+          return ApplicationComponent.GetAppComponentByCommonName(this, name);
         }
 
     #endregion

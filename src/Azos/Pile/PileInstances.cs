@@ -51,7 +51,7 @@ namespace Azos.Pile
     }
 
     /// <summary>
-    /// Maps pileID to IPile intsance or null if not found
+    /// Maps pileID to IPile instance or null if not found
     /// </summary>
     public static IPile Map(int pileID)
     {

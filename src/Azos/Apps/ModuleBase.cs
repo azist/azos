@@ -25,7 +25,7 @@ namespace Azos.Apps
     /// <summary>
     /// Creates a module under a parent module, such as HubModule
     /// </summary>
-    protected ModuleBase(IApplication application, IModule parent) : base(application, parent) { }
+    protected ModuleBase(IModule parent) : base(parent) { }
 
     /// <summary>
     /// Creates a module under a parent module with the specified order, such as HubModule

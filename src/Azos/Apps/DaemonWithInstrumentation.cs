@@ -20,7 +20,7 @@ namespace Azos.Apps
   {
 
     protected DaemonWithInstrumentation(IApplication application) : base(application) { }
-    protected DaemonWithInstrumentation(IApplication application, TDirector director) : base(application, director) { }
+    protected DaemonWithInstrumentation(TDirector director) : base(director) { }
 
     /// <summary>
     /// Turns instrumentation on/off

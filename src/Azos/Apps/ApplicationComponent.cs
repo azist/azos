@@ -89,13 +89,21 @@ namespace Azos.Apps
       {
       }
 
-      protected ApplicationComponent(IApplication application, IApplicationComponent director)
+      protected ApplicationComponent(IApplicationComponent director) : this(director.NonNull(text: nameof(director)).App, director)
+      {
+
+      }
+
+      private ApplicationComponent(IApplication application, IApplicationComponent director)
       {
         if (application==null)
           throw new AzosException(StringConsts.ARGUMENT_ERROR + nameof(ApplicationComponent) + ".ctor(application==null)");
 
         if (director is DisposableObject d && d.Disposed)
           throw new AzosException(StringConsts.ARGUMENT_ERROR+nameof(ApplicationComponent)+".ctor(director.Disposed)");
+
+        if (director!=null && director.App!=application)//safeguard, this will never happen
+          throw new AzosException(StringConsts.ARGUMENT_ERROR + nameof(ApplicationComponent) + ".ctor(application!=director.App");
 
         m_App = application;
         m_ComponentDirector = director;

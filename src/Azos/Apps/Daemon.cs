@@ -33,7 +33,7 @@ namespace Azos.Apps
           {
           }
 
-          protected Daemon(IApplication application, IApplicationComponent director) : base(application, director)
+          protected Daemon(IApplicationComponent director) : base(director)
           {
           }
 
@@ -408,7 +408,7 @@ namespace Azos.Apps
     public abstract class Daemon<TDirector> : Daemon where TDirector : IApplicationComponent
     {
       protected Daemon(IApplication application) : base(application) { }
-      protected Daemon(IApplication application, TDirector director) : base(application, director) { }
+      protected Daemon(TDirector director) : base(director) { }
 
       public new TDirector ComponentDirector => (TDirector)base.ComponentDirector;
     }

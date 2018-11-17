@@ -24,7 +24,7 @@ namespace Azos.Pile
   /// <summary>
   /// Provides base for default implementation of IPile which stores objects on a local machine in memory or in the MMF
   /// </summary>
-  public abstract partial class DefaultPileBase : DaemonWithInstrumentation<object>, IPileImplementation
+  public abstract partial class DefaultPileBase : DaemonWithInstrumentation<IApplicationComponent>, IPileImplementation
   {
       private static int CPU_COUNT = System.Environment.ProcessorCount;
       private static readonly TimeSpan INSTR_INTERVAL = TimeSpan.FromMilliseconds(3700);
@@ -88,13 +88,13 @@ namespace Azos.Pile
 
     #region .ctor
 
-      protected DefaultPileBase(string name = null):base()
+      protected DefaultPileBase(IApplication app, string name) : base(app)
       {
         Name = name;
         ctor();
       }
 
-      protected DefaultPileBase(object director, string name = null):base(director)
+      protected DefaultPileBase(IApplicationComponent director, string name) : base(director)
       {
         Name = name;
         ctor();
@@ -151,10 +151,13 @@ namespace Azos.Pile
 
     #region Properties
 
+        public override string ComponentLogTopic => CoreConsts.PILE_TOPIC;
+
+
         /// <summary>
         /// When set to value greater than zero, provides a process-unique identity of the pile instance.
         /// The property must be set to unique value in order to start the pile, or set to less or equal to zero to keep the instance private.
-        /// Used by Piled via PileInstances retrived by Identity (if greater than zero)
+        /// Used by Piled via PileInstances retrieved by Identity (if greater than zero)
         /// </summary>
         [Config]
         public int Identity
@@ -1132,7 +1135,7 @@ namespace Azos.Pile
       }
 
       /// <summary>
-      /// Override to make segmnet backed by the appropriate memory technology
+      /// Override to make segment backed by the appropriate memory technology
       /// </summary>
       internal abstract _segment MakeSegment(int segmentNumber);
 

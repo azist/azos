@@ -19,7 +19,7 @@ namespace Azos.Instrumentation
   public abstract class InstrumentationProvider : Daemon<InstrumentationDaemon>, IExternallyParameterized
   {
     #region .ctor
-      protected InstrumentationProvider(InstrumentationDaemon director) : base(director.NonNull().App, director) {}
+      protected InstrumentationProvider(InstrumentationDaemon director) : base(director) {}
     #endregion
 
     #region Public

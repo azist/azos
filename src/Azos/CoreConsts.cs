@@ -84,6 +84,7 @@ namespace Azos
       public const string ERLANG_TOPIC = "Erlang";
       public const string CACHE_TOPIC = "Data.Cache";
       public const string LOCALIZATION_TOPIC = "Localization";
+      public const string PILE_TOPIC = "Pile";
 
       public const string LOG_CHANNEL_SECURITY = "security";
 

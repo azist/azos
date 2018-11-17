@@ -43,15 +43,15 @@ namespace Azos.Log
     #region .ctor
 
         /// <summary>
-        /// Creates a new logging service instance
+        /// Creates a new logging daemon instance
         /// </summary>
-        public LogDaemon() : base(null) {}
+        public LogDaemon(IApplication app) : base(app) {}
 
 
         /// <summary>
-        /// Creates a new logging service instance
+        /// Creates a new logging daemon instance
         /// </summary>
-        public LogDaemon(Daemon director = null) : base(director) {}
+        public LogDaemon(Daemon director) : base(director) {}
 
     #endregion
 
