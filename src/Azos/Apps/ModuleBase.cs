@@ -13,8 +13,17 @@ using Azos.Instrumentation;
 namespace Azos.Apps
 {
   /// <summary>
-  /// Provides base for implementation of IModule
+  /// Provides base for IModuleImplementation. The descendants of this class are always injected
+  /// via configuration injection process and never by code because modules are not practically
+  /// expected to be created dynamically at runtime - they always get created by application chassis at boot.
   /// </summary>
+  /// <remarks>
+  /// Modules shall not have public constructors because they get created via config DI.
+  /// You can use the following pattern in testing fixtures:
+  /// <code>
+  ///  FactoryUtils.MakeAndConfigureDirectedComponent&lt;IMyModuleImplementation&gt;(app, "module{ a=1 b=2}".AsLaconicConfig());
+  /// </code>
+  /// </remarks>
   public abstract class ModuleBase : ApplicationComponent, IModuleImplementation
   {
     /// <summary>
@@ -27,10 +36,6 @@ namespace Azos.Apps
     /// </summary>
     protected ModuleBase(IModule parent) : base(parent) { }
 
-    /// <summary>
-    /// Creates a module under a parent module with the specified order, such as HubModule
-    /// </summary>
-    protected ModuleBase(IModule parent, int order) : base(parent) { m_Order = order; }
 
     protected override void Destructor()
     {
@@ -56,13 +61,13 @@ namespace Azos.Apps
 
     protected Collections.OrderedRegistry<ModuleBase> m_Children = new Collections.OrderedRegistry<ModuleBase>();
 
-    public override string ComponentCommonName => m_Name.IsNotNullOrWhiteSpace() ? m_Name : GetType().FullName;
+    public override string ComponentCommonName => this.Name;
 
     public IModule ParentModule { get{ return ComponentDirector as IModule;} }
 
     public Collections.IOrderedRegistry<IModule> ChildModules { get{ return m_Children;} }
 
-    public string Name { get{ return m_Name;} }
+    public string Name  => m_Name.IsNotNullOrWhiteSpace() ? m_Name : GetType().FullName;
 
 #warning Add Unit test for creating modules declared out-of order t make sure that this property works as expected
     public int Order { get{ return m_Order;} }
@@ -126,7 +131,6 @@ namespace Azos.Apps
     void IConfigurable.Configure(IConfigSectionNode node)
     {
       ConfigAttribute.Apply(this, node);
-      if (m_Name.IsNullOrWhiteSpace()) m_Name = this.GetType().Name;
       DoConfigureChildModules(node);
       DoConfigure(node);
     }
@@ -170,9 +174,9 @@ namespace Azos.Apps
       var allModules = DoGetAllChildModuleConfigNodes(node);
       foreach(var mnode in allModules)
       {
-        var module = FactoryUtils.MakeAndConfigureModuleComponent<ModuleBase>(App, this, mnode);
+        var module = FactoryUtils.MakeAndConfigureDirectedComponent<ModuleBase>(this, mnode);
         if (!m_Children.Register(module))
-         throw new AzosException(StringConsts.APP_MODULE_DUPLICATE_CHILD_ERROR.Args(this, module));
+          throw new AzosException(StringConsts.APP_MODULE_DUPLICATE_CHILD_ERROR.Args(this, module));
       }
     }
 

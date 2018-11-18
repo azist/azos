@@ -410,7 +410,7 @@ namespace Azos.Pile
         {
           get
           {
-            var mstat = Azos.Platform.Computer.GetMemoryStatus();
+            var mstat = Platform.Computer.GetMemoryStatus();
 
             var avail = (long)((double)mstat.AvailablePhysicalBytes * 0.875d);
 

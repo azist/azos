@@ -16,8 +16,7 @@ namespace Azos.Apps
   public sealed class HubModule : ModuleBase
   {
     public HubModule(IApplication application) : base(application){ }
-    public HubModule(IApplication application, IModule parent) : base(application, parent){ }
-    public HubModule(IApplication application, IModule parent, int order) : base(application, parent, order){ }
+    public HubModule(IModule parent) : base(parent){ }
     public override bool IsHardcodedModule => false;
 
     public override string ComponentLogTopic => CoreConsts.APPLICATION_TOPIC;

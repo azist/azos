@@ -13,40 +13,8 @@ using Azos.Conf;
 using Azos.Collections;
 using Azos.Log;
 
-
 namespace Azos.Apps
 {
-
-  /// <summary>
-  /// Child service entry as managed by CompositeDaemon class
-  /// </summary>
-  public struct ChildService : INamed, IOrdered
-  {
-    public ChildService(Daemon svc, int order, bool abortStart)
-    {
-      m_Service = svc;
-      m_Order = order;
-      m_AbortStart = abortStart;
-    }
-
-    private Daemon m_Service;
-    private int m_Order;
-    private bool m_AbortStart;
-
-    public Daemon Service { get { return m_Service;}}
-    public string Name { get { return m_Service.Name;}}
-    public int Order { get { return m_Order;}}
-    public bool AbortStart { get {return m_AbortStart;}}
-
-    public override string ToString()
-    {
-      return "{0}Service({1})[{2}]".Args(AbortStart ? "Abortable" : "", Name, Order);
-    }
-
-  }
-
-
-
   /// <summary>
   /// Represents a daemon that contains other child daemons.
   /// Start/Stop commands translate into child sub-commands.
@@ -54,6 +22,29 @@ namespace Azos.Apps
   /// </summary>
   public class CompositeDaemon : Daemon
   {
+    #region Inner
+    /// <summary>
+    /// Child daemon entry as managed by CompositeDaemon class
+    /// </summary>
+    public struct ChildDaemon : INamed, IOrdered
+    {
+      public ChildDaemon(Daemon svc, int order, bool abortStart)
+      {
+        Service = svc;
+        Order = order;
+        AbortStart = abortStart;
+      }
+
+      public Daemon Service { get; }
+      public string Name  => Service.Name;
+      public int Order { get; }
+      public bool AbortStart { get; }
+
+      public override string ToString() =>
+        "{0}Service({1})[{2}]".Args(AbortStart ? "Abortable" : "", Name, Order);
+    }
+    #endregion
+
     #region CONSTS
     public const string CONFIG_DAEMON_COMPOSITE_SECTION = "daemon-composite";
     public const string CONFIG_DAEMON_SECTION = "daemon";
@@ -63,7 +54,7 @@ namespace Azos.Apps
 
     #region .ctor
     protected CompositeDaemon(IApplication application) : base(application) { }
-    protected CompositeDaemon(IApplication application, IApplicationComponent director) : base(application, director) { }
+    protected CompositeDaemon(IApplicationComponent director) : base(director) { }
 
     protected override void Destructor()
     {
@@ -81,7 +72,7 @@ namespace Azos.Apps
     #endregion
 
     #region Fields
-    private OrderedRegistry<ChildService> m_Services = new OrderedRegistry<ChildService>();
+    private OrderedRegistry<ChildDaemon> m_Services = new OrderedRegistry<ChildDaemon>();
     #endregion
 
     #region Properties
@@ -89,12 +80,12 @@ namespace Azos.Apps
     /// <summary>
     /// Returns service registry where services can be looked-up by name
     /// </summary>
-    public IRegistry<ChildService> ChildServices { get { return m_Services; } }
+    public IRegistry<ChildDaemon> ChildServices { get { return m_Services; } }
 
     /// <summary>
     /// Returns services ordered by their order property
     /// </summary>
-    public IEnumerable<ChildService> OrderedChildServices { get { return m_Services.OrderedValues; } }
+    public IEnumerable<ChildDaemon> OrderedChildServices { get { return m_Services.OrderedValues; } }
 
     #endregion
 
@@ -107,7 +98,7 @@ namespace Azos.Apps
     public bool RegisterService(Daemon service, int order, bool abortStart)
     {
       this.CheckDaemonInactive();
-      var csvc = new ChildService(service, order, abortStart);
+      var csvc = new ChildDaemon(service, order, abortStart);
       return m_Services.Register(csvc);
     }
 
@@ -118,7 +109,7 @@ namespace Azos.Apps
     public bool UnregisterService(Daemon service)
     {
       this.CheckDaemonInactive();
-      var csvc = new ChildService(service, 0, false);
+      var csvc = new ChildDaemon(service, 0, false);
       return m_Services.Unregister(csvc);
     }
 

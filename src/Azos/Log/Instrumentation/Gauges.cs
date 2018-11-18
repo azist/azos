@@ -22,6 +22,31 @@ namespace Azos.Log.Instrumentation
   }
 
   [Serializable]
+  [BSONSerializable("D33255A6-549A-4D65-A74D-51B47F1B94DA")]
+  public class LogMsgQueueSize : LogLongGauge, IMemoryInstrument
+  {
+    protected LogMsgQueueSize(string source, long value) : base(source, value) { }
+
+    public static void Record(string source, long value)
+    {
+      var inst = App.Instrumentation;
+      if (inst.Enabled)
+        inst.Record(new LogMsgQueueSize(source, value));
+    }
+
+
+    public override string Description { get { return "Log message count in queue"; } }
+    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_MESSAGE; } }
+
+
+    protected override Datum MakeAggregateInstance()
+    {
+      return new LogMsgQueueSize(this.Source, 0);
+    }
+  }
+
+
+  [Serializable]
   [BSONSerializable("DABE72B4-8DF5-4299-BA1C-E0D8AAD3F983")]
   public class LogMsgCount : LogLongGauge, IMemoryInstrument
   {

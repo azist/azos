@@ -49,15 +49,16 @@ namespace Azos.Conf
         }
 
         /// <summary>
-        /// Creates and configures an instance of appropriate configurable module component object as specified by the supplied config node.
-        /// Applies configured behaviors. By convention passes application and parent module as the first constructor arguments.
-        /// Extra arguments shall not contain application and parent module
+        /// Creates and configures an instance of appropriate configurable component object as specified by the supplied config node.
+        /// Applies configured behaviors. By convention passes director as the first constructor argument.
+        /// Extra arguments shall not contain director
         /// </summary>
-        public static T MakeAndConfigureModuleComponent<T>(IApplication app, IModule parent, IConfigSectionNode node, Type defaultType = null, object[] extraArgs = null)
-                where T : IModuleImplementation
+        public static T MakeAndConfigureDirectedComponent<T>(IApplicationComponent director, IConfigSectionNode node, Type defaultType = null, object[] extraArgs = null)
+                where T : IApplicationComponent, IConfigurable
         {
-          return MakeAndConfigure<T>(node, defaultType, app.ConcatArray(parent.ConcatArray(extraArgs)));
+          return MakeAndConfigure<T>(node, defaultType, director.ConcatArray(extraArgs));
         }
+
 
 
         /// <summary>
@@ -92,6 +93,17 @@ namespace Azos.Conf
                 where T : IApplicationComponent
         {
           return Make<T>(node, defaultType, app.ConcatArray(extraArgs));
+        }
+
+        /// <summary>
+        /// Creates an instance of appropriate component object as specified by the supplied config node.
+        /// By convention passes director as the first constructor argument.
+        /// Extra arguments shall not contain director
+        /// </summary>
+        public static T MakeDirectedComponent<T>(IApplicationComponent director, IConfigSectionNode node, Type defaultType = null, object[] extraArgs = null)
+                where T : IApplicationComponent
+        {
+          return Make<T>(node, defaultType, director.ConcatArray(extraArgs));
         }
 
         /// <summary>

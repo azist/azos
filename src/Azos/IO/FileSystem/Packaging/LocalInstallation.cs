@@ -7,17 +7,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 
-
+using Azos.Apps;
 using Azos.Conf;
 
 namespace Azos.IO.FileSystem.Packaging
 {
-
   /// <summary>
-  /// Represents the local installation - facilitates working with locally installed packages
+  /// Represents a local installation - facilitates working with locally installed packages
   /// </summary>
   public class LocalInstallation : DisposableObject
   {
@@ -85,8 +83,13 @@ namespace Azos.IO.FileSystem.Packaging
       /// <summary>
       /// Initializes local installation, tries to read local manifest from rootPath or localManifestDir if it is !=null
       /// </summary>
-      public LocalInstallation(string rootPath, string localManifestDir = null)
+      public LocalInstallation(IApplication app, string rootPath, string localManifestDir = null)
       {
+        if (app==null)
+          throw new AzosIOException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".ctor(app==null)");
+
+        App = app;
+
         if (rootPath.IsNullOrWhiteSpace())
           throw new AzosIOException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".ctor(rootPath==null|empty)");
 
@@ -129,6 +132,9 @@ namespace Azos.IO.FileSystem.Packaging
       private string m_RootPath;
       private ConfigSectionNode m_Packages;
       private bool m_Modified;
+
+
+      public IApplication App {  get; }
 
       /// <summary>
       /// Root path of the installation
@@ -208,7 +214,7 @@ namespace Azos.IO.FileSystem.Packaging
         var source = package.Source;
         var manifest = package.Manifest;
 
-        using(var lfs = new Local.LocalFileSystem(null))
+        using(var lfs = new Local.LocalFileSystem(App, null))
          using(var fss = lfs.StartSession(null))
          {
            var targetDir = fss[path] as FileSystemDirectory;

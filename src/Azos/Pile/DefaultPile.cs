@@ -15,38 +15,27 @@ namespace Azos.Pile
   [SlimSerializationProhibited]
   public sealed class DefaultPile : DefaultPileBase
   {
-    #region .ctor
+    public DefaultPile(IApplication app, string name = null) : base(app, name)
+    {
+    }
 
-      public DefaultPile(IApplication app, string name = null) : base(app, name)
-      {
-      }
+    public DefaultPile(IApplicationComponent director, string name = null) : base(director, name)
+    {
+    }
 
-      public DefaultPile(IApplicationComponent director, string name = null) : base(director, name)
-      {
-      }
+    /// <summary>
+    /// Returns PilePersistence.Memory
+    /// </summary>
+    public override ObjectPersistence Persistence => ObjectPersistence.Memory;
 
-    #endregion
-
-    #region Properties
-
-      /// <summary>
-      /// Returns PilePersistence.Memory
-      /// </summary>
-      public override ObjectPersistence Persistence { get{ return ObjectPersistence.Memory; }}
-    #endregion
-
-    #region Protected
-
-      /// <summary>
-      /// Creates a segment that stores data in local memory array byte buffers
-      /// </summary>
-      internal override DefaultPileBase._segment MakeSegment(int segmentNumber)
-      {
-        var memory = new LocalMemory(SegmentSize);
-        var result = new DefaultPileBase._segment(this, memory, true);
-        return result;
-      }
-    #endregion
-
+    /// <summary>
+    /// Creates a segment that stores data in local memory array byte buffers
+    /// </summary>
+    internal override DefaultPileBase._segment MakeSegment(int segmentNumber)
+    {
+      var memory = new LocalMemory(SegmentSize);
+      var result = new _segment(this, memory, true);
+      return result;
+    }
   }
 }

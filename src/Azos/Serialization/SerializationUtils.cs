@@ -40,7 +40,7 @@ namespace Azos.Serialization
         /// <summary>
         /// Create new object instance for type, calling default ctor
         /// </summary>
-        //20150201 Started using cached lambda for .ctor, inling gives 2360 -> 2415 ops/sec in given test
+        //20150201 Started using cached lambda for .ctor, inlining gives 2360 -> 2415 ops/sec in given test
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static object MakeNewObjectInstance(Type type)
         {
@@ -151,7 +151,7 @@ namespace Azos.Serialization
         /// Calls method in the list that was returned by a call to FindSerializationAttributedMethods
         /// </summary>
         /// <param name="methods">list that was returned by a call to FindSerializationAttributedMethods</param>
-        /// <param name="instance">Instance to invoke mathods on</param>
+        /// <param name="instance">Instance to invoke methods on</param>
         /// <param name="streamingContext">Streaming Context</param>
         public static void InvokeSerializationAttributedMethods(List<MethodInfo> methods, object instance, StreamingContext streamingContext)
         {

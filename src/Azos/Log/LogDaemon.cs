@@ -17,8 +17,8 @@ using Azos.Instrumentation;
 namespace Azos.Log
 {
   /// <summary>
-  /// Provides logging services by buffering messages and dispatching them into destinations.
-  /// This is an asynchronous service, meaning that Write(msg) never blocks for long.
+  /// Provides logging services by buffering messages and dispatching them into sinks.
+  /// This is an asynchronous daemon with its own thread, meaning that Write(msg) never blocks for long.
   /// </summary>
   [ConfigMacroContext]
   public class LogDaemon : LogDaemonBase
@@ -31,7 +31,7 @@ namespace Azos.Log
 
         private const int INSTRUMENTATION_GRANULARITY_MSEC = 3971;
 
-        private const string THREAD_NAME = "LogService Thread";
+        private const string THREAD_NAME = "LogDaemon";
 
         public const string CONFIG_FILEEXTENSION_ATTR = "file-extension";
         public const string CONFIG_WRITEINTERVAL_ATTR = "write-interval-ms";
@@ -59,7 +59,7 @@ namespace Azos.Log
     #region Private Fields
 
         private ConcurrentQueue<Message> m_Queue = new ConcurrentQueue<Message>();
-        private int m_QueuedCount = 0;
+        private int m_QueuedCount;//this is faster than m_queue.Count
         private AutoResetEvent m_Wakeup;
 
         private int m_WriteInterval = DEFAULT_INTERVAL_MSEC;
@@ -129,8 +129,8 @@ namespace Azos.Log
         {
             m_Queue.Enqueue(msg);
             int n = Interlocked.Increment(ref m_QueuedCount);
-            if (urgent && n == 1)
-                m_Wakeup.Set();
+
+            if (urgent && n == 1) m_Wakeup.Set();
         }
 
         protected override void DoStart()
@@ -143,6 +143,7 @@ namespace Azos.Log
 
                 m_Thread = new Thread(threadSpin);
                 m_Thread.Name = THREAD_NAME;
+                m_Thread.IsBackground = false;
                 m_Thread.Start();
             }
             catch
@@ -170,70 +171,80 @@ namespace Azos.Log
 
     #region Write to destinations
 
-
+#warning this is probably obsolete, use NamedInterlock instead?
         private Dictionary<MessageType, _stat> m_Stats = new Dictionary<MessageType,_stat>();
         private class _stat { public long V;}
 
         private void threadSpin()
         {
-            DateTime lastInstr = this.Now;
-            while (Running)
-            {
-                Interlocked.Exchange(ref m_QueuedCount, 0);
-                write();
-                Pulse();
+          DateTime lastInstr = DateTime.UtcNow;
+          while (Running)
+          {
+              var written = write();
+              var leftover = Interlocked.Add(ref m_QueuedCount, -written);
 
-                var now = this.Now;
+              Pulse();
 
-                if (m_InstrumentationEnabled && (now-lastInstr).TotalMilliseconds > INSTRUMENTATION_GRANULARITY_MSEC)
-                {
-                 lastInstr = now;
-                 dumpStats();
-                }
+              var now = DateTime.UtcNow;
 
-                DateTime wakeupTime     = now.AddMilliseconds(m_WriteInterval);
-                int      sleepInterval  = Math.Min(m_WriteInterval, THREAD_GRANULARITY_MSEC);
+              if (m_InstrumentationEnabled && (now-lastInstr).TotalMilliseconds > INSTRUMENTATION_GRANULARITY_MSEC)
+              {
+                lastInstr = now;
+                dumpStats();
+              }
 
-                do
-                {
-                    if (this.Status != DaemonStatus.Active || !m_Queue.IsEmpty) break;
-                    if (m_Wakeup.WaitOne(sleepInterval)) break;
-                }
-                while (this.Now < wakeupTime);
-            }
+              //if we have items left in queue, don't wait - keep writing
+              if (leftover>0) continue;
 
-            write(); //the rest
-            Pulse();
+              DateTime wakeupTime     = now.AddMilliseconds(m_WriteInterval);
+              int      sleepInterval  = Math.Min(m_WriteInterval, THREAD_GRANULARITY_MSEC);
+
+              do
+              {
+                  if (this.Status != DaemonStatus.Active || !m_Queue.IsEmpty) break;
+                  if (m_Wakeup.WaitOne(sleepInterval)) break;
+              }
+              while (DateTime.UtcNow < wakeupTime);
+          }
+
+          write(true); //all the rest, if not this.m_Reliable then the rest may get lost
+          Pulse();    // Flush sinks
         }
 
 
-        private void write()
+        private int write(bool all = false)
         {
-          lock (m_Sinks) //the lock on destinations here is on purpose, so while write takes place no other thread can remove destinations
-          {
-            Message msg;
-            while (m_Queue.TryDequeue(out msg))
-            {
-                if (m_InstrumentationEnabled)
-                {
-                  _stat s;
-                  if (!m_Stats.TryGetValue(msg.Type, out s))
-                  {
-                    s = new _stat();
-                    m_Stats[msg.Type] = s;
-                  }
-                  s.V++;
-                }
+          const int SLICE_MSG_COUNT = 10;
 
-                foreach (var destination in m_Sinks)
-                {
-                    //20130318 DKh
-                    if (!m_Reliable && !this.Running)
-                        return;
-                    destination.Send(msg);
-                }
+          Message msg;
+          int written =0;
+
+          while (m_Queue.TryDequeue(out msg))
+          {
+            written++;
+
+            if (m_InstrumentationEnabled)
+            {
+              _stat s;
+              if (!m_Stats.TryGetValue(msg.Type, out s))
+              {
+                s = new _stat();
+                m_Stats[msg.Type] = s;
+              }
+              s.V++;
             }
+
+            foreach (var sink in m_Sinks.OrderedValues)
+            {
+              if (!m_Reliable && !this.Running) break;
+
+              sink.Send(msg);
+            }
+
+            if (!all && written==SLICE_MSG_COUNT) break;
           }
+
+          return written;
         }
 
         private void dumpStats()
@@ -247,7 +258,8 @@ namespace Azos.Log
              total += count;
            }
 
-           Instrumentation.LogMsgCount.Record(Instrumentation.LogMsgCount.UNSPECIFIED_SOURCE, total);
+           Instrumentation.LogMsgCount.Record(Datum.UNSPECIFIED_SOURCE, total);
+           Instrumentation.LogMsgQueueSize.Record(Datum.UNSPECIFIED_SOURCE, Thread.VolatileRead(ref m_QueuedCount));
         }
 
     #endregion

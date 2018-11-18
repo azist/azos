@@ -60,9 +60,9 @@ namespace Azos.Apps.Volatile
 
 
       /// <summary>
-      /// Creates instance of the store service with the state identified by "storeGUID". Refer to "StoreGUID" property.
+      /// Creates instance of the store service
       /// </summary>
-      public ObjectStoreDaemon(IApplication app, IApplicationComponent director) : base(app, director)
+      public ObjectStoreDaemon(IApplicationComponent director) : base(director)
       {
       }
 
@@ -108,7 +108,7 @@ namespace Azos.Apps.Volatile
 
           set
           {
-            ensureInactive("ObjectStoreService.StoreGUID.set()");
+            CheckDaemonInactive();
             m_StoreGUID = value;
           }
         }
@@ -132,7 +132,7 @@ namespace Azos.Apps.Volatile
           get { return m_BucketCount;}
           set
           {
-            ensureInactive("ObjectStoreService.BucketCount.set()");
+            CheckDaemonInactive();
             if (value<1) value = 1;
             if (value>MAX_BUCKET_COUNT) value = MAX_BUCKET_COUNT;
             m_BucketCount = value;
@@ -162,8 +162,7 @@ namespace Azos.Apps.Volatile
           get { return m_Provider; }
           set
           {
-            ensureInactive("ObjectStoreService.Provider.set()");
-
+            CheckDaemonInactive();
             m_Provider = value;
           }
         }
@@ -443,7 +442,7 @@ namespace Azos.Apps.Volatile
 
     protected override void DoStart()
     {
-      log(MessageType.Info, "Entering DoStart()", null);
+      WriteLog(MessageType.Trace, nameof(DoStart), "Entering");
 
       try
       {
@@ -464,7 +463,7 @@ namespace Azos.Apps.Volatile
         var now = App.LocalizedTime;
         var all = m_Provider.LoadAll();
 
-        log(MessageType.Info, "Prepared object list to load in " + clock.Elapsed, null);
+        WriteLog(MessageType.Trace, nameof(DoStart), "Prep object list to load in " + clock.Elapsed);
 
         var cnt = 0;
         foreach (var entry in all)
@@ -477,11 +476,11 @@ namespace Azos.Apps.Volatile
 
           cnt++;
         }
-        log(MessageType.Info, string.Format("DoStart() has loaded {0} objects in {1} ", cnt, clock.Elapsed ), null);
+        WriteLog(MessageType.Trace, nameof(DoStart), "Have loaded {0} objects in {1} ".Args(cnt, clock.Elapsed ));
 
 
         m_Thread = new Thread(threadSpin);
-        m_Thread.Name = "ObjectStoreService Thread";
+        m_Thread.Name = "ObjectStoreDaemon Thread";
         m_Thread.IsBackground = false;
 
         m_Thread.Start();
@@ -496,16 +495,16 @@ namespace Azos.Apps.Volatile
           m_Thread = null;
         }
 
-        log(MessageType.CatastrophicError, "DoStart() exception: " + error.Message, null);
+        WriteLog(MessageType.CatastrophicError, nameof(DoStart), "Leaked exception: " + error.ToMessageWithType(), error);
         throw error;
       }
 
-      log(MessageType.Info, "Exiting DoStart()", null);
+      WriteLog(MessageType.Trace, nameof(DoStart), "Exiting");
     }
 
     protected override void DoSignalStop()
     {
-      log(MessageType.Info, "Entering DoSignalStop()", null);
+      WriteLog(MessageType.Trace, nameof(DoSignalStop), "Entering");
 
       try
       {
@@ -517,16 +516,16 @@ namespace Azos.Apps.Volatile
       }
       catch (Exception error)
       {
-        log(MessageType.CatastrophicError, "DoSignalStop() exception: " + error.Message, null);
+        WriteLog(MessageType.CatastrophicError, nameof(DoSignalStop), "Leaked: " + error.ToMessageWithType(), error);
         throw error;
       }
 
-      log(MessageType.Info, "Exiting DoSignalStop()", null);
+      WriteLog(MessageType.Trace, nameof(DoSignalStop), "Exiting");
     }
 
     protected override void DoWaitForCompleteStop()
     {
-      log(MessageType.Info, "Entering DoWaitForCompleteStop()", null);
+      WriteLog(MessageType.Trace, nameof(DoWaitForCompleteStop), "Entering");
 
       try
       {
@@ -541,33 +540,25 @@ namespace Azos.Apps.Volatile
       }
       catch (Exception error)
       {
-        log(MessageType.CatastrophicError, "DoWaitForCompleteStop() exception: " + error.Message, null);
+        WriteLog(MessageType.CatastrophicError, nameof(DoWaitForCompleteStop), "Leaked exception: " + error.ToMessageWithType(), error);
         throw error;
       }
 
-      log(MessageType.Info, "Exiting DoWaitForCompleteStop()", null);
+      WriteLog(MessageType.Trace, nameof(DoWaitForCompleteStop), "Exiting");
     }
 
 
     #endregion
 
 
-    #region .pvt. impl.
+    #region .pvt
 
 
-                private Bucket getBucket(Guid key)
-                {
-                  var idx = (key.GetHashCode() & CoreConsts.ABS_HASH_MASK) % m_BucketCount;
-                  return m_Buckets[idx];
-                }
-
-
-                private void ensureInactive(string msg)
-                {
-                  if (Status != DaemonStatus.Inactive)
-                          throw new AzosException(StringConsts.DAEMON_INVALID_STATE + msg);
-                }
-
+        private Bucket getBucket(Guid key)
+        {
+          var idx = (key.GetHashCode() & CoreConsts.ABS_HASH_MASK) % m_BucketCount;
+          return m_Buckets[idx];
+        }
 
         private void threadSpin()
         {
@@ -586,7 +577,7 @@ namespace Azos.Apps.Volatile
               WriteLog(MessageType.Emergency, nameof(threadSpin),"Leaked exception: " + e.ToMessageWithType(), e);
           }
 
-          WriteLog(MessageType.Info, nameof(threadSpin), "Exiting");
+          WriteLog(MessageType.Trace, nameof(threadSpin), "Exiting");
         }
 
 
@@ -692,13 +683,11 @@ namespace Azos.Apps.Volatile
             foreach(var key in removed.Value)
               bucket.Remove(key);
 
-            WriteLog(MessageType.Info, nameof(write), "Removed {0} objects".Args(removed.Value.Count));
+            WriteLog(MessageType.Trace, nameof(write), "Removed {0} objects".Args(removed.Value.Count));
           }
 
           bucket.LastAcquire = App.LocalizedTime;
         }
-
-
 
     #endregion
 
