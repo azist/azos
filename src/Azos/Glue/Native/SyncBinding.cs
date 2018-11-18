@@ -16,7 +16,6 @@ using Azos.Serialization.Slim;
 
 namespace Azos.Glue.Native
 {
-
     /// <summary>
     /// Provides synchronous communication pattern based on TCP blocking sockets and Slim serializer
     /// for maximum serialization performance and lowest latency.
@@ -39,34 +38,26 @@ namespace Azos.Glue.Native
                                                                  TypeRegistry.CommonCollectionTypes,
                                                                  TypeRegistry.DataAccessCRUDTypes);
 
-        #endregion
+    #endregion
 
-        #region .ctor
-            public SyncBinding(string name) : base (name)
-            {
-
-            }
-
-            public SyncBinding(IGlueImplementation glue, string name) : base(glue, name)
-            {
-            }
-
-        #endregion
+        public SyncBinding(IGlueImplementation glue, string name = null, Provider provider = null) : base(glue, name, provider)
+        {
+        }
 
 
         #region Fields
 
-            private int m_MaxMsgSize = Consts.DEFAULT_MAX_MSG_SIZE;
+          private int m_MaxMsgSize = Consts.DEFAULT_MAX_MSG_SIZE;
 
-            private int m_ServerReceiveBufferSize = Consts.DEFAULT_RCV_BUFFER_SIZE;
-            private int m_ServerSendBufferSize = Consts.DEFAULT_SND_BUFFER_SIZE;
-            private int m_ClientReceiveBufferSize = Consts.DEFAULT_RCV_BUFFER_SIZE;
-            private int m_ClientSendBufferSize = Consts.DEFAULT_SND_BUFFER_SIZE;
+          private int m_ServerReceiveBufferSize = Consts.DEFAULT_RCV_BUFFER_SIZE;
+          private int m_ServerSendBufferSize = Consts.DEFAULT_SND_BUFFER_SIZE;
+          private int m_ClientReceiveBufferSize = Consts.DEFAULT_RCV_BUFFER_SIZE;
+          private int m_ClientSendBufferSize = Consts.DEFAULT_SND_BUFFER_SIZE;
 
-            private int m_ServerReceiveTimeout = DEFAULT_RCV_TIMEOUT;
-            private int m_ServerSendTimeout = DEFAULT_SND_TIMEOUT;
-            private int m_ClientReceiveTimeout = DEFAULT_RCV_TIMEOUT;
-            private int m_ClientSendTimeout = DEFAULT_SND_TIMEOUT;
+          private int m_ServerReceiveTimeout = DEFAULT_RCV_TIMEOUT;
+          private int m_ServerSendTimeout = DEFAULT_SND_TIMEOUT;
+          private int m_ClientReceiveTimeout = DEFAULT_RCV_TIMEOUT;
+          private int m_ClientSendTimeout = DEFAULT_SND_TIMEOUT;
 
         #endregion
 

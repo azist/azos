@@ -46,11 +46,10 @@ namespace Azos.Data.Access.Cache
 
         #region .ctor
 
-            public CacheStore(IApplication app) : this(app, null, null)
-            {
-            }
+            public CacheStore(IApplication app) : base(app) => ctor(null);
+            public CacheStore(IApplicationComponent director, string name) : base(director) => ctor(name);
 
-            public CacheStore(IApplication app, IApplicationComponent director, string name) : base(app, director)
+            private void ctor(string name)
             {
                 if (name.IsNullOrWhiteSpace())
                     m_Name =  Guid.NewGuid().ToString();

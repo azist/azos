@@ -89,7 +89,7 @@ namespace Azos.Log.Sinks
       {
       }
 
-      protected Sink(ISinkOwner owner, string name, int order) : base(owner.NonNull().LogDaemon.App, owner)
+      protected Sink(ISinkOwner owner, string name, int order) : base(owner)
       {
         m_Levels = new LevelsList();
         m_Name = name;
@@ -97,9 +97,10 @@ namespace Azos.Log.Sinks
         ((ISinkOwnerRegistration)owner).Register(this);
       }
 
-      internal Sink(ISinkOwner owner, bool _) : base(owner.NonNull().LogDaemon.App, owner)
+      internal Sink(ISinkOwner owner, bool _) : base(owner)
       {
         m_Levels = new LevelsList();
+        //this overload purposely does not do registration with owner
       }
 
       protected override void Destructor()

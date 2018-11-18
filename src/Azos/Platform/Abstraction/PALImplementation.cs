@@ -13,7 +13,9 @@ namespace Azos.Platform.Abstraction
   /// </summary>
   public abstract class PALImplementation : ApplicationComponent, Collections.INamed
   {
-    protected PALImplementation() : base() { }
+    //note: PalImplementation gets allocated before any meaningful app container, hence
+    //it uses NOPApplication as its chassis
+    protected PALImplementation() : base(NOPApplication.Instance) { }
 
 
     public abstract string Name { get; }

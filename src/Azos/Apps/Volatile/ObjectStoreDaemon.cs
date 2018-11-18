@@ -569,39 +569,24 @@ namespace Azos.Apps.Volatile
                 }
 
 
-                private void log(MessageType type, string message, string parameters)
-                {
-                  App.Log.Write(
-                          new Log.Message
-                          {
-                            Text = message ?? string.Empty,
-                            Type = type,
-                            From = this.Name,
-                            Topic = CoreConsts.OBJSTORESVC_TOPIC,
-                            Parameters = parameters ?? string.Empty
-                          }
-                        );
-                }
-
-
         private void threadSpin()
         {
-             try
-             {
-                  while (Running)
-                  {
-                    visit(false);   //todo need to make sure that this visit() never leaks anything otherwise thread may crash the whole service
-                    m_Trigger.WaitOne(200);
-                  }//while
+          try
+          {
+              while (Running)
+              {
+                visit(false);   //todo need to make sure that this visit() never leaks anything otherwise thread may crash the whole service
+                m_Trigger.WaitOne(200);
+              }//while
 
-                  visit(true);
-             }
-             catch(Exception e)
-             {
-                 log(MessageType.Emergency, " threadSpin() leaked exception", e.Message);
-             }
+              visit(true);
+          }
+          catch(Exception e)
+          {
+              WriteLog(MessageType.Emergency, nameof(threadSpin),"Leaked exception: " + e.ToMessageWithType(), e);
+          }
 
-             log(MessageType.Info, "Exiting threadSpin()", null);
+          WriteLog(MessageType.Info, nameof(threadSpin), "Exiting");
         }
 
 
@@ -612,18 +597,19 @@ namespace Azos.Apps.Volatile
           {
             var bucket = m_Buckets[i];
             if (stopping || bucket.LastAcquire.AddMilliseconds(MUST_ACQUIRE_INTERVAL_MS)<now)
-                  lock(bucket)
-                    write(bucket);
+              lock(bucket) write(bucket);
             else
-                  if (Monitor.TryEnter(bucket))
-                  try
-                  {
-                    write(bucket);
-                  }
-                  finally
-                  {
-                    Monitor.Exit(bucket);
-                  }
+              if (Monitor.TryEnter(bucket))
+              {
+                try
+                {
+                  write(bucket);
+                }
+                finally
+                {
+                  Monitor.Exit(bucket);
+                }
+              }
           }//for
         }
 
@@ -665,7 +651,7 @@ namespace Azos.Apps.Volatile
                     }
                     catch (Exception error)
                     {
-                      log(MessageType.CatastrophicError, "Provider error in .Delete(entry): " + error.Message, null);
+                      WriteLog(MessageType.CatastrophicError, nameof(write), "Provider error in .Delete(entry): " + error.ToMessageWithType(), error);
                     }
                   }
 
@@ -676,7 +662,7 @@ namespace Azos.Apps.Volatile
                   }
                   catch (Exception error)
                   {
-                    log(MessageType.Error, "Exception from evicted object IDisposable.Dispose(): " + error.Message, null);
+                    WriteLog(MessageType.Error, nameof(write), "Exception from evicted object IDisposable.Dispose(): " + error.ToMessageWithType(), error);
                   }
 
                   continue;
@@ -691,9 +677,8 @@ namespace Azos.Apps.Volatile
                   }
                   catch (Exception error)
                   {
-                    log(MessageType.CatastrophicError, "Provider error in .Write(entry): " + error.Message, null);
+                    WriteLog(MessageType.CatastrophicError, nameof(write),  "Provider error in .Write(entry): " + error.ToMessageWithType(), error);
                   }
-
 
                   entry.Status = ObjectStoreEntryStatus.Normal;
                 }
@@ -705,10 +690,10 @@ namespace Azos.Apps.Volatile
           if (removed.IsValueCreated)
           {
             foreach(var key in removed.Value)
-             bucket.Remove(key);
-            log(MessageType.Info, string.Format("Removed {0} objects", removed.Value.Count), null);
-          }
+              bucket.Remove(key);
 
+            WriteLog(MessageType.Info, nameof(write), "Removed {0} objects".Args(removed.Value.Count));
+          }
 
           bucket.LastAcquire = App.LocalizedTime;
         }

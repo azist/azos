@@ -3,19 +3,9 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
-
-using Azos.IO;
-using Azos.Conf;
+using Azos.Apps;
 using Azos.Serialization.Slim;
-
 
 namespace Azos.Pile
 {
@@ -27,11 +17,11 @@ namespace Azos.Pile
   {
     #region .ctor
 
-      public DefaultPile(string name = null) : base(name)
+      public DefaultPile(IApplication app, string name = null) : base(app, name)
       {
       }
 
-      public DefaultPile(object director, string name = null) : base(director, name)
+      public DefaultPile(IApplicationComponent director, string name = null) : base(director, name)
       {
       }
 

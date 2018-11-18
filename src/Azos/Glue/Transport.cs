@@ -41,7 +41,7 @@ namespace Azos.Glue
 
         #region .ctor
 
-          protected Transport(Binding binding, TransportKind kind) : base(binding.NonNull(text: "binding").App, binding)
+          protected Transport(Binding binding, TransportKind kind) : base(binding)
           {
               m_TransportKind = kind;
               m_Glue = binding.Glue;

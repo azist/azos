@@ -30,7 +30,7 @@ namespace Azos.Apps
     /// <summary>
     /// Creates a module under a parent module with the specified order, such as HubModule
     /// </summary>
-    protected ModuleBase(IApplication application, IModule parent, int order) : base(application, parent) { m_Order = order; }
+    protected ModuleBase(IModule parent, int order) : base(parent) { m_Order = order; }
 
     protected override void Destructor()
     {
@@ -40,7 +40,10 @@ namespace Azos.Apps
 
     private void cleanupChildren(bool all)
     {
-      var toClean = m_Children.Where(c => c.ParentModule==this && (all || !c.IsHardcodedModule)).ToList();
+      var toClean = m_Children.OrderedValues
+                              .Reverse()
+                              .Where(c => c.ParentModule==this && (all || !c.IsHardcodedModule))
+                              .ToList();//need copy
       toClean.ForEach( c =>
                        {
                          c.Dispose();
@@ -61,6 +64,7 @@ namespace Azos.Apps
 
     public string Name { get{ return m_Name;} }
 
+#warning Add Unit test for creating modules declared out-of order t make sure that this property works as expected
     public int Order { get{ return m_Order;} }
 
     public virtual bool InstrumentationEnabled { get; set; }

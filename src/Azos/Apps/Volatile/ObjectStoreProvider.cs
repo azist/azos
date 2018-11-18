@@ -16,19 +16,13 @@ namespace Azos.Apps.Volatile
   /// </summary>
   public abstract class ObjectStoreProvider : Daemon<ObjectStoreDaemon>
   {
-    protected ObjectStoreProvider(ObjectStoreDaemon store) : base(store.NonNull(text: "store").App, store)
+    protected ObjectStoreProvider(ObjectStoreDaemon store) : base(store)
     {
-
     }
 
     public abstract IEnumerable<ObjectStoreEntry> LoadAll();
     public abstract void Write(ObjectStoreEntry entry);
     public abstract void Delete(ObjectStoreEntry entry);
     public override string ComponentLogTopic => CoreConsts.OBJSTORE_TOPIC;
-
-    protected override void DoConfigure(IConfigSectionNode node)
-    {
-        base.DoConfigure(node);
-    }
   }
 }

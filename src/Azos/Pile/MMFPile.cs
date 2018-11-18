@@ -29,13 +29,13 @@ namespace Azos.Pile
   {
     #region .ctor
 
-      public MMFPile(string name = null) : base(name)
-      {
-      }
+    public MMFPile(IApplication app, string name = null) : base(app, name)
+    {
+    }
 
-      public MMFPile(object director, string name = null) : base(director, name)
-      {
-      }
+    public MMFPile(IApplicationComponent director, string name = null) : base(director, name)
+    {
+    }
 
     #endregion
 

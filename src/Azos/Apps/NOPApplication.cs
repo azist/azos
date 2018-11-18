@@ -47,7 +47,7 @@ namespace Azos.Apps
         m_DataStore = new NOPDataStore(this);
         m_SecurityManager = new NOPSecurityManager(this);
         m_Module = new NOPModule(this);
-        m_TimeSource = new TimeSource(this);
+        m_TimeSource = new DefaultTimeSource(this);
         m_EventTimer = new EventTimer(this);;
     }
 
