@@ -60,15 +60,12 @@ namespace Azos.IO.Net.Gate
   /// </summary>
   public class NOPNetGate : ApplicationComponent,  INetGate
   {
-    /// <summary>
-    /// Default instance of INetGate implementation that allows all traffic
-    /// </summary>
-    public static readonly NOPNetGate Instance = new NOPNetGate();
 
-    protected NOPNetGate():base() {}
+    protected NOPNetGate(IApplication app) : base(app) {}
 
-    public bool Enabled {get{return false;}}
+    public bool Enabled => false;
 
+    public override string ComponentLogTopic => CoreConsts.IO_TOPIC;
 
     public GateAction CheckTraffic(ITraffic traffic)
     {

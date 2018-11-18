@@ -18,9 +18,9 @@ using Azos.Time;
 namespace Azos.Apps
 {
     /// <summary>
-    /// Represents a lightweight daemon that can be controlled by Start/SignalStop-like commands.
-    /// This class serves a a base for various implementations (i.e. LogService) including their composites.
-    /// This class is thread-safe
+    /// Represents a lightweight daemon(background in-app process) which can be controlled by
+    /// Start/SignalStop-like commands. This class serves a a base for various implementations
+    /// (e.g. LogDaemon) including their composites. This class is thread-safe
     /// </summary>
     public abstract class Daemon : ApplicationComponent, IDaemon, ILocalizedTimeProvider
     {

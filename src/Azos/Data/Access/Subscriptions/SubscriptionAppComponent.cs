@@ -17,10 +17,12 @@ namespace Azos.Data.Access.Subscriptions
   /// </summary>
   public abstract class SubscriptionAppComponent : ApplicationComponent, IExternallyParameterized
   {
-    protected SubscriptionAppComponent(object director) : base(director)
+    protected SubscriptionAppComponent(IApplicationComponent director) : base(director)
     {
 
     }
+
+    public override string ComponentLogTopic => CoreConsts.DATA_TOPIC;
 
     /// <summary>
     /// Returns named parameters that can be used to control this component

@@ -109,14 +109,11 @@ namespace Azos.IO.Net.Gate
 
           #endregion
 
-
     #region .ctor
-      public NetGate() : base()
-      {
+      public NetGate(IApplication app) : base(app) => ctor();
+      public NetGate(IApplicationComponent director) : base (director) => ctor();
 
-      }
-
-      public NetGate(object director) : base (director)
+      private void ctor()
       {
         m_IncomingState = new State(this);
         m_OutgoingState = new State(this);
@@ -136,8 +133,9 @@ namespace Azos.IO.Net.Gate
 
     #region Properties
 
+      public override string ComponentLogTopic => CoreConsts.IO_TOPIC;
 
-      public override string ComponentCommonName { get { return "gate"; }}
+      public override string ComponentCommonName => "gate";
 
       /// <summary>
       /// Returns gate state
@@ -145,7 +143,7 @@ namespace Azos.IO.Net.Gate
       public State this[TrafficDirection direction] { get{ return direction==TrafficDirection.Incoming ? m_IncomingState : m_OutgoingState; } }
 
       /// <summary>
-      /// Enables/diables the protection. When protection is disabled then all traffic is allowed
+      /// Enables/disables the protection. When protection is disabled then all traffic is allowed
       /// </summary>
       [Config]
       public bool Enabled

@@ -71,6 +71,7 @@ namespace Azos
       //note: Topics must be short as they are emitted into every log line
       public const string LOG_NET_TOPIC = "NET";
       public const string APPLICATION_TOPIC = "App";
+      public const string DATA_TOPIC = "Data";
       public const string LOG_TOPIC = "Log";
       public const string INSTRUMENTATION_TIMEFRAME_TOPIC = "inst.timeframe";
       public const string OBJSTORE_TOPIC = "Objstr";
@@ -87,6 +88,7 @@ namespace Azos
       public const string CACHE_TOPIC = "Cache";
       public const string LOCALIZATION_TOPIC = "Lcl";
       public const string PILE_TOPIC = "Pile";
+      public const string IO_TOPIC = "IO";
 
       public const string LOG_CHANNEL_SECURITY = "security";
 

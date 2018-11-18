@@ -14,16 +14,14 @@ using Azos.Collections;
 namespace Azos.Time
 {
   /// <summary>
-  /// Normally this class should never be used as the dafult EventTimer is always present instead of nop
+  /// Normally this class should never be used as the default EventTimer is always present instead of nop
   /// </summary>
   public sealed class NOPEventTimer : ApplicationComponent, IEventTimerImplementation
   {
-    private static NOPEventTimer s_Instance = new NOPEventTimer();
 
-    public NOPEventTimer() {}
+    public NOPEventTimer(IApplication app) : base(app) {}
 
-    public static NOPEventTimer Instance { get { return s_Instance;}}
-
+    public override string ComponentLogTopic => CoreConsts.TIME_TOPIC;
 
 
     public int ResolutionMs{ get { return 1000;} set {}}

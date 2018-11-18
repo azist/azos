@@ -115,7 +115,7 @@ namespace Azos.Data.Access
         CRUDDataStoreType StoreType { get;}
 
         /// <summary>
-        /// Reolver that turns query into handler
+        /// Resolver that turns query into handler
         /// </summary>
         ICRUDQueryResolver QueryResolver { get; }
     }

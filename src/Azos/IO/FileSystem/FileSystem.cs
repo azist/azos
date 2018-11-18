@@ -37,13 +37,18 @@ namespace Azos.IO.FileSystem
         public const string CONFIG_NAME_ATTR = "name";
         public const string CONFIG_DEFAULT_SESSION_CONNECT_PARAMS_SECTION = "default-session-connect-params";
 
-      #endregion
+       #endregion
 
-      #region .ctor
+        #region .ctor
 
-        protected FileSystem(IApplication app, IApplicationComponent director) : base(app, director)
+        protected FileSystem(IApplication app, string name) : base(app) => ctor(name);
+        protected FileSystem(IApplicationComponent director, string name) : base(director) => ctor(name);
+
+        private void ctor(string name)
         {
           m_Sessions = new List<FileSystemSession>();
+          if (name.IsNullOrWhiteSpace()) name = Guid.NewGuid().ToString();
+          m_Name = name;
         }
 
         protected override void Destructor()
@@ -58,13 +63,14 @@ namespace Azos.IO.FileSystem
         #region Fields
 
           [Config] protected string m_Name = Guid.NewGuid().ToString();
-          protected internal readonly List<FileSystemSession> m_Sessions;
+          protected internal List<FileSystemSession> m_Sessions;
 
           private FileSystemSessionConnectParams m_DefaultSessionConnectParams = new FileSystemSessionConnectParams();
 
         #endregion
 
         #region Properties
+          public override string ComponentLogTopic => CoreConsts.IO_TOPIC;
 
           /// <summary>
           /// Provides name for file system instance

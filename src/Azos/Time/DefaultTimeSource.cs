@@ -16,7 +16,7 @@ namespace Azos.Time
   public class DefaultTimeSource : ApplicationComponent, ITimeSourceImplementation
   {
 
-    private DefaultTimeSource(IApplication app) : base(app)
+    public DefaultTimeSource(IApplication app) : base(app)
     {
     }
 

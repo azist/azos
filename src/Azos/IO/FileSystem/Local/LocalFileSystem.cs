@@ -10,37 +10,36 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
+using Azos.Apps;
 using Azos.Conf;
-using Azos.Security;
 
 
 namespace Azos.IO.FileSystem.Local
 {
   /// <summary>
-  /// Implements Azos.IO.FileSystem support around local machine file system. This is needed for
-  ///  components that may need to work with various file systems i.e. Apache HDFS or Aum Cluster File System (ACFS).
-  /// This particular implementation uses traditional System.IO.* and does not support transactions, versioning, metadata and Azos security
+  /// Implements Azos.IO.FileSystem support around local machine file system.
+  /// This particular implementation uses traditional System.IO.* and does not support
+  /// transactions, versioning, metadata and Azos security
   /// </summary>
   public sealed class LocalFileSystem : FileSystem
   {
-                #region Inner classes
+    #region Inner classes
 
-                      internal class FSH : IFileSystemHandle
-                      {
-                        public FileSystemInfo m_Info;
-                      }
+      internal class FSH : IFileSystemHandle
+      {
+        public FileSystemInfo m_Info;
+      }
 
-                #endregion
+    #endregion
 
     #region .ctor
-       public LocalFileSystem() : base(null)
-       {
-       }
+      public LocalFileSystem(IApplication app, string name) : base(app, name)
+      {
+      }
 
-       public LocalFileSystem(string name, IConfigSectionNode node = null) : base(name, node)
-       {
-       }
-
+      public LocalFileSystem(IApplicationComponent director, string name) : base(director, name)
+      {
+      }
     #endregion
 
     #region Properties

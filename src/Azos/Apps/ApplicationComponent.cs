@@ -15,12 +15,12 @@ namespace Azos.Apps
   /// <summary>
   /// Provides marker contract requirement for an ApplicationComponent.
   /// This interface must be implemented only by the ApplicationComponent class.
-  /// Components are the base building block of application service tree.
+  /// Components are the base building block of application tree - they get "mounted on app chassis"
   /// </summary>
   public interface IApplicationComponent
   {
     /// <summary>
-    /// References an application that this component services
+    /// References an application chassis that this component services
     /// </summary>
     IApplication App { get; }
 

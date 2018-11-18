@@ -11,18 +11,10 @@ using Azos.Time;
 namespace Azos.Apps
 {
   /// <summary>
-  /// Establishes a general model for applications -  root service composite governs app initialization,
+  /// Establishes a general model for applications - a "chassis": root service composite governs app initialization,
   /// module linking (service location), state management, logging, security, and other process-wide activities.
-  /// An applications is usually implemented with a singleton class that has static
-  ///  conduits to instance properties via App shortcut for ambient use.
-  /// For testing, Application instances may get passed by reference
+  /// An applications is usually allocated at program entry point and provides common "ambient" context - a "chassis pattern".
   /// </summary>
-  /// <remarks>
-  /// This pattern is used on purpose based on careful evaluation of various DI frameworks use-cases in various projects,
-  /// both server and client-side. The central service/locator hub per process as facilitated by the IApplication is the most intuitive and simple
-  /// dependency resolution facility for 90+% of various business applications - it significantly simplifies development and debugging as
-  /// Application provides a common root for all ApplicationComponents regardless of the app types
-  /// </remarks>
   public interface IApplication : Collections.INamed, ILocalizedTimeProvider
   {
      /// <summary>
