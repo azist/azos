@@ -81,6 +81,8 @@ namespace Azos.Apps
 
         public virtual Instrumentation.IInstrumentation Instrumentation { get; set; }
 
+        public virtual Platform.RandomGenerator Random => Platform.RandomGenerator.Instance;
+
         /// <summary>
         /// Enumerates all components of this application
         /// </summary>

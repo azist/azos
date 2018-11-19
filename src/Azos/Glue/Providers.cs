@@ -16,7 +16,7 @@ namespace Azos.Glue
     /// </summary>
     public abstract class Provider : GlueComponent
     {
-      protected Provider(IApplication app, IGlueImplementation glue, string name = null) : base(app, glue, name)
+      protected Provider(IGlueImplementation glue, string name = null) : base(glue, name)
       {
          if (string.IsNullOrWhiteSpace(Name))
              throw new GlueException(StringConsts.CONFIGURATION_ENTITY_NAME_ERROR + this.GetType().FullName);

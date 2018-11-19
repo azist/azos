@@ -66,7 +66,7 @@ namespace Azos.Apps
         }
         catch (Exception error)
         {
-          log(MessageType.Error, "Destructor('{0}')".Args(csvc), error.ToMessageWithType(), error);
+          WriteLog(MessageType.Error, "Destructor('{0}')".Args(csvc), error.ToMessageWithType(), error);
         }
     }
     #endregion
@@ -80,12 +80,7 @@ namespace Azos.Apps
     /// <summary>
     /// Returns service registry where services can be looked-up by name
     /// </summary>
-    public IRegistry<ChildDaemon> ChildServices { get { return m_Services; } }
-
-    /// <summary>
-    /// Returns services ordered by their order property
-    /// </summary>
-    public IEnumerable<ChildDaemon> OrderedChildServices { get { return m_Services.OrderedValues; } }
+    public IOrderedRegistry<ChildDaemon> ChildServices { get { return m_Services; } }
 
     #endregion
 
@@ -126,14 +121,14 @@ namespace Azos.Apps
         node = App.ConfigRoot[CONFIG_DAEMON_COMPOSITE_SECTION];
 
       foreach (var snode in node.Children
-                                .Where(cn => cn.IsSameName(CONFIG_DAEMON_SECTION))
-                                .OrderBy(cn => cn.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt(0)))//the order here is needed so that child services get CREATED in order,
-                                                                                                             // not only launched in order
+                              .Where(cn => cn.IsSameName(CONFIG_DAEMON_SECTION))
+                              .OrderBy(cn => cn.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt(0)))//the order here is needed so that child services get CREATED in order,
+                                                                                                            // not only launched in order
       {
         var ignored = snode.AttrByName(CONFIG_IGNORE_THIS_DAEMON_ATTR).ValueAsBool(false);
         if (ignored)
         {
-          log(MessageType.Warning, "DoConfigure()", "Service {0} is ignored".Args(snode.AttrByName("name").Value));
+          WriteLog(MessageType.Warning, nameof(DoConfigure), "Service {0} is ignored".Args(snode.AttrByName("name").Value));
           continue;
         }
 
@@ -155,7 +150,7 @@ namespace Azos.Apps
         }
         catch (Exception error)
         {
-          var guid = log(MessageType.CatastrophicError, "DoStart('{0}')".Args(csvc), error.ToMessageWithType(), error);
+          var guid = WriteLog(MessageType.CatastrophicError, "DoStart('{0}')".Args(csvc), error.ToMessageWithType(), error);
 
           if (csvc.AbortStart)
           {
@@ -167,7 +162,7 @@ namespace Azos.Apps
               }
               catch (Exception ex)
               {
-                log(MessageType.CriticalAlert, "DoStart('{0}').WaitForCompleteStop('{1}')".Args(csvc, service.GetType().Name), ex.ToMessageWithType(), ex, guid);
+                WriteLog(MessageType.CriticalAlert, "DoStart('{0}').WaitForCompleteStop('{1}')".Args(csvc, service.GetType().Name), ex.ToMessageWithType(), ex, guid);
               }
             throw new CompositeDaemonException(StringConsts.DAEMON_COMPOSITE_CHILD_START_ABORT_ERROR.Args(csvc, error.ToMessageWithType()), error);
           }
@@ -183,7 +178,7 @@ namespace Azos.Apps
         }
         catch (Exception error)
         {
-          log(MessageType.Error, "DoSignalStop('{0}')".Args(csvc), error.ToMessageWithType(), error);
+          WriteLog(MessageType.Error, "DoSignalStop('{0}')".Args(csvc), error.ToMessageWithType(), error);
         }
     }
 
@@ -196,7 +191,7 @@ namespace Azos.Apps
         }
         catch (Exception error)
         {
-          log(MessageType.Error, "DoWaitForCompleteStop('{0}')".Args(csvc), error.ToMessageWithType(), error);
+          WriteLog(MessageType.Error, "DoWaitForCompleteStop('{0}')".Args(csvc), error.ToMessageWithType(), error);
         }
     }
 
@@ -209,7 +204,7 @@ namespace Azos.Apps
         }
         catch (Exception error)
         {
-          log(MessageType.Error, "DoCheckForCompleteStop('{0}')".Args(csvc), error.ToMessageWithType(), error);
+          WriteLog(MessageType.Error, "DoCheckForCompleteStop('{0}')".Args(csvc), error.ToMessageWithType(), error);
         }
       return true;
     }
@@ -223,7 +218,7 @@ namespace Azos.Apps
         }
         catch (Exception error)
         {
-          log(MessageType.Error, "DoAcceptManagerVisit('{0}')".Args(csvc), error.ToMessageWithType(), error);
+          WriteLog(MessageType.Error, "DoAcceptManagerVisit('{0}')".Args(csvc), error.ToMessageWithType(), error);
         }
     }
 

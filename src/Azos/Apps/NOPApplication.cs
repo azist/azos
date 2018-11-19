@@ -142,6 +142,7 @@ namespace Azos.Apps
         public ITimeSource TimeSource => m_TimeSource;
         public IEventTimer EventTimer => m_EventTimer;
 
+        public Platform.RandomGenerator Random => Platform.RandomGenerator.Instance;
 
         public TimeLocation TimeLocation
         {

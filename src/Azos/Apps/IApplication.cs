@@ -148,6 +148,11 @@ namespace Azos.Apps
      IEnumerable<IApplicationComponent> AllComponents {  get; }
 
      /// <summary>
+     /// Returns random generator used by the application
+     /// </summary>
+     Platform.RandomGenerator Random {  get; }
+
+     /// <summary>
      /// Factory method that creates new session object suitable for particular application type
      /// </summary>
      /// <param name="sessionID">Session identifier</param>

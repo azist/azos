@@ -82,7 +82,7 @@ namespace Azos.Instrumentation.Telemetry
       catch (Exception error)
       {
         cleanupClient();
-        WriteLog(MessageType.Error, error.ToMessageWithType(), from: "{0}.{1}".Args(GetType().Name, "Write(datum)"));
+        WriteLog(MessageType.Error, nameof(Write), error.ToMessageWithType(), error);
       }
     }
     #endregion
@@ -100,7 +100,7 @@ namespace Azos.Instrumentation.Telemetry
       }
       catch (Exception error)
       {
-        WriteLog(MessageType.Error, error.ToMessageWithType(), from: "{0}.{1}".Args(GetType().Name, "cleanupClient()"));
+        WriteLog(MessageType.Error, nameof(cleanupClient), error.ToMessageWithType(), error);
       }
     }
     #endregion

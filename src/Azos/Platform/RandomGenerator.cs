@@ -35,7 +35,7 @@ namespace Azos.Platform
       private static RandomGenerator s_Instance;
 
       /// <summary>
-      /// Returns the default instance of the generator. This instance is thread-safe
+      /// Returns the default process-wide instance of the generator. This instance is thread-safe
       /// </summary>
       public static RandomGenerator Instance
       {
@@ -76,7 +76,7 @@ namespace Azos.Platform
       private int m_WritePosition;
 
       /// <summary>
-      /// Generates next random integer in the Int32.MinValue..Int32.MaxValue diapason
+      /// Generates next random integer in the Int32.MinValue..Int32.MaxValue range
       /// </summary>
       public int NextRandomInteger
       {

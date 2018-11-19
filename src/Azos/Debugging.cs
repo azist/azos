@@ -247,7 +247,7 @@ namespace Azos
         }
 
         /// <summary>
-        /// Controls wether to send Trace.Write() and Debug.Write() output to LogService
+        /// Controls whether to send Trace.Write() and Debug.Write() output to LogService
         /// </summary>
         public static bool TraceDisabled
         {

@@ -145,7 +145,7 @@ namespace Azos.Instrumentation
           }
           catch (Exception error)
           {
-            ComponentDirector.Log(MessageType.Error, GetType().Name + ".Write", error.ToMessageWithType(), error);
+            ComponentDirector.WriteLog(MessageType.Error, GetType().Name + ".Write", error.ToMessageWithType(), error);
           }
     }
     #endregion
