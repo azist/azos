@@ -8,19 +8,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Reflection;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Threading;
 
 using Azos.Apps.Volatile;
-
-using Azos.Log;
-using Azos.Instrumentation;
 using Azos.Conf;
 using Azos.Data.Access;
 using Azos.Glue;
+using Azos.Instrumentation;
+using Azos.Log;
 using Azos.Security;
 using Azos.Time;
 
@@ -30,490 +26,342 @@ namespace Azos.Apps
   /// Provides base implementation of IApplication for various application kinds
   /// </summary>
   [ConfigMacroContext]
-  public abstract class CommonApplicationLogic : DisposableObject, IApplication
+  public abstract partial class CommonApplicationLogic : DisposableObject, IApplication
   {
     #region CONSTS
-      public const string CONFIG_SWITCH = "config";
+    public const string CONFIG_SWITCH = "config";
 
-      public const string CONFIG_APP_NAME_ATTR = "application-name";
-      public const string CONFIG_UNIT_TEST_ATTR = "unit-test";
-      public const string CONFIG_FORCE_INVARIANT_CULTURE_ATTR = "force-invariant-culture";
-      public const string CONFIG_ENVIRONMENT_NAME_ATTR = "environment-name";
+    public const string CONFIG_APP_NAME_ATTR = "application-name";
+    public const string CONFIG_UNIT_TEST_ATTR = "unit-test";
+    public const string CONFIG_FORCE_INVARIANT_CULTURE_ATTR = "force-invariant-culture";
+    public const string CONFIG_ENVIRONMENT_NAME_ATTR = "environment-name";
 
-      public const string CONFIG_MEMORY_MANAGEMENT_SECTION = "memory-management";
+    public const string CONFIG_MEMORY_MANAGEMENT_SECTION = "memory-management";
 
-      public const string CONFIG_MODULES_SECTION = "modules";
-      public const string CONFIG_MODULE_SECTION = "module";
+    public const string CONFIG_MODULES_SECTION = "modules";
+    public const string CONFIG_MODULE_SECTION = "module";
 
-      public const string CONFIG_STARTERS_SECTION = "starters";
-      public const string CONFIG_STARTER_SECTION = "starter";
+    public const string CONFIG_STARTERS_SECTION = "starters";
+    public const string CONFIG_STARTER_SECTION = "starter";
 
-      public const string CONFIG_TIMESOURCE_SECTION = "time-source";
-      public const string CONFIG_EVENT_TIMER_SECTION = "event-timer";
-      public const string CONFIG_LOG_SECTION = "log";
-      public const string CONFIG_INSTRUMENTATION_SECTION = "instrumentation";
-      public const string CONFIG_DATA_STORE_SECTION = "data-store";
-      public const string CONFIG_OBJECT_STORE_SECTION = "object-store";
-      public const string CONFIG_GLUE_SECTION = "glue";
-      public const string CONFIG_SECURITY_SECTION = "security";
+    public const string CONFIG_TIMESOURCE_SECTION = "time-source";
+    public const string CONFIG_EVENT_TIMER_SECTION = "event-timer";
+    public const string CONFIG_LOG_SECTION = "log";
+    public const string CONFIG_INSTRUMENTATION_SECTION = "instrumentation";
+    public const string CONFIG_DATA_STORE_SECTION = "data-store";
+    public const string CONFIG_OBJECT_STORE_SECTION = "object-store";
+    public const string CONFIG_GLUE_SECTION = "glue";
+    public const string CONFIG_SECURITY_SECTION = "security";
 
 
-      public const string CONFIG_PRELOAD_ASSEMBLIES_SECTION = "preload-assemblies";
-      public const string CONFIG_ASSEMBLY_SECTION = "assembly";
-      public const string CONFIG_PATH_ATTR = "path";
-      public const string CONFIG_ENABLED_ATTR = "enabled";
-
+    public const string CONFIG_PATH_ATTR = "path";
+    public const string CONFIG_ENABLED_ATTR = "enabled";
     #endregion
 
     #region .ctor/.dctor
+    protected CommonApplicationLogic(bool allowNesting, Configuration cmdLineArgs, ConfigSectionNode rootConfig)
+    {
+      m_AllowNesting = allowNesting;
+      m_CommandArgs = (cmdLineArgs ?? new MemoryConfiguration()).Root;
+      m_ConfigRoot  = rootConfig ?? GetConfiguration().Root;
+      m_Realm = new ApplicationRealmBase(this);
 
-      protected CommonApplicationLogic(bool allowNesting, Configuration cmdLineArgs, ConfigSectionNode rootConfig)
-      {
-        m_AllowNesting = allowNesting;
-        m_CommandArgs = (cmdLineArgs ?? new MemoryConfiguration()).Root;
-        m_ConfigRoot  = rootConfig ?? GetConfiguration().Root;
-        m_Realm = new ApplicationRealmBase(this);
-      }
+      m_NOPLog = new NOPLog(this);
+      m_NOPModule = new NOPModule(this);
+      m_NOPInstrumentation = new NOPInstrumentation(this);
+      m_NOPDataStore = new NOPDataStore(this);
+      m_NOPObjectStore = new NOPObjectStore(this);
+      m_NOPGlue = new NOPGlue(this);
+      m_NOPSecurityManager = new NOPSecurityManager(this);
+      m_DefaultTimeSource = new DefaultTimeSource(this);
+      m_NOPEventTimer = new NOPEventTimer(this);
+    }
 
-      protected override void Destructor()
-      {
-        m_ShutdownStarted = true;
-        DisposeAndNull(ref m_Realm);
-        base.Destructor();
-      }
+    protected override void Destructor()
+    {
+      m_ShutdownStarted = true;
 
+      DisposeAndNull(ref m_NOPEventTimer);
+      DisposeAndNull(ref m_DefaultTimeSource);
+      DisposeAndNull(ref m_NOPSecurityManager);
+      DisposeAndNull(ref m_NOPGlue);
+      DisposeAndNull(ref m_NOPObjectStore);
+      DisposeAndNull(ref m_NOPDataStore);
+      DisposeAndNull(ref m_NOPInstrumentation);
+      DisposeAndNull(ref m_NOPModule);
+      DisposeAndNull(ref m_NOPLog);
+
+      DisposeAndNull(ref m_Realm);
+      base.Destructor();
+    }
     #endregion
 
 
     #region Fields
 
-      private Guid m_InstanceID = Guid.NewGuid();
+    private Guid m_InstanceID = Guid.NewGuid();
+    protected DateTime m_StartTime;
 
-      private DateTime m_StartTime;
+    private string m_Name;
+    private bool m_AllowNesting;
 
-      private string m_Name;
-      private bool m_AllowNesting;
+    private volatile bool m_ShutdownStarted;
+    private volatile bool m_Stopping;
 
-      private volatile bool m_ShutdownStarted;
-      private volatile bool m_Stopping;
+    protected IApplicationRealmImplementation m_Realm;
 
-      protected IApplicationRealmImplementation m_Realm;
+    protected List<IConfigSettings> m_ConfigSettings = new List<IConfigSettings>();
+    protected List<IApplicationFinishNotifiable> m_FinishNotifiables = new List<IApplicationFinishNotifiable>();
 
-      protected List<IConfigSettings> m_ConfigSettings = new List<IConfigSettings>();
-      protected List<IApplicationFinishNotifiable> m_FinishNotifiables = new List<IApplicationFinishNotifiable>();
+    [Config(TimeLocation.CONFIG_TIMELOCATION_SECTION)]
+    private TimeLocation m_TimeLocation = new TimeLocation();
 
-      [Config(TimeLocation.CONFIG_TIMELOCATION_SECTION)]
-      private TimeLocation m_TimeLocation = new TimeLocation();
+    protected ConfigSectionNode m_CommandArgs;
+    protected ConfigSectionNode m_ConfigRoot;
 
+    protected ILogImplementation m_Log;
+    protected ILogImplementation m_NOPLog;
 
-      protected ConfigSectionNode m_CommandArgs;
+    protected IModuleImplementation m_Module;
+    protected IModuleImplementation m_NOPModule;
 
-      protected ConfigSectionNode m_ConfigRoot;
+    protected IInstrumentationImplementation m_Instrumentation;
+    protected IInstrumentationImplementation m_NOPInstrumentation;
 
-      protected IModuleImplementation m_Module;
+    protected IDataStoreImplementation m_DataStore;
+    protected IDataStoreImplementation m_NOPDataStore;
 
-      protected ILogImplementation m_Log;
+    protected IObjectStoreImplementation m_ObjectStore;
+    protected IObjectStoreImplementation m_NOPObjectStore;
 
-      protected IInstrumentationImplementation m_Instrumentation;
+    protected IGlueImplementation m_Glue;
+    protected IGlueImplementation m_NOPGlue;
 
-      protected IDataStoreImplementation m_DataStore;
+    protected ISecurityManagerImplementation m_SecurityManager;
+    protected ISecurityManagerImplementation m_NOPSecurityManager;
 
-      protected IObjectStoreImplementation m_ObjectStore;
+    protected ITimeSourceImplementation m_TimeSource;
+    protected ITimeSourceImplementation m_DefaultTimeSource;
 
-      protected IGlueImplementation m_Glue;
-
-      protected ISecurityManagerImplementation m_SecurityManager;
-
-      protected ITimeSourceImplementation m_TimeSource;
-
-      protected IEventTimerImplementation m_EventTimer;
-
+    protected IEventTimerImplementation m_EventTimer;
+    protected IEventTimerImplementation m_NOPEventTimer;
     #endregion
 
 
     #region Properties
 
+    /// <summary>True if this app chassis is a test rig </summary>
+    public virtual bool IsUnitTest => m_ConfigRoot.AttrByName(CONFIG_UNIT_TEST_ATTR).ValueAsBool();
 
-      #region IApplication Members
+    /// <summary>Provides access to "environment-name" attribute, e.g. "DEV" vs "PROD"</summary>
+    public string EnvironmentName => m_ConfigRoot.AttrByName(CONFIG_ENVIRONMENT_NAME_ATTR).Value;
 
-        /// <summary>
-        /// True if this  container is a test rig
-        /// </summary>
-        public virtual bool IsUnitTest
-        {
-          get{ return m_ConfigRoot.AttrByName(CONFIG_UNIT_TEST_ATTR).ValueAsBool(); }
-        }
+    /// <summary>True to force app container set process-wide invariant culture on boot</summary>
+    public virtual bool ForceInvariantCulture => m_ConfigRoot.AttrByName(CONFIG_FORCE_INVARIANT_CULTURE_ATTR).ValueAsBool();
 
-        public string EnvironmentName
-        {
-          get{ return m_ConfigRoot.AttrByName(CONFIG_ENVIRONMENT_NAME_ATTR).Value; }
-        }
+    /// <summary>Returns unique identifier of this running instance</summary>
+    public Guid InstanceID => m_InstanceID;
 
+    /// <summary>Returns true if the app container allows nesting of another app container </summary>
+    public virtual bool AllowNesting => m_AllowNesting;
 
-        /// <summary>
-        /// True to force app container set process-wide invariant culture on boot
-        /// </summary>
-        public virtual bool ForceInvariantCulture
-        {
-          get{ return m_ConfigRoot.AttrByName(CONFIG_FORCE_INVARIANT_CULTURE_ATTR).ValueAsBool(); }
-        }
+    /// <summary>Returns timestamp when application started as localized app time </summary>
+    public DateTime StartTime => m_StartTime;
 
+    /// <summary>Returns the name of this application </summary>
+    public string Name => m_Name ?? GetType().FullName;
 
-        /// <summary>
-        /// Returns unique identifier of this running instance
-        /// </summary>
-        public Guid InstanceID
-        {
-            get { return m_InstanceID; }
-        }
+    /// <summary>
+    /// Returns true when application instance is active and working. This property returns false as soon as application finalization starts on shutdown
+    /// Use to exit long-running loops and such as a cancellation flag
+    /// </summary>
+    public bool Active => !m_ShutdownStarted && !m_Stopping;
 
+    /// <summary> Returns true to indicate that Stop() was called </summary>
+    public bool Stopping => m_Stopping;
 
-        /// <summary>
-        /// Returns true if the app container allows nesting of another app container
-        /// </summary>
-        public virtual bool AllowNesting
-        {
-            get{ return m_AllowNesting; }
-        }
+    /// <summary> Returns true to indicate that Dispose() has been called and shutdown has started</summary>
+    public bool ShutdownStarted => m_ShutdownStarted;
 
-        /// <summary>
-        /// Returns timestamp when application started as localized app time
-        /// </summary>
-        public DateTime StartTime
-        {
-            get { return m_StartTime; }
-        }
+    /// <summary>
+    /// Returns an accessor to the application surrounding environment (realm) in which app gets executed.
+    /// This realm is sub-divided into uniquely-named areas each reporting their status. Realms are used in distributed
+    /// systems and represent zone/section of cluster
+    /// </summary>
+    public IApplicationRealm Realm => m_Realm;
+
+    /// <summary>
+    /// Initiates the stop of the application by setting its Stopping to true and Active to false so dependent services may start to terminate
+    /// </summary>
+    public void Stop() => m_Stopping = true;
 
 
+    public IConfigSectionNode ConfigRoot    => m_ConfigRoot;
+    public IConfigSectionNode CommandArgs   => m_CommandArgs;
+    public ILog Log                         => m_Log             ??  m_NOPLog;
+    public IInstrumentation Instrumentation => m_Instrumentation ??  m_NOPInstrumentation;
+    public IDataStore DataStore             => m_DataStore       ??  m_NOPDataStore;
+    public IObjectStore ObjectStore         => m_ObjectStore     ??  m_NOPObjectStore;
+    public IGlue Glue                       => m_Glue            ??  m_NOPGlue;
+    public ISecurityManager SecurityManager => m_SecurityManager ??  m_NOPSecurityManager;
+    public ITimeSource TimeSource           => m_TimeSource      ??  m_DefaultTimeSource;
+    public IEventTimer EventTimer           => m_EventTimer      ??  m_NOPEventTimer;
+    public IModule ModuleRoot               => m_Module          ??  m_NOPModule;
 
-        /// <summary>
-        /// Returns the name of this application
-        /// </summary>
-        public string Name
-        {
-          get { return m_Name ?? GetType().FullName; }
-        }
+    /// <summary>
+    /// Returns time location of this LocalizedTimeProvider implementation
+    /// </summary>
+    public TimeLocation TimeLocation
+    {
+        get { return m_TimeLocation ?? TimeLocation.Parent;}
+        set { m_TimeLocation = value; }
+    }
 
+    /// <summary>Returns current time localized per TimeLocation</summary>
+    public DateTime LocalizedTime => UniversalTimeToLocalizedTime(TimeSource.UTCNow);
 
-        /// <summary>
-        /// Returns true when application instance is active and working. This property returns false as soon as application finalization starts on shutdown
-        /// Use to exit long-running loops and such
-        /// </summary>
-        public bool Active
-        {
-          get { return !m_ShutdownStarted && !m_Stopping; }
-        }
-
-        /// <summary>
-        /// Returns true to indicate that Stop() was called
-        /// </summary>
-        public bool Stopping
-        {
-          get { return m_Stopping; }
-        }
-
-        /// <summary>
-        /// Returns true to indicate that Dispose() has been called and shutdown has started
-        /// </summary>
-        public bool ShutdownStarted
-        {
-          get { return m_ShutdownStarted; }
-        }
-
-        /// <summary>
-        /// References an accessor to the application surrounding environment (realm) in which app gets executed.
-        /// This realm is sub-divided into uniquely-named areas each reporting their status
-        /// </summary>
-        public IApplicationRealm Realm
-        {
-          get { return m_Realm;}
-        }
-
-        /// <summary>
-        /// Initiates the stop of the application by setting its Stopping to true and Active to false so dependent services may start to terminate
-        /// </summary>
-        public void Stop()
-        {
-          m_Stopping = true;
-        }
-
-        /// <summary>
-        /// References application logger
-        /// </summary>
-        public ILog Log => m_Log ?? m_NOPLog;
-
-
-        /// <summary>
-        /// References application instrumentation
-        /// </summary>
-        public IInstrumentation Instrumentation => m_Instrumentation ?? m_NOPInstrumentation;
-
-        /// <summary>
-        /// Provides access to configuration root for the whole application
-        /// </summary>
-        public IConfigSectionNode ConfigRoot
-        {
-          get { return m_ConfigRoot;}
-        }
-
-        /// <summary>
-        /// Provides access to command line args
-        /// </summary>
-        public IConfigSectionNode CommandArgs
-        {
-          get { return m_CommandArgs; }
-        }
-
-
-        /// <summary>
-        /// References application data store
-        /// </summary>
-        public IDataStore DataStore
-        {
-          get { return m_DataStore ?? NOPDataStore.Instance; }
-        }
-
-
-        /// <summary>
-        /// References application object store. Objects will survive application termination
-        /// </summary>
-        public IObjectStore ObjectStore => m_ObjectStore ?? m_NOPObjectStore;
-
-
-        /// <summary>
-        /// References glue that can be used to interconnect remote instances
-        /// </summary>
-        public IGlue Glue => m_Glue ?? m_NOPGlue;
-
-
-        /// <summary>
-        /// References security manager that performs user authentication based on passed credentials and other security-related global tasks
-        /// </summary>
-        public ISecurityManager SecurityManager
-        {
-          get { return m_SecurityManager ?? NOPSecurityManager.Instance; }
-        }
-
-        /// <summary>
-        /// References time source - an entity that supplies local and UTC times. The concrete implementation
-        ///  may elect to get accurate times from the network or other external precision time sources (i.e. NASA atomic clock)
-        /// </summary>
-        public ITimeSource TimeSource
-        {
-          get { return m_TimeSource ?? DefaultTimeSource.Instance; }
-        }
-
-        /// <summary>
-        /// References event timer which maintains and runs scheduled Event instances
-        /// </summary>
-        public IEventTimer EventTimer
-        {
-          get { return m_EventTimer ?? NOPEventTimer.Instance; }
-        }
-
-
-        /// <summary>
-        /// References the root module (such as business domain logic root) for this application. This is a dependency injection root
-        /// provided for any application type
-        /// </summary>
-        public IModule ModuleRoot => m_Module ?? m_NOPModule;
-
-        /// <summary>
-        /// Returns time location of this LocalizedTimeProvider implementation
-        /// </summary>
-        public TimeLocation TimeLocation
-        {
-            get { return m_TimeLocation ?? TimeLocation.Parent;}
-            set { m_TimeLocation = value; }
-        }
-
-        /// <summary>
-        /// Returns current time localized per TimeLocation
-        /// </summary>
-        public DateTime LocalizedTime
-        {
-            get { return UniversalTimeToLocalizedTime(TimeSource.UTCNow); }
-        }
-
-        /// <summary>
-        /// Enumerates all components of this application
-        /// </summary>
-        public IEnumerable<IApplicationComponent> AllComponents => ApplicationComponent.AllComponents(this);
-
-
-    #endregion
-
+    /// <summary>Enumerates all components of this application</summary>
+    public IEnumerable<IApplicationComponent> AllComponents => ApplicationComponent.AllComponents(this);
 
     #endregion
 
 
     #region Public
 
+    /// <summary>
+    /// Converts universal time to local time as of TimeLocation property
+    /// </summary>
+    public DateTime UniversalTimeToLocalizedTime(DateTime utc)
+    {
+        if (utc.Kind!=DateTimeKind.Utc)
+          throw new TimeException(StringConsts.ARGUMENT_ERROR+GetType().Name+".UniversalTimeToLocalizedTime(utc.Kind!=UTC)");
+
+        var loc = TimeLocation;
+        if (!loc.UseParentSetting)
+        {
+            return DateTime.SpecifyKind(utc + loc.UTCOffset, DateTimeKind.Local);
+        }
+        else
+        {
+            return TimeSource.UniversalTimeToLocalizedTime(utc);
+        }
+    }
+
+    /// <summary>
+    /// Converts localized time to UTC time as of TimeLocation property
+    /// </summary>
+    public DateTime LocalizedTimeToUniversalTime(DateTime local)
+    {
+        if (local.Kind!=DateTimeKind.Local)
+          throw new TimeException(StringConsts.ARGUMENT_ERROR+GetType().Name+".LocalizedTimeToUniversalTime(utc.Kind!=Local)");
+
+        var loc = TimeLocation;
+        if (!loc.UseParentSetting)
+        {
+            return DateTime.SpecifyKind(local - loc.UTCOffset, DateTimeKind.Utc);
+        }
+        else
+        {
+            return TimeSource.LocalizedTimeToUniversalTime(local);
+        }
+    }
 
 
-            /// <summary>
-            /// Converts universal time to local time as of TimeLocation property
-            /// </summary>
-            public DateTime UniversalTimeToLocalizedTime(DateTime utc)
-            {
-                if (utc.Kind!=DateTimeKind.Utc)
-                 throw new TimeException(StringConsts.ARGUMENT_ERROR+GetType().Name+".UniversalTimeToLocalizedTime(utc.Kind!=UTC)");
+    /// <summary>
+    /// Makes BaseSession instance
+    /// </summary>
+    public virtual ISession MakeNewSessionInstance(Guid sessionID, Security.User user = null)
+    {
+        var result = new BaseSession(sessionID);
+        result.User = user;
 
-                var loc = TimeLocation;
-                if (!loc.UseParentSetting)
-                {
-                   return DateTime.SpecifyKind(utc + loc.UTCOffset, DateTimeKind.Local);
-                }
-                else
-                {
-                   return TimeSource.UniversalTimeToLocalizedTime(utc);
-                }
-            }
-
-            /// <summary>
-            /// Converts localized time to UTC time as of TimeLocation property
-            /// </summary>
-            public DateTime LocalizedTimeToUniversalTime(DateTime local)
-            {
-                if (local.Kind!=DateTimeKind.Local)
-                 throw new TimeException(StringConsts.ARGUMENT_ERROR+GetType().Name+".LocalizedTimeToUniversalTime(utc.Kind!=Local)");
-
-                var loc = TimeLocation;
-                if (!loc.UseParentSetting)
-                {
-                   return DateTime.SpecifyKind(local - loc.UTCOffset, DateTimeKind.Utc);
-                }
-                else
-                {
-                   return TimeSource.LocalizedTimeToUniversalTime(local);
-                }
-            }
+        return result;
+    }
 
 
-            /// <summary>
-            /// Makes BaseSession instance
-            /// </summary>
-            public virtual ISession MakeNewSessionInstance(Guid sessionID, Security.User user = null)
-            {
-                var result = new BaseSession(sessionID);
-                result.User = user;
+    /// <summary>
+    /// Registers an instance of IConfigSettings with application container to receive a call when
+    ///  underlying app configuration changes
+    /// </summary>
+    /// <returns>True if settings instance was not found and was added</returns>
+    public bool RegisterConfigSettings(IConfigSettings settings)
+    {
+        if (m_ShutdownStarted || settings==null) return false;
+        lock(m_ConfigSettings)
+          if (!m_ConfigSettings.Contains(settings, Collections.ReferenceEqualityComparer<IConfigSettings>.Instance))
+          {
+              m_ConfigSettings.Add(settings);
+              return true;
+          }
+        return false;
+    }
 
-                return result;
-            }
+    /// <summary>
+    /// Removes the registration of IConfigSettings from application container
+    /// </summary>
+    /// <returns>True if settings instance was found and removed</returns>
+    public bool UnregisterConfigSettings(IConfigSettings settings)
+    {
+        if (m_ShutdownStarted || settings==null) return false;
+        lock(m_ConfigSettings)
+          return m_ConfigSettings.Remove(settings);
+    }
 
-
-            /// <summary>
-            /// Registers an instance of IConfigSettings with application container to receive a call when
-            ///  underlying app configuration changes
-            /// </summary>
-            /// <returns>True if settings instance was not found and was added</returns>
-            public bool RegisterConfigSettings(IConfigSettings settings)
-            {
-                if (m_ShutdownStarted || settings==null) return false;
-                lock(m_ConfigSettings)
-                  if (!m_ConfigSettings.Contains(settings, Collections.ReferenceEqualityComparer<IConfigSettings>.Instance))
-                  {
-                     m_ConfigSettings.Add(settings);
-                     return true;
-                  }
-                return false;
-            }
-
-            /// <summary>
-            /// Removes the registration of IConfigSettings from application container
-            /// </summary>
-            /// <returns>True if settings instance was found and removed</returns>
-            public bool UnregisterConfigSettings(IConfigSettings settings)
-            {
-                if (m_ShutdownStarted || settings==null) return false;
-                lock(m_ConfigSettings)
-                  return m_ConfigSettings.Remove(settings);
-            }
-
-            /// <summary>
-            /// Forces notification of all registered IConfigSettings-implementers about configuration change
-            /// </summary>
-            public void NotifyAllConfigSettingsAboutChange()
-            {
-                NotifyAllConfigSettingsAboutChange(m_ConfigRoot);
-            }
+    /// <summary>
+    /// Forces notification of all registered IConfigSettings-implementers about configuration change
+    /// </summary>
+    public void NotifyAllConfigSettingsAboutChange()
+    {
+        NotifyAllConfigSettingsAboutChange(m_ConfigRoot);
+    }
 
 
-            /// <summary>
-            /// Registers an instance of IApplicationFinishNotifiable with application container to receive a call when
-            ///  underlying application instance will finish its lifecycle
-            /// </summary>
-            /// <returns>True if notifiable instance was not found and was added</returns>
-            public bool RegisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable)
-            {
-                if (m_ShutdownStarted || notifiable==null) return false;
+    /// <summary>
+    /// Registers an instance of IApplicationFinishNotifiable with application container to receive a call when
+    ///  underlying application instance will finish its life cycle
+    /// </summary>
+    /// <returns>True if notifiable instance was not found and was added</returns>
+    public bool RegisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable)
+    {
+        if (m_ShutdownStarted || notifiable==null) return false;
 
-                lock(m_FinishNotifiables)
-                  if (!m_FinishNotifiables.Contains(notifiable, Collections.ReferenceEqualityComparer<IApplicationFinishNotifiable>.Instance))
-                  {
-                     m_FinishNotifiables.Add(notifiable);
-                     return true;
-                  }
-                return false;
-            }
+        lock(m_FinishNotifiables)
+          if (!m_FinishNotifiables.Contains(notifiable, Collections.ReferenceEqualityComparer<IApplicationFinishNotifiable>.Instance))
+          {
+              m_FinishNotifiables.Add(notifiable);
+              return true;
+          }
+        return false;
+    }
 
-            /// <summary>
-            /// Removes the registration of IConfigSettings from application container
-            /// </summary>
-            /// <returns>True if notifiable instance was found and removed</returns>
-            public bool UnregisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable)
-            {
-                if (m_ShutdownStarted || notifiable==null) return false;
+    /// <summary>
+    /// Removes the registration of IConfigSettings from application container
+    /// </summary>
+    /// <returns>True if notifiable instance was found and removed</returns>
+    public bool UnregisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable)
+    {
+        if (m_ShutdownStarted || notifiable==null) return false;
 
-                lock(m_FinishNotifiables)
-                  return m_FinishNotifiables.Remove(notifiable);
-            }
+        lock(m_FinishNotifiables)
+          return m_FinishNotifiables.Remove(notifiable);
+    }
 
 
-            /// <summary>
-            /// RESERVED for future use. Loads assemblies specified in 'preload-assemblies' section from disk optionally checking the 'enabled' flag.
-            /// This method is called on application startup by the framework
-            /// </summary>
-            public bool PreloadAssemblies(bool checkFlag = true)
-            {
-               var nPreload = m_ConfigRoot[CONFIG_PRELOAD_ASSEMBLIES_SECTION];
+    /// <summary>
+    /// Returns a component by SID or null
+    /// </summary>
+    public IApplicationComponent GetComponentBySID(ulong sid)
+    {
+        return ApplicationComponent.GetAppComponentBySID(this, sid);
+    }
 
-               if (checkFlag && !nPreload.AttrByName(CONFIG_ENABLED_ATTR).ValueAsBool(true)) return false;
-
-               string apath = CoreConsts.UNKNOWN;
-               try
-               {
-                foreach(var anode in nPreload.Children.Where(c=>c.IsSameName(CONFIG_ASSEMBLY_SECTION)))
-                {
-                  apath = anode.AttrByName(CONFIG_PATH_ATTR).Value;
-                  if (apath.IsNullOrWhiteSpace()) continue;
-                  if (!File.Exists(apath)) continue;
-                  Assembly.LoadFrom(apath);
-                }
-               }
-               catch(Exception error)
-               {
-                  throw new AzosException(StringConsts.APP_ASSEMBLY_PRELOAD_ERROR.Args(apath, error.ToMessageWithType()), error);
-               }
-
-               return true;
-            }
-
-            /// <summary>
-            /// Returns a component by SID or null
-            /// </summary>
-            public IApplicationComponent GetComponentBySID(ulong sid)
-            {
-               return ApplicationComponent.GetAppComponentBySID(this, sid);
-            }
-
-            /// <summary>
-            /// Returns an existing application component instance by its ComponentCommonName or null. The search is case-insensitive
-            /// </summary>
-            public IApplicationComponent GetComponentByCommonName(string name)
-            {
-              return ApplicationComponent.GetAppComponentByCommonName(this, name);
-            }
+    /// <summary>
+    /// Returns an existing application component instance by its ComponentCommonName or null. The search is case-insensitive
+    /// </summary>
+    public IApplicationComponent GetComponentByCommonName(string name)
+    {
+      return ApplicationComponent.GetAppComponentByCommonName(this, name);
+    }
 
     #endregion
 
@@ -521,810 +369,102 @@ namespace Azos.Apps
     #region Protected
 
 
-    protected void WriteLog(MessageType type,
-                              string from,
-                              string msgText,
-                              Exception error = null,
-                              [CallerFilePath]string file = "",
-                              [CallerLineNumber]int line = 0,
-                              object pars = null)
-      {
-          if (m_Log==null) return;
+    protected Guid WriteLog(MessageType type,
+                            string from,
+                            string msgText,
+                            Exception error = null,
+                            [CallerFilePath]string file = "",
+                            [CallerLineNumber]int line = 0,
+                            object pars = null,
+                            Guid? related = null)
+    {
+      var log = m_Log;
+      if (log==null) return Guid.Empty;
 
-          m_Log.Write(new Azos.Log.Message()
-                      {
-                        Topic = CoreConsts.APPLICATION_TOPIC,
-                        Type = type,
-                        From = from,
-                        Text = msgText,
-                        Exception = error,
-                      }.SetParamsAsObject(Azos.Log.Message.FormatCallerParams(pars, file, line)));
+      var msg = new Message
+                 {
+                    Topic = CoreConsts.APPLICATION_TOPIC,
+                    Type = type,
+                    From = from,
+                    Text = msgText,
+                    Exception = error,
+                 }.SetParamsAsObject( Message.FormatCallerParams(pars, file, line) );
+
+      if (related.HasValue) msg.RelatedTo = related.Value;
+
+      log.Write(msg);
+
+      return msg.Guid;
+    }
+
+    protected virtual Configuration GetConfiguration()
+    {
+        //try to read from  /config file
+        var configFile = m_CommandArgs[CONFIG_SWITCH].AttrByIndex(0).Value;
+
+        if (string.IsNullOrEmpty(configFile))
+            configFile = GetDefaultConfigFileName();
+
+
+        Configuration conf;
+
+        if (File.Exists(configFile))
+            conf = Configuration.ProviderLoadFromFile(configFile);
+        else
+            conf = new MemoryConfiguration();
+
+        return conf;
+    }
+
+
+    protected IEnumerable<IApplicationStarter> GetStarters()
+    {
+      var snodes = m_ConfigRoot[CONFIG_STARTERS_SECTION].Children.Where(n=>n.IsSameName(CONFIG_STARTER_SECTION));
+      foreach(var snode in snodes)
+      {
+          var starter = FactoryUtils.MakeAndConfigure<IApplicationStarter>(snode);
+          yield return starter;
       }
+    }
 
-      protected virtual Configuration GetConfiguration()
-      {
-          //try to read from  /config file
-          var configFile = m_CommandArgs[CONFIG_SWITCH].AttrByIndex(0).Value;
-
-          if (string.IsNullOrEmpty(configFile))
-              configFile = GetDefaultConfigFileName();
-
-
-          Configuration conf;
-
-          if (File.Exists(configFile))
-              conf = Configuration.ProviderLoadFromFile(configFile);
-          else
-              conf = new MemoryConfiguration();
-
-          return conf;
-      }
-
-
-      protected IEnumerable<IApplicationStarter> GetStarters()
-      {
-        var snodes = m_ConfigRoot[CONFIG_STARTERS_SECTION].Children.Where(n=>n.IsSameName(CONFIG_STARTER_SECTION));
-        foreach(var snode in snodes)
-        {
-            var starter = FactoryUtils.MakeAndConfigure<IApplicationStarter>(snode);
-            yield return starter;
-        }
-      }
-
-      protected virtual void InitApplication()
-      {
-        if (ForceInvariantCulture)//used in all server applications
-          Azos.Platform.Abstraction.PlatformAbstractionLayer.SetProcessInvariantCulture();
-
-        PreloadAssemblies();
-
-        var exceptions = new List<Exception>();
-
-        var starters = GetStarters().ToList();
-
-            string name = CoreConsts.UNKNOWN;
-            bool breakOnError = true;
-            foreach (var starter in starters)
-                try
-                {
-                    breakOnError = starter.ApplicationStartBreakOnException;
-                    name = starter.Name ?? starter.GetType().FullName;
-                    starter.ApplicationStartBeforeInit(this);
-                }
-                catch (Exception error)
-                {
-                    error = new AzosException(StringConsts.APP_STARTER_BEFORE_ERROR.Args(name, error.ToMessageWithType()), error);
-                    if (breakOnError) throw error;
-                    exceptions.Add(error);
-                    //log not available at this point
-                }
-
-
-        ExecutionContext.__BindApplication(this);
-        DoInitApplication(); //<----------------------------------------------
-        DoModuleAfterInitApplication();
-
-
-            name = CoreConsts.UNKNOWN;
-            breakOnError = true;
-            foreach(var starter in starters)
-            try
-            {
-              breakOnError = starter.ApplicationStartBreakOnException;
-              name = starter.Name ?? starter.GetType().FullName;
-              starter.ApplicationStartAfterInit(this);
-            }
-            catch(Exception error)
-            {
-              error = new AzosException(StringConsts.APP_STARTER_AFTER_ERROR.Args(name, error.ToMessageWithType()), error);
-              WriteLog(MessageType.CatastrophicError, "InitApplication().After", error.ToMessageWithType(), error);
-              if (breakOnError) throw error;
-            }
-
-        if (exceptions.Count>0)
-            foreach(var exception in exceptions)
-                WriteLog(MessageType.CatastrophicError, "InitApplication().Before", exception.ToMessageWithType());
-
-      }
-
-      protected virtual void CleanupApplication()
-      {
-            var exceptions = new List<Exception>();
-
-            lock(m_FinishNotifiables)
-            {
-                string name = CoreConsts.UNKNOWN;
-                foreach(var notifiable in m_FinishNotifiables)
-                try
-                {
-                    name = notifiable.Name ?? notifiable.GetType().FullName;
-                    notifiable.ApplicationFinishBeforeCleanup(this);
-                }
-                catch(Exception error)
-                {
-                   error = new AzosException(StringConsts.APP_FINISH_NOTIFIABLE_BEFORE_ERROR.Args(name, error.ToMessageWithType()), error);
-                   exceptions.Add(error);
-                   WriteLog(MessageType.Error, "CleanupApplication()", error.Message);
-                }
-            }
-
-        try
-        {
-          DoModuleBeforeCleanupApplication();
-          DoCleanupApplication(); //<----------------------------------------------
-        }
-        finally
-        {
-          ExecutionContext.__UnbindApplication(this);
-        }
-
-            lock(m_FinishNotifiables)
-            {
-                string name = CoreConsts.UNKNOWN;
-                foreach(var notifiable in m_FinishNotifiables)
-                try
-                {
-                    name = notifiable.Name ?? notifiable.GetType().FullName;
-                    notifiable.ApplicationFinishAfterCleanup(this);
-                }
-                catch(Exception error)
-                {
-                  error = new AzosException(StringConsts.APP_FINISH_NOTIFIABLE_AFTER_ERROR.Args(name, error.ToMessageWithType()), error);
-                  exceptions.Add(error);
-                  //log not available at this point
-                }
-            }
-
-        if (exceptions.Count>0)
-        {
-            var text= new StringBuilder();
-
-            text.AppendLine(StringConsts.APP_FINISH_NOTIFIABLES_ERROR);
-
-            foreach(var exception in exceptions)
-                text.AppendLine( exception.ToMessageWithType());
-
-            throw new AzosException(text.ToString());
-        }
-
-      }
-
-
-
-
-      /// <summary>
-      /// Tries to find a configuration file name looping through various supported estensions
-      /// </summary>
-      /// <returns>File name that exists or empty string</returns>
-      protected string GetDefaultConfigFileName()
-      {
-          var exeName = System.Reflection.Assembly.GetEntryAssembly().Location;
-          var exeNameWoExt = Path.Combine(Path.GetDirectoryName(exeName), Path.GetFileNameWithoutExtension(exeName));
+    /// <summary>
+    /// Tries to find a configuration file name looping through various supported extensions
+    /// </summary>
+    /// <returns>File name that exists or empty string</returns>
+    protected string GetDefaultConfigFileName()
+    {
+        var exeName = System.Reflection.Assembly.GetEntryAssembly().Location;
+        var exeNameWoExt = Path.Combine(Path.GetDirectoryName(exeName), Path.GetFileNameWithoutExtension(exeName));
 //Console.WriteLine("EXENAME:" +exeName);
 //Console.WriteLine("EXENAME wo extension:" +exeNameWoExt);
-          var extensions = Configuration.AllSupportedFormats.Select(fmt => '.'+fmt);
-          foreach(var ext in extensions)
-          {
-             var configFile = exeName + ext;
+        var extensions = Configuration.AllSupportedFormats.Select(fmt => '.'+fmt);
+        foreach(var ext in extensions)
+        {
+            var configFile = exeName + ext;
 //Console.WriteLine("Probing:" +configFile);
-             if (File.Exists(configFile)) return configFile;
-             configFile = exeNameWoExt + ext;
+            if (File.Exists(configFile)) return configFile;
+            configFile = exeNameWoExt + ext;
 //Console.WriteLine("Probing:" +configFile);
-             if (File.Exists(configFile)) return configFile;
+            if (File.Exists(configFile)) return configFile;
 
-          }
-          return string.Empty;
-      }
-
-
-      /// <summary>
-      /// Forces notification of all registered IConfigSettings-implementers about configuration change
-      /// </summary>
-      protected void NotifyAllConfigSettingsAboutChange(IConfigSectionNode node)
-      {
-          node = node ?? m_ConfigRoot;
-
-          lock(m_ConfigSettings)
-           foreach(var s in m_ConfigSettings) s.ConfigChanged(node);
-      }
-
-      /// <summary>
-      /// Override to prep log implementation i.e. inject log destinations programmaticaly
-      /// </summary>
-      protected virtual void BeforeLogStart(ILogImplementation logImplementation)
-      {
-
-      }
-
-      /// <summary>
-      /// Override to prep module implementation i.e. inject modules programmaticaly
-      /// </summary>
-      protected virtual void BeforeModuleStart(IModuleImplementation logImplementation)
-      {
-
-      }
-
-      /// <summary>
-      /// Override to prep instr implementation i.e. inject something programmaticaly
-      /// </summary>
-      protected virtual void BeforeInstrumentationStart(IInstrumentationImplementation instrumentationImplementation)
-      {
-
-      }
-
-      /// <summary>
-      /// Override to prep data store implementation i.e. inject something programmaticaly
-      /// </summary>
-      protected virtual void BeforeDataStoreStart(IDataStoreImplementation datastoreImplementation)
-      {
-
-      }
-
-      /// <summary>
-      /// Override to prep object store implementation i.e. inject something programmaticaly
-      /// </summary>
-      protected virtual void BeforeObjectStoreStart(IObjectStoreImplementation objectstoreImplementation)
-      {
-
-      }
-
-
-      /// <summary>
-      /// Override to prep glue implementation i.e. inject something programmaticaly
-      /// </summary>
-      protected virtual void BeforeGlueStart(IGlueImplementation glueImplementation)
-      {
-
-      }
-
-
-      /// <summary>
-      /// Override to prep security manager implementation i.e. inject something programmaticaly
-      /// </summary>
-      protected virtual void BeforeSecurityManagerStart(ISecurityManagerImplementation securitymanagerImplementation)
-      {
-
-      }
-
-
-      /// <summary>
-      /// Override to prep time source implementation i.e. inject something programmaticaly
-      /// </summary>
-      protected virtual void BeforeTimeSourceStart(ITimeSourceImplementation timesourceImplementation)
-      {
-
-      }
-
-      /// <summary>
-      /// Override to prep event timer implementation i.e. inject something programmaticaly
-      /// </summary>
-      protected virtual void BeforeEventTimerStart(IEventTimerImplementation eventTimerImplementation)
-      {
-
-      }
-
-
-
-      protected virtual void DoInitApplication()
-      {
-        const string FROM = "app.init";
-
-        ConfigAttribute.Apply(this, m_ConfigRoot);
-
-        m_Name = m_ConfigRoot.AttrByName(CONFIG_APP_NAME_ATTR).ValueAsString(GetType().FullName);
-
-        Debugging.DefaultDebugAction = Debugging.ReadDefaultDebugActionFromConfig();
-        Debugging.TraceDisabled      = Debugging.ReadTraceDisableFromConfig();
-
-        var node = m_ConfigRoot[CONFIG_LOG_SECTION];
-        if (node.Exists)
-          try
-          {
-            m_Log = FactoryUtils.MakeAndConfigure(node, typeof(LogDaemon)) as ILogImplementation;
-
-            if (m_Log==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
-                                                    node
-                                                   .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
-                                                   .ValueAsString(CoreConsts.UNKNOWN));
-
-            WriteLog(MessageType.Info, FROM, "Log made");
-
-            BeforeLogStart(m_Log);
-
-            if (m_Log is Daemon)
-            {
-              if (((Daemon)m_Log).StartByApplication())
-                WriteLog(MessageType.Info, FROM, "Log started, msg times are localized of machine-local time until time source starts");
-            }
-          }
-          catch(Exception error)
-          {
-            throw new AzosException(StringConsts.APP_LOG_INIT_ERROR + error.ToMessageWithType(), error);
-          }
-
-        node = m_ConfigRoot[CONFIG_MODULES_SECTION];
-        if (node.Exists)
-          try
-          {
-            m_Module = FactoryUtils.MakeAndConfigure(node, typeof(HubModule), new []{ this }) as IModuleImplementation;
-
-            if (m_Module==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
-                                                    node
-                                                   .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
-                                                   .ValueAsString(CoreConsts.UNKNOWN));
-
-            WriteLog(MessageType.Info, FROM, "Module root made");
-
-            BeforeModuleStart(m_Module);
-
-            if (m_Module is Daemon)
-            {
-              if (((Daemon)m_Module).StartByApplication())
-                WriteLog(MessageType.Info, FROM, "Module root started");
-            }
-          }
-          catch(Exception error)
-          {
-            throw new AzosException(StringConsts.APP_MODULE_INIT_ERROR + error.ToMessageWithType(), error);
-          }
-
-        node = m_ConfigRoot[CONFIG_TIMESOURCE_SECTION];
-        if (node.Exists)
-        {
-          try
-          {
-            m_TimeSource = FactoryUtils.MakeAndConfigure(node, null) as ITimeSourceImplementation;
-
-            if (m_TimeSource==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
-                                                    node
-                                                   .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
-                                                   .ValueAsString(CoreConsts.UNKNOWN));
-
-            WriteLog(MessageType.Info, FROM, "TimeSource made");
-
-            BeforeTimeSourceStart(m_TimeSource);
-
-            if (m_TimeSource is Daemon)
-            {
-              if (((Daemon)m_TimeSource).StartByApplication())
-                WriteLog(MessageType.Info, FROM, "TimeSource started");
-            }
-
-            WriteLog(MessageType.Info, FROM, "Log msg time is time source-supplied now");
-
-            m_StartTime = LocalizedTime;
-            WriteLog(MessageType.Info, FROM, "App start time is {0}".Args(m_StartTime));
-          }
-          catch(Exception error)
-          {
-            var msg = StringConsts.APP_TIMESOURCE_INIT_ERROR + error.ToMessageWithType();
-            WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new AzosException(msg, error);
-          }
         }
-        else
-        {
-          WriteLog(MessageType.Info, FROM, "Using default time source");
-
-          m_StartTime = LocalizedTime;
-          WriteLog(MessageType.Info, FROM, "App start time is {0}".Args(m_StartTime));
-        }
-
-
-        node = m_ConfigRoot[CONFIG_EVENT_TIMER_SECTION];
-        //20150827 DKh event timer must allocate even if it is absent in config
-        //// if (node.Exists)
-        {
-          try
-          {
-            m_EventTimer = FactoryUtils.MakeAndConfigure(node, typeof(EventTimer)) as IEventTimerImplementation;
-
-            if (m_EventTimer==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
-                                                    node
-                                                   .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
-                                                   .ValueAsString(CoreConsts.UNKNOWN));
-
-            WriteLog(MessageType.Info, FROM, "EventTimer made");
-
-            BeforeEventTimerStart(m_EventTimer);
-
-            if (m_EventTimer is Daemon)
-            {
-              if (((Daemon)m_EventTimer).StartByApplication())
-                WriteLog(MessageType.Info, FROM, "EventTimer started");
-            }
-          }
-          catch(Exception error)
-          {
-            var msg = StringConsts.APP_EVENT_TIMER_INIT_ERROR + error.ToMessageWithType();
-            WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new AzosException(msg, error);
-          }
-        }
-
-
-
-
-        node = m_ConfigRoot[CONFIG_SECURITY_SECTION];
-        if (node.Exists)
-          try
-          {
-            m_SecurityManager = FactoryUtils.MakeAndConfigure(node, typeof(ConfigSecurityManager)) as ISecurityManagerImplementation;
-
-            if (m_SecurityManager==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
-                                                            node
-                                                           .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
-                                                           .ValueAsString(CoreConsts.UNKNOWN));
-
-            WriteLog(MessageType.Info, FROM, "Security Manager made");
-
-            BeforeSecurityManagerStart(m_SecurityManager);
-
-            if (m_SecurityManager is Daemon)
-            {
-              if (((Daemon)m_SecurityManager).StartByApplication())
-                WriteLog(MessageType.Info, FROM, "Security Manager started");
-            }
-          }
-          catch (Exception error)
-          {
-            var msg = StringConsts.APP_SECURITY_MANAGER_INIT_ERROR + error;
-            WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new AzosException(msg, error);
-          }
-
-        try
-        {
-           Behavior.ApplyConfiguredBehaviors(this, m_ConfigRoot);
-        }
-        catch(Exception error)
-        {
-           var msg = StringConsts.APP_APPLY_BEHAVIORS_ERROR + error;
-           WriteLog(MessageType.Error, FROM, msg, error);
-           throw new AzosException(msg, error);
-        }
-
-
-        node = m_ConfigRoot[CONFIG_INSTRUMENTATION_SECTION];
-        if (node.Exists)
-          try
-          {
-            m_Instrumentation = FactoryUtils.MakeAndConfigure(node, typeof(InstrumentationDaemon)) as IInstrumentationImplementation;
-
-            if (m_Instrumentation==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
-                                                    node
-                                                   .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
-                                                   .ValueAsString(CoreConsts.UNKNOWN));
-
-            WriteLog(MessageType.Info, FROM, "Instrumentation made");
-
-            BeforeInstrumentationStart(m_Instrumentation);
-
-            if (m_Instrumentation is Daemon)
-            {
-              if (((Daemon)m_Instrumentation).StartByApplication())
-                WriteLog(MessageType.Info, FROM, "Instrumentation started");
-            }
-
-          }
-          catch (Exception error)
-          {
-            var msg = StringConsts.APP_INSTRUMENTATION_INIT_ERROR + error;
-            WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new AzosException(msg, error);
-          }
-
-
-        node = m_ConfigRoot[CONFIG_DATA_STORE_SECTION];
-        if (node.Exists)
-          try
-          {
-            m_DataStore = FactoryUtils.MakeAndConfigure(node) as IDataStoreImplementation;
-
-            if (m_DataStore==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
-                                                    node
-                                                   .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
-                                                   .ValueAsString(CoreConsts.UNKNOWN));
-
-            WriteLog(MessageType.Info, FROM, "DataStore made");
-
-
-            BeforeDataStoreStart(m_DataStore);
-
-            if (m_DataStore is Daemon)
-            {
-              if (((Daemon)m_DataStore).StartByApplication())
-                WriteLog(MessageType.Info, FROM, "DataStore started");
-            }
-          }
-          catch (Exception error)
-          {
-            var msg = StringConsts.APP_DATA_STORE_INIT_ERROR + error;
-            WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new AzosException(msg, error);
-          }
-
-        node = m_ConfigRoot[CONFIG_OBJECT_STORE_SECTION];
-        if (node.Exists)
-          try
-          {
-            m_ObjectStore = FactoryUtils.MakeAndConfigure(node, typeof(ObjectStoreDaemon)) as IObjectStoreImplementation;
-
-            if (m_ObjectStore==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
-                                                            node
-                                                           .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
-                                                           .ValueAsString(CoreConsts.UNKNOWN));
-
-            WriteLog(MessageType.Info, FROM, "ObjectStore made");
-
-            BeforeObjectStoreStart(m_ObjectStore);
-
-            if (m_ObjectStore is Daemon)
-            {
-              if (((Daemon)m_ObjectStore).StartByApplication())
-                WriteLog(MessageType.Info, FROM, "ObjectStore started");
-            }
-          }
-          catch (Exception error)
-          {
-            var msg = StringConsts.APP_OBJECT_STORE_INIT_ERROR + error;
-            WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new AzosException(msg, error);
-          }
-
-        node = m_ConfigRoot[CONFIG_GLUE_SECTION];
-        if (node.Exists)
-          try
-          {
-            m_Glue = FactoryUtils.MakeAndConfigure(node, typeof(Azos.Glue.Implementation.GlueDaemon)) as IGlueImplementation;
-
-            if (m_Glue==null) throw new AzosException(StringConsts.APP_INJECTION_TYPE_MISMATCH_ERROR  +
-                                                            node
-                                                           .AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
-                                                           .ValueAsString(CoreConsts.UNKNOWN));
-
-            WriteLog(MessageType.Info, FROM, "Glue made");
-
-            BeforeGlueStart(m_Glue);
-
-            if (m_Glue is Daemon)
-            {
-              if (((Daemon)m_Glue).StartByApplication())
-                WriteLog(MessageType.Info, FROM, "Glue started");
-            }
-          }
-          catch (Exception error)
-          {
-            var msg = StringConsts.APP_GLUE_INIT_ERROR + error;
-            WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new AzosException(msg, error);
-          }
-      }
-
-      protected virtual void DoModuleAfterInitApplication()
-      {
-        const string FROM = "app.mod.init";
-
-        if (m_Module!=null)
-        {
-          WriteLog(MessageType.Info, FROM, "Call module root .ApplicationAfterInit()");
-          try
-          {
-            m_Module.ApplicationAfterInit(this);
-          }
-          catch(Exception error)
-          {
-            var msg = "Error in call module root .ApplicationAfterInit()" + error.ToMessageWithType();
-            WriteLog(MessageType.CatastrophicError, FROM, msg, error);
-            throw new AzosException(msg, error);
-          }
-        }
-
-        WriteLog(MessageType.Info, FROM, "Common application initialized in '{0}' time location".Args(this.TimeLocation));
-        WriteLog(MessageType.Info, FROM, "Component dump:");
-        foreach(var cmp in ApplicationComponent.AllComponents)
-          WriteLog(MessageType.Info, FROM, "  -> Component: {0}  '{1}'  '{2}' ".Args(cmp.ComponentSID, cmp.GetType().FullName, cmp.ComponentCommonName));
-      }
-
-
-
-      protected virtual void DoModuleBeforeCleanupApplication()
-      {
-         const string FROM = "app.mod.cleanup";
-
-         if (m_Module!=null)
-         {
-           WriteLog(MessageType.Info, FROM, "Call module root .ApplicationBeforeCleanup()");
-           try
-           {
-             m_Module.ApplicationBeforeCleanup(this);
-           }
-           catch(Exception error)
-           {
-             WriteLog(MessageType.CatastrophicError, FROM, "Error in call module root .ApplicationBeforeCleanup()" + error.ToMessageWithType(), error);
-           }
-         }
-      }
-
-
-      protected virtual void DoCleanupApplication()
-      {
-         const string FROM = "app.cleanup";
-
-         if (m_Glue!=null)
-         {
-           WriteLog(MessageType.Info, FROM, "Finalizing Glue");
-           try
-           {
-             if (m_Glue is Daemon)
-             {
-                 ((Daemon)m_Glue).SignalStop();
-                 ((Daemon)m_Glue).WaitForCompleteStop();
-                 WriteLog(MessageType.Info, FROM, "Glue stopped");
-             }
-
-             m_Glue.Dispose();
-             WriteLog(MessageType.Info, FROM, "Glue disposed");
-           }
-           catch(Exception error)
-           {
-             WriteLog(MessageType.CatastrophicError, FROM, "Error finalizing Glue: " + error.ToMessageWithType(), error);
-           }
-         }
-
-
-         if (m_ObjectStore!=null)
-         {
-           WriteLog(MessageType.Info, FROM, "Finalizing ObjectStore");
-           try
-           {
-             if (m_ObjectStore is Daemon)
-             {
-                 ((Daemon)m_ObjectStore).SignalStop();
-                 ((Daemon)m_ObjectStore).WaitForCompleteStop();
-                 WriteLog(MessageType.Info, FROM, "ObjectStore stopped");
-             }
-
-             m_ObjectStore.Dispose();
-             WriteLog(MessageType.Info, FROM, "ObjectStore disposed");
-           }
-           catch(Exception error)
-           {
-             WriteLog(MessageType.Error, FROM, "Error finalizing ObjectStore: " + error.ToMessageWithType(), error);
-           }
-         }
-
-
-         if (m_DataStore!=null)
-         {
-           WriteLog(MessageType.Info, FROM, "Finalizing DataStore");
-           try
-           {
-             if (m_DataStore is Daemon)
-             {
-                 ((Daemon)m_DataStore).SignalStop();
-                 ((Daemon)m_DataStore).WaitForCompleteStop();
-                 WriteLog(MessageType.Info, FROM, "DataStore stopped");
-             }
-             m_DataStore.Dispose();
-             WriteLog(MessageType.Info, FROM, "DataStore disposed");
-           }
-           catch(Exception error)
-           {
-             WriteLog(MessageType.Error, FROM, "Error finalizing DataStore: " + error.ToMessageWithType(), error);
-           }
-         }
-
-
-         if (m_Instrumentation != null)
-         {
-           WriteLog(MessageType.Info, FROM, "Finalizing Instrumentation");
-           try
-           {
-             if (m_Instrumentation is Daemon)
-             {
-                 ((Daemon)m_Instrumentation).SignalStop();
-                 ((Daemon)m_Instrumentation).WaitForCompleteStop();
-                 WriteLog(MessageType.Info, FROM, "Instrumentation stopped");
-             }
-
-             m_Instrumentation.Dispose();
-             WriteLog(MessageType.Info, FROM, "Instrumentation disposed");
-           }
-           catch(Exception error)
-           {
-             WriteLog(MessageType.Error, FROM, "Error finalizing Instrumentation: " + error.ToMessageWithType(), error);
-           }
-         }
-
-
-         if (m_SecurityManager!=null)
-         {
-           WriteLog(MessageType.Info, FROM, "Finalizing Security Manager");
-           try
-           {
-             if (m_SecurityManager is Daemon)
-             {
-                 ((Daemon)m_SecurityManager).SignalStop();
-                 ((Daemon)m_SecurityManager).WaitForCompleteStop();
-                 WriteLog(MessageType.Info, FROM, "Security Manager stopped");
-             }
-
-             m_SecurityManager.Dispose();
-             WriteLog(MessageType.Info, FROM, "Security Manager disposed");
-           }
-           catch(Exception error)
-           {
-             WriteLog(MessageType.Error, FROM, "Error finalizing Security Manager: " + error.ToMessageWithType(), error);
-           }
-         }
-
-
-         if (m_EventTimer != null)
-         {
-           WriteLog(MessageType.Info, FROM, "Finalizing EventTimer");
-           try
-           {
-             if (m_EventTimer is Daemon)
-             {
-                 ((Daemon)m_EventTimer).SignalStop();
-                 ((Daemon)m_EventTimer).WaitForCompleteStop();
-                 WriteLog(MessageType.Info, FROM, "EventTimer stopped");
-             }
-
-             m_EventTimer.Dispose();
-             WriteLog(MessageType.Info, FROM, "EventTimer disposed");
-           }
-           catch(Exception error)
-           {
-             WriteLog(MessageType.Error, FROM, "Error finalizing EventTimer: " + error.ToMessageWithType(), error);
-           }
-         }
-
-
-         if (m_TimeSource != null)
-         {
-           WriteLog(MessageType.Info, FROM, "Finalizing TimeSource");
-           try
-           {
-             if (m_TimeSource is Daemon)
-             {
-                 ((Daemon)m_TimeSource).SignalStop();
-                 ((Daemon)m_TimeSource).WaitForCompleteStop();
-                 WriteLog(MessageType.Info, FROM, "TimeSource stopped");
-             }
-
-             m_TimeSource.Dispose();
-             WriteLog(MessageType.Info, FROM, "TimeSource disposed");
-             WriteLog(MessageType.Info, FROM, "Log msg times are machine-local now");
-           }
-           catch(Exception error)
-           {
-             WriteLog(MessageType.Error, FROM, "Error finalizing TimeSource: " + error.ToMessageWithType(), error);
-           }
-         }
-
-         if (m_Log!=null)
-         {
-             WriteLog(MessageType.Info, FROM, "Stopping logger. This is the last message");
-             try
-             {
-               if (m_Log is Daemon)
-               {
-                   ((Daemon)m_Log).SignalStop();
-                   ((Daemon)m_Log).WaitForCompleteStop();
-               }
-               m_Log.Dispose();
-             }
-             catch
-             {
-               //nowhere to log
-             }
-         }
-
-      }
+        return string.Empty;
+    }
+
+
+    /// <summary>
+    /// Forces notification of all registered IConfigSettings-implementers about configuration change
+    /// </summary>
+    protected void NotifyAllConfigSettingsAboutChange(IConfigSectionNode node)
+    {
+        node = node ?? m_ConfigRoot;
+
+        lock(m_ConfigSettings)
+          foreach(var s in m_ConfigSettings) s.ConfigChanged(node);
+    }
 
     #endregion
+
   }
 
 }

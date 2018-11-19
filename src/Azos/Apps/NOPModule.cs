@@ -12,8 +12,7 @@ namespace Azos.Apps
   {
 
     public NOPModule(IApplication application) : base(application) { }
-    public NOPModule(IApplication application, IModule parent) : base(application, parent) { }
-    public NOPModule(IApplication application, IModule parent, int order) : base(application, parent, order) { }
+    public NOPModule(IModule parent) : base(parent) { }
 
     public override bool IsHardcodedModule => true;
 

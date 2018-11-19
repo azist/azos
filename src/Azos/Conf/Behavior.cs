@@ -44,24 +44,28 @@ namespace Azos.Conf
               string descr = string.Empty;
               try
               {
-                  var firstLevel = true;
+                var firstLevel = true;
 
-                  while(node.Exists)
+                while(node.Exists)
+                {
+                  var bnodes = node[CONFIG_BEHAVIORS_SECTION]
+                                .Children
+                                .Where(c => c.IsSameName(CONFIG_BEHAVIOR_SECTION) && (firstLevel || c.AttrByName(CONFIG_CASCADE_ATTR).ValueAsBool(false)) )
+                                .OrderBy(c => c.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt());
+
+                  foreach(var bnode in bnodes)
                   {
-                        var bnodes = node[CONFIG_BEHAVIORS_SECTION]
-                                          .Children
-                                          .Where(c=> c.IsSameName(CONFIG_BEHAVIOR_SECTION) && (firstLevel || c.AttrByName(CONFIG_CASCADE_ATTR).ValueAsBool(false)) )
-                                          .OrderBy(c=> c.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt());
-                        foreach(var bnode in bnodes)
-                        {
-                            descr = " config path: '{0}', type: '{1}'".Args(bnode.RootPath, bnode.AttrByName(FactoryUtils.CONFIG_TYPE_ATTR).ValueAsString(CoreConsts.NULL_STRING));
-                            var behavior = FactoryUtils.MakeAndConfigure<Behavior>(bnode);
-                            behavior.Apply(target);
-                        }
+                      descr = " config path: '{0}', type: '{1}'".Args(bnode.RootPath,
+                                               bnode.AttrByName(FactoryUtils.CONFIG_TYPE_ATTR)
+                                                    .ValueAsString(CoreConsts.NULL_STRING));
 
-                        node = node.Parent;
-                        firstLevel = false;
-                 }
+                      var behavior = FactoryUtils.MakeAndConfigure<Behavior>(bnode);
+                      behavior.Apply(target);
+                  }
+
+                  node = node.Parent;
+                  firstLevel = false;
+                }
              }
              catch(Exception error)
              {
@@ -70,7 +74,7 @@ namespace Azos.Conf
           }
 
           /// <summary>
-          /// Applies behaviors as declared using attributes on target isntance's type
+          /// Applies behaviors as declared using attributes on target instance's type
           /// </summary>
           public static void ApplyBehaviorAttributes(object target)
           {

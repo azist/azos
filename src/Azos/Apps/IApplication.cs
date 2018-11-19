@@ -24,7 +24,7 @@ namespace Azos.Apps
      /// </summary>
      bool IsUnitTest{ get; }
 
-      /// <summary>
+     /// <summary>
      /// True when the app should force the process-wide invariant culture regardless of machine-level culture.
      /// This is used in server applications
      /// </summary>

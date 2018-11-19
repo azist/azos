@@ -314,9 +314,8 @@ namespace Azos
         "Work item must implement IAggregatableWorkItem interface to be posted in this queue";
 
 
+    public const string APP_CLEANUP_COMPONENT_ERROR = "App {0} component cleanup error: {1}";
 
-        public const string APP_INJECTION_TYPE_MISMATCH_ERROR =
-              "The injected type is mismatched for entity being configured: ";
 
 
         public const string APP_LOG_INIT_ERROR =
@@ -354,12 +353,6 @@ namespace Azos
 
         public const string APP_APPLY_BEHAVIORS_ERROR =
               "App apply behaviors initApplication error: ";
-
-        public const string APP_FORMS_FACTORY_INIT_ERROR =
-              "App forms factory initApplication error: ";
-
-        public const string SVCAPPLICATION_TOPIC =
-              "SvcApp";
 
         public const string APP_FINISH_NOTIFIABLES_ERROR =
               "Application finish notifiables threw exceptions: ";

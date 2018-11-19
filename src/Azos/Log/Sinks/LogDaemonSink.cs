@@ -15,14 +15,15 @@ namespace Azos.Log.Sinks
   {
     public LogDaemonSink(ISinkOwner owner) : base(owner)
     {
-
+      m_Daemon = new LogDaemon(this);
     }
 
     public LogDaemonSink(ISinkOwner owner, string name, int order) : base(owner, name, order)
     {
+      m_Daemon = new LogDaemon(this);
     }
 
-    private LogDaemon  m_Daemon = new LogDaemon(null);
+    private LogDaemon  m_Daemon;
 
     protected override void DoConfigure(IConfigSectionNode node)
     {

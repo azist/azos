@@ -51,20 +51,15 @@ namespace Azos.Glue.Native
         #endregion
 
         #region .ctor
-            public MpxBinding(string name) : base (name)
-            {
 
-            }
-
-            public MpxBinding(IGlueImplementation glue, string name) : base(glue, name)
-            {
-
-            }
+        public MpxBinding(IGlueImplementation glue, string name = null, Provider provider = null) : base(glue, name, provider)
+        {
+        }
 
         #endregion
 
 
-         #region Fields
+        #region Fields
 
             private ISerializer m_Serializer;
             private MpxSocketFactory m_SocketFactory;

@@ -54,9 +54,9 @@ namespace Azos.Data.Access.Cache
                 if (bucketCount==recPerPage)
                 {
                     recPerPage += 7;//prime
-                    store.log(Log.MessageType.Warning,
+                    store.WriteLog(Log.MessageType.Warning, nameof(Table),
                                StringConsts.CACHE_TABLE_CTOR_SIZES_WARNING,
-                               parameters: "Table: {0} BucketCount: {1} RecPerPage: {2}".Args(name, bucketCount, recPerPage) );
+                               pars: "Table: {0} BucketCount: {1} RecPerPage: {2}".Args(name, bucketCount, recPerPage) );
                 }
 
                 m_Store = store;

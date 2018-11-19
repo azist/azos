@@ -229,32 +229,6 @@ namespace Azos.Apps
 
     #endregion
 
-    #region .pvt
-
-    private Guid log(MessageType type,
-                     string from,
-                     string message,
-                     Exception error = null,
-                     Guid? relatedMessageID = null,
-                     string parameters = null)
-    {
-      var logMessage = new Message
-      {
-        Topic = StringConsts.SVCAPPLICATION_TOPIC,
-        Text = message ?? string.Empty,
-        Type = type,
-        From = "{0}.{1}".Args(this.GetType().Name, from),
-        Exception = error,
-        Parameters = parameters
-      };
-      if (relatedMessageID.HasValue) logMessage.RelatedTo = relatedMessageID.Value;
-
-      App.Log.Write(logMessage);
-
-      return logMessage.Guid;
-    }
-
-    #endregion
   }
 
 

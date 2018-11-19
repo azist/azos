@@ -65,9 +65,10 @@ namespace Azos.Apps
         #region Properties
 
             /// <summary>
-            /// Checks whether the class is decorated with ApplicationDontAutoStartServiceAttribute
+            /// Checks whether the class should not be auto-started by the application on boot.
+            /// Default implementation checks whether it is decorated with ApplicationDontAutoStartDaemonAttribute
             /// </summary>
-            public bool ApplicationDontAutoStartService
+            public virtual bool ApplicationDontAutoStartDaemon
             {
               get{ return Attribute.IsDefined(GetType(), typeof(ApplicationDontAutoStartDaemonAttribute));}
             }
@@ -139,11 +140,11 @@ namespace Azos.Apps
             }
 
             /// <summary>
-            /// Blocking call that starts the service instance
+            /// Blocking call that starts the service instance if it is not decorated by [DontAutoStartDaemon]
             /// </summary>
             internal bool StartByApplication()
             {
-                if (ApplicationDontAutoStartService) return false;
+                if (ApplicationDontAutoStartDaemon) return false;
                 Start();
                 return true;
             }

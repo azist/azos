@@ -71,7 +71,7 @@ static string conf3 = @"
 
                 Aver.AreEqual(1, ((LogDaemon)app.Log).Sinks.Count());
                 System.Threading.Thread.Sleep(1000);//wait for flush
-                Aver.IsNotNull( ((listDestination)((LogDaemon)app.Log).Sinks.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
+                Aver.IsNotNull( ((listSink)((LogDaemon)app.Log).Sinks.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
             }
 
         }
@@ -86,7 +86,7 @@ static string conf3 = @"
 
                 Aver.AreEqual(1, ((LogDaemon)app.Log).Sinks.Count());
                 System.Threading.Thread.Sleep(1000);//wait for flush
-                Aver.IsNotNull( ((listDestination)((LogDaemon)app.Log).Sinks.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
+                Aver.IsNotNull( ((listSink)((LogDaemon)app.Log).Sinks.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
             }
 
         }
@@ -107,29 +107,25 @@ static string conf3 = @"
 
 
 
-                        internal class listDestination : Log.Sinks.Sink
-                        {
-                            public MessageList List = new MessageList();
+        internal class listSink : Log.Sinks.Sink
+        {
+            public listSink(LogDaemon owner): base(owner, "test-sink", -1) { }
+            public MessageList List = new MessageList();
 
-                            protected internal override void DoSend(Message entry)
-                            {
-                              List.Add(entry);
-                            }
-                        }
+            protected internal override void DoSend(Message entry)
+            {
+              List.Add(entry);
+            }
+        }
 
 
-                        public class AlwaysLogBehavior : Conf.Behavior
-                        {
-                            public AlwaysLogBehavior() : base() {}
+        public class AlwaysLogBehavior : Conf.Behavior
+        {
+            public AlwaysLogBehavior() : base() {}
 
-                            public override void Apply(object target)
-                            {
-                                if (target is Log.LogDaemon)
-                                {
-                                   var svc = (Log.LogDaemon)target;
-
-                                   svc.RegisterSink( new listDestination());
-                                }
-                            }
-                        }
+            public override void Apply(object target)
+            {
+              if (target is LogDaemon dlog) (new listSink(dlog)).Start();
+            }
+        }
 }

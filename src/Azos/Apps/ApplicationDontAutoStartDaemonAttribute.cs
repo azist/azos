@@ -9,7 +9,7 @@ using System;
 namespace Azos.Apps
 {
   /// <summary>
-  /// Designates service-derivative classes that should NOT be auto-started by the app container
+  /// Designates service-derivative classes that should NOT be auto-started by the app chassis
   /// </summary>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
   public class ApplicationDontAutoStartDaemonAttribute : Attribute
