@@ -89,6 +89,7 @@ namespace Azos
       public const string LOCALIZATION_TOPIC = "Lcl";
       public const string PILE_TOPIC = "Pile";
       public const string IO_TOPIC = "IO";
+      public const string WEBMSG_TOPIC = "WMsg";
 
       public const string LOG_CHANNEL_SECURITY = "security";
 

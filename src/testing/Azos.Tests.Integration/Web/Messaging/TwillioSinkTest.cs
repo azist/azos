@@ -40,7 +40,7 @@ namespace Azos.Tests.Integration.Web.Messaging
       var config = CONFIG.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
       m_App = new ServiceBaseApplication(null, config);
 
-      m_Sink = (TwilioSink)((MessageService)MessageService.Instance).Sink;
+      m_Sink = (TwilioSink)((MessageDaemon)MessageDaemon.Instance).Sink;
       Aver.IsNotNull(m_Sink);
 
       Aver.IsTrue(m_Sink.Name.EqualsOrdIgnoreCase("Twilio"));

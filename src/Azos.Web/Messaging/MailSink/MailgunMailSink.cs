@@ -65,7 +65,7 @@ namespace Azos.Web.Messaging
 
     #region .ctor
 
-    public MailgunMailerSink(MessageService director)
+    public MailgunMailerSink(MessageDaemon director)
       : base(director)
     {
     }

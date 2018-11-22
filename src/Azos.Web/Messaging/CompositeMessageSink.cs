@@ -18,7 +18,7 @@ namespace Azos.Web.Messaging
   /// </summary>
   public class CompositeMessageSink : MessageSink
   {
-    public CompositeMessageSink(MessageService director) : base(director)
+    public CompositeMessageSink(MessageDaemon director) : base(director)
     {
     }
 

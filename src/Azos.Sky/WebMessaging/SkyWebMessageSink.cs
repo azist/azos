@@ -18,7 +18,7 @@ namespace Azos.Sky.WebMessaging
 
     #endregion
 
-    public SkyWebMessageSink(MessageService director) : base(director)
+    public SkyWebMessageSink(MessageDaemon director) : base(director)
     {
     }
 

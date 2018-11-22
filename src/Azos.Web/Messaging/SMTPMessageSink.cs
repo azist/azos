@@ -28,7 +28,7 @@ namespace Azos.Web.Messaging
 
     #region .ctor
 
-    public SMTPMessageSink(MessageService director) : base(director)
+    public SMTPMessageSink(MessageDaemon director) : base(director)
     {
       SmtpPort = DEFAULT_SMTP_PORT;
     }

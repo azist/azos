@@ -17,7 +17,7 @@ namespace Azos.Web.Messaging
       void SendMsg(Message msg);
     }
 
-    public interface IMessengerImplementation : IMessenger, IConfigurable, IDaemon, IApplicationFinishNotifiable
+    public interface IMessengerImplementation : IMessenger, IConfigurable, IDaemon
     {
 
     }

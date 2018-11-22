@@ -19,7 +19,7 @@ namespace Azos.Web.Messaging
   /// <summary>
   /// Provides implementation for IMessenger service
   /// </summary>
-  public sealed class MessageService : DaemonWithInstrumentation<object>, IMessengerImplementation
+  public sealed class MessageDaemon : DaemonWithInstrumentation<IApplicationComponent>, IMessengerImplementation
   {
     #region CONSTS
 
@@ -30,59 +30,10 @@ namespace Azos.Web.Messaging
     private const string THREAD_NAME = "MailerService Thread";
     private const int INSTRUMENTATION_GRANULARITY_MS = 10000;
     private const MessageType DEFAULT_LOG_LEVEL = MessageType.Warning;
-    private const string LOG_TOPIC = "Messaging.MessageService";
     #endregion
 
-    #region .ctor and static/lifecycle
-    private static object s_Lock = new object();
-    private static volatile IMessengerImplementation s_Instance;
-
-    /// <summary>
-    /// Returns a singleton instance of the default mailer
-    /// </summary>
-    public static IMessenger Instance
-    {
-      get
-      {
-        var instance = s_Instance;
-        if (instance != null) return instance;
-        lock (s_Lock)
-        {
-          instance = s_Instance;
-          if (instance != null) return instance;
-
-          instance = FactoryUtils.MakeAndConfigure<IMessengerImplementation>(App.ConfigRoot[CONFIG_MESSAGING_SECTION], typeof(MessageService));
-          instance.Start();
-          App.Instance.RegisterAppFinishNotifiable(instance);
-          s_Instance = instance;
-          return s_Instance;
-        }
-      }
-    }
-
-    /// <summary>
-    /// Constructs the service. For most-typical cases use MailerService.Instance instead
-    /// </summary>
-    public MessageService() : base(null) { }
-
-    /// <summary>
-    /// Constructs the directed service instance
-    /// </summary>
-    public MessageService(object director) : base(director) { }
-
-    protected override void Destructor()
-    {
-      base.Destructor();
-      if (s_Instance == this) s_Instance = null;
-    }
-
-    public void ApplicationFinishBeforeCleanup(IApplication application)
-    {
-      Dispose();
-    }
-
-    public void ApplicationFinishAfterCleanup(IApplication application) { }
-    #endregion
+    public MessageDaemon(IApplication app) : base(app) { }
+    public MessageDaemon(IApplicationComponent director) : base(director) { }
 
     #region Private Fields
 
@@ -99,6 +50,8 @@ namespace Azos.Web.Messaging
     #endregion
 
     #region Properties
+
+    public override string ComponentLogTopic => CoreConsts.WEBMSG_TOPIC;
 
     /// <summary>
     /// Turns instrumentation on/off
@@ -174,7 +127,7 @@ namespace Azos.Web.Messaging
 
     protected override void DoStart()
     {
-      log(MessageType.Info, "Entering DoStart()", null);
+      WriteLog(MessageType.Trace, nameof(DoStart), "Entering");
 
       try
       {
@@ -206,16 +159,16 @@ namespace Azos.Web.Messaging
           m_Thread = null;
         }
 
-        log(MessageType.CatastrophicError, "DoStart() exception: " + error.Message, null);
+        WriteLog(MessageType.CatastrophicError, nameof(DoStart), "Leaked: " + error.ToMessageWithType(), error);
         throw error;
       }
 
-      log(MessageType.Info, "Exiting DoStart()", null);
+      WriteLog(MessageType.Trace, nameof(DoStart), "Exiting");
     }
 
     protected override void DoSignalStop()
     {
-      log(MessageType.Info, "Entering DoSignalStop()", null);
+      WriteLog(MessageType.Trace, nameof(DoSignalStop), "Entering DoSignalStop()");
       try
       {
         m_Sink.SignalStop();
@@ -224,17 +177,16 @@ namespace Azos.Web.Messaging
       }
       catch (Exception error)
       {
-        log(MessageType.CatastrophicError, "DoSignalStop() exception: " + error.Message, null);
+        WriteLog(MessageType.CatastrophicError, nameof(DoSignalStop), "Leaked: " + error.ToMessageWithType(), error);
         throw error;
       }
 
-      log(MessageType.Info, "Exiting DoSignalStop()", null);
-
+      WriteLog(MessageType.Trace, nameof(DoSignalStop), "Exiting");
     }
 
     protected override void DoWaitForCompleteStop()
     {
-      log(MessageType.Info, "Entering DoWaitForCompleteStop()", null);
+      WriteLog(MessageType.Trace, nameof(DoWaitForCompleteStop), "Entering");
 
       try
       {
@@ -250,42 +202,18 @@ namespace Azos.Web.Messaging
       }
       catch (Exception error)
       {
-        log(MessageType.CatastrophicError, "DoWaitForCompleteStop() exception: " + error.Message, null);
+        WriteLog(MessageType.CatastrophicError, nameof(DoWaitForCompleteStop), "Leaked: " + error.ToMessageWithType(), error);
         throw error;
       }
 
-      log(MessageType.Info, "Exiting DoWaitForCompleteStop()", null);
+      WriteLog(MessageType.Trace, nameof(DoWaitForCompleteStop), "Exiting");
     }
 
     #endregion
 
 
 
-    #region .pvt. impl.
-    private Guid log(MessageType type,
-                     string from,
-                     string message,
-                     Exception error = null,
-                     Guid? relatedMessageID = null,
-                     string parameters = null)
-    {
-      if (type < LogLevel) return Guid.Empty;
-
-      var logMessage = new Log.Message
-      {
-        Topic = LOG_TOPIC,
-        Text = message ?? string.Empty,
-        Type = type,
-        From = "{0}.{1}".Args(this.GetType().Name, from),
-        Exception = error,
-        Parameters = parameters
-      };
-      if (relatedMessageID.HasValue) logMessage.RelatedTo = relatedMessageID.Value;
-
-      App.Log.Write(logMessage);
-
-      return logMessage.Guid;
-    }
+    #region .pvt
 
     private void threadSpin()
     {
@@ -319,10 +247,10 @@ namespace Azos.Web.Messaging
       }
       catch (Exception e)
       {
-        log(MessageType.Emergency, " threadSpin() leaked exception", e.Message);
+        WriteLog(MessageType.Emergency, nameof(threadSpin), "Leaked exception: "+e.ToMessageWithType(), e);
       }
 
-      log(MessageType.Info, "Exiting threadSpin()", null);
+      WriteLog(MessageType.Trace, nameof(threadSpin), "Exiting");
     }
 
     private void write(ConcurrentQueue<Message> queue, int count)  //-1 ==all
@@ -337,7 +265,7 @@ namespace Azos.Web.Messaging
       {
         if (!Running && (App.TimeSource.UTCNow - started).TotalMilliseconds > ABORT_TIMEOUT_MS)
         {
-          log(MessageType.Error, "{0}.Write(msg) aborted on svc shutdown: timed-out after {1} ms.".Args(m_Sink.GetType().FullName, ABORT_TIMEOUT_MS), null);
+          WriteLog(MessageType.Error, nameof(write), "{0}.Write(msg) aborted on svc shutdown: timed-out after {1} ms.".Args(m_Sink.GetType().FullName, ABORT_TIMEOUT_MS));
           break;
         }
 
@@ -351,7 +279,7 @@ namespace Azos.Web.Messaging
         {
           statSendError();
           var et = error.ToMessageWithType();
-          log(MessageType.Error, "{0}.Write(msg) leaked {1}".Args(m_Sink.GetType().FullName, et), et);
+          WriteLog(MessageType.Error, nameof(write), "{0}.Write(msg) leaked {1}".Args(m_Sink.GetType().FullName, et), error);
         }
 
         if (!sent) writeFallback(msg);
@@ -371,7 +299,7 @@ namespace Azos.Web.Messaging
       {
         statFallbackError();
         var et = error.ToMessageWithType();
-        log(MessageType.Error, "{0}.Write(msg) leaked {1}".Args(m_FallbackSink.GetType().FullName, et), et);
+        WriteLog(MessageType.Error, nameof(writeFallback), "{0}.Write(msg) leaked {1}".Args(m_FallbackSink.GetType().FullName, et), error);
       }
     }
 

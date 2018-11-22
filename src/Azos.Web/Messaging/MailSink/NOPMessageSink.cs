@@ -7,7 +7,7 @@ namespace Azos.Web.Messaging
 {
   public sealed class NOPMessageSink : MessageSink
   {
-    public NOPMessageSink(MessageService director)
+    public NOPMessageSink(MessageDaemon director)
       : base(director)
     {
     }

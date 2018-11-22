@@ -96,7 +96,7 @@ namespace Azos.Sky.WebMessaging.Server
             throw new WebMessagingException("{0} is already allocated".Args(GetType().Name));
 
           m_Channels = new Registry<Channel>();
-          m_Gateway = new MessageService(this);
+          m_Gateway = new MessageDaemon(this);
 
           s_Instance = this;
         }
@@ -115,7 +115,7 @@ namespace Azos.Sky.WebMessaging.Server
     #region Fields
 
        private Registry<Channel> m_Channels;
-       private MessageService m_Gateway;
+       private MessageDaemon m_Gateway;
 
     #endregion;
 

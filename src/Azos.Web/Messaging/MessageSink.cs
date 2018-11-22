@@ -20,17 +20,17 @@ namespace Azos.Web.Messaging
   /// </summary>
   public interface IMessageSink
   {
-      MessageService ComponentDirector{ get;}
+      MessageDaemon ComponentDirector{ get;}
   }
 
   /// <summary>
   /// Base for ALL implementations that work under MailerService
   /// </summary>
-  public abstract class MessageSink : DaemonWithInstrumentation<MessageService>, IMessageSink, IConfigurable
+  public abstract class MessageSink : DaemonWithInstrumentation<MessageDaemon>, IMessageSink, IConfigurable
   {
     private const string LOG_TOPIC = "Messaging.MessageSink";
 
-    protected MessageSink(MessageService director) : base(director)
+    protected MessageSink(MessageDaemon director) : base(director)
     {
 
     }

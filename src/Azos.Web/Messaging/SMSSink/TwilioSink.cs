@@ -25,7 +25,7 @@ namespace Azos.Web.Messaging
 
     #endregion
 
-    public TwilioSink(MessageService director) : base(director)
+    public TwilioSink(MessageDaemon director) : base(director)
     {
     }
 
