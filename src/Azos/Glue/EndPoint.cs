@@ -16,28 +16,24 @@ namespace Azos.Glue
     public abstract class EndPoint : DisposableObject
     {
 
-        protected EndPoint(IGlue glue) //used by conf
+        protected EndPoint(IGlueImplementation glue) //used by conf
         {
-           if (glue == null)
-                glue = ExecutionContext.Application.Glue;
+           glue.NonNull(text: "glue");
 
-            m_Glue = (IGlueImplementation)glue;
+            m_Glue = glue;
         }
 
-        protected EndPoint(IGlue glue, Node node, Binding binding)
+        protected EndPoint(IGlueImplementation glue, Node node, Binding binding)
         {
-            if (glue == null)
-                glue = ExecutionContext.Application.Glue;
+            glue.NonNull(text: "glue");
 
-            m_Glue = (IGlueImplementation)glue;
+            m_Glue = glue;
 
             m_Node = node;
             m_Binding = binding ?? m_Glue.GetNodeBinding(node);
         }
 
         protected IGlueImplementation m_Glue;
-
-
 
         protected Node m_Node;    //[A]ddress
         protected Binding m_Binding; //[B]inding
@@ -48,7 +44,7 @@ namespace Azos.Glue
         /// <summary>
         /// References glue that this endpoint works under
         /// </summary>
-        public IGlue Glue { get { return m_Glue; } }
+        public IGlue Glue => m_Glue;
 
 
         /// <summary>

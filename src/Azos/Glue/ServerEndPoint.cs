@@ -20,7 +20,7 @@ namespace Azos.Glue
     /// <summary>
     /// Represents a server endpoint that accepts client requests. This is a sealed class
     /// </summary>
-    public sealed class ServerEndPoint : EndPoint, IConfigurable, Collections.INamed
+    public sealed class ServerEndPoint : EndPoint, IConfigurable, INamed
     {
         #region CONSTS
 
@@ -185,12 +185,5 @@ namespace Azos.Glue
             return string.Format("{0}@{1}({2}) -> {3}", this.Name, this.Node, this.Binding.Name, s);
         }
     }
-
-
-    public sealed class Servers : Registry<ServerEndPoint>
-    {
-        public Servers() : base() { }
-    }
-
 
 }

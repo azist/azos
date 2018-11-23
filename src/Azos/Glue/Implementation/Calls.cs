@@ -34,7 +34,7 @@ namespace Azos.Glue.Implementation
 
 
       /// <summary>
-      /// Tries to pur CallSlot instance in the internal list if instance with same ID is not already in the list
+      /// Tries to put CallSlot instance in the internal list if instance with same ID is not already in the list
       /// </summary>
       public void Put(CallSlot call)
       {

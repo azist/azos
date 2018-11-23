@@ -20,7 +20,7 @@ namespace Azos.Glue
 
          internal NOPGlue(IApplication app) : base(app) {}
 
-
+         public bool Active => false;
 
          public override string ComponentLogTopic => CoreConsts.GLUE_TOPIC;
          public bool InstrumentationEnabled{ get{return false;} set{}}
@@ -219,5 +219,9 @@ namespace Azos.Glue
         {
             return App.LocalizedTimeToUniversalTime(local);
         }
-    }
+
+        public void SubscribeCallSlotWithTaskReactor(CallSlot call)
+        {
+        }
+  }
 }

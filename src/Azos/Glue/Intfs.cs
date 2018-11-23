@@ -22,6 +22,10 @@ namespace Azos.Glue
     /// </summary>
     public interface IGlue : IApplicationComponent, ILocalizedTimeProvider
     {
+        /// <summary>
+        /// Returns true when the stack is running
+        /// </summary>
+        bool Active {  get; }
 
         /// <summary>
         /// Retrieves a binding for node and throws if such binding is not known
@@ -122,6 +126,13 @@ namespace Azos.Glue
         ResponseMsg ServerHandleRequestFailure(FID reqID, bool oneWay, Exception failure, object bindingSpecCtx);
 
 
+        /// <summary>
+        /// Subscribes callslot with task reactor which completes pending tasks on timeout
+        /// </summary>
+        void SubscribeCallSlotWithTaskReactor(CallSlot call);
+
+#warning what is this for?
+    /*
         IConfigSectionNode GlueConfiguration { get; }
         IConfigSectionNode ProvidersConfigurationSection { get; }
         IEnumerable<IConfigSectionNode> ProviderConfigurations { get; }
@@ -129,5 +140,6 @@ namespace Azos.Glue
         IEnumerable<IConfigSectionNode> BindingConfigurations { get; }
         IConfigSectionNode ServersConfigurationSection { get; }
         IEnumerable<IConfigSectionNode> ServerConfigurations { get; }
+      */
     }
 }

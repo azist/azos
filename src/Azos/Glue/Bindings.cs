@@ -859,12 +859,4 @@ namespace Azos.Glue
 
     }
 
-    /// <summary>
-    /// A registry of Binding-derived instances
-    /// </summary>
-    public class Bindings : Registry<Binding>
-    {
-
-    }
-
 }

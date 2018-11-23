@@ -5,7 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -113,6 +112,8 @@ namespace Azos.Glue
       private string m_StatRoundtripTimeKey;
 
 
+      internal IGlueImplementation Glue => (IGlueImplementation)m_Client.Glue;
+
       /// <summary>
       /// Returns client endpoint that initiated this call
       /// </summary>
@@ -143,16 +144,20 @@ namespace Azos.Glue
         get
         {
           if (m_CallStatus==CallStatus.Dispatched && !m_OneWay)
+          {
             lock(m_Sync)
+            {
               if (m_CallStatus==CallStatus.Dispatched)//check for timeout
               {
-                if ((DateTime.UtcNow - m_StartTime).TotalMilliseconds>m_TimeoutMs)
+                //timeout happens when wait time exceeded or app/glue shuts down
+                if (!Glue.Active || (DateTime.UtcNow - m_StartTime).TotalMilliseconds > m_TimeoutMs)
                 {
                   m_CallStatus = CallStatus.Timeout;
                   completePendingTask(); //task completes on timeout
                 }
               }
-
+            }
+          }
           return m_CallStatus;
         }
       }
@@ -238,7 +243,7 @@ namespace Azos.Glue
             else
             if (CallStatus!=CallStatus.Dispatched) tcs.SetResult(this);//Complete task for calls that are not pending - were not dispatched properly or timed out
             else
-             TimeoutReactor.Subscribe(this);//remember this instance to be called back on Timeout in future
+              Glue.SubscribeCallSlotWithTaskReactor(this);//remember this instance to be called back on Timeout in future
 
             m_TaskCompletionSource = tcs;
             return m_TaskCompletionSource.Task;
@@ -334,7 +339,7 @@ namespace Azos.Glue
 
                lock(m_Sync)
                    while (m_ResponseMsg==null &&
-                          App.Active &&
+                          Glue.Active &&
                           this.CallStatus==CallStatus.Dispatched) //this.CallStatus checks for timeout
                    {
                      Monitor.Wait(m_Sync, 250);
@@ -354,7 +359,7 @@ namespace Azos.Glue
                 try
                 {
                     //Glue level inspectors
-                    foreach(var insp in Client.Glue.ClientMsgInspectors.OrderedValues)
+                    foreach(var insp in Glue.ClientMsgInspectors.OrderedValues)
                     {
                         inspector = insp;
                         response = inspector.ClientDeliverResponse(this, response);
@@ -448,12 +453,11 @@ namespace Azos.Glue
        //this must be called from under lock(m_Sync)
        private void completePendingTask()
        {
-          if (m_TaskCompletionSource==null) return; //must be here
+         if (m_TaskCompletionSource==null) return; //must be here
+         if (m_TaskCompletionSource.Task.IsCompleted) return;
 
-          if (m_TaskCompletionSource.Task.IsCompleted) return;
-
-          //Invoke asynchronously, as TrySetResult may synchronously run long continuations
-          Task.Run( () => m_TaskCompletionSource.TrySetResult(this) );
+         //Invoke asynchronously, as TrySetResult may synchronously run long continuations
+         Task.Run( () => m_TaskCompletionSource.TrySetResult(this) );
        }
 
     }

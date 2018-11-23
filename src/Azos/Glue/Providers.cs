@@ -30,18 +30,4 @@ namespace Azos.Glue
       }
     }
 
-    /// <summary>
-    /// A registry of Provider-derived instances
-    /// </summary>
-    public sealed class Providers : Registry<Provider>
-    {
-       public Providers()
-       {
-
-       }
-    }
-
-
-
-
 }
