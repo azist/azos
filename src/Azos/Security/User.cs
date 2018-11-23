@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 namespace Azos.Security
 {
   /// <summary>
-  /// Marker interface denoting entities that represents information about users
+  /// Marker interface denoting entities that represent information about users
   /// depending on the particular security system implementation
   /// </summary>
   public interface IIdentityDescriptor
@@ -40,15 +40,12 @@ namespace Azos.Security
   {
     public UserIdentityDescriptor(object id, string name)
     {
-      m_IdentityDescriptorID   = id;
-      m_IdentityDescriptorName = name;
+      IdentityDescriptorID   = id;
+      IdentityDescriptorName = name;
     }
 
-    private object m_IdentityDescriptorID;
-    private string m_IdentityDescriptorName;
-
-    public object IdentityDescriptorID { get { return m_IdentityDescriptorID; } }
-    public string IdentityDescriptorName { get { return m_IdentityDescriptorName; } }
+    public object IdentityDescriptorID { get; }
+    public string IdentityDescriptorName { get; }
     public IdentityType IdentityDescriptorType { get { return IdentityType.User; } }
   }
 
@@ -56,7 +53,7 @@ namespace Azos.Security
   /// Provides base user functionality. Particular security manager implementations may return users derived from this class
   /// </summary>
   [Serializable]
-  public class User : IIdentityDescriptor, IIdentity, IPrincipal, IDeserializationCallback
+  public class User : IIdentityDescriptor, IIdentity, IPrincipal
   {
     #region Static
       private static readonly User s_FakeUserInstance = new User(BlankCredentials.Instance,
@@ -64,7 +61,8 @@ namespace Azos.Security
                                           UserStatus.Invalid,
                                             "John Doe",
                                             "Fake user",
-                                            Rights.None);
+                                            Rights.None,
+                                            DateTime.UtcNow);
 
       /// <summary>
       /// Returns default instance of the fake user that has no rights
@@ -80,7 +78,8 @@ namespace Azos.Security
                   UserStatus status,
                   string name,
                   string descr,
-                  Rights rights)
+                  Rights rights,
+                  DateTime utcNow)
       {
           m_Credentials = credentials;
           m_AuthenticationToken = token;
@@ -88,13 +87,13 @@ namespace Azos.Security
           m_Name = name;
           m_Description = descr;
           m_Rights = rights;
-          m_StatusTimeStampUTC = App.TimeSource.UTCNow;
+          m_StatusTimeStampUTC = utcNow;
       }
 
       public User(Credentials credentials,
                   AuthenticationToken token,
                   string name,
-                  Rights rights) : this(credentials, token, UserStatus.User, name, null, rights)
+                  Rights rights, DateTime utcNow) : this(credentials, token, UserStatus.User, name, null, rights, utcNow)
       {
 
       }
@@ -121,37 +120,19 @@ namespace Azos.Security
 
       /// <summary>
       /// Captures timestamp when this user was set to current status (created/set rights)
-      /// Security managers may elect to reftech user rights after some period
+      /// Security managers may elect to refetch user rights after some period
       /// </summary>
-      public DateTime StatusTimeStampUTC
-      {
-        get{ return m_StatusTimeStampUTC;}
-      }
+      public DateTime StatusTimeStampUTC => m_StatusTimeStampUTC;
 
-      public Credentials Credentials
-      {
-        get { return m_Credentials ?? BlankCredentials.Instance; }
-      }
+      public Credentials Credentials => m_Credentials ?? BlankCredentials.Instance;
 
-      public AuthenticationToken AuthToken
-      {
-        get { return m_AuthenticationToken; }
-      }
+      public AuthenticationToken AuthToken => m_AuthenticationToken;
 
-      public string Name
-      {
-        get { return m_Name ?? string.Empty; }
-      }
+      public string Name => m_Name ?? string.Empty;
 
-      public string Description
-      {
-        get { return m_Description ?? string.Empty; }
-      }
+      public string Description => m_Description ?? string.Empty;
 
-      public UserStatus Status
-      {
-        get { return m_Status; }
-      }
+      public UserStatus Status => m_Status;
 
       /// <summary>
       /// Returns data bag that contains user rights. This is a framework-only internal property
@@ -159,21 +140,7 @@ namespace Azos.Security
       ///   by ISecurityManager implementation. Use User[permission] indexer or Application.SecurityManager.Authorize()
       ///    to obtain AccessLevel
       /// </summary>
-      public Rights Rights
-      {
-        get { return m_Rights ?? Azos.Security.Rights.None; }
-      }
-
-      /// <summary>
-      /// Authorizes user to specified permission.
-      /// Note: this authorization call returns AccessLevel object that may contain a complex data structure.
-      /// The final assertion of user's ability to perform a certain action is encapsulated in Permission.Check() method.
-      /// Call Permission.AuthorizeAndGuardAction(MemberInfo, ISession) to guard classes and methods from unauthorized access
-      /// </summary>
-      public AccessLevel this[Permission permission]
-      {
-          get { return App.SecurityManager.Authorize(this, permission); }
-      }
+      public Rights Rights => m_Rights ?? Rights.None;
 
     #endregion
 
@@ -194,14 +161,15 @@ namespace Azos.Security
                     UserStatus status,
                     string name,
                     string descr,
-                    Rights rights)
+                    Rights rights,
+                    DateTime utcNow)
       {
           if (object.ReferenceEquals(this, s_FakeUserInstance)) return;//Fake user is immutable
           m_Status = status;
           m_Name = name;
           m_Description = descr;
           m_Rights = rights;
-          m_StatusTimeStampUTC = App.TimeSource.UTCNow;
+          m_StatusTimeStampUTC = utcNow;
       }
 
       public override string ToString()
@@ -263,12 +231,5 @@ namespace Azos.Security
 
   #endregion
 
-  #region IDeserializationCallback
-    public void OnDeserialization(object sender)
-    {
-        //Re-authorizes user re-fetches Rights (Rights are not serializable)
-        App.SecurityManager.Authenticate(this);
-    }
-  #endregion
   }
 }

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 
+using Azos.Apps;
 using Azos.Conf;
 using Azos.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace Azos.Scripting
   /// Provides default implementation of runner that executes code decorated with Runnable/Run attributes.
   /// This class IS NOT thread-safe
   /// </summary>
-  public class Runner : DisposableObject
+  public class Runner : ApplicationComponent
   {
     public static readonly char[] DELIMITERS = new []{',', ';', '|'};
 
@@ -46,7 +47,7 @@ namespace Azos.Scripting
             }
 
 
-    public Runner(Assembly asm, IRunnerHost host, IConfigSectionNode config)
+    public Runner(IRunnerHost host, Assembly asm, IConfigSectionNode config) : base(host)
     {
       Assembly = asm;
       Host = host;
@@ -57,9 +58,7 @@ namespace Azos.Scripting
       m_ArgsResolver = new argsVarResolver(this);
     }
 
-
     protected IConfigSectionNode m_Args;
-
     protected argsVarResolver m_ArgsResolver;
 
     protected string[] m_Categories;
@@ -71,18 +70,20 @@ namespace Azos.Scripting
     /// <summary>
     /// Runs artifacts from this assembly
     /// </summary>
-    public readonly Assembly Assembly;
+    public Assembly Assembly { get; }
 
     /// <summary>
     /// Host which gets the output of runner
     /// </summary>
-    public readonly IRunnerHost Host;
+    public IRunnerHost Host { get; }
 
 
     /// <summary>
     /// Provides Runner instance arguments, default reads the sub-section of initial create args
     /// </summary>
     public virtual IConfigSectionNode Args => m_Args;
+
+    public override string ComponentLogTopic => CoreConsts.RUN_TOPIC;
 
     /// <summary>
     /// If set, applies category filter fixtures and test methods in the specified categories.

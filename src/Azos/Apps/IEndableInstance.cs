@@ -10,13 +10,15 @@ using System.Text;
 
 namespace Azos.Apps
 {
+
+#warning Review and delete this interface - not needed
   /// <summary>
   /// Describes an entity that can request some hosting container to end its lifetime by calling End() method
   /// </summary>
   public interface IEndableInstance
   {
     /// <summary>
-    /// Indicates whether this instance was requested to be ended and will get destoyed by the hosting container
+    /// Indicates whether this instance was requested to be ended and will get destroyed by the hosting container
     /// </summary>
     bool IsEnded { get; }
 

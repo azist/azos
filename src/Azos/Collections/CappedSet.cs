@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Azos.Apps;
 
 namespace Azos.Collections
 {
@@ -16,7 +17,7 @@ namespace Azos.Collections
   /// Implements a set of T with the optional size limit and optional item lifespan limit.
   /// This class is thread-safe and must be disposed in a deterministic way
   /// </summary>
-  public sealed class CappedSet<T> : DisposableObject, IEnumerable<KeyValuePair<T, DateTime>>
+  public sealed class CappedSet<T> : ApplicationComponent, IEnumerable<KeyValuePair<T, DateTime>>
   {
     private const int BUCKET_COUNT = 251;
     private const int VISIT_GRANULARITY_MS = 5000;
@@ -29,8 +30,10 @@ namespace Azos.Collections
        public int m_ApproximateCount;
     }
 
+    public CappedSet(IApplication app, IEqualityComparer<T> comparer = null) : base(app) => ctor(comparer);
+    public CappedSet(IApplicationComponent director, IEqualityComparer<T> comparer = null) : base(director) => ctor(comparer);
 
-    public CappedSet(IEqualityComparer<T> comparer = null)
+    private void ctor(IEqualityComparer<T> comparer = null)
     {
       m_Comparer = comparer ?? EqualityComparer<T>.Default;
       m_Data = new bucket[BUCKET_COUNT];
@@ -47,6 +50,8 @@ namespace Azos.Collections
     private int m_TimeLimitSec;
     private bucket[] m_Data;
 
+
+    public override string ComponentLogTopic => CoreConsts.COLLECTIONS_TOPIC;
 
     /// <summary>
     /// If set > 0, imposes a limit on the maximum number of entries.
@@ -178,14 +183,7 @@ namespace Azos.Collections
       }
       catch(Exception error)
       {
-        App.Log.Write( new Log.Message
-        {
-          Type = Log.MessageType.Error,
-          Topic = CoreConsts.APPLICATION_TOPIC,
-          From = "{0}.visit()".Args(GetType().Name),
-          Text = error.ToMessageWithType(),
-          Exception = error
-        });
+        WriteLog(Log.MessageType.Error, nameof(visitCore), "Leaked: "+ error.ToMessageWithType(), error);
       }
       finally
       {

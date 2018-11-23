@@ -25,7 +25,7 @@ namespace Azos.Glue.Native
        }
 
        /// <summary>
-       /// Whan was the chunk released to the pool for the last time
+       /// When was the chunk released to the pool for the last time
        /// </summary>
        internal DateTime _LastReleaseUtc;
 

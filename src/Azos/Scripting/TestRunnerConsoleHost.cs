@@ -5,11 +5,9 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Text;
 
 using Azos.Apps;
 using Azos.Conf;
@@ -19,8 +17,11 @@ namespace Azos.Scripting
   /// <summary>
   /// Hosts unit test runner in a console application. This host is NOT thread-safe
   /// </summary>
-  public sealed class TestRunnerConsoleHost : DisposableObject, IRunnerHost
+  public sealed class TestRunnerConsoleHost : ApplicationComponent, IRunnerHost
   {
+
+    public TestRunnerConsoleHost(IApplication app) : base(app) { }
+
     private Stopwatch  m_Stopwatch;
     private int m_TotalRunnables;
     private int m_TotalMethods;
@@ -37,10 +38,11 @@ namespace Azos.Scripting
     public int TotalOKs        => m_TotalOKs;
     public int TotalErrors     => m_TotalErrors;
 
+    public override string ComponentLogTopic => CoreConsts.RUN_TOPIC;
 
     public void Configure(IConfigSectionNode node) => ConfigAttribute.Apply(this, node);
 
-    public TextWriter ConsoleOut => Console.Out;
+    public TextWriter ConsoleOut   => Console.Out;
     public TextWriter ConsoleError => Console.Error;
 
 

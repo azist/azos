@@ -15,7 +15,7 @@ namespace Azos.Scripting
   /// <summary>
   /// Describes a target of runner
   /// </summary>
-  public interface IRunnerHost : IConfigurable, IDisposable
+  public interface IRunnerHost : IApplicationComponent, IConfigurable, IDisposable
   {
 
     /// <summary>

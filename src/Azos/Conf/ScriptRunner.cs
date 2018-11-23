@@ -5,10 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 
 using Azos.Text;
 
@@ -20,51 +17,48 @@ namespace Azos.Conf
     public class ScriptRunner : IConfigurable
     {
         #region CONSTS
-            public const string CONFIG_SCRIPT_RUNNER_SECTION = "script-runner";
-            public const string CONFIG_SCRIPT_RUNNER_PATH = "/" + CONFIG_SCRIPT_RUNNER_SECTION;
+        public const string CONFIG_SCRIPT_RUNNER_SECTION = "script-runner";
+        public const string CONFIG_SCRIPT_RUNNER_PATH = "/" + CONFIG_SCRIPT_RUNNER_SECTION;
 
-            public const string DEFAULT_KEYWORD_BLOCK   = "_BLOCK";
-            public const string DEFAULT_KEYWORD_IF   = "_IF";
-            public const string DEFAULT_KEYWORD_ELSE = "_ELSE";
-            public const string DEFAULT_KEYWORD_LOOP = "_LOOP";
-            public const string DEFAULT_KEYWORD_SET  = "_SET";
-            public const string DEFAULT_KEYWORD_CALL  = "_CALL";
+        public const string DEFAULT_KEYWORD_BLOCK   = "_BLOCK";
+        public const string DEFAULT_KEYWORD_IF   = "_IF";
+        public const string DEFAULT_KEYWORD_ELSE = "_ELSE";
+        public const string DEFAULT_KEYWORD_LOOP = "_LOOP";
+        public const string DEFAULT_KEYWORD_SET  = "_SET";
+        public const string DEFAULT_KEYWORD_CALL  = "_CALL";
 
-            public const string DEFAULT_SCRIPT_ONLY_ATTR  = "script-only";
+        public const string DEFAULT_SCRIPT_ONLY_ATTR  = "script-only";
 
-            public const string CONFIG_TIMEOUT_ATTR  = "timeout-ms";
+        public const string CONFIG_TIMEOUT_ATTR  = "timeout-ms";
 
-            public const int DEFAULT_TIMEOUT_MS  = 250;
-        #endregion
-
-        #region .ctor
+        public const int DEFAULT_TIMEOUT_MS  = 250;
         #endregion
 
         #region Fields
 
-            [Config("$" + DEFAULT_KEYWORD_BLOCK, DEFAULT_KEYWORD_BLOCK)]
-            private string m_KeywordBLOCK;
+        [Config("$" + DEFAULT_KEYWORD_BLOCK, DEFAULT_KEYWORD_BLOCK)]
+        private string m_KeywordBLOCK;
 
-            [Config("$" + DEFAULT_KEYWORD_IF, DEFAULT_KEYWORD_IF)]
-            private string m_KeywordIF;
+        [Config("$" + DEFAULT_KEYWORD_IF, DEFAULT_KEYWORD_IF)]
+        private string m_KeywordIF;
 
-            [Config("$" + DEFAULT_KEYWORD_ELSE, DEFAULT_KEYWORD_ELSE)]
-            private string m_KeywordELSE;
+        [Config("$" + DEFAULT_KEYWORD_ELSE, DEFAULT_KEYWORD_ELSE)]
+        private string m_KeywordELSE;
 
-            [Config("$" + DEFAULT_KEYWORD_LOOP, DEFAULT_KEYWORD_LOOP)]
-            private string m_KeywordLOOP;
+        [Config("$" + DEFAULT_KEYWORD_LOOP, DEFAULT_KEYWORD_LOOP)]
+        private string m_KeywordLOOP;
 
-            [Config("$" + DEFAULT_KEYWORD_SET, DEFAULT_KEYWORD_SET)]
-            private string m_KeywordSET;
+        [Config("$" + DEFAULT_KEYWORD_SET, DEFAULT_KEYWORD_SET)]
+        private string m_KeywordSET;
 
-            [Config("$" + DEFAULT_KEYWORD_CALL, DEFAULT_KEYWORD_CALL)]
-            private string m_KeywordCALL;
+        [Config("$" + DEFAULT_KEYWORD_CALL, DEFAULT_KEYWORD_CALL)]
+        private string m_KeywordCALL;
 
-            [Config("$" + DEFAULT_SCRIPT_ONLY_ATTR, DEFAULT_SCRIPT_ONLY_ATTR)]
-            private string m_AttributeScriptOnly;
+        [Config("$" + DEFAULT_SCRIPT_ONLY_ATTR, DEFAULT_SCRIPT_ONLY_ATTR)]
+        private string m_AttributeScriptOnly;
 
-            [Config("$" + CONFIG_TIMEOUT_ATTR, DEFAULT_TIMEOUT_MS)]
-            private int m_TimeoutMs = DEFAULT_TIMEOUT_MS;
+        [Config("$" + CONFIG_TIMEOUT_ATTR, DEFAULT_TIMEOUT_MS)]
+        private int m_TimeoutMs = DEFAULT_TIMEOUT_MS;
 
         #endregion
 
@@ -179,9 +173,7 @@ namespace Azos.Conf
 
             public virtual void Configure(IConfigSectionNode node)
             {
-                if (node == null || !node.Exists)
-                    node = App.ConfigRoot[CONFIG_SCRIPT_RUNNER_PATH];
-                ConfigAttribute.Apply(this, node);
+              ConfigAttribute.Apply(this, node);
             }
 
         #endregion

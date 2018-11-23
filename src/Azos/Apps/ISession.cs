@@ -107,12 +107,12 @@ namespace Azos.Apps
      /// Sets IsJustLoggedIn to true to indicate that user has supplied credentials/got checked via security manager.
      /// The caller of this method is implementation-specific and depends on what is considered to be "proof of users' identity"
      /// </summary>
-     void HasJustLoggedIn(SessionLoginType loginType);
+     void HasJustLoggedIn(SessionLoginType loginType, DateTime utcNow);
 
      /// <summary>
      /// Generates new GUID and stores it in ID storing old ID value in OldID property which is not serializable.
      /// The implementations may elect to re-stow the existing session under the new ID.
-     /// This method is usefull for security, i.e. when user logs-in we may want to re-generate ID
+     /// This method is useful for security, i.e. when user logs-in we may want to re-generate ID
      /// </summary>
      void RegenerateID();
   }

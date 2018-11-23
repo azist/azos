@@ -77,7 +77,7 @@ namespace Azos.Tools.Trun
           var rnode = config["r", "runner"];
 
           var errors = 0;
-          using(var host =  FactoryUtils.MakeAndConfigure<IRunnerHost>(hnode, typeof(TestRunnerConsoleHost)))
+          using(var host =  FactoryUtils.MakeAndConfigureComponent<IRunnerHost>(app, hnode, typeof(TestRunnerConsoleHost)))
           {
             Console.ForegroundColor =  ConsoleColor.DarkGray;
             Console.Write("Runner host: ");
@@ -87,7 +87,7 @@ namespace Azos.Tools.Trun
 
             foreach(var asm in assemblies)
             {
-              using(var runner =  FactoryUtils.Make<Runner>(rnode, typeof(Runner), args: new object[]{asm, host, rnode}))
+              using(var runner =  FactoryUtils.MakeDirectedComponent<Runner>(host, rnode, typeof(Runner), new object[]{asm, rnode}))
               {
                 Console.WriteLine("Assembly: {0}".Args(asm));
                 Console.WriteLine("Runner: {0}".Args(runner.GetType().DisplayNameWithExpandedGenericArgs()));

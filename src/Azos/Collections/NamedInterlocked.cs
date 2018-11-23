@@ -23,7 +23,7 @@ namespace Azos.Collections
   /// to keep millions of slots. Use it in cases when there are thousands at most slots and new slots
   /// appear infrequently. You must delete unneeded slots
   /// </summary>
-  public class NamedInterlocked
+  public sealed class NamedInterlocked
   {
           private class slot : INamed
           {
@@ -83,9 +83,11 @@ namespace Azos.Collections
       /// Records a snapshot of all longs converted into TDatum. The TDatum must have a public .ctor(string, long) or runtime exception is thrown
       /// (this is because C# does not have a contract/constraint for parameterized constructors)
       /// </summary>
-      public void SnapshotAllLongsInto<TDatum>(long? exchange = null, Instrumentation.IInstrumentation instrumentation = null) where TDatum : Instrumentation.Datum
+      public void SnapshotAllLongsInto<TDatum>(Instrumentation.IInstrumentation instrumentation, long? exchange = null) where TDatum : Instrumentation.Datum
       {
-        if (instrumentation==null) instrumentation = App.Instrumentation;
+        if (instrumentation==null)
+          throw new AzosException(StringConsts.ARGUMENT_ERROR+"{0}.{1}(instr==null)".Args(nameof(NamedInterlocked), nameof(SnapshotAllLongsInto)));
+
         foreach(var slot in SnapshotAllLongs(exchange))
         {
           var datum = (Instrumentation.Datum)Activator.CreateInstance(typeof(TDatum), slot.Key, slot.Value);
@@ -202,11 +204,4 @@ namespace Azos.Collections
 
   }
 
-  /// <summary>
-  /// Adds context to NamedInterlocked
-  /// </summary>
-  public class NamedInterlocked<TContext> : NamedInterlocked
-  {
-    public TContext Context { get; set; }
-  }
 }

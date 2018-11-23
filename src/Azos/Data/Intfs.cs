@@ -5,7 +5,6 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Azos.Data
 {
@@ -24,7 +23,8 @@ namespace Azos.Data
   public interface IValidatable
   {
     /// <summary>
-    /// Validates entity state per particular named target, for performance reasons returns validation exception (instead of throwing)
+    /// Validates entity state per particular named target, for performance reasons returns
+    /// validation exception/or aggregate (instead of throwing)
     /// </summary>
     Exception Validate(string targetName);
   }

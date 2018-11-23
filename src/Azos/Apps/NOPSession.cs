@@ -106,7 +106,7 @@ namespace Azos.Apps
 
         }
 
-        public void HasJustLoggedIn(SessionLoginType loginType)
+        public void HasJustLoggedIn(SessionLoginType loginType, DateTime utcNow)
         {
 
         }

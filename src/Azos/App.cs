@@ -10,10 +10,8 @@ using Azos.Apps;
 
 namespace Azos
 {
-    /// <summary>
-    /// Provides a shortcut access to app-global context Azos.Apps.ExecutionContext.Application.*
-    /// </summary>
-    public static class App
+    #warning this will go away
+    public static class EntryPoint
     {
       /// <summary>
       /// Denotes memory utilization modes

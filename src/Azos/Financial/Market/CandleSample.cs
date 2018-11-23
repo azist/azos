@@ -144,7 +144,7 @@ namespace Azos.Financial.Market
       var dt     = startDate;
       var deltaT = msInterval;
 
-      var priceVelocity = -1.0f + (2.0f*(float)App.Random.NextRandomDouble);
+      var priceVelocity = -1.0f + (2.0f*(float)rnd.NextRandomDouble);
       var priceSteps    = 0;
 
       var price = currentMidPrice;
@@ -154,7 +154,7 @@ namespace Azos.Financial.Market
         dt = dt.AddMilliseconds(deltaT);
         if (msIntervalDeviation != 0)
         {
-          deltaT += App.Random.NextScaledRandomInteger(-msIntervalDeviation, msIntervalDeviation);
+          deltaT += rnd.NextScaledRandomInteger(-msIntervalDeviation, msIntervalDeviation);
           if (deltaT == 0) deltaT = msInterval;
           if (i%8    == 0) deltaT = msInterval;
         }
@@ -162,11 +162,11 @@ namespace Azos.Financial.Market
 
         priceSteps++;
         if (priceSteps >=
-            App.Random.NextScaledRandomInteger(
+            rnd.NextScaledRandomInteger(
               priceDirChangeEvery - 4, priceDirChangeEvery + 4))
         {
-          var accel = (float)App.Random.NextScaledRandomInteger(1, priceChangeAccel);
-          priceVelocity = -accel + (2.0f*accel*(float)App.Random.NextRandomDouble);
+          var accel = (float)rnd.NextScaledRandomInteger(1, priceChangeAccel);
+          priceVelocity = -accel + (2.0f*accel*(float)rnd.NextRandomDouble);
           priceSteps = 0;
         }
 
@@ -176,13 +176,13 @@ namespace Azos.Financial.Market
 
         sample.OpenPrice  = pSample != null ? pSample.ClosePrice : price;
         sample.ClosePrice = price
-                          + (float)App.Random.NextScaledRandomDouble(-0.08f*currentMidPrice, +0.08f*currentMidPrice);
+                          + (float)rnd.NextScaledRandomDouble(-0.08f*currentMidPrice, +0.08f*currentMidPrice);
 
         sample.LowPrice   = Math.Min(sample.OpenPrice, sample.ClosePrice)
-                          - (float)App.Random.NextScaledRandomDouble(0, +0.05f*currentMidPrice);
+                          - (float)rnd.NextScaledRandomDouble(0, +0.05f*currentMidPrice);
 
         sample.HighPrice  = Math.Max(sample.OpenPrice, sample.ClosePrice)
-                          + (float)App.Random.NextScaledRandomDouble(0, +0.05f*currentMidPrice);
+                          + (float)rnd.NextScaledRandomDouble(0, +0.05f*currentMidPrice);
 
         sample.Count      = 1;
 
@@ -191,5 +191,7 @@ namespace Azos.Financial.Market
 
       return result;
     }
+
+    private static Platform.RandomGenerator rnd => Platform.RandomGenerator.Instance;
   }
 }

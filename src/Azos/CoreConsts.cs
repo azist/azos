@@ -73,6 +73,7 @@ namespace Azos
       public const string APPLICATION_TOPIC = "App";
       public const string DATA_TOPIC = "Data";
       public const string LOG_TOPIC = "Log";
+      public const string COLLECTIONS_TOPIC = "Coll";
       public const string INSTRUMENTATION_TIMEFRAME_TOPIC = "inst.timeframe";
       public const string OBJSTORE_TOPIC = "Objstr";
       public const string INSTRUMENTATION_TOPIC = "Instr";
@@ -90,6 +91,7 @@ namespace Azos
       public const string PILE_TOPIC = "Pile";
       public const string IO_TOPIC = "IO";
       public const string WEBMSG_TOPIC = "WMsg";
+      public const string RUN_TOPIC = "Run";
 
       public const string LOG_CHANNEL_SECURITY = "security";
 

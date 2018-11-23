@@ -4,10 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Azos.Text
 {
@@ -180,11 +177,11 @@ namespace Azos.Text
     /// </summary>
     public static string Generate(int length = 150)
     {
-      if (length<=0) length = 15 + App.Random.NextScaledRandomInteger(0, 135);
+      if (length<=0) length = 15 + rndi(0, 135);
       if (length<10) length = 10;
 
       var text = getRandomTextSource();
-      var i = App.Random.NextScaledRandomInteger(0, text.Length-1);
+      var i = rndi(0, text.Length-1);
       scrollToWordStart(text, ref i);
 
       var result = new StringBuilder();
@@ -228,7 +225,7 @@ namespace Azos.Text
       if (maxLength<minLength) maxLength = 20;
 
       var text = getRandomTextSource();
-      var i = App.Random.NextScaledRandomInteger(0, text.Length-1);
+      var i = rndi(0, text.Length-1);
       scrollToWordStart(text, ref i);
 
       var result = new StringBuilder();
@@ -263,13 +260,13 @@ namespace Azos.Text
     /// </summary>
     public static string GenerateFirstName()
     {
-      var rnd = App.Random.NextRandomInteger;
+      var rnd = rndi();
 
       if (rnd>-1500000000)
         return POPULAR_FIRST_NAMES[(0x7fFFFFFF & rnd) % POPULAR_FIRST_NAMES.Length];
 
 
-      var  prefix = LAST_NAME_SUFFIXES[(0x7fFFFFFF & App.Random.NextRandomInteger) % LAST_NAME_SUFFIXES.Length];
+      var  prefix = LAST_NAME_SUFFIXES[(0x7fFFFFFF & rndi()) % LAST_NAME_SUFFIXES.Length];
 
 
 
@@ -285,7 +282,7 @@ namespace Azos.Text
     /// </summary>
     public static string GenerateLastName()
     {
-      var rnd = App.Random.NextRandomInteger;
+      var rnd = rndi();
 
       if (rnd>0 && rnd <123000000)
         return POPULAR_LAST_NAMES[(0x7fFFFFFF & rnd) % POPULAR_LAST_NAMES.Length];
@@ -296,7 +293,7 @@ namespace Azos.Text
       string prefix;
 
       if (shrt)
-        prefix = LAST_NAME_SUFFIXES[(0x7fFFFFFF & App.Random.NextRandomInteger) % LAST_NAME_SUFFIXES.Length];
+        prefix = LAST_NAME_SUFFIXES[(0x7fFFFFFF & rndi()) % LAST_NAME_SUFFIXES.Length];
       else
       {
         do
@@ -330,7 +327,7 @@ namespace Azos.Text
     /// </summary>
     public static string GenerateCityName()
     {
-      var rnd = App.Random.NextRandomInteger;
+      var rnd = rndi();
 
       if (rnd<-1750000000)
         return POPULAR_CITY_NAMES[(0x7fFFFFFF & rnd) % POPULAR_CITY_NAMES.Length];
@@ -339,9 +336,9 @@ namespace Azos.Text
       string prefix;
 
       if (rnd>0)
-        prefix = POPULAR_FIRST_NAMES[(0x7fFFFFFF & App.Random.NextRandomInteger) % POPULAR_FIRST_NAMES.Length];
+        prefix = POPULAR_FIRST_NAMES[(0x7fFFFFFF & rndi()) % POPULAR_FIRST_NAMES.Length];
       else
-        prefix = POPULAR_LAST_NAMES[(0x7fFFFFFF & App.Random.NextRandomInteger) % POPULAR_LAST_NAMES.Length];
+        prefix = POPULAR_LAST_NAMES[(0x7fFFFFFF & rndi()) % POPULAR_LAST_NAMES.Length];
 
 
 
@@ -357,8 +354,8 @@ namespace Azos.Text
     /// </summary>
     public static string GenerateUSCityStateZip()
     {
-      var state =  US_STATES[(0x7fFFFFFF & App.Random.NextRandomInteger) % US_STATES.Length];
-      var zip = App.Random.NextScaledRandomInteger(0, 99999);
+      var state =  US_STATES[(0x7fFFFFFF & rndi()) % US_STATES.Length];
+      var zip = rndi(0, 99999);
       return "{0}, {1} {2:D5}".Args(GenerateCityName(), state, zip);
     }
 
@@ -368,9 +365,9 @@ namespace Azos.Text
     /// </summary>
     public static string GenerateAddressLine()
     {
-      var streetNumber = App.Random.NextScaledRandomInteger(1, 10000);
+      var streetNumber = rndi(1, 10000);
 
-      var rnd = App.Random.NextRandomInteger;
+      var rnd = rndi();
 
       string street;
 
@@ -381,9 +378,9 @@ namespace Azos.Text
        street = GenerateCityName();
 
       if (rnd > 0)
-       street +=  STREET_SUFFIXES[(0x7fFFFFFF & App.Random.NextRandomInteger) % STREET_SUFFIXES.Length];
+       street +=  STREET_SUFFIXES[(0x7fFFFFFF & rndi()) % STREET_SUFFIXES.Length];
 
-      var rnd2 = App.Random.NextRandomInteger;
+      var rnd2 = rndi();
 
       if (rnd2 % 7==0) street += " apt #"+Math.Abs(rnd2 % 18).ToString()+(char)('A'+(rnd2 & 0x8));
       else
@@ -407,7 +404,7 @@ namespace Azos.Text
 
       if (!middle) return fname + " " + lname;
 
-      var rnd = App.Random.NextRandomInteger;
+      var rnd = rndi();
 
       var mname = string.Empty;
       if (rnd>0)
@@ -429,7 +426,7 @@ namespace Azos.Text
     /// </summary>
     public static string GenerateEMail()
     {
-       var rnd = App.Random.NextRandomInteger;
+       var rnd = rndi();
        string domain;
 
        var user = GenerateFirstName();
@@ -437,16 +434,16 @@ namespace Azos.Text
        if (rnd%7==0) user += (1900+Math.Abs(rnd%115)).ToString();
 
        if (rnd<-1500000000)
-        domain = DOMAIN_NAMES[(0x7fFFFFFF & App.Random.NextRandomInteger) % DOMAIN_NAMES.Length];
+        domain = DOMAIN_NAMES[(0x7fFFFFFF & rndi()) % DOMAIN_NAMES.Length];
        else
        {
          if (rnd%3==0 && user.Length<11)
-           domain = GenerateWord()+"."+GenerateCityName()+TLD_NAMES[(0x7fFFFFFF & App.Random.NextRandomInteger) % TLD_NAMES.Length];
+           domain = GenerateWord()+"."+GenerateCityName()+TLD_NAMES[(0x7fFFFFFF & rndi()) % TLD_NAMES.Length];
          else
-           domain = GenerateWord(8)+TLD_NAMES[(0x7fFFFFFF & App.Random.NextRandomInteger) % TLD_NAMES.Length];
+           domain = GenerateWord(8)+TLD_NAMES[(0x7fFFFFFF & rndi()) % TLD_NAMES.Length];
        }
 
-       var rnd2 = App.Random.NextRandomInteger;
+       var rnd2 = rndi();
 
        if (user.Length<5 && rnd2%17!=0) user += Math.Abs(rnd%99).ToString();
 
@@ -457,7 +454,7 @@ namespace Azos.Text
 
     private static string getRandomTextSource()
     {
-      return App.Random.NextRandomInteger>0
+      return rndi()>0
         ? Platform.EmbeddedResource.GetText(typeof(NaturalTextGenerator), "JackLondon.txt")
         : Platform.EmbeddedResource.GetText(typeof(NaturalTextGenerator), "ConanDoyle.txt"); //get text does caching internally
     }
@@ -486,6 +483,9 @@ namespace Azos.Text
       return chr=='\'' || chr=='-' || Char.IsLetterOrDigit(chr);
     }
 
+
+    private static int rndi() => Platform.RandomGenerator.Instance.NextRandomInteger;
+    private static int rndi(int b1, int b2) => Platform.RandomGenerator.Instance.NextScaledRandomInteger(b1, b2);
 
   }
 }
