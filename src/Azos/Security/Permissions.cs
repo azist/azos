@@ -29,7 +29,7 @@ namespace Azos.Security
     ///
     /// This scheme provides a great deal of flexibility, i.e. for very complex security cases developers may inherit leaf-level permissions from intermediate ones
     ///   that have logic tied to session-level variables, this way user's access may vary by permission/session state, i.e. a user may have
-    ///    "Patient.Master" level 4 access in database "A", while having acess denied to the same named permission in database "B".
+    ///    "Patient.Master" level 4 access in database "A", while having access denied to the same named permission in database "B".
     /// User's database, or system instance is a flag in user-session context
     /// </summary>
     [AttributeUsage(AttributeTargets.Class |
@@ -85,25 +85,6 @@ namespace Azos.Security
              }
              return null;
            }
-
-           ////20140124 DKh - added caching instead of reflection. Glue inproc binding speed improved 20%
-           ///// <summary>
-           ///// Checks the action represented by MemberInfo by checking the permission-derived attributes and returns false if
-           ///// any of authorization attributes do not pass
-           ///// </summary>
-           //public static Permission FindAuthorizationFailingPermission(MemberInfo actionInfo, ISession session = null, GetSessionFunc getSessionFunc = null)
-           //{
-           //  var attrs = actionInfo.GetCustomAttributes(typeof(Permission), true).Cast<Permission>();
-
-           //  var first = true;
-           //  foreach(var attr in attrs)
-           //  {
-           //    if (first && session==null && getSessionFunc!=null) session = getSessionFunc();
-           //    first = false;
-           //    if (!attr.Check(session)) return attr;
-           //  }
-           //  return null;
-           //}
 
            /// <summary>
            /// Guards the action represented by MemberInfo by checking the permission-derived attributes and throwing exception if
@@ -230,12 +211,12 @@ namespace Azos.Security
             /// <summary>
             /// Shortcut method that creates a temp/mock BaseSession object thus checking permission in mock BaseSession context
             /// </summary>
-            public bool Check(User user)
+            public bool Check(IApplication app, User user)
             {
               if (user==null || !user.IsAuthenticated) return false;
-              var session = new BaseSession(Guid.NewGuid());
+              var session = new BaseSession(Guid.NewGuid(), app.Random.NextRandomUnsignedLong);
               session.User = user;
-              return this.Check(session);
+              return this.Check(app, session);
             }
 
             /// <summary>
@@ -244,7 +225,7 @@ namespace Azos.Security
             ///  current execution context session is assumed
             /// </summary>
             /// <returns>True when action is authorized, false otherwise</returns>
-            public virtual bool Check(ISession sessionInstance = null)
+            public virtual bool Check(IApplication app, ISession sessionInstance = null)
             {
               var session = sessionInstance ?? ExecutionContext.Session ?? NOPSession.Instance;
               var user = session.User;
@@ -252,7 +233,7 @@ namespace Azos.Security
               //System user passes all permission checks
               if (user.Status==UserStatus.System) return true;
 
-              var manager = App.SecurityManager;
+              var manager = app.SecurityManager;
 
               var access = manager.Authorize(user, this);
 

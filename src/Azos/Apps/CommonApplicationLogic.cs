@@ -275,7 +275,7 @@ namespace Azos.Apps
     /// </summary>
     public virtual ISession MakeNewSessionInstance(Guid sessionID, Security.User user = null)
     {
-        var result = new BaseSession(sessionID);
+        var result = new BaseSession(sessionID, Random.NextRandomUnsignedLong);
         result.User = user;
 
         return result;
