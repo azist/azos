@@ -10,7 +10,6 @@ using System.Linq;
 
 using Azos.Apps;
 using Azos.Collections;
-using Azos.Glue.Implementation;
 using Azos.Glue.Protocol;
 
 namespace Azos.Glue
@@ -147,7 +146,7 @@ namespace Azos.Glue
             return null;
         }
 
-        public Apps.IApplication Application
+        public IApplication Application
         {
             get { return ExecutionContext.Application; }
         }

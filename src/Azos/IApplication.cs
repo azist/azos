@@ -8,7 +8,9 @@ using System;
 using System.Collections.Generic;
 using Azos.Time;
 
-namespace Azos.Apps
+using Azos.Apps;
+
+namespace Azos
 {
   /// <summary>
   /// Establishes a general model for applications - a "chassis": root service composite governs app initialization,
@@ -113,7 +115,7 @@ namespace Azos.Apps
      /// <summary>
      /// References object store that may be used to persist object graphs between volatile application shutdown cycles
      /// </summary>
-     Volatile.IObjectStore ObjectStore { get; }
+     Apps.Volatile.IObjectStore ObjectStore { get; }
 
      /// <summary>
      /// References glue implementation that is used to "glue" remote instances/processes/contracts together (IPC)

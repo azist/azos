@@ -5,11 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-using Azos.Apps;
 using Azos.Instrumentation;
 using Azos.Serialization.BSON;
 
@@ -34,11 +30,9 @@ namespace Azos.Platform.Instrumentation
   {
     protected CPUUsage(string src, long value) : base(src, value) { }
 
-    public static void Record(long value, string src = null)
+    public static void Record(IInstrumentation inst, long value, string src = null)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
-        inst.Record(new CPUUsage(src, value));
+      if (inst!=null && inst.Enabled) inst.Record(new CPUUsage(src, value));
     }
 
 
@@ -58,11 +52,9 @@ namespace Azos.Platform.Instrumentation
   {
     protected RAMUsage(long value) : base(null, value) { }
 
-    public static void Record(long value)
+    public static void Record(IInstrumentation inst, long value)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
-        inst.Record(new RAMUsage(value));
+      if (inst!=null && inst.Enabled) inst.Record(new RAMUsage(value));
     }
 
 
@@ -82,11 +74,9 @@ namespace Azos.Platform.Instrumentation
   {
     protected AvailableRAM(string src, long value) : base(src, value) { }
 
-    public static void Record(long value, string src = null)
+    public static void Record(IInstrumentation inst, long value, string src = null)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
-        inst.Record(new AvailableRAM(src, value));
+      if (inst!=null && inst.Enabled)  inst.Record(new AvailableRAM(src, value));
     }
 
 

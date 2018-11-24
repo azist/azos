@@ -335,7 +335,7 @@ namespace Azos.Pile
               return true;
             }
             else
-             return ExternalParameterAttribute.GetParameter(this, name, out value, groups);
+             return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
           }
 
           /// <summary>
@@ -353,7 +353,7 @@ namespace Azos.Pile
               return true;
             }
             else
-              return ExternalParameterAttribute.SetParameter(this, name, value, groups);
+              return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
           }
 
     #endregion

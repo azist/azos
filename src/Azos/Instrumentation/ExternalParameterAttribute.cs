@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 
+using Azos.Apps;
 using Azos.Data;
 using Azos.Security;
 
@@ -49,7 +49,7 @@ namespace Azos.Instrumentation
 
 
   /// <summary>
-  /// Specifies when security permissions should be checked while getting/setting extrenal parameters
+  /// Specifies when security permissions should be checked while getting/setting external parameters
   /// </summary>
   [Flags]
   public enum ExternalParameterSecurityCheck{None = 0, OnGet = 1, OnSet = 2, OnGetSet = OnGet | OnSet }
@@ -97,7 +97,7 @@ namespace Azos.Instrumentation
      /// <summary>
      /// Returns null or a set of group names where parameter is applicable.
      /// This is needed to disregard parameters that do not belong to things being managed,
-     /// for example, some parameters may be only set for isntrumentation, not for glue etc.
+     /// for example, some parameters may be only set for instrumentation, not for glue etc.
      /// </summary>
      public readonly IEnumerable<string> Groups;
 
@@ -160,9 +160,9 @@ namespace Azos.Instrumentation
      /// If groups is null then all parameters are searched, else parameters must intersect in
      /// their group sets with the supplied value
      /// </summary>
-     public static bool GetParameter(object target, string name, out object value, params string[] groups)
+     public static bool GetParameter(IApplication app, object target, string name, out object value, params string[] groups)
      {
-        var pi = findByName(false, target, name, groups);
+        var pi = findByName(app, false, target, name, groups);
         if (pi==null)
         {
            value = null;
@@ -181,9 +181,9 @@ namespace Azos.Instrumentation
       /// If groups is null then all parameters are searched, else parameters must intersect in
       /// their group sets with the supplied value
       /// </summary>
-     public static bool SetParameter(object target, string name, object value, params string[] groups)
+     public static bool SetParameter(IApplication app, object target, string name, object value, params string[] groups)
      {
-        var pi = findByName(true, target, name, groups);
+        var pi = findByName(app, true, target, name, groups);
         if (pi==null)
            return false;
 
@@ -209,7 +209,7 @@ namespace Azos.Instrumentation
         return true;
      }
 
-     private static PropertyInfo findByName(bool isSet, object target, string name, string[] groups)
+     private static PropertyInfo findByName(IApplication app, bool isSet, object target, string name, string[] groups)
      {
         if (target!=null && name.IsNotNullOrWhiteSpace())
         {
@@ -242,7 +242,7 @@ namespace Azos.Instrumentation
                     (!isSet && (atr.SecurityCheck & ExternalParameterSecurityCheck.OnGet)!=0)
                     )
                 {
-                  Permission.AuthorizeAndGuardAction(prop);
+                  Permission.AuthorizeAndGuardAction(app, prop);
                 }
                 return prop;
               }

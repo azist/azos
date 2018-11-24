@@ -6,10 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Reflection;
 using System.Runtime.Serialization;
 
 using Azos.IO;
@@ -260,7 +256,7 @@ namespace Azos.Serialization.Slim
            idx = cnt - 1;
            if (cnt<MAX_LINEAR_SEARCH) return idx;
            if (cnt==MAX_LINEAR_SEARCH)
-           {//upgread LIST->DICT
+           {//upgrade LIST->DICT
             for(var i=1; i<cnt; i++)//start form 1, skip NULL[0]
               m_Dict.Add( m_List[i], i);
            }
@@ -279,7 +275,7 @@ namespace Azos.Serialization.Slim
     {
       public QuickRefList(int capacity)
       {
-        if (App.MemoryModel < App.MemoryUtilizationModel.Regular) capacity = capacity / 2;
+        if (Ambient.MemoryModel < Ambient.MemoryUtilizationModel.Regular) capacity = capacity / 2;
         m_InitialCapacity = capacity;
         m_Data = new object[ capacity ];
         m_Count = 1;//the "zeros" element is always NULL
@@ -296,13 +292,13 @@ namespace Azos.Serialization.Slim
 
       public void Clear()
       {
-        var mm = App.MemoryModel;
-        var trimAt = mm < App.MemoryUtilizationModel.Regular ?  RefPool.POOL_CAPACITY : RefPool.LARGE_TRIM_THRESHOLD;
+        var mm = Ambient.MemoryModel;
+        var trimAt = mm < Ambient.MemoryUtilizationModel.Regular ?  RefPool.POOL_CAPACITY : RefPool.LARGE_TRIM_THRESHOLD;
 
         if (m_Count>trimAt) //We want to get rid of excess data when too much
         {                           //otherwise the array will get stuck in pool cache for a long time
           m_Data = new object[ m_InitialCapacity ];
-        } else if (mm==App.MemoryUtilizationModel.Tiny)
+        } else if (mm== Ambient.MemoryUtilizationModel.Tiny)
         {
            Array.Clear(m_Data, 0, m_Data.Length);
         }

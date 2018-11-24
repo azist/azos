@@ -56,6 +56,6 @@ namespace Azos.Log.Sinks
 
 
 
-    protected internal override void DoSend(Message entry) =>  m_Client.Send(new SyslogMessage(entry));
+    protected internal override void DoSend(Message entry) =>  m_Client.Send( new SyslogMessage(this, entry));
   }
 }

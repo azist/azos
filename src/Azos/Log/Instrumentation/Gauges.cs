@@ -5,9 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Instrumentation;
 using Azos.Serialization.BSON;
@@ -27,10 +24,9 @@ namespace Azos.Log.Instrumentation
   {
     protected LogMsgQueueSize(string source, long value) : base(source, value) { }
 
-    public static void Record(string source, long value)
+    public static void Record(IInstrumentation inst, string source, long value)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new LogMsgQueueSize(source, value));
     }
 
@@ -52,10 +48,9 @@ namespace Azos.Log.Instrumentation
   {
     protected LogMsgCount(string source, long value) : base(source, value) { }
 
-    public static void Record(string source, long value)
+    public static void Record(IInstrumentation inst, string source, long value)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new LogMsgCount(source, value));
     }
 

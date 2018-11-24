@@ -91,7 +91,7 @@ namespace Azos.Glue.Native
 
              var ep = MpxBinding.ToIPEndPoint(Node);
 
-             m_Client = Binding.SocketFactory.MakeClientSocket(this, ep, new ClientSite(""), receiveAction);
+             m_Client = Binding.SocketFactory.MakeClientSocket(this, ep, new ClientSite(App, ""), receiveAction);
            }
 
            private void finClient()

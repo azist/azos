@@ -409,14 +409,14 @@ namespace Azos.Glue.Native
       /// </summary>
       public static string MachineName;
 
-      public ClientSite(string host)
+      public ClientSite(IApplication app, string host)
       {
          if (host.IsNullOrWhiteSpace())
           host = ClientSite.MachineName;
 
          if (host.IsNullOrWhiteSpace()) host = System.Environment.MachineName;
          m_Host = host;
-         m_AppInstanceID = App.InstanceID;
+         m_AppInstanceID = app.InstanceID;
          m_Name = m_Host + '['+ m_AppInstanceID +']';
       }
 

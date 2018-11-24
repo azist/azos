@@ -25,11 +25,9 @@ namespace Azos.Instrumentation.Self
   {
     protected RecordCount(long value) : base(value) { }
 
-    public static void Record(long value)
+    public static void Record(IInstrumentation inst, long value)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
-        inst.Record(new RecordCount(value));
+      if (inst!=null && inst.Enabled) inst.Record(new RecordCount(value));
     }
 
     public override string Description { get { return "Datum record count"; } }
@@ -44,10 +42,9 @@ namespace Azos.Instrumentation.Self
   {
     protected RecordLoad(long value) : base(value) { }
 
-    public static void Record(long value)
+    public static void Record(IInstrumentation inst, long value)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new RecordLoad(value));
     }
 
@@ -63,11 +60,9 @@ namespace Azos.Instrumentation.Self
   {
     protected ProcessingInterval(long value) : base(value) { }
 
-    public static void Record(long value)
+    public static void Record(IInstrumentation inst, long value)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
-        inst.Record(new ProcessingInterval(value));
+      if (inst!=null && inst.Enabled) inst.Record(new ProcessingInterval(value));
     }
 
     public override string Description { get { return "Instrumentation processing interval in milliseconds"; } }
@@ -83,11 +78,9 @@ namespace Azos.Instrumentation.Self
   {
     protected BufferMaxAge(long value) : base(value) { }
 
-    public static void Record(long value)
+    public static void Record(IInstrumentation inst, long value)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
-        inst.Record(new BufferMaxAge(value));
+      if (inst!=null && inst.Enabled) inst.Record(new BufferMaxAge(value));
     }
 
     public override string Description { get { return "Age of the oldest datum in result buffer in seconds"; } }

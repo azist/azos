@@ -57,7 +57,7 @@ namespace Azos.Log.Sinks
       if (tf.IsNullOrWhiteSpace()) tf = DEF_LOG_TIME_FORMAT;
 
       return "{0}|{1}|{2}|{3}| {4}".Args(
-                    msg.TimeStamp.ToString(tf),
+                    UniversalTimeToLocalizedTime(msg.UTCTimeStamp).ToString(tf),
                     msg.Type,
                     msg.Source,
                     msg.From,

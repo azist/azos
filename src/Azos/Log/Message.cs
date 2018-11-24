@@ -25,15 +25,15 @@ namespace Azos.Log
     public const string BSON_FLD_RELATED_TO = "rel";
     public const string BSON_FLD_TYPE = "tp";
     public const string BSON_FLD_SOURCE = "src";
-    public const string BSON_FLD_TIMESTAMP = "time";
-    public const string BSON_FLD_HOST = "host";
-    public const string BSON_FLD_FROM = "from";
+    public const string BSON_FLD_TIMESTAMP = "uts";
+    public const string BSON_FLD_HOST = "hst";
+    public const string BSON_FLD_FROM = "frm";
     public const string BSON_FLD_TOPIC = "top";
-    public const string BSON_FLD_TEXT = "text";
-    public const string BSON_FLD_PARAMETERS = "prms";
-    public const string BSON_FLD_EXCEPTION = "exc";
+    public const string BSON_FLD_TEXT = "txt";
+    public const string BSON_FLD_PARAMETERS = "prm";
+    public const string BSON_FLD_EXCEPTION = "ex";
     public const string BSON_FLD_ARCHIVE_DIMENSIONS = "arc";
-    public const string BSON_FLD_CHANNEL = "chan";
+    public const string BSON_FLD_CHANNEL = "chn";
 
     public static string DefaultHostName;
 
@@ -42,7 +42,7 @@ namespace Azos.Log
     private Guid m_RelatedTo;
     private MessageType m_Type;
     private int m_Source;
-    private DateTime m_TimeStamp;
+    private DateTime m_UTCTimeStamp;
     private string m_Host;
     private string m_From;
     private string m_Topic;
@@ -94,10 +94,10 @@ namespace Azos.Log
     /// <summary>
     /// Gets/Sets timestamp when message was generated
     /// </summary>
-    public DateTime TimeStamp
+    public DateTime UTCTimeStamp
     {
-      get { return m_TimeStamp; }
-      set { m_TimeStamp = value; }
+      get { return m_UTCTimeStamp; }
+      set { m_UTCTimeStamp = value; }
     }
 
     /// <summary>
@@ -184,7 +184,7 @@ namespace Azos.Log
     {
       m_Guid = Guid.NewGuid();
       m_Host = Message.DefaultHostName ?? System.Environment.MachineName;
-      m_TimeStamp = App.Instance.Log.LocalizedTime;
+      m_UTCTimeStamp = Ambient.UTCNow;
     }
 
     /// <summary>
@@ -201,7 +201,7 @@ namespace Azos.Log
       return "{0}/{1}, {2}, {3}, {4}, {5}, {6}, {7}".Args(
                            m_Type,
                            m_Source,
-                           m_TimeStamp,
+                           m_UTCTimeStamp,
                            Host,
                            From,
                            Topic,
@@ -249,7 +249,7 @@ namespace Azos.Log
         m_RelatedTo = m_RelatedTo,
         m_Type = m_Type,
         m_Source = m_Source,
-        m_TimeStamp = m_TimeStamp,
+        m_UTCTimeStamp = m_UTCTimeStamp,
         m_Host = m_Host,
         m_From = m_From,
         m_Topic = m_Topic,
@@ -278,7 +278,7 @@ namespace Azos.Log
         .Add(BSON_FLD_RELATED_TO, m_RelatedTo, skipNull)
         .Add(BSON_FLD_TYPE, m_Type.ToString(), skipNull, required: true)
         .Add(BSON_FLD_SOURCE, m_Source, skipNull)
-        .Add(BSON_FLD_TIMESTAMP, m_TimeStamp.ToUniversalTime(), skipNull)
+        .Add(BSON_FLD_TIMESTAMP, m_UTCTimeStamp, skipNull)
         .Add(BSON_FLD_HOST, m_Host, skipNull)
         .Add(BSON_FLD_FROM, m_From, skipNull)
         .Add(BSON_FLD_TOPIC, m_Topic, skipNull)
@@ -304,7 +304,7 @@ namespace Azos.Log
 
       m_Type = doc.TryGetObjectValueOf(BSON_FLD_TYPE).AsEnum(MessageType.Info);
       m_Source = doc.TryGetObjectValueOf(BSON_FLD_SOURCE).AsInt();
-      m_TimeStamp = doc.TryGetObjectValueOf(BSON_FLD_TIMESTAMP).AsDateTime(App.TimeSource.UTCNow);
+      m_UTCTimeStamp = doc.TryGetObjectValueOf(BSON_FLD_TIMESTAMP).AsDateTime(Ambient.UTCNow);
       m_Host = doc.TryGetObjectValueOf(BSON_FLD_HOST).AsString();
       m_From = doc.TryGetObjectValueOf(BSON_FLD_FROM).AsString();
       m_Topic = doc.TryGetObjectValueOf(BSON_FLD_TOPIC).AsString();

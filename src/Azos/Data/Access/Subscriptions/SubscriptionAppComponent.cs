@@ -42,7 +42,7 @@ namespace Azos.Data.Access.Subscriptions
           /// </summary>
           public virtual bool ExternalGetParameter(string name, out object value, params string[] groups)
           {
-              return ExternalParameterAttribute.GetParameter(this, name, out value, groups);
+              return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
           }
 
           /// <summary>
@@ -50,7 +50,7 @@ namespace Azos.Data.Access.Subscriptions
           /// </summary>
           public virtual bool ExternalSetParameter(string name, object value, params string[] groups)
           {
-            return ExternalParameterAttribute.SetParameter(this, name, value, groups);
+            return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
           }
 
   }

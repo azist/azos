@@ -43,7 +43,7 @@ namespace Azos.Log.Sinks
 
       string time;
 
-      var now = msg.TimeStamp;
+      var now = UniversalTimeToLocalizedTime(msg.UTCTimeStamp);
       try { time = now.ToString(fmt); }
       catch (Exception e)
       {

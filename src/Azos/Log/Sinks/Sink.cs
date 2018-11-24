@@ -442,14 +442,16 @@ namespace Azos.Log.Sinks
                      return;
             }
 
+            var msgLocalTime = UniversalTimeToLocalizedTime(msg.UTCTimeStamp);
+
             if (
                 (!m_MinLevel.HasValue   || msg.Type >= m_MinLevel.Value) &&
                 (!m_MaxLevel.HasValue   || msg.Type <= m_MaxLevel.Value) &&
-                (!m_DaysOfWeek.HasValue || m_DaysOfWeek.Value.Contains(msg.TimeStamp.DayOfWeek)) &&
-                (!m_StartDate.HasValue  || msg.TimeStamp >= m_StartDate.Value) &&
-                (!m_EndDate.HasValue    || msg.TimeStamp <= m_EndDate.Value) &&
-                (!m_StartTime.HasValue  || msg.TimeStamp.TimeOfDay >= m_StartTime.Value) &&
-                (!m_EndTime.HasValue    || msg.TimeStamp.TimeOfDay <= m_EndTime.Value)
+                (!m_DaysOfWeek.HasValue || m_DaysOfWeek.Value.Contains(msgLocalTime.DayOfWeek)) &&
+                (!m_StartDate.HasValue  || msgLocalTime >= m_StartDate.Value) &&
+                (!m_EndDate.HasValue    || msgLocalTime <= m_EndDate.Value) &&
+                (!m_StartTime.HasValue  || msgLocalTime.TimeOfDay >= m_StartTime.Value) &&
+                (!m_EndTime.HasValue    || msgLocalTime.TimeOfDay <= m_EndTime.Value)
                )
             {
                 if (!m_MaxProcessingTimeMs.HasValue)

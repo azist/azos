@@ -10,6 +10,7 @@ using System.Globalization;
 
 using Azos.Data;
 using Azos.Time;
+using Azos.Apps;
 
 namespace Azos.Conf
 {
@@ -88,7 +89,7 @@ namespace Azos.Conf
         #endregion
 
 
-        public string Run(IConfigSectionNode node, string inputValue, string macroName, IConfigSectionNode macroParams, object context = null)
+        public virtual string Run(IConfigSectionNode node, string inputValue, string macroName, IConfigSectionNode macroParams, object context = null)
         {
 
             if (macroName.StartsWith(AS_PREFIX, StringComparison.InvariantCultureIgnoreCase) && macroName.Length > AS_PREFIX.Length)
@@ -110,18 +111,17 @@ namespace Azos.Conf
                var valueAttr = macroParams.AttrByName("value");
 
 
-               DateTime now;
-
-               if (utc)
-                    now = App.TimeSource.UTCNow;
-               else
+               var now = Ambient.UTCNow;
+               if (!utc)
                {
-                    ILocalizedTimeProvider timeProvider = App.Instance;
+                  ILocalizedTimeProvider timeProvider = context as ILocalizedTimeProvider;
+                  if (timeProvider==null && context is IApplicationComponent cmp)
+                  {
+                     timeProvider = cmp.ComponentDirector as ILocalizedTimeProvider;
+                     if (timeProvider==null) timeProvider = cmp.App;
+                  }
 
-                    if (context is ILocalizedTimeProvider)
-                        timeProvider = (ILocalizedTimeProvider) context;
-
-                    now = timeProvider.LocalizedTime;
+                  now = timeProvider!=null ? timeProvider.LocalizedTime : now.ToLocalTime();
                }
 
                // We inspect the "value" param that may be provided for testing purposes

@@ -348,7 +348,7 @@ namespace Azos
     {
       if (ts_CopyBuffer == null)
       {
-        var sz = App.MemoryModel < App.MemoryUtilizationModel.Regular ? 8 : 128;
+        var sz = Ambient.MemoryModel < Ambient.MemoryUtilizationModel.Regular ? 8 : 128;
         ts_CopyBuffer = new byte[sz * 1024];
       }
       int read;

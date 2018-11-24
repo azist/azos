@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Time;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,19 +47,19 @@ namespace Azos.Log.Syslog
         m_Text = text;
     }
 
-    public SyslogMessage(Message azoMsg)
+    public SyslogMessage(ILocalizedTimeProvider timeProvider, Message azoMsg)
     {
         m_Severity = FromAzosLogMessageType(azoMsg.Type);
 
         m_Facility = FacilityLevel.User;
-        m_LocalTimeStamp = azoMsg.TimeStamp;
+        m_LocalTimeStamp = timeProvider.UniversalTimeToLocalizedTime(azoMsg.UTCTimeStamp);
         m_Text = string.Format("{0} - {1} - {2}", azoMsg.Topic, azoMsg.From, azoMsg.Text);
     }
 
     private FacilityLevel m_Facility;
     private SeverityLevel m_Severity;
     private string m_Text;
-    private DateTime m_LocalTimeStamp = App.LocalizedTime;
+    private DateTime m_LocalTimeStamp = Ambient.UTCNow;
 
     public FacilityLevel Facility
     {

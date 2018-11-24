@@ -224,7 +224,7 @@ namespace Azos.Apps
     public IEnumerable<IApplicationComponent> AllComponents => ApplicationComponent.AllComponents(this);
 
     /// <summary> Returns app random generator </summary>
-    public Platform.RandomGenerator Random => Platform.RandomGenerator.Instance;//just a shortcut to process-wide random generator
+    public Platform.RandomGenerator Random => Ambient.Random;//just a shortcut to process-wide random generator
 
     #endregion
 

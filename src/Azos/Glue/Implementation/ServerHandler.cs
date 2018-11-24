@@ -475,14 +475,14 @@ namespace Azos.Glue.Implementation
 
 
                    //Authorizes user to the whole server contract and implementing class
-                   Security.Permission.AuthorizeAndGuardAction(server.Contract);
-                   Security.Permission.AuthorizeAndGuardAction(server.Implementation);
+                   Permission.AuthorizeAndGuardAction(App, server.Contract);
+                   Permission.AuthorizeAndGuardAction(App, server.Implementation);
 
                    serverImplementer.mapping mapped = server.SpecToMethodInfos(request.Method);
 
 
-                   Security.Permission.AuthorizeAndGuardAction(mapped.miContract);
-                   Security.Permission.AuthorizeAndGuardAction(mapped.miImplementation);
+                   Permission.AuthorizeAndGuardAction(App, mapped.miContract);
+                   Permission.AuthorizeAndGuardAction(App, mapped.miImplementation);
 
 
                    Guid? checkedOutID;

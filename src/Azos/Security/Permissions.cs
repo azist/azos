@@ -15,7 +15,7 @@ namespace Azos.Security
 {
 
     /// <summary>
-    /// Invoked by permission checker to get session
+    /// Invoked by permission checker to get session instance
     /// </summary>
     public delegate ISession GetSessionFunc();
 
@@ -53,9 +53,9 @@ namespace Azos.Security
            /// Checks the action represented by MemberInfo by checking the permission-derived attributes and returns false if
            /// any of authorization attributes do not pass
            /// </summary>
-           public static bool AuthorizeAction(MemberInfo actionInfo, ISession session = null, GetSessionFunc getSessionFunc = null)
+           public static bool AuthorizeAction(IApplication app, MemberInfo actionInfo, ISession session = null, GetSessionFunc getSessionFunc = null)
            {
-             return FindAuthorizationFailingPermission(actionInfo, session, getSessionFunc) == null;
+             return FindAuthorizationFailingPermission(app, actionInfo, session, getSessionFunc) == null;
            }
 
 
@@ -66,7 +66,7 @@ namespace Azos.Security
            /// Checks the action represented by MemberInfo by checking the permission-derived attributes and returns false if
            /// any of authorization attributes do not pass
            /// </summary>
-           public static Permission FindAuthorizationFailingPermission(MemberInfo actionInfo, ISession session = null, GetSessionFunc getSessionFunc = null)
+           public static Permission FindAuthorizationFailingPermission(IApplication app, MemberInfo actionInfo, ISession session = null, GetSessionFunc getSessionFunc = null)
            { //20150124 DKh - added caching instead of reflection. Glue inproc binding speed improved 20%
              Permission[] permissions;
              if (!s_AttrCache.TryGetValue(actionInfo, out permissions))
@@ -81,7 +81,7 @@ namespace Azos.Security
              {
                var permission = permissions[i];
                if (i==0 && session==null && getSessionFunc!=null) session = getSessionFunc();
-               if (!permission.Check(session)) return permission;
+               if (!permission.Check(app, session)) return permission;
              }
              return null;
            }
@@ -90,9 +90,9 @@ namespace Azos.Security
            /// Guards the action represented by MemberInfo by checking the permission-derived attributes and throwing exception if
            /// any of authorization attributes do not pass
            /// </summary>
-           public static void AuthorizeAndGuardAction(MemberInfo actionInfo, ISession session = null, GetSessionFunc getSessionFunc = null)
+           public static void AuthorizeAndGuardAction(IApplication app, MemberInfo actionInfo, ISession session = null, GetSessionFunc getSessionFunc = null)
            {
-             var failed = FindAuthorizationFailingPermission(actionInfo, session, getSessionFunc);
+             var failed = FindAuthorizationFailingPermission(app, actionInfo, session, getSessionFunc);
 
              if (failed!=null)
                throw new AuthorizationException(string.Format(StringConsts.SECURITY_AUTHROIZATION_ERROR, failed,  actionInfo.ToDescription()));
@@ -102,14 +102,14 @@ namespace Azos.Security
            /// Guards the action represented by enumerable of permissions by checking all permissions and throwing exception if
            /// any of authorization attributes do not pass
            /// </summary>
-           public static void AuthorizeAndGuardAction(IEnumerable<Permission> permissions, string actionName, ISession session = null, GetSessionFunc getSessionFunc = null)
+           public static void AuthorizeAndGuardAction(IApplication app, IEnumerable<Permission> permissions, string actionName, ISession session = null, GetSessionFunc getSessionFunc = null)
            {
              if (permissions==null) return;
 
 
              if (session==null && permissions.Any() && getSessionFunc!=null) session = getSessionFunc();
 
-             var failed = permissions.FirstOrDefault(perm => !perm.Check(session));
+             var failed = permissions.FirstOrDefault(perm => !perm.Check(app, session));
 
              if (failed!=null)
                throw new AuthorizationException(string.Format(StringConsts.SECURITY_AUTHROIZATION_ERROR, failed,  actionName ?? CoreConsts.UNKNOWN));
@@ -284,7 +284,6 @@ namespace Azos.Security
 
 
         #endregion
-
 
         #region Properties
             public override string Name

@@ -35,7 +35,7 @@ namespace Azos.Log.Sinks
     public string LogTimeFormat { get; set;}
 
 
-    public static string MessageToCSVLine(Message msg, string logTimeFormat = null)
+    public static string MessageToCSVLine(Sink sink, Message msg, string logTimeFormat = null)
     {
         if (logTimeFormat.IsNullOrWhiteSpace())
          logTimeFormat = DEFAULT_LOG_TIME_FORMAT;
@@ -46,7 +46,7 @@ namespace Azos.Log.Sinks
         line.Append(msg.RelatedTo == Guid.Empty ? string.Empty : msg.RelatedTo.ToString()); line.Append(',');
         line.Append(msg.Type.ToString()); line.Append(',');
         line.Append(msg.Source.ToString()); line.Append(',');
-        line.Append(msg.TimeStamp.ToString(logTimeFormat)); line.Append(',');
+        line.Append(sink.UniversalTimeToLocalizedTime(msg.UTCTimeStamp).ToString(logTimeFormat)); line.Append(',');
 
         line.Append(escape(msg.Host));    line.Append(',');
         line.Append(escape(msg.Channel)); line.Append(',');
@@ -66,7 +66,7 @@ namespace Azos.Log.Sinks
     /// <summary>
     /// Spools instance data in CSV format for storage in a file destination
     /// </summary>
-    protected override string DoFormatMessage(Message msg) => MessageToCSVLine(msg, LogTimeFormat);
+    protected override string DoFormatMessage(Message msg) => MessageToCSVLine(this, msg, LogTimeFormat);
 
 
     private static string escape(string str)

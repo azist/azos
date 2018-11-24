@@ -38,13 +38,13 @@ namespace Azos.Instrumentation
     #region .ctor
     protected Datum()
     {
-      m_UTCTime = App.TimeSource.UTCNow;
+      m_UTCTime = Ambient.UTCNow;
     }
 
     protected Datum(string source)
     {
       m_Source = source;
-      m_UTCTime = App.TimeSource.UTCNow;
+      m_UTCTime = Ambient.UTCNow;
     }
 
     protected Datum(string source, DateTime utcDateTime)

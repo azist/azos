@@ -24,11 +24,9 @@ namespace Azos.Time.Instrumentation
   {
     protected EventCount(long value) : base(value) { }
 
-    public static void Record(long value)
+    public static void Record(IInstrumentation inst, long value)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
-        inst.Record(new EventCount(value));
+      if (inst!=null && inst.Enabled) inst.Record(new EventCount(value));
     }
 
 
@@ -48,11 +46,9 @@ namespace Azos.Time.Instrumentation
   {
     protected FiredEventCount(long value) : base(value) { }
 
-    public static void Record(long value)
+    public static void Record(IInstrumentation inst, long value)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
-        inst.Record(new FiredEventCount(value));
+      if (inst!=null && inst.Enabled) inst.Record(new FiredEventCount(value));
     }
 
 

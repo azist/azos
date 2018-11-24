@@ -58,12 +58,12 @@ namespace Azos.Log.Sinks
     /// <summary>
     /// Returns all buffered log messages ordered by timestamp ascending
     /// </summary>
-    public IEnumerable<Message> BufferedTimeAscending { get { return buffered(true).OrderBy( msg => msg.TimeStamp.Ticks ); } }
+    public IEnumerable<Message> BufferedTimeAscending { get { return buffered(true).OrderBy( msg => msg.UTCTimeStamp.Ticks ); } }
 
     /// <summary>
     /// Returns all buffered log messages ordered by timestamp descending
     /// </summary>
-    public IEnumerable<Message> BufferedTimeDescending  { get { return buffered(false).OrderBy( msg => -msg.TimeStamp.Ticks ); } }
+    public IEnumerable<Message> BufferedTimeDescending  { get { return buffered(false).OrderBy( msg => -msg.UTCTimeStamp.Ticks ); } }
 
           private IEnumerable<Message> buffered(bool asc)
           {

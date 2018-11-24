@@ -77,7 +77,6 @@ namespace Azos
       return obj;
     }
 
-
     /// <summary>
     /// Writes exception message with exception type
     /// </summary>

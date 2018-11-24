@@ -202,7 +202,7 @@ namespace Azos
     /// </summary>
     public static int ChangeByRndPct(this int value, float pct)
     {
-      return value + (int)((value * pct) * App.Random.NextRandomDouble);
+      return value + (int)((value * pct) * Ambient.Random.NextRandomDouble);
     }
 
     /// <summary>
@@ -210,7 +210,7 @@ namespace Azos
     /// </summary>
     public static long ChangeByRndPct(this long value, float pct)
     {
-      return value + (long)((value * pct) * App.Random.NextRandomDouble);
+      return value + (long)((value * pct) * Ambient.Random.NextRandomDouble);
     }
 
   }

@@ -96,7 +96,7 @@ namespace Azos.Apps
 
   /// <summary>
   /// Provides default type resolver implementation which looks for types in listed assemblies
-  /// looking for types decorated with specified attribute
+  /// looking for types decorated with the specified attribute
   /// </summary>
   public class GuidTypeResolver<T, A> : IGuidTypeResolver where T: class where A : GuidTypeAttribute
   {
@@ -154,13 +154,7 @@ namespace Azos.Apps
       }
 
       if (m_Cache.Count == 0)
-        App.Log.Write(new Azos.Log.Message
-        {
-          Type = Azos.Log.MessageType.Warning,
-          Topic = CoreConsts.APPLICATION_TOPIC,
-          From = "{0}.ctor()".Args(GetType().Name),
-          Text = "No assemblies/types have been registered"
-        });
+        throw new AzosException(StringConsts.GUID_TYPE_RESOLVER_NO_TYPES_ERROR.Args(this.GetType().DisplayNameWithExpandedGenericArgs()));
     }
 
     private Dictionary<Guid, Type> m_Cache;
