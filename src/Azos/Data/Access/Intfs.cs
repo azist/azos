@@ -4,14 +4,11 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-
 using System.Threading.Tasks;
 
+using Azos.Apps;
 using Azos.Conf;
 
 namespace Azos.Data.Access
@@ -100,7 +97,7 @@ namespace Azos.Data.Access
     /// <summary>
     /// Represents a DataStore that supports CRUD operations
     /// </summary>
-    public interface ICRUDDataStore : ICRUDOperations, ICRUDTransactionOperations
+    public interface ICRUDDataStore : ICRUDOperations, ICRUDTransactionOperations, IApplicationComponent
     {
         /// <summary>
         /// Returns default script file suffix, which some providers may use to locate script files
@@ -129,7 +126,7 @@ namespace Azos.Data.Access
     /// <summary>
     /// Represents a class that resolves Query into suitable handler that can execute it
     /// </summary>
-    public interface ICRUDQueryResolver : IConfigurable
+    public interface ICRUDQueryResolver : IApplicationComponent, IConfigurable
     {
         /// <summary>
         /// Retrieves a handler for supplied query. The implementation must be thread-safe

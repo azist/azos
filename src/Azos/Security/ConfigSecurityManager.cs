@@ -140,7 +140,7 @@ namespace Azos.Security
                             status,
                             name,
                             descr,
-                            rights);
+                            rights, App.TimeSource.UTCNow);
           }
         }
 
@@ -149,7 +149,7 @@ namespace Azos.Security
                         UserStatus.Invalid,
                         StringConsts.SECURITY_NON_AUTHENTICATED,
                         StringConsts.SECURITY_NON_AUTHENTICATED,
-                        Rights.None);
+                        Rights.None, App.TimeSource.UTCNow);
       }
 
       public User Authenticate(AuthenticationToken token)
@@ -164,7 +164,7 @@ namespace Azos.Security
         var token = user.AuthToken;
         var reuser = Authenticate(token);
 
-        user.___update_status(reuser.Status, reuser.Name, reuser.Description, reuser.Rights);
+        user.___update_status(reuser.Status, reuser.Name, reuser.Description, reuser.Rights, App.TimeSource.UTCNow);
       }
 
       public AccessLevel Authorize(User user, Permission permission)

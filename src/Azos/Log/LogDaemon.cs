@@ -254,12 +254,12 @@ namespace Azos.Log
            {
              var count = kvp.Value.V;
              kvp.Value.V = 0;
-             Instrumentation.LogMsgCount.Record(kvp.Key.ToString(), count);
+             Instrumentation.LogMsgCount.Record(App.Instrumentation, kvp.Key.ToString(), count);
              total += count;
            }
 
-           Instrumentation.LogMsgCount.Record(Datum.UNSPECIFIED_SOURCE, total);
-           Instrumentation.LogMsgQueueSize.Record(Datum.UNSPECIFIED_SOURCE, Thread.VolatileRead(ref m_QueuedCount));
+           Instrumentation.LogMsgCount.Record(App.Instrumentation, Datum.UNSPECIFIED_SOURCE, total);
+           Instrumentation.LogMsgQueueSize.Record(App.Instrumentation, Datum.UNSPECIFIED_SOURCE, Thread.VolatileRead(ref m_QueuedCount));
         }
 
     #endregion

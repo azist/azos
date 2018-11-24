@@ -633,7 +633,7 @@ namespace Azos.Data.Access.Cache
             //called from another thread
             internal void Sweep()
             {
-                var now = App.TimeSource.UTCNow;
+                var now = Ambient.UTCNow;
 
                 if (m_ParallelSweep)
                     Parallel.For(0, m_BucketCount, (bidx, loop) =>

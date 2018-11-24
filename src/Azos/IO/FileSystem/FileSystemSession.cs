@@ -213,18 +213,19 @@ namespace Azos.IO.FileSystem
                   return m_FileSystem.DoGetLatestVersionAsync(this);
                 }
 
-        /// <summary>
-        /// Returns security manager that services this file system session. This may be useful in cases when file system implements
-        ///  its own permission structure and user directory
-        /// </summary>
-        public virtual ISecurityManager SecurityManager { get { return App.SecurityManager; }}
 
-        /// <summary>
-        /// Returns unique sequence provider for the system or null if it is not supported
-        /// </summary>
-        public virtual Data.Access.IUniqueSequenceProvider UniqueSequenceProvider { get { return null; }}
+          /// <summary>
+          /// Returns security manager that services this file system session. This may be useful in cases when file system implements
+          ///  its own permission structure and user directory
+          /// </summary>
+          public virtual ISecurityManager SecurityManager { get { return FileSystem.App.SecurityManager; } }
 
-      #endregion
+          /// <summary>
+          /// Returns unique sequence provider for the system or null if it is not supported
+          /// </summary>
+          public virtual Data.Access.IUniqueSequenceProvider UniqueSequenceProvider { get { return null; } }
+
+        #endregion
 
       #region Public Methods
 

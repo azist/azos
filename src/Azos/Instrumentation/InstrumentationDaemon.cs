@@ -524,9 +524,9 @@ namespace Azos.Instrumentation
                 private void instrumentSelf()
                 {
                    var rc = this.RecordCount;
-                   Self.RecordCount.Record( rc );
-                   Self.RecordLoad.Record( (int)Math.Round( 100d *  (rc / (double)m_MaxRecordCount)) );//cant be 0
-                   Self.ProcessingInterval.Record( m_ProcessingIntervalMS );
+                   Self.RecordCount.Record( this, rc );
+                   Self.RecordLoad.Record( this, (int)Math.Round( 100d *  (rc / (double)m_MaxRecordCount)) );//cant be 0
+                   Self.ProcessingInterval.Record( this, m_ProcessingIntervalMS );
 
 
                    var buf = m_ResultBuffer;
@@ -535,7 +535,7 @@ namespace Azos.Instrumentation
                      if (m_BufferOldestDatumUTC.HasValue)
                      {
                        var ageSec = (int)(App.TimeSource.UTCNow - m_BufferOldestDatumUTC.Value).TotalSeconds;
-                       Self.BufferMaxAge.Record( ageSec );
+                       Self.BufferMaxAge.Record( this, ageSec );
                      }
                    }
                 }
@@ -554,9 +554,9 @@ namespace Azos.Instrumentation
                   var count = m_ProcessingIntervalMS / samplingRate;
                   for (int i = 0; i < count; i++)
                   {
-                    Platform.Instrumentation.CPUUsage.Record     (Platform.Computer.CurrentProcessorUsagePct);
-                    Platform.Instrumentation.RAMUsage.Record     (Platform.Computer.GetMemoryStatus().LoadPct);
-                    Platform.Instrumentation.AvailableRAM.Record (Platform.Computer.CurrentAvailableMemoryMb);
+                    Platform.Instrumentation.CPUUsage.Record     (this, Platform.Computer.CurrentProcessorUsagePct);
+                    Platform.Instrumentation.RAMUsage.Record     (this, Platform.Computer.GetMemoryStatus().LoadPct);
+                    Platform.Instrumentation.AvailableRAM.Record (this, Platform.Computer.CurrentAvailableMemoryMb);
                     m_Trigger.WaitOne(samplingRate);
                   }
 

@@ -118,10 +118,9 @@ namespace Azos.Data
       }
 
       /// <summary>
-      /// Returns the name of data store target obtained from App.DataStore by default.
-      /// Override to supply a different name. This property is used for validation
+      /// Override to supply target name used for validation
       /// </summary>
-      public virtual string DataStoreTargetName { get { return App.DataStore.TargetName;}}
+      public abstract string DataStoreTargetName { get; }
 
       /// <summary>
       /// Override to save model into data store. Return "predictable" exception (such as key violation) as a value instead of throwing.

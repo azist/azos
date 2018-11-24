@@ -309,4 +309,20 @@ namespace Azos.Apps
       }
     #endregion
   }
+
+  /// <summary>
+  /// Represents app component with typed ComponentDirector property
+  /// </summary>
+  public abstract class ApplicationComponent<TDirector> : ApplicationComponent where TDirector : IApplicationComponent
+  {
+    protected ApplicationComponent(IApplication application) : base(application)
+    {
+    }
+
+    protected ApplicationComponent(TDirector director) : base(director)
+    {
+    }
+
+    public new TDirector ComponentDirector => (TDirector)base.ComponentDirector;
+  }
 }

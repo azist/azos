@@ -68,6 +68,7 @@ namespace Azos
     /// If source is not null, creates a shallow clone using 'source.CopyFields(copy)'
     /// </summary>
     public static TDoc Clone<TDoc>(this TDoc source,
+                                   string targetName = null,
                                    bool includeAmorphousData = true,
                                    bool invokeAmorphousAfterLoad = true,
                                    Func<string, Schema.FieldDef, bool> fieldFilter = null,
@@ -75,7 +76,7 @@ namespace Azos
     {
       if (source==null) return null;
       var copy = Doc.MakeDoc(source.Schema, source.GetType());//must be GetType() not typeof() as we want to clone possibly more derived row as specified by the instance
-      source.CopyFields(copy, includeAmorphousData, invokeAmorphousAfterLoad, fieldFilter, amorphousFieldFilter);
+      source.CopyFields(copy, targetName, includeAmorphousData, invokeAmorphousAfterLoad, fieldFilter, amorphousFieldFilter);
       return (TDoc)copy;
     }
 

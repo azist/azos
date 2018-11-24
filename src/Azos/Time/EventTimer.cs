@@ -155,8 +155,8 @@ namespace Azos.Time
 
       private void dumpStats()
       {
-        Instrumentation.EventCount.Record( m_stat_EventCount );
-        Instrumentation.FiredEventCount.Record( m_stat_EventsFired );
+        Instrumentation.EventCount.Record( App.Instrumentation, m_stat_EventCount );
+        Instrumentation.FiredEventCount.Record(App.Instrumentation, m_stat_EventsFired );
         m_stat_EventsFired = 0;
       }
 

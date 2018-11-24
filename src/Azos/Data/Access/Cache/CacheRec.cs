@@ -45,18 +45,15 @@ namespace Azos.Data.Access.Cache
             const string FROM = "CacheRec.Destructor()";
 
             if (m_Value!=null)
-                if (m_Value is IDisposable)
-                   try
-                   {
-                     ((IDisposable)m_Value).Dispose();
-                   }
-                   catch(Exception error)
-                   {
-                        App.Log.Write(MessageType.Error,
-                                      StringConsts.CACHE_RECORD_ITEM_DISPOSE_ERROR.Args(FROM, error.ToMessageWithType()),
-                                      topic: CoreConsts.CACHE_TOPIC,
-                                      from: FROM);
-                   }
+              if (m_Value is IDisposable)
+                try
+                {
+                  ((IDisposable)m_Value).Dispose();
+                }
+                catch(Exception error)
+                {
+                  Trace.Write(StringConsts.CACHE_RECORD_ITEM_DISPOSE_ERROR.Args(FROM, error.ToMessageWithType()), FROM, MessageType.Error, topic: CoreConsts.CACHE_TOPIC);
+                }
         }
 
         internal DateTime m_CreateDate;//set by sweep thread on first access
@@ -123,7 +120,7 @@ namespace Azos.Data.Access.Cache
         public int Priority { get { return m_Priority;} }
 
         /// <summary>
-        /// Returns how many times this cache item was hit (resulted in successfull read)
+        /// Returns how many times this cache item was hit (resulted in successful read)
         /// </summary>
         public int HitCount { get { return m_HitCount;} }
 
@@ -135,7 +132,7 @@ namespace Azos.Data.Access.Cache
 
 
         /// <summary>
-        /// Returns typecasted value
+        /// Returns typecast value
         /// </summary>
         public T ValueAs<T>()
         {

@@ -404,7 +404,7 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Represents service with typed ComponentDirector property
+    /// Represents daemon with typed ComponentDirector property
     /// </summary>
     public abstract class Daemon<TDirector> : Daemon where TDirector : IApplicationComponent
     {
