@@ -43,7 +43,7 @@ namespace Azos.Serialization.POD
                 try
                 {
                     m_BuildInfo = BuildInformation.ForFramework;
-                    m_CreationDate = creationDate ?? App.LocalizedTime;
+                    m_CreationDate = creationDate ?? Ambient.UTCNow;
                     m_Notes = notes;
                     m_Types = new List<MetaType>();
                     m_CompositeData = new List<CompositeData>();

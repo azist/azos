@@ -359,7 +359,7 @@ namespace Azos.Pile
                        }
 
                        var pile = Table.m_Cache.m_Pile;
-                       var now = App.TimeSource.UTCNow;
+                       var now = Ambient.UTCNow;
 
                        var elapsedSec = 0;
                        if (m_IdxSweep==m_LastSweeps.Count)

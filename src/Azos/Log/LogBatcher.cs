@@ -56,17 +56,16 @@ namespace Azos.Log
 
     #endregion
 
-    protected LogBatcher(ILog log = null)
+    protected LogBatcher(ILog log)
     {
-      Log = log;
+      Log = log.NonNull(text: nameof(log));
     }
 
     protected sealed override void Destructor()
     {
       var messages = MakeMessages();
-      var log = Log ?? App.Log;
 
-      foreach(var msg in messages) log.Write(msg);
+      foreach(var msg in messages) Log.Write(msg);
 
       base.Destructor();
     }

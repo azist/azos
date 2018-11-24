@@ -542,8 +542,8 @@ namespace Azos.Pile
                          var sweptToEnd = table.Sweep(timer, maxTimePerTableMs);
                          if (m_InstrumentationEnabled)
                          {
-                           Instrumentation.CacheTableSwept.Happened(Name); //for cache
-                           Instrumentation.CacheTableSwept.Happened(Name+"."+table.Name); //for table
+                           Instrumentation.CacheTableSwept.Happened(App.Instrumentation, Name); //for cache
+                           Instrumentation.CacheTableSwept.Happened(App.Instrumentation, Name+"."+table.Name); //for table
                          }
 
                          if (sweptToEnd)

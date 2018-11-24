@@ -28,6 +28,7 @@ namespace Azos
         ThrowAndLog = Throw | Log
     }
 
+#warning This needs detailed review
     /// <summary>
     /// Facilitates debugging tasks enabled by DEBUG conditional define
     /// </summary>
@@ -37,16 +38,16 @@ namespace Azos
 
         [Conditional(DEBUG)]
         public static void Assert(
-                                      bool condition,
-                                      string text = null,
-                                      DebugAction action = DebugAction.Default,
-                                      string from = null,
-                                      MessageType type = MessageType.Debug,
-                                      int source = 0,
-                                      string topic = null,
-                                      string pars = null,
-                                      Guid? correlationContext = null,
-                                      int frameOffset = 2
+                                  bool condition,
+                                  string text = null,
+                                  DebugAction action = DebugAction.Default,
+                                  string from = null,
+                                  MessageType type = MessageType.Debug,
+                                  int source = 0,
+                                  string topic = null,
+                                  string pars = null,
+                                  Guid? correlationContext = null,
+                                  int frameOffset = 2
                                  )
         {
             Debugging.Assert(condition, text, action, from, type, source, topic ?? CoreConsts.ASSERT_TOPIC, pars, correlationContext, frameOffset);
@@ -54,31 +55,31 @@ namespace Azos
 
         [Conditional(DEBUG)]
         public static void Fail(
-                                      string text = null,
-                                      DebugAction action = DebugAction.Default,
-                                      string from = null,
-                                      MessageType type = MessageType.Debug,
-                                      int source = 0,
-                                      string topic = null,
-                                      string pars = null,
-                                      Guid? correlationContext = null,
-                                      int frameOffset = 2
-                                 )
+                                  string text = null,
+                                  DebugAction action = DebugAction.Default,
+                                  string from = null,
+                                  MessageType type = MessageType.Debug,
+                                  int source = 0,
+                                  string topic = null,
+                                  string pars = null,
+                                  Guid? correlationContext = null,
+                                  int frameOffset = 2
+                               )
         {
             Debugging.Fail(text, action, from, type, source, topic ?? CoreConsts.ASSERT_TOPIC, pars, correlationContext, frameOffset);
         }
 
         [Conditional(DEBUG)]
         public static void Write(
-                                      string text,
-                                      string from = null,
-                                      MessageType type = MessageType.Debug,
-                                      int source = 0,
-                                      string topic = null,
-                                      string pars = null,
-                                      Guid? correlationContext = null,
-                                      int frameOffset = 2
-                                 )
+                                  string text,
+                                  string from = null,
+                                  MessageType type = MessageType.Debug,
+                                  int source = 0,
+                                  string topic = null,
+                                  string pars = null,
+                                  Guid? correlationContext = null,
+                                  int frameOffset = 2
+                                )
         {
             Debugging.Write(text, from, type, source, topic, pars, correlationContext, frameOffset);
         }
@@ -92,9 +93,9 @@ namespace Azos
         /// <param name="correlationContext">Optional correlation token to relate log entries</param>
         [Conditional(DEBUG)]
         public static void Write(
-                                      Func<string> textFunc,
-                                      MessageType type = MessageType.Trace,
-                                      Guid? correlationContext = null
+                                  Func<string> textFunc,
+                                  MessageType type = MessageType.Trace,
+                                  Guid? correlationContext = null
                                 )
         {
             if (Debugging.TraceDisabled)
@@ -114,16 +115,16 @@ namespace Azos
 
         [Conditional(TRACE)]
         public static void Assert(
-                                      bool condition,
-                                      string text = null,
-                                      DebugAction action = DebugAction.Default,
-                                      string from = null,
-                                      MessageType type = MessageType.Trace,
-                                      int source = 0,
-                                      string topic = null,
-                                      string pars = null,
-                                      Guid? correlationContext = null,
-                                      int frameOffset = 2
+                                  bool condition,
+                                  string text = null,
+                                  DebugAction action = DebugAction.Default,
+                                  string from = null,
+                                  MessageType type = MessageType.Trace,
+                                  int source = 0,
+                                  string topic = null,
+                                  string pars = null,
+                                  Guid? correlationContext = null,
+                                  int frameOffset = 2
                                  )
         {
             Debugging.Assert(condition, text, action, from, type, source, topic ?? CoreConsts.ASSERT_TOPIC, pars, correlationContext, frameOffset);
@@ -131,30 +132,30 @@ namespace Azos
 
         [Conditional(TRACE)]
         public static void Fail(
-                                      string text = null,
-                                      DebugAction action = DebugAction.Default,
-                                      string from = null,
-                                      MessageType type = MessageType.Debug,
-                                      int source = 0,
-                                      string topic = null,
-                                      string pars = null,
-                                      Guid? correlationContext = null,
-                                      int frameOffset = 2
-                                 )
+                                  string text = null,
+                                  DebugAction action = DebugAction.Default,
+                                  string from = null,
+                                  MessageType type = MessageType.Debug,
+                                  int source = 0,
+                                  string topic = null,
+                                  string pars = null,
+                                  Guid? correlationContext = null,
+                                  int frameOffset = 2
+                               )
         {
             Debugging.Fail(text, action, from, type, source, topic ?? CoreConsts.ASSERT_TOPIC, pars, correlationContext, frameOffset);
         }
 
         [Conditional(TRACE)]
         public static void Write(
-                                      string text,
-                                      string from = null,
-                                      MessageType type = MessageType.Trace,
-                                      int source = 0,
-                                      string topic = null,
-                                      string pars = null,
-                                      Guid? correlationContext = null,
-                                      int frameOffset = 2
+                                  string text,
+                                  string from = null,
+                                  MessageType type = MessageType.Trace,
+                                  int source = 0,
+                                  string topic = null,
+                                  string pars = null,
+                                  Guid? correlationContext = null,
+                                  int frameOffset = 2
                                  )
         {
             Debugging.Write(text, from, type, source, topic ?? CoreConsts.TRACE_TOPIC, pars, correlationContext, frameOffset);
@@ -169,9 +170,9 @@ namespace Azos
         /// <param name="correlationContext">Optional correlation token to relate log entries</param>
         [Conditional(TRACE)]
         public static void Write(
-                                      Func<string> textFunc,
-                                      MessageType type = MessageType.Trace,
-                                      Guid? correlationContext = null
+                                  Func<string> textFunc,
+                                  MessageType type = MessageType.Trace,
+                                  Guid? correlationContext = null
                                 )
         {
             if (Debugging.TraceDisabled)
@@ -191,10 +192,10 @@ namespace Azos
         /// <param name="correlationContext">Optional correlation token to relate log entries</param>
         [Conditional(TRACE)]
         public static void Write<TContext>(
-                                      Func<TContext,string> textFunc,
-                                      TContext ctx,
-                                      MessageType type = MessageType.Trace,
-                                      Guid? correlationContext = null
+                                  Func<TContext,string> textFunc,
+                                  TContext ctx,
+                                  MessageType type = MessageType.Trace,
+                                  Guid? correlationContext = null
                                 )
         {
             if (Debugging.TraceDisabled)
@@ -218,6 +219,7 @@ namespace Azos
 
         #endregion
 
+        private static IApplication App => Apps.ExecutionContext.Application;
         private static DebugAction s_DefaultDebugAction = DebugAction.ThrowAndLog;
         private static bool        s_TraceDisabled      = false;
         private static bool?       s_ConfRefresh        = false;
@@ -300,7 +302,7 @@ namespace Azos
                 exception = new DebugAssertionException(text + ":  " + from, from);
 
             if ((action & DebugAction.Log) == DebugAction.Log)
-                Apps.ExecutionContext.Application.Log.Write(
+                App.Log.Write(
                     new Message{
                         Type = type,
                         Topic = topic ?? CoreConsts.DEBUG_TOPIC,
@@ -369,7 +371,7 @@ namespace Azos
                 }
             }
 
-            Azos.Apps.ExecutionContext.Application.Log.Write(
+            App.Log.Write(
                 new Message{
                     Type = type,
                     Topic = topic ?? CoreConsts.DEBUG_TOPIC,
