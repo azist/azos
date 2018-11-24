@@ -172,8 +172,6 @@ namespace Azos.Glue.Tools
          sb.AppendLine();
          sb.AppendLine("  #region .ctor");
 
-         sb.AppendLine("     public "+cname+"(string node, Binding binding = null) : base(node, binding) { ctor(); }");
-         sb.AppendLine("     public "+cname+"(Node node, Binding binding = null) : base(node, binding) { ctor(); }");
          sb.AppendLine("     public "+cname+"(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }");
          sb.AppendLine("     public "+cname+"(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }");
 

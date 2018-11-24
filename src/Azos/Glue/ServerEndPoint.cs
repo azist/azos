@@ -38,11 +38,6 @@ namespace Azos.Glue
             ctor(name, null);
         }
 
-        public ServerEndPoint(string node, IEnumerable<Type> contractServers, Binding binding = null) : base(ExecutionContext.Application.Glue, new Node(node), binding) { ctor(null, contractServers); }
-        public ServerEndPoint(Node node, IEnumerable<Type> contractServers, Binding binding = null)   : base(ExecutionContext.Application.Glue, node, binding) { ctor(null, contractServers); }
-        public ServerEndPoint(string name, string node, IEnumerable<Type> contractServers, Binding binding = null) : base(ExecutionContext.Application.Glue, new Node(node), binding) { ctor(name, contractServers); }
-        public ServerEndPoint(string name, Node node, IEnumerable<Type> contractServers, Binding binding = null)   : base(ExecutionContext.Application.Glue, node, binding) { ctor(name, contractServers); }
-
         public ServerEndPoint(IGlue glue, string node, IEnumerable<Type> contractServers, Binding binding = null) : base(glue, new Node(node), binding) { ctor(null, contractServers); }
         public ServerEndPoint(IGlue glue, Node node, IEnumerable<Type> contractServers, Binding binding = null)   : base(glue, node, binding) { ctor(null, contractServers); }
         public ServerEndPoint(IGlue glue, string name, string node, IEnumerable<Type> contractServers, Binding binding = null) : base(glue, new Node(node), binding) { ctor(name, contractServers); }
@@ -51,16 +46,16 @@ namespace Azos.Glue
 
         private void ctor(string name, IEnumerable<Type> contractServers)
         {
-            if (string.IsNullOrWhiteSpace(name))
-               name = Guid.NewGuid().ToString();
+          if (string.IsNullOrWhiteSpace(name))
+              name = Guid.NewGuid().ToString();
 
-            m_Name = name;
-            m_Glue.RegisterServerEndpoint(this);
+          m_Name = name;
+          m_Glue.RegisterServerEndpoint(this);
 
-            if (contractServers!=null)
-             m_ContractServers = contractServers.ToArray();
-            else
-             m_ContractServers = new Type[0];
+          if (contractServers!=null)
+            m_ContractServers = contractServers.ToArray();
+          else
+            m_ContractServers = new Type[0];
         }
 
         protected override void Destructor()

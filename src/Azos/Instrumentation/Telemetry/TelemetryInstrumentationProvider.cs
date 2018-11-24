@@ -75,7 +75,7 @@ namespace Azos.Instrumentation.Telemetry
       try
       {
         if (m_Client == null)
-          m_Client = new TelemetryReceiverClient(ReceiverNode);
+          m_Client = new TelemetryReceiverClient(App.Glue, ReceiverNode);
 
         m_Client.Send(site, aggregatedDatum);
       }

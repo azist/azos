@@ -41,8 +41,6 @@ namespace Azos.Instrumentation.Telemetry
   #endregion
 
   #region .ctor
-     public TelemetryReceiverClient(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public TelemetryReceiverClient(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public TelemetryReceiverClient(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public TelemetryReceiverClient(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

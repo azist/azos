@@ -24,13 +24,10 @@ namespace Azos.Glue
     ///  1). The endpoint instance has not reserved its transport (ReserveTransport=false)
     ///  2). Either remote contract is stateless OR none of the concurrent calls are constructing/destructing remote instance
     /// The second condition ensures that stateful remote instance is consistent, otherwise operations may get executed
-    ///  out-of-order in the multithreaded scenario
+    ///  out-of-order in the multi-threaded scenario
     /// </remarks>
     public abstract class ClientEndPoint : EndPoint
     {
-
-        public ClientEndPoint(string node, Binding binding = null) : base(App.Glue, new Node(node), binding) { ctor(); }
-        public ClientEndPoint(Node node, Binding binding = null) : base(App.Glue, node, binding) { ctor(); }
         public ClientEndPoint(IGlue glue, string node, Binding binding = null) : base(glue, new Node(node), binding) { ctor(); }
         public ClientEndPoint(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 
@@ -168,7 +165,7 @@ namespace Azos.Glue
            request.Headers.AddRange(m_Headers);
 
           foreach(var insp in m_MsgInspectors.OrderedValues)
-           request = insp.ClientDispatchCall(this, request);
+            request = insp.ClientDispatchCall(this, request);
 
           return Binding.DispatchCall(this, request);
         }

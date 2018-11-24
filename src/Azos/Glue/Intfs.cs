@@ -131,8 +131,6 @@ namespace Azos.Glue
         /// </summary>
         void SubscribeCallSlotWithTaskReactor(CallSlot call);
 
-#warning what is this for?
-    /*
         IConfigSectionNode GlueConfiguration { get; }
         IConfigSectionNode ProvidersConfigurationSection { get; }
         IEnumerable<IConfigSectionNode> ProviderConfigurations { get; }
@@ -140,6 +138,5 @@ namespace Azos.Glue
         IEnumerable<IConfigSectionNode> BindingConfigurations { get; }
         IConfigSectionNode ServersConfigurationSection { get; }
         IEnumerable<IConfigSectionNode> ServerConfigurations { get; }
-      */
     }
 }

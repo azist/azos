@@ -156,43 +156,40 @@ namespace Azos.Glue.Implementation
     public OrderedRegistry<IClientMsgInspector> ClientMsgInspectors => m_ClientMsgInspectors;
     public OrderedRegistry<IServerMsgInspector> ServerMsgInspectors => m_ServerMsgInspectors;
 
-#warning what these are for?
-    /*
-              public IConfigSectionNode GlueConfiguration
-              {
-                get { return App.ConfigRoot[CommonApplicationLogic.CONFIG_GLUE_SECTION];}
-              }
+    public IConfigSectionNode GlueConfiguration
+    {
+      get { return App.ConfigRoot[CommonApplicationLogic.CONFIG_GLUE_SECTION];}
+    }
 
-              public IConfigSectionNode ProvidersConfigurationSection
-              {
-                get { return GlueConfiguration[CONFIG_PROVIDERS_SECTION]; }
-              }
+    public IConfigSectionNode ProvidersConfigurationSection
+    {
+      get { return GlueConfiguration[CONFIG_PROVIDERS_SECTION]; }
+    }
 
-              public IEnumerable<IConfigSectionNode> ProviderConfigurations
-              {
-                get { return ProvidersConfigurationSection.Children.Where(n=> n.IsSameName(CONFIG_PROVIDER_SECTION)); }
-              }
+    public IEnumerable<IConfigSectionNode> ProviderConfigurations
+    {
+      get { return ProvidersConfigurationSection.Children.Where(n=> n.IsSameName(CONFIG_PROVIDER_SECTION)); }
+    }
 
-              public IConfigSectionNode BindingsConfigurationSection
-              {
-                get { return GlueConfiguration[CONFIG_BINDINGS_SECTION]; }
-              }
+    public IConfigSectionNode BindingsConfigurationSection
+    {
+      get { return GlueConfiguration[CONFIG_BINDINGS_SECTION]; }
+    }
 
-              public IEnumerable<IConfigSectionNode> BindingConfigurations
-              {
-                  get { return BindingsConfigurationSection.Children.Where(n=> n.IsSameName(CONFIG_BINDING_SECTION)); }
-              }
+    public IEnumerable<IConfigSectionNode> BindingConfigurations
+    {
+        get { return BindingsConfigurationSection.Children.Where(n=> n.IsSameName(CONFIG_BINDING_SECTION)); }
+    }
 
-              public IConfigSectionNode ServersConfigurationSection
-              {
-                get { return GlueConfiguration[CONFIG_SERVERS_SECTION]; }
-              }
+    public IConfigSectionNode ServersConfigurationSection
+    {
+      get { return GlueConfiguration[CONFIG_SERVERS_SECTION]; }
+    }
 
-              public IEnumerable<IConfigSectionNode> ServerConfigurations
-              {
-                get { return ServersConfigurationSection.Children.Where(n=> n.IsSameName(CONFIG_SERVER_SECTION)); }
-              }
-    */
+    public IEnumerable<IConfigSectionNode> ServerConfigurations
+    {
+      get { return ServersConfigurationSection.Children.Where(n=> n.IsSameName(CONFIG_SERVER_SECTION)); }
+    }
     #endregion
 
 

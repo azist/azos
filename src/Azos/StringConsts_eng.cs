@@ -501,8 +501,11 @@ namespace Azos
     public const string GLUE_CLIENT_CALL_TRANSPORT_ACQUISITION_TIMEOUT_ERROR =
         "Binding '{0}' could not acquire client transport for making a call after waiting {1} ms. Revise limits in client transport binding config";
 
-     public const string GLUE_CLIENT_CALL_NO_BINDING_ERROR =
+    public const string GLUE_CLIENT_CALL_NO_BINDING_ERROR =
         "'{0}' client call failed because there is no binding available";
+
+    public const string GLUE_BINDING_GLUE_MISMATCH_ERROR =
+        "Binding '{0}' does not work under this Glue: '{1}'";
 
     public const string GLUE_CALL_SERVICED_BY_DIFFERENT_REACTOR_ERROR =
         "The call is already serviced by different reactor instance";
