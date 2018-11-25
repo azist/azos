@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Apps;
 using Azos.Conf;
 
 namespace Azos.Web.Shipping.Manual
@@ -18,11 +19,11 @@ namespace Azos.Web.Shipping.Manual
 
     #region .ctor
 
-      public ManualSystem(string name, IConfigSectionNode node) : base(name, node)
+      public ManualSystem(IApplication app) : base(app)
       {
       }
 
-      public ManualSystem(string name, IConfigSectionNode node, object director) : base(name, node, director)
+      public ManualSystem(IApplicationComponent director) : base(director)
       {
       }
 

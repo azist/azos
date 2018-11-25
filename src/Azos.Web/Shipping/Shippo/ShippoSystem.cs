@@ -125,7 +125,7 @@ namespace Azos.Web.Shipping.Shippo
 
       public Label CreateLabel(ShippoSession session, IShippingContext context, Shipment shipment)
       {
-        var logID = Log(MessageType.Info, "CreateLabel()", StringConsts.SHIPPO_CREATE_LABEL_MESSAGE.Args(shipment.FromAddress, shipment.ToAddress));
+        var logID = WriteLog(MessageType.Info, "CreateLabel()", StringConsts.SHIPPO_CREATE_LABEL_MESSAGE.Args(shipment.FromAddress, shipment.ToAddress));
 
         try
         {
@@ -136,7 +136,7 @@ namespace Azos.Web.Shipping.Shippo
           StatCreateLabelError();
 
           var header = StringConsts.SHIPPO_CREATE_LABEL_ERROR.Args(shipment.FromAddress, shipment.ToAddress, ex.ToMessageWithType());
-          Log(MessageType.Error, "CreateLabel()", header, ex, logID);
+          WriteLog(MessageType.Error, "CreateLabel()", header, ex, logID);
           var error = ShippingException.ComposeError(ex.Message, ex);
 
           throw error;
@@ -151,7 +151,7 @@ namespace Azos.Web.Shipping.Shippo
 
       public TrackInfo TrackShipment(ShippoSession session, IShippingContext context, string carrierID, string trackingNumber)
       {
-        var logID = Log(MessageType.Info, "TrackShipment()", StringConsts.SHIPPO_TRACK_SHIPMENT_MESSAGE.Args(trackingNumber));
+        var logID = WriteLog(MessageType.Info, "TrackShipment()", StringConsts.SHIPPO_TRACK_SHIPMENT_MESSAGE.Args(trackingNumber));
 
         try
         {
@@ -167,7 +167,7 @@ namespace Azos.Web.Shipping.Shippo
           StatTrackShipmentErrorCount();
 
           var header = StringConsts.SHIPPO_TRACK_SHIPMENT_ERROR.Args(trackingNumber,ex.ToMessageWithType());
-          Log(MessageType.Error, "TrackShipment()", header, ex, logID);
+          WriteLog(MessageType.Error, "TrackShipment()", header, ex, logID);
           var error = ShippingException.ComposeError(ex.Message, ex);
 
           throw error;
@@ -206,7 +206,7 @@ namespace Azos.Web.Shipping.Shippo
 
       public Address ValidateAddress(ShippoSession session, IShippingContext context, Address address, out ValidateShippingAddressException error)
       {
-        var logID = Log(MessageType.Info, "ValidateAddress()", StringConsts.SHIPPO_VALIDATE_ADDRESS_MESSAGE);
+        var logID = WriteLog(MessageType.Info, "ValidateAddress()", StringConsts.SHIPPO_VALIDATE_ADDRESS_MESSAGE);
 
         try
         {
@@ -217,7 +217,7 @@ namespace Azos.Web.Shipping.Shippo
           StatValidateAddressErrorCount();
 
           var header = StringConsts.SHIPPO_VALIDATE_ADDRESS_ERROR.Args(ex.ToMessageWithType());
-          Log(MessageType.Error, "ValidateAddress()", header, ex, logID);
+          WriteLog(MessageType.Error, "ValidateAddress()", header, ex, logID);
           throw ShippingException.ComposeError(ex.Message, ex);
         }
       }
@@ -229,7 +229,7 @@ namespace Azos.Web.Shipping.Shippo
 
       public ShippingRate EstimateShippingCost(ShippoSession session, IShippingContext context, Shipment shipment)
       {
-        var logID = Log(MessageType.Info, "EstimateShippingCost()", StringConsts.SHIPPO_ESTIMATE_SHIPPING_COST_MESSAGE.Args(shipment.FromAddress, shipment.ToAddress, shipment.Service.Name));
+        var logID = WriteLog(MessageType.Info, "EstimateShippingCost()", StringConsts.SHIPPO_ESTIMATE_SHIPPING_COST_MESSAGE.Args(shipment.FromAddress, shipment.ToAddress, shipment.Service.Name));
 
         try
         {
@@ -240,7 +240,7 @@ namespace Azos.Web.Shipping.Shippo
           StatEstimateShippingCostErrorCount();
 
           var header = StringConsts.SHIPPO_ESTIMATE_SHIPPING_COST_ERROR.Args(shipment.FromAddress, shipment.ToAddress, shipment.Service.Name, ex.ToMessageWithType());
-          Log(MessageType.Error, "EstimateShippingCost()", header, ex, logID);
+          WriteLog(MessageType.Error, "EstimateShippingCost()", header, ex, logID);
           var error = ShippingException.ComposeError(ex.Message, ex);
 
           throw error;
@@ -269,7 +269,7 @@ namespace Azos.Web.Shipping.Shippo
 
         var response = WebClient.GetJson(new Uri(URI_API_BASE + URI_TRANSACTIONS), request);
 
-        Log(MessageType.Info, "doCreateLabel()", response.ToJSON(), relatedMessageID: logID);
+        WriteLog(MessageType.Info, "doCreateLabel()", response.ToJSON(), relatedMessageID: logID);
 
         checkResponse(response);
 
@@ -390,7 +390,7 @@ namespace Azos.Web.Shipping.Shippo
 
         var response = WebClient.GetJson(new Uri(URI_API_BASE + URI_ADDRESS), request);
 
-        Log(MessageType.Info, "doValidateAddress()", response.ToJSON(), relatedMessageID: logID);
+        WriteLog(MessageType.Info, "doValidateAddress()", response.ToJSON(), relatedMessageID: logID);
 
         // check for validation errors:
         // Shippo API can return STATUS_INVALID or (!!!) STATUS_VALID but with 'code'="Invalid"
@@ -410,7 +410,7 @@ namespace Azos.Web.Shipping.Shippo
         if (!state.EqualsIgnoreCase(STATUS_VALID) || code.EqualsIgnoreCase(CODE_INVALID))
         {
           var errMess = StringConsts.SHIPPO_VALIDATE_ADDRESS_INVALID_ERROR.Args(text);
-          Log(MessageType.Error, "doValidateAddress()", errMess, relatedMessageID: logID);
+          WriteLog(MessageType.Error, "doValidateAddress()", errMess, relatedMessageID: logID);
           error = new ValidateShippingAddressException(errMess, text);
           return null;
         }
@@ -439,7 +439,7 @@ namespace Azos.Web.Shipping.Shippo
 
         var response = WebClient.GetJson(new Uri(URI_API_BASE + URI_SHIPMENTS), request);
 
-        Log(MessageType.Info, "doEstimateShippingCost()", response.ToJSON(), relatedMessageID: logID);
+        WriteLog(MessageType.Info, "doEstimateShippingCost()", response.ToJSON(), relatedMessageID: logID);
 
         checkResponse(response);
 
@@ -511,7 +511,7 @@ namespace Azos.Web.Shipping.Shippo
         catch (Exception ex)
         {
           var error = ShippingException.ComposeError(ex.Message, ex);
-          Log(MessageType.Error, "getRate()", StringConsts.SHIPPO_CREATE_LABEL_ERROR, error, relatedMessageID: logID);
+          WriteLog(MessageType.Error, "getRate()", StringConsts.SHIPPO_CREATE_LABEL_ERROR, error, relatedMessageID: logID);
           return null;
         }
       }

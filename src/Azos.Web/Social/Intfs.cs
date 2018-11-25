@@ -6,7 +6,7 @@
 
 using System;
 
-
+using Azos.Apps;
 using Azos.Conf;
 using Azos.Instrumentation;
 using Azos.Serialization.JSON;
@@ -36,7 +36,7 @@ namespace Azos.Web.Social
   }
 
   /// <summary>
-  /// Globally uniquelly identifies social network architypes
+  /// Globally uniquely identifies social network archetypes
   /// </summary>
   public enum SocialNetID
   {
@@ -58,10 +58,10 @@ namespace Azos.Web.Social
   /// <summary>
   /// Describes an entity that can perform social functions (i.e. login, post)
   /// </summary>
-  public interface ISocialNetwork: Collections.INamed
+  public interface ISocialNetwork: IDaemonView
   {
     /// <summary>
-    /// Globally uniquelly identifies social network architype
+    /// Globally uniquely identifies social network archetype
     /// </summary>
     SocialNetID ID { get; }
 
@@ -81,7 +81,7 @@ namespace Azos.Web.Social
     CredentialsEntryMethod CredentialsEntry { get; }
 
     /// <summary>
-    /// Defines if a meeesage can be post to this social network
+    /// Defines if a message can be post to this social network
     /// </summary>
     bool CanPost { get; }
 
@@ -163,7 +163,7 @@ namespace Azos.Web.Social
     string PrepareReturnURLParameter(string returnURL, bool escape = true);
   }
 
-  public interface ISocialNetworkImplementation: ISocialNetwork, IConfigurable, IInstrumentable
+  public interface ISocialNetworkImplementation: ISocialNetwork, IDaemon, IConfigurable, IInstrumentable
   {
   }
 }

@@ -30,7 +30,7 @@ namespace Azos.Web.GeoLookup
     LookupResolution Resolution{get;}
 
     /// <summary>
-    /// Tries to lookup the geo entitiy by domain IPAddress.
+    /// Tries to lookup the geo entity by domain IPAddress.
     /// Returns null when no match could be made
     /// </summary>
     GeoEntity Lookup(IPAddress address);

@@ -15,7 +15,7 @@ namespace Azos.Web.Pay
   /// <summary>
   /// Represents a market that can convert buy/sell currencies
   /// </summary>
-  public interface ICurrencyMarket
+  public interface ICurrencyMarket : IApplicationComponent
   {
      /// <summary>
      /// Returns conversion rate for source->target conversion.

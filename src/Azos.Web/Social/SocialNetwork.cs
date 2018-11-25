@@ -11,12 +11,12 @@ using System.Threading;
 
 using Azos.Apps;
 using Azos.Conf;
-using Azos.Collections;
 using Azos.Instrumentation;
 using Azos.Serialization.JSON;
 
 namespace Azos.Web.Social
 {
+  #warning Remove this shit
     public static class SocialStringConsts
     {
       public const string POSTFAILED_ERROR = "Social network post to failed";
@@ -26,10 +26,9 @@ namespace Azos.Web.Social
     /// <summary>
     /// Defines an abstraction for social networks
     /// </summary>
-    public abstract class SocialNetwork: DaemonWithInstrumentation<object>, IWebClientCaller, ISocialNetworkImplementation
+    public abstract class SocialNetwork : DaemonWithInstrumentation<IApplicationComponent>, IWebClientCaller, ISocialNetworkImplementation
     {
       #region Const
-        public const string CONFIG_AUTO_START_ATTR = "auto-start";
 
         public const int DEFAULT_TIMEOUT_MS_DEFAULT = 30 * 1000;
 
@@ -44,33 +43,6 @@ namespace Azos.Web.Social
       #endregion
 
       #region Static
-        private static Registry<SocialNetwork> s_Instances = new Registry<SocialNetwork>();
-
-        /// <summary>
-        /// Returns the read-only registry of social networks currently activated
-        /// </summary>
-        public static IRegistry<ISocialNetwork> Instances { get { return s_Instances; } }
-
-        public static void AutoStartNetworks()
-        {
-          App.Instance.RegisterAppFinishNotifiable(SocialNetworkFinisher.Instance);
-
-          WebSettings.RequireInitializedSettings();
-
-          foreach (var snNode in App.ConfigRoot[WebSettings.CONFIG_WEBSETTINGS_SECTION][WebSettings.CONFIG_SOCIAL_SECTION]
-                                                            .Children.Where(cn => cn.IsSameName(WebSettings.CONFIG_SOCIAL_PROVIDER_SECTION)))
-          {
-            var name = snNode.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
-
-            if (!snNode.AttrByName(CONFIG_AUTO_START_ATTR).ValueAsBool()) continue;
-
-            var network = FactoryUtils.MakeAndConfigure<SocialNetwork>(snNode, typeof(SocialNetwork), new object[] { null, snNode});
-
-            if (s_Instances[network.Name] != null) continue; // already started
-
-            network.Start();
-          }
-        }
 
         protected static string GenerateNonce()
         {
@@ -79,28 +51,13 @@ namespace Azos.Web.Social
         }
       #endregion
 
-          #region Inner classes
-
-            private sealed class SocialNetworkFinisher: IApplicationFinishNotifiable
-            {
-              internal static readonly SocialNetworkFinisher Instance = new SocialNetworkFinisher();
-
-              public string Name { get { return GetType().FullName; } }
-
-              public void ApplicationFinishBeforeCleanup(IApplication application)
-              {
-                foreach (var socialNetwork in s_Instances)
-                  socialNetwork.WaitForCompleteStop();
-              }
-
-              public void ApplicationFinishAfterCleanup(IApplication application) { }
-            }
-
-          #endregion
 
       #region ctor
 
-        protected SocialNetwork(string name = null, IConfigSectionNode cfg = null): base()
+        protected SocialNetwork(IApplication app) : base(app) => ctor();
+        protected SocialNetwork(IApplicationComponent director) : base(director) => ctor();
+
+        private void ctor()
         {
           m_WebServiceCallTimeoutMs = DEFAULT_TIMEOUT_MS_DEFAULT;
           KeepAlive = true;
@@ -109,20 +66,6 @@ namespace Azos.Web.Social
           GrantPost = true;
           GrantAccessProfile = true;
           GrantAccessFriends = true;
-
-          var networkName = name;
-
-          if (cfg != null)
-          {
-            Configure(cfg);
-            networkName = cfg.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
-          }
-
-          if (name.IsNotNullOrWhiteSpace()) networkName = name;
-
-          if (networkName.IsNullOrWhiteSpace()) networkName = GetType().Name;
-
-          Name = networkName;
         }
 
         protected override void Destructor()
@@ -148,6 +91,8 @@ namespace Azos.Web.Social
       #endregion
 
       #region Properties
+
+        public override string ComponentLogTopic => CoreConsts.SOCIAL_TOPIC;
 
         public override string ComponentCommonName { get { return GetType().Name; }}
 
@@ -435,17 +380,6 @@ namespace Azos.Web.Social
       #endregion
 
       #region Protected
-        protected override void DoStart()
-        {
-          if (!s_Instances.Register(this))
-            throw new SocialException(StringConsts.SOCIAL_NETWORK_DUPLICATE_NAME.Args(GetType().FullName, Name));
-        }
-
-        protected override void DoWaitForCompleteStop()
-        {
-          s_Instances.Unregister(this);
-        }
-
         protected override void DoAcceptManagerVisit(object manager, DateTime managerNow)
         {
           dumpStats();

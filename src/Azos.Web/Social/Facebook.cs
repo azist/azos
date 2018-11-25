@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
+using Azos.Apps;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
@@ -73,25 +73,6 @@ namespace Azos.Web.Social
 
       #region Static
 
-        private static object s_Lock = new object();
-        private static Facebook s_Instance;
-
-        /// <summary>
-        /// Returns a singleton instance of the social network provider
-        /// </summary>
-        public static Facebook Instance
-        {
-          get
-          {
-            if (s_Instance != null) return s_Instance;
-            lock (s_Lock)
-            {
-              if (s_Instance == null) s_Instance = new Facebook();
-            }
-            return s_Instance;
-          }
-        }
-
         public static string EncodeState(string query)
         {
           var result = Convert.ToBase64String(Encoding.UTF8.GetBytes(query ?? string.Empty));
@@ -120,7 +101,8 @@ namespace Azos.Web.Social
 
     #endregion
 
-    private Facebook(string name = null, IConfigSectionNode cfg = null) : base(name, cfg) { }
+      public Facebook(IApplication app) : base(app) { }
+      public Facebook(IApplicationComponent director) : base(director) { }
 
       #region Fields
 

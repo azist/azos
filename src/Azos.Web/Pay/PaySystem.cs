@@ -24,7 +24,7 @@ namespace Azos.Web.Pay
   /// Instances of descendants of this class is typically created and configured in PaySystemStarter class.
   /// Then particular pay system can be obtained from PaySystem.Instances[PAY_SYSTEM_NAME] indexer
   /// </summary>
-  public abstract class PaySystem : DaemonWithInstrumentation<object>, IWebClientCaller, IPaySystemImplementation
+  public abstract class PaySystem : DaemonWithInstrumentation<IApplicationComponent>, IWebClientCaller, IPaySystemImplementation
   {
     #region CONSTS
       public const string CONFIG_PAYMENT_PROCESSING_SECTION = "payment-processing";
@@ -45,83 +45,9 @@ namespace Azos.Web.Pay
     #endregion
 
     #region Static
-      private static IPaySystemHost s_PaySystemHost;
 
-      /// <summary>
-      /// Returns process-global pay system host used to resolve accounts and transactions
-      /// or throws if host is not set. Check IsPaySystemHost to see if host is set.
-      /// This design provides an indirection level between pay systems (like Stripe, PayPal, Bank etc.) and
-      /// particular application data store implementation as it decouples system-internal formats of transaction and
-      /// account storage from provider-internal data (i.e. PayPal payment token string)
-      /// </summary>
-      public static IPaySystemHost PaySystemHost
-      {
-        get
-        {
-          var result = s_PaySystemHost;
-
-          if (result == null)
-            throw new PaymentException(StringConsts.PAYMENT_SYSTEM_HOST_NULL_ERROR);
-
-          return result;
-        }
-      }
-
-      public static bool IsPaySystemHost { get { return s_PaySystemHost != null; } }
-
-      /// <summary>
-      /// Sets process-global pay system host used to resolve accounts and transactions.
-      /// If PayStarter is used then the host may be auto-injected from configuration if it is there.
-      /// Developers: Do not call this method as it is used for dependency injection from system code
-      /// </summary>
-      public static void ___SetPaySystemHost(IPaySystemHostImplementation host)
-      {
-        s_PaySystemHost = host;
-      }
-
-
-      private static Registry<PaySystem> s_Instances = new Registry<PaySystem>();
-
-      /// <summary>
-      /// Returns the read-only registry view of payment systems currently activated
-      /// </summary>
-      public static IRegistry<IPaySystem> Instances { get { return s_Instances; } }
-
-      /// <summary>
-      /// Automatically starts systems designated in config with auto-start attribute
-      /// </summary>
-      public static void AutoStartSystems()
-      {
-        App.Instance.RegisterAppFinishNotifiable(PayProcessingFinisher.Instance);
-
-        WebSettings.RequireInitializedSettings();
-
-        var pHost = App.ConfigRoot[WebSettings.CONFIG_WEBSETTINGS_SECTION][CONFIG_PAYMENT_PROCESSING_SECTION][CONFIG_PAY_SYSTEM_HOST_SECTION];
-        if (pHost.Exists)
-        {
-          var host = FactoryUtils.MakeAndConfigure<PaySystemHost>(pHost, typeof(PaySystemHost), new object[] { null, pHost });
-          host.Start();
-          ___SetPaySystemHost(host);
-        }
-
-        foreach (var psNode in App.ConfigRoot[WebSettings.CONFIG_WEBSETTINGS_SECTION][CONFIG_PAYMENT_PROCESSING_SECTION]
-                                  .Children
-                                  .Where(cn => cn.IsSameName(CONFIG_PAY_SYSTEM_SECTION)))
-        {
-          var name = psNode.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
-
-          if (!psNode.AttrByName(CONFIG_AUTO_START_ATTR).ValueAsBool()) continue;
-
-          var system = FactoryUtils.MakeAndConfigure<PaySystem>(psNode, typeof(PaySystem), new object[] { null, psNode });
-
-          if (s_Instances[system.Name] != null) // already started
-            throw new PaymentException("AutoStart: " + StringConsts.PAYMENT_SYSTEM_DUPLICATE_NAME_ERROR.Args(system.GetType().FullName, system.Name));
-
-          system.Start();
-        }
-      }
-
-      public static TPaySystem Make<TPaySystem>(string name, IConfigSectionNode node) where TPaySystem: PaySystem
+    #warning Who uses these?
+    public static TPaySystem Make<TPaySystem>(string name, IConfigSectionNode node) where TPaySystem: PaySystem
       {
         WebSettings.RequireInitializedSettings();
 
@@ -137,42 +63,16 @@ namespace Azos.Web.Pay
       }
     #endregion
 
-    #region Inner
-      private class PayProcessingFinisher: IApplicationFinishNotifiable
-      {
-        internal static readonly PayProcessingFinisher Instance = new PayProcessingFinisher();
-
-        public string Name { get { return GetType().FullName; } }
-
-        public void ApplicationFinishBeforeCleanup(IApplication application)
-        {
-          foreach (var paySystem in s_Instances)
-            paySystem.WaitForCompleteStop();
-        }
-
-        public void ApplicationFinishAfterCleanup(IApplication application) {}
-      }
-    #endregion
 
     #region ctor
-      protected PaySystem(string name, IConfigSectionNode node): this(name, node, null) {}
+      protected PaySystem(IApplication app): base(app) => ctor();
+      protected PaySystem(IApplicationComponent director) : base(director) => ctor();
 
-      protected PaySystem(string name, IConfigSectionNode node, object director): base(director)
+      private void ctor()
       {
         LogLevel = DEFAULT_LOG_LEVEL;
         KeepAlive = true;
         Pipelined = true;
-
-        if (node != null)
-        {
-          Configure(node);
-          name = node.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
-        }
-
-        if (name.IsNullOrWhiteSpace()) name = GetType().Name;
-
-        this.Name = name;
-
         Sessions = new List<PaySession>();
       }
 
@@ -184,6 +84,8 @@ namespace Azos.Web.Pay
     #endregion
 
     #region Fields
+      protected internal List<PaySession> Sessions;
+
       private IConfigSectionNode m_DefaultSessionConnParamsCfg;
       private ConnectionParameters m_DefaultSessionConnectParams;
 
@@ -208,11 +110,16 @@ namespace Azos.Web.Pay
 
         private long m_stat_TransferCount, m_stat_TransferErrorCount;
         private ConcurrentDictionary<string, decimal> m_stat_TransferAmounts = new ConcurrentDictionary<string, decimal>();
-      #endregion
+    #endregion
     #endregion
 
     #region Properties
-      protected internal readonly List<PaySession> Sessions;
+
+    #warning this is broken on purpose -must refactor
+    public PaySystemHost PaySystemHost => null;
+
+
+      public override string ComponentLogTopic => CoreConsts.PAY_TOPIC;
 
       public virtual IPayWebTerminal WebTerminal { get { return null; } }
 
@@ -344,45 +251,9 @@ namespace Azos.Web.Pay
         ConfigAttribute.Apply(this, node);
       }
 
-      protected override void DoStart()
-      {
-        if (!s_Instances.Register(this))
-          throw new PaymentException(StringConsts.PAYMENT_SYSTEM_DUPLICATE_NAME_ERROR.Args(GetType().FullName, Name));
-      }
-
-      protected override void DoWaitForCompleteStop()
-      {
-        s_Instances.Unregister(this);
-      }
-
       protected override void DoAcceptManagerVisit(object manager, DateTime managerNow)
       {
         dumpStats();
-      }
-
-      protected Guid Log(MessageType type,
-                         string from,
-                         string message,
-                         Exception error = null,
-                         Guid? relatedMessageID = null,
-                         string parameters = null)
-      {
-        if (type < LogLevel) return Guid.Empty;
-
-        var logMessage = new Message
-        {
-          Topic = LOG_TOPIC,
-          Text = message ?? string.Empty,
-          Type = type,
-          From = "{0}.{1}".Args(this.GetType().Name, from),
-          Exception = error,
-          Parameters = parameters
-        };
-        if (relatedMessageID.HasValue) logMessage.RelatedTo = relatedMessageID.Value;
-
-        App.Log.Write(logMessage);
-
-        return logMessage.Guid;
       }
 
       #region Stat
@@ -567,6 +438,7 @@ namespace Azos.Web.Pay
     #endregion
   }
 
+  #warning Who uses this?
   public abstract class PaySystemWithStaticFees : PaySystem, IPaySystemWithFee
   {
     private struct Fee
@@ -575,8 +447,8 @@ namespace Azos.Web.Pay
       public decimal Pct;
     }
 
-    protected PaySystemWithStaticFees(string name, IConfigSectionNode node): this(name, node, null) { }
-    protected PaySystemWithStaticFees(string name, IConfigSectionNode node, object director) : base(name, node, director) { }
+    protected PaySystemWithStaticFees(IApplication app): base(app){ }
+    protected PaySystemWithStaticFees(IApplicationComponent director) : base(director) { }
 
     private Dictionary<string, Fee> m_Fees = new Dictionary<string, Fee>(StringComparer.OrdinalIgnoreCase);
 

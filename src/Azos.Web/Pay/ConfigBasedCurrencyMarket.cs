@@ -23,27 +23,17 @@ namespace Azos.Web.Pay
 
     protected IConfigSectionNode m_Node;
 
-    public ConfigBasedCurrencyMarket() : base()
+    public ConfigBasedCurrencyMarket(IApplication app) : base(app)
     {
       m_Node = findDefaultNode();
     }
 
-    public ConfigBasedCurrencyMarket(object director) : base(director)
+    public ConfigBasedCurrencyMarket(IApplicationComponent  director) : base(director)
     {
       m_Node = findDefaultNode();
     }
 
-    public ConfigBasedCurrencyMarket(IConfigSectionNode node): base()
-    {
-      m_Node = node ?? findDefaultNode();
-    }
-
-    public ConfigBasedCurrencyMarket(object director, IConfigSectionNode node): base(director)
-    {
-      m_Node = node ?? findDefaultNode();
-    }
-
-
+    public override string ComponentLogTopic => CoreConsts.PAY_TOPIC;
 
     public void Configure(IConfigSectionNode node)
     {

@@ -138,8 +138,7 @@ namespace Azos.Web.Messaging
       }
       catch (Exception error)
       {
-        var et = error.ToMessageWithType();
-        Log(MessageType.Error, "{0}.DoSendMsg(msg): {1}".Args(this.GetType().FullName, et), et);
+        WriteLog(MessageType.Error, nameof(DoSendMsg), error.ToMessageWithType(), error);
       }
 
       return sent;

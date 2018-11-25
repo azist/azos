@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
 
+using Azos.Apps;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
@@ -70,32 +71,15 @@ namespace Azos.Web.Social
 
     #region Static
 
-      private static object s_Lock = new object();
-      private static LinkedIn s_Instance;
 
-      /// <summary>
-      /// Returns a singleton instance of the social network provider
-      /// </summary>
-      public static LinkedIn Instance
-      {
-        get
-        {
-          if (s_Instance != null) return s_Instance;
-          lock (s_Lock)
-          {
-            if (s_Instance == null) s_Instance = new LinkedIn();
-          }
-          return s_Instance;
-        }
-      }
-
-      private LinkedIn(string name = null, IConfigSectionNode cfg = null) : base(name, cfg) { }
+    public LinkedIn(IApplication app) : base(app) { }
+    public LinkedIn(IApplicationComponent director) : base(director) { }
 
     #endregion
 
     #region Public
 
-      public override SocialUserInfo CreateSocialUserInfo(SocialUserInfoToken? existingToken = null)
+    public override SocialUserInfo CreateSocialUserInfo(SocialUserInfoToken? existingToken = null)
       {
         return new LinkedInSocialUserInfo(this);
       }

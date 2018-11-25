@@ -33,67 +33,10 @@ namespace Azos.Web.GeoLookup
 
     #endregion
 
-    #region Static
-
-      private static object s_InstanceLock = new object();
-      private static volatile GeoLookupService s_Instance;
-
-
-      /// <summary>
-      /// Lazily creates the default service instance
-      /// </summary>
-      public static IGeoLookup Instance
-      {
-        get
-        {
-          if (s_Instance!=null) return s_Instance;
-          var isNew = false;
-          lock(s_InstanceLock)
-          {
-            if (s_Instance==null)
-            {
-              var result = new GeoLookupService();
-              try
-              {
-                result.Configure(null);
-              }
-              catch
-              {
-                //todo: Finish throwing detailed exception
-                throw;
-              }
-              s_Instance = result;
-              isNew = true;
-            }
-          }
-          if (isNew)
-            Task.Factory.StartNew(() => start(), TaskCreationOptions.LongRunning);
-          return s_Instance;
-        }
-      }
-
-      private static void start()
-      {
-        try
-        {
-          s_Instance.Start();
-        }
-        catch(Exception error)
-        {
-          s_Instance = null;
-
-          log(MessageType.CatastrophicError,
-              "Instance.get(){svc.start()}",
-              error.ToMessageWithType(), error);
-        }
-      }
-
-    #endregion
-
     #region .ctor
 
-      public GeoLookupService() : base() { }
-      public GeoLookupService(object director) : base(director) { }
+      public GeoLookupService(IApplication app) : base(app) { }
+      public GeoLookupService(IApplicationComponent director) : base(director) { }
 
     #endregion
 
@@ -111,10 +54,12 @@ namespace Azos.Web.GeoLookup
     #region Properties
 
 
-      /// <summary>
-      /// Returns true to indoicate that service has loaded and ready to serve data
-      /// </summary>
-      public bool Available { get{ return Status== DaemonStatus.Active;} }
+    public override string ComponentLogTopic => CoreConsts.GEO_TOPIC;
+
+    /// <summary>
+    /// Returns true to indicate that service has loaded and ready to serve data
+    /// </summary>
+    public bool Available { get{ return Status== DaemonStatus.Active;} }
 
 
       /// <summary>
@@ -246,11 +191,11 @@ namespace Azos.Web.GeoLookup
                 }
                 catch (Exception error)
                 {
-                  log(MessageType.Error, "DoStart('{0}')".Args(blocksFn), "Line: {0} {1}".Args(0/*line*/, error.ToMessageWithType()), error);
+                  WriteLog(MessageType.Error, "DoStart('{0}')".Args(blocksFn), "Line: {0} {1}".Args(0/*line*/, error.ToMessageWithType()), error);
                   errors++;
                   if (errors > MAX_PARSE_ERRORS)
                   {
-                    log(MessageType.CatastrophicError, "DoStart('{0}')".Args(blocksFn), "Errors > {0}. Aborting file '{1}' import".Args(MAX_PARSE_ERRORS, blocksFn));
+                    WriteLog(MessageType.CatastrophicError, "DoStart('{0}')".Args(blocksFn), "Errors > {0}. Aborting file '{1}' import".Args(MAX_PARSE_ERRORS, blocksFn));
                     break;
                   }
                 }
@@ -285,11 +230,11 @@ namespace Azos.Web.GeoLookup
               }
               catch (CSVParserException error)
               {
-                log(MessageType.Error, "DoStart('{0}')".Args(fnLocations), "Line: {0} Column: {1} {2}".Args(error.Line, error.Column, error.ToMessageWithType()), error);
+                WriteLog(MessageType.Error, "DoStart('{0}')".Args(fnLocations), "Line: {0} Column: {1} {2}".Args(error.Line, error.Column, error.ToMessageWithType()), error);
               }
               catch (Exception error)
               {
-                log(MessageType.Error, "DoStart('{0}')".Args(fnLocations), "{1}".Args(error.ToMessageWithType()), error);
+                WriteLog(MessageType.Error, "DoStart('{0}')".Args(fnLocations), "{1}".Args(error.ToMessageWithType()), error);
               }
             }
         }
@@ -312,20 +257,5 @@ namespace Azos.Web.GeoLookup
 
     #endregion
 
-    #region .pvt
-      private static void log(MessageType type, string from, string text, Exception error = null)
-      {
-         var msg = new Message
-          {
-            Type = MessageType.CatastrophicError,
-            Topic = StringConsts.WEB_LOG_TOPIC,
-            From = "{0}.{1}".Args(typeof(GeoLookupService).FullName, from),
-            Text = text,
-            Exception = error
-          };
-          App.Log.Write( msg );
-      }
-
-    #endregion
   }
 }

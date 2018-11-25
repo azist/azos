@@ -51,7 +51,10 @@ namespace Azos.Web.Pay
   /// </summary>
   public interface IPaySessionContext { }
 
-  public abstract class PaySystemHost : DaemonWithInstrumentation<object>, IPaySystemHostImplementation
+
+
+#warning This class needs to be removed, use Interface, why is thic coupling?
+  public abstract class PaySystemHost : DaemonWithInstrumentation<IApplicationComponent>, IPaySystemHostImplementation
   {
     #region CONST
     private const string LOG_TOPIC = "PaySystemHost";
@@ -59,13 +62,9 @@ namespace Azos.Web.Pay
     #endregion
 
     #region .ctor
-    protected PaySystemHost(string name, IConfigSectionNode node): this(name, node, null) { }
+    protected PaySystemHost(IApplication app) : base(app) { }
 
-    protected PaySystemHost(string name, IConfigSectionNode node, object director): base(director)
-    {
-      if (node != null) Configure(node);
-      if (name.IsNotNullOrWhiteSpace()) this.Name = name;
-    }
+    protected PaySystemHost(IApplicationComponent director) : base(director) { }
     #endregion
 
     #region Properties
@@ -98,25 +97,6 @@ namespace Azos.Web.Pay
     protected internal abstract void DoStoreTransaction(PaySession session, Transaction tran);
 
     protected internal abstract void DoStoreAccountData(PaySession session, IActualAccountData accoundData);
-
-    protected internal virtual Guid Log(MessageType type, string from, string message, Exception error = null, Guid? relatedMessageID = null, string parameters = null)
-    {
-      if (type < LogLevel) return Guid.Empty;
-
-      var logMessage = new Message
-      {
-        Topic = LOG_TOPIC,
-        Text = message ?? string.Empty,
-        Type = type,
-        From = "{0}.{1}".Args(this.GetType().Name, from),
-        Exception = error,
-        Parameters = parameters
-      };
-      if (relatedMessageID.HasValue) logMessage.RelatedTo = relatedMessageID.Value;
-
-      App.Log.Write(logMessage);
-
-      return logMessage.Guid;
-    }
   }
+
 }

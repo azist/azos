@@ -12,7 +12,7 @@ namespace Azos.Web.Messaging
     /// <summary>
     /// Describes an entity that can send EMails
     /// </summary>
-    public interface IMessenger : IApplicationComponent
+    public interface IMessenger : IApplicationComponent, IDaemonView
     {
       void SendMsg(Message msg);
     }

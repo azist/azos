@@ -23,11 +23,10 @@ namespace Azos.Web.Social.Instrumentation
   {
     protected LoginCount(string source, long value) : base(source, value) { }
 
-    public static void Record(string source, long value)
+    public static void Record(IInstrumentation inst, string source, long value)
     {
-      var instr = App.Instrumentation;
-      if (instr.Enabled)
-        instr.Record(new LoginCount(source, value));
+      if (inst!=null && inst.Enabled)
+        inst.Record(new LoginCount(source, value));
     }
 
     public override string Description { get { return "Login count"; } }
@@ -42,11 +41,10 @@ namespace Azos.Web.Social.Instrumentation
   {
     protected LoginErrorCount(string source, long value) : base(source, value) { }
 
-    public static void Record(string source, long value)
+    public static void Record(IInstrumentation inst, string source, long value)
     {
-      var instr = App.Instrumentation;
-      if (instr.Enabled)
-        instr.Record(new LoginErrorCount(source, value));
+      if (inst != null && inst.Enabled)
+        inst.Record(new LoginErrorCount(source, value));
     }
 
     protected override Datum MakeAggregateInstance() { return new LoginErrorCount(this.Source, 0); }
@@ -61,11 +59,10 @@ namespace Azos.Web.Social.Instrumentation
     public override string Description { get { return "Renew long term token"; } }
     public override string ValueUnitName { get { return Azos.CoreConsts.UNIT_NAME_TIME; } }
 
-    public static void Record(string source, long value)
+    public static void Record(IInstrumentation inst, string source, long value)
     {
-      var instr = App.Instrumentation;
-      if (instr.Enabled)
-        instr.Record(new RenewLongTermTokenCount(source, value));
+      if (inst != null && inst.Enabled)
+        inst.Record(new RenewLongTermTokenCount(source, value));
     }
 
     protected override Datum MakeAggregateInstance() { return new RenewLongTermTokenCount(this.Source, 0); }
@@ -77,11 +74,10 @@ namespace Azos.Web.Social.Instrumentation
   {
     protected PostMsgCount(string source, long value) : base(source, value) { }
 
-    public static void Record(string source, long value)
+    public static void Record(IInstrumentation inst, string source, long value)
     {
-      var instr = App.Instrumentation;
-      if (instr.Enabled)
-        instr.Record(new PostMsgCount(source, value));
+      if (inst != null && inst.Enabled)
+        inst.Record(new PostMsgCount(source, value));
     }
 
 

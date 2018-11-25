@@ -126,6 +126,7 @@ namespace Azos.Web.Messaging
     {
       var sent = false;
       foreach (var sink in m_Sinks)
+      {
         try
         {
           var wasSentNow = sink.SendMsg(msg);
@@ -134,9 +135,9 @@ namespace Azos.Web.Messaging
         }
         catch (Exception error)
         {
-          var et = error.ToMessageWithType();
-          Log(MessageType.Error, "{0}.DoSendMsg(msg): {1}".Args(this.GetType().FullName, et), et);
+          WriteLog(MessageType.Error, nameof(DoSendMsg), "Threw: "+error.ToMessageWithType(), error);
         }
+      }
 
       return sent;
     }

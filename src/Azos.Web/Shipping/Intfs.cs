@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 
+using Azos.Apps;
 using Azos.Conf;
 using Azos.Instrumentation;
 
@@ -14,7 +15,7 @@ namespace Azos.Web.Shipping
   /// <summary>
   /// Represents a process-global host for a shipping systems
   /// </summary>
-  public interface IShippingSystemHost : Collections.INamed
+  public interface IShippingSystemHost : IApplicationComponent, Collections.INamed
   {
   }
 
@@ -41,7 +42,7 @@ namespace Azos.Web.Shipping
     bool SupportsLabelCreation { get; }
 
     /// <summary>
-    /// Indicates whethe a shipping system provides detailed tracking information about shipments
+    /// Indicates whether a shipping system provides detailed tracking information about shipments
     /// </summary>
     bool SupportsShipmentTracking { get; }
 
@@ -62,7 +63,7 @@ namespace Azos.Web.Shipping
   }
 
   /// <summary>
-  /// Represents entity that can perform shipping fuctions like labels creation, tracking etc.
+  /// Represents entity that can perform shipping functions like labels creation, tracking etc.
   /// </summary>
   public interface IShippingSystem
   {
@@ -116,7 +117,6 @@ namespace Azos.Web.Shipping
   /// </summary>
   public interface IShippingSystemImplementation : IShippingSystem, IConfigurable, IInstrumentable
   {
-    Azos.Log.MessageType LogLevel { get; set; }
   }
 
 }

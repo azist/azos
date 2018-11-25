@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using Azos.Apps;
 using Azos.Conf;
 using Azos.Financial;
 
@@ -122,9 +123,9 @@ namespace Azos.Web.Pay.Mock
 
     #region ctor
 
-      public MockSystem(string name, IConfigSectionNode node) : base(name, node) { }
+      public MockSystem(IApplication app) : base(app) { }
 
-      public MockSystem(string name, IConfigSectionNode node, object director) : base(name, node, director) { }
+      public MockSystem(IApplicationComponent director) : base(director) { }
 
     #endregion
 

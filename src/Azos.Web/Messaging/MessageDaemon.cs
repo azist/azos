@@ -74,7 +74,7 @@ namespace Azos.Web.Messaging
       {
         CheckDaemonInactive();
 
-        if (value != null && value.ComponentDirector != this)
+        if (value != null && value.Messenger != this)
           throw new WebException(StringConsts.MESSAGE_SINK_IS_NOT_OWNED_ERROR);
         m_Sink = value as MessageSink;
       }
@@ -87,7 +87,7 @@ namespace Azos.Web.Messaging
       {
         CheckDaemonInactive();
 
-        if (value != null && value.ComponentDirector != this)
+        if (value != null && value.Messenger != this)
           throw new WebException(StringConsts.MESSAGE_SINK_IS_NOT_OWNED_ERROR);
         m_FallbackSink = value as MessageSink;
       }

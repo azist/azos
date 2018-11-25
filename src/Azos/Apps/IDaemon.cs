@@ -17,19 +17,25 @@ namespace Azos.Apps
   /// <summary>
   /// Defines abstraction for an entity that is controlled by Start/Stop commands and has a status
   /// </summary>
-  public interface IDaemon : Collections.INamed, IConfigurable
+  public interface IDaemonView : IApplicationComponent, Collections.INamed
   {
     /// <summary>
     /// Current service status
     /// </summary>
-    DaemonStatus Status { get;}
+    DaemonStatus Status { get; }
 
     /// <summary>
     /// Returns true when service is active or about to become active.
     /// Check in service implementation loops/threads/tasks
     /// </summary>
-    bool Running { get;}
+    bool Running { get; }
+  }
 
+  /// <summary>
+  /// Defines abstraction for an entity that is controlled by Start/Stop commands and has a status
+  /// </summary>
+  public interface IDaemon : IDaemonView, IConfigurable
+  {
     /// <summary>
     /// Blocking call that starts the service instance
     /// </summary>

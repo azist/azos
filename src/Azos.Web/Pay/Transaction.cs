@@ -227,7 +227,8 @@ namespace Azos.Web.Pay
     /// </summary>
     public string Processor { get { return m_Processor; } }
 
-    public IPaySystem PaySystem { get { return Pay.PaySystem.Instances[m_Processor]; } }
+#warning must be resolved via name
+    public IPaySystem PaySystem { get { return null ; } }// Pay.PaySystem.Instances[m_Processor]; } }
 
     /// <summary>
     /// A value assigned by a particular pay system implementation.

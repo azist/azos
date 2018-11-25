@@ -94,13 +94,9 @@ namespace Azos.Web.Pay
   }
 
   /// <summary>
-  /// Describes an entity that can perform pay functions with several usefull interfaces in Azos style
+  /// Describes an entity that can perform pay functions with several useful interfaces in Azos style
   /// </summary>
   public interface IPaySystemImplementation: IPaySystem, IConfigurable, IInstrumentable
   {
-    /// <summary>
-    /// Specifies the log level for operations performed by Pay System.
-    /// </summary>
-    Azos.Log.MessageType LogLevel { get; set; }
   }
 }

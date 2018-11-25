@@ -17,7 +17,7 @@ using Azos.Log;
 
 namespace Azos.Web.Shipping
 {
-  public abstract class ShippingSystem : DaemonWithInstrumentation<object>, IWebClientCaller, IShippingSystemImplementation
+  public abstract class ShippingSystem : DaemonWithInstrumentation<IApplicationComponent>, IWebClientCaller, IShippingSystemImplementation
   {
     #region CONSTS
 
@@ -41,114 +41,15 @@ namespace Azos.Web.Shipping
 
     #endregion
 
-    #region Static
-
-    private static IShippingSystemHost s_ShippingSystemHost;
-
-      /// <summary>
-      /// Returns process-global shipping system host
-      /// </summary>
-      public static IShippingSystemHost ShippingSystemHost
-      {
-        get
-        {
-          var result = s_ShippingSystemHost;
-
-          if (result == null)
-            throw new ShippingException(StringConsts.SHIPPING_SYSTEM_HOST_NULL_ERROR);
-
-          return result;
-        }
-      }
-
-      public static bool IsShippingSystemHost { get { return s_ShippingSystemHost != null; } }
-
-      /// <summary>
-      /// Sets process-global shipping system host.
-      /// If ShippingSystemStarter is used then the host may be auto-injected from configuration if it is there.
-      /// Developers: Do not call this method as it is used for dependency injection from system code
-      /// </summary>
-      public static void ___SetShippingSystemHost(IShippingSystemHostImplementation host)
-      {
-        s_ShippingSystemHost = host;
-      }
-
-      private static Registry<ShippingSystem> s_Instances = new Registry<ShippingSystem>();
-
-      public static Registry<ShippingSystem> Instances { get { return s_Instances; } }
-
-
-      public static void AutoStartSystems()
-      {
-        App.Instance.RegisterAppFinishNotifiable(ShippingProcessingFinisher.Instance);
-
-        WebSettings.RequireInitializedSettings();
-
-        var ssHost = App.ConfigRoot[WebSettings.CONFIG_WEBSETTINGS_SECTION][CONFIG_SHIPPING_PROCESSING_SECTION][CONFIG_SHIPPING_SYSTEM_HOST_SECTION];
-        if (ssHost.Exists)
-        {
-          var host = FactoryUtils.MakeAndConfigure<ShippingSystemHost>(ssHost, typeof(ShippingSystemHost), new object[] { null, ssHost });
-          host.Start();
-          ___SetShippingSystemHost(host);
-        }
-
-        foreach (var ssNode in App.ConfigRoot[WebSettings.CONFIG_WEBSETTINGS_SECTION][CONFIG_SHIPPING_PROCESSING_SECTION]
-                                  .Children
-                                  .Where(c => c.IsSameName(CONFIG_SHIPPING_SYSTEM_SECTION)))
-        {
-          if (!ssNode.AttrByName(CONFIG_AUTO_START_ATTR).ValueAsBool()) continue;
-
-          var name = ssNode.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
-          var system = FactoryUtils.MakeAndConfigure<ShippingSystem>(ssNode, typeof(ShippingSystem), new object[] { null, ssNode });
-
-          system.Start();
-        }
-      }
-
-    #endregion
-
-    #region Inner classes
-
-    private class ShippingProcessingFinisher : IApplicationFinishNotifiable
-    {
-      internal static readonly ShippingProcessingFinisher Instance = new ShippingProcessingFinisher();
-
-      private ShippingProcessingFinisher() {}
-
-      public string Name { get { return this.GetType().FullName; } }
-
-      public void ApplicationFinishAfterCleanup(IApplication application)
-      {
-        foreach (var system in s_Instances)
-          system.WaitForCompleteStop();
-      }
-
-      public void ApplicationFinishBeforeCleanup(IApplication application)
-      {
-      }
-    }
-
-    #endregion
-
     #region .ctor
 
-      protected ShippingSystem(string name, IConfigSectionNode node) : this(name, node, null)
-      {
-      }
+      protected ShippingSystem(IApplication app) : base(app) => ctor();
+      protected ShippingSystem(IApplicationComponent dir) : base(dir) => ctor();
 
-      protected ShippingSystem(string name, IConfigSectionNode node, object director) : base(director)
+      private void ctor()
       {
-        LogLevel = DEFAULT_LOG_LEVEL;
         KeepAlive = true;
         Pipelined = true;
-
-        if (node != null)
-        {
-          Configure(node);
-          this.Name = node.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
-        }
-
-        this.Name = name.IsNotNullOrWhiteSpace() ? name : GetType().Name;
 
         m_Sessions = new List<ShippingSession>();
       }
@@ -166,7 +67,7 @@ namespace Azos.Web.Shipping
       private IConfigSectionNode m_DefaultSessionConnParamsCfg;
       private ShippingConnectionParameters m_DefaultSessionConnectParams;
 
-      private readonly List<ShippingSession> m_Sessions;
+      private  List<ShippingSession> m_Sessions;
 
       private IRegistry<ShippingCarrier> m_PreconfiguredShippingCarriers;
 
@@ -183,9 +84,7 @@ namespace Azos.Web.Shipping
 
     #region Properties
 
-      [Config(Default = DEFAULT_LOG_LEVEL)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_SHIPPING)]
-      public MessageType LogLevel { get; set; }
+      public override string ComponentLogTopic => CoreConsts.SHIP_TOPIC;
 
       [Config(Default=false)]
       [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_SHIPPING)]
@@ -329,45 +228,9 @@ namespace Azos.Web.Shipping
         m_PreconfiguredShippingCarriers = carriers;
       }
 
-      protected override void DoStart()
-      {
-        if (!s_Instances.Register(this))
-          throw new ShippingException(StringConsts.SHIPPING_SYSTEM_DUPLICATE_NAME_ERROR.Args(GetType().FullName, Name));
-      }
-
-      protected override void DoWaitForCompleteStop()
-      {
-        s_Instances.Unregister(this);
-      }
-
       protected override void DoAcceptManagerVisit(object manager, DateTime managerNow)
       {
         dumpStats();
-      }
-
-      protected Guid Log(MessageType type,
-                         string from,
-                         string message,
-                         Exception error = null,
-                         Guid? relatedMessageID = null,
-                         string parameters = null)
-      {
-          if (type < LogLevel) return Guid.Empty;
-
-          var logMessage = new Message
-                           {
-                             Topic = LOG_TOPIC,
-                             Text = message ?? string.Empty,
-                             Type = type,
-                             From = "{0}.{1}".Args(this.GetType().Name, from),
-                             Exception = error,
-                             Parameters = parameters
-                           };
-          if (relatedMessageID.HasValue) logMessage.RelatedTo = relatedMessageID.Value;
-
-          App.Log.Write(logMessage);
-
-          return logMessage.Guid;
       }
 
     #endregion

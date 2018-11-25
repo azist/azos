@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 
+using Azos.Apps;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
@@ -52,35 +53,17 @@ namespace Azos.Web.Social
 
     #region Static
 
-      private static object s_Lock = new object();
-      private static VKontakte s_Instance;
-
-      /// <summary>
-      /// Returns a singleton instance of the social network provider
-      /// </summary>
-      public static VKontakte Instance
-      {
-        get
-        {
-          if (s_Instance != null) return s_Instance;
-          lock (s_Lock)
-          {
-            if (s_Instance == null) s_Instance = new VKontakte();
-          }
-          return s_Instance;
-        }
-      }
-
-      private VKontakte(string name = null, IConfigSectionNode cfg = null) : base(name, cfg) { }
+    public VKontakte(IApplication app) : base(app) { }
+    public VKontakte(IApplicationComponent director) : base(director) { }
 
     #endregion
 
     #region Properties
 
-      /// <summary>
-      /// Globally uniquelly identifies social network architype
-      /// </summary>
-      public sealed override SocialNetID ID { get { return SocialNetID.VKT; } }
+    /// <summary>
+    /// Globally uniquelly identifies social network architype
+    /// </summary>
+    public sealed override SocialNetID ID { get { return SocialNetID.VKT; } }
 
       [Config]
       public string ClientCode { get; set; }

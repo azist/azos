@@ -13,21 +13,13 @@ namespace Azos.Web.Messaging
   /// </summary>
   public sealed class NOPMessenger : Daemon, IMessengerImplementation
   {
-    public NOPMessenger() : base(){}
+    public NOPMessenger(IApplication app) : base(app){}
+    public NOPMessenger(IApplicationComponent dir) : base(dir) { }
 
     public void SendMsg(Message msg)
     {
-
     }
 
-    void IApplicationFinishNotifiable.ApplicationFinishBeforeCleanup(IApplication application)
-    {
-
-    }
-
-    void IApplicationFinishNotifiable.ApplicationFinishAfterCleanup(IApplication application)
-    {
-
-    }
+    public override string ComponentLogTopic => CoreConsts.WEBMSG_TOPIC;
   }
 }
