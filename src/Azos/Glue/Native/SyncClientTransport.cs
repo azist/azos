@@ -226,7 +226,7 @@ namespace Azos.Glue.Native
 
                if (size>Binding.MaxMsgSize)
                {
-                  Instrumentation.ClientSerializedOverMaxMsgSizeErrorEvent.Happened(Node);
+                  Instrumentation.ClientSerializedOverMaxMsgSizeErrorEvent.Happened(App.Instrumentation, Node);
                   //do not tear the socket, however we may have added extra types to Serializer typereg that server never received
                   //so in that case we do close the channel
                   throw new MessageSizeException(size, Binding.MaxMsgSize, "putRequest("+request.RequestID+")", m_Serializer.BatchTypesAdded);
@@ -253,7 +253,7 @@ namespace Azos.Glue.Native
               var size = msb.ReadBEInt32();
               if (size<1 || size>Binding.MaxMsgSize)
               {
-                Instrumentation.ClientGotOverMaxMsgSizeErrorEvent.Happened(Node);
+                Instrumentation.ClientGotOverMaxMsgSizeErrorEvent.Happened(App.Instrumentation, Node);
                 // There is no recovery here - close the channel!
                 throw new MessageSizeException(size, Binding.MaxMsgSize, "getResponse()", closeChannel: true);
               }
@@ -277,7 +277,7 @@ namespace Azos.Glue.Native
                   }
                   catch
                   {
-                    Instrumentation.ClientDeserializationErrorEvent.Happened(Node);
+                    Instrumentation.ClientDeserializationErrorEvent.Happened(App.Instrumentation, Node);
                     throw;
                   }
               }

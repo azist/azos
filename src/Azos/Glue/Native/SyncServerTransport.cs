@@ -140,7 +140,7 @@ namespace Azos.Glue.Native
             {
               base.DoDumpInstrumentationData();
 
-              Instrumentation.ServerTransportChannelCount.Record(Node, m_OpenChannels);
+              Instrumentation.ServerTransportChannelCount.Record(App.Instrumentation, Node, m_OpenChannels);
             }
 
         #endregion
@@ -169,7 +169,7 @@ namespace Azos.Glue.Native
                                       from: "SyncServerTransport.listenerThreadSpin",
                                       exception: error);
 
-                     Instrumentation.ServerListenerErrorEvent.Happened(Node);
+                     Instrumentation.ServerListenerErrorEvent.Happened(App.Instrumentation, Node);
                    }
                }
            }
@@ -181,7 +181,7 @@ namespace Azos.Glue.Native
               var remoteIP = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();//DO NOT NEED POrt as it creates 1000s instrumentation messages
 
               if (Binding.InstrumentServerTransportStat)
-                Instrumentation.ClientConnectedEvent.Happened(remoteIP);
+                Instrumentation.ClientConnectedEvent.Happened(App.Instrumentation, remoteIP);
 
               try
               {
@@ -208,7 +208,7 @@ namespace Azos.Glue.Native
               }
 
               if (Binding.InstrumentServerTransportStat)
-                Instrumentation.ClientDisconnectedEvent.Happened(remoteIP);
+                Instrumentation.ClientDisconnectedEvent.Happened(App.Instrumentation, remoteIP);
            }
 
            private void clientThreadSpinBody(TcpClient client, SlimSerializer serializer)//executes in its own thread
@@ -252,7 +252,7 @@ namespace Azos.Glue.Native
                             if (idleSpins*POLL_WAIT_MS > st)
                             {
                               //timeout happened
-                              Instrumentation.InactiveServerTransportClosedEvent.Happened(Node);
+                              Instrumentation.InactiveServerTransportClosedEvent.Happened(App.Instrumentation, Node);
                               Binding.WriteLog( LogSrc.Server,
                                        Log.MessageType.DebugZ,
                                       "TCPClient timed out: " + remote,
@@ -340,7 +340,7 @@ namespace Azos.Glue.Native
 
              if (size<1 || size>Binding.MaxMsgSize)
               {
-                Instrumentation.ServerGotOverMaxMsgSizeErrorEvent.Happened(Node);
+                Instrumentation.ServerGotOverMaxMsgSizeErrorEvent.Happened(App.Instrumentation, Node);
                 // This is unrecoverable error - close the channel!
                 throw new MessageSizeException(size, Binding.MaxMsgSize, "getRequest()", closeChannel: true);
               }
@@ -365,7 +365,7 @@ namespace Azos.Glue.Native
                 }
                 catch
                 {
-                  Instrumentation.ServerDeserializationErrorEvent.Happened(Node);
+                  Instrumentation.ServerDeserializationErrorEvent.Happened(App.Instrumentation, Node);
                   throw;
                 }
               }
@@ -403,7 +403,7 @@ namespace Azos.Glue.Native
 
              if (size>Binding.MaxMsgSize)
              {
-                 Instrumentation.ServerSerializedOverMaxMsgSizeErrorEvent.Happened(Node);
+                 Instrumentation.ServerSerializedOverMaxMsgSizeErrorEvent.Happened(App.Instrumentation, Node);
                  throw new MessageSizeException(size, Binding.MaxMsgSize, "putResponse()", serializer.BatchTypesAdded);
              }
 

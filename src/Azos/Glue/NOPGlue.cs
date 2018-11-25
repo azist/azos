@@ -148,7 +148,7 @@ namespace Azos.Glue
 
         public IApplication Application
         {
-            get { return ExecutionContext.Application; }
+            get { return NOPApplication.Instance; }
         }
 
         public Conf.IConfigSectionNode GlueConfiguration

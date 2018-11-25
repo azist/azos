@@ -195,6 +195,9 @@ namespace Azos.Glue
             /// </summary>
             protected virtual void DoDumpInstrumentationData()
             {
+              var inst = App.Instrumentation;
+              if (!inst.Enabled) return;
+
               var delta_StatBytesReceived = m_StatBytesReceived - m_Prev_StatBytesReceived; m_Prev_StatBytesReceived = m_StatBytesReceived;
               var delta_StatBytesSent     = m_StatBytesSent     - m_Prev_StatBytesSent;     m_Prev_StatBytesSent     = m_StatBytesSent;
               var delta_StatMsgReceived   = m_StatMsgReceived   - m_Prev_StatMsgReceived;   m_Prev_StatMsgReceived   = m_StatMsgReceived;
@@ -215,35 +218,35 @@ namespace Azos.Glue
 
               if (this is ClientTransport)
               {
-                 Instrumentation.ClientBytesReceived.Record(node, delta_StatBytesReceived);
-                 Instrumentation.ClientBytesSent    .Record(node, delta_StatBytesSent);
-                 Instrumentation.ClientMsgReceived  .Record(node, delta_StatMsgReceived);
-                 Instrumentation.ClientMsgSent      .Record(node, delta_StatMsgSent);
-                 Instrumentation.ClientErrors       .Record(node, delta_StatErrors);
+                 Instrumentation.ClientBytesReceived.Record(inst, node, delta_StatBytesReceived);
+                 Instrumentation.ClientBytesSent    .Record(inst, node, delta_StatBytesSent);
+                 Instrumentation.ClientMsgReceived  .Record(inst, node, delta_StatMsgReceived);
+                 Instrumentation.ClientMsgSent      .Record(inst, node, delta_StatMsgSent);
+                 Instrumentation.ClientErrors       .Record(inst, node, delta_StatErrors);
 
-                 Instrumentation.ClientTotalBytesReceived.Record(node, m_StatBytesReceived);
-                 Instrumentation.ClientTotalBytesSent    .Record(node, m_StatBytesSent);
-                 Instrumentation.ClientTotalMsgReceived  .Record(node, m_StatMsgReceived);
-                 Instrumentation.ClientTotalMsgSent      .Record(node, m_StatMsgSent);
-                 Instrumentation.ClientTotalErrors       .Record(node, m_StatErrors);
+                 Instrumentation.ClientTotalBytesReceived.Record(inst, node, m_StatBytesReceived);
+                 Instrumentation.ClientTotalBytesSent    .Record(inst, node, m_StatBytesSent);
+                 Instrumentation.ClientTotalMsgReceived  .Record(inst, node, m_StatMsgReceived);
+                 Instrumentation.ClientTotalMsgSent      .Record(inst, node, m_StatMsgSent);
+                 Instrumentation.ClientTotalErrors       .Record(inst, node, m_StatErrors);
 
                  if (Binding.MeasureStatTimes)
                   foreach(var kvp in m_StatTimes)
-                    Instrumentation.ClientCallRoundtripTime.Record(kvp.Key, kvp.Value * 1000);//Value is in sec, but gauge measures in milliseconds
+                    Instrumentation.ClientCallRoundtripTime.Record(inst, kvp.Key, kvp.Value * 1000);//Value is in sec, but gauge measures in milliseconds
               }
               else
               {
-                 Instrumentation.ServerBytesReceived.Record(node, delta_StatBytesReceived);
-                 Instrumentation.ServerBytesSent    .Record(node, delta_StatBytesSent);
-                 Instrumentation.ServerMsgReceived  .Record(node, delta_StatMsgReceived);
-                 Instrumentation.ServerMsgSent      .Record(node, delta_StatMsgSent);
-                 Instrumentation.ServerErrors       .Record(node, delta_StatErrors);
+                 Instrumentation.ServerBytesReceived.Record(inst, node, delta_StatBytesReceived);
+                 Instrumentation.ServerBytesSent    .Record(inst, node, delta_StatBytesSent);
+                 Instrumentation.ServerMsgReceived  .Record(inst, node, delta_StatMsgReceived);
+                 Instrumentation.ServerMsgSent      .Record(inst, node, delta_StatMsgSent);
+                 Instrumentation.ServerErrors       .Record(inst, node, delta_StatErrors);
 
-                 Instrumentation.ServerTotalBytesReceived.Record(node, m_StatBytesReceived);
-                 Instrumentation.ServerTotalBytesSent    .Record(node, m_StatBytesSent);
-                 Instrumentation.ServerTotalMsgReceived  .Record(node, m_StatMsgReceived);
-                 Instrumentation.ServerTotalMsgSent      .Record(node, m_StatMsgSent);
-                 Instrumentation.ServerTotalErrors       .Record(node, m_StatErrors);
+                 Instrumentation.ServerTotalBytesReceived.Record(inst, node, m_StatBytesReceived);
+                 Instrumentation.ServerTotalBytesSent    .Record(inst, node, m_StatBytesSent);
+                 Instrumentation.ServerTotalMsgReceived  .Record(inst, node, m_StatMsgReceived);
+                 Instrumentation.ServerTotalMsgSent      .Record(inst, node, m_StatMsgSent);
+                 Instrumentation.ServerTotalErrors       .Record(inst, node, m_StatErrors);
               }
             }
 

@@ -5,11 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-using Azos.Apps;
 using Azos.Instrumentation;
 using Azos.Serialization.BSON;
 
@@ -52,10 +48,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerTransportCount(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ServerTransportCount(node.ToString(), value));
     }
 
@@ -76,10 +71,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerTransportChannelCount(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ServerTransportChannelCount(node.ToString(), value));
     }
 
@@ -100,10 +94,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerBytesReceived(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ServerBytesReceived(node.ToString(), value));
     }
 
@@ -124,10 +117,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerTotalBytesReceived(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ServerTotalBytesReceived(node.ToString(), value));
     }
 
@@ -148,10 +140,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerBytesSent(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ServerBytesSent(node.ToString(), value));
     }
 
@@ -171,10 +162,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerTotalBytesSent(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ServerTotalBytesSent(node.ToString(), value));
     }
 
@@ -194,10 +184,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerMsgReceived(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ServerMsgReceived(node.ToString(), value));
     }
 
@@ -216,10 +205,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerTotalMsgReceived(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ServerTotalMsgReceived(node.ToString(), value));
     }
 
@@ -238,10 +226,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerMsgSent(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ServerMsgSent(node.ToString(), value));
     }
 
@@ -261,10 +248,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerTotalMsgSent(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ServerTotalMsgSent(node.ToString(), value));
     }
 
@@ -284,10 +270,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerErrors(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ServerErrors(node.ToString(), value));
     }
 
@@ -307,10 +292,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerTotalErrors(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ServerTotalErrors(node.ToString(), value));
     }
 
@@ -332,10 +316,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientTransportCount(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ClientTransportCount(node.ToString(), value));
     }
 
@@ -356,10 +339,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientBytesReceived(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ClientBytesReceived(node.ToString(), value));
     }
 
@@ -378,10 +360,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientTotalBytesReceived(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ClientTotalBytesReceived(node.ToString(), value));
     }
 
@@ -400,10 +381,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientBytesSent(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ClientBytesSent(node.ToString(), value));
     }
 
@@ -424,10 +404,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientTotalBytesSent(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ClientTotalBytesSent(node.ToString(), value));
     }
 
@@ -448,10 +427,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientTimedOutCallSlotsRemoved(long value) : base(null, value) { }
 
-    public static void Record(long value)
+    public static void Record(IInstrumentation inst, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ClientTimedOutCallSlotsRemoved(value));
     }
 
@@ -472,10 +450,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientMsgReceived(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ClientMsgReceived(node.ToString(), value));
     }
 
@@ -494,10 +471,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientTotalMsgReceived(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ClientTotalMsgReceived(node.ToString(), value));
     }
 
@@ -516,10 +492,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientMsgSent(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ClientMsgSent(node.ToString(), value));
     }
 
@@ -538,10 +513,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientTotalMsgSent(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ClientTotalMsgSent(node.ToString(), value));
     }
 
@@ -560,10 +534,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientErrors(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ClientErrors(node.ToString(), value));
     }
 
@@ -582,10 +555,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientTotalErrors(string src, long value) : base(src, value) { }
 
-    public static void Record(Node node, long value)
+    public static void Record(IInstrumentation inst, Node node, long value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ClientTotalErrors(node.ToString(), value));
     }
 
@@ -604,10 +576,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientCallRoundtripTime(string src, double value) : base(src, value) { }
 
-    public static void Record(string key, double value)
+    public static void Record(IInstrumentation inst, string key, double value)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new ClientCallRoundtripTime(key, value));
     }
 

@@ -72,7 +72,7 @@ namespace Azos.Glue.Native
                         public void AddSocket(MpxServerSocket socket)
                         {
                           if (Transport.Binding.InstrumentServerTransportStat)
-                            Instrumentation.ClientConnectedEvent.Happened(socket.ClientSite.Name);
+                            Instrumentation.ClientConnectedEvent.Happened(Transport.App.Instrumentation, socket.ClientSite.Name);
 
                           Interlocked.Increment(ref Transport.m_OpenChannels);
                           lock(m_Sockets) m_Sockets.Add(socket);
@@ -81,7 +81,7 @@ namespace Azos.Glue.Native
                         public bool RemoveSocket(MpxServerSocket socket)
                         {
                           if (Transport.Binding.InstrumentServerTransportStat)
-                            Instrumentation.ClientDisconnectedEvent.Happened(socket.ClientSite.Name);
+                            Instrumentation.ClientDisconnectedEvent.Happened(Transport.App.Instrumentation, socket.ClientSite.Name);
 
                           Interlocked.Decrement(ref Transport.m_OpenChannels);
                           lock(m_Sockets) return m_Sockets.Remove(socket);
@@ -236,7 +236,7 @@ namespace Azos.Glue.Native
         {
           base.DoDumpInstrumentationData();
 
-          Instrumentation.ServerTransportChannelCount.Record(Node, m_OpenChannels);
+          Instrumentation.ServerTransportChannelCount.Record(App.Instrumentation, Node, m_OpenChannels);
         }
 
     #endregion
@@ -278,7 +278,7 @@ namespace Azos.Glue.Native
                 }
                 catch
                 {
-                  Instrumentation.ServerDeserializationErrorEvent.Happened(Node);
+                  Instrumentation.ServerDeserializationErrorEvent.Happened(App.Instrumentation, Node);
                   throw;
                 }
 
@@ -437,7 +437,7 @@ namespace Azos.Glue.Native
 
               if (size>Binding.MaxMsgSize)
               {
-                Instrumentation.ServerSerializedOverMaxMsgSizeErrorEvent.Happened(Node);
+                Instrumentation.ServerSerializedOverMaxMsgSizeErrorEvent.Happened(App.Instrumentation, Node);
                 throw new MessageSizeException(size, Binding.MaxMsgSize, "sendResponse("+response.RequestID+")");
               }
 

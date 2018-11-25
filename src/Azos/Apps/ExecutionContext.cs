@@ -10,16 +10,12 @@ using System.Threading;
 namespace Azos.Apps
 {
   /// <summary>
+  /// Infrastructure class that should never be used in business applications
   /// Provides access to execution context - that groups Application and Session objects.
   /// All objects may be either application-global or (logical)thread-level.
-  /// Effectively ExecutionContext.Application is the central DI/service locator facility per process.
+  /// Effectively ExecutionContext.Application is the central chassis per process.
   /// The async code flows Session context automatically via Thread.Principal, however custom contexts should flow via passing it to functors.
   /// </summary>
-  /// <remarks>
-  /// This pattern is used on purpose based on careful evaluation of various DI frameworks use-cases in various projects,
-  /// both server and client-side. The central service/locator hub per process as facilitated by the IApplication is the most intuitive and simple
-  /// dependency resolution facility for 90+% of various business applications.
-  /// </remarks>
   public static class ExecutionContext
   {
     private static volatile IApplication s_Application;

@@ -26,31 +26,25 @@ namespace Azos.Instrumentation
     /// <summary>
     /// Create event from exception instance
     /// </summary>
-    public static void Record(Exception error)
+    public static void Record(IInstrumentation inst, Exception error)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
-        inst.Record(new ExceptionEvent(error));
+      if (inst!=null && inst.Enabled) inst.Record(new ExceptionEvent(error));
     }
 
     /// <summary>
     /// Create event from exception instance and source
     /// </summary>
-    public static void Record(string source, Exception error)
+    public static void Record(IInstrumentation inst, string source, Exception error)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
-        inst.Record(new ExceptionEvent(source, error));
+      if (inst != null && inst.Enabled) inst.Record(new ExceptionEvent(source, error));
     }
 
     /// <summary>
     /// Create event from exception instance as of utcTime
     /// </summary>
-    public static void Record(string source, Exception error, DateTime utcTime)
+    public static void Record(IInstrumentation inst, string source, Exception error, DateTime utcTime)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
-        inst.Record(new ExceptionEvent(source, error, utcTime));
+      if (inst != null && inst.Enabled) inst.Record(new ExceptionEvent(source, error, utcTime));
     }
 
     private ExceptionEvent() {}

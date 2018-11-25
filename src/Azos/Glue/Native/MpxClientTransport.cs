@@ -129,7 +129,7 @@ namespace Azos.Glue.Native
 
                 if (size>Binding.MaxMsgSize)
                 {
-                  Instrumentation.ClientSerializedOverMaxMsgSizeErrorEvent.Happened(Node);
+                  Instrumentation.ClientSerializedOverMaxMsgSizeErrorEvent.Happened(App.Instrumentation, Node);
                   throw new MessageSizeException(size, Binding.MaxMsgSize, "sendRequest("+request.RequestID+")");
                 }
 
@@ -195,7 +195,7 @@ namespace Azos.Glue.Native
                 }
                 catch
                 {
-                  Instrumentation.ClientDeserializationErrorEvent.Happened(Node);
+                  Instrumentation.ClientDeserializationErrorEvent.Happened(App.Instrumentation, Node);
                   throw;
                 }
 

@@ -51,10 +51,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerDeserializationErrorEvent(string src) : base(src) { }
 
-    public static void Happened(Node node)
+    public static void Happened(IInstrumentation inst, Node node)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new ServerDeserializationErrorEvent(node.ToString()));
     }
 
@@ -70,10 +69,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientDeserializationErrorEvent(string src) : base(src) { }
 
-    public static void Happened(Node node)
+    public static void Happened(IInstrumentation inst, Node node)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new ClientDeserializationErrorEvent(node.ToString()));
     }
 
@@ -88,10 +86,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerGotOverMaxMsgSizeErrorEvent(string src) : base(src) { }
 
-    public static void Happened(Node node)
+    public static void Happened(IInstrumentation inst, Node node)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new ServerGotOverMaxMsgSizeErrorEvent(node.ToString()));
     }
 
@@ -106,10 +103,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientGotOverMaxMsgSizeErrorEvent(string src) : base(src) { }
 
-    public static void Happened(Node node)
+    public static void Happened(IInstrumentation inst, Node node)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new ClientGotOverMaxMsgSizeErrorEvent(node.ToString()));
     }
 
@@ -125,10 +121,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerSerializedOverMaxMsgSizeErrorEvent(string src) : base(src) { }
 
-    public static void Happened(Node node)
+    public static void Happened(IInstrumentation inst, Node node)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new ServerSerializedOverMaxMsgSizeErrorEvent(node.ToString()));
     }
 
@@ -144,10 +139,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientSerializedOverMaxMsgSizeErrorEvent(string src) : base(src) { }
 
-    public static void Happened(Node node)
+    public static void Happened(IInstrumentation inst, Node node)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new ClientSerializedOverMaxMsgSizeErrorEvent(node.ToString()));
     }
 
@@ -162,10 +156,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ServerListenerErrorEvent(string src) : base(src) { }
 
-    public static void Happened(Node node)
+    public static void Happened(IInstrumentation inst, Node node)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new ServerListenerErrorEvent(node.ToString()));
     }
 
@@ -180,10 +173,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected InactiveClientTransportClosedEvent(string src) : base(src) { }
 
-    public static void Happened(Node node)
+    public static void Happened(IInstrumentation inst, Node node)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new InactiveClientTransportClosedEvent(node.ToString()));
     }
 
@@ -198,10 +190,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected InactiveServerTransportClosedEvent(string src) : base(src) { }
 
-    public static void Happened(Node node)
+    public static void Happened(IInstrumentation inst, Node node)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new InactiveServerTransportClosedEvent(node.ToString()));
     }
 
@@ -216,10 +207,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected CallSlotNotFoundErrorEvent() : base(Datum.UNSPECIFIED_SOURCE) { }
 
-    public static void Happened()
+    public static void Happened(IInstrumentation inst)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new CallSlotNotFoundErrorEvent());
     }
 
@@ -234,10 +224,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientConnectedEvent(string from) : base(from ?? Datum.UNSPECIFIED_SOURCE) { }
 
-    public static void Happened(string from)
+    public static void Happened(IInstrumentation inst, string from)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new ClientConnectedEvent(from));
     }
 
@@ -252,10 +241,9 @@ namespace Azos.Glue.Instrumentation
   {
     protected ClientDisconnectedEvent(string from) : base(from ?? Datum.UNSPECIFIED_SOURCE) { }
 
-    public static void Happened(string from)
+    public static void Happened(IInstrumentation inst, string from)
     {
-      var inst = ExecutionContext.Application.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new ClientDisconnectedEvent(from));
     }
 

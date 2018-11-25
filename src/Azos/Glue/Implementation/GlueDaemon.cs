@@ -292,7 +292,7 @@ namespace Azos.Glue.Implementation
         // we re-try asynchronously to find call slot again
           Task.Delay(1000).ContinueWith( (t, objRes) => clientDeliverAsyncResponse(objRes as ResponseMsg, false), response);
         else
-          if (m_InstrumentationEnabled) Instrumentation.CallSlotNotFoundErrorEvent.Happened();
+          if (m_InstrumentationEnabled) Instrumentation.CallSlotNotFoundErrorEvent.Happened(App.Instrumentation);
       }
     }
 
@@ -547,7 +547,7 @@ namespace Azos.Glue.Implementation
             if (removed>0)
             {
               if (m_InstrumentationEnabled)
-              Instrumentation.ClientTimedOutCallSlotsRemoved.Record(removed);
+              Instrumentation.ClientTimedOutCallSlotsRemoved.Record(App.Instrumentation, removed);
 
               if (m_ClientLogLevel<=MessageType.Info)
                 WriteLog(MessageType.Trace, nameof(purgeTimedOutCallSlots), "Purged {0} timed-out CallSlot objects".Args(removed));
@@ -567,7 +567,7 @@ namespace Azos.Glue.Implementation
         if (removed > 0)
         {
           if (m_InstrumentationEnabled)
-            Instrumentation.ClientTimedOutCallSlotsRemoved.Record(removed);
+            Instrumentation.ClientTimedOutCallSlotsRemoved.Record(App.Instrumentation, removed);
 
           if (m_ClientLogLevel <= MessageType.Info)
             WriteLog(MessageType.Trace, nameof(purgeTimedOutCallSlotsWithTasks), "Purged {0} timed-out CallSlot objects".Args(removed));

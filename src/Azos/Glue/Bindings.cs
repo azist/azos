@@ -798,7 +798,7 @@ namespace Azos.Glue
                             {
                                 cltran.Dispose();
                                 if (Glue.InstrumentationEnabled && this.InstrumentationEnabled)
-                                 Instrumentation.InactiveClientTransportClosedEvent.Happened(cltran.Node);
+                                 Instrumentation.InactiveClientTransportClosedEvent.Happened(App.Instrumentation, cltran.Node);
                             }
                         }
                         else
@@ -843,11 +843,11 @@ namespace Azos.Glue
 
                 if (m_InstrumentClientTransportStat)
                  foreach(var kvp in ctr)
-                  Instrumentation.ClientTransportCount.Record(kvp.Key, kvp.Value);
+                  Instrumentation.ClientTransportCount.Record(App.Instrumentation, kvp.Key, kvp.Value);
 
                 if (m_InstrumentServerTransportStat)
                  foreach(var kvp in str)
-                  Instrumentation.ServerTransportCount.Record(kvp.Key, kvp.Value);
+                  Instrumentation.ServerTransportCount.Record(App.Instrumentation, kvp.Key, kvp.Value);
             }
 
             private DateTime dumpNowTime()

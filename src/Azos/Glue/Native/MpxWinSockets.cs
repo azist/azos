@@ -228,7 +228,7 @@ namespace Azos.Glue.Native
             //check max msg size
             if (state.WireMsgSize < 1 || state.WireMsgSize>Transport.Binding.MaxMsgSize)
             {
-              Instrumentation.ClientGotOverMaxMsgSizeErrorEvent.Happened(Transport.Node);
+              Instrumentation.ClientGotOverMaxMsgSizeErrorEvent.Happened(Transport.App.Instrumentation, Transport.Node);
               Transport.Binding.WriteLog(LogSrc.Client,
                                           Log.MessageType.Error,
                                           StringConsts.GLUE_MAX_MSG_SIZE_EXCEEDED_ERROR.Args(state.WireMsgSize, Transport.Binding.MaxMsgSize, "processReceive()"),
@@ -404,7 +404,7 @@ namespace Azos.Glue.Native
           //check max msg size
           if (state.WireMsgSize < 1 || state.WireMsgSize>Transport.Binding.MaxMsgSize)
           {
-            Instrumentation.ServerGotOverMaxMsgSizeErrorEvent.Happened(Transport.Node);
+            Instrumentation.ServerGotOverMaxMsgSizeErrorEvent.Happened(Transport.App.Instrumentation, Transport.Node);
             Transport.Binding.WriteLog(LogSrc.Server,
                                        Log.MessageType.Error,
                                        StringConsts.GLUE_MAX_MSG_SIZE_EXCEEDED_ERROR.Args(state.WireMsgSize, Transport.Binding.MaxMsgSize, "processReceive()"),
@@ -503,7 +503,7 @@ namespace Azos.Glue.Native
                                       from: "MpxWinSocket.listenerThreadSpin",
                                       exception: error);
 
-                     Instrumentation.ServerListenerErrorEvent.Happened(Transport.Node);
+                     Instrumentation.ServerListenerErrorEvent.Happened(Transport.App.Instrumentation, Transport.Node);
                    }
                }
            }
