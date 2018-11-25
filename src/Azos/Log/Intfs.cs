@@ -24,9 +24,9 @@ namespace Azos.Log
       void Write(MessageType type, string text, string topic = null, string from = null);
       void Write(MessageType type, string text, bool urgent, string topic = null, string from = null);
 
-      Message LastWarning { get;}
-      Message LastError { get;}
-      Message LastCatastrophe { get;}
+      Message LastWarning     { get; }
+      Message LastError       { get; }
+      Message LastCatastrophe { get; }
   }
 
   /// <summary>

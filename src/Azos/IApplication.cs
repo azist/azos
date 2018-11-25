@@ -14,7 +14,7 @@ namespace Azos
 {
   /// <summary>
   /// Establishes a general model for applications - a "chassis": root service composite governs app initialization,
-  /// module linking (service location), state management, logging, security, and other process-wide activities.
+  /// module linking (service location), state management, logging, security, and other app/process-wide activities.
   /// An applications is usually allocated at program entry point and provides common "ambient" context - a "chassis pattern".
   /// </summary>
   public interface IApplication : Collections.INamed, ILocalizedTimeProvider
@@ -171,6 +171,11 @@ namespace Azos
      /// Returns an existing application component instance by its ComponentCommonName or null. The search is case-insensitive
      /// </summary>
      IApplicationComponent GetComponentByCommonName(string name);
+
+     /// <summary>
+     /// Manages singleton instances per application
+     /// </summary>
+     IApplicationSingletonManager Singletons {  get; }
 
      /// <summary>
      /// Registers an instance of IConfigSettings with application container to receive a call when

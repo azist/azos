@@ -64,6 +64,7 @@ namespace Azos.Apps
       m_AllowNesting = allowNesting;
       m_CommandArgs = (cmdLineArgs ?? new MemoryConfiguration()).Root;
       m_ConfigRoot  = rootConfig ?? GetConfiguration().Root;
+      m_Singletons = new ApplicationSingletonManager();
       m_Realm = new ApplicationRealmBase(this);
 
       m_NOPLog = new NOPLog(this);
@@ -92,6 +93,7 @@ namespace Azos.Apps
       DisposeAndNull(ref m_NOPLog);
 
       DisposeAndNull(ref m_Realm);
+      DisposeAndNull(ref m_Singletons);
       base.Destructor();
     }
     #endregion
@@ -118,6 +120,8 @@ namespace Azos.Apps
 
     protected ConfigSectionNode m_CommandArgs;
     protected ConfigSectionNode m_ConfigRoot;
+
+    protected ApplicationSingletonManager m_Singletons;
 
     protected ILogImplementation m_Log;
     protected ILogImplementation m_NOPLog;
@@ -196,17 +200,18 @@ namespace Azos.Apps
     public void Stop() => m_Stopping = true;
 
 
-    public IConfigSectionNode ConfigRoot    => m_ConfigRoot;
-    public IConfigSectionNode CommandArgs   => m_CommandArgs;
-    public ILog Log                         => m_Log             ??  m_NOPLog;
-    public IInstrumentation Instrumentation => m_Instrumentation ??  m_NOPInstrumentation;
-    public IDataStore DataStore             => m_DataStore       ??  m_NOPDataStore;
-    public IObjectStore ObjectStore         => m_ObjectStore     ??  m_NOPObjectStore;
-    public IGlue Glue                       => m_Glue            ??  m_NOPGlue;
-    public ISecurityManager SecurityManager => m_SecurityManager ??  m_NOPSecurityManager;
-    public ITimeSource TimeSource           => m_TimeSource      ??  m_DefaultTimeSource;
-    public IEventTimer EventTimer           => m_EventTimer      ??  m_NOPEventTimer;
-    public IModule ModuleRoot               => m_Module          ??  m_NOPModule;
+    public IConfigSectionNode ConfigRoot          => m_ConfigRoot;
+    public IConfigSectionNode CommandArgs         => m_CommandArgs;
+    public IApplicationSingletonManager Singletons => m_Singletons;
+    public ILog                Log                => m_Log             ??  m_NOPLog;
+    public IInstrumentation    Instrumentation    => m_Instrumentation ??  m_NOPInstrumentation;
+    public IDataStore          DataStore          => m_DataStore       ??  m_NOPDataStore;
+    public IObjectStore        ObjectStore        => m_ObjectStore     ??  m_NOPObjectStore;
+    public IGlue               Glue               => m_Glue            ??  m_NOPGlue;
+    public ISecurityManager    SecurityManager    => m_SecurityManager ??  m_NOPSecurityManager;
+    public ITimeSource         TimeSource         => m_TimeSource      ??  m_DefaultTimeSource;
+    public IEventTimer         EventTimer         => m_EventTimer      ??  m_NOPEventTimer;
+    public IModule             ModuleRoot         => m_Module          ??  m_NOPModule;
 
     /// <summary>
     /// Returns time location of this LocalizedTimeProvider implementation
