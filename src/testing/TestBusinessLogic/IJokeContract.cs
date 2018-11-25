@@ -20,6 +20,12 @@ namespace TestBusinessLogic
       public string Info;
     }
 
+    [Glued]
+    public interface IExampleContract
+    {
+      object ExampleMethod(string name);
+    }
+
 
     [Glued]
     //[SultanPermission( 1000 )]

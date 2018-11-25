@@ -79,7 +79,7 @@ namespace Azos.Glue
     public enum ServerInstanceMode
     {
         /// <summary>
-        /// Indicates that the same single process-wide instance will serve all request for particular contract.
+        /// Indicates that the same single glue-wide instance will serve all request for particular contract.
         /// The server MUST be thread-safe
         /// </summary>
         Singleton = 0,
@@ -100,7 +100,7 @@ namespace Azos.Glue
         /// Indicates that the instance is stateful and will live between a call to
         ///  either [Constructor]-decorated method or first call to any method, and [Destructor]-decorated method or until timeout interval has passed.
         /// The implementation may or may not be thread-safe, if it is then [ThreadSafe] attribute may be used to avoid instance locking.
-        /// This mode is simiar to 'Stateful' but does not require the caller to explicitly call the [Constructor]-decorated method first
+        /// This mode is similar to 'Stateful' but does not require the caller to explicitly call the [Constructor]-decorated method first
         /// </summary>
         AutoConstructedStateful
     }

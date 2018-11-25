@@ -33,7 +33,7 @@ namespace TestBusinessLogic.Server
           //ExecutionContext.Application.Log.Write(MessageType.Info, "MarazmServer.Echo. Headers: " + sb.ToString(), from: text + (th==null?string.Empty : th.Text + th.Info));
 
 
-          //Azos.Glue.ServerCallContext.ResponseHeaders.Add( new MyHeader());
+          //Azos.Glue.ServerCall.ResponseHeaders.Add( new MyHeader());
           return "Server echoed " + text;// + "' on "+App.LocalizedTime.ToString();
         }
 

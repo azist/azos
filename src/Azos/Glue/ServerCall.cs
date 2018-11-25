@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Threading;
 
 using Azos.Glue.Protocol;
@@ -12,13 +11,24 @@ using Azos.Glue.Protocol;
 namespace Azos.Glue
 {
   /// <summary>
-  /// In the server side code, provides access to server call context. Use to access Headers
+  /// In the server side code, provides access to server call ambient context. Use to access Headers
   /// </summary>
-  public static class ServerCallContext
+  public static class ServerCall
   {
+    private static AsyncLocal<IGlue> ats_Glue = new AsyncLocal<IGlue>();
     private static AsyncLocal<RequestMsg> ats_Request = new AsyncLocal<RequestMsg>();
     private static AsyncLocal<Headers>    ats_ResponseHeaders = new AsyncLocal<Headers>();
 
+
+    /// <summary>
+    /// Returns app chassis reference that the call is serviced by
+    /// </summary>
+    public static IApplication App => ats_Glue.Value?.App;
+
+    /// <summary>
+    /// Returns Glue reference that the call is serviced by
+    /// </summary>
+    public static IGlue Glue => ats_Glue.Value;
 
     /// <summary>
     /// Returns RequestMsg which is being processed. Access incoming headers through Request.Headers
@@ -52,10 +62,12 @@ namespace Azos.Glue
     }
 
     /// <summary>
-    /// Internal framework-only method to bind thread-level context
+    /// Internal framework-only method to bind thread-level context.
+    /// Normally this would never be called but in some unit tests
     /// </summary>
-    public static void __SetThreadLevelContext(RequestMsg request)
+    public static void __SetThreadLevelContext(IGlue glue, RequestMsg request)
     {
+      ats_Glue.Value = glue;
       ats_Request.Value = request;
     }
 
@@ -64,6 +76,7 @@ namespace Azos.Glue
     /// </summary>
     public static void __ResetThreadLevelContext()
     {
+      ats_Glue.Value = null;
       ats_Request.Value = null;
       ats_ResponseHeaders.Value = null;
     }

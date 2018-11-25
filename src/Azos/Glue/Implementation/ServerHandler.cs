@@ -58,6 +58,7 @@ namespace Azos.Glue.Implementation
 
        #region Fields
 
+           //note: they are kept as instance fields per ServerHandler instance, not static!!!
            private object m_SingletonInstancesLock = new object();
            private Dictionary<Type, object> m_SingletonInstances;
 
@@ -426,12 +427,12 @@ namespace Azos.Glue.Implementation
                 {
                    try
                    {
-                     ServerCallContext.__SetThreadLevelContext(request);
+                     ServerCall.__SetThreadLevelContext(Glue, request);
                      try
                      {
                        var response = doWork(request);
 
-                       var rhdr = ServerCallContext.GetResponseHeadersOrNull();
+                       var rhdr = ServerCall.GetResponseHeadersOrNull();
 
                        if (rhdr!=null && response!=null)
                         response.Headers = rhdr;
@@ -440,7 +441,7 @@ namespace Azos.Glue.Implementation
                      }
                      finally
                      {
-                       ServerCallContext.__ResetThreadLevelContext();
+                       ServerCall.__ResetThreadLevelContext();
                      }
                    }
                    catch(Exception error)
@@ -598,7 +599,7 @@ namespace Azos.Glue.Implementation
 
                    if (server.InstanceMode == ServerInstanceMode.Singleton)
                    {
-                     if (!m_SingletonInstances.TryGetValue(server.Implementation, out result))
+                     if (!m_SingletonInstances.TryGetValue(server.Implementation, out result))//per ServerHandler/Glue instance
                        lock(m_SingletonInstancesLock)
                        {
                          if (!m_SingletonInstances.TryGetValue(server.Implementation, out result))
