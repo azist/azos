@@ -23,10 +23,9 @@ namespace Azos.Web.Messaging.Instrumentation
   {
     public MessagingSinkCount(string source, long value) : base(source, value) { }
 
-    public static void Record(string source, long value)
+    public static void Record(IInstrumentation inst, string source, long value)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new MessagingSinkCount(source, value));
     }
 
@@ -45,10 +44,9 @@ namespace Azos.Web.Messaging.Instrumentation
   {
     public MessagingFallbackCount(string source, long value) : base(source, value) { }
 
-    public static void Record(string source, long value)
+    public static void Record(IInstrumentation inst, string source, long value)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new MessagingFallbackCount(source, value));
     }
 
@@ -67,10 +65,9 @@ namespace Azos.Web.Messaging.Instrumentation
   {
     protected MessagingSinkErrorCount(string source, long value) : base(source, value) { }
 
-    public static void Record(string source, long value)
+    public static void Record(IInstrumentation inst, string source, long value)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new MessagingSinkErrorCount(source, value));
     }
 
@@ -89,10 +86,9 @@ namespace Azos.Web.Messaging.Instrumentation
   {
     protected MessagingFallbackErrorCount(string source, long value) : base(source, value) { }
 
-    public static void Record(string source, long value)
+    public static void Record(IInstrumentation inst, string source, long value)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new MessagingFallbackErrorCount(source, value));
     }
 

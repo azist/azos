@@ -35,7 +35,7 @@ namespace Azos.Web.Messaging
 
       /// <summary>
       /// Returns true to indicate that the content has fetched either as byte[] or URL (that yet needs to be fetched).
-      /// This is used in fetching messages back from the store where their attachemnts must be
+      /// This is used in fetching messages back from the store where their attachments must be
       /// fetched using a separate call due to their sheer size
       /// </summary>
       public bool HasContent{ get{ return Content!= null || ContentURL.IsNotNullOrWhiteSpace();} }
@@ -47,7 +47,7 @@ namespace Azos.Web.Messaging
     {
       ID = id ?? Guid.NewGuid();
       Priority = MsgPriority.Normal;
-      CreateDateUTC = utcCreateDate ?? App.TimeSource.UTCNow;
+      CreateDateUTC = utcCreateDate ?? Ambient.UTCNow;
     }
 
     /// <summary>

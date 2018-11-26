@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 
+using Azos.Apps;
 using Azos.Conf;
 
 
@@ -21,136 +22,138 @@ namespace Azos.Web
   /// Configures ServicePointManager class.
   /// Use singleton Instance property
   /// </summary>
-  public sealed class ServicePointManagerConfigurator : IConfigurable
+  public sealed class ServicePointManagerConfigurator : ApplicationComponent, IConfigurable
   {
     #region Inner types
 
-      /// <summary>
-      /// Provides contract and default implementation for certificate trust and endpoint binding
-      /// </summary>
-      public class OperationPolicy : IConfigurable
+    /// <summary>
+    /// Provides contract and default implementation for certificate trust and endpoint binding
+    /// </summary>
+    public class OperationPolicy : IConfigurable
+    {
+      protected class _uri : Collections.INamed
       {
-                            protected class _uri : Collections.INamed
-                            {
-                              public string Name { get; internal set; }
-                              public bool Trusted { get; internal set; }
-                            }
+        public string Name { get; internal set; }
+        public bool Trusted { get; internal set; }
+      }
 
-        public const string CONFIG_DEFAULT_CERTIFICATE_VALIDATION_SECTION = "default-certificate-validation";
-        public const string CONFIG_CASE_SECTION = "case";
+      public const string CONFIG_DEFAULT_CERTIFICATE_VALIDATION_SECTION = "default-certificate-validation";
+      public const string CONFIG_CASE_SECTION = "case";
 
-        public const string CONFIG_TRUSTED_ATTR = "trusted";
+      public const string CONFIG_TRUSTED_ATTR = "trusted";
 
 
-        protected Collections.Registry<_uri> m_DefaultCertValUris = new Collections.Registry<_uri>();
+      protected Collections.Registry<_uri> m_DefaultCertValUris = new Collections.Registry<_uri>();
 
-        public bool CertValTrustedDefault { get; set; }
+      public bool CertValTrustedDefault { get; set; }
 
-        public virtual void Configure(IConfigSectionNode node)
+      public virtual void Configure(IConfigSectionNode node)
+      {
+        if (node == null || !node.Exists) return;
+        ConfigAttribute.Apply(this, node);
+        var cvn = node[CONFIG_DEFAULT_CERTIFICATE_VALIDATION_SECTION];
+        CertValTrustedDefault = cvn.AttrByName(CONFIG_TRUSTED_ATTR).ValueAsBool();
+
+        foreach (var un in cvn.Children.Where(c => c.IsSameName(CONFIG_CASE_SECTION)))
         {
-          if (node == null || !node.Exists) return;
-          ConfigAttribute.Apply(this, node);
-          var cvn = node[CONFIG_DEFAULT_CERTIFICATE_VALIDATION_SECTION];
-          CertValTrustedDefault = cvn.AttrByName(CONFIG_TRUSTED_ATTR).ValueAsBool();
-
-          foreach (var un in cvn.Children.Where(c => c.IsSameName(CONFIG_CASE_SECTION)))
-          {
-            m_DefaultCertValUris.Register(new _uri { Name = un.AttrByName(CONFIG_URI_ATTR).Value,
-                                       Trusted = un.AttrByName(CONFIG_TRUSTED_ATTR).ValueAsBool()});
-          }
-        }
-
-        public virtual bool ServerCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
-        {
-          if (sslPolicyErrors == SslPolicyErrors.None) return true;
-
-          var request = sender as HttpWebRequest;
-          if (request != null)
-          {
-            var entry = m_DefaultCertValUris.FirstOrDefault(u => request.RequestUri.AbsoluteUri.StartsWith(u.Name));
-            if (entry != null) return entry.Trusted;
-          }
-          return CertValTrustedDefault;
-        }
-
-        public virtual IPEndPoint BindIPEndPoint(ServicePointConfigurator servicePointConfigurator, IPEndPoint remoteEndPoint, int retryCount)
-        {
-          return null;
+          m_DefaultCertValUris.Register(new _uri { Name = un.AttrByName(CONFIG_URI_ATTR).Value,
+                                      Trusted = un.AttrByName(CONFIG_TRUSTED_ATTR).ValueAsBool()});
         }
       }
 
-
-
-      public sealed class ServicePointConfigurator
+      public virtual bool ServerCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
       {
-        internal ServicePointConfigurator(ServicePoint sp, IConfigSectionNode node)
-        {
-          this.ServicePoint = sp;
-          sp.BindIPEndPointDelegate += bindIPEndPoint;
-          ConfigAttribute.Apply(this, node);
+        if (sslPolicyErrors == SslPolicyErrors.None) return true;
 
-          if (node.AttrByName(CONFIG_TCP_KEEPALIVE_ENABLED_ATTR).ValueAsBool())
-          {
-            sp.SetTcpKeepAlive(
-              true,
-              node.AttrByName(CONFIG_TCP_KEEPALIVE_TIME_MS_ATTR).ValueAsInt(),
-              node.AttrByName(CONFIG_TCP_KEEPALIVE_INTERVAL_MS_ATTR).ValueAsInt());
-          }
+        var request = sender as HttpWebRequest;
+        if (request != null)
+        {
+          var entry = m_DefaultCertValUris.FirstOrDefault(u => request.RequestUri.AbsoluteUri.StartsWith(u.Name));
+          if (entry != null) return entry.Trusted;
         }
+        return CertValTrustedDefault;
+      }
 
-        public readonly ServicePoint ServicePoint;
+      public virtual IPEndPoint BindIPEndPoint(ServicePointConfigurator servicePointConfigurator, IPEndPoint remoteEndPoint, int retryCount)
+      {
+        return null;
+      }
+    }
 
-        [Config]
-        public int ConnectionLeaseTimeout
+
+
+    public sealed class ServicePointConfigurator
+    {
+      internal ServicePointConfigurator(ServicePointManagerConfigurator manager, ServicePoint sp, IConfigSectionNode node)
+      {
+        this.Manager = manager;
+        this.ServicePoint = sp;
+        sp.BindIPEndPointDelegate += bindIPEndPoint;
+        ConfigAttribute.Apply(this, node);
+
+        if (node.AttrByName(CONFIG_TCP_KEEPALIVE_ENABLED_ATTR).ValueAsBool())
         {
-          get { return this.ServicePoint.ConnectionLeaseTimeout; }
-          private set { this.ServicePoint.ConnectionLeaseTimeout = value; }
-        }
-
-        [Config]
-        public int ConnectionLimit
-        {
-          get { return this.ServicePoint.ConnectionLimit; }
-          private set { this.ServicePoint.ConnectionLimit = value; }
-        }
-
-        [Config("$expect-100-continue")]
-        public bool Expect100Continue
-        {
-          get { return this.ServicePoint.Expect100Continue; }
-          private set { this.ServicePoint.Expect100Continue = value; }
-        }
-
-        [Config]
-        public int MaxIdleTime
-        {
-          get { return this.ServicePoint.MaxIdleTime; }
-          private set { this.ServicePoint.MaxIdleTime = value; }
-        }
-
-        [Config]
-        public int ReceiveBufferSize
-        {
-          get { return this.ServicePoint.ReceiveBufferSize; }
-          private set { this.ServicePoint.ReceiveBufferSize = value; }
-        }
-
-        [Config]
-        public bool UseNagleAlgorithm
-        {
-          get { return this.ServicePoint.UseNagleAlgorithm; }
-          private set { this.ServicePoint.UseNagleAlgorithm = value; }
-        }
-
-        private IPEndPoint bindIPEndPoint(ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount)
-        {
-          var policy = ServicePointManagerConfigurator.s_Instance.m_Policy;
-          if (policy != null)
-            return policy.BindIPEndPoint(this, remoteEndPoint, retryCount);
-
-          return null;
+          sp.SetTcpKeepAlive(
+            true,
+            node.AttrByName(CONFIG_TCP_KEEPALIVE_TIME_MS_ATTR).ValueAsInt(),
+            node.AttrByName(CONFIG_TCP_KEEPALIVE_INTERVAL_MS_ATTR).ValueAsInt());
         }
       }
+
+      public readonly ServicePointManagerConfigurator Manager;
+      public readonly ServicePoint ServicePoint;
+
+      [Config]
+      public int ConnectionLeaseTimeout
+      {
+        get { return this.ServicePoint.ConnectionLeaseTimeout; }
+        private set { this.ServicePoint.ConnectionLeaseTimeout = value; }
+      }
+
+      [Config]
+      public int ConnectionLimit
+      {
+        get { return this.ServicePoint.ConnectionLimit; }
+        private set { this.ServicePoint.ConnectionLimit = value; }
+      }
+
+      [Config("$expect-100-continue")]
+      public bool Expect100Continue
+      {
+        get { return this.ServicePoint.Expect100Continue; }
+        private set { this.ServicePoint.Expect100Continue = value; }
+      }
+
+      [Config]
+      public int MaxIdleTime
+      {
+        get { return this.ServicePoint.MaxIdleTime; }
+        private set { this.ServicePoint.MaxIdleTime = value; }
+      }
+
+      [Config]
+      public int ReceiveBufferSize
+      {
+        get { return this.ServicePoint.ReceiveBufferSize; }
+        private set { this.ServicePoint.ReceiveBufferSize = value; }
+      }
+
+      [Config]
+      public bool UseNagleAlgorithm
+      {
+        get { return this.ServicePoint.UseNagleAlgorithm; }
+        private set { this.ServicePoint.UseNagleAlgorithm = value; }
+      }
+
+      private IPEndPoint bindIPEndPoint(ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount)
+      {
+        var policy = Manager.m_Policy;
+        if (policy != null)
+          return policy.BindIPEndPoint(this, remoteEndPoint, retryCount);
+
+        return null;
+      }
+    }
 
     #endregion
 
@@ -167,13 +170,9 @@ namespace Azos.Web
 
     #endregion
 
-    #region .ctor / static
 
-      internal static ServicePointManagerConfigurator s_Instance = new ServicePointManagerConfigurator();
+    internal ServicePointManagerConfigurator(IApplication app):base(app) { }
 
-      private ServicePointManagerConfigurator() { }
-
-    #endregion
 
     #region Fields
 
@@ -185,7 +184,9 @@ namespace Azos.Web
 
     #region Properties
 
-      [Config]
+    public override string ComponentLogTopic => CoreConsts.WEB_TOPIC;
+
+    [Config]
       public bool CheckCertificateRevocationList
       {
         get { return ServicePointManager.CheckCertificateRevocationList; }
@@ -304,7 +305,7 @@ namespace Azos.Web
 
           var sp = ServicePointManager.FindServicePoint(new Uri(addr));
 
-          lst.Add( new ServicePointConfigurator(sp, nsp));
+          lst.Add( new ServicePointConfigurator(this, sp, nsp));
         }
         m_ServicePoints = lst; // atomic
       }

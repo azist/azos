@@ -33,7 +33,7 @@ namespace Azos.Web
     int WebServiceCallTimeoutMs { get; }
 
     /// <summary>
-    /// Specifies keepalive option for web request
+    /// Specifies keep-alive option for web request
     /// </summary>
     bool KeepAlive { get; }
 

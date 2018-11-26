@@ -74,9 +74,9 @@ namespace Azos.IO.FileSystem.SVN
       var cred = cParams.User.Credentials as IDPasswordCredentials;
 
       if (cred == null)
-	      m_WebDAV = new WebDAV(cParams.ServerURL, cParams.TimeoutMs);
+	      m_WebDAV = new WebDAV(cParams.ServerURL, cParams.TimeoutMs, log: fs.App.Log);
       else
-        m_WebDAV = new WebDAV(cParams.ServerURL, cParams.TimeoutMs, cred.ID, cred.Password);
+        m_WebDAV = new WebDAV(cParams.ServerURL, cParams.TimeoutMs, cred.ID, cred.Password, log: fs.App.Log);
     }
 
     private string m_ServerURL;

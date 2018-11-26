@@ -305,10 +305,12 @@ namespace Azos.Web.Messaging
 
     private void dumpStats()
     {
-      Instrumentation.MessagingSinkCount         .Record(Name, Interlocked.Exchange(ref m_stat_MessagesCount, 0));
-      Instrumentation.MessagingSinkErrorCount    .Record(Name, Interlocked.Exchange(ref m_stat_MessagesErrorCount, 0));
-      Instrumentation.MessagingFallbackCount     .Record(Name, Interlocked.Exchange(ref m_stat_FallbacksCount, 0));
-      Instrumentation.MessagingFallbackErrorCount.Record(Name, Interlocked.Exchange(ref m_stat_FallbackErrorCount, 0));
+      var inst = App.Instrumentation;
+
+      Instrumentation.MessagingSinkCount         .Record(inst, Name, Interlocked.Exchange(ref m_stat_MessagesCount, 0));
+      Instrumentation.MessagingSinkErrorCount    .Record(inst, Name, Interlocked.Exchange(ref m_stat_MessagesErrorCount, 0));
+      Instrumentation.MessagingFallbackCount     .Record(inst, Name, Interlocked.Exchange(ref m_stat_FallbacksCount, 0));
+      Instrumentation.MessagingFallbackErrorCount.Record(inst, Name, Interlocked.Exchange(ref m_stat_FallbackErrorCount, 0));
     }
 
     private void statSendError()

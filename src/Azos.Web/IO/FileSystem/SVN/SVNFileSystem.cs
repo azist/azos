@@ -8,7 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using Azos.Apps;
 using Azos.Conf;
+using Azos.Web;
 
 namespace Azos.IO.FileSystem.SVN
 {
@@ -34,16 +36,21 @@ namespace Azos.IO.FileSystem.SVN
 
     #region .ctor
 
-      public SVNFileSystem(string name, IConfigSectionNode node = null) : base(name, node)
-      {
-        Azos.Web.WebSettings.RequireInitializedSettings();
-      }
+    public SVNFileSystem(IApplication app, string name) : base(app, name)
+    {
+      app.RequireInitilizedServicePointManager();
+    }
+
+    public SVNFileSystem(IApplicationComponent director, string name) : base(director, name)
+    {
+      App.RequireInitilizedServicePointManager();
+    }
 
     #endregion
 
     #region Public
 
-      public override string ComponentCommonName { get { return "fssvn"; }}
+    public override string ComponentCommonName { get { return "fssvn"; }}
 
       public override IFileSystemCapabilities GeneralCapabilities
       {

@@ -62,7 +62,7 @@ namespace Azos.Security
                                             "John Doe",
                                             "Fake user",
                                             Rights.None,
-                                            DateTime.UtcNow);
+                                            Ambient.UTCNow);
 
       /// <summary>
       /// Returns default instance of the fake user that has no rights
@@ -79,7 +79,7 @@ namespace Azos.Security
                   string name,
                   string descr,
                   Rights rights,
-                  DateTime utcNow)
+                  DateTime? utcNow = null)
       {
           m_Credentials = credentials;
           m_AuthenticationToken = token;
@@ -87,13 +87,13 @@ namespace Azos.Security
           m_Name = name;
           m_Description = descr;
           m_Rights = rights;
-          m_StatusTimeStampUTC = utcNow;
+          m_StatusTimeStampUTC = utcNow ?? Ambient.UTCNow;
       }
 
       public User(Credentials credentials,
                   AuthenticationToken token,
                   string name,
-                  Rights rights, DateTime utcNow) : this(credentials, token, UserStatus.User, name, null, rights, utcNow)
+                  Rights rights, DateTime? utcNow = null) : this(credentials, token, UserStatus.User, name, null, rights, utcNow)
       {
 
       }

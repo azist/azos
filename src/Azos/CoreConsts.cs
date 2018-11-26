@@ -96,6 +96,7 @@ namespace Azos
       public const string GEO_TOPIC = "Geo";
       public const string WEBMSG_TOPIC = "WMsg";
       public const string RUN_TOPIC = "Run";
+      public const string WEB_TOPIC = "Web";
 
       public const string LOG_CHANNEL_SECURITY = "security";
 

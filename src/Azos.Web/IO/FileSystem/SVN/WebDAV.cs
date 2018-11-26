@@ -22,6 +22,7 @@ namespace Azos.IO.FileSystem.SVN
   public sealed class WebDAV
   {
     #region CONSTS
+      public const int DEFAULT_TIMEOUT_MS = 30 * 1000;
 
       private const string LIST_CONTENT_BODY =
         "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" +
@@ -329,8 +330,6 @@ namespace Azos.IO.FileSystem.SVN
         if (rootURL.IsNullOrWhiteSpace())
           throw new AzosIOException(Azos.Web.StringConsts.ARGUMENT_ERROR + typeof(WebDAV).Name + ".GetVersions(rootURL == null|empty)");
 
-        Azos.Web.WebSettings.RequireInitializedSettings();
-
         return doListVersions(rootURL, uName, uPwd);
       }
 
@@ -338,10 +337,8 @@ namespace Azos.IO.FileSystem.SVN
 
     #region .ctor
 
-      public WebDAV(string rootURL, int timeoutMs = 0, string uName = null, string uPwd = null, Version version = null)
+      public WebDAV(string rootURL, int timeoutMs = 0, string uName = null, string uPwd = null, Version version = null, Log.ILog log = null)
       {
-        Azos.Web.WebSettings.RequireInitializedSettings();
-
         if (rootURL.IsNullOrWhiteSpace())
           throw new AzosIOException(Azos.Web.StringConsts.ARGUMENT_ERROR + this.GetType().Name + ".ctor(path == null|empty)");
 
@@ -352,6 +349,7 @@ namespace Azos.IO.FileSystem.SVN
         m_UName = uName;
         m_UPwd = uPwd;
         m_CurrentVersion = version;
+        m_Log = log;
       }
 
     #endregion
@@ -360,6 +358,7 @@ namespace Azos.IO.FileSystem.SVN
 
       private Uri m_RootUri;
 
+      private Log.ILog  m_Log;
       private Directory m_Root;
 
       private string m_UName;
@@ -403,9 +402,13 @@ namespace Azos.IO.FileSystem.SVN
       public string UPwd { get { return m_UPwd ?? string.Empty; } }
 
       /// <summary>
-      /// Gets timeout for call, if zero then actual timeout is taken from WebSettings
+      /// Gets timeout for call, if zero then actual timeout is defaulted to 30 seconds
       /// </summary>
-      public int TimeoutMs { get { return m_TimeoutMs; } }
+      public int TimeoutMs
+      {
+        get { return m_TimeoutMs; }
+        set { m_TimeoutMs = value <0 ? 0: value; }
+      }
 
       /// <summary>
       /// Get or sets current version
@@ -518,8 +521,6 @@ namespace Azos.IO.FileSystem.SVN
               {
                 string responseStr = responseReader.ReadToEnd();
                 IEnumerable<Version> items = createVersionsFromXML(responseStr);
-
-                log(uri.ToString(), "URI: {0}  Count: {1}".Args(uri, items.Count()));
 
                 return items.ToList();
               }
@@ -663,20 +664,19 @@ namespace Azos.IO.FileSystem.SVN
         return "{0}?p={1}".Args(path, m_CurrentVersion.Name);
       }
 
-      private static void log(string text, string from)
+      private  void log(string text, string from)
       {
-        var ltp = Azos.Web.WebSettings.WebDavLogType;
+        if (m_Log==null) return;
 
-        if (ltp.HasValue)
-          App.Log.Write(
-            new Log.Message
-            {
-              Type = ltp.Value,
-              Topic = Azos.Web.StringConsts.WEB_LOG_TOPIC,
-              From = "{0}.{1}".Args(typeof(WebDAV).Name, from),
-              Text = text
-            }
-          );
+        m_Log.Write(
+          new Log.Message
+          {
+            Type = Log.MessageType.Trace,
+            Topic = CoreConsts.WEB_TOPIC,
+            From = "{0}.{1}".Args(nameof(WebDAV), from),
+            Text = text
+          }
+        );
       }
 
       private HttpWebRequest makeRequest(Uri uri, string method = "GET")
@@ -689,7 +689,7 @@ namespace Azos.IO.FileSystem.SVN
         HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(uri);
         request.Method = method;
 
-        var t = timeout == 0 ? Azos.Web.WebSettings.WebDavDefaultTimeoutMs : timeout;
+        var t = timeout > 0 ? timeout : DEFAULT_TIMEOUT_MS;
         if (t > 0) request.Timeout = t;
 
         NetworkCredential credentials = new NetworkCredential(uName, uPwd);

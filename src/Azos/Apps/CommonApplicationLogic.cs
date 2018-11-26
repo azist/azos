@@ -468,7 +468,7 @@ namespace Azos.Apps
         node = node ?? m_ConfigRoot;
 
         lock(m_ConfigSettings)
-          foreach(var s in m_ConfigSettings) s.ConfigChanged(node);
+          foreach(var s in m_ConfigSettings) s.ConfigChanged(this, node);
     }
 
     #endregion

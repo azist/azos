@@ -18,7 +18,6 @@ namespace Azos.Web
     {
       public WebClientTimeouted(IWebClientCaller caller)
       {
-        WebSettings.RequireInitializedSettings();
         m_Caller = caller;
       }
 

@@ -4,6 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Conf;
+
 namespace Azos.Web
 {
   /// <summary>
@@ -16,19 +18,27 @@ namespace Azos.Web
 
     public const string CONFIG_LOGTYPE_ATTR = "log-type";
     public const string CONFIG_DEFAULT_TIMEOUT_MS_ATTR = "default-timeout-ms";
-    public const int WEBDAV_DEFAULT_TIMEOUT_MS_DEFAULT = 30 * 1000;
-    public const string CONFIG_WEBDAV_SECTION = "web-dav";
 
 
 
+    /// <summary>
+    /// Ensures that ServicePointManager class gets configured via the ServicePointManagerConfigurator instance.
+    /// ServicePointManager is .NET-provided class with static methods which configure global Web call/service point properties
+    /// such as timeouts and keep-alive.
+    /// </summary>
     public static ServicePointManagerConfigurator GetServicePointManagerConfigurator(this IApplication app) =>
       app.NonNull(nameof(app)).Singletons.GetOrCreate<ServicePointManagerConfigurator>(() =>
       {
         var result = new ServicePointManagerConfigurator(app);
-        result.Configure(app.ConfigRoot[CONFIG_WEBSETTINGS_SECTION]);
+        ((IConfigurable)result).Configure(app.ConfigRoot[CONFIG_WEBSETTINGS_SECTION]);
         return result;
-      });
+      }).instance;
 
+    /// <summary>
+    /// Ensures that ServicePointManager class gets configured via the ServicePointManagerConfigurator instance.
+    /// ServicePointManager is .NET-provided class with static methods which configure global Web call/service point properties
+    /// such as timeouts and keep-alive.
+    /// </summary>
     public static void RequireInitilizedServicePointManager(this IApplication app) => app.GetServicePointManagerConfigurator();
 
   }

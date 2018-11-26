@@ -12,10 +12,6 @@ namespace Azos.Web
     public const string CONTRACT_NS = "http://zhabis.com/azos/web";
 
 
-    public const string WEB_LOG_TOPIC = "Azos.Web";
-
-    public const string MAILER_LOG_TOPIC = "Mailer";
-
 
     public const string GUID_KEY = "GUID";
 
