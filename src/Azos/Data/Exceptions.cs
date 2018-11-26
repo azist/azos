@@ -76,8 +76,8 @@ namespace Azos.Data
     public const string WHAT = "Schema field: '{0}'.{1}; ";
 
     public FieldValidationException(Doc doc, string fieldName, string message)
-      : this(doc.NonNull(text: "doc").Schema.Name,
-             doc.Schema[fieldName].NonNull(text: "field {0} not found in schema".Args(fieldName)).Name, message)
+      : this(doc.NonNull(nameof(doc)).Schema.Name,
+             doc.Schema[fieldName].NonNull(name: "field {0} not found in schema".Args(fieldName)).Name, message)
     { }
 
     public FieldValidationException(string schemaName, string fieldName)

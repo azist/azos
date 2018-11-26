@@ -26,12 +26,12 @@ namespace Azos.Serialization.BSON
     /// <summary>
     /// Creates an array element
     /// </summary>
-    public BSONArrayElement(BSONElement[] value) : base(null, value.NonNull(text: "value"))
+    public BSONArrayElement(BSONElement[] value) : base(null, value.NonNull(nameof(value)))
     {
     }
 
     public BSONArrayElement(string name, BSONElement[] value)
-      : base(name.NonNull(text: "name"), value.NonNull(text: "value"))
+      : base(name.NonNull(nameof(name)), value.NonNull(nameof(value)))
     {
     }
 
@@ -75,7 +75,7 @@ namespace Azos.Serialization.BSON
 
     protected internal override void WriteValueToStream(Stream stream)
     {
-      //Arrays are writen as surrogated docuements
+      //Arrays are written as surrogated documents
       var valueSize = getValueByteSize(false);
       BinUtils.WriteInt32(stream, valueSize);
       for (int i = 0; i < Value.Length; i++)
@@ -116,11 +116,11 @@ namespace Azos.Serialization.BSON
     /// <summary>
     /// Creates an array element
     /// </summary>
-    public BSONDocumentElement(BSONDocument value) : base(null, value.NonNull(text: "value"))
+    public BSONDocumentElement(BSONDocument value) : base(null, value.NonNull(nameof(value)))
     {
     }
 
-    public BSONDocumentElement(string name, BSONDocument value) : base(name.NonNull(text: "name"), value.NonNull(text: "value"))
+    public BSONDocumentElement(string name, BSONDocument value) : base(name.NonNull(nameof(name)), value.NonNull(nameof(value)))
     {
     }
 
@@ -154,11 +154,11 @@ namespace Azos.Serialization.BSON
     /// <summary>
     /// Creates an array element
     /// </summary>
-    public BSONStringElement(string value) : base(null, value.NonNull(text: "value"))
+    public BSONStringElement(string value) : base(null, value.NonNull(nameof(value)))
     {
     }
 
-    public BSONStringElement(string name, string value) : base(name.NonNull(text: "name"), value.NonNull(text: "value"))
+    public BSONStringElement(string name, string value) : base(name.NonNull(nameof(name)), value.NonNull(nameof(value)))
     {
     }
 
@@ -202,7 +202,7 @@ namespace Azos.Serialization.BSON
     {
     }
 
-    public BSONInt32Element(string name, Int32 value) : base(name.NonNull(text: "name"), value)
+    public BSONInt32Element(string name, Int32 value) : base(name.NonNull(nameof(name)), value)
     {
     }
 
@@ -381,7 +381,7 @@ namespace Azos.Serialization.BSON
     {
     }
 
-    public BSONDoubleElement(string name, double value) : base(name.NonNull(text: "name"), value)
+    public BSONDoubleElement(string name, double value) : base(name.NonNull(nameof(name)), value)
     {
     }
 
@@ -416,7 +416,7 @@ namespace Azos.Serialization.BSON
     {
     }
 
-    public BSONInt64Element(string name, Int64 value) : base(name.NonNull(text: "name"), value)
+    public BSONInt64Element(string name, Int64 value) : base(name.NonNull(nameof(name)), value)
     {
     }
 
@@ -460,7 +460,7 @@ namespace Azos.Serialization.BSON
     {
     }
 
-    public BSONObjectIDElement(string name, BSONObjectID value) : base(name.NonNull(text: "name"), value)
+    public BSONObjectIDElement(string name, BSONObjectID value) : base(name.NonNull(nameof(name)), value)
     {
     }
 
@@ -497,7 +497,7 @@ namespace Azos.Serialization.BSON
     {
     }
 
-    public BSONBinaryElement(string name, BSONBinary value) : base(name.NonNull(text: "name"), value)
+    public BSONBinaryElement(string name, BSONBinary value) : base(name.NonNull(nameof(name)), value)
     {
     }
 
@@ -540,11 +540,11 @@ namespace Azos.Serialization.BSON
     /// <summary>
     /// Creates an array element
     /// </summary>
-    public BSONJavaScriptElement(string value) : base(null, value.NonNull(text: "value"))
+    public BSONJavaScriptElement(string value) : base(null, value.NonNull(nameof(value)))
     {
     }
 
-    public BSONJavaScriptElement(string name, string value) : base(name.NonNull(text: "name"), value.NonNull(text: "value"))
+    public BSONJavaScriptElement(string name, string value) : base(name.NonNull(nameof(name)), value.NonNull(nameof(value)))
     {
     }
 
@@ -588,7 +588,7 @@ namespace Azos.Serialization.BSON
     {
     }
 
-    public BSONJavaScriptWithScopeElement(string name, BSONCodeWithScope value) : base(name.NonNull(text: "name"), value)
+    public BSONJavaScriptWithScopeElement(string name, BSONCodeWithScope value) : base(name.NonNull(nameof(name)), value)
     {
     }
 
@@ -684,7 +684,7 @@ namespace Azos.Serialization.BSON
   {
     public BSONMinKeyElement(): base((string)null){}
 
-    public BSONMinKeyElement(string name) :base(name.NonNull(text: "name")){}
+    public BSONMinKeyElement(string name) :base(name.NonNull(nameof(name))){}
 
     internal BSONMinKeyElement(Stream stream) : base(stream)
     {
@@ -717,7 +717,7 @@ namespace Azos.Serialization.BSON
   {
     public BSONMaxKeyElement(): base((string)null){}
 
-    public BSONMaxKeyElement(string name) :base(name.NonNull(text: "name"))
+    public BSONMaxKeyElement(string name) :base(name.NonNull(nameof(name)))
     {
     }
 
@@ -754,7 +754,7 @@ namespace Azos.Serialization.BSON
     {
     }
 
-    public BSONNullElement(string name) : base(name.NonNull(text: "name"))
+    public BSONNullElement(string name) : base(name.NonNull(nameof(name)))
     {
     }
 

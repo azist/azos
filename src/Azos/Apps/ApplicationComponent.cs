@@ -89,7 +89,7 @@ namespace Azos.Apps
       {
       }
 
-      protected ApplicationComponent(IApplicationComponent director) : this(director.NonNull(text: nameof(director)).App, director)
+      protected ApplicationComponent(IApplicationComponent director) : this(director.NonNull(nameof(director)).App, director)
       {
 
       }
@@ -303,7 +303,7 @@ namespace Azos.Apps
     #region .pvt
       private static Dictionary<ulong, ApplicationComponent> getComponentsOf(IApplication app)
       {
-        app.NonNull(text: nameof(app));
+        app.NonNull(nameof(app));
         if (s_Instances.TryGetValue(app, out var result)) return result;
         return null;
       }

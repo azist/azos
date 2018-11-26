@@ -18,13 +18,13 @@ namespace Azos.Glue
     protected EndPoint(IGlue glue) //used by conf
     {
         m_Glue = glue as IGlueImplementation;
-        m_Glue.NonNull(text: "glue");
+        m_Glue.NonNull(nameof(glue));
     }
 
     protected EndPoint(IGlue glue, Node node, Binding binding)
     {
       m_Glue = glue as IGlueImplementation;
-      m_Glue.NonNull(text: "glue");
+      m_Glue.NonNull(nameof(glue));
 
       m_Node = node;
       m_Binding = binding ?? m_Glue.GetNodeBinding(node);

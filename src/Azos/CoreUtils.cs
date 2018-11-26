@@ -61,9 +61,7 @@ namespace Azos
     /// Checks the value for null and throws exception if it is.
     /// The method is useful for .ctor call chaining to preclude otherwise anonymous NullReferenceException
     /// </summary>
-    public static T NonNull<T>(this T obj,
-                               Func<Exception> error = null,
-                               string text = null) where T : class
+    public static T NonNull<T>(this T obj, Func<Exception> error = null, string name = null) where T : class
     {
       if (obj == null)
       {
@@ -71,9 +69,22 @@ namespace Azos
           throw error();
         else
           throw new AzosException(StringConsts.PARAMETER_MAY_NOT_BE_NULL_ERROR
-                                             .Args(text ?? CoreConsts.UNKNOWN,
+                                             .Args(name ?? CoreConsts.UNKNOWN,
                                                    new StackTrace(1, false).ToString()));
       }
+      return obj;
+    }
+
+    /// <summary>
+    /// Checks the value for null and throws exception if it is.
+    /// The method is useful for .ctor call chaining to preclude otherwise anonymous NullReferenceException
+    /// </summary>
+    public static T NonNull<T>(this T obj, string name) where T : class
+    {
+      if (obj == null)
+         throw new AzosException(StringConsts.PARAMETER_MAY_NOT_BE_NULL_ERROR
+                                             .Args(name ?? CoreConsts.UNKNOWN,
+                                                   new StackTrace(1, false).ToString()));
       return obj;
     }
 

@@ -33,7 +33,7 @@ namespace Azos.Wave
         m_Order = order;
       }
 
-      protected WorkFilter(WorkHandler handler, string name, int order) : this(handler.NonNull(text: ".ctor(handler==null)").Dispatcher, name, order)
+      protected WorkFilter(WorkHandler handler, string name, int order) : this(handler.NonNull(name: ".ctor(handler==null)").Dispatcher, name, order)
       {
         m_Handler = handler;
         this.__setComponentDirector(handler);
@@ -54,7 +54,7 @@ namespace Azos.Wave
          throw new WaveException(StringConsts.ARGUMENT_ERROR + GetType().FullName+".ctor(confNode$name==null|empty)");
       }
 
-      protected WorkFilter(WorkHandler handler, IConfigSectionNode confNode) : this(handler.NonNull(text: ".ctor(handler==null)").Dispatcher, confNode)
+      protected WorkFilter(WorkHandler handler, IConfigSectionNode confNode) : this(handler.NonNull(name: ".ctor(handler==null)").Dispatcher, confNode)
       {
         m_Handler = handler;
         this.__setComponentDirector(handler);

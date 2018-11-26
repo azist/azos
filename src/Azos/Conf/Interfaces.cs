@@ -301,11 +301,12 @@ namespace Azos.Conf
           ///  when instance of this class has been registered with the application using IApplication.RegisterConfigSettings().
           /// Warning: the implementation must be thread-safe and allow getters to keep reading while notification happens
           /// </summary>
+          /// <param name="application">Application which is sending the change</param>
           /// <param name="atNode">
           /// Passes the most top-level node that covers all of the changes that happened in the source config system.
           /// Usually this is a root config node. The capability of source config change detection on node level is not supported by all providers
           /// </param>
-          void ConfigChanged(IConfigSectionNode atNode);
+          void ConfigChanged(IApplication application, IConfigSectionNode atNode);
       }
 
 

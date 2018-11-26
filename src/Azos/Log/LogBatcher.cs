@@ -58,7 +58,7 @@ namespace Azos.Log
 
     protected LogBatcher(ILog log)
     {
-      Log = log.NonNull(text: nameof(log));
+      Log = log.NonNull(nameof(log));
     }
 
     protected sealed override void Destructor()

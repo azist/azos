@@ -14,7 +14,7 @@ namespace Azos.Sky.Coordination
       : this(null, area, name)
     { }
 
-    public MDBShardWorkSet(string path, MdbArea area, string name = null) : base(path, "{0}.{1}".Args(area.NonNull(text: "area==null)").Name, name))
+    public MDBShardWorkSet(string path, MdbArea area, string name = null) : base(path, "{0}.{1}".Args(area.NonNull(nameof(area)).Name, name))
     {
       Area = area;
       Touch();

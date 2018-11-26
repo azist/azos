@@ -28,7 +28,7 @@ namespace Azos.IO.Net.Gate
          }
 
          public VarDef(IConfigSectionNode node)
-                  : this(node.NonNull(text: "VarDef.ctor(node==null)").AttrByName(Configuration.CONFIG_NAME_ATTR).Value)
+                  : this(node.NonNull("VarDef.ctor(node==null)").AttrByName(Configuration.CONFIG_NAME_ATTR).Value)
          {
            ConfigAttribute.Apply(this, node);
          }

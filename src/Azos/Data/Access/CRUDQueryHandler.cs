@@ -24,7 +24,7 @@ namespace Azos.Data.Access
       m_Name = name;
     }
 
-    protected CRUDQueryHandler(ICRUDDataStore store, QuerySource source) : this(store, source.NonNull().Name)
+    protected CRUDQueryHandler(ICRUDDataStore store, QuerySource source) : this(store, source.NonNull(nameof(source)).Name)
     {
       Source = source;
     }
