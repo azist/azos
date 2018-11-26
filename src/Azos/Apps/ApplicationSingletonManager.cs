@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Azos.Apps
@@ -110,4 +111,20 @@ namespace Azos.Apps
     public IEnumerator<object> GetEnumerator() => ((IEnumerable<object>)m_Instances).GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => m_Instances.GetEnumerator();
   }
+
+
+  /// <summary>
+  /// Implements IApplicationSingletonManager by doing nothing
+  /// </summary>
+  public sealed class NOPApplicationSingletonManager : DisposableObject, IApplicationSingletonManager
+  {
+    public T Get<T>() where T : class => null;
+    public (T instance, bool created) GetOrCreate<T>(Func<T> factory) where T : class => (null, false);
+    public bool Remove<T>() where T : class => false;
+
+    public IEnumerator<object> GetEnumerator() => Enumerable.Empty<object>().GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => Enumerable.Empty<object>().GetEnumerator();
+  }
+
+
 }

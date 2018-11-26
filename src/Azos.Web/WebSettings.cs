@@ -45,7 +45,7 @@ namespace Azos.Web
     #endregion
 
     #region .ctor and static
-
+    
       private WebSettings() {}
 
       private static WebSettings s_Instance = new WebSettings();

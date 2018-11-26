@@ -38,6 +38,7 @@ namespace Azos.Apps
         m_CommandArgsConfiguration.Create();
 
         m_StartTime = DateTime.Now;
+        m_Singletons = new NOPApplicationSingletonManager();
         m_Realm = new ApplicationRealmBase(this);
 
         m_Log = new NOPLog(this);
@@ -48,7 +49,7 @@ namespace Azos.Apps
         m_SecurityManager = new NOPSecurityManager(this);
         m_Module = new NOPModule(this);
         m_TimeSource = new DefaultTimeSource(this);
-        m_EventTimer = new EventTimer(this);;
+        m_EventTimer = new EventTimer(this);
     }
 
 
@@ -66,6 +67,7 @@ namespace Azos.Apps
     private DateTime m_StartTime;
     private MemoryConfiguration m_Configuration;
     private MemoryConfiguration m_CommandArgsConfiguration;
+    private IApplicationSingletonManager m_Singletons;
     private IApplicationRealmImplementation m_Realm;
     private ILog               m_Log;
     private IInstrumentation   m_Instrumentation;
@@ -119,6 +121,8 @@ namespace Azos.Apps
         /// Enumerates all components of this application
         /// </summary>
         public IEnumerable<IApplicationComponent> AllComponents => ApplicationComponent.AllComponents(this);
+
+        public IApplicationSingletonManager Singletons => m_Singletons;
 
         public ILog Log => m_Log;
 

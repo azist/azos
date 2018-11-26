@@ -34,6 +34,7 @@ namespace Azos.Apps
         {
             this.ConfigRoot = cfgRoot;
 
+            Singletons = new ApplicationSingletonManager();
             Active = true;
             StartTime = DateTime.Now;
             Log = new NOPLog(this);
@@ -54,6 +55,7 @@ namespace Azos.Apps
 
         protected override void Destructor()
         {
+#warning Why do we not deallocate here all stuff allocated in ctor?
             Apps.ExecutionContext.__UnbindApplication(this);
         }
 
@@ -119,6 +121,7 @@ namespace Azos.Apps
         }
 
 
+        public IApplicationSingletonManager Singletons { get; set; }
 
         public virtual IDataStore DataStore { get; set; }
 
