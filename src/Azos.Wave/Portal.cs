@@ -21,126 +21,117 @@ namespace Azos.Wave
   /// Represents a web portal that controls the mapping of types and themes within the site.
   /// Portals allow to host differently-looking/behaving sites in the same web application
   /// </summary>
-  public abstract class Portal : ApplicationComponent, INamed, IInstrumentable
+  public abstract class Portal : ApplicationComponent<PortalHub>, INamed, IInstrumentable
   {
     #region CONSTS
-      public const string CONFIG_THEME_SECTION = "theme";
-      public const string CONFIG_LOCALIZATION_SECTION = "localization";
-      public const string CONFIG_CONTENT_SECTION = "content";
-      public const string CONFIG_RECORD_MODEL_SECTION = "record-model-generator";
+    public const string CONFIG_THEME_SECTION = "theme";
+    public const string CONFIG_LOCALIZATION_SECTION = "localization";
+    public const string CONFIG_CONTENT_SECTION = "content";
+    public const string CONFIG_RECORD_MODEL_SECTION = "record-model-generator";
 
-      public const string CONFIG_MSG_FILE_ATTR = "msg-file";
-      public const string LOC_ANY_SCHEMA_KEY = "--ANY-SCHEMA--";
-      public const string LOC_ANY_FIELD_KEY = "--ANY-FIELD--";
+    public const string CONFIG_MSG_FILE_ATTR = "msg-file";
+    public const string LOC_ANY_SCHEMA_KEY = "--ANY-SCHEMA--";
+    public const string LOC_ANY_FIELD_KEY = "--ANY-FIELD--";
 
-      public const string CONFIG_DESCR_ATTR = "description";
-      public const string CONFIG_DISPLAY_NAME_ATTR = "display-name";
-      public const string CONFIG_OFFLINE_ATTR = "offline";
-      public const string CONFIG_DEFAULT_ATTR = "default";
-      public const string CONFIG_PRIMARY_ROOT_URI_ATTR = "primary-root-uri";
-      public const string CONFIG_PARENT_NAME_ATTR = "parent-name";
+    public const string CONFIG_DESCR_ATTR = "description";
+    public const string CONFIG_DISPLAY_NAME_ATTR = "display-name";
+    public const string CONFIG_OFFLINE_ATTR = "offline";
+    public const string CONFIG_DEFAULT_ATTR = "default";
+    public const string CONFIG_PRIMARY_ROOT_URI_ATTR = "primary-root-uri";
+    public const string CONFIG_PARENT_NAME_ATTR = "parent-name";
     #endregion
 
     #region Inner Types
 
-      public enum MoneyFormat{WithCurrencySymbol, WithoutCurrencySymbol}
+    public enum MoneyFormat{WithCurrencySymbol, WithoutCurrencySymbol}
 
-      public enum DateTimeFormat{ShortDate, LongDate, ShortDateTime, LongDateTime, ShortDayMonth}
+    public enum DateTimeFormat{ShortDate, LongDate, ShortDateTime, LongDateTime, ShortDayMonth}
 
     #endregion
 
     #region .ctor
-      /// <summary>
-      /// Makes portal from config.
-      /// Due to the nature of Portal object there is no need to create other parametrized ctors
-      /// </summary>
-      protected Portal(IConfigSectionNode conf) : base(PortalHub.Instance)
+    /// <summary>
+    /// Makes portal from config.
+    /// Due to the nature of Portal object there is no need to create other parametrized .ctors
+    /// </summary>
+    protected Portal(PortalHub portalHub, IConfigSectionNode conf) : base(portalHub)
+    {
+      const string PORTAL = "portal";
+
+      m_Name = conf.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
+      if (m_Name.IsNullOrWhiteSpace())
       {
-        const string PORTAL = "portal";
-
-        m_Name = conf.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
-        if (m_Name.IsNullOrWhiteSpace())
-        {
-          m_Name = this.GetType().Name;
-          if (m_Name.EndsWith(PORTAL, StringComparison.OrdinalIgnoreCase) && m_Name.Length>PORTAL.Length)
-           m_Name = m_Name.Substring(0, m_Name.Length-PORTAL.Length);
-        }
-
-        //Register with the Hub
-        if (!PortalHub.Instance.m_Portals.Register( this ))
-          throw new WaveException(StringConsts.PORTAL_HUB_INSTANCE_ALREADY_CONTAINS_PORTAL_ERROR.Args(m_Name));
-
-
-
-        m_Description = conf.AttrByName(CONFIG_DESCR_ATTR).ValueAsString(m_Name);
-        m_Offline = conf.AttrByName(CONFIG_OFFLINE_ATTR).ValueAsBool(false);
-        m_Default = conf.AttrByName(CONFIG_DEFAULT_ATTR).ValueAsBool(false);
-
-        var puri = conf.AttrByName(CONFIG_PRIMARY_ROOT_URI_ATTR).Value;
-
-        try{ m_PrimaryRootUri = new Uri(puri, UriKind.Absolute); }
-        catch(Exception error)
-        {
-          throw new WaveException(StringConsts.CONFIG_PORTAL_ROOT_URI_ERROR.Args(m_Name, error.ToMessageWithType()), error);
-        }
-
-        m_DisplayName = conf.AttrByName(CONFIG_DISPLAY_NAME_ATTR).Value;
-
-        if (m_DisplayName.IsNullOrWhiteSpace())
-          m_DisplayName = m_PrimaryRootUri.ToString();
-
-        m_Themes = new Registry<Theme>();
-        var nthemes = conf.Children.Where(c => c.IsSameName(CONFIG_THEME_SECTION));
-        foreach(var ntheme in nthemes)
-        {
-          var theme = FactoryUtils.Make<Theme>(ntheme, args: new object[]{this, ntheme});
-          if(!m_Themes.Register(theme))
-            throw new WaveException(StringConsts.CONFIG_PORTAL_DUPLICATE_THEME_NAME_ERROR.Args(theme.Name, m_Name));
-        }
-
-        if (m_Themes.Count==0)
-          throw new WaveException(StringConsts.CONFIG_PORTAL_NO_THEMES_ERROR.Args(m_Name));
-
-        m_DefaultTheme = m_Themes.FirstOrDefault(t => t.Default);
-        if (m_DefaultTheme==null)
-          throw new WaveException(StringConsts.CONFIG_PORTAL_NO_DEFAULT_THEME_ERROR.Args(m_Name));
-
-        m_ParentName = conf.AttrByName(CONFIG_PARENT_NAME_ATTR).Value;
-
-        ConfigAttribute.Apply(this, conf);
-
-        m_LocalizableContent = new Dictionary<string,string>(GetLocalizableContent(), StringComparer.InvariantCultureIgnoreCase);
-        foreach(var atr in conf[CONFIG_LOCALIZATION_SECTION][CONFIG_CONTENT_SECTION].Attributes)
-         m_LocalizableContent[atr.Name] = atr.Value;
-
-        var gen = conf[CONFIG_RECORD_MODEL_SECTION];
-        m_RecordModelGenerator = FactoryUtils.Make<Client.RecordModelGenerator>(gen,
-                                                                                typeof(Client.RecordModelGenerator),
-                                                                                new object[]{gen});
-
-        m_RecordModelGenerator.ModelLocalization += recGeneratorLocalization;
-
-        m_LocalizationData = conf[CONFIG_LOCALIZATION_SECTION];
-        var msgFile = m_LocalizationData.AttrByName(CONFIG_MSG_FILE_ATTR).Value;
-        if (msgFile.IsNotNullOrWhiteSpace())
-        try
-        {
-           m_LocalizationData = Configuration.ProviderLoadFromFile(msgFile).Root;
-        }
-        catch(Exception fileError)
-        {
-           throw new WaveException(StringConsts.CONFIG_PORTAL_LOCALIZATION_FILE_ERROR.Args(m_Name, msgFile, fileError.ToMessageWithType()), fileError);
-        }
-      }//.ctor
-
-      protected override void Destructor()
-      {
-        var hub = PortalHub.s_Instance;
-        if (hub!=null)
-          hub.m_Portals.Unregister( this );
-
-        base.Destructor();
+        m_Name = this.GetType().Name;
+        if (m_Name.EndsWith(PORTAL, StringComparison.OrdinalIgnoreCase) && m_Name.Length>PORTAL.Length)
+          m_Name = m_Name.Substring(0, m_Name.Length-PORTAL.Length);
       }
+
+      m_Description = conf.AttrByName(CONFIG_DESCR_ATTR).ValueAsString(m_Name);
+      m_Offline = conf.AttrByName(CONFIG_OFFLINE_ATTR).ValueAsBool(false);
+      m_Default = conf.AttrByName(CONFIG_DEFAULT_ATTR).ValueAsBool(false);
+
+      var puri = conf.AttrByName(CONFIG_PRIMARY_ROOT_URI_ATTR).Value;
+
+      try{ m_PrimaryRootUri = new Uri(puri, UriKind.Absolute); }
+      catch(Exception error)
+      {
+        throw new WaveException(StringConsts.CONFIG_PORTAL_ROOT_URI_ERROR.Args(m_Name, error.ToMessageWithType()), error);
+      }
+
+      m_DisplayName = conf.AttrByName(CONFIG_DISPLAY_NAME_ATTR).Value;
+
+      if (m_DisplayName.IsNullOrWhiteSpace())
+        m_DisplayName = m_PrimaryRootUri.ToString();
+
+      m_Themes = new Registry<Theme>();
+      var nthemes = conf.Children.Where(c => c.IsSameName(CONFIG_THEME_SECTION));
+      foreach(var ntheme in nthemes)
+      {
+        var theme = FactoryUtils.Make<Theme>(ntheme, args: new object[]{this, ntheme});
+        if(!m_Themes.Register(theme))
+          throw new WaveException(StringConsts.CONFIG_PORTAL_DUPLICATE_THEME_NAME_ERROR.Args(theme.Name, m_Name));
+      }
+
+      if (m_Themes.Count==0)
+        throw new WaveException(StringConsts.CONFIG_PORTAL_NO_THEMES_ERROR.Args(m_Name));
+
+      m_DefaultTheme = m_Themes.FirstOrDefault(t => t.Default);
+      if (m_DefaultTheme==null)
+        throw new WaveException(StringConsts.CONFIG_PORTAL_NO_DEFAULT_THEME_ERROR.Args(m_Name));
+
+      m_ParentName = conf.AttrByName(CONFIG_PARENT_NAME_ATTR).Value;
+
+      ConfigAttribute.Apply(this, conf);
+
+      m_LocalizableContent = new Dictionary<string,string>(GetLocalizableContent(), StringComparer.InvariantCultureIgnoreCase);
+      foreach(var atr in conf[CONFIG_LOCALIZATION_SECTION][CONFIG_CONTENT_SECTION].Attributes)
+        m_LocalizableContent[atr.Name] = atr.Value;
+
+      var gen = conf[CONFIG_RECORD_MODEL_SECTION];
+      m_RecordModelGenerator = FactoryUtils.Make<Client.RecordModelGenerator>(gen,
+                                                                              typeof(Client.RecordModelGenerator),
+                                                                              new object[]{gen});
+
+      m_RecordModelGenerator.ModelLocalization += recGeneratorLocalization;
+
+      m_LocalizationData = conf[CONFIG_LOCALIZATION_SECTION];
+      var msgFile = m_LocalizationData.AttrByName(CONFIG_MSG_FILE_ATTR).Value;
+      if (msgFile.IsNotNullOrWhiteSpace())
+      try
+      {
+          m_LocalizationData = Configuration.ProviderLoadFromFile(msgFile).Root;
+      }
+      catch(Exception fileError)
+      {
+          throw new WaveException(StringConsts.CONFIG_PORTAL_LOCALIZATION_FILE_ERROR.Args(m_Name, msgFile, fileError.ToMessageWithType()), fileError);
+      }
+    }//.ctor
+
+    protected override void Destructor()
+    {
+      //nothing on this level
+      base.Destructor();
+    }
 
     #endregion
 
@@ -169,6 +160,8 @@ namespace Azos.Wave
 
 
     #region Properties
+
+      public override string ComponentLogTopic => CoreConsts.WEB_TOPIC;
 
       /// <summary>
       /// Globally-unique portal name/ID
@@ -231,7 +224,7 @@ namespace Azos.Wave
       public Theme DefaultTheme{ get{ return m_DefaultTheme;}}
 
       /// <summary>
-      /// Themes tha this portal supports
+      /// Themes that this portal supports
       /// </summary>
       public IRegistry<Theme> Themes{ get{ return m_Themes;} }
 
@@ -260,7 +253,7 @@ namespace Azos.Wave
           var depth = 0;
           while(portal.m_ParentName.IsNotNullOrWhiteSpace())
           {
-            portal = PortalHub.Instance.Portals[m_ParentName];
+            portal = ComponentDirector.Portals[m_ParentName];
             if (portal==null)
               throw new WaveException(StringConsts.PORTAL_PARENT_INVALID_ERROR.Args(this.Name, this.m_ParentName));
 
@@ -321,7 +314,7 @@ namespace Azos.Wave
       /// </param>
       public virtual CMS.ICMSContext GetCMSContext(Azos.IO.FileSystem.IFileSystemVersion version = null)
       {
-        return PortalHub.Instance.CMSBank.GetContext(this, version);
+        return ComponentDirector.CMSBank.GetContext(this, version);
       }
 
       /// <summary>
@@ -439,7 +432,7 @@ namespace Azos.Wave
       /// </summary>
       public virtual bool ExternalGetParameter(string name, out object value, params string[] groups)
       {
-          return ExternalParameterAttribute.GetParameter(this, name, out value, groups);
+          return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
       }
 
       /// <summary>
@@ -447,7 +440,7 @@ namespace Azos.Wave
       /// </summary>
       public virtual bool ExternalSetParameter(string name, object value, params string[] groups)
       {
-        return ExternalParameterAttribute.SetParameter(this, name, value, groups);
+        return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
       }
 
       public override string ToString()
@@ -501,12 +494,20 @@ namespace Azos.Wave
         //Use this to find out what strings need translation
         if (DumpLocalizationErrors && !exists)
         {
+            var pars = (new { iso = isoLang, sch = schema, fld = field, val = value }).ToJSON();
+            //1. emit component-level log
+            var guid = WriteLog(MessageType.InfoZ,
+                     nameof(DoLocalizeRecordModel),
+                     "Need localization", pars: pars);
+
+            //2. emit app level warning under localization
             App.Log.Write( new Message{
-              Type = MessageType.InfoZ,
-              From = "lookup",
+              Type = MessageType.Warning,
+              From = "{0}.{1}".Args(GetType().Name, nameof(DoLocalizeRecordModel)),
               Topic = CoreConsts.LOCALIZATION_TOPIC,
               Text = "Need localization",
-              Parameters = (new {iso = isoLang, sch = schema, fld = field, val = value }).ToJSON()
+              Parameters = pars,
+              RelatedTo = guid
             });
         }
 

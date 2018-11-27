@@ -36,12 +36,12 @@ namespace Azos.IO.FileSystem.SVN
 
     #region .ctor
 
-    public SVNFileSystem(IApplication app, string name) : base(app, name)
+    public SVNFileSystem(IApplication app) : base(app)
     {
       app.RequireInitilizedServicePointManager();
     }
 
-    public SVNFileSystem(IApplicationComponent director, string name) : base(director, name)
+    public SVNFileSystem(IApplicationComponent director) : base(director)
     {
       App.RequireInitilizedServicePointManager();
     }

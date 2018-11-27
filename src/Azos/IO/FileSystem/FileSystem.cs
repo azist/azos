@@ -41,14 +41,12 @@ namespace Azos.IO.FileSystem
 
         #region .ctor
 
-        protected FileSystem(IApplication app, string name) : base(app) => ctor(name);
-        protected FileSystem(IApplicationComponent director, string name) : base(director) => ctor(name);
+        protected FileSystem(IApplication app) : base(app) => ctor();
+        protected FileSystem(IApplicationComponent director) : base(director) => ctor();
 
-        private void ctor(string name)
+        private void ctor()
         {
           m_Sessions = new List<FileSystemSession>();
-          if (name.IsNullOrWhiteSpace()) name = Guid.NewGuid().ToString();
-          m_Name = name;
         }
 
         protected override void Destructor()
@@ -62,7 +60,7 @@ namespace Azos.IO.FileSystem
 
         #region Fields
 
-          [Config] protected string m_Name = Guid.NewGuid().ToString();
+          [Config] protected string m_Name;
           protected internal List<FileSystemSession> m_Sessions;
 
           private FileSystemSessionConnectParams m_DefaultSessionConnectParams = new FileSystemSessionConnectParams();
@@ -73,9 +71,9 @@ namespace Azos.IO.FileSystem
           public override string ComponentLogTopic => CoreConsts.IO_TOPIC;
 
           /// <summary>
-          /// Provides name for file system instance
+          /// Provides name for the file system instance
           /// </summary>
-          public string Name { get { return m_Name; } }
+          public string Name =>  m_Name.IsNullOrWhiteSpace() ? (m_Name = Guid.NewGuid().ToString()) : m_Name;
 
 
           /// <summary>

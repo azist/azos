@@ -107,7 +107,7 @@ namespace Azos.Apps
     private string m_Name;
     private bool m_AllowNesting;
 
-    private volatile bool m_ShutdownStarted;
+    protected volatile bool m_ShutdownStarted;
     private volatile bool m_Stopping;
 
     protected IApplicationRealmImplementation m_Realm;

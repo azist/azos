@@ -28,7 +28,8 @@ namespace Azos.Apps
 
     /// <summary>
     /// Tries to get a singleton instance if it exists, if does not then calls a factory and
-    /// sets under thread-safe lock. Returns a tuple of (T, bool) later set to true if factory was invoked
+    /// sets under thread-safe lock. Returns a tuple of (T, bool) later set to true if factory was invoked.
+    /// If factory call returns null, the whole Create is canceled (as-if only Get() was called)
     /// </summary>
     (T instance, bool created) GetOrCreate<T>(System.Func<T> factory) where T : class;
 
@@ -83,6 +84,8 @@ namespace Azos.Apps
         if (factory==null) return (null, false);
 
         T newInstance = factory();
+
+        if (newInstance==null) return (null, false);
 
         var dict = new Dictionary<Type, object>(m_Instances);
         dict.Add(tp, newInstance);

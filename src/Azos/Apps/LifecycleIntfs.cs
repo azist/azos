@@ -5,9 +5,9 @@
 </FILE_LICENSE>*/
 
 
-//todo: Replace with modules, no need for this anymore
 namespace Azos.Apps
 {
+#warning Replace with modules, no need for this anymore
     /// <summary>
     /// Represents an entity that performs work on application start.
     /// This entity must be either invoked directly or declared in config file under "starters" section
@@ -26,6 +26,7 @@ namespace Azos.Apps
     }
 
 
+#warning Needs review, is this needed anymore?
     /// <summary>
     /// Represents an entity that can get notified about application finish
     /// </summary>

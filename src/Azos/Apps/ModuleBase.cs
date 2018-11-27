@@ -67,7 +67,7 @@ namespace Azos.Apps
 
     public Collections.IOrderedRegistry<IModule> ChildModules { get{ return m_Children;} }
 
-    public string Name  => m_Name.IsNotNullOrWhiteSpace() ? m_Name : GetType().FullName;
+    public virtual string Name  => m_Name.IsNotNullOrWhiteSpace() ? m_Name : GetType().FullName;
 
 #warning Add Unit test for creating modules declared out-of order t make sure that this property works as expected
     public int Order { get{ return m_Order;} }

@@ -140,8 +140,7 @@ namespace Azos.Wave
       public const string CONFIG_PORTAL_THEME_NO_NAME_ERROR =  "Portal '{0}' configures a theme that has no name defined";
 
 
-      public const string PORTAL_HUB_INSTANCE_IS_NOT_AVAILABLE_ERROR = "Portal hub instance is not available";
-      public const string PORTAL_HUB_INSTANCE_IS_ALREADY_AVAILABLE_ERROR = "Portal hub instance is already available";
+      public const string CONFIG_PORTAL_HUB_DUPLICATE_INSTANCE_ERROR = "PortalHub module is already loaded in the app context. Check app module configuration";
 
       public const string CONFIG_PORTAL_HUB_NODE_ERROR = "Portal hub config node is null or !exists";
 
@@ -149,7 +148,7 @@ namespace Azos.Wave
 
       public const string CONFIG_CMS_BANK_FS_ROOT_PATH_ERROR = "CMSBank content file system '{0}' section root path attribute '{1}' is required";
 
-      public const string PORTAL_HUB_INSTANCE_ALREADY_CONTAINS_PORTAL_ERROR = "Portal hub instance already has portal '{0}' registered";
+      public const string PORTAL_HUB_MODULE_ALREADY_CONTAINS_PORTAL_ERROR = "Portal hub module already has portal '{0}' registered. Check portal names for duplicates under portal hub module config section";
 
       public const string PORTAL_PARENT_DEPTH_ERROR = "Portal '{0}' point to parent portal '{1}' which exceeds max depths of {2}";
 

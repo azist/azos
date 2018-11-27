@@ -13,79 +13,61 @@ using Azos.IO.FileSystem;
 
 namespace Azos.Wave
 {
-  /// <summary>
-  /// Portal hub - a registry of portals, It establishes a context for portal inter-operation (i.e. so one portal may locate another one by name)
-  ///  when some settings need to be cloned. This is an app-started singleton instance class
-  /// </summary>
-  public sealed class PortalHub : ApplicationComponent, IApplicationStarter, IApplicationFinishNotifiable
+  /// <summary>PortalHub accessor extensions of application </summary>
+  public static class PortalHubExtensions
   {
+    /// <summary>
+    /// Provides shortcut for PortalHub module access of application context
+    /// </summary>
+    public static PortalHub PortalHub(this IApplication app) => app.NonNull(nameof(app)).ModuleRoot.Get<PortalHub>(Wave.PortalHub.APP_MODULE_NAME);
+  }
+
+  /// <summary>
+  /// Portal hub module provides a root registry of portals per application -
+  /// it establishes a context for portal inter-operation (i.e. so one portal may locate another one by name)
+  ///  when some settings need to be inherited/cloned.
+  /// </summary>
+  /// <remarks>
+  /// PortalHub is a module which boots (created and configured) by application chassis along
+  /// with its all portal-children, emitting config errors at app boot time.
+  /// To test PortalHub - configure a test app container with PortalHub module injected at the app root
+  /// </remarks>
+  public sealed class PortalHub : ModuleBase
+  {
+    /// <summary>
+    /// An app-wide unique name for PortalHub module instance. There can be only one PortalHub
+    /// instance allocated in the app context
+    /// </summary>
+    public const string APP_MODULE_NAME = "@@@PortalHub";
     public const string CONFIG_PORTAL_SECTION = "portal";
     public const string CONFIG_CONTENT_FS_SECTION = "content-file-system";
     public const string CONFIG_FS_CONNECT_PARAMS_SECTION = "connect-params";
     public const string CONFIG_FS_ROOT_PATH_ATTR = "root-path";
-
     public const string CONFIG_CMS_BANK_SECTION = "cms-bank";
 
-    private static object s_Lock = new object();
-    internal static volatile PortalHub s_Instance;
 
-
-    /// <summary>
-    /// True if instance is allocated
-    /// </summary>
-    public static bool InstanceAvailable
+    internal PortalHub(IModule parentAppRootModule) : base(parentAppRootModule)
     {
-      get{ return s_Instance!=null;}
-    }
+      //check that there is no other instance of PortalHub allocated by configuration mistake
+      //in the child module (this is a safeguard and will never happen)
+      var singleton = App.Singletons.GetOrCreate<PortalHub>(() => this);
+      if (!singleton.created)
+        throw new WaveException(StringConsts.CONFIG_PORTAL_HUB_DUPLICATE_INSTANCE_ERROR);
 
-    /// <summary>
-    /// Returns singleton instance
-    /// </summary>
-    public static PortalHub Instance
-    {
-      get
-      {
-         var result = s_Instance;
-         if (result==null)
-           throw new WaveException(StringConsts.PORTAL_HUB_INSTANCE_IS_NOT_AVAILABLE_ERROR);
-
-         return result;
-      }
-    }
-
-    internal PortalHub() : base()
-    {
-      lock(s_Lock)
-      {
-        if (s_Instance!=null)
-             throw new WaveException(StringConsts.PORTAL_HUB_INSTANCE_IS_ALREADY_AVAILABLE_ERROR);
-
-        m_Portals = new Registry<Portal>(false);
-
-        s_Instance = this;
-      }
+      m_Portals = new Registry<Portal>(false);
     }
 
     protected override void Destructor()
     {
-      lock(s_Lock)
-      {
-        if (s_Instance != null)
-        {
-          s_Instance = null;
+      base.Destructor();
 
-          foreach(var portal in m_Portals)
-            portal.Dispose();
+      App.Singletons.Remove<PortalHub>();
 
-          DisposableObject.DisposeAndNull(ref m_ContentFS);
+      m_Portals.ForEach( p => p.Dispose() );
 
-          DisposableObject.DisposeAndNull(ref m_CMSBank);
-
-          base.Destructor();
-        }
-      }
+      DisposableObject.DisposeAndNull(ref m_ContentFS);
+      DisposableObject.DisposeAndNull(ref m_CMSBank);
     }
-
 
     private FileSystemSessionConnectParams m_ContentFSConnect;
     private FileSystem m_ContentFS;
@@ -95,69 +77,61 @@ namespace Azos.Wave
     internal Registry<Portal> m_Portals;
 
 
+    public sealed override string Name => APP_MODULE_NAME;//No other module may be called this name
+
+    public override bool IsHardcodedModule => false;
+    public override string ComponentLogTopic => CoreConsts.WEB_TOPIC;
+
     /// <summary>
     /// Registry of all portals in the hub
     /// </summary>
-    public IRegistry<Portal> Portals{ get{ return m_Portals;} }
-
+    public IRegistry<Portal> Portals => m_Portals;
 
     /// <summary>
     /// Returns file system that serves static content for portals
     /// </summary>
-    public IFileSystem ContentFileSystem{ get{ return m_ContentFS;}}
+    public IFileSystem ContentFileSystem => m_ContentFS;
 
     /// <summary>
     /// Returns the ICMSBank instance
     /// </summary>
-    public CMS.ICMSBank CMSBank{ get{ return m_CMSBank;} }
+    public CMS.ICMSBank CMSBank => m_CMSBank;
 
     /// <summary>
     /// Returns true if CMS is initializes with non-NOP CMS bank
     /// </summary>
     public bool CMSAvailable{ get{ return !(m_CMSBank is CMS.NOPCMSBank);} }
 
-    public FileSystemSessionConnectParams ContentFileSystemConnectParams{ get{ return m_ContentFSConnect;}}
+    public FileSystemSessionConnectParams ContentFileSystemConnectParams => m_ContentFSConnect;
 
     /// <summary>
     /// Returns root path for content file system
     /// </summary>
-    public string ContentFileSystemRootPath{ get{ return m_ContentFSRootPath;}}
+    public string ContentFileSystemRootPath => m_ContentFSRootPath ?? string.Empty;
 
     /// <summary>
     /// Returns first portal which is not Offline and marked as default
     /// </summary>
-    public Portal DefaultOnline
-    {
-      get
-      {
-        return m_Portals.FirstOrDefault(p => !p.Offline && p.Default);
-      }
-    }
+    public Portal DefaultOnline => m_Portals.FirstOrDefault(p => !p.Offline && p.Default);
 
 
-    bool IApplicationStarter.ApplicationStartBreakOnException { get { return true; } }
-
-    void IApplicationStarter.ApplicationStartBeforeInit(IApplication application) { }
-
-    void IApplicationStarter.ApplicationStartAfterInit(IApplication application)
-    {
-      application.RegisterAppFinishNotifiable(this);
-    }
-
-    void IConfigurable.Configure(IConfigSectionNode node)
+    protected override void DoConfigure(IConfigSectionNode node)
     {
       if (node==null || !node.Exists)
         throw new WaveException(StringConsts.CONFIG_PORTAL_HUB_NODE_ERROR);
 
       foreach(var cn in node.Children.Where(cn=>cn.IsSameName(CONFIG_PORTAL_SECTION)))
-        m_Portals.Register( FactoryUtils.Make<Portal>(cn, typeof(Portal), args: new object[]{ cn }));
+      {
+        var portal = FactoryUtils.MakeDirectedComponent<Portal>(this, cn, extraArgs: new [] { cn });
+        if (!m_Portals.Register( portal))
+          throw new WaveException(StringConsts.PORTAL_HUB_MODULE_ALREADY_CONTAINS_PORTAL_ERROR.Args(portal.Name));
+      }
+
 
       //Make File System
       var fsNode =  node[CONFIG_CONTENT_FS_SECTION];
 
-      m_ContentFS = FactoryUtils.MakeAndConfigure<FileSystem>(fsNode,
-                                                       typeof(Azos.IO.FileSystem.Local.LocalFileSystem),
-                                                       args: new object[]{GetType().Name, fsNode});
+      m_ContentFS = FactoryUtils.MakeAndConfigureDirectedComponent<FileSystem>(this, fsNode, typeof(IO.FileSystem.Local.LocalFileSystem));
       var fsPNode = fsNode[CONFIG_FS_CONNECT_PARAMS_SECTION];
 
       if (fsPNode.Exists)
@@ -186,14 +160,6 @@ namespace Azos.Wave
         m_CMSBank = CMS.NOPCMSBank.Instance;
     }
 
-    public string Name { get { return GetType().Name; } }
-
-    void IApplicationFinishNotifiable.ApplicationFinishBeforeCleanup(IApplication application)
-    {
-      Dispose();
-    }
-
-    void IApplicationFinishNotifiable.ApplicationFinishAfterCleanup(IApplication application) { }
 
     /// <summary>
     /// Generates file version path segment suitable for usage in file name.
@@ -225,10 +191,6 @@ namespace Azos.Wave
          var data = (ulong)sz << 32 | (ulong)csum.Value;
          return data.ToString("X").ToLowerInvariant();
        }
-
     }
-
-
   }//hub
-
 }

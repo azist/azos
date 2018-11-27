@@ -60,6 +60,7 @@ namespace Azos.Apps
 
     protected override void Destructor()
     {
+       m_ShutdownStarted = true;
        CleanupApplication();
        base.Destructor();
     }
