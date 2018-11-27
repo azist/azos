@@ -9,7 +9,6 @@ using System.Diagnostics;
 
 using Azos.Apps;
 using Azos.IO;
-using Azos.Conf;
 using Azos.Security;
 using Azos.Serialization.JSON;
 using Azos.Platform;
@@ -25,7 +24,7 @@ namespace Azos.Tools.Phash
           {
 
            using(var app = new ServiceBaseApplication(args, null))
-            run(app.CommandArgs);
+             run(app);
 
            System.Environment.ExitCode = 0;
           }
@@ -36,8 +35,9 @@ namespace Azos.Tools.Phash
           }
         }
 
-        private static void run(IConfigSectionNode args)
+        private static void run(IApplication app)
         {
+          var args = app.CommandArgs;
           var pretty = args["pp", "pretty"].Exists;
           var noEntropy = args["ne", "noentropy"].Exists;
           var scoreThreshold = args["st", "score"].AttrByIndex(0).ValueAsInt(80);
@@ -54,11 +54,11 @@ namespace Azos.Tools.Phash
           }
 
           ConsoleUtils.Info("Score Threshold: {0}%".Args(scoreThreshold));
-          ConsoleUtils.Info("Stength level: {0}".Args(strength));
+          ConsoleUtils.Info("Strength level: {0}".Args(strength));
 
           if (!noEntropy)
           {
-             var count = App.Random.NextScaledRandomInteger(47, 94);
+             var count = Ambient.Random.NextScaledRandomInteger(47, 94);
              ConsoleUtils.Info("Acquiring entropy from user...");
              Console.WriteLine();
              ConsoleUtils.WriteMarkupContent(
@@ -77,7 +77,7 @@ Do not hit the same key and try to space key presses in time:<pop>
                var now = Stopwatch.GetTimestamp();
                var elapsed = (int)(39621 * (k - 0x19) * (now - pnow));
                pnow = now;
-               App.Random.FeedExternalEntropySample(elapsed);
+               Ambient.Random.FeedExternalEntropySample(elapsed);
                Console.Write("\r{0}  {1} characters to go ...", elapsed, count-i-1);
              }
              ConsoleUtils.Info("OK. Entropy key entered");
@@ -92,7 +92,7 @@ Do not hit the same key and try to space key presses in time:<pop>
           {
              Console.WriteLine("Please type-in your password and press <enter>:");
              password = ConsoleUtils.ReadPasswordToSecureBuffer('*');
-             var score = App.SecurityManager.PasswordManager.CalculateStrenghtPercent(PasswordFamily.Text, password);
+             var score = app.SecurityManager.PasswordManager.CalculateStrenghtPercent(PasswordFamily.Text, password);
              var pass = score >= scoreThreshold;
              Console.WriteLine();
              var t = "Password score: {0}% is {1} strong".Args(score, pass ? "sufficiently" : "insufficiently");
@@ -119,7 +119,7 @@ Do not hit the same key and try to space key presses in time:<pop>
           Console.WriteLine();
           Console.WriteLine();
 
-          var hashed = App.SecurityManager.PasswordManager.ComputeHash(
+          var hashed = app.SecurityManager.PasswordManager.ComputeHash(
                                     Azos.Security.PasswordFamily.Text,
                                     password,
                                     strength);

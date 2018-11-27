@@ -14,7 +14,7 @@ using Azos.IO.FileSystem;
 namespace Azos.Wave
 {
   /// <summary>
-  /// Portal hub - a registry of portals, It establishes a context for portal inter-operation (i.e. so one portal may locate another by name)
+  /// Portal hub - a registry of portals, It establishes a context for portal inter-operation (i.e. so one portal may locate another one by name)
   ///  when some settings need to be cloned. This is an app-started singleton instance class
   /// </summary>
   public sealed class PortalHub : ApplicationComponent, IApplicationStarter, IApplicationFinishNotifiable
@@ -197,7 +197,7 @@ namespace Azos.Wave
 
     /// <summary>
     /// Generates file version path segment suitable for usage in file name.
-    /// This method is slow as it does byte file sig calculation
+    /// This method is slow as it does byte-by-byte file signature calculation
     /// </summary>
     public string GenerateContentFileVersionSegment(string filePath)
     {
