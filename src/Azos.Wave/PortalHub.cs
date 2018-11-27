@@ -19,7 +19,7 @@ namespace Azos.Wave
     /// <summary>
     /// Provides shortcut for PortalHub module access of application context
     /// </summary>
-    public static PortalHub PortalHub(this IApplication app) => app.NonNull(nameof(app)).ModuleRoot.Get<PortalHub>(Wave.PortalHub.APP_MODULE_NAME);
+    public static PortalHub GetPortalHub(this IApplication app) => app.NonNull(nameof(app)).ModuleRoot.Get<PortalHub>(PortalHub.APP_MODULE_NAME);
   }
 
   /// <summary>
