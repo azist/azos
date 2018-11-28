@@ -19,7 +19,7 @@ it is ~~**good and "eclectic" to have so "many tools"**~~. If only could the com
 Simply put, there is a **lot of puristic BS in modern frameworks** that try to fit all possible combinations at the expense of verbose code and
 overall complexity. Lets take DI as an example. 
 
-## Probloems with General-Purpose Object Allocations
+## Problems with General-Purpose Object Allocations
 DI is good, in general, what is not good is that in the hands of inapt developers general purpose DI availability creates 
 a temptation to allocate too many objects for tasks which do not need objects at all. For example, the following 
 lists objects that need to get allocated in a typical app:

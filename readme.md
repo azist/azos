@@ -3,7 +3,9 @@
 
 [![CodeFactor](https://www.codefactor.io/repository/github/azist/azos/badge/master)](https://www.codefactor.io/repository/github/azist/azos/overview/master)
 
-[Azos Documentation Index](/src/documentation-index.md)
+See also:
+- [Azos Design Philosophy](/src/philosophy.md)
+- [Azos Documentation Index](/src/documentation-index.md)
 
 
 External resources:
