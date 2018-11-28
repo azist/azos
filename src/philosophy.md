@@ -21,7 +21,7 @@ overall complexity. Lets take DI as an example.
 
 ## Problems with General-Purpose Object Allocations
 DI is good, in general, what is not good is that in the hands of inapt developers general purpose DI availability creates 
-a temptation to allocate too many objects for tasks which do not need objects at all. For example, the following 
+a temptation to allocate too many objects for tasks which do not need object instances in principle. For example, the following 
 lists objects that need to get allocated in a typical app:
 
 - App component graph - allocated by the system at start (system code)
