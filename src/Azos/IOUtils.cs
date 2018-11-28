@@ -164,9 +164,30 @@ namespace Azos
 
 
     /// <summary>
-    /// Returns a MD5 hash of a UTF8 string represented as hex string
+    /// Returns a MD5 hash of a byte[]represented as hex string
     /// </summary>
     public static string ToMD5String(this byte[] input)
+    {
+      if (input == null)
+        return "00000000000000000000000000000000";
+
+      using (var md5 = new System.Security.Cryptography.MD5CryptoServiceProvider())
+      {
+        var hash = md5.ComputeHash(input);
+
+        var result = new StringBuilder();
+
+        for (var i = 0; i < hash.Length; i++)
+          result.Append(hash[i].ToString("x2"));
+
+        return result.ToString();
+      }
+    }
+
+    /// <summary>
+    /// Returns a MD5 hash of a stream represented as hex string
+    /// </summary>
+    public static string ToMD5String(this Stream input)
     {
       if (input == null)
         return "00000000000000000000000000000000";
@@ -201,6 +222,19 @@ namespace Azos
     /// Returns a MD5 hash of a byte array
     /// </summary>
     public static byte[] ToMD5(this byte[] input)
+    {
+      if (input == null) return new byte[16];
+
+      using (var md5 = new System.Security.Cryptography.MD5CryptoServiceProvider())
+      {
+        return md5.ComputeHash(input);
+      }
+    }
+
+    /// <summary>
+    /// Returns a MD5 hash of a stream
+    /// </summary>
+    public static byte[] ToMD5(this Stream input)
     {
       if (input == null) return new byte[16];
 

@@ -64,7 +64,7 @@ namespace Azos.Wave
 
   /// <summary>
   /// Represents a portal theme. Theme groups various resources (such as css, scripts etc..)
-  /// whitin a portal. Inherit your themes from this class
+  /// within a portal. Inherit your themes from this class
   /// </summary>
   public abstract class Theme<TPortal> : Theme where TPortal : Portal
   {

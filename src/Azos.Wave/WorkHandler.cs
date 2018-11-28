@@ -76,6 +76,9 @@ namespace Azos.Wave
       private OrderedRegistry<WorkMatch> m_Matches = new OrderedRegistry<WorkMatch>();
       private OrderedRegistry<WorkFilter> m_Filters = new OrderedRegistry<WorkFilter>();
 
+
+      public override string ComponentLogTopic => CoreConsts.WAVE_TOPIC;
+
       /// <summary>
       /// Returns the handler instance name
       /// </summary>

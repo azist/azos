@@ -33,11 +33,11 @@ namespace Azos.IO.FileSystem.Local
     #endregion
 
     #region .ctor
-      public LocalFileSystem(IApplication app, string name) : base(app, name)
+      public LocalFileSystem(IApplication app) : base(app)
       {
       }
 
-      public LocalFileSystem(IApplicationComponent director, string name) : base(director, name)
+      public LocalFileSystem(IApplicationComponent director) : base(director)
       {
       }
     #endregion

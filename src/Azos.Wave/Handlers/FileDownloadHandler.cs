@@ -154,7 +154,7 @@ namespace Azos.Wave.Handlers
 
          if (m_UsePortalHub)
          {
-            var hub = App.PortalHub();
+            var hub = App.GetPortalHub();
             fs = hub.ContentFileSystem;
             fileName = m_RootPath!=null ? fs.CombinePaths(hub.ContentFileSystemRootPath, m_RootPath, fp)
                                         : fs.CombinePaths(hub.ContentFileSystemRootPath, fp);

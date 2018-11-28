@@ -214,7 +214,7 @@ namespace Azos.IO.FileSystem.Packaging
         var source = package.Source;
         var manifest = package.Manifest;
 
-        using(var lfs = new Local.LocalFileSystem(App, null))
+        using(var lfs = new Local.LocalFileSystem(App))
          using(var fss = lfs.StartSession(null))
          {
            var targetDir = fss[path] as FileSystemDirectory;

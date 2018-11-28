@@ -66,6 +66,8 @@ namespace Azos.Wave
       private WaveServer m_Server;
       private WorkHandler m_Handler;
 
+      public override string ComponentLogTopic => CoreConsts.WAVE_TOPIC;
+
       /// <summary>
       /// Returns the filter instance name
       /// </summary>

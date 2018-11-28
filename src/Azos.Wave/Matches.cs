@@ -35,27 +35,13 @@ namespace Azos.Wave
     public HttpResponseStatusCodeMatch(string name, int order) : base(name, order) { }
     public HttpResponseStatusCodeMatch(IConfigSectionNode confNode) : base(confNode) { }
 
-    private int m_Code;
-    private bool m_IsNot;
-
-    [Config]
-    public int Code
-    {
-      get { return m_Code; }
-      set { m_Code = value; }
-    }
-
-    [Config]
-    public bool IsNot
-    {
-      get { return m_IsNot; }
-      set { m_IsNot = value; }
-    }
+    [Config] public int Code {  get; set; }
+    [Config] public bool IsNot {  get; set; }
 
     public override JSONDataMap Make(WorkContext work, object context = null)
     {
-      var eq = work.Response.StatusCode == m_Code;
-      if (m_IsNot == eq) return null;
+      var eq = work.Response.StatusCode == Code;
+      if (IsNot == eq) return null;
 
       return base.Make(work, context);
     }

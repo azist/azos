@@ -37,9 +37,10 @@ namespace Azos.Wave
         private OrderedRegistry<WorkFilter> m_Filters = new OrderedRegistry<WorkFilter>();
         private OrderedRegistry<WorkHandler> m_Handlers = new OrderedRegistry<WorkHandler>();
 
-      #endregion
+    #endregion
 
       #region Properties
+        public override string ComponentLogTopic => CoreConsts.WAVE_TOPIC;
 
         /// <summary>
         /// Returns ordered registry of filters

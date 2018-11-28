@@ -85,6 +85,8 @@ namespace Azos.Wave.Filters
 
       protected sealed override void DoFilterWork(WorkContext work, IList<WorkFilter> filters, int thisFilterIndex)
       {
+        var hub = App.GetPortalHub();
+
         if (work.m_PortalFilter==null)
         {
           try
@@ -99,7 +101,7 @@ namespace Azos.Wave.Filters
                 var portalName = matched[VAR_PORTAL_NAME].AsString();
                 if (portalName.IsNotNullOrWhiteSpace())
                 {
-                  var portal = PortalHub.Instance.Portals[portalName];
+                  var portal = hub.Portals[portalName];
                   if (portal!=null && !portal.Offline)
                   {
                     work.m_Portal = portal;
@@ -113,7 +115,7 @@ namespace Azos.Wave.Filters
 
             if (work.m_Portal==null)
             {
-              var defaultPortal = PortalHub.Instance.DefaultOnline;
+              var defaultPortal = hub.DefaultOnline;
               if (defaultPortal!=null)
               {
                  work.m_Portal = defaultPortal;
@@ -154,8 +156,5 @@ namespace Azos.Wave.Filters
       }
 
     #endregion
-
-
   }
-
 }

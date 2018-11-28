@@ -44,7 +44,7 @@ namespace Azos.Wave
   ///   (a) much increased implementation/maintenance complexity
   ///   (b) many additional task/thread context switches and extra objects that facilitate the event loops/messages/tasks etc...
   /// </remarks>
-  public class WaveServer : DaemonWithInstrumentation<object>
+  public class WaveServer : DaemonWithInstrumentation<IApplicationComponent>
   {
     #region CONSTS
 
@@ -102,15 +102,15 @@ namespace Azos.Wave
 
 
     #region .ctor
-      public WaveServer() : base()
+      public WaveServer(IApplication app) : base(app) => ctor();
+      public WaveServer(IApplicationComponent director) : base(director) => ctor();
+      public WaveServer(IApplication app, string name) : this(app) => Name = name;
+      public WaveServer(IApplicationComponent director, string name) : this(director) => Name = name;
+
+      private void ctor()
       {
         m_Prefixes = new EventedList<string,WaveServer>(this, true);
         m_Prefixes.GetReadOnlyEvent = (l) => Status != DaemonStatus.Inactive;
-      }
-
-      public WaveServer(string name) : this()
-      {
-        Name = name;
       }
     #endregion
 
@@ -189,8 +189,9 @@ namespace Azos.Wave
 
     #region Properties
 
+      public override string ComponentLogTopic => CoreConsts.WAVE_TOPIC;
 
-       public override string ComponentCommonName { get { return "ws-"+Name; }}
+      public override string ComponentCommonName { get { return "ws-"+Name; }}
 
 
 

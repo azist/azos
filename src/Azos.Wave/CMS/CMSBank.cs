@@ -47,13 +47,17 @@ namespace Azos.Wave.CMS
   /// Provides CMS backend access services.
   /// This class is injected via PortalHub.Instance.CMSBank
   /// </summary>
-  public class CMSBank : DaemonWithInstrumentation<object>, ICMSBankImplementation
+  public class CMSBank : DaemonWithInstrumentation<IApplicationComponent>, ICMSBankImplementation
   {
     public const int VERSION_HISTORY_LENGTH = 8;
     public const int REFRESH_VERSION_INTERVAL_SEC = 5 * 60;
 
     #region .ctor
-      public CMSBank() : base()
+      public CMSBank(IApplication app) : base(app)
+      {
+      }
+
+      public CMSBank(IApplicationComponent director) : base(director)
       {
       }
 
@@ -76,6 +80,7 @@ namespace Azos.Wave.CMS
     #endregion
 
     #region Properties
+      public override string ComponentLogTopic => CoreConsts.WAVE_TOPIC;
 
       [Config(Default=false)]
       [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]

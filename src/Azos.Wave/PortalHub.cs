@@ -178,6 +178,7 @@ namespace Azos.Wave
          var fsFile = session[fName] as FileSystemFile;
          if (fsFile==null) return null;
          long sz = 0;
+
          var csum = new Azos.IO.ErrorHandling.Adler32();
          using(var stream = fsFile.FileStream)
          while(true)
@@ -188,7 +189,8 @@ namespace Azos.Wave
            csum.Add(buf, 0, got);
          }
 
-         var data = (ulong)sz << 32 | (ulong)csum.Value;
+
+         var data = (ulong)sz << 32 | (ulong)csum.Value;//high order 32 bits store file size, low order store Adler32 hash
          return data.ToString("X").ToLowerInvariant();
        }
     }
