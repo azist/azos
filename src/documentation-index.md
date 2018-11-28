@@ -1,6 +1,7 @@
 # AZOS Documentation Index 
 
 ## General Overview
+* [Azos Design Philosophy](philosophy.md)
 * [Naming Conventions](naming-conventions.md)
 * Building
 * Testing

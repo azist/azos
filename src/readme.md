@@ -8,7 +8,9 @@ See: [Azos Documentation Index](documentation-index.md)
 NOTE: The source files for various assets rather than "primary code" (such as
 vector graphics/SVGs etc.) are under `/elm`
 
-Check out: [Naming Conventions](naming-conventions.md)
+Check out:
+- [Azos Design Philosophy](philosophy.md)
+- [Naming Conventions](naming-conventions.md)
 
 See Also: 
 - [Azos Documentation Index](documentation-index.md)

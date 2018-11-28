@@ -21,6 +21,7 @@ namespace Azos.Wave
   /// <summary>
   /// Represents a context for request/response server processing in WAVE framework
   /// </summary>
+  [Serialization.Slim.SlimSerializationProhibited]
   public class WorkContext : DisposableObject
   {
     #region .ctor/.dctor
