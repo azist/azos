@@ -19,6 +19,18 @@ it is ~~**good and "eclectic" to have so "many tools"**~~. If only could the com
 Simply put, there is a **lot of puristic BS in modern frameworks** that try to fit all possible combinations at the expense of verbose code and
 overall complexity. Lets take DI as an example. 
 
+## Overall Application Structure
+TBD...
+
+Inification of app types: console, web service etc...
+
+need for Chassis
+
+Application root and component tree, logging + instrumentation built-in
+
+...
+
+
 ## Problems with General-Purpose Object Allocations
 DI is good, in general, what is not good is that in the hands of inapt developers general purpose DI availability creates 
 a temptation to allocate too many objects for tasks which do not need object instances in principle. For example, the following 
@@ -61,7 +73,8 @@ Does this mean that all design patterns and well-known software engineering prin
 those practices hold true for 99% of cases, however you must be careful and **not blindly follow the rules** as your case
 may not be the best case for those rules.
 
-A few examples of software "truisms" which are usually taken as incontrovertible facts of life/nature:
+A few examples of software "truisms" which are usually taken as incontrovertible facts of life/nature.
+These are just a few tacit assumptions that one must be careful with:
 
 #### In OOP everything should be a class with "Single" responsibility
 ...so people create classes like `Adder<int,int>` etc.
@@ -95,7 +108,7 @@ It is better to have maintainable amount of tests which **exhaustively test the 
 tests in this regard are absolutely of no practical use. Example: create a unit test for `StrToInt(string)` function - good test coverage should test for:
 negative values, values with hex/bin prefixes (if supported), null and empty input, overflown values, values with spaces, especially in between the minus sign etc.
 Now consider this `EvaluateExpression(string, val[])` function: `"x<5 || x!=-23".EvaluateExpression(x: 3)` - how many unit tests will it take to cover it? - probably more than 50.
-Another important concern of modern unit testing deals with asynchronous processing and multi-threading. Many supposedly thread-safe functions may fail while called in parallel.
+Another important concern of modern unit testing deals with asynchronous processing and multi-threading. Many supposedly thread-safe functions may fail while being called in parallel.
 
 
 #### Premature Optimization is Bad
