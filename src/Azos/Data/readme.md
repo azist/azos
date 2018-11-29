@@ -30,7 +30,7 @@ Azos data access was designed with the following data-store types in mind:
 * **Non-homogeneous** data: all/some of the aforementioned sources may be needed in the same system
 
 The data access is facilitated via the [`Azos.Data.Access.IDataStore`](Access/IDataStore.cs) interface which is just a 
-marker interface for the application container (accessible via  a [`Azos.App.DataStore`](../App.cs#L152) shortcut).
+marker interface for the application chassis.
 
 Every system may select a combination of the following strategies that fit the particular case the best:
 
@@ -212,12 +212,12 @@ An example use case:
 ```CSharp    
   var person = new PersonDoc
   {
-    ID = MyApp.Data.IDGenerator.GetNext(typeof(PersonRow)),
+    ID = MyApp.Data.IDGenerator.GetNext(typeof(PersonDoc)),
     Name = "Jon Lord",
     IsCertified = true
   };
   
-  MyApp.Data.Upsert(person);
+  App.PersonStore().Upsert(person);
 ```
     
 Or a typical case of use with Azos.Wave.Mvc Web Api:
@@ -226,7 +226,7 @@ Or a typical case of use with Azos.Wave.Mvc Web Api:
   [Action("person", 1, "match{ methods='GET' accept-json='true'}"]
   public object GetPerson(string id)
   {
-      return MyApp.Data.LoadOneRow(Queries.PersonById(id));
+    return App.PersonStore().LoadOneRow(Queries.PersonById(id));
   }
       
   [Action("person", 1, "match{ methods='POST' accept-json='true'}"]
@@ -236,7 +236,7 @@ Or a typical case of use with Azos.Wave.Mvc Web Api:
     if (err!=null)
         return new {OK=false, Err = err.Message};//Or throw HttpStatus code exception
             
-    MyApp.Data.Upsert(person);
+    App.PersonStore().Upsert(person);
     return new {OK=true};
   }
 ```
