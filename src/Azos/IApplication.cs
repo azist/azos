@@ -76,6 +76,14 @@ namespace Azos
      /// </summary>
      void Stop();
 
+
+     /// <summary>
+     /// References application dependency injector which injects app-context rooted dependencies into
+     /// objects. The frameworks calls this service automatically for most places (Mvc models/views/controllers, Glue servers)
+     /// so business application developers should rarely (if ever) use this facility
+     /// </summary>
+     Apps.Injection.IApplicationDependencyInjector DependencyInjector { get; }
+
      /// <summary>
      /// References an accessor to the application surrounding environment (realm) in which app gets executed.
      /// This realm is sub-divided into uniquely-named areas each reporting their status.

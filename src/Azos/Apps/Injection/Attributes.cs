@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using System.Text;
+using Azos.Collections;
 
 namespace Azos.Apps.Injection
 {
@@ -21,61 +22,79 @@ namespace Azos.Apps.Injection
     public Type Type { get; set; }
 
 
+    public override string ToString()
+    {
+      return "{0}(Type: {1}, Name: {2})".Args(GetType().Name, Type?.Name ?? CoreConsts.NULL_STRING, Name ?? CoreConsts.NULL_STRING);
+    }
+
+
     /// <summary>
     /// System code not intended to be used by business apps.
     /// Applies attribute with auto-scoping rules - the system tries to detect
     /// what is trying to be injected based on the supplied type of the field.
     /// Return true if assignment was made
     /// </summary>
-    public bool Apply(object target, FieldInfo fInfo, IApplication app)
+    public bool Apply(object target, FieldInfo fInfo, IApplicationDependencyInjector injector)
     {
       var tf = fInfo.FieldType;
 
       if (Type!=null && !tf.IsAssignableFrom(Type))
-        throw new AzosException("Incompatible injection types. Injection type expectation of '{0}' is not assignable into the field '{1}: {2}'");
-//todo peredelat exception na DI exception
-
-      return DoApply(target, fInfo, app);
+        throw new DependencyInjectionException(StringConsts.DI_ATTRIBUTE_TYPE_INCOMPATIBILITY_ERROR.Args(
+                      Type.DisplayNameWithExpandedGenericArgs(),
+                      target.GetType().DisplayNameWithExpandedGenericArgs(),
+                      fInfo.ToDescription()));
+      try
+      {
+        return DoApply(target, fInfo, injector);
+      }
+      catch(Exception error)
+      {
+        throw new DependencyInjectionException(StringConsts.DI_ATTRIBUTE_APPLY_ERROR.Args(
+                      GetType().Name,
+                      target.GetType().DisplayNameWithExpandedGenericArgs(),
+                      fInfo.ToDescription(),
+                      error.ToMessageWithType()), error);
+      }
     }
 
-    protected virtual bool DoApply(object target, FieldInfo fInfo, IApplication app)
+    protected virtual bool DoApply(object target, FieldInfo fInfo, IApplicationDependencyInjector injector)
     {
       var tf = fInfo.FieldType;
 
       //0. Inject application itself
       if (tf==typeof(IApplication))
       {
-        fInfo.SetValue(target, app);
+        fInfo.SetValue(target, injector.App);
         return true;
       }
 
       //1. Inject module
-      if (typeof(IModule).IsAssignableFrom(tf)) return TryInjectModule(target, fInfo, app);
+      if (typeof(IModule).IsAssignableFrom(tf)) return TryInjectModule(target, fInfo, injector);
 
       //2. Try app root objects
-      if (TryInjectAppRootObjects(target, fInfo, app)) return true;
+      if (TryInjectAppRootObjects(target, fInfo, injector)) return true;
 
       return false;
     }
 
 
     /// <summary>
-    /// Performs module injection by name or field type
+    /// Tries to perform module injection by name or type, returning true if assignment was made
     /// </summary>
-    protected virtual bool TryInjectModule(object target, FieldInfo fInfo, IApplication app)
+    protected virtual bool TryInjectModule(object target, FieldInfo fInfo, IApplicationDependencyInjector injector)
     {
       var needType = Type==null ? fInfo.FieldType : Type;
 
       IModule module = null;
       if (Name.IsNotNullOrWhiteSpace())
       {
-        module = app.ModuleRoot.ChildModules[Name];
+        module = injector.App.ModuleRoot.ChildModules[Name];
         if (module==null) return false;
         if (!needType.IsAssignableFrom(module.GetType())) return false;//type mismatch
       }
       else
       {
-        module = app.ModuleRoot.ChildModules
+        module = injector.App.ModuleRoot.ChildModules
                                  .OrderedValues
                                  .FirstOrDefault( m => needType.IsAssignableFrom(m.GetType()) );
         if (module == null) return false;
@@ -85,14 +104,22 @@ namespace Azos.Apps.Injection
       return true;
     }
 
-    protected virtual bool TryInjectAppRootObjects(object target, FieldInfo fInfo, IApplication app)
+    /// <summary>
+    /// Tries to inject app root object (such as Log, Glue etc.) returning true on a successful assignment.
+    /// The default implementation trips on a first match
+    /// </summary>
+    protected virtual bool TryInjectAppRootObjects(object target, FieldInfo fInfo, IApplicationDependencyInjector injector)
     {
       var tf = fInfo.FieldType;
+      var needType = Type==null ? tf : Type;
 
-      foreach(var appRoot in GetApplicationRoots(app))
+      foreach(var appRoot in GetApplicationRoots(injector))
       {
-        if (tf.IsAssignableFrom(appRoot.GetType()))//trips on first match
+        if (needType.IsAssignableFrom(appRoot.GetType()))//trips on first match
         {
+          if (Name.IsNotNullOrWhiteSpace() && appRoot is INamed named)
+            if (!Name.EqualsIgnoreCase(named.Name)) continue;
+
           fInfo.SetValue(target, appRoot);
           return true;
         }
@@ -104,19 +131,9 @@ namespace Azos.Apps.Injection
     /// <summary>
     /// Enumerates app injectable roots (root application chassis objects)
     /// </summary>
-    protected virtual IEnumerable<object> GetApplicationRoots(IApplication app)
-    {
-      yield return app;
-      yield return app.Log;
-      yield return app.DataStore;
-      yield return app.Instrumentation;
-      yield return app.SecurityManager;
-      yield return app.Random;
-      yield return app.TimeSource;
-      yield return app.Glue;
-      yield return app.ObjectStore;
-      yield return app.EventTimer;
-    }
+    protected virtual IEnumerable<object> GetApplicationRoots(IApplicationDependencyInjector injector)
+      => injector.GetApplicationRoots(); //the default clones roots from the injector
+
   }
 
   /// <summary>
@@ -124,25 +141,26 @@ namespace Azos.Apps.Injection
   /// </summary>
   public class InjectModuleAttribute : InjectAttribute
   {
-    protected override bool DoApply(object target, FieldInfo fInfo, IApplication app)
+    protected override bool DoApply(object target, FieldInfo fInfo, IApplicationDependencyInjector injector)
     {
-      return TryInjectModule(target, fInfo, app);
+      return TryInjectModule(target, fInfo, injector);
     }
   }
 
   /// <summary>
-  /// Performs application singleton instance injection by field type only
+  /// Performs application singleton instance injection based on the type. If Name is specified and
+  /// a singleton instance is INamed, also check for name match
   /// </summary>
   public class InjectSingletonAttribute : InjectAttribute
   {
-    protected override bool DoApply(object target, FieldInfo fInfo, IApplication app)
+    protected override bool DoApply(object target, FieldInfo fInfo, IApplicationDependencyInjector injector)
     {
-      return TryInjectAppRootObjects(target, fInfo, app);
+      return TryInjectAppRootObjects(target, fInfo, injector);
     }
 
-    protected override IEnumerable<object> GetApplicationRoots(IApplication app)
+    protected override IEnumerable<object> GetApplicationRoots(IApplicationDependencyInjector injector)
     {
-      foreach (var singleton in app.Singletons)
+      foreach (var singleton in injector.App.Singletons)
         yield return singleton;
     }
   }
@@ -152,7 +170,10 @@ namespace Azos.Apps.Injection
   class Jaba
   {
     [Inject] private ICardRenderingModule m_CardRedering;
+    [InjectModule] private IBuzzerModule m_Buzzer;
     [Inject] private ILog m_Logger;
+    [InjectSingleton] private MySingleton m_Singleton;
+
   }
 
 

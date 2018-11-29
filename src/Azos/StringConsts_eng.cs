@@ -71,7 +71,16 @@ namespace Azos
         public const string LOGSVC_FAILOVER_MSG_TEXT =
             "Message {0} delivery failed over from destination '{1}' to '{2}'. Average processing latency of failed destination '{3}'";
 
+        public const string DI_ATTRIBUTE_TYPE_INCOMPATIBILITY_ERROR =
+        "Incompatible injection types. Injection type expectation of '{0}' is not assignable into the field: {1} {2}";
 
+        public const string DI_ATTRIBUTE_APPLY_ERROR =
+        "Error while applying attribute [{0}] on class '{1}' instance field {2}: {3}";
+
+        public const string DI_UNSATISIFED_INJECTION_ERROR =
+@"Dependency injection on class '{0}' instance field {1} could not be satisfied using: [{2}].
+The injected value has to be present in app chassis having its type assignment compatible with the target field or 'Type' constraint;
+and the name of module or INamed entity must match if the 'Name' constraint was specified in the attribute";
 
         public const string AVER_THROWS_NOT_THROWN_ERROR = "Method '{0}' is decorated with {1} averment, but nothing was thrown";
         public const string AVER_THROWS_TYPE_MISMATCH_ERROR = "Method '{0}' averment expects exception of type '{1}' to be thrown, but '{2}' was thrown instead";

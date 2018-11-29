@@ -4,12 +4,20 @@ using System.Collections.Generic;
 
 namespace Azos.Apps.Injection
 {
+  /// <summary>
+  /// Framework internal delegate type participating in dependency injection
+  /// </summary>
+  public delegate void InjectorAction(object target, IApplicationDependencyInjector appInjector);
 
-  public delegate void InjectorAction(object target, IApplication app);
-
-  public class Injector
+  /// <summary>
+  /// Framework-internal type which performs dependency injection on the specified type.
+  /// Business app developers - do not use.
+  /// Advanced: you can derive from this type in case of custom dependency injection implementation
+  /// (e.g. use precompiled lambdas instead of reflection)
+  /// </summary>
+  public class TypeInjector
   {
-    public Injector(Type type)
+    public TypeInjector(Type type)
     {
       T = type;
       (m_Attrs, m_Action) = Build();
@@ -19,18 +27,23 @@ namespace Azos.Apps.Injection
     private readonly (FieldInfo fi, InjectAttribute attr)[] m_Attrs;
     private readonly InjectorAction m_Action;
 
-    public void Inject(object target, IApplication app)
+    public void Inject(object target, IApplicationDependencyInjector appInjector)
     {
       if (m_Action == null) return;
-      m_Action(target, app); //todo: Surround by exception guard
+      m_Action(target, appInjector); //todo: Surround by exception guard
     }
 
-    public void DefaultApply(object target, IApplication app)
+    public void DefaultApply(object target, IApplicationDependencyInjector appInjector)
     {
       for(var i=0; i<m_Attrs.Length; i++)
       {
         var entry = m_Attrs[i];
-        entry.attr.Apply(target, entry.fi, app);
+        var injected = entry.attr.Apply(target, entry.fi, appInjector);
+        if (!injected)
+          throw new DependencyInjectionException(StringConsts.DI_UNSATISIFED_INJECTION_ERROR.Args(
+                      target.GetType().DisplayNameWithExpandedGenericArgs(),
+                      entry.fi.ToDescription(),
+                      entry.attr));
       }
     }
 
