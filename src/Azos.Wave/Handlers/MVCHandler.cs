@@ -48,6 +48,10 @@ namespace Azos.Wave.Handlers
     #region Protected
       protected override void DoTargetWork(Controller target, WorkContext work)
       {
+          target.m_WorkContext = work;//This also establishes Controller.App
+          App.DependencyInjector.InjectInto(target);//Inject app-rooted context
+
+
           var action = GetActionName(target, work);
 
           object[] args;
@@ -65,13 +69,12 @@ namespace Azos.Wave.Handlers
                                           WebConsts.STATUS_404_DESCRIPTION,
                                           StringConsts.MVC_CONTROLLER_ACTION_UNMATCHED_HANDLER_ERROR.Args(target.GetType().FullName, action));
 
-          Security.Permission.AuthorizeAndGuardAction(mi, work.Session, () => work.NeedsSession());
+          Security.Permission.AuthorizeAndGuardAction(App, mi, work.Session, () => work.NeedsSession());
 
           object result = null;
 
           try
           {
-            target.m_WorkContext = work;
             try
             {
               var handled = target.BeforeActionInvocation(work, action, mi, args, ref result);
@@ -83,14 +86,7 @@ namespace Azos.Wave.Handlers
             }
             finally
             {
-              try
-              {
-                target.ActionInvocationFinally(work, action, mi, args, result);
-              }
-              finally
-              {
-                target.m_WorkContext = null;
-              }
+              target.ActionInvocationFinally(work, action, mi, args, result);
             }
           }
           catch(Exception error)

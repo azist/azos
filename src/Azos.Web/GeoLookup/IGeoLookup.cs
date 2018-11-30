@@ -36,7 +36,7 @@ namespace Azos.Web.GeoLookup
     GeoEntity Lookup(IPAddress address);
   }
 
-
+ 
   /// <summary>
   /// Represents lookup result
   /// </summary>

@@ -29,10 +29,11 @@ namespace Azos.Wave.Mvc
       public virtual string ActionVarName{ get{ return DEFAULT_VAR_MVC_ACTION; }}
       public virtual string DefaultActionName{ get{ return DEFAULT_MVC_ACTION; }}
 
-      /// <summary>
-      /// Returns current work context
-      /// </summary>
-      public WorkContext WorkContext { get{ return m_WorkContext;}}
+      /// <summary> Returns current application context</summary>
+      public IApplication App => m_WorkContext?.App;
+
+      /// <summary> Returns current work context </summary>
+      public WorkContext WorkContext => m_WorkContext;
 
       /// <summary>
       /// Override to perform custom action name + params -> MethodInfo, param array resolution.

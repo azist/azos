@@ -22,9 +22,9 @@ namespace Azos.Wave
     public class WaveSession : BaseSession
     {
         protected WaveSession():base(){} //used by serializer
-        public WaveSession(Guid id) : base(id)
+        public WaveSession(Guid id, ulong secret) : base(id, secret)
         {
-           m_CSRFToken = App.Random.NextRandomWebSafeString();
+           m_CSRFToken = Ambient.Random.NextRandomWebSafeString();
         }
 
         private string m_CSRFToken;

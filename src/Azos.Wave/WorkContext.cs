@@ -116,7 +116,12 @@ namespace Azos.Wave
       public Guid ID{ get{ return m_ID;} }
 
       /// <summary>
-      /// Returns the server this context is under
+      /// Returns the application that this context is under
+      /// </summary>
+      public IApplication App => m_Server.App;
+
+      /// <summary>
+      /// Returns the server that this context is under
       /// </summary>
       public WaveServer Server { get { return m_Server;} }
 

@@ -35,7 +35,7 @@ namespace Azos.Apps
   /// <summary>
   /// Describes user session
   /// </summary>
-  public interface ISession : IEndableInstance, IPrincipal
+  public interface ISession : IPrincipal
   {
      /// <summary>
      /// Gets unique session identifier

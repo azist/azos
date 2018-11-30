@@ -25,7 +25,7 @@ namespace Azos.Web.GeoLookup
   /// This implementation uses free data from: http://dev.maxmind.com/geoip/geoip2/geolite2/.
   /// Must include MaxMind attribution on the public site that uses this data (see License section on maxmind.com)
   /// </summary>
-  public class GeoLookupService : Daemon, IGeoLookup
+  public sealed class GeoLookupService : Daemon, IGeoLookup
   {
     #region CONSTS
 
@@ -127,12 +127,10 @@ namespace Azos.Web.GeoLookup
 
       protected override void DoConfigure(IConfigSectionNode node)
       {
-        if (node==null)
-        {
+        if (node==null || !node.Exists)
           node = App.ConfigRoot[CONFIG_GEO_LOOKUP_SECTION];
-          if (node.Exists)
-            ConfigAttribute.Apply(this, node);
-        }
+
+        ConfigAttribute.Apply(this, node);
       }
 
 

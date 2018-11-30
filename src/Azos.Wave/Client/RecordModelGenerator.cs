@@ -150,13 +150,13 @@ namespace Azos.Wave.Client
 
         foreach(var sfdef in doc.Schema.FieldDefs.Where(fd=>!fd.NonUI))
         {
-          var fdef = doc.GetClientFieldDef(this, sfdef, target, isoLang);
+          var fdef = doc.GetClientFieldDef(sfdef, target, isoLang);
           if (fdef==null || fdef.NonUI) continue;
 
           var fld = new JSONDataMap();
           fields.Add(fld);
           fld["def"] = FieldDefToJSON(doc, schemaName, fdef, target, isoLang, valueListLookup);
-          var val = doc.GetClientFieldValue(this, sfdef, target, isoLang);
+          var val = doc.GetClientFieldValue(sfdef, target, isoLang);
           if (val is GDID && ((GDID)val).IsZero) val = null;
           fld["val"] = val;
           var ferr = validationError as FieldValidationException;
@@ -225,7 +225,7 @@ namespace Azos.Wave.Client
             else
             {
               var valueList = valueListLookup!=null ? valueListLookup(this, doc, fdef, target, isoLang)
-                                                    : doc.GetClientFieldValueList(this, fdef, target, isoLang);
+                                                    : doc.GetClientFieldValueList(fdef, target, isoLang);
 
               if (valueList==null && attr.HasValueList)
                 valueList = attr.ParseValueList();

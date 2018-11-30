@@ -298,7 +298,7 @@ namespace Azos.Wave.Filters
       /// </summary>
       protected virtual WaveSession MakeNewSessionInstance(WorkContext work)
       {
-        return new WaveSession(Guid.NewGuid());
+        return new WaveSession(Guid.NewGuid(), App.Random.NextRandomUnsignedLong);
       }
 
 

@@ -32,15 +32,23 @@ namespace Azos.Wave.Filters
 
     #region .ctor
       public GeoLookupFilter(WorkDispatcher dispatcher, string name, int order) : base(dispatcher, name, order) {}
-      public GeoLookupFilter(WorkDispatcher dispatcher, IConfigSectionNode confNode): base(dispatcher, confNode) { configureMatches(confNode); }
+      public GeoLookupFilter(WorkDispatcher dispatcher, IConfigSectionNode confNode): base(dispatcher, confNode) { ctor(confNode); }
       public GeoLookupFilter(WorkHandler handler, string name, int order) : base(handler, name, order) {}
-      public GeoLookupFilter(WorkHandler handler, IConfigSectionNode confNode): base(handler, confNode){ configureMatches(confNode); }
+      public GeoLookupFilter(WorkHandler handler, IConfigSectionNode confNode): base(handler, confNode){ ctor(confNode); }
+
+      private void ctor(IConfigSectionNode node)
+      {
+        configureMatches(node);
+        ConfigAttribute.Apply(this, node);
+      }
 
     #endregion
 
     #region Fields
 
       private OrderedRegistry<WorkMatch> m_LookupMatches = new OrderedRegistry<WorkMatch>();
+
+      [Config]private string m_GeoLookupModuleName;
 
     #endregion
 
@@ -50,6 +58,15 @@ namespace Azos.Wave.Filters
       /// Returns matches used by the filter to determine whether user's location should be looked-up
       /// </summary>
       public OrderedRegistry<WorkMatch> LookupMatches { get{ return m_LookupMatches;}}
+
+      /// <summary>
+      /// Sets name of the geo lookup module
+      /// </summary>
+      public string GeoLookupModuleName
+      {
+        get {  return m_GeoLookupModuleName.IsNullOrWhiteSpace() ? nameof(GeoLookupModule) : m_GeoLookupModuleName;}
+        set { m_GeoLookupModuleName = value; }
+      }
 
     #endregion
 
@@ -87,7 +104,8 @@ namespace Azos.Wave.Filters
 
         if (needLookup)
         {
-          var lookedUp = GeoLookupService.Instance.Lookup(address);
+          var svc = App.ModuleRoot.Get<GeoLookupModule>(GeoLookupModuleName);//throws if module not found
+          var lookedUp = svc.Lookup(address);
           work.GeoEntity = lookedUp;
 
           if (Server.m_InstrumentationEnabled)
@@ -104,7 +122,7 @@ namespace Azos.Wave.Filters
     #endregion
 
     #region .pvt
-     private void configureMatches(IConfigSectionNode confNode)
+      private void configureMatches(IConfigSectionNode confNode)
       {
         foreach(var cn in confNode.Children.Where(cn=>cn.IsSameName(WorkMatch.CONFIG_MATCH_SECTION)))
           if(!m_LookupMatches.Register( FactoryUtils.Make<WorkMatch>(cn, typeof(WorkMatch), args: new object[]{ cn })) )

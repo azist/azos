@@ -119,97 +119,56 @@ namespace Azos.Wave.Handlers
 
        #region Protected
 
-            /// <summary>
-            /// Sealed. Override DoTargetWork(TTarget, WorkContext) to do actual work
-            /// </summary>
-            protected sealed override void DoHandleWork(WorkContext work)
-            {
-               Exception error = null;
-               Guid iid = Guid.Empty;
-               bool needInstanceCheckin = false;
+    /// <summary>
+    /// Sealed. Override DoTargetWork(TTarget, WorkContext) to do actual work
+    /// </summary>
+    protected sealed override void DoHandleWork(WorkContext work)
+    {
+      Exception error = null;
 
-               TTarget target = null;
+      TTarget target = null;
 
-               try
-               {
-                  try
+      try
+      {
+        try
+        {
+                var tt = GetTargetType(work);
+
+                if (tt==null || tt.IsAbstract)
+                {
+                  if (m_NotFoundRedirectURL.IsNotNullOrWhiteSpace())
                   {
-                       if (SupportsInstanceID && GetTargetInstanceID(work, ref iid))
-                       {
-                         //iid has object ID of instance
-                         target = GetTargetInstanceByID(work, iid);
-                         needInstanceCheckin = true;
-
-                         if (target!=null)
-                            Security.Permission.AuthorizeAndGuardAction(target.GetType(), work.Session, ()=> work.NeedsSession() );
-                       }
-
-
-                       if (target==null)
-                       {
-                           var tt = GetTargetType(work);
-
-                           if (tt==null || tt.IsAbstract)
-                           {
-                             if (m_NotFoundRedirectURL.IsNotNullOrWhiteSpace())
-                             {
-                                work.Response.RedirectAndAbort(m_NotFoundRedirectURL);
-                                return;
-                             }
-
-                             error = Do404(work);
-                             return;
-                           }
-
-                           Security.Permission.AuthorizeAndGuardAction(tt, work.Session, ()=> work.NeedsSession() );
-
-                           target = CreateTargetInstance(work, tt);
-                           if (SupportsInstanceID)
-                           {
-                              iid = Guid.NewGuid();
-                              needInstanceCheckin = true;
-                           }
-
-                       }
-
-                       if (target==null)
-                       {
-                           error = Do404(work);
-                           return;
-                       }
-
-
-                       DoTargetWork(target, work);
-
+                    work.Response.RedirectAndAbort(m_NotFoundRedirectURL);
+                    return;
                   }
-                  catch(Exception err)
-                  {
-                     error = err;
-                  }
-               }
-               finally
-               {
-                 try
-                 {
-                   if (error!=null)
-                     DoError(work, error);
-                 }
-                 finally
-                 {
-                   if (target!=null && needInstanceCheckin)
-                   {
-                     var end = false;
-                     if (target is IEndableInstance)
-                      end = ((IEndableInstance)target).IsEnded;
 
-                     if (end)
-                        DeleteTargetInstanceByID(work, iid);
-                     else
-                        PutTargetInstanceByID(work, iid, target);
-                   }
-                 }
-               }
-            }
+                  error = Do404(work);
+                  return;
+                }
+
+                Security.Permission.AuthorizeAndGuardAction(App, tt, work.Session, ()=> work.NeedsSession() );
+
+                target = CreateTargetInstance(work, tt);
+
+                if (target==null)
+                {
+                    error = Do404(work);
+                    return;
+                }
+
+                DoTargetWork(target, work);
+        }
+        catch(Exception err)
+        {
+            error = err;
+        }
+      }
+      finally
+      {
+        if (error!=null)
+          DoError(work, error);
+      }
+    }
 
 
 
@@ -218,15 +177,6 @@ namespace Azos.Wave.Handlers
            /// </summary>
            protected abstract void DoTargetWork(TTarget target, WorkContext work);
 
-
-
-           /// <summary>
-           /// Override to extract instance ID from WorkContext
-           /// </summary>
-           protected virtual bool GetTargetInstanceID(WorkContext work, ref Guid id)
-           {
-             return getTargetInstanceID(work, ref id);
-           }
 
 
            /// <summary>
@@ -279,32 +229,6 @@ namespace Azos.Wave.Handlers
            }
 
            /// <summary>
-           /// Retrieves target instance from id. Default implementation uses Application.ObjectStore.
-           /// If this method is called by the framework then complementary matching PutTargetInstanceWithID() is guaranteed to be called as well
-           /// </summary>
-           protected virtual TTarget GetTargetInstanceByID(WorkContext work, Guid id)
-           {
-              return App.ObjectStore.CheckOut(id) as TTarget;
-           }
-
-           /// <summary>
-           /// Puts target instance with id into store. Default implementation uses Application.ObjectStore.
-           /// This method is called by the framework to complement GetTargetInstanceFromID()
-           /// </summary>
-           protected virtual void PutTargetInstanceByID(WorkContext work, Guid id, TTarget target, int msTimeout = 0)
-           {
-              App.ObjectStore.CheckIn(id, target, msTimeout);
-           }
-
-           /// <summary>
-           /// Deletes target instance with id from store. Default implementation uses Application.ObjectStore.
-           /// </summary>
-           protected virtual void DeleteTargetInstanceByID(WorkContext work, Guid id)
-           {
-              App.ObjectStore.Delete(id);
-           }
-
-           /// <summary>
            /// Override to handle 404 condition, i.e. may write into response instead of generating a exception.
            /// The default implementation returns a HttpStatusException with 404 code
            /// </summary>
@@ -326,26 +250,6 @@ namespace Azos.Wave.Handlers
 
 
        #region .pvt .impl
-
-            //extracts guid from type name '(guid)' pattern
-            private bool getTargetInstanceID(WorkContext work, ref Guid id)
-            {
-              string name = GetTargetTypeNameFromWorkContext(work);
-
-              var j = name.IndexOf('(');
-              if (j<0) return false;
-              var k = name.IndexOf(')');
-              if (k<j) return false;
-
-              if (k-j < 32) return false;
-
-              name = name.Substring(j+1, k-j-2);
-
-              if (Guid.TryParse(name, out id)) return true;
-
-              return false;
-            }
-
 
             private Type getTargetType(WorkContext work, string typeName)
             {
