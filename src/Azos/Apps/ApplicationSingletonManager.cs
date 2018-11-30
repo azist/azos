@@ -111,8 +111,8 @@ namespace Azos.Apps
       return true;
     }
 
-    public IEnumerator<object> GetEnumerator() => ((IEnumerable<object>)m_Instances).GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => m_Instances.GetEnumerator();
+    public IEnumerator<object> GetEnumerator() => m_Instances.Values.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => m_Instances.Values.GetEnumerator();
   }
 
 
