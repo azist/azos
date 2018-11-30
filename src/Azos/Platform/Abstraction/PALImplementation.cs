@@ -23,5 +23,7 @@ namespace Azos.Platform.Abstraction
     public abstract Graphics.IPALGraphics Graphics     { get; }
     public abstract IPALMachineInfo       MachineInfo  { get; }
     public abstract IPALFileSystem        FileSystem   { get; }
+
+    public override string ComponentLogTopic => CoreConsts.PLATFROM_TOPIC;
   }
 }

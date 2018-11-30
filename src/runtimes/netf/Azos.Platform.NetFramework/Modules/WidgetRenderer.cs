@@ -20,6 +20,7 @@ namespace Azos.Platform.Abstraction.NetFramework.Modules
     public WidgetRenderer(ModuleBase parent) : base(parent) { }
 
     public override bool IsHardcodedModule => false;
+    public override string ComponentLogTopic => CoreConsts.PLATFROM_TOPIC;
 
     /// <summary> Renders default image of the keypad suitable for user entry (i.e. touch or mouse clicks) </summary>
     Azos.Graphics.Image IPuzzleKeypadRenderer.RenderDefaultPuzzleKeypad(PuzzleKeypad keypad, Color? bgColor, bool showRects)
