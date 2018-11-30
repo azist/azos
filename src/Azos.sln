@@ -147,6 +147,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsTestSky", "runtimes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Sky.Social", "Azos.Sky.Social\Azos.Sky.Social.csproj", "{0C205CB7-AE12-402C-BAA4-90369E6C2627}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azos.Tests.Nub", "testing\Azos.Tests.Nub\Azos.Tests.Nub.csproj", "{C533831A-DD1B-4DA2-A7D8-98B6DD708871}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -393,6 +395,10 @@ Global
 		{0C205CB7-AE12-402C-BAA4-90369E6C2627}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C205CB7-AE12-402C-BAA4-90369E6C2627}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C205CB7-AE12-402C-BAA4-90369E6C2627}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C533831A-DD1B-4DA2-A7D8-98B6DD708871}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C533831A-DD1B-4DA2-A7D8-98B6DD708871}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C533831A-DD1B-4DA2-A7D8-98B6DD708871}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C533831A-DD1B-4DA2-A7D8-98B6DD708871}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -453,6 +459,7 @@ Global
 		{A8F4B0F5-E8E8-4CF0-9EBE-1EFC7401E42B} = {F572F5AC-8BDE-4D36-BE8A-ED42299C576F}
 		{AA45AC82-E15D-48B8-85E5-6EC7640C416B} = {F572F5AC-8BDE-4D36-BE8A-ED42299C576F}
 		{A7DFADE5-8018-45FF-8033-F61A6ED6802D} = {F572F5AC-8BDE-4D36-BE8A-ED42299C576F}
+		{C533831A-DD1B-4DA2-A7D8-98B6DD708871} = {0FC66524-0EE2-410C-B971-97170166D2D6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75EF590C-FE75-45E7-B941-B225EF484F5F}

@@ -15,18 +15,18 @@ using Azos.Time;
 using Azos.Instrumentation;
 using System.Collections.Generic;
 
-namespace Azos.Tests.Unit.AppModel
+namespace Azos.Tests.Nub.Application
 {
-  [Runnable(TRUN.BASE, 3)]
+  [Runnable]
   public class InjectionTests
   {
     static readonly ConfigSectionNode BASE_CONF = @"
   app{
     modules
     {
-      module{type='Azos.Tests.Unit.AppModel.InjectionTests+MyModule, Azos.Tests.Unit' }
-      module{type='Azos.Tests.Unit.AppModel.InjectionTests+MyModule, Azos.Tests.Unit' name='Module2'}
-      module{type='Azos.Tests.Unit.AppModel.InjectionTests+MyModule, Azos.Tests.Unit' name='Module3'}
+      module{type='Azos.Tests.Nub.Application.InjectionTests+MyModule, Azos.Tests.Nub' }
+      module{type='Azos.Tests.Nub.Application.InjectionTests+MyModule, Azos.Tests.Nub' name='Module2'}
+      module{type='Azos.Tests.Nub.Application.InjectionTests+MyModule, Azos.Tests.Nub' name='Module3'}
     }
   }
   ".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
@@ -79,7 +79,7 @@ namespace Azos.Tests.Unit.AppModel
 
     public class InjectionTarget_Root
     {
-      [Inject] IApplication m_App;
+      [Inject] IApplication m_App;//<--- private field
       [Inject] public IApplication m_App2;
       [Inject] protected IApplication m_App3;
 
@@ -100,8 +100,8 @@ namespace Azos.Tests.Unit.AppModel
         Aver.AreSameRef(app.Log, m_LogAsObject);
         Aver.AreSameRef(app.DataStore, m_DataStore);
         Aver.AreSameRef(app.Glue, m_Glue);
-        Aver.AreSameRef(app.Glue, m_Instrumentation);
-        Aver.AreSameRef(app.Glue, m_TimeSource);
+        Aver.AreSameRef(app.Instrumentation, m_Instrumentation);
+        Aver.AreSameRef(app.TimeSource, m_TimeSource);
       }
     }
 

@@ -68,6 +68,10 @@
       <Project>{c6ec5d85-4a06-4e82-bdce-06ef013f349e}</Project>
       <Name>Azos.Tests.Integration</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\testing\Azos.Tests.Nub\Azos.Tests.Nub.csproj">
+      <Project>{c533831a-dd1b-4da2-a7d8-98b6dd708871}</Project>
+      <Name>Azos.Tests.Nub</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\testing\Azos.Tests.Unit\Azos.Tests.Unit.csproj">
       <Project>{356d2acb-2ac7-4be7-96f4-655f50b0152e}</Project>
       <Name>Azos.Tests.Unit</Name>

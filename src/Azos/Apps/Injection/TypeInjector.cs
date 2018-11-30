@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Azos.Apps.Injection
 {
@@ -52,16 +53,26 @@ namespace Azos.Apps.Injection
     /// </summary>
     public virtual ((FieldInfo, InjectAttribute)[], InjectorAction) Build()
     {
-      var allFields = T.GetFields(BindingFlags.Instance |
+      var t = T;
+      IEnumerable<FieldInfo> allFields = Enumerable.Empty<FieldInfo>();
+      while(t!=typeof(object))//get fields DOES NOT return INHERITED private fields, hence the loop
+      {
+        allFields = allFields.Concat( t.GetFields(
+                                  BindingFlags.DeclaredOnly |
+                                  BindingFlags.Instance |
                                   BindingFlags.Public |
-                                  BindingFlags.NonPublic);
+                                  BindingFlags.NonPublic).Reverse() );
+        t = t.BaseType;
+      }
+
+      allFields = allFields.Reverse();
 
       List<(FieldInfo, InjectAttribute)> lst = null;
       foreach(var f in allFields)
       {
         var attr = f.GetCustomAttribute<InjectAttribute>(true);
         if (attr==null) continue;
-        if (lst==null) lst =new List<(FieldInfo, InjectAttribute)>();
+        if (lst==null) lst = new List<(FieldInfo, InjectAttribute)>();
         lst.Add((f, attr));
       }
 
