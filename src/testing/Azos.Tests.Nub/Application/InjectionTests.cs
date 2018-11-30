@@ -4,6 +4,9 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+
+using System.Collections.Generic;
+
 using Azos.Apps;
 using Azos.Apps.Injection;
 using Azos.Conf;
@@ -13,7 +16,8 @@ using Azos.Data.Access;
 using Azos.Glue;
 using Azos.Time;
 using Azos.Instrumentation;
-using System.Collections.Generic;
+using Azos.Serialization.Slim;
+using System.IO;
 
 namespace Azos.Tests.Nub.Application
 {
@@ -68,6 +72,39 @@ namespace Azos.Tests.Nub.Application
       }
     }
 
+    [Run]
+    public void Test_InjectionTarget_Serialization()
+    {
+      using (var app = new ServiceBaseApplication(null, BASE_CONF))
+      {
+        const string DATA = "lalala!";
+
+        var target = new InjectionTarget_Root();
+        target.Data = DATA;
+
+        app.DependencyInjector.InjectInto(target);
+        target.AssertCorrectness(app);
+
+        using(var ms = new MemoryStream())
+        {
+          var ser= new SlimSerializer();
+          ser.Serialize(ms, target);
+          ms.Position = 0;
+
+          var target2 = ser.Deserialize(ms) as InjectionTarget_Root;
+          Aver.IsNotNull(target2);//we deserialized the instance
+
+          Aver.AreEqual(DATA, target2.Data);//the Data member got deserialized ok
+          Aver.AreNotSameRef(target.Data, target2.Data);
+          Aver.AreNotSameRef(DATA, target2.Data);
+
+          target2.AssertAllInjectionsNull();//but all injections are transitive, hence are null
+          app.DependencyInjector.InjectInto(target2);
+          target2.AssertCorrectness(app);//and are re-hydrated again after InjectInto() call
+        }
+      }
+    }
+
 
     interface IMyModule : IModule { }
 
@@ -92,6 +129,8 @@ namespace Azos.Tests.Nub.Application
       [Inject] IInstrumentation m_Instrumentation;
       [Inject] ITimeSource m_TimeSource;
 
+      public string Data;//<-- this gotta be serializable
+
       public virtual void AssertCorrectness(IApplication app)
       {
         Aver.AreSameRef(app, m_App);
@@ -104,6 +143,19 @@ namespace Azos.Tests.Nub.Application
         Aver.AreSameRef(app.Glue, m_Glue);
         Aver.AreSameRef(app.Instrumentation, m_Instrumentation);
         Aver.AreSameRef(app.TimeSource, m_TimeSource);
+      }
+
+      public virtual void AssertAllInjectionsNull()
+      {
+        Aver.IsNull( m_App);
+        Aver.IsNull( m_App2);
+        Aver.IsNull( m_App3);
+        Aver.IsNull(m_LogAsLog);
+        Aver.IsNull(m_LogAsObject);
+        Aver.IsNull(m_DataStore);
+        Aver.IsNull(m_Glue);
+        Aver.IsNull(m_Instrumentation);
+        Aver.IsNull(m_TimeSource);
       }
     }
 
