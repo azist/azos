@@ -430,7 +430,7 @@ namespace Azos.Tests.Unit.Pile
    }
  }".Replace("@@@ROOT", LOCAL_ROOT).AsLaconicConfig(handling: ConvertErrorHandling.Throw);
 
-        using(var app = new ServiceBaseApplication(null, conf))
+        using(var app = new AzosApplication(null, conf))
         {
           using (var pile = new MMFPile())
           {

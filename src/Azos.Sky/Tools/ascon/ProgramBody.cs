@@ -35,7 +35,7 @@ namespace Azos.Sky.Tools.ascon
 
     static void run(string[] args)
     {
-      using (var app = new ServiceBaseApplication(args, null))
+      using (var app = new AzosApplication(args, null))
       {
         var silent = app.CommandArgs["s", "silent"].Exists;
         if (!silent)

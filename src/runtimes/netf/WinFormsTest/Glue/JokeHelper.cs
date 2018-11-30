@@ -84,11 +84,11 @@ app
 }
 ";
 
-    public static ServiceBaseApplication MakeApp()
+    public static AzosApplication MakeApp()
     {
       var configuration = LaconicConfiguration.CreateFromString(CONFIG_STR);
 
-      return new ServiceBaseApplication(new string[] { }, configuration.Root);
+      return new AzosApplication(new string[] { }, configuration.Root);
     }
   }
 }

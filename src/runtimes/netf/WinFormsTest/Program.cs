@@ -24,7 +24,7 @@ namespace WinFormsTest
 
       //This line initializes  Azos Application Model dependency injection services container
       //Separate class was needed because Application  class is sealed
-      using (new ServiceBaseApplication(args, null))
+      using (new AzosApplication(args, null))
       {
         Application.EnableVisualStyles();
        // Application.SetCompatibleTextRenderingDefault(false);

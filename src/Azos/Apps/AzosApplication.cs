@@ -13,7 +13,7 @@ namespace Azos.Apps
   /// <summary>
   /// Provides base implementation of IApplication for applications that have no forms like services and console apps. This class IS thread safe
   /// </summary>
-  public class ServiceBaseApplication : CommonApplicationLogic
+  public class AzosApplication : CommonApplicationLogic
   {
     /// <summary>
     /// Takes optional application args[] and root configuration.
@@ -22,7 +22,7 @@ namespace Azos.Apps
     ///  called the same name as assembly with '.config' extension, unless args are specified and "/config file"
     ///   switch is used in which case 'file' has to be locatable and readable.
     /// </summary>
-    public ServiceBaseApplication(string[] args, ConfigSectionNode rootConfig)
+    public AzosApplication(string[] args, ConfigSectionNode rootConfig)
       : this(false, args, rootConfig)
     {}
 
@@ -34,7 +34,7 @@ namespace Azos.Apps
     ///   switch is used in which case 'file' has to be locatable and readable.
     /// Pass allowNesting=true to nest other app container instances
     /// </summary>
-    public ServiceBaseApplication(bool allowNesting, string[] args, ConfigSectionNode rootConfig)
+    public AzosApplication(bool allowNesting, string[] args, ConfigSectionNode rootConfig)
       : this(allowNesting, args == null ? null : new CommandArgsConfiguration(args), rootConfig)
     {}
 
@@ -45,7 +45,7 @@ namespace Azos.Apps
     ///   switch is used in which case 'file' has to be locatable and readable.
     /// Pass allowNesting=true to nest other app container instances
     /// </summary>
-    public ServiceBaseApplication(bool allowNesting, Configuration cmdLineArgs, ConfigSectionNode rootConfig) : base(allowNesting, cmdLineArgs, rootConfig)
+    public AzosApplication(bool allowNesting, Configuration cmdLineArgs, ConfigSectionNode rootConfig) : base(allowNesting, cmdLineArgs, rootConfig)
     {
       try
       {

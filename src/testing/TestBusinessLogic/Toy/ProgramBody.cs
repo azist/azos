@@ -47,7 +47,7 @@ namespace TestBusinessLogic.Toy
       //////System.Threading.ThreadPool.SetMaxThreads(1000, 1000);
 
 
-      using(var app = new ServiceBaseApplication(args, null))
+      using(var app = new AzosApplication(args, null))
       {
         Console.WriteLine("...app container is up");
 

@@ -19,7 +19,7 @@ namespace Azos.Sky.Apps
   /// Provides base implementation of ISkyApplication for applications like services and console apps.
   /// This class IS thread safe
   /// </summary>
-  public class SkyApplication : ServiceBaseApplication, ISkyApplication
+  public class SkyApplication : AzosApplication, ISkyApplication
   {
     #region CONSTS
 

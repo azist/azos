@@ -59,7 +59,7 @@ app{
     [Run]
     public void Test1()
     {
-      using(var app = new ServiceBaseApplication(null, CONF1.AsLaconicConfig(handling: ConvertErrorHandling.Throw)))
+      using(var app = new AzosApplication(null, CONF1.AsLaconicConfig(handling: ConvertErrorHandling.Throw)))
       {
           Aver.IsNotNull(PortalHub.Instance);
 

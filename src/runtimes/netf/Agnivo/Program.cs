@@ -14,7 +14,7 @@ namespace Agnivo
     static void Main(string[] args)
     {
       new Azos.Platform.Abstraction.NetFramework.DotNetFrameworkRuntime();
-      using (var application = new ServiceBaseApplication(args, null))
+      using (var application = new AzosApplication(args, null))
       {
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);

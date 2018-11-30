@@ -27,7 +27,7 @@ namespace Azos.Tests.Integration.Web.Pay
 
     private void psAutostarted(string name)
     {
-      using (new ServiceBaseApplication(new string[] { }, LACONF.AsLaconicConfig()))
+      using (new AzosApplication(new string[] { }, LACONF.AsLaconicConfig()))
       {
         var ps = PaySystem.Instances[name];
 

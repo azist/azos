@@ -91,7 +91,7 @@ nfx
         [Run]
         public void T1()
         {
-            using(var app = new ServiceBaseApplication(null, CONFIG1.AsLaconicConfig()))
+            using(var app = new AzosApplication(null, CONFIG1.AsLaconicConfig()))
             {
               Aver.AreEqual(150, app.EventTimer.ResolutionMs);
 
@@ -121,7 +121,7 @@ nfx
         [Run]
         public void T2()
         {
-            using(var app = new ServiceBaseApplication(null, CONFIG1.AsLaconicConfig()))
+            using(var app = new AzosApplication(null, CONFIG1.AsLaconicConfig()))
             {
               Aver.AreEqual(150, app.EventTimer.ResolutionMs);
 
@@ -148,7 +148,7 @@ nfx
         [Run]
         public void T3()
         {
-            using(var app = new ServiceBaseApplication(null, CONFIG1.AsLaconicConfig()))
+            using(var app = new AzosApplication(null, CONFIG1.AsLaconicConfig()))
             {
               Aver.AreEqual(150, app.EventTimer.ResolutionMs);
 
@@ -177,7 +177,7 @@ nfx
         [Run]
         public void T4()
         {
-            using(var app = new ServiceBaseApplication(null, CONFIG1.AsLaconicConfig()))
+            using(var app = new AzosApplication(null, CONFIG1.AsLaconicConfig()))
             {
               Aver.AreEqual(150, app.EventTimer.ResolutionMs);
 
@@ -210,7 +210,7 @@ nfx
         [Run]
         public void T5()
         {
-            using(var app = new ServiceBaseApplication(null, CONFIG2_ARZAMAS.AsLaconicConfig()))
+            using(var app = new AzosApplication(null, CONFIG2_ARZAMAS.AsLaconicConfig()))
             {
               Aver.AreEqual(150, app.EventTimer.ResolutionMs);
 
@@ -242,7 +242,7 @@ nfx
             var lst = TeztHandler.s_List;
             lst.Clear();
 
-            using(var app = new ServiceBaseApplication(null, CONFIG3_HANDLERS.AsLaconicConfig()))
+            using(var app = new AzosApplication(null, CONFIG3_HANDLERS.AsLaconicConfig()))
             {
               Thread.Sleep(10000);
             }
@@ -258,7 +258,7 @@ nfx
         [Run]
         public void T7()
         {
-            using(var app = new ServiceBaseApplication(null, CONFIG1.AsLaconicConfig()))
+            using(var app = new AzosApplication(null, CONFIG1.AsLaconicConfig()))
             {
 
               new Event(app.EventTimer, "A")
@@ -288,7 +288,7 @@ nfx
          [Run]
         public void T8()
         {
-            using(var app = new ServiceBaseApplication(null, CONFIG1.AsLaconicConfig()))
+            using(var app = new AzosApplication(null, CONFIG1.AsLaconicConfig()))
             {
               var lst = new List<string>();
 

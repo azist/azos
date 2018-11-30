@@ -31,7 +31,7 @@ namespace Azos.Tests.Unit.AppModel
  ";
             RESULT = "";
             var conf = LaconicConfiguration.CreateFromString(confSource);
-            using( var app = new ServiceBaseApplication(null, conf.Root))
+            using( var app = new AzosApplication(null, conf.Root))
             {
 
             }
@@ -54,7 +54,7 @@ namespace Azos.Tests.Unit.AppModel
  ";
             RESULT = null;//NULL REFERENCE should happen
             var conf = LaconicConfiguration.CreateFromString(confSource);
-            using( var app = new ServiceBaseApplication(null, conf.Root))
+            using( var app = new AzosApplication(null, conf.Root))
             {
 
             }
@@ -80,7 +80,7 @@ namespace Azos.Tests.Unit.AppModel
  ";
             RESULT = null;//NULL REFERENCE should happen
             var conf = LaconicConfiguration.CreateFromString(confSource);
-            using( var app = new ServiceBaseApplication(null, conf.Root))
+            using( var app = new AzosApplication(null, conf.Root))
             {
 
             }

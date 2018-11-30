@@ -23,7 +23,7 @@ namespace Azos.Tools.Phash
           try
           {
 
-           using(var app = new ServiceBaseApplication(args, null))
+           using(var app = new AzosApplication(args, null))
              run(app);
 
            System.Environment.ExitCode = 0;

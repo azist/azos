@@ -82,7 +82,7 @@ app
           prepdirs();
 
           var conf  = LaconicConfiguration.CreateFromString(CONFIG);
-          using(var app =  new ServiceBaseApplication(null, conf.Root))
+          using(var app =  new AzosApplication(null, conf.Root))
            using ( var authority = new GdidAuthorityService())
            {
               authority.Configure(null);
@@ -139,7 +139,7 @@ app
           prepdirs();
 
           var conf  = LaconicConfiguration.CreateFromString(CONFIG);
-          using(var app =  new ServiceBaseApplication(null, conf.Root))
+          using(var app =  new AzosApplication(null, conf.Root))
            using ( var authority = new GdidAuthorityService())
            {
               authority.Configure(null);

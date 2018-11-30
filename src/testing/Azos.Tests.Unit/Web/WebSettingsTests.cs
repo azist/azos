@@ -32,7 +32,7 @@ namespace Azos.Tests.Unit.Web
         provider {type='Azos.Web.Social.LinkedIn, Azos.Web' api-key='a1111111111111' secret-key='a111111111111111'}
 } } }".AsLaconicConfig();
 
-      using (new Azos.Apps.ServiceBaseApplication(new string[] { }, conf))
+      using (new Azos.Apps.AzosApplication(new string[] { }, conf))
       {
         var social = WebSettings.SocialNetworks;
 
@@ -53,7 +53,7 @@ namespace Azos.Tests.Unit.Web
         provider {type='Azos.Web.Social.Facebook, Azos.Web' client-code='1111111111111111' client-secret='a1111111111111111111111111111111' app-accesstoken='a|111111111111111111111111111111111111111111'}
 } } }".AsLaconicConfig();
 
-      using (new Azos.Apps.ServiceBaseApplication(new string[] { }, conf))
+      using (new Azos.Apps.AzosApplication(new string[] { }, conf))
       {
         var social = WebSettings.SocialNetworks;
 
@@ -121,7 +121,7 @@ namespace Azos.Tests.Unit.Web
         }
       }".AsLaconicConfig();
 
-      using (new Azos.Apps.ServiceBaseApplication(new string[] {}, conf))
+      using (new Azos.Apps.AzosApplication(new string[] {}, conf))
       {
         var spmc = WebSettings.ServicePointManager;
 

@@ -39,7 +39,7 @@ namespace Azos.Tests.Unit.Logging
         {
 
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC1);
-            using( var app = new ServiceBaseApplication(null, conf.Root))
+            using( var app = new AzosApplication(null, conf.Root))
             {
                 var mbd = ((LogDaemon)app.Log).Sinks.First() as MemoryBufferSink;
 
@@ -68,7 +68,7 @@ namespace Azos.Tests.Unit.Logging
         {
 
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC1);
-            using( var app = new ServiceBaseApplication(null, conf.Root))
+            using( var app = new AzosApplication(null, conf.Root))
             {
                 var mbd = ((LogDaemon)app.Log).Sinks.First() as MemoryBufferSink;
 

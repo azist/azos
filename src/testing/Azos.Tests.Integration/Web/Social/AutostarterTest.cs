@@ -25,7 +25,7 @@ namespace Azos.Tests.Integration.Web.Social
 
     private void psAutostarted(string name)
     {
-      using (new ServiceBaseApplication(new string[] { }, LACONF.AsLaconicConfig()))
+      using (new AzosApplication(new string[] { }, LACONF.AsLaconicConfig()))
       {
         var sn = SocialNetwork.Instances[name];
 

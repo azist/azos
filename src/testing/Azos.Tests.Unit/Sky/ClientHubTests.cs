@@ -56,7 +56,7 @@ app
       public void CH_EchoOneCall()
       {
          var conf  = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw );
-         using(var app =  new ServiceBaseApplication(null, conf))
+         using(var app =  new AzosApplication(null, conf))
          {
               using( var tester = ServiceClientHub.New<ITesterClient>("/us/east/cle/a/ii/wmed0004"))
               {
@@ -71,7 +71,7 @@ app
       public void CH_EchoTwoCalls()
       {
          var conf  = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw );
-         using(var app =  new ServiceBaseApplication(null, conf))
+         using(var app =  new AzosApplication(null, conf))
          {
               using( var tester = ServiceClientHub.New<ITesterClient>("/us/east/cle/a/ii/wmed0004"))
               {
@@ -91,7 +91,7 @@ app
       public void CH_CallWithRetry_FirstHostErr()
       {
          var conf  = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw );
-         using(var app =  new ServiceBaseApplication(null, conf))
+         using(var app =  new AzosApplication(null, conf))
          {
               Exception err = null;
               var arg = "Abcdefg";
@@ -112,7 +112,7 @@ app
       public void CH_CallWithRetry_HostErrAbort()
       {
          var conf  = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw );
-         using(var app =  new ServiceBaseApplication(null, conf))
+         using(var app =  new AzosApplication(null, conf))
          {
               Exception err = null;
               var arg = "Abcdefg";
@@ -130,7 +130,7 @@ app
       public void CH_CallWithRetryAsync_FirstTwoHostErr()
       {
          var conf  = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw );
-         using(var app =  new ServiceBaseApplication(null, conf))
+         using(var app =  new AzosApplication(null, conf))
          {
               var err = new List<Exception>();
               var arg = "Abcdefg";
@@ -152,7 +152,7 @@ app
       public void CH_CallWithRetryAsync_FirstHostErrAbort()
       {
          var conf  = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw );
-         using(var app =  new ServiceBaseApplication(null, conf))
+         using(var app =  new AzosApplication(null, conf))
          {
               Exception err = null;
               var arg = "Abcdefg";
@@ -180,7 +180,7 @@ app
       public void CH_EchoFAIL()
       {
          var conf  = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw );
-         using(var app =  new ServiceBaseApplication(null, conf))
+         using(var app =  new AzosApplication(null, conf))
          {
               using( var tester = ServiceClientHub.New<ITesterClient>("/us/east/cle/a/ii/wmed0004"))
               {
@@ -196,7 +196,7 @@ app
       public void CH_CallWithRetry_TwoHostsErr()
       {
          var conf  = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw );
-         using(var app =  new ServiceBaseApplication(null, conf))
+         using(var app =  new AzosApplication(null, conf))
          {
               Exception err = null;
               var arg = "FAIL";
@@ -215,7 +215,7 @@ app
       public void CH_CallWithRetry_TwoHostErrAbortFalse()
       {
          var conf  = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw );
-         using(var app =  new ServiceBaseApplication(null, conf))
+         using(var app =  new AzosApplication(null, conf))
          {
               Exception err = null;
               var arg = "FAIL";
@@ -234,7 +234,7 @@ app
       public void CH_CallWithRetryAsync_TwoHostsErr()
       {
          var conf  = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw );
-         using(var app =  new ServiceBaseApplication(null, conf))
+         using(var app =  new AzosApplication(null, conf))
          {
               Exception err = null;
               var arg = "FAIL";
@@ -260,7 +260,7 @@ app
       public void CH_ClientCallRetryAsync_TaskVoid()
       {
         var conf = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var echoed = ServiceClientHub.CallWithRetryAsync<ITesterClient>(
             (cl) => cl.Async_TestEcho( "test" ).AsTaskReturning<object>(),

@@ -40,7 +40,7 @@ namespace Azos.Tests.Nub.Application
     [Run]
     public void Test_InjectionTarget_Root()
     {
-      using( var app = new ServiceBaseApplication(null, BASE_CONF))
+      using( var app = new AzosApplication(null, BASE_CONF))
       {
         var target = new InjectionTarget_Root();
         app.DependencyInjector.InjectInto(target);
@@ -51,7 +51,7 @@ namespace Azos.Tests.Nub.Application
     [Run]
     public void Test_InjectionTarget_Modules()
     {
-      using (var app = new ServiceBaseApplication(null, BASE_CONF))
+      using (var app = new AzosApplication(null, BASE_CONF))
       {
         var target = new InjectionTarget_Modules();
         app.DependencyInjector.InjectInto(target);
@@ -62,7 +62,7 @@ namespace Azos.Tests.Nub.Application
     [Run]
     public void Test_InjectionTarget_Singleton()
     {
-      using (var app = new ServiceBaseApplication(null, BASE_CONF))
+      using (var app = new AzosApplication(null, BASE_CONF))
       {
         var singleton = app.Singletons.GetOrCreate( () => new Dictionary<string, string>() );
 
@@ -75,7 +75,7 @@ namespace Azos.Tests.Nub.Application
     [Run]
     public void Test_InjectionTarget_Serialization()
     {
-      using (var app = new ServiceBaseApplication(null, BASE_CONF))
+      using (var app = new AzosApplication(null, BASE_CONF))
       {
         const string DATA = "lalala!";
 

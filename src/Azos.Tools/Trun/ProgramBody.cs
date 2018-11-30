@@ -23,7 +23,7 @@ namespace Azos.Tools.Trun
         {
           try
           {
-           using(var app = new ServiceBaseApplication(true, args, null))
+           using(var app = new AzosApplication(true, args, null))
            {
              Console.CancelKeyPress += (_, e) => { app.Stop(); e.Cancel = true;};
 
@@ -40,7 +40,7 @@ namespace Azos.Tools.Trun
         }
 
 
-        private static int run(ServiceBaseApplication app)
+        private static int run(AzosApplication app)
         {
           var config = app.CommandArgs;
 

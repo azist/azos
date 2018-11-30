@@ -32,13 +32,13 @@ namespace Azos.Tests.Integration.Web.Messaging
         }
       }";
 
-    private ServiceBaseApplication m_App;
+    private AzosApplication m_App;
     private TwilioSink m_Sink;
 
     void IRunnableHook.Prologue(Runner runner, FID id)
     {
       var config = CONFIG.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
-      m_App = new ServiceBaseApplication(null, config);
+      m_App = new AzosApplication(null, config);
 
       m_Sink = (TwilioSink)((MessageDaemon)MessageDaemon.Instance).Sink;
       Aver.IsNotNull(m_Sink);

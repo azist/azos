@@ -18,7 +18,7 @@ namespace Azos.Tests.Integration.IO.FileSystem.S3.V4
     [Run]
     public void PutFolder()
     {
-      using(new ServiceBaseApplication(null, LACONF.AsLaconicConfig()))
+      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
       {
         string fullFolderName = S3_DXW_ROOT;
         S3V4URI folderUri = S3V4URI.CreateFolder(fullFolderName);

@@ -29,7 +29,7 @@ namespace Azos.Tests.Unit.AppModel
             var confSource=@" nfx{  starters{ starter{ type='Azos.Tests.Unit.AppModel.MySuperStarter, Azos.Tests.Unit'} }    }";
             RESULT = "";
             var conf = LaconicConfiguration.CreateFromString(confSource);
-            using( var app = new ServiceBaseApplication(null, conf.Root))
+            using( var app = new AzosApplication(null, conf.Root))
             {
 
             }

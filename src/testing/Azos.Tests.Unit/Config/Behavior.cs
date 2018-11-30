@@ -65,7 +65,7 @@ static string conf3 = @"
         public void Case1_LogLevel()
         {
             var root = Azos.Conf.XMLConfiguration.CreateFromXML(conf1).Root;
-            using(var app = new ServiceBaseApplication(new string[0], root ))
+            using(var app = new AzosApplication(new string[0], root ))
             {
                 app.Log.Write(Log.MessageType.Info, "Khello!");
 
@@ -80,7 +80,7 @@ static string conf3 = @"
         public void Case2_CascadeFromAppLevel()
         {
             var root = Azos.Conf.XMLConfiguration.CreateFromXML(conf2).Root;
-            using(var app = new ServiceBaseApplication(new string[0],  root ))
+            using(var app = new AzosApplication(new string[0],  root ))
             {
                 app.Log.Write(Log.MessageType.Info, "Khello!");
 
@@ -96,7 +96,7 @@ static string conf3 = @"
         public void Case3_ExistsOnAppLevelButDoesNotCascade()
         {
             var root = Azos.Conf.XMLConfiguration.CreateFromXML(conf3).Root;
-            using(var app = new ServiceBaseApplication(new string[0],  root ))
+            using(var app = new AzosApplication(new string[0],  root ))
             {
 
             }

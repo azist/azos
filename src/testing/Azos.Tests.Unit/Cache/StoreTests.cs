@@ -44,7 +44,7 @@ namespace Azos.Tests.Unit.Cache
         {
 
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
-            using( var app = new ServiceBaseApplication(null, conf.Root))
+            using( var app = new AzosApplication(null, conf.Root))
             {
                 using(var store = new CacheStore("BANKING"))
                 {
@@ -78,7 +78,7 @@ namespace Azos.Tests.Unit.Cache
         {
 
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
-            using( var app = new ServiceBaseApplication(null, conf.Root))
+            using( var app = new AzosApplication(null, conf.Root))
             {
                 using(var store = new CacheStore("SomeStoreThat will be configured from default store without name"))
                 {

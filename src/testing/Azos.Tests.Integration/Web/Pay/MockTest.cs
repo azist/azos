@@ -38,7 +38,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = getPaySystem();
 
@@ -55,7 +55,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = getPaySystem();
 
@@ -72,7 +72,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = getPaySystem();
 
@@ -89,7 +89,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = getPaySystem();
 
@@ -106,7 +106,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = getPaySystem();
 
@@ -123,7 +123,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = getPaySystem();
 
@@ -139,7 +139,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = getPaySystem();
 
@@ -155,7 +155,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = PaySystem.Instances["mock"];
           using (var pss = ps.StartSession())
@@ -170,7 +170,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = PaySystem.Instances["mock"];
           using (var pss = ps.StartSession())
@@ -185,7 +185,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = PaySystem.Instances["mock"];
           using (var pss = ps.StartSession())
@@ -200,7 +200,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = PaySystem.Instances["mock"];
           using (var pss = ps.StartSession())
@@ -215,7 +215,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = PaySystem.Instances["mock"];
           using (var pss = ps.StartSession())
@@ -230,7 +230,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = PaySystem.Instances["mock"];
           using (var pss = ps.StartSession())
@@ -245,7 +245,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = PaySystem.Instances["mock"];
           using (var pss = ps.StartSession())
@@ -260,7 +260,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = PaySystem.Instances["mock"];
           using (var pss = ps.StartSession())
@@ -275,7 +275,7 @@ namespace Azos.Tests.Integration.Web.Pay
       {
         var conf = LACONF.AsLaconicConfig();
 
-        using (new ServiceBaseApplication(null, conf))
+        using (new AzosApplication(null, conf))
         {
           var ps = PaySystem.Instances["mock"];
           using (var pss = ps.StartSession())

@@ -179,7 +179,7 @@ namespace Azos.Sky.Apps
         }
 
 
-        private static void writeLog(this ServiceBaseApplication app, Azos.Log.MessageType type, string text)
+        private static void writeLog(this AzosApplication app, Azos.Log.MessageType type, string text)
         {
           app.Log.Write( new Message{
                                     Type = type,
@@ -209,7 +209,7 @@ namespace Azos.Sky.Apps
                 Configuration result = null;
 
                 //init Boot app container
-                using(var bootApp = new ServiceBaseApplication(cmdArgs, bootConfig.Root))
+                using(var bootApp = new AzosApplication(cmdArgs, bootConfig.Root))
                 {
                    bootApp.writeLog(MessageType.Info, "Entering Sky app bootloader...");
 
@@ -306,7 +306,7 @@ namespace Azos.Sky.Apps
 
         #region .pvt .impl
 
-          private static void determineHostName(ServiceBaseApplication bootApp)
+          private static void determineHostName(AzosApplication bootApp)
           {
               var hNode = bootApp.ConfigRoot[CONFIG_SKY_SECTION][CONFIG_HOST_SECTION];
 
@@ -327,7 +327,7 @@ namespace Azos.Sky.Apps
           }
 
 
-          private static void mountMetabank(ServiceBaseApplication bootApp)
+          private static void mountMetabank(AzosApplication bootApp)
           {
             var mNode = bootApp.ConfigRoot[CONFIG_SKY_SECTION][CONFIG_METABASE_SECTION];
 
@@ -363,7 +363,7 @@ namespace Azos.Sky.Apps
           }
 
 
-          private static Configuration getEffectiveAppConfigAndZoneGovernor(ServiceBaseApplication bootApp,
+          private static Configuration getEffectiveAppConfigAndZoneGovernor(AzosApplication bootApp,
                                                                             out Metabank.SectionHost zoneGovernorSection,
                                                                             out bool isDynamicHost)
           {
@@ -390,7 +390,7 @@ namespace Azos.Sky.Apps
           }
 
 
-          private static void ensureMetabaseAppName(ServiceBaseApplication bootApp, IConfigSectionNode mNode)
+          private static void ensureMetabaseAppName(AzosApplication bootApp, IConfigSectionNode mNode)
           {
             if (SkySystem.MetabaseApplicationName==null)
             {
@@ -429,7 +429,7 @@ namespace Azos.Sky.Apps
           }
 
 
-          private static IFileSystem getFileSystem(ServiceBaseApplication bootApp,
+          private static IFileSystem getFileSystem(AzosApplication bootApp,
                                                    IConfigSectionNode mNode,
                                                    out FileSystemSessionConnectParams cParams)
           {

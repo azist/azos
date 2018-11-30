@@ -29,7 +29,7 @@ namespace Azos.Tests.Integration.GeoLookup
         }
       }";
 
-    private ServiceBaseApplication m_App;
+    private AzosApplication m_App;
 
     public IGeoLookup Service { get; set; }
 
@@ -38,7 +38,7 @@ namespace Azos.Tests.Integration.GeoLookup
     void IRunnableHook.Prologue(Runner runner, FID id)
     {
       var config = LACONF.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
-      m_App = new ServiceBaseApplication(null, config);
+      m_App = new AzosApplication(null, config);
 
       var service = new GeoLookupService();
       service.Configure(config["geo-lookup"]);

@@ -128,7 +128,7 @@ namespace Azos.Tests.Integration.Web.Shipping
       }
     }";
 
-    private ServiceBaseApplication m_App;
+    private AzosApplication m_App;
     private ShippingSystem m_ShippingSystem;
 
     public ShippingSystem ShippingSystem
@@ -146,7 +146,7 @@ namespace Azos.Tests.Integration.Web.Shipping
     void IRunnableHook.Prologue(Runner runner, FID id)
     {
       var config = LACONF.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
-      m_App = new ServiceBaseApplication(null, config);
+      m_App = new AzosApplication(null, config);
     }
 
     bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error)
