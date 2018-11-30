@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Azos.Conf;
 
 namespace Azos.Apps.Injection
 {
   /// <summary>
-  /// Declares entities that process [Inject]-decorated fields and IApplicationInjection on
+  /// Designates entities that process [Inject]-decorated fields and IApplicationInjection on
   /// a target objects passed into InjectInto(target) method.
   /// Access application default injector using IApplication.DependencyInjector property
   /// </summary>
@@ -28,7 +29,7 @@ namespace Azos.Apps.Injection
     IEnumerable<object> GetApplicationRoots();
   }
 
-  public interface IApplicationDependencyInjectorImplementation : IApplicationDependencyInjector, IConfigurable
+  public interface IApplicationDependencyInjectorImplementation : IApplicationDependencyInjector, IConfigurable, IDisposable
   {
   }
 

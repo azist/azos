@@ -165,16 +165,11 @@ namespace Azos.Apps.Injection
     }
   }
 
-
-
-  class Jaba
-  {
-    [Inject] private ICardRenderingModule m_CardRedering;
-    [InjectModule] private IBuzzerModule m_Buzzer;
-    [Inject] private ILog m_Logger;
-    [InjectSingleton] private MySingleton m_Singleton;
-
-  }
-
-
+  //class MyClass
+  //{
+  //  [Inject] private ICardRenderingModule m_CardRedering;
+  //  [InjectModule] private IBuzzerModule m_Buzzer;
+  //  [Inject] private ILog m_Logger;
+  //  [InjectSingleton] private MySingleton m_Singleton;
+  //}
 }

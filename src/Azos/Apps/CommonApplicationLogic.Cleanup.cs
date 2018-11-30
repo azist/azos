@@ -99,6 +99,7 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
     {
       //the order of root component cleanup is the reverse of boot:
 
+      CleanupComponent(ref m_DependencyInjector, "DI");           //10. di
       CleanupComponent(ref m_Glue, "Glue");                       //9.  glue
       CleanupComponent(ref m_ObjectStore, "Objectstore");         //8.  object store
       CleanupComponent(ref m_DataStore, "DataStore");             //7.  data store

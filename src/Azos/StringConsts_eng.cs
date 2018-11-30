@@ -357,7 +357,10 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
         public const string APP_GLUE_INIT_ERROR =
               "App glue initApplication error: ";
 
-        public const string APP_SECURITY_MANAGER_INIT_ERROR =
+        public const string APP_DI_INIT_ERROR =
+              "App DI initApplication error: ";
+
+       public const string APP_SECURITY_MANAGER_INIT_ERROR =
               "App security manager initApplication error: ";
 
         public const string APP_APPLY_BEHAVIORS_ERROR =

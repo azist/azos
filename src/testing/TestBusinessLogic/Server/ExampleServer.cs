@@ -3,17 +3,17 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+using System;
 
 using Azos;
 using Azos.Log;
-using System;
+using Azos.Apps.Injection;
 
 namespace TestBusinessLogic.Server
 {
   /// <summary>
   /// Provides implementation for IExampleContract used for testing
   /// </summary>
-  [Azos.Glue.ThreadSafe]
   public class ExampleServer : IExampleContract // no inheritance from special type is needed, just implement the contract
   {
     //used by serializer (if the contract is stateful)
@@ -22,22 +22,26 @@ namespace TestBusinessLogic.Server
     //used manually for unit testing, this .ctor will never be called by Glue
     //instead of IApplication you could inject whatever particular dependency you need, e.g. IMyAccountingLogic
     //public ExampleServer(IMyAccountingLogic accounting) => m_Accounting = accounting;
-    public ExampleServer(IApplication app) => m_App = app;
+    public ExampleServer(IApplication app, ILog log)
+    {
+      m_App = app;
+      m_Log = log;
+    }
 
     //Mark as [NonSer] just in case this becomes a stateful server ever
-    [NonSerialized] private IApplication m_App;
+    [Inject] private IApplication m_App;
+    [Inject] private ILog m_Log;
+    //[Inject] private IAccountingModule m_Accounting;
+    //[InjectModule] private IAccountingModule m_Accounting;
+    //[Inject(Name="AccountingLogic")] private IAccountingModule m_Accounting;
+    //[Inject(Type=typeof(IUSAccountingLoogic)] private IAccountingModule m_Accounting;
 
-    //instead of IApplication you could inject whatever particular dependency you need, e.g. IMyAccountingLogic
-    //e.g. use Azos.Glue.ServerCall.App.GetAccountingLogic() extension method to return a custom typed IMyAccountingLogic:
-    //public IMyAccountingLogic Accounting => m_Accounting ?? Azos.Glue.ServerCall.App.GetAccountingLogic();
-    public IApplication App => m_App ?? (m_App = Azos.Glue.ServerCall.App);
-
-    //In this business-logic-oriented method we may need dependencies. Those dependencies
-    //are to be used via properties resolvable via App chassis ambient context
+    //In this business-logic-oriented method we may need dependencies
     public object ExampleMethod(string name)
     {
       //return Accounting.GetBalance(name);
-      App.Log.Write( new Message{ Text = name });
+      m_Log.Write( new Message{ Text = name });
+      //m_Log.Write( new Message { Text = m_Accounting.GetBalance(name) });
       return name;
     }
   }

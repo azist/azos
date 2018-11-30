@@ -12,6 +12,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 
 using Azos.Apps.Volatile;
+using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Data.Access;
 using Azos.Glue;
@@ -51,6 +52,7 @@ namespace Azos.Apps
     public const string CONFIG_DATA_STORE_SECTION = "data-store";
     public const string CONFIG_OBJECT_STORE_SECTION = "object-store";
     public const string CONFIG_GLUE_SECTION = "glue";
+    public const string CONFIG_DEPENDENCY_INJECTOR_SECTION = "dependency-injector";
     public const string CONFIG_SECURITY_SECTION = "security";
 
 
@@ -65,6 +67,7 @@ namespace Azos.Apps
       m_CommandArgs = (cmdLineArgs ?? new MemoryConfiguration()).Root;
       m_ConfigRoot  = rootConfig ?? GetConfiguration().Root;
       m_Singletons = new ApplicationSingletonManager();
+      m_DefaultDependencyInjector = new ApplicationDependencyInjector(this);
       m_Realm = new ApplicationRealmBase(this);
 
       m_NOPLog = new NOPLog(this);
@@ -94,6 +97,7 @@ namespace Azos.Apps
 
       DisposeAndNull(ref m_Realm);
       DisposeAndNull(ref m_Singletons);
+      DisposeAndNull(ref m_DefaultDependencyInjector);
       base.Destructor();
     }
     #endregion
@@ -122,6 +126,9 @@ namespace Azos.Apps
     protected ConfigSectionNode m_ConfigRoot;
 
     protected ApplicationSingletonManager m_Singletons;
+
+    protected IApplicationDependencyInjectorImplementation m_DependencyInjector;
+    protected IApplicationDependencyInjectorImplementation m_DefaultDependencyInjector;
 
     protected ILogImplementation m_Log;
     protected ILogImplementation m_NOPLog;
@@ -203,6 +210,7 @@ namespace Azos.Apps
     public IConfigSectionNode ConfigRoot          => m_ConfigRoot;
     public IConfigSectionNode CommandArgs         => m_CommandArgs;
     public IApplicationSingletonManager Singletons => m_Singletons;
+    public IApplicationDependencyInjector DependencyInjector => m_DependencyInjector ?? m_DefaultDependencyInjector;
     public ILog                Log                => m_Log             ??  m_NOPLog;
     public IInstrumentation    Instrumentation    => m_Instrumentation ??  m_NOPInstrumentation;
     public IDataStore          DataStore          => m_DataStore       ??  m_NOPDataStore;

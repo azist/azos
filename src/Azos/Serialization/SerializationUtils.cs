@@ -82,10 +82,13 @@ namespace Azos.Serialization
                 {
                     //20140926 DKh +DeclaredOnly
                     var local = type.GetFields(BindingFlags.DeclaredOnly |
-                                                BindingFlags.Instance  |
-                                                BindingFlags.NonPublic |
-                                                BindingFlags.Public)
-                                    .Where(fi => !fi.IsNotSerialized) //DKh 20130801 removed readonly constraint
+                                               BindingFlags.Instance  |
+                                               BindingFlags.NonPublic |
+                                               BindingFlags.Public)
+                                    //DKh 20130801 removed readonly constraint
+                                    //DKh 20181129 filter-out Inject fields
+                                    .Where(fi => !fi.IsNotSerialized &&
+                                                 !Attribute.IsDefined(fi, typeof(Apps.Injection.InjectAttribute)))
                                     .OrderBy( fi => fi.Name )//DKh 20130730
                                     .ToArray();
 

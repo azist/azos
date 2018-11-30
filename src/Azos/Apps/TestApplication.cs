@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Azos.Apps.Injection;
 using Azos.Time;
 using Azos.Apps.Volatile;
 using Azos.Data.Access;
@@ -35,6 +36,7 @@ namespace Azos.Apps
             this.ConfigRoot = cfgRoot;
 
             Singletons = new ApplicationSingletonManager();
+            DependencyInjector = new ApplicationDependencyInjector(this);
             Active = true;
             StartTime = DateTime.Now;
             Log = new NOPLog(this);
@@ -65,7 +67,9 @@ namespace Azos.Apps
 
         public virtual IApplicationRealm Realm{ get; set;}
 
-        public virtual bool ForceInvariantCulture { get; set; }
+        public IApplicationDependencyInjector DependencyInjector { get; set; }
+
+       public virtual bool ForceInvariantCulture { get; set; }
 
         public virtual Guid InstanceID { get { return m_InstanceID;}}
 

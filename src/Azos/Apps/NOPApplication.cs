@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Azos.Apps.Injection;
 using Azos.Log;
 using Azos.Instrumentation;
 using Azos.Conf;
@@ -39,6 +40,7 @@ namespace Azos.Apps
 
         m_StartTime = DateTime.Now;
         m_Singletons = new NOPApplicationSingletonManager();
+        m_DependencyInjector = new ApplicationDependencyInjector(this);
         m_Realm = new ApplicationRealmBase(this);
 
         m_Log = new NOPLog(this);
@@ -67,6 +69,7 @@ namespace Azos.Apps
     private DateTime m_StartTime;
     private MemoryConfiguration m_Configuration;
     private MemoryConfiguration m_CommandArgsConfiguration;
+    private IApplicationDependencyInjectorImplementation m_DependencyInjector;
     private IApplicationSingletonManager m_Singletons;
     private IApplicationRealmImplementation m_Realm;
     private ILog               m_Log;
@@ -110,6 +113,8 @@ namespace Azos.Apps
         public bool Active => false;//20140128 DKh was true before
 
         public IApplicationRealm Realm => m_Realm;
+
+        public IApplicationDependencyInjector DependencyInjector => m_DependencyInjector;
 
         public bool Stopping => false;
 

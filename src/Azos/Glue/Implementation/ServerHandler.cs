@@ -489,7 +489,6 @@ namespace Azos.Glue.Implementation
                    Guid? checkedOutID;
                    bool lockTaken;
                    var instance = getServerInstance(server, request, out checkedOutID, out lockTaken); //throws when instance expired or cant be locked
-
                    try
                    {
                        Guid? instanceID = null;
@@ -605,6 +604,10 @@ namespace Azos.Glue.Implementation
                          if (!m_SingletonInstances.TryGetValue(server.Implementation, out result))
                          {
                            result = createInstance(server);
+
+                           //Inject dependencies into singleton server implementor ONLY ONCE at creation
+                           App.DependencyInjector.InjectInto(result);
+
                            var dict = new Dictionary<Type, object>( m_SingletonInstances );
                            dict[server.Implementation] = result;
                            m_SingletonInstances = dict;//atomic
@@ -634,12 +637,24 @@ namespace Azos.Glue.Implementation
                        }
                      }
                      else
-                      result = createInstance(server);//no need to lock as instance is brand new
+                     {
+                       result = createInstance(server);//no need to lock as instance is brand new
+                     }
+
+                     //Inject dependencies into newly created or checked out stateful instance
+                     //The DI is thread safe because in the unlikely case of DI injected values change,
+                     //DI sets all ref type fields atomically per CLR guarantee
+                     App.DependencyInjector.InjectInto(result);
                    }
                    else // ServerInstanceMode.PerCall
                    {
                      result = createInstance(server);
+
+                     //Inject dependencies into newly created per-call instance
+                     App.DependencyInjector.InjectInto(result);
                    }
+
+                   //singleton is NOT DI'ed here
 
                    return result;
                 }

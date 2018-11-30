@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using Azos.Apps.Injection;
 using Azos.Apps.Volatile;
 
 using Azos.Log;
@@ -90,7 +91,7 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
 
       //the order of root component boot is important:
 
-      InitLog();             //1.  must be the first one so other can log
+      InitLog();             //1.  must be the first one so others can log
       InitModule();          //2.  other services may use module references
       InitTimeSource();      //3.  start accurate time asap
       InitSecurityManager(); //4.  security context
@@ -99,6 +100,7 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
       InitDataStore();       //7.  data store
       InitObjectStore();     //8.  object store
       InitGlue();            //9.  glue
+      InitDependencyInjector();//10.  custom dep injector last
 
 
 
@@ -367,4 +369,28 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
       }
     }
 
-}}
+    protected virtual void InitDependencyInjector()
+    {
+      var node = m_ConfigRoot[CONFIG_DEPENDENCY_INJECTOR_SECTION];
+      if (!node.Exists) return;
+
+      try
+      {
+        m_DependencyInjector = FactoryUtils.MakeAndConfigureComponent<IApplicationDependencyInjectorImplementation>(this, node, typeof(ApplicationDependencyInjector));
+
+        WriteLog(MessageType.Trace, INIT_FROM, "DI made");
+
+        if (m_DependencyInjector is Daemon daemon)
+          if (daemon.StartByApplication())
+            WriteLog(MessageType.Trace, INIT_FROM, "DI daemon started");
+      }
+      catch (Exception error)
+      {
+        var msg = StringConsts.APP_DI_INIT_ERROR + error.ToMessageWithType();
+        WriteLog(MessageType.CatastrophicError, INIT_FROM, msg, error);
+        throw new AzosException(msg, error);
+      }
+    }
+
+  }
+}
