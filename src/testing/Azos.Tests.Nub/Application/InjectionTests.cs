@@ -60,9 +60,11 @@ namespace Azos.Tests.Nub.Application
     {
       using (var app = new ServiceBaseApplication(null, BASE_CONF))
       {
+        var singleton = app.Singletons.GetOrCreate( () => new Dictionary<string, string>() );
+
         var target = new InjectionTarget_Singleton();
         app.DependencyInjector.InjectInto(target);
-        target.AssertCorrectness(app);
+        target.AssertCorrectness(app, singleton.instance);
       }
     }
 
@@ -125,10 +127,11 @@ namespace Azos.Tests.Nub.Application
       [InjectSingleton] Dictionary<string, string> m_MySingleton1;
       [InjectSingleton(Type =typeof(Dictionary<string, string>))] IDictionary<string, string> m_MySingleton2;
 
-      public override void AssertCorrectness(IApplication app)
+      public void AssertCorrectness(IApplication app, Dictionary<string, string> dict)
       {
         base.AssertCorrectness(app);
-
+        Aver.AreSameRef(dict, m_MySingleton1);
+        Aver.AreSameRef(dict, m_MySingleton2);
       }
     }
 
