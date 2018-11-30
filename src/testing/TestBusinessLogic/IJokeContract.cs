@@ -24,6 +24,7 @@ namespace TestBusinessLogic
     public interface IExampleContract
     {
       object ExampleMethod(string name);
+      SimplePersonDoc ProcessPerson(SimplePersonDoc person);
     }
 
 

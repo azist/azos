@@ -287,9 +287,10 @@ namespace Azos.Data
         if (value is IValidatable)
             return (((IValidatable)value).Validate(targetName));
 
-        if (value is IEnumerable<IValidatable>)//List<IValidatable>, IValidatable[]
+        var enumerableIValidatable = value as IEnumerable<IValidatable>;
+        if (enumerableIValidatable!=null)//List<IValidatable>, IValidatable[]
         {
-            foreach(var v in (IEnumerable<IValidatable>)value)
+            foreach(var v in enumerableIValidatable)
             {
               if (v==null) continue;
               var error = v.Validate(targetName);
@@ -298,9 +299,10 @@ namespace Azos.Data
             return null;
         }
 
-        if (value is IEnumerable<KeyValuePair<string, IValidatable>>)//Dictionary<string, IValidatable>
+        var enumerableKVP = value as IEnumerable<KeyValuePair<string, IValidatable>>;
+        if (enumerableKVP!=null)//Dictionary<string, IValidatable>
         {
-            foreach(var kv in (IEnumerable<KeyValuePair<string, IValidatable>>)value)
+            foreach(var kv in enumerableKVP)
             {
               var v = kv.Value;
               if (v==null) continue;

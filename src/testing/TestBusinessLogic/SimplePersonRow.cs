@@ -6,12 +6,20 @@
 
 using System;
 
+using Azos;
+using Azos.Apps.Injection;
 using Azos.Data;
+using Azos.Log;
 
 namespace TestBusinessLogic
 {
   public class SimplePersonDoc : TypedDoc
   {
+    public SimplePersonDoc() { }
+
+    //Used by unit testing injection of dependencies
+    public SimplePersonDoc(ILog log) => m_Log = log;
+
     [Field]public GDID ID { get; set; }
     [Field]public string Name{get; set;}
     [Field]public int Age{ get;set;}
@@ -20,5 +28,13 @@ namespace TestBusinessLogic
     [Field]public string Str2{ get;set;}
     [Field]public DateTime Date{ get;set;}
     [Field]public double Salary{ get;set;}
+
+    [Inject] private ILog m_Log;
+
+    public override Exception Validate(string targetName)
+    {
+      m_Log.NonNull(nameof(m_Log)).Write(MessageType.Info, "Validate was called");
+      return base.Validate(targetName);
+    }
   }
 }

@@ -137,5 +137,10 @@ namespace Azos
                        .ContinueWith( (antecedent) => antecedent.Result.AsEnumerableOf<TDoc>());
     }
 
+    /// <summary>
+    /// Perform app context injection and calls Validate() on a data Doc
+    /// </summary>
+    public static Exception Validate(this Doc doc, IApplication app, string targetName = null)
+      => app.NonNull(nameof(app)).InjectInto(doc.NonNull(nameof(doc))).Validate(targetName);
   }
 }

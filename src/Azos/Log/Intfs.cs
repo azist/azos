@@ -15,7 +15,7 @@ using Azos.Serialization.BSON;
 namespace Azos.Log
 {
   /// <summary>
-  /// Describes entity capable of being written log information to
+  /// Describes an entity that accepts log messages
   /// </summary>
   public interface ILog : IApplicationComponent, ILocalizedTimeProvider
   {

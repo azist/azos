@@ -8,6 +8,11 @@ using Azos.Collections;
 namespace Azos.Apps.Injection
 {
 
+  /// <summary>
+  /// Decorates fields that should be injected with app-rooted services (for example log or data store).
+  /// A call to IApplication.DependencyInjector.InjectInto(instance) performs injection.
+  /// Framework code invokes this method automatically for glue servers and MVC objects.
+  /// </summary>
   [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
   public class InjectAttribute : Attribute
   {

@@ -44,5 +44,13 @@ namespace TestBusinessLogic.Server
       //m_Log.Write( new Message { Text = m_Accounting.GetBalance(name) });
       return name;
     }
+
+    public SimplePersonDoc ProcessPerson(SimplePersonDoc person)
+    {
+      var error = person.Validate(m_App);//notice the use of extension method
+      if (error!=null) throw error;
+      return person;
+    }
   }
+
 }
