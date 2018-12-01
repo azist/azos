@@ -44,7 +44,7 @@ namespace Azos.Tests.Nub.Application
       {
         var target = new InjectionTarget_Root();
         app.DependencyInjector.InjectInto(target);
-        target.AssertCorrectness(app);
+        target.AssertInjectionCorrectness(app);
       }
     }
 
@@ -55,7 +55,7 @@ namespace Azos.Tests.Nub.Application
       {
         var target = new InjectionTarget_Modules();
         app.DependencyInjector.InjectInto(target);
-        target.AssertCorrectness(app);
+        target.AssertInjectionCorrectness(app);
       }
     }
 
@@ -68,7 +68,7 @@ namespace Azos.Tests.Nub.Application
 
         var target = new InjectionTarget_Singleton();
         app.DependencyInjector.InjectInto(target);
-        target.AssertCorrectness(app, singleton.instance);
+        target.AssertInjectionCorrectness(app, singleton.instance);
       }
     }
 
@@ -83,7 +83,7 @@ namespace Azos.Tests.Nub.Application
         target.Data = DATA;
 
         app.DependencyInjector.InjectInto(target);
-        target.AssertCorrectness(app);
+        target.AssertInjectionCorrectness(app);
 
         using(var ms = new MemoryStream())
         {
@@ -100,8 +100,36 @@ namespace Azos.Tests.Nub.Application
 
           target2.AssertAllInjectionsNull();//but all injections are transitive, hence are null
           app.DependencyInjector.InjectInto(target2);
-          target2.AssertCorrectness(app);//and are re-hydrated again after InjectInto() call
+          target2.AssertInjectionCorrectness(app);//and are re-hydrated again after InjectInto() call
         }
+      }
+    }
+
+
+    [Run]
+    public void Test_InjectionTarget_AppInjection_True()
+    {
+      using (var app = new AzosApplication(null, BASE_CONF))
+      {
+        var target = new InjectionTarget_AppInjection_True();
+        app.DependencyInjector.InjectInto(target);
+
+        target.AssertAllInjectionsNull();
+        Aver.AreSameRef(app, target.AppInjectedByHand);
+        Aver.AreEqual(app.DependencyInjector.ComponentSID, target.InjectorSID);
+      }
+    }
+
+    [Run]
+    public void Test_InjectionTarget_AppInjection_False()
+    {
+      using (var app = new AzosApplication(null, BASE_CONF))
+      {
+        var target = new InjectionTarget_AppInjection_False();
+        app.DependencyInjector.InjectInto(target);
+
+        target.AssertInjectionCorrectness(app);
+        Aver.AreEqual(app.DependencyInjector.ComponentSID, target.InjectorSID);
       }
     }
 
@@ -131,7 +159,7 @@ namespace Azos.Tests.Nub.Application
 
       public string Data;//<-- this gotta be serializable
 
-      public virtual void AssertCorrectness(IApplication app)
+      public virtual void AssertInjectionCorrectness(IApplication app)
       {
         Aver.AreSameRef(app, m_App);
         Aver.AreSameRef(app, m_App2);
@@ -165,9 +193,9 @@ namespace Azos.Tests.Nub.Application
       [Inject(Name="Module2")] IMyModule m_MyModule2;
       [InjectModule(Name = "Module3")] IMyModule m_MyModule3;
 
-      public override void AssertCorrectness(IApplication app)
+      public override void AssertInjectionCorrectness(IApplication app)
       {
-        base.AssertCorrectness(app);
+        base.AssertInjectionCorrectness(app);
         Aver.AreSameRef(app.ModuleRoot.Get<IMyModule>(), m_MyModule1);
         Aver.AreSameRef(app.ModuleRoot.Get<IMyModule>("Module2"), m_MyModule2);
         Aver.AreSameRef(app.ModuleRoot.Get<IMyModule>("Module3"), m_MyModule3);
@@ -179,11 +207,35 @@ namespace Azos.Tests.Nub.Application
       [InjectSingleton] Dictionary<string, string> m_MySingleton1;
       [InjectSingleton(Type =typeof(Dictionary<string, string>))] IDictionary<string, string> m_MySingleton2;
 
-      public void AssertCorrectness(IApplication app, Dictionary<string, string> dict)
+      public void AssertInjectionCorrectness(IApplication app, Dictionary<string, string> dict)
       {
-        base.AssertCorrectness(app);
+        base.AssertInjectionCorrectness(app);
         Aver.AreSameRef(dict, m_MySingleton1);
         Aver.AreSameRef(dict, m_MySingleton2);
+      }
+    }
+
+    public class InjectionTarget_AppInjection_True : InjectionTarget_Root, IApplicationInjection
+    {
+      public ulong InjectorSID;
+      public IApplication AppInjectedByHand;
+
+      public bool InjectApplication(IApplicationDependencyInjector injector)
+      {
+        AppInjectedByHand = injector.App;
+        InjectorSID = injector.ComponentSID;
+        return true;//completed do not inject anything else
+      }
+    }
+
+    public class InjectionTarget_AppInjection_False : InjectionTarget_Root, IApplicationInjection
+    {
+      public ulong InjectorSID;
+
+      public bool InjectApplication(IApplicationDependencyInjector injector)
+      {
+        InjectorSID = injector.ComponentSID;
+        return false;//not completed keep injecting
       }
     }
 
