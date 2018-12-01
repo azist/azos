@@ -56,6 +56,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Tools", "Azos.Tools\Azos.Tools.csproj", "{1743D0B5-2B62-44B2-A1C1-84326209F0FC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "testing", "testing", "{0FC66524-0EE2-410C-B971-97170166D2D6}"
+	ProjectSection(SolutionItems) = preProject
+		testing\readme.md = testing\readme.md
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestBusinessLogic", "testing\TestBusinessLogic\TestBusinessLogic.csproj", "{27C8EE85-4E00-4471-B81B-C4D51C9D03D0}"
 EndProject
