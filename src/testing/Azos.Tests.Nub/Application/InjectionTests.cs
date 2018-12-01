@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 
+using System;
 using System.Collections.Generic;
 
 using Azos.Apps;
@@ -34,7 +35,6 @@ namespace Azos.Tests.Nub.Application
     }
   }
   ".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
-
 
 
     [Run]

@@ -40,6 +40,7 @@ namespace Azos.Time
       private int m_ResolutionMs = DEFAULT_RESOLUTION_MS;
       private bool m_InstrumentationEnabled;
       private Thread m_Thread;
+      private AutoResetEvent m_Waiter;
 
       private Registry<Event> m_Events = new Registry<Event>();
 
@@ -110,10 +111,17 @@ namespace Azos.Time
       protected override void DoStart()
       {
         base.DoStart();
+        m_Waiter = new AutoResetEvent(false);
         m_Thread = new Thread(threadSpin);
         m_Thread.Name = THREAD_NAME;
         m_Thread.IsBackground = true;
         m_Thread.Start();
+      }
+
+      protected override void DoSignalStop()
+      {
+        base.DoSignalStop();
+        m_Waiter.Set();
       }
 
       protected override void DoWaitForCompleteStop()
@@ -121,6 +129,7 @@ namespace Azos.Time
         base.DoWaitForCompleteStop();
         m_Thread.Join();
         m_Thread = null;
+        DisposeAndNull(ref m_Waiter);
       }
 
     #endregion
@@ -145,7 +154,7 @@ namespace Azos.Time
             m_LastStatDump = utcNow;
           }
 
-          Thread.Sleep(m_ResolutionMs);
+          m_Waiter.WaitOne(m_ResolutionMs);
         }
       }
 
