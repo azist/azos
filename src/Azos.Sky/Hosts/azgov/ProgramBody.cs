@@ -66,7 +66,7 @@ namespace Azos.Sky.Hosts.azgov
                     });
                     break;  //<-- AHGOV protocol, AHGOV sends a <CRLF> when it is time to shut down
                   }
-                  Thread.Sleep(1000);
+                  Thread.Sleep(250);
                 }
               }
               finally

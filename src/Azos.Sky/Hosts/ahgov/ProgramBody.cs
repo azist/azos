@@ -68,7 +68,7 @@ namespace Azos.Sky.Hosts.ahgov
                     });
                     break;  //<-- ARD protocol, ARD sends a <CRLF> when it is time to shut down
                   }
-                  Thread.Sleep(1000);
+                  Thread.Sleep(250);
                 }
               }
               finally

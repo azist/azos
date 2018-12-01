@@ -128,6 +128,7 @@ namespace Azos.IO.Net.Gate
       private State m_OutgoingState;
 
       private Thread m_Thread;
+      private AutoResetEvent m_Waiter;
 
     #endregion
 
@@ -229,37 +230,26 @@ namespace Azos.IO.Net.Gate
 
       protected override void DoStart()
       {
+        m_Waiter = new AutoResetEvent(false);
         m_Thread = new Thread(threadSpin);
         m_Thread.Name = "Thread {0}('{1}')".Args(GetType().DisplayNameWithExpandedGenericArgs(), Name);
         m_Thread.Start();
       }
 
-      protected override void DoWaitForCompleteStop()
+      protected override void DoSignalStop()
       {
-        m_Thread.Join();
-        m_Thread = null;
-
+        base.DoSignalStop();
+        m_Waiter.Set();
       }
 
-      /// <summary>
-      /// Facilitates net gate logging
-      /// </summary>
-      protected void Log(MessageType type, string text, string from = null, Exception error = null, string pars = null, Guid? related = null)
+      protected override void DoWaitForCompleteStop()
       {
-        var msg = new Message
+        if (m_Thread!=null)
         {
-          Type = type,
-          Topic = CoreConsts.LOG_NET_TOPIC,
-          From = "{0}.{1}".Args(GetType().FullName, from),
-          Text = text,
-          Exception = error,
-          Parameters = pars
-        };
-
-        if (related.HasValue)
-          msg.RelatedTo = related.Value;
-
-        App.Log.Write(msg);
+          m_Thread.Join();
+          m_Thread = null;
+        }
+        DisposeAndNull(ref m_Waiter);
       }
 
     #endregion
@@ -278,9 +268,9 @@ namespace Azos.IO.Net.Gate
           }
           catch(Exception error)
           {
-            Log(MessageType.CatastrophicError, error.ToMessageWithType(), "threadSpin()", error);
+            WriteLog(MessageType.CatastrophicError, nameof(threadSpin), error.ToMessageWithType(), error);
           }
-          Thread.Sleep(THREAD_GRANULARITY_MS);
+          m_Waiter.WaitOne(THREAD_GRANULARITY_MS);
         }
       }
 

@@ -202,7 +202,8 @@ namespace Azos.Sky.Apps.HostGovernor
                     (m_Process.StandardOutput==null || m_Process.StandardOutput.EndOfStream) &&
                     watch.ElapsedMilliseconds < APP_PROCESS_LAUNCH_TIMEOUT_MS)
             {
-              Thread.Sleep(500);
+              //todo: Pending protocol re-write
+              Thread.Sleep(200);
             }
 
             if (m_Process.HasExited)

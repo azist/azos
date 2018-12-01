@@ -35,3 +35,19 @@ a thread pool and properly awaited for~~
 * Make IApplication required by component .ctors, get rid of Global App.
 * Revise all components to use component-level WriteLog() methods
 
+## Add very base "nub" testing
+* Test injector
+* Test module load and get, especially ordering
+* Logging
+* App container, Singletons
+* Config/laconic/navigation/overrides
+* Data docs
+* Slim serializer
+* Json Serializer
+* BSON Serializer
+* As* data casts
+* CoreUtils 
+* Date Utils
+* Data utils
+* IOUtils
+* String utils 
