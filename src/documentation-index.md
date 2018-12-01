@@ -7,6 +7,7 @@
 * Testing
   * Unit Testing overview + `Aver` library
   * [Scripting](/src/Azos/Scripting) is used for writing tests
+  * [Azos Framework Tests](/src/testing)
 * Platform Abstraction
 
 ## Azos Core Functionality
