@@ -147,7 +147,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsTestSky", "runtimes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Sky.Social", "Azos.Sky.Social\Azos.Sky.Social.csproj", "{0C205CB7-AE12-402C-BAA4-90369E6C2627}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azos.Tests.Nub", "testing\Azos.Tests.Nub\Azos.Tests.Nub.csproj", "{C533831A-DD1B-4DA2-A7D8-98B6DD708871}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Tests.Nub", "testing\Azos.Tests.Nub\Azos.Tests.Nub.csproj", "{C533831A-DD1B-4DA2-A7D8-98B6DD708871}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

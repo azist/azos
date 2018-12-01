@@ -168,7 +168,10 @@ namespace Azos.Conf
               }
             }
             else
-             result.AddAttributeNode(kvp.Key, kvp.Value);
+            {
+               if (!kvp.Key.EqualsIgnoreCase(SECTION_VALUE_ATTR))//20181201 DKh
+                 result.AddAttributeNode(kvp.Key, kvp.Value);
+            }
           }
 
           return result;
