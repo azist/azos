@@ -6,24 +6,19 @@ a few common software [myths and truisms](/src/truisms.md).
 
 
 ## Overview
-Azos project originated as **purposely "opinionated"** framework [~what is opinionated software?~](https://stackoverflow.com/questions/802050/what-is-opinionated-software)
-as it prescribes **a certain way of application structuring**. This is done to reap the benefit of
- simplicity of the SDLC as a whole, and short time to market while writing real-world complex business/data-driven applications.
-
-
 The philosophy of Azos is based on observations made in the past 15+ years of corporate code bases in 10s of large and medium scale organizations. 
 It has been concluded that **modern framework landscape is still of a too low level
 for average developer to grasp and apply properly**. Another detrimental factor is **fragmentation and too many choices**.
 
 See [myths and truisms](/src/truisms.md).
 
-Azos follows the following principles:
-- Provide a full stack of services needed in a typical business application:
+Azos follows the following design principles:
+- **Provide a full stack of services** needed in a typical business application:
   - Logging
   - Instrumentation/Tracing/Perf counters
   - Configuration/Distributes/Overrides/Merges/Scripting/Validation/Class prop binding
   - DI
-  - Serialization: Tight binary, JSON, BSON, XML
+  - Serialization: Tight binary, JSON, BSON, XML. Culture-sensitive serialization (e.g. only write iso-lang keys)
   - RPC/Microservices/Contract-based + Security
   - Security/Permissions/Identities/Password/Tokens/Authentication/Authorization
   - Web pipeline/Mvc
@@ -33,16 +28,19 @@ Azos follows the following principles:
   - FileSystem abstraction - work with Local, SVN, Amazon S3, Google Drive and other file systems via the same API
   - Precise TimeSource and EventScheduler - run scheduled jobs/events
   - Daemons - create lightweight in-app "processes" controllable with Start/Stop commands
-  - Utilities: prime math, date math, leaky bucket, circuit breaker, 
-- Reuse internal building blocks, thus reducing complexity and footprint
-- Set guidelines for every app aspect implementation using the above
+  - In-process large cache (capable of storing 100s of millions of objects in memory)
+  - i18n/culture sensitive data structures, NLS, culture-aware serialization, multi-language metadata etc.
+  - Utilities: prime math, date math, leaky bucket, circuit breaker 
+- **Reuse internal building blocks**, thus reducing complexity and footprint
+- Achieve higher performance due to use of intrinsics and optimizations for internal types (e.g. StringMap direct serialization)
+- **Set guidelines for every app aspect** implementation using the above
 
 
 ## Overall Application Structure
 
 Azos application structure unifies different app types: console/CLI, web server, RPC service(not necessarily web), UI.
 Unlike the approach traditionally taken in .Net framework *(which is changing now towards using 
-[universal generic host/HostBuilder process model](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/generic-host?view=aspnetcore-2.1)
+[universal generic host/HostBuilder process model](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/generic-host?view=aspnetcore-2.1)**
 for any kind of app), Azos uses the same app hosting chassis for all application types.
 
 Any Azos application starts from allocation of the [`AzosApplication : IApplication`](/src/Azos/Apps/AzosApplication.cs) (or its derivative) chassis, which in turn boots all of the root services.
@@ -210,7 +208,6 @@ entropy from network stack and other sources of unpredictable data (e.g. various
 ----
 
 External resources:
-- [Opinionated Framework (SO)](https://stackoverflow.com/questions/802050/what-is-opinionated-software)
 - [Pattern: Microservice Chassis](https://microservices.io/patterns/microservice-chassis.html)
 - [Service Location (Wikipedia)](https://en.wikipedia.org/wiki/Service_locator_pattern)
 - [Dependency Injection (Wikipedia)](https://en.wikipedia.org/wiki/Dependency_injection)
