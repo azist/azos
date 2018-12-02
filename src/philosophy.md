@@ -40,7 +40,7 @@ Azos follows the following design principles:
 
 Azos application structure unifies different app types: console/CLI, web server, RPC service(not necessarily web), UI.
 Unlike the approach traditionally taken in .Net framework *(which is changing now towards using 
-[universal generic host/HostBuilder process model](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/generic-host?view=aspnetcore-2.1)**
+[universal generic host/HostBuilder process model](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/generic-host?view=aspnetcore-2.1)*
 for any kind of app), Azos uses the same app hosting chassis for all application types.
 
 Any Azos application starts from allocation of the [`AzosApplication : IApplication`](/src/Azos/Apps/AzosApplication.cs) (or its derivative) chassis, which in turn boots all of the root services.
@@ -207,10 +207,8 @@ entropy from network stack and other sources of unpredictable data (e.g. various
 
 ----
 
+Back to [Documentation Index](/src/documentation-index.md)
+
 External resources:
 - [Pattern: Microservice Chassis](https://microservices.io/patterns/microservice-chassis.html)
-- [Service Location (Wikipedia)](https://en.wikipedia.org/wiki/Service_locator_pattern)
-- [Dependency Injection (Wikipedia)](https://en.wikipedia.org/wiki/Dependency_injection)
-- [IoC with Service Location / Dependency Injection by Martin Fowler](https://martinfowler.com/articles/injection.html)
 
-Back to [Documentation Index](/src/documentation-index.md)

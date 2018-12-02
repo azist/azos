@@ -43,3 +43,9 @@ TBContinued........................
 
 ---
 Back to [Documentation Index](/src/documentation-index.md)
+
+External resources:
+- [Service Location (Wikipedia)](https://en.wikipedia.org/wiki/Service_locator_pattern)
+- [Dependency Injection (Wikipedia)](https://en.wikipedia.org/wiki/Dependency_injection)
+- [IoC with Service Location / Dependency Injection by Martin Fowler](https://martinfowler.com/articles/injection.html)
+
