@@ -11,3 +11,5 @@ See also:
 External resources:
 - [Monorepo Project Structure (Wikipedia)](https://en.wikipedia.org/wiki/Monorepo)
 - [Pattern: Microservice Chassis](https://microservices.io/patterns/microservice-chassis.html)
+- <a href="https://en.wikipedia.org/wiki/Monorepo)" target="_blank">Monorepo Project Structure (Wikipedia)</a>
+- <a href="https://microservices.io/patterns/microservice-chassis.html" target="_blank">Pattern: Microservice Chassis</a>

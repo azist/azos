@@ -13,7 +13,7 @@
 ## Azos Core Functionality
 * [Application Chassis](/src/Azos/Apps)
   * App Components
-  * Dependency Injection
+  * [Dependency Injection](/src/Azos/Apps/Injection)
   * Modules
   * Singleton Instances
   * Volatile Object Store
