@@ -17,7 +17,10 @@ using 3 different logging frameworks in a single console app. Multiple iOC conta
 it is ~~**good and "eclectic" to have so "many tools"**~~. If only could the companies(business) comprehend the technology enough to straighten those "technologists" out. 
 
 Simply put, there is a **lot of puristic BS in modern frameworks** that try to fit all possible combinations at the expense of verbose code and
-overall complexity. Lets take DI as an example. 
+overall complexity. Lets take [DI *(dependency injection)*](https://en.wikipedia.org/wiki/Dependency_injection) as an example. DI is powerful 
+and great, yet how many times have you questioned the need for new object allocation? It turns out, that while writing business-oriented
+applications manual object allocation and class proliferation in general is not a good thing. Classes make sense for business state and logic,
+but not for senseless stubs with 1 method (and no state). See [Azos Dependency Injection](/src/Azos/Apps/Injection) for details.
 
 ## Overall Application Structure
 TBD...
@@ -29,36 +32,6 @@ need for Chassis
 Application root and component tree, logging + instrumentation built-in
 
 ...
-
-
-## Problems with General-Purpose Object Allocations
-DI is good, in general, what is not good is that in the hands of inapt developers general purpose DI availability creates 
-a temptation to allocate too many objects for tasks which do not need object instances in principle. For example, the following 
-lists objects that need to get allocated in a typical app:
-
-- App component graph - allocated by the system at start (system code)
-- Logging - allocated at app start (system code)
-- Instrumentation - allocated at app start (system code)
-- Data Store/Access Repository -  allocated at app start (system code)
-- Security Manager - allocated at app start (system code)
-- Domain-specific business logic - modules allocated at app start (system code)
-- Web call POST/PUT payload -> Domain model - allocated by MVC controller/model binder (system code)
-- Data Access model - allocated by datastore/access layer (system code)
-- Custom data structures/Nodes - allocated by user code
-- Domain model object - allocated by datastore/object mapper (system code mostly) and user code
-- Deserialization: stream-> object: - allocated by serializer (system code)
-
-As we can see in the list above, most of the object allocations are done by the system(framework) code. Business logic 
-developers should concentrate on implementing:
-
-- Domain models - objects that reflect business (e.g. User, Account, Doctor etc...)
-- Domain logic - objects that contain business rules. The practice has shown that the majority of business logic is linear and procedural, hence it makes sense to put those functions in "logic modules" that get loaded in the app context and used a s a "service"
-
-Business logic is mostly procedural in its core, and it takes "business models", validates them and transacts
-the db/store/queue.
-
-It became apparent that **frivolous object allocations should NOT be encouraged** altogether in business logic.
-
 
 
 
