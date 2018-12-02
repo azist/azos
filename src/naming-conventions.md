@@ -1,5 +1,7 @@
 # Azos - Naming Conventions & File Structure
 
+Back to [Documentation Index](/src/documentation-index.md)
+
 This document describes the source code naming conventions for the Azos project.
 
 ## C# Codebase
@@ -67,3 +69,5 @@ Code fold/regions:
 Azos project **follows its own standard** and MSFT-defined typical .Net/FxCop rules do not apply by design. 
 We tried to use FxCop and Roslyn-based CA and found that required customizations (suppression/change attributes)
 add much complexity and do not add any value for Azos which does not follow the default .Net guidelines.
+
+Back to [Documentation Index](/src/documentation-index.md)

@@ -1,5 +1,8 @@
 # Framework Testing
 
+Back to [Documentation Index](/src/documentation-index.md)
+
+
 This directory contains testing code. Azos testing code is written using [Azos.Scripting](/src/Azos/Scripting) and
  [Aver.cs](/src/Azos/Aver.cs) "assertion" library. The testing philosophy is described here. TBD
 
@@ -98,6 +101,8 @@ Pass `out=<file>.xml|json|laconf` specifier to the `-host` switch:
 $ dotnet trun.dll Azos.Tests.Integration.dll -host out="~/azos/out/results.laconf"
 ```
 
+---
+Back to [Documentation Index](/src/documentation-index.md)
 
 
 

@@ -8,14 +8,17 @@
   * Unit Testing overview + `Aver` library
   * [Scripting](/src/Azos/Scripting) is used for writing tests
   * [Azos Framework Tests](/src/testing)
-* Platform Abstraction
+* [Runtimes and Platform Abstraction](/src/runtimes.md)
 
 ## Azos Core Functionality
 * [Application Chassis](/src/Azos/Apps)
   * App Components
+  * Dependency Injection
   * Modules
-  * Volatile Store
-  * Service Model
+  * Singleton Instances
+  * Volatile Object Store
+  * Daemon Model
+  * User Sessions
 * [Configuration](/src/Azos/Conf)
   * Laconic configuration
   * XML configuration
