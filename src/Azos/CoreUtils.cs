@@ -19,7 +19,7 @@ namespace Azos
   public static class CoreUtils
   {
     /// <summary>
-    /// Returns the name of entry point executable file optionaly with its path
+    /// Returns the name of entry point executable file optionally with its path
     /// </summary>
     public static string EntryExeName(bool withPath = true)
     {
