@@ -40,7 +40,7 @@ You can inject whatever component is supported by the injector. The default inje
 This is purposely done to limit the "choices" and preclude chaotic object inter-dependencies.
 
 The default injector [`ApplicationDependencyInjector`](/src/Azos/Apps/Injection/ApplicationDependencyInjector.cs) interprets 
-[`InjectAttrubute`](/src/Azos/Apps/Injection/Attributes.cs) on all decorated fields. Inject attribute `Apply()` method does probing: 
+[`InjectAttribute`](/src/Azos/Apps/Injection/Attributes.cs) on all decorated fields. Inject attribute `Apply()` method does probing: 
 it takes the field declaration type or `Type` parameter specified in the constructor and sees if it is an `IModule` then it tries to get
 module by type, then by name, then inspects app root objects.
 
@@ -70,7 +70,7 @@ public virtual IEnumerable<object> GetApplicationRoots()
 }
 ```
 
-The dependency injection is performed into private fields decorated with `[Inject]` attribute. Once injected,
+The dependency injection is performed into private fields decorated with the `[Inject]` attribute. Once injected,
 you can references dependencies in the `Validate()`(and any other) method. In our example we invoke validation
 routine which checks if the specified email is used by some other patient ID - this is an example of module injection.
 Modules are loaded during app boot (by default), and can be resolved via `App.ModuleRoot.Get<IModule>(name)` service locator,
@@ -185,13 +185,13 @@ public class PatientRepositoryServer : IPatientRepository
   }
 }
 ```
-The DI into the server module is done automatically by Glue framework which activates the server module. Pay attention to the payload type,
+The DI into the server module is done automatically by the Glue framework which activates the server module. Pay attention to the payload type,
 the method takes `Patient` model from the client, and it needs some context internally for validation. We invoke `Validate(IApplication)`
 extension method (DI Extension Method Pattern) which performs the dependency injection and calls `Validate()` on the model. Notice the constructor which is used for
 unit testing of the Glue server module.
 
 ## DI Extension Method Pattern
-Business domain objects may introduce methods needed by a particular business logic. Those methods would probably need various dependencies.
+Business domain objects may need to introduce specific method logic. Those methods would probably need various dependencies.
 DI Extension method pattern is used to extend DI functionality into custom methods. This approach allows to keep **`IApplication` context
 as an ambient parameter** instead of passing it around various methods which is inconvenient.
 
