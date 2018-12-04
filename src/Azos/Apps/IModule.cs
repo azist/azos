@@ -61,12 +61,13 @@ namespace Azos.Apps
   {
     /// <summary>
     /// Called by the application container after all services have initialized.
+    /// DI into this module has already happened before this call.
     /// An implementation is expected to notify all subordinate (child) modules.
-    /// The call is used to perform initialization tasks such as inter-service dependency fixups,
+    /// The call is used to perform initialization tasks such as inter-service dependency fixups by code,
     /// initial data loads (e.g. initial cache fetch etc..) after everything has loaded in the application container.
     /// The implementation is expected to handle internal exceptions gracefully (i.e. use log etc.)
     /// </summary>
-    void ApplicationAfterInit(IApplication application);
+    void ApplicationAfterInit();
 
     /// <summary>
     /// Called by the application container before services shutdown.
@@ -75,6 +76,6 @@ namespace Azos.Apps
     /// buffer flushes etc. before the application container starts to shutdown.
     /// The implementation is expected to handle internal exceptions gracefully (i.e. use log etc.)
     /// </summary>
-    void ApplicationBeforeCleanup(IApplication application);
+    void ApplicationBeforeCleanup();
   }
 }

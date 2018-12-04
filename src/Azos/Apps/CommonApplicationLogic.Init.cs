@@ -118,17 +118,26 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
       }
     }
 
-
     protected virtual void DoModuleAfterInitApplication()
     {
       const string FROM = INIT_FROM+".mod";
 
       if (m_Module!=null)
       {
-        WriteLog(MessageType.Trace, FROM, "Call module root .ApplicationAfterInit()");
+        WriteLog(MessageType.Trace, FROM, "Call module root DI and .ApplicationAfterInit()");
         try
         {
-          m_Module.ApplicationAfterInit(this);
+          this.DependencyInjector.InjectInto(m_Module);
+        }
+        catch (Exception error)
+        {
+          var msg = "Error performing DI into module root:" + error.ToMessageWithType();
+          WriteLog(MessageType.CatastrophicError, FROM, msg, error);
+          throw new AzosException(msg, error);
+        }
+        try
+        {
+          m_Module.ApplicationAfterInit();
         }
         catch(Exception error)
         {

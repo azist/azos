@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Instrumentation;
 
@@ -24,7 +25,7 @@ namespace Azos.Apps
   ///  FactoryUtils.MakeAndConfigureDirectedComponent&lt;IMyModuleImplementation&gt;(app, "module{ a=1 b=2}".AsLaconicConfig());
   /// </code>
   /// </remarks>
-  public abstract class ModuleBase : ApplicationComponent, IModuleImplementation
+  public abstract class ModuleBase : ApplicationComponent, IModuleImplementation, IApplicationInjection
   {
     /// <summary>
     /// Creates a root module without a parent
@@ -114,18 +115,20 @@ namespace Azos.Apps
       return result;
     }
 
-    void IModuleImplementation.ApplicationAfterInit(IApplication application)
+    bool IApplicationInjection.InjectApplication(IApplicationDependencyInjector injector) => DoInjectApplication(injector);
+
+    void IModuleImplementation.ApplicationAfterInit()
     {
-      var handled = DoApplicationAfterInit(application);
+      var handled = DoApplicationAfterInit();
       if (!handled)
-        m_Children.OrderedValues.ForEach( c => ((IModuleImplementation)c).ApplicationAfterInit(application));
+        m_Children.OrderedValues.ForEach( c => ((IModuleImplementation)c).ApplicationAfterInit());
     }
 
-    void IModuleImplementation.ApplicationBeforeCleanup(IApplication application)
+    void IModuleImplementation.ApplicationBeforeCleanup()
     {
-      var handled = DoApplicationBeforeCleanup(application);
+      var handled = DoApplicationBeforeCleanup();
       if (!handled)
-        m_Children.OrderedValues.Reverse().ForEach( c => ((IModuleImplementation)c).ApplicationBeforeCleanup(application));
+        m_Children.OrderedValues.Reverse().ForEach( c => ((IModuleImplementation)c).ApplicationBeforeCleanup());
     }
 
     void IConfigurable.Configure(IConfigSectionNode node)
@@ -211,14 +214,26 @@ namespace Azos.Apps
     }
 
 
+
+    /// <summary>
+    /// Override to perform custom DI, the default implementation injects content into all child modules.
+    /// The DI is done before DoApplicationAfterInit() call by app chassis
+    /// </summary>
+    protected virtual bool DoInjectApplication(IApplicationDependencyInjector injector)
+    {
+      ChildModules.OrderedValues.ForEach( m => injector.InjectInto(m) );//Inject into all children
+      return false;//injection not completed, let the system keep processing [Inject] attributes
+    }
+
     /// <summary>
     /// Override to perform this module-specific actions after app container init.
+    /// The DI has already taken place.
     /// Return true only when the system should not continue to call all child modules, false to let the system call all child modules.
-    /// The call is used to perform initialization tasks such as inter-service dependency fixups,
+    /// The call is used to perform initialization tasks such as inter-service dependency fixups by code,
     /// initial data loads (e.g. initial cache fetch etc..) after everything has loaded in the application container.
     /// The implementation is expected to handle internal exceptions gracefully (i.e. use log etc.)
     /// </summary>
-    protected virtual bool DoApplicationAfterInit(IApplication application)
+    protected virtual bool DoApplicationAfterInit()
     {
       return false;
     }
@@ -230,7 +245,7 @@ namespace Azos.Apps
     /// everything is about to be shutdown in the application container.
     /// The implementation is expected to handle internal exceptions gracefully (i.e. use log etc.)
     /// </summary>
-    protected virtual bool DoApplicationBeforeCleanup(IApplication application)
+    protected virtual bool DoApplicationBeforeCleanup()
     {
       return false;
     }

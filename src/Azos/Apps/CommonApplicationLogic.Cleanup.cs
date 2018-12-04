@@ -84,7 +84,7 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
           WriteLog(MessageType.Info, FROM, "Call module root .ApplicationBeforeCleanup()");
           try
           {
-            m_Module.ApplicationBeforeCleanup(this);
+            m_Module.ApplicationBeforeCleanup();
           }
           catch(Exception error)
           {
