@@ -14,7 +14,7 @@ using Azos.Serialization.JSON;
 namespace Azos.Security
 {
   /// <summary>
-  /// Represents abstraction of a hashed password, the concreate password algorithm provide implementation (i.e. bytebuffer, dictionary, string)
+  /// Represents abstraction of a hashed password, the concrete password algorithm provide implementation (i.e. bytebuffer, dictionary, string)
   /// </summary>
   [Azos.Serialization.Slim.SlimSerializationProhibited]
   public sealed class HashedPassword : IJSONWritable, IEnumerable<KeyValuePair<string, object>>

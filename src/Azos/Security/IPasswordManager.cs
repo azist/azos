@@ -14,7 +14,7 @@ using Azos.Instrumentation;
 namespace Azos.Security
 {
   /// <summary>
-  /// Defines password stregth levels: Minimum, Normal, Maximum etc.
+  /// Defines password strength levels: Minimum, Normal, Maximum etc.
   /// </summary>
   public enum PasswordStrengthLevel
   {
@@ -27,7 +27,7 @@ namespace Azos.Security
   }
 
   /// <summary>
-  /// Denoutes kinds of passwords i.e.: text that user types on login, short PIN,
+  /// Denotes kinds of passwords i.e.: text that user types on login, short PIN,
   /// geometrical curve that users need to trace with their finger, select areas of picture
   /// </summary>
   public enum PasswordFamily

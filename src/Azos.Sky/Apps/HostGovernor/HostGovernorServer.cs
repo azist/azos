@@ -4,6 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Apps.Injection;
+
 namespace Azos.Sky.Apps.HostGovernor
 {
   /// <summary>
@@ -13,14 +15,14 @@ namespace Azos.Sky.Apps.HostGovernor
     : Sky.Contracts.IHostGovernor,
       Sky.Contracts.IPinger
   {
-    public Sky.Contracts.HostInfo GetHostInfo()
-    {
-      return HostGovernorService.Instance.GetHostInfo();
-    }
 
-    public void Ping()
-    {
-      HostGovernorService.Instance.Ping();
-    }
+    [Inject] IApplication m_App;
+
+    public HostGovernorService Service => m_App.NonNull(nameof(m_App))
+                                               .Singletons
+                                               .Get<HostGovernorService>() ?? throw new AHGOVException(StringConsts.AHGOV_INSTANCE_NOT_ALLOCATED_ERROR);
+
+    public Sky.Contracts.HostInfo GetHostInfo() => Service.GetHostInfo();
+    public void Ping() => Service.Ping();
   }
 }

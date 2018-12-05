@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 
+using Azos.Apps.Injection;
 
 namespace Azos.Sky.Apps.ZoneGovernor
 {
@@ -18,59 +19,43 @@ namespace Azos.Sky.Apps.ZoneGovernor
                                            Azos.Sky.Contracts.IZoneHostReplicator,
                                            Azos.Sky.Contracts.ILocker
   {
+    [Inject] IApplication m_App;
+    public ZoneGovernorService Service => m_App.NonNull(nameof(m_App))
+                                              .Singletons
+                                              .Get<ZoneGovernorService>() ?? throw new AZGOVException(StringConsts.AZGOV_INSTANCE_NOT_ALLOCATED_ERROR);
+
+
     public int SendTelemetry(string host, Azos.Instrumentation.Datum[] data)
-    {
-      return ZoneGovernorService.Instance.SendTelemetry(host, data);
-    }
+      => Service.SendTelemetry(host, data);
 
     public int SendLog(string host, string appName, Azos.Log.Message[] data)
-    {
-      return ZoneGovernorService.Instance.SendLog(host, appName, data);
-    }
+      => Service.SendLog(host, appName, data);
 
     public Contracts.HostInfo GetSubordinateHost(string hostName)
-    {
-      return ZoneGovernorService.Instance.GetSubordinateHost(hostName);
-    }
+      => Service.GetSubordinateHost(hostName);
 
     public IEnumerable<Contracts.HostInfo> GetSubordinateHosts(string hostNameSearchPattern)
-    {
-      return ZoneGovernorService.Instance.GetSubordinateHosts(hostNameSearchPattern);
-    }
+      => Service.GetSubordinateHosts(hostNameSearchPattern);
 
     public void RegisterSubordinateHost(Contracts.HostInfo host, Contracts.DynamicHostID? hid)
-    {
-      ZoneGovernorService.Instance.RegisterSubordinateHost(host, hid);
-    }
+      => Service.RegisterSubordinateHost(host, hid);
 
     public Contracts.DynamicHostID Spawn(string hostPath, string id = null)
-    {
-      return ZoneGovernorService.Instance.Spawn(hostPath, id);
-    }
+      => Service.Spawn(hostPath, id);
 
     public void PostDynamicHostInfo(Contracts.DynamicHostID hid, DateTime stamp, string owner, int votes)
-    {
-      ZoneGovernorService.Instance.PostDynamicHostInfo(hid, stamp, owner, votes);
-    }
+      => Service.PostDynamicHostInfo(hid, stamp, owner, votes);
 
     public void PostHostInfo(Contracts.HostInfo host, Contracts.DynamicHostID? hid)
-    {
-      ZoneGovernorService.Instance.PostHostInfo(host, hid);
-    }
+      => Service.PostHostInfo(host, hid);
 
     public Contracts.DynamicHostInfo GetDynamicHostInfo(Contracts.DynamicHostID hid)
-    {
-      return ZoneGovernorService.Instance.GetDynamicHostInfo(hid);
-    }
+      => Service.GetDynamicHostInfo(hid);
 
     public Locking.LockTransactionResult ExecuteLockTransaction(Locking.Server.LockSessionData session, Locking.LockTransaction transaction)
-    {
-      return ZoneGovernorService.Instance.Locker.ExecuteLockTransaction(session, transaction);
-    }
+      => Service.Locker.ExecuteLockTransaction(session, transaction);
 
     public bool EndLockSession(Locking.LockSessionID sessionID)
-    {
-      return ZoneGovernorService.Instance.Locker.EndLockSession(sessionID);
-    }
+      => Service.Locker.EndLockSession(sessionID);
   }
 }

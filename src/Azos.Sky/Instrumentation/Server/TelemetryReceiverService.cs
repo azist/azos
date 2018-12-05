@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Azos.Apps;
+using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Instrumentation;
 using Azos.Log;
@@ -12,17 +13,19 @@ namespace Azos.Sky.Instrumentation.Server
   /// </summary>
   public sealed class TelemetryReceiverServer : Contracts.ITelemetryReceiver
   {
-    public void SendDatums(params Datum[] data)
-    {
-      TelemetryReceiverService.Instance.SendDatums(data);
-    }
+    [Inject] IApplication m_App;
+    public void SendDatums(params Datum[] data) => m_App.NonNull(nameof(m_App))
+                                                        .Singletons
+                                                        .Get<TelemetryReceiverService>().NonNull(nameof(TelemetryReceiverService))
+                                                        .SendDatums(data);
   }
 
 
   /// <summary>
-  /// Provides server implementation of Contracts.ITelemetryReceiver
+  /// Provides singleton server implementation of Contracts.ITelemetryReceiver.
+  /// The server is usually hosted by composite ASH process
   /// </summary>
-  public sealed class TelemetryReceiverService : DaemonWithInstrumentation<object>, Contracts.ITelemetryReceiver
+  public sealed class TelemetryReceiverService : DaemonWithInstrumentation<IApplicationComponent>, Contracts.ITelemetryReceiver
   {
     #region CONSTS
     public const string CONFIG_ARCHIVE_STORE_SECTION = "archive-store";
@@ -31,40 +34,18 @@ namespace Azos.Sky.Instrumentation.Server
     #endregion
 
     #region STATIC/.ctor
-    private static object s_Lock = new object();
-    private static volatile TelemetryReceiverService s_Instance;
 
-    internal static TelemetryReceiverService Instance
+    public TelemetryReceiverService(IApplicationComponent director) : base(director)
     {
-      get
-      {
-        var instance = s_Instance;
-        if (instance == null)
-          throw new TelemetryArchiveException("{0} is not allocated".Args(typeof(TelemetryReceiverService).FullName));
-        return instance;
-      }
-    }
-
-    public TelemetryReceiverService() : this(null) { }
-
-    public TelemetryReceiverService(object director) : base(director)
-    {
-      LogLevel = MessageType.Warning;
-
-      lock (s_Lock)
-      {
-        if (s_Instance != null)
-          throw new TelemetryArchiveException("{0} is already allocated".Args(typeof(TelemetryReceiverService).FullName));
-
-        s_Instance = this;
-      }
+      if (!App.Singletons.GetOrCreate(() => this).created)
+        throw new TelemetryArchiveException("{0} is already allocated".Args(typeof(TelemetryReceiverService).FullName));
     }
 
     protected override void Destructor()
     {
       base.Destructor();
       DisposeAndNull(ref m_ArchiveStore);
-      s_Instance = null;
+      App.Singletons.Remove<TelemetryReceiverService>();
     }
     #endregion
 
@@ -73,13 +54,12 @@ namespace Azos.Sky.Instrumentation.Server
     #endregion
 
     #region Properties
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_INSTRUMENTATION;
+
     [Config]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
     public override bool InstrumentationEnabled { get; set; }
 
-    [Config(Default = DEFAULT_LOG_LEVEL)]
-    [ExternalParameter(SysConsts.EXT_PARAM_GROUP_WORKER, CoreConsts.EXT_PARAM_GROUP_LOG)]
-    public MessageType LogLevel { get; set; }
     #endregion
 
     #region Public

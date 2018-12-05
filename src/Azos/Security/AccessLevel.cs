@@ -23,7 +23,7 @@ namespace Azos.Security
       /// <summary> View-only level: bearer has read-only access, so data can be viewed but can not be modified</summary>
       public const int VIEW = 1;
 
-      /// <summary> Change lelvel: bearer can view and change (add, edit) data but not delete it</summary>
+      /// <summary> Change level: bearer can view and change (add, edit) data but not delete it</summary>
       public const int VIEW_CHANGE = 2;
 
       /// <summary> Full CRUD level: bearer can view, add, update, and delete data</summary>

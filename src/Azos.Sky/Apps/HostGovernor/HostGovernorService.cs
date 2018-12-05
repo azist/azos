@@ -18,7 +18,6 @@ using Azos.Sky.Metabase;
 
 namespace Azos.Sky.Apps.HostGovernor
 {
-
   /// <summary>
   /// Provides Host Governor Services - this is a singleton class
   /// </summary>
@@ -34,65 +33,30 @@ namespace Azos.Sky.Apps.HostGovernor
       public const string CONFIG_STARTUP_INSTALL_CHECK_ATTR = "startup-install-check";
     #endregion
 
-    #region Static
-      private static object s_InstanceLock = new object();
-      private static volatile HostGovernorService s_Instance;
-
-      /// <summary>
-      /// Returns true to indicate that this process has host governor instance
-      /// </summary>
-      public static bool IsHostGovernor
-      {
-        get { return s_Instance!=null; }
-      }
-
-      /// <summary>
-      /// Returns singleton instance or throws if service has not been allocated yet
-      /// </summary>
-      public static HostGovernorService Instance
-      {
-        get
-        {
-          var instance = s_Instance;
-          if (instance==null)
-            throw new AHGOVException(StringConsts.AHGOV_INSTANCE_NOT_ALLOCATED_ERROR);
-
-          return instance;
-        }
-      }
-    #endregion
-
     #region .ctor/.dctor
       /// <summary>
       /// Creates a singleton instance or throws if instance is already created
       /// </summary>
-      public HostGovernorService(bool launchedByARD, bool ardUpdateProblem) : base(null)
+      public HostGovernorService(IApplication app, bool launchedByARD, bool ardUpdateProblem) : base(app)
       {
         if (!SkySystem.IsMetabase)
-           throw new AHGOVException(StringConsts.METABASE_NOT_AVAILABLE_ERROR.Args(GetType().FullName+".ctor()"));
+          throw new AHGOVException(StringConsts.METABASE_NOT_AVAILABLE_ERROR.Args(GetType().FullName+".ctor()"));
 
-        lock(s_InstanceLock)
-        {
-          if (s_Instance!=null)
-            throw new AHGOVException(StringConsts.AHGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
 
-          m_LaunchedByARD = launchedByARD;
-          m_ARDUpdateProblem = ardUpdateProblem;
+        if (!App.Singletons.GetOrCreate(() => this).created)
+          throw new AHGOVException(StringConsts.AHGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
 
-          var exeName = System.Reflection.Assembly.GetEntryAssembly().Location;
-          m_RootPath = Directory.GetParent(Path.GetDirectoryName(exeName)).FullName;
+        m_LaunchedByARD = launchedByARD;
+        m_ARDUpdateProblem = ardUpdateProblem;
 
-          s_Instance = this;
-        }
+        var exeName = System.Reflection.Assembly.GetEntryAssembly().Location;
+        m_RootPath = Directory.GetParent(Path.GetDirectoryName(exeName)).FullName;
       }
 
       protected override void Destructor()
       {
-        lock(s_InstanceLock)
-        {
-          base.Destructor();
-          s_Instance = null;
-        }
+        base.Destructor();
+        App.Singletons.Remove<HostGovernorService>();
       }
     #endregion
 
@@ -117,7 +81,8 @@ namespace Azos.Sky.Apps.HostGovernor
 
     #region Properties
 
-      public override string ComponentCommonName { get { return "hgov"; }}
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_HOST_GOV;
+    public override string ComponentCommonName { get { return "hgov"; }}
 
       /// <summary>
       /// Returns true when this process was launched by Sky Root Daemon as opposed to being launched from console/script
@@ -126,7 +91,7 @@ namespace Azos.Sky.Apps.HostGovernor
 
       /// <summary>
       /// Returns true when this process was launched by Azos Sky Root Daemon that could not perform update properly -
-      /// most likely UPD and RUN folder slocked by some other process
+      /// most likely UPD and RUN folders locked by some other process
       /// </summary>
       public bool ARDUpdateProblem {get{ return m_ARDUpdateProblem;}}
 

@@ -10,7 +10,7 @@ using Azos.Sky.Metabase;
 
 namespace Azos.Sky.Dynamic
 {
-  public class HostManager : DaemonWithInstrumentation<ISkyApplication>, IHostManagerImplementation
+  public class HostManager : DaemonWithInstrumentation<IApplicationComponent>, IHostManagerImplementation
   {
     #region CONSTS
     private static readonly TimeSpan INSTRUMENTATION_INTERVAL = TimeSpan.FromMilliseconds(3700);
@@ -34,6 +34,9 @@ namespace Azos.Sky.Dynamic
     #endregion
 
     #region Properties
+
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_DYNHOST_GOV;
+
     /// <summary>
     /// Implements IInstrumentable
     /// </summary>

@@ -57,7 +57,8 @@ namespace Azos.Sky
     public const string LOG_TOPIC_METABASE = "mtbs";
     public const string LOG_TOPIC_ID_GEN = "idgen";
     public const string LOG_TOPIC_APP_MANAGEMENT = "AppMgmt";
-    public const string LOG_TOPIC_ZONE_MANAGEMENT = "ZnMgmt";
+    public const string LOG_TOPIC_HOST_GOV = "hgov";
+    public const string LOG_TOPIC_ZONE_GOV = "zgov";
     public const string LOG_TOPIC_LOCKING = "lck";
     public const string LOG_TOPIC_INSTRUMENTATION = "instr";
     public const string LOG_TOPIC_WWW = "www";
@@ -65,6 +66,7 @@ namespace Azos.Sky
     public const string LOG_TOPIC_LOCALIZATION = "loclz";
     public const string LOG_TOPIC_MDB = "mdb";
     public const string LOG_TOPIC_KDB = "kdb";
+    public const string LOG_TOPIC_DYNHOST_GOV = "dynh";
     public const string LOG_TOPIC_HOST_SET = "hostSet";
     public const string LOG_TOPIC_WORKER = "wrkr";
     public const string LOG_TOPIC_WMSG = "wmsg";

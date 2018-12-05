@@ -121,11 +121,12 @@ namespace Azos.Sky.Identification
     #endregion
 
     #region Properties
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_ID_GEN;
 
-      /// <summary>
-      /// Specifies where and how the service persists data on disk
-      /// </summary>
-      public IRegistry<PersistenceLocation> PersistenceLocations { get {return m_Locations;} }
+    /// <summary>
+    /// Specifies where and how the service persists data on disk
+    /// </summary>
+    public IRegistry<PersistenceLocation> PersistenceLocations { get {return m_Locations;} }
 
     #endregion
 

@@ -19,7 +19,6 @@ using Azos.Sky.Metabase;
 
 namespace Azos.Sky.Apps.ZoneGovernor
 {
-
   /// <summary>
   /// Provides Zone Governor Services - this is a singleton class
   /// </summary>
@@ -42,88 +41,52 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
     #endregion
 
-    #region Static
-      private static object s_InstanceLock = new object();
-      private static volatile ZoneGovernorService s_Instance;
-
-
-      /// <summary>
-      /// Returns true to indicate that this process has zone governor instance
-      /// </summary>
-      public static bool IsZoneGovernor
-      {
-        get { return s_Instance!=null; }
-      }
-
-      /// <summary>
-      /// Returns singleton instance or throws if service has not been allocated yet
-      /// </summary>
-      public static ZoneGovernorService Instance
-      {
-        get
-        {
-          var instance = s_Instance;
-          if (instance==null)
-            throw new AZGOVException(StringConsts.AZGOV_INSTANCE_NOT_ALLOCATED_ERROR);
-
-          return instance;
-        }
-      }
-    #endregion
-
     #region .ctor/.dctor
     /// <summary>
     /// Creates a singleton instance or throws if instance is already created
     /// </summary>
-    public ZoneGovernorService() : base(null)
+    public ZoneGovernorService(IApplication app) : base(app)
+    {
+      if (!SkySystem.IsMetabase)
+          throw new AZGOVException(StringConsts.METABASE_NOT_AVAILABLE_ERROR.Args(GetType().FullName+".ctor()"));
+
+
+      if (!App.Singletons.GetOrCreate(() => this).created)
+        throw new AZGOVException(StringConsts.AZGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
+
+      m_SubInstr = new InstrumentationDaemon(this);
+      m_SubInstrReductionLevels = new Dictionary<string,int>();
+      m_SubInstrCallers = new ConcurrentDictionary<string, DateTime>();
+
+      m_SubLog = new LogDaemon(this);
+
+      m_SubHosts = new Registry<Contracts.HostInfo>();
+      m_DynamicHostSlots = new Registry<Contracts.DynamicHostInfo>();
+
+      m_Locker = new Locking.Server.LockServerService( this );
+    }
+
+    protected override void Destructor()
+    {
+      base.Destructor();
+      App.Singletons.Remove<ZoneGovernorService>();
+
+      m_Locker.Dispose();
+
+      var sis = m_SubInstr;
+      if (sis!=null)
       {
-        if (!SkySystem.IsMetabase)
-           throw new AZGOVException(StringConsts.METABASE_NOT_AVAILABLE_ERROR.Args(GetType().FullName+".ctor()"));
-
-        lock(s_InstanceLock)
-        {
-          if (s_Instance!=null)
-            throw new AZGOVException(StringConsts.AZGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
-
-          m_SubInstr = new InstrumentationDaemon(this);
-          m_SubInstrReductionLevels = new Dictionary<string,int>();
-          m_SubInstrCallers = new ConcurrentDictionary<string, DateTime>();
-
-          m_SubLog = new LogDaemon(this);
-
-          m_SubHosts = new Registry<Contracts.HostInfo>();
-          m_DynamicHostSlots = new Registry<Contracts.DynamicHostInfo>();
-
-          m_Locker = new Locking.Server.LockServerService( this );
-
-          s_Instance = this;
-        }
+        m_SubInstr = null;
+        sis.Dispose();
       }
 
-      protected override void Destructor()
+      var slg = m_SubLog;
+      if (slg != null)
       {
-        lock(s_InstanceLock)
-        {
-          base.Destructor();
-          s_Instance = null;
-
-          m_Locker.Dispose();
-
-          var sis = m_SubInstr;
-          if (sis!=null)
-          {
-            m_SubInstr = null;
-            sis.Dispose();
-          }
-
-          var slg = m_SubLog;
-          if (slg != null)
-          {
-            m_SubLog = null;
-            slg.Dispose();
-          }
-        }
+        m_SubLog = null;
+        slg.Dispose();
       }
+    }
 
     #endregion
 
@@ -150,6 +113,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
     #region Properties
 
+      public override string ComponentLogTopic => SysConsts.LOG_TOPIC_ZONE_GOV;
       public override string ComponentCommonName { get { return "zgov"; }}
 
       /// <summary>

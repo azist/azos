@@ -39,7 +39,5 @@ namespace Azos.Security
      {
        return "{0}({1})".Args(GetType().Name, GDID);
      }
-
-
   }
 }
