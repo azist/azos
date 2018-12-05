@@ -52,7 +52,7 @@ namespace Azos.Web.GeoLookup
       m_Service.Configure(node);
     }
 
-    protected override bool DoApplicationAfterInit(IApplication application)
+    protected override bool DoApplicationAfterInit()
     {
       Task.Run( () =>
       {
@@ -62,13 +62,13 @@ namespace Azos.Web.GeoLookup
           WriteLog(Log.MessageType.CatastrophicError, "m_GeoService.Start()", "Leaked: "+error.ToMessageWithType(), error);
         }
       });
-      return base.DoApplicationAfterInit(application);
+      return base.DoApplicationAfterInit();
     }
 
-    protected override bool DoApplicationBeforeCleanup(IApplication application)
+    protected override bool DoApplicationBeforeCleanup()
     {
       m_Service.SignalStop();
-      return base.DoApplicationBeforeCleanup(application);
+      return base.DoApplicationBeforeCleanup();
     }
 
   }

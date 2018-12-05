@@ -77,6 +77,12 @@ design from the practicality standpoint.
 >as most business code is procedural/linear logic operating on business-models. Most entities come into business code already pre-allocated by
 >the system (controllers, service modules, entity mapping, model bindings)
 
+Composition Root/Chassis:
+>Object should be composed together as close as possible to the application's entry point.
+>A Composition Root is a (preferably) unique location in an application where modules are composed together.
+><p style="text-align: right"><a href="http://blog.ploeh.dk/2011/07/28/CompositionRoot/">Composition Root Pattern by Mark Seemann</a></p>
+
+
 DI is good, in general, what is not good is that in the hands of purists and careless developers general purpose DI availability creates 
 a temptation to add extra classes and allocate too many objects for tasks which **do not need object instances in principle**. 
 Of course those classes may be created without DI - just by calling `new`, but this is a tight coupling code smell, therefore once

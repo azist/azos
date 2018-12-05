@@ -133,6 +133,8 @@ namespace Azos.Tests.Nub.Application
       }
     }
 
+#warning need to test injection into module itself of other modules
+
 
     interface IMyModule : IModule { }
 

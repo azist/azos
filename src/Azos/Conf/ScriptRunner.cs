@@ -124,7 +124,7 @@ namespace Azos.Conf
 
 
             /// <summary>
-            /// Gets/sets attribute name that indicates that marked entity should not be brough over into script output target
+            /// Gets/sets attribute name that indicates that marked entity should not be brought over into script output target
             /// </summary>
             public string AttributeScriptOnly
             {

@@ -26,7 +26,7 @@ namespace Azos.Sky.Apps
     protected SkyNOPApplication() : base() {}
 
     /// <summary>
-    /// Returns a singlelton instance of the SkyNOPApplication
+    /// Returns a singleton instance of the SkyNOPApplication
     /// </summary>
     public static new SkyNOPApplication Instance { get { return s_Instance; } }
 

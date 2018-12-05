@@ -25,12 +25,12 @@ namespace Azos.Apps
   ///  this application does not log, does not store data and does not do anything else
   /// still satisfying its contract
   /// </summary>
-  public sealed class NOPApplication : IApplication
+  public class NOPApplication : IApplication
   {
 
      private static readonly NOPApplication s_Instance = new NOPApplication();
 
-     private NOPApplication()
+     protected NOPApplication()
      {
         m_Configuration = new MemoryConfiguration();
         m_Configuration.Create();
@@ -65,22 +65,22 @@ namespace Azos.Apps
      }
 
 
-    private Guid m_InstanceID = Guid.NewGuid();
-    private DateTime m_StartTime;
-    private MemoryConfiguration m_Configuration;
-    private MemoryConfiguration m_CommandArgsConfiguration;
-    private IApplicationDependencyInjectorImplementation m_DependencyInjector;
-    private IApplicationSingletonManager m_Singletons;
-    private IApplicationRealmImplementation m_Realm;
-    private ILog               m_Log;
-    private IInstrumentation   m_Instrumentation;
-    private IObjectStore       m_ObjectStore;
-    private IGlue              m_Glue;
-    private IDataStore         m_DataStore;
-    private ISecurityManager   m_SecurityManager;
-    private IModule            m_Module;
-    private ITimeSource        m_TimeSource;
-    private IEventTimer        m_EventTimer;
+    protected Guid m_InstanceID = Guid.NewGuid();
+    protected DateTime m_StartTime;
+    protected MemoryConfiguration m_Configuration;
+    protected MemoryConfiguration m_CommandArgsConfiguration;
+    protected IApplicationDependencyInjectorImplementation m_DependencyInjector;
+    protected IApplicationSingletonManager m_Singletons;
+    protected IApplicationRealmImplementation m_Realm;
+    protected ILog               m_Log;
+    protected IInstrumentation   m_Instrumentation;
+    protected IObjectStore       m_ObjectStore;
+    protected IGlue              m_Glue;
+    protected IDataStore         m_DataStore;
+    protected ISecurityManager   m_SecurityManager;
+    protected IModule            m_Module;
+    protected ITimeSource        m_TimeSource;
+    protected IEventTimer        m_EventTimer;
 
 
 

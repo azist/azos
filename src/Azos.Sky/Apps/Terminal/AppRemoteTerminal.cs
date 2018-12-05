@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 
-using Azos.Apps;
+using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Collections;
 using Azos.Data;
@@ -23,10 +23,49 @@ namespace Azos.Sky.Apps.Terminal
 {
 
   /// <summary>
-  /// Provides base for terminal application management capabilities
+  /// Internal framework registry of AppRemoteTerminal
+  /// </summary>
+  internal sealed class AppRemoteTerminalRegistry
+  {
+    private AppRemoteTerminalRegistry() { }
+
+    private object m_IDLock = new object();
+    private int m_ID;
+    private Registry<AppRemoteTerminal> m_Registry = new Registry<AppRemoteTerminal>();
+
+    public static AppRemoteTerminalRegistry Instance(IApplication app)
+      => app.NonNull(nameof(app))
+            .Singletons
+            .GetOrCreate( () => new AppRemoteTerminalRegistry() )
+            .instance;
+
+    public int NextID()
+    {
+      lock (m_IDLock)
+      {
+        m_ID++;
+        return m_ID;
+      }
+    }
+
+    public void AdjustID(int id)
+    {
+      lock (m_IDLock)
+      {
+        if (id > m_ID) m_ID = id;
+      }
+    }
+
+    public bool Register(AppRemoteTerminal term) => m_Registry.Register(term);
+    public bool Unregister(AppRemoteTerminal term) => m_Registry.Unregister(term);
+}
+
+
+  /// <summary>
+  /// Provides base for terminal application management capabilities. This is a Glue server
   /// </summary>
   [Serializable]
-  public class AppRemoteTerminal : ApplicationComponent, IRemoteTerminal, INamed, IDeserializationCallback, IConfigurable
+  public class AppRemoteTerminal : DisposableObject, IRemoteTerminal, INamed, IDeserializationCallback, IConfigurable
   {
     public const string MARKUP_PRAGMA = "<!-- ###MARKUP### -->";
 
@@ -34,50 +73,40 @@ namespace Azos.Sky.Apps.Terminal
 
     public const string HELP_ARGS = "/?";
 
-
-    private static object s_IDLock = new Object();
-    private static int s_ID;
-    internal static Registry<AppRemoteTerminal> s_Registry = new Registry<AppRemoteTerminal>();
-
-
     /// <summary>
     /// Makes an instance of remote terminal which is configured under app/remote-terminal section.
     /// If section is not defined then makes AppRemoteTerminal instance
     /// </summary>
-    public static AppRemoteTerminal MakeNewTerminal()
+    public static AppRemoteTerminal MakeNewTerminal(IApplication app)
     {
-      return FactoryUtils.MakeAndConfigure<AppRemoteTerminal>(App.ConfigRoot[CONFIG_APP_REMOTE_TERMINAL_SECTION], typeof(AppRemoteTerminal));
+      var result = FactoryUtils.MakeAndConfigure<AppRemoteTerminal>(app.ConfigRoot[CONFIG_APP_REMOTE_TERMINAL_SECTION], typeof(AppRemoteTerminal));
+      app.InjectInto(result);
+      return result;
     }
 
-
-    public AppRemoteTerminal() : base()
+    public AppRemoteTerminal()
     {
-      lock (s_IDLock)
-      {
-        s_ID++;
-        m_ID = s_ID;
-      }
+      m_ID = AppRemoteTerminalRegistry.Instance(m_App).NextID();
+
       m_Name = new ELink((ulong)m_ID, null).Link;
       m_Vars = new Vars();
       m_ScriptRunner = new ScriptRunner();
     }
 
-
-
     protected override void Destructor()
     {
-      s_Registry.Unregister(this);
+      AppRemoteTerminalRegistry.Instance(m_App).Unregister(this);
       base.Destructor();
     }
 
     public void OnDeserialization(object sender)
     {
-      lock (s_IDLock)
-      {
-        if (this.m_ID > s_ID) s_ID = m_ID;
-      }
-      s_Registry.Register(this);
+      var registry = AppRemoteTerminalRegistry.Instance(m_App);
+      registry.AdjustID(m_ID);
+      registry.Register(this);
     }
+
+    [Inject] IApplication m_App;
 
     private int m_ID;
     private string m_Name;
@@ -87,7 +116,6 @@ namespace Azos.Sky.Apps.Terminal
     private Vars m_Vars;
     private ScriptRunner m_ScriptRunner;
 
-    public override string ComponentCommonName { get { return "term-" + m_Name; } }
 
     /// <summary>
     /// Returns unique terminal session ID
@@ -136,31 +164,32 @@ namespace Azos.Sky.Apps.Terminal
     public virtual RemoteTerminalInfo Connect(string who)
     {
       m_Who = who ?? SysConsts.UNKNOWN_ENTITY;
-      m_WhenConnected = App.TimeSource.UTCNow;
-      m_WhenInteracted = App.TimeSource.UTCNow;
+      var now = m_App.TimeSource.UTCNow;
+      m_WhenConnected = now;
+      m_WhenInteracted = now;
 
-      s_Registry.Register(this);
+      AppRemoteTerminalRegistry.Instance(m_App).Register(this);
 
       return new RemoteTerminalInfo
       {
         TerminalName = Name,
         WelcomeMsg = "Connected to '[{0}]{1}'@'{2}' on {3:G} {4:T} UTC. Session '{5}'".Args(SkySystem.MetabaseApplicationName,
-                                                                     App.Name,
+                                                                     m_App.Name,
                                                                      SkySystem.HostName,
-                                                                     App.TimeSource.Now,
-                                                                     App.TimeSource.UTCNow,
+                                                                     m_App.TimeSource.Now,
+                                                                     m_App.TimeSource.UTCNow,
                                                                      Name),
         Host = SkySystem.HostName,
-        AppName = App.Name,
-        ServerLocalTime = App.TimeSource.Now,
-        ServerUTCTime = App.TimeSource.UTCNow
+        AppName = m_App.Name,
+        ServerLocalTime = m_App.TimeSource.Now,
+        ServerUTCTime = m_App.TimeSource.UTCNow
       };
     }
 
     [AppRemoteTerminalPermission]
     public virtual string Execute(string command)
     {
-      m_WhenInteracted = App.TimeSource.UTCNow;
+      m_WhenInteracted = m_App.TimeSource.UTCNow;
 
       if (command == null) return string.Empty;
 
@@ -206,8 +235,8 @@ namespace Azos.Sky.Apps.Terminal
         return StringConsts.RT_CMDLET_DONTKNOW_ERROR.Args(cname);
 
       //Check cmdlet security
-      Permission.AuthorizeAndGuardAction(tp);
-      Permission.AuthorizeAndGuardAction(tp.GetMethod(nameof(Execute)));
+      Permission.AuthorizeAndGuardAction(m_App, tp);
+      Permission.AuthorizeAndGuardAction(m_App, tp.GetMethod(nameof(Execute)));
 
       var cmdlet = Activator.CreateInstance(tp, this, command) as Cmdlet;
       if (cmdlet == null)
