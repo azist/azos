@@ -96,7 +96,7 @@ namespace Azos
      IApplicationRealm Realm { get; }
 
      /// <summary>
-     /// References app log
+     /// References app primary logging facility
      /// </summary>
      Log.ILog Log { get; }
 

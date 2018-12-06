@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Azos.Apps;
+using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Instrumentation;
 using Azos.Log;
@@ -14,71 +15,50 @@ namespace Azos.Sky.Log.Server
   /// </summary>
   public sealed class LogReceiverServer : Contracts.ILogReceiver
   {
+
+    [Inject] IApplication m_App;
+
+    public LogReceiverService Service => m_App.NonNull(nameof(m_App))
+                                              .Singletons
+                                              .Get<LogReceiverService>()
+                                              .NonNull(nameof(LogReceiverService));
+
+
     public void SendLog(Message data)
-    {
-      LogReceiverService.Instance.SendLog(data);
-    }
+      => Service.SendLog(data);
 
     public Message GetByID(Guid id, string channel = null)
-    {
-      return LogReceiverService.Instance.GetByID(id, channel);
-    }
+      => Service.GetByID(id, channel);
 
     public IEnumerable<Message> List(string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
       string host = null, string channel = null, string topic = null,
       Guid? relatedTo = null, int skipCount = 0)
-    {
-      return LogReceiverService.Instance.List(archiveDimensionsFilter, startDate, endDate, type, host, channel, topic, relatedTo, skipCount);
-    }
+      => Service.List(archiveDimensionsFilter, startDate, endDate, type, host, channel, topic, relatedTo, skipCount);
   }
 
   /// <summary>
-  /// Provides server implementation of Contracts.ILogReceiver
+  /// Provides singleton server implementation of Contracts.ILogReceiver
   /// </summary>
-  public sealed class LogReceiverService : DaemonWithInstrumentation<object>, Contracts.ILogReceiver
+  public sealed class LogReceiverService : DaemonWithInstrumentation<IApplicationComponent>, Contracts.ILogReceiver
   {
     #region CONSTS
     public const string CONFIG_ARCHIVE_MAPPER_SECTION = "archive-mapper";
     public const string CONFIG_ARCHIVE_STORE_SECTION = "archive-store";
 
-    public const MessageType DEFAULT_LOG_LEVEL = MessageType.Warning;
     #endregion
 
-    #region STATIC/.ctor
-    private static object s_Lock = new object();
-    private static volatile LogReceiverService s_Instance;
-
-    internal static LogReceiverService Instance
+    #region .ctor
+    public LogReceiverService(IApplication app) : base(app)
     {
-      get
-      {
-        var instance = s_Instance;
-        if (instance == null)
-          throw new LogArchiveException("{0} is not allocated".Args(typeof(LogReceiverService).FullName));
-        return instance;
-      }
-    }
-
-    public LogReceiverService() : this(null) { }
-
-    public LogReceiverService(object director) : base(director)
-    {
-      LogLevel = MessageType.Warning;
-
-      lock (s_Lock)
-      {
-        if (s_Instance != null)
-          throw new LogArchiveException("{0} is already allocated".Args(typeof(LogReceiverService).FullName));
-
-        s_Instance = this;
-      }
+      if (!App.Singletons.GetOrCreate(() => this).created)
+        throw new LogArchiveException("{0} is already allocated".Args(typeof(LogReceiverService).FullName));
     }
 
     protected override void Destructor()
     {
       base.Destructor();
       DisposeAndNull(ref m_ArchiveStore);
-      s_Instance = null;
+      App.Singletons.Remove<LogReceiverService>();
     }
     #endregion
 
@@ -86,17 +66,13 @@ namespace Azos.Sky.Log.Server
     private LogArchiveStore m_ArchiveStore;
     #endregion
 
-    #region Properties
+    public override string ComponentLogTopic => CoreConsts.LOG_TOPIC;
+
     [Config]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
     public override bool InstrumentationEnabled { get; set; }
 
-    [Config(Default = DEFAULT_LOG_LEVEL)]
-    [ExternalParameter(SysConsts.EXT_PARAM_GROUP_WORKER, CoreConsts.EXT_PARAM_GROUP_LOG)]
-    public MessageType LogLevel { get; set; }
-    #endregion
 
-    #region Public
     public void SendLog(Message data)
     {
       var transaction = m_ArchiveStore.BeginTransaction();
@@ -109,7 +85,7 @@ namespace Azos.Sky.Log.Server
       {
         m_ArchiveStore.RollbackTransaction(transaction);
 
-        Log(MessageType.CatastrophicError, "put('{0}', '{1}', '{2}')".Args(data.Host, data.From, data.Guid), error.ToMessageWithType(), error);
+        WriteLog(MessageType.CatastrophicError, "put('{0}', '{1}', '{2}')".Args(data.Host, data.From, data.Guid), error.ToMessageWithType(), error);
 
         throw new LogArchiveException(StringConsts.LOG_ARCHIVE_PUT_TX_BODY_ERROR.Args(m_ArchiveStore.GetType().Name, error.ToMessageWithType()), error);
       }
@@ -127,33 +103,6 @@ namespace Azos.Sky.Log.Server
       return m_ArchiveStore.List(archiveDimensionsFilter, startDate, endDate, type, host, channel, topic, relatedTo, skipCount);
     }
 
-    public Guid Log(MessageType type,
-                string from,
-                string message,
-                Exception error = null,
-                Guid? relatedMessageID = null,
-                string parameters = null)
-    {
-      if (type < LogLevel) return Guid.Empty;
-
-      var logMessage = new Message
-      {
-        Topic = SysConsts.LOG_TOPIC_WORKER,
-        Text = message ?? string.Empty,
-        Type = type,
-        From = "{0}.{1}".Args(this.GetType().Name, from),
-        Exception = error,
-        Parameters = parameters
-      };
-      if (relatedMessageID.HasValue) logMessage.RelatedTo = relatedMessageID.Value;
-
-      App.Log.Write(logMessage);
-
-      return logMessage.Guid;
-    }
-    #endregion
-
-    #region Protected
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
@@ -190,6 +139,5 @@ namespace Azos.Sky.Log.Server
       if (m_ArchiveStore is IDaemon) ((IDaemon)m_ArchiveStore).WaitForCompleteStop();
       base.DoWaitForCompleteStop();
     }
-    #endregion
   }
 }
