@@ -45,7 +45,7 @@ namespace Azos.Log.Sinks
     void ISinkOwnerRegistration.Unregister(Sink sink) => m_Sinks.Unregister(sink);
 
     /// <summary> Returns sinks that this sink wraps. This call is thread safe </summary>
-    public IEnumerable<Sink> Sinks => m_Sinks.OrderedValues;
+    public IOrderedRegistry<Sink> Sinks => m_Sinks;
 
 
     protected override void DoConfigure(Conf.IConfigSectionNode node)

@@ -75,36 +75,12 @@ namespace Azos.Sky.Instrumentation.Server
       {
         m_ArchiveStore.RollbackTransaction(transaction);
 
-        Log(MessageType.CatastrophicError, "put('{0}')".Args(data.Length), error.ToMessageWithType(), error);
+        WriteLog(MessageType.CatastrophicError, "put('{0}')".Args(data.Length), error.ToMessageWithType(), error);
 
         throw new TelemetryArchiveException(StringConsts.TELEMETRY_ARCHIVE_PUT_TX_BODY_ERROR.Args(m_ArchiveStore.GetType().Name, error.ToMessageWithType()), error);
       }
     }
 
-    public Guid Log(MessageType type,
-                string from,
-                string message,
-                Exception error = null,
-                Guid? relatedMessageID = null,
-                string parameters = null)
-    {
-      if (type < LogLevel) return Guid.Empty;
-
-      var logMessage = new Message
-      {
-        Topic = SysConsts.LOG_TOPIC_WORKER,
-        Text = message ?? string.Empty,
-        Type = type,
-        From = "{0}.{1}".Args(this.GetType().Name, from),
-        Exception = error,
-        Parameters = parameters
-      };
-      if (relatedMessageID.HasValue) logMessage.RelatedTo = relatedMessageID.Value;
-
-      App.Log.Write(logMessage);
-
-      return logMessage.Guid;
-    }
     #endregion
 
     #region Protected

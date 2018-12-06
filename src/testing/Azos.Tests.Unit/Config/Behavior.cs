@@ -71,7 +71,7 @@ static string conf3 = @"
 
                 Aver.AreEqual(1, ((LogDaemon)app.Log).Sinks.Count());
                 System.Threading.Thread.Sleep(1000);//wait for flush
-                Aver.IsNotNull( ((listSink)((LogDaemon)app.Log).Sinks.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
+                Aver.IsNotNull( ((listSink)((LogDaemon)app.Log).Sinks.OrderedValues.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
             }
 
         }
@@ -86,7 +86,7 @@ static string conf3 = @"
 
                 Aver.AreEqual(1, ((LogDaemon)app.Log).Sinks.Count());
                 System.Threading.Thread.Sleep(1000);//wait for flush
-                Aver.IsNotNull( ((listSink)((LogDaemon)app.Log).Sinks.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
+                Aver.IsNotNull( ((listSink)((LogDaemon)app.Log).Sinks.OrderedValues.First()).List.FirstOrDefault(m=> m.Text == "Khello!") );
             }
 
         }

@@ -21,7 +21,7 @@ namespace Azos.Log.Sinks
   public interface ISinkOwner : IApplicationComponent
   {
     LogDaemonBase LogDaemon {  get; }
-    IEnumerable<Sink> Sinks {  get; }
+    IOrderedRegistry<Sink> Sinks {  get; }
   }
 
   /// <summary>
@@ -92,7 +92,7 @@ namespace Azos.Log.Sinks
       protected Sink(ISinkOwner owner, string name, int order) : base(owner)
       {
         m_Levels = new LevelsList();
-        m_Name = name;
+        Name = name.IsNullOrWhiteSpace() ? "{0}.{1}".Args(GetType().Name, FID.Generate().ID.ToString("X")) : name;
         m_Order = order;
         ((ISinkOwnerRegistration)owner).Register(this);
       }
@@ -114,7 +114,6 @@ namespace Azos.Log.Sinks
 
 
         private Exception m_LastError;
-        [Config]protected string m_Name;
         [Config]protected int m_Order;
 
         private DateTime? m_LastErrorTimestamp;

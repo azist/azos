@@ -95,7 +95,7 @@ namespace Azos.Apps
             }
 
             /// <summary>
-            /// Provides textual name for the service
+            /// Provides textual name for the daemon
             /// </summary>
             public string Name
             {

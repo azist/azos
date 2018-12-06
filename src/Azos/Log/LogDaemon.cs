@@ -24,9 +24,9 @@ namespace Azos.Log
   public class LogDaemon : LogDaemonBase
   {
     #region CONSTS
-        private const int MIN_INTERVAL_MSEC = 10;
-        private const int DEFAULT_INTERVAL_MSEC = 250;
-        private const int MAX_INTERVAL_MSEC = 10000;
+        public const int MIN_INTERVAL_MSEC = 10;
+        public const int DEFAULT_INTERVAL_MSEC = 250;
+        public const int MAX_INTERVAL_MSEC = 10000;
         private const int THREAD_GRANULARITY_MSEC = 500;
 
         private const int INSTRUMENTATION_GRANULARITY_MSEC = 3971;

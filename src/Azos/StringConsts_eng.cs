@@ -28,7 +28,7 @@ namespace Azos
             "Operation not supported: ";
 
         public const string LOGSVC_NODESTINATIONS_ERROR =
-            "No log destinations registered. Log service could not start";
+            "No log destinations registered. Log daemon could not start";
 
         public const string DAEMON_INVALID_STATE =
             "Daemon is in inappropriate state for requested operation: ";

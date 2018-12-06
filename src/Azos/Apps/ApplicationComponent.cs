@@ -273,7 +273,7 @@ namespace Azos.Apps
       /// <summary>
       /// Writes a log message for this component; returns the new log msg GDID for correlation, or GDID.Empty if no message was logged
       /// </summary>
-      public virtual Guid WriteLog(Log.MessageType type, string from, string text, Exception error = null, Guid? related = null, string pars = null)
+      protected internal virtual Guid WriteLog(Log.MessageType type, string from, string text, Exception error = null, Guid? related = null, string pars = null)
       {
         if (type < ComponentEffectiveLogLevel) return Guid.Empty;
 

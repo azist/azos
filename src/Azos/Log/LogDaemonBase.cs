@@ -112,7 +112,7 @@ namespace Azos.Log
             /// <summary>
             /// Returns sinks. This call is thread safe
             /// </summary>
-            public IEnumerable<Sink> Sinks => m_Sinks.OrderedValues;
+            public IOrderedRegistry<Sink> Sinks => m_Sinks;
 
 
             /// <summary>
@@ -157,7 +157,7 @@ namespace Azos.Log
             public Exception FailoverError { get { return m_FailoverError; } }
 
             /// <summary>
-            /// Indicates whether the service can operate without any destinations registered, i.e. some test loggers may not need
+            /// Indicates whether the service can operate without any sinks registered, i.e. some test loggers may not need
             ///  any destinations to operate as they synchronously write to some buffer without any extra sinks
             /// </summary>
             public virtual bool SinksAreOptional
@@ -249,9 +249,11 @@ namespace Azos.Log
             {
               base.DoConfigure(node);
 
-              foreach (var dnode in node.Children.Where(n => n.IsSameName(CONFIG_SINK_SECTION)))
+              foreach (var snode in node.Children.Where(n => n.IsSameName(CONFIG_SINK_SECTION)))
               {
-                var sink = FactoryUtils.MakeAndConfigure<Sink>(dnode, typeof(CSVFileSink), new[]{ this });
+                var sname = snode.AttrByName(CONFIG_NAME_ATTR).Value;
+                var sorder = snode.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt();
+                var sink = FactoryUtils.MakeAndConfigure<Sink>(snode, typeof(CSVFileSink), new object[]{ this, sname, sorder });
               }
             }
 
