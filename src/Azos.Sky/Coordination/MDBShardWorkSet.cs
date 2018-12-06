@@ -22,6 +22,8 @@ namespace Azos.Sky.Coordination
 
     public readonly MdbArea Area;
 
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_MDB;
+
     protected override void AssignWorkSegment()
     {
       m_TotalWorkCount = Area.AllShards.Count();
@@ -34,9 +36,9 @@ namespace Azos.Sky.Coordination
         return Enumerable.Empty<MdbArea.Partition.Shard>().GetEnumerator();
 
       return Area.AllShards
-                  .Skip(m_MyFirstWorkIndex)
-                  .Take(m_MyWorkCount)
-                  .GetEnumerator();
+                 .Skip(m_MyFirstWorkIndex)
+                 .Take(m_MyWorkCount)
+                 .GetEnumerator();
     }
   }
 

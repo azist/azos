@@ -11,10 +11,11 @@ namespace Azos.Sky.Mdb
   /// </summary>
   public abstract class MdbAppComponent : ApplicationComponent, IExternallyParameterized
   {
-    protected MdbAppComponent(object director) : base(director)
+    protected MdbAppComponent(IApplicationComponent director) : base(director)
     {
-
     }
+
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_MDB;
 
     /// <summary>
     /// Returns named parameters that can be used to control this component
@@ -29,21 +30,21 @@ namespace Azos.Sky.Mdb
       return ExternalParameterAttribute.GetParameters(this, groups);
     }
 
-          /// <summary>
-          /// Gets external parameter value returning true if parameter was found
-          /// </summary>
-          public virtual bool ExternalGetParameter(string name, out object value, params string[] groups)
-          {
-              return ExternalParameterAttribute.GetParameter(this, name, out value, groups);
-          }
+    /// <summary>
+    /// Gets external parameter value returning true if parameter was found
+    /// </summary>
+    public virtual bool ExternalGetParameter(string name, out object value, params string[] groups)
+    {
+        return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
+    }
 
-          /// <summary>
-          /// Sets external parameter value returning true if parameter was found and set
-          /// </summary>
-          public virtual bool ExternalSetParameter(string name, object value, params string[] groups)
-          {
-            return ExternalParameterAttribute.SetParameter(this, name, value, groups);
-          }
+    /// <summary>
+    /// Sets external parameter value returning true if parameter was found and set
+    /// </summary>
+    public virtual bool ExternalSetParameter(string name, object value, params string[] groups)
+    {
+      return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
+    }
 
   }
 }

@@ -15,6 +15,8 @@ namespace Azos.Sky.Log.Server
       ConfigAttribute.Apply(this, node);
     }
 
+    public override string ComponentLogTopic => CoreConsts.LOG_TOPIC;
+
     public virtual Dictionary<string, string> StoreMap(string archiveDimensions) { return null; }
     public virtual Dictionary<string, string> FilterMap(string archiveDimensions) { return null; }
   }

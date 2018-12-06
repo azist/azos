@@ -34,11 +34,6 @@ namespace Azos.Sky.Glue
       }
     #endregion
 
-    public AppTermBinding(string name) : base (name)
-    {
-
-    }
-
     public AppTermBinding(IGlueImplementation glue, string name) : base(glue, name)
     {
     }
@@ -51,7 +46,7 @@ namespace Azos.Sky.Glue
       return new AppTermClientTransport(this, client.Node);
     }
 
-    protected override ServerTransport OpenServerEndpoint(ServerEndPoint epoint)
+    protected internal override ServerTransport OpenServerEndpoint(ServerEndPoint epoint)
     {
       var cfg = ConfigNode.NavigateSection(CONFIG_SERVER_TRANSPORT_SECTION);
       if (!cfg.Exists) cfg = ConfigNode;

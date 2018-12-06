@@ -1501,7 +1501,7 @@ namespace Azos.Conf
 
         /// <summary>
         /// Converts this ConfigSectionNode to JSONDataMap. Contrast with ToConfigurationJSONDataMap
-        /// Be carefull: that this operation can "lose" data from ConfigSectionNode.
+        /// Be careful: that this operation can "lose" data from ConfigSectionNode.
         /// In other words some ConfigSectionNode information can not be reflected in corresponding JSONDataMap, for example
         ///  this method overwrites duplicate key names and does not support section values
         /// </summary>

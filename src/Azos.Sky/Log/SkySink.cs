@@ -14,44 +14,32 @@ namespace Azos.Sky.Log
   /// </summary>
   public sealed class SkySink : Sink
   {
-    #region CONSTS
-      public const string CONFIG_HOST_ATTR = "host";
+    public const string CONFIG_HOST_ATTR = "host";
+    private const MessageType DEFAULT_LOG_LEVEL = MessageType.Warning;
 
-      private const MessageType DEFAULT_LOG_LEVEL = MessageType.Warning;
-    #endregion
+    public SkySink(ISinkOwner owner) : base(owner) { }
+    public SkySink(ISinkOwner owner, string name, int order) : base(owner, name, order) { }
 
-    #region .ctor
-      public SkySink() : base() { }
-      public SkySink(string name) : base(name) { }
-    #endregion
-
-    #region Fields
-
-      private string m_HostName;
-      private ILogReceiverClient m_Client;
-
-    #endregion
-
-    #region Properties
-
-      /// <summary>
-      /// Specifies the log level for logging operations of this destination
-      /// </summary>
-      [Config(Default = DEFAULT_LOG_LEVEL)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
-      public MessageType LogLevel { get; set; }
+    private string m_HostName;
+    private ILogReceiverClient m_Client;
 
 
-      /// <summary>
-      /// Specifies the name of the host where the destination sends the data
-      /// </summary>
-      [Config]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
-      public string Host { get; set; }
+    /// <summary>
+    /// Specifies the log level for logging operations of this sink
+    /// </summary>
+    [Config(Default = DEFAULT_LOG_LEVEL)]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
+    public MessageType LogLevel { get; set; } = DEFAULT_LOG_LEVEL;
 
-    #endregion
 
-    #region Protected
+    /// <summary>
+    /// Specifies the name of the host where the destination sends the data
+    /// </summary>
+    [Config]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
+    public string Host { get; set; }
+
+
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
@@ -60,13 +48,13 @@ namespace Azos.Sky.Log
       SkySystem.Metabase.CatalogReg.NavigateHost(Host);
     }
 
-    public override void Close()
+    protected override void DoWaitForCompleteStop()
     {
-      base.Close();
       DisposeAndNull(ref m_Client);
+      base.DoWaitForCompleteStop();
     }
 
-    protected override void DoSend(Message entry)
+    protected internal override void DoSend(Message entry)
     {
       var msg = entry.ThisOrNewSafeWrappedException(false);
 
@@ -80,20 +68,17 @@ namespace Azos.Sky.Log
         throw new LogArchiveException("{0}.DoSend: {1}".Args(GetType().Name, error.ToMessageWithType()), error);
       }
     }
-    #endregion
 
-    #region Private
 
-      private void ensureClient()
+    private void ensureClient()
+    {
+      var hn = this.Host;
+      if (m_Client == null && !hn.EqualsOrdIgnoreCase(m_HostName))
       {
-        var hn = this.Host;
-        if (m_Client == null && !hn.EqualsOrdIgnoreCase(m_HostName))
-        {
-          m_Client = ServiceClientHub.New<ILogReceiverClient>(hn);
-          m_HostName = hn;
-        }
+        m_Client = ServiceClientHub.New<ILogReceiverClient>(hn);
+        m_HostName = hn;
       }
+    }
 
-    #endregion
   }
 }

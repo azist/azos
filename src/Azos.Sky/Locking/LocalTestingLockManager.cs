@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 
+using Azos.Apps;
 
 namespace Azos.Sky.Locking
 {
@@ -8,7 +9,8 @@ namespace Azos.Sky.Locking
   /// </summary>
   public sealed class LocalTestingLockManager : LockManagerBase
   {
-    public LocalTestingLockManager() : base() { }
+    public LocalTestingLockManager(IApplication app) : base(app) { }
+    public LocalTestingLockManager(IApplicationComponent director) : base(director) { }
 
     private Server.LockServerService m_Server;
 

@@ -208,9 +208,8 @@ namespace Azos.Sky.Identification
 
     #region .ctor
 
-    public GdidGenerator() : this(null, null, null, null) {}
-    public GdidGenerator(string name, object director) : this(name, director, null, null) {}
-    public GdidGenerator(string name, object director, string scopePrefix, string sequencePrefix) : base(director)
+    public GdidGenerator(IApplicationComponent director, string name) : this(director, name, null, null) {}
+    public GdidGenerator(IApplicationComponent director, string name, string scopePrefix, string sequencePrefix) : base(director)
     {
       if (name.IsNullOrWhiteSpace())
         name = Guid.NewGuid().ToString();
@@ -581,7 +580,7 @@ namespace Azos.Sky.Identification
         }
         catch(Exception error)
         {
-          log(MessageType.Error, GetType().Name+".allocateBlock()", "Error invoking GDIDAuthority.AllocateBlock('{0}')".Args(node), error, batch);
+          WriteLog(MessageType.Error, nameof(allocateBlockInSystem), "Error invoking GDIDAuthority.AllocateBlock('{0}')".Args(node), error, batch);
 
           Instrumentation.AllocBlockFailureEvent.Happened(scopeName, sequenceName, blockSize, node.Name);
         }
@@ -592,7 +591,7 @@ namespace Azos.Sky.Identification
       if (result==null)
       {
         if (list.IsNullOrWhiteSpace()) list = "<none>";
-        log(MessageType.Emergency, GetType().Name+".allocateBlock()", StringConsts.GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR + list, batch: batch);
+        WriteLog(MessageType.Emergency, nameof(allocateBlockInSystem), StringConsts.GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR + list, related: batch);
         Instrumentation.AllocBlockRequestFailureEvent.Happened(scopeName, sequenceName);
         throw new GdidException(StringConsts.GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR + list);
       }
@@ -600,24 +599,6 @@ namespace Azos.Sky.Identification
       return result;
     }
 
-    private void log(MessageType type, string from, string msg, Exception error = null, Guid? batch = null)
-    {
-      var lm = new Message{
-              Type = type,
-              Topic = SysConsts.LOG_TOPIC_ID_GEN,
-              From = from,
-              Text = msg,
-              Exception = error
-          };
-
-      if (batch.HasValue)
-        lm.RelatedTo = batch.Value;
-
-      App.Log.Write( lm );
-    }
-
     #endregion
-
   }
-
 }
