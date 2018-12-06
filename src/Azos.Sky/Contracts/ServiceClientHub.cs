@@ -133,78 +133,15 @@ namespace Azos.Sky.Contracts
     #endregion
 
     #region .static/.ctor
-    private static object s_Lock = new object();
-    private static volatile ServiceClientHub s_Instance;
-
-    /// <summary>
-    /// Returns the singleton instance of the ServiceClient or its derivative as configured
-    /// </summary>
-    public static ServiceClientHub Instance
-    {
-      get
-      {
-        var instance = s_Instance;
-        if (instance != null) return instance;
-
-        lock (s_Lock)
-        {
-          if (s_Instance == null)
-            s_Instance = makeInstance();
-        }
-
-        return s_Instance;
-      }
-    }
-
-    private static ServiceClientHub makeInstance()
-    {
-      string tpn = typeof(ServiceClientHub).FullName;
-      try
-      {
-        var mbNode = SkySystem.Metabase.ServiceClientHubConfNode as ConfigSectionNode;
-        var appNode = App.ConfigRoot[SysConsts.APPLICATION_CONFIG_ROOT_SECTION][CONFIG_SERVICE_CLIENT_HUB_SECTION] as ConfigSectionNode;
-
-        var effectiveConf = new MemoryConfiguration();
-        effectiveConf.CreateFromMerge(mbNode, appNode);
-        var effective = effectiveConf.Root;
-
-        tpn = effective.AttrByName(FactoryUtils.CONFIG_TYPE_ATTR).ValueAsString(typeof(ServiceClientHub).FullName);
-
-        return FactoryUtils.Make<ServiceClientHub>(effective, typeof(ServiceClientHub), new object[] { effective });
-      }
-      catch (Exception error)
-      {
-        throw new Clients.SkyClientException(StringConsts.SKY_SVC_CLIENT_HUB_SINGLETON_CTOR_ERROR.Args(tpn, error.ToMessageWithType()), error);
-      }
-    }
-
 
     /// <summary>
     /// Makes an appropriate implementor for requested service client contract type.
     /// Pass svcName parameter in cases when the requested contract may get implemented by more than one network service.
     /// The call is thread-safe. The caller should Dispose() the returned instance after it has been used
     /// </summary>
-    public static TServiceClient New<TServiceClient>(string toHost, string fromHost = null, string svcName = null) where TServiceClient : class, ISkyServiceClient
+    public TServiceClient GetNew<TServiceClient>(Metabase.Metabank.SectionHost toHost, Metabase.Metabank.SectionHost fromHost = null, string svcName = null) where TServiceClient : class, ISkyServiceClient
     {
-      return Instance.GetNew<TServiceClient>(toHost, fromHost, svcName);
-    }
-
-    /// <summary>
-    /// Makes an appropriate implementor for requested service client contract type.
-    /// Pass svcName parameter in cases when the requested contract may get implemented by more than one network service.
-    /// The call is thread-safe. The caller should Dispose() the returned instance after it has been used
-    /// </summary>
-    public static TServiceClient New<TServiceClient>(Metabase.Metabank.SectionHost toHost, Metabase.Metabank.SectionHost fromHost = null, string svcName = null) where TServiceClient : class, ISkyServiceClient
-    {
-      return Instance.GetNew<TServiceClient>(toHost.RegionPath, fromHost != null ? fromHost.RegionPath : null, svcName);
-    }
-
-    /// <summary>
-    /// Tries to resolve contract type to implementor and tests network service resolvability. Throws in case of error
-    /// </summary>
-    public static void TestSetupOf<TServiceClient>(string toHost, string fromHost = null, string svcName = null) where TServiceClient : class, ISkyServiceClient
-    {
-      Instance.RunTestSetupOf<TServiceClient>(toHost, fromHost, svcName);
+      return GetNew<TServiceClient>(toHost.RegionPath, fromHost != null ? fromHost.RegionPath : null, svcName);
     }
 
 
@@ -217,7 +154,7 @@ namespace Azos.Sky.Contracts
     /// <param name="abortFilter">Optional functor that returns true for call exceptions that should abort the retry process</param>
     /// <param name="fromHost">Optional</param>
     /// <param name="svcName">Optional</param>
-    public static TResult CallWithRetry<TServiceClient, TResult>(Func<TServiceClient, TResult> callBody,
+    public TResult CallWithRetry<TServiceClient, TResult>(Func<TServiceClient, TResult> callBody,
                                                                  IEnumerable<string> hosts,
                                                                  Func<TServiceClient, Exception, bool> abortFilter = null,
                                                                  string fromHost = null,
@@ -232,7 +169,7 @@ namespace Azos.Sky.Contracts
 
       foreach (var host in hosts)
       {
-        using (var client = New<TServiceClient>(host, fromHost, svcName))
+        using (var client = GetNew<TServiceClient>(host, fromHost, svcName))
           try
           {
             return callBody(client);
@@ -273,7 +210,7 @@ namespace Azos.Sky.Contracts
     /// <param name="abortFilter">Optional functor that returns true for call exceptions that should abort the retry process</param>
     /// <param name="fromHost">Optional</param>
     /// <param name="svcName">Optional</param>
-    public static void CallWithRetry<TServiceClient>(Action<TServiceClient> callBody,
+    public void CallWithRetry<TServiceClient>(Action<TServiceClient> callBody,
                                                      IEnumerable<string> hosts,
                                                      Func<TServiceClient, Exception, bool> abortFilter = null,
                                                      string fromHost = null,
@@ -287,7 +224,7 @@ namespace Azos.Sky.Contracts
 
       foreach (var host in hosts)
       {
-        using (var client = New<TServiceClient>(host, fromHost, svcName))
+        using (var client = GetNew<TServiceClient>(host, fromHost, svcName))
           try
           {
             callBody(client);
@@ -329,7 +266,7 @@ namespace Azos.Sky.Contracts
     /// <param name="abortFilter">Optional functor that returns true for call exceptions that should abort the retry process</param>
     /// <param name="fromHost">Optional</param>
     /// <param name="svcName">Optional</param>
-    public static Task<TResult> CallWithRetryAsync<TServiceClient, TResult>(Func<TServiceClient, Task<TResult>> callBody,
+    public Task<TResult> CallWithRetryAsync<TServiceClient, TResult>(Func<TServiceClient, Task<TResult>> callBody,
                                                                  IEnumerable<string> hosts,
                                                                  Func<TServiceClient, Exception, bool> abortFilter = null,
                                                                  string fromHost = null,
@@ -352,15 +289,15 @@ namespace Azos.Sky.Contracts
       return tcs.Task;
     }
 
-    private static void callWithRetryAsync<TServiceClient, TResult>(
-                                                                  TaskCompletionSource<TResult> tcs,
-                                                                  Func<TServiceClient, Task<TResult>> callBody,
-                                                                  IEnumerator<string> hosts,
-                                                                  int hostsCount,
-                                                                  Func<TServiceClient, Exception, bool> abortFilter = null,
-                                                                  string fromHost = null,
-                                                                  string svcName = null
-                                                                ) where TServiceClient : class, ISkyServiceClient
+    private void callWithRetryAsync<TServiceClient, TResult>(
+                                                              TaskCompletionSource<TResult> tcs,
+                                                              Func<TServiceClient, Task<TResult>> callBody,
+                                                              IEnumerator<string> hosts,
+                                                              int hostsCount,
+                                                              Func<TServiceClient, Exception, bool> abortFilter = null,
+                                                              string fromHost = null,
+                                                              string svcName = null
+                                                            ) where TServiceClient : class, ISkyServiceClient
     {
       Task<TResult> t = null;
       TServiceClient client = null;
@@ -371,7 +308,7 @@ namespace Azos.Sky.Contracts
         try
         {
           host = hosts.Current;
-          client = New<TServiceClient>(host, fromHost, svcName);
+          client = GetNew<TServiceClient>(host, fromHost, svcName);
           t = callBody(client);
           break;
         }
@@ -467,7 +404,7 @@ namespace Azos.Sky.Contracts
     /// <param name="abortFilter">Optional functor that returns true for call exceptions that should abort the retry process</param>
     /// <param name="fromHost">Optional</param>
     /// <param name="svcName">Optional</param>
-    public static Task CallWithRetryAsync<TServiceClient>(Func<TServiceClient, Task> callBody,
+    public Task CallWithRetryAsync<TServiceClient>(Func<TServiceClient, Task> callBody,
                                                                  IEnumerable<string> hosts,
                                                                  Func<TServiceClient, Exception, bool> abortFilter = null,
                                                                  string fromHost = null,
@@ -488,10 +425,10 @@ namespace Azos.Sky.Contracts
     }
 
     /// <summary>
-    /// Override to configure custom memebers.
+    /// Override to configure custom members.
     /// The default implementation populates the CacheMap registry
     /// </summary>
-    protected ServiceClientHub(IConfigSectionNode config)
+    protected ServiceClientHub(IApplication app, IConfigSectionNode config) : base(app)
     {
       ConfigAttribute.Apply(this, config);
       foreach (var nmapping in config.Children.Where(c => c.IsSameName(CONFIG_MAP_SECTION)))
@@ -703,8 +640,8 @@ namespace Azos.Sky.Contracts
     }
 
 
-    //todo Need to add the counter for successful calls as well, however be carefull,
-    //as to many details may create much instrumentation data (dont include contract+toHost)?
+    //todo Need to add the counter for successful calls as well, however be careful,
+    //as to many details may create much instrumentation data (don't include contract+toHost)?
     //or have level of detalization setting
 
 
