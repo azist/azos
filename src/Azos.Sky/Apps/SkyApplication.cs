@@ -95,6 +95,7 @@ namespace Azos.Sky.Apps
       protected override Configuration GetConfiguration()
       {
         var localConfig = base.GetConfiguration();
+        localConfig.Application = this;
 
         BootConfLoader.ProcessAllExistingIncludes(localConfig.Root, null, "boot");
 
@@ -105,7 +106,9 @@ namespace Azos.Sky.Apps
         if (CommandArgs.Configuration is CommandArgsConfiguration)
           cmdArgs = ((CommandArgsConfiguration)this.CommandArgs.Configuration).Arguments;
 
-        return BootConfLoader.Load(cmdArgs, localConfig);
+        var result = BootConfLoader.Load(cmdArgs, localConfig);
+        result.Application = this;
+        return result;
       }
 
       protected override void DoInitApplication()

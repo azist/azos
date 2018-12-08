@@ -98,7 +98,7 @@ namespace Azos.Sky.Apps
         public static bool Loaded { get{ return s_Loaded;} }
 
         /// <summary>
-        /// Returns exception (if any) has occured during application config loading process
+        /// Returns exception (if any) has occurred during application config loading process
         /// </summary>
         public static Exception LoadException { get{ return s_LoadException;} }
 
@@ -123,7 +123,7 @@ namespace Azos.Sky.Apps
 
 
         /// <summary>
-        /// Returns primary zone governer parent host as determined at boot or null if this is the top-level host
+        /// Returns primary zone governor parent host as determined at boot or null if this is the top-level host
         /// </summary>
         public static string ParentZoneGovernorPrimaryHostName { get { return s_ParentZoneGovernorPrimaryHostName;}}
 
@@ -184,7 +184,7 @@ namespace Azos.Sky.Apps
           app.Log.Write( new Message{
                                     Type = type,
                                     From = LOG_FROM_BOOTLOADER,
-                                    Text = "Entering Sky app bootloader..."
+                                    Text = text
                          });
 
         }

@@ -10,11 +10,9 @@ namespace Azos.Sky.Locking
   public sealed class NOPLockManager : ApplicationComponent, ILockManagerImplementation
   {
 
-    private static NOPLockManager s_Instance = new NOPLockManager();
+    public NOPLockManager(IApplication app) : base(app) { }
 
-    public static NOPLockManager Instance { get{ return s_Instance;}}
-
-
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_LOCKING;
 
     public LockTransactionResult ExecuteLockTransaction(LockSession session, LockTransaction transaction)
     {

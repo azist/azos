@@ -1619,12 +1619,14 @@ namespace Azos.Conf
 
           var required = pragma.AttrByName(Configuration.CONFIG_INCLUDE_PRAGMA_REQUIRED_ATTR).ValueAsBool(true);
 
-          //1  Try to get content form IConfigNodeProvider
+          //1  Try to get content from IConfigNodeProvider
           if (ndProvider.Exists)
           {
             var provider = FactoryUtils.MakeAndConfigure<IConfigNodeProvider>(ndProvider, Configuration.ProcesswideConfigNodeProviderType);
             try
             {
+              Configuration.Application.DependencyInjector.InjectInto(provider);
+
               var root = provider.ProvideConfigNode(this);
 
               if (required && root==null) throw new ConfigException("'{0}'.ProvideConfigNode() returned null".Args(provider.GetType().FullName));
@@ -1640,8 +1642,10 @@ namespace Azos.Conf
 
           //2 Try to get content form the file system
           var ndFs = pragma[Configuration.CONFIG_INCLUDE_PRAGMA_FS_SECTION];
-
-          using(var fs = FactoryUtils.MakeAndConfigure<IFileSystemImplementation>(ndFs, typeof(Azos.IO.FileSystem.Local.LocalFileSystem)))
+//todo: Future, pool file system instances, do not allocate FS on every get, maybe create a module for FS?
+          using(var fs = FactoryUtils.MakeAndConfigureComponent<IFileSystemImplementation>(Configuration.Application,
+                                                                                           ndFs,
+                                                                                           typeof(Azos.IO.FileSystem.Local.LocalFileSystem)))
           {
             FileSystemSessionConnectParams cParams;
 

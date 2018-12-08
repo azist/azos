@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
+using Azos.Apps.Injection;
 using Azos.Serialization.JSON;
 
 namespace Azos.Conf
@@ -22,389 +23,399 @@ namespace Azos.Conf
   {
     #region CONSTS
 
-          public const  string  DEFAULT_CONFIG_INCLUDE_PRAGMA = "_include";
+    public const  string  DEFAULT_CONFIG_INCLUDE_PRAGMA = "_include";
 
-          public const  string  CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION = "provider";
+    public const  string  CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION = "provider";
 
-          public const  string  CONFIG_INCLUDE_PRAGMA_FS_SECTION = "fs";
-          public const  string  CONFIG_INCLUDE_PRAGMA_SESSION_SECTION = "session";
-          public const  string  CONFIG_INCLUDE_PRAGMA_FILE_ATTR = "file";
-          public const  string  CONFIG_INCLUDE_PRAGMA_REQUIRED_ATTR = "required";
+    public const  string  CONFIG_INCLUDE_PRAGMA_FS_SECTION = "fs";
+    public const  string  CONFIG_INCLUDE_PRAGMA_SESSION_SECTION = "session";
+    public const  string  CONFIG_INCLUDE_PRAGMA_FILE_ATTR = "file";
+    public const  string  CONFIG_INCLUDE_PRAGMA_REQUIRED_ATTR = "required";
 
-          public const  string  DEFAULT_VAR_ESCAPE = "$(###)";
-          public const  string  DEFAULT_VAR_START = "$(";
-          public const  string  DEFAULT_VAR_END = ")";
-          public const  string  DEFAULT_VAR_PATH_MOD = "@";
-          public const  string  DEFAULT_VAR_ENV_MOD = "~";
+    public const  string  DEFAULT_VAR_ESCAPE = "$(###)";
+    public const  string  DEFAULT_VAR_START = "$(";
+    public const  string  DEFAULT_VAR_END = ")";
+    public const  string  DEFAULT_VAR_PATH_MOD = "@";
+    public const  string  DEFAULT_VAR_ENV_MOD = "~";
 
-          public const  string  DEFAULT_VAR_MACRO_START = "::";
+    public const  string  DEFAULT_VAR_MACRO_START = "::";
 
-          public const  string  CONFIG_NAME_ATTR = "name";
-          public const  string  CONFIG_ORDER_ATTR = "order";
+    public const  string  CONFIG_NAME_ATTR = "name";
+    public const  string  CONFIG_ORDER_ATTR = "order";
 
 
-          public const  string  CONFIG_LACONIC_FORMAT = "laconf";
+    public const  string  CONFIG_LACONIC_FORMAT = "laconf";
 
     #endregion
 
     #region Static
 
-        /// <summary>
-        /// Creates a new empty config root based on laconic format
-        /// </summary>
-        public static ConfigSectionNode NewEmptyRoot(string name = null)
-        {
-          var cfg = new LaconicConfiguration();
-          cfg.Create(name);
-          return cfg.Root;
-        }
+    /// <summary>
+    /// Creates a new empty config root based on laconic format
+    /// </summary>
+    public static ConfigSectionNode NewEmptyRoot(string name = null)
+    {
+      var cfg = new LaconicConfiguration();
+      cfg.Create(name);
+      return cfg.Root;
+    }
 
-        /// <summary>
-        /// Returns all configuration file formats (file extensions without '.') supported
-        /// by ProviderLoadFromFile/ProviderLoadFromAnySupportedFormatFile/ProviderLoadFromString
-        /// </summary>
-        public static IEnumerable<string> AllSupportedFormats
+    /// <summary>
+    /// Returns all configuration file formats (file extensions without '.') supported
+    /// by ProviderLoadFromFile/ProviderLoadFromAnySupportedFormatFile/ProviderLoadFromString
+    /// </summary>
+    public static IEnumerable<string> AllSupportedFormats
+    {
+      get
+      {
+        return Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions
+                                        .Concat(Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions)
+                                        .Concat(Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions);
+      }
+    }
+
+    /// <summary>
+    /// Loads the contents of the supplied file name in an appropriate configuration provider implementation for the supplied extension format
+    /// </summary>
+    public static Configuration ProviderLoadFromFile(string fileName)
+    {
+        var ext = Path.GetExtension(fileName).ToLower();
+
+        if (ext.StartsWith(".")) ext=ext.Remove(0, 1);
+
+        //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
+        //in future Aum conversion replace with Dictionary<format, configType> lookup
+
+        if (Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
+          return new LaconicConfiguration(fileName);
+
+        if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
+          return new XMLConfiguration(fileName);
+
+        if (Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
+          return new JSONConfiguration(fileName);
+
+        throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_LOAD_FILE_ERROR + fileName);
+    }
+
+    /// <summary>
+    /// Loads the contents of the supplied file name without format extension trying to match any of the supported format extensions.
+    /// When match is found the file is loaded via an appropriate configuration provider
+    /// </summary>
+    /// <example>
+    /// Given "c:\conf\users" as an input:
+    ///   if "c:\conf\users.xml" exists then it will be opened as XMLConfiguration
+    ///   if "c:\conf\users.laconf" exists then it will be opened as LaconicConfiguration
+    ///   if "c:\conf\users.json" exists then it will be opened as JSONConfiguration
+    ///   and so on... for the rest of supported formats
+    /// </example>
+    public static Configuration ProviderLoadFromAnySupportedFormatFile(string fileName)
+    {
+        if (fileName.IsNotNullOrWhiteSpace())
         {
-          get
+          if (fileName.EndsWith(".")) fileName=fileName.Remove(fileName.Length-1);
+
+          foreach(var fmt in AllSupportedFormats)
           {
-            return Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions
-                                            .Concat(Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions)
-                                            .Concat(Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions);
+            var fn =  "{0}.{1}".Args(fileName, fmt);
+            if (File.Exists(fn)) return ProviderLoadFromFile(fn);
           }
         }
 
-        /// <summary>
-        /// Loads the contents of the supplied file name in an appropriate configuration provider implementation for the supplied extension format
-        /// </summary>
-        public static Configuration ProviderLoadFromFile(string fileName)
-        {
-            var ext = Path.GetExtension(fileName).ToLower();
-
-            if (ext.StartsWith(".")) ext=ext.Remove(0, 1);
-
-            //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
-            //in future Aum conversion replace with Dictionary<format, configType> lookup
-
-            if (Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
-              return new LaconicConfiguration(fileName);
-
-            if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
-              return new XMLConfiguration(fileName);
-
-            if (Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
-              return new JSONConfiguration(fileName);
-
-            throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_LOAD_FILE_ERROR + fileName);
-        }
-
-        /// <summary>
-        /// Loads the contents of the supplied file name without format extension trying to match any of the supported format extensions.
-        /// When match is found the file is loaded via an appropriate configuration provider
-        /// </summary>
-        /// <example>
-        /// Given "c:\conf\users" as an input:
-        ///   if "c:\conf\users.xml" exists then it will be opened as XMLConfiguration
-        ///   if "c:\conf\users.laconf" exists then it will be opened as LaconicConfiguration
-        ///   if "c:\conf\users.json" exists then it will be opened as JSONConfiguration
-        ///   and so on... for the rest of supported formats
-        /// </example>
-        public static Configuration ProviderLoadFromAnySupportedFormatFile(string fileName)
-        {
-            if (fileName.IsNotNullOrWhiteSpace())
-            {
-              if (fileName.EndsWith(".")) fileName=fileName.Remove(fileName.Length-1);
-
-              foreach(var fmt in AllSupportedFormats)
-              {
-                var fn =  "{0}.{1}".Args(fileName, fmt);
-                if (File.Exists(fn)) return ProviderLoadFromFile(fn);
-              }
-            }
-
-            throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_LOAD_FILE_ERROR + fileName);
-        }
+        throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_LOAD_FILE_ERROR + fileName);
+    }
 
 
-        /// <summary>
-        /// Loads the supplied string content in the specified format, which may be format name like "xml" or "laconfig" with or without extension period
-        /// </summary>
-        public static Configuration ProviderLoadFromString(string content, string format, string fallbackFormat = null)
-        {
-          if (format.IsNullOrWhiteSpace()) { format = fallbackFormat; fallbackFormat = null; }
+    /// <summary>
+    /// Loads the supplied string content in the specified format, which may be format name like "xml" or "laconfig" with or without extension period
+    /// </summary>
+    public static Configuration ProviderLoadFromString(string content, string format, string fallbackFormat = null)
+    {
+      if (format.IsNullOrWhiteSpace()) { format = fallbackFormat; fallbackFormat = null; }
 
-          if (format != null)
-          {
-            if (format.StartsWith(".")) format = format.Remove(0, 1);
+      if (format != null)
+      {
+        if (format.StartsWith(".")) format = format.Remove(0, 1);
 
-            //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
-            //in future Aum conversion replace with Dictionary<format, configType> lookup
+        //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
+        //in future Aum conversion replace with Dictionary<format, configType> lookup
 
-            if (Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
-              return LaconicConfiguration.CreateFromString(content);
+        if (Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
+          return LaconicConfiguration.CreateFromString(content);
 
-            if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
-              return XMLConfiguration.CreateFromXML(content);
+        if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
+          return XMLConfiguration.CreateFromXML(content);
 
-            if (Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
-              return JSONConfiguration.CreateFromJSON(content);
+        if (Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
+          return JSONConfiguration.CreateFromJSON(content);
 
-            if (fallbackFormat.IsNotNullOrWhiteSpace())
-              return ProviderLoadFromString(content, fallbackFormat);
-          }
+        if (fallbackFormat.IsNotNullOrWhiteSpace())
+          return ProviderLoadFromString(content, fallbackFormat);
+      }
 
-          throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_LOAD_FORMAT_ERROR + format);
-        }
+      throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_LOAD_FORMAT_ERROR + format);
+    }
 
-        /// <summary>
-        /// True when format is supported
-        /// </summary>
-        public static bool IsSupportedFormat(string format)
-        {
-          if (format.StartsWith(".")) format=format.Remove(0, 1);
+    /// <summary>
+    /// True when format is supported
+    /// </summary>
+    public static bool IsSupportedFormat(string format)
+    {
+      if (format.StartsWith(".")) format=format.Remove(0, 1);
 
-          return Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)) ||
-                 Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)) ||
-                 Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase));
-        }
+      return Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)) ||
+              Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)) ||
+              Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase));
+    }
 
-        /// <summary>
-        /// Creates new configuration instance of an appropriate provider implementation for the supplied extension format
-        /// </summary>
-        public static FileConfiguration MakeProviderForFile(string fileName)
-        {
-            var ext = Path.GetExtension(fileName).ToLower();
+    /// <summary>
+    /// Creates new configuration instance of an appropriate provider implementation for the supplied extension format
+    /// </summary>
+    public static FileConfiguration MakeProviderForFile(string fileName)
+    {
+        var ext = Path.GetExtension(fileName).ToLower();
 
-            if (ext.StartsWith(".")) ext=ext.Remove(0, 1);
+        if (ext.StartsWith(".")) ext=ext.Remove(0, 1);
 
-            //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
-            //in future Aum conversion replace with Dictionary<format, configType> lookup
+        //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
+        //in future Aum conversion replace with Dictionary<format, configType> lookup
 
-            if (Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
-              return new LaconicConfiguration();
+        if (Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
+          return new LaconicConfiguration();
 
-            if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
-              return new XMLConfiguration();
+        if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
+          return new XMLConfiguration();
 
-            if (Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
-              return new JSONConfiguration();
+        if (Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
+          return new JSONConfiguration();
 
-            throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_HANDLE_FILE_ERROR + fileName);
-        }
+        throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_HANDLE_FILE_ERROR + fileName);
+    }
 
 
-        /// <summary>
-        /// Gets/sets global Environment variable resolver that is used by all configurations in this process instance
-        /// </summary>
-        public static IEnvironmentVariableResolver ProcesswideEnvironmentVarResolver;
+    /// <summary>
+    /// Gets/sets global Environment variable resolver that is used by all configurations in this process instance
+    /// </summary>
+    public static IEnvironmentVariableResolver ProcesswideEnvironmentVarResolver;
 
-        /// <summary>
-        /// Gets/sets global implementor of IConfigNodeProvider that is used by all configurations in this process instance
-        /// when type is not specified
-        /// </summary>
-        public static Type ProcesswideConfigNodeProviderType;
+    /// <summary>
+    /// Gets/sets global implementor of IConfigNodeProvider that is used by all configurations in this process instance
+    /// when type is not specified
+    /// </summary>
+    public static Type ProcesswideConfigNodeProviderType;
     #endregion
 
 
     #region .ctor
-        protected Configuration()
-        {
-          m_EmptySectionNode = new ConfigSectionNode(this, null);
-          m_EmptyAttrNode = new ConfigAttrNode(this, null);
+    protected Configuration()
+    {
+      m_EmptySectionNode = new ConfigSectionNode(this, null);
+      m_EmptyAttrNode = new ConfigAttrNode(this, null);
 
-          m_EmptySectionNode.__Empty = true;
-          m_EmptyAttrNode.__Empty = true;
+      m_EmptySectionNode.__Empty = true;
+      m_EmptyAttrNode.__Empty = true;
 
-          m_Root = m_EmptySectionNode;
-        }
-
-
+      m_Root = m_EmptySectionNode;
+    }
     #endregion
 
     #region Private/Protected Fields
 
-      private bool m_StrictNames = true;
+    //The application context is transient and not serializable
+    [NonSerialized, Inject]
+    private IApplication m_Application;
 
-      protected ConfigSectionNode m_Root;
+    private bool m_StrictNames = true;
 
-      //not static because nodes retain Configuration ownership, hence every config has its own set of sentinel nodes
-      protected internal ConfigSectionNode m_EmptySectionNode;
-      protected internal ConfigAttrNode m_EmptyAttrNode;
+    protected ConfigSectionNode m_Root;
 
-
-      private IEnvironmentVariableResolver m_EnvironmentVarResolver;
-      private IMacroRunner m_MacroRunner;
-      private object m_MacroRunnerContext;
-
-      private string m_Variable_ESCAPE = DEFAULT_VAR_ESCAPE;
-      private string m_Variable_START = DEFAULT_VAR_START;
-      private string m_Variable_END   = DEFAULT_VAR_END;
-      private string m_Variable_PATH_MOD = DEFAULT_VAR_PATH_MOD;
-      private string m_Variable_ENV_MOD  = DEFAULT_VAR_ENV_MOD;
-
-      private string m_Variable_MACRO_START = DEFAULT_VAR_MACRO_START;
+    //not static because nodes retain Configuration ownership, hence every config has its own set of sentinel nodes
+    protected internal ConfigSectionNode m_EmptySectionNode;
+    protected internal ConfigAttrNode m_EmptyAttrNode;
 
 
+    private IEnvironmentVariableResolver m_EnvironmentVarResolver;
+    private IMacroRunner m_MacroRunner;
+    private object m_MacroRunnerContext;
 
+    private string m_Variable_ESCAPE = DEFAULT_VAR_ESCAPE;
+    private string m_Variable_START = DEFAULT_VAR_START;
+    private string m_Variable_END   = DEFAULT_VAR_END;
+    private string m_Variable_PATH_MOD = DEFAULT_VAR_PATH_MOD;
+    private string m_Variable_ENV_MOD  = DEFAULT_VAR_ENV_MOD;
+
+    private string m_Variable_MACRO_START = DEFAULT_VAR_MACRO_START;
     #endregion
 
     #region Public properties
 
-        /// <summary>
-        /// Accesses root section configuration node
-        /// </summary>
-        public ConfigSectionNode Root
+    /// <summary>
+    /// Gets/sets application transient context. It is NOT serialized. Setting this to null (which is the default value)
+    /// returns current Ambient application context
+    /// </summary>
+    public IApplication Application
+    {
+      get => m_Application ?? Azos.Apps.ExecutionContext.Application;
+      set => m_Application = value;
+    }
+
+
+    /// <summary>
+    /// Accesses root section configuration node
+    /// </summary>
+    public ConfigSectionNode Root
+    {
+      get
+      {
+        if (m_Root != null)
+          return m_Root;
+        else
+          return m_EmptySectionNode;
+      }
+    }
+
+
+    /// <summary>
+    /// Determines whether exception is thrown when configuration node name contains
+    /// inappropriate chars for particular configuration type. For example,
+    ///  for XMLConfiguration node names may not have spaces and other separator chars.
+    /// When StrictNames is false then particular configurations may replace incompatible
+    ///  chars in node names with neutral ones (i.e. "my value"->"my-value" in case of XMLConfiguration).
+    /// </summary>
+    public bool StrictNames
+    {
+      get { return m_StrictNames;}
+      set {m_StrictNames = value; }
+    }
+
+
+    /// <summary>
+    /// Indicates whether configuration is read-only
+    /// </summary>
+    public abstract bool IsReadOnly { get; }
+
+
+    /// <summary>
+    /// References variable resolver. If this property is not set then default Windows environment var resolver is used
+    /// </summary>
+    public IEnvironmentVariableResolver EnvironmentVarResolver
+    {
+      get { return m_EnvironmentVarResolver; }
+      set { m_EnvironmentVarResolver = value; }
+    }
+
+    /// <summary>
+    /// References macro runner. If this property is not set then default macro runner is used
+    /// </summary>
+    public IMacroRunner MacroRunner
+    {
+      get { return m_MacroRunner; }
+      set { m_MacroRunner = value; }
+    }
+
+
+    /// <summary>
+    /// Gets/sets an object passed by the framework into MacroRunner.Run() method.
+    /// This property is auto-set for classes decorated with [ConfigMacroContext] attribute
+    /// </summary>
+    public object MacroRunnerContext
+    {
+      get { return m_MacroRunnerContext; }
+      set { m_MacroRunnerContext = value; }
+    }
+
+    /// <summary>
+    /// References a special instance of an empty section node (one per configuration).
+    /// Empty nodes are returned by indexers when a real node with specified name does not exist
+    /// </summary>
+    public ConfigSectionNode EmptySection
+    {
+      get { return m_EmptySectionNode; }
+    }
+
+    /// <summary>
+    /// References a special instance of an empty attribute node (one per configuration).
+    /// Empty nodes are returned by indexers when a real node with specified name does not exist
+    /// </summary>
+    public ConfigAttrNode EmptyAttr
+    {
+      get { return m_EmptyAttrNode; }
+    }
+
+
+    /// <summary>
+    /// Variable escape tag
+    /// </summary>
+    public string Variable_ESCAPE
+    {
+      get { return m_Variable_ESCAPE ?? DEFAULT_VAR_ESCAPE; }
+      set { m_Variable_ESCAPE = value;}
+    }
+
+
+    /// <summary>
+    /// Variable start tag
+    /// </summary>
+    public string Variable_START
+    {
+      get { return m_Variable_START ?? DEFAULT_VAR_START; }
+      set { m_Variable_START = value;}
+    }
+
+    /// <summary>
+    /// Variable end tag
+    /// </summary>
+    public string Variable_END
+    {
+      get { return m_Variable_END ?? DEFAULT_VAR_END; }
+      set { m_Variable_END = value;}
+    }
+
+    /// <summary>
+    /// Variable path modifier
+    /// </summary>
+    public string Variable_PATH_MOD
+    {
+      get { return m_Variable_PATH_MOD ?? DEFAULT_VAR_PATH_MOD; }
+      set { m_Variable_PATH_MOD = value;}
+    }
+
+    /// <summary>
+    /// Variable environment modifier
+    /// </summary>
+    public string Variable_ENV_MOD
+    {
+      get { return m_Variable_ENV_MOD ?? DEFAULT_VAR_ENV_MOD; }
+      set { m_Variable_ENV_MOD = value;}
+    }
+
+    /// <summary>
+    /// Variable get clause modifier
+    /// </summary>
+    public string Variable_MACRO_START
+    {
+      get { return m_Variable_MACRO_START ?? DEFAULT_VAR_MACRO_START; }
+    }
+
+
+    /// <summary>
+    /// Primarily used for debugging - returns the content of the configuration as text in the pretty-printed Laconic format
+    /// </summary>
+    public string ContentView
+    {
+      get
+      {
+        if (this.Root.Exists)
         {
-          get
-          {
-            if (m_Root != null)
-              return m_Root;
-            else
-              return m_EmptySectionNode;
-          }
+          return "Configuration Type: {0}\n-----------------------------------------------------\n{1}".Args(
+                            this.GetType().FullName,
+                            ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint)
+                            );
         }
-
-
-        /// <summary>
-        /// Determines whether exception is thrown when configuration node name contains
-        /// inappropriate chars for particular configuration type. For example,
-        ///  for XMLConfiguration node names may not have spaces and other separator chars.
-        /// When StrictNames is false then particular configurations may replace incompatible
-        ///  chars in node names with neutral ones (i.e. "my value"->"my-value" in case of XMLConfiguration).
-        /// </summary>
-        public bool StrictNames
-        {
-          get { return m_StrictNames;}
-          set {m_StrictNames = value; }
-        }
-
-
-        /// <summary>
-        /// Indicates whether configuration is read-only
-        /// </summary>
-        public abstract bool IsReadOnly { get; }
-
-
-        /// <summary>
-        /// References variable resolver. If this property is not set then default Windows environment var resolver is used
-        /// </summary>
-        public IEnvironmentVariableResolver EnvironmentVarResolver
-        {
-          get { return m_EnvironmentVarResolver; }
-          set { m_EnvironmentVarResolver = value; }
-        }
-
-        /// <summary>
-        /// References macro runner. If this property is not set then default macro runner is used
-        /// </summary>
-        public IMacroRunner MacroRunner
-        {
-          get { return m_MacroRunner; }
-          set { m_MacroRunner = value; }
-        }
-
-
-        /// <summary>
-        /// Gets/sets an object passed by the framework into MacroRunner.Run() method.
-        /// This property is auto-set for classes decorated with [ConfigMacroContext] attribute
-        /// </summary>
-        public object MacroRunnerContext
-        {
-          get { return m_MacroRunnerContext; }
-          set { m_MacroRunnerContext = value; }
-        }
-
-        /// <summary>
-        /// References a special instance of an empty section node (one per configuration).
-        /// Empty nodes are returned by indexers when a real node with specified name does not exist
-        /// </summary>
-        public ConfigSectionNode EmptySection
-        {
-          get { return m_EmptySectionNode; }
-        }
-
-        /// <summary>
-        /// References a special instance of an empty attribute node (one per configuration).
-        /// Empty nodes are returned by indexers when a real node with specified name does not exist
-        /// </summary>
-        public ConfigAttrNode EmptyAttr
-        {
-          get { return m_EmptyAttrNode; }
-        }
-
-
-        /// <summary>
-        /// Variable escape tag
-        /// </summary>
-        public string Variable_ESCAPE
-        {
-          get { return m_Variable_ESCAPE ?? DEFAULT_VAR_ESCAPE; }
-          set { m_Variable_ESCAPE = value;}
-        }
-
-
-        /// <summary>
-        /// Variable start tag
-        /// </summary>
-        public string Variable_START
-        {
-          get { return m_Variable_START ?? DEFAULT_VAR_START; }
-          set { m_Variable_START = value;}
-        }
-
-        /// <summary>
-        /// Variable end tag
-        /// </summary>
-        public string Variable_END
-        {
-          get { return m_Variable_END ?? DEFAULT_VAR_END; }
-          set { m_Variable_END = value;}
-        }
-
-        /// <summary>
-        /// Variable path modifier
-        /// </summary>
-        public string Variable_PATH_MOD
-        {
-          get { return m_Variable_PATH_MOD ?? DEFAULT_VAR_PATH_MOD; }
-          set { m_Variable_PATH_MOD = value;}
-        }
-
-        /// <summary>
-        /// Variable environment modifier
-        /// </summary>
-        public string Variable_ENV_MOD
-        {
-          get { return m_Variable_ENV_MOD ?? DEFAULT_VAR_ENV_MOD; }
-          set { m_Variable_ENV_MOD = value;}
-        }
-
-        /// <summary>
-        /// Variable get clause modifier
-        /// </summary>
-        public string Variable_MACRO_START
-        {
-          get { return m_Variable_MACRO_START ?? DEFAULT_VAR_MACRO_START; }
-        }
-
-
-        /// <summary>
-        /// Primarily used for debugging - returns the content of the configuration as text in the pretty-printed Laconic format
-        /// </summary>
-        public string ContentView
-        {
-          get
-          {
-            if (this.Root.Exists)
-            {
-              return "Configuration Type: {0}\n-----------------------------------------------------\n{1}".Args(
-                               this.GetType().FullName,
-                               ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint)
-                               );
-            }
-            else
-              return "Configuration Type: {0} <empty>".Args( this.GetType().FullName);
-          }
-        }
+        else
+          return "Configuration Type: {0} <empty>".Args( this.GetType().FullName);
+      }
+    }
 
     #endregion
 
