@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-using Azos.Apps;
-using Azos.Glue;
 using Azos.Conf;
-using Azos.Collections;
-using Azos.Glue.Protocol;
-using Azos.Serialization.BSON;
+using Azos.Sky.Contracts;
 
-namespace Azos.Sky.Contracts
+namespace Azos.Sky //for convenience it is in the root SKY namespace
 {
   /// <summary>
   /// Provides access to ServiceClientHub singleton
@@ -18,9 +11,9 @@ namespace Azos.Sky.Contracts
   public static class ServiceClientHubAccessor
   {
     /// <summary>
-    /// Provides access to ServiceClientHub singleton instance of app context
+    /// Provides access to ServiceClientHub singleton instance of the app context
     /// </summary>
-    public static ServiceClientHub ClientHub(this IApplication app)
+    public static ServiceClientHub GetServiceClientHub(this IApplication app)
       => app.NonNull(nameof(app))
             .Singletons
             .GetOrCreate(() =>

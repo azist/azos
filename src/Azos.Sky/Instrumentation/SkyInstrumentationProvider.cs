@@ -46,19 +46,19 @@ namespace Azos.Sky.Instrumentation
       m_Host = SkySystem.Metabase.CatalogReg.NavigateHost(node.AttrByName(CONFIG_HOST_ATTR).Value);
     }
 
-    protected override object BeforeBatch()
+    protected internal override object BeforeBatch()
     {
       return new List<Datum>();
     }
 
-    protected override void AfterBatch(object batchContext)
+    protected internal override void AfterBatch(object batchContext)
     {
       var datumList = batchContext as List<Datum>;
       if (datumList != null)
         send(datumList.ToArray());
 
     }
-    protected override void Write(Datum aggregatedDatum, object batchContext, object typeContext)
+    protected internal override void Write(Datum aggregatedDatum, object batchContext, object typeContext)
     {
       var datumList = batchContext as List<Datum>;
       if (datumList != null)

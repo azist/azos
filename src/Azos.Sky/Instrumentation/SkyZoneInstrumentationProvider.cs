@@ -45,13 +45,9 @@ namespace Azos.Sky.Instrumentation
 
 
     #region .ctor
-      public SkyZoneInstrumentationProvider() : base(null)
-      {
-      }
-
-      public SkyZoneInstrumentationProvider(InstrumentationDaemon director) : base(director)
-      {
-      }
+    public SkyZoneInstrumentationProvider(InstrumentationDaemon director) : base(director)
+    {
+    }
     #endregion
 
     #region Fields
@@ -83,7 +79,7 @@ namespace Azos.Sky.Instrumentation
     #endregion
 
     #region Protected
-      protected override void Write(Datum aggregatedDatum, object batchContext, object typeContext)
+      protected internal override void Write(Datum aggregatedDatum, object batchContext, object typeContext)
       {
         if (!Running) return;
         if (aggregatedDatum==null) return;
@@ -171,7 +167,7 @@ namespace Azos.Sky.Instrumentation
 
                 var sendNextTime = MAX_SEND_BATCH;
                 var zgHost = SkySystem.ParentZoneGovernorPrimaryHostName;
-                var client = Contracts.ServiceClientHub.New<Contracts.IZoneTelemetryReceiverClient>( zgHost );
+                var client = App.GetServiceClientHub().MakeNew<Contracts.IZoneTelemetryReceiverClient>( zgHost );
                 if (m_ZGovCallTimeoutMs>0) client.TimeoutMs = m_ZGovCallTimeoutMs;
 
                 try
@@ -213,7 +209,7 @@ namespace Azos.Sky.Instrumentation
                         }
                         zgHost = phost.RegionPath;
                         client.Dispose();
-                        client = Contracts.ServiceClientHub.New<Contracts.IZoneTelemetryReceiverClient>( zgHost );
+                        client = App.GetServiceClientHub().MakeNew<Contracts.IZoneTelemetryReceiverClient>( zgHost );
                         client.TimeoutMs = GLUE_CALL_SLA_MS;
                       }
                       continue;

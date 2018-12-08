@@ -328,7 +328,7 @@ namespace Azos.Sky
     public const string SKY_SVC_CLIENT_HUB_NET_RESOLVE_ERROR = "Service hub error resolving service node for contract mapping '{0}'. Resolver error: {1}";
     public const string SKY_SVC_CLIENT_HUB_CALL_RETRY_FAILED_ERROR = "Service hub error calling '{0}'  after {1} retries tried";
     public const string SKY_SVC_CLIENT_HUB_SETUP_INSTANCE_ERROR = "Service hub error from setup a client instance for contract mapping '{0}'. Setup error: {1}";
-    public const string SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR = "Service hub error calling '{0}' service on '{1}'";
+    public const string SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR = "Service hub error calling '{0}' service on '{1}'. Error: {2}";
     public const string SKY_SVC_CLIENT_MAPPING_CTOR_ERROR = "Service hub ContractMapping.ctor(' {0} ') error: {1}";
 
 

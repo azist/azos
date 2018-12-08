@@ -40,15 +40,5 @@ namespace Azos.Sky.Workers.Server.Queue
     public abstract void Complete(TodoQueue queue, TodoFrame todo, Exception error = null, object transaction = null);
 
     public abstract int GetInboundCapacity(TodoQueue queue);
-
-    protected Guid Log(MessageType type,
-                       string from,
-                       string message,
-                       Exception error = null,
-                       Guid? relatedMessageID = null,
-                       string parameters = null)
-    {
-      return QueueService.Log(type, "{0}.{1}".Args(GetType().Name, from), message, error, relatedMessageID, parameters);
-    }
   }
 }

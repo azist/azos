@@ -11,7 +11,7 @@ using Azos.Log;
 namespace Azos.Sky.Log.Server
 {
   /// <summary>
-  /// Glue adapter for Contracts.ILogReceiver
+  /// Glue trampoline for Contracts.ILogReceiver
   /// </summary>
   public sealed class LogReceiverServer : Contracts.ILogReceiver
   {

@@ -9,23 +9,7 @@ using Azos.Instrumentation;
 using Azos.Log;
 
 
-namespace Azos.Sky.Workers.Server.Queue { public sealed partial class TodoQueueService{
-
-      /// <summary>
-      /// Writes to log on behalf of worker service
-      /// </summary>
-      public Guid Log(MessageType type,
-                      Todo todo,
-                      string from,
-                      string message,
-                      Exception error = null,
-                      Guid? relatedMessageID = null,
-                      string parameters = null)
-      {
-        if (type < LogLevel) return Guid.Empty;
-
-        return Log(type, "{0}.{1}".Args(todo.GetType().FullName, from), message, error, relatedMessageID, parameters);
-      }
+namespace Azos.Sky.Workers.Server.Queue { partial class TodoQueueService{
 
       protected override void DoConfigure(IConfigSectionNode node)
       {
@@ -106,7 +90,7 @@ namespace Azos.Sky.Workers.Server.Queue { public sealed partial class TodoQueueS
         }
         catch (Exception error)
         {
-          Log(MessageType.CatastrophicError, "DoThreadSpin()", error.ToMessageWithType(), error);
+          WriteLog(MessageType.CatastrophicError, nameof(DoThreadSpin), error.ToMessageWithType(), error);
         }
       }
 
@@ -114,19 +98,19 @@ namespace Azos.Sky.Workers.Server.Queue { public sealed partial class TodoQueueS
     protected override void DoDumpStats(IInstrumentation instr, DateTime utcNow)
     {
       instr.Record( new Instrumentation.EnqueueCalls( Interlocked.Exchange(ref m_stat_EnqueueCalls, 0) ) );
-      m_stat_EnqueueTodoCount.SnapshotAllLongsInto<Instrumentation.EnqueueTodoCount>(0);
+      m_stat_EnqueueTodoCount.SnapshotAllLongsInto<Instrumentation.EnqueueTodoCount>(instr, 0);
       instr.Record( new Instrumentation.QueueThreadSpins( Interlocked.Exchange(ref m_stat_QueueThreadSpins, 0) ) );
-      m_stat_ProcessOneQueueCount.SnapshotAllLongsInto<Instrumentation.ProcessOneQueueCount>(0, instr);
-      m_stat_MergedTodoCount.SnapshotAllLongsInto<Instrumentation.MergedTodoCount>(0, instr);
-      m_stat_FetchedTodoCount.SnapshotAllLongsInto<Instrumentation.FetchedTodoCount>(0, instr);
-      m_stat_ProcessedTodoCount.SnapshotAllLongsInto<Instrumentation.ProcessedTodoCount>(0, instr);
-      m_stat_PutTodoCount.SnapshotAllLongsInto<Instrumentation.PutTodoCount>(0, instr);
-      m_stat_UpdateTodoCount.SnapshotAllLongsInto<Instrumentation.UpdateTodoCount>(0, instr);
-      m_stat_CompletedTodoCount.SnapshotAllLongsInto<Instrumentation.CompletedTodoCount>(0, instr);
-      m_stat_CompletedOkTodoCount.SnapshotAllLongsInto<Instrumentation.CompletedOkTodoCount>(0, instr);
-      m_stat_CompletedErrorTodoCount.SnapshotAllLongsInto<Instrumentation.CompletedErrorTodoCount>(0, instr);
-      m_stat_QueueOperationErrorCount.SnapshotAllLongsInto<Instrumentation.QueueOperationErrorCount>(0, instr);
-      m_stat_TodoDuplicationCount.SnapshotAllLongsInto<Instrumentation.TodoDuplicationCount>(0, instr);
+      m_stat_ProcessOneQueueCount.SnapshotAllLongsInto<Instrumentation.ProcessOneQueueCount>(instr, 0);
+      m_stat_MergedTodoCount.SnapshotAllLongsInto<Instrumentation.MergedTodoCount>(instr, 0);
+      m_stat_FetchedTodoCount.SnapshotAllLongsInto<Instrumentation.FetchedTodoCount>(instr, 0);
+      m_stat_ProcessedTodoCount.SnapshotAllLongsInto<Instrumentation.ProcessedTodoCount>(instr, 0);
+      m_stat_PutTodoCount.SnapshotAllLongsInto<Instrumentation.PutTodoCount>(instr, 0);
+      m_stat_UpdateTodoCount.SnapshotAllLongsInto<Instrumentation.UpdateTodoCount>(instr, 0);
+      m_stat_CompletedTodoCount.SnapshotAllLongsInto<Instrumentation.CompletedTodoCount>(instr, 0);
+      m_stat_CompletedOkTodoCount.SnapshotAllLongsInto<Instrumentation.CompletedOkTodoCount>(instr, 0);
+      m_stat_CompletedErrorTodoCount.SnapshotAllLongsInto<Instrumentation.CompletedErrorTodoCount>(instr, 0);
+      m_stat_QueueOperationErrorCount.SnapshotAllLongsInto<Instrumentation.QueueOperationErrorCount>(instr, 0);
+      m_stat_TodoDuplicationCount.SnapshotAllLongsInto<Instrumentation.TodoDuplicationCount>(instr, 0);
     }
 
     protected override void DoResetStats(DateTime utcNow)

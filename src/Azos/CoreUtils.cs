@@ -109,7 +109,7 @@ namespace Azos
     }
 
     /// <summary>
-    /// If there is error, converts its details to JSOnDataMap
+    /// If there is error, converts its details to JSONDataMap
     /// </summary>
     public static Azos.Serialization.JSON.JSONDataMap ToJSONDataMap(this Exception error, bool recurse = true, bool stackTrace = false)
     {
@@ -188,7 +188,7 @@ namespace Azos
 
 
     /// <summary>
-    /// Returns the the name of the type with expanded generic argument names.
+    /// Returns the name of the type with expanded generic argument names.
     /// This helper is useful for printing class names to logs/messages.
     ///   List'1[System.Object]  ->  List&lt;Object&gt;
     /// </summary>

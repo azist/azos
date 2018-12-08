@@ -69,6 +69,8 @@ namespace Azos.Sky
     public const string LOG_TOPIC_DYNHOST_GOV = "dynh";
     public const string LOG_TOPIC_HOST_SET = "hostSet";
     public const string LOG_TOPIC_WORKER = "wrkr";
+    public const string LOG_TOPIC_TODO = "todo";
+    public const string LOG_TOPIC_PM = "pman";
     public const string LOG_TOPIC_WMSG = "wmsg";
 
 

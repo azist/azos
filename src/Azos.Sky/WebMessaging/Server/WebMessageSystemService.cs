@@ -3,70 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Azos.Apps;
+using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Collections;
 using Azos.Web.Messaging;
 
 using Azos.Sky.Contracts;
+using Azos.Instrumentation;
 
 namespace Azos.Sky.WebMessaging.Server
 {
   /// <summary>
-  /// Glue adapter for Contracts.IWebMessageSystem
-  /// </summary>
-  public sealed class WebMessageSystemServer : Contracts.IWebMessageSystem
-  {
-    public SkyWebMessage FetchMailboxMessage(MailboxMsgID mid)
-    {
-      return WebMessageSystemService.Instance.FetchMailboxMessage(mid);
-    }
-
-    public Message.Attachment FetchMailboxMessageAttachment(MailboxMsgID mid, int attachmentIndex)
-    {
-      return WebMessageSystemService.Instance.FetchMailboxMessageAttachment(mid, attachmentIndex);
-    }
-
-    public MailboxInfo GetMailboxInfo(MailboxID xid)
-    {
-      return WebMessageSystemService.Instance.GetMailboxInfo(xid);
-    }
-
-    public int GetMailboxMessageCount(MailboxID xid, string query)
-    {
-      return WebMessageSystemService.Instance.GetMailboxMessageCount(xid, query);
-    }
-
-    public MessageHeaders GetMailboxMessageHeaders(MailboxID xid, string query)
-    {
-      return WebMessageSystemService.Instance.GetMailboxMessageHeaders(xid, query);
-    }
-
-    public MsgSendInfo[] SendMessage(SkyWebMessage msg)
-    {
-      return WebMessageSystemService.Instance.SendMessage(msg);
-    }
-
-    public void UpdateMailboxMessagePublication(MailboxMsgID mid, MsgPubStatus status, string oper, string description)
-    {
-      WebMessageSystemService.Instance.UpdateMailboxMessagePublication(mid, status, oper, description);
-    }
-
-    public void UpdateMailboxMessageStatus(MailboxMsgID mid, MsgStatus status, string folders, string adornments)
-    {
-      WebMessageSystemService.Instance.UpdateMailboxMessageStatus(mid, status, folders, adornments);
-    }
-
-    public void UpdateMailboxMessagesStatus(IEnumerable<MailboxMsgID> mids, MsgStatus status, string folders, string adornments)
-    {
-      WebMessageSystemService.Instance.UpdateMailboxMessagesStatus(mids, status, folders, adornments);
-    }
-  }
-
-
-  /// <summary>
   /// Provides server implementation of Contracts.IWebMessageSystem
   /// </summary>
-  public sealed class WebMessageSystemService : DaemonWithInstrumentation<object>, Contracts.IWebMessageSystem
+  public sealed class WebMessageSystemService : DaemonWithInstrumentation<IApplicationComponent>, Contracts.IWebMessageSystem
   {
     #region CONSTS
       public const string CONFIG_CHANNEL_SECTION = "channel";
@@ -74,41 +24,22 @@ namespace Azos.Sky.WebMessaging.Server
     #endregion
 
     #region STATIC/.ctor
-    private static object s_Lock = new object();
-      private static volatile WebMessageSystemService s_Instance;
+    public WebMessageSystemService(IApplicationComponent director) : base(director)
+    {
+      m_Channels = new Registry<Channel>();
+      m_Gateway = new MessageDaemon(this);
 
-      internal static WebMessageSystemService Instance
-      {
-        get
-        {
-          var instance = s_Instance;
-          if (instance == null)
-            throw new WebMessagingException("{0} is not allocated".Args(typeof(WebMessageSystemService).Name));
-          return instance;
-        }
-      }
+      if (!App.Singletons.GetOrCreate(() => this).created)
+        throw new WebMessagingException("{0} is already allocated".Args(typeof(WebMessageSystemService).FullName));
+    }
 
-      public WebMessageSystemService(object director) : base(director)
-      {
-        lock (s_Lock)
-        {
-          if (s_Instance != null)
-            throw new WebMessagingException("{0} is already allocated".Args(GetType().Name));
-
-          m_Channels = new Registry<Channel>();
-          m_Gateway = new MessageDaemon(this);
-
-          s_Instance = this;
-        }
-      }
-
-      protected override void Destructor()
-      {
-        base.Destructor();
-        deleteChannels();
-        DisposeAndNull(ref m_Gateway);
-        s_Instance = null;
-      }
+    protected override void Destructor()
+    {
+      base.Destructor();
+      deleteChannels();
+      DisposeAndNull(ref m_Gateway);
+      App.Singletons.Remove<WebMessageSystemService>();
+    }
 
     #endregion
 
@@ -119,6 +50,10 @@ namespace Azos.Sky.WebMessaging.Server
 
     #endregion;
 
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_WMSG;
+
+    [Config]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_MESSAGING, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
     public override bool InstrumentationEnabled { get; set;}
 
     #region IWebMessageSystem

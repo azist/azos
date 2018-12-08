@@ -1,7 +1,7 @@
 ﻿using System;
 using Azos.Log;
 
-namespace Azos.Sky.Workers.Server.Queue { public sealed partial class TodoQueueService{
+namespace Azos.Sky.Workers.Server.Queue { partial class TodoQueueService{
 
 
 
@@ -18,7 +18,7 @@ namespace Azos.Sky.Workers.Server.Queue { public sealed partial class TodoQueueS
       m_QueueStore.RollbackTransaction(queue, tx);
 
       var from = "enqueue('{0}')".Args(queue.Name);
-      Log(MessageType.CatastrophicError, from, error.ToMessageWithType(), error);
+      WriteLog(MessageType.CatastrophicError, from, error.ToMessageWithType(), error);
       if (InstrumentationEnabled)
       {
          m_stat_QueueOperationErrorCount.IncrementLong(ALL);

@@ -75,7 +75,7 @@ namespace Azos.Sky.Log
       var hn = this.Host;
       if (m_Client == null && !hn.EqualsOrdIgnoreCase(m_HostName))
       {
-        m_Client = ServiceClientHub.New<ILogReceiverClient>(hn);
+        m_Client = App.GetServiceClientHub().MakeNew<ILogReceiverClient>(hn);
         m_HostName = hn;
       }
     }

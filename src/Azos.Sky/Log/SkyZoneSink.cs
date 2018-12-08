@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Azos.Log;
 using Azos.Log.Sinks;
 using Azos.Instrumentation;
+using Azos.Sky.Contracts;
 
 namespace Azos.Sky.Log
 {
@@ -17,8 +18,8 @@ namespace Azos.Sky.Log
     public const int FLUSH_INTERVAL_MS = 7341;
 
 
-    public SkyZoneSink() : base() { }
-    public SkyZoneSink(string name) : base(name) { }
+    public SkyZoneSink(ISinkOwner owner) : base(owner) { }
+    public SkyZoneSink(ISinkOwner owner, string name, int order) : base(owner, name, order) { }
 
 
     private List<Message> m_Buf = new List<Message>(DEFAULT_BUF_SIZE);
@@ -37,13 +38,13 @@ namespace Azos.Sky.Log
       set { m_ZGovCallTimeoutMs = value>0 ? value : 0;}
     }
 
-    public override void Close()
+    protected override void DoWaitForCompleteStop()
     {
       flush();
-      base.Close();
+      base.DoWaitForCompleteStop();
     }
 
-    protected override void DoSend(Message entry)
+    protected internal override void DoSend(Message entry)
     {
       var message = entry.Clone();
       if (message.Exception != null)
@@ -52,18 +53,18 @@ namespace Azos.Sky.Log
       if (m_Buf.Count > m_BufSize) flush();
     }
 
-    protected override void DoPulse()
+    protected internal override void DoPulse()
     {
       base.DoPulse();
 
       var flushEvery = FLUSH_INTERVAL_MS + App.Random.NextScaledRandomInteger(0, 5000);
-      if ((Service.Now - m_LastFlush).TotalMilliseconds > flushEvery)
+      if ((Ambient.UTCNow - m_LastFlush).TotalMilliseconds > flushEvery)
         flush();
     }
 
     private void flush()
     {
-      m_LastFlush = Service.Now;
+      m_LastFlush = Ambient.UTCNow;
 
       if (m_Buf.Count == 0) return;
       if (!SkySystem.IsMetabase) return;
@@ -74,11 +75,14 @@ namespace Azos.Sky.Log
         var zgHost = SkySystem.ParentZoneGovernorPrimaryHostName;
         if (zgHost.IsNullOrWhiteSpace()) return;
 
-        //TODO  Cache the client instance, do not create client on every call
-        using (var client = Contracts.ServiceClientHub.New<Contracts.IZoneLogReceiverClient>( zgHost ))
+        //TODO  Cache the client instance, do not create client on every call, why not use call with retry?
+        using (var client =  App.GetServiceClientHub().MakeNew<IZoneLogReceiverClient>( zgHost ))
         {
-          if (m_ZGovCallTimeoutMs>0) client.TimeoutMs = m_ZGovCallTimeoutMs;
+          if (m_ZGovCallTimeoutMs>0)
+            client.TimeoutMs = m_ZGovCallTimeoutMs;
+
           var expect = client.SendLog(myHost, SkySystem.MetabaseApplicationName, m_Buf.ToArray());
+
           if (expect > MAX_BUF_SIZE) expect = MAX_BUF_SIZE;
           if (expect < 1) expect = 1;
           m_BufSize = expect;
@@ -86,28 +90,12 @@ namespace Azos.Sky.Log
       }
       catch (Exception error)
       {
-        log(MessageType.Error, ".flush()", StringConsts.LOG_SEND_TOP_LOST_ERROR.Args(error.ToMessageWithType()));
+        WriteLog(MessageType.Error, ".flush()", StringConsts.LOG_SEND_TOP_LOST_ERROR.Args(error.ToMessageWithType()));
       }
       finally
       {
         m_Buf.Clear();
       }
-    }
-
-    private void log(MessageType type, string from, string text, Exception error = null, Guid? related = null)
-    {
-      var msg = new Message
-      {
-        Type = type,
-        Topic = SysConsts.LOG_TOPIC_INSTRUMENTATION,
-        From = "{0}.{1}".Args(GetType().FullName, from),
-        Text = text,
-        Exception = error
-      };
-
-      if (related.HasValue) msg.RelatedTo = related.Value;
-
-      App.Log.Write(msg);
     }
 
   }

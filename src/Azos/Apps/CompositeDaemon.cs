@@ -132,7 +132,7 @@ namespace Azos.Apps
           continue;
         }
 
-        var svc = FactoryUtils.MakeAndConfigure<Daemon>(snode, args: new object[] { this });
+        var svc = FactoryUtils.MakeAndConfigureDirectedComponent<Daemon>(this, snode);
         var abort = snode.AttrByName(CONFIG_ABORT_START_ATTR).ValueAsBool(true);
         RegisterService(svc, snode.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt(0), abort);
       }

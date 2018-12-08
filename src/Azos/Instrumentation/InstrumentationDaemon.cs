@@ -517,7 +517,7 @@ namespace Azos.Instrumentation
                     WriteLog(MessageType.Emergency, " threadSpin() leaked exception", e.Message);
                   }
 
-                  WriteLog(MessageType.Info, "Exiting threadSpin()", null);
+                  WriteLog(MessageType.Trace, "Exiting threadSpin()", null);
                 }
 
                 //adds data that described this very instance

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Azos.Sky.Workers
 {
-  public abstract class ProcessManagerBase : DaemonWithInstrumentation<ISkyApplication>, IProcessManagerImplementation
+  public abstract class ProcessManagerBase : DaemonWithInstrumentation<IApplicationComponent>, IProcessManagerImplementation
   {
     #region CONSTS
     public const string CONFIG_PROCESS_MANAGER_SECTION = "process-manager";
@@ -58,6 +58,8 @@ namespace Azos.Sky.Workers
     #endregion
 
     #region Properties
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_PM;
+
     public IGuidTypeResolver ProcessTypeResolver { get { return m_ProcessTypeResolver; } }
 
     public IGuidTypeResolver SignalTypeResolver { get { return m_SignalTypeResolver; } }

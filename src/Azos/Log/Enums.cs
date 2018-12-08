@@ -92,7 +92,7 @@ namespace Azos.Log
     Aggregate,
 
     /// <summary>
-    /// Permission audit, usualy a result of client user action, no danger to system operation
+    /// Permission audit, usually a result of client user action, no danger to system operation
     /// </summary>
     SecurityAudit = 200,
 

@@ -179,6 +179,9 @@ namespace Azos.Log
 
     #endregion
 
+    /// <summary>
+    /// Creates log message defaulting from Message.DefaultHostName and UTCTime
+    /// </summary>
     [Azos.Serialization.Slim.SlimDeserializationCtorSkip]
     public Message()
     {

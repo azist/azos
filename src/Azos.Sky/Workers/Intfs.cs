@@ -14,7 +14,7 @@ namespace Azos.Sky.Workers
   /// <summary>
   /// Represents the Todo hosting entity
   /// </summary>
-  public interface ITodoHost
+  public interface ITodoHost : IApplicationComponent
   {
     /// <summary>
     /// WARNING: this method should not be used by a typical business code as it enqueues messages
@@ -44,27 +44,6 @@ namespace Azos.Sky.Workers
     /// Returns true if host is instrumented
     /// </summary>
     bool InstrumentationEnabled { get;}
-
-    /// <summary>
-    /// Emits a local log message based on host's logging policy
-    /// </summary>
-    Guid Log(MessageType type,
-             Todo todo,
-             string from,
-             string message,
-             Exception error = null,
-             Guid? relatedMessageID = null,
-             string parameters = null);
-
-    /// <summary>
-    /// Emits a local log message based on host's logging policy
-    /// </summary>
-    Guid Log(MessageType type,
-             string from,
-             string message,
-             Exception error = null,
-             Guid? relatedMessageID = null,
-             string parameters = null);
   }
 
   /// <summary>

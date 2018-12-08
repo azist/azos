@@ -264,40 +264,65 @@ namespace Azos.Apps
       /// Returns a prefix used in "From" log message field. May Override in your particular component to reflect the better from,
       /// as the default uses class name concatenated with instance SID
       /// </summary>
-      public virtual string ComponentLogFromPrefix => this.ToString();
+      public virtual string ComponentLogFromPrefix => "{0}@{1}.".Args(GetType().DisplayNameWithExpandedGenericArgs(), m_ComponentSID);
 
 
     #endregion
 
     #region Public
-      /// <summary>
-      /// Writes a log message for this component; returns the new log msg GDID for correlation, or GDID.Empty if no message was logged
-      /// </summary>
-      protected internal virtual Guid WriteLog(Log.MessageType type, string from, string text, Exception error = null, Guid? related = null, string pars = null)
+
+    /// <summary>
+    /// Writes message into component log using caller file name and line number for the FROM field
+    /// </summary>
+    protected internal Guid WriteLogFromHere(Log.MessageType type,
+                                     string text,
+                                     Exception error = null,
+                                     Guid? related = null,
+                                     string pars = null,
+                                     [System.Runtime.CompilerServices.CallerFilePath]string file = null,
+                                     [System.Runtime.CompilerServices.CallerLineNumber]int src = 0)
+      => WriteLog(type, null, text, error, related, pars, file, src);
+
+    /// <summary>
+    /// Writes a log message for this component; returns the new log msg GDID for correlation, or GDID.Empty if no message was logged.
+    /// The file/src are only used if `from` is null/blank
+    /// </summary>
+    protected internal virtual Guid WriteLog(Log.MessageType type,
+                                               string from,
+                                               string text,
+                                               Exception error = null,
+                                               Guid? related = null,
+                                               string pars = null,
+                                               [System.Runtime.CompilerServices.CallerFilePath]string file = null,
+                                               [System.Runtime.CompilerServices.CallerLineNumber]int src = 0)
+    {
+      if (type < ComponentEffectiveLogLevel) return Guid.Empty;
+
+      if (from.IsNullOrWhiteSpace())
+        from = "{0}:{1}".Args( file.IsNotNullOrWhiteSpace() ? System.IO.Path.GetFileName(file) : "?", src);
+
+      var msg = new Log.Message
       {
-        if (type < ComponentEffectiveLogLevel) return Guid.Empty;
+        Topic = ComponentLogTopic,
+        From = ComponentLogFromPrefix + from,
+        Type = type,
+        Text = text,
+        Exception = error,
+        Parameters = pars,
+        Source = src
+      };
 
-        var msg = new Log.Message
-        {
-          Topic = ComponentLogTopic,
-          From = "{0}.{1}".Args(ComponentLogFromPrefix, from),
-          Type = type,
-          Text = text,
-          Exception = error,
-          Parameters = pars,
-        };
+      if (related.HasValue) msg.RelatedTo = related.Value;
 
-        if (related.HasValue) msg.RelatedTo = related.Value;
+      App.Log.Write(msg);
 
-        App.Log.Write(msg);
+      return msg.Guid;
+    }
 
-        return msg.Guid;
-      }
-
-      public override string ToString()
-      {
-        return "Component {0}(@{1}, '{2}')".Args(GetType().DisplayNameWithExpandedGenericArgs(), m_ComponentSID, ComponentCommonName ?? CoreConsts.NULL_STRING);
-      }
+    public override string ToString()
+    {
+      return "Component {0}(@{1}, '{2}')".Args(GetType().DisplayNameWithExpandedGenericArgs(), m_ComponentSID, ComponentCommonName ?? CoreConsts.NULL_STRING);
+    }
     #endregion
 
     #region .pvt

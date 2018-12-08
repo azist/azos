@@ -160,7 +160,7 @@ namespace Azos
     };
 
     /// <summary>
-    /// Gets the capacity of at least or larger larger than the specified number. For numbers &lt;= 16300007 the function uses lookup table for speed
+    /// Gets the capacity of at least or larger than the specified number. For numbers &lt;= 16300007 the function uses lookup table for speed
     /// </summary>
     public static int GetPrimeCapacityOfAtLeast(int capacity)
     {

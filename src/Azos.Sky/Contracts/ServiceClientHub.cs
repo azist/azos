@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Glue;
 using Azos.Conf;
+using Azos.Log;
 using Azos.Collections;
 using Azos.Glue.Protocol;
 using Azos.Serialization.BSON;
@@ -17,7 +18,7 @@ namespace Azos.Sky.Contracts
   ///  that are most likely Glue-based but do not have to be.
   ///  Custom solutions may derive from this class and override specifics (i.e. inject some policies in all service call clients)
   /// </summary>
-  public class ServiceClientHub : ApplicationComponent
+  public partial class ServiceClientHub : ApplicationComponent
   {
     #region CONSTS
     public const string CONFIG_SERVICE_CLIENT_HUB_SECTION = "service-client-hub";
@@ -31,117 +32,41 @@ namespace Azos.Sky.Contracts
     public const string CONFIG_MAP_IMPLEMENTOR_ATTR = "implementor";
     #endregion
 
-    #region Inner Types
     /// <summary>
-    /// Provides mapping information for service contract
+    /// Override to configure custom members.
+    /// The default implementation populates the CacheMap registry
     /// </summary>
-    [Serializable]
-    public sealed class ContractMapping : INamed
+    protected ServiceClientHub(IApplication app, IConfigSectionNode config) : base(app)
     {
-      public ContractMapping(IConfigSectionNode config)
+      ConfigAttribute.Apply(this, config);
+      foreach (var nmapping in config.Children.Where(c => c.IsSameName(CONFIG_MAP_SECTION)))
       {
-        try
-        {
-          var cname = config.AttrByName(CONFIG_MAP_CLIENT_CONTRACT_ATTR).Value;
-          if (cname.IsNullOrWhiteSpace()) throw new Clients.SkyClientException(CONFIG_MAP_CLIENT_CONTRACT_ATTR + " is unspecified");
-          m_Contract = Type.GetType(cname, true);
-
-          m_Local = new Data(config, config[CONFIG_LOCAL_SECTION], false);
-          m_Global = new Data(config, config[CONFIG_GLOBAL_SECTION], true);
-        }
-        catch (Exception error)
-        {
-          throw new Clients.SkyClientException(StringConsts.SKY_SVC_CLIENT_MAPPING_CTOR_ERROR.Args(
-                                              config.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact),
-                                              error.ToMessageWithType()), error);
-        }
-      }
-
-
-      private Type m_Contract;
-      //------------------------------
-      private Data m_Local;
-      private Data m_Global;
-
-
-      public sealed class Data
-      {
-
-        internal Data(IConfigSectionNode baseConfig, IConfigSectionNode config, bool global)
-        {
-          var cname = config.AttrByName(CONFIG_MAP_IMPLEMENTOR_ATTR).ValueAsString(baseConfig.AttrByName(CONFIG_MAP_IMPLEMENTOR_ATTR).Value);
-          if (cname.IsNullOrWhiteSpace()) throw new Clients.SkyClientException(CONFIG_MAP_IMPLEMENTOR_ATTR + " is unspecified");
-          m_Implementor = Type.GetType(cname, true);
-
-          if (!m_Implementor.GetInterfaces().Any(i => i == typeof(ISkyServiceClient)))
-            throw new Clients.SkyClientException("Implementor {0} is not ISkyServiceClient".Args(m_Implementor.FullName));
-
-          ConfigAttribute.Apply(this, baseConfig);
-          ConfigAttribute.Apply(this, config);
-
-          //service may be null
-
-          if (m_Net.IsNullOrWhiteSpace())
-            m_Net = global ? SysConsts.NETWORK_INTERNOC : SysConsts.NETWORK_NOCGOV;
-
-          if (m_Binding.IsNullOrWhiteSpace())
-            m_Binding = SysConsts.DEFAULT_BINDING;
-
-          if (m_Options == null)
-            m_Options = "options{ }".AsLaconicConfig();
-        }
-
-        private Type m_Implementor;
-        [Config] private string m_Service = string.Empty;
-        [Config] private string m_Net;
-        [Config] private string m_Binding;
-        [Config] private int m_CallTimeoutMs = 0;
-        [Config] private bool m_ReserveTransport = false;
-        [Config(CONFIG_OPTIONS_SECTION)] private IConfigSectionNode m_Options;
-
-        public Type Implementor { get { return m_Implementor; } }
-        public string Service { get { return m_Service; } }
-        public string Net { get { return m_Net; } }
-        public string Binding { get { return m_Binding; } }
-        public int CallTimeoutMs { get { return m_CallTimeoutMs; } }
-        public bool ReserveTransport { get { return m_ReserveTransport; } }
-        public IConfigSectionNode Options { get { return m_Options; } }
-      }
-
-      public string Name { get { return m_Contract.AssemblyQualifiedName; } }
-      public Type Contract { get { return m_Contract; } }
-      public Data Local { get { return m_Local; } }
-      public Data Global { get { return m_Global; } }
-
-      public override string ToString()
-      {
-        return "Mapping[{0} -> Local: {1}; Global: {2}]".Args(m_Contract.FullName, Local.Implementor.FullName, Global.Implementor.FullName);
-      }
-
-      public override bool Equals(object obj)
-      {
-        var cm = obj as ContractMapping;
-        if (cm == null) return false;
-        return this.m_Contract == cm.m_Contract;
-      }
-
-      public override int GetHashCode()
-      {
-        return m_Contract.GetHashCode();
+        var mapping = new ContractMapping(nmapping);
+        m_CachedMap.Register(mapping);
       }
     }
-    #endregion
 
-    #region .static/.ctor
+    private Registry<ContractMapping> m_CachedMap = new Registry<ContractMapping>();
+
+
+    #region Public
+
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_SVC;
+
+    /// <summary>
+    /// Returns the registry of cached ContractMapping instances
+    /// </summary>
+    public IRegistry<ContractMapping> CachedMap { get { return m_CachedMap; } }
+
 
     /// <summary>
     /// Makes an appropriate implementor for requested service client contract type.
     /// Pass svcName parameter in cases when the requested contract may get implemented by more than one network service.
     /// The call is thread-safe. The caller should Dispose() the returned instance after it has been used
     /// </summary>
-    public TServiceClient GetNew<TServiceClient>(Metabase.Metabank.SectionHost toHost, Metabase.Metabank.SectionHost fromHost = null, string svcName = null) where TServiceClient : class, ISkyServiceClient
+    public TServiceClient MakeNew<TServiceClient>(Metabase.Metabank.SectionHost toHost, Metabase.Metabank.SectionHost fromHost = null, string svcName = null) where TServiceClient : class, ISkyServiceClient
     {
-      return GetNew<TServiceClient>(toHost.RegionPath, fromHost != null ? fromHost.RegionPath : null, svcName);
+      return MakeNew<TServiceClient>(toHost.RegionPath, fromHost != null ? fromHost.RegionPath : null, svcName);
     }
 
 
@@ -169,24 +94,17 @@ namespace Azos.Sky.Contracts
 
       foreach (var host in hosts)
       {
-        using (var client = GetNew<TServiceClient>(host, fromHost, svcName))
+        using (var client = MakeNew<TServiceClient>(host, fromHost, svcName))
           try
           {
             return callBody(client);
           }
           catch (Exception error)
           {
-            App.Log.Write(
-              new Azos.Log.Message
-              {
-                Type = Azos.Log.MessageType.Error,
-                Topic = SysConsts.LOG_TOPIC_SVC,
-                From = "{0}.CallWithRetry()".Args(Instance.GetType().Name),
-                Source = 248,
-                Text = StringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host),
-                Exception = error
-              }
-            );
+            WriteLog(MessageType.Error,
+                    nameof(CallWithRetry),
+                    StringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host, error.ToMessageWithType()),
+                    error);
 
             Instrumentation.ServiceClientHubRetriableCallError.Happened(typeof(TServiceClient), host);
 
@@ -224,7 +142,7 @@ namespace Azos.Sky.Contracts
 
       foreach (var host in hosts)
       {
-        using (var client = GetNew<TServiceClient>(host, fromHost, svcName))
+        using (var client = MakeNew<TServiceClient>(host, fromHost, svcName))
           try
           {
             callBody(client);
@@ -232,17 +150,10 @@ namespace Azos.Sky.Contracts
           }
           catch (Exception error)
           {
-            App.Log.Write(
-              new Azos.Log.Message
-              {
-                Type = Azos.Log.MessageType.Error,
-                Topic = SysConsts.LOG_TOPIC_SVC,
-                From = "{0}.CallWithRetry()".Args(Instance.GetType().Name),
-                Source = 248,
-                Text = StringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host),
-                Exception = error
-              }
-            );
+            WriteLog(MessageType.Error,
+                   nameof(CallWithRetry),
+                   StringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host, error.ToMessageWithType()),
+                   error);
 
             Instrumentation.ServiceClientHubRetriableCallError.Happened(typeof(TServiceClient), host);
 
@@ -308,21 +219,16 @@ namespace Azos.Sky.Contracts
         try
         {
           host = hosts.Current;
-          client = GetNew<TServiceClient>(host, fromHost, svcName);
+          client = MakeNew<TServiceClient>(host, fromHost, svcName);
           t = callBody(client);
           break;
         }
         catch (Exception ex)
         {
-          App.Log.Write(new Azos.Log.Message
-          {
-            Type = Azos.Log.MessageType.Error,
-            Topic = SysConsts.LOG_TOPIC_SVC,
-            From = "{0}.CallWithRetryAsync()".Args(Instance.GetType().Name),
-            Source = 304,
-            Text = StringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host),
-            Exception = ex
-          });
+          WriteLog(MessageType.Error,
+                   nameof(CallWithRetryAsync),
+                   StringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host, ex.ToMessageWithType()),
+                   ex);
 
           Instrumentation.ServiceClientHubRetriableCallError.Happened(typeof(TServiceClient), host);
 
@@ -356,15 +262,10 @@ namespace Azos.Sky.Contracts
             {
               var innerException = err.GetBaseException();
 
-              App.Log.Write(new Azos.Log.Message
-              {
-                Type = Azos.Log.MessageType.Error,
-                Topic = SysConsts.LOG_TOPIC_SVC,
-                From = "{0}.CallWithRetryAsync()".Args(Instance.GetType().Name),
-                Source = 304,
-                Text = StringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host),
-                Exception = innerException
-              });
+              WriteLog(MessageType.Error,
+                   nameof(CallWithRetryAsync),
+                   StringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host, innerException.ToMessageWithType()),
+                   innerException);
 
               Instrumentation.ServiceClientHubRetriableCallError.Happened(typeof(TServiceClient), host);
 
@@ -414,47 +315,20 @@ namespace Azos.Sky.Contracts
       return CallWithRetryAsync<TServiceClient, bool>(cl =>
                                                           callBody(cl)
                                                             .ContinueWith<bool>(antecedent =>
-                                                              {
-                                                                var err = antecedent.Exception;
-                                                                if (err != null) throw err;
+                                                            {
+                                                              var err = antecedent.Exception;
+                                                              if (err != null) throw err;
 
-                                                                return true;
-                                                              }
+                                                              return true;
+                                                            }
                                                             ),
                                                         hosts, abortFilter, fromHost, svcName);
     }
 
     /// <summary>
-    /// Override to configure custom members.
-    /// The default implementation populates the CacheMap registry
+    /// Makes a client for the call to the specified contract on the specified host
     /// </summary>
-    protected ServiceClientHub(IApplication app, IConfigSectionNode config) : base(app)
-    {
-      ConfigAttribute.Apply(this, config);
-      foreach (var nmapping in config.Children.Where(c => c.IsSameName(CONFIG_MAP_SECTION)))
-      {
-        var mapping = new ContractMapping(nmapping);
-        m_CachedMap.Register(mapping);
-      }
-    }
-    #endregion
-
-    #region Fields
-    private Registry<ContractMapping> m_CachedMap = new Registry<ContractMapping>();
-    #endregion
-
-
-    #region Public
-    /// <summary>
-    /// Returns the registry of cached ContractMapping instances
-    /// </summary>
-    public IRegistry<ContractMapping> CachedMap { get { return m_CachedMap; } }
-
-
-    /// <summary>
-    /// Instance version of static ByContract(). See ByContract{TServiceClient}()
-    /// </summary>
-    public TServiceClient GetNew<TServiceClient>(string toHost, string fromHost = null, string svcName = null) where TServiceClient : class, ISkyServiceClient
+    public TServiceClient MakeNew<TServiceClient>(string toHost, string fromHost = null, string svcName = null) where TServiceClient : class, ISkyServiceClient
     {
       Type tcontract = typeof(TServiceClient);
 
@@ -598,7 +472,7 @@ namespace Azos.Sky.Contracts
 
     /// <summary>
     /// Override to setup the instance of client after it has been allocated.
-    /// The default implementation injects headers, timeoutes, and inspectors for Glue.ClientEndPoints
+    /// The default implementation injects headers, timeouts, and inspectors for Glue.ClientEndPoints
     /// </summary>
     protected virtual void DoSetupClientInstance(ContractMapping mapping, bool isGlobal, ISkyServiceClient instance, string toHost, string fromHost)
     {
@@ -621,51 +495,5 @@ namespace Azos.Sky.Contracts
       }
     }
     #endregion
-  }
-
-
-  namespace Instrumentation
-  {
-
-    [Serializable]
-    public abstract class ServiceClientHubEvent : Azos.Instrumentation.Event, Azos.Instrumentation.INetInstrument
-    {
-      protected ServiceClientHubEvent(string src) : base(src) { }
-    }
-
-    [Serializable]
-    public abstract class ServiceClientHubErrorEvent : ServiceClientHubEvent, Azos.Instrumentation.IErrorInstrument
-    {
-      protected ServiceClientHubErrorEvent(string src) : base(src) { }
-    }
-
-
-    //todo Need to add the counter for successful calls as well, however be careful,
-    //as to many details may create much instrumentation data (don't include contract+toHost)?
-    //or have level of detalization setting
-
-
-    [Serializable]
-    [BSONSerializable("D2BDA600-7B13-4701-BC8F-C9E72A26CED8")]
-    public class ServiceClientHubRetriableCallError : ServiceClientHubErrorEvent
-    {
-      protected ServiceClientHubRetriableCallError(string src) : base(src) { }
-
-      public static void Happened(Type tContract, string toName)
-      {
-        var inst = ExecutionContext.Application.Instrumentation;
-        if (inst.Enabled)
-          inst.Record(new ServiceClientHubRetriableCallError("{0}::{1}".Args(tContract.FullName, toName)));
-      }
-
-      public override string Description { get { return "Service client hub retriable call failed"; } }
-
-
-      protected override Azos.Instrumentation.Datum MakeAggregateInstance()
-      {
-        return new ServiceClientHubRetriableCallError(this.Source);
-      }
-    }
-
   }
 }

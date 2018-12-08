@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 
-using Azos;
 using Azos.Apps;
+using Azos.Apps.Injection;
 using Azos.Log;
 using Azos.Conf;
 using Azos.Instrumentation;
@@ -11,35 +11,10 @@ using Azos.Security;
 
 namespace Azos.Sky.Workers.Server
 {
-  public class ProcessControllerServer : Contracts.IProcessController
-  {
-    public void Spawn(ProcessFrame frame)
-    {
-      ProcessControllerService.Instance.Spawn(frame);
-    }
-
-    public ProcessFrame Get(PID pid)
-    {
-      return ProcessControllerService.Instance.Get(pid);
-    }
-
-    public ProcessDescriptor GetDescriptor(PID pid)
-    {
-      return ProcessControllerService.Instance.GetDescriptor(pid);
-    }
-
-    public SignalFrame Dispatch(SignalFrame signal)
-    {
-      return ProcessControllerService.Instance.Dispatch(signal);
-    }
-
-    public IEnumerable<ProcessDescriptor> List(int processorID)
-    {
-      return ProcessControllerService.Instance.List(processorID);
-    }
-  }
-
-  public class ProcessControllerService : DaemonWithInstrumentation<object>, Contracts.IProcessController, IProcessHost
+  /// <summary>
+  /// Implements process controller
+  /// </summary>
+  public sealed class ProcessControllerService : DaemonWithInstrumentation<IApplicationComponent>, Contracts.IProcessController, IProcessHost
   {
     #region CONSTS
     public const string CONFIG_PROCESS_CONTROLLER_SECTION = "process-controller";
@@ -48,46 +23,26 @@ namespace Azos.Sky.Workers.Server
     public const MessageType DEFAULT_LOG_LEVEL = MessageType.Warning;
     #endregion
 
-    #region STATIC/.ctor
-
-    private static object s_Lock = new object();
-    private static volatile ProcessControllerService s_Instance;
-
-    internal static ProcessControllerService Instance
+    #region .ctor
+    public ProcessControllerService(IApplication app) : base(app)
     {
-      get
-      {
-        var instance = s_Instance;
-        if (instance == null) throw new WorkersException("{0} is not allocated".Args(typeof(ProcessControllerService).FullName));
-        return instance;
-      }
-    }
-
-    public ProcessControllerService() : this(null) { }
-
-    public ProcessControllerService(object director) : base(director)
-    {
-      LogLevel = MessageType.Error;
-
-      lock (s_Lock)
-      {
-        if (s_Instance != null)
-          throw new WorkersException("{0} is already allocated".Args(typeof(ProcessControllerService).FullName));
-
-        s_Instance = this;
-      }
+      if (!App.Singletons.GetOrCreate(() => this).created)
+        throw new WorkersException("{0} is already allocated".Args(typeof(ProcessControllerService).FullName));
     }
 
     protected override void Destructor()
     {
       base.Destructor();
       DisposeAndNull(ref m_ProcessStore);
-      s_Instance = null;
+      App.Singletons.Remove<ProcessControllerService>();
     }
 
     #endregion
 
     private ProcessStore m_ProcessStore;
+
+
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_PM;
 
     [Config]
     [ExternalParameter(SysConsts.EXT_PARAM_GROUP_WORKER, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]

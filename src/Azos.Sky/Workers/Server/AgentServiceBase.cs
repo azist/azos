@@ -8,30 +8,36 @@ using Azos.Log;
 
 namespace Azos.Sky.Workers.Server
 {
-  public abstract class AgentServiceBase : DaemonWithInstrumentation<object>
+  /// <summary>
+  /// Provides base abstraction for some continuously running daemon (an agent) having a dedicated thread
+  /// </summary>
+  public abstract class AgentServiceBase : DaemonWithInstrumentation<IApplicationComponent>
   {
     public const int THREAD_GRANULARITY_MS = 1750;
     public const int DEFAULT_INSTRUMENTATION_GRANULARITY_MS = 5000;
     public const int DEFAULT_STARTUP_DELAY_SEC = 60;
 
 
-    protected AgentServiceBase(object director) : base(director)
+    protected AgentServiceBase(IApplication app) : base(app)
     {
-      LogLevel = MessageType.Error;
+    }
+
+    protected AgentServiceBase(IApplicationComponent director) : base(director)
+    {
     }
 
     private Thread m_Thread;
+    private AutoResetEvent m_Waiter;
     private int m_StartupDelaySec = DEFAULT_STARTUP_DELAY_SEC;
 
     [Config]
     [ExternalParameter(SysConsts.EXT_PARAM_GROUP_WORKER, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
     public override bool InstrumentationEnabled { get; set; }
 
-    [Config(Default = MessageType.Error)]
-    [ExternalParameter(SysConsts.EXT_PARAM_GROUP_WORKER, CoreConsts.EXT_PARAM_GROUP_LOG)]
-    public MessageType LogLevel { get; set; }
 
-
+    /// <summary>
+    /// When set, imposes a delay between agent daemon start and actual processing start
+    /// </summary>
     [Config(Default = DEFAULT_STARTUP_DELAY_SEC)]
     public int StartupDelaySec
     {
@@ -45,53 +51,39 @@ namespace Azos.Sky.Workers.Server
     public virtual int ThreadGranularityMs { get { return 0;} }
 
     /// <summary>
-    /// Specifies how often isntrumentation gets dumped, return 0 for default
+    /// Specifies how often instrumentation gets dumped, return 0 for default
     /// </summary>
     [Config]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
     public virtual int InstrumentationGranularityMs { get; set; }
+
 
     protected override void DoStart()
     {
       base.DoStart();
+      m_Waiter = new AutoResetEvent(false);
       m_Thread = new Thread(threadSpin);
       m_Thread.Name = GetType().Name;
+      m_Thread.IsBackground = false;
       m_Thread.Start();
+    }
+
+    protected override void DoSignalStop()
+    {
+      base.DoSignalStop();
+      m_Waiter.Set();
     }
 
     protected override void DoWaitForCompleteStop()
     {
-      m_Thread.Join();
-      m_Thread = null;
+      if (m_Thread!=null)
+      {
+        m_Thread.Join();
+        m_Thread = null;
+      }
+      DisposeAndNull(ref m_Waiter);
 
       base.DoWaitForCompleteStop();
-    }
-
-    /// <summary>
-    /// Writes to log on behalf of worker service
-    /// </summary>
-    public Guid Log(MessageType type,
-                    string from,
-                    string message,
-                    Exception error = null,
-                    Guid? relatedMessageID = null,
-                    string parameters = null)
-    {
-      if (type < LogLevel) return Guid.Empty;
-
-      var logMessage = new Message
-      {
-        Topic = SysConsts.LOG_TOPIC_WORKER,
-        Text = message ?? string.Empty,
-        Type = type,
-        From = "{0}.{1}".Args(this.GetType().Name, from),
-        Exception = error,
-        Parameters = parameters
-      };
-      if (relatedMessageID.HasValue) logMessage.RelatedTo = relatedMessageID.Value;
-
-      App.Log.Write(logMessage);
-
-      return logMessage.Guid;
     }
 
     protected abstract void DoThreadSpin(DateTime utcNow);
@@ -105,14 +97,15 @@ namespace Azos.Sky.Workers.Server
       {
         var ie = false;
         var startTime = App.TimeSource.UTCNow;
-        var prevInstr = ComponentStartTime;
-        while (Running)
+        var prevInstr = startTime;
+        while(Running)
         {
           var granMs = ThreadGranularityMs;
-          if (granMs>0)
-            Thread.Sleep(granMs);
-          else
-            Thread.Sleep(THREAD_GRANULARITY_MS + App.Random.NextScaledRandomInteger(0, THREAD_GRANULARITY_MS / 5));
+          if (granMs < 1)
+            granMs = THREAD_GRANULARITY_MS.ChangeByRndPct(0.213f);
+
+          m_Waiter.WaitOne(granMs);
+          if (!Running) break;
 
           var utcNow = App.TimeSource.UTCNow;
           if ((utcNow - startTime).TotalSeconds < m_StartupDelaySec) continue;
@@ -122,7 +115,7 @@ namespace Azos.Sky.Workers.Server
           }
           catch (Exception error)
           {
-            Log(MessageType.CatastrophicError, "threadSpin().DoThreadSpin", error.ToMessageWithType(), error);
+            WriteLog(MessageType.CatastrophicError, nameof(DoThreadSpin), error.ToMessageWithType(), error);
           }
 
           try
@@ -146,13 +139,13 @@ namespace Azos.Sky.Workers.Server
           }
           catch (Exception error)
           {
-            Log(MessageType.CatastrophicError, "threadSpin().dumpStats", error.ToMessageWithType(), error);
+            WriteLog(MessageType.CatastrophicError, nameof(dumpStats), error.ToMessageWithType(), error);
           }
-        }
+        }//while
       }
       catch (Exception error)
       {
-        Log(MessageType.CatastrophicError, "threadSpin", error.ToMessageWithType(), error);
+        WriteLog(MessageType.CatastrophicError, nameof(threadSpin), error.ToMessageWithType(), error);
       }
     }
 

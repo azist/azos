@@ -6,7 +6,7 @@ using Azos.Log;
 
 using System.Threading.Tasks;
 
-namespace Azos.Sky.Workers.Server.Queue{ public sealed partial class TodoQueueService{
+namespace Azos.Sky.Workers.Server.Queue{ partial class TodoQueueService{
 
       private void processOneQueue(object queue, DateTime utcNow)
       {
@@ -24,7 +24,7 @@ namespace Azos.Sky.Workers.Server.Queue{ public sealed partial class TodoQueueSe
         catch (Exception error)
         {
           var from = "processOneQueueCore('{0}')".Args(q.Name);
-          Log(MessageType.CatastrophicError, from, error.ToMessageWithType(), error);
+          WriteLog(MessageType.CatastrophicError, from, error.ToMessageWithType(), error);
           if (InstrumentationEnabled)
           {
             m_stat_QueueOperationErrorCount.IncrementLong(ALL);
@@ -124,11 +124,12 @@ namespace Azos.Sky.Workers.Server.Queue{ public sealed partial class TodoQueueSe
           try
           {
             todo = todoFrame.Materialize( SkySystem.ProcessManager.TodoTypeResolver );
+            App.DependencyInjector.InjectInto( todo );
           }
           catch(Exception me)
           {
             var from = "executeOne('{0}').Materialize".Args(queue.Name);
-            Log(MessageType.Critical, from, "Frame materialization: "+me.ToMessageWithType(), me);
+            WriteLog(MessageType.Critical, from, "Frame materialization: "+me.ToMessageWithType(), me);
             if (InstrumentationEnabled)
             {
               m_stat_QueueOperationErrorCount.IncrementLong(ALL);
@@ -198,7 +199,7 @@ namespace Azos.Sky.Workers.Server.Queue{ public sealed partial class TodoQueueSe
 
           if (error!=null)
           {
-            Log(MessageType.Error, "complete('{0}')".Args(queue.Name), "Completed with error: " + error.ToMessageWithType(), error);
+            WriteLog(MessageType.Error, "complete('{0}')".Args(queue.Name), "Completed with error: " + error.ToMessageWithType(), error);
           }
 
           if (InstrumentationEnabled)
@@ -221,7 +222,7 @@ namespace Azos.Sky.Workers.Server.Queue{ public sealed partial class TodoQueueSe
         catch(Exception e)
         {
           var from = "complete('{0}')".Args(queue.Name);
-          Log(MessageType.Critical, from, "{0} Leaked: {1}".Args(todo, e.ToMessageWithType()), e);
+          WriteLog(MessageType.Critical, from, "{0} Leaked: {1}".Args(todo, e.ToMessageWithType()), e);
           if (InstrumentationEnabled)
           {
             m_stat_QueueOperationErrorCount.IncrementLong(ALL);
@@ -246,7 +247,7 @@ namespace Azos.Sky.Workers.Server.Queue{ public sealed partial class TodoQueueSe
         catch(Exception e)
         {
           var from = "update('{0}')".Args(queue.Name);
-          Log(MessageType.Critical, from, "{0} Leaked: {1}".Args(todo, e.ToMessageWithType()), e);
+          WriteLog(MessageType.Critical, from, "{0} Leaked: {1}".Args(todo, e.ToMessageWithType()), e);
           if (InstrumentationEnabled)
           {
             m_stat_QueueOperationErrorCount.IncrementLong(ALL);
@@ -270,7 +271,7 @@ namespace Azos.Sky.Workers.Server.Queue{ public sealed partial class TodoQueueSe
         catch(Exception e)
         {
           var from = "put('{0}')".Args(queue.Name);
-          Log(MessageType.Critical, from, "{0} Leaked: {1}".Args(todo, e.ToMessageWithType()), e);
+          WriteLog(MessageType.Critical, from, "{0} Leaked: {1}".Args(todo, e.ToMessageWithType()), e);
           if (InstrumentationEnabled)
           {
             m_stat_QueueOperationErrorCount.IncrementLong(ALL);
