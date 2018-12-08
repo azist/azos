@@ -39,8 +39,6 @@ namespace Azos.Sky.Clients
   #endregion
 
   #region .ctor
-     public Pinger(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public Pinger(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public Pinger(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public Pinger(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

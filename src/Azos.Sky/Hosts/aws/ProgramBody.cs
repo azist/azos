@@ -51,7 +51,7 @@ namespace Azos.Sky.Hosts.aws
       {
         try
         {
-          using (var wwwServer = new WaveServer(app.MetabaseApplicationName))
+          using (var wwwServer = new WaveServer(app, app.MetabaseApplicationName))
           {
             wwwServer.Configure(null);
             wwwServer.Start();

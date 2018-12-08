@@ -206,7 +206,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
                   {
                     try
                     {
-                      using (var cl = Contracts.ServiceClientHub.New<Contracts.IZoneHostRegistryClient>(hzgov))
+                      using (var cl = App.GetServiceClientHub().MakeNew<Contracts.IZoneHostRegistryClient>(hzgov))
                       {
                         cl.TimeoutMs = this.m_ResolveDynamicHostNetSvcTimeoutMs;
                         hinfo = cl.GetSubordinateHost(fullHostName);

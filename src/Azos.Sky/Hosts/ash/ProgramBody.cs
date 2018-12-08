@@ -51,7 +51,7 @@ namespace Azos.Sky.Hosts.ash
       {
         try
         {
-          using (var svcHost = new CompositeDaemon(null))
+          using (var svcHost = new CompositeDaemon(app))
           {
             svcHost.Configure(null);
             svcHost.Start();

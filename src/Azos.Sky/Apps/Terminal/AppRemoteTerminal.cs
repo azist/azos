@@ -33,11 +33,16 @@ namespace Azos.Sky.Apps.Terminal
     private int m_ID;
     private Registry<AppRemoteTerminal> m_Registry = new Registry<AppRemoteTerminal>();
 
+    /// <summary>
+    /// Returns singleton instance of AppRemoteTerminalRegistry per application
+    /// </summary>
     public static AppRemoteTerminalRegistry Instance(IApplication app)
       => app.NonNull(nameof(app))
             .Singletons
             .GetOrCreate( () => new AppRemoteTerminalRegistry() )
             .instance;
+
+    public IEnumerable<AppRemoteTerminal> All => m_Registry;
 
     public int NextID()
     {
@@ -58,7 +63,7 @@ namespace Azos.Sky.Apps.Terminal
 
     public bool Register(AppRemoteTerminal term) => m_Registry.Register(term);
     public bool Unregister(AppRemoteTerminal term) => m_Registry.Unregister(term);
-}
+  }
 
 
   /// <summary>
@@ -86,7 +91,7 @@ namespace Azos.Sky.Apps.Terminal
 
     public AppRemoteTerminal()
     {
-      m_ID = AppRemoteTerminalRegistry.Instance(m_App).NextID();
+      m_ID = AppRemoteTerminalRegistry.Instance(App).NextID();
 
       m_Name = new ELink((ulong)m_ID, null).Link;
       m_Vars = new Vars();
@@ -95,13 +100,13 @@ namespace Azos.Sky.Apps.Terminal
 
     protected override void Destructor()
     {
-      AppRemoteTerminalRegistry.Instance(m_App).Unregister(this);
+      AppRemoteTerminalRegistry.Instance(App).Unregister(this);
       base.Destructor();
     }
 
     public void OnDeserialization(object sender)
     {
-      var registry = AppRemoteTerminalRegistry.Instance(m_App);
+      var registry = AppRemoteTerminalRegistry.Instance(App);
       registry.AdjustID(m_ID);
       registry.Register(this);
     }
@@ -116,6 +121,8 @@ namespace Azos.Sky.Apps.Terminal
     private Vars m_Vars;
     private ScriptRunner m_ScriptRunner;
 
+
+    public IApplication App => m_App.NonNull(nameof(m_App));
 
     /// <summary>
     /// Returns unique terminal session ID
@@ -164,32 +171,32 @@ namespace Azos.Sky.Apps.Terminal
     public virtual RemoteTerminalInfo Connect(string who)
     {
       m_Who = who ?? SysConsts.UNKNOWN_ENTITY;
-      var now = m_App.TimeSource.UTCNow;
+      var now = App.TimeSource.UTCNow;
       m_WhenConnected = now;
       m_WhenInteracted = now;
 
-      AppRemoteTerminalRegistry.Instance(m_App).Register(this);
+      AppRemoteTerminalRegistry.Instance(App).Register(this);
 
       return new RemoteTerminalInfo
       {
         TerminalName = Name,
         WelcomeMsg = "Connected to '[{0}]{1}'@'{2}' on {3:G} {4:T} UTC. Session '{5}'".Args(SkySystem.MetabaseApplicationName,
-                                                                     m_App.Name,
+                                                                     App.Name,
                                                                      SkySystem.HostName,
-                                                                     m_App.TimeSource.Now,
-                                                                     m_App.TimeSource.UTCNow,
+                                                                     App.TimeSource.Now,
+                                                                     App.TimeSource.UTCNow,
                                                                      Name),
         Host = SkySystem.HostName,
-        AppName = m_App.Name,
-        ServerLocalTime = m_App.TimeSource.Now,
-        ServerUTCTime = m_App.TimeSource.UTCNow
+        AppName = App.Name,
+        ServerLocalTime = App.TimeSource.Now,
+        ServerUTCTime = App.TimeSource.UTCNow
       };
     }
 
     [AppRemoteTerminalPermission]
     public virtual string Execute(string command)
     {
-      m_WhenInteracted = m_App.TimeSource.UTCNow;
+      m_WhenInteracted = App.TimeSource.UTCNow;
 
       if (command == null) return string.Empty;
 
@@ -235,8 +242,8 @@ namespace Azos.Sky.Apps.Terminal
         return StringConsts.RT_CMDLET_DONTKNOW_ERROR.Args(cname);
 
       //Check cmdlet security
-      Permission.AuthorizeAndGuardAction(m_App, tp);
-      Permission.AuthorizeAndGuardAction(m_App, tp.GetMethod(nameof(Execute)));
+      Permission.AuthorizeAndGuardAction(App, tp);
+      Permission.AuthorizeAndGuardAction(App, tp.GetMethod(nameof(Execute)));
 
       var cmdlet = Activator.CreateInstance(tp, this, command) as Cmdlet;
       if (cmdlet == null)
@@ -244,6 +251,7 @@ namespace Azos.Sky.Apps.Terminal
 
       using (cmdlet)
       {
+        App.DependencyInjector.InjectInto(cmdlet);
         return cmdlet.Execute();
       }
     }
@@ -264,6 +272,7 @@ namespace Azos.Sky.Apps.Terminal
       {
         try
         {
+          App.DependencyInjector.InjectInto(inst);
           help = inst.GetHelp();
         }
         catch (Exception error)

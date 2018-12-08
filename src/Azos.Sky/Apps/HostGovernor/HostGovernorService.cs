@@ -184,7 +184,7 @@ namespace Azos.Sky.Apps.HostGovernor
 
       public Contracts.HostInfo GetHostInfo()
       {
-        return Contracts.HostInfo.ForThisHost();
+        return Contracts.HostInfo.ForThisHost(App);
       }
 
       public void Ping()
@@ -361,9 +361,9 @@ namespace Azos.Sky.Apps.HostGovernor
             any = true;
             try
             {
-              using (var cl = Contracts.ServiceClientHub.New<Contracts.IZoneHostRegistryClient>(zgov.RegionPath))
+              using (var cl = App.GetServiceClientHub().MakeNew<Contracts.IZoneHostRegistryClient>(zgov.RegionPath))
               {
-                cl.RegisterSubordinateHost(Contracts.HostInfo.ForThisHost(), DynamicHostID);
+                cl.RegisterSubordinateHost(Contracts.HostInfo.ForThisHost(App), DynamicHostID);
                 ok = true;
                 break;
               }

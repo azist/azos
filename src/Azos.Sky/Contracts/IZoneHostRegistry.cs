@@ -57,18 +57,18 @@ namespace Azos.Sky.Contracts
 
     private HostInfo() { }
 
-    public static HostInfo ForThisHost()
+    public static HostInfo ForThisHost(IApplication app)
     {
       var cpu = Computer.CurrentProcessorUsagePct;
       var ram = Computer.GetMemoryStatus();
       var result = new HostInfo
       {
         m_Name = SkySystem.HostName,//the HostName does not have spaces in dynamic host name
-        m_UTCTimeStamp = App.TimeSource.UTCNow,
+        m_UTCTimeStamp = app.TimeSource.UTCNow,
 
-        m_LastWarning = App.Log.LastWarning.ThisOrNewSafeWrappedException(),
-        m_LastError = App.Log.LastError.ThisOrNewSafeWrappedException(),
-        m_LastCatastrophe = App.Log.LastCatastrophe.ThisOrNewSafeWrappedException(),
+        m_LastWarning = app.Log.LastWarning.ThisOrNewSafeWrappedException(),
+        m_LastError = app.Log.LastError.ThisOrNewSafeWrappedException(),
+        m_LastCatastrophe = app.Log.LastCatastrophe.ThisOrNewSafeWrappedException(),
 
         m_CurrentCPULoad = cpu,
         m_CurrentRAMStatus = ram,

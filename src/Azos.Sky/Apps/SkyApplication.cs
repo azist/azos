@@ -63,11 +63,6 @@ namespace Azos.Sky.Apps
     #region Properties
 
       /// <summary>
-      /// References a singleton instance of SkyApplication
-      /// </summary>
-      public static SkyApplication Instance {  get{ return App.Instance as SkyApplication; }  }
-
-      /// <summary>
       /// Denotes system application/process type that this app container has, i.e.:  HostGovernor, WebServer, etc.
       /// The value is set in .ctor and kept in BootConfLoader.SystemApplicationType
       /// </summary>

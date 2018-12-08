@@ -81,7 +81,7 @@ namespace Azos.Sky.Instrumentation
       try
       {
         //TODO  Cache the client instance, do not create client on every call
-        using (var client = Contracts.ServiceClientHub.New<Contracts.ITelemetryReceiverClient>(m_Host))
+        using (var client = App.GetServiceClientHub().MakeNew<Contracts.ITelemetryReceiverClient>(m_Host))
           client.Async_SendDatums(data);
       }
       catch (Exception error)

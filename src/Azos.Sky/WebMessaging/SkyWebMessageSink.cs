@@ -80,7 +80,7 @@ namespace Azos.Sky.WebMessaging
       var hn = this.Host;
       if (m_Client == null && !hn.EqualsOrdIgnoreCase(m_HostName))
       {
-        m_Client = ServiceClientHub.New<IWebMessageSystemClient>(hn);
+        m_Client = App.GetServiceClientHub().MakeNew<IWebMessageSystemClient>(hn);
         m_HostName = hn;
       }
     }

@@ -257,7 +257,7 @@ namespace Azos.Sky.Coordination
       {
         try
         {
-          using (var pinger = ServiceClientHub.New<IPingerClient>(host.Section))
+          using (var pinger = App.GetServiceClientHub().MakeNew<IPingerClient>(host.Section))
             pinger.Ping();
 
           host.LastDownTime = null;

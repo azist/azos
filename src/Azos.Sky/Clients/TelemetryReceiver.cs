@@ -39,8 +39,6 @@ namespace Azos.Sky.Clients
   #endregion
 
   #region .ctor
-     public TelemetryReceiver(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public TelemetryReceiver(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public TelemetryReceiver(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public TelemetryReceiver(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

@@ -45,8 +45,6 @@ namespace Azos.Sky.Clients
   #endregion
 
   #region .ctor
-     public ZoneHostRegistry(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public ZoneHostRegistry(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public ZoneHostRegistry(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public ZoneHostRegistry(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

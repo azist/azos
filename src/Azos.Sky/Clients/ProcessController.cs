@@ -47,8 +47,6 @@ namespace Azos.Sky.Clients
   #endregion
 
   #region .ctor
-     public ProcessController(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public ProcessController(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public ProcessController(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public ProcessController(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

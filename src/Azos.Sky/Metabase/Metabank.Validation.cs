@@ -23,7 +23,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
 
             try
             {
-              var instance = Contracts.ServiceClientHub.Instance;
+              var instance = App.GetServiceClientHub();
             }
             catch(Exception error)
             {
@@ -31,7 +31,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
               return false;
             }
 
-            foreach(var mapping in Contracts.ServiceClientHub.Instance.CachedMap)
+            foreach(var mapping in App.GetServiceClientHub().CachedMap)
             {
               if (mapping.Local.Service.IsNullOrWhiteSpace())
                output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Warning, null, null, " Contract mapping '{0}' does not specify local service name".Args(mapping) ));
@@ -73,7 +73,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
 
               try
               {
-                Contracts.ServiceClientHub.TestSetupOf<Contracts.IGdidAuthorityClient>(host.RegionPath);
+                App.GetServiceClientHub().RunTestSetupOf<Contracts.IGdidAuthorityClient>(host.RegionPath);
               }
               catch(Exception error)
               {

@@ -40,7 +40,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
                  From = "{0}.StopNow".Args(GetType().FullName),
                  Text = text
               });
-              App.Instance.Stop();
+              App.Stop();
               return text;//noone may see this as app may terminate faster than response delivered
             }
 
@@ -77,19 +77,19 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
             sb.AppendFormat("TimeSource                "+VAL, app.TimeSource.GetType().FullName );
 
             var lwarning = app.Log.LastWarning;
-            sb.AppendFormat("Last Warning              "+VAL, lwarning!=null ? "{0} {1} {2} {3}".Args(lwarning.TimeStamp, lwarning.Guid, lwarning.From, lwarning.Text) : string.Empty );
+            sb.AppendFormat("Last Warning              "+VAL, lwarning!=null ? "{0} {1} {2} {3}".Args(lwarning.UTCTimeStamp, lwarning.Guid, lwarning.From, lwarning.Text) : string.Empty );
 
             var lerror = app.Log.LastError;
-            sb.AppendFormat("Last Error                "+VAL, lerror!=null ? "{0} {1} {2} {3}".Args(lerror.TimeStamp, lerror.Guid, lerror.From, lerror.Text) : string.Empty );
+            sb.AppendFormat("Last Error                "+VAL, lerror!=null ? "{0} {1} {2} {3}".Args(lerror.UTCTimeStamp, lerror.Guid, lerror.From, lerror.Text) : string.Empty );
 
             var lcatastrophe = app.Log.LastCatastrophe;
-            sb.AppendFormat("Last Catastrophe          "+VAL, lcatastrophe!=null ? "{0} {1} {2} {3}".Args(lcatastrophe.TimeStamp, lcatastrophe.Guid, lcatastrophe.From, lcatastrophe.Text) : string.Empty );
+            sb.AppendFormat("Last Catastrophe          "+VAL, lcatastrophe!=null ? "{0} {1} {2} {3}".Args(lcatastrophe.UTCTimeStamp, lcatastrophe.Guid, lcatastrophe.From, lcatastrophe.Text) : string.Empty );
 
 
             sb.AppendLine();
             sb.AppendLine("Root Components");
             sb.AppendLine("----------------------------------------------------------------------------");
-            var all = ApplicationComponent.AllComponents;
+            var all = App.AllComponents;
             foreach(var cmp in all.Where(cmp => !(cmp.ComponentDirector is IApplicationComponent)))
             {
               string name = null;

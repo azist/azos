@@ -36,7 +36,9 @@ namespace Azos.Sky.Apps.HostGovernor.Cmdlets
                  Text = "Installation with force=true initiated"
               });
 
-           var anew = HostGovernorService.Instance.CheckAndPerformLocalSoftwareInstallation(list, force);
+           var anew = App.Singletons
+                         .Get<HostGovernorService>().NonNull(nameof(HostGovernorService))
+                         .CheckAndPerformLocalSoftwareInstallation(list, force);
 
            var progress = list.Aggregate(new StringBuilder(), (sb, s) => sb.AppendLine(s)).ToString();
 

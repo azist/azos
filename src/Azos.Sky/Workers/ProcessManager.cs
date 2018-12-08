@@ -29,7 +29,7 @@ namespace Azos.Sky.Workers
       var zone = SkySystem.Metabase.CatalogReg.NavigateZone(pid.Zone);
       var hosts = zone.GetProcessorHostsByID(pid.ProcessorID);
 
-      Contracts.ServiceClientHub.CallWithRetry<Contracts.IProcessControllerClient>
+      App.GetServiceClientHub().CallWithRetry<Contracts.IProcessControllerClient>
       (
         (controller) => controller.Spawn(new ProcessFrame(process)),
         hosts.Select(h => h.RegionPath)
@@ -42,7 +42,7 @@ namespace Azos.Sky.Workers
       var zone = SkySystem.Metabase.CatalogReg.NavigateZone(pid.Zone);
       var hosts = zone.GetProcessorHostsByID(pid.ProcessorID);
 
-      return Contracts.ServiceClientHub.CallWithRetryAsync<Contracts.IProcessControllerClient>
+      return App.GetServiceClientHub().CallWithRetryAsync<Contracts.IProcessControllerClient>
       (
         (controller) => controller.Async_Spawn(new ProcessFrame(process)).AsTaskReturningVoid(),
         hosts.Select(h => h.RegionPath)
@@ -55,7 +55,7 @@ namespace Azos.Sky.Workers
       var zone = SkySystem.Metabase.CatalogReg.NavigateZone(pid.Zone);
       var hosts = zone.GetProcessorHostsByID(pid.ProcessorID);
 
-      return Contracts.ServiceClientHub.CallWithRetry<Contracts.IProcessControllerClient, SignalFrame>
+      return App.GetServiceClientHub().CallWithRetry<Contracts.IProcessControllerClient, SignalFrame>
       (
         (controller) => controller.Dispatch(new SignalFrame(signal)),
         hosts.Select(h => h.RegionPath)
@@ -68,7 +68,7 @@ namespace Azos.Sky.Workers
       var zone = SkySystem.Metabase.CatalogReg.NavigateZone(pid.Zone);
       var hosts = zone.GetProcessorHostsByID(pid.ProcessorID);
 
-      return Contracts.ServiceClientHub.CallWithRetryAsync<Contracts.IProcessControllerClient, SignalFrame>
+      return App.GetServiceClientHub().CallWithRetryAsync<Contracts.IProcessControllerClient, SignalFrame>
       (
         (controller) => controller.Async_Dispatch(new SignalFrame(signal)).AsTaskReturning<SignalFrame>(),
         hosts.Select(h => h.RegionPath)
@@ -78,7 +78,7 @@ namespace Azos.Sky.Workers
     protected override int DoEnqueue<TTodo>(IEnumerable<TTodo> todos, HostSet hs, string svcName)
     {
       var hostPair = hs.AssignHost(todos.First().SysShardingKey);
-      return Contracts.ServiceClientHub.CallWithRetry<Contracts.ITodoQueueClient, int>
+      return App.GetServiceClientHub().CallWithRetry<Contracts.ITodoQueueClient, int>
       (
         (client) => client.Enqueue(todos.Select(t => new TodoFrame(t)).ToArray()),
         hostPair.Select(host => host.RegionPath),
@@ -89,7 +89,7 @@ namespace Azos.Sky.Workers
     protected override Task<int> Async_DoEnqueue<TTodo>(IEnumerable<TTodo> todos, HostSet hs, string svcName)
     {
       var hostPair = hs.AssignHost(todos.First().SysShardingKey);
-      return Contracts.ServiceClientHub.CallWithRetryAsync<Contracts.ITodoQueueClient, int>
+      return App.GetServiceClientHub().CallWithRetryAsync<Contracts.ITodoQueueClient, int>
       (
         (client) => client.Async_Enqueue(todos.Select(t => new TodoFrame(t)).ToArray()).AsTaskReturning<int>(),
         hostPair.Select(host => host.RegionPath),
@@ -102,7 +102,7 @@ namespace Azos.Sky.Workers
       var zone = SkySystem.Metabase.CatalogReg.NavigateZone(pid.Zone);
       var hosts = zone.GetProcessorHostsByID(pid.ProcessorID);
 
-      var processFrame = Contracts.ServiceClientHub.CallWithRetry<Contracts.IProcessControllerClient, ProcessFrame>
+      var processFrame = App.GetServiceClientHub().CallWithRetry<Contracts.IProcessControllerClient, ProcessFrame>
       (
         (controller) => controller.Get(pid),
         hosts.Select(h => h.RegionPath)
@@ -117,7 +117,7 @@ namespace Azos.Sky.Workers
       var zone = SkySystem.Metabase.CatalogReg.NavigateZone(pid.Zone);
       var hosts = zone.GetProcessorHostsByID(pid.ProcessorID);
 
-      return Contracts.ServiceClientHub.CallWithRetry<Contracts.IProcessControllerClient, ProcessDescriptor>
+      return App.GetServiceClientHub().CallWithRetry<Contracts.IProcessControllerClient, ProcessDescriptor>
       (
         (controller) => controller.GetDescriptor(pid),
         hosts.Select(h => h.RegionPath)
@@ -132,7 +132,7 @@ namespace Azos.Sky.Workers
       foreach (var processorID in zone.ProcessorMap.Keys)
       {
         var hosts = zone.GetProcessorHostsByID(processorID);
-        var descriptors = Contracts.ServiceClientHub.CallWithRetry<Contracts.IProcessControllerClient, IEnumerable<ProcessDescriptor>>
+        var descriptors = App.GetServiceClientHub().CallWithRetry<Contracts.IProcessControllerClient, IEnumerable<ProcessDescriptor>>
         (
           (controller) => controller.List(processorID),
           hosts.Select(h => h.RegionPath)

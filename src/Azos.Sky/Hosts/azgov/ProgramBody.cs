@@ -37,7 +37,7 @@ namespace Azos.Sky.Hosts.azgov
       {
         try
         {
-          using (var governor = new ZoneGovernorService())
+          using (var governor = new ZoneGovernorService(app))
           {
             governor.Configure(null);
             governor.Start();

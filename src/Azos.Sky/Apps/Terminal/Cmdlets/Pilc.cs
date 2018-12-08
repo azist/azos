@@ -27,7 +27,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
 
         public override string Execute()
         {
-            var cache = CMan.GetApplicationComponentBySIDorName(m_Args) as ICache;
+            var cache = CMan.GetApplicationComponentBySIDorName(App, m_Args) as ICache;
 
             if (cache==null)
              return "The specified component is not of ICache type";

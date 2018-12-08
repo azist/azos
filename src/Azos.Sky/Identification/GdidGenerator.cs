@@ -208,8 +208,12 @@ namespace Azos.Sky.Identification
 
     #region .ctor
 
-    public GdidGenerator(IApplicationComponent director, string name) : this(director, name, null, null) {}
+    public GdidGenerator(IApplication app) : base(app) => ctor(null, null, null);
+    public GdidGenerator(IApplicationComponent director, string name) : base(director) => ctor(name, null, null);
     public GdidGenerator(IApplicationComponent director, string name, string scopePrefix, string sequencePrefix) : base(director)
+      => ctor(name, scopePrefix, sequencePrefix);
+
+    private void ctor(string name, string scopePrefix, string sequencePrefix)
     {
       if (name.IsNullOrWhiteSpace())
         name = Guid.NewGuid().ToString();
@@ -429,7 +433,7 @@ namespace Azos.Sky.Identification
                   }
                   catch(Exception error)
                   { //todo Perf counter
-                    log(MessageType.Error, GetType().Name+".Generate().Task{}", "Error getting NextBlock", error);
+                    WriteLog(MessageType.Error, GetType().Name+".Generate().Task{}", "Error getting NextBlock", error);
                   }
                 });
             }
@@ -542,7 +546,7 @@ namespace Azos.Sky.Identification
     private GdidBlock allocateBlockInTesting(string scopeName, string sequenceName, int blockSize, ulong? vicinity)
     {
       Instrumentation.AllocBlockRequestedEvent.Happened(scopeName, sequenceName);
-      using(var cl = new Clients.GdidAuthority(m_TestingAuthorityNode))
+      using(var cl = new Clients.GdidAuthority(App.Glue, m_TestingAuthorityNode))
       {
           try
           {
@@ -571,8 +575,8 @@ namespace Azos.Sky.Identification
         try
         {
           using(var cl = SkySystem.IsMetabase
-                          ? ServiceClientHub.New<IGdidAuthorityClient>( node.Name )
-                          : new Clients.GdidAuthority( node.Name )
+                          ? App.GetServiceClientHub().MakeNew<IGdidAuthorityClient>( node.Name )
+                          : new Clients.GdidAuthority( App.Glue, node.Name )
                 )
             result = cl.AllocateBlock(scopeName, sequenceName, blockSize, vicinity);
 

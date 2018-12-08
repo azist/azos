@@ -39,8 +39,6 @@ namespace Azos.Sky.Clients
   #endregion
 
   #region .ctor
-     public TodoQueue(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public TodoQueue(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public TodoQueue(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public TodoQueue(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

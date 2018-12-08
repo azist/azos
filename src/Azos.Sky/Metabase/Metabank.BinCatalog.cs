@@ -240,10 +240,12 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
 
         }
 
+        private HostGovernorService HGov => App.Singletons.Get<HostGovernorService>().NonNull(nameof(HostGovernorService));
+
 
         /// <summary>
         /// Checks the local version and performs local software installation on this machine if needed
-        /// This process is an integral part og AHGOV/HostGovernorService implementation and should not be called by developers
+        /// This process is an integral part of AHGOV/HostGovernorService implementation and should not be called by developers
         /// </summary>
         /// <returns>True if installation was performed</returns>
         internal bool CheckAndPerformLocalSoftwareInstallation(IList<string> progress, bool force = false)
@@ -257,7 +259,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
                         if (progress!=null)  progress.Add("{0} Building install set...".Args(App.LocalizedTime));
 
                         var installSet = new List<LocalInstallation.PackageInfo>();
-                        foreach(var appPackage in HostGovernorService.Instance.AllPackages)
+                        foreach(var appPackage in HGov.AllPackages)
                         {
                            var subDir = appPackage.MatchedPackage.FullName;
                            var packageDir = dir.GetSubDirectory(subDir);
@@ -274,13 +276,13 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
                         if (progress!=null)
                         {
                           progress.Add("Initiating local installation");
-                          progress.Add(" Root Path: {0}".Args(HostGovernorService.Instance.UpdatePath));
-                          progress.Add(" Manifest Path: {0}".Args(HostGovernorService.Instance.RunPath));
+                          progress.Add(" Root Path: {0}".Args(HGov.UpdatePath));
+                          progress.Add(" Manifest Path: {0}".Args(HGov.RunPath));
                           progress.Add(" Force: {0}".Args(force));
                         }
 
                         var anew = false;
-                        using(var install = new LocalInstallation(HostGovernorService.Instance.UpdatePath, HostGovernorService.Instance.RunPath))
+                        using(var install = new LocalInstallation(App, HGov.UpdatePath, HGov.RunPath))
                         {
                           anew = install.CheckLocalAndInstallIfNeeded(installSet, force);
                         }

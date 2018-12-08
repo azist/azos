@@ -217,7 +217,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
       var zHosts = SkySystem.HostMetabaseSection.ParentZone.ZoneGovernorHosts.Where(hh => !SkySystem.HostName.IsSameRegionPath(hh.RegionPath));
       foreach (var z in zHosts)
-        using (var cl = Contracts.ServiceClientHub.New<Contracts.IZoneHostReplicatorClient>(z))
+        using (var cl = App.GetServiceClientHub().MakeNew<Contracts.IZoneHostReplicatorClient>(z))
           cl.Async_PostHostInfo(host, hid);
     }
 
@@ -281,7 +281,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
         var hosts = zone.ZoneGovernorHosts.Where(hh => !SkySystem.HostName.IsSameRegionPath(hh.RegionPath));
         foreach (var h in hosts)
-          using (var cl = Contracts.ServiceClientHub.New<Contracts.IZoneHostReplicatorClient>(h))
+          using (var cl = App.GetServiceClientHub().MakeNew<Contracts.IZoneHostReplicatorClient>(h))
             cl.Async_PostDynamicHostInfo(hid, dhi.Stamp, dhi.Owner, dhi.Votes);
       }
       return hid;
@@ -317,7 +317,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
       {
         var hosts = zone.ZoneGovernorHosts.Where(hh => !SkySystem.HostName.IsSameRegionPath(hh.RegionPath));
         foreach (var h in hosts)
-          using (var cl = Contracts.ServiceClientHub.New<Contracts.IZoneHostReplicatorClient>(h))
+          using (var cl = App.GetServiceClientHub().MakeNew<Contracts.IZoneHostReplicatorClient>(h))
             cl.Async_PostDynamicHostInfo(hid, dhi.Stamp, dhi.Owner, dhi.Votes);
       }
     }

@@ -22,16 +22,16 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
         #endregion
 
         #region .ctor
-            internal Catalog(Metabank bank, string name)
-            {
-              if (bank==null || name.IsNullOrWhiteSpace())
-                throw new MetabaseException(StringConsts.ARGUMENT_ERROR + this.GetType().Name + ".ctor(bank==null|name==null|empty)");
+        internal Catalog(Metabank bank, string name)
+        {
+          if (bank==null || name.IsNullOrWhiteSpace())
+            throw new MetabaseException(StringConsts.ARGUMENT_ERROR + this.GetType().Name + ".ctor(bank==null|name==null|empty)");
 
-              Metabank = bank;
-              m_Name = name;
+          Metabank = bank;
+          m_Name = name;
 
-              Metabank.m_Catalogs.Register( this );
-            }
+          Metabank.m_Catalogs.Register( this );
+        }
 
         #endregion
 
@@ -45,10 +45,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
 
         #region Properties
 
-            ///// <summary>
-            ///// References metabank instance that created this object
-            ///// </summary>
-            //public Metabank Metabank { get{ return m_Metabank;} }
+            public IApplication App => Metabank.App;
 
 
             /// <summary>

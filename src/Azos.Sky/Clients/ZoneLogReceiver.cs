@@ -39,8 +39,6 @@ namespace Azos.Sky.Clients
   #endregion
 
   #region .ctor
-     public ZoneLogReceiver(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public ZoneLogReceiver(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public ZoneLogReceiver(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public ZoneLogReceiver(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

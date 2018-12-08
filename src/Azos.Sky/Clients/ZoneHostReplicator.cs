@@ -43,8 +43,6 @@ namespace Azos.Sky.Clients
   #endregion
 
   #region .ctor
-     public ZoneHostReplicator(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public ZoneHostReplicator(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public ZoneHostReplicator(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public ZoneHostReplicator(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

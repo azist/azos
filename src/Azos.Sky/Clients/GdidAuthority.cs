@@ -39,8 +39,6 @@ namespace Azos.Sky.Clients
   #endregion
 
   #region .ctor
-     public GdidAuthority(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public GdidAuthority(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public GdidAuthority(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public GdidAuthority(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

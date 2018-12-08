@@ -26,7 +26,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
         public const string CONFIG_VALUE_ATTR = "value";
 
 
-        public static ApplicationComponent GetApplicationComponentBySIDorName(IConfigSectionNode args)
+        public static ApplicationComponent GetApplicationComponentBySIDorName(IApplication app, IConfigSectionNode args)
         {
            if (args==null || !args.Exists) return null;
 
@@ -34,9 +34,9 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
            var sid = args.AttrByName(CONFIG_SID_ATTR).ValueAsULong();
            var cname = args.AttrByName(CONFIG_NAME_ATTR).Value;
 
-           if (sid>0) cmp = ApplicationComponent.GetAppComponentBySID(sid);
+           if (sid>0) cmp = ApplicationComponent.GetAppComponentBySID(app, sid);
 
-           if (cmp==null && cname.IsNotNullOrWhiteSpace()) cmp = ApplicationComponent.GetAppComponentByCommonName(cname);
+           if (cmp==null && cname.IsNotNullOrWhiteSpace()) cmp = ApplicationComponent.GetAppComponentByCommonName(app, cname);
            return cmp;
         }
 
@@ -64,8 +64,8 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
             else
             {
               ApplicationComponent cmp = null;
-              if (sid>0) cmp = ApplicationComponent.GetAppComponentBySID(sid);
-              if (cmp==null && cname.IsNotNullOrWhiteSpace()) cmp = ApplicationComponent.GetAppComponentByCommonName(cname);
+              if (sid>0) cmp = ApplicationComponent.GetAppComponentBySID(App, sid);
+              if (cmp==null && cname.IsNotNullOrWhiteSpace()) cmp = ApplicationComponent.GetAppComponentByCommonName(App, cname);
               if (cmp!=null)
                 details(sb, cmp, param, value);
               else
@@ -101,7 +101,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
 
         private void listAll(StringBuilder sb)
         {
-           var all = ApplicationComponent.AllComponents;
+           var all = App.AllComponents;
            var root = all.Where(c => c.ComponentDirector==null);
            sb.AppendLine("<f color=white>Root components w/o director:");
            sb.AppendLine();
@@ -117,7 +117,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
              listOne(sb, all, cmp, 0);
         }
 
-        private void listOne(StringBuilder sb, IEnumerable<ApplicationComponent> all, ApplicationComponent cmp, int level)
+        private void listOne(StringBuilder sb, IEnumerable<IApplicationComponent> all, IApplicationComponent cmp, int level)
         {
           if (level>7) return;//cyclical ref
 
@@ -158,7 +158,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
           if (param.IsNotNullOrWhiteSpace())
           {
             sb.AppendLine("<f color=gray>Trying to set parameter <f color=yellow>'{0}'<f color=gray> to value  <f color=cyan>'{1}'".Args(param, value ?? "<null>"));
-            if (!ExternalParameterAttribute.SetParameter(cmp, param, value))
+            if (!ExternalParameterAttribute.SetParameter(cmp.App, cmp, param, value))
             {
              sb.AppendLine("<f color=red>Parameter <f color=yellow>'{0}'<f color=red> set did NOT SUCCEED".Args(param));
              return;
@@ -202,7 +202,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
           {
             var nm = p.Item1;
             object val;
-            if (!ExternalParameterAttribute.GetParameter(cmp, nm, out val)) val = "?";
+            if (!ExternalParameterAttribute.GetParameter(cmp.App, cmp, nm, out val)) val = "?";
             var tp = p.Item2;
             var atr = p.Item3;
             sb.AppendLine(pfx+"<f color=gray>{0,-35}: <f color=white>{1,-10} <f color=darkyellow>({2})  <f color=darkgreen>{3}".Args(

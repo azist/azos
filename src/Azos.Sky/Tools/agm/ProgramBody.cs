@@ -67,7 +67,7 @@ namespace Azos.Sky.Tools.agm
 
         var w = System.Diagnostics.Stopwatch.StartNew();
 
-        var generator = new GdidGenerator();
+        var generator = new GdidGenerator(app);
         generator.AuthorityHosts.Register(new GdidGenerator.AuthorityHost(connectToAuthority));
 
 

@@ -41,8 +41,6 @@ namespace Azos.Sky.Clients
   #endregion
 
   #region .ctor
-     public Locker(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public Locker(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public Locker(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public Locker(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

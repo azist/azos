@@ -41,8 +41,6 @@ namespace Azos.Sky.Clients
   #endregion
 
   #region .ctor
-     public GdidPersistenceRemoteLocation(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public GdidPersistenceRemoteLocation(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public GdidPersistenceRemoteLocation(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public GdidPersistenceRemoteLocation(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

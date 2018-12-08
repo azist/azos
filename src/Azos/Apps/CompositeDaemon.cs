@@ -53,8 +53,8 @@ namespace Azos.Apps
     #endregion
 
     #region .ctor
-    protected CompositeDaemon(IApplication application) : base(application) { }
-    protected CompositeDaemon(IApplicationComponent director) : base(director) { }
+    public CompositeDaemon(IApplication application) : base(application) { }
+    public CompositeDaemon(IApplicationComponent director) : base(director) { }
 
     protected override void Destructor()
     {

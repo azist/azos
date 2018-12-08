@@ -39,7 +39,7 @@ namespace Azos.Sky.Hosts.ahgov
         {
           var fromARD = app.CommandArgs[SysConsts.ARD_PARENT_CMD_PARAM].Exists;
           var updateProblem = app.CommandArgs[SysConsts.ARD_UPDATE_PROBLEM_CMD_PARAM].Exists;
-          using (var governor = new HostGovernorService(fromARD, updateProblem))
+          using (var governor = new HostGovernorService(app, fromARD, updateProblem))
           {
             governor.Configure(null);
             governor.Start();

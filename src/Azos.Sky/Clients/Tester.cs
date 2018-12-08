@@ -39,8 +39,6 @@ namespace Azos.Sky.Clients
   #endregion
 
   #region .ctor
-     public Tester(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public Tester(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public Tester(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public Tester(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

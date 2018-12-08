@@ -42,8 +42,6 @@ namespace Azos.Sky.Clients
   #endregion
 
   #region .ctor
-     public RemoteTerminal(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public RemoteTerminal(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public RemoteTerminal(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public RemoteTerminal(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

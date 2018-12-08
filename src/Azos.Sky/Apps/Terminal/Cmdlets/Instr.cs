@@ -24,7 +24,6 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
 
         public Instr(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args)
         {
-
         }
 
         public override string Execute()
