@@ -1,6 +1,11 @@
 # Azos - A to Z Application Operating System
 <img src="/elm/design/icons/azos.png" alt="Logo" >
 
+**BUILD: FAILS**
+THE REPOSITORY IS UNDER CONSTRUCTION;
+
+-------
+
 Azos is a **full stack** framework for distributed data-driven business applications
 of any size. Unique feature of Azos is its self-sufficiency as it includes all of the components
 necessary for creation of **typical business** to **Facebook-scale** applications.
