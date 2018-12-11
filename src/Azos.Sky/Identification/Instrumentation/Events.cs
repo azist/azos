@@ -48,10 +48,9 @@ namespace Azos.Sky.Identification.Instrumentation
 
     public override string Description { get { return "Generator requested new block allocation"; } }
 
-    public static void Happened(string scope, string seq)
+    public static void Happened(IInstrumentation inst, string scope, string seq)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst!=null && inst.Enabled)
         inst.Record(new AllocBlockRequestedEvent("{0}::{1}".Args(scope, seq)));
     }
 
@@ -72,10 +71,9 @@ namespace Azos.Sky.Identification.Instrumentation
 
     public override string Description { get { return "Generator requested new block allocation completely failed"; } }
 
-    public static void Happened(string scope, string seq)
+    public static void Happened(IInstrumentation inst, string scope, string seq)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new AllocBlockRequestFailureEvent("{0}::{1}".Args(scope, seq)));
     }
 
@@ -96,10 +94,9 @@ namespace Azos.Sky.Identification.Instrumentation
 
     public override string Description { get { return "Generator successfully allocated new block"; } }
 
-    public static void Happened(string scope, string seq, string authority)
+    public static void Happened(IInstrumentation inst, string scope, string seq, string authority)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new AllocBlockSuccessEvent("{0}::{1}::{2}".Args(scope, seq, authority)));
     }
 
@@ -120,10 +117,9 @@ namespace Azos.Sky.Identification.Instrumentation
 
     public override string Description { get { return "Generator block allocation attempt failed"; } }
 
-    public static void Happened(string scope, string seq, int block, string authority)
+    public static void Happened(IInstrumentation inst, string scope, string seq, int block, string authority)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new AllocBlockFailureEvent("{0}::{1}::{2}".Args(scope, seq, authority)));
     }
 
@@ -144,10 +140,9 @@ namespace Azos.Sky.Identification.Instrumentation
 
     public override string Description { get { return "Authority received block allocation call"; } }
 
-    public static void Happened(string scope, string seq)
+    public static void Happened(IInstrumentation inst, string scope, string seq)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new AuthAllocBlockCalledEvent("{0}.{1}".Args(scope, seq)));
     }
 
@@ -168,10 +163,9 @@ namespace Azos.Sky.Identification.Instrumentation
 
     public override string Description { get { return "Authority location write failed"; } }
 
-    public static void Happened(string location)
+    public static void Happened(IInstrumentation inst, string location)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new AuthLocationWriteFailureEvent(location));
     }
 
@@ -192,10 +186,9 @@ namespace Azos.Sky.Identification.Instrumentation
 
     public override string Description { get { return "Authority sequence write to all locations failed"; } }
 
-    public static void Happened()
+    public static void Happened(IInstrumentation inst)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new AuthLocationWriteTotalFailureEvent());
     }
 
@@ -216,10 +209,9 @@ namespace Azos.Sky.Identification.Instrumentation
 
     public override string Description { get { return "Authority sequence read from location failed"; } }
 
-    public static void Happened(string location)
+    public static void Happened(IInstrumentation inst, string location)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new AuthLocationReadFailureEvent(location));
     }
 
@@ -240,10 +232,9 @@ namespace Azos.Sky.Identification.Instrumentation
 
     public override string Description { get { return "Authority sequence read failed for all locations"; } }
 
-    public static void Happened()
+    public static void Happened(IInstrumentation inst)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new AuthLocationReadTotalFailureEvent());
     }
 
@@ -264,10 +255,9 @@ namespace Azos.Sky.Identification.Instrumentation
 
     public override string Description { get { return "Authority ERA promoted +1"; } }
 
-    public static void Happened(string scope, string seq)
+    public static void Happened(IInstrumentation inst, string scope, string seq)
     {
-      var inst = App.Instrumentation;
-      if (inst.Enabled)
+      if (inst != null && inst.Enabled)
         inst.Record(new AuthEraPromotedEvent("{0}:{1}".Args(scope, seq)));
     }
 

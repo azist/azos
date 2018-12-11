@@ -1,5 +1,6 @@
 ﻿using System;
 
+using Azos.Apps.Injection;
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Data;
@@ -13,25 +14,32 @@ namespace Azos.Sky.Workers
   [Serializable]
   public abstract class Process : AmorphousTypedDoc
   {
+
+    [Inject] IApplication m_App;
+
+    protected IApplication App => m_App.NonNull(nameof(m_App));
+
     /// <summary>
     /// Factory method that creates new Process based on provided PID
     /// </summary>
-    public static TProcess MakeNew<TProcess>(PID pid) where TProcess : Process, new() { return makeDefault(new TProcess(), pid); }
+    public static TProcess MakeNew<TProcess>(IApplication app, PID pid) where TProcess : Process, new()
+      => makeDefault(app, new TProcess(), pid);
 
     /// <summary>
     /// Factory method that creates new Process based on provided Type, PID and Configuration
     /// </summary>
-    public static Process MakeNew(Type type, PID pid, IConfigSectionNode args) { return makeDefault(FactoryUtils.MakeAndConfigure<Process>(args, type), pid); }
+    public static Process MakeNew(IApplication app, Type type, PID pid, IConfigSectionNode args)
+     => makeDefault(app, FactoryUtils.MakeAndConfigure<Process>(args, type), pid);
 
-    private static TProcess makeDefault<TProcess>(TProcess process, PID pid) where TProcess : Process
+    private static TProcess makeDefault<TProcess>(IApplication app, TProcess process, PID pid) where TProcess : Process
     {
       var attr = GuidTypeAttribute.GetGuidTypeAttribute<Process, ProcessAttribute>(process.GetType());
 
       var descriptor = new ProcessDescriptor(
         pid,
         attr.Description,
-        App.TimeSource.UTCNow,
-        "{0}@{1}@{2}".Args(App.CurrentCallUser.Name, App.Name, SkySystem.HostName));
+        app.TimeSource.UTCNow,
+        "{0}@{1}@{2}".Args(Ambient.CurrentCallUser.Name, app.Name, SkySystem.HostName));
 
       process.m_SysDescriptor = descriptor;
       return process;

@@ -88,10 +88,8 @@ namespace Azos.Sky.Contracts
         RandomGenerator.Instance.FeedExternalEntropySample(entropy);
       }
 
-      if (
-          (cpu > 25 && cpu < 50 && (cpu & 0x1) == 0) || (cpu > 0 && cpu % 7 == 0)
-         )
-        result.m_RandomSample = App.Random.NextRandomInteger;
+      if (cpu % 3 == 0)
+        result.m_RandomSample = Ambient.Random.NextRandomInteger;
 
       return result;
     }

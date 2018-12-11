@@ -84,5 +84,10 @@ namespace Azos
     /// </summary>
     public static Platform.RandomGenerator Random => Platform.RandomGenerator.Instance;
 
+    /// <summary>
+    /// Returns the current call context user. The returned value is never null and returns fake user
+    /// </summary>
+    public static Security.User CurrentCallUser => ExecutionContext.Session.User;
+
   }
 }
