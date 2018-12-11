@@ -109,7 +109,7 @@ namespace Azos.Sky.Identification
     #endregion
 
     #region .ctor/.dctor
-      protected GdidAuthorityServiceBase() : base(null)
+      protected GdidAuthorityServiceBase(IApplication app) : base(app)
       {
       }
     #endregion

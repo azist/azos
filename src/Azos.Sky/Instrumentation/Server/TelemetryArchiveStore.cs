@@ -29,15 +29,5 @@ namespace Azos.Sky.Instrumentation.Server
     public abstract void RollbackTransaction(object transaction);
 
     public abstract void Put(Datum[] data, object transaction);
-
-    protected Guid Log(MessageType type,
-                       string from,
-                       string message,
-                       Exception error = null,
-                       Guid? relatedMessageID = null,
-                       string parameters = null)
-    {
-      return ArchiveService.Log(type, "{0}.{1}".Args(GetType().Name, from), message, error, relatedMessageID, parameters);
-    }
   }
 }

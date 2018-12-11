@@ -37,7 +37,9 @@ namespace Azos.Sky.Apps
 
       public SkyApplication(SystemApplicationType sysAppType, string[] args, ConfigSectionNode rootConfig)
         : base(BootConfLoader.SetSystemApplicationType(sysAppType, args), rootConfig)
-      {}
+      {
+        m_NOPLockManager = new Locking.NOPLockManager(this);
+      }
 
       protected override void Destructor()
       {
@@ -54,6 +56,7 @@ namespace Azos.Sky.Apps
       private WaveServer m_WebManagerServer;
 
       private Locking.ILockManagerImplementation m_LockManager;
+      private Locking.ILockManagerImplementation m_NOPLockManager;
       private GdidGenerator m_GDIDProvider;
       private Workers.IProcessManagerImplementation m_ProcessManager;
       private Dynamic.IHostManagerImplementation m_DynamicHostManager;
@@ -76,7 +79,7 @@ namespace Azos.Sky.Apps
 
       internal WaveServer WebManagerServer{ get{return m_WebManagerServer;}}
 
-      public Locking.ILockManager LockManager { get{ return m_LockManager ?? Locking.NOPLockManager.Instance; } }
+      public Locking.ILockManager LockManager => m_LockManager ?? m_NOPLockManager;
 
       public IGdidProvider GdidProvider { get {  return m_GDIDProvider; } }
 
@@ -116,7 +119,7 @@ namespace Azos.Sky.Apps
 
         try
         {
-          m_GDIDProvider = new GdidGenerator("Sky", this);
+          m_GDIDProvider = new GdidGenerator(this, "Sky");
 
           foreach(var ah in metabase.GDIDAuthorities)
           {
@@ -142,7 +145,7 @@ namespace Azos.Sky.Apps
         if (wmSection.Exists && wmSection.AttrByName(CONFIG_ENABLED_ATTR).ValueAsBool(false))
         try
         {
-          m_WebManagerServer = new WaveServer();
+          m_WebManagerServer = new WaveServer(this);
           m_WebManagerServer.Configure(wmSection);
           m_WebManagerServer.Start();
         }

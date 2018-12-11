@@ -85,7 +85,7 @@ namespace Azos.Sky.Hosts.azgov
           app.Log.Write(new Message
           {
             Type = MessageType.CatastrophicError,
-            Topic = SysConsts.LOG_TOPIC_ZONE_MANAGEMENT,
+            Topic = SysConsts.LOG_TOPIC_ZONE_GOV,
             From = FROM,
             Text = "Exception leaked in run(): " + error.ToMessageWithType(),
             Exception = error

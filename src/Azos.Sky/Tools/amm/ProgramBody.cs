@@ -75,7 +75,7 @@ namespace Azos.Sky.Tools.amm
 
         var w = System.Diagnostics.Stopwatch.StartNew();
 
-        using (var fs = new LocalFileSystem("amm"))
+        using (var fs = new LocalFileSystem(app))
         using (var mb = new Metabank(fs, new FileSystemSessionConnectParams(), mbPath))
         {
           using (BootConfLoader.LoadForTest(SystemApplicationType.Tool, mb, fromHost))

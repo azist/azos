@@ -106,7 +106,7 @@ namespace Azos.Sky.Tools.ascon
         var credentials = new IDPasswordCredentials(user, pwd);
 
 
-        using (var client = new RemoteTerminal(node.ToResolvedServiceNode(true)))
+        using (var client = new RemoteTerminal(app.Glue, node.ToResolvedServiceNode(true)))
         {
           client.Headers.Add(new AuthenticationHeader(credentials));
 

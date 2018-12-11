@@ -23,7 +23,12 @@ namespace Azos.Sky.Apps
   {
     private static SkyNOPApplication s_Instance = new SkyNOPApplication();
 
-    protected SkyNOPApplication() : base() {}
+    protected SkyNOPApplication() : base()
+    {
+      m_NOPLock = new Locking.NOPLockManager(this);
+    }
+
+    private Locking.NOPLockManager m_NOPLock;
 
     /// <summary>
     /// Returns a singleton instance of the SkyNOPApplication
@@ -38,7 +43,7 @@ namespace Azos.Sky.Apps
 
     public SystemApplicationType SystemApplicationType { get { return SystemApplicationType.Unspecified; } }
 
-    public Locking.ILockManager LockManager { get { return Locking.NOPLockManager.Instance; } }
+    public Locking.ILockManager LockManager => m_NOPLock;
 
     public IGdidProvider GdidProvider { get { throw new NotSupportedException("NOPApp.GDIDProvider"); } }
 

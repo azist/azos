@@ -209,6 +209,7 @@ namespace Azos.Sky.Identification
     #region .ctor
 
     public GdidGenerator(IApplication app) : base(app) => ctor(null, null, null);
+    public GdidGenerator(IApplication app, string name) : base(app) => ctor(name, null, null);
     public GdidGenerator(IApplicationComponent director, string name) : base(director) => ctor(name, null, null);
     public GdidGenerator(IApplicationComponent director, string name, string scopePrefix, string sequencePrefix) : base(director)
       => ctor(name, scopePrefix, sequencePrefix);
@@ -320,7 +321,7 @@ namespace Azos.Sky.Identification
 
 
     /// <summary>
-    /// Returns sequnce information enumerable for all sequences in the named scope
+    /// Returns sequence information enumerable for all sequences in the named scope
     /// </summary>
     public IEnumerable<SequenceInfo> GetSequenceInfos(string scopeName)
     {
@@ -451,7 +452,7 @@ namespace Azos.Sky.Identification
     /// </summary>
     /// <param name="scopeName">The name of scope where sequences are kept</param>
     /// <param name="sequenceName">The name of sequence within the scope for which ID to be obtained</param>
-    /// <param name="gdidCount">The dsired number of consecutive GDIDs</param>
+    /// <param name="gdidCount">The desired number of consecutive GDIDs</param>
     /// <param name="vicinity">The location on ID counter scale, the authority may disregard this parameter</param>
     /// <param name="noLWM">
     ///  When true, does not start async fetch of the next ID block while the current block reaches low-water-mark.
@@ -545,18 +546,18 @@ namespace Azos.Sky.Identification
 
     private GdidBlock allocateBlockInTesting(string scopeName, string sequenceName, int blockSize, ulong? vicinity)
     {
-      Instrumentation.AllocBlockRequestedEvent.Happened(scopeName, sequenceName);
+      Instrumentation.AllocBlockRequestedEvent.Happened(App.Instrumentation, scopeName, sequenceName);
       using(var cl = new Clients.GdidAuthority(App.Glue, m_TestingAuthorityNode))
       {
           try
           {
             var result =  cl.AllocateBlock(scopeName, sequenceName, blockSize, vicinity);
-            Instrumentation.AllocBlockSuccessEvent.Happened(scopeName, sequenceName, m_TestingAuthorityNode);
+            Instrumentation.AllocBlockSuccessEvent.Happened(App.Instrumentation, scopeName, sequenceName, m_TestingAuthorityNode);
             return result;
           }
           catch
           {
-            Instrumentation.AllocBlockFailureEvent.Happened(scopeName, sequenceName, blockSize, m_TestingAuthorityNode);
+            Instrumentation.AllocBlockFailureEvent.Happened(App.Instrumentation, scopeName, sequenceName, blockSize, m_TestingAuthorityNode);
             throw;
           }
       }
@@ -564,7 +565,7 @@ namespace Azos.Sky.Identification
 
     private GdidBlock allocateBlockInSystem(string scopeName, string sequenceName, int blockSize, ulong? vicinity)
     {
-      Instrumentation.AllocBlockRequestedEvent.Happened(scopeName, sequenceName);
+      Instrumentation.AllocBlockRequestedEvent.Happened(App.Instrumentation, scopeName, sequenceName);
 
       GdidBlock result = null;
       var batch = Guid.NewGuid();
@@ -580,13 +581,13 @@ namespace Azos.Sky.Identification
                 )
             result = cl.AllocateBlock(scopeName, sequenceName, blockSize, vicinity);
 
-          Instrumentation.AllocBlockSuccessEvent.Happened(scopeName, sequenceName, node.Name);
+          Instrumentation.AllocBlockSuccessEvent.Happened(App.Instrumentation, scopeName, sequenceName, node.Name);
         }
         catch(Exception error)
         {
           WriteLog(MessageType.Error, nameof(allocateBlockInSystem), "Error invoking GDIDAuthority.AllocateBlock('{0}')".Args(node), error, batch);
 
-          Instrumentation.AllocBlockFailureEvent.Happened(scopeName, sequenceName, blockSize, node.Name);
+          Instrumentation.AllocBlockFailureEvent.Happened(App.Instrumentation, scopeName, sequenceName, blockSize, node.Name);
         }
 
         if (result!=null) break;
@@ -596,7 +597,7 @@ namespace Azos.Sky.Identification
       {
         if (list.IsNullOrWhiteSpace()) list = "<none>";
         WriteLog(MessageType.Emergency, nameof(allocateBlockInSystem), StringConsts.GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR + list, related: batch);
-        Instrumentation.AllocBlockRequestFailureEvent.Happened(scopeName, sequenceName);
+        Instrumentation.AllocBlockRequestFailureEvent.Happened(App.Instrumentation, scopeName, sequenceName);
         throw new GdidException(StringConsts.GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR + list);
       }
 

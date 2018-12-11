@@ -67,10 +67,10 @@ namespace Azos.Sky.Dynamic
     #region Public
     public Contracts.DynamicHostID Spawn(Metabank.SectionHost host, string id)
     {
-      if (!host.Dynamic) throw new DynamicException("TODO");
+      if (!host.Dynamic) throw new DynamicException("Target host is not dynamic");//todo Move to constant
 
       var hosts = host.ParentZone.ZoneGovernorHosts;
-      return Contracts.ServiceClientHub.CallWithRetry<Contracts.IZoneHostRegistryClient, Contracts.DynamicHostID>
+      return App.GetServiceClientHub().CallWithRetry<Contracts.IZoneHostRegistryClient, Contracts.DynamicHostID>
       (
         (controller) => controller.Spawn(host.RegionPath, id),
         hosts.Select(h => h.RegionPath)
@@ -81,7 +81,7 @@ namespace Azos.Sky.Dynamic
     {
       var zone = SkySystem.Metabase.CatalogReg.NavigateZone(hid.Zone);
       var hosts = zone.ZoneGovernorHosts;
-      return Contracts.ServiceClientHub.CallWithRetry<Contracts.IZoneHostReplicatorClient, Contracts.DynamicHostInfo>
+      return App.GetServiceClientHub().CallWithRetry<Contracts.IZoneHostReplicatorClient, Contracts.DynamicHostInfo>
       (
         (controller) => controller.GetDynamicHostInfo(hid),
         hosts.Select(h => h.RegionPath)

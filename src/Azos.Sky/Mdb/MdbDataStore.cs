@@ -224,7 +224,7 @@ namespace Azos.Sky.Mdb
         GdidAuthorityService.CheckNameValidity(m_BankName);
 
         var gdidScope = GetGdidScopePrefix(m_SchemaName, m_BankName);
-        m_GdidGenerator = new GdidGenerator("GDIDGen({0})".Args(gdidScope), this, gdidScope, null);
+        m_GdidGenerator = new GdidGenerator(this, "GdidGen({0})".Args(gdidScope), gdidScope, null);
         if (SkySystem.IsMetabase)
         {
             foreach(var ah in SkySystem.Metabase.GDIDAuthorities)
@@ -248,7 +248,7 @@ namespace Azos.Sky.Mdb
 
       try
       {
-        m_Cache = new LocalCache(this, "MDBDataStore::"+Name, this);
+        m_Cache = new LocalCache(this, "MDBDataStore::"+Name);
         m_Cache.Pile = new DefaultPile(m_Cache, "MDBDataStore::Pile::"+Name);
         m_Cache.Configure(null);
         m_Cache.Start();

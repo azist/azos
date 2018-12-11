@@ -80,16 +80,5 @@ namespace Azos.Sky.Log.Server
       Guid? relatedTo = null,
       int skipCount = 0);
 
-
-
-    protected Guid Log(MessageType type,
-                       string from,
-                       string message,
-                       Exception error = null,
-                       Guid? relatedMessageID = null,
-                       string parameters = null)
-    {
-      return ArchiveService.Log(type, "{0}.{1}".Args(GetType().Name, from), message, error, relatedMessageID, parameters);
-    }
   }
 }
