@@ -11,7 +11,6 @@ using SrvVar=Azos.Sky.Locking.Server.Variable;
 
 namespace Azos.Sky.Coordination
 {
-
   /// <summary>
   /// Facilitates distributed processing coordination of the set of work which consists of TItems,
   /// by using lock manager to exchange the status with other workers working on the same set.
@@ -26,7 +25,7 @@ namespace Azos.Sky.Coordination
   {
     public const string WORKSET_NS = "~WORKSET~";
 
-    protected WorkSet(string path, string name)
+    protected WorkSet(IApplication app,  string path, string name) : base(app)
     {
       if (name.IsNullOrWhiteSpace())
         throw new CoordinationException(StringConsts.ARGUMENT_ERROR+"WorkSet.ctor(name=null|empty)");

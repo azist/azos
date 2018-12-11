@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Azos.Apps;
 using Azos.Conf;
 using Azos.Collections;
 using Azos.Log;
@@ -22,7 +23,7 @@ namespace Azos.Sky.Coordination
   /// may include dynamic hosts (as allocated by IaaS provider).
   /// The dynamic sets are not supported until IaaS providers are implemented
   /// </summary>
-  public partial class HostSet : DisposableObject, INamed
+  public partial class HostSet : ApplicationComponent, INamed
   {
     #region CONSTS
     public const MessageType DEFAULT_LOG_LEVEL = MessageType.Warning;
@@ -88,7 +89,7 @@ namespace Azos.Sky.Coordination
     #endregion
 
     #region .ctor
-    protected HostSet(string setName, string reqPath, string path, IConfigSectionNode config)
+    protected HostSet(IApplication app, string setName, string reqPath, string path, IConfigSectionNode config) : base(app)
     {
       m_Name = setName;
       m_RequestedPath = path;
@@ -155,6 +156,9 @@ namespace Azos.Sky.Coordination
     #endregion
 
     #region Properties
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_WORKER;
+
+
     [Config(Default = DEFAULT_LOG_LEVEL)]
     public MessageType LogLevel { get; set; }
 
