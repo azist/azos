@@ -37,7 +37,7 @@ namespace Azos.Sky.Hosts.agdida
       {
         try
         {
-          using (var authority = new GdidAuthorityService())
+          using (var authority = new GdidAuthorityService(app))
           {
             authority.Configure(null);
             authority.Start();

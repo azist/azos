@@ -7,7 +7,6 @@ using Azos.Conf;
 using Azos.Collections;
 using Azos.Instrumentation;
 
-using Azos.Sky.Apps;
 using Azos.Sky.Coordination;
 using System.Threading.Tasks;
 
@@ -128,7 +127,7 @@ namespace Azos.Sky.Workers
       var guid = args.AttrByName(CONFIG_TYPE_GUID_ATTR).ValueAsGUID(Guid.Empty);
       if (type == null && guid != Guid.Empty)
         type = ProcessTypeResolver.Resolve(guid);
-      Spawn(Process.MakeNew(type, pid, args));
+      Spawn(Process.MakeNew(App, type, pid, args));
     }
 
     public void Spawn<TProcess>(TProcess process) where TProcess : Process
@@ -144,7 +143,7 @@ namespace Azos.Sky.Workers
       var guid = args.AttrByName(CONFIG_TYPE_GUID_ATTR).ValueAsGUID(Guid.Empty);
       if (type == null && guid != Guid.Empty)
         type = ProcessTypeResolver.Resolve(guid);
-      return Async_Spawn(Process.MakeNew(type, pid, args));
+      return Async_Spawn(Process.MakeNew(App, type, pid, args));
     }
 
     public Task Async_Spawn<TProcess>(TProcess process) where TProcess : Process
@@ -160,7 +159,7 @@ namespace Azos.Sky.Workers
       var guid = args.AttrByName(CONFIG_TYPE_GUID_ATTR).ValueAsGUID(Guid.Empty);
       if (type == null && guid != Guid.Empty)
         type = SignalTypeResolver.Resolve(guid);
-      return Dispatch(Signal.MakeNew(type, pid, args));
+      return Dispatch(Signal.MakeNew(App, type, pid, args));
     }
 
     public ResultSignal Dispatch<TSignal>(TSignal signal) where TSignal : Signal
@@ -176,7 +175,7 @@ namespace Azos.Sky.Workers
       var guid = args.AttrByName(CONFIG_TYPE_GUID_ATTR).ValueAsGUID(Guid.Empty);
       if (type == null && guid != Guid.Empty)
         type = SignalTypeResolver.Resolve(guid);
-      return Async_Dispatch(Signal.MakeNew(type, pid, args));
+      return Async_Dispatch(Signal.MakeNew(App, type, pid, args));
     }
 
     public Task<ResultSignal> Async_Dispatch<TSignal>(TSignal signal) where TSignal : Signal

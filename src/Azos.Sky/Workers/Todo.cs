@@ -1,5 +1,6 @@
 ﻿using System;
 
+using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Data.Access;
@@ -75,22 +76,26 @@ namespace Azos.Sky.Workers
     /// <summary>
     /// Factory method that creates new Todos assigning them new GDID
     /// </summary>
-    public static TTodo MakeNew<TTodo>() where TTodo : Todo, new() { return makeDefault(new TTodo()); }
+    public static TTodo MakeNew<TTodo>(IApplication app) where TTodo : Todo, new() { return makeDefault(app, new TTodo()); }
 
     /// <summary>
     /// Factory method that creates new Todos from Type and Configuration assigning them new GDID
     /// </summary>
-    public static Todo MakeNew(Type type, IConfigSectionNode args) { return makeDefault(FactoryUtils.MakeAndConfigure<Todo>(args, type)); }
+    public static Todo MakeNew(IApplication app, Type type, IConfigSectionNode args) { return makeDefault(app, FactoryUtils.MakeAndConfigure<Todo>(args, type)); }
 
-    private static TTodo makeDefault<TTodo>(TTodo todo) where TTodo : Todo
+    private static TTodo makeDefault<TTodo>(IApplication app, TTodo todo) where TTodo : Todo
     {
+      app.DependencyInjector.InjectInto(todo);
       //warning: Todo IDs must be cross-type unique (should not depend on queue)
       todo.m_SysID = SkySystem.GdidProvider.GenerateOneGdid(SysConsts.GDID_NS_WORKER, SysConsts.GDID_NAME_WORKER_TODO);
-      todo.m_SysCreateTimestampUTC = App.TimeSource.UTCNow;
+      todo.m_SysCreateTimestampUTC = app.TimeSource.UTCNow;
       return todo;
     }
 
     protected Todo() { }
+
+
+    [Inject] IApplication m_App;
 
     private GDID m_SysID;
     private DateTime m_SysCreateTimestampUTC;

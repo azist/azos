@@ -52,15 +52,7 @@ namespace Azos.Sky
     }
 
 
-    /// <summary>
-    /// Returns instance of Sky application container that this SkySystem services
-    /// </summary>
-    public static ISkyApplication Application
-    {
-      get { return (App.Instance as ISkyApplication) ?? (ISkyApplication)SkyNOPApplication.Instance; }
-    }
-
-    /// <summary>
+       /// <summary>
     /// Denotes system application/process type that this app container has, i.e.:  HostGovernor, WebServer, etc.
     /// </summary>
     public static SystemApplicationType SystemApplicationType { get { return Application.SystemApplicationType; } }

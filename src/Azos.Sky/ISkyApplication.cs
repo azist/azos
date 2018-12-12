@@ -5,12 +5,9 @@
 </FILE_LICENSE>*/
 
 using Azos.Conf;
-using Azos.Apps;
 using Azos.Data.Access;
 
-using Azos.Sky.Identification;
-
-namespace Azos.Sky.Apps
+namespace Azos.Sky
 {
 
   /// <summary>

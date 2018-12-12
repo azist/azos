@@ -1,102 +1,105 @@
-﻿using System;
-using System.Threading;
+﻿
+#warning revise - why is this needed?
 
-namespace Azos.Sky.Mdb
-{
-  /// <summary>
-  /// Gets called by various routines that report long-running data operation progress and allow to cancel further processing.
-  /// </summary>
-  public delegate void LongDataOperationCallback<TResult>(LongDataOperation<TResult> operation);
+//////using System;
+//////using System.Threading;
 
-  /// <summary>
-  /// Provides a context for long data operation, such as fetching data from many shards.
-  /// Callers may cancel operation and track overall progress via a LongDataOperationCallback.
-  /// This is conceptually similar to CancelationToken
-  /// </summary>
-  public sealed class LongDataOperation<TResult>
-  {
-    public LongDataOperation()
-    {
-      m_StartTimeUTC = App.TimeSource.UTCNow;
-    }
+//////namespace Azos.Sky.Mdb
+//////{
+//////  /// <summary>
+//////  /// Gets called by various routines that report long-running data operation progress and allow to cancel further processing.
+//////  /// </summary>
+//////  public delegate void LongDataOperationCallback<TResult>(LongDataOperation<TResult> operation);
 
-    private DateTime m_StartTimeUTC;
-    private volatile int m_Total;
-    private int m_Current;
-    private volatile bool m_Canceled;
+//////  /// <summary>
+//////  /// Provides a context for long data operation, such as fetching data from many shards.
+//////  /// Callers may cancel operation and track overall progress via a LongDataOperationCallback.
+//////  /// This is conceptually similar to CancelationToken
+//////  /// </summary>
+//////  public sealed class LongDataOperation<TResult>
+//////  {
+//////    public LongDataOperation()
+//////    {
+//////      m_StartTimeUTC = App.TimeSource.UTCNow;
+//////    }
 
-    private volatile bool m_HasResult;
-    private TResult m_Result;
+//////    private DateTime m_StartTimeUTC;
+//////    private volatile int m_Total;
+//////    private int m_Current;
+//////    private volatile bool m_Canceled;
 
-
-    /// <summary>
-    /// Allows to attach arbitrary object context
-    /// </summary>
-    public object Context;
+//////    private volatile bool m_HasResult;
+//////    private TResult m_Result;
 
 
-    /// <summary>
-    /// Returns the UTC timestamp of this operation
-    /// </summary>
-    public DateTime StartTimeUTC{ get{ return m_StartTimeUTC;} }
+//////    /// <summary>
+//////    /// Allows to attach arbitrary object context
+//////    /// </summary>
+//////    public object Context;
 
 
-    /// <summary>
-    /// The total amount of work
-    /// </summary>
-    public int Total{ get{return m_Total;}}
+//////    /// <summary>
+//////    /// Returns the UTC timestamp of this operation
+//////    /// </summary>
+//////    public DateTime StartTimeUTC{ get{ return m_StartTimeUTC;} }
 
-    /// <summary>
-    /// The current progress of work out of Total
-    /// </summary>
-    public int Current{ get{ return Thread.VolatileRead(ref m_Current);} }
 
-    /// <summary>
-    /// True if operation was canceled via Cancel()
-    /// </summary>
-    public bool Canceled { get{ return m_Canceled;}}
+//////    /// <summary>
+//////    /// The total amount of work
+//////    /// </summary>
+//////    public int Total{ get{return m_Total;}}
 
-    /// <summary>
-    /// True if operation was completed via a call to SetResult()
-    /// </summary>
-    public bool HasResult { get{ return m_HasResult;}}
+//////    /// <summary>
+//////    /// The current progress of work out of Total
+//////    /// </summary>
+//////    public int Current{ get{ return Thread.VolatileRead(ref m_Current);} }
 
-    /// <summary>
-    /// The final result of operation which is available after completion or cancel
-    /// </summary>
-    public TResult Result{ get{ return m_Result;}}
+//////    /// <summary>
+//////    /// True if operation was canceled via Cancel()
+//////    /// </summary>
+//////    public bool Canceled { get{ return m_Canceled;}}
 
-    /// <summary>
-    /// Sets total amount of work
-    /// </summary>
-    public void SetTotal(int total){ m_Total = total;}
+//////    /// <summary>
+//////    /// True if operation was completed via a call to SetResult()
+//////    /// </summary>
+//////    public bool HasResult { get{ return m_HasResult;}}
 
-    /// <summary>
-    /// Sets current progress out of total
-    /// </summary>
-    public void SetCurrent(int current){ m_Current = current;}
+//////    /// <summary>
+//////    /// The final result of operation which is available after completion or cancel
+//////    /// </summary>
+//////    public TResult Result{ get{ return m_Result;}}
 
-    /// <summary>
-    /// Sets current progress by +1 via interlocked
-    /// </summary>
-    public int AdvanceCurrent()
-    {
-      return Interlocked.Increment(ref m_Current);
-    }
+//////    /// <summary>
+//////    /// Sets total amount of work
+//////    /// </summary>
+//////    public void SetTotal(int total){ m_Total = total;}
 
-    /// <summary>
-    /// Call to cancel the further processing
-    /// </summary>
-    public void Cancel() { m_Canceled = true; }
+//////    /// <summary>
+//////    /// Sets current progress out of total
+//////    /// </summary>
+//////    public void SetCurrent(int current){ m_Current = current;}
 
-    /// <summary>
-    /// Call to set result
-    /// </summary>
-    public void SetResult(TResult result)
-    {
-      m_HasResult = true;
-      m_Result = result;
-      Thread.MemoryBarrier();
-    }
-  }
-}
+//////    /// <summary>
+//////    /// Sets current progress by +1 via interlocked
+//////    /// </summary>
+//////    public int AdvanceCurrent()
+//////    {
+//////      return Interlocked.Increment(ref m_Current);
+//////    }
+
+//////    /// <summary>
+//////    /// Call to cancel the further processing
+//////    /// </summary>
+//////    public void Cancel() { m_Canceled = true; }
+
+//////    /// <summary>
+//////    /// Call to set result
+//////    /// </summary>
+//////    public void SetResult(TResult result)
+//////    {
+//////      m_HasResult = true;
+//////      m_Result = result;
+//////      Thread.MemoryBarrier();
+//////    }
+//////  }
+//////}

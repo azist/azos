@@ -273,7 +273,7 @@ namespace Azos.Sky.Apps
         {
           if (!s_Loaded) return;
           s_Loaded = false;
-          s_SystemApplicationType = Apps.SystemApplicationType.Unspecified;
+          s_SystemApplicationType = SystemApplicationType.Unspecified;
           s_HostName = null;
           s_DynamicHostNameSuffix = null;
           s_ParentZoneGovernorPrimaryHostName = null;

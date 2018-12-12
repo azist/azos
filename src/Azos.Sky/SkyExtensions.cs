@@ -11,6 +11,14 @@ namespace Azos.Sky
   /// </summary>
   public static class SkyExtensions
   {
+    /// <summary>
+    /// Provides handy accessor to ISkyApplication context of the IApplication, e.g. in components: App.AsSky().ProcessManager....
+    /// </summary>
+    /// <param name="app">IApplication instance cast-able to ISkyApplication</param>
+    /// <returns>ISkyApplication</returns>
+    public static ISkyApplication AsSky(this IApplication app)
+      => (app.NonNull(nameof(app)) as ISkyApplication).NonNull("app is not a ISkyApplication");
+
       /// <summary>
       /// Tries to resolve mnemonic name of the Sky service into port, i.e. "hgov" into int port number
       /// </summary>

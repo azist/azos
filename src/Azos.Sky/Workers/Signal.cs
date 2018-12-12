@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Azos.Apps;
+using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Data;
 
@@ -9,22 +10,26 @@ namespace Azos.Sky.Workers
   [Serializable]
   public abstract class Signal : AmorphousTypedDoc
   {
+
+    [Inject] IApplication m_App;
+
     /// <summary>
     /// Factory method that creates new Signal based on provided PID
     /// </summary>
-    public static TSignal MakeNew<TSignal>(PID pid) where TSignal : Signal, new() { return makeDefault(new TSignal(), pid); }
+    public static TSignal MakeNew<TSignal>(IApplication app, PID pid) where TSignal : Signal, new() { return makeDefault(app, new TSignal(), pid); }
 
     /// <summary>
     /// Factory method that creates new Signal based on provided Type, PID and Configuration
     /// </summary>
-    public static Signal MakeNew(Type type, PID pid, IConfigSectionNode args) { return makeDefault(FactoryUtils.MakeAndConfigure<Signal>(args, type), pid); }
+    public static Signal MakeNew(IApplication app, Type type, PID pid, IConfigSectionNode args) { return makeDefault(app, FactoryUtils.MakeAndConfigure<Signal>(args, type), pid); }
 
-    private static TSignal makeDefault<TSignal>(TSignal signal, PID pid) where TSignal : Signal
+    private static TSignal makeDefault<TSignal>(IApplication app, TSignal signal, PID pid) where TSignal : Signal
     {
+      app.DependencyInjector.InjectInto(signal);
       signal.m_SysID = SkySystem.GdidProvider.GenerateOneGdid(SysConsts.GDID_NS_WORKER, SysConsts.GDID_NAME_WORKER_SIGNAL);
       signal.m_SysPID = pid;
-      signal.m_SysTimestampUTC = App.TimeSource.UTCNow;
-      signal.m_SysAbout = "{0}@{1}@{2}".Args(App.CurrentCallUser.Name, App.Name, SkySystem.HostName);
+      signal.m_SysTimestampUTC = app.TimeSource.UTCNow;
+      signal.m_SysAbout = "{0}@{1}@{2}".Args(Ambient.CurrentCallUser.Name, app.Name, SkySystem.HostName);
       return signal;
     }
 
@@ -108,7 +113,7 @@ namespace Azos.Sky.Workers
     /// </summary>
     public static TSignal MakeNew<TSignal>(Process process) where TSignal : ResultSignal, new()
     {
-      var result = Signal.MakeNew<TSignal>(process.SysPID);
+      var result = Signal.MakeNew<TSignal>(process.App, process.SysPID);
       result.m_SysDescriptor = process.SysDescriptor;
       return result;
     }

@@ -17,7 +17,7 @@ namespace Azos.Sky.Workers
 
     [Inject] IApplication m_App;
 
-    protected IApplication App => m_App.NonNull(nameof(m_App));
+    public IApplication App => m_App.NonNull(nameof(m_App));
 
     /// <summary>
     /// Factory method that creates new Process based on provided PID

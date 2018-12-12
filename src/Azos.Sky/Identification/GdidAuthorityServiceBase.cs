@@ -185,7 +185,7 @@ namespace Azos.Sky.Identification
             if (errors==null) errors = new StringBuilder();
             errors.AppendLine( "Path '{0}'. Exception: {1}".Args(location, error.ToMessageWithType()) );
             Log(MessageType.CriticalAlert, "WriteToLocations()", location.ToString(), error, guid);
-            Instrumentation.AuthLocationWriteFailureEvent.Happened(location.ToString());//Location-level
+            Instrumentation.AuthLocationWriteFailureEvent.Happened(App.Instrumentation, location.ToString());//Location-level
           }
 
         if (totalFailure)
@@ -194,7 +194,7 @@ namespace Azos.Sky.Identification
 
           Log(MessageType.CatastrophicError, "WriteToLocations()", txt, null, guid);
 
-          Instrumentation.AuthLocationWriteTotalFailureEvent.Happened();//TOTAL-LEVEL(for all locations)
+          Instrumentation.AuthLocationWriteTotalFailureEvent.Happened(App.Instrumentation);//TOTAL-LEVEL(for all locations)
 
           throw new GdidException(txt);
         }
@@ -238,7 +238,7 @@ namespace Azos.Sky.Identification
             var txt = "Error at location '{0}': {1}".Args(location, error.ToMessageWithType());
             errors.AppendLine(txt);
             Log(MessageType.CriticalAlert, "ReadFromLocations()", txt, null, guid);
-            Instrumentation.AuthLocationReadFailureEvent.Happened(location.ToString());//LOCATION-LEVEL
+            Instrumentation.AuthLocationReadFailureEvent.Happened(App.Instrumentation, location.ToString());//LOCATION-LEVEL
             throw;
           }
 
@@ -249,7 +249,7 @@ namespace Azos.Sky.Identification
 
           Log(MessageType.CatastrophicError, "ReadFromLocations()", txt, null, guid);
 
-          Instrumentation.AuthLocationReadTotalFailureEvent.Happened();//TOTAL-LEVEL
+          Instrumentation.AuthLocationReadTotalFailureEvent.Happened(App.Instrumentation);//TOTAL-LEVEL
 
           throw new GdidException(txt);
         }

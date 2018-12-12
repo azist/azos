@@ -41,7 +41,6 @@ namespace Azos.Sky
       "AUTHORITY = {0}. This is a warning because an extra care should be taken with AUTHORITY assignment";
 
 
-    public const string GDIDAUTH_INSTANCE_NOT_ALLOCATED_ERROR = "GDIDAuthorityService instance is not allocated";
     public const string GDIDAUTH_INSTANCE_ALREADY_ALLOCATED_ERROR = "GDIDAuthorityService instance is already allocated";
     public const string GDIDAUTH_INSTANCE_NOT_RUNNING_ERROR = "GDIDAuthorityService instance is not running or shutting down";
     public const string GDIDAUTH_LOCATIONS_CONFIG_ERROR = "GDIDAuthorityServiceBase locations configuration error: ";
