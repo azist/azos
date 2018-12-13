@@ -124,9 +124,10 @@ namespace Azos.Sky.Locking.Server
 
     private int m_TotalRecordCount;
 
-    public Namespace Namespace{ get{ return m_Namespace;}}
-    public string Name {get{ return m_Name;}}
 
+    public Namespace Namespace => m_Namespace;
+    public string Name => m_Name;
+    public IApplication App => m_Namespace.App;
 
     /// <summary>
     /// Returns the number of slots in the table

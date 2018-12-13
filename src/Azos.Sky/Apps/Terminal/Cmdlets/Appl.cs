@@ -27,10 +27,8 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
 
         public override string Execute()
         {
-            var app = SkySystem.Application;
-
             var stopNowHour = m_Args.AttrByName(CONFIG_STOP_NOW_HR_ATTR).ValueAsInt(-10);
-            if (stopNowHour == app.LocalizedTime.Hour)
+            if (stopNowHour == App.LocalizedTime.Hour)
             {
               var text = StringConsts.APPL_CMD_STOPPING_INFO.Args(m_Terminal.Name, m_Terminal.WhenConnected, m_Terminal.Who);
               App.Log.Write( new Azos.Log.Message
@@ -41,7 +39,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
                  Text = text
               });
               App.Stop();
-              return text;//noone may see this as app may terminate faster than response delivered
+              return text;//noone may see this as App may terminate faster than response delivered
             }
 
 
@@ -52,37 +50,37 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
             sb.AppendLine("<push><f color=gray>");
             sb.AppendLine("Application Container");
             sb.AppendLine("----------------------------------------------------------------------------");
-            sb.AppendFormat("Name                      "+VAL, app.Name );
+            sb.AppendFormat("Name                      "+VAL, App.Name );
             sb.AppendFormat("Host                      "+VAL, SkySystem.HostName );
             sb.AppendFormat("Parent Zone Governor      "+VAL, SkySystem.ParentZoneGovernorPrimaryHostName ?? "[none, this host is top level]" );
             sb.AppendFormat("Role                      "+VAL, SkySystem.HostMetabaseSection.RoleName );
             sb.AppendFormat("Role Apps                 "+VAL, SkySystem.HostMetabaseSection.Role.AppNames.Aggregate("",(r,a)=>r+a+", ") );
-            sb.AppendFormat("Metabase App              "+VAL, app.MetabaseApplicationName );
-            sb.AppendFormat("Instance ID               "+VAL, app.InstanceID );
-            sb.AppendFormat("Start Time                "+VAL, app.StartTime );
-            sb.AppendFormat("Running Time              "+VAL, app.LocalizedTime - app.StartTime );
-            sb.AppendFormat("Type                      "+VAL, app.GetType().FullName );
-            sb.AppendFormat("Active                    "+VAL, app.Active);
-            sb.AppendFormat("Boot Conf Root            "+VAL, app.BootConfigRoot );
-            sb.AppendFormat("Conf Root                 "+VAL, app.ConfigRoot );
-            sb.AppendFormat("Data Store                "+VAL, app.DataStore.GetType().FullName );
-            sb.AppendFormat("Glue                      "+VAL, app.Glue.GetType().FullName );
-            sb.AppendFormat("Instrumentation.          "+VAL, app.Instrumentation.GetType().FullName );
-            sb.AppendFormat("Localized Time            "+VAL, app.LocalizedTime );
-            sb.AppendFormat("Time Location             "+VAL, app.TimeLocation );
-            sb.AppendFormat("Log                       "+VAL, app.Log.GetType().FullName );
-            sb.AppendFormat("Object Store              "+VAL, app.ObjectStore.GetType().FullName );
-            sb.AppendFormat("Security Manager          "+VAL, app.SecurityManager.GetType().FullName );
-            sb.AppendFormat("Module Root               "+VAL, app.ModuleRoot.GetType().FullName );
-            sb.AppendFormat("TimeSource                "+VAL, app.TimeSource.GetType().FullName );
+            sb.AppendFormat("Metabase App              "+VAL, App.MetabaseApplicationName );
+            sb.AppendFormat("Instance ID               "+VAL, App.InstanceID );
+            sb.AppendFormat("Start Time                "+VAL, App.StartTime );
+            sb.AppendFormat("Running Time              "+VAL, App.LocalizedTime - App.StartTime );
+            sb.AppendFormat("Type                      "+VAL, App.GetType().FullName );
+            sb.AppendFormat("Active                    "+VAL, App.Active);
+            sb.AppendFormat("Boot Conf Root            "+VAL, App.BootConfigRoot );
+            sb.AppendFormat("Conf Root                 "+VAL, App.ConfigRoot );
+            sb.AppendFormat("Data Store                "+VAL, App.DataStore.GetType().FullName );
+            sb.AppendFormat("Glue                      "+VAL, App.Glue.GetType().FullName );
+            sb.AppendFormat("Instrumentation.          "+VAL, App.Instrumentation.GetType().FullName );
+            sb.AppendFormat("Localized Time            "+VAL, App.LocalizedTime );
+            sb.AppendFormat("Time Location             "+VAL, App.TimeLocation );
+            sb.AppendFormat("Log                       "+VAL, App.Log.GetType().FullName );
+            sb.AppendFormat("Object Store              "+VAL, App.ObjectStore.GetType().FullName );
+            sb.AppendFormat("Security Manager          "+VAL, App.SecurityManager.GetType().FullName );
+            sb.AppendFormat("Module Root               "+VAL, App.ModuleRoot.GetType().FullName );
+            sb.AppendFormat("TimeSource                "+VAL, App.TimeSource.GetType().FullName );
 
-            var lwarning = app.Log.LastWarning;
+            var lwarning = App.Log.LastWarning;
             sb.AppendFormat("Last Warning              "+VAL, lwarning!=null ? "{0} {1} {2} {3}".Args(lwarning.UTCTimeStamp, lwarning.Guid, lwarning.From, lwarning.Text) : string.Empty );
 
-            var lerror = app.Log.LastError;
+            var lerror = App.Log.LastError;
             sb.AppendFormat("Last Error                "+VAL, lerror!=null ? "{0} {1} {2} {3}".Args(lerror.UTCTimeStamp, lerror.Guid, lerror.From, lerror.Text) : string.Empty );
 
-            var lcatastrophe = app.Log.LastCatastrophe;
+            var lcatastrophe = App.Log.LastCatastrophe;
             sb.AppendFormat("Last Catastrophe          "+VAL, lcatastrophe!=null ? "{0} {1} {2} {3}".Args(lcatastrophe.UTCTimeStamp, lcatastrophe.Guid, lcatastrophe.From, lcatastrophe.Text) : string.Empty );
 
 
@@ -128,9 +126,9 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
         {
             return
 @"Displays the status of the Application Container:
-           Pass <f color=yellow>stop-now-hour<f color=gray>=app_local_hour to stop the app.
-           This is needed so that an inadvertent stopping of the app container
-           is precluded. The parameter must match the current local app time
+           Pass <f color=yellow>stop-now-hour<f color=gray>=app_local_hour to stop the App.
+           This is needed so that an inadvertent stopping of the App container
+           is precluded. The parameter must match the current local App time
 ";
         }
 

@@ -11,13 +11,17 @@ namespace Azos.Sky.Locking.Server
   internal sealed class Namespace : INamed
   {
 
-    internal Namespace(string name)
+    internal Namespace(IApplication app, string name)
     {
       if (name.IsNullOrWhiteSpace())
         throw new LockingException(StringConsts.ARGUMENT_ERROR+"Namespace.ctor(name==null|empty)");
 
+      App = app;
+
       m_Name = name;
     }
+
+    public readonly IApplication App;
 
     private string m_Name;
     private Registry<Table> m_Tables = new Registry<Table>();

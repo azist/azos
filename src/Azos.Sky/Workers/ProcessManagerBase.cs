@@ -191,7 +191,7 @@ namespace Azos.Sky.Workers
       var guid = args.AttrByName(CONFIG_TYPE_GUID_ATTR).ValueAsGUID(Guid.Empty);
       if (type == null && guid != Guid.Empty)
         type = TodoTypeResolver.Resolve(guid);
-      Enqueue(Todo.MakeNew(type, args), hostSetName, svcName);
+      Enqueue(Todo.MakeNew(App, type, args), hostSetName, svcName);
     }
 
     public void Enqueue<TTodo>(TTodo todo, string hostSetName, string svcName) where TTodo : Todo { Enqueue<TTodo>(new[] { todo }, hostSetName, svcName); }
@@ -213,7 +213,7 @@ namespace Azos.Sky.Workers
       var guid = args.AttrByName(CONFIG_TYPE_GUID_ATTR).ValueAsGUID(Guid.Empty);
       if (type == null && guid != Guid.Empty)
         type = TodoTypeResolver.Resolve(guid);
-      return Async_Enqueue(Todo.MakeNew(type, args), hostSetName, svcName);
+      return Async_Enqueue(Todo.MakeNew(App, type, args), hostSetName, svcName);
     }
 
     public Task Async_Enqueue<TTodo>(TTodo todo, string hostSetName, string svcName) where TTodo : Todo { return Async_Enqueue<TTodo>(new[] { todo }, hostSetName, svcName); }

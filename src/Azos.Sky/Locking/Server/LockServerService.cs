@@ -197,7 +197,7 @@ namespace Azos.Sky.Locking.Server
                                         currentTrustLevel,
                                         null);
 
-        var ns = m_Namespaces.GetOrRegister<object>(transaction.Namespace, (_) => new Namespace(transaction.Namespace), null);
+        var ns = m_Namespaces.GetOrRegister<object>(transaction.Namespace, (_) => new Namespace(App, transaction.Namespace), null);
 
         var ectx = new EvalContext(ss, ns, transaction);
 
