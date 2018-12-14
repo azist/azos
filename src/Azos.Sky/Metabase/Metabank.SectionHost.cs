@@ -94,8 +94,8 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
       }
 
       /// <summary>
-      /// Returns true if host is dynamic - that is: a physical representation of host gets created/torn at the runtime of cluter.
-      /// The Dynamic host section represents a proptotype of (possibly) many host instances spawn in the Sky.
+      /// Returns true if host is dynamic - that is: a physical representation of host gets created/torn at the runtime of cluster.
+      /// The Dynamic host section represents a prototype of (possibly) many host instances spawn in the Sky.
       /// Every particular instance of dynamic host gets a HOST-unique signature that can be supplied to host resolution service
       ///  to get actual network addresses for particular host
       /// </summary>

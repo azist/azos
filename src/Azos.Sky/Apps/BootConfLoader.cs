@@ -22,7 +22,7 @@ namespace Azos.Sky.Apps
   /// If the name of the host is not set in config, then take it from SKY_HOST_NAME environment var. If that name is blank then
   ///  take host name from: DEFAULT_WORLD_GLOBAL_ZONE_PATH+LOCAL_COMPUTER_NAME (NetBIOSName)
   /// </summary>
-  public static class BootConfLoader
+  public sealed class BootConfLoader : DisposableObject
   {
     #region CONSTS
     public const string ENV_VAR_METABASE_FS_ROOT     = "SKY_METABASE_FS_ROOT";
@@ -70,73 +70,69 @@ namespace Azos.Sky.Apps
 
    #endregion
 
-    private static SystemApplicationType s_SystemApplicationType;
-    private static bool s_Loaded;
-    private static Exception s_LoadException;
-    private static string s_HostName;
-    private static string s_DynamicHostNameSuffix;
-    private static Metabank s_Metabase;
-    private static string s_ParentZoneGovernorPrimaryHostName;
+    private SystemApplicationType m_SystemApplicationType;
+    private bool m_Loaded;
+    private Exception m_LoadException;
+    private string m_HostName;
+    private string m_DynamicHostNameSuffix;
+    private Metabank m_Metabase;
+    private string m_ParentZoneGovernorPrimaryHostName;
 
     /// <summary>
     /// Internal hack to compensate for c# inability to call .ctor within .ctor body
     /// </summary>
-    internal static string[] SetSystemApplicationType(SystemApplicationType appType, string[] args)
+    internal string[] SetSystemApplicationType(SystemApplicationType appType, string[] args)
     {
-      s_SystemApplicationType = appType;
+      m_SystemApplicationType = appType;
       return args;
     }
 
     /// <summary>
     /// Application container system type
     /// </summary>
-    public static SystemApplicationType SystemApplicationType { get { return s_SystemApplicationType; } }
+    public SystemApplicationType SystemApplicationType => m_SystemApplicationType;
 
     /// <summary>
     /// Returns true after configuration has loaded
     /// </summary>
-    public static bool Loaded { get{ return s_Loaded;} }
+    public bool Loaded => m_Loaded;
 
     /// <summary>
     /// Returns exception (if any) has occurred during application config loading process
     /// </summary>
-    public static Exception LoadException { get{ return s_LoadException;} }
+    public Exception LoadException => m_LoadException;
 
 
     /// <summary>
     /// Host name as determined at boot
     /// </summary>
-    public static string HostName { get { return s_HostName ?? string.Empty;} }
+    public string HostName => m_HostName ?? string.Empty;
 
 
     /// <summary>
     /// For dynamic hosts, host name suffix as determined at boot. It is the last part of HostName for dynamic hosts
     /// including the separation character
     /// </summary>
-    public static string DynamicHostNameSuffix { get { return s_DynamicHostNameSuffix ?? string.Empty;} }
+    public string DynamicHostNameSuffix => m_DynamicHostNameSuffix ?? string.Empty;
 
 
     /// <summary>
     /// True when metabase section host declares this host as dynamic and HostName ends with DynamicHostNameSuffix
     /// </summary>
-    public static bool DynamicHost {get { return s_DynamicHostNameSuffix.IsNotNullOrWhiteSpace();}}
+    public bool DynamicHost => m_DynamicHostNameSuffix.IsNotNullOrWhiteSpace();
 
 
     /// <summary>
     /// Returns primary zone governor parent host as determined at boot or null if this is the top-level host
     /// </summary>
-    public static string ParentZoneGovernorPrimaryHostName { get { return s_ParentZoneGovernorPrimaryHostName;}}
+    public string ParentZoneGovernorPrimaryHostName => m_ParentZoneGovernorPrimaryHostName;
 
 
 
     /// <summary>
     /// Metabase as determined at boot or null in case of failure
     /// </summary>
-    public static Metabank Metabase { get { return s_Metabase;} }
-
-
-
-          private class TestDisposer : IDisposable {    public void Dispose(){ BootConfLoader.Unload();}       }
+    public Metabank Metabase => m_Metabase;
 
 
     internal static void SetDomainInvariantCulture()
@@ -145,32 +141,40 @@ namespace Azos.Sky.Apps
         System.Globalization.CultureInfo.InvariantCulture;
     }
 
-    public static IDisposable LoadForTest(SystemApplicationType appType, Metabank mbase, string host, string dynamicHostNameSuffix = null)
+    public BootConfLoader(SystemApplicationType appType, Metabank mbase, string host, string dynamicHostNameSuffix = null)
     {
       SetDomainInvariantCulture();
-      s_Loaded = true;
-      s_SystemApplicationType = appType;
-      s_Metabase = mbase;
-      s_HostName = host;
+      m_Loaded = true;
+      m_SystemApplicationType = appType;
+      m_Metabase = mbase;
+      m_HostName = host;
 
       if (dynamicHostNameSuffix.IsNotNullOrWhiteSpace())
-        s_DynamicHostNameSuffix = Metabank.HOST_DYNAMIC_SUFFIX_SEPARATOR + dynamicHostNameSuffix;
+        m_DynamicHostNameSuffix = Metabank.HOST_DYNAMIC_SUFFIX_SEPARATOR + dynamicHostNameSuffix;
       else
       {
           var sh = mbase.CatalogReg.NavigateHost(host);
           if (sh.Dynamic)
-            s_DynamicHostNameSuffix = thisMachineDynamicNameSuffix();
+            m_DynamicHostNameSuffix = thisMachineDynamicNameSuffix();
       }
 
-      if (s_DynamicHostNameSuffix.IsNotNullOrWhiteSpace())
-        s_HostName = s_HostName + s_DynamicHostNameSuffix;
+      if (m_DynamicHostNameSuffix.IsNotNullOrWhiteSpace())
+        m_HostName = m_HostName + m_DynamicHostNameSuffix;
 
       SystemVarResolver.Bind();
 
       Configuration.ProcesswideConfigNodeProviderType = typeof(Metabase.MetabankFileConfigNodeProvider);
 
-      return new TestDisposer();
     }
+
+#warning stopped here ---------------------------------------------------------------------------------------------
+
+    protected override void Destructor()
+    {
+      base.Destructor();
+      BootConfLoader.Unload();
+    }
+
 
     private static string thisMachineDynamicNameSuffix()
     {
