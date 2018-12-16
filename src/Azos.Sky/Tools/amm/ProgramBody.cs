@@ -78,7 +78,7 @@ namespace Azos.Sky.Tools.amm
         using (var fs = new LocalFileSystem(app))
         using (var mb = new Metabank(fs, new FileSystemSessionConnectParams(), mbPath))
         {
-          using (BootConfLoader.LoadForTest(SystemApplicationType.Tool, mb, fromHost))
+          using (new BootConfLoader(SystemApplicationType.Tool, mb, fromHost))
           {
             if (app.CommandArgs["gbm"].Exists)
               generateManifests(mb, silent);

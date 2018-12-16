@@ -70,8 +70,76 @@ namespace Azos.Sky.Apps
 
    #endregion
 
+    internal BootConfLoader()
+    {
+      Platform.Abstraction.PlatformAbstractionLayer.SetProcessInvariantCulture();
+    }
+
+#warning who uses this ctor? only for testing
+    internal BootConfLoader(AzosApplication bootApp, SystemApplicationType appType, Metabank mbase, string host, string dynamicHostNameSuffix = null)
+    {
+      Platform.Abstraction.PlatformAbstractionLayer.SetProcessInvariantCulture();
+
+      m_BootApplication = bootApp;
+      m_SystemApplicationType = appType;
+      m_Metabase = mbase;
+      m_HostName = host;
+
+      if (dynamicHostNameSuffix.IsNotNullOrWhiteSpace())
+        m_DynamicHostNameSuffix = Metabank.HOST_DYNAMIC_SUFFIX_SEPARATOR + dynamicHostNameSuffix;
+      else
+      {
+        var sh = mbase.CatalogReg.NavigateHost(host);
+        if (sh.Dynamic)
+          m_DynamicHostNameSuffix = thisMachineDynamicNameSuffix();
+      }
+
+      if (m_DynamicHostNameSuffix.IsNotNullOrWhiteSpace())
+        m_HostName = m_HostName + m_DynamicHostNameSuffix;
+
+      SystemVarResolver.Bind();
+
+      Configuration.ProcesswideConfigNodeProviderType = typeof(Metabase.MetabankFileConfigNodeProvider);
+
+    }
+
+    protected override void Destructor()
+    {
+      base.Destructor();
+      DisposeAndNull(ref m_BootApplication);
+      m_SystemApplicationType = SystemApplicationType.Unspecified;
+      m_HostName = null;
+      m_DynamicHostNameSuffix = null;
+      m_ParentZoneGovernorPrimaryHostName = null;
+      try
+      {
+        if (m_Metabase != null)
+        {
+          var mb = m_Metabase;
+          var fs = mb.FileSystem;
+          m_Metabase = null;
+
+          try
+          {
+            mb.Dispose();
+          }
+          finally
+          {
+            if (fs != null)
+            {
+              fs.Dispose();
+            }
+          }//finally
+        }
+      }
+      catch
+      {
+        //nowhere to log anymore as all loggers have stopped
+      }
+    }
+
+    private AzosApplication m_BootApplication;
     private SystemApplicationType m_SystemApplicationType;
-    private bool m_Loaded;
     private Exception m_LoadException;
     private string m_HostName;
     private string m_DynamicHostNameSuffix;
@@ -88,6 +156,11 @@ namespace Azos.Sky.Apps
     }
 
     /// <summary>
+    /// References app chassis under which this booted
+    /// </summary>
+    public IApplication BootApplication => m_BootApplication;
+
+    /// <summary>
     /// Application container system type
     /// </summary>
     public SystemApplicationType SystemApplicationType => m_SystemApplicationType;
@@ -95,7 +168,7 @@ namespace Azos.Sky.Apps
     /// <summary>
     /// Returns true after configuration has loaded
     /// </summary>
-    public bool Loaded => m_Loaded;
+    public bool Loaded => m_BootApplication!=null;
 
     /// <summary>
     /// Returns exception (if any) has occurred during application config loading process
@@ -135,126 +208,69 @@ namespace Azos.Sky.Apps
     public Metabank Metabase => m_Metabase;
 
 
-    internal static void SetDomainInvariantCulture()
-    {
-      System.Globalization.CultureInfo.DefaultThreadCurrentCulture =
-        System.Globalization.CultureInfo.InvariantCulture;
-    }
-
-    public BootConfLoader(SystemApplicationType appType, Metabank mbase, string host, string dynamicHostNameSuffix = null)
-    {
-      SetDomainInvariantCulture();
-      m_Loaded = true;
-      m_SystemApplicationType = appType;
-      m_Metabase = mbase;
-      m_HostName = host;
-
-      if (dynamicHostNameSuffix.IsNotNullOrWhiteSpace())
-        m_DynamicHostNameSuffix = Metabank.HOST_DYNAMIC_SUFFIX_SEPARATOR + dynamicHostNameSuffix;
-      else
-      {
-          var sh = mbase.CatalogReg.NavigateHost(host);
-          if (sh.Dynamic)
-            m_DynamicHostNameSuffix = thisMachineDynamicNameSuffix();
-      }
-
-      if (m_DynamicHostNameSuffix.IsNotNullOrWhiteSpace())
-        m_HostName = m_HostName + m_DynamicHostNameSuffix;
-
-      SystemVarResolver.Bind();
-
-      Configuration.ProcesswideConfigNodeProviderType = typeof(Metabase.MetabankFileConfigNodeProvider);
-
-    }
-
-#warning stopped here ---------------------------------------------------------------------------------------------
-
-    protected override void Destructor()
-    {
-      base.Destructor();
-      BootConfLoader.Unload();
-    }
 
 
-    private static string thisMachineDynamicNameSuffix()
+    private string thisMachineDynamicNameSuffix()
     {
       //no spaces between
       return "{0}{1}".Args(Metabank.HOST_DYNAMIC_SUFFIX_SEPARATOR, Platform.Computer.UniqueNetworkSignature.Trim());//trim() as a safeguard
     }
 
 
-    private static void writeLog(this AzosApplication app, Azos.Log.MessageType type, string text)
-    {
-      app.Log.Write( new Message{
-                                Type = type,
-                                From = LOG_FROM_BOOTLOADER,
-                                Text = text
-                      });
-
-    }
-
-
     /// <summary>
     /// Loads initial application container configuration (app container may re-read it in future using metabase) per supplied local one also connecting the metabase
     /// </summary>
-    public static Configuration Load(string[] cmdArgs, Configuration bootConfig)
+    public Configuration Load(string[] cmdArgs, Configuration bootConfig)
     {
-        if (s_Loaded)
-            throw new SkyException(StringConsts.APP_LOADER_ALREADY_LOADED_ERROR);
+      if (Loaded)
+          throw new SkyException(StringConsts.APP_LOADER_ALREADY_LOADED_ERROR);
 
-        SetDomainInvariantCulture();
+      SystemVarResolver.Bind();
 
-        SystemVarResolver.Bind();
+      Configuration.ProcesswideConfigNodeProviderType = typeof(Metabase.MetabankFileConfigNodeProvider);
 
-        Configuration.ProcesswideConfigNodeProviderType = typeof(Metabase.MetabankFileConfigNodeProvider);
+      try
+      {
+        Configuration result = null;
 
-        try
+        //init Boot app container
+        m_BootApplication = new AzosApplication(cmdArgs, bootConfig.Root);
+
+        writeLog(MessageType.Info, "Entering Sky app bootloader...");
+
+        determineHostName();
+
+        Message.DefaultHostName = m_HostName;
+
+        mountMetabank();
+
+        Metabank.SectionHost zoneGov;
+        bool isDynamicHost;
+        result = getEffectiveAppConfigAndZoneGovernor(out zoneGov, out isDynamicHost);
+
+        if (zoneGov!=null) m_ParentZoneGovernorPrimaryHostName = zoneGov.RegionPath;
+
+        if (isDynamicHost)
         {
-            Configuration result = null;
+          writeLog(MessageType.Info, "The meatabase host '{0}' is dynamic".Args(m_HostName));
+          m_DynamicHostNameSuffix = thisMachineDynamicNameSuffix();
+          writeLog(MessageType.Info, "Obtained actual host dynamic suffix: '{0}' ".Args(m_DynamicHostNameSuffix));
+          m_HostName = m_HostName + m_DynamicHostNameSuffix;//no spaces between
+          writeLog(MessageType.Info, "The actual dynamic instance host name is: '{0}'".Args(m_HostName));
 
-            //init Boot app container
-            using(var bootApp = new AzosApplication(cmdArgs, bootConfig.Root))
-            {
-                bootApp.writeLog(MessageType.Info, "Entering Sky app bootloader...");
-
-                determineHostName(bootApp);
-
-                Message.DefaultHostName = s_HostName;
-
-                mountMetabank(bootApp);
-
-                Metabank.SectionHost zoneGov;
-                bool isDynamicHost;
-                result = getEffectiveAppConfigAndZoneGovernor(bootApp, out zoneGov, out isDynamicHost);
-
-                if (zoneGov!=null) s_ParentZoneGovernorPrimaryHostName = zoneGov.RegionPath;
-
-                if (isDynamicHost)
-                {
-                  bootApp.writeLog(MessageType.Info, "The meatabase host '{0}' is dynamic".Args(s_HostName));
-                  s_DynamicHostNameSuffix = thisMachineDynamicNameSuffix();
-                  bootApp.writeLog(MessageType.Info, "Obtained actual host dynamic suffix: '{0}' ".Args(s_DynamicHostNameSuffix));
-                  s_HostName = s_HostName + s_DynamicHostNameSuffix;//no spaces between
-                  bootApp.writeLog(MessageType.Info, "The actual dynamic instance host name is: '{0}'".Args(s_HostName));
-
-                  Message.DefaultHostName = s_HostName;
-                }
-
-
-                bootApp.writeLog(MessageType.Info, "...exiting Sky app bootloader");
-            }
-
-            return result;
+          Message.DefaultHostName = m_HostName;
         }
-        catch(Exception error)
-        {
-            s_LoadException = error;
-            throw new SkyException(StringConsts.APP_LOADER_ERROR + error.ToMessageWithType(), error);
-        }
-        finally
-        {
-            s_Loaded = true;
-        }
+
+
+        writeLog(MessageType.Info, "...exiting Sky app bootloader");
+
+        return result;
+      }
+      catch(Exception error)
+      {
+        m_LoadException = error;
+        throw new SkyException(StringConsts.APP_LOADER_ERROR + error.ToMessageWithType(), error);
+      }
     }
 
     public static void ProcessAllExistingIncludes(ConfigSectionNode node, string includePragma, string level)
@@ -272,111 +288,74 @@ namespace Azos.Sky.Apps
       }
     }
 
-
-    internal static void Unload()
-    {
-      if (!s_Loaded) return;
-      s_Loaded = false;
-      s_SystemApplicationType = SystemApplicationType.Unspecified;
-      s_HostName = null;
-      s_DynamicHostNameSuffix = null;
-      s_ParentZoneGovernorPrimaryHostName = null;
-      try
-      {
-        if (s_Metabase!=null)
-        {
-          var mb = s_Metabase;
-          var fs = mb.FileSystem;
-          s_Metabase = null;
-
-          try
-          {
-            mb.Dispose();
-          }
-          finally
-          {
-            if (fs!=null)
-            {
-              fs.Dispose();
-            }
-          }//finally
-        }
-      }
-      catch
-      {
-        //nowhere to log anymore as all loggers have stopped
-      }
-    }
-
     #region .pvt .impl
 
-    private static void determineHostName(AzosApplication bootApp)
+    private void determineHostName()
     {
-        var hNode = bootApp.ConfigRoot[CONFIG_SKY_SECTION][CONFIG_HOST_SECTION];
+        var hNode = m_BootApplication.ConfigRoot[CONFIG_SKY_SECTION][CONFIG_HOST_SECTION];
 
-        s_HostName = hNode.AttrByName(CONFIG_HOST_NAME_ATTR).Value;
+        m_HostName = hNode.AttrByName(CONFIG_HOST_NAME_ATTR).Value;
 
-        if (s_HostName.IsNullOrWhiteSpace())
+        if (m_HostName.IsNullOrWhiteSpace())
         {
-            bootApp.writeLog(MessageType.Warning, "Host name was not specified in config, trying to take from machine env var {0}".Args(ENV_VAR_HOST_NAME));
-            s_HostName = System.Environment.GetEnvironmentVariable(ENV_VAR_HOST_NAME);
+            writeLog(MessageType.Warning, "Host name was not specified in config, trying to take from machine env var {0}".Args(ENV_VAR_HOST_NAME));
+            m_HostName = System.Environment.GetEnvironmentVariable(ENV_VAR_HOST_NAME);
         }
-        if (s_HostName.IsNullOrWhiteSpace())
+        if (m_HostName.IsNullOrWhiteSpace())
         {
-            bootApp.writeLog(MessageType.Warning, "Host name was not specified in neither config nor env var, taking from local computer name");
-            s_HostName = "{0}/{1}".Args(DEFAULT_HOST_ZONE_PATH, System.Environment.MachineName);
+            writeLog(MessageType.Warning, "Host name was not specified in neither config nor env var, taking from local computer name");
+            m_HostName = "{0}/{1}".Args(DEFAULT_HOST_ZONE_PATH, System.Environment.MachineName);
         }
 
-        bootApp.writeLog(MessageType.Info, "Host name: " + s_HostName);
+        writeLog(MessageType.Info, "Host name: " + m_HostName);
     }
 
 
-    private static void mountMetabank(AzosApplication bootApp)
+    private void mountMetabank()
     {
-      var mNode = bootApp.ConfigRoot[CONFIG_SKY_SECTION][CONFIG_METABASE_SECTION];
+      var mNode = m_BootApplication.ConfigRoot[CONFIG_SKY_SECTION][CONFIG_METABASE_SECTION];
 
-      ensureMetabaseAppName(bootApp, mNode);
+      ensureMetabaseAppName( mNode);
 
 
       FileSystemSessionConnectParams fsSessionConnectParams;
-      var fs = getFileSystem(bootApp, mNode, out fsSessionConnectParams);
+      var fs = getFileSystem(mNode, out fsSessionConnectParams);
 
       var fsRoot = mNode[CONFIG_FS_SECTION].AttrByName(CONFIG_ROOT_ATTR).Value;
       if (fsRoot.IsNullOrWhiteSpace())
       {
-        bootApp.writeLog(MessageType.Info,
+        writeLog(MessageType.Info,
                           "Metabase fs root is null in config, trying to take from machine env var {0}".Args(ENV_VAR_METABASE_FS_ROOT));
         fsRoot = System.Environment.GetEnvironmentVariable(ENV_VAR_METABASE_FS_ROOT);
       }
 
 
-      bootApp.writeLog(MessageType.Info, "Metabase FS root: " + fsRoot);
+      writeLog(MessageType.Info, "Metabase FS root: " + fsRoot);
 
 
-      bootApp.writeLog(MessageType.Info, "Mounting metabank...");
+      writeLog(MessageType.Info, "Mounting metabank...");
       try
       {
-        s_Metabase = new Metabank(fs, fsSessionConnectParams, fsRoot );
+        m_Metabase = new Metabank(fs, fsSessionConnectParams, fsRoot );
       }
       catch(Exception error)
       {
-        bootApp.writeLog(MessageType.CatastrophicError, error.ToMessageWithType());
+        writeLog(MessageType.CatastrophicError, error.ToMessageWithType());
         throw error;
       }
-      bootApp.writeLog(MessageType.Info, "...Metabank mounted");
+      writeLog(MessageType.Info, "...Metabank mounted");
     }
 
 
-    private static Configuration getEffectiveAppConfigAndZoneGovernor(AzosApplication bootApp,
-                                                                      out Metabank.SectionHost zoneGovernorSection,
-                                                                      out bool isDynamicHost)
+    private Configuration getEffectiveAppConfigAndZoneGovernor(out Metabank.SectionHost zoneGovernorSection,
+                                                               out bool isDynamicHost)
     {
       Configuration result = null;
 
-      bootApp.writeLog(MessageType.Info, "Getting effective app config for '{0}'...".Args(SkySystem.MetabaseApplicationName));
+      writeLog(MessageType.Info, "Getting effective app config for '{0}'...".Args(SkySystem.MetabaseApplicationName));
       try
       {
-        var host = s_Metabase.CatalogReg.NavigateHost(s_HostName);
+        var host = m_Metabase.CatalogReg.NavigateHost(m_HostName);
 
         result =  host.GetEffectiveAppConfig(SkySystem.MetabaseApplicationName).Configuration;
 
@@ -385,26 +364,26 @@ namespace Azos.Sky.Apps
       }
       catch(Exception error)
       {
-        bootApp.writeLog(MessageType.CatastrophicError, error.ToMessageWithType());
+        writeLog( MessageType.CatastrophicError, error.ToMessageWithType());
         throw error;
       }
-      bootApp.writeLog(MessageType.Info, "...config obtained");
+      writeLog(MessageType.Info, "...config obtained");
 
       return result;
     }
 
 
-    private static void ensureMetabaseAppName(AzosApplication bootApp, IConfigSectionNode mNode)
+    private void ensureMetabaseAppName(IConfigSectionNode mNode)
     {
       if (SkySystem.MetabaseApplicationName==null)
       {
-        var appName = bootApp.CommandArgs[CMD_ARG_SKY_SWITCH].AttrByName(CMD_ARG_APP_NAME).Value;
+        var appName = m_BootApplication.CommandArgs[CMD_ARG_SKY_SWITCH].AttrByName(CMD_ARG_APP_NAME).Value;
         if (appName.IsNotNullOrWhiteSpace())
-          bootApp.writeLog(MessageType.Info,
+          writeLog( MessageType.Info,
                             "Metabase application name was not defined in code, but is injected from cmd arg '-{0} {1}=<app name>'".Args(CMD_ARG_SKY_SWITCH, CMD_ARG_APP_NAME));
         else
         {
-          bootApp.writeLog(MessageType.Warning,
+          writeLog( MessageType.Warning,
                             "Metabase application name was not defined in code or cmd switch, reading from '{0}/${1}'".Args(CONFIG_METABASE_SECTION, CONFIG_APPLICATION_NAME_ATTR));
           appName = mNode.AttrByName(CONFIG_APPLICATION_NAME_ATTR).Value;
         }
@@ -415,31 +394,30 @@ namespace Azos.Sky.Apps
         }
         catch(Exception error)
         {
-          bootApp.writeLog(MessageType.CatastrophicError, error.ToMessageWithType());
+          writeLog( MessageType.CatastrophicError, error.ToMessageWithType());
           throw error;
         }
-        bootApp.writeLog(MessageType.Info,
+        writeLog( MessageType.Info,
                           "Metabase application name from config set to: "+SkySystem.MetabaseApplicationName);
       }
       else
       {
-        bootApp.writeLog(MessageType.Info,
+        writeLog( MessageType.Info,
                           "Metabase application name defined in code: "+SkySystem.MetabaseApplicationName);
 
         if (mNode.AttrByName(CONFIG_APPLICATION_NAME_ATTR).Exists)
-          bootApp.writeLog(MessageType.Warning,
+          writeLog( MessageType.Warning,
                             "Metabase application name defined in code but the boot config also defines the name which was ignored");
       }
     }
 
 
-    private static IFileSystem getFileSystem(AzosApplication bootApp,
-                                              IConfigSectionNode mNode,
-                                              out FileSystemSessionConnectParams cParams)
+    private IFileSystem getFileSystem(IConfigSectionNode mNode,
+                                      out FileSystemSessionConnectParams cParams)
     {
       IFileSystem result = null;
 
-      bootApp.writeLog(MessageType.Info, "Making metabase FS instance...");
+      writeLog(MessageType.Info, "Making metabase FS instance...");
 
       var fsNode = mNode[CONFIG_FS_SECTION];
 
@@ -467,13 +445,25 @@ namespace Azos.Sky.Apps
           cParams = new FileSystemSessionConnectParams(){ User = User.Fake};
       }
 
-      bootApp.writeLog(MessageType.Info, "...Metabase FS FileSystemSessionConnectParams instance of '{0}' made".Args(cParams.GetType().FullName));
-      bootApp.writeLog(MessageType.Info, "...Metabase FS instance of '{0}' made".Args(result.GetType().FullName));
+      writeLog(MessageType.Info, "...Metabase FS FileSystemSessionConnectParams instance of '{0}' made".Args(cParams.GetType().FullName));
+      writeLog(MessageType.Info, "...Metabase FS instance of '{0}' made".Args(result.GetType().FullName));
 
       return result;
     }
 
+    public void writeLog(Azos.Log.MessageType type, string text)
+    {
+      var app = m_BootApplication;
+      if (app==null) return;
 
+      app.Log.Write(new Message
+      {
+        Type = type,
+        From = LOG_FROM_BOOTLOADER,
+        Text = text
+      });
+
+    }
     #endregion
 
   }
