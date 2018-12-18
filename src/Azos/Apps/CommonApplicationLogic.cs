@@ -61,7 +61,14 @@ namespace Azos.Apps
     #endregion
 
     #region .ctor/.dctor
-    protected CommonApplicationLogic(bool allowNesting, Configuration cmdLineArgs, ConfigSectionNode rootConfig)
+
+    //fx internal, called by derivatives
+    protected CommonApplicationLogic() { }
+
+    //perform the core construction of app instance,
+    //this is a method because of C# inability to control ctor chaining sequence
+    //this is framework internal code, developers do not call
+    protected void Constructor(bool allowNesting, Configuration cmdLineArgs, ConfigSectionNode rootConfig)
     {
       m_AllowNesting = allowNesting;
       m_CommandArgs = (cmdLineArgs ?? new MemoryConfiguration()).Root;

@@ -111,7 +111,7 @@ namespace Azos.Sky.Apps.Terminal
       registry.Register(this);
     }
 
-    [Inject] IApplication m_App;
+    [Inject] ISkyApplication m_App;
 
     private int m_ID;
     private string m_Name;
@@ -122,7 +122,7 @@ namespace Azos.Sky.Apps.Terminal
     private ScriptRunner m_ScriptRunner;
 
 
-    public IApplication App => m_App.NonNull(nameof(m_App));
+    public ISkyApplication App => m_App.NonNull(nameof(m_App));
 
     /// <summary>
     /// Returns unique terminal session ID

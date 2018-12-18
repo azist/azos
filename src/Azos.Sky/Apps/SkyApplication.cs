@@ -11,9 +11,10 @@ using Azos.Conf;
 using Azos.Data.Access;
 using Azos.Wave;
 
+using Azos.Sky;
 using Azos.Sky.Identification;
 
-namespace Azos.Sky.Apps
+namespace Azos.Apps
 {
   /// <summary>
   /// Provides base implementation of ISkyApplication for applications like services and console apps.
@@ -35,31 +36,57 @@ namespace Azos.Sky.Apps
 
     #region .ctor
 
-      public SkyApplication(SystemApplicationType sysAppType, string[] args, ConfigSectionNode rootConfig)
-        : base(BootConfLoader.SetSystemApplicationType(sysAppType, args), rootConfig)
-      {
-        m_NOPLockManager = new Locking.NOPLockManager(this);
-      }
+    //framework internal called by derivatives
+    protected SkyApplication() : base() { }
 
-      protected override void Destructor()
+    public SkyApplication(SystemApplicationType sysAppType, string[] args)
+     : this(sysAppType, false, args, null)
+    { }
+
+    public SkyApplication(SystemApplicationType sysAppType, string[] args, ConfigSectionNode rootConfig)
+      : this(sysAppType, false, args, rootConfig)
+    { }
+
+    public SkyApplication(SystemApplicationType sysAppType,
+                          bool allowNesting,
+                          string[] args,
+                          ConfigSectionNode rootConfig) : base()
+    {
+      try
       {
-        BootConfLoader.Unload();
-        base.Destructor();
+        m_BootLoader = new BootConfLoader(sysAppType);
+        m_NOPLockManager = new Locking.NOPLockManager(this);
+        var cmdArgs = args == null ? null : new CommandArgsConfiguration(args);
+        Constructor(allowNesting, cmdArgs, rootConfig);
+        InitApplication();
       }
+      catch
+      {
+        Destructor();
+        throw;
+      }
+    }
+
+    protected override void Destructor()
+    {
+      DisposeAndNull(ref m_BootLoader);
+      base.Destructor();
+    }
 
     #endregion
 
     #region Fields
 
-      private ConfigSectionNode m_BootConfigRoot;
+    private BootConfLoader m_BootLoader;
+    private ConfigSectionNode m_BootConfigRoot;
 
-      private WaveServer m_WebManagerServer;
+    private WaveServer m_WebManagerServer;
 
-      private Locking.ILockManagerImplementation m_LockManager;
-      private Locking.ILockManagerImplementation m_NOPLockManager;
-      private GdidGenerator m_GDIDProvider;
-      private Workers.IProcessManagerImplementation m_ProcessManager;
-      private Dynamic.IHostManagerImplementation m_DynamicHostManager;
+    private Locking.ILockManagerImplementation m_LockManager;
+    private Locking.ILockManagerImplementation m_NOPLockManager;
+    private GdidGenerator m_GDIDProvider;
+    private Workers.IProcessManagerImplementation m_ProcessManager;
+    private Dynamic.IHostManagerImplementation m_DynamicHostManager;
 
     #endregion
 
@@ -69,7 +96,7 @@ namespace Azos.Sky.Apps
       /// Denotes system application/process type that this app container has, i.e.:  HostGovernor, WebServer, etc.
       /// The value is set in .ctor and kept in BootConfLoader.SystemApplicationType
       /// </summary>
-      public SystemApplicationType SystemApplicationType { get {return BootConfLoader.SystemApplicationType; } }
+      public SystemApplicationType SystemApplicationType => m_BootLoader.SystemApplicationType;
 
 
       public string MetabaseApplicationName { get{ return SkySystem.MetabaseApplicationName; } }
@@ -104,7 +131,7 @@ namespace Azos.Sky.Apps
         if (CommandArgs.Configuration is CommandArgsConfiguration)
           cmdArgs = ((CommandArgsConfiguration)this.CommandArgs.Configuration).Arguments;
 
-        var result = BootConfLoader.Load(cmdArgs, localConfig);
+        var result = m_BootLoader.Load(cmdArgs, localConfig);
         result.Application = this;
         return result;
       }
@@ -115,7 +142,7 @@ namespace Azos.Sky.Apps
 
         var FROM = GetType().FullName+".DoInitApplication()";
 
-        var metabase = BootConfLoader.Metabase;
+        var metabase = m_BootLoader.Metabase;
 
         try
         {

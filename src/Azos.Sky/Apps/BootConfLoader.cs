@@ -5,15 +5,15 @@
 </FILE_LICENSE>*/
 using System;
 
-using Azos.Apps;
 using Azos.Conf;
 using Azos.Security;
 using Azos.IO.FileSystem;
 using Azos.Log;
 
+using Azos.Sky;
 using Azos.Sky.Metabase;
 
-namespace Azos.Sky.Apps
+namespace Azos.Apps
 {
   /// <summary>
   /// Gets the boot configuration for app chassis.
@@ -70,9 +70,10 @@ namespace Azos.Sky.Apps
 
    #endregion
 
-    internal BootConfLoader()
+    internal BootConfLoader(SystemApplicationType appType)
     {
       Platform.Abstraction.PlatformAbstractionLayer.SetProcessInvariantCulture();
+      m_SystemApplicationType = appType;
     }
 
 #warning who uses this ctor? only for testing
@@ -99,7 +100,7 @@ namespace Azos.Sky.Apps
 
       SystemVarResolver.Bind();
 
-      Configuration.ProcesswideConfigNodeProviderType = typeof(Metabase.MetabankFileConfigNodeProvider);
+      Configuration.ProcesswideConfigNodeProviderType = typeof(Sky.Metabase.MetabankFileConfigNodeProvider);
 
     }
 
@@ -145,15 +146,6 @@ namespace Azos.Sky.Apps
     private string m_DynamicHostNameSuffix;
     private Metabank m_Metabase;
     private string m_ParentZoneGovernorPrimaryHostName;
-
-    /// <summary>
-    /// Internal hack to compensate for c# inability to call .ctor within .ctor body
-    /// </summary>
-    internal string[] SetSystemApplicationType(SystemApplicationType appType, string[] args)
-    {
-      m_SystemApplicationType = appType;
-      return args;
-    }
 
     /// <summary>
     /// References app chassis under which this booted
@@ -223,11 +215,11 @@ namespace Azos.Sky.Apps
     public Configuration Load(string[] cmdArgs, Configuration bootConfig)
     {
       if (Loaded)
-          throw new SkyException(StringConsts.APP_LOADER_ALREADY_LOADED_ERROR);
+          throw new SkyException(Sky.StringConsts.APP_LOADER_ALREADY_LOADED_ERROR);
 
       SystemVarResolver.Bind();
 
-      Configuration.ProcesswideConfigNodeProviderType = typeof(Metabase.MetabankFileConfigNodeProvider);
+      Configuration.ProcesswideConfigNodeProviderType = typeof(Sky.Metabase.MetabankFileConfigNodeProvider);
 
       try
       {
@@ -269,7 +261,7 @@ namespace Azos.Sky.Apps
       catch(Exception error)
       {
         m_LoadException = error;
-        throw new SkyException(StringConsts.APP_LOADER_ERROR + error.ToMessageWithType(), error);
+        throw new SkyException(Sky.StringConsts.APP_LOADER_ERROR + error.ToMessageWithType(), error);
       }
     }
 
@@ -280,7 +272,7 @@ namespace Azos.Sky.Apps
       {
         for (int count = 0; node.ProcessIncludePragmas(true, includePragma); count++)
           if (count >= CONST_MAX_INCLUDE_DEPTH)
-            throw new ConfigException(StringConsts.CONFIGURATION_INCLUDE_PRAGMA_DEPTH_ERROR.Args(CONST_MAX_INCLUDE_DEPTH));
+            throw new ConfigException(Sky.StringConsts.CONFIGURATION_INCLUDE_PRAGMA_DEPTH_ERROR.Args(CONST_MAX_INCLUDE_DEPTH));
       }
       catch (Exception error)
       {

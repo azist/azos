@@ -5,14 +5,14 @@
 </FILE_LICENSE>*/
 using System;
 
-using Azos.Apps;
 using Azos.Conf;
 using Azos.Data.Access;
 
+using Azos.Sky;
 using Azos.Sky.Dynamic;
 using Azos.Sky.Workers;
 
-namespace Azos.Sky.Apps
+namespace Azos.Apps
 {
   /// <summary>
   /// Represents an application that consists of pure-nop providers, consequently
@@ -25,10 +25,10 @@ namespace Azos.Sky.Apps
 
     protected SkyNOPApplication() : base()
     {
-      m_NOPLock = new Locking.NOPLockManager(this);
+      m_NOPLock = new Sky.Locking.NOPLockManager(this);
     }
 
-    private Locking.NOPLockManager m_NOPLock;
+    private Sky.Locking.NOPLockManager m_NOPLock;
 
     /// <summary>
     /// Returns a singleton instance of the SkyNOPApplication
@@ -43,7 +43,7 @@ namespace Azos.Sky.Apps
 
     public SystemApplicationType SystemApplicationType { get { return SystemApplicationType.Unspecified; } }
 
-    public Locking.ILockManager LockManager => m_NOPLock;
+    public Sky.Locking.ILockManager LockManager => m_NOPLock;
 
     public IGdidProvider GdidProvider { get { throw new NotSupportedException("NOPApp.GDIDProvider"); } }
 

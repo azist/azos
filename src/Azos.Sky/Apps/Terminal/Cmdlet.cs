@@ -27,7 +27,7 @@ namespace Azos.Sky.Apps.Terminal
     protected AppRemoteTerminal m_Terminal;
     protected IConfigSectionNode m_Args;
 
-    public IApplication App => m_Terminal.App;
+    public ISkyApplication App => m_Terminal.App;
 
     public abstract string Execute();
 

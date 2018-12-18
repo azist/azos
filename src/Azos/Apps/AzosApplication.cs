@@ -3,8 +3,6 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
-using System.Threading;
 
 using Azos.Conf;
 
@@ -15,6 +13,12 @@ namespace Azos.Apps
   /// </summary>
   public class AzosApplication : CommonApplicationLogic
   {
+    //framework internal, called by derivatives
+    protected AzosApplication() : base() { } //keep this ctor for clarity to signify absence of behavior
+                                             //the true object construction is delegated to Constructor()
+                                             //because of CLR's inability to invoke inherited .ctor in the middle of another
+
+
     /// <summary>
     /// Takes optional application args[] and root configuration.
     /// The args are parsed into CommandArgsConfiguration. If configuration is null then
@@ -45,10 +49,11 @@ namespace Azos.Apps
     ///   switch is used in which case 'file' has to be locatable and readable.
     /// Pass allowNesting=true to nest other app container instances
     /// </summary>
-    public AzosApplication(bool allowNesting, Configuration cmdLineArgs, ConfigSectionNode rootConfig) : base(allowNesting, cmdLineArgs, rootConfig)
+    public AzosApplication(bool allowNesting, Configuration cmdLineArgs, ConfigSectionNode rootConfig) : base()//do not call this ctor from derived class
     {
       try
       {
+        Constructor(allowNesting, cmdLineArgs, rootConfig);
         InitApplication();
       }
       catch
