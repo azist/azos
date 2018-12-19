@@ -34,7 +34,7 @@ namespace Azos.Apps.Injection
       yield return App.Instrumentation;
       yield return App.Glue;
       yield return App.GetServiceClientHub();
-      yield return SkyApp.Metabank;
+      yield return SkyApp.Metabase;
       yield return SkyApp.GdidProvider;
       yield return SkyApp.ProcessManager;
       yield return SkyApp.LockManager;

@@ -3,13 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Conf;
-
 
 namespace Azos.Sky.Apps.Terminal
 {
@@ -29,8 +24,14 @@ namespace Azos.Sky.Apps.Terminal
 
     public ISkyApplication App => m_Terminal.App;
 
+    /// <summary>
+    /// Override to perform actual cmdlet work. Return string result
+    /// </summary>
     public abstract string Execute();
 
+    /// <summary>
+    /// Override to produce help content
+    /// </summary>
     public abstract string GetHelp();
   }
 }

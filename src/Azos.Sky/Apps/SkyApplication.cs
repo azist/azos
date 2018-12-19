@@ -6,19 +6,21 @@
 using System;
 
 using Azos.Log;
-using Azos.Apps;
 using Azos.Conf;
 using Azos.Data.Access;
 using Azos.Wave;
 
 using Azos.Sky;
 using Azos.Sky.Identification;
+using Azos.Sky.Locking;
+using Azos.Sky.Metabase;
+using Azos.Sky.Workers;
+using Azos.Sky.Dynamic;
 
 namespace Azos.Apps
 {
   /// <summary>
-  /// Provides base implementation of ISkyApplication for applications like services and console apps.
-  /// This class IS thread safe
+  /// Provides Sky application chassis implementation per ISkyApplication contract
   /// </summary>
   public class SkyApplication : AzosApplication, ISkyApplication
   {
@@ -55,7 +57,7 @@ namespace Azos.Apps
       try
       {
         m_BootLoader = new BootConfLoader(sysAppType);
-        m_NOPLockManager = new Locking.NOPLockManager(this);
+        m_NOPLockManager = new NOPLockManager(this);
         var cmdArgs = args == null ? null : new CommandArgsConfiguration(args);
         Constructor(allowNesting, cmdArgs, rootConfig);
         InitApplication();
@@ -82,37 +84,39 @@ namespace Azos.Apps
 
     private WaveServer m_WebManagerServer;
 
-    private Locking.ILockManagerImplementation m_LockManager;
-    private Locking.ILockManagerImplementation m_NOPLockManager;
+    private ILockManagerImplementation m_LockManager;
+    private ILockManagerImplementation m_NOPLockManager;
     private GdidGenerator m_GDIDProvider;
-    private Workers.IProcessManagerImplementation m_ProcessManager;
-    private Dynamic.IHostManagerImplementation m_DynamicHostManager;
+    private IProcessManagerImplementation m_ProcessManager;
+    private IHostManagerImplementation m_DynamicHostManager;
 
     #endregion
 
     #region Properties
 
-      /// <summary>
-      /// Denotes system application/process type that this app container has, i.e.:  HostGovernor, WebServer, etc.
-      /// The value is set in .ctor and kept in BootConfLoader.SystemApplicationType
-      /// </summary>
       public SystemApplicationType SystemApplicationType => m_BootLoader.SystemApplicationType;
 
+      public Metabank Metabase => m_BootLoader.Metabase;
 
-      public string MetabaseApplicationName { get{ return SkySystem.MetabaseApplicationName; } }
+      public string MetabaseApplicationName => SkySystem.MetabaseApplicationName;
 
+      public string HostName => m_BootLoader.HostName;
 
-      public IConfigSectionNode BootConfigRoot { get { return m_BootConfigRoot; } }
+      public bool IsDynamicHost => m_BootLoader.IsDynamicHost;
 
-      internal WaveServer WebManagerServer{ get{return m_WebManagerServer;}}
+      public string ParentZoneGovernorPrimaryHostName => m_BootLoader.ParentZoneGovernorPrimaryHostName;
 
-      public Locking.ILockManager LockManager => m_LockManager ?? m_NOPLockManager;
+      public IConfigSectionNode BootConfigRoot => m_BootConfigRoot;
 
-      public IGdidProvider GdidProvider { get {  return m_GDIDProvider; } }
+      internal WaveServer WebManagerServer => m_WebManagerServer;
 
-      public Workers.IProcessManager ProcessManager { get { return m_ProcessManager; } }
+      public ILockManager LockManager => m_LockManager ?? m_NOPLockManager;
 
-      public Dynamic.IHostManager DynamicHostManager { get { return m_DynamicHostManager; } }
+      public IGdidProvider GdidProvider => m_GDIDProvider;
+
+      public IProcessManager ProcessManager => m_ProcessManager;
+
+      public IHostManager DynamicHostManager => m_DynamicHostManager;
     #endregion
 
     #region Protected
@@ -191,7 +195,7 @@ namespace Azos.Apps
         var lockSection = ConfigRoot[CONFIG_LOCK_MANAGER_SECTION];
         try
         {
-          m_LockManager = FactoryUtils.MakeAndConfigure<Locking.ILockManagerImplementation>(lockSection, typeof(Locking.LockManager));
+          m_LockManager = FactoryUtils.MakeAndConfigure<ILockManagerImplementation>(lockSection, typeof(LockManager));
 
           WriteLog(MessageType.Info, FROM, "Lock Manager made");
 
@@ -216,7 +220,7 @@ namespace Azos.Apps
         var procSection = ConfigRoot[CONFIG_PROCESS_MANAGER_SECTION];
         try
         {
-          m_ProcessManager = FactoryUtils.MakeAndConfigure<Workers.IProcessManagerImplementation>(procSection, typeof(Workers.ProcessManager), new object[] { this });
+          m_ProcessManager = FactoryUtils.MakeAndConfigure<IProcessManagerImplementation>(procSection, typeof(ProcessManager), new object[] { this });
 
           WriteLog(MessageType.Info, FROM, "Process Manager made");
 
@@ -241,7 +245,7 @@ namespace Azos.Apps
         var hostSection = ConfigRoot[CONFIG_HOST_MANAGER_SECTION];
         try
         {
-          m_DynamicHostManager = FactoryUtils.MakeAndConfigure<Dynamic.IHostManagerImplementation>(procSection, typeof(Dynamic.HostManager), new object[] { this });
+          m_DynamicHostManager = FactoryUtils.MakeAndConfigure<IHostManagerImplementation>(procSection, typeof(HostManager), new object[] { this });
 
           WriteLog(MessageType.Info, FROM, "Dynamic Host Manager made");
 

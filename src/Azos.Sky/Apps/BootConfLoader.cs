@@ -184,15 +184,13 @@ namespace Azos.Apps
     /// <summary>
     /// True when metabase section host declares this host as dynamic and HostName ends with DynamicHostNameSuffix
     /// </summary>
-    public bool DynamicHost => m_DynamicHostNameSuffix.IsNotNullOrWhiteSpace();
+    public bool IsDynamicHost => m_DynamicHostNameSuffix.IsNotNullOrWhiteSpace();
 
 
     /// <summary>
     /// Returns primary zone governor parent host as determined at boot or null if this is the top-level host
     /// </summary>
     public string ParentZoneGovernorPrimaryHostName => m_ParentZoneGovernorPrimaryHostName;
-
-
 
     /// <summary>
     /// Metabase as determined at boot or null in case of failure

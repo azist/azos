@@ -66,9 +66,6 @@ namespace Azos.Sky
 
     public const string METABASE_FS_CONNECTION_ERROR = "Metabase file system {0}('{1}','{2}') connection error: {3}";
 
-    public const string METABASE_NOT_AVAILABLE_ERROR =
-      "Metabase is needed by '{0}' but it is not available as SkySystem.Metabase==null. The SkyApplication is not allocated yet or BootConfLoader.LoadForTest() was not called";
-
     public const string METABASE_INVALID_OPERTATION_ERROR = "Invalid metabase operation: ";
     public const string METABASE_CONFIG_LOAD_ERROR = "Metabase config file '{0}' load error: {1}";
     public const string METABASE_FILE_NOT_FOUND_ERROR = "Could not find file '{0}' in any of the supported config formats";

@@ -11,13 +11,13 @@ namespace Azos.Sky.Workers
 {
   public sealed class ProcessManager : ProcessManagerBase
   {
-    public ProcessManager(ISkyApplication director) : base(director)
+    public ProcessManager(IApplication app) : base(app)
     {
     }
 
     protected override PID DoAllocate(string zonePath, string id, bool isUnique)
     {
-      var zone = SkySystem.Metabase.CatalogReg.NavigateZone(zonePath);
+      var zone = App.Metabase.CatalogReg.NavigateZone(zonePath);
       var processorID = zone.MapShardingKeyToProcessorID(id);
 
       return new PID(zone.RegionPath, processorID, id, isUnique);
@@ -26,7 +26,7 @@ namespace Azos.Sky.Workers
     protected override void DoSpawn<TProcess>(TProcess process)
     {
       var pid = process.SysPID;
-      var zone = SkySystem.Metabase.CatalogReg.NavigateZone(pid.Zone);
+      var zone = App.Metabase.CatalogReg.NavigateZone(pid.Zone);
       var hosts = zone.GetProcessorHostsByID(pid.ProcessorID);
 
       App.GetServiceClientHub().CallWithRetry<Contracts.IProcessControllerClient>
@@ -39,7 +39,7 @@ namespace Azos.Sky.Workers
     protected override Task Async_DoSpawn<TProcess>(TProcess process)
     {
       var pid = process.SysPID;
-      var zone = SkySystem.Metabase.CatalogReg.NavigateZone(pid.Zone);
+      var zone = App.Metabase.CatalogReg.NavigateZone(pid.Zone);
       var hosts = zone.GetProcessorHostsByID(pid.ProcessorID);
 
       return App.GetServiceClientHub().CallWithRetryAsync<Contracts.IProcessControllerClient>
@@ -52,7 +52,7 @@ namespace Azos.Sky.Workers
     protected override ResultSignal DoDispatch<TSignal>(TSignal signal)
     {
       var pid = signal.SysPID;
-      var zone = SkySystem.Metabase.CatalogReg.NavigateZone(pid.Zone);
+      var zone = App.Metabase.CatalogReg.NavigateZone(pid.Zone);
       var hosts = zone.GetProcessorHostsByID(pid.ProcessorID);
 
       return App.GetServiceClientHub().CallWithRetry<Contracts.IProcessControllerClient, SignalFrame>
@@ -65,7 +65,7 @@ namespace Azos.Sky.Workers
     protected override Task<ResultSignal> Async_DoDispatch<TSignal>(TSignal signal)
     {
       var pid = signal.SysPID;
-      var zone = SkySystem.Metabase.CatalogReg.NavigateZone(pid.Zone);
+      var zone = App.Metabase.CatalogReg.NavigateZone(pid.Zone);
       var hosts = zone.GetProcessorHostsByID(pid.ProcessorID);
 
       return App.GetServiceClientHub().CallWithRetryAsync<Contracts.IProcessControllerClient, SignalFrame>
@@ -99,7 +99,7 @@ namespace Azos.Sky.Workers
 
     protected override TProcess DoGet<TProcess>(PID pid)
     {
-      var zone = SkySystem.Metabase.CatalogReg.NavigateZone(pid.Zone);
+      var zone = App.Metabase.CatalogReg.NavigateZone(pid.Zone);
       var hosts = zone.GetProcessorHostsByID(pid.ProcessorID);
 
       var processFrame = App.GetServiceClientHub().CallWithRetry<Contracts.IProcessControllerClient, ProcessFrame>
@@ -114,7 +114,7 @@ namespace Azos.Sky.Workers
 
     protected override ProcessDescriptor DoGetDescriptor(PID pid)
     {
-      var zone = SkySystem.Metabase.CatalogReg.NavigateZone(pid.Zone);
+      var zone = App.Metabase.CatalogReg.NavigateZone(pid.Zone);
       var hosts = zone.GetProcessorHostsByID(pid.ProcessorID);
 
       return App.GetServiceClientHub().CallWithRetry<Contracts.IProcessControllerClient, ProcessDescriptor>
@@ -128,7 +128,7 @@ namespace Azos.Sky.Workers
     {
       var tasks = new List<Task<IEnumerable<ProcessDescriptor>>>();
 
-      var zone = SkySystem.Metabase.CatalogReg.NavigateZone(zonePath);
+      var zone = App.Metabase.CatalogReg.NavigateZone(zonePath);
       foreach (var processorID in zone.ProcessorMap.Keys)
       {
         var hosts = zone.GetProcessorHostsByID(processorID);

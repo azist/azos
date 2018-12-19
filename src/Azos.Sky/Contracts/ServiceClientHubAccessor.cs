@@ -21,7 +21,7 @@ namespace Azos.Sky //for convenience it is in the root SKY namespace
               string tpn = typeof(ServiceClientHub).FullName;
               try
               {
-                var mbNode = SkySystem.Metabase.ServiceClientHubConfNode as ConfigSectionNode;
+                var mbNode = app.AsSky().Metabase.ServiceClientHubConfNode as ConfigSectionNode;
                 var appNode = app.ConfigRoot[SysConsts.APPLICATION_CONFIG_ROOT_SECTION]
                                             [ServiceClientHub.CONFIG_SERVICE_CLIENT_HUB_SECTION] as ConfigSectionNode;
 

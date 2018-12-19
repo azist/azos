@@ -7,7 +7,12 @@
 using Azos.Conf;
 using Azos.Data.Access;
 
-namespace Azos.Sky
+using Azos.Sky.Locking;
+using Azos.Sky.Metabase;
+using Azos.Sky.Workers;
+using Azos.Sky.Dynamic;
+
+namespace Azos
 {
 
   /// <summary>
@@ -33,6 +38,27 @@ namespace Azos.Sky
   /// </summary>
   public interface ISkyApplication : IApplication
   {
+
+    /// <summary>
+    /// References metabase
+    /// </summary>
+    Metabank Metabase {  get; }
+
+    /// <summary>
+    /// Name of this host
+    /// </summary>
+    string HostName {  get; }
+
+    /// <summary>
+    /// True if this host is dynamic - executing on the dynamic IaaS platform
+    /// </summary>
+    bool IsDynamicHost {  get; }
+
+    /// <summary>
+    /// Returns primary zone governor parent host as determined at boot or null if this is the top-level host
+    /// </summary>
+    string ParentZoneGovernorPrimaryHostName { get; }
+
     /// <summary>
     /// Returns the name that uniquely identifies this application in the metabase. Every process/executable must provide its unique application name in metabase
     /// </summary>
@@ -51,7 +77,7 @@ namespace Azos.Sky
     /// <summary>
     /// References distributed lock manager
     /// </summary>
-    Locking.ILockManager LockManager { get; }
+    ILockManager LockManager { get; }
 
     /// <summary>
     /// References distributed GDID provider
@@ -61,11 +87,11 @@ namespace Azos.Sky
     /// <summary>
     /// References distributed process manager
     /// </summary>
-    Workers.IProcessManager ProcessManager { get; }
+    IProcessManager ProcessManager { get; }
 
     /// <summary>
     /// References dynamic host manager
     /// </summary>
-    Dynamic.IHostManager DynamicHostManager { get; }
+    IHostManager DynamicHostManager { get; }
   }
 }

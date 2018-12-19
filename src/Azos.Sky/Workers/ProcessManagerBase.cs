@@ -28,7 +28,7 @@ namespace Azos.Sky.Workers
     #endregion
 
     #region .ctor
-    public ProcessManagerBase(ISkyApplication director) : base(director)
+    public ProcessManagerBase(IApplication app) : base(app)
     {
       m_HostSets = new Registry<HostSet>(false);
     }
@@ -57,6 +57,9 @@ namespace Azos.Sky.Workers
     #endregion
 
     #region Properties
+
+    public new ISkyApplication App => base.App.AsSky();
+
     public override string ComponentLogTopic => SysConsts.LOG_TOPIC_PM;
 
     public IGuidTypeResolver ProcessTypeResolver { get { return m_ProcessTypeResolver; } }
@@ -103,7 +106,7 @@ namespace Azos.Sky.Workers
       if (zonePath.IsNullOrWhiteSpace())
         throw new WorkersException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".AllocateMutex(zontPath=null|empty)");
 
-      var gdid = SkySystem.GdidProvider.GenerateOneGdid(SysConsts.GDID_NS_WORKER, SysConsts.GDID_NAME_WORKER_PROCESS);
+      var gdid = App.GdidProvider.GenerateOneGdid(SysConsts.GDID_NS_WORKER, SysConsts.GDID_NAME_WORKER_PROCESS);
       return DoAllocate(zonePath, gdid.ToString(), true);
     }
 

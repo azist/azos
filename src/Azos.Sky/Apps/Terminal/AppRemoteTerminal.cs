@@ -72,6 +72,9 @@ namespace Azos.Sky.Apps.Terminal
   [Serializable]
   public class AppRemoteTerminal : DisposableObject, IRemoteTerminal, INamed, IDeserializationCallback, IConfigurable
   {
+    /// <summary>
+    /// A string pragma which indicates that the returned content is markup (contains color and formatting information)
+    /// </summary>
     public const string MARKUP_PRAGMA = "<!-- ###MARKUP### -->";
 
     public const string CONFIG_APP_REMOTE_TERMINAL_SECTION = "remote-terminal";
@@ -182,11 +185,11 @@ namespace Azos.Sky.Apps.Terminal
         TerminalName = Name,
         WelcomeMsg = "Connected to '[{0}]{1}'@'{2}' on {3:G} {4:T} UTC. Session '{5}'".Args(SkySystem.MetabaseApplicationName,
                                                                      App.Name,
-                                                                     SkySystem.HostName,
+                                                                     App.HostName,
                                                                      App.TimeSource.Now,
                                                                      App.TimeSource.UTCNow,
                                                                      Name),
-        Host = SkySystem.HostName,
+        Host = App.HostName,
         AppName = App.Name,
         ServerLocalTime = App.TimeSource.Now,
         ServerUTCTime = App.TimeSource.UTCNow
