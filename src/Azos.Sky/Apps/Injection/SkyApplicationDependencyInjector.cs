@@ -7,9 +7,6 @@ using Azos.Sky;
 
 namespace Azos.Apps.Injection
 {
-
-  //todo: Inject this in SKY app default, n
-
   /// <summary>
   /// Implements sky app dependency injection services
   /// </summary>

@@ -68,13 +68,16 @@ namespace Azos.Apps
     //perform the core construction of app instance,
     //this is a method because of C# inability to control ctor chaining sequence
     //this is framework internal code, developers do not call
-    protected void Constructor(bool allowNesting, Configuration cmdLineArgs, ConfigSectionNode rootConfig)
+    protected void Constructor(bool allowNesting,
+                               Configuration cmdLineArgs,
+                               ConfigSectionNode rootConfig,
+                               IApplicationDependencyInjectorImplementation defaultDI = null)
     {
       m_AllowNesting = allowNesting;
       m_CommandArgs = (cmdLineArgs ?? new MemoryConfiguration()).Root;
       m_ConfigRoot  = rootConfig ?? GetConfiguration().Root;
       m_Singletons = new ApplicationSingletonManager();
-      m_DefaultDependencyInjector = new ApplicationDependencyInjector(this);
+      m_DefaultDependencyInjector = defaultDI ?? new ApplicationDependencyInjector(this);
       m_Realm = new ApplicationRealmBase(this);
 
       m_NOPLog = new NOPLog(this);

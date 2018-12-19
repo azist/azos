@@ -59,7 +59,10 @@ namespace Azos.Apps
         m_BootLoader = new BootConfLoader(sysAppType);
         m_NOPLockManager = new NOPLockManager(this);
         var cmdArgs = args == null ? null : new CommandArgsConfiguration(args);
-        Constructor(allowNesting, cmdArgs, rootConfig);
+        Constructor(allowNesting,
+                    cmdArgs,
+                    rootConfig,
+                    defaultDI: new Injection.SkyApplicationDependencyInjector(this));
         InitApplication();
       }
       catch

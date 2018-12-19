@@ -1,54 +1,64 @@
-/*<FILE_LICENSE>
- * Azos (A to Z Application Operating System) Framework
- * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
- * See the LICENSE file in the project root for more information.
-</FILE_LICENSE>*/
-using System;
+#warning delete after review
 
-using Azos.Conf;
-using Azos.Data.Access;
+///////*<FILE_LICENSE>
+////// * Azos (A to Z Application Operating System) Framework
+////// * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+////// * See the LICENSE file in the project root for more information.
+//////</FILE_LICENSE>*/
+//////using System;
 
-using Azos.Sky;
-using Azos.Sky.Dynamic;
-using Azos.Sky.Workers;
+//////using Azos.Conf;
+//////using Azos.Data.Access;
 
-namespace Azos.Apps
-{
-  /// <summary>
-  /// Represents an application that consists of pure-nop providers, consequently
-  ///  this application does not log, does not store data and does not do anything else
-  /// still satisfying its contract
-  /// </summary>
-  public class SkyNOPApplication : NOPApplication, ISkyApplication
-  {
-    private static SkyNOPApplication s_Instance = new SkyNOPApplication();
+//////using Azos.Sky.Metabase;
+//////using Azos.Sky.Dynamic;
+//////using Azos.Sky.Workers;
 
-    protected SkyNOPApplication() : base()
-    {
-      m_NOPLock = new Sky.Locking.NOPLockManager(this);
-    }
+//////namespace Azos.Apps
+//////{
+//////  /// <summary>
+//////  /// Represents an application that consists of pure-nop providers, consequently
+//////  ///  this application does not log, does not store data and does not do anything else
+//////  /// still satisfying its contract
+//////  /// </summary>
+//////  public class SkyNOPApplication : NOPApplication, ISkyApplication
+//////  {
+//////    private static SkyNOPApplication s_Instance = new SkyNOPApplication();
 
-    private Sky.Locking.NOPLockManager m_NOPLock;
+//////    protected SkyNOPApplication() : base()
+//////    {
+//////      m_NOPLock = new Sky.Locking.NOPLockManager(this);
+//////    }
 
-    /// <summary>
-    /// Returns a singleton instance of the SkyNOPApplication
-    /// </summary>
-    public static new SkyNOPApplication Instance { get { return s_Instance; } }
+//////    private Sky.Locking.NOPLockManager m_NOPLock;
 
-    public string MetabaseApplicationName { get { return string.Empty; } }
+//////    /// <summary>
+//////    /// Returns a singleton instance of the SkyNOPApplication
+//////    /// </summary>
+//////    public static new SkyNOPApplication Instance { get { return s_Instance; } }
 
-    public IConfigSectionNode BootConfigRoot { get { return m_Configuration.Root; } }
+//////    public Metabank Metabase => null;
 
-    public bool ConfiguredFromLocalBootConfig { get { return false; } }
+//////    public string HostName => null;
 
-    public SystemApplicationType SystemApplicationType { get { return SystemApplicationType.Unspecified; } }
+//////    public bool IsDynamicHost => false;
 
-    public Sky.Locking.ILockManager LockManager => m_NOPLock;
+//////    public string ParentZoneGovernorPrimaryHostName => null;
 
-    public IGdidProvider GdidProvider { get { throw new NotSupportedException("NOPApp.GDIDProvider"); } }
+//////    public string MetabaseApplicationName { get { return string.Empty; } }
 
-    public IProcessManager ProcessManager { get { throw new NotSupportedException("NOPApp.ProcessManager"); } }
+//////    public IConfigSectionNode BootConfigRoot { get { return m_Configuration.Root; } }
 
-    public IHostManager DynamicHostManager { get { throw new NotSupportedException("NOPApp.HostManager"); } }
-  }
-}
+//////    public bool ConfiguredFromLocalBootConfig { get { return false; } }
+
+//////    public SystemApplicationType SystemApplicationType { get { return SystemApplicationType.Unspecified; } }
+
+//////    public Sky.Locking.ILockManager LockManager => m_NOPLock;
+
+//////    public IGdidProvider GdidProvider { get { throw new NotSupportedException("NOPApp.GDIDProvider"); } }
+
+//////    public IProcessManager ProcessManager { get { throw new NotSupportedException("NOPApp.ProcessManager"); } }
+
+//////    public IHostManager DynamicHostManager { get { throw new NotSupportedException("NOPApp.HostManager"); } }
+//////  }
+//////}
