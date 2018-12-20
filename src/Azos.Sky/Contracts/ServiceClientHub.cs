@@ -51,6 +51,9 @@ namespace Azos.Sky.Contracts
 
     #region Public
 
+
+    public new ISkyApplication App => base.App.AsSky();
+
     public override string ComponentLogTopic => SysConsts.LOG_TOPIC_SVC;
 
     /// <summary>
@@ -335,7 +338,7 @@ namespace Azos.Sky.Contracts
       if (toHost.IsNullOrWhiteSpace())
         throw new Clients.SkyClientException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetByContract<{0}>(host==null|empty)".Args(tcontract.Name));
 
-      if (fromHost.IsNullOrWhiteSpace()) fromHost = SkySystem.HostName;
+      if (fromHost.IsNullOrWhiteSpace()) fromHost = App.HostName;
 
       if (fromHost.IsNullOrWhiteSpace())
         throw new Clients.SkyClientException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetByContract<{0}>(fromHost==null|empty & AgnySystem is not avail)".Args(tcontract.Name));
@@ -364,7 +367,7 @@ namespace Azos.Sky.Contracts
       if (toHost.IsNullOrWhiteSpace())
         throw new Clients.SkyClientException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".TestByContract<{0}>(host==null|empty)".Args(tcontract.Name));
 
-      if (fromHost.IsNullOrWhiteSpace()) fromHost = SkySystem.HostName;
+      if (fromHost.IsNullOrWhiteSpace()) fromHost = App.HostName;
 
       if (fromHost.IsNullOrWhiteSpace())
         throw new Clients.SkyClientException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".TestByContract<{0}>(fromHost==null|empty & SkySystem is not avail)".Args(tcontract.Name));
@@ -433,13 +436,13 @@ namespace Azos.Sky.Contracts
     /// </summary>
     protected virtual Node DoResolveNetworkService(ContractMapping mapping, string toHost, string fromHost, string svcName, out bool isGlobal)
     {
-      isGlobal = !SkySystem.Metabase.CatalogReg.ArePathsInSameNOC(fromHost, toHost);
+      isGlobal = !App.Metabase.CatalogReg.ArePathsInSameNOC(fromHost, toHost);
 
       var mappingData = isGlobal ? mapping.Global : mapping.Local;
 
       if (svcName.IsNullOrWhiteSpace()) svcName = mappingData.Service;
 
-      return SkySystem.Metabase.ResolveNetworkService(toHost, mappingData.Net, svcName, mappingData.Binding, fromHost);
+      return App.Metabase.ResolveNetworkService(toHost, mappingData.Net, svcName, mappingData.Binding, fromHost);
     }
 
     protected static readonly Type[] CTOR_SIG_GLUE_ENDPOINT = new Type[] { typeof(Azos.Glue.Node), typeof(Azos.Glue.Binding) };

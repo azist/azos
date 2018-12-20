@@ -217,7 +217,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
            foreach(var sreg in Regions)
             sreg.Validate(ctx);
 
-           var here = SkySystem.HostMetabaseSection.EffectiveGeoCenter;
+           var here = App.GetThisHostMetabaseSection().EffectiveGeoCenter;
            var allNOCs = AllNOCs.ToList();
            foreach(var noc in allNOCs)
            {
@@ -226,7 +226,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
                                      StringConsts.METABASE_NOC_DEFAULT_GEO_CENTER_WARNING.Args(noc.Name, noc.EffectiveGeoCenter)) );
 
              output.Add(new MetabaseValidationMsg(MetabaseValidationMessageType.Info, this, noc,
-                                     "Distance to '{0}' is {1}km".Args(SkySystem.HostMetabaseSection.RegionPath,
+                                     "Distance to '{0}' is {1}km".Args(App.GetThisHostMetabaseSection().RegionPath,
                                                                       (int)here.HaversineEarthDistanceKm(noc.EffectiveGeoCenter))));
 
            }

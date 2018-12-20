@@ -3,6 +3,8 @@
 using Azos.Web.Messaging;
 using Azos.Serialization.Arow;
 using Azos.Data;
+using Azos.Apps.Injection;
+using Azos.Data.Access;
 
 namespace Azos.Sky.WebMessaging
 {
@@ -15,8 +17,13 @@ namespace Azos.Sky.WebMessaging
     protected SkyWebMessage() { }
     public SkyWebMessage(GDID? gdid = null, Guid? id = null, DateTime? utcCreateDate = null) : base(id, utcCreateDate)
     {
-      GDID = gdid ?? SkySystem.GdidProvider.GenerateOneGdid(SysConsts.GDID_NS_MESSAGING, SysConsts.GDID_NAME_MESSAGING_MESSAGE);
+      GDID = gdid ?? GdidProvider.GenerateOneGdid(SysConsts.GDID_NS_MESSAGING, SysConsts.GDID_NAME_MESSAGING_MESSAGE);
     }
+
+
+    [Inject] IGdidProvider m_GdidProvider;
+
+    protected IGdidProvider GdidProvider => m_GdidProvider.NonNull(nameof(m_GdidProvider));
 
     /// <summary>
     /// Represents a unique ID assigned to the message in the distributed system

@@ -61,11 +61,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
 
                 case InstrType.Metabase:
                 {
-                    if (SkySystem.IsMetabase)
-                    {
-                      var mb = SkySystem.Metabase;
-                      mb.InstrumentationEnabled = on;
-                    }
+                    App.Metabase.InstrumentationEnabled = on;
                     break;
                 }
 
@@ -98,7 +94,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
                                 binding.InstrumentClientTransportStat ? ON : OFF,
                                 binding.InstrumentServerTransportStat ? ON : OFF);
             sb.AppendLine();
-            var mon = SkySystem.IsMetabase && SkySystem.Metabase.InstrumentationEnabled;
+            var mon = App.Metabase.InstrumentationEnabled;
 
             sb.AppendLine();
             sb.AppendLine("Metabase Instrumentation");

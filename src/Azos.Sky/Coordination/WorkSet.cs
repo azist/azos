@@ -31,7 +31,7 @@ namespace Azos.Sky.Coordination
         throw new CoordinationException(StringConsts.ARGUMENT_ERROR+"WorkSet.ctor(name=null|empty)");
 
       if (path.IsNullOrWhiteSpace())
-        path = SkySystem.HostMetabaseSection.ParentZone.RegionPath;
+        path = App.GetThisHostMetabaseSection().ParentZone.RegionPath;
 
       m_Path = path;
       m_Name = name;
@@ -240,7 +240,7 @@ namespace Azos.Sky.Coordination
     {
       const int SESSION_DURATION_ITEMS = 10;
 
-      var locker = SkySystem.LockManager;
+      var locker = App.AsSky().LockManager;
 
       if (m_Session!=null)
       {
@@ -268,18 +268,18 @@ namespace Azos.Sky.Coordination
 
       var table = this.GetType().AssemblyQualifiedName;
 
-      var value = "{0}::{1}".Args(m_Round, SkySystem.HostName);//round must be the first - it ensures different sorting every time when round changes
+      var value = "{0}::{1}".Args(m_Round, App.GetThisHostName());//round must be the first - it ensures different sorting every time when round changes
       var descr = "{0} {1}".Args(GetType().Name, value);
       var script = new LockTransaction(descr, WORKSET_NS, 0, 0.0d,
               LockOp.SelectVarValue("Workers", table, Name, ignoreThisSession: true, abortIfNotFound: false, selectMany: true),
               LockOp.AnywayContinueAfter( LockOp.DeleteVar(table, Name), resetAbort: true ),
               LockOp.Assert( LockOp.SetVar(table, Name, value, allowDuplicates: true) )
       );
-      var result = SkySystem.LockManager.ExecuteLockTransaction(m_Session, script);
+      var result = App.AsSky().LockManager.ExecuteLockTransaction(m_Session, script);
       if (result.ErrorCause!=LockErrorCause.Unspecified)
       {
-        //todo che delat?
-        //Interumentatiopn + logging
+        //todo how to handle here?
+        //Instrumentation + logging
         //Log()
       }
 

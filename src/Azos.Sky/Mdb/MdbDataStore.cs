@@ -225,19 +225,16 @@ namespace Azos.Sky.Mdb
 
         var gdidScope = GetGdidScopePrefix(m_SchemaName, m_BankName);
         m_GdidGenerator = new GdidGenerator(this, "GdidGen({0})".Args(gdidScope), gdidScope, null);
-        if (SkySystem.IsMetabase)
+        foreach(var ah in App.AsSky().Metabase.GDIDAuthorities)
         {
-            foreach(var ah in SkySystem.Metabase.GDIDAuthorities)
-            {
-              m_GdidGenerator.AuthorityHosts.Register(ah);
-              App.Log.Write( new Azos.Log.Message
-              {
-                  Type = Azos.Log.MessageType.InfoD,
-                  Topic = SysConsts.LOG_TOPIC_MDB,
-                  From = GetType().FullName+".makeGDIDGen()",
-                  Text = "Registered GDID authority host: "+ah.ToString()
-              });
-            }
+          m_GdidGenerator.AuthorityHosts.Register(ah);
+          App.Log.Write( new Azos.Log.Message
+          {
+              Type = Azos.Log.MessageType.InfoD,
+              Topic = SysConsts.LOG_TOPIC_MDB,
+              From = GetType().FullName+".makeGDIDGen()",
+              Text = "Registered GDID authority host: "+ah.ToString()
+          });
         }
 
       }

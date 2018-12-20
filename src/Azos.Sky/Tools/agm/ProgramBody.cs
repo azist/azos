@@ -68,7 +68,7 @@ namespace Azos.Sky.Tools.agm
         var w = System.Diagnostics.Stopwatch.StartNew();
 
         var generator = new GdidGenerator(app);
-        generator.AuthorityHosts.Register(new GdidGenerator.AuthorityHost(connectToAuthority));
+        generator.AuthorityHosts.Register(new GdidGenerator.AuthorityHost(app, connectToAuthority));
 
 
         var json = app.CommandArgs["j", "json"].Exists;

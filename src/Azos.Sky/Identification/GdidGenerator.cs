@@ -128,19 +128,20 @@ namespace Azos.Sky.Identification
     /// <summary>
     /// Provides information about the host that runs GDID generation authority
     /// </summary>
-    public sealed  class AuthorityHost : INamed, IEquatable<AuthorityHost>
+    public sealed class AuthorityHost : INamed, IEquatable<AuthorityHost>
     {
       /// <summary>
-      /// Name of the host and distance from the caller. If distance =0 then it will be calculated
+      /// Name of the host and distance from the caller. If distance =0 then it will be calculated using app chassis scope
       /// </summary>
-      public AuthorityHost(string name, int distanceKm = 0)
+      public AuthorityHost(IApplication app, string name, int distanceKm = 0)
       {
+        //special case for GdidGenerator as it may be launched outside of a true ISkyApplication scope, hence the manual checks
+        var sapp = app as ISkyApplication;
         m_Name = name.IsNullOrWhiteSpace() ? SysConsts.NULL : name;
-        if (SkySystem.IsMetabase)
-          m_DistanceKm = distanceKm>0 ? distanceKm : (int)SkySystem.Metabase.CatalogReg.GetDistanceBetweenPaths(SkySystem.HostName, name);
+        if (sapp != null)
+          m_DistanceKm = distanceKm > 0 ? distanceKm : (int)sapp.Metabase.CatalogReg.GetDistanceBetweenPaths(sapp.HostName, name);
         else
-          m_DistanceKm = distanceKm;
-
+          m_DistanceKm = distanceKm > 0 ? distanceKm : 0;
       }
       private string m_Name;
       private int m_DistanceKm;
@@ -160,7 +161,7 @@ namespace Azos.Sky.Identification
       /// Returns enumeration of Global Distributed ID generation Authorities.
       /// The distance is computed, and can not be specified in config
       /// </summary>
-      public static IEnumerable<AuthorityHost> FromConfNode(IConfigSectionNode parentNode)
+      public static IEnumerable<AuthorityHost> FromConfNode(IApplication app, IConfigSectionNode parentNode)
       {
         if (parentNode==null || !parentNode.Exists)
           yield break;
@@ -175,7 +176,7 @@ namespace Azos.Sky.Identification
           if (name.IsNullOrWhiteSpace())
             continue;
 
-          yield return new Identification.GdidGenerator.AuthorityHost(name);
+          yield return new Identification.GdidGenerator.AuthorityHost(app, name);
         }
       }
 
@@ -575,10 +576,7 @@ namespace Azos.Sky.Identification
         list += (" Trying '{0}' at {1}km\n".Args(node.Name, node.DistanceKm));
         try
         {
-          using(var cl = SkySystem.IsMetabase
-                          ? App.GetServiceClientHub().MakeNew<IGdidAuthorityClient>( node.Name )
-                          : new Clients.GdidAuthority( App.Glue, node.Name )
-                )
+          using(var cl = App.GetServiceClientHub().MakeNew<IGdidAuthorityClient>( node.Name ))
             result = cl.AllocateBlock(scopeName, sequenceName, blockSize, vicinity);
 
           Instrumentation.AllocBlockSuccessEvent.Happened(App.Instrumentation, scopeName, sequenceName, node.Name);

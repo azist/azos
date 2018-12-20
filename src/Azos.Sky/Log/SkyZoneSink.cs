@@ -67,12 +67,12 @@ namespace Azos.Sky.Log
       m_LastFlush = Ambient.UTCNow;
 
       if (m_Buf.Count == 0) return;
-      if (!SkySystem.IsMetabase) return;
 
       try
       {
-        var myHost = SkySystem.HostName;
-        var zgHost = SkySystem.ParentZoneGovernorPrimaryHostName;
+        var app = App.AsSky();
+        var myHost = app.HostName;
+        var zgHost = app.ParentZoneGovernorPrimaryHostName;
         if (zgHost.IsNullOrWhiteSpace()) return;
 
         //TODO  Cache the client instance, do not create client on every call, why not use call with retry?

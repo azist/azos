@@ -67,8 +67,8 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
       var mutex = arg.AttrByName(CONFIG_MUTEX_ATTR).ValueAsString();
 
       var pid = mutex.IsNullOrWhiteSpace()
-        ? SkySystem.ProcessManager.Allocate(zone)
-        : SkySystem.ProcessManager.AllocateMutex(zone, mutex);
+        ? App.ProcessManager.Allocate(zone)
+        : App.ProcessManager.AllocateMutex(zone, mutex);
 
       return pid.ToString();
     }
@@ -77,7 +77,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
     {
       var pid = PID.Parse(arg.AttrByName(CONFIG_PID_ATTR).ValueAsString());
       var proc = arg[CONFIG_PROC_SECTION];
-      SkySystem.ProcessManager.Spawn(pid, proc);
+      App.ProcessManager.Spawn(pid, proc);
       return "OK";
     }
 
@@ -85,7 +85,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
     {
       var pid = PID.Parse(arg.AttrByName(CONFIG_PID_ATTR).ValueAsString());
       var signal = arg[CONFIG_SIGNAL_SECTION];
-      var result = SkySystem.ProcessManager.Dispatch(pid, signal);
+      var result = App.ProcessManager.Dispatch(pid, signal);
       return result.ToString();
     }
 
@@ -95,7 +95,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
       var svc = arg.AttrByName(CONFIG_SVC_ATTR).ValueAsString();
 
       var todo = arg[CONFIG_TODO_SECTION];
-      SkySystem.ProcessManager.Enqueue(hostSet, svc, todo);
+      App.ProcessManager.Enqueue(hostSet, svc, todo);
       return "OK";
     }
 
@@ -103,7 +103,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
     {
       var sb = new StringBuilder();
       var zone = arg.AttrByName(CONFIG_ZONE_ATTR).ValueAsString();
-      foreach(var process in SkySystem.ProcessManager.List(zone, arg))
+      foreach(var process in App.ProcessManager.List(zone, arg))
         sb.AppendFormatLine("{0}", process.PID);
       return sb.ToString();
     }

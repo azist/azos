@@ -51,10 +51,10 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
             sb.AppendLine("Application Container");
             sb.AppendLine("----------------------------------------------------------------------------");
             sb.AppendFormat("Name                      "+VAL, App.Name );
-            sb.AppendFormat("Host                      "+VAL, SkySystem.HostName );
-            sb.AppendFormat("Parent Zone Governor      "+VAL, SkySystem.ParentZoneGovernorPrimaryHostName ?? "[none, this host is top level]" );
-            sb.AppendFormat("Role                      "+VAL, SkySystem.HostMetabaseSection.RoleName );
-            sb.AppendFormat("Role Apps                 "+VAL, SkySystem.HostMetabaseSection.Role.AppNames.Aggregate("",(r,a)=>r+a+", ") );
+            sb.AppendFormat("Host                      "+VAL, App.HostName );
+            sb.AppendFormat("Parent Zone Governor      "+VAL, App.ParentZoneGovernorPrimaryHostName ?? "[none, this host is top level]" );
+            sb.AppendFormat("Role                      "+VAL, App.GetThisHostMetabaseSection().RoleName );
+            sb.AppendFormat("Role Apps                 "+VAL, App.GetThisHostMetabaseSection().Role.AppNames.Aggregate("",(r,a)=>r+a+", ") );
             sb.AppendFormat("Metabase App              "+VAL, App.MetabaseApplicationName );
             sb.AppendFormat("Instance ID               "+VAL, App.InstanceID );
             sb.AppendFormat("Start Time                "+VAL, App.StartTime );

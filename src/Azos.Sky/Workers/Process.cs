@@ -15,31 +15,33 @@ namespace Azos.Sky.Workers
   public abstract class Process : AmorphousTypedDoc
   {
 
-    [Inject] IApplication m_App;
-
-    public IApplication App => m_App.NonNull(nameof(m_App));
+    [Inject] ISkyApplication m_App;
+    public ISkyApplication App => m_App.NonNull(nameof(m_App));
 
     /// <summary>
     /// Factory method that creates new Process based on provided PID
     /// </summary>
     public static TProcess MakeNew<TProcess>(IApplication app, PID pid) where TProcess : Process, new()
-      => makeDefault(app, new TProcess(), pid);
+      => makeDefault(app.AsSky(), new TProcess(), pid);
 
     /// <summary>
     /// Factory method that creates new Process based on provided Type, PID and Configuration
     /// </summary>
     public static Process MakeNew(IApplication app, Type type, PID pid, IConfigSectionNode args)
-     => makeDefault(app, FactoryUtils.MakeAndConfigure<Process>(args, type), pid);
+     => makeDefault(app.AsSky(), FactoryUtils.MakeAndConfigure<Process>(args, type), pid);
 
-    private static TProcess makeDefault<TProcess>(IApplication app, TProcess process, PID pid) where TProcess : Process
+    private static TProcess makeDefault<TProcess>(ISkyApplication app, TProcess process, PID pid) where TProcess : Process
     {
+
+      app.DependencyInjector.InjectInto(process);
+
       var attr = GuidTypeAttribute.GetGuidTypeAttribute<Process, ProcessAttribute>(process.GetType());
 
       var descriptor = new ProcessDescriptor(
         pid,
         attr.Description,
         app.TimeSource.UTCNow,
-        "{0}@{1}@{2}".Args(Ambient.CurrentCallUser.Name, app.Name, SkySystem.HostName));
+        "{0}@{1}@{2}".Args(Ambient.CurrentCallUser.Name, app.Name, app.HostName));
 
       process.m_SysDescriptor = descriptor;
       return process;

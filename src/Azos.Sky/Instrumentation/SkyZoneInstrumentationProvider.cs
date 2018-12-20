@@ -84,8 +84,6 @@ namespace Azos.Sky.Instrumentation
         if (!Running) return;
         if (aggregatedDatum==null) return;
         if (m_IAmRootHost) return;
-        if (SkySystem.IsMetabase) return;
-
 
         var t = aggregatedDatum.GetType();
 
@@ -127,7 +125,7 @@ namespace Azos.Sky.Instrumentation
          m_Thread.Name = THREAD_NAME;
          m_Thread.Start();
 
-         m_IAmRootHost = SkySystem.ParentZoneGovernorPrimaryHostName==null;
+         m_IAmRootHost = App.AsSky().ParentZoneGovernorPrimaryHostName==null;
       }
 
       protected override void DoSignalStop()
@@ -166,7 +164,7 @@ namespace Azos.Sky.Instrumentation
                 }
 
                 var sendNextTime = MAX_SEND_BATCH;
-                var zgHost = SkySystem.ParentZoneGovernorPrimaryHostName;
+                var zgHost = App.AsSky().ParentZoneGovernorPrimaryHostName;
                 var client = App.GetServiceClientHub().MakeNew<Contracts.IZoneTelemetryReceiverClient>( zgHost );
                 if (m_ZGovCallTimeoutMs>0) client.TimeoutMs = m_ZGovCallTimeoutMs;
 
@@ -180,7 +178,7 @@ namespace Azos.Sky.Instrumentation
 
                     try
                     {
-                      sendNextTime = client.SendTelemetry(SkySystem.HostName, toSend);
+                      sendNextTime = client.SendTelemetry(App.GetThisHostName(), toSend);
                       if (sendNextTime>MAX_SEND_BATCH) sendNextTime = MAX_SEND_BATCH;
                     }
                     catch(Exception error)

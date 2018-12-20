@@ -5,7 +5,7 @@ using Azos.IO;
 using Azos.Log;
 using Azos.Platform;
 
-using Azos.Sky.Apps;
+using Azos.Apps;
 using Azos.Sky.Identification;
 
 namespace Azos.Sky.Hosts.agdida

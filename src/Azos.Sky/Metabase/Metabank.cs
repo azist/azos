@@ -375,7 +375,7 @@ namespace Azos.Sky.Metabase
         {
           get
           {
-            return Identification.GdidGenerator.AuthorityHost.FromConfNode(m_RootConfig[CONFIG_GDID_SECTION]);
+            return Identification.GdidGenerator.AuthorityHost.FromConfNode(App, m_RootConfig[CONFIG_GDID_SECTION]);
           }
         }
 

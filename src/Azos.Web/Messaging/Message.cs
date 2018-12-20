@@ -50,6 +50,7 @@ namespace Azos.Web.Messaging
       CreateDateUTC = utcCreateDate ?? Ambient.UTCNow;
     }
 
+
     /// <summary>
     /// Every message has an ID of type GUID generated upon the creation, it is used for unique identification
     /// in small systems and message co-relation into conversation threads

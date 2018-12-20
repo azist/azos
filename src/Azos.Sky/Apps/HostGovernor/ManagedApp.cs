@@ -35,7 +35,7 @@ namespace Azos.Sky.Apps.HostGovernor
     {
       Name = appInfo.ToString();
       m_AppInfo = appInfo;
-      m_Packages = SkySystem.HostMetabaseSection.GetAppPackages(appInfo.Name).ToList();
+      m_Packages = App.GetThisHostMetabaseSection().GetAppPackages(appInfo.Name).ToList();
     }
     #endregion
 

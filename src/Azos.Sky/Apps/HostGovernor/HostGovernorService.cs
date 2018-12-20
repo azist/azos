@@ -39,10 +39,6 @@ namespace Azos.Sky.Apps.HostGovernor
       /// </summary>
       public HostGovernorService(IApplication app, bool launchedByARD, bool ardUpdateProblem) : base(app)
       {
-        if (!SkySystem.IsMetabase)
-          throw new AHGOVException(StringConsts.METABASE_NOT_AVAILABLE_ERROR.Args(GetType().FullName+".ctor()"));
-
-
         if (!App.Singletons.GetOrCreate(() => this).created)
           throw new AHGOVException(StringConsts.AHGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
 
@@ -174,7 +170,7 @@ namespace Azos.Sky.Apps.HostGovernor
         get
         {
           if (m_DynamicHostID.IsNullOrWhiteSpace()) return null;
-          return new Contracts.DynamicHostID(m_DynamicHostID, SkySystem.HostMetabaseSection.ParentZone.RegionPath);
+          return new Contracts.DynamicHostID(m_DynamicHostID, App.GetThisHostMetabaseSection().ParentZone.RegionPath);
         }
       }
 
@@ -200,7 +196,7 @@ namespace Azos.Sky.Apps.HostGovernor
       {
         IOUtils.EnsureDirectoryDeleted(UpdatePath);
 
-        var anew =  SkySystem.Metabase.CatalogBin.CheckAndPerformLocalSoftwareInstallation(progress, force);
+        var anew =  App.AsSky().Metabase.CatalogBin.CheckAndPerformLocalSoftwareInstallation(progress, force);
         if (!anew) return false;
         //Flag the end of successfull installation
         File.WriteAllText(Path.Combine(UpdatePath, SysConsts.HGOV_UPDATE_FINISHED_FILE), SysConsts.HGOV_UPDATE_FINISHED_FILE_OK_CONTENT);
@@ -237,7 +233,7 @@ namespace Azos.Sky.Apps.HostGovernor
                   m_Apps.Clear();
 
                   //add managed apps as specified by host's role
-                  foreach(var appInfo in SkySystem.HostMetabaseSection.Role.Applications)
+                  foreach(var appInfo in App.GetThisHostMetabaseSection().Role.Applications)
                   {
                     var app = new ManagedApp(this, appInfo);
                     m_Apps.Add(app);//the app is started later when it is ready
@@ -347,7 +343,7 @@ namespace Azos.Sky.Apps.HostGovernor
 
           if (now<m_ScheduledZGovRegistration) return;
 
-          var thisHost = SkySystem.HostMetabaseSection;
+          var thisHost = App.GetThisHostMetabaseSection();
 
           var thisHostHasZGov = thisHost.IsZGov;
 

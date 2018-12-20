@@ -133,8 +133,9 @@ namespace Azos.Sky.Workers.Server
       {
         ProcessFrame processFrame = m_ProcessStore.GetByPID(signalFrame.PID);
 
-        var process = processFrame.Materialize(SkySystem.ProcessManager.ProcessTypeResolver);
-        var signal = signalFrame.Materialize(SkySystem.ProcessManager.SignalTypeResolver);
+        var app = App.AsSky();
+        var process = processFrame.Materialize(app.ProcessManager.ProcessTypeResolver);
+        var signal = signalFrame.Materialize(app.ProcessManager.SignalTypeResolver);
         if (process == null || signal == null)//safeguard
           throw new WorkersException("TODO");
 
@@ -268,8 +269,9 @@ namespace Azos.Sky.Workers.Server
           return;
         }
 
-        var processExisting = existing.Materialize(SkySystem.ProcessManager.ProcessTypeResolver);
-        var processAnother = frame.Materialize(SkySystem.ProcessManager.ProcessTypeResolver);
+        var app = App.AsSky();
+        var processExisting = existing.Materialize(app.ProcessManager.ProcessTypeResolver);
+        var processAnother = frame.Materialize(app.ProcessManager.ProcessTypeResolver);
         if (processExisting == null || processAnother == null)//safeguard
         {
           put(frame, tx);
@@ -296,7 +298,7 @@ namespace Azos.Sky.Workers.Server
     {
       try
       {
-        frame.Descriptor = new ProcessDescriptor(frame.Descriptor, ProcessStatus.Started, "Started", App.TimeSource.UTCNow, "@{0}@{1}".Args(App.Name, SkySystem.HostName));
+        frame.Descriptor = new ProcessDescriptor(frame.Descriptor, ProcessStatus.Started, "Started", App.TimeSource.UTCNow, "@{0}@{1}".Args(App.Name, App.AsSky().HostName));
         m_ProcessStore.Put(frame, transaction);
       }
       catch (Exception e)

@@ -47,10 +47,6 @@ namespace Azos.Sky.Apps.ZoneGovernor
     /// </summary>
     public ZoneGovernorService(IApplication app) : base(app)
     {
-      if (!SkySystem.IsMetabase)
-          throw new AZGOVException(StringConsts.METABASE_NOT_AVAILABLE_ERROR.Args(GetType().FullName+".ctor()"));
-
-
       if (!App.Singletons.GetOrCreate(() => this).created)
         throw new AZGOVException(StringConsts.AZGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
 
@@ -115,6 +111,8 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
     public override string ComponentLogTopic => SysConsts.LOG_TOPIC_ZONE_GOV;
     public override string ComponentCommonName { get { return "zgov"; }}
+
+    public new ISkyApplication App => base.App.AsSky();
 
     /// <summary>
     /// A form of throttling.
@@ -215,7 +213,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
       registerSubordinateHost(host, hid);
 
-      var zHosts = SkySystem.HostMetabaseSection.ParentZone.ZoneGovernorHosts.Where(hh => !SkySystem.HostName.IsSameRegionPath(hh.RegionPath));
+      var zHosts = App.GetThisHostMetabaseSection().ParentZone.ZoneGovernorHosts.Where(hh => !App.HostName.IsSameRegionPath(hh.RegionPath));
       foreach (var z in zHosts)
         using (var cl = App.GetServiceClientHub().MakeNew<Contracts.IZoneHostReplicatorClient>(z))
           cl.Async_PostHostInfo(host, hid);
@@ -257,14 +255,14 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
     public Contracts.DynamicHostID Spawn(string hostPath, string id)
     {
-      var zone = SkySystem.HostMetabaseSection.ParentZone;
+      var zone = App.GetThisHostMetabaseSection().ParentZone;
       if (!Running || m_DynamicHostSlots == null) return new Contracts.DynamicHostID(null, zone.RegionPath);
 
       // TODO: Check zone
-      var host = SkySystem.Metabase.CatalogReg.NavigateHost(hostPath) as Metabank.SectionHost;
+      var host = App.Metabase.CatalogReg.NavigateHost(hostPath) as Metabank.SectionHost;
       if (!host.Dynamic) throw new AZGOVException("TODO: Host '0' is not dynamic".Args(hostPath));
 
-      if (id == null) id = SkySystem.GdidProvider.GenerateOneGdid(SysConsts.GDID_NS_DYNAMIC_HOST, SysConsts.GDID_NAME_DYNAMIC_HOST).ToString();
+      if (id == null) id = App.GdidProvider.GenerateOneGdid(SysConsts.GDID_NS_DYNAMIC_HOST, SysConsts.GDID_NAME_DYNAMIC_HOST).ToString();
 
       var hid = new Contracts.DynamicHostID(id, zone.RegionPath);
 
@@ -275,11 +273,11 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
         dhi = new Contracts.DynamicHostInfo(id);
         dhi.Stamp = stamp;
-        dhi.Owner = SkySystem.HostName;
+        dhi.Owner = App.HostName;
         dhi.Votes = 1;
         m_DynamicHostSlots.Register(dhi);
 
-        var hosts = zone.ZoneGovernorHosts.Where(hh => !SkySystem.HostName.IsSameRegionPath(hh.RegionPath));
+        var hosts = zone.ZoneGovernorHosts.Where(hh => !App.HostName.IsSameRegionPath(hh.RegionPath));
         foreach (var h in hosts)
           using (var cl = App.GetServiceClientHub().MakeNew<Contracts.IZoneHostReplicatorClient>(h))
             cl.Async_PostDynamicHostInfo(hid, dhi.Stamp, dhi.Owner, dhi.Votes);
@@ -290,7 +288,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
     public void PostDynamicHostInfo(Contracts.DynamicHostID hid, DateTime stamp, string owner, int votes)
     {
       if (!Running || m_DynamicHostSlots == null) return;
-      var zone = SkySystem.HostMetabaseSection.ParentZone;
+      var zone = App.GetThisHostMetabaseSection().ParentZone;
 
       // TODO: Check zone
       var dhi = m_DynamicHostSlots[hid.ID];
@@ -315,7 +313,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
       if (post)
       {
-        var hosts = zone.ZoneGovernorHosts.Where(hh => !SkySystem.HostName.IsSameRegionPath(hh.RegionPath));
+        var hosts = zone.ZoneGovernorHosts.Where(hh => !App.HostName.IsSameRegionPath(hh.RegionPath));
         foreach (var h in hosts)
           using (var cl = App.GetServiceClientHub().MakeNew<Contracts.IZoneHostReplicatorClient>(h))
             cl.Async_PostDynamicHostInfo(hid, dhi.Stamp, dhi.Owner, dhi.Votes);
@@ -333,7 +331,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
     {
       if (!Running || m_DynamicHostSlots == null) return null;
 
-      var zone = SkySystem.HostMetabaseSection.ParentZone;
+      var zone = App.GetThisHostMetabaseSection().ParentZone;
 
       // TODO: Check zone
       var dhi = m_DynamicHostSlots[hid.ID];
@@ -527,9 +525,9 @@ namespace Azos.Sky.Apps.ZoneGovernor
     {
       try
       {
-        var shost = SkySystem.Metabase.CatalogReg.NavigateHost(host.Name);
-        if (!shost.HasDirectOrIndirectParentZoneGovernor(SkySystem.HostMetabaseSection, iAmZoneGovernor: false, transcendNOC: false))
-          throw new AZGOVException(StringConsts.AZGOV_REGISTER_SUBORDINATE_HOST_PARENT_ERROR.Args(SkySystem.HostName, host.Name));
+        var shost = App.Metabase.CatalogReg.NavigateHost(host.Name);
+        if (!shost.HasDirectOrIndirectParentZoneGovernor(App.GetThisHostMetabaseSection(), iAmZoneGovernor: false, transcendNOC: false))
+          throw new AZGOVException(StringConsts.AZGOV_REGISTER_SUBORDINATE_HOST_PARENT_ERROR.Args(App.HostName, host.Name));
       }
       catch (Exception error)
       {

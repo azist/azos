@@ -63,7 +63,7 @@ namespace Azos.Sky.Contracts
       var ram = Computer.GetMemoryStatus();
       var result = new HostInfo
       {
-        m_Name = SkySystem.HostName,//the HostName does not have spaces in dynamic host name
+        m_Name = app.GetThisHostName(),//the HostName does not have spaces in dynamic host name
         m_UTCTimeStamp = app.TimeSource.UTCNow,
 
         m_LastWarning = app.Log.LastWarning.ThisOrNewSafeWrappedException(),

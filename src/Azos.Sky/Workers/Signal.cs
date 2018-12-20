@@ -11,25 +11,26 @@ namespace Azos.Sky.Workers
   public abstract class Signal : AmorphousTypedDoc
   {
 
-    [Inject] IApplication m_App;
+    [Inject] ISkyApplication m_App;
+    public ISkyApplication App => m_App.NonNull(nameof(m_App));
 
     /// <summary>
     /// Factory method that creates new Signal based on provided PID
     /// </summary>
-    public static TSignal MakeNew<TSignal>(IApplication app, PID pid) where TSignal : Signal, new() { return makeDefault(app, new TSignal(), pid); }
+    public static TSignal MakeNew<TSignal>(IApplication app, PID pid) where TSignal : Signal, new() { return makeDefault(app.AsSky(), new TSignal(), pid); }
 
     /// <summary>
     /// Factory method that creates new Signal based on provided Type, PID and Configuration
     /// </summary>
-    public static Signal MakeNew(IApplication app, Type type, PID pid, IConfigSectionNode args) { return makeDefault(app, FactoryUtils.MakeAndConfigure<Signal>(args, type), pid); }
+    public static Signal MakeNew(IApplication app, Type type, PID pid, IConfigSectionNode args) { return makeDefault(app.AsSky(), FactoryUtils.MakeAndConfigure<Signal>(args, type), pid); }
 
-    private static TSignal makeDefault<TSignal>(IApplication app, TSignal signal, PID pid) where TSignal : Signal
+    private static TSignal makeDefault<TSignal>(ISkyApplication app, TSignal signal, PID pid) where TSignal : Signal
     {
       app.DependencyInjector.InjectInto(signal);
-      signal.m_SysID = SkySystem.GdidProvider.GenerateOneGdid(SysConsts.GDID_NS_WORKER, SysConsts.GDID_NAME_WORKER_SIGNAL);
+      signal.m_SysID = app.GdidProvider.GenerateOneGdid(SysConsts.GDID_NS_WORKER, SysConsts.GDID_NAME_WORKER_SIGNAL);
       signal.m_SysPID = pid;
       signal.m_SysTimestampUTC = app.TimeSource.UTCNow;
-      signal.m_SysAbout = "{0}@{1}@{2}".Args(Ambient.CurrentCallUser.Name, app.Name, SkySystem.HostName);
+      signal.m_SysAbout = "{0}@{1}@{2}".Args(Ambient.CurrentCallUser.Name, app.Name, app.HostName);
       return signal;
     }
 
