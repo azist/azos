@@ -92,7 +92,7 @@ app
 Log component can work with any custom `Sink`-derivative.
 
 **Note:** sinks are synchronous, the [`LogDaemon`](/src/Azos/Log/LogDaemon.cs) is asynchronous. 
-There is a [`LogDaemonSink`](/src/Aozs/Log/Sinks/LogDaemonSink.cs) which is based on asynchronous 
+There is a [`LogDaemonSink`](/src/Azos/Log/Sinks/LogDaemonSink.cs) which is based on asynchronous 
 inner daemon. The following sinks are supplied right out of the box:
 
 - **CSVFileSink** - dumps messages into local files in the parsable CSV file format
