@@ -96,7 +96,7 @@ namespace Azos.Sky.Coordination
       m_Path = path;
       m_Dynamic = false;
 
-      var mb = SkySystem.Metabase;
+      var mb = App.GetMetabase();
 
       foreach (var hnode in config.Children.Where(c => c.IsSameName(Metabank.CONFIG_HOST_SET_HOST_SECTION)))
       {

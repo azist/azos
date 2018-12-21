@@ -31,11 +31,11 @@ namespace Azos.Sky.Workers
   [Signal("5ED96CF6-763E-4567-AB98-E705F5501264")] public sealed class TerminateSignal : Signal { }
   [Signal("D0E26B05-CDC0-4A2A-8CFD-7F3D0A39C8C4")] public sealed class FinishSignal : Signal
   {
-    public static ResultSignal Dispatch(IApplication app, PID pid, string description = null)
+    public static ResultSignal Dispatch(ISkyApplication app, PID pid, string description = null)
     {
       var finish = MakeNew<FinishSignal>(app, pid);
       finish.Description = description;
-      return SkySystem.ProcessManager.Dispatch(finish);
+      return app.ProcessManager.Dispatch(finish);
     }
 
     [Config][Field(backendName: "d")] public string Description { get; set; }
@@ -43,10 +43,10 @@ namespace Azos.Sky.Workers
   [Signal("27DE1FF6-98FE-418D-8243-EE991510D84E")]
   public sealed class FinalizeSignal : Signal
   {
-    public static ResultSignal Dispatch(IApplication app, PID pid)
+    public static ResultSignal Dispatch(ISkyApplication app, PID pid)
     {
       var finalize = MakeNew<FinalizeSignal>(app, pid);
-      return SkySystem.ProcessManager.Dispatch(finalize);
+      return app.ProcessManager.Dispatch(finalize);
     }
   }
 }

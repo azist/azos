@@ -43,7 +43,7 @@ namespace Azos.Sky.Instrumentation
     {
       base.DoConfigure(node);
 
-      m_Host = SkySystem.Metabase.CatalogReg.NavigateHost(node.AttrByName(CONFIG_HOST_ATTR).Value);
+      m_Host = App.GetMetabase().CatalogReg.NavigateHost(node.AttrByName(CONFIG_HOST_ATTR).Value);
     }
 
     protected internal override object BeforeBatch()

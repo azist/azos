@@ -45,7 +45,7 @@ namespace Azos.Sky.Log
       base.DoConfigure(node);
 
       //throws on bad host spec
-      SkySystem.Metabase.CatalogReg.NavigateHost(Host);
+      App.GetMetabase().CatalogReg.NavigateHost(Host);
     }
 
     protected override void DoWaitForCompleteStop()

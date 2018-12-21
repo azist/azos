@@ -38,7 +38,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
             string node;
             try
             {
-               node = SkySystem.Metabase.ResolveNetworkServiceToConnectString(host, net, svc, binding, from);
+               node = App.Metabase.ResolveNetworkServiceToConnectString(host, net, svc, binding, from);
             }
             catch(Exception error)
             {

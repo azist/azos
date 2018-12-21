@@ -89,6 +89,19 @@ namespace Azos
     }
 
     /// <summary>
+    /// Checks the string value for null or whitespace and throws exception if it is.
+    /// The method is useful for .ctor call chaining and expression bodies methods to preclude otherwise anonymous NullReferenceException
+    /// </summary>
+    public static string NonNullOrWhiteSpace(this string str, string name)
+    {
+      if (str.IsNullOrWhiteSpace())
+        throw new AzosException(StringConsts.STRING_PARAMETER_MAY_NOT_BE_NULL_OR_WHITESPACE_ERROR
+                                            .Args(name ?? CoreConsts.UNKNOWN,
+                                                  new StackTrace(1, false).ToString()));
+      return str;
+    }
+
+    /// <summary>
     /// Shortcut to App.DependencyInjector.InjectInto(...)
     /// </summary>
     public static T InjectInto<T>(this IApplication app, T target) where T : class

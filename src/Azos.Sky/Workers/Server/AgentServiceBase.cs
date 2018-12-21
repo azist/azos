@@ -30,6 +30,9 @@ namespace Azos.Sky.Workers.Server
     private AutoResetEvent m_Waiter;
     private int m_StartupDelaySec = DEFAULT_STARTUP_DELAY_SEC;
 
+
+    public new ISkyApplication App => base.App.AsSky();
+
     [Config]
     [ExternalParameter(SysConsts.EXT_PARAM_GROUP_WORKER, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
     public override bool InstrumentationEnabled { get; set; }
@@ -90,7 +93,7 @@ namespace Azos.Sky.Workers.Server
     protected virtual void DoDumpStats(IInstrumentation instr, DateTime utcNow) { }
     protected virtual void DoResetStats(DateTime utcNow) { }
 
-    #region Private
+    #region .pvt
     private void threadSpin()
     {
       try

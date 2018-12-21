@@ -155,6 +155,7 @@ namespace Azos.Sky.Locking.Server
       if (!isPing && transaction.Namespace.IsNullOrWhiteSpace())
         throw new LockingException(StringConsts.ARGUMENT_ERROR+GetType().Name+".ExecuteLockTransaction(transaction.Namespace==null|empty)");
 
+      var sapp = App.AsSky();
       var currentTrustLevel = CurrentTrustLevel;
       var appRunTimeSec = (uint)(DateTime.UtcNow - m_StartTimeUTC).TotalSeconds;
 
@@ -162,7 +163,7 @@ namespace Azos.Sky.Locking.Server
       if (transaction.MinimumRequiredRuntimeSec>appRunTimeSec ||
           transaction.MinimumRequiredTrustLevel>currentTrustLevel)
           return new LockTransactionResult(transaction.ID,
-                                        SkySystem.HostName,
+                                        sapp.HostName,
                                         LockStatus.TransactionError,
                                         LockErrorCause.MinimumRequirements,
                                         null,
@@ -177,7 +178,7 @@ namespace Azos.Sky.Locking.Server
       {
         if (ss.Disposed)
           return new LockTransactionResult(transaction.ID,
-                                        SkySystem.HostName,
+                                        sapp.HostName,
                                         LockStatus.TransactionError,
                                         LockErrorCause.SessionExpired,
                                         null,
@@ -189,7 +190,7 @@ namespace Azos.Sky.Locking.Server
 
         if (isPing)//ping just touches session above
           return new LockTransactionResult(transaction.ID,
-                                        SkySystem.HostName,
+                                        sapp.HostName,
                                         LockStatus.TransactionOK,
                                         LockErrorCause.Unspecified,
                                         null,
@@ -325,11 +326,11 @@ namespace Azos.Sky.Locking.Server
 
 
         return new LockTransactionResult(ctx.Transaction.ID,
-                                        SkySystem.HostName,
+                                        App.AsSky().HostName,
                                         status,
                                         errorCause,
                                         ctx.FailedStatement,
-                                        appRunTimeSec,//passed-in not to cacluate under lock
+                                        appRunTimeSec,//passed-in not to calculate under lock
                                         trustLevel,
                                         ctx.Data);
     }

@@ -698,7 +698,9 @@ namespace Azos.Sky.Metabase
             using(file)
             {
               var text = file.ReadAllText();
-              return Configuration.ProviderLoadFromString(text, fmt);
+              var result = Configuration.ProviderLoadFromString(text, fmt);
+              result.Application = App;
+              return result;
             }
           }
           if (require)
@@ -708,6 +710,7 @@ namespace Azos.Sky.Metabase
             var result = new MemoryConfiguration();
 
             result.Create(SysConsts.DEFAULT_APP_CONFIG_ROOT);
+            result.Application = App;
             result.Root.ResetModified();
             return result;
           }
@@ -732,7 +735,9 @@ namespace Azos.Sky.Metabase
             var text = file.ReadAllText();
             var fmt = chopNameLeaveExt(path);
 
-            return Configuration.ProviderLoadFromString(text, fmt);
+            var result = Configuration.ProviderLoadFromString(text, fmt);
+            result.Application = App;
+            return result;
           }
         }
         catch(Exception error)
@@ -819,7 +824,7 @@ namespace Azos.Sky.Metabase
                         }
                         catch(Exception error)
                         {
-                          log(MessageType.Error,
+                          WriteLog(MessageType.Error,
                               "obtainSession(timedLoop)",
                               "Thread '{0}' leaked: {1}".Args(m_FSSessionCacheThread.Name, error.ToMessageWithType()),
                               error);
@@ -905,21 +910,6 @@ namespace Azos.Sky.Metabase
         var placeholder = levelRoot.AddChildNode(Guid.NewGuid().ToString());
         placeholder.Configuration.Include(placeholder, m_CommonLevelConfig);
       }
-
-      private void log(MessageType type, string from, string text, Exception error = null)
-      {
-        App.Log.Write(
-              new Message
-              {
-                Topic = SysConsts.LOG_TOPIC_METABASE,
-                Type = type,
-                From = "Metabank."+from,
-                Text = text,
-                Exception = error
-              }
-          );
-      }
-
 
     #endregion
 

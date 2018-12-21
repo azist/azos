@@ -22,8 +22,9 @@ namespace Azos.Sky.Mdb
 
     public void Configure(IConfigSectionNode node)
     {
+      node.NonNull(nameof(node));
       ConfigAttribute.Apply(this, node);
-      m_ResolvedNode = SkySystem.Metabase.ResolveNetworkService(Host, Network, Service, Binding);
+      m_ResolvedNode = node.Configuration.Application.GetMetabase().ResolveNetworkService(Host, Network, Service, Binding);
     }
   }
 

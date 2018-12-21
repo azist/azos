@@ -335,10 +335,11 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
 
          var conf = new MemoryConfiguration();
          conf.CreateFromNode( Metabank.RootAppConfig );
+         conf.Application = this.Metabank.App;
 
          var result = conf.Root;
          if (!pragmasDisabled)
-            BootConfLoader.ProcessAllExistingIncludes(result, includePragma, "root");
+            Azos.Apps.BootConfLoader.ProcessAllExistingIncludes(result, includePragma, "root");
 
          var derivation = new List<configLevel>();
 
@@ -374,7 +375,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
         foreach(var clevel in derivation.Where(cl => cl.Node!=null))
         {
           if (!pragmasDisabled)
-            BootConfLoader.ProcessAllExistingIncludes((ConfigSectionNode)clevel.Node, includePragma, clevel.From.ToString());
+            Azos.Apps.BootConfLoader.ProcessAllExistingIncludes((ConfigSectionNode)clevel.Node, includePragma, clevel.From.ToString());
 
           try
           {

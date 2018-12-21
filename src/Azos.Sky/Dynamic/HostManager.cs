@@ -79,7 +79,7 @@ namespace Azos.Sky.Dynamic
 
     public string GetHostName(Contracts.DynamicHostID hid)
     {
-      var zone = SkySystem.Metabase.CatalogReg.NavigateZone(hid.Zone);
+      var zone = App.GetMetabase().CatalogReg.NavigateZone(hid.Zone);
       var hosts = zone.ZoneGovernorHosts;
       return App.GetServiceClientHub().CallWithRetry<Contracts.IZoneHostReplicatorClient, Contracts.DynamicHostInfo>
       (

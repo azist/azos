@@ -121,7 +121,7 @@ namespace Azos.Sky.Workers.Server.Queue
         if (!todo.Assigned)
           continue;
 
-        var todoAttr = GuidTypeAttribute.GetGuidTypeAttribute<Todo, TodoQueueAttribute>(todo.Type, SkySystem.ProcessManager.TodoTypeResolver);
+        var todoAttr = GuidTypeAttribute.GetGuidTypeAttribute<Todo, TodoQueueAttribute>(todo.Type, App.AsSky().ProcessManager.TodoTypeResolver);
 
         if (attr==null) attr = todoAttr;
 

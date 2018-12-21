@@ -123,7 +123,7 @@ namespace Azos.Sky.Workers.Server.Queue{ partial class TodoQueueService{
           Todo todo;
           try
           {
-            todo = todoFrame.Materialize( SkySystem.ProcessManager.TodoTypeResolver );
+            todo = todoFrame.Materialize( App.ProcessManager.TodoTypeResolver );
             App.DependencyInjector.InjectInto( todo );
           }
           catch(Exception me)

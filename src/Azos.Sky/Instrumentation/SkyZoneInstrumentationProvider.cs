@@ -199,7 +199,7 @@ namespace Azos.Sky.Instrumentation
                       if (failures>MAX_FAILURES_PER_RANK)
                       {
                         failures = 0;
-                        var phost = SkySystem.Metabase.CatalogReg.NavigateHost(zgHost).ParentZoneGovernorPrimaryHost(transcendNOC: true);// if not found here, go to the NOC higher than this one
+                        var phost = App.GetMetabase().CatalogReg.NavigateHost(zgHost).ParentZoneGovernorPrimaryHost(transcendNOC: true);// if not found here, go to the NOC higher than this one
                         if (phost==null)
                         {//we came to very root - data lost
                           log(MessageType.Error, FROM+".retryTop", StringConsts.INSTR_SEND_TELEMETRY_TOP_LOST_ERROR.Args(error.ToMessageWithType()));

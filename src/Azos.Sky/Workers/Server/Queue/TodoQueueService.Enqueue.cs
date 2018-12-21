@@ -68,8 +68,8 @@ namespace Azos.Sky.Workers.Server.Queue { partial class TodoQueueService{
           continue;
         }
 
-        var todoExisting = existing.Materialize( SkySystem.ProcessManager.TodoTypeResolver ) as CorrelatedTodo;
-        var todoAnother  = todo.Materialize( SkySystem.ProcessManager.TodoTypeResolver ) as CorrelatedTodo;
+        var todoExisting = existing.Materialize( App.ProcessManager.TodoTypeResolver ) as CorrelatedTodo;
+        var todoAnother  = todo.Materialize( App.ProcessManager.TodoTypeResolver ) as CorrelatedTodo;
         if (todoExisting==null || todoAnother==null)//safeguard
         {
           put(queue, todo, tx, true);

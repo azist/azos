@@ -135,7 +135,7 @@ namespace Azos.Sky.Identification
           ScopeName = scopeName,
           SequenceName = sequenceName,
           Authority = authority,
-          AuthorityHost = SkySystem.HostName,
+          AuthorityHost = App.GetThisHostName(),
           BlockSize = blockSize,
           ServerUTCTime = App.TimeSource.UTCNow
       };

@@ -22,6 +22,11 @@ namespace Azos.Sky
       => (app.NonNull(nameof(app)) as ISkyApplication).NonNull("app is not an ISkyApplication");
 
     /// <summary>
+    /// Returns Metabank of this IApplication
+    /// </summary>
+    public static Metabank GetMetabase(this IApplication app) => app.AsSky().Metabase;
+
+    /// <summary>
     /// Returns Metabank.SectionHost (metabase's information about this host)
     /// </summary>
     public static Metabank.SectionHost GetThisHostMetabaseSection(this IApplication app)

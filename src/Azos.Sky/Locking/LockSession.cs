@@ -14,7 +14,7 @@ namespace Azos.Sky.Locking
   {
     internal LockSessionID(string host)
     {
-       Host = host.IsNullOrWhiteSpace() ? SkySystem.HostName : host;
+       Host = host.NonNullOrWhiteSpace(nameof(host));
        ID = Guid.NewGuid();
     }
 
@@ -70,7 +70,7 @@ namespace Azos.Sky.Locking
        {
          var shardingHash = shardingID.GetHashCode();
 
-         var zone = SkySystem.Metabase.CatalogReg.NavigateZone(Path);
+         var zone = manager.App.GetMetabase().CatalogReg.NavigateZone(Path);
          var primaryZgovs = zone
                             .FindNearestParentZoneGovernors(iAmZoneGovernor: false, filter: (host) => !host.IsZGovLockFailover,  transcendNOC: true)
                             .OrderBy( host => host.Name)

@@ -74,7 +74,7 @@ namespace Azos.Sky.Apps.HostGovernor
       {
         var result = AppInfo.ExeFile;
         if (result.IsNotNullOrWhiteSpace()) return result;
-        result = SkySystem.Metabase.CatalogApp.Applications[AppInfo.Name].ExeFile;
+        result = App.AsSky().Metabase.CatalogApp.Applications[AppInfo.Name].ExeFile;
         return result;
       }
     }
@@ -88,7 +88,7 @@ namespace Azos.Sky.Apps.HostGovernor
       {
         var result = AppInfo.ExeArgs;
         if (result.IsNotNullOrWhiteSpace()) return result;
-        result = SkySystem.Metabase.CatalogApp.Applications[AppInfo.Name].ExeArgs;
+        result = App.AsSky().Metabase.CatalogApp.Applications[AppInfo.Name].ExeArgs;
         return result;
       }
     }

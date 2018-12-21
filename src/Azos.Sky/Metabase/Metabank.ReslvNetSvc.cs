@@ -121,7 +121,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
           svc.IsNullOrWhiteSpace())
          throw new MetabaseException(StringConsts.ARGUMENT_ERROR + "Metabase.ResolveNetSvc(host|net|svc==null|empty)");
 
-      if (fromHost.IsNullOrWhiteSpace()) fromHost = SkySystem.HostName;
+      if (fromHost.IsNullOrWhiteSpace()) fromHost = App.GetThisHostName();
 
       if (fromHost.IsNullOrWhiteSpace())
          throw new MetabaseException(StringConsts.ARGUMENT_ERROR + "Metabase.ResolveNetSvc(fromHost==null|empty & SkySystem is not avail)");
@@ -216,7 +216,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
                     catch(Exception error)
                     {
                       //todo Perf counter
-                      log(MessageType.Error,
+                      WriteLog(MessageType.Error,
                                 "resolveDynamicHostAddress()",
                                 "Error resolving net svc on dynamic host '{0}' while contacting zgov on '{1}': {2}".Args(fullHostName, hzgov.RegionPath, error.ToMessageWithType()),
                                 error);

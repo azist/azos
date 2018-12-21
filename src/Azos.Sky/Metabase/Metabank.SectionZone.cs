@@ -280,7 +280,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
       public IEnumerable<SectionHost> FindNearestParentZoneGovernors(bool? iAmZoneGovernor = null, Func<SectionHost, bool> filter = null,  bool transcendNOC = false)
       {
           if (!iAmZoneGovernor.HasValue)
-           iAmZoneGovernor = Apps.BootConfLoader.SystemApplicationType == SystemApplicationType.ZoneGovernor;
+           iAmZoneGovernor = Metabank.App.AsSky().SystemApplicationType == SystemApplicationType.ZoneGovernor;
 
           var zone = this;
 
