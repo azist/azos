@@ -23,7 +23,7 @@ namespace Azos.Sky.Coordination
   /// may include dynamic hosts (as allocated by IaaS provider).
   /// The dynamic sets are not supported until IaaS providers are implemented
   /// </summary>
-  public partial class HostSet : ApplicationComponent, INamed
+  public class HostSet : ApplicationComponent, INamed
   {
     #region CONSTS
     public const MessageType DEFAULT_LOG_LEVEL = MessageType.Warning;
@@ -61,30 +61,6 @@ namespace Azos.Sky.Coordination
       }
 
       IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
-    }
-    #endregion
-
-    #region Static
-    /// <summary>
-    /// Shortcut to HostSet.Builder.Instance.FindAndBuild()....
-    /// Tries to find a named host set starting at the requested cluster level.
-    /// Throws if not found.
-    /// </summary>
-    public static THostSet FindAndBuild<THostSet>(string setName, string clusterPath, bool searchParent = true, bool transcendNoc = false)
-      where THostSet : HostSet
-    {
-      return Builder.Instance.FindAndBuild<THostSet>(setName, clusterPath, searchParent, transcendNoc);
-    }
-
-    /// <summary>
-    /// Shortcut to HostSet.Builder.Instance.TryFindAndBuild()....
-    /// Tries to find a named host set starting at the requested cluster level.
-    /// Returns null if not found.
-    /// </summary>
-    public static THostSet TryFindAndBuild<THostSet>(string setName, string clusterPath, bool searchParent = true, bool transcendNoc = false)
-      where THostSet : HostSet
-    {
-      return Builder.Instance.TryFindAndBuild<THostSet>(setName, clusterPath, searchParent, transcendNoc);
     }
     #endregion
 
@@ -158,9 +134,6 @@ namespace Azos.Sky.Coordination
     #region Properties
     public override string ComponentLogTopic => SysConsts.LOG_TOPIC_WORKER;
 
-
-    [Config(Default = DEFAULT_LOG_LEVEL)]
-    public MessageType LogLevel { get; set; }
 
     /// <summary>
     /// Returns HostSet Name
@@ -270,35 +243,11 @@ namespace Azos.Sky.Coordination
         {
           host.LastDownTime = App.TimeSource.UTCNow;
           //todo instrument
-          Log(MessageType.Error, "heartbeat()", "Sending heartbeat to '{0}' failed: {1}".Args(host.Section.RegionPath, error.ToMessageWithType()), error);
+          WriteLog(MessageType.Error, "heartbeat()", "Sending heartbeat to '{0}' failed: {1}".Args(host.Section.RegionPath, error.ToMessageWithType()), error);
         }
       }
     }
 
-    protected Guid Log(MessageType type,
-                   string from,
-                   string message,
-                   Exception error = null,
-                   Guid? relatedMessageID = null,
-                   string parameters = null)
-    {
-      if (type < LogLevel) return Guid.Empty;
-
-      var logMessage = new Message
-      {
-        Topic = SysConsts.LOG_TOPIC_HOST_SET,
-        Text = message ?? string.Empty,
-        Type = type,
-        From = "{0}.{1}".Args(this.GetType().Name, from),
-        Exception = error,
-        Parameters = parameters
-      };
-      if (relatedMessageID.HasValue) logMessage.RelatedTo = relatedMessageID.Value;
-
-      App.Log.Write(logMessage);
-
-      return logMessage.Guid;
-    }
     #endregion
   }
 }

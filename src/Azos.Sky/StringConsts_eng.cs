@@ -57,6 +57,10 @@ namespace Azos.Sky
 
     public const string GDIDAUTH_ERA_PROMOTED_WARNING = "GDIDAuthorityService Era in scope '{0}', sequence '{1}' has been promoted to {2}";
 
+
+    public const string HOST_SET_BUILDER_SINGLETON_CONFIG_ERROR =
+      "HostSet Builder singleton could not be created from config: \n `{0}`. \n Error: {1}";
+
     public const string HOST_SET_BUILDER_CONFIG_FIND_ERROR =
       "HostSet Builder '{0}' could not find config section for a named set '{1}' in any of the region zones starting at '{2}'; search parent: {3}, transcend NOC: {4}";
 

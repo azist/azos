@@ -282,7 +282,7 @@ namespace Azos.Sky.Workers
 
         var spar = cn.AttrByName(CONFIG_SEARCH_PARENT_ATTR).ValueAsBool(true);
         var tNoc = cn.AttrByName(CONFIG_TRANSCEND_NOC_ATTR).ValueAsBool(false);
-        var hset = HostSet.FindAndBuild<HostSet>(name, path, spar, tNoc);
+        var hset = App.FindAndBuild<HostSet>(name, path, spar, tNoc);
 
         var added = m_HostSets.Register(hset);
         if (!added)

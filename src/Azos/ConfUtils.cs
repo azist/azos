@@ -26,6 +26,20 @@ namespace Azos
     => Azos.Data.ObjectValueConversion.AsLaconicConfig(val, dflt, wrapRootName, handling);
 
 
+    /// <summary>
+    /// Returns the content of config node as terse laconic string capped at the specified max len (64 by default).
+    /// Warning: the returned laconic is mostly used for logging and error reporting, it is not possible to
+    /// read it back into config node as it is for info purposes only
+    /// </summary>
+    public static string AsTextSnippet(this IConfigSectionNode node, int len = 0, string ellipsis = null)
+    {
+      if (node==null || !node.Exists) return string.Empty;
+      if (len<=0) len = 64;
+      if (ellipsis==null) ellipsis = "...";
+      return node.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact)
+                 .TakeFirstChars(len, ellipsis);
+    }
+
 
     /// <summary>
     /// Converts dictionary into configuration where every original node gets represented as a sub-section of config's root
