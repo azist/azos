@@ -107,5 +107,10 @@ namespace Azos.Pile
     {
       return !l.Equals(r);
     }
+
+    public static object operator &(IPile pile, PilePointer ptr)
+    {
+      return pile.NonNull(nameof(pile)).Get(ptr);//->     var x = pile&ptr;
+    }
   }
 }
