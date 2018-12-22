@@ -10,7 +10,7 @@ using Azos.IO.FileSystem.Local;
 using Azos.IO.FileSystem.Packaging;
 using Azos.Platform;
 
-using Azos.Sky.Apps;
+using Azos.Apps;
 using Azos.Sky.Metabase;
 
 
@@ -37,7 +37,7 @@ namespace Azos.Sky.Tools.amm
 
     static void run(string[] args)
     {
-      using (var app = new AzosApplication(args, null))
+      using (var app = new AzosApplication(allowNesting: true, args: args, rootConfig: null))
       {
         var silent = app.CommandArgs["s", "silent"].Exists;
         if (!silent)
@@ -78,7 +78,8 @@ namespace Azos.Sky.Tools.amm
         using (var fs = new LocalFileSystem(app))
         using (var mb = new Metabank(fs, new FileSystemSessionConnectParams(), mbPath))
         {
-          using (new BootConfLoader(SystemApplicationType.Tool, mb, fromHost))
+          //using (new BootConfLoader(SystemApplicationType.Tool, mb, fromHost))
+          using (var skyApp = new SkyApplication(app, SystemApplicationType.Tool, mb, fromHost, allowNesting: false, args: null, rootConfig: null))
           {
             if (app.CommandArgs["gbm"].Exists)
               generateManifests(mb, silent);

@@ -34,7 +34,7 @@ namespace Azos
 
 
   /// <summary>
-  /// Defines a contract for applications
+  /// Defines a contract for Sky distributed applications
   /// </summary>
   public interface ISkyApplication : IApplication
   {

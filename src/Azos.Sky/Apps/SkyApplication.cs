@@ -20,7 +20,7 @@ using Azos.Sky.Dynamic;
 namespace Azos.Apps
 {
   /// <summary>
-  /// Provides Sky application chassis implementation per ISkyApplication contract
+  /// Provides Sky distributed application chassis implementation of ISkyApplication contract
   /// </summary>
   public class SkyApplication : AzosApplication, ISkyApplication
   {
@@ -50,13 +50,34 @@ namespace Azos.Apps
     { }
 
     public SkyApplication(SystemApplicationType sysAppType,
-                          bool allowNesting,
-                          string[] args,
-                          ConfigSectionNode rootConfig) : base()
+                         bool allowNesting,
+                         string[] args,
+                         ConfigSectionNode rootConfig) : base()
+    {
+      var loader = new BootConfLoader(sysAppType);
+      ctor(loader, allowNesting, args, rootConfig);
+    }
+
+    internal SkyApplication(IApplication bootApp,
+                        SystemApplicationType sysAppType,
+                        Metabank metabase,
+                        string thisHost,
+                        bool allowNesting,
+                        string[] args,
+                        ConfigSectionNode rootConfig) : base()
+    {
+      var loader = new BootConfLoader(bootApp, sysAppType, metabase, thisHost);
+      ctor(loader, allowNesting, args, rootConfig);
+    }
+
+    private void ctor(BootConfLoader loader,
+                      bool allowNesting,
+                      string[] args,
+                      ConfigSectionNode rootConfig)
     {
       try
       {
-        m_BootLoader = new BootConfLoader(sysAppType);
+        m_BootLoader = loader;
         m_NOPLockManager = new NOPLockManager(this);
         var cmdArgs = args == null ? null : new CommandArgsConfiguration(args);
         Constructor(allowNesting,

@@ -6,7 +6,7 @@ using Azos.Log;
 using Azos.Platform;
 using Azos.Wave;
 
-using Azos.Sky.Apps;
+using Azos.Apps;
 
 namespace Azos.Sky.Hosts.aws
 {

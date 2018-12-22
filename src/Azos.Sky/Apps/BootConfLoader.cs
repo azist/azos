@@ -76,8 +76,7 @@ namespace Azos.Apps
       m_SystemApplicationType = appType;
     }
 
-#warning who uses this ctor? only for testing
-    internal BootConfLoader(AzosApplication bootApp, SystemApplicationType appType, Metabank mbase, string host, string dynamicHostNameSuffix = null)
+    internal BootConfLoader(IApplication bootApp, SystemApplicationType appType, Metabank mbase, string host, string dynamicHostNameSuffix = null)
     {
       Platform.Abstraction.PlatformAbstractionLayer.SetProcessInvariantCulture();
 
@@ -107,7 +106,8 @@ namespace Azos.Apps
     protected override void Destructor()
     {
       base.Destructor();
-      DisposeAndNull(ref m_BootApplication);
+      if (m_BootApplication is IDisposable da) da.Dispose();
+      m_BootApplication = null;
       m_SystemApplicationType = SystemApplicationType.Unspecified;
       m_HostName = null;
       m_DynamicHostNameSuffix = null;
@@ -139,7 +139,7 @@ namespace Azos.Apps
       }
     }
 
-    private AzosApplication m_BootApplication;
+    private IApplication m_BootApplication;
     private SystemApplicationType m_SystemApplicationType;
     private Exception m_LoadException;
     private string m_HostName;
