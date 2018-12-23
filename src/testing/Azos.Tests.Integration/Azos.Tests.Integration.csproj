@@ -80,7 +80,6 @@
     <ProjectReference Include="..\..\Azos\Azos.csproj" />
     <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\..\Azos.Wave\Azos.Wave.csproj" />
-    <ProjectReference Include="..\..\providers\Azos.Erlang\Azos.Erlang.csproj" />
     <ProjectReference Include="..\..\providers\Azos.MongoDb\Azos.MongoDb.csproj" />
     <ProjectReference Include="..\..\providers\Azos.MySql\Azos.MySql.csproj" />
     <ProjectReference Include="..\TestBusinessLogic\TestBusinessLogic.csproj" />
