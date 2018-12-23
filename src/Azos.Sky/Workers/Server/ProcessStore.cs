@@ -17,6 +17,8 @@ namespace Azos.Sky.Workers.Server
       ConfigAttribute.Apply(this, node);
     }
 
+
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_PM;
     /// <summary>
     /// References service that this store is under
     /// </summary>

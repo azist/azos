@@ -30,7 +30,7 @@ namespace Azos.Data.Access.MongoDb.Connector
     /// mongo{server="mongo://localhost:27017" db="myDB"}
     /// </code>
     /// </summary>
-    public static Database GetMongoDatabaseFromCS(this IApplication app, string cString)
+    public static Database GetMongoDatabaseFromConnectString(this IApplication app, string cString)
     {
       if (cString.IsNullOrWhiteSpace())
         throw new MongoDbConnectorException(StringConsts.CONNECTION_STRING_NULL_OR_EMPTY_ERROR);

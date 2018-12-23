@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Azos.Apps;
 using Azos.Data;
 using Azos.Conf;
 using Azos.Data.Access.MongoDb.Connector;
@@ -25,7 +26,7 @@ namespace Azos.Sky.Kdb { public sealed partial class DefaultKdbStore {
   /// </summary>
   public sealed class ShardSet : KdbAppComponent
   {
-    internal ShardSet(object director, IConfigSectionNode config) : base(director)
+    internal ShardSet(IApplicationComponent director, IConfigSectionNode config) : base(director)
     {
       //Shards
       var shards = new List<Shard>();
@@ -197,7 +198,7 @@ namespace Azos.Sky.Kdb { public sealed partial class DefaultKdbStore {
     internal KdbRecord<TDoc> Get<TDoc>(string table, byte[] key) where TDoc : Doc
     {
 
-      var db = MongoClient.DatabaseFromConnectString(EffectiveConnectionString);
+      var db = App.GetMongoDatabaseFromConnectString(EffectiveConnectionString);
       var doc = db[table].FindOne(MongoQuery.ID_EQ_BYTE_ARRAY(key));
 
       if (doc == null) return KdbRecord<TDoc>.Unassigned;
@@ -229,7 +230,7 @@ namespace Azos.Sky.Kdb { public sealed partial class DefaultKdbStore {
 
     internal KdbRecord<byte[]> GetRaw(string table, byte[] key)
     {
-      var db = MongoClient.DatabaseFromConnectString(EffectiveConnectionString);
+      var db = App.GetMongoDatabaseFromConnectString(EffectiveConnectionString);
       var doc = db[table].FindOne(MongoQuery.ID_EQ_BYTE_ARRAY(key));
 
       if (doc == null) return KdbRecord<byte[]>.Unassigned;
@@ -289,7 +290,8 @@ namespace Azos.Sky.Kdb { public sealed partial class DefaultKdbStore {
 
     private void putCore(string table, byte[] key, BSONElement value, int slidingExpirationDays, DateTime? absoluteExpirationDateUtc)
     {
-      var db = MongoClient.DatabaseFromConnectString(EffectiveConnectionString);
+      //todo: Why do we obtain ref to db on very put, need to consider cache for speed
+      var db = App.GetMongoDatabaseFromConnectString(EffectiveConnectionString);
 
       var doc = new BSONDocument()
          .Set(DataDocConverter.ByteBufferID_CLRtoBSON(MongoQuery._ID, key))
@@ -307,14 +309,16 @@ namespace Azos.Sky.Kdb { public sealed partial class DefaultKdbStore {
 
     internal bool Delete(string table, byte[] key)
     {
-      var db = MongoClient.DatabaseFromConnectString(EffectiveConnectionString);
+      //todo: Why do we obtain ref to db every time, need to consider cache for speed
+      var db = App.GetMongoDatabaseFromConnectString(EffectiveConnectionString);
 
       return db[table].DeleteOne(MongoQuery.ID_EQ_BYTE_ARRAY(key)).TotalDocumentsAffected > 0;
     }
 
     internal void Touch(string table, byte[] key)
     {
-      var db = MongoClient.DatabaseFromConnectString(EffectiveConnectionString);
+      //todo: Why do we obtain ref to db every time, need to consider cache for speed
+      var db = App.GetMongoDatabaseFromConnectString(EffectiveConnectionString);
       var udoc = new BSONDocument()
                    .Set(new BSONDateTimeElement(FIELD_LAST_USE_DATE, App.TimeSource.UTCNow));
 

@@ -27,6 +27,9 @@ namespace Azos.Sky.Workers.Server.Queue
     public TodoQueueService QueueService { get { return (TodoQueueService)ComponentDirector;} }
 
 
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_TODO;
+
+
     public abstract object BeginTransaction(TodoQueue queue);
 
     public abstract void CommitTransaction(TodoQueue queue, object transaction);

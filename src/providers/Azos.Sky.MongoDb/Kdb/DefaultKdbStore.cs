@@ -18,29 +18,33 @@ namespace Azos.Sky.Kdb
   /// <summary>
   /// Provides default implementation of IKdbDataStore
   /// </summary>
-  public sealed partial class DefaultKdbStore : DaemonWithInstrumentation<object>, IKdbDataStoreImplementation
+  public sealed partial class DefaultKdbStore : DaemonWithInstrumentation<IApplicationComponent>, IKdbDataStoreImplementation
   {
     private static readonly TimeSpan INSTR_INTERVAL = TimeSpan.FromMilliseconds(3250);
     public const string Kdb_TARGET = "kdb";
 
     #region .ctor
-      public DefaultKdbStore() : this(null, null) { }
-      public DefaultKdbStore(string name, object director) : base(director)
-      {
-        Name = name.IsNullOrWhiteSpace() ? Guid.NewGuid().ToString() : name;
-        m_Converter = new DataDocConverter();
-      }
+    public DefaultKdbStore(IApplication app) : base(app) => ctor(null);
+    public DefaultKdbStore(IApplicationComponent director) : base(director) => ctor(null);
+    public DefaultKdbStore(IApplication app, string name) : base(app) => ctor(name);
+    public DefaultKdbStore(IApplicationComponent director, string name) : base(director) => ctor(name);
 
-      protected override void Destructor()
-      {
-        DisposableObject.DisposeAndNull(ref m_InstrumentationEvent);
-        base.Destructor();
-      }
+    private void ctor(string name)
+    {
+      Name = name.IsNullOrWhiteSpace() ? Guid.NewGuid().ToString() : name;
+      m_Converter = new DataDocConverter();
+    }
+
+    protected override void Destructor()
+    {
+      DisposableObject.DisposeAndNull(ref m_InstrumentationEvent);
+      base.Destructor();
+    }
     #endregion
 
     #region Fields
       private ShardSet m_RootShardSet;
-      internal readonly DataDocConverter m_Converter;
+      internal DataDocConverter m_Converter;
       private bool m_InstrumentationEnabled;
       private Time.Event m_InstrumentationEvent;
 
@@ -57,46 +61,48 @@ namespace Azos.Sky.Kdb
     #endregion
 
     #region Props
-      /// <summary>
-      /// Implements IInstrumentable
-      /// </summary>
-      [Config(Default=false)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-      public override bool InstrumentationEnabled
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_KDB;
+
+    /// <summary>
+    /// Implements IInstrumentable
+    /// </summary>
+    [Config(Default=false)]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+    public override bool InstrumentationEnabled
+    {
+      get { return m_InstrumentationEnabled;}
+      set
       {
-        get { return m_InstrumentationEnabled;}
-        set
+        m_InstrumentationEnabled = value;
+
+        if (m_InstrumentationEvent==null)
         {
-          m_InstrumentationEnabled = value;
+          if (!value) return;
 
-          if (m_InstrumentationEvent==null)
-          {
-            if (!value) return;
-
-            resetStats();
-            m_InstrumentationEvent = new Time.Event(App.EventTimer, null, e => AcceptManagerVisit(this, e.LocalizedTime), INSTR_INTERVAL);
-          }
-          else
-          {
-            if (value) return;
-            DisposableObject.DisposeAndNull(ref m_InstrumentationEvent);
-          }
+          resetStats();
+          m_InstrumentationEvent = new Time.Event(App.EventTimer, null, e => AcceptManagerVisit(this, e.LocalizedTime), INSTR_INTERVAL);
+        }
+        else
+        {
+          if (value) return;
+          DisposableObject.DisposeAndNull(ref m_InstrumentationEvent);
         }
       }
+    }
 
-      public string TargetName{ get { return Kdb_TARGET; } }
+    public string TargetName{ get { return Kdb_TARGET; } }
 
-      StoreLogLevel IDataStoreImplementation.LogLevel
-      {
-        get { return this.LogLevel >= MessageType.Trace ? StoreLogLevel.Trace : StoreLogLevel.Debug; }
-        set {}
-      }
+    StoreLogLevel IDataStoreImplementation.LogLevel
+    {
+      get { return this.LogLevel >= MessageType.Trace ? StoreLogLevel.Trace : StoreLogLevel.Debug; }
+      set {}
+    }
 
-      [Config(Default = MessageType.Error)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-      public MessageType LogLevel { get; set; }
+    [Config(Default = MessageType.Error)]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+    public MessageType LogLevel { get; set; }
 
-      public ShardSet RootShardSet { get { return m_RootShardSet; } }
+    public ShardSet RootShardSet { get { return m_RootShardSet; } }
     #endregion
 
     #region Public

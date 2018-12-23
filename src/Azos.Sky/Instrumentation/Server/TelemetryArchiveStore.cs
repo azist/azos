@@ -22,6 +22,10 @@ namespace Azos.Sky.Instrumentation.Server
     /// </summary>
     public TelemetryReceiverService ArchiveService { get { return (TelemetryReceiverService)ComponentDirector;} }
 
+
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_INSTRUMENTATION;
+
+
     public abstract object BeginTransaction();
 
     public abstract void CommitTransaction(object transaction);

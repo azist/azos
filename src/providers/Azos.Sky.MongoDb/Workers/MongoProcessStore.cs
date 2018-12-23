@@ -45,7 +45,7 @@ namespace Azos.Sky.Workers.Server
     public MongoProcessStore(ProcessControllerService director, IConfigSectionNode node) : base(director, node)
     {
       var cstring = ConfigStringBuilder.Build(node, CONFIG_MONGO_SECTION);
-      m_Database = MongoClient.DatabaseFromConnectString( cstring );
+      m_Database = App.GetMongoDatabaseFromConnectString( cstring );
       m_Converter = FactoryUtils.MakeAndConfigure<DataDocConverter>( node[CONFIG_CONVERTER_SECTION], typeof(DataDocConverter));
     }
 

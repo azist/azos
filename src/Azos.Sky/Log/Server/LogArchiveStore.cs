@@ -36,6 +36,9 @@ namespace Azos.Sky.Log.Server
     /// </summary>
     public LogReceiverService ArchiveService { get { return (LogReceiverService)ComponentDirector;} }
 
+
+    public override string ComponentLogTopic => CoreConsts.LOG_TOPIC;
+
     /// <summary>
     /// Returns log message by ID
     /// </summary>

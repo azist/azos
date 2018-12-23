@@ -21,7 +21,7 @@ namespace Azos.Sky.Instrumentation.Server
     public MongoTelemetryArchiveStore(TelemetryReceiverService director, IConfigSectionNode node) : base(director, node)
     {
       var cstring = ConfigStringBuilder.Build(node, CONFIG_MONGO_SECTION);
-      m_Database = MongoClient.DatabaseFromConnectString( cstring );
+      m_Database = App.GetMongoDatabaseFromConnectString( cstring );
       m_DefaultChannel = node.AttrByName(CONFIG_DEFAULT_CHANNEL_ATTR).ValueAsString(DEFAULT_CHANNEL);
       m_Serializer = new BSONSerializer(node);
       m_Serializer.PKFieldName = Query._ID;

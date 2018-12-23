@@ -14,10 +14,12 @@ namespace Azos.Sky.Kdb
     /// </summary>
     public abstract class KdbAppComponent : ApplicationComponent, IExternallyParameterized
     {
-      protected KdbAppComponent(object director) : base(director)
+      protected KdbAppComponent(IApplicationComponent director) : base(director)
       {
 
       }
+
+      public override string ComponentLogTopic => SysConsts.LOG_TOPIC_KDB;
 
       /// <summary>
       /// Returns named parameters that can be used to control this component
@@ -37,7 +39,7 @@ namespace Azos.Sky.Kdb
       /// </summary>
       public virtual bool ExternalGetParameter(string name, out object value, params string[] groups)
       {
-        return ExternalParameterAttribute.GetParameter(this, name, out value, groups);
+        return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
       }
 
       /// <summary>
@@ -45,7 +47,7 @@ namespace Azos.Sky.Kdb
       /// </summary>
       public virtual bool ExternalSetParameter(string name, object value, params string[] groups)
       {
-        return ExternalParameterAttribute.SetParameter(this, name, value, groups);
+        return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
       }
 
     }
