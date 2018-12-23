@@ -23,7 +23,7 @@ namespace Azos.Data.Access.MongoDb.Connector
   /// as connections are managed by the Client.
   /// This class is not thread safe and must be Acquired first before sending data
   /// </summary>
-  public sealed class Connection : ApplicationComponent
+  public sealed class Connection : DisposableObject
   {
       #region CONSTS
         public const string DEFAULT_MONGO_BINDING = "mongo";
@@ -39,7 +39,7 @@ namespace Azos.Data.Access.MongoDb.Connector
       #endregion
 
       #region .ctor
-        internal Connection(ServerNode server) : base(server)
+        internal Connection(ServerNode server)
         {
           m_Server = server;
           connectSocket();
@@ -62,9 +62,10 @@ namespace Azos.Data.Access.MongoDb.Connector
         private TcpClient m_TcpClient;
         private MemoryStream m_BufferStream = new MemoryStream(DEFAULT_STREAM_SIZE);
         private BufferSegmentReadingStream m_Received = new BufferSegmentReadingStream();
-      #endregion
+    #endregion
 
       #region Properties
+
         public bool IsAcquired { get{ return m_Acquired == ACQUIRED;} }
         public ServerNode Server { get { return m_Server;} }
 

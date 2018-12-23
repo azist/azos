@@ -93,11 +93,11 @@ namespace Azos.Data.Access.MongoDb.Connector
 
         private int m_SocketReceiveTimeout = DEFAULT_RCV_TIMEOUT;
         private int m_SocketSendTimeout = DEFAULT_SND_TIMEOUT;
-      #endregion
+    #endregion
 
 
-      #region Properties
-
+    #region Properties
+        public override string ComponentLogTopic => MongoConsts.MONGO_TOPIC;
 
         /// <summary>
         /// References client that this node is under

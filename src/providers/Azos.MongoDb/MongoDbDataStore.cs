@@ -9,6 +9,7 @@ using System.Linq;
 using System.Data;
 using System.Threading.Tasks;
 
+using Azos.Apps;
 using Azos.Conf;
 using Azos.Serialization.BSON;
 
@@ -48,11 +49,9 @@ namespace Azos.Data.Access.MongoDb
 
     #region .ctor/.dctor
 
-    public MongoDbDataStore() : base() => ctor();
+    public MongoDbDataStore(IApplication app) : base(app) => ctor();
 
-    public MongoDbDataStore(object director) : base(director) => ctor();
-
-    public MongoDbDataStore(string connectString, string dbName) : base(connectString, dbName) => ctor();
+    public MongoDbDataStore(IApplicationComponent director) : base(director) => ctor();
 
     private void ctor()
     {
@@ -68,6 +67,9 @@ namespace Azos.Data.Access.MongoDb
         private DataDocConverter m_Converter;
 
     #endregion
+
+
+    public override string ComponentLogTopic => MongoConsts.MONGO_TOPIC;
 
 
     #region ICRUDDataStore

@@ -31,18 +31,12 @@ namespace Azos.Data.Access.MongoDb
 
     #region .ctor/.dctor
 
-      protected MongoDbDataStoreBase() : base()
+      protected MongoDbDataStoreBase(IApplication app) : base(app)
       {
       }
 
-      protected MongoDbDataStoreBase(object director) : base(director)
+      protected MongoDbDataStoreBase(IApplicationComponent director) : base(director)
       {
-      }
-
-      protected MongoDbDataStoreBase(string connectString, string dbName):base()
-      {
-        ConnectString = connectString;
-        DatabaseName = dbName;
       }
 
     #endregion
@@ -84,7 +78,7 @@ namespace Azos.Data.Access.MongoDb
       /// </summary>
       public bool ExternalGetParameter(string name, out object value, params string[] groups)
       {
-          return ExternalParameterAttribute.GetParameter(this, name, out value, groups);
+          return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
       }
 
       /// <summary>
@@ -92,7 +86,7 @@ namespace Azos.Data.Access.MongoDb
       /// </summary>
       public bool ExternalSetParameter(string name, object value, params string[] groups)
       {
-        return ExternalParameterAttribute.SetParameter(this, name, value, groups);
+        return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
       }
 
     #endregion
@@ -212,7 +206,8 @@ namespace Azos.Data.Access.MongoDb
           }
         }
 
-        var server = MongoClient.Instance[ new Azos.Glue.Node(cstring)];
+        var client = App.GetDefaultMongoClient();
+        var server = client[ new Glue.Node(cstring)];
         var database = server[dbn];
         return database;
       }
