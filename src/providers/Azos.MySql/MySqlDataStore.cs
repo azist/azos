@@ -10,6 +10,7 @@ using System.Linq;
 using System.Data;
 using System.Threading.Tasks;
 
+using Azos.Apps;
 using Azos.Conf;
 using MySql.Data.MySqlClient;
 
@@ -27,9 +28,8 @@ namespace Azos.Data.Access.MySql
 
     #region .ctor/.dctor
 
-      public MySqlDataStore() : base() => ctor();
-      public MySqlDataStore(object director) : base(director) => ctor();
-      public MySqlDataStore(string connectString) : base(connectString) => ctor();
+      public MySqlDataStore(IApplication app) : base(app) => ctor();
+      public MySqlDataStore(IApplicationComponent director) : base(director) => ctor();
 
       private void ctor()
       {
