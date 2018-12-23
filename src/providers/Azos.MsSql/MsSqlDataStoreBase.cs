@@ -21,35 +21,18 @@ namespace Azos.Data.Access.MsSql
   public abstract class MsSqlDataStoreBase : ApplicationComponent, IDataStoreImplementation
   {
     #region CONSTS
-
-      public const string STR_FOR_TRUE = "T";
-      public const string STR_FOR_FALSE = "F";
-
-
+    public const string STR_FOR_TRUE = "T";
+    public const string STR_FOR_FALSE = "F";
     #endregion
-
 
     #region .ctor/.dctor
-
-      protected MsSqlDataStoreBase() : base()
-      {
-      }
-
-      protected MsSqlDataStoreBase(object director) : base(director)
-      {
-      }
-
-      protected MsSqlDataStoreBase(string connectString) : base()
-      {
-        ConnectString = connectString;
-      }
-
+    public MsSqlDataStoreBase(IApplication app) : base(app){ }
+    public MsSqlDataStoreBase(IApplicationComponent director) : base(director) { }
     #endregion
-
 
     #region Private Fields
 
-      private string m_ConnectString;
+    private string m_ConnectString;
 
       private string m_TargetName;
 
@@ -91,7 +74,7 @@ namespace Azos.Data.Access.MsSql
       /// </summary>
       public bool ExternalGetParameter(string name, out object value, params string[] groups)
       {
-          return ExternalParameterAttribute.GetParameter(this, name, out value, groups);
+          return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
       }
 
       /// <summary>
@@ -99,12 +82,14 @@ namespace Azos.Data.Access.MsSql
       /// </summary>
       public bool ExternalSetParameter(string name, object value, params string[] groups)
       {
-        return ExternalParameterAttribute.SetParameter(this, name, value, groups);
+        return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
       }
 
     #endregion
 
     #region Properties
+
+      public override string ComponentLogTopic => MsSqlConsts.MSSQL_TOPIC;
 
       /// <summary>
       /// Get/Sets MySql database connection string
@@ -118,7 +103,7 @@ namespace Azos.Data.Access.MsSql
         }
         set
         {
-           m_ConnectString = value;
+          m_ConnectString = value;
         }
       }
 
@@ -172,8 +157,6 @@ namespace Azos.Data.Access.MsSql
 
     #endregion
 
-
-
     #region IConfigurable Members
 
       public virtual void Configure(IConfigSectionNode node)
@@ -203,7 +186,6 @@ namespace Azos.Data.Access.MsSql
       }
 
     #endregion
-
 
   }
 }

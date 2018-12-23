@@ -176,12 +176,12 @@ namespace Azos.Data.Access.MsSql
         try
         {
             var affected = cmd.ExecuteNonQuery();
-            GeneratorUtils.LogCommand(store.LogLevel, "insert-ok", cmd, null);
+            GeneratorUtils.LogCommand(store, "insert-ok", cmd, null);
             return affected;
         }
         catch(Exception error)
         {
-            GeneratorUtils.LogCommand(store.LogLevel, "insert-error", cmd, error);
+            GeneratorUtils.LogCommand(store, "insert-error", cmd, error);
             throw;
         }
       }//using command
@@ -271,12 +271,12 @@ namespace Azos.Data.Access.MsSql
         try
         {
             var affected = cmd.ExecuteNonQuery();
-            GeneratorUtils.LogCommand(store.LogLevel, "update-ok", cmd, null);
+            GeneratorUtils.LogCommand(store, "update-ok", cmd, null);
             return affected;
         }
         catch(Exception error)
         {
-            GeneratorUtils.LogCommand(store.LogLevel, "update-error", cmd, error);
+            GeneratorUtils.LogCommand(store, "update-error", cmd, error);
             throw;
         }
       }//using command
@@ -359,12 +359,12 @@ namespace Azos.Data.Access.MsSql
         try
         {
             var affected = cmd.ExecuteNonQuery();
-            GeneratorUtils.LogCommand(store.LogLevel, "upsert-ok", cmd, null);
+            GeneratorUtils.LogCommand(store, "upsert-ok", cmd, null);
             return affected;
         }
         catch(Exception error)
         {
-            GeneratorUtils.LogCommand(store.LogLevel, "upsert-error", cmd, error);
+            GeneratorUtils.LogCommand(store, "upsert-error", cmd, error);
             throw;
         }
       }//using command
@@ -399,12 +399,12 @@ namespace Azos.Data.Access.MsSql
         try
         {
             var affected = cmd.ExecuteNonQuery();
-            GeneratorUtils.LogCommand(store.LogLevel, "delete-ok", cmd, null);
+            GeneratorUtils.LogCommand(store, "delete-ok", cmd, null);
             return affected;
         }
         catch(Exception error)
         {
-            GeneratorUtils.LogCommand(store.LogLevel, "delete-error", cmd, error);
+            GeneratorUtils.LogCommand(store, "delete-error", cmd, error);
             throw;
         }
 

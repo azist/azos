@@ -93,6 +93,8 @@ namespace Azos.Data.Access.MongoDb
 
     #region Properties
 
+      public override string ComponentLogTopic => MongoConsts.MONGO_TOPIC;
+
       /// <summary>
       /// Get/Sets MongoDB database connection string
       /// </summary>

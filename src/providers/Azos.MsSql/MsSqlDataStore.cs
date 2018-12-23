@@ -10,6 +10,7 @@ using System.Linq;
 using System.Data;
 using System.Threading.Tasks;
 
+using Azos.Apps;
 using Azos.Conf;
 using System.Data.SqlClient;
 
@@ -26,16 +27,13 @@ namespace Azos.Data.Access.MsSql
     #endregion
 
     #region .ctor/.dctor
+    public MsSqlDataStore(IApplication app) : base(app) => ctor();
+    public MsSqlDataStore(IApplicationComponent director) : base(director) => ctor();
 
-      public MsSqlDataStore() : base() => ctor();
-      public MsSqlDataStore(object director) : base(director) => ctor();
-      public MsSqlDataStore(string connectString) : base(connectString) => ctor();
-
-      private void ctor()
-      {
-        m_QueryResolver = new QueryResolver(this);
-      }
-
+    private void ctor()
+    {
+      m_QueryResolver = new QueryResolver(this);
+    }
     #endregion
 
     #region Fields
@@ -44,7 +42,9 @@ namespace Azos.Data.Access.MsSql
 
     #endregion
 
-    #region ICRUDDataStore
+
+
+      #region ICRUDDataStore
 
         //WARNING!!!
         //The ASYNC versions of sync call now call TaskUtils.AsCompletedTask( sync_version )
@@ -56,7 +56,7 @@ namespace Azos.Data.Access.MsSql
 
 
         public CRUDTransaction BeginTransaction(IsolationLevel iso = IsolationLevel.ReadCommitted,
-                                                TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
+                                                    TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
         {
             var cnn = GetConnection();
             return new MsSqlCRUDTransaction(this, cnn, iso, behavior);

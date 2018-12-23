@@ -45,11 +45,11 @@ namespace Azos.Data.Access.MsSql
                     try
                     {
                         reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly);
-                        GeneratorUtils.LogCommand(ctx.DataStore.LogLevel, "queryhandler-ok", cmd, null);
+                        GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-ok", cmd, null);
                     }
                     catch(Exception error)
                     {
-                        GeneratorUtils.LogCommand(ctx.DataStore.LogLevel, "queryhandler-error", cmd, error);
+                        GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-error", cmd, error);
                         throw;
                     }
 
@@ -88,11 +88,11 @@ namespace Azos.Data.Access.MsSql
                     try
                     {
                         reader = oneDoc ? cmd.ExecuteReader(CommandBehavior.SingleRow) : cmd.ExecuteReader();
-                        GeneratorUtils.LogCommand(ctx.DataStore.LogLevel, "queryhandler-ok", cmd, null);
+                        GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-ok", cmd, null);
                     }
                     catch(Exception error)
                     {
-                        GeneratorUtils.LogCommand(ctx.DataStore.LogLevel, "queryhandler-error", cmd, error);
+                        GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-error", cmd, error);
                         throw;
                     }
 
@@ -128,11 +128,11 @@ namespace Azos.Data.Access.MsSql
                 try
                 {
                     reader = cmd.ExecuteReader();
-                    GeneratorUtils.LogCommand(ctx.DataStore.LogLevel, "queryhandler-ok", cmd, null);
+                    GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-ok", cmd, null);
                 }
                 catch(Exception error)
                 {
-                    GeneratorUtils.LogCommand(ctx.DataStore.LogLevel, "queryhandler-error", cmd, error);
+                    GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-error", cmd, error);
                     throw;
                 }
 
@@ -183,12 +183,12 @@ namespace Azos.Data.Access.MsSql
                     try
                     {
                         var affected = cmd.ExecuteNonQuery();
-                        GeneratorUtils.LogCommand(ctx.DataStore.LogLevel, "queryhandler-ok", cmd, null);
+                        GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-ok", cmd, null);
                         return affected;
                     }
                     catch(Exception error)
                     {
-                        GeneratorUtils.LogCommand(ctx.DataStore.LogLevel, "queryhandler-error", cmd, error);
+                        GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-error", cmd, error);
                         throw;
                     }
                 }//using command

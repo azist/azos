@@ -69,9 +69,6 @@ namespace Azos.Data.Access.MongoDb
     #endregion
 
 
-    public override string ComponentLogTopic => MongoConsts.MONGO_TOPIC;
-
-
     #region ICRUDDataStore
 
         //WARNING!!!
