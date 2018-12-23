@@ -1,1 +1,0 @@
-﻿SELECT count(*) AS CNT FROM tbl_comment WHERE G_PAR = ?pComment AND G_VOL = ?pVolume

@@ -1,1 +1,0 @@
-﻿SELECT sum(cnt) AS CNT FROM tbl_subvol WHERE G_OWN = ?pNode

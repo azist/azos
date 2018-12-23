@@ -148,8 +148,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "azgov", "runtimes\netf\azgo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsTestSky", "runtimes\netf\WinFormsTestSky\WinFormsTestSky.csproj", "{A7DFADE5-8018-45FF-8033-F61A6ED6802D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Sky.Social", "Azos.Sky.Social\Azos.Sky.Social.csproj", "{0C205CB7-AE12-402C-BAA4-90369E6C2627}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Tests.Nub", "testing\Azos.Tests.Nub\Azos.Tests.Nub.csproj", "{C533831A-DD1B-4DA2-A7D8-98B6DD708871}"
 EndProject
 Global
@@ -390,10 +388,6 @@ Global
 		{A7DFADE5-8018-45FF-8033-F61A6ED6802D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7DFADE5-8018-45FF-8033-F61A6ED6802D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7DFADE5-8018-45FF-8033-F61A6ED6802D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0C205CB7-AE12-402C-BAA4-90369E6C2627}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0C205CB7-AE12-402C-BAA4-90369E6C2627}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0C205CB7-AE12-402C-BAA4-90369E6C2627}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0C205CB7-AE12-402C-BAA4-90369E6C2627}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C533831A-DD1B-4DA2-A7D8-98B6DD708871}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C533831A-DD1B-4DA2-A7D8-98B6DD708871}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C533831A-DD1B-4DA2-A7D8-98B6DD708871}.Release|Any CPU.ActiveCfg = Release|Any CPU

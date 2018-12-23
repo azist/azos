@@ -1,1 +1,0 @@
-﻿DELETE tbl_friendlist WHERE G_OWN = ?gNode

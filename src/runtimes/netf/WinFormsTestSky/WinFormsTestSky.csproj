@@ -170,10 +170,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Azos.Sky.Social\Azos.Sky.Social.csproj">
-      <Project>{0c205cb7-ae12-402c-baa4-90369e6c2627}</Project>
-      <Name>Azos.Sky.Social</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Azos.Sky\Azos.Sky.csproj">
       <Project>{56467e57-0c42-42c9-b9b0-359a2a061ba0}</Project>
       <Name>Azos.Sky</Name>

@@ -1,1 +1,0 @@
-﻿SELECT * FROM tbl_friend WHERE G_OWN = ?pNode ORDER BY CDT LIMIT ?pStart, 1

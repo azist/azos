@@ -1,1 +1,0 @@
-﻿UPDATE tbl_comment SET LKE=LKE+?pdtLike, DIS=DIS+?pdtDislike WHERE GDID = ?pComment AND G_VOL = ?pVolume

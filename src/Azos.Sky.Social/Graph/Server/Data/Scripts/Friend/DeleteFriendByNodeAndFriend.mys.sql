@@ -1,1 +1,0 @@
-﻿UPDATE tbl_friend SET STS = 'D', SDT = ?pdt WHERE G_OWN = ?pwon AND G_FND = ?pfnd
