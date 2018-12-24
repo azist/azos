@@ -27,7 +27,7 @@
   <div id="divTitleBox">
     <div id="divTitleWrapper">
       <div id="divTitle">?[SkySystem.MetabaseApplicationName]</div>
-      <div id="divSubTitle">?[SkySystem.HostName]</div>
+      <div id="divSubTitle">?[App.HostName]</div>
     </div>
   </div>
   <div id="dropdown">
@@ -51,7 +51,7 @@
       @[if (Session!=null && Session.User.Status!=UserStatus.Invalid){]
         ?[Session.User.ToString()], <a href="/logout">logout</a>
         <nav id="navProcessMenu">
-          ?[:MenuBuilder.BuildMenu(null)]
+          ?[:MenuBuilder.BuildMenu(App, null)]
         </nav>
         @[}]
     </div>

@@ -132,35 +132,38 @@ namespace Azos.Wave.Handlers
       {
         try
         {
-                var tt = GetTargetType(work);
+          var tt = GetTargetType(work);
 
-                if (tt==null || tt.IsAbstract)
-                {
-                  if (m_NotFoundRedirectURL.IsNotNullOrWhiteSpace())
-                  {
-                    work.Response.RedirectAndAbort(m_NotFoundRedirectURL);
-                    return;
-                  }
+          if (tt==null || tt.IsAbstract)
+          {
+            if (m_NotFoundRedirectURL.IsNotNullOrWhiteSpace())
+            {
+              work.Response.RedirectAndAbort(m_NotFoundRedirectURL);
+              return;
+            }
 
-                  error = Do404(work);
-                  return;
-                }
+            error = Do404(work);
+            return;
+          }
 
-                Security.Permission.AuthorizeAndGuardAction(App, tt, work.Session, ()=> work.NeedsSession() );
+          Security.Permission.AuthorizeAndGuardAction(App, tt, work.Session, () => work.NeedsSession() );
 
-                target = CreateTargetInstance(work, tt);
+          target = CreateTargetInstance(work, tt);
 
-                if (target==null)
-                {
-                    error = Do404(work);
-                    return;
-                }
+          if (target==null)
+          {
+            error = Do404(work);
+            return;
+          }
 
-                DoTargetWork(target, work);
+          DoTargetWork(target, work);
+
+          if (target is IDisposable dtarget)
+            dtarget.Dispose();
         }
         catch(Exception err)
         {
-            error = err;
+          error = err;
         }
       }
       finally

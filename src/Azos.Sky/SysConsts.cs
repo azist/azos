@@ -63,7 +63,7 @@ namespace Azos.Sky
     public const string LOG_TOPIC_INSTRUMENTATION = "instr";
     public const string LOG_TOPIC_WWW = "www";
     public const string LOG_TOPIC_SVC = "svc";
-    public const string LOG_TOPIC_LOCALIZATION = "loclz";
+    public const string LOG_TOPIC_LOCALIZATION = "lcl";
     public const string LOG_TOPIC_MDB = "mdb";
     public const string LOG_TOPIC_KDB = "kdb";
     public const string LOG_TOPIC_DYNHOST_GOV = "dynh";

@@ -42,6 +42,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
     #endregion
 
     #region .ctor/.dctor
+
     /// <summary>
     /// Creates a singleton instance or throws if instance is already created
     /// </summary>

@@ -36,7 +36,7 @@ namespace Azos.Sky.WebManager
 
       protected override WaveSession MakeNewSessionInstance(WorkContext work)
       {
-        return new WebManagerSession(Guid.NewGuid());
+        return new WebManagerSession(Guid.NewGuid(), App.Random.NextRandomUnsignedLong);
       }
 
   }

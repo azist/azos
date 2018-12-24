@@ -297,23 +297,25 @@ namespace Azos.Wave.Handlers
           return;
         }
 
-        if (result is WaveTemplate)
+        if (result is WaveTemplate tpl)
         {
-          ((WaveTemplate)result).Render(work, null);
+          if (!tpl.CanReuseInstance)
+            App.DependencyInjector.InjectInto(tpl);
+
+          tpl.Render(work, App);
           return;
         }
 
-        if (result is Image)
+        if (result is Image img)
         {
-          var img = (Image)result;
           work.Response.ContentType = ContentType.PNG;
           img.Save(work.Response.GetDirectOutputStreamForWriting(), PngImageFormat.Standard);
           return;
         }
 
-        if (result is IActionResult)
+        if (result is IActionResult aresult)
         {
-          ((IActionResult)result).Execute(controller, work);
+          aresult.Execute(controller, work);
           return;
         }
 

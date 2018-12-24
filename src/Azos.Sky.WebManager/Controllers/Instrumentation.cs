@@ -46,13 +46,13 @@ namespace Azos.Sky.WebManager.Controllers
     [Action]
     public object NavigateToHost(string metabasePath)
     {
-      var host = SkySystem.Metabase.CatalogReg[metabasePath] as Metabank.SectionHost;
+      var host = Metabase.CatalogReg[metabasePath] as Metabank.SectionHost;
       if (host != null)
       {
         string hostURL;
         try
         {
-          hostURL = SkySystem.Metabase.ResolveNetworkServiceToConnectString(
+          hostURL = Metabase.ResolveNetworkServiceToConnectString(
                                 metabasePath,
                                 SysConsts.NETWORK_INTERNOC,
                                 host.IsZGov ? SysConsts.NETWORK_SVC_ZGOV_WEB_MANAGER : SysConsts.NETWORK_SVC_HGOV_WEB_MANAGER);
@@ -88,15 +88,14 @@ namespace Azos.Sky.WebManager.Controllers
 
       IEnumerable<Message> buf;
       if (forZone &&
-          SkySystem.SystemApplicationType == SystemApplicationType.ZoneGovernor &&
-          ZoneGovernorService.IsZoneGovernor)
-        buf = ZoneGovernorService.Instance.GetSubordinateInstrumentationLogBuffer(true);
+          App.SystemApplicationType == SystemApplicationType.ZoneGovernor)
+        buf = App.Singletons.Get<ZoneGovernorService>().GetSubordinateInstrumentationLogBuffer(true);
       else
         buf = log.GetInstrumentationBuffer(true);
 
       if (fromType.HasValue) buf = buf.Where(m => m.Type >= fromType);
 
-      buf = buf.Where(m => m.TimeStamp >= from);
+      buf = buf.Where(m => m.UTCTimeStamp >= from);
 
       if (!maxCnt.HasValue || maxCnt > MAX_COUNT || maxCnt < 0) maxCnt = MAX_COUNT;
 
@@ -107,7 +106,7 @@ namespace Azos.Sky.WebManager.Controllers
         id = m.Guid.ToString(),
         rid = (m.RelatedTo != Guid.Empty) ? m.RelatedTo.ToString() : null,
         host = m.Host,
-        ts = m.TimeStamp,
+        ts = m.UTCTimeStamp,
         tp = m.Type,
         topic = m.Topic,
         from = m.From,
@@ -130,7 +129,7 @@ namespace Azos.Sky.WebManager.Controllers
     [Action]
     public object SetComponentParameter(ulong sid, string key, string val)
     {
-      var cmp = ApplicationComponent.GetAppComponentBySID(sid);
+      var cmp = App.GetComponentBySID(sid);
       if (cmp == null) return new { OK = false, err = "Component (SID={0}) couldn't be found".Args(sid)};
 
       var parameterized = cmp as IExternallyParameterized;
@@ -162,7 +161,7 @@ namespace Azos.Sky.WebManager.Controllers
     public object LoadComponentParamGroups()
     {
       var groups =
-        ApplicationComponent.AllComponents
+       App.AllComponents
           .OfType<IExternallyParameterized>()
           .SelectMany(c => (c.ExternalParameters ?? Enumerable.Empty<KeyValuePair<string, Type>>())
                            .SelectMany(p =>
@@ -188,7 +187,7 @@ namespace Azos.Sky.WebManager.Controllers
     {
       var res = new JSONDataMap();
 
-      var all = ApplicationComponent.AllComponents;
+      var all = App.AllComponents;
 
       var rootArr = new JSONDataArray();
 
@@ -207,7 +206,7 @@ namespace Azos.Sky.WebManager.Controllers
       return new {OK=true, tree=res};
     }
 
-    private JSONDataMap getComponentTreeMap(IEnumerable<ApplicationComponent> all, ApplicationComponent cmp, int level, string group = null)
+    private JSONDataMap getComponentTreeMap(IEnumerable<IApplicationComponent> all, IApplicationComponent cmp, int level, string group = null)
     {
       var cmpTreeMap = new JSONDataMap();
 
@@ -228,7 +227,7 @@ namespace Azos.Sky.WebManager.Controllers
       return cmpTreeMap;
     }
 
-    private JSONDataMap getComponentMap(ApplicationComponent cmp, string group = null)
+    private JSONDataMap getComponentMap(IApplicationComponent cmp, string group = null)
     {
       var cmpMap = new JSONDataMap();
 
@@ -312,7 +311,7 @@ namespace Azos.Sky.WebManager.Controllers
     [Action]
     public object LoadComponents(string group = null)
     {
-      var components = ApplicationComponent.AllComponents.OrderBy(c => c.ComponentStartTime);
+      var components = App.AllComponents.OrderBy(c => c.ComponentStartTime);
 
       var componentsList = new List<JSONDataMap>();
 
@@ -377,9 +376,8 @@ namespace Azos.Sky.WebManager.Controllers
       var instrumentation = App.Instrumentation;
 
       if (forZone &&
-          SkySystem.SystemApplicationType == SystemApplicationType.ZoneGovernor &&
-          ZoneGovernorService.IsZoneGovernor)
-        instrumentation = ZoneGovernorService.Instance.SubordinateInstrumentation;
+          App.SystemApplicationType == SystemApplicationType.ZoneGovernor)
+        instrumentation = App.Singletons.Get<ZoneGovernorService>().SubordinateInstrumentation;
 
       var data = (grouping == DataGrouping.Namespace) ? getByNamespace(instrumentation) : getByInterface(instrumentation);
 
@@ -403,9 +401,8 @@ namespace Azos.Sky.WebManager.Controllers
       var instrumentation = App.Instrumentation;
 
       if (forZone &&
-          SkySystem.SystemApplicationType == SystemApplicationType.ZoneGovernor &&
-          ZoneGovernorService.IsZoneGovernor)
-        instrumentation = ZoneGovernorService.Instance.SubordinateInstrumentation;
+          App.SystemApplicationType == SystemApplicationType.ZoneGovernor)
+        instrumentation = App.Singletons.Get<ZoneGovernorService>().SubordinateInstrumentation;
 
       var nsMap = new JSONDataMap();
       var to = request.ToUTC.ToUniversalTime();
@@ -516,7 +513,7 @@ namespace Azos.Sky.WebManager.Controllers
       return data;
     }
 
-    private static void log(MessageType tp, string from, string text, Exception error = null)
+    private void log(MessageType tp, string from, string text, Exception error = null)
     {
       App.Log.Write(new Message
       {

@@ -9,17 +9,20 @@ using Azos.Log;
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Wave;
-using Azos.Serialization.JSON;
 using Azos.Sky.WebManager.Controls;
-using Azos.Sky.WebManager.Pages;
 
 namespace Azos.Sky.WebManager
 {
   /// <summary>
   /// Facilitates tasks working with objects of appropriate culture per user
   /// </summary>
-  public static class Localizer
+  public sealed class Localizer : ApplicationComponent
   {
+
+    public static Localizer Of(IApplication app)
+      => app.NonNull(nameof(app)).Singletons.GetOrCreate(()=> new Localizer(app)).instance;
+
+
     public const string CONFIG_LOCALIZATION_SECTION = "localization";
     public const string CONFIG_MSG_FILE_ATTR = "msg-file";
     public const string LOC_ANY_SCHEMA_KEY = "--ANY-SCHEMA--";
@@ -34,15 +37,17 @@ namespace Azos.Sky.WebManager
     public enum MoneyFormat{WithCurrencySymbol, WithoutCurrencySymbol}
     public enum DateTimeFormat{ShortDate, LongDate, ShortDateTime, LongDateTime}
 
-    static Localizer()
+    public Localizer(IApplication app) : base(app)
     {
+#warning Vidya refactoring candidate
       Azos.Wave.Client.RecordModelGenerator.DefaultInstance.ModelLocalization += recGeneratorLocalization;
     }
 
+    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_LOCALIZATION;
 
-    private static IConfigSectionNode s_LocalizationData;
+    private  IConfigSectionNode s_LocalizationData;
 
-    private static void ensureData()
+    private  void ensureData()
     {
       if (s_LocalizationData!=null) return;
 
@@ -52,27 +57,25 @@ namespace Azos.Sky.WebManager
       if (msgFile.IsNotNullOrWhiteSpace())
       try
       {
-        App.Log.Write( new Message{
-          Type = MessageType.Info,
-          From = "enusreData()",
-          Topic = SysConsts.LOG_TOPIC_LOCALIZATION,
-          Text = "Configured in '/{0}/${1}' to load localization msg file '{2}'".Args(CONFIG_LOCALIZATION_SECTION, CONFIG_MSG_FILE_ATTR, msgFile),
-        });
+        WriteLog(
+          MessageType.Info,
+          "ensureData()",
+          "Configured in '/{0}/${1}' to load localization msg file '{2}'".Args(CONFIG_LOCALIZATION_SECTION, CONFIG_MSG_FILE_ATTR, msgFile)
+        );
         s_LocalizationData = Configuration.ProviderLoadFromFile(msgFile).Root;
       }
       catch(Exception error)
       {
-        App.Log.Write( new Message{
-          Type = MessageType.CatastrophicError,
-          From = "enusreData()",
-          Topic = SysConsts.LOG_TOPIC_LOCALIZATION,
-          Text = "Error loading localization msg file '{0}': {1}".Args(msgFile, error.ToMessageWithType()),
-          Exception = error
-        });
+        WriteLog(
+          MessageType.CatastrophicError,
+          "enusreData()",
+          "Error loading localization msg file '{0}': {1}".Args(msgFile, error.ToMessageWithType()),
+          error
+        );
       }
     }
 
-    private static string recGeneratorLocalization(Azos.Wave.Client.RecordModelGenerator sender, string schema, string field, string value, string isoLang)
+    private  string recGeneratorLocalization(Azos.Wave.Client.RecordModelGenerator sender, string schema, string field, string value, string isoLang)
     {
       if (value.IsNullOrWhiteSpace()) return value;
 
@@ -107,7 +110,7 @@ namespace Azos.Sky.WebManager
       return lv;
     }
 
-    private static string lookupValue(string isoLang, string schema, string field, string value, out bool exists)
+    private  string lookupValue(string isoLang, string schema, string field, string value, out bool exists)
     {
       exists = false;
 
@@ -134,12 +137,12 @@ namespace Azos.Sky.WebManager
 
 
 
-    public static string Money(decimal amount, MoneyFormat format = MoneyFormat.WithCurrencySymbol, WebManagerSession session = null)
+    public  string Money(decimal amount, MoneyFormat format = MoneyFormat.WithCurrencySymbol, WebManagerSession session = null)
     {
       return amount.ToString(); //todo Implement
     }
 
-    public static string DateTime(DateTime dt, DateTimeFormat format = DateTimeFormat.LongDateTime, WebManagerSession session = null)
+    public  string DateTime(DateTime dt, DateTimeFormat format = DateTimeFormat.LongDateTime, WebManagerSession session = null)
     {
       return dt.ToString();//todo implement
     }
@@ -147,7 +150,7 @@ namespace Azos.Sky.WebManager
     /// <summary>
     /// Converts country code into language code
     /// </summary>
-    public static string CountryISOCodeToLanguageISOCode(string countryISOCode)
+    public  string CountryISOCodeToLanguageISOCode(string countryISOCode)
     {
       if (countryISOCode.IsNullOrWhiteSpace()) return ISO_LANG_ENGLISH;
       countryISOCode = countryISOCode.ToLowerInvariant();
@@ -165,12 +168,12 @@ namespace Azos.Sky.WebManager
 
     }
 
-    private static Dictionary<string, Type> s_PageTypes = new Dictionary<string,Type>();
+    private  Dictionary<string, Type> s_PageTypes = new Dictionary<string,Type>();
 
     /// <summary>
     /// Makes localized page instance per session
     /// </summary>
-    public static WebManagerPage MakePage<TPage>(params object[] ctorArgs) where TPage : WebManagerPage
+    public  WebManagerPage MakePage<TPage>(params object[] ctorArgs) where TPage : WebManagerPage
     {
       return MakePage<TPage>(typeof(TPage), WorkContext.Current, ctorArgs);
     }
@@ -178,7 +181,7 @@ namespace Azos.Sky.WebManager
     /// <summary>
     /// Makes localized page instance per session
     /// </summary>
-    public static WebManagerPage MakePage<TPage>(Type type, WorkContext work, object[] ctorArgs) where TPage : WebManagerPage
+    public  WebManagerPage MakePage<TPage>(Type type, WorkContext work, object[] ctorArgs) where TPage : WebManagerPage
     {
       string tname = string.Empty;
       try
@@ -193,7 +196,7 @@ namespace Azos.Sky.WebManager
 
               if (!s_PageTypes.TryGetValue(key, out localizedType))
               {
-                tname = "{0}_{1}, Apex.Web".Args(type.FullName, lang);
+                tname = "{0}_{1}, Azos.Sky.WebManager".Args(type.FullName, lang);
                 localizedType = Type.GetType(tname, false);
                 var dict = new Dictionary<string, Type>(s_PageTypes);
                 dict[key] = localizedType;
@@ -215,7 +218,7 @@ namespace Azos.Sky.WebManager
     /// <summary>
     /// Tries to determine work context lang and returns it or ENG
     /// </summary>
-    public static string GetLanguage(WorkContext work = null)
+    public  string GetLanguage(WorkContext work = null)
     {
       if (work==null) work = WorkContext.Current;
       if (work==null) return ISO_LANG_ENGLISH;
@@ -239,7 +242,7 @@ namespace Azos.Sky.WebManager
     }
 
 
-     private static Dictionary<string, string> s_Content = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+     private  Dictionary<string, string> m_Content = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
      {
         {"mnuHome_eng", "Process"},                      {"mnuHome_rus", "Процесс"},
         {"mnuConsole_eng", "Console"},                   {"mnuSellers_rus", "Консоль"},
@@ -252,15 +255,13 @@ namespace Azos.Sky.WebManager
     /// <summary>
     /// Gets content by name
     /// </summary>
-    public static string Content(string key, WorkContext work = null)
+    public  string Content(string key, WorkContext work = null)
     {
       var lang = GetLanguage();
       string result;
-      if (s_Content.TryGetValue(key+"_"+lang, out result)) return result;
+      if (m_Content.TryGetValue(key+"_"+lang, out result)) return result;
       return string.Empty;
     }
-
-
 
   }
 }

@@ -66,7 +66,7 @@ namespace Azos.Wave.Templatization
          }
 
          /// <summary>
-         /// Override to indicate whetner the instance of the template may be reused for processing of other requests
+         /// Override to indicate whether the instance of the template may be reused for processing of other requests
          /// (possibly by parallel threads). Override to return false if there is any per-request state shared in instance fields
          /// False by default so multiple requests can not reuse the instance
          /// </summary>

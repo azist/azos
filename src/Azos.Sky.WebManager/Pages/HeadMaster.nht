@@ -24,7 +24,7 @@
   <meta name="description" content="?[Description]">
   <meta name="keywords" content="?[Keywords]">
   <meta name="viewport" content="?[:Viewport]">
-  <meta name="generator" content="?[SkySystem.MetabaseApplicationName +"@"+ SkySystem.HostName]">
+  <meta name="generator" content="?[SkySystem.MetabaseApplicationName +"@"+ App.HostName]">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">

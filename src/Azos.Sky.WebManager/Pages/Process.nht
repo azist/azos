@@ -88,12 +88,12 @@
  <img src='?[:SURI.Image("Cogs.64x64.png")]'>
 
  <table id="tblGeneralInfo">
-   @[var app = SkySystem.Application;
+   @[var app = App;
       trow("Name", app.Name);
-      trow("Host", SkySystem.HostName );
-      trow("Parent Zone Governor", SkySystem.ParentZoneGovernorPrimaryHostName ?? SysConsts.NULL );
-      trow("Role", SkySystem.HostMetabaseSection.RoleName );
-      trow("Role Apps", SkySystem.HostMetabaseSection.Role.AppNames.Aggregate(" ",(r,a)=>r+a+", ") );
+      trow("Host", app.HostName );
+      trow("Parent Zone Governor", app.ParentZoneGovernorPrimaryHostName ?? SysConsts.NULL );
+      trow("Role", app.GetThisHostMetabaseSection().RoleName );
+      trow("Role Apps", app.GetThisHostMetabaseSection().Role.AppNames.Aggregate(" ",(r,a)=>r+a+", ") );
       trow("Metabase App", app.MetabaseApplicationName );
       trow("Instance ID", app.InstanceID );
       trow("Start Time", app.StartTime );

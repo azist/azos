@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Azos.Apps;
 using Azos.Conf;
-using Azos.Sky.Apps;
 
 namespace Azos.Sky.WebManager
 {
@@ -30,9 +30,9 @@ namespace Azos.Sky.WebManager
      ///     item{...}
      ///  }
      /// </summary>
-     public static string BuildMenu(string isoLang)
+     public static string BuildMenu(ISkyApplication app, string isoLang)
      {
-       var menu = App.ConfigRoot[SkyApplication.CONFIG_WEB_MANAGER_SECTION][CONFIG_MENU_SECTION];
+       var menu = app.ConfigRoot[SkyApplication.CONFIG_WEB_MANAGER_SECTION][CONFIG_MENU_SECTION];
        if (!menu.Exists) return string.Empty;
        var result = new StringBuilder();
 

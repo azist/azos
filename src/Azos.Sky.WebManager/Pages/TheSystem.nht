@@ -202,7 +202,7 @@
 
     var fTheSystemItemIDSeed = 0;
 
-    var MY_PATH = "?[:SkySystem.HostMetabaseSection.RegionPath.Trim('/')]";
+    var MY_PATH = "?[:App.GetThisHostMetabaseSection().RegionPath.Trim('/')]";
 
     function onImageError(img) {
       var url = '?[:SURI.Image("Computer.64x64.png")]';

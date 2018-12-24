@@ -32,7 +32,7 @@ namespace Azos.Sky.WebManager.Controllers
 
 
         if (who.IsNullOrWhiteSpace()) who = "{0}-{1}".Args(WorkContext.Request.UserHostAddress, WorkContext.Session.User);
-        terminal = AppRemoteTerminal.MakeNewTerminal();
+        terminal = AppRemoteTerminal.MakeNewTerminal(App);
         var info = terminal.Connect(who);
         WorkContext.Session[TERMINAL_SESSION_KEY] = terminal;
         return info;

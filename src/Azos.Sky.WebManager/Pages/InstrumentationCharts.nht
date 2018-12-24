@@ -13,7 +13,7 @@
   }
 #</laconf>
 #[class]
-  public override string Title { get { return "Instrumentation - " + SkySystem.MetabaseApplicationName + "@" + SkySystem.HostName;}}
+  public override string Title { get { return "Instrumentation - " + SkySystem.MetabaseApplicationName + "@" + App.HostName;}}
 
 #[override renderDocumentHEAD()]
   <style>
@@ -308,7 +308,7 @@
       <div id="divLogo"></div>
       <div style="display: table-row">
         <div style="display: table-cell">
-          <span id="spnAppName">?[SkySystem.MetabaseApplicationName]</span>@?[SkySystem.HostName]
+          <span id="spnAppName">?[SkySystem.MetabaseApplicationName]</span>@?[App.HostName]
         </div>
         <div style="display: table-cell">
           &nbsp;
@@ -340,7 +340,7 @@
           <input id="chkShowRuler" type="checkbox" checked onclick="showRuler(this.checked)" />
           <label for="chkShowRuler">Ruler</label>
         </div>
-        @[if (SkySystem.SystemApplicationType == SystemApplicationType.ZoneGovernor && ZoneGovernorService.IsZoneGovernor) {]
+        @[if (App.SystemApplicationType == SystemApplicationType.ZoneGovernor) {]
         @[/*if (true) {*/]
           <div style="display: table-cell">
             <input id="chkForZone" type="checkbox" onclick="loadTree(true); loadData(true);" />
@@ -1071,7 +1071,7 @@
             presetObj.showTree = WAVE.id("chkShowTree").checked;
             presetObj.range = WAVE.id("cmbRange").value;
             presetObj.grouping = WAVE.id("cmbGrouping").value;
-            @[if (SkySystem.SystemApplicationType == SystemApplicationType.ZoneGovernor && ZoneGovernorService.IsZoneGovernor) {]
+            @[if (App.SystemApplicationType == SystemApplicationType.ZoneGovernor) {]
             @[/*if (true) {*/]
               presetObj.forZone = WAVE.id("chkForZone").checked;
             @[}]
@@ -1159,7 +1159,7 @@
               WAVE.id("cmbGrouping").value = presetObj.grouping;
               loadTree(true);
             }
-            @[if (SkySystem.SystemApplicationType == SystemApplicationType.ZoneGovernor && ZoneGovernorService.IsZoneGovernor) {]
+            @[if (App.SystemApplicationType == SystemApplicationType.ZoneGovernor) {]
             @[/*if (true) {*/]
               WAVE.id("chkForZone").checked = presetObj.forZone;
               loadData(true);

@@ -16,7 +16,7 @@ namespace Azos.Sky.WebManager
     public class WebManagerSession : WaveSession
     {
         protected WebManagerSession() : base(){} //used by serializer
-        public WebManagerSession(Guid id) : base(id) {}
+        public WebManagerSession(Guid id, ulong secret) : base(id, secret) {}
 
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Azos.Sky.WebManager
             {
                 var country = GeoEntity.CountryISOName;
                 if (country.IsNotNullOrWhiteSpace())
-                 lang = Localizer.CountryISOCodeToLanguageISOCode(country);
+                 lang = Localizer.Of( WorkContext.Current.App ).CountryISOCodeToLanguageISOCode(country);
             }
 
             if (lang.IsNullOrWhiteSpace())

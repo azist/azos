@@ -72,12 +72,6 @@ namespace Azos.Sky.WebManager.Controllers
       return Localizer.MakePage<Pages.Instrumentation>();
     }
 
-    [Action]
-    public object ProcessManager(string zone)
-    {
-      return Localizer.MakePage<Pages.ProcessManager>(zone);
-    }
-
     [Action("instrumentation-charts", 20)]
     public object InstrumentationCharts()
     {

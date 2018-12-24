@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Azos;
+using Azos.Apps.Injection;
 using Azos.Data;
 using Azos.Wave.Client;
 using Azos.Serialization.JSON;
@@ -42,9 +43,14 @@ namespace Azos.Sky.WebManager.Controls
     private string m_Keywords;
     private string m_Viewport;
 
+    [Inject] private ISkyApplication m_App;
+
+    public ISkyApplication App => m_App;
+    public Localizer Localizer => Localizer.Of(App);
+
     public virtual string Title
     {
-      get {return m_Title.IsNullOrWhiteSpace() ? (SkySystem.MetabaseApplicationName + "@" + SkySystem.HostName)
+      get {return m_Title.IsNullOrWhiteSpace() ? (SkySystem.MetabaseApplicationName + "@" + App.HostName)
                                                : m_Title;}
       set {m_Title = value;}
     }
@@ -84,7 +90,7 @@ namespace Azos.Sky.WebManager.Controls
 
     public string FormJSON(Form form, Exception validationError = null, string recID = null, string target = null)
     {
-      var lang = Localizer.GetLanguage();
+      var lang = Localizer.Of(App).GetLanguage();
       return RecordModelGenerator.DefaultInstance.RowToRecordInitJSON(form, validationError, recID, target, lang).ToJSON();
     }
 

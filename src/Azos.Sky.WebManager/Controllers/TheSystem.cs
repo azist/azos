@@ -27,7 +27,7 @@ namespace Azos.Sky.WebManager.Controllers
 
       try
       {
-        var url = SkySystem.Metabase.ResolveNetworkServiceToConnectString(metabasePath,
+        var url = Metabase.ResolveNetworkServiceToConnectString(metabasePath,
                   SysConsts.NETWORK_INTERNOC,
                   svc);
 
@@ -47,14 +47,14 @@ namespace Azos.Sky.WebManager.Controllers
       return LoadLevelImpl(path, hosts);
     }
 
-    internal static object LoadLevelImpl(string path, bool hosts = false)
+    internal object LoadLevelImpl(string path, bool hosts = false)
     {
       IEnumerable<Metabank.SectionRegionBase> children = null;
 
       Metabank.SectionRegionBase section = null;
       if (path.IsNotNullOrWhiteSpace() && path != "/" && path != "\\")
       {
-        section = SkySystem.Metabase.CatalogReg[path];
+        section = Metabase.CatalogReg[path];
         if (section == null) return Wave.SysConsts.JSON_RESULT_ERROR;
 
         if (section is Metabank.SectionRegion)
@@ -80,20 +80,23 @@ namespace Azos.Sky.WebManager.Controllers
       }
       else
       {
-        children = SkySystem.Metabase.CatalogReg.Regions;
+        children = Metabase.CatalogReg.Regions;
       }
+
+
+      var shost = App.GetThisHostMetabaseSection();
 
       return new
       {
         OK=true,
         path=path,
-        myPath=SkySystem.HostMetabaseSection.RegionPath,
-        myPathSegs=SkySystem.HostMetabaseSection.SectionsOnPath.Select(s => s.Name).ToArray(),
+        myPath=shost.RegionPath,
+        myPathSegs=shost.SectionsOnPath.Select(s => s.Name).ToArray(),
         children=makeChildren(children)
       };
     }
 
-    internal static object makeChildren(IEnumerable<Metabank.SectionRegionBase> children)
+    internal object makeChildren(IEnumerable<Metabank.SectionRegionBase> children)
     {
       var res = new List<JSONDataMap>();
 
@@ -103,7 +106,7 @@ namespace Azos.Sky.WebManager.Controllers
 
         d["name"] = child.Name;
         d["path"] = child.RegionPath;
-        d["me"] = child.IsLogicallyTheSame(SkySystem.HostMetabaseSection);
+        d["me"] = child.IsLogicallyTheSame(App.GetThisHostMetabaseSection());
         d["tp"] = child.SectionMnemonicType;
         d["descr"] = child.Description;
 
@@ -121,7 +124,7 @@ namespace Azos.Sky.WebManager.Controllers
           string adminURL = null;
           try
           {
-            adminURL = SkySystem.Metabase.ResolveNetworkServiceToConnectString(host.RegionPath,
+            adminURL = Metabase.ResolveNetworkServiceToConnectString(host.RegionPath,
               SysConsts.NETWORK_INTERNOC,
               isZGov ? SysConsts.NETWORK_SVC_ZGOV_WEB_MANAGER : SysConsts.NETWORK_SVC_HGOV_WEB_MANAGER);
           }
@@ -143,7 +146,7 @@ namespace Azos.Sky.WebManager.Controllers
       return res;
     }
 
-    private static void log(MessageType tp, string from, string text, Exception error = null)
+    private void log(MessageType tp, string from, string text, Exception error = null)
     {
       App.Log.Write(new Message
       {

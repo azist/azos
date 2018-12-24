@@ -78,8 +78,8 @@ namespace Azos.Sky.WebManager.Controllers
       IInstrumentation myInstrumentation = App.Instrumentation;
 
       IInstrumentation zoneInstrumentation = null;
-      if (SkySystem.SystemApplicationType == SystemApplicationType.ZoneGovernor && ZoneGovernorService.IsZoneGovernor)
-        zoneInstrumentation = ZoneGovernorService.Instance.SubordinateInstrumentation;
+      if (App.SystemApplicationType == SystemApplicationType.ZoneGovernor)
+        zoneInstrumentation = App.Singletons.Get<ZoneGovernorService>().SubordinateInstrumentation;
 
       Func<IInstrumentation, Datum[]> filter = (instr) => instr.GetBufferedResultsSince(utcNow)
                               .Where(d => d.GetType() == typeof(CPUUsage) || d.GetType() == typeof(RAMUsage))
@@ -190,10 +190,10 @@ namespace Azos.Sky.WebManager.Controllers
     private void addError(JSONDataMap datum, string type, Message msg, DateTime? lastErrorSample)
     {
         if (msg==null) return;
-        if (!lastErrorSample.HasValue || (msg.TimeStamp-lastErrorSample.Value).TotalSeconds>1)
+        if (!lastErrorSample.HasValue || (msg.UTCTimeStamp-lastErrorSample.Value).TotalSeconds>1)
         {
-            datum[type] = msg.TimeStamp.ToString("dd HH:mm:ss");
-            datum["LastErrorSample"] = msg.TimeStamp;
+            datum[type] = msg.UTCTimeStamp.ToString("dd HH:mm:ss");
+            datum["LastErrorSample"] = msg.UTCTimeStamp;
         }
     }
   }
