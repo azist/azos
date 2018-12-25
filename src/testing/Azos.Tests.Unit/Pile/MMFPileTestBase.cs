@@ -38,7 +38,7 @@ namespace Azos.Tests.Unit.Pile
 
       public MMFPile MakeMMFPile()
       {
-        var result = new MMFPile("UT");
+        var result = new MMFPile(NOPApplication.Instance);
         result.DataDirectoryRoot = LOCAL_ROOT;
         return result;
       }

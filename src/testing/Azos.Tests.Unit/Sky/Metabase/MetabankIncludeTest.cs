@@ -1,5 +1,5 @@
 ﻿using System;
-
+using Azos.Apps;
 using Azos.IO.FileSystem.Local;
 using Azos.Scripting;
 
@@ -16,9 +16,9 @@ namespace Azos.Tests.Unit.Sky.Metabase
     [Run]
     public void MI_Test()
     {
-      using (var fs = new LocalFileSystem(null))
+      using (var fs = new LocalFileSystem(NOPApplication.Instance))
       using(var mb = new Metabank(fs, null, TestSources.RPATH))
-      using (var session = BootConfLoader.LoadForTest(SystemApplicationType.TestRig, mb, TestSources.THIS_HOST))
+      using (var app = new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, mb, TestSources.THIS_HOST, true , null, null))
       {
         var host = mb.CatalogReg.NavigateHost(WMED0004);
 

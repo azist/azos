@@ -230,7 +230,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
           Parallel.For(0, TestSources.PARALLEL_LOOP_TO,
           (i)=>
           {
-                Thread.SpinWait(App.Random.NextScaledRandomInteger(10, 1000));
+                Thread.SpinWait(Ambient.Random.NextScaledRandomInteger(10, 1000));
 
                 Aver.IsTrue( mb.CatalogReg.IsSystem );
                 Aver.IsNotNull(mb.CatalogReg.Regions["US"]);
@@ -542,7 +542,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       {
         using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
-        using(BootConfLoader.LoadForTest(SystemApplicationType.TestRig, mb, "/US/East/CLE/A/I/wmed0001"))
+        using(new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, mb, "/US/East/CLE/A/I/wmed0001", true, null, null))
         {
           var host =  mb.CatalogReg.NavigateHost("/US/East/CLE/A/I/zgov0001");
           var zgov = host.ParentZoneGovernorPrimaryHost(); //My zone gov is the same level I am in because my process is NOT ZGOV
@@ -556,8 +556,8 @@ namespace Azos.Tests.Unit.Sky.Metabase
       {
         using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
-        using(BootConfLoader.LoadForTest(SystemApplicationType.ZoneGovernor, mb, "/US/East/CLE/A/I/wmed0001"))
-        {
+      using (new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, mb, "/US/East/CLE/A/I/wmed0001", true, null, null))
+      {
           var host =  mb.CatalogReg.NavigateHost("/US/East/CLE/A/I/zgov0001");
           var zgov = host.ParentZoneGovernorPrimaryHost(); //My zone gov is level higher because my process is ZGOV
 
@@ -570,8 +570,8 @@ namespace Azos.Tests.Unit.Sky.Metabase
       {
         using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
-        using(BootConfLoader.LoadForTest(SystemApplicationType.ZoneGovernor, mb, "/US/East/CLE/A/I/wmed0001"))
-        {
+      using (new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, mb, "/US/East/CLE/A/I/wmed0001", true, null, null))
+      {
           var host =  mb.CatalogReg.NavigateHost("/US/East/CLE/A/zgov0456");
 
           var zgov = host.ParentZoneGovernorPrimaryHost(false); //Do not leave this NOC
@@ -591,8 +591,8 @@ namespace Azos.Tests.Unit.Sky.Metabase
       {
         using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
-        using(BootConfLoader.LoadForTest(SystemApplicationType.ZoneGovernor, mb, "/US/East/CLE/A/I/wmed0001"))
-        {
+      using (new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, mb, "/US/East/CLE/A/I/wmed0001", true, null, null))
+      {
           var host =  mb.CatalogReg.NavigateHost("/US/East/CLE/A/zgov0456");
 
           Aver.IsFalse( host.HasDirectOrIndirectParentZoneGovernor("/us/usnational/controller/zgov0891") );
@@ -607,7 +607,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       {
         using (var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
-        using (BootConfLoader.LoadForTest(SystemApplicationType.ZoneGovernor, mb, "/US/East/CLE/A/I/wmed0001"))
+        using (new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, mb, "/US/East/CLE/A/I/wmed0001", true, null, null))
         {
           Aver.IsFalse(mb.CatalogReg.NavigateHost("/US/East/CLE/A/I/wmed0001").IsZGov);
           Aver.IsFalse(mb.CatalogReg.NavigateHost("/US/East/CLE/A/I/wmed0002").IsZGov);
@@ -621,7 +621,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       {
         using (var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
-        using (BootConfLoader.LoadForTest(SystemApplicationType.ZoneGovernor, mb, "/US/East/CLE/A/I/wmed0001"))
+        using (new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, mb, "/US/East/CLE/A/I/wmed0001", true, null, null))
         {
           var nocNATIONAL = mb.CatalogReg.NavigateNOC("/US/USNational.noc");
           var nocCLE = mb.CatalogReg.NavigateNOC("/US/East/Cle.noc");

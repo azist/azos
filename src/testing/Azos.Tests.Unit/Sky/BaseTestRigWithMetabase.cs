@@ -7,6 +7,7 @@ using Azos.Sky.Metabase;
 
 using Azos.IO.FileSystem;
 using Azos.IO.FileSystem.Local;
+using Azos.Apps;
 
 namespace Azos.Tests.Unit.Sky
 {
@@ -14,7 +15,7 @@ namespace Azos.Tests.Unit.Sky
   {
       private FileSystem m_FS;
       private Metabank m_Metabank;
-      private IDisposable m_TestSession;
+      private SkyApplication m_TestApp;
 
 
       public Metabank Metabase { get{ return m_Metabank;}}
@@ -22,9 +23,9 @@ namespace Azos.Tests.Unit.Sky
       void IRunnableHook.Prologue(Runner runner, FID id)
       {
         Console.WriteLine("{0}.{1}".Args(GetType().FullName, "RigSetup()..."));
-        m_FS = new LocalFileSystem(null);
+        m_FS = new LocalFileSystem(NOPApplication.Instance);
         m_Metabank =  new Metabank(m_FS, null, TestSources.RPATH);
-        m_TestSession = BootConfLoader.LoadForTest(SystemApplicationType.TestRig, m_Metabank, TestSources.THIS_HOST);
+        m_TestApp = new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, m_Metabank, TestSources.THIS_HOST, true, null, null);
 
         DoRigSetup();
 
@@ -37,7 +38,7 @@ namespace Azos.Tests.Unit.Sky
 
         DoRigTearDown();
 
-        DisposableObject.DisposeAndNull(ref m_TestSession);
+        DisposableObject.DisposeAndNull(ref m_TestApp);
         DisposableObject.DisposeAndNull(ref m_Metabank);
         DisposableObject.DisposeAndNull(ref m_FS);
         Console.WriteLine("{0}.{1}".Args(GetType().FullName, "...RigTearDown() DONE"));

@@ -371,7 +371,7 @@ namespace Azos.Tests.Unit.Serialization
       var msg = new Azos.Log.Message
       {
          Type = MessageType.DebugGlue,
-         UTCTimeStamp = App.TimeSource.UTCNow,
+         UTCTimeStamp = Ambient.UTCNow,
          Channel = "MTV",
           From = "Zhaba",
            Topic = "App",

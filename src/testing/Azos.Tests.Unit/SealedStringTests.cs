@@ -150,7 +150,7 @@ namespace Azos.Tests.Unit
 
           var data = new string[1024];
           for(var i=0; i<data.Length; i++)
-           data[i] = "A".PadRight(from+Azos.App.Random.NextScaledRandomInteger(0, to));
+           data[i] = "A".PadRight(from + Ambient.Random.NextScaledRandomInteger(0, to));
 
 
           Console.WriteLine("Total: {0:n0} / used bytes: {1:n0} / allocated: {2:n0}", startCount, startUseCount, startAllocCount);
@@ -158,7 +158,7 @@ namespace Azos.Tests.Unit
           var sw = System.Diagnostics.Stopwatch.StartNew();
             Parallel.For(0, cnt, (_) =>
             {
-               var content = data[Azos.App.Random.NextScaledRandomInteger(0, data.Length)];
+               var content = data[Ambient.Random.NextScaledRandomInteger(0, data.Length)];
                var s = new SealedString(content);
                var restored = s.Value;
                Aver.AreEqual(content, restored);

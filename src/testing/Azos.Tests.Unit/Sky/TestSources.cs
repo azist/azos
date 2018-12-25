@@ -9,7 +9,7 @@ namespace Azos.Tests.Unit.Sky
      {
        get
        {
-         var vname = Azos.Sky.Apps.BootConfLoader.ENV_VAR_METABASE_FS_ROOT + "_UTEST";
+         var vname = Azos.Apps.BootConfLoader.ENV_VAR_METABASE_FS_ROOT + "_UTEST";
          var result = System.Environment.GetEnvironmentVariable(vname);
          if (result.IsNullOrWhiteSpace())
            throw new SkyException(
@@ -30,7 +30,7 @@ namespace Azos.Tests.Unit.Sky
      {
        get
        {
-         var vname = Azos.Sky.Apps.BootConfLoader.ENV_VAR_HOST_NAME + "_UTEST";
+         var vname = Azos.Apps.BootConfLoader.ENV_VAR_HOST_NAME + "_UTEST";
          var result = System.Environment.GetEnvironmentVariable(vname);
          if (result.IsNullOrWhiteSpace())
            throw new SkyException(

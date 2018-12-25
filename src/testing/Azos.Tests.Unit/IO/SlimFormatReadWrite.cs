@@ -487,9 +487,9 @@ namespace Azos.Tests.Unit.IO
                 var w = SlimFormat.Instance.MakeWritingStreamer();
 
                  r.BindStream(ms);
-            w.BindStream(ms);
+                 w.BindStream(ms);
 
-                var now = App.LocalizedTime;
+                var now = Ambient.UTCNow;
 
                 w.Write(now);
 
@@ -510,7 +510,7 @@ namespace Azos.Tests.Unit.IO
                  r.BindStream(ms);
             w.BindStream(ms);
 
-                var now = App.LocalizedTime;
+                var now = Ambient.UTCNow;
 
                 w.Write((DateTime?)null);
                 w.Write((DateTime?)now);

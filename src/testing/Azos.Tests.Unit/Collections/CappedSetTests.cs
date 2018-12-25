@@ -38,7 +38,7 @@ namespace Azos.Tests.Unit.Collections
 
         DateTime cd;
         Aver.IsTrue( set.Get("Titov", out cd) );
-        Aver.IsTrue( (App.TimeSource.UTCNow - cd).TotalSeconds < 2d);//unless machine freezes :(
+        Aver.IsTrue( (Ambient.UTCNow - cd).TotalSeconds < 2d);//unless machine freezes :(
 
         Aver.IsFalse( set.Get("Neverflew", out cd) );
 
@@ -74,7 +74,7 @@ namespace Azos.Tests.Unit.Collections
 
         DateTime cd;
         Aver.IsTrue( set.Get("Titov", out cd) );
-        Aver.IsTrue( (App.TimeSource.UTCNow - cd).TotalSeconds < 2d);//unless machine freezes :(
+        Aver.IsTrue( (Ambient.UTCNow - cd).TotalSeconds < 2d);//unless machine freezes :(
 
         Aver.IsFalse( set.Get("Neverflew", out cd) );
 

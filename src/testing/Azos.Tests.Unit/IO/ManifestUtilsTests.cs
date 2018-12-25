@@ -16,6 +16,7 @@ using Azos.IO.FileSystem;
 using Azos.IO.FileSystem.Local;
 using Azos.IO.FileSystem.Packaging;
 using Azos.Security;
+using Azos.Apps;
 
 namespace Azos.Tests.Unit.IO
 {
@@ -89,7 +90,7 @@ package
         [Run]
         public void Generate_1()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
               var session = fs.StartSession();
               var dir = session[Get_TEZT_PATH()] as FileSystemDirectory;
@@ -113,7 +114,7 @@ package
         [Run]
         public void Compare_1()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
               var session = fs.StartSession();
               var dir = session[Get_TEZT_PATH()] as FileSystemDirectory;
@@ -127,7 +128,7 @@ package
         [Run]
         public void Compare_2()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
               var session = fs.StartSession();
               var dir = session[Get_TEZT_PATH()] as FileSystemDirectory;
@@ -143,7 +144,7 @@ package
         [Run]
         public void Compare_3()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
               var session = fs.StartSession();
               var dir = session[Get_TEZT_PATH()] as FileSystemDirectory;
@@ -159,7 +160,7 @@ package
         [Run]
         public void Compare_4()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
               var session = fs.StartSession();
               var dir = session[Get_TEZT_PATH()] as FileSystemDirectory;

@@ -90,10 +90,10 @@ namespace Azos.Tests.Unit.Pile
                 Aver.AreObjectsEqual(PutResult.Inserted, pr);
               }
 
-              var todelete = App.Random.NextScaledRandomInteger(0, (int)(COUNT * delMargin));
+              var todelete = Ambient.Random.NextScaledRandomInteger(0, (int)(COUNT * delMargin));
               for(var i=0; i<todelete; i++)
               {
-                var key = dict.Keys.Skip(App.Random.NextScaledRandomInteger(0, dict.Count-2)).First();
+                var key = dict.Keys.Skip(Ambient.Random.NextScaledRandomInteger(0, dict.Count-2)).First();
                 Aver.IsTrue( dict.Remove(key) );
                 Aver.IsTrue( tA.Remove(key) );
                 Aver.AreEqual( dict.Count, tA.Count);

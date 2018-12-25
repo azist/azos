@@ -240,7 +240,7 @@ namespace Azos.Tests.Unit.Cache
             {
               var tbl1 = store["t1"];
 
-              var utcNow = App.TimeSource.UTCNow;
+              var utcNow = Ambient.UTCNow;
               var utcExp = utcNow.AddSeconds(5);
 
 

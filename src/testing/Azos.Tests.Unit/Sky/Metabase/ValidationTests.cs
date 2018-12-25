@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using Azos.Apps;
 using Azos.IO.FileSystem.Local;
 using Azos.Scripting;
 
@@ -16,9 +16,9 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void ValidateMetabank()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
-        using(BootConfLoader.LoadForTest(SystemApplicationType.TestRig, mb, "US/East/CLE/A/I/wmed0001"))
+        using(new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, mb, "US/East/CLE/A/I/wmed0001", true, null, null))
         {
           var output = new List<MetabaseValidationMsg>();
 

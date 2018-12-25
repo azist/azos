@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +16,7 @@ using Azos.IO.FileSystem;
 using Azos.IO.FileSystem.Local;
 using Azos.IO.FileSystem.Packaging;
 using Azos.Security;
+using Azos.Apps;
 
 namespace Azos.Tests.Unit.IO
 {
@@ -32,7 +33,7 @@ namespace Azos.Tests.Unit.IO
             IOUtils.EnsureDirectoryDeleted(p2);
             Directory.CreateDirectory(p2);
 
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
               using(var session = fs.StartSession())
               {

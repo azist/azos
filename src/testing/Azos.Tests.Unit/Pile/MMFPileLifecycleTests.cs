@@ -69,7 +69,7 @@ namespace Azos.Tests.Unit.Pile
            {
               while(pile.UtilizedBytes < totalSize)
               {
-                var sz = fromSize==toSize ? toSize : App.Random.NextScaledRandomInteger(fromSize, toSize);
+                var sz = fromSize==toSize ? toSize : Ambient.Random.NextScaledRandomInteger(fromSize, toSize);
                 var load = new byte[sz];
                 pile.Put(load);
               }

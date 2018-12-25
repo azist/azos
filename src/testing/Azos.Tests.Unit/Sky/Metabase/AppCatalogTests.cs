@@ -43,7 +43,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
           Parallel.For(0, TestSources.PARALLEL_LOOP_TO,
              (i)=>
              {
-                Thread.SpinWait(App.Random.NextScaledRandomInteger(100, 10000));
+                Thread.SpinWait(Ambient.Random.NextScaledRandomInteger(100, 10000));
 
                 Aver.IsNotNull(mb.CatalogApp);
 
@@ -135,7 +135,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
           Parallel.For(0, TestSources.PARALLEL_LOOP_TO,
              (i)=>
              {
-                Thread.SpinWait(App.Random.NextScaledRandomInteger(100, 10000));
+                Thread.SpinWait(Ambient.Random.NextScaledRandomInteger(100, 10000));
 
                 var host = mb.CatalogReg["us/east/cle/a/ii/wmed0004.h"];
 

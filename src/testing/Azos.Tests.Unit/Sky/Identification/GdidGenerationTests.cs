@@ -83,7 +83,7 @@ app
 
           var conf  = LaconicConfiguration.CreateFromString(CONFIG);
           using(var app =  new AzosApplication(null, conf.Root))
-           using ( var authority = new GdidAuthorityService())
+           using ( var authority = new GdidAuthorityService(app))
            {
               authority.Configure(null);
               authority.Start();
@@ -98,8 +98,8 @@ app
 
               int TOTAL = 0;
 
-              var gen = new GdidGenerator("AAAA", null);
-              gen.AuthorityHosts.Register(new GdidGenerator.AuthorityHost("sync://127.0.0.1:9999"));
+              var gen = new GdidGenerator(NOPApplication.Instance);
+              gen.AuthorityHosts.Register(new GdidGenerator.AuthorityHost(NOPApplication.Instance, "sync://127.0.0.1:9999"));
 
               var lst = new List<ulong>();
               var rnd = new Random();
@@ -140,7 +140,7 @@ app
 
           var conf  = LaconicConfiguration.CreateFromString(CONFIG);
           using(var app =  new AzosApplication(null, conf.Root))
-           using ( var authority = new GdidAuthorityService())
+           using ( var authority = new GdidAuthorityService(app))
            {
               authority.Configure(null);
               authority.Start();
@@ -156,8 +156,8 @@ app
 
               int TOTAL = 0;
 
-              var gen = new GdidGenerator("AAAA", null);
-              gen.AuthorityHosts.Register(new GdidGenerator.AuthorityHost("sync://127.0.0.1:9999"));
+              var gen = new GdidGenerator(NOPApplication.Instance);
+              gen.AuthorityHosts.Register(new GdidGenerator.AuthorityHost(NOPApplication.Instance, "sync://127.0.0.1:9999"));
 
               var dict = new Dictionary<string, List<ulong>>();
               dict.Add("aseq", new List<ulong>());
