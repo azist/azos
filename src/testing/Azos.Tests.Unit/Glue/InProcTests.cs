@@ -117,11 +117,6 @@ namespace Azos.Tests.Unit.Glue
             TestLogic.TestContractB_4_Async(CONF_SRC_INPROC);
         }
 
-        [Run]
-        public void Inproc_B_4_AsyncReactor()
-        {
-            TestLogic.TestContractB_4_AsyncReactor(CONF_SRC_INPROC);
-        }
 
         [Run]
         public void Inproc_B_4_Parallel()

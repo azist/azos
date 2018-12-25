@@ -506,7 +506,7 @@ namespace Azos.Tests.Unit.Glue
             using( var app = new AzosApplication(null, conf.Root))
             {
                 //Use the same client.....
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName(threadSafe?"cs":"cs2").Value);
+                var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName(threadSafe?"cs":"cs2").Value);
 
                 Aver.AreEqual( "Felix1223", cl.GetName(1223));//alloc server
 
@@ -561,7 +561,7 @@ namespace Azos.Tests.Unit.Glue
 
                 for(var i=0; i<CLCNT; i++)
                 {
-                  var cl = new TestContractBClient(app.ConfigRoot.AttrByName(threadSafe?"cs":"cs2").Value);
+                  var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName(threadSafe?"cs":"cs2").Value);
                   Aver.AreEqual( "Felix1223", cl.GetName(1223));//alloc server
                   clients.Add(cl);
                 }

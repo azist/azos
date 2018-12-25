@@ -105,10 +105,10 @@ namespace Azos.Tests.Unit.Pile
             totalPut++;
             lst.Add( new KeyValuePair<PilePointer, CheckoutRow>(pp, rowIn) );
 
-            var chance = App.Random.NextRandomInteger > 1000000000; //periodically delete
+            var chance = Ambient.Random.NextRandomInteger > 1000000000; //periodically delete
             if (!chance) continue;
 
-            var idx = App.Random.NextScaledRandomInteger(0, lst.Count-1);
+            var idx = Ambient.Random.NextScaledRandomInteger(0, lst.Count-1);
             var kvp = lst[idx];
             lst.RemoveAt(idx);
             Aver.AreObjectsEqual(kvp.Value, ipile.Get(kvp.Key));
@@ -167,13 +167,13 @@ namespace Azos.Tests.Unit.Pile
           var sw = Stopwatch.StartNew();
           while(ipile.SegmentCount<16)
           {
-            var chance = App.Random.NextRandomInteger > 0;
+            var chance = Ambient.Random.NextRandomInteger > 0;
             if (chance)
             {
-              var fakeBuf = new byte[App.Random.NextScaledRandomInteger(0, 128*1024)];
+              var fakeBuf = new byte[Ambient.Random.NextScaledRandomInteger(0, 128*1024)];
               totalBuff++;
               totalBuffSz += fakeBuf.Length;
-              if (pBuff.Valid && App.Random.NextRandomInteger > 0) ipile.Delete(pBuff); //periodically delete buffers
+              if (pBuff.Valid && Ambient.Random.NextRandomInteger > 0) ipile.Delete(pBuff); //periodically delete buffers
               pBuff = ipile.Put(fakeBuf);
             }
 
@@ -182,10 +182,10 @@ namespace Azos.Tests.Unit.Pile
             totalPut++;
             lst.Add( new KeyValuePair<PilePointer, CheckoutRow>(pp, rowIn) );
 
-            chance = App.Random.NextRandomInteger > 1000000000; //periodically delete rows
+            chance = Ambient.Random.NextRandomInteger > 1000000000; //periodically delete rows
             if (!chance) continue;
 
-            var idx = App.Random.NextScaledRandomInteger(0, lst.Count-1);
+            var idx = Ambient.Random.NextScaledRandomInteger(0, lst.Count-1);
             var kvp = lst[idx];
             lst.RemoveAt(idx);
             Aver.AreObjectsEqual(kvp.Value, ipile.Get(kvp.Key));
@@ -258,13 +258,13 @@ namespace Azos.Tests.Unit.Pile
 
                         while(ipile.SegmentCount<64)
                         {
-                          var chance = App.Random.NextRandomInteger > 0;
+                          var chance = Ambient.Random.NextRandomInteger > 0;
                           if (chance)
                           {
-                            var fakeBuf = new byte[App.Random.NextScaledRandomInteger(0, 128*1024)];
+                            var fakeBuf = new byte[Ambient.Random.NextScaledRandomInteger(0, 128*1024)];
                             Interlocked.Increment(ref totalBuff);
                             Interlocked.Add( ref totalBuffSz, fakeBuf.Length);
-                            if (pBuff.Valid && App.Random.NextRandomInteger > 0) ipile.Delete(pBuff); //periodically delete buffers
+                            if (pBuff.Valid && Ambient.Random.NextRandomInteger > 0) ipile.Delete(pBuff); //periodically delete buffers
                             pBuff = ipile.Put(fakeBuf);
                           }
 
@@ -273,10 +273,10 @@ namespace Azos.Tests.Unit.Pile
                           Interlocked.Increment( ref totalPut);
                           llst.Add( new KeyValuePair<PilePointer, CheckoutRow>(pp, rowIn) );
 
-                          chance = App.Random.NextRandomInteger > 1000000000; //periodically delete rows
+                          chance = Ambient.Random.NextRandomInteger > 1000000000; //periodically delete rows
                           if (!chance) continue;
 
-                          var idx = App.Random.NextScaledRandomInteger(0, llst.Count-1);
+                          var idx = Ambient.Random.NextScaledRandomInteger(0, llst.Count-1);
                           var kvp = llst[idx];
                           llst.RemoveAt(idx);
                           Aver.AreObjectsEqual(kvp.Value, ipile.Get(kvp.Key));

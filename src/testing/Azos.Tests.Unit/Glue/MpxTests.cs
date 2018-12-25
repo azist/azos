@@ -175,18 +175,6 @@ namespace Azos.Tests.Unit.Glue
         }
 
         [Run]
-        public void Mpx_B_4_AsyncReactor()
-        {
-            TestLogic.TestContractB_4_AsyncReactor(CONF_SRC_MPX);
-        }
-
-        [Run]
-        public void Mpx_B_4_AsyncReactor_TR_A()
-        {
-            TestLogic.TestContractB_4_AsyncReactor(CONF_SRC_MPX_TRANSPORTS_A);
-        }
-
-        [Run]
         public void Mpx_B_4_Parallel_ThreadSafeServer()
         {
             TestLogic.TestContractB_4_Parallel(CONF_SRC_MPX, threadSafe: true);

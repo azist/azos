@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-
+using Azos.Apps;
 using Azos.IO.FileSystem.Local;
 using Azos.Scripting;
 
@@ -13,7 +13,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void MR_RootConfigs()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.IsNotNull(mb.CommonLevelConfig);
@@ -28,7 +28,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void MR_CommonConfigGetsIncludedAtAllLevels()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.AreEqual("value1", mb.CatalogApp.Applications["WebApp1"].LevelConfig.Navigate("/common/$var1").Value);
@@ -40,7 +40,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void MR_PlatformNames()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           var platforms = mb.PlatformNames.ToList();
@@ -55,7 +55,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void MR_OSNames()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           var oses = mb.OSNames.ToList();
@@ -72,7 +72,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void MR_GetOSPlatformNode()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           var pn = mb.GetOSPlatformNode("fedora20");
@@ -85,7 +85,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void MR_GetOSPlatformName()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.AreEqual("Android",  mb.GetOSPlatformName("KitKat4.4"));

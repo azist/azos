@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Azos.Apps;
 using Azos.IO.FileSystem.Local;
 using Azos.Scripting;
 
@@ -18,7 +18,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_Region_Top_List()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.IsTrue( mb.CatalogReg.IsSystem );
@@ -35,7 +35,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_Region_Top_Navigation()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.AreEqual("US",     mb.CatalogReg["/US"].Name);
@@ -47,7 +47,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_Region_Sub_Navigation()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.AreEqual("East",     mb.CatalogReg["/US/East"].Name);
@@ -60,7 +60,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_Region_NOC_Navigation()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.AreEqual("CLE",     mb.CatalogReg["/US/East/CLE"].Name);
@@ -74,7 +74,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_Region_Zone_Navigation()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.AreEqual("I",     mb.CatalogReg["/US/East/CLE/A/I"].Name);
@@ -86,7 +86,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_Region_Host_Navigation()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.AreEqual("wmed0001", mb.CatalogReg["/US/East/CLE/A/I/wmed0001"].Name);
@@ -97,7 +97,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_Region_PathWithSpaces()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.AreEqual("wmed0001", mb.CatalogReg["/US/East/CLE/A/I/wmed0001"].Name);
@@ -111,7 +111,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_Region_DynamicHost_Navigation()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.AreEqual("wlgdyn0001",     mb.CatalogReg["/US/East/CLE/A/I/wlgdyn0001"].Name);
@@ -127,7 +127,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_Region_Host_RegionPath()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.AreEqual("/US/East/CLE/A/I/wmed0001", mb.CatalogReg["/US/East/CLE/A/I/wmed0001"].RegionPath);
@@ -138,7 +138,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_Region_Host_Caching()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           var h1 =  mb.CatalogReg["/US/East/CLE/A/I/wmed0001"];
@@ -152,7 +152,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_Navigate_Methods()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.AreEqual("US", mb.CatalogReg.NavigateRegion("/US/East").ParentRegion.Name);
@@ -176,7 +176,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_ParentSectionsPath()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           var host = mb.CatalogReg.NavigateHost("/US.r/East/CLE.noc/A/I.z/wmed0001.h");
@@ -196,7 +196,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_CountMatchingPathSegments()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.AreEqual(0, mb.CatalogReg.CountMatchingPathSegments("US/East/CLE/A/I", "Africa/Cairo"));
@@ -210,7 +210,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_GetMatchingPathSegmentRatio()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.AreEqual(0.5d, mb.CatalogReg.GetMatchingPathSegmentRatio("/US/East/CLE/A", "/US/East/JFK/A"));
@@ -224,7 +224,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
        [Run]
       public void RC_Various_Parallel()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Parallel.For(0, TestSources.PARALLEL_LOOP_TO,
@@ -296,7 +296,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_TryNavigateAsFarAsPossible_1()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
 
@@ -312,7 +312,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_TryNavigateAsFarAsPossible_2()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
 
@@ -329,7 +329,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_TryNavigateAsFarAsPossible_3()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
 
@@ -349,7 +349,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_AllNOCs()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
 
@@ -370,7 +370,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_GetDistanceBetweenPaths_1()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
 
@@ -386,7 +386,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_GetDistanceBetweenPaths_2()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
 
@@ -406,7 +406,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_GetDistanceBetweenPaths_Parallel()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
 
@@ -424,7 +424,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_GeoDistanceBetweenPaths()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
 
@@ -449,7 +449,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_GetNOCOfPath_1()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
 
@@ -462,7 +462,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_GetNOCOfPath_2()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
 
@@ -476,7 +476,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_ArePathsInSameNOC_1()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
 
@@ -490,7 +490,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_ArePathsInSameNOC_2()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
 
@@ -504,7 +504,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_ArePathsInSameNOC_3()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
 
@@ -520,7 +520,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_ParentZoneGov_1()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
 
@@ -540,7 +540,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_ParentZoneGov_2()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         using(BootConfLoader.LoadForTest(SystemApplicationType.TestRig, mb, "/US/East/CLE/A/I/wmed0001"))
         {
@@ -554,7 +554,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_ParentZoneGov_3()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         using(BootConfLoader.LoadForTest(SystemApplicationType.ZoneGovernor, mb, "/US/East/CLE/A/I/wmed0001"))
         {
@@ -568,7 +568,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_ParentZoneGov_4_TranscendNOC()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         using(BootConfLoader.LoadForTest(SystemApplicationType.ZoneGovernor, mb, "/US/East/CLE/A/I/wmed0001"))
         {
@@ -589,7 +589,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_HasDirectOrIndirectParentZoneGovernor_1()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         using(BootConfLoader.LoadForTest(SystemApplicationType.ZoneGovernor, mb, "/US/East/CLE/A/I/wmed0001"))
         {
@@ -605,7 +605,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_IsZoneGov()
       {
-        using (var fs = new LocalFileSystem(null))
+        using (var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         using (BootConfLoader.LoadForTest(SystemApplicationType.ZoneGovernor, mb, "/US/East/CLE/A/I/wmed0001"))
         {
@@ -619,7 +619,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void RC_ParentNOCZone()
       {
-        using (var fs = new LocalFileSystem(null))
+        using (var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         using (BootConfLoader.LoadForTest(SystemApplicationType.ZoneGovernor, mb, "/US/East/CLE/A/I/wmed0001"))
         {

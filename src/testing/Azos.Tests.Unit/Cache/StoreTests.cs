@@ -46,7 +46,7 @@ namespace Azos.Tests.Unit.Cache
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                using(var store = new CacheStore("BANKING"))
+                using(var store = new CacheStore(NOPApplication.Instance, "BANKING"))
                 {
                   store.Configure(null);
 
@@ -80,7 +80,7 @@ namespace Azos.Tests.Unit.Cache
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                using(var store = new CacheStore("SomeStoreThat will be configured from default store without name"))
+                using(var store = new CacheStore(NOPApplication.Instance, "SomeStoreThat will be configured from default store without name"))
                 {
                   store.Configure(null);
 
@@ -107,7 +107,7 @@ namespace Azos.Tests.Unit.Cache
         [Run]
         public void Basic_Put_Get()
         {
-            using(var store = new CacheStore(null))
+            using(var store = new CacheStore(NOPApplication.Instance))
             {
               var tbl1 = store["t1"];
 
@@ -129,7 +129,7 @@ namespace Azos.Tests.Unit.Cache
         [Run]
         public void Basic_Put_Get_HitCount()
         {
-            using(var store = new CacheStore(null))
+            using(var store = new CacheStore(NOPApplication.Instance))
             {
               var tbl1 = store["t1"];
 
@@ -154,7 +154,7 @@ namespace Azos.Tests.Unit.Cache
         [Run]
         public void Basic_Put_Get_Remove()
         {
-            using(var store = new CacheStore(null))
+            using(var store = new CacheStore(NOPApplication.Instance))
             {
               var tbl1 = store["t1"];
 
@@ -181,7 +181,7 @@ namespace Azos.Tests.Unit.Cache
         [Run]
         public void Put_Expire_Get()
         {
-            using( var store = new CacheStore(null))
+            using( var store = new CacheStore(NOPApplication.Instance))
             {
               var tbl1 = store["t1"];
 
@@ -211,7 +211,7 @@ namespace Azos.Tests.Unit.Cache
         [Run]
         public void Get_Does_Not_See_Expired()
         {
-            using(var store = new CacheStore(null))
+            using(var store = new CacheStore(NOPApplication.Instance))
             {
               var tbl1 = store["t1"];
 
@@ -236,7 +236,7 @@ namespace Azos.Tests.Unit.Cache
         [Run]
         public void Get_Does_Not_See_AbsoluteExpired()
         {
-            using(var store = new CacheStore(null))
+            using(var store = new CacheStore(NOPApplication.Instance))
             {
               var tbl1 = store["t1"];
 
@@ -267,7 +267,7 @@ namespace Azos.Tests.Unit.Cache
         [Run]
         public void Collision()
         {
-            using(var store = new CacheStore(null))
+            using(var store = new CacheStore(NOPApplication.Instance))
             {
               store.TableOptions.Register( new TableOptions("t1",3 ,7) );
               var tbl1 = store["t1"];
@@ -289,7 +289,7 @@ namespace Azos.Tests.Unit.Cache
         [Run]
         public void Collision_Prevented_Priority()
         {
-            using(var store = new CacheStore(null))
+            using(var store = new CacheStore(NOPApplication.Instance))
             {
               store.TableOptions.Register( new TableOptions("t1",3 ,7) );
               var tbl1 = store["t1"];
@@ -311,7 +311,7 @@ namespace Azos.Tests.Unit.Cache
         [Run]
         public void ComplexKeyHashingStrategy_1()
         {
-            using(var store = new CacheStore(null))
+            using(var store = new CacheStore(NOPApplication.Instance))
             {
               var strat = new ComplexKeyHashingStrategy(store);
 
@@ -337,7 +337,7 @@ namespace Azos.Tests.Unit.Cache
         [Run("cnt=100000  k=0.5")]
         public void ComplexKeyHashingStrategy_2(int CNT, double k)
         {
-            using(var store = new CacheStore(null))
+            using(var store = new CacheStore(NOPApplication.Instance))
             {
 
               var strat = new ComplexKeyHashingStrategy(store);
@@ -372,7 +372,7 @@ namespace Azos.Tests.Unit.Cache
         [Run("cnt=100000  k=0.5")]
         public void ComplexKeyHashingStrategy_3(int CNT, double k)
         {
-            using(var store = new CacheStore(null))
+            using(var store = new CacheStore(NOPApplication.Instance))
             {
               var strat = new ComplexKeyHashingStrategy(store);
 

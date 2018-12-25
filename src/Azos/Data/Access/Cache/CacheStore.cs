@@ -47,6 +47,8 @@ namespace Azos.Data.Access.Cache
         #region .ctor
 
             public CacheStore(IApplication app) : base(app) => ctor(null);
+            public CacheStore(IApplication app, string name) : base(app) => ctor(name);
+            public CacheStore(IApplicationComponent director) : base(director) => ctor(null);
             public CacheStore(IApplicationComponent director, string name) : base(director) => ctor(name);
 
             private void ctor(string name)

@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Azos.Apps;
 using Azos.IO.FileSystem.Local;
 using Azos.Scripting;
 
@@ -16,7 +16,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void AppCat_ApplicationList()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.IsNotNull(mb.CatalogApp);
@@ -37,7 +37,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void AppCat_ApplicationList_Parallel()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Parallel.For(0, TestSources.PARALLEL_LOOP_TO,
@@ -65,7 +65,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void AppCat_RoleList()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Aver.IsNotNull(mb.CatalogApp);
@@ -86,13 +86,13 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void AppCat_RoleList_Parallel()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Parallel.For(0, TestSources.PARALLEL_LOOP_TO,
              (i)=>
              {
-                Thread.SpinWait(App.Random.NextScaledRandomInteger(100, 10000));
+                Thread.SpinWait(Ambient.Random.NextScaledRandomInteger(100, 10000));
 
                 Aver.IsNotNull(mb.CatalogApp);
 
@@ -116,7 +116,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void AppCat_HostAppConfig()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           var host = mb.CatalogReg["us/east/cle/a/ii/wmed0004.h"];
@@ -129,7 +129,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void AppCat_HostAppConfig_Parallel()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Parallel.For(0, TestSources.PARALLEL_LOOP_TO,
@@ -151,7 +151,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void AppCat_Packages()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           var app = mb.CatalogApp.Applications["TestApp"];
@@ -177,13 +177,13 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void AppCat_Packages_Parallel()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Parallel.For(0, TestSources.PARALLEL_LOOP_TO,
              (i)=>
              {
-                Thread.SpinWait(App.Random.NextScaledRandomInteger(100, 10000));
+                Thread.SpinWait(Ambient.Random.NextScaledRandomInteger(100, 10000));
 
                 var app = mb.CatalogApp.Applications["TestApp"];
 
@@ -211,7 +211,7 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void AppCat_MatchPackageBinaries()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           var app = mb.CatalogApp.Applications["TestApp"];
@@ -242,13 +242,13 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void AppCat_MatchPackageBinaries_Parallel()
       {
-        using(var fs = new LocalFileSystem(null))
+        using(var fs = new LocalFileSystem(NOPApplication.Instance))
         using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
           Parallel.For(0, TestSources.PARALLEL_LOOP_TO,
              (i)=>
              {
-              Thread.SpinWait(App.Random.NextScaledRandomInteger(100000, 10000));
+              Thread.SpinWait(Ambient.Random.NextScaledRandomInteger(100000, 10000));
 
               var app = mb.CatalogApp.Applications["TestApp"];
 

@@ -462,7 +462,7 @@ namespace Azos.Tests.Unit.Pile
             pile.Start();//just to test that it starts ok
           }
 
-          using (var pile = new MMFPile("specialNamed"))
+          using (var pile = new MMFPile(NOPApplication.Instance, "specialNamed"))
           {
             pile.Configure(null);
 
