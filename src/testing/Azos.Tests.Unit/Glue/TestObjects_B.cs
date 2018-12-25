@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +38,7 @@ namespace Azos.Tests.Unit.Glue
             string GetName();
             string GetName(int id);
             string GetName(int id, DateTime? startDate);
-            
+
             [ArgsMarshalling(typeof(RequestMsg_ITestContractB_GetNameMar))]
             string GetNameMar(int id);
 
@@ -65,7 +65,7 @@ namespace Azos.Tests.Unit.Glue
         public class TestServerB_ThreadSafe : ITestContractB
         {
             private PersonData m_PersonOfTheDay;
-            
+
             public void SetPersonOfTheDay(PersonData person)
             {
                 m_PersonOfTheDay = person;
@@ -128,7 +128,7 @@ namespace Azos.Tests.Unit.Glue
             public Dictionary<DateTime?, List<PersonData>> GetDailyStatuses(int count)
             {
                 var result = new Dictionary<DateTime?, List<PersonData>>();
-                
+
                 for(int i=0; i<count; i++)
                 {
                     var dt = new DateTime(1980,1,1).AddSeconds(i);
@@ -160,14 +160,14 @@ namespace Azos.Tests.Unit.Glue
                 return result;
             }
 
-           
+
         }
 
         //this isntance WILL be locked by Glue runtime because it is not marked as [ThreadSafe]
         public class TestServerB_NotThreadSafe : ITestContractB
         {
             private PersonData m_PersonOfTheDay;
-            
+
             public void SetPersonOfTheDay(PersonData person)
             {
                 m_PersonOfTheDay = person;
@@ -228,7 +228,7 @@ namespace Azos.Tests.Unit.Glue
             public Dictionary<DateTime?, List<PersonData>> GetDailyStatuses(int count)
             {
                 var result = new Dictionary<DateTime?, List<PersonData>>();
-                
+
                 for(int i=0; i<count; i++)
                 {
                     var dt = new DateTime(1980,1,1).AddSeconds(i);
@@ -260,7 +260,7 @@ namespace Azos.Tests.Unit.Glue
                 return result;
             }
 
-           
+
         }
 
  //=====================================================================================================================================================
@@ -306,8 +306,6 @@ namespace Azos.Tests.Unit.Glue
   #endregion
 
   #region .ctor
-     public TestContractBClient(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public TestContractBClient(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public TestContractBClient(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public TestContractBClient(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

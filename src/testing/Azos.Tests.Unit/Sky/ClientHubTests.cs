@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Azos.Apps;
 using Azos.Data;
 using Azos.Scripting;
+using Azos.Sky;
 using Azos.Sky.Contracts;
 
 namespace Azos.Tests.Unit.Sky
@@ -45,7 +46,7 @@ app
      {
        public object TestEcho(object data)
        {
-         if (data is string && (string)data=="FAIL") throw new AzosException("I failed!");
+         if (data is string  str && str=="FAIL") throw new AzosException("I failed!");
          return data;
        }
      }
@@ -58,7 +59,7 @@ app
          var conf  = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw );
          using(var app =  new AzosApplication(null, conf))
          {
-              using( var tester = ServiceClientHub.New<ITesterClient>("/us/east/cle/a/ii/wmed0004"))
+              using( var tester = app.GetServiceClientHub().MakeNew<ITesterClient>("/us/east/cle/a/ii/wmed0004"))
               {
                  var arg = "Abcdefg";
                  var echoed = tester.TestEcho(arg);
@@ -73,7 +74,7 @@ app
          var conf  = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw );
          using(var app =  new AzosApplication(null, conf))
          {
-              using( var tester = ServiceClientHub.New<ITesterClient>("/us/east/cle/a/ii/wmed0004"))
+              using( var tester = app.GetServiceClientHub().MakeNew<ITesterClient>("/us/east/cle/a/ii/wmed0004"))
               {
                  var arg = "Abcdefg";
                  var echoed = tester.TestEcho(arg);
@@ -95,7 +96,7 @@ app
          {
               Exception err = null;
               var arg = "Abcdefg";
-              var echoed = ServiceClientHub.CallWithRetry<ITesterClient, object>
+              var echoed = app.GetServiceClientHub().CallWithRetry<ITesterClient, object>
               (
                 (cl) => cl.TestEcho( arg ),
                 new string[]{ "/us/east/cle/a/i/wmed0002", "/us/east/cle/a/ii/wmed0004"},
@@ -116,7 +117,7 @@ app
          {
               Exception err = null;
               var arg = "Abcdefg";
-              var echoed = ServiceClientHub.CallWithRetry<ITesterClient, object>
+              var echoed = app.GetServiceClientHub().CallWithRetry<ITesterClient, object>
               (
                 (cl) => cl.TestEcho( arg ),
                 new string[]{ "/us/east/cle/a/i/wmed0002", "/us/east/cle/a/i/wmed0001"},
@@ -134,7 +135,7 @@ app
          {
               var err = new List<Exception>();
               var arg = "Abcdefg";
-              var echoed = ServiceClientHub.CallWithRetryAsync<ITesterClient, object>
+              var echoed = app.GetServiceClientHub().CallWithRetryAsync<ITesterClient, object>
               (
                 (cl) => cl.Async_TestEcho( arg ).AsTaskReturning<object>(),
                 new string[]{ "/us/east/cle/a/i/wmed0002", "/us/east/cle/a/i/wmed0002", "/us/east/cle/a/ii/wmed0004"},
@@ -156,7 +157,7 @@ app
          {
               Exception err = null;
               var arg = "Abcdefg";
-              var echoed = ServiceClientHub.CallWithRetryAsync<ITesterClient, object>
+              var echoed = app.GetServiceClientHub().CallWithRetryAsync<ITesterClient, object>
               (
                 (cl) => cl.Async_TestEcho( arg ).AsTaskReturning<object>(),
                 new string[]{ "/us/east/cle/a/i/wmed0002", "/us/east/cle/a/i/wmed0001"},
@@ -182,7 +183,7 @@ app
          var conf  = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw );
          using(var app =  new AzosApplication(null, conf))
          {
-              using( var tester = ServiceClientHub.New<ITesterClient>("/us/east/cle/a/ii/wmed0004"))
+              using( var tester = app.GetServiceClientHub().MakeNew<ITesterClient>("/us/east/cle/a/ii/wmed0004"))
               {
                  var arg = "FAIL";
                  var echoed = tester.TestEcho(arg);
@@ -200,7 +201,7 @@ app
          {
               Exception err = null;
               var arg = "FAIL";
-              var echoed = ServiceClientHub.CallWithRetry<ITesterClient, object>
+              var echoed = app.GetServiceClientHub().CallWithRetry<ITesterClient, object>
               (
                 (cl) => cl.TestEcho( arg ),
                 new string[]{ "/us/east/cle/a/i/wmed0001", "/us/east/cle/a/ii/wmed0004"},
@@ -219,7 +220,7 @@ app
          {
               Exception err = null;
               var arg = "FAIL";
-              var echoed = ServiceClientHub.CallWithRetry<ITesterClient, object>
+              var echoed = app.GetServiceClientHub().CallWithRetry<ITesterClient, object>
               (
                 (cl) => cl.TestEcho( arg ),
                 new string[]{ "/us/east/cle/a/i/wmed0001", "/us/east/cle/a/i/wmed0001"},
@@ -238,7 +239,7 @@ app
          {
               Exception err = null;
               var arg = "FAIL";
-              var echoed = ServiceClientHub.CallWithRetryAsync<ITesterClient, object>
+              var echoed = app.GetServiceClientHub().CallWithRetryAsync<ITesterClient, object>
               (
                 (cl) => cl.Async_TestEcho( arg ).AsTaskReturning<object>(),
                 new string[]{ "/us/east/cle/a/i/wmed0001", "/us/east/cle/a/ii/wmed0004"},
@@ -260,9 +261,9 @@ app
       public void CH_ClientCallRetryAsync_TaskVoid()
       {
         var conf = CONFIG1.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
-        using (new AzosApplication(null, conf))
+        using (var app = new AzosApplication(null, conf))
         {
-          var echoed = ServiceClientHub.CallWithRetryAsync<ITesterClient>(
+          var echoed = app.GetServiceClientHub().CallWithRetryAsync<ITesterClient>(
             (cl) => cl.Async_TestEcho( "test" ).AsTaskReturning<object>(),
             new string[]{ "/us/east/cle/a/i/wmed0002", "/us/east/cle/a/i/wmed0001"},
             (cl, er) => {

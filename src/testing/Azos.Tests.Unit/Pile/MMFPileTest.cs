@@ -432,7 +432,7 @@ namespace Azos.Tests.Unit.Pile
 
         using(var app = new AzosApplication(null, conf))
         {
-          using (var pile = new MMFPile())
+          using (var pile = new MMFPile(NOPApplication.Instance))
           {
             pile.Configure(null);
 

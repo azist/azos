@@ -61,15 +61,17 @@ app{
     {
       using(var app = new AzosApplication(null, CONF1.AsLaconicConfig(handling: ConvertErrorHandling.Throw)))
       {
-          Aver.IsNotNull(PortalHub.Instance);
+          var hub = app.GetPortalHub();
 
-          var paris = PortalHub.Instance.Portals["PARIS"];
+          Aver.IsNotNull(hub);
+
+          var paris = hub.Portals["PARIS"];
           Aver.IsNotNull(paris);
 
-          var berlin = PortalHub.Instance.Portals["BERLIN"];
+          var berlin = hub.Portals["BERLIN"];
           Aver.IsNotNull(berlin);
 
-          var onlineDefault = PortalHub.Instance.DefaultOnline;
+          var onlineDefault = hub.DefaultOnline;
           Aver.IsNotNull(onlineDefault);
           Aver.IsTrue( onlineDefault.Name.EqualsOrdIgnoreCase("PARIS"));
 
@@ -93,7 +95,7 @@ app{
   public class MockPortalFrench : Portal
   {
 
-    protected MockPortalFrench(IConfigSectionNode conf) : base(conf){}
+    protected MockPortalFrench(PortalHub hub, IConfigSectionNode conf) : base(hub, conf){}
 
     public override string DefaultISOCountry { get { return CoreConsts.ISO_COUNTRY_USA; } }
 
@@ -128,7 +130,7 @@ app{
   public class MockPortalGerman : Portal
   {
 
-    protected MockPortalGerman(IConfigSectionNode conf) : base(conf){}
+    protected MockPortalGerman(PortalHub hub, IConfigSectionNode conf) : base(hub, conf){}
 
     public override string DefaultISOCountry { get { return CoreConsts.ISO_COUNTRY_USA; } }
 

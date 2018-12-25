@@ -80,7 +80,7 @@ namespace Azos.Tests.Unit.DataAccess
                 YearsWithCompany = 30
             };
 
-            from.CopyFields(to, false, false, (n, f) => f.Name != "DOB" && f.Name != "GoodPerson" );
+            from.CopyFields(to, null, false, false, (n, f) => f.Name != "DOB" && f.Name != "GoodPerson" );
 
             Aver.AreEqual(to.FirstName, from.FirstName);
             Aver.AreEqual(to.LastName, from.LastName);
@@ -219,7 +219,7 @@ namespace Azos.Tests.Unit.DataAccess
             to.AmorphousData["field1"] = 123;
             to.AmorphousData["FirstName"] = "John";
 
-            from.CopyFields(to, false);
+            from.CopyFields(to, includeAmorphousData: false);
 
             Aver.AreEqual(0, to.Schema.FieldCount);
             Aver.AreEqual(2, to.AmorphousData.Count);
@@ -243,7 +243,7 @@ namespace Azos.Tests.Unit.DataAccess
             to.AmorphousData["field1"] = 123;
             to.AmorphousData["FirstName"] = "John";
 
-            from.CopyFields(to, true);
+            from.CopyFields(to, includeAmorphousData: true);
 
             Aver.AreEqual(0, to.Schema.FieldCount);
             Aver.AreEqual(12, to.AmorphousData.Count);
@@ -271,7 +271,7 @@ namespace Azos.Tests.Unit.DataAccess
             to.AmorphousData["field1"] = 123;
             to.AmorphousData["FirstName"] = "John";
 
-            from.CopyFields(to, true);
+            from.CopyFields(to, includeAmorphousData: true);
 
             Aver.AreEqual(11, to.Schema.FieldCount);
             Aver.AreEqual(6, to.AmorphousData.Count);
@@ -391,7 +391,7 @@ namespace Azos.Tests.Unit.DataAccess
             to.AmorphousData["field1"] = 123;
             to.AmorphousData["FirstName"] = "John";
 
-            from.CopyFields(to, false);
+            from.CopyFields(to, includeAmorphousData: false);
 
             Aver.AreEqual(0, to.Schema.FieldCount);
             Aver.AreEqual(2, to.AmorphousData.Count);
@@ -413,7 +413,7 @@ namespace Azos.Tests.Unit.DataAccess
             to.AmorphousData["field1"] = 123;
             to.AmorphousData["FirstName"] = "John";
 
-            from.CopyFields(to, true);
+            from.CopyFields(to, includeAmorphousData:  true);
 
             Aver.AreEqual(0, to.Schema.FieldCount);
             Aver.AreEqual(12, to.AmorphousData.Count);
@@ -480,7 +480,7 @@ namespace Azos.Tests.Unit.DataAccess
             from["FirstName"] = "Jack";
             from["YearsInSpace"] = 20;
 
-            from.CopyFields(to, false);
+            from.CopyFields(to, includeAmorphousData: false);
 
             Aver.AreObjectsEqual(to["FirstName"], from["FirstName"]);
             Aver.AreObjectsEqual(to["LuckRatio"], from["LuckRatio"]);
@@ -500,7 +500,7 @@ namespace Azos.Tests.Unit.DataAccess
             to.AmorphousData["field2"] = "234";
             to.AmorphousData["field3"] = 1.2D;
 
-            from.CopyFields(to, true);
+            from.CopyFields(to, includeAmorphousData: true);
 
             Aver.AreEqual(3, to.AmorphousData.Count);
             Aver.AreObjectsEqual(from.AmorphousData["field1"], to.AmorphousData["field1"]);
@@ -521,7 +521,7 @@ namespace Azos.Tests.Unit.DataAccess
             to.AmorphousData["field3"] = 1.2D;
             to.AmorphousData["field4"] = 12345;
 
-            from.CopyFields(to, true, false, null, (s, n) => n != "field2" );
+            from.CopyFields(to, null, true, false, null, (s, n) => n != "field2" );
 
             Aver.AreEqual(4, to.AmorphousData.Count);
             Aver.AreObjectsEqual(from.AmorphousData["field1"], to.AmorphousData["field1"]);

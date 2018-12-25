@@ -310,7 +310,7 @@ namespace Azos.Tests.Unit.Serialization
       var msg = new Azos.Log.Message
       {
          Type = MessageType.DebugGlue,
-         TimeStamp = App.TimeSource.UTCNow,
+         UTCTimeStamp = Ambient.UTCNow,
          Channel = "MTV",
           From = "Zhaba",
            Topic = "App",
@@ -341,7 +341,7 @@ namespace Azos.Tests.Unit.Serialization
       var msg = new Azos.Log.Message
       {
          Type = MessageType.DebugGlue,
-         TimeStamp = App.TimeSource.UTCNow,
+         UTCTimeStamp = Ambient.UTCNow,
          Channel = "MTV",
           From = "Zhaba",
            Topic = "App",
@@ -371,7 +371,7 @@ namespace Azos.Tests.Unit.Serialization
       var msg = new Azos.Log.Message
       {
          Type = MessageType.DebugGlue,
-         TimeStamp = App.TimeSource.UTCNow,
+         UTCTimeStamp = App.TimeSource.UTCNow,
          Channel = "MTV",
           From = "Zhaba",
            Topic = "App",
@@ -406,7 +406,7 @@ namespace Azos.Tests.Unit.Serialization
       var msg = new Azos.Log.Message
       {
          Type = MessageType.DebugGlue,
-         TimeStamp = App.TimeSource.UTCNow,
+         UTCTimeStamp = Ambient.UTCNow,
          Channel = "MTV",
           From = "Zhaba",
            Topic = "App",
@@ -447,7 +447,7 @@ namespace Azos.Tests.Unit.Serialization
       Aver.AreEqual( msg.Guid, got.Guid );
       Aver.AreEqual( msg.RelatedTo, got.RelatedTo );
       Aver.AreEqual( msg.Host, got.Host );
-      Aver.AreEqual( msg.TimeStamp, got.TimeStamp );
+      Aver.AreEqual( msg.UTCTimeStamp, got.UTCTimeStamp );
 
       Aver.IsTrue( msg.Type == got.Type );
       Aver.AreEqual( msg.Channel, got.Channel );

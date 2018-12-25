@@ -77,8 +77,6 @@ namespace Azos.Tests.Unit.Glue
   #endregion
 
   #region .ctor
-     public TestContractAClient(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public TestContractAClient(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public TestContractAClient(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public TestContractAClient(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 
