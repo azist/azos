@@ -44,8 +44,8 @@ Azos is built for writing **Distributed systems** of **infinite scale**:
 [![CodeFactor](https://www.codefactor.io/repository/github/azist/azos/badge/master)](https://www.codefactor.io/repository/github/azist/azos/overview/master)
 
 See also:
-- [Azos Design Philosophy](/src/philosophy.md)
-- [Azos Documentation Index](/src/documentation-index.md)
+- [Azos Design Philosophy](src/philosophy.md)
+- [Azos Documentation Index](src/documentation-index.md)
 
 
 
