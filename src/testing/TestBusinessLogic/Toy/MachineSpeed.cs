@@ -20,7 +20,7 @@ namespace TestBusinessLogic.Toy
 
         for(var i=0; i<buf.Length; i++)
         {
-          var rnd = App.Random.NextScaledRandomInteger(0, 0xff);
+          var rnd = Ambient.Random.NextScaledRandomInteger(0, 0xff);
           buf[i] = (byte)rnd;
         }
 

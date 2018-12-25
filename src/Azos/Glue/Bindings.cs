@@ -637,8 +637,8 @@ namespace Azos.Glue
             {
                 base.DoConfigure(node);
                 ConfigAttribute.Apply(this, node);
-                MsgInspectorConfigurator.ConfigureClientInspectors(m_ClientMsgInspectors, node);
-                MsgInspectorConfigurator.ConfigureServerInspectors(m_ServerMsgInspectors, node);
+                MsgInspectorConfigurator.ConfigureClientInspectors(Glue.App, m_ClientMsgInspectors, node);
+                MsgInspectorConfigurator.ConfigureServerInspectors(Glue.App, m_ServerMsgInspectors, node);
 
             }
 

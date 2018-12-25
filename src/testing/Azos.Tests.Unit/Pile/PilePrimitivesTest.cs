@@ -3,8 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 
+using Azos.Apps;
 using Azos.Pile;
 using Azos.Scripting;
 
@@ -40,7 +41,7 @@ namespace Azos.Tests.Unit.Pile
       [Run]
       public void MulticulturalString()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -102,7 +103,7 @@ Sprachlernen und -lehren
       [Run("cnt=1048576")] // 1024 * 1024
       public void LongMulticulturalString(int cnt)
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -153,7 +154,7 @@ Sprachlernen und -lehren
       [Run("len=66560  deleteEvery=16  parallel=8")]
       public void StringCorrectess(int len, int deleteEvery, int parallel)
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -223,7 +224,7 @@ Sprachlernen und -lehren
       [Run("len=66560  deleteEvery=16  parallel=8")]
       public void ByteCorrectess(int len, int deleteEvery, int parallel)
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -282,7 +283,7 @@ Sprachlernen und -lehren
 
       public void Strings(int CNT, int size, int parallel)
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -337,7 +338,7 @@ Sprachlernen und -lehren
 
       public void ByteBuf(int CNT, int size, int parallel)
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 

@@ -180,16 +180,16 @@ namespace WaveTestSite.Controllers
         if (key.IsNotNullOrWhiteSpace() && WorkContext.Session != null)
         {
           var pk = WorkContext.Session.Items[key] as PuzzleKeypad;
-          if (pk != null) return pk.DefaultRender();
+          if (pk != null) return pk.DefaultRender(App);
         }
 
-        return (new PuzzleKeypad("01234")).DefaultRender();
+        return (new PuzzleKeypad("01234")).DefaultRender(App);
       }
 
       [Action]
       public object CAPTCHA2(string secret="0123456789", string fn = null)
       {
-        return new Picture((new PuzzleKeypad(secret)).DefaultRender(System.Drawing.Color.Yellow), JpegImageFormat.Standard, fn);
+        return new Picture((new PuzzleKeypad(secret)).DefaultRender(App, System.Drawing.Color.Yellow), JpegImageFormat.Standard, fn);
       }
 
       [Action("person", 1, "match{methods=GET}")]

@@ -451,8 +451,8 @@ namespace Azos.Glue.Implementation
                         defaultType: typeof(ServerEndPoint), args: new object[] { this, name }), CONFIG, "server", name);
         }
 
-        run(() => MsgInspectorConfigurator.ConfigureClientInspectors(m_ClientMsgInspectors, node), CONFIG, "ClientInspectors");
-        run(() => MsgInspectorConfigurator.ConfigureServerInspectors(m_ServerMsgInspectors, node), CONFIG, "ServerInspectors");
+        run(() => MsgInspectorConfigurator.ConfigureClientInspectors(App, m_ClientMsgInspectors, node), CONFIG, "ClientInspectors");
+        run(() => MsgInspectorConfigurator.ConfigureServerInspectors(App, m_ServerMsgInspectors, node), CONFIG, "ServerInspectors");
     }
 
 

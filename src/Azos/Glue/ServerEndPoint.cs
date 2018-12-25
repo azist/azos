@@ -162,7 +162,7 @@ namespace Azos.Glue
 
             m_ContractServers = servers.ToArray();
 
-            MsgInspectorConfigurator.ConfigureServerInspectors(m_MsgInspectors, node);
+            MsgInspectorConfigurator.ConfigureServerInspectors(Glue.App, m_MsgInspectors, node);
         }
 
 

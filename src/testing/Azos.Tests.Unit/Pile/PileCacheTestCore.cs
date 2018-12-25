@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
+using Azos.Apps;
 using Azos.Data;
 using Azos.Conf;
 using Azos.Pile;
@@ -108,11 +109,11 @@ namespace Azos.Tests.Unit.Pile
                 Parallel.For(0, cnt,
                 (c) =>
                 {
-                    var put = App.Random.NextScaledRandomInteger(1, rec);
+                    var put = Ambient.Random.NextScaledRandomInteger(1, rec);
                     for (var i = 0; i < put; i++)
-                        tA.Put(i, new byte[App.Random.NextScaledRandomInteger(1, payload)]);
+                        tA.Put(i, new byte[Ambient.Random.NextScaledRandomInteger(1, payload)]);
 
-                    var remove = App.Random.NextScaledRandomInteger(0, rec);
+                    var remove = Ambient.Random.NextScaledRandomInteger(0, rec);
                     for (var i = 0; i < remove; i++)
                         tA.Remove(i);
 
@@ -215,29 +216,29 @@ namespace Azos.Tests.Unit.Pile
                               var now = DateTime.UtcNow;
                               if ((now - start).TotalSeconds >= durationSec) return;
 
-                              var t = Azos.App.Random.NextScaledRandomInteger(0, tables);
+                              var t = Ambient.Random.NextScaledRandomInteger(0, tables);
                               var tbl = cache.GetOrCreateTable<string>("tbl_" + t);
 
-                              var get = Azos.App.Random.NextScaledRandomInteger(putCount * 2, putCount * 4);
-                              var put = Azos.App.Random.NextScaledRandomInteger(putCount / 2, putCount);
-                              var remove = Azos.App.Random.NextScaledRandomInteger(0, putCount);
+                              var get = Ambient.Random.NextScaledRandomInteger(putCount * 2, putCount * 4);
+                              var put = Ambient.Random.NextScaledRandomInteger(putCount / 2, putCount);
+                              var remove = Ambient.Random.NextScaledRandomInteger(0, putCount);
 
                               Interlocked.Add(ref totalGet, get);
                               Interlocked.Add(ref totalPut, put);
                               Interlocked.Add(ref totalRem, remove);
 
                               for (var j = 0; j < get; j++)
-                                  if (null != tbl.Get(Azos.App.Random.NextScaledRandomInteger(0, 1000000).ToString())) Interlocked.Increment(ref getFound);
+                                  if (null != tbl.Get(Ambient.Random.NextScaledRandomInteger(0, 1000000).ToString())) Interlocked.Increment(ref getFound);
 
                               for (var j = 0; j < put; j++)
                                   if (PutResult.Inserted == tbl.Put(
-                                                            Azos.App.Random.NextScaledRandomInteger(0, 1000000).ToString(),
+                                                            Ambient.Random.NextScaledRandomInteger(0, 1000000).ToString(),
                                                             Azos.Text.NaturalTextGenerator.Generate()
                                                           )) Interlocked.Increment(ref putInsert);
 
                               for (var j = 0; j < remove; j++)
                                   if (tbl.Remove(
-                                          Azos.App.Random.NextScaledRandomInteger(0, 1000000).ToString()
+                                          Ambient.Random.NextScaledRandomInteger(0, 1000000).ToString()
                                          )) Interlocked.Increment(ref removed);
 
 
@@ -274,7 +275,7 @@ namespace Azos.Tests.Unit.Pile
 
         public static void VarSizes_Checkboard(bool isParallel, int cnt, int minSz, int maxSz, bool speed)
         {
-            using (var pile = new DefaultPile())
+            using (var pile = new DefaultPile(NOPApplication.Instance))
             {
                 pile.Start();
                 pile.AllocMode = speed ? AllocationMode.FavorSpeed : AllocationMode.ReuseSpace;
@@ -289,9 +290,9 @@ namespace Azos.Tests.Unit.Pile
                               for (var i = 0; i < cnt; i++)
                               {
                                   var even = (i & 0x01) == 0;
-                                  var data = new dummy { bin = new byte[12 + Azos.App.Random.NextScaledRandomInteger(minSz, maxSz)] };
-                                  data.bin.WriteBEInt32(0, App.Random.NextRandomInteger);
-                                  data.bin.WriteBEInt32(data.bin.Length - 4, App.Random.NextRandomInteger);
+                                  var data = new dummy { bin = new byte[12 + Ambient.Random.NextScaledRandomInteger(minSz, maxSz)] };
+                                  data.bin.WriteBEInt32(0, Ambient.Random.NextRandomInteger);
+                                  data.bin.WriteBEInt32(data.bin.Length - 4, Ambient.Random.NextRandomInteger);
                                   var ptr = pile.Put(data);
                                   Aver.IsTrue(ptr.Valid);
 
@@ -329,7 +330,7 @@ namespace Azos.Tests.Unit.Pile
 
         public static void VarSizes_Increasing_Random(bool isParallel, int cnt, int minSz, int maxSz, bool speed, bool rnd)
         {
-            using (var pile = new DefaultPile())
+            using (var pile = new DefaultPile(NOPApplication.Instance))
             {
                 pile.Start();
                 pile.AllocMode = speed ? AllocationMode.FavorSpeed : AllocationMode.ReuseSpace;
@@ -349,13 +350,13 @@ namespace Azos.Tests.Unit.Pile
                                             minSz +
                                             (
                                             rnd
-                                             ? (Azos.App.Random.NextScaledRandomInteger(0, (int)(maxSz * (i / (double)cnt))))
+                                             ? (Ambient.Random.NextScaledRandomInteger(0, (int)(maxSz * (i / (double)cnt))))
                                              : (int)(maxSz * (i / (double)cnt))
                                             )
                                            ];
                                   var data = new dummy { bin = buf };
-                                  data.bin.WriteBEInt32(0, App.Random.NextRandomInteger);
-                                  data.bin.WriteBEInt32(data.bin.Length - 4, App.Random.NextRandomInteger);
+                                  data.bin.WriteBEInt32(0, Ambient.Random.NextRandomInteger);
+                                  data.bin.WriteBEInt32(data.bin.Length - 4, Ambient.Random.NextRandomInteger);
                                   var ptr = pile.Put(data);
                                   Aver.IsTrue(ptr.Valid);
 
@@ -364,9 +365,9 @@ namespace Azos.Tests.Unit.Pile
 
                                   if (i > cnt / 3)
                                   {
-                                      if (App.Random.NextRandomInteger > 0)
+                                      if (Ambient.Random.NextRandomInteger > 0)
                                       {
-                                          var ri = App.Random.NextScaledRandomInteger(0, lst.Count - 1);
+                                          var ri = Ambient.Random.NextScaledRandomInteger(0, lst.Count - 1);
                                           var pp = lst[ri];
                                           if (!pp.Valid) continue;
 
@@ -410,7 +411,7 @@ namespace Azos.Tests.Unit.Pile
 
             int objectsPut = 0, objectsDeleted = 0;//, objectGot = 0;
 
-            using (var pile = new DefaultPile() { SegmentSize = SEG_SIZE })
+            using (var pile = new DefaultPile(NOPApplication.Instance) { SegmentSize = SEG_SIZE })
             {
                 pile.Start();
 
@@ -425,13 +426,13 @@ namespace Azos.Tests.Unit.Pile
                       while (dtStop >= DateTime.Now)
                       {
                           // insert routine
-                          var insertCount = Azos.App.Random.NextScaledRandomInteger(fromObjCount, toObjCount);
+                          var insertCount = Ambient.Random.NextScaledRandomInteger(fromObjCount, toObjCount);
                           for (int i = 0; i < insertCount; i++)
                           {
-                              var payloadSize = Azos.App.Random.NextScaledRandomInteger(fromSize, toSize);
+                              var payloadSize = Ambient.Random.NextScaledRandomInteger(fromSize, toSize);
                               var payload = new byte[payloadSize];
-                              payload[0] = (byte)Azos.App.Random.NextScaledRandomInteger(0, 255);
-                              payload[payloadSize - 1] = (byte)Azos.App.Random.NextScaledRandomInteger(0, 255);
+                              payload[0] = (byte)Ambient.Random.NextScaledRandomInteger(0, 255);
+                              payload[payloadSize - 1] = (byte)Ambient.Random.NextScaledRandomInteger(0, 255);
                               var pp = pile.Put(payload);
                               objects.Add(pp, payload);
                               objectCount++;
@@ -442,10 +443,10 @@ namespace Azos.Tests.Unit.Pile
                           // get
                           if (objectCount > 0)
                           {
-                              var getCount = App.Random.NextScaledRandomInteger(5 * fromObjCount, 5 * toObjCount);
+                              var getCount = Ambient.Random.NextScaledRandomInteger(5 * fromObjCount, 5 * toObjCount);
                               for (int i = 0; i < getCount; i++)
                               {
-                                  var objectIdx = App.Random.NextScaledRandomInteger(0, objectCount - 1);
+                                  var objectIdx = Ambient.Random.NextScaledRandomInteger(0, objectCount - 1);
                                   var obj = objects.ElementAt(objectIdx);
                                   var objPayloadFromPile = (byte[])pile.Get(obj.Key);
                                   Aver.AreEqual(obj.Value[0], objPayloadFromPile[0]);
@@ -455,13 +456,13 @@ namespace Azos.Tests.Unit.Pile
                           }
 
                           // delete
-                          var deleteCount = App.Random.NextScaledRandomInteger(fromObjCount, toObjCount);
+                          var deleteCount = Ambient.Random.NextScaledRandomInteger(fromObjCount, toObjCount);
                           if (deleteCount > objectCount) deleteCount = objectCount;
                           for (int i = 0; i < deleteCount; i++)
                           {
                               if (objectCount == 0) break;
 
-                              var objectIdx = App.Random.NextScaledRandomInteger(0, objectCount - 1);
+                              var objectIdx = Ambient.Random.NextScaledRandomInteger(0, objectCount - 1);
                               var obj = objects.ElementAt(objectIdx);
 
                               Aver.IsTrue(pile.Delete(obj.Key));
@@ -485,7 +486,7 @@ namespace Azos.Tests.Unit.Pile
             var objectCount = 0;
             var objectsSumSize = 0;
 
-            using (var pile = new DefaultPile() { SegmentSize = PileCacheTestCore.SEG_SIZE })
+            using (var pile = new DefaultPile(NOPApplication.Instance) { SegmentSize = PileCacheTestCore.SEG_SIZE })
             {
                 pile.Start();
 
@@ -493,13 +494,13 @@ namespace Azos.Tests.Unit.Pile
                 while (dtStop >= DateTime.Now)
                 {
                     // insert routine
-                    var insertCount = Azos.App.Random.NextScaledRandomInteger(fromObjCount, toObjCount);
+                    var insertCount = Ambient.Random.NextScaledRandomInteger(fromObjCount, toObjCount);
                     for (int i = 0; i < insertCount; i++)
                     {
-                        var payloadSize = Azos.App.Random.NextScaledRandomInteger(fromSize, toSize);
+                        var payloadSize = Ambient.Random.NextScaledRandomInteger(fromSize, toSize);
                         var payload = new byte[payloadSize];
-                        payload[0] = (byte)Azos.App.Random.NextScaledRandomInteger(0, 255);
-                        payload[payloadSize - 1] = (byte)Azos.App.Random.NextScaledRandomInteger(0, 255);
+                        payload[0] = (byte)Ambient.Random.NextScaledRandomInteger(0, 255);
+                        payload[payloadSize - 1] = (byte)Ambient.Random.NextScaledRandomInteger(0, 255);
                         var pp = pile.Put(payload);
                         objects.Add(pp, payload);
                         objectCount++;
@@ -509,10 +510,10 @@ namespace Azos.Tests.Unit.Pile
                     // get
                     if (objectCount > 0)
                     {
-                        var getCount = App.Random.NextScaledRandomInteger(5 * fromObjCount, 5 * toObjCount);
+                        var getCount = Ambient.Random.NextScaledRandomInteger(5 * fromObjCount, 5 * toObjCount);
                         for (int i = 0; i < getCount; i++)
                         {
-                            var objectIdx = App.Random.NextScaledRandomInteger(0, objectCount - 1);
+                            var objectIdx = Ambient.Random.NextScaledRandomInteger(0, objectCount - 1);
                             var obj = objects.ElementAt(objectIdx);
                             var objPayloadFromPile = (byte[])pile.Get(obj.Key);
                             Aver.AreEqual(obj.Value[0], objPayloadFromPile[0]);
@@ -522,12 +523,12 @@ namespace Azos.Tests.Unit.Pile
                     }
 
                     // delete
-                    var deleteCount = App.Random.NextScaledRandomInteger(fromObjCount, toObjCount);
+                    var deleteCount = Ambient.Random.NextScaledRandomInteger(fromObjCount, toObjCount);
                     for (int i = 0; i < deleteCount; i++)
                     {
                         if (objectCount == 0) break;
 
-                        var objectIdx = App.Random.NextScaledRandomInteger(0, objectCount - 1);
+                        var objectIdx = Ambient.Random.NextScaledRandomInteger(0, objectCount - 1);
                         var obj = objects.ElementAt(objectIdx);
 
                         Aver.IsTrue(pile.Delete(obj.Key));
@@ -543,7 +544,7 @@ namespace Azos.Tests.Unit.Pile
 
         public static LocalCache MakeCache(IConfigSectionNode conf = null)
         {
-          var cache = new LocalCache();
+          var cache = new LocalCache(NOPApplication.Instance);
           cache.Pile = new DefaultPile(cache);
           cache.Configure(conf);
           cache.Start();

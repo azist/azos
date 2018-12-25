@@ -492,7 +492,7 @@ namespace Azos.Sky.Contracts
         var icfg = mappingData.Options;
         if (icfg != null)
         {
-          MsgInspectorConfigurator.ConfigureClientInspectors(gep.MsgInspectors, icfg);
+          MsgInspectorConfigurator.ConfigureClientInspectors(App, gep.MsgInspectors, icfg);
           HeaderConfigurator.ConfigureHeaders(gep.Headers, icfg);
         }
       }

@@ -52,8 +52,6 @@ namespace TestBusinessLogic
   #endregion
 
   #region .ctor
-     public JokeContractClient(string node, Binding binding = null) : base(node, binding) { ctor(); }
-     public JokeContractClient(Node node, Binding binding = null) : base(node, binding) { ctor(); }
      public JokeContractClient(IGlue glue, string node, Binding binding = null) : base(glue, node, binding) { ctor(); }
      public JokeContractClient(IGlue glue, Node node, Binding binding = null) : base(glue, node, binding) { ctor(); }
 

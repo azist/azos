@@ -69,7 +69,7 @@ namespace TestBusinessLogic.Server
 
           //emulate DB Access
           if (waitMs>0)
-           System.Threading.Thread.Sleep(App.Random.NextScaledRandomInteger(waitMs, waitMs));
+           System.Threading.Thread.Sleep(Ambient.Random.NextScaledRandomInteger(waitMs, waitMs));
 
           return result;
         }
@@ -108,7 +108,7 @@ namespace TestBusinessLogic.Server
         public object ObjectWork(object dummy)
         {
             if (dummy is string)
-                dummy = dummy.ToString() + " server work done on " + App.LocalizedTime.ToString();
+                dummy = dummy.ToString() + " server work done on " + Ambient.UTCNow.ToString();
             return dummy;
         }
 

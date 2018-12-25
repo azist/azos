@@ -3,8 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using Azos.Scripting;
 using System;
 using System.Collections.Generic;
@@ -14,63 +14,12 @@ using System.Threading.Tasks;
 
 
 using Azos.Web;
-using Azos.Web.Social;
 
 namespace Azos.Tests.Unit.Web
 {
   [Runnable(TRUN.BASE, 6)]
   public class WebSettingsTests
   {
-    [Run]
-    public void SocialInstantiation()
-    {
-      var conf = @"nfx { web-settings { social {
-        provider {type='Azos.Web.Social.GooglePlus, Azos.Web' client-code='111111111111' client-secret='a1111111111-a11111111111' web-service-call-timeout-ms='20000' keep-alive='false' pipelined='false'}
-        provider {type='Azos.Web.Social.Facebook, Azos.Web' client-code='1111111111111111' client-secret='a1111111111111111111111111111111' app-accesstoken='a|111111111111111111111111111111111111111111'}
-        provider {type='Azos.Web.Social.Twitter, Azos.Web' client-code='a111111111111111111111' client-secret='a11111111111111111111111111111111111111111'}
-        provider {type='Azos.Web.Social.VKontakte, Azos.Web' client-code='1111111' client-secret='a1111111111111111111'}
-        provider {type='Azos.Web.Social.LinkedIn, Azos.Web' api-key='a1111111111111' secret-key='a111111111111111'}
-} } }".AsLaconicConfig();
-
-      using (new Azos.Apps.AzosApplication(new string[] { }, conf))
-      {
-        var social = WebSettings.SocialNetworks;
-
-        Aver.AreEqual(5, social.Count);
-        Aver.AreObjectsEqual(((SocialNetwork)social["GooglePlus"]).GetType(), typeof(GooglePlus));
-        Aver.AreObjectsEqual(((SocialNetwork)social["Facebook"]).GetType(), typeof(Facebook));
-        Aver.AreObjectsEqual(((SocialNetwork)social["Twitter"]).GetType(), typeof(Twitter));
-        Aver.AreObjectsEqual(((SocialNetwork)social["VKontakte"]).GetType(), typeof(VKontakte));
-        Aver.AreObjectsEqual(((SocialNetwork)social["LinkedIn"]).GetType(), typeof(LinkedIn));
-      }
-    }
-
-    [Run]
-    public void SocialProviderProperties()
-    {
-      var conf = @"nfx { web-settings { social {
-        provider {type='Azos.Web.Social.GooglePlus, Azos.Web' client-code='111111111111' client-secret='a1111111111-a11111111111' web-service-call-timeout-ms='20000' keep-alive='false' pipelined='false'}
-        provider {type='Azos.Web.Social.Facebook, Azos.Web' client-code='1111111111111111' client-secret='a1111111111111111111111111111111' app-accesstoken='a|111111111111111111111111111111111111111111'}
-} } }".AsLaconicConfig();
-
-      using (new Azos.Apps.AzosApplication(new string[] { }, conf))
-      {
-        var social = WebSettings.SocialNetworks;
-
-        Aver.AreEqual(2, social.Count);
-
-        var instantiatedGooglePlus = ((GooglePlus)social["GooglePlus"]);
-        Aver.AreEqual(20000, instantiatedGooglePlus.WebServiceCallTimeoutMs);
-        Aver.IsFalse(instantiatedGooglePlus.KeepAlive);
-        Aver.IsFalse(instantiatedGooglePlus.Pipelined);
-
-        var instantiatedFacebook = ((Facebook)social["Facebook"]);
-        Aver.AreEqual(SocialNetwork.DEFAULT_TIMEOUT_MS_DEFAULT, instantiatedFacebook.WebServiceCallTimeoutMs);
-        Aver.IsTrue(instantiatedFacebook.KeepAlive);
-        Aver.IsTrue(instantiatedFacebook.Pipelined);
-      }
-    }
-
     [Run]
     public void ServicePointManagerTest()
     {
@@ -121,9 +70,9 @@ namespace Azos.Tests.Unit.Web
         }
       }".AsLaconicConfig();
 
-      using (new Azos.Apps.AzosApplication(new string[] {}, conf))
+      using (var app = new Azos.Apps.AzosApplication(new string[] {}, conf))
       {
-        var spmc = WebSettings.ServicePointManager;
+        var spmc = app.GetServicePointManagerConfigurator();
 
         Aver.IsTrue(System.Net.ServicePointManager.CheckCertificateRevocationList);
         Aver.AreEqual( 4, System.Net.ServicePointManager.DefaultConnectionLimit);

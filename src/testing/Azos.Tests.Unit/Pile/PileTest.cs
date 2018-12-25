@@ -36,7 +36,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void Initial()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           var ipile = pile as IPile;
 
@@ -51,7 +51,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void PutWOStart()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           var ipile = pile as IPile;
 
@@ -72,7 +72,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void GetWOStart()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           var ipile = pile as IPile;
           var obj = ipile.Get(PilePointer.Invalid);
@@ -83,7 +83,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void PutOne()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -102,7 +102,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void PutGetOne()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
           var ipile = pile as IPile;
@@ -120,7 +120,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void PutGetTwo()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -150,7 +150,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void PutGetRawObject()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
           var ipile = pile as IPile;
@@ -172,7 +172,7 @@ namespace Azos.Tests.Unit.Pile
       [Aver.Throws(typeof(PileAccessViolationException))]
       public void GetNoObject()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
           var ipile = pile as IPile;
@@ -184,7 +184,7 @@ namespace Azos.Tests.Unit.Pile
       [Aver.Throws(typeof(PileAccessViolationException))]
       public void DeleteInvalid()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
           var ipile = pile as IPile;
@@ -196,7 +196,7 @@ namespace Azos.Tests.Unit.Pile
       [Aver.Throws(typeof(PileAccessViolationException))]
       public void DeleteExisting()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
           var ipile = pile as IPile;
@@ -221,7 +221,7 @@ namespace Azos.Tests.Unit.Pile
       [Aver.Throws(typeof(PileAccessViolationException))]
       public void Purge()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
           var ipile = pile as IPile;
@@ -244,7 +244,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void PutCheckerboardPattern2()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
           var ipile = pile as IPile;
@@ -295,7 +295,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void PutCheckerboardPattern3()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
           var ipile = pile as IPile;
@@ -451,7 +451,7 @@ namespace Azos.Tests.Unit.Pile
 
         using(var app = new AzosApplication(null, conf))
         {
-          using (var pile = new DefaultPile())
+          using (var pile = new DefaultPile(NOPApplication.Instance))
           {
             pile.Configure(null);
 
@@ -481,7 +481,7 @@ namespace Azos.Tests.Unit.Pile
             pile.Start();//just to test that it starts ok
           }
 
-          using (var pile = new DefaultPile("specialNamed"))
+          using (var pile = new DefaultPile(NOPApplication.Instance, "specialNamed"))
           {
             pile.Configure(null);
 

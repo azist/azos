@@ -13,35 +13,35 @@ namespace TestBusinessLogic.Toy
 {
   internal static class PileSpeed
   {
-    public static void ProfileByteArray(int threads, int count, int byteSize)
+    public static void ProfileByteArray(IApplication app, int threads, int count, int byteSize)
     {
       var payload = new byte[byteSize];
-      body(count, threads, payload);
+      body(app, count, threads, payload);
     }
 
-    public static void ProfileString(int threads, int count, int charSize)
+    public static void ProfileString(IApplication app, int threads, int count, int charSize)
     {
       var payload = new string('a', charSize);
-      body(count, threads, payload);
+      body(app, count, threads, payload);
     }
 
-    public static void ProfileSimpleObject(int threads, int count)
+    public static void ProfileSimpleObject(IApplication app, int threads, int count)
     {
       var payload = new SimpleObject{ Name = "Victor Zoi", Flag =true, ID = Guid.NewGuid(), Int = 123, DOB = new DateTime(1962, 6, 21)};
-      body(count, threads, payload);
+      body(app, count, threads, payload);
     }
 
-    public static void ProfilePersonObject(int threads, int count)
+    public static void ProfilePersonObject(IApplication app, int threads, int count)
     {
       var payload = new Person{ Name = "Victor Zoi", Age =28, Salary=234234234, Notes ="blah,blah", Satisfied =true, K=0.0002f, Distance=10000, DOB = new DateTime(1962, 6, 21), L1=1, L2=34234};
-      body(count, threads, payload);
+      body(app, count, threads, payload);
     }
 
 
-    private static void body(int cnt, int threads, object payload)
+    private static void body(IApplication app, int cnt, int threads, object payload)
     {
       GC.Collect();
-      using(var pile = new DefaultPile())
+      using(var pile = new DefaultPile(app))
       {
         pile.Start();
         bodyCore(pile, cnt, threads, payload);

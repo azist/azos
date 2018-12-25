@@ -23,7 +23,6 @@
     <Compile Include="WaveTestSite\Pages\.tc\ImageBoxTest.htm.auto.cs" />
     <Compile Include="WaveTestSite\Pages\.tc\Master.htm.auto.cs" />
     <Compile Include="WaveTestSite\Pages\.tc\RecordTest.htm.auto.cs" />
-    <Compile Include="WaveTestSite\Pages\.tc\SocialLogin.htm.auto.cs" />
     <Compile Include="WaveTestSite\Pages\.tc\Welcome.htm.auto.cs" />
     <Compile Include="WaveTestSite\Pages\SubTopic\.tc\Latest.htm.auto.cs" />
   </ItemGroup>

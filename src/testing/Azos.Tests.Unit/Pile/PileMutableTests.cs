@@ -3,8 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-
+using Azos.Apps;
 using Azos.Pile;
 using Azos.Scripting;
 
@@ -41,7 +41,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void FitPreallocate()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -72,7 +72,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void FitPreallocateString()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -102,7 +102,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void LinkStringNoPreallocate()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -131,7 +131,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void FitPreallocateByteArray()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -162,7 +162,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void LinkByteArrayNoPreallocate()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -192,7 +192,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void LinkNoPreallocate()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -223,7 +223,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void LinkPreallocate()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -257,7 +257,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void Reallocate_BackOriginal()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -295,7 +295,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void Reallocate_Delete()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -352,7 +352,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8, "len=50000  deleteEvery=5  parallel=8")]
       public void StringCorrectess(int len, int deleteEvery, int parallel)
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -432,9 +432,11 @@ namespace Azos.Tests.Unit.Pile
       [Run("cnt=1048576  tcount=12 seconds=60")]
       public void TestThreadSafety(int cnt, int tcount, int seconds)
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
-         // pile.SegmentSize = 64 * 1024 * 1024;
+          var App = pile.App;
+
+          // pile.SegmentSize = 64 * 1024 * 1024;
           pile.Start();
 
           var data = new PilePointer[cnt];

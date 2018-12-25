@@ -1076,7 +1076,7 @@ namespace Azos.Tests.Unit.Serialization
             var s = new SlimSerializer(SlimFormat.Instance);
 
 
-            var session = new BaseSession( Guid.NewGuid());
+            var session = new BaseSession( Guid.NewGuid(), 12345);
 
             session.Items["a"] = 1;
             session.Items["b"] = true;
@@ -1106,7 +1106,7 @@ namespace Azos.Tests.Unit.Serialization
             var s = new SlimSerializer(SlimFormat.Instance, treg);
 
 
-            var session = new BaseSession( Guid.NewGuid());
+            var session = new BaseSession( Guid.NewGuid(), 54321);
 
             session.Items["a"] = 1;
             session.Items["b"] = true;
@@ -1237,7 +1237,7 @@ namespace Azos.Tests.Unit.Serialization
         {
           using(var ms = new MemoryStream())
           {
-            var session = new Azos.Wave.WaveSession(Guid.NewGuid());
+            var session = new Azos.Wave.WaveSession(Guid.NewGuid(), 1234567);
 
             var s = new SlimSerializer(SlimFormat.Instance);
 
@@ -1247,6 +1247,7 @@ namespace Azos.Tests.Unit.Serialization
             var session2 = s.Deserialize(ms) as Azos.Wave.WaveSession;
 
             Aver.AreEqual(session.ID, session2.ID);
+            Aver.AreEqual(session.IDSecret, session2.IDSecret);
             Aver.AreEqual(0, session2.Items.Count);
           }
         }

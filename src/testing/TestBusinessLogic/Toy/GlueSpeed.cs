@@ -8,14 +8,15 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Azos;
+using Azos.Glue;
 
 namespace TestBusinessLogic.Toy
 {
     public static class GlueSpeed
     {
-      public static void Echo(string node, int count, int parallel)
+      public static void Echo(IGlue glue, string node, int count, int parallel)
       {
-        var client = new JokeContractClient(node);
+        var client = new JokeContractClient(glue, node);
 
         client.UnsecureEcho("aaa");
 
@@ -30,7 +31,7 @@ namespace TestBusinessLogic.Toy
       }
 
 
-      public static void EchoThreaded(string node, int count, int parallel)
+      public static void EchoThreaded(IGlue glue, string node, int count, int parallel)
       {
         var tcount = count / parallel;
 
@@ -40,7 +41,7 @@ namespace TestBusinessLogic.Toy
         for(var i=0; i < threads.Length; i++)
           threads[i] = new Thread( () =>
           {
-            var client = new JokeContractClient(node);
+            var client = new JokeContractClient(glue, node);
             client.ReserveTransport = true;
             client.UnsecureEcho("aaa");
 

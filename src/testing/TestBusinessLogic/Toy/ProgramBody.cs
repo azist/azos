@@ -63,7 +63,7 @@ namespace TestBusinessLogic.Toy
 
         ConsoleUtils.Info("Glue servers:");
         var any = false;
-        foreach(var s in App.Glue.Servers)
+        foreach(var s in app.Glue.Servers)
         {
           Console.WriteLine("    " + s);
           any = true;
@@ -87,21 +87,21 @@ namespace TestBusinessLogic.Toy
           var count = app.CommandArgs["c"].AttrByIndex(0).ValueAsInt(1000);//count of requests
           var par = app.CommandArgs["p"].AttrByIndex(0).ValueAsInt(1);//max degree of parallelism
          // GlueSpeed.Echo(node, count, par);
-          GlueSpeed.EchoThreaded(node, count, par);
+          GlueSpeed.EchoThreaded(app.Glue, node, count, par);
         }
         else if (cmd.EqualsOrdIgnoreCase("pile"))
         {
           var threads = app.CommandArgs["t"].AttrByIndex(0).ValueAsInt(4);
           var count = app.CommandArgs["c"].AttrByIndex(0).ValueAsInt(20_000_000);
           var size = app.CommandArgs["sz"].AttrByIndex(0).ValueAsInt(32);
-          PileSpeed.ProfileByteArray(threads, count, size);
-          PileSpeed.ProfileString(threads, count, size);
-          PileSpeed.ProfileSimpleObject(threads, count);
-          PileSpeed.ProfilePersonObject(threads, count);
+          PileSpeed.ProfileByteArray(app, threads, count, size);
+          PileSpeed.ProfileString(app, threads, count, size);
+          PileSpeed.ProfileSimpleObject(app, threads, count);
+          PileSpeed.ProfilePersonObject(app, threads, count);
         }
         else if (cmd.EqualsOrdIgnoreCase("wave"))
         {
-          using(var ws = new WaveServer())
+          using(var ws = new WaveServer(app))
           {
             ws.Configure(null);
 

@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Azos.Collections;
+using Azos.Apps;
 
 namespace Azos.Tests.Unit.Collections
 {
@@ -22,7 +23,7 @@ namespace Azos.Tests.Unit.Collections
     [Run]
     public void Basic_NoComparer()
     {
-      using(var set = new CappedSet<string>())
+      using(var set = new CappedSet<string>(NOPApplication.Instance))
       {
         Aver.IsTrue( set.Put("Gagarin") );
         Aver.IsTrue( set.Put("Titov") );
@@ -58,7 +59,7 @@ namespace Azos.Tests.Unit.Collections
     [Run]
     public void Basic_Comparer()
     {
-      using(var set = new CappedSet<string>(StringComparer.OrdinalIgnoreCase))
+      using(var set = new CappedSet<string>(NOPApplication.Instance, StringComparer.OrdinalIgnoreCase))
       {
         Aver.IsTrue( set.Put("Gagarin") );
         Aver.IsTrue( set.Put("Titov") );
@@ -95,7 +96,7 @@ namespace Azos.Tests.Unit.Collections
     [Run]
     public void Max_Age()
     {
-      using(var set = new CappedSet<int>())
+      using(var set = new CappedSet<int>(NOPApplication.Instance))
       {
         set.TimeLimitSec = 10;
 
@@ -118,7 +119,7 @@ namespace Azos.Tests.Unit.Collections
     [Run]
     public void Max_Size()
     {
-      using(var set = new CappedSet<int>())
+      using(var set = new CappedSet<int>(NOPApplication.Instance))
       {
         set.SizeLimit = 10000;
 
@@ -138,7 +139,7 @@ namespace Azos.Tests.Unit.Collections
     [Run]
     public void Max_SizeandTime()
     {
-      using(var set = new CappedSet<int>())
+      using(var set = new CappedSet<int>(NOPApplication.Instance))
       {
         set.TimeLimitSec = 30;//
         set.SizeLimit = 7000;
@@ -160,7 +161,7 @@ namespace Azos.Tests.Unit.Collections
     [Run]
     public void Mutithreaded()
     {
-      using(var set = new CappedSet<int>())
+      using(var set = new CappedSet<int>(NOPApplication.Instance))
       {
         set.TimeLimitSec = 30;//
         set.SizeLimit = 7000;

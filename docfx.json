@@ -17,9 +17,9 @@
     "content": [
       {
         "files": [
-          "doc/**.md",
-          "src/**.md",
-          "out/api/**.yml",
+          "doc/**/*.md",
+          "src/**/*.md",
+          "out/api/**/*.yml",
           "out/api/toc.yml",
           "readme.md",
           "toc.yml"

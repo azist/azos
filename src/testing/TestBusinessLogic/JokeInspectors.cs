@@ -4,16 +4,20 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using Azos;
+using Azos.Apps.Injection;
 using Azos.Glue;
 using Azos.Glue.Protocol;
+using Azos.Log;
 
 namespace TestBusinessLogic
 {
   public class TextInfoReporter : IClientMsgInspector
   {
+    [Inject] IApplication m_App;
+
     public RequestMsg ClientDispatchCall(ClientEndPoint endpoint, RequestMsg request)
     {
-      request.Headers.Add(new TextInfoHeader { Text = "Moscow time is " + App.LocalizedTime.ToString(), Info = @"/\EH|/|H  }|{|/|B!" });
+      request.Headers.Add(new TextInfoHeader { Text = "Moscow time is " + m_App.LocalizedTime.ToString(), Info = @"/\EH|/|H  }|{|/|B!" });
       return request;
     }
 
@@ -34,15 +38,17 @@ namespace TestBusinessLogic
 
   public class ServerInspector : IServerMsgInspector
   {
+    [Inject] ILog m_Log;
+
     public RequestMsg ServerDispatchRequest(ServerEndPoint endpoint, RequestMsg request)
     {
-      Azos.Apps.ExecutionContext.Application.Log.Write(new Azos.Log.Message { Type = Azos.Log.MessageType.TraceA, From = "ServeInspector", Text = "Received " + request.ServerTransport.StatBytesReceived.ToString() + " bytes" });
+      m_Log.Write(new Azos.Log.Message { Type = MessageType.TraceA, From = "ServeInspector", Text = "Received " + request.ServerTransport.StatBytesReceived.ToString() + " bytes" });
       return request;
     }
 
     public ResponseMsg ServerReturnResponse(ServerEndPoint endpoint, RequestMsg request, ResponseMsg response)
     {
-      response.Headers.Add(new TextInfoHeader { Text = "Response generated at " + App.LocalizedTime.ToString(), Info = "Serve Node: " + endpoint.Node });
+      response.Headers.Add(new TextInfoHeader { Text = "Response generated at " + m_Log.LocalizedTime.ToString(), Info = "Serve Node: " + endpoint.Node });
       return response;
     }
 

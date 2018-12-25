@@ -117,7 +117,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void T040_PileOwnership()
       {
-        var cache = new LocalCache();
+        var cache = new LocalCache(NOPApplication.Instance);
         cache.Pile = new DefaultPile(cache);
         cache.Configure(null);
         cache.Start();
@@ -136,11 +136,11 @@ namespace Azos.Tests.Unit.Pile
       [Aver.Throws(typeof(PileCacheException), Message="has not been started", MsgMatch= Aver.ThrowsAttribute.MatchType.Contains)]
       public void T050_PileNonOwnershipErrorStart()
       {
-        var pile = new DefaultPile();
+        var pile = new DefaultPile(NOPApplication.Instance);
 
         try
         {
-          var cache = new LocalCache();
+          var cache = new LocalCache(NOPApplication.Instance);
           cache.Pile = pile;
           cache.Configure(null);
           cache.Start();  //can not start cache that uses inactive pile which is not managed by this cache
@@ -156,11 +156,11 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8)]
       public void T060_PileNonOwnership()
       {
-        var pile = new DefaultPile();
+        var pile = new DefaultPile(NOPApplication.Instance);
         pile.Start();
         try
         {
-              var cache = new LocalCache();
+              var cache = new LocalCache(NOPApplication.Instance);
               cache.Pile = pile;
               cache.Configure(null);
               cache.Start();
@@ -180,7 +180,7 @@ namespace Azos.Tests.Unit.Pile
               Aver.IsTrue(DaemonStatus.Active == pile.Status);
               Aver.AreEqual(0, pile.ObjectCount);
 
-              cache = new LocalCache();
+              cache = new LocalCache(NOPApplication.Instance);
               cache.Pile = pile;
               cache.Configure(null);
               cache.Start();
@@ -193,7 +193,7 @@ namespace Azos.Tests.Unit.Pile
 
               Aver.AreEqual(4, pile.ObjectCount);
 
-              var cache2 = new LocalCache();
+              var cache2 = new LocalCache(NOPApplication.Instance);
               cache2.Pile = pile;
               cache2.Configure(null);
               cache2.Start();
