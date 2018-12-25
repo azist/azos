@@ -25,9 +25,9 @@ namespace Azos.Tests.Unit
             for(var i=0; i<1000;i++)
             {
     if (i%3==0)
-    App.Random.FeedExternalEntropySample(Platform.Computer.CurrentProcessorUsagePct);
+    Ambient.Random.FeedExternalEntropySample(Platform.Computer.CurrentProcessorUsagePct);
 
-               var n1 = App.Random.NextScaledRandomInteger(0,100);
+               var n1 = Ambient.Random.NextScaledRandomInteger(0,100);
                var n2 = rnd.Next(100);
                Console.WriteLine( "{0} {1}".Args(n1, n2) );
 
@@ -42,12 +42,12 @@ namespace Azos.Tests.Unit
             {
 
     if (i%3==0)
-      App.Random.FeedExternalEntropySample(Platform.Computer.CurrentProcessorUsagePct);
+                Ambient.Random.FeedExternalEntropySample(Platform.Computer.CurrentProcessorUsagePct);
 
 
-               var n1 = App.Random.NextScaledRandomInteger(0,1000);
+               var n1 = Ambient.Random.NextScaledRandomInteger(0,1000);
                Console.WriteLine( n1 );
-               System.Threading.Thread.SpinWait(App.Random.NextScaledRandomInteger(10,250));
+               System.Threading.Thread.SpinWait(Ambient.Random.NextScaledRandomInteger(10,250));
             });
         }
 
@@ -56,7 +56,7 @@ namespace Azos.Tests.Unit
         {
           for(var i=0; i<25; i++)
           {
-            var s = App.Random.NextRandomWebSafeString();
+            var s = Ambient.Random.NextRandomWebSafeString();
             Console.WriteLine(s);
             Aver.IsTrue( s.Length >= 16 && s.Length <= 32);
           }
@@ -67,7 +67,7 @@ namespace Azos.Tests.Unit
         {
           for(var i=0; i<25; i++)
           {
-            var a = App.Random.NextRandom16Bytes;
+            var a = Ambient.Random.NextRandom16Bytes;
             Console.WriteLine(a.ToDumpString(DumpFormat.Hex));
           }
         }
@@ -94,7 +94,7 @@ namespace Azos.Tests.Unit
           for(var i=0; i<CNT; i++)
           {
          //   var r = rnd.Next(100);// App.Random.NextScaledRandomInteger(0,100);
-            var r = App.Random.NextScaledRandomInteger(0, MAX_RND);
+            var r = Ambient.Random.NextScaledRandomInteger(0, MAX_RND);
             hist.Sample( r );
          //   App.Random.FeedExternalEntropySample( (int)Platform.Computer.GetMemoryStatus().AvailablePhysicalBytes);
           }

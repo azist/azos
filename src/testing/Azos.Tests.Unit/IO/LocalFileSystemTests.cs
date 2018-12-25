@@ -12,13 +12,15 @@ using Azos.Scripting;
 
 using Azos.IO.FileSystem;
 using Azos.IO.FileSystem.Local;
+using Azos.Apps;
 
 namespace Azos.Tests.Unit.IO
 {
     [Runnable(TRUN.BASE)]
     public class LocalFileSystemTests : IRunnableHook
     {
-        public const string LOCAL_ROOT = @"c:\NFX";
+    #warning this must be redone to env var
+    public const string LOCAL_ROOT = @"c:\azos";
 
         public const string FN1 = @"fstest1";
         public const string FN2 = @"fstest2.tezt";
@@ -76,7 +78,7 @@ namespace Azos.Tests.Unit.IO
         [Run]
         public void CombinePaths()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
               Aver.AreEqual(@"c:\a.txt", fs.CombinePaths(@"c:\",@"a.txt"));
               Aver.AreEqual(@"c:\a.txt", fs.CombinePaths(@"c:\",@"\a.txt"));
@@ -101,7 +103,7 @@ namespace Azos.Tests.Unit.IO
         [Run]
         public void Connect_NavigateRootDir()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
               var session = fs.StartSession();
 
@@ -115,7 +117,7 @@ namespace Azos.Tests.Unit.IO
         [Run]
         public void CreateFile()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
 
               var session = fs.StartSession();
@@ -135,7 +137,7 @@ namespace Azos.Tests.Unit.IO
         [Run]
         public void CreateDeleteFile()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
 
 
@@ -171,7 +173,7 @@ namespace Azos.Tests.Unit.IO
         [Run]
         public void CreateWriteReadFile_1()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
 
 
@@ -208,7 +210,7 @@ namespace Azos.Tests.Unit.IO
         [Run]
         public void CreateWriteReadFile_2()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
 
 
@@ -231,7 +233,7 @@ namespace Azos.Tests.Unit.IO
         [Run]
         public void CreateWriteReadFile_3()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
 
 
@@ -257,7 +259,7 @@ namespace Azos.Tests.Unit.IO
         [Run]
         public void CreateDeleteDir()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
 
               var session = fs.StartSession();
@@ -286,7 +288,7 @@ namespace Azos.Tests.Unit.IO
         [Run]
         public void CreateDirCreateFileDeleteDir()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
 
               var session = fs.StartSession();
@@ -329,7 +331,7 @@ Aver.AreEqual(0, session.Items.Count());//checking item registation via .ctor/.d
         [Run]
         public void CreateWriteCopyReadFile()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
               var session = fs.StartSession();
 
@@ -377,7 +379,7 @@ Aver.AreEqual(0, session.Items.Count());//checking item registation via .ctor/.d
         [Run]
         public void Parallel_CreateWriteReadFile()
         {
-            using(var fs = new LocalFileSystem("L1"))
+            using(var fs = new LocalFileSystem(NOPApplication.Instance))
             {
               System.Threading.Tasks.Parallel.For(PARALLEL_FROM, PARALLEL_TO,
                (i)=>

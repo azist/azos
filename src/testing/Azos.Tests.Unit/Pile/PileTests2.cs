@@ -42,7 +42,7 @@ namespace Azos.Tests.Unit.Pile
       [Run]
       public void ManyRow_PutThenRead()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.SegmentSize = DefaultPile.SEG_SIZE_MIN;
           pile.Start();
@@ -86,7 +86,7 @@ namespace Azos.Tests.Unit.Pile
       [Run]
       public void ManyRow_PutReadDeleteRead()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.SegmentSize = DefaultPile.SEG_SIZE_MIN;
           pile.Start();
@@ -149,7 +149,7 @@ namespace Azos.Tests.Unit.Pile
       [Run]
       public void ManyMixed_PutReadDeleteRead()
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.SegmentSize = DefaultPile.SEG_SIZE_MIN;
           pile.Start();
@@ -231,7 +231,7 @@ namespace Azos.Tests.Unit.Pile
       [Run("tcount=39")]
       public void Parallel_ManyMixed_PutReadDeleteRead(int tcount)
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.SegmentSize = DefaultPile.SEG_SIZE_MIN;
           pile.Start();

@@ -38,7 +38,7 @@ namespace Azos.Tests.Unit.Pile
       [Run("count=750000  segmentSize=67108864")]
       public void Buffers(int count, int segmentSize)
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.SegmentSize = segmentSize;
           pile.Start();

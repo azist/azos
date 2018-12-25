@@ -56,7 +56,7 @@ Read 111,000 in 6,247 ms at 17,906 ops/sec
       [Run("count=111000")]
       public void TestHeavyBenchmark(int count)
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
           var ipile = pile as IPile;

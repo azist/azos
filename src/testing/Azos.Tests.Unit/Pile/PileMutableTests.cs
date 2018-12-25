@@ -394,7 +394,7 @@ namespace Azos.Tests.Unit.Pile
       [Run(TRUN.BASE, null, 8, "len=300")]
       public void ReallocateInPlace(int len)
       {
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
           var lst = new List<PilePointer>();

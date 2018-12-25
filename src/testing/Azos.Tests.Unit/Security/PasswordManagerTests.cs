@@ -26,7 +26,7 @@ namespace Azos.Tests.Unit.Security
 
     void IRunnableHook.Prologue(Runner runner, FID id)
     {
-      m_Manager = new DefaultPasswordManager();
+      m_Manager = new DefaultPasswordManager(NOPApplication.Instance);
       m_Manager.Start();
     }
 
@@ -91,7 +91,7 @@ namespace Azos.Tests.Unit.Security
     [Run]
     public void AreEquivalent()
     {
-      var pm = new DefaultPasswordManager();
+      var pm = new DefaultPasswordManager(NOPApplication.Instance);
       pm.Start();
 
       var buf = IDPasswordCredentials.PlainPasswordToSecureBuffer("@8luE+5ky=");
@@ -193,7 +193,7 @@ namespace Azos.Tests.Unit.Security
     [Run]
     public void CheckServiceActive()
     {
-      var pm = new DefaultPasswordManager();
+      var pm = new DefaultPasswordManager(NOPApplication.Instance);
       var buf = IDPasswordCredentials.PlainPasswordToSecureBuffer("@8luE+5ky=");
 
       try

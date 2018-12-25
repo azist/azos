@@ -36,7 +36,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractAClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractAClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 var result = cl.Method1(12);
                 Aver.AreEqual( "12", result);
@@ -51,7 +51,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractAClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractAClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 var call = cl.Async_Method1(12);
                 var task = call.AsTask;
@@ -70,7 +70,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractAClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractAClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 var call = cl.Async_Method1(12);
                 var task = call.AsTaskReturning<string>();
@@ -89,7 +89,7 @@ namespace Azos.Tests.Unit.Glue
           var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
           using (var app = new AzosApplication(null, conf.Root))
           {
-            var cl = new TestContractAClient(app.ConfigRoot.AttrByName("cs").Value);
+            var cl = new TestContractAClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
             var call = cl.Async_Method1(12);
 
@@ -109,7 +109,7 @@ namespace Azos.Tests.Unit.Glue
           var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
           using (var app = new AzosApplication(null, conf.Root))
           {
-            var cl = new TestContractAClient(app.ConfigRoot.AttrByName("cs").Value);
+            var cl = new TestContractAClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
             var call = cl.Async_Method1(234);
 
@@ -138,7 +138,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractAClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractAClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
                 cl.TimeoutMs = 2000;
 
                 try
@@ -168,7 +168,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractAClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractAClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
                 cl.TimeoutMs = 2000;
 
                 System.Threading.Tasks.Task<CallSlot> task = null;
@@ -199,7 +199,7 @@ namespace Azos.Tests.Unit.Glue
           var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
           using (var app = new AzosApplication(null, conf.Root))
           {
-            var cl = new TestContractAClient(app.ConfigRoot.AttrByName("cs").Value);
+            var cl = new TestContractAClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
             cl.TimeoutMs = 2000;
 
             CallSlot call = null;
@@ -232,7 +232,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractAClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractAClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 cl.Method2(93);
 
@@ -251,7 +251,7 @@ namespace Azos.Tests.Unit.Glue
           var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
           using (var app = new AzosApplication(null, conf.Root))
           {
-            var cl = new TestContractAClient(app.ConfigRoot.AttrByName("cs").Value);
+            var cl = new TestContractAClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
             await cl.Async_Method2(93);//this should instantly return as call already dispatched
 
@@ -269,7 +269,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 var person = new PersonData{ID = 10, FirstName="Joe", LastName="Tester" };
 
@@ -292,7 +292,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 var person = new PersonData{ID = 10, FirstName="Joe", LastName="Tester" };
 
@@ -321,7 +321,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 var person = new PersonData{ID = 10, FirstName="Joe", LastName="Tester" };
 
@@ -354,7 +354,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 Aver.AreEqual( "Felix", cl.GetName());
 
@@ -368,7 +368,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 //Testing overloaded calls
                 Aver.AreEqual( "Felix", cl.GetName());
@@ -386,7 +386,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 Aver.AreEqual( "Felix", cl.GetName());//alloc first
 
@@ -401,27 +401,6 @@ namespace Azos.Tests.Unit.Glue
 
         }
 
-        public static void TestContractB_4_AsyncReactor(string CONF_SRC)
-        {
-            var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
-            using( var app = new AzosApplication(null, conf.Root))
-            {
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName("cs").Value);
-
-                var reactor = new CallReactor(
-                                new Call( cl.Async_GetName(),   (r,c)=> Aver.AreEqual( "Felix", c.CallSlot.GetValue<string>()   ) ),
-                                new Call( cl.Async_GetName(23), (r,c)=> Aver.AreEqual( "Felix23", c.CallSlot.GetValue<string>() ) ),
-                                new Call( cl.Async_GetName(42), (r,c)=> Aver.AreEqual( "Felix42", c.CallSlot.GetValue<string>() ) ),
-                                new Call( cl.Async_GetName(2, DateTime.Now), (r,c)=> Aver.IsTrue( c.CallSlot.GetValue<string>().StartsWith("Felix2") ) )
-                              );
-
-                reactor.Wait();
-
-                dumpBindingTransports( cl.Binding );
-                Aver.IsTrue(reactor.Finished);
-            }
-
-        }
 
 
         public static void TestContractB_4_Parallel(string CONF_SRC, bool threadSafe)
@@ -433,7 +412,7 @@ namespace Azos.Tests.Unit.Glue
             using( var app = new AzosApplication(null, conf.Root))
             {
                 //Use the same client.....
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName(threadSafe?"cs":"cs2").Value);
+                var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName(threadSafe?"cs":"cs2").Value);
 
                 Aver.AreEqual( "Felix1223", cl.GetName(1223));//alloc server
 
@@ -478,7 +457,7 @@ namespace Azos.Tests.Unit.Glue
             using( var app = new AzosApplication(null, conf.Root))
             {
                 //Use the same client.....
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName(threadSafe?"cs":"cs2").Value);
+                var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName(threadSafe?"cs":"cs2").Value);
 
                 Aver.AreEqual( "Felix1223", cl.GetNameMar(1223));//alloc server
 
@@ -632,7 +611,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 var ret = cl.GetPersonalData(new int[]{1,23,97});
 
@@ -664,7 +643,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 var ret = cl.GetPersonalData(new int[]{1,23,97}, true, 127000m);
 
@@ -701,7 +680,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 var ret = cl.GetDailyStatuses(7);
 
@@ -733,7 +712,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 var ret = cl.GetDailyStatuses(150);
 
@@ -766,7 +745,7 @@ namespace Azos.Tests.Unit.Glue
             var conf = LaconicConfiguration.CreateFromString(CONF_SRC);
             using( var app = new AzosApplication(null, conf.Root))
             {
-                var cl = new TestContractBClient(app.ConfigRoot.AttrByName("cs").Value);
+                var cl = new TestContractBClient(app.Glue, app.ConfigRoot.AttrByName("cs").Value);
 
                 Exception err = null;
                 try
