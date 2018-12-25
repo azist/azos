@@ -1,0 +1,60 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": [
+            "src/**/Azos*.csproj"
+          ]
+        }
+      ],
+      "dest": "out/api",
+      "disableGitFeatures": false,
+      "disableDefaultFilter": false
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "doc/**.md",
+          "src/**.md",
+          "out/api/**.yml",
+          "out/api/toc.yml",
+          "readme.md",
+          "toc.yml"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "doc/img/**"
+        ]
+      }
+    ],
+    "overwrite": [
+      {
+        "files": [
+          "src/**"
+        ],
+        "exclude": [
+          "obj/**",
+          "out/dfx-site/**"
+        ]
+      }
+    ],
+    "dest": "out/dfx-site",
+    "globalMetadataFiles": [],
+    "fileMetadataFiles": [],
+    "template": [
+      "statictoc"
+    ],
+    "postProcessors": [],
+    "markdownEngineName": "markdig",
+    "noLangKeyword": false,
+    "keepFileLink": false,
+    "cleanupCacheHistory": false,
+    "disableGitFeatures": false
+  }
+}

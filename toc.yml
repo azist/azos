@@ -1,0 +1,6 @@
+- name: Azos
+  href: ~/src
+  homepage: ~/src/documentation-index.html
+- name: API Documentation
+  href: ~/out/api
+  homepage: ~/out/api/Azos.html
