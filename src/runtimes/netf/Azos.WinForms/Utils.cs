@@ -19,7 +19,6 @@ using Azos.WinApi;
 
 namespace Azos.WinForms
 {
-
   /// <summary>
   /// Provides various windows functionality
   /// </summary>

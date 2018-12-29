@@ -11,7 +11,7 @@ using System.Diagnostics;
 
 using Azos;
 using Azos.Data;
-using Azos.Sky.Coordination;
+using Azos.Sky;
 using Azos.Sky.Workers;
 using Azos.Sky.Workers.Server.Queue;
 
@@ -24,11 +24,12 @@ namespace WinFormsTestSky.Workers
       InitializeComponent();
     }
 
+    ISkyApplication App => Azos.WinForms.FormsAmbient.App.AsSky();
     private TodoQueueService m_Server;
 
     private void btnSendOne_Click(object sender, EventArgs e)
     {
-      var todo = Todo.MakeNew<TeztTodo>();
+      var todo = Todo.MakeNew<TeztTodo>(App);
       todo.PersonID = tbPersonID.Text;
       todo.PersonName = tbPersonName.Text;
       todo.PersonDOB = tbPersonDOB.Text.AsDateTime();
@@ -52,7 +53,7 @@ namespace WinFormsTestSky.Workers
       {
         if (true)//(i & 1) == 0)
         {
-          var todo = Todo.MakeNew<TeztTodo>();
+          var todo = Todo.MakeNew<TeztTodo>(App);
           todo.PersonID = i.ToString() + uiId;
           todo.PersonName = uiPName;
           todo.PersonDOB = uiDt;
@@ -76,7 +77,7 @@ namespace WinFormsTestSky.Workers
       {
         Parallel.For(0, 1, (i) =>///1000
         {
-           var todo = Todo.MakeNew<CorrelatedTeztTodo>();
+           var todo = Todo.MakeNew<CorrelatedTeztTodo>(App);
            todo.SysCorrelationKey = tbCorrelationKey.Text;
            todo.Counter = tbCorrelationCounter.Text.AsInt();
 
@@ -92,7 +93,7 @@ namespace WinFormsTestSky.Workers
 
     private void btnSendEMail_Click(object sender, EventArgs e)
     {
-      var todo = Todo.MakeNew<EmailXTimesTodo>();
+      var todo = Todo.MakeNew<EmailXTimesTodo>(App);
       todo.Who = tbWho.Text;
       todo.Count = 7;
       todo.IntervalSec = 2;
@@ -101,7 +102,7 @@ namespace WinFormsTestSky.Workers
 
     private void btnServerStart_Click(object sender, EventArgs e)
     {
-      m_Server = new TodoQueueService();
+      m_Server = new TodoQueueService(App);
 
       var cfg= @"
 srv

@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using Azos;
 using Azos.Glue.Protocol;
 using Azos.Security;
+using Azos.WinForms;
 
 using TestBusinessLogic;
 
@@ -44,13 +45,15 @@ namespace WinFormsTest.Glue
 
     #endregion
 
+    IApplication App => FormsAmbient.App;
+
     private void m_btnRun_Click(object sender, EventArgs e)
     {
       try
       {
         //using (JokeHelper.MakeApp())
         {
-          var cl = new JokeContractClient(DEFAULT_TEST_SERVER_SYNC_NODE);
+          var cl = new JokeContractClient(App.Glue, DEFAULT_TEST_SERVER_SYNC_NODE);
           cl.Headers.Add(new AuthenticationHeader(DEFAULT_TEST_CREDENTIALS));
 
           var result = cl.Echo("Gello A!");
@@ -69,7 +72,7 @@ namespace WinFormsTest.Glue
     {
       try
       {
-        using (var cl = new JokeContractClient(DEFAULT_TEST_SERVER_ASYNC_NODE))
+        using (var cl = new JokeContractClient(App.Glue, DEFAULT_TEST_SERVER_ASYNC_NODE))
         {
           cl.Headers.Add(new AuthenticationHeader(DEFAULT_TEST_CREDENTIALS));
 
@@ -126,7 +129,7 @@ namespace WinFormsTest.Glue
       {
         try
         {
-          using (var cl = new JokeContractClient(DEFAULT_TEST_SERVER_ASYNC_NODE))
+          using (var cl = new JokeContractClient(App.Glue, DEFAULT_TEST_SERVER_ASYNC_NODE))
           {
             cl.Headers.Add(new AuthenticationHeader(DEFAULT_TEST_CREDENTIALS));
 

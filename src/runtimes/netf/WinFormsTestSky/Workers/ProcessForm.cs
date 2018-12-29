@@ -18,9 +18,12 @@ namespace WinFormsTestSky.Workers
 
     private Azos.Sky.Workers.Server.ProcessControllerService m_Server;
 
+    ISkyApplication App => Azos.WinForms.FormsAmbient.App.AsSky();
+
+
     private PID doAllocate(string zonePath, string id, bool isUnique)
     {
-      var zone = SkySystem.Metabase.CatalogReg.NavigateZone(zonePath);
+      var zone = App.Metabase.CatalogReg.NavigateZone(zonePath);
       var processorID = zone.MapShardingKeyToProcessorID(id);
 
       return new PID(zone.RegionPath, processorID, id.ToString(), isUnique);
@@ -28,8 +31,8 @@ namespace WinFormsTestSky.Workers
 
     private void btnSpawn_Click(object sender, EventArgs e)
     {
-      var pid = SkySystem.ProcessManager.Allocate("us/east/cle/a/ii");
-      var process = Process.MakeNew<TeztProcess>(pid);
+      var pid = App.ProcessManager.Allocate("us/east/cle/a/ii");
+      var process = Process.MakeNew<TeztProcess>(App, pid);
       var host = m_Server as IProcessHost;
       host.LocalSpawn(process);
     }
@@ -48,7 +51,7 @@ srv
   }
 }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
 
-      m_Server = new Azos.Sky.Workers.Server.ProcessControllerService();
+      m_Server = new Azos.Sky.Workers.Server.ProcessControllerService(App);
       m_Server.Configure(cfg);
       m_Server.Start();
     }

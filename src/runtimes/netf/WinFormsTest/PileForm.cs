@@ -159,10 +159,10 @@ namespace WinFormsTest
     private void PileForm_Load(object sender, EventArgs e)
     {
       if (!MMF)
-       m_Pile = new DefaultPile();
+       m_Pile = new DefaultPile(NOPApplication.Instance);
       else
       {
-        m_Pile = new MMFPile(null);
+        m_Pile = new MMFPile(NOPApplication.Instance);
         ((MMFPile)m_Pile).DataDirectoryRoot = @"c:\Azos";
       }
 

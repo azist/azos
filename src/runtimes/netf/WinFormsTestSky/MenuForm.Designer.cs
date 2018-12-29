@@ -38,9 +38,9 @@
       this.btnTrending = new System.Windows.Forms.Button();
       this.btnGraphNode = new System.Windows.Forms.Button();
       this.SuspendLayout();
-      // 
+      //
       // btnPay
-      // 
+      //
       this.btnPay.Font = new System.Drawing.Font("Microsoft Sans Serif", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
       this.btnPay.Location = new System.Drawing.Point(12, 12);
       this.btnPay.Name = "btnPay";
@@ -48,10 +48,9 @@
       this.btnPay.TabIndex = 1;
       this.btnPay.Text = "Pay";
       this.btnPay.UseVisualStyleBackColor = true;
-      this.btnPay.Click += new System.EventHandler(this.btnPay_Click);
-      // 
+      //
       // btnCache
-      // 
+      //
       this.btnCache.Font = new System.Drawing.Font("Microsoft Sans Serif", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
       this.btnCache.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
       this.btnCache.Location = new System.Drawing.Point(12, 341);
@@ -61,9 +60,9 @@
       this.btnCache.Text = "Cache";
       this.btnCache.UseVisualStyleBackColor = true;
       this.btnCache.Click += new System.EventHandler(this.btnCache_Click);
-      // 
+      //
       // btnLocking
-      // 
+      //
       this.btnLocking.Font = new System.Drawing.Font("Microsoft Sans Serif", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
       this.btnLocking.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
       this.btnLocking.Location = new System.Drawing.Point(12, 288);
@@ -73,9 +72,9 @@
       this.btnLocking.Text = "Locking";
       this.btnLocking.UseVisualStyleBackColor = true;
       this.btnLocking.Click += new System.EventHandler(this.btnLocking_Click);
-      // 
+      //
       // btnGDID
-      // 
+      //
       this.btnGDID.Font = new System.Drawing.Font("Microsoft Sans Serif", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
       this.btnGDID.ForeColor = System.Drawing.Color.Blue;
       this.btnGDID.Location = new System.Drawing.Point(12, 236);
@@ -85,9 +84,9 @@
       this.btnGDID.Text = "GDID";
       this.btnGDID.UseVisualStyleBackColor = true;
       this.btnGDID.Click += new System.EventHandler(this.btnGDID_Click);
-      // 
+      //
       // btnKDB
-      // 
+      //
       this.btnKDB.Font = new System.Drawing.Font("Microsoft Sans Serif", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
       this.btnKDB.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
       this.btnKDB.Location = new System.Drawing.Point(12, 183);
@@ -97,9 +96,9 @@
       this.btnKDB.Text = "KDB";
       this.btnKDB.UseVisualStyleBackColor = true;
       this.btnKDB.Click += new System.EventHandler(this.btnKDB_Click);
-      // 
+      //
       // btnTodo
-      // 
+      //
       this.btnTodo.Font = new System.Drawing.Font("Microsoft Sans Serif", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
       this.btnTodo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
       this.btnTodo.Location = new System.Drawing.Point(12, 65);
@@ -109,9 +108,9 @@
       this.btnTodo.Text = "Todo";
       this.btnTodo.UseVisualStyleBackColor = true;
       this.btnTodo.Click += new System.EventHandler(this.btnTodo_Click);
-      // 
+      //
       // btnProcess
-      // 
+      //
       this.btnProcess.Font = new System.Drawing.Font("Microsoft Sans Serif", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
       this.btnProcess.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
       this.btnProcess.Location = new System.Drawing.Point(12, 118);
@@ -121,9 +120,9 @@
       this.btnProcess.Text = "Process";
       this.btnProcess.UseVisualStyleBackColor = true;
       this.btnProcess.Click += new System.EventHandler(this.btnProcess_Click);
-      // 
+      //
       // btnTrending
-      // 
+      //
       this.btnTrending.Font = new System.Drawing.Font("Microsoft Sans Serif", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
       this.btnTrending.ForeColor = System.Drawing.Color.Green;
       this.btnTrending.Location = new System.Drawing.Point(160, 12);
@@ -132,10 +131,9 @@
       this.btnTrending.TabIndex = 9;
       this.btnTrending.Text = "Trending";
       this.btnTrending.UseVisualStyleBackColor = true;
-      this.btnTrending.Click += new System.EventHandler(this.btnTrending_Click);
-      // 
+      //
       // btnGraphNode
-      // 
+      //
       this.btnGraphNode.Font = new System.Drawing.Font("Microsoft Sans Serif", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
       this.btnGraphNode.ForeColor = System.Drawing.SystemColors.GrayText;
       this.btnGraphNode.Location = new System.Drawing.Point(160, 65);
@@ -144,10 +142,9 @@
       this.btnGraphNode.TabIndex = 10;
       this.btnGraphNode.Text = "Node";
       this.btnGraphNode.UseVisualStyleBackColor = true;
-      this.btnGraphNode.Click += new System.EventHandler(this.btnGraphNode_Click);
-      // 
+      //
       // MenuForm
-      // 
+      //
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(316, 410);

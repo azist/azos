@@ -15,7 +15,7 @@ using System.Windows.Forms;
 
 using Azos;
 using Azos.Log;
-//using Azos.WinForms;
+using Azos.WinForms;
 
 namespace WinFormsTest
 {
@@ -38,7 +38,7 @@ namespace WinFormsTest
         private void write(MessageType t)
         {
           for(var i=0; i<CNT; i++)
-             App.Log.Write( new Azos.Log.Message{Type = t, From = tbFrom.Text, Text = tbText.Text + i.ToString()});
+             FormsAmbient.App.Log.Write( new Azos.Log.Message{Type = t, From = tbFrom.Text, Text = tbText.Text + i.ToString()});
         }
 
         private void btnTrace_Click(object sender, EventArgs e)

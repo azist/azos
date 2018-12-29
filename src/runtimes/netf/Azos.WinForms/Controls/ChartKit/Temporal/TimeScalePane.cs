@@ -139,7 +139,7 @@ namespace Azos.WinForms.Controls.ChartKit.Temporal
       if (TimeLineFormat != null)
         return TimeLineFormat(this, new TimeLineFormatEventArgs(time, priorTick, isCursor));
 
-      var tm = Chart.UseLocalTime ? App.UniversalTimeToLocalizedTime(time) : time;
+      var tm = Chart.UseLocalTime ? time.ToLocalTime() : time;
 
       if (isCursor || priorTick == null || priorTick.Sample.TimeStamp.Day != time.Day)
         return "{0}-{1:D2}-{2:D2}{3}{4:D2}:{5:D2}:{6:D2}".Args

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Windows.Forms;
 
+using Azos;
+using Azos.Apps;
 using Azos.Sky;
-using Azos.Sky.Apps;
 
 namespace WinFormsTestSky
 {

@@ -163,7 +163,7 @@ namespace WinFormsTest
 
            private void CacheTest_Load(object sender, EventArgs e)
            {
-               store = new CacheStore("Test Ztore1");
+               store = new CacheStore(Azos.Apps.NOPApplication.Instance, "Test Ztore1");
                store.InstrumentationEnabled = true;
                store.TableOptions.Register( new TableOptions(TBL, TableCapacity.Default));//.DBServer_128GB) );
                //store.TableOptions.Register( new TableOptions(TBL2, TableCapacity.M100,1024) );

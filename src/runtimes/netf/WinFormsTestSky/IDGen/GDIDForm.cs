@@ -22,7 +22,7 @@ namespace WinFormsTestSky.IDGen
 
     private void GDIDForm_Load(object sender, EventArgs e)
     {
-      m_Generator = new GdidGenerator();
+      m_Generator = new GdidGenerator(Azos.WinForms.FormsAmbient.App);
       m_Generator.TestingAuthorityNode = "sync://localhost:4000";//"async://localhost:4001";
     }
 

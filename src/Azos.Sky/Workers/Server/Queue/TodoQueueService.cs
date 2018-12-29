@@ -28,7 +28,10 @@ namespace Azos.Sky.Workers.Server.Queue
     #endregion
 
     #region .ctor
-    public TodoQueueService(IApplicationComponent director) : base(director)
+    public TodoQueueService(IApplication app) : base(app) => ctor();
+    public TodoQueueService(IApplicationComponent director) : base(director) => ctor();
+
+    private void ctor()
     {
       m_Queues = new Registry<TodoQueue>();
       m_Duplicates = new CappedSet<Data.GDID>(this);

@@ -22,6 +22,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Azos;
 using Azos.Data;
 using Azos.Serialization.Slim;
+using Azos.WinForms;
 
 using TestBusinessLogic;
 
@@ -33,6 +34,8 @@ namespace WinFormsTest
         {
             InitializeComponent();
         }
+
+        IApplication App => FormsAmbient.App;
 
         private void button1_Click(object sender, EventArgs e)
         {

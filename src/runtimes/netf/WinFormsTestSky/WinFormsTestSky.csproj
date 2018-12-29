@@ -71,36 +71,14 @@
     <Compile Include="Locker\MDSARLocking.Designer.cs">
       <DependentUpon>MDSARLocking.cs</DependentUpon>
     </Compile>
-    <Compile Include="Pay\ExternalCfg.cs" />
-    <Compile Include="Pay\FakePaySystemHost.cs" />
     <Compile Include="MenuForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MenuForm.Designer.cs">
       <DependentUpon>MenuForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Pay\PayForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Pay\PayForm.Designer.cs">
-      <DependentUpon>PayForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Social\TestGraphHost.cs" />
-    <Compile Include="Social\TestGraphNodeForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Social\TestGraphNodeForm.Designer.cs">
-      <DependentUpon>TestGraphNodeForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Social\TestTrendingHost.cs" />
-    <Compile Include="Social\TrendingForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Social\TrendingForm.Designer.cs">
-      <DependentUpon>TrendingForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Workers\ProcessForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -131,9 +109,6 @@
     <EmbeddedResource Include="MenuForm.resx">
       <DependentUpon>MenuForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Pay\PayForm.resx">
-      <DependentUpon>PayForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -144,12 +119,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Social\TestGraphNodeForm.resx">
-      <DependentUpon>TestGraphNodeForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Social\TrendingForm.resx">
-      <DependentUpon>TrendingForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Workers\ProcessForm.resx">
       <DependentUpon>ProcessForm.cs</DependentUpon>
     </EmbeddedResource>

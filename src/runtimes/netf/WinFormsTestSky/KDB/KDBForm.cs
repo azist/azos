@@ -42,7 +42,7 @@ namespace WinFormsTestSky.KDB
         return;
       }
 
-      m_Store = new DefaultKdbStore();
+      m_Store = new DefaultKdbStore(Azos.WinForms.FormsAmbient.App);
       m_Store.Configure(conf);
       m_Store.Start();
     }

@@ -28,17 +28,18 @@ using Azos.Data;
 using Azos.Glue;
 using Azos.Glue.Protocol;
 using Azos.Security;
+using Azos.WinForms;
 using TestBusinessLogic;
 
 namespace WinFormsTest
 {
   #pragma warning disable 0649,0169,0067
 
-    public partial class GlueForm : System.Windows.Forms.Form
+  public partial class GlueForm : System.Windows.Forms.Form
   {
         public class BadContract : ClientEndPoint
         {
-           public BadContract(string node, Azos.Glue.Binding binding = null) : base(node, binding) {}
+           public BadContract(IGlue glue, string node, Azos.Glue.Binding binding = null) : base(glue, node, binding) {}
 
            public override Type Contract
            {
@@ -82,6 +83,9 @@ namespace WinFormsTest
             cbo.SelectedIndex = 0;
         }
 
+
+        public IGlue Glue => FormsAmbient.App.Glue;
+
         private void warmup()
         {
           var lst = new List<Task>();
@@ -107,7 +111,7 @@ namespace WinFormsTest
         {
           ECHO_COUNT++;
 
-          var client = new JokeContractClient(cbo.Text);
+          var client = new JokeContractClient(Glue, cbo.Text);
 
           client.Headers.Add( new AuthenticationHeader( new IDPasswordCredentials(tbID.Text, tbPwd.Text)) );
 
@@ -129,7 +133,7 @@ namespace WinFormsTest
         {
           var CNT = edRepeat.Text.AsInt();
 
-          var client = new JokeContractClient(cbo.Text);
+          var client = new JokeContractClient(Glue, cbo.Text);
 
           client.Headers.Add( new AuthenticationHeader( new IDPasswordCredentials(tbID.Text, tbPwd.Text)) );
 
@@ -166,7 +170,7 @@ namespace WinFormsTest
         {
           NOTIFY_COUNT++;
 
-          var client = new JokeContractClient(cbo.Text);
+          var client = new JokeContractClient(Glue, cbo.Text);
 
           try
           {
@@ -185,7 +189,7 @@ namespace WinFormsTest
         {
           var CNT = edRepeat.Text.AsInt();
 
-          var client = new JokeContractClient(cbo.Text);
+          var client = new JokeContractClient(Glue, cbo.Text);
 
          // client.ReserveTransport = true;
           var w = Stopwatch.StartNew();
@@ -216,7 +220,7 @@ namespace WinFormsTest
 
         private void btnInit_Click(object sender, EventArgs e)
         {
-            calc = new JokeCalculatorClient(cbo.Text);
+            calc = new JokeCalculatorClient(Glue, cbo.Text);
             calc.Init(tbCalc.Text.AsInt());
         }
 
@@ -241,50 +245,9 @@ namespace WinFormsTest
             e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
         }
 
-        private void btnReactor_Click(object sender, EventArgs e)
-        {
-            using(var client1 = new JokeContractClient(cbo.Text))
-              using (var client2 = new JokeContractClient(cbo.Text))
-                {
-
-                    var result = "";
-
-                    var reactor = new CallReactor(false,
-                         new Call( client1.Async_Echo("One."),  (r, call) => result += call.CallSlot.GetValue<string>()),
-                         new Call( client2.Async_Echo("Two."),  (r, call) => result += call.CallSlot.GetValue<string>()),
-                         new Call( client1.Async_Echo("Three."),(r, call) => result += call.CallSlot.GetValue<string>())
-                    );
-
-                    reactor.Wait();
-
-                    MessageBox.Show( result );
-               }
-        }
-
-        private void btnReactor2_Click(object sender, EventArgs e)
-        {
-              var client1 = new JokeContractClient(cbo.Text);
-              var client2 = new JokeContractClient(cbo.Text);
-
-
-                    new CallReactor(false,
-                        finishedReactor =>
-                        {
-                           client1.Dispose();
-                           client2.Dispose();
-                           Invoke( (Action)( () => MessageBox.Show(finishedReactor.Context.ToString()) ) );
-                        },
-                        string.Empty,
-                        new Call( client1.Async_Echo("One."),  (reactor, call) => reactor.Context = ((string)reactor.Context) + call.CallSlot.GetValue<string>()),
-                        new Call( client2.Async_Echo("Two."),  (reactor, call) => reactor.Context = ((string)reactor.Context) + call.CallSlot.GetValue<string>()),
-                        new Call( client1.Async_Echo("Three."),(reactor, call) => reactor.Context = ((string)reactor.Context) + call.CallSlot.GetValue<string>())
-                    );
-
-        }
-
         private void btnBadMsg_Click(object sender, EventArgs ea)
         {
-            var client = new BadContract(cbo.Text);
+            var client = new BadContract(Glue, cbo.Text);
 
             try
             {
@@ -311,7 +274,7 @@ namespace WinFormsTest
 
         private void btnBadPayload_Click(object sender, EventArgs ea)
         {
-          var client = new JokeContractClient(cbo.Text);
+          var client = new JokeContractClient(Glue, cbo.Text);
 
           try
           {
@@ -328,244 +291,11 @@ namespace WinFormsTest
           client.Dispose();
         }
 
-        private void btnManyParallel_Click(object sender, EventArgs e)
-        {
-            Text = "Working...";
-
-            var w = Stopwatch.StartNew();
-
-                var client = new JokeContractClient(cbo.Text);
-
-                if (chkImpersonate.Checked)
-                    client.Headers.Add( new AuthenticationHeader( new IDPasswordCredentials(tbID.Text, tbPwd.Text)) );
-
-                var totalCalls = 0;
-                var reactors = new List<CallReactor>();
-
-                for(int rCnt=0, n=tbReactors.Text.AsInt(); rCnt<n; rCnt++)
-                {
-                    var calls = new List<Call>();
-                    for(int cnt=0, m=tbCallsPerReactor.Text.AsInt(); cnt<m; cnt++)
-                        try { calls.Add( new Call( client.Async_Echo("Call number {0} from {1} reactor ".Args(cnt, rCnt) ))); }
-                        catch (Exception err) { tbNote.Text += "{0:000}:{1:00000}: {2}".Args(rCnt, cnt, err.Message); }
-
-                    totalCalls+=calls.Count;
-                    reactors.Add(new CallReactor(calls));
-                }
-
-            var callsPlaced = w.ElapsedMilliseconds;
-
-                CallReactor.WaitAll(reactors);
-
-
-                var stats = new ConcurrentDictionary<CallStatus, int>();
-                foreach(var rtor in reactors)
-                {
-                     foreach(var call in rtor.Calls)
-                     {
-                        if (call.CallSlot.CallStatus==CallStatus.ResponseError)
-                        {
-                            var msg = call.CallSlot.ResponseMsg;
-                            Text = msg.ExceptionData.Message;
-                        }
-                        stats.AddOrUpdate(call.CallSlot.CallStatus, 1, (_,k)=> k+1);
-                     }
-                }
-
-                var sb = new StringBuilder();
-                foreach(var k in stats.Keys)
-                 sb.AppendLine( "{0} = {1} times".Args(k, stats[k]) );
-
-                tbNote.Text = sb.ToString();
-
-            var allFinished = w.ElapsedMilliseconds;
-
-            Text = "Placed {0} calls in {1} ms, then waited {2} ms for finish, total time {3} ms @ {4} calls/sec "
-                   .Args
-                   (
-                     totalCalls,
-                     callsPlaced,
-                     allFinished - callsPlaced,
-                     allFinished,
-                     (1000* totalCalls) / allFinished
-                   );
-        }
-
-        private void btnParallelDispatch_Click(object sender, EventArgs e)
-        {
-            warmup();
-            var unsecure = chkUnsecureEcho.Checked;
-            var argsMarshal = chkArgsMarshalling.Checked;
-            Text = "Working...";
-            tbNote.Text = "Started...";
-            var w = Stopwatch.StartNew();
-
-                var client = new JokeContractClient(cbo.Text);
- client.DispatchTimeoutMs = 5 * 1000;
- client.TimeoutMs = 40 * 1000;
-                if (!unsecure && chkImpersonate.Checked)
-                    client.Headers.Add( new AuthenticationHeader( new IDPasswordCredentials(tbID.Text, tbPwd.Text)) );
-
-                var totalCalls = tbCallsPerReactor.Text.AsInt();
-
-
-                    var calls = new ConcurrentQueue<Call>();
-                    var derrors = new ConcurrentQueue<string>();
-                    System.Threading.Tasks.Parallel.For(0, totalCalls,
-                        (i) =>
-                        {
-                            try
-                            {
-                               calls.Enqueue( new Call(
-                                         argsMarshal ?
-                                          client.Async_UnsecEchoMar("Call number {0} ".Args(i))
-                                         :
-                                         (unsecure ? client.Async_UnsecureEcho("Call number {0} ".Args(i))
-                                                  : client.Async_Echo("Call number {0} ".Args(i)) )));
-                            }
-                            catch (Exception err)
-                            {
-                              derrors.Enqueue( "{0}: {1}\r\n".Args(1, err.ToMessageWithType()) );
-                            }
-                        });
-
-
-
-                string estr = null;
-                while(derrors.TryDequeue(out estr)) tbNote.Text += estr;
-
-
-                var reactor = new CallReactor( calls );
-
-            var callsPlaced = w.ElapsedMilliseconds;
-
-                reactor.Wait();
-
-
-                var stats = new ConcurrentDictionary<CallStatus, int>();
-
-                     foreach(var call in reactor.Calls)
-                     {
-                        if (call.CallSlot.CallStatus==CallStatus.ResponseError)
-                        {
-                            var msg = call.CallSlot.ResponseMsg;
-                            Text = msg.ExceptionData.Message;
-                        }
-                        stats.AddOrUpdate(call.CallSlot.CallStatus, 1, (_,k)=> k+1);
-                     }
-
-                var sb = new StringBuilder();
-                foreach(var k in stats.Keys)
-                 sb.AppendLine( "{0} = {1} times".Args(k, stats[k]) );
-
-                tbNote.Text += sb.ToString();
-
-            var allFinished = w.ElapsedMilliseconds;
-
-           Text = "Placed {0:n2} calls in {1:n2} ms, then waited {2:n2} ms for finish, total time {3:n2} ms @ {4:n2} calls/sec "
-                   .Args
-                   (
-                     totalCalls,
-                     callsPlaced,
-                     allFinished - callsPlaced,
-                     allFinished,
-                     totalCalls / (allFinished / 1000d)
-                   );
-        }
-
-        private void btnManyDBWorks_Click(object sender, EventArgs e)
-        {
-            warmup();
-            var rCount = tbRecCount.Text.AsInt();
-            var waitFrom = tbWaitFrom.Text.AsInt();
-            var waitTo = tbWaitTo.Text.AsInt();
-
-            Text = "Working...";
-            tbNote.Text = "Started...";
-            var w = Stopwatch.StartNew();
-
-                var client = new JokeContractClient(cbo.Text);
- client.DispatchTimeoutMs = 5 * 1000;
- client.TimeoutMs = 40 * 1000;
-
-                var totalCalls = tbCallsPerReactor.Text.AsInt();
-
-
-                    var calls = new ConcurrentQueue<Call>();
-                    var derrors = new ConcurrentQueue<string>();
-                    System.Threading.Tasks.Parallel.For(0, totalCalls, new ParallelOptions{ MaxDegreeOfParallelism = tbReactors.Text.AsInt(16)},
-                        (i) =>
-                        {
-                            try
-                            {
-                              calls.Enqueue( new Call(client.Async_DBWork(i.ToString(), rCount,
-                                                                                        waitFrom > 0 ? App.Random.NextScaledRandomInteger(waitFrom,waitTo) : 0)));
-                                                       //ExternalRandomGenerator.Instance.NextScaledRandomInteger(1,100),
-                                                       //ExternalRandomGenerator.Instance.NextScaledRandomInteger(0,50))) );
-                            }
-                            catch (Exception err)
-                            {
-                              derrors.Enqueue( "{0}: {1}\r\n".Args(1, err.ToMessageWithType()) );
-                            }
-                        });
-
-
-
-                string estr = null;
-                while(derrors.TryDequeue(out estr)) tbNote.Text += estr;
-
-
-                var reactor = new CallReactor( calls );
-
-            var callsPlaced = w.ElapsedMilliseconds;
-
-                reactor.Wait();
-
-
-                var stats = new ConcurrentDictionary<CallStatus, int>();
-
-                     foreach(var call in reactor.Calls)
-                     {
-                        if (call.CallSlot.CallStatus==CallStatus.ResponseError)
-                        {
-                            var msg = call.CallSlot.ResponseMsg;
-                            Text = msg.ExceptionData.Message;
-                        }
-                        stats.AddOrUpdate(call.CallSlot.CallStatus, 1, (_,k)=> k+1);
-                     }
-
-                var sb = new StringBuilder();
-                foreach(var k in stats.Keys)
-                 sb.AppendLine( "{0} = {1} times".Args(k, stats[k]) );
-
-                tbNote.Text += sb.ToString();
-
-            var allFinished = w.ElapsedMilliseconds;
-
-            Text = "Placed {0} DB calls in {1} ms, then waited {2} ms for finish, total time {3} ms @ {4} calls/sec "
-                   .Args
-                   (
-                     totalCalls,
-                     callsPlaced,
-                     allFinished - callsPlaced,
-                     allFinished,
-                     (1000* totalCalls) / allFinished
-                   );
-
-
-            if (chkAutoDispatch.Checked)
-            {
-              tmrAuto.Interval = 1000 + App.Random.NextScaledRandomInteger(100, 10000);
-              tmrAuto.Enabled = true;
-
-            }
-        }
 
         private void tmrAuto_Tick(object sender, EventArgs e)
         {
           tmrAuto.Enabled = false;
 
-          btnManyDBWorks_Click(null, null);
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -576,7 +306,7 @@ namespace WinFormsTest
             tbNote.Text = "Started...";
             var w = Stopwatch.StartNew();
 
-                var client = new JokeContractClient(cbo.Text);
+                var client = new JokeContractClient(Glue, cbo.Text);
  client.DispatchTimeoutMs = 5 * 1000;
  client.TimeoutMs = 40 * 1000;
                 if (!unsecure && chkImpersonate.Checked)
@@ -599,98 +329,6 @@ namespace WinFormsTest
                    );
         }
 
-        private void button7_Click(object sender, EventArgs e)
-        {
-          warmup();
-          var unsecure = chkUnsecureEcho.Checked;
-            Text = "Working...";
-            tbNote.Text = "Started...";
-            var w = Stopwatch.StartNew();
-
-               var node = cbo.Text;
-               //var totalCalls = tbCallsPerReactor.Text.AsInt();
-
-               var rcount = tbReactors.Text.AsInt(10);
-               var prc = tbCallsPerReactor.Text.AsInt();//totalCalls / rcount;
-               var auth = new AuthenticationHeader( new IDPasswordCredentials(tbID.Text, tbPwd.Text));
-
-               var totalCalls = rcount * prc;
-
-                    var calls = new ConcurrentQueue<Call>();
-                    var derrors = new ConcurrentQueue<string>();
-                    var tasks = new List<Task>();
-
-                    for(var i=0; i<rcount; i++)
-                    {
-                      tasks.Add(Task.Factory.StartNew((idx)=>
-                      {
-                            var lcl = new JokeContractClient(node);
-                            lcl.DispatchTimeoutMs = 5 * 1000;
-                            lcl.TimeoutMs = 40 * 1000;
-                            lcl.ReserveTransport = true;
-                            if (!unsecure && chkImpersonate.Checked)
-                                lcl.Headers.Add( auth );
-
-                            for(var j=0; j<prc;j++)
-                            {
-                              try { calls.Enqueue( new Call( unsecure ? lcl.Async_UnsecureEcho("Call number {0} ".Args(j))
-                                                                      : lcl.Async_Echo("Call number {0} ".Args(j)) )); }
-                              catch (Exception err)
-                              {
-                                derrors.Enqueue( "{0}: {1}\r\n".Args(j, err.ToMessageWithType()) );
-                              }
-                            }//for
-
-                            lcl.Dispose();
-
-                      }, i, TaskCreationOptions.LongRunning));
-
-                    }
-
-                Task.WaitAll(tasks.ToArray());
-
-                string estr = null;
-                while(derrors.TryDequeue(out estr)) tbNote.Text += estr;
-
-
-                var reactor = new CallReactor( calls );
-
-            var callsPlaced = w.ElapsedMilliseconds;
-
-                reactor.Wait();
-
-
-                var stats = new ConcurrentDictionary<CallStatus, int>();
-
-                     foreach(var call in reactor.Calls)
-                     {
-                        if (call.CallSlot.CallStatus==CallStatus.ResponseError)
-                        {
-                            var msg = call.CallSlot.ResponseMsg;
-                            Text = msg.ExceptionData.Message;
-                        }
-                        stats.AddOrUpdate(call.CallSlot.CallStatus, 1, (_,k)=> k+1);
-                     }
-
-                var sb = new StringBuilder();
-                foreach(var k in stats.Keys)
-                 sb.AppendLine( "{0} = {1} times".Args(k, stats[k]) );
-
-                tbNote.Text += sb.ToString();
-
-            var allFinished = w.ElapsedMilliseconds;
-
-             Text = "Placed {0:n2} calls in {1:n2} ms, then waited {2:n2} ms for finish, total time {3:n2} ms @ {4:n2} calls/sec "
-                   .Args
-                   (
-                     totalCalls,
-                     callsPlaced,
-                     allFinished - callsPlaced,
-                     allFinished,
-                     totalCalls / (allFinished / 1000d)
-                   );
-        }
-
         private void btnSimple_Click(object sender, EventArgs e)
         {
             warmup();
@@ -699,7 +337,7 @@ namespace WinFormsTest
             tbNote.Text = "Started...";
             var w = Stopwatch.StartNew();
 
-                var client = new JokeContractClient(cbo.Text);
+                var client = new JokeContractClient(Glue, cbo.Text);
  client.DispatchTimeoutMs = 5 * 1000;
  client.TimeoutMs = 40 * 1000;
                 if (!unsecure && chkImpersonate.Checked)
@@ -748,102 +386,12 @@ namespace WinFormsTest
           Text = "Collected {0} bytes".Args(m1 - m2);
         }
 
-        private void btnSimpleWork_Click(object sender, EventArgs e)
-        {
-            warmup();
-            var marshal = chkArgsMarshalling.Checked;
-            Text = "Working...";
-            tbNote.Text = "Started...";
-            var w = Stopwatch.StartNew();
-
-               var node = cbo.Text;
-               //var totalCalls = tbCallsPerReactor.Text.AsInt();
-
-               var rcount = tbReactors.Text.AsInt(10);
-               var prc = tbCallsPerReactor.Text.AsInt();//totalCalls / rcount;
-               var auth = new AuthenticationHeader( new IDPasswordCredentials(tbID.Text, tbPwd.Text));
-
-               var totalCalls = rcount * prc;
-
-                    var calls = new ConcurrentQueue<Call>();
-                    var derrors = new ConcurrentQueue<string>();
-                    var tasks = new List<Task>();
-
-                    for(var i=0; i<rcount; i++)
-                    {
-                      tasks.Add(Task.Factory.StartNew((idx)=>
-                      {
-                            var lcl = new JokeContractClient(node);
-                            lcl.DispatchTimeoutMs = 5 * 1000;
-                            lcl.TimeoutMs = 40 * 1000;
-                            lcl.ReserveTransport = true;
-
-                            for(var j=0; j<prc;j++)
-                            {
-                              try { calls.Enqueue( new Call( marshal ? lcl.Async_SimpleWorkMar("Call number {0} ".Args(j), j, i, true, 123.12)
-                                                                      : lcl.Async_SimpleWorkAny("Call number {0} ".Args(j), j, i, true, 123.12)) ); }
-                              catch (Exception err)
-                              {
-                                derrors.Enqueue( "{0}: {1}\r\n".Args(j, err.ToMessageWithType()) );
-                              }
-                            }//for
-
-                            lcl.Dispose();
-
-                      }, i, TaskCreationOptions.LongRunning));
-
-                    }
-
-                Task.WaitAll(tasks.ToArray());
-
-                string estr = null;
-                while(derrors.TryDequeue(out estr)) tbNote.Text += estr;
-
-
-                var reactor = new CallReactor( calls );
-
-            var callsPlaced = w.ElapsedMilliseconds;
-
-                reactor.Wait();
-
-
-                var stats = new ConcurrentDictionary<CallStatus, int>();
-
-                     foreach(var call in reactor.Calls)
-                     {
-                        if (call.CallSlot.CallStatus==CallStatus.ResponseError)
-                        {
-                            var msg = call.CallSlot.ResponseMsg;
-                            Text = msg.ExceptionData.Message;
-                        }
-                        stats.AddOrUpdate(call.CallSlot.CallStatus, 1, (_,k)=> k+1);
-                     }
-
-                var sb = new StringBuilder();
-                foreach(var k in stats.Keys)
-                 sb.AppendLine( "{0} = {1} times".Args(k, stats[k]) );
-
-                tbNote.Text += sb.ToString();
-
-            var allFinished = w.ElapsedMilliseconds;
-
-            Text = "Placed {0:n2} calls in {1:n2} ms, then waited {2:n2} ms for finish, total time {3:n2} ms @ {4:n2} calls/sec "
-                   .Args
-                   (
-                     totalCalls,
-                     callsPlaced,
-                     allFinished - callsPlaced,
-                     allFinished,
-                     totalCalls / (allFinished / 1000d)
-                   );
-        }
-
         private void chkDumpMessages_CheckedChanged(object sender, EventArgs e)
         {
           var en = chkDumpMessages.Checked;
 
-          App.Glue.Bindings["sync"].ClientDump = en ? DumpDetail.Message : DumpDetail.None;
-          App.Glue.Bindings["mpx"].ClientDump = en ? DumpDetail.Message : DumpDetail.None;
+          Glue.Bindings["sync"].ClientDump = en ? DumpDetail.Message : DumpDetail.None;
+          Glue.Bindings["mpx"].ClientDump = en ? DumpDetail.Message : DumpDetail.None;
         }
 
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using WinFormsTestSky.Social;
 
 namespace WinFormsTestSky
 {
@@ -9,11 +8,6 @@ namespace WinFormsTestSky
     public MenuForm()
     {
       InitializeComponent();
-    }
-
-    private void btnPay_Click(object sender, EventArgs e)
-    {
-      new Pay.PayForm().Show();
     }
 
     private void btnCache_Click(object sender, EventArgs e)
@@ -46,14 +40,5 @@ namespace WinFormsTestSky
       new Workers.ProcessForm().Show();
     }
 
-    private void btnTrending_Click(object sender, EventArgs e)
-    {
-      new TrendingForm().Show();
-    }
-
-    private void btnGraphNode_Click(object sender, EventArgs e)
-    {
-      new TestGraphNodeForm().Show();
-    }
   }
 }
