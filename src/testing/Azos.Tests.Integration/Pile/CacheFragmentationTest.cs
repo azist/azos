@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 using Azos.Scripting;
 
+using Azos.Apps;
 using Azos.Pile;
 using Azos.Data;
 
@@ -37,7 +38,7 @@ namespace Azos.Tests.Integration.Pile
     [Run("speed=false  durationSec=30  payloadSizeMin=2  payloadSizeMax=1000  deleteFreq=3  isParallel=true")]
     public void DeleteOne_ByteArray(bool speed, int durationSec, int payloadSizeMin, int payloadSizeMax, int deleteFreq, bool isParallel)
     {
-      using (var cache = new LocalCache())
+      using (var cache = new LocalCache(NOPApplication.Instance))
       using (var pile = new DefaultPile(cache))
       {
         cache.Pile = pile;
@@ -57,10 +58,10 @@ namespace Azos.Tests.Integration.Pile
               {
                 if ((DateTime.UtcNow - startTime).TotalSeconds >= durationSec) break;
 
-                var payloadSize = App.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
+                var payloadSize = Ambient.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
                 var val = new byte[payloadSize];
-                val[0] = (byte)App.Random.NextRandomInteger;
-                val[payloadSize - 1] = (byte)App.Random.NextRandomInteger;
+                val[0] = (byte)Ambient.Random.NextRandomInteger;
+                val[payloadSize - 1] = (byte)Ambient.Random.NextRandomInteger;
 
                 var key = new GDID((uint)Thread.CurrentThread.ManagedThreadId, (ulong)i);
                 tA.Put(key, val);
@@ -72,7 +73,7 @@ namespace Azos.Tests.Integration.Pile
                 {
                   while (true && list.Count > 0)
                   {
-                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = Ambient.Random.NextScaledRandomInteger(0, list.Count - 1);
                     key = list[idx].Key;
                     var removed = tA.Remove(key);
                     list.RemoveAt(idx);
@@ -82,16 +83,16 @@ namespace Azos.Tests.Integration.Pile
                 }
 
                 // get several random elements
-                if (list.Count > 64 && App.Random.NextScaledRandomInteger(0, 100) > 98)
+                if (list.Count > 64 && Ambient.Random.NextScaledRandomInteger(0, 100) > 98)
                 {
-                  var toRead = App.Random.NextScaledRandomInteger(8, 64);
+                  var toRead = Ambient.Random.NextScaledRandomInteger(8, 64);
                   wlc++;
                   if (wlc % 125 == 0)
                     Console.WriteLine("Thread {0} is reading {1} elements, total {2}"
                       .Args(Thread.CurrentThread.ManagedThreadId, toRead, list.Count));
                   for (var k = 0; k < toRead && list.Count > 0; k++)
                   {
-                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = Ambient.Random.NextScaledRandomInteger(0, list.Count - 1);
                     var element = list[idx];
                     var buf = tA.Get(element.Key) as byte[];
                     if (buf == null)
@@ -133,7 +134,7 @@ namespace Azos.Tests.Integration.Pile
     [Run("speed=false  durationSec=30  payloadSizeMin=2  payloadSizeMax=1000  isParallel=true")]
     public void Chessboard_ByteArray(bool speed, int durationSec, int payloadSizeMin, int payloadSizeMax, bool isParallel)
     {
-      using (var cache = new LocalCache())
+      using (var cache = new LocalCache(NOPApplication.Instance))
       using (var pile = new DefaultPile(cache))
       {
         cache.Pile = pile;
@@ -153,10 +154,10 @@ namespace Azos.Tests.Integration.Pile
               {
                 if ((DateTime.UtcNow - startTime).TotalSeconds >= durationSec) break;
 
-                var payloadSize = App.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
+                var payloadSize = Ambient.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
                 var val = new byte[payloadSize];
-                val[0] = (byte)App.Random.NextRandomInteger;
-                val[payloadSize - 1] = (byte)App.Random.NextRandomInteger;
+                val[0] = (byte)Ambient.Random.NextRandomInteger;
+                val[payloadSize - 1] = (byte)Ambient.Random.NextRandomInteger;
 
                 var key = new GDID((uint)Thread.CurrentThread.ManagedThreadId, (ulong)i);
                 tA.Put(key, val);
@@ -173,16 +174,16 @@ namespace Azos.Tests.Integration.Pile
                 }
 
                 // get several random elements
-                if (list.Count > 64 && App.Random.NextScaledRandomInteger(0, 100) > 98)
+                if (list.Count > 64 && Ambient.Random.NextScaledRandomInteger(0, 100) > 98)
                 {
-                  var toRead = App.Random.NextScaledRandomInteger(8, 64);
+                  var toRead = Ambient.Random.NextScaledRandomInteger(8, 64);
                   wlc++;
                   if (wlc % 125 == 0)
                     Console.WriteLine("Thread {0} is reading {1} elements, total {2}"
                       .Args(Thread.CurrentThread.ManagedThreadId, toRead, list.Count));
                   for (var k = 0; k < toRead && list.Count > 0; k++)
                   {
-                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = Ambient.Random.NextScaledRandomInteger(0, list.Count - 1);
                     element = list[idx];
                     var buf = tA.Get(element.Key) as byte[];
                     if (buf == null)
@@ -225,7 +226,7 @@ namespace Azos.Tests.Integration.Pile
     [Run("speed=false  durationSec=30  putMin=100  putMax=200  delFactor=4  payloadSizeMin=2  payloadSizeMax=1000  isParallel=true")]
     public void DeleteSeveral_ByteArray(bool speed, int durationSec, int putMin, int putMax, int delFactor, int payloadSizeMin, int payloadSizeMax, bool isParallel)
     {
-      using (var cache = new LocalCache())
+      using (var cache = new LocalCache(NOPApplication.Instance))
       using (var pile = new DefaultPile(cache))
       {
         cache.Pile = pile;
@@ -246,13 +247,13 @@ namespace Azos.Tests.Integration.Pile
               {
                 if ((DateTime.UtcNow - startTime).TotalSeconds >= durationSec) break;
 
-                var putCount = App.Random.NextScaledRandomInteger(putMin, putMax);
+                var putCount = Ambient.Random.NextScaledRandomInteger(putMin, putMax);
                 for (int i = 0; i < putCount; i++)
                 {
-                  var payloadSize = App.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
+                  var payloadSize = Ambient.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
                   var val = new byte[payloadSize];
-                  val[0] = (byte)App.Random.NextRandomInteger;
-                  val[payloadSize - 1] = (byte)App.Random.NextRandomInteger;
+                  val[0] = (byte)Ambient.Random.NextRandomInteger;
+                  val[payloadSize - 1] = (byte)Ambient.Random.NextRandomInteger;
                   var key = new GDID((uint)Thread.CurrentThread.ManagedThreadId, k);
 
                   tA.Put(key, val);
@@ -266,7 +267,7 @@ namespace Azos.Tests.Integration.Pile
                 {
                   while (true && list.Count > 0)
                   {
-                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = Ambient.Random.NextScaledRandomInteger(0, list.Count - 1);
                     var key = list[idx].Key;
                     var removed = tA.Remove(key);
                     list.RemoveAt(idx);
@@ -276,16 +277,16 @@ namespace Azos.Tests.Integration.Pile
                 }
 
                 // get several random elements
-                if (list.Count > 64 && App.Random.NextScaledRandomInteger(0, 100) > 98)
+                if (list.Count > 64 && Ambient.Random.NextScaledRandomInteger(0, 100) > 98)
                 {
-                  var toRead = App.Random.NextScaledRandomInteger(8, 64);
+                  var toRead = Ambient.Random.NextScaledRandomInteger(8, 64);
                   wlc++;
                   if (wlc % 125 == 0)
                     Console.WriteLine("Thread {0} is reading {1} elements, total {2}"
                       .Args(Thread.CurrentThread.ManagedThreadId, toRead, list.Count));
                   for (var j = 0; j < toRead && list.Count > 0; j++)
                   {
-                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = Ambient.Random.NextScaledRandomInteger(0, list.Count - 1);
                     var element = list[idx];
                     var buf = tA.Get(element.Key) as byte[];
                     if (buf == null)
@@ -323,7 +324,7 @@ namespace Azos.Tests.Integration.Pile
     [Run("speed=false  durationSec=30  payloadSizeMin=2  payloadSizeMax=1000  countMin=100000  countMax=200000")]
     public void NoGrowth_ByteArray(bool speed, int durationSec, int payloadSizeMin, int payloadSizeMax, int countMin, int countMax)
     {
-      using (var cache = new LocalCache())
+      using (var cache = new LocalCache(NOPApplication.Instance))
       using (var pile = new DefaultPile(cache))
       {
         cache.Pile = pile;
@@ -345,13 +346,13 @@ namespace Azos.Tests.Integration.Pile
 
                 if (put)
                 {
-                  var cnt = App.Random.NextScaledRandomInteger(countMin, countMax);
+                  var cnt = Ambient.Random.NextScaledRandomInteger(countMin, countMax);
                   for (int i = 0; i < cnt; i++)
                   {
-                    var payloadSize = App.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
+                    var payloadSize = Ambient.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
                     var val = new byte[payloadSize];
-                    val[0] = (byte)App.Random.NextRandomInteger;
-                    val[payloadSize - 1] = (byte)App.Random.NextRandomInteger;
+                    val[0] = (byte)Ambient.Random.NextRandomInteger;
+                    val[payloadSize - 1] = (byte)Ambient.Random.NextRandomInteger;
                     var key = new GDID((uint)Thread.CurrentThread.ManagedThreadId, (ulong)i);
 
                     tA.Put(key, val);
@@ -391,7 +392,7 @@ namespace Azos.Tests.Integration.Pile
     [Run("speed=false  durationSec=30  payloadSizeMin=2  payloadSizeMax=1000  deleteFreq=3  isParallel=true")]
     public void DeleteOne_TwoTables_ByteArray(bool speed, int durationSec, int payloadSizeMin, int payloadSizeMax, int deleteFreq, bool isParallel)
     {
-      using (var cache = new LocalCache())
+      using (var cache = new LocalCache(NOPApplication.Instance))
       using (var pile = new DefaultPile(cache))
       {
         cache.Pile = pile;
@@ -413,12 +414,12 @@ namespace Azos.Tests.Integration.Pile
               {
                 if ((DateTime.UtcNow - startTime).TotalSeconds >= durationSec) break;
 
-                var payloadSize = App.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
+                var payloadSize = Ambient.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
                 var val = new byte[payloadSize];
-                val[0] = (byte)App.Random.NextRandomInteger;
-                val[payloadSize - 1] = (byte)App.Random.NextRandomInteger;
+                val[0] = (byte)Ambient.Random.NextRandomInteger;
+                val[payloadSize - 1] = (byte)Ambient.Random.NextRandomInteger;
 
-                var tableId = App.Random.NextScaledRandomInteger(0, list.Count - 1);
+                var tableId = Ambient.Random.NextScaledRandomInteger(0, list.Count - 1);
                 var table = tableId == 0 ? tA : tB;
                 var key = new GDID((uint)Thread.CurrentThread.ManagedThreadId, (ulong)i);
 
@@ -431,7 +432,7 @@ namespace Azos.Tests.Integration.Pile
                 {
                   while (true && list.Count > 0)
                   {
-                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = Ambient.Random.NextScaledRandomInteger(0, list.Count - 1);
                     var element = list[idx];
 
                     table = element.Item1 == 0 ? tA : tB;
@@ -446,16 +447,16 @@ namespace Azos.Tests.Integration.Pile
                 }
 
                 // get several random elements
-                if (list.Count > 64 && App.Random.NextScaledRandomInteger(0, 100) > 98)
+                if (list.Count > 64 && Ambient.Random.NextScaledRandomInteger(0, 100) > 98)
                 {
-                  var toRead = App.Random.NextScaledRandomInteger(8, 64);
+                  var toRead = Ambient.Random.NextScaledRandomInteger(8, 64);
                   wlc++;
                   if (wlc % 125 == 0)
                     Console.WriteLine("Thread {0} is reading {1} elements"
                       .Args(Thread.CurrentThread.ManagedThreadId, toRead));
                   for (var j = 0; j < toRead && list.Count > 0; j++)
                   {
-                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = Ambient.Random.NextScaledRandomInteger(0, list.Count - 1);
                     var element = list[idx];
                     table = element.Item1 == 0 ? tA : tB;
                     var buf = table.Get(element.Item2) as byte[];
@@ -499,7 +500,7 @@ namespace Azos.Tests.Integration.Pile
     [Run("speed=false  durationSec=30  putMin=100  putMax=200  delFactor=4  payloadSizeMin=2  payloadSizeMax=1000  isParallel=true")]
     public void DeleteSeveral_TwoTables_ByteArray(bool speed, int durationSec, int putMin, int putMax, int delFactor, int payloadSizeMin, int payloadSizeMax, bool isParallel)
     {
-      using (var cache = new LocalCache())
+      using (var cache = new LocalCache(NOPApplication.Instance))
       using (var pile = new DefaultPile(cache))
       {
         cache.Pile = pile;
@@ -521,15 +522,15 @@ namespace Azos.Tests.Integration.Pile
               {
                 if ((DateTime.UtcNow - startTime).TotalSeconds >= durationSec) break;
 
-                var putCount = App.Random.NextScaledRandomInteger(putMin, putMax);
+                var putCount = Ambient.Random.NextScaledRandomInteger(putMin, putMax);
                 for (int i = 0; i < putCount; i++)
                 {
-                  var payloadSize = App.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
+                  var payloadSize = Ambient.Random.NextScaledRandomInteger(payloadSizeMin, payloadSizeMax);
                   var val = new byte[payloadSize];
-                  val[0] = (byte)App.Random.NextRandomInteger;
-                  val[payloadSize - 1] = (byte)App.Random.NextRandomInteger;
+                  val[0] = (byte)Ambient.Random.NextRandomInteger;
+                  val[payloadSize - 1] = (byte)Ambient.Random.NextRandomInteger;
 
-                  var tableId = App.Random.NextScaledRandomInteger(0, 1);
+                  var tableId = Ambient.Random.NextScaledRandomInteger(0, 1);
                   var table = tableId == 0 ? tA : tB;
                   var key = new GDID((uint)Thread.CurrentThread.ManagedThreadId, k);
 
@@ -544,7 +545,7 @@ namespace Azos.Tests.Integration.Pile
                 {
                   while (true && list.Count > 0)
                   {
-                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = Ambient.Random.NextScaledRandomInteger(0, list.Count - 1);
                     var element = list[idx];
                     var table = element.Item1 == 0 ? tA : tB;
                     var key = element.Item2;
@@ -557,16 +558,16 @@ namespace Azos.Tests.Integration.Pile
                 }
 
                 // get several random elements
-                if (list.Count > 64 && App.Random.NextScaledRandomInteger(0, 100) > 98)
+                if (list.Count > 64 && Ambient.Random.NextScaledRandomInteger(0, 100) > 98)
                 {
-                  var toRead = App.Random.NextScaledRandomInteger(8, 64);
+                  var toRead = Ambient.Random.NextScaledRandomInteger(8, 64);
                   wlc++;
                   if (wlc % 125 == 0)
                     Console.WriteLine("Thread {0} is reading {1} elements"
                       .Args(Thread.CurrentThread.ManagedThreadId, toRead));
                   for (var j = 0; j < toRead && list.Count > 0; j++)
                   {
-                    var idx = App.Random.NextScaledRandomInteger(0, list.Count - 1);
+                    var idx = Ambient.Random.NextScaledRandomInteger(0, list.Count - 1);
                     var element = list[idx];
                     var table = element.Item1 == 0 ? tA : tB;
                     var key = element.Item2;

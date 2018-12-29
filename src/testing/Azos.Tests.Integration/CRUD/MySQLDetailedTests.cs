@@ -17,6 +17,7 @@ using Azos.Data;
 using Azos.Data.Access;
 using Azos.Data.Access.MySql;
 using Azos.Scripting;
+using Azos.Apps;
 
 namespace Azos.Tests.Integration.CRUD
 {
@@ -360,7 +361,7 @@ CREATE TABLE `tbl_employee` (
         using (var ds = makeDataStore())
         {
           ds.Insert(row);
-          Thread.Sleep(App.Random.NextScaledRandomInteger(1000, 3000));
+          Thread.Sleep(Ambient.Random.NextScaledRandomInteger(1000, 3000));
 
           var qry = new Query("CRUD.Patient.UpdateAmount")
           {
@@ -368,7 +369,7 @@ CREATE TABLE `tbl_employee` (
             new Query.Param("pSSN", row.SSN)
           };
           ds.ExecuteWithoutFetch(qry);
-          Thread.Sleep(App.Random.NextScaledRandomInteger(1000, 3000));
+          Thread.Sleep(Ambient.Random.NextScaledRandomInteger(1000, 3000));
 
           var listQry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString())};
           var result = ds.LoadDoc(listQry);
@@ -504,7 +505,7 @@ CREATE TABLE `tbl_employee` (
 
             if (stored.Any())
             {
-              var idx = App.Random.NextScaledRandomInteger(0, stored.Count());
+              var idx = Ambient.Random.NextScaledRandomInteger(0, stored.Count());
               var toLoad = stored.ElementAt(idx);
               var emp = data.First(e => e.GDID == toLoad.GDID);
 
@@ -515,7 +516,7 @@ CREATE TABLE `tbl_employee` (
               Aver.IsTrue(emp.Equals(row));
 
               // random deletion
-              if (App.Random.NextScaledRandomInteger(0, 2) == 1)
+              if (Ambient.Random.NextScaledRandomInteger(0, 2) == 1)
               {
                 ds.Delete(row);
                 deleted.Add(row);
@@ -523,7 +524,7 @@ CREATE TABLE `tbl_employee` (
             }
 
             // random insertion
-            if (App.Random.NextScaledRandomInteger(0, 2) == 1)
+            if (Ambient.Random.NextScaledRandomInteger(0, 2) == 1)
             {
               var newRow = makeEmployee(new GDID((uint)(i + 1), 0, (ulong)(cnt + ii + 1)));
               newRow.Department = department;
@@ -596,7 +597,7 @@ CREATE TABLE `tbl_employee` (
 
             if (stored.Any())
             {
-              var idx = App.Random.NextScaledRandomInteger(0, stored.Count());
+              var idx = Ambient.Random.NextScaledRandomInteger(0, stored.Count());
               var toLoad = stored.ElementAt(idx);
               var emp = data.First(e => e.GDID == toLoad.GDID);
 
@@ -607,7 +608,7 @@ CREATE TABLE `tbl_employee` (
               Aver.IsTrue(emp.Equals(row));
 
               // random deletion
-              if (App.Random.NextScaledRandomInteger(0, 2) == 1)
+              if (Ambient.Random.NextScaledRandomInteger(0, 2) == 1)
               {
                 ds.Delete(row);
                 deleted.Add(row);
@@ -615,7 +616,7 @@ CREATE TABLE `tbl_employee` (
             }
 
             // random insertion
-            if (App.Random.NextScaledRandomInteger(0, 2) == 1)
+            if (Ambient.Random.NextScaledRandomInteger(0, 2) == 1)
             {
               var newRow = makeEmployee(new GDID((uint)(i + 1), 0, (ulong)(cnt + ii + 1)));
               newRow.Department = department;
@@ -742,7 +743,7 @@ CREATE TABLE `tbl_employee` (
 
     private MySqlDataStore makeDataStore()
     {
-      var datastore = new MySqlDataStore(m_ConnectionString);
+      var datastore = new MySqlDataStore(NOPApplication.Instance, m_ConnectionString);
       datastore.QueryResolver.ScriptAssembly = "Azos.Tests.Integration";
       return datastore;
     }
@@ -750,10 +751,10 @@ CREATE TABLE `tbl_employee` (
     private Employee makeEmployee(GDID gdid)
     {
       var counter = gdid.Counter;
-      var dob = new DateTime(App.Random.NextScaledRandomInteger(1970, 1990),
-                             App.Random.NextScaledRandomInteger(1, 12),
-                             App.Random.NextScaledRandomInteger(1, 28));
-      var salary = App.Random.NextScaledRandomDouble(100, 300).AsDecimal();
+      var dob = new DateTime(Ambient.Random.NextScaledRandomInteger(1970, 1990),
+                             Ambient.Random.NextScaledRandomInteger(1, 12),
+                             Ambient.Random.NextScaledRandomInteger(1, 28));
+      var salary = Ambient.Random.NextScaledRandomDouble(100, 300).AsDecimal();
       return new Employee
         {
           GDID = gdid,
@@ -762,8 +763,8 @@ CREATE TABLE `tbl_employee` (
           DOB = dob,
           Department = "DPT" + (counter % 3).ToString(),
           IsManager = (counter % 10) == 0,
-          Experience = App.Random.NextScaledRandomInteger(10, 20),
-          Rate = App.Random.NextScaledRandomDouble(1.0, 2.0),
+          Experience = Ambient.Random.NextScaledRandomInteger(10, 20),
+          Rate = Ambient.Random.NextScaledRandomDouble(1.0, 2.0),
           Salary = Math.Round(salary, 2),
           Note = "This is employee #" + gdid.ToString()
         };
@@ -776,7 +777,7 @@ CREATE TABLE `tbl_employee` (
           First_Name = "Oleg",
           Last_Name = ln,
           DOB = new DateTime(1980, 8, 29),
-          SSN = App.Random.NextScaledRandomInteger(100000, 500000).ToString(),
+          SSN = Ambient.Random.NextScaledRandomInteger(100000, 500000).ToString(),
           Amount = 10.23M
         };
     }

@@ -153,7 +153,7 @@ namespace Azos.Tests.Integration.Pile
     {
       var age = (int)(parentGdid.ID % 99);
 
-      var tags = App.Random.NextRandomInteger > 0 ? new string[App.Random.NextScaledRandomInteger(1, 20)] : null;
+      var tags = Ambient.Random.NextRandomInteger > 0 ? new string[Ambient.Random.NextScaledRandomInteger(1, 20)] : null;
 
       if (tags != null)
         for (int i = 0; i < tags.Length; i++)

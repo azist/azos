@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
+using Azos.Apps;
 using Azos.Data;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Scripting;
@@ -24,7 +25,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void AllocClient()
     {
-      using(var client= new MongoClient("My Test"))
+      using(var client= new MongoClient(NOPApplication.Instance, "My Test"))
       {
         var server = client.DefaultLocalServer;
         Aver.IsNotNull( server );
@@ -48,7 +49,7 @@ namespace Azos.Tests.Integration.MongoDb
     public void CollectionLifecycle()
     {
 
-      using(var client= new MongoClient("My Test"))
+      using(var client= new MongoClient(NOPApplication.Instance, "My Test"))
       {
         var db = client.DefaultLocalServer["db1"];
 
@@ -83,7 +84,7 @@ namespace Azos.Tests.Integration.MongoDb
     public void InsertDelete()
     {
 
-      using(var client= new MongoClient("My Test"))
+      using(var client= new MongoClient(NOPApplication.Instance, "My Test"))
       {
         var db = client.DefaultLocalServer["db1"];
 
@@ -114,7 +115,7 @@ namespace Azos.Tests.Integration.MongoDb
     public void InsertWithoutID()
     {
 
-      using(var client= new MongoClient("My Test"))
+      using(var client= new MongoClient(NOPApplication.Instance, "My Test"))
       {
         var db = client.DefaultLocalServer["db1"];
 
@@ -134,7 +135,7 @@ namespace Azos.Tests.Integration.MongoDb
     public void CollectionDrop()
     {
 
-      using(var client= new MongoClient("My Test"))
+      using(var client= new MongoClient(NOPApplication.Instance, "My Test"))
       {
         var collection = client.DefaultLocalServer["db1"]["ToDrop"];
         var doc1 = new BSONDocument();
@@ -156,7 +157,7 @@ namespace Azos.Tests.Integration.MongoDb
     public void Ping()
     {
 
-      using(var client= new MongoClient("My Test"))
+      using(var client= new MongoClient(NOPApplication.Instance, "My Test"))
       {
         var db = client.DefaultLocalServer["db1"];
         db.Ping();
@@ -169,7 +170,7 @@ namespace Azos.Tests.Integration.MongoDb
     {
       const int CNT = 123000;
 
-      using(var client= new MongoClient("My Test"))
+      using(var client= new MongoClient(NOPApplication.Instance, "My Test"))
       {
         var db = client.DefaultLocalServer["db1"];
 
@@ -187,7 +188,7 @@ namespace Azos.Tests.Integration.MongoDb
     {
       const int CNT = 75000;
 
-      using(var client= new MongoClient("My Test"))
+      using(var client= new MongoClient(NOPApplication.Instance, "My Test"))
       {
         var server = client.DefaultLocalServer;
         server.MaxConnections = maxConnections;
@@ -227,7 +228,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void Insert_Find_PrimitiveTypes()
     {
-      using (var client = new MongoClient("My client"))
+      using (var client = new MongoClient(NOPApplication.Instance, "My client"))
       {
         var db = client.DefaultLocalServer["db1"];
         db["t1"].Drop();
@@ -370,7 +371,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void Insert_Find_PrimitiveTypesSingleEntry()
     {
-      using (var client = new MongoClient("My client"))
+      using (var client = new MongoClient(NOPApplication.Instance, "My client"))
       {
         var db = client.DefaultLocalServer["db1"];
         db["t1"].Drop();
@@ -448,7 +449,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void Insert_Find_UnicodeStings()
     {
-      using (var client = new MongoClient("My client"))
+      using (var client = new MongoClient(NOPApplication.Instance, "My client"))
       {
         var db = client.DefaultLocalServer["db1"];
         db["t1"].Drop();
@@ -492,7 +493,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void Find_Comparison_DateTime()
     {
-      using (var client = new MongoClient("My client"))
+      using (var client = new MongoClient(NOPApplication.Instance, "My client"))
       {
         var db = client.DefaultLocalServer["db1"];
         db["t1"].Drop();
@@ -532,7 +533,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void Find_Comparison_Int32()
     {
-      using (var client = new MongoClient("My client"))
+      using (var client = new MongoClient(NOPApplication.Instance, "My client"))
       {
         var db = client.DefaultLocalServer["db1"];
         db["t1"].Drop();
@@ -578,7 +579,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void Update_SimpleStringInt23Entries()
     {
-      using (var client = new MongoClient("My client"))
+      using (var client = new MongoClient(NOPApplication.Instance, "My client"))
       {
         var db = client.DefaultLocalServer["db1"];
         db["t1"].Drop();
@@ -681,7 +682,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void Update_Parallel_SimpleStringInt23Entries()
     {
-      using (var client = new MongoClient("My client"))
+      using (var client = new MongoClient(NOPApplication.Instance, "My client"))
       {
         var db = client.DefaultLocalServer["db1"];
         db["t1"].Drop();
@@ -723,7 +724,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void Save_AsInsert()
     {
-      using (var client = new MongoClient("My client"))
+      using (var client = new MongoClient(NOPApplication.Instance, "My client"))
       {
         var db = client.DefaultLocalServer["db1"];
         db["t1"].Drop();
@@ -755,7 +756,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void Save_AsInsertAndUpdate()
     {
-      using (var client = new MongoClient("My client"))
+      using (var client = new MongoClient(NOPApplication.Instance, "My client"))
       {
         var db = client.DefaultLocalServer["db1"];
         db["t1"].Drop();
@@ -807,7 +808,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void Save_Parallel_AsInsertAndUpdate()
     {
-      using (var client = new MongoClient("My client"))
+      using (var client = new MongoClient(NOPApplication.Instance, "My client"))
       {
         var db = client.DefaultLocalServer["db1"];
         db["t1"].Drop();
@@ -862,7 +863,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void Delete_NoLimit()
     {
-      using (var client = new MongoClient("My client"))
+      using (var client = new MongoClient(NOPApplication.Instance, "My client"))
       {
         var db = client.DefaultLocalServer["db1"];
         db["t1"].Drop();
@@ -898,7 +899,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void Delete_OnlyFirstMatch()
     {
-      using (var client = new MongoClient("My client"))
+      using (var client = new MongoClient(NOPApplication.Instance, "My client"))
       {
         var db = client.DefaultLocalServer["db1"];
         db["t1"].Drop();
@@ -941,7 +942,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void Delete_Parallel()
     {
-      using (var client = new MongoClient("My client"))
+      using (var client = new MongoClient(NOPApplication.Instance, "My client"))
       {
         var db = client.DefaultLocalServer["db1"];
         db["t1"].Drop();

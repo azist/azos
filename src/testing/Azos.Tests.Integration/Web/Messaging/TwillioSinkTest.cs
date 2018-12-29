@@ -33,6 +33,7 @@ namespace Azos.Tests.Integration.Web.Messaging
       }";
 
     private AzosApplication m_App;
+    private MessageDaemon m_Daemon;
     private TwilioSink m_Sink;
 
     void IRunnableHook.Prologue(Runner runner, FID id)
@@ -40,7 +41,12 @@ namespace Azos.Tests.Integration.Web.Messaging
       var config = CONFIG.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
       m_App = new AzosApplication(null, config);
 
-      m_Sink = (TwilioSink)((MessageDaemon)MessageDaemon.Instance).Sink;
+
+      m_Daemon = new MessageDaemon(m_App);
+      m_Daemon.Configure(null);
+      m_Daemon.Start();
+      m_Sink = m_Daemon.Sink as TwilioSink;
+
       Aver.IsNotNull(m_Sink);
 
       Aver.IsTrue(m_Sink.Name.EqualsOrdIgnoreCase("Twilio"));
@@ -52,6 +58,7 @@ namespace Azos.Tests.Integration.Web.Messaging
 
     bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error)
     {
+      DisposableObject.DisposeAndNull(ref m_Daemon);
       DisposableObject.DisposeAndNull(ref m_App);
       return false;
     }

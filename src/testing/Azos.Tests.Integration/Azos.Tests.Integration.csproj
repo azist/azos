@@ -32,12 +32,9 @@
     <None Remove="CRUD\Queries\Employee\FetchByDepartment.mys.sql" />
     <None Remove="CRUD\Queries\Employee\FetchByGDID.mys.sql" />
     <None Remove="CRUD\Queries\Employee\UpdateByGDID.mys.sql" />
-    <None Remove="CRUD\SecDef.ByExchange.erl.qry" />
-    <None Remove="CRUD\SECDEF.erl.qry" />
     <None Remove="CRUD\Tuple.LoadAll.mys.sql" />
     <None Remove="CRUD\Types.Load.mys.sql" />
     <None Remove="CRUD\UpdatePerzons.mon.json" />
-    <None Remove="CRUD\WorldNews.erl.qry" />
     <None Remove="ExternalCfg.laconf" />
     <None Remove="Graphics\test_mc.jpg" />
     <None Remove="Graphics\test_mc.png" />
@@ -61,12 +58,9 @@
     <EmbeddedResource Include="CRUD\Queries\Employee\UpdateByGDID.mys.sql" />
     <EmbeddedResource Include="CRUD\Queries\Employee\FetchByGDID.mys.sql" />
     <EmbeddedResource Include="CRUD\Queries\Employee\FetchAll.mys.sql" />
-    <EmbeddedResource Include="CRUD\SecDef.ByExchange.erl.qry" />
-    <EmbeddedResource Include="CRUD\SECDEF.erl.qry" />
     <EmbeddedResource Include="CRUD\Tuple.LoadAll.mys.sql" />
     <EmbeddedResource Include="CRUD\Types.Load.mys.sql" />
     <EmbeddedResource Include="CRUD\UpdatePerzons.mon.json" />
-    <EmbeddedResource Include="CRUD\WorldNews.erl.qry" />
     <EmbeddedResource Include="ExternalCfg.laconf" />
     <EmbeddedResource Include="Graphics\test_mc.jpg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>

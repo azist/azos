@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
+using Azos.Apps;
 using Azos.Data;
 using Azos.Serialization.BSON;
 using Azos.Data.Access.MongoDb.Connector;
@@ -28,7 +29,7 @@ namespace Azos.Tests.Integration.MongoDb
     {
       var BIN = new byte[] { 0x00, 0x79, 0x14 };
 
-      using(var client= new MongoClient("My Test"))
+      using(var client= new MongoClient(NOPApplication.Instance, "My Test"))
       {
         var db = client.DefaultLocalServer["db1"];
 
@@ -105,7 +106,7 @@ namespace Azos.Tests.Integration.MongoDb
       const int CNT = 37197;
       var BIN = new byte[] { 0x00, 0x79, 0x14 };
 
-      using(var client= new MongoClient("My Test"))
+      using(var client= new MongoClient(NOPApplication.Instance, "My Test"))
       {
         var db = client.DefaultLocalServer["db1"];
 
@@ -202,7 +203,7 @@ namespace Azos.Tests.Integration.MongoDb
     {
       var BIN = new byte[] { 0x00, 0x79, 0x14 };
 
-      using(var client= new MongoClient("My Test"))
+      using(var client= new MongoClient(NOPApplication.Instance, "My Test"))
       {
         var db = client.DefaultLocalServer["db1"];
 
@@ -290,7 +291,7 @@ namespace Azos.Tests.Integration.MongoDb
       const int CNT = 11973;
       var BIN = new byte[] { 0x00, 0x79, 0x14 };
 
-      using(var client= new MongoClient("My Test"))
+      using(var client= new MongoClient(NOPApplication.Instance, "My Test"))
       {
         var db = client.DefaultLocalServer["db1"];
 
@@ -404,7 +405,7 @@ namespace Azos.Tests.Integration.MongoDb
     {
       var BIN = new byte[] { 0x00, 0x79, 0x14 };
 
-      using(var client= new MongoClient("My Test"))
+      using(var client= new MongoClient(NOPApplication.Instance, "My Test"))
       {
         var db = client.DefaultLocalServer["db1"];
 
@@ -448,7 +449,7 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void T_04_Array()
     {
-      using(var client= new MongoClient("My Test"))
+      using(var client= new MongoClient(NOPApplication.Instance, "My Test"))
       {
         var db = client.DefaultLocalServer["db1"];
 

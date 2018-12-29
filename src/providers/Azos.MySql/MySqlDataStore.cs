@@ -29,11 +29,14 @@ namespace Azos.Data.Access.MySql
     #region .ctor/.dctor
 
       public MySqlDataStore(IApplication app) : base(app) => ctor();
+      public MySqlDataStore(IApplication app, string cs) : base(app) => ctor(cs);
       public MySqlDataStore(IApplicationComponent director) : base(director) => ctor();
+      public MySqlDataStore(IApplicationComponent director, string cs) : base(director) => ctor(cs);
 
-      private void ctor()
+      private void ctor(string cs = null)
       {
         m_QueryResolver = new QueryResolver(this);
+        ConnectString = cs;
       }
 
     #endregion

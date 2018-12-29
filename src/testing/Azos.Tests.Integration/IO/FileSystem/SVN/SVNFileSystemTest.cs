@@ -3,189 +3,193 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
-using Azos.Apps;
-using Azos.Data;
-using Azos.IO.FileSystem;
-using Azos.IO.FileSystem.SVN;
-using Azos.Scripting;
-using FS = Azos.IO.FileSystem.FileSystem;
 
-namespace Azos.Tests.Integration.IO.FileSystem.SVN
-{
-  [Runnable]
-  public class SVNFileSystemTest: ExternalCfg, IRunnableHook
-  {
-    private static SVNFileSystemSessionConnectParams CONN_PARAMS, CONN_PARAMS_TIMEOUT;
+#warning This needs to be reviewed and brpough back to life using per-app FS instances
 
-    void IRunnableHook.Prologue(Runner runner, FID id)
-    {
-      CONN_PARAMS = FileSystemSessionConnectParams.Make<SVNFileSystemSessionConnectParams>(
-        "svn{{ name='aaa' server-url='{0}' user-name='{1}' user-password='{2}' }}".Args(SVN_ROOT, SVN_UNAME, SVN_UPSW));
+////////using System;
+////////using System.Collections.Generic;
+////////using System.Linq;
 
-      CONN_PARAMS_TIMEOUT = FileSystemSessionConnectParams.Make<SVNFileSystemSessionConnectParams>(
-        "svn{{ name='aaa' server-url='{0}' user-name='{1}' user-password='{2}' timeout-ms=1 }}".Args(SVN_ROOT, SVN_UNAME, SVN_UPSW));
-    }
+////////using Azos.Apps;
+////////using Azos.Data;
+////////using Azos.IO.FileSystem;
+////////using Azos.IO.FileSystem.SVN;
+////////using Azos.Scripting;
+////////using FS = Azos.IO.FileSystem.FileSystem;
 
-    bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error) { return false; }
+////////namespace Azos.Tests.Integration.IO.FileSystem.SVN
+////////{
+////////  [Runnable]
+////////  public class SVNFileSystemTest: ExternalCfg, IRunnableHook
+////////  {
+////////    private static SVNFileSystemSessionConnectParams CONN_PARAMS, CONN_PARAMS_TIMEOUT;
 
-    [Run]
-    public void NavigateRootDir()
-    {
-      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
-      {
-        using(var fs = new SVNFileSystem("Azos-SVN"))
-        {
-          var session = fs.StartSession(CONN_PARAMS);
+////////    void IRunnableHook.Prologue(Runner runner, FID id)
+////////    {
+////////      CONN_PARAMS = FileSystemSessionConnectParams.Make<SVNFileSystemSessionConnectParams>(
+////////        "svn{{ name='aaa' server-url='{0}' user-name='{1}' user-password='{2}' }}".Args(SVN_ROOT, SVN_UNAME, SVN_UPSW));
 
-          var dir = session[string.Empty] as FileSystemDirectory;
+////////      CONN_PARAMS_TIMEOUT = FileSystemSessionConnectParams.Make<SVNFileSystemSessionConnectParams>(
+////////        "svn{{ name='aaa' server-url='{0}' user-name='{1}' user-password='{2}' timeout-ms=1 }}".Args(SVN_ROOT, SVN_UNAME, SVN_UPSW));
+////////    }
 
-          Aver.IsNotNull(dir);
-          Aver.AreEqual("/", dir.Path);
-        }
-      }
-    }
+////////    bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error) { return false; }
 
-    [Run]
-    public void Size()
-    {
-      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
-      {
-        var fs = FS.Instances["Azos-SVN"];
+////////    [Run]
+////////    public void NavigateRootDir()
+////////    {
+////////      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
+////////      {
+////////        using(var fs = new SVNFileSystem("Azos-SVN"))
+////////        {
+////////          var session = fs.StartSession(CONN_PARAMS);
 
-        using(var session = fs.StartSession())
-        {
-          var dir = session["trunk/Source/Testing/NUnit/Azos.Tests.Integration/IO/FileSystem/SVN/Esc Folder+"] as FileSystemDirectory;
+////////          var dir = session[string.Empty] as FileSystemDirectory;
 
-          var file1 = session["trunk/Source/Testing/NUnit/Azos.Tests.Integration/IO/FileSystem/SVN/Esc Folder+/Escape.txt"] as FileSystemFile;
-          var file2 = session["trunk/Source/Testing/NUnit/Azos.Tests.Integration/IO/FileSystem/SVN/Esc Folder+/NestedFolder/Escape.txt"] as FileSystemFile;
+////////          Aver.IsNotNull(dir);
+////////          Aver.AreEqual("/", dir.Path);
+////////        }
+////////      }
+////////    }
 
-          Aver.AreEqual(19UL, file1.Size);
-          Aver.AreEqual(11UL, file2.Size);
+////////    [Run]
+////////    public void Size()
+////////    {
+////////      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
+////////      {
+////////        var fs = FS.Instances["Azos-SVN"];
 
-          Aver.AreEqual(30UL, dir.Size);
-        }
-      }
-    }
+////////        using(var session = fs.StartSession())
+////////        {
+////////          var dir = session["trunk/Source/Testing/NUnit/Azos.Tests.Integration/IO/FileSystem/SVN/Esc Folder+"] as FileSystemDirectory;
 
-    [Run]
-    public void NavigateChildDir()
-    {
-      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
-      {
-        var fs = FS.Instances["Azos-SVN"];
+////////          var file1 = session["trunk/Source/Testing/NUnit/Azos.Tests.Integration/IO/FileSystem/SVN/Esc Folder+/Escape.txt"] as FileSystemFile;
+////////          var file2 = session["trunk/Source/Testing/NUnit/Azos.Tests.Integration/IO/FileSystem/SVN/Esc Folder+/NestedFolder/Escape.txt"] as FileSystemFile;
 
-        using(var session = fs.StartSession())
-        {
-          {
-            var dir = session["trunk"] as FileSystemDirectory;
+////////          Aver.AreEqual(19UL, file1.Size);
+////////          Aver.AreEqual(11UL, file2.Size);
 
-            Aver.IsNotNull(dir);
-            Aver.AreEqual("/trunk", dir.Path);
-            Aver.AreEqual("/", dir.ParentPath);
-          }
+////////          Aver.AreEqual(30UL, dir.Size);
+////////        }
+////////      }
+////////    }
 
-          {
-            var dir = session["trunk/Source"] as FileSystemDirectory;
+////////    [Run]
+////////    public void NavigateChildDir()
+////////    {
+////////      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
+////////      {
+////////        var fs = FS.Instances["Azos-SVN"];
 
-            Aver.IsNotNull(dir);
-            Aver.AreEqual("/trunk/Source", dir.Path);
-            Aver.AreEqual("/trunk", dir.ParentPath);
-          }
-        }
-      }
-    }
+////////        using(var session = fs.StartSession())
+////////        {
+////////          {
+////////            var dir = session["trunk"] as FileSystemDirectory;
 
-    [Run]
-    public void NavigateChildFile()
-    {
-      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
-      {
-        var fs = FS.Instances["Azos-SVN"];
-        using (var session = fs.StartSession())
-        {
-          var file = session["/trunk/Source/Azos/LICENSE.txt"] as FileSystemFile;
+////////            Aver.IsNotNull(dir);
+////////            Aver.AreEqual("/trunk", dir.Path);
+////////            Aver.AreEqual("/", dir.ParentPath);
+////////          }
 
-          Aver.IsNotNull(file);
-          Aver.AreEqual("/trunk/Source/Azos/LICENSE.txt", file.Path);
-        }
-      }
-    }
+////////          {
+////////            var dir = session["trunk/Source"] as FileSystemDirectory;
 
-    [Run]
-    public void GetFileContent()
-    {
-      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
-      {
-        var fs = FS.Instances["Azos-SVN"];
-        using (var session = fs.StartSession())
-        {
-          var file = session["/trunk/Source/Azos/LICENSE.txt"] as FileSystemFile;
+////////            Aver.IsNotNull(dir);
+////////            Aver.AreEqual("/trunk/Source", dir.Path);
+////////            Aver.AreEqual("/trunk", dir.ParentPath);
+////////          }
+////////        }
+////////      }
+////////    }
 
-          Aver.IsTrue(file.ReadAllText().IsNotNullOrEmpty());
-        }
-      }
-    }
+////////    [Run]
+////////    public void NavigateChildFile()
+////////    {
+////////      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
+////////      {
+////////        var fs = FS.Instances["Azos-SVN"];
+////////        using (var session = fs.StartSession())
+////////        {
+////////          var file = session["/trunk/Source/Azos/LICENSE.txt"] as FileSystemFile;
 
-    [Run]
-    public void GetVersions()
-    {
-      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
-      {
-        var fs = FS.Instances["Azos-SVN"];
-        using (var session = fs.StartSession())
-        {
-          var currentVersion = session.LatestVersion;
+////////          Aver.IsNotNull(file);
+////////          Aver.AreEqual("/trunk/Source/Azos/LICENSE.txt", file.Path);
+////////        }
+////////      }
+////////    }
 
-          var preVersions = session.GetVersions(currentVersion, 5);
+////////    [Run]
+////////    public void GetFileContent()
+////////    {
+////////      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
+////////      {
+////////        var fs = FS.Instances["Azos-SVN"];
+////////        using (var session = fs.StartSession())
+////////        {
+////////          var file = session["/trunk/Source/Azos/LICENSE.txt"] as FileSystemFile;
 
-          Aver.AreEqual(5, preVersions.Count());
-          Aver.AreEqual(preVersions.Last().Name.AsInt() + 1, currentVersion.Name.AsInt());
-        }
-      }
-    }
+////////          Aver.IsTrue(file.ReadAllText().IsNotNullOrEmpty());
+////////        }
+////////      }
+////////    }
 
-    [Run]
-    public void GetVersionedFiles()
-    {
-      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
-      {
-        IList<WebDAV.Version> versions = WebDAV.GetVersions(SVN_ROOT, SVN_UNAME, SVN_UPSW).ToList();
+////////    [Run]
+////////    public void GetVersions()
+////////    {
+////////      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
+////////      {
+////////        var fs = FS.Instances["Azos-SVN"];
+////////        using (var session = fs.StartSession())
+////////        {
+////////          var currentVersion = session.LatestVersion;
 
-        WebDAV.Version v192 = versions.First(v => v.Name == "192");
-        WebDAV.Version v110 = versions.First(v => v.Name == "110");
+////////          var preVersions = session.GetVersions(currentVersion, 5);
 
-        var fs = FS.Instances["Azos-SVN"];
-        using (var session = fs.StartSession())
-        {
-          session.Version = v192;
-          var file192 = session["trunk/Source/Azos.Wave/Templatization/StockContent/Embedded/script/wv.js"] as FileSystemFile;
-          string content1530 = file192.ReadAllText();
+////////          Aver.AreEqual(5, preVersions.Count());
+////////          Aver.AreEqual(preVersions.Last().Name.AsInt() + 1, currentVersion.Name.AsInt());
+////////        }
+////////      }
+////////    }
 
-          session.Version = v110;
-          var file110 = session["trunk/Source/Azos.Wave/Templatization/StockContent/Embedded/script/wv.js"] as FileSystemFile;
-          string content1531 = file110.ReadAllText();
+////////    [Run]
+////////    public void GetVersionedFiles()
+////////    {
+////////      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
+////////      {
+////////        IList<WebDAV.Version> versions = WebDAV.GetVersions(SVN_ROOT, SVN_UNAME, SVN_UPSW).ToList();
 
-          Aver.AreNotEqual(content1530, content1531);
-        }
-      }
-    }
+////////        WebDAV.Version v192 = versions.First(v => v.Name == "192");
+////////        WebDAV.Version v110 = versions.First(v => v.Name == "110");
 
-    [Run]
-    [Aver.Throws(typeof(System.Net.WebException), Message = "timed out", MsgMatch = Aver.ThrowsAttribute.MatchType.Contains)]
-    public void FailedFastTimeout()
-    {
-      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
-      {
-        var fs = FS.Instances["Azos-SVN"];
-        using (var session = fs.StartSession(CONN_PARAMS_TIMEOUT))
-        {
-          var dir = session[string.Empty] as FileSystemDirectory;
-        }
-      }
-    }
-  }
-}
+////////        var fs = FS.Instances["Azos-SVN"];
+////////        using (var session = fs.StartSession())
+////////        {
+////////          session.Version = v192;
+////////          var file192 = session["trunk/Source/Azos.Wave/Templatization/StockContent/Embedded/script/wv.js"] as FileSystemFile;
+////////          string content1530 = file192.ReadAllText();
+
+////////          session.Version = v110;
+////////          var file110 = session["trunk/Source/Azos.Wave/Templatization/StockContent/Embedded/script/wv.js"] as FileSystemFile;
+////////          string content1531 = file110.ReadAllText();
+
+////////          Aver.AreNotEqual(content1530, content1531);
+////////        }
+////////      }
+////////    }
+
+////////    [Run]
+////////    [Aver.Throws(typeof(System.Net.WebException), Message = "timed out", MsgMatch = Aver.ThrowsAttribute.MatchType.Contains)]
+////////    public void FailedFastTimeout()
+////////    {
+////////      using(new AzosApplication(null, LACONF.AsLaconicConfig()))
+////////      {
+////////        var fs = FS.Instances["Azos-SVN"];
+////////        using (var session = fs.StartSession(CONN_PARAMS_TIMEOUT))
+////////        {
+////////          var dir = session[string.Empty] as FileSystemDirectory;
+////////        }
+////////      }
+////////    }
+////////  }
+////////}

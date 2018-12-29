@@ -33,14 +33,14 @@ namespace Azos.Tests.Integration.GeoLookup
 
     public IGeoLookup Service { get; set; }
 
-    public string DataPath { get { return App.ConfigRoot.Navigate("!geo-lookup/$data-path").Value; } }
+    public string DataPath { get { return m_App.ConfigRoot.Navigate("!geo-lookup/$data-path").Value; } }
 
     void IRunnableHook.Prologue(Runner runner, FID id)
     {
       var config = LACONF.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
       m_App = new AzosApplication(null, config);
 
-      var service = new GeoLookupService();
+      var service = new GeoLookupService(m_App);
       service.Configure(config["geo-lookup"]);
       service.Start();
       Service = service;

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-using Azos;
+using Azos.Apps;
 using Azos.Glue;
 using Azos.Data;
 using Azos.Data.Access;
@@ -32,26 +32,32 @@ namespace Azos.Tests.Integration.CRUD
       private const string DB_NAME = "nfxtest";
 
 
-      private MongoDbDataStore store;
+      private IApplication m_App;
+      private MongoDbDataStore m_Store;
+      private Azos.Data.Access.MongoDb.Connector.MongoClient m_Mongo;
 
       bool IRunHook.Prologue(Runner runner, FID id, MethodInfo method, RunAttribute attr, ref object[] args)
       {
-         store = new MongoDbDataStore(CONNECT_STR, DB_NAME);
-         store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
-         store.QueryResolver.RegisterHandlerLocation("Azos.Tests.Integration.CRUD.MongoSpecific, Azos.Tests.Integration");
+         m_App = new TestApplication() { Active = true };
+         m_Store = new MongoDbDataStore(m_App);
+         m_Mongo = Azos.Data.Access.MongoDb.Connector.MongoClientAccessor.GetDefaultMongoClient(m_App);
+         m_Store.ConnectString = CONNECT_STR;
+         m_Store.DatabaseName = DB_NAME;
+         m_Store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
+         m_Store.QueryResolver.RegisterHandlerLocation("Azos.Tests.Integration.CRUD.MongoSpecific, Azos.Tests.Integration");
          clearAll();
          return false;
       }
 
       bool IRunHook.Epilogue(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error)
       {
-         DisposableObject.DisposeAndNull(ref store);
+         DisposableObject.DisposeAndNull(ref m_Store);
          return false;
       }
 
       private void clearAll()
       {
-        using (var db = Azos.Data.Access.MongoDb.Connector.MongoClient.Instance[CONNECT_NODE][DB_NAME])
+        using (var db = m_Mongo[CONNECT_NODE][DB_NAME])
         {
           foreach( var cn in db.GetCollectionNames())
            db[cn].Drop();
@@ -79,10 +85,10 @@ namespace Azos.Tests.Integration.CRUD
               Age = i
           };
 
-          store.Insert(row);
+          m_Store.Insert(row);
         }
 
-        using (var db = Data.Access.MongoDb.Connector.MongoClient.Instance[CONNECT_NODE][DB_NAME])
+        using (var db = m_Mongo[CONNECT_NODE][DB_NAME])
         {
           var collection = db["MyPerzon"];
           var query = new Data.Access.MongoDb.Connector.Query();
@@ -105,7 +111,7 @@ namespace Azos.Tests.Integration.CRUD
              Age = 89
           };
 
-          var affected = store.Insert(row);
+          var affected = m_Store.Insert(row);
           Aver.AreEqual(1, affected);
       }
 
@@ -119,9 +125,9 @@ namespace Azos.Tests.Integration.CRUD
              Age = 89
           };
 
-          store.Insert(row);
+          m_Store.Insert(row);
 
-          var row2 = store.LoadOneDoc(new Query("CRUD.LoadPerzon", typeof(MyPerzon))
+          var row2 = m_Store.LoadOneDoc(new Query("CRUD.LoadPerzon", typeof(MyPerzon))
                            {
                              new Query.Param("id", row.GDID)
                            }) as MyPerzon;
@@ -142,9 +148,9 @@ namespace Azos.Tests.Integration.CRUD
              Age = 89
           };
 
-          store.Insert(row);
+          m_Store.Insert(row);
 
-          var row2 = store.LoadOneDoc(new Query("CRUD.LoadPerzonAge", typeof(MyPerzon))
+          var row2 = m_Store.LoadOneDoc(new Query("CRUD.LoadPerzonAge", typeof(MyPerzon))
                            {
                              new Query.Param("id", row.GDID)
                            }) as MyPerzon;
@@ -165,9 +171,9 @@ namespace Azos.Tests.Integration.CRUD
              Age = 89
           };
 
-          store.Insert(row);
+          m_Store.Insert(row);
 
-          var row2 = store.LoadDoc(new Query<DynamicDoc>("CRUD.LoadPerzon")
+          var row2 = m_Store.LoadDoc(new Query<DynamicDoc>("CRUD.LoadPerzon")
                            {
                              new Query.Param("id", row.GDID)
                            });
@@ -191,10 +197,10 @@ namespace Azos.Tests.Integration.CRUD
                Age = i
             };
 
-            store.Insert(row);
+            m_Store.Insert(row);
           }
 
-          var rs = store.LoadOneRowset(new Query("CRUD.LoadPerzonsInAgeSpan", typeof(MyPerzon))
+          var rs = m_Store.LoadOneRowset(new Query("CRUD.LoadPerzonsInAgeSpan", typeof(MyPerzon))
                            {
                              new Query.Param("fromAge", 10),
                              new Query.Param("toAge", 15)
@@ -220,11 +226,11 @@ namespace Azos.Tests.Integration.CRUD
                Data = "i is "+i.ToString()
             };
 
-            store.Insert(row);
+            m_Store.Insert(row);
           }
 
           {
-            var cursor = store.OpenCursor(  new Query("CRUD.LoadAllMyData", typeof(MyData))  );
+            var cursor = m_Store.OpenCursor(  new Query("CRUD.LoadAllMyData", typeof(MyData))  );
             Aver.IsNotNull( cursor );
             var lst = new List<Doc>();
             foreach(var row in cursor)
@@ -245,7 +251,7 @@ namespace Azos.Tests.Integration.CRUD
             Cursor cursor;
             var lst = new List<Doc>();
 
-            using(cursor = store.OpenCursor(  new Query("CRUD.LoadAllMyData", typeof(MyData))  ))
+            using(cursor = m_Store.OpenCursor(  new Query("CRUD.LoadAllMyData", typeof(MyData))  ))
             {
               Aver.IsNotNull( cursor );
               foreach(var row in cursor)
@@ -269,7 +275,7 @@ Console.WriteLine("B");
           {
             Cursor cursor;
 
-            using(cursor = store.OpenCursor(  new Query("CRUD.LoadAllMyData", typeof(MyData))  ))
+            using(cursor = m_Store.OpenCursor(  new Query("CRUD.LoadAllMyData", typeof(MyData))  ))
             {
               Aver.IsNotNull( cursor );
               var en = cursor.GetEnumerator();
@@ -295,7 +301,7 @@ Console.WriteLine("C");
               Age = 8
           };
 
-          Aver.AreEqual(1, store.Insert(row) );
+          Aver.AreEqual(1, m_Store.Insert(row) );
 
           var qryBetween1015 = new Query("CRUD.LoadPerzonsInAgeSpan", typeof(MyPerzon))
                            {
@@ -304,7 +310,7 @@ Console.WriteLine("C");
                            };
 
 
-          var rs = store.LoadOneRowset(qryBetween1015);
+          var rs = m_Store.LoadOneRowset(qryBetween1015);
           Aver.IsNotNull( rs );
 
           Aver.AreEqual(0, rs.Count);
@@ -316,14 +322,14 @@ Console.WriteLine("C");
               Age = 12
           };
 
-          Aver.AreEqual(0, store.Update(row) );//update did not find
+          Aver.AreEqual(0, m_Store.Update(row) );//update did not find
 
-          Aver.AreEqual(1, store.Upsert(row) );//upsert DID find
+          Aver.AreEqual(1, m_Store.Upsert(row) );//upsert DID find
 
           row.Name="12-er-changed";
-          Aver.AreEqual(1, store.Update(row) );//update DID find this time
+          Aver.AreEqual(1, m_Store.Update(row) );//update DID find this time
 
-          rs = store.LoadOneRowset(qryBetween1015);
+          rs = m_Store.LoadOneRowset(qryBetween1015);
           Aver.IsNotNull( rs );
 
           Aver.AreEqual(1, rs.Count);
@@ -343,7 +349,7 @@ Console.WriteLine("C");
               Age = 8
           };
 
-          Aver.AreEqual(1, store.Insert(row) );
+          Aver.AreEqual(1, m_Store.Insert(row) );
 
           var qryBetween1015 = new Query("CRUD.LoadPerzonsInAgeSpan", typeof(MyPerzon))
                            {
@@ -352,7 +358,7 @@ Console.WriteLine("C");
                            };
 
 
-          var rs = store.LoadOneRowset(qryBetween1015);
+          var rs = m_Store.LoadOneRowset(qryBetween1015);
           Aver.IsNotNull( rs );
 
           Aver.AreEqual(0, rs.Count);
@@ -364,9 +370,9 @@ Console.WriteLine("C");
               Age = 12
           };
 
-          Aver.AreEqual(1, store.Insert(row) );
+          Aver.AreEqual(1, m_Store.Insert(row) );
 
-          rs = store.LoadOneRowset(qryBetween1015);
+          rs = m_Store.LoadOneRowset(qryBetween1015);
           Aver.IsNotNull( rs );
 
           Aver.AreEqual(1, rs.Count);
@@ -374,9 +380,9 @@ Console.WriteLine("C");
           Aver.AreObjectsEqual("T Twelver", cr["Name"]);
 
           cr["Name"] = "12-er";
-          store.Upsert(cr);
+          m_Store.Upsert(cr);
 
-          rs = store.LoadOneRowset(qryBetween1015);
+          rs = m_Store.LoadOneRowset(qryBetween1015);
           Aver.IsNotNull( rs );
 
           Aver.AreEqual(1, rs.Count);
@@ -397,7 +403,7 @@ Console.WriteLine("C");
                Age = i
             };
 
-            store.Insert(row);
+            m_Store.Insert(row);
           }
 
           var qryBetween1015 = new Query("CRUD.LoadPerzonsInAgeSpan", typeof(MyPerzon))
@@ -406,7 +412,7 @@ Console.WriteLine("C");
                              new Query.Param("toAge", 15)
                            };
 
-          var rs = store.LoadOneRowset(qryBetween1015);
+          var rs = m_Store.LoadOneRowset(qryBetween1015);
           Aver.IsNotNull( rs );
 
           Aver.AreEqual(4, rs.Count);
@@ -415,9 +421,9 @@ Console.WriteLine("C");
           Aver.AreObjectsEqual(11, rs.Last()["Age"]);
 
 
-          Aver.AreEqual(1, store.Delete(rs.First()));//DELETE!!!!
+          Aver.AreEqual(1, m_Store.Delete(rs.First()));//DELETE!!!!
 
-          rs = store.LoadOneRowset(qryBetween1015);
+          rs = m_Store.LoadOneRowset(qryBetween1015);
           Aver.IsNotNull( rs );
 
           Aver.AreEqual(3, rs.Count);
@@ -449,15 +455,15 @@ Console.WriteLine("C");
                              new Query.Param("toAge", 60)
                            };
 
-          var rs = store.LoadOneRowset(qryBetween5060);
+          var rs = m_Store.LoadOneRowset(qryBetween5060);
           Aver.IsNotNull( rs );
 
           Aver.AreEqual(0, rs.Count);
 
-          store.Save(rowset);
+          m_Store.Save(rowset);
           rowset.PurgeChanges();
 
-          rs = store.LoadOneRowset(qryBetween5060);
+          rs = m_Store.LoadOneRowset(qryBetween5060);
           Aver.IsNotNull( rs );
 
           Aver.AreEqual(9, rs.Count);
@@ -465,9 +471,9 @@ Console.WriteLine("C");
           rowset[55]["Age"] = 900;  //falls out of query
           rowset.Update(rowset[55]);
           rowset.Delete(rowset[59]); //physically deleted
-          store.Save(rowset);
+          m_Store.Save(rowset);
 
-          rs = store.LoadOneRowset(qryBetween5060);
+          rs = m_Store.LoadOneRowset(qryBetween5060);
           Aver.IsNotNull( rs );
 
           Aver.AreEqual(7, rs.Count);
@@ -488,14 +494,14 @@ Console.WriteLine("C");
                Data = data
             };
 
-         store.Insert(row);
+         m_Store.Insert(row);
 
          var qry = new Query("CRUD.LoadPerzon", typeof(MyPerzon))
                            {
                              new Query.Param("id", new GDID(1,1,980))
                            };
 
-         var schema = store.GetSchema(qry);
+         var schema = m_Store.GetSchema(qry);
 
          Aver.IsNotNull(schema);
          Aver.AreEqual(4, schema.FieldCount);
@@ -538,12 +544,12 @@ Console.WriteLine("C");
                Age = i
             };
 
-            store.Insert(row);
+            m_Store.Insert(row);
           }
 
           //Note!
           // this query is implemented in C# code
-          var rs = store.LoadOneRowset(new Query("CountPerzons")
+          var rs = m_Store.LoadOneRowset(new Query("CountPerzons")
                            {
                              new Query.Param("fromAge", 10),
                              new Query.Param("toAge", 90)
@@ -565,14 +571,14 @@ Console.WriteLine("C");
                 Age = 23
             };
 
-            var affected = store.Insert(person, (r, k, f) => f.Name != "Age");
+            var affected = m_Store.Insert(person, (r, k, f) => f.Name != "Age");
             Aver.AreEqual(1, affected);
 
             var query = new Query<MyPerzon>("CRUD.LoadPerzon")
                            {
                              new Query.Param("id", person.GDID)
                            };
-            var persisted = store.LoadDoc(query);
+            var persisted = m_Store.LoadDoc(query);
             Aver.AreEqual(person.Name, persisted.Name);
             Aver.AreEqual(0, persisted.Age);
         }
@@ -587,17 +593,17 @@ Console.WriteLine("C");
                 Age = 23
             };
 
-            store.Insert(person);
+            m_Store.Insert(person);
             var query = new Query<MyPerzon>("CRUD.LoadPerzon")
                            {
                              new Query.Param("id", person.GDID)
                            };
-            var persisted = store.LoadDoc(query);
+            var persisted = m_Store.LoadDoc(query);
             persisted.Name = "Ivan";
             persisted.Age = 56;
 
-            var affected = store.Update(persisted, null, (r, k, f) => f.Name != "Name");
-            var updated = store.LoadDoc(query);
+            var affected = m_Store.Update(persisted, null, (r, k, f) => f.Name != "Name");
+            var updated = m_Store.LoadDoc(query);
 
             Aver.AreEqual(1, affected);
             Aver.AreEqual(person.Name, updated.Name);
@@ -614,17 +620,17 @@ Console.WriteLine("C");
                 Age = 23
             };
 
-            store.Insert(person);
+            m_Store.Insert(person);
             var query = new Query<MyPerzon>("CRUD.LoadPerzon")
                            {
                              new Query.Param("id", person.GDID)
                            };
-            var persisted = store.LoadDoc(query);
+            var persisted = m_Store.LoadDoc(query);
             persisted.Name = "Ivan";
             persisted.Age = 56;
 
-            var affected = store.Upsert(persisted, (r, k, f) => f.Name != "Name");
-            var upserted = store.LoadDoc(query);
+            var affected = m_Store.Upsert(persisted, (r, k, f) => f.Name != "Name");
+            var upserted = m_Store.LoadDoc(query);
 
             Aver.AreEqual(1, affected);
             Aver.AreEqual(null, upserted.Name);
@@ -646,15 +652,15 @@ Console.WriteLine("C");
                 new Query.Param("data", data)
             };
 
-            var affected = store.ExecuteWithoutFetch(query);
+            var affected = m_Store.ExecuteWithoutFetch(query);
             Aver.AreEqual(1, affected);
 
-            var c = Azos.Data.Access.MongoDb.Connector.MongoClient.Instance.DefaultLocalServer["nfxtest"]["MyPerzon"];
+            var c = m_Mongo.DefaultLocalServer["nfxtest"]["MyPerzon"];
             var entries = c.FindAndFetchAll(new Azos.Data.Access.MongoDb.Connector.Query());
             Aver.AreEqual(3, entries.Count);
 
             var query1 = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id1) };
-            var person1 = store.LoadDoc(query1);
+            var person1 = m_Store.LoadDoc(query1);
             Aver.IsNotNull(person1);
             Aver.AreEqual(id1, person1.GDID);
             Aver.AreEqual("Jack London", person1.Name);
@@ -662,14 +668,14 @@ Console.WriteLine("C");
             Aver.IsTrue(data.MemBufferEquals(person1.Data));
 
             var query2 = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id2) };
-            var person2 = store.LoadDoc(query2);
+            var person2 = m_Store.LoadDoc(query2);
             Aver.IsNotNull(person2);
             Aver.AreEqual(id2, person2.GDID);
             Aver.AreEqual("Ivan Poddubny", person2.Name);
             Aver.AreEqual(41, person2.Age);
 
             var query3 = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id3) };
-            var person3 = store.LoadDoc(query3);
+            var person3 = m_Store.LoadDoc(query3);
             Aver.IsNotNull(person3);
             Aver.AreEqual(id3, person3.GDID);
             Aver.AreEqual("Anna Smith", person3.Name);
@@ -690,7 +696,7 @@ Console.WriteLine("C");
                 new Query.Param("id3", id3),
                 new Query.Param("data", data)
             };
-            store.ExecuteWithoutFetch(query);
+            m_Store.ExecuteWithoutFetch(query);
 
             query = new Query<MyPerzon>("CRUD.UpdatePerzons")
             {
@@ -698,25 +704,25 @@ Console.WriteLine("C");
                 new Query.Param("id2", id2),
                 new Query.Param("id3", id3),
             };
-            var affected = store.ExecuteWithoutFetch(query);
+            var affected = m_Store.ExecuteWithoutFetch(query);
             Aver.AreEqual(1, affected);
 
             query = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id1) };
-            var person1 = store.LoadDoc(query);
+            var person1 = m_Store.LoadDoc(query);
             Aver.IsNotNull(person1);
             Aver.AreEqual(id1, person1.GDID);
             Aver.AreEqual("Jack London", person1.Name);
             Aver.AreEqual(56, person1.Age);
 
             query = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id2) };
-            var person2 = store.LoadDoc(query);
+            var person2 = m_Store.LoadDoc(query);
             Aver.IsNotNull(person2);
             Aver.AreEqual(id2, person2.GDID);
             Aver.AreEqual("John", person2.Name);
             Aver.AreEqual(0, person2.Age); // update without $set removed Age field
 
             query = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id3) };
-            var person3 = store.LoadDoc(query);
+            var person3 = m_Store.LoadDoc(query);
             Aver.IsNotNull(person3);
             Aver.AreEqual(id3, person3.GDID);
             Aver.AreEqual("Anna Smith", person3.Name);
@@ -744,25 +750,25 @@ Console.WriteLine("C");
                 new Query.Param("id3", id3)
             };
 
-            var affected = store.ExecuteWithoutFetch(query1, query2);
+            var affected = m_Store.ExecuteWithoutFetch(query1, query2);
             Aver.AreEqual(2, affected);
 
             var query = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id1) };
-            var person1 = store.LoadDoc(query);
+            var person1 = m_Store.LoadDoc(query);
             Aver.IsNotNull(person1);
             Aver.AreEqual(id1, person1.GDID);
             Aver.AreEqual("Jack London", person1.Name);
             Aver.AreEqual(56, person1.Age);
 
             query = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id2) };
-            var person2 = store.LoadDoc(query);
+            var person2 = m_Store.LoadDoc(query);
             Aver.IsNotNull(person2);
             Aver.AreEqual(id2, person2.GDID);
             Aver.AreEqual("John", person2.Name);
             Aver.AreEqual(0, person2.Age); // update without $set removed Age field
 
             query = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id3) };
-            var person3 = store.LoadDoc(query);
+            var person3 = m_Store.LoadDoc(query);
             Aver.IsNotNull(person3);
             Aver.AreEqual(id3, person3.GDID);
             Aver.AreEqual("Anna Smith", person3.Name);
@@ -786,9 +792,9 @@ Console.WriteLine("C");
              }
           };
 
-          store.Insert(row);
+          m_Store.Insert(row);
 
-          var row2 = store.LoadDoc(new Query<MyInvoice>("CRUD.LoadInvoice")
+          var row2 = m_Store.LoadDoc(new Query<MyInvoice>("CRUD.LoadInvoice")
                            {
                              new Query.Param("id", row.GDID)
                            });
@@ -873,12 +879,12 @@ Console.WriteLine("C");
           var sw = System.Diagnostics.Stopwatch.StartNew();
 
           row.GDID =  new GDID(10, 0);
-          store.Insert(row);
+          m_Store.Insert(row);
 
           for(var i=1; i<CNT; i++)
           {
             row.GDID =  new GDID(10, (ulong)i);
-            store.Insert(row);
+            m_Store.Insert(row);
           }
 
           var elp = sw.ElapsedMilliseconds;
@@ -886,7 +892,7 @@ Console.WriteLine("C");
           Console.WriteLine("Did {0} in {1} ms at {2} ops/sec".Args(CNT, elp, CNT / (elp / 1000d)));
 
 
-          var row2 = store.LoadDoc(new Query<MuchData>("CRUD.LoadMuchData")
+          var row2 = m_Store.LoadDoc(new Query<MuchData>("CRUD.LoadMuchData")
                            {
                              new Query.Param("id", row.GDID)
                            });
@@ -908,12 +914,12 @@ Console.WriteLine("C");
         var data2 = new MyData{ ID = 2, Data = "My data string 2"};
         var data1again  = new MyData{ ID = 1, Data = "My data string 1 again"};
 
-        store.Insert(data1);
-        store.Insert(data2);
+        m_Store.Insert(data1);
+        m_Store.Insert(data2);
 
         try
         {
-          store.Insert(data1again);
+          m_Store.Insert(data1again);
           Aver.Fail("No key violation");
         }
         catch(Exception error)
@@ -927,7 +933,7 @@ Console.WriteLine("C");
           Console.WriteLine("Key violation is: "+dae.KeyViolation);
         }
 
-        var rowset = store.LoadOneRowset(  new Query("CRUD.LoadAllMyData", typeof(MyData))  );
+        var rowset = m_Store.LoadOneRowset(  new Query("CRUD.LoadAllMyData", typeof(MyData))  );
         Aver.IsNotNull( rowset );
 
         Aver.AreEqual(2, rowset.Count);

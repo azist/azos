@@ -12,6 +12,7 @@ using System.Collections.Concurrent;
 
 using Azos.Scripting;
 
+using Azos.Apps;
 using Azos.Tests.Unit.Pile;
 using Azos.Pile;
 
@@ -45,7 +46,7 @@ namespace Azos.Tests.Integration.Pile
             var getAccessViolations = new ConcurrentDictionary<int, int>();
             var deleteAccessViolations = new ConcurrentDictionary<int, int>();
 
-            using (var pile = new DefaultPile())
+            using (var pile = new DefaultPile(NOPApplication.Instance))
             {
                 pile.Start();
 
@@ -84,7 +85,7 @@ namespace Azos.Tests.Integration.Pile
                                 System.Threading.Thread.Yield();
                                 continue;
                             }
-                            var idx = App.Random.NextScaledRandomInteger(0, data.Count - 1);
+                            var idx = Ambient.Random.NextScaledRandomInteger(0, data.Count - 1);
                             var kvp = data.ElementAt(idx);
                             try
                             {
@@ -115,7 +116,7 @@ namespace Azos.Tests.Integration.Pile
                                 System.Threading.Thread.Yield();
                                 continue;
                             }
-                            var idx = App.Random.NextScaledRandomInteger(0, data.Count - 1);
+                            var idx = Ambient.Random.NextScaledRandomInteger(0, data.Count - 1);
                             var kvp = data.ElementAt(idx);
                             try
                             {

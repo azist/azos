@@ -1,1 +1,0 @@
-﻿nfx_test:world_news(Subscriber::pid(), Timestamp::long(), Count::int(), Period::int())

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 using Azos.Scripting;
 
+using Azos.Apps;
 using Azos.Pile;
 using Azos.Data;
 using Azos.Tests.Unit.Pile;
@@ -23,7 +24,7 @@ namespace Azos.Tests.Integration.Pile
       [Run]
       public void SegmentAddedDeleted()
       {
-        using (var pile = new DefaultPile() { SegmentSize = PileCacheTestCore.SEG_SIZE})
+        using (var pile = new DefaultPile(NOPApplication.Instance) { SegmentSize = PileCacheTestCore.SEG_SIZE})
         {
           pile.Start();
 
@@ -51,7 +52,7 @@ namespace Azos.Tests.Integration.Pile
         const int CNT = 1000000;
         var tuples = new Tuple<PilePointer, ChargeRow>[CNT];
 
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -77,7 +78,7 @@ namespace Azos.Tests.Integration.Pile
         const int CNT = 1002030;//1000203;
         var tuples = new Tuple<PilePointer, ChargeRow>[CNT];
 
-        using (var pile = new DefaultPile())
+        using (var pile = new DefaultPile(NOPApplication.Instance))
         {
           pile.Start();
 
@@ -129,7 +130,7 @@ namespace Azos.Tests.Integration.Pile
       [Run("payloadSize=32000  freeChunkSizes='64,88,128,134,170,180,190,200,250,512,1024,2000,3000,4000,5000,32000'")]
       public void PileSmallObjects(int payloadSize, params int[] freeChunkSizes)
       {
-        using (var pile = new DefaultPile() { SegmentSize = PileCacheTestCore.SEG_SIZE, AllocMode = AllocationMode.ReuseSpace })
+        using (var pile = new DefaultPile(NOPApplication.Instance) { SegmentSize = PileCacheTestCore.SEG_SIZE, AllocMode = AllocationMode.ReuseSpace })
         {
           pile.FreeChunkSizes = freeChunkSizes;
 
@@ -190,7 +191,7 @@ namespace Azos.Tests.Integration.Pile
       [Run("payloadSize=200")]
       public void PileDeleteInLastSegment(int payloadSize)
       {
-        using (var pile = new DefaultPile() { SegmentSize = PileCacheTestCore.SEG_SIZE})
+        using (var pile = new DefaultPile(NOPApplication.Instance) { SegmentSize = PileCacheTestCore.SEG_SIZE})
         {
           pile.Start();
 
@@ -212,7 +213,7 @@ namespace Azos.Tests.Integration.Pile
       [Run("payloadSize=200")]
       public void PileDeleteInMiddleSegment(int payloadSize)
       {
-        using (var pile = new DefaultPile() { SegmentSize = PileCacheTestCore.SEG_SIZE})
+        using (var pile = new DefaultPile(NOPApplication.Instance) { SegmentSize = PileCacheTestCore.SEG_SIZE})
         {
           pile.Start();
 

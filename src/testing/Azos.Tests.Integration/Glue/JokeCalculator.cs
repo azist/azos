@@ -18,9 +18,9 @@ namespace Azos.Tests.Integration.Glue
     [Aver.Throws(typeof(RemoteException))]
     public void ExceptionBeforeInit()
     {
-      using (JokeHelper.MakeApp())
+      using (var app = JokeHelper.MakeApp())
       {
-        var cl = new JokeCalculatorClient(TestServerSyncNode);
+        var cl = new JokeCalculatorClient(app.Glue, TestServerSyncNode);
         cl.Headers.Add(new Azos.Glue.Protocol.AuthenticationHeader(TestCredentials));
 
         int result = cl.Add(1);
@@ -31,9 +31,9 @@ namespace Azos.Tests.Integration.Glue
     [Aver.Throws(typeof(RemoteException))]
     public void ExceptionAfterDestructor()
     {
-      using (JokeHelper.MakeApp())
+      using (var app = JokeHelper.MakeApp())
       {
-        var cl = new JokeCalculatorClient(TestServerSyncNode);
+        var cl = new JokeCalculatorClient(app.Glue, TestServerSyncNode);
         cl.Headers.Add(new Azos.Glue.Protocol.AuthenticationHeader(TestCredentials));
 
         cl.Init(0);
@@ -46,9 +46,9 @@ namespace Azos.Tests.Integration.Glue
     [Run]
     public void Sync_JokeCalculator_TestAdd()
     {
-      using (JokeHelper.MakeApp())
+      using (var app = JokeHelper.MakeApp())
       {
-        var cl = new JokeCalculatorClient(TestServerSyncNode);
+        var cl = new JokeCalculatorClient(app.Glue, TestServerSyncNode);
         cl.Headers.Add(new Azos.Glue.Protocol.AuthenticationHeader(TestCredentials));
 
         try
