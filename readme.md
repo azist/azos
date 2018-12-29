@@ -1,8 +1,9 @@
 # Azos - A to Z Application Operating System
-<img src="/elm/design/icons/azos.png" alt="Logo" >
 
-**BUILD: FAILS**
-THE REPOSITORY IS UNDER CONSTRUCTION;
+
+[![Build status](https://ci.appveyor.com/api/projects/status/v469s4pxwr5e0vox/branch/master?svg=true)](https://ci.appveyor.com/project/Dmitriy24692/azos/branch/master)
+
+<img src="/elm/design/icons/azos.png" alt="Logo" >
 
 -------
 
