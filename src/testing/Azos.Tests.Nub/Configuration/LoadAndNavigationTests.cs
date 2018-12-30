@@ -4,13 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System;
-using System.Collections.Generic;
-
-using Azos.Apps;
 using Azos.Conf;
-using Azos.Data;
 using Azos.Scripting;
 
 namespace Azos.Tests.Nub.Configuration
@@ -78,7 +72,102 @@ namespace Azos.Tests.Nub.Configuration
       Aver.AreEqual("$(/$b)-$(/$a)", cfg.Root.AttrByName("c").VerbatimValue);
     }
 
+    [Run]
+    public void Laconic_Navigation()
+    {
+      var cfg = @"root{
+a=1
+b=2
+ sub-1{
+   a=100
+   b=true
+   sub-1-1=12345{ a=1{v=1} a=2{v=2} a=3{v=3} a=800{message=kuku}}
+ }
+}".AsLaconicConfig();
+
+//Console.WriteLine(cfg.ToLaconicString());
+
+      Aver.AreEqual("root", cfg.Name);
+      Aver.IsTrue(cfg["sub-1"].Exists);
+      Aver.IsFalse(cfg["absent"].Exists);
+      Aver.IsTrue(cfg["absent","sub-1"].Exists);
+      Aver.AreEqual("sub-1", cfg["sub-1"].Name);
+      Aver.AreEqual("sub-1", cfg["pizza","absent","sub-1"].Name);
+      Aver.AreEqual("sub-1", cfg["pizza", "sub-1", "absent"].Name);
+
+      Aver.AreEqual("sub-1-1", cfg["pizza", "sub-1", "absent"]["none", "sub-1-1"].Name);
+
+      Aver.IsFalse(cfg.Navigate("/absent").Exists);
+      Aver.Throws<ConfigException>( ()=> cfg.Navigate("!/absent") );//! denotes requires path
+      Aver.IsTrue(cfg.Navigate("/").Exists);
+      Aver.AreEqual("root", cfg.Navigate("/").Name);
+
+      Aver.AreEqual("root", cfg.Navigate("/").Name);
+
+      Aver.IsTrue(cfg.Navigate("/absent;/").Exists);// /absent OR /
+      Aver.IsTrue(cfg.Navigate("/absent|/").Exists);// /absent OR /
+
+      Aver.IsTrue(cfg.Navigate("/absent ; /").Exists);// /absent OR /
+      Aver.IsTrue(cfg.Navigate("/absent | /").Exists);// /absent OR /
 
 
+      Aver.AreEqual("sub-1", cfg.Navigate("/sub-1").Name);
+      Aver.AreEqual("sub-1", cfg.Navigate(" /sub-1").Name);
+      Aver.AreEqual("sub-1", cfg.Navigate("/          sub-1").Name);
+      Aver.IsFalse(cfg.Navigate("/   sub-        1").Exists);
+
+
+      Aver.AreEqual("a", cfg.Navigate("/sub-1/sub-1-1/a").Name);
+      Aver.AreEqual("1", cfg.Navigate("/sub-1/sub-1-1/a").Value);
+      Aver.AreEqual("a", cfg.Navigate("/sub-1/sub-1-1/[1]").Name);
+      Aver.AreEqual("2", cfg.Navigate("/sub-1/sub-1-1/[1]").Value);
+      Aver.AreEqual("a", cfg.Navigate("/sub-1/sub-1-1/[2]").Name);
+      Aver.AreEqual("3", cfg.Navigate("/sub-1/sub-1-1/[2]").Value);
+
+      Aver.AreEqual("3", cfg.Navigate("/sub-1/sub-1-1/a[3]").Value);//a section with value 3
+      Aver.AreEqual("800", cfg.Navigate("/sub-1/sub-1-1/a[message=kuku]").Value);//a section with attribute message="kuku"
+
+      Aver.AreEqual("12345", cfg.Navigate("/sub-z;/sub-1/hhh;/sub-1/sub-1-1;/").Value);//coalescing
+
+
+      Aver.AreEqual("2", cfg.Navigate("/sub-1/sub-1-1/a/../ .. /../$b").Value);//../$attribute
+    }
+
+    [Run]
+    public void Laconic_Vars()
+    {
+      var cfg = @"root
+{
+v1=$(sub-1/$b)
+v2=$(sub-1/$c)
+v3=$(sub-1/[0]/a[800]/$message)
+
+v4=$($v44)
+v44=$(sub-1/$bad)
+
+v5=$(/$absent|$none|$v3|$never-existed)
+
+a=1
+b=2
+ sub-1{
+   a=100
+   b=$(/$a) //1
+   c=$($a)$($b) //1001
+   sub-1-1=12345{ a=1{v=1} a=2{v=2} a=3{v=3} a=800{message=kuku}}
+
+   bad=$(/$v44)
+ }
+}".AsLaconicConfig();
+
+      Aver.AreEqual("1", cfg.AttrByName("v1").Value);
+      Aver.AreEqual("1001", cfg.AttrByName("v2").Value);
+      Aver.AreEqual("kuku", cfg.AttrByName("v3").Value);
+
+      Aver.Throws<ConfigException>( () => { var hang = cfg.AttrByName("v4").Value; } );
+      Aver.AreEqual("$($v44)", cfg.AttrByName("v4").VerbatimValue);//does not throw
+
+      Aver.AreEqual("kuku", cfg.AttrByName("v5").Value);
+
+    }
   }
 }

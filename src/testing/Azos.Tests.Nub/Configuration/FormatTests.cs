@@ -94,5 +94,28 @@ namespace Azos.Tests.Nub.Configuration
       var cfg3 = serializedJSON.AsJSONConfig(handling: Data.ConvertErrorHandling.Throw);
       ensureInvariant(cfg3);
     }
+
+    [Run]
+    public void JsonRoundTripWithSameName()
+    {
+      // Laconic:  root{a{n=1}a{}a=3{n=2}}
+      // JSON:     {"root":{"a":[{"n":"1"},{},{"-section-value":"3","n":"2"}]}}
+      var c1 = @"root
+{
+  a{ n=1}
+  a{ }
+  a=3{ n=2}
+}
+//".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+
+      var json = c1.ToJSONString();
+Console.WriteLine(c1.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact));
+Console.WriteLine(json);
+
+      var c2 = json.AsJSONConfig();
+
+      Aver.IsTrue( ConfigNodeEqualityComparer.Instance.Equals(c1, c2) );
+
+    }
   }
 }

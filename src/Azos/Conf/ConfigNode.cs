@@ -1727,6 +1727,8 @@ namespace Azos.Conf
           ConfigNode result = this;
           required = false;
 
+          if (path.Length==0) return result;
+
           if (path.StartsWith("!"))
           {
             required = true;
@@ -1747,92 +1749,94 @@ namespace Azos.Conf
             result = this.Configuration.Root;
           }
 
-
-          var segs = path.Split('/', '\\');
-
-          foreach(var s in segs)
+          if (path.Length>0)
           {
-               //20160319 DKh
-               if (!result.Exists) break;
+              var segs = path.Split('/', '\\');
 
-               var seg = s.Trim();
+              foreach(var s in segs)
+              {
+                   //20160319 DKh
+                   if (!result.Exists) break;
 
-               if (seg=="..")
-               {
-                    result = result.Parent;
-                    continue;
-               }
+                   var seg = s.Trim();
 
-               if (!(result is ConfigSectionNode))
-                 throw new ConfigException(StringConsts.CONFIGURATION_PATH_SEGMENT_NOT_SECTION_ERROR.Args(seg, path));
+                   if (seg=="..")
+                   {
+                        result = result.Parent;
+                        continue;
+                   }
 
-               var section = (ConfigSectionNode)result;
+                   if (!(result is ConfigSectionNode))
+                     throw new ConfigException(StringConsts.CONFIGURATION_PATH_SEGMENT_NOT_SECTION_ERROR.Args(seg, path));
 
-               var isAttr = false;
-               if (seg.StartsWith("$")) //attribute
-               {
-                    seg = seg.Substring(1).Trim();
-                    isAttr = true;
-               }
+                   var section = (ConfigSectionNode)result;
 
-               if (seg.StartsWith("[")) //indexer like:   ../[0]  or  ../$[1] (attribute of section by index)
-               {
-                    var icl = seg.LastIndexOf(']');
+                   var isAttr = false;
+                   if (seg.StartsWith("$")) //attribute
+                   {
+                        seg = seg.Substring(1).Trim();
+                        isAttr = true;
+                   }
 
-                    if (icl<2)
-                        throw new ConfigException(StringConsts.CONFIGURATION_PATH_INDEXER_SYNTAX_ERROR.Args(path));
+                   if (seg.StartsWith("[")) //indexer like:   ../[0]  or  ../$[1] (attribute of section by index)
+                   {
+                        var icl = seg.LastIndexOf(']');
 
-                    var istr = seg.Substring(1, icl-1);
+                        if (icl<2)
+                            throw new ConfigException(StringConsts.CONFIGURATION_PATH_INDEXER_SYNTAX_ERROR.Args(path));
 
-                    int idx;
-                    if (!int.TryParse(istr, out idx))
-                        throw new ConfigException(StringConsts.CONFIGURATION_PATH_INDEXER_ERROR.Args(path, istr));
-                    if (isAttr)
-                      result = section.AttrByIndex(idx);
-                    else
-                      result = section[idx];
-               }
-               else if (seg.EndsWith("]")) //value indexer like:   ../table[name=patient] (atr name=patient)   or  ../table[patient] (table node value=patient)
-               {
-                    if (isAttr)
-                        throw new ConfigException(StringConsts.CONFIGURATION_PATH_VALUE_INDEXER_CAN_NOT_USE_WITH_ATTRS_ERROR.Args(path));
+                        var istr = seg.Substring(1, icl-1);
 
-                    var iop = seg.IndexOf('[');
+                        int idx;
+                        if (!int.TryParse(istr, out idx))
+                            throw new ConfigException(StringConsts.CONFIGURATION_PATH_INDEXER_ERROR.Args(path, istr));
+                        if (isAttr)
+                          result = section.AttrByIndex(idx);
+                        else
+                          result = section[idx];
+                   }
+                   else if (seg.EndsWith("]")) //value indexer like:   ../table[name=patient] (atr name=patient)   or  ../table[patient] (table node value=patient)
+                   {
+                        if (isAttr)
+                            throw new ConfigException(StringConsts.CONFIGURATION_PATH_VALUE_INDEXER_CAN_NOT_USE_WITH_ATTRS_ERROR.Args(path));
 
-                    if (iop<1 || iop>=seg.Length-2)
-                        throw new ConfigException(StringConsts.CONFIGURATION_PATH_VALUE_INDEXER_SYNTAX_ERROR.Args(path));
+                        var iop = seg.IndexOf('[');
+
+                        if (iop<1 || iop>=seg.Length-2)
+                            throw new ConfigException(StringConsts.CONFIGURATION_PATH_VALUE_INDEXER_SYNTAX_ERROR.Args(path));
 
 
-                    var name = seg.Substring(0, iop);
-                    var vstr = seg.Substring(iop+1, seg.Length - iop - 2);
+                        var name = seg.Substring(0, iop);
+                        var vstr = seg.Substring(iop+1, seg.Length - iop - 2);
 
-                    var ieq = vstr.IndexOf('=');
+                        var ieq = vstr.IndexOf('=');
 
-                    if (ieq<0 || ieq==0 || ieq==vstr.Length-1)
-                      result = section.Children.FirstOrDefault(c =>
-                                        c.IsSameName(name) &&
-                                        vstr.EqualsIgnoreCase( c.Value) )
-                                     ?? m_Configuration.m_EmptySectionNode;
-                    else
-                    {
-                        var atr = vstr.Substring(0, ieq);
-                        var val = vstr.Substring(ieq+1);
+                        if (ieq<0 || ieq==0 || ieq==vstr.Length-1)
+                          result = section.Children.FirstOrDefault(c =>
+                                            c.IsSameName(name) &&
+                                            vstr.EqualsIgnoreCase( c.Value) )
+                                         ?? m_Configuration.m_EmptySectionNode;
+                        else
+                        {
+                            var atr = vstr.Substring(0, ieq);
+                            var val = vstr.Substring(ieq+1);
 
-                        result = section.Children.FirstOrDefault(c =>
-                                        c.IsSameName(name) &&
-                                        val.EqualsIgnoreCase(c.AttrByName(atr).Value) )
-                                     ?? m_Configuration.m_EmptySectionNode;
+                            result = section.Children.FirstOrDefault(c =>
+                                            c.IsSameName(name) &&
+                                            val.EqualsIgnoreCase(c.AttrByName(atr).Value) )
+                                         ?? m_Configuration.m_EmptySectionNode;
 
-                    }
-               }
-               else
-               {
-                   if (isAttr)
-                      result = section.AttrByName(seg);
+                        }
+                   }
                    else
-                      result = section[seg];
-               }
-          }//foreach segment
+                   {
+                       if (isAttr)
+                          result = section.AttrByName(seg);
+                       else
+                          result = section[seg];
+                   }
+              }//foreach segment
+          }
 
           if (required && !result.Exists)
            throw new ConfigException(StringConsts.CONFIGURATION_NAVIGATION_REQUIRED_ERROR.Args(path));
