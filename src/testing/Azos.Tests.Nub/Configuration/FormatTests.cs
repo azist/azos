@@ -125,5 +125,29 @@ Console.WriteLine(json);
       Aver.IsTrue( ConfigNodeEqualityComparer.Instance.Equals(c1, c2) );
 
     }
+
+
+    [Run]
+    public void ProviderLoadFromString_XML()
+    {
+      var cfg = Azos.Conf.Configuration.ProviderLoadFromString(XML_SOURCE, "xml");
+      ensureInvariant(cfg.Root);
+    }
+
+    [Run]
+    public void ProviderLoadFromString_Laconic()
+    {
+      var cfg = Azos.Conf.Configuration.ProviderLoadFromString(LACONIC_SOURCE, "laconf");
+      ensureInvariant(cfg.Root);
+    }
+
+    [Run]
+    public void ProviderLoadFromString_JSON()
+    {
+      var cfg = Azos.Conf.Configuration.ProviderLoadFromString(JSON_SOURCE, "json");
+      ensureInvariant(cfg.Root);
+    }
+
+
   }
 }
