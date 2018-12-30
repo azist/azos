@@ -138,6 +138,8 @@ static string xml2 = @"
         [Run]
         public void PRAGMA_1()
         {
+
+#warning REFACTOR env variable!!!!
           var conf1 =
 @"
 nfx
