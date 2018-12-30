@@ -17,6 +17,7 @@ namespace Azos.Tests.Nub.Configuration
   public class FormatTests
   {
     private const string LACONIC_SOURCE = @"root=-900{a=1 b=2 sub{z='my\nmessage!'}}";
+    private const string XML_SOURCE = @"<root a=""1"" b=""2"">-900<sub z=""my&#10;message!"" /></root>";
     private const string JSON_SOURCE = @"{ ""root"":{ ""-section-value"":""-900"",""a"":""1"",""b"":""2"",""sub"":{ ""z"":""my\nmessage!""} } }";
 
     private void ensureInvariant(ConfigSectionNode cfg)
@@ -54,6 +55,13 @@ namespace Azos.Tests.Nub.Configuration
     public void AsJsonConfig()
     {
       var cfg = JSON_SOURCE.AsJSONConfig(handling: Data.ConvertErrorHandling.Throw);
+      ensureInvariant(cfg);
+    }
+
+    [Run]
+    public void AsXmlConfig()
+    {
+      var cfg = XML_SOURCE.AsXMLConfig(handling: Data.ConvertErrorHandling.Throw);
       ensureInvariant(cfg);
     }
 
