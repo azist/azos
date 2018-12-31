@@ -421,12 +421,12 @@ namespace Azos.Apps.Volatile
               StoreGUID = new Guid(sguid);
 
 
-            m_Provider = FactoryUtils.MakeAndConfigure(node[CONFIG_PROVIDER_SECT]) as ObjectStoreProvider;
+            m_Provider = FactoryUtils.MakeAndConfigure<ObjectStoreProvider>(node[CONFIG_PROVIDER_SECT],
+                                                                            typeof(FileObjectStoreProvider),
+                                                                            new []{ this });
 
             if (m_Provider == null)
               throw new AzosException("Provider is null");
-
-            m_Provider.__setComponentDirector(this);
 
             ObjectLifeSpanMS = node.AttrByName(CONFIG_OBJECT_LIFE_SPAN_MS_ATTR).ValueAsInt(DEFAULT_OBJECT_LEFESPAN_MS);
 

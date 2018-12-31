@@ -24,6 +24,11 @@ namespace Azos.Tests.Unit.Glue
     provider {name='nop' type='Azos.Apps.Volatile.NOPObjectStoreProvider, Azos'}
   }
 
+  log
+  {
+    sink{ type = 'Azos.Log.Sinks.ConsoleSink, Azos'}
+  }
+
   glue
   {
      bindings
@@ -51,6 +56,11 @@ namespace Azos.Tests.Unit.Glue
   {
     guid='B05D3038-A821-4BE0-96AA-E6D24DFA746F'
     provider {name='nop' type='Azos.Apps.Volatile.NOPObjectStoreProvider, Azos'}
+  }
+
+  log
+  {
+    sink{ type = 'Azos.Log.Sinks.ConsoleSink, Azos'}
   }
 
   glue

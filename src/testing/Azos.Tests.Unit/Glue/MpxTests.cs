@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +25,7 @@ namespace Azos.Tests.Unit.Glue
     public class MpxTests
     {
    const string CONF_SRC_MPX =@"
- nfx
+ app
  {
   cs='mpx://127.0.0.1:5701'
   cs2='mpx://127.0.0.1:5702'
@@ -33,20 +33,20 @@ namespace Azos.Tests.Unit.Glue
 
   log
   {
-    destination{ type = 'Azos.Log.Destinations.ConsoleDestination, NFX'}
+    sink{ type = 'Azos.Log.Sinks.ConsoleSink, Azos'}
   }
 
   object-store
   {
     guid='B05D3038-A821-4BE0-96AA-E6D24DFA746F'
-    provider {name='nop' type='Azos.Apps.Volatile.NOPObjectStoreProvider, NFX'}
+    provider {name='nop' type='Azos.Apps.Volatile.NOPObjectStoreProvider, Azos'}
   }
 
   glue
   {
      bindings
      {
-        binding { name=mpx type='Azos.Glue.Native.MpxBinding, NFX' max-msg-size=900000}
+        binding { name=mpx type='Azos.Glue.Native.MpxBinding, Azos' max-msg-size=900000}
      }
 
      servers
@@ -59,8 +59,8 @@ namespace Azos.Tests.Unit.Glue
  ";
 
 
-        const string CONF_SRC_MPX_TRANSPORTS_A =@"
- nfx
+        const string CONF_SRC_MPX_TRANSPORTS_A = @"
+ app
  {
   cs='mpx://127.0.0.1:5701'
   cs2='mpx://127.0.0.1:5702'
@@ -68,7 +68,12 @@ namespace Azos.Tests.Unit.Glue
   object-store
   {
     guid='B05D3038-A821-4BE0-96AA-E6D24DFA746F'
-    provider {name='nop' type='Azos.Apps.Volatile.NOPObjectStoreProvider, NFX'}
+    provider {name='nop' type='Azos.Apps.Volatile.NOPObjectStoreProvider, Azos'}
+  }
+
+  log
+  {
+    sink{ type = 'Azos.Log.Sinks.ConsoleSink, Azos'}
   }
 
   glue
@@ -77,7 +82,7 @@ namespace Azos.Tests.Unit.Glue
      {
         binding 
         {
-          name=mpx type='Azos.Glue.Native.MpxBinding, NFX'
+          name=mpx type='Azos.Glue.Native.MpxBinding, Azos'
           max-msg-size=900000
           client-transport {  max-count=1 }
         }

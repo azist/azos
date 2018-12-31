@@ -51,15 +51,9 @@ namespace Azos.Apps.Volatile
 
 
     #region .ctor
-        public FileObjectStoreProvider() : base(null)
-        {
-
-        }
-
-        public FileObjectStoreProvider(ObjectStoreDaemon director) : base(director)
-        {
-
-        }
+    public FileObjectStoreProvider(ObjectStoreDaemon director) : base(director)
+    {
+    }
     #endregion
 
     #region Private Fields

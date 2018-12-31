@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,21 +25,21 @@ namespace Azos.Tests.Unit.Glue
     public class InProcTests
     {
    const string CONF_SRC_INPROC =@"
- nfx
+ app
  {
   cs='inproc://'
 
   object-store
   {
     guid='B05D3038-A821-4BE0-96AA-E6D24DFA746F'
-    provider {name='nop' type='Azos.Apps.Volatile.NOPObjectStoreProvider, NFX'}
+    provider {name='nop' type='Azos.Apps.Volatile.NOPObjectStoreProvider, Azos'}
   }
 
   glue
   {
      bindings
      {
-        binding { name=inproc type='Azos.Glue.Native.InProcBinding, NFX'}
+        binding { name=inproc type='Azos.Glue.Native.InProcBinding, Azos'}
      }
 
      servers
