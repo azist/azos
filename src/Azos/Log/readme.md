@@ -165,7 +165,7 @@ process due to an unhandled error thrown on one of the 100s of cluster hosts.
 A **terminal application point** is the one where an exception has no place to propagate further - program entry points and thread bodies.
 Unhandled exceptions terminate the hosting OS process if exceptions are not handled at the terminal points.
 
-The following patterns should be used for handling errors at CLI program terminal points:
+The following pattern should be used for handling errors at CLI program terminal points:
 ```CSharp
 class Program
 {
@@ -193,14 +193,14 @@ class Program
 
   private int run(IApplication app)
   {
-    if (app.CommangdLineArgs["help"].Exists)
+    if (app.CommandArgs["help"].Exists)
      .....
   }
 }
 ```
 
 
-The following patterns should be used for handling errors at `ApplicationComponent` terminal points (such as a thread body):
+The following pattern should be used for handling errors at `ApplicationComponent` terminal points (such as a thread body):
 ```CSharp
 private void threadBody()
 {
