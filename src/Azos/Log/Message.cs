@@ -121,7 +121,7 @@ namespace Azos.Log
     }
 
     /// <summary>
-    /// Gets/Sets a message topic/relation - the name of software concern within the big app, i.e. "Database" or "Security"
+    /// Gets/Sets a message topic/relation - the name of software concern within a big system, e.g. "Database" or "Security"
     /// </summary>
     public string Topic
     {
@@ -150,7 +150,7 @@ namespace Azos.Log
 
     /// <summary>
     /// Gets/Sets exception associated with message.
-    /// Set this property EVEN IF the name/text of exception is already included in Text as log destinations may elect to dump the whole stack trace
+    /// Set this property EVEN IF the name/text of exception is already included in Text as log sinks may elect to dump the whole stack trace
     /// </summary>
     public Exception Exception
     {

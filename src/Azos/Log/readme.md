@@ -175,7 +175,7 @@ class Program
     {
       try
       {
-          return run(args);
+          return run(app);
       }
       catch(Exception error)
       {
@@ -189,6 +189,12 @@ class Program
          return -1;//environment error exit code
       }
     }
+  }
+
+  private int run(IApplication app)
+  {
+    if (app.CommangdLineArgs["help"].Exists)
+     .....
   }
 }
 ```
