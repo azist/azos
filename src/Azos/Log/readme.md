@@ -127,7 +127,7 @@ structured logging
 
 ## Component Logging
 When developing application components (such as business logic modules), `ApplicationComponent.WriteLog(...)` should be used 
-instead of direct `App.Log.Write(msg)`. The method checks `ComponentEffectiveLogLevel` property and set proper `Topic` and `From` prefixes 
+instead of direct `App.Log.Write(msg)`. The method checks `ComponentEffectiveLogLevel` property and sets proper `Topic` and `From` prefixes 
 per component:
 ```CSharp
 private void logicBody(DomainObject data)
@@ -156,13 +156,13 @@ In the example above, if the containing app component has its `ComponentLogLevel
 NOT going to get logged.
 
 ## Terminal Error Logging
-When developing multi-threaded applications it is a good practice to **handle all of the error types** to ensure that leaking an unexpected
+When developing CLI and multi-threaded applications it is a good practice to **handle all of the error types** to ensure that leaking an unexpected
 **exception does not crash your service daemon**. Log the catch-all errors and emit an instrumentation event - this is a better pattern than crashing a 
-process dues to an unhandled error on one of the 100s of cluster hosts.
+process due to an unhandled error thrown on one of the 100s of cluster hosts.
 
 #### The general rule is:
  **all terminal points in the app must use catch-all handlers** and gracefully terminate the app if necessary or keep running.
-A **terminal application point** is the one where exception has no place to propagate further - program entry points and thread bodies.
+A **terminal application point** is the one where an exception has no place to propagate further - program entry points and thread bodies.
 Unhandled exceptions terminate the hosting OS process if exceptions are not handled at the terminal points.
 
 The following patterns should be used for handling errors at CLI program terminal points:
@@ -194,7 +194,7 @@ class Program
 ```
 
 
-The following patterns should be used for handling errors at `ApplicationComponent` terminal points (such as thread body):
+The following patterns should be used for handling errors at `ApplicationComponent` terminal points (such as a thread body):
 ```CSharp
 private void threadBody()
 {
@@ -214,7 +214,8 @@ private void threadBody()
 }
 ```
 
-The `ApplicationComponent.WriteLog()` above will pre-pend the `From` field with the component class name so it looks something like: `FTPImportDaemon.threadBody`,
+The `ApplicationComponent.WriteLog()` above will pre-pend the `From` field with the component class name so it looks something like
+(just as an example): `FTPImportDaemon.threadBody`,
 this way just by looking at `From` you can immediately know where the error came from. Another important aspect in the pattern above is the
 passthrpough of exception instance into the log message. This is needed so that relevant sinks, such as `DebugSink` could have access to the 
 exception instance for structured logging. **Notice the use of `ToMessageWithType()`** extension which shows exception type and text. In Azos, 
