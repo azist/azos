@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Azos</id>
+    <version>1.0.0</version>
+    <authors>Azist, @dzhabis, @dkh</authors>
+    <owners>Azist, @dzhabis, @dkh</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/azist/azos</licenseUrl>
+    <projectUrl>http://zhabis.com/</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/azist/azos/master/elm/logo/logo.50.png</iconUrl>
+    <description>AZOS - A to Z Application OS</description>
+    <releaseNotes>Supports both .NET Framework 4.7.1+ and .NET Core 2.0+</releaseNotes>
+    <copyright>2019 Azist Group</copyright>
+    <tags>atoz fullstack full-stack apps net-core big-memory pile slim glue wave cluster zhabis</tags>
+    <repository type="GIT" url="https://github.com/azist/azos" />
+  </metadata>
+
+  <files>
+    <file src="..\..\out\Release\Azos.dll" target="lib\netstandard2.0" />
+    <file src="..\..\out\Release\Azos.xml" target="lib\netstandard2.0" />
+    <file src="..\..\out\Release\Azos.pdb" target="lib\netstandard2.0" />
+
+    <file src="..\..\out\Release\Azos.Tools.dll" target="lib\netstandard2.0" />
+    <file src="..\..\out\Release\Azos.Tools.xml" target="lib\netstandard2.0" />
+    <file src="..\..\out\Release\Azos.Tools.pdb" target="lib\netstandard2.0" />
+
+   
+    <file src="..\..\out\Release\run-core\buildinfo.dll"   target="lib\netcoreapp2.0" />
+    <file src="..\..\out\Release\run-core\getdatetime.dll" target="lib\netcoreapp2.0" />
+    <file src="..\..\out\Release\run-core\gluec.dll"       target="lib\netcoreapp2.0" />
+    <file src="..\..\out\Release\run-core\ntc.dll"         target="lib\netcoreapp2.0" />
+    <file src="..\..\out\Release\run-core\phash.dll"       target="lib\netcoreapp2.0" />
+    <file src="..\..\out\Release\run-core\rsc.dll"         target="lib\netcoreapp2.0" />
+    <file src="..\..\out\Release\run-core\trun.dll"        target="lib\netcoreapp2.0" />
+
+    <file src="..\..\out\Release\run-core\phash.laconf"    target="lib\netcoreapp2.0" />
+    <file src="..\..\out\Release\run-core\trun.laconf"    target="lib\netcoreapp2.0" />
+
+
+
+
+    <file src="..\..\out\Release\run-netf\buildinfo.exe"   target="lib\net471" />
+    <file src="..\..\out\Release\run-netf\getdatetime.exe" target="lib\net471" />
+    <file src="..\..\out\Release\run-netf\gluec.exe"       target="lib\net471" />
+    <file src="..\..\out\Release\run-netf\ntc.exe"         target="lib\net471" />
+    <file src="..\..\out\Release\run-netf\phash.exe"       target="lib\net471" />
+    <file src="..\..\out\Release\run-netf\rsc.exe"         target="lib\net471" />
+    <file src="..\..\out\Release\run-netf\trun.exe"        target="lib\net471" />
+
+    <file src="..\..\out\Release\run-netf\phash.laconf"    target="lib\net471" />
+    <file src="..\..\out\Release\run-netf\trun.laconf"    target="lib\net471" />
+
+
+  </files>
+
+</package>
