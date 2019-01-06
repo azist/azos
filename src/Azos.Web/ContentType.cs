@@ -6,97 +6,113 @@
 
 namespace Azos.Web
 {
+  /// <summary>
+  /// Declares web-related/mime content types
+  /// </summary>
+  public static class ContentType
+  {
+    public const string TEXT = "text/plain";
+    public const string HTML = "text/html";
+    public const string CSS = "text/css";
+    public const string JS = "application/x-javascript";
+
     /// <summary>
-    /// Declares web-related/mime content types
+    /// Server-Sent Event Stream
     /// </summary>
-    public static class ContentType
+    public const string SSE = "text/event-stream";
+
+
+    public const string XML_TEXT = "text/xml";
+    public const string XML_APP = "application/xml";
+
+    public const string PDF = "application/pdf";
+    public const string BINARY = "application/octet-stream";
+    public const string EXE = BINARY;
+
+    public const string GIF = "image/gif";
+    public const string JPEG = "image/jpeg";
+    public const string PNG = "image/png";
+    public const string ICO = "image/x-icon";
+    public const string SVG = "image/svg+xml";
+    public const string BMP = "image/bmp";
+
+    public const string JSON = "application/json";
+
+
+    public const string TTF  = "application/font-sfnt";
+    public const string EOT  = "application/vnd.ms-fontobject";
+    public const string OTF  = "application/font-sfnt";
+    public const string WOFF = "application/font-woff";
+
+
+
+
+    public const string FORM_URL_ENCODED = "application/x-www-form-urlencoded";
+
+    public const string FORM_MULTIPART_ENCODED = "multipart/form-data";
+    public const string FORM_MULTIPART_ENCODED_BOUNDARY = "multipart/form-data; boundary={0}";
+
+    public static readonly string[] IMAGES = new []{GIF, JPEG, PNG, ICO, SVG, BMP };
+
+
+    /// <summary>
+    /// Returns true if the content type is one of image format types
+    /// </summary>
+    public static bool IsImage(string ctype)
+     => ctype.Default().Trim().IsOneOf(IMAGES);
+
+
+    public static string ExtensionToContentType(string ext, string dflt = ContentType.HTML)
     {
-       public const string TEXT = "text/plain";
-       public const string HTML = "text/html";
-       public const string CSS = "text/css";
-       public const string JS = "application/x-javascript";
+      //todo Make this list configurable and use dictionary of default values instead of switch/case
+      if (ext==null) return dflt;
 
-       /// <summary>
-       /// Server-Sent Event Stream
-       /// </summary>
-       public const string SSE = "text/event-stream";
+      ext = ext.ToLowerInvariant().Trim();
 
+      if (ext.StartsWith(".")) ext = ext.Remove(0,1);
 
-       public const string XML_TEXT = "text/xml";
-       public const string XML_APP = "application/xml";
+      switch(ext)
+      {
+        case "htm":
+        case "html": return ContentType.HTML;
 
-       public const string PDF = "application/pdf";
-       public const string BINARY = "application/octet-stream";
-       public const string EXE = BINARY;
+        case "json": return ContentType.JSON;
 
-       public const string GIF = "image/gif";
-       public const string JPEG = "image/jpeg";
-       public const string PNG = "image/png";
-       public const string ICO = "image/x-icon";
+        case "xml": return ContentType.XML_TEXT;
 
-       public const string JSON = "application/json";
+        case "css": return ContentType.CSS;
 
+        case "js": return ContentType.JS;
 
-       public const string TTF  = "application/font-sfnt";
-       public const string EOT  = "application/vnd.ms-fontobject";
-       public const string OTF  = "application/font-sfnt";
-       public const string WOFF = "application/font-woff";
+        case "gif": return ContentType.GIF;
 
+        case "jpe":
+        case "jpg":
+        case "jpeg": return ContentType.JPEG;
 
+        case "png": return ContentType.PNG;
 
+        case "bmp": return ContentType.BMP;
 
-       public const string FORM_URL_ENCODED = "application/x-www-form-urlencoded";
+        case "ico": return ContentType.ICO;
 
-       public const string FORM_MULTIPART_ENCODED = "multipart/form-data";
-       public const string FORM_MULTIPART_ENCODED_BOUNDARY = "multipart/form-data; boundary={0}";
+        case "svg":
+        case "svgz": return ContentType.SVG;
 
+        case "pdf": return ContentType.PDF;
 
-       public static string ExtensionToContentType(string ext, string dflt = ContentType.HTML)
-       {
-         //todo Make this list configurable and use dictionary of default values instead of switch/case which is slower than dict lookup
-          if (ext==null) return dflt;
+        case "exe": return ContentType.EXE;
 
-          ext = ext.ToLowerInvariant().Trim();
+        case "txt": return ContentType.TEXT;
 
-          if (ext.StartsWith(".")) ext = ext.Remove(0,1);
-
-              switch(ext)
-              {
-                case "htm":
-                case "html": return ContentType.HTML;
-
-                case "json": return ContentType.JSON;
-
-                case "xml": return ContentType.XML_TEXT;
-
-                case "css": return ContentType.CSS;
-
-                case "js": return ContentType.JS;
-
-                case "gif": return ContentType.GIF;
-
-                case "jpe":
-                case "jpg":
-                case "jpeg": return ContentType.JPEG;
-
-                case "png": return ContentType.PNG;
-
-                case "ico": return ContentType.ICO;
-
-                case "pdf": return ContentType.PDF;
-
-                case "exe": return ContentType.EXE;
-
-                case "txt": return ContentType.TEXT;
-
-                case "ttf": return ContentType.TTF;
-                case "eot": return ContentType.EOT;
-                case "otf": return ContentType.OTF;
-                case "woff": return ContentType.WOFF;
+        case "ttf": return ContentType.TTF;
+        case "eot": return ContentType.EOT;
+        case "otf": return ContentType.OTF;
+        case "woff": return ContentType.WOFF;
 
 
-                default: return dflt;
-              }
-       }
+        default: return dflt;
+      }
     }
+  }
 }

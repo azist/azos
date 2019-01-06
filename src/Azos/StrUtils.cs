@@ -301,11 +301,33 @@ namespace Azos
     }
 
     /// <summary>
-    /// Swaps string letters that "obfuscates" string- usefull for generation of keys from strings that have to become non-obvious to user.
+    /// Returns true if the specified string is one of the specified.
+    /// The comparison is invariant case-insensitive. No trimming is performed
+    /// </summary>
+    public static bool IsOneOf(this string val, params string[] strings)
+      => val.IsOneOf(strings as IEnumerable<string>);
+
+    /// <summary>
+    /// Returns true if the specified string is one of the specified.
+    /// The comparison is invariant case-insensitive. No trimming is performed
+    /// </summary>
+    public static bool IsOneOf(this string val, IEnumerable<string> strings)
+    {
+      if (strings == null) return false;
+
+      foreach(var str in strings)
+        if (str.EqualsIgnoreCase(val)) return true;
+
+      return false;
+    }
+
+
+    /// <summary>
+    /// Swaps string letters that "obfuscates" string- useful for generation of keys from strings that have to become non-obvious to user.
     /// This function does not offer any real protection (as it is easy to decipher the original value), just visual.
     /// The name comes from non-existing science "Burmatography" used in "Neznaika" kids books
     /// </summary>
-    public static string Burmatographize(this string src, bool rtl = false)//no need to make this an extension method - hence no "this"
+    public static string Burmatographize(this string src, bool rtl = false)
     {
       if (src.IsNullOrWhiteSpace()) return src;
       var sb = new StringBuilder(src.Length);
