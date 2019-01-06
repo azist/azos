@@ -4,7 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-namespace Azos.Data.Access.MsSql
+namespace Azos.Data.Access.Oracle
 {
   internal static class StringConsts
   {
@@ -15,10 +15,10 @@ namespace Azos.Data.Access.MsSql
         "SQL statement failed";
 
     public const string CONNECTION_TEST_FAILED_ERROR =
-        "MsSql connection test failed with message: {0}";
+        "Oracle connection test failed with message: {0}";
 
     public const string MODEL_TYPE_UNKNOWN_ERROR =
-        "MsSql provider could not handle '{0}' operation for model of type '{1}'";
+        "Oracle provider could not handle '{0}' operation for model of type '{1}'";
 
     public const string MODEL_TYPE_NOT_RECORD_ERROR =
         "Model is not of a 'Record' type. Passed type: {0}. Check provider implementation";
@@ -39,7 +39,7 @@ namespace Azos.Data.Access.MsSql
         "Supplied key is of invalid type";
 
     public const string LOAD_NO_SELECT_COLUMNS_ERROR =
-        "MsSQL Load failed as no columns for selection could be generated";
+        "Oracle Load failed as no columns for selection could be generated";
 
     public const string RECORD_TABLE_NAME_ERROR =
         "Record's 'TableName' property is blank. Passed type: '{0}'. Check record implementation";
@@ -51,7 +51,7 @@ namespace Azos.Data.Access.MsSql
         "CRUD schema '{0}' is readonly and can not perform operation: {1}";
 
     public const string EXECUTE_WITHOUT_FETCH_ERROR =
-        "Error executing wihtout fetch statement: ";
+        "Error executing without fetch statement: ";
 
     public const string OPEN_CURSOR_ERROR =
         "Error executing open cursor statement: ";
