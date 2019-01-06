@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("Azos.WinForms")]
 [assembly: AssemblyDescription("Azos Windows Forms Assembly")]
 [assembly: AssemblyCompany("Azist Group")]
-[assembly: AssemblyCopyright("Copyright ©  2018 Azist Group")]
+[assembly: AssemblyCopyright("Copyright ©  2019 Azist Group")]
 [assembly: AssemblyTrademark("Azos")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCulture("")]

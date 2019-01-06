@@ -1,7 +1,7 @@
 ﻿<push><b color=black><f color=white>
 Azos Skynet Console<f color=darkCyan>
 Hasta la vista, baby.<f color=gray>
-Copyright (c) 2018 Azist Group
+Copyright (c) 2019 Azist Group
 Version 1.0 / Oct 2018
 
 
