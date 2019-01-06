@@ -97,7 +97,7 @@ namespace Azos.Data.Access
     /// <summary>
     /// Represents a DataStore that supports CRUD operations
     /// </summary>
-    public interface ICRUDDataStore : ICRUDOperations, ICRUDTransactionOperations, IApplicationComponent
+    public interface ICRUDDataStore : IDataStore, ICRUDOperations, ICRUDTransactionOperations, IApplicationComponent
     {
         /// <summary>
         /// Returns default script file suffix, which some providers may use to locate script files
