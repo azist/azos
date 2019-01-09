@@ -19,7 +19,7 @@ namespace Azos.Sky.Locking
   {
     internal LockSessionID(string host)
     {
-       Host = host.NonNullOrWhiteSpace(nameof(host));
+       Host = host.NonBlank(nameof(host));
        ID = Guid.NewGuid();
     }
 
