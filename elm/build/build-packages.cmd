@@ -7,7 +7,7 @@ IF %LAST% NEQ \ (SET PROJECT_HOME=%PROJECT_HOME%\)
 set AZOS_HOME=%PROJECT_HOME%AZOS\
 set OUT=%AZOS_HOME%out\nuget
 
-set VER=1.0.1
+set VER=1.0.201
 
 nuget pack Azos.nuspec -Version %VER% -OutputDirectory "%OUT%"
 

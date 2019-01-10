@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Agnivo</RootNamespace>
     <AssemblyName>Agnivo</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <_HasReferenceToSystemRuntime>true</_HasReferenceToSystemRuntime>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
