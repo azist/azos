@@ -12,7 +12,7 @@ namespace Azos.Data.Access.MsSql
 {
   public sealed class MsSqlCursor : Cursor
   {
-    internal MsSqlCursor(MySqlCRUDQueryExecutionContext context,
+    internal MsSqlCursor(MsSqlCRUDQueryExecutionContext context,
                          SqlCommand command,
                          SqlDataReader reader,
                          IEnumerable<Doc> source) : base(source)
@@ -33,7 +33,7 @@ namespace Azos.Data.Access.MsSql
         m_Context.Connection.Dispose();
     }
 
-    private MySqlCRUDQueryExecutionContext m_Context;
+    private MsSqlCRUDQueryExecutionContext m_Context;
     private SqlCommand m_Command;
     private SqlDataReader m_Reader;
   }

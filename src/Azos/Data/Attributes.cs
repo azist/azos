@@ -15,7 +15,7 @@ using Azos.Serialization.JSON;
 namespace Azos.Data
 {
     /// <summary>
-    /// Provides a base for attributes which ar targeted for particular techlology (e.g. "ORACLE", "RIAK" etc.)
+    /// Provides a base for attributes which are targeted for particular technology (e.g. "ORACLE", "RIAK" etc.)
     /// </summary>
     [Serializable]
     public abstract class TargetedAttribute : Attribute
@@ -377,12 +377,12 @@ namespace Azos.Data
         public readonly StoreFlag StoreFlag;
 
         /// <summary>
-        /// Provides an overriden name for this field
+        /// Provides an overridden name for this field
         /// </summary>
         public readonly string BackendName;
 
         /// <summary>
-        /// Provides an overriden type for this field in backend,
+        /// Provides an overridden type for this field in backend,
         /// i.e. CLR string may be stored as ErlPid in erlang
         /// </summary>
         public readonly string BackendType;
@@ -525,7 +525,7 @@ namespace Azos.Data
         public readonly bool NonUI;
 
 
-        // This is moved here for convenience not to repeat volumnous field attributes for Arow serialization as field def already contains all data,
+        // This is moved here for convenience not to repeat voluminous field attributes for Arow serialization as field def already contains all data,
         // see Azos.Serialization.Arow
         /// <summary>
         /// True if this field definition is used by Arow serializer

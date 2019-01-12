@@ -11,63 +11,63 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Data;
-using Azos.Data.Access.MySql;
+using Azos.Data.Access.MsSql;
 using Azos.Scripting;
 
-using MySql.Data.MySqlClient;
+using System.Data.SqlClient;
 
 namespace Azos.Tests.Integration.CRUD
 {
   /// <summary>
-  /// To perform tests below MySQL server instance is needed.
+  /// To perform tests below MsSQL server instance is needed.
   /// Look at CONNECT_STRING constant
   /// </summary>
   [Runnable]
-  public class MySQLTests
+  public class MsSqlTests
   {
-        [Run("cnt=1")]
-        [Run("cnt=10")]
-        [Run("cnt=100")]
-        [Run("cnt=500")]
-        public void Parallel_Fiasco(int cnt)
-        {
-          var cstr = getConnectString();
+        ////[Run("cnt=1")]
+        ////[Run("cnt=10")]
+        ////[Run("cnt=100")]
+        ////[Run("cnt=500")]
+        ////public void Parallel_Fiasco(int cnt)
+        ////{
+        ////  var cstr = getConnectString();
 
-          Console.WriteLine(cstr);
+        ////  Console.WriteLine(cstr);
 
-          Parallel.For(0, cnt, new ParallelOptions{ MaxDegreeOfParallelism=36}, (i) =>
-          {
-            using(var cnn = new MySqlConnection(cstr))
-            {
-             cnn.Open();
-            // using(var tx = cnn.BeginTransaction())
-               using(var cmd = cnn.CreateCommand())
-               {
-                 var a = i;
-                 var b = i+980;
-                 cmd.CommandText = "select SQL_NO_CACHE {0}+{1} as ZZZ, t.* from mysql.help_keyword t".Args(a, b);
-               //  Thread.Sleep(Ambient.Random.NextScaledRandomInteger(1,50));
-                 using(var reader = cmd.ExecuteReader())
-                 {
-                    Aver.IsTrue(reader.Read());
-                    Aver.AreEqual(a+b, reader[0].AsInt());
-                    var rc = 0;
-                    while(reader.Read()) rc++;
-                    Console.WriteLine("Count: "+rc);
-                 }
+        ////  Parallel.For(0, cnt, new ParallelOptions{ MaxDegreeOfParallelism=36}, (i) =>
+        ////  {
+        ////    using(var cnn = new SqlConnection(cstr))
+        ////    {
+        ////     cnn.Open();
+        ////    // using(var tx = cnn.BeginTransaction())
+        ////       using(var cmd = cnn.CreateCommand())
+        ////       {
+        ////         var a = i;
+        ////         var b = i+980;
+        ////         cmd.CommandText = "select SQL_NO_CACHE {0}+{1} as ZZZ, t.* from mysql.help_keyword t".Args(a, b);
+        ////       //  Thread.Sleep(Ambient.Random.NextScaledRandomInteger(1,50));
+        ////         using(var reader = cmd.ExecuteReader())
+        ////         {
+        ////            Aver.IsTrue(reader.Read());
+        ////            Aver.AreEqual(a+b, reader[0].AsInt());
+        ////            var rc = 0;
+        ////            while(reader.Read()) rc++;
+        ////            Console.WriteLine("Count: "+rc);
+        ////         }
 
-              //   tx.Commit();
-               }
-            }
-          });
-        }
+        ////      //   tx.Commit();
+        ////       }
+        ////    }
+        ////  });
+        ////}
 
 
 
         [Run]
         public void ManualDS_QueryInsertQuery()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -78,7 +78,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_ASYNC_QueryInsertQuery()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -89,7 +89,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_QueryInsertQuery_TypedRow()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -100,7 +100,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_QueryInsertQuery_TypedRowDerived()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -112,7 +112,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_QueryInsertQuery_DynamicRow()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -124,7 +124,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_InsertManyUsingLogChanges_TypedRow()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -135,7 +135,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_ASYNC_InsertManyUsingLogChanges_TypedRow()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -147,7 +147,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_InsertInTransaction_Commit_TypedRow()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -158,7 +158,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_ASYNC_InsertInTransaction_Commit_TypedRow()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -169,7 +169,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_InsertInTransaction_Rollback_TypedRow()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -180,7 +180,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_InsertThenUpdate_TypedRow()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -191,7 +191,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_ASYNC_InsertThenUpdate_TypedRow()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -203,7 +203,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_InsertThenDelete_TypedRow()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -214,7 +214,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_ASYNC_InsertThenDelete_TypedRow()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -225,7 +225,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_InsertThenUpsert_TypedRow()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -236,7 +236,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_ASYNC_InsertThenUpsert_TypedRow()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -247,7 +247,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_GetSchemaAndTestVariousTypes()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.StringBool = false;
                 store.FullGDIDS = false;
@@ -260,7 +260,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_ASYNC_GetSchemaAndTestVariousTypes()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.StringBool = false;
                 store.FullGDIDS = false;
@@ -274,7 +274,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_TypedRowTestVariousTypes()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.StringBool = false;
                 store.FullGDIDS = false;
@@ -287,7 +287,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_TypedRowTestVariousTypes_StrBool()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.StringBool = true; //<-------- NOTICE
                 store.StringForTrue = "1";
@@ -305,7 +305,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_TypedRowTest_FullGDID()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.StringBool = false;
                 store.FullGDIDS = true;
@@ -319,7 +319,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_GetSchemaAndTestFullGDID()
         {
-            using(var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using(var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.StringBool = false;
                 store.FullGDIDS = true;
@@ -332,7 +332,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_InsertWithPredicate()
         {
-            using (var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using (var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -344,7 +344,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_UpdateWithPredicate()
         {
-            using (var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using (var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -356,7 +356,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_UpsertWithPredicate()
         {
-            using (var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using (var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -369,7 +369,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_Populate_OpenCursor()
         {
-            using (var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using (var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -381,7 +381,7 @@ namespace Azos.Tests.Integration.CRUD
         [Run]
         public void ManualDS_ASYNC_Populate_OpenCursor()
         {
-            using (var store = new MySqlDataStore(NOPApplication.Instance, getConnectString()))
+            using (var store = new MsSqlDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
@@ -393,7 +393,8 @@ namespace Azos.Tests.Integration.CRUD
 
         //===============================================================================================================================
 
-        private const string CONNECT_STRING = "Server=localhost;Database=AzosTest;Uid=root;Pwd=thejake;";
+        private const string CONNECT_STRING =
+         "Data Source=OCTOD;Initial Catalog=AzosTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False";
 
         private const string SCRIPT_ASM = "Azos.Tests.Integration";
 
@@ -405,12 +406,12 @@ namespace Azos.Tests.Integration.CRUD
 
         private void clearAllTables()
         {
-          using(var cnn = new MySqlConnection(CONNECT_STRING))
+          using(var cnn = new SqlConnection(CONNECT_STRING))
           {
               cnn.Open();
               using(var cmd = cnn.CreateCommand())
               {
-                cmd.CommandText = "TRUNCATE TBL_TUPLE; TRUNCATE TBL_PATIENT; TRUNCATE TBL_DOCTOR; TRUNCATE TBL_TYPES; TRUNCATE TBL_FULLGDID;";
+                cmd.CommandText = "delete from TBL_TUPLE; delete from TBL_PATIENT; delete from TBL_DOCTOR; delete from TBL_TYPES; delete from TBL_FULLGDID;";
                 cmd.ExecuteNonQuery();
               }
           }

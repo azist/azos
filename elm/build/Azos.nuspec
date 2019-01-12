@@ -21,16 +21,16 @@
     <file src="..\..\out\Release\Azos.xml" target="lib\netstandard2.0" />
     <file src="..\..\out\Release\Azos.pdb" target="lib\netstandard2.0" />
    
-    <file src="..\..\out\Release\run-core\Azos.dll"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\run-core\Azos.xml"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\run-core\Azos.pdb"   target="lib\netcoreapp2.0" />
+    <file src="..\..\out\Release\Azos.dll"   target="lib\netcoreapp2.0" />
+    <file src="..\..\out\Release\Azos.xml"   target="lib\netcoreapp2.0" />
+    <file src="..\..\out\Release\Azos.pdb"   target="lib\netcoreapp2.0" />
     <file src="..\..\out\Release\run-core\Azos.Platform.NetCore20.dll"   target="lib\netcoreapp2.0" />
     <file src="..\..\out\Release\run-core\Azos.Platform.NetCore20.pdb"   target="lib\netcoreapp2.0" />
     
     
-    <file src="..\..\out\Release\run-netf\Azos.dll"   target="lib\net472" />
-    <file src="..\..\out\Release\run-netf\Azos.xml"   target="lib\net472" />
-    <file src="..\..\out\Release\run-netf\Azos.pdb"   target="lib\net472" />
+    <file src="..\..\out\Release\Azos.dll"   target="lib\net472" />
+    <file src="..\..\out\Release\Azos.xml"   target="lib\net472" />
+    <file src="..\..\out\Release\Azos.pdb"   target="lib\net472" />
     <file src="..\..\out\Release\run-netf\Azos.Platform.NetFramework.dll"   target="lib\net472" />
     <file src="..\..\out\Release\run-netf\Azos.Platform.NetFramework.pdb"   target="lib\net472" />
     

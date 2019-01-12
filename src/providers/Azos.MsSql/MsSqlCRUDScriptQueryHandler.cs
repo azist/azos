@@ -26,7 +26,7 @@ namespace Azos.Data.Access.MsSql
         #region ICRUDQueryHandler
             public override Schema GetSchema(ICRUDQueryExecutionContext context, Query query)
             {
-                var ctx = (MySqlCRUDQueryExecutionContext)context;
+                var ctx = (MsSqlCRUDQueryExecutionContext)context;
                 var target = ctx.DataStore.TargetName;
 
                 using (var cmd = ctx.Connection.CreateCommand())
@@ -71,7 +71,7 @@ namespace Azos.Data.Access.MsSql
 
             public override RowsetBase Execute(ICRUDQueryExecutionContext context, Query query, bool oneDoc = false)
             {
-                var ctx = (MySqlCRUDQueryExecutionContext)context;
+                var ctx = (MsSqlCRUDQueryExecutionContext)context;
                 var target = ctx.DataStore.TargetName;
 
                 using (var cmd = ctx.Connection.CreateCommand())
@@ -109,7 +109,7 @@ namespace Azos.Data.Access.MsSql
 
             public override Cursor OpenCursor(ICRUDQueryExecutionContext context, Query query)
             {
-              var ctx = (MySqlCRUDQueryExecutionContext)context;
+              var ctx = (MsSqlCRUDQueryExecutionContext)context;
               var target = ctx.DataStore.TargetName;
 
               Schema.FieldDef[] toLoad;
@@ -150,7 +150,7 @@ namespace Azos.Data.Access.MsSql
               return new MsSqlCursor( ctx, cmd, reader, enumerable );
             }
 
-                      private IEnumerable<Doc> execEnumerable(MySqlCRUDQueryExecutionContext ctx, SqlCommand cmd, SqlDataReader reader, Schema schema, Schema.FieldDef[] toLoad, Query query)
+                      private IEnumerable<Doc> execEnumerable(MsSqlCRUDQueryExecutionContext ctx, SqlCommand cmd, SqlDataReader reader, Schema schema, Schema.FieldDef[] toLoad, Query query)
                       {
                         using(cmd)
                          using(reader)
@@ -169,7 +169,7 @@ namespace Azos.Data.Access.MsSql
 
             public override int ExecuteWithoutFetch(ICRUDQueryExecutionContext context, Query query)
             {
-                var ctx = (MySqlCRUDQueryExecutionContext)context;
+                var ctx = (MsSqlCRUDQueryExecutionContext)context;
 
                 using (var cmd = ctx.Connection.CreateCommand())
                 {
@@ -206,7 +206,7 @@ namespace Azos.Data.Access.MsSql
             /// <summary>
             /// Reads data from reader into rowset. the reader is NOT disposed
             /// </summary>
-            public static Rowset PopulateRowset(MySqlCRUDQueryExecutionContext context, SqlDataReader reader, string target, Query query, QuerySource qSource, bool oneDoc)
+            public static Rowset PopulateRowset(MsSqlCRUDQueryExecutionContext context, SqlDataReader reader, string target, Query query, QuerySource qSource, bool oneDoc)
             {
               Schema.FieldDef[] toLoad;
               Schema schema = GetSchemaForQuery(target, query, reader, qSource, out toLoad);
@@ -227,7 +227,7 @@ namespace Azos.Data.Access.MsSql
             /// <summary>
             /// Reads data from reader into rowset. the reader is NOT disposed
             /// </summary>
-            public static Doc PopulateDoc(MySqlCRUDQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, SqlDataReader reader)
+            public static Doc PopulateDoc(MsSqlCRUDQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, SqlDataReader reader)
             {
               var store= context.DataStore;
               var row = Doc.MakeDoc(schema, tDoc);
@@ -289,7 +289,7 @@ namespace Azos.Data.Access.MsSql
             }
 
             /// <summary>
-            /// Gets CRUD schema from MySqlReader per particular QuerySource.
+            /// Gets CRUD schema from MsSqlReader per particular QuerySource.
             /// If source is null then all columns from reader are copied.
             /// Note: this code was purposely made provider specific because other providers may treat some nuances differently
             /// </summary>

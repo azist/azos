@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <None Remove="CRUD\Doctor.List.mys.sql" />
-    <None Remove="CRUD\Echo.erl.qry" />
     <None Remove="CRUD\FullGDID.Load.mys.sql" />
     <None Remove="CRUD\InsertPerzons.mon.json" />
     <None Remove="CRUD\LoadAllMyData.mon.json" />
@@ -32,6 +31,7 @@
     <None Remove="CRUD\Queries\Employee\FetchByDepartment.mys.sql" />
     <None Remove="CRUD\Queries\Employee\FetchByGDID.mys.sql" />
     <None Remove="CRUD\Queries\Employee\UpdateByGDID.mys.sql" />
+    <None Remove="CRUD\Queries\Patient.List.msf.sql" />
     <None Remove="CRUD\Tuple.LoadAll.mys.sql" />
     <None Remove="CRUD\Types.Load.mys.sql" />
     <None Remove="CRUD\UpdatePerzons.mon.json" />
@@ -41,26 +41,26 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="CRUD\Echo.erl.qry" />
-    <EmbeddedResource Include="CRUD\FullGDID.Load.mys.sql" />
-    <EmbeddedResource Include="CRUD\InsertPerzons.mon.json" />
-    <EmbeddedResource Include="CRUD\LoadAllMyData.mon.json" />
-    <EmbeddedResource Include="CRUD\LoadInvoice.mon.json" />
-    <EmbeddedResource Include="CRUD\LoadMuchData.mon.json" />
-    <EmbeddedResource Include="CRUD\LoadPerzon.mon.json" />
-    <EmbeddedResource Include="CRUD\LoadPerzonAge.mon.json" />
-    <EmbeddedResource Include="CRUD\LoadPerzonsInAgeSpan.mon.json" />
-    <EmbeddedResource Include="CRUD\Doctor.List.mys.sql" />
-    <EmbeddedResource Include="CRUD\Patient.UpdateAmount.mys.sql" />
-    <EmbeddedResource Include="CRUD\Patient.List.mys.sql" />
+    <EmbeddedResource Include="CRUD\Queries\FullGDID.Load.mys.sql" />
+    <EmbeddedResource Include="CRUD\Queries\InsertPerzons.mon.json" />
+    <EmbeddedResource Include="CRUD\Queries\LoadAllMyData.mon.json" />
+    <EmbeddedResource Include="CRUD\Queries\LoadInvoice.mon.json" />
+    <EmbeddedResource Include="CRUD\Queries\LoadMuchData.mon.json" />
+    <EmbeddedResource Include="CRUD\Queries\LoadPerzon.mon.json" />
+    <EmbeddedResource Include="CRUD\Queries\LoadPerzonAge.mon.json" />
+    <EmbeddedResource Include="CRUD\Queries\LoadPerzonsInAgeSpan.mon.json" />
+    <EmbeddedResource Include="CRUD\Queries\Doctor.List.mys.sql" />
+    <EmbeddedResource Include="CRUD\Queries\Patient.List.msf.sql" />
+    <EmbeddedResource Include="CRUD\Queries\Patient.UpdateAmount.mys.sql" />
+    <EmbeddedResource Include="CRUD\Queries\Patient.List.mys.sql" />
     <EmbeddedResource Include="CRUD\Queries\Employee\DeleteBySalaryMax.mys.sql" />
     <EmbeddedResource Include="CRUD\Queries\Employee\FetchByDepartment.mys.sql" />
     <EmbeddedResource Include="CRUD\Queries\Employee\UpdateByGDID.mys.sql" />
     <EmbeddedResource Include="CRUD\Queries\Employee\FetchByGDID.mys.sql" />
     <EmbeddedResource Include="CRUD\Queries\Employee\FetchAll.mys.sql" />
-    <EmbeddedResource Include="CRUD\Tuple.LoadAll.mys.sql" />
-    <EmbeddedResource Include="CRUD\Types.Load.mys.sql" />
-    <EmbeddedResource Include="CRUD\UpdatePerzons.mon.json" />
+    <EmbeddedResource Include="CRUD\Queries\Tuple.LoadAll.mys.sql" />
+    <EmbeddedResource Include="CRUD\Queries\Types.Load.mys.sql" />
+    <EmbeddedResource Include="CRUD\Queries\UpdatePerzons.mon.json" />
     <EmbeddedResource Include="ExternalCfg.laconf" />
     <EmbeddedResource Include="Graphics\test_mc.jpg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
@@ -75,7 +75,9 @@
     <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\..\Azos.Wave\Azos.Wave.csproj" />
     <ProjectReference Include="..\..\providers\Azos.MongoDb\Azos.MongoDb.csproj" />
+    <ProjectReference Include="..\..\providers\Azos.MsSql\Azos.MsSql.csproj" />
     <ProjectReference Include="..\..\providers\Azos.MySql\Azos.MySql.csproj" />
+    <ProjectReference Include="..\..\providers\Azos.Oracle\Azos.Oracle.csproj" />
     <ProjectReference Include="..\TestBusinessLogic\TestBusinessLogic.csproj" />
     <ProjectReference Include="..\Azos.Tests.Unit\Azos.Tests.Unit.csproj" />
   </ItemGroup>

@@ -26,7 +26,7 @@ namespace Azos.Data.Access.MsSql
 
       if (key is CounterDataStoreKey)
       {
-        where = "T1.COUNTER = @CTR";
+        where = "T1.[COUNTER] = @CTR";
         var par = new SqlParameter();
         par.ParameterName = "@CTR";
         par.Value = ((CounterDataStoreKey)key).Counter;
@@ -36,7 +36,7 @@ namespace Azos.Data.Access.MsSql
       else
       if (key is GDID)
       {
-        where = "T1.GDID = ?CTR";
+        where = "T1.[GDID] = ?CTR";
         var par = new SqlParameter();
         par.ParameterName = "@CTR";
         par.Value = key;
@@ -52,7 +52,7 @@ namespace Azos.Data.Access.MsSql
 
           foreach (var e in dict)
           {
-            s.AppendFormat(" (T1.`{0}` = @P{1}) AND", e.Key, idx);
+            s.AppendFormat(" (T1.[{0}] = @P{1}) AND", e.Key, idx);
             var par = new SqlParameter();
             par.ParameterName = "@P" + idx.ToString();
             par.Value = e.Value;

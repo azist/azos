@@ -20,7 +20,7 @@ namespace Azos.Tests.Integration.CRUD
     {
         public static void QueryInsertQuery(ICRUDDataStore store)
         {
-            var query = new Query("CRUD.Patient.List") { new Query.Param("LN", "%loff") };
+            var query = new Query("CRUD.Queries.Patient.List") { new Query.Param("LN", "%loff") };
             var result = store.Load( query );
 
             Aver.AreEqual(1, result.Count);
@@ -51,7 +51,7 @@ namespace Azos.Tests.Integration.CRUD
 
         public static void ASYNC_QueryInsertQuery(ICRUDDataStore store)
         {
-            var query = new Query("CRUD.Patient.List") { new Query.Param("LN", "%loff") };
+            var query = new Query("CRUD.Queries.Patient.List") { new Query.Param("LN", "%loff") };
             var task = store.LoadAsync( query );
 
             Aver.AreEqual(1, task.Result.Count);

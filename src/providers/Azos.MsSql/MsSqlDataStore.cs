@@ -23,16 +23,20 @@ namespace Azos.Data.Access.MsSql
   public class MsSqlDataStore : MsSqlDataStoreBase, ICRUDDataStoreImplementation
   {
     #region CONSTS
-        public const string SCRIPT_FILE_SUFFIX = ".mys.sql";
+        public const string SCRIPT_FILE_SUFFIX = ".msf.sql";
     #endregion
 
     #region .ctor/.dctor
     public MsSqlDataStore(IApplication app) : base(app) => ctor();
     public MsSqlDataStore(IApplicationComponent director) : base(director) => ctor();
+    public MsSqlDataStore(IApplication app, string connectString) : base(app) => ctor(connectString);
+    public MsSqlDataStore(IApplicationComponent director, string connectString) : base(director) => ctor(connectString);
 
-    private void ctor()
+
+    private void ctor(string cs = null)
     {
       m_QueryResolver = new QueryResolver(this);
+      ConnectString = cs;
     }
     #endregion
 
@@ -268,7 +272,7 @@ namespace Azos.Data.Access.MsSql
             var handler = QueryResolver.Resolve(query);
             try
             {
-              return handler.GetSchema( new MySqlCRUDQueryExecutionContext(this, cnn, transaction), query);
+              return handler.GetSchema( new MsSqlCRUDQueryExecutionContext(this, cnn, transaction), query);
             }
             catch (Exception error)
             {
@@ -294,7 +298,7 @@ namespace Azos.Data.Access.MsSql
               var handler = QueryResolver.Resolve(query);
               try
               {
-                var rowset = handler.Execute( new MySqlCRUDQueryExecutionContext(this, cnn, transaction), query, oneDoc);
+                var rowset = handler.Execute( new MsSqlCRUDQueryExecutionContext(this, cnn, transaction), query, oneDoc);
                 result.Add(rowset);
               }
               catch (Exception error)
@@ -317,7 +321,7 @@ namespace Azos.Data.Access.MsSql
         /// </summary>
         protected internal virtual Cursor DoOpenCursor(SqlConnection cnn, SqlTransaction transaction, Query query)
         {
-            var context = new MySqlCRUDQueryExecutionContext(this, cnn, transaction);
+            var context = new MsSqlCRUDQueryExecutionContext(this, cnn, transaction);
             var handler = QueryResolver.Resolve(query);
             try
             {
@@ -347,7 +351,7 @@ namespace Azos.Data.Access.MsSql
               var handler = QueryResolver.Resolve(query);
               try
               {
-                affected += handler.ExecuteWithoutFetch(new MySqlCRUDQueryExecutionContext(this, cnn, transaction), query);
+                affected += handler.ExecuteWithoutFetch(new MsSqlCRUDQueryExecutionContext(this, cnn, transaction), query);
               }
               catch (Exception error)
               {
