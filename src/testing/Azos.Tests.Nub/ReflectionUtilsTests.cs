@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit
+namespace Azos.Tests.Nub
 {
-  [Runnable(category: TRUN.BASE_RUNNER, order: -1)]
+  [Runnable]
   public class ReflectionUtilsTests
   {
     public void method1(int a, char b, bool c) { }
@@ -70,7 +70,7 @@ namespace Azos.Tests.Unit
     {
       var d = GetType().GetMethod("method1").ToDescription();
       Console.WriteLine(d);
-      Aver.AreEqual("Azos.Tests.Unit.ReflectionUtilsTests{Method 'method1'}", d);
+      Aver.AreEqual("Azos.Tests.Nub.ReflectionUtilsTests{Method 'method1'}", d);
     }
 
   }

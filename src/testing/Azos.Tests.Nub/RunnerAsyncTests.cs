@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 using Azos.Scripting;
 using Azos.Conf;
 
-namespace Azos.Tests.Unit
+namespace Azos.Tests.Nub
 {
     /// <summary>
     /// Test the async/await kind of tests
     /// </summary>
-    [Runnable(category: TRUN.BASE_RUNNER, order: -1)]
+    [Runnable]
     public class RunnerAsyncTests
     {
       private async Task delay(int ms = 100) => await Task.Delay(ms);

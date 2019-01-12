@@ -10,9 +10,9 @@ using System.Reflection;
 using Azos.Apps;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit
+namespace Azos.Tests.Nub
 {
-    [Runnable(category: TRUN.BASE_RUNNER, order: -1)]
+    [Runnable]
     public class RunnerHookTests : IRunnableHook, IRunHook
     {
         [Run] public void M01(){ }

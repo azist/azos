@@ -3,18 +3,15 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit
+namespace Azos.Tests.Nub
 {
-    [Runnable(TRUN.BASE)]
-    public class IntMathTest
+    [Runnable]
+    public class IntMathTests
     {
         [Run]
         public void IntMathPower()

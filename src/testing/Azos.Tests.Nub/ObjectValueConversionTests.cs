@@ -9,12 +9,12 @@ using System;
 using Azos.Data;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit
+namespace Azos.Tests.Nub
 {
     public enum TestEnum{ A=0,B=123,C=234 }
 
 
-    [Runnable(TRUN.BASE)]
+    [Runnable]
     public class ObjectValueConversionTests
     {
         [Run]
@@ -29,7 +29,7 @@ namespace Azos.Tests.Unit
             "nfx".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
             Aver.Fail("No exception");
           }
-          catch
+          catch(Exception e) when (!(e is AvermentException))
           {
             Aver.Pass("Got exception as expected");
           }
@@ -47,7 +47,7 @@ namespace Azos.Tests.Unit
             "bad".AsJSONConfig(handling: ConvertErrorHandling.Throw);
             Aver.Fail("No exception");
           }
-          catch
+          catch (Exception e) when (!(e is AvermentException))
           {
             Aver.Pass("Got exception as expected");
           }

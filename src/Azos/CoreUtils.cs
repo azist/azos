@@ -61,24 +61,6 @@ namespace Azos
     /// Checks the value for null and throws exception if it is.
     /// The method is useful for .ctor call chaining and expression bodies methods to preclude otherwise anonymous NullReferenceException
     /// </summary>
-    public static T NonNull<T>(this T obj, Func<Exception> error = null, string name = null) where T : class
-    {
-      if (obj == null)
-      {
-        if (error != null)
-          throw error();
-        else
-          throw new AzosException(StringConsts.PARAMETER_MAY_NOT_BE_NULL_ERROR
-                                             .Args(name ?? CoreConsts.UNKNOWN,
-                                                   new StackTrace(1, false).ToString()));
-      }
-      return obj;
-    }
-
-    /// <summary>
-    /// Checks the value for null and throws exception if it is.
-    /// The method is useful for .ctor call chaining and expression bodies methods to preclude otherwise anonymous NullReferenceException
-    /// </summary>
     public static T NonNull<T>(this T obj, string name = null) where T : class
     {
       if (obj == null)
@@ -327,6 +309,7 @@ namespace Azos
     /// </summary>
     public static bool IsValidXMLName(this string name)
     {
+      if (name.IsNullOrWhiteSpace()) return false;
       for (int i = 0; i < name.Length; i++)
       {
         char c = name[i];

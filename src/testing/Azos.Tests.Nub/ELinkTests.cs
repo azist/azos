@@ -11,10 +11,10 @@ using Azos.Data;
 using Azos.Scripting;
 
 
-namespace Azos.Tests.Unit
+namespace Azos.Tests.Nub
 {
-  [Runnable(TRUN.BASE)]
-  public class ELinkTest
+  [Runnable]
+  public class ELinkTests
   {
       [Run]
       [Aver.Throws(typeof(AzosException), "checksum does not match")]
@@ -175,7 +175,7 @@ namespace Azos.Tests.Unit
       {
           long total = 0;
 
-          ulong step = ulong.MaxValue / 10000;
+          ulong step = ulong.MaxValue / 2_000;
           ulong inc = 1;
           for(ulong span = 0; span < ulong.MaxValue - step; span +=  inc)
           {
@@ -191,7 +191,7 @@ namespace Azos.Tests.Unit
                   }
               );
 
-              if (total % 5000 == 0)
+              if (total % 8000 == 0)
                   Console.WriteLine("Processed {0} links = {1:P} Range {2}".Args(total, span / (double)ulong.MaxValue, span));
               if (inc>=step)
               inc = step;

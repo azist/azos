@@ -11,9 +11,9 @@ using Azos.Scripting;
 
 using Azos.Serialization.JSON;
 
-namespace Azos.Tests.Unit
+namespace Azos.Tests.Nub
 {
-  [Runnable(TRUN.BASE)]
+  [Runnable]
   public class BaseExceptionsTests
   {
 

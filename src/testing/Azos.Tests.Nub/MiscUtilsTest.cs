@@ -9,16 +9,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 using Azos.Scripting;
-using Azos.IO;
 using static Azos.Aver.ThrowsAttribute;
 
-namespace Azos.Tests.Unit
+namespace Azos.Tests.Nub
 {
 
-    [Runnable(TRUN.BASE)]
+    [Runnable]
     public class MiscUtilsTest
     {
          private class Tezt
@@ -357,11 +355,11 @@ f
         [Run]
         public void Type_FullNameWithExpandedGenericArgs5()
         {
-            Aver.AreEqual("Azos.Tests.Unit.MiscUtilsTest.ClazzA.StructB", typeof(ClazzA.StructB).FullNameWithExpandedGenericArgs(false));
-            Aver.AreEqual("@Azos.@UTest.@MiscUtilsTest.@ClazzA.@StructB", typeof(ClazzA.StructB).FullNameWithExpandedGenericArgs(true));
+            Aver.AreEqual("Azos.Tests.Nub.MiscUtilsTest.ClazzA.StructB", typeof(ClazzA.StructB).FullNameWithExpandedGenericArgs(false));
+            Aver.AreEqual("@Azos.@Tests.@Nub.@MiscUtilsTest.@ClazzA.@StructB", typeof(ClazzA.StructB).FullNameWithExpandedGenericArgs(true));
 
-            Aver.AreEqual("Azos.Tests.Unit.MiscUtilsTest.ClazzA.ClB", typeof(ClazzA.ClB).FullNameWithExpandedGenericArgs(false));
-            Aver.AreEqual("@Azos.@UTest.@MiscUtilsTest.@ClazzA.@ClB", typeof(ClazzA.ClB).FullNameWithExpandedGenericArgs(true));
+            Aver.AreEqual("Azos.Tests.Nub.MiscUtilsTest.ClazzA.ClB", typeof(ClazzA.ClB).FullNameWithExpandedGenericArgs(false));
+            Aver.AreEqual("@Azos.@Tests.@Nub.@MiscUtilsTest.@ClazzA.@ClB", typeof(ClazzA.ClB).FullNameWithExpandedGenericArgs(true));
         }
 
         [Run]

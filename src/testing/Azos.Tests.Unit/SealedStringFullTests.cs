@@ -13,7 +13,7 @@ using Azos.Scripting;
 namespace Azos.Tests.Unit
 {
     [Runnable(TRUN.BASE, 2)]
-    public class SealedStringTests
+    public class SealedStringFullTests
     {
         [Run]
         public void Unassigned()

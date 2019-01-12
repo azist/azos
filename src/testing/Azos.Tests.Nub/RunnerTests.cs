@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +12,9 @@ using System.Text;
 using Azos.Scripting;
 using Azos.Conf;
 
-namespace Azos.Tests.Unit
+namespace Azos.Tests.Nub
 {
-    [Runnable(category: TRUN.BASE_RUNNER, order: -1)]
+    [Runnable]
     public class RunnerTests
     {
         [Run(order: -1)]

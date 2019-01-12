@@ -10,10 +10,10 @@ using System.Linq;
 using Azos.Data;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit
+namespace Azos.Tests.Nub
 {
 
-    [Runnable(TRUN.BASE)]
+    [Runnable]
     public class StringValueConversionTests
     {
         [Run]
@@ -285,9 +285,9 @@ namespace Azos.Tests.Unit
 
 
         [Run]
-        public void AsTypeSpeed()
+        public void AsType_Speed()
         {
-           var CNT = 1000000;
+           var CNT = 100_000;
 
            var sw = System.Diagnostics.Stopwatch.StartNew();
 
@@ -313,8 +313,8 @@ namespace Azos.Tests.Unit
 
 
            sw.Stop();
-           Console.WriteLine("Did {0} in {1}ms at {2}/sec".Args(CNT, sw.ElapsedMilliseconds, (int)(CNT / (sw.ElapsedMilliseconds/1000d))));
-
+           Console.WriteLine("Did {0:n0} in {1}ms at {2:n0}/sec".Args(CNT, sw.ElapsedMilliseconds, (int)(CNT / (sw.ElapsedMilliseconds/1000d))));
+           Aver.IsTrue( sw.ElapsedMilliseconds < 3000); //400ms on core i7 4 Ghz; this test ensures no major stall is introduced with new code
         }
 
 
