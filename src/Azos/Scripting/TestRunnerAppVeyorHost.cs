@@ -65,8 +65,10 @@ namespace Azos.Scripting
         writeError(error);
         Console.ForegroundColor = ConsoleColor.Gray;
 
-        reportAppVeyor("::runnable failure::", runnable.GetType().FullName, error, 0, "", "");
+        reportAppVeyor("Runnable failure:", runnable.GetType().FullName, error, 0, "", "");
       }
+      else
+        reportAppVeyor("{0}.*".Args(runnable.GetType().Name), runnable.GetType().FullName, null, 0, "", "");
     }
 
 
@@ -77,6 +79,8 @@ namespace Azos.Scripting
     public void AfterMethodRun(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error)
     {
       m_TotalMethods++;
+
+      Console.Write(method.ToDescription());
 
       //check for Aver.Throws()
       if (!runner.Emulate)
@@ -94,9 +98,13 @@ namespace Azos.Scripting
       {
         reportAppVeyor(method.Name, method.DeclaringType.FullName, error, 0, "", "");
         m_TotalErrors++;
+        writeError(error);
       }
       else
+      {
         m_TotalOKs++;
+        Console.WriteLine(" [OK]");
+      }
     }
 
 
@@ -178,12 +186,10 @@ namespace Azos.Scripting
       var nesting = 0;
       while (error!=null)
       {
-        Console.ForegroundColor = ConsoleColor.Red;
         if (nesting==0)
           Console.Write("[Error]");
         else
           Console.Write("[Error[{0}]]".Args(nesting));
-        Console.ForegroundColor = error is ScriptingException ? ConsoleColor.Cyan : ConsoleColor.Magenta;
         Console.WriteLine(" "+error.ToMessageWithType());
         Console.WriteLine(error.StackTrace); //todo stack trace conditionally
         Console.WriteLine();
