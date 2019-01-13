@@ -272,6 +272,16 @@ namespace Azos.Conf
             string ToJSONString(Azos.Serialization.JSON.JSONWritingOptions options = null);
 
             /// <summary>
+            /// Serializes configuration tree as XML
+            /// </summary>
+            System.Xml.XmlDocument ToXmlDoc(string xsl = null, string encoding = null);
+
+            /// <summary>
+            /// Serializes configuration tree as XML string with optional link to xsl file
+            /// </summary>
+            string ToXmlString(string xsl = null);
+
+            /// <summary>
             /// Returns attribute values as string map
             /// </summary>
             Collections.StringMap AttrsToStringMap(bool verbatim = false);

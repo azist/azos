@@ -30,7 +30,7 @@ namespace Azos.Conf
         }
 
         /// <summary>
-        /// Creates an isntance of the new configuration and reads contents from an XML file
+        /// Creates an instance of the new configuration and reads contents from an XML file
         /// </summary>
         public XMLConfiguration(string filename) : base(filename)
         {
@@ -206,8 +206,12 @@ namespace Azos.Conf
         }
 
 
+        private  XmlDocument buildXmlDoc(string xsl, string encoding = null)
+        {
+          return BuildXmlDocFromRoot(m_Root, xsl, encoding);
+        }
 
-        private XmlDocument buildXmlDoc(string xsl, string encoding = null)
+        internal static XmlDocument BuildXmlDocFromRoot(ConfigSectionNode root, string xsl, string encoding = null)
         {
           var doc = new XmlDocument();
 
@@ -228,14 +232,14 @@ namespace Azos.Conf
             doc.AppendChild(decl);
           }
 
-          buildDocNode(doc, null, m_Root);
+          buildDocNode(doc, null, root);
 
           return doc;
         }
 
 
 
-        private void buildDocNode(XmlDocument doc, XmlNode xnode, ConfigSectionNode node)
+        private static void buildDocNode(XmlDocument doc, XmlNode xnode, ConfigSectionNode node)
         {
           XmlNode xnew = doc.CreateElement(node.Name);
 
@@ -257,10 +261,8 @@ namespace Azos.Conf
             foreach (ConfigSectionNode cnode in node.Children)
               buildDocNode(doc, xnew, cnode);
           }
-          else
-          {
-            xnew.AppendChild(doc.CreateTextNode(node.Value));
-          }
+
+          xnew.AppendChild(doc.CreateTextNode(node.Value));
         }
 
 

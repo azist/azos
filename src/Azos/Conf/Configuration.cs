@@ -178,7 +178,7 @@ namespace Azos.Conf
         if (ext.StartsWith(".")) ext=ext.Remove(0, 1);
 
         //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
-        //in future Aum conversion replace with Dictionary<format, configType> lookup
+        //in future Azos conversion replace with Dictionary<format, configType> lookup
 
         if (Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
           return new LaconicConfiguration();

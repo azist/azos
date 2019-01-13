@@ -1421,40 +1421,61 @@ namespace Azos.Conf
           return this.ToConfigurationJSONDataMap().ToJSON(options);
         }
 
+        /// <summary>
+        /// Serializes configuration tree as XML
+        /// </summary>
+        public System.Xml.XmlDocument ToXmlDoc(string xsl = null, string encoding = null)
+        {
+          return  XMLConfiguration.BuildXmlDocFromRoot(this, xsl, encoding);
+        }
 
         /// <summary>
-        /// Replaces all include pragmas - sections with specified names ('_include' by default), with pointed to configuration file content
-        /// as obtained via the call to file system specified in every pragma.
-        /// If no FS specified then LocalFileSystem is used. If no file name specified when try to allocate config node provider.
-        /// Returns true if include pragmas were found.
-        /// Note: this method does not process new include pragmas that may have fetched during this call.
-        /// Caution: the file system used in the operation may rely on the App container that may need to be set-up for the call to succeed,
-        /// therefore calling this method before app has activated may fail, in such cases a temp app container may be set to get the config file
-        ///  with processed includes, then the result may be passed to the primary app container ctor.
-        /// This call is not logically thread-safe, it must be called from the main thread in the app
+        /// Serializes configuration tree as XML string with optional link to xsl file
         /// </summary>
-        /// <param name="recurse">True to process inner nodes</param>
-        /// <param name="includePragma">Pragma section name, '_include' by default</param>
-        /// <returns>True if pragmas were found</returns>
-        /// <example>
-        ///  azos
-        ///  {
-        ///    sectionA{ a=2 b=3}
-        ///    _include
-        ///    {
-        ///      name=secret // '_include' will be replaced by 'secret' with sub-nodes from referenced file
-        ///      file="/etc/cluster/mysecret.laconf" //would come from local FS
-        ///      required=false //if file is not found then nothing will be included instead of '_include' which will be just removed
-        ///    }
-        ///    _include
-        ///    {
-        ///      // '_include' will be replaced by whatever root section content in the referenced file
-        ///      fs {type="Azos.Web.IO.FileSystem.SVNFileSystem, Azos.Web"}
-        ///      session { server-url="https://myhost.com/mySvnRepo/trunk/configs" user-name="user1" user-password="******"}
-        ///    }
-        ///  }
-        /// </example>
-        public bool ProcessIncludePragmas(bool recurse, string includePragma = null)
+        public string ToXmlString(string xsl = null)
+        {
+          var doc = ToXmlDoc(xsl);
+          using (var writer = new System.IO.StringWriter())
+          {
+            doc.Save(writer);
+            return writer.ToString();
+          }
+        }
+
+
+    /// <summary>
+    /// Replaces all include pragmas - sections with specified names ('_include' by default), with pointed to configuration file content
+    /// as obtained via the call to file system specified in every pragma.
+    /// If no FS specified then LocalFileSystem is used. If no file name specified when try to allocate config node provider.
+    /// Returns true if include pragmas were found.
+    /// Note: this method does not process new include pragmas that may have fetched during this call.
+    /// Caution: the file system used in the operation may rely on the App container that may need to be set-up for the call to succeed,
+    /// therefore calling this method before app has activated may fail, in such cases a temp app container may be set to get the config file
+    ///  with processed includes, then the result may be passed to the primary app container ctor.
+    /// This call is not logically thread-safe, it must be called from the main thread in the app
+    /// </summary>
+    /// <param name="recurse">True to process inner nodes</param>
+    /// <param name="includePragma">Pragma section name, '_include' by default</param>
+    /// <returns>True if pragmas were found</returns>
+    /// <example>
+    ///  azos
+    ///  {
+    ///    sectionA{ a=2 b=3}
+    ///    _include
+    ///    {
+    ///      name=secret // '_include' will be replaced by 'secret' with sub-nodes from referenced file
+    ///      file="/etc/cluster/mysecret.laconf" //would come from local FS
+    ///      required=false //if file is not found then nothing will be included instead of '_include' which will be just removed
+    ///    }
+    ///    _include
+    ///    {
+    ///      // '_include' will be replaced by whatever root section content in the referenced file
+    ///      fs {type="Azos.Web.IO.FileSystem.SVNFileSystem, Azos.Web"}
+    ///      session { server-url="https://myhost.com/mySvnRepo/trunk/configs" user-name="user1" user-password="******"}
+    ///    }
+    ///  }
+    /// </example>
+    public bool ProcessIncludePragmas(bool recurse, string includePragma = null)
         {
           if (includePragma.IsNullOrWhiteSpace())
             includePragma = Configuration.DEFAULT_CONFIG_INCLUDE_PRAGMA;

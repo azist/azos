@@ -85,6 +85,19 @@ namespace Azos.Tests.Nub.Configuration
     }
 
     [Run]
+    public void XmlRoundTrip()
+    {
+      var cfg = XML_SOURCE.AsXMLConfig(handling: Data.ConvertErrorHandling.Throw);
+      ensureInvariant(cfg);
+
+      var serializedXML = cfg.ToXmlString();
+      Console.WriteLine("SERIALIZED XML: \n" + serializedXML);
+
+      var cfg2 = serializedXML.AsXMLConfig(handling: Data.ConvertErrorHandling.Throw);
+      ensureInvariant(cfg2);
+    }
+
+    [Run]
     public void JsonRoundTrip()
     {
       var cfg = JSON_SOURCE.AsJSONConfig(handling: Data.ConvertErrorHandling.Throw);
