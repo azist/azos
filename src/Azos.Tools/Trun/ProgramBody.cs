@@ -102,7 +102,9 @@ namespace Azos.Tools.Trun
             }
           }//using host
 
-          return errors > 0 ? -1 : 0;
+          var supressErrorCode = config["ec"].Exists;
+
+          return !supressErrorCode && errors > 0 ? -1 : 0;
         }
 
 

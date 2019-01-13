@@ -16,10 +16,13 @@
                   [<f color=darkRed>out<f color=darkCyan>=out_file]
                   [... host type-specific attributes]
               ]
+              [/ec]
 
 <f color=gray>
 Executes tests in classes marked with [Runnable] attribute, methods marked with [Run].
 The execution is performed under the global application container which allows override.
+The process error code is set to -1 in case of testing errors, unless <f color=darkCyan>-ec<f color=gray> is set to
+suppress process error exit code.
 
 Pass <f color=darkCyan>-r <f color=darkRed>emulate<f color=darkCyan>=true<f color=gray> to skip run method bodies. This is used to check for method setup problems.
 
@@ -79,9 +82,13 @@ Only emulates running all test cases
 <f color=yellow> trun mytests.dll -r emulate=true<f color=gray>
 Only emulates running all test cases
 
+<f color=yellow> trun mytests.dll -ec<f color=gray>
+Runs tests returning 0 exit code even if there were errors. This is used with custom
+hosts which may report errors by other means
+
 
 <f color=darkcyan>For more detailed test run case examples see:<f color=cyan>
-  "src/testing/Azos.Tests.Unit/RunnerTests.cs"
-  "src/testing/Azos.Tests.Unit/RunnerAsyncTests.cs"
+  "src/testing/Azos.Tests.Nub/RunnerTests.cs"
+  "src/testing/Azos.Tests.Nub/RunnerAsyncTests.cs"
 
 <pop>

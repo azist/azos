@@ -30,11 +30,6 @@ namespace Azos.Scripting
     private int m_TotalOKs;
     private int m_TotalErrors;
 
-    private FileConfiguration m_Out;
-
-    [Config("$appveyor|$appveyor-path")]
-    public string AppveyorPath { get; set;}
-
     [Config("$out|$file|$out-file")]
     public string OutFileName { get; set; }
 
@@ -51,41 +46,17 @@ namespace Azos.Scripting
     public TextWriter ConsoleError => Console.Error;
 
 
-    private string m_RunnableHeader;
-    private bool m_HadRunnableMethods;
-    private string m_PriorMethodName;
-    private int m_PriorMethodCount;
-
-
     private ConfigSectionNode m_RunnableNode;
 
     public void BeginRunnable(Runner runner, FID id, object runnable)
     {
       m_TotalRunnables++;
       var t = runnable.GetType();
-      m_RunnableHeader = "Starting {0}::{1}.{2} ...".Args(t.Assembly.GetName().Name, t.Namespace, t.DisplayNameWithExpandedGenericArgs());
-      m_HadRunnableMethods = false;
-      m_PriorMethodName = null;
-      m_PriorMethodCount = 0;
-
-      var o = m_Out?.Root;
-      if (o!=null)
-      {
-        m_RunnableNode = o.AddChildNode("runnable", runnable.GetType().Name);
-        m_RunnableNode.AddAttributeNode("id", id);
-        m_RunnableNode.AddAttributeNode("type", runnable.GetType().AssemblyQualifiedName);
-        m_RunnableNode.AddAttributeNode("now-loc", App.LocalizedTime);
-        m_RunnableNode.AddAttributeNode("now-utc", App.TimeSource.UTCNow);
-      }
+      Console.WriteLine( "Starting {0}::{1}.{2} ...".Args(t.Assembly.GetName().Name, t.Namespace, t.DisplayNameWithExpandedGenericArgs()) );
     }
 
     public void EndRunnable(Runner runner, FID id, object runnable, Exception error)
     {
-      if (m_RunnableNode!=null)
-      {
-         outError(m_RunnableNode, error);
-      }
-
       if (error!=null)
       {
         m_TotalErrors++;
@@ -93,79 +64,19 @@ namespace Azos.Scripting
         Console.WriteLine("EndRunnable caught: ");
         writeError(error);
         Console.ForegroundColor = ConsoleColor.Gray;
+
+        reportAppVeyor("::runnable failure::", runnable.GetType().FullName, error, 0, "", "");
       }
-      if (!m_HadRunnableMethods) return;
-      Console.WriteLine("... done {0}".Args(runnable.GetType().DisplayNameWithExpandedGenericArgs()));
-      Console.WriteLine();
-      writeCurrentStats();
-      Console.WriteLine();
     }
 
 
     public void BeforeMethodRun(Runner runner, FID id, MethodInfo method, RunAttribute attr)
     {
-      if (m_RunnableHeader!=null)
-      {
-        Console.WriteLine(m_RunnableHeader);
-        m_RunnableHeader = null;
-      }
-      m_HadRunnableMethods =true;
-      m_TotalMethods++;
-      Console.ForegroundColor = ConsoleColor.Gray;
-      Console.Write("  - {0} ".Args(method.Name));
-      if (attr.Name.IsNotNullOrWhiteSpace())
-      {
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write("::");
-        Console.ForegroundColor = ConsoleColor.Blue;
-        Console.Write("'{0}'".Args(attr.Name));
-      }
-
-
-      if (attr.ConfigContent.IsNotNullOrWhiteSpace())
-      {
-
-        try
-        {
-          Console.ForegroundColor = ConsoleColor.DarkCyan;
-          Console.Write(" {0} ".Args( attr.Config.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact)
-                                               .Remove(0, 1)
-                                               .TakeFirstChars(128, "...")));
-        }
-        catch
-        {
-          Console.ForegroundColor = ConsoleColor.Red;
-          Console.WriteLine("<bad config>");
-        }
-      }
-
-      if (method.Name == m_PriorMethodName)
-      {
-        m_PriorMethodCount++;
-        Console.ForegroundColor = ConsoleColor.Blue;
-        Console.Write("[{0}] ".Args(m_PriorMethodCount));
-      }
-      else
-       m_PriorMethodCount = 0;
-
-      m_PriorMethodName = method.Name;
-
-      if (attr.Message.IsNotNullOrWhiteSpace())
-      {
-        Console.WriteLine();
-        Console.ForegroundColor = ConsoleColor.DarkYellow;
-        Console.WriteLine("Message:");
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write("  ");
-        Console.WriteLine(attr.Message);
-      }
-
-      Console.ForegroundColor = ConsoleColor.DarkGray;
     }
 
     public void AfterMethodRun(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error)
     {
-      Console.ForegroundColor = ConsoleColor.Gray;
+      m_TotalMethods++;
 
       //check for Aver.Throws()
       if (!runner.Emulate)
@@ -179,54 +90,13 @@ namespace Azos.Scripting
           error = err;
         }
 
-      var o = m_RunnableNode;
-      if (o != null)
+      if (error != null)
       {
-        var nrun = o.AddChildNode("run", method.Name);
-        nrun.AddAttributeNode("id", id);
-        nrun.AddAttributeNode("now-loc", App.LocalizedTime);
-        nrun.AddAttributeNode("now-utc", App.TimeSource.UTCNow);
-        nrun.AddAttributeNode("OK", error==null);
-
-        if (runner.Emulate)
-          nrun.AddAttributeNode("emulated", true);
-
-        if (attr.Message.IsNotNullOrWhiteSpace())
-          nrun.AddAttributeNode("message", attr.Message);
-
-        nrun.AddAttributeNode("run-name", attr.Name);
-        nrun.AddAttributeNode("run-explicit", attr.ExplicitName);
-        nrun.AddAttributeNode("run-config", attr.ConfigContent);
-
-        outError(nrun, error);
-      }
-
-
-      var wasF = Console.ForegroundColor;
-      if (error==null)
-      {
-        m_TotalOKs++;
-        if (runner.Emulate)
-        {
-          Console.ForegroundColor = ConsoleColor.Yellow;
-          Console.Write("[Emulated]");
-        }
-        else
-        {
-          Console.ForegroundColor = ConsoleColor.Green;
-          Console.Write("[OK]");
-        }
+        reportAppVeyor(method.Name, method.DeclaringType.FullName, error, 0, "", "");
+        m_TotalErrors++;
       }
       else
-      {
-        m_TotalErrors++;
-        writeError(error);
-      }
-
-      Console.ForegroundColor = wasF;
-      Console.WriteLine();
-
-      reportAppVeyor(method.Name, method.DeclaringType.FullName, error, 0, "", "");
+        m_TotalOKs++;
     }
 
 
@@ -238,33 +108,6 @@ namespace Azos.Scripting
       m_TotalMethods = 0;
       m_TotalOKs =0;
       m_TotalErrors = 0;
-
-      if (OutFileName.IsNotNullOrWhiteSpace())
-      {
-        m_Out = Configuration.MakeProviderForFile(OutFileName);
-        m_Out.Create(this.GetType().FullName);
-        m_Out.Root.AddAttributeNode("runtime", Platform.Abstraction.PlatformAbstractionLayer.PlatformName);
-        m_Out.Root.AddAttributeNode("timestamp-local", App.LocalizedTime);
-        m_Out.Root.AddAttributeNode("timestamp-utc", App.TimeSource.UTCNow);
-        m_Out.Root.AddAttributeNode("user", System.Environment.UserName);
-        m_Out.Root.AddAttributeNode("machine", System.Environment.MachineName);
-        m_Out.Root.AddAttributeNode("os", Platform.Computer.OSFamily);
-        m_Out.Root.AddAttributeNode("cmd", System.Environment.CommandLine);
-        m_Out.Root.AddAttributeNode("app-name", App.Name);
-        m_Out.Root.AddAttributeNode("app-instance", App.InstanceID);
-        m_Out.SaveAs(OutFileName);
-
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write("Out file format: ");
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine("{0}".Args(m_Out.GetType()));
-
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write("Out file name: ");
-        Console.ForegroundColor = ConsoleColor.Gray;
-        Console.WriteLine("'{0}'".Args(OutFileName));
-      }
-
 
       Console.ForegroundColor = ConsoleColor.White;
       Console.Write("Started ");
@@ -313,17 +156,6 @@ namespace Azos.Scripting
         Console.WriteLine("    *** TEST RESULTS ARE EMULATED ***");
       }
 
-      if (OutFileName.IsNotNullOrWhiteSpace())
-      {
-        m_Out.SaveAs(OutFileName);
-        Console.WriteLine();
-        Console.WriteLine();
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write("Saved file: ");
-        Console.ForegroundColor = ConsoleColor.Gray;
-        Console.WriteLine("'{0}'".Args(OutFileName));
-      }
-
       Console.ForegroundColor = ConsoleColor.Gray;
     }
 
@@ -361,26 +193,11 @@ namespace Azos.Scripting
       }
     }
 
-    private void outError(ConfigSectionNode node, Exception error)
-    {
-      var nesting = 0;
-      while (error!=null)
-      {
-        node = node.AddChildNode("error", error.GetType().Name);
-        node.AddAttributeNode("type", error.GetType().AssemblyQualifiedName);
-        node.AddAttributeNode("nesting", nesting);
-        node.AddAttributeNode("msg", error.Message);
-        node.AddAttributeNode("stack", error.StackTrace);
-
-        error = error.InnerException;
-        nesting++;
-      }
-    }
 
     //https://www.appveyor.com/docs/build-worker-api/#add-tests
     private void reportAppVeyor(string name, string file, Exception error, int durationMs, string stdOut, string stdError)
     {
-      var appv = Path.Combine(this.AppveyorPath ?? "", "appveyor.exe");
+      var appv = "appveyor.exe";
       var outcome = error == null ? "Passed" : "Failed";
       var args = $"AddTest \"{name}\" -Framework \"Azos\" -FileName \"{file}\" -Outcome \"{outcome}\""+
                 $" -Duration \"{durationMs}\" -ErrorMessage \"{error?.Message}\" -ErrorStackTrace \"{error?.StackTrace}\""+

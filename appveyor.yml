@@ -41,8 +41,8 @@ before_build:
   
 
 ##skip testing altogether (temporarily, then use runner)
-test: off
+test: on
 
-# test_script:
-#   - cd ..\out\Release\run-netf
-#   - trun Azos.Tests.Nub.dll -host type="Azos.Scripting.TestRunnerAppVeyorHost, Azos"
+ test_script:
+   - cd ..\out\Release\run-netf
+   - trun Azos.Tests.Nub.dll -ec -host type="Azos.Scripting.TestRunnerAppVeyorHost, Azos"
