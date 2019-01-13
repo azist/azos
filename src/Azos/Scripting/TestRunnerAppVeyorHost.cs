@@ -381,14 +381,14 @@ namespace Azos.Scripting
     {
       var appv = "appveyor.exe"; //Path.Combine(this.AppveyorPath ?? "", "appveyor");
       var outcome = error == null ? "Passed" : "Failed";
-      var cmd = $"{appv} AddTest \"{name}\" -Framework \"Azos\" -FileName \"{file}\" -Outcome \"{outcome}\""+
+      var args = $"AddTest \"{name}\" -Framework \"Azos\" -FileName \"{file}\" -Outcome \"{outcome}\""+
                 $" -Duration \"{durationMs}\" -ErrorMessage \"error?.Message\" -ErrorStackTrace \"error?.StackTrace\""+
                 $" -StdOut \"{stdOut}\" -StdError \"{stdError}\"";
       Console.WriteLine();
       Console.WriteLine();
-      Console.WriteLine(cmd);
+      Console.WriteLine(args);
       Console.WriteLine("------------------------------");
-      Console.WriteLine( ProcessRunner.Run(cmd) );
+      Console.WriteLine( ProcessRunner.Run(appv, args, out bool timeout) );
     }
 
   }
