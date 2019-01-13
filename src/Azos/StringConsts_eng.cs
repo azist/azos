@@ -317,7 +317,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
         "JSONConfig must be represented by a valid JSON map(hash) with a single root key, not array or multi-key map";
 
     public const string CONFIG_JSON_STRUCTURE_ERROR =
-        "JSONConfig was supplied content with invalid logical structure, all members of an array must be non-null maps that represent config sub-sections";
+        "JSONConfig was supplied content with invalid logical structure, all members of an array must be non-null maps that represent config sub-sections or scalar attribute values";
 
     public const string WORK_ITEM_NOT_AGGREGATABLE_ERROR =
         "Work item must implement IAggregatableWorkItem interface to be posted in this queue";

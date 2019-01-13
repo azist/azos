@@ -49,12 +49,49 @@ app=3
       Aver.AreEqual(1, cfg.AttrByName("a").ValueAsInt());
       Aver.AreEqual(123, cfg["a"].AttrByName("v").ValueAsInt());
 
-      var json = cfg.ToJSONDataMap();
+      var json = cfg.ToJSONString();
       Console.WriteLine(json);
 
       cfg = json.AsJSONConfig(handling: ConvertErrorHandling.Throw);
       Aver.AreEqual(3, cfg.ValueAsInt());
       Aver.AreEqual(1, cfg.AttrByName("a").ValueAsInt());
+      Aver.AreEqual(123, cfg["a"].AttrByName("v").ValueAsInt());
+    }
+
+    [Run]
+    public void ReadLaconicWriteJson_ManyAttrs()
+    {
+      var src = @"
+app=3
+{
+  a=1
+  a=2
+  b=3
+  a{v=123}
+}
+";
+      var cfg = src.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+
+      Aver.AreEqual(3, cfg.ValueAsInt());
+      Aver.AreEqual(1, cfg.AttrByName("a").ValueAsInt());
+      Aver.AreEqual(3, cfg.AttrCount);
+      Aver.AreEqual(1, cfg.AttrByIndex(0).ValueAsInt());
+      Aver.AreEqual("2", cfg.AttrByIndex(1).Value);
+      Aver.AreEqual("3", cfg.AttrByIndex(2).Value);
+      Aver.AreEqual("3", cfg.AttrByName("b").Value);
+      Aver.AreEqual(123, cfg["a"].AttrByName("v").ValueAsInt());
+
+      var json = cfg.ToJSONString();
+      Console.WriteLine(json);
+
+      cfg = json.AsJSONConfig(handling: ConvertErrorHandling.Throw);
+      Aver.AreEqual(3, cfg.ValueAsInt());
+      Aver.AreEqual(1, cfg.AttrByName("a").ValueAsInt());
+      Aver.AreEqual(3, cfg.AttrCount);
+      Aver.AreEqual(1, cfg.AttrByIndex(0).ValueAsInt());
+      Aver.AreEqual("2", cfg.AttrByIndex(1).Value);
+      Aver.AreEqual("3", cfg.AttrByIndex(2).Value);
+      Aver.AreEqual("3", cfg.AttrByName("b").Value);
       Aver.AreEqual(123, cfg["a"].AttrByName("v").ValueAsInt());
     }
 
@@ -82,6 +119,21 @@ app=3
 
       Aver.AreEqual(3, cfg.ValueAsInt());
       Aver.AreEqual(1, cfg.AttrByName("a").ValueAsInt());
+      Aver.AreEqual(123, cfg["a"].AttrByName("v").ValueAsInt());
+    }
+
+    [Run]
+    public void ReadJSON_WithNullAttr()
+    {
+      var src = @"
+{ ""app"": {""-section-value"": 3, ""a"": [1, null, {""v"": 123}]}}";
+      var cfg = src.AsJSONConfig(handling: ConvertErrorHandling.Throw);
+
+      Aver.AreEqual(3, cfg.ValueAsInt());
+      Aver.AreEqual(1, cfg.AttrByName("a").ValueAsInt());
+      Aver.AreEqual(1, cfg.AttrByIndex(0).ValueAsInt());
+      Aver.IsTrue( cfg.AttrByIndex(1).Exists);
+      Aver.AreEqual(null, cfg.AttrByIndex(1).Value);
       Aver.AreEqual(123, cfg["a"].AttrByName("v").ValueAsInt());
     }
 

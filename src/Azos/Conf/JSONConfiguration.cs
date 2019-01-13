@@ -161,15 +161,16 @@ namespace Azos.Conf
               var lst = (JSONDataArray)kvp.Value;
               foreach(var lnode in lst)
               {
-                var lmap = lnode as JSONDataMap;
-                if (lmap==null)
-                  throw new ConfigException(StringConsts.CONFIG_JSON_STRUCTURE_ERROR, new ConfigException("Bad structure: "+sectData.ToJSON()));
-                buildSection(kvp.Key, lmap, result);
+                if (lnode is JSONDataMap lmap) buildSection(kvp.Key, lmap, result);
+                else
+                if (lnode is JSONDataArray larray) throw new ConfigException(StringConsts.CONFIG_JSON_STRUCTURE_ERROR, new ConfigException("Bad structure: " + sectData.ToJSON()));
+                else
+                  result.AddAttributeNode(kvp.Key, "{0}".Args(lnode));
               }
             }
             else
             {
-               if (!kvp.Key.EqualsIgnoreCase(SECTION_VALUE_ATTR))//20181201 DKh
+               if (!kvp.Key.EqualsIgnoreCase(SECTION_VALUE_ATTR))
                  result.AddAttributeNode(kvp.Key, kvp.Value);
             }
           }

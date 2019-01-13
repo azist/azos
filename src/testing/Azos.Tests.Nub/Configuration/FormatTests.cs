@@ -123,7 +123,6 @@ Console.WriteLine(json);
       var c2 = json.AsJSONConfig();
 
       Aver.IsTrue( ConfigNodeEqualityComparer.Instance.Equals(c1, c2) );
-
     }
 
 

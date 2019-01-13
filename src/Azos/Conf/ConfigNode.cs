@@ -1552,26 +1552,46 @@ namespace Azos.Conf
                    result[JSONConfiguration.SECTION_VALUE_ATTR] = sect.VerbatimValue;
 
                  foreach(var atr in sect.Attributes)
-                   result[atr.Name] = atr.VerbatimValue;
+                 {
+                    if (!result.ContainsKey(atr.Name))
+                    {
+                      result[atr.Name] = atr.VerbatimValue;
+                      continue;
+                    }
+                    var existing = result[atr.Name];
+                    if (existing is List<object> elst)
+                    {
+                      elst.Add(atr.VerbatimValue);
+                    }
+                    else
+                    {
+                      var lst = new List<object>();
+                      lst.Add(existing);
+                      lst.Add(atr.VerbatimValue);
+                      result[atr.Name] = lst;
+                    }
+                 }
 
                  foreach(var cs in sect.Children)
                  {
-                   var subSection = buildSectionConfigJSONDataMap(cs);
-                   var existing = result[cs.Name];
-                   if (existing==null)
-                     result[cs.Name] = subSection;
-                   else
-                   {
-                     if (existing is JSONDataMap)
-                     {
-                       var lst =  new List<JSONDataMap>();
-                       lst.Add((JSONDataMap)existing);
-                       lst.Add(subSection);
-                       result[cs.Name] = lst;
-                     }
-                     else
-                      ((List<JSONDataMap>)existing).Add(subSection);
-                   }
+                    var subSection = buildSectionConfigJSONDataMap(cs);
+                    if (!result.ContainsKey(cs.Name))
+                    {
+                      result[cs.Name] = subSection;
+                      continue;
+                    }
+                    var existing = result[cs.Name];
+                    if (existing is List<object> elst)
+                    {
+                      elst.Add(subSection);
+                    }
+                    else
+                    {
+                      var lst = new List<object>();
+                      lst.Add(existing);
+                      lst.Add(subSection);
+                      result[cs.Name] = lst;
+                    }
                  }
                  return result;
                }
