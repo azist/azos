@@ -43,6 +43,6 @@ before_build:
 ##skip testing altogether (temporarily, then use runner)
 test: off
 
-test_skript:
+test_script:
   - cd .\out\Release\run-netf
   - trun Azos.Tests.Nub.dll
