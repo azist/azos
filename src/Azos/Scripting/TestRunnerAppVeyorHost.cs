@@ -379,7 +379,7 @@ namespace Azos.Scripting
 
     private void reportAppVeyor(string name, string file, Exception error, int durationMs, string stdOut, string stdError)
     {
-      var appv = "appveyor"; //Path.Combine(this.AppveyorPath ?? "", "appveyor");
+      var appv = "appveyor.exe"; //Path.Combine(this.AppveyorPath ?? "", "appveyor");
       var outcome = error == null ? "Passed" : "Failed";
       var cmd = $"{appv} AddTest {name} -Framework \"Azos\" -FileName \"{file}\" -Outcome \"{outcome}\""+
                 $"-Duration \"{durationMs}\" -ErrorMessage \"error?.Message\" -ErrorStackTrace \"error?.StackTrace\""+
