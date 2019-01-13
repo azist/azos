@@ -10,7 +10,7 @@ skip_tags: true
 
 build:
   parallel: false
-  project: Azos.sln
+  project: .\src\Azos.sln
   verbosity: minimal
 
 image: Visual Studio 2017
