@@ -44,5 +44,5 @@ before_build:
 test: off
 
 test_script:
-  - cd .\out\Release\run-netf
+  - cd ..\out\Release\run-netf
   - trun Azos.Tests.Nub.dll
