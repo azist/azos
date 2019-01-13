@@ -377,17 +377,15 @@ namespace Azos.Scripting
       }
     }
 
+    //https://www.appveyor.com/docs/build-worker-api/#add-tests
     private void reportAppVeyor(string name, string file, Exception error, int durationMs, string stdOut, string stdError)
     {
-      var appv = "appveyor.exe"; //Path.Combine(this.AppveyorPath ?? "", "appveyor");
+      var appv = Path.Combine(this.AppveyorPath ?? "", "appveyor.exe");
       var outcome = error == null ? "Passed" : "Failed";
       var args = $"AddTest \"{name}\" -Framework \"Azos\" -FileName \"{file}\" -Outcome \"{outcome}\""+
-                $" -Duration \"{durationMs}\" -ErrorMessage \"error?.Message\" -ErrorStackTrace \"error?.StackTrace\""+
+                $" -Duration \"{durationMs}\" -ErrorMessage \"{error?.Message}\" -ErrorStackTrace \"{error?.StackTrace}\""+
                 $" -StdOut \"{stdOut}\" -StdError \"{stdError}\"";
-      Console.WriteLine();
-      Console.WriteLine();
-      Console.WriteLine(args);
-      Console.WriteLine("------------------------------");
+
       Console.WriteLine( ProcessRunner.Run(appv, args, out bool timeout) );
     }
 
