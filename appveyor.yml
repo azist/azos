@@ -45,4 +45,4 @@ test: on
 
 test_script:
   - cd ..\out\Release\run-netf
-  - trun Azos.Tests.Nub.dll -h type="Azos.Scripting.TestRunnerAppVeyorHost, Azos"
+  - trun Azos.Tests.Nub.dll -host type="Azos.Scripting.TestRunnerAppVeyorHost, Azos"
