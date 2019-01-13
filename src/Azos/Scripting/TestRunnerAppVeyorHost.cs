@@ -48,15 +48,20 @@ namespace Azos.Scripting
 
     private ConfigSectionNode m_RunnableNode;
 
+
+    private Stopwatch m_RunnableStopwatch;
+
     public void BeginRunnable(Runner runner, FID id, object runnable)
     {
       m_TotalRunnables++;
       var t = runnable.GetType();
       Console.WriteLine( "Starting {0}::{1}.{2} ...".Args(t.Assembly.GetName().Name, t.Namespace, t.DisplayNameWithExpandedGenericArgs()) );
+      m_RunnableStopwatch = Stopwatch.StartNew();
     }
 
     public void EndRunnable(Runner runner, FID id, object runnable, Exception error)
     {
+      var duration = (int)m_RunnableStopwatch.ElapsedMilliseconds;
       if (error!=null)
       {
         m_TotalErrors++;
@@ -65,19 +70,21 @@ namespace Azos.Scripting
         writeError(error);
         Console.ForegroundColor = ConsoleColor.Gray;
 
-        reportAppVeyor("Runnable failure:", runnable.GetType().FullName, error, 0, "", "");
+        reportAppVeyor("Runnable failure:", runnable.GetType().FullName, error, duration, "", "");
       }
       else
-        reportAppVeyor("{0}.*".Args(runnable.GetType().Name), runnable.GetType().FullName, null, 0, "", "");
+        reportAppVeyor("{0}.*".Args(runnable.GetType().Name), runnable.GetType().FullName, null, duration, "", "");
     }
 
-
+    private Stopwatch m_MethodStopwatch;
     public void BeforeMethodRun(Runner runner, FID id, MethodInfo method, RunAttribute attr)
     {
+      m_MethodStopwatch = Stopwatch.StartNew();
     }
 
     public void AfterMethodRun(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error)
     {
+      var duration = (int)m_MethodStopwatch.ElapsedMilliseconds;
       m_TotalMethods++;
 
       Console.Write(method.ToDescription());
@@ -96,7 +103,7 @@ namespace Azos.Scripting
 
       if (error != null)
       {
-        reportAppVeyor(method.Name, method.DeclaringType.FullName, error, 0, "", "");
+        reportAppVeyor(method.Name, method.DeclaringType.FullName, error, duration, "", "");
         m_TotalErrors++;
         writeError(error);
       }
