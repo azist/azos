@@ -11,7 +11,7 @@ using System;
 namespace Azos.Tests.Nub.Configuration
 {
   [Runnable]
-  public class IncludeTests
+  public class IncludeTests2
   {
     public static readonly IConfigSectionNode CONF = @"
 
@@ -40,7 +40,5 @@ root
       Aver.AreEqual(100, c1.Root.Navigate("zuza/looza/$x").ValueAsInt());
     }
 
-
-    //todo: Cover _include with FS injection case
   }
 }

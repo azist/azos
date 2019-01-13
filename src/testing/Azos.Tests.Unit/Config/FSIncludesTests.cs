@@ -14,7 +14,7 @@ using Azos.Scripting;
 namespace Azos.Tests.Unit.Config
 {
     [Runnable(TRUN.BASE)]
-    public class Includes
+    public class FSIncludesTests
     {
 
 static string xml1 = @"

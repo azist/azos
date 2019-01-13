@@ -11,10 +11,10 @@ using Azos.Conf;
 using Azos.Data;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit.Config
+namespace Azos.Tests.Nub.Configuration
 {
-    [Runnable(TRUN.BASE)]
-    public class OverridesAndMerges
+    [Runnable]
+    public class OverridesAndMergesTests
     {
 
 static string xml1 = @"
@@ -164,10 +164,11 @@ static string xml4 = @"
           Aver.IsTrue(OverrideSpec.Stop == NodeOverrideRules.Default.StringToOverrideSpec(conf.Root["section-d"].AttrByName("_override").Value));
         }
 
+        //Ensures that CreateFormMerge behaves per expected SLA +-
         [Run]
         public void Performance()
         {
-          const int CNT = 10000;
+          const int CNT = 5000;
 
           var conf1 = Azos.Conf.XMLConfiguration.CreateFromXML(largexml1);
           var conf2 = Azos.Conf.XMLConfiguration.CreateFromXML(largexml2);
@@ -182,6 +183,7 @@ static string xml4 = @"
 
           Console.WriteLine("Config merge performance. Merged {0} times in {1} ms", CNT, clock.ElapsedMilliseconds);
 
+          Aver.IsTrue(clock.ElapsedMilliseconds < 7000);//completes on i7 < 1200ms for 5000 iterations
         }
 
 

@@ -11,7 +11,7 @@ using Azos.Data;
 using Azos.Scripting;
 using Azos.Time;
 
-namespace Azos.Tests.Unit.Config
+namespace Azos.Tests.Nub.Configuration
 {
     #pragma warning disable 0649,0169
 
@@ -174,13 +174,13 @@ namespace Azos.Tests.Unit.Config
 
 
 
-    [Runnable(TRUN.BASE)]
-    public class Attributes
+    [Runnable]
+    public class OriginalAttributeTests
     {
         static string xml =
 @"<root>
 
-   <injected type='Azos.Tests.Unit.Config.SomeFatClassWithContext, Azos.Tests.Unit'
+   <injected type='Azos.Tests.Nub.Configuration.SomeFatClassWithContext, Azos.Tests.Nub'
              text='$(::now fmt=yyyyMMdd-HHmmss)'
    />
 

@@ -15,10 +15,10 @@ using Azos.Scripting;
 using Azos.Apps;
 using Azos.Log;
 
-namespace Azos.Tests.Unit.Config
+namespace Azos.Tests.Nub.Configuration
 {
-    [Runnable(TRUN.BASE)]
-    public class Behavior
+    [Runnable]
+    public class BehaviorTests
     {
 
     static string conf1 = @"
@@ -26,7 +26,7 @@ namespace Azos.Tests.Unit.Config
 
     <log>
      <behaviors>
-       <behavior type='Azos.Tests.Unit.Config.AlwaysLogBehavior, Azos.Tests.Unit' />
+       <behavior type='Azos.Tests.Nub.Configuration.AlwaysLogBehavior, Azos.Tests.Nub' />
      </behaviors>
                    <!-- Notice the behavior is defined at log level where it is applied by injecting destination -->
     </log>
@@ -37,7 +37,7 @@ namespace Azos.Tests.Unit.Config
  static string conf2 = @"
  <root>
      <behaviors>
-       <behavior type='Azos.Tests.Unit.Config.AlwaysLogBehavior, Azos.Tests.Unit' cascade='true'/>
+       <behavior type='Azos.Tests.Nub.Configuration.AlwaysLogBehavior, Azos.Tests.Nub' cascade='true'/>
      </behaviors>
 
     <log>
@@ -50,7 +50,7 @@ namespace Azos.Tests.Unit.Config
 static string conf3 = @"
  <root>
      <behaviors>
-       <behavior type='Azos.Tests.Unit.Config.AlwaysLogBehavior, Azos.Tests.Unit' cascade='false'/>
+       <behavior type='Azos.Tests.Nub.Configuration.AlwaysLogBehavior, Azos.Tests.Nub' cascade='false'/>
      </behaviors>
 
     <log>

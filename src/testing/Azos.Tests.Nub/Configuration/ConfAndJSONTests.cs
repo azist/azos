@@ -11,10 +11,10 @@ using Azos.Data;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
 
-namespace Azos.Tests.Unit.Config
+namespace Azos.Tests.Nub.Configuration
 {
-  [Runnable(TRUN.BASE)]
-  public class ConfAndJSON
+  [Runnable]
+  public class ConfAndJSONTests
   {
     [Run]
     public void ConfigSectionNode_2_JSONDataMap()

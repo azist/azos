@@ -1,16 +1,48 @@
+# Reference https://www.appveyor.com/docs/appveyor-yml/
 version: 1.0.{build}
-image: Visual Studio 2017
-configuration: Release
 
+branches:
+  only:
+    - master
+    
+# Do not build on tags (GitHub and BitBucket)
+skip_tags: true
 
 build:
+  parallel: false
+  project: Azos.sln
   verbosity: minimal
 
+image: Visual Studio 2017
+
+configuration: Release
+
+clone_folder: c:\projects\azos
+
+# scripts that run after cloning repo
+install:
+  - cmd: set VAR=123
+
+
+environment:
+  AZIST_HOME: c:\projects
 
 before_build:
   - cd .\src
   - nuget restore
 
+# enable patching of AssemblyInfo.* files
+# assembly_info:
+#  patch: true
+#  file: AssemblyInfo.*
+#  assembly_version: "2.2.{build}"
+#  assembly_file_version: "{version}"
+#  assembly_informational_version: "{version}"  
+  
 
 ##skip testing altogether (temporarily, then use runner)
 test: off
+
+test_skript:
+  - cd .\out\Release\run-netf
+  - trun Azos.Tests.Nub.dll

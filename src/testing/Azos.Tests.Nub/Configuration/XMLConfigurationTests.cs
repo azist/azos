@@ -3,24 +3,42 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-
 using System;
-
 
 using Azos.Conf;
 using Azos.Scripting;
-using Azos.Serialization.JSON;
 
-namespace Azos.Tests.Unit.Config
+namespace Azos.Tests.Nub.Configuration
 {
-    [Runnable(TRUN.BASE)]
-    public class JSONConfigurationTest
+    [Runnable]
+    public class XMLConfigurationTests
     {
+        [Run]
+        [Aver.Throws(typeof(ConfigException))]
+        public void BadXMLName()
+        {
+          var conf = new Azos.Conf.XMLConfiguration();
+          conf.Create();
+          conf.Root.AddChildNode("# bad name", null);
+        }
+
+        [Run]
+        public void StrictNamesFalse()
+        {
+          var conf = new Azos.Conf.XMLConfiguration();
+          conf.Create();
+          conf.StrictNames = false;
+          var node = conf.Root.AddChildNode("bad name", null);
+          Aver.AreEqual("bad-name", node.Name);
+        }
+
+
+
         [Run]
         [Aver.Throws(typeof(ConfigException))]
         public void ReadOnlyErrorOnNodeCreate()
         {
-           var conf = new Azos.Conf.JSONConfiguration();
+           var conf = new Azos.Conf.XMLConfiguration();
            conf.Create();
 
            conf.SetReadOnly(true);
@@ -31,7 +49,7 @@ namespace Azos.Tests.Unit.Config
         [Run]
         public void NodeCreate()
         {
-           var conf = new Azos.Conf.JSONConfiguration();
+           var conf = new Azos.Conf.XMLConfiguration();
            conf.Create();
            conf.Root.AddChildNode("A", null);
 
@@ -42,7 +60,7 @@ namespace Azos.Tests.Unit.Config
         [Run]
         public void EmptySectionAndAttributeNodes()
         {
-           var conf = new Azos.Conf.JSONConfiguration();
+           var conf = new Azos.Conf.XMLConfiguration();
            conf.Create();
            conf.Root.AddChildNode("A", null).AddChildNode("A.A", "haha!").AddAttributeNode("good", true);
 
@@ -63,7 +81,7 @@ namespace Azos.Tests.Unit.Config
         [Aver.Throws(typeof(ConfigException))]
         public void ReadOnlyErrorOnNodeRename()
         {
-           var conf = new Azos.Conf.JSONConfiguration();
+           var conf = new Azos.Conf.XMLConfiguration();
            conf.Create();
            conf.Root.AddChildNode("A", null);
            conf.SetReadOnly(true);
@@ -74,7 +92,7 @@ namespace Azos.Tests.Unit.Config
         [Aver.Throws(typeof(ConfigException))]
         public void ReadOnlyErrorOnNodeDelete()
         {
-           var conf = new Azos.Conf.JSONConfiguration();
+           var conf = new Azos.Conf.XMLConfiguration();
            conf.Create();
            conf.Root.AddChildNode("A", null);
            conf.SetReadOnly(true);
@@ -84,7 +102,7 @@ namespace Azos.Tests.Unit.Config
         [Run]
         public void NodeDelete()
         {
-           var conf = new Azos.Conf.JSONConfiguration();
+           var conf = new Azos.Conf.XMLConfiguration();
            conf.Create();
            conf.Root.AddChildNode("A", null);
            conf.Root.AddChildNode("B", null).AddChildNode("B1");
@@ -101,7 +119,7 @@ namespace Azos.Tests.Unit.Config
         [Run]
         public void RootDelete()
         {
-           var conf = new Azos.Conf.JSONConfiguration();
+           var conf = new Azos.Conf.XMLConfiguration();
            conf.Create();
            conf.Root.AddChildNode("A", null);
 
@@ -114,7 +132,7 @@ namespace Azos.Tests.Unit.Config
         [Run]
         public void NodeRename()
         {
-           var conf = new Azos.Conf.JSONConfiguration();
+           var conf = new Azos.Conf.XMLConfiguration();
            conf.Create();
            conf.Root.AddChildNode("A", null);
            conf.Root["A"].Name = "B";
@@ -124,7 +142,7 @@ namespace Azos.Tests.Unit.Config
         [Run]
         public void NavigationAndValueAccessors()
         {
-           var conf = new Azos.Conf.JSONConfiguration();
+           var conf = new Azos.Conf.XMLConfiguration();
            conf.Create();
            conf.Root.AddChildNode("A", 10).AddChildNode("A.A", 20);
            conf.Root.AddChildNode("B", 789);
@@ -143,79 +161,100 @@ namespace Azos.Tests.Unit.Config
         [Run]
         public void LoadReadSaveReadAgainCompound()
         {
-           var json = @"
-           {
-            root:
-            { 'kind': 'Absolute',
-              a:
-              {
-                 b:{'cool': true, c: 75 }
-              },
-            'web.world': 'who knows?'
-           }}";
+           var xml = @"<root kind=""Absolute"">
+           <!-- comment -->
+            <a>
+              <b cool=""true""> <c> 75 </c> </b>
+            </a>
+            <web.world>who knows?</web.world>
+           </root>";
 
-           var conf = Azos.Conf.JSONConfiguration.CreateFromJSON(json);
+           var conf = Azos.Conf.XMLConfiguration.CreateFromXML(xml);
 
            Aver.IsTrue(UriKind.Absolute == conf.Root.AttrByName("kind").ValueAsEnum<UriKind>(UriKind.Relative));
            Aver.AreEqual(true, conf.Root["a"]["b"].AttrByName("cool").ValueAsBool(false));
-           Aver.AreEqual(75, conf.Root["a"]["b"].AttrByName("c").ValueAsInt());
-           Aver.AreEqual(-123, conf.Root["a"]["dont exist"].AttrByName("c").ValueAsInt(-123));
+           Aver.AreEqual(75, conf.Root["a"]["b"]["c"].ValueAsInt());
+           Aver.AreEqual(-123, conf.Root["a"]["dont exist"]["c"].ValueAsInt(-123));
 
-           Aver.AreEqual("who knows?", conf.Root.AttrByName("web.world").ValueAsString());
+           Aver.AreEqual("who knows?", conf.Root["web.world"].ValueAsString());
 
-           var savedJSON = conf.SaveToString(JSONWritingOptions.PrettyPrint);
-
-           Console.WriteLine(savedJSON);
-
+           var savedXml = conf.ToString();
            //retest after configuration was saved and then reloaded from string
-           conf =  Azos.Conf.JSONConfiguration.CreateFromJSON(savedJSON);
+           conf =  Azos.Conf.XMLConfiguration.CreateFromXML(savedXml);
            Aver.IsTrue(UriKind.Absolute == conf.Root.AttrByName("kind").ValueAsEnum<UriKind>(UriKind.Relative));
            Aver.AreEqual(true, conf.Root["a"]["b"].AttrByName("cool").ValueAsBool(false));
-           Aver.AreEqual(75, conf.Root["a"]["b"].AttrByName("c").ValueAsInt());
-           Aver.AreEqual("who knows?", conf.Root.AttrByName("web.world").ValueAsString());
+           Aver.AreEqual(75, conf.Root["a"]["b"]["c"].ValueAsInt());
+           Aver.AreEqual("who knows?", conf.Root["web.world"].ValueAsString());
         }
 
 
         [Run]
-        public void SectionValue()
+        public void PathNavigation()
         {
-          var json = @"{
-           root: {
-                  '-section-value': 123,
-                  a: {'-section-value': 237}
+           var xml = @"<root kind=""Absolute"">
+           <!-- comment -->
+            <a>
+              <b cool=""true"" snake=""false""> <c> 75 </c> </b>
+            </a>
+            <web.world>who knows?</web.world>
+           </root>";
 
-           }}";
+           var conf = Azos.Conf.XMLConfiguration.CreateFromXML(xml);
 
-           var conf = Azos.Conf.JSONConfiguration.CreateFromJSON(json);
+           Aver.IsTrue(UriKind.Absolute == conf.Root.Navigate("$kind").ValueAsEnum<UriKind>(UriKind.Relative));
+           Aver.IsTrue(UriKind.Absolute == conf.Root.Navigate("!$kind").ValueAsEnum<UriKind>(UriKind.Relative));
 
-           Console.WriteLine(conf.SaveToString(JSONWritingOptions.PrettyPrint));
+           Aver.AreEqual(75, conf.Root.Navigate("a/b/c").ValueAsInt());
 
+           Aver.AreEqual(true, conf.Root.Navigate("a/b/c").Exists);
+           Aver.AreEqual(false, conf.Root.Navigate("a/b/c/d").Exists);
+           Aver.AreEqual(false, conf.Root.Navigate("GGG/b/c").Exists); //non existing section is in the beginning
+           Aver.AreEqual(false, conf.Root.Navigate("a/GGG/c").Exists); //non existing section is in the middle
 
+           Aver.AreEqual(true, conf.Root.Navigate("/a/b/$cool").ValueAsBool());
+           Aver.AreEqual(false, conf.Root.Navigate("/a/b/$snake").ValueAsBool());
+           Aver.AreEqual("b", conf.Root.Navigate("/a/b").Name);
+           Aver.AreObjectsEqual(conf.Root, (conf.Root.Navigate("a/b") as ConfigSectionNode).Navigate("../.."));
 
-           Aver.AreEqual(123, conf.Root.ValueAsInt());
-           Aver.AreEqual(237, conf.Root["a"].ValueAsInt());
         }
 
+        [Run]
+        [Aver.Throws(typeof(ConfigException))]
+        public void PathNavigationWithRequiredNodes()
+        {
+           var xml = @"<root>
+
+            <a>
+              <b cool=""true"" snake=""false""> <c> 75 </c> </b>
+            </a>
+
+           </root>";
+
+           var conf = Azos.Conf.XMLConfiguration.CreateFromXML(xml);
+
+           Aver.AreEqual(75, conf.Root.Navigate("a/b/c").ValueAsInt());
+
+           //this should throw
+           Aver.AreEqual(false, conf.Root.Navigate("!a/b/c/d").Exists);
+
+        }
 
         [Run]
         public void ModifiedFlag()
         {
-          var json = @"{
-           root: {
+          var xml = @"<root>
 
-            a: {
-               b: {cool: true, snake: false, c: {'-section-value': 75}}
-            }
+            <a>
+              <b cool=""true"" snake=""false""> <c> 75 </c> </b>
+            </a>
 
-           }}";
+           </root>";
 
-           var conf = Azos.Conf.JSONConfiguration.CreateFromJSON(json);
+           var conf = Azos.Conf.XMLConfiguration.CreateFromXML(xml);
 
            Aver.IsFalse(conf.Root.Modified);
 
-           Aver.AreEqual("75", conf.Root.Navigate("a/b/c").Value);
            conf.Root.Navigate("a/b/c").Value = "a";
-           Aver.AreEqual("a", conf.Root.Navigate("a/b/c").Value);
 
            Aver.IsTrue(conf.Root.Modified);
            conf.Root.ResetModified();
@@ -225,76 +264,28 @@ namespace Azos.Tests.Unit.Config
            Aver.IsTrue(conf.Root.Modified);
            conf.Root.Navigate("a/b").ResetModified();
            Aver.IsFalse(conf.Root.Modified);
+
         }
 
         [Run]
-        public void LaconicJSONRoundtrip()
+        public void LoadMixedContent()
         {
-          var conf1 = @"
-            tezt-root='Hahaha\nha!'
-            {
-              types
-              {
-                _override=stop
-                t1='Type1'
-                t2='Type2'
-              }
-              providers
-              {
-                provider1
-                {
-                  type=$(/types/$t1)
-                  name='Zhaba'
-                }
-                provider2
-                {
-                  type=$(/types/$t2)
-                  name='Koshka'
+           var xml = @"<root>GAGARIN<a> <!-- comment -->
+              <b cool=""true""> <c> 75 </c> </b>
+            </a>
+            <web.world>who knows?</web.world>
+           </root>";
 
-                  //notice sub-sections with the same name
-                  set{ a=123 b=true c=11{da=net}}
-                  set{ a=5623 b=false}
-                  set{ a=78 b=true}
-                }
-              }
-            }".AsLaconicConfig();
+           var conf = Azos.Conf.XMLConfiguration.CreateFromXML(xml);
 
-           assert(conf1);
-           Console.WriteLine(conf1.ToLaconicString());
+           Aver.AreEqual("GAGARIN", conf.Root.Value);
+           Aver.AreEqual(true, conf.Root["a"]["b"].AttrByName("cool").ValueAsBool(false));
+           Aver.AreEqual(75, conf.Root["a"]["b"]["c"].ValueAsInt());
+           Aver.AreEqual(-123, conf.Root["a"]["dont exist"]["c"].ValueAsInt(-123));
 
-           var map = conf1.Configuration.ToConfigurationJSONDataMap();
-           var json = map.ToJSON();
-
-           var cjson = JSONConfiguration.CreateFromJSON(json);
-           assert(cjson.Root);
-
-           json = cjson.SaveToString(JSONWritingOptions.PrettyPrint);
-           Console.WriteLine(json);
-           cjson = JSONConfiguration.CreateFromJSON(json);
-           assert(cjson.Root);
+           Aver.AreEqual("who knows?", conf.Root["web.world"].ValueAsString());
         }
 
-        private void assert(ConfigSectionNode root)
-        {
-          Aver.AreEqual("tezt-root", root.Name);
-          Aver.AreEqual("Hahaha\nha!", root.Value);
-
-          Aver.AreEqual("Type1", root.Navigate("types/$t1").Value);
-          Aver.AreEqual("Type2", root.Navigate("types/$t2").Value);
-
-          Aver.AreEqual("Type1", root.Navigate("providers/provider1/$type").Value);
-          Aver.AreEqual("Type2", root.Navigate("providers/provider2/$type").Value);
-          Aver.IsFalse(root.Navigate("providers/provider3").Exists);
-
-          Aver.AreEqual(3, root["providers"]["provider2"].ChildCount);
-          Aver.AreEqual("Koshka", root.Navigate("providers/provider2/$name").Value);
-
-          Aver.AreEqual("net", root.Navigate("providers/provider2/[0]/c/$da").Value);
-          Aver.AreEqual(5623, root.Navigate("providers/provider2/[1]/$a").ValueAsInt());
-          Aver.IsFalse(root.Navigate("providers/provider2/[1]/$b").ValueAsBool());
-          Aver.AreEqual(78, root.Navigate("providers/provider2/[2]/$a").ValueAsInt());
-          Aver.IsTrue(root.Navigate("providers/provider2/[2]/$b").ValueAsBool());
-        }
 
 
     }

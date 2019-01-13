@@ -8,10 +8,10 @@ using Azos.Scripting;
 
 using Azos.Conf;
 
-namespace Azos.Tests.Unit.Config
+namespace Azos.Tests.Nub.Configuration
 {
-  [Runnable(TRUN.BASE)]
-  public class ConfigNodeEqualityComparerRun
+  [Runnable]
+  public class ConfigNodeEqualityComparerTests
   {
     [Run]
     public void JustRoot()

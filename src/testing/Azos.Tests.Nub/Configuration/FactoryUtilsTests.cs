@@ -10,9 +10,9 @@ using System;
 using Azos.Conf;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit.Config
+namespace Azos.Tests.Nub.Configuration
 {
-    [Runnable(TRUN.BASE)]
+    [Runnable]
     public class FactoryUtilsTests
     {
 
@@ -35,7 +35,7 @@ namespace Azos.Tests.Unit.Config
         [Run]
         public void MakeUsingCtor_3()
         {
-          var made = FactoryUtils.MakeUsingCtor<CTORClass>("node{type='Azos.Tests.Unit.Config.CTORClassDerived, Azos.Tests.Unit' arg0=1 arg1=2}".AsLaconicConfig());
+          var made = FactoryUtils.MakeUsingCtor<CTORClass>("node{type='Azos.Tests.Nub.Configuration.CTORClassDerived, Azos.Tests.Nub' arg0=1 arg1=2}".AsLaconicConfig());
 
           Aver.IsTrue( made is CTORClassDerived);
           Aver.AreEqual(1, made.A);
@@ -45,7 +45,7 @@ namespace Azos.Tests.Unit.Config
         [Run]
         public void MakeUsingCtor_4()
         {
-          var made = FactoryUtils.MakeUsingCtor<CTORClass>("node{type='Azos.Tests.Unit.Config.CTORClassDerived, Azos.Tests.Unit' arg0='7/1/1982'}".AsLaconicConfig());
+          var made = FactoryUtils.MakeUsingCtor<CTORClass>("node{type='Azos.Tests.Nub.Configuration.CTORClassDerived, Azos.Tests.Nub' arg0='7/1/1982'}".AsLaconicConfig());
 
           Aver.IsTrue( made is CTORClassDerived);
           Aver.AreEqual(1982, made.A);
@@ -66,7 +66,7 @@ namespace Azos.Tests.Unit.Config
         public void MakeUsingCtor_6()
         {
           var made = FactoryUtils.MakeAndConfigure<CTORClass>(
-              "node{type='Azos.Tests.Unit.Config.CTORClassDerived, Azos.Tests.Unit' data1='AAA' data2='bbb'}".AsLaconicConfig(), args: new object[]{1,12});
+              "node{type='Azos.Tests.Nub.Configuration.CTORClassDerived, Azos.Tests.Nub' data1='AAA' data2='bbb'}".AsLaconicConfig(), args: new object[]{1,12});
 
           Aver.IsTrue( made is CTORClassDerived);
           Aver.AreEqual(1, made.A);
@@ -80,7 +80,7 @@ namespace Azos.Tests.Unit.Config
         public void MakeUsingCtor_7_typePattern()
         {
           var made = FactoryUtils.MakeUsingCtor<CTORClass>(
-              "node{type='CTORClassDerived' arg0='12' arg1='234'}".AsLaconicConfig(), typePattern: "Azos.Tests.Unit.Config.*, Azos.Tests.Unit");
+              "node{type='CTORClassDerived' arg0='12' arg1='234'}".AsLaconicConfig(), typePattern: "Azos.Tests.Nub.Configuration.*, Azos.Tests.Nub");
 
           Aver.IsTrue( made is CTORClassDerived);
           Aver.AreEqual(12, made.A);

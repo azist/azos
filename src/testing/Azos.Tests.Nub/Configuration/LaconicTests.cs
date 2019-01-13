@@ -12,10 +12,10 @@ using Azos.Conf;
 using Azos.Data;
 using Azos.CodeAnalysis.Laconfig;
 
-namespace Azos.Tests.Unit.Config
+namespace Azos.Tests.Nub.Configuration
 {
-    [Runnable(TRUN.BASE)]
-    public class Laconic
+    [Runnable]
+    public class LaconicTests
     {
 
     static string src1 =
@@ -282,7 +282,7 @@ root
         {
           var conf = Azos.Conf.LaconicConfiguration.CreateFromString(src1);
 
-          System.Threading.Tasks.Parallel.For(0, 100000,
+          System.Threading.Tasks.Parallel.For(0, 25_000,
             (_)=>
             {
                 var attr = conf.Root["MyClass"]["data"]["extra"].AttrByName("cycle");

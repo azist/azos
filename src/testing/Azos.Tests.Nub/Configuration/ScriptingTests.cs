@@ -10,10 +10,10 @@ using System.Linq;
 using Azos.Conf;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit.Config
+namespace Azos.Tests.Nub.Configuration
 {
-    [Runnable(TRUN.BASE)]
-    public class Scripting
+    [Runnable]
+    public class ScriptingTests
     {
 
     const string src1 =

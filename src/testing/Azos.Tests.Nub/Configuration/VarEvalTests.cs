@@ -9,11 +9,11 @@ using System.Linq;
 using Azos.Conf;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit.Config
+namespace Azos.Tests.Nub.Configuration
 {
 
-    [Runnable(TRUN.BASE)]
-    public class VariableEvaluation
+    [Runnable]
+    public class VarEvalTests
     {
         static string xml =
 @"<root>
@@ -397,23 +397,21 @@ namespace Azos.Tests.Unit.Config
           Aver.AreEqual("/vars/many/[1]/$value", conf.Root.Navigate( conf.Root["vars"]["many"][1].AttrByIndex(0).RootPath ).RootPath);
         }
 
-
     }
 
 
+    class MyVars : IEnvironmentVariableResolver
+    {
 
-                        class MyVars : IEnvironmentVariableResolver
-                        {
-
-                          public bool ResolveEnvironmentVariable(string name, out string value)
-                          {
-                            value = null;
-                            if (name == "A") value = "1";
-                            if (name == "B") value = "2";
-                            if (name ==  "C") value = "01/18/1901 2:03PM";
-                            return true;
-                          }
-                        }
+      public bool ResolveEnvironmentVariable(string name, out string value)
+      {
+        value = null;
+        if (name == "A") value = "1";
+        if (name == "B") value = "2";
+        if (name ==  "C") value = "01/18/1901 2:03PM";
+        return true;
+      }
+    }
 
 
 
