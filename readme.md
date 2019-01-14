@@ -1,4 +1,4 @@
-# Azos - A to Z Application Operating System
+# Azos - A to Z Sky Operating System
 
 <img src="/elm/design/icons/azos.png" alt="Logo" >
 
