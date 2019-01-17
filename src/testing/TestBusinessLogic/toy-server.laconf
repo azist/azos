@@ -4,8 +4,8 @@
   log
   {
     reliable=true
-   // destination{type="Azos.Log.Destinations.ConsoleDestination, Azos" colored=false}
-    destination{type="Azos.Log.Destinations.MemoryBufferDestination, Azos"}
+   // sink{type="Azos.Log.Sinks.ConsoleSink, Azos" colored=false}
+    sink{type="Azos.Log.Sinks.MemoryBufferSink, Azos"}
   }
 
   glue
@@ -100,7 +100,7 @@
     provider
     {
       name="Disk Object Store Provider"
-      type="Azos.ApplicationModel.Volatile.FileObjectStoreProvider"
+      type="Azos.Apps.Volatile.FileObjectStoreProvider"
       load-limit="0"
       root-path=$(/$log-root)
     }

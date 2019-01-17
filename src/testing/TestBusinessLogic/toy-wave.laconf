@@ -1,19 +1,8 @@
 ﻿app
 {
        log-root=$(~AZOS_TEST_ROOT)\
-       log-csv="Azos.Log.Destinations.CSVFileDestination, Azos"
+       log-csv="Azos.Log.Sinks.CSVFileSink, Azos"
        debug-default-action="Log,Throw"
-
-    starters
-    {
-      starter
-      {
-        name='Payment Processing'
-        type='Azos.Web.Pay.PaySystemStarter, Azos.Web'
-        application-start-break-on-exception='true'
-      }
-    }
-
 
  web-settings
  {
@@ -43,7 +32,7 @@
   {
     name="LogSvc"
 
-    destination
+    sink
     {
      type=$(/$log-csv)
      name="WaveTestSite Log"
@@ -62,7 +51,7 @@
     provider
     {
               name="Disk Object Store Provider"
-              type="Azos.ApplicationModel.Volatile.FileObjectStoreProvider"
+              type="Azos.Apps.Volatile.FileObjectStoreProvider"
               load-limit="0"
               root-path=$(/$log-root)
     }
@@ -91,40 +80,6 @@
   }//glue
 
 
-  payment-processing
-  {
-    pay-system
-    {
-      name="Stripe1"
-      type="Azos.Web.Pay.Stripe.StripeSystem, Azos.Web"
-      auto-start=true
-
-      default-session-connect-params
-      {
-        type="Azos.Web.Pay.Stripe.StripeConnectionParameters, Azos.Web"
-        secret-key='akauji-kopopajauadgdyqgydgd'
-        email="stripe_user@mail.com"
-      }
-    }
-
-    pay-system
-    {
-      name="Mock"
-      type="Azos.Web.Pay.Mock.MockSystem, Azos.Web"
-      auto-start=true
-
-      default-session-connect-params
-      {
-        type="Azos.Web.Pay.Mock.MockConnectionParameters, Azos.Web"
-        email="mock_user@mail.com"
-        cards
-        {
-          card { number=4242424242424242 exp-year=2017 exp-month=10 cvc=123 }
-        }
-      }
-    }
-
-  }
 
 /*
   geo-lookup
@@ -200,20 +155,20 @@
  // }
 //}
 
-            handler
+         /*   handler
             {
               name="Push SSE"
               order=0
-              type="WaveTestSite.Handlers.PushHandler, BusinessLogic"
+              type="WaveTestSite.Handlers.PushHandler, TestBusinessLogic"
               match{path="push" }
             }
-
+			*/
 
             // handler
             // {
                 // name="H"
                 // order=0
-                // type="WaveTestSite.Handlers.SimpleHandler, BusinessLogic"
+                // type="WaveTestSite.Handlers.SimpleHandler, TestBusinessLogic"
                 // match{ }
             // }
 
@@ -226,7 +181,7 @@
               }
 
              // security-redirect-url="http://lenta.ru"
-             // custom-error-page-type="WaveTestSite.Pages.AboutUs, BusinessLogic"
+             // custom-error-page-type="WaveTestSite.Pages.AboutUs, TestBusinessLogic"
 
                log
                {
@@ -280,9 +235,9 @@
             {
                 name="Mvc Testing"
                 order=0
-                type="Azos.Wave.Handlers.MVCHandler, Azos.Wave"
+                type="Azos.Wave.Handlers.MvcHandler, Azos.Wave"
 
-                type-location { name="local" assembly="BusinessLogic.dll" ns{ name="WaveTestSite.Controllers"} }
+                type-location { name="local" assembly="TestBusinessLogic.dll" ns{ name="WaveTestSite.Controllers"} }
 
                 match{ path="mvc/{type}/{mvc-action}" var{query-name="*"} }
             }
@@ -305,7 +260,7 @@
             {
                 name="Embedded Site"
                 order=2
-                type="WaveTestSite.Embedded.EmbeddedTestSiteHandler, BusinessLogic"
+                type="WaveTestSite.Embedded.EmbeddedTestSiteHandler, TestBusinessLogic"
                 match{ path="embed/{*path}" }
             }
 
@@ -318,13 +273,13 @@
                 //cloak-type=$($default-type)
                 not-found-redirect-url="/pages/Welcome"
                 match{ path="pages/{*type}"}
-                type-location { name="local" assembly="BusinessLogic.dll" ns{ name="WaveTestSite.Pages"} }
+                type-location { name="local" assembly="TestBusinessLogic.dll" ns{ name="WaveTestSite.Pages"} }
 
-                filter
+               /* filter
                 {
                     name="geoLocation"
                     type="Azos.Wave.Filters.GeoLookupFilter, Azos.Wave"
-                }
+                }*/
 
             }
 

@@ -3,8 +3,8 @@
   log
   {
     reliable=true
-   // destination{type="Azos.Log.Destinations.ConsoleDestination, Azos" colored=false}
-    destination{type="Azos.Log.Destinations.MemoryBufferDestination, Azos"}
+   // sink{type="Azos.Log.Sinks.ConsoleSink, Azos" colored=false}
+    sink{type="Azos.Log.Sinks.MemoryBufferSink, Azos"}
   }
 
   glue
