@@ -8,9 +8,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>http://zhabis.com/</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/azist/azos/master/elm/logo/logo.50.png</iconUrl>
+    <iconUrl>$icon$</iconUrl>
     <description>AZOS - A to Z Application OS. Sky OS MongoDb</description>
-    <releaseNotes>Supports both .NET Framework 4.7.1+ and .NET Core 2.0+</releaseNotes>
+    <releaseNotes>Supports both .NET Framework 4.7.2+ and .NET Core 2.0+</releaseNotes>
     <copyright>2019 Azist Group</copyright>
     <tags>atoz fullstack full-stack apps net-core big-memory pile slim glue wave cluster zhabis</tags>
     <repository type="GIT" url="https://github.com/azist/azos" />
