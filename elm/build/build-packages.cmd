@@ -1,8 +1,12 @@
 @echo on
 
-SET PROJECT_HOME=%AZIST_HOME%
+call vs2017-build-release
+
+if errorlevel 1 goto BUILD_ERROR
+
+set PROJECT_HOME=%AZIST_HOME%
 SET LAST=%PROJECT_HOME:~-1%
-IF %LAST% NEQ \ (SET PROJECT_HOME=%PROJECT_HOME%\)
+set %LAST% NEQ \ (SET PROJECT_HOME=%PROJECT_HOME%\)
 
 set AZOS_HOME=%PROJECT_HOME%AZOS\
 set OUT=%AZOS_HOME%out\nuget
@@ -21,6 +25,8 @@ nuget pack Azos.MsSql.nuspec -Version %VER% -OutputDirectory "%OUT%" -Properties
 nuget pack Azos.Oracle.nuspec -Version %VER% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
 nuget pack Azos.Sky.nuspec -Version %VER% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
 nuget pack Azos.Sky.MongoDb.nuspec -Version %VER% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
+nuget pack Azos.WinForms.nuspec -Version %VER% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
+
 
  nuget push "%OUT%\Azos.%VER%.nupkg" %AZIST_NUGET_API_KEY% 
  nuget push "%OUT%\Azos.Web.%VER%.nupkg" %AZIST_NUGET_API_KEY% 
@@ -31,4 +37,12 @@ nuget pack Azos.Sky.MongoDb.nuspec -Version %VER% -OutputDirectory "%OUT%" -Prop
  nuget push "%OUT%\Azos.MsSql.%VER%.nupkg" %AZIST_NUGET_API_KEY% 
  nuget push "%OUT%\Azos.Oracle.%VER%.nupkg" %AZIST_NUGET_API_KEY% 
  nuget push "%OUT%\Azos.Sky.%VER%.nupkg" %AZIST_NUGET_API_KEY% 
- nuget push "%OUT%\Azos.Sky.MongoDb.%VER%.nupkg" %AZIST_NUGET_API_KEY% 
+ nuget push "%OUT%\Azos.Sky.MongoDb.%VER%.nupkg" %AZIST_NUGET_API_KEY%
+ nuget push "%OUT%\Azos.WinForms.%VER%.nupkg" %AZIST_NUGET_API_KEY%
+ 
+ echo Nuget Published!
+ goto :FINISH
+ 
+:BUILD_ERROR
+ echo Build Error happened and packaging was aborted!!!!!!!!!!!!!!!!!!!!
+:FINISH

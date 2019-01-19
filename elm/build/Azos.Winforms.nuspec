@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Azos.WinForms</id>
+    <version>$version$</version>
+    <authors>Azist, @dzhabis, @dkh</authors>
+    <owners>Azist, @dzhabis, @dkh</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>http://zhabis.com/</projectUrl>
+    <iconUrl>$icon$</iconUrl>
+    <description>AZOS - A to Z Application OS. WinForms Assembly</description>
+    <releaseNotes>Supports both .NET Framework 4.7.2+</releaseNotes>
+    <copyright>2019 Azist Group</copyright>
+    <tags>atoz fullstack full-stack apps net-core big-memory pile slim glue wave cluster zhabis</tags>
+    <repository type="GIT" url="https://github.com/azist/azos" />
+    
+    <dependencies>
+      <dependency id="Azos" version="$version$" />
+    </dependencies>
+    
+  </metadata>
+
+  <files>
+    <file src="..\..\out\Release\run-netf\Azos.WinForms.dll"   target="lib\net472" />
+    <file src="..\..\out\Release\run-netf\Azos.WinForms.xml"   target="lib\net472" />
+    <file src="..\..\out\Release\run-netf\Azos.WinForms.pdb"   target="lib\net472" />
+  </files>
+
+</package>
