@@ -4,21 +4,15 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-
 using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
-using Azos.Scripting;
 
+using Azos.Scripting;
 using Azos.Text;
 
-
-namespace Azos.Tests.Unit.Parsing
+namespace Azos.Tests.Nub.Parsing
 {
-    [Runnable(TRUN.BASE)]
-    public class Utils
+    [Runnable]
+    public class UtilsTests
     {
         [Run]
         public void FieldNameToDescription()

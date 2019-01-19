@@ -19,7 +19,7 @@ using Azos.Text;
 namespace Azos.Tests.Unit.Parsing
 {
     [Runnable]
-    public class NatTxtGen
+    public class NatTxtGenTests
     {
         [Run("sz=25")]
         [Run("sz=50")]
