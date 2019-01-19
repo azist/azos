@@ -2,7 +2,7 @@
 
 <img src="/elm/design/logo/azos.png" alt="Logo" >
 
-[![Build status](https://ci.appveyor.com/api/projects/status/v469s4pxwr5e0vox/branch/master?svg=true)](https://ci.appveyor.com/project/Dmitriy24692/azos/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/v469s4pxwr5e0vox/branch/master?svg=true)](https://ci.appveyor.com/project/zhabis/azos/branch/master)
 [![CodeFactor](https://www.codefactor.io/repository/github/azist/azos/badge/master)](https://www.codefactor.io/repository/github/azist/azos/overview/master)
 
 
