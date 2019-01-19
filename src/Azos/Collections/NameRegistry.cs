@@ -227,7 +227,7 @@ namespace Azos.Collections
             m_Data = data; //atomic
           }
 
-          return hadExisting;
+          return !hadExisting;
         }
 
         /// <summary>

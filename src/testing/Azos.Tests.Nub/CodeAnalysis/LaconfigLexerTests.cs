@@ -15,9 +15,9 @@ using Azos.CodeAnalysis.Laconfig;
 using LL=Azos.CodeAnalysis.Laconfig.LaconfigLexer;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit.CodeAnalysis
+namespace Azos.Tests.Nub.CodeAnalysis
 {
-    [Runnable(TRUN.BASE)]
+    [Runnable]
     public class LaconfigLexerTests
     {
 

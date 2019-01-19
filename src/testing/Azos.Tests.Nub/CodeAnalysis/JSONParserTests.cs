@@ -18,9 +18,9 @@ using Azos.Serialization.JSON;
 using JL=Azos.CodeAnalysis.JSON.JSONLexer;
 using JP=Azos.CodeAnalysis.JSON.JSONParser;
 
-namespace Azos.Tests.Unit.CodeAnalysis
+namespace Azos.Tests.Nub.CodeAnalysis
 {
-    [Runnable(TRUN.BASE)]
+    [Runnable]
     public class JSONParserTests
     {
 

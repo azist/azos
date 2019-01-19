@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Azos.Collections;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit.Collections
+namespace Azos.Tests.Nub.BaseCollections
 {
 
                        public class NamedClazz : INamed
@@ -38,7 +38,7 @@ namespace Azos.Tests.Unit.Collections
 
 
 
-  [Runnable(TRUN.BASE, 0)]
+  [Runnable]
   public class RegistryTests
   {
     [Run]

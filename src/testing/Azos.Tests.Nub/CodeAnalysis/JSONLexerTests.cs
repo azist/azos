@@ -15,9 +15,9 @@ using JL=Azos.CodeAnalysis.JSON.JSONLexer;
 using System.Reflection;
 using static Azos.Aver.ThrowsAttribute;
 
-namespace Azos.Tests.Unit.CodeAnalysis
+namespace Azos.Tests.Nub.CodeAnalysis
 {
-    [Runnable(TRUN.BASE)]
+    [Runnable]
     public class JSONLexerTests
     {
 

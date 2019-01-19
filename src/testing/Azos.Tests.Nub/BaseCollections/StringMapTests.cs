@@ -7,10 +7,10 @@
 using Azos.Collections;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit.Collections
+namespace Azos.Tests.Nub.BaseCollections
 {
 
-  [Runnable(TRUN.BASE, 2)]
+  [Runnable]
   public class StringMapTests
   {
     [Run]

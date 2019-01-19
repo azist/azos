@@ -71,13 +71,13 @@ namespace Azos.Tests.Nub.Configuration
       var cfg = LACONIC_SOURCE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
       ensureInvariant(cfg);
 
-      var serializedLaconic = cfg.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact);
+      var serializedLaconic = cfg.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact);
       Console.WriteLine("SERIALIZED COMPACT LACONIC: \n" + serializedLaconic);
 
       var cfg2 = serializedLaconic.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
       ensureInvariant(cfg2);
 
-      serializedLaconic = cfg.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
+      serializedLaconic = cfg.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
       Console.WriteLine("SERIALIZED PRETTY LACONIC: \n" + serializedLaconic);
 
       var cfg3 = serializedLaconic.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
@@ -130,7 +130,7 @@ namespace Azos.Tests.Nub.Configuration
 //".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
 
       var json = c1.ToJSONString();
-Console.WriteLine(c1.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact));
+Console.WriteLine(c1.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact));
 Console.WriteLine(json);
 
       var c2 = json.AsJSONConfig();

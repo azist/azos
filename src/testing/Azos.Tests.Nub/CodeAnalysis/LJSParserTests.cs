@@ -11,13 +11,11 @@ using Azos.Scripting;
 
 using Azos.CodeAnalysis;
 using Azos.CodeAnalysis.Source;
-using Azos.CodeAnalysis.JSON;
-using Azos.Serialization.JSON;
 using Azos.CodeAnalysis.Laconfig;
 
-namespace Azos.Tests.Unit.CodeAnalysis
+namespace Azos.Tests.Nub.CodeAnalysis
 {
-  [Runnable(TRUN.BASE)]
+  [Runnable]
   public class LJSParserTests
   {
       [Run]
