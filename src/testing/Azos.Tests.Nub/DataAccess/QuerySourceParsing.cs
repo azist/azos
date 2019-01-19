@@ -8,9 +8,9 @@ using Azos.Data;
 using Azos.Data.Access;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit.DataAccess
+namespace Azos.Tests.Nub.DataAccess
 {
-    [Runnable(TRUN.BASE, 3)]
+    [Runnable]
     public class QuerySourceParsing
     {
         [Run]

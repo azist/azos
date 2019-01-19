@@ -17,10 +17,10 @@ using Azos.Scripting;
 using Azos.Serialization.JSON;
 using static Azos.Aver.ThrowsAttribute;
 
-namespace Azos.Tests.Unit.DataAccess
+namespace Azos.Tests.Nub.DataAccess
 {
-  [Runnable(TRUN.BASE, 3)]
-  public class GDIDTest
+  [Runnable]
+  public class GDIDTests
   {
       [Run]
       public void GDID_1()

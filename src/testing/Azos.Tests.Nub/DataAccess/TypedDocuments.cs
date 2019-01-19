@@ -15,9 +15,9 @@ using Azos.Scripting;
 using Azos.Data;
 
 
-namespace Azos.Tests.Unit.DataAccess
+namespace Azos.Tests.Nub.DataAccess
 {
-    [Runnable(TRUN.BASE, 3)]
+    [Runnable]
     public class TypedDocuments
     {
         [Run]

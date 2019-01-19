@@ -18,9 +18,9 @@ using Azos.Data;
 using Azos.Serialization.JSON;
 
 
-namespace Azos.Tests.Unit.DataAccess
+namespace Azos.Tests.Nub.DataAccess
 {
-    [Runnable(TRUN.BASE, 3)]
+    [Runnable]
     public class SchemaAndRowsetSerializationTests
     {
       [Run("readOnly=true")]

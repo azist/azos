@@ -14,7 +14,7 @@ using Azos.Apps;
 using Azos.Data;
 
 
-namespace Azos.Tests.Unit.DataAccess
+namespace Azos.Tests.Nub.DataAccess
 {
 
     [Serializable]

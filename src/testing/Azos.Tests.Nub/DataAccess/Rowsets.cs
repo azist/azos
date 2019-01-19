@@ -12,7 +12,7 @@ using System.Text;
 using Azos.Data;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit.DataAccess
+namespace Azos.Tests.Nub.DataAccess
 {
     [Runnable]
     public class Rowsets

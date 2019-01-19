@@ -14,9 +14,9 @@ using Azos.Data;
 using Azos.Scripting;
 using static Azos.Aver.ThrowsAttribute;
 
-namespace Azos.Tests.Unit.DataAccess
+namespace Azos.Tests.Nub.DataAccess
 {
-    [Runnable(TRUN.BASE, 3)]
+    [Runnable]
     public class FieldAttrCloningTests
     {
         [Run]

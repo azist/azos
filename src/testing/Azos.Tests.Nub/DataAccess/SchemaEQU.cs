@@ -3,8 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -15,9 +15,9 @@ using Azos.Data;
 using Azos.Scripting;
 using Azos.Serialization.Slim;
 
-namespace Azos.Tests.Unit.DataAccess
+namespace Azos.Tests.Nub.DataAccess
 {
-    [Runnable(TRUN.BASE, 3)]
+    [Runnable]
     public class SchemaEQU
     {
 
