@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +14,9 @@ using Azos.Scripting;
 
 using Azos.IO;
 
-namespace Azos.Tests.Unit.IO
+namespace Azos.Tests.Nub.IO
 {
-    [Runnable(TRUN.BASE)]
+    [Runnable]
     public class LEB128Tests
     {
         [Run]

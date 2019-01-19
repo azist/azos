@@ -14,13 +14,11 @@ using Azos.Scripting;
 using Azos.IO;
 using Azos.Serialization.JSON;
 
-namespace Azos.Tests.Unit.IO
+namespace Azos.Tests.Nub.IO
 {
-    [Runnable(TRUN.BASE)]
+    [Runnable]
     public class SlimFormatReadWrite
     {
-
-
         [Run("cnt=10")]
         [Run("cnt=20")]
         [Run("cnt=250")]

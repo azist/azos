@@ -14,9 +14,9 @@ using Azos.Scripting;
 
 using Azos.IO;
 
-namespace Azos.Tests.Unit.IO
+namespace Azos.Tests.Nub.IO
 {
-    [Runnable(TRUN.BASE)]
+    [Runnable]
     public class BufferSegRStreamTests
     {
         [Run]

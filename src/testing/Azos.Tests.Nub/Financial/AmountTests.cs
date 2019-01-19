@@ -15,9 +15,9 @@ using Azos.Serialization.JSON;
 using Azos.Scripting;
 using static Azos.Aver.ThrowsAttribute;
 
-namespace Azos.Tests.Unit.Financial
+namespace Azos.Tests.Nub.Financial
 {
-    [Runnable(TRUN.BASE, 2)]
+    [Runnable]
     public class AmountTests
     {
 

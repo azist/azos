@@ -3,28 +3,20 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
 using Azos.IO.ErrorHandling;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit.IO.ErrorHandling
+namespace Azos.Tests.Nub.IO.ErrorHandling
 {
   [Runnable]
-  public class GaloisPolynomialTest
+  public class GaloisPolynomialTests
   {
     [Run]
     public void Divide()
     {
-      //System.Diagnostics.Debugger.Launch();
-
       GaloisField field = new GaloisField(285, 256, 0);
-
       GaloisPolynomial divident = new GaloisPolynomial(field, new int[] {32, 49, 205, 69, 42, 20, 0, 236, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
-
       GaloisPolynomial divider = new GaloisPolynomial(field, new int[] {1, 119, 66, 83, 120, 119, 22, 197, 83, 249, 41, 143, 134, 85, 53, 125, 99, 79});
 
       GaloisPolynomial quotient, remainder;

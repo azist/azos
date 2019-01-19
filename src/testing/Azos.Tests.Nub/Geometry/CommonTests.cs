@@ -3,8 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -15,9 +15,9 @@ using Azos.Scripting;
 
 using Azos.Geometry;
 
-namespace Azos.Tests.Unit.Geometry
+namespace Azos.Tests.Nub.Geometry
 {
-  [Runnable(TRUN.BASE, 2)]
+  [Runnable]
   public class CommonTests
   {
     [Run]
