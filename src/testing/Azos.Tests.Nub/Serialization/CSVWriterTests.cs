@@ -13,10 +13,10 @@ using Azos.Data;
 using Azos.Scripting;
 using Azos.Serialization.CSV;
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-  [Runnable(TRUN.BASE)]
-  public class CSVWriterTest : IRunnableHook
+  [Runnable]
+  public class CSVWriterTests : IRunnableHook
   {
    private readonly string m_Header =
 "SimpleStr,IntValue,FloatValue,DateValue,Multiline,Nullable,Quotes,Apostr,Comma\r\n";

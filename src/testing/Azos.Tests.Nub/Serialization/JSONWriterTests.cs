@@ -8,26 +8,18 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Diagnostics;
 
 using Azos.Scripting;
 
 using Azos.Data;
-using Azos.CodeAnalysis;
-using Azos.CodeAnalysis.Source;
-using Azos.CodeAnalysis.JSON;
 using Azos.Serialization.JSON;
-using JL=Azos.CodeAnalysis.JSON.JSONLexer;
-using JP=Azos.CodeAnalysis.JSON.JSONParser;
 using JW=Azos.Serialization.JSON.JSONWriter;
 using JDO=Azos.Serialization.JSON.JSONDynamicObject;
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-    [Runnable(TRUN.BASE)]
-    public class JSONWriter
+    [Runnable]
+    public class JSONWriterTests
     {
 
         [Run]

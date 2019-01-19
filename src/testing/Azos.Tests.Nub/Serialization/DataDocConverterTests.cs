@@ -16,10 +16,10 @@ using Azos.Data;
 using Azos.Serialization.JSON;
 using Azos.Financial;
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-  [Runnable(TRUN.BASE)]
-  public class DataDocConverterTest
+  [Runnable]
+  public class DataDocConverterTests
   {
     #region Tests
 

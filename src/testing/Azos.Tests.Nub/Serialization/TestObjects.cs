@@ -3,16 +3,15 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Azos.IO;
 using Azos.Serialization.POD;
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
    #pragma warning disable 0649,0169,0659
 

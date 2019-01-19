@@ -16,13 +16,13 @@ using Azos.Scripting;
 using Azos.Serialization.JSON;
 using Azos.Financial;
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
   /// <summary>
   /// See BSON spec http://bsonspec.org/spec.html
   /// </summary>
-  [Runnable(TRUN.BASE)]
-  public class BSON
+  [Runnable]
+  public class BSONTests
   {
     #region Serialization
 

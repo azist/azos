@@ -21,6 +21,16 @@ namespace Azos.Tests.Nub
         //[Run("category", "name", -1, "")]
         public void Empty(){  Aver.Pass();  }
 
+        [Run(@"message=$'
+     This prints
+     a multiline message.
+     Thats all!
+       '")]
+        public void PrintMessage()
+        {
+
+        }
+
         [Run, Aver.Throws(typeof(NotSupportedException))]
         public void Throws1(){  throw new NotSupportedException();  }
 

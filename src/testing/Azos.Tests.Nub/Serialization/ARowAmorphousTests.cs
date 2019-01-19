@@ -19,10 +19,10 @@ using Azos.IO;
 using Azos.Serialization.Arow;
 using Azos.Serialization.JSON;
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-    [Runnable(TRUN.BASE)]
-    public class ARowAmorphous : IRunnableHook
+    [Runnable]
+    public class ARowAmorphousTests : IRunnableHook
     {
       void IRunnableHook.Prologue(Runner runner, FID id)
       {

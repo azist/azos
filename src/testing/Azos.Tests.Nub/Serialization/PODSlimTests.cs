@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +14,9 @@ using Azos.Scripting;
 
 using Azos.Serialization.Slim;
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-    //public class Suka
+    //public class Kozel
     //{
     //  public int Age;
     //  public string Name;
@@ -25,7 +25,7 @@ namespace Azos.Tests.Unit.Serialization
 
 
     [Runnable]
-    public class PODSlim
+    public class PODSlimTests
     {
       //[Run]
       //public void TempTest()  //DKh: dont refactor - this is very temporary test for me locally
@@ -35,7 +35,7 @@ namespace Azos.Tests.Unit.Serialization
       //    var s = new SlimSerializer();
 
 
-      //    var data = new Suka() { Age=15, Name="Pidaras", DOB = DateTime.Now};
+      //    var data = new Kozel() { Age=15, Name="Egor", DOB = DateTime.Now};
       //    s.Serialize(ms, data);
       //  }
       //}

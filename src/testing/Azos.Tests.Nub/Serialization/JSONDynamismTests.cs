@@ -7,20 +7,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-
 
 using Azos.Scripting;
-
 using Azos.Data;
 using Azos.Serialization.JSON;
 
-
-
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-    [Runnable(TRUN.BASE)]
-    public class JSONDynamism
+    [Runnable]
+    public class JSONDynamismTests
     {
         [Run]
         public void Map_GetSet_ByMember()

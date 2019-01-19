@@ -10,7 +10,6 @@ using System.IO;
 using System.Reflection;
 
 
-using Azos.Apps;
 using Azos.Data;
 using Azos.Financial;
 using Azos.IO;
@@ -20,10 +19,10 @@ using Azos.Serialization.JSON;
 using Azos.Pile;
 
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-    [Runnable(TRUN.BASE)]
-    public class ARowAllTypes : IRunnableHook
+    [Runnable]
+    public class ARowAllTypesTests : IRunnableHook
     {
       void IRunnableHook.Prologue(Runner runner, FID id)
       {

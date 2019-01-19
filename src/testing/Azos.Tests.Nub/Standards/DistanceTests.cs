@@ -3,17 +3,17 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 
 using Azos.Scripting;
 using Azos.Serialization.JSON;
 using Azos.Standards;
 
-namespace Azos.Tests.Unit.Standards
+namespace Azos.Tests.Nub.Standards
 {
-  [Runnable(TRUN.BASE)]
-  class DistanceTest
+  [Runnable]
+  class DistanceTests
   {
     [Run]
     public void Convert()

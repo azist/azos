@@ -3,25 +3,20 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 using Azos.Scripting;
-
 
 using Azos.Collections;
 using Azos.Serialization.Slim;
 using Azos.Serialization.JSON;
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-  [Runnable(TRUN.BASE)]
-  public class Slim3
+  [Runnable]
+  public class Slim3Tests
   {
 
     [Run]

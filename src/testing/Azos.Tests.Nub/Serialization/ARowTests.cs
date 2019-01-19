@@ -9,16 +9,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
-using Azos.Apps;
 using Azos.Data;
 using Azos.IO;
 using Azos.Scripting;
 using Azos.Serialization.Arow;
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-    [Runnable(TRUN.BASE)]
-    public class ARow : IRunnableHook
+    [Runnable]
+    public class ARowTests : IRunnableHook
     {
       void IRunnableHook.Prologue(Runner runner, FID id)
       {

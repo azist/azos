@@ -15,10 +15,10 @@ using Azos.Serialization.BSON;
 using Azos.Serialization.JSON;
 
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-  [Runnable(TRUN.BASE)]
-  public class BSONDirectSerialization
+  [Runnable]
+  public class BSONDirectSerializationTests
   {
     [BSONSerializable("25C155E8-59DC-4E5B-A9AD-6A94CB4381BD")]
     public class TypicalData : IArchiveLoggable

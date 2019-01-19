@@ -15,10 +15,10 @@ using Azos.Scripting;
 using Azos.Serialization.Slim;
 
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-  [Runnable(TRUN.BASE)]
-  public class Slim2
+  [Runnable]
+  public class Slim2Tests
   {
 
     [Run]

@@ -6,20 +6,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 
 using Azos.Scripting;
-
 using Azos.Data;
 using Azos.Serialization.JSON;
 
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-    [Runnable(TRUN.BASE)]
-    public class JSONtoRow
+    [Runnable]
+    public class JSONtoDocTests
     {
         #region Arrays
 

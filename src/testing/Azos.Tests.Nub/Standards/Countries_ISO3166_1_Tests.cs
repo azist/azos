@@ -9,10 +9,10 @@ using System;
 using Azos.Scripting;
 using Azos.Standards;
 
-namespace Azos.Tests.Unit.Standards
+namespace Azos.Tests.Nub.Standards
 {
-  [Runnable(TRUN.BASE)]
-  class Countries_ISO3166_1_Test
+  [Runnable]
+  class Countries_ISO3166_1_Tests
   {
     [Run]
     public void ToAlpha2()

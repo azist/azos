@@ -3,22 +3,20 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Azos.Scripting;
 
 using Azos.Serialization.CSV;
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-  [Runnable(TRUN.BASE)]
-  public class CSVParserTest
+  [Runnable]
+  public class CSVParserTests
   {
     private bool same(IEnumerable<string> got, params string[] elm) { return got.SequenceEqual(elm); }
 

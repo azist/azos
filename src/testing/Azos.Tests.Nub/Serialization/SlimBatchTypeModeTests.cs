@@ -3,23 +3,17 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 using Azos.Scripting;
-
-
 using Azos.Serialization.Slim;
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-  [Runnable(TRUN.BASE)]
-  public class SlimBatchTypeMode
+  [Runnable]
+  public class SlimBatchTypeModeTests
   {
 
       [Run]
@@ -33,11 +27,11 @@ namespace Azos.Tests.Unit.Serialization
           Aver.IsFalse( s1.BatchTypesAdded );
 
           s1.TypeMode = TypeRegistryMode.Batch;
-         
+
           Aver.IsTrue(TypeRegistryMode.Batch == s1.TypeMode);
           Aver.IsFalse( s1.IsThreadSafe );
           Aver.IsFalse( s1.BatchTypesAdded );
-          
+
 
           var o1 = new A1{ I1 = 12};
 
@@ -62,7 +56,7 @@ namespace Azos.Tests.Unit.Serialization
         {
           var s1 = new SlimSerializer();
           s1.TypeMode = TypeRegistryMode.Batch;
-         
+
           Aver.IsTrue(TypeRegistryMode.Batch == s1.TypeMode);
           Aver.IsFalse( s1.IsThreadSafe );
           Aver.IsFalse( s1.BatchTypesAdded );
@@ -87,14 +81,14 @@ namespace Azos.Tests.Unit.Serialization
           var s1 = new SlimSerializer( new Type[]{typeof(A1)});//put it in globals
           s1.TypeMode = TypeRegistryMode.Batch;
           Aver.IsFalse( s1.BatchTypesAdded );
-          
+
 
           var o1 = new A1{ I1 = 12};
 
           s1.Serialize(ms, o1);
           ms.Seek(0, SeekOrigin.Begin);
 
-          var s2 = new SlimSerializer(new Type[]{typeof(A1)}); 
+          var s2 = new SlimSerializer(new Type[]{typeof(A1)});
           s2.TypeMode = TypeRegistryMode.Batch;
           var o2 = (A1)s2.Deserialize(ms);
 
@@ -189,11 +183,11 @@ namespace Azos.Tests.Unit.Serialization
         {
           var s1 = new SlimSerializer();
           s1.TypeMode= TypeRegistryMode.Batch;
-          var o1a = new A1{ I1 = 12};      
-          var o1b = new A2{ I2 = 13};      
-          var o1c = new A1{ I1 = 14};      
-          var o1d = new A1{ I1 = 15};      
-          var o1e = new A1{ I1 = 16};      
+          var o1a = new A1{ I1 = 12};
+          var o1b = new A2{ I2 = 13};
+          var o1c = new A1{ I1 = 14};
+          var o1d = new A1{ I1 = 15};
+          var o1e = new A1{ I1 = 16};
 
           s1.Serialize(ms, o1a);  Aver.IsTrue( s1.BatchTypesAdded );
           s1.Serialize(ms, o1b);  Aver.IsTrue( s1.BatchTypesAdded );
@@ -213,11 +207,11 @@ namespace Azos.Tests.Unit.Serialization
           var o2d = (A1)s2.Deserialize(ms); Aver.IsFalse( s2.BatchTypesAdded );
           var o2e = (A1)s2.Deserialize(ms); Aver.IsFalse( s2.BatchTypesAdded );
 
-          Aver.AreEqual(12, o2a.I1); 
-          Aver.AreEqual(13, o2b.I2); 
-          Aver.AreEqual(14, o2c.I1); 
-          Aver.AreEqual(15, o2d.I1); 
-          Aver.AreEqual(16, o2e.I1); 
+          Aver.AreEqual(12, o2a.I1);
+          Aver.AreEqual(13, o2b.I2);
+          Aver.AreEqual(14, o2c.I1);
+          Aver.AreEqual(15, o2d.I1);
+          Aver.AreEqual(16, o2e.I1);
         }
       }
 
@@ -231,12 +225,12 @@ namespace Azos.Tests.Unit.Serialization
           s1.TypeMode= TypeRegistryMode.Batch;
           var s2 = new SlimSerializer();
           s2.TypeMode= TypeRegistryMode.Batch;
-          
-          var o1a = new A1{ I1 = 12};      
-          var o1b = new A2{ I2 = 13};      
-          var o1c = new A1{ I1 = 14};      
-          var o1d = new A1{ I1 = 15};      
-          var o1e = new A1{ I1 = 16};      
+
+          var o1a = new A1{ I1 = 12};
+          var o1b = new A2{ I2 = 13};
+          var o1c = new A1{ I1 = 14};
+          var o1d = new A1{ I1 = 15};
+          var o1e = new A1{ I1 = 16};
 
           s1.Serialize(ms, o1a);  Aver.IsTrue( s1.BatchTypesAdded );
           ms.Position = 0;
@@ -256,17 +250,17 @@ namespace Azos.Tests.Unit.Serialization
           s1.Serialize(ms, o1d);  Aver.IsFalse( s1.BatchTypesAdded );
           ms.Position = 0;
           var o2d = (A1)s2.Deserialize(ms); Aver.IsFalse( s2.BatchTypesAdded );
-          
+
           ms.Position = 0;
           s1.Serialize(ms, o1e);  Aver.IsFalse( s1.BatchTypesAdded );
           ms.Position = 0;
           var o2e = (A1)s2.Deserialize(ms); Aver.IsFalse( s2.BatchTypesAdded );
 
-          Aver.AreEqual(12, o2a.I1); 
-          Aver.AreEqual(13, o2b.I2); 
-          Aver.AreEqual(14, o2c.I1); 
-          Aver.AreEqual(15, o2d.I1); 
-          Aver.AreEqual(16, o2e.I1); 
+          Aver.AreEqual(12, o2a.I1);
+          Aver.AreEqual(13, o2b.I2);
+          Aver.AreEqual(14, o2c.I1);
+          Aver.AreEqual(15, o2d.I1);
+          Aver.AreEqual(16, o2e.I1);
         }
       }
 
@@ -279,11 +273,11 @@ namespace Azos.Tests.Unit.Serialization
         {
           var s1 = new SlimSerializer();
           s1.TypeMode= TypeRegistryMode.Batch;
-          var o1a = new A1{ I1 = 12};      
-          var o1b = new A2{ I2 = 13};      
-          var o1c = new A1{ I1 = 14};      
-          var o1d = new A1{ I1 = 15};      
-          var o1e = new A1{ I1 = 16};      
+          var o1a = new A1{ I1 = 12};
+          var o1b = new A2{ I2 = 13};
+          var o1c = new A1{ I1 = 14};
+          var o1d = new A1{ I1 = 15};
+          var o1e = new A1{ I1 = 16};
 
           s1.Serialize(ms, o1a);  Aver.IsTrue( s1.BatchTypesAdded );
           s1.Serialize(ms, o1b);  Aver.IsTrue( s1.BatchTypesAdded );
@@ -299,7 +293,7 @@ namespace Azos.Tests.Unit.Serialization
           s2.TypeMode= TypeRegistryMode.PerCall;//MISMATCH!!!
           var o2a = (A1)s2.Deserialize(ms);
           var o2b = (A2)s2.Deserialize(ms);//exception
-         
+
         }
       }
 
@@ -312,11 +306,11 @@ namespace Azos.Tests.Unit.Serialization
         {
           var s1 = new SlimSerializer();
           s1.TypeMode= TypeRegistryMode.Batch;
-          var o1a = new A1{ I1 = 12};      
-          var o1b = new A2{ I2 = 13};      
-          var o1c = new A1{ I1 = 14};      
-          var o1d = new A1{ I1 = 15};      
-          var o1e = new A1{ I1 = 16};      
+          var o1a = new A1{ I1 = 12};
+          var o1b = new A2{ I2 = 13};
+          var o1c = new A1{ I1 = 14};
+          var o1d = new A1{ I1 = 15};
+          var o1e = new A1{ I1 = 16};
 
           s1.Serialize(ms, o1a);  Aver.IsTrue( s1.BatchTypesAdded );
           s1.Serialize(ms, o1b);  Aver.IsTrue( s1.BatchTypesAdded );
@@ -331,7 +325,7 @@ namespace Azos.Tests.Unit.Serialization
           var s2 = new SlimSerializer();
           s2.TypeMode= TypeRegistryMode.Batch;
           var o2a = (A1)s2.Deserialize(ms); Aver.IsTrue( s2.BatchTypesAdded );
-          Aver.AreEqual(12, o2a.I1); 
+          Aver.AreEqual(12, o2a.I1);
 
           s2.ResetCallBatch();
           var o2b = (A2)s2.Deserialize(ms); //Exception
@@ -382,5 +376,5 @@ namespace Azos.Tests.Unit.Serialization
 
 
   }
-   
+
 }

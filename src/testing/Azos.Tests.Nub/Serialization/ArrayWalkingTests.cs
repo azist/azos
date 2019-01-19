@@ -3,7 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +16,10 @@ using Azos.IO;
 using Azos.Serialization.Slim;
 using Azos.Apps;
 
-namespace Azos.Tests.Unit.Serialization
+namespace Azos.Tests.Nub.Serialization
 {
-    [Runnable(TRUN.BASE)]
-    public class ArrayWalking
+    [Runnable]
+    public class ArrayWalkingTests
     {
 
         [Run]
