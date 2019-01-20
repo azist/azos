@@ -4,7 +4,11 @@
       "src": [
         {
           "files": [
+            "XXXsrc/Azos.Web/Azos.Web.csproj",
             "src/**/Azos*.csproj"
+          ],
+          "exclude": [
+            "src/**/Azos.Tests.**.csproj"
           ]
         }
       ],
@@ -21,7 +25,7 @@
           "src/**/*.md",
           "out/api/**/*.yml",
           "out/api/toc.yml",
-          "readme.md",
+          "index.md",
           "toc.yml"
         ]
       }
@@ -48,13 +52,24 @@
     "globalMetadataFiles": [],
     "fileMetadataFiles": [],
     "template": [
-      "statictoc"
+      "statictoc",
+      "elm/docfx/template-override"
     ],
     "postProcessors": [],
     "markdownEngineName": "markdig",
     "noLangKeyword": false,
     "keepFileLink": false,
     "cleanupCacheHistory": false,
-    "disableGitFeatures": false
+    "disableGitFeatures": false,
+
+    "globalMetadata": {
+      "_appTitle": "A to Z Sky OS",
+      "_appFooter": "Copyright (c)2018 - 2019 Azist Group",
+      "_appLogoPath": "doc/img/azos-toolbar-emblem.96.png",
+      "_appFaviconPath": "doc/img/favicon.ico",
+      "_disableBreadcrumb": true,
+      "_disableAffix": false,
+      "_disableContribution": true
+    }
   }
 }

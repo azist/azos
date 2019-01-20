@@ -1,0 +1,134 @@
+htmtl, body
+{
+  background: #f4f4f4;
+  font-family: Tahoma, Arial, sans-serif;
+  color: #888;
+}
+
+p {
+    margin: 10px 0px;
+    color: #585858;
+    background: #f0f0f0;
+    padding: 8px;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    box-shadow: 1px 1px 8px #e4e4e0;
+}
+
+h1, h2, h3 {
+    color: #444;
+}
+
+article h4 {
+    border-bottom: 1px solid #ccc;
+    color: #e05008;
+    padding-bottom: 4px;
+}
+
+.navbar-inverse {
+    background-color: #ffce00;
+    border-color: #dadada;
+    /* height: 65px; */
+}
+
+.navbar-inverse .navbar-nav > li > a, .navbar-inverse .navbar-text {
+    color: #585858;
+    font-size: 1.2em;
+}
+
+.navbar-inverse .navbar-nav > li > a:hover {
+    color: #444;
+    background-color: #ffd810;
+}
+
+.affix h5 {
+    font-weight: bold;
+    text-transform: uppercase;
+    padding-left: 10px;
+    font-size: 12px;
+    color: #d08020;
+}
+
+.affix ul > li > a {
+    padding: 5px 12px;
+    color: #a0a0a0;
+}
+
+.affix > ul > li.active > a, .affix > ul > li.active > a:before {
+    color: #7080d0;
+    font-weight: bold;
+}
+
+.sidetoc{
+    background-color: #f8f8f8;
+}
+
+body .toc {
+    background-color: #f8f8f8;
+}
+
+button, a {
+    color: #0070d0;
+    cursor: pointer;
+}
+
+
+.toc .nav > li > a {
+    color: #888;
+    margin-left: 1px;
+    display: block;
+    padding: 0;
+    font-weight: normal;
+}
+
+
+pre{
+    background-color: #444;
+    border: 1px solid #666;
+}
+
+/* all text*/
+.hljs {
+    display: block;
+    padding: .5em;
+    color: #fff;
+    overflow-x: auto;
+}
+
+/* attributes */
+.hljs-comment, .hljs-meta {
+    color: #f0ff90;
+}
+
+/* keywords */
+.hljs-keyword, .hljs-selector-tag, .hljs-type {
+    color: #20a0ff;
+    fint-weight: bold;
+}
+/* Method/identifier */
+.hljs-attr, .hljs-selector-attr, .hljs-selector-class, .hljs-selector-id, .hljs-selector-pseudo, .hljs-title {
+    color: #80ffa0;
+}
+
+/* Strings */
+.hljs-emphasis, .hljs-quote, .hljs-string, .hljs-strong, .hljs-template-variable, .hljs-variable {
+    color: #ffa060;
+}
+
+
+table{
+    color: #444;
+}
+
+caption, th {
+    color: #888;
+    text-align: left;
+    background: #e8e8e8;
+    font-weight: normal
+}
+
+/* LOGO */
+.navbar-brand > img {
+    display: block;
+    margin-right: 20px;
+}

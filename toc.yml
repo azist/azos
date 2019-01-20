@@ -1,6 +1,8 @@
-- name: Azos
-  href: ~/src
-  homepage: ~/src/documentation-index.html
-- name: API Documentation
+- name: Articles
+  href: ~/doc/articles
+  homepage: ~/doc/articles/index.html
+- name: API Docs
   href: ~/out/api
   homepage: ~/out/api/Azos.html
+- name: GitHub
+  href: https://github.com/azist/azos
