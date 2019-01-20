@@ -13,7 +13,7 @@ set OUT=%AZOS_HOME%out\nuget
 
 set ICON=https://raw.githubusercontent.com/azist/azos/master/elm/design/logo/azos-logo-320x320.png
 
-set VER=1.0.209
+set VER=1.0.210
 
 nuget pack Azos.nuspec -Version %VER% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
 nuget pack Azos.Web.nuspec -Version %VER% -OutputDirectory "%OUT%" -Properties icon="%ICON%"

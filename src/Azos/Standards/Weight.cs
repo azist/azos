@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using System.Collections;
 using System.Globalization;
 using System.IO;
 
@@ -13,11 +13,13 @@ using Azos.Serialization.JSON;
 
 namespace Azos.Standards
 {
+
+#warning Needs revision, why is .Value needed?
   /// <summary>
   /// Represents weight with unit type.
-  /// All operations are done with presision of 1 milligramm
+  /// All operations are done with precision of 1 milligram
   /// </summary>
-  public struct Weight : IEquatable<Weight>, IComparable<Weight>, IJSONWritable, IFormattable
+  public struct Weight : IEquatable<Weight>, IComparable<Weight>, IJSONWritable
   {
     public enum UnitType
     {
@@ -135,13 +137,6 @@ namespace Azos.Standards
       return "{0} {1}".Args(Value.ToString("#,#.###"), UnitName);
     }
 
-    public String ToString(String format, IFormatProvider formatProvider)
-    {
-      throw new NotImplementedException();
-    }
-
-    #region INTERFACES
-
     public bool Equals(Weight other)
     {
       return (ValueInGrams == other.ValueInGrams);
@@ -154,13 +149,8 @@ namespace Azos.Standards
 
     public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
-      JSONDataMap map = new JSONDataMap { { "unit", UnitName }, { "value", Value } };
-      map.ToJSON(wri, options);
+      JSONWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("unit", UnitName), new  DictionaryEntry("value", Value));
     }
-
-    #endregion
-
-    #region OPERATORS
 
     public static Weight operator +(Weight obj1, Weight obj2)
     {
@@ -215,8 +205,6 @@ namespace Azos.Standards
     {
       return obj1.ValueInGrams < obj2.ValueInGrams;
     }
-
-    #endregion
 
     private static void getPair(string val, out string valueString, out string unitString)
     {
