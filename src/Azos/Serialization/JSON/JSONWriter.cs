@@ -287,7 +287,7 @@ namespace Azos.Serialization.JSON
                         {
                             if (data==null)
                             {
-                                wri.Write("null");
+                                wri.Write("null");//do NOT LOCALIZE!
                                 return;
                             }
 
@@ -309,14 +309,12 @@ namespace Azos.Serialization.JSON
                             if (data is int || data is long)//the check is here for speed
                             {
                                 wri.Write( ((IConvertible)data).ToString(System.Globalization.CultureInfo.InvariantCulture) );
-                                //20140619 Dkh+Dlat wri.Write(data.ToString());
                                 return;
                             }
 
                             if (data is double || data is float || data is decimal)//the check is here for speed
                             {
                                 wri.Write( ((IConvertible)data).ToString(System.Globalization.CultureInfo.InvariantCulture) );
-                                //20140619 Dkh+Dlat wri.Write(data.ToString());
                                 return;
                             }
 
@@ -326,7 +324,7 @@ namespace Azos.Serialization.JSON
                                 return;
                             }
 
-                            if (data is TimeSpan)//20140619 Dlat
+                            if (data is TimeSpan)
                             {
                                 var ts = (TimeSpan)data;
                                 wri.Write(ts.Ticks);
@@ -372,21 +370,6 @@ namespace Azos.Serialization.JSON
                             }
 
                             var fields = SerializationUtils.GetSerializableFields(tdata);
-
-                            //20150620 DKh
-                            //var dict = new Dictionary<string, object>();
-                            //foreach(var f in fields)
-                            //{
-                            //    var name = f.Name;
-                            //    var iop = name.IndexOf('<');
-                            //    if (iop>=0)//handle anonymous type field name
-                            //    {
-                            //        var icl = name.IndexOf('>');
-                            //        if (icl>iop+1)
-                            //            name = name.Substring(iop+1, icl-iop-1);
-                            //    }
-                            //    dict.Add(name, f.GetValue(data));
-                            //}
 
                             var dict = fields.Select(
                             f =>

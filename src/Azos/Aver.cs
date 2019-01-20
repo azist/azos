@@ -447,12 +447,10 @@ namespace Azos
 
          if (arg==null) return CoreConsts.NULL_STRING;
 
-         var sarg = arg as string;
-         if (sarg!=null)
+         if (arg is string sarg)
            return "(string)\"{0}\" of {1} chars".Args(sarg.TakeFirstChars(MAX_LEN, "..."), sarg.Length);
 
-         var barg = arg as byte[];
-         if (barg!=null)
+         if (arg is byte[] barg)
            return "(byte[])\"{0}\" of {1} bytes".Args(barg.ToDumpString(DumpFormat.Hex, maxLen: MAX_LEN), barg.Length);
 
 

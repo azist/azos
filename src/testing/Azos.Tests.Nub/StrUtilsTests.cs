@@ -59,5 +59,65 @@ namespace Azos.Tests.Nub
       Aver.IsFalse("def".IsOneOf(new List<string> { "abc", "  def  ", "diff"}));
       Aver.IsTrue("def".IsOneOf(new List<string> { "abc", "def", "diff"}));
     }
+
+    [Run]
+    public void ToLinuxLines()
+    {
+      Aver.AreEqual( "I walk\n lines\n\n", "I walk\r\n lines\r\n\r\n".ToLinuxLines() );
+    }
+
+    [Run]
+    public void ToWindowsLines()
+    {
+      Aver.AreEqual("I walk\r\n lines\r\n\r\n", "I walk\n lines\n\n".ToWindowsLines());
+    }
+
+    [Run]
+    public void DiffStrings_1()
+    {
+      Console.WriteLine( "abcd".DiffStrings("abcd") );
+    }
+
+    [Run]
+    public void DiffStrings_2()
+    {
+      Console.WriteLine("abcde".DiffStrings("abcd"));
+    }
+
+    [Run]
+    public void DiffStrings_3()
+    {
+      Console.WriteLine("abcd".DiffStrings("abcde"));
+    }
+
+    [Run]
+    public void DiffStrings_4()
+    {
+      Console.WriteLine("abcd\nef".DiffStrings("ab\n\rcdef"));
+    }
+
+    [Run]
+    public void DiffStrings_5()
+    {
+      Console.WriteLine("ab8-0er7t-98e7wr-9t87ew-98r7t-98e7wrtcd\nef".DiffStrings("ab\n\r3453485rcdef", 5));
+    }
+
+    [Run]
+    public void DiffStrings_6()
+    {
+      Console.WriteLine("abc".DiffStrings(null));
+    }
+
+    [Run]
+    public void DiffStrings_7()
+    {
+      Console.WriteLine(((string)null).DiffStrings("abc"));
+    }
+
+    [Run]
+    public void DiffStrings_8()
+    {
+      Console.WriteLine(((string)null).DiffStrings((string)null));
+    }
   }
 }

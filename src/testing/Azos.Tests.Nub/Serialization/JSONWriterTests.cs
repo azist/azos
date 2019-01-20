@@ -190,10 +190,10 @@ namespace Azos.Tests.Nub.Serialization
 
             var json = JW.Write(lst, JSONWritingOptions.PrettyPrint);
 
+            Console.WriteLine("-----------------------------------");
             Console.WriteLine(json);
 
-            var expected=
-@"
+            var expected=@"
 {
   ""Important"": true,
   ""Patient"":
@@ -213,6 +213,8 @@ namespace Azos.Tests.Nub.Serialization
 
             Console.WriteLine("-----------------------------------");
             Console.WriteLine(expected);
+#warning Fix this !!!!!!!!
+            Console.WriteLine(json.ToLinuxLines().DiffStrings(expected.ToLinuxLines()));
 
             Aver.AreEqual(expected, json);
         }

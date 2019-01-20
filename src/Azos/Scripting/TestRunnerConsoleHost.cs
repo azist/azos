@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -19,6 +20,7 @@ namespace Azos.Scripting
   /// </summary>
   public sealed class TestRunnerConsoleHost : ApplicationComponent, IRunnerHost
   {
+    public const int FIRST_X_ERRORS = 5;
 
     public TestRunnerConsoleHost(IApplication app) : base(app) { }
 
@@ -51,8 +53,9 @@ namespace Azos.Scripting
     private string m_PriorMethodName;
     private int m_PriorMethodCount;
 
-
     private ConfigSectionNode m_RunnableNode;
+
+    private List<(FID id, object target, Exception error)> m_FirstXErrors;
 
     public void BeginRunnable(Runner runner, FID id, object runnable)
     {
@@ -88,6 +91,11 @@ namespace Azos.Scripting
         Console.WriteLine("EndRunnable caught: ");
         writeError(error);
         Console.ForegroundColor = ConsoleColor.Gray;
+
+        if (m_FirstXErrors.Count<FIRST_X_ERRORS)
+        {
+          m_FirstXErrors.Add( (id, runnable.GetType(), error) );
+        }
       }
       if (!m_HadRunnableMethods) return;
       Console.WriteLine("... done {0}".Args(runnable.GetType().DisplayNameWithExpandedGenericArgs()));
@@ -216,6 +224,10 @@ namespace Azos.Scripting
       {
         m_TotalErrors++;
         writeError(error);
+        if (m_FirstXErrors.Count < FIRST_X_ERRORS)
+        {
+          m_FirstXErrors.Add((id, method, error));
+        }
       }
 
       Console.ForegroundColor = wasF;
@@ -233,6 +245,7 @@ namespace Azos.Scripting
       m_TotalMethods = 0;
       m_TotalOKs =0;
       m_TotalErrors = 0;
+      m_FirstXErrors = new List<(FID id, object target, Exception error)>();
 
       if (OutFileName.IsNotNullOrWhiteSpace())
       {
@@ -300,6 +313,30 @@ namespace Azos.Scripting
       Console.WriteLine("+------------------------------------------------");
 
       writeCurrentStats();
+
+      if (m_FirstXErrors.Count>0)
+      {
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("  Dumping the first ");
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("{0} errors:".Args(m_FirstXErrors.Count));
+        Console.WriteLine();
+        for (var i=0; i<m_FirstXErrors.Count; i++)
+        {
+          var eitem = m_FirstXErrors[i];
+          Console.ForegroundColor = ConsoleColor.DarkRed;
+          Console.Write("  Error #{0} from: ".Args(i + 1));
+          Console.ForegroundColor = ConsoleColor.Red;
+          Console.WriteLine(eitem.target is Type trunnable ? $"Runnable {trunnable.FullName}" : ((MethodInfo)eitem.target).ToDescription() );
+          Console.ForegroundColor = ConsoleColor.DarkRed;
+          Console.WriteLine("  =============================================");
+          writeError(eitem.error);
+        }
+
+        writeCurrentStats();
+      }
 
       if (runner.Emulate)
       {

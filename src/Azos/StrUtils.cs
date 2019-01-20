@@ -342,6 +342,70 @@ namespace Azos
       return sb.ToString();
     }
 
+    /// <summary>
+    /// Replaces CRLF with LF
+    /// </summary>
+    public static string ToLinuxLines(this string src)
+    => src==null ? null : src.Replace(WIN_UNIX_LINE_BRAKES[0], WIN_UNIX_LINE_BRAKES[1]);
+
+    /// <summary>
+    /// Replaces LF with CRLF
+    /// </summary>
+    public static string ToWindowsLines(this string src)
+    => src == null ? null : src.Replace(WIN_UNIX_LINE_BRAKES[1], WIN_UNIX_LINE_BRAKES[0]);
+
+    /// <summary>
+    /// Creates a string listing char-by char difference between strings
+    /// </summary>
+    public static string DiffStrings(this string a, string b, int limit = 0)
+    {
+      string ch(char c) =>
+          "#{0:x4} {1}".Args((int)c, Azos.Serialization.JSON.JSONWriter.Write(c, Azos.Serialization.JSON.JSONWritingOptions.CompactASCII));
+
+
+
+      var result = new StringBuilder();
+      result.AppendLine("A is {0} |  B is {1}".Args(a==null?CoreConsts.NULL_STRING:$"[{a.Length}]", b == null ? CoreConsts.NULL_STRING : $"[{b.Length}]"));
+      if (string.Equals(a, b, StringComparison.Ordinal))
+      {
+        result.AppendLine("Identical");
+        return result.ToString();
+      }
+      if (a==null || b==null) return result.ToString();
+      if (a.Length!=b.Length) result.AppendLine("Different length");
+
+      if (a.Length >= b.Length)
+      {
+        if (a.Length>b.Length) result.AppendLine("A is longer than B by {0} chars".Args(a.Length-b.Length));
+
+        for(var i=0; i<a.Length && (i<limit || limit<=0); i++)
+        {
+          result.Append("A[{0}] = {1}  | ".Args(i, ch(a[i])));
+          if (i<b.Length)
+            result.Append("B[{0}] = {1}".Args(i, ch(b[i])));
+          else
+            result.Append("     n/a ");
+          result.AppendLine();
+        }
+      } else
+      {
+        result.AppendLine("B is longer than A by {0} chars".Args(b.Length - a.Length));
+
+        for (var i = 0; i < b.Length && (i < limit || limit <= 0); i++)
+        {
+          if (i < a.Length)
+            result.Append("A[{0}] = {1}  | ".Args(i, ch(a[i])));
+          else
+            result.Append("       n/a        | ");
+          result.Append("B[{0}] = {1}  | ".Args(i, ch(b[i])));
+          result.AppendLine();
+        }
+      }
+      if (limit>0)
+        result.AppendLine("....Capped at {0} chars".Args(limit));
+
+      return result.ToString();
+    }
 
   }
 }
