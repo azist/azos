@@ -21,9 +21,81 @@
       <dependency id="Azos.Wave" version="$version$" />
     </dependencies>
     
+    <contentFiles>
+      <files include="**/*" buildAction="None" copyToOutput="true" flatten="false" />
+    </contentFiles>
+    
   </metadata>
 
   <files>
+    <!-- Core tools -->
+  
+    <file src="..\..\out\Release\Azos.Sky.dll"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\Azos.Sky.xml"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\Azos.Sky.pdb"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\Azos.Sky.WebManager.dll"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\Azos.Sky.WebManager.xml"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\Azos.Sky.WebManager.pdb"   target="contentFiles\any\any\azos\run-core" />
+    
+    <file src="..\..\out\Release\run-core\agdida.dll"  target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\agm.dll"     target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\ahgov.dll"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\amm.dll"     target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\aph.dll"     target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\ascon.dll"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\ash.dll"     target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\aws.dll"     target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\azgov.dll"   target="contentFiles\any\any\azos\run-core" />
+    
+    <file src="..\..\out\Release\run-core\agdida.runtimeconfig.json"  target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\agm.runtimeconfig.json"     target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\ahgov.runtimeconfig.json"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\amm.runtimeconfig.json"     target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\aph.runtimeconfig.json"     target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\ascon.runtimeconfig.json"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\ash.runtimeconfig.json"     target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\aws.runtimeconfig.json"     target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\azgov.runtimeconfig.json"   target="contentFiles\any\any\azos\run-core" />
+    
+    <!-- todo add LACONFS -->
+    
+     <!-- Netf tools -->
+    <file src="..\..\out\Release\Azos.Sky.dll"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\Azos.Sky.xml"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\Azos.Sky.pdb"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\Azos.Sky.WebManager.dll"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\Azos.Sky.WebManager.xml"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\Azos.Sky.WebManager.pdb"   target="contentFiles\any\any\azos\run-netf" />
+    
+    
+    <file src="..\..\out\Release\run-netf\Agnivo.exe"  target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\agdida.exe"  target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\agm.exe"     target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\ahgov.exe"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\amm.exe"     target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\aph.exe"     target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\ascon.exe"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\ash.exe"     target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\aws.exe"     target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\azgov.exe"   target="contentFiles\any\any\azos\run-netf" />
+    
+    <file src="..\..\out\Release\run-netf\Agnivo.exe.config"  target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\Agnivo.laconf"      target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\Agnivo.win.laconf"  target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\agdida.exe.config"  target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\agm.exe.config"     target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\ahgov.exe.config"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\amm.exe.config"     target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\aph.exe.config"     target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\ascon.exe.config"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\ash.exe.config"     target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\aws.exe.config"     target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\azgov.exe.config"   target="contentFiles\any\any\azos\run-netf" />
+     
+    <!-- todo add LACONFS -->
+    
+     <!-- ============================================================ -->
+  
     <file src="..\..\out\Release\Azos.Sky.dll" target="lib\netstandard2.0" />
     <file src="..\..\out\Release\Azos.Sky.xml" target="lib\netstandard2.0" />
     <file src="..\..\out\Release\Azos.Sky.pdb" target="lib\netstandard2.0" />

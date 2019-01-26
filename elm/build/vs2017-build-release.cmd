@@ -13,6 +13,8 @@ set MSBUILD_EXE="%DOTNET_FRAMEWORK_DIR%\MSBuild.exe"
 
 set BUILD_ARGS=/t:Restore;Rebuild /p:Configuration=Release /p:Platform="Any CPU" /p:DefineConstants="TRACE" /p:METABASE=prod /verbosity:normal /maxcpucount:1
 
+if "%~1" NEQ "" (SET BUILD_ARGS=%BUILD_ARGS% /p:Version=%1)
+
 echo Building Release AZOS ---------------------------------------
 %MSBUILD_EXE% "%AZOS_HOME%src\AZOS.sln" %BUILD_ARGS%
 if errorlevel 1 goto ERROR
