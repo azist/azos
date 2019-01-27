@@ -394,6 +394,7 @@ namespace Azos.Apps
 
     #region Protected
 
+    [Config] private bool m_LogCallerFileLines;
 
     protected Guid WriteLog(MessageType type,
                             string from,
@@ -414,7 +415,10 @@ namespace Azos.Apps
                     From = from,
                     Text = msgText,
                     Exception = error,
-                 }.SetParamsAsObject( Message.FormatCallerParams(pars, file, line) );
+                 };
+
+      if (m_LogCallerFileLines)
+        msg.SetParamsAsObject( Message.FormatCallerParams(pars, file, line) );
 
       if (related.HasValue) msg.RelatedTo = related.Value;
 

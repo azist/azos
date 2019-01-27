@@ -22,6 +22,8 @@ namespace WinFormsTest
     {
       new Azos.Platform.Abstraction.NetFramework.DotNetFrameworkRuntime();
 
+      Azos.Apps.ExecutionContext.__MemoryLeakTracker += Azos.Apps.ExecutionContext.__DefaultMemoryLeakTracker;
+
       //This line initializes  Azos Application Model dependency injection services container
       //Separate class was needed because Application  class is sealed
       using (new AzosApplication(args, null))
@@ -35,7 +37,7 @@ namespace WinFormsTest
 
       // Application.Run(new Form2());
       //    Application.Run(new MongoDBForm());
-//          Application.Run(new LogForm());
+      //    Application.Run(new LogForm());
 
        //  Application.Run(new SerializerForm());
        //   Application.Run(new SerializerForm2());

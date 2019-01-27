@@ -21,7 +21,7 @@ namespace WinFormsTest
 {
     public partial class LogForm : Form
     {
-        const int CNT = 100;
+        const int CNT = 5;
 
         public LogForm()
         {

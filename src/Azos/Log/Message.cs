@@ -222,14 +222,14 @@ namespace Azos.Log
       if (pars == null)
         return new
         {
-          clrF = file.IsNotNullOrWhiteSpace() ? Path.GetFileName(file) : null,
-          clrL = line,
+          f = file.IsNotNullOrWhiteSpace() ? Path.GetFileName(file) : null,
+          L = line,
         };
       else
         return new
         {
-          clrF = file.IsNotNullOrWhiteSpace() ? Path.GetFileName(file) : null,
-          clrL = line,
+          f = file.IsNotNullOrWhiteSpace() ? Path.GetFileName(file) : null,
+          L = line,
           p = pars
         };
     }

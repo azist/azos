@@ -219,5 +219,21 @@ Performance
         {
  //           new GlueStressForm().Show();
         }
+
+    private void btnLog_Click(object sender, EventArgs e)
+    {
+      (new LogForm()).Show();
     }
+
+    private void btnLeakRam_Click(object sender, EventArgs e)
+    {
+      new Leaker();//but noone calls dispose on a disposable
+    }
+
+    private class Leaker : Azos.DisposableObject
+    {
+
+    }
+
+  }
 }

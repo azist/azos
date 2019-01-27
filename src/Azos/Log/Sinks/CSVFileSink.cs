@@ -42,21 +42,20 @@ namespace Azos.Log.Sinks
 
         StringBuilder line = new StringBuilder();
 
+        line.Append(escape(msg.Channel)); line.Append(',');
         line.Append(msg.Guid); line.Append(',');
         line.Append(msg.RelatedTo == Guid.Empty ? string.Empty : msg.RelatedTo.ToString()); line.Append(',');
         line.Append(msg.Type.ToString()); line.Append(',');
-        line.Append(msg.Source.ToString()); line.Append(',');
         line.Append(sink.UniversalTimeToLocalizedTime(msg.UTCTimeStamp).ToString(logTimeFormat)); line.Append(',');
-
         line.Append(escape(msg.Host));    line.Append(',');
-        line.Append(escape(msg.Channel)); line.Append(',');
-        line.Append(escape(msg.From));    line.Append(',');
         line.Append(escape(msg.Topic));   line.Append(',');
+        line.Append(escape(msg.From));    line.Append(',');
         line.Append(escape(msg.Text));    line.Append(',');
+        line.Append(msg.Source); line.Append(',');
         line.Append(escape(msg.ArchiveDimensions)); line.Append(',');
         line.Append(escape(msg.Parameters)); line.Append(',');
         if (msg.Exception != null)
-            line.Append(escape(msg.Exception.GetType().FullName + "::" + msg.Exception.Message));
+          line.Append(escape(msg.Exception.GetType().FullName + "::" + msg.Exception.Message));
 
         return line.ToString();
     }

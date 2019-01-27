@@ -1,12 +1,14 @@
 ﻿<!-- Comment-->
 <app
        log-root="$(~AZOS_TEST_ROOT)\"
-       log-csv="Azos.Log.Destinations.CSVFileDestination, Azos"
-       log-debug="Azos.Log.Destinations.DebugDestination, Azos"
-       log-mongo="Azos.Log.Destinations.MongoDBDestination, Azos.MongoDB"
+       log-csv="Azos.Log.Sinks.CSVFileSink, Azos"
+       log-debug="Azos.Log.Sinks.DebugSinks, Azos"
+       log-mongo="Azos.Log.Sinks.MongoDbSink, Azos.MongoDb"
        application-name="Manual Win Forms Test App(WinFormsTest.exe)"
        log-name="test-client"
        trace-disable="true"
+
+       Xlog-caller-file-lines="true"
 >
 
   <memory-management>
@@ -33,16 +35,17 @@
   </instrumentation>
 
 
-<!--
+
   <log name="Logger" default-failover="destFailures">
 
-      <destination  type="$(/$log-csv)"
-           name="$(/$log-name)"
-           path="$(/$log-root)"
-           file-name="{0:yyyyMMdd}-$($name).csv.log"
+    <sink  type="$(/$log-csv)"
+         name="$(/$log-name)"
+         path="$(/$log-root)"
+         file-name="{0:yyyyMMdd}-$($name).csv.log"
         />
-
-      <destination  type="$(/$log-csv)"
+  </log>
+<!--
+    <sink  type="$(/$log-csv)"
            name="$(/$log-name)-perf"
            path="$(/$log-root)"
            file-name="{0:yyyyMMdd}-$($name).csv.log"
@@ -50,22 +53,22 @@
            max-level="PerformanceInstrumentation"
         />
 
-      <destination type="$(/$log-debug)"
+    <sink type="$(/$log-debug)"
            name="$(/$log-name)-debug"
            path="$(/$log-root)"
            file-name="{0:yyyyMMdd}-$($name).dbg.log"
            max-level="Trace"
         />
 
-      <destination type="$(/$log-mongo)"
+    <sink type="$(/$log-mongo)"
        name="$(/$log-name)-mongo"
        db-name="logdb"
        collection="log"
        max-level="Trace"
           />
 
-   /*
-    <destination  type="Azos.Log.Destinations.LogServiceDestination, Azos"
+
+    <sink  type="Azos.Log.Sinks.LogServiceSink, Azos"
                   name="subLog"
                   min-level="Error">
 
@@ -87,36 +90,36 @@
                         days-of-week="Sat,Sun"
                         />
 
-    </destination>
+    </sink>
 
 
-    <destination  type="Azos.Log.Destinations.CompositeDestination, Azos"
+    <sink  type="Azos.Log.Sinks.CompositeSink, Azos"
      name="Errors Only"
      min-level="Error"
     >
 
-                       <destination  type="$(/$log-csv)"
+      <sink  type="$(/$log-csv)"
                          name="Hourly Errors"
                          path="$(/$log-root)"
                          name-time-format="yyyyMMdd-HH"
                       />
 
-                        <destination  type="$(/$log-csv)"
+      <sink  type="$(/$log-csv)"
                           name="Daily Errors"
                           path="$(/$log-root)"
                           name-time-format="yyyyMMdd"
                       />
 
-    </destination>
+    </sink>
 
-    <destination  type="$(/$log-csv)"
+    <sink  type="$(/$log-csv)"
      name="WinFormsTest Log"
      path="$(/$log-root)"
      name-time-format="yyyyMMdd"
      filter='arg.From.Contains("arbuz")'
     />
 
-    <destination  type="$(/$log-csv)"
+    <sink  type="$(/$log-csv)"
       name="Warnings Log"
       path="$(/$log-root)"
       name-time-format="yyyyMMdd"
@@ -124,7 +127,7 @@
       max-level="Warning"
     />
 
-    <destination type="Azos.Log.Destinations.FloodFilter, Azos"
+    <sink type="Azos.Log.Sinks.FloodSink, Azos"
                  interval-sec="10"
                  max-count="10"
                  max-text-length="128000"
@@ -138,7 +141,7 @@
                         name-time-format="yyyyMMdd"
                       />
 
-                      <destination  type="Azos.Log.Destinations.SMTPDestination, Azos"
+                      <destination  type="Azos.Log.sinks.SMTPSink, Azos"
                         name="G-Mail"
 
                         smtp-host="smtp.gmail.com"
@@ -161,15 +164,14 @@
 
 
 
-    </destination>
+    </sink>
 
-    <destination  type="Azos.Log.Destinations.SyslogDestination, Azos"
+    <sink  type="Azos.Log.Sinks.SyslogSink, Azos"
      name=".NIX SYSLOG"
      host="unix_host_name"
      port="514"
     />
 
-  */
 
   </log>
 
@@ -195,7 +197,7 @@
                  >
 
         <provider name="Disk Object Store Provider"
-                  type="Azos.ApplicationModel.Volatile.FileObjectStoreProvider"
+                  type="Azos.Apps.Volatile.FileObjectStoreProvider"
                   load-limit="0"
                   root-path="$(~AZOS_TEST_ROOT)\"
 
