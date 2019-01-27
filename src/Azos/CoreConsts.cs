@@ -70,6 +70,7 @@ namespace Azos
     #region Topics
       //note: Topics must be short as they are emitted into every log line
       public const string APPLICATION_TOPIC = "App";
+      public const string MEMORY_TOPIC = "Mem";
       public const string PLATFROM_TOPIC = "Pltfrm";
       public const string DATA_TOPIC = "Data";
       public const string LOG_TOPIC = "Log";

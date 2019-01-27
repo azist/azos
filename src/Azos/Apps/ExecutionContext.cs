@@ -21,8 +21,12 @@ namespace Azos.Apps
     private static volatile IApplication s_Application;
     private static Stack<IApplication> s_AppStack = new Stack<IApplication>();
 
+
+
+
     /// <summary>
-    /// Returns global application context
+    /// Returns global application context. The value is never null, the NOPApplication is returned
+    /// had the specific app container not been allocated
     /// </summary>
     public static IApplication Application
     {
@@ -98,6 +102,54 @@ namespace Azos.Apps
     public static void __SetThreadLevelSessionContext(ISession session)
     {
       Thread.CurrentPrincipal = session;
+    }
+
+
+
+    /// <summary>
+    /// System debug aid for advanced use - helps to identify classes
+    /// which rely on CLR finalizers for their finalization which is a memory leak.
+    /// Set to event handler which would get called on non-deterministic finalization.
+    /// You can use ExecutionContext.__DefaultMemoryLeakTracker which logs the instance types.
+    /// </summary>
+    /// <remarks>
+    /// The disposable objects MUST NOT rely on finalizers and must call .Dispose()
+    /// deterministically.
+    /// Warning: it is impossible to cache/use leaking object references for future use, as the call
+    /// is being made from the finalizer, therefore the handler takes the object type only.
+    /// Your custom tracker may keep track of types causing the leak, their frequency and dump the report
+    /// at the end of app lifecycle
+    /// </remarks>
+    public static event Action<Type> __MemoryLeakTracker;
+
+    /// <summary>
+    /// System internal method which tracks non-deterministic object finalizations
+    /// which indicate possible memory leaks
+    /// </summary>
+    public static void __TrackMemoryLeak(Type instanceType) => __MemoryLeakTracker?.Invoke(instanceType);
+
+    /// <summary>
+    /// Provides default memory leak tracking implementation based on app logging
+    /// </summary>
+    public static void __DefaultMemoryLeakTracker(Type instanceType)
+    {
+      if (instanceType==null) return;
+
+      var app = Application;
+
+      if (app is NOPApplication) return;
+
+      var log = app.Log;
+
+      if (log is Log.NOPLog) return;
+
+      log.Write(new Log.Message
+      {
+        Type = Log.MessageType.Warning,
+        Topic = CoreConsts.MEMORY_TOPIC,
+        From = $"~{nameof(DisposableObject)}()",
+        Text = StringConsts.OBJECT_WAS_NOT_DETERMINISTICALLY_DISPOSED_ERROR.Args(instanceType.FullName)
+      });
     }
   }
 }

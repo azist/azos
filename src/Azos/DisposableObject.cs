@@ -9,56 +9,75 @@ using System.Threading;
 
 namespace Azos
 {
+#pragma warning disable CA1063
   /// <summary>
   /// General-purpose base class for objects that need to be disposed
   /// </summary>
   [Serializable]
   public abstract class DisposableObject : IDisposable
   {
+    private const int STATE_ALIVE = 0;
+    private const int STATE_DISPOSED_USER = 1;
+    private const int STATE_DISPOSED_FINALIZER = 2;
 
     #region STATIC
 
-      /// <summary>
-      /// Checks to see if the IDisposable reference is not null and sets it to null in a thread-safe way then calls Dispose().
-      /// Returns false if it is already null or not the original reference
-      /// </summary>
-      public static bool DisposeAndNull<T>(ref T obj) where T : class, IDisposable
-      {
-        var original = obj;
-        var was = Interlocked.CompareExchange(ref obj, null, original);
-        if (was==null || !object.ReferenceEquals(was, original)) return false;
 
-        was.Dispose();
-        return true;
-      }
 
+    /// <summary>
+    /// Checks to see if the IDisposable reference is not null and sets it to null in a thread-safe way then calls Dispose().
+    /// Returns false if it is already null or not the original reference
+    /// </summary>
+    public static bool DisposeAndNull<T>(ref T obj) where T : class, IDisposable
+    {
+      var original = obj;
+      var was = Interlocked.CompareExchange(ref obj, null, original);
+      if (was==null || !object.ReferenceEquals(was, original)) return false;
+
+      was.Dispose();
+      return true;
+    }
     #endregion
 
-
     #region .ctor / .dctor
-
-      ~DisposableObject()
+    ~DisposableObject()
+    {
+      if (STATE_ALIVE == Interlocked.CompareExchange(ref m_DisposeState, STATE_DISPOSED_FINALIZER, STATE_ALIVE))
       {
-        if (0 == Interlocked.CompareExchange(ref m_DisposeStarted, 1, 0))
-        {
-          Destructor();
-        }
+        //Disposable objects should be disposed by user code and this finalizer call should never happen
+        //if it does happen, it indicates a possible memory leak
+        Apps.ExecutionContext.__TrackMemoryLeak(this.GetType());
+        Destructor();
       }
+    }
 
     #endregion
 
     #region Private Fields
-      private int m_DisposeStarted;
+    private int m_DisposeState;
     #endregion
 
     #region Properties
 
-      /// <summary>
-      /// Indicates whether this object Dispose() has been called and dispose started (but
-      /// may not have finished yet). Thread safe
-      /// </summary>
-      public bool Disposed => Thread.VolatileRead(ref m_DisposeStarted) != 0;
+    /// <summary>
+    /// For advanced use. Returns true when object is being disposed by a finalizer called from CLR GC.
+    /// You may want to check for this flag in Destructor() to bypass some deallocation as the
+    /// condition is equivalent to typical Dispose(false) pattern, however it indicates a possible memory leak
+    /// as all entities implementing IDisposable must be deterministically deallocated using a call to .Dispose() and
+    /// system finalizers should NEVER run
+    /// </summary>
+    /// <remarks>
+    /// Application developers should disregard this flag and assume that objects are ALWAYS disposed using
+    /// .Dispose() invocation from code. Finalizers should never run, and you can track possible memory leaks using
+    /// <see cref="Apps.ExecutionContext.__MemoryLeakTracker"/> event
+    /// </remarks>
+    public bool __DisposedByFinalizer => Thread.VolatileRead(ref m_DisposeState) == STATE_DISPOSED_FINALIZER;
 
+    /// <summary>
+    /// Indicates whether this object Dispose() or finalizer has been called and dispose started (but
+    /// may not have finished yet). Thread safe
+    /// </summary>
+    public bool Disposed => Thread.VolatileRead(ref m_DisposeState) != STATE_ALIVE;
     #endregion
 
 
@@ -66,8 +85,16 @@ namespace Azos
 
     /// <summary>
     /// Override this method to do actual destructor work.
-    /// Destructor should not throw exceptions - must handle internally
+    /// Destructor should not throw exceptions - must handle internally/use logging
     /// </summary>
+    /// <remarks>
+    /// This method is called as the result of both the deterministic .Dispose() call by user code
+    /// and non-deterministic system finalizer invocations. The typical MS .Dispose(bool) pattern is not used on purpose because
+    /// all object implementing Disposable() must be deallocated ONLY via a call to Dispose() and
+    /// invocation of system finalizer is considered to be a memory leak in Azos.
+    /// You could check the <seealso cref="__DisposedByFinalizer"/> property,
+    /// however this is considered to be a special case such as reporting of memory leaks using instrumentation/gauges.
+    /// </remarks>
     protected virtual void Destructor()
     {
     }
@@ -78,31 +105,30 @@ namespace Azos
     public void EnsureObjectNotDisposed()
     {
       if (Disposed)
-        throw new DisposedObjectException(StringConsts.OBJECT_DISPOSED_ERROR+" {0}".Args(this.GetType().FullName));
+        throw new DisposedObjectException(StringConsts.OBJECT_DISPOSED_ERROR.Args(this.GetType().FullName));
     }
 
     #endregion
 
     #region IDisposable Members
-
-        /// <summary>
-        /// Deterministically disposes object. DO NOT OVERRIDE this method, override Destructor() instead
-        /// </summary>
-        public void Dispose()
+    /// <summary>
+    /// Deterministically disposes this object in a thread-safe way.
+    /// DO NOT TRY TO OVERRIDE this method, override Destructor() instead
+    /// </summary>
+    public void Dispose()
+    {
+      if (STATE_ALIVE == Interlocked.CompareExchange(ref m_DisposeState, STATE_DISPOSED_USER, STATE_ALIVE))
+      {
+        try
         {
-          if (0 == Interlocked.CompareExchange(ref m_DisposeStarted, 1, 0))
-          {
-            try
-            {
-              Destructor();
-            }
-            finally
-            {
-              GC.SuppressFinalize(this);
-            }
-          }
+          Destructor();
         }
-
+        finally
+        {
+          GC.SuppressFinalize(this);
+        }
+      }
+    }
     #endregion
   }
 
@@ -119,4 +145,5 @@ namespace Azos
     public DisposedObjectException(string message, Exception inner) : base(message, inner) { }
     protected DisposedObjectException(SerializationInfo info, StreamingContext context) : base(info, context) { }
   }
+#pragma warning restore CA1063
 }

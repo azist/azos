@@ -19,7 +19,10 @@ namespace Azos
       "The App.SetMemoryModel() method must be called at process entry point before the app container allocation";
 
         public const string OBJECT_DISPOSED_ERROR =
-            "Object was already disposed";
+            "Object '{0}' instance was already disposed";
+
+        public const string OBJECT_WAS_NOT_DETERMINISTICALLY_DISPOSED_ERROR =
+            "Object '{0}' instance was not deterministically disposed";
 
         public const string INTERNAL_SYSTEM_ERROR =
             "Internal system error: ";
