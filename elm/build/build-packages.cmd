@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.0.253
+set VER=1.0.255
 
 call vs2017-build-release %VER%
 

@@ -228,6 +228,8 @@ Performance
     private void btnLeakRam_Click(object sender, EventArgs e)
     {
       new Leaker();//but noone calls dispose on a disposable
+
+      //using(var l = new Leaker()){ }  //this does not leak
     }
 
     private class Leaker : Azos.DisposableObject
