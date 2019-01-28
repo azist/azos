@@ -85,7 +85,7 @@ Application is a composition root for the [`IApplicationComponent`](/src/Azos/Ap
 <tr>
 <td>Log <br><sup>ILog</sup></td>
 <td>
- References application logging component. Component-specifc logging is done via <code>WrieLog(...)</code> component instance method
+ References application logging component. Component-specific logging is done via <code>WriteLog(...)</code> component instance method
 </td>
 </tr>
 
@@ -93,7 +93,7 @@ Application is a composition root for the [`IApplicationComponent`](/src/Azos/Ap
 <tr>
 <td>Instrumentation <br><sup>IInstrumentation</sup> </td>
 <td>
- Returns intsrumentation facade. The primary method is <code>instrumentation.Write(Datum)</code> where Datum <i>(singular of "data")</i> is a common ancestor 
+ Returns instrumentation facade. The primary method is <code>instrumentation.Write(Datum)</code> where Datum <i>(singular of "data")</i> is a common ancestor 
  for <strong>gauges</strong> (measurements that have a value) and <strong>events</strong> (measurements that just happen)
 </td>
 </tr>
@@ -156,7 +156,7 @@ the source control system with <code>Checkin()/Checkout()</code> methods. The st
 <td>EventTimer<br><sup>IEventTimer</sup></td>
 <td>
  Maintains and executes instances of <code>Time.Event</code> class. This is a process-wide scheduler. Many services use custom
-events to schedule some periodic update work, for example to dump performance staticstics into instrumentation. Events are configurable,
+events to schedule some periodic update work, for example to dump performance statistics into instrumentation. Events are configurable,
 so one may script events like <code>DeleteFilesJob</code> which drops old log files.
 </td>
 </tr>
@@ -182,7 +182,7 @@ entropy from network stack and other sources of unpredictable data (e.g. various
 <tr>
 <td>InstanceID <br><sup>Guid<sup></td>
 <td>
- Uniquelly identifies this running application instance. Regenerated on every run
+ Uniquely identifies this running application instance. Regenerated on every run
 </td>
 </tr>
 
