@@ -10,20 +10,39 @@ using System.Threading;
 namespace Azos
 {
 #pragma warning disable CA1063
+
+  /// <summary>
+  /// Advanced use, provides extra information about object being disposed
+  /// </summary>
+  public interface IDisposableLifecycle : IDisposable
+  {
+    /// <summary>
+    /// For advanced use. Returns true when object is being disposed by a finalizer called from CLR GC.
+    /// You may want to check for this flag in Destructor() to bypass some deallocation as the
+    /// condition is equivalent to typical Dispose(false) pattern, however it indicates a possible memory leak
+    /// as all entities implementing IDisposable must be deterministically deallocated using a call to .Dispose() and
+    /// system finalizers should NEVER run
+    /// </summary>
+    /// <remarks>
+    /// Application developers should disregard this flag and assume that objects are ALWAYS disposed using
+    /// .Dispose() invocation from code. Finalizers should never run, and you can track possible memory leaks using
+    /// <see cref="Apps.ExecutionContext.__MemoryLeakTracker"/> event
+    /// </remarks>
+    bool DisposedByFinalizer {  get; }
+  }
+
+
   /// <summary>
   /// General-purpose base class for objects that need to be disposed
   /// </summary>
   [Serializable]
-  public abstract class DisposableObject : IDisposable
+  public abstract class DisposableObject : IDisposableLifecycle
   {
     private const int STATE_ALIVE = 0;
     private const int STATE_DISPOSED_USER = 1;
     private const int STATE_DISPOSED_FINALIZER = 2;
 
     #region STATIC
-
-
-
     /// <summary>
     /// Checks to see if the IDisposable reference is not null and sets it to null in a thread-safe way then calls Dispose().
     /// Returns false if it is already null or not the original reference
@@ -60,18 +79,9 @@ namespace Azos
     #region Properties
 
     /// <summary>
-    /// For advanced use. Returns true when object is being disposed by a finalizer called from CLR GC.
-    /// You may want to check for this flag in Destructor() to bypass some deallocation as the
-    /// condition is equivalent to typical Dispose(false) pattern, however it indicates a possible memory leak
-    /// as all entities implementing IDisposable must be deterministically deallocated using a call to .Dispose() and
-    /// system finalizers should NEVER run
+    /// Explicitly implements <see cref="IDisposableLifecycle.DisposedByFinalizer"/>
     /// </summary>
-    /// <remarks>
-    /// Application developers should disregard this flag and assume that objects are ALWAYS disposed using
-    /// .Dispose() invocation from code. Finalizers should never run, and you can track possible memory leaks using
-    /// <see cref="Apps.ExecutionContext.__MemoryLeakTracker"/> event
-    /// </remarks>
-    public bool __DisposedByFinalizer => Thread.VolatileRead(ref m_DisposeState) == STATE_DISPOSED_FINALIZER;
+    bool IDisposableLifecycle.DisposedByFinalizer => Thread.VolatileRead(ref m_DisposeState) == STATE_DISPOSED_FINALIZER;
 
     /// <summary>
     /// Indicates whether this object Dispose() or finalizer has been called and dispose started (but
@@ -92,7 +102,7 @@ namespace Azos
     /// and non-deterministic system finalizer invocations. The typical MS .Dispose(bool) pattern is not used on purpose because
     /// all object implementing Disposable() must be deallocated ONLY via a call to Dispose() and
     /// invocation of system finalizer is considered to be a memory leak in Azos.
-    /// You could check the <seealso cref="__DisposedByFinalizer"/> property,
+    /// You could check the <seealso cref="IDisposableLifecycle.DisposedByFinalizer"/> property,
     /// however this is considered to be a special case such as reporting of memory leaks using instrumentation/gauges.
     /// </remarks>
     protected virtual void Destructor()

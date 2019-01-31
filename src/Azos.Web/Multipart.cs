@@ -17,7 +17,7 @@ using Azos.Serialization.JSON;
 namespace Azos.Web
 {
   /// <summary>
-  /// Faciliates working with multipart encoding
+  /// Facilitates working with multipart encoding
   /// </summary>
   public sealed class Multipart
   {

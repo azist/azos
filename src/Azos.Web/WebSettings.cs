@@ -16,8 +16,8 @@ namespace Azos.Web
     public const string CONFIG_WEBSETTINGS_SECTION = "web-settings";
     public const string CONFIG_SERVICEPOINTMANAGER_SECTION = "service-point-manager";
 
-    public const string CONFIG_LOGTYPE_ATTR = "log-type";
-    public const string CONFIG_DEFAULT_TIMEOUT_MS_ATTR = "default-timeout-ms";
+    //public const string CONFIG_LOGTYPE_ATTR = "log-type";
+    //public const string CONFIG_DEFAULT_TIMEOUT_MS_ATTR = "default-timeout-ms";
 
 
 

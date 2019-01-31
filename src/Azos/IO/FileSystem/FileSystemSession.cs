@@ -86,10 +86,10 @@ namespace Azos.IO.FileSystem
           lock(m_FileSystem.m_Sessions)
             m_FileSystem.m_Sessions.Remove( this );
 
-          RollbackTransaction();
+          rollbackTransactionBody();
 
-          //delete from tail not to re-alloc list
-          while(m_Items.Count>0)
+              //delete from tail not to re-alloc list
+          while (m_Items.Count>0)
               m_Items[m_Items.Count-1].Dispose();
 
           base.Destructor();
@@ -273,8 +273,14 @@ namespace Azos.IO.FileSystem
         public void RollbackTransaction()
         {
            CheckDisposed();
-           m_FileSystem.DoRollbackTransaction( this );
+           rollbackTransactionBody();
         }
+
+        private void rollbackTransactionBody()
+        {
+          m_FileSystem.DoRollbackTransaction(this);
+        }
+
 
                 /// <summary>
                 /// Async version of <see cref="RollbackTransaction()"/>

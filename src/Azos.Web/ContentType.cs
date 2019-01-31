@@ -4,13 +4,125 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System.Collections.Generic;
+
+using Azos.Conf;
+using Azos.Collections;
+using Azos.Serialization.JSON;
+
 namespace Azos.Web
 {
   /// <summary>
-  /// Declares web-related/mime content types
+  /// Declares web-related/mime content types. Content type mappings get loaded from application CONFIG_CONTENT_TYPES_SECTION
   /// </summary>
+  /// <remarks>
+  /// See: https://github.com/Microsoft/referencesource/blob/master/System.Web/MimeMapping.cs
+  /// Config example:
+  /// <code>
+  /// app
+  /// {
+  ///   web-settings
+  ///   {
+  ///     content-type-mappings
+  ///     {
+  ///       map
+  ///       {
+  ///         extensions="jpg;jfif;jpeg"
+  ///         content-type="image/jpeg"
+  ///         binary=true
+  ///         image=true
+  ///         name{eng{n='Jpeg' d='Jpeg Image File'} deu{n='Jpeg' d='Jpeg Built File'}}
+  ///         meta{} //ad-hoc metadata
+  ///       }
+  ///
+  ///       map
+  ///       {
+  ///         extensions="htm;html;ht"
+  ///         content-type="text/html"
+  ///         alt-content-type="html"
+  ///         binary=false
+  ///         image=false
+  ///         name{eng{n='HTML' d='Hypertext Markup Language'}}
+  ///         meta{} //ad-hoc metadata
+  ///       }
+  ///     }
+  ///   }
+  /// }
+  /// </code>
+  /// </remarks>
   public static class ContentType
   {
+    public const string CONFIG_CONTENT_TYPE_MAPPINGS_SECTION = "content-type-mappings";
+    public const string CONFIG_MAP_SECTION = "map";
+    public const string CONFIG_EXTENSIONS_ATTR = "extensions";
+    public const string CONFIG_CONTENT_TYPE_ATTR = "content-type";
+    public const string CONFIG_ALT_CONTENT_TYPE_ATTR = "alt-content-type";
+
+    private static readonly string[] SPLITS = new []{";","|"};
+
+    /// <summary>
+    /// Describes content type mappings
+    /// </summary>
+    public sealed class Mappings
+    {
+      internal Mappings(IApplication app)
+      {
+        m_App = app;
+        Refresh();
+      }
+
+      private readonly IApplication m_App;
+
+      private Dictionary<string, Mapping> m_ExtToMapping;
+
+      /// <summary>
+      /// Rebuilds mappings from config
+      /// </summary>
+      public void Refresh()
+      {
+
+      }
+
+    }
+
+    /// <summary>
+    /// Provides content type file information
+    /// </summary>
+    public sealed class Mapping
+    {
+      internal Mapping(IConfigSectionNode node)
+      {
+        node.NonNull(nameof(node));
+
+      }
+
+      private string[] m_Extensions;
+      private string m_ContentType;
+      private string m_AltContentType;
+      private bool m_Binary;
+      private bool m_Image;
+      private NLSMap m_Name;
+      public IConfigSectionNode m_Metadata;
+
+      public IEnumerable<string> FileExtensions => m_Extensions;
+      public string ContentTypes => m_ContentType;
+      public string AltContentType => m_AltContentType;
+      public bool IsBinary => m_Binary;
+      public bool IsText => !m_Binary;
+      public bool IsImage => m_Image;
+      public NLSMap Name => m_Name;
+      public IConfigSectionNode Metadata => m_Metadata;
+
+    }
+
+
+    /// <summary>
+    /// Returns the singleton instance of content type Mappings object for the application
+    /// </summary>
+    public static Mappings GetContentTypeMappings(this IApplication app) =>
+      app.NonNull(nameof(app)).Singletons.GetOrCreate<Mappings>(() => new Mappings(app)).instance;
+
+
     public const string TEXT = "text/plain";
     public const string HTML = "text/html";
     public const string CSS = "text/css";
