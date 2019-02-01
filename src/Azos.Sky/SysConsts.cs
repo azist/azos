@@ -213,6 +213,8 @@ namespace Azos.Sky
     public const string CONFIG_ENABLED_ATTR = "enabled";
   }
 
+
+#warning This class needs to be refactored to be used via Application.ResolveNamedVar(name), but the resolution of names may be rquoired before SkyApp boots so this needs review
   /// <summary>
   /// Resolves environment variables using values declared in code in static class SysConstants.
   /// The name must be prepended with "SysConsts." prefix, otherwise the OS resolver is used

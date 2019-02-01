@@ -264,5 +264,10 @@ namespace Azos.Apps
         {
           return ApplicationComponent.GetAppComponentByCommonName(this, name);
         }
+
+        public bool ResolveNamedVar(string name, out string value)
+        {
+          return DefaultAppVarResolver.ResolveNamedVar(this, name, out value);
+        }
   }
 }

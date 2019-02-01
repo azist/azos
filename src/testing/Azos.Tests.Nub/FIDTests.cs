@@ -38,7 +38,7 @@ namespace Azos.Tests.Nub
         [Run]
         public void FID3()
         {
-          var CNT = 25000;
+          var CNT = 0xffff*2;
 
           for(var c=0; c<37; c++)
           {
@@ -65,11 +65,15 @@ namespace Azos.Tests.Nub
         [Run("CNT=10000  tCNT= 100 ")]
         [Run("CNT=40000  tCNT= 100 ")]
 
+        [Run("CNT=250000  tCNT= 4 ")]
+        [Run("CNT=250000  tCNT= 2 ")]
+
         //reexecute same test many times
         [Run("CNT=8000   tCNT=101 ")]
         [Run("CNT=3799   tCNT=102 ")]
         [Run("CNT=8000   tCNT=25 ")]
         [Run("CNT=16000  tCNT=25 ")]
+        [Run("CNT=250000  tCNT=25 ")]
         public void FID4(int CNT, int tCNT)
         {
           var tasks = new List<Task>();

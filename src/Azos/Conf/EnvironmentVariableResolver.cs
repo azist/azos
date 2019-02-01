@@ -27,7 +27,7 @@ namespace Azos.Conf
 
 
   /// <summary>
-  /// Resolves variables using Windows environment variables.
+  /// Resolves variables using OS environment variables.
   /// NOTE: When serialized a new instance is created which will not equal by reference to static.Instance property
   /// </summary>
   [Serializable]//but there is nothing to serialize

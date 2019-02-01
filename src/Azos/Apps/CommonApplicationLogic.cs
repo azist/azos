@@ -389,6 +389,15 @@ namespace Azos.Apps
       return ApplicationComponent.GetAppComponentByCommonName(this, name);
     }
 
+    // <summary>
+    /// Performs resolution of the named application variable into its value.
+    /// This mechanism is referenced by Configuration environment vars which start with app prefix
+    /// </summary>
+    public virtual bool ResolveNamedVar(string name, out string value)
+    {
+      return DefaultAppVarResolver.ResolveNamedVar(this, name, out value);
+    }
+
     #endregion
 
 

@@ -215,6 +215,13 @@ namespace Azos
      /// </summary>
      /// <returns>True if notifiable instance was found and removed</returns>
      bool UnregisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable);
+
+     /// <summary>
+     /// Performs resolution of the named application variable into its value.
+     /// This mechanism is referenced by Configuration environment vars which start with app prefix
+     /// which is "App." by default, so $(~App.InstanceID) will resolve to IApplication.InstanceID etc.
+     /// </summary>
+     bool ResolveNamedVar(string name, out string value);
   }
 
 

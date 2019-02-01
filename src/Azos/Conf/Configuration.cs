@@ -40,9 +40,10 @@ namespace Azos.Conf
 
     public const  string  DEFAULT_VAR_MACRO_START = "::";
 
+    public const  string  DEFAULT_VAR_ENV_APP_PREFIX = "App.";
+
     public const  string  CONFIG_NAME_ATTR = "name";
     public const  string  CONFIG_ORDER_ATTR = "order";
-
 
     public const  string  CONFIG_LACONIC_FORMAT = "laconf";
 
@@ -245,6 +246,7 @@ namespace Azos.Conf
     private string m_Variable_ENV_MOD  = DEFAULT_VAR_ENV_MOD;
 
     private string m_Variable_MACRO_START = DEFAULT_VAR_MACRO_START;
+    private string m_Variable_ENV_APP_PREFIX = DEFAULT_VAR_ENV_APP_PREFIX;
     #endregion
 
     #region Public properties
@@ -390,6 +392,17 @@ namespace Azos.Conf
     }
 
     /// <summary>
+    /// Variable environment application prefix - when env var name starts with this prefix, the var resolves the name after prefix
+    /// from application via a call to App.ResolveNamedVar()
+    /// </summary>
+    public string Variable_ENV_APP_PREFIX
+    {
+      get { return m_Variable_ENV_APP_PREFIX ?? DEFAULT_VAR_ENV_APP_PREFIX; }
+      set { m_Variable_ENV_APP_PREFIX = value; }
+    }
+
+
+    /// <summary>
     /// Variable get clause modifier
     /// </summary>
     public string Variable_MACRO_START
@@ -497,11 +510,22 @@ namespace Azos.Conf
         }
 
         /// <summary>
-        /// Resolves variable name into its value
+        /// Resolves variable name into its value. If the variable names starts from Variable_ENV_APP_PREFIX,
+        /// then the variable gets resolved via Application.ResolveEnvironmentVariable(name), otherwise
+        /// the system will try passed resolver, then this conf instance resolver, then process-wide resolver, then OS resolver
         /// </summary>
         public string ResolveEnvironmentVar(string name, IEnvironmentVariableResolver resolver = null)
         {
           string value;
+
+          var appPrefix = this.Variable_ENV_APP_PREFIX;
+          if (name.StartsWith(appPrefix))
+          {
+            var appVarName = name.Substring(appPrefix.Length);
+            Application.ResolveNamedVar(appVarName, out value);
+            return value;
+          }
+
           if (resolver != null && resolver.ResolveEnvironmentVariable(name, out value)) return value;
 
           resolver = m_EnvironmentVarResolver;

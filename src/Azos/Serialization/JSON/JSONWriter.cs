@@ -181,7 +181,7 @@ namespace Azos.Serialization.JSON
         }
 
         /// <summary>
-        /// Writes a string in JSON format (a la "JSON encode string") - using quotes and escaping charecters that need it
+        /// Writes a string in JSON format (a la "JSON encode string") - using quotes and escaping characters that need it
         /// </summary>
         /// <param name="wri">TextWriter instance to append data into</param>
         /// <param name="data">Original string to encode as JSON</param>
