@@ -201,7 +201,7 @@ content-type-mappings
     extensions='png'
     content-type='image/png'
     binary=true image=true
-    name{eng{n='PNG' d='Portable Network Graphic'}}
+    name{eng{n='PNG' d='Portable Network Graphics'}}
   }
 
   map
@@ -301,8 +301,7 @@ content-type-mappings
   }
 
 
-}".AsLaconicConfig();
-
+}".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
 
 
     /// <summary>
@@ -437,7 +436,7 @@ content-type-mappings
         m_Extensions = new string[0],
         m_ContentType = BINARY,
         m_Binary = true,
-        m_Name = new NLSMap("{eng: {n: 'Generic Binary' d: 'Generic Binary'}}"),
+        m_Name = new NLSMap("{eng: {n: 'Generic Binary', d: 'Generic Binary'}}"),
         m_Metadata = Configuration.NewEmptyRoot().Configuration.EmptySection
       };
 
@@ -494,6 +493,7 @@ content-type-mappings
         result.m_Name = new NLSMap(node[CONFIG_NAME_SECTION]);
 
         var mnode = node[CONFIG_META_SECTION];
+
         var cfg = new MemoryConfiguration();
         if (mnode.Exists)
         {
@@ -506,7 +506,6 @@ content-type-mappings
         }
 
         cfg.SetReadOnly(true);
-
 
         return result;
       }
@@ -610,9 +609,6 @@ content-type-mappings
     public const string EOT  = "application/vnd.ms-fontobject";
     public const string OTF  = "application/font-sfnt";
     public const string WOFF = "application/font-woff";
-
-
-
 
     public const string FORM_URL_ENCODED = "application/x-www-form-urlencoded";
 

@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.IO;
 
 using Azos.Data;
 using Azos.Text;
@@ -636,7 +636,7 @@ namespace Azos.Conf
   /// Represents configuration section node. This class is thread safe
   /// </summary>
   [Serializable]
-  public sealed class ConfigSectionNode : ConfigNode, IConfigSectionNode
+  public sealed class ConfigSectionNode : ConfigNode, IConfigSectionNode, IJSONWritable
   {
     #region .ctor
 
@@ -847,10 +847,16 @@ namespace Azos.Conf
 
     #region Public
 
-        /// <summary>
-        /// Deletes this section from its parent
-        /// </summary>
-        public override void Delete()
+    void IJSONWritable.WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    {
+      var map = this.ToConfigurationJSONDataMap();
+      JSONWriter.WriteMap(wri, map, nestingLevel, options);
+    }
+
+    /// <summary>
+    /// Deletes this section from its parent
+    /// </summary>
+    public override void Delete()
         {
           checkCanModify();
           if (!Parent.Exists)
