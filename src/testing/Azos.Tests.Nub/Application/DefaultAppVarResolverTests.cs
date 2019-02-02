@@ -76,23 +76,23 @@ namespace Azos.Tests.Nub.Application
     public void Test_Counter()
     {
       string got;
-      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.A", out got));
+      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.Abc", out got));
       Aver.IsTrue(got.IsNotNullOrWhiteSpace());
       Aver.AreEqual(1, got.AsInt());
 
-      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.A", out got));
+      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.Abc", out got));
       Aver.IsTrue(got.IsNotNullOrWhiteSpace());
       Aver.AreEqual(2, got.AsInt());
 
-      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.A", out got));
+      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.Abc", out got));
       Aver.IsTrue(got.IsNotNullOrWhiteSpace());
       Aver.AreEqual(3, got.AsInt());
 
-      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.B", out got));
+      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.Bac", out got));
       Aver.IsTrue(got.IsNotNullOrWhiteSpace());
       Aver.AreEqual(1, got.AsInt());
 
-      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.A", out got));
+      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.Abc", out got));
       Aver.IsTrue(got.IsNotNullOrWhiteSpace());
       Aver.AreEqual(4, got.AsInt());
 
@@ -100,7 +100,7 @@ namespace Azos.Tests.Nub.Application
       Aver.IsTrue(got.IsNotNullOrWhiteSpace());
       Aver.AreEqual(1, got.AsInt());
 
-      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.B", out got));
+      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.Bac", out got));
       Aver.IsTrue(got.IsNotNullOrWhiteSpace());
       Aver.AreEqual(2, got.AsInt());
 

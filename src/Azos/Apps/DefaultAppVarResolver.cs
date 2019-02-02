@@ -36,6 +36,8 @@ namespace Azos.Apps
     /// </summary>
     public const string FIDX = "FIDX";
 
+    //since it does not need to be precise there is no need to make this IApp -instance dependent
+    //counters are incremented process-wide
     private static NamedInterlocked s_Counters = new NamedInterlocked();
 
     public static bool ResolveNamedVar(IApplication app, string name, out string value)
