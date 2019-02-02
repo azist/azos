@@ -847,16 +847,16 @@ namespace Azos.Conf
 
     #region Public
 
-    void IJSONWritable.WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
-    {
-      var map = this.ToConfigurationJSONDataMap();
-      JSONWriter.WriteMap(wri, map, nestingLevel, options);
-    }
+        void IJSONWritable.WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+        {
+          var map = this.ToConfigurationJSONDataMap();
+          JSONWriter.WriteMap(wri, map, nestingLevel, options);
+        }
 
-    /// <summary>
-    /// Deletes this section from its parent
-    /// </summary>
-    public override void Delete()
+        /// <summary>
+        /// Deletes this section from its parent
+        /// </summary>
+        public override void Delete()
         {
           checkCanModify();
           if (!Parent.Exists)
