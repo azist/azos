@@ -193,7 +193,7 @@ namespace Azos.Wave.Handlers
              else
              {
                var ext = Path.GetExtension(fsFile.Name);
-               work.Response.ContentType = Azos.Web.ContentType.ExtensionToContentType(ext, Azos.Web.ContentType.BINARY);
+               work.Response.ContentType = App.GetContentTypeMappings().MapFileExtension(ext).ContentType;
                work.Response.WriteStream(fsFile.FileStream, attachmentName: attachment ? Path.GetFileName(fileName) : null);
              }
          }

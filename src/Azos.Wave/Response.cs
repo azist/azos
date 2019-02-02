@@ -234,7 +234,7 @@ namespace Azos.Wave
 
         var ext = Path.GetExtension(localFileName);
         setWasWrittenTo();
-        m_NetResponse.ContentType = Azos.Web.ContentType.ExtensionToContentType(ext, Azos.Web.ContentType.BINARY);
+        m_NetResponse.ContentType = Work.App.GetContentTypeMappings().MapFileExtension(ext).ContentType;
 
         if (attachment)
           m_NetResponse.Headers.Add(WebConsts.HTTP_HDR_CONTENT_DISPOSITION, "attachment; filename={0}".Args(fi.Name));

@@ -307,7 +307,7 @@ namespace Azos.Wave.Handlers
 
         var ext = res.Substring(i+1);
 
-        return ContentType.ExtensionToContentType(ext);
+        return App.GetContentTypeMappings().MapFileExtension(ext).ContentType;
       }
     #endregion
 

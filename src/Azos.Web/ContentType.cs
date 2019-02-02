@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Azos.Conf;
-using Azos.Collections;
 using Azos.Serialization.JSON;
 
 namespace Azos.Web
@@ -179,7 +178,6 @@ content-type-mappings
   //////  binary=true
   //////  name{eng{n='Exe' d='Windows Executable File'}}
   //////}
-  
 
   map
   {
@@ -308,7 +306,7 @@ content-type-mappings
 
 
     /// <summary>
-    /// Describes content type mappings
+    /// Describes application content type mappings
     /// </summary>
     public sealed class Mappings
     {
@@ -324,7 +322,7 @@ content-type-mappings
       public readonly IApplication App;
 
       private Dictionary<string, Mapping> m_ExtToMapping;
-
+      private Dictionary<string, List<Mapping>> m_TypeToMapping;
 
       /// <summary>
       /// Returns mapping for the specified file extension or null if not found.
@@ -346,34 +344,68 @@ content-type-mappings
       /// </summary>
       public IEnumerable<Mapping> All => m_ExtToMapping.Values;
 
+
+      /// <summary>
+      /// Returns a mapping for file type, if no mapping could be made the GENERIC_BINARY is returned, so
+      /// this method never returns null
+      /// </summary>
+      public Mapping MapFileExtension(string fileExtension)
+      {
+        var result = this[fileExtension];
+        return result ?? Mapping.GENERIC_BINARY;
+      }
+
+      /// <summary>
+      /// Gets enumerable of mappings mapped to the specified content type, or empty enumerable
+      /// </summary>
+      public IEnumerable<Mapping> MapContentType(string ctype)
+      {
+        if (ctype.IsNotNullOrWhiteSpace() &&
+            m_TypeToMapping.TryGetValue(ctype, out var result)) return result;
+
+        return Enumerable.Empty<Mapping>();
+      }
+
+
       /// <summary>
       /// Rebuilds mappings from application config. The mappings are under '/web-settings/content-type-mappings' node.
       /// This method is thread safe.
       /// </summary>
       public void Refresh()
       {
-        var data = new Dictionary<string, Mapping>();
+        var idxByExtension = new Dictionary<string, Mapping>(System.StringComparer.OrdinalIgnoreCase);
+        var idxByType = new Dictionary<string, List<Mapping>>(System.StringComparer.OrdinalIgnoreCase);
 
         //1 - build from default config
-        build(data, DEFAULT_CONFIG);
+        build(idxByExtension, idxByType, DEFAULT_CONFIG);
 
         //2 - build/overwrite from user config
         var rootNode = App.ConfigRoot[WebSettings.CONFIG_WEBSETTINGS_SECTION][CONFIG_CONTENT_TYPE_MAPPINGS_SECTION];
-        build(data, rootNode);
+        build(idxByExtension, idxByType, rootNode);
 
-        m_ExtToMapping = data;//atomic
+        m_ExtToMapping = idxByExtension;//atomic
+        m_TypeToMapping = idxByType;//atomic
       }
 
-      private void build(Dictionary<string, Mapping> data, IConfigSectionNode rootNode)
+      private void build(Dictionary<string, Mapping> byExt, Dictionary<string, List<Mapping>> byType, IConfigSectionNode rootNode)
       {
         foreach (var cnode in rootNode.Children.Where(c => c.IsSameName(CONFIG_MAP_SECTION)))
         {
           var mapping = Mapping.TryBuild(App, cnode);
           if (mapping == null) continue;
 
-          //Build the index
+          //Build the extension index
           foreach (var fext in mapping.FileExtensions)
-            data[fext] = mapping;//in case of duplication, overwrites with latest value
+            byExt[fext] = mapping;//in case of duplication, overwrites with latest value
+
+          //Build the type index
+          List<Mapping> list;
+          if (!byType.TryGetValue(mapping.ContentType, out list))
+          {
+            list = new List<Mapping>();
+            byType.Add(mapping.ContentType, list);
+          }
+          list.Add(mapping);
         }
       }
 
@@ -392,10 +424,24 @@ content-type-mappings
     }//class Mappings
 
     /// <summary>
-    /// Provides content type file information
+    /// Provides content type file mapping information
     /// </summary>
     public sealed class Mapping
     {
+      /// <summary>
+      /// Returns a singleton mapping which represents a generic binary mapping when no other mappings could be made
+      /// </summary>
+      public static readonly Mapping GENERIC_BINARY = new Mapping
+      {
+        m_Generic = true,
+        m_Extensions = new string[0],
+        m_ContentType = BINARY,
+        m_Binary = true,
+        m_Name = new NLSMap("{eng: {n: 'Generic Binary' d: 'Generic Binary'}}"),
+        m_Metadata = Configuration.NewEmptyRoot().Configuration.EmptySection
+      };
+
+
       internal static Mapping TryBuild(IApplication app, IConfigSectionNode node)
       {
         var strexts = node.AttrByName(CONFIG_EXTENSIONS_ATTR).Value;
@@ -465,6 +511,9 @@ content-type-mappings
         return result;
       }
 
+      private Mapping() { }
+
+      private bool m_Generic;
       private string[] m_Extensions;
       private string m_ContentType;
       [Config] private string m_AltContentType;
@@ -473,13 +522,49 @@ content-type-mappings
       private NLSMap m_Name;
       private IConfigSectionNode m_Metadata;
 
+      /// <summary>
+      /// Returns true for GENERIC_BONARY type - when no other content type matches
+      /// </summary>
+      public bool IsGeneric => m_Generic;
+
+      /// <summary>
+      /// Enumerates file extensions associated with this mapping
+      /// </summary>
       public IEnumerable<string> FileExtensions => m_Extensions;
+
+      /// <summary>
+      /// Returns MIME content Type
+      /// </summary>
       public string              ContentType    => m_ContentType;
+
+      /// <summary>
+      /// Returns alternative MIME content type which is used in edge cases (e.g. IE browsers)
+      /// </summary>
       public string              AltContentType => m_AltContentType;
+
+      /// <summary>
+      /// True to indicate that this content is a binary stream/byte[]
+      /// </summary>
       public bool                IsBinary       => m_Binary;
+
+      /// <summary>
+      /// Opposite of IsBinary - true indicates that the content is textual and may be processed using strings
+      /// </summary>
       public bool                IsText         => !m_Binary;
+
+      /// <summary>
+      /// Binary content which represents a graphical image
+      /// </summary>
       public bool                IsImage        => m_Image;
+
+      /// <summary>
+      /// Native Language Support - a list of per-language name/description pairs describing the format
+      /// </summary>
       public NLSMap              Name           => m_Name;
+
+      /// <summary>
+      /// Provides auxiliary metadata for the mapping
+      /// </summary>
       public IConfigSectionNode  Metadata       => m_Metadata;
 
       public override string ToString() => $"{string.Join(", ", m_Extensions)} -> {m_ContentType}";
@@ -534,67 +619,5 @@ content-type-mappings
     public const string FORM_MULTIPART_ENCODED = "multipart/form-data";
     public const string FORM_MULTIPART_ENCODED_BOUNDARY = "multipart/form-data; boundary={0}";
 
-    public static readonly string[] IMAGES = new []{GIF, JPEG, PNG, ICO, SVG, BMP };
-
-
-    /// <summary>
-    /// Returns true if the content type is one of image format types
-    /// </summary>
-    public static bool IsImage(string ctype)
-     => ctype.Default().Trim().IsOneOf(IMAGES);
-
-
-    public static string ExtensionToContentType(string ext, string dflt = ContentType.HTML)
-    {
-      //todo Make this list configurable and use dictionary of default values instead of switch/case
-      if (ext==null) return dflt;
-
-      ext = ext.ToLowerInvariant().Trim();
-
-      if (ext.StartsWith(".")) ext = ext.Remove(0,1);
-
-      switch(ext)
-      {
-        case "htm":
-        case "html": return ContentType.HTML;
-
-        case "json": return ContentType.JSON;
-
-        case "xml": return ContentType.XML_TEXT;
-
-        case "css": return ContentType.CSS;
-
-        case "js": return ContentType.JS;
-
-        case "gif": return ContentType.GIF;
-
-        case "jpe":
-        case "jpg":
-        case "jpeg": return ContentType.JPEG;
-
-        case "png": return ContentType.PNG;
-
-        case "bmp": return ContentType.BMP;
-
-        case "ico": return ContentType.ICO;
-
-        case "svg":
-        case "svgz": return ContentType.SVG;
-
-        case "pdf": return ContentType.PDF;
-
-        case "exe": return ContentType.EXE;
-
-        case "txt": return ContentType.TEXT;
-
-        case "ttf": return ContentType.TTF;
-        case "eot": return ContentType.EOT;
-        case "otf": return ContentType.OTF;
-        case "woff": return ContentType.WOFF;
-
-
-        default: return dflt;
-      }
-    }
   }
 }
