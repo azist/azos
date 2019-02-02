@@ -77,6 +77,8 @@ namespace Azos.Tests.Nub.Configuration
   <envAppTopic>$(~App.CoreConsts.APPLICATION_TOPIC)</envAppTopic>
   <envDataTopic>$(~App.CoreConsts.DATA_TOPIC)</envDataTopic>
   <instanceID>$(~App.Instance)</instanceID>
+  <counterA>$(~App.Counter.A)</counterA>
+  <counterB>$(~App.Counter.B)</counterB>
  </root>
 ";
 
@@ -407,6 +409,13 @@ namespace Azos.Tests.Nub.Configuration
           Aver.AreEqual( CoreConsts.APPLICATION_TOPIC, conf.Root["envAppTopic"].Value );
           Aver.AreEqual( CoreConsts.DATA_TOPIC, conf.Root["envDataTopic"].Value );
           Aver.AreEqual(Apps.ExecutionContext.Application.InstanceID, conf.Root["instanceID"].ValueAsGUID(Guid.Empty));
+
+          Aver.AreEqual(CoreConsts.APPLICATION_TOPIC, conf.Root["envAppTopic"].Value);
+
+          Aver.AreEqual(1, conf.Root["counterA"].ValueAsInt());
+          Aver.AreEqual(2, conf.Root["counterA"].ValueAsInt());
+          Aver.AreEqual(3, conf.Root["counterA"].ValueAsInt());
+          Aver.AreEqual(1, conf.Root["counterB"].ValueAsInt());
         }
 
     }

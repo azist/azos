@@ -26,6 +26,9 @@ namespace Azos.Tests.Nub.Application
 
       Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "CoreConsts." + nameof(CoreConsts.UNIT_NAME_CHANNEL), out got));
       Aver.AreEqual(CoreConsts.UNIT_NAME_CHANNEL, got);
+
+      Aver.IsFalse(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "CoreConsts.", out got));
+      Aver.IsTrue(got.IsNullOrWhiteSpace());
     }
 
     [Run]
@@ -66,6 +69,43 @@ namespace Azos.Tests.Nub.Application
       string got;
       Aver.IsFalse(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "dsfsadfsadfsa", out got));
       Aver.AreEqual("", got);
+    }
+
+
+    [Run]
+    public void Test_Counter()
+    {
+      string got;
+      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.A", out got));
+      Aver.IsTrue(got.IsNotNullOrWhiteSpace());
+      Aver.AreEqual(1, got.AsInt());
+
+      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.A", out got));
+      Aver.IsTrue(got.IsNotNullOrWhiteSpace());
+      Aver.AreEqual(2, got.AsInt());
+
+      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.A", out got));
+      Aver.IsTrue(got.IsNotNullOrWhiteSpace());
+      Aver.AreEqual(3, got.AsInt());
+
+      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.B", out got));
+      Aver.IsTrue(got.IsNotNullOrWhiteSpace());
+      Aver.AreEqual(1, got.AsInt());
+
+      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.A", out got));
+      Aver.IsTrue(got.IsNotNullOrWhiteSpace());
+      Aver.AreEqual(4, got.AsInt());
+
+      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.Bubu", out got));
+      Aver.IsTrue(got.IsNotNullOrWhiteSpace());
+      Aver.AreEqual(1, got.AsInt());
+
+      Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.B", out got));
+      Aver.IsTrue(got.IsNotNullOrWhiteSpace());
+      Aver.AreEqual(2, got.AsInt());
+
+      Aver.IsFalse(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "Counter.", out got));
+      Aver.IsTrue(got.IsNullOrWhiteSpace());
     }
 
   }

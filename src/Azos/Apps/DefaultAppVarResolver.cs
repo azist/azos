@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
+
+using Azos.Collections;
 
 namespace Azos.Apps
 {
@@ -14,6 +14,7 @@ namespace Azos.Apps
   public static class DefaultAppVarResolver
   {
     public const string CORE_CONSTS_PREFIX = "CoreConsts.";
+    public const string COUNTER_PREFIX = "Counter.";
 
     /// <summary>
     /// Application instance Guid with dashes
@@ -34,6 +35,8 @@ namespace Azos.Apps
     /// Generates new FID returning as X8 string
     /// </summary>
     public const string FIDX = "FIDX";
+
+    private static NamedInterlocked s_Counters = new NamedInterlocked();
 
     public static bool ResolveNamedVar(IApplication app, string name, out string value)
     {
@@ -71,10 +74,18 @@ namespace Azos.Apps
         return true;
       }
 
+      if (name.StartsWith(COUNTER_PREFIX))
+      {
+        var cname = name.Substring(COUNTER_PREFIX.Length).Trim();
+        if (cname.IsNullOrWhiteSpace()) return false;
+        value = s_Counters.IncrementLong(cname).ToString();
+        return true;
+      }
 
       if (name.StartsWith(CORE_CONSTS_PREFIX))
       {
-        var sname = name.Substring(CORE_CONSTS_PREFIX.Length);
+        var sname = name.Substring(CORE_CONSTS_PREFIX.Length).Trim();
+        if (sname.IsNullOrWhiteSpace()) return false;
         var tp = typeof(CoreConsts);
         var fld = tp.GetField(sname, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Static);
         if (fld != null)
