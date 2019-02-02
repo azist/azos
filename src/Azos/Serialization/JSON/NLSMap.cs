@@ -152,7 +152,7 @@ namespace Azos.Serialization.JSON
 
 
       /// <summary>
-      /// Takes entries from this instance and overides them by ISO keys from another instance returning the new instance
+      /// Takes entries from this instance and overrides them by ISO keys from another instance returning the new instance
       /// </summary>
       public NLSMap OverrideBy(NLSMap other)
       {

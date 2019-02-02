@@ -29,7 +29,7 @@ namespace Azos.Conf
         }
 
         /// <summary>
-        /// Creates an isntance of configuration and reads contents from the file
+        /// Creates an instance of configuration and reads contents from the file
         /// </summary>
         protected FileConfiguration(string filename)
           : base()
