@@ -19,9 +19,28 @@
       <dependency id="Azos" version="$version$" />
     </dependencies>
     
+    <contentFiles>
+      <files include="**/*" buildAction="None" copyToOutput="true" flatten="false" />
+    </contentFiles>
+    
   </metadata>
 
   <files>
+  
+    <!-- Core tools -->
+  
+    <file src="..\..\out\Release\Azos.Web.dll"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\Azos.Web.xml"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\Azos.Web.pdb"   target="contentFiles\any\any\azos\run-core" />
+    
+    <!-- Netf tools -->
+    
+    <file src="..\..\out\Release\Azos.Web.dll"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\Azos.Web.xml"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\Azos.Web.pdb"   target="contentFiles\any\any\azos\run-netf" />
+    
+    <!-- ============================================================ -->
+  
     <file src="..\..\out\Release\Azos.Web.dll" target="lib\netstandard2.0" />
     <file src="..\..\out\Release\Azos.Web.xml" target="lib\netstandard2.0" />
     <file src="..\..\out\Release\Azos.Web.pdb" target="lib\netstandard2.0" />

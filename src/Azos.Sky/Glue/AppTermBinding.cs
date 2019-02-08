@@ -39,7 +39,7 @@ namespace Azos.Sky.Glue
       }
     #endregion
 
-    public AppTermBinding(IGlueImplementation glue, string name) : base(glue, name)
+    public AppTermBinding(IGlueImplementation glue, string name, Provider provider = null) : base(glue, name, provider)
     {
     }
 
