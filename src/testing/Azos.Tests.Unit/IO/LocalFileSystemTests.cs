@@ -110,7 +110,7 @@ namespace Azos.Tests.Unit.IO
               var dir = session[LOCAL_ROOT] as FileSystemDirectory;
 
               Aver.AreEqual(@"c:\", dir.ParentPath);
-              Aver.AreEqual(@"c:\NFX", dir.Path);
+              Aver.AreEqual(@"c:\Azos", dir.Path);
             }
         }
 

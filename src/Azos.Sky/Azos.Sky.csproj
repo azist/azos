@@ -8,17 +8,59 @@
   <ItemGroup>
     <None Remove="BUILD_INFO.txt" />
     <None Remove="Hosts\agdida\Welcome.txt" />
+    <None Remove="Tools\agm\Help.txt" />
+    <None Remove="Tools\agm\Welcome.txt" />
+    <None Remove="Tools\amm\Help.txt" />
+    <None Remove="Tools\amm\Welcome.txt" />
+    <None Remove="Tools\ascon\Help.txt" />
+    <None Remove="Tools\ascon\Welcome.txt" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="BUILD_INFO.txt" />
     <EmbeddedResource Include="Hosts\agdida\Welcome.txt" />
+    <EmbeddedResource Include="Tools\agm\Help.txt" />
+    <EmbeddedResource Include="Tools\agm\Welcome.txt" />
+    <EmbeddedResource Include="Tools\amm\Help.txt" />
+    <EmbeddedResource Include="Tools\amm\Welcome.txt" />
+    <EmbeddedResource Include="Tools\ascon\Help.txt" />
+    <EmbeddedResource Include="Tools\ascon\Welcome.txt" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Azos.Wave\Azos.Wave.csproj" />
     <ProjectReference Include="..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\Azos\Azos.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="agdida.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="agm.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ahgov.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="aph.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ascon.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ash.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="aws.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="SKY_BOOT_CONF_TEMPLATE.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="azgov.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

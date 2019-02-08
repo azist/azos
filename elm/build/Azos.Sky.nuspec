@@ -9,7 +9,7 @@
     <license type="expression">MIT</license>
     <projectUrl>http://zhabis.com/</projectUrl>
     <iconUrl>$icon$</iconUrl>
-    <description>AZOS - A to Z Application OS. Sky OS, This package does not include runtime hosts</description>
+    <description>AZOS - A to Z Application OS. Sky OS, This package include Sky runtime hosts</description>
     <releaseNotes>Supports both .NET Framework 4.7.2+ and .NET Core 2.0+</releaseNotes>
     <copyright>2019 Azist Group</copyright>
     <tags>atoz fullstack full-stack apps net-core big-memory pile slim glue wave cluster zhabis</tags>
@@ -57,6 +57,19 @@
     <file src="..\..\out\Release\run-core\aws.runtimeconfig.json"     target="contentFiles\any\any\azos\run-core" />
     <file src="..\..\out\Release\run-core\azgov.runtimeconfig.json"   target="contentFiles\any\any\azos\run-core" />
     
+    <file src="..\..\out\Release\run-core\agdida.laconf"  target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\agm.laconf"     target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\ahgov.laconf"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\aph.laconf"     target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\ascon.laconf"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\ash.laconf"     target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\aws.laconf"     target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\azgov.laconf"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\run-core\SKY_BOOT_CONF_TEMPLATE.laconf"   target="contentFiles\any\any\azos\run-core" />
+    
+    
+    
+    
     <!-- todo add LACONFS -->
     
      <!-- Netf tools -->
@@ -92,7 +105,15 @@
     <file src="..\..\out\Release\run-netf\aws.exe.config"     target="contentFiles\any\any\azos\run-netf" />
     <file src="..\..\out\Release\run-netf\azgov.exe.config"   target="contentFiles\any\any\azos\run-netf" />
      
-    <!-- todo add LACONFS -->
+    <file src="..\..\out\Release\run-netf\agdida.laconf"  target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\agm.laconf"     target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\ahgov.laconf"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\aph.laconf"     target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\ascon.laconf"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\ash.laconf"     target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\aws.laconf"     target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\azgov.laconf"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\run-netf\SKY_BOOT_CONF_TEMPLATE.laconf"   target="contentFiles\any\any\azos\run-netf" />
     
      <!-- ============================================================ -->
   

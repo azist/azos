@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.0.271
+set VER=1.0.276
 
 call vs2017-build-release %VER%
 
@@ -30,7 +30,7 @@ nuget pack Azos.Sky.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Pr
 nuget pack Azos.Sky.MongoDb.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
 nuget pack Azos.WinForms.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
 
-rem goto :FINISH
+goto :FINISH
 
 nuget push "%OUT%\Azos.%VER%.nupkg" %AZIST_NUGET_API_KEY% 
 nuget push "%OUT%\Azos.Web.%VER%.nupkg" %AZIST_NUGET_API_KEY% 

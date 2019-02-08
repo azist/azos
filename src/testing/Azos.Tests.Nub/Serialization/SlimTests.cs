@@ -31,7 +31,7 @@ namespace Azos.Tests.Nub.Serialization
           {
             var s = new SlimSerializer(SlimFormat.Instance);
 
-            var conf = "nfx{a=2 b=3 sumka=27 child1{c=4} child2=XXX{c=5} z=999}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+            var conf = "app{a=2 b=3 sumka=27 child1{c=4} child2=XXX{c=5} z=999}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
 
             s.Serialize(ms, conf);
 
@@ -50,7 +50,7 @@ namespace Azos.Tests.Nub.Serialization
             Aver.IsFalse( conf2.Configuration.EmptySection.Exists );
             Aver.IsFalse( conf2.Configuration.EmptyAttr.Exists );
 
-            Aver.AreEqual("nfx", conf2.Name);
+            Aver.AreEqual("app", conf2.Name);
             Aver.AreEqual(2, conf2.Children.Count());
             Aver.AreEqual(4, conf2.Attributes.Count());
 
@@ -74,7 +74,7 @@ namespace Azos.Tests.Nub.Serialization
           {
             var s = new SlimSerializer(SlimFormat.Instance);
 
-            var conf = "nfx{a=2 b=3 sumka=27 child1{c=$(~SLAVA)} child2=XXX{c=$(~CITY)} z=999}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+            var conf = "app{a=2 b=3 sumka=27 child1{c=$(~SLAVA)} child2=XXX{c=$(~CITY)} z=999}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
 
             conf.Configuration.EnvironmentVarResolver = new Vars( new VarsDictionary
             {
@@ -98,7 +98,7 @@ namespace Azos.Tests.Nub.Serialization
             Aver.IsFalse( conf2.Configuration.EmptySection.Exists );
             Aver.IsFalse( conf2.Configuration.EmptyAttr.Exists );
 
-            Aver.AreEqual("nfx", conf2.Name);
+            Aver.AreEqual("app", conf2.Name);
             Aver.AreEqual(2, conf2.Children.Count());
             Aver.AreEqual(4, conf2.Attributes.Count());
 
@@ -121,7 +121,7 @@ namespace Azos.Tests.Nub.Serialization
           {
             var s = new SlimSerializer(SlimFormat.Instance);
 
-            var conf = "nfx{a=2 b=3 sumka=27 child{c='So, it is $(~FLAG::as-bool)!'} }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+            var conf = "app{a=2 b=3 sumka=27 child{c='So, it is $(~FLAG::as-bool)!'} }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
 
             conf.Configuration.EnvironmentVarResolver = new Vars( new VarsDictionary
             {
@@ -161,7 +161,7 @@ namespace Azos.Tests.Nub.Serialization
           {
             var s = new SlimSerializer(SlimFormat.Instance);
 
-            var conf = "nfx{child{c='So, it is $(~FLAG::as-bool)!' g='Dear $(~MEMBER), we have zhabified you into $(~MEMBER::zhabify)'} }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+            var conf = "app{child{c='So, it is $(~FLAG::as-bool)!' g='Dear $(~MEMBER), we have zhabified you into $(~MEMBER::zhabify)'} }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
 
             conf.Configuration.EnvironmentVarResolver = new Vars( new VarsDictionary
             {

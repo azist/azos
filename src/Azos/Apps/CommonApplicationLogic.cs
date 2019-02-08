@@ -32,7 +32,7 @@ namespace Azos.Apps
     #region CONSTS
     public const string CONFIG_SWITCH = "config";
 
-    public const string CONFIG_APP_NAME_ATTR = "application-name";
+    public const string CONFIG_NAME_ATTR = "name";
     public const string CONFIG_UNIT_TEST_ATTR = "unit-test";
     public const string CONFIG_FORCE_INVARIANT_CULTURE_ATTR = "force-invariant-culture";
     public const string CONFIG_ENVIRONMENT_NAME_ATTR = "environment-name";

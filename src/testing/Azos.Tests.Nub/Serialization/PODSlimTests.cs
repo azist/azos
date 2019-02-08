@@ -30,7 +30,7 @@ namespace Azos.Tests.Nub.Serialization
       //[Run]
       //public void TempTest()  //DKh: dont refactor - this is very temporary test for me locally
       //{
-      //  using (var ms = new FileStream(@"c:\nfx\TEMP_1.POD", FileMode.Create))
+      //  using (var ms = new FileStream(@"c:\azos\TEMP_1.POD", FileMode.Create))
       //  {
       //    var s = new SlimSerializer();
 
@@ -65,7 +65,7 @@ namespace Azos.Tests.Nub.Serialization
         [Run]
         public void RootCompositeWriteRead_BusinessFamily()
         {
-            using(var ms = new MemoryStream())//new FileStream(@"c:\nfx\TEMP.POD", FileMode.Create))// new MemoryStream())
+            using(var ms = new MemoryStream())//new FileStream(@"c:\azos\TEMP.POD", FileMode.Create))// new MemoryStream())
             {
                 var s = new PODSlimSerializer();
 

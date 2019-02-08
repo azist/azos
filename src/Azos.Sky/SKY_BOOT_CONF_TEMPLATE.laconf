@@ -1,0 +1,45 @@
+﻿/*
+ This is a Sky boot configuration template file.
+
+ The actual file resides on every host running Sky software.
+ It is being referenced from individual app boot file using a construct:
+ boot
+ {
+   include { name=sky file=$(~SKY_BOOT_CONF_FILE) }
+   ....
+ }
+
+ The purpose of this file is to localize the host-specifics on the host.
+ Replace the parameters in <ANGLEBRACKETS> with real values per your setup.
+
+ The SKY_BOOT_CONF_FILE machine environment variable should point to the location of
+ the actual file made out of this template. The path is typically `c:\sky\host-boot.laconf`
+
+*/
+
+
+boot
+{
+  home-path=$(~SKY_HOME)
+  log-dir="log"
+  log-root-path="$($home-path)$(@$log-dir)"
+
+  host { name='<REGION_HOST_PATH>' }
+
+  metabase
+  {
+    file-system
+    {
+      type='Azos.IO.FileSystem.SVN.SVNFileSystem, Azos.Web'
+      root='<PATH_TO_METABASE_IN_SVN>'
+      session-connect-params
+      {
+        name='test'
+        type='Azos.IO.FileSystem.SVN.SVNFileSystemSessionConnectParams, Azos.Web'
+        server-url='<SVN_URI>'
+        user-name='<SVN_USERNAME>'
+        user-password='<SVN_PASSWORD>'
+      }
+    }
+  }
+}

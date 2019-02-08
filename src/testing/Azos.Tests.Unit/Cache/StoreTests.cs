@@ -17,7 +17,7 @@ namespace Azos.Tests.Unit.Cache
     public class StoreTests
     {
  private const string CONF_SRC =@"
- nfx
+ app
  {
    cache
    {

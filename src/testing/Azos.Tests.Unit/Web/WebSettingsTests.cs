@@ -24,7 +24,7 @@ namespace Azos.Tests.Unit.Web
     public void ServicePointManagerTest()
     {
       var conf = @"
-      nfx
+      app
       {
         web-settings
         {

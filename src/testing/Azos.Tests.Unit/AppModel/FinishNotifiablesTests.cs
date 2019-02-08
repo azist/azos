@@ -26,7 +26,7 @@ namespace Azos.Tests.Unit.AppModel
         [Run]
         public void StartFinish()
         {
-            var confSource=@" nfx{  starters{ starter{ type='Azos.Tests.Unit.AppModel.MySuperStarter, Azos.Tests.Unit'} }    }";
+            var confSource=@" app{  starters{ starter{ type='Azos.Tests.Unit.AppModel.MySuperStarter, Azos.Tests.Unit'} }    }";
             RESULT = "";
             var conf = LaconicConfiguration.CreateFromString(confSource);
             using( var app = new AzosApplication(null, conf.Root))

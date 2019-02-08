@@ -21,12 +21,12 @@ namespace Azos.Tests.Nub
         public void AsLaconicConfig()
         {
           Aver.AreEqual(23, "value=23".AsLaconicConfig().AttrByName("value").ValueAsInt());
-          Aver.AreEqual(223, "nfx{value=223}".AsLaconicConfig().AttrByName("value").ValueAsInt());
-          Aver.IsNull("nfx{value 223}".AsLaconicConfig());
+          Aver.AreEqual(223, "app{value=223}".AsLaconicConfig().AttrByName("value").ValueAsInt());
+          Aver.IsNull("app{value 223}".AsLaconicConfig());
 
           try
           {
-            "nfx".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+            "app".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
             Aver.Fail("No exception");
           }
           catch(Exception e) when (!(e is AvermentException))
@@ -39,7 +39,7 @@ namespace Azos.Tests.Nub
         public void AsJSONConfig()
         {
           Aver.AreEqual(23, "{value: 23}".AsJSONConfig().AttrByName("value").ValueAsInt());
-          Aver.AreEqual(223, "{nfx: {value: 223}}".AsJSONConfig().AttrByName("value").ValueAsInt());
+          Aver.AreEqual(223, "{app: {value: 223}}".AsJSONConfig().AttrByName("value").ValueAsInt());
           Aver.IsNull("{ bad }".AsJSONConfig());
 
           try

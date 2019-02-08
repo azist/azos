@@ -29,7 +29,7 @@ app{
 
          content-file-system
          {
-            type='Azos.IO.FileSystem.Local.LocalFileSystem, NFX'
+            type='Azos.IO.FileSystem.Local.LocalFileSystem, Azos'
             connect-params{}
             root-path=$'c:\'
          }

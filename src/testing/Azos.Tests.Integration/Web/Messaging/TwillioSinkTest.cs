@@ -17,7 +17,7 @@ namespace Azos.Tests.Integration.Web.Messaging
   public class TwilioSinkTest : IRunnableHook
   {
     public const string CONFIG =
-    @"nfx
+    @"app
       {
         messaging
         {

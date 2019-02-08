@@ -55,7 +55,7 @@ namespace Azos.Tests.Integration.Time
   {
 
         public const string CONFIG1=@"
-nfx
+app
 {
   event-timer
   {
@@ -64,7 +64,7 @@ nfx
 }";
 
         public const string CONFIG2_ARZAMAS=@"
-nfx
+app
 {
   time-location {utc-offset='04:45:10' description='Arzamas-7'}
 
@@ -75,7 +75,7 @@ nfx
 }";
 
     public const string CONFIG3_HANDLERS=@"
-nfx
+app
 {
   event-timer
   {

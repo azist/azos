@@ -1,0 +1,16 @@
+﻿boot
+{
+  name="ahgov.boot"
+  _include { name=sky file=$(~SKY_BOOT_CONF_FILE) }
+
+  log
+  {
+    name="BootLogger" reliable="true"
+    sink
+    {
+       type="Azos.Log.Sinks.CSVFileSink, Azos"
+       path="$(/sky/$log-root-path)"
+       file-name="{0:yyyyMMdd}-$(/$name).$(~App.FIDX).csv.log"
+    }
+  }
+}

@@ -142,7 +142,7 @@ static string xml2 = @"
 #warning REFACTOR env variable!!!!
           var conf1 =
 @"
-nfx
+app
 {
   a=1
   _include

@@ -30,6 +30,7 @@ namespace Azos.Apps
     public const string ENV_VAR_METABASE_FS_CSTRING  = "SKY_METABASE_FS_CSTRING";
 
     public const string ENV_VAR_HOST_NAME  = "SKY_HOST_NAME";
+    public const string ENV_VAR_SKY_BOOT_CONF_FILE = "SKY_BOOT_CONF_FILE";
 
     /// <summary>
     /// Used to append to local machine name if ENV_VAR_HOST_NAME is not set, then this value is concatenated with local machine name

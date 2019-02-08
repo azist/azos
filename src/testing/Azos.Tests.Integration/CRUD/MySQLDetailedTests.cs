@@ -30,7 +30,7 @@ namespace Azos.Tests.Integration.CRUD
 
     void IRunnableHook.Prologue(Runner runner, FID id)
     {
-      var connectionConf = @"nfx{ conneсt-string=$(~NFX_TEST_MYSQL_CONNECT)}".AsLaconicConfig();
+      var connectionConf = @"app{ conneсt-string=$(~AZOS_TEST_MYSQL_CONNECT)}".AsLaconicConfig();
       m_ConnectionString = connectionConf.AttrByIndex(0).ValueAsString();
       using(var cnn = new MySqlConnection(m_ConnectionString))
       {

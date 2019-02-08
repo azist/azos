@@ -535,7 +535,7 @@ Console.WriteLine(txt);
         [Run]
         public void Options_DontWriteRootSectionDeclaration()
         {
-          var conf = "nfx=90{a=1 b=2 c{d=5}}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+          var conf = "app=90{a=1 b=2 c{d=5}}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
 
           var opt = new LaconfigWritingOptions{ DontWriteRootSectionDeclaration = true };
 
@@ -549,7 +549,7 @@ Console.WriteLine(txt);
           saved = conf.Configuration.ToLaconicString(opt).Trim();
           Console.WriteLine(saved);
 
-          Aver.AreEqual("nfx=90{a=1 b=2 c{d=5}}", saved);
+          Aver.AreEqual("app=90{a=1 b=2 c{d=5}}", saved);
         }
 
 

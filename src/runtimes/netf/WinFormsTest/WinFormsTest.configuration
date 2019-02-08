@@ -1,10 +1,10 @@
 ﻿<!-- Comment-->
 <app
+       name="Manual Win Forms Test App(WinFormsTest.exe)"
        log-root="$(~AZOS_TEST_ROOT)\"
        log-csv="Azos.Log.Sinks.CSVFileSink, Azos"
        log-debug="Azos.Log.Sinks.DebugSinks, Azos"
        log-mongo="Azos.Log.Sinks.MongoDbSink, Azos.MongoDb"
-       application-name="Manual Win Forms Test App(WinFormsTest.exe)"
        log-name="test-client"
        trace-disable="true"
 

@@ -1,7 +1,7 @@
-﻿ The NFX QR code generator is based on SOME PORTIONS of ZXing library hosted
+﻿ The Azos QR code generator is based on SOME PORTIONS of ZXing library hosted
  on https://github.com/zxing/zxing distributed with Apache 2.0 license.
 
- NFX libary does not represent a direct port of zXing into C#, rather it only uses some base
+ Azos library does not represent a direct port of zXing into C#, rather it only uses some base
   implementation/code patterns for QR code generation from zXing
 
 The original zXing library is distributed with Apache 2.0 License

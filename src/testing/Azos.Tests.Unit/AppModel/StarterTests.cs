@@ -21,7 +21,7 @@ namespace Azos.Tests.Unit.AppModel
         public void Starter1()
         {
  var confSource=@"
- nfx{
+ app{
     starters{
         starter{ name='Alex'  type='Azos.Tests.Unit.AppModel.MyStarter, Azos.Tests.Unit'}
         starter{ name='Boris' type='Azos.Tests.Unit.AppModel.MyStarter, Azos.Tests.Unit'}
@@ -44,7 +44,7 @@ namespace Azos.Tests.Unit.AppModel
         public void Starter2_WithException_NoBreak()
         {
  var confSource=@"
- nfx{
+ app{
     starters{
         starter{ name='Alex'  type='Azos.Tests.Unit.AppModel.MyStarter, Azos.Tests.Unit'}
         starter{ name='Boris' type='Azos.Tests.Unit.AppModel.MyStarter, Azos.Tests.Unit'}
@@ -70,7 +70,7 @@ namespace Azos.Tests.Unit.AppModel
         public void Starter2_WithException_Break()
         {
  var confSource=@"
- nfx{
+ app{
     starters{
         starter{ name='Alex'  type='Azos.Tests.Unit.AppModel.MyStarter, Azos.Tests.Unit' application-start-break-on-exception='true'}
         starter{ name='Boris' type='Azos.Tests.Unit.AppModel.MyStarter, Azos.Tests.Unit'}

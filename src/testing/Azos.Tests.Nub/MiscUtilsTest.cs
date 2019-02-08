@@ -864,28 +864,28 @@ f
           Aver.AreEqual(0xB2, std[0]); // aver MSFT improper LE byte order
           Aver.AreEqual(0xAE, std[3]); // aver MSFT improper LE byte order
 
-          var nfx = guid.ToNetworkByteOrder();
+          var azos = guid.ToNetworkByteOrder();
 
-          Aver.AreEqual(0xAE, nfx[0]);
-          Aver.AreEqual(0xCB, nfx[1]);
-          Aver.AreEqual(0xF3, nfx[2]);
-          Aver.AreEqual(0xB2, nfx[3]);
+          Aver.AreEqual(0xAE, azos[0]);
+          Aver.AreEqual(0xCB, azos[1]);
+          Aver.AreEqual(0xF3, azos[2]);
+          Aver.AreEqual(0xB2, azos[3]);
 
-          Aver.AreEqual(0xC9, nfx[4]);
-          Aver.AreEqual(0x0E, nfx[5]);
+          Aver.AreEqual(0xC9, azos[4]);
+          Aver.AreEqual(0x0E, azos[5]);
 
-          Aver.AreEqual(0x4F, nfx[6]);
-          Aver.AreEqual(0x2D, nfx[7]);
+          Aver.AreEqual(0x4F, azos[6]);
+          Aver.AreEqual(0x2D, azos[7]);
 
-          Aver.AreEqual(0xB5, nfx[8]);
-          Aver.AreEqual(0x1C, nfx[9]);
+          Aver.AreEqual(0xB5, azos[8]);
+          Aver.AreEqual(0x1C, azos[9]);
 
-          Aver.AreEqual(0x4E, nfx[10]);
-          Aver.AreEqual(0xBA, nfx[11]);
-          Aver.AreEqual(0xBE, nfx[12]);
-          Aver.AreEqual(0xCF, nfx[13]);
-          Aver.AreEqual(0x43, nfx[14]);
-          Aver.AreEqual(0x38, nfx[15]);
+          Aver.AreEqual(0x4E, azos[10]);
+          Aver.AreEqual(0xBA, azos[11]);
+          Aver.AreEqual(0xBE, azos[12]);
+          Aver.AreEqual(0xCF, azos[13]);
+          Aver.AreEqual(0x43, azos[14]);
+          Aver.AreEqual(0x38, azos[15]);
         }
 
         [Run]

@@ -12,9 +12,9 @@ namespace Azos.Tests.Integration.Glue
   public class JokeHelper
   {
     const string CONFIG_STR = @"
-nfx
+app
 {
-  disk-root=$(~NFX_TEST_ROOT)\
+  disk-root=$(~AZOS_TEST_ROOT)\
   log-root=$(\$disk-root)
   log-csv='Azos.Log.Destinations.CSVFileDestination, Azos'
   debug-default-action='Log,Throw'

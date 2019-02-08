@@ -84,7 +84,7 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
     {
       ConfigAttribute.Apply(this, m_ConfigRoot);
 
-      m_Name = m_ConfigRoot.AttrByName(CONFIG_APP_NAME_ATTR).ValueAsString(GetType().FullName);
+      m_Name = m_ConfigRoot.AttrByName(CONFIG_NAME_ATTR).ValueAsString(GetType().FullName);
 
       Debugging.DefaultDebugAction = Debugging.ReadDefaultDebugActionFromConfig();
       Debugging.TraceDisabled      = Debugging.ReadTraceDisableFromConfig();
