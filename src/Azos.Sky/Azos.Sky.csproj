@@ -37,6 +37,9 @@
     <None Update="agdida.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="amm.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="agm.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

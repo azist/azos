@@ -1,6 +1,6 @@
 ﻿app
 {
-  name="ascon"
+  name="amm"
 
   home-path=$(~SKY_HOME)
   log-dir="log"
@@ -22,7 +22,6 @@
 
     bindings
     {
-      binding { name="apterm" type="Azos.Sky.Glue.AppTermBinding, Azos.Sky" }
       binding { name="async" type="Azos.Glue.Native.MpxBinding" }
       binding { name="sync" type="Azos.Glue.Native.SyncBinding" }
     }

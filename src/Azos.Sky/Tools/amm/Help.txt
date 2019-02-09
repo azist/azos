@@ -4,7 +4,7 @@
 <f color=white>
    amm <f color=green>metabase_path <f color=darkCyan>[/h | /? | /help]
               [/s | /silent]
-              [/host | /from host]
+              [/host | /from name=host]
               [/config config_file]
               [/gbm]
 
@@ -16,29 +16,28 @@
  <f color=darkCyan>/h | /help | /?<f color=gray> - displays help message
  <f color=darkCyan>/s | /silent<f color=gray> - suppresses logo and other info messages
  <f color=darkCyan>/gbm<f color=gray> - (re)/generate binary package manifests
- <f color=darkCyan>/host | /from host<f color=gray> - specifies the host that operation
+ <f color=darkCyan>/host | /from name=host<f color=gray> - specifies the host that operation
   is performed from (THIS host). If omitted then SKY_HOST_NAME environment
   variable is queried instead.
   host is full host path i.e.: "all/us/east/cle/a/i/machine001"
- <f color=darkCyan>/config<f color=gray> - specifies alternate configuration. This option is
-  usefull when multiple tool instances need to run and they may conflict
-  while writing to the common logger location.
-  Inject an alternate config file to divert log output to a different place or
-  use a NOP loggger/destination.
-  An alternate config file "nolog.laconf" is provided for NOP-logger config
+ <f color=white>NOTE:<f color=gray>
+  If path starts with root "/", then you need to pass it with "name=" attribute
+
+ <f color=darkCyan>/config<f color=gray> - specifies an alternate configuration
 
 <f color=magenta>
  Examples:
-
 <f color=yellow>
-  amm "c:\azos\mbase\dev" <f color=gray>
+$ amm "c:\azos\mbase\dev" <f color=gray>
 Checks the local metabase at the specified path for errors. Assumes that
 SKY_HOST_NAME local environment var holds local host path
-
 <f color=yellow>
-  amm "c:\azos\mbase\dev" /from "us/east/cle/A/II/wmed001" <f color=gray>
+$ amm "c:\azos\mbase\dev" /from "us/east/cle/A/II/wmed001" <f color=gray>
 Checks the local metabase at the specified path for errors as if calling from
 the specified host
-
+<f color=yellow>
+$ amm "c:\azos\mbase\dev" /from name="/us/east/cle/A/II/wmed001" <f color=gray>
+Notice that from host name path starts with "/" which is a command arg switch,
+therefore <f color=darkCyan>"name="<f color=gray> attribute is used
 
 <pop>
