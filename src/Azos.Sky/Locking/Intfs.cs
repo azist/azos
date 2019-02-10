@@ -30,13 +30,13 @@ namespace Azos.Sky.Locking
     LockSession MakeSession(string path, object shardingID, string description = null, int? maxAgeSec = null);
 
     /// <summary>
-    /// Executes a lock transaction in the secified session returning transaction result object even if lock could not be set.
+    /// Executes a lock transaction in the specified session returning transaction result object even if lock could not be set.
     /// The exception would indicate inability to deliver the transaction request to the server or other system problem
     /// </summary>
     LockTransactionResult ExecuteLockTransaction(LockSession session, LockTransaction transaction);
 
     /// <summary>
-    /// Executes a lock transaction in the secified session returning transaction result object even if lock could not be set.
+    /// Executes a lock transaction in the specified session returning transaction result object even if lock could not be set.
     /// The exception would indicate inability to deliver the transaction request to the server or other system problem
     /// </summary>
     Task<LockTransactionResult> ExecuteLockTransactionAsync(LockSession session, LockTransaction transaction);

@@ -198,7 +198,7 @@ namespace Azos.Sky.Apps.HostGovernor
 
         var anew =  App.AsSky().Metabase.CatalogBin.CheckAndPerformLocalSoftwareInstallation(progress, force);
         if (!anew) return false;
-        //Flag the end of successfull installation
+        //Flag the end of successful installation
         File.WriteAllText(Path.Combine(UpdatePath, SysConsts.HGOV_UPDATE_FINISHED_FILE), SysConsts.HGOV_UPDATE_FINISHED_FILE_OK_CONTENT);
 
         m_NeedsProcessRestart = true;

@@ -27,7 +27,7 @@ namespace Azos.Apps.Injection
     /// Enumerates app injectable roots (root application chassis objects).
     /// This method is usually used by [Inject]-derived attributes for defaults
     /// </summary>
-    public virtual IEnumerable<object> GetApplicationRoots()
+    public override IEnumerable<object> GetApplicationRoots()
     {
       yield return App;
       yield return SkyApp;

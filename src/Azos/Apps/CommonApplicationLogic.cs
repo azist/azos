@@ -77,6 +77,7 @@ namespace Azos.Apps
       m_CommandArgs = (cmdLineArgs ?? new MemoryConfiguration()).Root;
       m_ConfigRoot  = rootConfig ?? GetConfiguration().Root;
       m_Singletons = new ApplicationSingletonManager();
+      m_NOPApplicationSingletonManager = new NOPApplicationSingletonManager();
       m_DefaultDependencyInjector = defaultDI ?? new ApplicationDependencyInjector(this);
       m_Realm = new ApplicationRealmBase(this);
 
@@ -136,6 +137,7 @@ namespace Azos.Apps
     protected ConfigSectionNode m_ConfigRoot;
 
     protected ApplicationSingletonManager m_Singletons;
+    protected IApplicationSingletonManager m_NOPApplicationSingletonManager;
 
     protected IApplicationDependencyInjectorImplementation m_DependencyInjector;
     protected IApplicationDependencyInjectorImplementation m_DefaultDependencyInjector;
@@ -219,7 +221,7 @@ namespace Azos.Apps
 
     public IConfigSectionNode ConfigRoot          => m_ConfigRoot;
     public IConfigSectionNode CommandArgs         => m_CommandArgs;
-    public IApplicationSingletonManager Singletons => m_Singletons;
+    public IApplicationSingletonManager Singletons => m_Singletons ?? m_NOPApplicationSingletonManager;
     public IApplicationDependencyInjector DependencyInjector => m_DependencyInjector ?? m_DefaultDependencyInjector;
     public ILog                Log                => m_Log             ??  m_NOPLog;
     public IInstrumentation    Instrumentation    => m_Instrumentation ??  m_NOPInstrumentation;

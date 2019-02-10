@@ -88,42 +88,53 @@ namespace Azos.Sky.Metabase
       if (fileSystem==null || fsSessionParams==null)
         throw new MetabaseException(StringConsts.ARGUMENT_ERROR+"Metabank.ctor(fileSystem|fsSessionParams==null)");
 
-      using(var session = ctorFS(fileSystem, fsSessionParams, rootPath))
+      if (!App.Singletons.GetOrCreate(() => this).created)
+        throw new MetabaseException(StringConsts.METABASE_INSTANCE_ALREADY_ALLOCATED_ERROR+App.GetType().Name);
+
+      try
       {
+        using (var session = ctorFS(fileSystem, fsSessionParams, rootPath))
+        {
           m_CommonLevelConfig = getConfigFromFile(session, CONFIG_COMMON_FILE).Root;
 
-          m_RootConfig        = getConfigFromFile(session, CONFIG_SECTION_LEVEL_FILE).Root;
+          m_RootConfig = getConfigFromFile(session, CONFIG_SECTION_LEVEL_FILE).Root;
           includeCommonConfig(m_RootConfig);
           m_RootConfig.ResetModified();
 
-          m_RootAppConfig  = getConfigFromFile(session, CONFIG_SECTION_LEVEL_ANY_APP_FILE).Root;
+          m_RootAppConfig = getConfigFromFile(session, CONFIG_SECTION_LEVEL_ANY_APP_FILE).Root;
           m_PlatformConfig = getConfigFromFile(session, CONFIG_PLATFORMS_FILE).Root;
-          m_NetworkConfig  = getConfigFromFile(session, CONFIG_NETWORKS_FILE).Root;
-          m_ContractConfig  = getConfigFromFile(session, CONFIG_CONTRACTS_FILE).Root;
+          m_NetworkConfig = getConfigFromFile(session, CONFIG_NETWORKS_FILE).Root;
+          m_ContractConfig = getConfigFromFile(session, CONFIG_CONTRACTS_FILE).Root;
+        }
+        m_Catalogs = new Registry<Catalog>();
+        var cacheStore = new CacheStore(this, "AC.Metabank");
+        //No app available - nowhere to configure: //cacheStore.Configure(null);
+        /*
+        cacheStore.TableOptions.Register( new TableOptions(APP_CATALOG, 37, 3) );
+        cacheStore.TableOptions.Register( new TableOptions(BIN_CATALOG, 37, 7) );
+        cacheStore.TableOptions.Register( new TableOptions(REG_CATALOG, 37, 17) );
+        superseded by the cacheStore.DefaultTableOptions below:
+          */
+        cacheStore.DefaultTableOptions = new TableOptions("*", 37, 17);
+        //reg catalog needs more space
+        cacheStore.TableOptions.Register(new TableOptions(REG_CATALOG, 571, 37));
+
+        cacheStore.InstrumentationEnabled = false;
+
+        m_Cache = new ComplexKeyHashingStrategy(cacheStore);
+
+        new AppCatalog(this);
+        new BinCatalog(this);
+        new SecCatalog(this);
+        new RegCatalog(this);
+
+        ConfigAttribute.Apply(this, m_RootConfig);
       }
-      m_Catalogs = new Registry<Catalog>();
-      var cacheStore = new CacheStore(this, "AC.Metabank");
-      //No app available - nowhere to configure: //cacheStore.Configure(null);
-      /*
-      cacheStore.TableOptions.Register( new TableOptions(APP_CATALOG, 37, 3) );
-      cacheStore.TableOptions.Register( new TableOptions(BIN_CATALOG, 37, 7) );
-      cacheStore.TableOptions.Register( new TableOptions(REG_CATALOG, 37, 17) );
-      superseded by the cacheStore.DefaultTableOptions below:
-        */
-      cacheStore.DefaultTableOptions = new TableOptions("*", 37, 17);
-      //reg catalog needs more space
-      cacheStore.TableOptions.Register( new TableOptions(REG_CATALOG, 571, 37) );
-
-      cacheStore.InstrumentationEnabled = false;
-
-      m_Cache = new ComplexKeyHashingStrategy(cacheStore);
-
-      new AppCatalog( this );
-      new BinCatalog( this );
-      new SecCatalog( this );
-      new RegCatalog( this );
-
-      ConfigAttribute.Apply(this, m_RootConfig);
+      catch
+      {
+        App.Singletons.Remove<Metabank>();
+        throw;
+      }
     }
 
     //tests and sets FS connection params
@@ -156,6 +167,8 @@ namespace Azos.Sky.Metabase
     protected override void Destructor()
     {
       m_Active = false;
+
+      App.Singletons.Remove<Metabank>();
 
       if (m_FSSessionCacheThread!=null)
       {
@@ -449,7 +462,7 @@ namespace Azos.Sky.Metabase
         {
           var output = ctx.Output;
 
-          var fromHost =  App.AsSky().HostName;
+          var fromHost = App.AsSky().HostName;
 
           if (fromHost.IsNullOrWhiteSpace())
           {

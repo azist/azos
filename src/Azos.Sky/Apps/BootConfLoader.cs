@@ -137,6 +137,7 @@ namespace Azos.Apps
       catch
       {
         //nowhere to log anymore as all loggers have stopped
+        //todo: COnsider OS event log
       }
     }
 
@@ -157,11 +158,6 @@ namespace Azos.Apps
     /// Application container system type
     /// </summary>
     public SystemApplicationType SystemApplicationType => m_SystemApplicationType;
-
-    /// <summary>
-    /// Returns true after configuration has loaded
-    /// </summary>
-    public bool Loaded => m_BootApplication!=null;
 
     /// <summary>
     /// Returns exception (if any) has occurred during application config loading process
@@ -213,26 +209,26 @@ namespace Azos.Apps
     /// </summary>
     public Configuration Load(string[] cmdArgs, Configuration bootConfig)
     {
-      if (Loaded)
-          throw new SkyException(Sky.StringConsts.APP_LOADER_ALREADY_LOADED_ERROR);
+      SystemVarResolver.Bind();//todo: Refactor to use ~App. app var resolver instead
 
-      SystemVarResolver.Bind();
-
-      Configuration.ProcesswideConfigNodeProviderType = typeof(Sky.Metabase.MetabankFileConfigNodeProvider);
+      Configuration.ProcesswideConfigNodeProviderType = typeof(MetabankFileConfigNodeProvider);
 
       try
       {
         Configuration result = null;
 
-        //init Boot app container
-        m_BootApplication = new AzosApplication(cmdArgs, bootConfig.Root);
+        //1. init Boot app container
+        mountBootApp(cmdArgs, bootConfig);
 
         writeLog(MessageType.Info, "Entering Sky app bootloader...");
 
+        //2. What host is this?
         determineHostName();
 
+        //Sets cluster host name in all log messages
         Message.DefaultHostName = m_HostName;
 
+        //3. Mount metabank
         mountMetabank();
 
         Metabank.SectionHost zoneGov;
@@ -243,7 +239,7 @@ namespace Azos.Apps
 
         if (isDynamicHost)
         {
-          writeLog(MessageType.Info, "The meatabase host '{0}' is dynamic".Args(m_HostName));
+          writeLog(MessageType.Info, "The metabase host '{0}' is dynamic".Args(m_HostName));
           m_DynamicHostNameSuffix = thisMachineDynamicNameSuffix();
           writeLog(MessageType.Info, "Obtained actual host dynamic suffix: '{0}' ".Args(m_DynamicHostNameSuffix));
           m_HostName = m_HostName + m_DynamicHostNameSuffix;//no spaces between
@@ -281,24 +277,32 @@ namespace Azos.Apps
 
     #region .pvt .impl
 
+    private void mountBootApp(string[] cmdArgs, Configuration bootConfig)
+    {
+      if (m_BootApplication != null) return;
+      m_BootApplication = new AzosApplication(allowNesting: true, args: cmdArgs, rootConfig: bootConfig.Root);
+    }
+
     private void determineHostName()
     {
-        var hNode = m_BootApplication.ConfigRoot[CONFIG_SKY_SECTION][CONFIG_HOST_SECTION];
+      if (m_HostName.IsNotNullOrWhiteSpace()) return;
 
-        m_HostName = hNode.AttrByName(CONFIG_HOST_NAME_ATTR).Value;
+      var hNode = m_BootApplication.ConfigRoot[CONFIG_SKY_SECTION][CONFIG_HOST_SECTION];
 
-        if (m_HostName.IsNullOrWhiteSpace())
-        {
-            writeLog(MessageType.Warning, "Host name was not specified in config, trying to take from machine env var {0}".Args(ENV_VAR_HOST_NAME));
-            m_HostName = System.Environment.GetEnvironmentVariable(ENV_VAR_HOST_NAME);
-        }
-        if (m_HostName.IsNullOrWhiteSpace())
-        {
-            writeLog(MessageType.Warning, "Host name was not specified in neither config nor env var, taking from local computer name");
-            m_HostName = "{0}/{1}".Args(DEFAULT_HOST_ZONE_PATH, System.Environment.MachineName);
-        }
+      m_HostName = hNode.AttrByName(CONFIG_HOST_NAME_ATTR).Value;
 
-        writeLog(MessageType.Info, "Host name: " + m_HostName);
+      if (m_HostName.IsNullOrWhiteSpace())
+      {
+          writeLog(MessageType.Warning, "Host name was not specified in config, trying to take from machine env var {0}".Args(ENV_VAR_HOST_NAME));
+          m_HostName = System.Environment.GetEnvironmentVariable(ENV_VAR_HOST_NAME);
+      }
+      if (m_HostName.IsNullOrWhiteSpace())
+      {
+          writeLog(MessageType.Warning, "Host name was not specified in neither config nor env var, taking from local computer name");
+          m_HostName = "{0}/{1}".Args(DEFAULT_HOST_ZONE_PATH, System.Environment.MachineName);
+      }
+
+      writeLog(MessageType.Info, "Host name: " + m_HostName);
     }
 
 
@@ -308,6 +312,7 @@ namespace Azos.Apps
 
       ensureMetabaseAppName( mNode);
 
+      if (m_Metabase!=null) return;
 
       FileSystemSessionConnectParams fsSessionConnectParams;
       var fs = getFileSystem(mNode, out fsSessionConnectParams);

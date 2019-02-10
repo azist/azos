@@ -24,8 +24,6 @@ namespace Azos.Sky
     public const string RT_CMDLET_DONTKNOW_ERROR =
                   "Server: do not know how to handle cmdlet '{0}'. Use 'help' to see cmdlet list";
     public const string APP_LOADER_ERROR = "Application loader exception: ";
-    public const string APP_LOADER_ALREADY_LOADED_ERROR = "Application loader has already loaded";
-
 
     public const string PERMISSION_DESCRIPTION_RemoteTerminalOperatorPermission =
        "Controls whether users can access remote terminals";
@@ -67,6 +65,8 @@ namespace Azos.Sky
     public const string HOST_SET_DYNAMIC_HOST_NOT_SUPPORTED_ERROR =
       "HostSet '{0}' declares dynamic host '{1}' which is not supported";
 
+
+    public const string METABASE_INSTANCE_ALREADY_ALLOCATED_ERROR = "Metabank class instance is already allocated in this app container: ";
 
     public const string METABASE_FS_CONNECTION_ERROR = "Metabase file system {0}('{1}','{2}') connection error: {3}";
 
