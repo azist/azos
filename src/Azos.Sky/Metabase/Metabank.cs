@@ -77,10 +77,18 @@ namespace Azos.Sky.Metabase
     /// <summary>
     /// Opens metabase from the specified file system instance at the specified metabase root path
     /// </summary>
-    /// <param name="fileSystem">An instance of a file system that stores the metabase files</param>
-    /// <param name="fsSessionParams">File system connection params</param>
+    /// <param name="application">ISkyApplication chassis which this metabank installs in</param>
+    /// <param name="fileSystem">
+    /// An instance of a file system that stores the metabase files
+    /// Note: This file system is typically a component of Boot application, not the sky app which is being mounted.
+    /// Metabank does NOT dispose the FS, as it is an external resource relative to metabank
+    /// </param>
+    /// <param name="fsSessionParams">File system connection parameter</param>
     /// <param name="rootPath">A path to the directory within the file system that contains metabase root data</param>
-    public Metabank(IFileSystem fileSystem, FileSystemSessionConnectParams fsSessionParams, string rootPath) : base(fileSystem.NonNull(nameof(fileSystem)).App)
+    internal Metabank(ISkyApplication application,
+                      IFileSystem fileSystem,
+                      FileSystemSessionConnectParams fsSessionParams,
+                      string rootPath) : base(application)
     {
       if (fileSystem is LocalFileSystem && fsSessionParams==null)
         fsSessionParams = new FileSystemSessionConnectParams();
@@ -218,6 +226,8 @@ namespace Azos.Sky.Metabase
     #endregion
 
     #region Properties
+
+        public new ISkyApplication App => base.App.AsSky();
 
         public override string ComponentLogTopic => SysConsts.LOG_TOPIC_METABASE;
 
@@ -449,7 +459,7 @@ namespace Azos.Sky.Metabase
         /// instead of doing injectable rules etc. This is done for Practical simplicity of the design
         /// </remarks>
         /// <param name="output">
-        /// A list where output such as erros and warnings is redirected.
+        /// A list where output such as errors and warnings is redirected.
         /// May use Collections.EventedList for receiving notifications upon list addition
         /// </param>
         public void Validate(IList<MetabaseValidationMsg> output)
@@ -462,7 +472,7 @@ namespace Azos.Sky.Metabase
         {
           var output = ctx.Output;
 
-          var fromHost = App.AsSky().HostName;
+          var fromHost = App.HostName;
 
           if (fromHost.IsNullOrWhiteSpace())
           {
@@ -796,6 +806,8 @@ namespace Azos.Sky.Metabase
               public DateTime LastAccess;
             }
 
+#warning Carefully review - need to autoclose sessions - thats why plain thread static is not used
+    //todo: however maybe use session pool? maybe make it a part of FileSystem and remove this code?
             private FileSystemSession obtainSession()
             {
               EnsureObjectNotDisposed();

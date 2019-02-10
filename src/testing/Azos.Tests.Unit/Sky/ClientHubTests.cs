@@ -15,7 +15,7 @@ using Azos.Sky.Contracts;
 namespace Azos.Tests.Unit.Sky
 {
   [Runnable]
-  public class ClientHubTests : BaseTestRigWithMetabase
+  public class ClientHubTests : BaseTestRigWithSkyApp
   {
 
      const string CONFIG1 =

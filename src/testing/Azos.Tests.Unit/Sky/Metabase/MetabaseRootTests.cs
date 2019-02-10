@@ -4,8 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System.Linq;
-using Azos.Apps;
-using Azos.IO.FileSystem.Local;
 using Azos.Scripting;
 
 using Azos.Sky.Metabase;
@@ -13,42 +11,36 @@ using Azos.Sky.Metabase;
 namespace Azos.Tests.Unit.Sky.Metabase
 {
   [Runnable]
-  public class MetabaseRootTests
+  public class MetabaseRootTests : BaseTestRigWithSkyApp
   {
       [Run]
       public void MR_RootConfigs()
       {
-        using(var fs = new LocalFileSystem(NOPApplication.Instance))
-        using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
-          Aver.IsNotNull(mb.CommonLevelConfig);
-          Aver.IsNotNull(mb.RootConfig);
+          Aver.IsNotNull(Metabase.CommonLevelConfig);
+          Aver.IsNotNull(Metabase.RootConfig);
 
-          Aver.AreEqual("value1", mb.CommonLevelConfig.Navigate("/common/$var1").Value);
+          Aver.AreEqual("value1", Metabase.CommonLevelConfig.Navigate("/common/$var1").Value);
 
-          Aver.AreEqual("value1", mb.RootConfig.Navigate("/common/$var1").Value);
+          Aver.AreEqual("value1", Metabase.RootConfig.Navigate("/common/$var1").Value);
         }
       }
 
       [Run]
       public void MR_CommonConfigGetsIncludedAtAllLevels()
       {
-        using(var fs = new LocalFileSystem(NOPApplication.Instance))
-        using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
-          Aver.AreEqual("value1", mb.CatalogApp.Applications["WebApp1"].LevelConfig.Navigate("/common/$var1").Value);
+          Aver.AreEqual("value1", Metabase.CatalogApp.Applications["WebApp1"].LevelConfig.Navigate("/common/$var1").Value);
 
-          Aver.AreEqual("value1", mb.CatalogReg["us/east/cle/a/i/wmed0001"].LevelConfig.Navigate("/common/$var1").Value);
+          Aver.AreEqual("value1", Metabase.CatalogReg["us/east/cle/a/i/wmed0001"].LevelConfig.Navigate("/common/$var1").Value);
         }
       }
 
       [Run]
       public void MR_PlatformNames()
       {
-        using(var fs = new LocalFileSystem(NOPApplication.Instance))
-        using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
-          var platforms = mb.PlatformNames.ToList();
+          var platforms = Metabase.PlatformNames.ToList();
 
           Aver.AreEqual(3, platforms.Count);
           Aver.AreEqual("Win64",   platforms[0]);
@@ -60,10 +52,8 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void MR_OSNames()
       {
-        using(var fs = new LocalFileSystem(NOPApplication.Instance))
-        using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
-          var oses = mb.OSNames.ToList();
+          var oses = Metabase.OSNames.ToList();
 
           Aver.AreEqual(5,          oses.Count);
           Aver.AreEqual("win7",     oses[0]);
@@ -77,10 +67,8 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void MR_GetOSPlatformNode()
       {
-        using(var fs = new LocalFileSystem(NOPApplication.Instance))
-        using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
-          var pn = mb.GetOSPlatformNode("fedora20");
+          var pn = Metabase.GetOSPlatformNode("fedora20");
 
           Aver.AreEqual(Metabank.CONFIG_PLATFORM_SECTION,  pn.Name);
           Aver.AreEqual("Linux64",  pn.AttrByName(Metabank.CONFIG_NAME_ATTR).Value);
@@ -90,10 +78,8 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void MR_GetOSPlatformName()
       {
-        using(var fs = new LocalFileSystem(NOPApplication.Instance))
-        using(var mb = new Metabank(fs, null, TestSources.RPATH))
         {
-          Aver.AreEqual("Android",  mb.GetOSPlatformName("KitKat4.4"));
+          Aver.AreEqual("Android",  Metabase.GetOSPlatformName("KitKat4.4"));
         }
       }
 

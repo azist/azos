@@ -16,6 +16,7 @@ using Azos.Sky.Locking;
 using Azos.Sky.Metabase;
 using Azos.Sky.Workers;
 using Azos.Sky.Dynamic;
+using Azos.IO.FileSystem;
 
 namespace Azos.Apps
 {
@@ -54,19 +55,32 @@ namespace Azos.Apps
                          string[] args,
                          ConfigSectionNode rootConfig) : base()
     {
-      var loader = new BootConfLoader(sysAppType);
+      var loader = new BootConfLoader(this, null, sysAppType, args, rootConfig);
       ctor(loader, allowNesting, args, rootConfig);
     }
 
-    internal SkyApplication(IApplication bootApp,
-                        SystemApplicationType sysAppType,
-                        Metabank metabase,
-                        string thisHost,
-                        bool allowNesting,
-                        string[] args,
-                        ConfigSectionNode rootConfig) : base()
+
+
+
+    public SkyApplication(IApplication bootApplication,
+                          SystemApplicationType sysAppType,
+                          IFileSystem metabaseFileSystem,
+                          FileSystemSessionConnectParams metabaseFileSystemSessionParams,
+                          string metabaseFileSystemRootPath,
+                          string thisHostName,
+                          bool allowNesting,
+                          string[] args,
+                          ConfigSectionNode rootConfig) : base()
     {
-      var loader = new BootConfLoader(bootApp, sysAppType, metabase, thisHost);
+      var loader = new BootConfLoader(this, bootApplication,
+                                      sysAppType,
+                                      metabaseFileSystem,
+                                      metabaseFileSystemSessionParams,
+                                      metabaseFileSystemRootPath,
+                                      thisHostName,
+                                      args,
+                                      rootConfig);
+
       ctor(loader, allowNesting, args, rootConfig);
     }
 
@@ -80,6 +94,7 @@ namespace Azos.Apps
         m_BootLoader = loader;
         m_NOPLockManager = new NOPLockManager(this);
         var cmdArgs = args == null ? null : new CommandArgsConfiguration(args);
+        cmdArgs.Application = this;
         Constructor(allowNesting,
                     cmdArgs,
                     rootConfig,
@@ -95,8 +110,8 @@ namespace Azos.Apps
 
     protected override void Destructor()
     {
-      DisposeAndNull(ref m_BootLoader);
       base.Destructor();
+      DisposeAndNull(ref m_BootLoader);
     }
 
     #endregion
@@ -104,7 +119,6 @@ namespace Azos.Apps
     #region Fields
 
     private BootConfLoader m_BootLoader;
-    private ConfigSectionNode m_BootConfigRoot;
 
     private WaveServer m_WebManagerServer;
 
@@ -130,7 +144,7 @@ namespace Azos.Apps
 
       public string ParentZoneGovernorPrimaryHostName => m_BootLoader.ParentZoneGovernorPrimaryHostName;
 
-      public IConfigSectionNode BootConfigRoot => m_BootConfigRoot;
+      public IConfigSectionNode BootConfigRoot => m_BootLoader.BootApplication.ConfigRoot;
 
       internal WaveServer WebManagerServer => m_WebManagerServer;
 
@@ -145,26 +159,28 @@ namespace Azos.Apps
 
     #region Protected
 
-      protected override Configuration GetConfiguration()
-      {
-        var localConfig = base.GetConfiguration();
-        localConfig.Application = this;
+    //protected override Configuration GetConfiguration()
+    //{
+    //  var localConfig = base.GetConfiguration();
+    //  localConfig.Application = this;
 
-        BootConfLoader.ProcessAllExistingIncludes(localConfig.Root, null, "boot");
+    //  BootConfLoader.ProcessAllExistingIncludes(localConfig.Root, null, "boot");
 
-        m_BootConfigRoot = localConfig.Root;
+    //  m_BootConfigRoot = localConfig.Root;
 
-        var cmdArgs = new string[]{};
+    //  var cmdArgs = new string[]{};
 
-        if (CommandArgs.Configuration is CommandArgsConfiguration)
-          cmdArgs = ((CommandArgsConfiguration)this.CommandArgs.Configuration).Arguments;
+    //  if (CommandArgs.Configuration is CommandArgsConfiguration)
+    //    cmdArgs = ((CommandArgsConfiguration)this.CommandArgs.Configuration).Arguments;
 
-        var result = m_BootLoader.Load(cmdArgs, localConfig);
-        result.Application = this;
-        return result;
-      }
+    //  var result = m_BootLoader.Load(cmdArgs, localConfig);
+    //  result.Application = this;
+    //  return result;
+    //}
 
-      protected override void DoInitApplication()
+    protected override Configuration GetConfiguration() => m_BootLoader.ApplicationConfiguration;
+
+    protected override void DoInitApplication()
       {
         base.DoInitApplication();
 

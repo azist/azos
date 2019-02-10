@@ -10,7 +10,8 @@ namespace Azos.Tests.Unit.Sky
 {
   internal static class TestSources
   {
-     public static string RPATH
+
+    public static string RPATH
      {
        get
        {

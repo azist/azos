@@ -16,7 +16,7 @@ using Azos.Apps;
 namespace Azos.Tests.Unit.Sky.Metabase
 {
   [Runnable]
-  public class EffectiveAppConfigTests
+  public class EffectiveAppConfigTests : BaseTestRigWithSkyApp
   {
       const string WMED0001 = "us/east/cle/a/i/wmed0001.h";
       const string WMED0002 = "us/east/cle/a/i/wmed0002.h";
@@ -26,11 +26,8 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void EC_WebApp_WMED0001()
       {
-        using(var fs = new LocalFileSystem(NOPApplication.Instance))
-        using(var mb = new Metabank(fs, null, TestSources.RPATH))
-        using (var skyApp = new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, mb, TestSources.THIS_HOST, true, null, null))
         {
-          var host = mb.CatalogReg.NavigateHost(WMED0001);
+          var host = Metabase.CatalogReg.NavigateHost(WMED0001);
 
           var conf = host.GetEffectiveAppConfig("WebApp");
 
@@ -53,11 +50,8 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void EC_WebApp1_WMED0004()
       {
-        using(var fs = new LocalFileSystem(NOPApplication.Instance))
-        using(var mb = new Metabank(fs, null, TestSources.RPATH))
-        using (var skyApp = new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, mb, TestSources.THIS_HOST, true, null, null))
       {
-          var host = mb.CatalogReg.NavigateHost(WMED0004);
+          var host = Metabase.CatalogReg.NavigateHost(WMED0004);
 
           var conf = host.GetEffectiveAppConfig("WebApp1");
 
@@ -81,11 +75,8 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void EC_WinFormsTest_WMED0004()
       {
-        using(var fs = new LocalFileSystem(NOPApplication.Instance))
-        using(var mb = new Metabank(fs, null, TestSources.RPATH))
-        using (var skyApp = new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, mb, TestSources.THIS_HOST, true, null, null))
       {
-          var host = mb.CatalogReg.NavigateHost(WMED0004);
+          var host = Metabase.CatalogReg.NavigateHost(WMED0004);
 
           var conf = host.GetEffectiveAppConfig("WinFormsTest");
 
@@ -110,11 +101,8 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Aver.Throws(typeof(MetabaseException), Message="is not a part of sky role", MsgMatch= Aver.ThrowsAttribute.MatchType.Contains)]
       public void EC_Server_fail()
       {
-        using(var fs = new LocalFileSystem(NOPApplication.Instance))
-        using(var mb = new Metabank(fs, null, TestSources.RPATH))
-        using (var skyApp = new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, mb, TestSources.THIS_HOST, true, null, null))
       {
-          var host = mb.CatalogReg.NavigateHost(WMED0002);
+          var host = Metabase.CatalogReg.NavigateHost(WMED0002);
 
           var conf = host.GetEffectiveAppConfig("TestApp");
         }
@@ -123,11 +111,8 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void EC_Server_success()
       {
-        using(var fs = new LocalFileSystem(NOPApplication.Instance))
-        using(var mb = new Metabank(fs, null, TestSources.RPATH))
-        using (var skyApp = new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, mb, TestSources.THIS_HOST, true, null, null))
       {
-          var host = mb.CatalogReg.NavigateHost(WMED0003);
+          var host = Metabase.CatalogReg.NavigateHost(WMED0003);
 
           var conf = host.GetEffectiveAppConfig("AZGov");
 
@@ -139,15 +124,12 @@ namespace Azos.Tests.Unit.Sky.Metabase
       [Run]
       public void EC_Various_Parallel()
       {
-        using(var fs = new LocalFileSystem(NOPApplication.Instance))
-        using(var mb = new Metabank(fs, null, TestSources.RPATH))
-        using (var skyApp = new SkyApplication(NOPApplication.Instance, SystemApplicationType.TestRig, mb, TestSources.THIS_HOST, true, null, null))
       {
           Parallel.For(0, TestSources.PARALLEL_LOOP_TO, (i) =>
           {
             Thread.SpinWait(Ambient.Random.NextScaledRandomInteger(10, 2000));
 
-            var host = mb.CatalogReg.NavigateHost(WMED0004);
+            var host = Metabase.CatalogReg.NavigateHost(WMED0004);
 
             var conf = host.GetEffectiveAppConfig("WebApp1");
 
@@ -167,13 +149,13 @@ namespace Azos.Tests.Unit.Sky.Metabase
 
             //--------------------------------------------
             Thread.SpinWait(Ambient.Random.NextScaledRandomInteger(10, 2000));
-            host = mb.CatalogReg.NavigateHost(WMED0002);
+            host = Metabase.CatalogReg.NavigateHost(WMED0002);
             conf = host.GetEffectiveAppConfig("WebApp");
             Aver.AreEqual("1.2.0890b", conf.Navigate("/windows7/$build").Value);
 
             //--------------------------------------------
             Thread.SpinWait(Ambient.Random.NextScaledRandomInteger(10, 2000));
-            host = mb.CatalogReg.NavigateHost(WMED0004);
+            host = Metabase.CatalogReg.NavigateHost(WMED0004);
 
             conf = host.GetEffectiveAppConfig("WinFormsTest");
 

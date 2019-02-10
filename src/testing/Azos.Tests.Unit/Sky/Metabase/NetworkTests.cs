@@ -15,7 +15,7 @@ using Azos.Sky.Metabase;
 namespace Azos.Tests.Unit.Sky.Metabase
 {
   [Runnable]
-  public class NetworkTests : BaseTestRigWithMetabase
+  public class NetworkTests : BaseTestRigWithSkyApp
   {
 
       [Run]

@@ -23,7 +23,6 @@ namespace Azos.Sky
 
     public const string RT_CMDLET_DONTKNOW_ERROR =
                   "Server: do not know how to handle cmdlet '{0}'. Use 'help' to see cmdlet list";
-    public const string APP_LOADER_ERROR = "Application loader exception: ";
 
     public const string PERMISSION_DESCRIPTION_RemoteTerminalOperatorPermission =
        "Controls whether users can access remote terminals";
