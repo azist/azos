@@ -65,8 +65,6 @@ namespace Azos.Sky
       "HostSet '{0}' declares dynamic host '{1}' which is not supported";
 
 
-    public const string METABASE_INSTANCE_ALREADY_ALLOCATED_ERROR = "Metabank class instance is already allocated in this app container: ";
-
     public const string METABASE_FS_CONNECTION_ERROR = "Metabase file system {0}('{1}','{2}') connection error: {3}";
 
     public const string METABASE_INVALID_OPERTATION_ERROR = "Invalid metabase operation: ";

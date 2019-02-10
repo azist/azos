@@ -45,7 +45,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
 
         #region Properties
 
-            public IApplication App => Metabank.App;
+            public IApplication App => Metabank.SkyApp;
 
 
             /// <summary>

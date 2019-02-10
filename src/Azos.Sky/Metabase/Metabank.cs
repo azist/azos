@@ -85,64 +85,56 @@ namespace Azos.Sky.Metabase
     /// </param>
     /// <param name="fsSessionParams">File system connection parameter</param>
     /// <param name="rootPath">A path to the directory within the file system that contains metabase root data</param>
-    internal Metabank(ISkyApplication application,
+    internal Metabank(IApplication bootApplication,
+                      ISkyApplication skyApplication,
                       IFileSystem fileSystem,
                       FileSystemSessionConnectParams fsSessionParams,
-                      string rootPath) : base(application)
+                      string rootPath) : base(bootApplication.NonNull(nameof(bootApplication)))
     {
+      this.m_SkyApplication = skyApplication.NonNull(nameof(skyApplication));
+
       if (fileSystem is LocalFileSystem && fsSessionParams==null)
         fsSessionParams = new FileSystemSessionConnectParams();
 
       if (fileSystem==null || fsSessionParams==null)
         throw new MetabaseException(StringConsts.ARGUMENT_ERROR+"Metabank.ctor(fileSystem|fsSessionParams==null)");
 
-      if (!App.Singletons.GetOrCreate(() => this).created)
-        throw new MetabaseException(StringConsts.METABASE_INSTANCE_ALREADY_ALLOCATED_ERROR+App.GetType().Name);
-
-      try
+      using (var session = ctorFS(fileSystem, fsSessionParams, rootPath))
       {
-        using (var session = ctorFS(fileSystem, fsSessionParams, rootPath))
-        {
-          m_CommonLevelConfig = getConfigFromFile(session, CONFIG_COMMON_FILE).Root;
+        m_CommonLevelConfig = getConfigFromFile(session, CONFIG_COMMON_FILE).Root;
 
-          m_RootConfig = getConfigFromFile(session, CONFIG_SECTION_LEVEL_FILE).Root;
-          includeCommonConfig(m_RootConfig);
-          m_RootConfig.ResetModified();
+        m_RootConfig = getConfigFromFile(session, CONFIG_SECTION_LEVEL_FILE).Root;
+        includeCommonConfig(m_RootConfig);
+        m_RootConfig.ResetModified();
 
-          m_RootAppConfig = getConfigFromFile(session, CONFIG_SECTION_LEVEL_ANY_APP_FILE).Root;
-          m_PlatformConfig = getConfigFromFile(session, CONFIG_PLATFORMS_FILE).Root;
-          m_NetworkConfig = getConfigFromFile(session, CONFIG_NETWORKS_FILE).Root;
-          m_ContractConfig = getConfigFromFile(session, CONFIG_CONTRACTS_FILE).Root;
-        }
-        m_Catalogs = new Registry<Catalog>();
-        var cacheStore = new CacheStore(this, "AC.Metabank");
-        //No app available - nowhere to configure: //cacheStore.Configure(null);
-        /*
-        cacheStore.TableOptions.Register( new TableOptions(APP_CATALOG, 37, 3) );
-        cacheStore.TableOptions.Register( new TableOptions(BIN_CATALOG, 37, 7) );
-        cacheStore.TableOptions.Register( new TableOptions(REG_CATALOG, 37, 17) );
-        superseded by the cacheStore.DefaultTableOptions below:
-          */
-        cacheStore.DefaultTableOptions = new TableOptions("*", 37, 17);
-        //reg catalog needs more space
-        cacheStore.TableOptions.Register(new TableOptions(REG_CATALOG, 571, 37));
-
-        cacheStore.InstrumentationEnabled = false;
-
-        m_Cache = new ComplexKeyHashingStrategy(cacheStore);
-
-        new AppCatalog(this);
-        new BinCatalog(this);
-        new SecCatalog(this);
-        new RegCatalog(this);
-
-        ConfigAttribute.Apply(this, m_RootConfig);
+        m_RootAppConfig = getConfigFromFile(session, CONFIG_SECTION_LEVEL_ANY_APP_FILE).Root;
+        m_PlatformConfig = getConfigFromFile(session, CONFIG_PLATFORMS_FILE).Root;
+        m_NetworkConfig = getConfigFromFile(session, CONFIG_NETWORKS_FILE).Root;
+        m_ContractConfig = getConfigFromFile(session, CONFIG_CONTRACTS_FILE).Root;
       }
-      catch
-      {
-        App.Singletons.Remove<Metabank>();
-        throw;
-      }
+      m_Catalogs = new Registry<Catalog>();
+      var cacheStore = new CacheStore(this, "AC.Metabank");
+      //No app available - nowhere to configure: //cacheStore.Configure(null);
+      /*
+      cacheStore.TableOptions.Register( new TableOptions(APP_CATALOG, 37, 3) );
+      cacheStore.TableOptions.Register( new TableOptions(BIN_CATALOG, 37, 7) );
+      cacheStore.TableOptions.Register( new TableOptions(REG_CATALOG, 37, 17) );
+      superseded by the cacheStore.DefaultTableOptions below:
+        */
+      cacheStore.DefaultTableOptions = new TableOptions("*", 37, 17);
+      //reg catalog needs more space
+      cacheStore.TableOptions.Register(new TableOptions(REG_CATALOG, 571, 37));
+
+      cacheStore.InstrumentationEnabled = false;
+
+      m_Cache = new ComplexKeyHashingStrategy(cacheStore);
+
+      new AppCatalog(this);
+      new BinCatalog(this);
+      new SecCatalog(this);
+      new RegCatalog(this);
+
+      ConfigAttribute.Apply(this, m_RootConfig);
     }
 
     //tests and sets FS connection params
@@ -176,8 +168,6 @@ namespace Azos.Sky.Metabase
     {
       m_Active = false;
 
-      App.Singletons.Remove<Metabank>();
-
       if (m_FSSessionCacheThread!=null)
       {
         m_FSSessionCacheThreadWaiter.Set();
@@ -202,6 +192,7 @@ namespace Azos.Sky.Metabase
     //Invariant culture ignore case comparer
     private static readonly StringComparer INVSTRCMP = StringComparer.InvariantCultureIgnoreCase;
 
+    private ISkyApplication m_SkyApplication;
     private bool m_Active = true;
     private IFileSystem m_FS;
     private FileSystemSessionConnectParams m_FSSessionConnectParams;
@@ -227,7 +218,7 @@ namespace Azos.Sky.Metabase
 
     #region Properties
 
-        public new ISkyApplication App => base.App.AsSky();
+        public new ISkyApplication SkyApp => m_SkyApplication;
 
         public override string ComponentLogTopic => SysConsts.LOG_TOPIC_METABASE;
 
@@ -398,7 +389,7 @@ namespace Azos.Sky.Metabase
         {
           get
           {
-            return Identification.GdidGenerator.AuthorityHost.FromConfNode(App, m_RootConfig[CONFIG_GDID_SECTION]);
+            return Identification.GdidGenerator.AuthorityHost.FromConfNode(SkyApp, m_RootConfig[CONFIG_GDID_SECTION]);
           }
         }
 
@@ -472,7 +463,7 @@ namespace Azos.Sky.Metabase
         {
           var output = ctx.Output;
 
-          var fromHost = App.HostName;
+          var fromHost = SkyApp.HostName;
 
           if (fromHost.IsNullOrWhiteSpace())
           {
@@ -689,7 +680,7 @@ namespace Azos.Sky.Metabase
         /// </summary>
         public bool ExternalGetParameter(string name, out object value, params string[] groups)
         {
-            return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
+            return ExternalParameterAttribute.GetParameter(SkyApp, this, name, out value, groups);
         }
 
         /// <summary>
@@ -697,7 +688,7 @@ namespace Azos.Sky.Metabase
         /// </summary>
         public bool ExternalSetParameter(string name, object value, params string[] groups)
         {
-          return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
+          return ExternalParameterAttribute.SetParameter(SkyApp, this, name, value, groups);
         }
 
 
@@ -722,7 +713,7 @@ namespace Azos.Sky.Metabase
             {
               var text = file.ReadAllText();
               var result = Configuration.ProviderLoadFromString(text, fmt);
-              result.Application = App;
+              result.Application = SkyApp;
               return result;
             }
           }
@@ -733,7 +724,7 @@ namespace Azos.Sky.Metabase
             var result = new MemoryConfiguration();
 
             result.Create(SysConsts.DEFAULT_APP_CONFIG_ROOT);
-            result.Application = App;
+            result.Application = SkyApp;
             result.Root.ResetModified();
             return result;
           }
@@ -759,7 +750,7 @@ namespace Azos.Sky.Metabase
             var fmt = chopNameLeaveExt(path);
 
             var result = Configuration.ProviderLoadFromString(text, fmt);
-            result.Application = App;
+            result.Application = SkyApp;
             return result;
           }
         }

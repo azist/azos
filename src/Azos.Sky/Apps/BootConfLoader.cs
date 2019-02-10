@@ -92,7 +92,7 @@ namespace Azos.Apps
 
       if (m_BootApplication==null)
       {
-        m_BootApplication = new AzosApplication(allowNesting: true, args: cmdArgs, rootConfig: rootConfig);
+        m_BootApplication = new AzosApplication(allowNesting: true, cmdArgs: cmdArgs, rootConfig: rootConfig);
         m_IsBootApplicationOwner = true;
       }
 
@@ -107,24 +107,6 @@ namespace Azos.Apps
 
       //3. Mount Metabank
       m_Metabase = mountMetabank();
-
-      //4. Effective app config
-      Metabank.SectionHost zoneGov;
-      bool isDynamicHost;
-      m_ApplicationConfiguration = getEffectiveAppConfigAndZoneGovernor(out zoneGov, out isDynamicHost);
-
-      if (zoneGov != null) m_ParentZoneGovernorPrimaryHostName = zoneGov.RegionPath;
-
-      if (isDynamicHost)
-      {
-        writeLog(MessageType.Trace, "The metabase host '{0}' is dynamic".Args(m_HostName));
-        m_DynamicHostNameSuffix = thisMachineDynamicNameSuffix();
-        writeLog(MessageType.Trace, "Obtained actual host dynamic suffix: '{0}' ".Args(m_DynamicHostNameSuffix));
-        m_HostName = m_HostName + m_DynamicHostNameSuffix;//no spaces between
-        writeLog(MessageType.Trace, "The actual dynamic instance host name is: '{0}'".Args(m_HostName));
-
-        Message.DefaultHostName = m_HostName;
-      }
 
       writeLog(MessageType.Trace, "...exiting Sky app bootloader");
     }
@@ -153,7 +135,7 @@ namespace Azos.Apps
 
       if (m_BootApplication == null)
       {
-        m_BootApplication = new AzosApplication(allowNesting: true, args: cmdArgs, rootConfig: rootConfig);
+        m_BootApplication = new AzosApplication(allowNesting: true, cmdArgs: cmdArgs, rootConfig: rootConfig);
         m_IsBootApplicationOwner = true;
       }
 
@@ -167,26 +149,11 @@ namespace Azos.Apps
         Message.DefaultHostName = m_HostName;
 
       //3. Mount metabank
-      m_Metabase = new Metabank(m_Application, metabaseFileSystem, metabaseFileSystemSessionParams, metabaseFileSystemRootPath);
+      var mNode = m_BootApplication.ConfigRoot[CONFIG_SKY_SECTION][CONFIG_METABASE_SECTION];
+      ensureMetabaseAppName(mNode);
+
+      m_Metabase = new Metabank(m_BootApplication, m_Application, metabaseFileSystem, metabaseFileSystemSessionParams, metabaseFileSystemRootPath);
       m_IsMetabaseFSOwner = false;//externally supplied
-
-      //4. Effective app config
-      Metabank.SectionHost zoneGov;
-      bool isDynamicHost;
-      m_ApplicationConfiguration = getEffectiveAppConfigAndZoneGovernor(out zoneGov, out isDynamicHost);
-
-      if (zoneGov != null) m_ParentZoneGovernorPrimaryHostName = zoneGov.RegionPath;
-
-      if (isDynamicHost)
-      {
-        writeLog(MessageType.Trace, "The metabase host '{0}' is dynamic".Args(m_HostName));
-        m_DynamicHostNameSuffix = thisMachineDynamicNameSuffix();
-        writeLog(MessageType.Trace, "Obtained actual host dynamic suffix: '{0}' ".Args(m_DynamicHostNameSuffix));
-        m_HostName = m_HostName + m_DynamicHostNameSuffix;//no spaces between
-        writeLog(MessageType.Trace, "The actual dynamic instance host name is: '{0}'".Args(m_HostName));
-
-        Message.DefaultHostName = m_HostName;
-      }
 
       writeLog(MessageType.Trace, "...exiting Sky app bootloader");
     }
@@ -261,8 +228,36 @@ namespace Azos.Apps
     /// <summary>
     /// Returns effective sky application configuration computed from the metabase
     /// </summary>
-    public Configuration ApplicationConfiguration => m_ApplicationConfiguration;
+    public Configuration ApplicationConfiguration
+    {
+      get
+      {
+        if (m_ApplicationConfiguration!=null) return m_ApplicationConfiguration;
 
+        writeLog(MessageType.Trace, "obtaining app config...");
+
+        Metabank.SectionHost zoneGov;
+        bool isDynamicHost;
+        m_ApplicationConfiguration = getEffectiveAppConfigAndZoneGovernor(out zoneGov, out isDynamicHost);
+
+        if (zoneGov != null) m_ParentZoneGovernorPrimaryHostName = zoneGov.RegionPath;
+
+        if (isDynamicHost)
+        {
+          writeLog(MessageType.Trace, "The metabase host '{0}' is dynamic".Args(m_HostName));
+          m_DynamicHostNameSuffix = thisMachineDynamicNameSuffix();
+          writeLog(MessageType.Trace, "Obtained actual host dynamic suffix: '{0}' ".Args(m_DynamicHostNameSuffix));
+          m_HostName = m_HostName + m_DynamicHostNameSuffix;//no spaces between
+          writeLog(MessageType.Trace, "The actual dynamic instance host name is: '{0}'".Args(m_HostName));
+
+          Message.DefaultHostName = m_HostName;
+        }
+
+        writeLog(MessageType.Trace, "...app config obtained");
+
+        return m_ApplicationConfiguration;
+      }
+    }
 
     /// <summary>
     /// Host name as determined at boot
@@ -371,7 +366,7 @@ namespace Azos.Apps
       writeLog( MessageType.Info, "Mounting metabank...");
       try
       {
-        var result = new Metabank(m_Application, fs, fsSessionConnectParams, fsRoot );
+        var result = new Metabank(m_BootApplication, m_Application, fs, fsSessionConnectParams, fsRoot );
         writeLog( MessageType.Info, "...Metabank mounted");
         return result;
       }

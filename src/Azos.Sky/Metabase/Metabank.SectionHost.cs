@@ -335,7 +335,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
 
          var conf = new MemoryConfiguration();
          conf.CreateFromNode( Metabank.RootAppConfig );
-         conf.Application = this.Metabank.App;
+         conf.Application = this.Metabank.SkyApp;
 
          var result = conf.Root;
          if (!pragmasDisabled)

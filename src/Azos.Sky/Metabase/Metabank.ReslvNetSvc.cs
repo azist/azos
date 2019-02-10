@@ -121,7 +121,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
           svc.IsNullOrWhiteSpace())
          throw new MetabaseException(StringConsts.ARGUMENT_ERROR + "Metabase.ResolveNetSvc(host|net|svc==null|empty)");
 
-      if (fromHost.IsNullOrWhiteSpace()) fromHost = App.GetThisHostName();
+      if (fromHost.IsNullOrWhiteSpace()) fromHost = SkyApp.GetThisHostName();
 
       if (fromHost.IsNullOrWhiteSpace())
          throw new MetabaseException(StringConsts.ARGUMENT_ERROR + "Metabase.ResolveNetSvc(fromHost==null|empty & SkySystem is not avail)");
@@ -206,7 +206,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
                   {
                     try
                     {
-                      using (var cl = App.GetServiceClientHub().MakeNew<Contracts.IZoneHostRegistryClient>(hzgov))
+                      using (var cl = SkyApp.GetServiceClientHub().MakeNew<Contracts.IZoneHostRegistryClient>(hzgov))
                       {
                         cl.TimeoutMs = this.m_ResolveDynamicHostNetSvcTimeoutMs;
                         hinfo = cl.GetSubordinateHost(fullHostName);

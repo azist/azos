@@ -69,12 +69,25 @@ namespace Azos.Apps
     //this is a method because of C# inability to control ctor chaining sequence
     //this is framework internal code, developers do not call
     protected void Constructor(bool allowNesting,
-                               Configuration cmdLineArgs,
+                               string [] cmdLineArgs,
                                ConfigSectionNode rootConfig,
                                IApplicationDependencyInjectorImplementation defaultDI = null)
     {
       m_AllowNesting = allowNesting;
-      m_CommandArgs = (cmdLineArgs ?? new MemoryConfiguration()).Root;
+
+      if (cmdLineArgs!=null && cmdLineArgs.Length>0)
+      {
+        var acfg = new CommandArgsConfiguration(cmdLineArgs);
+        acfg.Application = this;
+        m_CommandArgs = acfg.Root;
+      }
+      else
+      {
+        var acfg = new MemoryConfiguration();
+        acfg.Application = this;
+        m_CommandArgs = acfg.Root;
+      }
+
       m_ConfigRoot  = rootConfig ?? GetConfiguration().Root;
       m_Singletons = new ApplicationSingletonManager();
       m_NOPApplicationSingletonManager = new NOPApplicationSingletonManager();

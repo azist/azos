@@ -23,7 +23,7 @@ namespace Azos.Apps
   /// <summary>
   /// Provides Sky distributed application chassis implementation of ISkyApplication contract
   /// </summary>
-  public class SkyApplication : AzosApplication, ISkyApplication
+  public sealed class SkyApplication : CommonApplicationLogic, ISkyApplication
   {
     #region CONSTS
 
@@ -39,24 +39,23 @@ namespace Azos.Apps
 
     #region .ctor
 
-    //framework internal called by derivatives
-    protected SkyApplication() : base() { }
-
-    public SkyApplication(SystemApplicationType sysAppType, string[] args)
-     : this(sysAppType, false, args, null)
+    public SkyApplication(SystemApplicationType sysAppType, string[] cmdArgs)
+     : this(sysAppType, false, cmdArgs, null)
     { }
 
-    public SkyApplication(SystemApplicationType sysAppType, string[] args, ConfigSectionNode rootConfig)
-      : this(sysAppType, false, args, rootConfig)
+    public SkyApplication(SystemApplicationType sysAppType, string[] cmdArgs, ConfigSectionNode rootConfig)
+      : this(sysAppType, false, cmdArgs, rootConfig)
     { }
 
     public SkyApplication(SystemApplicationType sysAppType,
                          bool allowNesting,
-                         string[] args,
+                         string[] cmdArgs,
                          ConfigSectionNode rootConfig) : base()
     {
-      var loader = new BootConfLoader(this, null, sysAppType, args, rootConfig);
-      ctor(loader, allowNesting, args, rootConfig);
+      ctor(allowNesting, cmdArgs, rootConfig);
+      m_BootLoader = new BootConfLoader(this, null, sysAppType, cmdArgs, rootConfig);
+      m_ConfigRoot = m_BootLoader.ApplicationConfiguration.Root;
+      InitApplication();
     }
 
 
@@ -69,47 +68,37 @@ namespace Azos.Apps
                           string metabaseFileSystemRootPath,
                           string thisHostName,
                           bool allowNesting,
-                          string[] args,
+                          string[] cmdArgs,
                           ConfigSectionNode rootConfig) : base()
     {
-      var loader = new BootConfLoader(this, bootApplication,
+      ctor(allowNesting, cmdArgs, rootConfig);
+      m_BootLoader = new BootConfLoader(this, bootApplication,
                                       sysAppType,
                                       metabaseFileSystem,
                                       metabaseFileSystemSessionParams,
                                       metabaseFileSystemRootPath,
                                       thisHostName,
-                                      args,
+                                      cmdArgs,
                                       rootConfig);
-
-      ctor(loader, allowNesting, args, rootConfig);
+      m_ConfigRoot = m_BootLoader.ApplicationConfiguration.Root;
+      InitApplication();
     }
 
-    private void ctor(BootConfLoader loader,
-                      bool allowNesting,
-                      string[] args,
+    private void ctor(bool allowNesting,
+                      string[] cmdArgs,
                       ConfigSectionNode rootConfig)
     {
-      try
-      {
-        m_BootLoader = loader;
         m_NOPLockManager = new NOPLockManager(this);
-        var cmdArgs = args == null ? null : new CommandArgsConfiguration(args);
-        cmdArgs.Application = this;
         Constructor(allowNesting,
                     cmdArgs,
-                    rootConfig,
+                    Configuration.NewEmptyRoot(),
                     defaultDI: new Injection.SkyApplicationDependencyInjector(this));
-        InitApplication();
-      }
-      catch
-      {
-        Destructor();
-        throw;
-      }
     }
 
     protected override void Destructor()
     {
+      m_ShutdownStarted = true;
+      CleanupApplication();
       base.Destructor();
       DisposeAndNull(ref m_BootLoader);
     }

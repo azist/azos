@@ -15,7 +15,7 @@ namespace Azos.Sky.Metabase
   /// </summary>
   public sealed class MetabankFileConfigNodeProvider : IConfigNodeProvider
   {
-    [InjectSingleton] Metabank m_Metabank;
+    [Inject] Metabank m_Metabank;
 
     [Config]
     public string File { get; set; }
