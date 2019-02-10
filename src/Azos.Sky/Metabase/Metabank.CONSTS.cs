@@ -22,10 +22,10 @@ namespace Azos.Sky.Metabase
     public const string CONFIG_SECTION_LEVEL_APP_FILE_SUFFIX = ".app.";
 
 
-    public const string APP_CATALOG = "app";
-    public const string BIN_CATALOG = "bin";
-    public const string REG_CATALOG = "reg";
-    public const string SEC_CATALOG = "sec";
+    public const string APP_CATALOG = "app.cat";
+    public const string BIN_CATALOG = "bin.cat";
+    public const string REG_CATALOG = "reg.cat";
+    public const string SEC_CATALOG = "sec.cat";
 
     public const string CONFIG_NAME_ATTR = "name";
     public const string CONFIG_DESCRIPTION_ATTR = "description";

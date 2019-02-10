@@ -1,6 +1,7 @@
 role
 {
   name="MixedServer"
+  application { name=amm }
   application { name=AHGov        auto-run=1 }
   application { name=APH          auto-run=2 }
   application { name=WebApp       auto-run=3 }

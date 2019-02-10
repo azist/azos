@@ -1,0 +1,10 @@
+application
+{
+  name="amm"
+  description="Azos metabase manager"
+  exe-file="amm"
+
+  packages
+  {
+  }
+}

@@ -1,0 +1,9 @@
+application
+{
+  application-name="amm"
+
+  web-manager
+  {
+    enabled=false
+  }
+}
