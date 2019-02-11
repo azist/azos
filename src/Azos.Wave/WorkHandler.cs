@@ -24,9 +24,6 @@ namespace Azos.Wave
 
       protected WorkHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match) : base(dispatcher)
       {
-        if (dispatcher==null)
-         throw new WaveException(StringConsts.ARGUMENT_ERROR + GetType().FullName+".ctor(dispatcher==null|empty)");
-
         if (name.IsNullOrWhiteSpace())
           name = "{0}({1})".Args(GetType().FullName, Guid.NewGuid());
 
@@ -41,8 +38,9 @@ namespace Azos.Wave
 
       protected WorkHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher)
       {
-        if (confNode==null||dispatcher==null)
-         throw new WaveException(StringConsts.ARGUMENT_ERROR + GetType().FullName+".ctor(dispatcher|confNode==null|empty)");
+        confNode.NonEmpty(nameof(confNode));
+
+        ConfigAttribute.Apply(this, confNode);
 
         m_Dispatcher = dispatcher;
         m_Server = dispatcher.ComponentDirector;

@@ -70,6 +70,20 @@ namespace Azos
       return obj;
     }
 
+
+    /// <summary>
+    /// Checks the config node value for null or empty and throws exception if it is.
+    /// The method is useful for .ctor call chaining and expression bodies methods to preclude otherwise anonymous NullReferenceException
+    /// </summary>
+    public static T NonEmpty<T>(this T node, string name = null) where T : Conf.IConfigNode
+    {
+      if (node==null || !node.Exists)
+        throw new AzosException(StringConsts.CONFIG_NODE_PARAMETER_MAY_NOT_BE_EMPTY_ERROR
+                                            .Args(name ?? CoreConsts.UNKNOWN,
+                                                  new StackTrace(1, false).ToString()));
+      return node;
+    }
+
     /// <summary>
     /// Checks the string value for null or whitespace and throws exception if it is.
     /// The method is useful for .ctor call chaining and expression bodies methods to preclude otherwise anonymous NullReferenceException

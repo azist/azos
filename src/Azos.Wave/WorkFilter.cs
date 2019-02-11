@@ -22,7 +22,8 @@ namespace Azos.Wave
   {
       public const string CONFIG_FILTER_SECTION = "filter";
 
-      protected WorkFilter(WorkDispatcher dispatcher, string name, int order) : base(dispatcher)
+      protected WorkFilter(WorkDispatcher dispatcher, string name, int order) : base(dispatcher) => ctor(dispatcher, name, order);
+      private void ctor(WorkDispatcher dispatcher, string name, int order)
       {
         if (name.IsNullOrWhiteSpace()||dispatcher==null)
          throw new WaveException(StringConsts.ARGUMENT_ERROR + GetType().FullName+".ctor(dispatcher|name==null|empty)");
@@ -33,17 +34,18 @@ namespace Azos.Wave
         m_Order = order;
       }
 
-      protected WorkFilter(WorkHandler handler, string name, int order) : this(handler.NonNull(name: ".ctor(handler==null)").Dispatcher, name, order)
+      protected WorkFilter(WorkHandler handler, string name, int order) : base(handler)
       {
+        ctor(handler.NonNull(name: ".ctor(handler==null)").Dispatcher, name, order);
         m_Handler = handler;
-        this.__setComponentDirector(handler);
       }
 
-
-      protected WorkFilter(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher)
+      protected WorkFilter(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher) => ctor(dispatcher, confNode);
+      private void ctor(WorkDispatcher dispatcher, IConfigSectionNode confNode)
       {
-        if (confNode==null||dispatcher==null)
-         throw new WaveException(StringConsts.ARGUMENT_ERROR + GetType().FullName+".ctor(dispatcher|confNode==null|empty)");
+        confNode.NonEmpty(nameof(confNode));
+
+        ConfigAttribute.Apply(this, confNode);
 
         m_Dispatcher = dispatcher;
         m_Server = dispatcher.ComponentDirector;
@@ -54,10 +56,10 @@ namespace Azos.Wave
          throw new WaveException(StringConsts.ARGUMENT_ERROR + GetType().FullName+".ctor(confNode$name==null|empty)");
       }
 
-      protected WorkFilter(WorkHandler handler, IConfigSectionNode confNode) : this(handler.NonNull(name: ".ctor(handler==null)").Dispatcher, confNode)
+      protected WorkFilter(WorkHandler handler, IConfigSectionNode confNode) : base(handler)
       {
+        ctor(handler.NonNull(name: ".ctor(handler==null)").Dispatcher, confNode);
         m_Handler = handler;
-        this.__setComponentDirector(handler);
       }
 
       private string m_Name;

@@ -17,23 +17,24 @@ namespace Azos.Wave.Handlers
   public sealed class CompositeHandler : WorkHandler
   {
     #region .ctor
-         public CompositeHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match) : base(dispatcher, name, order, match)
-         {
+      public CompositeHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match) : base(dispatcher, name, order, match)
+      {
 
-         }
+      }
 
-         public CompositeHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode)
-         {
-            foreach(var hNode in confNode.Children.Where(cn=>cn.IsSameName(WorkHandler.CONFIG_HANDLER_SECTION)))
-            {
-             var sub = FactoryUtils.Make<WorkHandler>(hNode, args: new object[] {dispatcher, hNode});
-             sub.___setParentHandler( this );
-             sub.__setComponentDirector( this );
-             if(!m_Handlers.Register(sub))
-              throw new WaveException(StringConsts.CONFIG_DUPLICATE_HANDLER_NAME_ERROR.Args(hNode.AttrByName(Configuration.CONFIG_NAME_ATTR).Value));
-            }
+      public CompositeHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode)
+      {
+      foreach (var hNode in confNode.Children.Where(cn => cn.IsSameName(WorkHandler.CONFIG_HANDLER_SECTION)))
+      {
+        var sub = FactoryUtils.Make<WorkHandler>(hNode, args: new object[] { dispatcher, hNode });
+        sub.___setParentHandler(this);
+#warning Refactor: REMOVE per Wave.ASYNC
+        sub.__setComponentDirector(this);
+        if (!m_Handlers.Register(sub))
+          throw new WaveException(StringConsts.CONFIG_DUPLICATE_HANDLER_NAME_ERROR.Args(hNode.AttrByName(Configuration.CONFIG_NAME_ATTR).Value));
+      }
 
-         }
+    }
     #endregion
 
 

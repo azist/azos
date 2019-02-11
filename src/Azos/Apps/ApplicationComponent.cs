@@ -225,21 +225,19 @@ namespace Azos.Apps
       /// </summary>
       public virtual string ComponentCommonName => null;
 
-
       /// <summary>
       /// Returns a reference to component that this app component services/operates under, or null
       /// </summary>
       public IApplicationComponent ComponentDirector => m_ComponentDirector;
-  #warning What is this used for?
-  internal void __setComponentDirector(IApplicationComponent director) { m_ComponentDirector = director; }
 
+#warning REMOVE asap WAVE handler refactoring
+    internal void __setComponentDirector(IApplicationComponent director) { m_ComponentDirector = director; }
 
-
-      /// <summary>
-      /// Sets the log level for this component, if not defined then the component logger uses the director/log level
-      /// via the ComponentEffectiveLogLevel property
-      /// </summary>
-      [Config("$log-level|$component-log-level|$cmp-log-level")]
+    /// <summary>
+    /// Sets the log level for this component, if not defined then the component logger uses the director/log level
+    /// via the ComponentEffectiveLogLevel property
+    /// </summary>
+    [Config("$log-level|$component-log-level|$cmp-log-level")]
       [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
       public Log.MessageType? ComponentLogLevel { get; set; }
 

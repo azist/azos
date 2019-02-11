@@ -420,6 +420,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string PARAMETER_MAY_NOT_BE_NULL_ERROR =
         "Parameter '{0}' may not be null. \n Caller: \n ----------------------\n {1}";
 
+    public const string CONFIG_NODE_PARAMETER_MAY_NOT_BE_EMPTY_ERROR =
+        "Config node parameter '{0}' may not be null or empty. \n Caller: \n ----------------------\n {1}";
+
     public const string STRING_PARAMETER_MAY_NOT_BE_BLANK_ERROR =
         "String parameter '{0}' may not be blank. \n Caller: \n ----------------------\n {1}";
 
