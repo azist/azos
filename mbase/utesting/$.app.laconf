@@ -21,10 +21,13 @@ application
 
     paths
     {
-      home-root=$(~SKY_HOME_ROOT)
-      disk-root=$(~SKY_HOME_ROOT)disk\
-      log-root=$($disk-root)
-      gdid-root=$($disk-root)gdid
+      home-root=$(~SKY_HOME)
+      obj="obj"
+      log="log"
+      gdid="gdid"
+      log-root=$(~SKY_HOME)$(@$log)\
+      gdid-root=$(~SKY_HOME)$(@$gdid)\
+      obj-root=$(~SKY_HOME)$(@$obj)\
     }
 
     types //Provider Types for log, glue, instrumentation etc.
@@ -36,23 +39,9 @@ application
       glue-sync="Azos.Glue.Native.SyncBinding"
       glue-apterm="Azos.Sky.Glue.AppTermBinding, Azos.Sky"
       sec-config="Azos.Security.ConfigSecurityManager, Azos"
-      volatile-file="Azos.ApplicationModel.Volatile.FileObjectStoreProvider"
+      volatile-file="Azos.Apps.Volatile.FileObjectStoreProvider"
       instr-telemetry="Azos.Instrumentation.Telemetry.TelemetryInstrumentationProvider"
       instr-nop="Azos.Instrumentation.NOPInstrumentationProvider"
-      mb-fs="Azos.Sky.Metabase.MetabankFSView, Azos.Sky"
-      
-      trendingsystem="Azos.Sky.Social.Trending.Server.TrendingSystemService, Azos.Sky.Social"
-      trendingsystem-receiver="Azos.Sky.Social.Trending.Server.TrendingSystemServer, Azos.Sky.Social"
-      trendingsystem-mongovolume="Azos.Sky.MongoDB.Social.Trending.MongoDBVolume, Azos.Sky.MongoDB.Social"
-
-      graphnodesystem="Azos.Sky.Social.Graph.Server.GraphSystemService, Azos.Sky.Social"
-      graphnodesystem-receiver="Azos.Sky.Social.Graph.Server.GraphNodeSystemServer, Azos.Sky.Social"
-
-      grapheventsystem="Azos.Sky.Social.Graph.Server.GraphSystemService, Azos.Sky.Social"
-      grapheventsystem-receiver="Azos.Sky.Social.Graph.Server.GraphEventSystemServer, Azos.Sky.Social"
-
-      graphcommentsystem="Azos.Sky.Social.Graph.Server.GraphSystemService, Azos.Sky.Social"
-      graphcommentsystem-receiver="Azos.Sky.Social.Graph.Server.GraphCommentSystemServer, Azos.Sky.Social"
     }
 
     services
@@ -136,7 +125,7 @@ application
       name="Disk Object Store Provider"
       type=$(/gv/types/$volatile-file)
       load-limit="0"
-      root-path=$(/gv/paths/$disk-root)
+      root-path=$(/gv/paths/$obj-root)
       //format="msbinary"
     }
   }

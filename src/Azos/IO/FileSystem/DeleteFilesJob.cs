@@ -5,10 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Azos.Log;
 using Azos.Conf;
@@ -110,7 +107,7 @@ namespace Azos.IO.FileSystem
       }
 
       /// <summary>
-      /// Due to IO-nature this job is always executted as a long-running separate task
+      /// Due to IO-nature this job is always executed as a long-running separate task
       /// </summary>
       public override EventBodyAsyncModel BodyAsyncModel
       {
@@ -143,9 +140,8 @@ namespace Azos.IO.FileSystem
         //Make File System
         var fsNode =  config[CONFIG_CONTENT_FS_SECTION];
 
-        var fs = FactoryUtils.MakeAndConfigure<FileSystem>(fsNode,
-                                                         typeof(Azos.IO.FileSystem.Local.LocalFileSystem),
-                                                         args: new object[]{GetType().Name, fsNode});
+        var fs = FactoryUtils.MakeAndConfigureComponent<FileSystem>(App, fsNode, typeof(Azos.IO.FileSystem.Local.LocalFileSystem));
+
         var fsPNode = fsNode[CONFIG_FS_CONNECT_PARAMS_SECTION];
 
         FileSystemSessionConnectParams fsc;
@@ -182,13 +178,13 @@ namespace Azos.IO.FileSystem
 
         if (fs==null || fsc==null || fsr.IsNullOrWhiteSpace())
         {
-          log(MessageType.Warning, "DoFire()", "No FS");
+          WriteLog(MessageType.Warning, nameof(DoFire), "No FS");
           return;
         }
 
         if (fs.InstanceCapabilities.IsReadonly)
         {
-          log(MessageType.Error, "DoFire()", "Readonly FS: "+fs.GetType().Name);
+          WriteLog(MessageType.Error, nameof(DoFire), "Readonly FS: "+fs.GetType().Name);
           return;
         }
 
@@ -198,14 +194,14 @@ namespace Azos.IO.FileSystem
           var root = session[fsr] as FileSystemDirectory;
           if (root==null)
           {
-            log(MessageType.Error, "DoFire()", "No FS root: {0}('{1}')".Args(fs.GetType().Name, fsr));
+            WriteLog(MessageType.Error, nameof(DoFire), "No FS root: {0}('{1}')".Args(fs.GetType().Name, fsr));
             return;
           }
           var stats = new stats();
           doLevel(root, stats);
 
           if (LogStats)
-           log(MessageType.Info, "Run", "Scanned {0} files, {1} dirs; Deleted {2} files, {3} dirs".Args(
+           WriteLog(MessageType.Info, nameof(DoFire), "Scanned {0} files, {1} dirs; Deleted {2} files, {3} dirs".Args(
                                                         stats.FileCount,
                                                         stats.DirCount,
                                                         stats.DelFileCount,
@@ -217,7 +213,7 @@ namespace Azos.IO.FileSystem
 
       protected override void DoHandleError(Exception error)
       {
-        log(MessageType.Error, "DoHandleError()", "Job Fire() aborted with: "+error.ToMessageWithType(), error);
+        WriteLog(MessageType.Error, nameof(DoHandleError), "Job Fire() aborted with: "+error.ToMessageWithType(), error);
       }
 
 
@@ -229,7 +225,7 @@ namespace Azos.IO.FileSystem
         }
         catch(Exception localError)
         {
-          log(MessageType.Error, "deleteLevel", "Deleting local files in '{0}'. Error: {1}".Args(level.Path, localError.ToMessageWithType(), localError));
+          WriteLog(MessageType.Error, nameof(doLevel), "Deleting local files in '{0}'. Error: {1}".Args(level.Path, localError.ToMessageWithType(), localError));
         }
 
         if (Recurse)
@@ -324,18 +320,6 @@ namespace Azos.IO.FileSystem
            file.Delete();
            st.DelFileCount++;
         }
-      }
-
-      private void log(MessageType type, string from, string msg, Exception error = null)
-      {
-        App.Log.Write( new Message
-        {
-          Type = type,
-          Topic = CoreConsts.SCHEDULE_TOPIC,
-          From = "{0}.{1}".Args(GetType().Name, from),
-          Text = msg,
-          Exception = error
-        });
       }
 
     #endregion

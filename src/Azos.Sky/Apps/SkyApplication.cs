@@ -54,8 +54,16 @@ namespace Azos.Apps
     {
       ctor(allowNesting, cmdArgs, rootConfig);
       m_BootLoader = new BootConfLoader(this, null, sysAppType, cmdArgs, rootConfig);
-      m_ConfigRoot = m_BootLoader.ApplicationConfiguration.Root;
-      InitApplication();
+      try
+      {
+        m_ConfigRoot = m_BootLoader.ApplicationConfiguration.Root;
+        InitApplication();
+      }
+      catch
+      {
+        Destructor();
+        throw;
+      }
     }
 
 
@@ -80,8 +88,17 @@ namespace Azos.Apps
                                       thisHostName,
                                       cmdArgs,
                                       rootConfig);
-      m_ConfigRoot = m_BootLoader.ApplicationConfiguration.Root;
-      InitApplication();
+      try
+      {
+        m_ConfigRoot = m_BootLoader.ApplicationConfiguration.Root;
+        InitApplication();
+      }
+      catch
+      {
+        Destructor();
+        throw;
+      }
+
     }
 
     private void ctor(bool allowNesting,
