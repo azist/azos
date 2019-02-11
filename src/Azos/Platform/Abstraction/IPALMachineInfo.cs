@@ -16,7 +16,20 @@ namespace Azos.Platform.Abstraction
   /// </summary>
   public interface IPALMachineInfo
   {
+    /// <summary>
+    /// Returns true if the process is hosted by Mono runtime
+    /// </summary>
     bool IsMono { get; }
+
+    /// <summary>
+    /// Returns true if the process was able to get access to system-wide CPU/RAM descriptors,
+    /// (e.g. PerformanceCounters may be used on Windows)
+    /// </summary>
+    /// <remarks>
+    /// If this member returns false, then the PAL could not obtain system information and
+    /// consequently CurrentProcessorUsagePct and CurrentAvailableMemoryMb may not be relied upon
+    /// </remarks>
+    bool IsPerformanceAvailable {  get; }
     int CurrentProcessorUsagePct { get; }
     int CurrentAvailableMemoryMb { get; }
 

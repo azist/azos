@@ -14,8 +14,35 @@ namespace Azos.Platform.Abstraction.NetFramework
   {
     public PALMachineInfo()
     {
-      m_CPUCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total", true);
-      m_RAMAvailableCounter = new PerformanceCounter("Memory", "Available MBytes", true);
+      try
+      {
+        //see https://stackoverflow.com/questions/12435869/getting-the-cpu-usage-generates-category-does-not-exist-error
+        //see https://superuser.com/questions/384554/whats-the-difference-between-processor-and-processor-information-in-perfmon-cou
+        try
+        {
+          m_CPUCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total", true);
+        }
+        catch
+        {
+          m_CPUCounter = new PerformanceCounter("Processor Information", "% Processor Time", "_Total", true);
+        }
+      }
+      catch
+      {
+        //no where to log
+        m_CPUCounter = null;
+      }
+
+      try
+      {
+        m_RAMAvailableCounter = new PerformanceCounter("Memory", "Available MBytes", true);
+      }
+      catch
+      {
+        //no where to log
+        m_RAMAvailableCounter = null;
+      }
+
       m_IsMono = Type.GetType("Mono.Runtime") != null;
     }
 
@@ -24,9 +51,10 @@ namespace Azos.Platform.Abstraction.NetFramework
     private PerformanceCounter m_RAMAvailableCounter;
 
 
-    public int CurrentProcessorUsagePct { get => (int)m_CPUCounter.NextValue(); }
-    public int CurrentAvailableMemoryMb { get => (int)m_RAMAvailableCounter.NextValue(); }
-    public bool IsMono { get => m_IsMono; }
+    public bool IsPerformanceAvailable  => m_CPUCounter != null && m_RAMAvailableCounter != null;
+    public int CurrentProcessorUsagePct => m_CPUCounter != null          ? (int)m_CPUCounter.NextValue() : 0;
+    public int CurrentAvailableMemoryMb => m_RAMAvailableCounter != null ? (int)m_RAMAvailableCounter.NextValue() : 0;
+    public bool IsMono => m_IsMono;
 
 
     [return: MarshalAs(UnmanagedType.Bool)]
