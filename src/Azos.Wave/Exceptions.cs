@@ -351,7 +351,7 @@ namespace Azos.Wave
           result["Error"] = actual.GetType().Name;
         }
 
-        result["IsAuthorization"] = actual is Azos.Security.AuthorizationException || actual.InnerException is Azos.Security.AuthorizationException;
+        result["IsAuthorization"] = Security.AuthorizationException.IsDenotedBy(actual);
 
        return result;
     }
