@@ -82,7 +82,13 @@ namespace Azos.Log.Sinks
       output.Append(sp); output.Append    ("| Target    "); output.AppendLine(error.TargetSite.Name);
       output.Append(sp); output.Append    ("| Message   "); output.AppendLine(error.Message.Replace("\n", "\n       .    "+sp));
       output.Append(sp); output.AppendLine("| Stack     ");
-                          output.AppendLine(sp+error.StackTrace.Replace("\n", "\n"+sp));
+
+      var stackTrace = error.StackTrace;
+
+      if (stackTrace.IsNotNullOrWhiteSpace())
+                         output.AppendLine(sp + stackTrace.Replace("\n", "\n"+sp) );
+      else
+                         output.AppendLine(sp + " <no stack trace> ");
 
       dumpException(output, error.InnerException, level+1);
     }
