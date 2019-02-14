@@ -168,21 +168,20 @@ namespace Azos.Wave.Filters
                json = work.Request.AcceptTypes.Any(at=>at.EqualsIgnoreCase(ContentType.JSON));
 
           var actual = error;
-          if (actual is FilterPipelineException)
-            actual = ((FilterPipelineException)actual).RootException;
+          if (actual is FilterPipelineException fpe)
+            actual = fpe.RootException;
 
-          if (actual is MvcException)
-            actual = ((MvcException)actual).InnerException;
-
-
-          var securityError = Azos.Security.AuthorizationException.IsDenotedBy(actual);
+          if (actual is MvcException mvce)
+            actual = mvce.InnerException;
 
 
-          if (actual is HTTPStatusException)
+          var securityError = Security.AuthorizationException.IsDenotedBy(actual);
+
+
+          if (actual is IHttpStatusProvider httpStatusProvider)
           {
-            var se = (HTTPStatusException)actual;
-            work.Response.StatusCode = se.StatusCode;
-            work.Response.StatusDescription = se.StatusDescription;
+            work.Response.StatusCode = httpStatusProvider.HttpStatusCode;
+            work.Response.StatusDescription = httpStatusProvider.HttpStatusDescription;
           }
           else
           {

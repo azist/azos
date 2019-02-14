@@ -24,12 +24,15 @@ namespace Azos.Security
   /// Thrown by Azos security to indicate the authorization problems, such as permission access denial
   /// </summary>
   [Serializable]
-  public class AuthorizationException : SecurityException
+  public class AuthorizationException : SecurityException, IHttpStatusProvider
   {
     public AuthorizationException() { }
     public AuthorizationException(string message) : base(message) { }
     public AuthorizationException(string message, Exception inner) : base(message, inner) { }
     protected AuthorizationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
+    public int    HttpStatusCode => WebConsts.STATUS_403;
+    public string HttpStatusDescription => WebConsts.STATUS_403_DESCRIPTION;
 
 
     /// <summary>

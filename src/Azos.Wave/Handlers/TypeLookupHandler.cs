@@ -237,7 +237,7 @@ namespace Azos.Wave.Handlers
            /// </summary>
            protected virtual HTTPStatusException Do404(WorkContext context)
            {
-              return new HTTPStatusException(Web.WebConsts.STATUS_404, Web.WebConsts.STATUS_404_DESCRIPTION);
+              return new HTTPStatusException(WebConsts.STATUS_404, WebConsts.STATUS_404_DESCRIPTION);
            }
 
            /// <summary>

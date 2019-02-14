@@ -4,8 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-namespace Azos.Web
+namespace Azos
 {
   /// <summary>
   /// Non-localizable constants
@@ -73,6 +72,8 @@ namespace Azos.Web
 
     public const int STATUS_405 = 405;  public const string STATUS_405_DESCRIPTION = "Method Not Allowed";
     public const int STATUS_406 = 406;  public const string STATUS_406_DESCRIPTION = "Not Acceptable";
+
+    public const int STATUS_409 = 409;  public const string STATUS_409_DESCRIPTION = "Conflict";
 
     public const int STATUS_429 = 429;  public const string STATUS_429_DESCRIPTION = "Too Many Requests";
 

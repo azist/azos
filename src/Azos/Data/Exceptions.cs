@@ -22,15 +22,18 @@ namespace Azos.Data
   }
 
   /// <summary>
-  /// Thrown by dataclasses when validation does not pass
+  /// Thrown by data classes when validation does not pass
   /// </summary>
   [Serializable]
-  public class ValidationException : DataException
+  public class ValidationException : DataException, IHttpStatusProvider
   {
     public ValidationException() { }
     public ValidationException(string message) : base(message) { }
     public ValidationException(string message, Exception inner) : base(message, inner) { }
     protected ValidationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
+    public int HttpStatusCode => WebConsts.STATUS_400;
+    public string HttpStatusDescription => WebConsts.STATUS_400_DESCRIPTION+"/ Data validation";
   }
 
   /// <summary>

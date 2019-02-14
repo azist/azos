@@ -59,7 +59,7 @@ namespace Azos.Wave.Mvc
       if (!bad && session.LastLoginType!=Apps.SessionLoginType.Robot)
          bad = !session.CSRFToken.EqualsOrdSenseCase(supplied);
 
-      if (bad) throw new HTTPStatusException(Azos.Web.WebConsts.STATUS_400, Azos.Web.WebConsts.STATUS_400_DESCRIPTION, "CSRF failed");
+      if (bad) throw new HTTPStatusException(WebConsts.STATUS_400, WebConsts.STATUS_400_DESCRIPTION, "CSRF failed");
 
       return false;
     }

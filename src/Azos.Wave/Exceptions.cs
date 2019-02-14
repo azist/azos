@@ -99,7 +99,7 @@ namespace Azos.Wave
   }
 
   /// <summary>
-  /// Wraps WAVE template rendering execptions
+  /// Wraps WAVE template rendering exceptions
   /// </summary>
   [Serializable]
   public class WaveTemplateRenderingException : WaveException
@@ -156,10 +156,10 @@ namespace Azos.Wave
       {
          var result = "> ";
 
-         Exception error = this;//.InnerException;
-         while(error is FilterPipelineException)
+         Exception error = this;
+         while(error is FilterPipelineException fpe)
          {
-            result += "{0} > ".Args(((FilterPipelineException)error).FilterName);
+            result += "{0} > ".Args(fpe.FilterName);
             error = error.InnerException;
          }
 
@@ -174,8 +174,8 @@ namespace Azos.Wave
     {
       get
       {
-         if (InnerException is FilterPipelineException)
-           return ((FilterPipelineException)InnerException).RootException;
+         if (InnerException is FilterPipelineException fpe)
+           return fpe.RootException;
          else
            return InnerException;
       }
@@ -206,7 +206,7 @@ namespace Azos.Wave
   /// Thrown to indicate various Http status conditions
   /// </summary>
   [Serializable]
-  public class HTTPStatusException : WaveException
+  public class HTTPStatusException : WaveException, IHttpStatusProvider
   {
     public const string STATUS_CODE_FLD_NAME = "HTTPSE-SC";
     public const string STATUS_DESCRIPTION_FLD_NAME = "HTTPSE-SD";
@@ -308,6 +308,9 @@ namespace Azos.Wave
     /// Http status description
     /// </summary>
     public readonly string StatusDescription;
+
+    int IHttpStatusProvider.HttpStatusCode => StatusCode;
+    string IHttpStatusProvider.HttpStatusDescription => StatusDescription;
 
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {

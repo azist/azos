@@ -251,8 +251,8 @@ namespace Azos.Wave.Handlers
               continue;
             }
             if (strictParamBinding)
-             throw new HTTPStatusException(Web.WebConsts.STATUS_400,
-                                        Web.WebConsts.STATUS_400_DESCRIPTION,
+             throw new HTTPStatusException(WebConsts.STATUS_400,
+                                        WebConsts.STATUS_400_DESCRIPTION,
                                         StringConsts.MVC_CONTROLLER_ACTION_PARAM_BINDER_ERROR
                                                     .Args(
                                                           controller.GetType().DisplayNameWithExpandedGenericArgs(),

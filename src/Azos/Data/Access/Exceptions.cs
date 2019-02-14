@@ -18,7 +18,7 @@ namespace Azos.Data.Access
   /// Thrown by data access classes
   /// </summary>
   [Serializable]
-  public class DataAccessException : DataException
+  public class DataAccessException : DataException, IHttpStatusProvider
   {
     public const string KEY_VIOLATION_KIND_FLD_NAME = "DAE-KVK";
     public const string KEY_VIOLATION_FLD_NAME = "DAE-KV";
@@ -48,9 +48,17 @@ namespace Azos.Data.Access
     }
 
     /// <summary>
-    /// Spcifies the sub-type of key violation
+    /// Returns true when KeyViolationKind is not `Unspecified` or KeyViolation name is set
+    /// </summary>
+    public bool IsKeyViolation => KeyViolationKind != KeyViolationKind.Unspecified || KeyViolation.IsNotNullOrWhiteSpace();
+
+    /// <summary>
+    /// Specifies the sub-type of key violation
     /// </summary>
     public readonly KeyViolationKind KeyViolationKind;
+
+    public int HttpStatusCode => IsKeyViolation ?  WebConsts.STATUS_409 : WebConsts.STATUS_500;
+    public string HttpStatusDescription => IsKeyViolation ? WebConsts.STATUS_409_DESCRIPTION + "/ Key Violation" : WebConsts.STATUS_500_DESCRIPTION;
 
     /// <summary>
     /// Provides the name of entity/index/field that was violated and resulted in this exception

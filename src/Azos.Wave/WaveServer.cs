@@ -450,9 +450,9 @@ namespace Azos.Wave
             if (work!=null)
               ErrorFilter.HandleException(work, error, m_ErrorShowDumpMatches, m_ErrorLogMatches);
             else
-             Log(MessageType.Error,
+              WriteLog(MessageType.Error,
+                 nameof(HandleException),
                  StringConsts.SERVER_DEFAULT_ERROR_WC_NULL_ERROR + error.ToMessageWithType(),
-                 "HandleException()",
                  error);
          }
          catch(Exception error2)
@@ -460,9 +460,9 @@ namespace Azos.Wave
             if (m_LogHandleExceptionErrors)
               try
               {
-                Log(MessageType.Error,
+                WriteLog(MessageType.Error,
+                     nameof(HandleException),
                      StringConsts.SERVER_DEFAULT_ERROR_HANDLER_ERROR + error2.ToMessageWithType(),
-                     "HandleException.catch()",
                      error2,
                      pars: new
                       {
@@ -472,27 +472,6 @@ namespace Azos.Wave
               }
               catch{}
          }
-      }
-
-      /// <summary>
-      /// Facilitates server logging
-      /// </summary>
-      public void Log(MessageType type, string text, string from = null, Exception error = null, string pars = null, Guid? related = null)
-      {
-        var msg = new Message
-        {
-          Type = type,
-          Topic = SysConsts.WAVE_LOG_TOPIC,
-          From = "Server('{0}.{1}').{2}".Args(GetType().FullName, Name, from),
-          Text = text,
-          Exception = error,
-          Parameters = pars
-        };
-
-        if (related.HasValue)
-          msg.RelatedTo = related.Value;
-
-        App.Log.Write(msg);
       }
 
     #endregion
@@ -736,8 +715,8 @@ namespace Azos.Wave
               {
                 //access denied
                 gateAccessDenied = true;
-                listenerContext.Response.StatusCode = Web.WebConsts.STATUS_403;         //todo - need properties for this
-                listenerContext.Response.StatusDescription = Web.WebConsts.STATUS_403_DESCRIPTION;
+                listenerContext.Response.StatusCode = WebConsts.STATUS_429;
+                listenerContext.Response.StatusDescription = WebConsts.STATUS_429_DESCRIPTION;
                 listenerContext.Response.Close();
 
                 if (m_InstrumentationEnabled) Interlocked.Increment(ref m_stat_ServerGateDenial);
@@ -746,7 +725,7 @@ namespace Azos.Wave
             }
             catch(Exception denyError)
             {
-              Log(MessageType.Error, denyError.ToMessageWithType(), "callback(deny request)", denyError);
+              WriteLog(MessageType.Error, nameof(callback) + "(deny request)", denyError.ToMessageWithType(), denyError);
             }
        }
        catch(Exception error)
@@ -754,7 +733,7 @@ namespace Azos.Wave
           if (error is HttpListenerException)
            if ((error as HttpListenerException).ErrorCode==995) return;//Aborted
 
-          Log(MessageType.Error, error.ToMessageWithType(), "callback(endGetContext())", error);
+          WriteLog(MessageType.Error, nameof(callback) + "(endGetContext())", error.ToMessageWithType(),  error);
           return;
        }
        finally
@@ -790,7 +769,7 @@ namespace Azos.Wave
           try { m_Listener.Close(); }
           catch(Exception error)
           {
-            Log(MessageType.Error, error.ToMessageWithType(), "closeListener()", error);
+            WriteLog(MessageType.Error, nameof(closeListener), error.ToMessageWithType(), error);
           }
           m_Listener = null;
         }
