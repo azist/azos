@@ -20,29 +20,11 @@ namespace Azos.Wave.Mvc
     public const string DEFAULT_TOKEN_NAME = CoreConsts.CSRF_TOKEN_NAME;
 
 
-    public SessionCSRFCheckAttribute() : base(0)
-    {
-      TokenName = DEFAULT_TOKEN_NAME;
-      OnlyExistingSession = true;
-    }
-
-    public SessionCSRFCheckAttribute(string tokenName) : this(tokenName, true, 0)
-    {
-    }
-
-    public SessionCSRFCheckAttribute(string tokenName, bool onlyExistingSession, int order) : base(order)
-    {
-      TokenName = tokenName;
-
-      if (TokenName.IsNullOrWhiteSpace())
-        TokenName = DEFAULT_TOKEN_NAME;
-
-      OnlyExistingSession = onlyExistingSession;
-    }
+    public SessionCSRFCheckAttribute() {}
 
 
-    public string TokenName{ get; private set; }
-    public bool OnlyExistingSession{ get; private set; }
+    public string TokenName{ get; set; } = DEFAULT_TOKEN_NAME;
+    public bool OnlyExistingSession{ get; set; } = true;
 
 
     protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)

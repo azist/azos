@@ -77,13 +77,13 @@ namespace Azos.Sky.WebManager.Controllers
       return Localizer.MakePage<Pages.Instrumentation>();
     }
 
-    [Action("instrumentation-charts", 20)]
+    [Action(Name = "instrumentation-charts")]
     public object InstrumentationCharts()
     {
       return Localizer.MakePage<Pages.InstrumentationCharts>();
     }
 
-    [Action("instrumentation-logs", 30)]
+    [Action(Name = "instrumentation-logs")]
     public object InstrumentationLogs()
     {
       return Localizer.MakePage<Pages.InstrumentationLogs>();

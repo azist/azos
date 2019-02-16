@@ -18,8 +18,7 @@ namespace Azos.Wave.Mvc
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
   public sealed class CacheControlAttribute : ActionFilterAttribute
   {
-    public CacheControlAttribute() : base(0) {}
-    public CacheControlAttribute(int order) : base(order) {}
+    public CacheControlAttribute() { }
 
     public CacheControl.Type Cacheability { get; set; }
     public int? MaxAgeSec { get; set; }

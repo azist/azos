@@ -15,17 +15,9 @@ namespace Azos.Wave.Mvc
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
   public sealed class NoCacheAttribute : ActionFilterAttribute
   {
-    public NoCacheAttribute() : base(0)
-    {
-      Force = true;
-    }
+    public NoCacheAttribute() { }
 
-    public NoCacheAttribute(bool force, int order) : base(order)
-    {
-      Force = force;
-    }
-
-    public bool Force{ get; private set; }
+    public bool Force{ get; set; }
 
 
     protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)

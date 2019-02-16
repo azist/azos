@@ -71,31 +71,31 @@ namespace WaveTestSite.Controllers
       return string.Empty;
     }
 
-    [Action("ActionName1", 0)]
+    [Action(Name = "ActionName1")]
     public string ActionName0()
     {
       return "ActionName1";
     }
 
-    [Action("ActionGet", 0, "match{methods=GET}")]
+    [ActionOnGet(Name = "ActionGet")]
     public string ActionGet()
     {
       return "ActionGet";
     }
 
-    [Action("ActionPost", 0, "match{methods=POST}")]
+    [ActionOnPost(Name = "ActionPost")]
     public string ActionPost()
     {
       return "ActionPost";
     }
 
-    [Action("IsLocalAction", 0, "match{is-local=true}")]
+    [Action(Name = "IsLocalAction", MatchScript = "match{is-local=true}")]
     public string IsLocalAction()
     {
       return "IsLocalAction";
     }
 
-    [Action("IsNotLocalAction", 0, "match{is-local=false}")]
+    [Action(Name = "IsNotLocalAction", MatchScript = "match{is-local=false}")]
     public string IsNotLocalAction()
     {
       return "IsNotLocalAction";
@@ -150,7 +150,7 @@ namespace WaveTestSite.Controllers
       return new { ID=55, Name="test"};
     }
 
-    [Action("RowGet", 0, "match{methods=GET}")]
+    [ActionOnGet(Name ="RowGet")]
     public object RowGet()
     {
       var row = new TestDoc(){
@@ -164,14 +164,14 @@ namespace WaveTestSite.Controllers
       return row;
     }
 
-    [Action("RowSet", 0, "match{methods=POST}")]
+    [ActionOnPost(Name ="RowSet")]
     public object RowSet(TestDoc doc)
     {
       doc.Date = DateTime.Now;
       return doc;
     }
 
-    [Action("ComplexRowSet", 0, "match{methods=POST}")]
+    [ActionOnPost(Name ="ComplexRowSet")]
     public object ComplexRowSet(TestComplexDoc doc)
     {
       doc.ID += 1;
@@ -259,7 +259,7 @@ namespace WaveTestSite.Controllers
       return dt;
     }
 
-    [Action("StrictDateTime", 1, true)]
+    [Action(Name ="StrictDateTime", Order=1, StrictParamBinding = true)]
     public DateTime? StrictDateTime(DateTime? dt = null)
     {
       return dt;

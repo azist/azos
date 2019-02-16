@@ -101,7 +101,7 @@ namespace Azos.Wave.Mvc
       /// <summary>
       /// Override to add logic/filtering right before the invocation of action method.
       /// Return TRUE to indicate that request has already been handled and no need to call method body and AfterActionInvocation in which case
-      ///  return result via 'out result' paremeter.
+      ///  return result via 'out result' parameter.
       ///  The default implementation calls ActionFilters
       /// </summary>
       protected internal virtual bool BeforeActionInvocation(WorkContext work, string action, MethodInfo method, object[] args, ref object result)

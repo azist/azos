@@ -187,7 +187,7 @@ namespace Azos.Wave.Handlers
       /// <summary>
       /// Fills method invocation param array with args doing some interpretation for widely used types like JSONDataMaps, Rows etc..
       /// </summary>
-      protected virtual void BindParameters(Controller controller, string action, ActionAttribute attrAction, MethodInfo method,  WorkContext work, out object[] args)
+      protected virtual void BindParameters(Controller controller, string action, ActionBaseAttribute attrAction, MethodInfo method,  WorkContext work, out object[] args)
       {
         var mpars = method.GetParameters();
         args = new object[mpars.Length];

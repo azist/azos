@@ -27,7 +27,7 @@ namespace Azos.Wave.Mvc
       public static string GetInvocationName(MethodInfo mi)
       {
         var result = mi.Name;
-        var attr = mi.GetCustomAttribute(typeof(ActionAttribute), false) as ActionAttribute;
+        var attr = mi.GetCustomAttribute(typeof(ActionBaseAttribute), false) as ActionBaseAttribute;
         if (attr!=null)
           if (attr.Name.IsNotNullOrWhiteSpace()) result = attr.Name;
 
@@ -74,7 +74,7 @@ namespace Azos.Wave.Mvc
       internal IEnumerable<MethodInfo> GetAllActionMethods()
       {
         return Type.GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                   .Where(mi => Attribute.IsDefined(mi, typeof(ActionAttribute), false) &&
+                   .Where(mi => Attribute.IsDefined(mi, typeof(ActionBaseAttribute), false) &&
                                 !mi.ContainsGenericParameters &&
                                 !mi.GetParameters().Any(mp=>mp.IsOut || mp.ParameterType.IsByRef)
                                  );
@@ -115,7 +115,7 @@ namespace Azos.Wave.Mvc
       private string m_Name;
 
       /// <summary>
-      /// Action invocation name- may be diffrent from method name
+      /// Action invocation name- may be different from method name
       /// </summary>
       public string Name { get{return m_Name;} }
 
@@ -138,11 +138,11 @@ namespace Azos.Wave.Mvc
       {
         Group = group;
         Method = method;
-        Attribute = method.GetCustomAttribute(typeof(ActionAttribute), false) as ActionAttribute;
+        Attribute = method.GetCustomAttribute(typeof(ActionBaseAttribute), false) as ActionBaseAttribute;
       }
 
       public readonly ActionGroupInfo Group;
       public readonly MethodInfo      Method;
-      public readonly ActionAttribute Attribute;
+      public readonly ActionBaseAttribute Attribute;
     }
 }

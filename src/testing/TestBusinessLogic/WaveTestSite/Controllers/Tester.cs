@@ -73,20 +73,20 @@ namespace WaveTestSite.Controllers
       }
 
       //[Action("TestEmpty1", 1, "match{methods=GET}")]
-      [Action("TestEmpty", 1, "match{methods=GET}")]
+      [ActionOnGet(Name ="TestEmpty")]
       public string TestEmpty()
       {
         return null;
       }
 
 
-      [Action("add", 1, "match{is-local=true}")]
+      [Action(Name ="add", MatchScript = "match{is-local=true}")]
       public string PlusLocal(int a, int b, string text = "Was added")
       {
         return "LOCAL {0} {1}".Args(text, a+b);
       }
 
-      [Action("add", 2)]
+      [Action(Name ="add")]
       public string Plus(int a, int b, string text = "Was added")
       {
        // WorkContext.NeedsSession();//<------!
@@ -145,7 +145,7 @@ namespace WaveTestSite.Controllers
          return new ImageBoxTest();
       }
 
-      [Action("download", 0, "match{is-local=true}")]//notice that this action is only allowed for local requestors
+      [Action(Name ="download", MatchScript = "match{is-local=true}")]//notice that this action is only allowed for local requestors
       public object Download(string fpath, bool attachment = false)
       {
          return new FileDownload(fpath, attachment);
@@ -192,7 +192,7 @@ namespace WaveTestSite.Controllers
         return new Picture((new PuzzleKeypad(secret)).DefaultRender(App, System.Drawing.Color.Yellow), JpegImageFormat.Standard, fn);
       }
 
-      [Action("person", 1, "match{methods=GET}")]
+      [ActionOnGet(Name ="person")]
       public object PersonGet(JSONDataMap req)
       {
         makePuzzle();
@@ -206,7 +206,7 @@ namespace WaveTestSite.Controllers
         return new ClientRecord(row, null);
       }
 
-      [Action("person", 1, "match{methods=POST}")]
+      [ActionOnPost(Name ="person")]
       public object PersonPost(Person doc)
       {
         var puzzlePass = false;

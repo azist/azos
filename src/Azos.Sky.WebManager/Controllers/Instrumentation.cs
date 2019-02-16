@@ -400,7 +400,8 @@ namespace Azos.Sky.WebManager.Controllers
       };
     }
 
-    [Action("GetData", 0, "match{methods=POST}")]
+    [AcceptsJson]
+    [ActionOnPost(Name ="GetData")]
     public object GetData(DatumRequest request, bool forZone = false)
     {
       var instrumentation = App.Instrumentation;
