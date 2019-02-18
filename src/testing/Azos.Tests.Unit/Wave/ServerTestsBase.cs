@@ -27,6 +27,13 @@ namespace Azos.Tests.Unit.Wave
 
     public void Prologue(Runner runner, FID id)
     {
+      Console.ForegroundColor = ConsoleColor.Yellow;
+      Console.WriteLine("-------------------------------------------");
+      Console.WriteLine("Run as Administrator or grant all users rights to http://localhost:9871");
+      Console.WriteLine("-------------------------------------------");
+      Console.ForegroundColor = ConsoleColor.White;
+      Console.WriteLine();
+
       m_Client = new HttpClient();
       var config = typeof(ServerTestsBase).GetText("tests.laconf").AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
       m_App = new AzosApplication(null, config);
