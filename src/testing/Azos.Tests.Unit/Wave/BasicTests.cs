@@ -4,8 +4,12 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 
+using Azos.Data;
 using Azos.Scripting;
+using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Unit.Wave
 {
@@ -14,14 +18,25 @@ namespace Azos.Tests.Unit.Wave
   {
     private static readonly string BASE_ADDRESS = BASE_URI.ToString() + "mvc/basic/";
 
-    [Run]
-    public void ActionPlainText()
+    protected override void DoPrologue(Runner runner, FID id)
     {
-      using (var wc = CreateWebClient())
-      {
-        var got = wc.DownloadString(BASE_ADDRESS + "actionplaintext");
-        Aver.AreEqual("Response in plain text", got);
-      }
+      Client.BaseAddress = new Uri(BASE_ADDRESS);
+    }
+
+    [Run]
+    public async Task ActionPlainText()
+    {
+      var got = await Client.GetStringAsync("actionplaintext");
+      Aver.AreEqual("Response in plain text", got);
+    }
+
+    [Run]
+    public async Task ActionObjectLiteral()
+    {
+      var got = (await Client.GetStringAsync("actionobjectliteral")).JSONToDataObject() as JSONDataMap;
+      Aver.AreEqual(1, got["a"].AsInt());
+      Aver.AreEqual(true, got["b"].AsBool());
+      Aver.AreEqual(1980, got["d"].AsDateTime().Year);
     }
 
   }

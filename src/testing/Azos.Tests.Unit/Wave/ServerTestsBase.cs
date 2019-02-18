@@ -4,12 +4,13 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
+using System.Net;
+using System.Net.Http;
 
 using Azos.Apps;
 using Azos.Scripting;
 using Azos.Platform;
 using Azos.Wave;
-using System.Net;
 
 namespace Azos.Tests.Unit.Wave
 {
@@ -18,53 +19,36 @@ namespace Azos.Tests.Unit.Wave
   {
     protected static readonly Uri BASE_URI = new Uri("http://localhost:9871/");
 
-    AzosApplication m_App;
-    WaveServer m_Server;
+    private AzosApplication m_App;
+    private WaveServer m_Server;
+    private HttpClient m_Client;
+
+    protected HttpClient Client => m_Client;
 
     public void Prologue(Runner runner, FID id)
     {
+      m_Client = new HttpClient();
       var config = typeof(ServerTestsBase).GetText("tests.laconf").AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
       m_App = new AzosApplication(null, config);
       m_Server = new WaveServer(m_App);
       m_Server.Configure(null);
       m_Server.Start();
+      DoPrologue(runner, id);
+    }
+
+    protected virtual void DoPrologue(Runner runner, FID id)
+    {
+
     }
 
     public bool Epilogue(Runner runner, FID id, Exception error)
     {
       DisposableObject.DisposeAndNull(ref m_Server);
       DisposableObject.DisposeAndNull(ref m_App);
+      m_Client.Dispose();
       return false;
     }
 
-    protected WebClientCookied CreateWebClient()
-    {
-      var wc = new WebClientCookied();
-      wc.CookieContainer.Add(BASE_URI, new Cookie("Secret", "Hello"));
-      return wc;
-    }
-
   }
 
-  //todo: THis needs to be refactored into Azos.Web
-  public class WebClientCookied : WebClient
-  {
-    private CookieContainer m_CookieContainer = new CookieContainer();
-
-    public CookieContainer CookieContainer { get { return m_CookieContainer; } }
-
-    protected override WebRequest GetWebRequest(Uri address)
-    {
-      var request = base.GetWebRequest(address);
-
-      var httpRequest = request as HttpWebRequest;
-      if (httpRequest != null)
-      {
-        httpRequest.CookieContainer = CookieContainer;
-        httpRequest.AllowAutoRedirect = true;
-      }
-
-      return request;
-    }
-  }
 }
