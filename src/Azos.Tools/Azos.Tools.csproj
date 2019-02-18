@@ -30,6 +30,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\____GlobalWarningSuppressions.cs" Link="____GlobalWarningSuppressions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Arow\Help.txt" />
     <EmbeddedResource Include="Arow\Welcome.txt" />
     <EmbeddedResource Include="BUILD_INFO.txt" />

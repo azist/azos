@@ -17,6 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\____GlobalWarningSuppressions.cs" Link="____GlobalWarningSuppressions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="BUILD_INFO.txt" />
     <EmbeddedResource Include="Hosts\agdida\Welcome.txt" />
     <EmbeddedResource Include="Tools\agm\Help.txt" />

@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\____GlobalWarningSuppressions.cs" Link="____GlobalWarningSuppressions.cs" />
     <Compile Include="Pages\.tc\Console.nht.auto.cs" />
     <Compile Include="Pages\.tc\HeadMaster.nht.auto.cs" />
     <Compile Include="Pages\.tc\Instrumentation.nht.auto.cs" />
