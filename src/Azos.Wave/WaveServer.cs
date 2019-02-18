@@ -201,7 +201,7 @@ namespace Azos.Wave
       [Config]
       public string EnvironmentName
       {
-        get { return m_EnvironmentName ?? string.Empty;}
+        get { return m_EnvironmentName ?? App.EnvironmentName;}
         set
         {
           CheckDaemonInactive();

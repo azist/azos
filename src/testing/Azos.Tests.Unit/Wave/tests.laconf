@@ -1,0 +1,35 @@
+﻿app
+{
+  environment-name=TEST
+
+  wave
+  {
+    server
+    {
+      prefix{ name='http://+:9871/'}
+
+      default-error-handler
+      {
+        show-dump{ match{ name=all }}
+        log{ match{ name=all }}
+      }
+
+      gate { enabled =false }
+
+      dispatcher
+      {
+        handler
+        {
+          name="Mvc Testing"
+          order=0
+          type="Azos.Wave.Handlers.MvcHandler, Azos.Wave"
+
+          type-location { name="local" assembly="Azos.Tests.Unit.dll" ns{ name="Azos.Tests.Unit.Wave.Controllers"} }
+
+          match{ path="mvc/{type}/{mvc-action}" var{query-name="*"} }
+        }
+      }
+
+    }//server
+  }//wave
+}
