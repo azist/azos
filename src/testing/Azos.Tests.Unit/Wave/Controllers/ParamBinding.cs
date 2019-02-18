@@ -41,5 +41,8 @@ namespace Azos.Tests.Unit.Wave.Controllers
     [Action]
     public object EchoModelA(ModelA got) => got;
 
+    [Action]
+    public object EchoBuffer(byte[] buffer) => new BinaryContent(buffer);
+
   }
 }

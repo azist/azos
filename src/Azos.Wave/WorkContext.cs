@@ -542,6 +542,11 @@ namespace Azos.Wave
 
         var ctp = Request.ContentType;
 
+        //Has body by no content type
+        if (ctp==null)
+        {
+          throw HTTPStatusException.NotAcceptable_406("Missing content-type");
+        }
         //Multi-part
         if (ctp.IndexOf(ContentType.FORM_MULTIPART_ENCODED)>=0)
         {

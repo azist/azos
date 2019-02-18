@@ -161,7 +161,7 @@ namespace Azos.Web
       public static string ParseContentType(string contentType)
       {
         if (contentType.IsNotNullOrWhiteSpace() && contentType.StartsWith(BOUNDARY_HEADER_START, StringComparison.InvariantCultureIgnoreCase))
-          return contentType.Substring(BOUNDARY_HEADER_START.Length);
+          return contentType.Substring(BOUNDARY_HEADER_START.Length).Trim('"','\'');
         else
           return null;
       }
