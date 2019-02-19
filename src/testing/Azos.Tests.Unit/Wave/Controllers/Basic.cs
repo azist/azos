@@ -57,7 +57,7 @@ namespace Azos.Tests.Unit.Wave.Controllers
     [Action(Name = "filter-delete"), HttpDelete]
     public object Filter_4_Delete(string v) => "delete: " + v;
 
-    [ActionOnPatch(Name = "filter-patch"), HttpPatch]
+    [Action(Name = "filter-patch"), HttpPatch]
     public object Filter_5_Patch(string v) => "patch: " + v;
 
 

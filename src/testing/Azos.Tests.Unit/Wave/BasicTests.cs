@@ -103,11 +103,204 @@ namespace Azos.Tests.Unit.Wave
       Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
 
       var got = await response.Content.ReadAsStringAsync();
-   //   Aver.AreEqual(ContentType.JSON, response.Content.Headers.ContentType.MediaType);
+      Aver.AreEqual(ContentType.JSON, response.Content.Headers.ContentType.MediaType);
       Aver.IsNotNull(got);
       Aver.AreEqual("{\"post\":\"abcd1\"}", got);
     }
 
+    [Run]
+    public async Task PatternMatch_DELETE()
+    {
+      var content = new StringContent("v=abcd1");
+      content.Headers.ContentType.MediaType = ContentType.FORM_URL_ENCODED;
+
+      var request = new HttpRequestMessage(HttpMethod.Delete, "pmatch");
+      request.Content = content;
+
+      var response = await Client.SendAsync(request);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      var got = await response.Content.ReadAsStringAsync();
+      Aver.AreEqual(ContentType.TEXT, response.Content.Headers.ContentType.MediaType);
+      Aver.IsNotNull(got);
+      Aver.AreEqual("delete: abcd1", got);
+    }
+
+    [Run]
+    public async Task PatternMatch_PATCH()
+    {
+      var content = new StringContent("v=abcd1");
+      content.Headers.ContentType.MediaType = ContentType.FORM_URL_ENCODED;
+
+      var request = new HttpRequestMessage(new HttpMethod("PATCH"), "pmatch");
+      request.Content = content;
+
+      var response = await Client.SendAsync(request);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      var got = await response.Content.ReadAsStringAsync();
+      Aver.AreEqual(ContentType.TEXT, response.Content.Headers.ContentType.MediaType);
+      Aver.IsNotNull(got);
+      Aver.AreEqual("patch: abcd1", got);
+    }
+
+
+    [Run]
+    public async Task Filter_GET_OK()
+    {
+      var request = new HttpRequestMessage(HttpMethod.Get, "filter-get");
+
+      var response = await Client.SendAsync(request);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      var got = await response.Content.ReadAsStringAsync();
+      Aver.AreEqual(ContentType.TEXT, response.Content.Headers.ContentType.MediaType);
+      Aver.IsNotNull(got);
+      Aver.AreEqual("get", got);
+    }
+
+    [Run]
+    public async Task Filter_GET_MISMATCH()
+    {
+      var request = new HttpRequestMessage(HttpMethod.Put, "filter-get");
+
+      var response = await Client.SendAsync(request);
+      Console.WriteLine($"{(int)response.StatusCode} - {response.StatusCode}");
+      Aver.IsTrue(HttpStatusCode.MethodNotAllowed == response.StatusCode);
+    }
+
+
+    [Run]
+    public async Task Filter_PUT_OK()
+    {
+      var request = new HttpRequestMessage(HttpMethod.Put, "filter-put");
+
+      var response = await Client.SendAsync(request);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      var got = await response.Content.ReadAsStringAsync();
+      Aver.AreEqual(ContentType.TEXT, response.Content.Headers.ContentType.MediaType);
+      Aver.IsNotNull(got);
+      Aver.AreEqual("put: ", got);
+    }
+
+    [Run]
+    public async Task Filter_PUT_MISMATCH()
+    {
+      var request = new HttpRequestMessage(HttpMethod.Get, "filter-put");
+
+      var response = await Client.SendAsync(request);
+      Console.WriteLine($"{(int)response.StatusCode} - {response.StatusCode}");
+      Aver.IsTrue(HttpStatusCode.MethodNotAllowed == response.StatusCode);
+    }
+
+
+    [Run]
+    public async Task Filter_POST_OK()
+    {
+      var request = new HttpRequestMessage(HttpMethod.Post, "filter-post");
+
+      var response = await Client.SendAsync(request);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      var got = await response.Content.ReadAsStringAsync();
+      Aver.AreEqual(ContentType.TEXT, response.Content.Headers.ContentType.MediaType);
+      Aver.IsNotNull(got);
+      Aver.AreEqual("post: ", got);
+    }
+
+    [Run]
+    public async Task Filter_POST_MISMATCH()
+    {
+      var request = new HttpRequestMessage(HttpMethod.Delete, "filter-post");
+
+      var response = await Client.SendAsync(request);
+      Console.WriteLine($"{(int)response.StatusCode} - {response.StatusCode}");
+      Aver.IsTrue(HttpStatusCode.MethodNotAllowed == response.StatusCode);
+    }
+
+    [Run]
+    public async Task Filter_POST_JSON_OK()
+    {
+      var content = new StringContent("v=xyz2000");
+      content.Headers.ContentType.MediaType = ContentType.FORM_URL_ENCODED;
+
+      var request = new HttpRequestMessage(HttpMethod.Post, "filter-post-json");
+      request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(ContentType.JSON));
+      request.Content = content;
+
+      var response = await Client.SendAsync(request);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      var got = await response.Content.ReadAsStringAsync();
+      Aver.AreEqual(ContentType.JSON, response.Content.Headers.ContentType.MediaType);
+      Aver.IsNotNull(got);
+      Aver.AreEqual("{\"post\":\"xyz2000\"}", got);
+    }
+
+    [Run]
+    public async Task Filter_POST_JSON_MISMATCH()
+    {
+      var content = new StringContent("v=xyz2000");
+      content.Headers.ContentType.MediaType = ContentType.FORM_URL_ENCODED;
+
+      var request = new HttpRequestMessage(HttpMethod.Post, "filter-post-json");
+      request.Content = content;
+
+      var response = await Client.SendAsync(request);
+      Console.WriteLine($"{(int)response.StatusCode} - {response.StatusCode}");
+      Aver.IsTrue(HttpStatusCode.NotAcceptable == response.StatusCode);  //because is not explicitly setting Accept: application/json
+                                                                         //header which is required by filter
+    }
+
+    [Run]
+    public async Task Filter_DELETE_OK()
+    {
+      var request = new HttpRequestMessage(HttpMethod.Delete, "filter-delete");
+
+      var response = await Client.SendAsync(request);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      var got = await response.Content.ReadAsStringAsync();
+      Aver.AreEqual(ContentType.TEXT, response.Content.Headers.ContentType.MediaType);
+      Aver.IsNotNull(got);
+      Aver.AreEqual("delete: ", got);
+    }
+
+    [Run]
+    public async Task Filter_DELETE_MISMATCH()
+    {
+      var request = new HttpRequestMessage(HttpMethod.Post, "filter-delete");
+
+      var response = await Client.SendAsync(request);
+      Console.WriteLine($"{(int)response.StatusCode} - {response.StatusCode}");
+      Aver.IsTrue(HttpStatusCode.MethodNotAllowed == response.StatusCode);
+    }
+
+
+    [Run]
+    public async Task Filter_PATCH_OK()
+    {
+      var request = new HttpRequestMessage(new HttpMethod("PATCH"), "filter-patch");
+
+      var response = await Client.SendAsync(request);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      var got = await response.Content.ReadAsStringAsync();
+      Aver.AreEqual(ContentType.TEXT, response.Content.Headers.ContentType.MediaType);
+      Aver.IsNotNull(got);
+      Aver.AreEqual("patch: ", got);
+    }
+
+    [Run]
+    public async Task Filter_PATCH_MISMATCH()
+    {
+      var request = new HttpRequestMessage(HttpMethod.Delete, "filter-patch");
+
+      var response = await Client.SendAsync(request);
+      Console.WriteLine($"{(int)response.StatusCode} - {response.StatusCode}");
+      Aver.IsTrue(HttpStatusCode.MethodNotAllowed == response.StatusCode);
+    }
 
 
   }

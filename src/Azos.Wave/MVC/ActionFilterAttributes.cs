@@ -118,7 +118,7 @@ namespace Azos.Wave.Mvc
 
     protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
     {
-      if (!work.IsDELETE)
+      if (!work.IsPATCH)
       {
         work.Response.StatusCode = WebConsts.STATUS_405;
         work.Response.StatusDescription = WebConsts.STATUS_405_DESCRIPTION;
