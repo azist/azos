@@ -81,12 +81,16 @@ namespace Azos.Wave.Mvc
               throw new WaveException(StringConsts.MVC_ACTION_ATTR_MATCH_PARSING_ERROR.Args(MatchScript, error.ToMessageWithType()), error);
             }
 
-            foreach(var cn in root.Children.Where(cn=>cn.IsSameName(WorkMatch.CONFIG_MATCH_SECTION)))
+            var children = root.Children.Where(cn => cn.IsSameName(WorkMatch.CONFIG_MATCH_SECTION));
+            if (!children.Any()) children = new []{root};
+
+            foreach (var cn in children)
               if(!m_Matches.Register( FactoryUtils.Make<WorkMatch>(cn, typeof(WorkMatch), args: new object[]{ cn })) )
                throw new WaveException(StringConsts.CONFIG_OTHER_DUPLICATE_MATCH_NAME_ERROR.Args(cn.AttrByName(Configuration.CONFIG_NAME_ATTR).Value, "ActionAttribute"));
           }
           else
            m_Matches.Register(new WorkMatch("*",0));
+
         }
         return m_Matches.OrderedValues;
       }

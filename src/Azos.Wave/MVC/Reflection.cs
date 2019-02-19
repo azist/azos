@@ -102,7 +102,7 @@ namespace Azos.Wave.Mvc
         foreach(var mi in allmi)
           actions.Add(new ActionInfo(this, mi));
 
-        Actions = actions.OrderBy( ai => ai.Attribute.Order );
+        Actions = actions.OrderBy( ai => ai.Attribute.Order ).ToArray();
 
         //warm-up for possible errors
         foreach(var ai in actions)

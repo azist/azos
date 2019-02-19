@@ -4,12 +4,15 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
+using Azos.Web;
 using Azos.Data;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
+using System.Net.Http.Headers;
 
 namespace Azos.Tests.Unit.Wave
 {
@@ -38,6 +41,74 @@ namespace Azos.Tests.Unit.Wave
       Aver.AreEqual(true, got["b"].AsBool());
       Aver.AreEqual(1980, got["d"].AsDateTime().Year);
     }
+
+    [Run]
+    public async Task ActionHArdCodedHtml()
+    {
+      var got = await Client.GetStringAsync("actionhardcodedhtml");
+      Aver.AreEqual("<h1>Hello HTML</h1>", got);
+    }
+
+    [Run]
+    public async Task PatternMatch_GET()
+    {
+      var response = await Client.GetAsync("pmatch");
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      var got = await response.Content.ReadAsStringAsync();
+      Aver.AreEqual(ContentType.TEXT, response.Content.Headers.ContentType.MediaType);
+      Aver.IsNotNull(got);
+      Aver.AreEqual("get", got);
+    }
+
+    [Run]
+    public async Task PatternMatch_PUT()
+    {
+      var content = new StringContent("v=abcd");
+      content.Headers.ContentType.MediaType = ContentType.FORM_URL_ENCODED;
+      var response = await Client.PutAsync("pmatch", content);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      var got = await response.Content.ReadAsStringAsync();
+      Aver.AreEqual(ContentType.TEXT, response.Content.Headers.ContentType.MediaType);
+      Aver.IsNotNull(got);
+      Aver.AreEqual("put: abcd", got);
+    }
+
+    [Run]
+    public async Task PatternMatch_POST()
+    {
+      var content = new StringContent("v=abcd1");
+      content.Headers.ContentType.MediaType = ContentType.FORM_URL_ENCODED;
+      var response = await Client.PostAsync("pmatch", content);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      var got = await response.Content.ReadAsStringAsync();
+      Aver.AreEqual(ContentType.TEXT, response.Content.Headers.ContentType.MediaType);
+      Aver.IsNotNull(got);
+      Aver.AreEqual("post: abcd1", got);
+    }
+
+    [Run]
+    public async Task PatternMatch_POST_JSON()
+    {
+      var content = new StringContent("v=abcd1");
+      content.Headers.ContentType.MediaType = ContentType.FORM_URL_ENCODED;
+
+      var request = new HttpRequestMessage(HttpMethod.Post, "pmatch");
+      request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(ContentType.JSON));
+      request.Content = content;
+
+      var response = await Client.SendAsync(request);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      var got = await response.Content.ReadAsStringAsync();
+   //   Aver.AreEqual(ContentType.JSON, response.Content.Headers.ContentType.MediaType);
+      Aver.IsNotNull(got);
+      Aver.AreEqual("{\"post\":\"abcd1\"}", got);
+    }
+
+
 
   }
 }
