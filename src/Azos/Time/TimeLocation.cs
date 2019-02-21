@@ -72,7 +72,7 @@ namespace Azos.Time
        /// </summary>
        public TimeSpan UTCOffset
        {
-          get { return m_UTCOffset.Value; }
+          get { return m_UTCOffset ?? TimeSpan.Zero; }
           set { if (!m_Immutable) m_UTCOffset = value; }
        }
 
