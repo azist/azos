@@ -72,12 +72,17 @@ namespace Azos
     public const int STATUS_401 = 401;  public const string STATUS_401_DESCRIPTION = "Unauthorized";
 
     public const int STATUS_405 = 405;  public const string STATUS_405_DESCRIPTION = "Method Not Allowed";
+
     public const int STATUS_406 = 406;  public const string STATUS_406_DESCRIPTION = "Not Acceptable";
 
     public const int STATUS_409 = 409;  public const string STATUS_409_DESCRIPTION = "Conflict";
 
+    public const int STATUS_411 = 411; public const string STATUS_411_DESCRIPTION = "Content-Length Required";
+
+    public const int STATUS_413 = 413; public const string STATUS_413_DESCRIPTION = "Request Entity Too Large";
+
     public const int STATUS_429 = 429;  public const string STATUS_429_DESCRIPTION = "Too Many Requests";
 
-    public const int STATUS_500 = 500;  public const string STATUS_500_DESCRIPTION = "Internal error";
+    public const int STATUS_500 = 500;  public const string STATUS_500_DESCRIPTION = "Internal Error";
   }
 }

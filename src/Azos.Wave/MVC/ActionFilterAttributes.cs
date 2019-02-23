@@ -168,4 +168,49 @@ namespace Azos.Wave.Mvc
     }
   }
 
+
+  /// <summary>
+  /// Only allows requests that have entity body (e.g. POST payload).
+  /// If MaxContentLength limit is set then the 'Content-Length' header is required and its value is compared against the limit
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+  public sealed class HasBodyAttribute : BeforeActionFilterBaseAttribute
+  {
+    public HasBodyAttribute() { }
+
+    /// <summary>
+    /// When set to >0 value requires the 'Content-Length' header and imposes a limit on its value
+    /// </summary>
+    public long MaxContentLength { get; set; }
+
+    protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
+    {
+      if (!work.Request.HasEntityBody)
+      {
+        work.Response.StatusCode = WebConsts.STATUS_400;
+        work.Response.StatusDescription = WebConsts.STATUS_400_DESCRIPTION;
+        return true;
+      }
+
+      if (MaxContentLength<=0) return false;
+
+      var got = work.Request.ContentLength64;
+      if (got<0)
+      {
+        work.Response.StatusCode = WebConsts.STATUS_411;
+        work.Response.StatusDescription = WebConsts.STATUS_411_DESCRIPTION;
+        return true;
+      }
+
+      if (got > MaxContentLength)
+      {
+        work.Response.StatusCode = WebConsts.STATUS_413;
+        work.Response.StatusDescription = WebConsts.STATUS_413_DESCRIPTION;
+        return true;
+      }
+
+      return false;
+    }
+  }
+
 }
