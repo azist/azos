@@ -330,31 +330,35 @@ namespace Azos.Wave
      /// <summary>
      /// Describes exception for client response transmission as JSONDataMap
      /// </summary>
-     public static Azos.Serialization.JSON.JSONDataMap ToClientResponseJSONMap(this Exception error, bool detailed)
+     public static Serialization.JSON.JSONDataMap ToClientResponseJSONMap(this Exception error, bool detailed)
      {
        var actual = error;
-       if (actual is FilterPipelineException)
-         actual = ((FilterPipelineException)actual).RootException;
+       if (actual is FilterPipelineException fpe)
+         actual = fpe.RootException;
 
-        var result = new Azos.Serialization.JSON.JSONDataMap();
-        result["OK"] = false;
-        result["HttpStatusCode"] = (actual is HTTPStatusException) ? ((HTTPStatusException)actual).StatusCode : -1;
-        result["HttpStatusDescription"] = (actual is HTTPStatusException) ? ((HTTPStatusException)actual).StatusDescription : string.Empty;
+       var result = new Azos.Serialization.JSON.JSONDataMap();
+       result["OK"] = false;
 
-        if (detailed)
-        {
-          result["Error"] = error.Message;
-          result["Type"] = error.GetType().FullName;
-          result["StackTrace"] = error.StackTrace;
-          if (error.InnerException!=null)
+       if (actual is IHttpStatusProvider st)
+       {
+        result["HttpStatusCode"] = st.HttpStatusCode;
+        result["HttpStatusDescription"] = st.HttpStatusDescription;
+       }
+
+       if (detailed)
+       {
+         result["Error"] = error.Message;
+         result["Type"] = error.GetType().FullName;
+         result["StackTrace"] = error.StackTrace;
+         if (error.InnerException!=null)
             result["Inner"] = error.InnerException.ToClientResponseJSONMap(detailed);
-        }
-        else
-        {
-          result["Error"] = actual.GetType().Name;
-        }
+       }
+       else
+       {
+         result["Error"] = actual.GetType().Name;
+       }
 
-        result["IsAuthorization"] = Security.AuthorizationException.IsDenotedBy(actual);
+       result["IsAuthorization"] = Security.AuthorizationException.IsDenotedBy(actual);
 
        return result;
     }
