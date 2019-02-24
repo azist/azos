@@ -50,6 +50,22 @@ namespace Azos.Time
     /// </summary>
     public DateTimeKind Kind => Start.HasValue ? Start.Value.Kind : End.HasValue ? End.Value.Kind : DateTimeKind.Unspecified;
 
+
+    /// <summary>
+    /// Returns true if range is closed - both start and end are defined vs .IsOpen when only start or only end are defined
+    /// </summary>
+    public bool IsClosed => Start.HasValue && End.HasValue;
+
+    /// <summary>
+    /// Returns true if range is open - when either start or end are defined, but not both; vs .IsClosed
+    /// </summary>
+    public bool IsOpen => !Start.HasValue || !End.HasValue;
+
+    /// <summary>
+    /// Returns null for open ranges, or time spans for closed
+    /// </summary>
+    public TimeSpan? ClosedSpan => IsOpen ? null : End - Start;
+
     /// <summary>
     /// Returns true only when the range is closed and specified date is of the same kind as the range
     /// and the date is between Start and End inclusive
@@ -103,13 +119,13 @@ namespace Azos.Time
     public override string ToString()
     {
       return "[{0} - {1}]".Args(Start.HasValue ? Start.Value.ToString() : " ",
-                                Start.HasValue ? Start.Value.ToString() : " ");
+                                End.HasValue ? End.Value.ToString() : " ");
     }
 
     public string ToString(string format, IFormatProvider formatProvider)
     {
       return "[{0} - {1}]".Args(Start.HasValue ? Start.Value.ToString(format, formatProvider) : " ",
-                                Start.HasValue ? Start.Value.ToString(format, formatProvider) : " ");
+                                End.HasValue ? End.Value.ToString(format, formatProvider) : " ");
     }
 
     void IJSONWritable.WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options)

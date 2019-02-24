@@ -3,7 +3,7 @@
 namespace Azos
 {
   /// <summary>
-  /// Provides an efficient representation of a string which contains from 1 to 8 ASCII-only characters
+  /// Provides an efficient representation of a string which contains from 1 up to 8 ASCII-only characters
   /// packed and stored as ulong system primitive. Typically used for system IDs of assets
   /// such as log and instrumentation channels. The framework treats the type efficiently in many areas
   /// such as binary, BSON and JSON serialization. Short ID strings represented as ASCII8 en masse greatly
@@ -17,7 +17,7 @@ namespace Azos
   /// The trick is to NOT convert strings into ASCII via .Encode() (that is why it is a static method, not a .ctor)
   /// but instead rely on static readonly (constant) values for naming channels, applications and other system assets.
   /// Instead of emitting "app1" string value in every log message we can now emit and store just a ulong 8 byte primitive.
-  /// The packing works right to left, so the ulong may be var-bit compressed (e.g. using ULEB or Zigzag)
+  /// The packing works right to left, so the ulong may be var-bit compressed (e.g. using ULEB, Slim etc.)
   /// </remarks>
   [Serializable]
   public struct ASCII8 : IEquatable<ASCII8>, Data.Access.IDistributedStableHashProvider

@@ -174,9 +174,9 @@ namespace Azos.Wave.Mvc
   /// If MaxContentLength limit is set then the 'Content-Length' header is required and its value is compared against the limit
   /// </summary>
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-  public sealed class HasBodyAttribute : BeforeActionFilterBaseAttribute
+  public sealed class HasEntityBodyAttribute : BeforeActionFilterBaseAttribute
   {
-    public HasBodyAttribute() { }
+    public HasEntityBodyAttribute() { }
 
     /// <summary>
     /// When set to >0 value requires the 'Content-Length' header and imposes a limit on its value
