@@ -17,7 +17,7 @@ using Azos.Serialization.JSON;
 namespace Azos.Tests.Nub.IO
 {
     [Runnable]
-    public class SlimFormatReadWrite
+    public class SlimFormatReadWriteTests
     {
         [Run("cnt=10")]
         [Run("cnt=20")]
@@ -1653,5 +1653,59 @@ namespace Azos.Tests.Nub.IO
             }
         }
 
+
+    [Run]
+    public void ASCII8Test()
+    {
+      using (var ms = new MemoryStream())
+      {
+        var r = SlimFormat.Instance.MakeReadingStreamer();
+        var w = SlimFormat.Instance.MakeWritingStreamer();
+
+        r.BindStream(ms);
+        w.BindStream(ms);
+
+        var a1 = ASCII8.Encode("SNAKE123");
+
+        w.Write(a1);
+
+        ms.Seek(0, SeekOrigin.Begin);
+
+        Aver.AreEqual(a1, r.ReadASCII8());
+
+        ms.Seek(0, SeekOrigin.Begin);
+        var a2 = new ASCII8(0);
+
+        w.Write(a2);
+
+        ms.Seek(0, SeekOrigin.Begin);
+
+        Aver.AreEqual(a2, r.ReadASCII8());
+      }
     }
+
+    [Run]
+    public void NullableASCII8()
+    {
+      using (var ms = new MemoryStream())
+      {
+        var r = SlimFormat.Instance.MakeReadingStreamer();
+        var w = SlimFormat.Instance.MakeWritingStreamer();
+
+        r.BindStream(ms);
+        w.BindStream(ms);
+
+        var a1 = ASCII8.Encode("autoexec");
+
+        w.Write((ASCII8?)null);
+        w.Write((ASCII8?)a1);
+
+        ms.Seek(0, SeekOrigin.Begin);
+
+        Aver.IsFalse(r.ReadNullableASCII8().HasValue);
+        Aver.AreEqual(a1, r.ReadNullableASCII8());
+      }
+    }
+
+  }
 }

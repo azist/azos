@@ -392,6 +392,99 @@ Sprachlernen und -lehren
     }
 
 
+    [Run]
+    public void ASCII8_Root()
+    {
+      using (var ms = new MemoryStream())
+      {
+        var s = new SlimSerializer();
+
+        var dIn = ASCII8.Encode("ABC123");
+
+        s.Serialize(ms, dIn);
+        ms.Seek(0, SeekOrigin.Begin);
+
+        var dOut = (ASCII8)s.Deserialize(ms);
+
+
+        Aver.AreEqual(dOut, dIn);
+        Aver.AreEqual("ABC123", dOut.Value);
+      }
+    }
+
+    [Run]
+    public void ASCII8Nullable_Root()
+    {
+      using (var ms = new MemoryStream())
+      {
+        var s = new SlimSerializer();
+
+        ASCII8? dIn = ASCII8.Encode("ABC123");
+
+        s.Serialize(ms, (ASCII8?)null);
+        s.Serialize(ms, dIn);
+        ms.Seek(0, SeekOrigin.Begin);
+
+        var dOut = (ASCII8?)s.Deserialize(ms);
+
+        Aver.IsFalse(dOut.HasValue);
+        dOut = (ASCII8?)s.Deserialize(ms);
+
+        Aver.IsTrue(dOut.HasValue);
+        Aver.AreEqual(dOut, dIn);
+        Aver.AreEqual("ABC123", dOut.Value.Value);
+      }
+    }
+
+
+    private class withASCII8
+    {
+      public string Name{ get;set;}
+      public int Int { get; set; }
+
+      public ASCII8 A1{ get;set;}
+      public ASCII8? A2 { get; set;}
+      public ASCII8? A3 { get; set; }
+      public ASCII8[] A4 { get; set;}
+      public ASCII8?[] A5 { get; set;}
+    }
+
+
+    [Run]
+    public void ASCII8_Class()
+    {
+      using (var ms = new MemoryStream())
+      {
+        var s = new SlimSerializer();
+
+        var dIn = new withASCII8
+        {
+          Name = "Josh",
+          Int = 9876500,
+          A1 = new ASCII8(123),
+          A2 = null,
+          A3 = ASCII8.Encode("abc"),
+          A4 = new []{ASCII8.Encode("a"), ASCII8.Encode("b") },
+          A5 = new ASCII8?[] { null, ASCII8.Encode("b"), null, null, ASCII8.Encode("zzz") }
+        };
+
+        s.Serialize(ms, dIn);
+        ms.Seek(0, SeekOrigin.Begin);
+
+        var dOut = (withASCII8)s.Deserialize(ms);
+
+        Aver.IsNotNull(dOut);
+
+        Aver.AreEqual(dIn.Name, dOut.Name);
+        Aver.AreEqual(dIn.Int, dOut.Int);
+
+        Aver.IsFalse(dOut.A2.HasValue);
+        Aver.AreEqual("abc", dOut.A3.Value.Value);
+        Aver.AreArraysEquivalent(dIn.A4, dOut.A4);
+        Aver.AreArraysEquivalent(dIn.A5, dOut.A5);
+      }
+    }
+
 
 
   }
