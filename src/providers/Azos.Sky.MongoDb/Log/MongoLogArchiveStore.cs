@@ -22,7 +22,7 @@ namespace Azos.Sky.Log.Server
     public const string CONFIG_MONGO_SECTION = "mongo";
     public const string CONFIG_DEFAULT_CHANNEL_ATTR = "default-channel";
 
-    public const string DEFAULT_CHANNEL = "archive";
+    public static readonly ASCII8 DEFAULT_CHANNEL = ASCII8.Encode("archive");
     public const int DEFAULT_FETCHBY_SIZE = 32;
     public const int MAX_FETCHBY_SIZE = 4 * 1024;
 
@@ -32,7 +32,7 @@ namespace Azos.Sky.Log.Server
     {
       var cstring = ConfigStringBuilder.Build(node, CONFIG_MONGO_SECTION);
       m_Database = App.GetMongoDatabaseFromConnectString( cstring );
-      m_DefaultChannel = node.AttrByName(CONFIG_DEFAULT_CHANNEL_ATTR).ValueAsString(DEFAULT_CHANNEL);
+      m_DefaultChannel = node.AttrByName(CONFIG_DEFAULT_CHANNEL_ATTR).ValueAsASCII8(DEFAULT_CHANNEL);
       m_Serializer = new BSONSerializer(node);
       m_Serializer.PKFieldName = Query._ID;
     }
@@ -45,7 +45,7 @@ namespace Azos.Sky.Log.Server
 
     private BSONSerializer m_Serializer;
     private Database m_Database;
-    private string m_DefaultChannel;
+    private ASCII8 m_DefaultChannel;
     private int m_FetchBy = DEFAULT_FETCHBY_SIZE;
 
     [Config(Default = DEFAULT_FETCHBY_SIZE)]
@@ -69,7 +69,7 @@ namespace Azos.Sky.Log.Server
 
       var channel = message.Channel;
 
-      if (channel.IsNullOrWhiteSpace())
+      if (channel.IsZero)
         channel = m_DefaultChannel;
 
       var doc = m_Serializer.Serialize(message, KNOWN_TYPES);
@@ -81,39 +81,37 @@ namespace Azos.Sky.Log.Server
           doc.Set(DataDocConverter.String_CLRtoBSON("__" + item.Key, item.Value));
       }
 
-      m_Database[channel].Insert(doc);
+      m_Database[channel.Value].Insert(doc);
     }
 
-    public override bool TryGetByID(Guid id, out Message message, string channel = null)
+    public override bool TryGetByID(Guid id, out Message message, ASCII8 channel)
     {
       var query = new Query(
         @"{ '$query': { {0}: '$$id' } }".Args(m_Serializer.PKFieldName), true,
         new TemplateArg(new BSONBinaryElement("id", new BSONBinary(BSONBinaryType.UUID, id.ToByteArray()))));
 
-      if (channel.IsNullOrWhiteSpace())
+      if (channel.IsZero)
         channel = m_DefaultChannel;
 
       message = new Message();
-      var doc = m_Database[channel].FindOne(query);
+      var doc = m_Database[channel.Value].FindOne(query);
       if (doc == null) return false;
 
       m_Serializer.Deserialize(doc, message);
       return true;
     }
 
-    public override IEnumerable<Message> List(string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
-      string host = null, string channel = null, string topic = null,
-      Guid? relatedTo = null,
-      int skipCount = 0)
+    public override IEnumerable<Message> List(ASCII8 channel, string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
+      string host = null, string topic = null, Guid? relatedTo = null, int skipCount = 0)
     {
       var map = Mapper.FilterMap(archiveDimensionsFilter);
 
-      var query = buildQuery(map, startDate, endDate, type, host, channel, topic, relatedTo);
+      var query = buildQuery(channel, map, startDate, endDate, type, host, topic, relatedTo);
 
-      if (channel.IsNullOrWhiteSpace())
+      if (channel.IsZero)
         channel = m_DefaultChannel;
 
-      var collection = m_Database[channel];
+      var collection = m_Database[channel.Value];
       var result = new List<Message>();
 
       using (var cursor = collection.Find(query, skipCount, FetchBy))
@@ -128,9 +126,10 @@ namespace Azos.Sky.Log.Server
     }
 
     private Query buildQuery(
+      ASCII8 channel,
       Dictionary<string, string> archiveDimensionsFilter,
       DateTime startDate, DateTime endDate, MessageType? type = null,
-      string host = null, string channel = null, string topic = null,
+      string host = null, string topic = null,
       Guid? relatedTo = null)
     {
       var args = new List<TemplateArg>();

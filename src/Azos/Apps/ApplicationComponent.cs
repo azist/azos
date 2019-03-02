@@ -301,6 +301,7 @@ namespace Azos.Apps
 
       var msg = new Log.Message
       {
+        App = App.AssetId,
         Topic = ComponentLogTopic,
         From = ComponentLogFromPrefix + from,
         Type = type,

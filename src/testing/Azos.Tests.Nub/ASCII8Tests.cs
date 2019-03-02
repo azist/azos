@@ -19,6 +19,7 @@ namespace Azos.Tests.Nub
       var x = new ASCII8(0);
       Aver.IsTrue( x.IsZero );
       Aver.AreEqual(0ul, x.ID);
+      Aver.IsTrue( x.IsValid );
     }
 
     [Run]
@@ -102,7 +103,7 @@ namespace Azos.Tests.Nub
       var x = ASCII8.Encode("123456789");
     }
 
-    [Run, Aver.Throws(typeof(AzosException), Message = "!ASCII")]
+    [Run, Aver.Throws(typeof(AzosException), Message = "![0..9")]
     public void Error_NonAscii()
     {
       var x = ASCII8.Encode("ag²■");
@@ -118,6 +119,18 @@ namespace Azos.Tests.Nub
 
       Aver.AreEqual(0x61ul, x.ID);
       Aver.AreEqual(0x6261ul, y.ID);
+    }
+
+    [Run]
+    public void IsValid()
+    {
+      var x = new ASCII8(0);
+      Aver.IsTrue(x.IsZero);
+      Aver.IsTrue(x.IsValid);
+
+      x = new ASCII8(0xffff);
+      Aver.IsFalse(x.IsValid);
+      Aver.Throws<AzosException>(()=>x.Value.ToLower());
     }
 
   }

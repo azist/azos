@@ -32,13 +32,13 @@ namespace Azos.Sky.Log.Server
     public void SendLog(Message data)
       => Service.SendLog(data);
 
-    public Message GetByID(Guid id, string channel = null)
+    public Message GetByID(Guid id, ASCII8 channel)
       => Service.GetByID(id, channel);
 
-    public IEnumerable<Message> List(string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
-      string host = null, string channel = null, string topic = null,
+    public IEnumerable<Message> List(ASCII8 channel, string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
+      string host = null,string topic = null,
       Guid? relatedTo = null, int skipCount = 0)
-      => Service.List(archiveDimensionsFilter, startDate, endDate, type, host, channel, topic, relatedTo, skipCount);
+      => Service.List(channel, archiveDimensionsFilter, startDate, endDate, type, host, topic, relatedTo, skipCount);
   }
 
   /// <summary>
@@ -96,16 +96,16 @@ namespace Azos.Sky.Log.Server
       }
     }
 
-    public Message GetByID(Guid id, string channel = null)
+    public Message GetByID(Guid id, ASCII8 channel)
     {
       return m_ArchiveStore.GetByID(id, channel);
     }
 
-    public IEnumerable<Message> List(string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
-      string host = null, string channel = null, string topic = null,
+    public IEnumerable<Message> List(ASCII8 channel, string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
+      string host = null, string topic = null,
       Guid? relatedTo = null, int skipCount = 0)
     {
-      return m_ArchiveStore.List(archiveDimensionsFilter, startDate, endDate, type, host, channel, topic, relatedTo, skipCount);
+      return m_ArchiveStore.List(channel, archiveDimensionsFilter, startDate, endDate, type, host, topic, relatedTo, skipCount);
     }
 
     protected override void DoConfigure(IConfigSectionNode node)

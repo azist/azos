@@ -135,7 +135,7 @@ namespace Azos.Log.Sinks
         private bool m_OnlyFailures;
         private string m_Failover;
         private bool m_TestOnStart;
-        private string m_Channel;
+        private ASCII8 m_Channel;
 
         private int? m_MaxProcessingTimeMs;
         private float m_AverageProcessingTimeMs;
@@ -363,9 +363,9 @@ namespace Azos.Log.Sinks
 
         [Config]
         [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
-        public string Channel
+        public ASCII8 Channel
         {
-          get { return m_Channel ?? string.Empty; }
+          get { return m_Channel; }
           set { m_Channel = value; }
         }
 
@@ -423,8 +423,7 @@ namespace Azos.Log.Sinks
 
           try
           {
-            if (!Channel.EqualsOrdIgnoreCase(msg.Channel))
-              return;
+            if (!Channel.IsZero && msg.Channel != Channel) return;
 
             if (!satisfyFilter(msg)) return;
 

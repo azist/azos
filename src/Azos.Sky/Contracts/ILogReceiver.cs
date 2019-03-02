@@ -26,10 +26,10 @@ namespace Azos.Sky.Contracts
     [ArgsMarshalling(typeof(RequestMsg_ILogReceiver_SendLog))]
     void SendLog(Message data);
 
-    Message GetByID(Guid id, string channel = null);
+    Message GetByID(Guid id, ASCII8 channel);
 
-    IEnumerable<Message> List(string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
-      string host = null, string channel = null, string topic = null,
+    IEnumerable<Message> List(ASCII8 channel, string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
+      string host = null, string topic = null,
       Guid? relatedTo = null,
       int skipCount = 0);
   }
@@ -40,9 +40,9 @@ namespace Azos.Sky.Contracts
   public interface ILogReceiverClient : ISkyServiceClient, ILogReceiver
   {
     CallSlot Async_SendLog(Message data);
-    CallSlot Async_GetByID(Guid id, string channel = null);
-    CallSlot Async_List(string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
-      string host = null, string channel = null, string topic = null,
+    CallSlot Async_GetByID(Guid id, ASCII8 channel);
+    CallSlot Async_List(ASCII8 channel, string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
+      string host = null, string topic = null,
       Guid? relatedTo = null,
       int skipCount = 0);
   }

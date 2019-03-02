@@ -311,7 +311,7 @@ namespace Azos.Tests.Nub.Serialization
       {
          Type = MessageType.DebugGlue,
          UTCTimeStamp = Ambient.UTCNow,
-         Channel = "MTV",
+         Channel = ASCII8.Encode("MTV"),
           From = "Zhaba",
            Topic = "App",
             Text = "Hello text",
@@ -342,7 +342,7 @@ namespace Azos.Tests.Nub.Serialization
       {
          Type = MessageType.DebugGlue,
          UTCTimeStamp = Ambient.UTCNow,
-         Channel = "MTV",
+         Channel = ASCII8.Encode("MTV"),
           From = "Zhaba",
            Topic = "App",
             Text = "Hello text",
@@ -372,7 +372,7 @@ namespace Azos.Tests.Nub.Serialization
       {
          Type = MessageType.DebugGlue,
          UTCTimeStamp = Ambient.UTCNow,
-         Channel = "MTV",
+         Channel = ASCII8.Encode("MTV"),
           From = "Zhaba",
            Topic = "App",
             Text = "Hello text",
@@ -407,7 +407,7 @@ namespace Azos.Tests.Nub.Serialization
       {
          Type = MessageType.DebugGlue,
          UTCTimeStamp = Ambient.UTCNow,
-         Channel = "MTV",
+         Channel = ASCII8.Encode("MTV"),
           From = "Zhaba",
            Topic = "App",
             Text = "Hello text in Chinese: 中原千军逐蒋",

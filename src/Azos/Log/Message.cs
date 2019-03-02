@@ -22,6 +22,8 @@ namespace Azos.Log
   [BSONSerializable("A05AEE0F-A33C-4B1D-AA45-CDEAF894A095")]
   public sealed class Message : IArchiveLoggable
   {
+    public const string BSON_FLD_APP = "app";
+    public const string BSON_FLD_CHANNEL = "chn";
     public const string BSON_FLD_RELATED_TO = "rel";
     public const string BSON_FLD_TYPE = "tp";
     public const string BSON_FLD_SOURCE = "src";
@@ -33,13 +35,14 @@ namespace Azos.Log
     public const string BSON_FLD_PARAMETERS = "prm";
     public const string BSON_FLD_EXCEPTION = "ex";
     public const string BSON_FLD_ARCHIVE_DIMENSIONS = "arc";
-    public const string BSON_FLD_CHANNEL = "chn";
 
     public static string DefaultHostName;
 
     #region Private Fields
     private Guid m_Guid;
     private Guid m_RelatedTo;
+    private ASCII8 m_Channel;
+    private ASCII8 m_App;
     private MessageType m_Type;
     private int m_Source;
     private DateTime m_UTCTimeStamp;
@@ -50,18 +53,15 @@ namespace Azos.Log
     private string m_Parameters;
     private Exception m_Exception;
     private string m_ArchiveDimensions;
-    private string m_Channel;
     #endregion
 
     #region Properties
 
+
     /// <summary>
-    /// Returns global unique identifier for this particular message
+    /// Returns global unique identifier for this particular log message
     /// </summary>
-    public Guid Guid
-    {
-      get { return m_Guid; }
-    }
+    public Guid Guid => m_Guid;
 
     /// <summary>
     /// Gets/Sets global unique identifier of a message that this message is related to.
@@ -69,17 +69,34 @@ namespace Azos.Log
     /// </summary>
     public Guid RelatedTo
     {
-      get { return m_RelatedTo; }
-      set { m_RelatedTo = value; }
+      get => m_RelatedTo;
+      set => m_RelatedTo = value;
     }
 
+    /// <summary>
+    /// Identifies the emitting application by including it asset identifier, taken from App.AssetId
+    /// </summary>
+    public ASCII8 App
+    {
+      get => m_App;
+      set => m_App = value;
+    }
+
+    /// <summary>
+    /// Gets/Sets logical partition for messages. This property is usually used in Archive for splitting sinks
+    /// </summary>
+    public ASCII8 Channel
+    {
+      get => m_Channel;
+      set => m_Channel = value;
+    }
     /// <summary>
     /// Gets/Sets message type, such as: Info/Warning/Error etc...
     /// </summary>
     public MessageType Type
     {
-      get { return m_Type; }
-      set { m_Type = value; }
+      get => m_Type;
+      set => m_Type = value;
     }
 
     /// <summary>
@@ -87,8 +104,8 @@ namespace Azos.Log
     /// </summary>
     public int Source
     {
-      get { return m_Source; }
-      set { m_Source = value; }
+      get => m_Source;
+      set => m_Source = value;
     }
 
     /// <summary>
@@ -96,8 +113,8 @@ namespace Azos.Log
     /// </summary>
     public DateTime UTCTimeStamp
     {
-      get { return m_UTCTimeStamp; }
-      set { m_UTCTimeStamp = value; }
+      get => m_UTCTimeStamp;
+      set => m_UTCTimeStamp = value;
     }
 
     /// <summary>
@@ -105,8 +122,8 @@ namespace Azos.Log
     /// </summary>
     public string Host
     {
-      get { return m_Host ?? string.Empty; }
-      set { m_Host = value; }
+      get => m_Host ?? string.Empty;
+      set => m_Host = value;
     }
 
 
@@ -116,8 +133,8 @@ namespace Azos.Log
     /// </summary>
     public string From
     {
-      get { return m_From ?? string.Empty; }
-      set { m_From = value; }
+      get => m_From ?? string.Empty;
+      set => m_From = value;
     }
 
     /// <summary>
@@ -125,8 +142,8 @@ namespace Azos.Log
     /// </summary>
     public string Topic
     {
-      get { return m_Topic ?? string.Empty; }
-      set { m_Topic = value; }
+      get => m_Topic ?? string.Empty;
+      set => m_Topic = value;
     }
 
     /// <summary>
@@ -135,8 +152,8 @@ namespace Azos.Log
     /// </summary>
     public string Text
     {
-      get { return m_Text ?? string.Empty; }
-      set { m_Text = value; }
+      get => m_Text ?? string.Empty;
+      set => m_Text = value;
     }
 
     /// <summary>
@@ -144,8 +161,8 @@ namespace Azos.Log
     /// </summary>
     public string Parameters
     {
-      get { return m_Parameters ?? string.Empty; }
-      set { m_Parameters = value; }
+      get => m_Parameters ?? string.Empty;
+      set => m_Parameters = value;
     }
 
     /// <summary>
@@ -154,8 +171,8 @@ namespace Azos.Log
     /// </summary>
     public Exception Exception
     {
-      get { return m_Exception; }
-      set { m_Exception = value; }
+      get => m_Exception;
+      set => m_Exception = value;
     }
 
     /// <summary>
@@ -164,18 +181,11 @@ namespace Azos.Log
     /// </summary>
     public string ArchiveDimensions
     {
-      get { return m_ArchiveDimensions ?? string.Empty; }
-      set { m_ArchiveDimensions = value; }
+      get => m_ArchiveDimensions ?? string.Empty;
+      set => m_ArchiveDimensions = value;
     }
 
-    /// <summary>
-    /// Gets/Sets logical partition for messages. This property is usually used in Archive for splitting destinations
-    /// </summary>
-    public string Channel
-    {
-      get { return m_Channel ?? string.Empty; }
-      set { m_Channel = value; }
-    }
+
 
     #endregion
 
@@ -188,6 +198,7 @@ namespace Azos.Log
       m_Guid = Guid.NewGuid();
       m_Host = Message.DefaultHostName ?? System.Environment.MachineName;
       m_UTCTimeStamp = Ambient.UTCNow;
+      m_App = Apps.ExecutionContext.Application.AssetId;
     }
 
     /// <summary>
@@ -250,6 +261,7 @@ namespace Azos.Log
       {
         m_Guid = m_Guid,
         m_RelatedTo = m_RelatedTo,
+        m_App = m_App,
         m_Type = m_Type,
         m_Source = m_Source,
         m_UTCTimeStamp = m_UTCTimeStamp,
@@ -279,6 +291,8 @@ namespace Azos.Log
 
       doc.Add(serializer.PKFieldName, m_Guid, required: true)
         .Add(BSON_FLD_RELATED_TO, m_RelatedTo, skipNull)
+        .Add(BSON_FLD_CHANNEL, m_Channel.ID, skipNull)
+        .Add(BSON_FLD_APP, m_App.ID, skipNull)
         .Add(BSON_FLD_TYPE, m_Type.ToString(), skipNull, required: true)
         .Add(BSON_FLD_SOURCE, m_Source, skipNull)
         .Add(BSON_FLD_TIMESTAMP, m_UTCTimeStamp, skipNull)
@@ -287,8 +301,7 @@ namespace Azos.Log
         .Add(BSON_FLD_TOPIC, m_Topic, skipNull)
         .Add(BSON_FLD_TEXT, m_Text, skipNull)
         .Add(BSON_FLD_PARAMETERS, m_Parameters, skipNull)
-        .Add(BSON_FLD_ARCHIVE_DIMENSIONS, m_ArchiveDimensions, skipNull)
-        .Add(BSON_FLD_CHANNEL, m_Channel, skipNull);
+        .Add(BSON_FLD_ARCHIVE_DIMENSIONS, m_ArchiveDimensions, skipNull);
 
       if (m_Exception == null) return;
 
@@ -305,6 +318,9 @@ namespace Azos.Log
 
       m_RelatedTo = doc.TryGetObjectValueOf(BSON_FLD_RELATED_TO).AsGUID(Guid.Empty);
 
+      m_Channel = new ASCII8( doc.TryGetObjectValueOf(BSON_FLD_CHANNEL).AsULong(0) );
+      m_App = new ASCII8( doc.TryGetObjectValueOf(BSON_FLD_APP).AsULong(0) );
+
       m_Type = doc.TryGetObjectValueOf(BSON_FLD_TYPE).AsEnum(MessageType.Info);
       m_Source = doc.TryGetObjectValueOf(BSON_FLD_SOURCE).AsInt();
       m_UTCTimeStamp = doc.TryGetObjectValueOf(BSON_FLD_TIMESTAMP).AsDateTime(Ambient.UTCNow);
@@ -314,7 +330,6 @@ namespace Azos.Log
       m_Text = doc.TryGetObjectValueOf(BSON_FLD_TEXT).AsString();
       m_Parameters = doc.TryGetObjectValueOf(BSON_FLD_PARAMETERS).AsString();
       m_ArchiveDimensions = doc.TryGetObjectValueOf(BSON_FLD_ARCHIVE_DIMENSIONS).AsString();
-      m_Channel = doc.TryGetObjectValueOf(BSON_FLD_CHANNEL).AsString();
 
       var ee = doc[BSON_FLD_EXCEPTION] as BSONDocumentElement;
       if (ee == null) return;
