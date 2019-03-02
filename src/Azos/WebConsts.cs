@@ -20,6 +20,7 @@ namespace Azos
 
     public const string HTTP_HDR_AUTHORIZATION = "Authorization";
     public const string HTTP_HDR_ACCEPT = "Accept";
+    public const string HTTP_HDR_USER_AGENT = "User-Agent";
     public const string HTTP_HDR_CONTENT_TYPE = "Content-Type";
     public const string HTTP_HDR_CONTENT_DISPOSITION = "Content-disposition";
     public const string HTTP_SET_COOKIE = "Set-Cookie";

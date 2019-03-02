@@ -33,6 +33,7 @@ namespace Azos.Apps
     public const string CONFIG_SWITCH = "config";
 
     public const string CONFIG_NAME_ATTR = "name";
+    public const string CONFIG_ASSET_ID_ATTR = "asset-id";
     public const string CONFIG_UNIT_TEST_ATTR = "unit-test";
     public const string CONFIG_FORCE_INVARIANT_CULTURE_ATTR = "force-invariant-culture";
     public const string CONFIG_ENVIRONMENT_NAME_ATTR = "environment-name";
@@ -129,7 +130,8 @@ namespace Azos.Apps
 
     #region Fields
 
-    private Guid m_InstanceID = Guid.NewGuid();
+    private ASCII8 m_AssetId;
+    private Guid m_InstanceId = Guid.NewGuid();
     protected DateTime m_StartTime;
 
     private string m_Name;
@@ -195,8 +197,11 @@ namespace Azos.Apps
     /// <summary>True to force app container set process-wide invariant culture on boot</summary>
     public virtual bool ForceInvariantCulture => m_ConfigRoot.AttrByName(CONFIG_FORCE_INVARIANT_CULTURE_ATTR).ValueAsBool();
 
+    /// <summary> Uniquely identifies this application type </summary>
+    public ASCII8 AssetId => m_AssetId;
+
     /// <summary>Returns unique identifier of this running instance</summary>
-    public Guid InstanceID => m_InstanceID;
+    public Guid InstanceId => m_InstanceId;
 
     /// <summary>Returns true if the app container allows nesting of another app container </summary>
     public virtual bool AllowNesting => m_AllowNesting;

@@ -259,7 +259,7 @@ namespace Azos.Scripting
         m_Out.Root.AddAttributeNode("os", Platform.Computer.OSFamily);
         m_Out.Root.AddAttributeNode("cmd", System.Environment.CommandLine);
         m_Out.Root.AddAttributeNode("app-name", App.Name);
-        m_Out.Root.AddAttributeNode("app-instance", App.InstanceID);
+        m_Out.Root.AddAttributeNode("app-instance", App.InstanceId);
         m_Out.SaveAs(OutFileName);
 
         Console.ForegroundColor = ConsoleColor.DarkGray;

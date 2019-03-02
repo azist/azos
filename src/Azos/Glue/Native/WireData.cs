@@ -416,7 +416,7 @@ namespace Azos.Glue.Native
 
          if (host.IsNullOrWhiteSpace()) host = System.Environment.MachineName;
          m_Host = host;
-         m_AppInstanceID = app.InstanceID;
+         m_AppInstanceID = app.InstanceId;
          m_Name = m_Host + '['+ m_AppInstanceID +']';
       }
 

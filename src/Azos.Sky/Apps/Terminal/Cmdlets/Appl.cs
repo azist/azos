@@ -56,7 +56,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
             sb.AppendFormat("Role                      "+VAL, App.GetThisHostMetabaseSection().RoleName );
             sb.AppendFormat("Role Apps                 "+VAL, App.GetThisHostMetabaseSection().Role.AppNames.Aggregate("",(r,a)=>r+a+", ") );
             sb.AppendFormat("Metabase App              "+VAL, App.MetabaseApplicationName );
-            sb.AppendFormat("Instance ID               "+VAL, App.InstanceID );
+            sb.AppendFormat("Instance ID               "+VAL, App.InstanceId );
             sb.AppendFormat("Start Time                "+VAL, App.StartTime );
             sb.AppendFormat("Running Time              "+VAL, App.LocalizedTime - App.StartTime );
             sb.AppendFormat("Type                      "+VAL, App.GetType().FullName );

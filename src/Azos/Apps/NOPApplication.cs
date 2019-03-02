@@ -95,7 +95,10 @@ namespace Azos.Apps
 
         public bool ForceInvariantCulture { get { return false; } }
 
-        public Guid InstanceID
+
+        public ASCII8 AssetId => ASCII8.ZERO;
+
+        public Guid InstanceId
         {
             get { return m_InstanceID; }
         }

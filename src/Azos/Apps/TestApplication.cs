@@ -69,9 +69,11 @@ namespace Azos.Apps
 
         public IApplicationDependencyInjector DependencyInjector { get; set; }
 
-       public virtual bool ForceInvariantCulture { get; set; }
+        public virtual bool ForceInvariantCulture { get; set; }
 
-        public virtual Guid InstanceID { get { return m_InstanceID;}}
+        public virtual ASCII8 AssetId { get; set; }
+
+        public virtual Guid InstanceId { get { return m_InstanceID;}}
 
         public virtual bool AllowNesting { get { return false;}}
 

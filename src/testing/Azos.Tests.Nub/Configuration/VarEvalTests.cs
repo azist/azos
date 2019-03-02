@@ -408,7 +408,7 @@ namespace Azos.Tests.Nub.Configuration
           var conf = Azos.Conf.XMLConfiguration.CreateFromXML(xml);
           Aver.AreEqual( CoreConsts.APPLICATION_TOPIC, conf.Root["envAppTopic"].Value );
           Aver.AreEqual( CoreConsts.DATA_TOPIC, conf.Root["envDataTopic"].Value );
-          Aver.AreEqual(Apps.ExecutionContext.Application.InstanceID, conf.Root["instanceID"].ValueAsGUID(Guid.Empty));
+          Aver.AreEqual(Apps.ExecutionContext.Application.InstanceId, conf.Root["instanceID"].ValueAsGUID(Guid.Empty));
 
           Aver.AreEqual(CoreConsts.APPLICATION_TOPIC, conf.Root["envAppTopic"].Value);
 

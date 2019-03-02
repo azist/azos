@@ -36,10 +36,10 @@ namespace Azos.Tests.Nub.Application
     {
       string got;
       Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "INSTANCE", out got));
-      Aver.AreEqual( NOPApplication.Instance.InstanceID, got.AsGUID(Guid.Empty) );
+      Aver.AreEqual( NOPApplication.Instance.InstanceId, got.AsGUID(Guid.Empty) );
 
       Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "INSTANCEX", out got));
-      Aver.AreEqual(NOPApplication.Instance.InstanceID, got.AsGUID(Guid.Empty));
+      Aver.AreEqual(NOPApplication.Instance.InstanceId, got.AsGUID(Guid.Empty));
     }
 
     [Run]

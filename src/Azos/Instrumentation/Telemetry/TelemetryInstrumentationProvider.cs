@@ -70,7 +70,7 @@ namespace Azos.Instrumentation.Telemetry
       if (SiteName.IsNotNullOrWhiteSpace())
         site = SiteName;
       else
-        site = "{0}::{1}@{2}".Args(App.Name, App.InstanceID, System.Environment.MachineName);
+        site = "{0}::{1}@{2}".Args(App.Name, App.InstanceId, System.Environment.MachineName);
 
       try
       {

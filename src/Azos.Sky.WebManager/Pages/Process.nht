@@ -95,7 +95,7 @@
       trow("Role", app.GetThisHostMetabaseSection().RoleName );
       trow("Role Apps", app.GetThisHostMetabaseSection().Role.AppNames.Aggregate(" ",(r,a)=>r+a+", ") );
       trow("Metabase App", app.MetabaseApplicationName );
-      trow("Instance ID", app.InstanceID );
+      trow("Instance ID", app.InstanceId );
       trow("Start Time", app.StartTime );
       trow("Running Time", app.LocalizedTime - app.StartTime );
       trow("Type", app.GetType().FullName );

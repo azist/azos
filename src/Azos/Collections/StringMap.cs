@@ -6,15 +6,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Serialization.JSON;
 
 namespace Azos.Collections
 {
   /// <summary>
-  /// Efficeintly maps string -> string for serialization.
+  /// Efficiently maps string -> string for serialization.
   /// Compared to Dictionary[string,string] this class yields 20%-50% better Slim serialization speed improvement and 5%-10% space improvement
   /// </summary>
   [Serializable]

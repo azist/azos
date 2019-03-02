@@ -22,6 +22,12 @@ namespace Azos
   [Serializable]
   public struct ASCII8 : IEquatable<ASCII8>, Data.Access.IDistributedStableHashProvider
   {
+
+    /// <summary>
+    /// Zero constant
+    /// </summary>
+    public static readonly ASCII8 ZERO = new ASCII8();
+
     /// <summary>
     /// Encodes the string value into ulong. The value must contain ASCII only 1 to 8 characters
     /// and may not be whitespace only. Null is encoded as ASCII8(0)

@@ -60,13 +60,13 @@ namespace Azos.Apps
 
       if (name.EqualsOrdIgnoreCase(INSTANCE))
       {
-        value = app.InstanceID.ToString("D");// 00000000 - 0000 - 0000 - 0000 - 000000000000
+        value = app.InstanceId.ToString("D");// 00000000 - 0000 - 0000 - 0000 - 000000000000
         return true;
       }
 
       if (name.EqualsOrdIgnoreCase(INSTANCEX))
       {
-        value = app.InstanceID.ToString("N");// 00000000000000000000000000000000
+        value = app.InstanceId.ToString("N");// 00000000000000000000000000000000
         return true;
       }
 
