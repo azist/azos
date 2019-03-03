@@ -43,6 +43,15 @@ name
    vFloatArray ='1,2, 3, -5.6,7e2'
    vDoubleArray ='1,2, 3, -5.6,7e2'
    vDecimalArray ='1,2, 3, 180780.23, -99.71'
+
+   vGDID1=''
+   vGDID2='1:1:123'
+   vGDID3='ZAVIFA-YOLO'
+   vUri1=''
+   vUri2='http://google.com'
+   vAtom1=''
+   vAtom2='abcd1234'
+   vAtom3='#0x3031'//atoms get encoded from ulong if the value is prefixed with #
  }
 ".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
 
@@ -153,6 +162,36 @@ name
       Aver.IsTrue(new decimal[]{1,2,3,180780.23M, -99.71M}.SequenceEqual(  root.AttrByName("vDecimalArray").ValueAsDecimalArray() ) );
     }
 
-   }//class
+
+    [Run]
+    public void GDIDs()
+    {
+      Aver.IsTrue( root.AttrByName("vGDID1").ValueAsGDID(GDID.ZERO).IsZero );
+
+      Aver.IsFalse(root.AttrByName("vGDID1").ValueAsNullableGDID().HasValue);
+
+      Aver.AreEqual(new GDID(1,1,123), root.AttrByName("vGDID2").ValueAsGDID(GDID.ZERO));
+      Aver.AreEqual(new GDID(1, 1, 123), root.AttrByName("vGDID3").ValueAsGDID(GDID.ZERO));
+    }
+
+    [Run]
+    public void URIs()
+    {
+      Aver.IsNull(root.AttrByName("vURI1").ValueAsUri(null));
+
+      Aver.AreEqual("http://google.com/", root.AttrByName("vURI2").ValueAsUri(null).AbsoluteUri);
+    }
+
+    [Run]
+    public void Atoms()
+    {
+      Aver.IsTrue(root.AttrByName("vAtom1").ValueAsAtom(Atom.ZERO).IsZero);
+      Aver.IsFalse(root.AttrByName("vAtom1").ValueAsNullableAtom().HasValue);
+
+      Aver.AreEqual(Atom.Encode("abcd1234"), root.AttrByName("vAtom2").ValueAsAtom(Atom.ZERO));
+      Aver.AreEqual(Atom.Encode("10"), root.AttrByName("vAtom3").ValueAsAtom(Atom.ZERO));
+    }
+
+  }//class
 
 }

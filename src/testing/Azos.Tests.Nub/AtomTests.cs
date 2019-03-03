@@ -151,5 +151,35 @@ namespace Azos.Tests.Nub
       Aver.AreSameRef(x.Value, y.Value);
       Aver.AreSameRef(x.Value, z.Value);
     }
+
+    [Run]
+    public void TryEncode()
+    {
+      Atom x;
+      Aver.IsTrue( Atom.TryEncode("abc", out x) );
+      Aver.AreEqual("abc", x.Value);
+
+      Aver.IsFalse(Atom.TryEncode("ab * c", out x));
+      Aver.IsTrue(x.IsZero);
+      Aver.AreEqual(null, x.Value);
+    }
+
+    [Run]
+    public void TryEncodeValueOrId()
+    {
+      Atom x;
+      Aver.IsTrue(Atom.TryEncodeValueOrId("abc", out x));
+      Aver.AreEqual("abc", x.Value);
+
+      Aver.IsFalse(Atom.TryEncodeValueOrId("ab * c", out x));
+      Aver.IsTrue(x.IsZero);
+      Aver.AreEqual(null, x.Value);
+
+      Aver.IsTrue(Atom.TryEncodeValueOrId("#0x3031", out x));
+      Aver.AreEqual("10", x.Value);
+
+      Aver.IsTrue(Atom.TryEncodeValueOrId("#12337", out x));
+      Aver.AreEqual("10", x.Value);
+    }
   }
 }

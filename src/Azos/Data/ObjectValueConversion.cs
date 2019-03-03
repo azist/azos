@@ -1074,7 +1074,8 @@ namespace Azos.Data
       if (val is string str)
       {
         str = str.Trim();
-        if (Atom.TryEncode(str, out var atom)) return atom;
+
+        if (Atom.TryEncodeValueOrId(str, out var atom)) return atom;
       }
 
       return new Atom(Convert.ToUInt64(val));

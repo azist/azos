@@ -120,6 +120,40 @@ namespace Azos
     }
 
     /// <summary>
+    /// Tries to encode a string value or numeric ID represented as string into Atom.
+    /// The string value must contain ASCII only 1 to 8 characters conforming to [0..9|A..Z|a..z|_|-] pattern
+    /// and may not be whitespace. The numeric ID should start with '#' prefix and may have optional  binary or hex prefixes, e.g. "#0x3234"
+    /// Null is encoded as Atom(0).
+    /// <para>
+    /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than 1000), having
+    /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as this
+    /// bloats the system Atom intern pool
+    /// </para>
+    /// </summary>
+    public static bool TryEncodeValueOrId(string value, out Atom atom)
+    {
+      atom = new Atom(0ul);
+
+      if (value == null) return true;
+
+      value = value.Trim();
+
+      if (value.StartsWith("#"))
+      {
+        value = value.Substring(1);
+        var asul = Data.ObjectValueConversion.AsULong(value, ulong.MaxValue);
+        if (asul < ulong.MaxValue)
+        {
+          atom =  new Atom(asul);
+          return true;
+        }
+        return false;
+      }
+
+      return TryEncode(value, out atom);
+    }
+
+    /// <summary>
     /// Constructs the ASCII8 from ulong primitive
     /// </summary>
     public Atom(ulong id) => ID = id;
