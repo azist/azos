@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.IO;
+using System.Threading.Tasks;
 
 using Azos.Web;
 using Azos.Graphics;
@@ -17,7 +18,6 @@ using Azos.Data;
 using Azos.Serialization.JSON;
 using Azos.Wave.Mvc;
 using Azos.Wave.Templatization;
-
 
 namespace Azos.Wave.Handlers
 {
@@ -81,6 +81,22 @@ namespace Azos.Wave.Handlers
               if (!handled)
               {
                result = mi.Invoke(target, args);
+
+               //-----------------
+               // 20190303 DKh temp code until Wave is refactored to full async pipeline
+               //-----------------
+               if (result is Task task)
+               {
+                 while(App.Active && !Disposed && !task.IsCompleted && !task.IsFaulted &&!task.IsCanceled) task.Wait(150);//temporary code due to sync pipeline
+
+                 var taskResult = task.TryGetCompletedTaskResultAsObject();
+                 if (taskResult.ok) result = taskResult.result;//unwind the result
+                 else if (task.IsCanceled) result = null;
+                 else if (task.IsFaulted) throw task.Exception;
+               }
+               //-----------------
+
+
                result = target.AfterActionInvocation(work, action, mi, args, result);
               }
             }
@@ -91,10 +107,16 @@ namespace Azos.Wave.Handlers
           }
           catch(Exception error)
           {
-            if (error is TargetInvocationException)
+            if (error is TargetInvocationException tie)
             {
-              var cause = ((TargetInvocationException)error).InnerException;
+              var cause = tie.InnerException;
               if (cause!=null) error = cause;
+            }
+
+            if (error is AggregateException age)
+            {
+              var cause = age.Flatten().InnerException;
+              if (cause != null) error = cause;
             }
             throw MvcActionException.WrapActionBodyError(target.GetType().FullName, action, error);
           }

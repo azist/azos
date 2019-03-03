@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Azos
@@ -391,6 +392,31 @@ namespace Azos
         return count;
       }
     }
+
+    /// <summary>
+    /// If the passed task is a completed instance of Task&lt;TResult&gt;
+    /// returns TResult.Result polymorphically as object
+    /// </summary>
+    public static (bool ok, object result) TryGetCompletedTaskResultAsObject(this Task task)
+    {
+      if (task==null) return (false, null);
+      if (!task.IsCompleted) return (false, null);
+
+      var t = task.GetType();
+
+      //safeguard for theoretical future fx extension to more derivatives than Task<t>
+      var tp = t;
+      while(tp!=null)//must search parent chain as continuation return internal ContinuationResultTaskFromTask<TResult> : Task<TResult>
+      {
+        if (tp.IsGenericType && tp.GetGenericTypeDefinition() == typeof(Task<>)) break;
+        tp = tp.BaseType;
+      }
+      if (tp==null) return (false, null);
+
+      var result = t.GetProperty("Result").GetValue(task);
+      return (ok: true, result);
+    }
+
 
   }
 }
