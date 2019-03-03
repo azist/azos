@@ -377,6 +377,21 @@ namespace Azos.Data
             return ObjectValueConversion.AsUri(val, dflt);
          }
 
+         public static Atom AsAtom(this string val)
+         {
+           return ObjectValueConversion.AsAtom(val);
+         }
+
+         public static Atom AsAtom(this string val, Atom dflt)
+         {
+           return ObjectValueConversion.AsAtom(val, dflt);
+         }
+
+         public static Atom? AsNullableAtom(this string val, Atom? dflt = null)
+         {
+           return ObjectValueConversion.AsNullableAtom(val, dflt);
+         }
+
 
               private static Dictionary<Type, Func<string, bool, object>> s_CONV = new Dictionary<Type,Func<string,bool,object>>
               {
@@ -396,6 +411,7 @@ namespace Azos.Data
                    {typeof(decimal)  , (val, strict) => strict ? decimal.Parse(val)  : AsDecimal(val) },
                    {typeof(TimeSpan) , (val, strict) => strict ? TimeSpan.Parse(val) : AsTimeSpanOrThrow(val) },
                    {typeof(DateTime) , (val, strict) => strict ? DateTime.Parse(val) : AsDateTimeOrThrow(val) },
+                   {typeof(Atom)     , (val, strict) => strict ? AsAtom(val) : AsAtom(val, Atom.ZERO) },
                    {typeof(GDID)     , (val, strict) => strict ? GDID.Parse(val) : AsGDID(val) },
                    {typeof(GDIDSymbol),
                                          (val, strict) =>
@@ -430,6 +446,7 @@ namespace Azos.Data
                    {typeof(decimal?),  (val, strict) => string.IsNullOrWhiteSpace(val) ? (decimal?)null  : (strict ? decimal.Parse(val)  : AsDecimal(val)) },
                    {typeof(TimeSpan?), (val, strict) => string.IsNullOrWhiteSpace(val) ? (TimeSpan?)null : (strict ? TimeSpan.Parse(val) : AsNullableTimeSpan(val)) },
                    {typeof(DateTime?), (val, strict) => string.IsNullOrWhiteSpace(val) ? (DateTime?)null : (strict ? DateTime.Parse(val) : AsNullableDateTime(val)) },
+                   {typeof(Atom?),     (val, strict) => string.IsNullOrWhiteSpace(val) ? (Atom?)null     : (strict ? AsAtom(val) : AsAtom(val, Atom.ZERO)) },
                    {typeof(GDID?),     (val, strict) => string.IsNullOrWhiteSpace(val) ? (GDID?)null     : (strict ? GDID.Parse(val) : AsGDID(val)) },
                    {typeof(GDIDSymbol?),
                                        (val, strict) =>

@@ -562,23 +562,37 @@ namespace Azos.Conf
             }
 
 
+            public Atom ValueAsAtom(Atom dflt, bool verbatim = false)
+            {
+              var val = verbatim ? VerbatimValue : Value;
 
-              /// <summary>
-              /// Tries to get value as specified type or throws if it can not be converted
-              /// </summary>
-              public object ValueAsType(Type tp, bool verbatim = false, bool strict = true)
+              return val.AsAtom(dflt);
+            }
+
+
+            public Atom? ValueAsNullableAtom(Atom? dflt = null, bool verbatim = false)
+            {
+              var val = verbatim ? VerbatimValue : Value;
+
+              return val.AsNullableAtom(dflt);
+            }
+
+            /// <summary>
+            /// Tries to get value as specified type or throws if it can not be converted
+            /// </summary>
+            public object ValueAsType(Type tp, bool verbatim = false, bool strict = true)
+            {
+              try
               {
-                try
-                {
-                  var val = verbatim ? VerbatimValue : Value;
+                var val = verbatim ? VerbatimValue : Value;
 
-                  return val.AsType(tp, strict);
-                }
-                catch(Exception error)
-                {
-                  throw new ConfigException(string.Format(StringConsts.CONFIGURATION_VALUE_COULD_NOT_BE_GOTTEN_AS_TYPE_ERROR, this.Name, tp.FullName), error);
-                }
+                return val.AsType(tp, strict);
               }
+              catch(Exception error)
+              {
+                throw new ConfigException(string.Format(StringConsts.CONFIGURATION_VALUE_COULD_NOT_BE_GOTTEN_AS_TYPE_ERROR, this.Name, tp.FullName), error);
+              }
+            }
 
 
 

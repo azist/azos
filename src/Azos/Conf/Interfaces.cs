@@ -132,6 +132,9 @@ namespace Azos.Conf
             TimeSpan?  ValueAsNullableTimeSpan(TimeSpan? dflt = null, bool verbatim = false);
             TEnum      ValueAsEnum<TEnum>(TEnum dflt = default(TEnum), bool verbatim = false) where TEnum : struct;
             TEnum?     ValueAsNullableEnum<TEnum>(TEnum? dflt = null, bool verbatim = false) where TEnum : struct;
+            Atom       ValueAsAtom(Atom dflt, bool verbatim = false);
+            Atom?      ValueAsNullableAtom(Atom? dflt = null, bool verbatim = false);
+
 
             /// <summary>
             /// Tries to get value as specified type or throws if it can not be converted
