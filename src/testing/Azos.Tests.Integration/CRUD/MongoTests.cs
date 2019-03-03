@@ -156,7 +156,7 @@ namespace Azos.Tests.Integration.CRUD
                            }) as MyPerzon;
           Aver.IsNotNull( row2 );
 
-          Aver.AreEqual(GDID.Zero, row2.GDID);
+          Aver.AreEqual(GDID.ZERO, row2.GDID);
           Aver.AreEqual(null, row2.Name);
           Aver.AreEqual(row.Age,  row2.Age);
       }

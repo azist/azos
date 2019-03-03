@@ -541,7 +541,7 @@ namespace Azos.Data
                 if (sv.IsNotNullOrWhiteSpace())
                   value = GDID.Parse((string)value);
                 else
-                  value = fdef.Type == typeof(GDID?) ? (GDID?)null : GDID.Zero;
+                  value = fdef.Type == typeof(GDID?) ? (GDID?)null : GDID.ZERO;
               }
               else
                 value = new GDID(0, (UInt64)Convert.ChangeType(value, typeof(UInt64)));

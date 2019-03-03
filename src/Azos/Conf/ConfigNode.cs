@@ -577,6 +577,14 @@ namespace Azos.Conf
               return val.AsNullableAtom(dflt);
             }
 
+            public Uri ValueAsUri(Uri dflt, bool verbatim = false)
+            {
+              var val = verbatim ? VerbatimValue : Value;
+
+              return val.AsUri(dflt);
+            }
+
+
             /// <summary>
             /// Tries to get value as specified type or throws if it can not be converted
             /// </summary>

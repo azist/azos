@@ -150,7 +150,7 @@ That is why, if your want to do case insensitive comparisons you convert the str
     /// <returns>Partition ID obtained id</returns>
     public static GDID MakeGDIDRangePartition(GDID id, int bitSize = 16, int bitSubShard = 4)
     {
-      if (id.IsZero) return GDID.Zero;
+      if (id.IsZero) return GDID.ZERO;
 
       if (bitSize < 4 || bitSize > 24 || bitSubShard < 0 || bitSubShard >= bitSize)
         throw new MdbException(StringConsts.ARGUMENT_ERROR + "bitSize must be [4..24] and bitSubShard must be [0..<bitSize]");

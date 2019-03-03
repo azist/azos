@@ -55,7 +55,7 @@ namespace Azos
             (c == '_' || c=='-');
 
     /// <summary>
-    /// Encodes the string value into ulong. The value must contain ASCII only 1 to 8 characters
+    /// Encodes the string value into Atom. The value must contain ASCII only 1 to 8 characters
     /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not be whitespace.
     /// Null is encoded as Atom(0).
     /// <para>
@@ -81,6 +81,42 @@ namespace Azos
         ax |= ((ulong)c << (i * 8));
       }
       return new Atom(ax);
+    }
+
+    /// <summary>
+    /// Tries to encodes a string value into Atom. The value must contain ASCII only 1 to 8 characters
+    /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not be whitespace.
+    /// Null is encoded as Atom(0).
+    /// <para>
+    /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than 1000), having
+    /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as this
+    /// bloats the system Atom intern pool
+    /// </para>
+    /// </summary>
+    public static bool TryEncode(string value, out Atom atom)
+    {
+      atom = new Atom(0ul);
+
+      if (value == null) return true;
+
+      if (value.IsNullOrWhiteSpace() || value.Length>8)
+      {
+        return false;
+      }
+
+      var ax = 0ul;
+      for (var i = 0; i < value.Length; i++)
+      {
+        var c = value[i];
+
+        if (!IsValidChar(c))
+          return false;
+
+        ax |= ((ulong)c << (i * 8));
+      }
+
+      atom = new Atom(ax);
+      return true;
     }
 
     /// <summary>

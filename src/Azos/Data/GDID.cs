@@ -51,7 +51,7 @@ namespace Azos.Data
         /// <summary>
         /// Zero GDID singleton
         /// </summary>
-        public static readonly GDID Zero = new GDID(0, 0ul);
+        public static readonly GDID ZERO = new GDID(0, 0ul);
 
         public readonly UInt32 Era;
         public readonly UInt64 ID;
@@ -246,7 +246,7 @@ namespace Azos.Data
 
         public static bool TryParse(string str, out GDID gdid)
         {
-          gdid = GDID.Zero;
+          gdid = GDID.ZERO;
           if (str==null) return false;
 
           var ic = str.IndexOf(':');

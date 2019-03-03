@@ -134,6 +134,7 @@ namespace Azos.Conf
             TEnum?     ValueAsNullableEnum<TEnum>(TEnum? dflt = null, bool verbatim = false) where TEnum : struct;
             Atom       ValueAsAtom(Atom dflt, bool verbatim = false);
             Atom?      ValueAsNullableAtom(Atom? dflt = null, bool verbatim = false);
+            Uri        ValueAsUri(Uri dflt, bool verbatim = false);
 
 
             /// <summary>

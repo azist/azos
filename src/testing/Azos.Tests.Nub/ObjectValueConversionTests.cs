@@ -628,7 +628,7 @@ namespace Azos.Tests.Nub
         {
           Aver.IsNull(new { _ = "" }.AsUri());
 
-          Aver.Throws<AzosException>(() => Azos.Data.GDID.Zero.AsUri(handling: ConvertErrorHandling.Throw), "GDID.AsUri");
+          Aver.Throws<AzosException>(() => Azos.Data.GDID.ZERO.AsUri(handling: ConvertErrorHandling.Throw), "GDID.AsUri");
 
           object obj = "https://example.com";
 

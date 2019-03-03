@@ -827,7 +827,7 @@ namespace Azos.Data
 
          public static GDID AsGDID(this object val)
          {
-            if (val==null) return GDID.Zero;
+            if (val==null) return GDID.ZERO;
 
             if (val is GDID) return (GDID)val;
 
@@ -1061,5 +1061,53 @@ namespace Azos.Data
              return dflt;
            }
          }
+
+
+    public static Atom AsAtom(this object val)
+    {
+      if (val == null) return Atom.ZERO;
+
+      if (val is Atom existing) return existing;
+
+      if (val is ulong ul) return new Atom(ul);
+
+      if (val is string str)
+      {
+        str = str.Trim();
+        if (Atom.TryEncode(str, out var atom)) return atom;
+      }
+
+      return new Atom(Convert.ToUInt64(val));
     }
+
+    public static Atom AsAtom(this object val, Atom dflt, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+    {
+      try
+      {
+        if (val == null) return dflt;
+        return val.AsAtom();
+      }
+      catch
+      {
+        if (handling != ConvertErrorHandling.ReturnDefault) throw;
+        return dflt;
+      }
+    }
+
+    public static Atom? AsNullableAtom(this object val, Atom? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+    {
+      try
+      {
+        if (val == null) return null;
+        return val.AsAtom();
+      }
+      catch
+      {
+        if (handling != ConvertErrorHandling.ReturnDefault) throw;
+        return dflt;
+      }
+    }
+
+
+  }
 }

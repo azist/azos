@@ -247,7 +247,7 @@ namespace Azos.Tests.Nub.DataAccess
       [Run()]
       public void GDID_Zero()
       {
-        var zero = GDID.Zero;
+        var zero = GDID.ZERO;
         Aver.IsTrue( zero.IsZero );
 
         zero = new GDID(0,1,0);
@@ -268,7 +268,7 @@ namespace Azos.Tests.Nub.DataAccess
         err = row.Validate();
 
         Aver.IsNull(err);
-        row.GDID = GDID.Zero;
+        row.GDID = GDID.ZERO;
         err = row.Validate();
 
         Aver.IsNotNull(err);
@@ -291,7 +291,7 @@ namespace Azos.Tests.Nub.DataAccess
 
         Aver.IsNull(err);
 
-        row.GDID = GDID.Zero;
+        row.GDID = GDID.ZERO;
         err = row.Validate();
 
         Aver.IsNotNull(err);
