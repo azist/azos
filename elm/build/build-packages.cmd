@@ -1,6 +1,7 @@
 @echo on
 
-set VER=1.0.284
+set VER=1.0.300
+set HEADLINE=Added: Atoms support, async WAVE controller methods
 
 call vs2017-build-release %VER%
 
@@ -18,17 +19,17 @@ set ICON=https://raw.githubusercontent.com/azist/azos/master/elm/design/logo/azo
 
 set WARNING=-NoPackageAnalysis
 
-nuget pack Azos.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
-nuget pack Azos.Web.nuspec -Version %VER% %WARNING%  -OutputDirectory "%OUT%" -Properties icon="%ICON%"
-nuget pack Azos.Wave.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
-nuget pack Azos.Media.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
-nuget pack Azos.MongoDb.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
-nuget pack Azos.MySql.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
-nuget pack Azos.MsSql.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
-nuget pack Azos.Oracle.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
-nuget pack Azos.Sky.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
-nuget pack Azos.Sky.MongoDb.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
-nuget pack Azos.WinForms.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%"
+nuget pack Azos.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
+nuget pack Azos.Web.nuspec -Version %VER% %WARNING%  -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
+nuget pack Azos.Wave.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
+nuget pack Azos.Media.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
+nuget pack Azos.MongoDb.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
+nuget pack Azos.MySql.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
+nuget pack Azos.MsSql.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
+nuget pack Azos.Oracle.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
+nuget pack Azos.Sky.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
+nuget pack Azos.Sky.MongoDb.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
+nuget pack Azos.WinForms.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
 
 rem goto :FINISH
 

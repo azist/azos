@@ -10,7 +10,7 @@
     <projectUrl>http://zhabis.com/</projectUrl>
     <iconUrl>$icon$</iconUrl>
     <description>AZOS - A to Z Application OS. MySql Assembly</description>
-    <releaseNotes>Supports both .NET Framework 4.7.2+ and .NET Core 2.0+</releaseNotes>
+    <releaseNotes>$headline$</releaseNotes>
     <copyright>2019 Azist Group</copyright>
     <tags>atoz fullstack full-stack apps net-core big-memory pile slim glue wave cluster zhabis</tags>
     <repository type="GIT" url="https://github.com/azist/azos" />
