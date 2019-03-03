@@ -76,7 +76,7 @@ namespace Azos.Log
     public readonly ILog Log;
 
     /// <summary>Default log message channel</summary>
-    public ASCII8 Channel { get; set; }
+    public Atom Channel { get; set; }
 
     /// <summary>Default log message type</summary>
     public MessageType Type { get; set; }

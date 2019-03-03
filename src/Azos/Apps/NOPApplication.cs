@@ -96,7 +96,7 @@ namespace Azos.Apps
         public bool ForceInvariantCulture { get { return false; } }
 
 
-        public ASCII8 AssetId => ASCII8.ZERO;
+        public Atom AppId => Atom.ZERO;
 
         public Guid InstanceId
         {

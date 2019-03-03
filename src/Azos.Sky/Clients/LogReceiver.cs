@@ -105,7 +105,7 @@ namespace Azos.Sky.Clients
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          /// RemoteException is thrown if the server generated exception during method execution.
          ///</summary>
-         public @Azos.@Log.@Message @GetByID(@System.@Guid  @id, ASCII8  @channel)
+         public @Azos.@Log.@Message @GetByID(@System.@Guid  @id, Atom  @channel)
          {
             var call = Async_GetByID(@id, @channel);
             return call.GetValue<@Azos.@Log.@Message>();
@@ -117,7 +117,7 @@ namespace Azos.Sky.Clients
          ///  returning no exception or WrappedExceptionData instance.
          /// CallSlot is returned that can be queried for CallStatus, ResponseMsg and result.
          ///</summary>
-         public CallSlot Async_GetByID(@System.@Guid  @id, ASCII8  @channel)
+         public CallSlot Async_GetByID(@System.@Guid  @id, Atom  @channel)
          {
             var request = new RequestAnyMsg(s_ts_CONTRACT, @s_ms_GetByID_1, false, RemoteInstance, new object[]{@id, @channel});
             return DispatchCall(request);
@@ -132,7 +132,7 @@ namespace Azos.Sky.Clients
          /// ClientCallException is thrown if the call could not be placed in the outgoing queue.
          /// RemoteException is thrown if the server generated exception during method execution.
          ///</summary>
-         public @System.@Collections.@Generic.@IEnumerable<@Azos.@Log.@Message> @List(ASCII8 channel, @System.@String  @archiveDimensionsFilter, @System.@DateTime  @startDate, @System.@DateTime  @endDate, @System.@Nullable<@Azos.@Log.@MessageType>  @type, @System.@String  @host, @System.@String  @topic, @System.@Nullable<@System.@Guid>  @relatedTo, @System.@Int32  @skipCount)
+         public @System.@Collections.@Generic.@IEnumerable<@Azos.@Log.@Message> @List(Atom channel, @System.@String  @archiveDimensionsFilter, @System.@DateTime  @startDate, @System.@DateTime  @endDate, @System.@Nullable<@Azos.@Log.@MessageType>  @type, @System.@String  @host, @System.@String  @topic, @System.@Nullable<@System.@Guid>  @relatedTo, @System.@Int32  @skipCount)
          {
             var call = Async_List(channel, @archiveDimensionsFilter, @startDate, @endDate, @type, @host, @topic, @relatedTo, @skipCount);
             return call.GetValue<@System.@Collections.@Generic.@IEnumerable<@Azos.@Log.@Message>>();
@@ -144,7 +144,7 @@ namespace Azos.Sky.Clients
          ///  returning no exception or WrappedExceptionData instance.
          /// CallSlot is returned that can be queried for CallStatus, ResponseMsg and result.
          ///</summary>
-         public CallSlot Async_List(ASCII8 channel, @System.@String  @archiveDimensionsFilter, @System.@DateTime  @startDate, @System.@DateTime  @endDate, @System.@Nullable<@Azos.@Log.@MessageType>  @type, @System.@String  @host, @System.@String  @topic, @System.@Nullable<@System.@Guid>  @relatedTo, @System.@Int32  @skipCount)
+         public CallSlot Async_List(Atom channel, @System.@String  @archiveDimensionsFilter, @System.@DateTime  @startDate, @System.@DateTime  @endDate, @System.@Nullable<@Azos.@Log.@MessageType>  @type, @System.@String  @host, @System.@String  @topic, @System.@Nullable<@System.@Guid>  @relatedTo, @System.@Int32  @skipCount)
          {
             var request = new RequestAnyMsg(s_ts_CONTRACT, @s_ms_List_2, false, RemoteInstance, new object[]{ @channel, @archiveDimensionsFilter, @startDate, @endDate, @type, @host, @topic, @relatedTo, @skipCount});
             return DispatchCall(request);

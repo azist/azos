@@ -101,7 +101,7 @@ namespace Azos
       public const string WEB_TOPIC = "Web";
       public const string WAVE_TOPIC = "Wave";
 
-      public static readonly ASCII8 LOG_CHANNEL_SECURITY = ASCII8.Encode("sec");
+      public static readonly Atom LOG_CHANNEL_SECURITY = Atom.Encode("sec");
 
       public const string ISO_LANG_ENGLISH = "eng";
       public const string ISO_LANG_RUSSIAN = "rus";

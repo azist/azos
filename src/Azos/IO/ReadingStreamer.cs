@@ -142,8 +142,8 @@ namespace Azos.IO
 
     public abstract Collections.StringMap  ReadStringMap();
 
-    public abstract ASCII8 ReadASCII8();
-    public abstract ASCII8? ReadNullableASCII8();
+    public abstract Atom ReadAtom();
+    public abstract Atom? ReadNullableAtom();
     #endregion
   }
 }

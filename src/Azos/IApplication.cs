@@ -39,10 +39,10 @@ namespace Azos
 
 
      /// <summary>
-     /// Asset Id is a system unique identifier of this application type (not to be confused with instance).
+     /// Application Id is a system unique identifier of this application type (not to be confused with instance).
      /// Used in cluster/distributed systems for telemetry warehousing among other things
      /// </summary>
-     ASCII8 AssetId { get;}
+     Atom AppId { get;}
 
      /// <summary>
      /// Returns unique identifier of this running instance

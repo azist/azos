@@ -41,8 +41,8 @@ namespace Azos.Log
     #region Private Fields
     private Guid m_Guid;
     private Guid m_RelatedTo;
-    private ASCII8 m_Channel;
-    private ASCII8 m_App;
+    private Atom m_Channel;
+    private Atom m_App;
     private MessageType m_Type;
     private int m_Source;
     private DateTime m_UTCTimeStamp;
@@ -76,7 +76,7 @@ namespace Azos.Log
     /// <summary>
     /// Identifies the emitting application by including it asset identifier, taken from App.AssetId
     /// </summary>
-    public ASCII8 App
+    public Atom App
     {
       get => m_App;
       set => m_App = value;
@@ -85,7 +85,7 @@ namespace Azos.Log
     /// <summary>
     /// Gets/Sets logical partition for messages. This property is usually used in Archive for splitting sinks
     /// </summary>
-    public ASCII8 Channel
+    public Atom Channel
     {
       get => m_Channel;
       set => m_Channel = value;
@@ -198,7 +198,7 @@ namespace Azos.Log
       m_Guid = Guid.NewGuid();
       m_Host = Message.DefaultHostName ?? System.Environment.MachineName;
       m_UTCTimeStamp = Ambient.UTCNow;
-      m_App = Apps.ExecutionContext.Application.AssetId;
+      m_App = Apps.ExecutionContext.Application.AppId;
     }
 
     /// <summary>
@@ -318,8 +318,8 @@ namespace Azos.Log
 
       m_RelatedTo = doc.TryGetObjectValueOf(BSON_FLD_RELATED_TO).AsGUID(Guid.Empty);
 
-      m_Channel = new ASCII8( doc.TryGetObjectValueOf(BSON_FLD_CHANNEL).AsULong(0) );
-      m_App = new ASCII8( doc.TryGetObjectValueOf(BSON_FLD_APP).AsULong(0) );
+      m_Channel = new Atom( doc.TryGetObjectValueOf(BSON_FLD_CHANNEL).AsULong(0) );
+      m_App = new Atom( doc.TryGetObjectValueOf(BSON_FLD_APP).AsULong(0) );
 
       m_Type = doc.TryGetObjectValueOf(BSON_FLD_TYPE).AsEnum(MessageType.Info);
       m_Source = doc.TryGetObjectValueOf(BSON_FLD_SOURCE).AsInt();

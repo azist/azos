@@ -123,8 +123,8 @@ namespace Azos.IO
 
     public abstract void Write(Collections.StringMap map);
 
-    public abstract void Write(ASCII8 value);
-    public abstract void Write(ASCII8? value);
+    public abstract void Write(Atom value);
+    public abstract void Write(Atom? value);
 
     #endregion
   }

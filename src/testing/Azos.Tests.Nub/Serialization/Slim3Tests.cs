@@ -399,12 +399,12 @@ Sprachlernen und -lehren
       {
         var s = new SlimSerializer();
 
-        var dIn = ASCII8.Encode("ABC123");
+        var dIn = Atom.Encode("ABC123");
 
         s.Serialize(ms, dIn);
         ms.Seek(0, SeekOrigin.Begin);
 
-        var dOut = (ASCII8)s.Deserialize(ms);
+        var dOut = (Atom)s.Deserialize(ms);
 
 
         Aver.AreEqual(dOut, dIn);
@@ -419,16 +419,16 @@ Sprachlernen und -lehren
       {
         var s = new SlimSerializer();
 
-        ASCII8? dIn = ASCII8.Encode("ABC123");
+        Atom? dIn = Atom.Encode("ABC123");
 
-        s.Serialize(ms, (ASCII8?)null);
+        s.Serialize(ms, (Atom?)null);
         s.Serialize(ms, dIn);
         ms.Seek(0, SeekOrigin.Begin);
 
-        var dOut = (ASCII8?)s.Deserialize(ms);
+        var dOut = (Atom?)s.Deserialize(ms);
 
         Aver.IsFalse(dOut.HasValue);
-        dOut = (ASCII8?)s.Deserialize(ms);
+        dOut = (Atom?)s.Deserialize(ms);
 
         Aver.IsTrue(dOut.HasValue);
         Aver.AreEqual(dOut, dIn);
@@ -442,11 +442,11 @@ Sprachlernen und -lehren
       public string Name{ get;set;}
       public int Int { get; set; }
 
-      public ASCII8 A1{ get;set;}
-      public ASCII8? A2 { get; set;}
-      public ASCII8? A3 { get; set; }
-      public ASCII8[] A4 { get; set;}
-      public ASCII8?[] A5 { get; set;}
+      public Atom A1{ get;set;}
+      public Atom? A2 { get; set;}
+      public Atom? A3 { get; set; }
+      public Atom[] A4 { get; set;}
+      public Atom?[] A5 { get; set;}
     }
 
 
@@ -461,11 +461,11 @@ Sprachlernen und -lehren
         {
           Name = "Josh",
           Int = 9876500,
-          A1 = new ASCII8(123),
+          A1 = new Atom(123),
           A2 = null,
-          A3 = ASCII8.Encode("abc"),
-          A4 = new []{ASCII8.Encode("a"), ASCII8.Encode("b") },
-          A5 = new ASCII8?[] { null, ASCII8.Encode("b"), null, null, ASCII8.Encode("zzz") }
+          A3 = Atom.Encode("abc"),
+          A4 = new []{Atom.Encode("a"), Atom.Encode("b") },
+          A5 = new Atom?[] { null, Atom.Encode("b"), null, null, Atom.Encode("zzz") }
         };
 
         s.Serialize(ms, dIn);

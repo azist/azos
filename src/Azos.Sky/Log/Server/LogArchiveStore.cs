@@ -47,7 +47,7 @@ namespace Azos.Sky.Log.Server
     /// <summary>
     /// Returns log message by ID
     /// </summary>
-    public virtual Message GetByID(Guid id, ASCII8 channel)
+    public virtual Message GetByID(Guid id, Atom channel)
     {
       Message result;
       if (!TryGetByID(id, out result, channel))
@@ -78,12 +78,12 @@ namespace Azos.Sky.Log.Server
     /// <summary>
     /// Tries to fetch message by ID. Returns true if found
     /// </summary>
-    public abstract bool TryGetByID(Guid id, out Message message, ASCII8 channel);
+    public abstract bool TryGetByID(Guid id, out Message message, Atom channel);
 
     /// <summary>
     /// Returns enumerable of messages according to dimension filter in laconic format
     /// </summary>
-    public abstract IEnumerable<Message> List(ASCII8 channel, string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
+    public abstract IEnumerable<Message> List(Atom channel, string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
       string host = null, string topic = null,
       Guid? relatedTo = null,
       int skipCount = 0);

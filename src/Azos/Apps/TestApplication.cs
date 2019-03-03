@@ -71,7 +71,7 @@ namespace Azos.Apps
 
         public virtual bool ForceInvariantCulture { get; set; }
 
-        public virtual ASCII8 AssetId { get; set; }
+        public virtual Atom AppId { get; set; }
 
         public virtual Guid InstanceId { get { return m_InstanceID;}}
 

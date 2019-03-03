@@ -777,17 +777,17 @@ namespace Azos.IO
       return new Collections.StringMap(senseCase, dict);
     }
 
-    public override ASCII8 ReadASCII8()
+    public override Atom ReadAtom()
     {
       var id = ReadULong();
-      return new ASCII8(id);
+      return new Atom(id);
     }
 
-    public override ASCII8? ReadNullableASCII8()
+    public override Atom? ReadNullableAtom()
     {
       var has = this.ReadBool();
 
-      if (has) return this.ReadASCII8();
+      if (has) return this.ReadAtom();
 
       return null;
     }

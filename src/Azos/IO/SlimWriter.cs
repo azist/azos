@@ -781,12 +781,12 @@ namespace Azos.IO
       }
     }
 
-    public override void Write(ASCII8 value)
+    public override void Write(Atom value)
     {
       this.Write(value.ID);
     }
 
-    public override void Write(ASCII8? value)
+    public override void Write(Atom? value)
     {
       if (value.HasValue)
       {

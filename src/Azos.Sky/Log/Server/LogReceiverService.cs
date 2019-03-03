@@ -32,10 +32,10 @@ namespace Azos.Sky.Log.Server
     public void SendLog(Message data)
       => Service.SendLog(data);
 
-    public Message GetByID(Guid id, ASCII8 channel)
+    public Message GetByID(Guid id, Atom channel)
       => Service.GetByID(id, channel);
 
-    public IEnumerable<Message> List(ASCII8 channel, string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
+    public IEnumerable<Message> List(Atom channel, string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
       string host = null,string topic = null,
       Guid? relatedTo = null, int skipCount = 0)
       => Service.List(channel, archiveDimensionsFilter, startDate, endDate, type, host, topic, relatedTo, skipCount);
@@ -96,12 +96,12 @@ namespace Azos.Sky.Log.Server
       }
     }
 
-    public Message GetByID(Guid id, ASCII8 channel)
+    public Message GetByID(Guid id, Atom channel)
     {
       return m_ArchiveStore.GetByID(id, channel);
     }
 
-    public IEnumerable<Message> List(ASCII8 channel, string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
+    public IEnumerable<Message> List(Atom channel, string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
       string host = null, string topic = null,
       Guid? relatedTo = null, int skipCount = 0)
     {

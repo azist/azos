@@ -22,7 +22,7 @@ namespace Azos.Sky.Log.Server
     public const string CONFIG_MONGO_SECTION = "mongo";
     public const string CONFIG_DEFAULT_CHANNEL_ATTR = "default-channel";
 
-    public static readonly ASCII8 DEFAULT_CHANNEL = ASCII8.Encode("archive");
+    public static readonly Atom DEFAULT_CHANNEL = Atom.Encode("archive");
     public const int DEFAULT_FETCHBY_SIZE = 32;
     public const int MAX_FETCHBY_SIZE = 4 * 1024;
 
@@ -32,7 +32,7 @@ namespace Azos.Sky.Log.Server
     {
       var cstring = ConfigStringBuilder.Build(node, CONFIG_MONGO_SECTION);
       m_Database = App.GetMongoDatabaseFromConnectString( cstring );
-      m_DefaultChannel = node.AttrByName(CONFIG_DEFAULT_CHANNEL_ATTR).ValueAsASCII8(DEFAULT_CHANNEL);
+      m_DefaultChannel = node.AttrByName(CONFIG_DEFAULT_CHANNEL_ATTR).ValueAsAtom(DEFAULT_CHANNEL);
       m_Serializer = new BSONSerializer(node);
       m_Serializer.PKFieldName = Query._ID;
     }
@@ -45,7 +45,7 @@ namespace Azos.Sky.Log.Server
 
     private BSONSerializer m_Serializer;
     private Database m_Database;
-    private ASCII8 m_DefaultChannel;
+    private Atom m_DefaultChannel;
     private int m_FetchBy = DEFAULT_FETCHBY_SIZE;
 
     [Config(Default = DEFAULT_FETCHBY_SIZE)]
@@ -84,7 +84,7 @@ namespace Azos.Sky.Log.Server
       m_Database[channel.Value].Insert(doc);
     }
 
-    public override bool TryGetByID(Guid id, out Message message, ASCII8 channel)
+    public override bool TryGetByID(Guid id, out Message message, Atom channel)
     {
       var query = new Query(
         @"{ '$query': { {0}: '$$id' } }".Args(m_Serializer.PKFieldName), true,
@@ -101,7 +101,7 @@ namespace Azos.Sky.Log.Server
       return true;
     }
 
-    public override IEnumerable<Message> List(ASCII8 channel, string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
+    public override IEnumerable<Message> List(Atom channel, string archiveDimensionsFilter, DateTime startDate, DateTime endDate, MessageType? type = null,
       string host = null, string topic = null, Guid? relatedTo = null, int skipCount = 0)
     {
       var map = Mapper.FilterMap(archiveDimensionsFilter);
@@ -126,7 +126,7 @@ namespace Azos.Sky.Log.Server
     }
 
     private Query buildQuery(
-      ASCII8 channel,
+      Atom channel,
       Dictionary<string, string> archiveDimensionsFilter,
       DateTime startDate, DateTime endDate, MessageType? type = null,
       string host = null, string topic = null,

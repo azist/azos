@@ -1655,7 +1655,7 @@ namespace Azos.Tests.Nub.IO
 
 
     [Run]
-    public void ASCII8Test()
+    public void AtomTest()
     {
       using (var ms = new MemoryStream())
       {
@@ -1665,27 +1665,27 @@ namespace Azos.Tests.Nub.IO
         r.BindStream(ms);
         w.BindStream(ms);
 
-        var a1 = ASCII8.Encode("SNAKE123");
+        var a1 = Atom.Encode("SNAKE123");
 
         w.Write(a1);
 
         ms.Seek(0, SeekOrigin.Begin);
 
-        Aver.AreEqual(a1, r.ReadASCII8());
+        Aver.AreEqual(a1, r.ReadAtom());
 
         ms.Seek(0, SeekOrigin.Begin);
-        var a2 = new ASCII8(0);
+        var a2 = new Atom(0);
 
         w.Write(a2);
 
         ms.Seek(0, SeekOrigin.Begin);
 
-        Aver.AreEqual(a2, r.ReadASCII8());
+        Aver.AreEqual(a2, r.ReadAtom());
       }
     }
 
     [Run]
-    public void NullableASCII8()
+    public void NullableAtom()
     {
       using (var ms = new MemoryStream())
       {
@@ -1695,15 +1695,15 @@ namespace Azos.Tests.Nub.IO
         r.BindStream(ms);
         w.BindStream(ms);
 
-        var a1 = ASCII8.Encode("autoexec");
+        var a1 = Atom.Encode("autoexec");
 
-        w.Write((ASCII8?)null);
-        w.Write((ASCII8?)a1);
+        w.Write((Atom?)null);
+        w.Write((Atom?)a1);
 
         ms.Seek(0, SeekOrigin.Begin);
 
-        Aver.IsFalse(r.ReadNullableASCII8().HasValue);
-        Aver.AreEqual(a1, r.ReadNullableASCII8());
+        Aver.IsFalse(r.ReadNullableAtom().HasValue);
+        Aver.AreEqual(a1, r.ReadNullableAtom());
       }
     }
 

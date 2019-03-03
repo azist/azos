@@ -11,12 +11,12 @@ using Azos.Scripting;
 namespace Azos.Tests.Nub
 {
   [Runnable]
-  public class ASCII8Tests
+  public class AtomTests
   {
     [Run]
     public void Zero()
     {
-      var x = new ASCII8(0);
+      var x = new Atom(0);
       Aver.IsTrue( x.IsZero );
       Aver.AreEqual(0ul, x.ID);
       Aver.IsTrue( x.IsValid );
@@ -25,17 +25,17 @@ namespace Azos.Tests.Nub
     [Run]
     public void Zero_ToString_Value()
     {
-      var x = new ASCII8(0);
+      var x = new Atom(0);
       Console.WriteLine(x.ToString());
-      Aver.AreEqual("ASC8(zero)", x.ToString());
+      Aver.AreEqual("Atom(zero)", x.ToString());
       Aver.IsNull( x.Value );
     }
 
     [Run]
     public void Zero_Equality()
     {
-      var x = new ASCII8(0);
-      var y = new ASCII8(0);
+      var x = new Atom(0);
+      var y = new Atom(0);
       Aver.AreEqual(x, y);
       Aver.IsTrue(x==y);
     }
@@ -43,8 +43,8 @@ namespace Azos.Tests.Nub
     [Run]
     public void Zero_InEquality()
     {
-      var x = new ASCII8(0);
-      var y = new ASCII8(1);
+      var x = new Atom(0);
+      var y = new Atom(1);
       Aver.AreNotEqual(x, y);
       Aver.IsTrue(x != y);
     }
@@ -52,22 +52,22 @@ namespace Azos.Tests.Nub
     [Run]
     public void Test_ToString()
     {
-      var x = new ASCII8(0x3041304130413041ul);
-      Aver.AreEqual("ASC8(0x3041304130413041, `A0A0A0A0`)", x.ToString());
+      var x = new Atom(0x3041304130413041ul);
+      Aver.AreEqual("Atom(0x3041304130413041, `A0A0A0A0`)", x.ToString());
     }
 
     [Run]
     public void Encode_ToString()
     {
-      var x = ASCII8.Encode("ALEX");
-      Aver.AreEqual("ASC8(0x58454C41, `ALEX`)", x.ToString());
+      var x = Atom.Encode("ALEX");
+      Aver.AreEqual("Atom(0x58454C41, `ALEX`)", x.ToString());
     }
 
     [Run]
     public void Encode_Decode()
     {
-      var x = ASCII8.Encode("ALEX1234");
-      var y = new ASCII8(x.ID);
+      var x = Atom.Encode("ALEX1234");
+      var y = new Atom(x.ID);
       Aver.AreEqual(x, y);
       Aver.AreEqual("ALEX1234", y.Value);
     }
@@ -75,8 +75,8 @@ namespace Azos.Tests.Nub
     [Run]
     public void Hashcodes()
     {
-      var x = ASCII8.Encode("ALEX1234");
-      var y = new ASCII8(x.ID);
+      var x = Atom.Encode("ALEX1234");
+      var y = new Atom(x.ID);
       Aver.AreEqual(x, y);
       Aver.AreEqual(x.GetHashCode(), y.GetHashCode());
       Aver.AreEqual(x.GetDistributedStableHash(), y.GetDistributedStableHash());
@@ -86,7 +86,7 @@ namespace Azos.Tests.Nub
     [Run]
     public void Encode_Null()
     {
-      var x = ASCII8.Encode(null);
+      var x = Atom.Encode(null);
       Aver.AreEqual(0ul, x.ID);
       Aver.IsTrue(x.IsZero);
     }
@@ -94,27 +94,27 @@ namespace Azos.Tests.Nub
     [Run, Aver.Throws(typeof(AzosException), Message = "blank")]
     public void Error_Empty()
     {
-       var x = ASCII8.Encode("");
+       var x = Atom.Encode("");
     }
 
     [Run, Aver.Throws(typeof(AzosException), Message = "1 and 8")]
     public void Error_ToLong()
     {
-      var x = ASCII8.Encode("123456789");
+      var x = Atom.Encode("123456789");
     }
 
     [Run, Aver.Throws(typeof(AzosException), Message = "![0..9")]
     public void Error_NonAscii()
     {
-      var x = ASCII8.Encode("ag²■");
+      var x = Atom.Encode("ag²■");
     }
 
     [Run]
     public void VarLength()
     {
-      var x = ASCII8.Encode("a");
+      var x = Atom.Encode("a");
       Console.WriteLine(x.ToString());
-      var y = ASCII8.Encode("ab");
+      var y = Atom.Encode("ab");
       Console.WriteLine(y.ToString());
 
       Aver.AreEqual(0x61ul, x.ID);
@@ -124,14 +124,32 @@ namespace Azos.Tests.Nub
     [Run]
     public void IsValid()
     {
-      var x = new ASCII8(0);
+      var x = new Atom(0);
       Aver.IsTrue(x.IsZero);
       Aver.IsTrue(x.IsValid);
 
-      x = new ASCII8(0xffff);
+      x = new Atom(0xffff);
       Aver.IsFalse(x.IsValid);
       Aver.Throws<AzosException>(()=>x.Value.ToLower());
     }
 
+    [Run]
+    public void ValueInterning()
+    {
+      var x = Atom.Encode("abc");
+      var y = Atom.Encode("abc");
+      var z = new Atom(x.ID);
+
+      Aver.AreEqual(x, y);
+      Aver.AreEqual(x, z);
+
+      Aver.AreEqual("abc", x.Value);
+      Aver.AreEqual("abc", y.Value);
+      Aver.AreEqual("abc", z.Value);
+
+      Aver.AreNotSameRef("abc", x.Value);
+      Aver.AreSameRef(x.Value, y.Value);
+      Aver.AreSameRef(x.Value, z.Value);
+    }
   }
 }
