@@ -189,7 +189,7 @@ namespace Azos.Sky.Identification
           {
             if (errors==null) errors = new StringBuilder();
             errors.AppendLine( "Path '{0}'. Exception: {1}".Args(location, error.ToMessageWithType()) );
-            Log(MessageType.CriticalAlert, "WriteToLocations()", location.ToString(), error, guid);
+            WriteLog(MessageType.CriticalAlert, "WriteToLocations()", location.ToString(), error, guid);
             Instrumentation.AuthLocationWriteFailureEvent.Happened(App.Instrumentation, location.ToString());//Location-level
           }
 
@@ -197,7 +197,7 @@ namespace Azos.Sky.Identification
         {
           var txt = StringConsts.GDIDAUTH_LOCATION_PERSISTENCE_FAILURE_ERROR + ( errors!=null ? errors.ToString() : "no locations");
 
-          Log(MessageType.CatastrophicError, "WriteToLocations()", txt, null, guid);
+          WriteLog(MessageType.CatastrophicError, "WriteToLocations()", txt, null, guid);
 
           Instrumentation.AuthLocationWriteTotalFailureEvent.Happened(App.Instrumentation);//TOTAL-LEVEL(for all locations)
 
@@ -232,7 +232,7 @@ namespace Azos.Sky.Identification
                 if (errors==null) errors = new StringBuilder();
                 var txt = "Location '{0}' had a later sequence value '{1}' than prior location".Args(location, got.Value);
                 errors.AppendLine(txt);
-                Log(MessageType.CriticalAlert, "ReadFromLocations()", txt, null, guid);
+                WriteLog(MessageType.CriticalAlert, "ReadFromLocations()", txt, null, guid);
               }
             }
             first = false;
@@ -242,7 +242,7 @@ namespace Azos.Sky.Identification
             if (errors==null) errors = new StringBuilder();
             var txt = "Error at location '{0}': {1}".Args(location, error.ToMessageWithType());
             errors.AppendLine(txt);
-            Log(MessageType.CriticalAlert, "ReadFromLocations()", txt, null, guid);
+            WriteLog(MessageType.CriticalAlert, "ReadFromLocations()", txt, null, guid);
             Instrumentation.AuthLocationReadFailureEvent.Happened(App.Instrumentation, location.ToString());//LOCATION-LEVEL
             throw;
           }
@@ -252,7 +252,7 @@ namespace Azos.Sky.Identification
         {
           var txt = StringConsts.GDIDAUTH_LOCATIONS_READ_FAILURE_ERROR + ( errors!=null ? errors.ToString() : "no locations");
 
-          Log(MessageType.CatastrophicError, "ReadFromLocations()", txt, null, guid);
+          WriteLog(MessageType.CatastrophicError, "ReadFromLocations()", txt, null, guid);
 
           Instrumentation.AuthLocationReadTotalFailureEvent.Happened(App.Instrumentation);//TOTAL-LEVEL
 
@@ -260,22 +260,6 @@ namespace Azos.Sky.Identification
         }
 
         return result ?? new _id(0, 0);
-      }
-
-      protected void Log(MessageType type, string from, string msg, Exception error = null, Guid? batch = null)
-      {
-        var lm = new Message{
-               Type = type,
-               Topic = SysConsts.LOG_TOPIC_ID_GEN,
-                From = "{0}.{1}".Args(GetType().Name, from),
-                Text = msg,
-                Exception = error
-            };
-
-        if (batch.HasValue)
-          lm.RelatedTo = batch.Value;
-
-        App.Log.Write( lm );
       }
 
     #endregion

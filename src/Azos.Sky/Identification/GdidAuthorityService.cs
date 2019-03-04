@@ -81,7 +81,7 @@ namespace Azos.Sky.Identification
             throw new GdidException(StringConsts.GDIDAUTH_IDS_INVALID_AUTHORITY_VALUE_ERROR.Args(id));
 
         m_AuthorityIDs = value;
-        Log(MessageType.Warning, "AuthorityIDs.set()", StringConsts.GDIDAUTH_AUTHORITY_ASSIGNMENT_WARNING.Args(value.ToDumpString(DumpFormat.Hex)));
+        WriteLog(MessageType.Warning, "AuthorityIDs.set()", StringConsts.GDIDAUTH_AUTHORITY_ASSIGNMENT_WARNING.Args(value.ToDumpString(DumpFormat.Hex)));
       }
     }
 
@@ -156,30 +156,30 @@ namespace Azos.Sky.Identification
           sequence.Value = id.Value;
         }
 
-        //1. make a local copy of vars, that may mutate but dont get committed until written to disk
+        //1. make a local copy of vars, that may mutate but don't get committed until written to disk
         var era = sequence.Era;
         var value = sequence.Value;
 
         //1.1 make sure that GDID.Zero is never returned
-        if (authority==0 && era==0 && value==0) value = 1;//Don't start value from Zero in ERA=0 and Autority=0
+        if (authority==0 && era==0 && value==0) value = 1;//Don't start value from Zero in ERA=0 and Authority=0
 
         if (value >= GDID.COUNTER_MAX - (ulong)(blockSize + 1))//its time to update ERA (+1 for safeguard/edge case)
         {
             if (era==uint.MaxValue-4)//ALERT, with some room
             {
-              Log(MessageType.CriticalAlert, "allocate()", StringConsts.GDIDAUTH_ERA_EXHAUSTED_ALERT.Args(scopeName, sequenceName));
+              WriteLog(MessageType.CriticalAlert, "allocate()", StringConsts.GDIDAUTH_ERA_EXHAUSTED_ALERT.Args(scopeName, sequenceName));
             }
             if (era==uint.MaxValue) //hard stop
             {
               var txt = StringConsts.GDIDAUTH_ERA_EXHAUSTED_ERROR.Args(scopeName, sequenceName);
-              Log(MessageType.CatastrophicError, "allocate()", txt);
+              WriteLog(MessageType.CatastrophicError, "allocate()", txt);
               throw new GdidException( txt );
             }
 
             era++;
             value = 0;
             Instrumentation.AuthEraPromotedEvent.Happened(App.Instrumentation, scopeName, sequenceName );
-            Log(MessageType.Warning, "allocate()", StringConsts.GDIDAUTH_ERA_PROMOTED_WARNING.Args(scopeName, sequenceName, era));
+            WriteLog(MessageType.Warning, "allocate()", StringConsts.GDIDAUTH_ERA_PROMOTED_WARNING.Args(scopeName, sequenceName, era));
         }
 
         result.Era = era;
