@@ -19,6 +19,16 @@ using Azos.Sky.Contracts;
 
 namespace Azos.Sky.Identification
 {
+
+  /// <summary>
+  /// Implemented by custom entities that transact GdidAuthority for getting new blocks
+  /// </summary>
+  public interface IGdidAuthorityAccessor
+  {
+    GdidBlock AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity = GDID.COUNTER_MAX);
+  }
+
+
   /// <summary>
   /// Generates Global Distributed IDs (GDID).
   /// This class is thread safe (for calling Generate)
@@ -214,13 +224,19 @@ namespace Azos.Sky.Identification
 
     #region .ctor
 
-    public GdidGenerator(IApplication app) : base(app) => ctor(null, null, null);
-    public GdidGenerator(IApplication app, string name) : base(app) => ctor(name, null, null);
-    public GdidGenerator(IApplicationComponent director, string name) : base(director) => ctor(name, null, null);
+    public GdidGenerator(IApplication app) : base(app) => ctor(null, null, null, null);
+    public GdidGenerator(IApplication app, string name) : base(app) => ctor(name, null, null, null);
+    public GdidGenerator(IApplicationComponent director, string name) : base(director) => ctor(name, null, null, null);
     public GdidGenerator(IApplicationComponent director, string name, string scopePrefix, string sequencePrefix) : base(director)
-      => ctor(name, scopePrefix, sequencePrefix);
+      => ctor(name, scopePrefix, sequencePrefix, null);
 
-    private void ctor(string name, string scopePrefix, string sequencePrefix)
+    public GdidGenerator(IApplication app, IGdidAuthorityAccessor accessor) : base(app) => ctor(null, null, null, accessor);
+    public GdidGenerator(IApplication app, string name, IGdidAuthorityAccessor accessor) : base(app) => ctor(name, null, null, accessor);
+    public GdidGenerator(IApplicationComponent director, string name, IGdidAuthorityAccessor accessor) : base(director) => ctor(name, null, null, accessor);
+    public GdidGenerator(IApplicationComponent director, string name, string scopePrefix, string sequencePrefix, IGdidAuthorityAccessor accessor) : base(director)
+      => ctor(name, scopePrefix, sequencePrefix, accessor);
+
+    private void ctor(string name, string scopePrefix, string sequencePrefix, IGdidAuthorityAccessor accessor)
     {
       if (name.IsNullOrWhiteSpace())
         name = Guid.NewGuid().ToString();
@@ -232,6 +248,8 @@ namespace Azos.Sky.Identification
 
       m_SequencePrefix = sequencePrefix;
       if (m_SequencePrefix!=null) m_SequencePrefix = m_SequencePrefix.Trim();
+
+      m_AuthorityAccessor = accessor;//may be null
     }
     #endregion
 
@@ -243,6 +261,7 @@ namespace Azos.Sky.Identification
 
     private bool m_BlockWasAllocated;
     private string m_TestingAuthorityNode;
+    private IGdidAuthorityAccessor m_AuthorityAccessor;
 
     private string m_ScopePrefix;
     private string m_SequencePrefix;
@@ -543,10 +562,24 @@ namespace Azos.Sky.Identification
         blockSize = MIN_BLOCK_SZ + (int)((NORM_AUTH_CALL_EVERY_SEC * NORM_IDS_PER_SEC) / avg);
       }
 ////Console.WriteLine("|--------------------> Block size is: "+blockSize);
-      if (m_TestingAuthorityNode.IsNullOrWhiteSpace())
-        return allocateBlockInSystem(seq.Scope.Name, seq.Name, blockSize, vicinity);
-      else
+      return allocateBlockSomewhere(seq, blockSize, vicinity);
+    }
+
+
+    private GdidBlock allocateBlockSomewhere(sequence seq, int blockSize, ulong? vicinity)
+    {
+      if (m_TestingAuthorityNode.IsNotNullOrWhiteSpace())
+      {
         return allocateBlockInTesting(seq.Scope.Name, seq.Name, blockSize, vicinity);
+      }
+      else
+      {
+        var accessor = m_AuthorityAccessor;//ts copy
+        if (accessor != null)
+          return accessor.AllocateBlock(seq.Scope.Name, seq.Name, blockSize, vicinity);
+        else
+          return allocateBlockInSystem(seq.Scope.Name, seq.Name, blockSize, vicinity);
+      }
     }
 
 

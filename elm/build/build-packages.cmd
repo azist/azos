@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.300
-set HEADLINE=Added: Atoms support, async WAVE controller methods
+set VER=1.0.301
+set HEADLINE=Added: IGdidAuthorityAccessor for GdidGenerator
 
 call vs2017-build-release %VER%
 
