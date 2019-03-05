@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.301
-set HEADLINE=Added: IGdidAuthorityAccessor for GdidGenerator
+set VER=1.0.302
+set HEADLINE=Added: MockGdidAuthorityAccessor
 
 call vs2017-build-release %VER%
 

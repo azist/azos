@@ -56,6 +56,26 @@ namespace Azos
       was.Dispose();
       return true;
     }
+
+    /// <summary>
+    /// Checks to see if the reference is not null and sets it to null in a thread-safe way then calls Dispose()
+    /// if the reference is IDisposable.
+    /// Returns false if it is already null or not the original reference or the original reference is not IDisposable
+    /// </summary>
+    public static bool DisposeIfDisposableAndNull<T>(ref T obj) where T : class
+    {
+      var original = obj;
+      var was = Interlocked.CompareExchange(ref obj, null, original);
+      if (was == null || !object.ReferenceEquals(was, original)) return false;
+
+      if (was is IDisposable disposable)
+      {
+        disposable.Dispose();
+        return true;
+      }
+
+      return false;
+    }
     #endregion
 
     #region .ctor / .dctor
