@@ -112,6 +112,10 @@ namespace Azos.Serialization.Arow
       {typeof(Serialization.JSON.NLSMap[]),     null},
       {typeof(List<Serialization.JSON.NLSMap>), null},
 
+      {typeof(Atom),       null},
+      {typeof(Atom[]),     null},
+      {typeof(List<Atom>), null},
+
     };
 
 
@@ -580,7 +584,22 @@ namespace Azos.Serialization.Arow
         streamer.Write(e);
     }
 
+    public static void Write(WritingStreamer streamer, ulong name, Atom value)
+    {
+      streamer.Write(name);
+      streamer.Write((byte)DataType.Atom);
+      streamer.Write(value);
+    }
 
+    public static void Write(WritingStreamer streamer, ulong name, IEnumerable<Atom> array)
+    {
+      streamer.Write(name);
+      streamer.Write((byte)DataType.Array);
+      streamer.Write((byte)DataType.Atom);
+      streamer.Write(array.Count());
+      foreach (var e in array)
+        streamer.Write(e);
+    }
 
   }
 }

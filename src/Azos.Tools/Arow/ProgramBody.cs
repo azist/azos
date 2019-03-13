@@ -63,7 +63,7 @@ namespace Azos.Tools.Arow
       using(var generator = new CodeGenerator())
       {
         generator.RootPath = path;
-        generator.CodeSegregation = config.Root["c", "code"].ValueAsEnum(CodeGenerator.GeneratedCodeSegregation.FilePerNamespace);
+        generator.CodeSegregation = config.Root["c", "code"].AttrByIndex(0).ValueAsEnum(CodeGenerator.GeneratedCodeSegregation.FilePerNamespace);
         generator.Generate( assembly );
       }
     }

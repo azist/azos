@@ -43,7 +43,6 @@ namespace Azos.Serialization.Arow
     /// <summary>
     /// Registers all entities in the specified assembly which implement ITypeSerializationCore interface
     /// </summary>
-    /// <param name="asm"></param>
     public static void RegisterTypeSerializationCores(Assembly asm)
     {
       var allTypes = asm.NonNull(nameof(asm)).GetTypes();
@@ -116,7 +115,7 @@ namespace Azos.Serialization.Arow
     }
 
     /// <summary>
-    /// Registers ITypeSerializationCore so it can be used globaly to serialize TypedRows in Arow format
+    /// Registers ITypeSerializationCore so it can be used globally to serialize TypedRows in Arow format
     /// </summary>
     public static bool Register(Type tRow, ITypeSerializationCore core)
     {

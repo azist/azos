@@ -10,6 +10,7 @@ using System.Runtime.Serialization;
 using Azos.Data;
 using Azos.Apps;
 using Azos.Serialization.BSON;
+using Azos.Serialization.Arow;
 
 namespace Azos
 {
@@ -120,7 +121,7 @@ namespace Azos
   /// <summary>
   /// Marshals exception details
   /// </summary>
-  [Serializable]
+  [Serializable, Arow]
   [BSONSerializable("A339F46F-6637-4396-B148-094BAFFB4BE6")]
   public sealed class WrappedExceptionData : TypedDoc, IBSONSerializable, IBSONDeserializable
   {

@@ -12,13 +12,14 @@ using System.Runtime.CompilerServices;
 using Azos.Data;
 using Azos.Serialization.JSON;
 using Azos.Serialization.BSON;
+using Azos.Serialization.Arow;
 
 namespace Azos.Log
 {
   /// <summary>
   /// Represents a Log message
   /// </summary>
-  [Serializable]
+  [Serializable, Arow]
   [BSONSerializable("A05AEE0F-A33C-4B1D-AA45-CDEAF894A095")]
   public sealed class Message : TypedDoc, IArchiveLoggable
   {

@@ -46,7 +46,8 @@ namespace Azos.Serialization.Arow
     GDID,
     FID,
     PilePointer,
-    NLSMap
+    NLSMap,
+    Atom
   }
 
 }
