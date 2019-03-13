@@ -20,7 +20,7 @@ namespace Azos.Sky.Contracts
   [LifeCycle(ServerInstanceMode.Singleton)]
   public interface IGdidAuthority : ISkyService
   {
-      GdidBlock AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity = GDID.COUNTER_MAX);
+    GdidBlock AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity = GDID.COUNTER_MAX);
   }
 
   /// <summary>
@@ -28,7 +28,7 @@ namespace Azos.Sky.Contracts
   /// </summary>
   public interface IGdidAuthorityClient : ISkyServiceClient, IGdidAuthority
   {
-
+    CallSlot Async_AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity = GDID.COUNTER_MAX);
   }
 
 

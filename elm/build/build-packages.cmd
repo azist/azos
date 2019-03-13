@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.302
-set HEADLINE=Added: MockGdidAuthorityAccessor
+set VER=1.0.303
+set HEADLINE=Added Async IGdidAuthorityAccessor and async client for gdid auth
 
 call vs2017-build-release %VER%
 

@@ -25,7 +25,7 @@ namespace Azos.Sky.Identification
   /// </summary>
   public interface IGdidAuthorityAccessor
   {
-    Task<GdidBlock> AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity = GDID.COUNTER_MAX);
+    Task<GdidBlock> AllocateBlockAsync(string scopeName, string sequenceName, int blockSize, ulong? vicinity = GDID.COUNTER_MAX);
   }
 
 
@@ -576,7 +576,7 @@ namespace Azos.Sky.Identification
       {
         var accessor = m_AuthorityAccessor;//ts copy
         if (accessor != null)
-          return accessor.AllocateBlock(seq.Scope.Name, seq.Name, blockSize, vicinity).GetAwaiter().GetResult();//in future this may be refactored to async however this has very little practical sense as the method is rarely called
+          return accessor.AllocateBlockAsync(seq.Scope.Name, seq.Name, blockSize, vicinity).GetAwaiter().GetResult();//in future this may be refactored to async however this has very little practical sense as the method is rarely called
         else
           return allocateBlockInSystem(seq.Scope.Name, seq.Name, blockSize, vicinity);
       }

@@ -27,7 +27,7 @@ namespace Azos.Serialization.Arow
   }
 
   /// <summary>
-  /// Facade for performing Arow serilalization.
+  /// Facade for performing Arow serialization.
   /// Arow format is purposely designed for "[a]daptable [row]"/version tolerant serialization that eschews creating extra copies and
   /// object instances. The serializer is used in conjunction with cl compiler that generates type-specific static serializer cores
   /// for every type that supports the format

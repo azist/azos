@@ -159,12 +159,12 @@ namespace Azos.Instrumentation
     private static Dictionary<Type, IEnumerable<Type>> s_ViewGroupInterfaces = new Dictionary<Type, IEnumerable<Type>>();
 
     /// <summary>
-    /// Returns Datum classification interfaces marked with InstrumentViewGroup attribute. The implementation is cached fr efficiency
+    /// Returns Datum classification interfaces marked with InstrumentViewGroup attribute. The implementation is cached for efficiency
     /// </summary>
     public IEnumerable<Type> ViewGroupInterfaces { get { return GetViewGroupInterfaces(GetType()); } }
 
     /// <summary>
-    /// Returns Datum classification interfaces marked with InstrumentViewGroup attribute. The implementation is cached fr efficiency
+    /// Returns Datum classification interfaces marked with InstrumentViewGroup attribute. The implementation is cached for efficiency
     /// </summary>
     public static IEnumerable<Type> GetViewGroupInterfaces(Type tDatum)
     {

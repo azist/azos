@@ -16,7 +16,7 @@ namespace Azos.Sky.Identification
     private NamedInterlocked m_Data = new NamedInterlocked();
 
 
-    public Task<GdidBlock> AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity = 1152921504606846975)
+    public Task<GdidBlock> AllocateBlockAsync(string scopeName, string sequenceName, int blockSize, ulong? vicinity = 1152921504606846975)
     {
       var key = scopeName+"::"+sequenceName;
 
