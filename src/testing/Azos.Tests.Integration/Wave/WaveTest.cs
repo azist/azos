@@ -328,7 +328,7 @@ namespace Azos.Tests.Integration.Wave
           var str = r.ToJSON(JSONWritingOptions.CompactRowsAsMap);
 
           var map = JSONReader.DeserializeDataObject(str) as JSONDataMap;
-          var gotRow = JSONReader.ToRow<WaveTestSite.Controllers.IntegrationTester.SpanDoc>(map);
+          var gotRow = JSONReader.ToDoc<WaveTestSite.Controllers.IntegrationTester.SpanDoc>(map);
         }
 
         [Run]
@@ -344,7 +344,7 @@ namespace Azos.Tests.Integration.Wave
             Aver.AreEqual("application/json", wc.ResponseHeaders[HttpResponseHeader.ContentType]);
 
             var map = JSONReader.DeserializeDataObject(str) as JSONDataMap;
-            var gotRow = JSONReader.ToRow<TestRow>(map);
+            var gotRow = JSONReader.ToDoc<TestRow>(map);
           }
         }
 
@@ -374,7 +374,7 @@ namespace Azos.Tests.Integration.Wave
             var res = wc.UploadString(INTEGRATION_HTTP_ADDR + "ComplexRowSet", str);
 
             var map = JSONReader.DeserializeDataObject(res) as JSONDataMap;
-            var gotRow = JSONReader.ToRow<TestComplexRow>(map);
+            var gotRow = JSONReader.ToDoc<TestComplexRow>(map);
 
             Aver.AreEqual(initalRow.ID + 1, gotRow.ID);
             Aver.AreEqual(initalRow.Doc1.ID + 2, gotRow.Doc1.ID);
@@ -416,7 +416,7 @@ namespace Azos.Tests.Integration.Wave
             var res = wc.UploadString(INTEGRATION_HTTP_ADDR + actionName, str);
 
             var map = JSONReader.DeserializeDataObject(res) as JSONDataMap;
-            var gotRow = JSONReader.ToRow<TestRow>(map);
+            var gotRow = JSONReader.ToDoc<TestRow>(map);
 
             Aver.AreEqual(gotRow.ID, 777);
             Aver.AreEqual(gotRow.Name, "sss");

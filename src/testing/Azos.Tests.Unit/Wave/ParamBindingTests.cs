@@ -119,7 +119,7 @@ namespace Azos.Tests.Unit.Wave
       var got = (await response.Content.ReadAsStringAsync()).JSONToDataObject() as JSONDataMap;
       Aver.IsNotNull(got);
 
-      var data = JSONReader.ToRow<Controllers.ModelA>(got);
+      var data = JSONReader.ToDoc<Controllers.ModelA>(got);
 
       Aver.IsNotNull(data);
       Aver.AreEqual("xz1234", data.ID);
@@ -153,7 +153,7 @@ namespace Azos.Tests.Unit.Wave
       var got = (await response.Content.ReadAsStringAsync()).JSONToDataObject() as JSONDataMap;
       Aver.IsNotNull(got);
 
-      var data = JSONReader.ToRow<Controllers.ModelA>(got);
+      var data = JSONReader.ToDoc<Controllers.ModelA>(got);
 
       Aver.IsNotNull(data);
       Aver.AreEqual("xz1234", data.ID);

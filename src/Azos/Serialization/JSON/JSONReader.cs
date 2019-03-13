@@ -6,11 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO;
 
-using Azos.CodeAnalysis;
 using Azos.CodeAnalysis.Source;
 using Azos.CodeAnalysis.JSON;
 using Azos.Data;
@@ -103,7 +101,7 @@ namespace Azos.Serialization.JSON
             /// <summary>
             /// Converts JSONMap into typed data document of the requested type.
             /// The requested type must be derived from Azos.Data.TypedDoc.
-            /// The extra data found in JSON map will be placed in AmorphousData dictionary if the row implemets IAmorphousData, discarded otherwise.
+            /// The extra data found in JSON map will be placed in AmorphousData dictionary if the row implements IAmorphousData, discarded otherwise.
             /// Note: This method provides "the best match" and does not guarantee that all data will/can be converted from JSON, i.e.
             ///  it can only convert one dimensional arrays and Lists of either primitive or TypeRow-derived entries
             /// </summary>
@@ -122,15 +120,15 @@ namespace Azos.Serialization.JSON
               }
               catch(Exception error)
               {
-                throw new JSONDeserializationException("JSONReader.ToRow(jsonMap) error in '{0}': {1}".Args(field, error.ToMessageWithType()), error);
+                throw new JSONDeserializationException("JSONReader.ToDoc(jsonMap) error in '{0}': {1}".Args(field, error.ToMessageWithType()), error);
               }
             }
 
             /// <summary>
-            /// Generic version of ToRow(Type, JSONDataMap, bool)/>
+            /// Generic version of ToDoc(Type, JSONDataMap, bool)/>
             /// </summary>
-            /// <typeparam name="T">TypedRow</typeparam>
-            public static T ToRow<T>(JSONDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null) where T: TypedDoc
+            /// <typeparam name="T">TypedDoc</typeparam>
+            public static T ToDoc<T>(JSONDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null) where T: TypedDoc
             {
               return ToDoc(typeof(T), jsonMap, fromUI, nameBinding) as T;
             }
@@ -138,7 +136,7 @@ namespace Azos.Serialization.JSON
 
             /// <summary>
             /// Converts JSONMap into supplied row instance.
-            /// The extra data found in JSON map will be placed in AmorphousData dictionary if the row implemets IAmorphousData, discarded otherwise.
+            /// The extra data found in JSON map will be placed in AmorphousData dictionary if the row implements IAmorphousData, discarded otherwise.
             /// Note: This method provides "the best match" and does not guarantee that all data will/can be converted from JSON, i.e.
             ///  it can only convert one dimensional arrays and Lists of either primitive or TypeRow-derived entries
             /// </summary>
@@ -149,7 +147,7 @@ namespace Azos.Serialization.JSON
             public static void ToDoc(Doc doc, JSONDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null)
             {
               if (doc == null || jsonMap == null)
-                throw new JSONDeserializationException(StringConsts.ARGUMENT_ERROR + "JSONReader.ToRow(row|jsonMap=null)");
+                throw new JSONDeserializationException(StringConsts.ARGUMENT_ERROR + "JSONReader.ToDoc(doc|jsonMap=null)");
               var field = "";
               try
               {
@@ -157,11 +155,9 @@ namespace Azos.Serialization.JSON
               }
               catch (Exception error)
               {
-                throw new JSONDeserializationException("JSONReader.ToRow(row, jsonMap) error in '{0}': {1}".Args(field, error.ToMessageWithType()), error);
+                throw new JSONDeserializationException("JSONReader.ToDoc(doc, jsonMap) error in '{0}': {1}".Args(field, error.ToMessageWithType()), error);
               }
             }
-
-
 
 
             private static TypedDoc toTypedDoc(Type type, NameBinding? nameBinding, JSONDataMap jsonMap, ref string field, bool fromUI)
@@ -171,6 +167,7 @@ namespace Azos.Serialization.JSON
               return doc;
             }
 
+//todo Refactor to lower method complexity
             private static void toDoc(Doc doc, NameBinding nameBinding, JSONDataMap jsonMap, ref string field, bool fromUI)
             {
               var amorph = doc as IAmorphousData;
@@ -358,50 +355,50 @@ namespace Azos.Serialization.JSON
 
         #endregion
 
-        #region .pvt .impl
+        #region .pvt
 
-            private static dynamic deserializeDynamic(object root)
-            {
-                var data = deserializeObject(root);
-                if (data == null) return null;
+          private static dynamic deserializeDynamic(object root)
+          {
+              var data = deserializeObject(root);
+              if (data == null) return null;
 
-                return new JSONDynamicObject( data );
-            }
+              return new JSONDynamicObject( data );
+          }
 
-            private static IJSONDataObject deserializeObject(object root)
-            {
-                if (root==null) return null;
+          private static IJSONDataObject deserializeObject(object root)
+          {
+              if (root==null) return null;
 
-                var data = root as IJSONDataObject;
+              var data = root as IJSONDataObject;
 
-                if (data == null)
-                  data = new JSONDataMap{{"value", root}};
+              if (data == null)
+                data = new JSONDataMap{{"value", root}};
 
-                return data;
-            }
+              return data;
+          }
 
-            private static object read(Stream stream, Encoding encoding, bool caseSensitiveMaps)
-            {
-                using(var source = encoding==null ? new StreamSource(stream, JSONLanguage.Instance)
-                                                  : new StreamSource(stream, encoding, JSONLanguage.Instance))
-                    return read(source, caseSensitiveMaps);
-            }
+          private static object read(Stream stream, Encoding encoding, bool caseSensitiveMaps)
+          {
+              using(var source = encoding==null ? new StreamSource(stream, JSONLanguage.Instance)
+                                                : new StreamSource(stream, encoding, JSONLanguage.Instance))
+                  return read(source, caseSensitiveMaps);
+          }
 
-            private static object read(string data, bool caseSensitiveMaps)
-            {
-                var source = new StringSource(data, JSONLanguage.Instance);
-                return read(source, caseSensitiveMaps);
-            }
+          private static object read(string data, bool caseSensitiveMaps)
+          {
+              var source = new StringSource(data, JSONLanguage.Instance);
+              return read(source, caseSensitiveMaps);
+          }
 
-            private static object read(ISourceText source, bool caseSensitiveMaps)
-            {
-                var lexer = new JSONLexer(source, throwErrors: true);
-                var parser = new JSONParser(lexer, throwErrors: true, caseSensitiveMaps: caseSensitiveMaps);
+          private static object read(ISourceText source, bool caseSensitiveMaps)
+          {
+              var lexer = new JSONLexer(source, throwErrors: true);
+              var parser = new JSONParser(lexer, throwErrors: true, caseSensitiveMaps: caseSensitiveMaps);
 
-                parser.Parse();
+              parser.Parse();
 
-                return parser.ResultContext.ResultObject;
-            }
+              return parser.ResultContext.ResultObject;
+          }
         #endregion
 
 

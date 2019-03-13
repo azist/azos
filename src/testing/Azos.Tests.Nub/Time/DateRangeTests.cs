@@ -267,11 +267,11 @@ namespace Azos.Tests.Nub.Time
     [Run]
     public void TestToString()
     {
-      var x = new DateRange(new DateTime(1800, 1, 1), new DateTime(1900, 1, 1, 3, 18, 7));
+      var x = new DateRange(new DateTime(1800, 11, 12), new DateTime(1900, 11, 12, 23, 18, 17));
 
       Console.WriteLine(x.ToString());
 
-      Aver.AreEqual("[01/01/1800 00:00:00 - 01/01/1900 03:18:07]", x.ToString());
+      Aver.AreEqual("[11/12/1800 12:00 AM - 11/12/1900 11:18 PM]", x.ToString("MM/dd/yyyy hh:mm tt", System.Globalization.CultureInfo.InvariantCulture));
     }
 
     [Run]

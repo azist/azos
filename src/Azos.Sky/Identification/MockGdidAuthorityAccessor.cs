@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Azos.Collections;
 using Azos.Sky.Contracts;
 
@@ -15,13 +16,13 @@ namespace Azos.Sky.Identification
     private NamedInterlocked m_Data = new NamedInterlocked();
 
 
-    public GdidBlock AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity = 1152921504606846975)
+    public Task<GdidBlock> AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity = 1152921504606846975)
     {
       var key = scopeName+"::"+sequenceName;
 
       var start = m_Data.AddLong(key, blockSize);
 
-      return new GdidBlock
+      return Task.FromResult( new GdidBlock
       {
         ScopeName = scopeName,
         SequenceName = sequenceName,
@@ -31,7 +32,7 @@ namespace Azos.Sky.Identification
         StartCounterInclusive = (ulong)start,
         BlockSize = blockSize,
         ServerUTCTime = Ambient.UTCNow
-      };
+      });
     }
   }
 }
