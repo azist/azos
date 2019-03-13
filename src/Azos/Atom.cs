@@ -14,8 +14,8 @@ namespace Azos
   /// are the only allowed separators.
   /// <para>
   /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than 1000), having
-  /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as this
-  /// bloats the system Atom intern pool
+  /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as these
+  /// bloat the system Atom intern pool
   /// </para>
   /// </summary>
   /// <remarks>
@@ -60,8 +60,8 @@ namespace Azos
     /// Null is encoded as Atom(0).
     /// <para>
     /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than 1000), having
-    /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as this
-    /// bloats the system Atom intern pool
+    /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as these
+    /// bloat the system Atom intern pool
     /// </para>
     /// </summary>
     public static Atom Encode(string value)
@@ -89,8 +89,8 @@ namespace Azos
     /// Null is encoded as Atom(0).
     /// <para>
     /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than 1000), having
-    /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as this
-    /// bloats the system Atom intern pool
+    /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as these
+    /// bloat the system Atom intern pool
     /// </para>
     /// </summary>
     public static bool TryEncode(string value, out Atom atom)
@@ -126,8 +126,8 @@ namespace Azos
     /// Null is encoded as Atom(0).
     /// <para>
     /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than 1000), having
-    /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as this
-    /// bloats the system Atom intern pool
+    /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as these
+    /// bloat the system Atom intern pool
     /// </para>
     /// </summary>
     public static bool TryEncodeValueOrId(string value, out Atom atom)

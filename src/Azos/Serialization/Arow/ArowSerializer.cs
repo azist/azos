@@ -40,9 +40,16 @@ namespace Azos.Serialization.Arow
     private static volatile Dictionary<Type, ITypeSerializationCore> s_Serializers = new Dictionary<Type, ITypeSerializationCore>();
 
 
+    /// <summary>
+    /// Registers all entities in the specified assembly which implement ITypeSerializationCore interface
+    /// </summary>
+    /// <param name="asm"></param>
     public static void RegisterTypeSerializationCores(Assembly asm)
     {
-      foreach(var t in asm.GetTypes().Where( t => t.IsClass && !t.IsAbstract && typeof(ITypeSerializationCore).IsAssignableFrom(t)))
+      var allTypes = asm.NonNull(nameof(asm)).GetTypes();
+      var allSerCores = allTypes.Where(t => t.IsClass && !t.IsAbstract && typeof(ITypeSerializationCore).IsAssignableFrom(t));
+
+      foreach (var t in allSerCores)
       {
         var core = Activator.CreateInstance(t) as ITypeSerializationCore;
         core.Register();
