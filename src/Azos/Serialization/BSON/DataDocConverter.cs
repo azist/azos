@@ -616,7 +616,7 @@ namespace Azos.Serialization.BSON
           //BinData works faster than string 8% and stores 40%-60% less data in index and data segment
           //Also, SEQUENTIAL keys (big endian) yield 30% smaller indexes (vs non-sequential)
           //ObjectId() is very similar if not identical to BinData(UserDefined)
-          return new BSONBinary(BSONBinaryType.UserDefined, gdid.Bytes); //be very carefull with byte ordering of GDID for DB key index optimization
+          return new BSONBinary(BSONBinaryType.UserDefined, gdid.Bytes); //be very careful with byte ordering of GDID for DB key index optimization
         }
 
         public static BSONElement GUID_CLRtoBSON(string name, Guid guid)

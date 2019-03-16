@@ -1088,8 +1088,6 @@ namespace Azos.Tests.Nub.Serialization
         }
         #endregion Amorphous
 
-
-
         #region Targeting
 
         [Run]
@@ -1123,7 +1121,6 @@ namespace Azos.Tests.Nub.Serialization
 
         }
         #endregion
-
 
         #region Types
 
