@@ -348,7 +348,7 @@ namespace Azos.Serialization.Arow
     public static Decimal                                ReadDecimal      (ReadingStreamer streamer){ return streamer.ReadDecimal(); }
 
     [MethodImpl( MethodImplOptions.AggressiveInlining)]
-    public static Financial.Amount                   ReadAmount       (ReadingStreamer streamer){ return streamer.ReadAmount(); }
+    public static Financial.Amount                       ReadAmount       (ReadingStreamer streamer){ return streamer.ReadAmount(); }
 
     [MethodImpl( MethodImplOptions.AggressiveInlining)]
     public static Byte                                   ReadByte         (ReadingStreamer streamer){ return streamer.ReadByte     (); }

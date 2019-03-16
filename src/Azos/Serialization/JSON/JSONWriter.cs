@@ -331,6 +331,13 @@ namespace Azos.Serialization.JSON
                                 return;
                             }
 
+                            if (data is Guid)
+                            {
+                              var guid = (Guid)data;
+                              wri.Write(guid.ToString("D"));
+                              return;
+                            }
+
                             if (data is IJSONWritable)//these types know how to directly write themselves
                             {
                                 ((IJSONWritable)data).WriteAsJSON(wri, level, opt);
