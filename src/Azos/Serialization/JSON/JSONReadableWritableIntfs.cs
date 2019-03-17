@@ -48,11 +48,14 @@ namespace Azos.Serialization.JSON
     public interface IJSONReadable
     {
         /// <summary>
-        /// Reads entitie's data/state from low-level IJSONDataObject which is supplied right by JSONParser.
+        /// Reads entities data/state from low-level IJSONDataObject which is supplied right by JSONParser.
         /// An implementer may elect to throw various types of exceptions to signal such conditions as:
         ///  unknown key map, or too many fields not supplied etc.
         /// </summary>
         /// <param name="data">JSONParser-supplied object</param>
-        void ReadAsJSON(object data);
+        /// <param name="fromUI">True if data is coming form user interface</param>
+        /// <param name="nameBinding">JSON name binding controls what names to use: from attributes of prop names from code</param>
+        /// <returns>True if reading succeeded</returns>
+        bool ReadAsJSON(object data, bool fromUI, JSONReader.NameBinding? nameBinding);
     }
 }

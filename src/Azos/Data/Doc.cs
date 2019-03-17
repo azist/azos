@@ -26,7 +26,7 @@ namespace Azos.Data
   /// Documents are NOT THREAD SAFE by definition
   /// </summary>
   [Serializable]
-  public abstract class Doc : IConfigurable, IConfigurationPersistent, IEquatable<Doc>, IEnumerable<Object>, IValidatable, IJSONWritable
+  public abstract class Doc : IConfigurable, IConfigurationPersistent, IEquatable<Doc>, IEnumerable<Object>, IValidatable, IJSONWritable, IJSONReadable
   {
 
     #region Static
@@ -829,6 +829,17 @@ namespace Azos.Data
 
         JSONWriter.WriteMap(wri, map, nestingLevel, options);
     }
+
+    public bool ReadAsJSON(object data, bool fromUI, JSONReader.NameBinding? nameBinding)
+    {
+      if (data is JSONDataMap map)
+      {
+        JSONReader.ToDoc(this, map, fromUI, nameBinding);
+        return true;
+      }
+      return false;
+    }
+
     #endregion
 
     #region Protected

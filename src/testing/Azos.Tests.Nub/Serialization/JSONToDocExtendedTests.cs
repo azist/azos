@@ -31,15 +31,16 @@ namespace Azos.Tests.Nub.Serialization
       public string Text;
       public int Length;
 
-      public void ReadAsJSON(object data)
+      public bool ReadAsJSON(object data, bool fromUI, JSONReader.NameBinding? nameBinding)
       {
-        if (data==null) return;
+        if (data==null) return false;
 
         var str = data as string;
         if (str==null) str = data.ToString();
 
         Text = str;
         Length = str.Length;
+        return true;
       }
 
       public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
