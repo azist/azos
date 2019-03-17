@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.303
-set HEADLINE=Added Async IGdidAuthorityAccessor and async client for gdid auth
+set VER=1.0.304
+set HEADLINE=Added Log.Message Arow ser support
 
 call vs2017-build-release %VER%
 
