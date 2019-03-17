@@ -23,27 +23,27 @@ namespace Azos.Serialization.Arow
       {typeof(byte?),       null},
       {typeof(byte),        null},
       {typeof(byte[]),@"
-         if (dt==DataType.Null) row.{0} = null;
-         else if (dt==DataType.ByteArray) row.{0} = streamer.ReadByteArray();
+         if (dt==DataType.Null) doc.{0} = null;
+         else if (dt==DataType.ByteArray) doc.{0} = streamer.ReadByteArray();
          else if (dt!=DataType.Array) break;
          else
          {{
            atp = Reader.ReadDataType(streamer);
            if (atp!=DataType.Byte) break;
-           row.{0} = Reader.ReadByteArray(streamer);
+           doc.{0} = Reader.ReadByteArray(streamer);
          }}
          continue;"
       },
 
       {typeof(List<byte>),@"
-         if (dt==DataType.Null) row.{0} = null;
-         else if (dt==DataType.ByteArray) row.{0} = new List<byte>(streamer.ReadByteArray());
+         if (dt==DataType.Null) doc.{0} = null;
+         else if (dt==DataType.ByteArray) doc.{0} = new List<byte>(streamer.ReadByteArray());
          else if (dt!=DataType.Array) break;
          else
          {{
            atp = Reader.ReadDataType(streamer);
            if (atp!=DataType.Byte) break;
-           row.{0} = new List<byte>(Reader.ReadByteArray(streamer));
+           doc.{0} = new List<byte>(Reader.ReadByteArray(streamer));
          }}
          continue;"
       },
@@ -154,6 +154,11 @@ namespace Azos.Serialization.Arow
       {typeof(JSON.NLSMap),       null},
       {typeof(JSON.NLSMap[]),     null},
       {typeof(List<JSON.NLSMap>), null},
+
+      {typeof(Atom?),       null},
+      {typeof(Atom),       null},
+      {typeof(Atom[]),     null},
+      {typeof(List<Atom>), null},
     };
 
 
@@ -219,7 +224,7 @@ namespace Azos.Serialization.Arow
        var ok = ArowSerializer.TryDeserialize(newDoc, streamer, false);
        if (ok) return true;
 
-       var map = readRowAsMap(streamer);//unconditionaly to advance stream
+       var map = readRowAsMap(streamer);//unconditionally to advance stream
 
        var arow = docScope as IAmorphousData;
        if (arow==null) return false;
@@ -310,6 +315,7 @@ namespace Azos.Serialization.Arow
         case DataType.FID         :  return ReadFID         (streamer);
         case DataType.PilePointer :  return ReadPilePointer (streamer);
         case DataType.NLSMap      :  return ReadNLSMap      (streamer);
+        case DataType.Atom        :  return ReadAtom        (streamer);
         default: throw new ArowException(StringConsts.AROW_DESER_CORRUPT_ERROR);
       }
     }
@@ -342,7 +348,7 @@ namespace Azos.Serialization.Arow
     public static Decimal                                ReadDecimal      (ReadingStreamer streamer){ return streamer.ReadDecimal(); }
 
     [MethodImpl( MethodImplOptions.AggressiveInlining)]
-    public static Financial.Amount                   ReadAmount       (ReadingStreamer streamer){ return streamer.ReadAmount(); }
+    public static Financial.Amount                       ReadAmount       (ReadingStreamer streamer){ return streamer.ReadAmount(); }
 
     [MethodImpl( MethodImplOptions.AggressiveInlining)]
     public static Byte                                   ReadByte         (ReadingStreamer streamer){ return streamer.ReadByte     (); }
@@ -388,6 +394,9 @@ namespace Azos.Serialization.Arow
 
     [MethodImpl( MethodImplOptions.AggressiveInlining)]
     public static JSON.NLSMap                            ReadNLSMap       (ReadingStreamer streamer){ return streamer.ReadNLSMap(); }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Atom                                   ReadAtom         (ReadingStreamer streamer) { return streamer.ReadAtom(); }
 
 
     public static byte[] ReadByteArray(ReadingStreamer streamer)

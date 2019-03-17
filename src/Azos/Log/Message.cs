@@ -12,15 +12,16 @@ using System.Runtime.CompilerServices;
 using Azos.Data;
 using Azos.Serialization.JSON;
 using Azos.Serialization.BSON;
+using Azos.Serialization.Arow;
 
 namespace Azos.Log
 {
   /// <summary>
   /// Represents a Log message
   /// </summary>
-  [Serializable]
+  [Serializable, Arow]
   [BSONSerializable("A05AEE0F-A33C-4B1D-AA45-CDEAF894A095")]
-  public sealed class Message : IArchiveLoggable
+  public sealed class Message : TypedDoc, IArchiveLoggable
   {
     public const string BSON_FLD_APP = "app";
     public const string BSON_FLD_CHANNEL = "chn";
@@ -39,6 +40,7 @@ namespace Azos.Log
     public static string DefaultHostName;
 
     #region Private Fields
+    private GDID m_Gdid;
     private Guid m_Guid;
     private Guid m_RelatedTo;
     private Atom m_Channel;
@@ -51,6 +53,7 @@ namespace Azos.Log
     private string m_Topic;
     private string m_Text;
     private string m_Parameters;
+    private WrappedExceptionData m_ExceptionData;
     private Exception m_Exception;
     private string m_ArchiveDimensions;
     #endregion
@@ -58,15 +61,32 @@ namespace Azos.Log
     #region Properties
 
 
+
+    /// <summary>
+    /// Global distributed ID used by distributed log warehouses. GDID.ZERO for local logging applications
+    /// </summary>
+    [Field, Field(isArow: true, backendName: "gdid")]
+    public GDID Gdid
+    {
+      get => m_Gdid;
+      set => m_Gdid = value;
+    }
+
     /// <summary>
     /// Returns global unique identifier for this particular log message
     /// </summary>
-    public Guid Guid => m_Guid;
+    [Field, Field(isArow: true, backendName: "guid")]
+    public Guid Guid
+    {
+      get => m_Guid;
+      internal set => m_Guid = value;
+    }
 
     /// <summary>
     /// Gets/Sets global unique identifier of a message that this message is related to.
     /// No referential integrity check is performed
     /// </summary>
+    [Field, Field(isArow: true, backendName: "rel")]
     public Guid RelatedTo
     {
       get => m_RelatedTo;
@@ -76,6 +96,7 @@ namespace Azos.Log
     /// <summary>
     /// Identifies the emitting application by including it asset identifier, taken from App.AssetId
     /// </summary>
+    [Field, Field(isArow: true, backendName: "app")]
     public Atom App
     {
       get => m_App;
@@ -85,6 +106,7 @@ namespace Azos.Log
     /// <summary>
     /// Gets/Sets logical partition for messages. This property is usually used in Archive for splitting sinks
     /// </summary>
+    [Field, Field(isArow: true, backendName: "chnl")]
     public Atom Channel
     {
       get => m_Channel;
@@ -93,6 +115,7 @@ namespace Azos.Log
     /// <summary>
     /// Gets/Sets message type, such as: Info/Warning/Error etc...
     /// </summary>
+    [Field, Field(isArow: true, backendName: "tp")]
     public MessageType Type
     {
       get => m_Type;
@@ -102,6 +125,7 @@ namespace Azos.Log
     /// <summary>
     /// Gets/Sets message source line number/tracepoint#, this is used in conjunction with From
     /// </summary>
+    [Field, Field(isArow: true, backendName: "src")]
     public int Source
     {
       get => m_Source;
@@ -111,6 +135,7 @@ namespace Azos.Log
     /// <summary>
     /// Gets/Sets timestamp when message was generated
     /// </summary>
+    [Field, Field(isArow: true, backendName: "utc")]
     public DateTime UTCTimeStamp
     {
       get => m_UTCTimeStamp;
@@ -120,6 +145,7 @@ namespace Azos.Log
     /// <summary>
     /// Gets/Sets host name that generated the message
     /// </summary>
+    [Field, Field(isArow: true, backendName: "hst")]
     public string Host
     {
       get => m_Host ?? string.Empty;
@@ -131,6 +157,7 @@ namespace Azos.Log
     /// Gets/Sets logical component ID, such as: class name, method name, process instance, that generated the message.
     /// This field is used in the scope of Topic
     /// </summary>
+    [Field, Field(isArow: true, backendName: "frm")]
     public string From
     {
       get => m_From ?? string.Empty;
@@ -140,6 +167,7 @@ namespace Azos.Log
     /// <summary>
     /// Gets/Sets a message topic/relation - the name of software concern within a big system, e.g. "Database" or "Security"
     /// </summary>
+    [Field, Field(isArow: true, backendName: "top")]
     public string Topic
     {
       get => m_Topic ?? string.Empty;
@@ -150,6 +178,7 @@ namespace Azos.Log
     /// Gets/Sets an unstructured message text, the emitting component name must be in From field, not in text.
     /// Note about logging errors. Use caught exception.ToMessageWithType() method, then attach the caught exception as Exception property
     /// </summary>
+    [Field, Field(isArow: true, backendName: "txt")]
     public string Text
     {
       get => m_Text ?? string.Empty;
@@ -159,6 +188,7 @@ namespace Azos.Log
     /// <summary>
     /// Gets/Sets a structured parameter bag, this may be used for additional debug info like source file name, additional context etc.
     /// </summary>
+    [Field, Field(isArow: true, backendName: "par")]
     public string Parameters
     {
       get => m_Parameters ?? string.Empty;
@@ -166,26 +196,64 @@ namespace Azos.Log
     }
 
     /// <summary>
+    /// Gets/Sets exception data associated with this message.
+    /// If this is set then Exception property is made from this value.
+    /// This is what gets serialized by DataDoc
+    /// </summary>
+    [Field, Field(isArow: true, backendName: "exc")]
+    public WrappedExceptionData ExceptionData
+    {
+      get
+      {
+        if (m_ExceptionData==null)
+        {
+          if (m_Exception!=null)
+            m_ExceptionData = new WrappedExceptionData(m_Exception);
+        }
+        return m_ExceptionData;
+      }
+      set
+      {
+        m_ExceptionData = value;
+        m_Exception = null;
+      }
+    }
+
+
+    /// <summary>
     /// Gets/Sets exception associated with message.
-    /// Set this property EVEN IF the name/text of exception is already included in Text as log sinks may elect to dump the whole stack trace
+    /// Set this property EVEN IF the name/text of exception is already included in Text as log sinks may elect to dump the whole stack trace.
+    /// When this is set the ExceptionData property is made from this value.
+    /// Note: This is not a field of DataDoc, hence it is not written/read, instead the ExecptionData is written/read
     /// </summary>
     public Exception Exception
     {
-      get => m_Exception;
-      set => m_Exception = value;
+      get
+      {
+        if (m_Exception==null)
+        {
+          if (m_ExceptionData!=null)
+            m_Exception = new WrappedException(m_ExceptionData);
+        }
+        return m_Exception;
+      }
+      set
+      {
+        m_Exception = value;
+        m_ExceptionData = null;
+      }
     }
 
     /// <summary>
     /// Gets/Sets archive dimension content for later retrieval of messages by key, i.e. a user ID may be used.
     /// In most cases JSON or Laconic content is stored, the format depends on a concrete system
     /// </summary>
+    [Field, Field(isArow: true, backendName: "adims")]
     public string ArchiveDimensions
     {
       get => m_ArchiveDimensions ?? string.Empty;
       set => m_ArchiveDimensions = value;
     }
-
-
 
     #endregion
 

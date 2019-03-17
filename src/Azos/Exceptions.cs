@@ -10,6 +10,7 @@ using System.Runtime.Serialization;
 using Azos.Data;
 using Azos.Apps;
 using Azos.Serialization.BSON;
+using Azos.Serialization.Arow;
 
 namespace Azos
 {
@@ -120,9 +121,9 @@ namespace Azos
   /// <summary>
   /// Marshals exception details
   /// </summary>
-  [Serializable]
+  [Serializable, Arow]
   [BSONSerializable("A339F46F-6637-4396-B148-094BAFFB4BE6")]
-  public sealed class WrappedExceptionData : IBSONSerializable, IBSONDeserializable
+  public sealed class WrappedExceptionData : TypedDoc, IBSONSerializable, IBSONDeserializable
   {
 
     /// <summary>
@@ -181,42 +182,82 @@ namespace Azos
     /// <summary>
     /// Returns the name of remote exception type
     /// </summary>
-    public string TypeName { get { return m_TypeName ?? CoreConsts.UNKNOWN; } }
+    [Field, Field(isArow: true, backendName: "tpname")]
+    public string TypeName
+    {
+      get => m_TypeName ?? CoreConsts.UNKNOWN;
+      set => m_TypeName = value;
+    }
 
     /// <summary>
     /// Returns the message of remote exception
     /// </summary>
-    public string Message { get { return m_Message ?? string.Empty; } }
+    [Field, Field(isArow: true, backendName: "msg")]
+    public string Message
+    {
+      get => m_Message ?? string.Empty;
+      set => m_Message = value;
+    }
 
     /// <summary>
     /// Returns the code of remote Azos exception
     /// </summary>
-    public int Code { get { return m_Code; } }
+    [Field, Field(isArow: true, backendName: "code")]
+    public int Code
+    {
+      get => m_Code;
+      set => m_Code = value;
+    }
 
     /// <summary>
     /// Name of the object that caused the error
     /// </summary>
-    public string Source { get { return m_Source ?? string.Empty; } }
+    [Field, Field(isArow: true, backendName: "src")]
+    public string Source
+    {
+      get => m_Source ?? string.Empty;
+      set => m_Source = value;
+    }
 
     /// <summary>
     /// Returns stack trace
     /// </summary>
-    public string StackTrace { get { return m_StackTrace ?? string.Empty; } }
+    [Field, Field(isArow: true, backendName: "strace")]
+    public string StackTrace
+    {
+      get => m_StackTrace ?? string.Empty;
+      set => m_StackTrace = value;
+    }
 
     /// <summary>
     /// Returns the name of remote application
     /// </summary>
-    public string ApplicationName { get { return m_ApplicationName ?? CoreConsts.UNKNOWN; } }
+    [Field, Field(isArow: true, backendName: "appname")]
+    public string ApplicationName
+    {
+      get => m_ApplicationName ?? CoreConsts.UNKNOWN;
+      set => m_ApplicationName = value;
+    }
 
     /// <summary>
     /// Returns wrapped date from IWrappedDataSource
     /// </summary>
-    public string WrappedData { get { return m_WrappedData; } }
+    [Field, Field(isArow: true, backendName: "wdata")]
+    public string WrappedData
+    {
+      get => m_WrappedData;
+      set => m_WrappedData = value;
+    }
 
     /// <summary>
     /// Returns the inner remote exception if any
     /// </summary>
-    public WrappedExceptionData InnerException { get { return m_InnerException; } }
+    [Field, Field(isArow: true, backendName: "inner")]
+    public WrappedExceptionData InnerException
+    {
+      get => m_InnerException;
+      set => m_InnerException = value;
+    }
 
     public override string ToString()
     {

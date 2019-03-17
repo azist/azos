@@ -19,7 +19,7 @@ using Azos.Financial;
 namespace Azos.Tests.Nub.Serialization
 {
   [Runnable]
-  public class DataDocConverterTests
+  public class BSONDataDocConverterTests
   {
     #region Tests
 

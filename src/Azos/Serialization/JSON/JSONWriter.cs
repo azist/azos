@@ -331,15 +331,24 @@ namespace Azos.Serialization.JSON
                                 return;
                             }
 
+                            if (data is Guid)
+                            {
+                              var guid = (Guid)data;
+                              wri.Write('"');
+                              wri.Write(guid.ToString("D"));
+                              wri.Write('"');
+                              return;
+                            }
+
                             if (data is IJSONWritable)//these types know how to directly write themselves
                             {
                                 ((IJSONWritable)data).WriteAsJSON(wri, level, opt);
                                 return;
                             }
 
-                            if (data is Serialization.JSON.JSONDynamicObject)//unwrap dynamic
+                            if (data is JSONDynamicObject)//unwrap dynamic
                             {
-                                writeAny(wri, ((Serialization.JSON.JSONDynamicObject)data).Data, level, opt);
+                                writeAny(wri, ((JSONDynamicObject)data).Data, level, opt);
                                 return;
                             }
 

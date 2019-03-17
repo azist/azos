@@ -1064,7 +1064,6 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string SEALED_STRING_TOO_BIG_ERROR =  "SealedString value of {0} bytes is too big";
 
 
-    public const string AROW_INVALID_FIELD_NAME_ERROR =  "Field name '{0}'is not suitable for Arow serialization as it is either too long or contains invalid chars. Max length is {2} ASCII chars";
     public const string AROW_MEMBER_TYPE_NOT_SUPPORTED_ERROR =  "Members of type '{0}' are not supported";
     public const string AROW_TYPE_NOT_SUPPORTED_ERROR =  "ArowSerializer does not have a ITypeSerializationCore registered for type '{0}'";
     public const string AROW_GENERATOR_PATH_DOESNOT_EXIST_ERROR =  "Arow code generator: path '{0}' does not exist";
