@@ -290,8 +290,8 @@ namespace Azos.Serialization.JSON
       //Custom JSON Readable
       if (typeof(IJSONReadable).IsAssignableFrom(nntp))
       {
-        var newval = Activator.CreateInstance(toType);
-        ((IJSONReadable)newval).ReadAsJSON(v, fromUI, nameBinding);
+        IJSONReadable newval = Activator.CreateInstance(toType) as IJSONReadable;
+        newval.ReadAsJSON(v, fromUI, nameBinding);
         return newval;
       }
 
