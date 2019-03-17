@@ -53,6 +53,6 @@ namespace Azos.Serialization.JSON
         ///  unknown key map, or too many fields not supplied etc.
         /// </summary>
         /// <param name="data">JSONParser-supplied object</param>
-        void ReadAsJSON(IJSONDataObject data);
+        void ReadAsJSON(object data);
     }
 }
