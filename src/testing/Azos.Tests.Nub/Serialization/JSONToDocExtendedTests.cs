@@ -13,6 +13,8 @@ using Azos.Serialization.JSON;
 using Azos.Collections;
 using System.IO;
 using Azos.Data;
+using Azos.Time;
+using Azos.Financial;
 
 namespace Azos.Tests.Nub.Serialization
 {
@@ -71,6 +73,22 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual(d1.Data.Text, d2.Data.Text);
       Aver.AreEqual(d1.Data.Length, d2.Data.Length);
     }
+
+    public class WithVariousStructsDoc : TypedDoc
+    {
+      [Field] public GDID       Gdid{ get;set;}
+      [Field] public GDIDSymbol GdidSymbol { get; set; }
+      [Field] public Guid       Guid { get; set; }
+      [Field] public Atom       Atom { get; set; }
+      [Field] public TimeSpan   Timespan { get; set; }
+      [Field] public DateTime   DateTime { get; set; }
+      [Field] public NLSMap     Nls { get; set; }
+      [Field] public DateRange  DateRange { get; set; }
+      [Field] public Amount     Amount { get; set; }
+      [Field] public StringMap  StringMap { get; set; }
+    }
+
+
 
   }
 }

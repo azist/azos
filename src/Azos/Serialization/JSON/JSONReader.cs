@@ -229,6 +229,7 @@ namespace Azos.Serialization.JSON
     private static bool setOneField(Doc doc, Schema.FieldDef def, object fv, bool fromUI, NameBinding nameBinding)
     {
       var converted = cast(fv, def.Type, fromUI, nameBinding);
+      ////Console.WriteLine($"{def.Name} = {converted} ({(converted!=null ? converted.GetType().Name : "null")})");
 
       if (converted!=null)
       {
@@ -239,12 +240,52 @@ namespace Azos.Serialization.JSON
       return false;
     }//setOneField
 
-    //Returns non null on success
+    //Returns non null on success; may return null for collection sub-element in which case null=null and does not indicate failure
     private static object cast(object v, Type toType, bool fromUI, NameBinding nameBinding)
     {
+      //used only for collections inner calls
+      if (v==null) return null;
+
+      //object goes as is
+      if (toType == typeof(object)) return v;
+
+      //IJSONDataObject
+      if (toType == typeof(IJSONDataObject))
+      {
+        if (v is IJSONDataObject) return v;//goes as is
+        if (v is string s)//string containing embedded JSON
+        {
+          var jo = s.JSONToDataObject();
+          return jo;
+        }
+      }
+
+      //IJSONDataMap
+      if (toType == typeof(JSONDataMap))
+      {
+        if (v is JSONDataMap) return v;//goes as is
+        if (v is string s)//string containing embedded JSON
+        {
+          var jo = s.JSONToDataObject() as JSONDataMap;
+          return jo;
+        }
+      }
+
+      //IJSONDataArray
+      if (toType == typeof(JSONDataArray))
+      {
+        if (v is JSONDataArray) return v;//goes as is
+        if (v is string s)//string containing embedded JSON
+        {
+          var jo = s.JSONToDataObject() as JSONDataArray;
+          return jo;
+        }
+      }
+
       var nntp = toType;
       if (toType.IsGenericType && nntp.GetGenericTypeDefinition() == typeof(Nullable<>))
         nntp = toType.GetGenericArguments()[0];
+
 
       //Custom JSON Readable
       if (typeof(IJSONReadable).IsAssignableFrom(nntp))
@@ -260,12 +301,18 @@ namespace Azos.Serialization.JSON
         return passed;
       }
 
+
       //field def = []
       if (toType.IsArray)
       {
         var fvseq = v as IEnumerable<object>;
         if (fvseq == null) return null;//can not set non enumerable into array
-        var newval = fvseq.Select(e => cast(e, toType.GetElementType(), fromUI, nameBinding)).ToArray();
+
+        var arr = fvseq.Select(e => cast(e, toType.GetElementType(), fromUI, nameBinding)).ToArray();
+        var newval = Array.CreateInstance(toType.GetElementType(), arr.Length);
+        for(var i=0; i<newval.Length; i++)
+          newval.SetValue(arr[i], i);
+
         return newval;
       }
 
@@ -274,204 +321,18 @@ namespace Azos.Serialization.JSON
       {
         var fvseq = v as IEnumerable<object>;
         if (fvseq == null) return false;//can not set non enumerable into List<t>
-        var newval = fvseq.Select(e => cast(e, toType.GetGenericArguments()[0], fromUI, nameBinding)).ToList();
+
+        var arr = fvseq.Select(e => cast(e, toType.GetGenericArguments()[0], fromUI, nameBinding)).ToArray();
+        var newval = Activator.CreateInstance(toType) as System.Collections.IList;
+        for (var i = 0; i < arr.Length; i++)
+          newval.Add(arr[i]);
+
         return newval;
       }
 
       //last resort
       return StringValueConversion.AsType(v.ToString(), toType, false);
     }
-
-
-
-
-
-
-
-      private static void toDocXXXXXXXXXXXXXXXXXXXXXXXXXXX(Doc doc, NameBinding nameBinding, JSONDataMap jsonMap, ref string field, bool fromUI)
-      {
-        var amorph = doc as IAmorphousData;
-        foreach(var mfld in jsonMap)
-        {
-              field = mfld.Key;
-              var fv = mfld.Value;
-
-              //20170420 DKh+Ogee multitargeting for deserilization to ROW from JSON
-              Schema.FieldDef rfd;
-              if (nameBinding.BindBy==NameBinding.By.CodeName)
-                  rfd = doc.Schema[field];
-              else
-                rfd = doc.Schema.TryFindFieldByTargetedBackendName(nameBinding.TargetName, field);//what about case sensitive json name?
-
-              if (rfd==null)
-              {
-                  if (amorph!=null)
-                  {
-                    if (amorph.AmorphousDataEnabled)
-                      amorph.AmorphousData[mfld.Key] = fv;
-                  }
-                  continue;
-              }
-
-              if (fromUI && rfd.NonUI) continue;//skip NonUI fields
-
-              if (fv==null)
-                doc.SetFieldValue(rfd, null);
-              else
-              if (fv is JSONDataMap)
-              {
-                    if (typeof(TypedDoc).IsAssignableFrom(rfd.Type))
-                      doc.SetFieldValue(rfd, ToDoc(rfd.Type, (JSONDataMap)fv, fromUI, nameBinding));
-                    else
-                      doc.SetFieldValue(rfd, fv);//try to set row's field to MAP directly
-              }
-              else if (rfd.NonNullableType==typeof(TimeSpan) && (fv is ulong || fv is long || fv is int || fv is uint))
-              {
-                    var lt = Convert.ToInt64(fv);
-                    doc.SetFieldValue(rfd, TimeSpan.FromTicks(lt));
-              }
-              else if (fv is int || fv is long || fv is ulong || fv is double || fv is bool)
-                    doc.SetFieldValue(rfd, fv);
-              else if (fv is byte[] && rfd.Type==typeof(byte[]))//optimization byte array assignment without copies
-              {
-                    var passed = (byte[])fv;
-                    var arr = new byte[passed.Length];
-                    Array.Copy(passed, arr, passed.Length);
-                    doc.SetFieldValue(rfd, arr);
-              }
-              else if (fv is JSONDataArray || fv.GetType().IsArray)
-              {
-                    JSONDataArray arr;
-                    if (fv is JSONDataArray)
-                      arr = (JSONDataArray)fv;
-                    else
-                    {
-                      arr = new JSONDataArray(((Array)fv).Length);
-                      foreach(var elm in (System.Collections.IEnumerable)fv) arr.Add(elm);
-                    }
-
-                    if (rfd.Type.IsArray)
-                    {
-                          var raet = rfd.Type.GetElementType();//row array element type
-                          if (typeof(TypedDoc).IsAssignableFrom(raet))
-                          {
-                            var narr = Array.CreateInstance(raet, arr.Count);
-                            for(var i=0; i<narr.Length; i++)
-                              narr.SetValue( ToDoc(raet, arr[i] as JSONDataMap, fromUI, nameBinding), i);
-                            doc.SetFieldValue(rfd, narr);
-                          }//else primitives
-                          else
-                          {
-                            var narr = Array.CreateInstance(raet, arr.Count);
-                            for(var i=0; i<narr.Length; i++)
-                              if (arr[i]!=null)
-                                narr.SetValue( StringValueConversion.AsType(arr[i].ToString(), raet, false), i);
-
-                            doc.SetFieldValue(rfd, narr);
-                          }
-                    }
-                    else if (rfd.Type.IsGenericType && rfd.Type.GetGenericTypeDefinition() == typeof(List<>))//List
-                    {
-                          var gat = rfd.Type.GetGenericArguments()[0];
-
-                          var lst = Activator.CreateInstance(rfd.Type) as System.Collections.IList;
-
-                          if (typeof(TypedDoc).IsAssignableFrom(gat))
-                          {
-                            for(var i=0; i<arr.Count; i++)
-                              if (arr[i] is JSONDataMap)
-                                lst.Add( ToDoc(gat, arr[i] as JSONDataMap, fromUI, nameBinding) );
-                              else
-                                lst.Add(null);
-                          }
-                          else if (gat==typeof(object))
-                          {
-                            for(var i=0; i<arr.Count; i++)
-                                lst.Add( arr[i] );
-                          }
-                          else if (gat==typeof(string))
-                          {
-                            for(var i=0; i<arr.Count; i++)
-                              if (arr[i]!=null)
-                                lst.Add( arr[i].ToString() );
-                              else
-                                lst.Add( null );
-                          }
-                          else if (gat.IsPrimitive ||
-                              gat==typeof(Data.GDID) ||
-                              gat==typeof(Guid) ||
-                              gat==typeof(DateTime))
-                          {
-                            for(var i=0; i<arr.Count; i++)
-                              if (arr[i]!=null)
-                                lst.Add( StringValueConversion.AsType(arr[i].ToString(), gat, false) );
-                          }
-                          else if (gat.IsGenericType && gat.GetGenericTypeDefinition() == typeof(Nullable<>))
-                          {
-                              var nt = gat.GetGenericArguments()[0];
-                              if (nt.IsPrimitive ||
-                                  nt==typeof(Data.GDID) ||
-                                  nt==typeof(Guid) ||
-                                  nt==typeof(DateTime))
-                              {
-
-                              for(var i=0; i<arr.Count; i++)
-                                if (arr[i]!=null)
-                                  lst.Add( StringValueConversion.AsType(arr[i].ToString(), gat, false) );
-                                else
-                                  lst.Add( null);
-                              }
-                          }
-
-                          doc.SetFieldValue(rfd, lst);
-
-                    }
-              }
-              else
-              {
-                    //Try to get String containing JSON
-                    if (fv is string)
-                    {
-                      var sfv = (string)fv;
-                      if (rfd.Type==typeof(string))
-                      {
-                        doc.SetFieldValue(rfd, sfv);
-                        continue;
-                      }
-
-                      if (typeof(TypedDoc).IsAssignableFrom(rfd.Type))
-                      {
-                        if (sfv.IsNotNullOrWhiteSpace())
-                          doc.SetFieldValue(rfd, ToDoc(rfd.Type, (JSONDataMap)deserializeObject( read(sfv, true)), fromUI, nameBinding));
-                        continue;
-                      }
-                      if (typeof(IJSONDataObject).IsAssignableFrom(rfd.Type))
-                      {
-                        if (sfv.IsNotNullOrWhiteSpace())
-                          doc.SetFieldValue(rfd, deserializeObject( read(sfv, true)));//try to set row's field to MAP directly
-                        continue;
-                      }
-                    }
-
-                    doc.SetFieldValue(rfd, StringValueConversion.AsType(fv.ToString(), rfd.Type, false));//<--Type conversion
-              }
-        }//foreach
-
-        //20140914 DKh
-        var form = doc as Form;
-        if (form != null)
-        {
-          form.FormMode  = jsonMap[Form.JSON_MODE_PROPERTY].AsEnum<FormMode>(FormMode.Unspecified);
-          form.CSRFToken = jsonMap[Form.JSON_CSRF_PROPERTY].AsString();
-          var roundtrip  = jsonMap[Form.JSON_ROUNDTRIP_PROPERTY].AsString();
-          if (roundtrip.IsNotNullOrWhiteSpace())
-            form.SetRoundtripBagFromJSONString(roundtrip);
-        }
-
-        if (amorph!=null && amorph.AmorphousDataEnabled )
-          amorph.AfterLoad("json");
-      }
-
 
   #endregion
 
