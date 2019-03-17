@@ -13,7 +13,7 @@ using Azos.Serialization.Arow;
 using Azos.Serialization.JSON;
 using Azos.Collections;
 using Azos.Pile;
-
+using System.Linq;
 
 namespace Azos.Tests.Nub.Serialization
 {
@@ -223,7 +223,12 @@ namespace Azos.Tests.Nub.Serialization
         var v1 = this[fdef.Order];
         var v2 = another[fdef.Order];
 
-        Aver.AreObjectsEqual(v1, v2);
+        if (v1 is Array a)
+         Aver.AreArraysEquivalent(a, v2 as Array);
+        if (v1 is IEnumerable<object> eo)
+         Aver.IsTrue( eo.SequenceEqual(v2 as IEnumerable<object>));
+        else
+         Aver.AreObjectsEqual(v1, v2);
       }
     }
 
@@ -238,9 +243,9 @@ namespace Azos.Tests.Nub.Serialization
 
       if (withDoc)
       {
-        Doc = new AllTypesDoc().Populate();
-        DocArray = new AllTypesDoc[]{ null, null, new AllTypesDoc().Populate() };
-        DocList  = new List<AllTypesDoc> { new AllTypesDoc().Populate() };
+        Doc = new AllTypesDoc().Populate(false);
+        DocArray = new AllTypesDoc[]{ null, null, new AllTypesDoc().Populate(false) };
+        DocList  = new List<AllTypesDoc> { new AllTypesDoc().Populate(false) };
       }
 
       Gdid = new GDID(12, 23423);
@@ -281,34 +286,31 @@ namespace Azos.Tests.Nub.Serialization
       FidNArray = new FID?[] { null, new FID(223) };
       FidNList = new List<FID?> { new FID(423), null };
 
+      Pileptr = new PilePointer(1, 23);
+      PileptrN = new PilePointer(1, 23);
+      PileptrArray = new PilePointer[] { new PilePointer(1, 243), new PilePointer(1, 223) };
+      PileptrList = new List<PilePointer> { new PilePointer(21, 23), new PilePointer(1, 23), new PilePointer(1, 263) };
+      PileptrNArray = new PilePointer?[] { null, new PilePointer(1, 293) };
+      PileptrNList = new List<PilePointer?> { new PilePointer(1, 223), null };
 
 
-    //[Field, Field(isArow: true, backendName: "ptr")] public PilePointer Pileptr { get; set; }  //ptr
-    //[Field, Field(isArow: true, backendName: "ptrn")] public PilePointer? PileptrN { get; set; }
-    //[Field, Field(isArow: true, backendName: "ptra")] public PilePointer[] PileptrArray { get; set; }
-    //[Field, Field(isArow: true, backendName: "ptrl")] public List<PilePointer> PileptrList { get; set; }
-    //[Field, Field(isArow: true, backendName: "ptrna")] public PilePointer?[] PileptrNArray { get; set; }
-    //[Field, Field(isArow: true, backendName: "ptrnl")] public List<PilePointer?> PileptrNList { get; set; }
+      NLSMap = new NLSMap("{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke',d: 'Es ist grün'}}");
+      NLSMapN = new NLSMap("{eng: {n: 'Cur',d: 'Is'}}");
+      NLSMapArray = new NLSMap[] { new NLSMap("{eng: {n: 'Cewqeur',d: 'Is'}}"), new NLSMap("{eng: {n: 'Cur23',d: 'Isee'}}") };
+      NLSMapList = new List<NLSMap> { new NLSMap("{eng: {n: 'Cr',d: 'Is'}}"), new NLSMap("{eng: {n: 'Currr',d: 'Iws'}}"), new NLSMap("{eng: {n: 'ertCur',d: 'rtIs'}}") };
+      NLSMapNArray = new NLSMap?[] { null, new NLSMap("{eng: {n: 'Cweur',d: 'Is'}}") };
+      NLSMapNList = new List<NLSMap?> { new NLSMap("{eng: {n: 'Cuer',d: 'Is'}}"), null };
 
+      Amount = new Amount("usd", 123.11m);
+      AmountN = new Amount("usd", 223.11m);
+      AmountArray = new Amount[] { new Amount("usd", 123.11m), new Amount("usd", 223.11m) };
+      AmountList = new List<Amount> { new Amount("usd", 123.11m), new Amount("usd", 253.11m), new Amount("usd", 243.11m) };
+      AmountNArray = new Amount?[] { null, new Amount("usd", 323.11m) };
+      AmountNList = new List<Amount?> { new Amount("usd", 523.11m), null };
 
-    //[Field, Field(isArow: true, backendName: "nls")] public NLSMap NLSMap { get; set; }  //nls
-    //[Field, Field(isArow: true, backendName: "nlsn")] public NLSMap? NLSMapN { get; set; }
-    //[Field, Field(isArow: true, backendName: "nlsa")] public NLSMap[] NLSMapArray { get; set; }
-    //[Field, Field(isArow: true, backendName: "nlsl")] public List<NLSMap> NLSMapList { get; set; }
-    //[Field, Field(isArow: true, backendName: "nlsna")] public NLSMap?[] NLSMapNArray { get; set; }
-    //[Field, Field(isArow: true, backendName: "nlsnl")] public List<NLSMap?> NLSMapNList { get; set; }
-
-    //[Field, Field(isArow: true, backendName: "amt")] public Amount Amount { get; set; }  //amt
-    //[Field, Field(isArow: true, backendName: "amtn")] public Amount? AmountN { get; set; }
-    //[Field, Field(isArow: true, backendName: "amta")] public Amount[] AmountArray { get; set; }
-    //[Field, Field(isArow: true, backendName: "amtl")] public List<Amount> AmountList { get; set; }
-    //[Field, Field(isArow: true, backendName: "amtna")] public Amount?[] AmountNArray { get; set; }
-    //[Field, Field(isArow: true, backendName: "amtnl")] public List<Amount?> AmountNList { get; set; }
-
-    //[Field, Field(isArow: true, backendName: "smap")] public StringMap StringMap { get; set; }  //smap
-    //[Field, Field(isArow: true, backendName: "amapa")] public StringMap[] StringMapArray { get; set; }
-    //[Field, Field(isArow: true, backendName: "amapl")] public List<StringMap> StringMapList { get; set; }
-
+      StringMap = new StringMap{ {"a", "aaa" }, { "b", "bbb" } };
+      StringMapArray = new StringMap[]{ new StringMap { { "a", "aaa" }, { "b", "bbb" } }, null, new StringMap { { "23a", "23423weaaa" } } };
+      StringMapList = new List<StringMap> { new StringMap { { "a", "aaa" }, { "b", "bbb" } }, null, new StringMap { { "23a", "23423weaaa" } } };
 
       this.String = "kazapzon";
       this.StringArray = new string[]{"mox", null, null, "zaporojets", "kefal"};

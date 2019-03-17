@@ -334,7 +334,9 @@ namespace Azos.Serialization.JSON
                             if (data is Guid)
                             {
                               var guid = (Guid)data;
+                              wri.Write('"');
                               wri.Write(guid.ToString("D"));
+                              wri.Write('"');
                               return;
                             }
 
@@ -344,9 +346,9 @@ namespace Azos.Serialization.JSON
                                 return;
                             }
 
-                            if (data is Serialization.JSON.JSONDynamicObject)//unwrap dynamic
+                            if (data is JSONDynamicObject)//unwrap dynamic
                             {
-                                writeAny(wri, ((Serialization.JSON.JSONDynamicObject)data).Data, level, opt);
+                                writeAny(wri, ((JSONDynamicObject)data).Data, level, opt);
                                 return;
                             }
 

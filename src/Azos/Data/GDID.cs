@@ -311,7 +311,7 @@ namespace Azos.Data
 
 
   /// <summary>
-  /// Represents a tuple of GDID and its symbolic representation (framework usualy uses an ELink as symbolic representation).
+  /// Represents a tuple of GDID and its symbolic representation (framework usually uses an ELink as symbolic representation).
   /// This struct is needed to pass GDID along with its ELink representation together.
   /// Keep in mind that string poses a GC load, so this stuct is not suitable for beiing used as a pile cache key
   /// </summary>
