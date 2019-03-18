@@ -170,7 +170,7 @@ namespace Azos.Tests.Nub.Serialization
       [Field] public Amount?     Amount      { get; set; }
       [Field] public StringMap   StringMap   { get; set; }
 
-      [Field] public GDID     GdidArray   { get; set; }
+      [Field] public GDID[]  GdidArray   { get; set; }
       [Field] public string[] StringArray { get; set; }
       [Field] public char[]   CharArray   { get; set; }
     }
@@ -220,14 +220,148 @@ namespace Azos.Tests.Nub.Serialization
     //=================================
 
 
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_Atom()
+    {
+      var d1 = new WithVariousNullableStructsDoc { Atom = new Atom() };
+      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      Console.WriteLine(json);
+      var map = json.JSONToDataObject() as JSONDataMap;
+
+      var d2 = new WithVariousNullableStructsDoc();
+      JSONReader.ToDoc(d2, map);
+
+      Aver.AreEqual(d1.Atom, d2.Atom);
+    }
 
 
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_Timespan()
+    {
+      var d1 = new WithVariousNullableStructsDoc { Timespan = TimeSpan.FromSeconds(123) };
+      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      Console.WriteLine(json);
+      var map = json.JSONToDataObject() as JSONDataMap;
+
+      var d2 = new WithVariousNullableStructsDoc();
+      JSONReader.ToDoc(d2, map);
+
+      Aver.AreEqual(d1.Timespan, d2.Timespan);
+    }
+
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_DateTime()
+    {
+      var d1 = new WithVariousNullableStructsDoc { DateTime = new DateTime(1980, 2, 3) };
+      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      Console.WriteLine(json);
+      var map = json.JSONToDataObject() as JSONDataMap;
+
+      var d2 = new WithVariousNullableStructsDoc();
+      JSONReader.ToDoc(d2, map);
+
+      Aver.AreEqual(d1.DateTime, d2.DateTime);
+    }
+
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_Nls()
+    {
+      var d1 = new WithVariousNullableStructsDoc { Nls = new NLSMap("{eng: {n: 'a', d: 'b'}}") };
+      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      Console.WriteLine(json);
+      var map = json.JSONToDataObject() as JSONDataMap;
+
+      var d2 = new WithVariousNullableStructsDoc();
+      JSONReader.ToDoc(d2, map);
+
+      Aver.AreEqual(d1.Nls.Value["eng"].Name, d2.Nls.Value["eng"].Name);
+    }
+
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_DateRange()
+    {
+      var d1 = new WithVariousNullableStructsDoc { DateRange = new DateRange(new DateTime(1980, 2,2), new DateTime(1990,3,3)) };
+      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      Console.WriteLine(json);
+      var map = json.JSONToDataObject() as JSONDataMap;
+
+      var d2 = new WithVariousNullableStructsDoc();
+      JSONReader.ToDoc(d2, map);
+
+      Aver.AreEqual(d1.DateRange, d2.DateRange);
+    }
+
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_Amount()
+    {
+      var d1 = new WithVariousNullableStructsDoc { Amount = new Amount("usd", 34.78m) };
+      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      Console.WriteLine(json);
+      var map = json.JSONToDataObject() as JSONDataMap;
+
+      var d2 = new WithVariousNullableStructsDoc();
+      JSONReader.ToDoc(d2, map);
+
+      Aver.AreEqual(d1.Amount, d2.Amount);
+    }
 
 
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_StringMap()
+    {
+      var d1 = new WithVariousNullableStructsDoc { StringMap = new StringMap{ {"a","a value"} } };
+      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      Console.WriteLine(json);
+      var map = json.JSONToDataObject() as JSONDataMap;
+
+      var d2 = new WithVariousNullableStructsDoc();
+      JSONReader.ToDoc(d2, map);
+
+      Aver.AreEqual(d1.StringMap["a"], d2.StringMap["a"]);
+    }
+
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_GdidArray()
+    {
+      var d1 = new WithVariousNullableStructsDoc { GdidArray = new GDID[] { new GDID(1,2,3), new GDID(2,3,4) } };
+      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      Console.WriteLine(json);
+      var map = json.JSONToDataObject() as JSONDataMap;
+
+      var d2 = new WithVariousNullableStructsDoc();
+      JSONReader.ToDoc(d2, map);
+
+      Aver.AreArraysEquivalent(d1.GdidArray, d2.GdidArray);
+    }
+
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_StringArray()
+    {
+      var d1 = new WithVariousNullableStructsDoc { StringArray = new string[]{"German", null, "English"} };
+      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      Console.WriteLine(json);
+      var map = json.JSONToDataObject() as JSONDataMap;
+
+      var d2 = new WithVariousNullableStructsDoc();
+      JSONReader.ToDoc(d2, map);
+
+      Aver.AreArraysEquivalent(d1.StringArray, d2.StringArray);
+    }
 
 
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_CharArray()
+    {
+      var d1 = new WithVariousNullableStructsDoc { CharArray = new char[]{'a', '2', ' '} };
+      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      Console.WriteLine(json);
+      var map = json.JSONToDataObject() as JSONDataMap;
 
+      var d2 = new WithVariousNullableStructsDoc();
+      JSONReader.ToDoc(d2, map);
 
+      Aver.AreArraysEquivalent(d1.CharArray, d2.CharArray);
+    }
 
     //==================================
   }//class
