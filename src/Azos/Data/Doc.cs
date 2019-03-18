@@ -24,14 +24,30 @@ namespace Azos.Data
   /// Marker interface - abstraction for data documents, interface used as constraint on other interfaces
   /// typically used in domain entity design. Doc class is the only one implementing this interface
   /// </summary>
-  public interface IDataDocument { }
+  public interface IDataDoc : IEquatable<Doc>, IEnumerable<Object>, IValidatable, IConfigurable, IConfigurationPersistent
+  {
+    /// <summary>
+    /// Returns schema object that describes fields of this document
+    /// </summary>
+    Schema Schema { get; }
+
+    /// <summary>
+    /// Gets/sets field values by name
+    /// </summary>
+    object this[string fieldName] {  get; set; }
+
+    /// <summary>
+    /// Gets/sets field values by positional index(Order)
+    /// </summary>
+    object this[int fieldIdx]{  get; set; }
+  }
 
   /// <summary>
   /// Base class for any data document. This class has two direct subtypes - DynamicDoc and TypedDoc.
   /// Documents are NOT THREAD SAFE by definition
   /// </summary>
   [Serializable]
-  public abstract class Doc : IDataDocument, IEquatable<Doc>, IEnumerable<Object>, IValidatable, IConfigurable, IConfigurationPersistent, IJSONWritable
+  public abstract class Doc : IDataDoc, IJSONWritable
   {
 
     #region Static
