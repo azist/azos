@@ -340,9 +340,9 @@ namespace Azos.Serialization.JSON
                               return;
                             }
 
-                            if (data is IJSONWritable)//these types know how to directly write themselves
+                            if (data is IJsonWritable)//these types know how to directly write themselves
                             {
-                                ((IJSONWritable)data).WriteAsJSON(wri, level, opt);
+                                ((IJsonWritable)data).WriteAsJson(wri, level, opt);
                                 return;
                             }
 

@@ -14,7 +14,7 @@ namespace Azos.Financial
   /// Represents monetary amount with currency
   /// </summary>
   [Serializable]
-  public struct Amount : IEquatable<Amount>, IComparable<Amount>, IJSONWritable
+  public struct Amount : IEquatable<Amount>, IComparable<Amount>, IJsonWritable
   {
     internal static Amount Deserialize(string currencyISO, decimal value)
     {
@@ -130,7 +130,7 @@ namespace Azos.Financial
           return this.Equals(other) ? 0 : this < other ? -1 : +1;
         }
 
-        public void WriteAsJSON(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+        public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
         {
           wri.Write('{');
             wri.Write("\"iso\":"); JSONWriter.EncodeString(wri, m_CurrencyISO, options);

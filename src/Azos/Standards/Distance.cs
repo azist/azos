@@ -18,7 +18,7 @@ namespace Azos.Standards
   /// Represents length distance with unit type.
   /// All operations are done with precision of 1 micrometer (10^(-3) mm)
   /// </summary>
-  public struct Distance : IEquatable<Distance>, IComparable<Distance>, IJSONWritable
+  public struct Distance : IEquatable<Distance>, IComparable<Distance>, IJsonWritable
   {
     public enum UnitType{ Cm = 0, In, Ft, Mm, M, Yd }
 
@@ -135,7 +135,7 @@ namespace Azos.Standards
       return ValueInMm.CompareTo(other.ValueInMm);
     }
 
-    public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
       JSONWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("unit", UnitName), new DictionaryEntry("value", Value));
     }

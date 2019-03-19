@@ -20,7 +20,7 @@ namespace Azos.Serialization.JSON
     /// It respects JSONWritingOptions.NLSMapLanguageISO and NLSMapLanguageISODefault
     /// </summary>
     [Serializable] //this type is directly handled by slim writer/reader
-    public struct NLSMap : IEnumerable<KeyValuePair<string, NLSMap.NDPair>>, IJSONWritable
+    public struct NLSMap : IEnumerable<KeyValuePair<string, NLSMap.NDPair>>, IJsonWritable
     {
       //There are roughly 6,500 spoken languages in the world today.
       //However, about 2,000 of those languages have fewer than 1,000 speakers
@@ -60,7 +60,7 @@ namespace Azos.Serialization.JSON
       /// <summary>
       /// Localized Name:Description pair
       /// </summary>
-      public struct NDPair : IJSONWritable
+      public struct NDPair : IJsonWritable
       {
         internal NDPair(int iso, string name, string descr){ISO = iso; Name = name; Description = descr;}
 
@@ -70,7 +70,7 @@ namespace Azos.Serialization.JSON
         public readonly string Name;
         public readonly string Description;
 
-        void IJSONWritable.WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options)
+        void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options)
         {
           JSONWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", Name),
                                                           new System.Collections.DictionaryEntry("d", Description));
@@ -293,7 +293,7 @@ namespace Azos.Serialization.JSON
       /// <summary>
       /// Writes NLSMap either as a dict or as a {n:"", d: ""} pair as Options.NLSMapLanguageISO filter dictates
       /// </summary>
-      public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+      public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
       {
         if (m_Data==null)
         {

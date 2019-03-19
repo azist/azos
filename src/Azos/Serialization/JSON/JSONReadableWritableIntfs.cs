@@ -18,10 +18,10 @@ namespace Azos.Serialization.JSON
     /// This approach may be far more performant for some classes that need to serialize their state/data in JSON format,
     /// than relying on general-purpose JSON serializer that can serialize any type but is slower
     /// </summary>
-    public interface IJSONWritable
+    public interface IJsonWritable
     {
         /// <summary>
-        /// Writes entitie's data/state as JSON string
+        /// Writes entity data/state as JSON string
         /// </summary>
         ///<param name="wri">
         ///TextWriter to write JSON content into
@@ -34,7 +34,7 @@ namespace Azos.Serialization.JSON
         /// Writing options, such as indenting.
         /// Implementations may elect to use this parameter to control text output or ignore it
         /// </param>
-        void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null);
+        void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null);
     }
 
 
@@ -45,7 +45,7 @@ namespace Azos.Serialization.JSON
     /// than relying on general-purpose JSON serializer that can deserialize any type but is slower.
     /// The particular type has to be allocated first, then it's instance can be hydrated with data/state using this method
     /// </summary>
-    public interface IJSONReadable
+    public interface IJsonReadable
     {
         /// <summary>
         /// Reads entities data/state from low-level IJSONDataObject which is supplied right by JSONParser.
@@ -59,6 +59,6 @@ namespace Azos.Serialization.JSON
         /// A tuple with True if reading succeeded and self reference which in 99% of cases is set to THIS,
         /// however in some rare cases the implementation may re-allocate the result
         /// </returns>
-        (bool match, IJSONReadable self) ReadAsJSON(object data, bool fromUI, JSONReader.NameBinding? nameBinding);
+        (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JSONReader.NameBinding? nameBinding);
     }
 }

@@ -16,7 +16,7 @@ namespace Azos.Collections
   /// Compared to Dictionary[string,string] this class yields 20%-50% better Slim serialization speed improvement and 5%-10% space improvement
   /// </summary>
   [Serializable]
-  public sealed class StringMap : IDictionary<string, string>, IJSONWritable
+  public sealed class StringMap : IDictionary<string, string>, IJsonWritable
   {
 
     internal static Dictionary<string, string> MakeDictionary(bool senseCase)
@@ -106,7 +106,7 @@ namespace Azos.Collections
       return m_Data.GetEnumerator();
     }
 
-    public void WriteAsJSON(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
       JSONWriter.WriteMap(wri, m_Data, nestingLevel, options);
     }

@@ -20,7 +20,7 @@ namespace Azos.Instrumentation
   /// Base class for single measurement events (datums) reported to instrumentation
   /// </summary>
   [Serializable]
-  public abstract class Datum : Azos.Log.IArchiveLoggable, IJSONWritable
+  public abstract class Datum : Azos.Log.IArchiveLoggable, IJsonWritable
   {
     #region CONST
     public const string BSON_FLD_SOURCE = "src";
@@ -228,7 +228,7 @@ namespace Azos.Instrumentation
       if (reductionLevel < 0) m_Source = string.Empty;
     }
 
-    public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
       var data = new Dictionary<string, object>();
 

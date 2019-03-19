@@ -47,7 +47,7 @@ namespace Azos.Data
   /// Documents are NOT THREAD SAFE by definition
   /// </summary>
   [Serializable]
-  public abstract class Doc : IDataDoc, IJSONWritable, IJSONReadable
+  public abstract class Doc : IDataDoc, IJsonWritable, IJsonReadable
   {
 
     #region Static
@@ -817,7 +817,7 @@ namespace Azos.Data
     /// Writes row as JSON either as an array or map depending on JSONWritingOptions.RowsAsMap setting.
     /// Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
     /// </summary>
-    public void WriteAsJSON(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
         if (options==null || !options.RowsAsMap)
         {
@@ -851,7 +851,7 @@ namespace Azos.Data
         JSONWriter.WriteMap(wri, map, nestingLevel, options);
     }
 
-    public (bool match, IJSONReadable self) ReadAsJSON(object data, bool fromUI, JSONReader.NameBinding? nameBinding)
+    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JSONReader.NameBinding? nameBinding)
     {
       if (data is JSONDataMap map)
       {

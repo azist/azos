@@ -305,7 +305,7 @@ namespace Azos.Serialization.BSON
       BinUtils.WriteInt64(stream, dateValue);
     }
 
-    public override void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public override void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
       if (Value.ToUniversalTime() >= DateUtils.UNIX_EPOCH_START_DATE)
       {
@@ -438,7 +438,7 @@ namespace Azos.Serialization.BSON
       BinUtils.WriteInt64(stream, Value);
     }
 
-    public override void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public override void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
       JSONWriter.WriteMap(wri,
           nestingLevel + 1,
@@ -700,7 +700,7 @@ namespace Azos.Serialization.BSON
 
     protected override void ReadValueFromStream(Stream stream){ }
 
-    public override void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public override void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
       JSONWriter.WriteMap(wri,
            nestingLevel+1,
@@ -735,7 +735,7 @@ namespace Azos.Serialization.BSON
 
     protected override void ReadValueFromStream(Stream stream){ }
 
-    public override void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public override void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
       JSONWriter.WriteMap(wri,
            nestingLevel+1,

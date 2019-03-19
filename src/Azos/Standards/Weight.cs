@@ -19,7 +19,7 @@ namespace Azos.Standards
   /// Represents weight with unit type.
   /// All operations are done with precision of 1 milligram
   /// </summary>
-  public struct Weight : IEquatable<Weight>, IComparable<Weight>, IJSONWritable
+  public struct Weight : IEquatable<Weight>, IComparable<Weight>, IJsonWritable
   {
     public enum UnitType
     {
@@ -147,7 +147,7 @@ namespace Azos.Standards
       return ValueInGrams.CompareTo(other.ValueInGrams);
     }
 
-    public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
       JSONWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("unit", UnitName), new  DictionaryEntry("value", Value));
     }

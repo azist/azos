@@ -19,7 +19,7 @@ namespace Azos.Data
     /// Rowsets are not thread-safe
     /// </summary>
     [Serializable]
-    public abstract class RowsetBase : IList<Doc>, IComparer<Doc>, IJSONWritable, IValidatable
+    public abstract class RowsetBase : IList<Doc>, IComparer<Doc>, IJsonWritable, IValidatable
     {
         #region .ctor/static
 
@@ -602,7 +602,7 @@ namespace Azos.Data
             /// <summary>
             /// Writes rowset as JSON including schema information. Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
             /// </summary>
-            public void WriteAsJSON(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+            public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
             {
                 var tp = GetType();
 

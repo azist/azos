@@ -21,7 +21,7 @@ namespace Azos.Data
     /// Schema for TypedDocs is cached in static dictionary for speed
     /// </summary>
     [Serializable]
-    public sealed class Schema : INamed, IEnumerable<Schema.FieldDef>, IJSONWritable
+    public sealed class Schema : INamed, IEnumerable<Schema.FieldDef>, IJsonWritable
     {
         public const string EXTRA_SUPPORTS_INSERT_ATTR = "supports-insert";
         public const string EXTRA_SUPPORTS_UPDATE_ATTR = "supports-update";
@@ -34,7 +34,7 @@ namespace Azos.Data
             /// Provides a definition for a single field of a row
             /// </summary>
             [Serializable]
-            public sealed class FieldDef : INamed, IOrdered, ISerializable, IJSONWritable
+            public sealed class FieldDef : INamed, IOrdered, ISerializable, IJsonWritable
             {
 
                 public FieldDef(string name, Type type, FieldAttribute attr)
@@ -323,7 +323,7 @@ namespace Azos.Data
                 /// <summary>
                 /// Writes fielddef as JSON. Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
                 /// </summary>
-                public void WriteAsJSON(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+                public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
                 {
                     var attr = this[null];
 
@@ -837,7 +837,7 @@ namespace Azos.Data
             /// <summary>
             /// Writes schema as JSON. Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
             /// </summary>
-            public void WriteAsJSON(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+            public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
             {
                 IEnumerable<FieldDef> defs = m_FieldDefs;
 

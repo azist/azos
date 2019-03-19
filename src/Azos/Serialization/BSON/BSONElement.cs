@@ -18,7 +18,7 @@ namespace Azos.Serialization.BSON
   /// <summary>
   /// Very base class for BSON elements
   /// </summary>
-  public abstract class BSONElement : Collections.INamed, IConvertible, IJSONWritable
+  public abstract class BSONElement : Collections.INamed, IConvertible, IJsonWritable
   {
 
     private static readonly Dictionary<BSONElementType, Func<Stream, BSONElement>> s_ELEMENTSTREAMCTORS = new Dictionary<BSONElementType, Func<Stream, BSONElement>>
@@ -171,7 +171,7 @@ namespace Azos.Serialization.BSON
         return "{0}{1}={2}".Args(GetType().Name, Name, ObjectValue ?? "<null>");
       }
 
-      public virtual void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+      public virtual void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
       {
         JSONWriter.Write(this.ObjectValue, wri, options);
       }

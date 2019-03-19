@@ -17,7 +17,7 @@ namespace Azos.Security
   /// Represents abstraction of a hashed password, the concrete password algorithm provide implementation (i.e. bytebuffer, dictionary, string)
   /// </summary>
   [Azos.Serialization.Slim.SlimSerializationProhibited]
-  public sealed class HashedPassword : IJSONWritable, IEnumerable<KeyValuePair<string, object>>
+  public sealed class HashedPassword : IJsonWritable, IEnumerable<KeyValuePair<string, object>>
   {
     #region CONSTS
       public const string KEY_ALGO = "algo";
@@ -79,7 +79,7 @@ namespace Azos.Security
 
       public override string ToString() { return m_Content.ToJSON(); }
 
-      public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+      public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
       {
         JSONWriter.WriteMap(wri, m_Content, nestingLevel, options);
       }

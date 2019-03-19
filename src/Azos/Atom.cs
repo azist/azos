@@ -39,7 +39,7 @@ namespace Azos
   /// </para>
   /// </remarks>
   [Serializable]
-  public struct Atom : IEquatable<Atom>, Data.Access.IDistributedStableHashProvider, Serialization.JSON.IJSONWritable
+  public struct Atom : IEquatable<Atom>, Data.Access.IDistributedStableHashProvider, Serialization.JSON.IJsonWritable
   {
 
     /// <summary>
@@ -265,7 +265,7 @@ namespace Azos
       return new string(data);
     }
 
-    void IJSONWritable.WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options)
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options)
     => JSONWriter.EncodeString(wri, Value, options);
   }
 }

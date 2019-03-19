@@ -288,10 +288,10 @@ namespace Azos.Serialization.JSON
 
 
       //Custom JSON Readable
-      if (typeof(IJSONReadable).IsAssignableFrom(nntp))
+      if (typeof(IJsonReadable).IsAssignableFrom(nntp))
       {
-        IJSONReadable newval = Activator.CreateInstance(nntp) as IJSONReadable;
-        var got = newval.ReadAsJSON(v, fromUI, nameBinding);//this me re-allocate the result based of newval
+        IJsonReadable newval = Activator.CreateInstance(nntp) as IJsonReadable;
+        var got = newval.ReadAsJson(v, fromUI, nameBinding);//this me re-allocate the result based of newval
         return got.match ? got.self : null;
       }
 

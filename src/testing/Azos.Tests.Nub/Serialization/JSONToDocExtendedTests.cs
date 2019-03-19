@@ -23,7 +23,7 @@ namespace Azos.Tests.Nub.Serialization
   public class JSONToDocExtendedTests
   {
 
-    public struct CustomStructType : IJSONWritable, IJSONReadable
+    public struct CustomStructType : IJsonWritable, IJsonReadable
     {
       public CustomStructType(string text)
       {
@@ -34,7 +34,7 @@ namespace Azos.Tests.Nub.Serialization
       public string Text;
       public int Length;
 
-      public (bool match, IJSONReadable self) ReadAsJSON(object data, bool fromUI, JSONReader.NameBinding? nameBinding)
+      public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JSONReader.NameBinding? nameBinding)
       {
         if (data==null) return (false, this);
 
@@ -46,7 +46,7 @@ namespace Azos.Tests.Nub.Serialization
         return (true, this);
       }
 
-      public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+      public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
       {
         JSONWriter.EncodeString(wri, Text, options);
       }

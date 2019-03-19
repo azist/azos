@@ -658,7 +658,7 @@ namespace Azos.Conf
   /// Represents configuration section node. This class is thread safe
   /// </summary>
   [Serializable]
-  public sealed class ConfigSectionNode : ConfigNode, IConfigSectionNode, IJSONWritable
+  public sealed class ConfigSectionNode : ConfigNode, IConfigSectionNode, IJsonWritable
   {
     #region .ctor
 
@@ -869,7 +869,7 @@ namespace Azos.Conf
 
     #region Public
 
-        void IJSONWritable.WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+        void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
         {
           var map = this.ToConfigurationJSONDataMap();
           JSONWriter.WriteMap(wri, map, nestingLevel, options);

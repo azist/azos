@@ -55,7 +55,7 @@ namespace Azos.Serialization.BSON
   /// <summary>
   /// Represents a BSON document
   /// </summary>
-  public class BSONDocument : IJSONWritable, IEnumerable<BSONElement>
+  public class BSONDocument : IJsonWritable, IEnumerable<BSONElement>
   {
     #region CONSTS
       public const int IDX_THRESHOLD = 6;
@@ -289,7 +289,7 @@ namespace Azos.Serialization.BSON
       /// <summary>
       /// Serializes this dosument into a TextWriter - this method is used by JSON serializer(JSONWriter)
       /// </summary>
-      public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+      public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
       {
         //this will throw nesting exception in case of cyclical graph
         JSONWriter.WriteMap(wri, this.Select(elm => new DictionaryEntry(elm.Name, elm)), nestingLevel+1, options);

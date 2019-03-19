@@ -21,7 +21,7 @@ namespace Azos.Serialization.BSON
   /// <summary>
   /// Represents an ObjectId as a 12-byte BSON type
   /// </summary>
-  public struct BSONObjectID : IJSONWritable
+  public struct BSONObjectID : IJsonWritable
   {
     private const int THREE_BYTES_UINT_THRESHOLD = 16777216;
     private const int DATA_LENGTH = 12;
@@ -93,7 +93,7 @@ namespace Azos.Serialization.BSON
     /// </summary>
     public GDID AsGDID { get { return new GDID(Bytes); } }
 
-    public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
       JSONWriter.WriteMap(wri,
            nestingLevel+1,
@@ -106,7 +106,7 @@ namespace Azos.Serialization.BSON
   /// <summary>
   /// Represents a BSON bynary type
   /// </summary>
-  public struct BSONBinary : IJSONWritable
+  public struct BSONBinary : IJsonWritable
   {
     public BSONBinary(BSONBinaryType type, byte[] data)
     {
@@ -120,7 +120,7 @@ namespace Azos.Serialization.BSON
     public readonly BSONBinaryType Type;
     public readonly byte[] Data;
 
-    public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
       JSONWriter.WriteMap(wri,
            nestingLevel+1,
@@ -134,7 +134,7 @@ namespace Azos.Serialization.BSON
   /// <summary>
   /// Represents a BSON regular expression type
   /// </summary>
-  public struct BSONRegularExpression : IJSONWritable
+  public struct BSONRegularExpression : IJsonWritable
   {
     public BSONRegularExpression(string pattern, BSONRegularExpressionOptions options)
     {
@@ -148,7 +148,7 @@ namespace Azos.Serialization.BSON
     public readonly string Pattern;
     public readonly BSONRegularExpressionOptions Options;
 
-    public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
       JSONWriter.WriteMap(wri,
            nestingLevel+1,
@@ -162,7 +162,7 @@ namespace Azos.Serialization.BSON
   /// <summary>
   /// Represents a BSON javascript with the scope type
   /// </summary>
-  public struct BSONCodeWithScope : IJSONWritable
+  public struct BSONCodeWithScope : IJsonWritable
   {
     public BSONCodeWithScope(string code, BSONDocument scope)
     {
@@ -176,7 +176,7 @@ namespace Azos.Serialization.BSON
     public readonly string Code;
     public readonly BSONDocument Scope;
 
-    public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
       var data = new {js = Code, doc = Scope};
       JSONWriter.Write(data, wri, options);
@@ -186,7 +186,7 @@ namespace Azos.Serialization.BSON
   /// <summary>
   /// Represents a BSON timestamp type
   /// </summary>
-  public struct BSONTimestamp : IJSONWritable
+  public struct BSONTimestamp : IJsonWritable
   {
     public BSONTimestamp(DateTime value, uint increment)
     {
@@ -197,7 +197,7 @@ namespace Azos.Serialization.BSON
     public readonly uint EpochSeconds;
     public readonly uint Increment;
 
-    public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
     {
       JSONWriter.WriteMap(wri,
            nestingLevel+1,

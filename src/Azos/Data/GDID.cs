@@ -32,7 +32,7 @@ namespace Azos.Data
                        IComparable<GDID>,
                        IEquatable<GDID>,
                        IComparable,
-                       IJSONWritable
+                       IJsonWritable
   {
         public const UInt64 AUTHORITY_MASK = 0xf000000000000000;
         public const UInt64 COUNTER_MASK   = 0x0fffffffffffffff;//0x 0f  ff  ff  ff  ff  ff  ff  ff
@@ -196,7 +196,7 @@ namespace Azos.Data
           return x.CompareTo(y)>=0;
         }
 
-        public void WriteAsJSON(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+        public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
         {
           wri.Write('"');
           wri.Write(Era);
