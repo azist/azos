@@ -55,7 +55,10 @@ namespace Azos.Serialization.JSON
         /// <param name="data">JSONParser-supplied object</param>
         /// <param name="fromUI">True if data is coming form user interface</param>
         /// <param name="nameBinding">JSON name binding controls what names to use: from attributes of prop names from code</param>
-        /// <returns>True if reading succeeded</returns>
-        bool ReadAsJSON(object data, bool fromUI, JSONReader.NameBinding? nameBinding);
+        /// <returns>
+        /// A tuple with True if reading succeeded and self reference which in 99% of cases is set to THIS,
+        /// however in some rare cases the implementation may re-allocate the result
+        /// </returns>
+        (bool match, IJSONReadable self) ReadAsJSON(object data, bool fromUI, JSONReader.NameBinding? nameBinding);
     }
 }

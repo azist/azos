@@ -34,16 +34,16 @@ namespace Azos.Tests.Nub.Serialization
       public string Text;
       public int Length;
 
-      public bool ReadAsJSON(object data, bool fromUI, JSONReader.NameBinding? nameBinding)
+      public (bool match, IJSONReadable self) ReadAsJSON(object data, bool fromUI, JSONReader.NameBinding? nameBinding)
       {
-        if (data==null) return false;
+        if (data==null) return (false, this);
 
         var str = data as string;
         if (str==null) str = data.ToString();
 
         Text = str;
         Length = str.Length;
-        return true;
+        return (true, this);
       }
 
       public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
@@ -96,7 +96,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void CustomWritableReadable_2()
     {
-      var d1 = new CustomDoc2 { ID = "sss", Data = new CustomStructType("Custom string 1") };
+      var d1 = new CustomDoc2 { ID = "sss", Data = new CustomStructType("Custom string 2") };
 
       var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);

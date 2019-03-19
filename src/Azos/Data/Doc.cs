@@ -851,14 +851,14 @@ namespace Azos.Data
         JSONWriter.WriteMap(wri, map, nestingLevel, options);
     }
 
-    public bool ReadAsJSON(object data, bool fromUI, JSONReader.NameBinding? nameBinding)
+    public (bool match, IJSONReadable self) ReadAsJSON(object data, bool fromUI, JSONReader.NameBinding? nameBinding)
     {
       if (data is JSONDataMap map)
       {
         JSONReader.ToDoc(this, map, fromUI, nameBinding);
-        return true;
+        return (true, this);
       }
-      return false;
+      return (false, this);
     }
 
     #endregion
