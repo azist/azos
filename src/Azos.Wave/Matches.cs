@@ -19,7 +19,7 @@ namespace Azos.Wave
     public NotAuthorizationExceptionMatch(string name, int order) : base(name, order) { }
     public NotAuthorizationExceptionMatch(IConfigSectionNode confNode) : base(confNode) { }
 
-    public override JSONDataMap Make(WorkContext work, object context = null)
+    public override JsonDataMap Make(WorkContext work, object context = null)
     {
       if (Azos.Security.AuthorizationException.IsDenotedBy(context as Exception)) return null;
       return base.Make(work, context);
@@ -38,7 +38,7 @@ namespace Azos.Wave
     [Config] public int Code {  get; set; }
     [Config] public bool IsNot {  get; set; }
 
-    public override JSONDataMap Make(WorkContext work, object context = null)
+    public override JsonDataMap Make(WorkContext work, object context = null)
     {
       var eq = work.Response.StatusCode == Code;
       if (IsNot == eq) return null;
@@ -72,7 +72,7 @@ namespace Azos.Wave
       set { m_IsNot = value; }
     }
 
-    public override JSONDataMap Make(WorkContext work, object context = null)
+    public override JsonDataMap Make(WorkContext work, object context = null)
     {
       if (m_ExceptionType!=null)
       {

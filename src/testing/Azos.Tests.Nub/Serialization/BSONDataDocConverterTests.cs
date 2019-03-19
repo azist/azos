@@ -362,11 +362,11 @@ namespace Azos.Tests.Nub.Serialization
       {
         var row = new RowC
         {
-          Map = new JSONDataMap{{"Name","Xerson"},{"Age",123}},
+          Map = new JsonDataMap{{"Name","Xerson"},{"Age",123}},
           List = new List<object>{ 1,true, "YEZ!", -123.01m},
           ObjectArray = new object[]{123, -12, 789d, new GDID(0, 1223), null, new object[] { 54.67d, "alpIna"}},
-          MapArray = new JSONDataMap[]{ new JSONDataMap{{"a",1},{"b",true}},  new JSONDataMap{{"kosmos",234.12},{"b",null}} },
-          MapList = new List<JSONDataMap>{ new JSONDataMap{{"abc",0},{"buba", new GDID(2, 1223)}},  new JSONDataMap{{"nothing",null}} }
+          MapArray = new JsonDataMap[]{ new JsonDataMap{{"a",1},{"b",true}},  new JsonDataMap{{"kosmos",234.12},{"b",null}} },
+          MapList = new List<JsonDataMap>{ new JsonDataMap{{"abc",0},{"buba", new GDID(2, 1223)}},  new JsonDataMap{{"nothing",null}} }
         };
 
         var rc = new DataDocConverter();
@@ -544,11 +544,11 @@ namespace Azos.Tests.Nub.Serialization
       [Aver.Throws(typeof(BSONException), Message="reference cycle", MsgMatch=Aver.ThrowsAttribute.MatchType.Contains)]
       public void T_14_RowCycle_TransitiveCycle_3()
       {
-          var root = new JSONDataMap();
+          var root = new JsonDataMap();
 
           root["a"] = 1;
           root["b"] = true;
-          root["array"] = new JSONDataArray(){1,2,3,true,true,root};  //TRANSITIVE(via another instance) CYCLE!!!!
+          root["array"] = new JsonDataArray(){1,2,3,true,true,root};  //TRANSITIVE(via another instance) CYCLE!!!!
 
           var rc = new DataDocConverter();
 
@@ -880,11 +880,11 @@ namespace Azos.Tests.Nub.Serialization
 
          public class RowC : TypedDoc
          {
-           [Field] public JSONDataMap  Map{get; set;}
+           [Field] public JsonDataMap  Map{get; set;}
            [Field] public object[]  ObjectArray{get; set;}
-           [Field] public JSONDataMap[]  MapArray{get; set;}
+           [Field] public JsonDataMap[]  MapArray{get; set;}
            [Field] public List<object> List{get; set;}
-           [Field] public List<JSONDataMap> MapList{get; set;}
+           [Field] public List<JsonDataMap> MapList{get; set;}
          }
 
 

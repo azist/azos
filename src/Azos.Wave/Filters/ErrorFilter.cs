@@ -207,7 +207,7 @@ namespace Azos.Wave.Filters
           {
             if (securityRedirectMatches != null && securityRedirectMatches.Count > 0)
             {
-              JSONDataMap matched = null;
+              JsonDataMap matched = null;
               foreach(var match in securityRedirectMatches.OrderedValues)
               {
                 matched = match.Make(work, actual);
@@ -267,14 +267,14 @@ namespace Azos.Wave.Filters
 
           if (logMatches!=null && logMatches.Count>0)
           {
-            JSONDataMap matched = null;
+            JsonDataMap matched = null;
             foreach(var match in logMatches.OrderedValues)
             {
               matched = match.Make(work, error);
               if (matched!=null) break;
             }
             if (matched!=null)
-              work.Log(Log.MessageType.Error, error.ToMessageWithType(), typeof(ErrorFilter).FullName, pars: matched.ToJSON(JSONWritingOptions.CompactASCII));
+              work.Log(Log.MessageType.Error, error.ToMessageWithType(), typeof(ErrorFilter).FullName, pars: matched.ToJson(JsonWritingOptions.CompactASCII));
           }
 
       }

@@ -38,7 +38,7 @@ namespace Azos.Tests.Nub
         Console.WriteLine();
         Console.WriteLine($"BSON:");
         Console.WriteLine($"-----------------------------");
-        Console.WriteLine(doc.ToJSON());
+        Console.WriteLine(doc.ToJson());
 
         averWrappedExceptionEquality(wed, wed2);
       }

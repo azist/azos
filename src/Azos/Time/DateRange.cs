@@ -128,9 +128,9 @@ namespace Azos.Time
                                 End.HasValue ? End.Value.ToString(format, formatProvider) : " ");
     }
 
-    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options)
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
-      JSONWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("start", Start), new DictionaryEntry("end", End));
+      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("start", Start), new DictionaryEntry("end", End));
     }
   }
 

@@ -869,10 +869,10 @@ namespace Azos.Conf
 
     #region Public
 
-        void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+        void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
         {
           var map = this.ToConfigurationJSONDataMap();
-          JSONWriter.WriteMap(wri, map, nestingLevel, options);
+          JsonWriter.WriteMap(wri, map, nestingLevel, options);
         }
 
         /// <summary>
@@ -1444,9 +1444,9 @@ namespace Azos.Conf
         /// <summary>
         /// Serializes configuration tree rooted at this node into JSON configuration format and returns it as a string
         /// </summary>
-        public string ToJSONString(Azos.Serialization.JSON.JSONWritingOptions options = null)
+        public string ToJSONString(Azos.Serialization.JSON.JsonWritingOptions options = null)
         {
-          return this.ToConfigurationJSONDataMap().ToJSON(options);
+          return this.ToConfigurationJSONDataMap().ToJson(options);
         }
 
         /// <summary>
@@ -1554,9 +1554,9 @@ namespace Azos.Conf
         /// In other words some ConfigSectionNode information can not be reflected in corresponding JSONDataMap, for example
         ///  this method overwrites duplicate key names and does not support section values
         /// </summary>
-        public JSONDataMap ToJSONDataMap()
+        public JsonDataMap ToJSONDataMap()
         {
-          var map = new JSONDataMap();
+          var map = new JsonDataMap();
 
           if (this.Exists)
             buildSectionMap(this, map);
@@ -1564,7 +1564,7 @@ namespace Azos.Conf
           return map;
         }
 
-                  private static void buildSectionMap(ConfigSectionNode node, JSONDataMap map)
+                  private static void buildSectionMap(ConfigSectionNode node, JsonDataMap map)
                   {
                     foreach (var attr in node.Attributes)
                     {
@@ -1573,7 +1573,7 @@ namespace Azos.Conf
 
                     foreach (var childNode in node.Children)
                     {
-                      var childMap = new JSONDataMap();
+                      var childMap = new JsonDataMap();
                       map[childNode.Name] = childMap;
                       buildSectionMap(childNode, childMap);
                     }
@@ -1583,9 +1583,9 @@ namespace Azos.Conf
          /// Returns this config node as JSON data map suitable for making JSONConfiguration.
          /// Contrast with ToJSONDataMap
          /// </summary>
-         public JSONDataMap ToConfigurationJSONDataMap()
+         public JsonDataMap ToConfigurationJSONDataMap()
          {
-           var root = new JSONDataMap(false);
+           var root = new JsonDataMap(false);
 
            if (this.Exists)
              root[this.Name] = buildSectionConfigJSONDataMap(this);
@@ -1593,9 +1593,9 @@ namespace Azos.Conf
            return root;
          }
 
-               private static JSONDataMap buildSectionConfigJSONDataMap(ConfigSectionNode sect)
+               private static JsonDataMap buildSectionConfigJSONDataMap(ConfigSectionNode sect)
                {
-                 var result = new JSONDataMap(false);
+                 var result = new JsonDataMap(false);
 
                  if (sect.VerbatimValue.IsNotNullOrWhiteSpace())
                    result[JSONConfiguration.SECTION_VALUE_ATTR] = sect.VerbatimValue;

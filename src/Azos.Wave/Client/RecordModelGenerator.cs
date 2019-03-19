@@ -36,7 +36,7 @@ namespace Azos.Wave.Client
   /// <param name="target">Target name</param>
   /// <param name="isoLang">Desired isoLang for localization</param>
   /// <returns>JSONDataMap populated by business logic or null to indicate that no lookup values are available</returns>
-  public delegate JSONDataMap ModelFieldValueListLookupFunc(RecordModelGenerator sender,
+  public delegate JsonDataMap ModelFieldValueListLookupFunc(RecordModelGenerator sender,
                                                             Doc  doc,
                                                             Schema.FieldDef fdef,
                                                             string target,
@@ -114,14 +114,14 @@ namespace Azos.Wave.Client
       ///  may get attributes for client data entry screen that sees field metadata differently, in which case target will reflect the name
       ///   of the screen
       /// </summary>
-      public virtual JSONDataMap RowToRecordInitJSON(Doc doc,
+      public virtual JsonDataMap RowToRecordInitJSON(Doc doc,
                                                      Exception validationError,
                                                      string recID = null,
                                                      string target = null,
                                                      string isoLang = null,
                                                      ModelFieldValueListLookupFunc valueListLookup = null)
       {
-        var result = new JSONDataMap();
+        var result = new JsonDataMap();
         if (doc==null) return result;
         if (recID.IsNullOrWhiteSpace()) recID = Guid.NewGuid().ToString();
 
@@ -139,10 +139,10 @@ namespace Azos.Wave.Client
 
           //20160123 DKh
           if (form.HasRoundtripBag)
-            result[Form.JSON_ROUNDTRIP_PROPERTY] = form.RoundtripBag.ToJSON(JSONWritingOptions.CompactASCII);
+            result[Form.JSON_ROUNDTRIP_PROPERTY] = form.RoundtripBag.ToJson(JsonWritingOptions.CompactASCII);
         }
 
-        var fields = new JSONDataArray();
+        var fields = new JsonDataArray();
         result["fields"] = fields;
 
         var schemaName = doc.Schema.Name;
@@ -153,7 +153,7 @@ namespace Azos.Wave.Client
           var fdef = doc.GetClientFieldDef(sfdef, target, isoLang);
           if (fdef==null || fdef.NonUI) continue;
 
-          var fld = new JSONDataMap();
+          var fld = new JsonDataMap();
           fields.Add(fld);
           fld["def"] = FieldDefToJSON(doc, schemaName, fdef, target, isoLang, valueListLookup);
           var val = doc.GetClientFieldValue(sfdef, target, isoLang);
@@ -179,14 +179,14 @@ namespace Azos.Wave.Client
       }
 
 
-      protected virtual JSONDataMap FieldDefToJSON(Doc doc,
+      protected virtual JsonDataMap FieldDefToJSON(Doc doc,
                                                    string schema,
                                                    Schema.FieldDef fdef,
                                                    string target,
                                                    string isoLang,
                                                    ModelFieldValueListLookupFunc valueListLookup)
       {
-        var result = new JSONDataMap();
+        var result = new JsonDataMap();
 
         result["Name"] = fdef.Name;
         result["Type"] = MapCLRTypeToJS(fdef.NonNullableType);
@@ -197,7 +197,7 @@ namespace Azos.Wave.Client
         if (fdef.NonNullableType.IsEnum)
         { //Generate default lookupdict for enum
           var names = Enum.GetNames(fdef.NonNullableType);
-          var values = new JSONDataMap(true);
+          var values = new JsonDataMap(true);
           foreach(var name in names)
             values[name] = name;
 

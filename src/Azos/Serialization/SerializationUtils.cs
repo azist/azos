@@ -222,7 +222,7 @@ namespace Azos.Serialization
         /// null if navigation path is not exists.
         /// JSONDataMap if navigation ends up with non-leaf node.
         /// object if navigation ends up with leaf node.</returns>
-        public static object GetNodeByPath(this JSONDataMap json, params string[] nodeNames)
+        public static object GetNodeByPath(this JsonDataMap json, params string[] nodeNames)
         {
             object node = null;
             for (int i=0; i<nodeNames.Length; i++)
@@ -233,7 +233,7 @@ namespace Azos.Serialization
                 if (i == nodeNames.Length - 1)
                     return node;
 
-                json = node as JSONDataMap;
+                json = node as JsonDataMap;
             }
 
             return null;

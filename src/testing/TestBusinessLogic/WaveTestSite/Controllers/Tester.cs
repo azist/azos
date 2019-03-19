@@ -161,7 +161,7 @@ namespace WaveTestSite.Controllers
 
 
       [Action]
-      public object Echo(JSONDataMap data)
+      public object Echo(JsonDataMap data)
       {
         return new
         {
@@ -193,7 +193,7 @@ namespace WaveTestSite.Controllers
       }
 
       [ActionOnGet(Name ="person")]
-      public object PersonGet(JSONDataMap req)
+      public object PersonGet(JsonDataMap req)
       {
         makePuzzle();
         var row = new Person{
@@ -201,7 +201,7 @@ namespace WaveTestSite.Controllers
           FirstName = "Yuriy",
           LastName = "Gagarin",
           DOB = new DateTime(1980, 07, 05),
-          Puzzle = new JSONDataMap{ {"Image", "/mvc/tester/captcha?key=PersonPuzzle"}, {"Question", "Enter the current Year"}}
+          Puzzle = new JsonDataMap{ {"Image", "/mvc/tester/captcha?key=PersonPuzzle"}, {"Question", "Enter the current Year"}}
         };
         return new ClientRecord(row, null);
       }
@@ -216,7 +216,7 @@ namespace WaveTestSite.Controllers
           var pk = WorkContext.Session["PersonPuzzle"] as PuzzleKeypad;
           if (pk != null)
           {
-            var answer = doc.Puzzle["Answer"] as JSONDataArray;
+            var answer = doc.Puzzle["Answer"] as JsonDataArray;
             if (answer != null)
               puzzlePass = pk.DecipherCoordinates(answer) == pk.Code;
           }
@@ -239,7 +239,7 @@ namespace WaveTestSite.Controllers
       }
 
       [Action]
-      public object MultipartMap(JSONDataMap data)
+      public object MultipartMap(JsonDataMap data)
       {
         return new
         {
@@ -260,7 +260,7 @@ namespace WaveTestSite.Controllers
 
         if (map) return result;
 
-        return new JSONResult(result, JSONWritingOptions.Compact);
+        return new JSONResult(result, JsonWritingOptions.Compact);
       }
 
       [Action]
@@ -372,7 +372,7 @@ namespace WaveTestSite.Controllers
           public string Various { get; set;}
 
           [Field(storeFlag: StoreFlag.None, metadata:@"ControlType=Puzzle Stored=true")]
-          public JSONDataMap Puzzle { get; set;}
+          public JsonDataMap Puzzle { get; set;}
         }
 
 

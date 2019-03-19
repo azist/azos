@@ -17,7 +17,7 @@ namespace Azos.Serialization.JSON
     /// <summary>
     /// Represents a data transfer object (DTO) abstraction used to read/write JSON data
     /// </summary>
-    public interface IJSONDataObject
+    public interface IJsonDataObject
     {
     }
 
@@ -26,12 +26,12 @@ namespace Azos.Serialization.JSON
     /// Represents a data transfer object (DTO) JSON map, that associates keys with values
     /// </summary>
     [Serializable]
-    public class JSONDataMap : Dictionary<string, object>, IJSONDataObject
+    public class JsonDataMap : Dictionary<string, object>, IJsonDataObject
     {
         /// <summary>
         /// Turns URL encoded content into JSONDataMap
         /// </summary>
-        public static JSONDataMap FromURLEncodedStream(Stream stream, Encoding encoding = null, bool caseSensitive = false)
+        public static JsonDataMap FromURLEncodedStream(Stream stream, Encoding encoding = null, bool caseSensitive = false)
         {
           using(var reader = encoding==null ? new StreamReader(stream) : new StreamReader(stream, encoding))
           {
@@ -42,9 +42,9 @@ namespace Azos.Serialization.JSON
         /// <summary>
         /// Turns URL encoded content into JSONDataMap
         /// </summary>
-        public static JSONDataMap FromURLEncodedString(string content, bool caseSensitive = false)
+        public static JsonDataMap FromURLEncodedString(string content, bool caseSensitive = false)
         {
-          var result = new JSONDataMap(caseSensitive);
+          var result = new JsonDataMap(caseSensitive);
 
           if (content.IsNullOrWhiteSpace()) return result;
 
@@ -87,17 +87,17 @@ namespace Azos.Serialization.JSON
         }
 
 
-        public JSONDataMap(): base(StringComparer.InvariantCulture)
+        public JsonDataMap(): base(StringComparer.InvariantCulture)
         {
           CaseSensitive = true;
         }
 
-        public JSONDataMap(bool caseSensitive): base(caseSensitive ? StringComparer.InvariantCulture : StringComparer.InvariantCultureIgnoreCase)
+        public JsonDataMap(bool caseSensitive): base(caseSensitive ? StringComparer.InvariantCulture : StringComparer.InvariantCultureIgnoreCase)
         {
           CaseSensitive = caseSensitive;
         }
 
-        protected JSONDataMap(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context)
+        protected JsonDataMap(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context)
         {
 
         }
@@ -124,7 +124,7 @@ namespace Azos.Serialization.JSON
         /// Appends contents of another JSONDataMap for keys that do not exist in this one or null.
         /// Only appends references, does not provide deep reference copy
         /// </summary>
-        public JSONDataMap Append(JSONDataMap other, bool deep = false)
+        public JsonDataMap Append(JsonDataMap other, bool deep = false)
         {
           if (other==null) return this;
 
@@ -134,7 +134,7 @@ namespace Azos.Serialization.JSON
             if (here==null)
               this[kvp.Key] = kvp.Value;
             else
-              if (deep && here is JSONDataMap) ((JSONDataMap)here).Append(kvp.Value as JSONDataMap, deep);
+              if (deep && here is JsonDataMap) ((JsonDataMap)here).Append(kvp.Value as JsonDataMap, deep);
           }
 
           return this;
@@ -142,7 +142,7 @@ namespace Azos.Serialization.JSON
 
         public override string ToString()
         {
-          return this.ToJSON(JSONWritingOptions.Compact);
+          return this.ToJson(JsonWritingOptions.Compact);
         }
 
         /// <summary>
@@ -158,11 +158,11 @@ namespace Azos.Serialization.JSON
           return mc.Root;
         }
 
-        private void buildNode(ConfigSectionNode node, JSONDataMap map)
+        private void buildNode(ConfigSectionNode node, JsonDataMap map)
         {
           foreach(var kvp in map)
           {
-           var cmap = kvp.Value as JSONDataMap;
+           var cmap = kvp.Value as JsonDataMap;
            if (cmap!=null)
             buildNode( node.AddChildNode(kvp.Key), cmap);
            else
@@ -175,15 +175,15 @@ namespace Azos.Serialization.JSON
     /// <summary>
     /// Represents a data transfer object (DTO) JSON array, that holds a list of values
     /// </summary>
-    public class JSONDataArray : List<object>, IJSONDataObject
+    public class JsonDataArray : List<object>, IJsonDataObject
     {
-      public JSONDataArray() {}
-      public JSONDataArray(IEnumerable<object> other) : base(other) {}
-      public JSONDataArray(int capacity) : base(capacity) {}
+      public JsonDataArray() {}
+      public JsonDataArray(IEnumerable<object> other) : base(other) {}
+      public JsonDataArray(int capacity) : base(capacity) {}
 
       public override string ToString()
       {
-        return this.ToJSON(JSONWritingOptions.Compact);
+        return this.ToJson(JsonWritingOptions.Compact);
       }
     }
 

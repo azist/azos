@@ -323,7 +323,7 @@ namespace Azos.Data
                 /// <summary>
                 /// Writes fielddef as JSON. Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
                 /// </summary>
-                public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+                public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
                 {
                     var attr = this[null];
 
@@ -361,7 +361,7 @@ namespace Azos.Data
                         //metadata content is in the internal format and not dumped
                     }
 
-                    JSONWriter.WriteMap(wri, map, nestingLevel, options);
+                    JsonWriter.WriteMap(wri, map, nestingLevel, options);
                 }
 
 
@@ -398,10 +398,10 @@ namespace Azos.Data
 
             public static Schema FromJSON(string json, bool readOnly = false)
             {
-              return FromJSON(JSONReader.DeserializeDataObject( json ) as JSONDataMap, readOnly);
+              return FromJSON(JsonReader.DeserializeDataObject( json ) as JsonDataMap, readOnly);
             }
 
-            public static Schema FromJSON(JSONDataMap map, bool readOnly = false)
+            public static Schema FromJSON(JsonDataMap map, bool readOnly = false)
             {
               if (map==null || map.Count==0)
                  throw new DataException(StringConsts.ARGUMENT_ERROR+"Schema.FromJSON(map==null|empty)");
@@ -410,12 +410,12 @@ namespace Azos.Data
               if (name.IsNullOrWhiteSpace())
                 throw new DataException(StringConsts.ARGUMENT_ERROR+"Schema.FromJSON(map.Name=null|empty)");
 
-              var adefs = map["FieldDefs"] as JSONDataArray;
+              var adefs = map["FieldDefs"] as JsonDataArray;
               if (adefs==null || adefs.Count==0)
                 throw new DataException(StringConsts.ARGUMENT_ERROR+"Schema.FromJSON(map.FieldDefs=null|empty)");
 
               var defs = new List<Schema.FieldDef>();
-              foreach(var mdef in adefs.Cast<JSONDataMap>())
+              foreach(var mdef in adefs.Cast<JsonDataMap>())
               {
                 var fname = mdef["Name"].AsString();
                 if (fname.IsNullOrWhiteSpace())
@@ -611,7 +611,7 @@ namespace Azos.Data
             private List<TableAttribute> m_TableAttrs;
             private OrderedRegistry<FieldDef> m_FieldDefs;
 
-            private JSONDataMap m_ExtraData;
+            private JsonDataMap m_ExtraData;
         #endregion
 
         #region Properties
@@ -690,12 +690,12 @@ namespace Azos.Data
             /// Returns Extra data that may be associated with schema by various providers.
             /// The field is lazily allocated
             /// </summary>
-            public JSONDataMap ExtraData
+            public JsonDataMap ExtraData
             {
               get
               {
                 if (m_ExtraData==null)
-                  m_ExtraData = new JSONDataMap(false);
+                  m_ExtraData = new JsonDataMap(false);
 
                 return m_ExtraData;
               }
@@ -837,7 +837,7 @@ namespace Azos.Data
             /// <summary>
             /// Writes schema as JSON. Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
             /// </summary>
-            public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+            public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
             {
                 IEnumerable<FieldDef> defs = m_FieldDefs;
 
@@ -865,7 +865,7 @@ namespace Azos.Data
                   {"Name", "JSON"+m_Name.GetHashCode()},
                   {"FieldDefs", defs}
                 };
-                JSONWriter.WriteMap(wri, map, nestingLevel, options);
+                JsonWriter.WriteMap(wri, map, nestingLevel, options);
             }
 
 

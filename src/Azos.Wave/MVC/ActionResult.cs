@@ -212,7 +212,7 @@ namespace Azos.Wave.Mvc
 
     public ClientRecord(Doc doc,
                         Exception validationError,
-                        Func<Schema.FieldDef, JSONDataMap> simpleValueListLookupFunc,
+                        Func<Schema.FieldDef, JsonDataMap> simpleValueListLookupFunc,
                         string recID = null,
                         string target = null,
                         string isoLang = null)
@@ -252,13 +252,13 @@ namespace Azos.Wave.Mvc
   /// </summary>
   public struct JSONResult : IActionResult
   {
-    public JSONResult(object data, JSONWritingOptions options)
+    public JSONResult(object data, JsonWritingOptions options)
     {
       Data = data;
       Options = options;
     }
 
-    public JSONResult(Exception error, JSONWritingOptions options)
+    public JSONResult(Exception error, JsonWritingOptions options)
     {
       var http = WebConsts.STATUS_500;
       var descr = WebConsts.STATUS_500_DESCRIPTION;
@@ -277,7 +277,7 @@ namespace Azos.Wave.Mvc
     }
 
     public readonly object Data;
-    public readonly JSONWritingOptions Options;
+    public readonly JsonWritingOptions Options;
 
 
     public void Execute(Controller controller, WorkContext work)

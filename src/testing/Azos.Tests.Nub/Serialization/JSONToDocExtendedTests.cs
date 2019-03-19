@@ -34,7 +34,7 @@ namespace Azos.Tests.Nub.Serialization
       public string Text;
       public int Length;
 
-      public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JSONReader.NameBinding? nameBinding)
+      public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
       {
         if (data==null) return (false, this);
 
@@ -46,9 +46,9 @@ namespace Azos.Tests.Nub.Serialization
         return (true, this);
       }
 
-      public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+      public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
       {
-        JSONWriter.EncodeString(wri, Text, options);
+        JsonWriter.EncodeString(wri, Text, options);
       }
     }
 
@@ -82,12 +82,12 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new CustomDoc1{ ID = "sss", Data =  new CustomStructType("Custom string 1") };
 
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var jsonMap = json.JSONToDataObject() as JSONDataMap;
+      var jsonMap = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new CustomDoc1();
-      JSONReader.ToDoc(d2, jsonMap);
+      JsonReader.ToDoc(d2, jsonMap);
 
       Aver.AreEqual(d1.Data.Text, d2.Data.Text);
       Aver.AreEqual(d1.Data.Length, d2.Data.Length);
@@ -98,12 +98,12 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new CustomDoc2 { ID = "sss", Data = new CustomStructType("Custom string 2") };
 
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var jsonMap = json.JSONToDataObject() as JSONDataMap;
+      var jsonMap = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new CustomDoc2();
-      JSONReader.ToDoc(d2, jsonMap);
+      JsonReader.ToDoc(d2, jsonMap);
 
       Aver.AreEqual(d1.Data.Value.Text, d2.Data.Value.Text);
       Aver.AreEqual(d1.Data.Value.Length, d2.Data.Value.Length);
@@ -114,12 +114,12 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new CustomDoc3 { ID = "sss", Data = new CustomStructType[]{ new CustomStructType("Custom string 1")} };
 
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var jsonMap = json.JSONToDataObject() as JSONDataMap;
+      var jsonMap = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new CustomDoc3();
-      JSONReader.ToDoc(d2, jsonMap);
+      JsonReader.ToDoc(d2, jsonMap);
 
       Aver.AreEqual(d1.Data[0].Text, d2.Data[0].Text);
       Aver.AreEqual(d1.Data[0].Length, d2.Data[0].Length);
@@ -130,12 +130,12 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new CustomDoc4 { ID = "sss", Data = new List<CustomStructType> { new CustomStructType("Custom string 1") } };
 
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var jsonMap = json.JSONToDataObject() as JSONDataMap;
+      var jsonMap = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new CustomDoc4();
-      JSONReader.ToDoc(d2, jsonMap);
+      JsonReader.ToDoc(d2, jsonMap);
 
       Aver.AreEqual(d1.Data[0].Text, d2.Data[0].Text);
       Aver.AreEqual(d1.Data[0].Length, d2.Data[0].Length);
@@ -180,12 +180,12 @@ namespace Azos.Tests.Nub.Serialization
     public void Test_WithVariousNullableStructsDoc_GDID()
     {
       var d1 = new WithVariousNullableStructsDoc{ Gdid = new GDID(1,2,3)   };
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var map = json.JSONToDataObject() as JSONDataMap;
+      var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
-      JSONReader.ToDoc(d2, map);
+      JsonReader.ToDoc(d2, map);
 
       Aver.AreEqual(d1.Gdid, d2.Gdid);
     }
@@ -194,12 +194,12 @@ namespace Azos.Tests.Nub.Serialization
     public void Test_WithVariousNullableStructsDoc_GDIDSymbol()
     {
       var d1 = new WithVariousNullableStructsDoc { GdidSymbol = new GDIDSymbol(new GDID(1, 2, 3), "abrkadabra") };
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var map = json.JSONToDataObject() as JSONDataMap;
+      var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
-      JSONReader.ToDoc(d2, map);
+      JsonReader.ToDoc(d2, map);
 
       Aver.AreEqual(d1.GdidSymbol, d2.GdidSymbol);
     }
@@ -208,12 +208,12 @@ namespace Azos.Tests.Nub.Serialization
     public void Test_WithVariousNullableStructsDoc_Guid()
     {
       var d1 = new WithVariousNullableStructsDoc { Guid = Guid.NewGuid() };
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var map = json.JSONToDataObject() as JSONDataMap;
+      var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
-      JSONReader.ToDoc(d2, map);
+      JsonReader.ToDoc(d2, map);
 
       Aver.AreEqual(d1.Guid, d2.Guid);
     }
@@ -224,12 +224,12 @@ namespace Azos.Tests.Nub.Serialization
     public void Test_WithVariousNullableStructsDoc_Atom()
     {
       var d1 = new WithVariousNullableStructsDoc { Atom = new Atom() };
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var map = json.JSONToDataObject() as JSONDataMap;
+      var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
-      JSONReader.ToDoc(d2, map);
+      JsonReader.ToDoc(d2, map);
 
       Aver.AreEqual(d1.Atom, d2.Atom);
     }
@@ -239,12 +239,12 @@ namespace Azos.Tests.Nub.Serialization
     public void Test_WithVariousNullableStructsDoc_Timespan()
     {
       var d1 = new WithVariousNullableStructsDoc { Timespan = TimeSpan.FromSeconds(123) };
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var map = json.JSONToDataObject() as JSONDataMap;
+      var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
-      JSONReader.ToDoc(d2, map);
+      JsonReader.ToDoc(d2, map);
 
       Aver.AreEqual(d1.Timespan, d2.Timespan);
     }
@@ -253,12 +253,12 @@ namespace Azos.Tests.Nub.Serialization
     public void Test_WithVariousNullableStructsDoc_DateTime()
     {
       var d1 = new WithVariousNullableStructsDoc { DateTime = new DateTime(1980, 2, 3) };
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var map = json.JSONToDataObject() as JSONDataMap;
+      var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
-      JSONReader.ToDoc(d2, map);
+      JsonReader.ToDoc(d2, map);
 
       Aver.AreEqual(d1.DateTime, d2.DateTime);
     }
@@ -267,12 +267,12 @@ namespace Azos.Tests.Nub.Serialization
     public void Test_WithVariousNullableStructsDoc_Nls()
     {
       var d1 = new WithVariousNullableStructsDoc { Nls = new NLSMap("{eng: {n: 'a', d: 'b'}}") };
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var map = json.JSONToDataObject() as JSONDataMap;
+      var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
-      JSONReader.ToDoc(d2, map);
+      JsonReader.ToDoc(d2, map);
 
       Aver.AreEqual(d1.Nls.Value["eng"].Name, d2.Nls.Value["eng"].Name);
     }
@@ -281,12 +281,12 @@ namespace Azos.Tests.Nub.Serialization
     public void Test_WithVariousNullableStructsDoc_DateRange()
     {
       var d1 = new WithVariousNullableStructsDoc { DateRange = new DateRange(new DateTime(1980, 2,2), new DateTime(1990,3,3)) };
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var map = json.JSONToDataObject() as JSONDataMap;
+      var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
-      JSONReader.ToDoc(d2, map);
+      JsonReader.ToDoc(d2, map);
 
       Aver.AreEqual(d1.DateRange, d2.DateRange);
     }
@@ -295,12 +295,12 @@ namespace Azos.Tests.Nub.Serialization
     public void Test_WithVariousNullableStructsDoc_Amount()
     {
       var d1 = new WithVariousNullableStructsDoc { Amount = new Amount("usd", 34.78m) };
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var map = json.JSONToDataObject() as JSONDataMap;
+      var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
-      JSONReader.ToDoc(d2, map);
+      JsonReader.ToDoc(d2, map);
 
       Aver.AreEqual(d1.Amount, d2.Amount);
     }
@@ -310,12 +310,12 @@ namespace Azos.Tests.Nub.Serialization
     public void Test_WithVariousNullableStructsDoc_StringMap()
     {
       var d1 = new WithVariousNullableStructsDoc { StringMap = new StringMap{ {"a","a value"} } };
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var map = json.JSONToDataObject() as JSONDataMap;
+      var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
-      JSONReader.ToDoc(d2, map);
+      JsonReader.ToDoc(d2, map);
 
       Aver.AreEqual(d1.StringMap["a"], d2.StringMap["a"]);
     }
@@ -324,12 +324,12 @@ namespace Azos.Tests.Nub.Serialization
     public void Test_WithVariousNullableStructsDoc_GdidArray()
     {
       var d1 = new WithVariousNullableStructsDoc { GdidArray = new GDID[] { new GDID(1,2,3), new GDID(2,3,4) } };
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var map = json.JSONToDataObject() as JSONDataMap;
+      var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
-      JSONReader.ToDoc(d2, map);
+      JsonReader.ToDoc(d2, map);
 
       Aver.AreArraysEquivalent(d1.GdidArray, d2.GdidArray);
     }
@@ -338,12 +338,12 @@ namespace Azos.Tests.Nub.Serialization
     public void Test_WithVariousNullableStructsDoc_StringArray()
     {
       var d1 = new WithVariousNullableStructsDoc { StringArray = new string[]{"German", null, "English"} };
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var map = json.JSONToDataObject() as JSONDataMap;
+      var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
-      JSONReader.ToDoc(d2, map);
+      JsonReader.ToDoc(d2, map);
 
       Aver.AreArraysEquivalent(d1.StringArray, d2.StringArray);
     }
@@ -353,12 +353,12 @@ namespace Azos.Tests.Nub.Serialization
     public void Test_WithVariousNullableStructsDoc_CharArray()
     {
       var d1 = new WithVariousNullableStructsDoc { CharArray = new char[]{'a', '2', ' '} };
-      var json = d1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
-      var map = json.JSONToDataObject() as JSONDataMap;
+      var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
-      JSONReader.ToDoc(d2, map);
+      JsonReader.ToDoc(d2, map);
 
       Aver.AreArraysEquivalent(d1.CharArray, d2.CharArray);
     }

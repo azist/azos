@@ -330,13 +330,13 @@ namespace Azos.Wave
      /// <summary>
      /// Describes exception for client response transmission as JSONDataMap
      /// </summary>
-     public static Serialization.JSON.JSONDataMap ToClientResponseJSONMap(this Exception error, bool detailed)
+     public static Serialization.JSON.JsonDataMap ToClientResponseJSONMap(this Exception error, bool detailed)
      {
        var actual = error;
        if (actual is FilterPipelineException fpe)
          actual = fpe.RootException;
 
-       var result = new Azos.Serialization.JSON.JSONDataMap();
+       var result = new Azos.Serialization.JSON.JsonDataMap();
        result["OK"] = false;
 
        if (actual is IHttpStatusProvider st)

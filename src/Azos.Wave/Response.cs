@@ -207,12 +207,12 @@ namespace Azos.Wave
       /// <summary>
       /// Writes an object as JSON. Does nothing if object is null
       /// </summary>
-      public void WriteJSON(object data, JSONWritingOptions options = null)
+      public void WriteJSON(object data, JsonWritingOptions options = null)
       {
         if (data==null) return;
         setWasWrittenTo();
         m_NetResponse.ContentType = Azos.Web.ContentType.JSON;
-        JSONWriter.Write(data, new NonClosingStreamWrap( getStream() ), options, Encoding);
+        JsonWriter.Write(data, new NonClosingStreamWrap( getStream() ), options, Encoding);
       }
 
       /// <summary>

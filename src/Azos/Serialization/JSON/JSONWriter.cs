@@ -20,13 +20,13 @@ namespace Azos.Serialization.JSON
     /// Can also write IJSONWritable-implementing types that directly serialize their state into JSON.
     /// This class does not serialize regular CLR types (that do not implement IJSONWritable), use JSONSerializer for full functionality
     /// </summary>
-    public static class JSONWriter
+    public static class JsonWriter
     {
 
         /// <summary>
         /// Writes JSON data to the file
         /// </summary>
-        public static void WriteToFile(object data, string  fileName, JSONWritingOptions options = null, Encoding encoding = null)
+        public static void WriteToFile(object data, string  fileName, JsonWritingOptions options = null, Encoding encoding = null)
         {
             using(var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
                Write(data, fs, options, encoding);
@@ -36,7 +36,7 @@ namespace Azos.Serialization.JSON
         /// <summary>
         /// Writes JSON data to the byte[]
         /// </summary>
-        public static byte[] WriteToBuffer(object data, JSONWritingOptions options = null, Encoding encoding = null)
+        public static byte[] WriteToBuffer(object data, JsonWritingOptions options = null, Encoding encoding = null)
         {
             using(var ms = new MemoryStream())
             {
@@ -49,7 +49,7 @@ namespace Azos.Serialization.JSON
         /// <summary>
         /// Writes JSON data to the stream
         /// </summary>
-        public static void Write(object data, Stream stream, JSONWritingOptions options = null, Encoding encoding = null)
+        public static void Write(object data, Stream stream, JsonWritingOptions options = null, Encoding encoding = null)
         {
             using(var writer = new StreamWriter(stream, encoding ?? UTF8Encoding.UTF8))
                Write(data, writer, options);
@@ -58,9 +58,9 @@ namespace Azos.Serialization.JSON
         /// <summary>
         /// Writes JSON data to the string
         /// </summary>
-        public static string Write(object data, JSONWritingOptions options = null, IFormatProvider formatProvider = null)
+        public static string Write(object data, JsonWritingOptions options = null, IFormatProvider formatProvider = null)
         {
-            if (options==null) options = JSONWritingOptions.Compact;
+            if (options==null) options = JsonWritingOptions.Compact;
 
             var sb = new StringBuilder(0xff);
             using( var wri =  formatProvider==null ?
@@ -76,9 +76,9 @@ namespace Azos.Serialization.JSON
         /// <summary>
         /// Appends JSON data into the instance of StringBuilder
         /// </summary>
-        public static void Write(object data, TextWriter wri, JSONWritingOptions options = null)
+        public static void Write(object data, TextWriter wri, JsonWritingOptions options = null)
         {
-            if (options==null) options = JSONWritingOptions.Compact;
+            if (options==null) options = JsonWritingOptions.Compact;
 
             writeAny(wri, data, 0, options);
         }
@@ -86,9 +86,9 @@ namespace Azos.Serialization.JSON
         /// <summary>
         /// Appends JSON representation of a map(IDictionary)
         /// </summary>
-        public static void WriteMap(TextWriter wri, IDictionary data, int level, JSONWritingOptions options = null)
+        public static void WriteMap(TextWriter wri, IDictionary data, int level, JsonWritingOptions options = null)
         {
-            if (options==null) options = JSONWritingOptions.Compact;
+            if (options==null) options = JsonWritingOptions.Compact;
 
             writeMap(wri, data, level, options);
         }
@@ -96,9 +96,9 @@ namespace Azos.Serialization.JSON
         /// <summary>
         /// Appends JSON representation of a map(IEnumerable(DictionaryEntry))
         /// </summary>
-        public static void WriteMap(TextWriter wri, IEnumerable<DictionaryEntry> data, int level, JSONWritingOptions options = null)
+        public static void WriteMap(TextWriter wri, IEnumerable<DictionaryEntry> data, int level, JsonWritingOptions options = null)
         {
-            if (options==null) options = JSONWritingOptions.Compact;
+            if (options==null) options = JsonWritingOptions.Compact;
 
             writeMap(wri, data, level, options);
         }
@@ -106,9 +106,9 @@ namespace Azos.Serialization.JSON
         /// <summary>
         /// Appends JSON representation of a map(IEnumerable(DictionaryEntry))
         /// </summary>
-        public static void WriteMap(TextWriter wri, int level, JSONWritingOptions options, params DictionaryEntry[] data)
+        public static void WriteMap(TextWriter wri, int level, JsonWritingOptions options, params DictionaryEntry[] data)
         {
-            if (options==null) options = JSONWritingOptions.Compact;
+            if (options==null) options = JsonWritingOptions.Compact;
 
             writeMap(wri, data, level, options);
         }
@@ -116,9 +116,9 @@ namespace Azos.Serialization.JSON
         /// <summary>
         /// Appends JSON representation of an IEnumerable
         /// </summary>
-        public static void WriteArray(TextWriter wri, IEnumerable data, int level, JSONWritingOptions options)
+        public static void WriteArray(TextWriter wri, IEnumerable data, int level, JsonWritingOptions options)
         {
-            if (options==null) options = JSONWritingOptions.Compact;
+            if (options==null) options = JsonWritingOptions.Compact;
 
             writeArray(wri, data, level, options);
         }
@@ -134,7 +134,7 @@ namespace Azos.Serialization.JSON
         /// <param name="wri">TextWriter instance to append data into</param>
         /// <param name="data">Original string to encode as JSON</param>
         /// <param name="opt">JSONWriting options instance, if omitted then JSONWritingOptions.Compact is used</param>
-        public static void EncodeString(TextWriter wri, string data, JSONWritingOptions opt = null)
+        public static void EncodeString(TextWriter wri, string data, JsonWritingOptions opt = null)
         {
             if (data.IsNullOrEmpty())
             {
@@ -143,7 +143,7 @@ namespace Azos.Serialization.JSON
             }
 
             if (opt==null)
-                opt = JSONWritingOptions.Compact;
+                opt = JsonWritingOptions.Compact;
 
             wri.Write('"');
 
@@ -187,9 +187,9 @@ namespace Azos.Serialization.JSON
         /// <param name="data">Original string to encode as JSON</param>
         /// <param name="opt">JSONWriting options instance, if omitted then JSONWritingOptions.Compact is used</param>
         /// <param name="utcOffset">UTC offset override. If not supplied then offset form local time zone is used</param>
-        public static void EncodeDateTime(TextWriter wri, DateTime data, JSONWritingOptions opt = null, TimeSpan? utcOffset = null)
+        public static void EncodeDateTime(TextWriter wri, DateTime data, JsonWritingOptions opt = null, TimeSpan? utcOffset = null)
         {
-            if (opt==null) opt = JSONWritingOptions.Compact;
+            if (opt==null) opt = JsonWritingOptions.Compact;
 
             if (!opt.ISODates)
             {
@@ -273,7 +273,7 @@ namespace Azos.Serialization.JSON
                 #region .pvt .impl
 
 
-                        private static void indent(TextWriter wri, int level, JSONWritingOptions opt)
+                        private static void indent(TextWriter wri, int level, JsonWritingOptions opt)
                         {
                             if (opt.IndentWidth==0) return;
 
@@ -283,7 +283,7 @@ namespace Azos.Serialization.JSON
                         }
 
 
-                        private static void writeAny(TextWriter wri, object data, int level, JSONWritingOptions opt)
+                        private static void writeAny(TextWriter wri, object data, int level, JsonWritingOptions opt)
                         {
                             if (data==null)
                             {
@@ -346,9 +346,9 @@ namespace Azos.Serialization.JSON
                                 return;
                             }
 
-                            if (data is JSONDynamicObject)//unwrap dynamic
+                            if (data is JsonDynamicObject)//unwrap dynamic
                             {
-                                writeAny(wri, ((JSONDynamicObject)data).Data, level, opt);
+                                writeAny(wri, ((JsonDynamicObject)data).Data, level, opt);
                                 return;
                             }
 
@@ -438,12 +438,12 @@ namespace Azos.Serialization.JSON
                              }
 
 
-                        private static void writeMap(TextWriter wri, IDictionary data, int level, JSONWritingOptions opt)
+                        private static void writeMap(TextWriter wri, IDictionary data, int level, JsonWritingOptions opt)
                         {
                            writeMap(wri, new dictEnumberable(data), level, opt);
                         }
 
-                        private static void writeMap(TextWriter wri, IEnumerable<DictionaryEntry> data, int level, JSONWritingOptions opt)
+                        private static void writeMap(TextWriter wri, IEnumerable<DictionaryEntry> data, int level, JsonWritingOptions opt)
                         {
                             if (level>0) level++;
 
@@ -490,7 +490,7 @@ namespace Azos.Serialization.JSON
                             wri.Write('}');
                         }
 
-                        private static void writeArray(TextWriter wri, IEnumerable data, int level, JSONWritingOptions opt)
+                        private static void writeArray(TextWriter wri, IEnumerable data, int level, JsonWritingOptions opt)
                         {
                             wri.Write('[');
 

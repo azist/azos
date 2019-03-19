@@ -239,9 +239,9 @@ namespace Azos.Tests.Integration.CRUD
             Aver.AreEqual(CNT, lst.Count);
             Aver.IsTrue( cursor.Disposed );
 
-            Console.WriteLine(lst[0].ToJSON());
+            Console.WriteLine(lst[0].ToJson());
             Console.WriteLine("..............................");
-            Console.WriteLine(lst[lst.Count-1].ToJSON());
+            Console.WriteLine(lst[lst.Count-1].ToJson());
 
             Aver.AreObjectsEqual(0, lst[0]["ID"].AsInt());
             Aver.AreObjectsEqual(CNT-1, lst[lst.Count-1]["ID"].AsInt());
@@ -518,10 +518,10 @@ Console.WriteLine("C");
          row2["Age"] = "199";
          row2["Data"] = data;
 
-         var json = row2.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+         var json = row2.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
          Console.WriteLine(json);
 
-         var dyn = json.JSONToDynamic();
+         var dyn = json.JsonToDynamic();
 
          Aver.AreEqual(4, dyn.Data.Count);
          Aver.AreEqual("10:10:10", dyn._id);

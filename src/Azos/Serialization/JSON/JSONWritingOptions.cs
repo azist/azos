@@ -5,9 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Conf;
 
@@ -19,7 +16,7 @@ namespace Azos.Serialization.JSON
     /// Depending on this parameter IJSONWritable implementors may include additional details
     /// that are otherwise not needed
     /// </summary>
-    public enum JSONSerializationPurpose
+    public enum JsonSerializationPurpose
     {
        Unspecified = 0,
 
@@ -40,15 +37,15 @@ namespace Azos.Serialization.JSON
     /// Specifies how JSON should be written as text. Use JSONWritingOptions.Compact or JSONWritingOptions.PrettyPrint
     ///  static properties for typical options
     /// </summary>
-    public class JSONWritingOptions : IConfigurable
+    public class JsonWritingOptions : IConfigurable
     {
-        private static JSONWritingOptions s_Compact =   new JSONWritingOptions();
+        private static JsonWritingOptions s_Compact =   new JsonWritingOptions();
 
-        private static JSONWritingOptions s_CompacRowsAsMap =  new JSONWritingOptions(){RowsAsMap = true};
+        private static JsonWritingOptions s_CompacRowsAsMap =  new JsonWritingOptions(){RowsAsMap = true};
 
-        private static JSONWritingOptions s_CompactASCII = new JSONWritingOptions{ ASCIITarget = true };
+        private static JsonWritingOptions s_CompactASCII = new JsonWritingOptions{ ASCIITarget = true };
 
-        private static JSONWritingOptions s_PrettyPrint =  new JSONWritingOptions{
+        private static JsonWritingOptions s_PrettyPrint =  new JsonWritingOptions{
                                                                                    IndentWidth = 2,
                                                                                    ObjectLineBreak = true,
                                                                                    MemberLineBreak = true,
@@ -56,7 +53,7 @@ namespace Azos.Serialization.JSON
                                                                                    ASCIITarget = false
                                                                                  };
 
-        private static JSONWritingOptions s_PrettyPrintASCII =  new JSONWritingOptions{
+        private static JsonWritingOptions s_PrettyPrintASCII =  new JsonWritingOptions{
                                                                                    IndentWidth = 2,
                                                                                    ObjectLineBreak = true,
                                                                                    MemberLineBreak = true,
@@ -64,7 +61,7 @@ namespace Azos.Serialization.JSON
                                                                                    ASCIITarget = true
                                                                                  };
 
-        private static JSONWritingOptions s_PrettyPrintRowsAsMap =  new JSONWritingOptions{
+        private static JsonWritingOptions s_PrettyPrintRowsAsMap =  new JsonWritingOptions{
                                                                                    IndentWidth = 2,
                                                                                    ObjectLineBreak = true,
                                                                                    MemberLineBreak = true,
@@ -77,40 +74,40 @@ namespace Azos.Serialization.JSON
         /// <summary>
         /// Writes JSON without line breaks between members and no indenting. Suitable for data transmission
         /// </summary>
-        public static JSONWritingOptions Compact { get { return s_Compact;} }
+        public static JsonWritingOptions Compact { get { return s_Compact;} }
 
         /// <summary>
         /// Writes JSON without line breaks between members and no indenting writing rows as maps(key:values) instead of arrays. Suitable for data transmission
         /// </summary>
-        public static JSONWritingOptions CompactRowsAsMap { get { return s_CompacRowsAsMap;} }
+        public static JsonWritingOptions CompactRowsAsMap { get { return s_CompacRowsAsMap;} }
 
         /// <summary>
         /// Writes JSON without line breaks between members and no indenting escaping any characters
         ///  with codes above 127 suitable for ASCII transmission
         /// </summary>
-        public static JSONWritingOptions CompactASCII { get { return s_CompactASCII;} }
+        public static JsonWritingOptions CompactASCII { get { return s_CompactASCII;} }
 
         /// <summary>
         /// Writes JSON suitable for printing/screen display
         /// </summary>
-        public static JSONWritingOptions PrettyPrint { get { return s_PrettyPrint;} }
+        public static JsonWritingOptions PrettyPrint { get { return s_PrettyPrint;} }
 
         /// <summary>
         /// Writes JSON suitable for printing/screen display
         ///  with codes above 127 suitable for ASCII transmission
         /// </summary>
-        public static JSONWritingOptions PrettyPrintASCII { get { return s_PrettyPrintASCII;} }
+        public static JsonWritingOptions PrettyPrintASCII { get { return s_PrettyPrintASCII;} }
 
         /// <summary>
         /// Writes JSON suitable for printing/screen display writing rows as maps(key:values) instead of arrays
         /// </summary>
-        public static JSONWritingOptions PrettyPrintRowsAsMap { get { return s_PrettyPrintRowsAsMap;} }
+        public static JsonWritingOptions PrettyPrintRowsAsMap { get { return s_PrettyPrintRowsAsMap;} }
 
-        public JSONWritingOptions()
+        public JsonWritingOptions()
         {
         }
 
-        public JSONWritingOptions(JSONWritingOptions other)
+        public JsonWritingOptions(JsonWritingOptions other)
         {
           if (other==null) return;
 
@@ -213,7 +210,7 @@ namespace Azos.Serialization.JSON
         /// that are otherwise not needed
         /// </summary>
         [Config]
-        public JSONSerializationPurpose Purpose;
+        public JsonSerializationPurpose Purpose;
 
 
         /// <summary>

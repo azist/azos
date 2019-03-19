@@ -97,12 +97,12 @@ namespace Azos.Wave.Filters
       /// <summary>
       /// Override to do the work when one of the BeforeMatches was matched
       /// </summary>
-      protected abstract void DoBeforeWork(WorkContext work, JSONDataMap matched);
+      protected abstract void DoBeforeWork(WorkContext work, JsonDataMap matched);
 
       /// <summary>
       /// Override to do the work when one of the AfterMatches was matched
       /// </summary>
-      protected abstract void DoAfterWork(WorkContext work, JSONDataMap matched);
+      protected abstract void DoAfterWork(WorkContext work, JsonDataMap matched);
 
     #endregion
 

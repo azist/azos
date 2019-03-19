@@ -115,7 +115,7 @@ namespace Azos.Tests.Nub.Standards
     public void JSON()
     {
       var data = new { dist = new Weight(3.25m, Weight.UnitType.Kg) };
-      var json = data.ToJSON();
+      var json = data.ToJson();
       Console.WriteLine(json);
       Aver.AreEqual(@"{""dist"":{""unit"":""kg"",""value"":3.25}}", json);
     }

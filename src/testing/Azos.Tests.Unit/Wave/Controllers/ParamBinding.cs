@@ -27,7 +27,7 @@ namespace Azos.Tests.Unit.Wave.Controllers
   public class ParamBinding : Controller
   {
     [Action]
-    public object EchoMap(JSONDataMap got) => got;
+    public object EchoMap(JsonDataMap got) => got;
 
     [Action]
     public object EchoParams(string a, int b, bool c) => new { a, b, c };
@@ -36,7 +36,7 @@ namespace Azos.Tests.Unit.Wave.Controllers
     public object EchoParamsWithDefaults(string a, int b=127, bool c=true) => new { a, b, c };
 
     [Action]
-    public object EchoMixMap(string a, int b, bool c, JSONDataMap got) => new { a, b, c , got};
+    public object EchoMixMap(string a, int b, bool c, JsonDataMap got) => new { a, b, c , got};
 
     [Action]
     public object EchoModelA(ModelA got) => got;

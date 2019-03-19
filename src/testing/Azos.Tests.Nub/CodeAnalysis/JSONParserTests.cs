@@ -237,8 +237,8 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           parser.Parse();
 
-          Aver.IsTrue(parser.ResultContext.ResultObject is JSONDataArray);
-          var arr = (JSONDataArray)parser.ResultContext.ResultObject;
+          Aver.IsTrue(parser.ResultContext.ResultObject is JsonDataArray);
+          var arr = (JsonDataArray)parser.ResultContext.ResultObject;
 
           Aver.AreEqual(3, arr.Count);
           Aver.AreObjectsEqual(1, arr[0]);
@@ -255,8 +255,8 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           parser.Parse();
 
-          Aver.IsTrue(parser.ResultContext.ResultObject is JSONDataArray);
-          var arr = (JSONDataArray)parser.ResultContext.ResultObject;
+          Aver.IsTrue(parser.ResultContext.ResultObject is JsonDataArray);
+          var arr = (JsonDataArray)parser.ResultContext.ResultObject;
 
           Aver.AreEqual(0, arr.Count);
         }
@@ -270,8 +270,8 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           parser.Parse();
 
-          Aver.IsTrue(parser.ResultContext.ResultObject is JSONDataMap);
-          var obj = (JSONDataMap)parser.ResultContext.ResultObject;
+          Aver.IsTrue(parser.ResultContext.ResultObject is JsonDataMap);
+          var obj = (JsonDataMap)parser.ResultContext.ResultObject;
 
           Aver.AreEqual(3, obj.Count);
           Aver.AreObjectsEqual(1, obj["a"]);
@@ -288,8 +288,8 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           parser.Parse();
 
-          Aver.IsTrue(parser.ResultContext.ResultObject is JSONDataMap);
-          var obj = (JSONDataMap)parser.ResultContext.ResultObject;
+          Aver.IsTrue(parser.ResultContext.ResultObject is JsonDataMap);
+          var obj = (JsonDataMap)parser.ResultContext.ResultObject;
 
           Aver.AreEqual(0, obj.Count);
         }
@@ -303,14 +303,14 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           parser.Parse();
 
-          Aver.IsTrue(parser.ResultContext.ResultObject is JSONDataMap);
-          var obj = (JSONDataMap)parser.ResultContext.ResultObject;
+          Aver.IsTrue(parser.ResultContext.ResultObject is JsonDataMap);
+          var obj = (JsonDataMap)parser.ResultContext.ResultObject;
 
           Aver.AreEqual(3, obj.Count);
           Aver.AreObjectsEqual(12, obj["age"]);
           Aver.AreObjectsEqual("Vasya", obj["name"]);
-          Aver.AreObjectsEqual(6, ((JSONDataArray)obj["numbers"]).Count);
-          Aver.AreObjectsEqual(7, ((JSONDataArray)obj["numbers"])[3]);
+          Aver.AreObjectsEqual(6, ((JsonDataArray)obj["numbers"]).Count);
+          Aver.AreObjectsEqual(7, ((JsonDataArray)obj["numbers"])[3]);
         }
 
         [Run]
@@ -322,14 +322,14 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           parser.Parse();
 
-          Aver.IsTrue(parser.ResultContext.ResultObject is JSONDataMap);
-          var obj = (JSONDataMap)parser.ResultContext.ResultObject;
+          Aver.IsTrue(parser.ResultContext.ResultObject is JsonDataMap);
+          var obj = (JsonDataMap)parser.ResultContext.ResultObject;
 
           Aver.AreEqual(3, obj.Count);
           Aver.AreObjectsEqual(120, obj["age"]);
           Aver.AreObjectsEqual("Vasya", obj["name"]);
-          Aver.AreObjectsEqual(true, ((JSONDataMap)obj["numbers"])["positive"]);
-          Aver.AreObjectsEqual(12.7, ((JSONDataMap)obj["numbers"])["bad"]);
+          Aver.AreObjectsEqual(true, ((JsonDataMap)obj["numbers"])["positive"]);
+          Aver.AreObjectsEqual(12.7, ((JsonDataMap)obj["numbers"])["bad"]);
         }
 
         [Run]
@@ -462,8 +462,8 @@ this \r\n is not escape'
 
           parser.Parse();
 
-          Aver.IsTrue(parser.ResultContext.ResultObject is JSONDataMap);
-          var obj = (JSONDataMap)parser.ResultContext.ResultObject;
+          Aver.IsTrue(parser.ResultContext.ResultObject is JsonDataMap);
+          var obj = (JsonDataMap)parser.ResultContext.ResultObject;
 
           Aver.AreEqual(7, obj.Count);
           Aver.AreObjectsEqual("Oleg", obj["FirstName"]);
@@ -471,21 +471,21 @@ this \r\n is not escape'
           Aver.AreObjectsEqual("V.", obj["Middle Name"]);
           Aver.AreObjectsEqual("Shamanov", obj["Crazy\nName"]);
 
-          var lucky = obj["LuckyNumbers"] as JSONDataArray;
+          var lucky = obj["LuckyNumbers"] as JsonDataArray;
           Aver.IsNotNull(lucky);
           Aver.AreEqual(6, lucky.Count);
           Aver.AreObjectsEqual(4, lucky[0]);
           Aver.AreObjectsEqual(9, lucky[5]);
 
-          var history = obj["History"] as JSONDataArray;
+          var history = obj["History"] as JsonDataArray;
           Aver.IsNotNull(history);
           Aver.AreEqual(2, history.Count);
 
-          var ww2 = history[1] as JSONDataMap;
+          var ww2 = history[1] as JsonDataMap;
           Aver.IsNotNull(ww2);
           Aver.AreEqual(3, ww2.Count);
 
-          var who = ww2["Who"] as JSONDataArray;
+          var who = ww2["Who"] as JsonDataArray;
           Aver.IsNotNull(who);
           Aver.AreEqual(6, who.Count);
           Aver.AreObjectsEqual("USA", who[2]);
@@ -525,12 +525,12 @@ this \r\n is not escape'
 
           parser.Parse();
 
-          Aver.IsTrue(parser.ResultContext.ResultObject is JSONDataArray);
-          var arr = (JSONDataArray)parser.ResultContext.ResultObject;
+          Aver.IsTrue(parser.ResultContext.ResultObject is JsonDataArray);
+          var arr = (JsonDataArray)parser.ResultContext.ResultObject;
           Aver.AreEqual(2, arr.Count);
           Aver.AreObjectsEqual(123, arr[1]);
 
-          var obj = (JSONDataMap)arr[0];
+          var obj = (JsonDataMap)arr[0];
 
           Aver.AreEqual(7, obj.Count);
           Aver.AreObjectsEqual("Oleg", obj["FirstName"]);
@@ -538,21 +538,21 @@ this \r\n is not escape'
           Aver.AreObjectsEqual("V.", obj["Middle Name"]);
           Aver.AreObjectsEqual("Shamanov", obj["Crazy\nName"]);
 
-          var lucky = obj["LuckyNumbers"] as JSONDataArray;
+          var lucky = obj["LuckyNumbers"] as JsonDataArray;
           Aver.IsNotNull(lucky);
           Aver.AreEqual(6, lucky.Count);
           Aver.AreObjectsEqual(4, lucky[0]);
           Aver.AreObjectsEqual(9, lucky[5]);
 
-          var history = obj["History"] as JSONDataArray;
+          var history = obj["History"] as JsonDataArray;
           Aver.IsNotNull(history);
           Aver.AreEqual(2, history.Count);
 
-          var ww2 = history[1] as JSONDataMap;
+          var ww2 = history[1] as JsonDataMap;
           Aver.IsNotNull(ww2);
           Aver.AreEqual(3, ww2.Count);
 
-          var who = ww2["Who"] as JSONDataArray;
+          var who = ww2["Who"] as JsonDataArray;
           Aver.IsNotNull(who);
           Aver.AreEqual(6, who.Count);
           Aver.AreObjectsEqual("USA", who[2]);

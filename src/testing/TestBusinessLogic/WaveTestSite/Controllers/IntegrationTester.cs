@@ -139,7 +139,7 @@ namespace WaveTestSite.Controllers
     }
 
     [Action]
-    public object InboundJSONMapEcho(JSONDataMap data)
+    public object InboundJSONMapEcho(JsonDataMap data)
     {
       return data;
     }
@@ -205,7 +205,7 @@ namespace WaveTestSite.Controllers
     }
 
     [Action]
-    public object JSONMapAndPrimitive_JSONFirst(JSONDataMap map, int n, string s)
+    public object JSONMapAndPrimitive_JSONFirst(JsonDataMap map, int n, string s)
     {
       map["ID"] = n;
       map["Name"] = s;
@@ -213,7 +213,7 @@ namespace WaveTestSite.Controllers
     }
 
     [Action]
-    public object JSONMapAndPrimitive_JSONLast(int n, string s, JSONDataMap map)
+    public object JSONMapAndPrimitive_JSONLast(int n, string s, JsonDataMap map)
     {
       map["ID"] = n;
       map["Name"] = s;
@@ -221,7 +221,7 @@ namespace WaveTestSite.Controllers
     }
 
     [Action]
-    public object JSONMapAndPrimitive_JSONMiddle(int n, JSONDataMap map, string s)
+    public object JSONMapAndPrimitive_JSONMiddle(int n, JsonDataMap map, string s)
     {
       map["ID"] = n;
       map["Name"] = s;
@@ -278,7 +278,7 @@ namespace WaveTestSite.Controllers
     }
 
     [Action]
-    public void MultipartMap(JSONDataMap map)
+    public void MultipartMap(JsonDataMap map)
     {
       var fld = Encoding.UTF8.GetBytes(map["field"].AsString());
       var txt = Encoding.UTF8.GetBytes(map["text"].AsString());

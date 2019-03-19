@@ -90,7 +90,7 @@ namespace Azos.Data
       public string CSRFToken;
 
 
-      private JSONDataMap m_RoundtripBag;
+      private JsonDataMap m_RoundtripBag;
 
       /// <summary>
       /// True if RoundtripBag is allocated
@@ -101,12 +101,12 @@ namespace Azos.Data
       /// Returns lazily-allocated RoundtripBag.
       /// Use HasRoundtripBag to see if it is allocated not to allocate on get
       /// </summary>
-      public JSONDataMap RoundtripBag
+      public JsonDataMap RoundtripBag
       {
         get
         {
           if (m_RoundtripBag==null)
-            m_RoundtripBag = new JSONDataMap();
+            m_RoundtripBag = new JsonDataMap();
 
           return m_RoundtripBag;
         }
@@ -124,7 +124,7 @@ namespace Azos.Data
       {
          if (content.IsNullOrWhiteSpace()) return;
 
-         m_RoundtripBag = content.JSONToDataObject() as JSONDataMap;
+         m_RoundtripBag = content.JsonToDataObject() as JsonDataMap;
       }
 
       /// <summary>

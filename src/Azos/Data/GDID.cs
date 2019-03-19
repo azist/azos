@@ -196,7 +196,7 @@ namespace Azos.Data
           return x.CompareTo(y)>=0;
         }
 
-        public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+        public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
         {
           wri.Write('"');
           wri.Write(Era);

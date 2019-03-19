@@ -56,7 +56,7 @@ namespace Azos.Wave
     public OrderedRegistry<WorkMatch> ORMatches { get{ return m_ORMatches;} }
 
 
-    public override JSONDataMap Make(WorkContext work, object context = null)
+    public override JsonDataMap Make(WorkContext work, object context = null)
     {
       var result = base.Make(work, context);
       if (result==null) return null;
@@ -72,7 +72,7 @@ namespace Azos.Wave
 
 
       var any = false;
-      JSONDataMap orCapture = null;
+      JsonDataMap orCapture = null;
       var compositeCapture = false;
       foreach(var match in m_ORMatches.OrderedValues)
       {

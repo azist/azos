@@ -32,7 +32,7 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public async Task ActionObjectLiteral()
     {
-      var got = (await Client.GetStringAsync("actionobjectliteral")).JSONToDataObject() as JSONDataMap;
+      var got = (await Client.GetStringAsync("actionobjectliteral")).JsonToDataObject() as JsonDataMap;
       Aver.AreEqual(1, got["a"].AsInt());
       Aver.AreEqual(true, got["b"].AsBool());
       Aver.AreEqual(1980, got["d"].AsDateTime().Year);

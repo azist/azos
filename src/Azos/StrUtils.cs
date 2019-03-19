@@ -360,7 +360,7 @@ namespace Azos
     public static string DiffStrings(this string a, string b, int limit = 0)
     {
       string ch(char c) =>
-          "#{0:x4} {1}".Args((int)c, Azos.Serialization.JSON.JSONWriter.Write(c, Azos.Serialization.JSON.JSONWritingOptions.CompactASCII));
+          "#{0:x4} {1}".Args((int)c, Azos.Serialization.JSON.JsonWriter.Write(c, Azos.Serialization.JSON.JsonWritingOptions.CompactASCII));
 
 
 

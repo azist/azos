@@ -7,15 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
-using System.Text;
-
-using Azos.CodeAnalysis.JSON;
-
 
 namespace Azos.Serialization.JSON
 {
-
     /// <summary>
     /// Specifies what kind the dynamic object is - map or array
     /// </summary>
@@ -25,19 +19,19 @@ namespace Azos.Serialization.JSON
     /// Implements a JSON dynamic object that shapes itself at runtime
     /// </summary>
     [Serializable]
-    public sealed class JSONDynamicObject : DynamicObject
+    public sealed class JsonDynamicObject : DynamicObject
     {
         #region .ctor
             /// <summary>
             /// Creates a dynamic wrapper around existing array or map. Optionally specifies map key case sensitivity
             /// </summary>
-            public JSONDynamicObject(JSONDynamicObjectKind kind, bool caseSensitiveMap = true)
+            public JsonDynamicObject(JSONDynamicObjectKind kind, bool caseSensitiveMap = true)
             {
-                m_Data = (kind==JSONDynamicObjectKind.Map) ? (IJSONDataObject)new JSONDataMap(caseSensitiveMap)
-                                                           : (IJSONDataObject)new JSONDataArray();
+                m_Data = (kind==JSONDynamicObjectKind.Map) ? (IJsonDataObject)new JsonDataMap(caseSensitiveMap)
+                                                           : (IJsonDataObject)new JsonDataArray();
             }
 
-            public JSONDynamicObject(IJSONDataObject data)
+            public JsonDynamicObject(IJsonDataObject data)
             {
                 m_Data = data;
             }
@@ -45,7 +39,7 @@ namespace Azos.Serialization.JSON
         #endregion
 
         #region Fields
-            private IJSONDataObject m_Data;
+            private IJsonDataObject m_Data;
         #endregion
 
         #region Properties
@@ -54,7 +48,7 @@ namespace Azos.Serialization.JSON
             {
                 get
                 {
-                     return m_Data is JSONDataMap ? JSONDynamicObjectKind.Map
+                     return m_Data is JsonDataMap ? JSONDynamicObjectKind.Map
                                                   : JSONDynamicObjectKind.Array;
                 }
             }
@@ -62,7 +56,7 @@ namespace Azos.Serialization.JSON
             /// <summary>
             /// Returns the underlying JSON data
             /// </summary>
-            public IJSONDataObject Data
+            public IJsonDataObject Data
             {
                 get { return m_Data; }
             }
@@ -74,7 +68,7 @@ namespace Azos.Serialization.JSON
 
             public override IEnumerable<string> GetDynamicMemberNames()
             {
-              var map = m_Data as JSONDataMap;
+              var map = m_Data as JsonDataMap;
               if (map!=null)
               {
                 return map.Keys;
@@ -85,11 +79,11 @@ namespace Azos.Serialization.JSON
 
             public override bool TryGetMember(GetMemberBinder binder, out object result)
             {
-                var map = m_Data as JSONDataMap;
+                var map = m_Data as JsonDataMap;
 
                 if (map==null)
                 {
-                  var arr = m_Data as JSONDataArray;
+                  var arr = m_Data as JsonDataArray;
                   if (arr!=null)
                   {
                       if (binder.Name=="Count" || binder.Name=="Length")
@@ -115,21 +109,21 @@ namespace Azos.Serialization.JSON
                 else
                   return base.TryGetMember(binder, out result);
 
-                if (result is IJSONDataObject)
-                    result = new JSONDynamicObject((IJSONDataObject)result);
+                if (result is IJsonDataObject)
+                    result = new JsonDynamicObject((IJsonDataObject)result);
 
                 return true;
             }
 
             public override bool TrySetMember(SetMemberBinder binder, object value)
             {
-                var map = m_Data as JSONDataMap;
+                var map = m_Data as JsonDataMap;
 
                 if (map==null)
                   return false;
 
-                if (value is JSONDynamicObject)
-                    value = ((JSONDynamicObject)value).m_Data;
+                if (value is JsonDynamicObject)
+                    value = ((JsonDynamicObject)value).m_Data;
 
                 map[binder.Name] = value;
                 return true;
@@ -139,7 +133,7 @@ namespace Azos.Serialization.JSON
             {
                 if (binder.Name.Equals("tojson",StringComparison.OrdinalIgnoreCase))
                 {
-                    result = JSONExtensions.ToJSON(this);
+                    result = JsonExtensions.ToJson(this);
                     return true;
                 }
 
@@ -149,10 +143,10 @@ namespace Azos.Serialization.JSON
 
             public override bool TryConvert(ConvertBinder binder, out object result)
             {
-              var map = m_Data as JSONDataMap;
+              var map = m_Data as JsonDataMap;
               if (map!=null && typeof(Data.TypedDoc).IsAssignableFrom(binder.Type))//convert dynamic->Data.doc
               {
-                  result = JSONReader.ToDoc(binder.Type, map);
+                  result = JsonReader.ToDoc(binder.Type, map);
                   return true;
               }
               return base.TryConvert(binder, out result);
@@ -160,21 +154,21 @@ namespace Azos.Serialization.JSON
 
             public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object result)
             {
-                var arr = m_Data as JSONDataArray;
+                var arr = m_Data as JsonDataArray;
 
                 result = null;
 
                 if (arr==null)
                 {
-                  var map = m_Data as JSONDataMap;
+                  var map = m_Data as JsonDataMap;
                   if (map!=null)
                   {
                     if (indexes.Length==1 && indexes[0] is string)
                     {
                         result = map[(string)indexes[0]];
 
-                        if (result is IJSONDataObject)
-                            result = new JSONDynamicObject((IJSONDataObject)result);
+                        if (result is IJsonDataObject)
+                            result = new JsonDynamicObject((IJsonDataObject)result);
 
                         return true;
                     }
@@ -188,25 +182,25 @@ namespace Azos.Serialization.JSON
                 if(idx<arr.Count)
                   result = arr[idx];
 
-                if (result is IJSONDataObject)
-                    result = new JSONDynamicObject((IJSONDataObject)result);
+                if (result is IJsonDataObject)
+                    result = new JsonDynamicObject((IJsonDataObject)result);
 
                 return true;
             }
 
             public override bool TrySetIndex(SetIndexBinder binder, object[] indexes, object value)
             {
-                var arr = m_Data as JSONDataArray;
+                var arr = m_Data as JsonDataArray;
 
                 if (arr==null)
                 {
-                  var map = m_Data as JSONDataMap;
+                  var map = m_Data as JsonDataMap;
                   if (map!=null)
                   {
                     if (indexes.Length==1 && indexes[0] is string)
                     {
-                        if (value is JSONDynamicObject)
-                             value = ((JSONDynamicObject)value).m_Data;
+                        if (value is JsonDynamicObject)
+                             value = ((JsonDynamicObject)value).m_Data;
 
                         map[(string)indexes[0]] = value;
 
@@ -217,8 +211,8 @@ namespace Azos.Serialization.JSON
                 }
                 if (indexes.Length!=1 || !(indexes[0] is int)) return false;
 
-                if (value is JSONDynamicObject)
-                    value = ((JSONDynamicObject)value).m_Data;
+                if (value is JsonDynamicObject)
+                    value = ((JsonDynamicObject)value).m_Data;
 
                 var idx = (int)indexes[0];
 

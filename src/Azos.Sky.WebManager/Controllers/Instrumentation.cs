@@ -190,18 +190,18 @@ namespace Azos.Sky.WebManager.Controllers
     [Action]
     public object LoadComponentTree(string group = null)
     {
-      var res = new JSONDataMap();
+      var res = new JsonDataMap();
 
       var all = App.AllComponents;
 
-      var rootArr = new JSONDataArray();
+      var rootArr = new JsonDataArray();
 
       foreach(var cmp in all.Where(c => c.ComponentDirector==null))
         rootArr.Add(getComponentTreeMap(all, cmp, 0, group));
 
       res["root"] = rootArr;
 
-      var otherArr = new JSONDataArray();
+      var otherArr = new JsonDataArray();
 
       foreach(var cmp in all.Where(c => c.ComponentDirector!=null && !(c is ApplicationComponent)))
         rootArr.Add(getComponentTreeMap(all, cmp, 0));
@@ -211,15 +211,15 @@ namespace Azos.Sky.WebManager.Controllers
       return new {OK=true, tree=res};
     }
 
-    private JSONDataMap getComponentTreeMap(IEnumerable<IApplicationComponent> all, IApplicationComponent cmp, int level, string group = null)
+    private JsonDataMap getComponentTreeMap(IEnumerable<IApplicationComponent> all, IApplicationComponent cmp, int level, string group = null)
     {
-      var cmpTreeMap = new JSONDataMap();
+      var cmpTreeMap = new JsonDataMap();
 
       if (level>7) return cmpTreeMap;//cyclical ref
 
       cmpTreeMap = getComponentMap(cmp, group);
 
-      var children = new JSONDataArray();
+      var children = new JsonDataArray();
 
       foreach (var child in all.Where(c => object.ReferenceEquals(cmp, c.ComponentDirector)))
       {
@@ -232,9 +232,9 @@ namespace Azos.Sky.WebManager.Controllers
       return cmpTreeMap;
     }
 
-    private JSONDataMap getComponentMap(IApplicationComponent cmp, string group = null)
+    private JsonDataMap getComponentMap(IApplicationComponent cmp, string group = null)
     {
-      var cmpMap = new JSONDataMap();
+      var cmpMap = new JsonDataMap();
 
       var parameterized = cmp as IExternallyParameterized;
       var instrumentable = cmp as IInstrumentable;
@@ -256,14 +256,14 @@ namespace Azos.Sky.WebManager.Controllers
       pars = pars.Where(p => p.Key != "InstrumentationEnabled").OrderBy(p => p.Key);
       if (pars.Count() == 0) return cmpMap;
 
-      var parameters = new List<JSONDataMap>();
+      var parameters = new List<JsonDataMap>();
 
       foreach(var par in pars)
       {
         object val;
         if (!parameterized.ExternalGetParameter(par.Key, out val)) continue;
 
-        var parameterMap = new JSONDataMap();
+        var parameterMap = new JsonDataMap();
 
         string[] plist = null;
         var tp = par.Value;
@@ -318,11 +318,11 @@ namespace Azos.Sky.WebManager.Controllers
     {
       var components = App.AllComponents.OrderBy(c => c.ComponentStartTime);
 
-      var componentsList = new List<JSONDataMap>();
+      var componentsList = new List<JsonDataMap>();
 
       foreach (var cmp in components)
       {
-        var componentMap = new JSONDataMap();
+        var componentMap = new JsonDataMap();
         componentsList.Add(componentMap);
 
         var parameterized = cmp as IExternallyParameterized;
@@ -345,14 +345,14 @@ namespace Azos.Sky.WebManager.Controllers
         pars = pars.Where(p => p.Key != "InstrumentationEnabled").OrderBy(p => p.Key);
         if (pars.Count() == 0) continue;
 
-        var parameters = new List<JSONDataMap>();
+        var parameters = new List<JsonDataMap>();
 
         foreach(var par in pars)
         {
           object val;
           if (!parameterized.ExternalGetParameter(par.Key, out val)) continue;
 
-          var parameterMap = new JSONDataMap();
+          var parameterMap = new JsonDataMap();
 
           string[] plist = null;
           var tp = par.Value;
@@ -410,14 +410,14 @@ namespace Azos.Sky.WebManager.Controllers
           App.SystemApplicationType == SystemApplicationType.ZoneGovernor)
         instrumentation = App.Singletons.Get<ZoneGovernorService>().SubordinateInstrumentation;
 
-      var nsMap = new JSONDataMap();
+      var nsMap = new JsonDataMap();
       var to = request.ToUTC.ToUniversalTime();
 
       var total = 0;
       foreach (var ns in request.Namespaces)
       {
         if (total>=MAX_COUNT) break;
-        var srcMap = new JSONDataMap();
+        var srcMap = new JsonDataMap();
 
         foreach (var src in ns.Sources)
         {
@@ -459,9 +459,9 @@ namespace Azos.Sky.WebManager.Controllers
       };
     }
 
-    private JSONDataMap getByNamespace(IInstrumentation instr)
+    private JsonDataMap getByNamespace(IInstrumentation instr)
     {
-      var data = new JSONDataMap();
+      var data = new JsonDataMap();
 
       IEnumerable<Type> typeKeys = instr.DataTypes.OrderBy(t => t.FullName);
       foreach (var tkey in typeKeys)
@@ -470,7 +470,7 @@ namespace Azos.Sky.WebManager.Controllers
         var sourceKeys = instr.GetDatumTypeSources(tkey, out datum).OrderBy(s => s);
         if (datum==null) continue;
 
-        var tData = new JSONDataMap();
+        var tData = new JsonDataMap();
         tData["data"] = sourceKeys;
 
         tData["descr"] = datum.Description;
@@ -484,9 +484,9 @@ namespace Azos.Sky.WebManager.Controllers
       return data;
     }
 
-    private JSONDataMap getByInterface(IInstrumentation instr)
+    private JsonDataMap getByInterface(IInstrumentation instr)
     {
-      var data = new JSONDataMap();
+      var data = new JsonDataMap();
 
       var sortedTypes = instr.DataTypes.OrderBy(t => t.FullName);
 
@@ -494,7 +494,7 @@ namespace Azos.Sky.WebManager.Controllers
       foreach (var ikey in intfKeys)
       {
 
-              var iData = new JSONDataMap();
+              var iData = new JsonDataMap();
 
               IEnumerable<Type> typeKeys = sortedTypes.Where(t => Datum.GetViewGroupInterfaces(t).Any(i => i == ikey));
               foreach (var tkey in typeKeys)
@@ -503,7 +503,7 @@ namespace Azos.Sky.WebManager.Controllers
                       var sourceKeys = instr.GetDatumTypeSources(tkey, out datum);
                       if (datum==null) continue;
 
-                      var tData = new JSONDataMap();
+                      var tData = new JsonDataMap();
                       tData["descr"] = datum.Description;
                       tData["unit"] = datum.ValueUnitName;
                       tData["error"] = datum is IErrorInstrument;

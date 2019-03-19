@@ -81,12 +81,12 @@ namespace Azos.Data
     /// <summary>
     /// Tries to fill the document with data returning true if field count matched
     /// </summary>
-    public static bool TryFillFromJSON(Doc doc, IJSONDataObject jsonData, SetFieldFunc setFieldFunc = null)
+    public static bool TryFillFromJSON(Doc doc, IJsonDataObject jsonData, SetFieldFunc setFieldFunc = null)
     {
       if (doc==null || jsonData==null) return false;
 
       var allMatch = true;
-      var map = jsonData as JSONDataMap;
+      var map = jsonData as JsonDataMap;
       if (map!=null)
       {
         foreach(var kvp in map)
@@ -114,7 +114,7 @@ namespace Azos.Data
       }
       else
       {
-        var arr = jsonData as JSONDataArray;
+        var arr = jsonData as JsonDataArray;
         if (arr==null) return false;
 
         for(var i=0; i<doc.Schema.FieldCount; i++)
@@ -773,7 +773,7 @@ namespace Azos.Data
     /// that feeds from doc metadata.
     /// This is a simplified version of GetClientFieldDef
     /// </summary>
-    public virtual JSONDataMap GetClientFieldValueList(Schema.FieldDef fdef,
+    public virtual JsonDataMap GetClientFieldValueList(Schema.FieldDef fdef,
                                                         string targetName,
                                                         string isoLang)
     {
@@ -817,11 +817,11 @@ namespace Azos.Data
     /// Writes row as JSON either as an array or map depending on JSONWritingOptions.RowsAsMap setting.
     /// Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
     /// </summary>
-    public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
         if (options==null || !options.RowsAsMap)
         {
-          JSONWriter.WriteArray(wri, this, nestingLevel, options);
+          JsonWriter.WriteArray(wri, this, nestingLevel, options);
           return;
         }
 
@@ -848,14 +848,14 @@ namespace Azos.Data
             }
         }
 
-        JSONWriter.WriteMap(wri, map, nestingLevel, options);
+        JsonWriter.WriteMap(wri, map, nestingLevel, options);
     }
 
-    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JSONReader.NameBinding? nameBinding)
+    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
     {
-      if (data is JSONDataMap map)
+      if (data is JsonDataMap map)
       {
-        JSONReader.ToDoc(this, map, fromUI, nameBinding);
+        JsonReader.ToDoc(this, map, fromUI, nameBinding);
         return (true, this);
       }
       return (false, this);
@@ -902,7 +902,7 @@ namespace Azos.Data
     /// Override to filter-out some fields from serialization to JSON, or change field values.
     /// Return name null to indicate that field should be filtered-out(excluded from serialization to JSON)
     /// </summary>
-    protected virtual object FilterJSONSerializerField(Schema.FieldDef def, JSONWritingOptions options, out string name)
+    protected virtual object FilterJSONSerializerField(Schema.FieldDef def, JsonWritingOptions options, out string name)
     {
       var tname = options!=null ? options.RowMapTargetName : null;
 
@@ -943,7 +943,7 @@ namespace Azos.Data
 
     #region .pvt
 
-    private bool isSimpleKeyStringMap(JSONDataMap map)
+    private bool isSimpleKeyStringMap(JsonDataMap map)
     {
       if (map == null) return false;
 

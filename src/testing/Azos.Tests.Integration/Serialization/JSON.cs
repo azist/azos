@@ -21,8 +21,8 @@ using Azos.CodeAnalysis.JSON;
 using Azos.Serialization.JSON;
 using JL=Azos.CodeAnalysis.JSON.JSONLexer;
 using JP=Azos.CodeAnalysis.JSON.JSONParser;
-using JW=Azos.Serialization.JSON.JSONWriter;
-using JDO=Azos.Serialization.JSON.JSONDynamicObject;
+using JW=Azos.Serialization.JSON.JsonWriter;
+using JDO=Azos.Serialization.JSON.JsonDynamicObject;
 
 
 
@@ -101,7 +101,7 @@ private const string SOURCE2 = @"
                 new ParallelOptions(){ MaxDegreeOfParallelism = threadCount},
                 (i)=>
                 {
-                    var obj = src.JSONToDynamic();
+                    var obj = src.JsonToDynamic();
               //      var obj = System.Web.Helpers.Json.Decode(src);
                     Aver.AreEqual("Oleg", obj.FirstName);
                     Aver.AreEqual("Ogurtsov", obj.LastName);

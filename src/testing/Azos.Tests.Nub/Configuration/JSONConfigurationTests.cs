@@ -163,7 +163,7 @@ namespace Azos.Tests.Nub.Configuration
 
            Aver.AreEqual("who knows?", conf.Root.AttrByName("web.world").ValueAsString());
 
-           var savedJSON = conf.SaveToString(JSONWritingOptions.PrettyPrint);
+           var savedJSON = conf.SaveToString(JsonWritingOptions.PrettyPrint);
 
            Console.WriteLine(savedJSON);
 
@@ -188,7 +188,7 @@ namespace Azos.Tests.Nub.Configuration
 
            var conf = Azos.Conf.JSONConfiguration.CreateFromJSON(json);
 
-           Console.WriteLine(conf.SaveToString(JSONWritingOptions.PrettyPrint));
+           Console.WriteLine(conf.SaveToString(JsonWritingOptions.PrettyPrint));
 
 
 
@@ -263,12 +263,12 @@ namespace Azos.Tests.Nub.Configuration
            Console.WriteLine(conf1.ToLaconicString());
 
            var map = conf1.Configuration.ToConfigurationJSONDataMap();
-           var json = map.ToJSON();
+           var json = map.ToJson();
 
            var cjson = JSONConfiguration.CreateFromJSON(json);
            assert(cjson.Root);
 
-           json = cjson.SaveToString(JSONWritingOptions.PrettyPrint);
+           json = cjson.SaveToString(JsonWritingOptions.PrettyPrint);
            Console.WriteLine(json);
            cjson = JSONConfiguration.CreateFromJSON(json);
            assert(cjson.Root);

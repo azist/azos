@@ -160,7 +160,7 @@ namespace Azos.Tests.Nub.Financial
     public void JSON()
     {
         var data = new {name="aaa", amount=new Amount("usd", 1234.12M)};
-        var json = data.ToJSON();
+        var json = data.ToJson();
 
         Console.WriteLine(json);
 

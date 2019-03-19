@@ -171,9 +171,9 @@ namespace Azos.Serialization.BSON
         return "{0}{1}={2}".Args(GetType().Name, Name, ObjectValue ?? "<null>");
       }
 
-      public virtual void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+      public virtual void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
       {
-        JSONWriter.Write(this.ObjectValue, wri, options);
+        JsonWriter.Write(this.ObjectValue, wri, options);
       }
 
     #endregion

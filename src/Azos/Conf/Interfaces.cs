@@ -263,17 +263,17 @@ namespace Azos.Conf
             /// In other words some ConfigSectionNode information can not be reflected in corresponding JSONDataMap, for example
             ///  this method overwrites duplicate key names and does not support section values
             /// </summary>
-            JSONDataMap ToJSONDataMap();
+            JsonDataMap ToJSONDataMap();
 
             /// <summary>
             /// Returns the contents of this node per JSONConfiguration specification. Contrast with ToJSONDataMap
             /// </summary>
-            JSONDataMap ToConfigurationJSONDataMap();
+            JsonDataMap ToConfigurationJSONDataMap();
 
             /// <summary>
             /// Serializes configuration tree rooted at this node into JSON configuration format and returns it as a string
             /// </summary>
-            string ToJSONString(Azos.Serialization.JSON.JSONWritingOptions options = null);
+            string ToJSONString(Azos.Serialization.JSON.JsonWritingOptions options = null);
 
             /// <summary>
             /// Serializes configuration tree as XML

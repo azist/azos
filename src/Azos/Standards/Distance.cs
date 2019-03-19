@@ -135,9 +135,9 @@ namespace Azos.Standards
       return ValueInMm.CompareTo(other.ValueInMm);
     }
 
-    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
-      JSONWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("unit", UnitName), new DictionaryEntry("value", Value));
+      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("unit", UnitName), new DictionaryEntry("value", Value));
     }
 
 

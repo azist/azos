@@ -879,7 +879,7 @@ namespace Azos.Tests.Integration.CRUD
                 cen.MoveNext();
                 Aver.IsNotNull( cen.Current );
 
-                Console.WriteLine( cen.Current.Schema.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap) );
+                Console.WriteLine( cen.Current.Schema.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap) );
 
                 Aver.AreObjectsEqual(0, cen.Current["COUNTER"].AsInt());
                 Aver.AreObjectsEqual("0-DATA", cen.Current["DATA"]);

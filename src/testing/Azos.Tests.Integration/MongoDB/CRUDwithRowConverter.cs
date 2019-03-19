@@ -460,11 +460,11 @@ namespace Azos.Tests.Integration.MongoDb
         var row = new ArrayRow
         {
           _id = 1,
-          Map = new JSONDataMap{{"Name","Xerson"},{"Age",123}},
+          Map = new JsonDataMap{{"Name","Xerson"},{"Age",123}},
           List = new List<object>{ 1,true, "YEZ!", -123.01},
           ObjectArray = new object[]{123, -12, 789d, null, new object[] { 54.67d, "alpIna"}},
-          MapArray = new JSONDataMap[]{ new JSONDataMap{{"a",1},{"b",true}},  new JSONDataMap{{"kosmos",234.12},{"b",null}} },
-          MapList = new List<JSONDataMap>{ new JSONDataMap{{"abc",0},{"buba", -40.0789}},  new JSONDataMap{{"nothing",null}} }
+          MapArray = new JsonDataMap[]{ new JsonDataMap{{"a",1},{"b",true}},  new JsonDataMap{{"kosmos",234.12},{"b",null}} },
+          MapList = new List<JsonDataMap>{ new JsonDataMap{{"abc",0},{"buba", -40.0789}},  new JsonDataMap{{"nothing",null}} }
         };
 
         var rc = new DataDocConverter();
@@ -495,11 +495,11 @@ namespace Azos.Tests.Integration.MongoDb
     {
       [Field] public int _id {get; set;}
 
-      [Field] public JSONDataMap  Map{get; set;}
+      [Field] public JsonDataMap  Map{get; set;}
       [Field] public object[]  ObjectArray{get; set;}
-      [Field] public JSONDataMap[]  MapArray{get; set;}
+      [Field] public JsonDataMap[]  MapArray{get; set;}
       [Field] public List<object> List{get; set;}
-      [Field] public List<JSONDataMap> MapList{get; set;}
+      [Field] public List<JsonDataMap> MapList{get; set;}
     }
 
     public class TestRow : TypedDoc

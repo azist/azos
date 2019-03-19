@@ -19,7 +19,7 @@ namespace Azos.Serialization.JSON
   /// <summary>
   /// Provides deserialization functionality from JSON format
   /// </summary>
-  public static class JSONReader
+  public static class JsonReader
   {
     /// <summary>
     /// Specifies how reader should match JSON to row field property member or backend names
@@ -57,23 +57,23 @@ namespace Azos.Serialization.JSON
         return deserializeDynamic( read(source, caseSensitiveMaps));
     }
 
-    public static IJSONDataObject DeserializeDataObject(Stream stream, Encoding encoding = null, bool caseSensitiveMaps = true)
+    public static IJsonDataObject DeserializeDataObject(Stream stream, Encoding encoding = null, bool caseSensitiveMaps = true)
     {
         return deserializeObject( read(stream, encoding, caseSensitiveMaps));
     }
 
-    public static IJSONDataObject DeserializeDataObject(string source, bool caseSensitiveMaps = true)
+    public static IJsonDataObject DeserializeDataObject(string source, bool caseSensitiveMaps = true)
     {
         return deserializeObject( read(source, caseSensitiveMaps));
     }
 
-    public static IJSONDataObject DeserializeDataObjectFromFile(string filePath, Encoding encoding = null, bool caseSensitiveMaps = true)
+    public static IJsonDataObject DeserializeDataObjectFromFile(string filePath, Encoding encoding = null, bool caseSensitiveMaps = true)
     {
         using(var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
           return deserializeObject( read(fs, encoding, caseSensitiveMaps));
     }
 
-    public static IJSONDataObject DeserializeDataObject(ISourceText source, bool caseSensitiveMaps = true)
+    public static IJsonDataObject DeserializeDataObject(ISourceText source, bool caseSensitiveMaps = true)
     {
         return deserializeObject( read(source, caseSensitiveMaps));
     }
@@ -90,7 +90,7 @@ namespace Azos.Serialization.JSON
     /// <summary>
     /// Deserializes into Rowset or Table from JSONDataMap, as serialized by RowsedBase.WriteAsJSON()
     /// </summary>
-    public static RowsetBase ToRowset(JSONDataMap jsonMap, bool schemaOnly = false, bool readOnlySchema = false)
+    public static RowsetBase ToRowset(JsonDataMap jsonMap, bool schemaOnly = false, bool readOnlySchema = false)
     {
       return RowsetBase.FromJSON(jsonMap, schemaOnly, readOnlySchema);
     }
@@ -106,7 +106,7 @@ namespace Azos.Serialization.JSON
     /// <param name="jsonMap">JSON data to convert into data doc</param>
     /// <param name="fromUI">When true indicates that data came from UI, hence NonUI-marked fields should be skipped. True by default</param>
     /// <param name="nameBinding">Used for backend name matching or null (any target)</param>
-    public static TypedDoc ToDoc(Type type, JSONDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null)
+    public static TypedDoc ToDoc(Type type, JsonDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null)
     {
       if (!typeof(TypedDoc).IsAssignableFrom(type) || jsonMap==null)
         throw new JSONDeserializationException(StringConsts.ARGUMENT_ERROR+"JSONReader.ToDoc(type|jsonMap=null)");
@@ -125,7 +125,7 @@ namespace Azos.Serialization.JSON
     /// Generic version of ToDoc(Type, JSONDataMap, bool)/>
     /// </summary>
     /// <typeparam name="T">TypedDoc</typeparam>
-    public static T ToDoc<T>(JSONDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null) where T: TypedDoc
+    public static T ToDoc<T>(JsonDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null) where T: TypedDoc
     {
       return ToDoc(typeof(T), jsonMap, fromUI, nameBinding) as T;
     }
@@ -141,7 +141,7 @@ namespace Azos.Serialization.JSON
     /// <param name="jsonMap">JSON data to convert into row</param>
     /// <param name="fromUI">When true indicates that data came from UI, hence NonUI-marked fields should be skipped. True by default</param>
     /// <param name="nameBinding">Used for backend name matching or null (any target)</param>
-    public static void ToDoc(Doc doc, JSONDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null)
+    public static void ToDoc(Doc doc, JsonDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null)
     {
       if (doc == null || jsonMap == null)
         throw new JSONDeserializationException(StringConsts.ARGUMENT_ERROR + "JSONReader.ToDoc(doc|jsonMap=null)");
@@ -157,7 +157,7 @@ namespace Azos.Serialization.JSON
     }
 
 
-    private static TypedDoc toTypedDoc(Type type, NameBinding? nameBinding, JSONDataMap jsonMap, ref string field, bool fromUI)
+    private static TypedDoc toTypedDoc(Type type, NameBinding? nameBinding, JsonDataMap jsonMap, ref string field, bool fromUI)
     {
       var doc = (TypedDoc)Activator.CreateInstance(type);
       toDoc(doc, nameBinding.HasValue ? nameBinding.Value : NameBinding.ByCode, jsonMap, ref field, fromUI);
@@ -165,7 +165,7 @@ namespace Azos.Serialization.JSON
     }
 
 
-    private static void toDoc(Doc doc, NameBinding nameBinding, JSONDataMap jsonMap, ref string field, bool fromUI)
+    private static void toDoc(Doc doc, NameBinding nameBinding, JsonDataMap jsonMap, ref string field, bool fromUI)
     {
       var amorph = doc as IAmorphousData;
       foreach (var mfld in jsonMap)
@@ -250,34 +250,34 @@ namespace Azos.Serialization.JSON
       if (toType == typeof(object)) return v;
 
       //IJSONDataObject
-      if (toType == typeof(IJSONDataObject))
+      if (toType == typeof(IJsonDataObject))
       {
-        if (v is IJSONDataObject) return v;//goes as is
+        if (v is IJsonDataObject) return v;//goes as is
         if (v is string s)//string containing embedded JSON
         {
-          var jo = s.JSONToDataObject();
+          var jo = s.JsonToDataObject();
           return jo;
         }
       }
 
       //IJSONDataMap
-      if (toType == typeof(JSONDataMap))
+      if (toType == typeof(JsonDataMap))
       {
-        if (v is JSONDataMap) return v;//goes as is
+        if (v is JsonDataMap) return v;//goes as is
         if (v is string s)//string containing embedded JSON
         {
-          var jo = s.JSONToDataObject() as JSONDataMap;
+          var jo = s.JsonToDataObject() as JsonDataMap;
           return jo;
         }
       }
 
       //IJSONDataArray
-      if (toType == typeof(JSONDataArray))
+      if (toType == typeof(JsonDataArray))
       {
-        if (v is JSONDataArray) return v;//goes as is
+        if (v is JsonDataArray) return v;//goes as is
         if (v is string s)//string containing embedded JSON
         {
-          var jo = s.JSONToDataObject() as JSONDataArray;
+          var jo = s.JsonToDataObject() as JsonDataArray;
           return jo;
         }
       }
@@ -343,17 +343,17 @@ namespace Azos.Serialization.JSON
         var data = deserializeObject(root);
         if (data == null) return null;
 
-        return new JSONDynamicObject( data );
+        return new JsonDynamicObject( data );
     }
 
-    private static IJSONDataObject deserializeObject(object root)
+    private static IJsonDataObject deserializeObject(object root)
     {
         if (root==null) return null;
 
-        var data = root as IJSONDataObject;
+        var data = root as IJsonDataObject;
 
         if (data == null)
-          data = new JSONDataMap{{"value", root}};
+          data = new JsonDataMap{{"value", root}};
 
         return data;
     }

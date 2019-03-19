@@ -289,10 +289,10 @@ namespace Azos.Serialization.BSON
       /// <summary>
       /// Serializes this dosument into a TextWriter - this method is used by JSON serializer(JSONWriter)
       /// </summary>
-      public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+      public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
       {
         //this will throw nesting exception in case of cyclical graph
-        JSONWriter.WriteMap(wri, this.Select(elm => new DictionaryEntry(elm.Name, elm)), nestingLevel+1, options);
+        JsonWriter.WriteMap(wri, this.Select(elm => new DictionaryEntry(elm.Name, elm)), nestingLevel+1, options);
       }
 
 
@@ -344,7 +344,7 @@ namespace Azos.Serialization.BSON
 
       public override string ToString()
       {
-        return this.ToJSON();
+        return this.ToJson();
       }
 
     #endregion
@@ -411,11 +411,11 @@ namespace Azos.Serialization.BSON
 
 
               private static readonly object s_TemplateCacheLock = new object();
-              private static volatile Dictionary<string, JSONDataMap> s_TemplateCache = new Dictionary<string, JSONDataMap>(StringComparer.Ordinal);
+              private static volatile Dictionary<string, JsonDataMap> s_TemplateCache = new Dictionary<string, JsonDataMap>(StringComparer.Ordinal);
 
-              private JSONDataMap getTemplateJSONDataMap(string template, bool cache)
+              private JsonDataMap getTemplateJSONDataMap(string template, bool cache)
               {
-                JSONDataMap result = null;
+                JsonDataMap result = null;
                 if (cache)
                 {
                   if (!s_TemplateCache.TryGetValue(template, out result))
@@ -424,7 +424,7 @@ namespace Azos.Serialization.BSON
                       if (!s_TemplateCache.TryGetValue(template, out result))
                       {
                         result = compileTemplate(template);
-                        var ncache = new Dictionary<string, JSONDataMap>(s_TemplateCache, StringComparer.Ordinal);
+                        var ncache = new Dictionary<string, JsonDataMap>(s_TemplateCache, StringComparer.Ordinal);
                         ncache[template] = result;
                         s_TemplateCache = ncache;//atomic
                       }
@@ -437,12 +437,12 @@ namespace Azos.Serialization.BSON
               }
 
 
-              private JSONDataMap compileTemplate(string template)
+              private JsonDataMap compileTemplate(string template)
               {
-                JSONDataMap result;
+                JsonDataMap result;
                 try
                 {
-                  result = JSONReader.DeserializeDataObject( template ) as JSONDataMap;
+                  result = JsonReader.DeserializeDataObject( template ) as JsonDataMap;
                   if (result==null) throw new BSONException("template is not JSONDataMap");
                 }
                 catch(Exception error)
@@ -453,7 +453,7 @@ namespace Azos.Serialization.BSON
                 return result;
               }
 
-              private void buildFromTemplateArgs(BSONDocument root, JSONDataMap template, TemplateArg[] args)
+              private void buildFromTemplateArgs(BSONDocument root, JsonDataMap template, TemplateArg[] args)
               {
                 foreach(var kvp in template)
                   root.Set( jToB(kvp.Key, kvp.Value, args) );
@@ -521,9 +521,9 @@ namespace Azos.Serialization.BSON
                     {
                         return DataDocConverter.ByteBuffer_CLRtoBSON(name, (byte[])value);
                     }
-                    else if (value is JSONDataMap)
+                    else if (value is JsonDataMap)
                     {
-                        var doc = value as JSONDataMap;
+                        var doc = value as JsonDataMap;
                         var subdoc = new BSONDocument();
                         buildFromTemplateArgs(subdoc, doc, args);
                         value = subdoc;

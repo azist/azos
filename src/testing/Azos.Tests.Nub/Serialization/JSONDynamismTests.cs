@@ -20,7 +20,7 @@ namespace Azos.Tests.Nub.Serialization
         [Run]
         public void Map_GetSet_ByMember()
         {
-            dynamic obj = new JSONDynamicObject(JSONDynamicObjectKind.Map);
+            dynamic obj = new JsonDynamicObject(JSONDynamicObjectKind.Map);
 
             obj.A = 7;
             Aver.AreEqual(7, obj.A);
@@ -29,7 +29,7 @@ namespace Azos.Tests.Nub.Serialization
         [Run]
         public void Map_GetSet_ByIndexer()
         {
-            dynamic obj = new JSONDynamicObject(JSONDynamicObjectKind.Map);
+            dynamic obj = new JsonDynamicObject(JSONDynamicObjectKind.Map);
 
             obj["A"] = 7;
             Aver.AreEqual(7, obj["A"]);
@@ -38,7 +38,7 @@ namespace Azos.Tests.Nub.Serialization
         [Run]
         public void Map_GetSet_IntAdd()
         {
-            dynamic obj = new JSONDynamicObject(JSONDynamicObjectKind.Map);
+            dynamic obj = new JsonDynamicObject(JSONDynamicObjectKind.Map);
 
             obj.A = 3;
             obj.B = 5;
@@ -51,7 +51,7 @@ namespace Azos.Tests.Nub.Serialization
         [Run]
         public void Map_GetSet_DoubleAddInt()
         {
-            dynamic obj = new JSONDynamicObject(JSONDynamicObjectKind.Map);
+            dynamic obj = new JsonDynamicObject(JSONDynamicObjectKind.Map);
 
             obj.A = 3.4d;
             obj.B = 5;
@@ -63,7 +63,7 @@ namespace Azos.Tests.Nub.Serialization
         [Run]
         public void Map_GetSet_DateTimeAddDays()
         {
-            dynamic obj = new JSONDynamicObject(JSONDynamicObjectKind.Map);
+            dynamic obj = new JsonDynamicObject(JSONDynamicObjectKind.Map);
 
             obj.StartDate = new DateTime(1980, 12, 05);
             obj.Interval = 5;
@@ -76,7 +76,7 @@ namespace Azos.Tests.Nub.Serialization
         [Run]
         public void Map_GetMemberNames()
         {
-            dynamic obj = new JSONDynamicObject(JSONDynamicObjectKind.Map);
+            dynamic obj = new JsonDynamicObject(JSONDynamicObjectKind.Map);
 
             obj.A = 3;
             obj.B = 5;
@@ -94,7 +94,7 @@ namespace Azos.Tests.Nub.Serialization
         [Run]
         public void Array_Autogrow_1()
         {
-            dynamic obj = new JSONDynamicObject(JSONDynamicObjectKind.Array);
+            dynamic obj = new JsonDynamicObject(JSONDynamicObjectKind.Array);
 
             Aver.AreEqual(0, obj.Count);
             Aver.AreEqual(0, obj.Length);
@@ -111,7 +111,7 @@ namespace Azos.Tests.Nub.Serialization
         [Run]
         public void Array_Autogrow_2()
         {
-            dynamic obj = new JSONDynamicObject(JSONDynamicObjectKind.Array);
+            dynamic obj = new JsonDynamicObject(JSONDynamicObjectKind.Array);
 
             Aver.AreEqual(0, obj.Count);
             Aver.AreEqual(0, obj.Length);
@@ -127,7 +127,7 @@ namespace Azos.Tests.Nub.Serialization
         [Run]
         public void Array_GetBeyondRange()
         {
-            dynamic obj = new JSONDynamicObject(JSONDynamicObjectKind.Array);
+            dynamic obj = new JsonDynamicObject(JSONDynamicObjectKind.Array);
 
             Aver.AreEqual(0, obj.Count);
             Aver.AreEqual(0, obj.Length);
@@ -147,10 +147,10 @@ namespace Azos.Tests.Nub.Serialization
         public void WithSubDocumentsAndConversionAccessors()
         {
           // http://stackoverflow.com/questions/2954531/lots-of-first-chance-microsoft-csharp-runtimebinderexceptions-thrown-when-dealin
-          dynamic obj = new JSONDynamicObject(JSONDynamicObjectKind.Map);
+          dynamic obj = new JsonDynamicObject(JSONDynamicObjectKind.Map);
           obj.type = "abc";
           obj.startDate = "5/15/2001 6:00pm";
-          obj.target = new JSONDynamicObject(JSONDynamicObjectKind.Map);
+          obj.target = new JsonDynamicObject(JSONDynamicObjectKind.Map);
           obj.target.id = "A678";
           obj.target.image = "hello";
           obj.target.type = "good";
@@ -161,7 +161,7 @@ namespace Azos.Tests.Nub.Serialization
 
           string s1 = obj.ToJSON();
 
-            var ro1 = s1.JSONToDynamic();
+            var ro1 = s1.JsonToDynamic();
             Aver.AreEqual("abc", ro1.type);
             Aver.AreEqual(new DateTime(2001,5,15,18,00,00), ((string)ro1.startDate).AsDateTime());
             Aver.AreEqual("A678", ro1.target.id);
@@ -174,9 +174,9 @@ namespace Azos.Tests.Nub.Serialization
             Aver.AreEqual(125000, ro1.target.Salary);
 
 
-          string s2 = ((object)obj).ToJSON();
+          string s2 = ((object)obj).ToJson();
 
-            var ro2 = s2.JSONToDynamic();
+            var ro2 = s2.JsonToDynamic();
             Aver.AreEqual("abc", ro2.type);
             Aver.AreEqual(new DateTime(2001,5,15,18,00,00), ((string)ro2.startDate).AsDateTime());
             Aver.AreEqual("A678", ro2.target.id);
@@ -191,7 +191,7 @@ namespace Azos.Tests.Nub.Serialization
         {
             var str = @"{name: ""Orlov"", dob: ""02/12/2007 6:45 PM"", certified: true, serviceyears: 12, salary: 145000}";
 
-            MySimpleData row = str.JSONToDynamic();
+            MySimpleData row = str.JsonToDynamic();
 
             Aver.AreEqual("Orlov", row.Name);
             Aver.AreEqual(new DateTime(2007, 2,12,18,45,0), row.DOB);
@@ -205,7 +205,7 @@ namespace Azos.Tests.Nub.Serialization
         {
             var str = @"{name: ""Orlov"", dob: ""02/12/2007 6:45 PM"", certified: true, serviceyears: 12, salary: 145000, extra: -1, yes: true}";
 
-            MySimpleAmorphousData row = str.JSONToDynamic();
+            MySimpleAmorphousData row = str.JsonToDynamic();
 
             Aver.AreEqual("Orlov", row.Name);
             Aver.AreEqual(new DateTime(2007, 2,12,18,45,0), row.DOB);
@@ -224,7 +224,7 @@ namespace Azos.Tests.Nub.Serialization
 
           var row = new DynamicDoc(Schema.GetForTypedDoc(typeof(MySimpleData)));
 
-          JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
+          JsonReader.ToDoc(row, str.JsonToDataObject() as JsonDataMap);
 
           Aver.AreObjectsEqual("Orlov", row["Name"]);
           Aver.AreObjectsEqual(new DateTime(2007, 2, 12, 18, 45, 0), row["DOB"]);
@@ -240,7 +240,7 @@ namespace Azos.Tests.Nub.Serialization
 
           var row = new AmorphousDynamicDoc(Schema.GetForTypedDoc(typeof(MySimpleData)));
 
-          JSONReader.ToDoc(row, str.JSONToDataObject() as JSONDataMap);
+          JsonReader.ToDoc(row, str.JsonToDataObject() as JsonDataMap);
 
           Aver.AreObjectsEqual("Orlov", row["Name"]);
           Aver.AreObjectsEqual(new DateTime(2007, 2, 12, 18, 45, 0), row["DOB"]);
@@ -263,7 +263,7 @@ namespace Azos.Tests.Nub.Serialization
                         System.Threading.Tasks.Parallel.For(0, CNT,
                           (i) =>
                           {
-                             MySimpleAmorphousData row = str.JSONToDynamic();
+                             MySimpleAmorphousData row = str.JsonToDynamic();
 
                              Aver.AreEqual("Orlov", row.Name);
                              Aver.AreEqual(new DateTime(2007, 2,12,18,45,0), row.DOB);
@@ -288,7 +288,7 @@ namespace Azos.Tests.Nub.Serialization
         {
             var str = @"{ id: ""12:4:5"", name: ""Orlov""}";
 
-            DataWithGDID row = str.JSONToDynamic();
+            DataWithGDID row = str.JsonToDynamic();
 
             Aver.AreEqual(new GDID(12, 4, 5), row.ID);
             Aver.AreEqual("Orlov", row.Name);
@@ -303,11 +303,11 @@ namespace Azos.Tests.Nub.Serialization
               Name = "Graf Orlov"
             };
 
-            var str = row1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+            var str = row1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
             Console.WriteLine(str);
 
-            DataWithGDID row2 = str.JSONToDynamic();
+            DataWithGDID row2 = str.JsonToDynamic();
 
             Aver.AreEqual(new GDID(1, 189), row2.ID);
             Aver.AreEqual("Graf Orlov", row2.Name);
@@ -325,11 +325,11 @@ namespace Azos.Tests.Nub.Serialization
               Salary = 123455.8712m
             };
 
-            var str = row1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+            var str = row1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
             Console.WriteLine(str);
 
-            MySimpleData row2 = str.JSONToDynamic();
+            MySimpleData row2 = str.JsonToDynamic();
 
             Aver.IsTrue(row1.Equals(row2));
         }
@@ -348,11 +348,11 @@ namespace Azos.Tests.Nub.Serialization
             row1.AmorphousData["frage"] = "Was machst du mit dem schwert?";
             row1.AmorphousData["antwort"] = "Ich kämpfe damit";
 
-            var str = row1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+            var str = row1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
             Console.WriteLine(str);
 
-            MySimpleAmorphousData row2 = str.JSONToDynamic();
+            MySimpleAmorphousData row2 = str.JsonToDynamic();
 
             Aver.IsTrue(row1.Equals(row2));
 
@@ -383,11 +383,11 @@ namespace Azos.Tests.Nub.Serialization
               }
             };
 
-            var str = row1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+            var str = row1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
             Console.WriteLine(str);
 
-            MyComplexData row2 = str.JSONToDynamic();
+            MyComplexData row2 = str.JsonToDynamic();
 
             Aver.IsTrue(row1.Equals(row2));
         }
@@ -408,11 +408,11 @@ namespace Azos.Tests.Nub.Serialization
               D2 = null
             };
 
-            var str = row1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+            var str = row1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
             Console.WriteLine(str);
 
-            MyComplexData row2 = str.JSONToDynamic();
+            MyComplexData row2 = str.JsonToDynamic();
 
             Aver.IsTrue(row1.D1.Equals(row2.D1));
             Aver.IsNull(row2.D2);
@@ -444,11 +444,11 @@ namespace Azos.Tests.Nub.Serialization
               }
             };
 
-            var str = row1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+            var str = row1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
             Console.WriteLine(str);
 
-            MyComplexDataWithArray row2 = str.JSONToDynamic();
+            MyComplexDataWithArray row2 = str.JsonToDynamic();
 
             Aver.IsTrue(row1.Equals(row2));
         }
@@ -478,11 +478,11 @@ namespace Azos.Tests.Nub.Serialization
               }
             };
 
-            var str = row1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+            var str = row1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
             Console.WriteLine(str);
 
-            MyComplexDataWithList row2 = str.JSONToDynamic();
+            MyComplexDataWithList row2 = str.JsonToDynamic();
 
             Aver.IsTrue(row1.Equals(row2));
         }
@@ -498,11 +498,11 @@ namespace Azos.Tests.Nub.Serialization
               Data = new int[]{ 1,7,12,3,8,9,0,2134,43,6,2,5}
             };
 
-            var str = row1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+            var str = row1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
             Console.WriteLine(str);
 
-            MyComplexDataWithPrimitiveArray row2 = str.JSONToDynamic();
+            MyComplexDataWithPrimitiveArray row2 = str.JsonToDynamic();
 
             Aver.IsTrue(row1.Equals(row2));
         }
@@ -516,11 +516,11 @@ namespace Azos.Tests.Nub.Serialization
               Data = new List<int>{ 1,7,12,3,8,9,0,2134,43,6,2,5}
             };
 
-            var str = row1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+            var str = row1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
             Console.WriteLine(str);
 
-            MyComplexDataWithPrimitiveList row2 = str.JSONToDynamic();
+            MyComplexDataWithPrimitiveList row2 = str.JsonToDynamic();
 
             Aver.IsTrue(row1.Equals(row2));
         }
@@ -531,7 +531,7 @@ namespace Azos.Tests.Nub.Serialization
         {
             var json ="{data: null, map: null}";
 
-            RowWithSubDocuments row = json.JSONToDynamic();
+            RowWithSubDocuments row = json.JsonToDynamic();
             Aver.IsNull(row.Data);
             Aver.IsNull(row.Map);
         }
@@ -541,10 +541,10 @@ namespace Azos.Tests.Nub.Serialization
         {
             var json ="{data: {a: 1, b: 2}, map: null}";
 
-            RowWithSubDocuments row = json.JSONToDynamic();
+            RowWithSubDocuments row = json.JsonToDynamic();
 
-            Aver.AreObjectsEqual(1, ((JSONDataMap)row.Data)["a"]);
-            Aver.AreObjectsEqual(2, ((JSONDataMap)row.Data)["b"]);
+            Aver.AreObjectsEqual(1, ((JsonDataMap)row.Data)["a"]);
+            Aver.AreObjectsEqual(2, ((JsonDataMap)row.Data)["b"]);
             Aver.IsNull(row.Map);
         }
 
@@ -553,10 +553,10 @@ namespace Azos.Tests.Nub.Serialization
         {
             var json ="{data: '{a: 1, b: 2}', map: null}";
 
-            RowWithSubDocuments row = json.JSONToDynamic();
+            RowWithSubDocuments row = json.JsonToDynamic();
 
-            Aver.AreObjectsEqual(1, ((JSONDataMap)row.Data)["a"]);
-            Aver.AreObjectsEqual(2, ((JSONDataMap)row.Data)["b"]);
+            Aver.AreObjectsEqual(1, ((JsonDataMap)row.Data)["a"]);
+            Aver.AreObjectsEqual(2, ((JsonDataMap)row.Data)["b"]);
             Aver.IsNull(row.Map);
         }
 
@@ -565,7 +565,7 @@ namespace Azos.Tests.Nub.Serialization
         {
             var json ="{data: '{a: 1, b: 2}', map: {c: 3, d: 4}}";
 
-            RowWithSubDocuments row = json.JSONToDynamic();
+            RowWithSubDocuments row = json.JsonToDynamic();
 
             Aver.AreObjectsEqual(3, row.Map["c"]);
             Aver.AreObjectsEqual(4, row.Map["d"]);
@@ -576,7 +576,7 @@ namespace Azos.Tests.Nub.Serialization
         {
             var json ="{data: '{a: 1, b: 2}', map: '{c: 3, d: 4}'}";
 
-            RowWithSubDocuments row = json.JSONToDynamic();
+            RowWithSubDocuments row = json.JsonToDynamic();
 
             Aver.AreObjectsEqual(3, row.Map["c"]);
             Aver.AreObjectsEqual(4, row.Map["d"]);
@@ -715,8 +715,8 @@ namespace Azos.Tests.Nub.Serialization
 
                      private class RowWithSubDocuments : TypedDoc
                      {
-                       [Field] public IJSONDataObject Data { get; set;}
-                       [Field] public JSONDataMap Map { get; set;}
+                       [Field] public IJsonDataObject Data { get; set;}
+                       [Field] public JsonDataMap Map { get; set;}
                      }
 
 
@@ -737,11 +737,11 @@ namespace Azos.Tests.Nub.Serialization
               Content = new byte[]{1,2,3,120}
             };
 
-            var json =  r1.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap);
+            var json =  r1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
             Console.WriteLine(json);
 
-            RowWithBinaryData r2 = json.JSONToDynamic();
+            RowWithBinaryData r2 = json.JsonToDynamic();
 
             Aver.AreEqual(r1.FileName, r2.FileName);
             Aver.AreEqual(r1.ContentType, r2.ContentType);

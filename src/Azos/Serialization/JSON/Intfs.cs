@@ -34,7 +34,7 @@ namespace Azos.Serialization.JSON
         /// Writing options, such as indenting.
         /// Implementations may elect to use this parameter to control text output or ignore it
         /// </param>
-        void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null);
+        void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null);
     }
 
 
@@ -59,6 +59,6 @@ namespace Azos.Serialization.JSON
         /// A tuple with True if reading succeeded and self reference which in 99% of cases is set to THIS,
         /// however in some rare cases the implementation may re-allocate the result
         /// </returns>
-        (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JSONReader.NameBinding? nameBinding);
+        (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding);
     }
 }

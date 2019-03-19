@@ -78,7 +78,7 @@ namespace Azos.Wave
       internal Portal m_Portal;
       internal Theme m_PortalTheme;
       internal WorkMatch m_PortalMatch;
-      internal JSONDataMap m_PortalMatchedVars;
+      internal JsonDataMap m_PortalMatchedVars;
 
 
       private object m_ItemsLock = new object();
@@ -87,15 +87,15 @@ namespace Azos.Wave
       internal WorkHandler m_Handler;
 
       private WorkMatch m_Match;
-      private JSONDataMap m_MatchedVars;
+      private JsonDataMap m_MatchedVars;
                      /// <summary>
                      /// Internal method. Developers do not call
                      /// </summary>
-                     internal void ___SetWorkMatch(WorkMatch match, JSONDataMap vars){m_Match = match; m_MatchedVars = vars;}
+                     internal void ___SetWorkMatch(WorkMatch match, JsonDataMap vars){m_Match = match; m_MatchedVars = vars;}
 
       private bool m_HasParsedRequestBody;
-      private JSONDataMap m_RequestBodyAsJSONDataMap;
-      private JSONDataMap m_WholeRequestAsJSONDataMap;
+      private JsonDataMap m_RequestBodyAsJSONDataMap;
+      private JsonDataMap m_WholeRequestAsJSONDataMap;
 
       internal bool m_Handled;
       private bool m_Aborted;
@@ -184,7 +184,7 @@ namespace Azos.Wave
                public void ___InternalInjectPortal(Portal portal = null,
                                                    Theme theme = null,
                                                    WorkMatch match = null,
-                                                   JSONDataMap matchedVars = null)
+                                                   JsonDataMap matchedVars = null)
                                                    {
                                                      m_Portal = portal;
                                                      m_PortalTheme = theme;
@@ -217,7 +217,7 @@ namespace Azos.Wave
       /// Returns variables that have been extracted by WorkMatch when PortalFilter assigned portal.
       /// Returns null if no portal was matched
       /// </summary>
-      public JSONDataMap PortalMatchedVars{  get { return m_PortalMatchedVars;}}
+      public JsonDataMap PortalMatchedVars{  get { return m_PortalMatchedVars;}}
 
 
       /// <summary>
@@ -229,12 +229,12 @@ namespace Azos.Wave
       /// Returns variables that have been extracted by WorkMatch when dispatcher assigned request to WorkHandler.
       /// If variables have not been assigned yet returns empty object
       /// </summary>
-      public JSONDataMap MatchedVars
+      public JsonDataMap MatchedVars
       {
         get
         {
           if (m_MatchedVars==null)
-            m_MatchedVars = new JSONDataMap(false);
+            m_MatchedVars = new JsonDataMap(false);
 
           return m_MatchedVars;
         }
@@ -244,7 +244,7 @@ namespace Azos.Wave
       /// Returns dynamic object that contains variables that have been extracted by WorkMatch when dispatcher assigned request to WorkHandler.
       /// If variables have not been assigned yet returns empty object
       /// </summary>
-      public dynamic Matched{ get { return new JSONDynamicObject(MatchedVars);} }
+      public dynamic Matched{ get { return new JsonDynamicObject(MatchedVars);} }
 
 
 
@@ -253,7 +253,7 @@ namespace Azos.Wave
       /// or null if there is no body.
       /// The property does caching
       /// </summary>
-      public JSONDataMap RequestBodyAsJSONDataMap
+      public JsonDataMap RequestBodyAsJSONDataMap
       {
         get
         {
@@ -270,7 +270,7 @@ namespace Azos.Wave
       /// Fetches matched vars, multi-part content, URL encoded content, or JSON body into one JSONDataMap bag.
       /// The property does caching
       /// </summary>
-      public JSONDataMap WholeRequestAsJSONDataMap
+      public JsonDataMap WholeRequestAsJSONDataMap
       {
         get
         {
@@ -519,13 +519,13 @@ namespace Azos.Wave
       /// <summary>
       /// Converts request body and MatchedVars into a single JSONDataMap. Users should call WholeRequestAsJSONDataMap.get() as it caches the result
       /// </summary>
-      protected virtual JSONDataMap GetWholeRequestAsJSONDataMap()
+      protected virtual JsonDataMap GetWholeRequestAsJSONDataMap()
       {
         var body = this.RequestBodyAsJSONDataMap;
 
         if (body==null) return MatchedVars;
 
-        var result = new JSONDataMap(false);
+        var result = new JsonDataMap(false);
         result.Append(MatchedVars)
               .Append(body);
         return result;
@@ -534,11 +534,11 @@ namespace Azos.Wave
       /// <summary>
       /// This method is called only once as it touches the input streams
       /// </summary>
-      protected virtual JSONDataMap ParseRequestBodyAsJSONDataMap()
+      protected virtual JsonDataMap ParseRequestBodyAsJSONDataMap()
       {
         if (!Request.HasEntityBody) return null;
 
-        JSONDataMap result = null;
+        JsonDataMap result = null;
 
         var ctp = Request.ContentType;
 
@@ -556,12 +556,12 @@ namespace Azos.Wave
         }
         else //Form URL encoded
         if (ctp.IndexOf(ContentType.FORM_URL_ENCODED)>=0)
-          result = JSONDataMap.FromURLEncodedStream(new Azos.IO.NonClosingStreamWrap(Request.InputStream),
+          result = JsonDataMap.FromURLEncodedStream(new Azos.IO.NonClosingStreamWrap(Request.InputStream),
                                                   Request.ContentEncoding);
         else//JSON
         if (ctp.IndexOf(ContentType.JSON)>=0)
-          result = JSONReader.DeserializeDataObject(new Azos.IO.NonClosingStreamWrap(Request.InputStream),
-                                                  Request.ContentEncoding) as JSONDataMap;
+          result = JsonReader.DeserializeDataObject(new Azos.IO.NonClosingStreamWrap(Request.InputStream),
+                                                  Request.ContentEncoding) as JsonDataMap;
 
         return result;
       }

@@ -407,7 +407,7 @@ namespace Azos.Wave
       /// Decides whether the specified WorkContext makes the match per this instance and if it does, returns the match variables.
       /// Returns null if match was not made
       /// </summary>
-      public virtual JSONDataMap Make(WorkContext work, object context = null)
+      public virtual JsonDataMap Make(WorkContext work, object context = null)
       {
         if (
             !Check_Methods(work) ||
@@ -429,7 +429,7 @@ namespace Azos.Wave
             !Check_ApiVersions(work)
            ) return null;
 
-        JSONDataMap result = null;
+        JsonDataMap result = null;
 
         if (m_PathPattern!=null)
         {
@@ -444,7 +444,7 @@ namespace Azos.Wave
 
         if (!Check_VariablesAndGetValues(work, ref result)) return null;
 
-        return result ?? new JSONDataMap(false);
+        return result ?? new JsonDataMap(false);
       }
 
       protected virtual bool Check_Schemes(WorkContext work)
@@ -535,11 +535,11 @@ namespace Azos.Wave
         return m_IsSearchCrawler == isBot;
       }
 
-      protected virtual bool Check_VariablesAndGetValues(WorkContext work, ref JSONDataMap result)
+      protected virtual bool Check_VariablesAndGetValues(WorkContext work, ref JsonDataMap result)
       {
         if (m_Variables.Count==0) return true;
 
-        result = result ?? new JSONDataMap(false);
+        result = result ?? new JsonDataMap(false);
         foreach(var cvar in m_Variables)
         {
           if (cvar.QueryName==Variable.QUERY_NAME_WC)

@@ -43,7 +43,7 @@ namespace Azos.Sky.Contracts
     public sealed class RemoteTerminalInfo
     {
       public RemoteTerminalInfo(){}
-      public RemoteTerminalInfo(JSONDataMap map)
+      public RemoteTerminalInfo(JsonDataMap map)
       {
         TerminalName    = map["TerminalName"].AsString();
         WelcomeMsg      = map["WelcomeMsg"].AsString();

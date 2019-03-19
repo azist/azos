@@ -126,7 +126,7 @@ Do not hit the same key and try to space key presses in time:<pop>
 
           password.Dispose();
 
-          var toPrint = JSONWriter.Write(hashed, pretty ? JSONWritingOptions.PrettyPrintASCII : JSONWritingOptions.CompactASCII);
+          var toPrint = JsonWriter.Write(hashed, pretty ? JsonWritingOptions.PrettyPrintASCII : JsonWritingOptions.CompactASCII);
 
           Console.WriteLine("Hashed Password:");
           Console.WriteLine();

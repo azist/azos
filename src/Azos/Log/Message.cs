@@ -318,7 +318,7 @@ namespace Azos.Log
       if (p == null)
         m_Parameters = null;
       else
-        m_Parameters = p.ToJSON(JSONWritingOptions.CompactASCII);
+        m_Parameters = p.ToJson(JsonWritingOptions.CompactASCII);
 
       return this;
     }

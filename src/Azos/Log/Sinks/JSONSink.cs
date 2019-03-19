@@ -26,13 +26,13 @@ namespace Azos.Log.Sinks
 
     public JSONSink(ISinkOwner owner, string name, int order) : base(owner, name, order)
     {
-       m_Options = JSONWritingOptions.CompactASCII;
+       m_Options = JsonWritingOptions.CompactASCII;
     }
 
     private BSONSerializer m_Serializer = new BSONSerializer();
     private IBSONSerializable m_Known = new BSONParentKnownTypes(typeof(Message));
 
-    private JSONWritingOptions m_Options;
+    private JsonWritingOptions m_Options;
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
@@ -41,13 +41,13 @@ namespace Azos.Log.Sinks
 
       var on = node[CONFIG_JSON_OPT_SECTION];
       if (on.Exists)
-        m_Options = FactoryUtils.MakeAndConfigure<JSONWritingOptions>(on, typeof(JSONWritingOptions));
+        m_Options = FactoryUtils.MakeAndConfigure<JsonWritingOptions>(on, typeof(JsonWritingOptions));
     }
 
     protected override string DoFormatMessage(Message msg)
     {
       var doc = m_Serializer.Serialize(msg, m_Known);
-      return doc.ToJSON(m_Options)+"\n\n";
+      return doc.ToJson(m_Options)+"\n\n";
     }
 
   }

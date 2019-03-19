@@ -58,7 +58,7 @@ namespace Azos.Tests.Unit.Pile
     public override bool Equals(Doc other)
     {
       if (other==null) return false;
-      return this.ToJSON() == other.ToJSON();
+      return this.ToJson() == other.ToJson();
     }
   }
 

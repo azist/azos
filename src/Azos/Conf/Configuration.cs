@@ -644,9 +644,9 @@ namespace Azos.Conf
         /// <summary>
         /// Returns this config as JSON data map suitable for making JSONConfiguration
         /// </summary>
-        public JSONDataMap ToConfigurationJSONDataMap()
+        public JsonDataMap ToConfigurationJSONDataMap()
         {
-          if (m_Root==null) return new JSONDataMap(false);
+          if (m_Root==null) return new JsonDataMap(false);
 
           return m_Root.ToConfigurationJSONDataMap();
         }

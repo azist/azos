@@ -23,7 +23,7 @@ namespace Agnivo
       byte[] raw = Convert.FromBase64String(str);
       var document = BSONDocument.FromArray(raw);
       var map = DataDocConverter.DefaultInstance.BSONDocumentToJSONMap(document);
-      return map.ToJSON(JSONWritingOptions.PrettyPrint);
+      return map.ToJson(JsonWritingOptions.PrettyPrint);
     }
 
     public static string ParseGDID(string str)

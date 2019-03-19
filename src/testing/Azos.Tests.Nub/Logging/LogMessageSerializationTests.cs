@@ -54,7 +54,7 @@ namespace Azos.Tests.Nub.Logging
         var got = new Message();
         ArowSerializer.Deserialize(got, reader);
 
-        Console.WriteLine(got.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap));
+        Console.WriteLine(got.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap));
 
         Aver.AreEqual(msg.Gdid , got.Gdid);
         Aver.AreEqual(msg.Guid, got.Guid);

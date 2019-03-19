@@ -125,9 +125,9 @@ namespace Azos.Serialization.Slim
                yield return typeof(IEqualityComparer<object>);
                yield return typeof(IEqualityComparer<string>);
 
-               yield return typeof(Serialization.JSON.JSONDataArray);
-               yield return typeof(Serialization.JSON.JSONDataMap);
-               yield return typeof(Serialization.JSON.JSONDynamicObject);
+               yield return typeof(Serialization.JSON.JsonDataArray);
+               yield return typeof(Serialization.JSON.JsonDataMap);
+               yield return typeof(Serialization.JSON.JsonDynamicObject);
 
                yield return typeof(Collections.StringMap);
              }

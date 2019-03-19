@@ -130,10 +130,10 @@ namespace Azos.Financial
           return this.Equals(other) ? 0 : this < other ? -1 : +1;
         }
 
-        public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+        public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
         {
           wri.Write('{');
-            wri.Write("\"iso\":"); JSONWriter.EncodeString(wri, m_CurrencyISO, options);
+            wri.Write("\"iso\":"); JsonWriter.EncodeString(wri, m_CurrencyISO, options);
             wri.Write(',');
             wri.Write("\"v\":"); wri.Write( m_Value );
           wri.Write('}');

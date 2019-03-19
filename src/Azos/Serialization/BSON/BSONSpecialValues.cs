@@ -93,9 +93,9 @@ namespace Azos.Serialization.BSON
     /// </summary>
     public GDID AsGDID { get { return new GDID(Bytes); } }
 
-    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
-      JSONWriter.WriteMap(wri,
+      JsonWriter.WriteMap(wri,
            nestingLevel+1,
            options,
            new DictionaryEntry("$oid", Convert.ToBase64String(Bytes))
@@ -120,9 +120,9 @@ namespace Azos.Serialization.BSON
     public readonly BSONBinaryType Type;
     public readonly byte[] Data;
 
-    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
-      JSONWriter.WriteMap(wri,
+      JsonWriter.WriteMap(wri,
            nestingLevel+1,
            options,
            new DictionaryEntry("$type", Type),
@@ -148,9 +148,9 @@ namespace Azos.Serialization.BSON
     public readonly string Pattern;
     public readonly BSONRegularExpressionOptions Options;
 
-    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
-      JSONWriter.WriteMap(wri,
+      JsonWriter.WriteMap(wri,
            nestingLevel+1,
            options,
            new DictionaryEntry("$regex", Pattern),
@@ -176,10 +176,10 @@ namespace Azos.Serialization.BSON
     public readonly string Code;
     public readonly BSONDocument Scope;
 
-    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
       var data = new {js = Code, doc = Scope};
-      JSONWriter.Write(data, wri, options);
+      JsonWriter.Write(data, wri, options);
     }
   }
 
@@ -197,9 +197,9 @@ namespace Azos.Serialization.BSON
     public readonly uint EpochSeconds;
     public readonly uint Increment;
 
-    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
-      JSONWriter.WriteMap(wri,
+      JsonWriter.WriteMap(wri,
            nestingLevel+1,
            options,
            new DictionaryEntry("$timestamp", new {t = EpochSeconds, i = Increment })

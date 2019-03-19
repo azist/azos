@@ -70,9 +70,9 @@ namespace Azos.Serialization.JSON
         public readonly string Name;
         public readonly string Description;
 
-        void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options)
+        void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
         {
-          JSONWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", Name),
+          JsonWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", Name),
                                                           new System.Collections.DictionaryEntry("d", Description));
         }
       }
@@ -182,7 +182,7 @@ namespace Azos.Serialization.JSON
 
       public override string ToString()
       {
-        return JSONWriter.Write(this, JSONWritingOptions.Compact);
+        return JsonWriter.Write(this, JsonWritingOptions.Compact);
       }
 
 
@@ -293,7 +293,7 @@ namespace Azos.Serialization.JSON
       /// <summary>
       /// Writes NLSMap either as a dict or as a {n:"", d: ""} pair as Options.NLSMapLanguageISO filter dictates
       /// </summary>
-      public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+      public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
       {
         if (m_Data==null)
         {
@@ -302,10 +302,10 @@ namespace Azos.Serialization.JSON
         }
 
         if (options==null ||
-            options.Purpose==JSONSerializationPurpose.Marshalling ||
+            options.Purpose==JsonSerializationPurpose.Marshalling ||
             options.NLSMapLanguageISO.IsNullOrWhiteSpace())
         {
-          JSONWriter.WriteMap(wri, nestingLevel, options,
+          JsonWriter.WriteMap(wri, nestingLevel, options,
                               m_Data.Select
                               (
                                 e => new System.Collections.DictionaryEntry(IOUtils.UnpackISO3CodeFromInt(e.ISO), e)
@@ -320,10 +320,10 @@ namespace Azos.Serialization.JSON
           pair = this[options.NLSMapLanguageISODefault];
 
         if (pair.IsAssigned)
-          JSONWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", pair.Name),
+          JsonWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", pair.Name),
                                                           new System.Collections.DictionaryEntry("d", pair.Description));
         else
-          JSONWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", null),
+          JsonWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", null),
                                                           new System.Collections.DictionaryEntry("d", null));
       }
 

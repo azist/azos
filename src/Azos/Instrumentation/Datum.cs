@@ -228,13 +228,13 @@ namespace Azos.Instrumentation
       if (reductionLevel < 0) m_Source = string.Empty;
     }
 
-    public void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
       var data = new Dictionary<string, object>();
 
       WriteJSONFields(data, options);
 
-      JSONWriter.WriteMap(wri, data, nestingLevel, options);
+      JsonWriter.WriteMap(wri, data, nestingLevel, options);
     }
 
     public virtual bool IsKnownTypeForBSONDeserialization(Type type)
@@ -282,7 +282,7 @@ namespace Azos.Instrumentation
     protected virtual void AggregateEvent(Datum dat) { }
     protected virtual void SummarizeAggregation() { }
 
-    protected virtual void WriteJSONFields(IDictionary<string, object> data, JSONWritingOptions options)
+    protected virtual void WriteJSONFields(IDictionary<string, object> data, JsonWritingOptions options)
     {
       data["cnt"] = this.Count;
       data["sd"] = this.UTCTime;
@@ -291,7 +291,7 @@ namespace Azos.Instrumentation
       data["val"] = this.ValueAsObject;
       data["plt"] = this.PlotValue;
 
-      if (options != null && options.Purpose >= JSONSerializationPurpose.Marshalling)
+      if (options != null && options.Purpose >= JsonSerializationPurpose.Marshalling)
       {
         data["src"] = this.Source;
         data["aggr"] = this.IsAggregated;

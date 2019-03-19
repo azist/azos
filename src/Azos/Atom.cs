@@ -265,7 +265,7 @@ namespace Azos
       return new string(data);
     }
 
-    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options)
-    => JSONWriter.EncodeString(wri, Value, options);
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
+    => JsonWriter.EncodeString(wri, Value, options);
   }
 }

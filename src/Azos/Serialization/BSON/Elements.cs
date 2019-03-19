@@ -305,11 +305,11 @@ namespace Azos.Serialization.BSON
       BinUtils.WriteInt64(stream, dateValue);
     }
 
-    public override void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public override void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
       if (Value.ToUniversalTime() >= DateUtils.UNIX_EPOCH_START_DATE)
       {
-        JSONWriter.WriteMap(wri,
+        JsonWriter.WriteMap(wri,
           nestingLevel + 1,
           options,
           new DictionaryEntry("$date", Value.ToMillisecondsSinceUnixEpochStart())
@@ -317,7 +317,7 @@ namespace Azos.Serialization.BSON
       }
       else
       {
-        JSONWriter.WriteMap(wri,
+        JsonWriter.WriteMap(wri,
           nestingLevel + 1,
           options,
           new DictionaryEntry("$date", "{{ \"$numberLong\" : {0} }}".Args(Value.Ticks / TimeSpan.TicksPerMillisecond))
@@ -438,9 +438,9 @@ namespace Azos.Serialization.BSON
       BinUtils.WriteInt64(stream, Value);
     }
 
-    public override void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public override void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
-      JSONWriter.WriteMap(wri,
+      JsonWriter.WriteMap(wri,
           nestingLevel + 1,
           options,
           new DictionaryEntry("$numberLong", Value)
@@ -700,9 +700,9 @@ namespace Azos.Serialization.BSON
 
     protected override void ReadValueFromStream(Stream stream){ }
 
-    public override void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public override void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
-      JSONWriter.WriteMap(wri,
+      JsonWriter.WriteMap(wri,
            nestingLevel+1,
            options,
            new DictionaryEntry("$minKey", 1)
@@ -735,9 +735,9 @@ namespace Azos.Serialization.BSON
 
     protected override void ReadValueFromStream(Stream stream){ }
 
-    public override void WriteAsJson(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public override void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
-      JSONWriter.WriteMap(wri,
+      JsonWriter.WriteMap(wri,
            nestingLevel+1,
            options,
            new DictionaryEntry("$maxKey", 1)

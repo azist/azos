@@ -467,7 +467,7 @@ namespace Azos.Wave
                      pars: new
                       {
                         OriginalError = error.ToMessageWithType()
-                      }.ToJSON()
+                      }.ToJson()
                      );
               }
               catch{}

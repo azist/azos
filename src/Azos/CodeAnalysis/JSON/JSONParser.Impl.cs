@@ -85,11 +85,11 @@ namespace Azos.CodeAnalysis.JSON
                 return null;
             }
 
-            private JSONDataArray doArray()
+            private JsonDataArray doArray()
             {
                 fetchPrimary(); // skip [
 
-                var arr = new JSONDataArray();
+                var arr = new JsonDataArray();
 
                 if (token.Type!=JSONTokenType.tSqBracketClose)//empty array  []
                 {
@@ -107,11 +107,11 @@ namespace Azos.CodeAnalysis.JSON
                 return arr;
             }
 
-            private JSONDataMap doObject()
+            private JsonDataMap doObject()
             {
                fetchPrimary(); // skip {
 
-               var obj = new JSONDataMap(this.m_CaseSensitiveMaps);
+               var obj = new JsonDataMap(this.m_CaseSensitiveMaps);
 
                if (token.Type!=JSONTokenType.tBraceClose)//empty object  {}
                 {

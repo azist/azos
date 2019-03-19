@@ -20,7 +20,7 @@ namespace Azos.Sky.Security
     public static string Serialize(AuthenticationToken token)
     {
       if (token.Data is string strToken)
-        return new { r = token.Realm, d = strToken }.ToJSON(JSONWritingOptions.CompactASCII);
+        return new { r = token.Realm, d = strToken }.ToJson(JsonWritingOptions.CompactASCII);
 
       throw new SecurityException(StringConsts.SECURITY_AUTH_TOKEN_SERIALIZATION_ERROR.Args(
                                    nameof(SkyAuthenticationTokenSerializer),
@@ -31,7 +31,7 @@ namespace Azos.Sky.Security
     {
       try
       {
-        var dataMap = JSONReader.DeserializeDataObject(token) as JSONDataMap;
+        var dataMap = JsonReader.DeserializeDataObject(token) as JsonDataMap;
         var realm = dataMap["r"].AsString();
         var data = dataMap["d"].AsString();
 

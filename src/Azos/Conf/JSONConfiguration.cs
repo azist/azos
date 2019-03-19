@@ -80,11 +80,11 @@ namespace Azos.Conf
       /// <summary>
       /// Saves configuration into a JSON file
       /// </summary>
-      public void SaveAs(string filename, JSONWritingOptions options = null, Encoding encoding = null)
+      public void SaveAs(string filename, JsonWritingOptions options = null, Encoding encoding = null)
       {
         var data = ToConfigurationJSONDataMap();
-        if (options==null) options = JSONWritingOptions.PrettyPrint;
-        JSONWriter.WriteToFile(data, filename, options, encoding);
+        if (options==null) options = JsonWritingOptions.PrettyPrint;
+        JsonWriter.WriteToFile(data, filename, options, encoding);
 
         base.SaveAs(filename);
       }
@@ -92,10 +92,10 @@ namespace Azos.Conf
       /// <summary>
       /// Saves JSON configuration to string
       /// </summary>
-      public string SaveToString(JSONWritingOptions options = null)
+      public string SaveToString(JsonWritingOptions options = null)
       {
         var data = ToConfigurationJSONDataMap();
-        return JSONWriter.Write(data, options);
+        return JsonWriter.Write(data, options);
       }
 
 
@@ -121,23 +121,23 @@ namespace Azos.Conf
 
         private void readFromFile()
         {
-          var data = JSONReader.DeserializeDataObjectFromFile(m_FileName, caseSensitiveMaps: false) as JSONDataMap;
+          var data = JsonReader.DeserializeDataObjectFromFile(m_FileName, caseSensitiveMaps: false) as JsonDataMap;
           read(data);
         }
 
         private void readFromString(string content)
         {
-          var data = JSONReader.DeserializeDataObject(content, caseSensitiveMaps: false) as JSONDataMap;
+          var data = JsonReader.DeserializeDataObject(content, caseSensitiveMaps: false) as JsonDataMap;
           read(data);
         }
 
-        private void read(JSONDataMap data)
+        private void read(JsonDataMap data)
         {
           if (data==null || data.Count==0 || data.Count>1)
             throw new ConfigException(StringConsts.CONFIG_JSON_MAP_ERROR);
 
           var root = data.First();
-          var sect = root.Value as JSONDataMap;
+          var sect = root.Value as JsonDataMap;
           if (sect==null)
             throw new ConfigException(StringConsts.CONFIG_JSON_MAP_ERROR);
 
@@ -146,7 +146,7 @@ namespace Azos.Conf
         }
 
 
-        private ConfigSectionNode buildSection(string name, JSONDataMap sectData, ConfigSectionNode parent)
+        private ConfigSectionNode buildSection(string name, JsonDataMap sectData, ConfigSectionNode parent)
         {
           var value = sectData[SECTION_VALUE_ATTR].AsString();
           ConfigSectionNode result = parent==null ? new ConfigSectionNode(this, null, name, value)
@@ -154,16 +154,16 @@ namespace Azos.Conf
 
           foreach(var kvp in sectData)
           {
-            if (kvp.Value is JSONDataMap)
-              buildSection(kvp.Key, (JSONDataMap)kvp.Value, result);
-            else if (kvp.Value is JSONDataArray)
+            if (kvp.Value is JsonDataMap)
+              buildSection(kvp.Key, (JsonDataMap)kvp.Value, result);
+            else if (kvp.Value is JsonDataArray)
             {
-              var lst = (JSONDataArray)kvp.Value;
+              var lst = (JsonDataArray)kvp.Value;
               foreach(var lnode in lst)
               {
-                if (lnode is JSONDataMap lmap) buildSection(kvp.Key, lmap, result);
+                if (lnode is JsonDataMap lmap) buildSection(kvp.Key, lmap, result);
                 else
-                if (lnode is JSONDataArray larray) throw new ConfigException(StringConsts.CONFIG_JSON_STRUCTURE_ERROR, new ConfigException("Bad structure: " + sectData.ToJSON()));
+                if (lnode is JsonDataArray larray) throw new ConfigException(StringConsts.CONFIG_JSON_STRUCTURE_ERROR, new ConfigException("Bad structure: " + sectData.ToJson()));
                 else
                   result.AddAttributeNode(kvp.Key, "{0}".Args(lnode));
               }

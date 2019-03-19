@@ -87,7 +87,7 @@ namespace Azos.Tests.Unit.Web.Client
     ]
 }";
 
-      var init = JSONReader.DeserializeDataObject(json) as JSONDataMap;
+      var init = JsonReader.DeserializeDataObject(json) as JsonDataMap;
       var rec = new Record(init);
 
       Aver.AreEqual(0, rec.ServerErrors.Count());
@@ -391,9 +391,9 @@ namespace Azos.Tests.Unit.Web.Client
       Aver.IsNotNull(fdef);
       Aver.AreObjectsEqual("OBJ", fdef.Name);
       Aver.AreObjectsEqual(typeof(object), fdef.Type);
-      var value = JSONReader.DeserializeDataObject("{ 'n': 'name', 'age': 23 }") as JSONDataMap;
+      var value = JsonReader.DeserializeDataObject("{ 'n': 'name', 'age': 23 }") as JsonDataMap;
 
-      var got = rec["OBJ"] as JSONDataMap;
+      var got = rec["OBJ"] as JsonDataMap;
       Aver.IsNotNull(got);
       Aver.IsTrue(value.SequenceEqual(got));
 

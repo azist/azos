@@ -239,7 +239,7 @@ namespace Azos.Tests.Nub.Serialization
 
       var doc = ser.Serialize(data);
 
-      Console.WriteLine(doc.ToJSON(JSONWritingOptions.PrettyPrint));
+      Console.WriteLine(doc.ToJson(JsonWritingOptions.PrettyPrint));
 
       Aver.IsTrue(doc.IndexOfName(ser.TypeIDFieldName) >= 0);
 
@@ -322,7 +322,7 @@ namespace Azos.Tests.Nub.Serialization
 
       var doc = ser.Serialize( msg );
 
-      Console.WriteLine( doc.ToJSON(JSONWritingOptions.PrettyPrint) );
+      Console.WriteLine( doc.ToJson(JsonWritingOptions.PrettyPrint) );
 
 
       Aver.IsTrue( doc.IndexOfName(ser.TypeIDFieldName)>=0);//field was added
@@ -353,7 +353,7 @@ namespace Azos.Tests.Nub.Serialization
 
       var doc = ser.Serialize( msg , new BSONParentKnownTypes(typeof(Message)));
 
-      Console.WriteLine( doc.ToJSON(JSONWritingOptions.PrettyPrint) );
+      Console.WriteLine( doc.ToJson(JsonWritingOptions.PrettyPrint) );
 
       Aver.IsFalse( doc.IndexOfName(ser.TypeIDFieldName)>=0);//field was NOT added as the root type is known
 
@@ -384,7 +384,7 @@ namespace Azos.Tests.Nub.Serialization
 
       var doc = ser.Serialize( msg );
 
-      Console.WriteLine( doc.ToJSON(JSONWritingOptions.PrettyPrint) );
+      Console.WriteLine( doc.ToJson(JsonWritingOptions.PrettyPrint) );
 
       var got = ser.Deserialize(doc) as Azos.Log.Message;
 
@@ -419,7 +419,7 @@ namespace Azos.Tests.Nub.Serialization
 
       var doc = ser.Serialize( msg );
 
-      Console.WriteLine( doc.ToJSON(JSONWritingOptions.PrettyPrint) );
+      Console.WriteLine( doc.ToJson(JsonWritingOptions.PrettyPrint) );
 
       var got = ser.Deserialize(doc) as Azos.Log.Message;
 
