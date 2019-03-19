@@ -360,21 +360,21 @@ namespace Azos.Serialization.JSON
 
     private static object read(Stream stream, Encoding encoding, bool caseSensitiveMaps)
     {
-        using(var source = encoding==null ? new StreamSource(stream, JSONLanguage.Instance)
-                                          : new StreamSource(stream, encoding, JSONLanguage.Instance))
+        using(var source = encoding==null ? new StreamSource(stream, JsonLanguage.Instance)
+                                          : new StreamSource(stream, encoding, JsonLanguage.Instance))
             return read(source, caseSensitiveMaps);
     }
 
     private static object read(string data, bool caseSensitiveMaps)
     {
-        var source = new StringSource(data, JSONLanguage.Instance);
+        var source = new StringSource(data, JsonLanguage.Instance);
         return read(source, caseSensitiveMaps);
     }
 
     private static object read(ISourceText source, bool caseSensitiveMaps)
     {
-        var lexer = new JSONLexer(source, throwErrors: true);
-        var parser = new JSONParser(lexer, throwErrors: true, caseSensitiveMaps: caseSensitiveMaps);
+        var lexer = new JsonLexer(source, throwErrors: true);
+        var parser = new JsonParser(lexer, throwErrors: true, caseSensitiveMaps: caseSensitiveMaps);
 
         parser.Parse();
 

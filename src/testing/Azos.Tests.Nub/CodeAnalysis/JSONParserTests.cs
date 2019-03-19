@@ -15,8 +15,8 @@ using Azos.CodeAnalysis;
 using Azos.CodeAnalysis.Source;
 using Azos.CodeAnalysis.JSON;
 using Azos.Serialization.JSON;
-using JL=Azos.CodeAnalysis.JSON.JSONLexer;
-using JP=Azos.CodeAnalysis.JSON.JSONParser;
+using JL=Azos.CodeAnalysis.JSON.JsonLexer;
+using JP=Azos.CodeAnalysis.JSON.JsonParser;
 
 namespace Azos.Tests.Nub.CodeAnalysis
 {
@@ -342,7 +342,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
           parser.Parse();
 
           Aver.AreEqual(1, parser.Messages.Count);
-          Aver.AreEqual((int)JSONMsgCode.eColonOperatorExpected,  parser.Messages[0].Code);
+          Aver.AreEqual((int)JsonMsgCode.eColonOperatorExpected,  parser.Messages[0].Code);
         }
 
 

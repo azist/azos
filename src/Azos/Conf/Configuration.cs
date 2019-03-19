@@ -71,7 +71,7 @@ namespace Azos.Conf
       {
         return Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions
                                         .Concat(Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions)
-                                        .Concat(Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions);
+                                        .Concat(Azos.CodeAnalysis.JSON.JsonLanguage.Instance.FileExtensions);
       }
     }
 
@@ -93,7 +93,7 @@ namespace Azos.Conf
         if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
           return new XMLConfiguration(fileName);
 
-        if (Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
+        if (Azos.CodeAnalysis.JSON.JsonLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
           return new JSONConfiguration(fileName);
 
         throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_LOAD_FILE_ERROR + fileName);
@@ -147,7 +147,7 @@ namespace Azos.Conf
         if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
           return XMLConfiguration.CreateFromXML(content);
 
-        if (Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
+        if (Azos.CodeAnalysis.JSON.JsonLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
           return JSONConfiguration.CreateFromJSON(content);
 
         if (fallbackFormat.IsNotNullOrWhiteSpace())
@@ -166,7 +166,7 @@ namespace Azos.Conf
 
       return Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)) ||
               Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)) ||
-              Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase));
+              Azos.CodeAnalysis.JSON.JsonLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase));
     }
 
     /// <summary>
@@ -187,7 +187,7 @@ namespace Azos.Conf
         if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
           return new XMLConfiguration();
 
-        if (Azos.CodeAnalysis.JSON.JSONLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
+        if (Azos.CodeAnalysis.JSON.JsonLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
           return new JSONConfiguration();
 
         throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_HANDLE_FILE_ERROR + fileName);

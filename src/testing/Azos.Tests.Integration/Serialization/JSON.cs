@@ -19,8 +19,8 @@ using Azos.CodeAnalysis;
 using Azos.CodeAnalysis.Source;
 using Azos.CodeAnalysis.JSON;
 using Azos.Serialization.JSON;
-using JL=Azos.CodeAnalysis.JSON.JSONLexer;
-using JP=Azos.CodeAnalysis.JSON.JSONParser;
+using JL=Azos.CodeAnalysis.JSON.JsonLexer;
+using JP=Azos.CodeAnalysis.JSON.JsonParser;
 using JW=Azos.Serialization.JSON.JsonWriter;
 using JDO=Azos.Serialization.JSON.JsonDynamicObject;
 
