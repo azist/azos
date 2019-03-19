@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.304
-set HEADLINE=Added Log.Message Arow ser support
+set VER=1.0.305
+set HEADLINE=Add IDataDoc and Form(TSaveResult)
 
 call vs2017-build-release %VER%
 

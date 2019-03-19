@@ -32,7 +32,7 @@ namespace Azos.Conf
       public interface IConfigurationPersistent
       {
         /// <summary>
-        /// Persists relevant entities parameters/state into configuration
+        /// Persists relevant entities parameters/state into the specified configuration node
         /// </summary>
         void PersistConfiguration(ConfigSectionNode node);
       }

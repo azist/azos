@@ -20,13 +20,34 @@ namespace Azos.Data
   /// </summary>
   public delegate bool SetFieldFunc(Doc doc, Schema.FieldDef fdef, object val);
 
+  /// <summary>
+  /// Marker interface - abstraction for data documents, interface used as constraint on other interfaces
+  /// typically used in domain entity design. Doc class is the only one implementing this interface
+  /// </summary>
+  public interface IDataDoc : IEquatable<Doc>, IEnumerable<Object>, IValidatable, IConfigurable, IConfigurationPersistent
+  {
+    /// <summary>
+    /// Returns schema object that describes fields of this document
+    /// </summary>
+    Schema Schema { get; }
+
+    /// <summary>
+    /// Gets/sets field values by name
+    /// </summary>
+    object this[string fieldName] {  get; set; }
+
+    /// <summary>
+    /// Gets/sets field values by positional index(Order)
+    /// </summary>
+    object this[int fieldIdx]{  get; set; }
+  }
 
   /// <summary>
   /// Base class for any data document. This class has two direct subtypes - DynamicDoc and TypedDoc.
   /// Documents are NOT THREAD SAFE by definition
   /// </summary>
   [Serializable]
-  public abstract class Doc : IConfigurable, IConfigurationPersistent, IEquatable<Doc>, IEnumerable<Object>, IValidatable, IJSONWritable, IJSONReadable
+  public abstract class Doc : IDataDoc, IJSONWritable, IJSONReadable
   {
 
     #region Static
@@ -122,7 +143,7 @@ namespace Azos.Data
     #region Properties
 
     /// <summary>
-    /// References a schema for a table that this row is part of
+    /// Returns schema object that contains doc field definitions
     /// </summary>
     public abstract Schema Schema { get; }
 
@@ -186,7 +207,7 @@ namespace Azos.Data
 
 
     /// <summary>
-    /// Returns values for fields that represent row's primary key
+    /// Returns values for fields that represent document/row primary key
     /// </summary>
     public Access.IDataStoreKey GetDataStoreKey(string targetName = null)
     {
