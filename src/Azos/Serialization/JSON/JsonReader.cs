@@ -159,7 +159,7 @@ namespace Azos.Serialization.JSON
 
     private static TypedDoc toTypedDoc(Type type, NameBinding? nameBinding, JsonDataMap jsonMap, ref string field, bool fromUI)
     {
-      var doc = (TypedDoc)Activator.CreateInstance(type);
+      var doc = (TypedDoc)SerializationUtils.MakeNewObjectInstance(type);
       toDoc(doc, nameBinding.HasValue ? nameBinding.Value : NameBinding.ByCode, jsonMap, ref field, fromUI);
       return doc;
     }
@@ -290,7 +290,7 @@ namespace Azos.Serialization.JSON
       //Custom JSON Readable
       if (typeof(IJsonReadable).IsAssignableFrom(nntp))
       {
-        IJsonReadable newval = Activator.CreateInstance(nntp) as IJsonReadable;
+        IJsonReadable newval = SerializationUtils.MakeNewObjectInstance(nntp) as IJsonReadable;
         var got = newval.ReadAsJson(v, fromUI, nameBinding);//this me re-allocate the result based of newval
         return got.match ? got.self : null;
       }
@@ -323,7 +323,7 @@ namespace Azos.Serialization.JSON
         if (fvseq == null) return false;//can not set non enumerable into List<t>
 
         var arr = fvseq.Select(e => cast(e, toType.GetGenericArguments()[0], fromUI, nameBinding)).ToArray();
-        var newval = Activator.CreateInstance(toType) as System.Collections.IList;
+        var newval = SerializationUtils.MakeNewObjectInstance(toType) as System.Collections.IList;
         for (var i = 0; i < arr.Length; i++)
           newval.Add(arr[i]);
 

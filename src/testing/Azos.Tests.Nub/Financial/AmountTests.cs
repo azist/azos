@@ -164,7 +164,7 @@ namespace Azos.Tests.Nub.Financial
 
         Console.WriteLine(json);
 
-        Aver.AreEqual(@"{""amount"":{""iso"":""usd"",""v"":1234.12},""name"":""aaa""}", json);
+        Aver.AreEqual(@"{""amount"":{""iso"":""usd"",""val"":1234.12},""name"":""aaa""}", json);
 
     }
 

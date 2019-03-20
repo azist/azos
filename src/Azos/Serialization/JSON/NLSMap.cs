@@ -20,7 +20,7 @@ namespace Azos.Serialization.JSON
     /// It respects JSONWritingOptions.NLSMapLanguageISO and NLSMapLanguageISODefault
     /// </summary>
     [Serializable] //this type is directly handled by slim writer/reader
-    public struct NLSMap : IEnumerable<KeyValuePair<string, NLSMap.NDPair>>, IJsonWritable
+    public struct NLSMap : IEnumerable<KeyValuePair<string, NLSMap.NDPair>>, IJsonWritable, IJsonReadable
     {
       //There are roughly 6,500 spoken languages in the world today.
       //However, about 2,000 of those languages have fewer than 1,000 speakers
@@ -293,7 +293,7 @@ namespace Azos.Serialization.JSON
       /// <summary>
       /// Writes NLSMap either as a dict or as a {n:"", d: ""} pair as Options.NLSMapLanguageISO filter dictates
       /// </summary>
-      public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+      void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
       {
         if (m_Data==null)
         {
@@ -325,6 +325,24 @@ namespace Azos.Serialization.JSON
         else
           JsonWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", null),
                                                           new System.Collections.DictionaryEntry("d", null));
+      }
+
+      (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+      {
+        if (data is JsonDataMap map)
+        {
+           var builder = new NLSMap.Builder();
+           foreach(var pair in map)
+           {
+             if (pair.Value is JsonDataMap map2)
+             {
+               builder.Add(pair.Key, map2["n"].AsString(), map2["d"].AsString());
+             }
+           }
+           return (true, builder.Map);
+        }
+
+        return (false, null);
       }
 
       public IEnumerator<KeyValuePair<string, NLSMap.NDPair>> GetEnumerator()
