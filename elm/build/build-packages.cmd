@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.305
-set HEADLINE=Add IDataDoc and Form(TSaveResult)
+set VER=1.0.307
+set HEADLINE=Replaced JsonToDoc deserialization engine
 
 call vs2017-build-release %VER%
 
