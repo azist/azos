@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.307
-set HEADLINE=Replaced JsonToDoc deserialization engine
+set VER=1.0.308
+set HEADLINE=Improve JsonReadable support
 
 call vs2017-build-release %VER%
 

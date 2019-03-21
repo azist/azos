@@ -240,6 +240,7 @@ namespace Azos.Serialization.JSON
       return false;
     }//setOneField
 
+
     //Returns non null on success; may return null for collection sub-element in which case null=null and does not indicate failure
     private static object cast(object v, Type toType, bool fromUI, NameBinding nameBinding)
     {
@@ -336,7 +337,7 @@ namespace Azos.Serialization.JSON
 
   #endregion
 
-  #region .pvt
+    #region .pvt
 
     private static dynamic deserializeDynamic(object root)
     {
@@ -380,9 +381,7 @@ namespace Azos.Serialization.JSON
 
         return parser.ResultContext.ResultObject;
     }
-  #endregion
-
-
+    #endregion
 
   }
 }
