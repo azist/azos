@@ -100,11 +100,13 @@ namespace Azos.Data.Access.Oracle
       string tableName = schema.Name;
 
       if (schema.TypedDocType!=null)
-        tableName = "tbl_" + schema.TypedDocType.Name;//without namespace
+        tableName = "TBL_" + schema.TypedDocType.Name;//without namespace
 
       var tableAttr = schema.GetTableAttrForTarget(target);
       if (tableAttr!=null && tableAttr.Name.IsNotNullOrWhiteSpace()) tableName = tableAttr.Name;
-      return tableName;
+
+      //todo Make identifier casing a property
+      return tableName.ToUpperInvariant();
     }
 
 

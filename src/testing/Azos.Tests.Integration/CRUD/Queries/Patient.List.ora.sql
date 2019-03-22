@@ -3,8 +3,8 @@ modify=tbl_patient
 key=counter
 load=doctor_phone,doctor_id
 ignore=marker
-@last_name=lname
-@first_name=fname
+@last_name=LNAME
+@first_name=FNAME
 .last_name=This is description of last name
 
 SELECT
