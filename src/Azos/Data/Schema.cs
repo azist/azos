@@ -323,7 +323,7 @@ namespace Azos.Data
                 /// <summary>
                 /// Writes fielddef as JSON. Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
                 /// </summary>
-                public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+                void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
                 {
                     var attr = this[null];
 
@@ -343,6 +343,23 @@ namespace Azos.Data
                       {"Type",  tp},
                       {"Nullable", typeIsNullable}
                     };
+
+                    //20190322 DKh inner schema
+                    if (typeof(Doc).IsAssignableFrom(this.NonNullableType))
+                    {
+                      map["IsDataDoc"] = true;
+                      map["IsAmorphous"] = typeof(IAmorphousData).IsAssignableFrom(this.NonNullableType);
+                      map["IsForm"] = typeof(Form).IsAssignableFrom(this.NonNullableType);
+
+                      if (typeof(TypedDoc).IsAssignableFrom(this.NonNullableType))
+                      {
+                        var innerSchema = Schema.GetForTypedDoc(this.NonNullableType);
+                        if (innerSchema.Any(fd => typeof(TypedDoc).IsAssignableFrom(fd.Type)))
+                          map["DataDocSchema"] = "@complex";
+                        else
+                          map["DataDocSchema"] = innerSchema;
+                      }
+                    }
 
                     if (attr!=null)
                     {

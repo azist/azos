@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.308
-set HEADLINE=Improve JsonReadable support
+set VER=1.0.309
+set HEADLINE=DataStore.Names configurable target name virtual
 
 call vs2017-build-release %VER%
 
