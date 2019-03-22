@@ -132,11 +132,11 @@ namespace Azos.Data.Access.Oracle
         var fvalue = getFieldValue(doc, fld.Order, store);
 
 
-        cnames.AppendFormat(" `{0}`,", fname);
+        cnames.AppendFormat(" \"{0}\",", fname);
 
         if ( fvalue != null)
         {
-                var pname = string.Format("?VAL{0}", vpidx);
+                var pname = string.Format(":VAL{0}", vpidx);
 
                 values.AppendFormat(" {0},", pname);
 
@@ -166,7 +166,7 @@ namespace Azos.Data.Access.Oracle
 
       using(var cmd = cnn.CreateCommand())
       {
-        var sql = "INSERT INTO `{0}` ({1}) VALUES ({2})".Args( tableName, cnames, values);
+        var sql = "INSERT INTO \"{0}\" ({1}) VALUES ({2})".Args( tableName, cnames, values);
 
         cmd.Transaction = trans;
         cmd.CommandText = sql;
@@ -221,7 +221,7 @@ namespace Azos.Data.Access.Oracle
         {
                 var pname = string.Format("?VAL{0}", vpidx);
 
-                values.AppendFormat(" `{0}` = {1},", fname, pname);
+                values.AppendFormat(" \"{0}\" = {1},", fname, pname);
 
                 var par = new OracleParameter();
                 par.ParameterName = pname;
@@ -232,7 +232,7 @@ namespace Azos.Data.Access.Oracle
         }
         else
         {
-                values.AppendFormat(" `{0}` = NULL,", fname);
+                values.AppendFormat(" \"{0}\" = NULL,", fname);
         }
       }//foreach
 
@@ -258,7 +258,7 @@ namespace Azos.Data.Access.Oracle
         var where = GeneratorUtils.KeyToWhere(pk, cmd.Parameters);
 
         if (!string.IsNullOrEmpty(where))
-            sql = "UPDATE `{0}` T1  SET {1} WHERE {2}".Args( tableName, values, where);
+            sql = "UPDATE \"{0}\" T1  SET {1} WHERE {2}".Args( tableName, values, where);
         else
             throw new OracleDataAccessException(StringConsts.BROAD_UPDATE_ERROR);//20141008 DKh BROAD update
 
@@ -308,16 +308,16 @@ namespace Azos.Data.Access.Oracle
         var fvalue = getFieldValue(doc, fld.Order, store);
 
 
-        cnames.AppendFormat(" `{0}`,", fname);
+        cnames.AppendFormat(" \"{0}\",", fname);
 
         if ( fvalue != null)
         {
-                var pname = string.Format("?VAL{0}", vpidx);
+                var pname = string.Format(":VAL{0}", vpidx);
 
                 values.AppendFormat(" {0},", pname);
 
                 if (!fattr.Key)
-                    upserts.AppendFormat(" `{0}` = {1},", fname, pname);
+                    upserts.AppendFormat(" \"{0}\" = {1},", fname, pname);
 
                 var par = new OracleParameter();
                 par.ParameterName = pname;
@@ -329,7 +329,7 @@ namespace Azos.Data.Access.Oracle
         else
         {
                 values.Append(" NULL,");
-                upserts.AppendFormat(" `{0}` = NULL,", fname);
+                upserts.AppendFormat(" \"{0}\" = NULL,", fname);
         }
       }//foreach
 
@@ -389,9 +389,9 @@ namespace Azos.Data.Access.Oracle
 
         cmd.Transaction = trans;
         if (!string.IsNullOrEmpty(where))
-            cmd.CommandText = string.Format("DELETE T1 FROM `{0}` T1 WHERE {1}",tableName, where);
+            cmd.CommandText = string.Format("DELETE T1 FROM \"{0}\" T1 WHERE {1}",tableName, where);
         else
-            cmd.CommandText = string.Format("DELETE T1 FROM `{0}` T1", tableName);
+            cmd.CommandText = string.Format("DELETE T1 FROM \"{0}\" T1", tableName);
 
         ConvertParameters(store, cmd.Parameters);
 

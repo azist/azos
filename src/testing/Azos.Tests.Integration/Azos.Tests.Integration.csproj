@@ -31,7 +31,8 @@
     <None Remove="CRUD\Queries\Employee\FetchByDepartment.mys.sql" />
     <None Remove="CRUD\Queries\Employee\FetchByGDID.mys.sql" />
     <None Remove="CRUD\Queries\Employee\UpdateByGDID.mys.sql" />
-    <None Remove="CRUD\Queries\Patient.List.msf.sql" />
+    <None Remove="CRUD\Queries\Patient.List.mss.sql" />
+    <None Remove="CRUD\Queries\Patient.List.ora.sql" />
     <None Remove="CRUD\Tuple.LoadAll.mys.sql" />
     <None Remove="CRUD\Types.Load.mys.sql" />
     <None Remove="CRUD\UpdatePerzons.mon.json" />
@@ -50,7 +51,8 @@
     <EmbeddedResource Include="CRUD\Queries\LoadPerzonAge.mon.json" />
     <EmbeddedResource Include="CRUD\Queries\LoadPerzonsInAgeSpan.mon.json" />
     <EmbeddedResource Include="CRUD\Queries\Doctor.List.mys.sql" />
-    <EmbeddedResource Include="CRUD\Queries\Patient.List.msf.sql" />
+    <EmbeddedResource Include="CRUD\Queries\Patient.List.ora.sql" />
+    <EmbeddedResource Include="CRUD\Queries\Patient.List.mss.sql" />
     <EmbeddedResource Include="CRUD\Queries\Patient.UpdateAmount.mys.sql" />
     <EmbeddedResource Include="CRUD\Queries\Patient.List.mys.sql" />
     <EmbeddedResource Include="CRUD\Queries\Employee\DeleteBySalaryMax.mys.sql" />

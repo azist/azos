@@ -76,7 +76,6 @@ namespace Azos.Data.Access.Oracle
 
                 using (var cmd = ctx.Connection.CreateCommand())
                 {
-
                     cmd.CommandText =  Source.StatementSource;
 
                     PopulateParameters(cmd, query);

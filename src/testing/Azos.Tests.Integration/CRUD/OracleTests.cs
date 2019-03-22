@@ -408,18 +408,26 @@ namespace Azos.Tests.Integration.CRUD
           return CONNECT_STRING;
         }
 
-        private void clearAllTables()
-        {
-          using(var cnn = new OracleConnection(CONNECT_STRING))
+    private void clearAllTables()
+    {
+      using (var cnn = new OracleConnection(CONNECT_STRING))
+      {
+          cnn.Open();
+          using (var cmd = cnn.CreateCommand())
           {
-              cnn.Open();
-              using(var cmd = cnn.CreateCommand())
-              {
-                cmd.CommandText = "delete from TBL_TUPLE; delete from TBL_PATIENT; delete from TBL_DOCTOR; delete from TBL_TYPES; delete from TBL_FULLGDID;";
-                cmd.ExecuteNonQuery();
-              }
+              cmd.CommandType = System.Data.CommandType.Text;
+              cmd.CommandText =
+          @"BEGIN  
+  EXECUTE IMMEDIATE 'TRUNCATE TABLE TBL_TUPLE'; 
+  EXECUTE IMMEDIATE 'TRUNCATE TABLE TBL_PATIENT'; 
+  EXECUTE IMMEDIATE 'TRUNCATE TABLE TBL_TYPES'; 
+  EXECUTE IMMEDIATE 'TRUNCATE TABLE TBL_FULLGDID'; 
+  EXECUTE IMMEDIATE 'TRUNCATE TABLE TBL_DOCTOR'; 
+END;";
+          cmd.ExecuteNonQuery();
           }
+      }
 
-        }
+    }
   }
 }
