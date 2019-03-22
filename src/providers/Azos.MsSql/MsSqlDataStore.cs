@@ -23,7 +23,7 @@ namespace Azos.Data.Access.MsSql
   public class MsSqlDataStore : MsSqlDataStoreBase, ICRUDDataStoreImplementation
   {
     #region CONSTS
-        public const string SCRIPT_FILE_SUFFIX = ".msf.sql";
+        public const string SCRIPT_FILE_SUFFIX = ".mss.sql";
     #endregion
 
     #region .ctor/.dctor

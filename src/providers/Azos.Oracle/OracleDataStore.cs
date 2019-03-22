@@ -23,7 +23,7 @@ namespace Azos.Data.Access.Oracle
   public class OracleDataStore : OracleDataStoreBase, ICRUDDataStoreImplementation
   {
     #region CONSTS
-        public const string SCRIPT_FILE_SUFFIX = ".mys.sql";
+        public const string SCRIPT_FILE_SUFFIX = ".ora.sql";
     #endregion
 
     #region .ctor/.dctor

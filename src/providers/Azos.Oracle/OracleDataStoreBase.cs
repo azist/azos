@@ -44,25 +44,24 @@ namespace Azos.Data.Access.Oracle
 
     #region Private Fields
 
-      private string m_ConnectString;
+    private string m_ConnectString;
 
-      private string m_TargetName;
+    private string m_TargetName;
+    private string m_Name;
 
-      private bool m_StringBool = true;
+    private bool m_StringBool = true;
 
-      private string m_StringForTrue = STR_FOR_TRUE;
-      private string m_StringForFalse = STR_FOR_FALSE;
+    private string m_StringForTrue = STR_FOR_TRUE;
+    private string m_StringForFalse = STR_FOR_FALSE;
 
-      private bool m_FullGDIDS = true;
+    private bool m_FullGDIDS = true;
 
-      private DateTimeKind m_DateTimeKind = DateTimeKind.Utc;
+    private DateTimeKind m_DateTimeKind = DateTimeKind.Utc;
 
-      private bool m_InstrumentationEnabled;
+    private bool m_InstrumentationEnabled;
     #endregion
 
     #region IInstrumentation
-
-      public string Name { get{return GetType().FullName;}}
 
       [Config(Default=false)]
       [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
@@ -101,6 +100,13 @@ namespace Azos.Data.Access.Oracle
 
     #region Properties
 
+      [Config]
+      public string Name
+      {
+        get => m_Name.IsNotNullOrWhiteSpace() ? m_Name : GetType().FullName;
+        set => m_Name = value;
+      }
+
       public override string ComponentLogTopic => OracleConsts.ORACLE_TOPIC;
 
       /// <summary>
@@ -123,9 +129,9 @@ namespace Azos.Data.Access.Oracle
       public StoreLogLevel LogLevel { get; set;}
 
       [Config]
-      public string TargetName
+      public virtual string TargetName
       {
-        get{ return m_TargetName.IsNullOrWhiteSpace() ? "MySQL" : m_TargetName;}
+        get{ return m_TargetName.IsNullOrWhiteSpace() ? "ORACLE" : m_TargetName;}
         set{ m_TargetName = value;}
       }
 

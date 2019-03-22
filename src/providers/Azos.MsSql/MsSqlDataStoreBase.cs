@@ -34,23 +34,23 @@ namespace Azos.Data.Access.MsSql
 
     private string m_ConnectString;
 
-      private string m_TargetName;
+    private string m_TargetName;
 
-      private bool m_StringBool = true;
+    private string m_Name;
 
-      private string m_StringForTrue = STR_FOR_TRUE;
-      private string m_StringForFalse = STR_FOR_FALSE;
+    private bool m_StringBool = true;
 
-      private bool m_FullGDIDS = true;
+    private string m_StringForTrue = STR_FOR_TRUE;
+    private string m_StringForFalse = STR_FOR_FALSE;
 
-      private DateTimeKind m_DateTimeKind = DateTimeKind.Utc;
+    private bool m_FullGDIDS = true;
 
-      private bool m_InstrumentationEnabled;
+    private DateTimeKind m_DateTimeKind = DateTimeKind.Utc;
+
+    private bool m_InstrumentationEnabled;
     #endregion
 
     #region IInstrumentation
-
-      public string Name { get{return GetType().FullName;}}
 
       [Config(Default=false)]
       [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
@@ -89,6 +89,13 @@ namespace Azos.Data.Access.MsSql
 
     #region Properties
 
+      [Config]
+      public string Name
+      {
+        get => m_Name.IsNotNullOrWhiteSpace() ? m_Name : GetType().FullName;
+        set => m_Name = value;
+      }
+
       public override string ComponentLogTopic => MsSqlConsts.MSSQL_TOPIC;
 
       /// <summary>
@@ -111,7 +118,7 @@ namespace Azos.Data.Access.MsSql
       public StoreLogLevel LogLevel { get; set;}
 
       [Config]
-      public string TargetName
+      public virtual string TargetName
       {
         get{ return m_TargetName.IsNullOrWhiteSpace() ? "MsSql" : m_TargetName;}
         set{ m_TargetName = value;}
