@@ -9,7 +9,9 @@ using System.Collections.Generic;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Data.Modeling;
 using Azos.Instrumentation;
+
 using Oracle.ManagedDataAccess.Client;
 
 
@@ -48,6 +50,8 @@ namespace Azos.Data.Access.Oracle
 
     private string m_TargetName;
     private string m_Name;
+
+    private NameCaseSensitivity m_CaseSensitivity = NameCaseSensitivity.ToUpper;
 
     private bool m_StringBool = true;
 
@@ -135,6 +139,17 @@ namespace Azos.Data.Access.Oracle
         set{ m_TargetName = value;}
       }
 
+
+    /// <summary>
+    /// Controls identifies case name sensitivity
+    /// </summary>
+    [Config]
+    public NameCaseSensitivity CaseSensitivity
+    {
+      get => m_CaseSensitivity;
+      set => m_CaseSensitivity = value;
+    }
+
     /// <summary>
     /// When true commits boolean values as StringForTrue/StringForFalse instead of bool values. True by default
     /// </summary>
@@ -187,6 +202,17 @@ namespace Azos.Data.Access.Oracle
     #endregion
 
     #region Protected
+
+      internal string AdjustObjectNameCasing(string name)
+      {
+        switch(CaseSensitivity)
+        {
+          case NameCaseSensitivity.ToLower: return name.ToLowerInvariant();
+          case NameCaseSensitivity.ToUpper: return name.ToUpperInvariant();
+          default: return name;
+        }
+      }
+
 
       /// <summary>
       /// Allocates MySQL connection

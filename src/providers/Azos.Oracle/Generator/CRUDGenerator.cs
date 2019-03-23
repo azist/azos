@@ -105,8 +105,7 @@ namespace Azos.Data.Access.Oracle
       var tableAttr = schema.GetTableAttrForTarget(target);
       if (tableAttr!=null && tableAttr.Name.IsNotNullOrWhiteSpace()) tableName = tableAttr.Name;
 
-      //todo Make identifier casing a property
-      return tableName.ToUpperInvariant();
+      return tableName;
     }
 
 
@@ -129,7 +128,7 @@ namespace Azos.Data.Access.Oracle
           if (!filter(doc, null, fld)) continue;
         }
 
-        var fname = fld.GetBackendNameForTarget(target);
+        var fname = store.AdjustObjectNameCasing( fld.GetBackendNameForTarget(target) );
 
         var fvalue = getFieldValue(doc, fld.Order, store);
 
@@ -164,7 +163,7 @@ namespace Azos.Data.Access.Oracle
         return 0;//nothing to do
 
 
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );
 
       using(var cmd = cnn.CreateCommand())
       {
@@ -202,11 +201,13 @@ namespace Azos.Data.Access.Oracle
         var fattr = fld[target];
         if (fattr==null) continue;
 
-        var fname = fld.GetBackendNameForTarget(target);
+        var fname =  fld.GetBackendNameForTarget(target);
 
         //20141008 DKh Skip update of key fields
         //20160124 DKh add update of keys if IDataStoreKey is present
         if (fattr.Key && !GeneratorUtils.HasFieldInNamedKey(fname, key)) continue;
+
+        fname = store.AdjustObjectNameCasing(fname);
 
         if (fattr.StoreFlag != StoreFlag.LoadAndStore && fattr.StoreFlag != StoreFlag.OnlyStore) continue;
 
@@ -221,7 +222,7 @@ namespace Azos.Data.Access.Oracle
 
         if ( fvalue != null)
         {
-                var pname = string.Format("?VAL{0}", vpidx);
+                var pname = string.Format(":VAL{0}", vpidx);
 
                 values.AppendFormat(" \"{0}\" = {1},", fname, pname);
 
@@ -246,7 +247,7 @@ namespace Azos.Data.Access.Oracle
         return 0;//nothing to do
 
 
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );
 
       using(var cmd = cnn.CreateCommand())
       {
@@ -307,6 +308,8 @@ namespace Azos.Data.Access.Oracle
 
         var fname = fld.GetBackendNameForTarget(target);
 
+        fname = store.AdjustObjectNameCasing( fname );
+
         var fvalue = getFieldValue(doc, fld.Order, store);
 
 
@@ -345,12 +348,12 @@ namespace Azos.Data.Access.Oracle
         return 0;//nothing to do
 
 
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );
 
       using(var cmd = cnn.CreateCommand())
       {
         var sql =
-        @"INSERT INTO `{0}` ({1}) VALUES ({2}) ON DUPLICATE KEY UPDATE {3}".Args( tableName, cnames, values, upserts);
+        @"INSERT INTO ""{0}"" ({1}) VALUES ({2}) ON DUPLICATE KEY UPDATE {3}".Args( tableName, cnames, values, upserts);
 
         cmd.Transaction = trans;
         cmd.CommandText = sql;
@@ -378,7 +381,7 @@ namespace Azos.Data.Access.Oracle
     private static int crudDelete(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key)
     {
       var target = store.TargetName;
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );
 
       using (var cmd = cnn.CreateCommand())
       {

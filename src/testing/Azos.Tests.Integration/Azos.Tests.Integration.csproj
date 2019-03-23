@@ -33,6 +33,8 @@
     <None Remove="CRUD\Queries\Employee\UpdateByGDID.mys.sql" />
     <None Remove="CRUD\Queries\Patient.List.mss.sql" />
     <None Remove="CRUD\Queries\Patient.List.ora.sql" />
+    <None Remove="CRUD\Queries\Tuple.LoadAll.ora.sql" />
+    <None Remove="CRUD\Queries\Types.Load.ora.sql" />
     <None Remove="CRUD\Tuple.LoadAll.mys.sql" />
     <None Remove="CRUD\Types.Load.mys.sql" />
     <None Remove="CRUD\UpdatePerzons.mon.json" />
@@ -60,7 +62,9 @@
     <EmbeddedResource Include="CRUD\Queries\Employee\UpdateByGDID.mys.sql" />
     <EmbeddedResource Include="CRUD\Queries\Employee\FetchByGDID.mys.sql" />
     <EmbeddedResource Include="CRUD\Queries\Employee\FetchAll.mys.sql" />
+    <EmbeddedResource Include="CRUD\Queries\Tuple.LoadAll.ora.sql" />
     <EmbeddedResource Include="CRUD\Queries\Tuple.LoadAll.mys.sql" />
+    <EmbeddedResource Include="CRUD\Queries\Types.Load.ora.sql" />
     <EmbeddedResource Include="CRUD\Queries\Types.Load.mys.sql" />
     <EmbeddedResource Include="CRUD\Queries\UpdatePerzons.mon.json" />
     <EmbeddedResource Include="ExternalCfg.laconf" />

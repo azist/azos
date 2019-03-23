@@ -1,5 +1,5 @@
 ﻿#pragma
-modify=tbl_patient
+modify=TBL_PATIENT
 key=counter
 load=doctor_phone,doctor_id
 ignore=marker
