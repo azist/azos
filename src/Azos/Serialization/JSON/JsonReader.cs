@@ -332,7 +332,14 @@ namespace Azos.Serialization.JSON
       }
 
       //last resort
-      return StringValueConversion.AsType(v.ToString(), toType, false);
+      try
+      {
+        return StringValueConversion.AsType(v.ToString(), toType, false);
+      }
+      catch
+      {
+        return null;//the value could not be converted, and is going to go into amorphous bag if it is enabled
+      }
     }
 
   #endregion

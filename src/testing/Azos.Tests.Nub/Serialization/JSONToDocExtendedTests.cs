@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 using Azos.Scripting;
@@ -15,7 +16,8 @@ using System.IO;
 using Azos.Data;
 using Azos.Time;
 using Azos.Financial;
-using System.Collections.Generic;
+using Azos.Pile;
+using Azos.Geometry;
 
 namespace Azos.Tests.Nub.Serialization
 {
@@ -162,6 +164,8 @@ namespace Azos.Tests.Nub.Serialization
       [Field] public Amount     Amount { get; set; }
       [Field] public FID        Fid { get; set; }
       [Field] public MetalType  Metal { get; set; }
+      [Field] public PilePointer PilePtr { get; set; }
+      [Field] public LatLng     LatLng {  get; set; }
     }
 
     public class WithVariousNullableStructsDoc : TypedDoc
@@ -177,6 +181,9 @@ namespace Azos.Tests.Nub.Serialization
       [Field] public Amount?     Amount      { get; set; }
       [Field] public FID?        Fid         { get; set; }
       [Field] public MetalType?  Metal       { get; set; }
+      [Field] public PilePointer? PilePtr    { get; set; }
+      [Field] public LatLng?     LatLng { get; set; }
+
       [Field] public StringMap   StringMap   { get; set; }
 
       [Field] public GDID[]   GdidArray   { get; set; }
@@ -204,7 +211,9 @@ namespace Azos.Tests.Nub.Serialization
         DateRange = new DateRange(new DateTime(1980, 2, 2), new DateTime(1990, 3, 3)),
         Amount = new Amount("usd", 34.78m),
         Fid = new FID(1234),
-        Metal = MetalType.Platinum
+        Metal = MetalType.Platinum,
+        PilePtr = new PilePointer(3, 7890),
+        LatLng = new LatLng("-15.0, 12.0", "Burundi Sortirius")
       };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
@@ -224,6 +233,8 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual(d1.Amount, d2.Amount);
       Aver.AreEqual(d1.Fid, d2.Fid);
       Aver.IsTrue( d1.Metal == d2.Metal );
+      Aver.AreEqual(d1.PilePtr, d2.PilePtr);
+      Aver.AreEqual(d1.LatLng, d2.LatLng);
     }
 
 
@@ -380,6 +391,34 @@ namespace Azos.Tests.Nub.Serialization
       JsonReader.ToDoc(d2, map);
 
       Aver.IsTrue( d1.Metal == d2.Metal );
+    }
+
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_PilePtr()
+    {
+      var d1 = new WithVariousNullableStructsDoc { PilePtr = new PilePointer(1, 23, 4567) };
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
+      Console.WriteLine(json);
+      var map = json.JsonToDataObject() as JsonDataMap;
+
+      var d2 = new WithVariousNullableStructsDoc();
+      JsonReader.ToDoc(d2, map);
+
+      Aver.IsTrue(d1.PilePtr == d2.PilePtr);
+    }
+
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_LatLng()
+    {
+      var d1 = new WithVariousNullableStructsDoc { LatLng = new LatLng(1.0d, 2.0d, "arctic") };
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
+      Console.WriteLine(json);
+      var map = json.JsonToDataObject() as JsonDataMap;
+
+      var d2 = new WithVariousNullableStructsDoc();
+      JsonReader.ToDoc(d2, map);
+
+      Aver.AreEqual(d1.LatLng, d2.LatLng);
     }
 
 

@@ -5,16 +5,19 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections;
+using System.IO;
 using System.Linq;
 
 using Azos.Data;
+using Azos.Serialization.JSON;
 
 namespace Azos.Geometry
 {
   /// <summary>
-  /// Provides support for Latitude/Longitude logic
+  /// Represents a named position on the Earth map
   /// </summary>
-  public struct LatLng : Collections.INamed
+  public struct LatLng : IEquatable<LatLng>, Collections.INamed, IJsonReadable, IJsonWritable
   {
     public const double MIN_LAT = -90.0d;
     public const double MAX_LAT = +90.0d;
@@ -67,13 +70,17 @@ namespace Azos.Geometry
     }
 
 
-
+    /// <summary>
+    /// Name of this location
+    /// </summary>
     public string Name
     {
       get { return m_Name ?? this.ToString();}
     }
 
-
+    /// <summary>
+    /// Latitude in degrees
+    /// </summary>
     public double Lat
     {
       get{ return m_Lat;}
@@ -86,7 +93,9 @@ namespace Azos.Geometry
       }
     }
 
-
+    /// <summary>
+    /// Longitude in degrees
+    /// </summary>
     public double Lng
     {
       get{ return m_Lng;}
@@ -99,30 +108,35 @@ namespace Azos.Geometry
       }
     }
 
+    /// <summary>
+    /// Latitude in radians
+    /// </summary>
+    public double RadLat => m_Lat * DEG_TO_RAD;
 
-    public double RadLat
-    {
-      get{ return m_Lat * DEG_TO_RAD;}
-    }
-
-    public double RadLng
-    {
-      get{ return m_Lng * DEG_TO_RAD;}
-    }
+    /// <summary>
+    /// Longitude in radians
+    /// </summary>
+    public double RadLng => m_Lng * DEG_TO_RAD;
 
 
+    /// <summary>
+    /// Performs great circle "as the crow flies" distance computation between this and another points.
+    /// The distance is returned in Kilometer SI units. The computation is only valid for the Earth
+    /// </summary>
     public double HaversineEarthDistanceKm(LatLng other)
     {
       var dLat = this.RadLat - other.RadLat;
       var dLng = this.RadLng - other.RadLng;
 
-		  var a  = Math.Pow(Math.Sin(dLat/2d), 2d) + Math.Cos(this.RadLat) * Math.Cos(other.RadLat) * Math.Pow(Math.Sin(dLng/2d), 2d);
-		  var c  = 2d * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1-a)); // great circle distance in radians
+      var a  = Math.Pow(Math.Sin(dLat/2d), 2d) + Math.Cos(this.RadLat) * Math.Cos(other.RadLat) * Math.Pow(Math.Sin(dLng/2d), 2d);
+      var c  = 2d * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1-a)); // great circle distance in radians
 
       return  EARTH_RADIUS_KM * c;
     }
 
-
+    /// <summary>
+    /// Converts a coordinate component (lat or lng) into standard degree/minute/second string
+    /// </summary>
     public string ComponentToString(double degVal)
     {
       var d = (int)degVal;
@@ -140,14 +154,20 @@ namespace Azos.Geometry
 
     public override int GetHashCode()
     {
-      return m_Lat.GetHashCode() + m_Lng.GetHashCode();
+      return m_Lat.GetHashCode() ^ m_Lng.GetHashCode();
+    }
+
+    public bool Equals(LatLng other)
+    {
+      return this.m_Lat == other.m_Lat &&
+             this.m_Lng == other.m_Lng &&
+             this.m_Name == other.m_Name;
     }
 
     public override bool Equals(object obj)
     {
       if (!(obj is LatLng)) return false;
-      var other = (LatLng)obj;
-      return this.m_Lat == other.m_Lat && this.m_Lng == other.m_Lng;
+      return Equals((LatLng)obj);
     }
 
 
@@ -184,6 +204,32 @@ namespace Azos.Geometry
                  (sec.AsDouble(handling: ConvertErrorHandling.Throw)/3600d);
       }
       return double.Parse(val, System.Globalization.NumberStyles.Number);
+    }
+
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    {
+      if (data is JsonDataMap map)
+      {
+        var name = map["name"].AsString();
+        var location = map["location"].AsString();
+
+        try
+        {
+          return (true, new LatLng(location, name));
+        }
+        catch
+        {
+          //returns (false, null) below
+        }
+      }
+
+      return (false, null);
+    }
+
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
+    {
+      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("name", m_Name),
+                                                      new DictionaryEntry("location", "{0}, {1}".Args(ComponentToString(Lat), ComponentToString(Lng))));
     }
 
 
