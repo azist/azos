@@ -9,6 +9,7 @@ using System.Collections;
 using System.IO;
 using System.Globalization;
 
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Standards
@@ -18,9 +19,9 @@ namespace Azos.Standards
   /// Represents length distance with unit type.
   /// All operations are done with precision of 1 micrometer (10^(-3) mm)
   /// </summary>
-  public struct Distance : IEquatable<Distance>, IComparable<Distance>, IJsonWritable
+  public struct Distance : IEquatable<Distance>, IComparable<Distance>, IJsonWritable, IJsonReadable
   {
-    public enum UnitType{ Cm = 0, In, Ft, Mm, M, Yd }
+    public enum UnitType{ Unspecified = 0, Cm , In, Ft, Mm, M, Yd }
 
     public const decimal MM_IN_CM = 10.0m;
     public const decimal MM_IN_IN = 25.4m;
@@ -135,9 +136,27 @@ namespace Azos.Standards
       return ValueInMm.CompareTo(other.ValueInMm);
     }
 
-    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
       JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("unit", UnitName), new DictionaryEntry("value", Value));
+    }
+
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    {
+      if (data is JsonDataMap map)
+      {
+        try
+        {
+          return (true, new Distance(map["value"].AsDecimal(handling: ConvertErrorHandling.Throw),
+                                     map["unit"].AsEnum(UnitType.Unspecified, handling: ConvertErrorHandling.Throw)));
+        }
+        catch
+        {
+          //passthrough false
+        }
+      }
+
+      return (false, null);
     }
 
 
@@ -215,6 +234,7 @@ namespace Azos.Standards
         }
       }
     }
+
   }
 
 }
