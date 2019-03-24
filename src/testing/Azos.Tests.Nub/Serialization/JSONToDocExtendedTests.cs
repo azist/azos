@@ -19,6 +19,7 @@ using Azos.Time;
 using Azos.Financial;
 using Azos.Pile;
 using Azos.Geometry;
+using Azos.Standards;
 
 namespace Azos.Tests.Nub.Serialization
 {
@@ -167,9 +168,12 @@ namespace Azos.Tests.Nub.Serialization
       [Field] public MetalType  Metal { get; set; }
       [Field] public PilePointer PilePtr { get; set; }
       [Field] public LatLng     LatLng {  get; set; }
+      [Field] public Distance   Distance { get; set; }
+      [Field] public Weight     Weight { get; set; }
       [Field] public Azos.Conf.Configuration Config { get; set; }
       [Field] public IConfigSectionNode ConfigNodeIntf { get; set; }
       [Field] public ConfigSectionNode ConfigNode { get; set; }
+
     }
 
     public class WithVariousNullableStructsDoc : TypedDoc
@@ -187,6 +191,8 @@ namespace Azos.Tests.Nub.Serialization
       [Field] public MetalType?  Metal       { get; set; }
       [Field] public PilePointer? PilePtr    { get; set; }
       [Field] public LatLng?     LatLng { get; set; }
+      [Field] public Distance?   Distance { get; set; }
+      [Field] public Weight?     Weight { get; set; }
 
       [Field] public StringMap   StringMap   { get; set; }
 
@@ -218,6 +224,8 @@ namespace Azos.Tests.Nub.Serialization
         Metal = MetalType.Platinum,
         PilePtr = new PilePointer(3, 7890),
         LatLng = new LatLng("-15.0, 12.0", "Burundi Sortirius"),
+        Distance = new Distance(12.5m, Distance.UnitType.M),
+        Weight = new Weight(1427.5m, Weight.UnitType.Kg),
         Config = "root=1{a=1 b=2}".AsLaconicConfig(handling: ConvertErrorHandling.Throw).Configuration,
         ConfigNodeIntf = "root=2{a=3 b=4}".AsLaconicConfig(handling: ConvertErrorHandling.Throw),
         ConfigNode = "root=3{a=5 b=6 sub='hahaha!'{ z=true }}".AsLaconicConfig(handling: ConvertErrorHandling.Throw)
@@ -242,6 +250,9 @@ namespace Azos.Tests.Nub.Serialization
       Aver.IsTrue( d1.Metal == d2.Metal );
       Aver.AreEqual(d1.PilePtr, d2.PilePtr);
       Aver.AreEqual(d1.LatLng, d2.LatLng);
+
+      Aver.AreEqual(d1.Distance, d2.Distance);
+      Aver.AreEqual(d1.Weight, d2.Weight);
 
       Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(d1.Config.Root, d2.Config.Root));
       Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(d1.ConfigNodeIntf, d2.ConfigNodeIntf));
@@ -430,6 +441,34 @@ namespace Azos.Tests.Nub.Serialization
       JsonReader.ToDoc(d2, map);
 
       Aver.AreEqual(d1.LatLng, d2.LatLng);
+    }
+
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_Distance()
+    {
+      var d1 = new WithVariousNullableStructsDoc { Distance = new Distance(120m, Distance.UnitType.Yd) };
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
+      Console.WriteLine(json);
+      var map = json.JsonToDataObject() as JsonDataMap;
+
+      var d2 = new WithVariousNullableStructsDoc();
+      JsonReader.ToDoc(d2, map);
+
+      Aver.AreEqual(d1.Distance, d2.Distance);
+    }
+
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_Weight()
+    {
+      var d1 = new WithVariousNullableStructsDoc { Weight = new Weight(120m, Weight.UnitType.Lb) };
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
+      Console.WriteLine(json);
+      var map = json.JsonToDataObject() as JsonDataMap;
+
+      var d2 = new WithVariousNullableStructsDoc();
+      JsonReader.ToDoc(d2, map);
+
+      Aver.AreEqual(d1.Weight, d2.Weight);
     }
 
 
