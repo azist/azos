@@ -699,11 +699,7 @@ namespace Azos.Conf
           }
 
         }
-
-
     #endregion
-
-
 
     #region Private Fields
      internal ConfigSectionNodeList m_Children = new ConfigSectionNodeList();

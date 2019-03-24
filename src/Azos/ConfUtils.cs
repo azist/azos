@@ -17,7 +17,7 @@ namespace Azos
   {
 
     /// <summary>
-    /// Tries to convert object to laconic config content and parse i. This is a shortcut to ObjectValueConversion.AsLaconicConfig(object)
+    /// Tries to convert object to laconic config content and parse it. This is a shortcut to ObjectValueConversion.AsLaconicConfig(object)
     /// </summary>
     public static ConfigSectionNode AsLaconicConfig(this string val,
                                                     ConfigSectionNode dflt = null,

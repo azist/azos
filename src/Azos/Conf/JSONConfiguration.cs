@@ -29,32 +29,41 @@ namespace Azos.Conf
 
     #region .ctor / static
 
-      /// <summary>
-      /// Creates an instance of a new configuration not bound to any JSON file
-      /// </summary>
-      public JSONConfiguration() : base()
-      {
+    /// <summary>
+    /// Creates an instance of a new configuration not bound to any JSON file
+    /// </summary>
+    public JSONConfiguration() : base()
+    {
 
-      }
+    }
 
-      /// <summary>
-      /// Creates an isntance of the new configuration and reads contents from a JSON file
-      /// </summary>
-      public JSONConfiguration(string filename) : base(filename)
-      {
-        readFromFile();
-      }
+    /// <summary>
+    /// Creates an isntance of the new configuration and reads contents from a JSON file
+    /// </summary>
+    public JSONConfiguration(string filename) : base(filename)
+    {
+      readFromFile();
+    }
 
-      /// <summary>
-      /// Creates an instance of configuration initialized from JSON content passed as string
-      /// </summary>
-      public static JSONConfiguration CreateFromJSON(string content)
-      {
-        var result = new JSONConfiguration();
-        result.readFromString(content);
+    /// <summary>
+    /// Creates an instance of configuration initialized from JSON content passed as string
+    /// </summary>
+    public static JSONConfiguration CreateFromJson(string content)
+    {
+      var result = new JSONConfiguration();
+      result.readFromString(content);
+      return result;
+    }
 
-        return result;
-      }
+    /// <summary>
+    /// Creates an instance of configuration initialized from JSON content passed as JsonDataMap
+    /// </summary>
+    public static JSONConfiguration CreateFromJson(JsonDataMap content)
+    {
+      var result = new JSONConfiguration();
+      result.read(content);
+      return result;
+    }
 
 
     #endregion
@@ -67,10 +76,10 @@ namespace Azos.Conf
 
     #region Public
 
-      /// <summary>
-      /// Saves configuration into a JSON file
-      /// </summary>
-      public override void SaveAs(string filename)
+    /// <summary>
+    /// Saves configuration into a JSON file
+    /// </summary>
+    public override void SaveAs(string filename)
       {
         SaveAs(filename, null, null);
 

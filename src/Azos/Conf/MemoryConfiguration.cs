@@ -17,6 +17,14 @@ namespace Azos.Conf
   [Serializable]
   public sealed class MemoryConfiguration : Configuration
   {
+
+    /// <summary>
+    /// Creates an instance of a new configuration in memory
+    /// </summary>
+    public MemoryConfiguration() : base()
+    {
+    }
+
     private bool m_IsReadOnly;
 
     public override bool IsReadOnly => m_IsReadOnly;

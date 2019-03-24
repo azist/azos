@@ -7,12 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 using Azos.Scripting;
 
+using Azos.Conf;
 using Azos.Serialization.JSON;
 using Azos.Collections;
-using System.IO;
 using Azos.Data;
 using Azos.Time;
 using Azos.Financial;
@@ -166,6 +167,9 @@ namespace Azos.Tests.Nub.Serialization
       [Field] public MetalType  Metal { get; set; }
       [Field] public PilePointer PilePtr { get; set; }
       [Field] public LatLng     LatLng {  get; set; }
+      [Field] public Azos.Conf.Configuration Config { get; set; }
+      [Field] public IConfigSectionNode ConfigNodeIntf { get; set; }
+      [Field] public ConfigSectionNode ConfigNode { get; set; }
     }
 
     public class WithVariousNullableStructsDoc : TypedDoc
@@ -213,7 +217,10 @@ namespace Azos.Tests.Nub.Serialization
         Fid = new FID(1234),
         Metal = MetalType.Platinum,
         PilePtr = new PilePointer(3, 7890),
-        LatLng = new LatLng("-15.0, 12.0", "Burundi Sortirius")
+        LatLng = new LatLng("-15.0, 12.0", "Burundi Sortirius"),
+        Config = "root=1{a=1 b=2}".AsLaconicConfig(handling: ConvertErrorHandling.Throw).Configuration,
+        ConfigNodeIntf = "root=2{a=3 b=4}".AsLaconicConfig(handling: ConvertErrorHandling.Throw),
+        ConfigNode = "root=3{a=5 b=6 sub='hahaha!'{ z=true }}".AsLaconicConfig(handling: ConvertErrorHandling.Throw)
       };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
@@ -235,6 +242,10 @@ namespace Azos.Tests.Nub.Serialization
       Aver.IsTrue( d1.Metal == d2.Metal );
       Aver.AreEqual(d1.PilePtr, d2.PilePtr);
       Aver.AreEqual(d1.LatLng, d2.LatLng);
+
+      Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(d1.Config.Root, d2.Config.Root));
+      Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(d1.ConfigNodeIntf, d2.ConfigNodeIntf));
+      Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(d1.ConfigNode, d2.ConfigNode));
     }
 
 

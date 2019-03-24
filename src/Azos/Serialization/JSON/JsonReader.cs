@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
+using Azos.Conf;
 using Azos.CodeAnalysis.Source;
 using Azos.CodeAnalysis.JSON;
 using Azos.Data;
@@ -288,12 +289,25 @@ namespace Azos.Serialization.JSON
         nntp = toType.GetGenericArguments()[0];
 
 
-      //Custom JSON Readable
-      if (typeof(IJsonReadable).IsAssignableFrom(nntp))
+      //Custom JSON Readable (including config)
+      if (typeof(IJsonReadable).IsAssignableFrom(nntp) || typeof(IConfigSectionNode).IsAssignableFrom(nntp))
       {
-        IJsonReadable newval = SerializationUtils.MakeNewObjectInstance(nntp) as IJsonReadable;
+        var toAllocate = nntp;
+
+        //Configuration requires special handling because nodes do not exist as independent entities and there
+        //is master/detail relationship between them
+        if (toAllocate == typeof(Configuration) ||
+            toAllocate == typeof(ConfigSectionNode) ||
+            toAllocate == typeof(IConfigSectionNode)) toAllocate = typeof(MemoryConfiguration);
+
+        var newval = SerializationUtils.MakeNewObjectInstance(toAllocate) as IJsonReadable;
         var got = newval.ReadAsJson(v, fromUI, nameBinding);//this me re-allocate the result based of newval
-        return got.match ? got.self : null;
+
+        if (!got.match) return null;
+
+        if (typeof(IConfigSectionNode).IsAssignableFrom(nntp)) return (got.self as Configuration)?.Root;
+
+        return got.self;
       }
 
       //byte[] direct assignment w/o copies
