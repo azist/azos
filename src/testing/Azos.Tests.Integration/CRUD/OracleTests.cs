@@ -25,43 +25,56 @@ namespace Azos.Tests.Integration.CRUD
   [Runnable]
   public class OracleTests
   {
-        ////[Run("cnt=1")]
-        ////[Run("cnt=10")]
-        ////[Run("cnt=100")]
-        ////[Run("cnt=500")]
-        ////public void Parallel_Fiasco(int cnt)
-        ////{
-        ////  var cstr = getConnectString();
+    ////[Run("cnt=1")]
+    ////[Run("cnt=10")]
+    ////[Run("cnt=100")]
+    ////[Run("cnt=500")]
+    ////public void Parallel_Fiasco(int cnt)
+    ////{
+    ////  var cstr = getConnectString();
 
-        ////  Console.WriteLine(cstr);
+    ////  Console.WriteLine(cstr);
 
-        ////  Parallel.For(0, cnt, new ParallelOptions{ MaxDegreeOfParallelism=36}, (i) =>
-        ////  {
-        ////    using(var cnn = new SqlConnection(cstr))
-        ////    {
-        ////     cnn.Open();
-        ////    // using(var tx = cnn.BeginTransaction())
-        ////       using(var cmd = cnn.CreateCommand())
-        ////       {
-        ////         var a = i;
-        ////         var b = i+980;
-        ////         cmd.CommandText = "select SQL_NO_CACHE {0}+{1} as ZZZ, t.* from mysql.help_keyword t".Args(a, b);
-        ////       //  Thread.Sleep(Ambient.Random.NextScaledRandomInteger(1,50));
-        ////         using(var reader = cmd.ExecuteReader())
-        ////         {
-        ////            Aver.IsTrue(reader.Read());
-        ////            Aver.AreEqual(a+b, reader[0].AsInt());
-        ////            var rc = 0;
-        ////            while(reader.Read()) rc++;
-        ////            Console.WriteLine("Count: "+rc);
-        ////         }
+    ////  Parallel.For(0, cnt, new ParallelOptions{ MaxDegreeOfParallelism=36}, (i) =>
+    ////  {
+    ////    using(var cnn = new SqlConnection(cstr))
+    ////    {
+    ////     cnn.Open();
+    ////    // using(var tx = cnn.BeginTransaction())
+    ////       using(var cmd = cnn.CreateCommand())
+    ////       {
+    ////         var a = i;
+    ////         var b = i+980;
+    ////         cmd.CommandText = "select SQL_NO_CACHE {0}+{1} as ZZZ, t.* from mysql.help_keyword t".Args(a, b);
+    ////       //  Thread.Sleep(Ambient.Random.NextScaledRandomInteger(1,50));
+    ////         using(var reader = cmd.ExecuteReader())
+    ////         {
+    ////            Aver.IsTrue(reader.Read());
+    ////            Aver.AreEqual(a+b, reader[0].AsInt());
+    ////            var rc = 0;
+    ////            while(reader.Read()) rc++;
+    ////            Console.WriteLine("Count: "+rc);
+    ////         }
 
-        ////      //   tx.Commit();
-        ////       }
-        ////    }
-        ////  });
-        ////}
+    ////      //   tx.Commit();
+    ////       }
+    ////    }
+    ////  });
+    ////}
 
+
+
+        [Run]
+        public void ManualDS_ExecuteCustomCommandHandler()
+        {
+          using (var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+          {
+            store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
+            store.QueryResolver.HandlerLocations.Add("Azos.Tests.Integration.CRUD.Queries, Azos.Tests.Integration");
+            clearAllTables();
+            TestLogic.ExecuteCustomCommandHandler(store);
+          }
+        }
 
 
         [Run]
