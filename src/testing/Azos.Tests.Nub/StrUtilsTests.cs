@@ -75,19 +75,25 @@ namespace Azos.Tests.Nub
     [Run]
     public void DiffStrings_1()
     {
-      Console.WriteLine( "abcd".DiffStrings("abcd") );
+      var diff = "abcd".DiffStrings("abcd");
+      Console.WriteLine( diff );
+      Aver.IsTrue( diff.Contains("Identical"));
     }
 
     [Run]
     public void DiffStrings_2()
     {
-      Console.WriteLine("abcde".DiffStrings("abcd"));
+      var diff = "abcde".DiffStrings("abcd");
+      Console.WriteLine(diff);
+      Aver.IsTrue(diff.Contains("A is longer than B by 1 chars"));
     }
 
     [Run]
     public void DiffStrings_3()
     {
-      Console.WriteLine("abcd".DiffStrings("abcde"));
+      var diff = "abcd".DiffStrings("abcde");
+      Console.WriteLine(diff);
+      Aver.IsTrue(diff.Contains("B is longer than A by 1 chars"));
     }
 
     [Run]
@@ -118,6 +124,18 @@ namespace Azos.Tests.Nub
     public void DiffStrings_8()
     {
       Console.WriteLine(((string)null).DiffStrings((string)null));
+    }
+
+    [Run]
+    public void TrimAll_1()
+    {
+      Aver.AreEqual("abcd", "\ra      b\n\n\n\nc d\r\r   ".TrimAll());
+    }
+
+    [Run]
+    public void TrimAll_2()
+    {
+      Aver.AreEqual("bcd", "aa aba   aaa acaa aaa adaaaaa aaaaaa".TrimAll('a', ' '));
     }
   }
 }
