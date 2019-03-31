@@ -1,6 +1,7 @@
 ﻿app
 {
-  application-name='trun'
+  id='trun'
+  name='trun'
   unit-test=true
   force-invariant-culture=true
 }

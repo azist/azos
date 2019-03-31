@@ -391,6 +391,7 @@ root
 
           var txt = conf.SaveToString(LaconfigWritingOptions.PrettyPrint);
           Console.WriteLine(txt);
+
           Aver.AreEqual(
 @"very-root
 {
@@ -422,7 +423,7 @@ root
     {
     }
   }
-}", txt);
+}".TrimAll(), txt.TrimAll());
 
         txt = conf.SaveToString(LaconfigWritingOptions.Compact);
 
