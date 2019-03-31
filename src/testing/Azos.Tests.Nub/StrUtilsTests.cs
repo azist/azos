@@ -67,9 +67,15 @@ namespace Azos.Tests.Nub
     }
 
     [Run]
-    public void ToWindowsLines()
+    public void ToWindowsLines_FromLinux()
     {
       Aver.AreEqual("I walk\r\n lines\r\n\r\n", "I walk\n lines\n\n".ToWindowsLines());
+    }
+
+    [Run]
+    public void ToWindowsLines_FromMixed()
+    {
+      Aver.AreEqual("I walk\r\n lines\r\n\r\n", "I walk\n lines\r\n\n".ToWindowsLines());
     }
 
     [Run]

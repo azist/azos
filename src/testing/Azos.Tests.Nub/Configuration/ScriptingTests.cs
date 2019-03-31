@@ -152,7 +152,7 @@ root
 
           var got =  result.SaveToString();
           Console.WriteLine( got );
-          Aver.AreEqual(expected1, got);
+          Aver.AreEqual(expected1.ToWindowsLines(), got.ToWindowsLines());
         }
 
         [Run]
@@ -424,7 +424,7 @@ const string rschemaExpected=
 
           var got =  result.SaveToString();
           Console.WriteLine( got );
-          Aver.AreEqual(rschemaExpected, got);
+          Aver.AreEqual(rschemaExpected.ToWindowsLines(), got.ToWindowsLines());
         }
 
 

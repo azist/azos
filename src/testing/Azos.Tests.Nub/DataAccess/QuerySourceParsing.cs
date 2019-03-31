@@ -116,7 +116,7 @@ from
   left outer join tbl_doctor t2 on t1.c_doctor = t2.counter
 where
  t1.lname like ?LN
-" , qs.StatementSource);
+".ToWindowsLines() , qs.StatementSource.ToWindowsLines());
         }
 
 
@@ -177,7 +177,7 @@ from
   left outer join tbl_doctor t2 on t1.c_doctor = t2.counter
 where
  t1.lname like ?LN
-" , qs.StatementSource);
+".ToWindowsLines() , qs.StatementSource.ToWindowsLines());
         }
 
 

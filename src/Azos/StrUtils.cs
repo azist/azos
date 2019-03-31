@@ -353,7 +353,13 @@ namespace Azos
     /// Replaces LF with CRLF
     /// </summary>
     public static string ToWindowsLines(this string src)
-    => src == null ? null : src.Replace(WIN_UNIX_LINE_BRAKES[1], WIN_UNIX_LINE_BRAKES[0]);
+    {
+      if (src==null) return null;
+
+      var linux = src.ToLinuxLines();
+
+      return linux.Replace(WIN_UNIX_LINE_BRAKES[1], WIN_UNIX_LINE_BRAKES[0]);
+    }
 
     /// <summary>
     /// Creates a string listing char-by char difference between strings

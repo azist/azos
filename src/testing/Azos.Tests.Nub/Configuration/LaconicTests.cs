@@ -423,7 +423,7 @@ root
     {
     }
   }
-}".TrimAll(), txt.TrimAll());
+}".ToWindowsLines(), txt.ToWindowsLines());
 
         txt = conf.SaveToString(LaconfigWritingOptions.Compact);
 
