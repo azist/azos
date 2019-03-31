@@ -13,7 +13,7 @@ namespace Azos.Data.Access
 {
     /// <summary>
     /// Defines a query sent into ICRUDDataStore implementor to retrieve data.
-    /// A Query is a named bag of paremeters where every parameter has a name and the value.
+    /// A Query is a named bag of parameters where every parameter has a name and a value.
     /// </summary>
     /// <remarks>
     ///  Keep in mind that a particular datastore implementation may have to deal with hybrid distributed backends where different tables get stored
@@ -22,12 +22,12 @@ namespace Azos.Data.Access
     ///  this into provider implementation.
     ///  Architectural note: unlike Hibernate, LinqTo* and the like, the Azos.DataAccess architecture purposely does not allow developers
     ///  to write query scripts in higher-language like C#. This is because translation of such a high-level language abstraction into
-    ///   highly optimized SQL/(and or other script) per particular backend is impossible because such language can not incapsulate
+    ///   highly optimized SQL/(and or other script) per particular backend is impossible because such language can not encapsulate
     ///  the optimization features of all possible data backends (i.e. ORACLE vs MongoDB vs Redis vs Files in HDFS).
     /// CRUD queries need to support selects from tables with millions of rows, or reads from collections with millions of documents,
     /// or parse millions of lines from files stored in Hadooop servers, thus every particular provider for every particular business app
     /// must expose custom-written queries by name. Those queries are usually highly optimized for particular platform
-    /// (i.e. using db-specific hints, common table subexpressions, groupping sets etc.).
+    /// (i.e. using db-specific hints, common table subexpressions, grouping sets etc.).
     /// Also, a provider may elect to SELECT * from a table named like Query object, when a hand-written script with such name is not found
     /// </remarks>
     [Serializable]

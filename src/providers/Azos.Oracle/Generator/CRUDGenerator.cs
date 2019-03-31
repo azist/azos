@@ -6,8 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-
+using Azos.Serialization.JSON;
 using Oracle.ManagedDataAccess.Client;
 
 namespace Azos.Data.Access.Oracle
@@ -130,27 +131,30 @@ namespace Azos.Data.Access.Oracle
 
         var fname = store.AdjustObjectNameCasing( fld.GetBackendNameForTarget(target) );
 
-        var fvalue = getFieldValue(doc, fld.Order, store);
+        var converted = getDbFieldValue(doc, fld, fattr, store);
 
 
         cnames.AppendFormat(" \"{0}\",", fname);
 
-        if ( fvalue != null)
+        if ( converted.value != null)
         {
-                var pname = string.Format(":VAL{0}", vpidx);
+          var pname = string.Format(":VAL{0}", vpidx);
 
-                values.AppendFormat(" {0},", pname);
+          values.AppendFormat(" {0},", pname);
 
-                var par = new OracleParameter();
-                par.ParameterName = pname;
-                par.Value = fvalue;
-                vparams.Add(par);
+          var par = new OracleParameter();
+//Console.WriteLine(doc.Schema.ToJson());
+//Console.WriteLine("{0}|{1}: OrclDbTyp.{2} = ({3}){4}".Args(fld.NonNullableType.FullName, pname, converted.dbType, converted.value.GetType().FullName, converted.value));
+          par.ParameterName = pname;
+          par.Value = converted.value;
+          if (converted.dbType.HasValue) par.OracleDbType = converted.dbType.Value;
+          vparams.Add(par);
 
-                vpidx++;
+          vpidx++;
         }
         else
         {
-                values.Append(" NULL,");
+          values.Append(" NULL,");
         }
       }//foreach
 
@@ -172,7 +176,7 @@ namespace Azos.Data.Access.Oracle
         cmd.Transaction = trans;
         cmd.CommandText = sql;
         cmd.Parameters.AddRange(vparams.ToArray());
-        ConvertParameters(store, cmd.Parameters);
+      //  ConvertParameters(store, cmd.Parameters);
         try
         {
             var affected = cmd.ExecuteNonQuery();
@@ -217,25 +221,26 @@ namespace Azos.Data.Access.Oracle
         }
 
 
-        var fvalue = getFieldValue(doc, fld.Order, store);
+        var converted = getDbFieldValue(doc, fld, fattr, store);
 
 
-        if ( fvalue != null)
+        if ( converted.value != null)
         {
-                var pname = string.Format(":VAL{0}", vpidx);
+          var pname = string.Format(":VAL{0}", vpidx);
 
-                values.AppendFormat(" \"{0}\" = {1},", fname, pname);
+          values.AppendFormat(" \"{0}\" = {1},", fname, pname);
 
-                var par = new OracleParameter();
-                par.ParameterName = pname;
-                par.Value = fvalue;
-                vparams.Add(par);
+          var par = new OracleParameter();
+          par.ParameterName = pname;
+          par.Value = converted.value;
+          if (converted.dbType.HasValue) par.OracleDbType = converted.dbType.Value;
+          vparams.Add(par);
 
-                vpidx++;
+          vpidx++;
         }
         else
         {
-                values.AppendFormat(" \"{0}\" = NULL,", fname);
+         values.AppendFormat(" \"{0}\" = NULL,", fname);
         }
       }//foreach
 
@@ -268,7 +273,10 @@ namespace Azos.Data.Access.Oracle
         cmd.Transaction = trans;
         cmd.CommandText = sql;
         cmd.Parameters.AddRange(vparams.ToArray());
-        ConvertParameters(store, cmd.Parameters);
+        //  ConvertParameters(store, cmd.Parameters);
+        //https://asktom.oracle.com/pls/asktom/f?p=100:11:0::::P11_QUESTION_ID:9539482000346124162
+
+dbg(cmd);
 
         try
         {
@@ -310,12 +318,12 @@ namespace Azos.Data.Access.Oracle
 
         fname = store.AdjustObjectNameCasing( fname );
 
-        var fvalue = getFieldValue(doc, fld.Order, store);
+        var converted = getDbFieldValue(doc, fld, fattr, store);
 
 
         cnames.AppendFormat(" \"{0}\",", fname);
 
-        if ( fvalue != null)
+        if ( converted.value != null)
         {
                 var pname = string.Format(":VAL{0}", vpidx);
 
@@ -326,7 +334,8 @@ namespace Azos.Data.Access.Oracle
 
                 var par = new OracleParameter();
                 par.ParameterName = pname;
-                par.Value = fvalue;
+                par.Value = converted;
+                if (converted.dbType.HasValue) par.OracleDbType = converted.dbType.Value;
                 vparams.Add(par);
 
                 vpidx++;
@@ -358,7 +367,7 @@ namespace Azos.Data.Access.Oracle
         cmd.Transaction = trans;
         cmd.CommandText = sql;
         cmd.Parameters.AddRange(vparams.ToArray());
-        ConvertParameters(store, cmd.Parameters);
+     //   ConvertParameters(store, cmd.Parameters);
 
         try
         {
@@ -394,11 +403,13 @@ namespace Azos.Data.Access.Oracle
 
         cmd.Transaction = trans;
         if (!string.IsNullOrEmpty(where))
-            cmd.CommandText = string.Format("DELETE T1 FROM \"{0}\" T1 WHERE {1}",tableName, where);
+            cmd.CommandText = string.Format("DELETE FROM \"{0}\" T1 WHERE {1}",tableName, where);
         else
-            cmd.CommandText = string.Format("DELETE T1 FROM \"{0}\" T1", tableName);
+            cmd.CommandText = string.Format("DELETE FROM \"{0}\" T1", tableName);
 
         ConvertParameters(store, cmd.Parameters);
+
+//dbg(cmd);
 
         try
         {
@@ -416,50 +427,67 @@ namespace Azos.Data.Access.Oracle
       }//using command
     }
 
-    private static object getFieldValue(Doc doc, int order, OracleDataStoreBase store)
+    private static (object value, OracleDbType? dbType) getDbFieldValue(Doc doc, Schema.FieldDef fld, FieldAttribute fattr, OracleDataStoreBase store)
     {
-      var result = doc[order];
-
-      OracleDbType? convertedDbType;
-      return CLRValueToDB(store, result, out convertedDbType);
+      var result = doc.GetFieldValue(fld);
+      return CLRValueToDB(store, result, fattr.BackendType);
     }
 
-    internal static object CLRValueToDB(OracleDataStoreBase store, object value, out OracleDbType? convertedDbType)
+    internal static (object value, OracleDbType? dbType) CLRValueToDB(OracleDataStoreBase store, object value, string explicitDbType)
     {
-      convertedDbType = null;
+      OracleDbType? convertedDbType = null;
 
-      if (value==null) return null;
+      if (explicitDbType.IsNotNullOrWhiteSpace())
+        convertedDbType = explicitDbType.AsNullableEnum<OracleDbType>();
 
-      if (value is GDID)
+      if (value==null) return (null, convertedDbType);
+
+      if (value is ulong ulng)
       {
-        if (((GDID)value).IsZero)
+        value = (decimal)ulng;
+        convertedDbType = OracleDbType.Decimal;
+
+      }else if (value is DateTime clrDt && convertedDbType==OracleDbType.Date)
+      {
+        // Expected DATE got NUmber
+        // convertedDbType = OracleDbType.Int64;
+        // value = clrDt.Ticks;// new global::Oracle.ManagedDataAccess.Types.OracleDate(clrDt);
+
+        //Expected NUMBER got DATE
+       // value = new global::Oracle.ManagedDataAccess.Types.OracleTimeStamp(clrDt);
+        value = new global::Oracle.ManagedDataAccess.Types.OracleDate(clrDt);
+       // convertedDbType = OracleDbType.NVarchar2;
+       // value = clrDt.ToString("yyyyMMddHHmmss");
+      }
+      else if (value is GDID gdid)
+      {
+        if (gdid.IsZero)
         {
-          return null;
+          return (null, convertedDbType);
         }
 
         if(store.FullGDIDS)
         {
-          value = (object)((GDID)value).Bytes;//be very careful with byte ordering of GDID for index optimization
+          value = gdid.Bytes;//be very careful with byte ordering of GDID for index optimization
           convertedDbType = OracleDbType.Raw;
           #warning 20190106 DKh: This needs to be tested for performance
         }
         else
         {
-          value = (object)((GDID)value).ID;
-          convertedDbType = OracleDbType.Int64;
+          value = (decimal)gdid.ID;
+          convertedDbType = OracleDbType.Decimal;
         }
       }
-      else
-      if (value is bool)
+      else if (value is bool)
       {
         if (store.StringBool)
         {
           value = (bool)value ? store.StringForTrue : store.StringForFalse;
-          convertedDbType = OracleDbType.Varchar2;
+          convertedDbType = OracleDbType.Char;
         }
       }
 
-      return value;
+      return (value, convertedDbType);
     }
 
     internal static void ConvertParameters(OracleDataStoreBase store, OracleParameterCollection pars)
@@ -468,13 +496,19 @@ namespace Azos.Data.Access.Oracle
       for(var i=0; i<pars.Count; i++)
       {
         var par = pars[i];
-        OracleDbType? convertedDbType;
-        par.Value = CLRValueToDB(store, par.Value, out convertedDbType);
-        if (convertedDbType.HasValue)
-         par.OracleDbType = convertedDbType.Value;
+        var converted = CLRValueToDB(store, par.Value, null);
+        par.Value = converted.value;
+        if (converted.dbType.HasValue)
+         par.OracleDbType = converted.dbType.Value;
       }
     }
 
+    internal static void dbg(OracleCommand cmd)
+    {
+      Console.WriteLine(cmd.CommandText);
+      foreach (var p in cmd.Parameters.Cast<OracleParameter>())
+        Console.WriteLine("{0}: OrclDbTyp.{1} = ({2}){3}".Args(p.ParameterName, p.OracleDbType, p.Value.GetType().FullName, p.Value));
+    }
 
     #endregion
 

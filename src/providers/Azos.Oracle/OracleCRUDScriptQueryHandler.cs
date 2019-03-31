@@ -83,7 +83,6 @@ namespace Azos.Data.Access.Oracle
                     cmd.Transaction = ctx.Transaction;
 
                     OracleDataReader reader = null;
-
                     try
                     {
                         reader = oneDoc ? cmd.ExecuteReader(CommandBehavior.SingleRow) : cmd.ExecuteReader();
