@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Azos
@@ -362,8 +363,6 @@ namespace Azos
       string ch(char c) =>
           "#{0:x4} {1}".Args((int)c, Azos.Serialization.JSON.JsonWriter.Write(c, Azos.Serialization.JSON.JsonWritingOptions.CompactASCII));
 
-
-
       var result = new StringBuilder();
       result.AppendLine("A is {0} |  B is {1}".Args(a==null?CoreConsts.NULL_STRING:$"[{a.Length}]", b == null ? CoreConsts.NULL_STRING : $"[{b.Length}]"));
       if (string.Equals(a, b, StringComparison.Ordinal))
@@ -405,6 +404,21 @@ namespace Azos
         result.AppendLine("....Capped at {0} chars".Args(limit));
 
       return result.ToString();
+    }
+
+    /// <summary>
+    /// Default chars to be trimmed by TrimAll function
+    /// </summary>
+    public static readonly char[] TRIM_ALL_CHARS_DEFAULT = new []{'\r','\n',' '};
+
+    /// <summary>
+    /// Trims all characters from the string including the inner content
+    /// </summary>
+    public static string TrimAll(this string src, params char[] chars)
+    {
+      if (src==null) return null;
+      if(chars==null || chars.Length==0) chars = TRIM_ALL_CHARS_DEFAULT;
+      return new string(src.Where(c => !chars.Any(c2 => c2 == c)).ToArray());
     }
 
   }

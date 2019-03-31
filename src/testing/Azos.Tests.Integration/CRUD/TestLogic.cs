@@ -18,6 +18,21 @@ namespace Azos.Tests.Integration.CRUD
 {
     internal static class TestLogic
     {
+        public static void ExecuteCustomCommandHandler(ICRUDDataStore store)
+        {
+          var query = new Query("CustomTestCommandHandler") { new Query.Param("Msg", "we are on the moon!") };
+          var result = store.Load(query);
+
+          Aver.AreEqual(1, result.Count);
+          var rowset = result[0];
+          Aver.AreEqual(2, rowset.Count);
+
+          Aver.AreEqual("Jack", rowset[0]["First_Name"].AsString());
+          Aver.AreEqual("Mary", rowset[1]["First_Name"].AsString());
+          Aver.AreEqual("we are on the moon!", rowset[1]["Address1"].AsString());
+        }
+
+
         public static void QueryInsertQuery(ICRUDDataStore store)
         {
             var query = new Query("CRUD.Queries.Patient.List") { new Query.Param("LN", "%loff") };
