@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.309
-set HEADLINE=DataStore.Names configurable target name virtual
+set VER=1.0.401
+set HEADLINE=Canonical Data Stores
 
 call vs2017-build-release %VER%
 
