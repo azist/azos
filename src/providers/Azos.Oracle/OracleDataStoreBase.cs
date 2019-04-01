@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Conf;
@@ -158,7 +159,7 @@ namespace Azos.Data.Access.Oracle
     {
       try
       {
-        using (var cnn = GetConnection())
+        using (var cnn = GetConnection().GetAwaiter().GetResult())
         {
           var cmd = cnn.CreateCommand();
           cmd.CommandType = System.Data.CommandType.Text;
@@ -201,7 +202,7 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     /// Allocates Oracle connection
     /// </summary>
-    protected OracleConnection GetConnection()
+    protected async Task<OracleConnection> GetConnection()
     {
       var connectString = this.ConnectString;
 
@@ -211,7 +212,9 @@ namespace Azos.Data.Access.Oracle
         connectString = ctx.ConnectString;
 
       var cnn = new OracleConnection(connectString);
-      cnn.Open();
+
+      await cnn.OpenAsync();
+
       return cnn;
     }
     #endregion

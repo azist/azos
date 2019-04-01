@@ -18,9 +18,10 @@ using Oracle.ManagedDataAccess.Client;
 namespace Azos.Data.Access.Oracle
 {
   /// <summary>
-  /// Provides Oracle CRUD data store base that supports CRUD query handler resolution, execution and mapping.
+  /// Provides a base implementation for Oracle CRUD data stores that supports CRUD query handler resolution, execution and mapping.
   /// This store does not support auto-generation of Insert/Update/Delete statements as this is not practical
-  /// for general Oracle cases due to inconsistent/unpredictable use of data types in a non-uniform schema designs
+  /// for general-purposes cases due to inconsistent/unpredictable use of data types in a non-uniform schema designs.
+  /// Contrast this class with <seealso cref="OracleCanonicalDataStore"/>
   /// </summary>
   public abstract class OracleCRUDDataStoreBase : OracleDataStoreBase, ICRUDDataStoreImplementation
   {
@@ -58,17 +59,16 @@ namespace Azos.Data.Access.Oracle
     public async Task<CRUDTransaction> BeginTransactionAsync(IsolationLevel iso = IsolationLevel.ReadCommitted,
                                                              TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
     {
-      var cnn = GetConnection();
-      return new OracleCRUDTransaction(this, cnn, iso, behavior);
+      var cnn = await GetConnection();
+      return new OracleCRUDTransaction(this, cnn, iso, behavior);//transaction owns the connection
     }
-
 
     public Schema GetSchema(Query query)
      => GetSchemaAsync(query).GetAwaiter().GetResult();
 
     public async Task<Schema> GetSchemaAsync(Query query)
     {
-      using (var cnn = GetConnection())
+      using (var cnn = await GetConnection())
         return await DoGetSchemaAsync(cnn, null, query);
     }
 
@@ -77,7 +77,7 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<List<RowsetBase>> LoadAsync(params Query[] queries)
     {
-      using (var cnn = GetConnection())
+      using (var cnn = await GetConnection())
         return await DoLoadAsync(cnn, null, queries);
     }
 
@@ -101,17 +101,16 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<Cursor> OpenCursorAsync(Query query)
     {
-      using (var cnn = GetConnection())
+      using (var cnn = await GetConnection())
         return await DoOpenCursorAsync(cnn, null, query);
     }
-
 
     public int Save(params RowsetBase[] rowsets)
      => SaveAsync(rowsets).GetAwaiter().GetResult();
 
     public async Task<int> SaveAsync(params RowsetBase[] rowsets)
     {
-      using (var cnn = GetConnection())
+      using (var cnn = await GetConnection())
         return await DoSaveAsync(cnn,  null, rowsets);
     }
 
@@ -120,7 +119,7 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<int> InsertAsync(Doc row, FieldFilterFunc filter = null)
     {
-      using (var cnn = GetConnection())
+      using (var cnn = await GetConnection())
         return await DoInsertAsync(cnn,  null, row, filter);
     }
 
@@ -129,7 +128,7 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<int> UpsertAsync(Doc row, FieldFilterFunc filter = null)
     {
-      using (var cnn = GetConnection())
+      using (var cnn = await GetConnection())
         return await DoUpsertAsync(cnn,  null, row, filter);
     }
 
@@ -138,7 +137,7 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<int> UpdateAsync(Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
     {
-      using (var cnn = GetConnection())
+      using (var cnn = await GetConnection())
         return await DoUpdateAsync(cnn,  null, row, key, filter);
     }
 
@@ -147,7 +146,7 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<int> DeleteAsync(Doc row, IDataStoreKey key = null)
     {
-      using (var cnn = GetConnection())
+      using (var cnn = await GetConnection())
         return await DoDeleteAsync(cnn,  null, row, key);
     }
 
@@ -156,7 +155,7 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<int> ExecuteWithoutFetchAsync(params Query[] queries)
     {
-      using (var cnn = GetConnection())
+      using (var cnn = await GetConnection())
         return await DoExecuteWithoutFetchAsync(cnn, null, queries);
     }
 
@@ -166,8 +165,6 @@ namespace Azos.Data.Access.Oracle
     public ICRUDQueryResolver QueryResolver => m_QueryResolver;
 
     #endregion
-
-
 
     #region Protected + Overrides
 
@@ -198,7 +195,6 @@ namespace Azos.Data.Access.Oracle
                         CRUDGenerator.KeyViolationName(error));
       }
     }
-
 
     /// <summary>
     ///  Performs CRUD load. Override to do custom Query interpretation
@@ -283,74 +279,47 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     /// Performs CRUD batch save. Override to do custom batch saving
     /// </summary>
-    protected internal async virtual Task<int> DoSaveAsync(OracleConnection cnn, OracleTransaction transaction, RowsetBase[] rowsets)
-    {
-      if (rowsets==null) return 0;
-
-      var affected = 0;
-
-      foreach(var rset in rowsets)
-      {
-        foreach(var change in rset.Changes)
-        {
-          switch(change.ChangeType)
-          {
-              case DocChangeType.Insert: affected += await DoInsertAsync(cnn, transaction, change.Doc); break;
-              case DocChangeType.Update: affected += await DoUpdateAsync(cnn, transaction, change.Doc, change.Key); break;
-              case DocChangeType.Upsert: affected += await DoUpsertAsync(cnn, transaction, change.Doc); break;
-              case DocChangeType.Delete: affected += await DoDeleteAsync(cnn, transaction, change.Doc, change.Key); break;
-          }
-        }
-      }
-
-
-      return affected;
-    }
+    protected internal virtual Task<int> DoSaveAsync(OracleConnection cnn, OracleTransaction transaction, RowsetBase[] rowsets)
+     => throw new NotImplementedException(StringConsts.CRUD_CAPABILITY_NOT_IMPLEMENETD_ERROR.Args(nameof(DoSaveAsync),
+                                                                                                 GetType().FullName,
+                                                                                                 nameof(OracleCanonicalDataStore)));
 
     /// <summary>
     /// Performs CRUD row insert. Override to do custom insertion
     /// </summary>
-    protected internal async virtual Task<int> DoInsertAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, FieldFilterFunc filter = null)
-    {
-      checkReadOnly(row.Schema, "insert");
-      return await CRUDGenerator.CRUDInsert(this, cnn, transaction, row, filter);
-    }
+    protected internal virtual Task<int> DoInsertAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, FieldFilterFunc filter = null)
+     => throw new NotImplementedException(StringConsts.CRUD_CAPABILITY_NOT_IMPLEMENETD_ERROR.Args(nameof(DoInsertAsync),
+                                                                                                 GetType().FullName,
+                                                                                                 nameof(OracleCanonicalDataStore)));
 
     /// <summary>
     /// Performs CRUD row upsert. Override to do custom upsertion
     /// </summary>
-    protected internal async virtual Task<int> DoUpsertAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, FieldFilterFunc filter = null)
-    {
-      checkReadOnly(row.Schema, "upsert");
-      return await CRUDGenerator.CRUDUpsert(this, cnn, transaction, row, filter);
-    }
+    protected internal virtual Task<int> DoUpsertAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, FieldFilterFunc filter = null)
+     => throw new NotImplementedException(StringConsts.CRUD_CAPABILITY_NOT_IMPLEMENETD_ERROR.Args(nameof(DoUpsertAsync),
+                                                                                                 GetType().FullName,
+                                                                                                 nameof(OracleCanonicalDataStore)));
 
     /// <summary>
     /// Performs CRUD row update. Override to do custom update
     /// </summary>
-    protected internal async virtual Task<int> DoUpdateAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
-    {
-      checkReadOnly(row.Schema, "update");
-      return await CRUDGenerator.CRUDUpdate(this, cnn, transaction, row, key, filter);
-    }
+    protected internal virtual Task<int> DoUpdateAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
+     => throw new NotImplementedException(StringConsts.CRUD_CAPABILITY_NOT_IMPLEMENETD_ERROR.Args(nameof(DoUpdateAsync),
+                                                                                                 GetType().FullName,
+                                                                                                 nameof(OracleCanonicalDataStore)));
 
     /// <summary>
     /// Performs CRUD row deletion. Override to do custom deletion
     /// </summary>
-    protected internal async virtual Task<int> DoDeleteAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, IDataStoreKey key = null)
+    protected internal virtual Task<int> DoDeleteAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, IDataStoreKey key = null)
+     => throw new NotImplementedException(StringConsts.CRUD_CAPABILITY_NOT_IMPLEMENETD_ERROR.Args(nameof(DoDeleteAsync),
+                                                                                                 GetType().FullName,
+                                                                                                 nameof(OracleCanonicalDataStore)));
+
+    protected void CheckReadOnly(Schema schema, string operation)
     {
-      checkReadOnly(row.Schema, "delete");
-      return await CRUDGenerator.CRUDDelete(this, cnn, transaction, row, key);
-    }
-
-
-    #endregion
-
-    #region .pvt
-    private void checkReadOnly(Schema schema, string operation)
-    {
-        if (schema.ReadOnly)
-            throw new OracleDataAccessException(StringConsts.CRUD_READONLY_SCHEMA_ERROR.Args(schema.Name, operation));
+      if (schema.ReadOnly)
+        throw new OracleDataAccessException(StringConsts.CRUD_READONLY_SCHEMA_ERROR.Args(schema.Name, operation));
     }
     #endregion
   }

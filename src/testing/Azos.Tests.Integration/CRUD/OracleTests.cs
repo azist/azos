@@ -67,7 +67,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_ExecuteCustomCommandHandler()
     {
-      using (var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+      using (var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
       {
         store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
         store.QueryResolver.HandlerLocations.Add("Azos.Tests.Integration.CRUD.Queries, Azos.Tests.Integration");
@@ -82,7 +82,7 @@ namespace Azos.Tests.Integration.CRUD
       var cfg = @"
        store
        {
-          type='Azos.Data.Access.Oracle.OracleDataStore, Azos.Oracle'
+          type='Azos.Data.Access.Oracle.OracleCanonicalDataStore, Azos.Oracle'
           script-assembly='$(~SCRIPT_ASM)'
           connect-string='$(~CS)'
           handler-location{ ns='Azos.Tests.Integration.CRUD.Queries, Azos.Tests.Integration'}
@@ -91,7 +91,7 @@ namespace Azos.Tests.Integration.CRUD
 
       cfg.Configuration.EnvironmentVarResolver = new Azos.Conf.Vars(new Azos.Conf.VarsDictionary{ { "SCRIPT_ASM", SCRIPT_ASM }, {"CS", getConnectString()} });
 
-      using (var store = Conf.FactoryUtils.MakeAndConfigureComponent<OracleDataStore>(NOPApplication.Instance, cfg))
+      using (var store = Conf.FactoryUtils.MakeAndConfigureComponent<OracleCanonicalDataStore>(NOPApplication.Instance, cfg))
       {
         clearAllTables();
         TestLogic.ExecuteCustomCommandHandler(store);
@@ -102,7 +102,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_QueryInsertQuery()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -113,7 +113,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_ASYNC_QueryInsertQuery()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -124,7 +124,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_QueryInsertQuery_TypedRow()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -135,7 +135,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_QueryInsertQuery_TypedRowDerived()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -147,7 +147,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_QueryInsertQuery_DynamicRow()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -159,7 +159,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_InsertManyUsingLogChanges_TypedRow()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -170,7 +170,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_ASYNC_InsertManyUsingLogChanges_TypedRow()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -182,7 +182,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_InsertInTransaction_Commit_TypedRow()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -193,7 +193,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_ASYNC_InsertInTransaction_Commit_TypedRow()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -204,7 +204,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_InsertInTransaction_Rollback_TypedRow()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -215,7 +215,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_InsertThenUpdate_TypedRow()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -226,7 +226,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_ASYNC_InsertThenUpdate_TypedRow()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -238,7 +238,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_InsertThenDelete_TypedRow()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -249,7 +249,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_ASYNC_InsertThenDelete_TypedRow()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -260,7 +260,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_InsertThenUpsert_TypedRow()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -271,7 +271,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_ASYNC_InsertThenUpsert_TypedRow()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -282,7 +282,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_GetSchemaAndTestVariousTypes()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.StringBool = false;
             store.FullGDIDS = false;
@@ -295,7 +295,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_ASYNC_GetSchemaAndTestVariousTypes()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.StringBool = false;
             store.FullGDIDS = false;
@@ -309,7 +309,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_TypedRowTestVariousTypes()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.StringBool = false;
             store.FullGDIDS = false;
@@ -322,7 +322,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_TypedRowTestVariousTypes_StrBool()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.StringBool = true; //<-------- NOTICE
             store.StringForTrue = "1";
@@ -340,7 +340,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_TypedRowTest_FullGDID()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.StringBool = false;
             store.FullGDIDS = true;
@@ -354,7 +354,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_GetSchemaAndTestFullGDID()
     {
-        using(var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using(var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.StringBool = false;
             store.FullGDIDS = true;
@@ -367,7 +367,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_InsertWithPredicate()
     {
-        using (var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using (var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -379,7 +379,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_UpdateWithPredicate()
     {
-        using (var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using (var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -391,7 +391,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_UpsertWithPredicate()
     {
-        using (var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using (var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -404,7 +404,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_Populate_OpenCursor()
     {
-        using (var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using (var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();
@@ -416,7 +416,7 @@ namespace Azos.Tests.Integration.CRUD
     [Run]
     public void ManualDS_ASYNC_Populate_OpenCursor()
     {
-        using (var store = new OracleDataStore(NOPApplication.Instance, getConnectString()))
+        using (var store = new OracleCanonicalDataStore(NOPApplication.Instance, getConnectString()))
         {
             store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
             clearAllTables();

@@ -8,20 +8,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+
 using Azos.Serialization.JSON;
 using Oracle.ManagedDataAccess.Client;
 
 namespace Azos.Data.Access.Oracle
 {
-
   internal static class CRUDGenerator
   {
 
-      public static int CRUDInsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
+      public static async Task<int> CRUDInsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
       {
         try
         {
-            return crudInsert(store, cnn, trans, doc, filter);
+            return await crudInsert(store, cnn, trans, doc, filter);
         }
         catch(Exception error)
         {
@@ -33,11 +34,11 @@ namespace Azos.Data.Access.Oracle
         }
       }
 
-      public static int CRUDUpdate(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
+      public static async Task<int> CRUDUpdate(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
       {
         try
         {
-            return crudUpdate(store, cnn, trans, doc, key, filter);
+            return await crudUpdate(store, cnn, trans, doc, key, filter);
         }
         catch(Exception error)
         {
@@ -51,11 +52,11 @@ namespace Azos.Data.Access.Oracle
         }
       }
 
-      public static int CRUDUpsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
+      public static async Task<int> CRUDUpsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
       {
         try
         {
-            return crudUpsert(store, cnn, trans, doc, filter);
+            return await crudUpsert(store, cnn, trans, doc, filter);
         }
         catch(Exception error)
         {
@@ -67,11 +68,11 @@ namespace Azos.Data.Access.Oracle
         }
       }
 
-      public static int CRUDDelete(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key)
+      public static async Task<int> CRUDDelete(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key)
       {
         try
         {
-            return crudDelete(store, cnn, trans, doc, key);
+            return await crudDelete(store, cnn, trans, doc, key);
         }
         catch(Exception error)
         {
@@ -110,7 +111,7 @@ namespace Azos.Data.Access.Oracle
     }
 
 
-    private static int crudInsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
+    private static async Task<int> crudInsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var cnames = new StringBuilder();
@@ -179,7 +180,7 @@ namespace Azos.Data.Access.Oracle
       //  ConvertParameters(store, cmd.Parameters);
         try
         {
-            var affected = cmd.ExecuteNonQuery();
+            var affected = await cmd.ExecuteNonQueryAsync();
             GeneratorUtils.LogCommand(store, "insert-ok", cmd, null);
             return affected;
         }
@@ -194,7 +195,7 @@ namespace Azos.Data.Access.Oracle
 
 
 
-    private static int crudUpdate(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
+    private static async Task<int> crudUpdate(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var values = new StringBuilder();
@@ -276,11 +277,11 @@ namespace Azos.Data.Access.Oracle
         //  ConvertParameters(store, cmd.Parameters);
         //https://asktom.oracle.com/pls/asktom/f?p=100:11:0::::P11_QUESTION_ID:9539482000346124162
 
-dbg(cmd);
+//dbg(cmd);
 
         try
         {
-            var affected = cmd.ExecuteNonQuery();
+            var affected = await cmd.ExecuteNonQueryAsync();
             GeneratorUtils.LogCommand(store, "update-ok", cmd, null);
             return affected;
         }
@@ -293,7 +294,7 @@ dbg(cmd);
     }
 
 
-    private static int crudUpsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
+    private static async Task<int> crudUpsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var cnames = new StringBuilder();
@@ -371,7 +372,7 @@ dbg(cmd);
 
         try
         {
-            var affected = cmd.ExecuteNonQuery();
+            var affected = await cmd.ExecuteNonQueryAsync();
             GeneratorUtils.LogCommand(store, "upsert-ok", cmd, null);
             return affected;
         }
@@ -387,7 +388,7 @@ dbg(cmd);
 
 
 
-    private static int crudDelete(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key)
+    private static async Task<int> crudDelete(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key)
     {
       var target = store.TargetName;
       string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );
@@ -413,7 +414,7 @@ dbg(cmd);
 
         try
         {
-            var affected = cmd.ExecuteNonQuery();
+            var affected = await cmd.ExecuteNonQueryAsync();
             GeneratorUtils.LogCommand(store, "delete-ok", cmd, null);
             return affected;
         }
@@ -470,7 +471,7 @@ dbg(cmd);
         {
           value = gdid.Bytes;//be very careful with byte ordering of GDID for index optimization
           convertedDbType = OracleDbType.Raw;
-          #warning 20190106 DKh: This needs to be tested for performance
+          //todo 20190106 DKh: This needs to be tested for performance
         }
         else
         {
