@@ -17,10 +17,10 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     /// Executes Oracle CRUD script-based queries
     /// </summary>
-    public sealed class OracleCRUDScriptQueryHandler : CRUDQueryHandler<OracleDataStore>
+    public sealed class OracleCRUDScriptQueryHandler : CRUDQueryHandler<OracleCRUDDataStoreBase>
     {
         #region .ctor
-            public OracleCRUDScriptQueryHandler(OracleDataStore store, QuerySource source) : base(store, source) { }
+            public OracleCRUDScriptQueryHandler(OracleCRUDDataStoreBase store, QuerySource source) : base(store, source) { }
         #endregion
 
         #region ICRUDQueryHandler
@@ -83,7 +83,6 @@ namespace Azos.Data.Access.Oracle
                     cmd.Transaction = ctx.Transaction;
 
                     OracleDataReader reader = null;
-
                     try
                     {
                         reader = oneDoc ? cmd.ExecuteReader(CommandBehavior.SingleRow) : cmd.ExecuteReader();
@@ -265,8 +264,6 @@ namespace Azos.Data.Access.Oracle
 
               return row;
             }
-
-
 
 
             /// <summary>

@@ -35,8 +35,8 @@ namespace Azos.Scripting
 
     public int TotalRunnables => m_TotalRunnables;
     public int TotalMethods   => m_TotalMethods;
-    public int TotalOKs        => m_TotalOKs;
-    public int TotalErrors     => m_TotalErrors;
+    public int TotalOKs       => m_TotalOKs;
+    public int TotalErrors    => m_TotalErrors;
 
     public override string ComponentLogTopic => CoreConsts.RUN_TOPIC;
 
@@ -44,10 +44,6 @@ namespace Azos.Scripting
 
     public TextWriter ConsoleOut   => Console.Out;
     public TextWriter ConsoleError => Console.Error;
-
-
-    private ConfigSectionNode m_RunnableNode;
-
 
     private Stopwatch m_RunnableStopwatch;
 

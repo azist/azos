@@ -438,7 +438,6 @@ namespace Azos.Tests.Integration.CRUD
                                });
             }
 
-
             var result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
 
             Aver.AreEqual(1, result.Count);
@@ -601,7 +600,7 @@ namespace Azos.Tests.Integration.CRUD
             row["STRING_NAME"] = "Some user 1";
             row["CHAR_NAME"] = "Some user 2";
             row["BOOL_CHAR"] = 'T';
-            row["BOOL_BOOL"] = true;
+            row["BOOL_BOOL"] = 'T';
 
             row["AMOUNT"] = 145670.23m;
 
@@ -613,14 +612,14 @@ namespace Azos.Tests.Integration.CRUD
 
             Aver.IsNotNull(row2);
             Aver.AreObjectsEqual(145, row2["GDID"].AsInt());
-            Aver.AreObjectsEqual("User1", row2["Screen_Name"]);
-            Aver.AreObjectsEqual("Some user 1", row2["String_Name"]);
-            Aver.AreObjectsEqual("Some user 2", row2["Char_Name"]);
+            Aver.AreObjectsEqual("User1", row2["Screen_Name"].AsString().Trim());
+            Aver.AreObjectsEqual("Some user 1", row2["String_Name"].AsString().Trim());
+            Aver.AreObjectsEqual("Some user 2", row2["Char_Name"].AsString().Trim());
 
             Aver.AreEqual(true, row2["BOOL_Char"].AsBool());
             Aver.AreEqual(true, row2["BOOL_BOOL"].AsBool());
 
-            Aver.AreObjectsEqual(145670.23m, row2["Amount"]);
+            Aver.AreObjectsEqual(145670.23m, row2["Amount"].AsDecimal());
 
             Aver.AreEqual(1980, row2["DOB"].AsDateTime().Year);
 
@@ -638,7 +637,7 @@ namespace Azos.Tests.Integration.CRUD
             row["STRING_NAME"] = "Some user 1";
             row["CHAR_NAME"] = "Some user 2";
             row["BOOL_CHAR"] = 'T';
-            row["BOOL_BOOL"] = true;
+            row["BOOL_BOOL"] = 'T';
 
             row["AMOUNT"] = 145670.23m;
 
@@ -650,14 +649,14 @@ namespace Azos.Tests.Integration.CRUD
 
             Aver.IsNotNull(row2);
             Aver.AreObjectsEqual(145, row2["GDID"].AsInt());
-            Aver.AreObjectsEqual("User1", row2["Screen_Name"]);
-            Aver.AreObjectsEqual("Some user 1", row2["String_Name"]);
-            Aver.AreObjectsEqual("Some user 2", row2["Char_Name"]);
+            Aver.AreObjectsEqual("User1", row2["Screen_Name"].AsString().Trim());
+            Aver.AreObjectsEqual("Some user 1", row2["String_Name"].AsString().Trim());
+            Aver.AreObjectsEqual("Some user 2", row2["Char_Name"].AsString().Trim());
 
             Aver.AreEqual(true, row2["BOOL_Char"].AsBool());
             Aver.AreEqual(true, row2["BOOL_BOOL"].AsBool());
 
-            Aver.AreObjectsEqual(145670.23m, row2["Amount"]);
+            Aver.AreObjectsEqual(145670.23m, row2["Amount"].AsDecimal());
 
             Aver.AreEqual(1980, row2["DOB"].AsDateTime().Year);
 

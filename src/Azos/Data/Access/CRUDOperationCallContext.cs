@@ -9,7 +9,6 @@ using System.Threading;
 
 namespace Azos.Data.Access
 {
-
   /// <summary>
   /// Establishes an async-safe context which surrounds CRUD operations. You can derive your own classes,
   /// the .ctor must be chained. The context flows between async operations and can be nested. Logical flow
@@ -19,53 +18,53 @@ namespace Azos.Data.Access
   /// </summary>
   public class CRUDOperationCallContext : DisposableObject
   {
-      private static AsyncLocal<Stack<CRUDOperationCallContext>> ats_Instances = new AsyncLocal<Stack<CRUDOperationCallContext>>();
+    private static AsyncLocal<Stack<CRUDOperationCallContext>> ats_Instances = new AsyncLocal<Stack<CRUDOperationCallContext>>();
 
-      /// <summary>
-      /// Returns the current set CRUDOperationCallContext or null
-      /// </summary>
-      public static CRUDOperationCallContext Current
+    /// <summary>
+    /// Returns the current set CRUDOperationCallContext or null
+    /// </summary>
+    public static CRUDOperationCallContext Current
+    {
+      get
       {
-        get
+        return ats_Instances.Value!=null && ats_Instances.Value.Count>0 ? ats_Instances.Value.Peek() : null;
+      }
+    }
+
+    public CRUDOperationCallContext()
+    {
+      if (ats_Instances.Value==null)
+          ats_Instances.Value = new Stack<CRUDOperationCallContext>();
+
+      ats_Instances.Value.Push(this);
+    }
+
+    protected override void Destructor()
+    {
+      if (ats_Instances.Value.Count>0)
+      {
+        if (ats_Instances.Value.Pop()==this)
         {
-          return ats_Instances.Value!=null && ats_Instances.Value.Count>0 ? ats_Instances.Value.Peek() : null;
+          if (ats_Instances.Value.Count == 0)
+            ats_Instances.Value = null;
+
+          return;
         }
       }
 
-      public CRUDOperationCallContext()
-      {
-        if (ats_Instances.Value==null)
-           ats_Instances.Value = new Stack<CRUDOperationCallContext>();
-
-        ats_Instances.Value.Push(this);
-      }
-
-      protected override void Destructor()
-      {
-        if (ats_Instances.Value.Count>0)
-        {
-          if (ats_Instances.Value.Pop()==this)
-          {
-            if (ats_Instances.Value.Count == 0)
-              ats_Instances.Value = null;
-
-            return;
-          }
-        }
-
-        throw new DataAccessException(StringConsts.CRUD_OPERATION_CALL_CONTEXT_SCOPE_MISMATCH_ERROR);
-      }
+      throw new DataAccessException(StringConsts.CRUD_OPERATION_CALL_CONTEXT_SCOPE_MISMATCH_ERROR);
+    }
 
 
-      /// <summary>
-      /// Used to override store's default database connection string
-      /// </summary>
-      public string ConnectString{ get; set;}
+    /// <summary>
+    /// Used to override store's default database connection string
+    /// </summary>
+    public string ConnectString{ get; set;}
 
-      /// <summary>
-      /// Used to override store's default database name - used by some stores, others take db name form connect string
-      /// </summary>
-      public string DatabaseName{ get; set;}
+    /// <summary>
+    /// Used to override store's default database name - used by some stores, others take db name from the connect string
+    /// </summary>
+    public string DatabaseName{ get; set;}
   }
 
 }

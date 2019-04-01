@@ -19,6 +19,7 @@ namespace Azos.Tests.Integration.CRUD
         public string SSN {get; set;}
 
         [Field(required: true)]
+        [Field("ORACLE", required: true, backendType: "date")]
         public DateTime DOB {get; set;}
 
         [Field]

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Conf;
@@ -23,31 +24,18 @@ namespace Azos.Data.Access.Oracle
   public abstract class OracleDataStoreBase : ApplicationComponent, IDataStoreImplementation
   {
     #region CONSTS
-
-      public const string STR_FOR_TRUE = "T";
-      public const string STR_FOR_FALSE = "F";
-
-
+    public const string STR_FOR_TRUE = "T";
+    public const string STR_FOR_FALSE = "F";
     #endregion
-
 
     #region .ctor/.dctor
-
-      protected OracleDataStoreBase(IApplication app) : base(app)
-      {
-      }
-
-      protected OracleDataStoreBase(IApplicationComponent director) : base(director)
-      {
-      }
-
+    protected OracleDataStoreBase(IApplication app) : base(app){ }
+    protected OracleDataStoreBase(IApplicationComponent director) : base(director){ }
     #endregion
-
 
     #region Private Fields
 
     private string m_ConnectString;
-
     private string m_TargetName;
     private string m_Name;
 
@@ -66,78 +54,76 @@ namespace Azos.Data.Access.Oracle
     #endregion
 
     #region IInstrumentation
+    [Config(Default=false)]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+    public bool InstrumentationEnabled{ get{return m_InstrumentationEnabled;} set{m_InstrumentationEnabled = value;}}
 
-      [Config(Default=false)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-      public bool InstrumentationEnabled{ get{return m_InstrumentationEnabled;} set{m_InstrumentationEnabled = value;}}
+    /// <summary>
+    /// Returns named parameters that can be used to control this component
+    /// </summary>
+    public IEnumerable<KeyValuePair<string, Type>> ExternalParameters{ get { return ExternalParameterAttribute.GetParameters(this); } }
 
-      /// <summary>
-      /// Returns named parameters that can be used to control this component
-      /// </summary>
-      public IEnumerable<KeyValuePair<string, Type>> ExternalParameters{ get { return ExternalParameterAttribute.GetParameters(this); } }
+    /// <summary>
+    /// Returns named parameters that can be used to control this component
+    /// </summary>
+    public IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups)
+    {
+      return ExternalParameterAttribute.GetParameters(this, groups);
+    }
 
-      /// <summary>
-      /// Returns named parameters that can be used to control this component
-      /// </summary>
-      public IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups)
-      {
-        return ExternalParameterAttribute.GetParameters(this, groups);
-      }
+    /// <summary>
+    /// Gets external parameter value returning true if parameter was found
+    /// </summary>
+    public bool ExternalGetParameter(string name, out object value, params string[] groups)
+    {
+        return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
+    }
 
-      /// <summary>
-      /// Gets external parameter value returning true if parameter was found
-      /// </summary>
-      public bool ExternalGetParameter(string name, out object value, params string[] groups)
-      {
-          return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
-      }
-
-      /// <summary>
-      /// Sets external parameter value returning true if parameter was found and set
-      /// </summary>
-      public bool ExternalSetParameter(string name, object value, params string[] groups)
-      {
-        return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
-      }
-
+    /// <summary>
+    /// Sets external parameter value returning true if parameter was found and set
+    /// </summary>
+    public bool ExternalSetParameter(string name, object value, params string[] groups)
+    {
+      return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
+    }
     #endregion
 
     #region Properties
 
-      [Config]
-      public string Name
+    [Config]
+    public string Name
+    {
+      get => m_Name.IsNotNullOrWhiteSpace() ? m_Name : GetType().FullName;
+      set => m_Name = value;
+    }
+
+    public override string ComponentLogTopic => OracleConsts.ORACLE_TOPIC;
+
+    /// <summary>
+    /// Get/Sets Oracle database connection string
+    /// </summary>
+    [Config]
+    public string ConnectString
+    {
+      get
       {
-        get => m_Name.IsNotNullOrWhiteSpace() ? m_Name : GetType().FullName;
-        set => m_Name = value;
+        return m_ConnectString ?? string.Empty;
       }
-
-      public override string ComponentLogTopic => OracleConsts.ORACLE_TOPIC;
-
-      /// <summary>
-      /// Get/Sets Oracle database connection string
-      /// </summary>
-      [Config]
-      public string ConnectString
+      set
       {
-        get
-        {
-           return m_ConnectString ?? string.Empty;
-        }
-        set
-        {
-           m_ConnectString = value;
-        }
+        m_ConnectString = value;
       }
+    }
 
-      [Config]
-      public StoreLogLevel LogLevel { get; set;}
+    [Config]
+    public StoreLogLevel LogLevel { get; set;}
 
-      [Config]
-      public virtual string TargetName
-      {
-        get{ return m_TargetName.IsNullOrWhiteSpace() ? "ORACLE" : m_TargetName;}
-        set{ m_TargetName = value;}
-      }
+    [Config]
+    public virtual string TargetName
+    {
+      get{ return m_TargetName.IsNullOrWhiteSpace() ? "ORACLE" : m_TargetName;}
+      set{ m_TargetName = value;}
+    }
 
 
     /// <summary>
@@ -169,70 +155,69 @@ namespace Azos.Data.Access.Oracle
     #endregion
 
     #region Public
-      public void TestConnection()
+    public void TestConnection()
+    {
+      try
       {
-        try
+        using (var cnn = GetConnection().GetAwaiter().GetResult())
         {
-          using (var cnn = GetConnection())
-          {
-            var cmd = cnn.CreateCommand();
-            cmd.CommandType = System.Data.CommandType.Text;
-            cmd.CommandText = "SELECT 1+1 from DUAL";
-            if (cmd.ExecuteScalar().ToString() != "2")
-              throw new OracleDataAccessException(StringConsts.SQL_STATEMENT_FAILED_ERROR);
-          }
-        }
-        catch (Exception error)
-        {
-          throw new OracleDataAccessException(string.Format(StringConsts.CONNECTION_TEST_FAILED_ERROR, error.Message), error);
+          var cmd = cnn.CreateCommand();
+          cmd.CommandType = System.Data.CommandType.Text;
+          cmd.CommandText = "SELECT 1+1 from DUAL";
+          if (cmd.ExecuteScalar().ToString() != "2")
+            throw new OracleDataAccessException(StringConsts.SQL_STATEMENT_FAILED_ERROR);
         }
       }
+      catch (Exception error)
+      {
+        throw new OracleDataAccessException(string.Format(StringConsts.CONNECTION_TEST_FAILED_ERROR, error.Message), error);
+      }
+    }
 
     #endregion
 
-
-
     #region IConfigurable Members
 
-      public virtual void Configure(IConfigSectionNode node)
-      {
-       ConfigAttribute.Apply(this, node);
-      }
+    public virtual void Configure(IConfigSectionNode node)
+    {
+      ConfigAttribute.Apply(this, node);
+    }
 
     #endregion
 
     #region Protected
-
-      internal string AdjustObjectNameCasing(string name)
+    /// <summary>
+    /// Converts the case of identifier based on CaseSensitivity property
+    /// </summary>
+    internal string AdjustObjectNameCasing(string name)
+    {
+      switch(CaseSensitivity)
       {
-        switch(CaseSensitivity)
-        {
-          case NameCaseSensitivity.ToLower: return name.ToLowerInvariant();
-          case NameCaseSensitivity.ToUpper: return name.ToUpperInvariant();
-          default: return name;
-        }
+        case NameCaseSensitivity.ToLower: return name.ToLowerInvariant();
+        case NameCaseSensitivity.ToUpper: return name.ToUpperInvariant();
+        default: return name;
       }
+    }
 
+    /// <summary>
+    /// Allocates Oracle connection
+    /// </summary>
+    protected async Task<OracleConnection> GetConnection()
+    {
+      var connectString = this.ConnectString;
 
-      /// <summary>
-      /// Allocates MySQL connection
-      /// </summary>
-      protected OracleConnection GetConnection()
-      {
-        var connectString = this.ConnectString;
+      //Try to override from the context
+      var ctx = CRUDOperationCallContext.Current;
+      if (ctx!=null && ctx.ConnectString.IsNotNullOrWhiteSpace())
+        connectString = ctx.ConnectString;
 
-        //Try to override from the context
-        var ctx = CRUDOperationCallContext.Current;
-        if (ctx!=null && ctx.ConnectString.IsNotNullOrWhiteSpace())
-          connectString = ctx.ConnectString;
+      var cnn = new OracleConnection(connectString);
 
-        var cnn = new OracleConnection(connectString);
-        cnn.Open();
-        return cnn;
-      }
+      await cnn.OpenAsync();
 
+      return cnn;
+    }
     #endregion
-
 
   }
 }

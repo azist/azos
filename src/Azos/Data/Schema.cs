@@ -241,7 +241,7 @@ namespace Azos.Data
                 }
 
 
-                       private volatile Dictionary<string, FieldAttribute> m_TargetAttrsCache = new Dictionary<string, FieldAttribute>(StringComparer.InvariantCultureIgnoreCase);
+                private volatile Dictionary<string, FieldAttribute> m_TargetAttrsCache = new Dictionary<string, FieldAttribute>(StringComparer.InvariantCultureIgnoreCase);
 
                 /// <summary>
                 /// Returns a FieldAttribute that matches the supplied targetName, or if one was not defined then
