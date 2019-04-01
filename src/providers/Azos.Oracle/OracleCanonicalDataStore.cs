@@ -17,34 +17,31 @@ using Oracle.ManagedDataAccess.Client;
 namespace Azos.Data.Access.Oracle
 {
   /// <summary>
-  /// Implements Oracle general data store that auto-generates SQLs for record models and supports CRUD operations.
+  /// Implements Oracle CRUD data store that works with canonical data model (using GDIDs and other intrinsics),
+  /// auto-generates SQLs for record models and supports CRUD operations.
   /// This class IS thread-safe load/save/delete operations
   /// </summary>
-  public class OracleDataStore : OracleDataStoreBase, ICRUDDataStoreImplementation
+  public class OracleCanonicalDataStore : OracleCRUDDataStoreBase, ICRUDDataStoreImplementation
   {
     #region CONSTS
-        public const string SCRIPT_FILE_SUFFIX = ".ora.sql";
+    public const string SCRIPT_FILE_SUFFIX = ".ora.sql";
     #endregion
 
     #region .ctor/.dctor
+    public OracleCanonicalDataStore(IApplication app) : base(app) => ctor();
+    public OracleCanonicalDataStore(IApplication app, string cs) : base(app) => ctor(cs);
+    public OracleCanonicalDataStore(IApplicationComponent director) : base(director) => ctor();
+    public OracleCanonicalDataStore(IApplicationComponent director, string cs) : base(director) => ctor(cs);
 
-      public OracleDataStore(IApplication app) : base(app) => ctor();
-      public OracleDataStore(IApplication app, string cs) : base(app) => ctor(cs);
-      public OracleDataStore(IApplicationComponent director) : base(director) => ctor();
-      public OracleDataStore(IApplicationComponent director, string cs) : base(director) => ctor(cs);
-
-      private void ctor(string cs = null)
-      {
-        m_QueryResolver = new QueryResolver(this);
-        ConnectString = cs;
-      }
-
+    private void ctor(string cs = null)
+    {
+      m_QueryResolver = new QueryResolver(this);
+      ConnectString = cs;
+    }
     #endregion
 
     #region Fields
-
-        private QueryResolver m_QueryResolver;
-
+    private QueryResolver m_QueryResolver;
     #endregion
 
     #region ICRUDDataStore
