@@ -155,7 +155,7 @@ namespace Azos.Apps
         public virtual bool RegisterConfigSettings(IConfigSettings settings)
         {
             lock (m_ConfigSettings)
-                if (!m_ConfigSettings.Contains(settings, Collections.ReferenceEqualityComparer<IConfigSettings>.Instance))
+                if (!m_ConfigSettings.Contains(settings, Collections.ReferenceEqualityComparer<IConfigSettings>.Default))
                 {
                     m_ConfigSettings.Add(settings);
                     return true;

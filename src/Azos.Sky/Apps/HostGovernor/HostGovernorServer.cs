@@ -15,8 +15,9 @@ namespace Azos.Sky.Apps.HostGovernor
     : Sky.Contracts.IHostGovernor,
       Sky.Contracts.IPinger
   {
-
+#pragma warning disable 649
     [Inject] IApplication m_App;
+#pragma warning restore 649
 
     public HostGovernorService Service => m_App.NonNull(nameof(m_App))
                                                .Singletons

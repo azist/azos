@@ -541,7 +541,7 @@ namespace Azos.Glue
               {
                var lst = new List<Transport>(m_Transports);
 
-               if (!lst.Contains(transport, ReferenceEqualityComparer<Transport>.Instance))
+               if (!lst.Contains(transport, ReferenceEqualityComparer<Transport>.Default))
                   lst.Add(transport);
 
                m_Transports = lst; //atomic

@@ -218,7 +218,7 @@ namespace Azos.Sky.Metabase
 
     #region Properties
 
-        public new ISkyApplication SkyApp => m_SkyApplication;
+        public ISkyApplication SkyApp => m_SkyApplication;
 
         public override string ComponentLogTopic => SysConsts.LOG_TOPIC_METABASE;
 
@@ -787,7 +787,7 @@ namespace Azos.Sky.Metabase
       }
 
 
-            private Dictionary<Thread, _fss> m_FSSessionCache = new Dictionary<Thread, _fss>(ReferenceEqualityComparer<Thread>.Instance);
+            private Dictionary<Thread, _fss> m_FSSessionCache = new Dictionary<Thread, _fss>(ReferenceEqualityComparer<Thread>.Default);
             private Thread m_FSSessionCacheThread;
             private AutoResetEvent m_FSSessionCacheThreadWaiter;
 

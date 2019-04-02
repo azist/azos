@@ -14,8 +14,9 @@ namespace Azos.Sky.Workers.Server
   /// </summary>
   public class ProcessControllerServer : Contracts.IProcessController
   {
-
+#pragma warning disable 649
     [Inject] IApplication m_App;
+#pragma warning restore 649
 
     public ProcessControllerService Service => m_App.NonNull(nameof(m_App))
                                               .Singletons
