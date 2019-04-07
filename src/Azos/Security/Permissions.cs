@@ -237,7 +237,7 @@ namespace Azos.Security
 
               var access = manager.Authorize(user, this);
 
-              if (access==null) return false;
+              if (!access.IsAssigned) return false;
 
               return DoCheckAccessLevel(session, access);
             }
