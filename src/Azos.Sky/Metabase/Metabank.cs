@@ -77,7 +77,8 @@ namespace Azos.Sky.Metabase
     /// <summary>
     /// Opens metabase from the specified file system instance at the specified metabase root path
     /// </summary>
-    /// <param name="application">ISkyApplication chassis which this metabank installs in</param>
+    /// <param name="bootApplication">IApplication chassis which this metabank boots from</param>
+    /// <param name="skyApplication">ISkyApplication chassis which this metabank installs in</param>
     /// <param name="fileSystem">
     /// An instance of a file system that stores the metabase files
     /// Note: This file system is typically a component of Boot application, not the sky app which is being mounted.

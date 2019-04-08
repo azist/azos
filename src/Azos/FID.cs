@@ -146,7 +146,7 @@ namespace Azos
       return new Guid( b );
     }
 
-    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
      => wri.Write(this.ID);
 
     (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
@@ -160,5 +160,8 @@ namespace Azos
         return (false, null);
       }
     }
+
+    public static bool operator ==(FID lhs, FID rhs) => lhs.Equals(rhs);
+    public static bool operator !=(FID lhs, FID rhs) => !lhs.Equals(rhs);
   }
 }

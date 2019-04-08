@@ -817,7 +817,7 @@ namespace Azos.Data
     /// Writes row as JSON either as an array or map depending on JSONWritingOptions.RowsAsMap setting.
     /// Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
     /// </summary>
-    public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+    public virtual void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
         if (options==null || !options.RowsAsMap)
         {
@@ -826,30 +826,34 @@ namespace Azos.Data
         }
 
         var map = new Dictionary<string, object>();
+
         foreach(var fd in Schema)
         {
           string name;
 
-          var val = FilterJSONSerializerField(fd, options, out name);
+          var val = FilterJsonSerializerField(fd, options, out name);
           if (name.IsNullOrWhiteSpace()) continue;
 
-          map[name] = val;
+          AddJsonSerializerField(fd, options, map, name, val);
         }
 
-        if (this is IAmorphousData)
+        if (this is IAmorphousData amorph)
         {
-          var amorph = (IAmorphousData)this;
           if (amorph.AmorphousDataEnabled)
+          {
             foreach(var kv in amorph.AmorphousData)
             {
               var key = kv.Key;
               while(map.ContainsKey(key)) key+="_";
-              map.Add(key, kv.Value);
+              AddJsonSerializerField(null, options, map, key, kv.Value);
             }
+          }
         }
 
         JsonWriter.WriteMap(wri, map, nestingLevel, options);
     }
+
+
 
     public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
     {
@@ -867,42 +871,42 @@ namespace Azos.Data
 
     protected Exception CheckMinMax(FieldAttribute atr, string fName, IComparable val)
     {
-        if (atr.Min != null)
-        {
-            var bound = atr.Min as IComparable;
-            if (bound != null)
-            {
-                var tval = val.GetType();
+      if (atr.Min != null)
+      {
+          var bound = atr.Min as IComparable;
+          if (bound != null)
+          {
+              var tval = val.GetType();
 
-                bound = Convert.ChangeType(bound, tval) as IComparable;
+              bound = Convert.ChangeType(bound, tval) as IComparable;
 
-                if (val.CompareTo(bound)<0)
-                    return new FieldValidationException(Schema.Name, fName, StringConsts.CRUD_FIELD_VALUE_MIN_BOUND_ERROR);
-            }
-        }
+              if (val.CompareTo(bound)<0)
+                  return new FieldValidationException(Schema.Name, fName, StringConsts.CRUD_FIELD_VALUE_MIN_BOUND_ERROR);
+          }
+      }
 
-        if (atr.Max != null)
-        {
-            var bound = atr.Max as IComparable;
-            if (bound != null)
-            {
-                var tval = val.GetType();
+      if (atr.Max != null)
+      {
+          var bound = atr.Max as IComparable;
+          if (bound != null)
+          {
+              var tval = val.GetType();
 
-                bound = Convert.ChangeType(bound, tval) as IComparable;
+              bound = Convert.ChangeType(bound, tval) as IComparable;
 
-                if (val.CompareTo(bound)>0)
-                    return new FieldValidationException(Schema.Name, fName, StringConsts.CRUD_FIELD_VALUE_MAX_BOUND_ERROR);
-            }
-        }
+              if (val.CompareTo(bound)>0)
+                  return new FieldValidationException(Schema.Name, fName, StringConsts.CRUD_FIELD_VALUE_MAX_BOUND_ERROR);
+          }
+      }
 
-        return null;
+      return null;
     }
 
     /// <summary>
     /// Override to filter-out some fields from serialization to JSON, or change field values.
     /// Return name null to indicate that field should be filtered-out(excluded from serialization to JSON)
     /// </summary>
-    protected virtual object FilterJSONSerializerField(Schema.FieldDef def, JsonWritingOptions options, out string name)
+    protected virtual object FilterJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, out string name)
     {
       var tname = options!=null ? options.RowMapTargetName : null;
 
@@ -937,7 +941,17 @@ namespace Azos.Data
       return name.IsNotNullOrWhiteSpace() ? GetFieldValue(def) : null;
     }
 
-   #endregion
+    /// <summary>
+    /// Override to perform custom transformation of value/add extra values to JSON output map.
+    /// For example, this is used to normalize phone numbers by adding a field with `_normalized` suffix to every field containing a phone.
+    /// Default base implementation just writes value into named map key. FieldDef is null for amorphous fields
+    /// </summary>
+    protected virtual void AddJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, Dictionary<string, object> jsonMap, string name, object value)
+    {
+      jsonMap[name] = value;
+    }
+
+    #endregion
 
 
 

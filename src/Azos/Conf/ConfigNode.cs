@@ -865,7 +865,7 @@ namespace Azos.Conf
 
     #region Public
 
-        void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+        void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
         {
           var map = this.ToConfigurationJSONDataMap();
           JsonWriter.WriteMap(wri, map, nestingLevel, options);

@@ -102,7 +102,7 @@ namespace Azos.Data
                 }
 
 
-                internal FieldDef(SerializationInfo info, StreamingContext context)
+                private FieldDef(SerializationInfo info, StreamingContext context)
                 {
                     m_Name = info.GetString("nm");
                     m_Order = info.GetInt32("o");
@@ -323,7 +323,7 @@ namespace Azos.Data
                 /// <summary>
                 /// Writes fielddef as JSON. Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
                 /// </summary>
-                void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+                void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options)
                 {
                     var attr = this[null];
 

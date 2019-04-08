@@ -198,7 +198,7 @@ namespace Azos.Data
           return x.CompareTo(y)>=0;
         }
 
-        void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+        void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options)
         {
           wri.Write('"');
           wri.Write(Era);
@@ -377,6 +377,9 @@ namespace Azos.Data
       }
       return (false, null);
     }
+
+    public static bool operator ==(GDIDSymbol lhs, GDIDSymbol rhs) => lhs.Equals(rhs);
+    public static bool operator !=(GDIDSymbol lhs, GDIDSymbol rhs) => !lhs.Equals(rhs);
   }
 
   /// <summary>
