@@ -10,24 +10,22 @@ using System.Runtime.CompilerServices;
 
 namespace Azos.Collections
 {
-    /// <summary>
-    /// Checks for reference equality. Use ReferenceEqualityComparer(T).Instance
-    /// </summary>
-    public sealed class ReferenceEqualityComparer<T> : EqualityComparer<T>
+  /// <summary>
+  /// Checks for reference equality. Use ReferenceEqualityComparer(T).Default
+  /// </summary>
+  public sealed class ReferenceEqualityComparer<T> : EqualityComparer<T>
+  {
+    public ReferenceEqualityComparer() {}
+
+    public override bool Equals(T x, T y)
     {
-      public static readonly ReferenceEqualityComparer<T> Instance = new ReferenceEqualityComparer<T>();
-
-      private ReferenceEqualityComparer() {}
-
-      public override bool Equals(T x, T y)
-      {
-          return object.ReferenceEquals(x, y);
-      }
-
-      public override int GetHashCode(T obj)
-      {
-          return RuntimeHelpers.GetHashCode(obj);
-      }
+        return object.ReferenceEquals(x, y);
     }
+
+    public override int GetHashCode(T obj)
+    {
+        return RuntimeHelpers.GetHashCode(obj);
+    }
+  }
 }
 

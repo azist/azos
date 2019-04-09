@@ -168,7 +168,6 @@ namespace Azos
       return source.FirstOrDefault();
     }
 
-#warning Cover by unit tests
     /// <summary>
     /// Returns a new array that contains source elements with additional elements appended at the end
     /// </summary>
@@ -186,7 +185,6 @@ namespace Azos
       return result;
     }
 
-#warning Cover by unit tests
     /// <summary>
     /// Returns an array concatenated from the first element and the rest, similar to JS rest spread operator: let x = [first, ...rest];
     /// </summary>

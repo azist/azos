@@ -334,7 +334,7 @@ namespace Azos.Apps
     {
         if (m_ShutdownStarted || settings==null) return false;
         lock(m_ConfigSettings)
-          if (!m_ConfigSettings.Contains(settings, Collections.ReferenceEqualityComparer<IConfigSettings>.Instance))
+          if (!m_ConfigSettings.Contains(settings, Collections.ReferenceEqualityComparer<IConfigSettings>.Default))
           {
               m_ConfigSettings.Add(settings);
               return true;
@@ -372,7 +372,7 @@ namespace Azos.Apps
         if (m_ShutdownStarted || notifiable==null) return false;
 
         lock(m_FinishNotifiables)
-          if (!m_FinishNotifiables.Contains(notifiable, Collections.ReferenceEqualityComparer<IApplicationFinishNotifiable>.Instance))
+          if (!m_FinishNotifiables.Contains(notifiable, Collections.ReferenceEqualityComparer<IApplicationFinishNotifiable>.Default))
           {
               m_FinishNotifiables.Add(notifiable);
               return true;
@@ -409,7 +409,7 @@ namespace Azos.Apps
       return ApplicationComponent.GetAppComponentByCommonName(this, name);
     }
 
-    // <summary>
+    /// <summary>
     /// Performs resolution of the named application variable into its value.
     /// This mechanism is referenced by Configuration environment vars which start with app prefix
     /// </summary>
@@ -423,7 +423,9 @@ namespace Azos.Apps
 
     #region Protected
 
+#pragma warning disable 649
     [Config] private bool m_LogCallerFileLines;
+#pragma warning restore 649
 
     protected Guid WriteLog(MessageType type,
                             string from,

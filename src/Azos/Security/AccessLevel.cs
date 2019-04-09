@@ -13,98 +13,78 @@ namespace Azos.Security
   /// <summary>
   /// A level of access granted to user for certain permission, i.e. if (level.Denied).....
   /// </summary>
-  public sealed class AccessLevel
+  public struct AccessLevel
   {
     #region CONSTS
+    /// <summary> Access denied level: bearer has no access/zero </summary>
+    public const int DENIED = 0;
 
-      /// <summary> Access denied level: bearer has no access/zero </summary>
-      public const int DENIED = 0;
+    /// <summary> View-only level: bearer has read-only access, so data can be viewed but can not be modified</summary>
+    public const int VIEW = 1;
 
-      /// <summary> View-only level: bearer has read-only access, so data can be viewed but can not be modified</summary>
-      public const int VIEW = 1;
+    /// <summary> Change level: bearer can view and change (add, edit) data but not delete it</summary>
+    public const int VIEW_CHANGE = 2;
 
-      /// <summary> Change level: bearer can view and change (add, edit) data but not delete it</summary>
-      public const int VIEW_CHANGE = 2;
+    /// <summary> Full CRUD level: bearer can view, add, update, and delete data</summary>
+    public const int VIEW_CHANGE_DELETE = 3;
 
-      /// <summary> Full CRUD level: bearer can view, add, update, and delete data</summary>
-      public const int VIEW_CHANGE_DELETE = 3;
+    public const string CONFIG_LEVEL_ATTR = "level";
 
-      public const string CONFIG_LEVEL_ATTR = "level";
-
-      public static readonly IConfigSectionNode DENIED_CONF = "p{level=0}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
-
+    public static readonly IConfigSectionNode DENIED_CONF = "p{level=0}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
     #endregion
 
     #region .ctor
+    public static AccessLevel DeniedFor(User user, Permission permission)
+     => new AccessLevel(user, permission, DENIED_CONF);
 
-      public static AccessLevel DeniedFor(User user, Permission permission)
-      {
-        return new AccessLevel(user, permission, DENIED_CONF);
-      }
-
-      public AccessLevel(User user, Permission permission, IConfigSectionNode data)
-      {
-          m_User = user;
-          m_Permission = permission;
-          m_Data = data;
-      }
-
+    public AccessLevel(User user, Permission permission, IConfigSectionNode data)
+    {
+      m_User = user.NonNull(nameof(user));
+      m_Permission = permission.NonNull(nameof(permission));
+      m_Data = data.NonNull(nameof(data));
+    }
     #endregion
 
 
     #region Fields
-
-      private User m_User;
-      private Permission m_Permission;
-      private IConfigSectionNode m_Data;
-
+    private User m_User;
+    private Permission m_Permission;
+    private IConfigSectionNode m_Data;
     #endregion
 
 
     #region Properties
 
-      /// <summary>
-      /// Returns user that this access level is for
-      /// </summary>
-      public User User
-      {
-          get { return m_User;}
-      }
+    /// <summary>
+    /// True if struct is assigned a value
+    /// </summary>
+    public bool IsAssigned => m_User!=null;
 
-      /// <summary>
-      /// Returns permission that this access level is for
-      /// </summary>
-      public Permission Permission
-      {
-          get { return m_Permission;}
-      }
+    /// <summary>
+    /// Returns user that this access level is for
+    /// </summary>
+    public User User => m_User ?? User.Fake;
 
-      /// <summary>
-      /// Returns security data for this level
-      /// </summary>
-      public IConfigSectionNode Data
-      {
-          get { return m_Data ?? Rights.None.Root;}
-      }
+    /// <summary>
+    /// Returns permission that this access level is for
+    /// </summary>
+    public Permission Permission => m_Permission;
 
-      /// <summary>
-      /// Returns security level attribute from Data
-      /// </summary>
-      public int Level
-      {
-          get { return m_Data.AttrByName(CONFIG_LEVEL_ATTR).ValueAsInt(DENIED);}
-      }
+    /// <summary>
+    /// Returns security data for this level
+    /// </summary>
+    public IConfigSectionNode Data => m_Data ?? Rights.None.Root;
 
-      /// <summary>
-      /// Indicates whether access is denied
-      /// </summary>
-      public bool Denied
-      {
-        get { return Level == DENIED; }
-      }
+    /// <summary>
+    /// Returns security level attribute from Data
+    /// </summary>
+    public int Level => m_Data.AttrByName(CONFIG_LEVEL_ATTR).ValueAsInt(DENIED);
 
+    /// <summary>
+    /// Indicates whether access is denied
+    /// </summary>
+    public bool Denied =>  Level == DENIED;
     #endregion
-
   }//access level
 
 }

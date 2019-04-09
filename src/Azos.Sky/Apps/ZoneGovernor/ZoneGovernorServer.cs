@@ -19,7 +19,10 @@ namespace Azos.Sky.Apps.ZoneGovernor
                                            Azos.Sky.Contracts.IZoneHostReplicator,
                                            Azos.Sky.Contracts.ILocker
   {
+#pragma warning disable 649
     [Inject] IApplication m_App;
+#pragma warning restore 649
+
     public ZoneGovernorService Service => m_App.NonNull(nameof(m_App))
                                               .Singletons
                                               .Get<ZoneGovernorService>() ?? throw new AZGOVException(StringConsts.AZGOV_INSTANCE_NOT_ALLOCATED_ERROR);

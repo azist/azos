@@ -10,6 +10,8 @@ using System;
 
 namespace Azos.Tests.Nub.Configuration
 {
+#pragma warning disable 649
+
   [Runnable]
   public class ConfigAttributesTests
   {
@@ -97,4 +99,5 @@ root
       Aver.AreEqual("server1", entity.Server.AttrByName("name").Value);
     }
   }
+#pragma warning restore 649
 }

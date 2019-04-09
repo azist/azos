@@ -22,7 +22,9 @@ namespace Azos.Sky.WebMessaging.Server
   /// </summary>
   public sealed class WebMessageSystemServer : Contracts.IWebMessageSystem
   {
+#pragma warning disable 649
     [Inject] IApplication m_App;
+#pragma warning restore 649
 
     public WebMessageSystemService Service => m_App.NonNull(nameof(m_App))
                                               .Singletons
