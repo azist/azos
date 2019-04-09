@@ -118,6 +118,12 @@ namespace Azos.Data.Access.Oracle
     [Config]
     public StoreLogLevel LogLevel { get; set;}
 
+    /// <summary>
+    /// Provides schema name which is typically prepended to object names during SQL construction, e.g. "MYSCHEMA"."TABLE1"
+    /// </summary>
+    [Config]
+    public string SchemaName { get; set; }
+
     [Config]
     public virtual string TargetName
     {
@@ -200,9 +206,9 @@ namespace Azos.Data.Access.Oracle
     }
 
     /// <summary>
-    /// Allocates Oracle connection
+    /// Allocates Oracle connection. Override to do custom connection setup, such as `ALTER SESSION` etc...
     /// </summary>
-    protected async Task<OracleConnection> GetConnection()
+    protected virtual async Task<OracleConnection> GetConnection()
     {
       var connectString = this.ConnectString;
 
