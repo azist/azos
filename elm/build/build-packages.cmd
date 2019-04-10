@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.401
-set HEADLINE=Canonical Data Stores
+set VER=1.0.402
+set HEADLINE=Async permission checks
 
 call vs2017-build-release %VER%
 
