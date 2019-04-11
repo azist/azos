@@ -6,6 +6,7 @@
 
 using System;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Scripting;
@@ -78,7 +79,7 @@ app
     {
       var session = new BaseSession(Guid.NewGuid(), 1234);
       session.User = m_App.SecurityManager.Authenticate(credentials);
-      ExecutionContext.__SetThreadLevelSessionContext(session);
+      Azos.Apps.ExecutionContext.__SetThreadLevelSessionContext(session);
     }
 
     void IRunnableHook.Prologue(Runner runner, FID id)
@@ -120,26 +121,62 @@ app
       Aver.AreEqual("User System", user.Description);
     }
 
-    [Run]
+    [Run, Run, Run, Run, Run, Run, Run]
     public async Task FlowAsyncContext()
     {
       impersonate( new IDPasswordCredentials("user1", "thejake"));
-      await Task.Delay(250);
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      await Task.Delay(Ambient.Random.NextScaledRandomInteger(10, 70));
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
       Aver.IsTrue(Ambient.CurrentCallUser.Status == UserStatus.User);
       Aver.AreEqual("User1", Ambient.CurrentCallUser.Name);
       Aver.AreEqual("Just a User", Ambient.CurrentCallUser.Description);
       await Task.Yield();
-
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      await Task.Delay(Ambient.Random.NextScaledRandomInteger(10, 120));
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
       Aver.IsTrue(Ambient.CurrentCallUser.Status == UserStatus.User);
       Aver.AreEqual("User1", Ambient.CurrentCallUser.Name);
       Aver.AreEqual("Just a User", Ambient.CurrentCallUser.Description);
-      await Task.Delay(250);
+      await Task.Delay(Ambient.Random.NextScaledRandomInteger(10, 70));
 
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
       impersonate(new IDPasswordCredentials("sys", "thejake"));
 
-      await Task.Delay(250);
+      await Task.Delay(Ambient.Random.NextScaledRandomInteger(10, 99));
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
       Aver.IsTrue(Ambient.CurrentCallUser.Status == UserStatus.System);
       Aver.AreEqual("UserSystem", Ambient.CurrentCallUser.Name);
+      Aver.AreEqual("User System", Ambient.CurrentCallUser.Description);
+      await Task.Delay(Ambient.Random.NextScaledRandomInteger(10, 150));
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.IsTrue(Ambient.CurrentCallUser.Status == UserStatus.System);
+      Aver.AreEqual("UserSystem", Ambient.CurrentCallUser.Name);
+      Aver.AreEqual("User System", Ambient.CurrentCallUser.Description);
+      await Task.Delay(Ambient.Random.NextScaledRandomInteger(10, 250));
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.IsTrue(Ambient.CurrentCallUser.Status == UserStatus.System);
+      Aver.AreEqual("UserSystem", Ambient.CurrentCallUser.Name);
+      Aver.AreEqual("User System", Ambient.CurrentCallUser.Description);
+      await Task.Delay(Ambient.Random.NextScaledRandomInteger(10, 100));
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      await Task.Yield();
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.IsTrue(Ambient.CurrentCallUser.Status == UserStatus.System);
+      await Task.Delay(Ambient.Random.NextScaledRandomInteger(10, 100));
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("UserSystem", Ambient.CurrentCallUser.Name);
+      await Task.Yield();
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("User System", Ambient.CurrentCallUser.Description);
+      await Task.Delay(Ambient.Random.NextScaledRandomInteger(10, 150));
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.IsTrue(Ambient.CurrentCallUser.Status == UserStatus.System);
+      await Task.Delay(Ambient.Random.NextScaledRandomInteger(10, 100));
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("UserSystem", Ambient.CurrentCallUser.Name);
+      await Task.Delay(Ambient.Random.NextScaledRandomInteger(10, 300));
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
       Aver.AreEqual("User System", Ambient.CurrentCallUser.Description);
     }
 
