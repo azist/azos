@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.402
-set HEADLINE=Async permission checks
+set VER=1.0.403
+set HEADLINE=Testing and permission check helpers
 
 call vs2017-build-release %VER%
 
