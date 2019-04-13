@@ -13,12 +13,12 @@ using System.Data.SqlClient;
 namespace Azos.Data.Access.MsSql
 {
     /// <summary>
-    /// Represents MySQL CRUD transaction
+    /// Represents MsSql CRUD transaction
     /// </summary>
-    public sealed class OracleCRUDTransaction : CRUDTransaction
+    public sealed class MsSqlCRUDTransaction : CRUDTransaction
     {
       #region .ctor/.dctor
-      internal OracleCRUDTransaction(OracleCRUDDataStoreBase store, SqlConnection cnn, IsolationLevel iso, TransactionDisposeBehavior disposeBehavior) : base (store, disposeBehavior)
+      internal MsSqlCRUDTransaction(MsSqlCRUDDataStoreBase store, SqlConnection cnn, IsolationLevel iso, TransactionDisposeBehavior disposeBehavior) : base (store, disposeBehavior)
       {
         m_Connection = cnn;
         m_Transaction = cnn.BeginTransaction(iso);
@@ -37,7 +37,7 @@ namespace Azos.Data.Access.MsSql
       #endregion
 
       #region Properties
-      internal OracleCRUDDataStoreBase Store => (OracleCRUDDataStoreBase)m_Store;
+      internal MsSqlCRUDDataStoreBase Store => (MsSqlCRUDDataStoreBase)m_Store;
 
       /// <summary>
       /// Returns the underlying MySQL connection that this transaction works through

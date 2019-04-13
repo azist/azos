@@ -60,7 +60,7 @@ namespace Azos.Data.Access.MsSql
                                                              TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
     {
       var cnn = await GetConnection();
-      return new OracleCRUDTransaction(this, cnn, iso, behavior);//transaction owns the connection
+      return new MsSqlCRUDTransaction(this, cnn, iso, behavior);//transaction owns the connection
     }
 
     public Schema GetSchema(Query query)
@@ -188,7 +188,7 @@ namespace Azos.Data.Access.MsSql
       }
       catch (Exception error)
       {
-        throw new OracleDataAccessException(
+        throw new MsSqlDataAccessException(
                         StringConsts.GET_SCHEMA_ERROR + error.ToMessageWithType(),
                         error,
                         KeyViolationKind.Unspecified,
@@ -214,7 +214,7 @@ namespace Azos.Data.Access.MsSql
         }
         catch (Exception error)
         {
-          throw new OracleDataAccessException(
+          throw new MsSqlDataAccessException(
                           StringConsts.LOAD_ERROR + error.ToMessageWithType(),
                           error,
                           KeyViolationKind.Unspecified,
@@ -239,7 +239,7 @@ namespace Azos.Data.Access.MsSql
       }
       catch (Exception error)
       {
-        throw new OracleDataAccessException(
+        throw new MsSqlDataAccessException(
                         StringConsts.OPEN_CURSOR_ERROR + error.ToMessageWithType(),
                         error,
                         KeyViolationKind.Unspecified,
@@ -265,7 +265,7 @@ namespace Azos.Data.Access.MsSql
         }
         catch (Exception error)
         {
-          throw new OracleDataAccessException(
+          throw new MsSqlDataAccessException(
                           StringConsts.EXECUTE_WITHOUT_FETCH_ERROR + error.ToMessageWithType(),
                           error,
                           KeyViolationKind.Unspecified,
@@ -319,7 +319,7 @@ namespace Azos.Data.Access.MsSql
     protected void CheckReadOnly(Schema schema, string operation)
     {
       if (schema.ReadOnly)
-        throw new OracleDataAccessException(StringConsts.CRUD_READONLY_SCHEMA_ERROR.Args(schema.Name, operation));
+        throw new MsSqlDataAccessException(StringConsts.CRUD_READONLY_SCHEMA_ERROR.Args(schema.Name, operation));
     }
     #endregion
   }

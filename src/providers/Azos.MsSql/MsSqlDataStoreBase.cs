@@ -21,7 +21,7 @@ namespace Azos.Data.Access.MsSql
   /// <summary>
   /// Implements Oracle store base functionality
   /// </summary>
-  public abstract class OracleDataStoreBase : ApplicationComponent, IDataStoreImplementation
+  public abstract class MsSqlDataStoreBase : ApplicationComponent, IDataStoreImplementation
   {
     #region CONSTS
     public const string STR_FOR_TRUE = "T";
@@ -29,8 +29,8 @@ namespace Azos.Data.Access.MsSql
     #endregion
 
     #region .ctor/.dctor
-    protected OracleDataStoreBase(IApplication app) : base(app){ }
-    protected OracleDataStoreBase(IApplicationComponent director) : base(director){ }
+    protected MsSqlDataStoreBase(IApplication app) : base(app){ }
+    protected MsSqlDataStoreBase(IApplicationComponent director) : base(director){ }
     #endregion
 
     #region Private Fields
@@ -97,7 +97,7 @@ namespace Azos.Data.Access.MsSql
       set => m_Name = value;
     }
 
-    public override string ComponentLogTopic => OracleConsts.ORACLE_TOPIC;
+    public override string ComponentLogTopic => MsSqlConsts.MSSQL_TOPIC;
 
     /// <summary>
     /// Get/Sets Oracle database connection string
@@ -171,12 +171,12 @@ namespace Azos.Data.Access.MsSql
           cmd.CommandType = System.Data.CommandType.Text;
           cmd.CommandText = "SELECT 1+1 from DUAL";
           if (cmd.ExecuteScalar().ToString() != "2")
-            throw new OracleDataAccessException(StringConsts.SQL_STATEMENT_FAILED_ERROR);
+            throw new MsSqlDataAccessException(StringConsts.SQL_STATEMENT_FAILED_ERROR);
         }
       }
       catch (Exception error)
       {
-        throw new OracleDataAccessException(string.Format(StringConsts.CONNECTION_TEST_FAILED_ERROR, error.Message), error);
+        throw new MsSqlDataAccessException(string.Format(StringConsts.CONNECTION_TEST_FAILED_ERROR, error.Message), error);
       }
     }
 
