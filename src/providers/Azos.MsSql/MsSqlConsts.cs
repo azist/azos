@@ -6,7 +6,7 @@
 
 namespace Azos.Data.Access.MsSql
 {
-  internal static class OracleConsts
+  internal static class MsSqlConsts
   {
     public const string MSSQL_TOPIC = "mssql";
 
