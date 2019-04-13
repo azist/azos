@@ -125,9 +125,14 @@ app
     public async Task FlowAsyncContext()
     {
       impersonate( new IDPasswordCredentials("user1", "thejake"));
+
+
       Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
       await Task.Delay(Ambient.Random.NextScaledRandomInteger(10, 70));
       Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+
+      Console.WriteLine(Ambient.CurrentCallUser.ToString());
+
       Aver.IsTrue(Ambient.CurrentCallUser.Status == UserStatus.User);
       Aver.AreEqual("User1", Ambient.CurrentCallUser.Name);
       Aver.AreEqual("Just a User", Ambient.CurrentCallUser.Description);
@@ -141,6 +146,7 @@ app
       await Task.Delay(Ambient.Random.NextScaledRandomInteger(10, 70));
 
       Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+
       impersonate(new IDPasswordCredentials("sys", "thejake"));
 
       await Task.Delay(Ambient.Random.NextScaledRandomInteger(10, 99));

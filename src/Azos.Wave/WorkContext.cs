@@ -15,6 +15,7 @@ using Azos.Web;
 
 using Azos.Serialization.JSON;
 using Azos.Web.GeoLookup;
+using Azos.Platform;
 
 namespace Azos.Wave
 {
@@ -25,7 +26,7 @@ namespace Azos.Wave
   public class WorkContext : DisposableObject
   {
     #region .ctor/.dctor
-      private static AsyncLocal<WorkContext> ats_Current = new AsyncLocal<WorkContext>();
+      private static AsyncFlowMutableLocal<WorkContext> ats_Current = new AsyncFlowMutableLocal<WorkContext>();
 
       /// <summary>
       /// Returns the current call context/thread/async flow instance
