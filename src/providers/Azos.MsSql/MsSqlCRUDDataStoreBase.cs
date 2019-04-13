@@ -160,7 +160,7 @@ namespace Azos.Data.Access.MsSql
     }
 
     public CRUDQueryHandler MakeScriptQueryHandler(QuerySource querySource)
-     => new OracleCRUDScriptQueryHandler(this, querySource);
+     => new MsSqlCRUDScriptQueryHandler(this, querySource);
 
     public ICRUDQueryResolver QueryResolver => m_QueryResolver;
 

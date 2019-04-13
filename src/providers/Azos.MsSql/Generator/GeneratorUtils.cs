@@ -65,7 +65,7 @@ namespace Azos.Data.Access.MsSql
           where = s.ToString();
         }
         else
-          throw new OracleDataAccessException(StringConsts.INVALID_KEY_TYPE_ERROR);
+          throw new MsSqlDataAccessException(StringConsts.INVALID_KEY_TYPE_ERROR);
 
       return where;
     }
@@ -78,7 +78,7 @@ namespace Azos.Data.Access.MsSql
       return nvk.ContainsKey(fieldName);
     }
 
-    public static void LogCommand(OracleDataStoreBase store, string from, SqlCommand cmd, Exception error)
+    public static void LogCommand(MsSqlDataStoreBase store, string from, SqlCommand cmd, Exception error)
     {
         if (store.LogLevel==StoreLogLevel.None) return;
 
