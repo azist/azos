@@ -27,7 +27,7 @@ namespace Azos.Data.Access.MsSql
         }
         catch(Exception error)
         {
-           throw new OracleDataAccessException(
+           throw new MsSqlDataAccessException(
                           StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("insert", error.ToMessageWithType(), error),
                           error,
                           KeyViolationKind.Unspecified,
@@ -43,7 +43,7 @@ namespace Azos.Data.Access.MsSql
         }
         catch(Exception error)
         {
-           throw new OracleDataAccessException(
+           throw new MsSqlDataAccessException(
                          StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("update",
                          error.ToMessageWithType(), error),
                          error,
@@ -61,7 +61,7 @@ namespace Azos.Data.Access.MsSql
         }
         catch(Exception error)
         {
-           throw new OracleDataAccessException(
+           throw new MsSqlDataAccessException(
                         StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("upsert", error.ToMessageWithType(), error),
                         error,
                         KeyViolationKind.Unspecified,
@@ -77,7 +77,7 @@ namespace Azos.Data.Access.MsSql
         }
         catch(Exception error)
         {
-           throw new OracleDataAccessException(StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("delete", error.ToMessageWithType(), error), error);
+           throw new MsSqlDataAccessException(StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("delete", error.ToMessageWithType(), error), error);
         }
       }
 
@@ -117,7 +117,7 @@ namespace Azos.Data.Access.MsSql
       var target = store.TargetName;
       var cnames = new StringBuilder();
       var values = new StringBuilder();
-      var vparams = new List<OracleParameter>();
+      var vparams = new List<SqlParameter>();
       var vpidx = 0;
       foreach (var fld in doc.Schema.FieldDefs)
       {
@@ -144,12 +144,12 @@ namespace Azos.Data.Access.MsSql
 
           values.AppendFormat(" {0},", pname);
 
-          var par = new OracleParameter();
+          var par = new SqlParameter();
 //Console.WriteLine(doc.Schema.ToJson());
 //Console.WriteLine("{0}|{1}: OrclDbTyp.{2} = ({3}){4}".Args(fld.NonNullableType.FullName, pname, converted.dbType, converted.value.GetType().FullName, converted.value));
           par.ParameterName = pname;
           par.Value = converted.value;
-          if (converted.dbType.HasValue) par.OracleDbType = converted.dbType.Value;
+          if (converted.dbType.HasValue) par.SqlDbType = converted.dbType.Value;
           vparams.Add(par);
 
           vpidx++;
@@ -200,7 +200,7 @@ namespace Azos.Data.Access.MsSql
     {
       var target = store.TargetName;
       var values = new StringBuilder();
-      var vparams = new List<OracleParameter>();
+      var vparams = new List<SqlParameter>();
       var vpidx = 0;
       foreach (var fld in doc.Schema.FieldDefs)
       {
@@ -232,10 +232,10 @@ namespace Azos.Data.Access.MsSql
 
           values.AppendFormat(" \"{0}\" = {1},", fname, pname);
 
-          var par = new OracleParameter();
+          var par = new SqlParameter();
           par.ParameterName = pname;
           par.Value = converted.value;
-          if (converted.dbType.HasValue) par.OracleDbType = converted.dbType.Value;
+          if (converted.dbType.HasValue) par.SqlDbType = converted.dbType.Value;
           vparams.Add(par);
 
           vpidx++;
@@ -263,14 +263,14 @@ namespace Azos.Data.Access.MsSql
         var pk = key ?? doc.GetDataStoreKey(target);
 
         if (pk == null)
-            throw new OracleDataAccessException(StringConsts.KEY_UNAVAILABLE_ERROR);
+            throw new MsSqlDataAccessException(StringConsts.KEY_UNAVAILABLE_ERROR);
 
         var where = GeneratorUtils.KeyToWhere(pk, cmd.Parameters);
 
         if (!string.IsNullOrEmpty(where))
             sql = "UPDATE \"{0}\" T1  SET {1} WHERE {2}".Args( tableName, values, where);
         else
-            throw new OracleDataAccessException(StringConsts.BROAD_UPDATE_ERROR);//20141008 DKh BROAD update
+            throw new MsSqlDataAccessException(StringConsts.BROAD_UPDATE_ERROR);//20141008 DKh BROAD update
 
         cmd.Transaction = trans;
         cmd.CommandText = sql;
@@ -301,7 +301,7 @@ namespace Azos.Data.Access.MsSql
       var cnames = new StringBuilder();
       var values = new StringBuilder();
       var upserts = new StringBuilder();
-      var vparams = new List<OracleParameter>();
+      var vparams = new List<SqlParameter>();
       var vpidx = 0;
       foreach (var fld in doc.Schema.FieldDefs)
       {
@@ -334,10 +334,10 @@ namespace Azos.Data.Access.MsSql
                 if (!fattr.Key)
                     upserts.AppendFormat(" \"{0}\" = {1},", fname, pname);
 
-                var par = new OracleParameter();
+                var par = new SqlParameter();
                 par.ParameterName = pname;
                 par.Value = converted;
-                if (converted.dbType.HasValue) par.OracleDbType = converted.dbType.Value;
+                if (converted.dbType.HasValue) par.SqlDbType = converted.dbType.Value;
                 vparams.Add(par);
 
                 vpidx++;
@@ -399,7 +399,7 @@ namespace Azos.Data.Access.MsSql
         var pk = key ?? doc.GetDataStoreKey(target);
 
         if (pk == null)
-            throw new OracleDataAccessException(StringConsts.KEY_UNAVAILABLE_ERROR);
+            throw new MsSqlDataAccessException(StringConsts.KEY_UNAVAILABLE_ERROR);
 
         var where = GeneratorUtils.KeyToWhere(pk, cmd.Parameters);
 

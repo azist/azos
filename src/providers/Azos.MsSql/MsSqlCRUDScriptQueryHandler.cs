@@ -273,7 +273,7 @@ namespace Azos.Data.Access.MsSql
           public void PopulateParameters(SqlCommand cmd, Query query)
           {
               foreach(var par in query.Where(p => p.HasValue))
-                cmd.Parameters.Add(par.Name, par.Value);
+                cmd.Parameters.AddWithValue(par.Name, par.Value);
 
               if (query.StoreKey!=null)
               {
