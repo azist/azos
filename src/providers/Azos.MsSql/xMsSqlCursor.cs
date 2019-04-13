@@ -6,15 +6,15 @@
 
 using System.Collections.Generic;
 
-using Oracle.ManagedDataAccess.Client;
+using System.Data.SqlClient;
 
-namespace Azos.Data.Access.Oracle
+namespace Azos.Data.Access.MsSql
 {
-  public sealed class OracleCursor : Cursor
+  public sealed class MsSqlCursor : Cursor
   {
-    internal OracleCursor(OracleCRUDQueryExecutionContext context,
-                         OracleCommand command,
-                         OracleDataReader reader,
+    internal MsSqlCursor(MsSqlCRUDQueryExecutionContext context,
+                         SqlCommand command,
+                         SqlDataReader reader,
                          IEnumerable<Doc> source) : base(source)
     {
       m_Context = context;
@@ -33,8 +33,8 @@ namespace Azos.Data.Access.Oracle
         m_Context.Connection.Dispose();
     }
 
-    private OracleCRUDQueryExecutionContext m_Context;
-    private OracleCommand m_Command;
-    private OracleDataReader m_Reader;
+    private MsSqlCRUDQueryExecutionContext m_Context;
+    private SqlCommand m_Command;
+    private SqlDataReader m_Reader;
   }
 }

@@ -4,21 +4,20 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System.Data;
-using System.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
 
-namespace Azos.Data.Access.MsSql
+namespace Azos.Data.Access.Oracle
 {
     /// <summary>
-    /// Provides query execution environment in MySql context
+    /// Provides query execution environment in Oracle context
     /// </summary>
-    public struct MsSqlCRUDQueryExecutionContext : ICRUDQueryExecutionContext
+    public struct OracleCRUDQueryExecutionContext : ICRUDQueryExecutionContext
     {
-       public readonly MsSqlDataStoreBase  DataStore;
-       public readonly SqlConnection  Connection;
-       public readonly SqlTransaction Transaction;
+       public readonly OracleDataStoreBase  DataStore;
+       public readonly OracleConnection  Connection;
+       public readonly OracleTransaction Transaction;
 
-       public MsSqlCRUDQueryExecutionContext(MsSqlDataStoreBase  store, SqlConnection cnn, SqlTransaction trans)
+       public OracleCRUDQueryExecutionContext(OracleDataStoreBase  store, OracleConnection cnn, OracleTransaction trans)
        {
             DataStore = store;
             Connection = cnn;
@@ -27,18 +26,18 @@ namespace Azos.Data.Access.MsSql
 
 
        /// <summary>
-       /// Based on store settings, converts CLR value to MySQL-acceptable value, i.e. GDID -> BYTE[].
+       /// Based on store settings, converts CLR value to Oracle-acceptable value, i.e. GDID -> BYTE[].
        /// </summary>
-       public object CLRValueToDB(MsSqlDataStoreBase store, object value, out SqlDbType? convertedDbType)
+       public (object value, OracleDbType? dbType) CLRValueToDB(object value, string explicitDbType)
        {
-          return CRUDGenerator.CLRValueToDB(DataStore, value, out convertedDbType);
+          return CRUDGenerator.CLRValueToDB(DataStore, value, explicitDbType);
        }
 
        /// <summary>
        /// Based on store settings, converts query parameters into MySQL-acceptable values, i.e. GDID -> BYTe[].
        /// This function is not idempotent
        /// </summary>
-       public void ConvertParameters(SqlParameterCollection pars)
+       public void ConvertParameters(OracleParameterCollection pars)
        {
           CRUDGenerator.ConvertParameters(DataStore, pars);
        }

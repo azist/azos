@@ -4,13 +4,10 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-namespace Azos.Data.Access.Oracle
+namespace Azos.Data.Access.MsSql
 {
   internal static class StringConsts
   {
-    public const string CRUD_CAPABILITY_NOT_IMPLEMENETD_ERROR =
-        "CRUD Capability {0} is not implemented by {1}. The CRUD auto-generation is supported by {2}";
-
     public const string MODEL_INVALID_STATE_ERROR =
         "Model is in invalid state. Expected: {0} Actual: {1}";
 
@@ -18,10 +15,10 @@ namespace Azos.Data.Access.Oracle
         "SQL statement failed";
 
     public const string CONNECTION_TEST_FAILED_ERROR =
-        "Oracle connection test failed with message: {0}";
+        "MsSql connection test failed with message: {0}";
 
     public const string MODEL_TYPE_UNKNOWN_ERROR =
-        "Oracle provider could not handle '{0}' operation for model of type '{1}'";
+        "MsSql provider could not handle '{0}' operation for model of type '{1}'";
 
     public const string MODEL_TYPE_NOT_RECORD_ERROR =
         "Model is not of a 'Record' type. Passed type: {0}. Check provider implementation";
@@ -42,7 +39,7 @@ namespace Azos.Data.Access.Oracle
         "Supplied key is of invalid type";
 
     public const string LOAD_NO_SELECT_COLUMNS_ERROR =
-        "Oracle Load failed as no columns for selection could be generated";
+        "MsSQL Load failed as no columns for selection could be generated";
 
     public const string RECORD_TABLE_NAME_ERROR =
         "Record's 'TableName' property is blank. Passed type: '{0}'. Check record implementation";
@@ -54,7 +51,7 @@ namespace Azos.Data.Access.Oracle
         "CRUD schema '{0}' is readonly and can not perform operation: {1}";
 
     public const string EXECUTE_WITHOUT_FETCH_ERROR =
-        "Error executing without fetch statement: ";
+        "Error executing wihtout fetch statement: ";
 
     public const string OPEN_CURSOR_ERROR =
         "Error executing open cursor statement: ";

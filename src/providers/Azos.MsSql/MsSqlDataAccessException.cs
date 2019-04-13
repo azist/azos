@@ -7,19 +7,19 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Azos.Data.Access.MsSql
+namespace Azos.Data.Access.Oracle
 {
   /// <summary>
-  /// Thrown by MsSQL data access classes
+  /// Thrown by Oracle data access classes
   /// </summary>
   [Serializable]
-  public class MsSqlDataAccessException : DataAccessException
+  public class OracleDataAccessException : DataAccessException
   {
-    public MsSqlDataAccessException() { }
-    public MsSqlDataAccessException(string message) : base(message) { }
-    public MsSqlDataAccessException(string message, Exception inner) : base(message, inner) { }
-    public MsSqlDataAccessException(string message, KeyViolationKind kvKind, string keyViolation) : base(message, kvKind, keyViolation) { }
-    public MsSqlDataAccessException(string message, Exception inner, KeyViolationKind kvKind, string keyViolation) : base(message, inner, kvKind, keyViolation) { }
-    protected MsSqlDataAccessException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    public OracleDataAccessException() { }
+    public OracleDataAccessException(string message) : base(message) { }
+    public OracleDataAccessException(string message, Exception inner) : base(message, inner) { }
+    public OracleDataAccessException(string message, KeyViolationKind kvKind, string keyViolation) : base(message, kvKind, keyViolation) { }
+    public OracleDataAccessException(string message, Exception inner, KeyViolationKind kvKind, string keyViolation) : base(message, inner, kvKind, keyViolation) { }
+    protected OracleDataAccessException(SerializationInfo info, StreamingContext context) : base(info, context) { }
   }
 }

@@ -10,23 +10,23 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Oracle.ManagedDataAccess.Client;
+using System.Data.SqlClient;
 
-namespace Azos.Data.Access.Oracle
+namespace Azos.Data.Access.MsSql
 {
     /// <summary>
-    /// Executes Oracle CRUD script-based queries
+    /// Executes MsSql CRUD script-based queries
     /// </summary>
-    public sealed class OracleCRUDScriptQueryHandler : CRUDQueryHandler<OracleCRUDDataStoreBase>
+    public sealed class MsSqlCRUDScriptQueryHandler : CRUDQueryHandler<MsSqlDataStore>
     {
         #region .ctor
-            public OracleCRUDScriptQueryHandler(OracleCRUDDataStoreBase store, QuerySource source) : base(store, source) { }
+            public MsSqlCRUDScriptQueryHandler(MsSqlDataStore store, QuerySource source) : base(store, source) { }
         #endregion
 
         #region ICRUDQueryHandler
             public override Schema GetSchema(ICRUDQueryExecutionContext context, Query query)
             {
-                var ctx = (OracleCRUDQueryExecutionContext)context;
+                var ctx = (MsSqlCRUDQueryExecutionContext)context;
                 var target = ctx.DataStore.TargetName;
 
                 using (var cmd = ctx.Connection.CreateCommand())
@@ -40,7 +40,7 @@ namespace Azos.Data.Access.Oracle
 
                     cmd.Transaction = ctx.Transaction;
 
-                    OracleDataReader reader = null;
+                    SqlDataReader reader = null;
 
                     try
                     {
@@ -71,18 +71,20 @@ namespace Azos.Data.Access.Oracle
 
             public override RowsetBase Execute(ICRUDQueryExecutionContext context, Query query, bool oneDoc = false)
             {
-                var ctx = (OracleCRUDQueryExecutionContext)context;
+                var ctx = (MsSqlCRUDQueryExecutionContext)context;
                 var target = ctx.DataStore.TargetName;
 
                 using (var cmd = ctx.Connection.CreateCommand())
                 {
+
                     cmd.CommandText =  Source.StatementSource;
 
                     PopulateParameters(cmd, query);
 
                     cmd.Transaction = ctx.Transaction;
 
-                    OracleDataReader reader = null;
+                    SqlDataReader reader = null;
+
                     try
                     {
                         reader = oneDoc ? cmd.ExecuteReader(CommandBehavior.SingleRow) : cmd.ExecuteReader();
@@ -107,12 +109,12 @@ namespace Azos.Data.Access.Oracle
 
             public override Cursor OpenCursor(ICRUDQueryExecutionContext context, Query query)
             {
-              var ctx = (OracleCRUDQueryExecutionContext)context;
+              var ctx = (MsSqlCRUDQueryExecutionContext)context;
               var target = ctx.DataStore.TargetName;
 
               Schema.FieldDef[] toLoad;
               Schema schema = null;
-              OracleDataReader reader = null;
+              SqlDataReader reader = null;
               var cmd = ctx.Connection.CreateCommand();
               try
               {
@@ -145,10 +147,10 @@ namespace Azos.Data.Access.Oracle
               }
 
               var enumerable = execEnumerable(ctx, cmd, reader, schema, toLoad, query);
-              return new OracleCursor( ctx, cmd, reader, enumerable );
+              return new MsSqlCursor( ctx, cmd, reader, enumerable );
             }
 
-                      private IEnumerable<Doc> execEnumerable(OracleCRUDQueryExecutionContext ctx, OracleCommand cmd, OracleDataReader reader, Schema schema, Schema.FieldDef[] toLoad, Query query)
+                      private IEnumerable<Doc> execEnumerable(MsSqlCRUDQueryExecutionContext ctx, SqlCommand cmd, SqlDataReader reader, Schema schema, Schema.FieldDef[] toLoad, Query query)
                       {
                         using(cmd)
                          using(reader)
@@ -167,7 +169,7 @@ namespace Azos.Data.Access.Oracle
 
             public override int ExecuteWithoutFetch(ICRUDQueryExecutionContext context, Query query)
             {
-                var ctx = (OracleCRUDQueryExecutionContext)context;
+                var ctx = (MsSqlCRUDQueryExecutionContext)context;
 
                 using (var cmd = ctx.Connection.CreateCommand())
                 {
@@ -204,7 +206,7 @@ namespace Azos.Data.Access.Oracle
             /// <summary>
             /// Reads data from reader into rowset. the reader is NOT disposed
             /// </summary>
-            public static Rowset PopulateRowset(OracleCRUDQueryExecutionContext context, OracleDataReader reader, string target, Query query, QuerySource qSource, bool oneDoc)
+            public static Rowset PopulateRowset(MsSqlCRUDQueryExecutionContext context, SqlDataReader reader, string target, Query query, QuerySource qSource, bool oneDoc)
             {
               Schema.FieldDef[] toLoad;
               Schema schema = GetSchemaForQuery(target, query, reader, qSource, out toLoad);
@@ -225,7 +227,7 @@ namespace Azos.Data.Access.Oracle
             /// <summary>
             /// Reads data from reader into rowset. the reader is NOT disposed
             /// </summary>
-            public static Doc PopulateDoc(OracleCRUDQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, OracleDataReader reader)
+            public static Doc PopulateDoc(MsSqlCRUDQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, SqlDataReader reader)
             {
               var store= context.DataStore;
               var row = Doc.MakeDoc(schema, tDoc);
@@ -266,14 +268,16 @@ namespace Azos.Data.Access.Oracle
             }
 
 
+
+
             /// <summary>
-            /// Populates OracleCommand with parameters from CRUD Query object
+            /// Populates SqlCommand with parameters from CRUD Query object
             /// Note: this code was purposely made provider specific because other providers may treat some nuances differently
             /// </summary>
-            public void PopulateParameters(OracleCommand cmd, Query query)
+            public void PopulateParameters(SqlCommand cmd, Query query)
             {
                foreach(var par in query.Where(p => p.HasValue))
-                 cmd.Parameters.Add(par.Name, par.Value);
+                cmd.Parameters.AddWithValue(par.Name, par.Value);
 
                if (query.StoreKey!=null)
                {
@@ -285,11 +289,11 @@ namespace Azos.Data.Access.Oracle
             }
 
             /// <summary>
-            /// Gets CRUD schema from OracleReader per particular QuerySource.
+            /// Gets CRUD schema from MsSqlReader per particular QuerySource.
             /// If source is null then all columns from reader are copied.
             /// Note: this code was purposely made provider specific because other providers may treat some nuances differently
             /// </summary>
-            public static Schema GetSchemaFromReader(string name, QuerySource source, OracleDataReader reader)
+            public static Schema GetSchemaFromReader(string name, QuerySource source, SqlDataReader reader)
             {
                var table = name;
                var fdefs = new List<Schema.FieldDef>();
@@ -314,7 +318,7 @@ namespace Azos.Data.Access.Oracle
             /// <summary>
             /// Gets schema from reader taking Query.ResultDocType in consideration
             /// </summary>
-            public static Schema GetSchemaForQuery(string target, Query query, OracleDataReader reader, QuerySource qSource, out Schema.FieldDef[] toLoad)
+            public static Schema GetSchemaForQuery(string target, Query query, SqlDataReader reader, QuerySource qSource, out Schema.FieldDef[] toLoad)
             {
               Schema schema;
               var rtp = query.ResultDocType;
