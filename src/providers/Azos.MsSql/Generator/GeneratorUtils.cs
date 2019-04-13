@@ -7,27 +7,26 @@
 using System;
 using System.Linq;
 using System.Text;
+using System.Data.SqlClient;
 
 using Azos.Log;
-using Oracle.ManagedDataAccess.Client;
 
-namespace Azos.Data.Access.Oracle
+namespace Azos.Data.Access.MsSql
 {
-
   /// <summary>
   /// Facilitates various SQL-construction and logging tasks
   /// </summary>
   public static class GeneratorUtils
   {
 
-    public static string KeyToWhere(IDataStoreKey key, OracleParameterCollection parameters)
+    public static string KeyToWhere(IDataStoreKey key, SqlParameterCollection parameters)
     {
       string where = null;
 
       if (key is CounterDataStoreKey)
       {
         where = "T1.COUNTER = :CTR";
-        var par = new OracleParameter();
+        var par = new SqlParameter();
         par.ParameterName = ":CTR";
         par.Value = ((CounterDataStoreKey)key).Counter;
 
@@ -37,7 +36,7 @@ namespace Azos.Data.Access.Oracle
       if (key is GDID gdid)
       {
         where = "T1.GDID = :CTR";
-        var par = new OracleParameter();
+        var par = new SqlParameter();
         par.ParameterName = ":CTR";
         par.Value = (decimal)gdid.ID;
 
@@ -53,7 +52,7 @@ namespace Azos.Data.Access.Oracle
           foreach (var e in dict)
           {
             s.AppendFormat(" (T1.\"{0}\" = :P{1}) AND", e.Key, idx);
-            var par = new OracleParameter();
+            var par = new SqlParameter();
             par.ParameterName = ":P" + idx.ToString();
             par.Value = e.Value;
             parameters.Add(par);
@@ -79,7 +78,7 @@ namespace Azos.Data.Access.Oracle
       return nvk.ContainsKey(fieldName);
     }
 
-    public static void LogCommand(OracleDataStoreBase store, string from, OracleCommand cmd, Exception error)
+    public static void LogCommand(OracleDataStoreBase store, string from, SqlCommand cmd, Exception error)
     {
         if (store.LogLevel==StoreLogLevel.None) return;
 
@@ -91,7 +90,7 @@ namespace Azos.Data.Access.Oracle
             descr.AppendLine("null");
         else
             descr.AppendLine(cmd.Transaction.IsolationLevel.ToString());
-        foreach(var p in cmd.Parameters.Cast<OracleParameter>())
+        foreach(var p in cmd.Parameters.Cast<SqlParameter>())
         {
             descr.AppendFormat("Parameter {0} = {1}", p.ParameterName, p.Value!=null?p.Value.ToString():"null");
         }
@@ -100,7 +99,7 @@ namespace Azos.Data.Access.Oracle
         {
             Type = mt,
             From = from,
-            Topic = OracleConsts.ORACLE_TOPIC,
+            Topic = MsSqlConsts.MSSQL_TOPIC,
             Exception = error,
             Text = cmd.CommandText,
             Parameters = descr.ToString()

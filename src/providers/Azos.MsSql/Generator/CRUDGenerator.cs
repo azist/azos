@@ -11,14 +11,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Serialization.JSON;
-using Oracle.ManagedDataAccess.Client;
+using System.Data.SqlClient;
+using System.Data;
 
-namespace Azos.Data.Access.Oracle
+namespace Azos.Data.Access.MsSql
 {
   internal static class CRUDGenerator
   {
 
-      public static async Task<int> CRUDInsert(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
+      public static async Task<int> CRUDInsert(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
       {
         try
         {
@@ -34,7 +35,7 @@ namespace Azos.Data.Access.Oracle
         }
       }
 
-      public static async Task<int> CRUDUpdate(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
+      public static async Task<int> CRUDUpdate(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
       {
         try
         {
@@ -52,7 +53,7 @@ namespace Azos.Data.Access.Oracle
         }
       }
 
-      public static async Task<int> CRUDUpsert(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
+      public static async Task<int> CRUDUpsert(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
       {
         try
         {
@@ -68,7 +69,7 @@ namespace Azos.Data.Access.Oracle
         }
       }
 
-      public static async Task<int> CRUDDelete(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key)
+      public static async Task<int> CRUDDelete(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key)
       {
         try
         {
@@ -111,7 +112,7 @@ namespace Azos.Data.Access.Oracle
     }
 
 
-    private static async Task<int> crudInsert(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
+    private static async Task<int> crudInsert(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var cnames = new StringBuilder();
@@ -195,7 +196,7 @@ namespace Azos.Data.Access.Oracle
 
 
 
-    private static async Task<int> crudUpdate(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
+    private static async Task<int> crudUpdate(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var values = new StringBuilder();
@@ -294,7 +295,7 @@ namespace Azos.Data.Access.Oracle
     }
 
 
-    private static async Task<int> crudUpsert(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
+    private static async Task<int> crudUpsert(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var cnames = new StringBuilder();
@@ -388,7 +389,7 @@ namespace Azos.Data.Access.Oracle
 
 
 
-    private static async Task<int> crudDelete(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key)
+    private static async Task<int> crudDelete(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key)
     {
       var target = store.TargetName;
       string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );
@@ -428,27 +429,27 @@ namespace Azos.Data.Access.Oracle
       }//using command
     }
 
-    private static (object value, OracleDbType? dbType) getDbFieldValue(Doc doc, Schema.FieldDef fld, FieldAttribute fattr, OracleDataStoreBase store)
+    private static (object value, SqlDbType? dbType) getDbFieldValue(Doc doc, Schema.FieldDef fld, FieldAttribute fattr, MsSqlDataStoreBase store)
     {
       var result = doc.GetFieldValue(fld);
       return CLRValueToDB(store, result, fattr.BackendType);
     }
 
-    internal static (object value, OracleDbType? dbType) CLRValueToDB(OracleDataStoreBase store, object value, string explicitDbType)
+    internal static (object value, SqlDbType? dbType) CLRValueToDB(MsSqlDataStoreBase store, object value, string explicitDbType)
     {
-      OracleDbType? convertedDbType = null;
+      SqlDbType? convertedDbType = null;
 
       if (explicitDbType.IsNotNullOrWhiteSpace())
-        convertedDbType = explicitDbType.AsNullableEnum<OracleDbType>();
+        convertedDbType = explicitDbType.AsNullableEnum<SqlDbType>();
 
       if (value==null) return (null, convertedDbType);
 
       if (value is ulong ulng)
       {
         value = (decimal)ulng;
-        convertedDbType = OracleDbType.Decimal;
+        convertedDbType = SqlDbType.Decimal;
 
-      }else if (value is DateTime clrDt && convertedDbType==OracleDbType.Date)
+      }else if (value is DateTime clrDt && convertedDbType== SqlDbType.Date)
       {
         // Expected DATE got NUmber
         // convertedDbType = OracleDbType.Int64;
@@ -456,7 +457,7 @@ namespace Azos.Data.Access.Oracle
 
         //Expected NUMBER got DATE
        // value = new global::Oracle.ManagedDataAccess.Types.OracleTimeStamp(clrDt);
-        value = new global::Oracle.ManagedDataAccess.Types.OracleDate(clrDt);
+       // value = new global::Oracle.ManagedDataAccess.Types.OracleDate(clrDt);
        // convertedDbType = OracleDbType.NVarchar2;
        // value = clrDt.ToString("yyyyMMddHHmmss");
       }
@@ -470,13 +471,13 @@ namespace Azos.Data.Access.Oracle
         if(store.FullGDIDS)
         {
           value = gdid.Bytes;//be very careful with byte ordering of GDID for index optimization
-          convertedDbType = OracleDbType.Raw;
+          convertedDbType = SqlDbType.Binary;
           //todo 20190106 DKh: This needs to be tested for performance
         }
         else
         {
           value = (decimal)gdid.ID;
-          convertedDbType = OracleDbType.Decimal;
+          convertedDbType = SqlDbType.Decimal;
         }
       }
       else if (value is bool)
@@ -484,14 +485,14 @@ namespace Azos.Data.Access.Oracle
         if (store.StringBool)
         {
           value = (bool)value ? store.StringForTrue : store.StringForFalse;
-          convertedDbType = OracleDbType.Char;
+          convertedDbType = SqlDbType.Char;
         }
       }
 
       return (value, convertedDbType);
     }
 
-    internal static void ConvertParameters(OracleDataStoreBase store, OracleParameterCollection pars)
+    internal static void ConvertParameters(MsSqlDataStoreBase store, SqlParameterCollection pars)
     {
       if (pars==null) return;
       for(var i=0; i<pars.Count; i++)
@@ -500,15 +501,15 @@ namespace Azos.Data.Access.Oracle
         var converted = CLRValueToDB(store, par.Value, null);
         par.Value = converted.value;
         if (converted.dbType.HasValue)
-         par.OracleDbType = converted.dbType.Value;
+         par.SqlDbType = converted.dbType.Value;
       }
     }
 
-    internal static void dbg(OracleCommand cmd)
+    internal static void dbg(SqlCommand cmd)
     {
       Console.WriteLine(cmd.CommandText);
-      foreach (var p in cmd.Parameters.Cast<OracleParameter>())
-        Console.WriteLine("{0}: OrclDbTyp.{1} = ({2}){3}".Args(p.ParameterName, p.OracleDbType, p.Value.GetType().FullName, p.Value));
+      foreach (var p in cmd.Parameters.Cast<SqlParameter>())
+        Console.WriteLine("{0}: SqlDbTyp.{1} = ({2}){3}".Args(p.ParameterName, p.SqlDbType, p.Value.GetType().FullName, p.Value));
     }
 
     #endregion
