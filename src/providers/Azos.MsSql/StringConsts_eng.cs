@@ -4,7 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-namespace Azos.Data.Access.Oracle
+namespace Azos.Data.Access.MsSql
 {
   internal static class StringConsts
   {

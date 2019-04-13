@@ -6,9 +6,9 @@
 
 using System.Collections.Generic;
 
-using Oracle.ManagedDataAccess.Client;
+using System.Data.SqlClient;
 
-namespace Azos.Data.Access.Oracle
+namespace Azos.Data.Access.MsSql
 {
   public sealed class OracleCursor : Cursor
   {

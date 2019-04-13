@@ -13,22 +13,22 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
 
-using Oracle.ManagedDataAccess.Client;
+using System.Data.SqlClient;
 
-namespace Azos.Data.Access.Oracle
+namespace Azos.Data.Access.MsSql
 {
   /// <summary>
-  /// Implements Oracle CRUD data store that works with canonical data model (using GDIDs and other intrinsics),
+  /// Implements MsSql CRUD data store that works with canonical data model (using GDIDs and other intrinsics),
   /// auto-generates SQLs for record models and supports CRUD operations.
   /// This class IS thread-safe load/save/delete operations
   /// </summary>
-  public class OracleCanonicalDataStore : OracleCRUDDataStoreBase
+  public class MsSqlCanonicalDataStore : MsSqlCRUDDataStoreBase
   {
     #region .ctor/.dctor
-    public OracleCanonicalDataStore(IApplication app) : base(app) { }
-    public OracleCanonicalDataStore(IApplication app, string cs) : base(app, cs) { }
-    public OracleCanonicalDataStore(IApplicationComponent director) : base(director) { }
-    public OracleCanonicalDataStore(IApplicationComponent director, string cs) : base(director, cs) { }
+    public MsSqlCanonicalDataStore(IApplication app) : base(app) { }
+    public MsSqlCanonicalDataStore(IApplication app, string cs) : base(app, cs) { }
+    public MsSqlCanonicalDataStore(IApplicationComponent director) : base(director) { }
+    public MsSqlCanonicalDataStore(IApplicationComponent director, string cs) : base(director, cs) { }
     #endregion
 
     #region Protected + Overrides
@@ -36,7 +36,7 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     /// Performs CRUD batch save. Override to do custom batch saving
     /// </summary>
-    protected internal async override Task<int> DoSaveAsync(OracleConnection cnn, OracleTransaction transaction, RowsetBase[] rowsets)
+    protected internal async override Task<int> DoSaveAsync(SqlConnection cnn, SqlTransaction transaction, RowsetBase[] rowsets)
     {
       if (rowsets == null) return 0;
 
@@ -62,7 +62,7 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     /// Performs CRUD row insert. Override to do custom insertion
     /// </summary>
-    protected internal async override Task<int> DoInsertAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, FieldFilterFunc filter = null)
+    protected internal async override Task<int> DoInsertAsync(SqlConnection cnn, SqlTransaction transaction, Doc row, FieldFilterFunc filter = null)
     {
       CheckReadOnly(row.Schema, "insert");
       return await CRUDGenerator.CRUDInsert(this, cnn, transaction, row, filter);
@@ -71,7 +71,7 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     /// Performs CRUD row upsert. Override to do custom upsertion
     /// </summary>
-    protected internal async override Task<int> DoUpsertAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, FieldFilterFunc filter = null)
+    protected internal async override Task<int> DoUpsertAsync(SqlConnection cnn, SqlTransaction transaction, Doc row, FieldFilterFunc filter = null)
     {
       CheckReadOnly(row.Schema, "upsert");
       return await CRUDGenerator.CRUDUpsert(this, cnn, transaction, row, filter);
@@ -80,7 +80,7 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     /// Performs CRUD row update. Override to do custom update
     /// </summary>
-    protected internal async override Task<int> DoUpdateAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
+    protected internal async override Task<int> DoUpdateAsync(SqlConnection cnn, SqlTransaction transaction, Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
     {
       CheckReadOnly(row.Schema, "update");
       return await CRUDGenerator.CRUDUpdate(this, cnn, transaction, row, key, filter);
@@ -89,7 +89,7 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     /// Performs CRUD row deletion. Override to do custom deletion
     /// </summary>
-    protected internal async override Task<int> DoDeleteAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, IDataStoreKey key = null)
+    protected internal async override Task<int> DoDeleteAsync(SqlConnection cnn, SqlTransaction transaction, Doc row, IDataStoreKey key = null)
     {
       CheckReadOnly(row.Schema, "delete");
       return await CRUDGenerator.CRUDDelete(this, cnn, transaction, row, key);

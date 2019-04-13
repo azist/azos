@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
-using Oracle.ManagedDataAccess.Client;
+using System.Data.SqlClient;
 
-namespace Azos.Data.Access.Oracle
+namespace Azos.Data.Access.MsSql
 {
     /// <summary>
     /// Represents MySQL CRUD transaction
@@ -18,7 +18,7 @@ namespace Azos.Data.Access.Oracle
     public sealed class OracleCRUDTransaction : CRUDTransaction
     {
       #region .ctor/.dctor
-      internal OracleCRUDTransaction(OracleCRUDDataStoreBase store, OracleConnection cnn, IsolationLevel iso, TransactionDisposeBehavior disposeBehavior) : base (store, disposeBehavior)
+      internal OracleCRUDTransaction(OracleCRUDDataStoreBase store, SqlConnection cnn, IsolationLevel iso, TransactionDisposeBehavior disposeBehavior) : base (store, disposeBehavior)
       {
         m_Connection = cnn;
         m_Transaction = cnn.BeginTransaction(iso);
@@ -32,8 +32,8 @@ namespace Azos.Data.Access.Oracle
       #endregion
 
       #region Fields
-      private OracleConnection m_Connection;
-      private OracleTransaction m_Transaction;
+      private SqlConnection m_Connection;
+      private SqlTransaction m_Transaction;
       #endregion
 
       #region Properties
@@ -42,12 +42,12 @@ namespace Azos.Data.Access.Oracle
       /// <summary>
       /// Returns the underlying MySQL connection that this transaction works through
       /// </summary>
-      public OracleConnection Connection { get {return m_Connection;} }
+      public SqlConnection Connection { get {return m_Connection;} }
 
       /// <summary>
       /// Returns the underlying MySQL transaction that this instance represents. Do not call Commit/Rollback method on this property directly
       /// </summary>
-      public OracleTransaction Transaction { get {return m_Transaction;} }
+      public SqlTransaction Transaction { get {return m_Transaction;} }
       #endregion
 
 

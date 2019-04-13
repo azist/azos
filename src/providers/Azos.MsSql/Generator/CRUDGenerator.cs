@@ -18,7 +18,7 @@ namespace Azos.Data.Access.Oracle
   internal static class CRUDGenerator
   {
 
-      public static async Task<int> CRUDInsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
+      public static async Task<int> CRUDInsert(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
       {
         try
         {
@@ -34,7 +34,7 @@ namespace Azos.Data.Access.Oracle
         }
       }
 
-      public static async Task<int> CRUDUpdate(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
+      public static async Task<int> CRUDUpdate(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
       {
         try
         {
@@ -52,7 +52,7 @@ namespace Azos.Data.Access.Oracle
         }
       }
 
-      public static async Task<int> CRUDUpsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
+      public static async Task<int> CRUDUpsert(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
       {
         try
         {
@@ -68,7 +68,7 @@ namespace Azos.Data.Access.Oracle
         }
       }
 
-      public static async Task<int> CRUDDelete(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key)
+      public static async Task<int> CRUDDelete(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key)
       {
         try
         {
@@ -111,7 +111,7 @@ namespace Azos.Data.Access.Oracle
     }
 
 
-    private static async Task<int> crudInsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
+    private static async Task<int> crudInsert(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var cnames = new StringBuilder();
@@ -195,7 +195,7 @@ namespace Azos.Data.Access.Oracle
 
 
 
-    private static async Task<int> crudUpdate(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
+    private static async Task<int> crudUpdate(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var values = new StringBuilder();
@@ -294,7 +294,7 @@ namespace Azos.Data.Access.Oracle
     }
 
 
-    private static async Task<int> crudUpsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
+    private static async Task<int> crudUpsert(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var cnames = new StringBuilder();
@@ -388,7 +388,7 @@ namespace Azos.Data.Access.Oracle
 
 
 
-    private static async Task<int> crudDelete(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key)
+    private static async Task<int> crudDelete(OracleDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key)
     {
       var target = store.TargetName;
       string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );

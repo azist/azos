@@ -13,10 +13,10 @@ using Azos.Conf;
 using Azos.Data.Modeling;
 using Azos.Instrumentation;
 
-using Oracle.ManagedDataAccess.Client;
+using System.Data.SqlClient;
 
 
-namespace Azos.Data.Access.Oracle
+namespace Azos.Data.Access.MsSql
 {
   /// <summary>
   /// Implements Oracle store base functionality
@@ -208,7 +208,7 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     /// Allocates Oracle connection. Override to do custom connection setup, such as `ALTER SESSION` etc...
     /// </summary>
-    protected virtual async Task<OracleConnection> GetConnection()
+    protected virtual async Task<SqlConnection> GetConnection()
     {
       var connectString = this.ConnectString;
 
@@ -217,7 +217,7 @@ namespace Azos.Data.Access.Oracle
       if (ctx!=null && ctx.ConnectString.IsNotNullOrWhiteSpace())
         connectString = ctx.ConnectString;
 
-      var cnn = new OracleConnection(connectString);
+      var cnn = new SqlConnection(connectString);
 
       await cnn.OpenAsync();
 

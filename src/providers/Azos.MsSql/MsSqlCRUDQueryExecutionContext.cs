@@ -4,20 +4,21 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Oracle.ManagedDataAccess.Client;
+using System.Data;
+using System.Data.SqlClient;
 
-namespace Azos.Data.Access.Oracle
+namespace Azos.Data.Access.MsSql
 {
     /// <summary>
     /// Provides query execution environment in Oracle context
     /// </summary>
-    public struct OracleCRUDQueryExecutionContext : ICRUDQueryExecutionContext
+    public struct MsSqlCRUDQueryExecutionContext : ICRUDQueryExecutionContext
     {
-       public readonly OracleDataStoreBase  DataStore;
-       public readonly OracleConnection  Connection;
-       public readonly OracleTransaction Transaction;
+       public readonly MsSqlDataStoreBase  DataStore;
+       public readonly SqlConnection  Connection;
+       public readonly SqlTransaction Transaction;
 
-       public OracleCRUDQueryExecutionContext(OracleDataStoreBase  store, OracleConnection cnn, OracleTransaction trans)
+       public MsSqlCRUDQueryExecutionContext(MsSqlDataStoreBase  store, SqlConnection cnn, SqlTransaction trans)
        {
             DataStore = store;
             Connection = cnn;
@@ -28,7 +29,7 @@ namespace Azos.Data.Access.Oracle
        /// <summary>
        /// Based on store settings, converts CLR value to Oracle-acceptable value, i.e. GDID -> BYTE[].
        /// </summary>
-       public (object value, OracleDbType? dbType) CLRValueToDB(object value, string explicitDbType)
+       public (object value, SqlDbType? dbType) CLRValueToDB(object value, string explicitDbType)
        {
           return CRUDGenerator.CLRValueToDB(DataStore, value, explicitDbType);
        }
@@ -37,7 +38,7 @@ namespace Azos.Data.Access.Oracle
        /// Based on store settings, converts query parameters into MySQL-acceptable values, i.e. GDID -> BYTe[].
        /// This function is not idempotent
        /// </summary>
-       public void ConvertParameters(OracleParameterCollection pars)
+       public void ConvertParameters(SqlParameterCollection pars)
        {
           CRUDGenerator.ConvertParameters(DataStore, pars);
        }

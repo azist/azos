@@ -13,27 +13,27 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
 
-using Oracle.ManagedDataAccess.Client;
+using System.Data.SqlClient;
 
-namespace Azos.Data.Access.Oracle
+namespace Azos.Data.Access.MsSql
 {
   /// <summary>
   /// Provides a base implementation for Oracle CRUD data stores that supports CRUD query handler resolution, execution and mapping.
   /// This store does not support auto-generation of Insert/Update/Delete statements as this is not practical
   /// for general-purposes cases due to inconsistent/unpredictable use of data types in a non-uniform schema designs.
-  /// Contrast this class with <seealso cref="OracleCanonicalDataStore"/>
+  /// Contrast this class with <seealso cref="MsSqlCanonicalDataStore"/>
   /// </summary>
-  public abstract class OracleCRUDDataStoreBase : OracleDataStoreBase, ICRUDDataStoreImplementation
+  public abstract class MsSqlCRUDDataStoreBase : MsSqlDataStoreBase, ICRUDDataStoreImplementation
   {
     #region CONSTS
     public const string SCRIPT_FILE_SUFFIX = ".ora.sql";
     #endregion
 
     #region .ctor/.dctor
-    protected OracleCRUDDataStoreBase(IApplication app) : base(app) => ctor();
-    protected OracleCRUDDataStoreBase(IApplication app, string cs) : base(app) => ctor(cs);
-    protected OracleCRUDDataStoreBase(IApplicationComponent director) : base(director) => ctor();
-    protected OracleCRUDDataStoreBase(IApplicationComponent director, string cs) : base(director) => ctor(cs);
+    protected MsSqlCRUDDataStoreBase(IApplication app) : base(app) => ctor();
+    protected MsSqlCRUDDataStoreBase(IApplication app, string cs) : base(app) => ctor(cs);
+    protected MsSqlCRUDDataStoreBase(IApplicationComponent director) : base(director) => ctor();
+    protected MsSqlCRUDDataStoreBase(IApplicationComponent director, string cs) : base(director) => ctor(cs);
 
     private void ctor(string cs = null)
     {
@@ -177,14 +177,14 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     ///  Performs CRUD load without fetching data only returning schema. Override to do custom Query interpretation
     /// </summary>
-    protected internal async virtual Task<Schema> DoGetSchemaAsync(OracleConnection cnn, OracleTransaction transaction, Query query)
+    protected internal async virtual Task<Schema> DoGetSchemaAsync(SqlConnection cnn, SqlTransaction transaction, Query query)
     {
       if (query==null) return null;
 
       var handler = QueryResolver.Resolve(query);
       try
       {
-        return await handler.GetSchemaAsync( new OracleCRUDQueryExecutionContext(this, cnn, transaction), query);
+        return await handler.GetSchemaAsync( new MsSqlCRUDQueryExecutionContext(this, cnn, transaction), query);
       }
       catch (Exception error)
       {
@@ -199,7 +199,7 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     ///  Performs CRUD load. Override to do custom Query interpretation
     /// </summary>
-    protected internal async virtual Task<List<RowsetBase>> DoLoadAsync(OracleConnection cnn, OracleTransaction transaction, Query[] queries, bool oneDoc = false)
+    protected internal async virtual Task<List<RowsetBase>> DoLoadAsync(SqlConnection cnn, SqlTransaction transaction, Query[] queries, bool oneDoc = false)
     {
       var result = new List<RowsetBase>();
       if (queries==null) return result;
@@ -209,7 +209,7 @@ namespace Azos.Data.Access.Oracle
         var handler = QueryResolver.Resolve(query);
         try
         {
-          var rowset = await handler.ExecuteAsync( new OracleCRUDQueryExecutionContext(this, cnn, transaction), query, oneDoc);
+          var rowset = await handler.ExecuteAsync( new MsSqlCRUDQueryExecutionContext(this, cnn, transaction), query, oneDoc);
           result.Add(rowset);
         }
         catch (Exception error)
@@ -229,9 +229,9 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     ///  Performs CRUD load. Override to do custom Query interpretation
     /// </summary>
-    protected internal async virtual Task<Cursor> DoOpenCursorAsync(OracleConnection cnn, OracleTransaction transaction, Query query)
+    protected internal async virtual Task<Cursor> DoOpenCursorAsync(SqlConnection cnn, SqlTransaction transaction, Query query)
     {
-      var context = new OracleCRUDQueryExecutionContext(this, cnn, transaction);
+      var context = new MsSqlCRUDQueryExecutionContext(this, cnn, transaction);
       var handler = QueryResolver.Resolve(query);
       try
       {
@@ -250,7 +250,7 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     ///  Performs CRUD execution of queries that do not return result set. Override to do custom Query interpretation
     /// </summary>
-    protected internal async virtual Task<int> DoExecuteWithoutFetchAsync(OracleConnection cnn, OracleTransaction transaction, Query[] queries)
+    protected internal async virtual Task<int> DoExecuteWithoutFetchAsync(SqlConnection cnn, SqlTransaction transaction, Query[] queries)
     {
       if (queries==null) return 0;
 
@@ -261,7 +261,7 @@ namespace Azos.Data.Access.Oracle
         var handler = QueryResolver.Resolve(query);
         try
         {
-          affected += await handler.ExecuteWithoutFetchAsync(new OracleCRUDQueryExecutionContext(this, cnn, transaction), query);
+          affected += await handler.ExecuteWithoutFetchAsync(new MsSqlCRUDQueryExecutionContext(this, cnn, transaction), query);
         }
         catch (Exception error)
         {
@@ -279,42 +279,42 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     /// Performs CRUD batch save. Override to do custom batch saving
     /// </summary>
-    protected internal virtual Task<int> DoSaveAsync(OracleConnection cnn, OracleTransaction transaction, RowsetBase[] rowsets)
+    protected internal virtual Task<int> DoSaveAsync(SqlConnection cnn, SqlTransaction transaction, RowsetBase[] rowsets)
      => throw new NotImplementedException(StringConsts.CRUD_CAPABILITY_NOT_IMPLEMENETD_ERROR.Args(nameof(DoSaveAsync),
                                                                                                  GetType().FullName,
-                                                                                                 nameof(OracleCanonicalDataStore)));
+                                                                                                 nameof(MsSqlCanonicalDataStore)));
 
     /// <summary>
     /// Performs CRUD row insert. Override to do custom insertion
     /// </summary>
-    protected internal virtual Task<int> DoInsertAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, FieldFilterFunc filter = null)
+    protected internal virtual Task<int> DoInsertAsync(SqlConnection cnn, SqlTransaction transaction, Doc row, FieldFilterFunc filter = null)
      => throw new NotImplementedException(StringConsts.CRUD_CAPABILITY_NOT_IMPLEMENETD_ERROR.Args(nameof(DoInsertAsync),
                                                                                                  GetType().FullName,
-                                                                                                 nameof(OracleCanonicalDataStore)));
+                                                                                                 nameof(MsSqlCanonicalDataStore)));
 
     /// <summary>
     /// Performs CRUD row upsert. Override to do custom upsertion
     /// </summary>
-    protected internal virtual Task<int> DoUpsertAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, FieldFilterFunc filter = null)
+    protected internal virtual Task<int> DoUpsertAsync(SqlConnection cnn, SqlTransaction transaction, Doc row, FieldFilterFunc filter = null)
      => throw new NotImplementedException(StringConsts.CRUD_CAPABILITY_NOT_IMPLEMENETD_ERROR.Args(nameof(DoUpsertAsync),
                                                                                                  GetType().FullName,
-                                                                                                 nameof(OracleCanonicalDataStore)));
+                                                                                                 nameof(MsSqlCanonicalDataStore)));
 
     /// <summary>
     /// Performs CRUD row update. Override to do custom update
     /// </summary>
-    protected internal virtual Task<int> DoUpdateAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
+    protected internal virtual Task<int> DoUpdateAsync(SqlConnection cnn, SqlTransaction transaction, Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
      => throw new NotImplementedException(StringConsts.CRUD_CAPABILITY_NOT_IMPLEMENETD_ERROR.Args(nameof(DoUpdateAsync),
                                                                                                  GetType().FullName,
-                                                                                                 nameof(OracleCanonicalDataStore)));
+                                                                                                 nameof(MsSqlCanonicalDataStore)));
 
     /// <summary>
     /// Performs CRUD row deletion. Override to do custom deletion
     /// </summary>
-    protected internal virtual Task<int> DoDeleteAsync(OracleConnection cnn, OracleTransaction transaction, Doc row, IDataStoreKey key = null)
+    protected internal virtual Task<int> DoDeleteAsync(SqlConnection cnn, SqlTransaction transaction, Doc row, IDataStoreKey key = null)
      => throw new NotImplementedException(StringConsts.CRUD_CAPABILITY_NOT_IMPLEMENETD_ERROR.Args(nameof(DoDeleteAsync),
                                                                                                  GetType().FullName,
-                                                                                                 nameof(OracleCanonicalDataStore)));
+                                                                                                 nameof(MsSqlCanonicalDataStore)));
 
     protected void CheckReadOnly(Schema schema, string operation)
     {

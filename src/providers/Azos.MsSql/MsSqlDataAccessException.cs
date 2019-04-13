@@ -7,7 +7,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Azos.Data.Access.Oracle
+namespace Azos.Data.Access.MsSql
 {
   /// <summary>
   /// Thrown by Oracle data access classes
