@@ -248,6 +248,10 @@
       <Project>{c2bf5275-c8c2-46cc-86c7-a83a75c2be0d}</Project>
       <Name>Azos</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\providers\Azos.MsSql\Azos.MsSql.csproj">
+      <Project>{a82e327a-2492-4016-a9c5-bb1be889a08e}</Project>
+      <Name>Azos.MsSql</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\testing\TestBusinessLogic\TestBusinessLogic.csproj">
       <Project>{27c8ee85-4e00-4471-b81b-c4d51c9d03d0}</Project>
       <Name>TestBusinessLogic</Name>
@@ -263,7 +267,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>$(ProjectDir)pre-build $(SolutionDir)</PreBuildEvent>
+    <PreBuildEvent>$(ProjectDir)pre-build $(SolutionDir)
+
+
+</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>$(ProjectDir)post-build $(SolutionDir)</PostBuildEvent>
