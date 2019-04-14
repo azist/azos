@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.403
-set HEADLINE=Testing and permission check helpers
+set VER=1.0.499.1
+set HEADLINE=MsSql bas data store and AsyncFlowMutableLocal
 
 call vs2017-build-release %VER%
 
