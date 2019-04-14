@@ -26,7 +26,7 @@ namespace Azos.Data.Access.MsSql
   public abstract class MsSqlCRUDDataStoreBase : MsSqlDataStoreBase, ICRUDDataStoreImplementation
   {
     #region CONSTS
-    public const string SCRIPT_FILE_SUFFIX = ".ora.sql";
+    public const string SCRIPT_FILE_SUFFIX = ".mss.sql";
     #endregion
 
     #region .ctor/.dctor
