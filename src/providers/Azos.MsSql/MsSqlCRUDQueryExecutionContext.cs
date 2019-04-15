@@ -10,7 +10,7 @@ using System.Data.SqlClient;
 namespace Azos.Data.Access.MsSql
 {
     /// <summary>
-    /// Provides query execution environment in MySql context
+    /// Provides query execution environment in Oracle context
     /// </summary>
     public struct MsSqlCRUDQueryExecutionContext : ICRUDQueryExecutionContext
     {
@@ -27,11 +27,11 @@ namespace Azos.Data.Access.MsSql
 
 
        /// <summary>
-       /// Based on store settings, converts CLR value to MySQL-acceptable value, i.e. GDID -> BYTE[].
+       /// Based on store settings, converts CLR value to Oracle-acceptable value, i.e. GDID -> BYTE[].
        /// </summary>
-       public object CLRValueToDB(MsSqlDataStoreBase store, object value, out SqlDbType? convertedDbType)
+       public (object value, SqlDbType? dbType) CLRValueToDB(object value, string explicitDbType)
        {
-          return CRUDGenerator.CLRValueToDB(DataStore, value, out convertedDbType);
+          return CRUDGenerator.CLRValueToDB(DataStore, value, explicitDbType);
        }
 
        /// <summary>

@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-
+using System.Threading.Tasks;
 
 namespace Azos
 {
@@ -261,207 +261,225 @@ namespace Azos
     #endregion
 
     #region Throws
-      public static bool ThrowsTest<TException>(Action a) where TException : Exception
+    public static bool ThrowsTest<TException>(Action a) where TException : Exception
+    {
+      try
       {
-        try
-        {
-          a();
-          return false;
-        }
-        catch(Exception error)
-        {
-          return error is TException;
-        }
+        a();
+        return false;
       }
+      catch(Exception error)
+      {
+        return error is TException;
+      }
+    }
 
-      public static void Throws<TException>(Action action, string from = null) where TException : Exception
+    public static void Throws<TException>(Action action, string from = null) where TException : Exception
+    {
+      if (!ThrowsTest<TException>(action)) Fail("Throws<{0}>".args(typeof(TException).FullNameWithExpandedGenericArgs(false)), from);
+    }
+
+    public static async Task<bool> ThrowsTestAsync<TException>(Func<Task> a) where TException : Exception
+    {
+      try
       {
-        if (!ThrowsTest<TException>(action)) Fail("Throws<{0}>".args(typeof(TException).FullNameWithExpandedGenericArgs(false)), from);
+        await a();
+        return false;
       }
+      catch (Exception error)
+      {
+        return error is TException;
+      }
+    }
+
+    public static async Task ThrowsAsync<TException>(Func<Task> action, string from = null) where TException : Exception
+    {
+      if (! await ThrowsTestAsync<TException>(action)) Fail("ThrowsAsync<{0}>".args(typeof(TException).FullNameWithExpandedGenericArgs(false)), from);
+    }
 
     #endregion
 
     #region Arrays
 
-      /// <summary>
-      /// Tests Arrays for equality via Array.SequenceEqual()
-      /// </summary>
-      public static bool AreArraysEquivalentTest(Array expect, Array got, IEqualityComparer<object> comparer = null)
+    /// <summary>
+    /// Tests Arrays for equality via Array.SequenceEqual()
+    /// </summary>
+    public static bool AreArraysEquivalentTest(Array expect, Array got, IEqualityComparer<object> comparer = null)
+    {
+      if (expect==null && got==null) return true;
+      if (expect==null || got==null) return false;
+
+      if (expect.Length!=got.Length) return false;
+
+      if (comparer==null)
+        return expect.Cast<object>().SequenceEqual(got.Cast<object>());
+
+      return expect.Cast<object>().SequenceEqual(got.Cast<object>(), comparer);
+    }
+
+    /// <summary>
+    /// Tests Arrays for equality via Array.SequenceEqual()
+    /// </summary>
+    public static void AreArraysEquivalent(Array expect, Array got, string from = null, IEqualityComparer<object> comparer = null)
+    {
+      if (!AreArraysEquivalentTest(expect, got, comparer)) Fail("AreArraysEquivalent({0}, {1})".args(expect, got), from);
+    }
+
+    /// <summary>
+    /// Tests arrays of T : IEquatable(T) for equality - element by element
+    /// </summary>
+    public static bool AreArraysEquivalentTest<T>(T[] expect, T[] got, out int differenceIdx, IEqualityComparer<T> comparer = null) where T : IEquatable<T>
+    {
+      differenceIdx = -1;
+      if (expect==null && got==null) return true;
+      if (expect==null || got==null) return false;
+
+      if (expect.Length!=got.Length) return false;
+
+      if (comparer==null)
+        comparer = EqualityComparer<T>.Default;
+
+      for(var i=0; i<expect.Length; i++ )
       {
-        if (expect==null && got==null) return true;
-        if (expect==null || got==null) return false;
-
-        if (expect.Length!=got.Length) return false;
-
-        if (comparer==null)
-          return expect.Cast<object>().SequenceEqual(got.Cast<object>());
-
-        return expect.Cast<object>().SequenceEqual(got.Cast<object>(), comparer);
-      }
-
-      /// <summary>
-      /// Tests Arrays for equality via Array.SequenceEqual()
-      /// </summary>
-      public static void AreArraysEquivalent(Array expect, Array got, string from = null, IEqualityComparer<object> comparer = null)
-      {
-        if (!AreArraysEquivalentTest(expect, got, comparer)) Fail("AreArraysEquivalent({0}, {1})".args(expect, got), from);
-      }
-
-      /// <summary>
-      /// Tests arrays of T : IEquatable(T) for equality - element by element
-      /// </summary>
-      public static bool AreArraysEquivalentTest<T>(T[] expect, T[] got, out int differenceIdx, IEqualityComparer<T> comparer = null) where T : IEquatable<T>
-      {
-        differenceIdx = -1;
-        if (expect==null && got==null) return true;
-        if (expect==null || got==null) return false;
-
-        if (expect.Length!=got.Length) return false;
-
-        if (comparer==null)
-          comparer = EqualityComparer<T>.Default;
-
-        for(var i=0; i<expect.Length; i++ )
+        var eq = comparer.Equals( expect[i], got[i] );
+        if (!eq)
         {
-          var eq = comparer.Equals( expect[i], got[i] );
-          if (!eq)
-          {
-            differenceIdx = i;
-            return false;
-          }
+          differenceIdx = i;
+          return false;
         }
-        return true;
       }
+      return true;
+    }
 
-      /// <summary>
-      /// Tests arrays of T : IEquatable(T) for equality - element by element
-      /// </summary>
-      public static void AreArraysEquivalent<T>(T[] expect, T[] got, string from = null, IEqualityComparer<T> comparer = null) where T : IEquatable<T>
+    /// <summary>
+    /// Tests arrays of T : IEquatable(T) for equality - element by element
+    /// </summary>
+    public static void AreArraysEquivalent<T>(T[] expect, T[] got, string from = null, IEqualityComparer<T> comparer = null) where T : IEquatable<T>
+    {
+      if (!AreArraysEquivalentTest<T>(expect, got, out int differenceIdx, comparer))
+        Fail("AreArraysEquivalent<{0}>({1}, {2}) at index {3}".Args(typeof(T).FullName, expect, got, differenceIdx), from);
+    }
+
+    /// <summary>
+    /// Tests arrays of T : IEquatable(T) for equality - element by element
+    /// </summary>
+    public static bool AreArraysEquivalentTest<T>(Nullable<T>[] expect, Nullable<T>[] got, out int differenceIdx, IEqualityComparer<T> comparer = null) where T : struct, IEquatable<T>
+    {
+      differenceIdx = -1;
+      if (expect==null && got==null) return true;
+      if (expect==null || got==null) return false;
+
+      if (expect.Length!=got.Length) return false;
+
+      if (comparer==null)
+        comparer = EqualityComparer<T>.Default;
+
+      for(var i=0; i<expect.Length; i++ )
       {
-        if (!AreArraysEquivalentTest<T>(expect, got, out int differenceIdx, comparer))
-          Fail("AreArraysEquivalent<{0}>({1}, {2}) at index {3}".Args(typeof(T).FullName, expect, got, differenceIdx), from);
-      }
+        var e1 = expect[i];
+        var e2 = got[i];
 
-      /// <summary>
-      /// Tests arrays of T : IEquatable(T) for equality - element by element
-      /// </summary>
-      public static bool AreArraysEquivalentTest<T>(Nullable<T>[] expect, Nullable<T>[] got, out int differenceIdx, IEqualityComparer<T> comparer = null) where T : struct, IEquatable<T>
-      {
-        differenceIdx = -1;
-        if (expect==null && got==null) return true;
-        if (expect==null || got==null) return false;
-
-        if (expect.Length!=got.Length) return false;
-
-        if (comparer==null)
-          comparer = EqualityComparer<T>.Default;
-
-        for(var i=0; i<expect.Length; i++ )
+        if (!e1.HasValue && !e2.HasValue) continue;
+        if (!e1.HasValue || !e2.HasValue)
         {
-          var e1 = expect[i];
-          var e2 = got[i];
-
-          if (!e1.HasValue && !e2.HasValue) continue;
-          if (!e1.HasValue || !e2.HasValue)
-          {
-            differenceIdx = i;
-            return false;
-          }
-
-          var eq = comparer.Equals( e1.Value, e2.Value );
-          if (!eq)
-          {
-            differenceIdx = i;
-            return false;
-          }
+          differenceIdx = i;
+          return false;
         }
-        return true;
-      }
 
-      /// <summary>
-      /// Tests arrays of T : IEquatable(T) for equality - element by element
-      /// </summary>
-      public static void AreArraysEquivalent<T>(Nullable<T>[] expect, Nullable<T>[] got, string from = null, IEqualityComparer<T> comparer = null) where T : struct, IEquatable<T>
-      {
-        if (!AreArraysEquivalentTest<T>(expect, got, out int differenceIdx, comparer))
-          Fail("AreArraysEquivalent<{0}>({1}, {2}) at index {3}".Args(typeof(T).FullName, expect, got, differenceIdx), from);
-      }
-
-
-      /// <summary>
-      /// Tests arrays for equivalance using element-by-element equality test based on object.Equals()
-      /// </summary>
-      public static bool AreArrayObjectsEquivalentTest<T>(T[] expect, T[] got, out int differenceIdx) where T : class
-      {
-        differenceIdx = -1;
-        if (expect==null && got==null) return true;
-        if (expect==null || got==null) return false;
-
-        if (expect.Length!=got.Length) return false;
-
-        for(var i=0; i<expect.Length; i++ )
+        var eq = comparer.Equals( e1.Value, e2.Value );
+        if (!eq)
         {
-          var e1 = expect[i];
-          var e2 = got[i];
-
-          if (e1==null && e2==null) continue;
-          if (e1==null || e2==null)
-          {
-            differenceIdx = i;
-            return false;
-          }
-
-          var eq = e1.Equals(e2);
-          if (!eq)
-          {
-            differenceIdx = i;
-            return false;
-          }
+          differenceIdx = i;
+          return false;
         }
-        return true;
       }
+      return true;
+    }
 
-      /// <summary>
-      /// Tests arrays for equivalance using element-by-element equality test based on object.Equals()
-      /// </summary>
-      public static void AreArrayObjectsEquivalent<T>(T[] expect, T[] got, string from = null) where T : class
+    /// <summary>
+    /// Tests arrays of T : IEquatable(T) for equality - element by element
+    /// </summary>
+    public static void AreArraysEquivalent<T>(Nullable<T>[] expect, Nullable<T>[] got, string from = null, IEqualityComparer<T> comparer = null) where T : struct, IEquatable<T>
+    {
+      if (!AreArraysEquivalentTest<T>(expect, got, out int differenceIdx, comparer))
+        Fail("AreArraysEquivalent<{0}>({1}, {2}) at index {3}".Args(typeof(T).FullName, expect, got, differenceIdx), from);
+    }
+
+
+    /// <summary>
+    /// Tests arrays for equivalance using element-by-element equality test based on object.Equals()
+    /// </summary>
+    public static bool AreArrayObjectsEquivalentTest<T>(T[] expect, T[] got, out int differenceIdx) where T : class
+    {
+      differenceIdx = -1;
+      if (expect==null && got==null) return true;
+      if (expect==null || got==null) return false;
+
+      if (expect.Length!=got.Length) return false;
+
+      for(var i=0; i<expect.Length; i++ )
       {
-        if (!AreArrayObjectsEquivalentTest<T>(expect, got, out int differenceIdx))
-          Fail("AreArrayObjectsEquivalent<{0}>({1}, {2}) at index {3}".Args(typeof(T).FullName, expect, got, differenceIdx), from);
+        var e1 = expect[i];
+        var e2 = got[i];
+
+        if (e1==null && e2==null) continue;
+        if (e1==null || e2==null)
+        {
+          differenceIdx = i;
+          return false;
+        }
+
+        var eq = e1.Equals(e2);
+        if (!eq)
+        {
+          differenceIdx = i;
+          return false;
+        }
       }
+      return true;
+    }
+
+    /// <summary>
+    /// Tests arrays for equivalance using element-by-element equality test based on object.Equals()
+    /// </summary>
+    public static void AreArrayObjectsEquivalent<T>(T[] expect, T[] got, string from = null) where T : class
+    {
+      if (!AreArrayObjectsEquivalentTest<T>(expect, got, out int differenceIdx))
+        Fail("AreArrayObjectsEquivalent<{0}>({1}, {2}) at index {3}".Args(typeof(T).FullName, expect, got, differenceIdx), from);
+    }
 
     #endregion
 
     #region .pvt
     private static string args(this string pat, params object[] args)
-      {
-        for(var i=0; i<args.Length; i++)
-          args[i] = argToStr(args[i]);
+    {
+      for(var i=0; i<args.Length; i++)
+        args[i] = argToStr(args[i]);
 
-        return pat.Args(args);
-      }
+      return pat.Args(args);
+    }
 
-      private static string argToStr(object arg)
-      {
-         const int MAX_LEN = 96;
+    private static string argToStr(object arg)
+    {
+        const int MAX_LEN = 96;
 
-         if (arg==null) return CoreConsts.NULL_STRING;
+        if (arg==null) return CoreConsts.NULL_STRING;
 
-         if (arg is string sarg)
-           return "(string)\"{0}\" of {1} chars".Args(sarg.TakeFirstChars(MAX_LEN, "..."), sarg.Length);
+        if (arg is string sarg)
+          return "(string)\"{0}\" of {1} chars".Args(sarg.TakeFirstChars(MAX_LEN, "..."), sarg.Length);
 
-         if (arg is byte[] barg)
-           return "(byte[])\"{0}\" of {1} bytes".Args(barg.ToDumpString(DumpFormat.Hex, maxLen: MAX_LEN), barg.Length);
+        if (arg is byte[] barg)
+          return "(byte[])\"{0}\" of {1} bytes".Args(barg.ToDumpString(DumpFormat.Hex, maxLen: MAX_LEN), barg.Length);
 
 
-         var tp = arg.GetType();
+        var tp = arg.GetType();
 
-         if (tp.IsEnum) return "{0}.{1}".Args(tp.Name, arg);
-         if (tp.IsPrimitive) return "({0}){1}".Args(tp.Name, arg);
-         if (arg is Type) return "({0}){1}".Args(tp.Name, ((Type)arg).FullNameWithExpandedGenericArgs());
+        if (tp.IsEnum) return "{0}.{1}".Args(tp.Name, arg);
+        if (tp.IsPrimitive) return "({0}){1}".Args(tp.Name, arg);
+        if (arg is Type) return "({0}){1}".Args(tp.Name, ((Type)arg).FullNameWithExpandedGenericArgs());
 
-         return "({0})`{1}`".Args(arg.GetType().FullNameWithExpandedGenericArgs(false), arg == null ? "<null>" : arg.ToString().TakeFirstChars(64));
-      }
+        return "({0})`{1}`".Args(arg.GetType().FullNameWithExpandedGenericArgs(false), arg == null ? "<null>" : arg.ToString().TakeFirstChars(64));
+    }
     #endregion
 
   }

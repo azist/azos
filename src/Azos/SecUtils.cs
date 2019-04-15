@@ -5,7 +5,9 @@
 </FILE_LICENSE>*/
 using System;
 
+using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 using Azos.Security;
 
@@ -19,14 +21,31 @@ namespace Azos
     /// <summary>
     /// Checks all of the permissions decorating the calling method in the scope of current call context session.
     /// This is shortcut to Permission.AuthorizeAndGuardAction(MethodInfo).
-    /// Use case: `MethodBase.GetCurrentMethod().CheckPermissions(app)`
+    /// WARNING: in async methods, this call must be before the first AWAIT statement, otherwise the stack can not be unwound.
+    /// Use case: `app.CheckThisCallPermissions()`
     /// </summary>
-    public static MethodBase CheckPermissions(this MethodBase method, IApplication app)
+    public static void CheckThisCallPermissions(this IApplication app,  [CallerMemberName]string callingMethodName = null)
     {
       app.NonNull(nameof(app));
-      Permission.AuthorizeAndGuardAction(app, method, Ambient.CurrentCallSession);
-      return method;
+      callingMethodName.NonBlank(nameof(callingMethodName));
+
+      MethodBase method = null;
+      for (var i = 1; ; i++)
+      {
+        var frame = new StackFrame(i, false);
+        method = frame.GetMethod();
+
+        if (method==null)
+          throw new SecurityException(StringConsts.SECURITY_CHECKTHISCALLPERMISSIONS_STACK_ERROR.Args(nameof(CheckThisCallPermissions), callingMethodName));
+
+        if (method.Name == callingMethodName) break;
+      }
+
+      var session = Ambient.CurrentCallSession;
+      Permission.AuthorizeAndGuardAction(app, method.DeclaringType, session);
+      Permission.AuthorizeAndGuardAction(app, method, session);
     }
+
 
     ///// <summary>
     ///// Checks all of the permissions decorating the calling method in the scope of current call context session.

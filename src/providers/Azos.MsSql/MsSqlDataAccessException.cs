@@ -10,7 +10,7 @@ using System.Runtime.Serialization;
 namespace Azos.Data.Access.MsSql
 {
   /// <summary>
-  /// Thrown by MsSQL data access classes
+  /// Thrown by MsSql data access classes
   /// </summary>
   [Serializable]
   public class MsSqlDataAccessException : DataAccessException

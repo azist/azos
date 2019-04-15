@@ -6,22 +6,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-using System.Data;
+using Azos.Serialization.JSON;
 using System.Data.SqlClient;
+using System.Data;
 
 namespace Azos.Data.Access.MsSql
 {
-
   internal static class CRUDGenerator
   {
 
-      public static int CRUDInsert(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
+      public static async Task<int> CRUDInsert(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
       {
         try
         {
-            return crudInsert(store, cnn, trans, doc, filter);
+            return await crudInsert(store, cnn, trans, doc, filter);
         }
         catch(Exception error)
         {
@@ -33,11 +35,11 @@ namespace Azos.Data.Access.MsSql
         }
       }
 
-      public static int CRUDUpdate(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
+      public static async Task<int> CRUDUpdate(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
       {
         try
         {
-            return crudUpdate(store, cnn, trans, doc, key, filter);
+            return await crudUpdate(store, cnn, trans, doc, key, filter);
         }
         catch(Exception error)
         {
@@ -51,11 +53,11 @@ namespace Azos.Data.Access.MsSql
         }
       }
 
-      public static int CRUDUpsert(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
+      public static async Task<int> CRUDUpsert(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
       {
         try
         {
-            return crudUpsert(store, cnn, trans, doc, filter);
+            return await crudUpsert(store, cnn, trans, doc, filter);
         }
         catch(Exception error)
         {
@@ -67,11 +69,11 @@ namespace Azos.Data.Access.MsSql
         }
       }
 
-      public static int CRUDDelete(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key)
+      public static async Task<int> CRUDDelete(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key)
       {
         try
         {
-            return crudDelete(store, cnn, trans, doc, key);
+            return await crudDelete(store, cnn, trans, doc, key);
         }
         catch(Exception error)
         {
@@ -101,15 +103,16 @@ namespace Azos.Data.Access.MsSql
       string tableName = schema.Name;
 
       if (schema.TypedDocType!=null)
-        tableName = "tbl_" + schema.TypedDocType.Name;//without namespace
+        tableName = "TBL_" + schema.TypedDocType.Name;//without namespace
 
       var tableAttr = schema.GetTableAttrForTarget(target);
       if (tableAttr!=null && tableAttr.Name.IsNotNullOrWhiteSpace()) tableName = tableAttr.Name;
+
       return tableName;
     }
 
 
-    private static int crudInsert(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
+    private static async Task<int> crudInsert(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var cnames = new StringBuilder();
@@ -120,37 +123,40 @@ namespace Azos.Data.Access.MsSql
       {
         var fattr = fld[target];
         if (fattr==null) continue;
-if (fld.Name=="counter") continue;
+
         if (fattr.StoreFlag != StoreFlag.LoadAndStore && fattr.StoreFlag != StoreFlag.OnlyStore) continue;
 
-        if (filter!=null)//20160210 Dkh+SPol
+        if (filter!=null)
         {
           if (!filter(doc, null, fld)) continue;
         }
 
-        var fname = fld.GetBackendNameForTarget(target);
+        var fname = store.AdjustObjectNameCasing( fld.GetBackendNameForTarget(target) );
 
-        var fvalue = getFieldValue(doc, fld.Order, store);
+        var converted = getDbFieldValue(doc, fld, fattr, store);
 
 
         cnames.AppendFormat(" [{0}],", fname);
 
-        if ( fvalue != null)
+        if ( converted.value != null)
         {
-                var pname = string.Format("@VAL{0}", vpidx);
+          var pname = string.Format("@VAL{0}", vpidx);
 
-                values.AppendFormat(" {0},", pname);
+          values.AppendFormat(" {0},", pname);
 
-                var par = new SqlParameter();
-                par.ParameterName = pname;
-                par.Value = fvalue;
-                vparams.Add(par);
+          var par = new SqlParameter();
+//Console.WriteLine(doc.Schema.ToJson());
+//Console.WriteLine("{0}|{1}: OrclDbTyp.{2} = ({3}){4}".Args(fld.NonNullableType.FullName, pname, converted.dbType, converted.value.GetType().FullName, converted.value));
+          par.ParameterName = pname;
+          par.Value = converted.value;
+          if (converted.dbType.HasValue) par.SqlDbType = converted.dbType.Value;
+          vparams.Add(par);
 
-                vpidx++;
+          vpidx++;
         }
         else
         {
-                values.Append(" NULL,");
+          values.Append(" NULL,");
         }
       }//foreach
 
@@ -163,7 +169,7 @@ if (fld.Name=="counter") continue;
         return 0;//nothing to do
 
 
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );
 
       using(var cmd = cnn.CreateCommand())
       {
@@ -171,12 +177,11 @@ if (fld.Name=="counter") continue;
 
         cmd.Transaction = trans;
         cmd.CommandText = sql;
-Console.WriteLine(sql);
         cmd.Parameters.AddRange(vparams.ToArray());
-        ConvertParameters(store, cmd.Parameters);
+      //  ConvertParameters(store, cmd.Parameters);
         try
         {
-            var affected = cmd.ExecuteNonQuery();
+            var affected = await cmd.ExecuteNonQueryAsync();
             GeneratorUtils.LogCommand(store, "insert-ok", cmd, null);
             return affected;
         }
@@ -191,7 +196,7 @@ Console.WriteLine(sql);
 
 
 
-    private static int crudUpdate(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
+    private static async Task<int> crudUpdate(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var values = new StringBuilder();
@@ -202,39 +207,42 @@ Console.WriteLine(sql);
         var fattr = fld[target];
         if (fattr==null) continue;
 
-        var fname = fld.GetBackendNameForTarget(target);
+        var fname =  fld.GetBackendNameForTarget(target);
 
         //20141008 DKh Skip update of key fields
         //20160124 DKh add update of keys if IDataStoreKey is present
         if (fattr.Key && !GeneratorUtils.HasFieldInNamedKey(fname, key)) continue;
 
+        fname = store.AdjustObjectNameCasing(fname);
+
         if (fattr.StoreFlag != StoreFlag.LoadAndStore && fattr.StoreFlag != StoreFlag.OnlyStore) continue;
 
-        if (filter!=null)//20160210 Dkh+SPol
+        if (filter!=null)
         {
           if (!filter(doc, key, fld)) continue;
         }
 
 
-        var fvalue = getFieldValue(doc, fld.Order, store);
+        var converted = getDbFieldValue(doc, fld, fattr, store);
 
 
-        if ( fvalue != null)
+        if ( converted.value != null)
         {
-                var pname = string.Format("@VAL{0}", vpidx);
+          var pname = string.Format("@VAL{0}", vpidx);
 
-                values.AppendFormat(" [{0}] = {1},", fname, pname);
+          values.AppendFormat(" [{0}] = {1},", fname, pname);
 
-                var par = new SqlParameter();
-                par.ParameterName = pname;
-                par.Value = fvalue;
-                vparams.Add(par);
+          var par = new SqlParameter();
+          par.ParameterName = pname;
+          par.Value = converted.value;
+          if (converted.dbType.HasValue) par.SqlDbType = converted.dbType.Value;
+          vparams.Add(par);
 
-                vpidx++;
+          vpidx++;
         }
         else
         {
-                values.AppendFormat(" [{0}] = NULL,", fname);
+         values.AppendFormat(" [{0}] = NULL,", fname);
         }
       }//foreach
 
@@ -246,7 +254,7 @@ Console.WriteLine(sql);
         return 0;//nothing to do
 
 
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );
 
       using(var cmd = cnn.CreateCommand())
       {
@@ -267,11 +275,13 @@ Console.WriteLine(sql);
         cmd.Transaction = trans;
         cmd.CommandText = sql;
         cmd.Parameters.AddRange(vparams.ToArray());
-        ConvertParameters(store, cmd.Parameters);
+        //  ConvertParameters(store, cmd.Parameters);
+
+//dbg(cmd);
 
         try
         {
-            var affected = cmd.ExecuteNonQuery();
+            var affected = await cmd.ExecuteNonQueryAsync();
             GeneratorUtils.LogCommand(store, "update-ok", cmd, null);
             return affected;
         }
@@ -284,7 +294,7 @@ Console.WriteLine(sql);
     }
 
 
-    private static int crudUpsert(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
+    private static async Task<int> crudUpsert(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var cnames = new StringBuilder();
@@ -307,12 +317,14 @@ Console.WriteLine(sql);
 
         var fname = fld.GetBackendNameForTarget(target);
 
-        var fvalue = getFieldValue(doc, fld.Order, store);
+        fname = store.AdjustObjectNameCasing( fname );
+
+        var converted = getDbFieldValue(doc, fld, fattr, store);
 
 
         cnames.AppendFormat(" [{0}],", fname);
 
-        if ( fvalue != null)
+        if ( converted.value != null)
         {
                 var pname = string.Format("@VAL{0}", vpidx);
 
@@ -323,7 +335,8 @@ Console.WriteLine(sql);
 
                 var par = new SqlParameter();
                 par.ParameterName = pname;
-                par.Value = fvalue;
+                par.Value = converted;
+                if (converted.dbType.HasValue) par.SqlDbType = converted.dbType.Value;
                 vparams.Add(par);
 
                 vpidx++;
@@ -345,7 +358,7 @@ Console.WriteLine(sql);
         return 0;//nothing to do
 
 
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );
 
       using(var cmd = cnn.CreateCommand())
       {
@@ -355,11 +368,11 @@ Console.WriteLine(sql);
         cmd.Transaction = trans;
         cmd.CommandText = sql;
         cmd.Parameters.AddRange(vparams.ToArray());
-        ConvertParameters(store, cmd.Parameters);
+     //   ConvertParameters(store, cmd.Parameters);
 
         try
         {
-            var affected = cmd.ExecuteNonQuery();
+            var affected = await cmd.ExecuteNonQueryAsync();
             GeneratorUtils.LogCommand(store, "upsert-ok", cmd, null);
             return affected;
         }
@@ -375,10 +388,10 @@ Console.WriteLine(sql);
 
 
 
-    private static int crudDelete(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key)
+    private static async Task<int> crudDelete(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, IDataStoreKey key)
     {
       var target = store.TargetName;
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );
 
       using (var cmd = cnn.CreateCommand())
       {
@@ -391,15 +404,17 @@ Console.WriteLine(sql);
 
         cmd.Transaction = trans;
         if (!string.IsNullOrEmpty(where))
-            cmd.CommandText = string.Format("DELETE T1 FROM [{0}] T1 WHERE {1}",tableName, where);
+            cmd.CommandText = string.Format("DELETE FROM [{0}] T1 WHERE {1}",tableName, where);
         else
-            cmd.CommandText = string.Format("DELETE T1 FROM [{0}] T1", tableName);
+            cmd.CommandText = string.Format("DELETE FROM [{0}] T1", tableName);
 
         ConvertParameters(store, cmd.Parameters);
 
+//dbg(cmd);
+
         try
         {
-            var affected = cmd.ExecuteNonQuery();
+            var affected = await cmd.ExecuteNonQueryAsync();
             GeneratorUtils.LogCommand(store, "delete-ok", cmd, null);
             return affected;
         }
@@ -413,49 +428,67 @@ Console.WriteLine(sql);
       }//using command
     }
 
-    private static object getFieldValue(Doc doc, int order, MsSqlDataStoreBase store)
+    private static (object value, SqlDbType? dbType) getDbFieldValue(Doc doc, Schema.FieldDef fld, FieldAttribute fattr, MsSqlDataStoreBase store)
     {
-      var result = doc[order];
-
-      SqlDbType? convertedDbType;
-      return CLRValueToDB(store, result, out convertedDbType);
+      var result = doc.GetFieldValue(fld);
+      return CLRValueToDB(store, result, fattr.BackendType);
     }
 
-    internal static object CLRValueToDB(MsSqlDataStoreBase store, object value, out SqlDbType? convertedDbType)
+    internal static (object value, SqlDbType? dbType) CLRValueToDB(MsSqlDataStoreBase store, object value, string explicitDbType)
     {
-      convertedDbType = null;
+      SqlDbType? convertedDbType = null;
 
-      if (value==null) return null;
+      if (explicitDbType.IsNotNullOrWhiteSpace())
+        convertedDbType = explicitDbType.AsNullableEnum<SqlDbType>();
 
-      if (value is GDID)
+      if (value==null) return (null, convertedDbType);
+
+      if (value is ulong ulng)
       {
-        if (((GDID)value).IsZero)
+        value = (decimal)ulng;
+        convertedDbType = SqlDbType.Decimal;
+
+      }else if (value is DateTime clrDt && convertedDbType== SqlDbType.Date)
+      {
+        // Expected DATE got NUmber
+        // convertedDbType = OracleDbType.Int64;
+        // value = clrDt.Ticks;// new global::Oracle.ManagedDataAccess.Types.OracleDate(clrDt);
+
+        //Expected NUMBER got DATE
+       // value = new global::Oracle.ManagedDataAccess.Types.OracleTimeStamp(clrDt);
+       // value = new global::Oracle.ManagedDataAccess.Types.OracleDate(clrDt);
+       // convertedDbType = OracleDbType.NVarchar2;
+       // value = clrDt.ToString("yyyyMMddHHmmss");
+      }
+      else if (value is GDID gdid)
+      {
+        if (gdid.IsZero)
         {
-          return null;
+          return (null, convertedDbType);
         }
 
         if(store.FullGDIDS)
         {
-          value = (object)((GDID)value).Bytes;//be very careful with byte ordering of GDID for index optimization
+          value = gdid.Bytes;//be very careful with byte ordering of GDID for index optimization
           convertedDbType = SqlDbType.Binary;
+          //todo 20190106 DKh: This needs to be tested for performance
         }
         else
         {
-          value = (object)((GDID)value).ID;
-          convertedDbType = SqlDbType.BigInt;
+          value = (decimal)gdid.ID;
+          convertedDbType = SqlDbType.Decimal;
         }
       }
-      else
-      if (value is bool)
+      else if (value is bool)
       {
         if (store.StringBool)
         {
           value = (bool)value ? store.StringForTrue : store.StringForFalse;
-          convertedDbType = SqlDbType.VarChar;
+          convertedDbType = SqlDbType.Char;
         }
       }
 
-      return value;
+      return (value, convertedDbType);
     }
 
     internal static void ConvertParameters(MsSqlDataStoreBase store, SqlParameterCollection pars)
@@ -464,13 +497,19 @@ Console.WriteLine(sql);
       for(var i=0; i<pars.Count; i++)
       {
         var par = pars[i];
-        SqlDbType? convertedDbType;
-        par.Value = CLRValueToDB(store, par.Value, out convertedDbType);
-        if (convertedDbType.HasValue)
-         par.SqlDbType = convertedDbType.Value;
+        var converted = CLRValueToDB(store, par.Value, null);
+        par.Value = converted.value;
+        if (converted.dbType.HasValue)
+         par.SqlDbType = converted.dbType.Value;
       }
     }
 
+    internal static void dbg(SqlCommand cmd)
+    {
+      Console.WriteLine(cmd.CommandText);
+      foreach (var p in cmd.Parameters.Cast<SqlParameter>())
+        Console.WriteLine("{0}: SqlDbTyp.{1} = ({2}){3}".Args(p.ParameterName, p.SqlDbType, p.Value.GetType().FullName, p.Value));
+    }
 
     #endregion
 

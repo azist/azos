@@ -193,7 +193,16 @@ app
     public void CheckMethodPermissions_1()
     {
       impersonate(new IDPasswordCredentials("user1", "thejake"));
-      MethodBase.GetCurrentMethod().CheckPermissions(m_App);
+      m_App.CheckThisCallPermissions();
+    }
+
+    [Run]
+    [TeztPermissionA(1)]
+    public async Task CheckMethodPermissions_1_AsyncCaller()
+    {
+      impersonate(new IDPasswordCredentials("user1", "thejake"));
+      m_App.CheckThisCallPermissions();
+      await Task.Delay(50);
     }
 
     [Run]
@@ -202,7 +211,17 @@ app
     public void CheckMethodPermissions_2()
     {
       impersonate(new IDPasswordCredentials("user1", "thejake"));
-      MethodBase.GetCurrentMethod().CheckPermissions(m_App);
+      m_App.CheckThisCallPermissions();
+    }
+
+    [Run]
+    [Aver.Throws(ExceptionType = typeof(SecurityException))]
+    [TeztPermissionA(4)]//does not have 4
+    public async Task CheckMethodPermissions_2_AsyncCaller()
+    {
+      impersonate(new IDPasswordCredentials("user1", "thejake"));
+      await Task.Delay(50);
+      m_App.CheckThisCallPermissions();
     }
 
     [Run]
@@ -210,7 +229,7 @@ app
     public void CheckMethodPermissions_3()
     {
       impersonate(new IDPasswordCredentials("user2", "thejake"));
-      MethodBase.GetCurrentMethod().CheckPermissions(m_App);
+      m_App.CheckThisCallPermissions();
     }
 
     [Run]
@@ -219,7 +238,7 @@ app
     public void CheckMethodPermissions_4()
     {
       impersonate(new IDPasswordCredentials("user1", "thejakewrongpassword"));
-      MethodBase.GetCurrentMethod().CheckPermissions(m_App);
+      m_App.CheckThisCallPermissions();
     }
 
     [Run]
@@ -230,7 +249,7 @@ app
     public void CheckMethodPermissions_5()
     {
       impersonate(new IDPasswordCredentials("user1", "thejake"));
-      MethodBase.GetCurrentMethod().CheckPermissions(m_App);
+      m_App.CheckThisCallPermissions();
     }
 
     [Run]
@@ -240,7 +259,7 @@ app
     public void CheckMethodPermissions_6()
     {
       impersonate(new IDPasswordCredentials("user2", "thejake"));
-      MethodBase.GetCurrentMethod().CheckPermissions(m_App);
+      m_App.CheckThisCallPermissions();
     }
 
     [Run]
@@ -251,7 +270,7 @@ app
     public void CheckMethodPermissions_7()
     {
       impersonate(new IDPasswordCredentials("user2", "thejake"));
-      MethodBase.GetCurrentMethod().CheckPermissions(m_App);
+      m_App.CheckThisCallPermissions();
     }
 
     [Run]
@@ -261,7 +280,44 @@ app
     public void CheckMethodPermissions_8()
     {
       impersonate(new IDPasswordCredentials("sys", "thejake"));
-      MethodBase.GetCurrentMethod().CheckPermissions(m_App);
+      m_App.CheckThisCallPermissions();
+    }
+
+    [Run]
+    public void CheckMethodPermissions_9()
+    {
+      impersonate(new IDPasswordCredentials("user2", "thejake"));
+      var g = new guarded();
+      Aver.Throws<SecurityException>(()=> g.callme(m_App));
+
+      impersonate(new IDPasswordCredentials("sys", "thejake"));
+      g.callme(m_App);//sys has all privs
+    }
+
+    [Run]
+    public async Task CheckMethodPermissions_9_AsyncCaller()
+    {
+      impersonate(new IDPasswordCredentials("user2", "thejake"));
+      var g = new guarded();
+      await Aver.ThrowsAsync<SecurityException>(async() => await g.callmeasync(m_App));
+
+      impersonate(new IDPasswordCredentials("sys", "thejake"));
+      await g.callmeasync(m_App);//sys has all privs
+    }
+
+    [TeztPermissionB(6)] //not all users have this, it cascades on all methods
+    private class guarded
+    {
+      public void callme(IApplication app)
+      {
+        app.CheckThisCallPermissions();
+      }
+
+      public async Task callmeasync(IApplication app)
+      {
+        app.CheckThisCallPermissions();
+        await Task.Delay(50);
+      }
     }
 
 
