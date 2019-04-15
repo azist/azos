@@ -11,7 +11,8 @@ using Azos.Apps;
 namespace Azos
 {
   /// <summary>
-  /// Provides access to process-global ambient context. Business app developers normally should not use this class
+  /// Provides access to process-global ambient context. Business app developers normally should not use this class and
+  /// rely on injected app modules/services instead
   /// </summary>
   public static class Ambient
   {
@@ -49,7 +50,7 @@ namespace Azos
     /// <summary>
     /// Returns the memory utilization model for the application.
     /// This property is NOT configurable. It may be set at process entry point via a call to
-    /// App.SetMemoryModel() before the app container spawns.
+    /// Ambient.SetMemoryModel() before the app container spawns.
     /// Typical applications should not change the defaults.
     /// Some system service providers examine this property to allocate less cache and temp buffers
     /// in the memory-constrained environments
