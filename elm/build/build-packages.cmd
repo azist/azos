@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.499.1
-set HEADLINE=MsSql bas data store and AsyncFlowMutableLocal
+set VER=1.0.500
+set HEADLINE=MsSql base data store, AsyncFlowMutableLocal and CheckThisCallPermissions
 
 call vs2017-build-release %VER%
 
