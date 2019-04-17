@@ -295,6 +295,10 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string CONFIG_RECURSIVE_VARS_ERROR =
         "Configuration line contains recursive vars that can not be resolved: \"{0}\"";
 
+    public const string CONFIG_INFINITE_VARS_ERROR =
+        "Error evaluating value \"{0}\" as maximum variable evaluation iteration limit of {1} was exceeded. "+
+        "This can happen if external variable providers keep on yielding resolved values with new variables which never resolve within the allowed limit of {1} iterations";
+
     public const string CONFIG_NO_PROVIDER_LOAD_FILE_ERROR =
         "No configuration provider can open file name: ";
 

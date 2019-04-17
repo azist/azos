@@ -1370,13 +1370,19 @@ namespace Azos.Conf
                   var VAR_END = m_Configuration.Variable_END;
                   var VAR_PATH_MOD = m_Configuration.Variable_PATH_MOD;
 
+                       const int MAX_ITERATIONS = 1_000;
+                       var iteration=0;
                        while(true)
                        {
+                         if (iteration++ > MAX_ITERATIONS)
+                           throw new ConfigException(StringConsts.CONFIG_INFINITE_VARS_ERROR.Args(value.TakeFirstChars(32, "..."), MAX_ITERATIONS));
+
                          var idxs = value.IndexOf(VAR_START);
                          if (idxs<0) break;
                          var idxe = value.IndexOf(VAR_END, idxs);
                          if (idxe<=idxs) break;
 
+                         var originalDecl = value.Substring(idxs, idxe - idxs + VAR_END.Length);
                          var vname = value.Substring(idxs + VAR_START.Length, 1 + idxe - idxs - VAR_START.Length - VAR_END.Length).Trim();
 
                          if (vlist.Contains(vname))
@@ -1387,11 +1393,11 @@ namespace Azos.Conf
                          {
                              if (vname.StartsWith(VAR_PATH_MOD))
                              {
-                               value = replacePaths(value, VAR_START + vname + VAR_END, getValueFromMacroOrEnvVarOrNavigationWithCheck(vname.Replace(VAR_PATH_MOD, string.Empty)));
+                               value = replacePaths(value, originalDecl, getValueFromMacroOrEnvVarOrNavigationWithCheck(vname.Replace(VAR_PATH_MOD, string.Empty)));
                              }
                              else
                              {
-                               value = value.Replace(VAR_START + vname + VAR_END, getValueFromMacroOrEnvVarOrNavigationWithCheck(vname));
+                               value = value.Replace(originalDecl, getValueFromMacroOrEnvVarOrNavigationWithCheck(vname));
                              }
                          }
                          finally
