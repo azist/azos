@@ -399,8 +399,7 @@ namespace Azos.Sky
     public const string PM_HOSTSET_CONFIG_DUPLICATE_NAME_ERROR = "ProceeManager hostset config already contains HostSet named '{0}'";
     public const string PM_HOSTSET_CONFIG_PATH_MISSING_ERROR   = "ProceeManager hostset config 'path' is missing for HostSet named '{0}'";
 
-    public const string CONFIGURATION_INCLUDE_PRAGMA_DEPTH_ERROR = "Include pragma recursive depths exceeded: {0}";
-    public const string CONFIGURATION_INCLUDE_PRAGMA_ERROR = "Include error at '{0}': {1}";
+    
 
     public const string TODO_QUEUE_NOT_FOUND_ERROR = "Todo queue '{0}' not found";
     public const string TODO_QUEUE_ENQUEUE_DIFFERENT_ERROR = "Can not enqueue todos from different queues in one enqueue call";

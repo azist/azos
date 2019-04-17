@@ -165,25 +165,6 @@ namespace Azos.Apps
 
     #region Protected
 
-    //protected override Configuration GetConfiguration()
-    //{
-    //  var localConfig = base.GetConfiguration();
-    //  localConfig.Application = this;
-
-    //  BootConfLoader.ProcessAllExistingIncludes(localConfig.Root, null, "boot");
-
-    //  m_BootConfigRoot = localConfig.Root;
-
-    //  var cmdArgs = new string[]{};
-
-    //  if (CommandArgs.Configuration is CommandArgsConfiguration)
-    //    cmdArgs = ((CommandArgsConfiguration)this.CommandArgs.Configuration).Arguments;
-
-    //  var result = m_BootLoader.Load(cmdArgs, localConfig);
-    //  result.Application = this;
-    //  return result;
-    //}
-
     protected override Configuration GetConfiguration() => m_BootLoader.ApplicationConfiguration;
 
     protected override void DoInitApplication()

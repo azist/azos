@@ -208,13 +208,6 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
         public const string STRING_VALUE_COULD_NOT_BE_GOTTEN_AS_TYPE_ERROR = "String value '{0}' could not be gotten as type '{1}' ";
 
 
-        public const string INVENTORIZATION_NEED_STRATEGY_ERROR =
-            "Inventorization requires at least one strategy to be added to Strategies collection of InventorizationManager class";
-
-        public const string INVENTORIZATION_ASSEMBLY_LOAD_ERROR =
-            "Inventorization assembly load failed: ";
-
-
     public const string SLIM_STREAM_CORRUPTED_ERROR = "Slim data stream is corrupted: ";
 
     public const string SECDB_STREAM_CORRUPTED_ERROR = "SecDB data stream is corrupted: ";
@@ -314,6 +307,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string CONFIG_VARS_EVAL_ERROR =
         "Configuration variable '{0}' evaluation error: {1}";
 
+    public const string CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR = "Include pragma recursive depths exceeded: {0}";
 
     public const string CONFIG_BEHAVIOR_APPLY_ERROR =
         "Error while applying behavior to {0}. Error: {1}";

@@ -51,6 +51,11 @@ namespace TestBusinessLogic.Toy
       {
         Console.WriteLine("...app container is up");
 
+        Console.WriteLine("Effective config: ");
+        Console.WriteLine( app.ConfigRoot.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint) );
+        Console.WriteLine();
+
+
         var cmd = app.CommandArgs.AttrByIndex(0).Value;
 
         if (app.CommandArgs["?"].Exists ||
