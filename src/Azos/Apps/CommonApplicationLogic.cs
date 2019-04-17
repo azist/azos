@@ -37,6 +37,7 @@ namespace Azos.Apps
     public const string CONFIG_UNIT_TEST_ATTR = "unit-test";
     public const string CONFIG_FORCE_INVARIANT_CULTURE_ATTR = "force-invariant-culture";
     public const string CONFIG_ENVIRONMENT_NAME_ATTR = "environment-name";
+    public const string CONFIG_PROCESS_INCLUDES = "process-includes";
 
     public const string CONFIG_MEMORY_MANAGEMENT_SECTION = "memory-management";
 
@@ -458,23 +459,34 @@ namespace Azos.Apps
       return msg.Guid;
     }
 
+    /// <summary>
+    /// Gets application configuration processing all includes (if required).
+    /// The default implementation takes a file co-located with entry point in any of the supported formats
+    /// </summary>
     protected virtual Configuration GetConfiguration()
     {
-        //try to read from  /config file
-        var configFile = m_CommandArgs[CONFIG_SWITCH].AttrByIndex(0).Value;
+      //try to read from  /config file
+      var configFile = m_CommandArgs[CONFIG_SWITCH].AttrByIndex(0).Value;
 
-        if (string.IsNullOrEmpty(configFile))
-            configFile = GetDefaultConfigFileName();
+      if (string.IsNullOrEmpty(configFile))
+          configFile = GetDefaultConfigFileName();
 
 
-        Configuration conf;
+      Configuration conf;
 
-        if (File.Exists(configFile))
-            conf = Configuration.ProviderLoadFromFile(configFile);
-        else
-            conf = new MemoryConfiguration();
+      if (File.Exists(configFile))
+          conf = Configuration.ProviderLoadFromFile(configFile);
+      else
+          conf = new MemoryConfiguration();
 
-        return conf;
+      conf.Application = this;
+
+      //20190416 DKh added support for root config pragma includes
+      var includePragma = conf.Root.AttrByName(CONFIG_PROCESS_INCLUDES).Value;
+      if (includePragma.IsNotNullOrWhiteSpace())
+        conf.Root.ProcessAllExistingIncludes(GetType().FullName, includePragma);
+
+      return conf;
     }
 
 

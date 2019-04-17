@@ -1468,6 +1468,29 @@ namespace Azos.Conf
 
 
     /// <summary>
+    /// Calls ProcessIncludePragmas(recurse: true)in a loop until all includes are processed or max nesting depth is exceeded.
+    /// For all practical reasons the nesting level should not exceed 7 levels.
+    /// </summary>
+    /// <param name="configLevelName">Optional logic name of config level which gets included in exception text in case of error</param>
+    /// <param name="includePragma">Optional include pragma section name. If null, the default is used</param>
+    public void ProcessAllExistingIncludes(string configLevelName = null,  string includePragma = null)
+    {
+      const int MAX_INCLUDE_DEPTH = 7;
+
+      if (configLevelName.IsNullOrWhiteSpace()) configLevelName = StringConsts.UNKNOWN_STRING;
+      try
+      {
+        for (int count = 0; this.ProcessIncludePragmas(true, includePragma); count++)
+          if (count >= MAX_INCLUDE_DEPTH)
+             throw new ConfigException(StringConsts.CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR.Args(MAX_INCLUDE_DEPTH));
+      }
+      catch(Exception error)
+      {
+        throw new ConfigException(StringConsts.CONFIGURATION_INCLUDE_PRAGMA_ERROR.Args(configLevelName, error.ToMessageWithType()), error);
+      }
+    }
+
+    /// <summary>
     /// Replaces all include pragmas - sections with specified names ('_include' by default), with pointed to configuration file content
     /// as obtained via the call to file system specified in every pragma.
     /// If no FS specified then LocalFileSystem is used. If no file name specified when try to allocate config node provider.

@@ -298,22 +298,6 @@ namespace Azos.Apps
     }
 
 
-#warning MOVE to Azos, use include provider based on NOPApplication for FS access
-    public static void ProcessAllExistingIncludes(ConfigSectionNode node, string includePragma, string level)
-    {
-      const int CONST_MAX_INCLUDE_DEPTH = 7;
-      try
-      {
-        for (int count = 0; node.ProcessIncludePragmas(true, includePragma); count++)
-          if (count >= CONST_MAX_INCLUDE_DEPTH)
-            throw new ConfigException(Sky.StringConsts.CONFIGURATION_INCLUDE_PRAGMA_DEPTH_ERROR.Args(CONST_MAX_INCLUDE_DEPTH));
-      }
-      catch (Exception error)
-      {
-        throw new ConfigException(StringConsts.CONFIGURATION_INCLUDE_PRAGMA_ERROR.Args(level, error.ToMessageWithType()), error);
-      }
-    }
-
     #region .pvt .impl
 
     private string determineHostName( string hostName)

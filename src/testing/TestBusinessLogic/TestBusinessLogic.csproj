@@ -34,6 +34,9 @@
 
 
   <ItemGroup>
+    <None Update="toy-mixin.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="toy-server.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
