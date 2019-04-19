@@ -417,23 +417,23 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
       "Cannot include path: '{0}'. Exception: {1}";
 
 
-    public const string PARAMETER_MAY_NOT_BE_NULL_ERROR =
-        "Parameter '{0}' may not be null. \n Caller: \n ----------------------\n {1}";
+    public const string GUARDED_PARAMETER_MAY_NOT_BE_NULL_ERROR =
+        "Guarded method '{0}' parameter '{1}' may not be null";
 
-    public const string CONFIG_NODE_PARAMETER_MAY_NOT_BE_EMPTY_ERROR =
-        "Config node parameter '{0}' may not be null or empty. \n Caller: \n ----------------------\n {1}";
+    public const string GUARDED_CONFIG_NODE_PARAMETER_MAY_NOT_BE_EMPTY_ERROR =
+        "Guarded method '{0}' config node parameter '{1}' may not be null or empty";
 
-    public const string STRING_PARAMETER_MAY_NOT_BE_BLANK_ERROR =
-        "String parameter '{0}' may not be blank. \n Caller: \n ----------------------\n {1}";
+    public const string GUARDED_STRING_PARAMETER_MAY_NOT_BE_BLANK_ERROR =
+        "Guarded method '{0}' string parameter '{1}' may not be null or blank/whitespace";
 
-    public const string STRING_PARAMETER_MAY_NOT_EXCEED_MAX_LEN_ERROR =
-        "String parameter '{0}' = '{1}' length of {2} exceeds the max length of {3}. \n Caller: \n ----------------------\n {4}";
+    public const string GUARDED_STRING_PARAMETER_MAY_NOT_EXCEED_MAX_LEN_ERROR =
+        "Guarded method '{0}' string parameter '{1}' = '{2}' length of {3} exceeds the max length of {4}";
 
-    public const string STRING_PARAMETER_MAY_NOT_BE_LESS_MIN_LEN_ERROR =
-        "String parameter '{0}' = '{1}' length of {2} is less than the min length of {3}. \n Caller: \n ----------------------\n {4}";
+    public const string GUARDED_STRING_PARAMETER_MAY_NOT_BE_LESS_MIN_LEN_ERROR =
+        "Guarded method '{0}' string parameter '{1}' = '{2}' length of {3} is less than the min length of {4}";
 
-    public const string STRING_PARAMETER_MUST_BE_BETWEEN_MIN_MAX_LEN_ERROR =
-        "String parameter '{0}' = '{1}' length is {2} but must be between {3} and {4}. \n Caller: \n ----------------------\n {5}";
+    public const string GUARDED_STRING_PARAMETER_MUST_BE_BETWEEN_MIN_MAX_LEN_ERROR =
+        "Guarded method '{0}' string parameter '{1}' = '{2}' length is {3} but must be between {4} and {5}";
 
 
 

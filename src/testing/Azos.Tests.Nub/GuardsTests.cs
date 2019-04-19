@@ -12,7 +12,7 @@ using Azos.Scripting;
 namespace Azos.Tests.Nub
 {
   [Runnable]
-  public class ConstraintsTests
+  public class GuardTests
   {
     [Run]
     public void NonNull()
@@ -22,7 +22,7 @@ namespace Azos.Tests.Nub
       Aver.AreEqual(1, (int)(x.NonNull()));
 
       x = null;
-      Aver.Throws<AzosException>( () => x.NonNull());
+      Aver.Throws<CallGuardException>( () => x.NonNull());
     }
 
     [Run]
@@ -35,7 +35,7 @@ namespace Azos.Tests.Nub
         x.NonNull();
         Aver.Fail("ShouldNever be here");
       }
-      catch (Exception error) when (!(error is AvermentException))
+      catch(CallGuardException error)
       {
         Console.WriteLine(error.ToMessageWithType());
         Aver.IsTrue(  error.Message.Contains("'<unknown>' may not be null") );
@@ -46,7 +46,7 @@ namespace Azos.Tests.Nub
         x.NonNull(nameof(x));
         Aver.Fail("ShouldNever be here");
       }
-      catch (Exception error) when (!(error is AvermentException))
+      catch (CallGuardException error)
       {
         Console.WriteLine(error.ToMessageWithType());
         Aver.IsTrue(error.Message.Contains("'x' may not be null"));
@@ -61,7 +61,7 @@ namespace Azos.Tests.Nub
       Aver.AreEqual("abc", x.NonBlank());
 
       x = null;
-      Aver.Throws<AzosException>(() => x.NonBlank());
+      Aver.Throws<CallGuardException>(() => x.NonBlank());
     }
 
 
@@ -75,10 +75,10 @@ namespace Azos.Tests.Nub
         x.NonBlank();
         Aver.Fail("ShouldNever be here");
       }
-      catch (Exception error) when (!(error is AvermentException))
+      catch (CallGuardException error)
       {
         Console.WriteLine(error.ToMessageWithType());
-        Aver.IsTrue(error.Message.Contains("'<unknown>' may not be blank"));
+        Aver.IsTrue(error.Message.Contains("'<unknown>' may not be null or blank"));
       }
 
       try
@@ -86,10 +86,10 @@ namespace Azos.Tests.Nub
         x.NonBlank(nameof(x));
         Aver.Fail("ShouldNever be here");
       }
-      catch (Exception error) when (!(error is AvermentException))
+      catch (CallGuardException error)
       {
         Console.WriteLine(error.ToMessageWithType());
-        Aver.IsTrue(error.Message.Contains("'x' may not be blank"));
+        Aver.IsTrue(error.Message.Contains("'x' may not be null or blank"));
       }
     }
 
@@ -100,9 +100,9 @@ namespace Azos.Tests.Nub
 
       Aver.AreEqual("abc", x.NonBlankMax(3));
 
-      Aver.Throws<AzosException>(() => x.NonBlankMax(2));
+      Aver.Throws<CallGuardException>(() => x.NonBlankMax(2));
       x = null;
-      Aver.Throws<AzosException>(() => x.NonBlankMax(3));
+      Aver.Throws<CallGuardException>(() => x.NonBlankMax(3));
     }
 
     [Run]
@@ -112,10 +112,10 @@ namespace Azos.Tests.Nub
 
       try
       {
-        x.NonBlankMax(2);
+        x.NonBlankMax(2, nameof(x));
         Aver.Fail("ShouldNever be here");
       }
-      catch (Exception error) when (!(error is AvermentException))
+      catch (CallGuardException error)
       {
         Console.WriteLine(error.ToMessageWithType());
       }
@@ -140,10 +140,10 @@ namespace Azos.Tests.Nub
 
       try
       {
-        x.NonBlankMin(22);
+        x.NonBlankMin(22, nameof(x));
         Aver.Fail("ShouldNever be here");
       }
-      catch (Exception error) when (!(error is AvermentException))
+      catch (CallGuardException error)
       {
         Console.WriteLine(error.ToMessageWithType());
       }
@@ -156,10 +156,10 @@ namespace Azos.Tests.Nub
 
       Aver.AreEqual("abc", x.NonBlankMinMax(1,3));
 
-      Aver.Throws<AzosException>(() => x.NonBlankMinMax(4,64));
-      Aver.Throws<AzosException>(() => x.NonBlankMinMax(1, 2));
+      Aver.Throws<CallGuardException>(() => x.NonBlankMinMax(4,64));
+      Aver.Throws<CallGuardException>(() => x.NonBlankMinMax(1, 2));
       x = null;
-      Aver.Throws<AzosException>(() => x.NonBlankMinMax(1,4));
+      Aver.Throws<CallGuardException>(() => x.NonBlankMinMax(1,4));
     }
 
     [Run]
@@ -169,10 +169,10 @@ namespace Azos.Tests.Nub
 
       try
       {
-        x.NonBlankMinMax(48, 64);
+        x.NonBlankMinMax(48, 64, nameof(x));
         Aver.Fail("ShouldNever be here");
       }
-      catch (Exception error) when (!(error is AvermentException))
+      catch (CallGuardException error)
       {
         Console.WriteLine(error.ToMessageWithType());
       }

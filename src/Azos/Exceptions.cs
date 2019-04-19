@@ -52,7 +52,7 @@ namespace Azos
 
     public DebugAssertionException(string from = null) { m_From = from; }
     public DebugAssertionException(string message, string from = null) : base(message) { m_From = from; }
-    public DebugAssertionException(SerializationInfo info, StreamingContext context) : base(info, context)
+    private DebugAssertionException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
       m_From = info.GetString(FROM_FLD_NAME);
     }
@@ -88,7 +88,7 @@ namespace Azos
       m_From = from;
     }
 
-    internal AvermentException(SerializationInfo info, StreamingContext context) : base(info, context)
+    private AvermentException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
       m_From = info.GetString(FROM_FLD_NAME);
     }
