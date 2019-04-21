@@ -1079,5 +1079,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string GUID_TYPE_RESOLVER_ERROR = "Type id '{0}' does not map to any {1} type";
     public const string GUID_TYPE_RESOLVER_DUPLICATE_ATTRIBUTE_ERROR = "Type '{0}' specifies duplicate Guid '{1}' already used by '{2}'";
     public const string GUID_TYPE_RESOLVER_MISSING_ATTRIBUTE_ERROR = "Type '{0}' does not specify the required [{1}(...)] attribute in its declaration";
+
+
+    public const string METADATA_CTOR_CONTENT_ERROR = "Metadata specification error. `{0}`.ctor(`{1}` content is bad). Revise attribute declaration. Cause: {2}";
   }
 }

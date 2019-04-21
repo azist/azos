@@ -53,6 +53,44 @@ namespace Azos.Tests.Nub
       }
     }
 
+
+    [Run]
+    public void IsOfType()
+    {
+      Type x = GetType();
+
+      Aver.IsTrue( GetType() == x.IsOfType<GuardTests>() );
+      Aver.IsTrue(GetType() == x.IsOfType<object>());
+
+      x = typeof(AzosException);
+
+      Aver.IsTrue(typeof(AzosException) == x.IsOfType<Exception>());
+      Aver.IsTrue(typeof(AzosException) == x.IsOfType<object>());
+      Aver.Throws<CallGuardException>(() => x.IsOfType<GuardTests>());
+
+      x = null;
+      Aver.Throws<CallGuardException>(() => x.IsOfType<object>());
+      x = typeof(Exception);
+      Aver.Throws<CallGuardException>(() => x.IsOfType<AzosException>());
+    }
+
+    [Run]
+    public void IsOfType_2()
+    {
+      var x = typeof(GuardTests);
+
+      try
+      {
+        x.IsOfType<Exception>();
+        Aver.Fail("ShouldNever be here");
+      }
+      catch (CallGuardException error)
+      {
+        Console.WriteLine(error.ToMessageWithType());
+        Aver.IsTrue(error.Message.Contains("must be of 'Exception' type"));
+      }
+    }
+
     [Run]
     public void NonBlank()
     {

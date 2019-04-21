@@ -57,44 +57,39 @@ namespace Azos.Wave.Mvc
                  .OrderBy( tpl => FilterControllerType(tpl.tController, tpl.aController));
 
       foreach(var controller in allControllers)
-      {
-        var ctlData = data.AddChildNode("controller");
-        PopulateController(ctlData, controller.tController, controller.aController);
-      }
+        PopulateController(data, controller.tController, controller.aController);
 
       foreach(var type in m_TypesToDescribe)
-      {
         CustomMetadataAttribute.Apply(type, this, data);
-        //ConfigSectionNode typData;
-
-        ////if ()
-        //typeof(Permission).IsAssignableFrom(type)
-      }
 
       return data;
     }
 
-    protected virtual ConfigSectionNode MakeConfig() => Configuration.NewEmptyRoot(GetType().Name);
-    protected virtual bool FilterControllerType(Type tController, ApiControllerDocAttribute attr) => !tController.IsAbstract && attr != null;
-    protected virtual object OrderControllerType(Type tController, ApiControllerDocAttribute attr) => attr.BaseUri;
+    public virtual ConfigSectionNode MakeConfig() => Configuration.NewEmptyRoot(GetType().Name);
+    public virtual bool FilterControllerType(Type tController, ApiControllerDocAttribute attr) => !tController.IsAbstract && attr != null;
+    public virtual object OrderControllerType(Type tController, ApiControllerDocAttribute attr) => attr.BaseUri;
 
-    protected virtual IEnumerable<MethodInfo> GetApiMethods(Type tController, ApiControllerDocAttribute attr)
+    public virtual IEnumerable<MethodInfo> GetApiMethods(Type tController, ApiControllerDocAttribute attr)
      => tController.GetMethods(BindingFlags.Instance | BindingFlags.Public).Where(mi => mi.GetCustomAttribute<ApiDocAttribute>()!=null);
 
-    protected virtual void PopulateController(ConfigSectionNode data, Type ctlType, ApiControllerDocAttribute ctlAttr)
+    public virtual void PopulateController(ConfigSectionNode data, Type ctlType, ApiControllerDocAttribute ctlAttr)
     {
-      ctlAttr.Describe(this, data, ctlType);
-      var apiMethods = GetApiMethods(ctlType, ctlAttr);
-      foreach(var mi in apiMethods)
-      {
-        var epData = data.AddChildNode("endpoint");
-        PopulateEndpoint(epData, ctlType, ctlAttr, mi);
-      }
+      CustomMetadataAttribute.Apply(ctlType, this, data);
     }
 
-    protected virtual void PopulateEndpoint(ConfigSectionNode data, Type ctlType, ApiControllerDocAttribute ctlAttr, MethodInfo miEndpoint)
+    public virtual void PopulateEndpoint(ConfigSectionNode data, Type ctlType, ApiControllerDocAttribute ctlAttr, MethodInfo miEndpoint)
     {
-
     }
+
+    ////  ctlAttr.Describe(this, data, ctlType);
+    ////  var apiMethods = GetApiMethods(ctlType, ctlAttr);
+    ////  foreach(var mi in apiMethods)
+    ////  {
+    ////    var epData = data.AddChildNode("endpoint");
+    ////    PopulateEndpoint(epData, ctlType, ctlAttr, mi);
+    ////  }
+    ////}
+
+
   }
 }

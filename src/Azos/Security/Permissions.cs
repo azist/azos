@@ -37,6 +37,7 @@ namespace Azos.Security
                   AttributeTargets.Method |
                   AttributeTargets.Field |
                   AttributeTargets.Property, Inherited = true, AllowMultiple=true)]
+  //[CustomMetadata("item{security{is-permission=true type=base}}")]
   public abstract class Permission : Attribute
   {
     #region CONSTS

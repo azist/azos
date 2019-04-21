@@ -83,9 +83,8 @@ namespace Azos
       return obj;
     }
 
-#warning UNIT TEST!!!
     /// <summary>
-    /// Ensures that a type value is not null and is of the specified type or its descendants
+    /// Ensures that a type value is not null and is of the specified type or one of its subtypes
     /// </summary>
     public static Type IsOfType<T>(this Type type,
                                string name = null,
