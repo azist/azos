@@ -60,7 +60,7 @@ namespace Azos.Tests.Nub
     //no attribute
     public class EuropeanCar : Car
     {
-      public override void Draw() { }
+     //nothing to override
     }
 
     public class BMW : EuropeanCar
