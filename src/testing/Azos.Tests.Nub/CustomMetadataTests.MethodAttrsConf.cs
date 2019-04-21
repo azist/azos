@@ -7,42 +7,75 @@
 
 using System;
 
-using Azos.Conf;
 using Azos.Scripting;
 
 namespace Azos.Tests.Nub
 {
   [Runnable]
-  public class CustomMetadataTests
+  public class CustomMetadataTests_MethodAttributes_Conf
   {
 
-    [CustomMetadata("a=123 b=789 score=100 description='Generic car' origin{_override=all country=world} z=0")]
-    public class Car { }
+    public class Car
+    {
+      [CustomMetadata("a=123 b=789 score=100 description='Generic car' origin{_override=all country=world} z=0")]
+      public virtual void Draw() {  }
+    }
 
-    [CustomMetadata("score=75 description='Cars built in the US' origin{_override=stop country=usa}")]
-    public class AmericanCar : Car { }
+    public class AmericanCar : Car
+    {
+      [CustomMetadata("score=75 description='Cars built in the US' origin{_override=stop country=usa}")]
+      public override void Draw() { }
+    }
 
-    [CustomMetadata("score=90 description='Very usable and decent quality' a=-900")]
-    public class Buick : AmericanCar { }
+    public class Buick : AmericanCar
+    {
+      [CustomMetadata("score=90 description='Very usable and decent quality' a=-900")]
+      public override void Draw() { }
+    }
 
-    [CustomMetadata("score=40 description='Luxury item, but unreliable'  origin{country=XYZYZ/*this will never take effect*/}")]
-    public class Cadillac : AmericanCar { }
+    public class Cadillac : AmericanCar
+    {
+      [CustomMetadata("score=40 description='Luxury item, but unreliable'  origin{country=XYZYZ/*this will never take effect*/}")]
+      public override void Draw() { }
+    }
 
-    [CustomMetadata("score=110 description='Cars built in Japan' origin{_override=stop country=jap} z=1")]
-    public class JapanesenCar : Car { }
+    public class JapaneseCar : Car
+    {
+     [CustomMetadata("score=110 description='Cars built in Japan' origin{_override=stop country=jap} z=1")]
+      public override void Draw() { }
+    }
 
-    [CustomMetadata("description='Honda motors'")]
-    public class Honda : JapanesenCar { }
+    public class Honda : JapaneseCar
+    {
+      [CustomMetadata("description='Honda motors'")]
+      public override void Draw() { }
+    }
 
-    [CustomMetadata("description='Toyota motors' b=-1 score=137 z=7")]
-    public class Toyota : JapanesenCar { }
+    public class Toyota : JapaneseCar
+    {
+      [CustomMetadata("description='Toyota motors' b=-1 score=137 z=7")]
+      public override void Draw() { }
+    }
+
+    //no attribute
+    public class EuropeanCar : Car
+    {
+      public override void Draw() { }
+    }
+
+    public class BMW : EuropeanCar
+    {
+      [CustomMetadata("description='Bavarian Motor Works' z=190")]
+      public override void Draw() { }
+    }
+
 
 
     [Run]
     public void Car_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Car), this, data);
+      CustomMetadataAttribute.Apply(typeof(Car).GetMethod("Draw"), this, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -58,7 +91,7 @@ namespace Azos.Tests.Nub
     public void AmericanCar_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(AmericanCar), this, data);
+      CustomMetadataAttribute.Apply(typeof(AmericanCar).GetMethod("Draw"), this, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -74,7 +107,7 @@ namespace Azos.Tests.Nub
     public void Buick_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Buick), this, data);
+      CustomMetadataAttribute.Apply(typeof(Buick).GetMethod("Draw"), this, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -90,7 +123,7 @@ namespace Azos.Tests.Nub
     public void Cadillac_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Cadillac), this, data);
+      CustomMetadataAttribute.Apply(typeof(Cadillac).GetMethod("Draw"), this, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -106,7 +139,7 @@ namespace Azos.Tests.Nub
     public void Honda_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Honda), this, data);
+      CustomMetadataAttribute.Apply(typeof(Honda).GetMethod("Draw"), this, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -122,7 +155,7 @@ namespace Azos.Tests.Nub
     public void Toyota_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Toyota), this, data);
+      CustomMetadataAttribute.Apply(typeof(Toyota).GetMethod("Draw"), this, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -134,6 +167,38 @@ namespace Azos.Tests.Nub
       Aver.AreEqual("jap", data.Navigate("origin/$country").Value);
     }
 
+
+    [Run]
+    public void EuropeanCar_1()
+    {
+      var data = Conf.Configuration.NewEmptyRoot();
+      CustomMetadataAttribute.Apply(typeof(EuropeanCar).GetMethod("Draw"), this, data);
+
+      Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
+
+      Aver.AreEqual(123, data.AttrByName("a").ValueAsInt());
+      Aver.AreEqual(789, data.AttrByName("b").ValueAsInt());
+      Aver.AreEqual(100, data.AttrByName("score").ValueAsInt());
+      Aver.AreEqual(0, data.AttrByName("z").ValueAsInt());
+      Aver.AreEqual("Generic car", data.AttrByName("description").Value);
+      Aver.AreEqual("world", data.Navigate("origin/$country").Value); //was not set on purpose, cloned from Car
+    }
+
+    [Run]
+    public void BMW_1()
+    {
+      var data = Conf.Configuration.NewEmptyRoot();
+      CustomMetadataAttribute.Apply(typeof(BMW).GetMethod("Draw"), this, data);
+
+      Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
+
+      Aver.AreEqual(123, data.AttrByName("a").ValueAsInt());
+      Aver.AreEqual(789, data.AttrByName("b").ValueAsInt());
+      Aver.AreEqual(100, data.AttrByName("score").ValueAsInt());
+      Aver.AreEqual(190, data.AttrByName("z").ValueAsInt());
+      Aver.AreEqual("Bavarian Motor Works", data.AttrByName("description").Value);
+      Aver.AreEqual("world", data.Navigate("origin/$country").Value); //was not set on purpose, cloned from EuropeanCar/Car
+    }
 
   }
 }

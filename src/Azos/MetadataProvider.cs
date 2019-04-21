@@ -67,8 +67,8 @@ namespace Azos
         if (info is Type infoType) info = infoType.BaseType;
         else if (info is MethodInfo infoMethod)
         {
-          var baseInfo = infoMethod.GetBaseDefinition();
-          if (baseInfo.DeclaringType==info.DeclaringType) break;
+          var baseInfo = infoMethod.FindImmediateBaseForThisOverride();
+          if (baseInfo==null) break;
           info = baseInfo;
         }
         else break;
