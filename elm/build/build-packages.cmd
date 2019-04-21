@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.500.1
-set HEADLINE=MsSql base data store, AsyncFlowMutableLocal and CheckThisCallPermissions
+set VER=1.0.503
+set HEADLINE=Add CustomMetadataAttribute
 
 call vs2017-build-release %VER%
 
