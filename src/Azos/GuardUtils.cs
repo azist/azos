@@ -83,6 +83,27 @@ namespace Azos
       return obj;
     }
 
+#warning UNIT TEST!!!
+    /// <summary>
+    /// Ensures that a type value is not null and is of the specified type or its descendants
+    /// </summary>
+    public static Type IsOfType<T>(this Type type,
+                               string name = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null)
+    {
+      if (type == null || !typeof(T).IsAssignableFrom(type))
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_PARAMETER_OFTYPE_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, typeof(T).Name));
+      }
+      return type;
+    }
+
 
     /// <summary>
     /// Ensures that a config node value is non-null existing node
