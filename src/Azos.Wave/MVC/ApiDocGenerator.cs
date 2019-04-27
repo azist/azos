@@ -16,12 +16,43 @@ namespace Azos.Wave.Mvc
   /// </summary>
   public class ApiDocGenerator
   {
-
-    public class ControllerLocation
+    public struct ControllerContext
     {
-      public ControllerLocation()
+      public ControllerContext(ApiDocGenerator gen, ApiControllerDocAttribute attr)
       {
+        Generator = gen;
+        ApiDocAttr = attr;
+      }
+      public readonly ApiDocGenerator Generator;
+      public readonly ApiControllerDocAttribute ApiDocAttr;
+    }
 
+    public struct EndpointContext
+    {
+      public EndpointContext(ApiDocGenerator gen, Type tController, ApiControllerDocAttribute cattr, ApiEndpointDocAttribute eattr, MethodInfo method)
+      {
+        Generator = gen;
+        TController = tController;
+        ApiControllerDocAttr = cattr;
+        ApiEndpointDocAttr = eattr;
+        Method = method;
+      }
+      public readonly ApiDocGenerator Generator;
+      public readonly Type TController;
+      public readonly ApiControllerDocAttribute ApiControllerDocAttr;
+      public readonly ApiEndpointDocAttribute ApiEndpointDocAttr;
+      public readonly MethodInfo Method;
+    }
+
+    /// <summary>
+    /// Provides the location of controllers
+    /// </summary>
+    public sealed class ControllerLocation
+    {
+      public ControllerLocation(string assemblyName, string namespaceName)
+      {
+        AssemblyName = assemblyName.NonBlank(nameof(assemblyName));
+        Namespace = namespaceName.NonBlank(nameof(namespaceName));
       }
 
       public readonly string AssemblyName;
@@ -30,7 +61,14 @@ namespace Azos.Wave.Mvc
       /// <summary>
       /// returns all controller types regardless of ApiDoc decorations
       /// </summary>
-      public IEnumerable<Type> AllControllerTypes => null;
+      public IEnumerable<Type> AllControllerTypes
+      {
+        get
+        {
+          var asm = Assembly.LoadFrom(AssemblyName);
+          return asm.GetTypes().Where(t => !t.IsAbstract && t.IsSubclassOf(typeof(Controller))).ToArray();
+        }
+      }
     }
 
 
@@ -65,31 +103,18 @@ namespace Azos.Wave.Mvc
       return data;
     }
 
+    public bool AddTypeToDescribe(Type type) => m_TypesToDescribe.Add(type);
+
     public virtual ConfigSectionNode MakeConfig() => Configuration.NewEmptyRoot(GetType().Name);
     public virtual bool FilterControllerType(Type tController, ApiControllerDocAttribute attr) => !tController.IsAbstract && attr != null;
     public virtual object OrderControllerType(Type tController, ApiControllerDocAttribute attr) => attr.BaseUri;
 
-    public virtual IEnumerable<MethodInfo> GetApiMethods(Type tController, ApiControllerDocAttribute attr)
-     => tController.GetMethods(BindingFlags.Instance | BindingFlags.Public).Where(mi => mi.GetCustomAttribute<ApiDocAttribute>()!=null);
+    public virtual IEnumerable<EndpointContext> GetApiMethods(Type tController, ApiControllerDocAttribute attr)
+     => tController.GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                   .Where(mi => mi.GetCustomAttribute<ApiEndpointDocAttribute>()!=null)
+                   .Select(mi => new EndpointContext(this, tController, attr, mi.GetCustomAttribute<ApiEndpointDocAttribute>(), mi));
 
     public virtual void PopulateController(ConfigSectionNode data, Type ctlType, ApiControllerDocAttribute ctlAttr)
-    {
-      CustomMetadataAttribute.Apply(ctlType, this, data);
-    }
-
-    public virtual void PopulateEndpoint(ConfigSectionNode data, Type ctlType, ApiControllerDocAttribute ctlAttr, MethodInfo miEndpoint)
-    {
-    }
-
-    ////  ctlAttr.Describe(this, data, ctlType);
-    ////  var apiMethods = GetApiMethods(ctlType, ctlAttr);
-    ////  foreach(var mi in apiMethods)
-    ////  {
-    ////    var epData = data.AddChildNode("endpoint");
-    ////    PopulateEndpoint(epData, ctlType, ctlAttr, mi);
-    ////  }
-    ////}
-
-
+     => CustomMetadataAttribute.Apply(ctlType, new ControllerContext(this, ctlAttr), data);
   }
 }

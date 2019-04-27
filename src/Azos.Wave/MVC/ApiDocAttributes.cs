@@ -29,11 +29,35 @@ namespace Azos.Wave.Mvc
     /// </summary>
     public Type[] Permissions { get; set; }
 
+    /// <summary>
+    /// Optionally specifies request headers. Use ':' to delimit header name/value
+    /// </summary>
+    public string[] RequestHeaders { get; set; }
 
-    public virtual void Describe(ApiDocGenerator generator, ConfigSectionNode data, Type controllerType)
-    {
-      data.AddAttributeNode("title", Title);
-    }
+    /// <summary>
+    /// Optionally describes request body that this entity can process
+    /// </summary>
+    public string RequestBody { get; set; }
+
+    /// <summary>
+    /// Optionally describes request query parameters. Use "=" to delimit name=values
+    /// </summary>
+    public string[] RequestQueryParameters { get; set; }
+
+    /// <summary>
+    /// Optionally specifies response headers. Use ':' to delimit header name/value
+    /// </summary>
+    public string[] ResponseHeaders { get; set; }
+
+    /// <summary>
+    /// Optionally describes response content that this entity produces
+    /// </summary>
+    public string ResponseContent { get; set; }
+
+    /// <summary>
+    /// Optionally describes connection handling for the entity, e.g. keep alive, long poll, web socket etc.
+    /// </summary>
+    public string Connection { get; set; }
   }
 
   /// <summary>
@@ -60,14 +84,6 @@ namespace Azos.Wave.Mvc
     /// Provides a short line (expected to be under 128) describing auth required
     /// </summary>
     public string Authentication { get; set; }
-
-    public override void Describe(ApiDocGenerator generator, ConfigSectionNode data, Type controllerType)
-    {
-      base.Describe(generator, data, controllerType);
-      data.AddAttributeNode("uri", BaseUri);
-      data.AddAttributeNode("doc-file", DocFile);
-    }
-
   }
 
   /// <summary>
@@ -81,6 +97,11 @@ namespace Azos.Wave.Mvc
     /// otherwise method URIs get appended to controller URIs. If this is not set, on the method level, URI is inferred from Action attribute
     /// </summary>
     public string Uri { get; set; }
+
+    /// <summary>
+    /// Optionally specifies method names headers. Use ':' to delimit method name/description
+    /// </summary>
+    public string[] Methods { get; set; }
 
     /// <summary>
     /// Specifies the anchor/id used as a topic in the doc markdown file. Endpoint anchors start with "##" (html H2 level) like "## list".
