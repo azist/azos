@@ -143,5 +143,83 @@ namespace Azos.Tests.Nub
     {
       Aver.AreEqual("bcd", "aa aba   aaa acaa aaa adaaaaa aaaaaa".TrimAll('a', ' '));
     }
+
+    [Run]
+    public void SplitKVP_1()
+    {
+      var got = "key=value".SplitKVP();
+      Aver.AreEqual("key", got.Key);
+      Aver.AreEqual("value", got.Value);
+    }
+
+
+    [Run]
+    public void SplitKVP_2()
+    {
+      var got = "key=value".SplitKVP('-');
+      Aver.AreEqual("key=value", got.Key);
+      Aver.AreEqual("", got.Value);
+    }
+
+    [Run]
+    public void SplitKVP_3()
+    {
+      var got = "key=value=9".SplitKVP('=');
+      Aver.AreEqual("key", got.Key);
+      Aver.AreEqual("value=9", got.Value);
+    }
+
+    [Run]
+    public void SplitKVP_4()
+    {
+      var got = "key=value".SplitKVP(':','=');
+      Aver.AreEqual("key", got.Key);
+      Aver.AreEqual("value", got.Value);
+
+      got = "key:1=value:1".SplitKVP('=', ':');
+      Aver.AreEqual("key:1", got.Key);
+      Aver.AreEqual("value:1", got.Value);
+    }
+
+    [Run]
+    public void SplitKVP_5()
+    {
+      var got = "key=value".SplitKVP(':', '=', '-');
+      Aver.AreEqual("key", got.Key);
+      Aver.AreEqual("value", got.Value);
+
+      got = "key:value".SplitKVP(':', '=', '-');
+      Aver.AreEqual("key", got.Key);
+      Aver.AreEqual("value", got.Value);
+
+      got = "key-value".SplitKVP(':', '=', '-');
+      Aver.AreEqual("key", got.Key);
+      Aver.AreEqual("value", got.Value);
+    }
+
+    [Run]
+    public void SplitKVP_6()
+    {
+      var got = "".SplitKVP('=');
+      Aver.AreEqual("", got.Key);
+      Aver.AreEqual("", got.Value);
+    }
+
+    [Run]
+    public void SplitKVP_7()
+    {
+      var got = "key=".SplitKVP('=');
+      Aver.AreEqual("key", got.Key);
+      Aver.AreEqual("", got.Value);
+    }
+
+    [Run]
+    public void SplitKVP_8()
+    {
+      var got = "=value".SplitKVP('=');
+      Aver.AreEqual("", got.Key);
+      Aver.AreEqual("value", got.Value);
+    }
+
   }
 }

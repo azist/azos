@@ -427,7 +427,6 @@ namespace Azos
       return new string(src.Where(c => !chars.Any(c2 => c2 == c)).ToArray());
     }
 
-#warning COVER UNIT TESTS!!!!!!!!!
     /// <summary>
     /// Parses a string of a form:  key:value into a KeyValuePair. Trips on a first delimiter L2R
     /// </summary>
@@ -435,7 +434,7 @@ namespace Azos
     {
       if (src.IsNullOrWhiteSpace()) return new KeyValuePair<string, string>(string.Empty, string.Empty);
       var i = src.IndexOf(delimiter);
-      if (i>=0 && i<src.Length-1) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
+      if (i>=0 && i<src.Length) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
       return new KeyValuePair<string, string>(src, string.Empty);
     }
 
@@ -446,9 +445,9 @@ namespace Azos
     {
       if (src.IsNullOrWhiteSpace()) return new KeyValuePair<string, string>(string.Empty, string.Empty);
       var i = src.IndexOf(delimiter1);
-      if (i >= 0 && i < src.Length - 1) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
+      if (i >= 0 && i < src.Length) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
       i = src.IndexOf(delimiter2);
-      if (i >= 0 && i < src.Length - 1) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
+      if (i >= 0 && i < src.Length) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
       return new KeyValuePair<string, string>(src, string.Empty);
     }
 
@@ -459,11 +458,11 @@ namespace Azos
     {
       if (src.IsNullOrWhiteSpace()) return new KeyValuePair<string, string>(string.Empty, string.Empty);
       var i = src.IndexOf(delimiter1);
-      if (i >= 0 && i < src.Length - 1) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
+      if (i >= 0 && i < src.Length) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
       i = src.IndexOf(delimiter2);
-      if (i >= 0 && i < src.Length - 1) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
+      if (i >= 0 && i < src.Length) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
       i = src.IndexOf(delimiter3);
-      if (i >= 0 && i < src.Length - 1) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
+      if (i >= 0 && i < src.Length) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
       return new KeyValuePair<string, string>(src, string.Empty);
     }
 
