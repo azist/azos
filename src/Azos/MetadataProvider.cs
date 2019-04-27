@@ -120,7 +120,7 @@ namespace Azos
     /// <param name="context">Optional context in which the metadata acquisition takes place</param>
     /// <param name="dataRoot">Root data node under which THIS entity is supposed to create its sub-node to provide its metadata into</param>
     /// <param name="overrideRules">Config node override rules to use for structured merging, or null to use the defaults</param>
-    /// <returns>A new data node that this provider has written into, such as a new node which is a child of root</returns>
+    /// <returns>A new data node that this provider has written into, such as a new node which is a child of dataRoot</returns>
     public abstract ConfigSectionNode ProvideMetadata(MemberInfo member, object context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null);
   }
 }
