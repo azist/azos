@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -32,7 +31,7 @@ namespace Azos.Wave.Mvc
     {
       var cdata = dataRoot.AddChildNode("scope");
       var cattr = apictx.ApiDocAttr;
-      writeCommon(apictx.Generator, cattr, cdata);
+      (var drequest, var dresponse) = writeCommon(apictx.Generator, cattr, cdata);
       cdata.AddAttributeNode("uri-base", cattr.BaseUri);
       cdata.AddAttributeNode("doc-file", cattr.DocFile);
       var docContent = tController.GetText(cattr.DocFile);
@@ -52,9 +51,15 @@ namespace Azos.Wave.Mvc
         }
 
 
-        if (!epuri.StartsWith("/")) epuri = Path.Combine(cattr.BaseUri, epuri);
+        if (!epuri.StartsWith("/"))
+        {
+          var bu = cattr.BaseUri.Trim();
+          if (!bu.EndsWith("/")) bu += "/";
+          epuri = bu + epuri;
+        }
+
         edata.AddAttributeNode("uri", epuri);
-        writeCollection(mctx.ApiEndpointDocAttr.Methods, "method", edata, ':');
+        writeCollection(mctx.ApiEndpointDocAttr.Methods, "method", drequest, ':');
         //todo doc anchor....(parse out of docContent);
 
         //todo Get app parameters look for Docs and register them and also permissions
@@ -63,7 +68,7 @@ namespace Azos.Wave.Mvc
       return cdata;
     }
 
-    private void writeCommon(ApiDocGenerator gen, ApiDocAttribute attr, ConfigSectionNode data)
+    private (ConfigSectionNode request, ConfigSectionNode response) writeCommon(ApiDocGenerator gen, ApiDocAttribute attr, ConfigSectionNode data)
     {
       data.AddAttributeNode("title", attr.Title);
       var drequest = data.AddChildNode("request");
@@ -84,6 +89,8 @@ namespace Azos.Wave.Mvc
 
       if (attr.DataSchemas!=null) attr.DataSchemas.ForEach( t => gen.AddTypeToDescribe(t));
       if (attr.Permissions != null) attr.Permissions.ForEach(t => gen.AddTypeToDescribe(t));
+
+      return (drequest, dresponse);
     }
 
     private void writeCollection(string[] items, string iname, ConfigSectionNode data, char delim)
@@ -94,8 +101,8 @@ namespace Azos.Wave.Mvc
                                                   .Select(itm => itm.SplitKVP(delim)))
         {
           var nhdr = data.AddChildNode(iname);
-          nhdr.AddAttributeNode("name", hdr.Key);
-          nhdr.AddAttributeNode("value", hdr.Value);
+          nhdr.AddAttributeNode("name", hdr.Key.Trim());
+          nhdr.AddAttributeNode("value", hdr.Value.Trim());
         }
       }
     }

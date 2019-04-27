@@ -7,6 +7,7 @@ using System.Text;
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Security;
+using Azos.Text;
 
 namespace Azos.Wave.Mvc
 {
@@ -66,7 +67,9 @@ namespace Azos.Wave.Mvc
         get
         {
           var asm = Assembly.LoadFrom(AssemblyName);
-          return asm.GetTypes().Where(t => !t.IsAbstract && t.IsSubclassOf(typeof(Controller))).ToArray();
+          return asm.GetTypes().Where(t => !t.IsAbstract &&
+                                            t.IsSubclassOf(typeof(Controller)) &&
+                                            t.Namespace.MatchPattern(Namespace)).ToArray();
         }
       }
     }
