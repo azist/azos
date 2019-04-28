@@ -48,6 +48,10 @@ namespace Azos.Wave.Mvc
         if (epuri.IsNullOrWhiteSpace())
         {
           // infer from action attribute
+          var action = mctx.Method.GetCustomAttributes<ActionAttribute>().FirstOrDefault();
+          if (action!=null)
+             epuri = action.Name;
+          if (epuri.IsNullOrWhiteSpace()) epuri = mctx.Method.Name;
         }
 
 
@@ -87,8 +91,7 @@ namespace Azos.Wave.Mvc
       if (attr.ResponseContent.IsNotNullOrWhiteSpace())
         dresponse.AddAttributeNode("content", attr.ResponseContent);
 
-      if (attr.DataSchemas!=null) attr.DataSchemas.ForEach( t => gen.AddTypeToDescribe(t));
-      if (attr.Permissions != null) attr.Permissions.ForEach(t => gen.AddTypeToDescribe(t));
+      writeTypeCollection(attr.TypeSchemas, "schema", data, gen);
 
       return (drequest, dresponse);
     }
@@ -97,12 +100,28 @@ namespace Azos.Wave.Mvc
     {
       if (items != null && items.Length > 0)
       {
-        foreach (var hdr in items.Where(itm => itm.IsNotNullOrWhiteSpace())
-                                                  .Select(itm => itm.SplitKVP(delim)))
+        foreach (var item in items.Where(itm => itm.IsNotNullOrWhiteSpace())
+                                                   .Select(itm => itm.SplitKVP(delim)))
         {
-          var nhdr = data.AddChildNode(iname);
-          nhdr.AddAttributeNode("name", hdr.Key.Trim());
-          nhdr.AddAttributeNode("value", hdr.Value.Trim());
+          var node = data.AddChildNode(iname);
+          node.AddAttributeNode("name", item.Key.Trim());
+          node.AddAttributeNode("value", item.Value.Trim());
+        }
+      }
+    }
+
+    private void writeTypeCollection(Type[] items, string iname, ConfigSectionNode data, ApiDocGenerator gen)
+    {
+      if (items != null && items.Length > 0)
+      {
+        foreach (var type in items.Where(t => t!=null))
+        {
+          var id = gen.AddTypeToDescribe(type).ToString();
+          var node = data.Children.FirstOrDefault(c => c.IsSameName(iname) && c.AttrByName("id").Value.EqualsIgnoreCase(id));
+          if (node!=null) continue;//already exists
+          node = data.AddChildNode(iname);
+          node.AddAttributeNode("id", id);
+          node.AddAttributeNode("name", type.DisplayNameWithExpandedGenericArgs());
         }
       }
     }

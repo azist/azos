@@ -78,7 +78,7 @@ namespace Azos.Wave.Mvc
 
     public ApiDocGenerator(){ }
 
-    private HashSet<Type> m_TypesToDescribe = new HashSet<Type>();
+    private Dictionary<Type, Guid> m_TypesToDescribe = new Dictionary<Type, Guid>();
 
     public List<ControllerLocation> Locations { get; } = new List<ControllerLocation>();
 
@@ -100,13 +100,23 @@ namespace Azos.Wave.Mvc
       foreach(var controller in allControllers)
         PopulateController(data, controller.tController, controller.aController);
 
-      foreach(var type in m_TypesToDescribe)
-        CustomMetadataAttribute.Apply(type, this, data);
+      var typesSection = data.AddChildNode("type-schemas");
+      foreach(var kvp in m_TypesToDescribe)
+      {
+        var typeSection = typesSection.AddChildNode(kvp.Value.ToString());
+        CustomMetadataAttribute.Apply(kvp.Key, this, typeSection);
+      }
 
       return data;
     }
 
-    public bool AddTypeToDescribe(Type type) => m_TypesToDescribe.Add(type);
+    public Guid AddTypeToDescribe(Type type)
+    {
+      if (m_TypesToDescribe.TryGetValue(type, out var existing)) return existing;
+      var result = Guid.NewGuid();
+      m_TypesToDescribe.Add(type, result);
+      return result;
+    }
 
     public virtual ConfigSectionNode MakeConfig() => Configuration.NewEmptyRoot(GetType().Name);
     public virtual bool FilterControllerType(Type tController, ApiControllerDocAttribute attr) => !tController.IsAbstract && attr != null;

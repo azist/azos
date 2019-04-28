@@ -18,16 +18,10 @@ namespace Azos.Wave.Mvc
     public string Title {  get; set; }
 
     /// <summary>
-    /// Specifies the list of additional DataDoc types schemas to include as a part of documentation. The system includes all DataDoc-derived
+    /// Specifies the list of additional type schemas, such as DataDoc and Permissions  to include as a part of documentation. The system includes all DataDoc-derived
     /// parameters automatically so extra types may be included here such as the ones used in polymorphic results
     /// </summary>
-    public Type[] DataSchemas { get; set; }
-
-    /// <summary>
-    /// Specifies the list of additional Permission-derived types to include as a part of documentation. The system includes all Permission-derived
-    /// attributes automatically
-    /// </summary>
-    public Type[] Permissions { get; set; }
+    public Type[] TypeSchemas { get; set; }
 
     /// <summary>
     /// Optionally specifies request headers. Use ':' to delimit header name/value

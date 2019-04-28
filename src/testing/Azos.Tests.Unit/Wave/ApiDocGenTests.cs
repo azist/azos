@@ -26,14 +26,19 @@ namespace Azos.Tests.Unit.Wave
   [ApiControllerDoc(Title ="TestBase", BaseUri = "/test", RequestBody ="json or form url encoded", ResponseHeaders =new[]{"Cache: no-cache"})]
   public class TestController : Controller
   {
-    [ApiEndpointDoc(Uri="list", Title="Get list schema", Methods =new[]{ "GET: Gets the schema"})]
+    [ApiEndpointDoc(Title="Get list schema", Methods =new[]{ "GET: Gets the schema"}, TypeSchemas = new[] { typeof(TestController) })]
     [Action(Name ="list")]
     public object ListGet()
     {
       return null;
     }
 
-    [ApiEndpointDoc(Uri="list", Title = "Post filter content returning filtered data list", Methods = new[] { "POST: post filter body and generates json with data" })]
+    [ApiEndpointDoc(
+      Uri="manual-list",
+      Title = "Post filter content returning filtered data list",
+      Methods = new[] { "POST: post filter body and generates json with data" },
+      TypeSchemas = new[] { typeof(TestController) }
+      )]
     [Action(Name = "list")]
     public object ListPost()
     {
