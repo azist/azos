@@ -20,7 +20,7 @@ namespace Azos.Data
     /// DynamicDocs are "shaped" in memory from schema, whereas, TypedDocs define schema.
     /// Schema for TypedDocs is cached in static dictionary for speed
     /// </summary>
-    [Serializable]
+    [Serializable, CustomMetadata(typeof(SchemaCustomMetadataProvider))]
     public sealed class Schema : INamed, IEnumerable<Schema.FieldDef>, IJsonWritable
     {
         public const string EXTRA_SUPPORTS_INSERT_ATTR = "supports-insert";

@@ -14,6 +14,7 @@ namespace Azos.Wave.Mvc
   /// <summary>
   /// Represents controller from which all Mvc controllers inherit
   /// </summary>
+  [CustomMetadata(typeof(ControllerCustomMetadataProvider))]
   public abstract class Controller : DisposableObject
   {
       #region CONSTS

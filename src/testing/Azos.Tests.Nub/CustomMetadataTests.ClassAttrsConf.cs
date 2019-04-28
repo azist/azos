@@ -48,7 +48,7 @@ namespace Azos.Tests.Nub
     public void Car_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Car), this, data);
+      CustomMetadataAttribute.Apply(typeof(Car), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -64,7 +64,7 @@ namespace Azos.Tests.Nub
     public void AmericanCar_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(AmericanCar), this, data);
+      CustomMetadataAttribute.Apply(typeof(AmericanCar), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -80,7 +80,7 @@ namespace Azos.Tests.Nub
     public void Buick_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Buick), this, data);
+      CustomMetadataAttribute.Apply(typeof(Buick), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -96,7 +96,7 @@ namespace Azos.Tests.Nub
     public void Cadillac_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Cadillac), this, data);
+      CustomMetadataAttribute.Apply(typeof(Cadillac), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -112,7 +112,7 @@ namespace Azos.Tests.Nub
     public void Honda_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Honda), this, data);
+      CustomMetadataAttribute.Apply(typeof(Honda), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -128,7 +128,7 @@ namespace Azos.Tests.Nub
     public void Toyota_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Toyota), this, data);
+      CustomMetadataAttribute.Apply(typeof(Toyota), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -145,7 +145,7 @@ namespace Azos.Tests.Nub
     public void EuropeanCar_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(EuropeanCar), this, data);
+      CustomMetadataAttribute.Apply(typeof(EuropeanCar), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -161,7 +161,7 @@ namespace Azos.Tests.Nub
     public void BMW_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(BMW), this, data);
+      CustomMetadataAttribute.Apply(typeof(BMW), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 

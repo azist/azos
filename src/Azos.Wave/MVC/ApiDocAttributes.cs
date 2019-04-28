@@ -13,27 +13,50 @@ namespace Azos.Wave.Mvc
   public abstract class ApiDocAttribute : Attribute
   {
     /// <summary>
-    /// Provides a short (typically under 128 chars) plain-text title stating the purpose of the decorated controller or endpoint
+    /// Provides a short (typically under 64 chars) plain-text title of the decorated controller or endpoint
     /// </summary>
     public string Title {  get; set; }
 
     /// <summary>
-    /// Specifies the list of additional DataDoc types schemas to include as a part of documentation. The system includes all DataDoc-derived
-    /// parameters automatically so extra types may be included here such as the ones used in polymorphic results
+    /// Provides a short (typically under 256 chars) plain-text description stating the purpose of the decorated controller or endpoint
     /// </summary>
-    public Type[] DataSchemas { get; set; }
+    public string Description { get; set; }
 
     /// <summary>
-    /// Specifies the list of additional Permission-derived types to include as a part of documentation. The system includes all Permission-derived
-    /// attributes automatically
+    /// Specifies the list of additional type schemas, such as DataDoc and Permissions  to include as a part of documentation. The system includes all DataDoc-derived
+    /// parameters automatically so extra types may be included here such as the ones used in polymorphic results
     /// </summary>
-    public Type[] Permissions { get; set; }
+    public Type[] TypeSchemas { get; set; }
 
+    /// <summary>
+    /// Optionally specifies request headers. Use ':' to delimit header name/value
+    /// </summary>
+    public string[] RequestHeaders { get; set; }
 
-    public virtual void Describe(ApiDocGenerator generator, ConfigSectionNode data, Type controllerType)
-    {
-      data.AddAttributeNode("title", Title);
-    }
+    /// <summary>
+    /// Optionally describes request body that this entity can process
+    /// </summary>
+    public string RequestBody { get; set; }
+
+    /// <summary>
+    /// Optionally describes request query parameters. Use "=" to delimit name=values
+    /// </summary>
+    public string[] RequestQueryParameters { get; set; }
+
+    /// <summary>
+    /// Optionally specifies response headers. Use ':' to delimit header name/value
+    /// </summary>
+    public string[] ResponseHeaders { get; set; }
+
+    /// <summary>
+    /// Optionally describes response content that this entity produces
+    /// </summary>
+    public string ResponseContent { get; set; }
+
+    /// <summary>
+    /// Optionally describes connection handling for the entity, e.g. keep alive, long poll, web socket etc.
+    /// </summary>
+    public string Connection { get; set; }
   }
 
   /// <summary>
@@ -60,14 +83,6 @@ namespace Azos.Wave.Mvc
     /// Provides a short line (expected to be under 128) describing auth required
     /// </summary>
     public string Authentication { get; set; }
-
-    public override void Describe(ApiDocGenerator generator, ConfigSectionNode data, Type controllerType)
-    {
-      base.Describe(generator, data, controllerType);
-      data.AddAttributeNode("uri", BaseUri);
-      data.AddAttributeNode("doc-file", DocFile);
-    }
-
   }
 
   /// <summary>
@@ -81,6 +96,11 @@ namespace Azos.Wave.Mvc
     /// otherwise method URIs get appended to controller URIs. If this is not set, on the method level, URI is inferred from Action attribute
     /// </summary>
     public string Uri { get; set; }
+
+    /// <summary>
+    /// Optionally specifies method names headers. Use ':' to delimit method name/description
+    /// </summary>
+    public string[] Methods { get; set; }
 
     /// <summary>
     /// Specifies the anchor/id used as a topic in the doc markdown file. Endpoint anchors start with "##" (html H2 level) like "## list".

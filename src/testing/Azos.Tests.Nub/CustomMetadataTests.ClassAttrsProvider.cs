@@ -6,67 +6,122 @@
 
 
 using System;
-
+using System.Reflection;
+using Azos.Conf;
 using Azos.Scripting;
 
 namespace Azos.Tests.Nub
 {
   [Runnable]
-  public class CustomMetadataTests_MethodAttributes_Conf
+  public class CustomMetadataTests_ClassAttributes_MetadataProvider
   {
 
-    public class Car
+    [CustomMetadata(typeof(CarMetadataProvider))]
+    public class Car { }
+    public class CarMetadataProvider : CustomMetadataProvider
     {
-      [CustomMetadata("a=123 b=789 score=100 description='Generic car' origin{_override=all country=world} z=0")]
-      public virtual void Draw() {  }
+      public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
+      {
+        var data = "a=123 b=789 score=100 description='Generic car' origin{_override=all country=world} z=0".AsLaconicConfig();
+        dataRoot.MergeAttributes(data);
+        dataRoot.MergeSections(data);
+        return dataRoot;
+      }
     }
 
-    public class AmericanCar : Car
+    [CustomMetadata(typeof(AmericanCarMetadataProvider))]
+    public class AmericanCar : Car { }
+    public class AmericanCarMetadataProvider : CustomMetadataProvider
     {
-      [CustomMetadata("score=75 description='Cars built in the US' origin{_override=stop country=usa}")]
-      public override void Draw() { }
+      public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
+      {
+        var data = "score=75 description='Cars built in the US' origin{_override=stop country=usa}".AsLaconicConfig();
+        dataRoot.MergeAttributes(data);
+        dataRoot.MergeSections(data);
+        return dataRoot;
+      }
     }
 
-    public class Buick : AmericanCar
+    [CustomMetadata(typeof(BuickMetadataProvider))]
+    public class Buick : AmericanCar { }
+    public class BuickMetadataProvider : CustomMetadataProvider
     {
-      [CustomMetadata("score=90 description='Very usable and decent quality' a=-900")]
-      public override void Draw() { }
+      public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
+      {
+        var data = "score=90 description='Very usable and decent quality' a=-900".AsLaconicConfig();
+        dataRoot.MergeAttributes(data);
+        dataRoot.MergeSections(data);
+        return dataRoot;
+      }
     }
 
-    public class Cadillac : AmericanCar
+    [CustomMetadata(typeof(CadillacMetadataProvider))]
+    public class Cadillac : AmericanCar { }
+    public class CadillacMetadataProvider : CustomMetadataProvider
     {
-      [CustomMetadata("score=40 description='Luxury item, but unreliable'  origin{country=XYZYZ/*this will never take effect*/}")]
-      public override void Draw() { }
+      public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
+      {
+        var data = "score=40 description='Luxury item, but unreliable'  origin{country=XYZYZ/*this will never take effect*/}".AsLaconicConfig();
+        dataRoot.MergeAttributes(data);
+        dataRoot.MergeSections(data);
+        return dataRoot;
+      }
     }
 
-    public class JapaneseCar : Car
+    [CustomMetadata(typeof(JapaneseCarMetadataProvider))]
+    public class JapaneseCar : Car { }
+    public class JapaneseCarMetadataProvider : CustomMetadataProvider
     {
-     [CustomMetadata("score=110 description='Cars built in Japan' origin{_override=stop country=jap} z=1")]
-      public override void Draw() { }
+      public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
+      {
+        var data = "score=110 description='Cars built in Japan' origin{_override=stop country=jap} z=1".AsLaconicConfig();
+        dataRoot.MergeAttributes(data);
+        dataRoot.MergeSections(data);
+        return dataRoot;
+      }
     }
 
-    public class Honda : JapaneseCar
+    [CustomMetadata(typeof(HondaMetadataProvider))]
+    public class Honda : JapaneseCar { }
+    public class HondaMetadataProvider : CustomMetadataProvider
     {
-      [CustomMetadata("description='Honda motors'")]
-      public override void Draw() { }
+      public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
+      {
+        var data = "description='Honda motors'".AsLaconicConfig();
+        dataRoot.MergeAttributes(data);
+        dataRoot.MergeSections(data);
+        return dataRoot;
+      }
     }
 
-    public class Toyota : JapaneseCar
+    [CustomMetadata(typeof(ToyotaMetadataProvider))]
+    public class Toyota : JapaneseCar { }
+    public class ToyotaMetadataProvider : CustomMetadataProvider
     {
-      [CustomMetadata("description='Toyota motors' b=-1 score=137 z=7")]
-      public override void Draw() { }
+      public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
+      {
+        var data = "description='Toyota motors' b=-1 score=137 z=7".AsLaconicConfig();
+        dataRoot.MergeAttributes(data);
+        dataRoot.MergeSections(data);
+        return dataRoot;
+      }
     }
 
     //no attribute
-    public class EuropeanCar : Car
-    {
-     //nothing to override
-    }
+    public class EuropeanCar : Car { }
 
-    public class BMW : EuropeanCar
+
+    [CustomMetadata(typeof(BMWMetadataProvider))]
+    public class BMW : EuropeanCar { }
+    public class BMWMetadataProvider : CustomMetadataProvider
     {
-      [CustomMetadata("description='Bavarian Motor Works' z=190")]
-      public override void Draw() { }
+      public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
+      {
+        var data = "description='Bavarian Motor Works' z=190".AsLaconicConfig();
+        dataRoot.MergeAttributes(data);
+        dataRoot.MergeSections(data);
+        return dataRoot;
+      }
     }
 
 
@@ -75,7 +130,7 @@ namespace Azos.Tests.Nub
     public void Car_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Car).GetMethod("Draw"), null, null, data);
+      CustomMetadataAttribute.Apply(typeof(Car), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -91,7 +146,7 @@ namespace Azos.Tests.Nub
     public void AmericanCar_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(AmericanCar).GetMethod("Draw"), null, null, data);
+      CustomMetadataAttribute.Apply(typeof(AmericanCar), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -107,7 +162,7 @@ namespace Azos.Tests.Nub
     public void Buick_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Buick).GetMethod("Draw"), null, null, data);
+      CustomMetadataAttribute.Apply(typeof(Buick), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -123,7 +178,7 @@ namespace Azos.Tests.Nub
     public void Cadillac_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Cadillac).GetMethod("Draw"), null, null, data);
+      CustomMetadataAttribute.Apply(typeof(Cadillac), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -139,7 +194,7 @@ namespace Azos.Tests.Nub
     public void Honda_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Honda).GetMethod("Draw"), null, null, data);
+      CustomMetadataAttribute.Apply(typeof(Honda), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -155,7 +210,7 @@ namespace Azos.Tests.Nub
     public void Toyota_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Toyota).GetMethod("Draw"), null, null, data);
+      CustomMetadataAttribute.Apply(typeof(Toyota), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -172,7 +227,7 @@ namespace Azos.Tests.Nub
     public void EuropeanCar_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(EuropeanCar).GetMethod("Draw"), null, null, data);
+      CustomMetadataAttribute.Apply(typeof(EuropeanCar), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -188,7 +243,7 @@ namespace Azos.Tests.Nub
     public void BMW_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(BMW).GetMethod("Draw"), null, null, data);
+      CustomMetadataAttribute.Apply(typeof(BMW), null, null, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
