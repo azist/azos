@@ -15,23 +15,23 @@ namespace Azos.Wave.Mvc
   /// </summary>
   public sealed class ControllerCustomMetadataProvider : CustomMetadataProvider
   {
-    public override ConfigSectionNode ProvideMetadata(MemberInfo member, object context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
+    public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, object context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
     {
       if (member is Type tController && context is ApiDocGenerator.ControllerContext apictx)
       {
         var apiAttr = tController.GetCustomAttribute<ApiControllerDocAttribute>();
         if (apiAttr!=null)
-        return describe(tController, apictx, dataRoot, overrideRules);
+        return describe(tController, instance, apictx, dataRoot, overrideRules);
       }
 
       return null;
     }
 
-    private ConfigSectionNode describe(Type tController, ApiDocGenerator.ControllerContext apictx, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules)
+    private ConfigSectionNode describe(Type tController, object instance, ApiDocGenerator.ControllerContext apictx, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules)
     {
       var cdata = dataRoot.AddChildNode("scope");
       var cattr = apictx.ApiDocAttr;
-      (var drequest, var dresponse) = writeCommon(apictx.Generator, cattr, cdata);
+      (var drequest, var dresponse) = writeCommon(tController, apictx.Generator, cattr, cdata);
       cdata.AddAttributeNode("uri-base", cattr.BaseUri);
       cdata.AddAttributeNode("doc-file", cattr.DocFile);
       var docContent = tController.GetText(cattr.DocFile);
@@ -42,7 +42,7 @@ namespace Azos.Wave.Mvc
       foreach(var mctx in allMethodContexts)
       {
         var edata = cdata.AddChildNode("endpoint");
-        writeCommon(apictx.Generator, mctx.ApiEndpointDocAttr, edata);
+        writeCommon(mctx.Method, apictx.Generator, mctx.ApiEndpointDocAttr, edata);
 
         var epuri = mctx.ApiEndpointDocAttr.Uri.AsString().Trim();
         if (epuri.IsNullOrWhiteSpace())
@@ -66,15 +66,33 @@ namespace Azos.Wave.Mvc
         writeCollection(mctx.ApiEndpointDocAttr.Methods, "method", drequest, ':');
         //todo doc anchor....(parse out of docContent);
 
+        //Get all method attributes except ApiDoc
+        var epattrs = mctx.Method
+                          .GetCustomAttributes(true)
+                          .Where(a => !(a is ApiDocAttribute))
+                          .ToArray();
+        writeInstanceCollection(epattrs, "schema", edata, apictx.Generator);
+
         //todo Get app parameters look for Docs and register them and also permissions
+        var epargs = mctx.Method.GetParameters()
+                         .Where(pi => !pi.IsOut && !pi.ParameterType.IsByRef && !pi.ParameterType.IsPrimitive )
+                         .Select( pi=> pi.ParameterType).ToArray();
+        writeTypeCollection(epargs, "schema", edata, apictx.Generator);
       }
 
       return cdata;
     }
 
-    private (ConfigSectionNode request, ConfigSectionNode response) writeCommon(ApiDocGenerator gen, ApiDocAttribute attr, ConfigSectionNode data)
+    private (ConfigSectionNode request, ConfigSectionNode response) writeCommon(MemberInfo info, ApiDocGenerator gen, ApiDocAttribute attr, ConfigSectionNode data)
     {
-      data.AddAttributeNode("title", attr.Title);
+      data.AddAttributeNode("id", MetadataUtils.GetMetadataTokenId(info));
+
+      if (attr.Title.IsNotNullOrWhiteSpace())
+        data.AddAttributeNode("title", attr.Title);
+
+      if (attr.Description.IsNotNullOrWhiteSpace())
+        data.AddAttributeNode("description", attr.Description);
+
       var drequest = data.AddChildNode("request");
       var dresponse = data.AddChildNode("response");
 
@@ -122,6 +140,23 @@ namespace Azos.Wave.Mvc
           node = data.AddChildNode(iname);
           node.AddAttributeNode("id", id);
           node.AddAttributeNode("name", type.DisplayNameWithExpandedGenericArgs());
+        }
+      }
+    }
+
+    private void writeInstanceCollection(object[] items, string iname, ConfigSectionNode data, ApiDocGenerator gen)
+    {
+      if (items != null && items.Length > 0)
+      {
+        foreach (var item in items.Where(i => i != null))
+        {
+          var titem = item.GetType();
+          var id = gen.AddTypeToDescribe(titem, item);
+          var node = data.Children.FirstOrDefault(c => c.IsSameName(iname) && c.AttrByName("id").Value.EqualsIgnoreCase(id));
+          if (node != null) continue;//already exists
+          node = data.AddChildNode(iname);
+          node.AddAttributeNode("id", id);
+          node.AddAttributeNode("name", titem.DisplayNameWithExpandedGenericArgs());
         }
       }
     }

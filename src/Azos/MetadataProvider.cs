@@ -7,6 +7,26 @@ using Azos.Conf;
 namespace Azos
 {
   /// <summary>
+  /// Denotes entities that generate metadata information into structured data vector
+  /// </summary>
+  public interface IMetadataGenerator
+  {
+    /// <summary>
+    /// Generates metadata into ConfigSectionNode structure
+    /// </summary>
+    ConfigSectionNode Generate();
+
+    /// <summary>
+    /// Adds a type with an optional instance to be described, this is typically used to register Permissions and Doc schemas
+    /// </summary>
+    /// <param name="type">A type to describe</param>
+    /// <param name="instance">Optional instance of the type</param>
+    /// <returns>An instance unique ID identifying the type, if the type is already added to the set (and of the same instance), returns its existing id</returns>
+    string AddTypeToDescribe(Type type, object instance = null);
+  }
+
+
+  /// <summary>
   /// Decorates members such as Types and Methods that provide custom metadata.
   /// The metadata is harvested into structured ConfigSectionNode, you can either specify config content in Laconic format or
   /// provide a type of CustomMetadataProvider-derived class which performs metadata acquisition imperatively in the scope of the calling context
@@ -51,10 +71,14 @@ namespace Azos
     /// or merging the config content
     /// </summary>
     /// <param name="target">MemebrInfo such as type or MethodInfo that the attribute is being applied to</param>
+    /// <param name="instance">
+    /// Optional instance of Type when member represents a type, this way the metadata may depend on instance,
+    /// e.g. when generating permissions the instance contains the required access level
+    /// </param>
     /// <param name="context">Optional operation context</param>
     /// <param name="data">The data root to output metadata into</param>
     /// <param name="overrideRules">Config node override rules to apply while evaluating attribute inheritance chains</param>
-    public static bool Apply(MemberInfo target, object context, ConfigSectionNode data, NodeOverrideRules overrideRules = null)
+    public static bool Apply(MemberInfo target, object instance, object context, ConfigSectionNode data, NodeOverrideRules overrideRules = null)
     {
       var chain = new List<CustomMetadataAttribute>();
 
@@ -90,7 +114,7 @@ namespace Azos
           var provider = (CustomMetadataProvider)Activator.CreateInstance(atr.ProviderType);
           try
           {
-            provider.ProvideMetadata(target, context, data, overrideRules);
+            provider.ProvideMetadata(target, instance, context, data, overrideRules);
           }
           finally
           {
@@ -117,10 +141,30 @@ namespace Azos
     /// Called by various metadata consumers to get additional metadata about the decorated type
     /// </summary>
     /// <param name="member">A member (e.g. a type or a method) which is being described</param>
+    /// <param name="instance">
+    /// Optional instance of Type when member represents a type, this way the metadata may depend on instance,
+    /// e.g. when generating permissions the instance contains the required access level
+    /// </param>
     /// <param name="context">Optional context in which the metadata acquisition takes place</param>
     /// <param name="dataRoot">Root data node under which THIS entity is supposed to create its sub-node to provide its metadata into</param>
     /// <param name="overrideRules">Config node override rules to use for structured merging, or null to use the defaults</param>
     /// <returns>A new data node that this provider has written into, such as a new node which is a child of dataRoot</returns>
-    public abstract ConfigSectionNode ProvideMetadata(MemberInfo member, object context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null);
+    public abstract ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, object context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null);
   }
+
+  /// <summary>
+  /// Utilities for working with custom metadata
+  /// </summary>
+  public static class MetadataUtils
+  {
+    /// <summary>
+    /// Generates string ID based on MetadataTokes: module-member
+    /// </summary>
+    public static string GetMetadataTokenId(MemberInfo info)
+    {
+      if (info==null) return "0-0";
+      return "{0:x2}-{1:x2}".Args(info.Module.MetadataToken, info.MetadataToken);
+    }
+  }
+
 }

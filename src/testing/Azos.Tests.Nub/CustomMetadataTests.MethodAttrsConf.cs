@@ -75,7 +75,7 @@ namespace Azos.Tests.Nub
     public void Car_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Car).GetMethod("Draw"), this, data);
+      CustomMetadataAttribute.Apply(typeof(Car).GetMethod("Draw"), null, this, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -91,7 +91,7 @@ namespace Azos.Tests.Nub
     public void AmericanCar_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(AmericanCar).GetMethod("Draw"), this, data);
+      CustomMetadataAttribute.Apply(typeof(AmericanCar).GetMethod("Draw"), null, this, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -107,7 +107,7 @@ namespace Azos.Tests.Nub
     public void Buick_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Buick).GetMethod("Draw"), this, data);
+      CustomMetadataAttribute.Apply(typeof(Buick).GetMethod("Draw"), null, this, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -123,7 +123,7 @@ namespace Azos.Tests.Nub
     public void Cadillac_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Cadillac).GetMethod("Draw"), this, data);
+      CustomMetadataAttribute.Apply(typeof(Cadillac).GetMethod("Draw"), null, this, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -139,7 +139,7 @@ namespace Azos.Tests.Nub
     public void Honda_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Honda).GetMethod("Draw"), this, data);
+      CustomMetadataAttribute.Apply(typeof(Honda).GetMethod("Draw"), null, this, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -155,7 +155,7 @@ namespace Azos.Tests.Nub
     public void Toyota_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(Toyota).GetMethod("Draw"), this, data);
+      CustomMetadataAttribute.Apply(typeof(Toyota).GetMethod("Draw"), null, this, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -172,7 +172,7 @@ namespace Azos.Tests.Nub
     public void EuropeanCar_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(EuropeanCar).GetMethod("Draw"), this, data);
+      CustomMetadataAttribute.Apply(typeof(EuropeanCar).GetMethod("Draw"), null, this, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
@@ -188,7 +188,7 @@ namespace Azos.Tests.Nub
     public void BMW_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
-      CustomMetadataAttribute.Apply(typeof(BMW).GetMethod("Draw"), this, data);
+      CustomMetadataAttribute.Apply(typeof(BMW).GetMethod("Draw"), null, this, data);
 
       Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 

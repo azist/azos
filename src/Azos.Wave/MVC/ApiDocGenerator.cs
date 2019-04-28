@@ -15,8 +15,11 @@ namespace Azos.Wave.Mvc
   /// Creates a configuration object by examining API controller classes and action methods decorated by ApiDoc* via reflection.
   /// You can derive from this class to generate more detailed results
   /// </summary>
-  public class ApiDocGenerator
+  public class ApiDocGenerator : IMetadataGenerator
   {
+    /// <summary>
+    /// Represents a MVC controller scope during metadata generation
+    /// </summary>
     public struct ControllerContext
     {
       public ControllerContext(ApiDocGenerator gen, ApiControllerDocAttribute attr)
@@ -28,6 +31,9 @@ namespace Azos.Wave.Mvc
       public readonly ApiControllerDocAttribute ApiDocAttr;
     }
 
+    /// <summary>
+    /// Represents an MVC action method scope within MVC controller scope during metadata generation
+    /// </summary>
     public struct EndpointContext
     {
       public EndpointContext(ApiDocGenerator gen, Type tController, ApiControllerDocAttribute cattr, ApiEndpointDocAttribute eattr, MethodInfo method)
@@ -78,7 +84,13 @@ namespace Azos.Wave.Mvc
 
     public ApiDocGenerator(){ }
 
-    private Dictionary<Type, Guid> m_TypesToDescribe = new Dictionary<Type, Guid>();
+    private class instanceList : List<object>
+    {
+      public instanceList() { Guid = Guid.NewGuid(); }
+      public readonly Guid Guid;
+    }
+
+    private Dictionary<Type, instanceList> m_TypesToDescribe = new Dictionary<Type, instanceList>();
 
     public List<ControllerLocation> Locations { get; } = new List<ControllerLocation>();
 
@@ -102,20 +114,33 @@ namespace Azos.Wave.Mvc
 
       var typesSection = data.AddChildNode("type-schemas");
       foreach(var kvp in m_TypesToDescribe)
-      {
-        var typeSection = typesSection.AddChildNode(kvp.Value.ToString());
-        CustomMetadataAttribute.Apply(kvp.Key, this, typeSection);
-      }
+        for(var i=0; i< kvp.Value.Count; i++)
+        {
+          var typeSection = typesSection.AddChildNode("{0}-{1}".Args(kvp.Value.Guid, i));
+          CustomMetadataAttribute.Apply(kvp.Key, kvp.Value[i], this, typeSection);
+        }
 
       return data;
     }
 
-    public Guid AddTypeToDescribe(Type type)
+    public string AddTypeToDescribe(Type type, object instance = null)
     {
-      if (m_TypesToDescribe.TryGetValue(type, out var existing)) return existing;
-      var result = Guid.NewGuid();
-      m_TypesToDescribe.Add(type, result);
-      return result;
+      instanceList list;
+      if (!m_TypesToDescribe.TryGetValue(type, out list))
+      {
+        list = new instanceList();
+        list.Add(null);//always at index #0
+        m_TypesToDescribe.Add(type, list);
+      }
+
+      var idx = list.FindIndex( i=>object.ReferenceEquals(i, instance));
+      if (idx<0)
+      {
+        list.Add(instance);
+        idx = list.Count-1;
+      }
+
+      return "{0}-{1}".Args(list.Guid, idx);
     }
 
     public virtual ConfigSectionNode MakeConfig() => Configuration.NewEmptyRoot(GetType().Name);
@@ -128,6 +153,6 @@ namespace Azos.Wave.Mvc
                    .Select(mi => new EndpointContext(this, tController, attr, mi.GetCustomAttribute<ApiEndpointDocAttribute>(), mi));
 
     public virtual void PopulateController(ConfigSectionNode data, Type ctlType, ApiControllerDocAttribute ctlAttr)
-     => CustomMetadataAttribute.Apply(ctlType, new ControllerContext(this, ctlAttr), data);
+     => CustomMetadataAttribute.Apply(ctlType, null, new ControllerContext(this, ctlAttr), data);
   }
 }

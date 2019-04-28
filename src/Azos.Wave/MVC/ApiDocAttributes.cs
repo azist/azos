@@ -13,9 +13,14 @@ namespace Azos.Wave.Mvc
   public abstract class ApiDocAttribute : Attribute
   {
     /// <summary>
-    /// Provides a short (typically under 128 chars) plain-text title stating the purpose of the decorated controller or endpoint
+    /// Provides a short (typically under 64 chars) plain-text title of the decorated controller or endpoint
     /// </summary>
     public string Title {  get; set; }
+
+    /// <summary>
+    /// Provides a short (typically under 256 chars) plain-text description stating the purpose of the decorated controller or endpoint
+    /// </summary>
+    public string Description { get; set; }
 
     /// <summary>
     /// Specifies the list of additional type schemas, such as DataDoc and Permissions  to include as a part of documentation. The system includes all DataDoc-derived
