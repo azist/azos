@@ -92,8 +92,16 @@ namespace Azos.Wave.Mvc
 
     private Dictionary<Type, instanceList> m_TypesToDescribe = new Dictionary<Type, instanceList>();
 
+    /// <summary>
+    /// A list of locations where system looks for controllers to generate Api docs from
+    /// </summary>
     public List<ControllerLocation> Locations { get; } = new List<ControllerLocation>();
 
+
+    /// <summary>
+    /// Controls the level of detail for generated metadata
+    /// </summary>
+    public MetadataDetailLevel DetailLevel { get; set;}
 
     /// <summary>
     /// Generates the resulting config object
@@ -153,6 +161,6 @@ namespace Azos.Wave.Mvc
                    .Select(mi => new EndpointContext(this, tController, attr, mi.GetCustomAttribute<ApiEndpointDocAttribute>(), mi));
 
     public virtual void PopulateController(ConfigSectionNode data, Type ctlType, ApiControllerDocAttribute ctlAttr)
-     => CustomMetadataAttribute.Apply(ctlType, null, new ControllerContext(this, ctlAttr), data);
+     => CustomMetadataAttribute.Apply(ctlType, new ControllerContext(this, ctlAttr), this, data);
   }
 }

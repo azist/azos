@@ -12,7 +12,7 @@ namespace Azos.Security
   /// </summary>
   public sealed class PermissionCustomMetadataProvider : CustomMetadataProvider
   {
-    public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, object context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
+    public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
     {
       var tperm = member.NonNull(nameof(member)) as Type;
       if (tperm==null) return null;

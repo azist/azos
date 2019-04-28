@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 using Azos.Conf;
@@ -7,10 +8,52 @@ using Azos.Conf;
 namespace Azos
 {
   /// <summary>
-  /// Denotes entities that generate metadata information into structured data vector
+  /// Defines levels of metadata detalization which is important for controlling the level of disclosure to foreign/public consumers,
+  /// such as API documentation endpoints and the like
+  /// </summary>
+  public enum MetadataDetailLevel
+  {
+    /// <summary>
+    /// Minimum possible metadata should be given, e.g. do not expose internal CLR entity names, internal GUIDs for types, parameter names etc.
+    /// </summary>
+    Minimum = int.MinValue,
+
+    /// <summary>
+    /// Default level = Public API is the most likely consumer, do not disclose detailed internal CLR type names and other system-specific internals
+    /// </summary>
+    Default = 0,
+    /// <summary>
+    /// Same as default, purposed for Public API consumption. Do not disclose system-internal data such as CLR type names
+    /// </summary>
+    Public = Default,
+
+    /// <summary>
+    /// Metadata is for internal system use, may disclose all internal type names etc.
+    /// </summary>
+    Internal = 100,
+
+    /// <summary>
+    /// Maximum level - include as much metadata detail is possible
+    /// </summary>
+    Maximum = int.MaxValue
+  }
+
+
+  /// <summary>
+  /// Denotes entities that generate metadata information into structured data vector.
+  /// You should be careful and set DetailLevel property to the minimum level for the consuming party
+  /// in order not to disclose system-internal information which may be sensitive (e.g. internal permission names)
   /// </summary>
   public interface IMetadataGenerator
   {
+
+    /// <summary>
+    /// Defines the level of metadata details disclosed during metadata generation to consumer.
+    /// Be careful not to disclose system internal type names and other sensitive information to the
+    /// public consumer, such as an API documentation facade
+    /// </summary>
+    MetadataDetailLevel DetailLevel {  get; }
+
     /// <summary>
     /// Generates metadata into ConfigSectionNode structure
     /// </summary>
@@ -31,7 +74,7 @@ namespace Azos
   /// The metadata is harvested into structured ConfigSectionNode, you can either specify config content in Laconic format or
   /// provide a type of CustomMetadataProvider-derived class which performs metadata acquisition imperatively in the scope of the calling context
   /// </summary>
-  [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]
+  [AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = false)]
   public sealed class CustomMetadataAttribute : Attribute
   {
     public const string CONFIG_META_SECTION = "meta";
@@ -39,8 +82,13 @@ namespace Azos
     public CustomMetadataAttribute(Type providerType)
       => ProviderType = providerType.IsOfType<CustomMetadataProvider>(nameof(providerType));
 
-    public CustomMetadataAttribute(string laconicMetadata)
+    public CustomMetadataAttribute(string laconicMetadata) : this(MetadataDetailLevel.Public, laconicMetadata)
     {
+    }
+
+    public CustomMetadataAttribute(MetadataDetailLevel detailLevel, string laconicMetadata)
+    {
+      ContentDetailLevel =  detailLevel;
       try
       {
         Content = laconicMetadata.NonBlank(nameof(laconicMetadata)).AsLaconicConfig(wrapRootName: CONFIG_META_SECTION, handling: Data.ConvertErrorHandling.Throw);
@@ -67,10 +115,15 @@ namespace Azos
     public readonly ConfigSectionNode Content;
 
     /// <summary>
+    /// Specifies the level of detail when this attribute Content should be applied
+    /// </summary>
+    public readonly MetadataDetailLevel ContentDetailLevel;
+
+    /// <summary>
     /// Applies the attribute - performs metadata acquisition by either dynamic invocation of referenced CustomMetadataProvider derivative
     /// or merging the config content
     /// </summary>
-    /// <param name="target">MemebrInfo such as type or MethodInfo that the attribute is being applied to</param>
+    /// <param name="target">MemberInfo such as type or MethodInfo that the attribute is being applied to</param>
     /// <param name="instance">
     /// Optional instance of Type when member represents a type, this way the metadata may depend on instance,
     /// e.g. when generating permissions the instance contains the required access level
@@ -78,15 +131,16 @@ namespace Azos
     /// <param name="context">Optional operation context</param>
     /// <param name="data">The data root to output metadata into</param>
     /// <param name="overrideRules">Config node override rules to apply while evaluating attribute inheritance chains</param>
-    public static bool Apply(MemberInfo target, object instance, object context, ConfigSectionNode data, NodeOverrideRules overrideRules = null)
+    public static bool Apply(MemberInfo target, object instance, IMetadataGenerator context, ConfigSectionNode data, NodeOverrideRules overrideRules = null)
     {
       var chain = new List<CustomMetadataAttribute>();
 
       var info = target.NonNull(nameof(target));
       while(info!=null)
       {
-        var atr = info.GetCustomAttribute<CustomMetadataAttribute>(inherit: false);
-        if (atr!=null) chain.Add(atr);
+        var atr = info.GetCustomAttributes<CustomMetadataAttribute>(inherit: false);
+        if (atr!=null) atr.Where(a => context==null || a.ContentDetailLevel <= context.DetailLevel )
+                          .ForEach(a => chain.Add(a));
 
         if (info is Type infoType) info = infoType.BaseType;
         else if (info is MethodInfo infoMethod)
@@ -145,11 +199,11 @@ namespace Azos
     /// Optional instance of Type when member represents a type, this way the metadata may depend on instance,
     /// e.g. when generating permissions the instance contains the required access level
     /// </param>
-    /// <param name="context">Optional context in which the metadata acquisition takes place</param>
+    /// <param name="context">IMetadataGenerator context in which the metadata acquisition takes place</param>
     /// <param name="dataRoot">Root data node under which THIS entity is supposed to create its sub-node to provide its metadata into</param>
     /// <param name="overrideRules">Config node override rules to use for structured merging, or null to use the defaults</param>
     /// <returns>A new data node that this provider has written into, such as a new node which is a child of dataRoot</returns>
-    public abstract ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, object context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null);
+    public abstract ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null);
   }
 
   /// <summary>

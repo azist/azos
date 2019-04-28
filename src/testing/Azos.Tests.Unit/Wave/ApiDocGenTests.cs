@@ -33,7 +33,7 @@ namespace Azos.Tests.Unit.Wave
 
   public class TestFilter : TypedDoc
   {
-    [Field]public string FirstNanme { get;set; }
+    [Field]public string FirstName { get;set; }
     [Field]public string LastName { get; set; }
   }
 

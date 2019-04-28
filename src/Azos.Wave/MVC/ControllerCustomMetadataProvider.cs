@@ -15,9 +15,9 @@ namespace Azos.Wave.Mvc
   /// </summary>
   public sealed class ControllerCustomMetadataProvider : CustomMetadataProvider
   {
-    public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, object context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
+    public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
     {
-      if (member is Type tController && context is ApiDocGenerator.ControllerContext apictx)
+      if (member is Type tController && instance is ApiDocGenerator.ControllerContext apictx)
       {
         var apiAttr = tController.GetCustomAttribute<ApiControllerDocAttribute>();
         if (apiAttr!=null)
