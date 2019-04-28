@@ -134,7 +134,7 @@ namespace Azos.Wave.Mvc
       {
         foreach (var type in items.Where(t => t!=null))
         {
-          var id = gen.AddTypeToDescribe(type).ToString();
+          var id = gen.AddTypeToDescribe(type);
           var node = data.Children.FirstOrDefault(c => c.IsSameName(iname) && c.AttrByName("id").Value.EqualsIgnoreCase(id));
           if (node!=null) continue;//already exists
           node = data.AddChildNode(iname);

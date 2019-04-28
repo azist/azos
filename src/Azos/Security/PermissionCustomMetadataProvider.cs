@@ -15,7 +15,8 @@ namespace Azos.Security
     public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
     {
       var tperm = member.NonNull(nameof(member)) as Type;
-      if (tperm==null) return null;
+      if (tperm==null || !typeof(Permission).IsAssignableFrom(tperm)) return null;
+
       var node = dataRoot.AddChildNode("permission");
       node.AddAttributeNode("id", MetadataUtils.GetMetadataTokenId(tperm));
       if (instance is Permission perm)

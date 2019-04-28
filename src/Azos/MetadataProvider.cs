@@ -55,6 +55,11 @@ namespace Azos
     MetadataDetailLevel DetailLevel {  get; }
 
     /// <summary>
+    /// Target name used for extraction of targeted metadata such as database backend target name used in data documents/ schemas
+    /// </summary>
+    string DataTargetName {  get; }
+
+    /// <summary>
     /// Generates metadata into ConfigSectionNode structure
     /// </summary>
     ConfigSectionNode Generate();

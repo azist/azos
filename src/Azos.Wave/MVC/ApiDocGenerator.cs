@@ -84,7 +84,7 @@ namespace Azos.Wave.Mvc
 
     public ApiDocGenerator(){ }
 
-    private class instanceList : List<object>
+    private class instanceList : List<(object item, bool wasDescribed)>
     {
       public instanceList() { Guid = Guid.NewGuid(); }
       public readonly Guid Guid;
@@ -104,6 +104,11 @@ namespace Azos.Wave.Mvc
     public MetadataDetailLevel DetailLevel { get; set;}
 
     /// <summary>
+    /// Specifies target name used for data docs/schema targeted metadata extraction
+    /// </summary>
+    public string DataTargetName { get; set;}
+
+    /// <summary>
     /// Generates the resulting config object
     /// </summary>
     public virtual ConfigSectionNode Generate()
@@ -121,12 +126,25 @@ namespace Azos.Wave.Mvc
         PopulateController(data, controller.tController, controller.aController);
 
       var typesSection = data.AddChildNode("type-schemas");
-      foreach(var kvp in m_TypesToDescribe)
-        for(var i=0; i< kvp.Value.Count; i++)
+      bool found;
+      do
+      {
+        found = false;
+        foreach(var kvp in m_TypesToDescribe.ToArray())//make a copy as dictionary may be mutated as we describe more items
         {
-          var typeSection = typesSection.AddChildNode("{0}-{1}".Args(kvp.Value.Guid, i));
-          CustomMetadataAttribute.Apply(kvp.Key, kvp.Value[i], this, typeSection);
+          var listValueCount = kvp.Value.Count;//the new types will be added to this list at the end
+          for (var i=0; i< listValueCount; i++)
+          {
+            var rec = kvp.Value[i];
+            if (rec.wasDescribed) continue;
+
+            kvp.Value[i] = (rec.item, true);
+            found = true;
+            var typeSection = typesSection.AddChildNode("{0}-{1}".Args(kvp.Value.Guid, i));
+            CustomMetadataAttribute.Apply(kvp.Key, rec.item, this, typeSection);
+          }
         }
+      }while(found);//as we describe types they may be adding other types into the loop
 
       return data;
     }
@@ -137,14 +155,14 @@ namespace Azos.Wave.Mvc
       if (!m_TypesToDescribe.TryGetValue(type, out list))
       {
         list = new instanceList();
-        list.Add(null);//always at index #0
+        list.Add((null, false));//always at index #0
         m_TypesToDescribe.Add(type, list);
       }
 
-      var idx = list.FindIndex( i=>object.ReferenceEquals(i, instance));
+      var idx = list.FindIndex( litem => object.ReferenceEquals(litem.item, instance));
       if (idx<0)
       {
-        list.Add(instance);
+        list.Add((instance, false));
         idx = list.Count-1;
       }
 
