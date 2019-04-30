@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.503
-set HEADLINE=Add CustomMetadataAttribute
+set VER=1.0.504
+set HEADLINE=Add ApiDoc skeleton
 
 call vs2017-build-release %VER%
 
