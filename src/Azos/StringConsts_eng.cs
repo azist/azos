@@ -220,9 +220,6 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string BINLOG_READER_TYPE_MISMATCH_ERROR = "BinLog reader type mismatched. Class: '{0}' Stream: '{1}'";
     public const string BINLOG_BAD_READER_TYPE_ERROR = "BinLog header contains reader type which could not be loaded or is not a valid LogReader derivative: ";
 
-    public const string SECURITY_CHECKTHISCALLPERMISSIONS_STACK_ERROR =
-    "{0}(...callingMethodName='{1}') is not on call stack. \n   Cause: The call to `{0}` method must be the first statement if used in an async method   \n";
-
     public const string SECURITY_AUTHROIZATION_ERROR =
         "Authorization to '{0}' failed from '{1}'";
 

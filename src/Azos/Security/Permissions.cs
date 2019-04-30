@@ -100,6 +100,12 @@ namespace Azos.Security
     }
 
     /// <summary>
+    /// Helper method which allows to write multiple permissions as open-array method param.
+    /// Returns empty enumerable if null is passed in
+    /// </summary>
+    public static IEnumerable<Permission> All(params Permission[] permissions) => permissions!=null ? permissions : Enumerable.Empty<Permission>();
+
+    /// <summary>
     /// Guards the action represented by enumerable of permissions by checking all permissions and throwing exception if
     /// any of authorization attributes do not pass
     /// </summary>
@@ -114,10 +120,29 @@ namespace Azos.Security
 
       if (session==null && permissions.Any() && getSessionFunc!=null) session = getSessionFunc();
 
-      var failed = permissions.FirstOrDefault(perm => !perm.Check(app, session));
+      var failed = permissions.FirstOrDefault(perm => perm!=null && !perm.Check(app, session));
 
       if (failed!=null)
         throw new AuthorizationException(string.Format(StringConsts.SECURITY_AUTHROIZATION_ERROR, failed,  actionName ?? CoreConsts.UNKNOWN));
+    }
+
+    /// <summary>
+    /// Guards the action  by checking a single permission and throwing exception if any of authorization attributes do not pass
+    /// </summary>
+    public static void AuthorizeAndGuardAction(IApplication app,
+                                               Permission permission,
+                                               string actionName,
+                                               ISession session = null,
+                                               GetSessionFunc getSessionFunc = null)
+    {
+      if (permission == null) return;
+
+      if (session == null && getSessionFunc != null) session = getSessionFunc();
+
+      var failed = !permission.Check(app, session);
+
+      if (failed)
+        throw new AuthorizationException(string.Format(StringConsts.SECURITY_AUTHROIZATION_ERROR, failed, actionName ?? CoreConsts.UNKNOWN));
     }
 
     /// <summary>
