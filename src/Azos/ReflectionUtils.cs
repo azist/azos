@@ -88,7 +88,7 @@ namespace Azos
     /// <summary>
     /// Returns true if the supplied method is an async method
     /// </summary>
-    public static bool IsAsyncMethod(this MethodInfo method)
+    public static bool IsAsyncMethod(this MethodBase method)
     {
       if (method==null) return false;
       return Attribute.IsDefined(method, typeof(AsyncStateMachineAttribute), inherit: false);

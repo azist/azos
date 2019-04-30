@@ -355,7 +355,7 @@ namespace Azos
     public WrappedException(WrappedExceptionData data) : base(data.Message) { m_Wrapped = data; }
     public WrappedException(string message, WrappedExceptionData data) : base(message) { m_Wrapped = data; }
 
-    internal WrappedException(SerializationInfo info, StreamingContext context) : base(info, context)
+    private WrappedException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
       m_Wrapped = (WrappedExceptionData)info.GetValue(WRAPPED_FLD_NAME, typeof(WrappedExceptionData));
     }

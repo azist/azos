@@ -15,6 +15,25 @@ namespace Azos
   /// </summary>
   public static class CollectionUtils
   {
+
+    /// <summary>
+    /// Adds the specified element at the end of the sequence. Sequence may be null
+    /// </summary>
+    public static IEnumerable<T> AddOneAtEnd<T>(this IEnumerable<T> existing, T one)
+    {
+      if (existing != null) foreach (var e in existing) yield return e;
+      yield return one;
+    }
+
+    /// <summary>
+    /// Adds the specified element at the start of the sequence. Sequence may be null
+    /// </summary>
+    public static IEnumerable<T> AddOneAtStart<T>(this IEnumerable<T> existing, T one)
+    {
+      yield return one;
+      if (existing != null) foreach (var e in existing) yield return e;
+    }
+
     /// <summary>
     /// Executes an action(item) for each element of sequence
     /// </summary>
@@ -213,5 +232,6 @@ namespace Azos
         if (set.Add(selector(item)))
           yield return item;
     }
+
   }
 }
