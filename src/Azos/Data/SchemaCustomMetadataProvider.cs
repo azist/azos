@@ -38,20 +38,22 @@ namespace Azos.Data
         try
         { //this may fail because there may be constructor incompatibility, then we just can get instance-specific metadata
           doc = Activator.CreateInstance(schema.TypedDocType, true) as TypedDoc;
+          context.App.InjectInto(doc);
         }
         catch { }
       }
 
-      //todo Targeted TableAttrs
-      //todo Targeted FieldDefs
-      //context.DataTargetName
-
-
-#warning Need to handle exception per field and report failing field/schema name, otherwise it will hard to catch!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       foreach (var def in schema)
       {
         var nfld = ndoc.AddChildNode("field");
-        field(def, context, nfld, doc);
+        try
+        {
+          field(def, context, nfld, doc);
+        }
+        catch(Exception error)
+        {
+          throw new CustomMetadataException(StringConsts.METADATA_GENERATION_SCHEMA_FIELD_ERROR.Args(schema.Name, def.Name, error.ToMessageWithType()), error);
+        }
       }
 
       return ndoc;
