@@ -20,7 +20,13 @@ namespace Azos.Data
 
       var ndoc = dataRoot.AddChildNode("data-schema");
 
-      ndoc.AddAttributeNode("name", schema.Name);
+      if (context.DetailLevel > MetadataDetailLevel.Public)
+      {
+        ndoc.AddAttributeNode("name", schema.Name);
+      }
+      else
+        ndoc.AddAttributeNode("name", schema.TypedDocType?.Name ?? schema.Name);
+
       ndoc.AddAttributeNode("read-only", schema.ReadOnly);
 
       if (schema.TypedDocType != null)
