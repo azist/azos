@@ -18,7 +18,7 @@ namespace Azos.Data
 
       if (schema==null) return null;
 
-      var ndoc = dataRoot.AddChildNode("data-schema");
+      var ndoc = dataRoot.AddChildNode("schema");
 
       if (context.DetailLevel > MetadataDetailLevel.Public)
       {
