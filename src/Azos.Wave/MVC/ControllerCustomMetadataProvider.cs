@@ -48,7 +48,7 @@ namespace Azos.Wave.Mvc
         if (epuri.IsNullOrWhiteSpace())
         {
           // infer from action attribute
-          var action = mctx.Method.GetCustomAttributes<ActionAttribute>().FirstOrDefault();
+          var action = mctx.Method.GetCustomAttributes<ActionBaseAttribute>().FirstOrDefault();
           if (action!=null)
              epuri = action.Name;
           if (epuri.IsNullOrWhiteSpace()) epuri = mctx.Method.Name;
@@ -69,7 +69,7 @@ namespace Azos.Wave.Mvc
         //Get all method attributes except ApiDoc
         var epattrs = mctx.Method
                           .GetCustomAttributes(true)
-                          .Where(a => !(a is ApiDocAttribute))
+                          .Where(a => !(a is ApiDocAttribute) && !(a is ActionBaseAttribute))
                           .ToArray();
         writeInstanceCollection(epattrs, "schema", edata, apictx.Generator);
 
