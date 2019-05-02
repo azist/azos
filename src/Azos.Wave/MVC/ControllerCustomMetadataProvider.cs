@@ -15,6 +15,8 @@ namespace Azos.Wave.Mvc
   /// </summary>
   public sealed class ControllerCustomMetadataProvider : CustomMetadataProvider
   {
+    public const string TYPE_REF = "type-ref";
+
     public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
     {
       if (member is Type tController && instance is ApiDocGenerator.ControllerContext apictx)
@@ -48,7 +50,7 @@ namespace Azos.Wave.Mvc
         if (epuri.IsNullOrWhiteSpace())
         {
           // infer from action attribute
-          var action = mctx.Method.GetCustomAttributes<ActionAttribute>().FirstOrDefault();
+          var action = mctx.Method.GetCustomAttributes<ActionBaseAttribute>().FirstOrDefault();
           if (action!=null)
              epuri = action.Name;
           if (epuri.IsNullOrWhiteSpace()) epuri = mctx.Method.Name;
@@ -69,21 +71,21 @@ namespace Azos.Wave.Mvc
         //Get all method attributes except ApiDoc
         var epattrs = mctx.Method
                           .GetCustomAttributes(true)
-                          .Where(a => !(a is ApiDocAttribute))
+                          .Where(a => !(a is ApiDocAttribute) && !(a is ActionBaseAttribute))
                           .ToArray();
-        writeInstanceCollection(epattrs, "schema", edata, apictx.Generator);
+        writeInstanceCollection(epattrs, TYPE_REF, edata, apictx.Generator);
 
         //todo Get app parameters look for Docs and register them and also permissions
         var epargs = mctx.Method.GetParameters()
                          .Where(pi => !pi.IsOut && !pi.ParameterType.IsByRef && !pi.ParameterType.IsPrimitive )
                          .Select( pi=> pi.ParameterType).ToArray();
-        writeTypeCollection(epargs, "schema", edata, apictx.Generator);
+        writeTypeCollection(epargs, TYPE_REF, edata, apictx.Generator);
       }
 
       return cdata;
     }
 
-    private (ConfigSectionNode request, ConfigSectionNode response) writeCommon(MemberInfo info, ApiDocGenerator gen, ApiDocAttribute attr, ConfigSectionNode data)
+    private (Lazy<ConfigSectionNode> request, Lazy<ConfigSectionNode> response) writeCommon(MemberInfo info, ApiDocGenerator gen, ApiDocAttribute attr, ConfigSectionNode data)
     {
       data.AddAttributeNode("id", MetadataUtils.GetMetadataTokenId(info));
 
@@ -93,8 +95,8 @@ namespace Azos.Wave.Mvc
       if (attr.Description.IsNotNullOrWhiteSpace())
         data.AddAttributeNode("description", attr.Description);
 
-      var drequest = data.AddChildNode("request");
-      var dresponse = data.AddChildNode("response");
+      var drequest = new Lazy<ConfigSectionNode>( () => data.AddChildNode("request"));
+      var dresponse = new Lazy<ConfigSectionNode>( () => data.AddChildNode("response"));
 
       writeCollection(attr.RequestHeaders, "header", drequest, ':');
       writeCollection(attr.RequestQueryParameters, "param", drequest, '=');
@@ -104,24 +106,24 @@ namespace Azos.Wave.Mvc
         data.AddAttributeNode("connection", attr.Connection);
 
       if (attr.RequestBody.IsNotNullOrWhiteSpace())
-        drequest.AddAttributeNode("body", attr.RequestBody);
+        drequest.Value.AddAttributeNode("body", attr.RequestBody);
 
       if (attr.ResponseContent.IsNotNullOrWhiteSpace())
-        dresponse.AddAttributeNode("content", attr.ResponseContent);
+        dresponse.Value.AddAttributeNode("content", attr.ResponseContent);
 
-      writeTypeCollection(attr.TypeSchemas, "schema", data, gen);
+      writeTypeCollection(attr.TypeSchemas, TYPE_REF, data, gen);
 
       return (drequest, dresponse);
     }
 
-    private void writeCollection(string[] items, string iname, ConfigSectionNode data, char delim)
+    private void writeCollection(string[] items, string iname, Lazy<ConfigSectionNode> data, char delim)
     {
       if (items != null && items.Length > 0)
       {
         foreach (var item in items.Where(itm => itm.IsNotNullOrWhiteSpace())
                                                    .Select(itm => itm.SplitKVP(delim)))
         {
-          var node = data.AddChildNode(iname);
+          var node = data.Value.AddChildNode(iname);
           node.AddAttributeNode("name", item.Key.Trim());
           node.AddAttributeNode("value", item.Value.Trim());
         }

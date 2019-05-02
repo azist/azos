@@ -151,6 +151,18 @@ namespace Azos.Wave.Mvc
 
     public string AddTypeToDescribe(Type type, object instance = null)
     {
+      if (type == typeof(object)) return "object";
+      if (type == typeof(string)) return "string";
+      if (type == typeof(decimal)) return "decimal";
+      if (type.IsPrimitive) return "{0}".Args(type.Name.ToLowerInvariant());
+      if (type.IsArray) return "{0}[]".Args(AddTypeToDescribe(type.GetElementType()));
+      if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) return "{0}?".Args(AddTypeToDescribe(type.GetGenericArguments()[0]));
+      if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)) return "{0}[]".Args(AddTypeToDescribe(type.GetGenericArguments()[0]));
+
+      if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+        return "map<{0},{1}>".Args(AddTypeToDescribe(type.GetGenericArguments()[0]), AddTypeToDescribe(type.GetGenericArguments()[1]));
+
+
       instanceList list;
       if (!m_TypesToDescribe.TryGetValue(type, out list))
       {
