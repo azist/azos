@@ -395,4 +395,5 @@ namespace Azos
       serializer.Deserialize(iv.Value, m_Wrapped);
     }
   }
+
 }

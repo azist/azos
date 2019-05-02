@@ -951,6 +951,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string IO_STREAM_NOT_SUPPORTED_ERROR =  "Stream {0} does not support '{1}'";
 
 
+    public const string METADATA_GENERATION_SCHEMA_FIELD_ERROR = "Error generating metadata for Schema `{0}` field `{1}`: {2}";
+
 
     public const string PILE_CACHE_SCV_START_PILE_NULL_ERROR =
       "Pile cache service can not start because pile is null";

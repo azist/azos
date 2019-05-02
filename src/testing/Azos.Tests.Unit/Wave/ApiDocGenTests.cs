@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
+using Azos.Apps;
 using Azos.Data;
 using Azos.Scripting;
 using Azos.Security;
@@ -15,7 +17,7 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public void Gen1()
     {
-      var gen = new ApiDocGenerator();
+      var gen = new ApiDocGenerator(NOPApplication.Instance);
       gen.Locations.Add(new ApiDocGenerator.ControllerLocation("Azos.Tests.Unit.dll", "Azos.Tests.Unit.Wave*"));
 
       var got = gen.Generate();

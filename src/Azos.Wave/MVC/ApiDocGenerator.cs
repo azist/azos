@@ -82,7 +82,9 @@ namespace Azos.Wave.Mvc
 
 
 
-    public ApiDocGenerator(){ }
+    public ApiDocGenerator(IApplication app){ m_App = app.NonNull(nameof(app)); }
+
+    private IApplication m_App;
 
     private class instanceList : List<(object item, bool wasDescribed)>
     {
@@ -91,6 +93,9 @@ namespace Azos.Wave.Mvc
     }
 
     private Dictionary<Type, instanceList> m_TypesToDescribe = new Dictionary<Type, instanceList>();
+
+
+    public IApplication App => m_App;
 
     /// <summary>
     /// A list of locations where system looks for controllers to generate Api docs from

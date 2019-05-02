@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 using Azos.Conf;
 
@@ -46,6 +47,11 @@ namespace Azos
   /// </summary>
   public interface IMetadataGenerator
   {
+
+    /// <summary>
+    /// Application context
+    /// </summary>
+    IApplication App { get;}
 
     /// <summary>
     /// Defines the level of metadata details disclosed during metadata generation to consumer.
@@ -209,6 +215,18 @@ namespace Azos
     /// <param name="overrideRules">Config node override rules to use for structured merging, or null to use the defaults</param>
     /// <returns>A new data node that this provider has written into, such as a new node which is a child of dataRoot</returns>
     public abstract ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null);
+  }
+
+
+  /// <summary>
+  /// Thrown for metadata-related problems
+  /// </summary>
+  [Serializable]
+  public class CustomMetadataException : AzosException
+  {
+    public CustomMetadataException(string message) : base(message) { }
+    public CustomMetadataException(string message, Exception inner) : base(message, inner) { }
+    protected CustomMetadataException(SerializationInfo info, StreamingContext context) : base(info, context) { Code = info.GetInt32(CODE_FLD_NAME); }
   }
 
   /// <summary>
