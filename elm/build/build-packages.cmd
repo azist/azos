@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.504
-set HEADLINE=Add ApiDoc skeleton
+set VER=1.0.505
+set HEADLINE=Enhance ApiDoc
 
 call vs2017-build-release %VER%
 
