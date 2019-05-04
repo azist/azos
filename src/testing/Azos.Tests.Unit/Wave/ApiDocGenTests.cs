@@ -98,7 +98,7 @@ namespace Azos.Tests.Unit.Wave
   {
     [GoodPersonPermission(1), GoodPersonPermission(121)]
     [ApiEndpointDoc(Title="Get list schema", Methods =new[]{ "GET: Gets the schema"}, TypeSchemas = new[] { typeof(TestController) })]
-    [Action(Name ="list")]
+    [Action(Name ="list"), AcceptsJson, AcceptsJson, AcceptsJson, AcceptsJson, AcceptsJson, AcceptsJson, AcceptsJson, AcceptsJson]
     public object ListGet(TestFilter filter)
     {
       return null;

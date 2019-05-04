@@ -72,13 +72,17 @@ namespace Azos.Wave.Mvc
         var epattrs = mctx.Method
                           .GetCustomAttributes(true)
                           .Where(a => !(a is ApiDocAttribute) && !(a is ActionBaseAttribute))
+                          .Where(a => !(a is IInstanceCustomMetadataProvider) ||
+                                       (a is IInstanceCustomMetadataProvider cip &&
+                                        cip.ShouldProvideInstanceMetadata(apictx.Generator, edata)))
                           .ToArray();
         writeInstanceCollection(epattrs, TYPE_REF, edata, apictx.Generator);
+        writeTypeCollection(epattrs.Select(a => a.GetType()).Distinct().ToArray(), TYPE_REF, edata, apictx.Generator);//distinct attr types
 
         //todo Get app parameters look for Docs and register them and also permissions
         var epargs = mctx.Method.GetParameters()
                          .Where(pi => !pi.IsOut && !pi.ParameterType.IsByRef && !pi.ParameterType.IsPrimitive )
-                         .Select( pi=> pi.ParameterType).ToArray();
+                         .Select(pi => pi.ParameterType).ToArray();
         writeTypeCollection(epargs, TYPE_REF, edata, apictx.Generator);
       }
 
