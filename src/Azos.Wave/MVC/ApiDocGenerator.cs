@@ -131,6 +131,7 @@ namespace Azos.Wave.Mvc
         PopulateController(data, controller.tController, controller.aController);
 
       var typesSection = data.AddChildNode("type-schemas");
+      var skuSection = data.AddChildNode("type-skus");
       bool found;
       do
       {
@@ -145,8 +146,15 @@ namespace Azos.Wave.Mvc
 
             kvp.Value[i] = (rec.item, true);
             found = true;
+
+            //add type id
             var typeSection = typesSection.AddChildNode("{0}-{1}".Args(kvp.Value.Guid, i));
             CustomMetadataAttribute.Apply(kvp.Key, rec.item, this, typeSection);
+
+            //add reverse index for SKU -> type id
+            var sku = typeSection.AttrByName(CustomMetadataAttribute.CONFIG_SKU_ATTR);
+            if (sku.Exists)
+              skuSection.AddAttributeNode(sku.Value, typeSection.Name);
           }
         }
       }while(found);//as we describe types they may be adding other types into the loop

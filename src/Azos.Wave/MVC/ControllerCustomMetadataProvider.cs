@@ -7,6 +7,7 @@ using System.Text;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Platform;
+using Azos.Text;
 
 namespace Azos.Wave.Mvc
 {
@@ -15,7 +16,7 @@ namespace Azos.Wave.Mvc
   /// </summary>
   public sealed class ControllerCustomMetadataProvider : CustomMetadataProvider
   {
-    public const string TYPE_REF = "type-ref";
+    public const string TYPE_REF = "tp-ref";
 
     public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
     {
@@ -33,18 +34,22 @@ namespace Azos.Wave.Mvc
     {
       var cdata = dataRoot.AddChildNode("scope");
       var cattr = apictx.ApiDocAttr;
-      (var drequest, var dresponse) = writeCommon(tController, apictx.Generator, cattr, cdata);
+      var docContent = tController.GetText(cattr.DocFile ?? "{0}.md".Args(tController.Name));
+      var ctlTitle = MarkdownUtils.GetTitle(docContent);
+      var ctlDescription = MarkdownUtils.GetTitleDescription(docContent);
+
+      (var drequest, var dresponse) = writeCommon(ctlTitle, ctlDescription, tController, apictx.Generator, cattr, cdata);
       cdata.AddAttributeNode("uri-base", cattr.BaseUri);
       cdata.AddAttributeNode("doc-file", cattr.DocFile);
-      var docContent = tController.GetText(cattr.DocFile);
-      cdata.AddAttributeNode("doc-content", tController.GetText(cattr.DocFile));
       cdata.AddAttributeNode("auth", cattr.Authentication);
+
+      cdata.AddAttributeNode("doc-content", docContent);
 
       var allMethodContexts = apictx.Generator.GetApiMethods(tController, apictx.ApiDocAttr);
       foreach(var mctx in allMethodContexts)
       {
         var edata = cdata.AddChildNode("endpoint");
-        writeCommon(mctx.Method, apictx.Generator, mctx.ApiEndpointDocAttr, edata);
+        (var mrequest, var mresponse) = writeCommon(docContent, null, mctx.Method, apictx.Generator, mctx.ApiEndpointDocAttr, edata);
 
         var epuri = mctx.ApiEndpointDocAttr.Uri.AsString().Trim();
         if (epuri.IsNullOrWhiteSpace())
@@ -65,18 +70,18 @@ namespace Azos.Wave.Mvc
         }
 
         edata.AddAttributeNode("uri", epuri);
-        writeCollection(mctx.ApiEndpointDocAttr.Methods, "method", drequest, ':');
+        writeCollection(mctx.ApiEndpointDocAttr.Methods, "method", mrequest, ':');
         //todo doc anchor....(parse out of docContent);
 
         //Get all method attributes except ApiDoc
         var epattrs = mctx.Method
                           .GetCustomAttributes(true)
-                          .Where(a => !(a is ApiDocAttribute) && !(a is ActionBaseAttribute))
-                          .Where(a => !(a is IInstanceCustomMetadataProvider) ||
-                                       (a is IInstanceCustomMetadataProvider cip &&
-                                        cip.ShouldProvideInstanceMetadata(apictx.Generator, edata)))
-                          .ToArray();
-        writeInstanceCollection(epattrs, TYPE_REF, edata, apictx.Generator);
+                          .Where(a => !(a is ApiDocAttribute) && !(a is ActionBaseAttribute));
+
+        writeInstanceCollection(epattrs.Where(a => !(a is IInstanceCustomMetadataProvider) ||
+                                                    (a is IInstanceCustomMetadataProvider cip &&
+                                                     cip.ShouldProvideInstanceMetadata(apictx.Generator, edata))).ToArray(), TYPE_REF, edata, apictx.Generator);
+
         writeTypeCollection(epattrs.Select(a => a.GetType()).Distinct().ToArray(), TYPE_REF, edata, apictx.Generator);//distinct attr types
 
         //todo Get app parameters look for Docs and register them and also permissions
@@ -89,15 +94,23 @@ namespace Azos.Wave.Mvc
       return cdata;
     }
 
-    private (Lazy<ConfigSectionNode> request, Lazy<ConfigSectionNode> response) writeCommon(MemberInfo info, ApiDocGenerator gen, ApiDocAttribute attr, ConfigSectionNode data)
+    private (Lazy<ConfigSectionNode> request, Lazy<ConfigSectionNode> response) writeCommon(
+                                              string defTitle,
+                                              string defDescription,
+                                              MemberInfo info,
+                                              ApiDocGenerator gen,
+                                              ApiDocAttribute attr,
+                                              ConfigSectionNode data)
     {
-      data.AddAttributeNode("id", MetadataUtils.GetMetadataTokenId(info));
+      MetadataUtils.AddMetadataTokenIdAttribute(data, info);
 
-      if (attr.Title.IsNotNullOrWhiteSpace())
-        data.AddAttributeNode("title", attr.Title);
+      var title = attr.Title.Default(defTitle);
+      if (title.IsNotNullOrWhiteSpace())
+        data.AddAttributeNode("title", title);
 
-      if (attr.Description.IsNotNullOrWhiteSpace())
-        data.AddAttributeNode("description", attr.Description);
+      var descr = attr.Description.Default(defDescription);
+      if (descr.IsNotNullOrWhiteSpace())
+        data.AddAttributeNode("description", descr);
 
       var drequest = new Lazy<ConfigSectionNode>( () => data.AddChildNode("request"));
       var dresponse = new Lazy<ConfigSectionNode>( () => data.AddChildNode("response"));
@@ -143,9 +156,7 @@ namespace Azos.Wave.Mvc
           var id = gen.AddTypeToDescribe(type);
           var node = data.Children.FirstOrDefault(c => c.IsSameName(iname) && c.AttrByName("id").Value.EqualsIgnoreCase(id));
           if (node!=null) continue;//already exists
-          node = data.AddChildNode(iname);
-          node.AddAttributeNode("id", id);
-          node.AddAttributeNode("name", type.DisplayNameWithExpandedGenericArgs());
+          data.AddAttributeNode(iname, id);
         }
       }
     }
@@ -160,9 +171,7 @@ namespace Azos.Wave.Mvc
           var id = gen.AddTypeToDescribe(titem, item);
           var node = data.Children.FirstOrDefault(c => c.IsSameName(iname) && c.AttrByName("id").Value.EqualsIgnoreCase(id));
           if (node != null) continue;//already exists
-          node = data.AddChildNode(iname);
-          node.AddAttributeNode("id", id);
-          node.AddAttributeNode("name", titem.DisplayNameWithExpandedGenericArgs());
+          data.AddAttributeNode(iname, id);
         }
       }
     }

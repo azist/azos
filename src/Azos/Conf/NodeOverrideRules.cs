@@ -181,7 +181,7 @@ namespace Azos.Conf
 
 
         /// <summary>
-        /// Provides attribute name for matching of multiple sections with the same name, i.e. a logger may have many 'destinations'
+        /// Provides attribute name for matching of multiple sections with the same name, i.e. a logger may have many 'sink'
         /// subnodes each with different 'name' attribute
         /// </summary>
         public string SectionMatchAttrName
