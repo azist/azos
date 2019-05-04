@@ -93,7 +93,11 @@ namespace Azos.Tests.Unit.Wave
   }
 
 
-  [ApiControllerDoc(Title ="TestBase", BaseUri = "/test", RequestBody ="json or form url encoded", ResponseHeaders =new[]{"Cache: no-cache"})]
+  [ApiControllerDoc(
+    //Title ="TestBase",
+    BaseUri = "/test",
+    RequestBody ="json or form url encoded",
+    ResponseHeaders =new[]{"Cache: no-cache"})]
   public class TestController : Controller
   {
     [GoodPersonPermission(1), GoodPersonPermission(121)]

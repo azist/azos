@@ -7,6 +7,7 @@ using System.Text;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Platform;
+using Azos.Text;
 
 namespace Azos.Wave.Mvc
 {
@@ -33,18 +34,22 @@ namespace Azos.Wave.Mvc
     {
       var cdata = dataRoot.AddChildNode("scope");
       var cattr = apictx.ApiDocAttr;
-      (var drequest, var dresponse) = writeCommon(tController, apictx.Generator, cattr, cdata);
+      var docContent = tController.GetText(cattr.DocFile ?? "{0}.md".Args(tController.Name));
+      var ctlTitle = MarkdownUtils.GetTitle(docContent);
+      var ctlDescription = MarkdownUtils.GetTitleDescription(docContent);
+
+      (var drequest, var dresponse) = writeCommon(ctlTitle, ctlDescription, tController, apictx.Generator, cattr, cdata);
       cdata.AddAttributeNode("uri-base", cattr.BaseUri);
       cdata.AddAttributeNode("doc-file", cattr.DocFile);
-      var docContent = tController.GetText(cattr.DocFile);
-      cdata.AddAttributeNode("doc-content", tController.GetText(cattr.DocFile));
       cdata.AddAttributeNode("auth", cattr.Authentication);
+
+      cdata.AddAttributeNode("doc-content", docContent);
 
       var allMethodContexts = apictx.Generator.GetApiMethods(tController, apictx.ApiDocAttr);
       foreach(var mctx in allMethodContexts)
       {
         var edata = cdata.AddChildNode("endpoint");
-        (var mrequest, var mresponse) = writeCommon(mctx.Method, apictx.Generator, mctx.ApiEndpointDocAttr, edata);
+        (var mrequest, var mresponse) = writeCommon(docContent, null, mctx.Method, apictx.Generator, mctx.ApiEndpointDocAttr, edata);
 
         var epuri = mctx.ApiEndpointDocAttr.Uri.AsString().Trim();
         if (epuri.IsNullOrWhiteSpace())
@@ -89,15 +94,23 @@ namespace Azos.Wave.Mvc
       return cdata;
     }
 
-    private (Lazy<ConfigSectionNode> request, Lazy<ConfigSectionNode> response) writeCommon(MemberInfo info, ApiDocGenerator gen, ApiDocAttribute attr, ConfigSectionNode data)
+    private (Lazy<ConfigSectionNode> request, Lazy<ConfigSectionNode> response) writeCommon(
+                                              string defTitle,
+                                              string defDescription,
+                                              MemberInfo info,
+                                              ApiDocGenerator gen,
+                                              ApiDocAttribute attr,
+                                              ConfigSectionNode data)
     {
       MetadataUtils.AddMetadataTokenIdAttribute(data, info);
 
-      if (attr.Title.IsNotNullOrWhiteSpace())
-        data.AddAttributeNode("title", attr.Title);
+      var title = attr.Title.Default(defTitle);
+      if (title.IsNotNullOrWhiteSpace())
+        data.AddAttributeNode("title", title);
 
-      if (attr.Description.IsNotNullOrWhiteSpace())
-        data.AddAttributeNode("description", attr.Description);
+      var descr = attr.Description.Default(defDescription);
+      if (descr.IsNotNullOrWhiteSpace())
+        data.AddAttributeNode("description", descr);
 
       var drequest = new Lazy<ConfigSectionNode>( () => data.AddChildNode("request"));
       var dresponse = new Lazy<ConfigSectionNode>( () => data.AddChildNode("response"));
