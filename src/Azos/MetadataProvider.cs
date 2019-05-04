@@ -169,6 +169,14 @@ namespace Azos
     /// <param name="overrideRules">Config node override rules to apply while evaluating attribute inheritance chains</param>
     public static bool Apply(MemberInfo target, object instance, IMetadataGenerator context, ConfigSectionNode data, NodeOverrideRules overrideRules = null)
     {
+      var imp = instance as IInstanceCustomMetadataProvider;
+      if (imp != null)
+      {
+        if (!imp.ShouldProvideInstanceMetadata(context, data)) return false;
+        data = imp.ProvideInstanceMetadata(context, data, overrideRules);//the instance-level may redefine data output root
+        if (data==null) return false;//if null then nothing should be written from any attributes
+      }
+
       var chain = new List<CustomMetadataAttribute>();
 
       var info = target.NonNull(nameof(target));

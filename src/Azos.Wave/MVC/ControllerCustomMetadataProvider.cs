@@ -44,7 +44,7 @@ namespace Azos.Wave.Mvc
       foreach(var mctx in allMethodContexts)
       {
         var edata = cdata.AddChildNode("endpoint");
-        writeCommon(mctx.Method, apictx.Generator, mctx.ApiEndpointDocAttr, edata);
+        (var mrequest, var mresponse) = writeCommon(mctx.Method, apictx.Generator, mctx.ApiEndpointDocAttr, edata);
 
         var epuri = mctx.ApiEndpointDocAttr.Uri.AsString().Trim();
         if (epuri.IsNullOrWhiteSpace())
@@ -65,18 +65,18 @@ namespace Azos.Wave.Mvc
         }
 
         edata.AddAttributeNode("uri", epuri);
-        writeCollection(mctx.ApiEndpointDocAttr.Methods, "method", drequest, ':');
+        writeCollection(mctx.ApiEndpointDocAttr.Methods, "method", mrequest, ':');
         //todo doc anchor....(parse out of docContent);
 
         //Get all method attributes except ApiDoc
         var epattrs = mctx.Method
                           .GetCustomAttributes(true)
-                          .Where(a => !(a is ApiDocAttribute) && !(a is ActionBaseAttribute))
-                          .Where(a => !(a is IInstanceCustomMetadataProvider) ||
-                                       (a is IInstanceCustomMetadataProvider cip &&
-                                        cip.ShouldProvideInstanceMetadata(apictx.Generator, edata)))
-                          .ToArray();
-        writeInstanceCollection(epattrs, TYPE_REF, edata, apictx.Generator);
+                          .Where(a => !(a is ApiDocAttribute) && !(a is ActionBaseAttribute));
+
+        writeInstanceCollection(epattrs.Where(a => !(a is IInstanceCustomMetadataProvider) ||
+                                                    (a is IInstanceCustomMetadataProvider cip &&
+                                                     cip.ShouldProvideInstanceMetadata(apictx.Generator, edata))).ToArray(), TYPE_REF, edata, apictx.Generator);
+
         writeTypeCollection(epattrs.Select(a => a.GetType()).Distinct().ToArray(), TYPE_REF, edata, apictx.Generator);//distinct attr types
 
         //todo Get app parameters look for Docs and register them and also permissions
