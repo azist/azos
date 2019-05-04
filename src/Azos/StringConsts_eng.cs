@@ -208,13 +208,6 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
         public const string STRING_VALUE_COULD_NOT_BE_GOTTEN_AS_TYPE_ERROR = "String value '{0}' could not be gotten as type '{1}' ";
 
 
-        public const string INVENTORIZATION_NEED_STRATEGY_ERROR =
-            "Inventorization requires at least one strategy to be added to Strategies collection of InventorizationManager class";
-
-        public const string INVENTORIZATION_ASSEMBLY_LOAD_ERROR =
-            "Inventorization assembly load failed: ";
-
-
     public const string SLIM_STREAM_CORRUPTED_ERROR = "Slim data stream is corrupted: ";
 
     public const string SECDB_STREAM_CORRUPTED_ERROR = "SecDB data stream is corrupted: ";
@@ -226,9 +219,6 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string BINLOG_READER_FACTORY_ERROR = "BinLog reader factory error: ";
     public const string BINLOG_READER_TYPE_MISMATCH_ERROR = "BinLog reader type mismatched. Class: '{0}' Stream: '{1}'";
     public const string BINLOG_BAD_READER_TYPE_ERROR = "BinLog header contains reader type which could not be loaded or is not a valid LogReader derivative: ";
-
-    public const string SECURITY_CHECKTHISCALLPERMISSIONS_STACK_ERROR =
-    "{0}(...callingMethodName='{1}') is not on call stack. \n   Cause: The call to `{0}` method must be the first statement if used in an async method   \n";
 
     public const string SECURITY_AUTHROIZATION_ERROR =
         "Authorization to '{0}' failed from '{1}'";
@@ -302,6 +292,10 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string CONFIG_RECURSIVE_VARS_ERROR =
         "Configuration line contains recursive vars that can not be resolved: \"{0}\"";
 
+    public const string CONFIG_INFINITE_VARS_ERROR =
+        "Error evaluating value \"{0}\" as maximum variable evaluation iteration limit of {1} was exceeded. "+
+        "This can happen if external variable providers keep on yielding resolved values with new variables which never resolve within the allowed limit of {1} iterations";
+
     public const string CONFIG_NO_PROVIDER_LOAD_FILE_ERROR =
         "No configuration provider can open file name: ";
 
@@ -314,6 +308,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string CONFIG_VARS_EVAL_ERROR =
         "Configuration variable '{0}' evaluation error: {1}";
 
+    public const string CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR = "Include pragma recursive depths exceeded: {0}";
 
     public const string CONFIG_BEHAVIOR_APPLY_ERROR =
         "Error while applying behavior to {0}. Error: {1}";
@@ -419,23 +414,26 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
       "Cannot include path: '{0}'. Exception: {1}";
 
 
-    public const string PARAMETER_MAY_NOT_BE_NULL_ERROR =
-        "Parameter '{0}' may not be null. \n Caller: \n ----------------------\n {1}";
+    public const string GUARDED_PARAMETER_MAY_NOT_BE_NULL_ERROR =
+        "Guarded method '{0}' parameter '{1}' may not be null";
 
-    public const string CONFIG_NODE_PARAMETER_MAY_NOT_BE_EMPTY_ERROR =
-        "Config node parameter '{0}' may not be null or empty. \n Caller: \n ----------------------\n {1}";
+    public const string GUARDED_PARAMETER_OFTYPE_ERROR =
+         "Guarded method '{0}' type parameter '{1}' may not be null and must be of '{2}' type or its descendants";
 
-    public const string STRING_PARAMETER_MAY_NOT_BE_BLANK_ERROR =
-        "String parameter '{0}' may not be blank. \n Caller: \n ----------------------\n {1}";
+    public const string GUARDED_CONFIG_NODE_PARAMETER_MAY_NOT_BE_EMPTY_ERROR =
+        "Guarded method '{0}' config node parameter '{1}' may not be null or empty";
 
-    public const string STRING_PARAMETER_MAY_NOT_EXCEED_MAX_LEN_ERROR =
-        "String parameter '{0}' = '{1}' length of {2} exceeds the max length of {3}. \n Caller: \n ----------------------\n {4}";
+    public const string GUARDED_STRING_PARAMETER_MAY_NOT_BE_BLANK_ERROR =
+        "Guarded method '{0}' string parameter '{1}' may not be null or blank/whitespace";
 
-    public const string STRING_PARAMETER_MAY_NOT_BE_LESS_MIN_LEN_ERROR =
-        "String parameter '{0}' = '{1}' length of {2} is less than the min length of {3}. \n Caller: \n ----------------------\n {4}";
+    public const string GUARDED_STRING_PARAMETER_MAY_NOT_EXCEED_MAX_LEN_ERROR =
+        "Guarded method '{0}' string parameter '{1}' = '{2}' length of {3} exceeds the max length of {4}";
 
-    public const string STRING_PARAMETER_MUST_BE_BETWEEN_MIN_MAX_LEN_ERROR =
-        "String parameter '{0}' = '{1}' length is {2} but must be between {3} and {4}. \n Caller: \n ----------------------\n {5}";
+    public const string GUARDED_STRING_PARAMETER_MAY_NOT_BE_LESS_MIN_LEN_ERROR =
+        "Guarded method '{0}' string parameter '{1}' = '{2}' length of {3} is less than the min length of {4}";
+
+    public const string GUARDED_STRING_PARAMETER_MUST_BE_BETWEEN_MIN_MAX_LEN_ERROR =
+        "Guarded method '{0}' string parameter '{1}' = '{2}' length is {3} but must be between {4} and {5}";
 
 
 
@@ -953,6 +951,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string IO_STREAM_NOT_SUPPORTED_ERROR =  "Stream {0} does not support '{1}'";
 
 
+    public const string METADATA_GENERATION_SCHEMA_FIELD_ERROR = "Error generating metadata for Schema `{0}` field `{1}`: {2}";
+
 
     public const string PILE_CACHE_SCV_START_PILE_NULL_ERROR =
       "Pile cache service can not start because pile is null";
@@ -1078,5 +1078,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string GUID_TYPE_RESOLVER_ERROR = "Type id '{0}' does not map to any {1} type";
     public const string GUID_TYPE_RESOLVER_DUPLICATE_ATTRIBUTE_ERROR = "Type '{0}' specifies duplicate Guid '{1}' already used by '{2}'";
     public const string GUID_TYPE_RESOLVER_MISSING_ATTRIBUTE_ERROR = "Type '{0}' does not specify the required [{1}(...)] attribute in its declaration";
+
+
+    public const string METADATA_CTOR_CONTENT_ERROR = "Metadata specification error. `{0}`.ctor(`{1}` content is bad). Revise attribute declaration. Cause: {2}";
   }
 }

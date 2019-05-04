@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.499.1
-set HEADLINE=MsSql bas data store and AsyncFlowMutableLocal
+set VER=1.0.505
+set HEADLINE=Enhance ApiDoc
 
 call vs2017-build-release %VER%
 

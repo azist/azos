@@ -193,6 +193,9 @@ namespace Azos.Conf
         throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_HANDLE_FILE_ERROR + fileName);
     }
 
+    
+
+
 
     /// <summary>
     /// Gets/sets global Environment variable resolver that is used by all configurations in this process instance

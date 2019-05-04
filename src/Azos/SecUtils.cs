@@ -4,12 +4,13 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 using Azos.Security;
+using Azos.Serialization.JSON;
 
 namespace Azos
 {
@@ -19,45 +20,51 @@ namespace Azos
   public static class SecUtils
   {
     /// <summary>
-    /// Checks all of the permissions decorating the calling method in the scope of current call context session.
-    /// This is shortcut to Permission.AuthorizeAndGuardAction(MethodInfo).
-    /// WARNING: in async methods, this call must be before the first AWAIT statement, otherwise the stack can not be unwound.
-    /// Use case: `app.CheckThisCallPermissions()`
+    /// Concatenates multiple permissions in Enumerable
     /// </summary>
-    public static void CheckThisCallPermissions(this IApplication app,  [CallerMemberName]string callingMethodName = null)
+    public static IEnumerable<Permission> And(this Permission permission, Permission another)
     {
-      app.NonNull(nameof(app));
-      callingMethodName.NonBlank(nameof(callingMethodName));
-
-      MethodBase method = null;
-      for (var i = 1; ; i++)
-      {
-        var frame = new StackFrame(i, false);
-        method = frame.GetMethod();
-
-        if (method==null)
-          throw new SecurityException(StringConsts.SECURITY_CHECKTHISCALLPERMISSIONS_STACK_ERROR.Args(nameof(CheckThisCallPermissions), callingMethodName));
-
-        if (method.Name == callingMethodName) break;
-      }
-
-      var session = Ambient.CurrentCallSession;
-      Permission.AuthorizeAndGuardAction(app, method.DeclaringType, session);
-      Permission.AuthorizeAndGuardAction(app, method, session);
+      if (permission!=null) yield return permission;
+      if (another!=null) yield return another;
     }
 
+    /// <summary>
+    /// Concatenates multiple permissions in Enumerable
+    /// </summary>
+    public static IEnumerable<Permission> And(this IEnumerable<Permission> permissions, Permission another)
+     => permissions ?? Enumerable.Empty<Permission>().AddOneAtEnd(another);
 
-    ///// <summary>
-    ///// Checks all of the permissions decorating the calling method in the scope of current call context session.
-    ///// This is shortcut to Permission.AuthorizeAndGuardAction(MethodInfo).
-    ///// Use case: `MethodBase.GetCurrentMethod().CheckPermissions(app)`
-    ///// </summary>
-    //public static async Task<MethodBase> CheckPermissionsAsync(this MethodBase method, IApplication app)
-    //{
-    //  app.NonNull(nameof(app));
-    //  await Permission.AuthorizeAndGuardActionAsync(app, method, Ambient.CurrentCallSession);
-    //  return method;
-    //}
+    /// <summary>
+    /// Checks a single specified permission in the calling scope security context
+    /// </summary>
+    /// <param name="app">Non-null app context</param>
+    /// <param name="permission">Permission instance to check</param>
+    /// <param name="caller">The caller name is derived from CallerMemebr compiler info</param>
+    /// <param name="session">The caller session scope or null in which case an ambient caller scope will be used</param>
+    /// <remarks>
+    /// Use case:
+    /// <code>
+    /// app.Authroize(new A());
+    /// </code>
+    /// </remarks>
+    public static void Authorize(this IApplication app, Permission permission, [CallerMemberName] string caller = null, Apps.ISession session = null)
+     => Permission.AuthorizeAndGuardAction(app.NonNull(nameof(app)), permission, caller, session ?? Ambient.CurrentCallSession);
 
+    /// <summary>
+    /// Checks the specified permissions in the calling scope security context
+    /// </summary>
+    /// <param name="app">Non-null app context</param>
+    /// <param name="permissions">Permission instances to check</param>
+    /// <param name="caller">The caller name is derived from CallerMemebr compiler info</param>
+    /// <param name="session">The caller session scope or null in which case an ambient caller scope will be used</param>
+    /// <remarks>
+    /// Use case:
+    /// <code>
+    /// app.Authroize(Permission.All(new A(), new B());
+    /// app.Authorize(new A().And(new B()).And(new C()));
+    /// </code>
+    /// </remarks>
+    public static void Authorize(this IApplication app, IEnumerable<Permission> permissions, [CallerMemberName] string caller = null, Apps.ISession session = null)
+     => Permission.AuthorizeAndGuardAction(app.NonNull(nameof(app)), permissions, caller, session ?? Ambient.CurrentCallSession);
   }
 }
