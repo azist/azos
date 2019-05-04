@@ -15,7 +15,7 @@ namespace Azos.Wave.Mvc
   /// </summary>
   public sealed class ControllerCustomMetadataProvider : CustomMetadataProvider
   {
-    public const string TYPE_REF = "type-ref";
+    public const string TYPE_REF = "tp-ref";
 
     public override ConfigSectionNode ProvideMetadata(MemberInfo member, object instance, IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
     {
@@ -91,7 +91,7 @@ namespace Azos.Wave.Mvc
 
     private (Lazy<ConfigSectionNode> request, Lazy<ConfigSectionNode> response) writeCommon(MemberInfo info, ApiDocGenerator gen, ApiDocAttribute attr, ConfigSectionNode data)
     {
-      data.AddAttributeNode("id", MetadataUtils.GetMetadataTokenId(info));
+      MetadataUtils.AddMetadataTokenIdAttribute(data, info);
 
       if (attr.Title.IsNotNullOrWhiteSpace())
         data.AddAttributeNode("title", attr.Title);
@@ -143,9 +143,7 @@ namespace Azos.Wave.Mvc
           var id = gen.AddTypeToDescribe(type);
           var node = data.Children.FirstOrDefault(c => c.IsSameName(iname) && c.AttrByName("id").Value.EqualsIgnoreCase(id));
           if (node!=null) continue;//already exists
-          node = data.AddChildNode(iname);
-          node.AddAttributeNode("id", id);
-          node.AddAttributeNode("name", type.DisplayNameWithExpandedGenericArgs());
+          data.AddAttributeNode(iname, id);
         }
       }
     }
@@ -160,9 +158,7 @@ namespace Azos.Wave.Mvc
           var id = gen.AddTypeToDescribe(titem, item);
           var node = data.Children.FirstOrDefault(c => c.IsSameName(iname) && c.AttrByName("id").Value.EqualsIgnoreCase(id));
           if (node != null) continue;//already exists
-          node = data.AddChildNode(iname);
-          node.AddAttributeNode("id", id);
-          node.AddAttributeNode("name", titem.DisplayNameWithExpandedGenericArgs());
+          data.AddAttributeNode(iname, id);
         }
       }
     }

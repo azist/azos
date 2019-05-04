@@ -1082,19 +1082,6 @@ namespace Azos.Conf
             if (osect.IsSameName(rules.SectionClearName))
               continue;
 
-            //var matches = children.Where(child => child.IsSameName(osect)).ToList();
-            //if (matches.Count>1)
-            //{
-            //  matches = matches.Where(child => child.AttrByName( rules.SectionMatchAttrName).ValueAsString()
-            //                                                      .EqualsIgnoreCase(osect.AttrByName(rules.SectionMatchAttrName).ValueAsString())).ToList();
-            //}
-
-            //if (matches.Count>0)
-            // matches[0].OverrideBy(osect, rules);
-            //else
-            // AddChildNode(osect.Name, osect.VerbatimValue).OverrideBy(osect, rules);
-
-            //20160329 DKh
             var match = children.Where(child =>
                                  child.IsSameName(osect) &&
                                  child.AttrByName( rules.SectionMatchAttrName ).Value
@@ -1110,8 +1097,6 @@ namespace Azos.Conf
               AddChildNode(osect.Name, osect.VerbatimValue).OverrideBy(osect, rules);
             else
               match.OverrideBy(osect, rules);
-
-
 
           }
         }

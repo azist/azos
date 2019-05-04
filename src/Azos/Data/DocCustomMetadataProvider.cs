@@ -25,7 +25,7 @@ namespace Azos.Data
       else if (typed) schema = Schema.GetForTypedDoc(tdoc);
       else schema = null;
 
-      ndoc.AddAttributeNode("id", MetadataUtils.GetMetadataTokenId(tdoc));
+      MetadataUtils.AddMetadataTokenIdAttribute(ndoc, tdoc);
       ndoc.AddAttributeNode("kind", typed ? "typed" : "dynamic");
 
       CustomMetadataAttribute.Apply(typeof(Schema), schema, context, ndoc, overrideRules);

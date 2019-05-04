@@ -115,6 +115,12 @@ namespace Azos
   {
     public const string CONFIG_META_SECTION = "meta";
 
+    /// <summary>
+    /// SKU are tags used to identify entities with globally-unique asset IDs (e.g. Types, etc..)
+    /// </summary>
+    public const string CONFIG_SKU_ATTR = "sku";
+
+
     public CustomMetadataAttribute(Type providerType)
       => ProviderType = providerType.IsOfType<CustomMetadataProvider>(nameof(providerType));
 
@@ -127,7 +133,7 @@ namespace Azos
       ContentDetailLevel =  detailLevel;
       try
       {
-        Content = laconicMetadata.NonBlank(nameof(laconicMetadata)).AsLaconicConfig(wrapRootName: CONFIG_META_SECTION, handling: Data.ConvertErrorHandling.Throw);
+        Content = (CONFIG_META_SECTION+'{'+laconicMetadata.NonBlank(nameof(laconicMetadata))+'}').AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
       }
       catch(Exception error)
       {
@@ -221,6 +227,15 @@ namespace Azos
         }
       }
 
+      //Default SKU is added for types only taking type name (which may not be unique, so set SKU on the public types)
+      if (target is Type typeTarget)
+      {
+        if (data.AttrByName(CONFIG_SKU_ATTR).Value.IsNullOrWhiteSpace())
+        {
+          data.AddAttributeNode(CONFIG_SKU_ATTR, typeTarget.Name);
+        }
+      }
+
       return true;
     }
   }
@@ -267,6 +282,8 @@ namespace Azos
   /// </summary>
   public static class MetadataUtils
   {
+    public const string CONFIG_RUN_METADATA_ID_ATTR = "run-id";
+
     /// <summary>
     /// Generates string ID based on MetadataTokes: module-member
     /// </summary>
@@ -274,6 +291,15 @@ namespace Azos
     {
       if (info==null) return "0-0";
       return "{0:x2}-{1:x2}".Args(info.Module.MetadataToken, info.MetadataToken);
+    }
+
+    /// <summary>
+    /// Adds metadata token attribute to config node
+    /// </summary>
+    public static ConfigSectionNode AddMetadataTokenIdAttribute(ConfigSectionNode node, MemberInfo info)
+    {
+      node.NonEmpty(nameof(node)).AddAttributeNode(CONFIG_RUN_METADATA_ID_ATTR, GetMetadataTokenId(info));
+      return node;
     }
   }
 

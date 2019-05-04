@@ -14,10 +14,8 @@ namespace Azos.Wave.Mvc
   /// General ancestor for MVC Action Filters - get invoked before and after actions
   /// </summary>
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-  [CustomMetadata(@"category='action-filter'")]
   public abstract class ActionFilterAttribute : Attribute, IInstanceCustomMetadataProvider
   {
-
     /// <summary>
     /// Dictates the call order
     /// </summary>
