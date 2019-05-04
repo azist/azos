@@ -81,6 +81,31 @@ namespace Azos
 
 
   /// <summary>
+  /// Implemented by class which provide metadata from their instance (not only types), e.g. a Permission may need to provide
+  /// metadata based on its instance state such as requested access level
+  /// </summary>
+  public interface IInstanceCustomMetadataProvider
+  {
+    /// <summary>
+    /// Returns true when the instance metadata should be used in the specified generator context
+    /// </summary>
+    /// <param name="context">IMetadataGenerator context in which the metadata acquisition takes place</param>
+    /// <param name="dataRoot">Root data node under which THIS entity is supposed to create its sub-node to provide its metadata into</param>
+    /// <returns>Returns false to excuse the instance from metadata generation</returns>
+    bool ShouldProvideInstanceMetadata(IMetadataGenerator context, ConfigSectionNode dataRoot);
+
+    /// <summary>
+    /// Called by various metadata consumers to get additional metadata about the decorated type
+    /// </summary>
+    /// <param name="context">IMetadataGenerator context in which the metadata acquisition takes place</param>
+    /// <param name="dataRoot">Root data node under which THIS entity is supposed to create its sub-node to provide its metadata into</param>
+    /// <param name="overrideRules">Config node override rules to use for structured merging, or null to use the defaults</param>
+    /// <returns>A new data node that this provider has written into, such as a new node which is a child of dataRoot or null if nothing was written</returns>
+    ConfigSectionNode ProvideInstanceMetadata(IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null);
+  }
+
+
+  /// <summary>
   /// Decorates members such as Types and Methods that provide custom metadata.
   /// The metadata is harvested into structured ConfigSectionNode, you can either specify config content in Laconic format or
   /// provide a type of CustomMetadataProvider-derived class which performs metadata acquisition imperatively in the scope of the calling context
@@ -194,7 +219,7 @@ namespace Azos
 
 
   /// <summary>
-  /// Implemented by types which provide custom metadata for another MemebrInfos, such as types or methods.
+  /// Implemented by types which provide custom metadata for another MemberInfos, such as types or methods.
   /// The derivatives of CustomMetadataProvider are referenced by CustomMetadataAttribute.
   /// This pattern is needed because classes do not support static method polymorphism, therefore
   /// the system needs to call a virtual method on a Type (not instance).
