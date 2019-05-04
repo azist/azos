@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.505
-set HEADLINE=Enhance ApiDoc
+set VER=1.0.505.1
+set HEADLINE=Enhance ApiDoc, svc release
 
 call vs2017-build-release %VER%
 
