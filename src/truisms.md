@@ -91,8 +91,8 @@ little purpose. An example of this abuse (taken from real apps): *MyModelX, MyMo
 MyModelXControllerBinder, MyModelXStore, MyModelXDefaults* etc. now, many times developers also create a 1:1 interface for every class so they "can be mocked".
 This is really a crazy impractical design instigated by DI-anything ubiquity and purism.
 
-Lets analyze what objects are needed at runtime and who and how they get allocated.
-The following lists objects that need to get allocated in a typical app:
+Lets analyze what objects are needed at runtime and how they get allocated.
+The following lists objects that get allocated in a typical app:
 
 - App component graph - allocated by the system at start, app components are app-scoped objects like logger, service stack etc. (system code)
 - Logging - allocated at app start (system code)
@@ -102,7 +102,7 @@ The following lists objects that need to get allocated in a typical app:
 - Domain-specific business logic - modules (strategies/logic) allocated at app start (system code)
 - Web call POST/PUT payload -> Domain model - allocated by MVC controller/model binder (system code)
 - Data Access model - allocated by datastore/access layer (system code)
-- Custom data structures/Nodes - **allocated by user code**
+- Custom data structures/e.g. tree Nodes - **allocated by user code**
 - Domain model object - allocated by datastore/object mapper (system code mostly) **and user code**
 - Deserialization: stream-> object: - allocated by serializer (system code)
 
@@ -112,8 +112,8 @@ developers should concentrate on implementing:
 - Domain models - objects that reflect business (e.g. User, Account, Doctor etc...)
 - Domain logic - objects that contain business rules. The practice has shown that the majority of business logic is linear and procedural, hence it makes sense to put those functions in "logic modules" that get loaded in the app context and used as a "service"
 
-**Business logic is mostly procedural in its core**, and it takes "business models", validates them and transacts
-the db/store/queue. A business-oriented data driven application is all about good UI front end and matching backend that
+**Business logic is mostly procedural in its core**, as it takes "business models", validates them and transacts
+the db/store/queue. A business-oriented data driven application is all about good UX front end and matching backend that
 takes data (usually via web API facade), binds it to server models, validates, transforms and stores those models either
 directly into the store or via some kind of queue/CQRS/event sourcing etc.
 
@@ -121,7 +121,7 @@ It became apparent that **frivolous object allocations should NOT be encouraged*
 
 While writing software for an end-user problem, If you are spending too much time doing system architecture (inventing non-domain classes) on the
 server side - then there is something wrong with your framework which you base your architecture on.
-**Business app must ONLY contain business domain objects.**
+**Business app must ONLY contain domain objects and business logic that operates on them.**
 
 
 
@@ -183,7 +183,7 @@ code that queries employee roster via SQL - those are just incomparable problems
 tight code in the nano-second range. However, there are many cases when things need to be carefully optimized up front.
 
 **In Reality**:
-one has to be very attentive to details and **think ahead of possible use-cases**, especially while developing libraries. Consider these 
+one has to be very attentive to details and **consider use-cases ahead of time**, especially while developing libraries. Consider these 
 two versions of code:
 ```CSharp
   if (rowset.RowCount==0) sendNoDataNotification(...);
