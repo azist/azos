@@ -88,7 +88,7 @@ namespace Azos.Wave.Mvc
   /// <summary>
   /// Provides documentation-related metadata for API endpoints such as action methods
   /// </summary>
-  [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   public class ApiEndpointDocAttribute : ApiDocAttribute
   {
     /// <summary>
@@ -98,7 +98,7 @@ namespace Azos.Wave.Mvc
     public string Uri { get; set; }
 
     /// <summary>
-    /// Optionally specifies method names headers. Use ':' to delimit method name/description
+    /// Optionally specifies handled method names. Use ':' to delimit method name/description
     /// </summary>
     public string[] Methods { get; set; }
 

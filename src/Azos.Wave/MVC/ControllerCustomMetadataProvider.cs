@@ -40,7 +40,6 @@ namespace Azos.Wave.Mvc
 
       (var drequest, var dresponse) = writeCommon(ctlTitle, ctlDescription, tController, apictx.Generator, cattr, cdata);
       cdata.AddAttributeNode("uri-base", cattr.BaseUri);
-      cdata.AddAttributeNode("doc-file", cattr.DocFile);
       cdata.AddAttributeNode("auth", cattr.Authentication);
 
       cdata.AddAttributeNode("doc-content", docContent);
@@ -71,7 +70,10 @@ namespace Azos.Wave.Mvc
 
         edata.AddAttributeNode("uri", epuri);
         writeCollection(mctx.ApiEndpointDocAttr.Methods, "method", mrequest, ':');
-        //todo doc anchor....(parse out of docContent);
+
+        //docAnchor
+        var docAnchor = mctx.ApiEndpointDocAttr.DocAnchor.Default("### "+epuri);
+        edata.AddAttributeNode("doc-content", MarkdownUtils.GetSectionContent(docContent, docAnchor));
 
         //Get all method attributes except ApiDoc
         var epattrs = mctx.Method
