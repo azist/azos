@@ -48,7 +48,7 @@ namespace Azos.Wave.Mvc
       foreach(var mctx in allMethodContexts)
       {
         var edata = cdata.AddChildNode("endpoint");
-        (var mrequest, var mresponse) = writeCommon(docContent, null, mctx.Method, apictx.Generator, mctx.ApiEndpointDocAttr, edata);
+        (var mrequest, var mresponse) = writeCommon(null, null, mctx.Method, apictx.Generator, mctx.ApiEndpointDocAttr, edata);
 
         var epuri = mctx.ApiEndpointDocAttr.Uri.AsString().Trim();
         if (epuri.IsNullOrWhiteSpace())

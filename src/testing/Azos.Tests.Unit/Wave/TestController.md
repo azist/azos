@@ -19,6 +19,10 @@ a title of the endpoint one could use ` {$title} `. The variables are evaluated 
 The controller is protected by permissions and requires snake oil to work
 
 ## Endpoints
+
+### custom name
+This is a content for custom-named doc anchor
+
 ### /test/list - `{$title}`  
 `{$description}`
 

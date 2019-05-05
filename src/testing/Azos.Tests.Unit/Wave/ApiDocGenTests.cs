@@ -121,7 +121,7 @@ namespace Azos.Tests.Unit.Wave
       return null;
     }
 
-    [ApiEndpointDoc]
+    [ApiEndpointDoc(DocAnchor ="### custom name")]
     [ActionOnGet(Name = "something-custom-name")]
     public object SomeAction()
     {
