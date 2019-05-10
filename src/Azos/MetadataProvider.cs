@@ -70,6 +70,12 @@ namespace Azos
     /// </summary>
     ConfigSectionNode Generate();
 
+
+    /// <summary>
+    /// Returns true if the specified type is well-known and should not need to be described, e.g. a 'string' does not need to be described
+    /// </summary>
+    bool IsWellKnownType(Type type);
+
     /// <summary>
     /// Adds a type with an optional instance to be described, this is typically used to register Permissions and Doc schemas
     /// </summary>

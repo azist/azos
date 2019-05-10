@@ -123,7 +123,7 @@ namespace Azos.Tests.Unit.Wave
 
     [ApiEndpointDoc(DocAnchor ="### custom name")]
     [ActionOnGet(Name = "something-custom-name")]
-    public object SomeAction()
+    public object SomeAction(string astring, DateTime adate, DateTime? andate, TimeSpan ts)
     {
       return null;
     }

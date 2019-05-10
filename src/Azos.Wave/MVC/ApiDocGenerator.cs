@@ -162,11 +162,43 @@ namespace Azos.Wave.Mvc
       return data;
     }
 
+    private static readonly HashSet<Type> s_KnownTypes = new HashSet<Type>
+    {
+      typeof(object), typeof(string),
+      typeof(decimal), typeof(DateTime), typeof(TimeSpan),
+      typeof(sbyte),  typeof(byte),
+      typeof(short),  typeof(ushort),
+      typeof(int),    typeof(uint),
+      typeof(long),   typeof(ulong),
+      typeof(float),
+      typeof(double),
+      typeof(bool),
+      typeof(char),
+
+      typeof(decimal?), typeof(DateTime?), typeof(TimeSpan?),
+      typeof(sbyte?),  typeof(byte?),
+      typeof(short?),  typeof(ushort?),
+      typeof(int?),    typeof(uint?),
+      typeof(long?),   typeof(ulong?),
+      typeof(float?),
+      typeof(double?),
+      typeof(bool?),
+      typeof(char?)
+    };
+
+    public bool IsWellKnownType(Type type)
+    {
+      if (type==null) return true;
+      return s_KnownTypes.Contains(type);
+    }
+
     public string AddTypeToDescribe(Type type, object instance = null)
     {
       if (type == typeof(object)) return "object";
       if (type == typeof(string)) return "string";
       if (type == typeof(decimal)) return "decimal";
+      if (type == typeof(DateTime)) return "datetime";
+      if (type == typeof(TimeSpan)) return "timespan";
       if (type.IsPrimitive) return "{0}".Args(type.Name.ToLowerInvariant());
       if (type.IsArray) return "{0}[]".Args(AddTypeToDescribe(type.GetElementType()));
       if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) return "{0}?".Args(AddTypeToDescribe(type.GetGenericArguments()[0]));
