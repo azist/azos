@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 
 using Azos.Conf;
+using Azos.Serialization.JSON;
 
 namespace Azos
 {
@@ -125,6 +126,22 @@ namespace Azos
       return scopeConfig.Root.EvaluateValueVariables(line);
     }
 
+    /// <summary>
+    /// Puts the specified named attributes into JsonMap. If attribute is not found it is skipped
+    /// </summary>
+    public static JsonDataMap ToMapOfAttrs(this IConfigSectionNode node, params string[] attrNames)
+    {
+      var result = new JsonDataMap(false);
+      if (node!=null && attrNames!=null)
+        attrNames.ForEach( a =>
+        {
+          var attr = node.AttrByName(a) ;
+          if (attr.Exists) result[attr.Name] = attr.Value;
+        });
+
+      return result;
+
+    }
 
   }
 }
