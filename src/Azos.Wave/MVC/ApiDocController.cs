@@ -68,8 +68,12 @@ namespace Azos.Wave.Mvc
 
       if (WorkContext.RequestedJSON) return new JSONResult(data, JsonWritingOptions.PrettyPrintRowsAsMap);
 
-      return null;
+      return IndexView(data);
     }
+
+    protected virtual object IndexView(IEnumerable<JsonDataMap> data)
+     => new Templatization.StockContent.ApiDoc_Index(data);
+
 
     [Action(Name = "schema"), HttpGet]
     public object Schema(string id)
@@ -91,8 +95,11 @@ namespace Azos.Wave.Mvc
 
       if (WorkContext.RequestedJSON) return data;
 
-      return "HTML";
+      return SchemaView(data);
     }
+
+    protected virtual object SchemaView(IEnumerable<IConfigSectionNode> data)
+     => new Templatization.StockContent.ApiDoc_Schema(data);
 
   }
 }

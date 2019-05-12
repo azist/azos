@@ -8,11 +8,10 @@
   }
 #</laconf>
 #[class]
-    public Master(WorkContext work) : base(work)
-    {
-    }
+    public Master() : base(){}
+    public Master(WorkContext work) : base(work){}
 
-    public virtual string Title { get {return "Azos.WAVE Framework"; } }
+    public virtual string Title { get {return "Azos.Wave Framework"; } }
 
     public const string CONTENT_WIDTH = "90%";
 
