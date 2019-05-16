@@ -59,12 +59,12 @@ namespace Azos.Wave.Mvc
           .OrderBy(nscope => nscope.AttrByName("uri-base").Value )
           .Select(nscope => new JsonDataMap{
               { "uri", nscope.AttrByName("uri-base").Value },
-              { "id", nscope.AttrByName("run-id").Value },
+              { "run-id", nscope.AttrByName("run-id").Value },
               { "title", nscope.AttrByName("title").Value },
               { "description", nscope.AttrByName("description").Value },
               { "endpoints", nscope.Children
                                    .Where(nep => nep.IsSameName("endpoint"))
-                                   .Select(nep => nep.ToMapOfAttrs("uri", "title", "description"))
+                                   .Select(nep => nep.ToMapOfAttrs("uri", "title", "run-id"))
                                    .ToArray()
               },
           });

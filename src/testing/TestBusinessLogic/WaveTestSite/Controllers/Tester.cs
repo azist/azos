@@ -24,7 +24,7 @@ namespace WaveTestSite.Controllers
   /// <summary>
   /// Adds numbers
   /// </summary>
-  [ApiControllerDoc(BaseUri ="/mvc", Title = "Tester", Description ="Testing controller")]
+  [ApiControllerDoc(BaseUri ="/mvc/tester", Title = "Tester", Description ="Testing controller")]
   public class Tester : Controller
   {
       [Action, ApiEndpointDoc]

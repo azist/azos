@@ -26,18 +26,18 @@ protected override void renderBody()
  Api Documentation Index
 
 #[scope(JsonDataMap scope)]
-<h1><a href="scope?id=?[scope["id"].AsString()]"> ?[scope["title"].AsString()]</a></h1>
+<h1><a href="scope?id=?[scope["run-id"].AsString()]"> ?[scope["title"].AsString()]</a></h1>
 <p>?[scope["description"].AsString()]</p>
 @[
   var endpoints = scope["endpoints"] as IEnumerable<Object>;
   foreach(var ep in endpoints)
-   endpoint(ep as JsonDataMap);
+   endpoint(scope, ep as JsonDataMap);
  ]
 <div class="clearfix"></div>
 
-#[endpoint(JsonDataMap ep)]
+#[endpoint(JsonDataMap scope, JsonDataMap ep)]
 <div class="card"">
- <div class="card-title">?[ep["uri"].AsString()]</div>
+ <div class="card-title"><a href="scope?id=?[scope["run-id"].AsString()]#?[ep["run-id"].AsString()]">  ?[ep["uri"].AsString()]</a></div>
  <div class="card-description">?[ep["title"].AsString()]</div>
 </div>
 

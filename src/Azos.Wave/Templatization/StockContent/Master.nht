@@ -130,7 +130,8 @@
     }
 
     a{
-        color: #90a0ff;
+        color: #4080e0;
+        text-decoration: none;
     }
 
 
