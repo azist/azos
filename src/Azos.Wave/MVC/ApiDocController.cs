@@ -56,7 +56,10 @@ namespace Azos.Wave.Mvc
       var data = Data.Children
           .Where(nscope => nscope.IsSameName("scope") &&
                            (uriPattern.IsNullOrWhiteSpace() || nscope.AttrByName("uri-base").Value.MatchPattern(uriPattern)))
+          .OrderBy(nscope => nscope.AttrByName("uri-base").Value )
           .Select(nscope => new JsonDataMap{
+              { "uri", nscope.AttrByName("uri-base").Value },
+              { "id", nscope.AttrByName("run-id").Value },
               { "title", nscope.AttrByName("title").Value },
               { "description", nscope.AttrByName("description").Value },
               { "endpoints", nscope.Children
@@ -70,6 +73,27 @@ namespace Azos.Wave.Mvc
 
       return IndexView(data);
     }
+
+    //[Action(Name = "index"), HttpGet]
+    //public object Index(string uriPattern = null)
+    //{
+    //  var data = Data.Children
+    //      .Where(nscope => nscope.IsSameName("scope") &&
+    //                       (uriPattern.IsNullOrWhiteSpace() || nscope.AttrByName("uri-base").Value.MatchPattern(uriPattern)))
+    //      .Select(nscope => new JsonDataMap{
+    //          { "title", nscope.AttrByName("title").Value },
+    //          { "description", nscope.AttrByName("description").Value },
+    //          { "endpoints", nscope.Children
+    //                               .Where(nep => nep.IsSameName("endpoint"))
+    //                               .Select(nep => nep.ToMapOfAttrs("uri", "title", "description"))
+    //                               .ToArray()
+    //          },
+    //      });
+
+    //  if (WorkContext.RequestedJSON) return new JSONResult(data, JsonWritingOptions.PrettyPrintRowsAsMap);
+
+    //  return IndexView(data);
+    //}
 
     protected virtual object IndexView(IEnumerable<JsonDataMap> data)
      => new Templatization.StockContent.ApiDoc_Index(data);

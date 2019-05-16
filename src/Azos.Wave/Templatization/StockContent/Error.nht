@@ -62,7 +62,7 @@ private void dumpError(StringBuilder output, Exception error, int level)
     @[if (ShowDump){]
 
       <strong>Handler Match:</strong> ?[Context.Match!=null?Context.Match.Name : "[no match]"]<br />
-      @[Target.Write(dumpError(ErrorCause));];
+      @[Target.Write(dumpError(ErrorCause));]
     @[}]
 
 &nbsp;
