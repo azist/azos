@@ -17,5 +17,11 @@ namespace WaveTestSite.Controllers
       gen.Locations.Add(new ApiDocGenerator.ControllerLocation("TestBusinessLogic.dll", "WaveTestSite.Cont*"));
       return gen;
     }
+
+    [Action]
+    public void Throw()
+    {
+      throw new Azos.AzosException("Zar byl piyan");
+    }
   }
 }

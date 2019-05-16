@@ -1,0 +1,68 @@
+﻿#<laconf>
+compiler
+{
+  using{ns="Azos.Data"}
+  base-class-name="Azos.Wave.Templatization.StockContent.Master"
+  namespace="Azos.Wave.Templatization.StockContent"
+  abstract="false"
+  summary="Displays good-looking Error page"
+}
+#</laconf>
+#[class]
+
+public readonly Exception ErrorCause;
+public readonly bool ShowDump;
+
+public Error(Exception error, bool showDump) : base()
+{
+  ErrorCause = error;
+  ShowDump = showDump;
+}
+
+public override string Title { get {return "Azos.Wave Error"; } }
+
+private string dumpError(Exception error)
+{
+    var output = new StringBuilder();
+    dumpError(output, error, 1);
+    return output.ToString();
+}
+
+private void dumpError(StringBuilder output, Exception error, int level)
+{
+    if (error is FilterPipelineException fpe) error = fpe.RootException;
+
+    output.AppendLine("<h3> {0}. {1}</h3>".Args(level, Target.Encode(error.GetType().FullName)));
+    output.AppendLine("<div class=\"code\">{0}</div>".Args(Target.Encode(error.Message).AsString()));
+    output.AppendLine("<h4> Stack: </h4>");
+    output.AppendLine("<div class=\"code\"><ul>{0}</ul></div>".Args(Target.Encode(error.StackTrace).AsString().Replace("at ","<li> at ")));
+    output.AppendLine("<hr>");
+
+    if (error.InnerException != null)
+    dumpError(output, error.InnerException, level + 1);
+}
+
+#[override renderHeader()]
+ Error Happened
+#[override renderBody()]
+
+<h1>
+  @[if (ShowDump){]
+    ?["'{0}' Error".Args(ErrorCause.GetType().Name)]
+  @[}else{]
+    OOPS! An Error Occured
+  @[}]
+</h1>
+
+  <p>Request processing generated an error. Please contact the site administrator.</p>
+
+  <strong>ID:&nbsp;</strong> ?[Context.ID]<br />
+  <strong>Status:&nbsp;</strong> ?["{0} {1}".Args(Context.Response.StatusCode, Context.Response.StatusDescription)]<br />
+
+    @[if (ShowDump){]
+
+      <strong>Handler Match:</strong> ?[Context.Match!=null?Context.Match.Name : "[no match]"]<br />
+      @[Target.Write(dumpError(ErrorCause));];
+    @[}]
+
+&nbsp;

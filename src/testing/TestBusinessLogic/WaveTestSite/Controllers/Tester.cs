@@ -24,16 +24,17 @@ namespace WaveTestSite.Controllers
   /// <summary>
   /// Adds numbers
   /// </summary>
+  [ApiControllerDoc]
   public class Tester : Controller
   {
-      [Action]
+      [Action, ApiEndpointDoc]
       public object AboutUs()
       {
         return new Pages.AboutUs();
       }
 
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public void SlowImage(string url, int dbDelayMs = 100, int netDelayMs = 0)
       {
         WorkContext.Response.ContentType = Azos.Web.ContentType.JPEG;
@@ -63,7 +64,7 @@ namespace WaveTestSite.Controllers
 
 
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public object Zekret()
       {
         var cookie = new Cookie("ZEKRET","Hello");
@@ -73,20 +74,20 @@ namespace WaveTestSite.Controllers
       }
 
       //[Action("TestEmpty1", 1, "match{methods=GET}")]
-      [ActionOnGet(Name ="TestEmpty")]
+      [ActionOnGet(Name ="TestEmpty"), ApiEndpointDoc]
       public string TestEmpty()
       {
         return null;
       }
 
 
-      [Action(Name ="add", MatchScript = "match{is-local=true}")]
+      [Action(Name ="add", MatchScript = "match{is-local=true}"), ApiEndpointDoc]
       public string PlusLocal(int a, int b, string text = "Was added")
       {
         return "LOCAL {0} {1}".Args(text, a+b);
       }
 
-      [Action(Name ="add")]
+      [Action(Name ="add"), ApiEndpointDoc]
       public string Plus(int a, int b, string text = "Was added")
       {
        // WorkContext.NeedsSession();//<------!
@@ -94,13 +95,13 @@ namespace WaveTestSite.Controllers
       }
 
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public string Multiply(int a=2, int b=3, string text = "Was multiplied")
       {
         return "{0} {1}".Args(text, a*b);
       }
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public object Rnd(int from=0, int to = 100)
       {
          var list = new List<object>();
@@ -117,7 +118,7 @@ namespace WaveTestSite.Controllers
          return list;
       }
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public object SingleRnd()
       {
          return new
@@ -127,25 +128,25 @@ namespace WaveTestSite.Controllers
               };
       }
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public object Hello()
       {
          return new Pages.Welcome();
       }
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public object Yahoo()
       {
          return new Redirect("http://yahoo.com");
       }
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public object IBox()
       {
          return new ImageBoxTest();
       }
 
-      [Action(Name ="download", MatchScript = "match{is-local=true}")]//notice that this action is only allowed for local requestors
+      [Action(Name ="download", MatchScript = "match{is-local=true}"), ApiEndpointDoc]//notice that this action is only allowed for local requestors
       public object Download(string fpath, bool attachment = false)
       {
          return new FileDownload(fpath, attachment);
@@ -153,14 +154,14 @@ namespace WaveTestSite.Controllers
 
 
       [Azos.Security.AdHocPermission("test", "SpecialPermission", 10)]
-      [Action]
+      [Action, ApiEndpointDoc]
       public string SpecialCase()
       {
         return "Obviously you have been granted permission to see this!";
       }
 
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public object Echo(JsonDataMap data)
       {
         return new
@@ -171,7 +172,7 @@ namespace WaveTestSite.Controllers
         };
       }
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public object CAPTCHA(string key=null)
       {
         WorkContext.NeedsSession();
@@ -186,13 +187,13 @@ namespace WaveTestSite.Controllers
         return (new PuzzleKeypad("01234")).DefaultRender(App);
       }
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public object CAPTCHA2(string secret="0123456789", string fn = null)
       {
         return new Picture((new PuzzleKeypad(secret)).DefaultRender(App, System.Drawing.Color.Yellow), JpegImageFormat.Standard, fn);
       }
 
-      [ActionOnGet(Name ="person")]
+      [ActionOnGet(Name ="person"), ApiEndpointDoc]
       public object PersonGet(JsonDataMap req)
       {
         makePuzzle();
@@ -206,7 +207,7 @@ namespace WaveTestSite.Controllers
         return new ClientRecord(row, null);
       }
 
-      [ActionOnPost(Name ="person")]
+      [ActionOnPost(Name ="person"), ApiEndpointDoc]
       public object PersonPost(Person doc)
       {
         var puzzlePass = false;
@@ -238,7 +239,7 @@ namespace WaveTestSite.Controllers
         return new ClientRecord(doc, error);
       }
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public object MultipartMap(JsonDataMap data)
       {
         return new
@@ -248,7 +249,7 @@ namespace WaveTestSite.Controllers
         };
       }
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public object MultipartRow(MultipartTestDoc data, bool map = true)
       {
         var result = new
@@ -263,7 +264,7 @@ namespace WaveTestSite.Controllers
         return new JSONResult(result, JsonWritingOptions.Compact);
       }
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public object MultipartByteArray(string customerNumber, byte[] picture, string picture_filename)
       {
         return new
@@ -275,7 +276,7 @@ namespace WaveTestSite.Controllers
         };
       }
 
-      [Action]
+      [Action, ApiEndpointDoc]
       public object MultipartStream(string customerNumber, Stream picture, string picture_filename)
       {
         return new

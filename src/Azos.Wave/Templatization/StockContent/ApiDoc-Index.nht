@@ -16,7 +16,7 @@
   public override string Title { get {return "Azos Api Documentation Index"; } }
 
 #[override renderHeader()]
- <h1>Api Documentation Index</h1>
+ Api Documentation Index
 
 #[override renderBody()]
 

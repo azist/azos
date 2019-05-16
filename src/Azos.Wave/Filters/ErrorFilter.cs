@@ -259,7 +259,7 @@ namespace Azos.Wave.Filters
                 }
 
               if (errorPage==null)
-                errorPage =  new ErrorPage(work, error, showDump);
+                errorPage =  new ErrorPage(error, showDump);
 
               errorPage.Render(work, error);
             }

@@ -17,7 +17,7 @@
   public override string Title { get {return "Azos Api Documentation Schema"; } }
 
 #[override renderHeader()]
- <h1>Schema</h1>
+ Schema
 
 #[override renderBody()]
 
