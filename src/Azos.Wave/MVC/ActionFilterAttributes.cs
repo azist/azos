@@ -6,6 +6,7 @@
 
 using System;
 using System.Reflection;
+using Azos.Conf;
 
 namespace Azos.Wave.Mvc
 {
@@ -32,6 +33,11 @@ namespace Azos.Wave.Mvc
   /// Only allows GET requests
   /// </summary>
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+  [CustomMetadata(@"filter{
+   name='HttpGet'
+   title='Filters GET requests'
+   description='Returns 405 if request method is not GET'
+  }")]
   public sealed class HttpGetAttribute : BeforeActionFilterBaseAttribute
   {
     public HttpGetAttribute() { }
@@ -52,6 +58,11 @@ namespace Azos.Wave.Mvc
   /// Only allows POST requests
   /// </summary>
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+  [CustomMetadata(@"filter{
+   name='HttpPost'
+   title='Filters POST requests'
+   description='Returns 405 if request method is not POST'
+  }")]
   public sealed class HttpPostAttribute : BeforeActionFilterBaseAttribute
   {
     public HttpPostAttribute() { }
@@ -72,6 +83,11 @@ namespace Azos.Wave.Mvc
   /// Only allows PUT requests
   /// </summary>
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+  [CustomMetadata(@"filter{
+   name='HttpPut'
+   title='Filters PUT requests'
+   description='Returns 405 if request method is not PUT'
+  }")]
   public sealed class HttpPutAttribute : BeforeActionFilterBaseAttribute
   {
     public HttpPutAttribute() { }
@@ -92,6 +108,11 @@ namespace Azos.Wave.Mvc
   /// Only allows DELETE requests
   /// </summary>
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+  [CustomMetadata(@"filter{
+   name='HttpDelete'
+   title='Filters DELETE requests'
+   description='Returns 405 if request method is not DELETE'
+  }")]
   public sealed class HttpDeleteAttribute : BeforeActionFilterBaseAttribute
   {
     public HttpDeleteAttribute() { }
@@ -112,6 +133,11 @@ namespace Azos.Wave.Mvc
   /// Only allows PATCH requests
   /// </summary>
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+  [CustomMetadata(@"filter{
+   name='HttpPatch'
+   title='Filters PATCH requests'
+   description='Returns 405 if request method is not PATCH'
+  }")]
   public sealed class HttpPatchAttribute : BeforeActionFilterBaseAttribute
   {
     public HttpPatchAttribute() { }
@@ -132,6 +158,11 @@ namespace Azos.Wave.Mvc
   /// Only allows PUT or POST requests
   /// </summary>
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+  [CustomMetadata(@"filter{
+   name='HttpPutOrPost'
+   title='Filters PUT or POST requests'
+   description='Returns 405 if request method is not PUT or POST'
+  }")]
   public sealed class HttpPutOrPostAttribute : BeforeActionFilterBaseAttribute
   {
     public HttpPutOrPostAttribute() { }
@@ -152,6 +183,11 @@ namespace Azos.Wave.Mvc
   /// Only allows requests that contain Accept application/json header
   /// </summary>
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+  [CustomMetadata(@"filter{
+   name='AcceptsJson'
+   title='Filters requests that contain Accept JSON header'
+   description='Returns 406 is Accept header was not set to `application/json`'
+  }")]
   public sealed class AcceptsJsonAttribute : BeforeActionFilterBaseAttribute
   {
     public AcceptsJsonAttribute() { }
@@ -174,6 +210,11 @@ namespace Azos.Wave.Mvc
   /// If MaxContentLength limit is set then the 'Content-Length' header is required and its value is compared against the limit
   /// </summary>
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+  [CustomMetadata(@"filter{
+   name='HasEntityBody'
+   title='Filters requests that have entity body (e.g. POST payload)'
+   description='Returns 400 if there is no body or 413 if entity is too large when MaxContentLength is set'
+  }")]
   public sealed class HasEntityBodyAttribute : BeforeActionFilterBaseAttribute
   {
     public HasEntityBodyAttribute() { }
@@ -210,6 +251,15 @@ namespace Azos.Wave.Mvc
       }
 
       return false;
+    }
+
+    public override bool ShouldProvideInstanceMetadata(IMetadataGenerator context, ConfigSectionNode dataRoot)
+      => MaxContentLength > 0;
+
+    public override ConfigSectionNode ProvideInstanceMetadata(IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
+    {
+      dataRoot.AddAttributeNode("max-content-length", MaxContentLength);
+      return dataRoot;
     }
   }
 

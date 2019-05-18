@@ -18,7 +18,7 @@ namespace Azos.Security
       if (tperm==null || !typeof(Permission).IsAssignableFrom(tperm)) return null;
 
       var node = dataRoot.AddChildNode("permission");
-      node.AddAttributeNode("id", MetadataUtils.GetMetadataTokenId(tperm));
+      MetadataUtils.AddMetadataTokenIdAttribute(node, tperm);
       if (instance is Permission perm)
       {
         node.AddAttributeNode("name", perm.Name);

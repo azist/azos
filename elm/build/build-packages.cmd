@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.505
-set HEADLINE=Enhance ApiDoc
+set VER=1.0.507
+set HEADLINE=Add Azos.Tools to distrib
 
 call vs2017-build-release %VER%
 

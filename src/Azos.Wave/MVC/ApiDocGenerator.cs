@@ -131,6 +131,7 @@ namespace Azos.Wave.Mvc
         PopulateController(data, controller.tController, controller.aController);
 
       var typesSection = data.AddChildNode("type-schemas");
+      var skuSection = data.AddChildNode("type-skus");
       bool found;
       do
       {
@@ -145,8 +146,15 @@ namespace Azos.Wave.Mvc
 
             kvp.Value[i] = (rec.item, true);
             found = true;
+
+            //add type id
             var typeSection = typesSection.AddChildNode("{0}-{1}".Args(kvp.Value.Guid, i));
             CustomMetadataAttribute.Apply(kvp.Key, rec.item, this, typeSection);
+
+            //add reverse index for SKU -> type id
+            var sku = typeSection.AttrByName(CustomMetadataAttribute.CONFIG_SKU_ATTR);
+            if (sku.Exists)
+              skuSection.AddAttributeNode(sku.Value, typeSection.Name);
           }
         }
       }while(found);//as we describe types they may be adding other types into the loop
@@ -154,11 +162,43 @@ namespace Azos.Wave.Mvc
       return data;
     }
 
+    private static readonly HashSet<Type> s_KnownTypes = new HashSet<Type>
+    {
+      typeof(object), typeof(string),
+      typeof(decimal), typeof(DateTime), typeof(TimeSpan),
+      typeof(sbyte),  typeof(byte),
+      typeof(short),  typeof(ushort),
+      typeof(int),    typeof(uint),
+      typeof(long),   typeof(ulong),
+      typeof(float),
+      typeof(double),
+      typeof(bool),
+      typeof(char),
+
+      typeof(decimal?), typeof(DateTime?), typeof(TimeSpan?),
+      typeof(sbyte?),  typeof(byte?),
+      typeof(short?),  typeof(ushort?),
+      typeof(int?),    typeof(uint?),
+      typeof(long?),   typeof(ulong?),
+      typeof(float?),
+      typeof(double?),
+      typeof(bool?),
+      typeof(char?)
+    };
+
+    public bool IsWellKnownType(Type type)
+    {
+      if (type==null) return true;
+      return s_KnownTypes.Contains(type);
+    }
+
     public string AddTypeToDescribe(Type type, object instance = null)
     {
       if (type == typeof(object)) return "object";
       if (type == typeof(string)) return "string";
       if (type == typeof(decimal)) return "decimal";
+      if (type == typeof(DateTime)) return "datetime";
+      if (type == typeof(TimeSpan)) return "timespan";
       if (type.IsPrimitive) return "{0}".Args(type.Name.ToLowerInvariant());
       if (type.IsArray) return "{0}[]".Args(AddTypeToDescribe(type.GetElementType()));
       if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) return "{0}?".Args(AddTypeToDescribe(type.GetGenericArguments()[0]));
