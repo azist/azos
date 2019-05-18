@@ -14,8 +14,7 @@ namespace Azos.Wave.Mvc
   /// </summary>
   public abstract class ApiDocController : Controller
   {
-    protected static object s_DataLock = new object();
-    protected static volatile ConfigSectionNode s_Data;
+    protected static Dictionary<Type, ConfigSectionNode> s_Data = new Dictionary<Type, ConfigSectionNode>();
 
     /// <summary>
     /// Factory method for ApiDocgenerator. Sets generation locations
@@ -29,13 +28,14 @@ namespace Azos.Wave.Mvc
     {
       get
       {
-        if (s_Data!=null) return s_Data;
-        lock(s_DataLock)
+        var t = GetType();//of the caller instance
+        lock(s_Data)
         {
-          if (s_Data != null) return s_Data;
+          if (s_Data.TryGetValue(t, out var data)) return data;
           var gen = MakeDocGenerator();
-          s_Data = gen.Generate();
-          return s_Data;
+          data = gen.Generate();
+          s_Data[t] = data;
+          return data;
         }
       }
     }
@@ -50,29 +50,39 @@ namespace Azos.Wave.Mvc
     }
 
 
-    [Action(Name = "index"), HttpGet]
-    public object Index(string uriPattern = null)
+    [Action(Name = "toc"), HttpGet]
+    public object Toc(string uriPattern = null)
     {
+
       var data = Data.Children
           .Where(nscope => nscope.IsSameName("scope") &&
                            (uriPattern.IsNullOrWhiteSpace() || nscope.AttrByName("uri-base").Value.MatchPattern(uriPattern)))
-          .Select(nscope => new JsonDataMap{
-              { "title", nscope.AttrByName("title").Value },
-              { "description", nscope.AttrByName("description").Value },
-              { "endpoints", nscope.Children
-                                   .Where(nep => nep.IsSameName("endpoint"))
-                                   .Select(nep => nep.ToMapOfAttrs("uri", "title", "description"))
-                                   .ToArray()
-              },
+          .OrderBy(nscope => nscope.AttrByName("uri-base").Value )
+          .Select(nscope =>
+          {
+            dynamic d = JsonDynamicObject.NewMap();
+            d.uri    = nscope.ValOf("uri-base");
+            d.id     = nscope.ValOf("run-id");
+            d.title  = nscope.ValOf("title");
+            d.descr  = nscope.ValOf("description");
+
+            d.endpoints= nscope.Children
+                          .Where(nep => nep.IsSameName("endpoint"))
+                          .Select(nep => nep.ToDynOfAttrs("uri", "title", "run-id->id"))
+                          .ToArray();
+
+            return d;
           });
 
       if (WorkContext.RequestedJSON) return new JSONResult(data, JsonWritingOptions.PrettyPrintRowsAsMap);
 
-      return IndexView(data);
+      return TocView(data);
     }
 
-    protected virtual object IndexView(IEnumerable<JsonDataMap> data)
-     => new Templatization.StockContent.ApiDoc_Index(data);
+
+
+    protected virtual object TocView(IEnumerable<dynamic> data)
+     => new Templatization.StockContent.ApiDoc_Toc(data);
 
 
     [Action(Name = "schema"), HttpGet]

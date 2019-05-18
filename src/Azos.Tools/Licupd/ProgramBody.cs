@@ -13,6 +13,9 @@ using Azos.Conf;
 
 namespace Azos.Tools.Licupd
 {
+  /// <summary>
+  /// Lic block updater
+  /// </summary>
   public static class ProgramBody
   {
     public static void Main(string[] str_args)
@@ -63,7 +66,7 @@ namespace Azos.Tools.Licupd
           Console.WriteLine("Inserted:  " + fn);
           inserted++;
         }
-      }//freach file
+      }//foreach file
 
      Console.WriteLine(string.Format("Total Replaced: {0}  Inserted: {1}", replaced, inserted));
      Console.WriteLine("Strike <enter>");

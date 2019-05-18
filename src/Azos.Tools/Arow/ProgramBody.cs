@@ -15,6 +15,9 @@ using Azos.Serialization.Arow;
 
 namespace Azos.Tools.Arow
 {
+  /// <summary>
+  /// Amorphous Row (Arow) serializer generator
+  /// </summary>
   public static class ProgramBody
   {
     public static void Main(string[] args)

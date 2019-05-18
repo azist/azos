@@ -22,19 +22,21 @@ namespace Azos.Serialization.JSON
     public sealed class JsonDynamicObject : DynamicObject
     {
         #region .ctor
-            /// <summary>
-            /// Creates a dynamic wrapper around existing array or map. Optionally specifies map key case sensitivity
-            /// </summary>
-            public JsonDynamicObject(JSONDynamicObjectKind kind, bool caseSensitiveMap = true)
-            {
-                m_Data = (kind==JSONDynamicObjectKind.Map) ? (IJsonDataObject)new JsonDataMap(caseSensitiveMap)
-                                                           : (IJsonDataObject)new JsonDataArray();
-            }
+        public static JsonDynamicObject NewMap() => new JsonDynamicObject(JSONDynamicObjectKind.Map);
 
-            public JsonDynamicObject(IJsonDataObject data)
-            {
-                m_Data = data;
-            }
+        /// <summary>
+        /// Creates a dynamic wrapper around existing array or map. Optionally specifies map key case sensitivity
+        /// </summary>
+        public JsonDynamicObject(JSONDynamicObjectKind kind, bool caseSensitiveMap = true)
+        {
+            m_Data = (kind==JSONDynamicObjectKind.Map) ? (IJsonDataObject)new JsonDataMap(caseSensitiveMap)
+                                                        : (IJsonDataObject)new JsonDataArray();
+        }
+
+        public JsonDynamicObject(IJsonDataObject data)
+        {
+            m_Data = data;
+        }
 
         #endregion
 
