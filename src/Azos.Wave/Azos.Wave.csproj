@@ -38,8 +38,8 @@
 
   <ItemGroup>
     <Compile Include="..\____GlobalWarningSuppressions.cs" Link="____GlobalWarningSuppressions.cs" />
-    <Compile Include="Templatization\StockContent\.tc\ApiDoc-Index.nht.auto.cs" />
     <Compile Include="Templatization\StockContent\.tc\ApiDoc-Schema.nht.auto.cs" />
+    <Compile Include="Templatization\StockContent\.tc\ApiDoc-Toc.nht.auto.cs" />
     <Compile Include="Templatization\StockContent\.tc\Error.nht.auto.cs" />
     <Compile Include="Templatization\StockContent\.tc\Master.nht.auto.cs" />
   </ItemGroup>

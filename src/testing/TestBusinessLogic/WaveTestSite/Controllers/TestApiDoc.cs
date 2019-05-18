@@ -19,6 +19,9 @@ namespace WaveTestSite.Controllers
       return gen;
     }
 
+    [Action]
+    public object Index(string uriPattern = null) => new Redirect("/mvc/testapidoc/toc");
+
     [Action(Name ="throw"), ApiEndpointDoc(Description ="Used to throw fake exception to test error pages")]
     public void Throw()
     {

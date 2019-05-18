@@ -92,12 +92,13 @@ namespace Azos
 
 
     /// <summary>
-    /// Takes first X chars from a string. If string is null returns null. If string does not have enough
+    /// Takes the first X chars from a string. If string is null returns null. If string does not have enough
     /// the function returns what the string has
     /// </summary>
     public static string TakeFirstChars(this string str, int count, string ellipsis = null)
     {
       if (str == null) return null;
+      if (count<=0) return string.Empty;
       if (str.Length <= count) return str;
       ellipsis = ellipsis ?? string.Empty;
 
@@ -107,6 +108,36 @@ namespace Azos
         return ellipsis.Substring(0, count);
 
       return str.Substring(0, count) + ellipsis;
+    }
+
+    /// <summary>
+    /// Takes the last X chars from a string. If string is null returns null. If string does not have enough
+    /// the function returns what the string has
+    /// </summary>
+    public static string TakeLastChars(this string str, int count, string ellipsis = null)
+    {
+      if (str == null) return null;
+      if (count <= 0) return string.Empty;
+      if (str.Length <= count) return str;
+      ellipsis = ellipsis ?? string.Empty;
+
+      if (count > ellipsis.Length)
+        count -= ellipsis.Length;
+      else
+        return ellipsis.Substring(0, count);
+
+      return ellipsis + str.Substring(str.Length-count);
+    }
+
+    /// <summary>
+    /// Takes the last string segment delimited by the div character. If string is null returns null
+    /// </summary>
+    public static string TakeLastSegment(this string str, char div)
+    {
+      if (str == null) return null;
+      var i = str.LastIndexOf(div);
+      if (i >= 0 && i < str.Length-1) return str.Substring(i+1);
+      return str;
     }
 
     /// <summary>

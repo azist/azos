@@ -50,53 +50,39 @@ namespace Azos.Wave.Mvc
     }
 
 
-    [Action(Name = "index"), HttpGet]
-    public object Index(string uriPattern = null)
+    [Action(Name = "toc"), HttpGet]
+    public object Toc(string uriPattern = null)
     {
+
       var data = Data.Children
           .Where(nscope => nscope.IsSameName("scope") &&
                            (uriPattern.IsNullOrWhiteSpace() || nscope.AttrByName("uri-base").Value.MatchPattern(uriPattern)))
           .OrderBy(nscope => nscope.AttrByName("uri-base").Value )
-          .Select(nscope => new JsonDataMap{
-              { "uri", nscope.AttrByName("uri-base").Value },
-              { "run-id", nscope.AttrByName("run-id").Value },
-              { "title", nscope.AttrByName("title").Value },
-              { "description", nscope.AttrByName("description").Value },
-              { "endpoints", nscope.Children
-                                   .Where(nep => nep.IsSameName("endpoint"))
-                                   .Select(nep => nep.ToMapOfAttrs("uri", "title", "run-id"))
-                                   .ToArray()
-              },
+          .Select(nscope =>
+          {
+            dynamic d = JsonDynamicObject.NewMap();
+            d.uri    = nscope.ValOf("uri-base");
+            d.id     = nscope.ValOf("run-id");
+            d.title  = nscope.ValOf("title");
+            d.descr  = nscope.ValOf("description");
+
+            d.endpoints= nscope.Children
+                          .Where(nep => nep.IsSameName("endpoint"))
+                          .Select(nep => nep.ToDynOfAttrs("uri", "title", "run-id->id"))
+                          .ToArray();
+
+            return d;
           });
 
       if (WorkContext.RequestedJSON) return new JSONResult(data, JsonWritingOptions.PrettyPrintRowsAsMap);
 
-      return IndexView(data);
+      return TocView(data);
     }
 
-    //[Action(Name = "index"), HttpGet]
-    //public object Index(string uriPattern = null)
-    //{
-    //  var data = Data.Children
-    //      .Where(nscope => nscope.IsSameName("scope") &&
-    //                       (uriPattern.IsNullOrWhiteSpace() || nscope.AttrByName("uri-base").Value.MatchPattern(uriPattern)))
-    //      .Select(nscope => new JsonDataMap{
-    //          { "title", nscope.AttrByName("title").Value },
-    //          { "description", nscope.AttrByName("description").Value },
-    //          { "endpoints", nscope.Children
-    //                               .Where(nep => nep.IsSameName("endpoint"))
-    //                               .Select(nep => nep.ToMapOfAttrs("uri", "title", "description"))
-    //                               .ToArray()
-    //          },
-    //      });
 
-    //  if (WorkContext.RequestedJSON) return new JSONResult(data, JsonWritingOptions.PrettyPrintRowsAsMap);
 
-    //  return IndexView(data);
-    //}
-
-    protected virtual object IndexView(IEnumerable<JsonDataMap> data)
-     => new Templatization.StockContent.ApiDoc_Index(data);
+    protected virtual object TocView(IEnumerable<dynamic> data)
+     => new Templatization.StockContent.ApiDoc_Toc(data);
 
 
     [Action(Name = "schema"), HttpGet]

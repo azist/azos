@@ -127,21 +127,49 @@ namespace Azos
     }
 
     /// <summary>
-    /// Puts the specified named attributes into JsonMap. If attribute is not found it is skipped
+    /// Puts the specified named attributes into JsonMap. If named attribute is not found it is written with null if keepAbsent=true or skipped.
+    /// You can specify optional rename pattern like so "src->target" e.g. : node.ToMapOfAttrs("run-id->id","description->d");
     /// </summary>
-    public static JsonDataMap ToMapOfAttrs(this IConfigSectionNode node, params string[] attrNames)
+    public static JsonDataMap ToMapOfAttrs(this IConfigSectionNode node, bool keepAbsent, params string[] attrNames)
     {
       var result = new JsonDataMap(false);
       if (node!=null && attrNames!=null)
         attrNames.ForEach( a =>
         {
-          var attr = node.AttrByName(a) ;
-          if (attr.Exists) result[attr.Name] = attr.Value;
+          var target = a;
+          var source = a;
+          var i = a.IndexOf("->");
+          if (i > 0 && i< a.Length-2)
+          {
+            source = a.Substring(0, i);
+            target = a.Substring(i+2);//len of ->
+          }
+          var attr = node.AttrByName(source);
+          if (attr.Exists || keepAbsent) result[target] = attr.Value;
         });
 
       return result;
-
     }
+
+    /// <summary>
+    /// Puts the specified named attributes into JsonDynamicObject. If attribute is not found it is skipped.
+    /// You can specify optional rename pattern like so "src->target" e.g. : node.ToMapOfAttrs("run-id->id","description->d");
+    /// </summary>
+    public static dynamic ToDynOfAttrs(this IConfigSectionNode node, params string[] attrNames)
+    {
+      var map = node.ToMapOfAttrs(keepAbsent: true, attrNames: attrNames);
+      return new JsonDynamicObject(map);
+    }
+
+    /// <summary>
+    /// A shortcut to node.NonNull(nameof(node)).AttrByName(attrName); You can retrieve section by name using indexer
+    /// </summary>
+    public static IConfigAttrNode Of(this IConfigSectionNode node, string attrName) => node.NonNull(nameof(node)).AttrByName(attrName);
+
+    /// <summary>
+    /// A shortcut to node.Of(attrName).Value
+    /// </summary>
+    public static string ValOf(this IConfigSectionNode node, string attrName) => node.Of(attrName).Value;
 
   }
 }
