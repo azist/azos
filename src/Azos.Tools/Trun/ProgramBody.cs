@@ -13,10 +13,12 @@ using Azos.Conf;
 using Azos.IO;
 using Azos.Platform;
 using Azos.Scripting;
-using Azos.Templatization;
 
 namespace Azos.Tools.Trun
 {
+    /// <summary>
+    /// Program body (entry point) for TRUN "test runner" utility
+    /// </summary>
     public static class ProgramBody
     {
         public static void Main(string[] args)

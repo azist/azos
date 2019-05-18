@@ -221,5 +221,36 @@ namespace Azos.Tests.Nub
       Aver.AreEqual("value", got.Value);
     }
 
+    [Run] public void TakeFirstChars_1() => Aver.AreEqual(null, ((string)null).TakeFirstChars(100));
+    [Run] public void TakeFirstChars_2() => Aver.AreEqual("",  "".TakeFirstChars(100));
+    [Run] public void TakeFirstChars_3() => Aver.AreEqual("a2", "a2".TakeFirstChars(100));
+    [Run] public void TakeFirstChars_4() => Aver.AreEqual("a23", "a2345".TakeFirstChars(3));
+    [Run] public void TakeFirstChars_5() => Aver.AreEqual("a2345", "a23457890".TakeFirstChars(5));
+    [Run] public void TakeFirstChars_6() => Aver.AreEqual("a2345", "a23457890".TakeFirstChars(5, ""));
+    [Run] public void TakeFirstChars_7() => Aver.AreEqual("a23..", "a23457890".TakeFirstChars(5, ".."));
+    [Run] public void TakeFirstChars_8() => Aver.AreEqual("", "a23457890".TakeFirstChars(-5));
+    [Run] public void TakeFirstChars_9() => Aver.AreEqual(".....", "a23457890".TakeFirstChars(5, "..............."));
+    [Run] public void TakeFirstChars_10() => Aver.AreEqual("1234", "1234".TakeFirstChars(4));
+    [Run] public void TakeFirstChars_11() => Aver.AreEqual("12..", "12345".TakeFirstChars(4, ".."));
+
+    [Run] public void TakeLastChars_1() => Aver.AreEqual(null, ((string)null).TakeLastChars(100));
+    [Run] public void TakeLastChars_2() => Aver.AreEqual("", "".TakeLastChars(100));
+    [Run] public void TakeLastChars_3() => Aver.AreEqual("a2", "a2".TakeLastChars(100));
+    [Run] public void TakeLastChars_4() => Aver.AreEqual("345", "a2345".TakeLastChars(3));
+    [Run] public void TakeLastChars_5() => Aver.AreEqual("57890", "a23457890".TakeLastChars(5));
+    [Run] public void TakeLastChars_6() => Aver.AreEqual("57890", "a23457890".TakeLastChars(5, ""));
+    [Run] public void TakeLastChars_7() => Aver.AreEqual("..890", "a23457890".TakeLastChars(5, ".."));
+    [Run] public void TakeLastChars_8() => Aver.AreEqual("", "a23457890".TakeLastChars(-5));
+    [Run] public void TakeLastChars_9() => Aver.AreEqual(".....", "a23457890".TakeLastChars(5, "..............."));
+    [Run] public void TakeLastChars_10() => Aver.AreEqual("1234", "1234".TakeLastChars(4));
+    [Run] public void TakeLastChars_11() => Aver.AreEqual("..45", "12345".TakeLastChars(4, ".."));
+
+
+    [Run] public void TakeLastSegment_1() => Aver.AreEqual(null, ((string)null).TakeLastSegment('/'));
+    [Run] public void TakeLastSegment_2() => Aver.AreEqual("", "".TakeLastSegment('/'));
+    [Run] public void TakeLastSegment_3() => Aver.AreEqual("", "a/".TakeLastSegment('/'));
+    [Run] public void TakeLastSegment_4() => Aver.AreEqual("here", "snake.zhaba/here".TakeLastSegment('/'));
+    [Run] public void TakeLastSegment_5() => Aver.AreEqual("zhaba/here", "snake.zhaba/here".TakeLastSegment('.'));
+
   }
 }

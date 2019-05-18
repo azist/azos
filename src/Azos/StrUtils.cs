@@ -136,7 +136,7 @@ namespace Azos
     {
       if (str == null) return null;
       var i = str.LastIndexOf(div);
-      if (i >= 0 && i < str.Length-1) return str.Substring(i+1);
+      if (i >= 0 && i < str.Length) return str.Substring(i+1);
       return str;
     }
 

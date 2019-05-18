@@ -1,6 +1,6 @@
 ﻿<push><b color=black><f color=white>
-Azos Password Hasher Utility<f color=gray>
+Azos Password Hash Generator Utility<f color=gray>
 Copyright (c) 2019 Azist Group
-Version 3.0 / Azos as of Oct 2018
+Version 4.0 / Azos as of May 2019
 
 <pop>
