@@ -27,13 +27,6 @@
 
   <ItemGroup>
     <None Remove="BUILD_INFO.txt" />
-    <None Remove="Templatization\StockContent\Embedded\script\jquery-2.1.4.js" />
-    <None Remove="Templatization\StockContent\Embedded\script\jquery-2.1.4.min.js" />
-    <None Remove="Templatization\StockContent\Embedded\script\wv.braintree.js" />
-    <None Remove="Templatization\StockContent\Embedded\script\wv.chart.svg.js" />
-    <None Remove="Templatization\StockContent\Embedded\script\wv.gui.js" />
-    <None Remove="Templatization\StockContent\Embedded\script\wv.js" />
-    <None Remove="Templatization\StockContent\Embedded\script\wv.stripe.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,13 +39,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="BUILD_INFO.txt" />
-    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\jquery-2.1.4.js" />
-    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\jquery-2.1.4.min.js" />
-    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\wv.braintree.js" />
-    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\wv.chart.svg.js" />
-    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\wv.gui.js" />
-    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\wv.js" />
-    <EmbeddedResource Include="Templatization\StockContent\Embedded\script\wv.stripe.js" />
   </ItemGroup>
 
   <ItemGroup>

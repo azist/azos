@@ -14,7 +14,6 @@ rem ---------------------------------------------
 
 dotnet "%TOOL_DIR%buildinfo.dll" > "%PROJECT_DIR%BUILD_INFO.txt"
 dotnet "%TOOL_DIR%ntc.dll" "%PROJECT_DIR%Templatization\StockContent\*.nht" -sub -r -ext ".auto.cs" -src -c "Azos.Templatization.NHTCompiler, Azos"
-dotnet "%TOOL_DIR%ntc.dll" "%PROJECT_DIR%Templatization\StockContent\Embedded\script\ljs\*.ntc.js" -ext ".js" -replace ".ntc.js" -dest "%PROJECT_DIR%Templatization\StockContent\Embedded\script" -src -c "Azos.Templatization.TextJSTemplateCompiler, Azos" -o dom-gen="cmp{pretty=1}"
 
 rem ---------------------------------------------
 echo +++++ [Azos.Wave] Pre Build
