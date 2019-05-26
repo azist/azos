@@ -12,6 +12,7 @@ namespace Azos.Wave.Mvc
   /// <summary>
   /// Serves Api documentation produced by ApiDocGenerator
   /// </summary>
+  [NoCache]
   public abstract class ApiDocController : Controller
   {
     protected static Dictionary<Type, ConfigSectionNode> s_Data = new Dictionary<Type, ConfigSectionNode>();

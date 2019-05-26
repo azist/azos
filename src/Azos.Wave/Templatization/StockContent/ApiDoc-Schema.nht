@@ -17,22 +17,54 @@
   public override string Title { get {return "Azos Api Documentation Schema"; } }
 
 #[override renderHeader()]
- Type Schema
+ Api Type Schema
 
 #[override renderBody()]
-<h1>API Type Schema: ?[Data.First().ValOf("sku")]</h1>
-This section lists API functionality areas a.k.a. "scopes". Every scope has a list of concrete endpoints specifying operation contracts of the API.
-You can navigate individual API scopes below or <a href="./all">view the raw API doc set data.</a>
+<h1>"?[Data.First().ValOf("sku")]" Schema</h1>
+This section describes a complex (non-scalar) data type "?[Data.First().ValOf("sku")]" used by API operations.
+Go back to <a href="./toc">Api Table of Contents.</a>
 @[{
   var cnt = 1;
   foreach(var item in Data) type(cnt++, item);
 }]
-
+Go back to <a href="./toc">Api Table of Contents.</a>
 
 #[type(int cnt, IConfigSectionNode data)]
-<h3>Raw Data</h3>
+@[
+  var docData = data["data-doc"];
+  var permData = data["permission"];
+  if (docData.Exists) doc(docData);
+  if (permData.Exists) perm(permData);
+]
+<h3>Raw Schema Data</h3>
 <pre>
   ?[data.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint)]
 </pre>
 <hr>
 
+#[perm(IConfigSectionNode data)]
+This type is a <strong>security permission</strong> see <a href="https://github.com/azist/azos/tree/master/src/Azos/Security">Azos Security Overview (GitHub)</a>
+
+
+#[doc(IConfigSectionNode data)]
+This type is a <strong>data document</strong> see <a href="https://github.com/azist/azos/blob/master/src/Azos/Data/metadata.md">Azos Schema Metadata Overview (GitHub)</a>
+<table>
+@[{
+  var fields = data["schema"].Children.Where(c => c.IsSameName("field"));
+  foreach(var fld in fields) docField(fld);
+}]
+</table>
+
+
+#[docField(IConfigSectionNode data)]
+<tr>
+ <td>?[data.ValOf("order")]</td>
+ <td>?[data.ValOf("name")]</td>
+ <td>?[data.ValOf("type")]</td>
+ <td>?[data.ValOf("required")]</td>
+ <td>?[data.ValOf("kind")]</td>
+ <td>?[data.ValOf("key")]</td>
+ <td>?[data.ValOf("visible")]</td>
+ <td>?[data.ValOf("case")]</td>
+
+</tr>
