@@ -17,8 +17,22 @@
   public override string Title { get {return "Azos Api Documentation Schema"; } }
 
 #[override renderHeader()]
- Schema
+ Type Schema
 
 #[override renderBody()]
+<h1>API Type Schema: ?[Data.First().ValOf("sku")]</h1>
+This section lists API functionality areas a.k.a. "scopes". Every scope has a list of concrete endpoints specifying operation contracts of the API.
+You can navigate individual API scopes below or <a href="./all">view the raw API doc set data.</a>
+@[{
+  var cnt = 1;
+  foreach(var item in Data) type(cnt++, item);
+}]
 
-  Hello Dolly!!!
+
+#[type(int cnt, IConfigSectionNode data)]
+<h3>Raw Data</h3>
+<pre>
+  ?[data.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint)]
+</pre>
+<hr>
+

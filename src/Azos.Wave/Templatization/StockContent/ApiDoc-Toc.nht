@@ -31,12 +31,21 @@ You can navigate individual API scopes below or <a href="./all">view the raw API
 <div class="clearfix"></div>
 
 <h1>API Data Contracts</h1>
-This section lists custom data schemas used by the API. Typically custom types represent data contracts used by API operations, such as
-resource mutation calls (e.g. on POST/PUT etc.) and data returned to caller (e.g. on GET)
+This section lists custom data document schemas used by the API. Typically custom types represent data contracts used by API operations, such as
+resource mutation calls (e.g. on POST/PUT etc.) and data returned to callers on GET
 <div class="clearfix"></div>
 @[{
   var cnt = 1;
-  foreach(var item in Data.types) type(cnt++, item);
+  foreach(var item in Data.docs) datadoc(cnt++, item);
+}]
+<div class="clearfix"></div>
+
+<h1>API Permissions</h1>
+This section lists permissions used by the API authorization process.
+<div class="clearfix"></div>
+@[{
+  var cnt = 1;
+  foreach(var item in Data.perms) perm(cnt++, item);
 }]
 <div class="clearfix"></div>
 
@@ -58,8 +67,12 @@ resource mutation calls (e.g. on POST/PUT etc.) and data returned to caller (e.g
  <div class="card-description">?[ep.title]</div>
 </div>
 
-#[type(int cnt, dynamic type)]
+#[datadoc(int cnt, dynamic tdoc)]
 <div class="card"">
- <div class="card-title"><a href="schema?id=?[type.id]"> ?[type.sku]</a></div>
+ <div class="card-title"><a href="schema?id=?[tdoc.id]"> ?[tdoc.sku]</a></div>
 </div>
 
+#[perm(int cnt, dynamic tperm)]
+<div class="card"">
+ <div class="card-title"><a href="schema?id=?[tperm.id]"> ?[tperm.sku]</a></div>
+</div>

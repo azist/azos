@@ -75,11 +75,30 @@ namespace Azos.Wave.Mvc
             return d;
           });
 
-      data.types = Data["type-schemas"].Children
+      data.docs = Data["type-schemas"].Children
           .Where(nts =>
           {
             var sku = nts.AttrByName("sku").Value;
             if (sku.IsNullOrWhiteSpace()) return false;
+            if (!nts["data-doc"].Exists) return false;
+            return (typePattern.IsNullOrWhiteSpace() || sku.MatchPattern(typePattern));
+          })
+          .OrderBy(nts => nts.AttrByName("sku").Value)
+          .Select(nts =>
+          {
+            dynamic d = JsonDynamicObject.NewMap();
+            d.id = nts.Name;
+            d.sku = nts.ValOf("sku");
+
+            return d;
+          });
+
+      data.perms = Data["type-schemas"].Children
+          .Where(nts =>
+          {
+            var sku = nts.AttrByName("sku").Value;
+            if (sku.IsNullOrWhiteSpace()) return false;
+            if (!nts["permission"].Exists) return false;
             return (typePattern.IsNullOrWhiteSpace() || sku.MatchPattern(typePattern));
           })
           .OrderBy(nts => nts.AttrByName("sku").Value)
