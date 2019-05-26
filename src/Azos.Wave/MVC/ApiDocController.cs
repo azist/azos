@@ -51,10 +51,11 @@ namespace Azos.Wave.Mvc
 
 
     [Action(Name = "toc"), HttpGet]
-    public object Toc(string uriPattern = null)
+    public object Toc(string uriPattern = null, string typePattern = null)
     {
 
-      var data = Data.Children
+      dynamic data = JsonDynamicObject.NewMap();
+      data.scopes = Data.Children
           .Where(nscope => nscope.IsSameName("scope") &&
                            (uriPattern.IsNullOrWhiteSpace() || nscope.AttrByName("uri-base").Value.MatchPattern(uriPattern)))
           .OrderBy(nscope => nscope.AttrByName("uri-base").Value )
@@ -74,6 +75,23 @@ namespace Azos.Wave.Mvc
             return d;
           });
 
+      data.types = Data["type-schemas"].Children
+          .Where(nts =>
+          {
+            var sku = nts.AttrByName("sku").Value;
+            if (sku.IsNullOrWhiteSpace()) return false;
+            return (typePattern.IsNullOrWhiteSpace() || sku.MatchPattern(typePattern));
+          })
+          .OrderBy(nts => nts.AttrByName("sku").Value)
+          .Select(nts =>
+          {
+            dynamic d = JsonDynamicObject.NewMap();
+            d.id = nts.Name;
+            d.sku = nts.ValOf("sku");
+
+            return d;
+          });
+
       if (WorkContext.RequestedJSON) return new JSONResult(data, JsonWritingOptions.PrettyPrintRowsAsMap);
 
       return TocView(data);
@@ -81,7 +99,7 @@ namespace Azos.Wave.Mvc
 
 
 
-    protected virtual object TocView(IEnumerable<dynamic> data)
+    protected virtual object TocView(dynamic data)
      => new Templatization.StockContent.ApiDoc_Toc(data);
 
 
