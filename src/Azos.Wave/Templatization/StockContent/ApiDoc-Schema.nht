@@ -16,18 +16,26 @@
   public ApiDoc_Schema(IEnumerable<IConfigSectionNode> data) : base()  => Data = data;
   public override string Title { get {return "Azos Api Documentation Schema"; } }
 
+  private string flag(IConfigSectionNode data, string name)=> data.AttrByName(name).ValueAsBool() ? "X" : "";
+
 #[override renderHeader()]
  Api Type Schema
 
 #[override renderBody()]
 <h1>"?[Data.First().ValOf("sku")]" Schema</h1>
 This section describes a complex (non-scalar) data type "?[Data.First().ValOf("sku")]" used by API operations.
+<p>
 Go back to <a href="./toc">Api Table of Contents.</a>
+</p>
+
 @[{
   var cnt = 1;
   foreach(var item in Data) type(cnt++, item);
 }]
+
+<p>
 Go back to <a href="./toc">Api Table of Contents.</a>
+</p>
 
 #[type(int cnt, IConfigSectionNode data)]
 @[
@@ -49,22 +57,36 @@ This type is a <strong>security permission</strong> see <a href="https://github.
 #[doc(IConfigSectionNode data)]
 This type is a <strong>data document</strong> see <a href="https://github.com/azist/azos/blob/master/src/Azos/Data/metadata.md">Azos Schema Metadata Overview (GitHub)</a>
 <table>
+ <thead>
+  <tr>
+    <th> #</th>
+    <th> Name </th>
+    <th> Type </th>
+    <th> Req </th>
+    <th> Description </th>
+    <th> Case </th>
+    <th> Visible </th>
+  </tr>
+ </thead>
+ <tbody>
+
 @[{
   var fields = data["schema"].Children.Where(c => c.IsSameName("field"));
   foreach(var fld in fields) docField(fld);
 }]
+
+ <tbody>
 </table>
 
 
 #[docField(IConfigSectionNode data)]
 <tr>
- <td>?[data.ValOf("order")]</td>
- <td>?[data.ValOf("name")]</td>
- <td>?[data.ValOf("type")]</td>
- <td>?[data.ValOf("required")]</td>
- <td>?[data.ValOf("kind")]</td>
- <td>?[data.ValOf("key")]</td>
- <td>?[data.ValOf("visible")]</td>
- <td>?[data.ValOf("case")]</td>
-
+  <td>?[data.ValOf("order")]</td>
+  <td>?[data.ValOf("name")]</td>
+  <td>?[data.ValOf("type")] @[var k = data.ValOf("kind"); if(k!="Text"){]&nbsp;/&nbsp;?[k] @[}]</td>
+  <td>?[flag(data, "required")]</td>
+  <td>?[data.ValOf("description")]</td>
+  <td>?[data.ValOf("case")]</td>
+  <td>?[flag(data, "visible")]</td>
 </tr>
+

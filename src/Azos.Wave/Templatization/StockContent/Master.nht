@@ -168,6 +168,27 @@
       clear: both;
     }
 
+    table{
+      margin: 10px;
+      border-collapse: collapse;
+    }
+
+    th{ padding: 4px;}
+
+    td{
+      padding: 4px;
+      border-right: 1px dotted #ddd;
+    }
+
+    tr:nth-child(even) {background-color: #e8e8e8;}
+
+    thead{
+     background: #d4d4d4;
+     color: #484848;
+     padding: 4px;
+     border-bottom: 2px solid #ccc;
+    }
+
 
 
 </style>

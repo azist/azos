@@ -149,5 +149,14 @@ namespace Azos.Wave.Mvc
     protected virtual object SchemaView(IEnumerable<IConfigSectionNode> data)
      => new Templatization.StockContent.ApiDoc_Schema(data);
 
+    [Action(Name = "scope"), HttpGet]
+    public object Scope(string id)
+    {
+      return ScopeView(null);
+    }
+
+    protected virtual object ScopeView(IEnumerable<IConfigSectionNode> data)
+     => "   UNDER CONSTRUCTION ";
+
   }
 }
