@@ -351,7 +351,7 @@ namespace WaveTestSite.Controllers
           public string LastName { get; set;}
 
 
-          [Field(required: true, description: "Public Status")]
+          [Field(required: true, description: "Public Status")]//, backendName: "zhaba")]
           public StatusCode PubStatus{get; set;}
 
           [Field(required: false, description: "Private Status")]
