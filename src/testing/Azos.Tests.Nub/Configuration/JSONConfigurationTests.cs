@@ -154,7 +154,7 @@ namespace Azos.Tests.Nub.Configuration
             'web.world': 'who knows?'
            }}";
 
-           var conf = Azos.Conf.JSONConfiguration.CreateFromJSON(json);
+           var conf = Azos.Conf.JSONConfiguration.CreateFromJson(json);
 
            Aver.IsTrue(UriKind.Absolute == conf.Root.AttrByName("kind").ValueAsEnum<UriKind>(UriKind.Relative));
            Aver.AreEqual(true, conf.Root["a"]["b"].AttrByName("cool").ValueAsBool(false));
@@ -168,7 +168,7 @@ namespace Azos.Tests.Nub.Configuration
            Console.WriteLine(savedJSON);
 
            //retest after configuration was saved and then reloaded from string
-           conf =  Azos.Conf.JSONConfiguration.CreateFromJSON(savedJSON);
+           conf =  Azos.Conf.JSONConfiguration.CreateFromJson(savedJSON);
            Aver.IsTrue(UriKind.Absolute == conf.Root.AttrByName("kind").ValueAsEnum<UriKind>(UriKind.Relative));
            Aver.AreEqual(true, conf.Root["a"]["b"].AttrByName("cool").ValueAsBool(false));
            Aver.AreEqual(75, conf.Root["a"]["b"].AttrByName("c").ValueAsInt());
@@ -186,7 +186,7 @@ namespace Azos.Tests.Nub.Configuration
 
            }}";
 
-           var conf = Azos.Conf.JSONConfiguration.CreateFromJSON(json);
+           var conf = Azos.Conf.JSONConfiguration.CreateFromJson(json);
 
            Console.WriteLine(conf.SaveToString(JsonWritingOptions.PrettyPrint));
 
@@ -209,7 +209,7 @@ namespace Azos.Tests.Nub.Configuration
 
            }}";
 
-           var conf = Azos.Conf.JSONConfiguration.CreateFromJSON(json);
+           var conf = Azos.Conf.JSONConfiguration.CreateFromJson(json);
 
            Aver.IsFalse(conf.Root.Modified);
 
@@ -265,12 +265,12 @@ namespace Azos.Tests.Nub.Configuration
            var map = conf1.Configuration.ToConfigurationJSONDataMap();
            var json = map.ToJson();
 
-           var cjson = JSONConfiguration.CreateFromJSON(json);
+           var cjson = JSONConfiguration.CreateFromJson(json);
            assert(cjson.Root);
 
            json = cjson.SaveToString(JsonWritingOptions.PrettyPrint);
            Console.WriteLine(json);
-           cjson = JSONConfiguration.CreateFromJSON(json);
+           cjson = JSONConfiguration.CreateFromJson(json);
            assert(cjson.Root);
         }
 

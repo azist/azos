@@ -20,7 +20,10 @@ namespace Azos.Sky.Workers
   public abstract class Process : AmorphousTypedDoc
   {
 
+#pragma warning disable 649
     [Inject] ISkyApplication m_App;
+#pragma warning restore 649
+
     public ISkyApplication App => m_App.NonNull(nameof(m_App));
 
     /// <summary>

@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Azos
@@ -91,12 +92,13 @@ namespace Azos
 
 
     /// <summary>
-    /// Takes first X chars from a string. If string is null returns null. If string does not have enough
+    /// Takes the first X chars from a string. If string is null returns null. If string does not have enough
     /// the function returns what the string has
     /// </summary>
     public static string TakeFirstChars(this string str, int count, string ellipsis = null)
     {
       if (str == null) return null;
+      if (count<=0) return string.Empty;
       if (str.Length <= count) return str;
       ellipsis = ellipsis ?? string.Empty;
 
@@ -106,6 +108,36 @@ namespace Azos
         return ellipsis.Substring(0, count);
 
       return str.Substring(0, count) + ellipsis;
+    }
+
+    /// <summary>
+    /// Takes the last X chars from a string. If string is null returns null. If string does not have enough
+    /// the function returns what the string has
+    /// </summary>
+    public static string TakeLastChars(this string str, int count, string ellipsis = null)
+    {
+      if (str == null) return null;
+      if (count <= 0) return string.Empty;
+      if (str.Length <= count) return str;
+      ellipsis = ellipsis ?? string.Empty;
+
+      if (count > ellipsis.Length)
+        count -= ellipsis.Length;
+      else
+        return ellipsis.Substring(0, count);
+
+      return ellipsis + str.Substring(str.Length-count);
+    }
+
+    /// <summary>
+    /// Takes the last string segment delimited by the div character. If string is null returns null
+    /// </summary>
+    public static string TakeLastSegment(this string str, char div)
+    {
+      if (str == null) return null;
+      var i = str.LastIndexOf(div);
+      if (i >= 0 && i < str.Length) return str.Substring(i+1);
+      return str;
     }
 
     /// <summary>
@@ -352,7 +384,13 @@ namespace Azos
     /// Replaces LF with CRLF
     /// </summary>
     public static string ToWindowsLines(this string src)
-    => src == null ? null : src.Replace(WIN_UNIX_LINE_BRAKES[1], WIN_UNIX_LINE_BRAKES[0]);
+    {
+      if (src==null) return null;
+
+      var linux = src.ToLinuxLines();
+
+      return linux.Replace(WIN_UNIX_LINE_BRAKES[1], WIN_UNIX_LINE_BRAKES[0]);
+    }
 
     /// <summary>
     /// Creates a string listing char-by char difference between strings
@@ -361,8 +399,6 @@ namespace Azos
     {
       string ch(char c) =>
           "#{0:x4} {1}".Args((int)c, Azos.Serialization.JSON.JsonWriter.Write(c, Azos.Serialization.JSON.JsonWritingOptions.CompactASCII));
-
-
 
       var result = new StringBuilder();
       result.AppendLine("A is {0} |  B is {1}".Args(a==null?CoreConsts.NULL_STRING:$"[{a.Length}]", b == null ? CoreConsts.NULL_STRING : $"[{b.Length}]"));
@@ -405,6 +441,60 @@ namespace Azos
         result.AppendLine("....Capped at {0} chars".Args(limit));
 
       return result.ToString();
+    }
+
+    /// <summary>
+    /// Default chars to be trimmed by TrimAll function
+    /// </summary>
+    public static readonly char[] TRIM_ALL_CHARS_DEFAULT = new []{'\r','\n',' '};
+
+    /// <summary>
+    /// Trims all characters from the string including the inner content
+    /// </summary>
+    public static string TrimAll(this string src, params char[] chars)
+    {
+      if (src==null) return null;
+      if(chars==null || chars.Length==0) chars = TRIM_ALL_CHARS_DEFAULT;
+      return new string(src.Where(c => !chars.Any(c2 => c2 == c)).ToArray());
+    }
+
+    /// <summary>
+    /// Parses a string of a form:  key:value into a KeyValuePair. Trips on a first delimiter L2R
+    /// </summary>
+    public static KeyValuePair<string, string> SplitKVP(this string src, char delimiter = '=')
+    {
+      if (src.IsNullOrWhiteSpace()) return new KeyValuePair<string, string>(string.Empty, string.Empty);
+      var i = src.IndexOf(delimiter);
+      if (i>=0 && i<src.Length) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
+      return new KeyValuePair<string, string>(src, string.Empty);
+    }
+
+    /// <summary>
+    /// Parses a string of a form:  key:value into a KeyValuePair. Trips on a first delimiter L2R
+    /// </summary>
+    public static KeyValuePair<string, string> SplitKVP(this string src, char delimiter1, char delimiter2)
+    {
+      if (src.IsNullOrWhiteSpace()) return new KeyValuePair<string, string>(string.Empty, string.Empty);
+      var i = src.IndexOf(delimiter1);
+      if (i >= 0 && i < src.Length) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
+      i = src.IndexOf(delimiter2);
+      if (i >= 0 && i < src.Length) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
+      return new KeyValuePair<string, string>(src, string.Empty);
+    }
+
+    /// <summary>
+    /// Parses a string of a form:  key:value into a KeyValuePair. Trips on a first delimiter L2R
+    /// </summary>
+    public static KeyValuePair<string, string> SplitKVP(this string src, char delimiter1, char delimiter2, char delimiter3)
+    {
+      if (src.IsNullOrWhiteSpace()) return new KeyValuePair<string, string>(string.Empty, string.Empty);
+      var i = src.IndexOf(delimiter1);
+      if (i >= 0 && i < src.Length) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
+      i = src.IndexOf(delimiter2);
+      if (i >= 0 && i < src.Length) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
+      i = src.IndexOf(delimiter3);
+      if (i >= 0 && i < src.Length) return new KeyValuePair<string, string>(src.Substring(0, i), src.Substring(i + 1));
+      return new KeyValuePair<string, string>(src, string.Empty);
     }
 
   }

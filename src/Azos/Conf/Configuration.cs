@@ -19,7 +19,7 @@ namespace Azos.Conf
   /// Provides top-level configuration abstraction
   /// </summary>
   [Serializable]
-  public abstract class Configuration : ICloneable
+  public abstract class Configuration : ICloneable, IJsonWritable, IJsonReadable
   {
     #region CONSTS
 
@@ -148,7 +148,7 @@ namespace Azos.Conf
           return XMLConfiguration.CreateFromXML(content);
 
         if (Azos.CodeAnalysis.JSON.JsonLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
-          return JSONConfiguration.CreateFromJSON(content);
+          return JSONConfiguration.CreateFromJson(content);
 
         if (fallbackFormat.IsNotNullOrWhiteSpace())
           return ProviderLoadFromString(content, fallbackFormat);
@@ -192,6 +192,9 @@ namespace Azos.Conf
 
         throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_HANDLE_FILE_ERROR + fileName);
     }
+
+    
+
 
 
     /// <summary>
@@ -655,13 +658,36 @@ namespace Azos.Conf
 
     #region Protected Utils
 
-      /// <summary>
-      /// Override to perform transforms on node names so they become suitable for particular configuration type
-      /// </summary>
-      protected virtual string AdjustNodeName(string name)
+    /// <summary>
+    /// Override to perform transforms on node names so they become suitable for particular configuration type
+    /// </summary>
+    protected virtual string AdjustNodeName(string name)
+    {
+      return name;
+    }
+
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
+    {
+      ((IJsonWritable)m_Root).WriteAsJson(wri, nestingLevel, options);
+    }
+
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    {
+      if (data is JsonDataMap map)
       {
-        return name;
+        try
+        {
+          var cfg = JSONConfiguration.CreateFromJson(map);
+          return (true, cfg);
+        }
+        catch
+        {
+         //swallow so the data goes as unconsumed instead of exception
+        }
       }
+
+      return (false, null);
+    }
 
     #endregion
 

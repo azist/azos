@@ -506,7 +506,7 @@ namespace WinFormsTest
               rnds[i] = Ambient.Random.NextScaledRandomInteger(CNT / 2, CNT-1);
 
             var lst = new Perzon[CNT];
-            var dict = new Dictionary<object, int>(128, Azos.Collections.ReferenceEqualityComparer<object>.Instance);
+            var dict = new Dictionary<object, int>(128, Azos.Collections.ReferenceEqualityComparer<object>.Default);
             for(var i=0; i<lst.Length; i++)
             {
               var person = new Perzon();

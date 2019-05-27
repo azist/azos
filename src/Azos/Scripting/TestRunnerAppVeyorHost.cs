@@ -35,8 +35,8 @@ namespace Azos.Scripting
 
     public int TotalRunnables => m_TotalRunnables;
     public int TotalMethods   => m_TotalMethods;
-    public int TotalOKs        => m_TotalOKs;
-    public int TotalErrors     => m_TotalErrors;
+    public int TotalOKs       => m_TotalOKs;
+    public int TotalErrors    => m_TotalErrors;
 
     public override string ComponentLogTopic => CoreConsts.RUN_TOPIC;
 
@@ -44,10 +44,6 @@ namespace Azos.Scripting
 
     public TextWriter ConsoleOut   => Console.Out;
     public TextWriter ConsoleError => Console.Error;
-
-
-    private ConfigSectionNode m_RunnableNode;
-
 
     private Stopwatch m_RunnableStopwatch;
 
@@ -213,7 +209,7 @@ namespace Azos.Scripting
       var appv = "appveyor.exe";
       var outcome = error == null ? "Passed" : "Failed";
       var args = $"AddTest \"{name}\" -Framework \"Azos\" -FileName \"{file}\" -Outcome \"{outcome}\""+
-                $" -Duration \"{durationMs}\" -ErrorMessage \"{error?.Message}\" -ErrorStackTrace \"{error?.StackTrace}\""+
+                $" -Duration \"{durationMs}\" -ErrorMessage \"{error?.Message.Replace('"', ' ').TrimAll('\n','\r')}\" -ErrorStackTrace \"{error?.StackTrace.Replace('"', ' ').TrimAll('\n', '\r')}\""+
                 $" -StdOut \"{stdOut}\" -StdError \"{stdError}\"";
 
       Console.WriteLine( ProcessRunner.Run(appv, args, out bool timeout) );

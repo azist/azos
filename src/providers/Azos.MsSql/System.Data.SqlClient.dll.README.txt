@@ -1,0 +1,25 @@
+﻿THE PRESENCE OF INLINED DLL is a TEMP WORKAROUND!
+
+MUST READ!!!!!!
+----------------
+
+
+Because of improper MsBuild dep resolution,
+we have to inline sql client in here, otherwise the build out gets wrong version.
+
+If you build .NET-only it puts the correct version in, however because THIS project is .NET Standard
+there is dependency resolution bug in Nuget/MsBuild for consuming framework specific dll.
+Why this happens with SqlClient -noone knows.
+
+
+There is an issue with MsBuild/Nuget + SqlClient package: the build process does not put a proper System.Data.SqlClient.dll in the output of .NET framework target, the proper file is 233 kb, weheras a bad one is 255 kb. Will probably need to copy the DLL by hand
+
+ [System.PlatformNotSupportedException] System.Data.SqlClient is not supported on this platform.
+   at System.Data.SqlClient.SqlConnection..ctor(String connectionString)
+
+    Most likely will : https://stackoverflow.com/a/53952815
+    dotnet/corefx#33620
+    https://stackoverflow.com/questions/53952409/azure-function-system-data-sqlclient-is-not-supported-on-this-platform
+    https://stackoverflow.com/questions/49355530/system-data-sqlclient-is-not-supported-on-this-platform
+
+

@@ -7,6 +7,7 @@
 using System.Threading;
 
 using Azos.Glue.Protocol;
+using Azos.Platform;
 
 namespace Azos.Glue
 {
@@ -15,9 +16,9 @@ namespace Azos.Glue
   /// </summary>
   public static class ServerCall
   {
-    private static AsyncLocal<IGlue> ats_Glue = new AsyncLocal<IGlue>();
-    private static AsyncLocal<RequestMsg> ats_Request = new AsyncLocal<RequestMsg>();
-    private static AsyncLocal<Headers>    ats_ResponseHeaders = new AsyncLocal<Headers>();
+    private static AsyncFlowMutableLocal<IGlue> ats_Glue = new AsyncFlowMutableLocal<IGlue>();
+    private static AsyncFlowMutableLocal<RequestMsg> ats_Request = new AsyncFlowMutableLocal<RequestMsg>();
+    private static AsyncFlowMutableLocal<Headers>    ats_ResponseHeaders = new AsyncFlowMutableLocal<Headers>();
 
 
     /// <summary>

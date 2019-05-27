@@ -197,7 +197,7 @@ namespace Azos
       }
     }
 
-    //cached accessors: materialized dictionary of 3 hard-coded elements for speed
+    //intern pool for speed
     private static object s_Lock = new object();
     private static Dictionary<ulong, string> s_Cache = new Dictionary<ulong, string>();
 

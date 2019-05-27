@@ -193,7 +193,7 @@ CREATE TABLE `tbl_employee` (
       {
         ds.Insert(row1);
 
-        var loadQry = new Query<Doctor>("CRUD.Doctor.List") { new Query.Param("pSSN", "%") };
+        var loadQry = new Query<Doctor>("CRUD.Queries.Doctor.List") { new Query.Param("pSSN", "%") };
         var result = ds.LoadDoc(loadQry);
 
         Aver.AreEqual(row1.Last_Name, result.Last_Name);
@@ -275,14 +275,14 @@ CREATE TABLE `tbl_employee` (
       {
         ds.Insert(doctor);
 
-        var docQry = new Query<Doctor>("CRUD.Doctor.List") { new Query.Param("pSSN", "%") };
+        var docQry = new Query<Doctor>("CRUD.Queries.Doctor.List") { new Query.Param("pSSN", "%") };
         var doc = ds.LoadDoc(docQry);
         patient1.C_DOCTOR = doc.COUNTER;
 
         ds.Insert(patient1);
         ds.Insert(patient2);
 
-        var qry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "%") };
+        var qry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "%") };
         var result = ds.LoadEnumerable(qry).OrderBy(p => p.COUNTER).ToArray();
 
         Aver.AreEqual(2, result.Length);
@@ -313,7 +313,7 @@ CREATE TABLE `tbl_employee` (
         patient.Address1 = "22, Lenin str";
 
         ds.Update(patient, filter: "SSN,Address1".OnlyTheseFields());
-        var qry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "%") };
+        var qry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "%") };
         var result = ds.LoadDoc(qry);
 
         Aver.AreEqual("Stambul", result.City);

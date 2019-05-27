@@ -20,7 +20,7 @@ namespace Azos.Data
     /// DynamicDocs are "shaped" in memory from schema, whereas, TypedDocs define schema.
     /// Schema for TypedDocs is cached in static dictionary for speed
     /// </summary>
-    [Serializable]
+    [Serializable, CustomMetadata(typeof(SchemaCustomMetadataProvider))]
     public sealed class Schema : INamed, IEnumerable<Schema.FieldDef>, IJsonWritable
     {
         public const string EXTRA_SUPPORTS_INSERT_ATTR = "supports-insert";
@@ -102,7 +102,7 @@ namespace Azos.Data
                 }
 
 
-                internal FieldDef(SerializationInfo info, StreamingContext context)
+                private FieldDef(SerializationInfo info, StreamingContext context)
                 {
                     m_Name = info.GetString("nm");
                     m_Order = info.GetInt32("o");
@@ -241,7 +241,7 @@ namespace Azos.Data
                 }
 
 
-                       private volatile Dictionary<string, FieldAttribute> m_TargetAttrsCache = new Dictionary<string, FieldAttribute>(StringComparer.InvariantCultureIgnoreCase);
+                private volatile Dictionary<string, FieldAttribute> m_TargetAttrsCache = new Dictionary<string, FieldAttribute>(StringComparer.InvariantCultureIgnoreCase);
 
                 /// <summary>
                 /// Returns a FieldAttribute that matches the supplied targetName, or if one was not defined then
@@ -323,7 +323,7 @@ namespace Azos.Data
                 /// <summary>
                 /// Writes fielddef as JSON. Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
                 /// </summary>
-                public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+                void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options)
                 {
                     var attr = this[null];
 
@@ -343,6 +343,23 @@ namespace Azos.Data
                       {"Type",  tp},
                       {"Nullable", typeIsNullable}
                     };
+
+                    //20190322 DKh inner schema
+                    if (typeof(Doc).IsAssignableFrom(this.NonNullableType))
+                    {
+                      map["IsDataDoc"] = true;
+                      map["IsAmorphous"] = typeof(IAmorphousData).IsAssignableFrom(this.NonNullableType);
+                      map["IsForm"] = typeof(Form).IsAssignableFrom(this.NonNullableType);
+
+                      if (typeof(TypedDoc).IsAssignableFrom(this.NonNullableType))
+                      {
+                        var innerSchema = Schema.GetForTypedDoc(this.NonNullableType);
+                        if (innerSchema.Any(fd => typeof(TypedDoc).IsAssignableFrom(fd.Type)))
+                          map["DataDocSchema"] = "@complex";
+                        else
+                          map["DataDocSchema"] = innerSchema;
+                      }
+                    }
 
                     if (attr!=null)
                     {

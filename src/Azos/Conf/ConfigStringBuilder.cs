@@ -36,10 +36,10 @@ namespace Azos.Conf
   {
     /// <summary>
     /// Builds the string based on the configured state supplied as a config vector, or
-    /// passes the supplied string through if it is not a loaconic vector with CONFIG_BUILDER_ROOT
+    /// passes the supplied string through if it is not a Laconic vector with CONFIG_BUILDER_ROOT
     /// </summary>
     /// <param name="source">The original source which may be IConfigStringBuilder injector or attribute value</param>
-    /// <returns>The original attribute string value or the string returnd by IConfigStringBuilder.BuildString() method if IConfigStringBuilder was specified</returns>
+    /// <returns>The original attribute string value or the string returned by IConfigStringBuilder.BuildString() method if IConfigStringBuilder was specified</returns>
     public static string Build(IConfigNode source)
     {
       if (source == null || !source.Exists) return string.Empty;

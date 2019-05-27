@@ -293,7 +293,7 @@ namespace Azos.Serialization.JSON
       /// <summary>
       /// Writes NLSMap either as a dict or as a {n:"", d: ""} pair as Options.NLSMapLanguageISO filter dictates
       /// </summary>
-      void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+      void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
       {
         if (m_Data==null)
         {

@@ -107,7 +107,7 @@ namespace Azos.Collections
       return m_Data.GetEnumerator();
     }
 
-    void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+    void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
       JsonWriter.WriteMap(wri, m_Data, nestingLevel, options);
     }

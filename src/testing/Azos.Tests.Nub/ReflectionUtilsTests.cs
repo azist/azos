@@ -73,5 +73,82 @@ namespace Azos.Tests.Nub
       Aver.AreEqual("Azos.Tests.Nub.ReflectionUtilsTests{Method 'method1'}", d);
     }
 
+    public class A   { public override string ToString(){ return "a";} }
+    public class B:A { public override string ToString() { return base.ToString()+"b"; } }
+    public class C:B { }
+    public class D:C { public override string ToString() { return "d"; } }
+    public class E:D { public override string ToString() { return "e"; } }
+
+    public class F : E { public virtual string ToString(bool x) { return x.ToString(); } }
+
+    public class G1 : F { public override string ToString() { return "g1"; } }
+    public class G2 : F { public new virtual string ToString() { return "g2"; } }
+
+    public class H1 : G1 { public override string ToString() { return "h1"; } }
+    public class H2 : G2 { public override string ToString() { return "h2"; } }
+
+    [Run]
+    public void FindImmediateBaseForThisOverride_1()
+    {
+      var mi = typeof(E).GetMethod("ToString");
+      var baze = mi.FindImmediateBaseForThisOverride();
+      var verybase = mi.GetBaseDefinition();
+      Aver.IsTrue( baze == typeof(D).GetMethod("ToString"));
+      Aver.IsTrue(verybase == typeof(object).GetMethod("ToString"));
+    }
+
+    [Run]
+    public void FindImmediateBaseForThisOverride_2()
+    {
+      var mi = typeof(D).GetMethod("ToString");
+      var baze = mi.FindImmediateBaseForThisOverride();
+      Aver.IsTrue(baze == typeof(B).GetMethod("ToString"));
+    }
+
+    [Run]
+    public void FindImmediateBaseForThisOverride_3()
+    {
+      var mi = typeof(F).GetMethod("ToString", new []{typeof(bool)});
+      Aver.IsNotNull(mi);
+      var baze = mi.FindImmediateBaseForThisOverride();
+      Aver.IsNull(baze);
+    }
+
+    [Run]
+    public void FindImmediateBaseForThisOverride_4()
+    {
+      var mi = typeof(G1).GetMethod("ToString", new Type[]{});
+      Aver.IsNotNull(mi);
+      var baze = mi.FindImmediateBaseForThisOverride();
+      Aver.IsTrue(baze == typeof(E).GetMethod("ToString"));
+    }
+
+    [Run]
+    public void FindImmediateBaseForThisOverride_5()
+    {
+      var mi = typeof(G2).GetMethod("ToString", new Type[] { });
+      Aver.IsNotNull(mi);
+      var baze = mi.FindImmediateBaseForThisOverride();
+      Aver.IsNull(baze);
+    }
+
+    [Run]
+    public void FindImmediateBaseForThisOverride_6()
+    {
+      var mi = typeof(H1).GetMethod("ToString", new Type[] { });
+      Aver.IsNotNull(mi);
+      var baze = mi.FindImmediateBaseForThisOverride();
+      Aver.IsTrue(baze == typeof(G1).GetMethod("ToString", new Type[] { }));
+    }
+
+    [Run]
+    public void FindImmediateBaseForThisOverride_7()
+    {
+      var mi = typeof(H2).GetMethod("ToString", new Type[] { });
+      Aver.IsNotNull(mi);
+      var baze = mi.FindImmediateBaseForThisOverride();
+      Aver.IsTrue(baze == typeof(G2).GetMethod("ToString", new Type[] { }));
+    }
+
   }
 }

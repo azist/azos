@@ -5,6 +5,11 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections;
+using System.IO;
+
+using Azos.Data;
+using Azos.Serialization.JSON;
 
 namespace Azos.Pile
 {
@@ -17,7 +22,8 @@ namespace Azos.Pile
   ///  it is highly unlikely that there are going to be more than one instance of a pile in a process, however
   ///  should more than 1 pile be allocated than this pointer would need to be wrapped in some other structure along with source IPile reference
   /// </summary>
-  public struct PilePointer : IEquatable<PilePointer>
+  [Serializable]
+  public struct PilePointer : IEquatable<PilePointer>, IJsonWritable, IJsonReadable
   {
     /// <summary>
     /// Returns a -1:-1 non-valid pointer (either local or distributed)
@@ -96,6 +102,27 @@ namespace Azos.Pile
        return "L:"+Segment.ToString("X4")+":"+Address.ToString("X8");
       else
        return NodeID.ToString("X4")+":"+Segment.ToString("X4")+":"+Address.ToString("X8");
+    }
+
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
+    {
+      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("n", NodeID),
+                                                      new DictionaryEntry("s", Segment),
+                                                      new DictionaryEntry("a", Address));
+    }
+
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    {
+      if (data is JsonDataMap map)
+      {
+        var node = map["n"].AsInt(-1);
+        var seg  = map["s"].AsInt(-1);
+        var addr = map["a"].AsInt(-1);
+
+        return (true, new PilePointer(node, seg, addr));
+      }
+
+      return (false, null);
     }
 
     public static bool operator ==(PilePointer l, PilePointer r)

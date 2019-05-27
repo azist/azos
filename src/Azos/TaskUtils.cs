@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -417,6 +418,18 @@ namespace Azos
       return (ok: true, result);
     }
 
+
+    /// <summary>
+    /// Loads all CPU cores on this machine with CPU work for the specified number of milliseconds.
+    /// This method is typically used to create a fake load which upsets the current thread pool by
+    /// taxing all available thread via TPL. This is used to ensure the "different scheduler state" upon completion.
+    /// </summary>
+    public static void LoadAllCoresFor(int msSpan)
+    {
+      var sw = Stopwatch.StartNew();
+      while (sw.ElapsedMilliseconds < msSpan)
+        Parallel.For(1, 1000, i => Text.NaturalTextGenerator.GenerateFullName());
+    }
 
   }
 }

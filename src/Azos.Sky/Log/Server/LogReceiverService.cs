@@ -20,8 +20,9 @@ namespace Azos.Sky.Log.Server
   /// </summary>
   public sealed class LogReceiverServer : Contracts.ILogReceiver
   {
-
+#pragma warning disable 649
     [Inject] IApplication m_App;
+#pragma warning restore 649
 
     public LogReceiverService Service => m_App.NonNull(nameof(m_App))
                                               .Singletons

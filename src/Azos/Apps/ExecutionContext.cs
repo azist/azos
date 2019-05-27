@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
+using Azos.Platform;
+
 namespace Azos.Apps
 {
   /// <summary>
@@ -14,14 +16,13 @@ namespace Azos.Apps
   /// Provides access to execution context - that groups Application and Session objects.
   /// All objects may be either application-global or (logical)thread-level.
   /// Effectively ExecutionContext.Application is the central chassis per process.
-  /// The async code flows Session context automatically via Thread.Principal, however custom contexts should flow via passing it to functors.
+  /// The async code flows Session context automatically via AsyncFlowMutableLocal, however custom contexts should flow via passing it to functors.
   /// </summary>
   public static class ExecutionContext
   {
     private static volatile IApplication s_Application;
     private static Stack<IApplication> s_AppStack = new Stack<IApplication>();
-
-
+    private static AsyncFlowMutableLocal<ISession> ats_Session = new AsyncFlowMutableLocal<ISession>();
 
 
     /// <summary>
@@ -34,28 +35,26 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Returns Session object for current thread or async flow context, or if it is null NOPSession object is returned.
-    /// Note: Thread.CurrentPrincipal auto-flows by async/await and other TAP
+    /// Returns Session object for current call thread or async flow context, or if it is null NOPSession object is returned
     /// </summary>
     public static ISession Session
     {
       get
       {
-        var threadSession = Thread.CurrentPrincipal as ISession;
-        return threadSession ?? NOPSession.Instance;
+        var callFlowSession = ats_Session.Value;
+        return callFlowSession ?? NOPSession.Instance;
       }
     }
 
     /// <summary>
     /// Returns true when thread-level or async call context session object is available and not a NOPSession instance
-    /// Note: Thread.CurrentPrincipal auto-flows by async/await and other TAP
     /// </summary>
     public static bool HasThreadContextSession
     {
       get
       {
-        var threadSession = Thread.CurrentPrincipal as ISession;
-        return threadSession != null  &&  threadSession.GetType() != typeof(NOPSession);
+        var callFlowSession = ats_Session.Value;
+        return callFlowSession != null  && callFlowSession.GetType() != typeof(NOPSession);
       }
     }
 
@@ -101,10 +100,8 @@ namespace Azos.Apps
     /// </summary>
     public static void __SetThreadLevelSessionContext(ISession session)
     {
-      Thread.CurrentPrincipal = session;
+      ats_Session.Value = session;
     }
-
-
 
     /// <summary>
     /// System debug aid for advanced use - helps to identify classes

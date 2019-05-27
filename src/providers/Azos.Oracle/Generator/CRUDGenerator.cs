@@ -6,21 +6,23 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
+using Azos.Serialization.JSON;
 using Oracle.ManagedDataAccess.Client;
 
 namespace Azos.Data.Access.Oracle
 {
-
   internal static class CRUDGenerator
   {
 
-      public static int CRUDInsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
+      public static async Task<int> CRUDInsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
       {
         try
         {
-            return crudInsert(store, cnn, trans, doc, filter);
+            return await crudInsert(store, cnn, trans, doc, filter);
         }
         catch(Exception error)
         {
@@ -32,11 +34,11 @@ namespace Azos.Data.Access.Oracle
         }
       }
 
-      public static int CRUDUpdate(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
+      public static async Task<int> CRUDUpdate(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
       {
         try
         {
-            return crudUpdate(store, cnn, trans, doc, key, filter);
+            return await crudUpdate(store, cnn, trans, doc, key, filter);
         }
         catch(Exception error)
         {
@@ -50,11 +52,11 @@ namespace Azos.Data.Access.Oracle
         }
       }
 
-      public static int CRUDUpsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
+      public static async Task<int> CRUDUpsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
       {
         try
         {
-            return crudUpsert(store, cnn, trans, doc, filter);
+            return await crudUpsert(store, cnn, trans, doc, filter);
         }
         catch(Exception error)
         {
@@ -66,11 +68,11 @@ namespace Azos.Data.Access.Oracle
         }
       }
 
-      public static int CRUDDelete(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key)
+      public static async Task<int> CRUDDelete(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key)
       {
         try
         {
-            return crudDelete(store, cnn, trans, doc, key);
+            return await crudDelete(store, cnn, trans, doc, key);
         }
         catch(Exception error)
         {
@@ -100,15 +102,16 @@ namespace Azos.Data.Access.Oracle
       string tableName = schema.Name;
 
       if (schema.TypedDocType!=null)
-        tableName = "tbl_" + schema.TypedDocType.Name;//without namespace
+        tableName = "TBL_" + schema.TypedDocType.Name;//without namespace
 
       var tableAttr = schema.GetTableAttrForTarget(target);
       if (tableAttr!=null && tableAttr.Name.IsNotNullOrWhiteSpace()) tableName = tableAttr.Name;
+
       return tableName;
     }
 
 
-    private static int crudInsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
+    private static async Task<int> crudInsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var cnames = new StringBuilder();
@@ -127,29 +130,32 @@ namespace Azos.Data.Access.Oracle
           if (!filter(doc, null, fld)) continue;
         }
 
-        var fname = fld.GetBackendNameForTarget(target);
+        var fname = store.AdjustObjectNameCasing( fld.GetBackendNameForTarget(target) );
 
-        var fvalue = getFieldValue(doc, fld.Order, store);
+        var converted = getDbFieldValue(doc, fld, fattr, store);
 
 
-        cnames.AppendFormat(" `{0}`,", fname);
+        cnames.AppendFormat(" \"{0}\",", fname);
 
-        if ( fvalue != null)
+        if ( converted.value != null)
         {
-                var pname = string.Format("?VAL{0}", vpidx);
+          var pname = string.Format(":VAL{0}", vpidx);
 
-                values.AppendFormat(" {0},", pname);
+          values.AppendFormat(" {0},", pname);
 
-                var par = new OracleParameter();
-                par.ParameterName = pname;
-                par.Value = fvalue;
-                vparams.Add(par);
+          var par = new OracleParameter();
+//Console.WriteLine(doc.Schema.ToJson());
+//Console.WriteLine("{0}|{1}: OrclDbTyp.{2} = ({3}){4}".Args(fld.NonNullableType.FullName, pname, converted.dbType, converted.value.GetType().FullName, converted.value));
+          par.ParameterName = pname;
+          par.Value = converted.value;
+          if (converted.dbType.HasValue) par.OracleDbType = converted.dbType.Value;
+          vparams.Add(par);
 
-                vpidx++;
+          vpidx++;
         }
         else
         {
-                values.Append(" NULL,");
+          values.Append(" NULL,");
         }
       }//foreach
 
@@ -162,19 +168,19 @@ namespace Azos.Data.Access.Oracle
         return 0;//nothing to do
 
 
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );
 
       using(var cmd = cnn.CreateCommand())
       {
-        var sql = "INSERT INTO `{0}` ({1}) VALUES ({2})".Args( tableName, cnames, values);
+        var sql = "INSERT INTO \"{0}\" ({1}) VALUES ({2})".Args( tableName, cnames, values);
 
         cmd.Transaction = trans;
         cmd.CommandText = sql;
         cmd.Parameters.AddRange(vparams.ToArray());
-        ConvertParameters(store, cmd.Parameters);
+      //  ConvertParameters(store, cmd.Parameters);
         try
         {
-            var affected = cmd.ExecuteNonQuery();
+            var affected = await cmd.ExecuteNonQueryAsync();
             GeneratorUtils.LogCommand(store, "insert-ok", cmd, null);
             return affected;
         }
@@ -189,7 +195,7 @@ namespace Azos.Data.Access.Oracle
 
 
 
-    private static int crudUpdate(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
+    private static async Task<int> crudUpdate(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var values = new StringBuilder();
@@ -200,11 +206,13 @@ namespace Azos.Data.Access.Oracle
         var fattr = fld[target];
         if (fattr==null) continue;
 
-        var fname = fld.GetBackendNameForTarget(target);
+        var fname =  fld.GetBackendNameForTarget(target);
 
         //20141008 DKh Skip update of key fields
         //20160124 DKh add update of keys if IDataStoreKey is present
         if (fattr.Key && !GeneratorUtils.HasFieldInNamedKey(fname, key)) continue;
+
+        fname = store.AdjustObjectNameCasing(fname);
 
         if (fattr.StoreFlag != StoreFlag.LoadAndStore && fattr.StoreFlag != StoreFlag.OnlyStore) continue;
 
@@ -214,25 +222,26 @@ namespace Azos.Data.Access.Oracle
         }
 
 
-        var fvalue = getFieldValue(doc, fld.Order, store);
+        var converted = getDbFieldValue(doc, fld, fattr, store);
 
 
-        if ( fvalue != null)
+        if ( converted.value != null)
         {
-                var pname = string.Format("?VAL{0}", vpidx);
+          var pname = string.Format(":VAL{0}", vpidx);
 
-                values.AppendFormat(" `{0}` = {1},", fname, pname);
+          values.AppendFormat(" \"{0}\" = {1},", fname, pname);
 
-                var par = new OracleParameter();
-                par.ParameterName = pname;
-                par.Value = fvalue;
-                vparams.Add(par);
+          var par = new OracleParameter();
+          par.ParameterName = pname;
+          par.Value = converted.value;
+          if (converted.dbType.HasValue) par.OracleDbType = converted.dbType.Value;
+          vparams.Add(par);
 
-                vpidx++;
+          vpidx++;
         }
         else
         {
-                values.AppendFormat(" `{0}` = NULL,", fname);
+         values.AppendFormat(" \"{0}\" = NULL,", fname);
         }
       }//foreach
 
@@ -244,7 +253,7 @@ namespace Azos.Data.Access.Oracle
         return 0;//nothing to do
 
 
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );
 
       using(var cmd = cnn.CreateCommand())
       {
@@ -258,18 +267,21 @@ namespace Azos.Data.Access.Oracle
         var where = GeneratorUtils.KeyToWhere(pk, cmd.Parameters);
 
         if (!string.IsNullOrEmpty(where))
-            sql = "UPDATE `{0}` T1  SET {1} WHERE {2}".Args( tableName, values, where);
+            sql = "UPDATE \"{0}\" T1  SET {1} WHERE {2}".Args( tableName, values, where);
         else
             throw new OracleDataAccessException(StringConsts.BROAD_UPDATE_ERROR);//20141008 DKh BROAD update
 
         cmd.Transaction = trans;
         cmd.CommandText = sql;
         cmd.Parameters.AddRange(vparams.ToArray());
-        ConvertParameters(store, cmd.Parameters);
+        //  ConvertParameters(store, cmd.Parameters);
+        //https://asktom.oracle.com/pls/asktom/f?p=100:11:0::::P11_QUESTION_ID:9539482000346124162
+
+//dbg(cmd);
 
         try
         {
-            var affected = cmd.ExecuteNonQuery();
+            var affected = await cmd.ExecuteNonQueryAsync();
             GeneratorUtils.LogCommand(store, "update-ok", cmd, null);
             return affected;
         }
@@ -282,7 +294,7 @@ namespace Azos.Data.Access.Oracle
     }
 
 
-    private static int crudUpsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
+    private static async Task<int> crudUpsert(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var cnames = new StringBuilder();
@@ -305,23 +317,26 @@ namespace Azos.Data.Access.Oracle
 
         var fname = fld.GetBackendNameForTarget(target);
 
-        var fvalue = getFieldValue(doc, fld.Order, store);
+        fname = store.AdjustObjectNameCasing( fname );
+
+        var converted = getDbFieldValue(doc, fld, fattr, store);
 
 
-        cnames.AppendFormat(" `{0}`,", fname);
+        cnames.AppendFormat(" \"{0}\",", fname);
 
-        if ( fvalue != null)
+        if ( converted.value != null)
         {
-                var pname = string.Format("?VAL{0}", vpidx);
+                var pname = string.Format(":VAL{0}", vpidx);
 
                 values.AppendFormat(" {0},", pname);
 
                 if (!fattr.Key)
-                    upserts.AppendFormat(" `{0}` = {1},", fname, pname);
+                    upserts.AppendFormat(" \"{0}\" = {1},", fname, pname);
 
                 var par = new OracleParameter();
                 par.ParameterName = pname;
-                par.Value = fvalue;
+                par.Value = converted;
+                if (converted.dbType.HasValue) par.OracleDbType = converted.dbType.Value;
                 vparams.Add(par);
 
                 vpidx++;
@@ -329,7 +344,7 @@ namespace Azos.Data.Access.Oracle
         else
         {
                 values.Append(" NULL,");
-                upserts.AppendFormat(" `{0}` = NULL,", fname);
+                upserts.AppendFormat(" \"{0}\" = NULL,", fname);
         }
       }//foreach
 
@@ -343,21 +358,21 @@ namespace Azos.Data.Access.Oracle
         return 0;//nothing to do
 
 
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );
 
       using(var cmd = cnn.CreateCommand())
       {
         var sql =
-        @"INSERT INTO `{0}` ({1}) VALUES ({2}) ON DUPLICATE KEY UPDATE {3}".Args( tableName, cnames, values, upserts);
+        @"INSERT INTO ""{0}"" ({1}) VALUES ({2}) ON DUPLICATE KEY UPDATE {3}".Args( tableName, cnames, values, upserts);
 
         cmd.Transaction = trans;
         cmd.CommandText = sql;
         cmd.Parameters.AddRange(vparams.ToArray());
-        ConvertParameters(store, cmd.Parameters);
+     //   ConvertParameters(store, cmd.Parameters);
 
         try
         {
-            var affected = cmd.ExecuteNonQuery();
+            var affected = await cmd.ExecuteNonQueryAsync();
             GeneratorUtils.LogCommand(store, "upsert-ok", cmd, null);
             return affected;
         }
@@ -373,10 +388,10 @@ namespace Azos.Data.Access.Oracle
 
 
 
-    private static int crudDelete(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key)
+    private static async Task<int> crudDelete(OracleDataStoreBase store, OracleConnection cnn, OracleTransaction trans, Doc doc, IDataStoreKey key)
     {
       var target = store.TargetName;
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing( getTableName(doc.Schema, target) );
 
       using (var cmd = cnn.CreateCommand())
       {
@@ -389,15 +404,17 @@ namespace Azos.Data.Access.Oracle
 
         cmd.Transaction = trans;
         if (!string.IsNullOrEmpty(where))
-            cmd.CommandText = string.Format("DELETE T1 FROM `{0}` T1 WHERE {1}",tableName, where);
+            cmd.CommandText = string.Format("DELETE FROM \"{0}\" T1 WHERE {1}",tableName, where);
         else
-            cmd.CommandText = string.Format("DELETE T1 FROM `{0}` T1", tableName);
+            cmd.CommandText = string.Format("DELETE FROM \"{0}\" T1", tableName);
 
         ConvertParameters(store, cmd.Parameters);
 
+//dbg(cmd);
+
         try
         {
-            var affected = cmd.ExecuteNonQuery();
+            var affected = await cmd.ExecuteNonQueryAsync();
             GeneratorUtils.LogCommand(store, "delete-ok", cmd, null);
             return affected;
         }
@@ -411,50 +428,67 @@ namespace Azos.Data.Access.Oracle
       }//using command
     }
 
-    private static object getFieldValue(Doc doc, int order, OracleDataStoreBase store)
+    private static (object value, OracleDbType? dbType) getDbFieldValue(Doc doc, Schema.FieldDef fld, FieldAttribute fattr, OracleDataStoreBase store)
     {
-      var result = doc[order];
-
-      OracleDbType? convertedDbType;
-      return CLRValueToDB(store, result, out convertedDbType);
+      var result = doc.GetFieldValue(fld);
+      return CLRValueToDB(store, result, fattr.BackendType);
     }
 
-    internal static object CLRValueToDB(OracleDataStoreBase store, object value, out OracleDbType? convertedDbType)
+    internal static (object value, OracleDbType? dbType) CLRValueToDB(OracleDataStoreBase store, object value, string explicitDbType)
     {
-      convertedDbType = null;
+      OracleDbType? convertedDbType = null;
 
-      if (value==null) return null;
+      if (explicitDbType.IsNotNullOrWhiteSpace())
+        convertedDbType = explicitDbType.AsNullableEnum<OracleDbType>();
 
-      if (value is GDID)
+      if (value==null) return (null, convertedDbType);
+
+      if (value is ulong ulng)
       {
-        if (((GDID)value).IsZero)
+        value = (decimal)ulng;
+        convertedDbType = OracleDbType.Decimal;
+
+      }else if (value is DateTime clrDt && convertedDbType==OracleDbType.Date)
+      {
+        // Expected DATE got NUmber
+        // convertedDbType = OracleDbType.Int64;
+        // value = clrDt.Ticks;// new global::Oracle.ManagedDataAccess.Types.OracleDate(clrDt);
+
+        //Expected NUMBER got DATE
+       // value = new global::Oracle.ManagedDataAccess.Types.OracleTimeStamp(clrDt);
+        value = new global::Oracle.ManagedDataAccess.Types.OracleDate(clrDt);
+       // convertedDbType = OracleDbType.NVarchar2;
+       // value = clrDt.ToString("yyyyMMddHHmmss");
+      }
+      else if (value is GDID gdid)
+      {
+        if (gdid.IsZero)
         {
-          return null;
+          return (null, convertedDbType);
         }
 
         if(store.FullGDIDS)
         {
-          value = (object)((GDID)value).Bytes;//be very careful with byte ordering of GDID for index optimization
+          value = gdid.Bytes;//be very careful with byte ordering of GDID for index optimization
           convertedDbType = OracleDbType.Raw;
-          #warning 20190106 DKh: This needs to be tested for performance
+          //todo 20190106 DKh: This needs to be tested for performance
         }
         else
         {
-          value = (object)((GDID)value).ID;
-          convertedDbType = OracleDbType.Int64;
+          value = (decimal)gdid.ID;
+          convertedDbType = OracleDbType.Decimal;
         }
       }
-      else
-      if (value is bool)
+      else if (value is bool)
       {
         if (store.StringBool)
         {
           value = (bool)value ? store.StringForTrue : store.StringForFalse;
-          convertedDbType = OracleDbType.Varchar2;
+          convertedDbType = OracleDbType.Char;
         }
       }
 
-      return value;
+      return (value, convertedDbType);
     }
 
     internal static void ConvertParameters(OracleDataStoreBase store, OracleParameterCollection pars)
@@ -463,13 +497,19 @@ namespace Azos.Data.Access.Oracle
       for(var i=0; i<pars.Count; i++)
       {
         var par = pars[i];
-        OracleDbType? convertedDbType;
-        par.Value = CLRValueToDB(store, par.Value, out convertedDbType);
-        if (convertedDbType.HasValue)
-         par.OracleDbType = convertedDbType.Value;
+        var converted = CLRValueToDB(store, par.Value, null);
+        par.Value = converted.value;
+        if (converted.dbType.HasValue)
+         par.OracleDbType = converted.dbType.Value;
       }
     }
 
+    internal static void dbg(OracleCommand cmd)
+    {
+      Console.WriteLine(cmd.CommandText);
+      foreach (var p in cmd.Parameters.Cast<OracleParameter>())
+        Console.WriteLine("{0}: OrclDbTyp.{1} = ({2}){3}".Args(p.ParameterName, p.OracleDbType, p.Value.GetType().FullName, p.Value));
+    }
 
     #endregion
 

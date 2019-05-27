@@ -18,7 +18,10 @@ namespace Azos.Sky.Instrumentation.Server
   /// </summary>
   public sealed class TelemetryReceiverServer : Contracts.ITelemetryReceiver
   {
+#pragma warning disable 649
     [Inject] IApplication m_App;
+#pragma warning restore 649
+
     public void SendDatums(params Datum[] data) => m_App.NonNull(nameof(m_App))
                                                         .Singletons
                                                         .Get<TelemetryReceiverService>().NonNull(nameof(TelemetryReceiverService))

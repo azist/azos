@@ -18,6 +18,21 @@ namespace Azos.Tests.Integration.CRUD
 {
     internal static class TestLogic
     {
+        public static void ExecuteCustomCommandHandler(ICRUDDataStore store)
+        {
+          var query = new Query("CustomTestCommandHandler") { new Query.Param("Msg", "we are on the moon!") };
+          var result = store.Load(query);
+
+          Aver.AreEqual(1, result.Count);
+          var rowset = result[0];
+          Aver.AreEqual(2, rowset.Count);
+
+          Aver.AreEqual("Jack", rowset[0]["First_Name"].AsString());
+          Aver.AreEqual("Mary", rowset[1]["First_Name"].AsString());
+          Aver.AreEqual("we are on the moon!", rowset[1]["Address1"].AsString());
+        }
+
+
         public static void QueryInsertQuery(ICRUDDataStore store)
         {
             var query = new Query("CRUD.Queries.Patient.List") { new Query.Param("LN", "%loff") };
@@ -82,7 +97,7 @@ namespace Azos.Tests.Integration.CRUD
 
         public static void QueryInsertQuery_TypedRow(ICRUDDataStore store)
         {
-            var query = new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff") };
+            var query = new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff") };
             var result = store.Load( query );
 
             Aver.AreEqual(1, result.Count);
@@ -114,7 +129,7 @@ namespace Azos.Tests.Integration.CRUD
 
         public static void QueryInsertQuery_TypedRowDerived(ICRUDDataStore store)
         {
-            var query = new Query("CRUD.Patient.List", typeof(SuperPatient) ) { new Query.Param("LN", "%loff") };
+            var query = new Query("CRUD.Queries.Patient.List", typeof(SuperPatient) ) { new Query.Param("LN", "%loff") };
             var result = store.Load( query );
 
             Aver.AreEqual(1, result.Count);
@@ -148,7 +163,7 @@ namespace Azos.Tests.Integration.CRUD
 
         public static void QueryInsertQuery_DynamicRow(ICRUDDataStore store)
         {
-            var query = new Query<DynamicDoc>("CRUD.Patient.List") { new Query.Param("LN", "%ruman") };
+            var query = new Query<DynamicDoc>("CRUD.Queries.Patient.List") { new Query.Param("LN", "%ruman") };
             var result = store.Load( query );
 
             Aver.AreEqual(1, result.Count);
@@ -205,11 +220,11 @@ namespace Azos.Tests.Integration.CRUD
 
             store.Save( rowset );
 
-            var result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } )[0];
+            var result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } )[0];
 
             Aver.AreEqual(1000, result.Count);
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%ovich%") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%ovich%") } )[0];
 
             Aver.AreEqual(327, result.Count);
         }
@@ -243,11 +258,11 @@ namespace Azos.Tests.Integration.CRUD
 
             store.SaveAsync( rowset ).Wait();
 
-            var task = store.LoadAsync( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } );
+            var task = store.LoadAsync( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } );
 
             Aver.AreEqual(1000, task.Result[0].Count);
 
-            task = store.LoadAsync( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%ovich%") } );
+            task = store.LoadAsync( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%ovich%") } );
 
             Aver.AreEqual(327, task.Result[0].Count);
         }
@@ -271,13 +286,13 @@ namespace Azos.Tests.Integration.CRUD
             }
 
 
-            var result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } )[0];
+            var result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } )[0];
 
             Aver.AreEqual(0, result.Count);
 
             transaction.Commit();
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } )[0];
 
             Aver.AreEqual(25, result.Count);
         }
@@ -303,13 +318,13 @@ namespace Azos.Tests.Integration.CRUD
             Task.WaitAll(tasks.ToArray());
 
 
-            var task = store.LoadAsync( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } );
+            var task = store.LoadAsync( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } );
 
             Aver.AreEqual(0, task.Result[0].Count);
 
             transaction.Commit();
 
-            task = store.LoadAsync( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } );
+            task = store.LoadAsync( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } );
 
             Aver.AreEqual(25, task.Result[0].Count);
         }
@@ -332,13 +347,13 @@ namespace Azos.Tests.Integration.CRUD
             }
 
 
-            var result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } )[0];
+            var result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } )[0];
 
             Aver.AreEqual(0, result.Count);
 
             transaction.Rollback();
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } )[0];
 
             Aver.AreEqual(0, result.Count);
         }
@@ -358,21 +373,21 @@ namespace Azos.Tests.Integration.CRUD
             }
 
 
-            var result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
+            var result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
 
             Aver.AreEqual(1, result.Count);
             var row = result[0] as Patient;
-            Aver.AreEqual("5", row.SSN);
+            Aver.AreEqual("5", row.SSN.Trim());
 
             row.Last_Name = "Gagarin";
             store.Update( row );
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
             Aver.AreEqual(0, result.Count);
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%garin") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%garin") } )[0];
             Aver.AreEqual(1, result.Count);
-            Aver.AreObjectsEqual("5", result[0]["SSN"]);
+            Aver.AreObjectsEqual("5", result[0]["SSN"].AsString().Trim());
             Aver.AreObjectsEqual("Gagarin", result[0]["Last_Name"]);
         }
 
@@ -390,21 +405,21 @@ namespace Azos.Tests.Integration.CRUD
             }
 
 
-            var result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
+            var result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
 
             Aver.AreEqual(1, result.Count);
             var row = result[0] as Patient;
-            Aver.AreEqual("5", row.SSN);
+            Aver.AreEqual("5", row.SSN.Trim());
 
             row.Last_Name = "Gagarin";
             store.UpdateAsync( row ).Wait();
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
             Aver.AreEqual(0, result.Count);
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%garin") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%garin") } )[0];
             Aver.AreEqual(1, result.Count);
-            Aver.AreObjectsEqual("5", result[0]["SSN"]);
+            Aver.AreObjectsEqual("5", result[0]["SSN"].AsString().Trim());
             Aver.AreObjectsEqual("Gagarin", result[0]["Last_Name"]);
         }
 
@@ -423,19 +438,18 @@ namespace Azos.Tests.Integration.CRUD
                                });
             }
 
-
-            var result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
+            var result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
 
             Aver.AreEqual(1, result.Count);
             var row = result[0] as Patient;
-            Aver.AreEqual("5", row.SSN);
+            Aver.AreEqual("5", row.SSN.Trim());
 
             store.Delete( row );
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
             Aver.AreEqual(0, result.Count);
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_%") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_%") } )[0];
             Aver.AreEqual(9, result.Count);
 
         }
@@ -454,18 +468,18 @@ namespace Azos.Tests.Integration.CRUD
             }
 
 
-            var result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
+            var result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
 
             Aver.AreEqual(1, result.Count);
             var row = result[0] as Patient;
-            Aver.AreEqual("5", row.SSN);
+            Aver.AreEqual("5", row.SSN.Trim());
 
             store.DeleteAsync( row ).Wait();
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
             Aver.AreEqual(0, result.Count);
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_%") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_%") } )[0];
             Aver.AreEqual(9, result.Count);
 
         }
@@ -485,21 +499,21 @@ namespace Azos.Tests.Integration.CRUD
             }
 
 
-            var result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
+            var result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
 
             Aver.AreEqual(1, result.Count);
             var row = result[0] as Patient;
-            Aver.AreEqual("5", row.SSN);
+            Aver.AreEqual("5", row.SSN.Trim());
             Aver.AreEqual(null, row.Phone);
 
             row.Phone = "22-94-92";
             store.Upsert( row );
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
             Aver.AreEqual(1, result.Count);
             Aver.AreObjectsEqual("22-94-92", result[0]["Phone"]);
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_%") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_%") } )[0];
             Aver.AreEqual(10, result.Count);
 
             row = new Patient
@@ -512,10 +526,10 @@ namespace Azos.Tests.Integration.CRUD
 
             store.Upsert(row);
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%") } )[0];
             Aver.AreEqual(11, result.Count);
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "Lenin") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "Lenin") } )[0];
             Aver.AreEqual(1, result.Count);
             Aver.AreObjectsEqual("Vlad", result[0]["First_Name"]);
 
@@ -536,21 +550,21 @@ namespace Azos.Tests.Integration.CRUD
             }
 
 
-            var result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
+            var result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
 
             Aver.AreEqual(1, result.Count);
             var row = result[0] as Patient;
-            Aver.AreEqual("5", row.SSN);
+            Aver.AreEqual("5", row.SSN.Trim());
             Aver.AreEqual(null, row.Phone);
 
             row.Phone = "22-94-92";
             store.UpsertAsync( row ).Wait();
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
             Aver.AreEqual(1, result.Count);
             Aver.AreObjectsEqual("22-94-92", result[0]["Phone"]);
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_%") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_%") } )[0];
             Aver.AreEqual(10, result.Count);
 
             row = new Patient
@@ -563,10 +577,10 @@ namespace Azos.Tests.Integration.CRUD
 
             store.UpsertAsync(row).Wait();
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%") } )[0];
             Aver.AreEqual(11, result.Count);
 
-            result = store.Load( new Query("CRUD.Patient.List", typeof(Patient) ) { new Query.Param("LN", "Lenin") } )[0];
+            result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "Lenin") } )[0];
             Aver.AreEqual(1, result.Count);
             Aver.AreObjectsEqual("Vlad", result[0]["First_Name"]);
 
@@ -578,7 +592,7 @@ namespace Azos.Tests.Integration.CRUD
 
         public static void GetSchemaAndTestVariousTypes(ICRUDDataStore store)
         {
-            var schema = store.GetSchema(new Query("CRUD.Types.Load"));
+            var schema = store.GetSchema(new Query("CRUD.Queries.Types.Load"));
 
             var row = new DynamicDoc(schema);
             row["GDID"] = new GDID(0, 145);
@@ -586,7 +600,7 @@ namespace Azos.Tests.Integration.CRUD
             row["STRING_NAME"] = "Some user 1";
             row["CHAR_NAME"] = "Some user 2";
             row["BOOL_CHAR"] = 'T';
-            row["BOOL_BOOL"] = true;
+            row["BOOL_BOOL"] = 'T';
 
             row["AMOUNT"] = 145670.23m;
 
@@ -594,18 +608,18 @@ namespace Azos.Tests.Integration.CRUD
 
             store.Insert( row );
 
-            var row2 = store.LoadOneDoc(new Query("CRUD.Types.Load", new GDID(0, 145)));
+            var row2 = store.LoadOneDoc(new Query("CRUD.Queries.Types.Load", new GDID(0, 145)));
 
             Aver.IsNotNull(row2);
             Aver.AreObjectsEqual(145, row2["GDID"].AsInt());
-            Aver.AreObjectsEqual("User1", row2["Screen_Name"]);
-            Aver.AreObjectsEqual("Some user 1", row2["String_Name"]);
-            Aver.AreObjectsEqual("Some user 2", row2["Char_Name"]);
+            Aver.AreObjectsEqual("User1", row2["Screen_Name"].AsString().Trim());
+            Aver.AreObjectsEqual("Some user 1", row2["String_Name"].AsString().Trim());
+            Aver.AreObjectsEqual("Some user 2", row2["Char_Name"].AsString().Trim());
 
             Aver.AreEqual(true, row2["BOOL_Char"].AsBool());
             Aver.AreEqual(true, row2["BOOL_BOOL"].AsBool());
 
-            Aver.AreObjectsEqual(145670.23m, row2["Amount"]);
+            Aver.AreObjectsEqual(145670.23m, row2["Amount"].AsDecimal());
 
             Aver.AreEqual(1980, row2["DOB"].AsDateTime().Year);
 
@@ -615,7 +629,7 @@ namespace Azos.Tests.Integration.CRUD
 
         public static void ASYNC_GetSchemaAndTestVariousTypes(ICRUDDataStore store)
         {
-            var schema = store.GetSchemaAsync(new Query("CRUD.Types.Load")).Result;
+            var schema = store.GetSchemaAsync(new Query("CRUD.Queries.Types.Load")).Result;
 
             var row = new DynamicDoc(schema);
             row["GDID"] = new GDID(0, 145);
@@ -623,7 +637,7 @@ namespace Azos.Tests.Integration.CRUD
             row["STRING_NAME"] = "Some user 1";
             row["CHAR_NAME"] = "Some user 2";
             row["BOOL_CHAR"] = 'T';
-            row["BOOL_BOOL"] = true;
+            row["BOOL_BOOL"] = 'T';
 
             row["AMOUNT"] = 145670.23m;
 
@@ -631,18 +645,18 @@ namespace Azos.Tests.Integration.CRUD
 
             store.Insert( row );
 
-            var row2 = store.LoadOneDoc(new Query("CRUD.Types.Load", new GDID(0, 145)));
+            var row2 = store.LoadOneDoc(new Query("CRUD.Queries.Types.Load", new GDID(0, 145)));
 
             Aver.IsNotNull(row2);
             Aver.AreObjectsEqual(145, row2["GDID"].AsInt());
-            Aver.AreObjectsEqual("User1", row2["Screen_Name"]);
-            Aver.AreObjectsEqual("Some user 1", row2["String_Name"]);
-            Aver.AreObjectsEqual("Some user 2", row2["Char_Name"]);
+            Aver.AreObjectsEqual("User1", row2["Screen_Name"].AsString().Trim());
+            Aver.AreObjectsEqual("Some user 1", row2["String_Name"].AsString().Trim());
+            Aver.AreObjectsEqual("Some user 2", row2["Char_Name"].AsString().Trim());
 
             Aver.AreEqual(true, row2["BOOL_Char"].AsBool());
             Aver.AreEqual(true, row2["BOOL_BOOL"].AsBool());
 
-            Aver.AreObjectsEqual(145670.23m, row2["Amount"]);
+            Aver.AreObjectsEqual(145670.23m, row2["Amount"].AsDecimal());
 
             Aver.AreEqual(1980, row2["DOB"].AsDateTime().Year);
 
@@ -668,7 +682,7 @@ namespace Azos.Tests.Integration.CRUD
 
             store.Insert( row );
 
-            var row2 = store.LoadDoc(new Query<Types>("CRUD.Types.Load", new GDID(0, 234)));
+            var row2 = store.LoadDoc(new Query<Types>("CRUD.Queries.Types.Load", new GDID(0, 234)));
 
             Aver.IsNotNull(row2);
             Aver.AreEqual(new GDID(0,0,234), row2.GDID);
@@ -690,7 +704,7 @@ namespace Azos.Tests.Integration.CRUD
             row.DOB = null;
             store.Update(row);
 
-            var row3 = store.LoadDoc(new Query<Types>("CRUD.Types.Load", new GDID(0, 234)));
+            var row3 = store.LoadDoc(new Query<Types>("CRUD.Queries.Types.Load", new GDID(0, 234)));
             Aver.IsFalse(row3.Age.HasValue);
             Aver.IsFalse(row3.Bool_Bool.HasValue);
             Aver.IsFalse(row3.DOB.HasValue);
@@ -711,7 +725,7 @@ namespace Azos.Tests.Integration.CRUD
 
             store.Insert( row );
 
-            var row2 = store.LoadOneDoc(new Query("CRUD.FullGDID.Load", new GDID(123, 2, 8907893234), typeof(FullGDID))) as FullGDID;
+            var row2 = store.LoadOneDoc(new Query("CRUD.Queries.FullGDID.Load", new GDID(123, 2, 8907893234), typeof(FullGDID))) as FullGDID;
 
             Aver.IsNotNull(row2);
             Aver.AreEqual(new GDID(123, 2, 8907893234), row2.GDID);
@@ -722,7 +736,7 @@ namespace Azos.Tests.Integration.CRUD
 
         public static void GetSchemaAndTestFullGDID(ICRUDDataStore store)
         {
-            var schema = store.GetSchema(new Query("CRUD.FullGDID.Load"));
+            var schema = store.GetSchema(new Query("CRUD.Queries.FullGDID.Load"));
 
             var row = new DynamicDoc(schema);
 
@@ -737,7 +751,7 @@ namespace Azos.Tests.Integration.CRUD
 
             store.Insert( row );
 
-            var row2 = store.LoadOneDoc(new Query("CRUD.FullGDID.Load", key, typeof(FullGDID))) as FullGDID;
+            var row2 = store.LoadOneDoc(new Query("CRUD.Queries.FullGDID.Load", key, typeof(FullGDID))) as FullGDID;
 
             Aver.IsNotNull(row2);
             Aver.AreEqual(key, row2.GDID);
@@ -751,18 +765,18 @@ namespace Azos.Tests.Integration.CRUD
             var affected = store.Insert(patient, (r, k, f) => f.Name != "State" && f.Name != "Zip");
             Aver.AreEqual(1, affected);
 
-            var query = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "%%") };
+            var query = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "%%") };
             var persisted = store.LoadDoc(query);
             Aver.IsNotNull(persisted);
             Aver.AreEqual(patient.First_Name, persisted.First_Name);
             Aver.AreEqual(patient.Last_Name, persisted.Last_Name);
-            Aver.AreEqual(patient.SSN, persisted.SSN);
+            Aver.AreEqual(patient.SSN, persisted.SSN.Trim());
             Aver.AreEqual(patient.City, persisted.City);
             Aver.AreEqual(patient.Address1, persisted.Address1);
             Aver.AreEqual(patient.Address2, persisted.Address2);
             Aver.AreEqual(patient.Amount, persisted.Amount);
-            Aver.AreEqual(patient.Doctor_Phone, persisted.Doctor_Phone);
-            Aver.AreEqual(patient.Phone, persisted.Phone);
+            Aver.AreEqual(patient.Doctor_Phone, persisted.Doctor_Phone.Trim());
+            Aver.AreEqual(patient.Phone, persisted.Phone.Trim());
             Aver.AreEqual(patient.DOB, persisted.DOB);
             Aver.AreEqual(patient.Note, persisted.Note);
 
@@ -775,7 +789,7 @@ namespace Azos.Tests.Integration.CRUD
             var patient = TestLogic.GetDefaultPatient();
             var affected = store.Insert(patient);
             Aver.AreEqual(1, affected);
-            var query = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "%%") };
+            var query = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "%%") };
             var persisted = store.LoadDoc(query);
 
             persisted.Zip = "010203";
@@ -786,13 +800,13 @@ namespace Azos.Tests.Integration.CRUD
 
             var updated = store.LoadDoc(query);
             Aver.IsNotNull(updated);
-            Aver.AreEqual(persisted.SSN, updated.SSN);
+            Aver.AreEqual(persisted.SSN, updated.SSN.Trim());
             Aver.AreEqual(persisted.City, updated.City);
             Aver.AreEqual(persisted.Address1, updated.Address1);
             Aver.AreEqual(persisted.Address2, updated.Address2);
             Aver.AreEqual(persisted.Amount, updated.Amount);
-            Aver.AreEqual(persisted.Doctor_Phone, updated.Doctor_Phone);
-            Aver.AreEqual(persisted.Phone, updated.Phone);
+            Aver.AreEqual(persisted.Doctor_Phone, updated.Doctor_Phone.Trim());
+            Aver.AreEqual(persisted.Phone, updated.Phone.Trim());
             Aver.AreEqual(persisted.DOB, updated.DOB);
             Aver.AreEqual(persisted.Note, updated.Note);
 
@@ -806,7 +820,7 @@ namespace Azos.Tests.Integration.CRUD
             var patient = TestLogic.GetDefaultPatient();
             var affected = store.Insert(patient);
             Aver.AreEqual(1, affected);
-            var query = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "%%") };
+            var query = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "%%") };
             var persisted = store.LoadDoc(query);
 
             persisted.Zip = "010203";
@@ -817,13 +831,13 @@ namespace Azos.Tests.Integration.CRUD
 
             var updated = store.LoadDoc(query);
             Aver.IsNotNull(updated);
-            Aver.AreEqual(persisted.SSN, updated.SSN);
+            Aver.AreEqual(persisted.SSN, updated.SSN.Trim());
             Aver.AreEqual(persisted.City, updated.City);
             Aver.AreEqual(persisted.Address1, updated.Address1);
             Aver.AreEqual(persisted.Address2, updated.Address2);
             Aver.AreEqual(persisted.Amount, updated.Amount);
-            Aver.AreEqual(persisted.Doctor_Phone, updated.Doctor_Phone);
-            Aver.AreEqual(persisted.Phone, updated.Phone);
+            Aver.AreEqual(persisted.Doctor_Phone, updated.Doctor_Phone.Trim());
+            Aver.AreEqual(persisted.Phone, updated.Phone.Trim());
             Aver.AreEqual(persisted.DOB, updated.DOB);
             Aver.AreEqual(persisted.Note, updated.Note);
 
@@ -849,7 +863,7 @@ namespace Azos.Tests.Integration.CRUD
 
 
 
-            var query = new Query<TupleData>("CRUD.Tuple.LoadAll");
+            var query = new Query<TupleData>("CRUD.Queries.Tuple.LoadAll");
             var result = store.LoadOneRowset( query );
 
             Aver.AreEqual(CNT, result.Count);
@@ -966,7 +980,7 @@ namespace Azos.Tests.Integration.CRUD
 
 
 
-            var query = new Query<TupleData>("CRUD.Tuple.LoadAll");
+            var query = new Query<TupleData>("CRUD.Queries.Tuple.LoadAll");
             var result = store.LoadOneRowset( query );
 
             Aver.AreEqual(CNT, result.Count);

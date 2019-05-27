@@ -6,6 +6,7 @@
 
 using System;
 using System.Reflection;
+using Azos.Conf;
 
 namespace Azos.Wave.Mvc
 {
@@ -13,9 +14,8 @@ namespace Azos.Wave.Mvc
   /// General ancestor for MVC Action Filters - get invoked before and after actions
   /// </summary>
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-  public abstract class ActionFilterAttribute : Attribute
+  public abstract class ActionFilterAttribute : Attribute, IInstanceCustomMetadataProvider
   {
-
     /// <summary>
     /// Dictates the call order
     /// </summary>
@@ -37,6 +37,12 @@ namespace Azos.Wave.Mvc
     /// Override to add logic/filtering finally after the invocation of action method. Must return TRUE to stop processing chain
     /// </summary>
     protected internal abstract void ActionInvocationFinally(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result);
+
+    public virtual bool ShouldProvideInstanceMetadata(IMetadataGenerator context, ConfigSectionNode dataRoot)
+      => false;
+
+    public virtual ConfigSectionNode ProvideInstanceMetadata(IMetadataGenerator context, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules = null)
+      => dataRoot;
   }
 
 }

@@ -1,6 +1,6 @@
 ﻿<push><b color=black><f color=white>
 Glue Client Compiler<f color=gray>
 Copyright (c) 2019  Azist Group
-Version 3.0 / Azos as of Oct 2018
+Version 3.0 / Azos as of Nov 2018
 
 <pop>

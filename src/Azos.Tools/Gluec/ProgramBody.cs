@@ -16,6 +16,9 @@ using Azos.Glue.Tools;
 
 namespace Azos.Tools.Gluec
 {
+    /// <summary>
+    /// Glue compiler tool entry point
+    /// </summary>
     public static class ProgramBody
     {
         public static void Main(string[] args)

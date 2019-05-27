@@ -120,7 +120,7 @@ namespace Azos.Security
 
       /// <summary>
       /// Captures timestamp when this user was set to current status (created/set rights)
-      /// Security managers may elect to refetch user rights after some period
+      /// Security managers may elect to re-fetch user rights after some period
       /// </summary>
       public DateTime StatusTimeStampUTC => m_StatusTimeStampUTC;
 
@@ -140,7 +140,7 @@ namespace Azos.Security
       ///   by ISecurityManager implementation. Use User[permission] indexer or Application.SecurityManager.Authorize()
       ///    to obtain AccessLevel
       /// </summary>
-      public Rights Rights => m_Rights ?? Rights.None;
+      public Rights Rights => m_Rights;
 
     #endregion
 

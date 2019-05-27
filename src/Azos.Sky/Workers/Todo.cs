@@ -99,8 +99,9 @@ namespace Azos.Sky.Workers
 
     protected Todo() { }
 
-
+#pragma warning disable 649
     [Inject] ISkyApplication  m_App;
+#pragma warning restore 649
 
     public ISkyApplication App => m_App.NonNull(nameof(m_App));
 
