@@ -74,13 +74,13 @@ namespace Azos.Data.Access
     public abstract Task<Cursor> OpenCursorAsync(ICRUDQueryExecutionContext context, Query query);
 
     /// <summary>
-    /// Executes query that dows not return results. The implementation may be called by multiple threads and must be safe.
+    /// Executes query that does not return results. The implementation may be called by multiple threads and must be safe.
     /// Returns rows affected
     /// </summary>
     public abstract int ExecuteWithoutFetch(ICRUDQueryExecutionContext context, Query query);
 
     /// <summary>
-    /// Executes query that dows not return results. The implementation may be called by multiple threads and must be safe.
+    /// Executes query that does not return results. The implementation may be called by multiple threads and must be safe.
     /// Returns rows affected
     /// </summary>
     public abstract Task<int> ExecuteWithoutFetchAsync(ICRUDQueryExecutionContext context, Query query);

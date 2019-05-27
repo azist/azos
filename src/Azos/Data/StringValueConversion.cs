@@ -397,6 +397,7 @@ namespace Azos.Data
               {
                    {typeof(object)   , (val, strict) => val },
                    {typeof(string)   , (val, strict) => val },
+                   {typeof(char)     , (val, strict) => val.IsNullOrEmpty() ? (char)0 : val.Length==1 ? val[0] : throw new AzosException("(char)`{0}`".Args(val)) },
                    {typeof(int)      , (val, strict) => strict ? int.Parse(val)   : AsInt(val)  },
                    {typeof(uint)     , (val, strict) => strict ? uint.Parse(val)  : AsUInt(val)  },
                    {typeof(long)     , (val, strict) => strict ? long.Parse(val)  : AsLong(val) },
@@ -427,11 +428,13 @@ namespace Azos.Data
 
                    {typeof(byte[])    , (val, strict)  => AsByteArray(val)},
                    {typeof(int[])     , (val, strict)  => AsIntArray(val)},
+                   {typeof(char[])    , (val, strict)  => val==null ? null : val.ToCharArray()},
                    {typeof(long[])    , (val, strict)  => AsLongArray(val)},
                    {typeof(float[])   , (val, strict)  => AsFloatArray(val)},
                    {typeof(double[])  , (val, strict)  => AsDoubleArray(val)},
                    {typeof(decimal[]) , (val, strict)  => AsDecimalArray(val)},
 
+                   {typeof(char?)     ,(val, strict) => val.IsNullOrEmpty() ? (char?)0 : val.Length==1 ? val[0] : throw new AzosException("(char?)`{0}`".Args(val)) },
                    {typeof(int?),      (val, strict) => string.IsNullOrWhiteSpace(val) ? (int?)null      : (strict ? int.Parse(val)   : AsInt(val)) },
                    {typeof(uint?),     (val, strict) => string.IsNullOrWhiteSpace(val) ? (uint?)null     : (strict ? uint.Parse(val)  : AsUInt(val)) },
                    {typeof(long?),     (val, strict) => string.IsNullOrWhiteSpace(val) ? (long?)null     : (strict ? long.Parse(val)  : AsLong(val)) },

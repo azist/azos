@@ -31,7 +31,7 @@ namespace Azos.Tests.Unit.Wave
     {
       var response = await Client.GetAsync("echoparams?a=hello&b=2&c=true");
       Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
-      var got = (await response.Content.ReadAsStringAsync()).JSONToDataObject() as JSONDataMap;
+      var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject() as JsonDataMap;
       Aver.IsNotNull(got);
       Aver.AreEqual("hello", got["a"].AsString());
       Aver.AreEqual(2, got["b"].AsInt());
@@ -49,7 +49,7 @@ namespace Azos.Tests.Unit.Wave
 
       var response = await Client.PostAsync("echoparams", content);
       Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
-      var got = (await response.Content.ReadAsStringAsync()).JSONToDataObject() as JSONDataMap;
+      var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject() as JsonDataMap;
       Aver.IsNotNull(got);
       Aver.AreEqual("hello", got["a"].AsString());
       Aver.AreEqual(2, got["b"].AsInt());
@@ -62,7 +62,7 @@ namespace Azos.Tests.Unit.Wave
     {
       var response = await Client.GetAsync("echoparamswithdefaults?a=hello");
       Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
-      var got = (await response.Content.ReadAsStringAsync()).JSONToDataObject() as JSONDataMap;
+      var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject() as JsonDataMap;
       Aver.IsNotNull(got);
       Aver.AreEqual("hello", got["a"].AsString());
       Aver.AreEqual(127, got["b"].AsInt());
@@ -78,7 +78,7 @@ namespace Azos.Tests.Unit.Wave
 
       var response = await Client.PostAsync("echoparamswithdefaults", content);
       Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
-      var got = (await response.Content.ReadAsStringAsync()).JSONToDataObject() as JSONDataMap;
+      var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject() as JsonDataMap;
       Aver.IsNotNull(got);
       Aver.AreEqual("hello", got["a"].AsString());
       Aver.AreEqual(127, got["b"].AsInt());
@@ -91,16 +91,16 @@ namespace Azos.Tests.Unit.Wave
     {
       var response = await Client.GetAsync("echomixmap?a=hello&b=789&c=true&d=ok&e=false");
       Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
-      var got = (await response.Content.ReadAsStringAsync()).JSONToDataObject() as JSONDataMap;
+      var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject() as JsonDataMap;
       Aver.IsNotNull(got);
       Aver.AreEqual(4, got.Count);
       Aver.AreEqual("hello", got["a"].AsString());
       Aver.AreEqual(789, got["b"].AsInt());
       Aver.AreEqual(true, got["c"].AsBool());
 
-      var got2 = got["got"] as JSONDataMap;
+      var got2 = got["got"] as JsonDataMap;
       Aver.IsNotNull(got2);
-      Console.WriteLine(got2.ToJSON());
+      Console.WriteLine(got2.ToJson());
 
       Aver.IsTrue( got2.Count >= 5);
       Aver.AreEqual("hello", got2["a"].AsString());
@@ -116,10 +116,10 @@ namespace Azos.Tests.Unit.Wave
     {
       var response = await Client.GetAsync("echomodela?id=xz1234&name=Alexz%20Tester&dob=August%2015%201980");
       Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
-      var got = (await response.Content.ReadAsStringAsync()).JSONToDataObject() as JSONDataMap;
+      var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject() as JsonDataMap;
       Aver.IsNotNull(got);
 
-      var data = JSONReader.ToDoc<Controllers.ModelA>(got);
+      var data = JsonReader.ToDoc<Controllers.ModelA>(got);
 
       Aver.IsNotNull(data);
       Aver.AreEqual("xz1234", data.ID);
@@ -138,7 +138,7 @@ namespace Azos.Tests.Unit.Wave
         ID = "xz1234",
         Name = "Alexz Tester",
         DOB = new DateTime(1980, 8, 15)
-      }.ToJSON(JSONWritingOptions.CompactRowsAsMap);
+      }.ToJson(JsonWritingOptions.CompactRowsAsMap);
 
       var content = new StringContent(
          jsonToSend,
@@ -150,10 +150,10 @@ namespace Azos.Tests.Unit.Wave
 
       Aver.AreEqual(ContentType.JSON, response.Content.Headers.ContentType.MediaType);
 
-      var got = (await response.Content.ReadAsStringAsync()).JSONToDataObject() as JSONDataMap;
+      var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject() as JsonDataMap;
       Aver.IsNotNull(got);
 
-      var data = JSONReader.ToDoc<Controllers.ModelA>(got);
+      var data = JsonReader.ToDoc<Controllers.ModelA>(got);
 
       Aver.IsNotNull(data);
       Aver.AreEqual("xz1234", data.ID);

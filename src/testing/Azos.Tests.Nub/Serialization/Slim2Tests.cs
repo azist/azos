@@ -437,8 +437,8 @@ namespace Azos.Tests.Nub.Serialization
 
         var s2 = (Azos.Pile.PilePointer)s.Deserialize(ms);
 
-        Console.WriteLine( Azos.Serialization.JSON.JSONWriter.Write(s1));
-        Console.WriteLine( Azos.Serialization.JSON.JSONWriter.Write(s2));
+        Console.WriteLine( Azos.Serialization.JSON.JsonWriter.Write(s1));
+        Console.WriteLine( Azos.Serialization.JSON.JsonWriter.Write(s2));
 
         Aver.IsTrue( s1 == s2);
       }
@@ -510,8 +510,8 @@ namespace Azos.Tests.Nub.Serialization
 
         var s2 = (MyStructWithReadonlyField)s.Deserialize(ms);
 
-        Console.WriteLine( Azos.Serialization.JSON.JSONWriter.Write(s1));
-        Console.WriteLine( Azos.Serialization.JSON.JSONWriter.Write(s2));
+        Console.WriteLine( Azos.Serialization.JSON.JsonWriter.Write(s1));
+        Console.WriteLine( Azos.Serialization.JSON.JsonWriter.Write(s2));
 
         Aver.AreEqual(s1.X, s2.X);
         Aver.AreEqual(s1.Y, s2.Y);
@@ -535,8 +535,8 @@ namespace Azos.Tests.Nub.Serialization
 
         var s2 = (sw)s.Deserialize(ms);
 
-        Console.WriteLine( Azos.Serialization.JSON.JSONWriter.Write(s1.s));
-        Console.WriteLine( Azos.Serialization.JSON.JSONWriter.Write(s2.s));
+        Console.WriteLine( Azos.Serialization.JSON.JsonWriter.Write(s1.s));
+        Console.WriteLine( Azos.Serialization.JSON.JsonWriter.Write(s2.s));
 
         Aver.AreEqual(s1.s.X, s2.s.X);
         Aver.AreEqual(s1.s.Y, s2.s.Y);

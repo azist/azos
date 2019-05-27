@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Collections;
+
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Time
@@ -8,7 +10,7 @@ namespace Azos.Time
   /// <summary>
   /// Represents a range of dates denoted by start/end date/times
   /// </summary>
-  public struct DateRange : IEquatable<DateRange>, IJSONWritable, IFormattable
+  public struct DateRange : IEquatable<DateRange>, IJsonWritable, IJsonReadable, IFormattable
   {
     /// <summary>
     /// Create a range, at least one component is required. If both are specified both need to be in the same timezone and
@@ -128,9 +130,19 @@ namespace Azos.Time
                                 End.HasValue ? End.Value.ToString(format, formatProvider) : " ");
     }
 
-    void IJSONWritable.WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options)
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
-      JSONWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("start", Start), new DictionaryEntry("end", End));
+      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("start", Start), new DictionaryEntry("end", End));
+    }
+
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    {
+      if( data is JsonDataMap map)
+      {
+        return (true, new DateRange(map["start"].AsNullableDateTime(), map["end"].AsNullableDateTime() ));
+      }
+
+      return (false, null);
     }
   }
 

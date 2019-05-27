@@ -31,7 +31,7 @@ namespace Azos.Apps
   }
 
   /// <summary>
-  /// Provides information about the decorated type: assignes a globally-unique immutable type id
+  /// Provides information about the decorated type: assigns a globally-unique immutable type id
   /// </summary>
   public abstract class GuidTypeAttribute : Attribute
   {

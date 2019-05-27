@@ -144,7 +144,7 @@ namespace Azos.Tests.Unit.Security
       check = Manager.Verify(buf, hash, out rehash);
       Aver.IsTrue(check);
 
-      check = Manager.Verify(buf, HashedPassword.FromString(hash.ToJSON()), out rehash);
+      check = Manager.Verify(buf, HashedPassword.FromString(hash.ToJson()), out rehash);
       Aver.IsTrue(check);
     }
 

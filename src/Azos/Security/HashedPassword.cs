@@ -17,7 +17,7 @@ namespace Azos.Security
   /// Represents abstraction of a hashed password, the concrete password algorithm provide implementation (i.e. bytebuffer, dictionary, string)
   /// </summary>
   [Azos.Serialization.Slim.SlimSerializationProhibited]
-  public sealed class HashedPassword : IJSONWritable, IEnumerable<KeyValuePair<string, object>>
+  public sealed class HashedPassword : IJsonWritable, IEnumerable<KeyValuePair<string, object>>
   {
     #region CONSTS
       public const string KEY_ALGO = "algo";
@@ -30,7 +30,7 @@ namespace Azos.Security
         if (str.IsNullOrWhiteSpace())
           throw new SecurityException(StringConsts.ARGUMENT_ERROR + "HashedPassword.FromString(str==null|empty)");
         var password = new HashedPassword();
-        var json = str.JSONToDataObject() as JSONDataMap;
+        var json = str.JsonToDataObject() as JsonDataMap;
         if (json == null || json[KEY_ALGO].AsString().IsNullOrWhiteSpace())
           throw new SecurityException(StringConsts.ARGUMENT_ERROR + "HashedPassword.FromString(!map|!algo)");
         password.m_Content = json;
@@ -44,7 +44,7 @@ namespace Azos.Security
 
       public HashedPassword(string algoName, PasswordFamily family)
       {
-        m_Content = new JSONDataMap(false);
+        m_Content = new JsonDataMap(false);
         m_Content[KEY_ALGO] = algoName;
         m_Content[KEY_FAM] = family;
       }
@@ -52,7 +52,7 @@ namespace Azos.Security
     #endregion
 
     #region Field
-      private JSONDataMap m_Content;
+      private JsonDataMap m_Content;
     #endregion
 
     #region Properties
@@ -77,11 +77,11 @@ namespace Azos.Security
     #region Public
       public void Add(string key, object value) { m_Content.Add(key, value); }
 
-      public override string ToString() { return m_Content.ToJSON(); }
+      public override string ToString() { return m_Content.ToJson(); }
 
-      public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+      public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
       {
-        JSONWriter.WriteMap(wri, m_Content, nestingLevel, options);
+        JsonWriter.WriteMap(wri, m_Content, nestingLevel, options);
       }
 
       public IEnumerator<KeyValuePair<string, object>> GetEnumerator() { return m_Content.GetEnumerator(); }

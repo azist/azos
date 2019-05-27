@@ -76,7 +76,7 @@ namespace WinFormsTest
         public override string ToString()
         {
           if (BinData==null || BinData.Length<50)
-           return JSONWriter.Write(this, JSONWritingOptions.PrettyPrintRowsAsMap);
+           return JsonWriter.Write(this, JsonWritingOptions.PrettyPrintRowsAsMap);
 
           return "ID = {0} FirstName={1} LastName={2} BinData[{3}]....".Args(ID, FirstName, LastName, BinData.Length);
         }

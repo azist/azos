@@ -9,6 +9,7 @@ using System.Collections;
 using System.Globalization;
 using System.IO;
 
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Standards
@@ -19,11 +20,12 @@ namespace Azos.Standards
   /// Represents weight with unit type.
   /// All operations are done with precision of 1 milligram
   /// </summary>
-  public struct Weight : IEquatable<Weight>, IComparable<Weight>, IJSONWritable
+  public struct Weight : IEquatable<Weight>, IComparable<Weight>, IJsonWritable, IJsonReadable
   {
     public enum UnitType
     {
-      G = 0,
+      Unspecified = 0,
+      G,
       Oz,
       Lb,
       Kg
@@ -147,10 +149,29 @@ namespace Azos.Standards
       return ValueInGrams.CompareTo(other.ValueInGrams);
     }
 
-    public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
-      JSONWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("unit", UnitName), new  DictionaryEntry("value", Value));
+      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("unit", UnitName), new  DictionaryEntry("value", Value));
     }
+
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    {
+      if (data is JsonDataMap map)
+      {
+        try
+        {
+          return (true, new Weight(map["value"].AsDecimal(handling: ConvertErrorHandling.Throw),
+                                   map["unit"].AsEnum(UnitType.Unspecified, handling: ConvertErrorHandling.Throw)));
+        }
+        catch
+        {
+          //passthrough false
+        }
+      }
+
+      return (false, null);
+    }
+
 
     public static Weight operator +(Weight obj1, Weight obj2)
     {

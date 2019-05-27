@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.303
-set HEADLINE=Added Async IGdidAuthorityAccessor and async client for gdid auth
+set VER=1.0.507.1
+set HEADLINE=ApiDoc WIP
 
 call vs2017-build-release %VER%
 

@@ -28,7 +28,7 @@ namespace Azos.Tests.Nub.DataAccess
       public void Schema_FromJSON(bool readOnly)
       {
         var src = new TeztRow().Schema;
-        var json = src.ToJSON();
+        var json = src.ToJson();
 
         var trg = Schema.FromJSON(json, readOnly);
 
@@ -40,7 +40,7 @@ namespace Azos.Tests.Nub.DataAccess
       public void Rowset_FromJSON_ShemaOnly()
       {
         var src = new Rowset(new TeztRow().Schema);
-        var options = new Azos.Serialization.JSON.JSONWritingOptions
+        var options = new Azos.Serialization.JSON.JsonWritingOptions
                                   {
                                     RowsetMetadata = true,
                                     SpaceSymbols = true,
@@ -48,7 +48,7 @@ namespace Azos.Tests.Nub.DataAccess
                                     MemberLineBreak = true,
                                     ObjectLineBreak = true
                                   };
-        var json = src.ToJSON(options);
+        var json = src.ToJson(options);
 
         var trg = RowsetBase.FromJSON(json, true);
 
@@ -60,7 +60,7 @@ namespace Azos.Tests.Nub.DataAccess
       public void Table_FromJSON_ShemaOnly()
       {
         var src = new Table(new TeztRow().Schema);
-        var options = new Azos.Serialization.JSON.JSONWritingOptions
+        var options = new Azos.Serialization.JSON.JsonWritingOptions
                                   {
                                     RowsetMetadata = true,
                                     SpaceSymbols = true,
@@ -68,7 +68,7 @@ namespace Azos.Tests.Nub.DataAccess
                                     MemberLineBreak = true,
                                     ObjectLineBreak = true
                                   };
-        var json = src.ToJSON(options);
+        var json = src.ToJson(options);
 
         var trg = RowsetBase.FromJSON(json, true);
 
@@ -148,7 +148,7 @@ namespace Azos.Tests.Nub.DataAccess
 
         src.Add(row);
 
-        var options = new Azos.Serialization.JSON.JSONWritingOptions
+        var options = new Azos.Serialization.JSON.JsonWritingOptions
                           {
                             RowsetMetadata = true,
                             SpaceSymbols = true,
@@ -157,7 +157,7 @@ namespace Azos.Tests.Nub.DataAccess
                             ObjectLineBreak = true,
                             RowsAsMap = rowsAsMap
                           };
-        var json = src.ToJSON(options);
+        var json = src.ToJson(options);
 
         var trg = RowsetBase.FromJSON(json);
 
@@ -237,7 +237,7 @@ namespace Azos.Tests.Nub.DataAccess
 
         src.Add(row);
 
-        var options = new Azos.Serialization.JSON.JSONWritingOptions
+        var options = new Azos.Serialization.JSON.JsonWritingOptions
                                   {
                                     RowsetMetadata = true,
                                     SpaceSymbols = true,
@@ -246,7 +246,7 @@ namespace Azos.Tests.Nub.DataAccess
                                     ObjectLineBreak = true,
                                     RowsAsMap = rowsAsMap
                                   };
-        var json = src.ToJSON(options);
+        var json = src.ToJson(options);
 
         var trg = RowsetBase.FromJSON(json);
 
@@ -261,13 +261,13 @@ namespace Azos.Tests.Nub.DataAccess
         var row = new Person { Name = "Henry", Age = 43 };
         var rowSet = new Rowset(row.Schema);
         rowSet.Add(row);
-        var options = new Azos.Serialization.JSON.JSONWritingOptions
+        var options = new Azos.Serialization.JSON.JsonWritingOptions
                           {
                             RowsetMetadata = true,
                             RowsAsMap = rowsAsMap
                           };
-        var json = rowSet.ToJSON(options);
-        var map = JSONReader.DeserializeDataObject( json ) as JSONDataMap;
+        var json = rowSet.ToJson(options);
+        var map = JsonReader.DeserializeDataObject( json ) as JsonDataMap;
         var rows = (map["Rows"] as IList<object>);
         if (rowsAsMap)
         {
@@ -297,13 +297,13 @@ namespace Azos.Tests.Nub.DataAccess
         var row = new Person { Name = "Henry", Age = 43 };
         var rowSet = new Rowset(row.Schema);
         rowSet.Add(row);
-        var options = new Azos.Serialization.JSON.JSONWritingOptions
+        var options = new Azos.Serialization.JSON.JsonWritingOptions
                           {
                             RowsetMetadata = true,
                             RowsAsMap = rowsAsMap
                           };
-        var json = rowSet.ToJSON(options);
-        var map = JSONReader.DeserializeDataObject( json ) as JSONDataMap;
+        var json = rowSet.ToJson(options);
+        var map = JsonReader.DeserializeDataObject( json ) as JsonDataMap;
         var schema = (map["Schema"] as IDictionary<string, object>);
         var defs = schema["FieldDefs"] as IList<object>;
         defs.RemoveAt(1);

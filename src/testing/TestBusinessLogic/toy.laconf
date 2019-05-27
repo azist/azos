@@ -1,5 +1,12 @@
 ﻿app
 {
+  id="toy"
+  name="name"
+  process-includes="_include"
+
+  _include { file="./toy-mixin.xml" }
+
+
   log
   {
     reliable=true

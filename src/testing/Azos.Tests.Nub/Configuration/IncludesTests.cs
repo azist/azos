@@ -131,30 +131,25 @@ static string xml2 = @"
           Aver.AreEqual("a", lst[5].Name);
           Aver.AreEqual("b", lst[6].Name);
           Aver.AreEqual("c", lst[7].Name);
-
-
         }
 
-                   public class TeztConfigNodeProvider : IConfigNodeProvider
-                   {
-
-                     public ConfigSectionNode ProvideConfigNode(object context = null)
-                     {
-                       return @"zhaba{ _override='all' age=129 people{  a=Alex{}  b=Boris{} }  }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
-                     }
-
-                     public void Configure(IConfigSectionNode node)
-                     {
-                       Console.WriteLine("Configuring");
-                     }
-                   }
 
 
-
-        [Run]
-        public void Include_Provider()
+        public class TeztConfigNodeProvider : IConfigNodeProvider
         {
-          var conf =@"
+
+          public ConfigSectionNode ProvideConfigNode(object context = null)
+          {
+            return @"zhaba{ _override='all' age=129 people{  a=Alex{}  b=Boris{} }  }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+          }
+
+          public void Configure(IConfigSectionNode node)
+          {
+            Console.WriteLine("Configuring");
+          }
+        }
+
+    private string INCLUDE_CONF = @"
 myapp
 {
   _include
@@ -170,27 +165,40 @@ myapp
     //without name
     provider{ type='Azos.Tests.Nub.Configuration.IncludesTests+TeztConfigNodeProvider, Azos.Tests.Nub'}
   }
-}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+}";
 
+    [Run]
+    public void Include_Provider_ProcessIncludePragmas()
+    {
+      var conf =INCLUDE_CONF.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+      conf.ProcessIncludePragmas(true);
+      checkIncludeInvariants(conf);
+    }
 
-          conf.ProcessIncludePragmas(true);
+    [Run]
+    public void Include_Provider_ProcessAllExistingIncludes()
+    {
+      var conf = INCLUDE_CONF.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+      conf.ProcessAllExistingIncludes();
+      checkIncludeInvariants(conf);
+    }
 
-          Console.WriteLine( conf.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint) );
+    private void checkIncludeInvariants(ConfigSectionNode conf)
+    {
+      Console.WriteLine(conf.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
 
-          Aver.AreEqual(3, conf.ChildCount);
+      Aver.AreEqual(3, conf.ChildCount);
 
-          Aver.AreEqual(129, conf.AttrByName("age").ValueAsInt());
-          Aver.AreEqual("all", conf.AttrByName("_override").Value);
+      Aver.AreEqual(129, conf.AttrByName("age").ValueAsInt());
+      Aver.AreEqual("all", conf.AttrByName("_override").Value);
 
-          Aver.AreEqual("Alex", conf.Navigate("/WithNewName/people/a").Value);
-          Aver.AreEqual("Boris", conf.Navigate("/WithNewName/people/b").Value);
+      Aver.AreEqual("Alex", conf.Navigate("/WithNewName/people/a").Value);
+      Aver.AreEqual("Boris", conf.Navigate("/WithNewName/people/b").Value);
 
-          Aver.AreEqual("Cleveland", conf.Navigate("/city/$name").Value);
+      Aver.AreEqual("Cleveland", conf.Navigate("/city/$name").Value);
 
-          Aver.AreEqual("Alex", conf.Navigate("/people/a").Value);
-          Aver.AreEqual("Boris", conf.Navigate("/people/b").Value);
-
-
-        }
+      Aver.AreEqual("Alex", conf.Navigate("/people/a").Value);
+      Aver.AreEqual("Boris", conf.Navigate("/people/b").Value);
+    }
   }
 }

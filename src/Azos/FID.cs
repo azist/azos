@@ -4,7 +4,11 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
+using System.IO;
 using System.Threading;
+
+using Azos.Data;
+using Azos.Serialization.JSON;
 
 namespace Azos
 {
@@ -57,7 +61,7 @@ namespace Azos
   /// In a parallel test on 6 Core i7 3.2 GHz this class generates 405 million IDs/sec, which is 57 times faster than Guid that only generates 7 million IDs/sec
   /// </summary>
   [Serializable]
-  public struct FID : IEquatable<FID>, Data.Access.IDistributedStableHashProvider
+  public struct FID : IEquatable<FID>, Data.Access.IDistributedStableHashProvider, IJsonWritable, IJsonReadable
   {
     private const int MASK_16_BIT = 0x0000ffff;
     private const int MASK_24_BIT = 0x00ffffff;
@@ -141,5 +145,23 @@ namespace Azos
       b.WriteBEUInt64(4, ID);
       return new Guid( b );
     }
+
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
+     => wri.Write(this.ID);
+
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    {
+      try
+      {
+        return (true, new FID(data.AsULong(handling: ConvertErrorHandling.Throw)));
+      }
+      catch
+      {
+        return (false, null);
+      }
+    }
+
+    public static bool operator ==(FID lhs, FID rhs) => lhs.Equals(rhs);
+    public static bool operator !=(FID lhs, FID rhs) => !lhs.Equals(rhs);
   }
 }

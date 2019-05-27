@@ -5,7 +5,9 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections;
 
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Financial
@@ -14,7 +16,7 @@ namespace Azos.Financial
   /// Represents monetary amount with currency
   /// </summary>
   [Serializable]
-  public struct Amount : IEquatable<Amount>, IComparable<Amount>, IJSONWritable
+  public struct Amount : IEquatable<Amount>, IComparable<Amount>, IJsonWritable, IJsonReadable
   {
     internal static Amount Deserialize(string currencyISO, decimal value)
     {
@@ -43,7 +45,7 @@ namespace Azos.Financial
     public bool IsEmpty { get { return m_CurrencyISO.IsNullOrWhiteSpace() && m_Value == 0m; } }
 
     /// <summary>
-    /// Perfoms case-insensitive currency equality comparison
+    /// Performs case-insensitive currency equality comparison
     /// </summary>
     public bool IsSameCurrencyAs(Amount other)
     {
@@ -130,13 +132,19 @@ namespace Azos.Financial
           return this.Equals(other) ? 0 : this < other ? -1 : +1;
         }
 
-        public void WriteAsJSON(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+        void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options)
         {
-          wri.Write('{');
-            wri.Write("\"iso\":"); JSONWriter.EncodeString(wri, m_CurrencyISO, options);
-            wri.Write(',');
-            wri.Write("\"v\":"); wri.Write( m_Value );
-          wri.Write('}');
+          JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("iso", m_CurrencyISO), new DictionaryEntry("val", m_Value));
+        }
+
+        public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+        {
+          if (data is JsonDataMap map)
+          {
+            return (true, new Amount(map["iso"].AsString(), map["val"].AsDecimal()));
+          }
+
+          return (false, null);
         }
 
 
@@ -144,100 +152,96 @@ namespace Azos.Financial
 
     #region Operators
 
-        public static bool operator ==(Amount left, Amount right)
-        {
-          return Equals(left, right);
-        }
+    public static bool operator ==(Amount left, Amount right)
+    {
+      return Equals(left, right);
+    }
 
-        public static bool operator !=(Amount left, Amount right)
-        {
-          return !Equals(left, right);
-        }
+    public static bool operator !=(Amount left, Amount right)
+    {
+      return !Equals(left, right);
+    }
 
-        public static bool operator <(Amount left, Amount right)
-        {
-          return left.IsSameCurrencyAs(right) && (left.Value < right.Value);
-        }
+    public static bool operator <(Amount left, Amount right)
+    {
+      return left.IsSameCurrencyAs(right) && (left.Value < right.Value);
+    }
 
-        public static bool operator >(Amount left, Amount right)
-        {
-          return left.IsSameCurrencyAs(right) && (left.Value > right.Value);
-        }
+    public static bool operator >(Amount left, Amount right)
+    {
+      return left.IsSameCurrencyAs(right) && (left.Value > right.Value);
+    }
 
-        public static bool operator <=(Amount left, Amount right)
-        {
-          return left.IsSameCurrencyAs(right) && (left.Value <= right.Value);
-        }
+    public static bool operator <=(Amount left, Amount right)
+    {
+      return left.IsSameCurrencyAs(right) && (left.Value <= right.Value);
+    }
 
-        public static bool operator >=(Amount left, Amount right)
-        {
-          return left.IsSameCurrencyAs(right) && (left.Value >= right.Value);
-        }
+    public static bool operator >=(Amount left, Amount right)
+    {
+      return left.IsSameCurrencyAs(right) && (left.Value >= right.Value);
+    }
 
-        public static Amount operator +(Amount left, Amount right)
-        {
-          if (! left.IsSameCurrencyAs(right)) throw new FinancialException(StringConsts.FINANCIAL_AMOUNT_DIFFERENT_CURRENCIES_ERROR.Args('+', left, right));
+    public static Amount operator +(Amount left, Amount right)
+    {
+      if (! left.IsSameCurrencyAs(right)) throw new FinancialException(StringConsts.FINANCIAL_AMOUNT_DIFFERENT_CURRENCIES_ERROR.Args('+', left, right));
 
-          return new Amount(left.m_CurrencyISO, left.m_Value + right.m_Value);
-        }
+      return new Amount(left.m_CurrencyISO, left.m_Value + right.m_Value);
+    }
 
-        public static Amount operator -(Amount left, Amount right)
-        {
-          if (! left.IsSameCurrencyAs(right)) throw new FinancialException(StringConsts.FINANCIAL_AMOUNT_DIFFERENT_CURRENCIES_ERROR.Args('-', left, right));
+    public static Amount operator -(Amount left, Amount right)
+    {
+      if (! left.IsSameCurrencyAs(right)) throw new FinancialException(StringConsts.FINANCIAL_AMOUNT_DIFFERENT_CURRENCIES_ERROR.Args('-', left, right));
 
-          return new Amount(left.m_CurrencyISO, left.m_Value - right.m_Value);
-        }
+      return new Amount(left.m_CurrencyISO, left.m_Value - right.m_Value);
+    }
 
-        public static Amount operator *(Amount left, int right)
-        {
-          return new Amount(left.m_CurrencyISO, left.m_Value * right);
-        }
+    public static Amount operator *(Amount left, int right)
+    {
+      return new Amount(left.m_CurrencyISO, left.m_Value * right);
+    }
 
-        public static Amount operator *(int left, Amount right)
-        {
-          return new Amount(right.m_CurrencyISO, right.m_Value * left);
-        }
+    public static Amount operator *(int left, Amount right)
+    {
+      return new Amount(right.m_CurrencyISO, right.m_Value * left);
+    }
 
-        public static Amount operator *(Amount left, decimal right)
-        {
-          return new Amount(left.m_CurrencyISO, left.m_Value * right);
-        }
+    public static Amount operator *(Amount left, decimal right)
+    {
+      return new Amount(left.m_CurrencyISO, left.m_Value * right);
+    }
 
-        public static Amount operator *(decimal left, Amount right)
-        {
-          return new Amount(right.m_CurrencyISO, right.m_Value * left);
-        }
+    public static Amount operator *(decimal left, Amount right)
+    {
+      return new Amount(right.m_CurrencyISO, right.m_Value * left);
+    }
 
-        public static Amount operator *(Amount left, double right)
-        {
-          return new Amount(left.m_CurrencyISO, left.m_Value * (decimal)right);
-        }
+    public static Amount operator *(Amount left, double right)
+    {
+      return new Amount(left.m_CurrencyISO, left.m_Value * (decimal)right);
+    }
 
-        public static Amount operator *(double left, Amount right)
-        {
-          return new Amount(right.m_CurrencyISO, right.m_Value * (decimal)left);
-        }
+    public static Amount operator *(double left, Amount right)
+    {
+      return new Amount(right.m_CurrencyISO, right.m_Value * (decimal)left);
+    }
 
-        public static Amount operator /(Amount left, int right)
-        {
-          return new Amount(left.m_CurrencyISO, left.m_Value / right);
-        }
+    public static Amount operator /(Amount left, int right)
+    {
+      return new Amount(left.m_CurrencyISO, left.m_Value / right);
+    }
 
-        public static Amount operator /(Amount left, decimal right)
-        {
-          return new Amount(left.m_CurrencyISO, left.m_Value / right);
-        }
+    public static Amount operator /(Amount left, decimal right)
+    {
+      return new Amount(left.m_CurrencyISO, left.m_Value / right);
+    }
 
-        public static Amount operator /(Amount left, double right)
-        {
-          return new Amount(left.m_CurrencyISO, left.m_Value / (decimal)right);
-        }
+    public static Amount operator /(Amount left, double right)
+    {
+      return new Amount(left.m_CurrencyISO, left.m_Value / (decimal)right);
+    }
 
     #endregion
-
-
-
-
 
   }
 }

@@ -110,14 +110,14 @@ namespace Azos.Data
 
               try
               {
-                return JSONConfiguration.CreateFromJSON(content).Root;
+                return JSONConfiguration.CreateFromJson(content).Root;
               }
               catch
               {
                 if (wrapRootName.IsNotNullOrWhiteSpace())
                   try
                   {
-                    return JSONConfiguration.CreateFromJSON("{'"+ wrapRootName +"':\n" + content + "\n}").Root;
+                    return JSONConfiguration.CreateFromJson("{'"+ wrapRootName +"':\n" + content + "\n}").Root;
                   }
                   catch
                   {

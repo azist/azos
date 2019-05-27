@@ -209,7 +209,7 @@ namespace Azos.Data
         /// Used for injection of pre-parsed value list
         /// </summary>
         public FieldAttribute(
-                        JSONDataMap valueList,
+                        JsonDataMap valueList,
                         string targetName   = ANY_TARGET,
                         StoreFlag storeFlag = StoreFlag.LoadAndStore,
                         bool key            = false,
@@ -420,13 +420,13 @@ namespace Azos.Data
         public bool HasValueList{ get{ return ValueList.IsNotNullOrWhiteSpace() || m_CacheValueList_Sensitive!=null;} }
 
                   private bool m_CacheValueListPresetInCtor;
-                  private JSONDataMap m_CacheValueList_Sensitive;
-                  private JSONDataMap m_CacheValueList_Insensitive;
+                  private JsonDataMap m_CacheValueList_Sensitive;
+                  private JsonDataMap m_CacheValueList_Insensitive;
 
         /// <summary>
         /// Returns a ValueList parsed into key values as:  val1: descr1,val2: desc2...
         /// </summary>
-        public JSONDataMap ParseValueList(bool caseSensitiveKeys = false)
+        public JsonDataMap ParseValueList(bool caseSensitiveKeys = false)
         {
             if (caseSensitiveKeys)
             {
@@ -445,9 +445,9 @@ namespace Azos.Data
         /// <summary>
         /// Returns a string parsed into key values as:  val1: descr1,val2: desc2...
         /// </summary>
-        public static JSONDataMap ParseValueListString(string valueList, bool caseSensitiveKeys = false)
+        public static JsonDataMap ParseValueListString(string valueList, bool caseSensitiveKeys = false)
         {
-            var result = new JSONDataMap(caseSensitiveKeys);
+            var result = new JsonDataMap(caseSensitiveKeys);
             if (valueList.IsNullOrWhiteSpace()) return result;
 
             var segs = valueList.Split(',','|',';');

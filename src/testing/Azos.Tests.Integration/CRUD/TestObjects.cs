@@ -12,13 +12,14 @@ namespace Azos.Tests.Integration.CRUD
 {
     public abstract class Perzon : TypedDoc
     {
-        [Field(required: true, key: true)]
-        public long COUNTER {get; set;}
+        [Field(key: true)]
+        public long? COUNTER {get; set;}
 
         [Field(required: true)]
         public string SSN {get; set;}
 
         [Field(required: true)]
+        [Field("ORACLE", required: true, backendType: "date")]
         public DateTime DOB {get; set;}
 
         [Field]
@@ -64,7 +65,7 @@ namespace Azos.Tests.Integration.CRUD
         public string Marker {get; set;}
 
         [Field]
-        public long C_DOCTOR {get; set;}
+        public long? C_DOCTOR {get; set;}
 
         [Field(storeFlag: StoreFlag.OnlyLoad)]
         public string Doctor_Phone {get; set;}

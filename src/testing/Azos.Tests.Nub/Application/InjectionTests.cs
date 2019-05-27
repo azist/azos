@@ -133,8 +133,6 @@ namespace Azos.Tests.Nub.Application
       }
     }
 
-#warning need to test injection into module itself of other modules
-
 
     interface IMyModule : IModule { }
 
@@ -145,9 +143,9 @@ namespace Azos.Tests.Nub.Application
       public override bool IsHardcodedModule => false;
       public override string ComponentLogTopic => "testing";
     }
-
     public class InjectionTarget_Root
     {
+#pragma warning disable 649
       [Inject] IApplication m_App;//<--- private field
       [Inject] public IApplication m_App2;
       [Inject] protected IApplication m_App3;
@@ -158,6 +156,7 @@ namespace Azos.Tests.Nub.Application
       [Inject] IGlue m_Glue;
       [Inject] IInstrumentation m_Instrumentation;
       [Inject] ITimeSource m_TimeSource;
+#pragma warning restore 649
 
       public string Data;//<-- this gotta be serializable
 
@@ -191,10 +190,11 @@ namespace Azos.Tests.Nub.Application
 
     public class InjectionTarget_Modules : InjectionTarget_Root
     {
+#pragma warning disable 649
       [Inject] IMyModule m_MyModule1;
       [Inject(Name="Module2")] IMyModule m_MyModule2;
       [InjectModule(Name = "Module3")] IMyModule m_MyModule3;
-
+#pragma warning restore 649
       public override void AssertInjectionCorrectness(IApplication app)
       {
         base.AssertInjectionCorrectness(app);
@@ -206,9 +206,10 @@ namespace Azos.Tests.Nub.Application
 
     public class InjectionTarget_Singleton : InjectionTarget_Modules
     {
+#pragma warning disable 649
       [InjectSingleton] Dictionary<string, string> m_MySingleton1;
       [InjectSingleton(Type =typeof(Dictionary<string, string>))] IDictionary<string, string> m_MySingleton2;
-
+#pragma warning restore 649
       public void AssertInjectionCorrectness(IApplication app, Dictionary<string, string> dict)
       {
         base.AssertInjectionCorrectness(app);

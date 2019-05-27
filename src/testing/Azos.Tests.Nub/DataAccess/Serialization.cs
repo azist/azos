@@ -191,11 +191,11 @@ namespace Azos.Tests.Nub.DataAccess
                                    });
 
             // Serialization without schema
-            var json = rowset.ToJSON(Azos.Serialization.JSON.JSONWritingOptions.PrettyPrint);
+            var json = rowset.ToJson(Azos.Serialization.JSON.JsonWritingOptions.PrettyPrint);
 
             Console.WriteLine( json);
 
-            var rowset2 = json.JSONToDynamic();
+            var rowset2 = json.JsonToDynamic();
 
             Aver.AreEqual("Popov-1", rowset2.Rows[1][2]);
 
@@ -206,7 +206,7 @@ namespace Azos.Tests.Nub.DataAccess
             Aver.AreEqual(10, rowset3.Count);
             Aver.AreObjectsEqual("Popov-1", rowset3[1][2]);
 
-            var options = new Azos.Serialization.JSON.JSONWritingOptions
+            var options = new Azos.Serialization.JSON.JsonWritingOptions
             {
               RowsetMetadata  = true,
               IndentWidth     = 2,
@@ -216,7 +216,7 @@ namespace Azos.Tests.Nub.DataAccess
               ASCIITarget     = false
             };
             rowset3.Clear();
-            var json2 = rowset.ToJSON(options);
+            var json2 = rowset.ToJson(options);
             var res2  = Rowset.FromJSON<Person>(json2, ref rowset3);
 
             Aver.AreEqual(10, res);
@@ -245,11 +245,11 @@ namespace Azos.Tests.Nub.DataAccess
                                     History2  = new HistoryItem[2]
                                    });
 
-            var json = rowset.ToJSON( Azos.Serialization.JSON.JSONWritingOptions.PrettyPrint);// );
+            var json = rowset.ToJson( Azos.Serialization.JSON.JsonWritingOptions.PrettyPrint);// );
 
             Console.WriteLine( json);
 
-            var rowset2 = json.JSONToDynamic();
+            var rowset2 = json.JsonToDynamic();
 
             Aver.AreEqual("Popov-1", rowset2.Rows[1][2]);
 
@@ -277,11 +277,11 @@ namespace Azos.Tests.Nub.DataAccess
                                     History2  = new HistoryItem[2]
                                    });
 
-            var json = rowset.ToJSON( Azos.Serialization.JSON.JSONWritingOptions.PrettyPrintRowsAsMap);// );
+            var json = rowset.ToJson( Azos.Serialization.JSON.JsonWritingOptions.PrettyPrintRowsAsMap);// );
 
             Console.WriteLine( json);
 
-            var rowset2 = json.JSONToDynamic();
+            var rowset2 = json.JsonToDynamic();
 
             Aver.AreEqual("Popov-1", rowset2.Rows[1].LastName);
             Aver.AreEqual("789211", rowset2.Rows[1].History1[0].ID);
@@ -306,11 +306,11 @@ namespace Azos.Tests.Nub.DataAccess
                                     History2  = new HistoryItem[2]
                                    };
 
-            var json = row1.ToJSON( Azos.Serialization.JSON.JSONWritingOptions.PrettyPrintRowsAsMap);//AS MAP!!!!
+            var json = row1.ToJson( Azos.Serialization.JSON.JsonWritingOptions.PrettyPrintRowsAsMap);//AS MAP!!!!
 
             Console.WriteLine(json);
 
-            var row2 = json.JSONToDynamic();
+            var row2 = json.JsonToDynamic();
 
             Aver.AreEqual("A1",      row2.ID);
             Aver.AreEqual("Joseph",  row2.FirstName);
@@ -338,11 +338,11 @@ namespace Azos.Tests.Nub.DataAccess
                                     History2  = new HistoryItem[2]
                                    };
 
-            var json = row1.ToJSON( Azos.Serialization.JSON.JSONWritingOptions.PrettyPrint);//AS ARRAY
+            var json = row1.ToJson( Azos.Serialization.JSON.JsonWritingOptions.PrettyPrint);//AS ARRAY
 
             Console.WriteLine(json);
 
-            var row2 = json.JSONToDynamic();
+            var row2 = json.JsonToDynamic();
 
             Aver.AreEqual("A1",      row2[row1.Schema["ID"].Order]);
             Aver.AreEqual("Joseph",  row2[row1.Schema["FirstName"].Order]);
@@ -375,7 +375,7 @@ namespace Azos.Tests.Nub.DataAccess
             tbl1.Add(row1);
 
 
-            var json = tbl1.ToJSON( new Azos.Serialization.JSON.JSONWritingOptions
+            var json = tbl1.ToJson( new Azos.Serialization.JSON.JsonWritingOptions
                                    {
                                      RowsetMetadata = true,
                                       SpaceSymbols = true,
@@ -383,12 +383,12 @@ namespace Azos.Tests.Nub.DataAccess
                                         MemberLineBreak = true,
                                          ObjectLineBreak = true,
                                           RowsAsMap = true,
-                                           Purpose = JSONSerializationPurpose.Marshalling
+                                           Purpose = JsonSerializationPurpose.Marshalling
                                    });//AS MAP
 
             Console.WriteLine(json);
 
-            var tbl2 = json.JSONToDynamic();
+            var tbl2 = json.JsonToDynamic();
 
             var row2 = tbl2.Rows[0];
 

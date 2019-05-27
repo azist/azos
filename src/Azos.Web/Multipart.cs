@@ -201,9 +201,9 @@ namespace Azos.Web
 
     #region Public
 
-      public JSONDataMap ToJSONDataMap()
+      public JsonDataMap ToJSONDataMap()
       {
-        var result = new JSONDataMap(false);
+        var result = new JsonDataMap(false);
 
         foreach (var part in m_Parts)
         {

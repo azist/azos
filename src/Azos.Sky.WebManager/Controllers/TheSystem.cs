@@ -103,11 +103,11 @@ namespace Azos.Sky.WebManager.Controllers
 
     internal object makeChildren(IEnumerable<Metabank.SectionRegionBase> children)
     {
-      var res = new List<JSONDataMap>();
+      var res = new List<JsonDataMap>();
 
       foreach (var child in children)
       {
-        var d = new JSONDataMap();
+        var d = new JsonDataMap();
 
         d["name"] = child.Name;
         d["path"] = child.RegionPath;

@@ -8,29 +8,32 @@ a few common software [myths and truisms](/src/truisms.md).
 ## Overview
 The philosophy of Azos is based on observations made in the past 15+ years of corporate code bases in 10s of large and medium scale organizations. 
 It has been concluded that **modern framework landscape is still of a too low level
-for average developer to grasp and apply properly**. Another detrimental factor is **fragmentation and too many choices**.
+for average developer to grasp and apply properly**. Another detrimental factor is **fragmentation and too many choices**. There are 100s 
+(in not 1000s) of ways these days to do the same thing only a bit differently, consequentially the solution as a whole becomes very complex
+trying to fit different pieces together.
 
 See [myths and truisms](/src/truisms.md).
 
 Azos follows the following design principles:
-- **Provide a full stack of services** needed in a typical business application:
+- **Provide a full stack of services** needed in a typical business application aka **"Application Chassis"**:
   - Logging
-  - Instrumentation/Tracing/Perf counters
+  - Instrumentation/Tracing/Performance counters
   - Configuration/Distributes/Overrides/Merges/Scripting/Validation/Class prop binding
-  - DI
+  - DI (Dependency Injection) while curbing unnecessary object allocation abuse
   - Serialization: Tight binary, JSON, BSON, XML. Culture-sensitive serialization (e.g. only write iso-lang keys)
-  - RPC/Microservices/Contract-based + Security
-  - Security/Permissions/Identities/Password/Tokens/Authentication/Authorization
-  - Web pipeline/Mvc
-  - Data document modeling with rich constraints and metadata (for data access and protocol)
-  - Auto data document mapping to hybrid data sources / Auto CRUD
-  - Hybrid data access: RDBMS, NoSQL, FlatFile, Web Service data sources
-  - FileSystem abstraction - work with Local, SVN, Amazon S3, Google Drive and other file systems via the same API
-  - Precise TimeSource and EventScheduler - run scheduled jobs/events
-  - Daemons - create lightweight in-app "processes" controllable with Start/Stop commands
-  - In-process large cache (capable of storing 100s of millions of objects in memory)
-  - i18n/culture sensitive data structures, NLS, culture-aware serialization, multi-language metadata etc.
-  - Utilities: prime math, date math, leaky bucket, circuit breaker 
+  - **RPC**/Microservices/Contract-based + Security
+  - **Security**/Permissions/Identities/Password/Tokens/Authentication/Authorization
+  - Web pipeline/MVC/ APIs
+  - **Custom Metadata** sources + **Documentation Generation**
+  - **Data document** modeling with rich constraints and metadata (for data access and distributed protocols/RPC/REST/API)
+  - Auto **data document mapping** to hybrid data sources / Auto CRUD
+  - **Hybrid data access**: RDBMS, NoSQL, flat file, Web Service data sources
+  - **Virtual File System** abstraction - work with Local, SVN, Amazon S3, Google Drive and other file systems via the same API
+  - Precise TimeSource and **EventScheduler** - run scheduled jobs/events
+  - **Daemons** - create lightweight in-app "processes" controllable with Start/Stop commands
+  - **In-process large cache** (capable of storing 100s of millions of objects in memory)
+  - **i18n/culture sensitive data** structures, NLS, culture-aware serialization, multi-language metadata etc.
+  - Utilities: prime math, date math, leaky bucket, circuit breaker etc.
 - **Reuse internal building blocks**, thus reducing complexity and footprint
 - Achieve higher performance due to use of intrinsics and optimizations for internal types (e.g. StringMap direct serialization)
 - **Set guidelines for every app aspect** implementation using the above
@@ -43,8 +46,8 @@ Unlike the approach traditionally taken in .Net framework *(which is changing no
 [universal generic host/HostBuilder process model](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/generic-host?view=aspnetcore-2.1)*
 for any kind of app), Azos uses the same app hosting chassis for all application types.
 
-Any Azos application starts from allocation of the [`AzosApplication : IApplication`](/src/Azos/Apps/AzosApplication.cs) (or its derivative) chassis, which in turn boots all of the root services.
-The following are the root services of [`IApplication`](/src/Azos/IApplication.cs):
+Any Azos application starts from allocation of the [`AzosApplication : IApplication`](/src/Azos/Apps/AzosApplication.cs) (or its derivative) chassis, 
+which in turn boots all of the root services. The following are the root services of [`IApplication`](/src/Azos/IApplication.cs):
 
 
 
@@ -64,7 +67,7 @@ Application is a composition root for the [`IApplicationComponent`](/src/Azos/Ap
 <td>DependencyInjector <br><sup>IApplicationDependencyInjector<sup></td>
 <td>
  Injects app-context rooted dependencies into object fields decorated with `[Inject]` attribute. 
- This component is mostly used by other system processes like MVC handler and Glue servers, so app developers should 
+ This component is mostly used by other system processes like MVC handler and Glue servers, so app developers 
  rarely use it
 </td>
 </tr>

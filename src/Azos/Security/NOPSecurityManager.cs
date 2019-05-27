@@ -4,6 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System.Threading.Tasks;
+
 using Azos.Apps;
 using Azos.Log;
 
@@ -30,17 +32,23 @@ namespace Azos.Security
 
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
+    public bool SupportsTrueAsynchrony => false;
+
     public IPasswordManager PasswordManager { get { return m_PasswordManager; } }
 
     public User Authenticate(Credentials credentials) => User.Fake;
+    public Task<User> AuthenticateAsync(Credentials credentials) => Task.FromResult(User.Fake);
 
     public void Configure(Conf.IConfigSectionNode node) {}
 
     public User Authenticate(AuthenticationToken token) => User.Fake;
+    public Task<User> AuthenticateAsync(AuthenticationToken token) => Task.FromResult(User.Fake);
 
     public void Authenticate(User user) {}
+    public Task AuthenticateAsync(User user) => Task.CompletedTask;
 
-    public AccessLevel Authorize(User user, Permission permission) { return new AccessLevel(user, permission, Rights.None.Root); }
+    public AccessLevel Authorize(User user, Permission permission) => AccessLevel.DeniedFor(user, permission);
+    public Task<AccessLevel> AuthorizeAsync(User user, Permission permission) => Task.FromResult(AccessLevel.DeniedFor(user, permission));
 
     public SecurityLogMask SecurityLogMask{ get; set;}
     public MessageType SecurityLogLevel { get; set; }

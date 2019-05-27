@@ -58,98 +58,6 @@ namespace Azos
     }
 
     /// <summary>
-    /// Checks the value for null and throws exception if it is.
-    /// The method is useful for .ctor call chaining and expression bodies methods to preclude otherwise anonymous NullReferenceException
-    /// </summary>
-    public static T NonNull<T>(this T obj, string name = null) where T : class
-    {
-      if (obj == null)
-        throw new AzosException(StringConsts.PARAMETER_MAY_NOT_BE_NULL_ERROR
-                                            .Args(name ?? CoreConsts.UNKNOWN,
-                                                  new StackTrace(1, false).ToString()));
-      return obj;
-    }
-
-
-    /// <summary>
-    /// Checks the config node value for null or empty and throws exception if it is.
-    /// The method is useful for .ctor call chaining and expression bodies methods to preclude otherwise anonymous NullReferenceException
-    /// </summary>
-    public static T NonEmpty<T>(this T node, string name = null) where T : Conf.IConfigNode
-    {
-      if (node==null || !node.Exists)
-        throw new AzosException(StringConsts.CONFIG_NODE_PARAMETER_MAY_NOT_BE_EMPTY_ERROR
-                                            .Args(name ?? CoreConsts.UNKNOWN,
-                                                  new StackTrace(1, false).ToString()));
-      return node;
-    }
-
-    /// <summary>
-    /// Checks the string value for null or whitespace and throws exception if it is.
-    /// The method is useful for .ctor call chaining and expression bodies methods to preclude otherwise anonymous NullReferenceException
-    /// </summary>
-    public static string NonBlank(this string str, string name = null)
-    {
-      if (str.IsNullOrWhiteSpace())
-        throw new AzosException(StringConsts.STRING_PARAMETER_MAY_NOT_BE_BLANK_ERROR
-                                            .Args(name ?? CoreConsts.UNKNOWN,
-                                                  new StackTrace(1, false).ToString()));
-      return str;
-    }
-
-    /// <summary>
-    /// Checks the string value for being non-blank less than max length and throws exception if it is.
-    /// The method is useful for .ctor call chaining and expression bodies methods to preclude otherwise anonymous NullReferenceException
-    /// </summary>
-    public static string NonBlankMax(this string str, int maxLen, string name = null)
-    {
-      var len = str.NonBlank(name).Length;
-      if (len > maxLen)
-        throw new AzosException(StringConsts.STRING_PARAMETER_MAY_NOT_EXCEED_MAX_LEN_ERROR
-                                            .Args(name ?? CoreConsts.UNKNOWN,
-                                                  str.TakeFirstChars(15, ".."),
-                                                  len,
-                                                  maxLen,
-                                                  new StackTrace(1, false).ToString()));
-      return str;
-    }
-
-    /// <summary>
-    /// Checks the string value for being non-blank at least the min length and throws exception if it is.
-    /// The method is useful for .ctor call chaining and expression bodies methods to preclude otherwise anonymous NullReferenceException
-    /// </summary>
-    public static string NonBlankMin(this string str, int minLen, string name = null)
-    {
-      var len = str.NonBlank(name).Length;
-      if (len < minLen)
-        throw new AzosException(StringConsts.STRING_PARAMETER_MAY_NOT_BE_LESS_MIN_LEN_ERROR
-                                            .Args(name ?? CoreConsts.UNKNOWN,
-                                                  str.TakeFirstChars(15, ".."),
-                                                  len,
-                                                  minLen,
-                                                  new StackTrace(1, false).ToString()));
-      return str;
-    }
-
-    /// <summary>
-    /// Checks the string value for being non-blank at least the min length and throws exception if it is.
-    /// The method is useful for .ctor call chaining and expression bodies methods to preclude otherwise anonymous NullReferenceException
-    /// </summary>
-    public static string NonBlankMinMax(this string str, int minLen, int maxLen, string name = null)
-    {
-      var len = str.NonBlank(name).Length;
-      if (len < minLen || len > maxLen)
-        throw new AzosException(StringConsts.STRING_PARAMETER_MUST_BE_BETWEEN_MIN_MAX_LEN_ERROR
-                                            .Args(name ?? CoreConsts.UNKNOWN,
-                                                  str.TakeFirstChars(15, ".."),
-                                                  len,
-                                                  minLen,
-                                                  maxLen,
-                                                  new StackTrace(1, false).ToString()));
-      return str;
-    }
-
-    /// <summary>
     /// Shortcut to App.DependencyInjector.InjectInto(...)
     /// </summary>
     public static T InjectInto<T>(this IApplication app, T target) where T : class
@@ -172,10 +80,10 @@ namespace Azos
     /// <summary>
     /// If there is error, converts its details to JSONDataMap
     /// </summary>
-    public static Azos.Serialization.JSON.JSONDataMap ToJSONDataMap(this Exception error, bool recurse = true, bool stackTrace = false)
+    public static Azos.Serialization.JSON.JsonDataMap ToJSONDataMap(this Exception error, bool recurse = true, bool stackTrace = false)
     {
       if (error == null) return null;
-      var result = new Azos.Serialization.JSON.JSONDataMap(false);
+      var result = new Azos.Serialization.JSON.JsonDataMap(false);
 
       result["Type"] = error.GetType().FullName;
       result["Msg"] = error.Message;
@@ -333,7 +241,6 @@ namespace Azos
 
       return true;
     }
-
 
   }
 }

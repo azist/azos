@@ -31,23 +31,23 @@ namespace Azos.Wave.Filters
 
     #region Protected
 
-      protected override void DoBeforeWork(WorkContext work, JSONDataMap matched)
+      protected override void DoBeforeWork(WorkContext work, JsonDataMap matched)
       {
         work.Log(
            matched[VAR_TYPE].AsEnum<MessageType>(MessageType.Info),
            matched[VAR_TEXT].AsString(work.About),
            matched[VAR_FROM].AsString("{0}.Before".Args(GetType().FullName)),
-           pars: matched.ToJSON(JSONWritingOptions.CompactASCII)
+           pars: matched.ToJson(JsonWritingOptions.CompactASCII)
            );
       }
 
-      protected override void DoAfterWork(WorkContext work, JSONDataMap matched)
+      protected override void DoAfterWork(WorkContext work, JsonDataMap matched)
       {
         work.Log(
            matched[VAR_TYPE].AsEnum<MessageType>(MessageType.Info),
            matched[VAR_TEXT].AsString(work.About),
            matched[VAR_FROM].AsString("{0}.After".Args(GetType().FullName)),
-           pars: matched.ToJSON(JSONWritingOptions.CompactASCII)
+           pars: matched.ToJson(JsonWritingOptions.CompactASCII)
            );
       }
 

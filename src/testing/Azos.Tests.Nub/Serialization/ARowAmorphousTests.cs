@@ -102,7 +102,7 @@ namespace Azos.Tests.Nub.Serialization
           reader.BindStream(ms);
           ArowSerializer.Deserialize(v2r2, reader);
 
-          Console.WriteLine(v2r2.ToJSON(JSONWritingOptions.PrettyPrintRowsAsMap));
+          Console.WriteLine(v2r2.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap));
 
           Aver.AreEqual("A string", v2r2.A);
 
@@ -111,7 +111,7 @@ namespace Azos.Tests.Nub.Serialization
           Aver.IsTrue(v2r2.AmorphousData["e"] is byte[]);
           Aver.IsNotNull(v2r2.AmorphousData["g"]);
           Aver.IsTrue(v2r2.AmorphousData["g"] is Array);
-          Aver.AreEqual(-998, ((JSONDataMap)((object[])v2r2.AmorphousData["g"])[0])["c"].AsInt());
+          Aver.AreEqual(-998, ((JsonDataMap)((object[])v2r2.AmorphousData["g"])[0])["c"].AsInt());
 
           Aver.AreEqual(0, v2r2.B);
           Aver.AreEqual(null, v2r2.C);

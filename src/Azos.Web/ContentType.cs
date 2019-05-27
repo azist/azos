@@ -512,6 +512,7 @@ content-type-mappings
 
       private Mapping() { }
 
+#pragma warning disable 649
       private bool m_Generic;
       private string[] m_Extensions;
       private string m_ContentType;
@@ -520,7 +521,7 @@ content-type-mappings
       [Config] private bool m_Image;
       private NLSMap m_Name;
       private IConfigSectionNode m_Metadata;
-
+#pragma warning restore 649
       /// <summary>
       /// Returns true for GENERIC_BONARY type - when no other content type matches
       /// </summary>

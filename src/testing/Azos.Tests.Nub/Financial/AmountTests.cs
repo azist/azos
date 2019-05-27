@@ -160,11 +160,11 @@ namespace Azos.Tests.Nub.Financial
     public void JSON()
     {
         var data = new {name="aaa", amount=new Amount("usd", 1234.12M)};
-        var json = data.ToJSON();
+        var json = data.ToJson();
 
         Console.WriteLine(json);
 
-        Aver.AreEqual(@"{""amount"":{""iso"":""usd"",""v"":1234.12},""name"":""aaa""}", json);
+        Aver.AreEqual(@"{""amount"":{""iso"":""usd"",""val"":1234.12},""name"":""aaa""}", json);
 
     }
 

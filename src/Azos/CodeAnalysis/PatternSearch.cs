@@ -13,14 +13,14 @@ using System.Text;
 namespace Azos.CodeAnalysis
 {
     /// <summary>
-    /// Describes transition instructions for Finate State Machine (FSM)
+    /// Describes transition instructions for Finite State Machine (FSM)
     /// </summary>
     public enum FSMI { Loop, Abort, Advance, AdvanceOnSameToken, Take, TakeAndComplete, Complete };
 
 
 
     /// <summary>
-    /// Lazy Finate State Machine (FSM) predicate, tries to match condition and returns appropriate next action
+    /// Lazy Finite State Machine (FSM) predicate, tries to match condition and returns appropriate next action
     /// </summary>
     public delegate FSMI LazyFSMPredicate<TToken>(LazyFSMState<TToken> state, TToken token) where TToken : Token;
 
@@ -401,7 +401,7 @@ namespace Azos.CodeAnalysis
        }
 
        /// <summary>
-       /// Loops until token pattern match succeeds, conditionaly considering only primary language tokens.
+       /// Loops until token pattern match succeeds, conditionally considering only primary language tokens.
        /// Keeps state machine if match was found on the first matching token
        /// </summary>
        public static FSMI LoopUntilMatch<TToken>(this LazyFSMState<TToken> state,
@@ -453,7 +453,7 @@ namespace Azos.CodeAnalysis
 
 
     /// <summary>
-    /// Represents a state object for Lazy Finate State Machine that enumerates tokes from IEnumerable(Token)
+    /// Represents a state object for Lazy Finite State Machine that enumerates tokes from IEnumerable(Token)
     ///  and does not support a notion of index addressing
     /// </summary>
     public class LazyFSMState<TToken> : Hashtable where TToken : Token
@@ -513,7 +513,7 @@ namespace Azos.CodeAnalysis
       }
 
       /// <summary>
-      /// Gets typecasted value for a key
+      /// Gets typecast value for a key
       /// </summary>
       public TCast Get<TCast>(object key)
       {

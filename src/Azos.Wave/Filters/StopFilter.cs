@@ -30,7 +30,7 @@ namespace Azos.Wave.Filters
     #endregion
 
     #region Protected
-      protected override void DoBeforeWork(WorkContext work, JSONDataMap matched)
+      protected override void DoBeforeWork(WorkContext work, JsonDataMap matched)
       {
         var code = matched[VAR_CODE].AsInt();
         var error = matched[VAR_ERROR].AsString();
@@ -40,7 +40,7 @@ namespace Azos.Wave.Filters
           work.Aborted = true;
       }
 
-      protected override void DoAfterWork(WorkContext work, JSONDataMap matched)
+      protected override void DoAfterWork(WorkContext work, JsonDataMap matched)
       {
         var code = matched[VAR_CODE].AsInt();
         var error = matched[VAR_ERROR].AsString();

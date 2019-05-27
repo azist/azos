@@ -494,7 +494,7 @@ namespace Azos.Wave
         //Use this to find out what strings need translation
         if (DumpLocalizationErrors && !exists)
         {
-            var pars = (new { iso = isoLang, sch = schema, fld = field, val = value }).ToJSON();
+            var pars = (new { iso = isoLang, sch = schema, fld = field, val = value }).ToJson();
             //1. emit component-level log
             var guid = WriteLog(MessageType.InfoZ,
                      nameof(DoLocalizeRecordModel),

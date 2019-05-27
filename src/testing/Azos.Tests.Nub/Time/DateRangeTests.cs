@@ -279,9 +279,9 @@ namespace Azos.Tests.Nub.Time
     {
       var x = new DateRange(new DateTime(1800, 1, 1), new DateTime(1900, 1, 1, 3, 18, 7));
 
-      Console.WriteLine(x.ToJSON());
+      Console.WriteLine(x.ToJson());
 
-      var got = x.ToJSON().JSONToDataObject() as JSONDataMap;
+      var got = x.ToJson().JsonToDataObject() as JsonDataMap;
       Aver.IsNotNull(got);
 
       Aver.AreEqual(x.Start, got["start"].AsDateTime());
@@ -293,9 +293,9 @@ namespace Azos.Tests.Nub.Time
     {
       var x = new DateRange(new DateTime(1800, 1, 1, 0, 0, 0, DateTimeKind.Utc), new DateTime(1900, 1, 1, 3, 18, 7, DateTimeKind.Utc));
 
-      Console.WriteLine(x.ToJSON());
+      Console.WriteLine(x.ToJson());
 
-      var got = x.ToJSON().JSONToDataObject() as JSONDataMap;
+      var got = x.ToJson().JsonToDataObject() as JsonDataMap;
       Aver.IsNotNull(got);
 
       Aver.AreEqual(x.Start, got["start"].AsDateTime().ToUniversalTime());

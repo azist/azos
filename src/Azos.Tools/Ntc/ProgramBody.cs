@@ -18,6 +18,9 @@ using Azos.Platform;
 
 namespace Azos.Tools.Ntc
 {
+    /// <summary>
+    /// NTC tool entry point
+    /// </summary>
     public static class ProgramBody
     {
         public static void Main(string[] args)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+
 using Azos.Serialization.JSON;
 
 namespace Azos
@@ -39,7 +40,7 @@ namespace Azos
   /// </para>
   /// </remarks>
   [Serializable]
-  public struct Atom : IEquatable<Atom>, Data.Access.IDistributedStableHashProvider, Serialization.JSON.IJSONWritable
+  public struct Atom : IEquatable<Atom>, Data.Access.IDistributedStableHashProvider, IJsonWritable, IJsonReadable
   {
 
     /// <summary>
@@ -196,7 +197,7 @@ namespace Azos
       }
     }
 
-    //cached accessors: materialized dictionary of 3 hard-coded elements for speed
+    //intern pool for speed
     private static object s_Lock = new object();
     private static Dictionary<ulong, string> s_Cache = new Dictionary<ulong, string>();
 
@@ -265,7 +266,22 @@ namespace Azos
       return new string(data);
     }
 
-    void IJSONWritable.WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options)
-    => JSONWriter.EncodeString(wri, Value, options);
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
+    => JsonWriter.EncodeString(wri, IsZero ? "#0" : Value, options);
+
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    {
+      if (data==null) return (true, Atom.ZERO);
+
+      if (data is ulong ul)
+      {
+        var atom = new Atom(ul);
+        if (atom.IsValid) return (true, atom);
+      }
+      else
+       if(data is string str && TryEncodeValueOrId(str, out var a)) return (true, a);
+
+      return (false, null);
+    }
   }
 }

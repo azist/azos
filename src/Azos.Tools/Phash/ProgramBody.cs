@@ -16,6 +16,9 @@ using Azos.Platform;
 
 namespace Azos.Tools.Phash
 {
+    /// <summary>
+    /// Program entry point for PASSWORD HASH generator tool
+    /// </summary>
     public static class ProgramBody
     {
         public static void Main(string[] args)
@@ -126,7 +129,7 @@ Do not hit the same key and try to space key presses in time:<pop>
 
           password.Dispose();
 
-          var toPrint = JSONWriter.Write(hashed, pretty ? JSONWritingOptions.PrettyPrintASCII : JSONWritingOptions.CompactASCII);
+          var toPrint = JsonWriter.Write(hashed, pretty ? JsonWritingOptions.PrettyPrintASCII : JsonWritingOptions.CompactASCII);
 
           Console.WriteLine("Hashed Password:");
           Console.WriteLine();

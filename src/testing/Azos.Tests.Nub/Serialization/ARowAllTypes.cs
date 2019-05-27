@@ -228,7 +228,7 @@ namespace Azos.Tests.Nub.Serialization
 
             Console.WriteLine("Test #{0}".Args(i));
             Console.WriteLine("--------------------------------------------------");
-            Console.WriteLine(row1.ToJSON());
+            Console.WriteLine(row1.ToJson());
 
 
             ms.Position = 0;
@@ -246,9 +246,9 @@ namespace Azos.Tests.Nub.Serialization
 
             if (!row1.AllFieldsEqual( row2 ))
             {
-              Console.WriteLine(row2.ToJSON());
+              Console.WriteLine(row2.ToJson());
               Console.WriteLine("FAIL");
-              fail =  "The test case #{0} has failed.\nJSON:\n{1}".Args(i, row1.ToJSON());
+              fail =  "The test case #{0} has failed.\nJSON:\n{1}".Args(i, row1.ToJson());
             }
             else
               Console.WriteLine("PASS");
@@ -287,9 +287,9 @@ namespace Azos.Tests.Nub.Serialization
 
             if (!row1.AllFieldsEqual( row2 ))
             {
-              Console.WriteLine(row2.ToJSON());
+              Console.WriteLine(row2.ToJson());
               Console.WriteLine("FAIL");
-              fail =  "The test case #{0} has failed.\nJSON:\n{1}".Args(i, row1.ToJSON());
+              fail =  "The test case #{0} has failed.\nJSON:\n{1}".Args(i, row1.ToJson());
             }
             else
               Console.WriteLine("PASS");

@@ -20,7 +20,7 @@ namespace Azos.Serialization.JSON
     /// It respects JSONWritingOptions.NLSMapLanguageISO and NLSMapLanguageISODefault
     /// </summary>
     [Serializable] //this type is directly handled by slim writer/reader
-    public struct NLSMap : IEnumerable<KeyValuePair<string, NLSMap.NDPair>>, IJSONWritable
+    public struct NLSMap : IEnumerable<KeyValuePair<string, NLSMap.NDPair>>, IJsonWritable, IJsonReadable
     {
       //There are roughly 6,500 spoken languages in the world today.
       //However, about 2,000 of those languages have fewer than 1,000 speakers
@@ -60,7 +60,7 @@ namespace Azos.Serialization.JSON
       /// <summary>
       /// Localized Name:Description pair
       /// </summary>
-      public struct NDPair : IJSONWritable
+      public struct NDPair : IJsonWritable
       {
         internal NDPair(int iso, string name, string descr){ISO = iso; Name = name; Description = descr;}
 
@@ -70,9 +70,9 @@ namespace Azos.Serialization.JSON
         public readonly string Name;
         public readonly string Description;
 
-        void IJSONWritable.WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options)
+        void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
         {
-          JSONWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", Name),
+          JsonWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", Name),
                                                           new System.Collections.DictionaryEntry("d", Description));
         }
       }
@@ -182,7 +182,7 @@ namespace Azos.Serialization.JSON
 
       public override string ToString()
       {
-        return JSONWriter.Write(this, JSONWritingOptions.Compact);
+        return JsonWriter.Write(this, JsonWritingOptions.Compact);
       }
 
 
@@ -293,7 +293,7 @@ namespace Azos.Serialization.JSON
       /// <summary>
       /// Writes NLSMap either as a dict or as a {n:"", d: ""} pair as Options.NLSMapLanguageISO filter dictates
       /// </summary>
-      public void WriteAsJSON(TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+      void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
       {
         if (m_Data==null)
         {
@@ -302,10 +302,10 @@ namespace Azos.Serialization.JSON
         }
 
         if (options==null ||
-            options.Purpose==JSONSerializationPurpose.Marshalling ||
+            options.Purpose==JsonSerializationPurpose.Marshalling ||
             options.NLSMapLanguageISO.IsNullOrWhiteSpace())
         {
-          JSONWriter.WriteMap(wri, nestingLevel, options,
+          JsonWriter.WriteMap(wri, nestingLevel, options,
                               m_Data.Select
                               (
                                 e => new System.Collections.DictionaryEntry(IOUtils.UnpackISO3CodeFromInt(e.ISO), e)
@@ -320,11 +320,29 @@ namespace Azos.Serialization.JSON
           pair = this[options.NLSMapLanguageISODefault];
 
         if (pair.IsAssigned)
-          JSONWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", pair.Name),
+          JsonWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", pair.Name),
                                                           new System.Collections.DictionaryEntry("d", pair.Description));
         else
-          JSONWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", null),
+          JsonWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", null),
                                                           new System.Collections.DictionaryEntry("d", null));
+      }
+
+      (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+      {
+        if (data is JsonDataMap map)
+        {
+           var builder = new NLSMap.Builder();
+           foreach(var pair in map)
+           {
+             if (pair.Value is JsonDataMap map2)
+             {
+               builder.Add(pair.Key, map2["n"].AsString(), map2["d"].AsString());
+             }
+           }
+           return (true, builder.Map);
+        }
+
+        return (false, null);
       }
 
       public IEnumerator<KeyValuePair<string, NLSMap.NDPair>> GetEnumerator()

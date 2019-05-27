@@ -83,7 +83,7 @@ namespace Azos.Wave.Handlers
 
 
         work.Response.ContentType = ContentType.JSON;
-        work.Response.WriteJSON(dump, Serialization.JSON.JSONWritingOptions.PrettyPrint);
+        work.Response.WriteJSON(dump, Serialization.JSON.JsonWritingOptions.PrettyPrint);
      }
 
      private List<string> collToList(System.Collections.Specialized.NameValueCollection collection)

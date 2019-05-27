@@ -19,7 +19,7 @@ namespace Azos.Data
     /// Rowsets are not thread-safe
     /// </summary>
     [Serializable]
-    public abstract class RowsetBase : IList<Doc>, IComparer<Doc>, IJSONWritable, IValidatable
+    public abstract class RowsetBase : IList<Doc>, IComparer<Doc>, IJsonWritable, IValidatable
     {
         #region .ctor/static
 
@@ -28,14 +28,14 @@ namespace Azos.Data
             /// </summary>
             public static RowsetBase FromJSON(string json, bool schemaOnly = false, bool readOnlySchema = false)
             {
-              return FromJSON( JSONReader.DeserializeDataObject(json) as JSONDataMap, schemaOnly, readOnlySchema );
+              return FromJSON( JsonReader.DeserializeDataObject(json) as JsonDataMap, schemaOnly, readOnlySchema );
             }
 
 
             /// <summary>
             /// Reads either Table or Rowset from JSON created by WriteAsJSON. Metadata must be present
             /// </summary>
-            public static RowsetBase FromJSON(JSONDataMap jsonMap, bool schemaOnly = false, bool readOnlySchema = false)
+            public static RowsetBase FromJSON(JsonDataMap jsonMap, bool schemaOnly = false, bool readOnlySchema = false)
             {
               bool dummy;
               return FromJSON(jsonMap, out dummy, schemaOnly, readOnlySchema);
@@ -45,7 +45,7 @@ namespace Azos.Data
             /// Reads either Table or Rowset from JSON created by WriteAsJSON. Metadata must be present.
             /// allMatched==false when some data did not match schema (i.e. too little fields or extra fields supplied)
             /// </summary>
-            public static RowsetBase FromJSON(JSONDataMap jsonMap,
+            public static RowsetBase FromJSON(JsonDataMap jsonMap,
                                               out bool allMatched,
                                               bool schemaOnly = false,
                                               bool readOnlySchema = false,
@@ -54,7 +54,7 @@ namespace Azos.Data
               if (jsonMap == null || jsonMap.Count == 0)
                 throw new DataException(StringConsts.ARGUMENT_ERROR + "RowsetBase.FromJSON(jsonMap=null)");
 
-              var schMap = jsonMap["Schema"] as JSONDataMap;
+              var schMap = jsonMap["Schema"] as JsonDataMap;
               if (schMap==null)
                 throw new DataException(StringConsts.ARGUMENT_ERROR + "RowsetBase.FromJSON(jsonMap!schema)");
 
@@ -65,13 +65,13 @@ namespace Azos.Data
               var result = isTable ? (RowsetBase)new Table(schema) : (RowsetBase)new Rowset(schema);
               if (schemaOnly) return result;
 
-              var rows = jsonMap["Rows"] as JSONDataArray;
+              var rows = jsonMap["Rows"] as JsonDataArray;
               if (rows==null) return result;
 
 
               foreach(var jrow in rows)
               {
-                var jdo = jrow as IJSONDataObject;
+                var jdo = jrow as IJsonDataObject;
                 if (jdo==null)
                 {
                   allMatched = false;
@@ -103,7 +103,7 @@ namespace Azos.Data
                                           SetFieldFunc setFieldFunc = null)
               where T : TypedDoc, new()
             {
-              var map = JSONReader.DeserializeDataObject(json) as JSONDataMap;
+              var map = JsonReader.DeserializeDataObject(json) as JsonDataMap;
               return FromJSON<T>(map, ref result, setFieldFunc);
             }
 
@@ -117,7 +117,7 @@ namespace Azos.Data
             /// It's the responsibility of the caller to clear the "result" prior to
             /// calling this function - the function appends rows to existing rowset.
             /// </remarks>
-            public static int FromJSON<T>(JSONDataMap jsonMap,
+            public static int FromJSON<T>(JsonDataMap jsonMap,
                                           ref RowsetBase result,
                                           SetFieldFunc setFieldFunc = null)
               where T : TypedDoc, new()
@@ -131,12 +131,12 @@ namespace Azos.Data
               if (result.Schema != typedDoc.Schema)
                 throw new DataException(StringConsts.ARGUMENT_ERROR + "RowsetBase.FromJSON(): invalid result schema");
 
-              var rows = jsonMap["Rows"] as JSONDataArray;
+              var rows = jsonMap["Rows"] as JsonDataArray;
               if (rows==null) return 0;
 
               foreach(var jrow in rows)
               {
-                var jdo = jrow as IJSONDataObject;
+                var jdo = jrow as IJsonDataObject;
                 if (jdo==null)
                   continue;
 
@@ -167,7 +167,7 @@ namespace Azos.Data
             protected internal List<Doc> m_List;
             protected internal List<DocChange> m_Changes;
 
-            private JSONDynamicObject m_DataContext;
+            private JsonDynamicObject m_DataContext;
         #endregion
 
 
@@ -233,13 +233,13 @@ namespace Azos.Data
             /// <summary>
             /// Provides dynamic view as JSONDataMap of rowset's data context - attributes applicable to the whole rowset
             /// </summary>
-            public JSONDataMap ContextMap
+            public JsonDataMap ContextMap
             {
                 get
                 {
                   var data = this.Context;//laizily created if needed
 
-                  return m_DataContext.Data as JSONDataMap;
+                  return m_DataContext.Data as JsonDataMap;
                 }
             }
 
@@ -251,7 +251,7 @@ namespace Azos.Data
                get
                {
                   if (m_DataContext==null)
-                    m_DataContext = new JSONDynamicObject(JSONDynamicObjectKind.Map, false);
+                    m_DataContext = new JsonDynamicObject(JSONDynamicObjectKind.Map, false);
 
                   return m_DataContext;
                }
@@ -602,7 +602,7 @@ namespace Azos.Data
             /// <summary>
             /// Writes rowset as JSON including schema information. Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
             /// </summary>
-            public void WriteAsJSON(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+            public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
             {
                 var tp = GetType();
 
@@ -621,7 +621,7 @@ namespace Azos.Data
                     map.Add("Schema", m_Schema);
                 }
 
-                JSONWriter.WriteMap(wri, map, nestingLevel, options);
+                JsonWriter.WriteMap(wri, map, nestingLevel, options);
             }
 
 

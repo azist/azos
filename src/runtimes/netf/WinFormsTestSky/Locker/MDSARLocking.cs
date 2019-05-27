@@ -128,7 +128,7 @@ namespace WinFormsTestSky.Locker
        sb.AppendFormat("Transaction: {0}  Server Host: {1} \r\n", result.TransactionID, result.ServerHost);
        sb.AppendFormat("Server Trust: {0}  Runtime Sec: {1}  \r\n", result.ServerTrustLevel, result.ServerRuntimeSec);
        sb.AppendFormat("Status: {0} {1} \r\n", result.Status, result.Status!= LockStatus.TransactionOK ? "Error Cause: {0}   Failed: {1}".Args(result.ErrorCause, result.FailedStatement): "");
-       sb.AppendFormat("Data: {0} \r\n", result.ToJSON(JSONWritingOptions.PrettyPrint ) );
+       sb.AppendFormat("Data: {0} \r\n", result.ToJson(JsonWritingOptions.PrettyPrint ) );
        sb.AppendLine("---------------------------------------------------------");
        log(sb.ToString());
     }

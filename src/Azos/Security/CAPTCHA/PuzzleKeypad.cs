@@ -106,10 +106,10 @@ namespace Azos.Security.CAPTCHA
     /// Translates user action coordinates (i.e. screen touches or mouse clicks) into a string.
     /// The coordinates must be supplied as a JSON array of json objects that have '{x: [int], y: [int]}' structure
     /// </summary>
-    public string DecipherCoordinates(JSONDataArray coords, int? offsetX = null, int? offsetY = null)
+    public string DecipherCoordinates(JsonDataArray coords, int? offsetX = null, int? offsetY = null)
     {
-      return DecipherCoordinates(coords.Where(o => o is JSONDataMap)
-                                       .Cast<JSONDataMap>()
+      return DecipherCoordinates(coords.Where(o => o is JsonDataMap)
+                                       .Cast<JsonDataMap>()
                                        .Select(jp => new Point(jp["x"].AsInt(), jp["y"].AsInt())),
                                  offsetX, offsetY
                                 );

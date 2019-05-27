@@ -72,7 +72,7 @@ namespace Azos.Tests.Unit.Web
         Aver.IsNotNull(map.Metadata);
         Aver.IsFalse(map.Metadata.Exists);
 
-        Console.WriteLine(map.ToJSON());
+        Console.WriteLine(map.ToJson());
       }
     }
 
@@ -112,7 +112,7 @@ namespace Azos.Tests.Unit.Web
         Aver.IsNotNull(map.Metadata);
         Aver.IsFalse(map.Metadata.Exists);
 
-        Console.WriteLine(map.ToJSON());
+        Console.WriteLine(map.ToJson());
       }
     }
 
@@ -158,7 +158,7 @@ namespace Azos.Tests.Unit.Web
         Aver.IsNotNull(map.Metadata);
         Aver.IsFalse(map.Metadata.Exists);
 
-        Console.WriteLine(map.ToJSON());
+        Console.WriteLine(map.ToJson());
       }
     }
 
@@ -202,7 +202,7 @@ app
 
         Aver.AreEqual("My custom description", map.Name["eng"].Description);
 
-        Console.WriteLine(map.ToJSON());
+        Console.WriteLine(map.ToJson());
       }
     }
 
@@ -259,7 +259,7 @@ app
         Aver.AreEqual("Man1", map.Metadata.Navigate("/actors/[0]/$name").Value);
         Aver.AreEqual("Man2", map.Metadata.Navigate("/actors/[1]/$name").Value);
 
-        Console.WriteLine(map.ToJSON());
+        Console.WriteLine(map.ToJson());
       }
     }
 

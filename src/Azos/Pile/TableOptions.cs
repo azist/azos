@@ -214,8 +214,8 @@ namespace Azos.Pile
 
                   ConfigSectionNode node = null;
 
-                  if (value is JSONDataMap)
-                    node = ((JSONDataMap)value).ToConfigNode();
+                  if (value is JsonDataMap)
+                    node = ((JsonDataMap)value).ToConfigNode();
                   else
                   {
                     var str = value.ToString();
@@ -233,7 +233,7 @@ namespace Azos.Pile
                       if (str.StartsWith(CoreConsts.EXT_PARAM_CONTENT_JSON))
                        str = str.Remove(0, CoreConsts.EXT_PARAM_CONTENT_JSON.Length);
 
-                      var map = JSONReader.DeserializeDataObject( str ) as JSONDataMap;
+                      var map = JsonReader.DeserializeDataObject( str ) as JsonDataMap;
                       if (map==null)
                         throw new PileException(str);
 

@@ -57,8 +57,10 @@ namespace Azos.Apps
                        });
     }
 
+#pragma warning disable 649
     [Config] private string m_Name;
     [Config] private int m_Order;
+#pragma warning restore 649
 
     protected Collections.OrderedRegistry<ModuleBase> m_Children = new Collections.OrderedRegistry<ModuleBase>();
 

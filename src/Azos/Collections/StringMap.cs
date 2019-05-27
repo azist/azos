@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Collections
@@ -16,7 +17,7 @@ namespace Azos.Collections
   /// Compared to Dictionary[string,string] this class yields 20%-50% better Slim serialization speed improvement and 5%-10% space improvement
   /// </summary>
   [Serializable]
-  public sealed class StringMap : IDictionary<string, string>, IJSONWritable
+  public sealed class StringMap : IDictionary<string, string>, IJsonWritable, IJsonReadable
   {
 
     internal static Dictionary<string, string> MakeDictionary(bool senseCase)
@@ -106,9 +107,28 @@ namespace Azos.Collections
       return m_Data.GetEnumerator();
     }
 
-    public void WriteAsJSON(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
-      JSONWriter.WriteMap(wri, m_Data, nestingLevel, options);
+      JsonWriter.WriteMap(wri, m_Data, nestingLevel, options);
+    }
+
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    {
+      if (data==null) return (true, null);
+      if (data is JsonDataMap map)
+      {
+        if (m_Data==null)
+          m_Data = MakeDictionary(m_CaseSensitive);
+        else
+          m_Data.Clear();
+
+        foreach(var entry in map)
+          m_Data[entry.Key] = entry.Value.AsString();
+
+        return (true, this);
+      }
+
+      return (false, null);
     }
   }
 }

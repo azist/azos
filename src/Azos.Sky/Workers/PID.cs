@@ -20,7 +20,7 @@ namespace Azos.Sky.Workers
 
     public PID(string zone, int processorID, string id, bool isUnique) { Zone = zone; ProcessorID = processorID; ID = id; IsUnique = isUnique; }
 
-    public PID(JSONDataMap dataMap)
+    public PID(JsonDataMap dataMap)
     {
       Zone        = dataMap[nameof(Zone)]       .AsString();
       ProcessorID = dataMap[nameof(ProcessorID)].AsInt();

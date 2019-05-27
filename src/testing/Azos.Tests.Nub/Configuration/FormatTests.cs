@@ -109,7 +109,7 @@ namespace Azos.Tests.Nub.Configuration
       var cfg2 = serializedJSON.AsJSONConfig(handling: Data.ConvertErrorHandling.Throw);
       ensureInvariant(cfg2);
 
-      serializedJSON = cfg.ToJSONString(Azos.Serialization.JSON.JSONWritingOptions.PrettyPrintASCII);
+      serializedJSON = cfg.ToJSONString(Azos.Serialization.JSON.JsonWritingOptions.PrettyPrintASCII);
       Console.WriteLine("SERIALIZED PRETTY JSON: \n" + serializedJSON);
 
       var cfg3 = serializedJSON.AsJSONConfig(handling: Data.ConvertErrorHandling.Throw);

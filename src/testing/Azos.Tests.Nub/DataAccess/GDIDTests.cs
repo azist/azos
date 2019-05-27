@@ -124,7 +124,7 @@ namespace Azos.Tests.Nub.DataAccess
       public void GDID_JSON_1()
       {
         var gdid = new GDID(2, 3, 57);
-        var s = gdid.ToJSON();
+        var s = gdid.ToJson();
         Console.WriteLine(s);
         Aver.AreEqual("\"2:3:57\"", s);
       }
@@ -133,7 +133,7 @@ namespace Azos.Tests.Nub.DataAccess
       public void GDID_JSON_2()
       {
         var obj = new{ id = new GDID(22, 3, 57), Name = "Tezter"};
-        var s = obj.ToJSON();
+        var s = obj.ToJson();
         Console.WriteLine(s);
         Aver.AreEqual("{\"id\":\"22:3:57\",\"Name\":\"Tezter\"}", s);
       }

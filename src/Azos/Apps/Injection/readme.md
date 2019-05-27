@@ -220,7 +220,7 @@ Now the method is used like so:
 ... Mvc Controller ...
   [Inject] IMyDataStore m_DataStore;// injected by Mvc handler
 
-  [Action("method=POST")]
+  [ActionOnPost]
   public object AdmitNew(Patient patient)
   {
    //context/DI injection via extension method

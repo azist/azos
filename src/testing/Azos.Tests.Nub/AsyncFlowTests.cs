@@ -1,0 +1,286 @@
+/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using Azos.Apps;
+using Azos.Platform;
+using Azos.Scripting;
+
+namespace Azos.Tests.Nub
+{
+  /// <summary>
+  /// Due to incongruencies in .NET COre implementation vs .Net Fx these tests cover logical call flow runtime soundness
+  /// https://github.com/dotnet/corefx/issues/34489
+  /// </summary>
+  [Runnable]
+  public class AsyncFlowTests
+  {
+    private class directData
+    {
+      public string Tag{ get;set;}
+    }
+
+    private class directDataWrap
+    {
+      public directData Data { get; set; }
+    }
+
+
+    private static AsyncLocal<directData> ats_Local = new AsyncLocal<directData>();
+
+    [Run]
+    public void OneSyncMethodFlow_DirectData()
+    {
+      var data = new directData{ Tag="abcd1" };
+      ats_Local.Value = data;
+      Aver.AreEqual("abcd1", ats_Local.Value.Tag);
+    }
+
+    [Run]
+    public async Task OneAsyncMethodFlow_DirectData()
+    {
+      var data = new directData { Tag = "a234" };
+      ats_Local.Value = data;
+      await Task.Delay(100);
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("a234", ats_Local.Value.Tag);
+      await Task.Delay(100);
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("a234", ats_Local.Value.Tag);
+      await Task.Delay(100);
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("a234", ats_Local.Value.Tag);
+    }
+
+    [Run]
+    public async Task OneAsyncMethodFlow_DirectData_Loop()
+    {
+      var data = new directData { Tag = "xcv" };
+      ats_Local.Value = data;
+      for(var i=0; i<15; i++)
+      {
+        await Task.Delay(39);
+        TaskUtils.LoadAllCoresFor(50);
+        await Task.Yield();
+        Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+        Aver.AreEqual("xcv", ats_Local.Value.Tag);
+      }
+    }
+
+    [Run]
+    public async Task AsyncNestedFlow_DirectData()
+    {
+      var data = new directData { Tag = "x800" };
+      ats_Local.Value = data;
+
+      await Task.Yield();
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("x800", ats_Local.Value.Tag);
+      TaskUtils.LoadAllCoresFor(500);
+      await m2();
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("x800", ats_Local.Value.Tag);
+    }
+
+    private async Task<int> m2()
+    {
+      TaskUtils.LoadAllCoresFor(250);
+
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("x800", ats_Local.Value.Tag);
+
+      TaskUtils.LoadAllCoresFor(500);
+      var i = await m3();
+
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("x800", ats_Local.Value.Tag); //<--- although m3() changed it to x900, when we get back here, we see old context
+      return i+Ambient.Random.NextRandomInteger;
+    }
+
+    private async Task<int> m3()
+    {
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("x800", ats_Local.Value.Tag);
+      await Task.Yield();
+      var data = new directData { Tag = "x900" };//allocate completely new!!!
+      ats_Local.Value = data; //<--- this will NOT be seen outside of this method, because we set AsyncLocal directly without wrap
+      TaskUtils.LoadAllCoresFor(500);
+      await Task.Yield();
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      TaskUtils.LoadAllCoresFor(500);
+      await Task.Yield();
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("x900", ats_Local.Value.Tag);
+      return 900;
+    }
+
+    private static AsyncLocal<directDataWrap> ats_LocalWrap = new AsyncLocal<directDataWrap>();
+
+    [Run]
+    public async Task AsyncNestedFlow_DirectDataWrap()
+    {
+      var data = new directDataWrap{ Data= new directData { Tag = "x1000" }};
+      ats_LocalWrap.Value = data;
+
+      await Task.Yield();
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("x1000", ats_LocalWrap.Value.Data.Tag);
+      TaskUtils.LoadAllCoresFor(500);
+      await m2wrap();
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("x2000", ats_LocalWrap.Value.Data.Tag);//<--- m2wrap() changed inner value to x2000 via m3wrap(), so we see it
+    }
+
+    private async Task<int> m2wrap()
+    {
+      TaskUtils.LoadAllCoresFor(250);
+
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("x1000", ats_LocalWrap.Value.Data.Tag);
+
+      TaskUtils.LoadAllCoresFor(500);
+      var i = await m3wrap();
+
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("x2000", ats_LocalWrap.Value.Data.Tag); //<--- m3wrap() changed inner value to x2000, so we see it
+      return i + Ambient.Random.NextRandomInteger;
+    }
+
+    private async Task<int> m3wrap()
+    {
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("x1000", ats_LocalWrap.Value.Data.Tag);
+      await Task.Yield();
+      var data = new directData { Tag = "x2000" };
+      ats_LocalWrap.Value.Data = data; //<-- here is the difference!!!
+      TaskUtils.LoadAllCoresFor(500);
+      await Task.Yield();
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      TaskUtils.LoadAllCoresFor(500);
+      await Task.Yield();
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("x2000", ats_LocalWrap.Value.Data.Tag);
+      return 900;
+    }
+
+
+    private static AsyncFlowMutableLocal<directData> ats_Mutable = new AsyncFlowMutableLocal<directData>();
+
+    [Run]
+    public async Task AsyncFlowMutableNestedFlow_DirectData()
+    {
+      var data = new directData { Tag = "z1" };
+      ats_Mutable.Value = data;
+
+      await Task.Yield();
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("z1", ats_Mutable.Value.Tag);
+      TaskUtils.LoadAllCoresFor(500);
+      await m2mutable();
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("z3", ats_Mutable.Value.Tag);  //<-- get the value mutated in inner parts of the flow
+    }
+
+    private async Task<int> m2mutable()
+    {
+      TaskUtils.LoadAllCoresFor(250);
+
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("z1", ats_Mutable.Value.Tag);
+
+      TaskUtils.LoadAllCoresFor(500);
+      var i = await m3mutable();
+
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("z3", ats_Mutable.Value.Tag);
+      return i + Ambient.Random.NextRandomInteger;
+    }
+
+    private async Task<int> m3mutable()
+    {
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("z1", ats_Mutable.Value.Tag);
+      await Task.Yield();
+      var data = new directData { Tag = "z3" };
+      ats_Mutable.Value = data; //<--- this will be seen outside of this method
+      TaskUtils.LoadAllCoresFor(500);
+      await Task.Yield();
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      TaskUtils.LoadAllCoresFor(500);
+      await Task.Yield();
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("z3", ats_Mutable.Value.Tag);
+      return 900;
+    }
+
+
+
+    private static AsyncFlowMutableLocal<directData> ats_MutableParallel = new AsyncFlowMutableLocal<directData>();
+    private volatile bool m_Signal;
+
+    //this test emulates different physical originating call contexts
+    [Run]
+    public void AsyncFlowMutableParallelThreads()
+    {
+      var list = new List<Thread>();
+      for(var i=0; i<System.Environment.ProcessorCount*2; i++)
+      {
+        var t = new Thread(threadBody);
+        t.IsBackground = false;
+        list.Add(t);
+        t.Start();
+      }
+
+      m_Signal = true;
+
+      list.ForEach(t => t.Join());
+    }
+
+    private void threadBody() //this is needed to ensure different physical thread root caller context
+    {
+      while(!m_Signal) Thread.SpinWait(100);
+
+      var task = m1mutate();
+      task.GetAwaiter().GetResult();
+    }
+
+    private async Task m1mutate()//every flow roots in its own PHYSICAL thread, and it still maintains proper call flow
+    {
+      var d1 = Ambient.Random.NextRandomWebSafeString();
+      var d2 = Ambient.Random.NextRandomWebSafeString();
+
+      for(var i=0; i<100; i++)
+      {
+        var data = new directData { Tag = d1 };
+        ats_MutableParallel.Value = data;
+
+        await Task.Yield();
+        Aver.AreEqual(d1, ats_MutableParallel.Value.Tag);
+
+        await m2mutate(d2);
+
+        await Task.Yield();
+        //        Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+        Aver.AreEqual(d2, ats_MutableParallel.Value.Tag);  //<-- get the value mutated in inner parts of the flow
+      }
+    }
+
+    private async Task m2mutate(string v)
+    {
+      await Task.Yield();
+      ats_MutableParallel.Value = new directData { Tag = v }; //allocate completely new value
+      await Task.Yield();
+    }
+
+
+  }
+}
+
+

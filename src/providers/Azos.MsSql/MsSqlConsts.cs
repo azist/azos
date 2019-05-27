@@ -8,7 +8,7 @@ namespace Azos.Data.Access.MsSql
 {
   internal static class MsSqlConsts
   {
-    public const string MSSQL_TOPIC = "msql";
+    public const string MSSQL_TOPIC = "mssql";
 
   }
 }

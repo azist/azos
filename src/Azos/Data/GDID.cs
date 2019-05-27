@@ -5,8 +5,9 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
-
+using System.IO;
 
 using Azos.Serialization.JSON;
 
@@ -32,7 +33,8 @@ namespace Azos.Data
                        IComparable<GDID>,
                        IEquatable<GDID>,
                        IComparable,
-                       IJSONWritable
+                       IJsonWritable,
+                       IJsonReadable
   {
         public const UInt64 AUTHORITY_MASK = 0xf000000000000000;
         public const UInt64 COUNTER_MASK   = 0x0fffffffffffffff;//0x 0f  ff  ff  ff  ff  ff  ff  ff
@@ -196,7 +198,7 @@ namespace Azos.Data
           return x.CompareTo(y)>=0;
         }
 
-        public void WriteAsJSON(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+        void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options)
         {
           wri.Write('"');
           wri.Write(Era);
@@ -205,6 +207,18 @@ namespace Azos.Data
           wri.Write(':');
           wri.Write(Counter);
           wri.Write('"');
+        }
+
+        (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+        {
+          try
+          {
+            return (true, data.AsGDID());
+          }
+          catch
+          {
+            return (false, null);
+          }
         }
 
         public static GDID Parse(string str)
@@ -313,42 +327,59 @@ namespace Azos.Data
   /// <summary>
   /// Represents a tuple of GDID and its symbolic representation (framework usually uses an ELink as symbolic representation).
   /// This struct is needed to pass GDID along with its ELink representation together.
-  /// Keep in mind that string poses a GC load, so this stuct is not suitable for beiing used as a pile cache key
+  /// Keep in mind that string poses a GC load, so this struct is not suitable for being used as a pile cache key
   /// </summary>
   [Serializable]
-  public struct GDIDSymbol : IEquatable<GDIDSymbol>
+  public struct GDIDSymbol : IEquatable<GDIDSymbol>, IJsonWritable, IJsonReadable
   {
-     public GDIDSymbol(GDID gdid, string symbol)
-     {
-       GDID = gdid;
-       Symbol = symbol;
-     }
+    public GDIDSymbol(GDID gdid, string symbol)
+    {
+      GDID = gdid;
+      Symbol = symbol;
+    }
 
-     public readonly GDID GDID;
-     public readonly string Symbol;
+    public readonly GDID GDID;
+    public readonly string Symbol;
 
-     public bool IsZero{ get{ return GDID.IsZero;}}
+    public bool IsZero{ get{ return GDID.IsZero;}}
 
-     public override string ToString()
-     {
-       return "{0}::'{1}'".Args(GDID, Symbol);
-     }
+    public override string ToString()
+    {
+      return "{0}::'{1}'".Args(GDID, Symbol);
+    }
 
-     public override int GetHashCode()
-     {
-       return GDID.GetHashCode() ^ (Symbol!=null ? Symbol.GetHashCode() : 0);
-     }
+    public override int GetHashCode()
+    {
+      return GDID.GetHashCode() ^ (Symbol!=null ? Symbol.GetHashCode() : 0);
+    }
 
-     public override bool Equals(object obj)
-     {
-       if (!(obj is GDIDSymbol)) return false;
-       return this.Equals((GDIDSymbol)obj);
-     }
+    public override bool Equals(object obj)
+    {
+      if (!(obj is GDIDSymbol)) return false;
+      return this.Equals((GDIDSymbol)obj);
+    }
 
-     public bool Equals(GDIDSymbol other)
-     {
-       return this.GDID.Equals(other.GDID) && this.Symbol.EqualsOrdSenseCase(other.Symbol);
-     }
+    public bool Equals(GDIDSymbol other)
+    {
+      return this.GDID.Equals(other.GDID) && this.Symbol.EqualsOrdSenseCase(other.Symbol);
+    }
+
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+    {
+      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("gdid", GDID), new DictionaryEntry("sym", Symbol));
+    }
+
+    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    {
+      if (data is JsonDataMap map)
+      {
+        return (true, new GDIDSymbol(map["gdid"].AsGDID(GDID.ZERO), map["sym"].AsString()));
+      }
+      return (false, null);
+    }
+
+    public static bool operator ==(GDIDSymbol lhs, GDIDSymbol rhs) => lhs.Equals(rhs);
+    public static bool operator !=(GDIDSymbol lhs, GDIDSymbol rhs) => !lhs.Equals(rhs);
   }
 
   /// <summary>

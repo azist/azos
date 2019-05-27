@@ -31,7 +31,7 @@ namespace Azos.Data.Access.MongoDb
           if (result.WriteErrors == null ||
               result.WriteErrors.Length == 0) return;
 
-          var dump = Azos.Serialization.JSON.JSONWriter.Write(result.WriteErrors, Serialization.JSON.JSONWritingOptions.PrettyPrint);
+          var dump = Azos.Serialization.JSON.JsonWriter.Write(result.WriteErrors, Serialization.JSON.JsonWritingOptions.PrettyPrint);
 
           string kv = null;
           KeyViolationKind kvKind = KeyViolationKind.Unspecified;

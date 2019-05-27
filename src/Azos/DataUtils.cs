@@ -105,13 +105,14 @@ namespace Azos
     /// <summary>
     /// Async version - loads one doc cast per Query(T) or null
     /// </summary>
-    public static Task<TDoc> LoadDocAsync<TDoc>(this ICRUDOperations operations, Query<TDoc> query) where TDoc : Doc
+    public static async Task<TDoc> LoadDocAsync<TDoc>(this ICRUDOperations operations, Query<TDoc> query) where TDoc : Doc
     {
       if (operations==null || query==null)
         throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadDocAsync(ICRUDOperations==null | query==null)");
 
-      return operations.LoadOneDocAsync(query)
-                       .ContinueWith<TDoc>( (antecedent) => antecedent.Result as TDoc);
+      var got = await operations.LoadOneDocAsync(query);
+
+      return got as TDoc;
     }
 
     /// <summary>
@@ -128,13 +129,14 @@ namespace Azos
     /// <summary>
     /// Async version - loads docset with rows cast per Query(T) or empty enum
     /// </summary>
-    public static Task<IEnumerable<TDoc>> LoadEnumerableAsync<TDoc>(this ICRUDOperations operations, Query<TDoc> query) where TDoc : Doc
+    public static async Task<IEnumerable<TDoc>> LoadEnumerableAsync<TDoc>(this ICRUDOperations operations, Query<TDoc> query) where TDoc : Doc
     {
       if (operations==null || query==null)
         throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadEnumerableAsync(ICRUDOperations==null | query==null)");
 
-      return operations.LoadOneRowsetAsync(query)
-                       .ContinueWith( (antecedent) => antecedent.Result.AsEnumerableOf<TDoc>());
+      var got = await operations.LoadOneRowsetAsync(query);
+
+      return got.AsEnumerableOf<TDoc>();
     }
 
     /// <summary>
@@ -142,5 +144,11 @@ namespace Azos
     /// </summary>
     public static Exception Validate(this Doc doc, IApplication app, string targetName = null)
       => app.NonNull(nameof(app)).InjectInto(doc.NonNull(nameof(doc))).Validate(targetName);
+
+    /// <summary>
+    /// Perform app context injection and calls SaveAsync() on a data Form<typeparamref name="TSaveResult"/>
+    /// </summary>
+    public static Task<SaveResult<TSaveResult>> SaveAsync<TSaveResult>(this Form<TSaveResult> form, IApplication app)
+      => app.NonNull(nameof(app)).InjectInto(form.NonNull(nameof(form))).SaveAsync();
   }
 }

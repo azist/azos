@@ -43,10 +43,10 @@ namespace Azos.Wave.Client
     {
       if (init.IsNullOrWhiteSpace()) throw new WaveException(StringConsts.ARGUMENT_ERROR+"Record.ctor(init==null|empty)");
 
-      JSONDataMap initMap = null;
+      JsonDataMap initMap = null;
       try
       {
-         initMap = JSONReader.DeserializeDataObject(init) as JSONDataMap;
+         initMap = JsonReader.DeserializeDataObject(init) as JsonDataMap;
       }
       catch(Exception error)
       {
@@ -58,14 +58,14 @@ namespace Azos.Wave.Client
       ctor(initMap);
     }
 
-    public Record(JSONDataMap init) : base()
+    public Record(JsonDataMap init) : base()
     {
       if (init==null) throw new WaveException(StringConsts.ARGUMENT_ERROR+"Record.ctor(init(map)==null)");
 
       ctor(init);
     }
 
-    private void ctor(JSONDataMap init)
+    private void ctor(JsonDataMap init)
     {
       m_Init = init;
       var schema = MapInitToSchema();
@@ -74,26 +74,26 @@ namespace Azos.Wave.Client
     }
 
     protected List<ServerError> m_Errors = new List<ServerError>();
-    protected JSONDataMap m_Init;
+    protected JsonDataMap m_Init;
 
 
-    public JSONDataMap Init { get { return m_Init; } }
+    public JsonDataMap Init { get { return m_Init; } }
     public IEnumerable<ServerError> ServerErrors { get { return m_Errors; } }
     public bool? OK { get; private set; }
     public Guid? ID { get; private set; }
     public string ISOLang { get; private set; }
     public string FormMode { get; private set; }
     public string CSRFToken { get; private set; }
-    public JSONDataMap Roundtrip { get; private set; }
+    public JsonDataMap Roundtrip { get; private set; }
 
     /// <summary>
     /// Returns JSON representation of the Record including MODE, CSRF token and Roundtrip metafields
     /// </summary>
-    public JSONDataMap JSONData
+    public JsonDataMap JSONData
     {
       get
       {
-        var result = new JSONDataMap(true);
+        var result = new JsonDataMap(true);
         foreach (var fDef in this.Schema)
         {
           result[fDef.Name] = this.GetFieldValue(fDef);
@@ -116,12 +116,12 @@ namespace Azos.Wave.Client
     {
       var fdefs = new List<Schema.FieldDef>();
 
-      var fields = m_Init["fields"] as JSONDataArray;
+      var fields = m_Init["fields"] as JsonDataArray;
       if (fields != null)
       {
-        foreach (JSONDataMap field in fields)
+        foreach (JsonDataMap field in fields)
         {
-          var def = field["def"] as JSONDataMap;
+          var def = field["def"] as JsonDataMap;
           if (def == null) continue;
           var fdef = GetFieldDefFromJSON(def);
           fdefs.Add(fdef);
@@ -139,22 +139,22 @@ namespace Azos.Wave.Client
       FormMode = m_Init[Form.JSON_MODE_PROPERTY].AsString();
       CSRFToken = m_Init[Form.JSON_CSRF_PROPERTY].AsString();
       var roundtrip = m_Init[Form.JSON_ROUNDTRIP_PROPERTY].AsString();
-      Roundtrip = roundtrip != null ? JSONReader.DeserializeDataObject(roundtrip) as JSONDataMap : null;
+      Roundtrip = roundtrip != null ? JsonReader.DeserializeDataObject(roundtrip) as JsonDataMap : null;
 
       var error = m_Init["error"].AsString();
       var errorText = m_Init["errorText"].AsString();
       if (error.IsNotNullOrWhiteSpace() || errorText.IsNotNullOrWhiteSpace())
         m_Errors.Add(new ServerError(null, error, errorText));
 
-      var fields = m_Init["fields"] as JSONDataArray;
+      var fields = m_Init["fields"] as JsonDataArray;
       if (fields != null)
       {
         foreach (var item in fields)
         {
-          var field = item as JSONDataMap;
+          var field = item as JsonDataMap;
           if (field == null) continue;
 
-          var def = field["def"] as JSONDataMap;
+          var def = field["def"] as JsonDataMap;
           if (def == null) continue;
 
           var name = def["Name"].AsString();
@@ -170,7 +170,7 @@ namespace Azos.Wave.Client
       }
     }
 
-    protected virtual Schema.FieldDef GetFieldDefFromJSON(JSONDataMap def)
+    protected virtual Schema.FieldDef GetFieldDefFromJSON(JsonDataMap def)
     {
       var name = def["Name"].AsString();
       var type = MapJSToCLRType(def["Type"].AsString());
@@ -189,7 +189,7 @@ namespace Azos.Wave.Client
       var stored = def["Stored"].AsNullableBool();
       var storeFlag = (stored == false) ? StoreFlag.OnlyLoad : StoreFlag.LoadAndStore;
 
-      var lookupValues = def["LookupDict"] as JSONDataMap;
+      var lookupValues = def["LookupDict"] as JsonDataMap;
 
       var metadata = Configuration.NewEmptyRoot();
       foreach (var kvp in def)

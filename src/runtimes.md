@@ -9,13 +9,15 @@ See also:
 All system code in **Azos is built against .NET Standard** so it can
 target different runtimes. 
 
+**Note:** Azos purposely does not use built-in MSBuild multi-targeting and builds platform-specific entry points instead. This
+is done on purpose to control the exact behavior of the platform-specific EXE produced (see below).
 
 Azos supports two CLR (Common Language Runtime) runtimes by default:
-- **.Net Framework 4.7.1 and above** - runs on Windows
+- **.Net Framework 4.7.2 and above** - runs on Windows
 - **.Net Core 2.0 and above** - runs on Windows, Linux and Mac
 
 It is possible to run Azos applications on other OSs that support .Net Core,
-however we have not "officially" try it.
+however we have not "officially" tried it.
 
 System code resides in `Azos.*` assemblies adheres to .Net assembly naming using
 `PascalCase`, e.g. `Azos.dll`, `Azos.Web.dll`. The fact that the output files are called `*.dll`

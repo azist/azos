@@ -7,13 +7,12 @@
 using System;
 using System.Linq;
 using System.Text;
+using System.Data.SqlClient;
 
 using Azos.Log;
-using System.Data.SqlClient;
 
 namespace Azos.Data.Access.MsSql
 {
-
   /// <summary>
   /// Facilitates various SQL-construction and logging tasks
   /// </summary>
@@ -26,7 +25,7 @@ namespace Azos.Data.Access.MsSql
 
       if (key is CounterDataStoreKey)
       {
-        where = "T1.[COUNTER] = @CTR";
+        where = "T1.COUNTER = @CTR";
         var par = new SqlParameter();
         par.ParameterName = "@CTR";
         par.Value = ((CounterDataStoreKey)key).Counter;
@@ -34,12 +33,12 @@ namespace Azos.Data.Access.MsSql
         parameters.Add(par);
       }
       else
-      if (key is GDID)
+      if (key is GDID gdid)
       {
-        where = "T1.[GDID] = ?CTR";
+        where = "T1.GDID = @CTR";
         var par = new SqlParameter();
         par.ParameterName = "@CTR";
-        par.Value = key;
+        par.Value = (decimal)gdid.ID;
 
         parameters.Add(par);
       }
@@ -81,33 +80,34 @@ namespace Azos.Data.Access.MsSql
 
     public static void LogCommand(MsSqlDataStoreBase store, string from, SqlCommand cmd, Exception error)
     {
-      if (store.LogLevel==StoreLogLevel.None) return;
+        if (store.LogLevel==StoreLogLevel.None) return;
 
-      MessageType mt = store.LogLevel==StoreLogLevel.Debug ? MessageType.DebugSQL : MessageType.TraceSQL;
+        MessageType mt = store.LogLevel==StoreLogLevel.Debug ? MessageType.DebugSQL : MessageType.TraceSQL;
 
-      var descr = new StringBuilder(512);
-      descr.Append("Transaction: ");
-      if (cmd.Transaction==null)
-          descr.AppendLine("null");
-      else
-          descr.AppendLine(cmd.Transaction.IsolationLevel.ToString());
-      foreach(var p in cmd.Parameters.Cast<SqlParameter>())
-      {
-          descr.AppendFormat("Parameter {0} = {1}", p.ParameterName, p.Value!=null?p.Value.ToString():"null");
-      }
+        var descr = new StringBuilder(512);
+        descr.Append("Transaction: ");
+        if (cmd.Transaction==null)
+            descr.AppendLine("null");
+        else
+            descr.AppendLine(cmd.Transaction.IsolationLevel.ToString());
+        foreach(var p in cmd.Parameters.Cast<SqlParameter>())
+        {
+            descr.AppendFormat("Parameter {0} = {1}", p.ParameterName, p.Value!=null?p.Value.ToString():"null");
+        }
 
-      var msg = new Message
-      {
-          Type = mt,
-          From = from,
-          Topic = MsSqlConsts.MSSQL_TOPIC,
-          Exception = error,
-          Text = cmd.CommandText,
-          Parameters = descr.ToString()
-      };
+        var msg = new Message
+        {
+            Type = mt,
+            From = from,
+            Topic = MsSqlConsts.MSSQL_TOPIC,
+            Exception = error,
+            Text = cmd.CommandText,
+            Parameters = descr.ToString()
+        };
 
-      store.App.Log.Write( msg );
+        store.App.Log.Write( msg );
     }
+
 
   }
 }

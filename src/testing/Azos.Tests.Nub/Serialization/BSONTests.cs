@@ -2717,8 +2717,8 @@ namespace Azos.Tests.Nub.Serialization
     [Aver.Throws(typeof(BSONException), Message = StringConsts.BSON_TEMPLATE_ARG_DEPTH_EXCEEDED, MsgMatch = Aver.ThrowsAttribute.MatchType.Contains)]
     public void Templatization_Recursive()
     {
-      var map1 = new JSONDataMap { { "a", 1 } };
-      var map2 = new JSONDataMap { { "b", 2 }, { "c", map1 } };
+      var map1 = new JsonDataMap { { "a", 1 } };
+      var map2 = new JsonDataMap { { "b", 2 }, { "c", map1 } };
       map1.Add("d", map2);
 
       var qry = new BSONDocument("{ rec: '$$value' }", true, new TemplateArg("value", map1));

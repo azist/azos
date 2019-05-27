@@ -18,8 +18,9 @@ namespace Azos.Sky.Identification
   /// </summary>
   public sealed class GdidAuthority : IGdidAuthority
   {
-
+#pragma warning disable 649
     [Inject] IApplication m_App;
+#pragma warning restore 649
 
     public GdidAuthorityService Service => m_App.NonNull(nameof(m_App))
                                               .Singletons

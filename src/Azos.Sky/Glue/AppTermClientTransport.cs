@@ -41,7 +41,7 @@ namespace Azos.Sky.Glue
                                                                                               msg.GetType().FullName));
 
 
-      var data = new JSONDataMap();
+      var data = new JsonDataMap();
       data["id"] = request.RequestID.ID;
       data["instance"] = request.RemoteInstance?.ToString("D");
       data["method"] = request.MethodName;
@@ -79,7 +79,7 @@ namespace Azos.Sky.Glue
         }
       }
 
-      var json = data.ToJSON(JSONWritingOptions.Compact);
+      var json = data.ToJson(JsonWritingOptions.Compact);
       var utf8 = Encoding.UTF8.GetBytes(json);
       ms.Write(utf8, 0, utf8.Length);
     }
@@ -88,7 +88,7 @@ namespace Azos.Sky.Glue
     {
       var utf8 = ms.GetBuffer();
       var json = Encoding.UTF8.GetString(utf8, (int)ms.Position, (int)ms.Length - (int)ms.Position);
-      var data = json.JSONToDataObject() as JSONDataMap;
+      var data = json.JsonToDataObject() as JsonDataMap;
 
       if (data==null)
         throw new ProtocolException(StringConsts.GLUE_BINDING_RESPONSE_ERROR.Args(nameof(AppTermBinding),"data==null"));
@@ -101,7 +101,7 @@ namespace Azos.Sky.Glue
       if (returnValue==null || returnValue is string)
       {
         //return as-is
-      } else if (returnValue is JSONDataMap map)//error or Remote Terminal
+      } else if (returnValue is JsonDataMap map)//error or Remote Terminal
       {
         var errorContent = map["error-content"].AsString();
         if (errorContent!=null)

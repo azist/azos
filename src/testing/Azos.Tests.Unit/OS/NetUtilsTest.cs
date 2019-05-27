@@ -48,7 +48,7 @@ namespace Azos.Tests.Unit.OS
         {
             var hi = HostNetInfo.ForThisHost();
 
-            Console.WriteLine(  hi.ToJSON(JSONWritingOptions.PrettyPrint) );
+            Console.WriteLine(  hi.ToJson(JsonWritingOptions.PrettyPrint) );
 
             if (System.Environment.MachineName=="SEXTOD")
              Aver.IsTrue( hi.Adapters["{C93B4009-15C0-46A3-8C95-91610CAEBC4F}::Local Area Connection"].Addresses.ContainsName("192.168.1.70") );

@@ -71,10 +71,10 @@ namespace Azos.Wave
     /// Tries to match the pattern against the URI path section and returns a JSONDataMap match object filled with pattern match or NULL if pattern could not be matched.
     /// JSONDataMap may be easily converted to dynamic by calling new JSONDynamicObject(map)
     /// </summary>
-    public JSONDataMap MatchURIPath(Uri uri, bool senseCase = false)
+    public JsonDataMap MatchURIPath(Uri uri, bool senseCase = false)
     {
-      JSONDataMap result = null;
-      if (m_MatchChunks.Count==0) return new JSONDataMap(false);
+      JsonDataMap result = null;
+      if (m_MatchChunks.Count==0) return new JsonDataMap(false);
 
       var segs = uri.LocalPath.Split('/');
 
@@ -97,7 +97,7 @@ namespace Azos.Wave
            if (chunk.IsWildcard)
            {
              wildCard = true;
-             if (result==null) result = new JSONDataMap(false);
+             if (result==null) result = new JsonDataMap(false);
              if (!result.ContainsKey(chunk.Name))
                 result[chunk.Name] = seg;
              else
@@ -106,7 +106,7 @@ namespace Azos.Wave
            else
            if (chunk.IsVar)
            {
-              if (result==null) result = new JSONDataMap(false);
+              if (result==null) result = new JsonDataMap(false);
               result[chunk.Name] = seg;
            }
            else
@@ -119,13 +119,13 @@ namespace Azos.Wave
         chunk=m_MatchChunks[ichunk];
         if (!chunk.IsVar) return null;//some trailing elements that are not vars and  do not match
         if (result==null)
-          result = new JSONDataMap(false);
+          result = new JsonDataMap(false);
         if (!result.ContainsKey(chunk.Name))
           result[chunk.Name] = chunk.DefaultValue;
         ichunk++;
       }
 
-      return result ?? new JSONDataMap(false);
+      return result ?? new JsonDataMap(false);
     }
 
     /// <summary>

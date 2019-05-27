@@ -36,7 +36,7 @@ namespace Azos.Sky.WebManager.Controllers
 
       var watch = System.Diagnostics.Stopwatch.StartNew();
 
-      var load = new List<JSONDataMap>();
+      var load = new List<JsonDataMap>();
 
       var first = true;
       while (watch.ElapsedMilliseconds < duration)
@@ -47,7 +47,7 @@ namespace Azos.Sky.WebManager.Controllers
         System.Threading.Thread.Sleep(sample);//todo:  Redo this
 
 
-        var datum = new JSONDataMap{
+        var datum = new JsonDataMap{
                       {"at", App.TimeSource.UTCNow},
                       {"cpu",cpu},
                       {"ram",ram} };
@@ -192,7 +192,7 @@ namespace Azos.Sky.WebManager.Controllers
     ////////  }
     ////////}
 
-    private void addError(JSONDataMap datum, string type, Message msg, DateTime? lastErrorSample)
+    private void addError(JsonDataMap datum, string type, Message msg, DateTime? lastErrorSample)
     {
         if (msg==null) return;
         if (!lastErrorSample.HasValue || (msg.UTCTimeStamp-lastErrorSample.Value).TotalSeconds>1)

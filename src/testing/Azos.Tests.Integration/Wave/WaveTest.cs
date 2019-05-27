@@ -231,7 +231,7 @@ namespace Azos.Tests.Integration.Wave
 
             Aver.AreEqual("application/json", wc.ResponseHeaders[HttpResponseHeader.ContentType]);
 
-            var obj = JSONReader.DeserializeDynamic(str);
+            var obj = JsonReader.DeserializeDynamic(str);
 
             Aver.AreEqual(3, obj.Data.Count);
             Aver.AreEqual(1, obj.Data[0]);
@@ -249,7 +249,7 @@ namespace Azos.Tests.Integration.Wave
 
             Aver.AreEqual("application/json", wc.ResponseHeaders[HttpResponseHeader.ContentType]);
 
-            var obj = JSONReader.DeserializeDynamic(str);
+            var obj = JsonReader.DeserializeDynamic(str);
 
             Aver.AreEqual(3, obj.Data.Count);
             Aver.AreEqual(1, obj.Data[0]);
@@ -282,7 +282,7 @@ namespace Azos.Tests.Integration.Wave
 
             Aver.AreEqual("application/json", wc.ResponseHeaders[HttpResponseHeader.ContentType]);
 
-            var obj = JSONReader.DeserializeDynamic(str);
+            var obj = JsonReader.DeserializeDynamic(str);
 
             Aver.AreEqual(4, obj.Data.Count);
             Aver.AreEqual("777", obj.Data["ID"]);
@@ -305,7 +305,7 @@ namespace Azos.Tests.Integration.Wave
 
             Aver.AreEqual("application/json", wc.ResponseHeaders[HttpResponseHeader.ContentType]);
 
-            var obj = JSONReader.DeserializeDynamic(str);
+            var obj = JsonReader.DeserializeDynamic(str);
 
             Aver.AreEqual(16, obj.Data.Count);
             Aver.AreObjectsEqual(777, obj.Data["ID"]);
@@ -325,10 +325,10 @@ namespace Azos.Tests.Integration.Wave
         {
           var r = new WaveTestSite.Controllers.IntegrationTester.SpanDoc() { Span = TimeSpan.FromTicks(1) };
 
-          var str = r.ToJSON(JSONWritingOptions.CompactRowsAsMap);
+          var str = r.ToJson(JsonWritingOptions.CompactRowsAsMap);
 
-          var map = JSONReader.DeserializeDataObject(str) as JSONDataMap;
-          var gotRow = JSONReader.ToDoc<WaveTestSite.Controllers.IntegrationTester.SpanDoc>(map);
+          var map = JsonReader.DeserializeDataObject(str) as JsonDataMap;
+          var gotRow = JsonReader.ToDoc<WaveTestSite.Controllers.IntegrationTester.SpanDoc>(map);
         }
 
         [Run]
@@ -343,8 +343,8 @@ namespace Azos.Tests.Integration.Wave
 
             Aver.AreEqual("application/json", wc.ResponseHeaders[HttpResponseHeader.ContentType]);
 
-            var map = JSONReader.DeserializeDataObject(str) as JSONDataMap;
-            var gotRow = JSONReader.ToDoc<TestRow>(map);
+            var map = JsonReader.DeserializeDataObject(str) as JsonDataMap;
+            var gotRow = JsonReader.ToDoc<TestRow>(map);
           }
         }
 
@@ -364,7 +364,7 @@ namespace Azos.Tests.Integration.Wave
             new TestRow() {ID = 203, Name = "Err Doc 3", Date = DateTime.Now}
           };
 
-          var str = initalRow.ToJSON(JSONWritingOptions.CompactRowsAsMap);
+          var str = initalRow.ToJson(JsonWritingOptions.CompactRowsAsMap);
 
  Console.WriteLine(str);
 
@@ -373,8 +373,8 @@ namespace Azos.Tests.Integration.Wave
             wc.Headers[HttpRequestHeader.ContentType] = Azos.Web.ContentType.JSON;
             var res = wc.UploadString(INTEGRATION_HTTP_ADDR + "ComplexRowSet", str);
 
-            var map = JSONReader.DeserializeDataObject(res) as JSONDataMap;
-            var gotRow = JSONReader.ToDoc<TestComplexRow>(map);
+            var map = JsonReader.DeserializeDataObject(res) as JsonDataMap;
+            var gotRow = JsonReader.ToDoc<TestComplexRow>(map);
 
             Aver.AreEqual(initalRow.ID + 1, gotRow.ID);
             Aver.AreEqual(initalRow.Doc1.ID + 2, gotRow.Doc1.ID);
@@ -403,7 +403,7 @@ namespace Azos.Tests.Integration.Wave
         private void rowAndPrimitive(string actionName)
         {
           var initalRow = new TestRow() { ID = 0, Name = "Name" };
-          var str = initalRow.ToJSON(JSONWritingOptions.CompactRowsAsMap);
+          var str = initalRow.ToJson(JsonWritingOptions.CompactRowsAsMap);
 
           var values = new NameValueCollection();
           values.Add("n", "777");
@@ -415,8 +415,8 @@ namespace Azos.Tests.Integration.Wave
             wc.Headers[HttpRequestHeader.ContentType] = Azos.Web.ContentType.JSON;
             var res = wc.UploadString(INTEGRATION_HTTP_ADDR + actionName, str);
 
-            var map = JSONReader.DeserializeDataObject(res) as JSONDataMap;
-            var gotRow = JSONReader.ToDoc<TestRow>(map);
+            var map = JsonReader.DeserializeDataObject(res) as JsonDataMap;
+            var gotRow = JsonReader.ToDoc<TestRow>(map);
 
             Aver.AreEqual(gotRow.ID, 777);
             Aver.AreEqual(gotRow.Name, "sss");
@@ -443,10 +443,10 @@ namespace Azos.Tests.Integration.Wave
 
         private void jsonMapAndPrimitives(string actionName)
         {
-          var initialMap = new JSONDataMap();
+          var initialMap = new JsonDataMap();
           initialMap["ID"] = 100;
           initialMap["Name"] = "Initial Name";
-          var str = initialMap.ToJSON(JSONWritingOptions.CompactRowsAsMap);
+          var str = initialMap.ToJson(JsonWritingOptions.CompactRowsAsMap);
 
           var values = new NameValueCollection();
           values.Add("n", "777");
@@ -458,7 +458,7 @@ namespace Azos.Tests.Integration.Wave
             wc.Headers[HttpRequestHeader.ContentType] = Azos.Web.ContentType.JSON;
             var res = wc.UploadString(INTEGRATION_HTTP_ADDR + actionName, str);
 
-            var gotMap = JSONReader.DeserializeDataObject(res) as JSONDataMap;
+            var gotMap = JsonReader.DeserializeDataObject(res) as JsonDataMap;
 
             Aver.AreObjectsEqual(gotMap["ID"], 777);
             Aver.AreObjectsEqual(gotMap["Name"], "sss");
@@ -509,7 +509,7 @@ namespace Azos.Tests.Integration.Wave
 
             Console.WriteLine(str);
 
-            var obj = JSONReader.DeserializeDynamic(str);
+            var obj = JsonReader.DeserializeDynamic(str);
             Aver.AreObjectsEqual(55, obj.Data["ID"]);
             Aver.AreObjectsEqual("test", obj.Data["Name"]);
           }
@@ -531,7 +531,7 @@ namespace Azos.Tests.Integration.Wave
 
             Aver.AreEqual("application/json", wc.ResponseHeaders[HttpResponseHeader.ContentType]);
 
-            var obj = JSONReader.DeserializeDynamic(str);
+            var obj = JsonReader.DeserializeDynamic(str);
             Aver.AreEqual(USER_STATUS, obj["Status"]);
             Aver.AreEqual(USER_NAME, obj["Name"]);
 

@@ -58,7 +58,7 @@ cmd | Description
  `pm> install-package Azos.Oracle`| Azos ORACLE RDBMS Provider (CRUD etc.)
  `pm> install-package Azos.MySQL`| Azos MySQL RDBMS Provider (CRUD etc.) + Native Client
  `pm> install-package Azos.MongoDb`| Azos MongoDb Proivder (CRUD etc.) + Native Client 
- `Azos.WinForms`| Azos WinForms Support (for legacy) (WIP Coming Soon)
+ `pm> install-package Azos.WinForms`| Azos WinForms Support (for legacy)
  `pm> install-package Azos.Media`| Azos Media Formats (PDF, QR Codes etc.) 
  `pm> install-package Azos.Sky`| Azos Sky Distributed Cloud OS
  `pm> install-package Azos.Sky.MongoDb`| Azos Sky MongoDb Services (Queues etc.)

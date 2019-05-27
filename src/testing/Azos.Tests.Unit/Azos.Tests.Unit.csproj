@@ -14,6 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Wave\TestController.md" />
     <None Remove="Wave\tests.laconf" />
     <None Remove="Web\MultiPart\Resources\bmp.dat" />
     <None Remove="Web\MultiPart\Resources\test.dat" />
@@ -21,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Wave\TestController.md" />
     <EmbeddedResource Include="Wave\tests.laconf" />
   </ItemGroup>
 

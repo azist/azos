@@ -11,7 +11,7 @@ using Azos.Scripting;
 using Azos.CodeAnalysis;
 using Azos.CodeAnalysis.Source;
 using Azos.CodeAnalysis.JSON;
-using JL=Azos.CodeAnalysis.JSON.JSONLexer;
+using JL=Azos.CodeAnalysis.JSON.JsonLexer;
 using System.Reflection;
 using static Azos.Aver.ThrowsAttribute;
 
@@ -28,7 +28,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          var expected = new JSONTokenType[]{JSONTokenType.tBOF, JSONTokenType.tIdentifier, JSONTokenType.tEOF};
+          var expected = new JsonTokenType[]{JsonTokenType.tBOF, JsonTokenType.tIdentifier, JsonTokenType.tEOF};
           Aver.IsTrue( lxr.Select(t => t.Type).SequenceEqual(expected) );
         }
 
@@ -52,7 +52,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
           var lxr = new JL(new StringSource(src), msgs);
           lxr.AnalyzeAll();
 
-          Aver.IsNotNull(msgs.FirstOrDefault(m => m.Type == MessageType.Error && m.Code == (int)JSONMsgCode.ePrematureEOF));
+          Aver.IsNotNull(msgs.FirstOrDefault(m => m.Type == MessageType.Error && m.Code == (int)JsonMsgCode.ePrematureEOF));
         }
 
         [Run]
@@ -66,7 +66,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
           var lxr = new JL(new StringSource(src), msgs, throwErrors: true);
           lxr.AnalyzeAll();
 
-          Aver.IsNotNull(msgs.FirstOrDefault(m => m.Type == MessageType.Error && m.Code == (int)JSONMsgCode.ePrematureEOF));
+          Aver.IsNotNull(msgs.FirstOrDefault(m => m.Type == MessageType.Error && m.Code == (int)JsonMsgCode.ePrematureEOF));
         }
 
 
@@ -82,31 +82,31 @@ namespace Azos.Tests.Nub.CodeAnalysis
           Aver.IsFalse( tokens[0].IsPrimary);
           Aver.IsTrue(TokenKind.BOF == tokens[0].Kind);
 
-          Aver.IsTrue( JSONTokenType.tIdentifier == tokens[1].Type);
+          Aver.IsTrue( JsonTokenType.tIdentifier == tokens[1].Type);
           Aver.IsFalse( tokens[1].IsNonLanguage);
           Aver.IsTrue( tokens[1].IsPrimary);
           Aver.IsTrue(TokenKind.Identifier == tokens[1].Kind);
 
-          Aver.IsTrue( JSONTokenType.tStringLiteral == tokens[2].Type);
+          Aver.IsTrue( JsonTokenType.tStringLiteral == tokens[2].Type);
           Aver.IsFalse( tokens[2].IsNonLanguage);
           Aver.IsTrue( tokens[2].IsPrimary);
           Aver.IsTrue( tokens[2].IsTextualLiteral);
           Aver.IsTrue(TokenKind.Literal == tokens[2].Kind);
 
-          Aver.IsTrue( JSONTokenType.tColon == tokens[3].Type);
+          Aver.IsTrue( JsonTokenType.tColon == tokens[3].Type);
           Aver.IsFalse( tokens[3].IsNonLanguage);
           Aver.IsTrue( tokens[3].IsPrimary);
           Aver.IsTrue( tokens[3].IsOperator);
           Aver.IsTrue(TokenKind.Operator == tokens[3].Kind);
 
 
-          Aver.IsTrue( JSONTokenType.tIntLiteral == tokens[4].Type);
+          Aver.IsTrue( JsonTokenType.tIntLiteral == tokens[4].Type);
           Aver.IsFalse( tokens[4].IsNonLanguage);
           Aver.IsTrue( tokens[4].IsPrimary);
           Aver.IsTrue( tokens[4].IsNumericLiteral);
           Aver.IsTrue(TokenKind.Literal == tokens[4].Kind);
 
-          Aver.IsTrue( JSONTokenType.tComment == tokens[5].Type);
+          Aver.IsTrue( JsonTokenType.tComment == tokens[5].Type);
           Aver.IsFalse( tokens[5].IsNonLanguage);
           Aver.IsFalse( tokens[5].IsPrimary);
           Aver.IsTrue( tokens[5].IsComment);
@@ -122,11 +122,11 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          var expected = new JSONTokenType[]
+          var expected = new JsonTokenType[]
           {
-           JSONTokenType.tBOF, JSONTokenType.tBraceOpen,
-           JSONTokenType.tIdentifier, JSONTokenType.tColon, JSONTokenType.tIntLiteral,
-           JSONTokenType.tBraceClose, JSONTokenType.tEOF};
+           JsonTokenType.tBOF, JsonTokenType.tBraceOpen,
+           JsonTokenType.tIdentifier, JsonTokenType.tColon, JsonTokenType.tIntLiteral,
+           JsonTokenType.tBraceClose, JsonTokenType.tEOF};
 
           Aver.IsTrue( lxr.Select(t => t.Type).SequenceEqual(expected) );
         }
@@ -138,11 +138,11 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          var expected = new JSONTokenType[]
+          var expected = new JsonTokenType[]
           {
-           JSONTokenType.tBOF, JSONTokenType.tBraceOpen,
-           JSONTokenType.tIdentifier, JSONTokenType.tColon, JSONTokenType.tDoubleLiteral,
-           JSONTokenType.tBraceClose, JSONTokenType.tEOF};
+           JsonTokenType.tBOF, JsonTokenType.tBraceOpen,
+           JsonTokenType.tIdentifier, JsonTokenType.tColon, JsonTokenType.tDoubleLiteral,
+           JsonTokenType.tBraceClose, JsonTokenType.tEOF};
 
           Aver.IsTrue( lxr.Select(t => t.Type).SequenceEqual(expected) );
         }
@@ -155,18 +155,18 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          var expected = new JSONTokenType[]
+          var expected = new JsonTokenType[]
           {
-           JSONTokenType.tBOF, JSONTokenType.tBraceOpen,
-           JSONTokenType.tIdentifier, JSONTokenType.tColon, JSONTokenType.tIntLiteral, JSONTokenType.tComma,
-           JSONTokenType.tIdentifier, JSONTokenType.tColon, JSONTokenType.tTrue, JSONTokenType.tComma,
-           JSONTokenType.tIdentifier, JSONTokenType.tColon, JSONTokenType.tFalse, JSONTokenType.tComma,
-           JSONTokenType.tIdentifier, JSONTokenType.tColon, JSONTokenType.tNull, JSONTokenType.tComma,
-           JSONTokenType.tIdentifier, JSONTokenType.tColon, JSONTokenType.tSqBracketOpen, JSONTokenType.tStringLiteral, JSONTokenType.tComma,
-                                                                                          JSONTokenType.tStringLiteral, JSONTokenType.tComma,
-                                                                                          JSONTokenType.tStringLiteral,
-                                                            JSONTokenType.tSqBracketClose,
-           JSONTokenType.tBraceClose, JSONTokenType.tEOF};
+           JsonTokenType.tBOF, JsonTokenType.tBraceOpen,
+           JsonTokenType.tIdentifier, JsonTokenType.tColon, JsonTokenType.tIntLiteral, JsonTokenType.tComma,
+           JsonTokenType.tIdentifier, JsonTokenType.tColon, JsonTokenType.tTrue, JsonTokenType.tComma,
+           JsonTokenType.tIdentifier, JsonTokenType.tColon, JsonTokenType.tFalse, JsonTokenType.tComma,
+           JsonTokenType.tIdentifier, JsonTokenType.tColon, JsonTokenType.tNull, JsonTokenType.tComma,
+           JsonTokenType.tIdentifier, JsonTokenType.tColon, JsonTokenType.tSqBracketOpen, JsonTokenType.tStringLiteral, JsonTokenType.tComma,
+                                                                                          JsonTokenType.tStringLiteral, JsonTokenType.tComma,
+                                                                                          JsonTokenType.tStringLiteral,
+                                                            JsonTokenType.tSqBracketClose,
+           JsonTokenType.tBraceClose, JsonTokenType.tEOF};
 
            //lxr.AnalyzeAll();
            //Console.Write(lxr.ToString());
@@ -202,7 +202,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          var expected = new JSONTokenType[]{JSONTokenType.tBOF, JSONTokenType.tBraceOpen, JSONTokenType.tComment, JSONTokenType.tBraceClose, JSONTokenType.tEOF};
+          var expected = new JsonTokenType[]{JsonTokenType.tBOF, JsonTokenType.tBraceOpen, JsonTokenType.tComment, JsonTokenType.tBraceClose, JsonTokenType.tEOF};
           Aver.IsTrue( lxr.Select(t => t.Type).SequenceEqual(expected) );
         }
 
@@ -216,7 +216,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          var expected = new JSONTokenType[]{JSONTokenType.tBOF, JSONTokenType.tBraceOpen, JSONTokenType.tComment, JSONTokenType.tBraceClose, JSONTokenType.tEOF};
+          var expected = new JsonTokenType[]{JsonTokenType.tBOF, JsonTokenType.tBraceOpen, JsonTokenType.tComment, JsonTokenType.tBraceClose, JsonTokenType.tEOF};
           Aver.IsTrue( lxr.Select(t => t.Type).SequenceEqual(expected) );
         }
 
@@ -232,7 +232,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          var expected = new JSONTokenType[]{JSONTokenType.tBOF, JSONTokenType.tBraceOpen, JSONTokenType.tComment, JSONTokenType.tBraceClose, JSONTokenType.tEOF};
+          var expected = new JsonTokenType[]{JsonTokenType.tBOF, JsonTokenType.tBraceOpen, JsonTokenType.tComment, JsonTokenType.tBraceClose, JsonTokenType.tEOF};
           Aver.IsTrue( lxr.Select(t => t.Type).SequenceEqual(expected) );
         }
 
@@ -338,7 +338,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          Aver.IsTrue(JSONTokenType.tStringLiteral == lxr.ElementAt(2).Type);
+          Aver.IsTrue(JsonTokenType.tStringLiteral == lxr.ElementAt(2).Type);
           Aver.AreEqual("|* /* //comment text \n\r */ *|", lxr.ElementAt(2).Text);
         }
 
@@ -367,7 +367,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
           ";
           var lxr = new JL(new StringSource(src));
 
-          Aver.IsTrue(JSONTokenType.tComment == lxr.ElementAt(2).Type);
+          Aver.IsTrue(JsonTokenType.tComment == lxr.ElementAt(2).Type);
           Aver.AreEqual("'aaaa /* //comment\"text \n\r */ ", lxr.ElementAt(2).Text);
         }
 
@@ -405,7 +405,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          var expected = new JSONTokenType[]{JSONTokenType.tBOF, JSONTokenType.tBraceOpen, JSONTokenType.tStringLiteral, JSONTokenType.tBraceClose, JSONTokenType.tEOF};
+          var expected = new JsonTokenType[]{JsonTokenType.tBOF, JsonTokenType.tBraceOpen, JsonTokenType.tStringLiteral, JsonTokenType.tBraceClose, JsonTokenType.tEOF};
           Aver.IsTrue( lxr.Select(t => t.Type).SequenceEqual(expected) );
         }
 
@@ -416,7 +416,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          var expected = new JSONTokenType[]{JSONTokenType.tBOF, JSONTokenType.tBraceOpen, JSONTokenType.tStringLiteral, JSONTokenType.tBraceClose, JSONTokenType.tEOF};
+          var expected = new JsonTokenType[]{JsonTokenType.tBOF, JsonTokenType.tBraceOpen, JsonTokenType.tStringLiteral, JsonTokenType.tBraceClose, JsonTokenType.tEOF};
           Aver.IsTrue( lxr.Select(t => t.Type).SequenceEqual(expected) );
         }
 
@@ -554,7 +554,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          Aver.IsTrue(JSONTokenType.tPlus == lxr.ElementAt(2).Type);
+          Aver.IsTrue(JsonTokenType.tPlus == lxr.ElementAt(2).Type);
           Aver.AreObjectsEqual(12, lxr.ElementAt(3).Value);
         }
 
@@ -565,7 +565,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          Aver.IsTrue(JSONTokenType.tMinus == lxr.ElementAt(2).Type);
+          Aver.IsTrue(JsonTokenType.tMinus == lxr.ElementAt(2).Type);
           Aver.AreObjectsEqual(12, lxr.ElementAt(3).Value);
         }
 
@@ -581,7 +581,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var bvalue = lxr.LazyFSM(
                  (s,t) => t.LoopUntilAny("b"),
-                 (s,t) => t.IsAnyOrAbort(JSONTokenType.tColon),
+                 (s,t) => t.IsAnyOrAbort(JsonTokenType.tColon),
                  (s,t) => FSMI.TakeAndComplete
              );
 
@@ -598,9 +598,9 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var bvalue = lxr.LazyFSM(
                  (s,t) => t.LoopUntilAny("b"),
-                 (s,t) => t.IsAnyOrAbort(JSONTokenType.tColon),
+                 (s,t) => t.IsAnyOrAbort(JsonTokenType.tColon),
                  (s,t) => FSMI.Take,
-                 (s,t) => t.IsAnyOrAbort(JSONTokenType.tComma)
+                 (s,t) => t.IsAnyOrAbort(JsonTokenType.tComma)
              );
 
           Aver.AreEqual( "Znatoki", bvalue.Text );
@@ -616,9 +616,9 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var bvalue = lxr.LazyFSM(
                  (s,t) => t.LoopUntilAny("b"),
-                 (s,t) => t.IsAnyOrAbort(JSONTokenType.tColon),
+                 (s,t) => t.IsAnyOrAbort(JsonTokenType.tColon),
                  (s,t) => FSMI.Take,
-                 (s,t) => t.IsAnyOrAbort(JSONTokenType.tComma)
+                 (s,t) => t.IsAnyOrAbort(JsonTokenType.tComma)
              );
 
           Aver.IsNull(bvalue);
@@ -634,21 +634,21 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var capture = lxr.LazyFSM(
                  (s,t) => s.LoopUntilMatch(
-                                            (ss, tk) => tk.LoopUntilAny(JSONTokenType.tStringLiteral),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tColon),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tStringLiteral),
+                                            (ss, tk) => tk.LoopUntilAny(JsonTokenType.tStringLiteral),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tColon),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tStringLiteral),
                                             (ss, tk) => FSMI.TakeAndComplete
                                           ),
                  (s,t) => s.Skip(3),
-                 (s,t) => t.LoopUntilAny(JSONTokenType.tStringLiteral),
-                 (s,t) => t.IsAnyOrAbort(JSONTokenType.tColon),
+                 (s,t) => t.LoopUntilAny(JsonTokenType.tStringLiteral),
+                 (s,t) => t.IsAnyOrAbort(JsonTokenType.tColon),
                  (s,t) => FSMI.Take,
-                 (s,t) => t.IsAnyOrAbort(JSONTokenType.tBraceClose)
+                 (s,t) => t.IsAnyOrAbort(JsonTokenType.tBraceClose)
              );
 
           Aver.IsNotNull( capture );
 
-          Aver.IsTrue( JSONTokenType.tIntLiteral == capture.Type );
+          Aver.IsTrue( JsonTokenType.tIntLiteral == capture.Type );
           Aver.AreObjectsEqual( 127, capture.Value );
         }
 
@@ -666,7 +666,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
              );
 
           Aver.IsNotNull( capture );
-          Aver.IsTrue( JSONTokenType.tIdentifier == capture.Type );
+          Aver.IsTrue( JsonTokenType.tIdentifier == capture.Type );
           Aver.AreEqual( "a", capture.Text );
 
           capture = lxr.LazyFSM(
@@ -675,7 +675,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
              );
 
           Aver.IsNotNull( capture );
-          Aver.IsTrue( JSONTokenType.tIdentifier == capture.Type );
+          Aver.IsTrue( JsonTokenType.tIdentifier == capture.Type );
           Aver.AreEqual( "q", capture.Text );
         }
 
@@ -689,16 +689,16 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var capture = lxr.LazyFSM(
                  (s,t) => s.LoopUntilMatch(
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tStringLiteral),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tColon),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tStringLiteral),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tStringLiteral),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tColon),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tStringLiteral),
                                             (ss, tk) => FSMI.TakeAndComplete
                                           ),
                  (s,t) => FSMI.Take
              );
 
           Aver.IsNotNull( capture );
-          Aver.IsTrue( JSONTokenType.tStringLiteral == capture.Type );
+          Aver.IsTrue( JsonTokenType.tStringLiteral == capture.Type );
           Aver.AreObjectsEqual( "Name", capture.Value );
         }
 
@@ -713,16 +713,16 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var capture = lxr.LazyFSM(
                  (s,t) => s.LoopUntilAfterMatch(
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tStringLiteral),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tColon),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tStringLiteral),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tStringLiteral),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tColon),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tStringLiteral),
                                             (ss, tk) => FSMI.TakeAndComplete
                                           ),
                  (s,t) => FSMI.Take
              );
 
           Aver.IsNotNull( capture );
-          Aver.IsTrue( JSONTokenType.tComma == capture.Type );
+          Aver.IsTrue( JsonTokenType.tComma == capture.Type );
         }
 
         [Run]
@@ -735,16 +735,16 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var capture = lxr.LazyFSM(
                  (s,t) => s.LoopUntilAfterMatch(
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tStringLiteral),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tColon),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tStringLiteral),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tStringLiteral),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tColon),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tStringLiteral),
                                             (ss, tk) => FSMI.TakeAndComplete
                                           ),
                  (s,t) => FSMI.Take
              );
 
           Aver.IsNotNull( capture );
-          Aver.IsTrue( JSONTokenType.tNull == capture.Type );
+          Aver.IsTrue( JsonTokenType.tNull == capture.Type );
         }
 
         [Run]
@@ -757,16 +757,16 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var capture = lxr.LazyFSM(false,
                  (s,t) => s.LoopUntilAfterMatch(
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tStringLiteral),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tColon),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tStringLiteral),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tStringLiteral),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tColon),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tStringLiteral),
                                             (ss, tk) => FSMI.TakeAndComplete
                                           ),
                  (s,t) => FSMI.Take
              );
 
           Aver.IsNotNull( capture );
-          Aver.IsTrue( JSONTokenType.tNull == capture.Type );
+          Aver.IsTrue( JsonTokenType.tNull == capture.Type );
         }
 
         [Run]
@@ -779,16 +779,16 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var capture = lxr.LazyFSM(
                  (s,t) => s.LoopUntilAfterMatch(
-                                            (ss, tk) => tk.LoopUntilAny(JSONTokenType.tStringLiteral),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tColon),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tStringLiteral),
+                                            (ss, tk) => tk.LoopUntilAny(JsonTokenType.tStringLiteral),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tColon),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tStringLiteral),
                                             (ss, tk) => FSMI.TakeAndComplete
                                           ),
                  (s,t) => FSMI.Take
              );
 
           Aver.IsNotNull( capture );
-          Aver.IsTrue( JSONTokenType.tNull == capture.Type );
+          Aver.IsTrue( JsonTokenType.tNull == capture.Type );
         }
 
 
@@ -802,20 +802,20 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var capture = lxr.LazyFSM(
                  (s,t) => s.LoopUntilAfterMatch(
-                                            (ss, tk) => tk.LoopUntilAny(JSONTokenType.tStringLiteral),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tColon),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tStringLiteral),
+                                            (ss, tk) => tk.LoopUntilAny(JsonTokenType.tStringLiteral),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tColon),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tStringLiteral),
                                             (ss, tk) => FSMI.TakeAndComplete
                                           ),
                  (s,t) => FSMI.Take
              );
 
           Aver.IsNotNull( capture );
-          Aver.IsTrue( JSONTokenType.tNull == capture.Type );
+          Aver.IsTrue( JsonTokenType.tNull == capture.Type );
         }
 
 
-        [JSONPersonMatch]
+        [JsonPersonMatch]
         [Run]
         public void JSONPatternMatchAttribute1()
         {
@@ -823,13 +823,13 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          var match = JSONPatternMatchAttribute.Check(MethodBase.GetCurrentMethod(), lxr);
+          var match = JsonPatternMatchAttribute.Check(MethodBase.GetCurrentMethod(), lxr);
 
 
           Aver.IsFalse( match );
         }
 
-        [JSONPersonMatch]
+        [JsonPersonMatch]
         [Run]
         public void JSONPatternMatchAttribute2()
         {
@@ -837,13 +837,13 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          var match = JSONPatternMatchAttribute.Check(MethodBase.GetCurrentMethod(), lxr);
+          var match = JsonPatternMatchAttribute.Check(MethodBase.GetCurrentMethod(), lxr);
 
 
           Aver.IsTrue( match );
         }
 
-        [JSONPersonMatch]
+        [JsonPersonMatch]
         [Run]
         public void JSONPatternMatchAttribute3()
         {
@@ -851,7 +851,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
           var lxr = new JL(new StringSource(src));
 
-          var match = JSONPatternMatchAttribute.Check(MethodBase.GetCurrentMethod(), lxr);
+          var match = JsonPatternMatchAttribute.Check(MethodBase.GetCurrentMethod(), lxr);
 
 
           Aver.IsTrue( match );
@@ -860,15 +860,15 @@ namespace Azos.Tests.Nub.CodeAnalysis
     }
 
 
-    public class JSONPersonMatchAttribute : JSONPatternMatchAttribute
+    public class JsonPersonMatchAttribute : JsonPatternMatchAttribute
     {
-        public override bool Match(Azos.CodeAnalysis.JSON.JSONLexer content)
+        public override bool Match(Azos.CodeAnalysis.JSON.JsonLexer content)
         {
           return content.LazyFSM(
                   (s,t) => s.LoopUntilMatch(
                                             (ss, tk) => tk.LoopUntilAny("First-Name","FirstName","first_name"),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tColon),
-                                            (ss, tk) => tk.IsAnyOrAbort(JSONTokenType.tStringLiteral),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tColon),
+                                            (ss, tk) => tk.IsAnyOrAbort(JsonTokenType.tStringLiteral),
                                             (ss, tk) => FSMI.TakeAndComplete
                                           ),
                   (s,t) => FSMI.Take

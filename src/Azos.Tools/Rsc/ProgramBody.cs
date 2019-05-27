@@ -10,12 +10,14 @@ using System.IO;
 
 using Azos.Data.Modeling;
 using Azos.Conf;
-using Azos.Templatization;
 using Azos.IO;
 using Azos.Platform;
 
 namespace Azos.Tools.Rsc
 {
+    /// <summary>
+    /// Program body (entry point) for Relation Schema Compiler tool
+    /// </summary>
     public static class ProgramBody
     {
         public static void Main(string[] args)

@@ -114,7 +114,9 @@ namespace Azos.Sky.Apps.Terminal
       registry.Register(this);
     }
 
+#pragma warning disable 649
     [Inject] ISkyApplication m_App;
+#pragma warning restore 649
 
     private int m_ID;
     private string m_Name;

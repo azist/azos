@@ -269,9 +269,9 @@ namespace Azos.Serialization.Arow
        return value;
     }
 
-    private static JSON.JSONDataMap readRowAsMap(ReadingStreamer streamer)
+    private static JSON.JsonDataMap readRowAsMap(ReadingStreamer streamer)
     {
-      var result = new JSON.JSONDataMap();
+      var result = new JSON.JsonDataMap();
       while(true)
       {
         var name = ReadName(streamer);

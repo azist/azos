@@ -26,11 +26,11 @@ namespace Azos.Data.Access.Oracle
 
 
        /// <summary>
-       /// Based on store settings, converts CLR value to MySQL-acceptable value, i.e. GDID -> BYTE[].
+       /// Based on store settings, converts CLR value to Oracle-acceptable value, i.e. GDID -> BYTE[].
        /// </summary>
-       public object CLRValueToDB(OracleDataStoreBase store, object value, out OracleDbType? convertedDbType)
+       public (object value, OracleDbType? dbType) CLRValueToDB(object value, string explicitDbType)
        {
-          return CRUDGenerator.CLRValueToDB(DataStore, value, out convertedDbType);
+          return CRUDGenerator.CLRValueToDB(DataStore, value, explicitDbType);
        }
 
        /// <summary>

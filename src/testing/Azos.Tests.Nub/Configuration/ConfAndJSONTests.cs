@@ -33,13 +33,13 @@ namespace Azos.Tests.Nub.Configuration
       Aver.AreEqual(2, map.Count);
       Aver.IsTrue(map["detailed-instrumentation"].AsString() == "true");
 
-      var tablesMap = (JSONDataMap)map["tables"];
+      var tablesMap = (JsonDataMap)map["tables"];
 
-      var master = (JSONDataMap)tablesMap["master"];
+      var master = (JsonDataMap)tablesMap["master"];
       Aver.IsTrue(master["name"].AsString() == "tfactory");
       Aver.IsTrue(master["fields-qty"].AsString() == "14");
 
-      var slave = (JSONDataMap)tablesMap["slave"];
+      var slave = (JsonDataMap)tablesMap["slave"];
       Aver.IsTrue(slave["name"].AsString() == "tdoor");
       Aver.IsTrue(slave["fields-qty"].AsString() == "20");
       Aver.IsTrue(slave["important"].AsString() == "true");
@@ -48,14 +48,14 @@ namespace Azos.Tests.Nub.Configuration
     [Run]
     public void JSONDataMap_2_ConfigSectionNode()
     {
-      var map = (JSONDataMap)@" {
+      var map = (JsonDataMap)@" {
                                   'detailed-instrumentation': true,
                                   tables:
                                   {
                                     master: { name: 'tfactory', 'fields-qty': 14},
                                     slave: { name: 'tdoor', 'fields-qty': 20, important: true}
                                   }
-                                }".JSONToDataObject();
+                                }".JsonToDataObject();
 
       var cfg = map.ToConfigNode();
 

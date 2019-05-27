@@ -48,7 +48,9 @@ namespace Azos.Sky.WebManager.Controls
     private string m_Keywords;
     private string m_Viewport;
 
+#pragma warning disable 649
     [Inject] private ISkyApplication m_App;
+#pragma warning restore 649
 
     public ISkyApplication App => m_App;
     public Localizer Localizer => Localizer.Of(App);
@@ -96,7 +98,7 @@ namespace Azos.Sky.WebManager.Controls
     public string FormJSON(Form form, Exception validationError = null, string recID = null, string target = null)
     {
       var lang = Localizer.Of(App).GetLanguage();
-      return RecordModelGenerator.DefaultInstance.RowToRecordInitJSON(form, validationError, recID, target, lang).ToJSON();
+      return RecordModelGenerator.DefaultInstance.RowToRecordInitJSON(form, validationError, recID, target, lang).ToJson();
     }
 
   }

@@ -224,7 +224,7 @@ namespace Azos.Wave.Handlers
         for(var i=0; i<mpars.Length; i++)
         {
           var ctp = mpars[i].ParameterType;
-          if (ctp==typeof(object) || ctp==typeof(JSONDataMap) || ctp==typeof(Dictionary<string, object>))
+          if (ctp==typeof(object) || ctp==typeof(JsonDataMap) || ctp==typeof(Dictionary<string, object>))
           {
             args[i] = requested;
             continue;
@@ -233,7 +233,7 @@ namespace Azos.Wave.Handlers
           {
             try
             {
-              args[i] = JSONReader.ToDoc(ctp, requested);
+              args[i] = JsonReader.ToDoc(ctp, requested);
               continue;
             }
             catch(Exception error)
@@ -341,7 +341,7 @@ namespace Azos.Wave.Handlers
           return;
         }
 
-        work.Response.WriteJSON(result, JSONWritingOptions.CompactRowsAsMap ); //default serialize object as JSON
+        work.Response.WriteJSON(result, JsonWritingOptions.CompactRowsAsMap ); //default serialize object as JSON
       }
 
 

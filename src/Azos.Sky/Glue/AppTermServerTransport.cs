@@ -35,7 +35,7 @@ namespace Azos.Sky.Glue
     {
       var utf8 = ms.GetBuffer();
       var json = Encoding.UTF8.GetString(utf8, (int)ms.Position, (int)ms.Length - (int)ms.Position);
-      var data = JSONReader.DeserializeDataObject(json) as JSONDataMap;
+      var data = JsonReader.DeserializeDataObject(json) as JsonDataMap;
 
       if (data==null)
         throw new ProtocolException(StringConsts.GLUE_BINDING_REQUEST_ERROR.Args(nameof(AppTermBinding),"data==null"));
@@ -74,7 +74,7 @@ namespace Azos.Sky.Glue
 
     protected override void DoEncodeResponse(MemoryStream ms, ResponseMsg msg, ISerializer serializer)
     {
-      var data = new JSONDataMap();
+      var data = new JsonDataMap();
       data["id"] = msg.RequestID.ID;
       data["instance"] = msg.RemoteInstance?.ToString("D");
 
@@ -83,11 +83,11 @@ namespace Azos.Sky.Glue
       else if (msg.ReturnValue is Contracts.RemoteTerminalInfo rtrm)
         data["return"] = rtrm;
       else if (msg.ReturnValue is WrappedExceptionData wed)
-        data["return"] = new JSONDataMap{ {"error-content", wed.ToBase64()}};
+        data["return"] = new JsonDataMap{ {"error-content", wed.ToBase64()}};
       else
         throw new ProtocolException(StringConsts.GLUE_BINDING_RESPONSE_ERROR.Args(nameof(AppTermBinding),"unsupported ReturnValue `{0}`".Args(msg.ReturnValue)));
 
-      var json = data.ToJSON(JSONWritingOptions.Compact);
+      var json = data.ToJson(JsonWritingOptions.Compact);
       var utf8 = Encoding.UTF8.GetBytes(json);
       ms.Write(utf8, 0, utf8.Length);
     }

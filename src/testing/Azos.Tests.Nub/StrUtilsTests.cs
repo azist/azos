@@ -67,27 +67,39 @@ namespace Azos.Tests.Nub
     }
 
     [Run]
-    public void ToWindowsLines()
+    public void ToWindowsLines_FromLinux()
     {
       Aver.AreEqual("I walk\r\n lines\r\n\r\n", "I walk\n lines\n\n".ToWindowsLines());
     }
 
     [Run]
+    public void ToWindowsLines_FromMixed()
+    {
+      Aver.AreEqual("I walk\r\n lines\r\n\r\n", "I walk\n lines\r\n\n".ToWindowsLines());
+    }
+
+    [Run]
     public void DiffStrings_1()
     {
-      Console.WriteLine( "abcd".DiffStrings("abcd") );
+      var diff = "abcd".DiffStrings("abcd");
+      Console.WriteLine( diff );
+      Aver.IsTrue( diff.Contains("Identical"));
     }
 
     [Run]
     public void DiffStrings_2()
     {
-      Console.WriteLine("abcde".DiffStrings("abcd"));
+      var diff = "abcde".DiffStrings("abcd");
+      Console.WriteLine(diff);
+      Aver.IsTrue(diff.Contains("A is longer than B by 1 chars"));
     }
 
     [Run]
     public void DiffStrings_3()
     {
-      Console.WriteLine("abcd".DiffStrings("abcde"));
+      var diff = "abcd".DiffStrings("abcde");
+      Console.WriteLine(diff);
+      Aver.IsTrue(diff.Contains("B is longer than A by 1 chars"));
     }
 
     [Run]
@@ -119,5 +131,126 @@ namespace Azos.Tests.Nub
     {
       Console.WriteLine(((string)null).DiffStrings((string)null));
     }
+
+    [Run]
+    public void TrimAll_1()
+    {
+      Aver.AreEqual("abcd", "\ra      b\n\n\n\nc d\r\r   ".TrimAll());
+    }
+
+    [Run]
+    public void TrimAll_2()
+    {
+      Aver.AreEqual("bcd", "aa aba   aaa acaa aaa adaaaaa aaaaaa".TrimAll('a', ' '));
+    }
+
+    [Run]
+    public void SplitKVP_1()
+    {
+      var got = "key=value".SplitKVP();
+      Aver.AreEqual("key", got.Key);
+      Aver.AreEqual("value", got.Value);
+    }
+
+
+    [Run]
+    public void SplitKVP_2()
+    {
+      var got = "key=value".SplitKVP('-');
+      Aver.AreEqual("key=value", got.Key);
+      Aver.AreEqual("", got.Value);
+    }
+
+    [Run]
+    public void SplitKVP_3()
+    {
+      var got = "key=value=9".SplitKVP('=');
+      Aver.AreEqual("key", got.Key);
+      Aver.AreEqual("value=9", got.Value);
+    }
+
+    [Run]
+    public void SplitKVP_4()
+    {
+      var got = "key=value".SplitKVP(':','=');
+      Aver.AreEqual("key", got.Key);
+      Aver.AreEqual("value", got.Value);
+
+      got = "key:1=value:1".SplitKVP('=', ':');
+      Aver.AreEqual("key:1", got.Key);
+      Aver.AreEqual("value:1", got.Value);
+    }
+
+    [Run]
+    public void SplitKVP_5()
+    {
+      var got = "key=value".SplitKVP(':', '=', '-');
+      Aver.AreEqual("key", got.Key);
+      Aver.AreEqual("value", got.Value);
+
+      got = "key:value".SplitKVP(':', '=', '-');
+      Aver.AreEqual("key", got.Key);
+      Aver.AreEqual("value", got.Value);
+
+      got = "key-value".SplitKVP(':', '=', '-');
+      Aver.AreEqual("key", got.Key);
+      Aver.AreEqual("value", got.Value);
+    }
+
+    [Run]
+    public void SplitKVP_6()
+    {
+      var got = "".SplitKVP('=');
+      Aver.AreEqual("", got.Key);
+      Aver.AreEqual("", got.Value);
+    }
+
+    [Run]
+    public void SplitKVP_7()
+    {
+      var got = "key=".SplitKVP('=');
+      Aver.AreEqual("key", got.Key);
+      Aver.AreEqual("", got.Value);
+    }
+
+    [Run]
+    public void SplitKVP_8()
+    {
+      var got = "=value".SplitKVP('=');
+      Aver.AreEqual("", got.Key);
+      Aver.AreEqual("value", got.Value);
+    }
+
+    [Run] public void TakeFirstChars_1() => Aver.AreEqual(null, ((string)null).TakeFirstChars(100));
+    [Run] public void TakeFirstChars_2() => Aver.AreEqual("",  "".TakeFirstChars(100));
+    [Run] public void TakeFirstChars_3() => Aver.AreEqual("a2", "a2".TakeFirstChars(100));
+    [Run] public void TakeFirstChars_4() => Aver.AreEqual("a23", "a2345".TakeFirstChars(3));
+    [Run] public void TakeFirstChars_5() => Aver.AreEqual("a2345", "a23457890".TakeFirstChars(5));
+    [Run] public void TakeFirstChars_6() => Aver.AreEqual("a2345", "a23457890".TakeFirstChars(5, ""));
+    [Run] public void TakeFirstChars_7() => Aver.AreEqual("a23..", "a23457890".TakeFirstChars(5, ".."));
+    [Run] public void TakeFirstChars_8() => Aver.AreEqual("", "a23457890".TakeFirstChars(-5));
+    [Run] public void TakeFirstChars_9() => Aver.AreEqual(".....", "a23457890".TakeFirstChars(5, "..............."));
+    [Run] public void TakeFirstChars_10() => Aver.AreEqual("1234", "1234".TakeFirstChars(4));
+    [Run] public void TakeFirstChars_11() => Aver.AreEqual("12..", "12345".TakeFirstChars(4, ".."));
+
+    [Run] public void TakeLastChars_1() => Aver.AreEqual(null, ((string)null).TakeLastChars(100));
+    [Run] public void TakeLastChars_2() => Aver.AreEqual("", "".TakeLastChars(100));
+    [Run] public void TakeLastChars_3() => Aver.AreEqual("a2", "a2".TakeLastChars(100));
+    [Run] public void TakeLastChars_4() => Aver.AreEqual("345", "a2345".TakeLastChars(3));
+    [Run] public void TakeLastChars_5() => Aver.AreEqual("57890", "a23457890".TakeLastChars(5));
+    [Run] public void TakeLastChars_6() => Aver.AreEqual("57890", "a23457890".TakeLastChars(5, ""));
+    [Run] public void TakeLastChars_7() => Aver.AreEqual("..890", "a23457890".TakeLastChars(5, ".."));
+    [Run] public void TakeLastChars_8() => Aver.AreEqual("", "a23457890".TakeLastChars(-5));
+    [Run] public void TakeLastChars_9() => Aver.AreEqual(".....", "a23457890".TakeLastChars(5, "..............."));
+    [Run] public void TakeLastChars_10() => Aver.AreEqual("1234", "1234".TakeLastChars(4));
+    [Run] public void TakeLastChars_11() => Aver.AreEqual("..45", "12345".TakeLastChars(4, ".."));
+
+
+    [Run] public void TakeLastSegment_1() => Aver.AreEqual(null, ((string)null).TakeLastSegment('/'));
+    [Run] public void TakeLastSegment_2() => Aver.AreEqual("", "".TakeLastSegment('/'));
+    [Run] public void TakeLastSegment_3() => Aver.AreEqual("", "a/".TakeLastSegment('/'));
+    [Run] public void TakeLastSegment_4() => Aver.AreEqual("here", "snake.zhaba/here".TakeLastSegment('/'));
+    [Run] public void TakeLastSegment_5() => Aver.AreEqual("zhaba/here", "snake.zhaba/here".TakeLastSegment('.'));
+
   }
 }

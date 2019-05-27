@@ -224,82 +224,82 @@ namespace Azos.Web
       return DoRequest((client) => client.DownloadFileTaskAsync(uri, file), request);
     }
 
-    public static JSONDynamicObject GetJsonAsDynamic(string uri, RequestParams request) { return GetJsonAsDynamic(new Uri(uri), request); }
+    public static JsonDynamicObject GetJsonAsDynamic(string uri, RequestParams request) { return GetJsonAsDynamic(new Uri(uri), request); }
 
-    public static JSONDynamicObject GetJsonAsDynamic(Uri uri, RequestParams request)
+    public static JsonDynamicObject GetJsonAsDynamic(Uri uri, RequestParams request)
     {
       string response = GetString(uri, request);
-      return response.IsNotNullOrWhiteSpace() ? response.JSONToDynamic() : null;
+      return response.IsNotNullOrWhiteSpace() ? response.JsonToDynamic() : null;
     }
 
-    public static Task<JSONDynamicObject> GetJsonAsDynamicAsync(string uri, RequestParams request) { return GetJsonAsDynamicAsync(new Uri(uri), request); }
+    public static Task<JsonDynamicObject> GetJsonAsDynamicAsync(string uri, RequestParams request) { return GetJsonAsDynamicAsync(new Uri(uri), request); }
 
-    public static Task<JSONDynamicObject> GetJsonAsDynamicAsync(Uri uri, RequestParams request)
+    public static Task<JsonDynamicObject> GetJsonAsDynamicAsync(Uri uri, RequestParams request)
     {
       return GetStringAsync(uri, request)
         .ContinueWith((antecedent) => {
           var response = antecedent.Result;
-          return response.IsNotNullOrWhiteSpace() ? response.JSONToDynamic() as JSONDynamicObject : null;
+          return response.IsNotNullOrWhiteSpace() ? response.JsonToDynamic() as JsonDynamicObject : null;
         });
     }
 
-    public static JSONDataMap GetJson(string uri, RequestParams request) { return GetJson(new Uri(uri), request); }
+    public static JsonDataMap GetJson(string uri, RequestParams request) { return GetJson(new Uri(uri), request); }
 
-    public static JSONDataMap GetJson(Uri uri, RequestParams request)
+    public static JsonDataMap GetJson(Uri uri, RequestParams request)
     {
       string response = GetString(uri, request);
-      return response.IsNotNullOrWhiteSpace() ? response.JSONToDataObject() as JSONDataMap : null;
+      return response.IsNotNullOrWhiteSpace() ? response.JsonToDataObject() as JsonDataMap : null;
     }
 
-    public static Task<JSONDataMap> GetJsonAsync(string uri, RequestParams request) { return GetJsonAsync(new Uri(uri), request); }
+    public static Task<JsonDataMap> GetJsonAsync(string uri, RequestParams request) { return GetJsonAsync(new Uri(uri), request); }
 
-    public static Task<JSONDataMap> GetJsonAsync(Uri uri, RequestParams request)
+    public static Task<JsonDataMap> GetJsonAsync(Uri uri, RequestParams request)
     {
       return GetStringAsync(uri, request)
         .ContinueWith((antecedent) =>
         {
           var response = antecedent.Result;
-          return response.IsNotNullOrWhiteSpace() ? response.JSONToDataObject() as JSONDataMap : null;
+          return response.IsNotNullOrWhiteSpace() ? response.JsonToDataObject() as JsonDataMap : null;
         });
     }
 
-    public static JSONDataArray GetJsonArray(string uri, RequestParams request) { return GetJsonArray(new Uri(uri), request); }
+    public static JsonDataArray GetJsonArray(string uri, RequestParams request) { return GetJsonArray(new Uri(uri), request); }
 
-    public static JSONDataArray GetJsonArray(Uri uri, RequestParams request)
+    public static JsonDataArray GetJsonArray(Uri uri, RequestParams request)
     {
       string response = GetString(uri, request);
-      return response.IsNotNullOrWhiteSpace() ? response.JSONToDataObject() as JSONDataArray : null;
+      return response.IsNotNullOrWhiteSpace() ? response.JsonToDataObject() as JsonDataArray : null;
     }
 
-    public static Task<JSONDataArray> GetJsonArrayAsync(string uri, RequestParams request) { return GetJsonArrayAsync(new Uri(uri), request); }
+    public static Task<JsonDataArray> GetJsonArrayAsync(string uri, RequestParams request) { return GetJsonArrayAsync(new Uri(uri), request); }
 
-    public static Task<JSONDataArray> GetJsonArrayAsync(Uri uri, RequestParams request)
+    public static Task<JsonDataArray> GetJsonArrayAsync(Uri uri, RequestParams request)
     {
       return GetStringAsync(uri, request)
         .ContinueWith((antecedent) =>
         {
           var response = antecedent.Result;
-          return response.IsNotNullOrWhiteSpace() ? response.JSONToDataObject() as JSONDataArray : null;
+          return response.IsNotNullOrWhiteSpace() ? response.JsonToDataObject() as JsonDataArray : null;
         });
     }
 
-    public static JSONDataMap GetValueMap(string uri, RequestParams request) { return GetValueMap(new Uri(uri), request); }
+    public static JsonDataMap GetValueMap(string uri, RequestParams request) { return GetValueMap(new Uri(uri), request); }
 
-    public static JSONDataMap GetValueMap(Uri uri, RequestParams request)
+    public static JsonDataMap GetValueMap(Uri uri, RequestParams request)
     {
       string response = GetString(uri, request);
-      return response.IsNotNullOrWhiteSpace() ? JSONDataMap.FromURLEncodedString(response) : null;
+      return response.IsNotNullOrWhiteSpace() ? JsonDataMap.FromURLEncodedString(response) : null;
     }
 
-    public static Task<JSONDataMap> GetValueMapAsync(string uri, RequestParams request) { return GetValueMapAsync(new Uri(uri), request); }
+    public static Task<JsonDataMap> GetValueMapAsync(string uri, RequestParams request) { return GetValueMapAsync(new Uri(uri), request); }
 
-    public static Task<JSONDataMap> GetValueMapAsync(Uri uri, RequestParams request)
+    public static Task<JsonDataMap> GetValueMapAsync(Uri uri, RequestParams request)
     {
       return GetStringAsync(uri, request)
         .ContinueWith((antecedent) =>
         {
           var response = antecedent.Result;
-          return response.IsNotNullOrWhiteSpace() ? JSONDataMap.FromURLEncodedString(response) : null;
+          return response.IsNotNullOrWhiteSpace() ? JsonDataMap.FromURLEncodedString(response) : null;
         });
     }
 

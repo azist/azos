@@ -94,7 +94,7 @@ namespace Azos.Sky.Tools.agm
               ID = gdid.ID,
               Authority = gdid.Authority,
               Counter = gdid.Counter
-            }.ToJSON(JSONWritingOptions.Compact);
+            }.ToJson(JsonWritingOptions.Compact);
           else
             line = "{0}:  {1}".Args(i, gdid);
 

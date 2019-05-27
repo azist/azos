@@ -20,13 +20,34 @@ namespace Azos.Data
   /// </summary>
   public delegate bool SetFieldFunc(Doc doc, Schema.FieldDef fdef, object val);
 
+  /// <summary>
+  /// Marker interface - abstraction for data documents, interface used as constraint on other interfaces
+  /// typically used in domain entity design. Doc class is the only one implementing this interface
+  /// </summary>
+  public interface IDataDoc : IEquatable<Doc>, IEnumerable<Object>, IValidatable, IConfigurable, IConfigurationPersistent
+  {
+    /// <summary>
+    /// Returns schema object that describes fields of this document
+    /// </summary>
+    Schema Schema { get; }
+
+    /// <summary>
+    /// Gets/sets field values by name
+    /// </summary>
+    object this[string fieldName] {  get; set; }
+
+    /// <summary>
+    /// Gets/sets field values by positional index(Order)
+    /// </summary>
+    object this[int fieldIdx]{  get; set; }
+  }
 
   /// <summary>
   /// Base class for any data document. This class has two direct subtypes - DynamicDoc and TypedDoc.
   /// Documents are NOT THREAD SAFE by definition
   /// </summary>
-  [Serializable]
-  public abstract class Doc : IConfigurable, IConfigurationPersistent, IEquatable<Doc>, IEnumerable<Object>, IValidatable, IJSONWritable
+  [Serializable, CustomMetadata(typeof(DocCustomMetadataProvider))]
+  public abstract class Doc : IDataDoc, IJsonWritable, IJsonReadable
   {
 
     #region Static
@@ -60,12 +81,12 @@ namespace Azos.Data
     /// <summary>
     /// Tries to fill the document with data returning true if field count matched
     /// </summary>
-    public static bool TryFillFromJSON(Doc doc, IJSONDataObject jsonData, SetFieldFunc setFieldFunc = null)
+    public static bool TryFillFromJSON(Doc doc, IJsonDataObject jsonData, SetFieldFunc setFieldFunc = null)
     {
       if (doc==null || jsonData==null) return false;
 
       var allMatch = true;
-      var map = jsonData as JSONDataMap;
+      var map = jsonData as JsonDataMap;
       if (map!=null)
       {
         foreach(var kvp in map)
@@ -93,7 +114,7 @@ namespace Azos.Data
       }
       else
       {
-        var arr = jsonData as JSONDataArray;
+        var arr = jsonData as JsonDataArray;
         if (arr==null) return false;
 
         for(var i=0; i<doc.Schema.FieldCount; i++)
@@ -122,7 +143,7 @@ namespace Azos.Data
     #region Properties
 
     /// <summary>
-    /// References a schema for a table that this row is part of
+    /// Returns schema object that contains doc field definitions
     /// </summary>
     public abstract Schema Schema { get; }
 
@@ -186,7 +207,7 @@ namespace Azos.Data
 
 
     /// <summary>
-    /// Returns values for fields that represent row's primary key
+    /// Returns values for fields that represent document/row primary key
     /// </summary>
     public Access.IDataStoreKey GetDataStoreKey(string targetName = null)
     {
@@ -752,7 +773,7 @@ namespace Azos.Data
     /// that feeds from doc metadata.
     /// This is a simplified version of GetClientFieldDef
     /// </summary>
-    public virtual JSONDataMap GetClientFieldValueList(Schema.FieldDef fdef,
+    public virtual JsonDataMap GetClientFieldValueList(Schema.FieldDef fdef,
                                                         string targetName,
                                                         string isoLang)
     {
@@ -796,81 +817,96 @@ namespace Azos.Data
     /// Writes row as JSON either as an array or map depending on JSONWritingOptions.RowsAsMap setting.
     /// Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
     /// </summary>
-    public void WriteAsJSON(System.IO.TextWriter wri, int nestingLevel, JSONWritingOptions options = null)
+    public virtual void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
         if (options==null || !options.RowsAsMap)
         {
-          JSONWriter.WriteArray(wri, this, nestingLevel, options);
+          JsonWriter.WriteArray(wri, this, nestingLevel, options);
           return;
         }
 
         var map = new Dictionary<string, object>();
+
         foreach(var fd in Schema)
         {
           string name;
 
-          var val = FilterJSONSerializerField(fd, options, out name);
+          var val = FilterJsonSerializerField(fd, options, out name);
           if (name.IsNullOrWhiteSpace()) continue;
 
-          map[name] = val;
+          AddJsonSerializerField(fd, options, map, name, val);
         }
 
-        if (this is IAmorphousData)
+        if (this is IAmorphousData amorph)
         {
-          var amorph = (IAmorphousData)this;
           if (amorph.AmorphousDataEnabled)
+          {
             foreach(var kv in amorph.AmorphousData)
             {
               var key = kv.Key;
               while(map.ContainsKey(key)) key+="_";
-              map.Add(key, kv.Value);
+              AddJsonSerializerField(null, options, map, key, kv.Value);
             }
+          }
         }
 
-        JSONWriter.WriteMap(wri, map, nestingLevel, options);
+        JsonWriter.WriteMap(wri, map, nestingLevel, options);
     }
+
+
+
+    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    {
+      if (data is JsonDataMap map)
+      {
+        JsonReader.ToDoc(this, map, fromUI, nameBinding);
+        return (true, this);
+      }
+      return (false, this);
+    }
+
     #endregion
 
     #region Protected
 
     protected Exception CheckMinMax(FieldAttribute atr, string fName, IComparable val)
     {
-        if (atr.Min != null)
-        {
-            var bound = atr.Min as IComparable;
-            if (bound != null)
-            {
-                var tval = val.GetType();
+      if (atr.Min != null)
+      {
+          var bound = atr.Min as IComparable;
+          if (bound != null)
+          {
+              var tval = val.GetType();
 
-                bound = Convert.ChangeType(bound, tval) as IComparable;
+              bound = Convert.ChangeType(bound, tval) as IComparable;
 
-                if (val.CompareTo(bound)<0)
-                    return new FieldValidationException(Schema.Name, fName, StringConsts.CRUD_FIELD_VALUE_MIN_BOUND_ERROR);
-            }
-        }
+              if (val.CompareTo(bound)<0)
+                  return new FieldValidationException(Schema.Name, fName, StringConsts.CRUD_FIELD_VALUE_MIN_BOUND_ERROR);
+          }
+      }
 
-        if (atr.Max != null)
-        {
-            var bound = atr.Max as IComparable;
-            if (bound != null)
-            {
-                var tval = val.GetType();
+      if (atr.Max != null)
+      {
+          var bound = atr.Max as IComparable;
+          if (bound != null)
+          {
+              var tval = val.GetType();
 
-                bound = Convert.ChangeType(bound, tval) as IComparable;
+              bound = Convert.ChangeType(bound, tval) as IComparable;
 
-                if (val.CompareTo(bound)>0)
-                    return new FieldValidationException(Schema.Name, fName, StringConsts.CRUD_FIELD_VALUE_MAX_BOUND_ERROR);
-            }
-        }
+              if (val.CompareTo(bound)>0)
+                  return new FieldValidationException(Schema.Name, fName, StringConsts.CRUD_FIELD_VALUE_MAX_BOUND_ERROR);
+          }
+      }
 
-        return null;
+      return null;
     }
 
     /// <summary>
     /// Override to filter-out some fields from serialization to JSON, or change field values.
     /// Return name null to indicate that field should be filtered-out(excluded from serialization to JSON)
     /// </summary>
-    protected virtual object FilterJSONSerializerField(Schema.FieldDef def, JSONWritingOptions options, out string name)
+    protected virtual object FilterJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, out string name)
     {
       var tname = options!=null ? options.RowMapTargetName : null;
 
@@ -905,13 +941,23 @@ namespace Azos.Data
       return name.IsNotNullOrWhiteSpace() ? GetFieldValue(def) : null;
     }
 
-   #endregion
+    /// <summary>
+    /// Override to perform custom transformation of value/add extra values to JSON output map.
+    /// For example, this is used to normalize phone numbers by adding a field with `_normalized` suffix to every field containing a phone.
+    /// Default base implementation just writes value into named map key. FieldDef is null for amorphous fields
+    /// </summary>
+    protected virtual void AddJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, Dictionary<string, object> jsonMap, string name, object value)
+    {
+      jsonMap[name] = value;
+    }
+
+    #endregion
 
 
 
     #region .pvt
 
-    private bool isSimpleKeyStringMap(JSONDataMap map)
+    private bool isSimpleKeyStringMap(JsonDataMap map)
     {
       if (map == null) return false;
 

@@ -198,7 +198,7 @@ namespace Azos.Tests.Nub.Serialization
           {
             var s = new SlimSerializer(SlimFormat.Instance);
 
-            var map = new Azos.Serialization.JSON.JSONDataMap(true)
+            var map = new Azos.Serialization.JSON.JsonDataMap(true)
             {
                {"flag", "1"},
                {"FLAG", "22"},
@@ -214,9 +214,9 @@ namespace Azos.Tests.Nub.Serialization
             var deser = s.Deserialize(ms);
 
             Console.WriteLine( deser.ToString() );
-            Aver.IsTrue(deser is Azos.Serialization.JSON.JSONDataMap);
+            Aver.IsTrue(deser is Azos.Serialization.JSON.JsonDataMap);
 
-            var map2 = deser as Azos.Serialization.JSON.JSONDataMap;
+            var map2 = deser as Azos.Serialization.JSON.JsonDataMap;
 
 
             Aver.AreEqual("1", map2["flag"].AsString());
@@ -233,7 +233,7 @@ namespace Azos.Tests.Nub.Serialization
           {
             var s = new SlimSerializer(SlimFormat.Instance);
 
-            var map = new Azos.Serialization.JSON.JSONDataMap(false)
+            var map = new Azos.Serialization.JSON.JsonDataMap(false)
             {
                {"FLAG", "22"},
                {"MEMBER", "Xitro"}
@@ -248,9 +248,9 @@ namespace Azos.Tests.Nub.Serialization
             var deser = s.Deserialize(ms);
 
             Console.WriteLine( deser.ToString());
-            Aver.IsTrue(deser is Azos.Serialization.JSON.JSONDataMap);
+            Aver.IsTrue(deser is Azos.Serialization.JSON.JsonDataMap);
 
-            var map2 = deser as Azos.Serialization.JSON.JSONDataMap;
+            var map2 = deser as Azos.Serialization.JSON.JsonDataMap;
 
 
             Aver.AreEqual("22", map2["flag"].AsString());
