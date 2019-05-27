@@ -12,8 +12,8 @@
 #</laconf>
 #[class]
 
-  public readonly IEnumerable<dynamic> Data;
-  public ApiDoc_Toc(IEnumerable<dynamic> data) : base()  => Data = data;
+  public readonly dynamic Data;
+  public ApiDoc_Toc(dynamic data) : base()  => Data = data;
   public override string Title { get {return "Api Documentation - Table of Contents"; } }
 
 #[override renderHeader()]
@@ -23,14 +23,32 @@
 <h1>API Operation Contracts</h1>
 This section lists API functionality areas a.k.a. "scopes". Every scope has a list of concrete endpoints specifying operation contracts of the API.
 You can navigate individual API scopes below or <a href="./all">view the raw API doc set data.</a>
-@[
+<div class="clearfix"></div>
+@[{
   var cnt = 1;
-  foreach(var item in Data) scope(cnt++, item);
-]
+  foreach(var item in Data.scopes) scope(cnt++, item);
+}]
+<div class="clearfix"></div>
 
 <h1>API Data Contracts</h1>
-This section lists custom data schemas used by the API. Typically custom types represent data contracts used by API operations, such as
-resource mutation calls (e.g. on POST/PUT etc.) and data returned to caller (e.g. on GET)
+This section lists custom data document schemas used by the API. Typically custom types represent data contracts used by API operations, such as
+resource mutation calls (e.g. on POST/PUT etc.) and data returned to callers on GET
+<div class="clearfix"></div>
+@[{
+  var cnt = 1;
+  foreach(var item in Data.docs) datadoc(cnt++, item);
+}]
+<div class="clearfix"></div>
+
+<h1>API Permissions</h1>
+This section lists permissions used by the API authorization process.
+<div class="clearfix"></div>
+@[{
+  var cnt = 1;
+  foreach(var item in Data.perms) perm(cnt++, item);
+}]
+<div class="clearfix"></div>
+
 
 #[scope(int cnt, dynamic scope)]
 <h2><a href="scope?id=?[scope.id]"> ?[ "{0:D2}. {1}".Args(cnt, (string)scope.title)]</a></h2>
@@ -41,7 +59,7 @@ resource mutation calls (e.g. on POST/PUT etc.) and data returned to caller (e.g
   foreach(var ep in endpoints)
    endpoint(scope, ep);
  ]
-<div class="clearfix"></div>
+ <div class="clearfix"></div>
 
 #[endpoint(dynamic scope, dynamic ep)]
 <div class="card"">
@@ -49,3 +67,12 @@ resource mutation calls (e.g. on POST/PUT etc.) and data returned to caller (e.g
  <div class="card-description">?[ep.title]</div>
 </div>
 
+#[datadoc(int cnt, dynamic tdoc)]
+<div class="card"">
+ <div class="card-title"><a href="schema?id=?[tdoc.id]"> ?[tdoc.sku]</a></div>
+</div>
+
+#[perm(int cnt, dynamic tperm)]
+<div class="card"">
+ <div class="card-title"><a href="schema?id=?[tperm.id]"> ?[tperm.sku]</a></div>
+</div>

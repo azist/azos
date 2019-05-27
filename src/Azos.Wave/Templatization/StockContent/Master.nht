@@ -58,6 +58,17 @@
     h4 {  font-size: 1.2em; }
     h5 {  font-size: 1.1em; }
 
+    pre{
+      padding: 10px;
+      border: 1px solid #e0e0e0;
+      background: #e8e8e0;
+      box-shadow: 1px 1px 2px #ddd;
+      color: #535375;
+      border-radius: 4px;
+      font-size: 12px;
+      margin: 4px;
+    }
+
     header {
         background: #ffce00;
         border-bottom: 2px solid #e5b500;
@@ -155,6 +166,27 @@
 
     .clearfix{
       clear: both;
+    }
+
+    table{
+      margin: 10px;
+      border-collapse: collapse;
+    }
+
+    th{ padding: 4px;}
+
+    td{
+      padding: 4px;
+      border-right: 1px dotted #ddd;
+    }
+
+    tr:nth-child(even) {background-color: #e8e8e8;}
+
+    thead{
+     background: #d4d4d4;
+     color: #484848;
+     padding: 4px;
+     border-bottom: 2px solid #ccc;
     }
 
 

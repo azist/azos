@@ -12,6 +12,7 @@ namespace Azos.Wave.Mvc
   /// <summary>
   /// Serves Api documentation produced by ApiDocGenerator
   /// </summary>
+  [NoCache]
   public abstract class ApiDocController : Controller
   {
     protected static Dictionary<Type, ConfigSectionNode> s_Data = new Dictionary<Type, ConfigSectionNode>();
@@ -51,10 +52,11 @@ namespace Azos.Wave.Mvc
 
 
     [Action(Name = "toc"), HttpGet]
-    public object Toc(string uriPattern = null)
+    public object Toc(string uriPattern = null, string typePattern = null)
     {
 
-      var data = Data.Children
+      dynamic data = JsonDynamicObject.NewMap();
+      data.scopes = Data.Children
           .Where(nscope => nscope.IsSameName("scope") &&
                            (uriPattern.IsNullOrWhiteSpace() || nscope.AttrByName("uri-base").Value.MatchPattern(uriPattern)))
           .OrderBy(nscope => nscope.AttrByName("uri-base").Value )
@@ -74,6 +76,42 @@ namespace Azos.Wave.Mvc
             return d;
           });
 
+      data.docs = Data["type-schemas"].Children
+          .Where(nts =>
+          {
+            var sku = nts.AttrByName("sku").Value;
+            if (sku.IsNullOrWhiteSpace()) return false;
+            if (!nts["data-doc"].Exists) return false;
+            return (typePattern.IsNullOrWhiteSpace() || sku.MatchPattern(typePattern));
+          })
+          .OrderBy(nts => nts.AttrByName("sku").Value)
+          .Select(nts =>
+          {
+            dynamic d = JsonDynamicObject.NewMap();
+            d.id = nts.Name;
+            d.sku = nts.ValOf("sku");
+
+            return d;
+          });
+
+      data.perms = Data["type-schemas"].Children
+          .Where(nts =>
+          {
+            var sku = nts.AttrByName("sku").Value;
+            if (sku.IsNullOrWhiteSpace()) return false;
+            if (!nts["permission"].Exists) return false;
+            return (typePattern.IsNullOrWhiteSpace() || sku.MatchPattern(typePattern));
+          })
+          .OrderBy(nts => nts.AttrByName("sku").Value)
+          .Select(nts =>
+          {
+            dynamic d = JsonDynamicObject.NewMap();
+            d.id = nts.Name;
+            d.sku = nts.ValOf("sku");
+
+            return d;
+          });
+
       if (WorkContext.RequestedJSON) return new JSONResult(data, JsonWritingOptions.PrettyPrintRowsAsMap);
 
       return TocView(data);
@@ -81,7 +119,7 @@ namespace Azos.Wave.Mvc
 
 
 
-    protected virtual object TocView(IEnumerable<dynamic> data)
+    protected virtual object TocView(dynamic data)
      => new Templatization.StockContent.ApiDoc_Toc(data);
 
 
@@ -110,6 +148,15 @@ namespace Azos.Wave.Mvc
 
     protected virtual object SchemaView(IEnumerable<IConfigSectionNode> data)
      => new Templatization.StockContent.ApiDoc_Schema(data);
+
+    [Action(Name = "scope"), HttpGet]
+    public object Scope(string id)
+    {
+      return ScopeView(null);
+    }
+
+    protected virtual object ScopeView(IEnumerable<IConfigSectionNode> data)
+     => "   UNDER CONSTRUCTION ";
 
   }
 }
