@@ -799,6 +799,73 @@ namespace Azos.Pile
       }
 
       /// <summary>
+      /// Returns a raw ArraySegment pointing to direct segment chunk occupied by the object payload, only payload is returned along with serializer flag
+      /// which tells what kind of serializer was used.
+      /// This method is rarely used, it is needed special direct-memory access and is dangerous to use in general applications
+      /// as the returned memory chunk pointed-to by ArraySegment can be mutated by another thread.
+      /// </summary>
+      public ArraySegment<byte> GetDirectMemoryBufferUnsafe(PilePointer ptr, out byte serializerFlag)
+      {
+        return getArraySegment(ptr, out serializerFlag);
+      }
+
+      /// <summary>
+      /// Returns a CLR object by its pointer or throws access violation if pointer is invalid
+      /// </summary>
+      private ArraySegment<byte> getArraySegment(PilePointer ptr, out byte serVersion)
+      {
+        serVersion = 0;
+        if (!Running) return new ArraySegment<byte>();
+
+        var segs = m_Segments;
+        if (ptr.Segment < 0 || ptr.Segment >= segs.Count)
+          throw new PileAccessViolationException(StringConsts.PILE_AV_BAD_SEGMENT_ERROR + ptr.ToString());
+
+
+        var seg = segs[ptr.Segment];
+        if (seg == null || Thread.VolatileRead(ref seg.DELETED) != 0)
+          throw new PileAccessViolationException(StringConsts.PILE_AV_BAD_SEGMENT_ERROR + ptr.ToString());
+
+        Interlocked.Increment(ref m_stat_GetCount);
+
+        if (!getReadLock(seg)) return new ArraySegment<byte>();//Service shutting down
+        try
+        {
+          //2nd check under lock
+          if (Thread.VolatileRead(ref seg.DELETED) != 0) throw new PileAccessViolationException(StringConsts.PILE_AV_BAD_SEGMENT_ERROR + ptr.ToString());
+
+          var data = seg.Data;
+          var addr = ptr.Address;
+          if (addr < 0 || addr >= data.Length - CHUNK_HDER_SZ)
+            throw new PileAccessViolationException(StringConsts.PILE_AV_BAD_ADDR_EOF_ERROR + ptr.ToString());
+
+          var cflag = data.ReadChunkFlag(addr); addr += 3;
+          if (cflag != ChunkFlag.Used)
+            throw new PileAccessViolationException(StringConsts.PILE_AV_BAD_ADDR_CHUNK_FLAG_ERROR + ptr.ToString());
+
+          var payloadSize = data.ReadInt32(addr); addr += 4;
+          if (payloadSize > data.Length)
+            throw new PileAccessViolationException(StringConsts.PILE_AV_BAD_ADDR_PAYLOAD_SIZE_ERROR.Args(ptr, payloadSize));
+
+
+          serVersion = data.ReadByte(addr);
+          addr++;
+
+          if (serVersion == SVER_LINK)
+          {
+            var linkPointer = data.ReadPilePointer(addr);
+            return getArraySegment(linkPointer, out serVersion);//this does not deadlock because read locks do not deadlock but write locks do TrygetWriteLock under main WriteLock
+          }
+
+          return readDirect(data, addr, payloadSize);
+        }
+        finally
+        {
+          releaseReadLock(seg);
+        }
+      }
+
+      /// <summary>
       /// Deletes object from pile by its pointer returning true if there is no access violation
       /// and pointer is pointing to the valid object, throws otherwise unless
       /// throwInvalid is set to false
@@ -1301,6 +1368,11 @@ namespace Azos.Pile
             var result = new byte[payloadSize];
             data.ReadBuffer(addr, result, 0, payloadSize);
             return result;
+          }
+
+          private ArraySegment<byte> readDirect(Memory data, int addr, int payloadSize)
+          {
+            return data.ReadDirectBufferSegment(addr, payloadSize);
           }
 
 

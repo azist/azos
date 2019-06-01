@@ -275,6 +275,11 @@ namespace Azos.Pile
       }
     }
 
+    public override ArraySegment<byte> ReadDirectBufferSegment(int addr, int count)
+    {
+      throw new NotImplementedException("Memory-Mapped memory does not support direct buffer segment access");
+    }
+
     public unsafe override PilePointer ReadPilePointer(int addr)
     {
       byte* ptr = null;

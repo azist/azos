@@ -90,6 +90,11 @@ namespace Azos.Pile
       Array.Copy(buffer, offset, m_Data, addr, count);
     }
 
+    public override ArraySegment<byte> ReadDirectBufferSegment(int addr, int count)
+    {
+      return new ArraySegment<byte>(m_Data, addr, count);
+    }
+
     public override PilePointer ReadPilePointer(int addr)
     {
       var n = m_Data.ReadBEInt32(ref addr);
