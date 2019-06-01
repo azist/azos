@@ -1220,12 +1220,13 @@ namespace Azos.Pile
 
           private byte[] serialize(object payload, out int payloadSize, out byte serVersion)
           {
+            //------------------------------------------------------------------------------ STRINGS
             var spayload = payload as string;
-            if (spayload != null) //Special handlig for strings
+            if (spayload != null)
             {
               serVersion = SVER_UTF8;
               var len = spayload.Length;
-              var encoding = Azos.IO.Streamer.UTF8Encoding;
+              var encoding = Streamer.UTF8Encoding;
               var bufStream = getTLWriteStream();
               var maxChars = (bufStream.Capacity / 3) - 16;//UTF8 3 bytes per char - headers BOM etc..
               if (len>maxChars)//This is much faster than Encoding.GetByteCount()
@@ -1239,7 +1240,7 @@ namespace Azos.Pile
               payloadSize = 4 + encoding.GetBytes(spayload, 0, len, strBuf, 0);//preamble + content
               return strBuf;
             }
-            //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------ byte[]
             var bpayload = payload as byte[];
             if (bpayload!=null)
             {
@@ -1247,9 +1248,16 @@ namespace Azos.Pile
               payloadSize = 4 + bpayload.Length;//preamble + content
               return bpayload;
             }
-            //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------ Subarray<byte>
+            var subarray = payload as Subarray<byte>; // the subarrays are treated the same way as byte[] avoiding extra allocations
+            if (subarray != null)
+            {
+              serVersion = SVER_BUFF;
+              payloadSize = 4 + subarray.Length;//preamble + content
+              return subarray.Array;
+            }
 
-
+            //------------------------------------------------------------------------------ Arbitrary CLR objects
             var stream = getTLWriteStream();
             var serializer = ts_WriteSerializer;
             if (serializer==null || serializer.Owner != this || serializer.__globalTypeRegistry!=m_CurrentTypeRegistry)
