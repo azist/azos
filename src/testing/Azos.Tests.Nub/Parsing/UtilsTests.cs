@@ -494,7 +494,33 @@ namespace Azos.Tests.Nub.Parsing
           Aver.AreEqual("(555) 222-4415x123", n);
         }
 
-        [Run]
+
+    [Run]
+    public void PhoneNumberToLong_1()
+    {
+      Aver.AreEqual(223322, DataEntryUtils.PhoneNumberToLong("  2 2 332 2"));
+    }
+
+    [Run]
+    public void PhoneNumberToLong_2()
+    {
+      Aver.AreEqual(8004647669, DataEntryUtils.PhoneNumberToLong("800-GO4-SONY"));
+    }
+
+    [Run]
+    public void PhoneNumberToLong_3()
+    {
+      Aver.AreEqual(8004, DataEntryUtils.PhoneNumberToLong("800-GO4-SONY", false));
+    }
+
+    [Run]
+    public void PhoneNumberToLong_4()
+    {
+      Aver.AreEqual(55521910305187, DataEntryUtils.PhoneNumberToLong("555-219-1030x5187", false));
+    }
+
+
+    [Run]
         public void CheckEmail()
         {
           string[] validEMails = {
