@@ -131,7 +131,7 @@ namespace Azos.Pile{ public abstract partial class DefaultPileBase{
       }
 
       //must be under lock
-      //tries to allocate the payload size in this segment ant put payload bytes in.
+      //tries to allocate the payload size in this segment and put payload bytes in.
       // returns -1 when could not find spot. does not do crawl
       public int Allocate(byte[] payloadBuffer, int serializedSize, int allocPayloadSize, byte serVer, bool isLink)
       {
@@ -179,7 +179,7 @@ namespace Azos.Pile{ public abstract partial class DefaultPileBase{
 
         //see if the chunk is too big and may be re-split
         var leftoverSize = pointedToSize - allocSize;
-        if ( leftoverSize < Pile.FreeChunkSizes[0])//then include tail in 1st as it it smaller than min chunk size
+        if ( leftoverSize < Pile.FreeChunkSizes[0])//then include tail in 1st as it is smaller than min chunk size
         {                                          //and can not be split in the second chunk
           allocPayloadSize+=leftoverSize;
           allocSize+=leftoverSize;
@@ -383,7 +383,7 @@ namespace Azos.Pile{ public abstract partial class DefaultPileBase{
         Data.WriteInt32(adr, payloadSize);
         adr += 5;//4 + 1 ser version
 
-        //now try to add add addr ot free slot
+        //now try to add address of free slot
         var fcs = Pile.FreeChunkSizes;
         for(var k=fcs.Length-1; k>=0;k--)
         {
@@ -401,9 +401,6 @@ namespace Azos.Pile{ public abstract partial class DefaultPileBase{
       }
 
   }
-
-
-
 
 
 

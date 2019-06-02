@@ -45,6 +45,43 @@ namespace Azos.Serialization.Arow
 
 
     /// <summary>
+    /// Registers all Arow type serialization cores in the satellite assembly of the calling assembly.
+    /// A satellite assembly is the one that is called the same name as the calling assembly with ".Serialization" suffix, co-located with the calling assembly
+    /// </summary>
+    public static void RegisterTypeSerializationSatelliteForThisAssembly()
+    {
+      var thisAssembly = Assembly.GetCallingAssembly();
+      RegisterTypeSerializationSatelliteFor(thisAssembly);
+    }
+
+    /// <summary>
+    /// Registers all Arow type serialization cores in the satellite assembly of the specifies assembly.
+    /// A satellite assembly is the one that is called the same name with ".Serialization" suffix, co-located with the specified assembly
+    /// </summary>
+    public static void RegisterTypeSerializationSatelliteFor(Assembly assembly)
+    {
+      const string SUFFIX = ".dll";
+
+      var asmFileName = assembly.NonNull(nameof(assembly)).Location.Trim();
+      var i = asmFileName.LastIndexOf(SUFFIX);
+      if (i != asmFileName.Length - SUFFIX.Length)
+        throw new ArowException(StringConsts.AROW_SATELLITE_ASSEMBLY_NAME_ERROR.Args(asmFileName));
+
+      asmFileName = asmFileName.Substring(0, i) + ".Serialization.dll";
+
+      try
+      {
+        var asm = Assembly.LoadFrom(asmFileName);
+        RegisterTypeSerializationCores(asm);
+      }
+      catch(Exception error)
+      {
+        throw new ArowException(StringConsts.AROW_SATELLITE_ASSEMBLY_LOAD_ERROR.Args(asmFileName, error.ToMessageWithType()), error);
+      }
+    }
+
+
+    /// <summary>
     /// Registers all entities in the specified assembly which implement ITypeSerializationCore interface
     /// </summary>
     public static void RegisterTypeSerializationCores(Assembly asm)

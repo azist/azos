@@ -301,7 +301,7 @@ namespace Azos.Text
 
 
         if (number.Length > 0 && !isExt)
-        {  //check extention
+        {  //check extension
           if (chr == 'x' || chr == 'X' || (chr == '.' && number.Length>6))
           {
             isExt = true;
@@ -336,11 +336,8 @@ namespace Azos.Text
             number += chr;
       }
 
-
-
       while (number.Length < 7)
         number += '?';
-
 
       if (area.Length == 0)
       {
@@ -364,6 +361,44 @@ namespace Azos.Text
       if (ext.Length > 0) ext = "x" + ext;
 
       return string.Format("({0}) {1}{2}", area, number, ext);
+    }
+
+
+    /// <summary>
+    /// Converts phone number to long
+    /// </summary>
+    public static long PhoneNumberToLong(string src, bool convertLetters = true)
+    {
+      if (src.IsNullOrWhiteSpace()) return 0;
+      long number = 0;
+      for(var i=0; i<src.Length; i++)
+      {
+        var c = src[i];
+        var n = toNum(c, convertLetters);
+        if (n<0) continue;
+        number = (number * 10) + n;
+      }
+
+      return number;
+    }
+
+    private static readonly Dictionary<char, int> PHONE_DIGIT_MAP = new Dictionary<char, int>
+    {
+      {'a', 2}, {'A', 2},  {'b', 2}, {'B', 2},  {'c', 2},{'C', 2},
+      {'d', 3}, {'D', 3},  {'e', 3}, {'E', 3},  {'f', 3},{'F', 3},
+      {'g', 4}, {'G', 4},  {'h', 4}, {'H', 4},  {'i', 4},{'I', 4},
+      {'j', 5}, {'J', 5},  {'k', 5}, {'K', 5},  {'l', 5},{'L', 5},
+      {'m', 6}, {'M', 6},  {'n', 6}, {'N', 6},  {'o', 6},{'O', 6},
+      {'p', 7}, {'P', 7},  {'q', 7}, {'Q', 7},  {'r', 7},{'R', 7}, {'s', 7},{'S', 7},
+      {'t', 8}, {'T', 8},  {'u', 8}, {'U', 8},  {'v', 8},{'V', 8},
+      {'w', 9}, {'W', 9},  {'x', 9}, {'X', 9},  {'y', 9},{'Y', 9}, {'z', 9},{'Z', 9},
+    };
+
+    private static int toNum(char c, bool convertLetters)
+    {
+      if (c<='9') return c - '0';
+      if (convertLetters && PHONE_DIGIT_MAP.TryGetValue(c, out var n)) return n;
+      return -1;
     }
 
   }

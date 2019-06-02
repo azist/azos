@@ -1066,13 +1066,15 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string SEALED_STRING_TOO_BIG_ERROR =  "SealedString value of {0} bytes is too big";
 
 
-    public const string AROW_MEMBER_TYPE_NOT_SUPPORTED_ERROR =  "Members of type '{0}' are not supported";
+    public const string AROW_SATELLITE_ASSEMBLY_NAME_ERROR = "Could not find serialization satellite for assembly `{0}` as the name pattern does not match. The source assembly file name must end with `*.dll` by convention";
+    public const string AROW_SATELLITE_ASSEMBLY_LOAD_ERROR = "Satellite assembly `{0}` load failure: {1}";
     public const string AROW_TYPE_NOT_SUPPORTED_ERROR =  "ArowSerializer does not have a ITypeSerializationCore registered for type '{0}'";
+    public const string AROW_MEMBER_TYPE_NOT_SUPPORTED_ERROR =  "Members of type '{0}' are not supported";
     public const string AROW_GENERATOR_PATH_DOESNOT_EXIST_ERROR =  "Arow code generator: path '{0}' does not exist";
 
-    public const string AROW_HEADER_CORRUPT_ERROR =  "Arow header is corrupt";
-    public const string AROW_DESER_CORRUPT_ERROR =  "Arow deserialization is corrupt";
     public const string AROW_MAX_ARRAY_LEN_ERROR =  "Array max length of {0} exceeded by Arow deserialization";
+    public const string AROW_DESER_CORRUPT_ERROR =  "Arow deserialization is corrupt";
+    public const string AROW_HEADER_CORRUPT_ERROR =  "Arow header is corrupted";
 
     public const string GUID_TYPE_RESOLVER_NO_TYPES_ERROR = "{0} has no guid-decorated types registered";
     public const string GUID_TYPE_RESOLVER_ERROR = "Type id '{0}' does not map to any {1} type";
