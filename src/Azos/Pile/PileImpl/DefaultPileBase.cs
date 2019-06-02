@@ -799,9 +799,9 @@ namespace Azos.Pile
       }
 
       /// <summary>
-      /// Returns a raw ArraySegment pointing to direct segment chunk occupied by the object payload, only payload is returned along with serializer flag
-      /// which tells what kind of serializer was used.
-      /// This method is rarely used, it is needed special direct-memory access and is dangerous to use in general applications
+      /// Returns a raw ArraySegment pointing to direct segment chunk occupied by the object payload.
+      /// Only the payload is returned along with serializer flag which tells what kind of serializer was used.
+      /// This method is rarely used, it is needed in special direct-memory access and is dangerous to use in general applications
       /// as the returned memory chunk pointed-to by ArraySegment can be mutated by another thread.
       /// </summary>
       public ArraySegment<byte> GetDirectMemoryBufferUnsafe(PilePointer ptr, out byte serializerFlag)
