@@ -857,7 +857,7 @@ namespace Azos.Pile
             return getArraySegment(linkPointer, out serVersion);//this does not deadlock because read locks do not deadlock but write locks do TrygetWriteLock under main WriteLock
           }
 
-          return readDirect(data, addr, payloadSize);
+          return readDirect(data, addr, payloadSize, serVersion);
         }
         finally
         {
@@ -1370,8 +1370,13 @@ namespace Azos.Pile
             return result;
           }
 
-          private ArraySegment<byte> readDirect(Memory data, int addr, int payloadSize)
+          private ArraySegment<byte> readDirect(Memory data, int addr, int payloadSize, byte serVer)
           {
+            if (serVer==SVER_BUFF || serVer==SVER_UTF8)
+            {
+              var sz = data.ReadInt32(addr);
+              return data.ReadDirectBufferSegment(addr + 4, sz-4);
+            }
             return data.ReadDirectBufferSegment(addr, payloadSize);
           }
 

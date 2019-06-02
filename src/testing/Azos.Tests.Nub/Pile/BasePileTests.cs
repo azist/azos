@@ -102,7 +102,8 @@ namespace Azos.Tests.Nub.Pile
         for(var i=0; i<8; i++)
          Console.WriteLine("{0} {1:x2} {2}".Args(got.Offset, got.Array[got.Offset+i], (char)got.Array[got.Offset + i]));
 
-        Aver.AreEqual(8, got.Count );//because all buffers get 8-aligned
+        Aver.AreEqual(3, got.Count );
+
         Aver.AreEqual(1, got.Array[got.Offset + 0]);
         Aver.AreEqual(6, got.Array[got.Offset + 1]);
         Aver.AreEqual(9, got.Array[got.Offset + 2]);
