@@ -5,7 +5,7 @@ using System.Text;
 namespace Azos.IO
 {
   /// <summary>
-  /// Delimits a starting sub-array (a chunk) of the specified size in a target array.
+  /// Delimits a sub-array (a chunk) of the specified size at the beginning of the target array.
   /// Unlike ArraySegment, this is a mutable class (to avoid boxing of multiple instances) where
   /// instance can be-reused to delimit typically a byte[]. The sub-array purposely always starts at index zero of
   /// the source array. This class is used for optimization of low-level memory access, such as the one used in Pile
@@ -25,7 +25,7 @@ namespace Azos.IO
 
     /// <summary>
     /// Sets the state of this instance. This method is used to re-use the single sub-array instance with multiple source arrays,
-    /// as it saves on extra GC allocations in places where payload is taken as `object` and ArraySegment would have created boxing
+    /// as it saves on extra GC allocations in places where payload is taken as `object` and ArraySegment would have created boxing instance
     /// </summary>
     public void Set(T[] array, int length)
     {
