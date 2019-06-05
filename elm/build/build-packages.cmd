@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.0.507.2
+set VER=1.0.507.3
 set HEADLINE=Add Pile.DirectBufferUnsafe accessor 
 
 call vs2017-build-release %VER%
