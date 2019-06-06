@@ -138,8 +138,6 @@ namespace Azos.Data
 
     #endregion
 
-
-
     #region Properties
 
     /// <summary>
@@ -342,6 +340,15 @@ namespace Azos.Data
                   return new FieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR);
             }
         }
+
+        //check dynamic value list
+        var dynValueList = GetDynamicFieldValueList(fdef, targetName, null);
+        if (dynValueList != null)//check dictionary
+        {
+           if (!dynValueList.ContainsKey(value.ToString()))
+              return new FieldValidationException(Schema.Name, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR);
+        }
+
 
         if (atr.MinLength>0)
             if (value.ToString().Length<atr.MinLength)
@@ -767,13 +774,13 @@ namespace Azos.Data
 
 
     /// <summary>
-    /// Override to perform dynamic lookup of field value list for the specified field.
-    /// This method is used by client ui/scaffolding to extract dynamic lookup values
-    /// as dictated by business logic. This method IS NOT used by doc validation, only by client
-    /// that feeds from doc metadata.
-    /// This is a simplified version of GetClientFieldDef
+    /// Override to get list of permissible field values for the specified field.
+    /// This method is used by validation to extract dynamic pick list entries form data stores
+    /// as dictated by business logic. The override must be efficient and typically rely on caching of
+    /// values gotten from the datastore. This method should NOT return more than a manageable limited number of records (e.g. less than 100)
+    /// in a single form drop-down/combo, as the large lookups are expected to be implemented using complex lookup models (e.g. dialog boxes in UI)
     /// </summary>
-    public virtual JsonDataMap GetClientFieldValueList(Schema.FieldDef fdef,
+    public virtual JsonDataMap GetDynamicFieldValueList(Schema.FieldDef fdef,
                                                         string targetName,
                                                         string isoLang)
     {
