@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.507.3
-set HEADLINE=Add Pile.DirectBufferUnsafe accessor 
+set VER=1.0.507.4
+set HEADLINE=Fix Subarray bugs, refactor Data.Doc 
 
 call vs2017-build-release %VER%
 
