@@ -130,12 +130,17 @@ namespace Azos.Serialization.Arow
         ts_Subarray = result;
       }
 
+      stream.Position = 0;
       Serialize(doc, writer, true);
 
       result.Set(stream.GetBuffer(), (int)stream.Position);
 
       //don't let large hunk dangling in the TLS
-      if (stream.Capacity>BUFFER_TRIM_CAPACITY) stream.Capacity = INITIAL_BUFFER_CAPACITY;
+      if (stream.Capacity>BUFFER_TRIM_CAPACITY)
+      {
+        stream.SetLength(0);
+        stream.Capacity = INITIAL_BUFFER_CAPACITY;
+      }
 
       return result;
     }
