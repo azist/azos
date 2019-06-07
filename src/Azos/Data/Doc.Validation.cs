@@ -174,12 +174,12 @@ namespace Azos.Data
           }
         }
       }
-      else if (value is IEnumerable<IValidatable> enumerableIValidatable)//List<IValidatable>, IValidatable[]
+      else if (value is IEnumerable enm)//List<IValidatable>, IValidatable[]
       {
-        foreach (var v in enumerableIValidatable)
+        foreach (var v in enm)
         {
-          if (v == null) continue;
-          var error = v.Validate(targetName);
+          if (!(v is IValidatable vv)) continue;
+          var error = vv.Validate(targetName);
           if (error != null) return error;
         }
       }
