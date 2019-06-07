@@ -116,23 +116,23 @@ namespace Azos.Web.Messaging
       if (ve !=null) return ve;
 
       try  { var b = AddressFromBuilder; }
-      catch(Exception error) { return new FieldValidationException(this.Schema.Name, "AddressFrom", error.ToMessageWithType()); }
+      catch(Exception error) { return new FieldValidationException(this.Schema.DisplayName, "AddressFrom", error.ToMessageWithType()); }
 
       try { var b = AddressReplyToBuilder; }
-      catch (Exception error) { return new FieldValidationException(this.Schema.Name, "AddressReplyTo", error.ToMessageWithType()); }
+      catch (Exception error) { return new FieldValidationException(this.Schema.DisplayName, "AddressReplyTo", error.ToMessageWithType()); }
 
       try { var b = AddressCCBuilder; }
-      catch (Exception error) { return new FieldValidationException(this.Schema.Name, "AddressCC", error.ToMessageWithType()); }
+      catch (Exception error) { return new FieldValidationException(this.Schema.DisplayName, "AddressCC", error.ToMessageWithType()); }
 
       try { var b = AddressBCCBuilder; }
-      catch (Exception error) { return new FieldValidationException(this.Schema.Name, "AddressBCC", error.ToMessageWithType()); }
+      catch (Exception error) { return new FieldValidationException(this.Schema.DisplayName, "AddressBCC", error.ToMessageWithType()); }
 
       try
       {
         var b = AddressToBuilder;
-        if (!b.All.Any()) return new FieldValidationException(this.Schema.Name, "AddressTo", "No TO");
+        if (!b.All.Any()) return new FieldValidationException(this.Schema.DisplayName, "AddressTo", "No TO");
       }
-      catch(Exception error) { return new FieldValidationException(this.Schema.Name, "AddressTo", error.ToMessageWithType()); }
+      catch(Exception error) { return new FieldValidationException(this.Schema.DisplayName, "AddressTo", error.ToMessageWithType()); }
 
       return null;
     }

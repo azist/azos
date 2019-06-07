@@ -47,7 +47,7 @@ namespace Azos.Data
   /// Documents are NOT THREAD SAFE by definition
   /// </summary>
   [Serializable, CustomMetadata(typeof(DocCustomMetadataProvider))]
-  public abstract partial class Doc : IDataDoc, IJsonWritable, IJsonReadable
+  public abstract partial class Doc : IDataDoc, IJsonWritable, IJsonReadable, Apps.Injection.IApplicationInjection
   {
 
     #region Static
