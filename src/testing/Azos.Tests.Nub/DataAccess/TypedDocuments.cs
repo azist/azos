@@ -235,7 +235,7 @@ namespace Azos.Tests.Nub.DataAccess
             Console.WriteLine( error );
             Aver.IsTrue(error is FieldValidationException);
             Aver.AreEqual("Classification", ((FieldValidationException)error).FieldName);
-            Aver.IsTrue( error.Message.Contains("not in list of permitted values") );
+            Aver.IsTrue( error.Message.Contains("list of allowed") );
 
             person.Classification = "good";
             Aver.IsNull( person.Validate() );
