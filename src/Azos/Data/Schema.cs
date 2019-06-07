@@ -646,7 +646,7 @@ namespace Azos.Data
             /// </summary>
             public string DisplayName
             {
-               get { return m_TypedDocType==null ? Name : (m_TypedDocType.Namespace.TakeLastSegment('.') + m_TypedDocType.Name); }
+               get { return m_TypedDocType==null ? Name : (m_TypedDocType.Namespace.TakeLastSegment('.') + "::"+ m_TypedDocType.Name); }
             }
 
             /// <summary>

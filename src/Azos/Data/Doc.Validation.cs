@@ -194,8 +194,9 @@ namespace Azos.Data
         var parsed = atr.ParseValueList();
         if (isSimpleKeyStringMap(parsed))
         {
-          if (!parsed.ContainsKey(value.ToString()))
-            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR);
+          var fv = value.ToString();
+          if (!parsed.ContainsKey(fv))
+            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(16, "..")));
         }
       }
 
@@ -203,8 +204,9 @@ namespace Azos.Data
       var dynValueList = GetDynamicFieldValueList(fdef, targetName, null);
       if (dynValueList != null)//check dictionary
       {
-        if (!dynValueList.ContainsKey(value.ToString()))
-          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR);
+        var fv = value.ToString();
+        if (!dynValueList.ContainsKey(fv))
+          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(16, "..")));
       }
 
       return null;

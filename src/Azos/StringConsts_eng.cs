@@ -696,7 +696,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string CRUD_FIELD_VALUE_REQUIRED_ERROR = "Field value is required";
 
-    public const string CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR = "Field value is not in list of permitted values";
+    public const string CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR = "Field value `{0}` is not in the list of allowed values";
 
     public const string CRUD_FIELD_VALUE_MIN_LENGTH_ERROR = "Field value is shorter than min length of {0}";
 
