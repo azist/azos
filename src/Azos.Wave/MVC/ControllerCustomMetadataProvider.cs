@@ -42,7 +42,7 @@ namespace Azos.Wave.Mvc
       cdata.AddAttributeNode("uri-base", cattr.BaseUri);
       cdata.AddAttributeNode("auth", cattr.Authentication);
 
-      cdata.AddAttributeNode("doc-content", docContent);
+      cdata.AddAttributeNode("doc-content-tpl", docContent);
 
       var allMethodContexts = apictx.Generator.GetApiMethods(tController, apictx.ApiDocAttr);
       foreach(var mctx in allMethodContexts)
@@ -96,6 +96,8 @@ namespace Azos.Wave.Mvc
         var docAnchor = mctx.ApiEndpointDocAttr.DocAnchor.Default("### "+epuri);
         var epDocContent = MarkdownUtils.GetSectionContent(docContent, docAnchor);
 
+        edata.AddAttributeNode("doc-content-tpl", epDocContent);
+
         //finally regenerate doc content expanding all variables
         epDocContent = MarkdownUtils.EvaluateVariables(epDocContent, (v) =>
         {
@@ -105,7 +107,6 @@ namespace Azos.Wave.Mvc
           if (v.StartsWith("@")) return v;//do not expand TYPE spec here
 
           //else navigate config path
-Console.WriteLine("----> {0}  on  {1}".Args(v,""));
           return edata.Navigate(v).Value;
         });
 
@@ -125,7 +126,7 @@ Console.WriteLine("----> {0}  on  {1}".Args(v,""));
         return cdata.Navigate(v).Value;
       });
 
-      cdata.AddAttributeNode("doc-content-var", docContent);
+      cdata.AddAttributeNode("doc-content", docContent);
 
       return cdata;
     }
