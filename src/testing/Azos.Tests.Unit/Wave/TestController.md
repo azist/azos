@@ -11,7 +11,8 @@ The `Endpoint` heading has a special meaning - it is being regenerated of the en
 The content will be replaced with generated content using individual endpoint sections as template.
 
 You can use variables in endpoints: `{<path>}` the path is per config navigation syntax, so for example to get 
-a title of the endpoint one could use ` {$title} `. The variables are evaluated only in Endpoints section. 
+a title of the endpoint one could use ` {$title} `. The variables are evaluated only in Endpoints section.
+You can escape ``{{variable}}`` like so.
 
 
 
@@ -23,10 +24,12 @@ The controller is protected by permissions and requires snake oil to work
 ### custom name
 This is a content for custom-named doc anchor
 
-### /test/list - `{$title}`  
-`{$description}`
+Uri for this is `{$uri}`.
 
-Url is: `{$url}`
+### /test/list - `{$title}`
+ZZZZZZZZZZZZZZZZZZZZZZZZZ: `{$title}`
+
+Url is: `{$uri}`
 Returns an array of `@xyz` for the supplied `@TestFilter`. The content is posted
 
 Example C# code:

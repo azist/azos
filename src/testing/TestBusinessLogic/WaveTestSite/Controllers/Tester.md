@@ -11,8 +11,10 @@ Returns a page describing our project. The method accepts always returns HTML.
 ### ShowImage
 Returns an image
 
-### /mvc/tester/echo
-Echoes back what was supplied
+### /mvc/tester/echo - `{$title}`
+`{$description}`
+
+Echoes back what was supplied. Custom model `{@ZhabbaType}`
 
 
 

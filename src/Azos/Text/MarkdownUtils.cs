@@ -80,5 +80,50 @@ namespace Azos.Text
     }
 
 
+    /// <summary>
+    /// Evaluates variables by applying a transform function to each value placed in between `{...}`.
+    /// It is up to the eval function to interpret escapes
+    /// </summary>
+    public static string EvaluateVariables(string content, Func<string, string> eval)
+    {
+      if (content.IsNullOrWhiteSpace()) return string.Empty;
+      if (eval==null) return null;
+
+      var result = new StringBuilder(content.Length);
+      var span = new StringBuilder(64);
+      var isSpan = false;
+      var i=0;
+      for(;i<content.Length-1; i++)
+      {
+        var ch = content[i];
+        var nch = content[i+1];
+        if (ch=='`' && nch == '{')
+        {
+          isSpan = true;
+          i++;
+          continue;
+        }
+
+        if (ch=='}' && nch == '`')
+        {
+          isSpan = false;
+          var evaluated = eval(span.ToString());
+          result.Append(evaluated);
+          span.Clear();
+          i++;
+          continue;
+        }
+
+        if (isSpan)
+          span.Append(ch);
+        else
+          result.Append(ch);
+      }
+
+      if (i<content.Length) result.Append(content[i]);//last char
+
+      return result.ToString();
+    }
+
   }
 }

@@ -71,10 +71,6 @@ namespace Azos.Wave.Mvc
         edata.AddAttributeNode("uri", epuri);
         writeCollection(mctx.ApiEndpointDocAttr.Methods, "method", mrequest, ':');
 
-        //docAnchor
-        var docAnchor = mctx.ApiEndpointDocAttr.DocAnchor.Default("### "+epuri);
-        edata.AddAttributeNode("doc-content", MarkdownUtils.GetSectionContent(docContent, docAnchor));
-
         //Get all method attributes except ApiDoc
         var epattrs = mctx.Method
                           .GetCustomAttributes(true)
@@ -95,7 +91,41 @@ namespace Azos.Wave.Mvc
                          .Where(pi => !pi.IsOut && !pi.ParameterType.IsByRef && !apictx.Generator.IsWellKnownType(pi.ParameterType) )
                          .Select(pi => pi.ParameterType).ToArray();
         writeTypeCollection(epargs, TYPE_REF, edata, apictx.Generator);
-      }
+
+        //docAnchor
+        var docAnchor = mctx.ApiEndpointDocAttr.DocAnchor.Default("### "+epuri);
+        var epDocContent = MarkdownUtils.GetSectionContent(docContent, docAnchor);
+
+        //finally regenerate doc content expanding all variables
+        epDocContent = MarkdownUtils.EvaluateVariables(epDocContent, (v) =>
+        {
+          if (v.IsNullOrWhiteSpace()) return v;
+          //Escape: ``{{a}}`` -> `{a}`
+          if (v.StartsWith("{") && v.EndsWith("}")) return v.Substring(1, v.Length - 2);
+          if (v.StartsWith("@")) return v;//do not expand TYPE spec here
+
+          //else navigate config path
+Console.WriteLine("----> {0}  on  {1}".Args(v,""));
+          return edata.Navigate(v).Value;
+        });
+
+        edata.AddAttributeNode("doc-content", epDocContent);
+
+      }//all endpoints
+
+      //finally regenerate doc content expanding all variables for the controller
+      docContent = MarkdownUtils.EvaluateVariables(docContent, (v) =>
+      {
+        if (v.IsNullOrWhiteSpace()) return v;
+        //Escape: ``{{a}}`` -> `{a}`
+        if (v.StartsWith("{") && v.EndsWith("}")) return v.Substring(1, v.Length - 2);
+        if (v.StartsWith("@")) return v;//do not expand TYPE spec here
+
+        //else navigate config path
+        return cdata.Navigate(v).Value;
+      });
+
+      cdata.AddAttributeNode("doc-content-var", docContent);
 
       return cdata;
     }
