@@ -111,7 +111,8 @@ namespace Azos.Serialization.Arow
     /// <summary>
     /// Serializes a data document instance into a Subarray&lt;byte&gt; delimited chunk of thread-local buffer.
     /// Because sub-arrays are used for thread-local optimizations, this method should be used in a synchronous-only
-    /// thread-bound flows, such as serializing payload into Pile
+    /// thread-bound flows, such as serializing payload into Pile and the returned object must be consumed right away as subsequent calls
+    /// to this method will overwrite the previous content as the same thread local physical buffer is re-used.
     /// </summary>
     public static Subarray<byte> SerializeToSubarray(TypedDoc doc)
     {

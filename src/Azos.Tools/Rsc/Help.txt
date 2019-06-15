@@ -21,7 +21,7 @@
  Options:
 
  <f color=darkCyan>/c | /compiler<f color=gray> - a fully qualified compiler type name, if omitted
-            MySQLCompiler is used
+            MsSqlCompiler is used
  <f color=darkCyan>/o | /options<f color=gray> - specifies compiler options.
 
           <f color=darkRed>out-path<f color=gray> - output path, if omitted then input file's path is used

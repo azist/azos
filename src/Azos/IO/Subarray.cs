@@ -1,6 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
 
 namespace Azos.IO
 {
@@ -9,7 +12,9 @@ namespace Azos.IO
   /// Unlike ArraySegment, this is a mutable class (to avoid boxing of multiple instances) where
   /// instance can be-reused to delimit typically a byte[]. The sub-array purposely always starts at index zero of
   /// the source array. This class is used for optimization of low-level memory access, such as the one used in Pile
-  /// not to re-allocate buffers. It allows for memory re-use.
+  /// not to re-allocate buffers. It allows for memory re-use. The producers of Subarrays typically rely on thread-local
+  /// cached buffer so one must be careful and consume the Subarray right after getting its value as subsequent calls may overwrite
+  /// the contents in the underlying cached array.
   /// </summary>
   public sealed class Subarray<T>
   {

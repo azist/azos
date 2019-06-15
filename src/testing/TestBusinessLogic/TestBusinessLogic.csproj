@@ -16,6 +16,7 @@
   <ItemGroup>
     <None Remove="Toy\Help.txt" />
     <None Remove="Toy\Welcome.txt" />
+    <None Remove="WaveTestSite\Controllers\Tester.md" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,11 +26,15 @@
     <Compile Include="WaveTestSite\Pages\.tc\RecordTest.htm.auto.cs" />
     <Compile Include="WaveTestSite\Pages\.tc\Welcome.htm.auto.cs" />
     <Compile Include="WaveTestSite\Pages\SubTopic\.tc\Latest.htm.auto.cs" />
+
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Toy\Help.txt" />
     <EmbeddedResource Include="Toy\Welcome.txt" />
+    <EmbeddedResource Include="WaveTestSite\Controllers\Tester.md">
+      <logicalName>WaveTestSite.Controllers.Tester.md</logicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
 
