@@ -104,7 +104,7 @@ namespace Azos.Wave.Mvc
           if (v.IsNullOrWhiteSpace()) return v;
           //Escape: ``{{a}}`` -> `{a}`
           if (v.StartsWith("{") && v.EndsWith("}")) return v.Substring(1, v.Length - 2);
-          if (v.StartsWith("@")) return v;//do not expand TYPE spec here
+          if (v.StartsWith("@")) return $"`{{{v}}}`";//do not expand TYPE spec here
 
           //else navigate config path
           return edata.Navigate(v).Value;

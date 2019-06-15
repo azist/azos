@@ -30,7 +30,7 @@ Uri for this is `{$uri}`.
 ZZZZZZZZZZZZZZZZZZZZZZZZZ: `{$title}`
 
 Url is: `{$uri}`
-Returns an array of `@xyz` for the supplied `@TestFilter`. The content is posted
+Returns an array of `{@xyz}` for the supplied `{@TestFilter}`. The content is posted
 
 Example C# code:
 ```csharp
