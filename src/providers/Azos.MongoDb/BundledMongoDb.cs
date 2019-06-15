@@ -22,9 +22,13 @@ namespace Azos.Data.Access.MongoDb
   {
     public const string PROCESS_CMD = "mongod";
 
+    public const int STARTUP_TIMEOUT_MS_MIN = 3795;
+    public const int STARTUP_TIMEOUT_MS_MAX = 1 * 60 * 1000;
+    public const int STARTUP_TIMEOUT_MS_DFLT = 17539;
+
     public const int SHUTDOWN_TIMEOUT_MS_MIN = 1500;
     public const int SHUTDOWN_TIMEOUT_MS_MAX = 5 * 60 * 1000;
-    public const int SHUTDOWN_TIMEOUT_MS_DFLT = 5379;
+    public const int SHUTDOWN_TIMEOUT_MS_DFLT = 15379;
 
 
     public const int MONGO_PORT_DFLT = 1316;
@@ -35,6 +39,7 @@ namespace Azos.Data.Access.MongoDb
 
 
     private bool m_InstrumentationEnabled;
+    private int m_StartupTimeoutMs = STARTUP_TIMEOUT_MS_DFLT;
     private int m_ShutdownTimeoutMs = SHUTDOWN_TIMEOUT_MS_DFLT;
     private Process m_ServerProcess;
 
@@ -52,6 +57,14 @@ namespace Azos.Data.Access.MongoDb
     {
       get => m_InstrumentationEnabled;
       set => m_InstrumentationEnabled = value;
+    }
+
+    [Config(Default = STARTUP_TIMEOUT_MS_DFLT)]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
+    public int StartupTimeoutMs
+    {
+      get => m_StartupTimeoutMs;
+      set => m_StartupTimeoutMs = value.KeepBetween(STARTUP_TIMEOUT_MS_MIN, STARTUP_TIMEOUT_MS_MAX);
     }
 
     [Config(Default = SHUTDOWN_TIMEOUT_MS_DFLT)]
@@ -140,6 +153,34 @@ namespace Azos.Data.Access.MongoDb
       }
     }
 
+    /// <summary>
+    /// Returns MongoDb connect string for the bundled instance. The daemon must be running or exception is thrown
+    /// </summary>
+    public string GetDatabaseConnectString(string dbName)
+    {
+      CheckDaemonActiveOrStarting();
+      return GetDatabaseConnectStringUnsafe(dbName);
+    }
+
+    /// <summary>
+    /// Returns MongoDB connection to the bundled instance for the specified database. The daemon must be running or exception is thrown
+    /// </summary>
+    public Database GetDatabase(string dbName)
+    {
+      CheckDaemonActiveOrStarting();
+      return GetDatabaseUnsafe(dbName);
+    }
+
+    protected string GetDatabaseConnectStringUnsafe(string dbName)
+    {
+      return "mongo{{server='mongo://{0}:{1}' db='{2}'}}".Args(m_Mongo_bind_ip ?? "localhost", m_Mongo_port, dbName.NonBlank(nameof(dbName)));
+    }
+
+    protected Database GetDatabaseUnsafe(string dbName)
+    {
+      var cs = GetDatabaseConnectStringUnsafe(dbName);
+      return App.GetMongoDatabaseFromConnectString(cs);
+    }
 
     protected override void DoStart()
     {
@@ -175,6 +216,37 @@ namespace Azos.Data.Access.MongoDb
 
       p.Start();//<===========
       p.BeginOutputReadLine();
+
+      var sw = Stopwatch.StartNew();
+      while(App.Active)
+      {
+        System.Threading.Thread.Sleep(2000);//give process ramp-up time
+
+        if (m_ServerProcess.HasExited)
+        {
+          ensureProcessTermination("start", m_StartupTimeoutMs);
+          AbortStart();
+          throw new MongoDbConnectorException("Process crashed on start");
+        }
+
+        if (sw.ElapsedMilliseconds > m_StartupTimeoutMs)
+        {
+          ensureProcessTermination("start", m_StartupTimeoutMs);
+          AbortStart();
+          throw new MongoDbConnectorException("Process did not return success in the alloted time of {0}".Args(m_StartupTimeoutMs));
+        }
+
+        try
+        {
+           var db = GetDatabaseUnsafe("admin");
+           db.Ping();//ensure the successful connection
+           break;//success
+        }
+        catch(Exception error)
+        {
+           WriteLog(Log.MessageType.TraceD, nameof(DoStart), "Error trying to db.Ping() on start: "+error.ToMessageWithType(), error);
+        }
+      }
     }
 
     protected override void DoSignalStop()
@@ -185,9 +257,11 @@ namespace Azos.Data.Access.MongoDb
       //db.shutdownServer()
       //https://docs.mongodb.com/manual/tutorial/manage-mongodb-processes/#terminate-mongod-processes
 
-      var db = App.GetMongoDatabaseFromConnectString("mongo{{server='mongo://{0}:{1}' db='admin'}}".Args(m_Mongo_bind_ip ?? "localhost", m_Mongo_port));
+
+      //https://docs.mongodb.com/manual/reference/command/shutdown/#dbcmd.shutdown
+      var db = App.GetMongoDatabaseFromConnectString(GetDatabaseConnectStringUnsafe("admin"));
       var body = new BSONDocument();
-      body.Set(new BSONInt32Element("shutdownServer", 1));
+      body.Set(new BSONInt32Element("shutdown", 1));
       try
       {
       db.RunCommand(body);
@@ -204,10 +278,19 @@ namespace Azos.Data.Access.MongoDb
 
       m_ServerProcess.WaitForExit(m_ShutdownTimeoutMs);
 
+      ensureProcessTermination("stop", m_ShutdownTimeoutMs);
+    }
+
+    private void ensureProcessTermination(string operation, int timeout)
+    {
       if (!m_ServerProcess.HasExited)
       {
-        var rel = WriteLog(Log.MessageType.Critical, nameof(DoWaitForCompleteStop), "Bundled `{0}` process has not exited after {1} ms shutdown timeout. Attempting to kill ...".Args(PROCESS_CMD, m_ShutdownTimeoutMs));
+        var rel = WriteLog(Log.MessageType.Critical,
+                           nameof(DoWaitForCompleteStop),
+                           "Bundled `{0}` process has not completed operation `{1}` within the allowed time frame of  {2} ms. Attempting to kill ...".Args(PROCESS_CMD, operation, timeout));
+
         m_ServerProcess.Kill();
+
         WriteLog(Log.MessageType.Critical, nameof(DoWaitForCompleteStop), "...killed", related: rel);
       }
 

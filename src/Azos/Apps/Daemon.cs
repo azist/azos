@@ -70,7 +70,7 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Current service status
+    /// Current daemon operational status: Inactive, Running etc...
     /// </summary>
     public DaemonStatus Status
     {
@@ -78,8 +78,8 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Returns true when service is active or about to become active.
-    /// Check in service implementation loops/threads/tasks
+    /// Returns true when daemon is active or about to become active.
+    /// Check in daemon implementation loops/threads/tasks
     /// </summary>
     public bool Running
     {
@@ -122,7 +122,7 @@ namespace Azos.Apps
     #region Public
 
     /// <summary>
-    /// Configures service from configuration node (and possibly it's sub-nodes)
+    /// Configures daemon from configuration node (and possibly it's sub-nodes)
     /// </summary>
     public void Configure(IConfigSectionNode fromNode)
     {
@@ -136,7 +136,7 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Blocking call that starts the service instance if it is not decorated by [DontAutoStartDaemon]
+    /// Blocking call that starts the daemon instance if it is not decorated by [DontAutoStartDaemon]
     /// </summary>
     internal bool StartByApplication()
     {
@@ -146,7 +146,7 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Blocking call that starts the service instance
+    /// Blocking call that starts the daemon instance
     /// </summary>
     public void Start()
     {
@@ -170,7 +170,7 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Non-blocking call that initiates the stopping of the service
+    /// Non-blocking call that initiates the stopping of the daemon
     /// </summary>
     public void SignalStop()
     {
@@ -184,7 +184,7 @@ namespace Azos.Apps
 
 
     /// <summary>
-    /// Non-blocking call that returns true when the service instance has completely stopped after SignalStop()
+    /// Non-blocking call that returns true when the daemon instance has completely stopped after SignalStop()
     /// </summary>
     public bool CheckForCompleteStop()
     {
@@ -200,7 +200,7 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Blocks execution of current thread until this service has completely stopped.
+    /// Blocks execution of current thread until this daemon has completely stopped.
     /// This call must be performed by only 1 thread otherwise exception is thrown
     /// </summary>
     public void WaitForCompleteStop()
@@ -229,8 +229,8 @@ namespace Azos.Apps
 
 
     /// <summary>
-    /// Accepts a visit of a manager entity - this call is useful for periodic updates of service status,
-    /// i.e.  when service does not have a thread of its own it can be periodically managed by some other service through this method.
+    /// Accepts a visit of a manager entity - this call is useful for periodic updates of daemon status,
+    /// i.e.  when daemon does not have a thread of its own it can be periodically managed by some other daemon through this method.
     /// The default implementation of DoAcceptManagerVisit(object, DateTime) does nothing
     /// </summary>
     public void AcceptManagerVisit(object manager, DateTime managerNow)
@@ -305,28 +305,28 @@ namespace Azos.Apps
 
         if (!trace.GetFrames().Any(f => f.GetMethod().Name.Equals("DoStart", StringComparison.Ordinal)))
             Debugging.Fail(
-                text:   "Service.AbortStart() must be called from within DoStart()",
+                text: "Daemon.AbortStart() must be called from within DoStart()",
                 action: DebugAction.ThrowAndLog);
 
         m_Status = DaemonStatus.AbortingStart;
     }
 
     /// <summary>
-    /// Provides implementation that starts the service
+    /// Provides implementation that starts the daemon
     /// </summary>
     protected virtual void DoStart()
     {
     }
 
     /// <summary>
-    /// Provides implementation that signals service to stop. This is expected not to block
+    /// Provides implementation that signals daemon to stop. This is expected not to block
     /// </summary>
     protected virtual void DoSignalStop()
     {
     }
 
     /// <summary>
-    /// Provides implementation for checking whether the service has completely stopped
+    /// Provides implementation for checking whether the daemon has completely stopped
     /// </summary>
     protected virtual bool DoCheckForCompleteStop()
     {
@@ -334,7 +334,7 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Provides implementation for a blocking call that returns only after a complete service stop
+    /// Provides implementation for a blocking call that returns only after a complete daemon stop
     /// </summary>
     protected virtual void DoWaitForCompleteStop()
     {
@@ -342,7 +342,7 @@ namespace Azos.Apps
 
 
     /// <summary>
-    /// Provides implementation that configures service from configuration node (and possibly it's sub-nodes)
+    /// Provides implementation that configures daemon from configuration node (and possibly it's sub-nodes)
     /// </summary>
     protected virtual void DoConfigure(IConfigSectionNode node)
     {
@@ -350,7 +350,7 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Checks for service activity and throws exception if service is not in ControlStatus.Active state
+    /// Checks for daemon activity and throws exception if daemon is not in DaemonStatus.Active state
     /// </summary>
     protected void CheckDaemonActiveOrStarting()
     {
@@ -369,7 +369,7 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Checks for service inactivity and throws exception if service is running (started, starting or stopping)
+    /// Checks for daemon inactivity and throws exception if daemon is running (started, starting or stopping)
     /// </summary>
     protected void CheckDaemonInactive()
     {
@@ -378,7 +378,7 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Checks for service activity and throws exception if service is not in ControlStatus.Active state
+    /// Checks for daemon activity and throws exception if daemon is not in DaemonStatus.Active state
     /// </summary>
     protected void CheckDaemonActive()
     {
@@ -388,7 +388,7 @@ namespace Azos.Apps
 
     /// <summary>
     /// Accepts a visit from external manager. Base implementation does nothing.
-    ///  Override in services that need external management calls
+    ///  Override in daemons that need external management calls
     ///   to update their state periodically, i.e. when they don't have a thread on their own
     /// </summary>
     protected virtual void DoAcceptManagerVisit(object manager, DateTime managerNow)
