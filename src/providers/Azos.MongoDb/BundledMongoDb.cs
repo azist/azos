@@ -1,7 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
 
+using System;
 using System.Diagnostics;
 
 using Azos.Apps;
@@ -9,7 +12,6 @@ using Azos.Conf;
 using Azos.Instrumentation;
 
 using Azos.Data.Access.MongoDb.Connector;
-using Azos.Serialization.BSON;
 
 namespace Azos.Data.Access.MongoDb
 {
@@ -43,6 +45,8 @@ namespace Azos.Data.Access.MongoDb
     private int m_ShutdownTimeoutMs = SHUTDOWN_TIMEOUT_MS_DFLT;
     private Process m_ServerProcess;
 
+    private string m_MongoBinPath;
+
     private int m_Mongo_port = MONGO_PORT_DFLT;
     private string m_Mongo_bind_ip = MONGO_BIND_IP_DFLT;
     private string m_Mongo_dbpath;
@@ -57,6 +61,21 @@ namespace Azos.Data.Access.MongoDb
     {
       get => m_InstrumentationEnabled;
       set => m_InstrumentationEnabled = value;
+    }
+
+    /// <summary>
+    /// Points to absolute local path where `mongod` executable is deployed
+    /// </summary>
+    [Config("$mongo-bin|$mongo-path|$mongo-bin-path")]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
+    public string MongoBinPath
+    {
+      get => m_MongoBinPath;
+      set
+      {
+        CheckDaemonInactive();
+        m_MongoBinPath = value;
+      }
     }
 
     [Config(Default = STARTUP_TIMEOUT_MS_DFLT)]
@@ -185,10 +204,13 @@ namespace Azos.Data.Access.MongoDb
     protected override void DoStart()
     {
       base.DoStart();
+
+      if (!System.IO.Directory.Exists(m_MongoBinPath.NonBlank(nameof(MongoBinPath))))
+       throw new MongoDbConnectorException("The MongoDb bin path `{0}` does not exist".Args(m_MongoBinPath));
+
       var p = m_ServerProcess = new Process();
-      //p.StartInfo.FileName = PROCESS_CMD;
-      //p.StartInfo.WorkingDirectory = @"C:\mongo\4.0\bin";
-      p.StartInfo.FileName = @"C:\mongo\4.0\bin\mongod.exe";
+
+      p.StartInfo.FileName = System.IO.Path.Combine(m_MongoBinPath, PROCESS_CMD);
 
       //see:  https://docs.mongodb.com/manual/reference/program/mongod/
       var args = "--noauth --port {0}".Args(m_Mongo_port);
@@ -209,10 +231,12 @@ namespace Azos.Data.Access.MongoDb
       p.StartInfo.RedirectStandardOutput = true;
       p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 
-      //p.OutputDataReceived += (sender, e) =>
-      //{
-      //  if (e.Data != null) m_BufferedOutput.AppendLine(e.Data);
-      //};
+      var logrel = Guid.NewGuid();
+      p.OutputDataReceived += (sender, e) =>
+      {
+        if (e.Data != null && e.Data.IsNotNullOrWhiteSpace())
+          WriteLog(Log.MessageType.TraceB, PROCESS_CMD, "  > "+e.Data, related: logrel);
+      };
 
       p.Start();//<===========
       p.BeginOutputReadLine();
@@ -220,31 +244,31 @@ namespace Azos.Data.Access.MongoDb
       var sw = Stopwatch.StartNew();
       while(App.Active)
       {
-        System.Threading.Thread.Sleep(2000);//give process ramp-up time
+        System.Threading.Thread.Sleep(1000);//give process ramp-up time
 
         if (m_ServerProcess.HasExited)
         {
           ensureProcessTermination("start", m_StartupTimeoutMs);
           AbortStart();
-          throw new MongoDbConnectorException("Process crashed on start");
+          throw new MongoDbConnectorException("Mongo Db process crashed on start. Inspect logs for details (to enable logging, set this.ComponentLogLevel = Azos.Log.MessageType.Debug)");
         }
 
         if (sw.ElapsedMilliseconds > m_StartupTimeoutMs)
         {
           ensureProcessTermination("start", m_StartupTimeoutMs);
           AbortStart();
-          throw new MongoDbConnectorException("Process did not return success in the alloted time of {0}".Args(m_StartupTimeoutMs));
+          throw new MongoDbConnectorException("Mongo Db process did not return success in the alloted time of {0}".Args(m_StartupTimeoutMs));
         }
 
         try
         {
-           var db = GetDatabaseUnsafe("admin");
+           var db = GetDatabaseUnsafe(MongoConsts.ADMIN_DB);
            db.Ping();//ensure the successful connection
            break;//success
         }
         catch(Exception error)
         {
-           WriteLog(Log.MessageType.TraceD, nameof(DoStart), "Error trying to db.Ping() on start: "+error.ToMessageWithType(), error);
+           WriteLog(Log.MessageType.TraceD, nameof(DoStart), "Error trying to db.Ping() on start: " + error.ToMessageWithType(), error);
         }
       }
     }
@@ -252,23 +276,19 @@ namespace Azos.Data.Access.MongoDb
     protected override void DoSignalStop()
     {
       base.DoSignalStop();
-      //dispatch serverShutdown command
-      //use admin
-      //db.shutdownServer()
+
       //https://docs.mongodb.com/manual/tutorial/manage-mongodb-processes/#terminate-mongod-processes
-
-
       //https://docs.mongodb.com/manual/reference/command/shutdown/#dbcmd.shutdown
-      var db = App.GetMongoDatabaseFromConnectString(GetDatabaseConnectStringUnsafe("admin"));
-      var body = new BSONDocument();
-      body.Set(new BSONInt32Element("shutdown", 1));
+
       try
       {
-      db.RunCommand(body);
+        var db = GetDatabaseUnsafe(MongoConsts.ADMIN_DB);
+        db.RunCommand(MongoConsts.CMD_SHUTDOWN);
       }
       catch(Exception error)
       {
-        //log
+        if (!(error is System.IO.IOException))//typically the connection is torn instantly as the result of the command, so we don't need to log it
+          WriteLog(Log.MessageType.Critical, nameof(DoSignalStop), "RunCommand('shutdown') leaked: " + error.ToMessageWithType(), error);
       }
     }
 
