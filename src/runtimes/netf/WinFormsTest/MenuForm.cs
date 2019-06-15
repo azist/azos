@@ -192,7 +192,8 @@ Performance
 
     private void btnMONGOCONNECTOR_Click(object sender, EventArgs e)
     {
-//      new MongoConnectorForm().Show();
+      //      new MongoConnectorForm().Show();
+       new BundledMongoForm().Show();
     }
 
     private void btnChart_Click(object sender, EventArgs e)
