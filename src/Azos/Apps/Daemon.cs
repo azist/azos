@@ -16,7 +16,7 @@ namespace Azos.Apps
   /// <summary>
   /// Represents a lightweight daemon(background in-app process) which can be controlled by
   /// Start/SignalStop-like commands. This class serves a a base for various implementations
-  /// (e.g. LogDaemon) including their composites. This class is thread-safe
+  /// (e.g. LogDaemon) including their composites. The base class state machine is thread-safe
   /// </summary>
   public abstract class Daemon : ApplicationComponent, IDaemon, ILocalizedTimeProvider
   {
@@ -56,7 +56,6 @@ namespace Azos.Apps
     private TimeLocation m_TimeLocation = new TimeLocation();
 
     #endregion
-
 
     #region Properties
 
@@ -291,7 +290,6 @@ namespace Azos.Apps
     }
 
     #endregion
-
 
     #region Protected
 

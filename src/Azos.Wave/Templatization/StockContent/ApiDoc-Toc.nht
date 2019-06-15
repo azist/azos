@@ -62,17 +62,17 @@ This section lists permissions used by the API authorization process.
  <div class="clearfix"></div>
 
 #[endpoint(dynamic scope, dynamic ep)]
-<div class="card"">
+<div class="card">
  <div class="card-title"><a href="scope?id=?[scope.id]#?[ep.id]"> ./?[StrUtils.TakeLastSegment(ep.uri, '/')]</a></div>
  <div class="card-description">?[ep.title]</div>
 </div>
 
 #[datadoc(int cnt, dynamic tdoc)]
-<div class="card"">
+<div class="card">
  <div class="card-title"><a href="schema?id=?[tdoc.id]"> ?[tdoc.sku]</a></div>
 </div>
 
 #[perm(int cnt, dynamic tperm)]
-<div class="card"">
+<div class="card">
  <div class="card-title"><a href="schema?id=?[tperm.id]"> ?[tperm.sku]</a></div>
 </div>

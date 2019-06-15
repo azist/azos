@@ -1,0 +1,25 @@
+﻿#<laconf>
+  compiler
+  {
+     base-class-name="Azos.Wave.Templatization.StockContent.Master"
+     using{ns="Azos.Serialization.JSON"}
+     using{ns="Azos.Data"}
+     using{ns="System.Linq"}
+     namespace="Azos.Wave.Templatization.StockContent"
+     abstract="false"
+     summary="ApiDoc Index Page"
+  }
+#</laconf>
+#[class]
+
+  public readonly dynamic Data;
+  public ApiDoc_Scope(dynamic data) : base()  => Data = data;
+  public override string Title { get {return "Api Documentation - Scope"; } }
+
+#[override renderHeader()]
+ Api Scope
+#[override renderBody()]
+
+<pre>
+ ?[Data.AttrByName("doc-content").Value]
+</pre>

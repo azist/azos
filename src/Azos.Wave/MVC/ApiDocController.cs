@@ -152,11 +152,15 @@ namespace Azos.Wave.Mvc
     [Action(Name = "scope"), HttpGet]
     public object Scope(string id)
     {
-      return ScopeView(null);
+      var data = Data.Children.FirstOrDefault(c => c.IsSameName("scope") && c.AttrByName("run-id").Value.EqualsOrdIgnoreCase(id));
+      if (data==null) return new Http404NotFound();
+      if (WorkContext.RequestedJSON) return data;
+
+      return ScopeView(data);
     }
 
-    protected virtual object ScopeView(IEnumerable<IConfigSectionNode> data)
-     => "   UNDER CONSTRUCTION ";
+    protected virtual object ScopeView(IConfigSectionNode data)
+     => new Templatization.StockContent.ApiDoc_Scope(data);
 
   }
 }
