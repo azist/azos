@@ -7,8 +7,8 @@ be used if needed.
 
 ## How Doc File Works
 Doc file is just a markdown file with headings.
-The `Endpoint` heading has a special meaning - it is being regenerated of the endpoints data in doc set.
-The content will be replaced with generated content using individual endpoint sections as template.
+The `Endpoints` heading has a special meaning - it is being regenerated of the endpoints data in doc set.
+The content will be replaced with generated content using individual endpoint sections as a template.
 
 You can use variables in endpoints: `{<path>}` the path is per config navigation syntax, so for example to get 
 a title of the endpoint one could use ` {$title} `. The variables are evaluated only in Endpoints section.

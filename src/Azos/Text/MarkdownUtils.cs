@@ -45,20 +45,27 @@ namespace Azos.Text
 
     /// <summary>
     /// Returns content between the specified header and the next header of this or higher rank,
-    /// e.g. "## Endpoint" will return content until the next H2 or H1 header
+    /// e.g. "## Endpoints" will return content until the next H2 or H1 header.
     /// </summary>
     public static string GetSectionContent(string markdown, string section)
-    {
-      if (markdown == null) return string.Empty;
-      if (section.IsNullOrWhiteSpace()) return string.Empty;
+     => GetSectionContentEx(markdown, section).content;
 
-      markdown = '\n'+markdown+'\n';
+    /// <summary>
+    /// Returns content between the specified header and the next header of this or higher rank,
+    /// e.g. "## Endpoints" will return content until the next H2 or H1 header.
+    /// This method returns the start and end indexes in the original markdown content taken by the section
+    /// </summary>
+    public static (string content, int istart, int iend) GetSectionContentEx(string markdown, string section)
+    {
+      if (markdown == null || section.IsNullOrWhiteSpace()) return (string.Empty, -1, -1);
+
+      markdown = '\n'+markdown+'\n';//content is padded +1
 
       var start = '\n' + section;
       var istart = markdown.IndexOf(start);
 
-      if (istart<0) return string.Empty;
-      if (istart+start.Length+2 >= markdown.Length) return string.Empty;
+      if (istart<0) return (string.Empty, -1, -1);
+      if (istart+start.Length+2 >= markdown.Length) return (string.Empty, istart-1, -1);
 
       var level = 0;//level of heading H1/H2 etc..
       for(var i =0; i<start.Length; i++)
@@ -72,13 +79,28 @@ namespace Azos.Text
         var end = '\n' + new string('#', level) + ' ';
         var iend = markdown.IndexOf(end, istart+start.Length+1);
         if (iend>istart)
-          return markdown.Substring(istart, iend-istart-1).Trim(TRIM);
+          return (markdown.Substring(istart, iend-istart-1).Trim(TRIM), istart-1, iend-1);
 
         level--;//increase the header size
       }
-      return markdown.Substring(istart).Trim(TRIM);
+      return (markdown.Substring(istart).Trim(TRIM), istart-1, -1);
     }
 
+    /// <summary>
+    /// Returns content of markdown without the content between the specified header and the next header of this or higher rank,
+    /// also returning the index where the excision was made.
+    /// Example: "## Endpoints" will return all content but the content starting with "## Endpoints" until the next H2 or H1 header.
+    /// </summary>
+    public static (string content, int iexcision) ExciseSection(string markdown, string section)
+    {
+      var span = GetSectionContentEx(markdown, section);
+      if (span.istart<0) return (markdown, -1);
+      var result = markdown.Substring(0, span.istart);
+      if (span.iend>0)
+       result += markdown.Substring(span.iend);
+
+      return (result, span.istart);
+    }
 
     /// <summary>
     /// Evaluates variables by applying a transform function to each value placed in between `{...}`.
@@ -147,6 +169,7 @@ namespace Azos.Text
         if (isPar)
         {
           isPar = false;
+          result.AppendLine();
           result.AppendLine("</p>");
           return;
         }
@@ -176,6 +199,13 @@ namespace Azos.Text
       void processLine()
       {
         var lineFull = lineBuffer.ToString();
+
+        if (lineFull.Length==0 && isPar)//paragraph delimiter
+        {
+          closeSpan();
+          return;
+        }
+
         var line = lineFull.Trim();
         lineBuffer.Clear();
         if (line.IsNullOrWhiteSpace()) return;
@@ -241,6 +271,7 @@ namespace Azos.Text
         {
           closeSpan();
           isPar = true;
+          result.AppendLine();
           result.AppendLine("<p>");
         }
         result.Append(line);

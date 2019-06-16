@@ -152,15 +152,34 @@ namespace Azos.Wave.Mvc
     [Action(Name = "scope"), HttpGet]
     public object Scope(string id)
     {
-      var data = Data.Children.FirstOrDefault(c => c.IsSameName("scope") && c.AttrByName("run-id").Value.EqualsOrdIgnoreCase(id));
+      var data = Data.Children.FirstOrDefault(c => c.IsSameName("scope") && c.ValOf("run-id").EqualsOrdIgnoreCase(id));
       if (data==null) return new Http404NotFound();
       if (WorkContext.RequestedJSON) return data;
 
-      return ScopeView(data);
+      var scopeContent = data.ValOf("doc-content");
+
+      var excision = MarkdownUtils.ExciseSection(scopeContent, "## Endpoints");
+
+      //eval variables
+      var finalMarkdown = excision.content;
+
+      //eval type references
+      finalMarkdown = MarkdownUtils.EvaluateVariables(finalMarkdown, v =>
+      {
+        if (v.IsNotNullOrWhiteSpace() && v.StartsWith("@"))
+        {
+          v = v.Substring(1);
+          return "<a href=\"{0}\">{1} Schema</a>".Args("schema?id={0}".Args(v), v);
+        }
+        return v;
+      });
+
+      var html = MarkdownUtils.MarkdownToHtml(finalMarkdown);
+      return ScopeView(html);
     }
 
-    protected virtual object ScopeView(IConfigSectionNode data)
-     => new Templatization.StockContent.ApiDoc_Scope(data);
+    protected virtual object ScopeView(string html)
+     => new Templatization.StockContent.ApiDoc_Scope(html);
 
   }
 }
