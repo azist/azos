@@ -9,16 +9,16 @@ This is yet another paragraph which is far down the line. See the `{@Person}` ty
 The List Of API endpoints follows.
 ## Endpoints
 
-### AboutUs
+### /mvc/tester/AboutUs
 Returns a page describing our project. The method accepts always returns HTML.
 
-### ShowImage
+### /mvc/tester/ShowImage
 Returns an image
 
 ### /mvc/tester/echo - `{$title}`
 `{$description}`
 
-Echoes back what was supplied. Custom model `{@ZhabbaType}`
+Echoes back what was supplied. Custom model `{@MultipartTestDoc}`
 
 Here is an example code:
 ```

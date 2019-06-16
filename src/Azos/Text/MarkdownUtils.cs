@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Azos.Text
@@ -241,6 +242,12 @@ namespace Azos.Text
           }
         }
 
+        if (line.All(c => c=='-'))
+        {
+          closeSpan();
+          result.AppendLine("<hr />");
+          return;
+        }
 
         if (line.StartsWith("- ") || line.StartsWith("* "))
         {
