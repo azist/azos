@@ -20,6 +20,6 @@
  Api Scope
 #[override renderBody()]
 
-<pre>
- ?[Data.AttrByName("doc-content").Value]
-</pre>
+
+ ?[: Azos.Text.MarkdownUtils.MarkdownToHtml(  Data.AttrByName("doc-content").Value  )]
+

@@ -16,7 +16,24 @@ Returns an image
 
 Echoes back what was supplied. Custom model `{@ZhabbaType}`
 
+Here is an example code:
+```
+  curl http://kikimora.com/jaba/call -P -E
 
+  or
+
+  wget http://kikimora.com/jaba/call -P -E
+```
+THis demonstate how to:
+- Take item
+- book another item 
+- all of them in un-ordered list
+
+Also see the ordered list:
+1. Item one
+2. Item two
+30. Item 30
+130. Item 130   
 
 ## Security
 Here, once again the heading level 2 is used as-is.

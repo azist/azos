@@ -125,5 +125,147 @@ namespace Azos.Text
       return result.ToString();
     }
 
+
+    private static readonly string[] HX = new[]{"# ", "## ", "### ", "#### ", "##### ", "###### ", "####### "};
+
+    /// <summary>
+    /// Performs simple markdown to HTML conversion
+    /// </summary>
+    public static string MarkdownToHtml(string content)
+    {
+      if (content.IsNullOrWhiteSpace()) return string.Empty;
+      var result = new StringBuilder(content.Length);
+      var lineBuffer = new StringBuilder(64);
+
+      var isPar = false;
+      var isCodeBlock = false;
+      var isUL = false;
+      var isOL = false;
+
+      void closeSpan()
+      {
+        if (isPar)
+        {
+          isPar = false;
+          result.AppendLine("</p>");
+          return;
+        }
+
+        if (isCodeBlock)
+        {
+          isCodeBlock = false;
+          result.AppendLine("</pre>");
+          return;
+        }
+
+        if (isUL)
+        {
+          isUL = false;
+          result.AppendLine("</ul>");
+          return;
+        }
+
+        if (isOL)
+        {
+          isOL = false;
+          result.AppendLine("</ol>");
+          return;
+        }
+      }
+
+      void processLine()
+      {
+        var lineFull = lineBuffer.ToString();
+        var line = lineFull.Trim();
+        lineBuffer.Clear();
+        if (line.IsNullOrWhiteSpace()) return;
+
+        if (line.StartsWith("```"))
+        {
+          if (!isCodeBlock)
+          {
+            closeSpan();
+            result.AppendLine("<pre>");
+            isCodeBlock = true;
+          }
+          else
+          {
+            closeSpan();
+          }
+          return;
+        }
+
+        if (isCodeBlock)
+        {
+          result.AppendLine(lineFull);
+          return;
+        }
+
+        for(var j=0; j<HX.Length; j++)
+        {
+          if (line.StartsWith(HX[j]))
+          {
+            closeSpan();
+            result.AppendLine("<h{0}>{1}</h{0}>".Args(j+1, line.Substring(j+1)));
+            return;
+          }
+        }
+
+
+        if (line.StartsWith("- ") || line.StartsWith("* "))
+        {
+          if (!isUL)
+          {
+            closeSpan();
+            isUL = true;
+            result.AppendLine("<ul>");
+          }
+          result.AppendLine("  <li>{0}</li>".Args(line.Substring(1)));
+          return;
+        }
+
+        var idot = line.IndexOf('.');
+        if (idot>0 && idot<4 && int.TryParse(line.Substring(0,idot), out var _))
+        {
+          if (!isOL)
+          {
+            closeSpan();
+            isOL = true;
+            result.AppendLine("<ol>");
+          }
+          result.AppendLine("  <li>{0}</li>".Args(line.Substring(idot + 1)));
+          return;
+        }
+
+        if (!isPar)
+        {
+          closeSpan();
+          isPar = true;
+          result.AppendLine("<p>");
+        }
+        result.Append(line);
+      }
+
+
+
+
+      //loop by lines
+      for(var i=0; i<content.Length; i++ )
+      {
+        var ch = content[i];
+        if (ch=='\n' || ch=='\r')
+        {
+          processLine();
+          continue;
+        }
+        lineBuffer.Append(ch);
+      }
+      processLine();
+      closeSpan();
+
+      return result.ToString();
+    }
+
+
   }
 }
