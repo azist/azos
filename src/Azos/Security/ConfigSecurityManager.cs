@@ -167,7 +167,7 @@ namespace Azos.Security
 
     public void Authenticate(User user)
     {
-      if (user == null || user==User.Fake) return;
+      if (user == null) return;
       var token = user.AuthToken;
       var reuser = Authenticate(token);
 

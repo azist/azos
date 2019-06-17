@@ -8,18 +8,18 @@ using System;
 namespace Azos.Security
 {
   /// <summary>
-  /// Denotes types of identities: Users, Groups etc.
+  /// Denotes types of identities: Users, Processes, Groups etc...
   /// </summary>
   public enum IdentityType
   {
     Other= 0,
-    /// <summary>Identity of particular system User</summary>
+    /// <summary>Identity of a particular system User</summary>
     User,
-    /// <summary>Identity of group of users</summary>
+    /// <summary>Identity of a user group</summary>
     Group,
-    /// <summary>Identity of system component such as Process</summary>
+    /// <summary>Identity of a system component such as a Process</summary>
     Process,
-    /// <summary>Identity of business entity such as vendor, bank etc.</summary>
+    /// <summary>Identity of business entity such as a company, supplier, bank etc.</summary>
     Business
   }
 
@@ -34,7 +34,7 @@ namespace Azos.Security
     Invalid = 0,
 
     /// <summary>
-    /// The lowest level of a user, bound by permissions inside their domain and domain section (such as facility)
+    /// The lowest level of a user, bound by permissions inside their domain and domain section (such as company/organization/facility)
     /// </summary>
     User = 1,
     Usr = User,
@@ -48,7 +48,7 @@ namespace Azos.Security
     Adm = Administrator,
 
     /// <summary>
-    /// Cross domain user, all restrictions are lifted
+    /// Cross domain user, all restrictions are lifted, all permission checks pass
     /// </summary>
     System = 1000000,
     Sys = System,
@@ -82,7 +82,7 @@ namespace Azos.Security
   }
 
   /// <summary>
-  /// Denotes security actions
+  /// Describes types of actions relating to application security
   /// </summary>
   public enum SecurityLogAction
   {

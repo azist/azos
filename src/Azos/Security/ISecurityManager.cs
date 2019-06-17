@@ -3,10 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -130,7 +128,7 @@ namespace Azos.Security
     /// </summary>
     /// <param name="user">A user to perform authorization for</param>
     /// <param name="permission">An instance of permission to get</param>
-    /// <returns>AccessLevel granted to specified permission</returns>
+    /// <returns>AccessLevel granted to the specified permission</returns>
     AccessLevel Authorize(User user, Permission permission);
 
     /// <summary>
@@ -142,7 +140,7 @@ namespace Azos.Security
     /// </summary>
     /// <param name="user">A user to perform authorization for</param>
     /// <param name="permission">An instance of permission to get</param>
-    /// <returns>AccessLevel granted to specified permission</returns>
+    /// <returns>AccessLevel granted to the specified permission</returns>
     Task<AccessLevel> AuthorizeAsync(User user, Permission permission);
 
     /// <summary>

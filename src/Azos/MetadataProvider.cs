@@ -208,7 +208,7 @@ namespace Azos
         else break;
       }
 
-      if (chain.Count==0) return false;
+     // if (chain.Count==0) return false;
 
       //from parent->child = tail->head
       for(var i=chain.Count-1; i>-1; i--)
@@ -240,6 +240,17 @@ namespace Azos
         {
           data.AddAttributeNode(CONFIG_SKU_ATTR, typeTarget.Name);
         }
+
+        //enumerated types get handled automatically
+        if (typeTarget.IsEnum)
+        {
+          var nenum = data.AddChildNode("enum");
+          foreach(var v in typeTarget.GetEnumValues())
+          {
+            nenum.AddAttributeNode(typeTarget.GetEnumName(v), (int)v);
+          }
+        }
+
       }
 
       return true;

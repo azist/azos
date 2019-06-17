@@ -169,7 +169,6 @@ namespace Azos.Security
 
     #endregion
 
-
     #region .ctor
     /// <summary>
     /// Creates the check instance against the minimum access level for this permission
@@ -179,7 +178,6 @@ namespace Azos.Security
       m_Level = level;
     }
     #endregion
-
 
     #region Fields
     private int m_Level;

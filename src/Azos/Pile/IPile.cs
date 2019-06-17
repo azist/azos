@@ -98,8 +98,8 @@ namespace Azos.Pile
   /// the cost of higher CPU usage. The implementor must be thread-safe for all operations unless stated otherwise on a member level.
   /// The memory represented by this class as a whole is not synchronizable, that is - it does not support functions like
   /// Interlocked-family, Lock, MemoryBarriers and the like that regular RAM supports. Should a need arise to interlock within the pile -
-  /// a custom CLR-based lock must be used to syncronize access to pile as a whole, for example:
-  ///   a Get does not impose a lock on ALL concurrent writes throught the pile (a write does not block all gets either).
+  /// a custom CLR-based lock must be used to synchronize access to pile as a whole, for example:
+  ///   a Get does not impose a lock on ALL concurrent writes through the pile (a write does not block all gets either).
   /// The enumeration of the pile is thread-safe, however it does not guarantee the snapshot stability as parallel mutations may happen while enumeration takes place.
   /// </summary>
   public interface IPile : IPileStatus, IEnumerable<PileEntry>, Apps.IApplicationComponent

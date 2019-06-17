@@ -35,61 +35,58 @@ namespace Azos
     }
 
     /// <summary>
-    /// Executes an action(item) for each element of sequence
+    /// Fluent notation for foreach
     /// </summary>
-    /// <typeparam name="T">Sequence item type</typeparam>
-    /// <param name="src">Source sequence</param>
-    /// <param name="action">Action to invoke</param>
-    /// <returns>Source sequence</returns>
     public static IEnumerable<T> ForEach<T>(this IEnumerable<T> src, Action<T> action)
     {
-      foreach (T item in src)
-        action(item);
+      foreach (var item in src.NonNull(nameof(src))) action(item);
 
       return src;
     }
 
     /// <summary>
-    /// Executes an action(item, idx) for each element of sequence
+    /// Fluent notation for foreach with index
     /// </summary>
-    /// <typeparam name="T">Sequence item type</typeparam>
-    /// <param name="src">Source sequence</param>
-    /// <param name="action">Action to invoke</param>
-    /// <returns>Source sequence</returns>
     public static IEnumerable<T> ForEach<T>(this IEnumerable<T> src, Action<T, int> action)
     {
       int i = 0;
-      foreach (T item in src)
-        action(item, i++);
+      foreach (var item in src.NonNull(nameof(src))) action(item, i++);
 
       return src;
     }
 
     /// <summary>
-    /// Add all values from range sequence to src IDictionary. Source is actually modified.
+    /// Partitions the source sequence into subsequences of the specified size
     /// </summary>
-    /// <typeparam name="TKey">Type of key</typeparam>
-    /// <typeparam name="TValue">Type of value</typeparam>
-    /// <param name="src">Source IDictionary (where to add range)</param>
-    /// <param name="range">Sequence that should be added to source IDictionary</param>
-    /// <returns>Source with added elements from range (to have ability to chain operations)</returns>
-    public static IDictionary<TKey, TValue> AddRange<TKey, TValue>(this IDictionary<TKey, TValue> src, IEnumerable<KeyValuePair<TKey, TValue>> range)
+    public static IEnumerable<IEnumerable<T>> BatchBy<T>(this IEnumerable<T> src, int size)
     {
-      foreach (var kvp in range)
-        src.Add(kvp.Key, kvp.Value);
+      List<T> batch = null;
 
-      return src;
+      foreach (var e in src.NonNull(nameof(src)))
+      {
+        if (batch != null && batch.Count == size)
+        {
+          yield return batch;
+          batch = null;
+        }
+
+        if (batch == null) batch = new List<T>();
+        batch.Add(e);
+      }
+
+      if (batch != null)
+        yield return batch;
     }
 
     /// <summary>
     /// Takes all elements except for the last element from the given source
     /// </summary>
-    public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> source)
+    public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> src)
     {
       var buffer = default(T);
       var buffered = false;
 
-      foreach(var x in source)
+      foreach(var x in src.NonNull(nameof(src)))
       {
         if (buffered)
           yield return buffer;
@@ -102,11 +99,11 @@ namespace Azos
     /// <summary>
     /// Takes all but the last N elements from the source
     /// </summary>
-    public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> source, int n)
+    public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> src, int n)
     {
       var buffer = new Queue<T>(n + 1);
 
-      foreach(var x in source)
+      foreach(var x in src.NonNull(nameof(src)))
       {
         buffer.Enqueue(x);
 
@@ -231,6 +228,17 @@ namespace Azos
       foreach (TResult item in source)
         if (set.Add(selector(item)))
           yield return item;
+    }
+
+    /// <summary>
+    /// Makes an enumerable of T starting from the first element and concatenating others
+    /// </summary>
+    public static IEnumerable<T> ToEnumerable<T>(this T first, params T[] others)
+    {
+      yield return first;
+
+      if (others!=null)
+        foreach(var other in others) yield return other;
     }
 
   }

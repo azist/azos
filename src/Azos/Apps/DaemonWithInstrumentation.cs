@@ -13,7 +13,7 @@ using Azos.Instrumentation;
 namespace Azos.Apps
 {
   /// <summary>
-  /// Provides base implementation for Service with IInstrumentable logic
+  /// Provides base implementation for Daemon with IInstrumentable logic
   /// </summary>
   public abstract class DaemonWithInstrumentation<TDirector> : Daemon<TDirector>, IInstrumentable
                   where TDirector : IApplicationComponent
