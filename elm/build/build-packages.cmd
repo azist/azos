@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.507.5
-set HEADLINE=Dat.Doc dep injection if fields
+set VER=1.0.508
+set HEADLINE=Added BundledMongoDb
 
 call vs2017-build-release %VER%
 
