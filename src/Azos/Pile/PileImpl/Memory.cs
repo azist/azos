@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using Azos.IO;
+using System;
 
 namespace Azos.Pile
 {
@@ -53,6 +54,7 @@ namespace Azos.Pile
 
     public abstract void ReadBuffer(int addr, byte[] buffer, int offset, int count);
     public abstract void WriteBuffer(int addr, byte[] buffer, int offset, int count);
+    public abstract ArraySegment<byte> ReadDirectBufferSegment(int addr, int count);
 
     //WARNING - all implementations must create the same footprint in memory.
     //For efficiency PilePointer MUST be of fixed size: PilePointer.PTR_RAW_BYTE_SIZE

@@ -105,7 +105,7 @@ namespace Azos.Data
       //if doc!=null call doc.GetClientFieldValueList on the instance to get values from Database lookups etc...
       if (doc!=null)
       {
-        var lookup = doc.GetClientFieldValueList(def, context.DataTargetName, null);
+        var lookup = doc.GetDynamicFieldValueList(def, context.DataTargetName, null);
         if (lookup != null)
          lookup.ForEach( item => nvlist.Value.AddAttributeNode(item.Key, item.Value));
       }

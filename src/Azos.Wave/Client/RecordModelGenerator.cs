@@ -225,7 +225,7 @@ namespace Azos.Wave.Client
             else
             {
               var valueList = valueListLookup!=null ? valueListLookup(this, doc, fdef, target, isoLang)
-                                                    : doc.GetClientFieldValueList(fdef, target, isoLang);
+                                                    : doc.GetDynamicFieldValueList(fdef, target, isoLang);
 
               if (valueList==null && attr.HasValueList)
                 valueList = attr.ParseValueList();

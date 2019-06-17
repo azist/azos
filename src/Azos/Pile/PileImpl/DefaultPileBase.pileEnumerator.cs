@@ -111,8 +111,6 @@ namespace Azos.Pile{ public abstract partial class DefaultPileBase{
 
     private bool crawlSegment(_segment seg)//must be called under segment read lock
     {
-      const int BUFFER_SIZE = 1024;
-
       var addr = 0;//start crawling from very first byte to avoid segment corruption as previous address may have been deleted
 
       while(addr<seg.Data.Length-CHUNK_HDER_SZ)
@@ -121,7 +119,7 @@ namespace Azos.Pile{ public abstract partial class DefaultPileBase{
 
         var chunkStartAdr = addr;
         var flag = seg.Data.ReadChunkFlag(addr);
-        if (flag==ChunkFlag.Wrong) //todo In future corruption recovery attempt may take place if we scan form 8-aligned block
+        if (flag==ChunkFlag.Wrong) //todo In future corruption recovery attempt may take place if we scan from 8-aligned block
             throw new PileException(StringConsts.PILE_CRAWL_INTERNAL_SEGMENT_CORRUPTION_ERROR.Args(addr));
         addr += 3;
 

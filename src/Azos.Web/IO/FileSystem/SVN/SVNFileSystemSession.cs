@@ -94,7 +94,7 @@ namespace Azos.IO.FileSystem.SVN
     {
       get
       {
-        if (m_User==null || m_User==User.Fake) return string.Empty;
+        if (m_User==null || !m_User.IsAuthenticated) return string.Empty;
         var cred = m_User.Credentials as IDPasswordCredentials;
         if (cred==null) return string.Empty;
         return cred.ID;
@@ -108,7 +108,7 @@ namespace Azos.IO.FileSystem.SVN
     {
       get
       {
-        if (m_User==null || m_User==User.Fake) return string.Empty;
+        if (m_User==null || !m_User.IsAuthenticated) return string.Empty;
         var cred = m_User.Credentials as IDPasswordCredentials;
         if (cred==null) return string.Empty;
         return cred.Password;

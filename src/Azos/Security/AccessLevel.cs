@@ -45,13 +45,11 @@ namespace Azos.Security
     }
     #endregion
 
-
     #region Fields
     private User m_User;
     private Permission m_Permission;
     private IConfigSectionNode m_Data;
     #endregion
-
 
     #region Properties
 

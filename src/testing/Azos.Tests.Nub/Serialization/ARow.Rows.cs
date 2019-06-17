@@ -40,6 +40,12 @@ namespace Azos.Tests.Nub.Serialization
     [Field(backendName: "mar",   isArow: true)]public MaritalStatus Married{get; set;}
   }
 
+  [Arow]
+  public class SimplePersonWithByteArrayRow : SimplePersonRow
+  {
+    [Field(backendName: "buf", isArow: true)] public byte[] Buffer { get; set; }
+  }
+
 
   [Arow]
   public class FamilyRow : TypedDoc

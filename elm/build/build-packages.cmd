@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.507.1
-set HEADLINE=ApiDoc WIP
+set VER=1.0.507.5
+set HEADLINE=Dat.Doc dep injection if fields
 
 call vs2017-build-release %VER%
 

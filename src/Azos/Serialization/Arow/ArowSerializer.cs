@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
@@ -45,6 +46,43 @@ namespace Azos.Serialization.Arow
 
 
     /// <summary>
+    /// Registers all Arow type serialization cores in the satellite assembly of the calling assembly.
+    /// A satellite assembly is the one that is called the same name as the calling assembly with ".Serialization" suffix, co-located with the calling assembly
+    /// </summary>
+    public static void RegisterTypeSerializationSatelliteForThisAssembly()
+    {
+      var thisAssembly = Assembly.GetCallingAssembly();
+      RegisterTypeSerializationSatelliteFor(thisAssembly);
+    }
+
+    /// <summary>
+    /// Registers all Arow type serialization cores in the satellite assembly of the specifies assembly.
+    /// A satellite assembly is the one that is called the same name with ".Serialization" suffix, co-located with the specified assembly
+    /// </summary>
+    public static void RegisterTypeSerializationSatelliteFor(Assembly assembly)
+    {
+      const string SUFFIX = ".dll";
+
+      var asmFileName = assembly.NonNull(nameof(assembly)).Location.Trim();
+      var i = asmFileName.LastIndexOf(SUFFIX);
+      if (i != asmFileName.Length - SUFFIX.Length)
+        throw new ArowException(StringConsts.AROW_SATELLITE_ASSEMBLY_NAME_ERROR.Args(asmFileName));
+
+      asmFileName = asmFileName.Substring(0, i) + ".Serialization.dll";
+
+      try
+      {
+        var asm = Assembly.LoadFrom(asmFileName);
+        RegisterTypeSerializationCores(asm);
+      }
+      catch(Exception error)
+      {
+        throw new ArowException(StringConsts.AROW_SATELLITE_ASSEMBLY_LOAD_ERROR.Args(asmFileName, error.ToMessageWithType()), error);
+      }
+    }
+
+
+    /// <summary>
     /// Registers all entities in the specified assembly which implement ITypeSerializationCore interface
     /// </summary>
     public static void RegisterTypeSerializationCores(Assembly asm)
@@ -57,6 +95,55 @@ namespace Azos.Serialization.Arow
         var core = Activator.CreateInstance(t) as ITypeSerializationCore;
         core.Register();
       }
+    }
+
+
+    private const int INITIAL_BUFFER_CAPACITY = 4 * 1024;//Typical "business" object has 15 8 byte field, and 10 32 byte fields < 700 bytes
+    private const int BUFFER_TRIM_CAPACITY = 128 * 1024;
+
+    //TLS is used since this is 100% sync CPU-bound operation
+    [ThreadStatic] private static MemoryStream ts_WriteStream;
+    [ThreadStatic] private static WritingStreamer ts_Writer;
+    [ThreadStatic] private static Subarray<byte> ts_Subarray;
+    [ThreadStatic] private static BufferSegmentReadingStream ts_ReadStream;
+    [ThreadStatic] private static ReadingStreamer ts_Reader;
+
+    /// <summary>
+    /// Serializes a data document instance into a Subarray&lt;byte&gt; delimited chunk of thread-local buffer.
+    /// Because sub-arrays are used for thread-local optimizations, this method should be used in a synchronous-only
+    /// thread-bound flows, such as serializing payload into Pile and the returned object must be consumed right away as subsequent calls
+    /// to this method will overwrite the previous content as the same thread local physical buffer is re-used.
+    /// </summary>
+    public static Subarray<byte> SerializeToSubarray(TypedDoc doc)
+    {
+      var stream = ts_WriteStream;
+      var writer = ts_Writer;
+      var result = ts_Subarray;
+
+      if (stream==null)
+      {
+        stream = new MemoryStream(INITIAL_BUFFER_CAPACITY);
+        writer = SlimFormat.Instance.GetWritingStreamer();
+        writer.BindStream(stream);
+        result = new Subarray<byte>();
+        ts_WriteStream = stream;
+        ts_Writer = writer;
+        ts_Subarray = result;
+      }
+
+      stream.Position = 0;
+      Serialize(doc, writer, true);
+
+      result.Set(stream.GetBuffer(), (int)stream.Position);
+
+      //don't let large hunk dangling in the TLS
+      if (stream.Capacity>BUFFER_TRIM_CAPACITY)
+      {
+        stream.SetLength(0);
+        stream.Capacity = INITIAL_BUFFER_CAPACITY;
+      }
+
+      return result;
     }
 
 
@@ -83,6 +170,32 @@ namespace Azos.Serialization.Arow
       Writer.WriteEORow(streamer);
     }
 
+    /// <summary>
+    /// Deserializes data document from the specified byte[] using thread-local caching optimizations
+    /// </summary>
+    public static void Deserialize(TypedDoc doc, byte[] data, int offset)
+    {
+      var stream = ts_ReadStream;
+      var reader = ts_Reader;
+      if (stream == null)
+      {
+        stream = new BufferSegmentReadingStream();
+        reader = SlimFormat.Instance.GetReadingStreamer();
+        reader.BindStream(stream);
+        ts_ReadStream = stream;
+        ts_Reader = reader;
+      }
+
+      stream.BindBuffer(data, offset, data.Length - offset);
+      try
+      {
+        Deserialize(doc, reader, true);
+      }
+      finally
+      {
+        stream.UnsafeBindBuffer(null, 0, 0);
+      }
+    }
 
     public static void Deserialize(TypedDoc doc, ReadingStreamer streamer, bool header = true)
     {
