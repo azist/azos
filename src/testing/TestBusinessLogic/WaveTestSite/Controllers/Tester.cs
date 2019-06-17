@@ -17,6 +17,7 @@ using Azos.Wave.Mvc;
 using Azos.Security.CAPTCHA;
 using Azos.Serialization.JSON;
 using Azos.Data;
+
 using WaveTestSite.Pages;
 
 namespace WaveTestSite.Controllers
@@ -161,7 +162,7 @@ namespace WaveTestSite.Controllers
       }
 
 
-      [Action, ApiEndpointDoc]
+      [Action, ApiEndpointDoc(Uri="echo", Title ="Payload Echo", Description = "Echoes back the payload supplied as JSON map")]
       public object Echo(JsonDataMap data)
       {
         return new

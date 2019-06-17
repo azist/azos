@@ -634,11 +634,19 @@ namespace Azos.Data
         #region Properties
 
             /// <summary>
-            /// For TypedRows, returns a unique fully-qualified row type name, whichs is the global identifier of this schema instance
+            /// For TypedDocs, returns a unique fully-qualified row type name, which is the global identifier of this schema instance
             /// </summary>
             public string Name
             {
                 get { return m_Name; }
+            }
+
+            /// <summary>
+            /// For typed docs returns a shortened name derived from type, otherwise uses name
+            /// </summary>
+            public string DisplayName
+            {
+               get { return m_TypedDocType==null ? Name : (m_TypedDocType.Namespace.TakeLastSegment('.') + "::"+ m_TypedDocType.Name); }
             }
 
             /// <summary>

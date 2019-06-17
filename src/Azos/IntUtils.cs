@@ -56,6 +56,9 @@ namespace Azos
         return value;
     }
 
+    public static int KeepBetween(this int value, int min, int max)
+     => MinMax(min, value, max);
+
     /// <summary>
     /// Returns argument increased to the nearest number divisible by 8
     /// </summary>

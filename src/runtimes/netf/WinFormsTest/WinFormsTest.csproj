@@ -87,6 +87,12 @@
     <Compile Include="BSONTestForm.Designer.cs">
       <DependentUpon>BSONTestForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="BundledMongoForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BundledMongoForm.Designer.cs">
+      <DependentUpon>BundledMongoForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="CacheTest.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -152,6 +158,9 @@
     </Compile>
     <EmbeddedResource Include="BSONTestForm.resx">
       <DependentUpon>BSONTestForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BundledMongoForm.resx">
+      <DependentUpon>BundledMongoForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="CacheTest.resx">
       <DependentUpon>CacheTest.cs</DependentUpon>
@@ -247,6 +256,10 @@
     <ProjectReference Include="..\..\..\Azos\Azos.csproj">
       <Project>{c2bf5275-c8c2-46cc-86c7-a83a75c2be0d}</Project>
       <Name>Azos</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\providers\Azos.MongoDb\Azos.MongoDb.csproj">
+      <Project>{b3831368-8b6f-4eb6-afc8-8d52609fb6a4}</Project>
+      <Name>Azos.MongoDb</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\providers\Azos.MsSql\Azos.MsSql.csproj">
       <Project>{a82e327a-2492-4016-a9c5-bb1be889a08e}</Project>

@@ -117,9 +117,9 @@ namespace Azos.Pile
           __addSegmentAtStart(segment);
         }
 
-        //1 thread since this is a io bound operation
+        //1 thread since this is a io-bound operation
         var segments = __getSegmentsAtStart();
-        Task.Factory.StartNew( () => crawlSegmentsAtStart(segments), TaskCreationOptions.LongRunning);
+        Task.Delay(500).ContinueWith( (a) => crawlSegmentsAtStart(segments), TaskContinuationOptions.LongRunning);
 
         m_ManagerEvent = new Azos.Time.Event(App.EventTimer,
                                             interval: new TimeSpan(0, 0, 20),
@@ -193,7 +193,7 @@ namespace Azos.Pile
 
       private void crawlSegmentsAtStartCore(_segment[] segments)
       {
-        for(var i=segments.Length-1; i>=0; i--)
+        for(var i=0; i<segments.Length; i++)
         {
           var segment = segments[i];
           if (Thread.VolatileRead(ref segment.DELETED)!=0) continue;

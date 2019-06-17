@@ -83,7 +83,7 @@ This type is a <strong>data document</strong> see <a href="https://github.com/az
 <tr>
   <td>?[data.ValOf("order")]</td>
   <td>?[data.ValOf("name")]</td>
-  <td>?[data.ValOf("type")] @[var k = data.ValOf("kind"); if(k!="Text"){]&nbsp;/&nbsp;?[k] @[}]</td>
+  <td> <a href="schema?id=?[data.ValOf("type")]"> ?[data.ValOf("type")]</a> @[var k = data.ValOf("kind"); if(k!="Text"){]&nbsp;/&nbsp;?[k] @[}]</td>
   <td>?[flag(data, "required")]</td>
   <td>?[data.ValOf("description")]</td>
   <td>?[data.ValOf("case")]</td>
