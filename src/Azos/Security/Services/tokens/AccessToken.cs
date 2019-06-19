@@ -4,30 +4,29 @@ using System.Text;
 
 using Azos.Data;
 using Azos.Serialization.Arow;
+using Azos.Serialization.JSON;
 
 namespace Azos.Security.Services
 {
   /// <summary>
-  /// Generated for OAuth clients on successful authorization, the client typically makes back-channel call to
-  /// IDP service supplying this temp token.
-  /// AccessCode tokens are typically short-lived (e.g. less than 5 minutes)
+  /// Represents a token which is supplied to API/service provider to impersonate a user
   /// </summary>
   [Arow]
-  public sealed class ClientAccessCodeToken : RingToken
+  public sealed class AccessToken : RingToken
   {
-    public override (int min, int max) TokenByteStrength => (4, 16);
-    public override int TokenDefaultExpirationSeconds => 5/*min*/ * 60;
+    public override (int min, int max) TokenByteStrength => (64, 83);// 83 * 1.5 = 124.5 bytes; key length is (~100 .. ~128 base 64 chars)
+    public override int TokenDefaultExpirationSeconds => 10/*hrs*/ * 60/*min*/ * 60;
 
-    public ClientAccessCodeToken(string issuer, int expireInSeconds) : base(issuer, expireInSeconds)
-    {
-    }
+
+    public AccessToken(string issuer, int expireInSeconds) : base(issuer, expireInSeconds){ }
 
     /// <summary>
-    /// The original Id of the client which this access code was issued for
+    /// The original ID of the client who this token was originally issued to
     /// </summary>
     [Field(backendName: "cid", isArow: true)]
-    [Field(description: "The original Id of the client which this access code was issued for")]
-    public string ClientId{ get; set;}
+    [Field(description: "The original Id of the client which this token was issued for")]
+    public string ClientId{ get; set; }
+
 
     /// <summary>
     /// The internal AuthenticationToken which represents the user who the public AccessToken impersonates (the target).
@@ -39,3 +38,5 @@ namespace Azos.Security.Services
 
   }
 }
+
+

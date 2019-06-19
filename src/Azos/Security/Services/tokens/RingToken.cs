@@ -27,19 +27,24 @@ namespace Azos.Security.Services
       ExpireUtc = IssueUtc.Value.AddSeconds(expireInSeconds);
     }
 
+    [Field(backendName: "v", isArow: true)]
     [Field(required: true, description: "Represent the value of the token")]
     public string Value{ get; set; }
 
+    [Field(backendName: "b", isArow: true)]
     [Field(required: true, description: "Name of party issuing token")]
     public string IssuedBy { get; set; }
 
+    [Field(backendName: "i", isArow: true)]
     [Field(required: true, description: "When was the token issued")]
     public DateTime? IssueUtc{  get; set; }
 
+    [Field(backendName: "e", isArow: true)]
     [Field(required: true, description: "When the token gets invalid, as-if non existing")]
     public DateTime? ExpireUtc { get; set; }
 
     public abstract (int min,int max) TokenByteStrength { get; }
+    public abstract int TokenDefaultExpirationSeconds { get; }
 
     protected override Exception CheckValueLength(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value)
     {

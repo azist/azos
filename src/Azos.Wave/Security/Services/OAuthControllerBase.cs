@@ -16,6 +16,7 @@ namespace Azos.Security.Services
   {
     //https://www.digitalocean.com/community/tutorials/an-introduction-to-oauth-2
     //https://medium.com/@darutk/diagrams-and-movies-of-all-the-oauth-2-0-flows-194f3c3ade85
+    //https://developer.okta.com/blog/2019/05/01/is-the-oauth-implicit-flow-dead
 
     /// <summary> Returns IOAuthManager module off the App.SecMan </summary>
     protected IOAuthManager OAuth => (App.SecurityManager as IOAuthManagerHost).NonNull("not IOAuthManagerHost").OAuthManager;
@@ -72,7 +73,7 @@ namespace Azos.Security.Services
     [ActionOnPost(Name = "token")]
     public async Task<object> Token_POST(string client_id, string client_secret, string grant_type, string code, string redirect_uri)
     {
-      //todo check grant_type - and possible pivot
+      //todo check grant_type - and possibly pivot
 
       var clcred = client_id.IsNotNullOrWhiteSpace() ? new IDPasswordCredentials(client_id, client_secret)
                                                      : IDPasswordCredentials.FromBasicAuth(WorkContext.Request.Headers[WebConsts.HTTP_HDR_AUTHORIZATION]);
@@ -104,11 +105,20 @@ namespace Azos.Security.Services
         }
       }
 
-      //4. Issue the API access token for this access code
-   //   var token = OAuth.TokenRing.CreateAccessToken(cluser, claccesstoken.User);
+      //4. Fetch target user
+      var auth = OAuth.TokenRing.TargetAuthenticationTokenFromContent(catoken.TargetAuthenticationToken);
+      var targetUser = App.SecurityManager.Authenticate(auth);
+      if (!targetUser.IsAuthenticated)
+      {
+        //todo Access denied, already revoked
+      }
 
+      //5. Issue the API access token for this access code
+      var token = await OAuth.TokenRing.IssueAccessToken(cluser, targetUser);
 
-      return new JSONResult("token", Serialization.JSON.JsonWritingOptions.PrettyPrint);
+      var jwt = OAuth.TokenRing.MakeJWT(token);
+
+      return new JSONResult(jwt, Serialization.JSON.JsonWritingOptions.PrettyPrint);//todo: Where is base64 encoding?
     }
 
     [ActionOnGet(Name = "userinfo")]

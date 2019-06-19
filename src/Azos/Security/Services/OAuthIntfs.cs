@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Instrumentation;
+using Azos.Serialization.JSON;
 
 namespace Azos.Security.Services
 {
@@ -51,20 +52,72 @@ namespace Azos.Security.Services
   public interface ITokenRing : IApplicationComponent
   {
     /// <summary>
+    /// Generates new instance of RingToken-derivative of the specified type, generating new Token.Value and setting header fields (create date etc..)
+    /// </summary>
+    TToken GenerateNewToken<TToken>() where TToken : RingToken;
+
+    /// <summary>
+    /// Creates system-internal AuthenticationToken which represents a target user impersonated by other tokens in a TokenRing
+    /// </summary>
+    /// <param name="content">String representation obtained by a complementary call to TargetAuthenticationTokenToContent</param>
+    /// <returns>System-internal AuthenticationToken representing a target user</returns>
+    AuthenticationToken TargetAuthenticationTokenFromContent(string content);
+
+    /// <summary>
+    /// Represents system-internal AuthenticationToken as a string content suitable for storage on a TokenRing
+    /// </summary>
+    /// <param name="token">System-internal AuthenticationToken which represents a target user </param>
+    /// <returns>String representation which can be converted back to AuthenticationTOken by complementary call to TargetAuthenticationTokenFromContent</returns>
+    string TargetAuthenticationTokenToContent(AuthenticationToken token);
+
+    /// <summary>
     /// Maps external auth token into system-internal AuthenticationToken as understood by the SecurityManager.
     /// This method is purposely synchronous as it handles high volume of API calls and is expected to be
     /// implemented efficiently with in-Memory caching technique.
     /// </summary>
-    /// <param name="externalToken">External auth token as the one issued in OAuth flow</param>
+    /// <param name="accessToken">External auth token as the one issued in OAuth flow</param>
     /// <returns>Internal AuthenticationToken or null if not found</returns>
-    AuthenticationToken? MapExternalToken(string externalToken);
+    AuthenticationToken? MapAccessToken(string accessToken);
 
     /// <summary>
     /// Retrieves an existing client access code token or null if it is not found or expired
     /// </summary>
     Task<ClientAccessCodeToken> LookupClientAccessCodeAsync(string accessCode);
 
-   // Task<ClientToken> CreateAccessToken(User userClient, User appUser);
+    Task<AccessToken> IssueAccessToken(User userClient, User targetUser);
+
+    /// <summary>
+    /// Creates JWT JSON data map representation of AccessToken
+    /// </summary>
+    JsonDataMap MakeJWT(AccessToken accessToken);
+
+
+    /// <summary>
+    /// Instantly invalidates all tokens issued for the specified client.
+    /// The caller must have admin grant to succeed
+    /// </summary>
+    /// <remarks>
+    /// This is used to invalidate all tokens when the specified client gets banned in the external security manager referenced by  IOAuthManager.ClientSecurity.
+    /// This method does not ban the future client-related access, do ban the user in ClientSecurity first as
+    /// this method just resets tokens in a ring
+    /// </remarks>
+    Task InvalidateClient(string clientID);
+
+    /// <summary>
+    /// Instantly invalidates ALL tokens issued for specified target AuthenticationToken.
+    /// The caller must have admin grant to succeed
+    /// </summary>
+    /// <remarks>
+    /// This is used to invalidate all tokens when the specified user (represented by a system-internal AuthenticationToken) gets security panic, such as
+    /// suspected account breach/password change.
+    /// This method does not ban the future user-related access, just invalidates all of the token grants
+    /// </remarks>
+    Task InvalidateTarget(AuthenticationToken token);
+
+    /// <summary>
+    /// Instantly invalidates the specified access token
+    /// </summary>
+    Task InvalidateAccessToken(string accessToken);
   }
 
   public interface ITokenRingImplementation : ITokenRing, IDaemon, IInstrumentable
