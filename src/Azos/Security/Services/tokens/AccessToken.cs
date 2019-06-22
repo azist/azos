@@ -11,7 +11,7 @@ namespace Azos.Security.Services
   /// <summary>
   /// Represents a token which is supplied to API/service provider to impersonate a user
   /// </summary>
-  [Arow]
+  [Arow, Table(name: "accesstoken")]
   public sealed class AccessToken : RingToken
   {
     public override (int min, int max) TokenByteStrength => (64, 83);// 83 * 1.5 = 124.5 bytes; key length is (~100 .. ~128 base 64 chars)

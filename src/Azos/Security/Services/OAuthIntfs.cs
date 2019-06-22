@@ -57,26 +57,26 @@ namespace Azos.Security.Services
     TToken GenerateNewToken<TToken>() where TToken : RingToken;
 
     /// <summary>
-    /// Creates system-internal AuthenticationToken which represents a target user impersonated by other tokens in a TokenRing
+    /// Creates system-internal AuthenticationToken which represents a subject (a target user) impersonated by other tokens in a TokenRing
     /// </summary>
-    /// <param name="content">String representation obtained by a complementary call to TargetAuthenticationTokenToContent</param>
-    /// <returns>System-internal AuthenticationToken representing a target user</returns>
-    AuthenticationToken TargetAuthenticationTokenFromContent(string content);
+    /// <param name="content">String representation obtained by a complementary call to MapSubjectAuthenticationTokenToContent</param>
+    /// <returns>System-internal AuthenticationToken representing a subject</returns>
+    AuthenticationToken MapSubjectAuthenticationTokenFromContent(string content);
 
     /// <summary>
-    /// Represents system-internal AuthenticationToken as a string content suitable for storage on a TokenRing
+    /// Represents system-internal subject AuthenticationToken as a string content suitable for storage on a TokenRing
     /// </summary>
-    /// <param name="token">System-internal AuthenticationToken which represents a target user </param>
-    /// <returns>String representation which can be converted back to AuthenticationTOken by complementary call to TargetAuthenticationTokenFromContent</returns>
-    string TargetAuthenticationTokenToContent(AuthenticationToken token);
+    /// <param name="token">System-internal AuthenticationToken which represents a subject (a target user) </param>
+    /// <returns>String representation which can be converted back to AuthenticationToken by a complementary call to MapSubjectAuthenticationTokenFromContent</returns>
+    string MapSubjectAuthenticationTokenToContent(AuthenticationToken token);
 
     /// <summary>
-    /// Maps external auth token into system-internal AuthenticationToken as understood by the SecurityManager.
+    /// Maps external Access Token string into system-internal AuthenticationToken as understood by the Application SecurityManager.
     /// This method is purposely synchronous as it handles high volume of API calls and is expected to be
     /// implemented efficiently with in-Memory caching technique.
     /// </summary>
-    /// <param name="accessToken">External auth token as the one issued in OAuth flow</param>
-    /// <returns>Internal AuthenticationToken or null if not found</returns>
+    /// <param name="accessToken">External auth token value as the one issued in OAuth flow</param>
+    /// <returns>Internal AuthenticationToken or null if not found (deny access)</returns>
     AuthenticationToken? MapAccessToken(string accessToken);
 
     /// <summary>

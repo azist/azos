@@ -12,7 +12,7 @@ namespace Azos.Security.Services
   /// IDP service supplying this temp token.
   /// AccessCode tokens are typically short-lived (e.g. less than 5 minutes)
   /// </summary>
-  [Arow]
+  [Arow, Table(name: "accesscode")]
   public sealed class ClientAccessCodeToken : RingToken
   {
     public override (int min, int max) TokenByteStrength => (4, 16);
