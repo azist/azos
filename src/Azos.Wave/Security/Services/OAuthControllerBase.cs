@@ -73,52 +73,53 @@ namespace Azos.Security.Services
     [ActionOnPost(Name = "token")]
     public async Task<object> Token_POST(string client_id, string client_secret, string grant_type, string code, string redirect_uri)
     {
-      //todo check grant_type - and possibly pivot
+       if (grant_type.EqualsOrdSenseCase("authorization_code"))
+        return new Http403Forbidden("Unsupported grant_type");
 
       var clcred = client_id.IsNotNullOrWhiteSpace() ? new IDPasswordCredentials(client_id, client_secret)
                                                      : IDPasswordCredentials.FromBasicAuth(WorkContext.Request.Headers[WebConsts.HTTP_HDR_AUTHORIZATION]);
 
       if (clcred==null || clcred.ID.IsNullOrWhiteSpace())
-      {
-        //todo report client invalid credentials error (how do we return errors? to redirect? or http status code?)
-      }
+        return new Http403Forbidden("Invalid Client");
 
       //1. Check client/app credentials and get app's permissions
       var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
-      if (!cluser.IsAuthenticated)
-      {
-        //todo report client invalid credentials error (how do we return errors? to redirect? or http status code?)
-      }
+      if (!cluser.IsAuthenticated) return new Http403Forbidden("Invalid Client");
 
-      //2. Check that the requested redirect_uri is indeed in the list of permitted URIs for this client
-      //todo check redirect URI is in the list of permitted redirect URIS for cluster
-
-
-      //3. Validate the supplied client access code (token), that it exists (was issued and not expired), and it was issued for THIS client
+      //2. Validate the supplied client access code (token), that it exists (was issued and not expired), and it was issued for THIS client
       var catoken = await OAuth.TokenRing.LookupClientAccessCodeAsync(code);
       if (catoken == null)
-      {
-        //check that client_id supplied now matches the original one that was supplied during client access code issuance
-        if (!clcred.ID.EqualsOrdSenseCase(catoken.ClientId))
-        {
-          //todo report client invalid client access code error (how do we return errors? to redirect? or http status code?)
-        }
-      }
+        return new Http403Forbidden("Invalid Client");
+
+      //check that client_id supplied now matches the original one that was supplied during client access code issuance
+      if (!clcred.ID.EqualsOrdSenseCase(catoken.ClientId))
+        return new Http403Forbidden("Invalid Client");
+
+      //3. Check that the requested redirect_uri is indeed in the list of permitted URIs for this client
+      //todo check redirect URI is in the list of permitted redirect URIS for cluster
+
+      //and it equals the requested redirect URI at Authorization
+      if (!redirect_uri.EqualsOrdSenseCase(catoken.RedirectURI))
+        return new Http403Forbidden("Invalid Client");
 
       //4. Fetch target user
       var auth = OAuth.TokenRing.TargetAuthenticationTokenFromContent(catoken.TargetAuthenticationToken);
-      var targetUser = App.SecurityManager.Authenticate(auth);
+      var targetUser = await App.SecurityManager.AuthenticateAsync(auth);
       if (!targetUser.IsAuthenticated)
-      {
-        //todo Access denied, already revoked
-      }
+        return new Http403Forbidden("User access denied");
 
       //5. Issue the API access token for this access code
       var token = await OAuth.TokenRing.IssueAccessToken(cluser, targetUser);
 
-      var jwt = OAuth.TokenRing.MakeJWT(token);
+      var json = new
+      {
+        access_token = token.Value,
+        scope = "access",
+        token_type = "Bearer",
+        expires_in =(int)(token.ExpireUtc - token.IssueUtc).Value.TotalSeconds
+      };
 
-      return new JSONResult(jwt, Serialization.JSON.JsonWritingOptions.PrettyPrint);//todo: Where is base64 encoding?
+      return new JSONResult(json, Serialization.JSON.JsonWritingOptions.PrettyPrint);//todo: Where is base64 encoding?
     }
 
     [ActionOnGet(Name = "userinfo")]

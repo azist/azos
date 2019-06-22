@@ -86,10 +86,10 @@ namespace Azos.Security.Services
 
     Task<AccessToken> IssueAccessToken(User userClient, User targetUser);
 
-    /// <summary>
-    /// Creates JWT JSON data map representation of AccessToken
-    /// </summary>
-    JsonDataMap MakeJWT(AccessToken accessToken);
+    /////////// <summary>
+    /////////// Creates JWT JSON data map representation of AccessToken
+    /////////// </summary>
+    ////////JsonDataMap MakeJWT(AccessToken accessToken);
 
 
     /// <summary>

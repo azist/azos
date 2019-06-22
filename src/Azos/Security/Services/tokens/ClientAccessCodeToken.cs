@@ -37,5 +37,14 @@ namespace Azos.Security.Services
     [Field(description: "The content of the internal system AuthenticationToken. WARNING: This should never ever be shared with any public party/given out")]
     public string TargetAuthenticationToken { get; set; }
 
+
+
+    /// <summary>
+    /// The redirect URI which was requested at Authorization
+    /// </summary>
+    [Field(backendName: "ruri", isArow: true)]
+    [Field(description: "The redirect URI which was requested at Authorization")]
+    public string RedirectURI { get;set;}
+
   }
 }

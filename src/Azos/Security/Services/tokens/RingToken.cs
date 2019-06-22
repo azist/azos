@@ -10,6 +10,7 @@ namespace Azos.Security.Services
   /// <summary> Common base for all tokens stored in a token ring </summary>
   public abstract class RingToken : TypedDoc
   {
+   //TODO: this is moving out into TokenRing
     protected RingToken(string issuer, int expireInSeconds)
     {
       var len = TokenByteStrength;
@@ -28,8 +29,23 @@ namespace Azos.Security.Services
     }
 
     [Field(backendName: "v", isArow: true)]
-    [Field(required: true, description: "Represent the value of the token")]
-    public string Value{ get; set; }
+    [Field(required: true, key: true, backendName: "_id", description: "Represent the value of the token, which is also a unique primary key")]
+    public string Value { get; set; }
+
+    /// <summary>
+    /// Version UTC stamp, the system replicates data based on 1 sec resolution.
+    /// By design more precise resolution is not needed for practical reasons.
+    /// </summary>
+    [Field(backendName: "-v", isArow: true)]
+    [Field(required: true, description: "Version timestamp of this doc, used for replication")]
+    public string VersionUtc { get; set; }
+
+    /// <summary>
+    /// Version Delete flag, used for CRDT idempotent flag
+    /// </summary>
+    [Field(backendName: "-d", isArow: true)]
+    [Field(required: true, description: "Version delete flag, used for replication")]
+    public bool VersionDeleted { get; set; }
 
     [Field(backendName: "b", isArow: true)]
     [Field(required: true, description: "Name of party issuing token")]
@@ -54,7 +70,7 @@ namespace Azos.Security.Services
         var l = btoken.Length - 16;//size of Guid
         var req = TokenByteStrength;
         if (l<req.min || l>req.max)
-          return new FieldValidationException(this, nameof(Value), "Token Value byte length is {0} but must be between {1} and {2}".Args(l, req.min, req.max));
+          return new FieldValidationException(this, nameof(Value), "Token Value byte length is {0} bytes, but must be between {1} and {2} bytes".Args(l, req.min, req.max));
       }
 
       return base.CheckValueLength(targetName, fdef, atr, value);
