@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
-using System.Text;
 
 using Azos.Data;
 
@@ -29,7 +27,7 @@ namespace Azos.Security.Services
     }
 
     [Field(backendName: "v", isArow: true)]
-    [Field(required: true, key: true, backendName: "_id", description: "Represent the value of the token, which is also a unique primary key")]
+    [Field(required: true, key: true, backendName: "_id", description: "Value of the token - a unique primary key")]
     public string Value { get; set; }
 
     /// <summary>

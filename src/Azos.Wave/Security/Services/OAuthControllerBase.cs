@@ -103,7 +103,7 @@ namespace Azos.Security.Services
         return new Http403Forbidden("Invalid Client");
 
       //4. Fetch target user
-      var auth = OAuth.TokenRing.TargetAuthenticationTokenFromContent(catoken.TargetAuthenticationToken);
+      var auth = OAuth.TokenRing.TargetAuthenticationTokenFromContent(catoken.SubjectAuthenticationToken);
       var targetUser = await App.SecurityManager.AuthenticateAsync(auth);
       if (!targetUser.IsAuthenticated)
         return new Http403Forbidden("User access denied");

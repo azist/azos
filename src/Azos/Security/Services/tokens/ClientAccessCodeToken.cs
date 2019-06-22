@@ -30,12 +30,12 @@ namespace Azos.Security.Services
     public string ClientId{ get; set;}
 
     /// <summary>
-    /// The internal AuthenticationToken which represents the user who the public AccessToken impersonates (the target).
+    /// The internal AuthenticationToken which represents the user who the public AccessToken impersonates (the subject/target).
     /// The token is always stored as a string:  {realm}://{content (depending on realm, binary is base-64 encoded)}
     /// </summary>
     [Field(backendName: "sat", isArow: true)]
     [Field(description: "The content of the internal system AuthenticationToken. WARNING: This should never ever be shared with any public party/given out")]
-    public string TargetAuthenticationToken { get; set; }
+    public string SubjectAuthenticationToken { get; set; }
 
 
 

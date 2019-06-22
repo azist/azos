@@ -104,7 +104,7 @@ namespace Azos.Security.Services
     Task InvalidateClient(string clientID);
 
     /// <summary>
-    /// Instantly invalidates ALL tokens issued for specified target AuthenticationToken.
+    /// Instantly invalidates ALL tokens issued for specified target subject AuthenticationToken.
     /// The caller must have admin grant to succeed
     /// </summary>
     /// <remarks>
@@ -112,7 +112,7 @@ namespace Azos.Security.Services
     /// suspected account breach/password change.
     /// This method does not ban the future user-related access, just invalidates all of the token grants
     /// </remarks>
-    Task InvalidateTarget(AuthenticationToken token);
+    Task InvalidateSubject(AuthenticationToken token);
 
     /// <summary>
     /// Instantly invalidates the specified access token
