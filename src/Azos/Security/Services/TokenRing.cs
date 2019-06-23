@@ -41,9 +41,9 @@ namespace Azos.Security.Services
       base.Destructor();
     }
 
-    private RNGCryptoServiceProvider m_CryptoRnd;
     private DefaultPile m_Pile;
     private LocalCache m_Cache;
+    private RNGCryptoServiceProvider m_CryptoRnd;
 
     private string m_IssuerName;
 
@@ -53,6 +53,7 @@ namespace Azos.Security.Services
 
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
+    /// <summary> Establishes the issuer name used for new token production </summary>
     [Config]
     public string IssuerName
     {
@@ -62,6 +63,7 @@ namespace Azos.Security.Services
 
 
     #region ITokenRing
+
     public virtual TToken GenerateNewToken<TToken>() where TToken : RingToken
     {
       var token = Activator.CreateInstance<TToken>();
@@ -81,7 +83,7 @@ namespace Azos.Security.Services
       for(var i=1; i<rnd.Length; i++) rnd[i] ^= rnd2[i];//both Random streams are combined using XOR
 
       //3. Concat GUid pad with key
-      var btoken = guidpad.Concat(rnd).ToArray();
+      var btoken = guidpad.AppendToNew(rnd);
       token.Value = Convert.ToBase64String(btoken, Base64FormattingOptions.None);
 
       token.IssuedBy = this.IssuerName;
@@ -101,7 +103,7 @@ namespace Azos.Security.Services
 
     public abstract Task<ClientAccessCodeToken> LookupClientAccessCodeAsync(string accessCode);
 
-    public AuthenticationToken? MapAccessToken(string accessToken)
+    public virtual AuthenticationToken? MapAccessToken(string accessToken)
     {
       if (!Running) return null;
       var tbl = GetCacheTableOf(typeof(AccessToken));
@@ -130,10 +132,6 @@ namespace Azos.Security.Services
 
     public abstract string  MapSubjectAuthenticationTokenToContent(AuthenticationToken token);
 
-    public string TargetAuthenticationTokenToContent(AuthenticationToken token)
-    {
-      throw new NotImplementedException();
-    }
     #endregion
 
     #region Protected
