@@ -17,9 +17,6 @@ namespace Azos.Security.Services
     public override (int min, int max) TokenByteStrength => (64, 83);// 83 * 1.5 = 124.5 bytes; key length is (~100 .. ~128 base 64 chars)
     public override int TokenDefaultExpirationSeconds => 10/*hrs*/ * 60/*min*/ * 60;
 
-
-    public AccessToken(string issuer, int expireInSeconds) : base(issuer, expireInSeconds){ }
-
     /// <summary>
     /// The original ID of the client who this token was originally issued to
     /// </summary>
@@ -28,6 +25,7 @@ namespace Azos.Security.Services
     public string ClientId{ get; set; }
 
 
+ //todo: Limit the permission grants for this token - how? Through realm???
     /// <summary>
     /// The internal AuthenticationToken which represents the user who the public AccessToken impersonates (the subject/target).
     /// The token is always stored as a string:  {realm}://{content (depending on realm, binary is base-64 encoded)}

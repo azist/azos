@@ -8,23 +8,6 @@ namespace Azos.Security.Services
   /// <summary> Common base for all tokens stored in a token ring </summary>
   public abstract class RingToken : TypedDoc
   {
-   //TODO: this is moving out into TokenRing
-    protected RingToken(string issuer, int expireInSeconds)
-    {
-      var len = TokenByteStrength;
-
-      var guid = Guid.NewGuid();//guid is needed to prevent possible random token key collision with existing one
-      var guidpad = guid.ToNetworkByteOrder();//16 bytes
-
-      //The KeyRing implementation ensures strong Cryptographic entropy on process-wide random by design
-      var rnd = Ambient.Random.NextRandomBytes(len.min, len.max);
-      var btoken = guidpad.Concat(rnd).ToArray();
-      Value = Convert.ToBase64String(btoken, Base64FormattingOptions.None);
-
-      IssuedBy = issuer.NonBlank(issuer);
-      IssueUtc = Ambient.UTCNow;
-      ExpireUtc = IssueUtc.Value.AddSeconds(expireInSeconds);
-    }
 
     [Field(backendName: "v", isArow: true)]
     [Field(required: true, key: true, backendName: "_id", description: "Value of the token - a unique primary key")]

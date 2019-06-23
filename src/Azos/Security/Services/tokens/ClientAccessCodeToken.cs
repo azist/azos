@@ -18,10 +18,6 @@ namespace Azos.Security.Services
     public override (int min, int max) TokenByteStrength => (4, 16);
     public override int TokenDefaultExpirationSeconds => 5/*min*/ * 60;
 
-    public ClientAccessCodeToken(string issuer, int expireInSeconds) : base(issuer, expireInSeconds)
-    {
-    }
-
     /// <summary>
     /// The original Id of the client which this access code was issued for
     /// </summary>
