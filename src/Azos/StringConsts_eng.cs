@@ -954,6 +954,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string METADATA_GENERATION_SCHEMA_FIELD_ERROR = "Error generating metadata for Schema `{0}` field `{1}`: {2}";
 
 
+    public const string OVERPUNCH_TO_NUMBER_ERROR = "Signed overpunch value of `{0}` is not parsable as a number";
+
     public const string PILE_CACHE_SCV_START_PILE_NULL_ERROR =
       "Pile cache service can not start because pile is null";
 
