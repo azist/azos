@@ -144,6 +144,19 @@ namespace Azos.Security
     Task<AccessLevel> AuthorizeAsync(User user, Permission permission);
 
     /// <summary>
+    /// Performs a lookup of security-addressable subject/resource/entity, such as a user/group/room/circle/client app etc...
+    /// The format of the URI is up to the provider. Warning: this method should never ever been used for authentication, rather
+    /// it is to lookup existing entity. Be careful not to disclose publicly too much information which may be private to this entity
+    /// </summary>
+    /// <param name="uri">Implementation-specific identifier of the identity to look up, e.g. `user://mike12345`, `app://facebookwall`</param>
+    /// <returns>Entity information, or null if such entity is not found</returns>
+    /// <remarks>
+    /// Not all security manager implement this functionality. Typically it is being implemented by complex
+    /// security facades that support social/public users, and OAuth client applications
+    /// </remarks>
+    Task<IEntityInfo> LookupEntityAsync(string uri);
+
+    /// <summary>
     /// Extracts values for archive dimensions to store the log message for the specified user descriptor.
     /// Depending on the system descriptor represents an entity that describes user (e.g. User, UserInfo, etc.).
     /// The method only fills the fields specific to user identity

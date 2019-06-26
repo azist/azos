@@ -46,14 +46,14 @@ namespace Azos.Security.Services
       if (!response_type.EqualsOrdIgnoreCase("code"))
         return new Http401Unauthorized("Unsupported capability");//we can not redirect because redirect_uri has not been checked yet for inclusion in client ACL
 
-      //only Support CODE
+      //only SCOPE
       if (!scope.EqualsOrdIgnoreCase("openid connect"))//todo use Constant
         return new Http401Unauthorized("Unsupported capability");//we can not redirect because redirect_uri has not been checked yet for inclusion in client ACL
 
-      //1. Lookup-Authenticate client app, just by ID (w/o password)
-      var clcred = new IDPasswordCredentials(client_id, null);//lookup, no password
+      //1. Lookup client app, just by client_id (w/o password)
+      var clcred = new EntityUriCredentials(client_id);
       var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
-      if (!cluser.IsAuthenticated) return new Http401Unauthorized("Unknown client");//we don't have ACl yet, hence can't check redirect_uri
+      if (cluser == null) return new Http401Unauthorized("Unknown client");//we don't have ACl yet, hence can't check redirect_uri
 
       //2. Check client ACL for allowed redirect URIs
       var redirectPermission = new OAuthClientAppPermission(redirect_uri);
@@ -146,11 +146,9 @@ namespace Azos.Security.Services
         return new Http401Unauthorized("Invalid Client");
 
       //3. Check that the requested redirect_uri is indeed in the list of permitted URIs for this client
-      //todo check redirect URI is in the list of permitted redirect URIS for cluster
-
-      //and it equals the requested redirect URI at Authorization
-      if (!redirect_uri.EqualsOrdSenseCase(catoken.RedirectURI))
-        return new Http401Unauthorized("Invalid Client");
+      var redirectPermission = new OAuthClientAppPermission(redirect_uri);
+      var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
+      if (!uriAllowed) return new Http401Unauthorized("Unauthroized URI");
 
       //4. Fetch target user
       var auth = OAuth.TokenRing.MapSubjectAuthenticationTokenFromContent(catoken.SubjectAuthenticationToken);

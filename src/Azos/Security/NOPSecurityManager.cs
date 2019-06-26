@@ -50,6 +50,8 @@ namespace Azos.Security
     public AccessLevel Authorize(User user, Permission permission) => AccessLevel.DeniedFor(user, permission);
     public Task<AccessLevel> AuthorizeAsync(User user, Permission permission) => Task.FromResult(AccessLevel.DeniedFor(user, permission));
 
+    public Task<IEntityInfo> LookupEntityAsync(string uri) => null;
+
     public SecurityLogMask SecurityLogMask{ get; set;}
     public MessageType SecurityLogLevel { get; set; }
 

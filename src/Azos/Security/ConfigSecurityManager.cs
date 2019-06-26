@@ -184,6 +184,12 @@ namespace Azos.Security
       var node = user.Rights.Root.NavigateSection(permission.FullPath);
       return new AccessLevel(user, permission, node);
     }
+
+    public Task<IEntityInfo> LookupEntityAsync(string uri)
+    {
+      return null;//for now
+    }
+
     #endregion
 
     #region Protected
