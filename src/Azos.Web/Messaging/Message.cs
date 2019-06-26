@@ -110,9 +110,9 @@ namespace Azos.Web.Messaging
     public MessageAddressBuilder AddressBCCBuilder     { get{ return m_Builder_AddressBCC     ?? (m_Builder_AddressBCC     = new MessageAddressBuilder(m_AddressBCC,    (b) => m_AddressBCC     = b.ToString())); } }
 
 
-    public override Exception Validate()
+    public override Exception Validate(string target)
     {
-      var ve = base.Validate();
+      var ve = base.Validate(target);
       if (ve !=null) return ve;
 
       try  { var b = AddressFromBuilder; }

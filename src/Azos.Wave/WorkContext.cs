@@ -370,18 +370,18 @@ namespace Azos.Wave
       }
 
 
-         private bool? m_RequestedJSON;
+         private bool? m_RequestedJson;
       /// <summary>
       /// Returns true if client indicated in response that "application/json" is accepted
       /// </summary>
-      public bool RequestedJSON
+      public bool RequestedJson
       {
         get
         {
-          if (!m_RequestedJSON.HasValue)
-            m_RequestedJSON = Request.AcceptTypes != null && Request.AcceptTypes.Any(at => at != null && at.IndexOf(ContentType.JSON, StringComparison.OrdinalIgnoreCase) != -1);
+          if (!m_RequestedJson.HasValue)
+            m_RequestedJson = Request.AcceptTypes != null && Request.AcceptTypes.Any(at => at != null && at.IndexOf(ContentType.JSON, StringComparison.OrdinalIgnoreCase) != -1);
 
-          return m_RequestedJSON.Value;
+          return m_RequestedJson.Value;
         }
       }
 

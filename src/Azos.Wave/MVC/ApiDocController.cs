@@ -46,7 +46,7 @@ namespace Azos.Wave.Mvc
     [Action(Name = "all"), HttpGet]
     public object All()
     {
-      if (WorkContext.RequestedJSON) return new JSONResult(Data, JsonWritingOptions.PrettyPrintRowsAsMap);
+      if (WorkContext.RequestedJson) return new JsonResult(Data, JsonWritingOptions.PrettyPrintRowsAsMap);
       return Data.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
     }
 
@@ -112,7 +112,7 @@ namespace Azos.Wave.Mvc
             return d;
           });
 
-      if (WorkContext.RequestedJSON) return new JSONResult(data, JsonWritingOptions.PrettyPrintRowsAsMap);
+      if (WorkContext.RequestedJson) return new JsonResult(data, JsonWritingOptions.PrettyPrintRowsAsMap);
 
       return TocView(data);
     }
@@ -141,7 +141,7 @@ namespace Azos.Wave.Mvc
 
       if (data.Length==0) return new Http404NotFound();
 
-      if (WorkContext.RequestedJSON) return data;
+      if (WorkContext.RequestedJson) return data;
 
       return SchemaView(data);
     }
@@ -154,7 +154,7 @@ namespace Azos.Wave.Mvc
     {
       var data = Data.Children.FirstOrDefault(c => c.IsSameName("scope") && c.ValOf("run-id").EqualsOrdIgnoreCase(id));
       if (data==null) return new Http404NotFound();
-      if (WorkContext.RequestedJSON) return data;
+      if (WorkContext.RequestedJson) return data;
 
       var scopeContent = data.ValOf("doc-content");
       var excision = MarkdownUtils.ExciseSection(scopeContent, "## Endpoints");

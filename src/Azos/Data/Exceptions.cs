@@ -33,7 +33,7 @@ namespace Azos.Data
     protected ValidationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
     public int HttpStatusCode => WebConsts.STATUS_400;
-    public string HttpStatusDescription => WebConsts.STATUS_400_DESCRIPTION+"/ Data validation";
+    public string HttpStatusDescription => WebConsts.STATUS_400_DESCRIPTION+" / Data validation";
   }
 
   /// <summary>

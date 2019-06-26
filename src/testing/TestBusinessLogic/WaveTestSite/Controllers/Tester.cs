@@ -262,7 +262,7 @@ namespace WaveTestSite.Controllers
 
         if (map) return result;
 
-        return new JSONResult(result, JsonWritingOptions.Compact);
+        return new JsonResult(result, JsonWritingOptions.Compact);
       }
 
       [Action, ApiEndpointDoc]

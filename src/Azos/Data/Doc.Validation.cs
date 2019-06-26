@@ -8,43 +8,37 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Azos.Conf;
-
-using Azos.Serialization.JSON;
 
 namespace Azos.Data
 {
   public partial class Doc
   {
     /// <summary>
-    /// Performs validation of data in the row returning exception object that provides description
-    /// in cases when validation does not pass. Validation is performed not targeting any particular backend
+    /// Performs validation of data in the document returning exception object that provides description
+    /// in cases when validation does not pass. Validation is performed not targeting any particular backend (any target)
     /// </summary>
-    public virtual Exception Validate()
-    {
-      return Validate(null);
-    }
+    public Exception Validate() => Validate(null);
 
     /// <summary>
-    /// Validates row using row schema and supplied field definitions.
+    /// Validates data document using schema/supplied field definitions.
     /// Override to perform custom validations,
     /// i.e. TypeDocs may directly access properties and write some validation type-safe code
     /// The method is not expected to throw exception in case of failed validation, rather return exception instance because
-    ///  throwing exception really hampers validation performance when many rows need to be validated
+    ///  throwing exception really hampers validation performance when many docs/rows need to be validated
     /// </summary>
     public virtual Exception Validate(string targetName)
     {
       foreach(var fd in Schema)
       {
-          var error = ValidateField(targetName, fd);
-          if (error!=null) return error;
+        var error = ValidateField(targetName, fd);
+        if (error!=null) return error;
       }
 
       return null;
     }
 
     /// <summary>
-    /// Validates row field by name.
+    /// Validates document field by name.
     /// Shortcut to ValidateField(Schema.FieldDef)
     /// </summary>
     public Exception ValidateField(string targetName, string fname)

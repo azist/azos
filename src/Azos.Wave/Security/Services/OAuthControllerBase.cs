@@ -74,13 +74,13 @@ namespace Azos.Security.Services
     public async Task<object> Token_POST(string client_id, string client_secret, string grant_type, string code, string redirect_uri)
     {
        if (grant_type.EqualsOrdSenseCase("authorization_code"))
-        return new Http403Forbidden("Unsupported grant_type");
+        return new Http401Unauthorized("Unsupported grant_type");
 
       var clcred = client_id.IsNotNullOrWhiteSpace() ? new IDPasswordCredentials(client_id, client_secret)
                                                      : IDPasswordCredentials.FromBasicAuth(WorkContext.Request.Headers[WebConsts.HTTP_HDR_AUTHORIZATION]);
 
       if (clcred==null || clcred.ID.IsNullOrWhiteSpace())
-        return new Http403Forbidden("Invalid Client");
+        return new Http401Unauthorized("Invalid Client");
 
       //1. Check client/app credentials and get app's permissions
       var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
@@ -89,24 +89,24 @@ namespace Azos.Security.Services
       //2. Validate the supplied client access code (token), that it exists (was issued and not expired), and it was issued for THIS client
       var catoken = await OAuth.TokenRing.LookupClientAccessCodeAsync(code);
       if (catoken == null)
-        return new Http403Forbidden("Invalid Client");
+        return new Http401Unauthorized("Invalid Client");
 
       //check that client_id supplied now matches the original one that was supplied during client access code issuance
       if (!clcred.ID.EqualsOrdSenseCase(catoken.ClientId))
-        return new Http403Forbidden("Invalid Client");
+        return new Http401Unauthorized("Invalid Client");
 
       //3. Check that the requested redirect_uri is indeed in the list of permitted URIs for this client
       //todo check redirect URI is in the list of permitted redirect URIS for cluster
 
       //and it equals the requested redirect URI at Authorization
       if (!redirect_uri.EqualsOrdSenseCase(catoken.RedirectURI))
-        return new Http403Forbidden("Invalid Client");
+        return new Http401Unauthorized("Invalid Client");
 
       //4. Fetch target user
       var auth = OAuth.TokenRing.MapSubjectAuthenticationTokenFromContent(catoken.SubjectAuthenticationToken);
       var targetUser = await App.SecurityManager.AuthenticateAsync(auth);
       if (!targetUser.IsAuthenticated)
-        return new Http403Forbidden("User access denied");
+        return new Http401Unauthorized("User access denied");
 
       //5. Issue the API access token for this access code
       var token = await OAuth.TokenRing.IssueAccessToken(cluser, targetUser);
@@ -119,7 +119,7 @@ namespace Azos.Security.Services
         expires_in =(int)(token.ExpireUtc - token.IssueUtc).Value.TotalSeconds
       };
 
-      return new JSONResult(json, Serialization.JSON.JsonWritingOptions.PrettyPrint);//todo: Where is base64 encoding?
+      return new JsonResult(json, Serialization.JSON.JsonWritingOptions.PrettyPrint);//todo: Where is base64 encoding?
     }
 
     [ActionOnGet(Name = "userinfo")]
