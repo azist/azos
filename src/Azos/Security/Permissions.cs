@@ -279,7 +279,7 @@ namespace Azos.Security
 
       if (!access.IsAssigned) return false;
 
-      return DoCheckAccessLevel(session, access);
+      return DoCheckAccessLevel(app, session, access);
     }
 
     /// <summary>
@@ -302,7 +302,7 @@ namespace Azos.Security
 
       if (!access.IsAssigned) return false;
 
-      return DoCheckAccessLevel(session, access);
+      return DoCheckAccessLevel(app, session, access);
     }
 
     public override string ToString()
@@ -319,7 +319,7 @@ namespace Azos.Security
     /// True if  accessLevel satisfies permission requirements.
     /// The default implementation checks the access.Level
     /// </summary>
-    protected virtual bool DoCheckAccessLevel(ISession session, AccessLevel access)
+    protected virtual bool DoCheckAccessLevel(IApplication app, ISession session, AccessLevel access)
     {
       return access.Level >= m_Level;
     }

@@ -19,7 +19,7 @@ namespace Azos.Security.Services
     //https://developer.okta.com/blog/2019/05/01/is-the-oauth-implicit-flow-dead
 
     /// <summary> Returns IOAuthManager module off the App.SecMan </summary>
-    protected IOAuthManager OAuth => (App.SecurityManager as IOAuthManagerHost).NonNull("not IOAuthManagerHost").OAuthManager;
+    protected IOAuthManager OAuth => (App.SecurityManager as IOAuthManagerHost).NonNull("not IOAuthManagerHost make sure App.Secman is configured to use IOAuthManagerHost").OAuthManager;
 
     /// <summary>
     /// Represents the entry point of OAuth flow
@@ -40,10 +40,60 @@ namespace Azos.Security.Services
     /// </returns>
     [ActionOnGet(Name = "authorize")]
     [ActionOnGet(Name = "authorization")]
-    public object Authorize_GET(string client_id, string response_type, string scope, string redirect_uri, string state)
+    public async Task<object> Authorize_GET(string response_type, string scope, string client_id, string redirect_uri, string state)
     {
-      return null;
+      //only Support CODE
+      if (!response_type.EqualsOrdIgnoreCase("code"))
+        return new Http401Unauthorized("Unsupported capability");//we can not redirect because redirect_uri has not been checked yet for inclusion in client ACL
+
+      //only Support CODE
+      if (!scope.EqualsOrdIgnoreCase("openid connect"))//todo use Constant
+        return new Http401Unauthorized("Unsupported capability");//we can not redirect because redirect_uri has not been checked yet for inclusion in client ACL
+
+      //1. Lookup-Authenticate client app, just by ID (w/o password)
+      var clcred = new IDPasswordCredentials(client_id, null);//lookup, no password
+      var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
+      if (!cluser.IsAuthenticated) return new Http401Unauthorized("Unknown client");//we don't have ACl yet, hence can't check redirect_uri
+
+      //2. Check client ACL for allowed redirect URIs
+      var redirectPermission = new OAuthClientAppPermission(redirect_uri);
+      var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
+      if (!uriAllowed) return new Http401Unauthorized("Unauthroized URI");
+
+      //3. Generate result, such as JSON or Login Form
+      return MakeAuthorizeResult(cluser, response_type, scope, client_id, redirect_uri, state);
     }
+
+    protected virtual object MakeAuthorizeResult(User clientUser, string response_type, string scope, string client_id, string redirect_uri, string state)
+    {
+      //3. Pack all requested content into Opaque "flow" and sign with HMAC
+      //var flow = new JsonDataMap{ scope, client_id, redirect_uri, state}
+      //var flowstring = App.SecurityManager.Sign((object)flow);
+      return new { OK=true, flow ="uhdfsdhfsdfs"};
+
+      //todo if request non json, return UI
+    }
+
+    //[ActionOnPost(Name = "authorize")]
+    //[ActionOnPost(Name = "authorization")]
+    //public async virtual object Authorize_POST(string flow, string id, string pwd)
+    //{
+    //  var session = Opaque.Decipher(flow);
+    //  var subjcred = new IDPasswordCredentials(id, pwd);
+    //  var subject = App.SecurityManager.Authenticate(subjcred);
+    //  if (!subject.IsAuthenticated)
+    //  {
+    //    //bad id password
+    //    return View("bad login"); //or JSON result
+    //  }
+
+    //  //success ------------------
+
+    //  //3. Generate Accesscode token
+    //  var accessCode = OAuth.TokenRing.IssueClientAccessToken(clientid, subject.AuthToken,  session.redirect_uri, session.state);
+    //  //4. Redirect to URI
+    //  return new Redirect(session.redirect_uri, session.state);
+    //}
 
     /// <summary>
     /// Obtains the TOKEN based on the {Authorization Code} received in authorize step

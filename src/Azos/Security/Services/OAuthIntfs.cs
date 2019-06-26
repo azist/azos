@@ -52,11 +52,6 @@ namespace Azos.Security.Services
   public interface ITokenRing : IApplicationComponent
   {
     /// <summary>
-    /// Generates new instance of RingToken-derivative of the specified type, generating new Token.Value and setting header fields (create date etc..)
-    /// </summary>
-    TToken GenerateNewToken<TToken>() where TToken : RingToken;
-
-    /// <summary>
     /// Creates system-internal AuthenticationToken which represents a subject (a target user) impersonated by other tokens in a TokenRing
     /// </summary>
     /// <param name="content">String representation obtained by a complementary call to MapSubjectAuthenticationTokenToContent</param>

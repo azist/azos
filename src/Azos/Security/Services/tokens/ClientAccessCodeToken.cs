@@ -42,5 +42,12 @@ namespace Azos.Security.Services
     [Field(description: "The redirect URI which was requested at Authorization")]
     public string RedirectURI { get;set;}
 
+    /// <summary>
+    /// The client state supplied to Authorization call
+    /// </summary>
+    [Field(backendName: "state", isArow: true)]
+    [Field(description: "The client state supplied to Authorization call")]
+    public string State { get; set; }
+
   }
 }
