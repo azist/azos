@@ -46,19 +46,20 @@ namespace Azos.Security.Services
       if (!response_type.EqualsOrdIgnoreCase("code"))
         return new Http401Unauthorized("Unsupported capability");//we can not redirect because redirect_uri has not been checked yet for inclusion in client ACL
 
-      //only SCOPE
+      //the only SCOPE
       if (!scope.EqualsOrdIgnoreCase("openid connect"))//todo use Constant
         return new Http401Unauthorized("Unsupported capability");//we can not redirect because redirect_uri has not been checked yet for inclusion in client ACL
 
       //1. Lookup client app, just by client_id (w/o password)
       var clcred = new EntityUriCredentials(client_id);
       var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
-      if (cluser == null) return new Http401Unauthorized("Unknown client");//we don't have ACl yet, hence can't check redirect_uri
+      if (!cluser.IsAuthenticated) return new Http401Unauthorized("Unknown client");//we don't have ACL yet, hence can't check redirect_uri
+                                                                                    //todo <------------------- ATTACK THREAT: GATE the caller
 
       //2. Check client ACL for allowed redirect URIs
       var redirectPermission = new OAuthClientAppPermission(redirect_uri);
       var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
-      if (!uriAllowed) return new Http401Unauthorized("Unauthroized URI");
+      if (!uriAllowed) return new Http401Unauthorized("Unauthorized URI");//todo <------------------- ATTACK THREAT: GATE the caller
 
       //3. Generate result, such as JSON or Login Form
       return MakeAuthorizeResult(cluser, response_type, scope, client_id, redirect_uri, state);
@@ -123,7 +124,7 @@ namespace Azos.Security.Services
     [ActionOnPost(Name = "token")]
     public async Task<object> Token_POST(string client_id, string client_secret, string grant_type, string code, string redirect_uri)
     {
-       if (grant_type.EqualsOrdSenseCase("authorization_code"))
+      if (grant_type.EqualsOrdSenseCase("authorization_code"))
         return new Http401Unauthorized("Unsupported grant_type");
 
       var clcred = client_id.IsNotNullOrWhiteSpace() ? new IDPasswordCredentials(client_id, client_secret)
@@ -134,29 +135,33 @@ namespace Azos.Security.Services
 
       //1. Check client/app credentials and get app's permissions
       var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
-      if (!cluser.IsAuthenticated) return new Http403Forbidden("Invalid Client");
+      if (!cluser.IsAuthenticated) return new Http403Forbidden("Invalid Client");//todo <------------------- ATTACK THREAT: GATE the caller
 
       //2. Validate the supplied client access code (token), that it exists (was issued and not expired), and it was issued for THIS client
       var catoken = await OAuth.TokenRing.LookupClientAccessCodeAsync(code);
       if (catoken == null)
-        return new Http401Unauthorized("Invalid Client");
+        return new Http401Unauthorized("Invalid Client");//todo <------------------- ATTACK THREAT: GATE the caller
 
       //check that client_id supplied now matches the original one that was supplied during client access code issuance
       if (!clcred.ID.EqualsOrdSenseCase(catoken.ClientId))
-        return new Http401Unauthorized("Invalid Client");
+        return new Http401Unauthorized("Invalid Client");//todo <------------------- ATTACK THREAT: GATE the caller
 
-      //3. Check that the requested redirect_uri is indeed in the list of permitted URIs for this client
+      //3. Check that caller IP is in the list of allowed caller IP submasks IPv4
+      //todo --------------------------------
+      //todo <------------------- ATTACK THREAT: GATE the caller
+
+      //4. Check that the requested redirect_uri is indeed in the list of permitted URIs for this client
       var redirectPermission = new OAuthClientAppPermission(redirect_uri);
       var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
-      if (!uriAllowed) return new Http401Unauthorized("Unauthroized URI");
+      if (!uriAllowed) return new Http401Unauthorized("Unauthroized URI");//todo <------------------- ATTACK THREAT: GATE the caller
 
-      //4. Fetch target user
+      //5. Fetch target user
       var auth = OAuth.TokenRing.MapSubjectAuthenticationTokenFromContent(catoken.SubjectAuthenticationToken);
       var targetUser = await App.SecurityManager.AuthenticateAsync(auth);
       if (!targetUser.IsAuthenticated)
-        return new Http401Unauthorized("User access denied");
+        return new Http401Unauthorized("User access denied");//no need for gate
 
-      //5. Issue the API access token for this access code
+      //6. Issue the API access token for this access code
       var token = await OAuth.TokenRing.IssueAccessToken(cluser, targetUser);
 
       var json = new
