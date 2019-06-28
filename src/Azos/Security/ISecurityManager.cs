@@ -32,6 +32,11 @@ namespace Azos.Security
     IPasswordManager PasswordManager { get; }
 
     /// <summary>
+    /// Provides cryptography services, such as message protection etc.
+    /// </summary>
+    ICryptoManager Cryptography{ get; }
+
+    /// <summary>
     /// Authenticates user by checking the supplied credentials against the
     /// authentication store that this manager represents.
     /// If credential are invalid then UserKind.Invalid is returned.

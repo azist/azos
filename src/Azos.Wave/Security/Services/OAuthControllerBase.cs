@@ -68,39 +68,43 @@ namespace Azos.Security.Services
     protected virtual object MakeAuthorizeResult(User clientUser, string response_type, string scope, string client_id, string redirect_uri, string state)
     {
       //3. Pack all requested content into Opaque "flow" and sign with HMAC
-      //var flow = new JsonDataMap{ scope, client_id, redirect_uri, state}
-      //var flowstring = App.SecurityManager.Sign((object)flow);
-      return new { OK=true, flow ="uhdfsdhfsdfs"};
+      var msg = new {client_id, redirect_uri, state};
+      var roundtrip = App.SecurityManager.PublicProtectAsString(msg);
+
+      return new { OK=true, roundtrip};
 
       //todo if request non json, return UI
     }
 
-    ////[ActionOnPost(Name = "authorize")]
-    ////[ActionOnPost(Name = "authorization")]
-    ////public async virtual object Authorize_POST(string flow, string id, string pwd)
-    ////{
-    ////  var session = Opaque.Decipher(flow);
-    ////  //check again:
-    ////  // 1. client id exists
-    ////  // 2. client id approves of redirect_uri
-    ////  // 3.
+    //[ActionOnPost(Name = "authorize")]
+    //[ActionOnPost(Name = "authorization")]
+    //public async virtual object Authorize_POST(string roundtrip, string id, string pwd)
+    //{
+    //  var session = App.SecurityManager.PublicUnprotectMap(roundtrip);
+    //  if (session==null) return new Http401Unauthorized("Bad Request");//we don't have ACL yet, hence can't check redirect_uri
+    //                                                                   //todo <------------------- ATTACK THREAT: GATE the caller
 
-    ////  //check user credentials
-    ////  var subjcred = new IDPasswordCredentials(id, pwd);
-    ////  var subject = App.SecurityManager.Authenticate(subjcred);
-    ////  if (!subject.IsAuthenticated)
-    ////  {
-    ////    //bad id password
-    ////    return View("bad login"); //or JSON result
-    ////  }
+    //  //check again:
+    //  // 1. client id exists
+    //  // 2. client id approves of redirect_uri
+    //  // 3.
 
-    ////  //success ------------------
+    //  //check user credentials
+    //  var subjcred = new IDPasswordCredentials(id, pwd);
+    //  var subject = App.SecurityManager.Authenticate(subjcred);
+    //  if (!subject.IsAuthenticated)
+    //  {
+    //    //bad id password
+    //    return View("bad login"); //or JSON result
+    //  }
 
-    ////  //3. Generate Accesscode token
-    ////  var accessCode = OAuth.TokenRing.IssueClientAccessToken(clientid, subject.AuthToken, session.redirect_uri, session.state);
-    ////  //4. Redirect to URI
-    ////  return new Redirect(session.redirect_uri, session.state);
-    ////}
+    //  //success ------------------
+
+    //  //3. Generate Accesscode token
+    //  var accessCode = OAuth.TokenRing.IssueClientAccessToken(clientid, subject.AuthToken, session.redirect_uri, session.state);
+    //  //4. Redirect to URI
+    //  return new Redirect(session.redirect_uri, session.state);
+    //}
 
     /// <summary>
     /// Obtains the TOKEN based on the {Authorization Code} received in authorize step
