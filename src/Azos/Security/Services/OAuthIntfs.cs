@@ -51,6 +51,9 @@ namespace Azos.Security.Services
   /// </summary>
   public interface ITokenRing : IApplicationComponent
   {
+
+//todo Add generic add/remove token (polymorphic)
+
     /// <summary>
     /// Creates system-internal AuthenticationToken which represents a subject (a target user) impersonated by other tokens in a TokenRing
     /// </summary>

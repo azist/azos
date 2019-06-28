@@ -75,26 +75,32 @@ namespace Azos.Security.Services
       //todo if request non json, return UI
     }
 
-    //[ActionOnPost(Name = "authorize")]
-    //[ActionOnPost(Name = "authorization")]
-    //public async virtual object Authorize_POST(string flow, string id, string pwd)
-    //{
-    //  var session = Opaque.Decipher(flow);
-    //  var subjcred = new IDPasswordCredentials(id, pwd);
-    //  var subject = App.SecurityManager.Authenticate(subjcred);
-    //  if (!subject.IsAuthenticated)
-    //  {
-    //    //bad id password
-    //    return View("bad login"); //or JSON result
-    //  }
+    ////[ActionOnPost(Name = "authorize")]
+    ////[ActionOnPost(Name = "authorization")]
+    ////public async virtual object Authorize_POST(string flow, string id, string pwd)
+    ////{
+    ////  var session = Opaque.Decipher(flow);
+    ////  //check again:
+    ////  // 1. client id exists
+    ////  // 2. client id approves of redirect_uri
+    ////  // 3.
 
-    //  //success ------------------
+    ////  //check user credentials
+    ////  var subjcred = new IDPasswordCredentials(id, pwd);
+    ////  var subject = App.SecurityManager.Authenticate(subjcred);
+    ////  if (!subject.IsAuthenticated)
+    ////  {
+    ////    //bad id password
+    ////    return View("bad login"); //or JSON result
+    ////  }
 
-    //  //3. Generate Accesscode token
-    //  var accessCode = OAuth.TokenRing.IssueClientAccessToken(clientid, subject.AuthToken,  session.redirect_uri, session.state);
-    //  //4. Redirect to URI
-    //  return new Redirect(session.redirect_uri, session.state);
-    //}
+    ////  //success ------------------
+
+    ////  //3. Generate Accesscode token
+    ////  var accessCode = OAuth.TokenRing.IssueClientAccessToken(clientid, subject.AuthToken, session.redirect_uri, session.state);
+    ////  //4. Redirect to URI
+    ////  return new Redirect(session.redirect_uri, session.state);
+    ////}
 
     /// <summary>
     /// Obtains the TOKEN based on the {Authorization Code} received in authorize step
