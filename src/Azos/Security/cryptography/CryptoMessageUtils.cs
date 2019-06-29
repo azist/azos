@@ -16,14 +16,15 @@ namespace Azos.Security
     /// Returns the first matching public cipher algorithm marked as default
     /// </summary>
     public static ICryptoMessageAlgorithm GetDefaultPublicCipher(this ISecurityManager secman)
-     => secman.NonNull(nameof(secman))
+     => null;
+     /*//secman.NonNull(nameof(secman))
               .Cryptography
               .MessageProtectionAlgorithms
               .FirstOrDefault( a => a.IsDefault &&
                                     a.Audience == CryptoMessageAlgorithmAudience.Public &&
                                     a.Flags.HasFlag(CryptoMessageAlgorithmFlags.Cipher))
               .NonNull("no Default Public Cipher algorithm configured");
-
+    */
     /// <summary>
     /// Protects a message with Default public cipher
     /// </summary>

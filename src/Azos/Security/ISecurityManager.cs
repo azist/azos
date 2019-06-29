@@ -34,7 +34,7 @@ namespace Azos.Security
     /// <summary>
     /// Provides cryptography services, such as message protection etc.
     /// </summary>
-    ICryptoManager Cryptography{ get; }
+  //  ICryptoManager Cryptography{ get; }
 
     /// <summary>
     /// Authenticates user by checking the supplied credentials against the
