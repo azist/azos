@@ -49,6 +49,7 @@ namespace Azos.Security
 
     public override byte[] Protect(ArraySegment<byte> originalMessage)
     {
+//todo check for NUll etc...
       //IV = HMACSHA1(originalMessage)
       var nonce = Platform.RandomGenerator.Instance.NextRandomBytes(NONCE_LEN);
       var hmac = getHMAC(new ArraySegment<byte>(nonce), originalMessage);
@@ -70,6 +71,7 @@ namespace Azos.Security
 
     public override byte[] Unprotect(ArraySegment<byte> protectedMessage)
     {
+//todo check for NUll etc...
       var hmac = new byte[MD5_HASH_LEN];
       Array.Copy(protectedMessage.Array, protectedMessage.Offset, hmac, NONCE_LEN, MD5_HASH_LEN);
       using (var aes = new AesManaged())
@@ -80,8 +82,8 @@ namespace Azos.Security
         using (var decrypt = aes.CreateDecryptor(m_AESKey, hmac))
         {
           var decrypted = decrypt.TransformFinalBlock(protectedMessage.Array, protectedMessage.Offset+HEADER_LEN, protectedMessage.Count-HEADER_LEN);
-          //append IV
 
+          //rehash locally and check
           var rehmac = getHMAC(new ArraySegment<byte>(protectedMessage.Array, 0, NONCE_LEN), new ArraySegment<byte>(decrypted));
           if (!hmac.MemBufferEquals(rehmac)) return null;//HMAC mismatch: message has been tampered with
 
