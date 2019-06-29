@@ -90,15 +90,15 @@ namespace Azos.Security
     /// <summary>
     /// A complementary method for Protect(), tries to read the supplied protected message content, performing necessary
     /// transforms, such as encryption/decryption, HMAC checking etc.. The details are up to a specific algorithm type and instance configuration.
-    /// If message is not authentic/tempered then NULL is returned.
+    /// If message is not authentic/tampered then NULL is returned.
     /// This method only runs if algorithms supports it, i.e.  Flags.CanUnprotect set to 1.
     /// </summary>
     /// <param name="protectedMessage">Data to decrypt</param>
-    /// <returns>Original message data if all checks pass, or null if message is corrupted/has been tempered with</returns>
+    /// <returns>Original message data if all checks pass, or null if message is corrupted/has been tampered with</returns>
     byte[] Unprotect(ArraySegment<byte> protectedMessage);
   }
 
-  public interface ICryptoMessageAlgorithmImplementation : ICryptoMessageAlgorithm, IDisposable, IConfigurable, IDaemon
+  public interface ICryptoMessageAlgorithmImplementation : ICryptoMessageAlgorithm, IDisposable
   {
   }
 

@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,15 +22,14 @@ namespace Azos.Security
     /// Returns the first matching public cipher algorithm marked as default
     /// </summary>
     public static ICryptoMessageAlgorithm GetDefaultPublicCipher(this ISecurityManager secman)
-     => null;
-     /*//secman.NonNull(nameof(secman))
+     => secman.NonNull(nameof(secman))
               .Cryptography
               .MessageProtectionAlgorithms
               .FirstOrDefault( a => a.IsDefault &&
                                     a.Audience == CryptoMessageAlgorithmAudience.Public &&
                                     a.Flags.HasFlag(CryptoMessageAlgorithmFlags.Cipher))
               .NonNull("no Default Public Cipher algorithm configured");
-    */
+
     /// <summary>
     /// Protects a message with Default public cipher
     /// </summary>

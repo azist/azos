@@ -42,7 +42,7 @@ namespace Azos.Tests.Nub
     {
       for(var cnt=1; cnt<1024; cnt++)
       {
-        var a = Azos.Platform.RandomGenerator.Instance.NextRandomBytes(cnt);
+        var a = Platform.RandomGenerator.Instance.NextRandomBytes(cnt);
         Base64FullCycle(a);
       }
     }
