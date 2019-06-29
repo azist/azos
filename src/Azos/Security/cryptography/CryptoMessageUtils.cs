@@ -20,8 +20,8 @@ namespace Azos.Security
               .Cryptography
               .MessageProtectionAlgorithms
               .FirstOrDefault( a => a.IsDefault &&
-                                    a.Audience == MessageAlgorithmAudience.Public &&
-                                    a.Flags.HasFlag(MessageAlgorithmFlags.Cipher))
+                                    a.Audience == CryptoMessageAlgorithmAudience.Public &&
+                                    a.Flags.HasFlag(CryptoMessageAlgorithmFlags.Cipher))
               .NonNull("no Default Public Cipher algorithm configured");
 
     /// <summary>

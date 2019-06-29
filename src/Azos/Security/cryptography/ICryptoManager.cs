@@ -18,7 +18,7 @@ namespace Azos.Security
   /// The MAC algorithms typically add the MAC code to the message body
   /// </summary>
   [Flags]
-  public enum MessageAlgorithmFlags
+  public enum CryptoMessageAlgorithmFlags
   {
     /// <summary>
     /// The algorithm is Cipher/Decipher used for message passing
@@ -42,7 +42,7 @@ namespace Azos.Security
   /// Denotes types of users should be using this algorithm , e.g. a security authority may use its own Internal algorithm instances
   /// (i.e. different encryption keys) that should never be used for public message authentication
   /// </summary>
-  public enum MessageAlgorithmAudience
+  public enum CryptoMessageAlgorithmAudience
   {
     /// <summary>
     /// Denotes algorithms instances that should be used for public message exchange,
@@ -67,22 +67,23 @@ namespace Azos.Security
     /// <summary>
     /// Defines what algorithm type this instance represents
     /// </summary>
-    MessageAlgorithmFlags Flags { get;}
+    CryptoMessageAlgorithmFlags Flags { get;}
 
     /// <summary>
     /// Indicates what audience should be using this algorithm
     /// </summary>
-    MessageAlgorithmAudience Audience {  get; }
+    CryptoMessageAlgorithmAudience Audience {  get; }
 
     /// <summary>
-    /// True to indicate that this algorithm shall be used over others multiple matching
+    /// True to indicate that this algorithm instance shall be used over others matching algorithms
     /// </summary>
     bool IsDefault{ get;}
 
     /// <summary>
     /// Protects the specified message according to the underlying algorithm nature, e.g. a hashing MAC algorithm may
     /// just add a HMAC, or encrypt the message body (e.g. with AES) etc. using same or different key(s) for various stages.
-    /// For algorithms that have Flags.CanUnprotect set, the message must be processed with complementary call to Unprotect() which understands the inner msg format
+    /// An algorithm may by symmetric or asymmetric. For algorithms that have Flags.CanUnprotect set, the message must
+    /// be processed with complementary call to Unprotect() which understands the inner msg format
     /// </summary>
     byte[] Protect(ArraySegment<byte> originalMessage);
 
@@ -97,7 +98,7 @@ namespace Azos.Security
     byte[] Unprotect(ArraySegment<byte> protectedMessage);
   }
 
-  public interface ICryptoAlgorithmImplementation : ICryptoMessageAlgorithm, IDisposable, IConfigurable, IDaemon
+  public interface ICryptoMessageAlgorithmImplementation : ICryptoMessageAlgorithm, IDisposable, IConfigurable, IDaemon
   {
   }
 
@@ -106,14 +107,14 @@ namespace Azos.Security
   /// </summary>
   public interface ICryptoManager : IApplicationComponent
   {
+    /// <summary>
+    /// A registry of algorithms which cryptographically protect messages
+    /// </summary>
     IRegistry<ICryptoMessageAlgorithm> MessageProtectionAlgorithms { get; }
   }
 
   public interface ICryptoManagerImplementation : ICryptoManager, IDisposable, IConfigurable, IInstrumentable, IDaemon
   {
-    bool Register(ICryptoAlgorithmImplementation algo);
-    bool Unregister(ICryptoAlgorithmImplementation algo);
-    bool Unregister(string algoName);
   }
 
 

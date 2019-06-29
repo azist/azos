@@ -67,11 +67,11 @@ namespace Azos.Security.Services
 
     protected virtual object MakeAuthorizeResult(User clientUser, string response_type, string scope, string client_id, string redirect_uri, string state)
     {
-      //3. Pack all requested content into Opaque "flow" and sign with HMAC
-      var msg = new {client_id, redirect_uri, state};
-      var roundtrip = App.SecurityManager.PublicProtectAsString(msg);
+      //Pack all requested content(session) into cryptographically encoded message
+      var session = new { id = client_id, uri = redirect_uri, s = state, utc = App.TimeSource.UTCNow };
+      var roundtrip = App.SecurityManager.PublicProtectAsString(session);
 
-      return new { OK=true, roundtrip};
+      return new { OK=true, roundtrip };
 
       //todo if request non json, return UI
     }
@@ -85,6 +85,7 @@ namespace Azos.Security.Services
     //                                                                   //todo <------------------- ATTACK THREAT: GATE the caller
 
     //  //check again:
+    //  // 1. message utc is not older than X hours
     //  // 1. client id exists
     //  // 2. client id approves of redirect_uri
     //  // 3.
