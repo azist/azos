@@ -49,8 +49,11 @@ namespace Azos.Security
 
     public override byte[] Protect(ArraySegment<byte> originalMessage)
     {
-//todo check for NUll etc...
-      //IV = HMACSHA1(originalMessage)
+      originalMessage.Array.NonNull(nameof(originalMessage));
+
+      if (originalMessage.Count < 1)
+        throw new SecurityException(StringConsts.ARGUMENT_ERROR + "{0}.Protect(originalMessage.len < 1)".Args(GetType().Name));
+
       var nonce = Platform.RandomGenerator.Instance.NextRandomBytes(NONCE_LEN);
       var hmac = getHMAC(new ArraySegment<byte>(nonce), originalMessage);
 
@@ -71,7 +74,10 @@ namespace Azos.Security
 
     public override byte[] Unprotect(ArraySegment<byte> protectedMessage)
     {
-//todo check for NUll etc...
+      protectedMessage.Array.NonNull(nameof(protectedMessage));
+      if (protectedMessage.Count < HEADER_LEN + 1)
+        throw new SecurityException(StringConsts.ARGUMENT_ERROR + "{0}.Unprotect(protectedMessage.Count < {1})".Args(GetType().Name, HEADER_LEN));
+
       var hmac = new byte[MD5_HASH_LEN];
       Array.Copy(protectedMessage.Array, protectedMessage.Offset, hmac, NONCE_LEN, MD5_HASH_LEN);
       using (var aes = new AesManaged())
