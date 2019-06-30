@@ -111,6 +111,16 @@ namespace Azos.Security
     /// A registry of algorithms which cryptographically protect messages
     /// </summary>
     IRegistry<ICryptoMessageAlgorithm> MessageProtectionAlgorithms { get; }
+
+    /// <summary>
+    /// Returns a crypto-strong RNG array of bytes of the specified length
+    /// </summary>
+    byte[] GenerateRandomBytes(int count);
+
+    /// <summary>
+    /// Returns a crypto-strong RNG array of bytes of the random length between the boundaries
+    /// </summary>
+    byte[] GenerateRandomBytes(int minCount, int maxCount);
   }
 
   public interface ICryptoManagerImplementation : ICryptoManager, IDisposable, IConfigurable, IInstrumentable, IDaemon

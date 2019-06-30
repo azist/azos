@@ -22,28 +22,25 @@ namespace Azos.Security.Services
     public const string CONFIG_CACHE_SECTION = "cache";
     public const int DEFAULT_CACHE_MAX_AGE_SEC = 37;
 
-    public TokenRing(IApplication app) : base(app) => ctor();
-    public TokenRing(IOAuthManagerImplementation director) : base(director) => ctor();
+    protected TokenRing(IApplication app) : base(app) => ctor();
+    protected TokenRing(IOAuthManagerImplementation director) : base(director) => ctor();
 
     private void ctor()
     {
       m_Pile = new DefaultPile(this, "token-ring-pile"){ SegmentSize = 64 * 1024 * 1024};
       m_Cache = new LocalCache(this, "token-ring-cache", m_Pile);
       m_Cache.DefaultTableOptions.DefaultMaxAgeSec = DEFAULT_CACHE_MAX_AGE_SEC;
-      m_CryptoRnd = new RNGCryptoServiceProvider();
     }
 
     protected override void Destructor()
     {
       DisposeAndNull(ref m_Cache);
       DisposeAndNull(ref m_Pile);
-      DisposeAndNull(ref m_CryptoRnd);
       base.Destructor();
     }
 
     private DefaultPile m_Pile;
     private LocalCache m_Cache;
-    private RNGCryptoServiceProvider m_CryptoRnd;
 
     private string m_IssuerName;
 
@@ -74,13 +71,16 @@ namespace Azos.Security.Services
       var guid = Guid.NewGuid();
       var guidpad = guid.ToNetworkByteOrder();//16 bytes
 
-      //2. Two independent RNGs are used to avoid library implementation errors affecting token entropy distribution,
-      //so shall an error happen in one (highly unlikely), the other one would still ensure crypto white noise spectrum distribution
-      //the Platform.RandomGenerator is periodically fed external entropy from system and network stack
-      var rnd = Platform.RandomGenerator.Instance.NextRandomBytes(len.min, len.max);
-      var rnd2 = new byte[rnd.Length];
-      m_CryptoRnd.GetBytes(rnd2);
-      for(var i=1; i<rnd.Length; i++) rnd[i] ^= rnd2[i];//both Random streams are combined using XOR
+      ////2. Two independent RNGs are used to avoid library implementation errors affecting token entropy distribution,
+      ////so shall an error happen in one (highly unlikely), the other one would still ensure crypto white noise spectrum distribution
+      ////the Platform.RandomGenerator is periodically fed external entropy from system and network stack
+      //var rnd = Platform.RandomGenerator.Instance.NextRandomBytes(len.min, len.max);
+      //var rnd2 = new byte[rnd.Length];
+      //m_CryptoRnd.GetBytes(rnd2);
+      //for(var i=1; i<rnd.Length; i++) rnd[i] ^= rnd2[i];//both Random streams are combined using XOR
+
+      //2. Random token body
+      var rnd = App.SecurityManager.Cryptography.GenerateRandomBytes(len.min, len.max);
 
       //3. Concat GUid pad with key
       var btoken = guidpad.AppendToNew(rnd);

@@ -14,7 +14,7 @@ namespace Azos.Security
   /// <summary>
   /// Provides base implementation for various ICryptoMessageAlgorithmImplementation
   /// </summary>
-  public abstract class CryptoMessageAlgorithm : ApplicationComponent, ICryptoMessageAlgorithmImplementation
+  public abstract class CryptoMessageAlgorithm : ApplicationComponent<ICryptoManager>, ICryptoMessageAlgorithmImplementation
   {
     protected CryptoMessageAlgorithm(ICryptoManagerImplementation director, IConfigSectionNode config) : base(director)
     {

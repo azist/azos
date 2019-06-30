@@ -155,12 +155,15 @@ namespace Azos.Platform
 
       /// <summary>
       /// Introduces external entropy into the generation sequence by adding a sample into the ring buffer.
-      /// Call this method from places that have true entropy values, i.e.
+      /// WARNING: Business app developers should not call this method as it skews the generator entropy and must only
+      /// be called from places where TRUE unpredictable entropy exists e.g.:
       ///  a network-related code may have good entropy sources in server applications.
       ///  External entropy sources may rely on user-dependent actions, i.e.:
-      ///   number of bytes/requests received per second, dollar(or cent remainders) amount of purchases made (on a server),
-      ///   zip codes of customers, IP addresses of site visitors, average noise level sampled on an open WAVE device(microphone),
-      ///    mouse position (i.e. in GUI app) etc...
+      ///  number of bytes/requests received per second, dollar(or cent remainders) amount of purchases made (assuming large product catalog and price variation),
+      ///  IP addresses of site visitors (assuming distributed system with many clients connecting), average noise level sampled on an open WAVE device(microphone),
+      ///  mouse position (i.e. in GUI app) etc...
+      /// Special care should be taken to prevent entropy steering attempt by users who try to flood the system with repetitive actions.
+      /// Event debouncing, inconsistent a-periodical sampling, and entropy multiplexing from various streams should be used
       /// </summary>
       public void FeedExternalEntropySample(int sample)
       {
