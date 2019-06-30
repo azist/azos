@@ -36,6 +36,8 @@ namespace Azos.Security
 
     public IPasswordManager PasswordManager { get { return m_PasswordManager; } }
 
+    public ICryptoManager Cryptography => null;
+
     public User Authenticate(Credentials credentials) => User.Fake;
     public Task<User> AuthenticateAsync(Credentials credentials) => Task.FromResult(User.Fake);
 

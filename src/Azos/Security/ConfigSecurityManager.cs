@@ -73,6 +73,8 @@ namespace Azos.Security
 
     public IPasswordManager PasswordManager { get { return m_PasswordManager; } }
 
+    public ICryptoManager Cryptography => null;
+
     [Config(Default = SecurityLogMask.Custom)]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
     public SecurityLogMask SecurityLogMask { get; set;}
