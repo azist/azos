@@ -149,18 +149,6 @@ namespace Azos.Security
       }
     }
 
-    //Ensures that an attacker may not assume that the algorithm uses the same key for every message,
-    //furthermore there are 2 different keys used for every message protection and their inter-relationship may not be inferred either.
-    //Key selector functions uses different keys based on unpredictable IV/nonce,
-    //even though IV is transmitted in the clear, and this code is in the public domain
-    //a hacker has no way of knowing how many keys this algorithm instance is configured to use.
-    //This ensures that any kind of cracking is orders of magnitude harder as no assumptions
-    //about the number of keys or which key is used for what case can be made mathematically.
-    //What is more interesting, is that there is no 1:1 relationship between HMAC and AES keys in this
-    //scheme as one may have, as an example, 3 HMAC keys and 7 AES keys, therefore it is impossible
-    //to know which HMAC key is paired with which AES.
-    //The key selector also provides additional protection property: if some keys ever get cracked
-    //the hacker will only get access to 1/x of the system x being the number of AES keys in the set.
     private (byte[] hmac, byte[] aes) getKeys(byte[] iv)
     {
       var nonce = iv[0] ^ iv[iv.Length-1];
