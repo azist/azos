@@ -18,7 +18,7 @@ namespace Azos.Security
   {
     protected CryptoMessageAlgorithm(ICryptoManagerImplementation director, IConfigSectionNode config) : base(director)
     {
-      ConfigAttribute.Apply(this, config);
+      ConfigAttribute.Apply(this, config.NonEmpty("{0}.ctor(config=null|!Exists)".Args(GetType().Name)));
     }
 
     [Config]
