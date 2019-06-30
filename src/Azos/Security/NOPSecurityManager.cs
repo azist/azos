@@ -20,23 +20,26 @@ namespace Azos.Security
     {
       m_PasswordManager = new DefaultPasswordManager(this);
       m_PasswordManager.Start();
+      m_Cryptography = new DefaultCryptoManager(this);
+      m_Cryptography.Start();
     }
 
     protected override void Destructor()
     {
+      m_Cryptography.Dispose();
       m_PasswordManager.Dispose();
       base.Destructor();
     }
 
     private IPasswordManagerImplementation m_PasswordManager;
+    private ICryptoManagerImplementation m_Cryptography;
 
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
     public bool SupportsTrueAsynchrony => false;
 
-    public IPasswordManager PasswordManager { get { return m_PasswordManager; } }
-
-    public ICryptoManager Cryptography => null;
+    public IPasswordManager PasswordManager  => m_PasswordManager;
+    public ICryptoManager Cryptography => m_Cryptography;
 
     public User Authenticate(Credentials credentials) => User.Fake;
     public Task<User> AuthenticateAsync(Credentials credentials) => Task.FromResult(User.Fake);

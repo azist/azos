@@ -25,6 +25,7 @@ namespace Azos.Security
     public const string CONFIG_RIGHTS_SECTION = Rights.CONFIG_ROOT_SECTION;
     public const string CONFIG_PERMISSION_SECTION = "permission";
     public const string CONFIG_PASSWORD_MANAGER_SECTION = "password-manager";
+    public const string CONFIG_CRYPTOGRAPHY_SECTION = "cryptography";
 
     public const string CONFIG_DESCRIPTION_ATTR = "description";
     public const string CONFIG_STATUS_ATTR = "status";
@@ -42,11 +43,19 @@ namespace Azos.Security
     /// Constructs security manager that authenticates users listed in the supplied configuration section
     /// </summary>
     public ConfigSecurityManager(IApplicationComponent director) : base(director) { }
+
+    protected override void Destructor()
+    {
+      base.Destructor();
+      DisposeAndNull(ref m_PasswordManager);
+      DisposeAndNull(ref m_Cryptography);
+    }
     #endregion
 
     #region Fields
     private IConfigSectionNode m_Config;
     private IPasswordManagerImplementation m_PasswordManager;
+    private ICryptoManagerImplementation m_Cryptography;
     private bool m_InstrumentationEnabled;
     #endregion
 
@@ -69,11 +78,11 @@ namespace Azos.Security
     /// Returns config node that this instance is configured from.
     /// If null is returned then manager performs authentication from application configuration
     /// </summary>
-    public IConfigSectionNode Config { get { return m_Config; } }
+    public IConfigSectionNode Config          => m_Config;
 
-    public IPasswordManager PasswordManager { get { return m_PasswordManager; } }
+    public ICryptoManager     Cryptography    => m_Cryptography;
+    public IPasswordManager   PasswordManager => m_PasswordManager;
 
-    public ICryptoManager Cryptography => null;
 
     [Config(Default = SecurityLogMask.Custom)]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
@@ -199,6 +208,14 @@ namespace Azos.Security
     {
       base.DoConfigure(node);
       m_Config = node;
+
+      DisposeAndNull(ref m_Cryptography);
+      m_Cryptography = FactoryUtils.MakeAndConfigureComponent<ICryptoManagerImplementation>(
+                                              App,
+                                              node[CONFIG_CRYPTOGRAPHY_SECTION],
+                                              typeof(DefaultCryptoManager));
+
+      DisposeAndNull(ref m_PasswordManager);
       m_PasswordManager = FactoryUtils.MakeAndConfigureComponent<IPasswordManagerImplementation>(
                                               App,
                                               node[CONFIG_PASSWORD_MANAGER_SECTION],
@@ -207,17 +224,23 @@ namespace Azos.Security
 
     protected override void DoStart()
     {
+      if (m_PasswordManager == null) throw new SecurityException("{0}.PasswordManager == null");
+      if (m_Cryptography == null) throw new SecurityException("{0}.PasswordManager == null");
+
       m_PasswordManager.Start();
+      m_Cryptography.Start();
     }
 
     protected override void DoSignalStop()
     {
       m_PasswordManager.SignalStop();
+      m_Cryptography.SignalStop();
     }
 
     protected override void DoWaitForCompleteStop()
     {
       m_PasswordManager.WaitForCompleteStop();
+      m_Cryptography.WaitForCompleteStop();
     }
     #endregion
 

@@ -15,10 +15,10 @@ namespace Azos.Security
   /// <summary>
   /// Default implementation of ICryptoManager
   /// </summary>
-  public abstract class DefaultCryptoManager : DaemonWithInstrumentation<ISecurityManagerImplementation>, ICryptoManagerImplementation
+  public class DefaultCryptoManager : DaemonWithInstrumentation<ISecurityManagerImplementation>, ICryptoManagerImplementation
   {
     #region .ctor
-    protected DefaultCryptoManager(ISecurityManagerImplementation director) : base(director)
+    public DefaultCryptoManager(ISecurityManagerImplementation director) : base(director)
     {
       m_CryptoRnd = new RNGCryptoServiceProvider();
       m_MessageProtectionAlgorithms = new Registry<ICryptoMessageAlgorithmImplementation>();
