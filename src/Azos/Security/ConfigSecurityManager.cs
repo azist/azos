@@ -210,22 +210,22 @@ namespace Azos.Security
       m_Config = node;
 
       DisposeAndNull(ref m_Cryptography);
-      m_Cryptography = FactoryUtils.MakeAndConfigureComponent<ICryptoManagerImplementation>(
-                                              App,
+      m_Cryptography = FactoryUtils.MakeAndConfigureDirectedComponent<ICryptoManagerImplementation>(
+                                              this,
                                               node[CONFIG_CRYPTOGRAPHY_SECTION],
                                               typeof(DefaultCryptoManager));
 
       DisposeAndNull(ref m_PasswordManager);
-      m_PasswordManager = FactoryUtils.MakeAndConfigureComponent<IPasswordManagerImplementation>(
-                                              App,
+      m_PasswordManager = FactoryUtils.MakeAndConfigureDirectedComponent<IPasswordManagerImplementation>(
+                                              this,
                                               node[CONFIG_PASSWORD_MANAGER_SECTION],
                                               typeof(DefaultPasswordManager));
     }
 
     protected override void DoStart()
     {
-      if (m_PasswordManager == null) throw new SecurityException("{0}.PasswordManager == null");
-      if (m_Cryptography == null) throw new SecurityException("{0}.PasswordManager == null");
+      if (m_PasswordManager == null) throw new SecurityException("{0}.PasswordManager == null/not configured");
+      if (m_Cryptography == null) throw new SecurityException("{0}.Cruptography == null/not configured");
 
       m_PasswordManager.Start();
       m_Cryptography.Start();

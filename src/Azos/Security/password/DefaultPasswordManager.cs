@@ -86,15 +86,16 @@ namespace Azos.Security
 
     #region .ctor
 
-      public DefaultPasswordManager(IApplication app) : base(app)
-      {
-        DefaultStrengthLevel = PasswordStrengthLevel.Normal;
-      }
+    //used for unit testing
+    internal DefaultPasswordManager(IApplication app) : base(app)
+    {
+      DefaultStrengthLevel = PasswordStrengthLevel.Normal;
+    }
 
-      public DefaultPasswordManager(ISecurityManagerImplementation director) : base(director)
-      {
-        DefaultStrengthLevel = PasswordStrengthLevel.Normal;
-      }
+    public DefaultPasswordManager(ISecurityManagerImplementation director) : base(director)
+    {
+      DefaultStrengthLevel = PasswordStrengthLevel.Normal;
+    }
 
     #endregion
 
