@@ -45,7 +45,7 @@ namespace Azos.Security
   /// about the number of keys or which key is used for what case can be made mathematically.
   /// What is more interesting, is that there is no 1:1 relationship between HMAC and AES keys in this
   /// scheme as one may have, as an example, 3 HMAC keys and 7 AES keys, therefore it is impossible
-  /// to know which HMAC key is paired with which AES.
+  /// to know which HMAC key is paired with which AES key.
   /// The key selector also provides additional protection property: if some keys ever get cracked
   /// the hacker will only get access to 1/x of the system x being the number of AES keys in the set.
   /// </para>
@@ -62,14 +62,22 @@ namespace Azos.Security
 
     public HMACAESCryptoMessageAlgorithm(ICryptoManagerImplementation director, IConfigSectionNode config) : base(director, config)
     {
-      m_HMACKeys = config.Children
-                         .Where(c => c.IsSameName(CONFIG_HMAC_SECTION) && c.ValOf(CONFIG_KEY_ATTR).IsNullOrWhiteSpace())
-                         .Select( c => c.AttrByName(CONFIG_KEY_ATTR).ValueAsByteArray())
-                         .ToArray();
-      m_AESKeys = config.Children
-                         .Where(c => c.IsSameName(CONFIG_AES_SECTION) && c.ValOf(CONFIG_KEY_ATTR).IsNullOrWhiteSpace())
-                         .Select(c => c.AttrByName(CONFIG_KEY_ATTR).ValueAsByteArray())
-                         .ToArray();
+      m_HMACKeys = buildKeys(config, CONFIG_HMAC_SECTION, 64);//HMAC SHA2 = 64 byte key
+      m_AESKeys = buildKeys(config, CONFIG_AES_SECTION, 256 / 8);//AES256 = 256 bit key
+    }
+
+    private byte[][] buildKeys(IConfigSectionNode config, string sectionName, int len)
+    {
+      var result =  config.Children
+                          .Where(c => c.IsSameName(sectionName) && c.ValOf(CONFIG_KEY_ATTR).IsNullOrWhiteSpace())
+                          .Select(c => c.AttrByName(CONFIG_KEY_ATTR).ValueAsByteArray())
+                          .ToArray();
+      if (result.Length==0) throw new SecurityException("{0} config section `{1}` must contain at least one key entry".Args(GetType().Name, sectionName));
+
+      foreach(var a in result)
+        if (a.Length!=len) throw new SecurityException("{0} config section `{1}` all keys must be of {2} bytes in length".Args(GetType().Name, sectionName, len));
+
+      return result;
     }
 
     private byte[][] m_HMACKeys;
@@ -90,11 +98,8 @@ namespace Azos.Security
       var keys = getKeys(iv);
       var hmac = getHMAC(keys.hmac, new ArraySegment<byte>(iv), originalMessage);
 
-      using (var aes = new AesManaged())
+      using (var aes = makeAES())
       {
-        aes.Mode = CipherMode.CBC;//Cipher Block Chaining requires random 128bit IV
-        aes.KeySize = 256;
-        aes.Padding = PaddingMode.PKCS7;
         using (var encryptor = aes.CreateEncryptor(keys.aes, iv))
         {
           var encrypted = encryptor.TransformFinalBlock(originalMessage.Array, originalMessage.Offset, originalMessage.Count);
@@ -121,11 +126,8 @@ namespace Azos.Security
       Array.Copy(protectedMessage.Array, protectedMessage.Offset + IV_LEN, hmac, 0, HMAC_LEN);
       var keys = getKeys(iv);
 
-      using (var aes = new AesManaged())
+      using (var aes = makeAES())
       {
-        aes.Mode = CipherMode.CBC;
-        aes.KeySize = 256;
-        aes.Padding = PaddingMode.PKCS7;
         using (var decrypt = aes.CreateDecryptor(keys.aes, iv))
         {
           var decrypted = decrypt.TransformFinalBlock(protectedMessage.Array, protectedMessage.Offset + HDR_LEN, protectedMessage.Count - HDR_LEN);
@@ -137,6 +139,15 @@ namespace Azos.Security
           return decrypted;
         }
       }
+    }
+
+    private AesManaged makeAES()
+    {
+      var aes = new AesManaged();
+      aes.Mode = CipherMode.CBC;//Cipher Block Chaining requires random 128bit IV
+      aes.KeySize = 256;
+      aes.Padding = PaddingMode.PKCS7;
+      return aes;
     }
 
     private byte[] getHMAC(byte[] keyHMAC, ArraySegment<byte> nonce, ArraySegment<byte> data)
