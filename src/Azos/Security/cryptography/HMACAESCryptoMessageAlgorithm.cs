@@ -69,7 +69,7 @@ namespace Azos.Security
     private byte[][] buildKeys(IConfigSectionNode config, string sectionName, int len)
     {
       var result =  config.Children
-                          .Where(c => c.IsSameName(sectionName) && c.ValOf(CONFIG_KEY_ATTR).IsNullOrWhiteSpace())
+                          .Where(c => c.IsSameName(sectionName) && c.ValOf(CONFIG_KEY_ATTR).IsNotNullOrWhiteSpace())
                           .Select(c => c.AttrByName(CONFIG_KEY_ATTR).ValueAsByteArray())
                           .ToArray();
       if (result.Length==0) throw new SecurityException("{0} config section `{1}` must contain at least one key entry".Args(GetType().Name, sectionName));

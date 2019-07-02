@@ -33,7 +33,7 @@ namespace Azos.Security
     [Config]
     public CryptoMessageAlgorithmAudience Audience { get; set; }
 
-    [Config]
+    [Config("$default|$is-default")]
     public bool IsDefault { get; set; }
 
     public abstract byte[] Protect(ArraySegment<byte> originalMessage);

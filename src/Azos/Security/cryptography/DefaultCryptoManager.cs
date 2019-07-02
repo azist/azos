@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
+using System.Linq;
 using System.Security.Cryptography;
 using Azos.Apps;
 using Azos.Collections;
@@ -17,6 +18,8 @@ namespace Azos.Security
   /// </summary>
   public class DefaultCryptoManager : DaemonWithInstrumentation<ISecurityManagerImplementation>, ICryptoManagerImplementation
   {
+    public const string CONFIG_ALGORITHM_SECTION = "algorithm";
+
     #region .ctor
     public DefaultCryptoManager(ISecurityManagerImplementation director) : base(director)
     {
@@ -28,6 +31,13 @@ namespace Azos.Security
     {
       base.Destructor();
       DisposeAndNull(ref m_CryptoRnd);
+      cleanupAlgorithms();
+    }
+
+    private void cleanupAlgorithms()
+    {
+      foreach(var a in m_MessageProtectionAlgorithms) a.Dispose();
+      m_MessageProtectionAlgorithms.Clear();
     }
     #endregion
 
@@ -50,7 +60,7 @@ namespace Azos.Security
       set { m_InstrumentationEnabled = value; }
     }
 
-    public IRegistry<ICryptoMessageAlgorithm> MessageProtectionAlgorithms => throw new NotImplementedException();
+    public IRegistry<ICryptoMessageAlgorithm> MessageProtectionAlgorithms => m_MessageProtectionAlgorithms;
 
     #endregion
 
@@ -72,6 +82,18 @@ namespace Azos.Security
     #endregion
 
     #region Protected
+
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+      cleanupAlgorithms();
+      foreach(var n in node.Children.Where(c => c.IsSameName(CONFIG_ALGORITHM_SECTION)))
+      {
+        var algo = FactoryUtils.MakeDirectedComponent<ICryptoMessageAlgorithmImplementation>(this, n, extraArgs: new[]{n});
+        if (!m_MessageProtectionAlgorithms.Register(algo))
+         throw new SecurityException("Algorithm `{0}` is already registered".Args(algo.Name));
+      }
+    }
 
     #endregion
   }
