@@ -1,11 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Threading.Tasks;
 
 using Azos.Apps;
+using Azos.Conf;
 using Azos.Instrumentation;
-using Azos.Serialization.JSON;
 
 namespace Azos.Security.Services
 {
@@ -51,71 +55,31 @@ namespace Azos.Security.Services
   /// </summary>
   public interface ITokenRing : IApplicationComponent
   {
-
-//todo Add generic add/remove token (polymorphic)
-
     /// <summary>
-    /// Creates system-internal AuthenticationToken which represents a subject (a target user) impersonated by other tokens in a TokenRing
+    /// Generates new token initializing appropriate fields (e.g. Store token rings need to generate unique ID)
     /// </summary>
-    /// <param name="content">String representation obtained by a complementary call to MapSubjectAuthenticationTokenToContent</param>
-    /// <returns>System-internal AuthenticationToken representing a subject</returns>
-    AuthenticationToken MapSubjectAuthenticationTokenFromContent(string content);
-
-    /// <summary>
-    /// Represents system-internal subject AuthenticationToken as a string content suitable for storage on a TokenRing
-    /// </summary>
-    /// <param name="token">System-internal AuthenticationToken which represents a subject (a target user) </param>
-    /// <returns>String representation which can be converted back to AuthenticationToken by a complementary call to MapSubjectAuthenticationTokenFromContent</returns>
-    string MapSubjectAuthenticationTokenToContent(AuthenticationToken token);
-
-    /// <summary>
-    /// Maps external Access Token string into system-internal AuthenticationToken as understood by the Application SecurityManager.
-    /// This method is purposely synchronous as it handles high volume of API calls and is expected to be
-    /// implemented efficiently with in-Memory caching technique.
-    /// </summary>
-    /// <param name="accessToken">External auth token value as the one issued in OAuth flow</param>
-    /// <returns>Internal AuthenticationToken or null if not found (deny access)</returns>
-    AuthenticationToken? MapAccessToken(string accessToken);
-
-    /// <summary>
-    /// Retrieves an existing client access code token or null if it is not found or expired
-    /// </summary>
-    Task<ClientAccessCodeToken> LookupClientAccessCodeAsync(string accessCode);
-
-    Task<AccessToken> IssueAccessToken(User userClient, User targetUser);
-
-    /////////// <summary>
-    /////////// Creates JWT JSON data map representation of AccessToken
-    /////////// </summary>
-    ////////JsonDataMap MakeJWT(AccessToken accessToken);
+    TToken GenerateNew<TToken>() where TToken : RingToken;
 
 
     /// <summary>
-    /// Instantly invalidates all tokens issued for the specified client.
-    /// The caller must have admin grant to succeed
+    /// Returns the token content object from the token string representation
     /// </summary>
-    /// <remarks>
-    /// This is used to invalidate all tokens when the specified client gets banned in the external security manager referenced by  IOAuthManager.ClientSecurity.
-    /// This method does not ban the future client-related access, do ban the user in ClientSecurity first as
-    /// this method just resets tokens in a ring
-    /// </remarks>
-    Task InvalidateClient(string clientID);
+    Task<TToken> GetAsync<TToken>(string token) where TToken : RingToken;
+
 
     /// <summary>
-    /// Instantly invalidates ALL tokens issued for specified target subject AuthenticationToken.
-    /// The caller must have admin grant to succeed
+    /// Adds a token content to the ring, returning string token representation.
+    /// The server-side stateful implementations would save the token to the backend store,
+    /// whereas stateless client-side implementations would just encode token using ICryptoMessageAlgo.Protect (or similar)
     /// </summary>
-    /// <remarks>
-    /// This is used to invalidate all tokens when the specified user (represented by a system-internal AuthenticationToken) gets security panic, such as
-    /// suspected account breach/password change.
-    /// This method does not ban the future user-related access, just invalidates all of the token grants
-    /// </remarks>
-    Task InvalidateSubject(AuthenticationToken token);
+    Task<string> PutAsync(RingToken token);
 
     /// <summary>
-    /// Instantly invalidates the specified access token
+    /// Applies items affected by the specified selector to the blacklist, e.g. this call may effectively invalidate all tokens
+    /// for specific client id. The implementation details depend on the ring. The selector tree consists of `name=value` pairs, optionally joint with `and`, `or`, example:
+    /// `or{clientId='78hshd78fhsd7fh' clientId='UIHIUH888'}`
     /// </summary>
-    Task InvalidateAccessToken(string accessToken);
+    Task Blacklist(IConfigSectionNode selector);
   }
 
   public interface ITokenRingImplementation : ITokenRing, IDaemon, IInstrumentable

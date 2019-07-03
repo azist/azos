@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-
+using Azos.Data;
 using Azos.Wave.Mvc;
 
 namespace Azos.Security.Services
@@ -59,54 +59,57 @@ namespace Azos.Security.Services
       //2. Check client ACL for allowed redirect URIs
       var redirectPermission = new OAuthClientAppPermission(redirect_uri);
       var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
-      if (!uriAllowed) return new Http401Unauthorized("Unauthorized URI");//todo <------------------- ATTACK THREAT: GATE the caller
+      if (!uriAllowed) return new Http403Forbidden("Unauthorized URI");//todo <------------------- ATTACK THREAT: GATE the caller
 
       //3. Generate result, such as JSON or Login Form
-      return MakeAuthorizeResult(cluser, response_type, scope, client_id, redirect_uri, state);
+      return MakeAuthorizeResult(cluser, response_type, scope, client_id, redirect_uri, state, error: null);
     }
 
-    protected virtual object MakeAuthorizeResult(User clientUser, string response_type, string scope, string client_id, string redirect_uri, string state)
+    protected virtual object MakeAuthorizeResult(User clientUser, string response_type, string scope, string client_id, string redirect_uri, string state, string error)
     {
       //Pack all requested content(session) into cryptographically encoded message
-      var session = new { id = client_id, uri = redirect_uri, s = state, utc = App.TimeSource.UTCNow };
-      var roundtrip = App.SecurityManager.PublicProtectAsString(session);
+      var flow = new { tp = response_type, scp = scope, id = client_id, uri = redirect_uri, st = state, utc = App.TimeSource.UTCNow };
+      var roundtrip = App.SecurityManager.PublicProtectAsString(flow);
 
       return new { OK=true, roundtrip };
 
       //todo if request non json, return UI
     }
+  /*
+    [ActionOnPost(Name = "authorize")]
+    [ActionOnPost(Name = "authorization")]
+    public async virtual object Authorize_POST(string roundtrip, string id, string pwd)
+    {
+      var flow = App.SecurityManager.PublicUnprotectMap(roundtrip);
+      if (flow == null) return new Http401Unauthorized("Bad Request");//we don't have ACL yet, hence can't check redirect_uri
+                                                                      //todo <------------------- ATTACK THREAT: GATE the caller
 
-    //[ActionOnPost(Name = "authorize")]
-    //[ActionOnPost(Name = "authorization")]
-    //public async virtual object Authorize_POST(string roundtrip, string id, string pwd)
-    //{
-    //  var session = App.SecurityManager.PublicUnprotectMap(roundtrip);
-    //  if (session==null) return new Http401Unauthorized("Bad Request");//we don't have ACL yet, hence can't check redirect_uri
-    //                                                                   //todo <------------------- ATTACK THREAT: GATE the caller
+      //1. check token age
+      var age = App.TimeSource.UTCNow - flow["utc"].AsDateTime(DateTime.MinValue);
+      if (age.TotalSeconds > 600) return new Http401Unauthorized("Bad Request");//todo MOVE to setting/constant default
 
-    //  //check again:
-    //  // 1. message utc is not older than X hours
-    //  // 1. client id exists
-    //  // 2. client id approves of redirect_uri
-    //  // 3.
+      //2. Lookup client app, just by client_id (w/o password)
+      var clcred = new EntityUriCredentials(flow["id"].AsString());
+      var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
+      if (!cluser.IsAuthenticated) return new Http401Unauthorized("Unknown client");//we don't have ACL yet, hence can't check redirect_uri
+                                                                                    //todo <------------------- ATTACK THREAT: GATE the caller
 
-    //  //check user credentials
-    //  var subjcred = new IDPasswordCredentials(id, pwd);
-    //  var subject = App.SecurityManager.Authenticate(subjcred);
-    //  if (!subject.IsAuthenticated)
-    //  {
-    //    //bad id password
-    //    return View("bad login"); //or JSON result
-    //  }
+      //3. Check user credentials
+      var subjcred = new IDPasswordCredentials(id, pwd);
+      var subject = await App.SecurityManager.AuthenticateAsync(subjcred);
+      if (!subject.IsAuthenticated)
+        return MakeAuthorizeResult(cluser, flow["tp"].AsString(), flow["scp"].AsString(), flow["id"].AsString(), flow["uri"].AsString(), flow["st"].AsString(), "Invalid credentials");
 
-    //  //success ------------------
+      //success ------------------
 
-    //  //3. Generate Accesscode token
-    //  var accessCode = OAuth.TokenRing.IssueClientAccessToken(clientid, subject.AuthToken, session.redirect_uri, session.state);
-    //  //4. Redirect to URI
-    //  return new Redirect(session.redirect_uri, session.state);
-    //}
+      //4. Generate Accesscode token
+      var accessCode = OAuth.TokenRing.IssueClientAccessToken(clientid, subject.AuthToken, session.redirect_uri, session.state);
+      //5. Redirect to URI
 
+      var redirect = "{0}?state={1}".Args(flow["uri"].AsString(), flow["st"].AsString());
+      return new Redirect(redirect);
+    }
+  */
     /// <summary>
     /// Obtains the TOKEN based on the {Authorization Code} received in authorize step
     /// </summary>
@@ -149,7 +152,7 @@ namespace Azos.Security.Services
       if (!cluser.IsAuthenticated) return new Http403Forbidden("Invalid Client");//todo <------------------- ATTACK THREAT: GATE the caller
 
       //2. Validate the supplied client access code (token), that it exists (was issued and not expired), and it was issued for THIS client
-      var catoken = await OAuth.TokenRing.LookupClientAccessCodeAsync(code);
+      var catoken = await OAuth.TokenRing.GetAsync<ClientAccessCodeToken>(code);
       if (catoken == null)
         return new Http401Unauthorized("Invalid Client");//todo <------------------- ATTACK THREAT: GATE the caller
 
@@ -167,20 +170,24 @@ namespace Azos.Security.Services
       if (!uriAllowed) return new Http401Unauthorized("Unauthroized URI");//todo <------------------- ATTACK THREAT: GATE the caller
 
       //5. Fetch target user
-      var auth = OAuth.TokenRing.MapSubjectAuthenticationTokenFromContent(catoken.SubjectAuthenticationToken);
+      var auth = new AuthenticationToken("REALM what?", catoken.SubjectAuthenticationToken);
       var targetUser = await App.SecurityManager.AuthenticateAsync(auth);
       if (!targetUser.IsAuthenticated)
         return new Http401Unauthorized("User access denied");//no need for gate
 
       //6. Issue the API access token for this access code
-      var token = await OAuth.TokenRing.IssueAccessToken(cluser, targetUser);
+      var accessToken = OAuth.TokenRing.GenerateNew<AccessToken>();
+      accessToken.ClientId = "aaaaa";//cluser;
+      accessToken.SubjectAuthenticationToken = "todo ";//targetUser.AuthToken.Data;
+
+      var token = await OAuth.TokenRing.PutAsync(accessToken);
 
       var json = new
       {
-        access_token = token.Value,
+        access_token = accessToken.ID,
         scope = "access",
         token_type = "Bearer",
-        expires_in =(int)(token.ExpireUtc - token.IssueUtc).Value.TotalSeconds
+        expires_in =(int)(accessToken.ExpireUtc - accessToken.IssueUtc).Value.TotalSeconds
       };
 
       return new JsonResult(json, Serialization.JSON.JsonWritingOptions.PrettyPrint);//todo: Where is base64 encoding?

@@ -9,7 +9,7 @@ namespace Azos.Security.Services
   /// <summary>
   /// Stores tokens in MongoDb instance
   /// </summary>
-  public class MongoDbTokenRing : TokenRing
+  public class MongoDbTokenRing : ServerTokenRingBase
   {
     public const string CONFIG_MONGO_SECTION = "mongo";
 
@@ -50,42 +50,17 @@ namespace Azos.Security.Services
       m_DBMS?.WaitForCompleteStop();
     }
 
-    public override TToken GenerateNewToken<TToken>()
+    public override Task<TToken> GetAsync<TToken>(string token)
     {
       throw new NotImplementedException();
     }
 
-    public override Task InvalidateAccessToken(string accessToken)
+    public override Task<string> PutAsync(RingToken token)
     {
       throw new NotImplementedException();
     }
 
-    public override Task InvalidateClient(string clientID)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override Task InvalidateSubject(AuthenticationToken token)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override Task<AccessToken> IssueAccessToken(User userClient, User targetUser)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override Task<ClientAccessCodeToken> LookupClientAccessCodeAsync(string accessCode)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override AuthenticationToken MapSubjectAuthenticationTokenFromContent(string content)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override string MapSubjectAuthenticationTokenToContent(AuthenticationToken token)
+    public override Task Blacklist(IConfigSectionNode selector)
     {
       throw new NotImplementedException();
     }
@@ -94,6 +69,7 @@ namespace Azos.Security.Services
     {
       throw new NotImplementedException();
     }
+
     #endregion
 
   }

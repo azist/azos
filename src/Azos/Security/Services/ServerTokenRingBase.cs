@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -14,16 +20,16 @@ using Azos.Pile;
 namespace Azos.Security.Services
 {
   /// <summary>
-  /// Provides base implementation of token management services
+  /// Provides base implementation of token rings which store tokens server-side
   /// </summary>
-  public abstract class TokenRing : DaemonWithInstrumentation<IOAuthManager>, ITokenRingImplementation
+  public abstract class ServerTokenRingBase : DaemonWithInstrumentation<IOAuthManager>, ITokenRingImplementation
   {
     public const string CONFIG_PILE_SECTION = "pile";
     public const string CONFIG_CACHE_SECTION = "cache";
     public const int DEFAULT_CACHE_MAX_AGE_SEC = 37;
 
-    protected TokenRing(IApplication app) : base(app) => ctor();
-    protected TokenRing(IOAuthManagerImplementation director) : base(director) => ctor();
+    protected ServerTokenRingBase(IApplication app) : base(app) => ctor();
+    protected ServerTokenRingBase(IOAuthManagerImplementation director) : base(director) => ctor();
 
     private void ctor()
     {
@@ -61,7 +67,13 @@ namespace Azos.Security.Services
 
     #region ITokenRing
 
-    public virtual TToken GenerateNewToken<TToken>() where TToken : RingToken
+    public abstract Task<TToken> GetAsync<TToken>(string token) where TToken : RingToken;
+
+    public abstract Task<string> PutAsync(RingToken token);
+
+    public abstract Task Blacklist(IConfigSectionNode selector);
+
+    public virtual TToken GenerateNew<TToken>() where TToken : RingToken
     {
       var token = Activator.CreateInstance<TToken>();
       var len = token.TokenByteStrength;
@@ -80,11 +92,11 @@ namespace Azos.Security.Services
       //for(var i=1; i<rnd.Length; i++) rnd[i] ^= rnd2[i];//both Random streams are combined using XOR
 
       //2. Random token body
-      var rnd = App.SecurityManager.Cryptography.GenerateRandomBytes(len.min, len.max);
+      var rnd = App.SecurityManager.Cryptography.GenerateRandomBytes(len);
 
       //3. Concat GUid pad with key
       var btoken = guidpad.AppendToNew(rnd);
-      token.Value = Convert.ToBase64String(btoken, Base64FormattingOptions.None);
+      token.ID = Convert.ToBase64String(btoken, Base64FormattingOptions.None);
 
       token.IssuedBy = this.IssuerName;
       token.IssueUtc = App.TimeSource.UTCNow;
@@ -92,45 +104,6 @@ namespace Azos.Security.Services
 
       return token;
     }
-
-    public abstract Task InvalidateAccessToken(string accessToken);
-
-    public abstract Task InvalidateClient(string clientID);
-
-    public abstract Task InvalidateSubject(AuthenticationToken token);
-
-    public abstract Task<AccessToken> IssueAccessToken(User userClient, User targetUser);
-
-    public abstract Task<ClientAccessCodeToken> LookupClientAccessCodeAsync(string accessCode);
-
-    public virtual AuthenticationToken? MapAccessToken(string accessToken)
-    {
-      if (!Running) return null;
-      var tbl = GetCacheTableOf(typeof(AccessToken));
-
-      var utcNow = App.TimeSource.UTCNow;//important to use accurate time source
-      var cached = tbl.Get(accessToken.NonBlank(nameof(accessToken)));
-      if (cached is AbsentValue) return null;
-      var access  = cached as AccessToken;
-      if (access==null)
-      {
-        access = DoFetchAccessToken(accessToken, utcNow);
-        tbl.Put(accessToken, (object)access ?? AbsentValue.Instance);//does not exist in the store
-        if (access==null)
-          return null;//does not exist, AbsentData
-      }
-
-      if ((access.ExpireUtc ?? DateTime.MinValue) < utcNow) return null;//expired
-
-      var content = access.SubjectAuthenticationToken;
-      if (content.IsNullOrWhiteSpace()) return null;
-      var result = MapSubjectAuthenticationTokenFromContent(content);
-      return result;
-    }
-
-    public abstract AuthenticationToken MapSubjectAuthenticationTokenFromContent(string content);
-
-    public abstract string  MapSubjectAuthenticationTokenToContent(AuthenticationToken token);
 
     #endregion
 
@@ -189,7 +162,6 @@ namespace Azos.Security.Services
     /// The tokens that have expired already or marked as deleted shall not be fetched (return null as if they don't exist)
     /// </summary>
     protected abstract AccessToken DoFetchAccessToken(string accessToken, DateTime utcNow);
-
 
     #endregion
 
