@@ -52,17 +52,25 @@ namespace Azos.Security.Services
 
     public Task<TToken> GetAsync<TToken>(string token) where TToken : RingToken
     {
-      var deciphered = App.SecurityManager.PublicUnprotectMap(token);
+      var deciphered = App.SecurityManager.PublicUnprotectMap(token.NonBlank(nameof(token)));
 
+      //protected message integrity check will return null if token was tampered
       if (deciphered == null) return Task.FromResult<TToken>(null);
 
-      var  got = JsonReader.ToDoc<TToken>(deciphered, nameBinding:  JsonReader.NameBinding.ByBackendName(RingToken.PROTECTED_MSG_TARGET));
+      var content = JsonReader.ToDoc<TToken>(deciphered, nameBinding:  JsonReader.NameBinding.ByBackendName(RingToken.PROTECTED_MSG_TARGET));
 
-      return Task.FromResult(got);
+      //check expiration date
+      if (!content.ExpireUtc.HasValue || content.ExpireUtc < App.TimeSource.UTCNow) return Task.FromResult<TToken>(null);
+
+      return Task.FromResult(content);
     }
 
     public Task<string> PutAsync(RingToken token)
     {
+      var verr = token.NonNull(nameof(token)).Validate();
+      if (verr!=null)
+        throw new SecurityException("Invalid token state: " + verr.ToMessageWithType(), verr);
+
       var ciphered = App.SecurityManager.PublicProtectAsString(token, m_JsonOptions);
       return Task.FromResult(ciphered);
     }
@@ -76,20 +84,10 @@ namespace Azos.Security.Services
     public TToken GenerateNew<TToken>() where TToken : RingToken
     {
       var token = Activator.CreateInstance<TToken>();
-      var len = token.TokenByteStrength;
 
-      //1. Guid pad is used as a RNG source based on MAC addr/clock
-      //https://en.wikipedia.org/w/index.php?title=Universally_unique_identifier&oldid=755882275#Random_UUID_probability_of_duplicates
-      var guid = Guid.NewGuid();
-      var guidpad = guid.ToNetworkByteOrder();//16 bytes
-
-      //2. Random token body
-      var rnd = App.SecurityManager.Cryptography.GenerateRandomBytes(len);
-
-      //3. Concat GUid pad with key
-      var btoken = guidpad.AppendToNew(rnd);
-      token.ID = Convert.ToBase64String(btoken, Base64FormattingOptions.None);
-
+      //Guid is all that is used for client-side tokens ignoring token byte strength
+      var guid = Guid.NewGuid().ToNetworkByteOrder();//16 bytes
+      token.ID = Convert.ToBase64String(guid);
       token.IssuedBy = this.IssuerName;
       token.IssueUtc = App.TimeSource.UTCNow;
       token.ExpireUtc = token.IssueUtc.Value.AddSeconds(token.TokenDefaultExpirationSeconds);

@@ -50,6 +50,10 @@ namespace Azos.Security.Services
       if (!scope.EqualsOrdIgnoreCase("openid connect"))//todo use Constant
         return new Http401Unauthorized("Unsupported capability");//we can not redirect because redirect_uri has not been checked yet for inclusion in client ACL
 
+      if (client_id.IsNullOrWhiteSpace() ||
+          redirect_uri.IsNullOrWhiteSpace())
+        return new Http401Unauthorized("Malformed request");//we can not redirect because redirect_uri has not been checked yet for inclusion in client ACL
+
       //1. Lookup client app, just by client_id (w/o password)
       var clcred = new EntityUriCredentials(client_id);
       var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
@@ -71,6 +75,7 @@ namespace Azos.Security.Services
       var flow = new { tp = response_type, scp = scope, id = client_id, uri = redirect_uri, st = state, utc = App.TimeSource.UTCNow };
       var roundtrip = App.SecurityManager.PublicProtectAsString(flow);
 
+      //todo Sett HTTP status code per error
       return new { OK=true, roundtrip };
 
       //todo if request non json, return UI
@@ -106,7 +111,7 @@ namespace Azos.Security.Services
       var accessCode = OAuth.TokenRing.IssueClientAccessToken(clientid, subject.AuthToken, session.redirect_uri, session.state);
       //5. Redirect to URI
 
-      var redirect = "{0}?state={1}".Args(flow["uri"].AsString(), flow["st"].AsString());
+      var redirect = "{0}?state={1}".Args(flow["uri"].AsString(), flow["st"].AsString());//todo Encode URI
       return new Redirect(redirect);
     }
   */
