@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+using Azos.Apps;
 using Azos.Conf;
 using Azos.Data.Access.MongoDb;
 
@@ -13,8 +14,7 @@ namespace Azos.Security.Services
   {
     public const string CONFIG_MONGO_SECTION = "mongo";
 
-    public MongoDbTokenRing(IApplication app) : base(app) { }
-    public MongoDbTokenRing(IOAuthManagerImplementation director) : base(director) { }
+    public MongoDbTokenRing(IApplicationComponent director) : base(director) { }
 
     protected override void Destructor()
     {

@@ -6,9 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -22,14 +19,13 @@ namespace Azos.Security.Services
   /// <summary>
   /// Provides base implementation of token rings which store tokens server-side
   /// </summary>
-  public abstract class ServerTokenRingBase : DaemonWithInstrumentation<IOAuthManager>, ITokenRingImplementation
+  public abstract class ServerTokenRingBase : DaemonWithInstrumentation<IApplicationComponent>, ITokenRingImplementation
   {
     public const string CONFIG_PILE_SECTION = "pile";
     public const string CONFIG_CACHE_SECTION = "cache";
     public const int DEFAULT_CACHE_MAX_AGE_SEC = 37;
 
-    protected ServerTokenRingBase(IApplication app) : base(app) => ctor();
-    protected ServerTokenRingBase(IOAuthManagerImplementation director) : base(director) => ctor();
+    protected ServerTokenRingBase(IApplicationComponent director) : base(director) => ctor();
 
     private void ctor()
     {
@@ -82,14 +78,6 @@ namespace Azos.Security.Services
       //https://en.wikipedia.org/w/index.php?title=Universally_unique_identifier&oldid=755882275#Random_UUID_probability_of_duplicates
       var guid = Guid.NewGuid();
       var guidpad = guid.ToNetworkByteOrder();//16 bytes
-
-      ////2. Two independent RNGs are used to avoid library implementation errors affecting token entropy distribution,
-      ////so shall an error happen in one (highly unlikely), the other one would still ensure crypto white noise spectrum distribution
-      ////the Platform.RandomGenerator is periodically fed external entropy from system and network stack
-      //var rnd = Platform.RandomGenerator.Instance.NextRandomBytes(len.min, len.max);
-      //var rnd2 = new byte[rnd.Length];
-      //m_CryptoRnd.GetBytes(rnd2);
-      //for(var i=1; i<rnd.Length; i++) rnd[i] ^= rnd2[i];//both Random streams are combined using XOR
 
       //2. Random token body
       var rnd = App.SecurityManager.Cryptography.GenerateRandomBytes(len);
