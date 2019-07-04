@@ -62,13 +62,30 @@ namespace Azos.Security.Services
 
 
     /// <summary>
-    /// Returns the token content object from the token string representation
+    /// Returns the token content object from the token string representation.
+    /// The returned token is ensured to be in non-expired state.
+    /// You may want to call Validate() to run additional state checks.
+    /// Null is returned if token is not found or has been tampered with.
+    /// Compare to `GetAsync` which performs mandatory state validation
+    /// </summary>
+    /// <remarks>
+    /// 'Unsafe' refers to state validation of tokens using `token.Validate()` - `Validate()` has not been called on 'unsafe' tokens.
+    /// All client-based tokens are always validated for integrity and tampering by design before state validation as provided by `Validate()`
+    /// </remarks>
+    Task<TToken> GetUnsafeAsync<TToken>(string token) where TToken : RingToken;
+
+    /// <summary>
+    /// Returns a token content object from the string token representation.
+    /// The returned token is ensured to be in non-expired state and passed `Validate()` check
+    /// so callers do not need to call Validate() again.
+    /// Null is returned if token is not found or has been tampered with or has validation errors.
+    /// You should prefer calling this method over `GetUnsafeAsync()` unless needed (e.g. when you need to get state validation error)
     /// </summary>
     Task<TToken> GetAsync<TToken>(string token) where TToken : RingToken;
 
-
     /// <summary>
     /// Adds a token content to the ring, returning string token representation.
+    /// The token instance must be in non-expired valid state.
     /// The server-side stateful implementations would save the token to the backend store,
     /// whereas stateless client-side implementations would just encode token using ICryptoMessageAlgo.Protect (or similar)
     /// </summary>

@@ -80,10 +80,10 @@ namespace Azos.Security.Services
 
       //todo if request non json, return UI
     }
-  /*
+
     [ActionOnPost(Name = "authorize")]
     [ActionOnPost(Name = "authorization")]
-    public async virtual object Authorize_POST(string roundtrip, string id, string pwd)
+    public async virtual Task<object> Authorize_POST(string roundtrip, string id, string pwd)
     {
       var flow = App.SecurityManager.PublicUnprotectMap(roundtrip);
       if (flow == null) return new Http401Unauthorized("Bad Request");//we don't have ACL yet, hence can't check redirect_uri
@@ -107,14 +107,14 @@ namespace Azos.Security.Services
 
       //success ------------------
 
-      //4. Generate Accesscode token
-      var accessCode = OAuth.TokenRing.IssueClientAccessToken(clientid, subject.AuthToken, session.redirect_uri, session.state);
+     // 4. Generate Accesscode token
+      var accessCode = "aaaa";//OAuth.TokenRing.IssueClientAccessToken(clientid, subject.AuthToken, session.redirect_uri, session.state);
       //5. Redirect to URI
 
-      var redirect = "{0}?state={1}".Args(flow["uri"].AsString(), flow["st"].AsString());//todo Encode URI
+      var redirect = "{0}?token={1}&state={2}".Args(flow["uri"].AsString(), accessCode, flow["st"].AsString());//todo Encode URI
       return new Redirect(redirect);
     }
-  */
+
     /// <summary>
     /// Obtains the TOKEN based on the {Authorization Code} received in authorize step
     /// </summary>
@@ -141,29 +141,54 @@ namespace Azos.Security.Services
     /// </code>
     /// </returns>
     [ActionOnPost(Name = "token")]
-    public async Task<object> Token_POST(string client_id, string client_secret, string grant_type, string code, string redirect_uri)
+    public async Task<object> Token_POST(string client_id, string client_secret,
+                                         string grant_type,
+                                         string code, string refresh_token,//either accessCode or RefreshToken are used
+                                         string redirect_uri)
     {
-      if (grant_type.EqualsOrdSenseCase("authorization_code"))
-        return new Http401Unauthorized("Unsupported grant_type");
+      var isAccessToken = grant_type.EqualsOrdSenseCase("authorization_code");
+      var isRefreshToken = grant_type.EqualsOrdSenseCase("refresh_token");
+
+      if (!isAccessToken && !isRefreshToken)
+        return ReturnError("unsupported_grant_type", "Unsupported grant_type");
 
       var clcred = client_id.IsNotNullOrWhiteSpace() ? new IDPasswordCredentials(client_id, client_secret)
                                                      : IDPasswordCredentials.FromBasicAuth(WorkContext.Request.Headers[WebConsts.HTTP_HDR_AUTHORIZATION]);
 
-      if (clcred==null || clcred.ID.IsNullOrWhiteSpace())
-        return new Http401Unauthorized("Invalid Client");
+      if (
+          clcred==null ||
+          clcred.ID.IsNullOrWhiteSpace() ||
+          (isAccessToken && code.IsNullOrWhiteSpace()) ||
+          (isRefreshToken && refresh_token.IsNullOrWhiteSpace())
+         ) return ReturnError("invalid_request", "Invalid client spec");
 
       //1. Check client/app credentials and get app's permissions
       var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
-      if (!cluser.IsAuthenticated) return new Http403Forbidden("Invalid Client");//todo <------------------- ATTACK THREAT: GATE the caller
+      if (!cluser.IsAuthenticated) return ReturnError("invalid_client", "Client denied", code: 401); //todo <------------------- ATTACK THREAT: GATE the caller
 
       //2. Validate the supplied client access code (token), that it exists (was issued and not expired), and it was issued for THIS client
-      var catoken = await OAuth.TokenRing.GetAsync<ClientAccessCodeToken>(code);
-      if (catoken == null)
-        return new Http401Unauthorized("Invalid Client");//todo <------------------- ATTACK THREAT: GATE the caller
+      ClientAccessTokenBase clientToken;
+      if (isAccessToken)
+      {
+        clientToken = await OAuth.TokenRing.GetAsync<ClientAccessCodeToken>(code);
+      }
+      else//refresh token
+      {
+        clientToken = await OAuth.TokenRing.GetAsync<ClientRefreshCodeToken>(refresh_token);
+      }
+
+      if (clientToken == null)
+        return ReturnError("invalid_grant", "Invalid grant", code: 403);//todo <------------------- ATTACK THREAT: GATE the caller
+
+      if (clientToken.Validate() != null)//one token used in place of another
+        return ReturnError("invalid_request", "Invalid client spec");//todo <------------------- ATTACK THREAT: GATE the caller
 
       //check that client_id supplied now matches the original one that was supplied during client access code issuance
-      if (!clcred.ID.EqualsOrdSenseCase(catoken.ClientId))
-        return new Http401Unauthorized("Invalid Client");//todo <------------------- ATTACK THREAT: GATE the caller
+      if (!clcred.ID.EqualsOrdSenseCase(clientToken.ClientId))
+        return ReturnError("invalid_grant", "Invalid grant", code: 403);//todo <------------------- ATTACK THREAT: GATE the caller
+
+
+
 
       //3. Check that caller IP is in the list of allowed caller IP submasks IPv4
       //todo --------------------------------
@@ -172,13 +197,13 @@ namespace Azos.Security.Services
       //4. Check that the requested redirect_uri is indeed in the list of permitted URIs for this client
       var redirectPermission = new OAuthClientAppPermission(redirect_uri);
       var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
-      if (!uriAllowed) return new Http401Unauthorized("Unauthroized URI");//todo <------------------- ATTACK THREAT: GATE the caller
+      if (!uriAllowed) return ReturnError("invalid_grant", "Invalid grant", code: 403);//todo <------------------- ATTACK THREAT: GATE the caller
 
       //5. Fetch target user
-      var auth = new AuthenticationToken("REALM what?", catoken.SubjectAuthenticationToken);
+      var auth = new AuthenticationToken("REALM what?", clientToken.SubjectAuthenticationToken);
       var targetUser = await App.SecurityManager.AuthenticateAsync(auth);
       if (!targetUser.IsAuthenticated)
-        return new Http401Unauthorized("User access denied");//no need for gate
+        return ReturnError("invalid_grant", "Invalid grant", code: 403);//no need for gate
 
       //6. Issue the API access token for this access code
       var accessToken = OAuth.TokenRing.GenerateNew<AccessToken>();
@@ -187,15 +212,40 @@ namespace Azos.Security.Services
 
       var token = await OAuth.TokenRing.PutAsync(accessToken);
 
-      var json = new
+      var json = new // https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
       {
-        access_token = accessToken.ID,
-        scope = "access",
-        token_type = "Bearer",
+        access_token = token,
+        token_type = "bearer",
+        //scope = "access",
+        //refresh_token = "optional", <----- create ONE
         expires_in =(int)(accessToken.ExpireUtc - accessToken.IssueUtc).Value.TotalSeconds
       };
 
-      return new JsonResult(json, Serialization.JSON.JsonWritingOptions.PrettyPrint);//todo: Where is base64 encoding?
+
+      //No cache is set on whole controller
+      return new JsonResult(json, Serialization.JSON.JsonWritingOptions.PrettyPrint);
+    }
+
+    protected object ReturnError(string error, string error_description, string error_uri = null, int code = 400)
+    {
+      if (error.IsNullOrWhiteSpace())
+        error_uri = "invalid_request";
+
+      if (error_description.IsNullOrWhiteSpace())
+        error_description = "Could not be processed";
+
+      if (error_uri.IsNullOrWhiteSpace())
+       error_uri = "https://en.wikipedia.org/wiki/OAuth";
+
+      var json = new // https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
+      {
+        error,
+        error_description,
+        error_uri
+      };
+      WorkContext.Response.StatusCode = code;
+      WorkContext.Response.StatusDescription = "Bad request";
+      return new JsonResult(json, Serialization.JSON.JsonWritingOptions.PrettyPrint);
     }
 
     [ActionOnGet(Name = "userinfo")]

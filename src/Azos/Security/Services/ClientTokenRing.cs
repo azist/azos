@@ -50,14 +50,24 @@ namespace Azos.Security.Services
       RowMapTargetName = RingToken.PROTECTED_MSG_TARGET
     };
 
-    public Task<TToken> GetAsync<TToken>(string token) where TToken : RingToken
+    public async Task<TToken> GetAsync<TToken>(string token) where TToken : RingToken
+    {
+      var content = await GetUnsafeAsync<TToken>(token);
+
+      var ve = content.Validate();
+      if (ve!=null) return null;
+
+      return content;
+    }
+
+    public Task<TToken> GetUnsafeAsync<TToken>(string token) where TToken : RingToken
     {
       var deciphered = App.SecurityManager.PublicUnprotectMap(token.NonBlank(nameof(token)));
 
       //protected message integrity check will return null if token was tampered
       if (deciphered == null) return Task.FromResult<TToken>(null);
 
-      var content = JsonReader.ToDoc<TToken>(deciphered, nameBinding:  JsonReader.NameBinding.ByBackendName(RingToken.PROTECTED_MSG_TARGET));
+      var content = JsonReader.ToDoc<TToken>(deciphered, nameBinding: JsonReader.NameBinding.ByBackendName(RingToken.PROTECTED_MSG_TARGET));
 
       //check expiration date
       if (!content.ExpireUtc.HasValue || content.ExpireUtc < App.TimeSource.UTCNow) return Task.FromResult<TToken>(null);
@@ -67,7 +77,7 @@ namespace Azos.Security.Services
 
     public Task<string> PutAsync(RingToken token)
     {
-      var verr = token.NonNull(nameof(token)).Validate();
+      var verr = token.NonNull(nameof(token)).Validate(RingToken.PROTECTED_MSG_TARGET);
       if (verr!=null)
         throw new SecurityException("Invalid token state: " + verr.ToMessageWithType(), verr);
 
@@ -84,8 +94,9 @@ namespace Azos.Security.Services
     public TToken GenerateNew<TToken>() where TToken : RingToken
     {
       var token = Activator.CreateInstance<TToken>();
+      token.Type = typeof(TToken).Name;
 
-      //Guid is all that is used for client-side tokens ignoring token byte strength
+      //Guid is all that is used for client-side tokens ignoring token byte strength. The GUid serves as an additional nonce
       var guid = Guid.NewGuid().ToNetworkByteOrder();//16 bytes
       token.ID = Convert.ToBase64String(guid);
       token.IssuedBy = this.IssuerName;

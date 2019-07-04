@@ -55,6 +55,11 @@ namespace Azos.Security.Services
       throw new NotImplementedException();
     }
 
+    public override Task<TToken> GetUnsafeAsync<TToken>(string token)
+    {
+      throw new NotImplementedException();
+    }
+
     public override Task<string> PutAsync(RingToken token)
     {
       throw new NotImplementedException();

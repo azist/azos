@@ -65,6 +65,8 @@ namespace Azos.Security.Services
 
     public abstract Task<TToken> GetAsync<TToken>(string token) where TToken : RingToken;
 
+    public abstract Task<TToken> GetUnsafeAsync<TToken>(string token) where TToken : RingToken;
+
     public abstract Task<string> PutAsync(RingToken token);
 
     public abstract Task Blacklist(IConfigSectionNode selector);
@@ -72,6 +74,7 @@ namespace Azos.Security.Services
     public virtual TToken GenerateNew<TToken>() where TToken : RingToken
     {
       var token = Activator.CreateInstance<TToken>();
+      token.Type = typeof(TToken).Name;
       var len = token.TokenByteStrength;
 
       //1. Guid pad is used as a RNG source based on MAC addr/clock

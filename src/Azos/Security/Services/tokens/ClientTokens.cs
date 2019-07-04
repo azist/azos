@@ -16,14 +16,11 @@ namespace Azos.Security.Services
   /// <summary>
   /// Generated for OAuth clients on successful authorization, the client typically makes back-channel call to
   /// IDP service supplying this temp token.
-  /// AccessCode tokens are typically short-lived (e.g. less than 5 minutes)
+  /// This class stipulates general contract for Access and Refresh tokens, having the difference only in their intent
   /// </summary>
   [Arow]
-  public sealed class ClientAccessCodeToken : RingToken
+  public abstract class ClientAccessTokenBase : RingToken
   {
-    public override int TokenByteStrength => 16;
-    public override int TokenDefaultExpirationSeconds => 5/*min*/ * 60;
-
     /// <summary>
     /// The original Id of the client which this access code was issued for
     /// </summary>
@@ -40,7 +37,6 @@ namespace Azos.Security.Services
     public string SubjectAuthenticationToken { get; set; }
 
 
-
     /// <summary>
     /// The redirect URI which was requested at Authorization
     /// </summary>
@@ -55,5 +51,30 @@ namespace Azos.Security.Services
     [Field(description: "The client state supplied to Authorization call")]
     public string State { get; set; }
 
+  }
+
+
+  /// <summary>
+  /// Generated for OAuth clients on successful authorization, the client typically makes back-channel call to
+  /// IDP service supplying this temp token.
+  /// AccessCode tokens are typically short-lived (e.g. less than 5 minutes)
+  /// </summary>
+  [Arow]
+  public sealed class ClientAccessCodeToken : ClientAccessTokenBase
+  {
+    public override int TokenByteStrength => 16;
+    public override int TokenDefaultExpirationSeconds => 5/*min*/ * 60;
+  }
+
+  /// <summary>
+  /// Generated for OAuth clients on successful authorization, the client typically makes back-channel call to
+  /// IDP service supplying this refresh token.
+  /// RefreshTokens are typically long-lived (e.g. ~1day)
+  /// </summary>
+  [Arow]
+  public sealed class ClientRefreshCodeToken : ClientAccessTokenBase
+  {
+    public override int TokenByteStrength => 32;
+    public override int TokenDefaultExpirationSeconds => 3 /*days*/ *  24/*hrs*/ * 60/*min*/ * 60;
   }
 }
