@@ -75,10 +75,16 @@ namespace Azos.Security.Services
       var flow = new { tp = response_type, scp = scope, id = client_id, uri = redirect_uri, st = state, utc = App.TimeSource.UTCNow };
       var roundtrip = App.SecurityManager.PublicProtectAsString(flow);
 
-      //todo Sett HTTP status code per error
-      return new { OK=true, roundtrip };
+      if (error!=null)
+      {
+        WorkContext.Response.StatusCode = WebConsts.STATUS_403;
+        WorkContext.Response.StatusDescription = error;
+      }
 
-      //todo if request non json, return UI
+      if (WorkContext.RequestedJson)
+        return new { OK=error.IsNullOrEmpty(), roundtrip };
+
+      return new Wave.Templatization.StockContent.OAuthLogin(clientUser, roundtrip, error);
     }
 
     [ActionOnPost(Name = "authorize")]

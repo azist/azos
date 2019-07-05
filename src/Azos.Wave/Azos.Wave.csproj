@@ -36,6 +36,7 @@
     <Compile Include="Templatization\StockContent\.tc\ApiDoc-Toc.nht.auto.cs" />
     <Compile Include="Templatization\StockContent\.tc\Error.nht.auto.cs" />
     <Compile Include="Templatization\StockContent\.tc\Master.nht.auto.cs" />
+    <Compile Include="Templatization\StockContent\.tc\OAuthLogin.nht.auto.cs" />
   </ItemGroup>
 
   <ItemGroup>
