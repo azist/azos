@@ -61,7 +61,7 @@ namespace Azos.Security.Services
                                                                                     //todo <------------------- ATTACK THREAT: GATE the caller
 
       //2. Check client ACL for allowed redirect URIs
-      var redirectPermission = new OAuthClientAppPermission(redirect_uri);
+      var redirectPermission = new OAuthClientAppPermission(redirect_uri);//this call comes from front channel, hence we don't check for address
       var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
       if (!uriAllowed) return new Http403Forbidden("Unauthorized URI");//todo <------------------- ATTACK THREAT: GATE the caller
 
@@ -122,6 +122,7 @@ namespace Azos.Security.Services
     /// <param name="client_secret">Client Secret as issued by the IDP during registration, if not supplied will try to parse out of [Authorization] header</param>
     /// <param name="grant_type">authorization_code</param>
     /// <param name="code">{Authorization Code} received as a part of authorize step response</param>
+    /// <param name="refresh_token">{Refresh Token} or refresh token gotten previously</param>
     /// <param name="redirect_uri">Where the service redirects the user-agent after an token is issued</param>
     /// <returns>
     /// <code>
@@ -188,24 +189,18 @@ namespace Azos.Security.Services
         return ReturnError("invalid_grant", "Invalid grant", code: 403);//todo <------------------- ATTACK THREAT: GATE the caller
 
 
-
-
-      //3. Check that caller IP is in the list of allowed caller IP submasks IPv4
-      //todo --------------------------------
-      //todo <------------------- ATTACK THREAT: GATE the caller
-
-      //4. Check that the requested redirect_uri is indeed in the list of permitted URIs for this client
-      var redirectPermission = new OAuthClientAppPermission(redirect_uri);
+      //3. Check that the requested redirect_uri is indeed in the list of permitted URIs for this client
+      var redirectPermission = new OAuthClientAppPermission(redirect_uri, WorkContext.EffectiveCallerIPEndPoint.Address.ToString());
       var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
       if (!uriAllowed) return ReturnError("invalid_grant", "Invalid grant", code: 403);//todo <------------------- ATTACK THREAT: GATE the caller
 
-      //5. Fetch target user
+      //4. Fetch target user
       var auth = new AuthenticationToken("REALM what?", clientToken.SubjectAuthenticationToken);
       var targetUser = await App.SecurityManager.AuthenticateAsync(auth);
       if (!targetUser.IsAuthenticated)
         return ReturnError("invalid_grant", "Invalid grant", code: 403);//no need for gate
 
-      //6. Issue the API access token for this access code
+      //5. Issue the API access token for this access code
       var accessToken = OAuth.TokenRing.GenerateNew<AccessToken>();
       accessToken.ClientId = "aaaaa";//cluser;
       accessToken.SubjectAuthenticationToken = "todo ";//targetUser.AuthToken.Data;
