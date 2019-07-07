@@ -15,7 +15,7 @@ namespace Azos.Security
   /// <summary>
   /// Provides implementation of a message protection algorithm based on a combination of AES256 CBC mode cipher
   /// and HMACSHA256 message authenticity protection. The algorithm ensures that the data is encrypted AND can be
-  /// decrypted back using the same HMAC, hence the algorithm uses multiple pairs (at least 2) of private keys:
+  /// decrypted back yielding the same HMAC, hence the algorithm uses multiple pairs (at least 2) of private keys:
   ///  one for AES256 cipher, and one for HMAC authenticity check on decipher.
   /// </summary>
   /// <remarks>
@@ -27,9 +27,9 @@ namespace Azos.Security
   /// </para>
   /// The protected message is thus:
   /// <code>
-  ///  [IV 16 bytes][HMACSHA256(pvt,IV,msg) 32 bytes][AES256 CBC]
+  ///  [IV 16 bytes][HMACSHA256(pvt1,IV + msg) 32 bytes][AES256.CBC(pvt2, msg)]
   /// </code>
-  /// The same unprotected payload yields different protected content due to the usage of IV, avalanche effect of HMAC, and CBC mode of AES using that IV.
+  /// The same unprotected payload yields different protected content due to the usage of random IV, avalanche effect of HMAC, and CBC mode of AES using that IV.
   ///
   /// The Unprotect() phase repeats the process in reverse, applying AES256 decipher using the IV,
   /// then re-computes the HMAC(IV, deciphered_msg) to ensure that deciphered byte[] re-hashes into the same HMAC for its private key.

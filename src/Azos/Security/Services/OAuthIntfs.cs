@@ -39,8 +39,8 @@ namespace Azos.Security.Services
     ISecurityManager ClientSecurity {  get; }
 
     /// <summary>
-    /// Returns a special kind of data manager/store which manages tokens/temp keys issued at different stages of various
-    /// flows such as OAuth token grant, refresh token etc.
+    /// Returns a special kind of data store which manages tokens/temp keys issued at different stages of various
+    /// flows such as OAuth token grant, refresh tokens etc.
     /// </summary>
     ITokenRing TokenRing { get; }
   }
