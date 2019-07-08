@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.508
-set HEADLINE=Added BundledMongoDb
+set VER=1.0.509
+set HEADLINE=WAVE enhancements
 
 call vs2017-build-release %VER%
 
