@@ -12,8 +12,13 @@ using Azos.Instrumentation;
 
 namespace Azos.Security.Services
 {
-  public class DefaultOAuthManager : DaemonWithInstrumentation<ISecurityManager>, IOAuthManagerImplementation
+  public sealed class DefaultOAuthManager : DaemonWithInstrumentation<IApplicationComponent>, IOAuthManagerImplementation
   {
+    public DefaultOAuthManager(IApplicationComponent director) : base(director)
+    {
+
+    }
+
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
