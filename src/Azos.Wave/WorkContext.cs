@@ -124,7 +124,7 @@ namespace Azos.Wave
       /// <summary>
       /// Returns the server that this context is under
       /// </summary>
-      public WaveServer Server { get { return m_Server;} }
+      public WaveServer Server => m_Server;
 
       /// <summary>
       /// Returns true to indicate that work semaphore has been already released.
@@ -132,51 +132,48 @@ namespace Azos.Wave
       ///  automatically in 99% cases. ReleaseWorkSemaphore() may need to be called from special places like HTTP streaming
       ///   servers that need to keep WorkContext instances open for a long time
       /// </summary>
-      public bool WorkSemaphoreReleased { get{ return m_WorkSemaphoreReleased;}}
+      public bool WorkSemaphoreReleased => m_WorkSemaphoreReleased;
 
 
       /// <summary>
       /// Returns HttpListenerRequest object for this context
       /// </summary>
      //todo Wrap in Wave.Request object (just like Response)
-      public HttpListenerRequest Request { get { return m_ListenerContext.Request;} }
+      public HttpListenerRequest Request => m_ListenerContext.Request;
 
 
       /// <summary>
       /// Returns the effective caller endpoint- that is, if the real caller filter is set it will inject the real IP
       /// as seen before any proxy devices. By default this property returns the Request.RemoteEndPoint
       /// </summary>
-      public IPEndPoint EffectiveCallerIPEndPoint
-      {
-        get{ return m_EffectiveCallerIPEndPoint ?? Request.RemoteEndPoint;}
-      }
+      public IPEndPoint EffectiveCallerIPEndPoint => m_EffectiveCallerIPEndPoint ?? Request.RemoteEndPoint;
 
 
       /// <summary>
       /// Returns Response object for this context
       /// </summary>
-      public Response Response { get { return m_Response;} }
+      public Response Response => m_Response;
 
       /// <summary>
       /// Returns session that this context is linked with or null
       /// </summary>
-      public WaveSession Session { get {return m_Session;} }
+      public WaveSession Session => m_Session;
 
       /// <summary>
       /// Returns the first session filter which was injected in the processing line.
       /// It is the filter that manages the session state for this context
       /// </summary>
-      public Filters.SessionFilter SessionFilter {get{ return m_SessionFilter;}}
+      public Filters.SessionFilter SessionFilter => m_SessionFilter;
 
       /// <summary>
       /// Returns true when the context was configured to support SessionFilter so Session can be injected
       /// </summary>
-      public bool SupportsSession { get{ return m_SessionFilter!=null;}}
+      public bool SupportsSession => m_SessionFilter != null;
 
       /// <summary>
       /// Returns portal object for this request or null if no portal was injected
       /// </summary>
-      public Portal Portal { get { return m_Portal;} }
+      public Portal Portal => m_Portal;
 
                /// <summary>
                /// DEVELOPERS do not use!
@@ -197,12 +194,12 @@ namespace Azos.Wave
       /// Returns the first portal filter which was injected in the processing line.
       /// It is the filter that manages the portals for this context
       /// </summary>
-      public Filters.PortalFilter PortalFilter {get{ return m_PortalFilter;}}
+      public Filters.PortalFilter PortalFilter => m_PortalFilter;
 
       /// <summary>
       /// Returns matched that was made by portal filter or null
       /// </summary>
-      public WorkMatch PortalMatch {get{ return m_PortalMatch;}}
+      public WorkMatch PortalMatch => m_PortalMatch;
 
       /// <summary>
       /// Gets/sets portal theme. This may be null as this is just a holder variable
@@ -218,13 +215,13 @@ namespace Azos.Wave
       /// Returns variables that have been extracted by WorkMatch when PortalFilter assigned portal.
       /// Returns null if no portal was matched
       /// </summary>
-      public JsonDataMap PortalMatchedVars{  get { return m_PortalMatchedVars;}}
+      public JsonDataMap PortalMatchedVars => m_PortalMatchedVars;
 
 
       /// <summary>
       /// Returns the work match instances that was made for this requested work or null if nothing was matched yet
       /// </summary>
-      public WorkMatch Match {get{ return m_Match;}}
+      public WorkMatch Match => m_Match;
 
       /// <summary>
       /// Returns variables that have been extracted by WorkMatch when dispatcher assigned request to WorkHandler.
@@ -302,13 +299,13 @@ namespace Azos.Wave
       /// <summary>
       /// Returns the work handler instance that was matched to perform work on this context or null if the match has not been made yet
       /// </summary>
-      public WorkHandler Handler {get{ return m_Handler;}}
+      public WorkHandler Handler => m_Handler;
 
 
       /// <summary>
       /// Returns true when the work has been executed by the WorkHandler instance
       /// </summary>
-      public bool Handled {get{return m_Handled;}}
+      public bool Handled => m_Handled;
 
       /// <summary>
       /// Indicates whether the work context is logically finished and its nested processing (i.e. through Filters/Handlers) should stop.
@@ -327,12 +324,7 @@ namespace Azos.Wave
       /// Generates short context description
       /// </summary>
       public string About
-      {
-        get
-        {
-          return "Work('{0}'@'{1}' -> {2} '{3}')".Args(Request.UserAgent, EffectiveCallerIPEndPoint, Request.HttpMethod, Request.Url);
-        }
-      }
+       =>"Work('{0}'@'{1}' -> {2} '{3}')".Args(Request.UserAgent, EffectiveCallerIPEndPoint, Request.HttpMethod, Request.Url);
 
       /// <summary>
       /// Indicates whether the default dispatcher should close the WorkContext upon completion of async processing.
@@ -357,7 +349,7 @@ namespace Azos.Wave
       /// <summary>
       /// Captures last error
       /// </summary>
-      public Exception LastError{get; set;}
+      public Exception LastError { get; set; }
 
       /// <summary>
       /// Gets sets geo location information as detected by GeoLookupHandler.
@@ -370,7 +362,7 @@ namespace Azos.Wave
       }
 
 
-         private bool? m_RequestedJson;
+      private bool? m_RequestedJson;
       /// <summary>
       /// Returns true if client indicated in response that "application/json" is accepted
       /// </summary>
