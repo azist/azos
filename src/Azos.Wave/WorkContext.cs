@@ -378,35 +378,40 @@ namespace Azos.Wave
       }
 
       /// <summary>
-      /// Indicates that request method id POST
+      /// Indicates that request method is POST
       /// </summary>
-      public bool IsPOST { get{ return Request.HttpMethod.EqualsOrdIgnoreCase("POST");}}
+      public bool IsPOST => Request.HttpMethod.EqualsOrdIgnoreCase(WebConsts.HTTP_POST);
 
       /// <summary>
-      /// Indicates that request method id GET
+      /// Indicates that request method is GET
       /// </summary>
-      public bool IsGET { get{ return Request.HttpMethod.EqualsOrdIgnoreCase("GET");}}
+      public bool IsGET => Request.HttpMethod.EqualsOrdIgnoreCase(WebConsts.HTTP_GET);
 
       /// <summary>
-      /// Indicates that request method id PUT
+      /// Indicates that request method is PUT
       /// </summary>
-      public bool IsPUT { get{ return Request.HttpMethod.EqualsOrdIgnoreCase("PUT");}}
+      public bool IsPUT => Request.HttpMethod.EqualsOrdIgnoreCase(WebConsts.HTTP_PUT);
 
       /// <summary>
-      /// Indicates that request method id DELETE
+      /// Indicates that request method is DELETE
       /// </summary>
-      public bool IsDELETE { get{ return Request.HttpMethod.EqualsOrdIgnoreCase("DELETE");}}
+      public bool IsDELETE => Request.HttpMethod.EqualsOrdIgnoreCase(WebConsts.HTTP_DELETE);
 
       /// <summary>
-      /// Indicates that request method id PATCH
+      /// Indicates that request method is PATCH
       /// </summary>
-      public bool IsPATCH { get{ return Request.HttpMethod.EqualsOrdIgnoreCase("PATCH");}}
+      public bool IsPATCH => Request.HttpMethod.EqualsOrdIgnoreCase(WebConsts.HTTP_PATCH);
+
+      /// <summary>
+      /// Indicates that request method is OPTIONS
+      /// </summary>
+      public bool IsOPTIONS => Request.HttpMethod.EqualsOrdIgnoreCase(WebConsts.HTTP_OPTIONS);
 
       /// <summary>
       /// Returns true to indicate that this context is/was authenticated.
       /// Used to not redirect users to login page on authorization exception
       /// </summary>
-      public bool IsAuthenticated { get { return m_IsAuthenticated; } }
+      public bool IsAuthenticated => m_IsAuthenticated;
     #endregion
 
     #region Public

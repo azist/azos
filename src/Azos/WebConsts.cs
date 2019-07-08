@@ -11,11 +11,12 @@ namespace Azos
   /// </summary>
   public static class WebConsts
   {
-    public const string HTTP_POST   = "POST";
-    public const string HTTP_PUT    = "PUT";
-    public const string HTTP_GET    = "GET";
-    public const string HTTP_DELETE = "DELETE";
-    public const string HTTP_PATCH  = "PATCH";
+    public const string HTTP_POST    = "POST";
+    public const string HTTP_PUT     = "PUT";
+    public const string HTTP_GET     = "GET";
+    public const string HTTP_DELETE  = "DELETE";
+    public const string HTTP_PATCH   = "PATCH";
+    public const string HTTP_OPTIONS = "OPTIONS";
 
 
     public const string HTTP_HDR_AUTHORIZATION = "Authorization";
