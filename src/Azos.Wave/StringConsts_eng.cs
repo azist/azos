@@ -36,11 +36,9 @@ namespace Azos.Wave
       public const string WRONG_DISPATCHER_HANDLER_UNREGISTRATION_ERROR =
         "Can not unregister a handler '{0}' because it does not belong to this dispatcher";
 
-      public const string NO_HANDLER_FOR_WORK_ERROR =
-        "No suitable handler for work '{0}' could be matched";
+      public const string NO_HANDLER_ERROR = "No suitable work handler could be matched";
 
-      public const string URI_PATTERN_PARSE_ERROR =
-        "Uri pattern '{0}' could not be parsed: {1}";
+      public const string URI_PATTERN_PARSE_ERROR = "Uri pattern '{0}' could not be parsed: {1}";
 
       public const string URI_WILDCARD_PARSE_ERROR =
         "Pattern may contain only one {{*var_name}} wildcard capture variable as the very last pattern segment";

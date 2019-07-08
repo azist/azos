@@ -160,7 +160,7 @@ namespace Azos.Wave
              handler = GetWorkHandler(work);
 
              if (handler==null)
-              throw HTTPStatusException.NotFound_404(StringConsts.NO_HANDLER_FOR_WORK_ERROR.Args(work.About));
+              throw HTTPStatusException.NotFound_404(StringConsts.NO_HANDLER_ERROR);
 
              handler.FilterAndHandleWork(work);
              return;
