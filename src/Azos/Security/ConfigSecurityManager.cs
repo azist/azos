@@ -172,8 +172,8 @@ namespace Azos.Security
 
     public User Authenticate(AuthenticationToken token)
     {
-      var idpass = authTokenToCred(token);
-      return Authenticate(idpass);
+      var credentials = authTokenToCred(token);
+      return Authenticate(credentials);
     }
 
     public Task AuthenticateAsync(User user) { Authenticate(user); return Task.CompletedTask;}

@@ -101,6 +101,14 @@ app
     }
 
     [Run]
+    public void Authenticate_BadUser_UriCredentials()
+    {
+      var credentials = new EntityUriCredentials("sadfsafsa");
+      var user = m_App.SecurityManager.Authenticate(credentials);
+      Aver.IsTrue(user.Status == UserStatus.Invalid);
+    }
+
+    [Run]
     public void Authenticate_RegularUser()
     {
       var credentials = new IDPasswordCredentials("user1", "thejake");
@@ -109,6 +117,61 @@ app
       Aver.AreEqual("User1", user.Name);
       Aver.AreEqual("Just a User", user.Description);
     }
+
+    [Run]
+    public void Authenticate_Reauthenticate_RegularUser()
+    {
+      void ensure(User u)
+      {
+        Aver.IsTrue(u.Status == UserStatus.User);
+        Aver.AreEqual("User1", u.Name);
+        Aver.AreEqual("Just a User", u.Description);
+      }
+
+      var credentials = new IDPasswordCredentials("user1", "thejake");
+      var user = m_App.SecurityManager.Authenticate(credentials);
+      ensure(user);
+
+      var token = user.AuthToken;
+      var user2 = m_App.SecurityManager.Authenticate(token);
+      ensure(user2);
+
+      m_App.SecurityManager.Authenticate(user2);//re-authenticate in-place
+      ensure(user2);
+    }
+
+    [Run]
+    public void Authenticate_RegularUser_UriCredentials()
+    {
+      var credentials = new EntityUriCredentials("user1");
+      var user = m_App.SecurityManager.Authenticate(credentials);
+      Aver.IsTrue(user.Status == UserStatus.User);
+      Aver.AreEqual("User1", user.Name);
+      Aver.AreEqual("Just a User", user.Description);
+    }
+
+    [Run]
+    public void Authenticate_Reauthenticate_RegularUser_UriCredentials()
+    {
+      void ensure(User u)
+      {
+        Aver.IsTrue(u.Status == UserStatus.User);
+        Aver.AreEqual("User1", u.Name);
+        Aver.AreEqual("Just a User", u.Description);
+      }
+
+      var credentials = new EntityUriCredentials("user1");
+      var user = m_App.SecurityManager.Authenticate(credentials);
+      ensure(user);
+
+      var token = user.AuthToken;
+      var user2 = m_App.SecurityManager.Authenticate(token);
+      ensure(user2);
+
+      m_App.SecurityManager.Authenticate(user2);//re-authenticate in-place
+      ensure(user2);
+    }
+
 
     [Run]
     public void Authenticate_SystemUser()
