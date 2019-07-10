@@ -126,17 +126,19 @@ namespace Azos.Security
     public User Authenticate(Credentials credentials)
     {
       var sect = m_Config ?? App.ConfigRoot[CommonApplicationLogic.CONFIG_SECURITY_SECTION];
-      if (sect.Exists && credentials is IDPasswordCredentials)
-      {
-        var idpass = (IDPasswordCredentials)credentials;
 
-        var usern = findUserNode(sect, idpass);
+      if (sect.Exists)
+      {
+        IConfigSectionNode usern = sect.Configuration.EmptySection;
+
+        if (credentials is IDPasswordCredentials idpass) usern = findUserNode(sect, idpass);
+        if (credentials is EntityUriCredentials enturi) usern = findUserNode(sect, enturi);
 
         if (usern.Exists)
         {
           var name = usern.AttrByName(CONFIG_NAME_ATTR).ValueAsString(string.Empty);
           var descr = usern.AttrByName(CONFIG_DESCRIPTION_ATTR).ValueAsString(string.Empty);
-          var status = usern.AttrByName(CONFIG_STATUS_ATTR).ValueAsEnum<UserStatus>(UserStatus.Invalid);
+          var status = usern.AttrByName(CONFIG_STATUS_ATTR).ValueAsEnum(UserStatus.Invalid);
 
           var rights = Rights.None;
 
@@ -150,7 +152,7 @@ namespace Azos.Security
           }
 
           return new User(credentials,
-                          credToAuthToken(idpass),
+                          credToAuthToken(credentials),
                           status,
                           name,
                           descr,
@@ -245,6 +247,16 @@ namespace Azos.Security
     #endregion
 
     #region Private
+
+    private IConfigSectionNode findUserNode(IConfigSectionNode securityRootNode, EntityUriCredentials cred)
+    {
+      var users = securityRootNode[CONFIG_USERS_SECTION];
+
+      return users.Children
+                  .FirstOrDefault(cn => cn.IsSameName(CONFIG_USER_SECTION) &&
+                                        cn.ValOf(CONFIG_ID_ATTR).EqualsOrdSenseCase(cred.Uri)) ?? users.Configuration.EmptySection;
+    }
+
     private IConfigSectionNode findUserNode(IConfigSectionNode securityRootNode, IDPasswordCredentials cred)
     {
       var users = securityRootNode[CONFIG_USERS_SECTION];
@@ -253,29 +265,44 @@ namespace Azos.Security
       {
         bool needRehash = false;
         return users.Children.FirstOrDefault(cn => cn.IsSameName(CONFIG_USER_SECTION)
-                                                && string.Equals(cn.AttrByName(CONFIG_ID_ATTR).Value, cred.ID, StringComparison.InvariantCulture)
-                                                && m_PasswordManager.Verify(password, HashedPassword.FromString(cn.AttrByName(CONFIG_PASSWORD_ATTR).Value), out needRehash)
+                                                && cn.ValOf(CONFIG_ID_ATTR).EqualsOrdSenseCase(cred.ID)
+                                                && m_PasswordManager.Verify(password, HashedPassword.FromString(cn.ValOf(CONFIG_PASSWORD_ATTR)), out needRehash)
                                             ) ?? users.Configuration.EmptySection;
 
       }
     }
 
-    private AuthenticationToken credToAuthToken(IDPasswordCredentials cred)
+    private AuthenticationToken credToAuthToken(Credentials credentials)
     {
-      return new AuthenticationToken(this.GetType().FullName, "{0}\n{1}".Args(cred.ID, cred.Password));
+      if (credentials is IDPasswordCredentials idpass)
+        return new AuthenticationToken(this.GetType().FullName, "idp\n{0}\n{1}".Args(idpass.ID, idpass.Password));
+
+      if (credentials is EntityUriCredentials enturi)
+        return new AuthenticationToken(this.GetType().FullName, "uri\n{0}".Args(enturi.Uri));
+
+      return new AuthenticationToken();//invalid token
     }
 
-    private IDPasswordCredentials authTokenToCred(AuthenticationToken token)
+    private Credentials authTokenToCred(AuthenticationToken token)
     {
       if (token.Data == null)
-        return new IDPasswordCredentials(string.Empty, string.Empty);
+        return BlankCredentials.Instance;
 
       var seg = token.Data.ToString().Split('\n');
 
       if (seg.Length < 2)
-        return new IDPasswordCredentials(string.Empty, string.Empty);
+        return BlankCredentials.Instance;
 
-      return new IDPasswordCredentials(seg[0], seg[1]);
+
+      if (seg[0].EqualsOrdSenseCase("idp"))
+      {
+        if (seg.Length < 3)  return BlankCredentials.Instance;
+        return new IDPasswordCredentials(seg[1], seg[2]);
+      }
+
+      if (seg[0].EqualsOrdSenseCase("uri")) return new EntityUriCredentials(seg[1]);
+
+      return BlankCredentials.Instance;
     }
 
 

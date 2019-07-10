@@ -32,7 +32,8 @@ namespace Azos.Security.Services
 
     /// <summary>
     /// Returns security manager responsible for authentication and authorization of clients(applications) which
-    /// request access to the system on behalf of the user.
+    /// request access to the system on behalf of the user. This security manager is expected to understand the
+    /// `EntityUriCredentials` used for pseudo-authentication/lookup and `IDPasswordCredentials`.
     /// The returned `User` object represents a requesting client party/application along with its rights, such as ability
     /// to execute "implicit" OAuth flows etc.
     /// </summary>

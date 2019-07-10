@@ -100,7 +100,7 @@ namespace Azos.Security.Services
       var guid = Guid.NewGuid().ToNetworkByteOrder();//16 bytes
       token.ID = Convert.ToBase64String(guid);
       token.IssuedBy = this.IssuerName;
-      token.IssueUtc = App.TimeSource.UTCNow;
+      token.IssueUtc = token.VersionUtc = App.TimeSource.UTCNow;
       token.ExpireUtc = token.IssueUtc.Value.AddSeconds(token.TokenDefaultExpirationSeconds);
 
       return token;

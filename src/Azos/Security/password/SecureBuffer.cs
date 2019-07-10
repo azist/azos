@@ -25,9 +25,7 @@ namespace Azos.Security
       m_Content = new byte[capacity];
     }
 
-    protected override void Destructor() { Forget(); }
-
-
+    protected override void Destructor() => Forget();
 
     private bool m_IsSealed;
 
@@ -65,7 +63,6 @@ namespace Azos.Security
     /// <summary>
     /// Adds a byte to the buffer. The buffer must not be sealed
     /// </summary>
-    /// <param name="b"></param>
     public void Push(byte b)
     {
       if (m_IsSealed)

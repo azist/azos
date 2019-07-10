@@ -11,7 +11,6 @@ namespace Azos.Security.Services
 
     [Field(backendName: "id", isArow: true)]
     [Field(required: true, key: true, backendName: "_id", description: "Value/ID of the token - a unique primary key. Used only for server-side tokens")]
-    [Field(targetName: PROTECTED_MSG_TARGET, storeFlag: StoreFlag.None)]
     public string ID { get; set; }
 
     [Field(backendName: "tp", isArow: true)]
@@ -25,7 +24,7 @@ namespace Azos.Security.Services
     [Field(backendName: "_v", isArow: true)]
     [Field(required: true, backendName: "_v", description: "Version timestamp of this doc, used for replication")]
     [Field(targetName: PROTECTED_MSG_TARGET, storeFlag: StoreFlag.None)]
-    public string VersionUtc { get; set; }
+    public DateTime? VersionUtc { get; set; }
 
     /// <summary>
     /// Version Delete flag, used for CRDT idempotent flag
