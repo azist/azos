@@ -23,7 +23,7 @@ namespace Azos.Security
     /// and the caller should favor async methods over sync ones. In some high-throughput systems the security manager
     /// may be implemented as 100% in-ram CPU bound code which yields much better performance and cause less GC pressure calling sync-only methods
     /// </summary>
-    bool SupportsTrueAsynchrony {  get; }
+    bool SupportsTrueAsynchrony { get; }
 
     /// <summary>
     /// References an entity that manages passwords such as: computes and verifies hash tokens

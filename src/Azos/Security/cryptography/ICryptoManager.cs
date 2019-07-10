@@ -39,7 +39,7 @@ namespace Azos.Security
   }
 
   /// <summary>
-  /// Denotes types of users should be using this algorithm , e.g. a security authority may use its own Internal algorithm instances
+  /// Denotes types of users that should be using this algorithm , e.g. a cluster system security authority may use its own Internal algorithm instances
   /// (i.e. different encryption keys) that should never be used for public message authentication
   /// </summary>
   public enum CryptoMessageAlgorithmAudience
@@ -83,7 +83,7 @@ namespace Azos.Security
     /// Protects the specified message according to the underlying algorithm nature, e.g. a hashing MAC algorithm may
     /// just add a HMAC, or encrypt the message body (e.g. with AES) etc. using same or different key(s) for various stages.
     /// An algorithm may by symmetric or asymmetric. For algorithms that have Flags.CanUnprotect set, the message must
-    /// be processed with complementary call to Unprotect() which understands the inner msg format
+    /// be processed with complementary call to Unprotect() which 'understands' the inner msg format
     /// </summary>
     byte[] Protect(ArraySegment<byte> originalMessage);
 

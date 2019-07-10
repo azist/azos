@@ -34,8 +34,8 @@ namespace Azos.Security.Services
     /// Returns security manager responsible for authentication and authorization of clients(applications) which
     /// request access to the system on behalf of the user. This security manager is expected to understand the
     /// `EntityUriCredentials` used for pseudo-authentication/lookup and `IDPasswordCredentials`.
-    /// The returned `User` object represents a requesting client party/application along with its rights, such as ability
-    /// to execute "implicit" OAuth flows etc.
+    /// The returned `User` object represents a requesting client party/application along with its rights, such as:
+    /// allowed redirect URIs, back-channel IPs, ability to execute "implicit" OAuth flows etc.
     /// </summary>
     ISecurityManager ClientSecurity {  get; }
 
@@ -64,21 +64,21 @@ namespace Azos.Security.Services
 
     /// <summary>
     /// Returns the token content object from the token string representation.
-    /// The returned token is ensured to be in non-expired state.
+    /// The returned token is guaranteed to be in non-expired state.
     /// You may want to call Validate() to run additional state checks.
     /// Null is returned if token is not found or has been tampered with.
     /// Compare to `GetAsync` which performs mandatory state validation
     /// </summary>
     /// <remarks>
     /// 'Unsafe' refers to state validation of tokens using `token.Validate()` - `Validate()` has not been called on 'unsafe' tokens.
-    /// All client-based tokens are always validated for integrity and tampering by design before state validation as provided by `Validate()`
+    /// All client-based tokens are always validated for integrity and tampering by design before doing the state validation via `Validate()`
     /// </remarks>
     Task<TToken> GetUnsafeAsync<TToken>(string token) where TToken : RingToken;
 
     /// <summary>
     /// Returns a token content object from the string token representation.
-    /// The returned token is ensured to be in non-expired state and passed `Validate()` check
-    /// so callers do not need to call Validate() again.
+    /// The returned token is guaranteed to be in non-expired state having already passed the `Validate()` check
+    /// so callers do not need to call `Validate()` again.
     /// Null is returned if token is not found or has been tampered with or has validation errors.
     /// You should prefer calling this method over `GetUnsafeAsync()` unless needed (e.g. when you need to get state validation error)
     /// </summary>
@@ -88,7 +88,7 @@ namespace Azos.Security.Services
     /// Adds a token content to the ring, returning string token representation.
     /// The token instance must be in non-expired valid state.
     /// The server-side stateful implementations would save the token to the backend store,
-    /// whereas stateless client-side implementations would just encode token using ICryptoMessageAlgo.Protect (or similar)
+    /// whereas stateless client-side implementations would just encode token using ICryptoMessageAlgo.Protect (or similar cryptographic mechanism)
     /// </summary>
     Task<string> PutAsync(RingToken token);
 

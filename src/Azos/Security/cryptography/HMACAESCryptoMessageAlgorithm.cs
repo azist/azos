@@ -16,7 +16,7 @@ namespace Azos.Security
   /// Provides implementation of a message protection algorithm based on a combination of AES256 CBC mode cipher
   /// and HMACSHA256 message authenticity protection. The algorithm ensures that the data is encrypted AND can be
   /// decrypted back yielding the same HMAC, hence the algorithm uses multiple pairs (at least 2) of private keys:
-  ///  one for AES256 cipher, and one for HMAC authenticity check on decipher.
+  ///  one for AES256 cipher, and another one for HMAC authenticity check on decipher.
   /// </summary>
   /// <remarks>
   /// <para>
