@@ -51,8 +51,9 @@
     <Compile Include="Graphics\NetGraphics.cs" />
     <Compile Include="Graphics\xlator.cs" />
     <Compile Include="Modules\WidgetRenderer.cs" />
-    <Compile Include="PALFileSystem.cs" />
-    <Compile Include="PALMachineInfo.cs" />
+    <Compile Include="NetCryptography.cs" />
+    <Compile Include="NetFileSystem.cs" />
+    <Compile Include="NetMachineInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringConsts.cs" />
   </ItemGroup>

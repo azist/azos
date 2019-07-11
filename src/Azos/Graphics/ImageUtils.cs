@@ -68,7 +68,7 @@ namespace Azos.Graphics
     /// <param name="dwnFactor2">Secondary downgrade factor for inner-area main color selection</param>
     /// <param name="interiorPct">Value within (0,1) range that indicates portion of image interior,
     /// i.e. 0.9 means that 10% part of the image will be used for boundary detection</param>
-    /// <returns>Three main colors and background volor</returns>
+    /// <returns>Three main colors and background color</returns>
     public static unsafe Color[] ExtractMainColors(Image srcImg,
                                                    int resizeWidth = 64, int resizeHeight = 64,
                                                    int dwnFactor1 = 128, int dwnFactor2 = 24,

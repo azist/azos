@@ -5,8 +5,10 @@
 </FILE_LICENSE>*/
 using System;
 using System.Security.Cryptography;
+
 using Azos.Conf;
 using Azos.Data;
+using Azos.Platform.Abstraction;
 
 namespace Azos.Security
 {
@@ -16,13 +18,13 @@ namespace Azos.Security
   }
 
   /// <summary>
-  /// Implements Password KEy Derivation function based on Rfc2898DeriveBytes/HMACSHA1 Class
+  /// Implements Password KEY Derivation function based on Rfc2898DeriveBytes/HMACSHA256
   /// See: https://www.owasp.org/index.php/Using_Rfc2898DeriveBytes_for_PBKDF2
   /// </summary>
   public sealed class PBKDF2PasswordHashingAlgorithm : PasswordHashingAlgorithm<PBKDF2PasswordHashingOptions>
   {
     public const int SALT_LENGTH_BYTES = 16;
-    public const int HASH_LENGTH_BYTES = 20;//HMAC-SHA1 as per Rfc2898DeriveBytes
+    public const int HASH_LENGTH_BYTES = 32;//HMAC-SHA256 = 256/8 = 32
 
     public PBKDF2PasswordHashingAlgorithm(IPasswordManagerImplementation director, string name) : base(director, name)
     {
@@ -52,17 +54,17 @@ namespace Azos.Security
 
     //https://stackoverflow.com/questions/18648084/rfc2898-pbkdf2-with-sha256-as-digest-in-c-sharp
 
+      var hash = PlatformAbstractionLayer.Cryptography.ComputePBKDF2(content, salt, HASH_LENGTH_BYTES, iterations, HashAlgorithmName.SHA256);
 
-      using (var pbkdf2 = new Rfc2898DeriveBytes(content, salt, iterations))
+      var pwd = new HashedPassword(Name, family)
       {
-        var hash = pbkdf2.GetBytes(HASH_LENGTH_BYTES);
+        { "h", hash.ToWebSafeBase64() },
+        { "s", salt.ToWebSafeBase64() }
+      };
 
-        return new HashedPassword(Name, family)
-        {
-          { "h", hash.ToWebSafeBase64() },
-          { "s", salt.ToWebSafeBase64() }
-        };
-      }
+      Array.Clear(hash, 0, hash.Length);
+
+      return pwd;
     }
 
     protected override PBKDF2PasswordHashingOptions DefaultPasswordHashingOptions

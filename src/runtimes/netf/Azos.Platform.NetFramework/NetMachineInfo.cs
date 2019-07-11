@@ -10,9 +10,9 @@ using System.Runtime.InteropServices;
 
 namespace Azos.Platform.Abstraction.NetFramework
 {
-  internal class PALMachineInfo : IPALMachineInfo
+  internal class NetMachineInfo : IPALMachineInfo
   {
-    public PALMachineInfo()
+    public NetMachineInfo()
     {
       try
       {
