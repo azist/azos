@@ -24,7 +24,8 @@ namespace Azos.Tests.Nub
     [Run("a='0,255'")]
     [Run("a='1,2,3,4,5,6,7,8,9,0'")]
     [Run("a='1,2,3,4,5,6,7,8,9,254,255'")]
-    [Run("a='1,2,3,4,5,6,7,8,9,254,255'")]
+    [Run("a='1,2,3,4,5,6,7,8,9,254,127'")]
+    [Run("a='1,2,3,4,5,6,7,8,9,254,0'")]
     public void Base64FullCycle(byte[] a)
     {
       var encoded = a.ToWebSafeBase64();
@@ -34,7 +35,10 @@ namespace Azos.Tests.Nub
       //Console.WriteLine(b.ToDumpString(DumpFormat.Hex));
       //Console.WriteLine(encoded);
 
+      //We use two equality comparisons to protect against possible bug in one
+      //as To/FromBase64WebSafeString() is a very important method used in security throughout
       Aver.AreArraysEquivalent(a, b);
+      Aver.IsTrue( a.MemBufferEquals(b));
     }
 
     [Run]
