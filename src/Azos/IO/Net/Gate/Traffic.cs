@@ -52,9 +52,22 @@ namespace Azos.IO.Net.Gate
     {
       get
       {
-         return m_RealRemoteAddressHdr.IsNullOrWhiteSpace() ?
-                      m_Request.RemoteEndPoint.Address.ToString() :
-                      m_Request.Headers[m_RealRemoteAddressHdr] ?? m_Request.RemoteEndPoint.Address.ToString();
+        if (m_RealRemoteAddressHdr.IsNullOrWhiteSpace())
+          return m_Request.RemoteEndPoint.Address.ToString();
+
+        var rIP = m_Request.Headers[m_RealRemoteAddressHdr];
+
+        if (m_RealRemoteAddressHdr.EqualsOrdIgnoreCase(WebConsts.HTTP_HDR_X_FORWARDED_FOR) && rIP.IsNotNullOrWhiteSpace())
+        {
+          var ic = rIP.LastIndexOf(',');
+          if (ic > 0 && ic < rIP.Length - 1)
+          {
+            return rIP = rIP.Substring(ic + 1);//take the last IP address in the header list to prevent spoofing
+            // see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For
+          }
+        }
+
+        return rIP ?? m_Request.RemoteEndPoint.Address.ToString();
       }
     }
 
