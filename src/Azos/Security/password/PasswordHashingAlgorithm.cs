@@ -93,10 +93,19 @@ namespace Azos.Security
         return DoVerify(password, hash, out needRehash);
       }
 
+      /// <summary>
+      /// Returns true if two hashes are equal in their content (passwords match 100%).
+      /// WARNING: This function must use length-constant time comparison without
+      /// revealing partial correctness via its timing. See `SlowEquals()` cryptography topic
+      /// See: https://stackoverflow.com/questions/21100985/why-is-the-slowequals-function-important-to-compare-hashed-passwords
+      /// Use HashedPassword.AreStringsLengthConstantTimeEqual(a,b)
+      /// </summary>
       public bool AreEquivalent(HashedPassword hash, HashedPassword rehash)
       {
         if (hash == null || rehash == null) return false;
         if (!hash.AlgoName.EqualsOrdIgnoreCase(rehash.AlgoName)) return false;
+
+        //The function below
         return DoAreEquivalent(hash, rehash);
       }
 
@@ -104,9 +113,16 @@ namespace Azos.Security
 
     #region Protected
 
-      protected abstract HashedPassword DoComputeHash(PasswordFamily family, SecureBuffer password);
-      protected abstract bool DoVerify(SecureBuffer password, HashedPassword hash, out bool needRehash);
-      protected abstract bool DoAreEquivalent(HashedPassword hash, HashedPassword rehash);
+    protected abstract HashedPassword DoComputeHash(PasswordFamily family, SecureBuffer password);
+    protected abstract bool DoVerify(SecureBuffer password, HashedPassword hash, out bool needRehash);
+
+    /// <summary>
+    /// WARNING: This function must use length-constant time comparison without
+    /// revealing partial correctness via its timing. See `SlowEquals()` cryptography topic
+    /// See: https://stackoverflow.com/questions/21100985/why-is-the-slowequals-function-important-to-compare-hashed-passwords
+    /// Use HasshedPassword.AreStringsLengthConstantTimeEqual(a,b)
+    /// </summary>
+    protected abstract bool DoAreEquivalent(HashedPassword hash, HashedPassword rehash);
 
     #endregion
   }
@@ -139,13 +155,13 @@ namespace Azos.Security
     }
 
     protected override HashedPassword DoComputeHash(PasswordFamily family, SecureBuffer password)
-    { return DoComputeHash(family, password, DefaultPasswordHashingOptions); }
+     => DoComputeHash(family, password, DefaultPasswordHashingOptions);
 
     protected override bool DoVerify(SecureBuffer password, HashedPassword hash, out bool needRehash)
     {
       var options = ExtractPasswordHashingOptions(hash, out needRehash);
       var rehash = ComputeHash(hash.Family, password, options);
-      return AreEquivalent(hash, rehash);
+      return AreEquivalent(hash, rehash);//this is done in length-constant time
     }
 
     protected abstract HashedPassword DoComputeHash(PasswordFamily family, SecureBuffer password, TOptions options);

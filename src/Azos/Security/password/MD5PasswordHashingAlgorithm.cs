@@ -21,17 +21,17 @@ namespace Azos.Security
 
     public MD5PasswordHashingAlgorithm(IPasswordManagerImplementation director, string name) : base(director, name)
     {
-      SaltMinLenght = DEFAULT_SALT_MAX_LENGTH / 2;
-      SaltMaxLenght = DEFAULT_SALT_MAX_LENGTH;
+      SaltMinLength = DEFAULT_SALT_MAX_LENGTH / 2;
+      SaltMaxLength = DEFAULT_SALT_MAX_LENGTH;
     }
 
     #region Properties
 
       [Config(Default = DEFAULT_SALT_MAX_LENGTH / 2)]
-      public int SaltMinLenght { get; set; }
+      public int SaltMinLength { get; set; }
 
       [Config(Default = DEFAULT_SALT_MAX_LENGTH)]
-      public int SaltMaxLenght { get; set; }
+      public int SaltMaxLength { get; set; }
 
     #endregion
 
@@ -57,15 +57,10 @@ namespace Azos.Security
     }
 
     protected override MD5PasswordHashingOptions DefaultPasswordHashingOptions
-    {
-      get
-      {
-        return new MD5PasswordHashingOptions
-        {
-          Salt = App.Random.NextRandomBytes(SaltMinLenght, SaltMaxLenght)
-        };
-      }
-    }
+    => new MD5PasswordHashingOptions
+       {
+         Salt = App.Random.NextRandomBytes(SaltMinLength, SaltMaxLength)
+       };
 
     protected override MD5PasswordHashingOptions DoExtractPasswordHashingOptions(HashedPassword hash, out bool needRehash)
     {
@@ -78,7 +73,9 @@ namespace Azos.Security
 
     protected override bool DoAreEquivalent(HashedPassword hash, HashedPassword rehash)
     {
-      return hash["hash"].AsString().EqualsOrdIgnoreCase(rehash["hash"].AsString());
+      var a = hash["hash"].AsString();
+      var b = rehash["hash"].AsString();
+      return HashedPassword.AreStringsEqualInLengthConstantTime(a, b);
     }
   }
 }
