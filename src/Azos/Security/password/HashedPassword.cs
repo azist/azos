@@ -56,13 +56,13 @@ namespace Azos.Security
     [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
     public static bool AreStringsEqualInLengthConstantTime(string a, string b)
     {
-      const int ITERATIONSET = 250;
+      const int ITERATIONSET = 48;
+      var result = (a==null && b==null) || (a!=null && b!=null && a.Length == b.Length);
       if (a == null) a = string.Empty;
       if (b == null) b = string.Empty;
-      var result = a.Length == b.Length;
 
       //compare data in ITERATION SETS even if the data is much smaller
-      var total = 0;
+      var total = ITERATIONSET;
       while(total < a.Length) total += ITERATIONSET;
       while(total < b.Length) total += ITERATIONSET;
 
@@ -92,13 +92,13 @@ namespace Azos.Security
     [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
     public static bool AreStringsEqualInLengthConstantTime(byte[] a, byte[] b)
     {
-      const int ITERATIONSET = 250;
+      const int ITERATIONSET = 48;
+      var result = (a == null && b == null) || (a != null && b != null && a.Length == b.Length);
       if (a == null) a = new byte[0];
       if (b == null) b = new byte[0];
-      var result = a.Length == b.Length;
 
       //compare data in ITERATION SETS even if the data is much smaller
-      var total = 0;
+      var total = ITERATIONSET;
       while (total < a.Length) total += ITERATIONSET;
       while (total < b.Length) total += ITERATIONSET;
 
