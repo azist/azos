@@ -15,6 +15,10 @@ namespace Azos.Security
     public byte[] Salt { get; set; }
   }
 
+  /// <summary>
+  /// Implements MD5 password hashing. This algorithm is provided only for testing and backward compatibility with legacy systems
+  /// as MD5 is a weak hash function. Use PBKDF2 for all current development
+  /// </summary>
   public class MD5PasswordHashingAlgorithm : PasswordHashingAlgorithm<MD5PasswordHashingOptions>
   {
     public const int DEFAULT_SALT_MAX_LENGTH = 32;

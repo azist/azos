@@ -19,11 +19,11 @@ namespace Azos.Security
 
   /// <summary>
   /// Implements Password KEY Derivation function based on Rfc2898DeriveBytes/HMACSHA256
-  /// See: https://www.owasp.org/index.php/Using_Rfc2898DeriveBytes_for_PBKDF2
+  /// See: https://www.owasp.org/index.php/Using_Rfc2898DeriveBytes_for_PBKDF2 , https://crackstation.net/hashing-security.htm
   /// </summary>
   public sealed class PBKDF2PasswordHashingAlgorithm : PasswordHashingAlgorithm<PBKDF2PasswordHashingOptions>
   {
-    public const int SALT_LENGTH_BYTES = 16;
+    public const int SALT_LENGTH_BYTES = 32;
     public const int HASH_LENGTH_BYTES = 32;//HMAC-SHA256 = 256/8 = 32
 
     public PBKDF2PasswordHashingAlgorithm(IPasswordManagerImplementation director, string name) : base(director, name)
@@ -36,9 +36,9 @@ namespace Azos.Security
       {
         case PasswordStrengthLevel.Minimum: return 1_000;
         case PasswordStrengthLevel.BelowNormal: return 5_000;
-        case PasswordStrengthLevel.AboveNormal: return 20_000;
-        case PasswordStrengthLevel.Maximum: return 128_000;
-        default: return 10_000;
+        case PasswordStrengthLevel.AboveNormal: return 25_000;
+        case PasswordStrengthLevel.Maximum: return 75_000;
+        default: return 12_000;
       }
     }
 
@@ -49,11 +49,7 @@ namespace Azos.Security
 
       var iterations = getIterations();
 
-      //todo: Move to PAL!!!!
-      //Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256)
-
-    //https://stackoverflow.com/questions/18648084/rfc2898-pbkdf2-with-sha256-as-digest-in-c-sharp
-
+      //https://stackoverflow.com/questions/18648084/rfc2898-pbkdf2-with-sha256-as-digest-in-c-sharp
       var hash = PlatformAbstractionLayer.Cryptography.ComputePBKDF2(content, salt, HASH_LENGTH_BYTES, iterations, HashAlgorithmName.SHA256);
 
       var pwd = new HashedPassword(Name, family)

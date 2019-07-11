@@ -9,15 +9,12 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Instrumentation;
 
-
 namespace Azos.Security
 {
   /// <summary>
   /// Marker interface for options used in password hashing functionality
   /// </summary>
-  public interface IPasswordHashingOptions
-  {
-  }
+  public interface IPasswordHashingOptions{ }
 
   /// <summary>
   /// Represents an abstraction of password algorithm that performs hashing and verification of passwords supplied as SecureBuffer
@@ -25,89 +22,88 @@ namespace Azos.Security
   public abstract class PasswordHashingAlgorithm : DaemonWithInstrumentation<IPasswordManagerImplementation>, Collections.INamed
   {
     #region .ctor
-      protected PasswordHashingAlgorithm(IPasswordManagerImplementation director, string name) : base(director)
-      {
-        this.Name = name;
-        m_StrengthLevel = PasswordStrengthLevel.Normal;
-      }
+    protected PasswordHashingAlgorithm(IPasswordManagerImplementation director, string name) : base(director)
+    {
+      this.Name = name;
+      m_StrengthLevel = PasswordStrengthLevel.Normal;
+    }
     #endregion
 
     #region Fields
 
-      #pragma warning disable 0649
-      [Config("$default|$is-default")]
-      private bool m_IsDefault;
-      #pragma warning restore 0649
+    #pragma warning disable 0649
+    [Config("$default|$is-default")]
+    private bool m_IsDefault;
+    #pragma warning restore 0649
 
-      [Config(Default = PasswordStrengthLevel.Normal)]
-      private PasswordStrengthLevel m_StrengthLevel;
+    [Config(Default = PasswordStrengthLevel.Normal)]
+    private PasswordStrengthLevel m_StrengthLevel;
 
-      private bool m_InstrumentationEnabled;
+    private bool m_InstrumentationEnabled;
 
     #endregion
 
     #region Properties
-      public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
+    public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
-      [Config(Default = false)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_PAY)]
-      public override bool InstrumentationEnabled
-      {
-        get { return m_InstrumentationEnabled; }
-        set { m_InstrumentationEnabled = value; }
-      }
+    [Config(Default = false)]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_PAY)]
+    public override bool InstrumentationEnabled
+    {
+      get { return m_InstrumentationEnabled; }
+      set { m_InstrumentationEnabled = value; }
+    }
 
-      public bool IsDefault { get { return m_IsDefault; } }
-
-      public PasswordStrengthLevel StrengthLevel { get { return m_StrengthLevel; } }
+    public bool IsDefault => m_IsDefault;
+    public PasswordStrengthLevel StrengthLevel => m_StrengthLevel;
 
     #endregion
 
     #region Public
 
-      public virtual bool Match(PasswordFamily family) { return true; }
+    public virtual bool Match(PasswordFamily family) => true;
 
-      public HashedPassword ComputeHash(PasswordFamily family, SecureBuffer password)
-      {
-        if (password == null)
-          throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordManager.ComputeHash(password==null)");
-        if (!password.IsSealed)
-          throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordManager.ComputeHash(!password.IsSealed)");
+    public HashedPassword ComputeHash(PasswordFamily family, SecureBuffer password)
+    {
+      if (password == null)
+        throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordManager.ComputeHash(password==null)");
+      if (!password.IsSealed)
+        throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordManager.ComputeHash(!password.IsSealed)");
 
-        CheckDaemonActive();
+      CheckDaemonActive();
 
-        return DoComputeHash(family, password);
-      }
+      return DoComputeHash(family, password);
+    }
 
-      public bool Verify(SecureBuffer password, HashedPassword hash, out bool needRehash)
-      {
-        if (password == null || hash == null)
-          throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordManager.Verify((password|hash)==null)");
-        if (!password.IsSealed)
-          throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordManager.Verify(!password.IsSealed)");
+    public bool Verify(SecureBuffer password, HashedPassword hash, out bool needRehash)
+    {
+      if (password == null || hash == null)
+        throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordManager.Verify((password|hash)==null)");
+      if (!password.IsSealed)
+        throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordManager.Verify(!password.IsSealed)");
 
-        needRehash = false;
-        if (!Running)
-          return false;
+      needRehash = false;
+      if (!Running)
+        return false;
 
-        return DoVerify(password, hash, out needRehash);
-      }
+      return DoVerify(password, hash, out needRehash);
+    }
 
-      /// <summary>
-      /// Returns true if two hashes are equal in their content (passwords match 100%).
-      /// WARNING: This function must use length-constant time comparison without
-      /// revealing partial correctness via its timing. See `SlowEquals()` cryptography topic
-      /// See: https://stackoverflow.com/questions/21100985/why-is-the-slowequals-function-important-to-compare-hashed-passwords
-      /// Use HashedPassword.AreStringsLengthConstantTimeEqual(a,b)
-      /// </summary>
-      public bool AreEquivalent(HashedPassword hash, HashedPassword rehash)
-      {
-        if (hash == null || rehash == null) return false;
-        if (!hash.AlgoName.EqualsOrdIgnoreCase(rehash.AlgoName)) return false;
+    /// <summary>
+    /// Returns true if two hashes are equal in their content (passwords match 100%).
+    /// WARNING: This function must use length-constant time comparison without
+    /// revealing partial correctness via its timing. See `SlowEquals()` cryptography topic
+    /// See: https://stackoverflow.com/questions/21100985/why-is-the-slowequals-function-important-to-compare-hashed-passwords
+    /// Use HashedPassword.AreStringsLengthConstantTimeEqual(a,b)
+    /// </summary>
+    public bool AreEquivalent(HashedPassword hash, HashedPassword rehash)
+    {
+      if (hash == null || rehash == null) return false;
+      if (!hash.AlgoName.EqualsOrdIgnoreCase(rehash.AlgoName)) return false;
 
-        //The function below
-        return DoAreEquivalent(hash, rehash);
-      }
+      //The function below
+      return DoAreEquivalent(hash, rehash);
+    }
 
     #endregion
 
@@ -127,8 +123,8 @@ namespace Azos.Security
     #endregion
   }
 
-  public abstract class PasswordHashingAlgorithm<TOptions> : PasswordHashingAlgorithm
-    where TOptions : IPasswordHashingOptions
+
+  public abstract class PasswordHashingAlgorithm<TOptions> : PasswordHashingAlgorithm where TOptions : IPasswordHashingOptions
   {
     public PasswordHashingAlgorithm(IPasswordManagerImplementation director, string name) : base(director, name)
     {}
@@ -148,9 +144,10 @@ namespace Azos.Security
     public TOptions ExtractPasswordHashingOptions(HashedPassword hash, out bool needRehash)
     {
       if (hash == null || hash["salt"] == null)
-        throw new SecurityException(StringConsts.ARGUMENT_ERROR + "MD5PasswordHashingAlgorithm.ExtractPasswordHashingOptions((hash|hash[salt])==null)");
-      if (hash.AlgoName != Name)
-        throw new SecurityException(StringConsts.ARGUMENT_ERROR + "MD5PasswordHashingAlgorithm.ExtractPasswordHashingOptions(hash[algo] invalid)");
+        throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordHashingAlgorithm.ExtractPasswordHashingOptions((hash|hash[salt])==null)");
+      if (!hash.AlgoName.EqualsOrdSenseCase(Name))
+        throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordHashingAlgorithm.ExtractPasswordHashingOptions(hash[algo] invalid)");
+
       return DoExtractPasswordHashingOptions(hash, out needRehash);
     }
 

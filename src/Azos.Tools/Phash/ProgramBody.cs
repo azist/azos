@@ -47,6 +47,7 @@ namespace Azos.Tools.Phash
           if (scoreThreshold<20) scoreThreshold = 20;
           if (scoreThreshold>100) scoreThreshold = 100;
           var strength = args["lvl","level"].AttrByIndex(0).ValueAsEnum<PasswordStrengthLevel>(PasswordStrengthLevel.Default);
+          var algname = args["alg","algo","algorithm"].AttrByIndex(0).Value;
 
           ConsoleUtils.WriteMarkupContent( typeof(ProgramBody).GetText("Welcome.txt") );
 
@@ -122,10 +123,24 @@ Do not hit the same key and try to space key presses in time:<pop>
           Console.WriteLine();
           Console.WriteLine();
 
-          var hashed = app.SecurityManager.PasswordManager.ComputeHash(
-                                    Azos.Security.PasswordFamily.Text,
-                                    password,
-                                    strength);
+          HashedPassword hashed = null;
+
+          if (algname.IsNotNullOrWhiteSpace())
+          {
+            var alg = app.SecurityManager.PasswordManager.Algorithms[algname];
+            if (alg!=null)
+              hashed = alg.ComputeHash(PasswordFamily.Text, password);
+            else
+              ConsoleUtils.Error("Specified algorithm not found. Using default...");
+          }
+
+          if (hashed==null)
+          {
+            hashed = app.SecurityManager.PasswordManager.ComputeHash(
+                                      PasswordFamily.Text,
+                                      password,
+                                      strength);
+          }
 
           password.Dispose();
 
