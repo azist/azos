@@ -62,7 +62,7 @@ namespace Azos.Sky.Workers
     /// for some limited Todo instances that do not rely on sequencing and sharding and are guaranteed to have
     /// a local queue capable of processing this message
     /// </summary>
-    void LocalSpawn(Process process, AuthenticationToken? token = null);
+    void LocalSpawn(Process process, SysAuthToken? token = null);
 
     ResultSignal LocalDispatch(Signal signal);
 

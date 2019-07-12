@@ -32,7 +32,7 @@ namespace Azos.Security.Services
     /// </summary>
     [Field(backendName: "sat", isArow: true)]
     [Field(description: "The content of the internal system AuthenticationToken. WARNING: This should never ever be shared with any public party/given out")]
-    public string SubjectAuthenticationToken { get; set; }
+    public string SubjectSysAuthToken { get; set; }
 
   }
 }

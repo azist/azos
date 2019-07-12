@@ -119,7 +119,7 @@ namespace Azos.Security.Services
       acToken.ClientId = clid;
       acToken.State = flow["st"].AsString();
       acToken.RedirectURI = flow["uri"].AsString();
-      acToken.SubjectAuthenticationToken = subject.AuthToken.ToString();
+      acToken.SubjectSysAuthToken = subject.AuthToken.ToString();
       var accessCode = await OAuth.TokenRing.PutAsync(acToken);
 
       //5. Redirect to URI
@@ -207,7 +207,7 @@ namespace Azos.Security.Services
       if (!uriAllowed) return ReturnError("invalid_grant", "Invalid grant", code: 403);//todo <------------------- ATTACK THREAT: GATE the caller
 
       //4. Fetch target user
-      var auth = new AuthenticationToken("REALM what?", clientToken.SubjectAuthenticationToken);
+      var auth = SysAuthToken.Parse(clientToken.SubjectSysAuthToken);
       var targetUser = await App.SecurityManager.AuthenticateAsync(auth);
       if (!targetUser.IsAuthenticated)
         return ReturnError("invalid_grant", "Invalid grant", code: 403);//no need for gate
@@ -215,7 +215,7 @@ namespace Azos.Security.Services
       //5. Issue the API access token for this access code
       var accessToken = OAuth.TokenRing.GenerateNew<AccessToken>();
       accessToken.ClientId = "aaaaa";//cluser;
-      accessToken.SubjectAuthenticationToken = targetUser.AuthToken.ToString();
+      accessToken.SubjectSysAuthToken = targetUser.AuthToken.ToString();
 
       var token = await OAuth.TokenRing.PutAsync(accessToken);
 

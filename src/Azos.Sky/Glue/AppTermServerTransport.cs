@@ -60,7 +60,7 @@ namespace Azos.Sky.Glue
       var autht = data["auth-token"].AsString();
       if (autht!=null)
       {
-        var hdr = new AuthenticationHeader(AuthenticationToken.Parse(autht));
+        var hdr = new AuthenticationHeader(SysAuthToken.Parse(autht));
         result.Headers.Add(hdr);
       }
       var authc = data["auth-cred"].AsString();

@@ -83,7 +83,7 @@ namespace Azos.Security
     /// <returns>
     /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
     /// </returns>
-    User Authenticate(AuthenticationToken token);
+    User Authenticate(SysAuthToken token);
 
     /// <summary>
     /// Authenticates user by checking the supplied token against the
@@ -97,7 +97,7 @@ namespace Azos.Security
     /// <returns>
     /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
     /// </returns>
-    Task<User> AuthenticateAsync(AuthenticationToken token);
+    Task<User> AuthenticateAsync(SysAuthToken token);
 
 
     /// <summary>

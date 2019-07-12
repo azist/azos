@@ -46,8 +46,8 @@ namespace Azos.Security
 
     public void Configure(Conf.IConfigSectionNode node) {}
 
-    public User Authenticate(AuthenticationToken token) => User.Fake;
-    public Task<User> AuthenticateAsync(AuthenticationToken token) => Task.FromResult(User.Fake);
+    public User Authenticate(SysAuthToken token) => User.Fake;
+    public Task<User> AuthenticateAsync(SysAuthToken token) => Task.FromResult(User.Fake);
 
     public void Authenticate(User user) {}
     public Task AuthenticateAsync(User user) => Task.CompletedTask;

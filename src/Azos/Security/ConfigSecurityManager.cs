@@ -161,16 +161,16 @@ namespace Azos.Security
       }
 
       return new User(credentials,
-                      new AuthenticationToken(),
+                      new SysAuthToken(),
                       UserStatus.Invalid,
                       StringConsts.SECURITY_NON_AUTHENTICATED,
                       StringConsts.SECURITY_NON_AUTHENTICATED,
                       Rights.None, App.TimeSource.UTCNow);
     }
 
-    public Task<User> AuthenticateAsync(AuthenticationToken token) => Task.FromResult(Authenticate(token));
+    public Task<User> AuthenticateAsync(SysAuthToken token) => Task.FromResult(Authenticate(token));
 
-    public User Authenticate(AuthenticationToken token)
+    public User Authenticate(SysAuthToken token)
     {
       var credentials = authTokenToCred(token);
       return Authenticate(credentials);
@@ -272,18 +272,18 @@ namespace Azos.Security
       }
     }
 
-    private AuthenticationToken credToAuthToken(Credentials credentials)
+    private SysAuthToken credToAuthToken(Credentials credentials)
     {
       if (credentials is IDPasswordCredentials idpass)
-        return new AuthenticationToken(this.GetType().FullName, "idp\n{0}\n{1}".Args(idpass.ID, idpass.Password));
+        return new SysAuthToken(this.GetType().FullName, "idp\n{0}\n{1}".Args(idpass.ID, idpass.Password));
 
       if (credentials is EntityUriCredentials enturi)
-        return new AuthenticationToken(this.GetType().FullName, "uri\n{0}".Args(enturi.Uri));
+        return new SysAuthToken(this.GetType().FullName, "uri\n{0}".Args(enturi.Uri));
 
-      return new AuthenticationToken();//invalid token
+      return new SysAuthToken();//invalid token
     }
 
-    private Credentials authTokenToCred(AuthenticationToken token)
+    private Credentials authTokenToCred(SysAuthToken token)
     {
       if (token.Data.IsNullOrWhiteSpace())
         return BlankCredentials.Instance;

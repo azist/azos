@@ -93,7 +93,7 @@ namespace Azos.Sky.Workers.Server
       base.DoWaitForCompleteStop();
     }
 
-    void IProcessHost.LocalSpawn(Process process, AuthenticationToken? token) { Spawn(new ProcessFrame(process)); }
+    void IProcessHost.LocalSpawn(Process process, SysAuthToken? token) { Spawn(new ProcessFrame(process)); }
 
     public void Spawn(ProcessFrame frame)
     {

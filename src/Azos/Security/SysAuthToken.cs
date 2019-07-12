@@ -15,17 +15,17 @@ namespace Azos.Security
   /// External parties should never be supplied with this struct as it is system backend internal token used inside the system
   /// </summary>
   [Serializable]
-  public struct AuthenticationToken : IEquatable<AuthenticationToken>, IJsonWritable, IJsonReadable
+  public struct SysAuthToken : IEquatable<SysAuthToken>, IJsonWritable, IJsonReadable
   {
     public const string DELIMIT = "://";
 
-    public AuthenticationToken(string realm, string data)
+    public SysAuthToken(string realm, string data)
     {
       m_Realm = realm.NonBlank(nameof(realm));
       m_Data = data.NonBlank(nameof(data));
     }
 
-    public AuthenticationToken(string realm, byte[] data)
+    public SysAuthToken(string realm, byte[] data)
     {
       m_Realm = realm.NonBlank(nameof(realm));
       m_Data = data.NonNull(nameof(data)).ToWebSafeBase64();
@@ -58,16 +58,16 @@ namespace Azos.Security
 
     public override int GetHashCode() => Realm.GetHashCode() ^ Data.GetHashCode();
 
-    public override bool Equals(object obj) => obj is AuthenticationToken other ? this.Equals(other) : false;
+    public override bool Equals(object obj) => obj is SysAuthToken other ? this.Equals(other) : false;
 
-    public bool Equals(AuthenticationToken other) => this.m_Realm.EqualsOrdSenseCase(other.m_Realm) &&
+    public bool Equals(SysAuthToken other) => this.m_Realm.EqualsOrdSenseCase(other.m_Realm) &&
                                                      this.m_Data.EqualsOrdSenseCase(other.m_Data);
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options) => wri.Write(ToString());
 
     (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
     {
-      if (data == null) return (true, new AuthenticationToken());
+      if (data == null) return (true, new SysAuthToken());
 
       if (data is string str && TryParse(str, out var t)) return (true, t);
 
@@ -75,16 +75,16 @@ namespace Azos.Security
     }
 
 
-    public static bool operator ==(AuthenticationToken a, AuthenticationToken b) => a.Equals(b);
-    public static bool operator !=(AuthenticationToken a, AuthenticationToken b) => !a.Equals(b);
+    public static bool operator ==(SysAuthToken a, SysAuthToken b) => a.Equals(b);
+    public static bool operator !=(SysAuthToken a, SysAuthToken b) => !a.Equals(b);
 
     /// <summary>
     /// Tries to parse the token represented by string obtained from ToString() call.
     /// Null/Empty strings are treated as a successful conversion to unassigned
     /// </summary>
-    public static bool TryParse(string token, out AuthenticationToken parsed)
+    public static bool TryParse(string token, out SysAuthToken parsed)
     {
-      parsed = new AuthenticationToken();
+      parsed = new SysAuthToken();
 
       if (token.IsNullOrWhiteSpace()) return true;//null
 
@@ -93,14 +93,14 @@ namespace Azos.Security
 
       var realm = token.Substring(0, i);
       var data = token.Substring(i+DELIMIT.Length);
-      parsed = new AuthenticationToken(realm, data);
+      parsed = new SysAuthToken(realm, data);
       return true;
     }
 
     /// <summary>
     /// Parses the token from string throwing if not possible. Null/empty string result in unassigned tokens
     /// </summary>
-    public static AuthenticationToken Parse(string token)
+    public static SysAuthToken Parse(string token)
     {
       if (TryParse(token, out var t)) return t;
       throw new SecurityException("Could not .Parse(`{0}`)".Args(token.TakeFirstChars(32, "..")));
