@@ -17,7 +17,7 @@ namespace Azos.Security
   [Serializable]
   public struct SysAuthToken : IEquatable<SysAuthToken>, IJsonWritable, IJsonReadable
   {
-    public const string DELIMIT = "://";
+    public const string DELIMIT = "::";
 
     public SysAuthToken(string realm, string data)
     {
@@ -63,7 +63,7 @@ namespace Azos.Security
     public bool Equals(SysAuthToken other) => this.m_Realm.EqualsOrdSenseCase(other.m_Realm) &&
                                                      this.m_Data.EqualsOrdSenseCase(other.m_Data);
 
-    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options) => wri.Write(ToString());
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options) => JsonWriter.EncodeString(wri, ToString(), options);
 
     (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
     {
