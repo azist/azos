@@ -13,6 +13,7 @@ using Azos.Glue.Native;
 using Azos.Glue.Protocol;
 using Azos.Serialization;
 using Azos.Serialization.JSON;
+using Azos.Security;
 
 namespace Azos.Sky.Glue
 {
@@ -59,7 +60,7 @@ namespace Azos.Sky.Glue
       var autht = data["auth-token"].AsString();
       if (autht!=null)
       {
-        var hdr = new AuthenticationHeader(Security.SkyAuthenticationTokenSerializer.Deserialize(autht));
+        var hdr = new AuthenticationHeader(AuthenticationToken.Parse(autht));
         result.Headers.Add(hdr);
       }
       var authc = data["auth-cred"].AsString();

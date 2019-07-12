@@ -285,10 +285,10 @@ namespace Azos.Security
 
     private Credentials authTokenToCred(AuthenticationToken token)
     {
-      if (token.Data == null)
+      if (token.Data.IsNullOrWhiteSpace())
         return BlankCredentials.Instance;
 
-      var seg = token.Data.ToString().Split('\n');
+      var seg = token.Data.Split('\n');
 
       if (seg.Length < 2)
         return BlankCredentials.Instance;

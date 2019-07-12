@@ -100,7 +100,8 @@ namespace Azos.Security.Services
       if (age.TotalSeconds > 600) return new Http401Unauthorized("Bad Request");//todo MOVE to setting/constant default
 
       //2. Lookup client app, just by client_id (w/o password)
-      var clcred = new EntityUriCredentials(flow["id"].AsString());
+      var clid = flow["id"].AsString();
+      var clcred = new EntityUriCredentials(clid);
       var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
       if (!cluser.IsAuthenticated) return new Http401Unauthorized("Unknown client");//we don't have ACL yet, hence can't check redirect_uri
                                                                                     //todo <------------------- ATTACK THREAT: GATE the caller
@@ -109,14 +110,19 @@ namespace Azos.Security.Services
       var subjcred = new IDPasswordCredentials(id, pwd);
       var subject = await App.SecurityManager.AuthenticateAsync(subjcred);
       if (!subject.IsAuthenticated)
-        return MakeAuthorizeResult(cluser, flow["tp"].AsString(), flow["scp"].AsString(), flow["id"].AsString(), flow["uri"].AsString(), flow["st"].AsString(), "Invalid credentials");
+        return MakeAuthorizeResult(cluser, flow["tp"].AsString(), flow["scp"].AsString(), clid, flow["uri"].AsString(), flow["st"].AsString(), "Invalid credentials");
 
       //success ------------------
 
      // 4. Generate Accesscode token
-      var accessCode = "aaaa";//OAuth.TokenRing.IssueClientAccessToken(clientid, subject.AuthToken, session.redirect_uri, session.state);
-      //5. Redirect to URI
+      var acToken = OAuth.TokenRing.GenerateNew<ClientAccessCodeToken>();
+      acToken.ClientId = clid;
+      acToken.State = flow["st"].AsString();
+      acToken.RedirectURI = flow["uri"].AsString();
+      acToken.SubjectAuthenticationToken = subject.AuthToken.ToString();
+      var accessCode = await OAuth.TokenRing.PutAsync(acToken);
 
+      //5. Redirect to URI
       var redirect = "{0}?token={1}&state={2}".Args(flow["uri"].AsString(), accessCode, flow["st"].AsString());//todo Encode URI
       return new Redirect(redirect);
     }
@@ -209,7 +215,7 @@ namespace Azos.Security.Services
       //5. Issue the API access token for this access code
       var accessToken = OAuth.TokenRing.GenerateNew<AccessToken>();
       accessToken.ClientId = "aaaaa";//cluser;
-      accessToken.SubjectAuthenticationToken = "todo ";//targetUser.AuthToken.Data;
+      accessToken.SubjectAuthenticationToken = targetUser.AuthToken.ToString();
 
       var token = await OAuth.TokenRing.PutAsync(accessToken);
 
