@@ -143,8 +143,8 @@ namespace Azos.Security
 
     public TOptions ExtractPasswordHashingOptions(HashedPassword hash, out bool needRehash)
     {
-      if (hash == null || hash["salt"] == null)
-        throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordHashingAlgorithm.ExtractPasswordHashingOptions((hash|hash[salt])==null)");
+      if (hash == null)
+        throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordHashingAlgorithm.ExtractPasswordHashingOptions(hash==null)");
       if (!hash.AlgoName.EqualsOrdSenseCase(Name))
         throw new SecurityException(StringConsts.ARGUMENT_ERROR + "PasswordHashingAlgorithm.ExtractPasswordHashingOptions(hash[algo] invalid)");
 

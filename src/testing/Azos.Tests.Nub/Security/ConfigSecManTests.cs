@@ -32,7 +32,7 @@ app
         status='User'
         id='user1'
         //password = thejake
-        password='{""algo"":""MD5"",""fam"":""Text"",""hash"":""WtaG\\/XLsvvrC5CCpmm92Aw=="",""salt"":""g7sni3\\/uh08Ttb2Yar9optRPtd3aIQaDe89UTA==""}'
+        password='{""alg"":""MD5"",""fam"":""Text"",""hash"":""WtaG\\/XLsvvrC5CCpmm92Aw=="",""salt"":""g7sni3\\/uh08Ttb2Yar9optRPtd3aIQaDe89UTA==""}'
         rights
         {
            Azos{ Tests{ Nub{ Security{
@@ -49,7 +49,7 @@ app
         status='User'
         id='user2'
         //password = thejake
-        password='{""algo"":""MD5"",""fam"":""Text"",""hash"":""WtaG\\/XLsvvrC5CCpmm92Aw=="",""salt"":""g7sni3\\/uh08Ttb2Yar9optRPtd3aIQaDe89UTA==""}'
+        password='{""alg"":""MD5"",""fam"":""Text"",""hash"":""WtaG\\/XLsvvrC5CCpmm92Aw=="",""salt"":""g7sni3\\/uh08Ttb2Yar9optRPtd3aIQaDe89UTA==""}'
         rights
         {
            Azos{ Tests{ Nub{ Security{
@@ -67,8 +67,20 @@ app
         status='System'
         id='sys'
         //password = thejake
-        password='{""algo"":""MD5"",""fam"":""Text"",""hash"":""\\/jps4fYHDMpfjbJag\\/\\/yhQ=="",""salt"":""EHIMX9k8V0rtPwnLqeBO6eUe""}'
+        password='{""alg"":""MD5"",""fam"":""Text"",""hash"":""\\/jps4fYHDMpfjbJag\\/\\/yhQ=="",""salt"":""EHIMX9k8V0rtPwnLqeBO6eUe""}'
       }
+
+
+      user
+      {
+        name='UserKDF'
+        description='User with KDF password'
+        status='User'
+        id='ukdf'
+        //password = thejake
+        password='{""alg"":""KDF"",""fam"":""Text"",""h"":""ZiZBXDp1HlN6J0XpXlTx31UPtaHZShRZr2nlJsEKIJc"",""s"":""1k1E2tS-equdggnLdaJKQhEkckPgDfnzmA31kVCOzZg""}'
+      }
+
     }//users
   }//security
 }//app
@@ -344,6 +356,17 @@ app
          .And(new TeztPermissionB(6))//sys bypasses all security altogether
          .And(new TeztPermissionC(6))
       );
+    }
+
+
+    [Run]
+    public void Authenticate_RegularUser_KDFPassword()
+    {
+      var credentials = new IDPasswordCredentials("ukdf", "thejake");
+      var user = m_App.SecurityManager.Authenticate(credentials);
+      Aver.IsTrue(user.Status == UserStatus.User);
+      Aver.AreEqual("UserKDF", user.Name);
+      Aver.AreEqual("User with KDF password", user.Description);
     }
 
   }
