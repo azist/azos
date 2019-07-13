@@ -12,7 +12,7 @@ using Azos.Conf;
 using Azos.Serialization.JSON;
 using Azos.Instrumentation;
 
-namespace Azos.Security.Services
+namespace Azos.Security.Tokens
 {
   /// <summary>
   /// Implements token ring which stores tokens in protected messages on the client

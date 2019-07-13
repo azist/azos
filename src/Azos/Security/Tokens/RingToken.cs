@@ -2,9 +2,9 @@
 
 using Azos.Data;
 
-namespace Azos.Security.Services
+namespace Azos.Security.Tokens
 {
-  /// <summary> Common base for all tokens stored in a token ring </summary>
+  /// <summary> Common base for all tokens stored on a token ring </summary>
   public abstract class RingToken : TypedDoc
   {
     public const string PROTECTED_MSG_TARGET = "protected-msg";

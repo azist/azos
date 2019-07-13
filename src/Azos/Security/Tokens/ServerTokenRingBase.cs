@@ -14,7 +14,7 @@ using Azos.Data;
 using Azos.Instrumentation;
 using Azos.Pile;
 
-namespace Azos.Security.Services
+namespace Azos.Security.Tokens
 {
   /// <summary>
   /// Provides base implementation of token rings which store tokens server-side

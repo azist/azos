@@ -1,15 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Threading.Tasks;
+
+using Azos.Apps.Injection;
 using Azos.Data;
 using Azos.Wave.Mvc;
+using Azos.Security.Tokens;
 
 namespace Azos.Security.Services
 {
   /// <summary>
   /// Provides a base for OAuth flow controllers.
-  /// Derive from this class to implement OAuth controller customized for your system
+  /// Derive from this class to implement OAuth controller customized for your system.
+  /// This class depends on Azos.Security.Services.IOAuthModule present in app chassis
   /// </summary>
   [NoCache]
   public abstract class OAuthControllerBase : Controller
@@ -18,8 +26,15 @@ namespace Azos.Security.Services
     //https://medium.com/@darutk/diagrams-and-movies-of-all-the-oauth-2-0-flows-194f3c3ade85
     //https://developer.okta.com/blog/2019/05/01/is-the-oauth-implicit-flow-dead
 
-    /// <summary> Returns IOAuthManager module off the App.SecMan </summary>
-    protected IOAuthManager OAuth => (App.SecurityManager as IOAuthManagerHost).NonNull("not IOAuthManagerHost make sure App.Secman is configured to use IOAuthManagerHost").OAuthManager;
+    protected OAuthControllerBase() : base() { }
+    protected OAuthControllerBase(IOAuthModule oauth) : base()
+    => m_OAuth = oauth.NonNull(nameof(oauth));
+
+    [InjectModule] private IOAuthModule m_OAuth;
+
+    /// <summary> References IOAuthModule dependency </summary>
+    protected IOAuthModule OAuth => m_OAuth;
+
 
     /// <summary>
     /// Represents the entry point of OAuth flow

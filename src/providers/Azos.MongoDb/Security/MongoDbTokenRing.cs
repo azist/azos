@@ -5,7 +5,7 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Data.Access.MongoDb;
 
-namespace Azos.Security.Services
+namespace Azos.Security.Tokens
 {
   /// <summary>
   /// Stores tokens in MongoDb instance

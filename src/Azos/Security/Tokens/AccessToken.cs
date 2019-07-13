@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 using Azos.Data;
 using Azos.Serialization.Arow;
-using Azos.Serialization.JSON;
 
-namespace Azos.Security.Services
+namespace Azos.Security.Tokens
 {
   /// <summary>
   /// Represents a token which is supplied to API/service provider to impersonate a user

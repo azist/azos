@@ -4,14 +4,10 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 using Azos.Data;
 using Azos.Serialization.Arow;
 
-namespace Azos.Security.Services
+namespace Azos.Security.Tokens
 {
   /// <summary>
   /// Generated for OAuth clients on successful authorization, the client typically makes back-channel call to

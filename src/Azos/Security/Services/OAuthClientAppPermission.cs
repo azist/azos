@@ -15,7 +15,7 @@ namespace Azos.Security.Services
   /// <summary>
   /// Designates bearer as an OAuth client application, having optional redirect Uri and backend IP patterns
   /// which are tried to match against the caller.
-  /// User .ctor(uri,addr) to assert the access for the specific URI/backend caller IP.
+  /// User .ctor(uri,addr) to authorize access for the specific URI/backend caller IP.
   /// The ACL/Rights provider is expected to supply ACL in the specific form (see remarks)
   /// </summary>
   /// <remarks>
