@@ -12,7 +12,7 @@ namespace Azos.Standards
 {
   /// <summary>
   /// Performs mapping and normalization of ISO country codes between 2 and 3 digit form,
-  /// for examle 'US' and 'USA'
+  /// for example 'US' and 'USA'
   /// </summary>
   public static class Countries_ISO3166_1
   {

@@ -417,7 +417,7 @@
         name="Dima"
         description="Dima"
         id="dima"
-        password='{"algo":"MD5","fam":"Text","hash":"ZcrDK120Iwj08Qqfzvz95w==","salt":"e0K7BA4Ylby2kWAp3nCR3A9jSw=="}'
+        password='{"alg":"MD5","fam":"Text","hash":"ZcrDK120Iwj08Qqfzvz95w==","salt":"e0K7BA4Ylby2kWAp3nCR3A9jSw=="}'
         status="User"
         rights
         {

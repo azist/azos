@@ -684,7 +684,7 @@ namespace Azos.Glue.Implementation
 
                    if (ah == null) return;
 
-                   if (ah.Credentials==null && ah.Token.Data==null) return;
+                   if (ah.Credentials==null && !ah.Token.Assigned) return;
 
                    User user;
                    if (ah.Credentials!=null)

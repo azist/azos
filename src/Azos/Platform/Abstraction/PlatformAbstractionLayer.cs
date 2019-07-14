@@ -75,6 +75,19 @@ namespace Azos.Platform.Abstraction
       }
     }
 
+    /// <summary>
+    /// Abstracts functions related to cryptography
+    /// </summary>
+    public static IPALCryptography Cryptography
+    {
+      get
+      {
+        var result = s_Implementation?.Cryptography;
+        if (result == null) throw new PALException(StringConsts.PAL_ABSTRACTION_IS_NOT_PROVIDED_ERROR.Args("Cryptography"));
+        return result;
+      }
+    }
+
 
     /// <summary>
     /// Sets invariant culture for the whole process regardless of machine's culture

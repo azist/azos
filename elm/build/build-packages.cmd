@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.508
-set HEADLINE=Added BundledMongoDb
+set VER=1.0.510.1
+set HEADLINE=OAuth Identity Provider
 
 call vs2017-build-release %VER%
 

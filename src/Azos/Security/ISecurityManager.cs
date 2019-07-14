@@ -23,13 +23,18 @@ namespace Azos.Security
     /// and the caller should favor async methods over sync ones. In some high-throughput systems the security manager
     /// may be implemented as 100% in-ram CPU bound code which yields much better performance and cause less GC pressure calling sync-only methods
     /// </summary>
-    bool SupportsTrueAsynchrony {  get; }
+    bool SupportsTrueAsynchrony { get; }
 
     /// <summary>
     /// References an entity that manages passwords such as: computes and verifies hash tokens
     /// and provides password strength verification
     /// </summary>
     IPasswordManager PasswordManager { get; }
+
+    /// <summary>
+    /// Provides cryptography services, such as message protection etc.
+    /// </summary>
+    ICryptoManager Cryptography{ get; }
 
     /// <summary>
     /// Authenticates user by checking the supplied credentials against the
@@ -78,7 +83,7 @@ namespace Azos.Security
     /// <returns>
     /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
     /// </returns>
-    User Authenticate(AuthenticationToken token);
+    User Authenticate(SysAuthToken token);
 
     /// <summary>
     /// Authenticates user by checking the supplied token against the
@@ -92,7 +97,7 @@ namespace Azos.Security
     /// <returns>
     /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
     /// </returns>
-    Task<User> AuthenticateAsync(AuthenticationToken token);
+    Task<User> AuthenticateAsync(SysAuthToken token);
 
 
     /// <summary>
@@ -142,6 +147,19 @@ namespace Azos.Security
     /// <param name="permission">An instance of permission to get</param>
     /// <returns>AccessLevel granted to the specified permission</returns>
     Task<AccessLevel> AuthorizeAsync(User user, Permission permission);
+
+    /// <summary>
+    /// Performs a lookup of security-addressable subject/resource/entity, such as a user/group/room/circle/client app etc...
+    /// The format of the URI is up to the provider. Warning: this method should never ever been used for authentication, rather
+    /// it is to lookup existing entity. Be careful not to disclose publicly too much information which may be private to this entity
+    /// </summary>
+    /// <param name="uri">Implementation-specific identifier of the identity to look up, e.g. `user://mike12345`, `app://facebookwall`</param>
+    /// <returns>Entity information, or null if such entity is not found</returns>
+    /// <remarks>
+    /// Not all security manager implement this functionality. Typically it is being implemented by complex
+    /// security facades that support social/public users, and OAuth client applications
+    /// </remarks>
+    Task<IEntityInfo> LookupEntityAsync(string uri);
 
     /// <summary>
     /// Extracts values for archive dimensions to store the log message for the specified user descriptor.

@@ -22,12 +22,12 @@ namespace Azos.Security
   /// <summary>
   /// Represents a general permission abstraction - where permission type represents the path/name of the permission
   ///  in User's rights and .ctor takes specific parameters to check while authorizing user.
-  ///  Permission-derived class represents a certain permission type, whereas its instance is a check for particular desired level.
+  ///  Permission-derived class represents a certain permission type, whereas its instance represents a check for some desired access level.
   ///  To authorize certain actions, one creates an instance of Permission-derived class passing in its .ctor required
-  ///   access levels, then calls a Check() method that returns true if action is authorized.
+  ///   access levels, then calls `Check()` method that returns true if the action is authorized.
   ///
-  /// This scheme provides a great deal of flexibility, i.e. for very complex security cases developers may inherit leaf-level permissions from intermediate ones
-  ///   that have logic tied to session-level variables, this way user's access may vary by permission/session state, i.e. a user may have
+  /// This design provides a great deal of flexibility, i.e. for complex security cases developers may inherit leaf-level permissions from intermediate ones
+  ///   that have logic tied to session-level variables, this way user's access may vary by permission/session state, e.g. a user may have
   ///    "Patient.Master" level 4 access in database "A", while having access denied to the same named permission in database "B".
   /// User's database, or system instance is a flag in user-session context
   /// </summary>
@@ -279,7 +279,7 @@ namespace Azos.Security
 
       if (!access.IsAssigned) return false;
 
-      return DoCheckAccessLevel(session, access);
+      return DoCheckAccessLevel(app, session, access);
     }
 
     /// <summary>
@@ -302,7 +302,7 @@ namespace Azos.Security
 
       if (!access.IsAssigned) return false;
 
-      return DoCheckAccessLevel(session, access);
+      return DoCheckAccessLevel(app, session, access);
     }
 
     public override string ToString()
@@ -319,7 +319,7 @@ namespace Azos.Security
     /// True if  accessLevel satisfies permission requirements.
     /// The default implementation checks the access.Level
     /// </summary>
-    protected virtual bool DoCheckAccessLevel(ISession session, AccessLevel access)
+    protected virtual bool DoCheckAccessLevel(IApplication app, ISession session, AccessLevel access)
     {
       return access.Level >= m_Level;
     }

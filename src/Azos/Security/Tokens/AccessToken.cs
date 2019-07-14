@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 using Azos.Data;
 using Azos.Serialization.Arow;
-using Azos.Serialization.JSON;
 
-namespace Azos.Security.Services
+namespace Azos.Security.Tokens
 {
   /// <summary>
   /// Represents a token which is supplied to API/service provider to impersonate a user
   /// </summary>
-  [Arow, Table(name: "accesstoken")]
+  [Arow]
   public sealed class AccessToken : RingToken
   {
-    public override (int min, int max) TokenByteStrength => (64, 83);// 83 * 1.5 = 124.5 bytes; key length is (~100 .. ~128 base 64 chars)
+    public override int TokenByteStrength => 64;
     public override int TokenDefaultExpirationSeconds => 10/*hrs*/ * 60/*min*/ * 60;
 
     /// <summary>
@@ -32,7 +28,7 @@ namespace Azos.Security.Services
     /// </summary>
     [Field(backendName: "sat", isArow: true)]
     [Field(description: "The content of the internal system AuthenticationToken. WARNING: This should never ever be shared with any public party/given out")]
-    public string SubjectAuthenticationToken { get; set; }
+    public string SubjectSysAuthToken { get; set; }
 
   }
 }

@@ -9,9 +9,9 @@ using System.Security.Principal;
 
 namespace Azos.Platform.Abstraction.NetFramework
 {
-  internal class PALFileSystem : IPALFileSystem
+  internal class NetFileSystem : IPALFileSystem
   {
-    public PALFileSystem()
+    public NetFileSystem()
     {
     }
 

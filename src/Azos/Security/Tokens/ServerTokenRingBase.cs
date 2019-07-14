@@ -1,8 +1,11 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -11,37 +14,33 @@ using Azos.Data;
 using Azos.Instrumentation;
 using Azos.Pile;
 
-namespace Azos.Security.Services
+namespace Azos.Security.Tokens
 {
   /// <summary>
-  /// Provides base implementation of token management services
+  /// Provides base implementation of token rings which store tokens server-side
   /// </summary>
-  public abstract class TokenRing : DaemonWithInstrumentation<IOAuthManager>, ITokenRingImplementation
+  public abstract class ServerTokenRingBase : DaemonWithInstrumentation<IApplicationComponent>, ITokenRingImplementation
   {
     public const string CONFIG_PILE_SECTION = "pile";
     public const string CONFIG_CACHE_SECTION = "cache";
     public const int DEFAULT_CACHE_MAX_AGE_SEC = 37;
 
-    public TokenRing(IApplication app) : base(app) => ctor();
-    public TokenRing(IOAuthManagerImplementation director) : base(director) => ctor();
+    protected ServerTokenRingBase(IApplicationComponent director) : base(director) => ctor();
 
     private void ctor()
     {
       m_Pile = new DefaultPile(this, "token-ring-pile"){ SegmentSize = 64 * 1024 * 1024};
       m_Cache = new LocalCache(this, "token-ring-cache", m_Pile);
       m_Cache.DefaultTableOptions.DefaultMaxAgeSec = DEFAULT_CACHE_MAX_AGE_SEC;
-      m_CryptoRnd = new RNGCryptoServiceProvider();
     }
 
     protected override void Destructor()
     {
       DisposeAndNull(ref m_Cache);
       DisposeAndNull(ref m_Pile);
-      DisposeAndNull(ref m_CryptoRnd);
       base.Destructor();
     }
 
-    private RNGCryptoServiceProvider m_CryptoRnd;
     private DefaultPile m_Pile;
     private LocalCache m_Cache;
 
@@ -53,6 +52,7 @@ namespace Azos.Security.Services
 
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
+    /// <summary> Establishes the issuer name used for new token production </summary>
     [Config]
     public string IssuerName
     {
@@ -62,9 +62,19 @@ namespace Azos.Security.Services
 
 
     #region ITokenRing
-    public virtual TToken GenerateNewToken<TToken>() where TToken : RingToken
+
+    public abstract Task<TToken> GetAsync<TToken>(string token) where TToken : RingToken;
+
+    public abstract Task<TToken> GetUnsafeAsync<TToken>(string token) where TToken : RingToken;
+
+    public abstract Task<string> PutAsync(RingToken token);
+
+    public abstract Task Blacklist(IConfigSectionNode selector);
+
+    public virtual TToken GenerateNew<TToken>() where TToken : RingToken
     {
       var token = Activator.CreateInstance<TToken>();
+      token.Type = typeof(TToken).Name;
       var len = token.TokenByteStrength;
 
       //1. Guid pad is used as a RNG source based on MAC addr/clock
@@ -72,17 +82,12 @@ namespace Azos.Security.Services
       var guid = Guid.NewGuid();
       var guidpad = guid.ToNetworkByteOrder();//16 bytes
 
-      //2. Two independent RNGs are used to avoid library implementation errors affecting token entropy distribution,
-      //so shall an error happen in one (highly unlikely), the other one would still ensure crypto white noise spectrum distribution
-      //the Platform.RandomGenerator is periodically fed external entropy from system and network stack
-      var rnd = Platform.RandomGenerator.Instance.NextRandomBytes(len.min, len.max);
-      var rnd2 = new byte[rnd.Length];
-      m_CryptoRnd.GetBytes(rnd2);
-      for(var i=1; i<rnd.Length; i++) rnd[i] ^= rnd2[i];//both Random streams are combined using XOR
+      //2. Random token body
+      var rnd = App.SecurityManager.Cryptography.GenerateRandomBytes(len);
 
       //3. Concat GUid pad with key
-      var btoken = guidpad.Concat(rnd).ToArray();
-      token.Value = Convert.ToBase64String(btoken, Base64FormattingOptions.None);
+      var btoken = guidpad.AppendToNew(rnd);
+      token.ID = Convert.ToBase64String(btoken, Base64FormattingOptions.None);
 
       token.IssuedBy = this.IssuerName;
       token.IssueUtc = App.TimeSource.UTCNow;
@@ -91,49 +96,6 @@ namespace Azos.Security.Services
       return token;
     }
 
-    public abstract Task InvalidateAccessToken(string accessToken);
-
-    public abstract Task InvalidateClient(string clientID);
-
-    public abstract Task InvalidateSubject(AuthenticationToken token);
-
-    public abstract Task<AccessToken> IssueAccessToken(User userClient, User targetUser);
-
-    public abstract Task<ClientAccessCodeToken> LookupClientAccessCodeAsync(string accessCode);
-
-    public AuthenticationToken? MapAccessToken(string accessToken)
-    {
-      if (!Running) return null;
-      var tbl = GetCacheTableOf(typeof(AccessToken));
-
-      var utcNow = App.TimeSource.UTCNow;//important to use accurate time source
-      var cached = tbl.Get(accessToken.NonBlank(nameof(accessToken)));
-      if (cached is AbsentValue) return null;
-      var access  = cached as AccessToken;
-      if (access==null)
-      {
-        access = DoFetchAccessToken(accessToken, utcNow);
-        tbl.Put(accessToken, (object)access ?? AbsentValue.Instance);//does not exist in the store
-        if (access==null)
-          return null;//does not exist, AbsentData
-      }
-
-      if ((access.ExpireUtc ?? DateTime.MinValue) < utcNow) return null;//expired
-
-      var content = access.SubjectAuthenticationToken;
-      if (content.IsNullOrWhiteSpace()) return null;
-      var result = MapSubjectAuthenticationTokenFromContent(content);
-      return result;
-    }
-
-    public abstract AuthenticationToken MapSubjectAuthenticationTokenFromContent(string content);
-
-    public abstract string  MapSubjectAuthenticationTokenToContent(AuthenticationToken token);
-
-    public string TargetAuthenticationTokenToContent(AuthenticationToken token)
-    {
-      throw new NotImplementedException();
-    }
     #endregion
 
     #region Protected
@@ -191,7 +153,6 @@ namespace Azos.Security.Services
     /// The tokens that have expired already or marked as deleted shall not be fetched (return null as if they don't exist)
     /// </summary>
     protected abstract AccessToken DoFetchAccessToken(string accessToken, DateTime utcNow);
-
 
     #endregion
 

@@ -83,8 +83,8 @@ namespace Azos.Security
     [Config] private string m_ID;
     [Config] private string m_Password;
 
-    public string ID { get { return m_ID ?? string.Empty; } }
-    public string Password { get { return m_Password ?? string.Empty; } }
+    public string ID => m_ID ?? string.Empty;
+    public string Password => m_Password ?? string.Empty;
 
     /// <summary>
     /// Obtains an unsecured string password as SecureBuffer.
@@ -110,7 +110,6 @@ namespace Azos.Security
     /// <summary>
     /// Converts plain credentials to basic auth using base64
     /// </summary>
-    /// <returns></returns>
     public string RepresentAsString()
     {
       if (Forgotten)

@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+using Azos.Apps;
 using Azos.Conf;
 using Azos.Data.Access.MongoDb;
 
-namespace Azos.Security.Services
+namespace Azos.Security.Tokens
 {
   /// <summary>
   /// Stores tokens in MongoDb instance
   /// </summary>
-  public class MongoDbTokenRing : TokenRing
+  public class MongoDbTokenRing : ServerTokenRingBase
   {
     public const string CONFIG_MONGO_SECTION = "mongo";
 
-    public MongoDbTokenRing(IApplication app) : base(app) { }
-    public MongoDbTokenRing(IOAuthManagerImplementation director) : base(director) { }
+    public MongoDbTokenRing(IApplicationComponent director) : base(director) { }
 
     protected override void Destructor()
     {
@@ -50,42 +50,22 @@ namespace Azos.Security.Services
       m_DBMS?.WaitForCompleteStop();
     }
 
-    public override TToken GenerateNewToken<TToken>()
+    public override Task<TToken> GetAsync<TToken>(string token)
     {
       throw new NotImplementedException();
     }
 
-    public override Task InvalidateAccessToken(string accessToken)
+    public override Task<TToken> GetUnsafeAsync<TToken>(string token)
     {
       throw new NotImplementedException();
     }
 
-    public override Task InvalidateClient(string clientID)
+    public override Task<string> PutAsync(RingToken token)
     {
       throw new NotImplementedException();
     }
 
-    public override Task InvalidateSubject(AuthenticationToken token)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override Task<AccessToken> IssueAccessToken(User userClient, User targetUser)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override Task<ClientAccessCodeToken> LookupClientAccessCodeAsync(string accessCode)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override AuthenticationToken MapSubjectAuthenticationTokenFromContent(string content)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override string MapSubjectAuthenticationTokenToContent(AuthenticationToken token)
+    public override Task Blacklist(IConfigSectionNode selector)
     {
       throw new NotImplementedException();
     }
@@ -94,6 +74,7 @@ namespace Azos.Security.Services
     {
       throw new NotImplementedException();
     }
+
     #endregion
 
   }

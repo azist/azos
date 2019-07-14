@@ -254,7 +254,7 @@ namespace Azos.Wave.Handlers
           stream.Seek(0, SeekOrigin.Begin);
           work.Response.WriteStream(stream);
         }
-        else throw new HTTPStatusException(WebConsts.STATUS_404, WebConsts.STATUS_404_DESCRIPTION, StringConsts.NOT_FOUND_ERROR + resName);
+        else throw new HTTPStatusException(WebConsts.STATUS_404, WebConsts.STATUS_404_DESCRIPTION, resName);
       }
 
       private string getResourcePath(string sitePath)

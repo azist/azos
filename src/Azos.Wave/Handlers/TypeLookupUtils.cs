@@ -57,12 +57,12 @@ namespace Azos.Wave.Handlers
 
        /// <summary>
        /// Name of portal. When this property is set then this location will only be matched if
-       ///  WorkContext.Portal.Name matches for given request. NUll by default
+       ///  WorkContext.Portal.Name matches for given request. Null by default
        /// </summary>
        public readonly string Portal;
 
        /// <summary>
-       /// A list of namespaces
+       /// A list of namespaces. You can use namespace pattern matches containing `*` for match multiple and `?` match single character
        /// </summary>
        public readonly IEnumerable<string> Namespaces;
 

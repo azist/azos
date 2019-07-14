@@ -75,7 +75,7 @@ namespace Azos
 
 
     /// <summary>
-    /// Encodes string with standart UTF8 encoder
+    /// Encodes string with standard UTF8 encoder
     /// </summary>
     public static byte[] ToUTF8Bytes(this string str)
     {
@@ -85,7 +85,7 @@ namespace Azos
     }
 
     /// <summary>
-    /// Decode string with standart UTF8 decoder
+    /// Decode string with standard UTF8 decoder
     /// </summary>
     public static string FromUTF8Bytes(this byte[] buf, int idx = -1, int cnt = -1)
     {
@@ -1241,5 +1241,29 @@ namespace Azos
                       buf[offset++],
                       buf[offset]);
     }
+
+    /// <summary>
+    /// Represents byte[] as a web-safe string, replacing `+` with `-` and `/` with `_`
+    /// so the value may be included in URI without any extra encoding. Returns null for null buffer
+    /// </summary>
+    public static string ToWebSafeBase64(this byte[] buf)
+    {
+      if (buf==null) return null;
+      var str = Convert.ToBase64String(buf, Base64FormattingOptions.None);
+      str = str.TrimEnd('=');//at the end only
+      str = str.Replace('+', '-').Replace('/', '_');
+      return str;
+    }
+
+    public static byte[] FromWebSafeBase64(this string content)
+    {
+      if (content.IsNullOrWhiteSpace()) return null;
+      content = content.Replace('-', '+').Replace('_', '/');
+      var pl = content.Length % 4;
+      if (pl==2) content += "==";
+      else if (pl==3) content += "=";
+      return Convert.FromBase64String(content);
+    }
+
   }
 }
