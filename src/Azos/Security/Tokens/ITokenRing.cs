@@ -62,7 +62,7 @@ namespace Azos.Security.Tokens
     Task Blacklist(IConfigSectionNode selector);
   }
 
-  public interface ITokenRingImplementation : ITokenRing, IDaemon, IInstrumentable
+  public interface ITokenRingImplementation : ITokenRing, IDisposable, IConfigurable
   {
   }
 

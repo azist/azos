@@ -10,14 +10,13 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Serialization.JSON;
-using Azos.Instrumentation;
 
 namespace Azos.Security.Tokens
 {
   /// <summary>
   /// Implements token ring which stores tokens in protected messages on the client
   /// </summary>
-  public sealed class ClientTokenRing : DaemonWithInstrumentation<IApplicationComponent>, ITokenRingImplementation
+  public sealed class ClientTokenRing : ApplicationComponent, ITokenRingImplementation
   {
     public ClientTokenRing(IApplicationComponent director) : base(director) {}
 
@@ -28,10 +27,6 @@ namespace Azos.Security.Tokens
 
     private string m_IssuerName;
 
-    [Config]
-    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
-    public override bool InstrumentationEnabled { get; set;}
-
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
     /// <summary> Establishes the issuer name used for new token production </summary>
@@ -40,6 +35,11 @@ namespace Azos.Security.Tokens
     {
       get => m_IssuerName.IsNotNullOrWhiteSpace() ? m_IssuerName : Log.Message.DefaultHostName;
       set => m_IssuerName = value;
+    }
+
+    void IConfigurable.Configure(IConfigSectionNode node)
+    {
+      ConfigAttribute.Apply(this, node);
     }
 
 
