@@ -36,33 +36,40 @@ namespace Azos.Data
          }
 
 
-         public static readonly char[] ARRAY_SPLIT_CHARS = new []{',', ';'};
+         public static readonly char[] ARRAY_SPLIT_CHARS = new []{',', ' ', ';'};
 
          public static byte[] AsByteArray(this string val, byte[] dflt = null)
          {
-              if (val==null) return dflt;
-              try
-              {
-                var result = new List<byte>();
-                var segs = val.Split(ARRAY_SPLIT_CHARS, StringSplitOptions.RemoveEmptyEntries);
-                foreach(var seg in segs)
-                {
-                  //byte arrays defaults to prefix-less hex
-                  byte b;
-                  if (byte.TryParse(seg, NumberStyles.HexNumber, null, out b))
-                  {
-                    result.Add(b);
-                    continue;
-                  }
-                  result.Add( seg.AsByte(handling: ConvertErrorHandling.Throw)) ;
-                }
+            const string BASE64 = "base64:";
 
-                return result.ToArray();
-              }
-              catch
+            if (val==null) return dflt;
+            try
+            {
+              if (val.Length > BASE64.Length && val.StartsWith(BASE64, StringComparison.OrdinalIgnoreCase))
               {
-                return dflt;
+                 return val.Substring(BASE64.Length).FromWebSafeBase64();
               }
+
+              var result = new List<byte>();
+              var segs = val.Split(ARRAY_SPLIT_CHARS, StringSplitOptions.RemoveEmptyEntries);
+              foreach(var seg in segs)
+              {
+                //byte arrays defaults to prefix-less hex
+                byte b;
+                if (byte.TryParse(seg, NumberStyles.HexNumber, null, out b))
+                {
+                  result.Add(b);
+                  continue;
+                }
+                result.Add( seg.AsByte(handling: ConvertErrorHandling.Throw)) ;
+              }
+
+              return result.ToArray();
+            }
+            catch
+            {
+              return dflt;
+            }
          }
 
          public static int[] AsIntArray(this string val, int[] dflt = null)

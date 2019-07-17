@@ -1255,6 +1255,11 @@ namespace Azos
       return str;
     }
 
+    /// <summary>
+    /// Complementing method for ToWebSafeBase64() - reads web-safe base64 encoded string into a byte[].
+    /// Returns null for empty string.
+    /// Web-safe encoding uses `-` instead of base64 `+` and `_` instead of base64 `/`
+    /// </summary>
     public static byte[] FromWebSafeBase64(this string content)
     {
       if (content.IsNullOrWhiteSpace()) return null;

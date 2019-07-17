@@ -9,6 +9,7 @@ using System.Linq;
 using System.Security.Cryptography;
 
 using Azos.Conf;
+using Azos.Data;
 
 namespace Azos.Security
 {
@@ -70,12 +71,17 @@ namespace Azos.Security
     {
       var result =  config.Children
                           .Where(c => c.IsSameName(sectionName) && c.ValOf(CONFIG_KEY_ATTR).IsNotNullOrWhiteSpace())
-                          .Select(c => c.AttrByName(CONFIG_KEY_ATTR).ValueAsByteArray())
+                          .Select(c => c.AttrByName(CONFIG_KEY_ATTR).ValueAsByteArray(null) ??
+                                       throw new SecurityException("{0} config section `{1}` does not contain valid key byte array".Args(GetType().Name, c.RootPath)))
                           .ToArray();
       if (result.Length==0) throw new SecurityException("{0} config section `{1}` must contain at least one key entry".Args(GetType().Name, sectionName));
 
       foreach(var a in result)
+      {
         if (a.Length!=len) throw new SecurityException("{0} config section `{1}` all keys must be of {2} bytes in length".Args(GetType().Name, sectionName, len));
+        if (result.Any(a2 => a2!=a && a.MemBufferEquals(a2)))
+             throw new SecurityException("{0} config section `{1}` contains duplicate keys".Args(GetType().Name, sectionName));
+      }
 
       return result;
     }
