@@ -28,6 +28,8 @@ namespace Azos
     public const string HTTP_SET_COOKIE = "Set-Cookie";
     public const string HTTP_WWW_AUTHENTICATE = "WWW-Authenticate";
 
+    public const string AUTH_SCHEME_BASIC = "Basic";
+    public const string AUTH_SCHEME_BEARER = "Bearer";
 
     public const int STATUS_200 = 200;  public const string STATUS_200_DESCRIPTION = "OK";
 

@@ -47,7 +47,7 @@ namespace Azos.Security.Services
       var nring = node[CONFIG_TOKEN_RING_SECTION];
       if (nring.Exists)
       {
-        m_TokenRing = FactoryUtils.MakeAndConfigureDirectedComponent<ITokenRingImplementation>(this, nsec);
+        m_TokenRing = FactoryUtils.MakeAndConfigureDirectedComponent<ITokenRingImplementation>(this, nring);
         if (m_TokenRing is Daemon daemon) daemon.Start();
       }
     }

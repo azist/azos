@@ -12,7 +12,7 @@ namespace Azos.Security
   /// Represents credentials which point to an entity by its Uri
   /// </summary>
   [Serializable]
-  public class EntityUriCredentials : Credentials
+  public sealed class EntityUriCredentials : Credentials
   {
     public EntityUriCredentials(string uri) => Uri = uri.NonBlank(nameof(uri));
 

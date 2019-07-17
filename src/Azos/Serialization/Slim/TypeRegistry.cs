@@ -63,7 +63,7 @@ namespace Azos.Serialization.Slim
                yield return typeof(Glue.Protocol.Headers);
                yield return typeof(Glue.Protocol.AuthenticationHeader);
                yield return typeof(Security.IDPasswordCredentials);
-               yield return typeof(Security.GDIDCredentials);
+               yield return typeof(Security.SysAuthToken);
                yield return typeof(Security.SocialNetTokenCredentials);
                yield return typeof(Exception);
              }
