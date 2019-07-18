@@ -9,7 +9,7 @@ using Azos.Apps;
 namespace Azos.Security.Services
 {
   /// <summary>
-  /// Describes entity which manages IAM/IDP services, such as token rings and underlying data stores.
+  /// Describes a module which manages IAM/IDP services, such as token rings and underlying data stores.
   /// OAuth is a module because not all applications need it, consequently it is not a hard-coded dependency, rather
   /// a mix-in module mounted by app chassis when needed
   /// </summary>

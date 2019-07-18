@@ -125,6 +125,17 @@ namespace Azos.Security
 
     public User Authenticate(Credentials credentials)
     {
+      if (credentials is BearerCredentials bearer)
+      {
+        var oauth = App.ModuleRoot.Get<Services.IOAuthModule>();
+        var accessToken = oauth.TokenRing.GetAsync<Tokens.AccessToken>(bearer.Token).GetAwaiter().GetResult();//since this manager is sync-only
+        if (accessToken!=null)//if token is valid
+        {
+          if (SysAuthToken.TryParse(accessToken.SubjectSysAuthToken, out var sysToken))
+            return Authenticate(sysToken);
+        }
+      }
+
       var sect = m_Config ?? App.ConfigRoot[CommonApplicationLogic.CONFIG_SECURITY_SECTION];
 
       if (sect.Exists)
