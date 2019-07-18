@@ -18,7 +18,6 @@ namespace Azos.Security.Tokens
     /// </summary>
     [Field(backendName: "cid", isArow: true)]
     [Field(description: "The original Id of the client which this token was issued for")]
-    [Field(targetName: PROTECTED_MSG_TARGET, storeFlag: StoreFlag.None)]
     public string ClientId{ get; set; }
 
 

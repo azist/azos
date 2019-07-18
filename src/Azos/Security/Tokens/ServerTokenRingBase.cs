@@ -87,11 +87,11 @@ namespace Azos.Security.Tokens
 
       //3. Concat GUid pad with key
       var btoken = guidpad.AppendToNew(rnd);
-      token.ID = Convert.ToBase64String(btoken, Base64FormattingOptions.None);
+      token.ID = btoken.ToWebSafeBase64();
 
       token.IssuedBy = this.IssuerName;
-      token.IssueUtc = App.TimeSource.UTCNow;
-      token.ExpireUtc = token.IssueUtc.Value.AddSeconds(token.TokenDefaultExpirationSeconds);
+      token.IssueUtcTimestamp = token.VersionUtcTimestamp = App.TimeSource.UTCNow;
+      token.ExpireUtcTimestamp = token.IssueUtcTimestamp.Value.AddSeconds(token.TokenDefaultExpirationSeconds);
 
       return token;
     }

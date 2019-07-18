@@ -240,7 +240,7 @@ namespace Azos.Security.Services
         token_type = "bearer",
         //scope = "access",
         //refresh_token = "optional", <----- create ONE
-        expires_in =(int)(accessToken.ExpireUtc - accessToken.IssueUtc).Value.TotalSeconds
+        expires_in =(int)(accessToken.ExpireUtcTimestamp - accessToken.IssueUtcTimestamp).Value.TotalSeconds
       };
 
 

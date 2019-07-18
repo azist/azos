@@ -54,7 +54,7 @@ namespace Azos.Security.Tokens
     {
       var content = await GetUnsafeAsync<TToken>(token);
 
-      var ve = content.Validate();
+      var ve = content.Validate(RingToken.PROTECTED_MSG_TARGET);
       if (ve!=null) return null;
 
       return content;
@@ -64,13 +64,16 @@ namespace Azos.Security.Tokens
     {
       var deciphered = App.SecurityManager.PublicUnprotectMap(token.NonBlank(nameof(token)));
 
+     //// Console.WriteLine(deciphered.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap));
+
       //protected message integrity check will return null if token was tampered
       if (deciphered == null) return Task.FromResult<TToken>(null);
 
       var content = JsonReader.ToDoc<TToken>(deciphered, nameBinding: JsonReader.NameBinding.ByBackendName(RingToken.PROTECTED_MSG_TARGET));
 
       //check expiration date
-      if (!content.ExpireUtc.HasValue || content.ExpireUtc < App.TimeSource.UTCNow) return Task.FromResult<TToken>(null);
+      var expire = content.ExpireUtcTimestamp;
+      if (!expire.HasValue || expire < App.TimeSource.UTCNow) return Task.FromResult<TToken>(null);
 
       return Task.FromResult(content);
     }
@@ -98,10 +101,10 @@ namespace Azos.Security.Tokens
 
       //Guid is all that is used for client-side tokens ignoring token byte strength. The GUid serves as an additional nonce
       var guid = Guid.NewGuid().ToNetworkByteOrder();//16 bytes
-      token.ID = Convert.ToBase64String(guid);
+      token.ID = guid.ToWebSafeBase64();
       token.IssuedBy = this.IssuerName;
-      token.IssueUtc = token.VersionUtc = App.TimeSource.UTCNow;
-      token.ExpireUtc = token.IssueUtc.Value.AddSeconds(token.TokenDefaultExpirationSeconds);
+      token.IssueUtcTimestamp = token.VersionUtcTimestamp = App.TimeSource.UTCNow;
+      token.ExpireUtcTimestamp = token.IssueUtcTimestamp.Value.AddSeconds(token.TokenDefaultExpirationSeconds);
 
       return token;
     }
