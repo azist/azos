@@ -54,7 +54,7 @@ namespace Azos.Security.Services
     /// </code>
     /// </returns>
     [ActionOnGet(Name = "authorize")]
-    [ActionOnGet(Name = "authorization")]
+   // [ActionOnGet(Name = "authorization")]
     public async Task<object> Authorize_GET(string response_type, string scope, string client_id, string redirect_uri, string state)
     {
       //only Support CODE
@@ -87,7 +87,7 @@ namespace Azos.Security.Services
     protected virtual object MakeAuthorizeResult(User clientUser, string response_type, string scope, string client_id, string redirect_uri, string state, string error)
     {
       //Pack all requested content(session) into cryptographically encoded message
-      var flow = new { tp = response_type, scp = scope, id = client_id, uri = redirect_uri, st = state, utc = App.TimeSource.UTCNow };
+      var flow = new { tp = response_type, scp = scope, id = client_id, uri = redirect_uri, st = state, utc = App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart() };
       var roundtrip = App.SecurityManager.PublicProtectAsString(flow);
 
       if (error!=null)
@@ -103,16 +103,16 @@ namespace Azos.Security.Services
     }
 
     [ActionOnPost(Name = "authorize")]
-    [ActionOnPost(Name = "authorization")]
+  //  [ActionOnPost(Name = "authorization")]
     public async virtual Task<object> Authorize_POST(string roundtrip, string id, string pwd)
     {
       var flow = App.SecurityManager.PublicUnprotectMap(roundtrip);
-      if (flow == null) return new Http401Unauthorized("Bad Request");//we don't have ACL yet, hence can't check redirect_uri
+      if (flow == null) return new Http401Unauthorized("Bad Request X1");//we don't have ACL yet, hence can't check redirect_uri
                                                                       //todo <------------------- ATTACK THREAT: GATE the caller
 
       //1. check token age
-      var age = App.TimeSource.UTCNow - flow["utc"].AsDateTime(DateTime.MinValue);
-      if (age.TotalSeconds > 600) return new Http401Unauthorized("Bad Request");//todo MOVE to setting/constant default
+      var age = App.TimeSource.UTCNow - flow["utc"].AsLong(0).FromSecondsSinceUnixEpochStart();
+      if (age.TotalSeconds > 600) return new Http401Unauthorized("Bad Request X2");//todo MOVE to setting/constant default
 
       //2. Lookup client app, just by client_id (w/o password)
       var clid = flow["id"].AsString();
