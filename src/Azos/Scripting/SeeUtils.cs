@@ -25,7 +25,8 @@ namespace Azos.Scripting
     /// </summary>
     public static void See(this object obj, string header, JsonWritingOptions options = null)
     {
-      Console.WriteLine(header);
+      Console.WriteLine();
+      Console.Write(header);
       Console.WriteLine(obj.ToJson(options ?? JsonWritingOptions.PrettyPrintRowsAsMap));
       Console.WriteLine();
     }
