@@ -72,6 +72,7 @@ namespace Azos.Wave.Filters
         throw HTTPStatusException.BadRequest_400("Bad [Authorization] header");
 
       session.User = App.SecurityManager.Authenticate(credentials);//authenticate the user
+      work.SetAuthenticated(session.User.IsAuthenticated);
       return session;
     }
 

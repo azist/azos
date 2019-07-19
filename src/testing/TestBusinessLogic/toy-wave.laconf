@@ -470,7 +470,11 @@
 
   modules
   {
-    module{type='Azos.Security.Services.OAuthModule, Azos' }
+    module
+    {
+      type='Azos.Security.Services.OAuthModule, Azos'
+      supported-scopes="openid connect"
+    }
   }
 
 }

@@ -509,6 +509,21 @@ namespace Azos.Wave
       {
         m_IsAuthenticated = value;
       }
+
+      /// <summary>
+      /// Tries to increase server network Gate named variable for incoming traffic for this caller's effective ip.
+      /// Returns true if gate is enabled and variable was increased
+      /// </summary>
+      public bool IncreaseGateVar(string varName, int value = 1)
+      {
+        varName.NonBlank(nameof(varName));
+        var gate = Server.Gate;
+        if (gate == null || !gate.Enabled) return false;
+        var ip = EffectiveCallerIPEndPoint.Address.ToString();
+        gate.IncreaseVariable(IO.Net.Gate.TrafficDirection.Incoming, ip, varName, value);
+        return true;
+      }
+
     #endregion
 
 
@@ -567,9 +582,5 @@ namespace Azos.Wave
     #endregion
 
   }
-
-
-
-
 
 }

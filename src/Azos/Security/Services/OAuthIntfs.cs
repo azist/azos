@@ -16,6 +16,29 @@ namespace Azos.Security.Services
   public interface IOAuthModule : IModule
   {
     /// <summary>
+    /// Variable name for gating bad OAuth request (such as bad client ID, invalid redirect Uri or backchannel IP, etc.)
+    /// </summary>
+    string GateVarErrors { get; set; }
+
+    /// <summary>
+    /// Variable name for gating invalid user credentials
+    /// </summary>
+    string GateVarInvalidUser { get; set; }
+
+
+    /// <summary>
+    /// Imposes a maximum age of roundtrip state which is generated on flow start and checked at user credentials POST.
+    /// Value is in seconds
+    /// </summary>
+    int MaxAuthorizeRoundtripAgeSec {  get; set;}
+
+    /// <summary>
+    /// Returns true if the specified scope specification is supported. The string may contain multiple
+    /// scopes delimited by spaces or commas
+    /// </summary>
+    bool CheckScope(string scope);
+
+    /// <summary>
     /// Returns security manager responsible for authentication and authorization of clients(applications) which
     /// request access to the system on behalf of the user. This security manager is expected to understand the
     /// `EntityUriCredentials` used for pseudo-authentication/lookup and `IDPasswordCredentials`.
