@@ -59,31 +59,11 @@ namespace Azos.Security
 
     public const string CONFIG_HMAC_SECTION = "hmac";
     public const string CONFIG_AES_SECTION = "aes";
-    public const string CONFIG_KEY_ATTR = "key";
 
     public HMACAESCryptoMessageAlgorithm(ICryptoManagerImplementation director, IConfigSectionNode config) : base(director, config)
     {
-      m_HMACKeys = buildKeys(config, CONFIG_HMAC_SECTION, 64);//HMAC SHA2 = 64 byte key
-      m_AESKeys = buildKeys(config, CONFIG_AES_SECTION, 256 / 8);//AES256 = 256 bit key
-    }
-
-    private byte[][] buildKeys(IConfigSectionNode config, string sectionName, int len)
-    {
-      var result =  config.Children
-                          .Where(c => c.IsSameName(sectionName) && c.ValOf(CONFIG_KEY_ATTR).IsNotNullOrWhiteSpace())
-                          .Select(c => c.AttrByName(CONFIG_KEY_ATTR).ValueAsByteArray(null) ??
-                                       throw new SecurityException("{0} config section `{1}` does not contain valid key byte array".Args(GetType().Name, c.RootPath)))
-                          .ToArray();
-      if (result.Length==0) throw new SecurityException("{0} config section `{1}` must contain at least one key entry".Args(GetType().Name, sectionName));
-
-      foreach(var a in result)
-      {
-        if (a.Length!=len) throw new SecurityException("{0} config section `{1}` all keys must be of {2} bytes in length".Args(GetType().Name, sectionName, len));
-        if (result.Any(a2 => a2!=a && a.MemBufferEquals(a2)))
-             throw new SecurityException("{0} config section `{1}` contains duplicate keys".Args(GetType().Name, sectionName));
-      }
-
-      return result;
+      m_HMACKeys = BuildKeysFromConfig(config, CONFIG_HMAC_SECTION, 64);//HMAC SHA2 = 64 byte key
+      m_AESKeys = BuildKeysFromConfig(config, CONFIG_AES_SECTION, 256 / 8);//AES256 = 256 bit key
     }
 
     private byte[][] m_HMACKeys;
