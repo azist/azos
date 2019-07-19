@@ -69,12 +69,12 @@ app
       var issued = await m_Ring.PutAsync(token);
       Aver.IsNotNull(issued);
 
-      Console.WriteLine("Issued {0} of {1} chars: {2}".Args(token.GetType().Name, issued.Length, issued));
+      "Issued {0} of {1} chars: {2}".See(token.GetType().Name, issued.Length, issued);
 
       var got = await m_Ring.GetAsync<AccessToken>(issued);
       Aver.IsNotNull(got);
 
-      Console.WriteLine(got.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap));
+      got.See();
 
       Aver.AreEqual(token.ClientId, got.ClientId);
       Aver.AreEqual(token.IssuedBy, got.IssuedBy);
@@ -94,12 +94,12 @@ app
       var issued = await m_Ring.PutAsync(token);
       Aver.IsNotNull(issued);
 
-      Console.WriteLine("Issued {0} of {1} chars: {2}".Args(token.GetType().Name, issued.Length, issued));
+      "Issued {0} of {1} chars: {2}".See(token.GetType().Name, issued.Length, issued);
 
       var got = await m_Ring.GetAsync<ClientAccessCodeToken>(issued);
       Aver.IsNotNull(got);
 
-      Console.WriteLine(got.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap));
+      got.See();
 
       Aver.AreEqual(token.ClientId, got.ClientId);
       Aver.AreEqual(token.IssuedBy, got.IssuedBy);
@@ -121,7 +121,7 @@ app
       var issued = await m_Ring.PutAsync(token);
       Aver.IsNotNull(issued);
 
-      Console.WriteLine("Issued {0} of {1} chars: {2}".Args(token.GetType().Name, issued.Length, issued));
+      "Issued {0} of {1} chars: {2}".See(token.GetType().Name, issued.Length, issued);
 
       var got = await m_Ring.GetAsync<ClientRefreshCodeToken>(issued);
       Aver.IsNull(got); //because token did not pass validation as it was gotten into a different type
@@ -129,7 +129,7 @@ app
       got = await m_Ring.GetUnsafeAsync<ClientRefreshCodeToken>(issued); //<-----UNSAFE
       Aver.IsNotNull(got);//however unsafe version did return the token
 
-      Console.WriteLine(got.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap));
+      got.See();
 
       Aver.AreEqual(token.ClientId, got.ClientId);
       Aver.AreEqual(token.IssuedBy, got.IssuedBy);
@@ -140,7 +140,7 @@ app
       var ve = got.Validate(RingToken.PROTECTED_MSG_TARGET);
       Aver.IsNotNull(ve);
       Aver.IsTrue( ve is FieldValidationException );
-      Console.WriteLine("Expected and got: "+ve.ToMessageWithType());
+      "Expected and got: {0}".See(ve.ToMessageWithType());
       Aver.IsTrue(ve.Message.Contains("Type Mismatch"));
 
     }
