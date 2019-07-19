@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
@@ -211,7 +212,7 @@ namespace Azos
     /// </summary>
     public static string ComposeURLQueryString(IDictionary<string, object> qParams)
     {
-      if (qParams == null || qParams.Count <= 0)
+      if (qParams == null || qParams.Count < 1)
         return string.Empty;
 
       var builder = new StringBuilder();
@@ -232,4 +233,30 @@ namespace Azos
 
 
   }
+
+  /// <summary>
+  /// Facilitates construction of URI queries escaping all values as needed
+  /// </summary>
+  public sealed class UriQueryBuilder : IEnumerable<KeyValuePair<string, object>>
+  {
+    public UriQueryBuilder(){ }
+    public UriQueryBuilder(string uri) { Uri = uri; }
+
+
+    public readonly string Uri;
+    public readonly Dictionary<string, object> Data = new Dictionary<string, object>();
+
+    public void Add(string key, object value) => Data.Add(key, value);
+
+    public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => Data.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => Data.GetEnumerator();
+
+    public override string ToString()
+    {
+      var query = WebUtils.ComposeURLQueryString(Data);
+      return Uri.IsNotNullOrEmpty() ? Uri + '?' + query : query;
+    }
+  }
+
+
 }

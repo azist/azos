@@ -11,6 +11,7 @@ using Azos.Apps.Injection;
 using Azos.Data;
 using Azos.Wave.Mvc;
 using Azos.Security.Tokens;
+using System.Collections.Generic;
 
 namespace Azos.Security.Services
 {
@@ -155,7 +156,12 @@ namespace Azos.Security.Services
       var accessCode = await OAuth.TokenRing.PutAsync(acToken);
 
       //5. Redirect to URI
-      var redirect = "{0}?token={1}&state={2}".Args(flow["uri"].AsString(), accessCode, flow["st"].AsString());//todo Encode URI
+      var redirect = new UriQueryBuilder(flow["uri"].AsString())
+      {
+        {"token", accessCode},
+        {"state", flow["st"].AsString()}
+      }.ToString();
+
       return new Redirect(redirect);
     }
 
