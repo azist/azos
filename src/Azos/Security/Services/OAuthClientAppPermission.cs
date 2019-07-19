@@ -21,7 +21,7 @@ namespace Azos.Security.Services
   /// <remarks>
   /// The ACL/Rights provider is expected to supply ACL data node in the form:
   /// <code>
-  /// acl{ uri{pat="https://*.domain1.com/*"} uri{pat="https://*.domain2.com/*"} addr{pat="27.11.7*"} ... }
+  /// OAuthClientAppPermission{ uri{pat="https://*.domain1.com/*"} uri{pat="https://*.domain2.com/*"} addr{pat="27.11.7*"} ... }
   /// </code>
   /// </remarks>
   public sealed class OAuthClientAppPermission : TypedPermission
