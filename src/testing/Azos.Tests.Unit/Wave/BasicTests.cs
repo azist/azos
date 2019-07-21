@@ -304,12 +304,16 @@ namespace Azos.Tests.Unit.Wave
 
 
 
+    [Run("name='actiontezt' value='01'")]
+    [Run("name='ActionTezt' value='02'")]
+    [Run("name='actionTEZT' value='03'")]
     [Run("name='a1' value='11'")]
     [Run("name='A1' value='12'")]
     [Run("name='action2' value='21'")]
     [Run("name='acTIon2' value='22'")]
     [Run("name='Action3' value='32'")]
     [Run("name='ACTION3' value='33'")]
+    [Run("name='ACtiON3' value='33'")]
     public async Task Action_Name(string name, string value)
     {
       var content = new StringContent("v="+value);
