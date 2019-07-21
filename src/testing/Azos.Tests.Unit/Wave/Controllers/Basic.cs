@@ -61,5 +61,11 @@ namespace Azos.Tests.Unit.Wave.Controllers
     public object Filter_5_Patch(string v) => "patch: " + v;
 
 
+
+    [Action(Name = "a1")]
+  //  [Action(Name = "action2")]
+  //  [Action(Name = "Action3")]
+    public object Action(string v) => "Action: " + v;
+
   }
 }

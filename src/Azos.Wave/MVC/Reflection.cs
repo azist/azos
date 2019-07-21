@@ -15,7 +15,7 @@ namespace Azos.Wave.Mvc
 {
     /// <summary>
     /// Provides reflection information about controller type.
-    /// This is a framework internal method which is not intended to be used by business logic developers
+    /// This is a framework internal method which is not intended to be used by business app developers
     /// </summary>
     public sealed class ControllerInfo : Collections.INamed
     {
