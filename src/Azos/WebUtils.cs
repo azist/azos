@@ -254,7 +254,7 @@ namespace Azos
     public override string ToString()
     {
       var query = WebUtils.ComposeURLQueryString(Data);
-      return Uri.IsNotNullOrEmpty() ? Uri + '?' + query : query;
+      return Uri.IsNotNullOrEmpty() ? Uri + (query.IsNotNullOrWhiteSpace()? "?" : "") + query : query;
     }
   }
 
