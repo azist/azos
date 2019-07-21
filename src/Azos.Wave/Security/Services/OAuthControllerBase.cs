@@ -66,7 +66,7 @@ namespace Azos.Security.Services
     /// </code>
     /// </returns>
     [ActionOnGet(Name = "authorize")]
-   // [ActionOnGet(Name = "authorization")]
+    [ActionOnGet(Name = "authorization")]
     public async Task<object> Authorize_GET(string response_type, string scope, string client_id, string redirect_uri, string state)
     {
       //only Support CODE
@@ -114,7 +114,7 @@ namespace Azos.Security.Services
     }
 
     [ActionOnPost(Name = "authorize")]
-  //  [ActionOnPost(Name = "authorization")]
+    [ActionOnPost(Name = "authorization")]
     public async virtual Task<object> Authorize_POST(string roundtrip, string id, string pwd)
     {
       var flow = App.SecurityManager.PublicUnprotectMap(roundtrip);
