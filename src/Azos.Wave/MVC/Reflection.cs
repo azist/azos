@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 
 using Azos.Collections;
-using Azos.Scripting;
 
 namespace Azos.Wave.Mvc
 {
@@ -93,17 +92,18 @@ namespace Azos.Wave.Mvc
     internal ActionGroupInfo(ControllerInfo controller, string actionInvocationName)
     {
       Controller = controller;
-      m_Name = actionInvocationName;
+      Name = actionInvocationName;
 
       var allNamedMethods = controller.GetAllActionMethods()
-                                 .Where(mi => ControllerInfo.GetInvocationNames(mi).Any( n => n.EqualsIgnoreCase(actionInvocationName)));
+                                      .Where(mi => ControllerInfo.GetInvocationNames(mi).Any( n => n.EqualsIgnoreCase(actionInvocationName)));
 
       var actions = new List<ActionInfo>();
 
       foreach(var mi in allNamedMethods)
       {
         var allAtrs = mi.GetCustomAttributes<ActionBaseAttribute>(false)
-                         .Where( a => a.Name.IsNullOrWhiteSpace() || a.Name.EqualsIgnoreCase(actionInvocationName) );
+                        .Where( a => a.Name.IsNullOrWhiteSpace() || a.Name.EqualsIgnoreCase(actionInvocationName) );
+
         foreach(var atr in allAtrs)
           actions.Add(new ActionInfo(this, mi, atr));
       }
@@ -118,12 +118,10 @@ namespace Azos.Wave.Mvc
 
     }
 
-    private string m_Name;
-
     /// <summary>
     /// Action invocation name- may be different from method name
     /// </summary>
-    public string Name { get{return m_Name;} }
+    public string Name { get; }
 
     public readonly ControllerInfo Controller;
 

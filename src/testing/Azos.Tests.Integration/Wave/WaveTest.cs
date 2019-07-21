@@ -229,7 +229,7 @@ namespace Azos.Tests.Integration.Wave
           {
             string str = wc.DownloadString(INTEGRATION_HTTP_ADDR + "GetList");
 
-            Aver.AreEqual("application/json", wc.ResponseHeaders[HttpResponseHeader.ContentType]);
+            Aver.IsTrue(wc.ResponseHeaders[HttpResponseHeader.ContentType].Contains(Azos.Web.ContentType.JSON));
 
             var obj = JsonReader.DeserializeDynamic(str);
 
@@ -247,7 +247,7 @@ namespace Azos.Tests.Integration.Wave
           {
             string str = wc.DownloadString(INTEGRATION_HTTP_ADDR + "GetArray");
 
-            Aver.AreEqual("application/json", wc.ResponseHeaders[HttpResponseHeader.ContentType]);
+            Aver.IsTrue(wc.ResponseHeaders[HttpResponseHeader.ContentType].Contains(Azos.Web.ContentType.JSON));
 
             var obj = JsonReader.DeserializeDynamic(str);
 
@@ -280,7 +280,7 @@ namespace Azos.Tests.Integration.Wave
             wc.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
             string str = wc.UploadString(INTEGRATION_HTTP_ADDR + "InboundJSONMapEcho", inboundJSONStr);
 
-            Aver.AreEqual("application/json", wc.ResponseHeaders[HttpResponseHeader.ContentType]);
+            Aver.IsTrue(wc.ResponseHeaders[HttpResponseHeader.ContentType].Contains(Azos.Web.ContentType.JSON));
 
             var obj = JsonReader.DeserializeDynamic(str);
 
@@ -303,7 +303,7 @@ namespace Azos.Tests.Integration.Wave
           {
             string str = wc.DownloadString(INTEGRATION_HTTP_ADDR + "RowGet");
 
-            Aver.AreEqual("application/json", wc.ResponseHeaders[HttpResponseHeader.ContentType]);
+            Aver.IsTrue(wc.ResponseHeaders[HttpResponseHeader.ContentType].Contains(Azos.Web.ContentType.JSON));
 
             var obj = JsonReader.DeserializeDynamic(str);
 
@@ -341,7 +341,7 @@ namespace Azos.Tests.Integration.Wave
             string str = wc.DownloadString(INTEGRATION_HTTP_ADDR + "RowGet");
 
 
-            Aver.AreEqual("application/json", wc.ResponseHeaders[HttpResponseHeader.ContentType]);
+            Aver.IsTrue(wc.ResponseHeaders[HttpResponseHeader.ContentType].Contains(Azos.Web.ContentType.JSON));
 
             var map = JsonReader.DeserializeDataObject(str) as JsonDataMap;
             var gotRow = JsonReader.ToDoc<TestRow>(map);
@@ -529,7 +529,7 @@ namespace Azos.Tests.Integration.Wave
 
             Console.WriteLine(str);
 
-            Aver.AreEqual("application/json", wc.ResponseHeaders[HttpResponseHeader.ContentType]);
+            Aver.IsTrue(wc.ResponseHeaders[HttpResponseHeader.ContentType].Contains(Azos.Web.ContentType.JSON));
 
             var obj = JsonReader.DeserializeDynamic(str);
             Aver.AreEqual(USER_STATUS, obj["Status"]);
