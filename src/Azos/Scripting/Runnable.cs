@@ -4,6 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 using Azos.Apps;
@@ -173,5 +175,30 @@ namespace Azos.Scripting
     bool Epilogue(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error);
   }
 
+  /// <summary>
+  /// Provides base attribute for hooking into run method invocation
+  /// </summary>
+  public abstract class RunHookAttribute : Attribute
+  {
+    /// <summary>
+    /// Gets all attribute decorations
+    /// </summary>
+    public static IEnumerable<RunHookAttribute> GetAllOf(MethodInfo mi)
+    {
+      if (mi==null) return Enumerable.Empty<RunHookAttribute>();
+      var all = mi.GetCustomAttributes<RunHookAttribute>(true);
+      return all;
+    }
+
+    /// <summary>
+    /// Returns an optional state then fed into corresponding After() call
+    /// </summary>
+    public abstract object Before(Runner runner, object runnable, FID id, MethodInfo mi, RunAttribute attr, ref object[] args);
+
+    /// <summary>
+    /// Complementary method for Before(). The optional state is populated by Before().
+    /// </summary>
+    public abstract void After(Runner runner, object runnable, FID id, MethodInfo mi, RunAttribute attr, object state, ref Exception error);
+  }
 
 }

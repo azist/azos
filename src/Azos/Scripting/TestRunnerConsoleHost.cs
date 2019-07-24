@@ -170,17 +170,17 @@ namespace Azos.Scripting
     {
       Console.ForegroundColor = ConsoleColor.Gray;
 
-      //check for Aver.Throws()
-      if (!runner.Emulate)
-        try
-        {
-          var aversThrows = Aver.ThrowsAttribute.CheckMethodError(method, error);
-          if (aversThrows) error =null;
-        }
-        catch(Exception err)
-        {
-          error = err;
-        }
+      ////////////////check for Aver.Throws()
+      //////////////if (!runner.Emulate)
+      //////////////  try
+      //////////////  {
+      //////////////    var aversThrows = Aver.ThrowsAttribute.CheckMethodError(method, error);
+      //////////////    if (aversThrows) error =null;
+      //////////////  }
+      //////////////  catch(Exception err)
+      //////////////  {
+      //////////////    error = err;
+      //////////////  }
 
       var o = m_RunnableNode;
       if (o != null)

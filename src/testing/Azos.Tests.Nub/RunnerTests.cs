@@ -11,6 +11,7 @@ using System.Text;
 
 using Azos.Scripting;
 using Azos.Conf;
+using System.Reflection;
 
 namespace Azos.Tests.Nub
 {

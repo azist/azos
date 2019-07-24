@@ -85,17 +85,17 @@ namespace Azos.Scripting
 
       Console.Write(method.ToDescription());
 
-      //check for Aver.Throws()
-      if (!runner.Emulate)
-        try
-        {
-          var aversThrows = Aver.ThrowsAttribute.CheckMethodError(method, error);
-          if (aversThrows) error =null;
-        }
-        catch(Exception err)
-        {
-          error = err;
-        }
+      //////////////////check for Aver.Throws()
+      ////////////////if (!runner.Emulate)
+      ////////////////  try
+      ////////////////  {
+      ////////////////    var aversThrows = Aver.ThrowsAttribute.CheckMethodError(method, error);
+      ////////////////    if (aversThrows) error =null;
+      ////////////////  }
+      ////////////////  catch(Exception err)
+      ////////////////  {
+      ////////////////    error = err;
+      ////////////////  }
 
       if (error != null)
       {

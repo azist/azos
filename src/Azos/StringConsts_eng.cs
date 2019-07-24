@@ -88,6 +88,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
         public const string AVER_THROWS_NOT_THROWN_ERROR = "Method '{0}' is decorated with {1} averment, but nothing was thrown";
         public const string AVER_THROWS_TYPE_MISMATCH_ERROR = "Method '{0}' averment expects exception of type '{1}' to be thrown, but '{2}' was thrown instead";
         public const string AVER_THROWS_MSG_MISMATCH_ERROR = "Method '{0}' exception averment mismatch. Expected {1} '{2}' but got '{3}'";
+        public const string AVER_TIME_MIN_ERROR_ERROR = "Method '{0}' avers to be completed in at least {1:n0} ms but completed in {2:n0} ms instead";
+        public const string AVER_TIME_MAX_ERROR_ERROR = "Method '{0}' avers to be completed in at most {1:n0} ms but completed in {2:n0} ms instead";
 
         public const string RUN_ATTR_BAD_CONFIG_ERROR = "RunAttribute specifies bad config syntax: ";
         public const string RUN_BINDER_METHOD_ARGS_MISSING_ERROR = "Method '{0}' arguments are not supplied by the Run() attribute";
