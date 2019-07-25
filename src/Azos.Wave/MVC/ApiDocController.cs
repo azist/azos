@@ -13,6 +13,7 @@ namespace Azos.Wave.Mvc
   /// Serves Api documentation produced by ApiDocGenerator
   /// </summary>
   [NoCache]
+  [ApiControllerDoc]
   public abstract class ApiDocController : Controller
   {
     protected static Dictionary<Type, ConfigSectionNode> s_Data = new Dictionary<Type, ConfigSectionNode>();
@@ -42,7 +43,12 @@ namespace Azos.Wave.Mvc
     }
 
 
-
+    [ApiEndpointDoc(
+      Title ="Whole Documentation Set",
+      Description ="Gets all metadata for all scopes and endpoints returning it as JSON or Laconic (easier to read)",
+      Methods = new []{"GET=Gets full doc set"},
+      ResponseContent = "JSON or Laconic containing Api doc data"
+      )]
     [Action(Name = "all"), HttpGet]
     public object All()
     {
@@ -50,7 +56,16 @@ namespace Azos.Wave.Mvc
       return Data.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
     }
 
-
+    [ApiEndpointDoc(
+      Title = "Table of Contents",
+      Description = "Provides table of contents (TOC) generated as an outline of the whole documentation set",
+      Methods = new[] { "GET=Gets the toc" },
+      RequestQueryParameters = new[]{
+         "uriPattern=Pattern  match string applied as a filter to Api endpoint URIs",
+         "typePattern=Pattern  match string applied as a filter to type schemas used by Api"
+      },
+      ResponseContent = "HTML view or Json data of TOC"
+      )]
     [Action(Name = "toc"), HttpGet]
     public object Toc(string uriPattern = null, string typePattern = null)
     {
@@ -123,6 +138,15 @@ namespace Azos.Wave.Mvc
      => new Templatization.StockContent.ApiDoc_Toc(data);
 
 
+    [ApiEndpointDoc(
+     Title = "Data Contract Schema",
+     Description = "Provides schema listing for custom data contract - a type used by the Api",
+     Methods = new[] { "GET=Gets the schema" },
+     RequestQueryParameters = new[]{
+         "id=Required type run-id or sku for type to be described",
+     },
+     ResponseContent = "HTML view or Json schema data"
+     )]
     [Action(Name = "schema"), HttpGet]
     public object Schema(string id)
     {
@@ -149,6 +173,16 @@ namespace Azos.Wave.Mvc
     protected virtual object SchemaView(IEnumerable<IConfigSectionNode> data)
      => new Templatization.StockContent.ApiDoc_Schema(data);
 
+
+    [ApiEndpointDoc(
+    Title = "Scope Details",
+    Description = "Documentation page for a scope (akak controller) containing general help text along with inventory of all endpoints",
+    Methods = new[] { "GET=Gets the scope HTML view or Json" },
+    RequestQueryParameters = new[]{
+         "id=Required type run-id for the scope to be described",
+    },
+    ResponseContent = "HTML view or Json scope data"
+    )]
     [Action(Name = "scope"), HttpGet]
     public object Scope(string id)
     {
