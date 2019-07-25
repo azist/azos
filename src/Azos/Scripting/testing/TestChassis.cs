@@ -17,8 +17,13 @@ namespace Azos.Scripting
     public const string CONFIG_ASSUMPTIONS_SECTION = "assumptions";
     public const string CONFIG_GLOBAL_NS_ATTR = "global-ns";
 
+#pragma warning disable 0649
     [Inject] IApplication m_App;
+#pragma warning restore 0649
 
+    /// <summary>
+    /// Application container executing the test
+    /// </summary>
     protected IApplication App => m_App;
 
     void IRunnableHook.Prologue(Runner runner, FID id)
@@ -165,7 +170,7 @@ namespace Azos.Scripting
     }
 
     /// <summary>
-    /// Impersonates the current session flow
+    /// Impersonates the current ambient session flow
     /// </summary>
     protected virtual void Impersonate(Credentials credentials)
     {
@@ -176,7 +181,7 @@ namespace Azos.Scripting
     }
 
     /// <summary>
-    /// Override to create custom impersonation session type. By default BaseSession is sued
+    /// Override to create custom impersonation session type. By default BaseSession is used
     /// </summary>
     protected virtual ISession MakeImpersonationSession() => new BaseSession(Guid.NewGuid(), App.Random.NextRandomUnsignedLong);
   }

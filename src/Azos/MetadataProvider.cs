@@ -66,6 +66,11 @@ namespace Azos
     string DataTargetName {  get; }
 
     /// <summary>
+    /// Name of public metadata config section, typically `pub`
+    /// </summary>
+    string PublicMetadataSection {  get;}
+
+    /// <summary>
     /// Generates metadata into ConfigSectionNode structure
     /// </summary>
     ConfigSectionNode Generate();
@@ -83,6 +88,11 @@ namespace Azos
     /// <param name="instance">Optional instance of the type</param>
     /// <returns>An instance unique ID identifying the type, if the type is already added to the set (and of the same instance), returns its existing id</returns>
     string AddTypeToDescribe(Type type, object instance = null);
+
+    /// <summary>
+    /// Writes error to the generator, e.g. using a log
+    /// </summary>
+    void ReportError(Log.MessageType type, Exception error);
   }
 
 

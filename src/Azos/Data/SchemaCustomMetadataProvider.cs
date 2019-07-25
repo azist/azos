@@ -52,7 +52,9 @@ namespace Azos.Data
         }
         catch(Exception error)
         {
-          throw new CustomMetadataException(StringConsts.METADATA_GENERATION_SCHEMA_FIELD_ERROR.Args(schema.Name, def.Name, error.ToMessageWithType()), error);
+          var err = new CustomMetadataException(StringConsts.METADATA_GENERATION_SCHEMA_FIELD_ERROR.Args(schema.Name, def.Name, error.ToMessageWithType()), error);
+          nfld.AddAttributeNode("--ERROR--", StringConsts.METADATA_GENERATION_SCHEMA_FIELD_ERROR.Args(schema.Name, def.Name, "<logged>"));
+          context.ReportError(Log.MessageType.CriticalAlert, err);
         }
       }
 
@@ -72,7 +74,28 @@ namespace Azos.Data
         data.AddAttributeNode("is-arow", fatr.IsArow);
         data.AddAttributeNode("store-flag", fatr.StoreFlag);
         data.AddAttributeNode("backend-type", fatr.BackendType);
-        if (fatr.Metadata != null) data.AddChildNode(fatr.Metadata);
+
+        //try to disclose ALL metadata (as we are above PUBLIC)
+        if (fatr.Metadata != null && fatr.Metadata.Exists)
+        {
+          var metad = data.AddChildNode("meta");
+          metad.MergeSections(fatr.Metadata);
+          metad.MergeAttributes(fatr.Metadata);
+        }
+      }
+      else //try to disclose pub-only metadata
+      {
+        var pubSection = context.PublicMetadataSection;
+        if (fatr.Metadata != null && pubSection.IsNotNullOrWhiteSpace())
+        {
+          var metasrc = fatr.Metadata[pubSection];//<-- pub metadata only
+          if (metasrc.Exists)
+          {
+            var metad = data.AddChildNode("meta");
+            metad.MergeSections(metasrc);
+            metad.MergeAttributes(metasrc);
+          }
+        }
       }
 
       data.AddAttributeNode("name", fname);
