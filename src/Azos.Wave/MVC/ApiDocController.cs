@@ -176,7 +176,7 @@ namespace Azos.Wave.Mvc
 
     [ApiEndpointDoc(
     Title = "Scope Details",
-    Description = "Documentation page for a scope (akak controller) containing general help text along with inventory of all endpoints",
+    Description = "Documentation page for a scope (aka controller) containing general help text along with inventory of all endpoints",
     Methods = new[] { "GET=Gets the scope HTML view or Json" },
     RequestQueryParameters = new[]{
          "id=Required type run-id for the scope to be described",
@@ -251,9 +251,9 @@ namespace Azos.Wave.Mvc
 
 
       //eval variables
-      var finalMarkdown = "{0}\n{1}\n{2}".Args(excision.content.Substring(0, excision.iexcision),
+      var finalMarkdown = "{0}\n{1}\n{2}".Args(excision.content?.Substring(0, excision.iexcision),
                                                epContent.ToString(),
-                                               excision.content.Substring(excision.iexcision));
+                                               excision.content?.Substring(excision.iexcision));
 
       //eval type references
       finalMarkdown = MarkdownUtils.EvaluateVariables(finalMarkdown, v =>

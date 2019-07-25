@@ -66,12 +66,13 @@ namespace Azos.Data
           try
           {
               content = content ?? string.Empty;
-              var root = ("metadata{"+content+"}").AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+              var root = ("meta{"+content+"}").AsLaconicConfig(handling: ConvertErrorHandling.Throw);
 
-              //Unwrap extra "metadata" root node
-              if (!root.HasAttributes && root.Children.Count()==1)
+              //Unwrap extra "meta" root node like:  meta{ meta{ a=1 } } -> meta{ a=1 }
+              //if someone wrote metadata with `meta` wrap
+              if (!root.HasAttributes && root.ChildCount==1)
               {
-                var subroot = root["metadata"];
+                var subroot = root["meta"];
                 if (subroot.Exists) return subroot;
               }
 
