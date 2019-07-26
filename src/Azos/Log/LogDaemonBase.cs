@@ -17,373 +17,373 @@ using Azos.Instrumentation;
 
 namespace Azos.Log
 {
+  /// <summary>
+  /// Based class for implementing test and non-test logging services.
+  /// Destinations may fail and the message will be failed-over into another destination in the same logger
+  ///  as specified by 'failover' attribute of destination. This attribute is also present on service level.
+  /// Cascading failover is not supported (failover of failovers). Another consideration is that messages
+  ///  get sent into destinations synchronously by internal thread so specifying too many destinations may
+  ///  limit overall LogService throughput. In complex scenarios consider using LogServiceDestination instead.
+  /// </summary>
+  public abstract class LogDaemonBase : DaemonWithInstrumentation<IApplicationComponent>, ILogImplementation, ISinkOwnerRegistration
+  {
+    #region CONSTS
+    internal const string CONFIG_SINK_SECTION   = "sink";
+    internal const string CONFIG_DEFAULT_FAILOVER_ATTR = "default-failover";
+    #endregion
+
+
+    #region .ctor
+
     /// <summary>
-    /// Based class for implementing test and non-test logging services.
-    /// Destinations may fail and the message will be failed-over into another destination in the same logger
-    ///  as specified by 'failover' attribute of destination. This attribute is also present on service level.
-    /// Cascading failover is not supported (failover of failovers). Another consideration is that messages
-    ///  get sent into destinations synchronously by internal thread so specifying too many destinations may
-    ///  limit overall LogService throughput. In complex scenarios consider using LogServiceDestination instead.
+    /// Creates a new logging daemon instance
     /// </summary>
-    public abstract class LogDaemonBase : DaemonWithInstrumentation<IApplicationComponent>, ILogImplementation, ISinkOwnerRegistration
+    protected LogDaemonBase(IApplication app) : base(app)
     {
-        #region CONSTS
-            internal const string CONFIG_SINK_SECTION   = "sink";
-            internal const string CONFIG_DEFAULT_FAILOVER_ATTR = "default-failover";
-        #endregion
+      ctor();
+    }
+
+    /// <summary>
+    /// Creates a new logging daemon instance
+    /// </summary>
+    protected LogDaemonBase(IApplicationComponent director) : base(director)
+    {
+      ctor();
+    }
+
+    private void ctor() => m_InstrBuffer = new MemoryBufferSink(this, false);//does not get registered in sinks
+
+    protected override void Destructor()
+    {
+      base.Destructor();
+
+      foreach (var sink in m_Sinks.OrderedValues.Reverse())
+        sink.Dispose();
+
+      DisposeAndNull(ref m_InstrBuffer);
+    }
+
+    #endregion
 
 
-        #region .ctor
+    #region Private Fields
 
-          /// <summary>
-          /// Creates a new logging daemon instance
-          /// </summary>
-          protected LogDaemonBase(IApplication app) : base(app)
+    protected OrderedRegistry<Sink> m_Sinks = new OrderedRegistry<Sink>();
+
+    private int             MAX_NESTED_FAILURES = 8;
+    private int             m_NestedFailureCount;
+    private string          m_DefaultFailover;
+
+    private Sink            m_FailoverErrorSink;
+    private Exception       m_FailoverError;
+
+    private Message m_LastWarning;
+    private Message m_LastError;
+    private Message m_LastCatastrophy;
+
+    protected bool m_InstrumentationEnabled;
+
+    private MemoryBufferSink m_InstrBuffer;
+
+    #endregion
+
+
+    #region Properties
+
+    public override string ComponentCommonName => "log";
+
+    public override string ComponentLogTopic => CoreConsts.LOG_TOPIC;
+
+    /// <summary>
+    /// Latches last problematic msg
+    /// </summary>
+    public Message LastWarning     => m_LastWarning;
+
+    /// <summary>
+    /// Latches last problematic msg
+    /// </summary>
+    public Message LastError       =>  m_LastError;
+
+    /// <summary>
+    /// Latches last problematic msg
+    /// </summary>
+    public Message LastCatastrophe => m_LastCatastrophy;
+
+    /// <summary>
+    /// Returns sinks. This call is thread safe
+    /// </summary>
+    public IOrderedRegistry<Sink> Sinks => m_Sinks;
+
+
+    /// <summary>
+    /// Implements IInstrumentable
+    /// </summary>
+    [Config(Default=false)]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+    public override bool InstrumentationEnabled
+    {
+      get { return m_InstrumentationEnabled;}
+      set { m_InstrumentationEnabled = value;}
+    }
+
+    [Config]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+    public int InstrumentationBufferSize
+    {
+      get { return m_InstrBuffer.BufferSize; }
+      set { m_InstrBuffer.BufferSize = value; }
+    }
+
+    /// <summary>
+    /// Sets sink name used for failover on the service-level
+    /// if a particular failing sink did not specify its specific failover
+    /// </summary>
+    [Config("$" + CONFIG_DEFAULT_FAILOVER_ATTR)]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
+    public string DefaultFailover
+    {
+        get { return m_DefaultFailover ?? string.Empty; }
+        set { m_DefaultFailover = value; }
+    }
+
+    /// <summary>
+    /// Returns a sink that threw last exception that happened during failover. This kind of exceptions is never propagated and always handled
+    /// </summary>
+    public Sink FailoverErrorSink { get { return m_FailoverErrorSink; } }
+
+    /// <summary>
+    /// Returns last exception that happened during failover. This kind of exceptions is never propagated and always handled
+    /// </summary>
+    public Exception FailoverError { get { return m_FailoverError; } }
+
+    /// <summary>
+    /// Indicates whether the service can operate without any sinks registered, i.e. some test loggers may not need
+    ///  any destinations to operate as they synchronously write to some buffer without any extra sinks
+    /// </summary>
+    public virtual bool SinksAreOptional
+    {
+      get{ return false; }
+    }
+
+    #endregion
+
+    #region Public
+
+    /// <summary>
+    /// Writes log message into log
+    /// </summary>
+    public void Write(MessageType type, string text, string topic = null, string from = null)
+    {
+        Write(type, text, false, topic, from);
+    }
+
+    /// <summary>
+    /// Writes log message into log
+    /// </summary>
+    public void Write(MessageType type, string text, bool urgent, string topic = null, string from = null)
+    {
+        Write(new Message
+        {
+            Type = type,
+            Topic = topic,
+            From = from,
+            Text = text
+        }, urgent);
+    }
+
+    /// <summary>
+    /// Writes log message into log
+    /// </summary>
+    /// <param name="msg">Message to write</param>
+    public void Write(Message msg)
+    {
+        Write(msg, false);
+    }
+
+    /// <summary>
+    /// Writes log message into log
+    /// </summary>
+    /// <param name="msg">Message to write</param>
+    /// <param name="urgent">Indicates that the logging service implementation must
+    /// make an effort to write the message to its destinations urgently</param>
+    public void Write(Message msg, bool urgent)
+    {
+        if (Status != DaemonStatus.Active) return;
+
+
+        if (msg==null) return;
+
+        if (msg.Type>=MessageType.Emergency) m_LastCatastrophy = msg;
+        else
+        if (msg.Type>=MessageType.Error) m_LastError = msg;
+        else
+        if (msg.Type>=MessageType.Warning) m_LastWarning = msg;
+
+        if (m_InstrumentationEnabled) m_InstrBuffer.Send( msg);
+
+        DoWrite(msg, urgent);
+    }
+
+    /// <summary>
+    /// Returns instrumentation buffer if instrumentation enabled
+    /// </summary>
+    public IEnumerable<Message> GetInstrumentationBuffer(bool asc)
+    {
+      return asc ? m_InstrBuffer.BufferedTimeAscending : m_InstrBuffer.BufferedTimeDescending;
+    }
+
+    #endregion
+
+
+    #region Protected
+
+    /// <summary>
+    /// Writes log message into log
+    /// </summary>
+    /// <param name="msg">Message to write</param>
+    /// <param name="urgent">Indicates that the logging service implementation must
+    /// make an effort to write the message to its destinations urgently</param>
+    protected abstract void DoWrite(Message msg, bool urgent);
+
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+
+      foreach (var snode in node.Children.Where(n => n.IsSameName(CONFIG_SINK_SECTION)))
+      {
+        var sname = snode.AttrByName(CONFIG_NAME_ATTR).Value;
+        var sorder = snode.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt();
+        var sink = FactoryUtils.MakeAndConfigure<Sink>(snode, typeof(CSVFileSink), new object[]{ this, sname, sorder });
+      }
+    }
+
+    protected override void DoStart()
+    {
+      base.DoStart();
+
+      if (!SinksAreOptional && m_Sinks.Count == 0)
+        throw new AzosException(StringConsts.LOGSVC_NODESTINATIONS_ERROR);
+
+      foreach (var sink in m_Sinks.OrderedValues)
+        try
+        {
+          sink.Start();
+        }
+        catch (Exception error)
+        {
+          throw new AzosException(
+                StringConsts.LOGDAEMON_SINK_START_ERROR.Args(Name, sink.Name, sink.TestOnStart, error.Message),
+                error);
+        }
+    }
+
+    protected override void DoSignalStop()
+    {
+      base.DoSignalStop();
+      //Attention!!! It is important here NOT TO NOTIFY sinks of pending shutdown,
+      //so that LogDaemon may start terminating all by itself and it commits all messages to sinks
+      //that should be still operational.
+    }
+
+    protected override void DoWaitForCompleteStop()
+    {
+      base.DoWaitForCompleteStop();
+      // at this point the thread has stopped and we can now stop the sinks
+
+      foreach (var sink in m_Sinks.OrderedValues.Reverse())
+      {
+          try
           {
-            ctor();
-          }
-
-          /// <summary>
-          /// Creates a new logging daemon instance
-          /// </summary>
-          protected LogDaemonBase(IApplicationComponent director) : base(director)
+            sink.WaitForCompleteStop();
+          } catch
           {
-            ctor();
-          }
+#warning REVISE - must not eat exceptions
+          }  // Can't do much here in case of an error
+      }
+    }
 
-          private void ctor() => m_InstrBuffer = new MemoryBufferSink(this, false);//does not get registered in sinks
+    protected void Pulse()
+    {
+      foreach (var sink in m_Sinks.OrderedValues)
+        sink.Pulse();
+    }
 
-          protected override void Destructor()
+    /// <summary>
+    /// When error=null => error cleared. When msg==null => exceptions surfaced from DoPulse()
+    /// </summary>
+    internal void FailoverDestination(Sink sink, Exception error, Message msg)
+    {
+      if (!Running) return;
+      if (m_NestedFailureCount>=MAX_NESTED_FAILURES) return;//stop cascade recursion
+
+      m_NestedFailureCount++;
+      try
+      {
+        if (error==null)//error lifted
+        {
+          if (sink==m_FailoverErrorSink)
           {
-            base.Destructor();
-
-            foreach (var sink in m_Sinks.OrderedValues.Reverse())
-              sink.Dispose();
-
-            DisposeAndNull(ref m_InstrBuffer);
+            m_FailoverErrorSink = null;
+            m_FailoverError = null;
           }
+          return;
+        }
 
-        #endregion
+        if (msg==null) return; //i.e. OnPulse()
 
+        var failoverName = sink.Failover;
+        if (string.IsNullOrEmpty(failoverName))
+            failoverName = this.DefaultFailover;
+        if (string.IsNullOrEmpty(failoverName))  return;//nowhere to failover
 
-        #region Private Fields
+        var failover = m_Sinks[failoverName];
 
-            protected OrderedRegistry<Sink> m_Sinks = new OrderedRegistry<Sink>();
+        if (failover==null) return;
 
-            private int             MAX_NESTED_FAILURES = 8;
-            private int             m_NestedFailureCount;
-            private string          m_DefaultFailover;
+        if (failover==sink) return;//circular reference, cant fail into destination that failed
 
-            private Sink            m_FailoverErrorSink;
-            private Exception       m_FailoverError;
+        try
+        {
+          failover.SendRegularAndFailures(msg);
 
-            private Message m_LastWarning;
-            private Message m_LastError;
-            private Message m_LastCatastrophy;
-
-            protected bool m_InstrumentationEnabled;
-
-            private MemoryBufferSink m_InstrBuffer;
-
-        #endregion
-
-
-        #region Properties
-
-            public override string ComponentCommonName => "log";
-
-            public override string ComponentLogTopic => CoreConsts.LOG_TOPIC;
-
-            /// <summary>
-            /// Latches last problematic msg
-            /// </summary>
-            public Message LastWarning     => m_LastWarning;
-
-            /// <summary>
-            /// Latches last problematic msg
-            /// </summary>
-            public Message LastError       =>  m_LastError;
-
-            /// <summary>
-            /// Latches last problematic msg
-            /// </summary>
-            public Message LastCatastrophe => m_LastCatastrophy;
-
-            /// <summary>
-            /// Returns sinks. This call is thread safe
-            /// </summary>
-            public IOrderedRegistry<Sink> Sinks => m_Sinks;
-
-
-            /// <summary>
-            /// Implements IInstrumentable
-            /// </summary>
-            [Config(Default=false)]
-            [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-            public override bool InstrumentationEnabled
+            if (sink.GenerateFailoverMessages || failover.GenerateFailoverMessages)
             {
-              get { return m_InstrumentationEnabled;}
-              set { m_InstrumentationEnabled = value;}
+              var emsg = new Message();
+              emsg.Type = MessageType.Error;
+              emsg.From = sink.Name;
+              emsg.Topic = CoreConsts.LOG_TOPIC;
+              emsg.Text = string.Format(
+                      StringConsts.LOGSVC_FAILOVER_MSG_TEXT,
+                      msg.Guid,
+                      sink.Name,
+                      failover.Name,
+                      sink.AverageProcessingTimeMs);
+              emsg.RelatedTo = msg.Guid;
+              emsg.Exception = error;
+
+
+              failover.SendRegularAndFailures(emsg);
             }
 
-            [Config]
-            [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-            public int InstrumentationBufferSize
-            {
-              get { return m_InstrBuffer.BufferSize; }
-              set { m_InstrBuffer.BufferSize = value; }
-            }
+          failover.DoPulse();
+        }
+        catch(Exception failoverError)
+        {
+          m_FailoverErrorSink = failover;
+          m_FailoverError = failoverError;
+        }
+      }
+      finally
+      {
+        m_NestedFailureCount--;
+      }
 
-            /// <summary>
-            /// Sets destination name used for failover on the service-level
-            /// if particular failing destination did not specify its specific failover
-            /// </summary>
-            [Config("$" + CONFIG_DEFAULT_FAILOVER_ATTR)]
-            [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
-            public string DefaultFailover
-            {
-                get { return m_DefaultFailover ?? string.Empty; }
-                set { m_DefaultFailover = value; }
-            }
+    }
 
-            /// <summary>
-            /// Returns a destination that threw last exception that happened during failover. This kind of exceptions is never propagated and always handled
-            /// </summary>
-            public Sink FailoverErrorSink { get { return m_FailoverErrorSink; } }
+    LogDaemonBase ISinkOwner.LogDaemon => this;
+    void ISinkOwnerRegistration.Register(Sink sink) => m_Sinks.Register(sink);
+    void ISinkOwnerRegistration.Unregister(Sink sink) => m_Sinks.Unregister(sink);
 
-            /// <summary>
-            /// Returns last exception that happened during failover. This kind of exceptions is never propagated and always handled
-            /// </summary>
-            public Exception FailoverError { get { return m_FailoverError; } }
-
-            /// <summary>
-            /// Indicates whether the service can operate without any sinks registered, i.e. some test loggers may not need
-            ///  any destinations to operate as they synchronously write to some buffer without any extra sinks
-            /// </summary>
-            public virtual bool SinksAreOptional
-            {
-              get{ return false; }
-            }
-
-        #endregion
-
-        #region Public
-
-            /// <summary>
-            /// Writes log message into log
-            /// </summary>
-            public void Write(MessageType type, string text, string topic = null, string from = null)
-            {
-                Write(type, text, false, topic, from);
-            }
-
-            /// <summary>
-            /// Writes log message into log
-            /// </summary>
-            public void Write(MessageType type, string text, bool urgent, string topic = null, string from = null)
-            {
-                Write(new Message
-                {
-                    Type = type,
-                    Topic = topic,
-                    From = from,
-                    Text = text
-                }, urgent);
-            }
-
-            /// <summary>
-            /// Writes log message into log
-            /// </summary>
-            /// <param name="msg">Message to write</param>
-            public void Write(Message msg)
-            {
-                Write(msg, false);
-            }
-
-            /// <summary>
-            /// Writes log message into log
-            /// </summary>
-            /// <param name="msg">Message to write</param>
-            /// <param name="urgent">Indicates that the logging service implementation must
-            /// make an effort to write the message to its destinations urgently</param>
-            public void Write(Message msg, bool urgent)
-            {
-                if (Status != DaemonStatus.Active) return;
-
-
-                if (msg==null) return;
-
-                if (msg.Type>=MessageType.Emergency) m_LastCatastrophy = msg;
-                else
-                if (msg.Type>=MessageType.Error) m_LastError = msg;
-                else
-                if (msg.Type>=MessageType.Warning) m_LastWarning = msg;
-
-                if (m_InstrumentationEnabled) m_InstrBuffer.Send( msg);
-
-                DoWrite(msg, urgent);
-            }
-
-            /// <summary>
-            /// Returns instrumentation buffer if instrumentation enabled
-            /// </summary>
-            public IEnumerable<Message> GetInstrumentationBuffer(bool asc)
-            {
-              return asc ? m_InstrBuffer.BufferedTimeAscending : m_InstrBuffer.BufferedTimeDescending;
-            }
-
-        #endregion
-
-
-        #region Protected
-
-            /// <summary>
-            /// Writes log message into log
-            /// </summary>
-            /// <param name="msg">Message to write</param>
-            /// <param name="urgent">Indicates that the logging service implementation must
-            /// make an effort to write the message to its destinations urgently</param>
-            protected abstract void DoWrite(Message msg, bool urgent);
-
-            protected override void DoConfigure(IConfigSectionNode node)
-            {
-              base.DoConfigure(node);
-
-              foreach (var snode in node.Children.Where(n => n.IsSameName(CONFIG_SINK_SECTION)))
-              {
-                var sname = snode.AttrByName(CONFIG_NAME_ATTR).Value;
-                var sorder = snode.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt();
-                var sink = FactoryUtils.MakeAndConfigure<Sink>(snode, typeof(CSVFileSink), new object[]{ this, sname, sorder });
-              }
-            }
-
-            protected override void DoStart()
-            {
-              base.DoStart();
-
-              if (!SinksAreOptional && m_Sinks.Count == 0)
-                throw new AzosException(StringConsts.LOGSVC_NODESTINATIONS_ERROR);
-
-              foreach (var sink in m_Sinks.OrderedValues)
-                try
-                {
-                  sink.Start();
-                }
-                catch (Exception error)
-                {
-                  throw new AzosException(
-                        StringConsts.LOGDAEMON_SINK_START_ERROR.Args(Name, sink.Name, sink.TestOnStart, error.Message),
-                        error);
-                }
-            }
-
-            protected override void DoSignalStop()
-            {
-              base.DoSignalStop();
-              //Attention!!! It is important here NOT TO NOTIFY sinks of pending shutdown,
-              //so that LogDaemon may start terminating all by itself and it commits all messages to sinks
-              //that should be still operational.
-            }
-
-            protected override void DoWaitForCompleteStop()
-            {
-              base.DoWaitForCompleteStop();
-              // at this point the thread has stopped and we can now stop the sinks
-
-              foreach (var sink in m_Sinks.OrderedValues.Reverse())
-              {
-                  try
-                  {
-                    sink.WaitForCompleteStop();
-                  } catch
-                  {
-        #warning REVISE - must not eat exceptions
-                  }  // Can't do much here in case of an error
-              }
-            }
-
-            protected void Pulse()
-            {
-              foreach (var sink in m_Sinks.OrderedValues)
-                sink.Pulse();
-            }
-
-            /// <summary>
-            /// When error=null => error cleared. When msg==null => exceptions surfaced from DoPulse()
-            /// </summary>
-            internal void FailoverDestination(Sink sink, Exception error, Message msg)
-            {
-              if (!Running) return;
-              if (m_NestedFailureCount>=MAX_NESTED_FAILURES) return;//stop cascade recursion
-
-              m_NestedFailureCount++;
-              try
-              {
-                if (error==null)//error lifted
-                {
-                  if (sink==m_FailoverErrorSink)
-                  {
-                    m_FailoverErrorSink = null;
-                    m_FailoverError = null;
-                  }
-                  return;
-                }
-
-                if (msg==null) return; //i.e. OnPulse()
-
-                var failoverName = sink.Failover;
-                if (string.IsNullOrEmpty(failoverName))
-                    failoverName = this.DefaultFailover;
-                if (string.IsNullOrEmpty(failoverName))  return;//nowhere to failover
-
-                var failover = m_Sinks[failoverName];
-
-                if (failover==null) return;
-
-                if (failover==sink) return;//circular reference, cant fail into destination that failed
-
-                try
-                {
-                  failover.SendRegularAndFailures(msg);
-
-                    if (sink.GenerateFailoverMessages || failover.GenerateFailoverMessages)
-                    {
-                      var emsg = new Message();
-                      emsg.Type = MessageType.Error;
-                      emsg.From = sink.Name;
-                      emsg.Topic = CoreConsts.LOG_TOPIC;
-                      emsg.Text = string.Format(
-                              StringConsts.LOGSVC_FAILOVER_MSG_TEXT,
-                              msg.Guid,
-                              sink.Name,
-                              failover.Name,
-                              sink.AverageProcessingTimeMs);
-                      emsg.RelatedTo = msg.Guid;
-                      emsg.Exception = error;
-
-
-                      failover.SendRegularAndFailures(emsg);
-                    }
-
-                  failover.DoPulse();
-                }
-                catch(Exception failoverError)
-                {
-                  m_FailoverErrorSink = failover;
-                  m_FailoverError = failoverError;
-                }
-              }
-              finally
-              {
-                m_NestedFailureCount--;
-              }
-
-            }
-
-            LogDaemonBase ISinkOwner.LogDaemon => this;
-            void ISinkOwnerRegistration.Register(Sink sink) => m_Sinks.Register(sink);
-            void ISinkOwnerRegistration.Unregister(Sink sink) => m_Sinks.Unregister(sink);
-
-         #endregion
+    #endregion
   }
 }

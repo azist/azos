@@ -59,29 +59,29 @@ namespace Azos
         public const string LOGDAEMON_SINK_START_ERROR =
             "Log daemon '{0}' could not start sink '{1}'. Sink.TestOnStart = {2}. Sink exception:\n   {3}";
 
-        public const string LOGSVC_DESTINATION_EXCEEDS_MAX_PROCESSING_TIME_ERROR =
-            "Destination '{0}' exceeded allowed max processing time. Allowed {1} ms, took {2} ms";
+        public const string LOGSVC_SINK_EXCEEDS_MAX_PROCESSING_TIME_ERROR =
+            "Log sink '{0}' exceeded allowed max processing time. Allowed {1} ms, but took {2} ms";
 
-        public const string LOGSVC_FILE_DESTINATION_FILENAME_ERROR =
-            "Destination '{0}'.'file-name' pattern '{1}' is incorrect: {2}";
+        public const string LOGSVC_FILE_SINK_FILENAME_ERROR =
+            "Log sink '{0}'.'file-name' pattern '{1}' is incorrect: {2}";
 
-        public const string LOGSVC_FILE_DESTINATION_PATH_ERROR =
-            "Destination '{0}'.'path' pattern '{1}' is incorrect: {2}";
+        public const string LOGSVC_FILE_SINK_PATH_ERROR =
+            "Log sink '{0}'.'path' pattern '{1}' is incorrect: {2}";
 
-        public const string LOGSVC_DESTINATION_IS_OFFLINE_ERROR =
-            "Destination '{0}' is offline due to prior failure and RestartProcessingAfterMs timespan has not expired yet";
+        public const string LOGSVC_SINK_IS_OFFLINE_ERROR =
+            "Log sink '{0}' is offline due to prior failure and RestartProcessingAfterMs timespan has not expired yet";
 
         public const string LOGSVC_FAILOVER_MSG_TEXT =
-            "Message {0} delivery failed over from destination '{1}' to '{2}'. Average processing latency of failed destination '{3}'";
+            "Log message {0} delivery failed over from sink '{1}' to '{2}'. Average processing latency of failed sink is {3} ms";
 
         public const string DI_ATTRIBUTE_TYPE_INCOMPATIBILITY_ERROR =
         "Incompatible injection types. Injection type expectation of '{0}' is not assignable into the field: {1} {2}";
 
         public const string DI_ATTRIBUTE_APPLY_ERROR =
-        "Error while applying attribute [{0}] on class '{1}' instance field {2}: {3}";
+        "Error while applying attribute [{0}] on class '{1}' instance field '{2}': {3}";
 
         public const string DI_UNSATISIFED_INJECTION_ERROR =
-@"Dependency injection on class '{0}' instance field {1} could not be satisfied using: [{2}].
+@"Dependency injection on class '{0}' instance field '{1}' could not be satisfied using: [{2}].
 The injected value has to be present in app chassis having its type assignment compatible with the target field or 'Type' constraint;
 and the name of module or INamed entity must match if the 'Name' constraint was specified in the attribute";
 
