@@ -79,16 +79,16 @@ namespace Azos.Log.Sinks
       output.Append(sp); output.AppendLine("+-Exception ");
       output.Append(sp); output.Append    ("| Type      "); output.AppendLine(error.GetType().FullName);
       output.Append(sp); output.Append    ("| Source    "); output.AppendLine(error.Source);
-      output.Append(sp); output.Append    ("| Target    "); output.AppendLine(error.TargetSite.Name);
-      output.Append(sp); output.Append    ("| Message   "); output.AppendLine(error.Message.Replace("\n", "\n       .    "+sp));
+      output.Append(sp); output.Append    ("| Target    "); output.AppendLine(error.TargetSite?.Name);
+      output.Append(sp); output.Append    ("| Message   "); output.AppendLine(error.Message?.Replace("\n", "\n       .    "+sp));
       output.Append(sp); output.AppendLine("| Stack     ");
 
       var stackTrace = error.StackTrace;
 
       if (stackTrace.IsNotNullOrWhiteSpace())
-                         output.AppendLine(sp + stackTrace.Replace("\n", "\n"+sp) );
+        output.AppendLine(sp + stackTrace.Replace("\n", "\n"+sp) );
       else
-                         output.AppendLine(sp + " <no stack trace> ");
+        output.AppendLine(sp + " <no stack trace> ");
 
       dumpException(output, error.InnerException, level+1);
     }

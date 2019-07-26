@@ -76,11 +76,11 @@ namespace Azos.Scripting
 
 
     /// <summary> Returns test assumptions for named test case, inferring test case name form a calling method by default  </summary>
-    public virtual Assumptions AssumptionsFor([CallerMemberName]string testName = null)
+    public virtual Assumptions AssumptionsForCaller([CallerMemberName]string testName = null)
      => new Assumptions(AssumptionsType.Test, ClassAssumptions[testName.NonBlank(nameof(testName))].NonEmpty("Class assumptions for test `{0}`".Args(testName)));
 
     /// <summary> Returns test assumptions for a names story within a named test case, inferring test case name form a calling method by default </summary>
-    public virtual Assumptions AssumptionsForStory(string story, [CallerMemberName]string testName = null)
+    public virtual Assumptions AssumptionsForCallerStory(string story, [CallerMemberName]string testName = null)
      => new Assumptions(AssumptionsType.Story, ClassAssumptions[testName.NonBlank(nameof(testName))][story.NonBlank(nameof(story))].NonEmpty("Class assumptions for test `{0}` story `{1}`".Args(testName, story)));
 
     /// <summary> Provides type of assumption: test | story </summary>
