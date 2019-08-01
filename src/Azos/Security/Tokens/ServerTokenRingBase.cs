@@ -69,9 +69,11 @@ namespace Azos.Security.Tokens
 
     public abstract Task<string> PutAsync(RingToken token);
 
+    public abstract Task DeleteAsync(string token);
+
     public abstract Task Blacklist(IConfigSectionNode selector);
 
-    public virtual TToken GenerateNew<TToken>() where TToken : RingToken
+    public virtual TToken GenerateNew<TToken>(int expireInSeconds = 0) where TToken : RingToken
     {
       var token = Activator.CreateInstance<TToken>();
       token.Type = typeof(TToken).Name;
@@ -90,6 +92,12 @@ namespace Azos.Security.Tokens
       token.ID = btoken.ToWebSafeBase64();
 
       token.IssuedBy = this.IssuerName;
+
+      var now = App.TimeSource.UTCNow;
+      token.IssueUtcTimestamp = now;
+      token.VersionUtcTimestamp = now;
+      token.ExpireUtcTimestamp = now.AddSeconds(expireInSeconds > 0 ? expireInSeconds : token.TokenDefaultExpirationSeconds);
+
       token.IssueUtcTimestamp = token.VersionUtcTimestamp = App.TimeSource.UTCNow;
       token.ExpireUtcTimestamp = token.IssueUtcTimestamp.Value.AddSeconds(token.TokenDefaultExpirationSeconds);
 

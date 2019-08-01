@@ -8,6 +8,7 @@ using System;
 using System.Threading.Tasks;
 
 using Azos.Apps;
+using Azos.Collections;
 using Azos.Conf;
 using Azos.Serialization.JSON;
 
@@ -18,13 +19,22 @@ namespace Azos.Security.Tokens
   /// </summary>
   public sealed class ClientTokenRing : ApplicationComponent, ITokenRingImplementation
   {
-    public ClientTokenRing(IApplicationComponent director) : base(director) {}
+    public ClientTokenRing(IApplicationComponent director) : base(director)
+    {
+      m_Deleted = new CappedSet<string>(this, StringComparer.OrdinalIgnoreCase);
+      m_Deleted.SizeLimit = 1024 * 1024;
+      m_Deleted.TimeLimitSec =  8 * // hrs
+                               60 * // minutes
+                               60;  // seconds
+    }
 
     protected override void Destructor()
     {
+      DisposeAndNull(ref m_Deleted);
       base.Destructor();
     }
 
+    private CappedSet<string> m_Deleted;
     private string m_IssuerName;
 
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
@@ -62,6 +72,8 @@ namespace Azos.Security.Tokens
 
     public Task<TToken> GetUnsafeAsync<TToken>(string token) where TToken : RingToken
     {
+      if (token.IsNullOrWhiteSpace() || m_Deleted.Contains(token)) return Task.FromResult<TToken>(null);
+
       var deciphered = App.SecurityManager.PublicUnprotectMap(token.NonBlank(nameof(token)));
 
      //// Console.WriteLine(deciphered.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap));
@@ -88,13 +100,19 @@ namespace Azos.Security.Tokens
       return Task.FromResult(ciphered);
     }
 
+    public Task DeleteAsync(string token)
+    {
+      m_Deleted.Put(token);
+      return Task.CompletedTask;
+    }
+
     public Task Blacklist(IConfigSectionNode selector)
     {
      //todo Do we add blacklist table here?
       return Task.CompletedTask;
     }
 
-    public TToken GenerateNew<TToken>() where TToken : RingToken
+    public TToken GenerateNew<TToken>(int expireInSeconds = 0) where TToken : RingToken
     {
       var token = Activator.CreateInstance<TToken>();
       token.Type = typeof(TToken).Name;
@@ -103,8 +121,10 @@ namespace Azos.Security.Tokens
       var guid = Guid.NewGuid().ToNetworkByteOrder();//16 bytes
       token.ID = guid.ToWebSafeBase64();
       token.IssuedBy = this.IssuerName;
-      token.IssueUtcTimestamp = token.VersionUtcTimestamp = App.TimeSource.UTCNow;
-      token.ExpireUtcTimestamp = token.IssueUtcTimestamp.Value.AddSeconds(token.TokenDefaultExpirationSeconds);
+      var now = App.TimeSource.UTCNow;
+      token.IssueUtcTimestamp = now;
+      token.VersionUtcTimestamp = now;
+      token.ExpireUtcTimestamp = now.AddSeconds(expireInSeconds > 0 ? expireInSeconds : token.TokenDefaultExpirationSeconds);
 
       return token;
     }

@@ -19,9 +19,10 @@ namespace Azos.Security.Tokens
   public interface ITokenRing : IApplicationComponent
   {
     /// <summary>
-    /// Generates new token initializing appropriate fields (e.g. Store token rings need to generate unique ID)
+    /// Generates new token initializing appropriate fields (e.g. Store token rings need to generate unique ID).
+    /// If expiration is not provided, then default expiration is used
     /// </summary>
-    TToken GenerateNew<TToken>() where TToken : RingToken;
+    TToken GenerateNew<TToken>(int expireInSeconds = 0) where TToken : RingToken;
 
 
     /// <summary>
@@ -53,6 +54,12 @@ namespace Azos.Security.Tokens
     /// whereas stateless client-side implementations would just encode token using ICryptoMessageAlgo.Protect (or similar cryptographic mechanism)
     /// </summary>
     Task<string> PutAsync(RingToken token);
+
+
+    /// <summary>
+    /// Deletes the token from the ring
+    /// </summary>
+    Task DeleteAsync(string token);
 
     /// <summary>
     /// Applies items affected by the specified selector to the blacklist, e.g. this call may effectively invalidate all tokens

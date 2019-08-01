@@ -33,6 +33,12 @@ namespace Azos.Security.Services
     int MaxAuthorizeRoundtripAgeSec {  get; set;}
 
     /// <summary>
+    /// Imposes a maximum lifespan for refresh tokens. If the value is less or equal to zero, the refresh tokens are NOT
+    /// being issued
+    /// </summary>
+    int RefreshTokenLifespanSec { get; set; }
+
+    /// <summary>
     /// Returns true if the specified scope specification is supported. The string may contain multiple
     /// scopes delimited by spaces or commas
     /// </summary>

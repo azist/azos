@@ -32,13 +32,26 @@ namespace Azos.Security.Tokens
     [Field(description: "The content of the internal system AuthenticationToken. WARNING: This should never ever be shared with any public party/given out")]
     public string SubjectSysAuthToken { get; set; }
 
+  }
+
+
+  /// <summary>
+  /// Generated for OAuth clients on successful authorization, the client typically makes back-channel call to
+  /// IDP service supplying this temp token.
+  /// AccessCode tokens are typically short-lived (e.g. less than 3 minutes)
+  /// </summary>
+  [Arow]
+  public sealed class ClientAccessCodeToken : ClientAccessTokenBase
+  {
+    public override int TokenByteStrength => 16;
+    public override int TokenDefaultExpirationSeconds => 3/*min*/ * 60;
 
     /// <summary>
     /// The redirect URI which was requested at Authorization
     /// </summary>
     [Field(backendName: "ruri", isArow: true)]
     [Field(description: "The redirect URI which was requested at Authorization")]
-    public string RedirectURI { get;set;}
+    public string RedirectURI { get; set; }
 
     /// <summary>
     /// The client state supplied to Authorization call
@@ -46,20 +59,6 @@ namespace Azos.Security.Tokens
     [Field(backendName: "state", isArow: true)]
     [Field(description: "The client state supplied to Authorization call")]
     public string State { get; set; }
-
-  }
-
-
-  /// <summary>
-  /// Generated for OAuth clients on successful authorization, the client typically makes back-channel call to
-  /// IDP service supplying this temp token.
-  /// AccessCode tokens are typically short-lived (e.g. less than 5 minutes)
-  /// </summary>
-  [Arow]
-  public sealed class ClientAccessCodeToken : ClientAccessTokenBase
-  {
-    public override int TokenByteStrength => 16;
-    public override int TokenDefaultExpirationSeconds => 5/*min*/ * 60;
   }
 
   /// <summary>
@@ -71,6 +70,6 @@ namespace Azos.Security.Tokens
   public sealed class ClientRefreshCodeToken : ClientAccessTokenBase
   {
     public override int TokenByteStrength => 32;
-    public override int TokenDefaultExpirationSeconds => 3 /*days*/ *  24/*hrs*/ * 60/*min*/ * 60;
+    public override int TokenDefaultExpirationSeconds => 1 /*days*/ *  24/*hrs*/ * 60/*min*/ * 60;
   }
 }

@@ -12,6 +12,7 @@ using Azos.Data;
 using Azos.Wave.Mvc;
 using Azos.Security.Tokens;
 using System.Collections.Generic;
+using Azos.Serialization.JSON;
 
 namespace Azos.Security.Services
 {
@@ -26,6 +27,7 @@ namespace Azos.Security.Services
     //https://www.digitalocean.com/community/tutorials/an-introduction-to-oauth-2
     //https://medium.com/@darutk/diagrams-and-movies-of-all-the-oauth-2-0-flows-194f3c3ade85
     //https://developer.okta.com/blog/2019/05/01/is-the-oauth-implicit-flow-dead
+    //https://www.oauth.com/oauth2-servers/access-tokens/authorization-code-request/
 
     protected OAuthControllerBase() : base() { }
     protected OAuthControllerBase(IOAuthModule oauth) : base()
@@ -97,8 +99,15 @@ namespace Azos.Security.Services
 
     protected virtual object MakeAuthorizeResult(User clientUser, string response_type, string scope, string client_id, string redirect_uri, string state, string error)
     {
-      //Pack all requested content(session) into cryptographically encoded message
-      var flow = new { tp = response_type, scp = scope, id = client_id, uri = redirect_uri, st = state, utc = App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart() };
+      //Pack all requested content(session) into cryptographically encoded message aka "roundtrip"
+      var flow = new {
+        tp = response_type,
+        scp = scope,
+        id = client_id,
+        uri = redirect_uri,
+        st = state,
+        utc = App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart()
+      };
       var roundtrip = App.SecurityManager.PublicProtectAsString(flow);
 
       if (error!=null)
@@ -108,7 +117,7 @@ namespace Azos.Security.Services
       }
 
       if (WorkContext.RequestedJson)
-        return new { OK=error.IsNullOrEmpty(), roundtrip };
+        return new { OK=error.IsNullOrEmpty(), roundtrip, error };
 
       return new Wave.Templatization.StockContent.OAuthLogin(clientUser, roundtrip, error);
     }
@@ -130,7 +139,12 @@ namespace Azos.Security.Services
       var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
       if (!cluser.IsAuthenticated) return GateError(new Http401Unauthorized("Unknown client"));//we don't have ACL yet, hence can't check redirect_uri
 
-      //3. Check user credentials for the subject
+      //3. Check client ACL for allowed redirect URIs
+      var redirectPermission = new OAuthClientAppPermission(flow["uri"].AsString());//this call comes from front channel, hence we don't check for address
+      var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
+      if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
+
+      //4. Check user credentials for the subject
       var subjcred = new IDPasswordCredentials(id, pwd);
       var subject = await App.SecurityManager.AuthenticateAsync(subjcred);
       if (!subject.IsAuthenticated)
@@ -147,7 +161,7 @@ namespace Azos.Security.Services
 
       //success ------------------
 
-     // 4. Generate ClientAccessCodeToken
+     // 5. Generate ClientAccessCodeToken
       var acToken = OAuth.TokenRing.GenerateNew<ClientAccessCodeToken>();
       acToken.ClientId = clid;
       acToken.State = flow["st"].AsString();
@@ -155,10 +169,10 @@ namespace Azos.Security.Services
       acToken.SubjectSysAuthToken = subject.AuthToken.ToString();
       var accessCode = await OAuth.TokenRing.PutAsync(acToken);
 
-      //5. Redirect to URI
+      //6. Redirect to URI
       var redirect = new UriQueryBuilder(flow["uri"].AsString())
       {
-        {"token", accessCode},
+        {"code", accessCode},
         {"state", flow["st"].AsString()}
       }.ToString();
 
@@ -222,6 +236,10 @@ namespace Azos.Security.Services
       if (isAccessToken)
       {
         clientToken = await OAuth.TokenRing.GetAsync<ClientAccessCodeToken>(code);
+
+        //The access token is one-time use only:
+        if (clientToken!=null)
+          await OAuth.TokenRing.DeleteAsync(code);
       }
       else//refresh token
       {
@@ -254,18 +272,30 @@ namespace Azos.Security.Services
 
       var token = await OAuth.TokenRing.PutAsync(accessToken);
 
-      var json = new // https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
+      //6. Optionally issue a refresh token
+      string refreshToken = null;
+      if (OAuth.RefreshTokenLifespanSec > 0)
       {
-        access_token = token,
-        token_type = "bearer",
-        //scope = "access",
-        //refresh_token = "optional", <----- create ONE
-        expires_in =(int)(accessToken.ExpireUtcTimestamp - accessToken.IssueUtcTimestamp).Value.TotalSeconds
+        //https://www.oauth.com/oauth2-servers/access-tokens/refreshing-access-tokens/
+        var refreshTokenData = OAuth.TokenRing.GenerateNew<ClientRefreshCodeToken>(OAuth.RefreshTokenLifespanSec);
+        refreshTokenData.ClientId = clcred.ID;
+        refreshTokenData.SubjectSysAuthToken = targetUser.AuthToken.ToString();
+        refreshToken = await OAuth.TokenRing.PutAsync(refreshTokenData);
+      }
+
+      var result = new JsonDataMap // https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
+      {
+        {"id_token", "{openid connect token content}"},
+        {"access_token", token},
+        {"token_type", "bearer"},
+        {"expires_in", (int)(accessToken.ExpireUtcTimestamp - accessToken.IssueUtcTimestamp).Value.TotalSeconds}
       };
+
+      if (refreshToken != null) result["refresh_token"] = refreshToken;
 
 
       //No cache is set on whole controller
-      return new JsonResult(json, Serialization.JSON.JsonWritingOptions.PrettyPrint);
+      return new JsonResult(result, JsonWritingOptions.PrettyPrint);
     }
 
     protected object ReturnError(string error, string error_description, string error_uri = null, int code = 400)
