@@ -158,7 +158,7 @@ namespace Azos.Scripting
       public bool?     GetNullableBool(string attr)  => this[attr].Value.AsNullableBool(handling: ConvertErrorHandling.Throw);
 
       public string    GetString(string attr)         => this[attr].Value;
-      public string    GetRequiredString(string attr) => GetString(attr).NonBlank(attr ?? StringConsts.UNKNOWN_STRING);
+      public string    GetRequiredString(string attr) => GetString(attr).NonBlank(attr);
 
       public Atom      GetAtom(string attr)          => this[attr].Value.AsAtom(Atom.ZERO, handling: ConvertErrorHandling.Throw);
       public Atom?     GetNullableAtom(string attr)  => this[attr].Value.AsNullableAtom(null, handling: ConvertErrorHandling.Throw);
