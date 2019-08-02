@@ -1256,6 +1256,19 @@ namespace Azos
     }
 
     /// <summary>
+    /// Represents a segment of byte[] as a web-safe string, replacing `+` with `-` and `/` with `_`
+    /// so the value may be included in URI without any extra encoding. Returns null for null buffer
+    /// </summary>
+    public static string ToWebSafeBase64(this ArraySegment<byte> buf)
+    {
+      if (buf == null) return null;
+      var str = Convert.ToBase64String(buf.Array, buf.Offset, buf.Count,  Base64FormattingOptions.None);
+      str = str.TrimEnd('=');//at the end only
+      str = str.Replace('+', '-').Replace('/', '_');
+      return str;
+    }
+
+    /// <summary>
     /// Complementing method for ToWebSafeBase64() - reads web-safe base64 encoded string into a byte[].
     /// Returns null for empty string.
     /// Web-safe encoding uses `-` instead of base64 `+` and `_` instead of base64 `/`
