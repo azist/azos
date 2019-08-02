@@ -8,7 +8,7 @@ using Azos.Conf;
 namespace Azos.Security
 {
   /// <summary>
-  /// Described permissions
+  /// Describes permissions
   /// </summary>
   public sealed class PermissionCustomMetadataProvider : CustomMetadataProvider
   {
