@@ -19,7 +19,7 @@ namespace Azos.Security
   public static class CryptoMessageUtils
   {
     /// <summary>
-    /// Returns the first matching public cipher algorithm marked as default
+    /// Returns a first matching public cipher algorithm marked as the default one
     /// </summary>
     public static ICryptoMessageAlgorithm GetDefaultPublicCipher(this ISecurityManager secman)
      => secman.NonNull(nameof(secman))
@@ -95,8 +95,11 @@ namespace Azos.Security
     /// <returns>Web-safe base64-encoded string representation of protected message suitable for direct use in Uris</returns>
     public static string ProtectAsString(this ICryptoMessageAlgorithm algorithm, object originalMessage, JsonWritingOptions options = null)
     {
-      var bin = ProtectAsBuffer(algorithm, originalMessage, options);
-      return bin.ToWebSafeBase64();
+      if (originalMessage == null) return null;
+      if (options == null) options = JsonWritingOptions.CompactRowsAsMap;
+      var raw = JsonWriter.WriteToBuffer(originalMessage, options, Encoding.UTF8);
+      var result = algorithm.NonNull(nameof(algorithm)).ProtectToString(new ArraySegment<byte>(raw));
+      return result;
     }
 
 
@@ -108,9 +111,19 @@ namespace Azos.Security
     /// <returns>Unprotected/decoded message or null if the protectedMessage is not valid</returns>
     public static IJsonDataObject Unprotect(this ICryptoMessageAlgorithm algorithm, string protectedMessage)
     {
-      var raw = protectedMessage.FromWebSafeBase64();
-      if (raw==null) return null;
-      return Unprotect(algorithm, new ArraySegment<byte>(raw));
+      var raw = algorithm.UnprotectFromString(protectedMessage);
+      if (raw == null) return null;
+      using (var ms = new MemoryStream(raw))
+      {
+        try
+        {
+          return JsonReader.DeserializeDataObject(ms, Encoding.UTF8, true);
+        }
+        catch
+        {
+          return null;//corrupted message
+        }
+      }
     }
 
     /// <summary>
@@ -135,5 +148,20 @@ namespace Azos.Security
         }
       }
     }
+
+
+    public static byte[] ProtectJWTPayloadAsBuffer(this ICryptoMessageAlgorithm algorithm, JsonDataMap payload)
+    {
+      var binClaims = JsonWriter.WriteToBuffer(payload.NonNull(nameof(payload)), JsonWritingOptions.CompactRowsAsMap, Encoding.UTF8);
+      return algorithm.Protect(new ArraySegment<byte>(binClaims));
+    }
+
+    public static string ProtectJWTPayloadAsString(this ICryptoMessageAlgorithm algorithm, JsonDataMap payload)
+    {
+      var binClaims = JsonWriter.WriteToBuffer(payload.NonNull(nameof(payload)), JsonWritingOptions.CompactRowsAsMap, Encoding.UTF8);
+      return algorithm.ProtectToString(new ArraySegment<byte>(binClaims));
+    }
+
+
   }
 }

@@ -66,12 +66,21 @@ namespace Azos.Security
       m_AESKeys = BuildKeysFromConfig(config, CONFIG_AES_SECTION, 256 / 8);//AES256 = 256 bit key
     }
 
+    protected override void Destructor()
+    {
+      base.Destructor();
+      m_HMACKeys.ForEach( k => Array.Clear(k, 0, k.Length));
+      m_AESKeys.ForEach( k => Array.Clear(k, 0, k.Length));
+    }
+
     private byte[][] m_HMACKeys;
     private byte[][] m_AESKeys;
 
 
     public override CryptoMessageAlgorithmFlags Flags => CryptoMessageAlgorithmFlags.Cipher | CryptoMessageAlgorithmFlags.CanUnprotect;
 
+    public override string ProtectToString(ArraySegment<byte> originalMessage)
+      => Protect(originalMessage).ToWebSafeBase64();
 
     public override byte[] Protect(ArraySegment<byte> originalMessage)
     {
@@ -99,6 +108,9 @@ namespace Azos.Security
         }
       }
     }
+
+    public override byte[] UnprotectFromString(string protectedMessage)
+     => Unprotect(new ArraySegment<byte>(protectedMessage.FromWebSafeBase64()));
 
     public override byte[] Unprotect(ArraySegment<byte> protectedMessage)
     {
