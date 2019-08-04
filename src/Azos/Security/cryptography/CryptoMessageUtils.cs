@@ -31,6 +31,18 @@ namespace Azos.Security
               .NonNull("no Default Public Cipher algorithm configured");
 
     /// <summary>
+    /// Returns a first matching public JWT algorithm marked as the default one
+    /// </summary>
+    public static ICryptoMessageAlgorithm GetDefaultPublicJWT(this ISecurityManager secman)
+     => secman.NonNull(nameof(secman))
+              .Cryptography
+              .MessageProtectionAlgorithms
+              .FirstOrDefault(a => a.IsDefault &&
+                                   a.Audience == CryptoMessageAlgorithmAudience.Public &&
+                                   a.Flags.HasFlag(CryptoMessageAlgorithmFlags.JWT))
+              .NonNull("no Default Public JWT algorithm configured");
+
+    /// <summary>
     /// Protects a message with Default public cipher
     /// </summary>
     /// <param name="secman">ISecurityManager</param>
@@ -150,16 +162,67 @@ namespace Azos.Security
     }
 
 
+
+    public static string PublicProtectJWTPayload(this ISecurityManager secman, JsonDataMap jwtPayload)
+    {
+      var algo = secman.GetDefaultPublicJWT();
+      var result = ProtectJWTPayloadAsString(algo, jwtPayload);
+      return result;
+    }
+
+    public static JsonDataMap PublicUnprotectJWTPayload(this ISecurityManager secman, string jwtPayload)
+    {
+      var algo = secman.GetDefaultPublicJWT();
+      var result = UnprotectJWTPayload(algo, jwtPayload);
+      return result;
+    }
+
+
     public static byte[] ProtectJWTPayloadAsBuffer(this ICryptoMessageAlgorithm algorithm, JsonDataMap payload)
     {
-      var binClaims = JsonWriter.WriteToBuffer(payload.NonNull(nameof(payload)), JsonWritingOptions.CompactRowsAsMap, Encoding.UTF8);
-      return algorithm.Protect(new ArraySegment<byte>(binClaims));
+      var binPayload = JsonWriter.WriteToBuffer(payload.NonNull(nameof(payload)), JsonWritingOptions.CompactRowsAsMap, Encoding.UTF8);
+      return algorithm.Protect(new ArraySegment<byte>(binPayload));
     }
 
     public static string ProtectJWTPayloadAsString(this ICryptoMessageAlgorithm algorithm, JsonDataMap payload)
     {
-      var binClaims = JsonWriter.WriteToBuffer(payload.NonNull(nameof(payload)), JsonWritingOptions.CompactRowsAsMap, Encoding.UTF8);
-      return algorithm.ProtectToString(new ArraySegment<byte>(binClaims));
+      var binPayload = JsonWriter.WriteToBuffer(payload.NonNull(nameof(payload)), JsonWritingOptions.CompactRowsAsMap, Encoding.UTF8);
+      return algorithm.ProtectToString(new ArraySegment<byte>(binPayload));
+    }
+
+    public static JsonDataMap UnprotectJWTPayload(this ICryptoMessageAlgorithm algorithm, string protectedMessage)
+    {
+      var raw = algorithm.UnprotectFromString(protectedMessage);
+      if (raw == null) return null;
+      using (var ms = new MemoryStream(raw))
+      {
+        try
+        {
+          return JsonReader.DeserializeDataObject(ms, Encoding.UTF8, true) as JsonDataMap;
+        }
+        catch
+        {
+          return null;//corrupted message
+        }
+      }
+
+    }
+
+    public static JsonDataMap ProtectJWTPayloadAsString(this ICryptoMessageAlgorithm algorithm, byte[] protectedMessage)
+    {
+      var raw = algorithm.Unprotect(new ArraySegment<byte>(protectedMessage));
+      if (raw == null) return null;
+      using (var ms = new MemoryStream(raw))
+      {
+        try
+        {
+          return JsonReader.DeserializeDataObject(ms, Encoding.UTF8, true) as JsonDataMap;
+        }
+        catch
+        {
+          return null;//corrupted message
+        }
+      }
     }
 
 

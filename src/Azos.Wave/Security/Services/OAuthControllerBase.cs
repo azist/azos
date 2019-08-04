@@ -283,9 +283,20 @@ namespace Azos.Security.Services
         refreshToken = await OAuth.TokenRing.PutAsync(refreshTokenData);
       }
 
+      var id_token = new JsonDataMap
+      {
+        {"iss", "xxxx"},
+        {"sub", "xxxx"},
+        {"name", "xxxx"},
+        {"aud", clcred.ID},
+        //todo ... more standard fields
+      };
+
+      var jwt_id_token = App.SecurityManager.PublicProtectJWTPayload(id_token);
+
       var result = new JsonDataMap // https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
       {
-        {"id_token", "{openid connect token content}"},
+        {"id_token", jwt_id_token}, // Canonical JWT format hdr.payload.hash
         {"access_token", token},
         {"token_type", "bearer"},
         {"expires_in", (int)(accessToken.ExpireUtcTimestamp - accessToken.IssueUtcTimestamp).Value.TotalSeconds}
@@ -295,6 +306,8 @@ namespace Azos.Security.Services
 
 
       //No cache is set on whole controller
+      //for clarity
+      WorkContext.Response.SetNoCacheHeaders(force: true);
       return new JsonResult(result, JsonWritingOptions.PrettyPrint);
     }
 
