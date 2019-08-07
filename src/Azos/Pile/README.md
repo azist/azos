@@ -169,7 +169,7 @@ Keep in mind: if you serialize a huge object graph into a Pile - it will take it
 
 Making cache instance:
 ```cs
-  var cache = new LocalCache();
+  var cache = new LocalCache(App);// If you do not have App context, use NOPApplication.Instance instead
   cache.Pile = new DefaultPile(cache);//Pile owned by cache
   cache.Configure(conf);
   cache.Start();
