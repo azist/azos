@@ -18,7 +18,7 @@ There is a number of systems, however, where GC remains problematic despite all 
  
 Big Memory Pile solves the GC problems by using the transparent serialization of CLR object graphs into large byte arrays, effectively “hiding” the objects from GC’s reach. Not all object types need to be fully serialized  - strings and byte[] get written into Pile as buffers bypassing all serialization mechanisms yielding over 6 M inserts/second for a 64 char string on a 6 core box.
  
-The key benefit is the **practicality** of this **approach which obviates the need to construct custom DTOs and other hack methods just to relieve the pressure on the GC**. The real life cases have shown the overall performance of the solution to be much higher than using extrenal stores.
+The key benefit is the **practicality** of this **approach which obviates the need to construct custom DTOs and other hack methods just to relieve the pressure on the GC**. The real life cases have shown the overall performance of the solution to be much higher than using external stores.
 
 ## How it Works
 Pile provides a layered design, at its core there is a [memory allocator](PileImpl/DefaultPileBase.cs) that manages the sub-allocation within large ["segments"](PileImpl/DefaultPileBase.Segment.cs) which are backed by either [byte[]](PileImpl/LocalMemory.cs) or [MemoryMappedFiles](PileImpl/MMFMemory.cs). 
@@ -106,8 +106,8 @@ Raw memory allocator works with byte[] bypassing any serialization; this code ye
   var ptr = pile.Put(buffer);
   ...
   var got = pile.Get(ptr) as byte[];
-  Assert.IsNotNull(got);
-  Assert.AreEqual(1234, got.Length);
+  Aver.IsNotNull(got);
+  Aver.AreEqual(1234, got.Length);
 
 ```
 we can do the same with strings, as strings use UTF8 direct encoding into memory buffer. The performance is similar.
@@ -163,7 +163,7 @@ An example of a linked list with in-place mutation (changing data at existing po
   }                                
 ```
 
-Keep in mind: if you serialize a huge object graph into a Pile - it will take it as long as it fits in a segment (256 Mb by default), however this is not a good and intended design of using Pile. Store smaller business- oriented objects instead. If you need to store huge graphs use [ICache](ICache.cs) (see below).
+Keep in mind: if you serialize a huge object graph into a Pile - it will accept that graph as long as it fits in a single segment (256 Mb by default), however this is not a good and intended pattern of using Pile by design. Instead, store smaller business-oriented objects. If you need to store huge graphs use [ICache](ICache.cs) (see below).
 
 **4 - Caching**
 
@@ -195,10 +195,10 @@ Create tables and put some data, note the **use of comparers**:
    var tA = cache.GetOrCreateTable<string>("A", StringComparer.Ordinal);
    var tB = cache.GetOrCreateTable<string>("B", StringComparer.OrdinalIgnoreCase);
 
-   Assert.AreEqual(PutResult.Inserted, tA.Put("key1", "avalue1"));
-   Assert.AreEqual(PutResult.Inserted, tA.Put("Key1", "avalue2"));
-   Assert.AreEqual(PutResult.Inserted, tB.Put("key1", "bvalue1"));
-   Assert.AreEqual(PutResult.Replaced, tB.Put("Key1", "bvalue2")); 
+   Aver.AreEqual(PutResult.Inserted, tA.Put("key1", "avalue1"));
+   Aver.AreEqual(PutResult.Inserted, tA.Put("Key1", "avalue2"));
+   Aver.AreEqual(PutResult.Inserted, tB.Put("key1", "bvalue1"));
+   Aver.AreEqual(PutResult.Replaced, tB.Put("Key1", "bvalue2")); 
 ```
 
 Max age, priority and absolute expiration:
@@ -255,9 +255,9 @@ Atomic GetOrPut():
 
   PutResult? pResult;
   var v = tA.GetOrPut(2, (t, k, _) => "value "+k.ToString(), null, out pResult);
-  Assert.AreEqual( "value 2", v);
-  Assert.IsTrue( pResult.HasValue );
-  Assert.AreEqual( PutResult.Inserted, pResult.Value);
+  Aver.AreEqual( "value 2", v);
+  Aver.IsTrue( pResult.HasValue );
+  Aver.AreEqual( PutResult.Inserted, pResult.Value);
 ```
 
 
