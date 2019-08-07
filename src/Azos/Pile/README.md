@@ -78,9 +78,9 @@ Depending on your objectives you can allocate Pile by hand, or use dependency in
   private IPileImplemntation m_Pile;
   .....
   //make by hand
-  m_Pile = new DefaultPile();
+  m_Pile = new DefaultPile(App);// If you do not have App context, use NOPApplication.Instance instead
   //or
-  m_Pile = new MMFPile();
+  m_Pile = new MMFPile(App);// If you do not have App context, use NOPApplication.Instance instead
   //or inject from config
   //if type is not specified in config use DefaultPile as default type
   m_Pile = FactoryUtils.MakeAndConfigure(configNode, typeof(DefaultPile));
