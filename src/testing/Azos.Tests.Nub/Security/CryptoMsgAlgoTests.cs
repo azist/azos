@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -194,11 +195,11 @@ app
     {
       var claims = new JsonDataMap { { "aud", "ZZZ" }, { "sub", "KKK" } };
 
-      var jwt = m_App.SecurityManager.PublicProtectJWTPayload(claims);
+      var jwt = m_App.SecurityManager.GetDefaultPublicJWT().ProtectJWTPayloadAsBuffer(claims);
 
-      jwt.See("Encoded JWT:");
+      Encoding.UTF8.GetString(jwt).See("Encoded JWT:");
 
-      var got = m_App.SecurityManager.PublicUnprotectJWTPayload(jwt);
+      var got = m_App.SecurityManager.GetDefaultPublicJWT().UnprotectJWTPayload(new ArraySegment<byte>(jwt));
 
       got.See("Deciphered from JWT:");
 
@@ -207,8 +208,11 @@ app
       Aver.AreEqual(claims["aud"].AsString(), got["aud"].AsString());
       Aver.AreEqual(claims["sub"].AsString(), got["sub"].AsString());
 
-      jwt = jwt.Replace(".", ".A");//change
-      got = m_App.SecurityManager.PublicUnprotectJWTPayload(jwt);
+      var was = jwt[3];
+      jwt[3] = was!=(byte)'A' ? (byte)'A' : (byte)'B';
+
+      Encoding.UTF8.GetString(jwt).See("Tampered JWT:");
+      got = m_App.SecurityManager.GetDefaultPublicJWT().UnprotectJWTPayload(new ArraySegment<byte>(jwt));
       Aver.IsNull(got);//tampered
     }
 

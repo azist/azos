@@ -239,16 +239,15 @@ namespace Azos.Security
 
     }
 
-
     /// <summary>
     /// Unprotected the JWT payload (middle) segment with the default public algorithm
     /// </summary>
     /// <param name="algorithm">App chassis sec manager</param>
     /// <param name="jwt">JSON web token: `header.payload.hash`</param>
     /// <returns>JsonDataMap filled with payload/claims or null if message is corrupt/not authentic</returns>
-    public static JsonDataMap ProtectJWTPayloadAsString(this ICryptoMessageAlgorithm algorithm, byte[] jwt)
+    public static JsonDataMap UnprotectJWTPayload(this ICryptoMessageAlgorithm algorithm, ArraySegment<byte> jwt)
     {
-      var raw = algorithm.Unprotect(new ArraySegment<byte>(jwt));
+      var raw = algorithm.Unprotect(jwt);
       if (raw == null) return null;
       using (var ms = new MemoryStream(raw))
       {
@@ -261,7 +260,32 @@ namespace Azos.Security
           return null;//corrupted message
         }
       }
+
     }
+
+
+    /////// <summary>
+    /////// Unprotected the JWT payload (middle) segment with the default public algorithm
+    /////// </summary>
+    /////// <param name="algorithm">App chassis sec manager</param>
+    /////// <param name="jwt">JSON web token: `header.payload.hash`</param>
+    /////// <returns>JsonDataMap filled with payload/claims or null if message is corrupt/not authentic</returns>
+    ////public static JsonDataMap ProtectJWTPayloadAsString(this ICryptoMessageAlgorithm algorithm, byte[] jwt)
+    ////{
+    ////  var raw = algorithm.Unprotect(new ArraySegment<byte>(jwt));
+    ////  if (raw == null) return null;
+    ////  using (var ms = new MemoryStream(raw))
+    ////  {
+    ////    try
+    ////    {
+    ////      return JsonReader.DeserializeDataObject(ms, UTF8_NO_BOM, true) as JsonDataMap;
+    ////    }
+    ////    catch
+    ////    {
+    ////      return null;//corrupted message
+    ////    }
+    ////  }
+    ////}
 
 
   }
