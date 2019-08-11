@@ -45,6 +45,7 @@ namespace Azos.Security.Tokens
     [Field(required: true, backendName: "b", description: "Name of party issuing token")]
     public string IssuedBy { get; set; }
 
+    /// <summary> Expressed in number of seconds since UNIX epoch </summary>
     [Field(backendName: "i", isArow: true)]
     [Field(required: true, backendName: "i", description: "When was the token issued (Unix UTC time)")]
     public long? IssueUtc{  get; set; }
@@ -56,6 +57,7 @@ namespace Azos.Security.Tokens
       set => IssueUtc = value?.ToSecondsSinceUnixEpochStart();
     }
 
+    /// <summary> Expressed in number of seconds since UNIX epoch </summary>
     [Field(backendName: "e", isArow: true)]
     [Field(required: true, backendName: "e", description: "When the token becomes invalid (Unix UTC time), as-if non existing")]
     public long? ExpireUtc { get; set; }

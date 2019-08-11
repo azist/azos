@@ -283,13 +283,16 @@ namespace Azos.Security.Services
         refreshToken = await OAuth.TokenRing.PutAsync(refreshTokenData);
       }
 
+      // https://openid.net/specs/openid-connect-basic-1_0-28.html#id.token.validation
+      // https://tools.ietf.org/html/rfc7519#section-4.1.4
       var id_token = new JsonDataMap
       {
-        {"iss", "xxxx"},
-        {"sub", "xxxx"},
-        {"name", "xxxx"},
+        {"iss", accessToken.IssuedBy},
         {"aud", clcred.ID},
-        //todo ... more standard fields
+        {"exp", accessToken.ExpireUtc},//in seconds
+        {"iat", accessToken.IssueUtc}, //in seconds
+        {"sub", targetUser.Name},
+        {"name", targetUser.Description},
       };
 
       var jwt_id_token = App.SecurityManager.PublicProtectJWTPayload(id_token);
@@ -330,13 +333,16 @@ namespace Azos.Security.Services
       };
       WorkContext.Response.StatusCode = code;
       WorkContext.Response.StatusDescription = "Bad request";
-      return new JsonResult(json, Serialization.JSON.JsonWritingOptions.PrettyPrint);
+      return new JsonResult(json, JsonWritingOptions.PrettyPrint);
     }
 
+    //https://openid.net/specs/openid-connect-basic-1_0-28.html#userinfo
     [ActionOnGet(Name = "userinfo")]
+    [AuthenticatedUserPermission]
     public object UserInfo()
     {
-      return null;
+      var user = WorkContext?.Session?.User;
+      return new { sub = user.Name, name = user.Description};
     }
   }
 }
