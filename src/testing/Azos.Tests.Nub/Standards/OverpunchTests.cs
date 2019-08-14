@@ -25,7 +25,11 @@ namespace Azos.Tests.Nub.Standards
     [Run(" v=-87543    o='00000008754l'  ")]
     [Run(" v=8298380   o='00000829838{'  ")]
     [Run(" v=-437240   o='00000043724}'  ")]
-    public void Long_Basic(long v, string o) =>  Aver.AreEqual(v, Overpunch.ToLong(o));
+    public void Basic(long v, string o)
+    {
+      Aver.AreEqual(v, Overpunch.ToLong(o));
+      Aver.IsTrue( o.EqualsOrdIgnoreCase( Overpunch.FromLong(v)));
+    }
 
     [Run]
     public void Long_DefaultNull()

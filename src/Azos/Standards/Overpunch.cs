@@ -4,6 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
+
 using Azos.Data;
 
 namespace Azos.Standards
@@ -21,7 +23,7 @@ namespace Azos.Standards
     /// <param name="scale">100, by default int to decimal divider</param>
     /// <param name="dflt">default value or null</param>
     /// <param name="handling">Throws or return dflt</param>
-    public static decimal? ToDecimal(this object val, int scale = 100, decimal? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.Throw)
+    public static decimal? ToDecimal(object val, int scale = 100, decimal? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.Throw)
     {
       if (scale<=0) scale = 1;
       var ld = dflt.HasValue ? (long)(dflt * scale) : (long?)null;
@@ -33,7 +35,7 @@ namespace Azos.Standards
     /// <summary>
     /// Converts overpunched string into nullable long
     /// </summary>
-    public static long? ToLong(this object val, long? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.Throw)
+    public static long? ToLong(object val, long? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.Throw)
     {
     //https://en.wikipedia.org/wiki/Signed_overpunch
       if (val == null) return null;
@@ -99,5 +101,44 @@ namespace Azos.Standards
 
       return result;
     }
+
+
+    /// <summary>
+    /// Converts nullable long to a string formatted per overpunch specification
+    /// </summary>
+    public unsafe static string FromLong(long? val)
+    {
+      if (val == null) return null;
+      if (val == 0) return "{";
+
+      const int MAX = 32;
+
+      var neg = val < 0;
+      var v = Math.Abs(val.Value);
+      var a = stackalloc char[MAX];
+      var i = MAX;
+      var least = true;//least significant digit
+      while(v>0)
+      {
+        i--;
+        var rem = v % 10;
+
+        if (least)
+        {
+          least = false;
+          if (rem==0)
+            a[i] = neg ? '}' : '{';
+          else
+            a[i] = (char)( (neg ? 'J' : 'A') + rem - 1);//1-based index, 'J' == 1, not 0
+        }
+        else
+          a[i] = (char)('0' + rem);//zero-based index '0' + 0 = '0'
+
+        v /= 10;
+      }
+
+      return new string(a, i, MAX - i);
+    }
+
   }
 }
