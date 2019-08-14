@@ -307,6 +307,7 @@ namespace Azos.Web
 
           lst.Add( new ServicePointConfigurator(this, sp, nsp));
         }
+        System.Threading.Thread.MemoryBarrier();
         m_ServicePoints = lst; // atomic
       }
 

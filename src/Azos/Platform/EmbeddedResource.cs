@@ -20,7 +20,7 @@ namespace Azos.Platform
   public static class EmbeddedResource
   {
     private static object s_CacheLock = new object();
-    private static Dictionary<string, string> s_Cache = new Dictionary<string, string>();
+    private static volatile Dictionary<string, string> s_Cache = new Dictionary<string, string>();
 
     /// <summary>
     /// Pass a type and resource path rooted at type's namespace, for example
@@ -54,6 +54,7 @@ namespace Azos.Platform
           }
 
           dict[entryName] = result;
+          System.Threading.Thread.MemoryBarrier();
           s_Cache = dict;
         }
 

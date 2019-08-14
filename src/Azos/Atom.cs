@@ -199,7 +199,7 @@ namespace Azos
 
     //intern pool for speed
     private static object s_Lock = new object();
-    private static Dictionary<ulong, string> s_Cache = new Dictionary<ulong, string>();
+    private static volatile Dictionary<ulong, string> s_Cache = new Dictionary<ulong, string>();
 
     /// <summary>
     /// Returns string of up to 8 ASCII characters which this ID was constructed from.
@@ -219,8 +219,9 @@ namespace Azos
           value = getValue();
           var dict = new Dictionary<ulong, string>(s_Cache);
           dict.Add(ID, value);
+          System.Threading.Thread.MemoryBarrier();
           s_Cache = dict; //atomic swap
-        }//ensures full memory barrier
+        }
 
         return value;
       }

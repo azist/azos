@@ -241,6 +241,7 @@ namespace Azos.Serialization.Arow
         if (s_Serializers.ContainsKey(tRow)) return false;
         var dict = new Dictionary<Type, ITypeSerializationCore>(s_Serializers);
         dict.Add(tRow, core);
+        System.Threading.Thread.MemoryBarrier();
         s_Serializers = dict;//atomic
         return true;
       }

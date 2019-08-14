@@ -382,6 +382,9 @@ content-type-mappings
         var rootNode = App.ConfigRoot[WebSettings.CONFIG_WEBSETTINGS_SECTION][CONFIG_CONTENT_TYPE_MAPPINGS_SECTION];
         build(idxByExtension, idxByType, rootNode);
 
+
+        System.Threading.Thread.MemoryBarrier();
+
         m_ExtToMapping = idxByExtension;//atomic
         m_TypeToMapping = idxByType;//atomic
       }

@@ -57,7 +57,7 @@ namespace Azos.Security
     }
 
 
-    private static Dictionary<MemberInfo, Permission[]> s_AttrCache = new Dictionary<MemberInfo,Permission[]>();
+    private static volatile Dictionary<MemberInfo, Permission[]> s_AttrCache = new Dictionary<MemberInfo,Permission[]>();
 
 
     /// <summary>
@@ -72,6 +72,7 @@ namespace Azos.Security
         permissions = actionInfo.GetCustomAttributes(typeof(Permission), true).Cast<Permission>().ToArray();
         var dict = new Dictionary<MemberInfo,Permission[]>(s_AttrCache);
         dict[actionInfo] = permissions;
+        System.Threading.Thread.MemoryBarrier();
         s_AttrCache = dict;//atomic
       }
 

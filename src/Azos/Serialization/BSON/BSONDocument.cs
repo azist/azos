@@ -426,6 +426,7 @@ namespace Azos.Serialization.BSON
                         result = compileTemplate(template);
                         var ncache = new Dictionary<string, JsonDataMap>(s_TemplateCache, StringComparer.Ordinal);
                         ncache[template] = result;
+                        System.Threading.Thread.MemoryBarrier();
                         s_TemplateCache = ncache;//atomic
                       }
                     }

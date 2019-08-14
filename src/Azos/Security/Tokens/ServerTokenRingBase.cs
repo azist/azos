@@ -150,6 +150,7 @@ namespace Azos.Security.Tokens
         name = schema.GetTableAttrForTarget(null).Name;
         var dict = new Dictionary<Type, string>(s_TableNames);
         dict[ttoken] = name;
+        System.Threading.Thread.MemoryBarrier();
         s_TableNames = dict;
       }
       return m_Cache.GetOrCreateTable<string>(name, StringComparer.Ordinal);

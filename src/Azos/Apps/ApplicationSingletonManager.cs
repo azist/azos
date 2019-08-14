@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Azos.Apps
 {
@@ -93,6 +94,7 @@ namespace Azos.Apps
 
         var dict = new Dictionary<Type, object>(m_Instances);
         dict.Add(tp, newInstance);
+        Thread.MemoryBarrier();
         m_Instances = dict;//atomic
 
         return (newInstance, true);
@@ -109,6 +111,7 @@ namespace Azos.Apps
 
         var dict = new Dictionary<Type, object>(m_Instances);
         dict.Remove(tp);
+        Thread.MemoryBarrier();
         m_Instances = dict;//atomic
       }
 

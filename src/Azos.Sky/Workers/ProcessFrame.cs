@@ -94,7 +94,7 @@ namespace Azos.Sky.Workers
       this.Descriptor = process.SysDescriptor;
     }
 
-    private static Dictionary<string, Type> s_TypesCache = new Dictionary<string, Type>(StringComparer.Ordinal);
+    //private static volatile Dictionary<string, Type> s_TypesCache = new Dictionary<string, Type>(StringComparer.Ordinal);
 
     /// <summary>
     /// Materializes the Process instance represented by this frame in the scope of IGuidTypeResolver

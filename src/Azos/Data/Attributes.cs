@@ -651,6 +651,7 @@ namespace Azos.Data
 
         var dict = new Dictionary<Type, UniqueSequenceAttribute>(s_ScopeCache);
         dict[tDoc] = result;
+        System.Threading.Thread.MemoryBarrier();
         s_ScopeCache = dict; // atomic
 
         return result;
