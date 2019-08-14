@@ -104,6 +104,15 @@ namespace Azos.Standards
 
 
     /// <summary>
+    /// Converts nullable decimal to a string formatted per overpunch specification
+    /// </summary>
+    public static string FromDecimal(decimal? val, int scale = 100)
+    {
+      if (val==null) return null;
+      return FromLong((long)(val * scale));
+    }
+
+    /// <summary>
     /// Converts nullable long to a string formatted per overpunch specification
     /// </summary>
     public unsafe static string FromLong(long? val)
