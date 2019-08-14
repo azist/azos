@@ -105,12 +105,12 @@ namespace Azos.Collections
 
 
     /// <summary>
-    /// Represents a thread-safe registry of T. This class is efficient for concurrent read access and is
+    /// Represents a thread-safe registry of T. This class is efficient for lock-free concurrent read access and is
     /// not designed for cases when frequent modifications happen. It is ideal for lookup of named instances
-    /// (such as components) that have much longer time span than components that look them up.
+    /// (such as components) that have much longer life time span than components that look them up.
     /// Registry performs lock-free lookup which speeds-up many concurrent operations that need to map
     /// names into objects. The enumeration over registry makes a snapshot of its data, hence a registry may
-    /// get modified by other threads while being enumerated.
+    /// get modified by other threads while being enumerated (snapshot consistency).
     /// </summary>
     [Serializable]
     public class Registry<T> : IRegistry<T> where T : INamed
@@ -185,6 +185,7 @@ namespace Azos.Collections
 
           JustRegistered(item);
 
+          Thread.MemoryBarrier();
           m_Data = data; //atomic
         }
 
@@ -224,6 +225,7 @@ namespace Azos.Collections
               JustRegistered(item);
           }
 
+          Thread.MemoryBarrier();
           m_Data = data; //atomic
         }
 
@@ -244,6 +246,7 @@ namespace Azos.Collections
 
           JustUnregistered(item);
 
+          Thread.MemoryBarrier();
           m_Data = data; //atomic
         }
 
@@ -265,6 +268,7 @@ namespace Azos.Collections
 
           JustUnregistered(item);
 
+          Thread.MemoryBarrier();
           m_Data = data; //atomic
         }
 
@@ -448,6 +452,7 @@ namespace Azos.Collections
         list.Add(item);
         list.Sort( (l, r) => l.Order.CompareTo(r.Order) );
 
+        Thread.MemoryBarrier();
         m_OrderedValues = list;
       }
 
@@ -459,6 +464,7 @@ namespace Azos.Collections
         list.Add(newItem);
         list.Sort( (l, r) => l.Order.CompareTo(r.Order) );
 
+        Thread.MemoryBarrier();
         m_OrderedValues = list;
       }
 
@@ -468,6 +474,7 @@ namespace Azos.Collections
         var list = new List<T>(m_OrderedValues);
         list.Remove(item);
 
+        Thread.MemoryBarrier();
         m_OrderedValues = list;
       }
    }
