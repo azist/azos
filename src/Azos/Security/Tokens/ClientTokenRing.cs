@@ -64,8 +64,22 @@ namespace Azos.Security.Tokens
     {
       var content = await GetUnsafeAsync<TToken>(token);
 
-      var ve = content.Validate(RingToken.PROTECTED_MSG_TARGET);
-      if (ve!=null) return null;
+      if (content==null) return null; //fix #183
+
+      try
+      {
+        var ve = content.Validate(RingToken.PROTECTED_MSG_TARGET);
+        if (ve!=null)
+        {
+          WriteLog(Log.MessageType.TraceErrors, nameof(GetAsync), "Validate() returned: " + ve.ToMessageWithType(), ve);
+          return null;
+        }
+      }
+      catch (Exception error)
+      {
+        WriteLog(Log.MessageType.TraceErrors, nameof(GetAsync), "Validate() leaked: " + error.ToMessageWithType(), error);
+        return null;
+      }
 
       return content;
     }
@@ -76,12 +90,19 @@ namespace Azos.Security.Tokens
 
       var deciphered = App.SecurityManager.PublicUnprotectMap(token.NonBlank(nameof(token)));
 
-     //// Console.WriteLine(deciphered.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap));
-
       //protected message integrity check will return null if token was tampered
       if (deciphered == null) return Task.FromResult<TToken>(null);
 
-      var content = JsonReader.ToDoc<TToken>(deciphered, nameBinding: JsonReader.NameBinding.ByBackendName(RingToken.PROTECTED_MSG_TARGET));
+      TToken content = null;
+      try
+      {
+        content = JsonReader.ToDoc<TToken>(deciphered, nameBinding: JsonReader.NameBinding.ByBackendName(RingToken.PROTECTED_MSG_TARGET));
+      }
+      catch(Exception error)
+      {
+        WriteLog(Log.MessageType.TraceErrors, nameof(GetUnsafeAsync), "ToDoc() leaked: "+error.ToMessageWithType(), error);
+        return Task.FromResult<TToken>(null);
+      }
 
       //check expiration date
       var expire = content.ExpireUtcTimestamp;

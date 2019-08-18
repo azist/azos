@@ -80,29 +80,37 @@ namespace Azos.Security
       if (protectedMessage.Length < B64_HEADER.Length + 1)
         throw new SecurityException(StringConsts.ARGUMENT_ERROR + "{0}.Unprotect(protectedMessage.Count < hdr)".Args(GetType().Name));
 
-      var segs = protectedMessage.Split('.');
-      if (segs.Length != 3) return null;  //jwt: header.payload.sig
-
-      var hdr = segs[0].FromWebSafeBase64();
-      if (hdr.Length == 0) return null;
-      var shdr = Encoding.UTF8.GetString(hdr);
-      if (shdr.Length < HEADER.Length) return null;
-      var hdrData = shdr.JsonToDataObject() as JsonDataMap;
-      if (hdrData == null) return null;
-      if (!hdrData["typ"].AsString().EqualsOrdIgnoreCase("JWT")) return null;
-      if (!hdrData["alg"].AsString().EqualsOrdIgnoreCase("HS256")) return null;
-
-
-      var hdrpay = segs[0] + "." + segs[1];
-      var binhdrpay = Encoding.UTF8.GetBytes(hdrpay);
-
-      using (var hmac = new HMACSHA256(m_HMACKey))
+      try
       {
-        var ssig = segs[2].FromWebSafeBase64();
-        var hash = hmac.ComputeHash(binhdrpay);
-        if (!hash.MemBufferEquals(ssig)) return null;//hash mismatch
-        var spayload = segs[1].FromWebSafeBase64();
-        return spayload;
+        var segs = protectedMessage.Split('.');
+        if (segs.Length != 3) return null;  //jwt: header.payload.sig
+
+        var hdr = segs[0].FromWebSafeBase64();
+        if (hdr.Length == 0) return null;
+        var shdr = Encoding.UTF8.GetString(hdr);
+        if (shdr.Length < HEADER.Length) return null;
+        var hdrData = shdr.JsonToDataObject() as JsonDataMap;
+        if (hdrData == null) return null;
+        if (!hdrData["typ"].AsString().EqualsOrdIgnoreCase("JWT")) return null;
+        if (!hdrData["alg"].AsString().EqualsOrdIgnoreCase("HS256")) return null;
+
+
+        var hdrpay = segs[0] + "." + segs[1];
+        var binhdrpay = Encoding.UTF8.GetBytes(hdrpay);
+
+        using (var hmac = new HMACSHA256(m_HMACKey))
+        {
+          var ssig = segs[2].FromWebSafeBase64();
+          var hash = hmac.ComputeHash(binhdrpay);
+          if (!hash.MemBufferEquals(ssig)) return null;//hash mismatch
+          var spayload = segs[1].FromWebSafeBase64();
+          return spayload;
+        }
+      }
+      catch(Exception error)
+      {
+        WriteLog(Log.MessageType.TraceErrors, nameof(UnprotectFromString), "Leaked on bad message: " + error.ToMessageWithType(), error);
+        return null;
       }
     }
 
@@ -110,7 +118,17 @@ namespace Azos.Security
     {
       protectedMessage.Array.NonNull(nameof(protectedMessage));
 
-      var jwtString = Encoding.UTF8.GetString(protectedMessage.Array, protectedMessage.Offset, protectedMessage.Count);
+      string jwtString = null;
+      try
+      {
+        jwtString = Encoding.UTF8.GetString(protectedMessage.Array, protectedMessage.Offset, protectedMessage.Count);
+      }
+      catch(Exception error)
+      {
+        WriteLog(Log.MessageType.TraceErrors, nameof(Unprotect), "Leaked on bad UTF8 decode: " + error.ToMessageWithType(), error);
+        return null;
+      }
+
       return UnprotectFromString(jwtString);
     }
 

@@ -124,18 +124,26 @@ namespace Azos.Security
       Array.Copy(protectedMessage.Array, protectedMessage.Offset + IV_LEN, hmac, 0, HMAC_LEN);
       var keys = getKeys(iv);
 
-      using (var aes = makeAES())
+      try
       {
-        using (var decrypt = aes.CreateDecryptor(keys.aes, iv))
+        using (var aes = makeAES())
         {
-          var decrypted = decrypt.TransformFinalBlock(protectedMessage.Array, protectedMessage.Offset + HDR_LEN, protectedMessage.Count - HDR_LEN);
+          using (var decrypt = aes.CreateDecryptor(keys.aes, iv))
+          {
+            var decrypted = decrypt.TransformFinalBlock(protectedMessage.Array, protectedMessage.Offset + HDR_LEN, protectedMessage.Count - HDR_LEN);
 
-          //rehash locally and check
-          var rehmac = getHMAC(keys.hmac, new ArraySegment<byte>(iv), new ArraySegment<byte>(decrypted));
-          if (!hmac.MemBufferEquals(rehmac)) return null;//HMAC mismatch: message has been tampered with
+            //rehash locally and check
+            var rehmac = getHMAC(keys.hmac, new ArraySegment<byte>(iv), new ArraySegment<byte>(decrypted));
+            if (!hmac.MemBufferEquals(rehmac)) return null;//HMAC mismatch: message has been tampered with
 
-          return decrypted;
+            return decrypted;
+          }
         }
+      }
+      catch(Exception error)
+      {
+        WriteLog(Log.MessageType.TraceErrors, nameof(Unprotect), "Leaked on bad message: " + error.ToMessageWithType(), error);
+        return null;
       }
     }
 
