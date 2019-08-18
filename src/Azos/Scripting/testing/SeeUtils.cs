@@ -35,7 +35,17 @@ namespace Azos.Scripting
     /// Writes formatted string into console
     /// </summary>
     public static void See(this string text, params object[] args)
-      => Console.WriteLine(text.Args(args));
+    {
+      if (text.IsNullOrWhiteSpace())
+      {
+        if (args==null || args.Length<1) return;
+
+        for(var i=0; i<args.Length; i++)
+          text += $"{{{i}}}  ";
+      }
+
+      Console.WriteLine(text.Args(args));
+    }
 
 
     /// <summary> Writes a formatted message with info header </summary>

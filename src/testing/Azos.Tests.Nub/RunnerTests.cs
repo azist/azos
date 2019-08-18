@@ -37,6 +37,8 @@ namespace Azos.Tests.Nub
       {
         "Message without parameters".See();
         "Message with parameter {0}".See(1);
+        "".See(1,2,3,4,5);
+
         new {a=1,b=2}.See();
         new { a = 1, b = 2 }.See("With header");
         new []{1,2,3}.See();
