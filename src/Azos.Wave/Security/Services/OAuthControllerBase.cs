@@ -94,19 +94,21 @@ namespace Azos.Security.Services
       if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
 
       //3. Generate result, such as JSON or Login Form
-      return MakeAuthorizeResult(cluser, response_type, scope, client_id, redirect_uri, state, error: null);
+      var startedUtc = App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart();
+      return RespondWithAuthorizeResult(startedUtc, cluser, response_type, scope, client_id, redirect_uri, state, error: null);
     }
 
-    protected virtual object MakeAuthorizeResult(User clientUser, string response_type, string scope, string client_id, string redirect_uri, string state, string error)
+    protected virtual object RespondWithAuthorizeResult(long sdUtc, User clientUser, string response_type, string scope, string client_id, string redirect_uri, string state, string error)
     {
       //Pack all requested content(session) into cryptographically encoded message aka "roundtrip"
       var flow = new {
+        sd = sdUtc,
+        iss = App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart(),
         tp = response_type,
         scp = scope,
         id = client_id,
         uri = redirect_uri,
-        st = state,
-        utc = App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart()
+        st = state
       };
       var roundtrip = App.SecurityManager.PublicProtectAsString(flow);
 
@@ -116,11 +118,17 @@ namespace Azos.Security.Services
         WorkContext.Response.StatusDescription = error;
       }
 
+      return MakeAuthorizeResult(clientUser, roundtrip, error);
+    }
+
+    protected virtual object MakeAuthorizeResult(User clientUser, string roundtrip, string error)
+    {
       if (WorkContext.RequestedJson)
-        return new { OK=error.IsNullOrEmpty(), roundtrip, error };
+        return new { OK = error.IsNullOrEmpty(), roundtrip, error };
 
       return new Wave.Templatization.StockContent.OAuthLogin(clientUser, roundtrip, error);
     }
+
 
     [ActionOnPost(Name = "authorize")]
     [ActionOnPost(Name = "authorization")]
@@ -130,7 +138,8 @@ namespace Azos.Security.Services
       if (flow == null) return GateError(new Http401Unauthorized("Bad Request X1"));//we don't have ACL yet, hence can't check redirect_uri
 
       //1. check token age
-      var age = App.TimeSource.UTCNow - flow["utc"].AsLong(0).FromSecondsSinceUnixEpochStart();
+      var utcNow = App.TimeSource.UTCNow;
+      var age = utcNow - flow["sd"].AsLong(0).FromSecondsSinceUnixEpochStart();
       if (age.TotalSeconds > OAuth.MaxAuthorizeRoundtripAgeSec) return GateError(new Http401Unauthorized("Bad Request X2"));
 
       //2. Lookup client app, just by client_id (w/o password)
@@ -149,12 +158,15 @@ namespace Azos.Security.Services
       var subject = await App.SecurityManager.AuthenticateAsync(subjcred);
       if (!subject.IsAuthenticated)
       {
-        var redo = MakeAuthorizeResult(cluser, flow["tp"].AsString(),
-                                               flow["scp"].AsString(),
-                                               clid,
-                                               flow["uri"].AsString(),
-                                               flow["st"].AsString(),
-                                               "Bad login");//!!! DO NOT disclose any more details
+        await Task.Delay(1000);//this call resulting in error is guaranteed to take at least 1 second to complete, throttling down the hack attempts
+        var redo = RespondWithAuthorizeResult(flow["sd"].AsLong(),
+                                       cluser,
+                                       flow["tp"].AsString(),
+                                       flow["scp"].AsString(),
+                                       clid,
+                                       flow["uri"].AsString(),
+                                       flow["st"].AsString(),
+                                       "Bad login");//!!! DO NOT disclose any more details
 
         return GateUser(redo);
       }
@@ -295,6 +307,8 @@ namespace Azos.Security.Services
         {"name", targetUser.Description},
       };
 
+      AddExtraClaimsToIDToken(id_token);
+
       var jwt_id_token = App.SecurityManager.PublicProtectJWTPayload(id_token);
 
       var result = new JsonDataMap // https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
@@ -312,6 +326,14 @@ namespace Azos.Security.Services
       //for clarity
       WorkContext.Response.SetNoCacheHeaders(force: true);
       return new JsonResult(result, JsonWritingOptions.PrettyPrint);
+    }
+
+
+    /// <summary>
+    /// Override to add extra claims to id_token JWT
+    /// </summary>
+    protected virtual void AddExtraClaimsToIDToken(JsonDataMap jwtClaims)
+    {
     }
 
     protected object ReturnError(string error, string error_description, string error_uri = null, int code = 400)
