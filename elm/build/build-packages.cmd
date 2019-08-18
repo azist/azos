@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.0.510.7
+set VER=1.0.510.8
 set HEADLINE=OAuth Identity Provider
 
 call vs2017-build-release %VER%
