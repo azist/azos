@@ -12,14 +12,23 @@ using Azos.Conf;
 namespace Azos.Wave.Filters
 {
   /// <summary>
-  /// Handles Authorization header with Basic and Bearer schemes creating IDPasswordCredentials or BearerCredentials respectively
+  /// Handles Authorization header with Basic and Bearer schemes creating IDPasswordCredentials or BearerCredentials respectively.
+  /// Optionally performs injection of session.DataContextName from "wv-data-ctx" header (if present)
   /// </summary>
   public sealed class AuthorizeSessionFilter : SessionFilter
   {
     public AuthorizeSessionFilter(WorkDispatcher dispatcher, string name, int order) : base(dispatcher, name, order) { }
-    public AuthorizeSessionFilter(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode) { }
+    public AuthorizeSessionFilter(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode) { ConfigAttribute.Apply(this, confNode); }
     public AuthorizeSessionFilter(WorkHandler handler, string name, int order) : base(handler, name, order) { }
-    public AuthorizeSessionFilter(WorkHandler handler, IConfigSectionNode confNode) : base(handler, confNode) { }
+    public AuthorizeSessionFilter(WorkHandler handler, IConfigSectionNode confNode) : base(handler, confNode) { ConfigAttribute.Apply(this, confNode); }
+
+
+    /// <summary>
+    /// When true, injects "wv-data-ctx" header into session.DataContextName property. Off by default
+    /// </summary>
+    [Config]
+    public bool InjectDataContext { get; set; }
+
 
     //disregard onlyExisting parameter, for APIs the session context is ephemeral
     protected internal override void FetchExistingOrMakeNewSession(WorkContext work, bool onlyExisting = false)
@@ -47,6 +56,16 @@ namespace Azos.Wave.Filters
 
       //Always create new session
       var session = base.MakeNewSessionInstance(work);
+
+      if (InjectDataContext)
+      {
+        var dcn = work.Request.Headers[SysConsts.HEADER_DATA_CONTEXT];
+        if (dcn!=null)
+        {
+          dcn = dcn.Trim().TakeFirstChars(1024);
+          session.DataContextName = dcn;
+        }
+      }
 
       var hdr = work.Request.Headers[WebConsts.HTTP_HDR_AUTHORIZATION]?.TrimStart(' ');
       if (hdr.IsNullOrWhiteSpace()) return session;//unauthorized
