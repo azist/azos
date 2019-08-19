@@ -40,11 +40,18 @@ namespace Azos.Apps
      /// </summary>
      Guid ID { get; }
 
+    /// <summary>
+    /// Returns Session ID secret - the ulong that additionally identifies this session.
+    /// This property is needed for cross-check upon GUID id lookup, so that
+    /// Session ID GUID can not be forged by the client - a form of a "password"
+    /// </summary>
+     ulong IDSecret {get;}
 
-     /// <summary>
-     /// References a user this session is for
-     /// </summary>
-     Security.User  User { get; set;}
+
+    /// <summary>
+    /// References a user this session is for
+    /// </summary>
+    Security.User  User { get; set;}
 
 
      /// <summary>
@@ -75,7 +82,8 @@ namespace Azos.Apps
      SessionLoginType LastLoginType { get; }
 
      /// <summary>
-     /// References item dictionary that may be used to persist object graphs per session
+     /// References item dictionary that may be used to persist object graphs per session.
+     /// The property is lazily allocated on first access
      /// </summary>
      IDictionary<object, object> Items { get; }
 
@@ -83,6 +91,18 @@ namespace Azos.Apps
      /// Shortcut to this.Items.TryGetValue(...). Returns null if key is not found
      /// </summary>
      object this[object key] { get; set;}
+
+
+     /// <summary>
+     /// Establishes an optional name(or names, using space or comma delimiters) for target data context that the session operates under.
+     /// For example, this may be used to store target database instance name.
+     /// Among other things, this property may be checked by permissions to provide context-aware security
+     /// checks and data store may respect it to connect the session to the specific database instance (connect/string)
+     /// </summary>
+     /// <remarks>
+     /// Usage of this property is way more efficient than using Items[key] pattern
+     /// </remarks>
+     string DataContextName { get; set; }
 
 
      /// <summary>

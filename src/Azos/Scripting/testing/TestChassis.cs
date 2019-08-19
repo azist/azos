@@ -171,18 +171,20 @@ namespace Azos.Scripting
     }
 
     /// <summary>
-    /// Impersonates the current ambient session flow
+    /// Impersonates the current ambient session flow. Returns the session that was injected
     /// </summary>
-    protected virtual void Impersonate(Credentials credentials)
+    protected virtual ISession Impersonate(Credentials credentials)
     {
       var user = App.SecurityManager.Authenticate(credentials);
       var session = MakeImpersonationSession();
       session.User = user;
-      Azos.Apps.ExecutionContext.__SetThreadLevelSessionContext(session);
+      ExecutionContext.__SetThreadLevelSessionContext(session);
+      return session;
     }
 
     /// <summary>
-    /// Override to create custom impersonation session type. By default BaseSession is used
+    /// Override to create custom impersonation session type. By default BaseSession is used.
+    /// You can also override this to set specific session context before injecting it into ExecutionContext
     /// </summary>
     protected virtual ISession MakeImpersonationSession() => new BaseSession(Guid.NewGuid(), App.Random.NextRandomUnsignedLong);
   }

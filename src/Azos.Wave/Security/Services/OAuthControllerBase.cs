@@ -307,7 +307,7 @@ namespace Azos.Security.Services
         {"name", targetUser.Description},
       };
 
-      AddExtraClaimsToIDToken(id_token);
+      AddExtraClaimsToIDToken(cluser, targetUser, accessToken, id_token);
 
       var jwt_id_token = App.SecurityManager.PublicProtectJWTPayload(id_token);
 
@@ -321,6 +321,7 @@ namespace Azos.Security.Services
 
       if (refreshToken != null) result["refresh_token"] = refreshToken;
 
+      AddExtraFieldsToResponseBody(cluser, targetUser, accessToken, result);
 
       //No cache is set on whole controller
       //for clarity
@@ -332,7 +333,14 @@ namespace Azos.Security.Services
     /// <summary>
     /// Override to add extra claims to id_token JWT
     /// </summary>
-    protected virtual void AddExtraClaimsToIDToken(JsonDataMap jwtClaims)
+    protected virtual void AddExtraClaimsToIDToken(User clientUser, User subjectUser, AccessToken accessToken, JsonDataMap jwtClaims)
+    {
+    }
+
+    /// <summary>
+    /// Override to add extra field to response body (rarely needed)
+    /// </summary>
+    protected virtual void AddExtraFieldsToResponseBody(User clientUser, User subjectUser, AccessToken accessToken, JsonDataMap responseBody)
     {
     }
 
