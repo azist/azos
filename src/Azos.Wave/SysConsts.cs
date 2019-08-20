@@ -25,7 +25,6 @@ namespace Azos.Wave
       public const string HEADER_IF_MODIFIED_SINCE = "If-Modified-Since";
       public const string HEADER_API_VERSION = "wv-api-ver";
       public const string HEADER_API_SESSION = "wv-api-session";
-      public const string HEADER_DATA_CONTEXT = "wv-data-ctx";
 
       public const string WAVE_LOG_TOPIC = "WAVE";
       public const string NULL_STRING = "<null>";

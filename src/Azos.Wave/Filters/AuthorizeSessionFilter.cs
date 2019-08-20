@@ -24,10 +24,10 @@ namespace Azos.Wave.Filters
 
 
     /// <summary>
-    /// When true, injects "wv-data-ctx" header into session.DataContextName property. Off by default
+    /// When set, reads the named request header and injects its content into session's DataContextName property
     /// </summary>
     [Config]
-    public bool InjectDataContext { get; set; }
+    public string DataContextHeader { get; set; }
 
 
     //disregard onlyExisting parameter, for APIs the session context is ephemeral
@@ -57,12 +57,14 @@ namespace Azos.Wave.Filters
       //Always create new session
       var session = base.MakeNewSessionInstance(work);
 
-      if (InjectDataContext)
+      //try to inject session.DataContextName
+      var dch = DataContextHeader;
+      if (dch.IsNotNullOrWhiteSpace())
       {
-        var dcn = work.Request.Headers[SysConsts.HEADER_DATA_CONTEXT];
-        if (dcn!=null)
+        var dcn = work.Request.Headers[dch];
+        if (dcn.IsNotNullOrWhiteSpace())
         {
-          dcn = dcn.Trim().TakeFirstChars(1024);
+          dcn = dcn.Trim().TakeFirstChars(1024);//hard limit safeguard
           session.DataContextName = dcn;
         }
       }
