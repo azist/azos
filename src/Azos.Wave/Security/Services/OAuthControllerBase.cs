@@ -372,7 +372,19 @@ namespace Azos.Security.Services
     public object UserInfo()
     {
       var user = WorkContext?.Session?.User;
-      return new { sub = user.Name, name = user.Description};
+
+      if (user==null) return new Http403Forbidden("No user");
+
+      var id_token = new JsonDataMap
+      {
+        {"iat", App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart()},
+        {"sub", user.Name},
+        {"name", user.Description},
+      };
+
+      AddExtraClaimsToIDToken(null, user, null, id_token);
+
+      return new JsonResult(id_token, JsonWritingOptions.PrettyPrintRowsAsMap);
     }
   }
 }
