@@ -20,8 +20,8 @@ namespace Azos.Security.Services
   {
     public const string CONFIG_CLIENT_SECURITY_SECTION = "client-security";
     public const string CONFIG_TOKEN_RING_SECTION = "token-ring";
-    public const string GATE_VAR_ERRORS = "oauth-Errors";
-    public const string GATE_VAR_INVALID_USER = "oauth-InvalidUser";
+    public const string GATE_VAR_ERRORS = "oauth_Errors";
+    public const string GATE_VAR_INVALID_USER = "oauth_InvalidUser";
     public const int MAX_AUTHROIZE_ROUNDTRIP_AGE_SEC_MIN = 30;
     public const int MAX_AUTHROIZE_ROUNDTRIP_AGE_SEC_MAX = 30 * 60;
     public const int MAX_AUTHROIZE_ROUNDTRIP_AGE_SEC_DFLT = 5 * 60;

@@ -7,15 +7,10 @@ using Azos.Data;
 namespace Azos.IAM.Data
 {
   /// <summary>
-  /// Represents a named set of permissions
+  /// Represents a named set of permissions which can be used as a mix-in
   /// </summary>
   public class Role : Entity
   {
-    /// <summary>
-    /// Parent Role/or null if top-most
-    /// </summary>
-    [Field]
-    public GDID G_PARENT{  get; set;}
 
     //ACL
   }
