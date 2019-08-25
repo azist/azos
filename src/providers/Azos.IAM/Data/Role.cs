@@ -7,11 +7,17 @@ using Azos.Data;
 namespace Azos.IAM.Data
 {
   /// <summary>
-  /// Represents a named set of permissions which can be used as a mix-in
+  /// Roles represent named ACL sets of permissions
+  /// Roles are addressable by their immutable name and
+  /// are used in other ACLs as a mix-in using "assign{role=role-id}"
+  /// Unlike groups/accounts, roles do not link to entities via a separate link table
   /// </summary>
-  public class Role : Entity
+  public class Role : EntityWithRights
   {
 
-    //ACL
+    [Field(required: true, kind: DataKind.ScreenName)]  //todo Unique index. The role ID must not be changed
+    public string ID { get; set;}
+
+    //Description
   }
 }

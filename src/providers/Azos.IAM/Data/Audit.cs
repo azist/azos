@@ -32,7 +32,7 @@ namespace Azos.IAM.Data
     public GDID      G_Actor { get; set; }
 
     [Field(required: true, backendName: "aact", description: "Canonical user name/id when user gets deleted")]
-    public Atom?     CNActor { get; set; }
+    public string    CNActor { get; set; }
 
     [Field(required: true, backendName: "aapp", description: "Application which caused the change")]
     public Atom?     ActorApp {  get; set;}
@@ -62,7 +62,7 @@ namespace Azos.IAM.Data
            backendName: "batch",
            description:
  @"Groups multiple changes by an ID value in one logical change, set to the first ID of the
- first change in subsequent changes. IF this instace does not represent a batch change, then this value must equal the GDID PK",
+ first change in subsequent changes. IF this instance does not represent a batch change, then this value must equal the GDID PK",
            metadata: "idx{name='batch' order='0' dir=asc}")]
     public GDID BatchId{  get; set;}
 
