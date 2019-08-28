@@ -15,64 +15,73 @@ namespace Azos.IAM.Data
     /// <summary> Describes a single field change </summary>
     public sealed class FieldChange : BaseDoc
     {
-      [Field(required: true, backendName: "fn", description: "The name of the field which has changed")]
+      [Field(required: true, description: "The name of the field which has changed")]
+      [Field(typeof(FieldChange), nameof(FieldName), TMONGO, backendName: "f")]
       public string FieldName { get; set; }
 
-      [Field(required: true, backendName: "old", description: "Old field value before change, <null> is used for null values")]
+      [Field(required: true, description: "Old field value before change")]
+      [Field(typeof(FieldChange), nameof(OldValue), TMONGO, backendName: "o")]
       public string OldValue  { get; set; }
 
-      [Field(required: true, backendName: "new", description: "New field value after change, <null> is used for null values")]
+      [Field(required: true, description: "New field value after change")]
+      [Field(typeof(FieldChange), nameof(NewValue), TMONGO, backendName: "n")]
       public string NewValue  { get; set; }
     }
 
     [Field(required: true,
-           backendName: "g_act",
-            metadata: "idx{name='act' order='0' dir=asc}",
+           metadata: "idx{name='act' order='0' dir=asc}",
            description: "Actor/User who caused the change")]
-    public GDID      G_Actor { get; set; }
+    [Field(typeof(Audit), nameof(Actor), TMONGO, backendName: "act")]
+    public GDID      Actor { get; set; }
 
-    [Field(required: true, backendName: "aact", description: "Canonical user name/id when user gets deleted")]
+    [Field(required: true, description: "Canonical user name/id when user gets deleted")]
+    [Field(typeof(Audit), nameof(CNActor), TMONGO, backendName: "aact")]
     public string    CNActor { get; set; }
 
-    [Field(required: true, backendName: "aapp", description: "Application which caused the change")]
-    public Atom?     ActorApp {  get; set;}
+    [Field(required: true, description: "Application/User Agent which caused the change")]
+    [Field(typeof(Audit), nameof(ActorUserAgent), TMONGO, backendName: "aua")]
+    public string    ActorUserAgent {  get; set;}
 
-    [Field(required: true, backendName: "ahost", description: "Host/System from where user caused the change")]
+    [Field(required: true, description: "Host/System from where user caused the change")]
+    [Field(typeof(Audit), nameof(ActorHost), TMONGO, backendName: "ahst")]
     public string    ActorHost { get; set; }
 
     /// <summary>
     /// Target entity type - what has changed (e.g. group, role, user, login)
     /// </summary>
     [Field(required: true,
-           backendName: "ent",
            description: "Specifies what entity was effected by this change",
-           metadata: "idx{name='entity' order='1'}")]
+           metadata: "idx{name='entity' order='0'}")]
+    [Field(typeof(Audit), nameof(Entity), TMONGO, backendName: "ent")]
     public Atom? Entity{ get; set;}
 
     /// <summary>
     /// Entity GDID -
     /// </summary>
     [Field(required: true,
-           backendName: "g_ent",
            description: "Primary key of the entity that was changed",
-           metadata: "idx{name='entity' order='0' /*the most selectivity*/ dir=asc}")]
+           metadata: "idx{name='entity' order='1' dir=asc}")]
+    [Field(typeof(Audit), nameof(G_Entity), TMONGO, backendName: "g_ent")]
     public GDID G_Entity{ get; set;}
 
     [Field(required: true,
-           backendName: "batch",
            description:
  @"Groups multiple changes by an ID value in one logical change, set to the first ID of the
  first change in subsequent changes. IF this instance does not represent a batch change, then this value must equal the GDID PK",
            metadata: "idx{name='batch' order='0' dir=asc}")]
+    [Field(typeof(Audit), nameof(BatchId), TMONGO, backendName: "bat")]
     public GDID BatchId{  get; set;}
 
-    [Field(required: true, backendName: "d", description: "Provides brief textual description of a change/reason")]
+    [Field(required: true, description: "Provides brief textual description of a change/reason")]
+    [Field(typeof(Audit), nameof(Description), TMONGO, backendName: "d")]
     public string Description{  get; set; }
 
-    [Field(required: true, backendName: "ctp", description: "Defines what has changed: insert|update|delete")]
-    public DocChangeType?  ChangeType { get; set; }
+    [Field(required: true, description: "Defines what has changed: insert|update|delete",valueList: CHANGE_TYPE_VALUE_LIST)]
+    [Field(typeof(Audit), nameof(ChangeType), TMONGO, backendName: "tp")]
+    public char?  ChangeType { get; set; }
 
-    [Field(required: true, backendName: "clst", description: "A list of changes applied to the entity")]
+    [Field(required: true, description: "A list of changes applied to the entity")]
+    [Field(typeof(Audit), nameof(FieldChanges), TMONGO, backendName: "chl")]
     public FieldChange[] FieldChanges{  get; set; }
   }
 }

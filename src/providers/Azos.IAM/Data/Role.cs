@@ -15,7 +15,7 @@ namespace Azos.IAM.Data
   public class Role : EntityWithRights
   {
 
-    [Field(required: true, kind: DataKind.ScreenName)]  //todo Unique index. The role ID must not be changed
+    [Field(required: true, kind: DataKind.ScreenName, metadata: "idx{name='id' unique=true dir=asc}")]
     public string ID { get; set;}
 
     //Description

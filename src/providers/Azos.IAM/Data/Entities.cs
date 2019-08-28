@@ -16,6 +16,9 @@ namespace Azos.IAM.Data
   /// </summary>
   public abstract class Entity : BaseDoc
   {
+    public const string CHANGE_TYPE_VALUE_LIST = "U:Update,C:Create,D:Delete";
+
+
     [Field(key: true, required: true, description: "Primary key which identifies this entity")]
     [Field(typeof(Entity), nameof(GDID), TMONGO, backendName: "_id")]
     public GDID GDID{ get; set;}
@@ -24,7 +27,7 @@ namespace Azos.IAM.Data
     [Field(typeof(Entity), nameof(VersionTimestamp), TMONGO, backendName: "_vt")]
     public DateTime? VersionTimestamp { get; set; }
 
-    [Field(required: true, description: "Version status", valueList: "U:Update,C:Create,D:Delete")]
+    [Field(required: true, description: "Version status", valueList: CHANGE_TYPE_VALUE_LIST)]
     [Field(typeof(Entity), nameof(VersionStatus), TMONGO, backendName: "_vs")]
     public char? VersionStatus {  get; set; }
 
@@ -32,7 +35,7 @@ namespace Azos.IAM.Data
     [Field(typeof(Entity), nameof(VersionActor), TMONGO, backendName: "_va")]
     public GDID VersionActor { get; set; }
 
-    [Field(required: true, description: "Properties")]
+    [Field(required: false, description: "Properties")]
     [Field(typeof(Entity), nameof(PropertyData), TMONGO, backendName: "props")]
     public JsonDataMap PropertyData { get; set; }//JsonDataMap is used because it is supported by all ser frameworks, but we only store strings
   }
@@ -48,8 +51,31 @@ namespace Azos.IAM.Data
     private ConfigSectionNode m_Rights;
 
 
+    [Field(required: true, description: "Validity start UTC timestamp. An entity is considered invalid/non-existent before this point in time")]
+    [Field(typeof(EntityWithRights), nameof(ValidSD), TMONGO, backendName: "vsd")]
+    public DateTime? ValidSD  { get; set; }
+
+    [Field(required: true, description: "Validity end UTC timestamp, beyond which  an entity is considered invalid")]
+    [Field(typeof(EntityWithRights), nameof(ValidED), TMONGO, backendName: "ved")]
+    public DateTime? ValidED  { get; set; }
+
+    /// <summary>
+    /// The locking has different effect on different entities: a locked role just does not get mixed-in as if it never existed.
+    /// Locked group disallows any access to any entities directly or indirectly under it.
+    /// Locked Account disables all logins, and locked login disables just that login
+    /// </summary>
+    [Field(description: "Optional temporary lock UTC timestamp, beyond which  an entity is considered to be invalid")]
+    [Field(typeof(EntityWithRights), nameof(LockDate), TMONGO, backendName: "lckd")]
+    public DateTime? LockDate { get; set; }
+
+    [Field(description: "Optional note associated with optional temporary lock timestamp. A note may contain a reason why entity is locked-out")]
+    [Field(typeof(EntityWithRights), nameof(LockNote), TMONGO, backendName: "lckn")]
+    public string    LockNote { get; set; }
+
+
+
     [Field(required: true, description: "Access rights")]
-    [Field(typeof(EntityWithRights), nameof(RightsData), TMONGO, backendName: "rights")]
+    [Field(typeof(EntityWithRights), nameof(RightsData), TMONGO, backendName: "r")]
     public string RightsData
     {
       get => m_RightsData;

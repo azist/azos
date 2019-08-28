@@ -19,27 +19,4 @@ namespace Azos.IAM.Data
   }
 
 
-  /*
-  Account may be in multiple different groups.
-  Group assignment is temporal (in data range)
-  ACL get applied in order
-
-  For simplicity:
-  Roles are not to be linked via table, but referenced in config:  no way to know what users/groups use THIS role
-
-
-
-   */
-
-  public sealed class GroupAccount : Entity
-  {
-    public GDID Group{ get; set;}//index
-    public GDID Account { get; set; }//index
-    public int? Order{  get; set;}//
-
-    public DateTime? StartDate{  get; set;}
-    public DateTime? EndDate { get; set; }
-
-  }
-
 }

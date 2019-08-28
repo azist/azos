@@ -22,6 +22,12 @@
     <ProjectReference Include="..\..\Azos\Azos.csproj" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <Folder Include="Protocol\_filters\" />
+    <Folder Include="Protocol\_forms\" />
+  </ItemGroup>
+
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="$(ProjectDir)_build/pre-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
   </Target>
