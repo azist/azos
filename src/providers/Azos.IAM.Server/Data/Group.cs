@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Azos.IAM.Data
+namespace Azos.IAM.Server.Data
 {
   /// <summary>
   /// Represents a set of users, a unit of user hierarchy organization.

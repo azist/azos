@@ -2,7 +2,7 @@
 
 using Azos.Data;
 
-namespace Azos.IAM.Data
+namespace Azos.IAM.Server.Data
 {
 /*
    Account LOCK-OUT for  X wrong log-in attempts

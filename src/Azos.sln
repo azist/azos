@@ -157,7 +157,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Tests.Nub", "testing\A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Oracle", "providers\Azos.Oracle\Azos.Oracle.csproj", "{C2CF5A80-206E-4BE0-AEDD-0CD0592AECFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azos.IAM", "providers\Azos.IAM\Azos.IAM.csproj", "{6322F0AF-7175-4139-A23F-FA168AF7D9C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.IAM", "providers\Azos.IAM\Azos.IAM.csproj", "{6322F0AF-7175-4139-A23F-FA168AF7D9C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azos.IAM.Server", "providers\Azos.IAM.Server\Azos.IAM.Server.csproj", "{8951D18B-3163-41B0-ACA0-603049366ABE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -409,6 +411,10 @@ Global
 		{6322F0AF-7175-4139-A23F-FA168AF7D9C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6322F0AF-7175-4139-A23F-FA168AF7D9C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6322F0AF-7175-4139-A23F-FA168AF7D9C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8951D18B-3163-41B0-ACA0-603049366ABE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8951D18B-3163-41B0-ACA0-603049366ABE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8951D18B-3163-41B0-ACA0-603049366ABE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8951D18B-3163-41B0-ACA0-603049366ABE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -471,6 +477,7 @@ Global
 		{C533831A-DD1B-4DA2-A7D8-98B6DD708871} = {0FC66524-0EE2-410C-B971-97170166D2D6}
 		{C2CF5A80-206E-4BE0-AEDD-0CD0592AECFC} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
 		{6322F0AF-7175-4139-A23F-FA168AF7D9C3} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
+		{8951D18B-3163-41B0-ACA0-603049366ABE} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75EF590C-FE75-45E7-B941-B225EF484F5F}

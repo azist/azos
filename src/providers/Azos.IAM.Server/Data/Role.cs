@@ -4,7 +4,7 @@ using System.Text;
 
 using Azos.Data;
 
-namespace Azos.IAM.Data
+namespace Azos.IAM.Server.Data
 {
   /// <summary>
   /// Roles represent named ACL sets of permissions

@@ -2,31 +2,29 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>Azos - Identity and Access Management Client Assembly</Description>
+    <Description>Azos - Identity and Access Management Server Assembly</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\out\Debug\</OutputPath>
-    <DocumentationFile>..\..\..\out\Debug\Azos.IAM.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\out\Debug\Azos.IAM.Server.xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>..\..\..\out\Release\</OutputPath>
-    <DocumentationFile>..\..\..\out\Release\Azos.IAM.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\out\Release\Azos.IAM.Server.xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Azos.Wave\Azos.Wave.csproj" />
+    <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\..\Azos\Azos.csproj" />
+    <ProjectReference Include="..\Azos.IAM\Azos.IAM.csproj" />
   </ItemGroup>
 
-
-  <ItemGroup>
-    <Folder Include="Protocol\filters\" />
-    <Folder Include="Protocol\forms\" />
-  </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="$(ProjectDir)_build/pre-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />

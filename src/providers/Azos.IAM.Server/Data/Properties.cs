@@ -3,7 +3,7 @@ using Azos.Serialization.JSON;
 using System;
 using System.Linq;
 
-namespace Azos.IAM.Data
+namespace Azos.IAM.Server.Data
 {
   /// <summary>
   /// Facilitates structured property access

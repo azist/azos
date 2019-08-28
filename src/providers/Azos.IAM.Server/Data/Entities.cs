@@ -4,7 +4,7 @@ using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
 
-namespace Azos.IAM.Data
+namespace Azos.IAM.Server.Data
 {
   public abstract class BaseDoc : AmorphousTypedDoc
   {
