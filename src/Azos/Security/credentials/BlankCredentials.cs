@@ -4,35 +4,30 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Azos.Security
 {
   /// <summary>
-  /// Represents credentials that are absent. This is a singleton class
+  /// Represents an absence of credentials. This is a singleton class
   /// </summary>
   [Serializable]
-  public class BlankCredentials : Credentials
+  public sealed class BlankCredentials : Credentials
   {
-     private BlankCredentials()
-     {
-     }
+    private BlankCredentials(){ }
 
-     private static BlankCredentials m_Instance;
+    private static BlankCredentials m_Instance;
 
-     /// <summary>
-     /// Singleton instance of blank credentials
-     /// </summary>
-     public static BlankCredentials Instance
-     {
-        get
-        {
-          if (m_Instance==null)
-           m_Instance = new BlankCredentials();
-          return m_Instance;
-        }
-     }
-
+    /// <summary>
+    /// Singleton instance of blank credentials
+    /// </summary>
+    public static BlankCredentials Instance
+    {
+      get
+      {
+        if (m_Instance==null)
+          m_Instance = new BlankCredentials();
+        return m_Instance;
+      }
+    }
   }
 }

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Security.Cryptography;
 
 using Azos.Conf;
+using Azos.Data;
 
 namespace Azos.Security
 {
@@ -58,26 +59,18 @@ namespace Azos.Security
 
     public const string CONFIG_HMAC_SECTION = "hmac";
     public const string CONFIG_AES_SECTION = "aes";
-    public const string CONFIG_KEY_ATTR = "key";
 
     public HMACAESCryptoMessageAlgorithm(ICryptoManagerImplementation director, IConfigSectionNode config) : base(director, config)
     {
-      m_HMACKeys = buildKeys(config, CONFIG_HMAC_SECTION, 64);//HMAC SHA2 = 64 byte key
-      m_AESKeys = buildKeys(config, CONFIG_AES_SECTION, 256 / 8);//AES256 = 256 bit key
+      m_HMACKeys = BuildKeysFromConfig(config, CONFIG_HMAC_SECTION, 64);//HMAC SHA2 = 64 byte key
+      m_AESKeys = BuildKeysFromConfig(config, CONFIG_AES_SECTION, 256 / 8);//AES256 = 256 bit key
     }
 
-    private byte[][] buildKeys(IConfigSectionNode config, string sectionName, int len)
+    protected override void Destructor()
     {
-      var result =  config.Children
-                          .Where(c => c.IsSameName(sectionName) && c.ValOf(CONFIG_KEY_ATTR).IsNotNullOrWhiteSpace())
-                          .Select(c => c.AttrByName(CONFIG_KEY_ATTR).ValueAsByteArray())
-                          .ToArray();
-      if (result.Length==0) throw new SecurityException("{0} config section `{1}` must contain at least one key entry".Args(GetType().Name, sectionName));
-
-      foreach(var a in result)
-        if (a.Length!=len) throw new SecurityException("{0} config section `{1}` all keys must be of {2} bytes in length".Args(GetType().Name, sectionName, len));
-
-      return result;
+      base.Destructor();
+      m_HMACKeys.ForEach( k => Array.Clear(k, 0, k.Length));
+      m_AESKeys.ForEach( k => Array.Clear(k, 0, k.Length));
     }
 
     private byte[][] m_HMACKeys;
@@ -86,6 +79,8 @@ namespace Azos.Security
 
     public override CryptoMessageAlgorithmFlags Flags => CryptoMessageAlgorithmFlags.Cipher | CryptoMessageAlgorithmFlags.CanUnprotect;
 
+    public override string ProtectToString(ArraySegment<byte> originalMessage)
+      => Protect(originalMessage).ToWebSafeBase64();
 
     public override byte[] Protect(ArraySegment<byte> originalMessage)
     {
@@ -114,6 +109,9 @@ namespace Azos.Security
       }
     }
 
+    public override byte[] UnprotectFromString(string protectedMessage)
+     => Unprotect(new ArraySegment<byte>(protectedMessage.FromWebSafeBase64()));
+
     public override byte[] Unprotect(ArraySegment<byte> protectedMessage)
     {
       protectedMessage.Array.NonNull(nameof(protectedMessage));
@@ -126,18 +124,26 @@ namespace Azos.Security
       Array.Copy(protectedMessage.Array, protectedMessage.Offset + IV_LEN, hmac, 0, HMAC_LEN);
       var keys = getKeys(iv);
 
-      using (var aes = makeAES())
+      try
       {
-        using (var decrypt = aes.CreateDecryptor(keys.aes, iv))
+        using (var aes = makeAES())
         {
-          var decrypted = decrypt.TransformFinalBlock(protectedMessage.Array, protectedMessage.Offset + HDR_LEN, protectedMessage.Count - HDR_LEN);
+          using (var decrypt = aes.CreateDecryptor(keys.aes, iv))
+          {
+            var decrypted = decrypt.TransformFinalBlock(protectedMessage.Array, protectedMessage.Offset + HDR_LEN, protectedMessage.Count - HDR_LEN);
 
-          //rehash locally and check
-          var rehmac = getHMAC(keys.hmac, new ArraySegment<byte>(iv), new ArraySegment<byte>(decrypted));
-          if (!hmac.MemBufferEquals(rehmac)) return null;//HMAC mismatch: message has been tampered with
+            //rehash locally and check
+            var rehmac = getHMAC(keys.hmac, new ArraySegment<byte>(iv), new ArraySegment<byte>(decrypted));
+            if (!hmac.MemBufferEquals(rehmac)) return null;//HMAC mismatch: message has been tampered with
 
-          return decrypted;
+            return decrypted;
+          }
         }
+      }
+      catch(Exception error)
+      {
+        WriteLog(Log.MessageType.TraceErrors, nameof(Unprotect), "Leaked on bad message: " + error.ToMessageWithType(), error);
+        return null;
       }
     }
 

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Azos.Scripting;
 
 namespace Azos
 {
@@ -20,7 +21,7 @@ namespace Azos
     /// Aver that method throws an exception of type
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public sealed class ThrowsAttribute : Attribute
+    public sealed class ThrowsAttribute : Scripting.RunHookAttribute
     {
       public enum MatchType{Contains = 0, Exact}
 
@@ -85,6 +86,60 @@ namespace Azos
         return true;
       }
 
+      public override object Before(Runner runner, object runnable, FID id, MethodInfo mi, RunAttribute attr, ref object[] args)
+       => null;
+
+      public override void After(Runner runner, object runnable, FID id, MethodInfo mi, RunAttribute attr, object state, ref Exception error)
+      {
+        try
+        {
+          var aversThrows = CheckMethodError(mi, error);
+          if (aversThrows) error = null;
+        }
+        catch (Exception err)
+        {
+          error = err;
+        }
+      }
+    }
+
+
+    /// <summary>
+    /// Aver that method execution time lies between the set boundaries
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    public sealed class RunTimeAttribute : RunHookAttribute
+    {
+
+      public int MinMs { get; set;}
+      public int MaxMs { get; set;}
+
+      public double MinSec
+      {
+        get => MinMs / 1000d;
+        set => MinMs = (int)(value * 1000);
+      }
+
+      public double MaxSec
+      {
+        get => MaxMs / 1000d;
+        set => MaxMs = (int)(value * 1000);
+      }
+
+      private class state{ public System.Diagnostics.Stopwatch Chronos = System.Diagnostics.Stopwatch.StartNew(); }
+
+      public override object Before(Runner runner, object runnable, FID id, MethodInfo mi, RunAttribute attr, ref object[] args)
+       => new state();
+
+      public override void After(Runner runner, object runnable, FID id, MethodInfo mi, RunAttribute attr, object state, ref Exception error)
+      {
+        var ellapsed = ((state)state).Chronos.ElapsedMilliseconds;
+        if (MinMs>0 && ellapsed < MinMs)
+          throw new AvermentException(StringConsts.AVER_TIME_MIN_ERROR_ERROR.Args(mi.Name, MinMs, ellapsed));
+
+        if (MaxMs>0 && ellapsed > MaxMs)
+          throw new AvermentException(StringConsts.AVER_TIME_MAX_ERROR_ERROR.Args(mi.Name, MaxMs, ellapsed));
+      }
     }
 
     /// <summary>

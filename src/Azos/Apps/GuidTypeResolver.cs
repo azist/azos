@@ -76,6 +76,7 @@ namespace Azos.Apps
         {
           var dict = new Dictionary<Type, GuidTypeAttribute>(s_Cache);
           dict[type] = result;
+          System.Threading.Thread.MemoryBarrier();
           s_Cache = dict;//atomic
         }
       }

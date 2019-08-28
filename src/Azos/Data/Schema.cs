@@ -266,6 +266,7 @@ namespace Azos.Data
 
                         var dict = new Dictionary<string, FieldAttribute>(m_TargetAttrsCache, StringComparer.InvariantCultureIgnoreCase);
                         dict[targetName] = result;
+                        System.Threading.Thread.MemoryBarrier();
                         m_TargetAttrsCache = dict;//atomic
                       }
 

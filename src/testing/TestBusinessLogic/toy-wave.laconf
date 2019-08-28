@@ -1,8 +1,8 @@
 ﻿app
 {
-       log-root=$(~AZOS_TEST_ROOT)\
-       log-csv="Azos.Log.Sinks.CSVFileSink, Azos"
-       debug-default-action="Log,Throw"
+  log-root=$(~AZOS_TEST_ROOT)\
+  log-csv="Azos.Log.Sinks.CSVFileSink, Azos"
+  debug-default-action="Log,Throw"
 
  web-settings
  {
@@ -129,8 +129,8 @@
                 group
                 {
                   name="CCAttackers"
-                  address{name="Denis Donezk" patterns="170.12.*"}
-                  address{name="Denis Deutschland" patterns="3.118.*.12"}
+                  address{name="John Cle" patterns="32.44.*"}
+                  address{name="John Pitt" patterns="32.45.*"}
                 }
 
                 var-def{name="newSession" decay-by="1" interval-sec="20"}
@@ -410,6 +410,18 @@
   security
   {
     type="Azos.Security.ConfigSecurityManager, Azos"
+
+    cryptography
+    {
+      algorithm
+      {
+        name='aes1'  default=true
+        type='Azos.Security.HMACAESCryptoMessageAlgorithm, Azos'
+        hmac{key='0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3'}
+        aes{key='0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1'}
+      }
+    }
+
     users
     {
       user
@@ -430,9 +442,39 @@
           }
         }
       }
+
+      user
+      {
+        name="OauthApp1"
+        description="OAuth app1"
+        id="app1"
+        password='{"alg":"MD5","fam":"Text","hash":"ZcrDK120Iwj08Qqfzvz95w==","salt":"e0K7BA4Ylby2kWAp3nCR3A9jSw=="}'
+        status="User"
+        rights
+        {
+          Azos{Security{Services{
+            OAuthClientApp{
+              level=1
+              uri{pat="*"}
+              addr{pat="*"}
+            }
+
+          }}}
+        }
+      }
+
+
     }
   }
 
 
+  modules
+  {
+    module
+    {
+      type='Azos.Security.Services.OAuthModule, Azos'
+      supported-scopes="openid connect"
+    }
+  }
 
 }

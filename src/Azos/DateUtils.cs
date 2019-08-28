@@ -12,6 +12,9 @@ namespace Azos
   /// </summary>
   public static class DateUtils
   {
+    /// <summary>
+    /// Unix epoch start. This value MUST be UTC
+    /// </summary>
     public static readonly DateTime UNIX_EPOCH_START_DATE = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     /// <summary>

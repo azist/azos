@@ -276,8 +276,9 @@ namespace Azos.Wave.Handlers
               if (result!=null)
               {
                 var lookup = new TypeLookup(m_Lookup);//thread safe copy
-
                 lookup[key] =  result;//other thread may have added already
+
+                System.Threading.Thread.MemoryBarrier();
                 m_Lookup = lookup;//atomic
                 return result;
               }

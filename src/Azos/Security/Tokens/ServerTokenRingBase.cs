@@ -69,9 +69,11 @@ namespace Azos.Security.Tokens
 
     public abstract Task<string> PutAsync(RingToken token);
 
+    public abstract Task DeleteAsync(string token);
+
     public abstract Task Blacklist(IConfigSectionNode selector);
 
-    public virtual TToken GenerateNew<TToken>() where TToken : RingToken
+    public virtual TToken GenerateNew<TToken>(int expireInSeconds = 0) where TToken : RingToken
     {
       var token = Activator.CreateInstance<TToken>();
       token.Type = typeof(TToken).Name;
@@ -87,11 +89,17 @@ namespace Azos.Security.Tokens
 
       //3. Concat GUid pad with key
       var btoken = guidpad.AppendToNew(rnd);
-      token.ID = Convert.ToBase64String(btoken, Base64FormattingOptions.None);
+      token.ID = btoken.ToWebSafeBase64();
 
       token.IssuedBy = this.IssuerName;
-      token.IssueUtc = App.TimeSource.UTCNow;
-      token.ExpireUtc = token.IssueUtc.Value.AddSeconds(token.TokenDefaultExpirationSeconds);
+
+      var now = App.TimeSource.UTCNow;
+      token.IssueUtcTimestamp = now;
+      token.VersionUtcTimestamp = now;
+      token.ExpireUtcTimestamp = now.AddSeconds(expireInSeconds > 0 ? expireInSeconds : token.TokenDefaultExpirationSeconds);
+
+      token.IssueUtcTimestamp = token.VersionUtcTimestamp = App.TimeSource.UTCNow;
+      token.ExpireUtcTimestamp = token.IssueUtcTimestamp.Value.AddSeconds(token.TokenDefaultExpirationSeconds);
 
       return token;
     }
@@ -142,6 +150,7 @@ namespace Azos.Security.Tokens
         name = schema.GetTableAttrForTarget(null).Name;
         var dict = new Dictionary<Type, string>(s_TableNames);
         dict[ttoken] = name;
+        System.Threading.Thread.MemoryBarrier();
         s_TableNames = dict;
       }
       return m_Cache.GetOrCreateTable<string>(name, StringComparer.Ordinal);

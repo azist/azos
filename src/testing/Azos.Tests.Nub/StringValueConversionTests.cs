@@ -89,6 +89,9 @@ namespace Azos.Tests.Nub
            Aver.IsTrue( new byte[]{1,2,3,4,5,6,7,8,9,0}.SequenceEqual("1,2,3,4, 5,    6,7,8,9, 0".AsByteArray()));
            Aver.IsTrue( new byte[]{0xFA, 0x12, 0b1010}.SequenceEqual("0xfa,0x12,0b1010".AsByteArray() ) );
            Aver.IsTrue( new byte[]{0xFA, 0x12, 0b1010}.SequenceEqual((byte[])"0xfa,0x12,0b1010".AsType(typeof(byte[])) ));
+
+           //base 64 encoding
+           Aver.AreArraysEquivalent(new byte[]{0x19, 0xff, 0x10, 0x50, 0xa0, 0xbb}, "base64:Gf8QUKC7".AsByteArray());
         }
 
         [Run]

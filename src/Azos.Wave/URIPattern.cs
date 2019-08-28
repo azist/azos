@@ -24,21 +24,21 @@ namespace Azos.Wave
   /// </summary>
   public sealed class URIPattern
   {
-          private enum chunkPortion{Path, Query}
-          private class chunk
-          {
-            public chunkPortion Portion;
-            public bool IsPathDiv;
-            public bool IsVar;
-            public bool IsWildcard;
-            public string Name;
-            public string DefaultValue; //i.e. city/{state='OH'} OH is default value for state variable
+    private enum chunkPortion{Path, Query}
+    private class chunk
+    {
+      public chunkPortion Portion;
+      public bool IsPathDiv;
+      public bool IsVar;
+      public bool IsWildcard;
+      public string Name;
+      public string DefaultValue; //i.e. city/{state='OH'} OH is default value for state variable
 
-            public override string ToString()
-            {
-              return "Name:{0,-20} Dflt:{1,-15} Var:{2,-5} Wild:{3,-5} Path:{4,-10} Por:{5}".Args(Name, DefaultValue, IsVar, IsWildcard, IsPathDiv, Portion);
-            }
-          }
+      public override string ToString()
+      {
+        return "Name:{0,-20} Dflt:{1,-15} Var:{2,-5} Wild:{3,-5} Path:{4,-10} Por:{5}".Args(Name, DefaultValue, IsVar, IsWildcard, IsPathDiv, Portion);
+      }
+    }
 
 
     public URIPattern(string pattern)
@@ -69,48 +69,47 @@ namespace Azos.Wave
 
     /// <summary>
     /// Tries to match the pattern against the URI path section and returns a JSONDataMap match object filled with pattern match or NULL if pattern could not be matched.
-    /// JSONDataMap may be easily converted to dynamic by calling new JSONDynamicObject(map)
     /// </summary>
     public JsonDataMap MatchURIPath(Uri uri, bool senseCase = false)
     {
       JsonDataMap result = null;
       if (m_MatchChunks.Count==0) return new JsonDataMap(false);
 
-      var segs = uri.LocalPath.Split('/');
+      var segs = uri.AbsolutePath.Split('/');
 
       var ichunk = -1;
       chunk chunk = null;
       var wildCard = false;
       foreach(var seg in segs)
       {
-           if (seg.Length==0) continue;//skip empty ////
+        if (seg.Length==0) continue;//skip empty ////
 
-           if (!wildCard)
-           {
-            ichunk++;
-            if (ichunk>=m_MatchChunks.Count) return null;
-            chunk = m_MatchChunks[ichunk];
-           }
+        if (!wildCard)
+        {
+          ichunk++;
+          if (ichunk>=m_MatchChunks.Count) return null;
+          chunk = m_MatchChunks[ichunk];
+        }
 
-           if (chunk.Portion!=chunkPortion.Path) return null;
+        if (chunk.Portion!=chunkPortion.Path) return null;
 
-           if (chunk.IsWildcard)
-           {
-             wildCard = true;
-             if (result==null) result = new JsonDataMap(false);
-             if (!result.ContainsKey(chunk.Name))
-                result[chunk.Name] = seg;
-             else
-                result[chunk.Name] = (string)result[chunk.Name] + '/' + seg;
-           }
-           else
-           if (chunk.IsVar)
-           {
-              if (result==null) result = new JsonDataMap(false);
-              result[chunk.Name] = seg;
-           }
-           else
-           if (!chunk.Name.Equals(seg, senseCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase)) return null;
+        if (chunk.IsWildcard)
+        {
+          wildCard = true;
+          if (result==null) result = new JsonDataMap(false);
+          if (!result.ContainsKey(chunk.Name))
+            result[chunk.Name] = Uri.UnescapeDataString(seg);
+          else
+            result[chunk.Name] = (string)result[chunk.Name] + '/' + Uri.UnescapeDataString(seg);
+        }
+        else
+        if (chunk.IsVar)
+        {
+          if (result==null) result = new JsonDataMap(false);
+          result[chunk.Name] = Uri.UnescapeDataString(seg);
+        }
+        else
+        if (!chunk.Name.Equals(seg, senseCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase)) return null;
       }//foreach
 
       ichunk++;

@@ -21,7 +21,7 @@ namespace WinFormsTest
 {
     public partial class LogForm : Form
     {
-        const int CNT = 5;
+        const int CNT = 1;
 
         public LogForm()
         {
@@ -38,7 +38,7 @@ namespace WinFormsTest
         private void write(MessageType t)
         {
           for(var i=0; i<CNT; i++)
-             FormsAmbient.App.Log.Write( new Azos.Log.Message{Type = t, From = tbFrom.Text, Text = tbText.Text + i.ToString()});
+             FormsAmbient.App.Log.Write( new Azos.Log.Message{Type = t, Topic = "LogForm", From = tbFrom.Text, Text = tbText.Text + i.ToString(), Exception = new AzosException("AZ5 was pressed")});
         }
 
         private void btnTrace_Click(object sender, EventArgs e)

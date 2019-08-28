@@ -17,6 +17,8 @@ namespace Azos.Wave.Mvc
   /// </summary>
   public class ApiDocGenerator : IMetadataGenerator
   {
+    public const string DEFAULT_PUBLIC_METADATA_SECTION = "pub";
+
     /// <summary>
     /// Represents a MVC controller scope during metadata generation
     /// </summary>
@@ -85,6 +87,10 @@ namespace Azos.Wave.Mvc
     public ApiDocGenerator(IApplication app){ m_App = app.NonNull(nameof(app)); }
 
     private IApplication m_App;
+    private string m_PublicMetadataSection = DEFAULT_PUBLIC_METADATA_SECTION;
+
+    public IApplication App => m_App;
+
 
     private class instanceList : List<(object item, bool wasDescribed)>
     {
@@ -95,7 +101,6 @@ namespace Azos.Wave.Mvc
     private Dictionary<Type, instanceList> m_TypesToDescribe = new Dictionary<Type, instanceList>();
 
 
-    public IApplication App => m_App;
 
     /// <summary>
     /// A list of locations where system looks for controllers to generate Api docs from
@@ -107,6 +112,15 @@ namespace Azos.Wave.Mvc
     /// Controls the level of detail for generated metadata
     /// </summary>
     public MetadataDetailLevel DetailLevel { get; set;}
+
+    /// <summary>
+    /// Name of public metadata config section, `pub` by default
+    /// </summary>
+    public string PublicMetadataSection
+    {
+      get => m_PublicMetadataSection ?? DEFAULT_PUBLIC_METADATA_SECTION;
+      set => m_PublicMetadataSection = value;
+    }
 
     /// <summary>
     /// Specifies target name used for data docs/schema targeted metadata extraction
@@ -237,5 +251,21 @@ namespace Azos.Wave.Mvc
 
     public virtual void PopulateController(ConfigSectionNode data, Type ctlType, ApiControllerDocAttribute ctlAttr)
      => CustomMetadataAttribute.Apply(ctlType, new ControllerContext(this, ctlAttr), this, data);
+
+    /// <summary>
+    /// Writes error to the generator, e.g. using a log
+    /// </summary>
+    public void ReportError(Log.MessageType type, Exception error)
+    {
+      if (error==null) return;
+
+      App.Log.Write(new Log.Message{
+        Type = type,
+        Topic = CoreConsts.DOC_TOPIC,
+        From = GetType().Name,
+        Text = error.ToMessageWithType(),
+        Exception = error
+      });
+    }
   }
 }

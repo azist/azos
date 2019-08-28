@@ -100,6 +100,7 @@ namespace Azos
       public const string RUN_TOPIC = "Run";
       public const string WEB_TOPIC = "Web";
       public const string WAVE_TOPIC = "Wave";
+      public const string DOC_TOPIC = "Doc";
 
       public static readonly Atom LOG_CHANNEL_SECURITY = Atom.Encode("sec");
 

@@ -63,7 +63,7 @@ namespace Azos.Serialization.Slim
                yield return typeof(Glue.Protocol.Headers);
                yield return typeof(Glue.Protocol.AuthenticationHeader);
                yield return typeof(Security.IDPasswordCredentials);
-               yield return typeof(Security.GDIDCredentials);
+               yield return typeof(Security.SysAuthToken);
                yield return typeof(Security.SocialNetTokenCredentials);
                yield return typeof(Exception);
              }
@@ -315,7 +315,7 @@ namespace Azos.Serialization.Slim
 
 
 
-                      private static Dictionary<string, Type> s_Types = new Dictionary<string,Type>(StringComparer.Ordinal);
+           private static volatile Dictionary<string, Type> s_Types = new Dictionary<string,Type>(StringComparer.Ordinal);
 
            /// <summary>
            /// Returns type by handle i.e. VarIntStr(1) or VarIntStr("full name"). Throws in case of error
@@ -342,6 +342,7 @@ namespace Azos.Serialization.Slim
                   result = Type.GetType(handle.StringValue, true);
                   var dict = new Dictionary<string,Type>(s_Types, StringComparer.Ordinal);
                   dict[handle.StringValue] = result;
+                  System.Threading.Thread.MemoryBarrier();
                   s_Types = dict;//atomic
                 }
 
@@ -382,6 +383,7 @@ namespace Azos.Serialization.Slim
                   result = Type.GetType(handle, true);
                   var dict = new Dictionary<string,Type>(s_Types, StringComparer.Ordinal);
                   dict[handle] = result;
+                  System.Threading.Thread.MemoryBarrier();
                   s_Types = dict;//atomic
                 }
 

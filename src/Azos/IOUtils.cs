@@ -1246,23 +1246,61 @@ namespace Azos
     /// Represents byte[] as a web-safe string, replacing `+` with `-` and `/` with `_`
     /// so the value may be included in URI without any extra encoding. Returns null for null buffer
     /// </summary>
-    public static string ToWebSafeBase64(this byte[] buf)
+    public static string ToWebSafeBase64(this byte[] buf) => ToWebSafeBase64(new ArraySegment<byte>(buf));
+
+    /// <summary>
+    /// Represents a segment of byte[] as a web-safe string, replacing `+` with `-` and `/` with `_`
+    /// so the value may be included in URI without any extra encoding. Returns null for null buffer
+    /// </summary>
+    public static unsafe string ToWebSafeBase64(this ArraySegment<byte> buf)
     {
-      if (buf==null) return null;
-      var str = Convert.ToBase64String(buf, Base64FormattingOptions.None);
-      str = str.TrimEnd('=');//at the end only
-      str = str.Replace('+', '-').Replace('/', '_');
-      return str;
+      if (buf == null) return null;
+      var str = Convert.ToBase64String(buf.Array, buf.Offset, buf.Count,  Base64FormattingOptions.None);
+      char* chars = stackalloc char[str.Length];
+      var cnt = 0;
+      for(var i=0; i<str.Length; i++)
+      {
+        var c = str[i];
+        if (c=='=') break;
+        if (c=='+') c = '-';
+        else if (c=='/') c = '_';
+        chars[i] = c;
+        cnt++;
+      }
+
+      return new string(chars, 0, cnt);
     }
 
+    /// <summary>
+    /// Complementing method for ToWebSafeBase64() - reads web-safe base64 encoded string into a byte[].
+    /// Returns null for empty string.
+    /// Web-safe encoding uses `-` instead of base64 `+` and `_` instead of base64 `/`
+    /// </summary>
     public static byte[] FromWebSafeBase64(this string content)
     {
       if (content.IsNullOrWhiteSpace()) return null;
-      content = content.Replace('-', '+').Replace('_', '/');
-      var pl = content.Length % 4;
-      if (pl==2) content += "==";
-      else if (pl==3) content += "=";
-      return Convert.FromBase64String(content);
+
+      var cl = content.Length;
+      var pl = cl % 4;
+      if (pl==2) pl = 2;
+      else if (pl==3) pl = 1;
+      else pl = 0;
+
+      var chars = new char[cl + pl];
+      for (var i = 0; i < chars.Length; i++)
+      {
+        if (i<content.Length)
+        {
+          var c = content[i];
+          if (c == '-') c = '+';
+          else if (c == '_') c = '/';
+          chars[i] = c;
+        }
+        else
+          chars[i] = '=';
+      }
+
+      return Convert.FromBase64CharArray(chars, 0, chars.Length);
     }
 
   }

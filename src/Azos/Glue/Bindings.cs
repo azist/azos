@@ -17,6 +17,7 @@ using Azos.Conf;
 using Azos.Collections;
 using Azos.Instrumentation;
 using Azos.Glue.Protocol;
+using System.Threading;
 
 namespace Azos.Glue
 {
@@ -539,12 +540,13 @@ namespace Azos.Glue
             {
               lock(m_ListSync)
               {
-               var lst = new List<Transport>(m_Transports);
+                var lst = new List<Transport>(m_Transports);
 
-               if (!lst.Contains(transport, ReferenceEqualityComparer<Transport>.Default))
+                if (!lst.Contains(transport, ReferenceEqualityComparer<Transport>.Default))
                   lst.Add(transport);
 
-               m_Transports = lst; //atomic
+                Thread.MemoryBarrier();
+                m_Transports = lst; //atomic
               }
             }
 
@@ -552,9 +554,10 @@ namespace Azos.Glue
             {
               lock(m_ListSync)
               {
-               var lst = new List<Transport>(m_Transports);
-               lst.Remove(transport);
-               m_Transports = lst; //atomic
+                var lst = new List<Transport>(m_Transports);
+                lst.Remove(transport);
+                Thread.MemoryBarrier();
+                m_Transports = lst; //atomic
               }
             }
 

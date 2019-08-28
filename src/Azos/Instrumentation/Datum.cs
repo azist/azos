@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
+using System.Threading;
 
 using Azos.Data;
 using Azos.Serialization.JSON;
@@ -156,7 +156,7 @@ namespace Azos.Instrumentation
     #endregion
 
     #region Public
-    private static Dictionary<Type, IEnumerable<Type>> s_ViewGroupInterfaces = new Dictionary<Type, IEnumerable<Type>>();
+    private static volatile Dictionary<Type, IEnumerable<Type>> s_ViewGroupInterfaces = new Dictionary<Type, IEnumerable<Type>>();
 
     /// <summary>
     /// Returns Datum classification interfaces marked with InstrumentViewGroup attribute. The implementation is cached for efficiency
@@ -177,7 +177,7 @@ namespace Azos.Instrumentation
 
       dict = new Dictionary<Type, IEnumerable<Type>>(dict);
       dict[tDatum] = result;
-
+      Thread.MemoryBarrier();
       s_ViewGroupInterfaces = dict;//atomic
 
       return result;

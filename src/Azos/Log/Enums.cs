@@ -45,6 +45,10 @@ namespace Azos.Log
     TraceB,
     TraceC,
     TraceD,
+    /// <summary>
+    /// Used to trace exceptions which are not critical
+    /// </summary>
+    TraceErrors,
 
     /// <summary>
     /// Emitted by DataStore implementations

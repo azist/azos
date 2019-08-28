@@ -5,7 +5,8 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using System.Collections.Generic;
+using System.Linq;
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Security.Tokens;
@@ -19,6 +20,11 @@ namespace Azos.Security.Services
   {
     public const string CONFIG_CLIENT_SECURITY_SECTION = "client-security";
     public const string CONFIG_TOKEN_RING_SECTION = "token-ring";
+    public const string GATE_VAR_ERRORS = "oauth_Errors";
+    public const string GATE_VAR_INVALID_USER = "oauth_InvalidUser";
+    public const int MAX_AUTHROIZE_ROUNDTRIP_AGE_SEC_MIN = 30;
+    public const int MAX_AUTHROIZE_ROUNDTRIP_AGE_SEC_MAX = 30 * 60;
+    public const int MAX_AUTHROIZE_ROUNDTRIP_AGE_SEC_DFLT = 5 * 60;
 
     public OAuthModule(IApplication application) : base(application) { }
     public OAuthModule(IModule parent) : base(parent) { }
@@ -28,9 +34,55 @@ namespace Azos.Security.Services
 
     private ISecurityManagerImplementation m_ClientSecurity;
     private ITokenRingImplementation m_TokenRing;
+    private string m_SupportedScopes;
+    private HashSet<string> m_SupportedScopesSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    private int m_MaxAuthorizeRoundtripAgeSec = MAX_AUTHROIZE_ROUNDTRIP_AGE_SEC_DFLT;
 
     public ISecurityManager ClientSecurity => m_ClientSecurity.NonNull($"{nameof(ClientSecurity)} is not available");
     public ITokenRing TokenRing => m_TokenRing.NonNull($"{nameof(TokenRing)} is not available");
+
+    [Config]
+    public string GateVarErrors { get; set; } = GATE_VAR_ERRORS;
+
+    [Config]
+    public string GateVarInvalidUser { get; set; } = GATE_VAR_INVALID_USER;
+
+    [Config(Default = MAX_AUTHROIZE_ROUNDTRIP_AGE_SEC_DFLT)]
+    public int MaxAuthorizeRoundtripAgeSec
+    {
+      get => m_MaxAuthorizeRoundtripAgeSec;
+      set => m_MaxAuthorizeRoundtripAgeSec = IntUtils.MinMax(MAX_AUTHROIZE_ROUNDTRIP_AGE_SEC_MIN, value, MAX_AUTHROIZE_ROUNDTRIP_AGE_SEC_MAX);
+    }
+
+    [Config]
+    public string SupportedScopes
+    {
+      get => m_SupportedScopes;
+      set
+      {
+        m_SupportedScopes = value;
+        m_SupportedScopesSet.Clear();
+        if (m_SupportedScopes!=null)
+        {
+          var scopes = m_SupportedScopes.Split(' ', ',');
+          foreach(var scope in scopes)
+           if (scope.IsNotNullOrWhiteSpace()) m_SupportedScopesSet.Add(scope);
+        }
+      }
+    }
+
+    [Config]
+    public int RefreshTokenLifespanSec { get; set; }
+
+    public bool CheckScope(string scope)
+    {
+      if (scope.IsNullOrWhiteSpace()) return m_SupportedScopesSet.Count==0;
+      var scopes = scope.Split(' ', ',');
+      foreach(var s in scopes)
+       if (!m_SupportedScopesSet.Any(ss => Text.Utils.MatchPattern(s, ss))) return false;
+
+      return true;
+    }
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
@@ -47,7 +99,7 @@ namespace Azos.Security.Services
       var nring = node[CONFIG_TOKEN_RING_SECTION];
       if (nring.Exists)
       {
-        m_TokenRing = FactoryUtils.MakeAndConfigureDirectedComponent<ITokenRingImplementation>(this, nsec);
+        m_TokenRing = FactoryUtils.MakeAndConfigureDirectedComponent<ITokenRingImplementation>(this, nring);
         if (m_TokenRing is Daemon daemon) daemon.Start();
       }
     }

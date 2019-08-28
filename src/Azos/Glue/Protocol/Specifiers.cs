@@ -68,7 +68,7 @@ namespace Azos.Glue.Protocol
 
 
     /// <summary>
-    /// Type specification for marshalling contract types between glued peers
+    /// Type specification for marshaling contract types between glued peers
     /// </summary>
     [Serializable]
     public struct TypeSpec
@@ -87,7 +87,7 @@ namespace Azos.Glue.Protocol
 
 
 
-                   private static Dictionary<string, Type> s_Types = new Dictionary<string,Type>(StringComparer.Ordinal);
+        private static volatile Dictionary<string, Type> s_Types = new Dictionary<string,Type>(StringComparer.Ordinal);
 
         /// <summary>
         /// Returns the type or throws if it can't be found
@@ -107,6 +107,7 @@ namespace Azos.Glue.Protocol
 
           var dict = new Dictionary<string,Type>(s_Types, StringComparer.Ordinal);
           dict[m_Name] = result;
+          System.Threading.Thread.MemoryBarrier();
           s_Types = dict;//atomic
 
           return result;
@@ -133,7 +134,7 @@ namespace Azos.Glue.Protocol
 
 
     /// <summary>
-    /// Method specification for marshalling method information between glued peers
+    /// Method specification for marshaling method information between glued peers
     /// </summary>
     [Serializable]
     public struct MethodSpec

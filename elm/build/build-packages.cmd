@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.510.1
-set HEADLINE=OAuth Identity Provider
+set VER=1.0.510.10
+set HEADLINE=Svc rel fix slash in URI pat match
 
 call vs2017-build-release %VER%
 

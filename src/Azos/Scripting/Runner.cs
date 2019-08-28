@@ -353,14 +353,7 @@ namespace Azos.Scripting
 
           if (!alreadyHandled)
           {
-            if (!this.Emulate)
-            {
-              var ret = method.mi.Invoke(runnable, args); //<------------------ MAKE  A CALL !!!!!
-              if (ret is Task t)
-              {
-                t.GetAwaiter().GetResult();//discard the result, if this throws it throws as-if from Invoke()
-              }
-            }
+            if (!this.Emulate) InvokeRunMethod(runnable, fid, method, ref args); //<---- CALL the method
 
             if (hook!=null) hook.Epilogue(this, fid, method.mi, method.attr, null);
           }
@@ -382,6 +375,7 @@ namespace Azos.Scripting
         try
         {
           if (hook!=null) handled = hook.Epilogue(this, fid, method.mi, method.attr, error);
+          if (handled) error = null;
         }
         catch(Exception eex)
         {
@@ -395,6 +389,46 @@ namespace Azos.Scripting
       }
 
       Host.AfterMethodRun(this, fid, method.mi, method.attr, error);
+    }
+
+    /// <summary>
+    /// Calls the actual method checking for RunHookAttributes like averments. This method is not called for emulation
+    /// </summary>
+    protected virtual void InvokeRunMethod(object runnable, FID id, (MethodInfo mi, RunAttribute attr) method, ref object[] args)
+    {
+      var hatrs = RunHookAttribute.GetAllOf(method.mi);
+
+      List<(RunHookAttribute a, object s)> state = null;
+      foreach(var hatr in hatrs)
+      {
+        if (state==null) state = new List<(RunHookAttribute, object)>();
+        state.Add( (hatr, hatr.Before(this, runnable, id, method.mi, method.attr, ref args) ));
+      }
+
+      try
+      {
+        var ret = method.mi.Invoke(runnable, args); //<------------------ MAKE  A CALL !!!!!
+        if (ret is Task t)
+          t.GetAwaiter().GetResult();//discard the result, if this throws it throws as-if from Invoke()
+      }
+      catch(Exception error)
+      {
+        if (error is TargetInvocationException tie) error = tie.InnerException;
+
+        if (state!=null)
+         state.ForEach(tpl => tpl.a.After(this, runnable, id, method.mi, method.attr, tpl.s, ref error));
+
+        if (error!=null)
+          throw;//keep original stack frame
+        else
+          return;
+      }
+
+      if (state != null)
+      {
+        Exception error = null;
+        state.ForEach(tpl => tpl.a.After(this, runnable, id, method.mi, method.attr, tpl.s, ref error));
+      }
     }
 
     /// <summary>

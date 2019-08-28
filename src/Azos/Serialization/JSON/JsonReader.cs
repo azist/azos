@@ -301,7 +301,7 @@ namespace Azos.Serialization.JSON
             toAllocate == typeof(IConfigSectionNode)) toAllocate = typeof(MemoryConfiguration);
 
         var newval = SerializationUtils.MakeNewObjectInstance(toAllocate) as IJsonReadable;
-        var got = newval.ReadAsJson(v, fromUI, nameBinding);//this me re-allocate the result based of newval
+        var got = newval.ReadAsJson(v, fromUI, nameBinding);//this may re-allocate the result based of newval
 
         if (!got.match) return null;
 

@@ -75,6 +75,11 @@ namespace Azos.Security.Tokens
       throw new NotImplementedException();
     }
 
+    public override Task DeleteAsync(string token)
+    {
+      throw new NotImplementedException();
+    }
+
     #endregion
 
   }

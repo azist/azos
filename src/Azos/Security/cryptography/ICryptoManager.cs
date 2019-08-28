@@ -36,6 +36,11 @@ namespace Azos.Security
     /// You would need to call Protect() on the receiving side and check the result and communicate the MAC in some other way.
     /// </summary>
     CanUnprotect = 1 << 2,
+
+    /// <summary>
+    /// This is a JWT-implementing algorithm
+    /// </summary>
+    JWT = 1 << 3
   }
 
   /// <summary>
@@ -83,9 +88,21 @@ namespace Azos.Security
     /// Protects the specified message according to the underlying algorithm nature, e.g. a hashing MAC algorithm may
     /// just add a HMAC, or encrypt the message body (e.g. with AES) etc. using same or different key(s) for various stages.
     /// An algorithm may by symmetric or asymmetric. For algorithms that have Flags.CanUnprotect set, the message must
-    /// be processed with complementary call to Unprotect() which 'understands' the inner msg format
+    /// be processed with complementary call to Unprotect() which 'understands' the inner msg format.
+    /// This method protects originalMessage into a byte[] content.
+    /// Some algorithms (e.g. AES) support byte[] content natively, while others (e.g. JWT) support strings natively
     /// </summary>
     byte[] Protect(ArraySegment<byte> originalMessage);
+
+    /// <summary>
+    /// Protects the specified message according to the underlying algorithm nature, e.g. a hashing MAC algorithm may
+    /// just add a HMAC, or encrypt the message body (e.g. with AES) etc. using same or different key(s) for various stages.
+    /// An algorithm may by symmetric or asymmetric. For algorithms that have Flags.CanUnprotect set, the message must
+    /// be processed with complementary call to Unprotect() which 'understands' the inner msg format.
+    /// This method protects originalMessage into a string content.
+    /// Some algorithms (e.g. AES) support byte[] content natively, while others (e.g. JWT) support strings natively
+    /// </summary>
+    string ProtectToString(ArraySegment<byte> originalMessage);
 
     /// <summary>
     /// A complementary method for Protect(), tries to read the supplied protected message content, performing necessary
@@ -93,9 +110,19 @@ namespace Azos.Security
     /// If message is not authentic/tampered then NULL is returned.
     /// This method only runs if algorithms supports it, i.e.  Flags.CanUnprotect set to 1.
     /// </summary>
-    /// <param name="protectedMessage">Data to decrypt</param>
+    /// <param name="protectedMessage">Binary data to unprotect (e.g. decrypt)</param>
     /// <returns>Original message data if all checks pass, or null if message is corrupted/has been tampered with</returns>
     byte[] Unprotect(ArraySegment<byte> protectedMessage);
+
+    /// <summary>
+    /// A complementary method for Protect(), tries to read the supplied protected message string content, performing necessary
+    /// transforms, such as encryption/decryption, HMAC checking etc.. The details are up to a specific algorithm type and instance configuration.
+    /// If message is not authentic/tampered then NULL is returned.
+    /// This method only runs if algorithms supports it, i.e.  Flags.CanUnprotect set to 1.
+    /// </summary>
+    /// <param name="protectedMessage">String data to unprotect (e.g. decrypt)</param>
+    /// <returns>Original message data if all checks pass, or null if message is corrupted/has been tampered with</returns>
+    byte[] UnprotectFromString(string protectedMessage);
   }
 
   public interface ICryptoMessageAlgorithmImplementation : ICryptoMessageAlgorithm, IDisposable

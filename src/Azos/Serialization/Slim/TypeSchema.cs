@@ -616,6 +616,7 @@ namespace Azos.Serialization.Slim
                                result = new TypeDescriptor(this, tp);
                                var dict = new Dictionary<Type,TypeDescriptor>(m_Dict);
                                dict[tp] = result;
+                               System.Threading.Thread.MemoryBarrier();
                                m_Dict = dict;//atomic
                              }
                            }

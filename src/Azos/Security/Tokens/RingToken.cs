@@ -18,13 +18,20 @@ namespace Azos.Security.Tokens
     public string Type { get; internal set; }
 
     /// <summary>
-    /// Version UTC stamp, the system replicates data based on 1 sec resolution.
+    /// Version UTC stamp (Unix seconds time), the system replicates data based on 1 sec resolution.
     /// By design more precise resolution is not needed for practical reasons.
     /// </summary>
     [Field(backendName: "_v", isArow: true)]
-    [Field(required: true, backendName: "_v", description: "Version timestamp of this doc, used for replication")]
+    [Field(required: true, backendName: "_v", description: "Version timestamp of this doc (Unix UTC time), used for replication")]
     [Field(targetName: PROTECTED_MSG_TARGET, storeFlag: StoreFlag.None)]
-    public DateTime? VersionUtc { get; set; }
+    public long? VersionUtc { get; set; }
+
+    /// <summary> Returns VersionUtc as DateTime of UTC kind </summary>
+    public DateTime? VersionUtcTimestamp
+    {
+      get => VersionUtc?.FromSecondsSinceUnixEpochStart();
+      set => VersionUtc = value?.ToSecondsSinceUnixEpochStart();
+    }
 
     /// <summary>
     /// Version Delete flag, used for CRDT idempotent flag
@@ -38,13 +45,29 @@ namespace Azos.Security.Tokens
     [Field(required: true, backendName: "b", description: "Name of party issuing token")]
     public string IssuedBy { get; set; }
 
+    /// <summary> Expressed in number of seconds since UNIX epoch </summary>
     [Field(backendName: "i", isArow: true)]
-    [Field(required: true, backendName: "i", description: "When was the token issued")]
-    public DateTime? IssueUtc{  get; set; }
+    [Field(required: true, backendName: "i", description: "When was the token issued (Unix UTC time)")]
+    public long? IssueUtc{  get; set; }
 
+    /// <summary> Returns IssueUtc as DateTime of UTC kind </summary>
+    public DateTime? IssueUtcTimestamp
+    {
+      get => IssueUtc?.FromSecondsSinceUnixEpochStart();
+      set => IssueUtc = value?.ToSecondsSinceUnixEpochStart();
+    }
+
+    /// <summary> Expressed in number of seconds since UNIX epoch </summary>
     [Field(backendName: "e", isArow: true)]
-    [Field(required: true, backendName: "e", description: "When the token becomes invalid, as-if non existing")]
-    public DateTime? ExpireUtc { get; set; }
+    [Field(required: true, backendName: "e", description: "When the token becomes invalid (Unix UTC time), as-if non existing")]
+    public long? ExpireUtc { get; set; }
+
+    /// <summary> Returns ExpireUtc as DateTime of UTC kind </summary>
+    public DateTime? ExpireUtcTimestamp
+    {
+      get => ExpireUtc?.FromSecondsSinceUnixEpochStart();
+      set => ExpireUtc = value?.ToSecondsSinceUnixEpochStart();
+    }
 
     public abstract int TokenByteStrength { get; }
     public abstract int TokenDefaultExpirationSeconds { get; }

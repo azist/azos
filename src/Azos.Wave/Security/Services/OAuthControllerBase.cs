@@ -11,6 +11,8 @@ using Azos.Apps.Injection;
 using Azos.Data;
 using Azos.Wave.Mvc;
 using Azos.Security.Tokens;
+using System.Collections.Generic;
+using Azos.Serialization.JSON;
 
 namespace Azos.Security.Services
 {
@@ -25,6 +27,7 @@ namespace Azos.Security.Services
     //https://www.digitalocean.com/community/tutorials/an-introduction-to-oauth-2
     //https://medium.com/@darutk/diagrams-and-movies-of-all-the-oauth-2-0-flows-194f3c3ade85
     //https://developer.okta.com/blog/2019/05/01/is-the-oauth-implicit-flow-dead
+    //https://www.oauth.com/oauth2-servers/access-tokens/authorization-code-request/
 
     protected OAuthControllerBase() : base() { }
     protected OAuthControllerBase(IOAuthModule oauth) : base()
@@ -34,6 +37,17 @@ namespace Azos.Security.Services
 
     /// <summary> References IOAuthModule dependency </summary>
     protected IOAuthModule OAuth => m_OAuth;
+
+
+    protected T GateError<T>(T response) => gate(response, false);
+    protected T GateUser<T>(T response) => gate(response, true);
+    private T gate<T>(T response, bool isInvalidUser)
+    {
+      var varName = isInvalidUser ? OAuth.GateVarInvalidUser : OAuth.GateVarErrors;
+      if (varName.IsNullOrWhiteSpace()) return response;
+      WorkContext.IncreaseGateVar(varName);
+      return response;
+    }
 
 
     /// <summary>
@@ -62,8 +76,8 @@ namespace Azos.Security.Services
         return new Http401Unauthorized("Unsupported capability");//we can not redirect because redirect_uri has not been checked yet for inclusion in client ACL
 
       //the only SCOPE
-      if (!scope.EqualsOrdIgnoreCase("openid connect"))//todo use Constant
-        return new Http401Unauthorized("Unsupported capability");//we can not redirect because redirect_uri has not been checked yet for inclusion in client ACL
+      if (!OAuth.CheckScope(scope))
+        return new Http401Unauthorized("Unsupported scope");//we can not redirect because redirect_uri has not been checked yet for inclusion in client ACL
 
       if (client_id.IsNullOrWhiteSpace() ||
           redirect_uri.IsNullOrWhiteSpace())
@@ -72,22 +86,30 @@ namespace Azos.Security.Services
       //1. Lookup client app, just by client_id (w/o password)
       var clcred = new EntityUriCredentials(client_id);
       var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
-      if (!cluser.IsAuthenticated) return new Http401Unauthorized("Unknown client");//we don't have ACL yet, hence can't check redirect_uri
-                                                                                    //todo <------------------- ATTACK THREAT: GATE the caller
+      if (!cluser.IsAuthenticated) return GateError(new Http401Unauthorized("Unknown client"));//we don't have ACL yet, hence can't check redirect_uri
 
       //2. Check client ACL for allowed redirect URIs
       var redirectPermission = new OAuthClientAppPermission(redirect_uri);//this call comes from front channel, hence we don't check for address
       var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
-      if (!uriAllowed) return new Http403Forbidden("Unauthorized URI");//todo <------------------- ATTACK THREAT: GATE the caller
+      if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
 
       //3. Generate result, such as JSON or Login Form
-      return MakeAuthorizeResult(cluser, response_type, scope, client_id, redirect_uri, state, error: null);
+      var startedUtc = App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart();
+      return RespondWithAuthorizeResult(startedUtc, cluser, response_type, scope, client_id, redirect_uri, state, error: null);
     }
 
-    protected virtual object MakeAuthorizeResult(User clientUser, string response_type, string scope, string client_id, string redirect_uri, string state, string error)
+    protected virtual object RespondWithAuthorizeResult(long sdUtc, User clientUser, string response_type, string scope, string client_id, string redirect_uri, string state, string error)
     {
-      //Pack all requested content(session) into cryptographically encoded message
-      var flow = new { tp = response_type, scp = scope, id = client_id, uri = redirect_uri, st = state, utc = App.TimeSource.UTCNow };
+      //Pack all requested content(session) into cryptographically encoded message aka "roundtrip"
+      var flow = new {
+        sd = sdUtc,
+        iss = App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart(),
+        tp = response_type,
+        scp = scope,
+        id = client_id,
+        uri = redirect_uri,
+        st = state
+      };
       var roundtrip = App.SecurityManager.PublicProtectAsString(flow);
 
       if (error!=null)
@@ -96,40 +118,62 @@ namespace Azos.Security.Services
         WorkContext.Response.StatusDescription = error;
       }
 
+      return MakeAuthorizeResult(clientUser, roundtrip, error);
+    }
+
+    protected virtual object MakeAuthorizeResult(User clientUser, string roundtrip, string error)
+    {
       if (WorkContext.RequestedJson)
-        return new { OK=error.IsNullOrEmpty(), roundtrip };
+        return new { OK = error.IsNullOrEmpty(), roundtrip, error };
 
       return new Wave.Templatization.StockContent.OAuthLogin(clientUser, roundtrip, error);
     }
+
 
     [ActionOnPost(Name = "authorize")]
     [ActionOnPost(Name = "authorization")]
     public async virtual Task<object> Authorize_POST(string roundtrip, string id, string pwd)
     {
       var flow = App.SecurityManager.PublicUnprotectMap(roundtrip);
-      if (flow == null) return new Http401Unauthorized("Bad Request");//we don't have ACL yet, hence can't check redirect_uri
-                                                                      //todo <------------------- ATTACK THREAT: GATE the caller
+      if (flow == null) return GateError(new Http401Unauthorized("Bad Request X1"));//we don't have ACL yet, hence can't check redirect_uri
 
       //1. check token age
-      var age = App.TimeSource.UTCNow - flow["utc"].AsDateTime(DateTime.MinValue);
-      if (age.TotalSeconds > 600) return new Http401Unauthorized("Bad Request");//todo MOVE to setting/constant default
+      var utcNow = App.TimeSource.UTCNow;
+      var age = utcNow - flow["sd"].AsLong(0).FromSecondsSinceUnixEpochStart();
+      if (age.TotalSeconds > OAuth.MaxAuthorizeRoundtripAgeSec) return GateError(new Http401Unauthorized("Bad Request X2"));
 
       //2. Lookup client app, just by client_id (w/o password)
       var clid = flow["id"].AsString();
       var clcred = new EntityUriCredentials(clid);
       var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
-      if (!cluser.IsAuthenticated) return new Http401Unauthorized("Unknown client");//we don't have ACL yet, hence can't check redirect_uri
-                                                                                    //todo <------------------- ATTACK THREAT: GATE the caller
+      if (!cluser.IsAuthenticated) return GateError(new Http401Unauthorized("Unknown client"));//we don't have ACL yet, hence can't check redirect_uri
 
-      //3. Check user credentials
+      //3. Check client ACL for allowed redirect URIs
+      var redirectPermission = new OAuthClientAppPermission(flow["uri"].AsString());//this call comes from front channel, hence we don't check for address
+      var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
+      if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
+
+      //4. Check user credentials for the subject
       var subjcred = new IDPasswordCredentials(id, pwd);
       var subject = await App.SecurityManager.AuthenticateAsync(subjcred);
       if (!subject.IsAuthenticated)
-        return MakeAuthorizeResult(cluser, flow["tp"].AsString(), flow["scp"].AsString(), clid, flow["uri"].AsString(), flow["st"].AsString(), "Invalid credentials");
+      {
+        await Task.Delay(1000);//this call resulting in error is guaranteed to take at least 1 second to complete, throttling down the hack attempts
+        var redo = RespondWithAuthorizeResult(flow["sd"].AsLong(),
+                                       cluser,
+                                       flow["tp"].AsString(),
+                                       flow["scp"].AsString(),
+                                       clid,
+                                       flow["uri"].AsString(),
+                                       flow["st"].AsString(),
+                                       "Bad login");//!!! DO NOT disclose any more details
+
+        return GateUser(redo);
+      }
 
       //success ------------------
 
-     // 4. Generate Accesscode token
+     // 5. Generate ClientAccessCodeToken
       var acToken = OAuth.TokenRing.GenerateNew<ClientAccessCodeToken>();
       acToken.ClientId = clid;
       acToken.State = flow["st"].AsString();
@@ -137,8 +181,13 @@ namespace Azos.Security.Services
       acToken.SubjectSysAuthToken = subject.AuthToken.ToString();
       var accessCode = await OAuth.TokenRing.PutAsync(acToken);
 
-      //5. Redirect to URI
-      var redirect = "{0}?token={1}&state={2}".Args(flow["uri"].AsString(), accessCode, flow["st"].AsString());//todo Encode URI
+      //6. Redirect to URI
+      var redirect = new UriQueryBuilder(flow["uri"].AsString())
+      {
+        {"code", accessCode},
+        {"state", flow["st"].AsString()}
+      }.ToString();
+
       return new Redirect(redirect);
     }
 
@@ -192,13 +241,17 @@ namespace Azos.Security.Services
 
       //1. Check client/app credentials and get app's permissions
       var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
-      if (!cluser.IsAuthenticated) return ReturnError("invalid_client", "Client denied", code: 401); //todo <------------------- ATTACK THREAT: GATE the caller
+      if (!cluser.IsAuthenticated) return GateError(ReturnError("invalid_client", "Client denied", code: 401));
 
       //2. Validate the supplied client access code (token), that it exists (was issued and not expired), and it was issued for THIS client
       ClientAccessTokenBase clientToken;
       if (isAccessToken)
       {
         clientToken = await OAuth.TokenRing.GetAsync<ClientAccessCodeToken>(code);
+
+        //The access token is one-time use only:
+        if (clientToken!=null)
+          await OAuth.TokenRing.DeleteAsync(code);
       }
       else//refresh token
       {
@@ -206,46 +259,89 @@ namespace Azos.Security.Services
       }
 
       if (clientToken == null)
-        return ReturnError("invalid_grant", "Invalid grant", code: 403);//todo <------------------- ATTACK THREAT: GATE the caller
-
-      if (clientToken.Validate() != null)//one token used in place of another
-        return ReturnError("invalid_request", "Invalid client spec");//todo <------------------- ATTACK THREAT: GATE the caller
+        return GateError(ReturnError("invalid_grant", "Invalid grant", code: 403));
 
       //check that client_id supplied now matches the original one that was supplied during client access code issuance
       if (!clcred.ID.EqualsOrdSenseCase(clientToken.ClientId))
-        return ReturnError("invalid_grant", "Invalid grant", code: 403);//todo <------------------- ATTACK THREAT: GATE the caller
+        return GateError(ReturnError("invalid_grant", "Invalid grant", code: 403));
 
 
       //3. Check that the requested redirect_uri is indeed in the list of permitted URIs for this client
       var redirectPermission = new OAuthClientAppPermission(redirect_uri, WorkContext.EffectiveCallerIPEndPoint.Address.ToString());
       var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
-      if (!uriAllowed) return ReturnError("invalid_grant", "Invalid grant", code: 403);//todo <------------------- ATTACK THREAT: GATE the caller
+      if (!uriAllowed) return GateError(ReturnError("invalid_grant", "Invalid grant", code: 403));
 
-      //4. Fetch target user
+      //4. Fetch subject/target user
       var auth = SysAuthToken.Parse(clientToken.SubjectSysAuthToken);
       var targetUser = await App.SecurityManager.AuthenticateAsync(auth);
       if (!targetUser.IsAuthenticated)
-        return ReturnError("invalid_grant", "Invalid grant", code: 403);//no need for gate
+        return ReturnError("invalid_grant", "Invalid grant", code: 403);//no need for gate, the token just got denied
 
       //5. Issue the API access token for this access code
       var accessToken = OAuth.TokenRing.GenerateNew<AccessToken>();
-      accessToken.ClientId = "aaaaa";//cluser;
+      accessToken.ClientId = clcred.ID;
       accessToken.SubjectSysAuthToken = targetUser.AuthToken.ToString();
 
       var token = await OAuth.TokenRing.PutAsync(accessToken);
 
-      var json = new // https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
+      //6. Optionally issue a refresh token
+      string refreshToken = null;
+      if (OAuth.RefreshTokenLifespanSec > 0)
       {
-        access_token = token,
-        token_type = "bearer",
-        //scope = "access",
-        //refresh_token = "optional", <----- create ONE
-        expires_in =(int)(accessToken.ExpireUtc - accessToken.IssueUtc).Value.TotalSeconds
+        //https://www.oauth.com/oauth2-servers/access-tokens/refreshing-access-tokens/
+        var refreshTokenData = OAuth.TokenRing.GenerateNew<ClientRefreshCodeToken>(OAuth.RefreshTokenLifespanSec);
+        refreshTokenData.ClientId = clcred.ID;
+        refreshTokenData.SubjectSysAuthToken = targetUser.AuthToken.ToString();
+        refreshToken = await OAuth.TokenRing.PutAsync(refreshTokenData);
+      }
+
+      // https://openid.net/specs/openid-connect-basic-1_0-28.html#id.token.validation
+      // https://tools.ietf.org/html/rfc7519#section-4.1.4
+      var id_token = new JsonDataMap
+      {
+        {"iss", accessToken.IssuedBy},
+        {"aud", clcred.ID},
+        {"exp", accessToken.ExpireUtc},//in seconds
+        {"iat", accessToken.IssueUtc}, //in seconds
+        {"sub", targetUser.Name},
+        {"name", targetUser.Description},
       };
 
+      AddExtraClaimsToIDToken(cluser, targetUser, accessToken, id_token);
+
+      var jwt_id_token = App.SecurityManager.PublicProtectJWTPayload(id_token);
+
+      var result = new JsonDataMap // https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
+      {
+        {"id_token", jwt_id_token}, // Canonical JWT format hdr.payload.hash
+        {"access_token", token},
+        {"token_type", "bearer"},
+        {"expires_in", (int)(accessToken.ExpireUtcTimestamp - accessToken.IssueUtcTimestamp).Value.TotalSeconds}
+      };
+
+      if (refreshToken != null) result["refresh_token"] = refreshToken;
+
+      AddExtraFieldsToResponseBody(cluser, targetUser, accessToken, result);
 
       //No cache is set on whole controller
-      return new JsonResult(json, Serialization.JSON.JsonWritingOptions.PrettyPrint);
+      //for clarity
+      WorkContext.Response.SetNoCacheHeaders(force: true);
+      return new JsonResult(result, JsonWritingOptions.PrettyPrint);
+    }
+
+
+    /// <summary>
+    /// Override to add extra claims to id_token JWT
+    /// </summary>
+    protected virtual void AddExtraClaimsToIDToken(User clientUser, User subjectUser, AccessToken accessToken, JsonDataMap jwtClaims)
+    {
+    }
+
+    /// <summary>
+    /// Override to add extra field to response body (rarely needed)
+    /// </summary>
+    protected virtual void AddExtraFieldsToResponseBody(User clientUser, User subjectUser, AccessToken accessToken, JsonDataMap responseBody)
+    {
     }
 
     protected object ReturnError(string error, string error_description, string error_uri = null, int code = 400)
@@ -267,13 +363,28 @@ namespace Azos.Security.Services
       };
       WorkContext.Response.StatusCode = code;
       WorkContext.Response.StatusDescription = "Bad request";
-      return new JsonResult(json, Serialization.JSON.JsonWritingOptions.PrettyPrint);
+      return new JsonResult(json, JsonWritingOptions.PrettyPrint);
     }
 
+    //https://openid.net/specs/openid-connect-basic-1_0-28.html#userinfo
     [ActionOnGet(Name = "userinfo")]
+    [AuthenticatedUserPermission]
     public object UserInfo()
     {
-      return null;
+      var user = WorkContext?.Session?.User;
+
+      if (user==null) return new Http403Forbidden("No user");
+
+      var id_token = new JsonDataMap
+      {
+        {"iat", App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart()},
+        {"sub", user.Name},
+        {"name", user.Description},
+      };
+
+      AddExtraClaimsToIDToken(null, user, null, id_token);
+
+      return new JsonResult(id_token, JsonWritingOptions.PrettyPrintRowsAsMap);
     }
   }
 }

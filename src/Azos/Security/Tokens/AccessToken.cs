@@ -21,9 +21,8 @@ namespace Azos.Security.Tokens
     public string ClientId{ get; set; }
 
 
- //todo: Limit the permission grants for this token - how? Through realm???
     /// <summary>
-    /// The internal AuthenticationToken which represents the user who the public AccessToken impersonates (the subject/target).
+    /// The internal SysAuthToken which represents the subject (user) who the public AccessToken impersonates (the subject/target).
     /// The token is always stored as a string:  {realm}://{content (depending on realm, binary is base-64 encoded)}
     /// </summary>
     [Field(backendName: "sat", isArow: true)]

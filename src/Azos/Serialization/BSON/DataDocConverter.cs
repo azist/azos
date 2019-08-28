@@ -116,7 +116,7 @@ namespace Azos.Serialization.BSON
 
         protected Dictionary<Type, Func<string, object, BSONElement>> m_CLRtoBSON;
         protected Dictionary<Type, Func<BSONElement, object>> m_BSONtoCLR;
-        private static Dictionary<Schema, Dictionary<string, Schema.FieldDef>> s_TypedRowSchemaCache = new Dictionary<Schema,Dictionary<string, Schema.FieldDef>>();
+        private static volatile Dictionary<Schema, Dictionary<string, Schema.FieldDef>> s_TypedRowSchemaCache = new Dictionary<Schema,Dictionary<string, Schema.FieldDef>>();
         [ThreadStatic] private static HashSet<object> ts_References;
 
     #endregion
@@ -234,6 +234,7 @@ namespace Azos.Serialization.BSON
             var dict2 = byName==null ? new Dictionary<string, Schema.FieldDef>() : new Dictionary<string, Schema.FieldDef>(byName);
             dict2[key] = result;
             dict1[schema] = dict2;
+            System.Threading.Thread.MemoryBarrier();
             s_TypedRowSchemaCache = dict1;//atomic
           }
           return result;

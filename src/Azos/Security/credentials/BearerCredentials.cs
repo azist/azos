@@ -6,20 +6,18 @@
 
 using System;
 
-using Azos.Data;
-
 namespace Azos.Security
 {
   /// <summary>
-  /// Represents credentials based on Global Distributed ID
+  /// Represents credentials based on a bearer scheme token supplied as: `Authorization: Bearer (token)`
   /// </summary>
   [Serializable]
-  public class GDIDCredentials : Credentials
+  public sealed class BearerCredentials : Credentials
   {
-    public GDIDCredentials(GDID gdid) => GDID = gdid;
+    public BearerCredentials(string token) => Token = token.NonBlank(nameof(token));
 
-    public GDID GDID { get;}
+    public string Token { get; }
     public override void Forget(){ }
-    public override string ToString() => "{0}({1})".Args(GetType().Name, GDID);
+    public override string ToString() => "{0}({1})".Args(GetType().Name, Token);
   }
 }

@@ -296,6 +296,7 @@ namespace Azos.Data.Access.MongoDb.Connector
            {
              var lst = new List<Connection>(m_List);
              lst.Add(result);
+             System.Threading.Thread.MemoryBarrier();
              m_List = lst;//atomic
            }
            return result;
@@ -309,6 +310,7 @@ namespace Azos.Data.Access.MongoDb.Connector
             {
               var lst = new List<Connection>(m_List);
               lst.Remove(cnn);
+              System.Threading.Thread.MemoryBarrier();
               m_List = lst;//atomic
             }
         }
