@@ -47,7 +47,7 @@ namespace Azos.Security
     /// <summary>
     /// Returns byte[] representation of base64-encoded data or null
     /// </summary>
-    public byte[] BinData => m_Data==null ? null : m_Data.FromWebSafeBase64();
+    public byte[] BinData => m_Data==null ? null : m_Data.TryFromWebSafeBase64();
 
     /// <summary>
     /// Returns true when the structure contains data

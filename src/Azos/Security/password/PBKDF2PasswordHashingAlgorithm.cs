@@ -71,10 +71,19 @@ namespace Azos.Security
     protected override PBKDF2PasswordHashingOptions DoExtractPasswordHashingOptions(HashedPassword hash, out bool needRehash)
     {
       needRehash = false;
-      return new PBKDF2PasswordHashingOptions
+      try
       {
-        Salt = hash["s"].AsString().FromWebSafeBase64()
-      };
+        return new PBKDF2PasswordHashingOptions
+        {
+          Salt = hash["s"].AsString().FromWebSafeBase64()
+        };
+      }
+      catch (Exception error)
+      {
+        WriteLog(Log.MessageType.TraceErrors, nameof(DoExtractPasswordHashingOptions), "Leaked: " + error.ToMessageWithType(), error);
+      }
+
+      return DefaultPasswordHashingOptions;
     }
 
     protected override bool DoAreEquivalent(HashedPassword hash, HashedPassword rehash)

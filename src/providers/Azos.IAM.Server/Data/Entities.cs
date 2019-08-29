@@ -6,6 +6,9 @@ using Azos.Serialization.JSON;
 
 namespace Azos.IAM.Server.Data
 {
+  /// <summary>
+  /// Common base type for IAM server data
+  /// </summary>
   public abstract class BaseDoc : AmorphousTypedDoc
   {
     public const string TMONGO = "mongo";
@@ -18,12 +21,11 @@ namespace Azos.IAM.Server.Data
   {
     public const string CHANGE_TYPE_VALUE_LIST = "U:Update,C:Create,D:Delete";
 
-
     [Field(key: true, required: true, description: "Primary key which identifies this entity")]
     [Field(typeof(Entity), nameof(GDID), TMONGO, backendName: "_id")]
     public GDID GDID{ get; set;}
 
-    [Field(required: true, description: "Version time stamp", metadata: "idx{name='vts' order='0' dir=asc}")]
+    [Field(required: true, description: "Version time stamp", metadata: "idx{name='vts' order='0' dir=desc}")]
     [Field(typeof(Entity), nameof(VersionTimestamp), TMONGO, backendName: "_vt")]
     public DateTime? VersionTimestamp { get; set; }
 
