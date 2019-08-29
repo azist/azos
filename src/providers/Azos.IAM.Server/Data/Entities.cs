@@ -34,7 +34,14 @@ namespace Azos.IAM.Server.Data
     [Field(required: true, description: "Actor/User who caused the change")]//not indexed, use Audit for searches instead
     [Field(typeof(Entity), nameof(VersionActor), TMONGO, backendName: "_va")]
     public GDID VersionActor { get; set; }
+  }
 
+
+  /// <summary>
+  /// Provides base for entities with properties
+  /// </summary>
+  public abstract class EntityWithProperties : Entity
+  {
     [Field(required: false, description: "Properties")]
     [Field(typeof(Entity), nameof(PropertyData), TMONGO, backendName: "props")]
     public JsonDataMap PropertyData { get; set; }//JsonDataMap is used because it is supported by all ser frameworks, but we only store strings
@@ -43,7 +50,7 @@ namespace Azos.IAM.Server.Data
   /// <summary>
   /// Represents entity with access rights
   /// </summary>
-  public abstract class EntityWithRights : Entity
+  public abstract class EntityWithRights : EntityWithProperties
   {
     private string m_RightsData;
 

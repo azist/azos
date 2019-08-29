@@ -25,6 +25,10 @@ namespace Azos.Data.Business
   /// </summary>
   public abstract class FormModel<TSaveResult> : Form<TSaveResult>, IBusinessFormModel
   {
+    /// <summary>
+    /// Override to provide more concrete backend targeting
+    /// </summary>
+    public override string DataStoreTargetName => TargetedAttribute.ANY_TARGET;
   }
 
   /// <summary>
