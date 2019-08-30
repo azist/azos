@@ -62,6 +62,10 @@ namespace Azos.IAM.Server.Data
   /// </summary>
   public abstract class EntityWithProperties : Entity
   {
+    [Field(description: "Provides an optional description")]
+    [Field(typeof(EntityWithProperties), nameof(Description), TMONGO, backendName: "d")]
+    public string Description { get; set; }
+
     [Field(required: false, description: "Properties")]
     [Field(typeof(EntityWithProperties), nameof(PropertyData), TMONGO, backendName: "props")]
     public JsonDataMap PropertyData { get; set; }//JsonDataMap is used because it is supported by all ser frameworks, but we only store strings
@@ -106,10 +110,6 @@ namespace Azos.IAM.Server.Data
     public string    AuditLastModifyActorTitle { get; set; }
 
 
-    [Field(description: "Provides an optional description")]
-    [Field(typeof(EntityWithRights), nameof(Description), TMONGO, backendName: "d")]
-    public string Description { get; set; }
-
     [Field(required: true, description: "Contains a list of time periods during which this entity is valid. An entity is considered as invalid/non-existent one outside of these time spans")]
     [Field(typeof(EntityWithRights), nameof(ValidPeriods), TMONGO, backendName: "val")]
     public TimePeriod[] ValidPeriods { get; set; }
@@ -128,7 +128,7 @@ namespace Azos.IAM.Server.Data
     public string    LockNote { get; set; }
 
 
-    [Field(required: true, description: "Access rights")]
+    [Field(required: false, description: "Access rights")]
     [Field(typeof(EntityWithRights), nameof(RightsData), TMONGO, backendName: "r")]
     public string RightsData
     {

@@ -16,6 +16,10 @@ namespace Azos.IAM.Server.Data
     [Field(required: true, kind: DataKind.ScreenName, metadata: "idx{name='main' order=1 unique=true dir=asc}")]
     [Field(typeof(Group), nameof(ID), TMONGO, backendName: "id")]
     public string ID { get; set; }
+
+    [Field(required: false, description: "Points to policy affecting this group; if null then policy is taken from parent group")]
+    [Field(typeof(Group), nameof(G_Policy), TMONGO, backendName: "g_pol")]
+    public GDID G_Policy { get; set; }
   }
 
 }

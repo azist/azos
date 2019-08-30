@@ -5,8 +5,11 @@ using Azos.Data;
 namespace Azos.IAM.Server.Data
 {
 /*
+   Policies = settings - they get applied to Groups
+   Password change every X days, last pwd change
    Account LOCK-OUT for  X wrong log-in attempts
    Number of log-in attempts
+   2 factor authentication
    Should not be able to re-use LOGIN/EMAIL after it is inactivated
    Can not re-use X old passwords
    Password change schedule
@@ -21,6 +24,7 @@ namespace Azos.IAM.Server.Data
   public sealed class Account : EntityWithRights
   {
     public const string ACCOUNT_TYPE_VALUE_LIST = "H:Human,S:Service,G:Group,O:Organization,S:System";
+    public const string ACCOUNT_LEVEL_VALUE_LIST = "I:Invalid,U:User,A:Admin,S:System";
 
     /// <summary>
     /// Group assignment. All accounts belong to a specific group
@@ -42,62 +46,21 @@ namespace Azos.IAM.Server.Data
     /// <summary>
     /// Human, Process, Robot, Org, System
     /// </summary>
-    [Field(required: false, valueList: ACCOUNT_TYPE_VALUE_LIST, description: "Account type")]
+    [Field(required: true, valueList: ACCOUNT_TYPE_VALUE_LIST, description: "Account type")]
     [Field(typeof(Account), nameof(Type), TMONGO, backendName: "tp")]
     public char? Type { get; set; }
-  }
+
+    /// <summary>
+    /// Access level Archetype: Invalid,User,Admin,System
+    /// </summary>
+    [Field(required: true, valueList: ACCOUNT_LEVEL_VALUE_LIST, description: "Access level Archetype: Invalid,User,Admin,System")]
+    [Field(typeof(Account), nameof(Level), TMONGO, backendName: "lvl")]
+    public char? Level { get; set; }
 
 
-  /// <summary>
-  /// Account Login
-  /// </summary>
-  public sealed class Login : EntityWithRights
-  {
-    /// <summary> System id: GDID</summary>
-    public const string TYPE_SID = "sid";
-
-    /// <summary> Screenname e.g.: "alex1980"; screen names are used in systems that provide email e.g. "alex1980@myservice.com"</summary>
-    public const string TYPE_SCREENNAME = "scrn";
-
-    /// <summary> Email address e.g. "alex1980@myservice.com"</summary>
-    public const string TYPE_EMAIL = "eml";
-
-    /// <summary> Telephone number e.g. "8885552223413"</summary>
-    public const string TYPE_PHONE = "tel";
-
-    /// <summary> Login via OAuth/OpenID connect through 3rd party (e.g. Twitter account)</summary>
-    public const string TYPE_OAUTH = "oauth";
-
-    /// <summary> Bearer token issued by the system </summary>
-    public const string TYPE_BEARER = "bear";
-
-
-    [Field(required: false,
-           description: "Points to group which this account belongs to",
-           metadata: "idx{name='account' dir=asc}")]
-    [Field(typeof(Login), nameof(Account), TMONGO, backendName: "acc")]
-    public GDID Account{ get; set;}
-
-    public string Type {  get; set; }
-    public string Provider { get; set; }//FBK, Twitter, Instagram, Or your own system if it issues OAuth token
-
-
-    [Field(required: true,
-           description: "Unique account ID/Token body",
-           metadata: "idx{name='id' unique=true dir=asc}")]
-    [Field(typeof(Login), nameof(ID), TMONGO, backendName: "id")]
-    public string ID{ get; set;}
-
-    [Field(required: true,
-           description: "Password hash")]
-    [Field(typeof(Login), nameof(Password), TMONGO, backendName: "pwd")]
-    public string Password {  get; set;}
-
-    [Field(required: false,
-           description: "Utc timestamp when account login was confirmed, or null")]
-    [Field(typeof(Login), nameof(ConfirmDate), TMONGO, backendName: "cdt")]
-    public DateTime? ConfirmDate {  get; set;}
-
+    [Field(required: false, description: "Points to policy affecting this account; if null then effective group policy is assumed")]
+    [Field(typeof(Account), nameof(G_Policy), TMONGO, backendName: "g_pol")]
+    public GDID G_Policy { get; set; }
   }
 
 }
