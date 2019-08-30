@@ -15,6 +15,24 @@ namespace Azos.IAM.Server.Data
   }
 
   /// <summary>
+  /// Represents a period - a span of time. Both dates are required, use min/max date values for open spans
+  /// </summary>
+  public class TimePeriod : BaseDoc
+  {
+    [Field(required: true, description: "Provides a short name for this period of time, e.g. 'Christmas 2018'")]
+    [Field(typeof(TimePeriod), nameof(Name), TMONGO, backendName: "nm")]
+    public string Name { get; set; }
+
+    [Field(required: true, description: "Period start timestamp in UTC")]
+    [Field(typeof(TimePeriod), nameof(SD), TMONGO, backendName: "sd")]
+    public DateTime? SD { get; set; }
+
+    [Field(required: true, description: "Period end timestamp in UTC")]
+    [Field(typeof(TimePeriod), nameof(ED), TMONGO, backendName: "ed")]
+    public DateTime? ED { get; set; }
+  }
+
+  /// <summary>
   /// Provides base for replicating data entities
   /// </summary>
   public abstract class Entity : BaseDoc
@@ -34,8 +52,8 @@ namespace Azos.IAM.Server.Data
     public char? VersionStatus {  get; set; }
 
     [Field(required: true, description: "Actor/User who caused the change")]//not indexed, use Audit for searches instead
-    [Field(typeof(Entity), nameof(VersionActor), TMONGO, backendName: "_va")]
-    public GDID VersionActor { get; set; }
+    [Field(typeof(Entity), nameof(G_VersionActor), TMONGO, backendName: "_va")]
+    public GDID G_VersionActor { get; set; }
   }
 
 
@@ -45,7 +63,7 @@ namespace Azos.IAM.Server.Data
   public abstract class EntityWithProperties : Entity
   {
     [Field(required: false, description: "Properties")]
-    [Field(typeof(Entity), nameof(PropertyData), TMONGO, backendName: "props")]
+    [Field(typeof(EntityWithProperties), nameof(PropertyData), TMONGO, backendName: "props")]
     public JsonDataMap PropertyData { get; set; }//JsonDataMap is used because it is supported by all ser frameworks, but we only store strings
   }
 
@@ -59,14 +77,42 @@ namespace Azos.IAM.Server.Data
     [NonSerialized]
     private ConfigSectionNode m_Rights;
 
+    /// <summary>
+    /// The Audit* family of columns provide the minimum history in case of Audit log deletion/purge
+    /// </summary>
+    [Field(required: true, description: "Captures the original create date. This value never changes after that")]
+    [Field(typeof(EntityWithRights), nameof(AuditCreateDate), TMONGO, backendName: "a_cd")]
+    public DateTime? AuditCreateDate           { get; set; }
 
-    [Field(required: true, description: "Validity start UTC timestamp. An entity is considered invalid/non-existent before this point in time")]
-    [Field(typeof(EntityWithRights), nameof(ValidSD), TMONGO, backendName: "vsd")]
-    public DateTime? ValidSD  { get; set; }
+    /// <summary>
+    /// The Audit* family of columns provide the minimum history in case of Audit log deletion/purge
+    /// </summary>
+    [Field(required: true, description: "Captures the actor/user account who created this entity. This value never changes after that")]
+    [Field(typeof(EntityWithRights), nameof(AuditCreateActorTitle), TMONGO, backendName: "a_ca")]
+    public string    AuditCreateActorTitle { get; set; }
 
-    [Field(required: true, description: "Validity end UTC timestamp, beyond which  an entity is considered invalid")]
-    [Field(typeof(EntityWithRights), nameof(ValidED), TMONGO, backendName: "ved")]
-    public DateTime? ValidED  { get; set; }
+    /// <summary>
+    /// The Audit* family of columns provide the minimum history in case of Audit log deletion/purge
+    /// </summary>
+    [Field(required: true, description: "Captures the last modification date")]
+    [Field(typeof(EntityWithRights), nameof(AuditLastModifyDate), TMONGO, backendName: "a_lmd")]
+    public DateTime? AuditLastModifyDate { get; set; }
+
+    /// <summary>
+    /// The Audit* family of columns provide the minimum history in case of Audit log deletion/purge
+    /// </summary>
+    [Field(required: true, description: "Captures the actor/user account title who has performed the last modifications")]
+    [Field(typeof(EntityWithRights), nameof(AuditLastModifyActorTitle), TMONGO, backendName: "a_lma")]
+    public string    AuditLastModifyActorTitle { get; set; }
+
+
+    [Field(description: "Provides an optional description")]
+    [Field(typeof(EntityWithRights), nameof(Description), TMONGO, backendName: "d")]
+    public string Description { get; set; }
+
+    [Field(required: true, description: "Contains a list of time periods during which this entity is valid. An entity is considered as invalid/non-existent one outside of these time spans")]
+    [Field(typeof(EntityWithRights), nameof(ValidPeriods), TMONGO, backendName: "val")]
+    public TimePeriod[] ValidPeriods { get; set; }
 
     /// <summary>
     /// The locking has different effect on different entities: a locked role just does not get mixed-in as if it never existed.
@@ -82,7 +128,6 @@ namespace Azos.IAM.Server.Data
     public string    LockNote { get; set; }
 
 
-
     [Field(required: true, description: "Access rights")]
     [Field(typeof(EntityWithRights), nameof(RightsData), TMONGO, backendName: "r")]
     public string RightsData
@@ -90,7 +135,7 @@ namespace Azos.IAM.Server.Data
       get => m_RightsData;
       set
       {
-        if (m_RightsData != value) m_Rights = null;
+        if (!m_RightsData.EqualsOrdSenseCase(value)) m_Rights = null;
         m_RightsData = value;
       }
     }
@@ -117,10 +162,9 @@ namespace Azos.IAM.Server.Data
           m_RightsData = null;
         else
           m_RightsData = value.ToJSONString(JsonWritingOptions.PrettyPrintRowsAsMap);
-
       }
     }
-  }
 
+  }
 
 }

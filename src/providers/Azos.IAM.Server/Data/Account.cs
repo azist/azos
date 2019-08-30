@@ -6,6 +6,7 @@ namespace Azos.IAM.Server.Data
 {
 /*
    Account LOCK-OUT for  X wrong log-in attempts
+   Number of log-in attempts
    Should not be able to re-use LOGIN/EMAIL after it is inactivated
    Can not re-use X old passwords
    Password change schedule
@@ -22,16 +23,13 @@ namespace Azos.IAM.Server.Data
     public const string ACCOUNT_TYPE_VALUE_LIST = "H:Human,S:Service,G:Group,O:Organization,S:System";
 
     /// <summary>
-    /// Group assignment
+    /// Group assignment. All accounts belong to a specific group
     /// </summary>
-    [Field(required: false,
+    [Field(required: true,
            description: "Points to group which this account belongs to",
            metadata: "idx{name='grp' dir=asc}")]
-    [Field(typeof(Account), nameof(Group), TMONGO, backendName: "grp")]
-    public GDID Group{  get; set;}
-
-    [Field(description: "Canonical name, such as PAN/User ID or EMail")]
-    public string CName {  get; set; }
+    [Field(typeof(Account), nameof(G_Group), TMONGO, backendName: "g_grp")]
+    public GDID G_Group{  get; set;}
 
 
     /// <summary>
