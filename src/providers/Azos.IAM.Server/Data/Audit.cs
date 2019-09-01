@@ -4,7 +4,7 @@ using System.Text;
 
 using Azos.Data;
 
-namespace Azos.IAM.Data
+namespace Azos.IAM.Server.Data
 {
   /// <summary>
   /// Represents an audit log item which describes a change made in the system by an actor operating

@@ -57,4 +57,27 @@ namespace Azos.Data
     /// </summary>
     CapsNorm
   }
+
+  /// <summary>
+  /// Provides hint/classification for field textual data
+  /// </summary>
+  public enum DataKind
+  {
+    Text,
+    ScreenName,
+    Color,
+    Date,
+    DateTime,
+    DateTimeLocal,
+    EMail,
+    Month,
+    Number,
+    Range,
+    Money,
+    Search,
+    Telephone,
+    Time,
+    Url,
+    Week
+  }
 }

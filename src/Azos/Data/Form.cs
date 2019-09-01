@@ -15,9 +15,9 @@ namespace Azos.Data
 {
 
   /// <summary>
-  /// Denotes form modes: unspecified | insert | edit
+  /// Denotes form modes: unspecified | insert | update | delete
   /// </summary>
-  public enum FormMode { Unspecified = 0, Insert, Edit}
+  public enum FormMode { Unspecified = 0, Insert, Update, Delete}
 
   /// <summary>
   /// Struct returned from Form.Save()

@@ -1303,5 +1303,21 @@ namespace Azos
       return Convert.FromBase64CharArray(chars, 0, chars.Length);
     }
 
+    /// <summary>
+    /// Complementing method for ToWebSafeBase64() - tries to read web-safe base64 encoded string into a byte[].
+    /// Returns null for empty string or bad conversion.
+    /// Web-safe encoding uses `-` instead of base64 `+` and `_` instead of base64 `/`
+    /// </summary>
+    public static byte[] TryFromWebSafeBase64(this string content)
+    {
+      try
+      {
+        return FromWebSafeBase64(content);
+      }
+      catch
+      {
+        return null;
+      }
+    }
   }
 }

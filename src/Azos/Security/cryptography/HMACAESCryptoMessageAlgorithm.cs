@@ -110,7 +110,20 @@ namespace Azos.Security
     }
 
     public override byte[] UnprotectFromString(string protectedMessage)
-     => Unprotect(new ArraySegment<byte>(protectedMessage.FromWebSafeBase64()));
+    {
+      ArraySegment<byte> data;
+      try
+      {
+        data = new ArraySegment<byte>(protectedMessage.NonBlank(nameof(protectedMessage)).FromWebSafeBase64());
+      }
+      catch (Exception error)
+      {
+        WriteLog(Log.MessageType.TraceErrors, nameof(UnprotectFromString), "Leaked on bad message: " + error.ToMessageWithType(), error);
+        return null;
+      }
+
+      return Unprotect(data);
+    }
 
     public override byte[] Unprotect(ArraySegment<byte> protectedMessage)
     {

@@ -9,7 +9,9 @@ using System.Runtime.Serialization;
 namespace Azos.Security
 {
   /// <summary>
-  /// Base exception thrown by the Azos Security framework
+  /// Base exception thrown by the Azos Security framework.
+  /// This exception does not mean that access was denied, rather it implies security-related error.
+  /// Contrast with AuthorizationException which specifically indicates violation of access/insufficient rights.
   /// </summary>
   [Serializable]
   public class SecurityException : AzosException, ISecurityException
@@ -21,7 +23,8 @@ namespace Azos.Security
   }
 
   /// <summary>
-  /// Thrown by Azos security to indicate the authorization problems, such as permission access denial
+  /// Thrown by Azos security framework to indicate the authorization problem conditions, such as permission access denial.
+  /// This exception is a subtype of a broader SecurityException which denotes problems related to security in general
   /// </summary>
   [Serializable]
   public class AuthorizationException : SecurityException, IHttpStatusProvider
