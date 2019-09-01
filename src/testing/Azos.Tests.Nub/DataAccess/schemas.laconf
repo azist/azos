@@ -1,0 +1,9 @@
+﻿schemas
+{
+  TestDataDocA
+  {
+    Name {description="My long description" value-list="A:Apple,B:Book"}
+    Field {description="Description of field"}
+  }
+
+}

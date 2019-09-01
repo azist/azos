@@ -14,6 +14,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="DataAccess\custom\aaa.laconf" />
+    <None Remove="DataAccess\schemas.laconf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="DataAccess\custom\aaa.laconf" />
+    <EmbeddedResource Include="DataAccess\schemas.laconf" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
   </ItemGroup>
 
