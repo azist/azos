@@ -70,6 +70,12 @@ namespace Azos.IAM.Server.Data
     [Field(typeof(Login), nameof(Password), TMONGO, backendName: "pwd")]
     public string Password {  get; set;}
 
+    [Field(required: true,
+           description: "History of older Password hashes. The policy governs how many are kept")]
+    [Field(typeof(Login), nameof(PasswordHistory), TMONGO, backendName: "pwdh")]
+    public string[] PasswordHistory {  get; set; }
+
+
     [Field(required: false,
            description: "Utc timestamp when the password was changed for the last time")]
     [Field(typeof(Login), nameof(PasswordChangeDate), TMONGO, backendName: "pwddt")]

@@ -85,18 +85,25 @@ The following p-code is an example of the above:
   //also, as governed by policy, IAM server may return a different secret that you would need to send on a different channel
 ```
 
+## Various Policies and Rules
 
-## Policies = settings - they get applied to Groups
-##   Password change every X days, last pwd change
-##    Account LOCK-OUT for  X wrong log-in attempts
-##   Number of log-in attempts
+###  Password change every X days, Last password change
+The information is kept in `Login` table.
+This is enforced by the account-effective policy.
 
-## Should not be able to re-use LOGIN/EMAIL after it is inactivated
-##  Can not re-use X old passwords
-##   Password change schedule
-##   Password edit distance
 
-## Permission Assignment Dat spans
+### Can not reuse X old passwords
+The system keeps however many passwords needed in the `Login` table. Upon the password change, the system checks to see if such 
+combination was already used. Per above, the X is supplied by the effective policy
+
+### Account LOCK-OUT for  X wrong log-in attempts
+###   Number of log-in attempts
+
+### Should not be able to re-use LOGIN/EMAIL after it is inactivated
+### Password change schedule
+### Minimum password edit distance
+
+### Permission Assignment Dat spans
 in a date/time span - maybe add this to root permission (`sd`,`ed` along with `level`) -
    or maybe this should be delegated to specific app
 
