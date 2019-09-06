@@ -59,25 +59,35 @@ namespace Azos.Data
   }
 
   /// <summary>
-  /// Provides hint/classification for field textual data
+  /// Provides hint/classification for field data representation/purpose
   /// </summary>
   public enum DataKind
   {
     Text,
     ScreenName,
+    Url,
+    Telephone,
+    EMail,
+    Search,
     Color,
     Date,
     DateTime,
     DateTimeLocal,
-    EMail,
+    Year,
     Month,
+    Week,
+    Day,
+    YearMonth,
+    TimeOfDay,
     Number,
-    Range,
+    Percent,
     Money,
-    Search,
-    Telephone,
-    Time,
-    Url,
-    Week
+    YearRange,
+    DateRange,
+    DateTimeRange,
+    IntNumberRange,
+    RealNumberRange,
+    MoneyRange,
+    PercentRange
   }
 }

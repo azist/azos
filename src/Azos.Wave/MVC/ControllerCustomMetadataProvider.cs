@@ -24,7 +24,7 @@ namespace Azos.Wave.Mvc
       {
         var apiAttr = tController.GetCustomAttribute<ApiControllerDocAttribute>();
         if (apiAttr!=null)
-        return describe(tController, instance, apictx, dataRoot, overrideRules);
+          return describe(tController, instance, apictx, dataRoot, overrideRules);
       }
 
       return null;
@@ -74,7 +74,10 @@ namespace Azos.Wave.Mvc
         //Get all method attributes except ApiDoc
         var epattrs = mctx.Method
                           .GetCustomAttributes(true)
-                          .Where(a => !(a is ApiDocAttribute) && !(a is ActionBaseAttribute));
+                          .Where(a => !(a is ApiDocAttribute) &&
+                                      !(a is ActionBaseAttribute) &&
+                                      !apictx.Generator.IgnoreTypePatterns.Any(ignore => a.GetType().FullName.MatchPattern(ignore))
+                                );
 
         writeInstanceCollection(epattrs.Where(a => !(a is IInstanceCustomMetadataProvider) ||
                                                     (a is IInstanceCustomMetadataProvider cip &&
@@ -86,9 +89,13 @@ namespace Azos.Wave.Mvc
                                    .ToArray(),
                                    TYPE_REF, edata, apictx.Generator);//distinct attr types
 
-        //todo Get app parameters look for Docs and register them and also permissions
+        //get method parameters
         var epargs = mctx.Method.GetParameters()
-                         .Where(pi => !pi.IsOut && !pi.ParameterType.IsByRef && !apictx.Generator.IsWellKnownType(pi.ParameterType) )
+                         .Where(pi => !pi.IsOut &&
+                                      !pi.ParameterType.IsByRef &&
+                                      !apictx.Generator.IsWellKnownType(pi.ParameterType) &&
+                                      !apictx.Generator.IgnoreTypePatterns.Any(ignore => pi.ParameterType.FullName.MatchPattern(ignore))
+                               )
                          .Select(pi => pi.ParameterType).ToArray();
         writeTypeCollection(epargs, TYPE_REF, edata, apictx.Generator);
 

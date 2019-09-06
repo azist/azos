@@ -68,7 +68,7 @@ namespace Azos.Wave.Mvc
       public readonly string Namespace;
 
       /// <summary>
-      /// returns all controller types regardless of ApiDoc decorations
+      /// returns all controller types regardless of ApiDoc decorations and ignore patterns
       /// </summary>
       public IEnumerable<Type> AllControllerTypes
       {
@@ -107,6 +107,11 @@ namespace Azos.Wave.Mvc
     /// </summary>
     public List<ControllerLocation> Locations { get; } = new List<ControllerLocation>();
 
+    /// <summary>
+    /// A list of Type pattern matches that must be ignored during metadata discovery, e.g. "System.Threading.*"
+    /// </summary>
+    public List<string> IgnoreTypePatterns { get; } = new List<string>();
+
 
     /// <summary>
     /// Controls the level of detail for generated metadata
@@ -137,9 +142,10 @@ namespace Azos.Wave.Mvc
       var data = MakeConfig();
 
       var allControllers = Locations.SelectMany(loc => loc.AllControllerTypes)
-                 .Select( t => (tController: t, aController: t.GetCustomAttribute<ApiControllerDocAttribute>() ))
-                 .Where(tpl => FilterControllerType(tpl.tController, tpl.aController))
-                 .OrderBy( tpl => FilterControllerType(tpl.tController, tpl.aController));
+                 .Where    ( t => !IgnoreTypePatterns.Any(ignore => t.FullName.MatchPattern(ignore) ))
+                 .Select   ( t => (tController: t, aController: t.GetCustomAttribute<ApiControllerDocAttribute>() ))
+                 .Where    ( tpl => FilterControllerType(tpl.tController, tpl.aController))
+                 .OrderBy  ( tpl => OrderControllerType(tpl.tController, tpl.aController));
 
       foreach(var controller in allControllers)
         PopulateController(data, controller.tController, controller.aController);
@@ -221,6 +227,7 @@ namespace Azos.Wave.Mvc
       if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
         return "map<{0},{1}>".Args(AddTypeToDescribe(type.GetGenericArguments()[0]), AddTypeToDescribe(type.GetGenericArguments()[1]));
 
+      if (IgnoreTypePatterns.Any(ignore => type.FullName.MatchPattern(ignore))) return DetailLevel > MetadataDetailLevel.Public ? type.Name : "sys";
 
       instanceList list;
       if (!m_TypesToDescribe.TryGetValue(type, out list))

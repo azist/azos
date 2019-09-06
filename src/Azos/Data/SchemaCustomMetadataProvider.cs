@@ -105,8 +105,7 @@ namespace Azos.Data
       if (fatr.Description.IsNotNullOrWhiteSpace()) data.AddAttributeNode("description", fatr.Description);
       data.AddAttributeNode("key", fatr.Key);
 
-      if (def.Type==typeof(string))
-        data.AddAttributeNode("kind", fatr.Kind);
+      data.AddAttributeNode("kind", fatr.Kind);
 
       data.AddAttributeNode("required", fatr.Required);
       data.AddAttributeNode("visible", fatr.Required);

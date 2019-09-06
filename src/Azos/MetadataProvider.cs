@@ -47,7 +47,6 @@ namespace Azos
   /// </summary>
   public interface IMetadataGenerator
   {
-
     /// <summary>
     /// Application context
     /// </summary>
@@ -63,12 +62,18 @@ namespace Azos
     /// <summary>
     /// Target name used for extraction of targeted metadata such as database backend target name used in data documents/ schemas
     /// </summary>
-    string DataTargetName {  get; }
+    string DataTargetName { get; }
 
     /// <summary>
     /// Name of public metadata config section, typically `pub`
     /// </summary>
-    string PublicMetadataSection {  get;}
+    string PublicMetadataSection { get; }
+
+
+    /// <summary>
+    /// A list of Type pattern matches that must be ignored during metadata discovery, e.g. "System.Threading.*"
+    /// </summary>
+    List<string> IgnoreTypePatterns{ get; }
 
     /// <summary>
     /// Generates metadata into ConfigSectionNode structure
