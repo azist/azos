@@ -18,6 +18,18 @@ namespace Azos.IAM.Server.Data
    Permissions valid in a date/time span - maybe add this to root permission (`sd`,`ed` along with `level`) -
    or maybe this should be delegated to specific app
 */
+
+/*
+  2 Factor Authentication
+
+  - User logs in with 
+
+
+
+
+*/
+
+
   /// <summary>
   /// Represents an account. Account represent users, processes, organizations and other entities.
   /// </summary>

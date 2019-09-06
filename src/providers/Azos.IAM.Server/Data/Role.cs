@@ -18,7 +18,7 @@ namespace Azos.IAM.Server.Data
            kind: DataKind.ScreenName,
            description: "Unique Role ID. Do not change the ID as all links to it will become invalid",
            metadata: "idx{name='main' order=0 unique=true dir=asc}")]
-    [Field(typeof(Group), nameof(ID), TMONGO, backendName: "id")]
+    [Field(typeof(Role), nameof(ID), TMONGO, backendName: "id")]
     public string ID { get; set; }
   }
 }

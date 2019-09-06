@@ -35,8 +35,8 @@ namespace Azos.IAM.Server.Data
     public GDID      Actor { get; set; }
 
     [Field(required: true, description: "Canonical user name/id when user gets deleted")]
-    [Field(typeof(Audit), nameof(CNActor), TMONGO, backendName: "aact")]
-    public string    CNActor { get; set; }
+    [Field(typeof(Audit), nameof(ActorTitle), TMONGO, backendName: "aact")]
+    public string    ActorTitle { get; set; }
 
     [Field(required: true, description: "Application/User Agent which caused the change")]
     [Field(typeof(Audit), nameof(ActorUserAgent), TMONGO, backendName: "aua")]

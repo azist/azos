@@ -39,13 +39,13 @@ namespace Azos.IAM.Server.Data
     /// <summary>
     /// Access level Archetype which may only narrow-down the account level: Invalid,User,Admin,System
     /// </summary>
-    [Field(required: true, valueList: Account.ACCOUNT_LEVEL_VALUE_LIST, description: "Login access level archetype which can only restrict the Account level")]
+    [Field(required: false, valueList: Account.ACCOUNT_LEVEL_VALUE_LIST, description: "Login access level archetype which can only restrict the Account level")]
     [Field(typeof(Login), nameof(Level), TMONGO, backendName: "lvl")]
     public char? Level { get; set; }
 
     [Field(required: true,
            description: "Login type: email, screenname etc.",
-           metadata: "idx{name='account' dir=asc}")]
+           metadata: "idx{name='type' dir=asc}")]
     [Field(typeof(Login), nameof(Type), TMONGO, backendName: "tp")]
     public string Type {  get; set; }
 
@@ -63,7 +63,7 @@ namespace Azos.IAM.Server.Data
            description: "Unique account ID/Token body (e.g. Bearer). For external providers stores its user ID suffixed with provider type, e.g. `3109119011@twitter`",
            metadata: "idx{name='id' unique=true dir=asc}")]
     [Field(typeof(Login), nameof(ID), TMONGO, backendName: "id")]
-    public string ID{ get; set;}
+    public string ID{ get; set; }
 
     [Field(required: true,
            description: "Password hash. For external providers stores empty object or provider-specific options")]
@@ -71,10 +71,19 @@ namespace Azos.IAM.Server.Data
     public string Password {  get; set;}
 
     [Field(required: false,
+           description: "Utc timestamp when the password was changed for the last time")]
+    [Field(typeof(Login), nameof(PasswordChangeDate), TMONGO, backendName: "pwddt")]
+    public DateTime? PasswordChangeDate { get; set; }
+
+    [Field(required: false,
            description: "Utc timestamp when account login was confirmed, or null")]
     [Field(typeof(Login), nameof(ConfirmDate), TMONGO, backendName: "cdt")]
-    public DateTime? ConfirmDate {  get; set;}
+    public DateTime? ConfirmDate {  get; set; }
 
+    [Field(required: false,
+           description: "Brief description of confirmation method")]
+    [Field(typeof(Login), nameof(ConfirmMethod), TMONGO, backendName: "cmtd")]
+    public string ConfirmMethod { get; set; }
   }
 
 

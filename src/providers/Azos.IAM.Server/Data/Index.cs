@@ -8,12 +8,17 @@ namespace Azos.IAM.Server.Data
   /// </summary>
   public sealed class Index : Entity
   {
-
     [Field(required: true,
            description: "Entity",
            metadata: "idx{name='main' order='1'}")]
     [Field(typeof(Index), nameof(Entity), TMONGO, backendName: "e")]
     public string    Entity{ get; set;}
+
+    [Field(required: true,
+           description: "Entities GDID",
+           metadata: "idx{name='main' order='0' dir=asc}")]
+    [Field(typeof(Index), nameof(G_Entity), TMONGO, backendName: "g_e")]
+    public GDID    G_Entity { get; set; }
 
     [Field(required: true,
            description: "Indexed trait name",
@@ -26,13 +31,5 @@ namespace Azos.IAM.Server.Data
            metadata: "idx{name='trait' order='0'}")]
     [Field(typeof(Index), nameof(TraitValue), TMONGO, backendName: "tv")]
     public string    TraitValue {  get; set;}
-
-
-    [Field(required: true,
-           description: "Entitities GDID",
-           metadata: "idx{name='main' order='0' dir=asc}")]
-    [Field(typeof(Index), nameof(G_Entity), TMONGO, backendName: "g_e")]
-    public GDID    G_Entity { get; set; }
-
   }
 }

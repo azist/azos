@@ -66,11 +66,11 @@ namespace Azos.IAM.Server.Data
            kind: DataKind.ScreenName,
            description: "Unique Policy ID",
            metadata: "idx{name='main' order=0 unique=true dir=asc}")]
-    [Field(typeof(Group), nameof(ID), TMONGO, backendName: "id")]
+    [Field(typeof(Policy), nameof(ID), TMONGO, backendName: "id")]
     public string ID { get; set; }
 
     [Field(required: true, description: "Contains a list of time periods with policy data")]
-    [Field(typeof(EntityWithRights), nameof(Periods), TMONGO, backendName: "periods")]
+    [Field(typeof(Policy), nameof(Periods), TMONGO, backendName: "periods")]
     public PolicyPeriod[] Periods { get; set; }
 
   }
