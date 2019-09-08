@@ -57,15 +57,15 @@ The ACL data is rich and allows for the most complex security scenarios as autom
 system benefits, such as no need to check permissions manually on a client side etc.)*
 
 ## Groups
-Azos IAM server supports concepts of `Groups`. Any account can be a part of only one group at any single time.
-This is not a limitation, because groups organize accounts physically, whereas `Roles` provide mix-in rights on a ad-hoc basis.
+Azos IAM server supports `Groups` of accounts/child sub-groups. Any account can be a part of only one group at any single time.
+This is not a limitation, because groups organize accounts physically, whereas `Roles` provide mix-in rights on an ad-hoc basis.
 
 ## Roles
 Roles represents a named "kits" of access rights. The get mix-in to ACL by their IDs, as every Role has a unique mnemonic `ID`.
 You should not change `ID`s for roles as this would render all role links invalid with consequential rights loss on ACLs.
 
 ## Accounts
-`Account` entity represents a titled account in the system. This does not necessarily correspond with physical users. Accounts
+`Account` entity represents a titled account in the system. This does not necessarily correspond to physical users. Accounts
 may represent departments, user groups (such as a chat room), and other org units
 
 ## Logins
@@ -92,7 +92,7 @@ the effective policy already calculated.
 
 ## Entity Indexing
 AZIAM Server is designed to support a variety of systems/use cases, as such, it supports custom entity properties.
-`Index` table is provided to index custom entity properties and other entity traits (specific to a particular system use-cases).
+`Index` table is provided to index custom entity props and other entity traits (which are specific to a particular system use-cases).
 The index is populated on data mutation operations as specified in the mutation Api call.
 
 ## Change Auditing
@@ -106,6 +106,11 @@ The server deletes out-dated `Audit` data as specified by the effective policy.
 
 
 ## Token Ring Services
+AZIAM server implements token ring - a mechanism for storage of custom tokens which represent arbitrary server-side data specific
+to your application. For example, you can use tokens for email conform codes, OAuth authorization codes etc.
+
+Th AZIAM server provides a server-side token ring, that is: the client is only given a short unique token code which points to the 
+server-side state. Contrast this with client-side token rings which roundtrip the whole token data via encrypted client payload.
 
 
 ## Muti-Factor Authentication
