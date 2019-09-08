@@ -177,15 +177,27 @@ becomes locked-out. There are two types of lock-out: **Permanent** and **auto-re
 intervention to resolve (e.g. a process similar to "reset password" to unlock an account). Auto-reset account locks are lifted automatically 
 after the reset data which is governed by the effective policy
 
-### Number of log-in attempts
-
 ### Should not be able to re-use LOGIN/EMAIL after it is inactivated
-### Password change schedule
-### Minimum password edit distance
+The login record becomes marked as deleted, but not physically removed, hence one may not-re-use someone else's ID for their own accounts.
 
-### Permission Assignment Dat spans
-in a date/time span - maybe add this to root permission (`sd`,`ed` along with `level`) -
-   or maybe this should be delegated to specific app
+### Password change schedule
+The password change schedule is specified in the effective policy and IZM server periodically scans all of the accounts, triggering 
+relevant events which are delivered to application via web hooks
+
+### Minimum password edit distance
+Minimum password edit distance ensures that a new password is "different enough" from the old one to be considered acceptable.
+The settings are dictated by the effective policy
+
+### Permission Assignment Date spans
+In some cases individual permissions may require temporal assignments.
+The mechanics if this is left up to a concrete permission, having the spans kept in the ACL, as an example:
+```csharp
+  permission
+  {
+    span{ sd='1/1/2022' ed='1/1/2300' level=1 }
+    span{ sd='1/1/2019' ed='12/31/2021' level=2 }
+  }
+```
 
 
 
