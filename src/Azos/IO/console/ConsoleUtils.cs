@@ -5,9 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Net;
 
@@ -128,7 +126,7 @@ namespace Azos.IO
                                                 ConsoleColor defaultForeColor = ConsoleColor.White,
                                                 ConsoleColor defaultBackColor = ConsoleColor.Black)
     {
-		    // [mkpPRE]<span class='conColor_red'>This string will be red</span>[/mkpPRE]
+       // [mkpPRE]<span class='conColor_red'>This string will be red</span>[/mkpPRE]
         if (mkpPRE.IsNotNullOrWhiteSpace())
         {
           output.Write('<');
@@ -304,12 +302,19 @@ namespace Azos.IO
         }
     }
 
+
     /// <summary>
     /// Outputs colored text from content supplied in an HTML-like grammar
     /// </summary>
-    public static void WriteMarkupContent(string content, char open, char close)
-    {
+    public static void WriteMarkupContent(string content, char open, char close) => WriteMarkupContent(LocalConsoleOut.DEFAULT, content, open, close);
 
+
+    /// <summary>
+    /// Outputs colored text from content supplied in an HTML-like grammar
+    /// </summary>
+    public static void WriteMarkupContent(IConsoleOut cout, string content, char open, char close)
+    {
+      cout.NonNull(nameof(cout));
 
       TokenParser parser = new TokenParser(content, open, close);
       Stack<ConsoleColor> stack = new Stack<ConsoleColor>();
@@ -322,9 +327,9 @@ namespace Azos.IO
         if (tok.IsSimpleText)
         {
           if (collapsespaces)
-            Console.Write(tok.Content.Trim());
+            cout.Write(tok.Content.Trim());
           else
-            Console.Write(tok.Content);
+            cout.Write(tok.Content);
           continue;
         }
 
@@ -347,7 +352,7 @@ namespace Azos.IO
 
         if (name == "BR")
         {
-          Console.WriteLine();
+          cout.WriteLine();
           continue;
         }
 
@@ -361,14 +366,14 @@ namespace Azos.IO
 
           while (txt.Length < cnt) txt += " ";
 
-          Console.Write(txt);
+          cout.Write(txt);
           continue;
         }
 
         if (name == "PUSH")
         {
-          stack.Push(Console.ForegroundColor);
-          stack.Push(Console.BackgroundColor);
+          stack.Push(cout.ForegroundColor);
+          stack.Push(cout.BackgroundColor);
           continue;
         }
 
@@ -376,15 +381,15 @@ namespace Azos.IO
         {
           if (stack.Count > 1)
           {
-            Console.BackgroundColor = stack.Pop();
-            Console.ForegroundColor = stack.Pop();
+            cout.BackgroundColor = stack.Pop();
+            cout.ForegroundColor = stack.Pop();
           }
           continue;
         }
 
         if (name == "RESET")
         {
-          Console.ResetColor();
+          cout.ResetColor();
           continue;
         }
 
@@ -394,7 +399,7 @@ namespace Azos.IO
           try
           {
             ConsoleColor clr = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), tok["COLOR"], true);
-            Console.ForegroundColor = clr;
+            cout.ForegroundColor = clr;
           }
           catch { }
           continue;
@@ -405,7 +410,7 @@ namespace Azos.IO
           try
           {
             ConsoleColor clr = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), tok["COLOR"], true);
-            Console.BackgroundColor = clr;
+            cout.BackgroundColor = clr;
           }
           catch { }
           continue;
@@ -441,7 +446,7 @@ namespace Azos.IO
                 }
             }
 
-            Console.Write(txt);
+            cout.Write(txt);
           }
           catch { }
           continue;
@@ -454,71 +459,86 @@ namespace Azos.IO
     /// <summary>
     /// Shows message with colored error header
     /// </summary>
-    public static void Error(string msg, int ln = 0)
+    public static void Error(string msg, int ln = 0) => Error(LocalConsoleOut.DEFAULT, msg, ln);
+
+    /// <summary>
+    /// Shows message with colored error header
+    /// </summary>
+    public static void Error(IConsoleOut cout, string msg, int ln = 0)
     {
-       var f = Console.ForegroundColor;
-       var b = Console.BackgroundColor;
+      var f = cout.NonNull(nameof(cout)).ForegroundColor;
+      var b = cout.BackgroundColor;
 
 
-        Console.ForegroundColor = ConsoleColor.Black;
-        Console.BackgroundColor = ConsoleColor.Red;
+      cout.ForegroundColor = ConsoleColor.Black;
+      cout.BackgroundColor = ConsoleColor.Red;
         if (ln==0)
-         Console.Write("ERROR:");
+        cout.Write("ERROR:");
         else
-         Console.Write("{0:D3}-ERROR:".Args(ln));
-        Console.BackgroundColor = ConsoleColor.Black;
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(" "+msg);
+        cout.Write("{0:D3}-ERROR:".Args(ln));
+      cout.BackgroundColor = ConsoleColor.Black;
+      cout.ForegroundColor = ConsoleColor.Red;
+      cout.WriteLine(" "+msg);
 
-      Console.ForegroundColor = f;
-      Console.BackgroundColor = b;
+      cout.ForegroundColor = f;
+      cout.BackgroundColor = b;
     }
+
 
     /// <summary>
     /// Shows message with colored warning header
     /// </summary>
-    public static void Warning(string msg, int ln = 0)
+    public static void Warning(string msg, int ln = 0) => Warning(LocalConsoleOut.DEFAULT, msg, ln);
+
+    /// <summary>
+    /// Shows message with colored warning header
+    /// </summary>
+    public static void Warning(IConsoleOut cout, string msg, int ln = 0)
     {
-       var f = Console.ForegroundColor;
-       var b = Console.BackgroundColor;
+      var f = cout.NonNull(nameof(cout)).ForegroundColor;
+      var b = cout.BackgroundColor;
 
-        Console.ForegroundColor = ConsoleColor.Black;
-        Console.BackgroundColor = ConsoleColor.Yellow;
+      cout.ForegroundColor = ConsoleColor.Black;
+      cout.BackgroundColor = ConsoleColor.Yellow;
         if (ln==0)
-         Console.Write("WARNING:");
+        cout.Write("WARNING:");
         else
-         Console.Write("{0:D3}-WARNING:".Args(ln));
-        Console.BackgroundColor = ConsoleColor.Black;
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine(" "+msg);
+        cout.Write("{0:D3}-WARNING:".Args(ln));
+      cout.BackgroundColor = ConsoleColor.Black;
+      cout.ForegroundColor = ConsoleColor.Yellow;
+      cout.WriteLine(" "+msg);
 
-      Console.ForegroundColor = f;
-      Console.BackgroundColor = b;
+      cout.ForegroundColor = f;
+      cout.BackgroundColor = b;
     }
+
 
     /// <summary>
     /// Shows message with colored info header
     /// </summary>
-    public static void Info(string msg, int ln = 0)
+    public static void Info(string msg, int ln = 0) => Info(LocalConsoleOut.DEFAULT, msg, ln);
+
+    /// <summary>
+    /// Shows message with colored info header
+    /// </summary>
+    public static void Info(IConsoleOut cout, string msg, int ln = 0)
     {
-       var f = Console.ForegroundColor;
-       var b = Console.BackgroundColor;
+      var f = cout.NonNull(nameof(cout)).ForegroundColor;
+      var b = cout.BackgroundColor;
 
-        Console.ForegroundColor = ConsoleColor.Black;
-        Console.BackgroundColor = ConsoleColor.Green;
+      cout.ForegroundColor = ConsoleColor.Black;
+      cout.BackgroundColor = ConsoleColor.Green;
         if (ln==0)
-         Console.Write("Info:");
+        cout.Write("Info:");
         else
-         Console.Write("{0:D3}-Info:".Args(ln));
-        Console.BackgroundColor = ConsoleColor.Black;
-        Console.ForegroundColor = ConsoleColor.Gray;
-        Console.WriteLine(" "+msg);
+        cout.Write("{0:D3}-Info:".Args(ln));
+      cout.BackgroundColor = ConsoleColor.Black;
+      cout.ForegroundColor = ConsoleColor.Gray;
+      cout.WriteLine(" "+msg);
 
-      Console.ForegroundColor = f;
-      Console.BackgroundColor = b;
+      cout.ForegroundColor = f;
+      cout.BackgroundColor = b;
     }
-
-
 
   }//class
 }

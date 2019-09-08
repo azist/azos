@@ -10,6 +10,17 @@ It is recommended that you first get familiar with the following resources and c
 - [OAuth](https://en.wikipedia.org/wiki/OAuth) (Wikipedia)
 - [OpenID Connect](https://youtu.be/WVCzv50BslE) (YouTube)
 
+## IAM Server Summary
+Azos IAM (AZIAM) solution is a full stack Identity and Access Management (IAM) service provider. It is implemented 
+on AZos unified platform, as such sharing many app features (config, logging, telemetry, cluster etc.)
+
+AZIAM stores its data in a backend-agnostic database, performing near-real-time multi-master data replication of all of the data between 
+multiple data centers. By default, AZIAM server comes with the `Mongo Db` store (**note:** *Tech-specific sharding and replication 
+ is **NOT used on purpose**. Consequentially, one does not need to get expensive licenses for, say MS Sql or Oracle used as an AZIAM backing store.*).
+
+AZIAM server provides its services via a well-factored `REST` interface. You can use `Azos.IAM` client library for ease of use,
+but this is not required, as you can use any HTTP(s)/REST capable client to work with the server.
+
 
 ## Rights / Access Control List (ACL)
 https://en.wikipedia.org/wiki/Access-control_list
@@ -28,6 +39,11 @@ This is not a limitation, because groups organize accounts physically, whereas `
 Roles represents a named "kits" of access rights. The get mix-in to ACL by their IDs, as every Role has a unique mnemonic `ID`.
 You should not change `ID`s for roles as this would render all role links invalid with consequential rights loss on ACLs.
 
+## Accounts
+
+## Logins
+
+
 
 ## Policies
 Policies define a set of rules/settings for handling various aspects of security-related logic.
@@ -37,6 +53,12 @@ Policies get linked to `Groups->Account` hierarchy, having policy reference not 
 During various operations the system calculated the effective policy by taking it from the top of the hierarchy, and
 tries to override with every more specific level, therefore if policy is not linked at a particular level, it will be defaulted from
 the effective policy already calculated.
+
+## Entity Indexing
+
+## Change Auditing
+
+## Token Ring Services
 
 
 ## Muti-Factor Authentication
