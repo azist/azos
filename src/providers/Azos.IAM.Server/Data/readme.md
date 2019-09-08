@@ -12,14 +12,39 @@ It is recommended that you first get familiar with the following resources and c
 
 ## IAM Server Summary
 Azos IAM (AZIAM) solution is a full stack Identity and Access Management (IAM) service provider. It is implemented 
-on AZos unified platform, as such sharing many app features (config, logging, telemetry, cluster etc.)
+on AZos unified platform, as such, sharing many app features (config, logging, telemetry, cluster etc.)
 
-AZIAM stores its data in a backend-agnostic database, performing near-real-time multi-master data replication of all of the data between 
-multiple data centers. By default, AZIAM server comes with the `Mongo Db` store (**note:** *Tech-specific sharding and replication 
+### Capabilities
+- Multiple **realms** - single logical server installation supports multiple logical data stores
+- **Temporal assignments** - all assignments are set per time period and can be scheduled (e.g. valid from X until Y.)
+- **Multi-factor authentication** with adaptive status per-login
+- **OAuth/OpenID Connect**
+- **Identity federation** - e.g. an Account with AD, OAuth/OpenID, Social, and other Providers
+- **Custom IDP integration** (e.g. existing users stored in XYZ)
+- Accounts with **multiple login methods**
+- **Hierarchical account groups** with ACL derivation
+- Various Account types e.g. - "user", "department" etc.
+- Detailed AC (Access Control Lists) with custom permissions
+- ACL permissions support any kind of data structures: from bool Y/N flags to custom access config vectors e.g. - **Geofences**, time-of day/week rights etc.
+- **Role-Based-Security** via role ACL mix-ins
+- **Detailed authorization overrides** down to account login level (Group->Group(s)->Account->Login)
+- **Full change auditing** for all entities
+- **Custom entity attributes** aka. `Entity Properties`, e.g. "Certification.Medicare = true", "Facility.Lockbox = 1234" etc..
+- Custom entity **property and trait indexing** - ability to efficiently query entities on their traits
+- **Policies** - a set of rules/settings applied in time assignment spans to entities
+- Policy-based Group/Account/Login lock-out, password reset, complexity enforcement, can not reuse X old, min edit distance etc.
+- **Async notifications via web hooks** - host system gets notified of the security events, such as lock-out etc.
+
+### Datastore
+AZIAM stores its data in a backend-agnostic store, performing near-real-time multi-master data replication of all of the entity changes between 
+multiple data centers. By default, AZIAM server comes with the `Mongo Db` store (**note:** *Provider-specific sharding and replication 
  is **NOT used on purpose**. Consequentially, one does not need to get expensive licenses for, say MS Sql or Oracle used as an AZIAM backing store.*).
 
+### IAM Protocol / Client
 AZIAM server provides its services via a well-factored `REST` interface. You can use `Azos.IAM` client library for ease of use,
 but this is not required, as you can use any HTTP(s)/REST capable client to work with the server.
+
+AZIAM server provides asynchronous notification capabilities via web hooks. Web hooks can be defined per `realm`.
 
 
 ## Rights / Access Control List (ACL)
@@ -40,8 +65,19 @@ Roles represents a named "kits" of access rights. The get mix-in to ACL by their
 You should not change `ID`s for roles as this would render all role links invalid with consequential rights loss on ACLs.
 
 ## Accounts
+`Account` entity represents a titled account in the system. This does not necessarily correspond with physical users. Accounts
+may represent departments, user groups (such as a chat room), and other org units
 
 ## Logins
+The system supports multiple (more than one) log-in methods, such as the ones used for alternative credential formats and identity federation.
+The following account login types are typical:
+- Screenname(ID) / Password (A "screenname" is an ID which identifies accounts uniquely, it is always publicly visible, hence the name)
+- EMail / Password
+- Connected social networks: Twitter, Facebook etc...
+- Connected 3rd party OAuth/OpenID identity providers, e.g.: Google, Sales Force
+- (Phase II) Active Directory Accounts and other LDAP Accounts
+- Various custom 3rd party IDP provider plugins
+
 
 
 
@@ -55,8 +91,19 @@ tries to override with every more specific level, therefore if policy is not lin
 the effective policy already calculated.
 
 ## Entity Indexing
+AZIAM Server is designed to support a variety of systems/use cases, as such, it supports custom entity properties.
+`Index` table is provided to index custom entity properties and other entity traits (specific to a particular system use-cases).
+The index is populated on data mutation operations as specified in the mutation Api call.
 
 ## Change Auditing
+An `Audit` table retains a detailed log of all changes to all entities in the system (except for `Audit` and other system internal tables).
+The audit log table captures previous and new values field-by-field. The detalization level is controlled by the effective policy.
+
+All entities with rights also contain as set of `Audit*` fields that capture the last change performed. This is needed to always have
+the minimum auditing data even if `Audit` table gets purged completely.
+
+The server deletes out-dated `Audit` data as specified by the effective policy.
+
 
 ## Token Ring Services
 
@@ -118,8 +165,14 @@ This is enforced by the account-effective policy.
 The system keeps however many passwords needed in the `Login` table. Upon the password change, the system checks to see if such 
 combination was already used. Per above, the X is supplied by the effective policy
 
-### Account LOCK-OUT for  X wrong log-in attempts
-###   Number of log-in attempts
+### Entity LOCK-OUT for  X wrong log-in attempts
+The effective policy determines conditions when entities become locked-out.
+For example, for an `Account` entity it is the maximum number of wrong/bad login attempts after which the whole account 
+becomes locked-out. There are two types of lock-out: **Permanent** and **auto-reset**. Permanent lock-outs require system/admin/user
+intervention to resolve (e.g. a process similar to "reset password" to unlock an account). Auto-reset account locks are lifted automatically 
+after the reset data which is governed by the effective policy
+
+### Number of log-in attempts
 
 ### Should not be able to re-use LOGIN/EMAIL after it is inactivated
 ### Password change schedule

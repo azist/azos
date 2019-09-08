@@ -123,6 +123,13 @@ namespace Azos.IAM.Server.Data
     [Field(typeof(EntityWithRights), nameof(LockDate), TMONGO, backendName: "lckd")]
     public DateTime? LockDate { get; set; }
 
+    /// <summary>
+    /// If this date is specified and the the current UTC is over this date then Lock considers to be auto-lifted
+    /// </summary>
+    [Field(description: "If this date is specified and the the current UTC is over this date then Lock considers to be auto-lifted")]
+    [Field(typeof(EntityWithRights), nameof(LockAutoResetDate), TMONGO, backendName: "lckard")]
+    public DateTime? LockAutoResetDate { get; set; }
+
     [Field(description: "Optional note associated with optional temporary lock timestamp. A note may contain a reason why entity is locked-out")]
     [Field(typeof(EntityWithRights), nameof(LockNote), TMONGO, backendName: "lckn")]
     public string    LockNote { get; set; }
