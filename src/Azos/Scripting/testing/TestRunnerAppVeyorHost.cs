@@ -11,6 +11,7 @@ using System.Reflection;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.IO;
 using Azos.Platform;
 
 namespace Azos.Scripting
@@ -42,8 +43,8 @@ namespace Azos.Scripting
 
     public void Configure(IConfigSectionNode node) => ConfigAttribute.Apply(this, node);
 
-    public TextWriter ConsoleOut   => Console.Out;
-    public TextWriter ConsoleError => Console.Error;
+    public IConsoleOut ConsoleOut   => LocalConsoleOut.DEFAULT;
+    public IConsoleOut ConsoleError => LocalConsoleOut.DEFAULT;
 
     private Stopwatch m_RunnableStopwatch;
 
@@ -51,7 +52,7 @@ namespace Azos.Scripting
     {
       m_TotalRunnables++;
       var t = runnable.GetType();
-      Console.WriteLine( "Starting {0}::{1}.{2} ...".Args(t.Assembly.GetName().Name, t.Namespace, t.DisplayNameWithExpandedGenericArgs()) );
+      ConsoleOut.WriteLine( "Starting {0}::{1}.{2} ...".Args(t.Assembly.GetName().Name, t.Namespace, t.DisplayNameWithExpandedGenericArgs()) );
       m_RunnableStopwatch = Stopwatch.StartNew();
     }
 
@@ -61,10 +62,10 @@ namespace Azos.Scripting
       if (error!=null)
       {
         m_TotalErrors++;
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("EndRunnable caught: ");
+        ConsoleOut.ForegroundColor = ConsoleColor.Yellow;
+        ConsoleOut.WriteLine("EndRunnable caught: ");
         writeError(error);
-        Console.ForegroundColor = ConsoleColor.Gray;
+        ConsoleOut.ForegroundColor = ConsoleColor.Gray;
 
         reportAppVeyor("Runnable failure:", runnable.GetType().FullName, error, duration, "", "");
       }
@@ -83,7 +84,7 @@ namespace Azos.Scripting
       var duration = (int)m_MethodStopwatch.ElapsedMilliseconds;
       m_TotalMethods++;
 
-      Console.Write(method.ToDescription());
+      ConsoleOut.Write(method.ToDescription());
 
       //////////////////check for Aver.Throws()
       ////////////////if (!runner.Emulate)
@@ -106,7 +107,7 @@ namespace Azos.Scripting
       else
       {
         m_TotalOKs++;
-        Console.WriteLine(" [OK]");
+        ConsoleOut.WriteLine(" [OK]");
       }
     }
 
@@ -120,67 +121,67 @@ namespace Azos.Scripting
       m_TotalOKs =0;
       m_TotalErrors = 0;
 
-      Console.ForegroundColor = ConsoleColor.White;
-      Console.Write("Started ");
-      Console.ForegroundColor = ConsoleColor.Gray;
-      Console.WriteLine("{0}".Args(App.TimeSource.Now));
+      ConsoleOut.ForegroundColor = ConsoleColor.White;
+      ConsoleOut.Write("Started ");
+      ConsoleOut.ForegroundColor = ConsoleColor.Gray;
+      ConsoleOut.WriteLine("{0}".Args(App.TimeSource.Now));
     }
 
     public void Summarize(Runner runner)
     {
-      Console.WriteLine();
-      Console.ForegroundColor = ConsoleColor.Gray;
-      Console.WriteLine("+------------------------------------------------");
-      Console.ForegroundColor = ConsoleColor.DarkGray;
-      Console.Write("|  Platform runtime: ");
-      Console.ForegroundColor = ConsoleColor.Yellow;
-      Console.WriteLine(Azos.Platform.Abstraction.PlatformAbstractionLayer.PlatformName);
+      ConsoleOut.WriteLine();
+      ConsoleOut.ForegroundColor = ConsoleColor.Gray;
+      ConsoleOut.WriteLine("+------------------------------------------------");
+      ConsoleOut.ForegroundColor = ConsoleColor.DarkGray;
+      ConsoleOut.Write("|  Platform runtime: ");
+      ConsoleOut.ForegroundColor = ConsoleColor.Yellow;
+      ConsoleOut.WriteLine(Azos.Platform.Abstraction.PlatformAbstractionLayer.PlatformName);
 
-      Console.ForegroundColor = ConsoleColor.DarkGray;
-      Console.Write("|  Total runnables: ");
-      Console.ForegroundColor = ConsoleColor.White;
-      Console.WriteLine("{0}".Args(m_TotalRunnables));
+      ConsoleOut.ForegroundColor = ConsoleColor.DarkGray;
+      ConsoleOut.Write("|  Total runnables: ");
+      ConsoleOut.ForegroundColor = ConsoleColor.White;
+      ConsoleOut.WriteLine("{0}".Args(m_TotalRunnables));
 
-      Console.ForegroundColor = ConsoleColor.DarkGray;
-      Console.Write("|  Total methods: ");
-      Console.ForegroundColor = ConsoleColor.White;
-      Console.WriteLine("{0}".Args(m_TotalMethods));
+      ConsoleOut.ForegroundColor = ConsoleColor.DarkGray;
+      ConsoleOut.Write("|  Total methods: ");
+      ConsoleOut.ForegroundColor = ConsoleColor.White;
+      ConsoleOut.WriteLine("{0}".Args(m_TotalMethods));
 
-      Console.ForegroundColor = ConsoleColor.DarkGray;
-      Console.Write("|  Finished: ");
-      Console.ForegroundColor = ConsoleColor.White;
-      Console.WriteLine("{0}".Args(App.TimeSource.Now));
+      ConsoleOut.ForegroundColor = ConsoleColor.DarkGray;
+      ConsoleOut.Write("|  Finished: ");
+      ConsoleOut.ForegroundColor = ConsoleColor.White;
+      ConsoleOut.WriteLine("{0}".Args(App.TimeSource.Now));
 
-      Console.ForegroundColor = ConsoleColor.DarkGray;
-      Console.Write("|  Running time: ");
-      Console.ForegroundColor = ConsoleColor.White;
-      Console.WriteLine("{0}".Args(m_Stopwatch.Elapsed));
+      ConsoleOut.ForegroundColor = ConsoleColor.DarkGray;
+      ConsoleOut.Write("|  Running time: ");
+      ConsoleOut.ForegroundColor = ConsoleColor.White;
+      ConsoleOut.WriteLine("{0}".Args(m_Stopwatch.Elapsed));
 
-      Console.WriteLine("+------------------------------------------------");
+      ConsoleOut.WriteLine("+------------------------------------------------");
 
       writeCurrentStats();
 
       if (runner.Emulate)
       {
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine();
-        Console.WriteLine("    *** TEST RESULTS ARE EMULATED ***");
+        ConsoleOut.ForegroundColor = ConsoleColor.Yellow;
+        ConsoleOut.WriteLine();
+        ConsoleOut.WriteLine("    *** TEST RESULTS ARE EMULATED ***");
       }
 
-      Console.ForegroundColor = ConsoleColor.Gray;
+      ConsoleOut.ForegroundColor = ConsoleColor.Gray;
     }
 
     private void writeCurrentStats()
     {
-      Console.WriteLine();
+      ConsoleOut.WriteLine();
 
-      Console.ForegroundColor = m_TotalOKs >0 ? ConsoleColor.Green : ConsoleColor.DarkGreen;
-      Console.Write("   OK: {0}   ".Args(m_TotalOKs));
-      Console.ForegroundColor = m_TotalErrors>0? ConsoleColor.Red : ConsoleColor.DarkGray;
-      Console.Write("ERROR: {0}   ".Args(m_TotalErrors));
+      ConsoleOut.ForegroundColor = m_TotalOKs >0 ? ConsoleColor.Green : ConsoleColor.DarkGreen;
+      ConsoleOut.Write("   OK: {0}   ".Args(m_TotalOKs));
+      ConsoleOut.ForegroundColor = m_TotalErrors>0? ConsoleColor.Red : ConsoleColor.DarkGray;
+      ConsoleOut.Write("ERROR: {0}   ".Args(m_TotalErrors));
 
-      Console.ForegroundColor = ConsoleColor.White;
-      Console.WriteLine(" TOTAL: {0} ".Args(m_TotalOKs +  m_TotalErrors));
+      ConsoleOut.ForegroundColor = ConsoleColor.White;
+      ConsoleOut.WriteLine(" TOTAL: {0} ".Args(m_TotalOKs +  m_TotalErrors));
     }
 
 
@@ -190,12 +191,12 @@ namespace Azos.Scripting
       while (error!=null)
       {
         if (nesting==0)
-          Console.Write("[Error]");
+          ConsoleOut.Write("[Error]");
         else
-          Console.Write("[Error[{0}]]".Args(nesting));
-        Console.WriteLine(" "+error.ToMessageWithType());
-        Console.WriteLine(error.StackTrace); //todo stack trace conditionally
-        Console.WriteLine();
+          ConsoleOut.Write("[Error[{0}]]".Args(nesting));
+        ConsoleOut.WriteLine(" "+error.ToMessageWithType());
+        ConsoleOut.WriteLine(error.StackTrace); //todo stack trace conditionally
+        ConsoleOut.WriteLine();
 
         error = error.InnerException;
         nesting++;
@@ -212,7 +213,7 @@ namespace Azos.Scripting
                 $" -Duration \"{durationMs}\" -ErrorMessage \"{error?.Message.Replace('"', ' ').TrimAll('\n','\r')}\" -ErrorStackTrace \"{error?.StackTrace.Replace('"', ' ').TrimAll('\n', '\r')}\""+
                 $" -StdOut \"{stdOut}\" -StdError \"{stdError}\"";
 
-      Console.WriteLine( ProcessRunner.Run(appv, args, out bool timeout) );
+      ConsoleOut.WriteLine( ProcessRunner.Run(appv, args, out bool timeout) );
     }
 
   }

@@ -4,11 +4,11 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-using System.IO;
 using System.Reflection;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.IO;
 
 namespace Azos.Scripting
 {
@@ -36,8 +36,8 @@ namespace Azos.Scripting
     void BeforeMethodRun(Runner runner, FID id, MethodInfo method, RunAttribute attr);
     void AfterMethodRun(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error);
 
-    TextWriter ConsoleOut{ get; }
-    TextWriter ConsoleError{ get; }
+    IConsoleOut ConsoleOut{ get; }
+    IConsoleOut ConsoleError { get; }
 
     void Summarize(Runner runner);
   }

@@ -343,8 +343,8 @@ namespace Azos.Scripting
       var alreadyHandled = false;
       try
       {
-        Console.SetOut( Host.ConsoleOut );
-        Console.SetError( Host.ConsoleError );
+ //       Console.SetOut( Host.ConsoleOut );
+//        Console.SetError( Host.ConsoleError );
 
         var args = MakeMethodParameters(method);
         try
