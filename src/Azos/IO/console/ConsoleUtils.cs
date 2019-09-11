@@ -306,7 +306,7 @@ namespace Azos.IO
     /// <summary>
     /// Outputs colored text from content supplied in an HTML-like grammar
     /// </summary>
-    public static void WriteMarkupContent(string content, char open, char close) => WriteMarkupContent(LocalConsoleOut.DEFAULT, content, open, close);
+    public static void WriteMarkupContent(string content, char open, char close) => WriteMarkupContent(LocalConsolePort.Default.DefaultConsole, content, open, close);
 
 
     /// <summary>
@@ -459,7 +459,7 @@ namespace Azos.IO
     /// <summary>
     /// Shows message with colored error header
     /// </summary>
-    public static void Error(string msg, int ln = 0) => Error(LocalConsoleOut.DEFAULT, msg, ln);
+    public static void Error(string msg, int ln = 0) => Error(LocalConsolePort.Default.DefaultConsole, msg, ln);
 
     /// <summary>
     /// Shows message with colored error header
@@ -488,7 +488,7 @@ namespace Azos.IO
     /// <summary>
     /// Shows message with colored warning header
     /// </summary>
-    public static void Warning(string msg, int ln = 0) => Warning(LocalConsoleOut.DEFAULT, msg, ln);
+    public static void Warning(string msg, int ln = 0) => Warning(LocalConsolePort.Default.DefaultConsole, msg, ln);
 
     /// <summary>
     /// Shows message with colored warning header
@@ -516,7 +516,7 @@ namespace Azos.IO
     /// <summary>
     /// Shows message with colored info header
     /// </summary>
-    public static void Info(string msg, int ln = 0) => Info(LocalConsoleOut.DEFAULT, msg, ln);
+    public static void Info(string msg, int ln = 0) => Info(LocalConsolePort.Default.DefaultConsole, msg, ln);
 
     /// <summary>
     /// Shows message with colored info header

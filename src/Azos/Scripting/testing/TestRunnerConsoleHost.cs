@@ -30,8 +30,7 @@ namespace Azos.Scripting
     private int m_TotalMethods;
     private int m_TotalOKs;
     private int m_TotalErrors;
-    private IConsoleOut m_ConsoleOut = LocalConsoleOut.DEFAULT;
-    private IConsoleOut m_ConsoleErrorOut = LocalConsoleOut.DEFAULT;
+    private IConsolePort m_ConsolePort = LocalConsolePort.Default;
 
     private FileConfiguration m_Out;
 
@@ -47,8 +46,8 @@ namespace Azos.Scripting
 
     public void Configure(IConfigSectionNode node) => ConfigAttribute.Apply(this, node);
 
-    public IConsoleOut ConsoleOut   => m_ConsoleOut;
-    public IConsoleOut ConsoleError => m_ConsoleErrorOut;
+    public IConsolePort ConsolePort   => m_ConsolePort;
+    public IConsoleOut ConsoleOut => ConsolePort.DefaultConsole;
 
 
     private string m_RunnableHeader;

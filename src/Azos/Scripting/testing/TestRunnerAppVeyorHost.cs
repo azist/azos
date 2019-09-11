@@ -43,8 +43,8 @@ namespace Azos.Scripting
 
     public void Configure(IConfigSectionNode node) => ConfigAttribute.Apply(this, node);
 
-    public IConsoleOut ConsoleOut   => LocalConsoleOut.DEFAULT;
-    public IConsoleOut ConsoleError => LocalConsoleOut.DEFAULT;
+    public IConsolePort ConsolePort   => LocalConsolePort.Default;
+    public IConsoleOut ConsoleOut => ConsolePort.DefaultConsole;
 
     private Stopwatch m_RunnableStopwatch;
 

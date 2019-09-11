@@ -17,6 +17,10 @@ namespace Azos.Scripting
   /// </summary>
   public interface IRunnerHost : IApplicationComponent, IConfigurable, IDisposable
   {
+    /// <summary>
+    /// The console port used for console interaction such as printing messages
+    /// </summary>
+    IConsolePort ConsolePort { get; }
 
     /// <summary>
     /// Sets the output file name/type (via extension)
@@ -36,8 +40,6 @@ namespace Azos.Scripting
     void BeforeMethodRun(Runner runner, FID id, MethodInfo method, RunAttribute attr);
     void AfterMethodRun(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error);
 
-    IConsoleOut ConsoleOut{ get; }
-    IConsoleOut ConsoleError { get; }
 
     void Summarize(Runner runner);
   }
