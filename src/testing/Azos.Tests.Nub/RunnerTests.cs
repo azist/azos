@@ -32,6 +32,13 @@ namespace Azos.Tests.Nub
       [Run]
       public void SeeConsoleDump()
       {
+         Conout.NewLine();
+         Conout.Write("A"); Conout.Write("B");
+         Conout.WriteLine();
+         Conout.WriteLine("This is on another line");
+         "This is on another line".In("general_info").WriteLine();
+
+
         "Message without parameters".See();
         "Message with parameter {0}".SeeArgs(1);
         "".SeeArgs(1,2,3,4,5);

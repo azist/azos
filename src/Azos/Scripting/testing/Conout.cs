@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 
 using Azos.IO;
 using Azos.Serialization.JSON;
@@ -9,9 +7,16 @@ using Azos.Platform;
 namespace Azos.Scripting
 {
   /// <summary>
-  /// Provides extension/utilities for dumping stuff into IConsoleOut which represents a local or remote console
+  /// Provides extension/utilities for writing messages and dumping object content into `IConsolePort` which represents a local or remote console.
+  /// The `Conout` is an ambient context which gets assigned and redirected for every script [Run] method. It is async flow persistent as
+  /// every instance of a running method gets it own copy of a flow-bound `IConsolePort`, however it is not thread-safe for threads allocated within a flow.
   /// </summary>
-  public static class ConsoleOutputUtils
+  /// <remarks>
+  /// You can use the `Conout` in async code from a single logical flow of [Run] script execution (as-if from a single thread).
+  /// Do not use `Conout` from multiple physical threads, such as manually allocated ones or using TPL.
+  /// Parallel Runners and Hosts are required to support flow-safe `Conout` contexts
+  /// </remarks>
+  public static class Conout
   {
 
     private static AsyncFlowMutableLocal<IConsolePort> ats_Port = new AsyncFlowMutableLocal<IConsolePort>();
@@ -30,6 +35,66 @@ namespace Azos.Scripting
 
 
     /// <summary>
+    /// Writes line break
+    /// </summary>
+    public static void NewLine() => NewLine(Port.DefaultConsole);
+
+    /// <summary>
+    /// Writes line break
+    /// </summary>
+    public static void WriteLine() => NewLine();
+
+    /// <summary>
+    /// Writes line break
+    /// </summary>
+    public static void NewLine(this IConsoleOut console)
+    {
+      console.NonNull(nameof(console)).WriteLine();
+    }
+
+    /// <summary>
+    /// Writes a value as string without line break at the end
+    /// </summary>
+    public static void Write(this object val) => Port.DefaultConsole.Write(val);
+
+    /// <summary>
+    /// Writes a value as string with line break at the end
+    /// </summary>
+    public static void WriteLine(this object val) => Port.DefaultConsole.WriteLine(val);
+
+    /// <summary>
+    /// Writes a value as string without line break at the end
+    /// </summary>
+    public static void Write(this (IConsoleOut console, object obj) see)
+    {
+      see.console.Write(see.obj);
+    }
+
+    /// <summary>
+    /// Writes a value as string with line break at the end
+    /// </summary>
+    public static void WriteLine(this (IConsoleOut console, object obj) see)
+    {
+      see.console.WriteLine(see.obj);
+    }
+
+    /// <summary>
+    /// Writes a value as string without line break at the end
+    /// </summary>
+    public static void Write(this IConsoleOut console, object val)
+    {
+      console.NonNull(nameof(console)).Write( val == null ? string.Empty : val.ToString());
+    }
+
+    /// <summary>
+    /// Writes a value as string with line break at the end
+    /// </summary>
+    public static void WriteLine(this IConsoleOut console, object val)
+    {
+      console.NonNull(nameof(console)).WriteLine(val == null ? string.Empty : val.ToString());
+    }
+
+    /// <summary>
     /// Directs object output to a differently-named console, this is used to redirect certain dumps
     /// into a different area/window "a named console" within trace/debug tools
     /// </summary>
@@ -40,7 +105,7 @@ namespace Azos.Scripting
     /// </code>
     /// </example>
     public static (IConsoleOut where, object obj) In(this object obj, string consoleName)
-      => (Port.GetOrCreate(consoleName.NonBlank(nameof(consoleName))), obj);
+    => (Port.GetOrCreate(consoleName.NonBlank(nameof(consoleName))), obj);
 
     /// <summary>
     /// Directs formatted output to a differently-named console, this is used to redirect certain dumps
@@ -53,7 +118,7 @@ namespace Azos.Scripting
     /// </code>
     /// </example>
     public static (IConsoleOut where, string text) In(this string txt, string consoleName)
-      => (Port.GetOrCreate(consoleName.NonBlank(nameof(consoleName))), txt);
+    => (Port.GetOrCreate(consoleName.NonBlank(nameof(consoleName))), txt);
 
     /// <summary>
     /// Writes object into console in JSON format
