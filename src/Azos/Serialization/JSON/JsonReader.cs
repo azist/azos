@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
@@ -320,10 +321,10 @@ namespace Azos.Serialization.JSON
       //field def = []
       if (toType.IsArray)
       {
-        var fvseq = v as IEnumerable<object>;
+        var fvseq = v as IEnumerable;
         if (fvseq == null) return null;//can not set non enumerable into array
 
-        var arr = fvseq.Select(e => cast(e, toType.GetElementType(), fromUI, nameBinding)).ToArray();
+        var arr = fvseq.Cast<object>().Select(e => cast(e, toType.GetElementType(), fromUI, nameBinding)).ToArray();
         var newval = Array.CreateInstance(toType.GetElementType(), arr.Length);
         for(var i=0; i<newval.Length; i++)
           newval.SetValue(arr[i], i);
@@ -334,11 +335,11 @@ namespace Azos.Serialization.JSON
       //field def = List<t>
       if (toType.IsGenericType && toType.GetGenericTypeDefinition() == typeof(List<>))
       {
-        var fvseq = v as IEnumerable<object>;
+        var fvseq = v as IEnumerable;
         if (fvseq == null) return false;//can not set non enumerable into List<t>
 
-        var arr = fvseq.Select(e => cast(e, toType.GetGenericArguments()[0], fromUI, nameBinding)).ToArray();
-        var newval = SerializationUtils.MakeNewObjectInstance(toType) as System.Collections.IList;
+        var arr = fvseq.Cast<object>().Select(e => cast(e, toType.GetGenericArguments()[0], fromUI, nameBinding)).ToArray();
+        var newval = SerializationUtils.MakeNewObjectInstance(toType) as IList;
         for (var i = 0; i < arr.Length; i++)
           newval.Add(arr[i]);
 

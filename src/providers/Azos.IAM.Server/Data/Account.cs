@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Azos.Data;
+using Azos.IAM.Protocol;
 
 namespace Azos.IAM.Server.Data
 {
@@ -22,7 +23,7 @@ namespace Azos.IAM.Server.Data
 /*
   2 Factor Authentication
 
-  - User logs in with 
+  - User logs in with
 
 
 
@@ -35,9 +36,6 @@ namespace Azos.IAM.Server.Data
   /// </summary>
   public sealed class Account : EntityWithRights
   {
-    public const string ACCOUNT_TYPE_VALUE_LIST = "H:Human,S:Service,G:Group,O:Organization,S:System";
-    public const string ACCOUNT_LEVEL_VALUE_LIST = "I:Invalid,U:User,A:Admin,S:System";
-
     /// <summary>
     /// Group assignment. All accounts belong to a specific group
     /// </summary>
@@ -45,27 +43,29 @@ namespace Azos.IAM.Server.Data
            description: "Points to group which this account belongs to",
            metadata: "idx{name='grp' dir=asc}")]
     [Field(typeof(Account), nameof(G_Group), TMONGO, backendName: "g_grp")]
-    public GDID G_Group{  get; set;}
+    public GDID G_Group { get; set; }
 
 
     /// <summary>
     /// Account Name/Title. For human users this is set to FirstName+LastName
     /// </summary>
-    [Field(required: false, description: "Account Name/Title. For human users this is set to FirstName+LastName")]
+    [Field(required: false,
+           maxLength: Sizes.ACCOUNT_TITLE_MAX,
+           description: "Account Name/Title. For human users this is set to FirstName+LastName")]
     [Field(typeof(Account), nameof(Title), TMONGO, backendName: "ttl")]
     public string Title {  get; set; }
 
     /// <summary>
     /// Human, Process, Robot, Org, System
     /// </summary>
-    [Field(required: true, valueList: ACCOUNT_TYPE_VALUE_LIST, description: "Account type")]
+    [Field(required: true, valueList: ValueLists.ACCOUNT_TYPE_VALUE_LIST, description: "Account type")]
     [Field(typeof(Account), nameof(Type), TMONGO, backendName: "tp")]
     public char? Type { get; set; }
 
     /// <summary>
     /// Access level Archetype: Invalid,User,Admin,System
     /// </summary>
-    [Field(required: true, valueList: ACCOUNT_LEVEL_VALUE_LIST, description: "Access level Archetype: Invalid,User,Admin,System")]
+    [Field(required: true, valueList: ValueLists.ACCOUNT_LEVEL_VALUE_LIST, description: "Access level Archetype: Invalid,User,Admin,System")]
     [Field(typeof(Account), nameof(Level), TMONGO, backendName: "lvl")]
     public char? Level { get; set; }
 

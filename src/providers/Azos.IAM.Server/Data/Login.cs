@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Azos.Data;
+using Azos.IAM.Protocol;
 using Azos.Serialization.JSON;
 
 namespace Azos.IAM.Server.Data
@@ -39,7 +40,7 @@ namespace Azos.IAM.Server.Data
     /// <summary>
     /// Access level Archetype which may only narrow-down the account level: Invalid,User,Admin,System
     /// </summary>
-    [Field(required: false, valueList: Account.ACCOUNT_LEVEL_VALUE_LIST, description: "Login access level archetype which can only restrict the Account level")]
+    [Field(required: false, valueList: ValueLists.ACCOUNT_LEVEL_VALUE_LIST, description: "Login access level archetype which can only restrict the Account level")]
     [Field(typeof(Login), nameof(Level), TMONGO, backendName: "lvl")]
     public char? Level { get; set; }
 

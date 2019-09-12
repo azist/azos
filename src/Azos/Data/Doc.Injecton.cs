@@ -45,7 +45,7 @@ namespace Azos.Data
             injector.App.InjectInto(dv);
           }
         }
-        else if (v is IEnumerable<object> vedoc)
+        else if (v is IEnumerable vedoc)
         {
           foreach(var ev in vedoc)
           {

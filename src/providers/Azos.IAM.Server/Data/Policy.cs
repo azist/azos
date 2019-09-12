@@ -5,6 +5,7 @@ using System.Text;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
+using Azos.IAM.Protocol;
 
 namespace Azos.IAM.Server.Data
 {
@@ -64,6 +65,8 @@ namespace Azos.IAM.Server.Data
 
     [Field(required: true,
            kind: DataKind.ScreenName,
+           minLength: Sizes.ENTITY_ID_MIN,
+           maxLength: Sizes.ENTITY_ID_MAX,
            description: "Unique Policy ID",
            metadata: "idx{name='main' order=0 unique=true dir=asc}")]
     [Field(typeof(Policy), nameof(ID), TMONGO, backendName: "id")]

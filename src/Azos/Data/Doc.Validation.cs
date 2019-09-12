@@ -112,7 +112,7 @@ namespace Azos.Data
     {
       if (atr.MinLength > 0)
       {
-        if (value is IEnumerable<object> eobj && eobj.Count() < atr.MinLength)
+        if (value is IEnumerable eobj && eobj.Cast<object>().Count() < atr.MinLength)
           return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength));
 
         if (value.ToString().Length < atr.MinLength)
@@ -121,7 +121,7 @@ namespace Azos.Data
 
       if (atr.MaxLength > 0)
       {
-        if (value is IEnumerable<object> eobj && eobj.Count() > atr.MaxLength)
+        if (value is IEnumerable eobj && eobj.Cast<object>().Count() > atr.MaxLength)
           return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength));
 
         if (value.ToString().Length > atr.MaxLength)

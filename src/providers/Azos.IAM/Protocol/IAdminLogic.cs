@@ -9,12 +9,6 @@ using Azos.Security;
 
 namespace Azos.IAM.Protocol
 {
- //////////////// /// <summary>
- //////////////// /// Denotes IAM entity types
- //////////////// /// </summary>
- /////////////////// public enum EntityType{ Group, Account, Login, Role, Audit }
-
-
   /// <summary>
   /// Provides IAM administration services
   /// </summary>

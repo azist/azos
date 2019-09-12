@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using Azos.Data;
+using Azos.IAM.Protocol;
 
 namespace Azos.IAM.Server.Data
 {
@@ -76,7 +77,7 @@ namespace Azos.IAM.Server.Data
     [Field(typeof(Audit), nameof(Description), TMONGO, backendName: "d")]
     public string Description{  get; set; }
 
-    [Field(required: true, description: "Defines what has changed: insert|update|delete",valueList: CHANGE_TYPE_VALUE_LIST)]
+    [Field(required: true, description: "Defines what has changed: insert|update|delete",valueList: ValueLists.ENTITY_VERSION_STATUS_VALUE_LIST)]
     [Field(typeof(Audit), nameof(ChangeType), TMONGO, backendName: "tp")]
     public char?  ChangeType { get; set; }
 
