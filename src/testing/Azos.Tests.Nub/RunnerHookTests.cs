@@ -29,7 +29,7 @@ namespace Azos.Tests.Nub
         {
           Aver.AreEqual(0, m_RunnableState);
           m_RunnableState++;
-          Console.WriteLine("Runnable prologue");
+          "Runnable prologue".See();
         }
 
         bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error)
@@ -37,7 +37,7 @@ namespace Azos.Tests.Nub
           Aver.AreEqual(1, m_RunnableState);
           Aver.AreEqual(7, m_RunPrologueCount);
           Aver.AreEqual(7, m_RunEpilogueCount);
-          Console.WriteLine("Runnable epilogue");
+          "Runnable epilogue".See();
           return false;
         }
 
@@ -45,14 +45,14 @@ namespace Azos.Tests.Nub
         {
           Aver.AreEqual(1, m_RunnableState);
           m_RunPrologueCount++;
-          Console.WriteLine("Method prologue: "+method.Name);
+          "Method prologue: {0}".SeeArgs(method.Name);
           return false;
         }
 
         bool IRunHook.Epilogue(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error)
         {
           m_RunEpilogueCount++;
-          Console.WriteLine("Method epilogue: "+method.Name);
+          "Method epilogue: {0}".SeeArgs(method.Name);
           return false;
         }
     }

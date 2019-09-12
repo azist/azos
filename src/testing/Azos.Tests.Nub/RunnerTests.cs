@@ -5,13 +5,10 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
 
 using Azos.Scripting;
 using Azos.Conf;
-using System.Reflection;
 
 namespace Azos.Tests.Nub
 {
@@ -36,8 +33,12 @@ namespace Azos.Tests.Nub
       public void SeeConsoleDump()
       {
         "Message without parameters".See();
-        "Message with parameter {0}".See(1);
-        "".See(1,2,3,4,5);
+        "Message with parameter {0}".SeeArgs(1);
+        "".SeeArgs(1,2,3,4,5);
+
+        new {x=10}.In("objects").See();
+        new { x = 10 }.In("objects").See("Header is shown in 'objects'");
+        "Name is: {0}".In("people").SeeArgs("Jack");
 
         new {a=1,b=2}.See();
         new { a = 1, b = 2 }.See("With header");

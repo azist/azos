@@ -39,7 +39,21 @@ namespace Azos.Scripting
     ///  payload.In("received").See();
     /// </code>
     /// </example>
-    public static IConsoleOut In(string name) => Port.GetOrCreate(name.NonBlank(nameof(name)));
+    public static (IConsoleOut where, object obj) In(this object obj, string consoleName)
+      => (Port.GetOrCreate(consoleName.NonBlank(nameof(consoleName))), obj);
+
+    /// <summary>
+    /// Directs formatted output to a differently-named console, this is used to redirect certain dumps
+    /// into a different area/window "a named console" within trace/debug tools
+    /// </summary>
+    /// <example>
+    /// Use like so:
+    /// <code>
+    ///  "Name is: {0}".In("people").See(got.Name);
+    /// </code>
+    /// </example>
+    public static (IConsoleOut where, string text) In(this string txt, string consoleName)
+      => (Port.GetOrCreate(consoleName.NonBlank(nameof(consoleName))), txt);
 
     /// <summary>
     /// Writes object into console in JSON format
@@ -52,9 +66,23 @@ namespace Azos.Scripting
     /// <summary>
     /// Writes object into console in JSON format
     /// </summary>
+    public static void See(this (IConsoleOut console, object obj) see, JsonWritingOptions options = null)
+    {
+      see.console.See(see.obj, options);
+    }
+
+    /// <summary>
+    /// Writes object into console in JSON format
+    /// </summary>
     public static void See(this IConsoleOut console, object obj, JsonWritingOptions options = null)
     {
-      console.NonNull(nameof(console)).WriteLine(obj.ToJson(options ?? JsonWritingOptions.PrettyPrintRowsAsMap));
+      console.NonNull(nameof(console));
+
+      var line = obj is string str && options == null ? str :
+                 obj is StringBuilder sb && options == null ? sb.ToString() :
+                 obj.ToJson(options ?? JsonWritingOptions.PrettyPrintRowsAsMap);
+
+      console.WriteLine(line);
     }
 
 
@@ -64,6 +92,14 @@ namespace Azos.Scripting
     public static void See(this object obj, string header, JsonWritingOptions options = null)
     {
       Port.DefaultConsole.See(obj, header, options);
+    }
+
+    /// <summary>
+    /// Writes object into console in JSON format
+    /// </summary>
+    public static void See(this (IConsoleOut console, object obj) see, string header, JsonWritingOptions options = null)
+    {
+      see.console.See(see.obj, header, options);
     }
 
     /// <summary>
@@ -81,15 +117,23 @@ namespace Azos.Scripting
     /// <summary>
     /// Writes formatted string into console
     /// </summary>
-    public static void See(this string text, params object[] args)
+    public static void SeeArgs(this string text, params object[] args)
     {
-      Port.DefaultConsole.See(text, args);
+      Port.DefaultConsole.SeeArgs(text, args);
+    }
+
+    /// <summary>
+    /// Writes object into console in JSON format
+    /// </summary>
+    public static void SeeArgs(this (IConsoleOut console, string text) see, params object[] args)
+    {
+      see.console.SeeArgs(see.text, args);
     }
 
     /// <summary>
     /// Writes formatted string into console
     /// </summary>
-    public static void See(this IConsoleOut console, string text, params object[] args)
+    public static void SeeArgs(this IConsoleOut console, string text, params object[] args)
     {
       console.NonNull(nameof(console));
 

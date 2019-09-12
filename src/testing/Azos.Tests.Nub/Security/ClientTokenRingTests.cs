@@ -69,7 +69,7 @@ app
       var issued = await m_Ring.PutAsync(token);
       Aver.IsNotNull(issued);
 
-      "Issued {0} of {1} chars: {2}".See(token.GetType().Name, issued.Length, issued);
+      "Issued {0} of {1} chars: {2}".SeeArgs(token.GetType().Name, issued.Length, issued);
 
       var got = await m_Ring.GetAsync<AccessToken>(issued);
       Aver.IsNotNull(got);
@@ -94,7 +94,7 @@ app
       var issued = await m_Ring.PutAsync(token);
       Aver.IsNotNull(issued);
 
-      "Issued {0} of {1} chars: {2}".See(token.GetType().Name, issued.Length, issued);
+      "Issued {0} of {1} chars: {2}".SeeArgs(token.GetType().Name, issued.Length, issued);
 
       var got = await m_Ring.GetAsync<ClientAccessCodeToken>(issued);
       Aver.IsNotNull(got);
@@ -121,7 +121,7 @@ app
       var issued = await m_Ring.PutAsync(token);
       Aver.IsNotNull(issued);
 
-      "Issued {0} of {1} chars: {2}".See(token.GetType().Name, issued.Length, issued);
+      "Issued {0} of {1} chars: {2}".SeeArgs(token.GetType().Name, issued.Length, issued);
 
       var got = await m_Ring.GetAsync<ClientRefreshCodeToken>(issued);
       Aver.IsNull(got); //because token did not pass validation as it was gotten into a different type
