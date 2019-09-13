@@ -11,8 +11,8 @@ using Azos.Apps;
 namespace Azos
 {
   /// <summary>
-  /// Provides access to process-global ambient context. Business app developers normally should not use this class and
-  /// rely on injected app modules/services instead
+  /// Provides access to ambient context such as CurrentCallSession/User information.
+  /// The ambient context flows through async call chains
   /// </summary>
   public static class Ambient
   {

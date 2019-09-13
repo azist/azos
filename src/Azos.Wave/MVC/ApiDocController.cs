@@ -16,7 +16,7 @@ namespace Azos.Wave.Mvc
   [ApiControllerDoc]
   public abstract class ApiDocController : Controller
   {
-    protected static Dictionary<Type, ConfigSectionNode> s_Data = new Dictionary<Type, ConfigSectionNode>();
+    protected static Dictionary<string, ConfigSectionNode> s_Data = new Dictionary<string, ConfigSectionNode>();
 
     /// <summary>
     /// Factory method for ApiDocgenerator. Sets generation locations
@@ -30,13 +30,15 @@ namespace Azos.Wave.Mvc
     {
       get
       {
-        var t = GetType();//of the caller instance
+        var tp = GetType();//of the caller instance
+        var dctx = Ambient.CurrentCallSession.GetNormalizedDataContextName();
+        var key = dctx+"::"+tp.AssemblyQualifiedName;
         lock(s_Data)
         {
-          if (s_Data.TryGetValue(t, out var data)) return data;
+          if (s_Data.TryGetValue(key, out var data)) return data;
           var gen = MakeDocGenerator();
           data = gen.Generate();
-          s_Data[t] = data;
+          s_Data[key] = data;
           return data;
         }
       }
