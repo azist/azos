@@ -181,7 +181,7 @@ namespace Azos
       var sb = new StringBuilder(48);
       var result = session.GetDataContextNameSegments()
              .OrderBy( s => s)
-             .Aggregate(new StringBuilder(48), (b, s) => (b.Length == 0 ? b : b.Append(',')).Append(s), b => b.ToString());
+             .Aggregate(new StringBuilder(48), (b, s) => (b.Length == 0 ? b : b.Append(',')).Append(s), b => b.ToString().ToLowerInvariant());
 
       return result;
     }
