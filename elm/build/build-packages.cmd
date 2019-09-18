@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.0.511
+set VER=1.0.512
 set HEADLINE=Svc rel fix slash in URI pat match
 
 call vs2017-build-release %VER%
