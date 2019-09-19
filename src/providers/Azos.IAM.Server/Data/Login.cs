@@ -11,25 +11,6 @@ namespace Azos.IAM.Server.Data
   /// </summary>
   public sealed class Login : EntityWithRights
   {
-    /// <summary> System id: GDID</summary>
-    public const string TYPE_SID = "sid";
-
-    /// <summary> Screenname e.g.: "alex1980"; screen names are used in systems that provide email e.g. "alex1980@myservice.com"</summary>
-    public const string TYPE_SCREENNAME = "scrn";
-
-    /// <summary> Email address e.g. "alex1980@myservice.com"</summary>
-    public const string TYPE_EMAIL = "eml";
-
-    /// <summary> Telephone number e.g. "8885552223413"</summary>
-    public const string TYPE_PHONE = "tel";
-
-    /// <summary> Login via OAuth/OpenID connect through 3rd party (e.g. Twitter account)</summary>
-    public const string TYPE_OAUTH = "oauth";
-
-    /// <summary> Bearer token issued by the system </summary>
-    public const string TYPE_BEARER = "bear";
-
-
     [Field(required: true,
            description: "Points to account which this login is for",
            metadata: "idx{name='account' dir=asc}")]
