@@ -9,6 +9,8 @@ namespace Azos.IAM.Protocol
   /// </summary>
   public static class ValueLists
   {
+    public const string ENTITY_VALUE_LIST = "A:Account,G:Group,I:Index,L:Login,P:Policy,R:Role,T:Token";
+
     public const string ENTITY_VERSION_STATUS_VALUE_LIST = "C:Created,U:Updated,D:Deleted";
 
     public const string ACCOUNT_TYPE_VALUE_LIST = "H:Human,S:Service,G:Group,O:Organization,S:System";

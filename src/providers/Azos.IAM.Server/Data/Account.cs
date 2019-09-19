@@ -5,32 +5,6 @@ using Azos.IAM.Protocol;
 
 namespace Azos.IAM.Server.Data
 {
-/*
-   Policies = settings - they get applied to Groups
-   Password change every X days, last pwd change
-   Account LOCK-OUT for  X wrong log-in attempts
-   Number of log-in attempts
-   2 factor authentication
-   Should not be able to re-use LOGIN/EMAIL after it is inactivated
-   Can not re-use X old passwords
-   Password change schedule
-   Password edit distance
-
-   Permissions valid in a date/time span - maybe add this to root permission (`sd`,`ed` along with `level`) -
-   or maybe this should be delegated to specific app
-*/
-
-/*
-  2 Factor Authentication
-
-  - User logs in with
-
-
-
-
-*/
-
-
   /// <summary>
   /// Represents an account. Account represent users, processes, organizations and other entities.
   /// </summary>
@@ -52,13 +26,13 @@ namespace Azos.IAM.Server.Data
     [Field(required: false,
            maxLength: Sizes.ACCOUNT_TITLE_MAX,
            description: "Account Name/Title. For human users this is set to FirstName+LastName")]
-    [Field(typeof(Account), nameof(Title), TMONGO, backendName: "ttl")]
+    [Field(typeof(Account), nameof(Title), TMONGO, backendName: "title")]
     public string Title {  get; set; }
 
     /// <summary>
     /// Human, Process, Robot, Org, System
     /// </summary>
-    [Field(required: true, valueList: ValueLists.ACCOUNT_TYPE_VALUE_LIST, description: "Account type")]
+    [Field(required: true, valueList: ValueLists.ACCOUNT_TYPE_VALUE_LIST, description: "Account type: Human/Group etc.")]
     [Field(typeof(Account), nameof(Type), TMONGO, backendName: "tp")]
     public char? Type { get; set; }
 

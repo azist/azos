@@ -1,5 +1,6 @@
 ﻿
 using Azos.Data;
+using Azos.IAM.Protocol;
 
 namespace Azos.IAM.Server.Data
 {
@@ -21,12 +22,14 @@ namespace Azos.IAM.Server.Data
     public GDID    G_Entity { get; set; }
 
     [Field(required: true,
+           maxLength: Sizes.TRAIT_NAME_MAX,
            description: "Indexed trait name",
            metadata: "idx{name='trait' order='1'}")]
     [Field(typeof(Index), nameof(TraitName), TMONGO, backendName: "tn")]
     public string    TraitName { get; set; }
 
     [Field(required: true,
+           maxLength: Sizes.TRAIT_VALUE_MAX,
            description: "Indexed trait value",
            metadata: "idx{name='trait' order='0'}")]
     [Field(typeof(Index), nameof(TraitValue), TMONGO, backendName: "tv")]

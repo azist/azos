@@ -200,4 +200,18 @@ The mechanics if this is left up to a concrete permission, having the spans kept
 ```
 
 
+# TODO
+
+- Policies = settings - they get applied to Groups
+- Password change every X days, last pwd change
+- Account LOCK-OUT for  X wrong log-in attempts
+- Number of log-in attempts
+- 2 factor authentication
+- Should not be able to re-use LOGIN/EMAIL after it is inactivated
+- Can not re-use X old passwords
+- Password change schedule
+- Password edit distance
+
+- Permissions valid in a date/time span - maybe add this to root permission (`sd`,`ed` along with `level`) -
+   or maybe this should be delegated to specific app
 

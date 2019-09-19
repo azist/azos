@@ -32,18 +32,24 @@ namespace Azos.IAM.Server.Data
     [Field(required: true,
            metadata: "idx{name='act' order='0' dir=asc}",
            description: "Actor/User who caused the change")]
-    [Field(typeof(Audit), nameof(Actor), TMONGO, backendName: "act")]
-    public GDID      Actor { get; set; }
+    [Field(typeof(Audit), nameof(G_Actor), TMONGO, backendName: "act")]
+    public GDID      G_Actor { get; set; }
 
-    [Field(required: true, description: "Canonical user name/id when user gets deleted")]
+    [Field(required: true,
+           maxLength: Sizes.ACCOUNT_TITLE_MAX,
+           description: "Canonical user name/id when user gets deleted")]
     [Field(typeof(Audit), nameof(ActorTitle), TMONGO, backendName: "aact")]
     public string    ActorTitle { get; set; }
 
-    [Field(required: true, description: "Application/User Agent which caused the change")]
+    [Field(required: true,
+           maxLength: Sizes.USER_AGENT_MAX,
+           description: "Application/User Agent which caused the change")]
     [Field(typeof(Audit), nameof(ActorUserAgent), TMONGO, backendName: "aua")]
-    public string    ActorUserAgent {  get; set;}
+    public string    ActorUserAgent {  get; set; }
 
-    [Field(required: true, description: "Host/System from where user caused the change")]
+    [Field(required: true,
+           maxLength: Sizes.HOST_MAX,
+           description: "Host/System from where user caused the change")]
     [Field(typeof(Audit), nameof(ActorHost), TMONGO, backendName: "ahst")]
     public string    ActorHost { get; set; }
 
@@ -52,9 +58,10 @@ namespace Azos.IAM.Server.Data
     /// </summary>
     [Field(required: true,
            description: "Specifies what entity was effected by this change",
+           valueList: ValueLists.ENTITY_VALUE_LIST,
            metadata: "idx{name='entity' order='0'}")]
     [Field(typeof(Audit), nameof(Entity), TMONGO, backendName: "ent")]
-    public Atom? Entity{ get; set;}
+    public char? Entity{ get; set;}
 
     /// <summary>
     /// Entity GDID -
@@ -73,7 +80,9 @@ namespace Azos.IAM.Server.Data
     [Field(typeof(Audit), nameof(BatchId), TMONGO, backendName: "bat")]
     public GDID BatchId{  get; set;}
 
-    [Field(required: true, description: "Provides brief textual description of a change/reason")]
+    [Field(required: true,
+           maxLength: Sizes.DESCRIPTION_MAX,
+           description: "Provides brief textual description of a change/reason")]
     [Field(typeof(Audit), nameof(Description), TMONGO, backendName: "d")]
     public string Description{  get; set; }
 
