@@ -73,6 +73,7 @@ namespace Azos.Data
       public const string JSON_MODE_PROPERTY = "__FormMode";
       public const string JSON_CSRF_PROPERTY = CoreConsts.CSRF_TOKEN_NAME;
       public const string JSON_ROUNDTRIP_PROPERTY = "__Roundtrip";
+      public const string JSON_TYPE_PROPERTY = "__FormType";
 
 
       protected Form() {}

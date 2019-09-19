@@ -67,7 +67,7 @@ namespace Azos.Wave.Mvc
 
             var newDict = dict!=null ?  new Dictionary<Type, ActionFilterAttribute[]>( dict ) : new Dictionary<Type, ActionFilterAttribute[]>();
             newDict[tp] = filters;
-
+            System.Threading.Thread.MemoryBarrier();
             m_ClassFilters = newDict; //thread safe swap
 
             return filters;
@@ -91,7 +91,7 @@ namespace Azos.Wave.Mvc
 
             var newDict = dict!=null ?  new Dictionary<MethodInfo, ActionFilterAttribute[]>( dict ) : new Dictionary<MethodInfo, ActionFilterAttribute[]>();
             newDict[mi] = filters;
-
+            System.Threading.Thread.MemoryBarrier();
             m_MethodFilters = newDict; //thread safe swap
 
             return filters;
