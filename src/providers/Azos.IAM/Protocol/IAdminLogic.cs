@@ -15,7 +15,7 @@ namespace Azos.IAM.Protocol
   {
     Task<TResult> FilterAsync<TResult>(FilterModel<TResult> filter);
     Task<TEntityBody> GetEntityBodyAsync<TEntityBody>(GDID id) where TEntityBody : EntityBody;
-    Task<TChangeForm> ApplyChangeAsync<TChangeForm>(TChangeForm form) where TChangeForm : ChangeForm;
+    Task<SaveResult<ChangeResult>> ApplyChangeAsync<TChangeForm>(TChangeForm form) where TChangeForm : ChangeForm;
 
     //Task<bool>  LockEntityAsync(EntityType entityType, GDID gEntity, DateTime utcLockDate, ActionDescriptor action);
     //Task<bool> SetEntityRightsAsync(EntityType entityType, GDID gEntity, string rightsData, ActionDescriptor action);

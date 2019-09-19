@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
+using Azos.Apps.Injection;
 using Azos.Data;
 using Azos.Data.Business;
 using Azos.IAM.Protocol;
@@ -14,23 +15,25 @@ using Azos.Wave.Mvc;
 namespace Azos.IAM.Server.Api
 {
   [NoCache]
-  public class Admin : Controller
+  public class Admin : ApiProtocolController
   {
+    [Inject] IAdminLogic m_Logic;
 
-    public async Task<object> Filter(IBusinessFilterModel filter)
-    {
-      return null;
-    }
+    [ActionOnPost]
+    public async Task<object> Filter(IBusinessFilterModel filter) => await ApplyFilter(filter);
 
+    [ActionOnGet]
     public async Task<object> EntityBody(string tEntity, GDID gEntity)
     {
-      return null;
+      switch(tEntity)
+      {            //use reflection to map the type to generic instead of switch
+        case "group": return await m_Logic.GetEntityBodyAsync<GroupForm.Data>(gEntity);
+      }
+      throw new NotImplementedException();
     }
 
-    public async Task<object> Change(ChangeForm change)
-    {
-      return null;
-    }
+    [ActionOnPost]
+    public async Task<object> Change(ChangeForm change) => await SaveEdit(change);
 
 
     #region dynamic binding

@@ -53,7 +53,7 @@ namespace Azos.IAM.Server.Data
     [Field(typeof(Entity), nameof(VersionStatus), TMONGO, backendName: "_vs")]
     public char? VersionStatus {  get; set; }
 
-    [Field(required: true, description: "Actor/User who caused the change")]//not indexed, use Audit for searches instead
+    [Field(required: true, description: "Actor/User who authored the version")]//not indexed, use Audit for searches instead
     [Field(typeof(Entity), nameof(G_VersionActor), TMONGO, backendName: "_va")]
     public GDID G_VersionActor { get; set; }
   }
