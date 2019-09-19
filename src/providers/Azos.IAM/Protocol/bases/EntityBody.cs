@@ -28,6 +28,9 @@ namespace Azos.IAM.Protocol
     public GDID G_VersionActor { get; set; }
   }
 
+  /// <summary>
+  /// EntityBody which have properties
+  /// </summary>
   public abstract class EntityBodyWithProperties : EntityBody
   {
     [Field(maxLength: Sizes.DESCRIPTION_MAX, description: "Provides an optional description")]
@@ -37,6 +40,9 @@ namespace Azos.IAM.Protocol
     public JsonDataMap PropertyData { get; set; }
   }
 
+  /// <summary>
+  /// EntotyBodies with Rights
+  /// </summary>
   public abstract class EntityBodyWithRights : EntityBody
   {
     private string m_RightsData;
@@ -69,8 +75,8 @@ namespace Azos.IAM.Protocol
     public string AuditLastModifyActorTitle { get; set; }
 
 
- //   [Field(required: true, description: "Contains a list of time periods during which this entity is valid. An entity is considered as invalid/non-existent one outside of these time spans")]
- //   public TimePeriod[] ValidPeriods { get; set; }
+    [Field(required: true, description: "Contains a list of time periods during which this entity is valid. An entity is considered as invalid/non-existent one outside of these time spans")]
+    public TimePeriod[] ValidPeriods { get; set; }
 
     /// <summary>
     /// The locking has different effect on different entities: a locked role just does not get mixed-in as if it never existed.
@@ -129,29 +135,4 @@ namespace Azos.IAM.Protocol
     }
   }
 
-
-  /// <summary>
-  /// Base form that is submitted to server to change the persisted state.
-  /// The descendants are either "commands" that derive directly, or descendants of ChangeForm&lt;TEntity&gt;
-  /// </summary>
-  public abstract class ChangeForm : PersistedModel<ChangeResult>
-  {
-    [Field(required: true)] public GDID G_Actor { get; set; }
-    [Field(required: true)] public string ActorUserAgent { get; set; }
-    [Field(required: true)] public string ActorHost { get; set; }
-    [Field(required: true)] public string ActionNote { get; set; }
-
-    [Inject] IAdminLogic m_Admin;
-
-    protected override async Task<SaveResult<ChangeResult>> DoSaveAsync() => await m_Admin.ApplyChangeAsync(this);
-  }
-
-  /// <summary>
-  /// Base form that is submitted to server to change its state
-  /// </summary>
-  public abstract class ChangeForm<TEntity> : ChangeForm where TEntity : EntityBody
-  {
-    [Field(required: true, description: "Entity body data")]
-    public TEntity Body { get; set; }
-  }
 }

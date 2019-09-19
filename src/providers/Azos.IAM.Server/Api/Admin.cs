@@ -27,7 +27,7 @@ namespace Azos.IAM.Server.Api
     {
       switch(tEntity)
       {            //use reflection to map the type to generic instead of switch
-        case "group": return await m_Logic.GetEntityBodyAsync<GroupForm.Data>(gEntity);
+        case "group": return await m_Logic.GetEntityBodyAsync<GroupEntityBody>(gEntity);
       }
       throw new NotImplementedException();
     }
