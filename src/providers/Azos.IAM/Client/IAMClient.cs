@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -21,6 +22,11 @@ namespace Azos.IAM.Client
     /// </summary>
     public sealed class ServerLocation : DisposableObject, INamed, IOrdered
     {
+      public const string CONFIG_SERVER_SECTION = "server";
+      public const int MIN_TIMEOUT_SEC = 1;
+      public const int DFLT_TIMEOUT_SEC = 5;
+
+
       internal ServerLocation(IAMClient owner, IConfigSectionNode cfg)
       {
         Owner = owner;
@@ -38,6 +44,8 @@ namespace Azos.IAM.Client
 
       public IAMClient Owner { get; private set; }
 
+      private int m_TimeoutSec = DFLT_TIMEOUT_SEC;
+
       /// <summary> Provides a name that uniquely identifies this server location, if not configured, defaults to Uri, e.g. "Primary" </summary>
       [Config]
       public string Name   { get; private set; }
@@ -51,8 +59,18 @@ namespace Azos.IAM.Client
       public Uri    Uri    { get; private set; }
 
       /// <summary> If True, automatically follows HTTP redirect </summary>
-      [Config(Default =true)]
+      [Config(Default = true)]
       public bool  AutoRedirect{  get; private set; } = true;
+
+      /// <summary> Call timeout in seconds </summary>
+      [Config(Default = DFLT_TIMEOUT_SEC)]
+      public int TimeoutSec
+      {
+        get => m_TimeoutSec;
+        set => m_TimeoutSec = value < MIN_TIMEOUT_SEC ? MIN_TIMEOUT_SEC : value;
+      }
+
+
 
       private object m_Lock = new object();
       private HttpClientHandler m_ClientHandler;
@@ -69,6 +87,7 @@ namespace Azos.IAM.Client
             m_ClientHandler.AllowAutoRedirect = AutoRedirect;
             //configure client handler
             m_Client = new HttpClient(m_ClientHandler);
+            m_Client.Timeout = TimeSpan.FromSeconds(TimeoutSec);
             m_Client.BaseAddress = this.Uri;
             m_Client.DefaultRequestHeaders.Accept.ParseAdd(ContentType.JSON);
             m_Client.DefaultRequestHeaders.Authorization =
@@ -105,6 +124,34 @@ namespace Azos.IAM.Client
     [Config]
     public string AuthHeader { get; internal set; }
 
+
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+      foreach(var snode in node.Children.Where(c => c.IsSameName(ServerLocation.CONFIG_SERVER_SECTION)))
+      {
+        var loc = new ServerLocation(this, snode);
+        if (!m_ServerLocations.Register(loc))
+          throw new IAMException("Duplicate server  `{0}`".Args(loc.Name));
+      }
+    }
+
+    private async Task<TResult> callWithRetry<TResult>(Func<ServerLocation, Task<TResult>> body)
+    {
+      foreach(var server in ServerLocations.OrderedValues)
+      {
+        try
+        {
+          var request = await body(server);
+          return request;
+        }
+        catch (Exception error)
+        {
+          if (error is TaskCanceledException cerr) continue;
+        }
+      }
+      throw new IAMException("Call eventually failed");
+    }
 
 
   }

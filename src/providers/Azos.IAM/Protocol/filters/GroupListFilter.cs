@@ -21,7 +21,7 @@ namespace Azos.IAM.Protocol
     public GDID G_ChildAccount { get; set; }
 
     protected override async Task<SaveResult<IEnumerable<GroupInfo>>> DoSaveAsync()
-     => new SaveResult<IEnumerable<GroupInfo>>(await m_Admin.FilterAsync(this));
+     => new SaveResult<IEnumerable<GroupInfo>>(await m_Admin.FilterListAsync(this));
   }
 
   public sealed class GroupInfo : TransientModel

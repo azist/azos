@@ -13,7 +13,8 @@ namespace Azos.IAM.Protocol
   /// </summary>
   public interface IAdminLogic : IBusinessLogic
   {
-    Task<TResult> FilterAsync<TResult>(FilterModel<TResult> filter);
+    Task<TResult> FilterOneAsync<TResult>(FilterModel<TResult> filter) where TResult : TypedDoc;
+    Task<IEnumerable<TResult>> FilterListAsync<TResult>(FilterModel<IEnumerable<TResult>> filter) where TResult : TypedDoc;
     Task<TEntityBody> GetEntityBodyAsync<TEntityBody>(GDID id) where TEntityBody : EntityBody;
     Task<SaveResult<ChangeResult>> ApplyChangeAsync<TChangeForm>(TChangeForm form) where TChangeForm : ChangeForm;
 

@@ -17,6 +17,8 @@ namespace Azos.IAM.Protocol
   /// </summary>
   public abstract class ChangeForm : PersistedModel<ChangeResult>
   {
+    [Field(required: true)] public Guid IdempotencyKey { get; set; }
+
     [Field(required: true)] public GDID G_Actor { get; set; }
     [Field(required: true)] public string ActorUserAgent { get; set; }
     [Field(required: true)] public string ActorHost { get; set; }
