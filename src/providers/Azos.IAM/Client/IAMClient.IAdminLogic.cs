@@ -17,7 +17,7 @@ namespace Azos.IAM.Client
   {
 
     public async Task<TResult> FilterOneAsync<TResult>(FilterModel<TResult> filter) where TResult : TypedDoc
-      => await CallWithRetry(async server =>
+      => await callWithRetry(async server =>
       {
         var wrap = await server.GetClient().PostAndGetJsonMapAsync("filter", filter);
         var raw = wrap.UnwrapPayloadMap();
@@ -26,7 +26,7 @@ namespace Azos.IAM.Client
       });
 
     public async Task<IEnumerable<TResult>> FilterListAsync<TResult>(FilterModel<IEnumerable<TResult>> filter) where TResult : TypedDoc
-      => await CallWithRetry(async server =>
+      => await callWithRetry(async server =>
       {
         var wrap = await server.GetClient().PostAndGetJsonMapAsync("filter", filter);
         var raw = wrap.UnwrapPayloadArray();

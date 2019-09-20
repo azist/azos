@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.512
-set HEADLINE=Svc rel fix slash in URI pat match
+set VER=1.0.520
+set HEADLINE=ApiProtocolController and WebCallExtensions
 
 call vs2017-build-release %VER%
 
