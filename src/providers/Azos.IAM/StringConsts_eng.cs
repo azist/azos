@@ -4,7 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-namespace Azos.IAM.Server
+namespace Azos.IAM
 {
   internal static class StringConsts
   {
