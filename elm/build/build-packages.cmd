@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.520
-set HEADLINE=ApiProtocolController and WebCallExtensions
+set VER=1.0.521
+set HEADLINE=Azos.Data.CacheExtensions
 
 call vs2017-build-release %VER%
 
