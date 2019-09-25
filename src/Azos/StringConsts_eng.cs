@@ -85,6 +85,9 @@ namespace Azos
 The injected value has to be present in app chassis having its type assignment compatible with the target field or 'Type' constraint;
 and the name of module or INamed entity must match if the 'Name' constraint was specified in the attribute";
 
+        public const string SHARDING_OBJECT_ID_ERROR =
+          "Can not obtain sharding ID from object of type '{0}'";
+
         public const string AVER_THROWS_NOT_THROWN_ERROR = "Method '{0}' is decorated with {1} averment, but nothing was thrown";
         public const string AVER_THROWS_TYPE_MISMATCH_ERROR = "Method '{0}' averment expects exception of type '{1}' to be thrown, but '{2}' was thrown instead";
         public const string AVER_THROWS_MSG_MISMATCH_ERROR = "Method '{0}' exception averment mismatch. Expected {1} '{2}' but got '{3}'";

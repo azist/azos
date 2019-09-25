@@ -388,14 +388,9 @@ namespace Azos.Sky
     public const string MDB_STORE_CONFIG_MANY_CENTRAL_ERROR =
        "MDBStore config specifies more than one central area";
 
-    public const string MDB_OBJECT_SHARDING_ID_ERROR =
-   "Can not obtain sharding ID from object of type '{0}'";
-
     public const string PM_HOSTSET_CONFIG_MISSING_NAME_ERROR   = "ProcessManager hostset config is missing the 'name' attribute";
     public const string PM_HOSTSET_CONFIG_DUPLICATE_NAME_ERROR = "ProceeManager hostset config already contains HostSet named '{0}'";
     public const string PM_HOSTSET_CONFIG_PATH_MISSING_ERROR   = "ProceeManager hostset config 'path' is missing for HostSet named '{0}'";
-
-
 
     public const string TODO_QUEUE_NOT_FOUND_ERROR = "Todo queue '{0}' not found";
     public const string TODO_QUEUE_ENQUEUE_DIFFERENT_ERROR = "Can not enqueue todos from different queues in one enqueue call";

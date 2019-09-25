@@ -290,7 +290,7 @@ namespace Azos.Data.Modeling
             /// </summary>
             protected virtual void DoCompile()
             {
-                if (!Directory.Exists(OutputPath))
+                if (!System.IO.Directory.Exists(OutputPath))
                     throw new CompilerException(StringConsts.RELATIONAL_COMPILER_OUTPUT_PATH_DOSNT_EXIST_ERROR + OutputPath);
 
                 var outputs = new Outputs();

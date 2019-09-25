@@ -8,12 +8,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Azos.Data;
 using Azos.Data.Access;
 using Azos.IO.ErrorHandling;
 
 
-namespace Azos.Sky.Mdb
+namespace Azos.Data
 {
   /// <summary>
   /// WARNING!!! Any change to this class may lead to change in sharding distribution
@@ -66,8 +65,9 @@ namespace Azos.Sky.Mdb
       if (key is int) return ((ulong)((int)key) * 1566083941ul);
       if (key is bool) return ((bool)key) ? 999331ul : 3ul;
 
-      throw new MdbException(StringConsts.MDB_OBJECT_SHARDING_ID_ERROR.Args(key.GetType().FullName));
+      throw new DataException(StringConsts.SHARDING_OBJECT_ID_ERROR.Args(key.GetType().FullName));
     }
+
 
     /// <summary>
     /// Gets sharding ID for string, that is - computes string hash as UInt64 .
@@ -76,23 +76,14 @@ namespace Azos.Sky.Mdb
     public static ulong StringToShardingID(string key)
     {
       //WARNING! Never use GetHashCode here as it is platform-dependent, but this function must be 100% deterministic
-
       /*
 From Microsoft on MSDN:
-
     Best Practices for Using Strings in the .NET Framework
-
     Recommendations for String Usage
-
-        Use the String.ToUpperInvariant method instead of the String.ToLowerInvariant method when you normalize strings for comparison.
-
-Why? From Microsoft:
-
-    Normalize strings to uppercase
-
-    There is a small group of characters that when converted to lowercase cannot make a round trip.
-
-What is example of such a character that cannot make a round trip?
+    Use the String.ToUpperInvariant method instead of the String.ToLowerInvariant method when you normalize strings for comparison.
+    Why? From Microsoft:
+    Normalize strings to uppercase because there is a small group of characters that when converted to lowercase cannot make a round trip.
+    What is example of such a character that cannot make a round trip?
 
     Start: Greek Rho Symbol (U+03f1) ϱ
     Uppercase: Capital Greek Rho (U+03a1) Ρ
@@ -100,12 +91,11 @@ What is example of such a character that cannot make a round trip?
 
     ϱ , Ρ , ρ
 
-That is why, if your want to do case insensitive comparisons you convert the strings to uppercase, and not lowercase.
-       */
+    That is why, if your want to do case insensitive comparisons you convert the strings to uppercase, and not lowercase.
+    */
 
 
       if (key == null) return 0;
-#warning DANGER!!!!!!!!! This needs carefull review to not depend on ToUpperInvariant(): todo Dima review!!!
       key = key.ToUpperInvariant();
       var sl = key.Length;
       if (sl == 0) return 0;
@@ -153,7 +143,7 @@ That is why, if your want to do case insensitive comparisons you convert the str
       if (id.IsZero) return GDID.ZERO;
 
       if (bitSize < 4 || bitSize > 24 || bitSubShard < 0 || bitSubShard >= bitSize)
-        throw new MdbException(StringConsts.ARGUMENT_ERROR + "bitSize must be [4..24] and bitSubShard must be [0..<bitSize]");
+        throw new DataException(StringConsts.ARGUMENT_ERROR + "bitSize must be [4..24] and bitSubShard must be [0..<bitSize]");
 
       var era = id.Era;
 
@@ -170,7 +160,7 @@ That is why, if your want to do case insensitive comparisons you convert the str
 
 
   /// <summary>
-  /// Used to return ID data from multiple elements, i.e. multiple parcel fields so sharding framework may obtain
+  /// Used to return ID data from multiple elements, i.e. multiple data document fields so sharding framework may obtain
   /// ULONG sharding key. You can not compare or equate instances (only reference comparison of data buffer)
   /// </summary>
   public struct CompositeShardingID : IDistributedStableHashProvider, IEnumerable<object>
@@ -205,13 +195,10 @@ That is why, if your want to do case insensitive comparisons you convert the str
     private ulong m_HashCode;
     private object[] m_Data;
 
-    public int Count { get { return m_Data == null ? 0 : m_Data.Length; } }
-    public object this[int i] { get { return m_Data == null ? null : (i >= 0 && i < m_Data.Length ? m_Data[i] : null); } }
+    public int Count => m_Data == null ? 0 : m_Data.Length;
+    public object this[int i] => m_Data == null ? null : (i >= 0 && i < m_Data.Length ? m_Data[i] : null);
 
-    public ulong GetDistributedStableHash()
-    {
-      return m_HashCode;
-    }
+    public ulong GetDistributedStableHash() => m_HashCode;
 
     public override string ToString()
     {
