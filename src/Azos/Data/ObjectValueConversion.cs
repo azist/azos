@@ -763,28 +763,22 @@ namespace Azos.Data
 
 
 
-
-
-
-
-
-
-
-         public static DateTime AsDateTime(this object val)
+         public static DateTime AsDateTime(this object val, System.Globalization.DateTimeStyles styles = System.Globalization.DateTimeStyles.None)
          {
             if (val is string)
             {
-                    var sval = ((string)val).Trim();
+              var sval = ((string)val).Trim();
 
+              if (DateTime.TryParse(sval, null,styles, out var dtval)) return dtval;
 
-                    long ival;
-                    if (long.TryParse(sval, out ival)) return new DateTime(ival);
+              long ival;
+              if (long.TryParse(sval, out ival)) return new DateTime(ival);
 
-                    double dval;
-                    if (double.TryParse(sval, out dval)) return new DateTime((long)dval);
+              double dval;
+              if (double.TryParse(sval, out dval)) return new DateTime((long)dval);
 
-                    decimal dcval;
-                    if (decimal.TryParse(sval, out dcval)) return new DateTime((long)dcval);
+              decimal dcval;
+              if (decimal.TryParse(sval, out dcval)) return new DateTime((long)dcval);
             }
 
             if (val is int) { return new DateTime((int)val); }
@@ -796,32 +790,38 @@ namespace Azos.Data
          }
 
 
-         public static DateTime AsDateTime(this object val, DateTime dflt, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+         public static DateTime AsDateTime(this object val,
+                                           DateTime dflt,
+                                           ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault,
+                                           System.Globalization.DateTimeStyles styles = System.Globalization.DateTimeStyles.None)
          {
-              try
-              {
-                if (val==null) return dflt;
-                return val.AsDateTime();
-              }
-              catch
-              {
-                if (handling!=ConvertErrorHandling.ReturnDefault) throw;
-                return dflt;
-              }
+            try
+            {
+              if (val==null) return dflt;
+              return val.AsDateTime(styles);
+            }
+            catch
+            {
+              if (handling!=ConvertErrorHandling.ReturnDefault) throw;
+              return dflt;
+            }
          }
 
-         public static DateTime? AsNullableDateTime(this object val, DateTime? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+         public static DateTime? AsNullableDateTime(this object val,
+                                                    DateTime? dflt = null,
+                                                    ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault,
+                                                    System.Globalization.DateTimeStyles styles = System.Globalization.DateTimeStyles.None)
          {
-              try
-              {
-                if (val==null) return null;
-                return val.AsDateTime();
-              }
-              catch
-              {
-                if (handling!=ConvertErrorHandling.ReturnDefault) throw;
-                return dflt;
-              }
+            try
+            {
+              if (val==null) return null;
+              return val.AsDateTime(styles);
+            }
+            catch
+            {
+              if (handling!=ConvertErrorHandling.ReturnDefault) throw;
+              return dflt;
+            }
          }
 
 

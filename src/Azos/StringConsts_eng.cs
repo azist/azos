@@ -1073,6 +1073,11 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string SEALED_STRING_TOO_BIG_ERROR =  "SealedString value of {0} bytes is too big";
 
 
+    public const string DIRECTORY_TYPE_IS_NULL_OR_EMPTY_ERROR = "Directory operation'{0}' error: Item type name is null or white space";
+    public const string DIRECTORY_TYPE_CHARACTER_ERROR = "Directory operation'{0}' error: Item type name contains invalid character '{1}'";
+    public const string DIRECTORY_TYPE_MAX_LEN_ERROR = "Directory operation'{0}' error: Item type name of {1} characters exceeds max len of {2}";
+
+
     public const string AROW_SATELLITE_ASSEMBLY_NAME_ERROR = "Could not find serialization satellite for assembly `{0}` as the name pattern does not match. The source assembly file name must end with `*.dll` by convention";
     public const string AROW_SATELLITE_ASSEMBLY_LOAD_ERROR = "Satellite assembly `{0}` load failure: {1}";
     public const string AROW_TYPE_NOT_SUPPORTED_ERROR =  "ArowSerializer does not have a ITypeSerializationCore registered for type '{0}'";
