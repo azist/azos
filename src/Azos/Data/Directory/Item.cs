@@ -64,9 +64,9 @@ namespace Azos.Data.Directory
           new DictionaryEntry("id", this.Id),
           new DictionaryEntry("_v", this.VersionUtc),
           new DictionaryEntry("_s", this.VersionStatus),
-          new DictionaryEntry("absutc", this.AbsoluteExpirationUtc),
-          new DictionaryEntry("lutc", this.LastUseUtc),
-          new DictionaryEntry("semin", this.SlidingExpirationMinutes),
+          new DictionaryEntry("ax", this.AbsoluteExpirationUtc),
+          new DictionaryEntry("lu", this.LastUseUtc),
+          new DictionaryEntry("sx", this.SlidingExpirationMinutes),
           new DictionaryEntry("data", this.Data),
           new DictionaryEntry("idx", Index)
        );
@@ -84,9 +84,9 @@ namespace Azos.Data.Directory
 
         VersionUtc = map["_v"].AsDateTime(styles: System.Globalization.DateTimeStyles.AdjustToUniversal);
         VersionStatus = map["_s"].AsEnum(ItemStatus.Created);
-        AbsoluteExpirationUtc = map["absutc"].AsNullableDateTime(styles: System.Globalization.DateTimeStyles.AdjustToUniversal);
-        LastUseUtc = map["lutc"].AsDateTime(styles: System.Globalization.DateTimeStyles.AdjustToUniversal);
-        SlidingExpirationMinutes = map["semin"].AsInt();
+        AbsoluteExpirationUtc = map["ax"].AsNullableDateTime(styles: System.Globalization.DateTimeStyles.AdjustToUniversal);
+        LastUseUtc = map["lu"].AsDateTime(styles: System.Globalization.DateTimeStyles.AdjustToUniversal);
+        SlidingExpirationMinutes = map["sx"].AsInt();
         Data = map["data"].AsString();
         Index = new StringMap();
         (Index as IJsonReadable).ReadAsJson(map["idx"], fromUI, nameBinding);
