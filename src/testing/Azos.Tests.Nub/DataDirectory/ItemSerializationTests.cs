@@ -14,13 +14,9 @@ namespace Azos.Tests.Nub.DataDirectory
     [Run]
     public void Test1()
     {
-      var item = new Item
+      var item = new Item(new ItemId("abc", new Data.GDID(12, 12121)))
       {
-        Id = new ItemId("abc", new Data.GDID(12,12121)),
-         VersionUtc = DateTime.UtcNow,
-          LastUseUtc = DateTime.UtcNow,
-           VersionStatus = ItemStatus.Created,
-            Data = "data string content"
+        Data = "data string content"
       };
 
       var json = JsonWriter.Write(item);
