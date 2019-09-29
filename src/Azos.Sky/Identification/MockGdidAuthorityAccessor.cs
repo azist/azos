@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+
 using Azos.Collections;
 using Azos.Sky.Contracts;
 
@@ -20,7 +21,7 @@ namespace Azos.Sky.Identification
     {
       var key = scopeName+"::"+sequenceName;
 
-      var start = m_Data.AddLong(key, blockSize);
+      var start = m_Data.AddLong(key, blockSize + 1);
 
       return Task.FromResult( new GdidBlock
       {
@@ -29,7 +30,7 @@ namespace Azos.Sky.Identification
         Authority = 1,
         AuthorityHost = "/localhost",
         Era = 0,
-        StartCounterInclusive = (ulong)start,
+        StartCounterInclusive = (ulong)(start - blockSize),
         BlockSize = blockSize,
         ServerUTCTime = Ambient.UTCNow
       });
