@@ -21,23 +21,21 @@ namespace Azos.Data.Directory
     internal Item(){ }
 
     /// <summary>
-    /// Creates a new Item instance
+    /// Creates a new Item instance. You must provide a new unique Id
     /// </summary>
     public Item(ItemId id)
     {
       m_Id = id;
-      m_VersionUtc = m_LastUseUtc = Ambient.UTCNow;
-      m_VersionStatus = ItemStatus.Created;
-      m_Index = new StringMap(false);
     }
 
     /// <summary>
-    /// Updates the version information of the item before saving a change
+    /// Updates the version information of the item before saving a change.
+    /// This is called internally by the save framework
     /// </summary>
-    public void Update()
+    internal void SetVersion(DateTime utcNow, ItemStatus status)
     {
-      m_VersionUtc = m_LastUseUtc = Ambient.UTCNow;
-      m_VersionStatus = ItemStatus.Updated;
+      m_VersionUtc = m_LastUseUtc = utcNow;
+      m_VersionStatus = status;
     }
 
     #region Fields
@@ -47,12 +45,22 @@ namespace Azos.Data.Directory
       private DateTime? m_AbsoluteExpirationUtc;
       private DateTime m_LastUseUtc;
       private string m_Data;
-      private StringMap m_Index;
+      private StringMap m_Index = new StringMap(false);
     #endregion
 
 
     #region Props
+
+    /// <summary>
+    /// A unique ID of the Item
+    /// </summary>
     public ItemId Id => m_Id;
+
+    /// <summary>
+    /// Returns true to indicate that this instance has been assigned aversion,
+    /// that is- it is not a new instance just allocated as it was saved before
+    /// </summary>
+    public bool IsVersioned => m_VersionUtc != default(DateTime);
 
     /// <summary>The UTC timestamp of this version </summary>
     public DateTime VersionUtc => m_VersionUtc;
@@ -113,7 +121,7 @@ namespace Azos.Data.Directory
           new DictionaryEntry("ax", this.AbsoluteExpirationUtc),
           new DictionaryEntry("lu", this.LastUseUtc),
           new DictionaryEntry("sx", this.SlidingExpirationMinutes),
-          new DictionaryEntry("data", this.Data),
+          new DictionaryEntry("dat", this.Data),
           new DictionaryEntry("idx", Index)
        );
     }
@@ -133,8 +141,7 @@ namespace Azos.Data.Directory
         AbsoluteExpirationUtc = map["ax"].AsNullableDateTime(styles: System.Globalization.DateTimeStyles.AdjustToUniversal);
         m_LastUseUtc = map["lu"].AsDateTime(styles: System.Globalization.DateTimeStyles.AdjustToUniversal);
         SlidingExpirationMinutes = map["sx"].AsInt();
-        Data = map["data"].AsString();
-        m_Index = new StringMap(false);
+        Data = map["dat"].AsString();
         (Index as IJsonReadable).ReadAsJson(map["idx"], fromUI, nameBinding);
 
         return (true, this);

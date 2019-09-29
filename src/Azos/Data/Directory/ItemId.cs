@@ -1,18 +1,22 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using Azos.Data.Access;
 using Azos.Serialization.JSON;
 
 namespace Azos.Data.Directory
 {
   /// <summary>
-  /// Identifies a directory entity by a unique id within a named collection
+  /// Identifies a directory item using unique Id within a named collection
   /// </summary>
   public struct ItemId : IEquatable<ItemId>, IDistributedStableHashProvider, IJsonReadable, IJsonWritable
   {
     public const int MAX_TYPE_NAME_LEN = 32;
 
-    public static void CheckCollectionName(string collection, string opName)
+    /// <summary>
+    /// Ensures that a collection name is a non-blank string of at most 32 ASCII Latin/or digit 'A..Z'/'0..9' characters only. Underscore is allowed
+    /// </summary>
+    public static void CheckCollectionName(string collection, [CallerMemberName]string opName = null)
     {
       if (collection.IsNullOrWhiteSpace()) throw new DataException(StringConsts.DIRECTORY_COLLECTION_IS_NULL_OR_EMPTY_ERROR.Args(opName));
 
@@ -30,10 +34,12 @@ namespace Azos.Data.Directory
       }
     }
 
-
+    /// <summary>
+    /// Creates new ItemID. You must generate a new unique GDID
+    /// </summary>
     public ItemId(string collection, GDID id)
     {
-      CheckCollectionName(collection, ".ctor");
+      CheckCollectionName(collection);
       if (id.IsZero) throw new DataException(StringConsts.ARGUMENT_ERROR + "ItemId.ctor(id.isZero)");
       Collection = collection.ToLowerInvariant();
       Id = id;
@@ -49,6 +55,10 @@ namespace Azos.Data.Directory
     /// </summary>
     public readonly GDID Id;
 
+    /// <summary>
+    /// Returns true to signify that structure has been initialized/assigned
+    /// </summary>
+    public bool IsAssigned => !Id.IsZero && Collection.IsNotNullOrWhiteSpace();
 
     public override string ToString() => $"Item({Id}@`{Collection}`)";
 

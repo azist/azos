@@ -1074,7 +1074,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
 
     public const string DIRECTORY_COLLECTION_IS_NULL_OR_EMPTY_ERROR = "Directory operation'{0}' error: Item collection name is null or white space";
-    public const string DIRECTORY_COLLECTION_CHARACTER_ERROR = "Directory operation'{0}' error: Item collection name contains invalid character '{1}'";
+    public const string DIRECTORY_COLLECTION_CHARACTER_ERROR = "Directory operation'{0}' error: Item collection name contains an invalid character '{1}'. Collection names may only contain base ASCII/Latin characters or digits 'A'..'Z'/'0'..'9' digits or '_'";
     public const string DIRECTORY_COLLECTION_MAX_LEN_ERROR = "Directory operation'{0}' error: Item collection name of {1} characters exceeds max len of {2}";
 
 
