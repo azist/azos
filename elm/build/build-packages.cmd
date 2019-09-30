@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.521
-set HEADLINE=Azos.Data.CacheExtensions
+set VER=1.0.522
+set HEADLINE=Various fixes
 
 call vs2017-build-release %VER%
 
