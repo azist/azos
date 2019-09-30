@@ -43,7 +43,7 @@ namespace Azos.Scripting
 
     public void Configure(IConfigSectionNode node) => ConfigAttribute.Apply(this, node);
 
-    public IConsolePort ConsolePort   => LocalConsolePort.Default;
+    public IConsolePort ConsolePort => Ambient.AppConsolePort;
     public IConsoleOut ConsoleOut => ConsolePort.DefaultConsole;
 
     private Stopwatch m_RunnableStopwatch;

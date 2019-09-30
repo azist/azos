@@ -27,6 +27,8 @@ namespace Azos.Tools.Trun
           {
            using(var app = new AzosApplication(true, args, null))
            {
+             app.SetConsolePort(LocalConsolePort.Default);
+
              Console.CancelKeyPress += (_, e) => { app.Stop(); e.Cancel = true;};
 
              System.Environment.ExitCode = run(app);

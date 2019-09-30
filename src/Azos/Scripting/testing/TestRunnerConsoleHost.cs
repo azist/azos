@@ -23,14 +23,15 @@ namespace Azos.Scripting
   {
     public const int FIRST_X_ERRORS = 5;
 
-    public TestRunnerConsoleHost(IApplication app) : base(app) { }
+    public TestRunnerConsoleHost(IApplication app) : base(app)
+    {
+    }
 
     private Stopwatch  m_Stopwatch;
     private int m_TotalRunnables;
     private int m_TotalMethods;
     private int m_TotalOKs;
     private int m_TotalErrors;
-    private IConsolePort m_ConsolePort = LocalConsolePort.Default;
 
     private FileConfiguration m_Out;
 
@@ -46,7 +47,7 @@ namespace Azos.Scripting
 
     public void Configure(IConfigSectionNode node) => ConfigAttribute.Apply(this, node);
 
-    public IConsolePort ConsolePort   => m_ConsolePort;
+    public IConsolePort ConsolePort   => Ambient.AppConsolePort;
     public IConsoleOut ConsoleOut => ConsolePort.DefaultConsole;
 
 

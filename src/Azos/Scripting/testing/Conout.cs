@@ -22,16 +22,15 @@ namespace Azos.Scripting
     private static AsyncFlowMutableLocal<IConsolePort> ats_Port = new AsyncFlowMutableLocal<IConsolePort>();
 
     /// <summary>
-    /// Gets ConsoleOut ambient reference, this is a framework-internal method typically controlled by
-    /// script runners
+    /// Gets ConsoleOut ambient reference. Console output helpers use this to know which console port to output into
     /// </summary>
-    public static IConsolePort Port => ats_Port.Value ?? LocalConsolePort.Default;
+    public static IConsolePort Port => ats_Port.Value ?? Ambient.AppConsolePort;
 
     /// <summary>
     /// Sets Out ambient reference, this is a framework-internal method typically controlled by
     /// script runners and other system-level components
     /// </summary>
-    public static void ____SetConsolePort(IConsolePort value) => ats_Port.Value = value;
+    public static void ____SetFlowConsolePort(IConsolePort value) => ats_Port.Value = value;
 
 
     /// <summary>
