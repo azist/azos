@@ -34,7 +34,27 @@ namespace Azos.Tests.Unit.Sky.Identification
         gdid.See();
         m_Gen.GetSequenceInfos("scopeA").See();
         Conout.WriteLine("--------------------------------------");
+        System.Threading.Thread.Sleep(1000);
       }
+    }
+
+    [Run("cnt=5")]
+    public void TryMany(int cnt)
+    {
+      for (var i = 0; i < cnt; i++)
+      {
+        var gdids = m_Gen.TryGenerateManyConsecutiveGdids("scopeA", "seqA", 105);
+        gdids.See($"Size is: {gdids.Length}");
+        m_Gen.GetSequenceInfos("scopeA").See();
+        Conout.WriteLine("--------------------------------------");
+        System.Threading.Thread.Sleep(25);
+      }
+
+      Conout.WriteLine("--------------------------------------");
+      Conout.WriteLine("--------------------------------------");
+      var gdid2 = m_Gen.GenerateOneGdid("scopeA", "seqA");
+      gdid2.See();
+      m_Gen.GetSequenceInfos("scopeA").See();
     }
   }
 }
