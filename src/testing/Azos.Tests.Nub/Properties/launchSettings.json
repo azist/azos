@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Azos.Tests.Nub": {
+      "commandName": "Executable"
+    }
+  }
+}
