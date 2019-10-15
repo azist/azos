@@ -51,10 +51,10 @@ namespace Azos.Data.Directory
     /// Finds item/items that satisfy the queryExpression which is a JSON object of expression tree:
     /// `tbd`
     /// </summary>
-    /// <param name="itemType">Type of item to query</param>
+    /// <param name="collection">Item collection name to query</param>
     /// <param name="queryExpression">JSON query object</param>
     /// <returns>Item enumeration</returns>
-    Task<IEnumerable<Item>> Query(string itemType, string queryExpression);
+    Task<IEnumerable<Item>> Query(string collection, string queryExpression);
   }
 
   public interface IDirectoryImplementation : IDirectory, IDataStoreImplementation
