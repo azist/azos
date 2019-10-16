@@ -148,6 +148,11 @@ namespace Azos.Data
         if (!Azos.Text.DataEntryUtils.CheckTelephone(value.ToString()))
           return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_PHONE_ERROR);
       }
+      else if (atr.Kind == DataKind.Uri)
+      {
+        if (!Uri.TryCreate(value.ToString(), UriKind.RelativeOrAbsolute, out var _))
+          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_PHONE_ERROR);
+      }
 
       return null;
     }

@@ -55,6 +55,7 @@ namespace Azos.Client
     }
   }
 
+  //https://medium.com/@nuno.caneco/c-httpclient-should-not-be-disposed-or-should-it-45d2a8f568bc
   public class HttpTransport : ITransportImplementation
   {
     public IEndpoint Endpoint => throw new NotImplementedException();

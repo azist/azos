@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.522
-set HEADLINE=Various fixes
+set VER=1.0.523
+set HEADLINE=SkyApp req issue
 
 call vs2017-build-release %VER%
 

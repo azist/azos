@@ -43,7 +43,7 @@ namespace Azos.Security.Tokens
     [Config]
     public string IssuerName
     {
-      get => m_IssuerName.IsNotNullOrWhiteSpace() ? m_IssuerName : Log.Message.DefaultHostName;
+      get => m_IssuerName.IsNotNullOrWhiteSpace() ? m_IssuerName : Platform.Computer.HostName;
       set => m_IssuerName = value;
     }
 

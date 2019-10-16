@@ -37,8 +37,6 @@ namespace Azos.Log
     public const string BSON_FLD_EXCEPTION = "ex";
     public const string BSON_FLD_ARCHIVE_DIMENSIONS = "arc";
 
-    public static string DefaultHostName;
-
     #region Private Fields
     private GDID m_Gdid;
     private Guid m_Guid;
@@ -264,7 +262,7 @@ namespace Azos.Log
     public Message()
     {
       m_Guid = Guid.NewGuid();
-      m_Host = Message.DefaultHostName ?? System.Environment.MachineName;
+      m_Host = Platform.Computer.HostName;
       m_UTCTimeStamp = Ambient.UTCNow;
       m_App = Apps.ExecutionContext.Application.AppId;
     }

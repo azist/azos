@@ -50,6 +50,22 @@ namespace Azos.Platform
     {
     }
 
+
+    private static string s_HostName;
+
+    /// <summary>
+    /// Internal framework method which sets the logical name for local host.
+    /// Not to be called by developers
+    /// </summary>
+    public static void _____SetHostName(string hostName) => s_HostName = HostName;
+
+    /// <summary>
+    /// Returns this host name. If the specific host name was not set, then local Envirionemnt.MachioeName is returned
+    /// </summary>
+    public static string HostName => s_HostName.IsNullOrWhiteSpace() ? Environment.MachineName : s_HostName;
+
+
+
     /// <summary>
     /// Returns current computer-wide CPU utilization percentage
     /// </summary>
