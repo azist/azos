@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.523
-set HEADLINE=SkyApp req issue
+set VER=1.0.525
+set HEADLINE=Add SSEMailboxHandler Server Push
 
 call vs2017-build-release %VER%
 

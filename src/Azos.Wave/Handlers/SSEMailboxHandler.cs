@@ -32,8 +32,14 @@ namespace Azos.Wave.Handlers
   /// </summary>
   public class SSEMailboxHandler : WorkHandler
   {
+    private const int MANAGER_INTERVAL_MS = 3_179;
 
-     [ThreadStatic] private static StringBuilder ts_Builder;
+    public const int MIN_IDLE_TIMEOUT_SEC = 5;
+    public const int MAX_IDLE_TIMEOUT_SEC = 3 * 60;
+    public const int DEFAULLT_IDLE_TIMEOUT_SEC = 25;
+
+
+    [ThreadStatic] private static StringBuilder ts_Builder;
 
     /// <summary>
     /// Formats SSE payload
@@ -112,18 +118,33 @@ namespace Azos.Wave.Handlers
       ctor();
     }
 
-    private void ctor()
-    {
-    }
+    private void ctor() => scheduleNextManage();
 
 
     protected override void Destructor()
     {
-      m_Mailboxes.ForEach(kvp => this.DontLeak(() => kvp.Value.Dispose(), errorFrom: "mbox.dctor()"));
+      try { m_CancelSource.Cancel(true); } catch{ /* canceling task.Delay() - nothing to log */ }
+      m_Mailboxes.ForEach(kvp => this.DontLeak(() => CloseMailbox(kvp.Value), errorFrom: "dctor.CloseMailbox()"));
+      m_CancelSource.Dispose();
       base.Destructor();
     }
 
+    private CancellationTokenSource m_CancelSource = new CancellationTokenSource();
+    private Task m_ManagerTask;
     protected readonly ConcurrentDictionary<string, Mailbox> m_Mailboxes = new ConcurrentDictionary<string, Mailbox>(StringComparer.OrdinalIgnoreCase);
+    private int m_IdleTimeoutSec = DEFAULLT_IDLE_TIMEOUT_SEC;
+
+
+    /// <summary>
+    /// Idle mailbox timeout after which the mailbox gets disposed.
+    /// A mailbox is idle for a period of time when no events are being delivered to that mailbox
+    /// </summary>
+    [Config(Default = DEFAULLT_IDLE_TIMEOUT_SEC)]
+    public int IdleTimeoutSec
+    {
+      get => m_IdleTimeoutSec;
+      set => value.KeepBetween(MIN_IDLE_TIMEOUT_SEC, MAX_IDLE_TIMEOUT_SEC);
+    }
 
 
     /// <summary>
@@ -182,16 +203,19 @@ namespace Azos.Wave.Handlers
     /// </returns>
     protected virtual (bool isNew, Mailbox mbox) ConnectMailbox(WorkContext work)
     {
-      return (true, null);
+      var mb  = new Mailbox(App.TimeSource.UTCNow, Ambient.CurrentCallUser.Name, work);
+      return (true, mb);
     }
 
     /// <summary>
-    /// Override to do custom implementation, such as send an unsubscribe command to external event source
+    /// Override to do custom implementation, such as send an unsubscribe command to external event source.
+    /// Default implementation disposes the mailbox
     /// </summary>
     /// <param name="mailbox">An instance of mailbox being closed</param>
     protected virtual void CloseMailbox(Mailbox mailbox)
     {
-
+      if (mailbox==null) return;
+      mailbox.Dispose();
     }
 
     private void flushFirstChunk(WorkContext work)
@@ -200,111 +224,50 @@ namespace Azos.Wave.Handlers
       work.Response.Write("event:connect\ndata: {0}\n\n".Args(new {startDate = App.TimeSource.UTCNow}.ToJson(JsonWritingOptions.CompactASCII)));
       work.Response.Flush();
     }
-  }
 
-
-  public class Mailbox : DisposableObject
-  {
-    internal Mailbox(DateTime utcNow, string id, WorkContext work)
+    private void scheduleNextManage()
     {
-      m_Id = id.NonBlank(nameof(id));
-      m_ConnectTimestampUtc = utcNow;
-      m_Clients = new List<WorkContext>();
-      m_Clients.Add(work.NonNull(nameof(work)));
-      m_PendingTask = Task.CompletedTask;
+      if (Disposed) return;
+      m_ManagerTask = Task.Delay(MANAGER_INTERVAL_MS, m_CancelSource.Token).ContinueWith(_ => manage());
     }
 
-    protected override void Destructor()
+    private void manage()
     {
-      m_Clients.ForEach( c => {try{ c.Dispose(); }catch{ }});
-      base.Destructor();
+      if (Disposed) return;
+      this.DontLeak(()=> manageUnsafe());
+      scheduleNextManage();
     }
 
-    private string m_Id;
-    private DateTime m_ConnectTimestampUtc;
-    private volatile List<WorkContext> m_Clients;
-
-    private object m_TaskLock = new object();
-    private volatile Task m_PendingTask;
-
-    /// <summary>
-    /// Mailbox unique immutable identifier/address
-    /// </summary>
-    public string Id => m_Id;
-
-    /// <summary>
-    /// Connects an additional web client returning true if it was added, false on duplicate or disposed
-    /// </summary>
-    public bool ConnectAnotherClient(WorkContext work)
+    private void manageUnsafe()
     {
-      if (work==null || work.Disposed || Disposed) return false;
-      lock(m_Clients)
+      if (Disposed) return;
+
+      var allMailboxes = m_Mailboxes.Values.ToArray();//snapshot
+      List<Mailbox> tokill = null;
+      var now = App.TimeSource.UTCNow;
+
+      foreach(var mbox in allMailboxes)
       {
-        if (m_Clients.Contains(work)) return false;
-        m_Clients.Add(work);
-        return true;
-      }
-    }
+        if (Disposed) break;
+        var isAlive = mbox.CheckAlive(now, m_IdleTimeoutSec);
+        if (isAlive) continue;
 
-    /// <summary>
-    /// Disconnects a client removing it form list. Does not dispose it.
-    /// Returns true if found and removed
-    /// </summary>
-    protected internal  bool DisconnectClient(WorkContext work)
-    {
-      if (work==null || work.Disposed || Disposed) return false;
-
-      var result = false;
-      lock (m_Clients)
-        result = m_Clients.Remove(work);
-
-      return result;
-    }
-
-
-    /// <summary>
-    /// Enqueue event for delivery. Returns true if event was enqueued
-    /// </summary>
-    protected internal bool Deliver(string sseContent)
-    {
-      if (Disposed) return false;
-
-      lock(m_TaskLock)
-        m_PendingTask = m_PendingTask.ContinueWith((_, sse) =>{ try{ deliverCore((string)sse); }catch{ }}, sseContent);
-
-      return true;
-    }
-
-    private void deliverCore(string sseContent)
-    {
-      WorkContext[] clients;
-      List<WorkContext> tokill = null;
-
-      lock(m_Clients) clients = m_Clients.ToArray();
-
-      //this may take time, t4 outside lock
-      foreach(var client in clients)
-      {
-        try
-        {
-          client.Response.Write(sseContent);
-        }
-        catch
-        {
-          try { client.Dispose(); } catch { }//this may rethrow on various partially torn connections
-          if (tokill==null) tokill = new List<WorkContext>();
-          tokill.Add(client);
-        }
+        if (tokill==null) tokill = new List<Mailbox>();
+        tokill.Add(mbox);
       }
 
-      //remove dead connections - quick
-      if (tokill!=null)
-        lock(m_Clients)
-          foreach(var dead in tokill)
-           m_Clients.Remove(dead);
-    }//deliverCore
+      if (tokill != null)
+      {
+        foreach(var dead in tokill)
+        {
+          if (Disposed) break;
+          m_Mailboxes.TryRemove(dead.Id, out var _);
+          this.CloseMailbox(dead);
+          this.DontLeak(() => dead.Dispose(), errorFrom: "dead.Dispose()");
+        }
+      }
+    }
 
   }
-
 
 }

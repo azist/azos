@@ -260,7 +260,9 @@ namespace Azos
       }
       catch(Exception error)
       {
-        if (errorText.IsNullOrWhiteSpace()) errorText = "Error leaked: " + error.ToMessageWithType();
+        if (errorText.IsNullOrWhiteSpace()) errorText = "Error leaked: ";
+        errorText += error.ToMessageWithType();
+
         ac.WriteLog(errorLogType, errorFrom, errorText, error);
       }
 
