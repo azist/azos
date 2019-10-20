@@ -60,7 +60,7 @@ namespace Azos.Platform
     public static void _____SetHostName(string hostName) => s_HostName = HostName;
 
     /// <summary>
-    /// Returns this host name. If the specific host name was not set, then local Envirionemnt.MachioeName is returned
+    /// Returns this host name. If the specific host name was not set, then local Envirionemnt.MachineName is returned
     /// </summary>
     public static string HostName => s_HostName.IsNullOrWhiteSpace() ? Environment.MachineName : s_HostName;
 

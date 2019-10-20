@@ -146,7 +146,7 @@ namespace Azos.Wave
 
 
       /// <summary>
-      /// Handles the work -  first involes all filters then calls HandleWork to do actual processing
+      /// Handles the work -  first invokes all filters then calls HandleWork to do actual processing
       /// Note: This method is re-entrant by multiple threads
       /// </summary>
       public void FilterAndHandleWork(WorkContext work)

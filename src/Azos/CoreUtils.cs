@@ -10,6 +10,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Diagnostics;
+using Azos.Apps;
+using System.Runtime.CompilerServices;
 
 namespace Azos
 {
@@ -241,6 +243,30 @@ namespace Azos
 
       return true;
     }
+
+    /// <summary>
+    /// Encloses an action in try catch and logs the error if it leaked from action. This method never leaks.
+    /// Returns true if there was no error on action success, or false if error leaked from action and was logged by component.
+    /// The actual logging depends on component log level
+    /// </summary>
+    public static bool DontLeak(this IApplicationComponent cmp, Action action, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error)
+    {
+      var ac = (cmp.NonNull(nameof(cmp)) as ApplicationComponent).NonNull("Internal error: not a AC");
+      action.NonNull(nameof(action));
+      try
+      {
+        action();
+        return true;
+      }
+      catch(Exception error)
+      {
+        if (errorText.IsNullOrWhiteSpace()) errorText = "Error leaked: " + error.ToMessageWithType();
+        ac.WriteLog(errorLogType, errorFrom, errorText, error);
+      }
+
+      return false;
+    }
+
 
   }
 }
