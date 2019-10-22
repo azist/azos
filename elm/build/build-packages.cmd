@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.0.525
+set VER=1.0.525.1
 set HEADLINE=Add SSEMailboxHandler Server Push
 
 call vs2017-build-release %VER%

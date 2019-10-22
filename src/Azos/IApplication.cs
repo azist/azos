@@ -142,7 +142,9 @@ namespace Azos
 
      /// <summary>
      /// References time source - an entity that supplies local and UTC times. The concrete implementation
-     ///  may elect to get accurate times from the network or other external precision time sources (i.e. NASA atomic clock)
+     ///  may elect to get accurate times from the network or other external precision time sources (i.e. NASA atomic clock).
+     /// The split-second time accuracy is necessary in some distributed algorithms such as the ones that use precision time stamps
+     /// to established the relative order of distributed events during data reconciliation (e.g. multi-master replication)
      /// </summary>
      Time.ITimeSource TimeSource { get; }
 

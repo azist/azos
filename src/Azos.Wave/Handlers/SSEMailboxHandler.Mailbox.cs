@@ -6,18 +6,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Azos.Conf;
-using Azos.Serialization.JSON;
 
 namespace Azos.Wave.Handlers
 {
   public class Mailbox : DisposableObject
   {
-    protected internal Mailbox(DateTime utcNow, string id, WorkContext work)
+    public Mailbox(DateTime utcNow, string id, WorkContext work)
     {
       m_Id = id.NonBlank(nameof(id));
       m_ConnectTimestampUtc = utcNow;

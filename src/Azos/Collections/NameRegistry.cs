@@ -66,7 +66,7 @@ namespace Azos.Collections
     public interface IOrderedRegistry<out T> : IRegistry<T> where T : INamed, IOrdered
     {
       /// <summary>
-      /// Returns items that registry contains ordered by their Order property.
+      /// Returns items that the registry contains, ordered by their Order property.
       /// The returned sequence is pre-sorted during alteration of registry, so this property access is efficient.
       /// Note: since registry does reading in a lock-free manner, it is possible to have an inconsistent read snapshot
       ///  of ordered items which may capture items that have already/not yet been added to the registry

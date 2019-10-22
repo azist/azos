@@ -194,7 +194,8 @@ namespace Azos.Wave.Handlers
     /// Override to connect a Mailbox descendant instance and subscribe to external event source if needed.
     /// This method may either create new or reuse existing instance, depending on logical mailbox identity which
     /// can be based on headers, session, cookies and other attributes of the incoming request.
-    /// Return null to deny this connection request
+    /// Return null to deny this connection request. The default implementation creates a general-purpose mailbox
+    /// keyed on CurrentCallUser.Name context
     /// </summary>
     /// <param name="work">Work context under which the allocation of Mailbox takes place</param>
     /// <returns>
@@ -203,6 +204,7 @@ namespace Azos.Wave.Handlers
     /// </returns>
     protected virtual (bool isNew, Mailbox mbox) ConnectMailbox(WorkContext work)
     {
+      work.NeedsSession(true);
       var mb  = new Mailbox(App.TimeSource.UTCNow, Ambient.CurrentCallUser.Name, work);
       return (true, mb);
     }
@@ -221,7 +223,7 @@ namespace Azos.Wave.Handlers
     private void flushFirstChunk(WorkContext work)
     {
       work.Response.Write("".PadLeft(1000, ' '));//Microsoft bug. need 1000 chars at first to start buffer flushing
-      work.Response.Write("event:connect\ndata: {0}\n\n".Args(new {startDate = App.TimeSource.UTCNow}.ToJson(JsonWritingOptions.CompactASCII)));
+      work.Response.Write("event: connect\ndata: {0}\n\n".Args(new {startDate = App.TimeSource.UTCNow}.ToJson(JsonWritingOptions.CompactASCII)));
       work.Response.Flush();
     }
 

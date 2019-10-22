@@ -77,6 +77,8 @@ namespace Azos.Wave
 
       public override string ComponentLogTopic => CoreConsts.WAVE_TOPIC;
 
+      public override string ComponentCommonName => Name;
+
       /// <summary>
       /// Returns the handler instance name
       /// </summary>
