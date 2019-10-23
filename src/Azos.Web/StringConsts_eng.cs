@@ -33,6 +33,8 @@ namespace Azos.Web
     public const string GEO_LOOKUP_SVC_DATA_FILE_ERROR =
           "GEO lookup service needs data file '{0}' which was not found";
 
+    public const string WEB_CALL_UNSUCCESSFUL_ERROR = "Web call to `..{0}` was unsuccessful: HTTP {1} - {2}";
+
 
     public const string MULTIPART_DOUBLE_EOL_ISNT_FOUND_AFTER_HEADER_ERROR = "Multipart: Double \\r\\n isn't found after header.";
     public const string MULTIPART_PARTS_COULDNT_BE_EMPTY_ERROR = "Multipart: Parts couldn't be null or empty.";

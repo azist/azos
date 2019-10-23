@@ -204,9 +204,17 @@ namespace Azos.Wave.Handlers
     /// </returns>
     protected virtual (bool isNew, Mailbox mbox) ConnectMailbox(WorkContext work)
     {
-      work.NeedsSession(true);
-      var mb  = new Mailbox(App.TimeSource.UTCNow, Ambient.CurrentCallUser.Name, work);
-      return (true, mb);
+      work.NeedsSession(onlyExisting: true);
+      var user = work.Session?.User;
+
+      if (user == null || !user.IsAuthenticated)
+        throw HTTPStatusException.Unauthorized_401();
+
+      if (user.Name.IsNullOrWhiteSpace())
+        return (false, null);
+
+      var result  = new Mailbox(App.TimeSource.UTCNow, user.Name, work);
+      return (true, result);
     }
 
     /// <summary>

@@ -99,7 +99,8 @@ namespace Azos.Web
                                                                       HttpMethod method,
                                                                       object body,
                                                                       string contentType = null,
-                                                                      JsonWritingOptions options = null)
+                                                                      JsonWritingOptions options = null,
+                                                                      bool fetchErrorContent = true)
     {
       HttpContent content = null;
 
@@ -130,10 +131,26 @@ namespace Azos.Web
         if (content != null)
           request.Content = content;
 
-        using (var response = await client.NonNull().SendAsync(request, HttpCompletionOption.ResponseHeadersRead))// ;// .PostAsync(uri, content);
+        using (var response = await client.NonNull().SendAsync(request, fetchErrorContent ? HttpCompletionOption.ResponseContentRead
+                                                                                          : HttpCompletionOption.ResponseHeadersRead))
         {
-          response.EnsureSuccessStatusCode();
-          var raw = await response.Content.ReadAsStringAsync();
+          //20191022 DKh
+          //response.EnsureSuccessStatusCode();
+          var isSuccess = response.IsSuccessStatusCode;
+          string raw = string.Empty;
+          if (isSuccess || fetchErrorContent)
+            raw = await response.Content.ReadAsStringAsync();
+
+          if (!isSuccess)
+            throw new WebCallException(StringConsts.WEB_CALL_UNSUCCESSFUL_ERROR.Args(uri.SplitKVP('?').Key.TakeLastChars(12),
+                                                                                    (int)response.StatusCode,
+                                                                                    response.StatusCode),
+                                       uri,
+                                       method.Method,
+                                       (int)response.StatusCode,
+                                       response.ReasonPhrase,
+                                       raw.TakeFirstChars(512, ".."));
+
           return (raw.JsonToDataObject() as JsonDataMap).NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(raw.TakeFirstChars(32)));
         }//using response
       }//using request
