@@ -253,6 +253,10 @@
     <EmbeddedResource Include="ConsoleUtils\ConsoleUtils.Modern.htm" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Azos.Web\Azos.Web.csproj">
+      <Project>{9902d057-8385-44a8-b4c1-053e17ac7fe7}</Project>
+      <Name>Azos.Web</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Azos\Azos.csproj">
       <Project>{c2bf5275-c8c2-46cc-86c7-a83a75c2be0d}</Project>
       <Name>Azos</Name>

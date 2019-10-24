@@ -51,6 +51,8 @@
      file-name="{0:yyyyMMdd}-$($name).dbg.log"
      min-level="error"
      generate-failover-msg="true"
+     Xinclude-fields="false"
+     Xinclude-data="true"
         />
 
     <sink  type="$(/$log-csv)"
