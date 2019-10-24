@@ -75,6 +75,7 @@ namespace WinFormsTest
       }
       catch(Exception error)
       {
+      error.Data["AAA"] = 123.456d;
       FormsAmbient.App.Log.Write(new Azos.Log.Message { Type = MessageType.Error, Topic = "WebCall", From = tbFrom.Text, Text = tbText.Text,
        Exception = error });
       }
