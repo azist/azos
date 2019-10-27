@@ -731,7 +731,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string CRUD_QUERY_RESOLVER_ALREADY_STARTED_ERROR = "CRUD QueryResolver already started to be used and can not be configured";
 
-    public const string CRUD_FIELD_ATTR_METADATA_PARSE_ERROR = "Field attribute metadata parse exception: '{0}'. Metadata: {1}";
+    public const string CRUD_METADATA_PARSE_ERROR = "Metadata parse exception: '{0}'. Metadata: {1}";
 
     public const string CRUD_FIELD_ATTR_PROTOTYPE_CTOR_ERROR = "Field attribute construction from prototype error: {0}";
 
@@ -743,7 +743,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string CRUD_TYPE_IS_NOT_DERIVED_FROM_ROW_ERROR = "CRUD supplied type of '{0}' is not a Row-derivative";
 
-    public const string CRUD_TYPE_IS_NOT_DERIVED_FROM_TYPED_ROW_ERROR = "CRUD supplied type of '{0}' is not a TypedRow-derivative";
+    public const string CRUD_TYPE_IS_NOT_DERIVED_FROM_TYPED_DOC_ERROR = "CRUD supplied type of '{0}' is not a TypedDoc-derivative";
 
     public const string CRUD_FIND_BY_KEY_LENGTH_ERROR = "CRUD table FindByKey/KeyRowFromValues was supplied wrong number of key field values";
 

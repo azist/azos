@@ -75,7 +75,7 @@ namespace Azos.Tests.Integration.CRUD
     }
 
 
-    [Table(name: "tbl_Patient")] //different class write to the same table as Patient above
+    [Schema(name: "tbl_Patient")] //different class write to the same table as Patient above
     [Serializable]
     public class SuperPatient : Patient
     {
@@ -88,7 +88,7 @@ namespace Azos.Tests.Integration.CRUD
 
 
     [Serializable]
-    [Table(name: "tbl_doctor")]
+    [Schema(name: "tbl_doctor")]
     public class Doctor : Perzon
     {
         public Doctor() {}
@@ -154,7 +154,7 @@ namespace Azos.Tests.Integration.CRUD
 
 
     [Serializable]
-    [Table(name: "tbl_tuple")]
+    [Schema(name: "tbl_tuple")]
     public class TupleData : TypedDoc
     {
         public TupleData() {}

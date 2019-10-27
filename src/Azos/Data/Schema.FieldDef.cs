@@ -78,6 +78,7 @@ namespace Azos.Data
               m_Attrs.Add( ata );
             }
 
+            m_Attrs.ForEach( a => a.Seal() );
             m_MemberInfo = memberInfo;
 
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))

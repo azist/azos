@@ -78,7 +78,7 @@ namespace Azos.Serialization.Slim
              get
              {
                yield return typeof(Data.Access.IDataStoreKey);
-               yield return typeof(Data.TableAttribute);
+               yield return typeof(Data.SchemaAttribute);
                yield return typeof(Data.FieldAttribute);
                yield return typeof(Data.FieldAttribute[]);
                yield return typeof(List<Data.FieldAttribute>);

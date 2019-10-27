@@ -33,7 +33,6 @@ namespace Azos.Data
       /// </summary>
       public static IEnumerable<PropertyInfo> GetFieldMembers(Type type)
       {
-        //20140926 DKh +DeclaredOnly
         var local = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public)
                         .Where(pi => Attribute.IsDefined(pi, typeof(FieldAttribute)));
 
@@ -130,7 +129,7 @@ namespace Azos.Data
       public static Schema GetForTypedDoc(Type tdoc)
       {
           if (!typeof(TypedDoc).IsAssignableFrom(tdoc.NonNull(nameof(tdoc))))
-              throw new DataException(StringConsts.CRUD_TYPE_IS_NOT_DERIVED_FROM_TYPED_ROW_ERROR.Args(tdoc.FullName));
+              throw new DataException(StringConsts.CRUD_TYPE_IS_NOT_DERIVED_FROM_TYPED_DOC_ERROR.Args(tdoc.FullName));
 
           var name = tdoc.AssemblyQualifiedName;
 
@@ -162,8 +161,11 @@ namespace Azos.Data
               m_Name = tdoc.AssemblyQualifiedName;
 
 
-              var tattrs = tdoc.GetCustomAttributes(typeof(TableAttribute), false).Cast<TableAttribute>();
-              m_TableAttrs = new List<TableAttribute>( tattrs );
+              var tattrs = tdoc.GetCustomAttributes(typeof(SchemaAttribute), false).Cast<SchemaAttribute>();
+              m_SchemaAttrs = new List<SchemaAttribute>( tattrs );
+
+              //20191026 DKh. Expand resource references in Descriptions
+              m_SchemaAttrs.ForEach(a => a.ExpandResourceReferencesRelativeTo(tdoc, null));
 
 
               m_FieldDefs = new OrderedRegistry<FieldDef>();
@@ -175,14 +177,15 @@ namespace Azos.Data
                                   .Cast<FieldAttribute>()
                                   .ToArray();
 
-                //20160318 DKh. Interpret [Field(CloneFromType)]
+                //Interpret [Field(CloneFromType)]
                 for(var i=0; i<fattrs.Length; i++)
                 {
                   var attr = fattrs[i];
+
                   if (attr.CloneFromDocType==null)
                   {
                    //20190831 DKh. Expand resource references in Descriptions
-                    attr.__ExpandResourceReferencesRelativeTo(tdoc, prop.Name);
+                    attr.ExpandResourceReferencesRelativeTo(tdoc, prop.Name);
                     continue;
                   }
 
@@ -224,12 +227,12 @@ namespace Azos.Data
 
       }
 
-      public Schema(string name, bool readOnly, IEnumerable<TableAttribute> tableAttributes, params FieldDef[] fieldDefs) : this(name, readOnly, fieldDefs, tableAttributes)
+      public Schema(string name, bool readOnly, IEnumerable<SchemaAttribute> tableAttributes, params FieldDef[] fieldDefs) : this(name, readOnly, fieldDefs, tableAttributes)
       {
 
       }
 
-      public Schema(string name, bool readOnly, IEnumerable<FieldDef> fieldDefs, IEnumerable<TableAttribute> tableAttributes = null)
+      public Schema(string name, bool readOnly, IEnumerable<FieldDef> fieldDefs, IEnumerable<SchemaAttribute> schemaAttributes = null)
       {
           if (name.IsNullOrWhiteSpace())
               throw new DataException(StringConsts.ARGUMENT_ERROR + "CRUD.Schema.ctor(name==null|empty)");
@@ -239,10 +242,13 @@ namespace Azos.Data
 
           m_Name = name;
           m_ReadOnly = readOnly;
-          if (tableAttributes==null)
-              m_TableAttrs = new List<TableAttribute>();
+          if (schemaAttributes==null)
+              m_SchemaAttrs = new List<SchemaAttribute>();
           else
-              m_TableAttrs = new List<TableAttribute>( tableAttributes );
+              m_SchemaAttrs = new List<SchemaAttribute>( schemaAttributes );
+
+
+          m_SchemaAttrs.ForEach(a => a.Seal());
 
           m_FieldDefs = new OrderedRegistry<FieldDef>();
           int order = 0;
@@ -263,7 +269,7 @@ namespace Azos.Data
       private bool m_ReadOnly;
       private Type m_TypedDocType;
 
-      private List<TableAttribute> m_TableAttrs;
+      private List<SchemaAttribute> m_SchemaAttrs;
       private OrderedRegistry<FieldDef> m_FieldDefs;
 
       private JsonDataMap m_ExtraData;
@@ -306,25 +312,25 @@ namespace Azos.Data
       /// <summary>
       /// Returns table-level attributes
       /// </summary>
-      public IEnumerable<TableAttribute> TableAttrs { get { return m_TableAttrs;}}
+      public IEnumerable<SchemaAttribute> SchemaAttrs => m_SchemaAttrs;
 
       /// <summary>
       /// Returns FieldDefs in their order within rows that this schema describes
       /// </summary>
-      public IEnumerable<FieldDef> FieldDefs { get { return m_FieldDefs.OrderedValues;}}
+      public IEnumerable<FieldDef> FieldDefs => m_FieldDefs.OrderedValues;
 
 
       /// <summary>
       /// Returns FieldDefs in their order within rows that are declared as key fields in ANY_TARGET
       /// </summary>
-      public IEnumerable<FieldDef> AnyTargetKeyFieldDefs { get { return m_FieldDefs.OrderedValues.Where(fd => fd.AnyTargetKey);}}
+      public IEnumerable<FieldDef> AnyTargetKeyFieldDefs => m_FieldDefs.OrderedValues.Where(fd => fd.AnyTargetKey);
 
 
 
       /// <summary>
       /// Returns FieldDefs in their order within rows as
       /// </summary>
-      public IEnumerable<FieldDef> AnyVisibleFieldDefs { get { return m_FieldDefs.OrderedValues.Where(fd => fd.AnyVisible);}}
+      public IEnumerable<FieldDef> AnyVisibleFieldDefs => m_FieldDefs.OrderedValues.Where(fd => fd.AnyVisible);
 
 
       /// <summary>
@@ -338,15 +344,12 @@ namespace Azos.Data
       /// <summary>
       /// Returns a field definition by a positional index within the row
       /// </summary>
-      public FieldDef this[int index]
-      {
-          get{ return m_FieldDefs[index];}
-      }
+      public FieldDef this[int index] => m_FieldDefs[index];
 
       /// <summary>
       /// Returns field count
       /// </summary>
-      public int FieldCount {get { return m_FieldDefs.Count;}}
+      public int FieldCount => m_FieldDefs.Count;
 
 
       /// <summary>
@@ -410,14 +413,13 @@ namespace Azos.Data
       /// </summary>
       public IEnumerable<FieldDef> GetKeyFieldDefsForTarget(string targetName)
       {
-            foreach( var fd in m_FieldDefs)
-            {
-              var fattr = fd[targetName];
-              if (fattr!=null && fattr.Key) yield return fd;
-            }
+          foreach( var fd in m_FieldDefs)
+          {
+            var fattr = fd[targetName];
+            if (fattr!=null && fattr.Key) yield return fd;
+          }
       }
 
-      //20170420 DKh+Ogee multitargeting for deserilization to ROW from JSON
       /// <summary>
       /// Returns a field def that matches the desired backed name for the specified target or null
       /// </summary>
@@ -447,17 +449,17 @@ namespace Azos.Data
 
 
       /// <summary>
-      /// Returns a TableAttribute that matches the supplied targetName, or if one was not defined then
-      ///  returns TableAttribute which matches any target or null
+      /// Returns a SchemaAttribute that matches the supplied targetName, or if one was not defined then
+      ///  returns SchemaAttribute which matches any target or null
       /// </summary>
-      public TableAttribute GetTableAttrForTarget(string targetName)
+      public SchemaAttribute GetSchemaAttrForTarget(string targetName)
       {
           if (targetName.IsNotNullOrWhiteSpace())
           {
-              var atr = m_TableAttrs.FirstOrDefault(a => targetName.EqualsIgnoreCase(a.TargetName));
+              var atr = m_SchemaAttrs.FirstOrDefault(a => targetName.EqualsIgnoreCase(a.TargetName));
               if (atr!=null) return atr;
           }
-          return m_TableAttrs.FirstOrDefault(a => TargetedAttribute.ANY_TARGET.EqualsIgnoreCase(a.TargetName));
+          return m_SchemaAttrs.FirstOrDefault(a => TargetedAttribute.ANY_TARGET.EqualsIgnoreCase(a.TargetName));
       }
 
 
@@ -478,12 +480,12 @@ namespace Azos.Data
           if (compareNames)
             if (!Name.EqualsIgnoreCase(other.Name)) return false;
 
-          if (this.m_TableAttrs.Count != other.m_TableAttrs.Count ||
+          if (this.m_SchemaAttrs.Count != other.m_SchemaAttrs.Count ||
               this.m_FieldDefs.Count != other.m_FieldDefs.Count) return false;
 
-          var cnt = this.m_TableAttrs.Count;
+          var cnt = this.m_SchemaAttrs.Count;
           for(var i=0; i<cnt; i++)
-            if (!this.m_TableAttrs[i].Equals(other.m_TableAttrs[i])) return false;
+            if (!this.m_SchemaAttrs[i].Equals(other.m_SchemaAttrs[i])) return false;
 
           cnt = this.m_FieldDefs.Count;
           for(var i=0; i<cnt; i++)

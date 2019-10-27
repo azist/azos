@@ -18,7 +18,7 @@ namespace Azos.Tests.Nub.DataAccess
 {
 
     [Serializable]
-    [Table(targetName: "SPARTA_SYSTEM", name: "dimperson")]
+    [Schema(targetName: "SPARTA_SYSTEM", name: "dimperson")]
     public class Person : TypedDoc
     {
         public Person() {}

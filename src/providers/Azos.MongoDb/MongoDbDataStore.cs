@@ -326,7 +326,7 @@ namespace Azos.Data.Access.MongoDb
           if (schema.TypedDocType!=null)
             tableName = schema.TypedDocType.Name;//without namespace
 
-          var tableAttr = schema.GetTableAttrForTarget(TargetName);
+          var tableAttr = schema.GetSchemaAttrForTarget(TargetName);
           if (tableAttr!=null && tableAttr.Name.IsNotNullOrWhiteSpace()) tableName = tableAttr.Name;
           return tableName;
         }

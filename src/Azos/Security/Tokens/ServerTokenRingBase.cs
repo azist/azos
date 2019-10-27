@@ -147,7 +147,7 @@ namespace Azos.Security.Tokens
       if (!s_TableNames.TryGetValue(ttoken, out var name))
       {
         var schema = Schema.GetForTypedDoc(ttoken);
-        name = schema.GetTableAttrForTarget(null).Name;
+        name = schema.GetSchemaAttrForTarget(null).Name;
         var dict = new Dictionary<Type, string>(s_TableNames);
         dict[ttoken] = name;
         System.Threading.Thread.MemoryBarrier();

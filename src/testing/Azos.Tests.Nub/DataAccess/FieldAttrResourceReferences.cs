@@ -26,6 +26,8 @@ namespace Azos.Tests.Nub.DataAccess
     {
       var schema = Schema.GetForTypedDoc(typeof(TestDataDocA));
 
+      Aver.AreEqual("Schema-level description is here", schema.SchemaAttrs.First().Description);
+
       Aver.AreEqual("My long description", schema["Name"].Attrs.First().Description);
       Aver.AreEqual("Apple", schema["Name"].Attrs.First().ParseValueList()["A"].AsString());
       Aver.AreEqual("Book", schema["Name"].Attrs.First().ParseValueList()["B"].AsString());
@@ -58,6 +60,7 @@ namespace Azos.Tests.Nub.DataAccess
   }
 
 
+  [Schema(Description = "./")]
   public class TestDataDocA : TypedDoc
   {
     [Field(description: "./", valueList: "./")]
