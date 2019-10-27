@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.525.1
-set HEADLINE=Add SSEMailboxHandler Server Push
+set VER=1.0.525.2
+set HEADLINE=Refactor field attr add prop setters
 
 call vs2017-build-release %VER%
 
