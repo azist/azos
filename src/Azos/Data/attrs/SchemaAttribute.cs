@@ -15,8 +15,10 @@ namespace Azos.Data
   [AttributeUsage(AttributeTargets.Class, AllowMultiple=true, Inherited=false)]
   public sealed class SchemaAttribute : TargetedAttribute
   {
-    public SchemaAttribute(string targetName = null, string name = null, bool immutable = false, string metadata = null) : base(targetName)
+    public SchemaAttribute(string targetName = null, string name = null, bool immutable = false, string metadata = null) : base(targetName, metadata)
     {
+      Name = name;
+      Immutable = immutable;
     }
 
     private string m_Name;

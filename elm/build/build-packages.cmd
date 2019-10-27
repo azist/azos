@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.0.525.2
+set VER=1.0.525.3
 set HEADLINE=Refactor field attr add prop setters
 
 call vs2017-build-release %VER%
