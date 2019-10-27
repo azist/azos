@@ -108,18 +108,14 @@ namespace Azos.Data
       ///  creating it if it has not been cached yet
       /// </summary>
       public static Schema GetForTypedDoc(TypedDoc doc)
-      {
-          return GetForTypedDoc(doc.NonNull(nameof(doc)).GetType());
-      }
+        => GetForTypedDoc(doc.NonNull(nameof(doc)).GetType());
 
       /// <summary>
       /// Returns schema instance for the TypedRow instance by fetching schema object from cache or
       ///  creating it if it has not been cached yet
       /// </summary>
       public static Schema GetForTypedDoc<TDoc>() where TDoc : TypedDoc
-      {
-          return GetForTypedDoc(typeof(TDoc));
-      }
+        => GetForTypedDoc(typeof(TDoc));
 
 
       /// <summary>
@@ -165,7 +161,7 @@ namespace Azos.Data
               m_SchemaAttrs = new List<SchemaAttribute>( tattrs );
 
               //20191026 DKh. Expand resource references in Descriptions
-              m_SchemaAttrs.ForEach(a => a.ExpandResourceReferencesRelativeTo(tdoc, null));
+              m_SchemaAttrs.ForEach(a => { a.ExpandResourceReferencesRelativeTo(tdoc, null); a.Seal(); });
 
 
               m_FieldDefs = new OrderedRegistry<FieldDef>();
