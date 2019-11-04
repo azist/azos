@@ -697,7 +697,7 @@ namespace Azos.Data
 
 
 
-    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    public virtual (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
     {
       if (data is JsonDataMap map)
       {
