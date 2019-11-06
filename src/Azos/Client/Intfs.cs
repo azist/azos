@@ -45,7 +45,7 @@ namespace Azos.Client
     /// <param name="network">The name of the logical network to use for a call, or null to use the default</param>
     /// <param name="binding">
     ///   The service binding to use, or null for default.
-    ///   Bindings are connection technology/protocols (such as Http(s)/Glue/Grps etc..) used to make the call
+    ///   Bindings are connection technology/protocols (such as Http(s)/Glue/GRPC etc..) used to make the call
     /// </param>
     /// <returns>Endpoints which should be (re)tried in the order of enumeration</returns>
     IEnumerable<IEndpoint> GetEndpointsForCall(string contract, object shardKey = null, string network = null, string binding = null);

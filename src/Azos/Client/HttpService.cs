@@ -33,7 +33,7 @@ namespace Azos.Client
   {
     public IService Service => throw new NotImplementedException();
 
-    public string Route => throw new NotImplementedException();
+    public string RemoteAddress => throw new NotImplementedException();
 
     public string Network => throw new NotImplementedException();
 
@@ -48,6 +48,8 @@ namespace Azos.Client
     public int TimeoutMs => throw new NotImplementedException();
 
     public DateTime? CircuitBreakerTimeStampUtc => throw new NotImplementedException();
+
+    public DateTime? OfflineTimeStampUtc => throw new NotImplementedException();
 
     public void Dispose()
     {

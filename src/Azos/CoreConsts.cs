@@ -99,6 +99,7 @@ namespace Azos
       public const string WEBMSG_TOPIC = "WMsg";
       public const string RUN_TOPIC = "Run";
       public const string WEB_TOPIC = "Web";
+      public const string CMS_TOPIC = "CMS";
       public const string WAVE_TOPIC = "Wave";
       public const string DOC_TOPIC = "Doc";
 

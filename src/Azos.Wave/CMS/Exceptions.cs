@@ -1,27 +1,26 @@
-/*<FILE_LICENSE>
+﻿/*<FILE_LICENSE>
  * Azos (A to Z Application Operating System) Framework
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+
 using System;
 using System.Runtime.Serialization;
-using System.Collections.Generic;
 
-using Azos.Web;
-
-namespace Azos.Wave.CMS
+namespace Azos.Wave.Cms
 {
   /// <summary>
-  /// Base exception thrown by the WAVE.CMS framework
+  /// Base exception thrown by error conditions related to Content Management(CMS)
   /// </summary>
   [Serializable]
-  public class CMSException : WaveException
+  public class CmsException : WaveException
   {
-    public CMSException() { }
-    public CMSException(string message) : base(message) { }
-    public CMSException(string message, Exception inner) : base(message, inner) { }
-    protected CMSException(SerializationInfo info, StreamingContext context): base(info, context) { }
+    public CmsException() { }
+    public CmsException(string message) : base(message) { }
+    public CmsException(string message, Exception inner) : base(message, inner) { }
+    protected CmsException(SerializationInfo info, StreamingContext context) : base(info, context) { }
   }
+
 
 }

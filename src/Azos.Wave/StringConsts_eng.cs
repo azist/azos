@@ -155,6 +155,6 @@ namespace Azos.Wave
       public const string CONFIG_PORTAL_LOCALIZATION_FILE_ERROR =  "Portal '{0}' points to localization message file '{1}' which could not be read: {2}";
 
 
-      public const string CMS_NAVIGATE_T_ERROR =  "Portal '{0}' CMSContext.Navigate<{1}>('{2}') does not land at a resource of desired type";
+      public const string CMS_ID_ERROR =  "Got invalid ContentId `{0}`='{1}'. Only the following characters are permitted in Cms ContentId: 'a-z|A-Z|0-9|.|-|_' and be no longer than {2} chars.";
   }
 }
