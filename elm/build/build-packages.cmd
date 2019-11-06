@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.525.3
-set HEADLINE=Refactor field attr add prop setters
+set VER=1.0.530
+set HEADLINE=Refactor Wave.Cms
 
 call vs2017-build-release %VER%
 
