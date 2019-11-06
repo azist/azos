@@ -22,12 +22,6 @@ namespace Azos.Web
   public static class WebCallExtensions
   {
     /// <summary>
-    /// Converts UTC date time string suitable for use as Cookie expiration filed
-    /// </summary>
-    public static string DateTimeToHTTPCookieDateTime(this DateTime utcDateTime)
-      => utcDateTime.ToString("ddd, dd-MMM-yyyy HH':'mm':'ss 'GMT'", DateTimeFormatInfo.InvariantInfo);
-
-    /// <summary>
     /// Gets string response containing json and returns it as JsonDataMap
     /// </summary>
     public static async Task<JsonDataMap> GetJsonMapAsync(this HttpClient client, string uri)

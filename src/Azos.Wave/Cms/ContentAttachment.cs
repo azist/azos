@@ -81,17 +81,16 @@ namespace Azos.Wave.Cms
           Cacheability = CacheControl.Type.Private,
           MustRevalidate = true,
           ProxyRevalidate = true,
-          NoTransform=true,
-          MaxAgeSec=0
+          NoTransform = true,
+          MaxAgeSec = 0
         };
       }
 
       if (cache.HasValue)
         work.Response.SetCacheControlHeaders(cache.Value, true);
 
-      #warning THis needs to be changed (the date format is wrong)
       if (Content.ModifyDate.HasValue)
-        work.Response.Headers[HttpResponseHeader.LastModified] = Content.ModifyDate.Value.DateTimeToHTTPCookieDateTime();//this needs to be changed
+        work.Response.Headers[HttpResponseHeader.LastModified] = WebUtils.DateTimeToHTTPLastModifiedHeaderDateTime(Content.ModifyDate.Value);
 
 
       if (UseETag)

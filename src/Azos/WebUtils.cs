@@ -6,6 +6,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -46,12 +47,16 @@ namespace Azos
 
 
     /// <summary>
-    /// Strip simple html from string
+    /// Converts UTC date time string suitable for use as Cookie expiration filed
     /// </summary>
-    public static string StripSimpleHtml(this string str)
-    {
-      return WebUtility.HtmlDecode(Regex.Replace(str, @"<[^>]+>|&nbsp;", "").Trim());
-    }
+    public static string DateTimeToHTTPCookieDateTime(DateTime utcDateTime)
+      => utcDateTime.ToString("ddd, dd-MMM-yyyy HH':'mm':'ss 'GMT'", DateTimeFormatInfo.InvariantInfo);
+
+    /// <summary>
+    /// Converts UTC date time string suitable for use as Cookie expiration filed
+    /// </summary>
+    public static string DateTimeToHTTPLastModifiedHeaderDateTime(DateTime utcDateTime)
+      => utcDateTime.ToString("ddd, dd MMM yyyy HH':'mm':'ss 'GMT'", DateTimeFormatInfo.InvariantInfo);
 
     /// <summary>
     /// Returns true when supplied name can be used for JS identifier naming (var names, func/class names etc..)
