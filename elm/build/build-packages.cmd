@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.530
-set HEADLINE=Refactor Wave.Cms
+set VER=1.0.530.2
+set HEADLINE=Arow load exception handler
 
 call vs2017-build-release %VER%
 
