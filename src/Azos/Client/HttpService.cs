@@ -51,7 +51,26 @@ namespace Azos.Client
 
     public DateTime? OfflineTimeStampUtc => throw new NotImplementedException();
 
+    public bool IsOnline => throw new NotImplementedException();
+
+    public string StatusMsg => throw new NotImplementedException();
+
     public void Dispose()
+    {
+      throw new NotImplementedException();
+    }
+
+    public void PutOffline(string statusMsg)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void PutOnline(string statusMsg)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool TryResetCircuitBreaker(string statusMessage)
     {
       throw new NotImplementedException();
     }

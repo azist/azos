@@ -9,7 +9,7 @@ namespace Azos.Client
 {
   /// <summary>
   /// Represents a uniquely named service which provides services via its endpoints.
-  /// A single service may provide more than one "Contract" - a logical sub-division of a service.
+  /// A single service may serve more than one "Contract" - a logical sub-division of a service.
   /// For example, a "User" service may provide "List" and "Admin" contracts used for querying/listing users and adding/deleting users respectively.
   /// </summary>
   public interface IService : IApplicationComponent, INamed
@@ -92,7 +92,7 @@ namespace Azos.Client
 
     /// <summary>
     /// Provides remote address routing/logical host/partition name which is used to match the callers address.
-    /// For Sky apps this is a metabase host name (reg path) of the target server which provides the service
+    /// For Sky apps this is a metabase host name (regional path) of the target server which provides the service
     /// </summary>
     string RemoteAddress { get; }
 
@@ -105,19 +105,19 @@ namespace Azos.Client
 
     /// <summary>
     /// Provides logical binding name for this endpoint, for example "https". Bindings are protocols/connection methods supported.
-    /// A typical REST-ful system typically only uses http(s) bindings.
+    /// A typical REST-full system typically uses http/s bindings.
     /// </summary>
     string Binding { get; }
 
     /// <summary>
     /// Provides logical contract name for the functionality which this service endpoint covers.
-    /// For Http bindings this typically contains URI root path, such as "/user"
+    /// For Http bindings this typically contains URI root path, such as "/user/admin"
     /// </summary>
     string Contract {  get; }
 
     /// <summary>
     /// Groups endpoints by logical shard. Shard numbers are positive consecutive integers starting from 0 (e.g. 0,1,2,3...)
-    /// If sharding is not used then all endpoints have the same shard of 0.
+    /// If sharding is not used then all endpoints are set to the same shard of 0.
     /// Before service calls are made, the system takes "shardKey" and tries to find the partition based on sharding object,
     /// this way the load may be parallelized in "strands" of execution.
     /// </summary>
@@ -126,8 +126,9 @@ namespace Azos.Client
     /// <summary>
     /// Relative order of endpoint per shard.
     /// Endpoints are tried in ascending order e.g. 0=Primary, 1=Secondary etc...
-    /// When calculating the destination endpoint, the system uses RemoteAddress (and possibly other parameters such as current QOS/statistics) first (for the appropriate binding/contract),
-    /// then shard, then ShardOrder within the shard, thus you may designate primary/secondary/tertiary etc.. using this parameter
+    /// When calculating the destination endpoint, the system uses RemoteAddress (and possibly other parameters such as current QOS/statistics) first
+    /// (for the appropriate binding/contract), then shard, then ShardOrder within the shard, thus you may designate
+    /// primary/secondary/tertiary etc.. using this parameter
     /// </summary>
     int ShardOrder { get; }
 
@@ -149,9 +150,35 @@ namespace Azos.Client
     /// the offline endpoint does NOT auto-reset unlike circuit breaker does
     /// </summary>
     DateTime? OfflineTimeStampUtc { get; }
+
+
+    /// <summary>
+    /// Returns true when endpoint was not purposely put offline and circuit breaker has not tripped
+    /// </summary>
+    bool IsOnline{  get;}
+
+    /// <summary>
+    /// Returns a short status message of the endpoint, e.g. "Offline until Sun")
+    /// </summary>
+    string StatusMsg {  get; }
   }
 
   public interface IEndpointImplementation : IEndpoint, IDisposable
   {
+    /// <summary>
+    /// Resets circuit breaker returning true if endpoint circuit was reset.
+    /// False is returned if circuit breaker could not be reset (e.g. remote endpoint is still disabled)
+    /// </summary>
+    bool TryResetCircuitBreaker(string statusMessage);
+
+    /// <summary>
+    /// Puts endpoint online
+    /// </summary>
+    void PutOnline(string statusMsg);
+
+    /// <summary>
+    /// Puts endpoint offline
+    /// </summary>
+    void PutOffline(string statusMsg);
   }
 }
