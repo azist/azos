@@ -29,7 +29,7 @@ namespace Azos.Client
       return result.Select( ep => new EndpointAssignment(ep, network, binding, remoteAddress, contract));
     }
 
-    protected override HttpTransport DoAcquireTransport(EndpointAssignment<HttpEndpoint> assignment, bool reserve)
+    protected override HttpTransport DoAcquireTransport(EndpointAssignment assignment, bool reserve)
     {
       throw new NotImplementedException();
     }

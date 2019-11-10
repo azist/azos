@@ -77,7 +77,7 @@ namespace Azos.Client
       if (assignment.Endpoint.NonNull("assignment/endpoint").Service != this)
         throw new ClientException(StringConsts.CLIENT_WRONG_ENDPOINT_SERVICE_ERROR.Args(Name));
 
-      return DoAcquireTransport(new EndpointAssignment<TEndpoint>(assignment), reserve);
+      return DoAcquireTransport(assignment, reserve);
     }
 
     public void ReleaseTransport(ITransportImplementation transport)
@@ -107,7 +107,7 @@ namespace Azos.Client
                                    binding.Default(DefaultBinding));
     }
 
-    protected abstract TTransport DoAcquireTransport(EndpointAssignment<TEndpoint> assignment, bool reserve);
+    protected abstract TTransport DoAcquireTransport(EndpointAssignment assignment, bool reserve);
     protected abstract void DoReleaseTransport(TTransport endpoint);
     protected abstract IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, object shardKey, string network, string binding);
 

@@ -83,33 +83,6 @@ namespace Azos.Client
   }
 
   /// <summary>
-  /// Assigns a specific endpoint, network, binding, remote address, and contract
-  /// </summary>
-  public struct EndpointAssignment<TEndpoint> where TEndpoint : IEndpointImplementation
-  {
-    public EndpointAssignment(EndpointAssignment assignment)
-    {
-      if( !(assignment.Endpoint is TEndpoint ep))
-        throw new NotImplementedException();
-
-      Endpoint = ep;
-      Network = assignment.Network;
-      Binding = assignment.Binding;
-      RemoteAddress = assignment.RemoteAddress;
-      Contract = assignment.Contract;
-    }
-
-    public readonly TEndpoint Endpoint;
-    public readonly string Network;
-    public readonly string Binding;
-    public readonly string RemoteAddress;
-    public readonly string Contract;
-
-    public EndpointAssignment Upcast() => new EndpointAssignment(Endpoint, Network, Binding, RemoteAddress, Contract);
-  }
-
-
-  /// <summary>
   /// Implements an IService, adding transport acquisition/release behavior
   /// </summary>
   public interface IServiceImplementation : IService, IDisposable, IInstrumentable
