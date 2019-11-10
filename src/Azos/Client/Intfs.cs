@@ -64,7 +64,7 @@ namespace Azos.Client
   /// <summary>
   /// Assigns a specific endpoint, network, binding, remote address, and contract
   /// </summary>
-  public struct EndpointAssignment
+  public struct EndpointAssignment : IEquatable<EndpointAssignment>
   {
     public EndpointAssignment(IEndpoint ep, string net, string binding, string addr, string contract)
     {
@@ -80,6 +80,18 @@ namespace Azos.Client
     public readonly string Binding;
     public readonly string RemoteAddress;
     public readonly string Contract;
+
+    public override int GetHashCode() => (Endpoint != null ? Endpoint.GetHashCode() : 0) ^ (RemoteAddress != null ? RemoteAddress.GetHashCode() : 0);
+    public override bool Equals(object obj) => obj is EndpointAssignment epa ? this.Equals(epa) : false;
+    public bool Equals(EndpointAssignment other)
+     => this.RemoteAddress == other.RemoteAddress &&
+        this.Endpoint == other.Endpoint &&
+        this.Contract == other.Contract &&
+        this.Binding == other.Binding &&
+        this.Network == other.Network;
+
+    public static bool operator ==(EndpointAssignment a, EndpointAssignment b) => a.Equals(b);
+    public static bool operator !=(EndpointAssignment a, EndpointAssignment b) => !a.Equals(b);
   }
 
   /// <summary>
