@@ -301,6 +301,7 @@ value 2
       }
       catch (Exception e)
       {
+        Conout.Write(e.ToMessageWithType());
         Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_PART_EMPTY_NAME_ERROR));
       }
     }
@@ -315,6 +316,7 @@ value 2
       }
       catch (Exception e)
       {
+        Conout.Write(e.ToMessageWithType());
         Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_PARTS_COULDNT_BE_EMPTY_ERROR));
       }
     }
@@ -334,7 +336,7 @@ value 2
       }
       catch (Exception e)
       {
-        Console.WriteLine(e.Message);
+        Conout.Write(e.ToMessageWithType());
         Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_PART_COULDNT_BE_EMPTY_ERROR));
       }
     }
@@ -357,6 +359,7 @@ value
       }
       catch (Exception e)
       {
+        Conout.Write(e.ToMessageWithType());
         Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_PART_EMPTY_NAME_ERROR));
       }
     }
@@ -378,6 +381,7 @@ value-----------------------------7de23d3b1d07fe--
       }
       catch (Exception e)
       {
+        Conout.Write(e.ToMessageWithType());
         Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_PART_MUST_BE_ENDED_WITH_EOL_ERROR));
       }
     }
@@ -399,6 +403,7 @@ value
       }
       catch (Exception e)
       {
+        Conout.Write(e.ToMessageWithType());
         Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_DOUBLE_EOL_ISNT_FOUND_AFTER_HEADER_ERROR));
       }
     }
@@ -425,6 +430,7 @@ value 2
       }
       catch (Exception e)
       {
+        Conout.Write(e.ToMessageWithType());
         Aver.IsTrue(e.Message.Contains("is already registered."));
       }
     }
@@ -481,6 +487,7 @@ value 2
       }
       catch (Exception ex)
       {
+        Conout.Write(ex.ToMessageWithType());
         Aver.IsTrue(ex.Message.Contains(StringConsts.MULTIPART_SPECIFIED_BOUNDARY_ISNT_FOUND_ERROR));
       }
     }
@@ -503,6 +510,7 @@ value 1
       }
       catch (Exception e)
       {
+        Conout.Write(e.ToMessageWithType());
         Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_BOUNDARY_IS_TOO_SHORT));
       }
     }
@@ -525,6 +533,7 @@ value 1
       }
       catch (Exception e)
       {
+        Conout.Write(e.ToMessageWithType());
         Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_BOUNDARY_SHOULD_START_WITH_HYPHENS));
       }
     }
@@ -550,6 +559,7 @@ value 2--
       }
       catch (Exception e)
       {
+        Conout.Write(e.ToMessageWithType());
         Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_TERMINATOR_ISNT_FOUND_ERROR));
       }
     }
