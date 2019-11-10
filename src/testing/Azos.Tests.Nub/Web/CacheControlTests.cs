@@ -10,9 +10,9 @@ using System;
 using Azos.Web;
 using Azos.Data;
 
-namespace Azos.Tests.Unit.Web
+namespace Azos.Tests.Nub.Web
 {
-  [Runnable(TRUN.BASE)]
+  [Runnable]
   public class CacheControlTests
   {
     [Run]

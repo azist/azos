@@ -11,9 +11,9 @@ using Azos.Scripting;
 using Azos.Data;
 using Azos.Web;
 
-namespace Azos.Tests.Unit.Web.MultiPart
+namespace Azos.Tests.Nub.Web.MultiPart
 {
-  [Runnable(TRUN.BASE, 2)]
+  [Runnable]
   public class MultipartTests
   {
     private const string POSTFIX_CONTENT_TYPE = "_contenttype";
@@ -301,7 +301,7 @@ value 2
       }
       catch (Exception e)
       {
-        Aver.IsTrue(e.Message.Contains(Azos.Web.StringConsts.MULTIPART_PART_EMPTY_NAME_ERROR));
+        Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_PART_EMPTY_NAME_ERROR));
       }
     }
 
@@ -315,7 +315,7 @@ value 2
       }
       catch (Exception e)
       {
-        Aver.IsTrue(e.Message.Contains(Azos.Web.StringConsts.MULTIPART_PARTS_COULDNT_BE_EMPTY_ERROR));
+        Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_PARTS_COULDNT_BE_EMPTY_ERROR));
       }
     }
 
@@ -335,7 +335,7 @@ value 2
       catch (Exception e)
       {
         Console.WriteLine(e.Message);
-        Aver.IsTrue(e.Message.Contains(Azos.Web.StringConsts.MULTIPART_PART_COULDNT_BE_EMPTY_ERROR));
+        Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_PART_COULDNT_BE_EMPTY_ERROR));
       }
     }
 
@@ -357,7 +357,7 @@ value
       }
       catch (Exception e)
       {
-        Aver.IsTrue(e.Message.Contains(Azos.Web.StringConsts.MULTIPART_PART_EMPTY_NAME_ERROR));
+        Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_PART_EMPTY_NAME_ERROR));
       }
     }
 
@@ -378,7 +378,7 @@ value-----------------------------7de23d3b1d07fe--
       }
       catch (Exception e)
       {
-        Aver.IsTrue(e.Message.Contains(Azos.Web.StringConsts.MULTIPART_PART_MUST_BE_ENDED_WITH_EOL_ERROR));
+        Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_PART_MUST_BE_ENDED_WITH_EOL_ERROR));
       }
     }
 
@@ -399,7 +399,7 @@ value
       }
       catch (Exception e)
       {
-        Aver.IsTrue(e.Message.Contains(Azos.Web.StringConsts.MULTIPART_DOUBLE_EOL_ISNT_FOUND_AFTER_HEADER_ERROR));
+        Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_DOUBLE_EOL_ISNT_FOUND_AFTER_HEADER_ERROR));
       }
     }
 
@@ -481,7 +481,7 @@ value 2
       }
       catch (Exception ex)
       {
-        Aver.IsTrue(ex.Message.Contains(Azos.Web.StringConsts.MULTIPART_SPECIFIED_BOUNDARY_ISNT_FOUND_ERROR));
+        Aver.IsTrue(ex.Message.Contains(StringConsts.MULTIPART_SPECIFIED_BOUNDARY_ISNT_FOUND_ERROR));
       }
     }
 
@@ -503,7 +503,7 @@ value 1
       }
       catch (Exception e)
       {
-        Aver.IsTrue(e.Message.Contains(Azos.Web.StringConsts.MULTIPART_BOUNDARY_IS_TOO_SHORT));
+        Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_BOUNDARY_IS_TOO_SHORT));
       }
     }
 
@@ -525,7 +525,7 @@ value 1
       }
       catch (Exception e)
       {
-        Aver.IsTrue(e.Message.Contains(Azos.Web.StringConsts.MULTIPART_BOUNDARY_SHOULD_START_WITH_HYPHENS));
+        Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_BOUNDARY_SHOULD_START_WITH_HYPHENS));
       }
     }
 
@@ -550,7 +550,7 @@ value 2--
       }
       catch (Exception e)
       {
-        Aver.IsTrue(e.Message.Contains(Azos.Web.StringConsts.MULTIPART_TERMINATOR_ISNT_FOUND_ERROR));
+        Aver.IsTrue(e.Message.Contains(StringConsts.MULTIPART_TERMINATOR_ISNT_FOUND_ERROR));
       }
     }
 

@@ -6,7 +6,7 @@
 using System;
 using Azos.Scripting;
 
-namespace Azos.Tests.Unit.Web
+namespace Azos.Tests.Nub.Web
 {
   [Runnable]
   public class EscapeJSLiteralTest

@@ -15,9 +15,9 @@ using System.Threading.Tasks;
 
 using Azos.Web;
 
-namespace Azos.Tests.Unit.Web
+namespace Azos.Tests.Nub.Web
 {
-  [Runnable(TRUN.BASE, 6)]
+  [Runnable]
   public class WebSettingsTests
   {
     [Run]

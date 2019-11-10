@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 
 using Azos.Conf;
+using Azos.Web;
 
 namespace Azos.Client
 {
@@ -65,15 +66,15 @@ namespace Azos.Client
             m_ClientHandler = new HttpClientHandler();
             m_ClientHandler.AllowAutoRedirect = AutoRedirect;
             //configure client handler
-
+            // todo
+            // -------------------------------------
 
             m_Client = new HttpClient(m_ClientHandler);
             m_Client.Timeout = TimeSpan.FromMilliseconds(TimeoutMs > 0 ? TimeoutMs : this.Service.DefaultTimeoutMs > 0 ? Service.DefaultTimeoutMs : DEFAULT_TIMEOUT_MS);
             m_Client.BaseAddress = this.Uri;
 
-            //FINISH!!!
-//            if (IsJson)
-//              m_Client.DefaultRequestHeaders.Accept.ParseAdd(ContentType.JSON);
+            if (IsJson)
+              m_Client.DefaultRequestHeaders.Accept.ParseAdd(ContentType.JSON);
 
             if (AuthHeader.IsNotNullOrWhiteSpace())
               m_Client.DefaultRequestHeaders.Authorization =
