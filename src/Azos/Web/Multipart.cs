@@ -311,30 +311,47 @@ namespace Azos.Web
       {
         int current;
         var foundEOL = false;
-        var prevIsCR = false;
+      ////  var prevIsCR = false;
         var boundaryBytesList = new List<byte>();
 
-        // find EOL
-        while (!foundEOL && (current = stream.ReadByte()) > -1)
+      //20191110 DKh
+      //////// find EOL
+      ////////while (!foundEOL && (current = stream.ReadByte()) > -1)
+      ////////{
+      ////////  var b = (byte)current;
+      ////////  if (b == LF)
+      ////////  {
+      ////////    if (prevIsCR) foundEOL = true;
+      ////////  }
+      ////////  else
+      ////////  {
+      ////////    if (b == CR)
+      ////////    {
+      ////////      prevIsCR = true;
+      ////////      continue;
+      ////////    }
+      ////////    boundaryBytesList.Add(b);
+      ////////  }
+      ////////  prevIsCR = false;
+      ////////}
+
+      while (!foundEOL && (current = stream.ReadByte()) > -1)
+      {
+        var b = (byte)current;
+        if (b == LF)
         {
-          var b = (byte)current;
-          if (b == LF)
-          {
-            if (prevIsCR) foundEOL = true;
-          }
-          else
-          {
-            if (b == CR)
-            {
-              prevIsCR = true;
-              continue;
-            }
-            boundaryBytesList.Add(b);
-          }
-          prevIsCR = false;
+          foundEOL = true;
+          break;
         }
 
-        if (!foundEOL)
+        if (b == CR)
+        {
+          continue;
+        }
+        boundaryBytesList.Add(b);
+      }
+
+      if (!foundEOL)
           throw new WebException(StringConsts.MULTIPART_NO_LF_NOR_CRLF_ISNT_FOUND_ERROR);
 
         // set boundary

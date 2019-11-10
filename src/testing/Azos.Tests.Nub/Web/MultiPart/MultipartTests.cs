@@ -43,11 +43,11 @@ namespace Azos.Tests.Nub.Web.MultiPart
     }
 
     [Run]
-    public void EncodeDecode_OneField_Enc1251()
+    public void EncodeDecode_OneField_UTF8()
     {
-      var encoding = Encoding.GetEncoding(1251);
+      var encoding = Encoding.UTF8;
       var part = new Multipart.Part("Field");
-      part.Content = "Значение";
+      part.Content = "Значение of the word is გთხოვთ ახლავე Οὐχὶ ταὐτὰ παρίσταταί μοι";
 
       var mpE = new Multipart(new Multipart.Part[] { part });
       var encCont = mpE.Encode(encoding);
@@ -258,35 +258,35 @@ value 2
     }
 
     [Run]
-    public void Charset1251()
+    public void EncodingUTF8()
     {
       var part = new Multipart.Part("field");
       part.FileName = "text";
-      part.ContentType = "Content-type: text/plain; charset=windows-1251";
-      part.Content = Encoding.GetEncoding(1251).GetBytes("Значение");
+      part.ContentType = "Content-type: text/plain; charset=utf8";
+      part.Content = Encoding.UTF8.GetBytes("Значение of the word is გთხოვთ Οὐχὶ");
 
       var mpE = new Multipart(new Multipart.Part[] {part});
       var enc = mpE.Encode();
 
       var boundary = enc.Boundary;
       var mpD = Multipart.ReadFromBytes(enc.Buffer, ref boundary);
-      Aver.AreObjectsEqual("Значение", mpD.Parts["field"].Content);
+      Aver.AreObjectsEqual("Значение of the word is გთხოვთ Οὐχὶ", mpD.Parts["field"].Content);
     }
 
     [Run]
-    public void MissCharset1251()
+    public void WithoutCharset()
     {
       var part = new Multipart.Part("field");
       part.FileName = "text";
       part.ContentType = "Content-type: text/plain";
-      part.Content = Encoding.GetEncoding(1251).GetBytes("Значение");
+      part.Content = Encoding.UTF8.GetBytes("Значение of the word is გთხოვთ Οὐχὶ");
 
       var mpE = new Multipart(new Multipart.Part[] {part});
       var enc = mpE.Encode();
 
       var boundary = enc.Boundary;
       var mpD = Multipart.ReadFromBytes(enc.Buffer, ref boundary);
-      Aver.AreObjectsNotEqual("Значение", mpD.Parts["field"].Content);
+      Aver.AreObjectsEqual("Значение of the word is გთხოვთ Οὐχὶ", mpD.Parts["field"].Content);
     }
 
     #region Exceptions

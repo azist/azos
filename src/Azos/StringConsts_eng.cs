@@ -1100,8 +1100,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
 
     public const string MULTIPART_DOUBLE_EOL_ISNT_FOUND_AFTER_HEADER_ERROR = "Multipart: Double \\r\\n isn't found after header.";
-    public const string MULTIPART_PARTS_COULDNT_BE_EMPTY_ERROR = "Multipart: Parts couldn't be null or empty.";
-    public const string MULTIPART_PART_COULDNT_BE_EMPTY_ERROR = "Multipart: Part couldn't empty.";
+    public const string MULTIPART_PARTS_COULDNT_BE_EMPTY_ERROR = "Multipart: Parts can not be null or empty.";
+    public const string MULTIPART_PART_COULDNT_BE_EMPTY_ERROR = "Multipart: Part can not be empty";
     public const string MULTIPART_PART_MUST_BE_ENDED_WITH_EOL_ERROR = "Multipart: Part must be ended with EOL.";
     public const string MULTIPART_PART_IS_ALREADY_REGISTERED_ERROR = "Multipart: Part with the name {0} is already registered.";
     public const string MULTIPART_PART_EMPTY_NAME_ERROR = "Multipart: Name of part couldn't be null or empty.";
