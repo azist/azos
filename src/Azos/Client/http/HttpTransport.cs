@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 
-using Azos.Apps;
-using Azos.Conf;
 
 namespace Azos.Client
 {
@@ -13,21 +9,14 @@ namespace Azos.Client
   {
     protected internal HttpTransport(EndpointAssignment assignment)
     {
-
+      m_Assignment = assignment;
+      Endpoint.NonNull("assignment is invalid - unassigned or endpoint is not HttpEndpoint");
     }
-
-    protected override void Destructor()
-    {
-      DisposeAndNull(ref m_Client);
-      base.Destructor();
-    }
-
     protected readonly EndpointAssignment m_Assignment;
-    protected HttpClient m_Client;
 
     public EndpointAssignment Assignment => m_Assignment;
-
-    public HttpClient Client => m_Client;
+    public HttpEndpoint Endpoint => Assignment.Endpoint as HttpEndpoint;
+    public HttpClient Client => Endpoint.Client;
 
   }
 }

@@ -30,7 +30,7 @@ namespace Azos.Client
     public override string ComponentLogTopic => CoreConsts.CLIENT_TOPIC;
 
     IService IEndpoint.Service => ComponentDirector;
-    TService           Service => ComponentDirector;
+    public TService           Service => ComponentDirector;
 
     public virtual string Network => m_Network;
 

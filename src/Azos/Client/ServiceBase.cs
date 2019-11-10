@@ -107,6 +107,11 @@ namespace Azos.Client
                                    binding.Default(DefaultBinding));
     }
 
+    /// <summary>
+    /// Called by system after endpoints have changed, for example when more endpoints have been added.
+    /// The overrides are typically used to clear cached values
+    /// </summary>
+    protected abstract void EndpointsHaveChanged();
     protected abstract TTransport DoAcquireTransport(EndpointAssignment assignment, bool reserve);
     protected abstract void DoReleaseTransport(TTransport endpoint);
     protected abstract IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, object shardKey, string network, string binding);
