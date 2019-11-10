@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Azos.Apps;
 using Azos.Collections;
+using Azos.Conf;
 using Azos.Instrumentation;
 
 namespace Azos.Client
@@ -15,17 +16,21 @@ namespace Azos.Client
   public interface IService : IApplicationComponent, INamed
   {
     /// <summary>
-    /// Enumerates endpoints which provide this service
+    /// Enumerates endpoints which provide this service. Depending on implementation this property may return
+    /// all physical endpoints of higher-order regional endpoints for high-scale systems.
+    /// Typically it is used with Http/s and returns actual endpoints which provide services which this instance
+    /// represents
     /// </summary>
     IEnumerable<IEndpoint> Endpoints {  get; }
 
     /// <summary>
-    /// Gets default network name for this service if any, e.g. "internoc"
+    /// Gets default network name for this service if any, e.g. "internoc".
+    /// Simple implementations typically do not use named logical networks, so this value is set to "default" or empty
     /// </summary>
     string DefaultNetwork { get; }
 
     /// <summary>
-    /// Gets default binding name for this service, e.g. "https"
+    /// Gets default binding name for this service, e.g. "https".
     /// </summary>
     string DefaultBinding {  get; }
 
@@ -40,23 +45,86 @@ namespace Azos.Client
     /// Typically the sequence is based on network routing efficiency and least/loaded resources.
     /// The optional shardingKey parameter may be passed for multi-sharding scenarios.
     /// </summary>
+    /// <param name="remoteAddress">
+    ///   The remote service logical address, such as the regional host name for Sky applications.
+    ///   The system resolves this address to physical address depending on binding and contract on the remote host
+    /// </param>
     /// <param name="contract">Service contract name</param>
     /// <param name="shardKey">Optional sharding parameter. The system will direct the call to the appropriate shard in the service partition if it is used</param>
-    /// <param name="network">The name of the logical network to use for a call, or null to use the default</param>
+    /// <param name="network">The name of the logical network to use for a call, or null to use the default network</param>
     /// <param name="binding">
     ///   The service binding to use, or null for default.
     ///   Bindings are connection technology/protocols (such as Http(s)/Glue/GRPC etc..) used to make the call
     /// </param>
-    /// <returns>Endpoints which should be (re)tried in the order of enumeration</returns>
-    IEnumerable<IEndpoint> GetEndpointsForCall(string contract, object shardKey = null, string network = null, string binding = null);
+    /// <returns>Endpoint(s) which should be (re)tried in the order of enumeration</returns>
+    IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, object shardKey = null, string network = null, string binding = null);
   }
+
+
+  /// <summary>
+  /// Assigns a specific endpoint, network, binding, remote address, and contract
+  /// </summary>
+  public struct EndpointAssignment
+  {
+    public EndpointAssignment(IEndpoint ep, string net, string binding, string addr, string contract)
+    {
+      Endpoint = ep;
+      Network = net;
+      Binding = binding;
+      RemoteAddress = addr;
+      Contract = contract;
+    }
+
+    public readonly IEndpoint Endpoint;
+    public readonly string Network;
+    public readonly string Binding;
+    public readonly string RemoteAddress;
+    public readonly string Contract;
+  }
+
+  /// <summary>
+  /// Assigns a specific endpoint, network, binding, remote address, and contract
+  /// </summary>
+  public struct EndpointAssignment<TEndpoint> where TEndpoint : IEndpointImplementation
+  {
+    public EndpointAssignment(EndpointAssignment assignment)
+    {
+      if( !(assignment.Endpoint is TEndpoint ep))
+        throw new NotImplementedException();
+
+      Endpoint = ep;
+      Network = assignment.Network;
+      Binding = assignment.Binding;
+      RemoteAddress = assignment.RemoteAddress;
+      Contract = assignment.Contract;
+    }
+
+    public readonly TEndpoint Endpoint;
+    public readonly string Network;
+    public readonly string Binding;
+    public readonly string RemoteAddress;
+    public readonly string Contract;
+
+    public EndpointAssignment Upcast() => new EndpointAssignment(Endpoint, Network, Binding, RemoteAddress, Contract);
+  }
+
 
   /// <summary>
   /// Implements an IService, adding transport acquisition/release behavior
   /// </summary>
   public interface IServiceImplementation : IService, IDisposable, IInstrumentable
   {
-    ITransportImplementation AcquireTransport(IEndpoint endpoint);
+    /// <summary>
+    /// Gets the physical transport used to make remote calls. Depending on implementation the system
+    /// may return a pooled transport, re-use already acquired one (if transport supports multiplexing) etc.
+    /// </summary>
+    /// <param name="assignment">Endpoint to connect to</param>
+    /// <param name="reserve">Pass true to reserve this transport for the caller. The caller must release the reserved transport</param>
+    ITransportImplementation AcquireTransport(EndpointAssignment assignment, bool reserve = false);
+
+    /// <summary>
+    /// Releases the transport acquired by the AcquireTransport call
+    /// </summary>
     void ReleaseTransport(ITransportImplementation transport);
   }
 
@@ -69,7 +137,7 @@ namespace Azos.Client
     /// <summary>
     /// Returns a service endpoint which this transport connects to
     /// </summary>
-    IEndpoint Endpoint { get; }
+    EndpointAssignment Assignment { get; }
   }
 
   /// <summary>
@@ -83,18 +151,12 @@ namespace Azos.Client
   /// Endpoints provide connection point for services.
   /// Each endpoint represents a specific connection type via Binding(protocol)
   /// </summary>
-  public interface IEndpoint
+  public interface IEndpoint : IApplicationComponent
   {
     /// <summary>
     /// Returns service which this endpoint represents
     /// </summary>
     IService Service { get; }
-
-    /// <summary>
-    /// Provides remote address routing/logical host/partition name which is used to match the callers address.
-    /// For Sky apps this is a metabase host name (regional path) of the target server which provides the service
-    /// </summary>
-    string RemoteAddress { get; }
 
     /// <summary>
     /// Provides logical network name which this endpoint services, e.g. "noc","internoc","pub" etc.
@@ -108,6 +170,12 @@ namespace Azos.Client
     /// A typical REST-full system typically uses http/s bindings.
     /// </summary>
     string Binding { get; }
+
+    /// <summary>
+    /// Provides remote address routing/logical host/partition name which is used to match the callers address.
+    /// For Sky apps this is a metabase host name (regional path) of the target server which provides the service
+    /// </summary>
+    string RemoteAddress { get; }
 
     /// <summary>
     /// Provides logical contract name for the functionality which this service endpoint covers.

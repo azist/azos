@@ -10,6 +10,11 @@ using Azos.Instrumentation;
 
 namespace Azos.Client
 {
+  /// <summary>
+  /// Provides base for providing various IService implementations
+  /// </summary>
+  /// <typeparam name="TEndpoint">Typed endpoint</typeparam>
+  /// <typeparam name="TTransport">Typed transport</typeparam>
   public abstract class ServiceBase<TEndpoint, TTransport> : ApplicationComponent, IServiceImplementation
                           where TEndpoint : IEndpointImplementation
                           where TTransport : ITransportImplementation
@@ -23,14 +28,21 @@ namespace Azos.Client
     {
       ConfigAttribute.Apply(this, conf);
       if (m_Name.IsNullOrWhiteSpace()) m_Name = GetType().Name;
+      BuildEndpoints(conf);
+    }
 
-
-      foreach(var nep in conf.Children.Where( c => c.IsSameName(CONFIG_ENDPOINT_SECTION)))
+    /// <summary>
+    /// Override to build endpoint list. The default implementation reads them from config
+    /// </summary>
+    protected virtual void BuildEndpoints(IConfigSectionNode conf)
+    {
+      foreach (var nep in conf.Children.Where(c => c.IsSameName(CONFIG_ENDPOINT_SECTION)))
       {
-        var ep = FactoryUtils.Make<TEndpoint>(nep, args: new object[]{this, nep});
+        var ep = FactoryUtils.Make<TEndpoint>(nep, args: new object[] { this, nep });
         m_Endpoints.Add(ep);
       }
     }
+
 
     protected override void Destructor()
     {
@@ -49,7 +61,7 @@ namespace Azos.Client
 
 
     public string Name => m_Name;
-    public override string ComponentLogTopic => CoreConsts.WEB_TOPIC;
+    public override string ComponentLogTopic => CoreConsts.CLIENT_TOPIC;
 
 
     public IEnumerable<IEndpoint> Endpoints => m_Endpoints.Cast<IEndpoint>();
@@ -58,43 +70,48 @@ namespace Azos.Client
     public virtual string DefaultBinding   => m_DefaultBinding;
     public virtual int    DefaultTimeoutMs => m_DefaultTimeoutMs;
 
-    public ITransportImplementation AcquireTransport(IEndpoint endpoint)
+    public ITransportImplementation AcquireTransport(EndpointAssignment assignment, bool reserve)
     {
       EnsureObjectNotDisposed();
 
-      if (endpoint is TEndpoint ep)
-      {
-        if (ep.Service != this) throw new NotImplementedException("todo");
-        return DoAcquireTransport(ep);
-      }
+      if (assignment.Endpoint.NonNull("assignment/endpoint").Service != this)
+        throw new ClientException(StringConsts.CLIENT_WRONG_ENDPOINT_SERVICE_ERROR.Args(Name));
 
-      throw new NotImplementedException("todo");
+      return DoAcquireTransport(new EndpointAssignment<TEndpoint>(assignment), reserve);
     }
 
     public void ReleaseTransport(ITransportImplementation transport)
     {
-      EnsureObjectNotDisposed();
+      transport.NonNull(nameof(transport));
 
+      //Attention: this may be called for already DISPOSED service on cleanup
       if (transport is TTransport tran)
       {
-        if (tran.Endpoint.Service != this) throw new NotImplementedException("todo");
+        if (tran.Assignment.Endpoint.Service != this)
+          throw new ClientException(StringConsts.CLIENT_WRONG_ENDPOINT_SERVICE_ERROR.Args(Name));
+
         DoReleaseTransport(tran);
         return;
       }
 
-      throw new NotImplementedException("todo");
+      throw new ClientException(StringConsts.CLIENT_WRONG_TRANSPORT_TYPE_ERROR.Args(Name, transport.GetType().Name)); ;
     }
 
-    public IEnumerable<IEndpoint> GetEndpointsForCall(string contract, object shardKey = null, string network = null, string binding = null)
+    public IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, object shardKey = null, string network = null, string binding = null)
     {
-      if (Disposed) return Enumerable.Empty<IEndpoint>();
-      contract.NonBlank(nameof(contract));
-      return DoGetEndpointsForCall(contract, shardKey, network.Default(DefaultNetwork), binding.Default(DefaultBinding));
+      if (Disposed) return Enumerable.Empty<EndpointAssignment>();
+      return DoGetEndpointsForCall(remoteAddress.NonBlank(nameof(remoteAddress)),
+                                   contract.NonBlank(nameof(contract)),
+                                   shardKey,
+                                   network.Default(DefaultNetwork),
+                                   binding.Default(DefaultBinding));
     }
 
-    protected abstract TTransport DoAcquireTransport(TEndpoint endpoint);
-    protected abstract TTransport DoReleaseTransport(TTransport endpoint);
-    protected abstract IEnumerable<IEndpoint> DoGetEndpointsForCall(string contract, object shardKey, string network, string binding);
+    protected abstract TTransport DoAcquireTransport(EndpointAssignment<TEndpoint> assignment, bool reserve);
+    protected abstract void DoReleaseTransport(TTransport endpoint);
+    protected abstract IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, object shardKey, string network, string binding);
+
+
 
 
     #region IInstrumentation
@@ -132,7 +149,6 @@ namespace Azos.Client
     {
       return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
     }
-
 
     #endregion
   }

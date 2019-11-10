@@ -1080,6 +1080,11 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string DIRECTORY_COLLECTION_MAX_LEN_ERROR = "Directory operation'{0}' error: Item collection name of {1} characters exceeds max len of {2}";
 
 
+    public const string CLIENT_WRONG_ENDPOINT_SERVICE_ERROR = "The supplied endpoint does not belong to this service: '{0}'";
+
+    public const string CLIENT_WRONG_TRANSPORT_TYPE_ERROR = "Service '{0}' can not release transport '{1}'";
+
+
     public const string AROW_SATELLITE_ASSEMBLY_NAME_ERROR = "Could not find serialization satellite for assembly `{0}` as the name pattern does not match. The source assembly file name must end with `*.dll` by convention";
     public const string AROW_SATELLITE_ASSEMBLY_LOAD_ERROR = "Satellite assembly `{0}` load failure: {1}";
     public const string AROW_TYPE_NOT_SUPPORTED_ERROR =  "ArowSerializer does not have a ITypeSerializationCore registered for type '{0}'";

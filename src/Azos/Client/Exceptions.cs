@@ -1,0 +1,17 @@
+﻿using System;
+using System.Runtime.Serialization;
+
+namespace Azos.Client
+{
+  /// <summary>
+  /// Base exception thrown by the Azos.Client functionality
+  /// </summary>
+  [Serializable]
+  public class ClientException : AzosException
+  {
+    public ClientException() { }
+    public ClientException(string message) : base(message) { }
+    public ClientException(string message, Exception inner) : base(message, inner) { }
+    protected ClientException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+  }
+}
