@@ -16,10 +16,6 @@ namespace Azos.Web
     public const string CONFIG_WEBSETTINGS_SECTION = "web-settings";
     public const string CONFIG_SERVICEPOINTMANAGER_SECTION = "service-point-manager";
 
-    //public const string CONFIG_LOGTYPE_ATTR = "log-type";
-    //public const string CONFIG_DEFAULT_TIMEOUT_MS_ATTR = "default-timeout-ms";
-
-
 
     /// <summary>
     /// Ensures that ServicePointManager class gets configured via the ServicePointManagerConfigurator instance.
@@ -30,7 +26,7 @@ namespace Azos.Web
       app.NonNull(nameof(app)).Singletons.GetOrCreate<ServicePointManagerConfigurator>(() =>
       {
         var result = new ServicePointManagerConfigurator(app);
-        ((IConfigurable)result).Configure(app.ConfigRoot[CONFIG_WEBSETTINGS_SECTION]);
+        ((IConfigurable)result).Configure(app.ConfigRoot[CONFIG_WEBSETTINGS_SECTION][CONFIG_SERVICEPOINTMANAGER_SECTION]);
         return result;
       }).instance;
 

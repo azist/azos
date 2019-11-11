@@ -37,6 +37,7 @@ namespace Azos.Client
 
     public HttpService(IApplicationComponent director, IConfigSectionNode conf) : base(director, conf)
     {
+      Web.WebSettings.RequireInitilizedServicePointManager(App);
     }
 
     protected override void Destructor()

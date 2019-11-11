@@ -430,7 +430,7 @@ value 2
       }
       catch (Exception e)
       {
-         Conout.Write(e.ToMessageWithType());
+        Conout.Write(e.ToMessageWithType());
         Aver.IsTrue(e.Message.Contains("is already registered."));
       }
     }

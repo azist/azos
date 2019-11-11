@@ -14,10 +14,8 @@ using System.Security.Cryptography.X509Certificates;
 using Azos.Apps;
 using Azos.Conf;
 
-
 namespace Azos.Web
 {
-
   /// <summary>
   /// Configures ServicePointManager class.
   /// Use singleton Instance property
@@ -172,7 +170,6 @@ namespace Azos.Web
 
 
     internal ServicePointManagerConfigurator(IApplication app):base(app) { }
-
 
     #region Fields
 
