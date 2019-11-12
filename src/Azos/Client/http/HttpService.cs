@@ -79,13 +79,14 @@ namespace Azos.Client
              .Select(g => g.OrderBy(ep => ep.ShardOrder).Select( ep => new EndpointAssignment(ep, network, binding, remoteAddress, contract)).ToArray())
              .ToArray();
 
+        if (shards.Length==0) return Enumerable.Empty<EndpointAssignment>();
+
         var dict = new Dictionary<cacheKey, EndpointAssignment[][]>();
         dict[key] = shards;
         Thread.MemoryBarrier();
         m_EPCache = dict;//atomic
       }
 
-      if (shards.Length==0) return Enumerable.Empty <EndpointAssignment>();
 
       var result = shards[shard % shards.Length];
       return result;

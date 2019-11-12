@@ -56,7 +56,7 @@ namespace Azos.Client
 
     public DateTime? OfflineTimeStampUtc => m_OfflineTimeStampUtc;
 
-    public bool IsOnline => !m_CircuitBreakerTimeStampUtc.HasValue && !m_OfflineTimeStampUtc.HasValue;
+    public bool IsAvailable => !m_CircuitBreakerTimeStampUtc.HasValue && !m_OfflineTimeStampUtc.HasValue;
 
     public virtual string StatusMsg => m_StatusMsg;
 
@@ -77,5 +77,8 @@ namespace Azos.Client
       m_CircuitBreakerTimeStampUtc = null;
       return true;
     }
+
+    public virtual bool NotifyCircuitBreakerError(Exception cause)
+     => false;
   }
 }
