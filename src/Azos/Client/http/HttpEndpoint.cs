@@ -1,5 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -12,7 +17,7 @@ namespace Azos.Client
   /// <summary>
   /// Defines endpoints of Http/s service
   /// </summary>
-  public class HttpEndpoint : EndpointBase<HttpService>, IEndpointImplementation
+  public class HttpEndpoint : EndpointBase<HttpService>, IEndpointImplementation, IHttpEndpoint
   {
     public const int DEFAULT_TIMEOUT_MS = 10_000;
 

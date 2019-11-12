@@ -1,9 +1,15 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections.Generic;
+using System.Net.Http;
 
 using Azos.Apps;
 using Azos.Collections;
-using Azos.Conf;
 using Azos.Instrumentation;
 
 namespace Azos.Client
@@ -58,47 +64,7 @@ namespace Azos.Client
     /// </param>
     /// <returns>Endpoint(s) which should be (re)tried in the order of enumeration</returns>
     IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, object shardKey = null, string network = null, string binding = null);
-  }
 
-
-  /// <summary>
-  /// Assigns a specific endpoint, network, binding, remote address, and contract
-  /// </summary>
-  public struct EndpointAssignment : IEquatable<EndpointAssignment>
-  {
-    public EndpointAssignment(IEndpoint ep, string net, string binding, string addr, string contract)
-    {
-      Endpoint = ep;
-      Network = net;
-      Binding = binding;
-      RemoteAddress = addr;
-      Contract = contract;
-    }
-
-    public readonly IEndpoint Endpoint;
-    public readonly string Network;
-    public readonly string Binding;
-    public readonly string RemoteAddress;
-    public readonly string Contract;
-
-    public override int GetHashCode() => (Endpoint != null ? Endpoint.GetHashCode() : 0) ^ (RemoteAddress != null ? RemoteAddress.GetHashCode() : 0);
-    public override bool Equals(object obj) => obj is EndpointAssignment epa ? this.Equals(epa) : false;
-    public bool Equals(EndpointAssignment other)
-     => this.RemoteAddress == other.RemoteAddress &&
-        this.Endpoint == other.Endpoint &&
-        this.Contract == other.Contract &&
-        this.Binding == other.Binding &&
-        this.Network == other.Network;
-
-    public static bool operator ==(EndpointAssignment a, EndpointAssignment b) => a.Equals(b);
-    public static bool operator !=(EndpointAssignment a, EndpointAssignment b) => !a.Equals(b);
-  }
-
-  /// <summary>
-  /// Implements an IService, adding transport acquisition/release behavior
-  /// </summary>
-  public interface IServiceImplementation : IService, IDisposable, IInstrumentable
-  {
     /// <summary>
     /// Gets the physical transport used to make remote calls. Depending on implementation the system
     /// may return a pooled transport, re-use already acquired one (if transport supports multiplexing) etc.
@@ -112,6 +78,24 @@ namespace Azos.Client
     /// </summary>
     void ReleaseTransport(ITransportImplementation transport);
   }
+
+
+  /// <summary>
+  /// Implements an IService, adding transport acquisition/release behavior
+  /// </summary>
+  public interface IServiceImplementation : IService, IDisposable, IInstrumentable
+  {
+
+  }
+
+  /// <summary>
+  /// Marks services that have HTTP semantics - the ones based on HttpClient-like operations, REST, RPC, JSON etc...
+  /// </summary>
+  public interface IHttpService : IService
+  {
+
+  }
+
 
   /// <summary>
   /// Represents a transport channel which is used to make remote server calls.
@@ -129,6 +113,17 @@ namespace Azos.Client
   /// Transport implementation
   /// </summary>
   public interface ITransportImplementation : ITransport, IDisposable{ }
+
+  /// <summary>
+  /// Marks transports that have HTTP semantics - the ones based on HttpClient-like operations, REST, RPC, JSON etc...
+  /// </summary>
+  public interface IHttpTransport : ITransport
+  {
+    /// <summary>
+    /// Returns HttpClient used for making calls
+    /// </summary>
+    HttpClient Client {  get;}
+  }
 
 
   /// <summary>
@@ -233,5 +228,14 @@ namespace Azos.Client
     /// Puts endpoint offline
     /// </summary>
     void PutOffline(string statusMsg);
+  }
+
+
+  /// <summary>
+  /// Marks endpoints that have HTTP semantics - the ones based on HttpClient-like operations, REST, RPC, JSON etc...
+  /// </summary>
+  public interface IHttpEndpoint : IEndpoint
+  {
+    Uri Uri { get; }
   }
 }

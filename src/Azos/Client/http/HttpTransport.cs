@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Net.Http;
 
 
@@ -14,7 +20,7 @@ namespace Azos.Client
   //https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
   //https://aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/
   //https://medium.com/@nuno.caneco/c-httpclient-should-not-be-disposed-or-should-it-45d2a8f568bc
-  public class HttpTransport : DisposableObject, ITransportImplementation
+  public class HttpTransport : DisposableObject, ITransportImplementation, IHttpTransport
   {
     protected internal HttpTransport(EndpointAssignment assignment)
     {
