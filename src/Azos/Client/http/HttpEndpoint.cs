@@ -18,8 +18,6 @@ namespace Azos.Client
 
     public HttpEndpoint(HttpService service, IConfigSectionNode conf) : base(service, conf)
     {
-      Uri.NonNull("`{0}` is not configured".Args(nameof(Uri)));
-      m_ClientHandler = new HttpClientHandler();
     }
 
     protected override void Destructor()
@@ -93,6 +91,7 @@ namespace Azos.Client
       get
       {
         EnsureObjectNotDisposed();
+        Uri.NonNull("`{0}` is not configured".Args(nameof(Uri)));
         lock (m_Lock)
         {
           if (m_Client == null)
@@ -140,7 +139,7 @@ namespace Azos.Client
     {
       var result = new HttpClient(m_ClientHandler);
       result.Timeout = TimeSpan.FromMilliseconds(TimeoutMs > 0 ? TimeoutMs : this.Service.DefaultTimeoutMs > 0 ? Service.DefaultTimeoutMs : DEFAULT_TIMEOUT_MS);
-      result.BaseAddress = this.Uri;
+      result.BaseAddress = this.Uri.NonNull("`{0}` is not configured".Args(nameof(Uri)));
 
       if (AcceptJson)
         result.DefaultRequestHeaders.Accept.ParseAdd(ContentType.JSON);

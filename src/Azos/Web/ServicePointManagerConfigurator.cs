@@ -22,6 +22,10 @@ namespace Azos.Web
   /// </summary>
   public sealed class ServicePointManagerConfigurator : ApplicationComponent, IConfigurable
   {
+    public const int DEFAULT_CONNECT_LEASE_TIMEOUT_MS = 2 * 60_000;// 2 minutes
+
+
+
     #region Inner types
 
     /// <summary>
@@ -101,7 +105,7 @@ namespace Azos.Web
       public readonly ServicePointManagerConfigurator Manager;
       public readonly ServicePoint ServicePoint;
 
-      [Config]
+      [Config(Default = DEFAULT_CONNECT_LEASE_TIMEOUT_MS)]
       public int ConnectionLeaseTimeout
       {
         get { return this.ServicePoint.ConnectionLeaseTimeout; }
@@ -183,7 +187,7 @@ namespace Azos.Web
 
     public override string ComponentLogTopic => CoreConsts.WEB_TOPIC;
 
-    [Config]
+      [Config]
       public bool CheckCertificateRevocationList
       {
         get { return ServicePointManager.CheckCertificateRevocationList; }
@@ -223,7 +227,7 @@ namespace Azos.Web
       {
         get { return ServicePointManager.MaxServicePointIdleTime; }
         private set { ServicePointManager.MaxServicePointIdleTime = value; }
-      }
+    }
 
       [Config]
       public int MaxServicePoints
