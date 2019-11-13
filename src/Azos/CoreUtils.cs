@@ -21,6 +21,15 @@ namespace Azos
   public static class CoreUtils
   {
     /// <summary>
+    /// Returns true for DEV or LOCAL environments.
+    /// This method is used to ascertain the "non-prod" nature of the either and is typically used
+    /// to disclose or cloak/block sensitive information/details in things like logs and debug endpoints
+    /// (e.g. config content listing, debugging etc...)
+    /// </summary>
+    public static bool IsDeveloperEnvironment(this IApplication app)
+     => app.NonNull(nameof(app)).EnvironmentName.IsOneOf(CoreConsts.ENVIRONMENTS_DEVELOPER);
+
+    /// <summary>
     /// Returns the name of entry point executable file optionally with its path
     /// </summary>
     public static string EntryExeName(bool withPath = true)

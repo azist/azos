@@ -74,8 +74,11 @@ namespace Azos.Wave.Cms
     public void Execute(Controller controller, WorkContext work)
     {
       var cache = Caching;
+      var useETag = UseETag;
+      if (BinaryOffset > 0 || BinarySize > 0) useETag = false;
 
-      if (UseETag && !cache.HasValue)
+
+      if (useETag && !cache.HasValue)
       {
         cache = new CacheControl {
           Cacheability = CacheControl.Type.Private,
@@ -93,7 +96,7 @@ namespace Azos.Wave.Cms
         work.Response.Headers[HttpResponseHeader.LastModified] = WebUtils.DateTimeToHTTPLastModifiedHeaderDateTime(Content.ModifyDate.Value);
 
 
-      if (UseETag)
+      if (useETag)
       {
         var etag = $"\"{Content.ETag}\"";
         work.Response.Headers[HttpResponseHeader.ETag] = etag;
