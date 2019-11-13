@@ -5,7 +5,9 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Azos.Client
@@ -15,13 +17,21 @@ namespace Azos.Client
   /// </summary>
   public static class HttpCallExtensions
   {
-    public static async Task<TResult> CallWithRetry<TResult>(this IHttpService service, string network, string binding, string remoteAddress, string contract, object shardKey, Func<IHttpTransport, Task<TResult>> body)
+    public static async Task<TResult> Call<TResult>(this IHttpService service,
+                                                    string remoteAddress,
+                                                    string contract,
+                                                    object shardKey,
+                                                    Func<IHttpTransport, CancellationToken?, Task<TResult>> body,
+                                                    CancellationToken? cancellation = null,
+                                                    string network = null,
+                                                    string binding = null)
     {
       body.NonNull(nameof(body));
       var assignments = service.NonNull(nameof(service))
                                .GetEndpointsForCall(remoteAddress, contract, shardKey, network, binding);
 
       var tries = 1;
+      List<Exception> errors = null;
       foreach(var assigned in assignments)
       {
         if (!assigned.Endpoint.IsAvailable) continue;//offline or Circuit tripped  todo:  instrument
@@ -32,17 +42,25 @@ namespace Azos.Client
         try
         {
           var http = (transport as IHttpTransport).NonNull("Implementation error: cast to IHttpTransport");
-          var result = await body(http);  //todo detect Offline/Circuit breaker trip; who trips circuit breaker?
+          var result = await body(http, cancellation);
+          CallGuardException.Protect(ep, _ => _.NotifyCallSuccess(transport));
           return result;
         }
         catch(Exception error)
         {
+          //Implementation error
           if (error is CallGuardException) throw;
 
-          var isServiceCallError = ep.NotifyCircuitBreakerError(error);
+          //TaskCanceledException gets thrown on simple timeout even when cancellation was NOT requested
+          if (error is TaskCanceledException && cancellation.HasValue && cancellation.Value.IsCancellationRequested) throw;
+
+          var isServiceCallError = ep.NotifyCallError(transport, error);
           //todo instrument
 
-          if (!isServiceCallError) throw;
+          if (!isServiceCallError) throw;//throw logical error
+
+          if (errors==null) errors = new List<Exception>();
+          errors.Add(error);
         }
         finally
         {
@@ -52,7 +70,9 @@ namespace Azos.Client
         tries++;
       }//foreach
 
-      throw new ClientException("Call eventually failed; {0} endpoints tried".Args(tries));//todo LOG etc...
+      throw new ClientException("Call eventually failed; {0} endpoints tried; See .InnerException".Args(tries),
+                                errors != null ? new AggregateException(errors) :
+                                                 new AggregateException("No inner errors"));//todo LOG etc...
     }
   }
 }

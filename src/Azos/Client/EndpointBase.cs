@@ -60,6 +60,15 @@ namespace Azos.Client
 
     public virtual string StatusMsg => m_StatusMsg;
 
+    public virtual void NotifyCallSuccess(ITransport transport)
+    {
+
+    }
+
+    public virtual bool NotifyCallError(ITransport transport, Exception error)
+     => false;
+
+
     public virtual void PutOffline(string statusMsg)
     {
       m_StatusMsg = statusMsg.Default("Offline");
@@ -78,7 +87,5 @@ namespace Azos.Client
       return true;
     }
 
-    public virtual bool NotifyCircuitBreakerError(Exception cause)
-     => false;
   }
 }

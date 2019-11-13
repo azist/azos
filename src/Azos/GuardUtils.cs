@@ -52,6 +52,64 @@ namespace Azos
       info.AddValue(PARAM_FLD_NAME, ParamName);
       base.GetObjectData(info, context);
     }
+
+    /// <summary>
+    /// Surrounds action by protected scope, any exception thrown by action gets wrapped by CallGuardException.
+    /// If action is unassigned, nothing is done
+    /// </summary>
+    /// <remarks>
+    /// You can use another version of this function with action argument in order not to create unneeded closures
+    /// </remarks>
+    public static void Protect(Action action,
+                              [CallerFilePath]   string callFile = null,
+                              [CallerLineNumber] int callLine = 0,
+                              [CallerMemberName] string callMember = null)
+    {
+      if (action==null) return;
+
+      try
+      {
+        action();
+      }
+      catch(Exception error)
+      {
+        var callSite = GuardUtils.callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                     nameof(action),
+                                     StringConsts.GUARDED_ACTION_SCOPE_ERROR
+                                                 .Args(callSite ?? CoreConsts.UNKNOWN, error.ToMessageWithType()),
+                                     error);
+      }
+    }
+
+    /// <summary>
+    /// Surrounds action by protected scope, any exception thrown by action gets wrapped by CallGuardException.
+    /// If action is unassigned, nothing is done
+    /// </summary>
+    /// <remarks>
+    /// Use this function with action argument not to create unneeded closures
+    /// </remarks>
+    public static void Protect<TArg>(TArg arg, Action<TArg> action,
+                              [CallerFilePath]   string callFile = null,
+                              [CallerLineNumber] int callLine = 0,
+                              [CallerMemberName] string callMember = null)
+    {
+      if (action == null) return;
+
+      try
+      {
+        action(arg);
+      }
+      catch (Exception error)
+      {
+        var callSite = GuardUtils.callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                     nameof(action),
+                                     StringConsts.GUARDED_ACTION_SCOPE_ERROR
+                                                 .Args(callSite ?? CoreConsts.UNKNOWN, error.ToMessageWithType()),
+                                     error);
+      }
+    }
   }
 
 
@@ -60,7 +118,7 @@ namespace Azos
   /// </summary>
   public static class GuardUtils
   {
-    private static string callSiteOf(string file, int line, string member)
+    internal static string callSiteOf(string file, int line, string member)
     => "{2}@{0}:{1}".Args(file.IsNotNullOrWhiteSpace() ? System.IO.Path.GetFileName(file) : CoreConsts.UNKNOWN, line, member);
 
     /// <summary>

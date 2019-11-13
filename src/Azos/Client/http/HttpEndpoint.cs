@@ -8,6 +8,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 using Azos.Conf;
 using Azos.Web;
@@ -157,6 +158,21 @@ namespace Azos.Client
       return result;
     }
 
+    public override bool NotifyCallError(ITransport transport, Exception cause)
+    {
+      if (cause==null) return false;
+
+      var isCallProblem = cause is HttpRequestException ||
+                          cause is TaskCanceledException; //timeout
+
+      if (isCallProblem)
+      {
+        //mutate circuit breaker state machine
+       // this.m_CircuitBreakerTimeStampUtc = now;//trip
+      }
+
+      return isCallProblem;
+    }
 
   }
 

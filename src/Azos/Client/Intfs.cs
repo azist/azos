@@ -214,13 +214,19 @@ namespace Azos.Client
   public interface IEndpointImplementation : IEndpoint, IDisposable
   {
     /// <summary>
+    /// Notifies endpoint o call success. This typically used to update call statistics
+    /// </summary>
+    void NotifyCallSuccess(ITransport transport);
+
+
+    /// <summary>
     /// Notifies circuit breaker of error. The breaker may trip if error threshold
     /// is reached (as defined by endpoint/config).
     /// Returns true when the cause is deterministic connection/service CALL problem (WebException/Timeout) and it influenced the
     /// breaker state machine vs. business exception which is logical error (e.g. "Bad Request", "Access denied" etc.) which should not trip the
     /// breaker because it is a deterministic failure which does not indicate problems with network/server
     /// </summary>
-    bool NotifyCircuitBreakerError(Exception cause);
+    bool NotifyCallError(ITransport transport, Exception error);
 
     /// <summary>
     /// Resets circuit breaker returning true if endpoint circuit was reset.
