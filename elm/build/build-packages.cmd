@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.530.2
-set HEADLINE=Arow load exception handler
+set VER=1.0.530.3
+set HEADLINE=Various ext methods
 
 call vs2017-build-release %VER%
 
