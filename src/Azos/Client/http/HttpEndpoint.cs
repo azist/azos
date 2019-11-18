@@ -18,7 +18,7 @@ namespace Azos.Client
   /// <summary>
   /// Defines endpoints of Http/s service
   /// </summary>
-  public class HttpEndpoint : EndpointBase<HttpService>, IEndpointImplementation, IHttpEndpoint
+  public class HttpEndpoint : EndpointBase<HttpService>, IHttpEndpoint
   {
     public const int DEFAULT_TIMEOUT_MS = 10_000;
 
@@ -64,7 +64,7 @@ namespace Azos.Client
 
 
     /// <summary>
-    /// When set to true, attaches Authorization header with sysAuthTOken content, overriding
+    /// When set to true, attaches Authorization header with sysAuthToken content, overriding
     /// the AuthHeader value (if any)
     /// </summary>
     [Config]
@@ -158,9 +158,11 @@ namespace Azos.Client
       return result;
     }
 
-    public override bool NotifyCallError(ITransport transport, Exception cause)
+    public override CallErrorClass NotifyCallError(ITransport transport, Exception cause)
     {
-      if (cause==null) return false;
+    //delegate this into the Extension, so we can classify things like 500 -> logic error via pattern match on exception etc...
+
+      if (cause==null) return CallErrorClass.MakingCall;
 
       var isCallProblem = cause is HttpRequestException ||
                           cause is TaskCanceledException; //timeout
@@ -171,7 +173,12 @@ namespace Azos.Client
        // this.m_CircuitBreakerTimeStampUtc = now;//trip
       }
 
-      return isCallProblem;
+      return isCallProblem ? CallErrorClass.MakingCall : CallErrorClass.ServiceLogic;
+    }
+
+    public override void NotifyCallSuccess(ITransport transport)
+    {
+      throw new NotImplementedException();
     }
 
   }

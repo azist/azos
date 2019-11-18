@@ -54,7 +54,7 @@ namespace Azos
     }
 
     /// <summary>
-    /// Surrounds action by protected scope, any exception thrown by action gets wrapped by CallGuardException.
+    /// Surrounds an action by protected scope: any exception thrown by this action gets wrapped in a CallGuardException.
     /// If action is unassigned, nothing is done
     /// </summary>
     /// <remarks>
@@ -83,7 +83,7 @@ namespace Azos
     }
 
     /// <summary>
-    /// Surrounds action by protected scope, any exception thrown by action gets wrapped by CallGuardException.
+    /// Surrounds an action by protected scope: any exception thrown by this action gets wrapped in a CallGuardException.
     /// If action is unassigned, nothing is done
     /// </summary>
     /// <remarks>

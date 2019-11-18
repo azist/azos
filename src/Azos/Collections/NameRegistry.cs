@@ -105,12 +105,15 @@ namespace Azos.Collections
 
 
     /// <summary>
-    /// Represents a thread-safe registry of T. This class is efficient for lock-free concurrent read access and is
-    /// not designed for cases when frequent modifications happen. It is ideal for lookup of named instances
+    /// Represents a thread-safe registry of T. This class is efficient for lock-free concurrent read access (and enumeration) and
+    /// is not designed for cases when frequent modifications happen. It is ideal for lookups of named instances
     /// (such as components) that have much longer life time span than components that look them up.
-    /// Registry performs lock-free lookup which speeds-up many concurrent operations that need to map
-    /// names into objects. The enumeration over registry makes a snapshot of its data, hence a registry may
-    /// get modified by other threads while being enumerated (snapshot consistency).
+    /// Registry performs lock-free lookup which speeds-up many concurrent operations that need to map string
+    /// names into objects. The enumeration over registry uses a logical snapshot of its data, hence a registry may
+    /// get modified by other threads while being enumerated (snapshot consistency is provided), as all modifications
+    /// are performed on a new instance of internal data structure.
+    /// The performance for read is O(1) regardless of record count or number of concurrent readers, whereas concurrent mutation performance is O(n * c) where
+    /// c is the number of concurrent mutators and n is the record count
     /// </summary>
     [Serializable]
     public class Registry<T> : IRegistry<T> where T : INamed
@@ -331,6 +334,7 @@ namespace Azos.Collections
         }
       }
 
+      //notice that enumeration does not cause extra copy allocation
       public IEnumerator<T> GetEnumerator()
       {
         var data = m_Data;//atomic
@@ -405,7 +409,7 @@ namespace Azos.Collections
       }
 
 
-      private List<T> m_OrderedValues;
+      private volatile List<T> m_OrderedValues;
 
       /// <summary>
       /// Returns items that registry contains ordered by their Order property.

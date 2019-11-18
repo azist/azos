@@ -54,10 +54,10 @@ namespace Azos.Client
           //TaskCanceledException gets thrown on simple timeout even when cancellation was NOT requested
           if (error is TaskCanceledException && cancellation.HasValue && cancellation.Value.IsCancellationRequested) throw;
 
-          var isServiceCallError = ep.NotifyCallError(transport, error);
+          var errorClass = ep.NotifyCallError(transport, error);
           //todo instrument
 
-          if (!isServiceCallError) throw;//throw logical error
+          if (errorClass == CallErrorClass.ServiceLogic) throw;//throw logical errors
 
           if (errors==null) errors = new List<Exception>();
           errors.Add(error);

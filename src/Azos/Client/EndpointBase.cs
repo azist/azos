@@ -7,6 +7,7 @@
 using System;
 
 using Azos.Apps;
+using Azos.Collections;
 using Azos.Conf;
 
 namespace Azos.Client
@@ -32,11 +33,15 @@ namespace Azos.Client
     protected DateTime? m_CircuitBreakerTimeStampUtc;
     protected DateTime? m_OfflineTimeStampUtc;
     protected string m_StatusMsg;
+    private OrderedRegistry<IAspect> m_Aspects = new OrderedRegistry<IAspect>(caseSensitive: false);
 
     public override string ComponentLogTopic => CoreConsts.CLIENT_TOPIC;
 
     IService IEndpoint.Service => ComponentDirector;
-    public TService           Service => ComponentDirector;
+    public TService    Service => ComponentDirector;
+
+    IOrderedRegistry<IAspect> IEndpoint.Aspects => m_Aspects;
+    public OrderedRegistry<IAspect> Aspects => m_Aspects;
 
     public virtual string Network => m_Network;
 
@@ -60,14 +65,8 @@ namespace Azos.Client
 
     public virtual string StatusMsg => m_StatusMsg;
 
-    public virtual void NotifyCallSuccess(ITransport transport)
-    {
-
-    }
-
-    public virtual bool NotifyCallError(ITransport transport, Exception error)
-     => false;
-
+    public abstract CallErrorClass NotifyCallError(ITransport transport, Exception error);
+    public abstract void NotifyCallSuccess(ITransport transport);
 
     public virtual void PutOffline(string statusMsg)
     {

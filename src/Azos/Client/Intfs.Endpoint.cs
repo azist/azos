@@ -15,118 +15,6 @@ using Azos.Instrumentation;
 namespace Azos.Client
 {
   /// <summary>
-  /// Represents a uniquely named service which provides services via its endpoints.
-  /// A single service may serve more than one "Contract" - a logical sub-division of a service.
-  /// For example, a "User" service may provide "List" and "Admin" contracts used for querying/listing users and adding/deleting users respectively.
-  /// </summary>
-  public interface IService : IApplicationComponent, INamed
-  {
-    /// <summary>
-    /// Enumerates endpoints which provide this service. Depending on implementation this property may return
-    /// all physical endpoints of higher-order regional endpoints for high-scale systems.
-    /// Typically it is used with Http/s and returns actual endpoints which provide services which this instance
-    /// represents
-    /// </summary>
-    IEnumerable<IEndpoint> Endpoints {  get; }
-
-    /// <summary>
-    /// Gets default network name for this service if any, e.g. "internoc".
-    /// Simple implementations typically do not use named logical networks, so this value is set to "default" or empty
-    /// </summary>
-    string DefaultNetwork { get; }
-
-    /// <summary>
-    /// Gets default binding name for this service, e.g. "https".
-    /// </summary>
-    string DefaultBinding {  get; }
-
-    /// <summary>
-    /// When &gt; 0 imposes a call timeout expressed in milliseconds, otherwise the system uses hard-coded timeout (e.g. 10 sec)
-    /// </summary>
-    int DefaultTimeoutMs { get; }
-
-    /// <summary>
-    /// Returns endpoints which should be re-tried subsequently on failure.
-    /// The endpoints are returned in the sequence which depend on implementation.
-    /// Typically the sequence is based on network routing efficiency and least/loaded resources.
-    /// The optional shardingKey parameter may be passed for multi-sharding scenarios.
-    /// </summary>
-    /// <param name="remoteAddress">
-    ///   The remote service logical address, such as the regional host name for Sky applications.
-    ///   The system resolves this address to physical address depending on binding and contract on the remote host
-    /// </param>
-    /// <param name="contract">Service contract name</param>
-    /// <param name="shardKey">Optional sharding parameter. The system will direct the call to the appropriate shard in the service partition if it is used</param>
-    /// <param name="network">The name of the logical network to use for a call, or null to use the default network</param>
-    /// <param name="binding">
-    ///   The service binding to use, or null for default.
-    ///   Bindings are connection technology/protocols (such as Http(s)/Glue/GRPC etc..) used to make the call
-    /// </param>
-    /// <returns>Endpoint(s) which should be (re)tried in the order of enumeration</returns>
-    IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, object shardKey = null, string network = null, string binding = null);
-
-    /// <summary>
-    /// Gets the physical transport used to make remote calls. Depending on implementation the system
-    /// may return a pooled transport, re-use already acquired one (if transport supports multiplexing) etc.
-    /// </summary>
-    /// <param name="assignment">Endpoint to connect to</param>
-    /// <param name="reserve">Pass true to reserve this transport for the caller. The caller must release the reserved transport</param>
-    ITransportImplementation AcquireTransport(EndpointAssignment assignment, bool reserve = false);
-
-    /// <summary>
-    /// Releases the transport acquired by the AcquireTransport call
-    /// </summary>
-    void ReleaseTransport(ITransportImplementation transport);
-  }
-
-
-  /// <summary>
-  /// Implements an IService, adding transport acquisition/release behavior
-  /// </summary>
-  public interface IServiceImplementation : IService, IDisposable, IInstrumentable
-  {
-
-  }
-
-  /// <summary>
-  /// Marks services that have HTTP semantics - the ones based on HttpClient-like operations, REST, RPC, JSON etc...
-  /// </summary>
-  public interface IHttpService : IService
-  {
-
-  }
-
-
-  /// <summary>
-  /// Represents a transport channel which is used to make remote server calls.
-  /// For Http this is typically a HttpClient configured with default headers and protocol handlers
-  /// </summary>
-  public interface ITransport
-  {
-    /// <summary>
-    /// Returns a service endpoint which this transport connects to
-    /// </summary>
-    EndpointAssignment Assignment { get; }
-  }
-
-  /// <summary>
-  /// Transport implementation
-  /// </summary>
-  public interface ITransportImplementation : ITransport, IDisposable{ }
-
-  /// <summary>
-  /// Marks transports that have HTTP semantics - the ones based on HttpClient-like operations, REST, RPC, JSON etc...
-  /// </summary>
-  public interface IHttpTransport : ITransport
-  {
-    /// <summary>
-    /// Returns HttpClient used for making calls
-    /// </summary>
-    HttpClient Client {  get;}
-  }
-
-
-  /// <summary>
   /// Represents an abstraction of a remote service endpoint.
   /// Endpoints provide connection point for services.
   /// Each endpoint represents a specific connection type via Binding(protocol)
@@ -137,6 +25,11 @@ namespace Azos.Client
     /// Returns service which this endpoint represents
     /// </summary>
     IService Service { get; }
+
+    /// <summary>
+    /// Provides endpoint-level aspects which override by name the ones from service
+    /// </summary>
+    IOrderedRegistry<IAspect> Aspects { get; }
 
     /// <summary>
     /// Provides logical network name which this endpoint services, e.g. "noc","internoc","pub" etc.
@@ -211,8 +104,26 @@ namespace Azos.Client
     string StatusMsg {  get; }
   }
 
+  /// <summary>
+  /// Classifies types of call errors, such as the ones that are caused by ServiceLogic and would NOT be retried vs
+  /// errors related to MakingCall which indicate that call physically failed and must be re-tried.
+  /// An example of MakingCall reason: TcpException,ProtocolException,TimeoutException etc... vs. ServiceLogic reasons:
+  ///  BadRequestData, ValidationError, 404 Not Found, 403 Security etc...
+  /// </summary>
+  public enum CallErrorClass
+  {
+    MakingCall,
+    ServiceLogic
+  }
+
   public interface IEndpointImplementation : IEndpoint, IDisposable
   {
+    /// <summary>
+    /// Provides endpoint-level aspects which override by name the ones from service
+    /// </summary>
+    new OrderedRegistry<IAspect> Aspects { get; }
+
+
     /// <summary>
     /// Notifies endpoint o call success. This typically used to update call statistics
     /// </summary>
@@ -226,7 +137,7 @@ namespace Azos.Client
     /// breaker state machine vs. business exception which is logical error (e.g. "Bad Request", "Access denied" etc.) which should not trip the
     /// breaker because it is a deterministic failure which does not indicate problems with network/server
     /// </summary>
-    bool NotifyCallError(ITransport transport, Exception error);
+    CallErrorClass NotifyCallError(ITransport transport, Exception error);
 
     /// <summary>
     /// Resets circuit breaker returning true if endpoint circuit was reset.
@@ -243,14 +154,5 @@ namespace Azos.Client
     /// Puts endpoint offline
     /// </summary>
     void PutOffline(string statusMsg);
-  }
-
-
-  /// <summary>
-  /// Marks endpoints that have HTTP semantics - the ones based on HttpClient-like operations, REST, RPC, JSON etc...
-  /// </summary>
-  public interface IHttpEndpoint : IEndpoint
-  {
-    Uri Uri { get; }
   }
 }

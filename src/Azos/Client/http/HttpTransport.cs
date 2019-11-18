@@ -28,7 +28,6 @@ namespace Azos.Client
     }
 
     protected readonly EndpointAssignment m_Assignment;
-    protected readonly HttpClient m_Client;
 
     public EndpointAssignment Assignment => m_Assignment;
     public HttpEndpoint Endpoint => Assignment.Endpoint as HttpEndpoint;

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Azos.Apps;
+using Azos.Collections;
 using Azos.Conf;
 using Azos.Instrumentation;
 
@@ -47,7 +48,6 @@ namespace Azos.Client
       }
     }
 
-
     protected override void Destructor()
     {
       m_Endpoints.ForEach(ep => ep.Dispose());
@@ -58,6 +58,7 @@ namespace Azos.Client
     private string m_Name;
     protected List<TEndpoint> m_Endpoints = new List<TEndpoint>();
     protected bool m_InstrumentationEnabled;
+    private OrderedRegistry<IAspect> m_Aspects = new OrderedRegistry<IAspect>(caseSensitive: false);
 
     [Config] protected string m_DefaultNetwork;
     [Config] protected string m_DefaultBinding;
@@ -69,6 +70,9 @@ namespace Azos.Client
 
 
     public IEnumerable<IEndpoint> Endpoints => m_Endpoints.Cast<IEndpoint>();
+
+    IOrderedRegistry<IAspect> IService.Aspects => m_Aspects;
+    public OrderedRegistry<IAspect> Aspects => m_Aspects;
 
     public virtual string DefaultNetwork   => m_DefaultNetwork;
     public virtual string DefaultBinding   => m_DefaultBinding;
@@ -117,7 +121,7 @@ namespace Azos.Client
     /// </summary>
     protected abstract void EndpointsHaveChanged();
     protected abstract TTransport DoAcquireTransport(EndpointAssignment assignment, bool reserve);
-    protected abstract void DoReleaseTransport(TTransport endpoint);
+    protected abstract void DoReleaseTransport(TTransport transport);
     protected abstract IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, object shardKey, string network, string binding);
 
 
