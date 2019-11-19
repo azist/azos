@@ -23,7 +23,7 @@ namespace Azos.Platform
           private class _slot
           {
             public _slot() { RefCount = 1; }
-            public int RefCount;
+            public volatile int RefCount;
           }
 
 
