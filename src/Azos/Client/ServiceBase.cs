@@ -43,7 +43,7 @@ namespace Azos.Client
     {
       foreach (var nep in conf.Children.Where(c => c.IsSameName(CONFIG_ENDPOINT_SECTION)))
       {
-        var ep = FactoryUtils.Make<TEndpoint>(nep, args: new object[] { this, nep });
+        var ep = FactoryUtils.Make<TEndpoint>(nep, typeof(TEndpoint), args: new object[] { this, nep });
         m_Endpoints.Add(ep);
       }
     }
