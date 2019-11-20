@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.530.3
-set HEADLINE=Various ext methods
+set VER=1.0.530.4
+set HEADLINE=Svc release
 
 call vs2017-build-release %VER%
 
