@@ -10,7 +10,7 @@ using System.Reflection;
 using Azos.Apps;
 using Azos.Scripting;
 
-namespace Azos.Tests.Nub
+namespace Azos.Tests.Nub.ScriptingAndTesting
 {
     [Runnable]
     public class RunnerHookTests : IRunnableHook, IRunHook

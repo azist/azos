@@ -10,7 +10,7 @@ using System;
 using Azos.Scripting;
 using Azos.Conf;
 
-namespace Azos.Tests.Nub
+namespace Azos.Tests.Nub.ScriptingAndTesting
 {
   [Runnable]
   public class RunnerTests

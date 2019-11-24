@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Azos.Scripting;
 using Azos.Conf;
 
-namespace Azos.Tests.Nub
+namespace Azos.Tests.Nub.ScriptingAndTesting
 {
     /// <summary>
     /// Test the async/await kind of tests

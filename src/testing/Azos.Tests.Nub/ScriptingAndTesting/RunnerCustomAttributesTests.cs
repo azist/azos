@@ -13,7 +13,7 @@ using Azos.Scripting;
 using Azos.Conf;
 using System.Reflection;
 
-namespace Azos.Tests.Nub
+namespace Azos.Tests.Nub.ScriptingAndTesting
 {
   [Runnable]
   public class RunnerCustomAttributesTests : IRunHook

@@ -230,8 +230,8 @@ namespace Azos.Scripting
       }
 
       //both values are enumerables
-      var menum = typeof(IEnumerable).IsAssignableFrom(tm);
-      var oenum = typeof(IEnumerable).IsAssignableFrom(to);
+      var menum = tm != typeof(string) && typeof(IEnumerable).IsAssignableFrom(tm);
+      var oenum = to != typeof(string) && typeof(IEnumerable).IsAssignableFrom(to);
 
       if (menum != oenum)
       {
@@ -273,9 +273,10 @@ namespace Azos.Scripting
         return true;
       }
 
+      bool result;
       try
       {
-        return mval.Equals(oval);
+        result = mval.Equals(oval);
       }
       catch(Exception error)
       {
@@ -287,6 +288,20 @@ namespace Azos.Scripting
                        error: error);
         return false;
       }
+
+      if (!result)
+      {
+        ctx.ReportDiff(DiffType.ValueDifference,
+                         mname,
+                         "Field '{0}' value '{1}' in {2} does not equal value '{3}' in {4}".Args(mname,
+                                                                                          mval.ToString().TakeFirstChars(32, ".."),
+                                                                                          GetNameOf(src, true),
+                                                                                          oval.ToString().TakeFirstChars(32, ".."),
+                                                                                          GetNameOf(src, false)));
+      }
+
+      return result;
+
     }
 
   }
