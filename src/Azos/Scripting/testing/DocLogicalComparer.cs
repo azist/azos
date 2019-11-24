@@ -11,9 +11,12 @@ using Azos.Serialization.JSON;
 namespace Azos.Scripting
 {
   /// <summary>
-  /// Provides an extendable implementation of data document comparison
+  /// Provides an extendable implementation of data document comparison/differ.
+  /// Data documents are deep-compared for logical differences - field by field, visiting nested documents if necessary,
+  /// so they can even have different schema as long as field sets are compatible.
+  /// You can do A to B and/or B to A comparisons with or without AmorphousData.
   /// </summary>
-  public class DocComparer
+  public class DocLogicalComparer
   {
     public enum Source { A, B };
     public enum DiffType { FieldNotFound, ValueDifference }
@@ -29,7 +32,7 @@ namespace Azos.Scripting
 
     public class Result
     {
-      internal Result(DocComparer comparer, Doc a, Doc b)
+      internal Result(DocLogicalComparer comparer, Doc a, Doc b)
       {
         Comparer = comparer;
         A = a;
@@ -38,7 +41,7 @@ namespace Azos.Scripting
 
       private List<Diff> m_Diffs = new List<Diff>();
 
-      public DocComparer Comparer { get; private set; }
+      public DocLogicalComparer Comparer { get; private set; }
       public Doc A { get; private set; }
       public Doc B { get; private set; }
       public (Doc master, Doc other) this[Source src] => src== Source.A ? (A, B) : (B, A);
@@ -227,6 +230,8 @@ namespace Azos.Scripting
           ctx.ReportDiff(DiffType.ValueDifference, mname, "Field '{0}' document values are different; see inner result".Args(mname), innerComparisonResult);
           return false;
         }
+
+        return true;
       }
 
       //both values are enumerables
@@ -259,7 +264,7 @@ namespace Azos.Scripting
         //we know that count is the same
         using(var me = mev.GetEnumerator())
           using(var oe = oev.GetEnumerator())
-            for(var i = 0; me.MoveNext()==oe.MoveNext()==true; i++)
+            for(var i = 0; me.MoveNext() && oe.MoveNext(); i++)
             {
               var equ = TestValueEqu(ctx, src, "{0}[{1}]".Args(mname,i), "{0}[{1}]".Args(oname, i), me.Current, oe.Current);
 
