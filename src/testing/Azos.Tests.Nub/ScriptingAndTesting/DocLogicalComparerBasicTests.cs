@@ -80,7 +80,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
 
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
-      var d2 = JsonReader.ToDoc<Doc1>(json.JsonToDataObject() as JsonDataMap);
+      var d2 = JsonReader.ToDoc<Doc1>(json);
 
       d1.See("d1");
       json.See("JSON");
@@ -101,7 +101,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
 
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
-      var d2 = JsonReader.ToDoc<Doc2>(json.JsonToDataObject() as JsonDataMap);
+      var d2 = JsonReader.ToDoc<Doc2>(json);
 
       json.See("JSON");
 
@@ -124,7 +124,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
 
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
-      var d2 = JsonReader.ToDoc<Doc3>(json.JsonToDataObject() as JsonDataMap);
+      var d2 = JsonReader.ToDoc<Doc3>(json);
 
       json.See("JSON");
 
@@ -147,7 +147,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
 
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
-      var d2 = JsonReader.ToDoc<Doc4>(json.JsonToDataObject() as JsonDataMap);
+      var d2 = JsonReader.ToDoc<Doc4>(json);
 
       json.WriteLine();
 
@@ -170,7 +170,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
 
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
-      var d2 = JsonReader.ToDoc<Doc5>(json.JsonToDataObject() as JsonDataMap);
+      var d2 = JsonReader.ToDoc<Doc5>(json);
 
       json.WriteLine();
 
@@ -195,7 +195,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
       //Notice how we round-trip LIST into []
-      var d2 = JsonReader.ToDoc<Doc4>(json.JsonToDataObject() as JsonDataMap);
+      var d2 = JsonReader.ToDoc<Doc4>(json);
 
       json.WriteLine();
 

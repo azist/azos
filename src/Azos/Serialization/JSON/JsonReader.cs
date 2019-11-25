@@ -124,12 +124,22 @@ namespace Azos.Serialization.JSON
     }
 
     /// <summary>
-    /// Generic version of ToDoc(Type, JSONDataMap, bool)/>
+    /// Generic version of ToDoc(Type...)/>
     /// </summary>
     /// <typeparam name="T">TypedDoc</typeparam>
     public static T ToDoc<T>(JsonDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null) where T: TypedDoc
     {
       return ToDoc(typeof(T), jsonMap, fromUI, nameBinding) as T;
+    }
+
+    /// <summary>
+    /// Generic version of ToDoc(Type, JSONDataMap, NameBinding)/>
+    /// </summary>
+    /// <typeparam name="T">TypedDoc</typeparam>
+    public static T ToDoc<T>(string json, bool fromUI = true, NameBinding? nameBinding = null) where T : TypedDoc
+    {
+      var map = (json.NonBlank(nameof(json)).JsonToDataObject(true) as JsonDataMap).NonNull("json is not a map");
+      return ToDoc(typeof(T), map, fromUI, nameBinding) as T;
     }
 
 
