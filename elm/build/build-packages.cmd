@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.530.4
-set HEADLINE=Svc release
+set VER=1.0.531
+set HEADLINE=DocLogicalComparer + arow hdr switch
 
 call vs2017-build-release %VER%
 

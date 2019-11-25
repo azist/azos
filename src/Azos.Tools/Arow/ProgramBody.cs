@@ -89,6 +89,7 @@ namespace Azos.Tools.Arow
       {
         generator.RootPath = path;
         generator.CodeSegregation = config.Root["c", "code"].AttrByIndex(0).ValueAsEnum(CodeGenerator.GeneratedCodeSegregation.FilePerNamespace);
+        generator.HeaderDetailLevel = config.Root["hdr", "header", "hl"].AttrByIndex(0).ValueAsInt(255);
         generator.Generate( assembly );
       }
     }
