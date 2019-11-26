@@ -185,7 +185,7 @@ namespace Azos.Serialization.JSON
         field = mfld.Key;
         var fv = mfld.Value;
 
-        //Multitargeting for deserilization to TypedDoc from JSON
+        //Multitargeting for deserialization to TypedDoc from JSON
         Schema.FieldDef def;
         if (nameBinding.BindBy == NameBinding.By.CodeName)
           def = doc.Schema[field];
@@ -205,13 +205,14 @@ namespace Azos.Serialization.JSON
 
         if (fromUI && def.NonUI) continue;//skip NonUI fields
 
+        //weed out NULLS here
         if (fv == null)
         {
           doc.SetFieldValue(def, null);
           continue;
         }
 
-        //fv is Never null here
+        //fv is NEVER NULL here
         var wasset = setOneField(doc, def, fv, fromUI, nameBinding); //<------------------- field assignment
 
         //try to put in amorphous data if could not be set in a field
@@ -235,7 +236,7 @@ namespace Azos.Serialization.JSON
       }
 
       if (amorph != null && amorph.AmorphousDataEnabled)
-        amorph.AfterLoad("json");
+        amorph.AfterLoad(nameBinding.TargetName ?? "json");
     }
 
     private static bool setOneField(Doc doc, Schema.FieldDef def, object fv, bool fromUI, NameBinding nameBinding)
@@ -243,7 +244,7 @@ namespace Azos.Serialization.JSON
       var converted = cast(fv, def.Type, fromUI, nameBinding);
       ////Console.WriteLine($"{def.Name} = {converted} ({(converted!=null ? converted.GetType().Name : "null")})");
 
-      if (converted!=null)
+      if (converted != null)
       {
         doc.SetFieldValue(def, converted);
         return true;
@@ -258,6 +259,17 @@ namespace Azos.Serialization.JSON
     {
       //used only for collections inner calls
       if (v==null) return null;
+
+      var customHandler = JsonHandlerAttribute.TryFind(toType);
+      if (customHandler != null)
+      {
+        var castResult = customHandler.TypeCastOnRead(v, toType, fromUI, nameBinding);
+
+        if (castResult.Outcome >= JsonHandlerAttribute.TypeCastOutcome.ChangedTargetType) toType = castResult.ToType;
+
+        if (castResult.Outcome == JsonHandlerAttribute.TypeCastOutcome.ChangedSourceValue) v = castResult.Value;
+        else if (castResult.Outcome == JsonHandlerAttribute.TypeCastOutcome.HandledCast) return castResult.Value;
+      }
 
       //object goes as is
       if (toType == typeof(object)) return v;
