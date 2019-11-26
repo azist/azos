@@ -77,6 +77,28 @@ namespace Azos.Tests.Nub.Serialization
       ]}
       ";
 
+    /*
+     NET fx 4.7.2 Parallel debug:    Did 350,000 in 3,906 ms at  89,606 ops/sec
+     NET fx 4.7.2 Parallel release:  Did 350,000 in 1,917 ms at 182,577 ops/sec
+     --------------------------------------------------------------------------
+     Core 2.1.602 Parallel debug:    Did 350,000 in 4,471 ms at  78,282 ops/sec
+     Core 2.1.602 Parallel release:  Did 350,000 in 2,441 ms at 143,384 ops/sec
+    */
+    [Run("!json-perf", "cnt=350000")]
+    public void Perf(int cnt)
+    {
+      var got = JsonReader.ToDoc<DocWithArray>(JSON1);
+      var sw = System.Diagnostics.Stopwatch.StartNew();
+      System.Threading.Tasks.Parallel.For(0,cnt, i=>    //  for (var i=0; i<cnt; i++)
+      {
+        got = JsonReader.ToDoc<DocWithArray>(JSON1);
+        Aver.IsNotNull(got);
+      });
+
+      var el = sw.ElapsedMilliseconds;
+      Conout.SeeArgs("Did {0:n0} in {1:n0} ms at {2:n0} ops/sec".Args(cnt, el, cnt / (el / 1000d)));
+    }
+
 
     [Run]
     public void PolymorphicArrays()
