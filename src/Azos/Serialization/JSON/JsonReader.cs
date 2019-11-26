@@ -241,7 +241,8 @@ namespace Azos.Serialization.JSON
 
     private static bool setOneField(Doc doc, Schema.FieldDef def, object fv, bool fromUI, NameBinding nameBinding)
     {
-      var converted = cast(fv, def.Type, fromUI, nameBinding);
+      var fieldCustomHandler = JsonHandlerAttribute.TryFind(def.MemberInfo);
+      var converted = cast(fv, def.Type, fromUI, nameBinding, fieldCustomHandler);
       ////Console.WriteLine($"{def.Name} = {converted} ({(converted!=null ? converted.GetType().Name : "null")})");
 
       if (converted != null)
@@ -255,12 +256,12 @@ namespace Azos.Serialization.JSON
 
 
     //Returns non null on success; may return null for collection sub-element in which case null=null and does not indicate failure
-    private static object cast(object v, Type toType, bool fromUI, NameBinding nameBinding)
+    private static object cast(object v, Type toType, bool fromUI, NameBinding nameBinding, JsonHandlerAttribute fieldCustomHandler = null)
     {
       //used only for collections inner calls
       if (v==null) return null;
 
-      var customHandler = JsonHandlerAttribute.TryFind(toType);
+      var customHandler = fieldCustomHandler ?? JsonHandlerAttribute.TryFind(toType);
       if (customHandler != null)
       {
         var castResult = customHandler.TypeCastOnRead(v, toType, fromUI, nameBinding);
@@ -323,6 +324,9 @@ namespace Azos.Serialization.JSON
             toAllocate == typeof(ConfigSectionNode) ||
             toAllocate == typeof(IConfigSectionNode)) toAllocate = typeof(MemoryConfiguration);
 
+        if (toAllocate.IsAbstract)
+          throw new JSONDeserializationException(StringConsts.JSON_DESERIALIZATION_ABSTRACT_TYPE_ERROR.Args(toAllocate.Name, nameof(JsonHandlerAttribute)));
+
         var newval = SerializationUtils.MakeNewObjectInstance(toAllocate) as IJsonReadable;
         var got = newval.ReadAsJson(v, fromUI, nameBinding);//this may re-allocate the result based of newval
 
@@ -346,7 +350,7 @@ namespace Azos.Serialization.JSON
         var fvseq = v as IEnumerable;
         if (fvseq == null) return null;//can not set non enumerable into array
 
-        var arr = fvseq.Cast<object>().Select(e => cast(e, toType.GetElementType(), fromUI, nameBinding)).ToArray();
+        var arr = fvseq.Cast<object>().Select(e => cast(e, toType.GetElementType(), fromUI, nameBinding, fieldCustomHandler)).ToArray();
         var newval = Array.CreateInstance(toType.GetElementType(), arr.Length);
         for(var i=0; i<newval.Length; i++)
           newval.SetValue(arr[i], i);
@@ -360,7 +364,7 @@ namespace Azos.Serialization.JSON
         var fvseq = v as IEnumerable;
         if (fvseq == null) return false;//can not set non enumerable into List<t>
 
-        var arr = fvseq.Cast<object>().Select(e => cast(e, toType.GetGenericArguments()[0], fromUI, nameBinding)).ToArray();
+        var arr = fvseq.Cast<object>().Select(e => cast(e, toType.GetGenericArguments()[0], fromUI, nameBinding, fieldCustomHandler)).ToArray();
         var newval = SerializationUtils.MakeNewObjectInstance(toType) as IList;
         for (var i = 0; i < arr.Length; i++)
           newval.Add(arr[i]);

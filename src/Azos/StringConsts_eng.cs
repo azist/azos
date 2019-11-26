@@ -695,7 +695,11 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
 
     public const string JSON_SERIALIZATION_MAX_NESTING_EXCEEDED_ERROR =
-              "JSONWriter can not serialize object graph as it exceeds max nesting level of {0}. Graph may contain reference cycles";
+        "JSONWriter can not serialize object graph as it exceeds max nesting level of {0}. Graph may contain reference cycles";
+
+
+    public const string JSON_DESERIALIZATION_ABSTRACT_TYPE_ERROR =
+        "Type `{0}` is abstract. Did you forget to decorate the field or the type with custom {1} derivative to allow for object polymorphism on deserialization?";
 
 
     public const string CRUD_CURSOR_ALREADY_ENUMERATED_ERROR = "CRUD Cursor was already enumerated";

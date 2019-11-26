@@ -136,8 +136,7 @@ namespace Azos.Tests.Nub.Serialization
       Aver.IsNull(got.DocArray[0]);
       Aver.IsNull(got.DocArray[1]);
       Aver.IsNull(got.DocArray[2]);
-      Aver.IsNull(got.DocArray[3]);
-      Aver.IsNotNull(got.DocArray[4]);
+      Aver.IsNotNull(got.DocArray[3]);
       Aver.AreEqual("Horse Cart", ((Car)got.DocArray[3]).Name);
       Aver.AreEqual(100, ((Car)got.DocArray[3]).Mileage);
 
@@ -220,20 +219,24 @@ namespace Azos.Tests.Nub.Serialization
       [Field] public List<BaseEntity> EntityList { get; set; }
     }
 
+    //Notice how we perform polymorphic JSon processing
+    //for types which are not decorated with a custom attribute, we can add attribute right on the field
+    //including collections: arrays and lists. Consequently it is possible to deserialize various
+    //custom type instances in a an abstractly-typed collection using specific handler.
     public class ComplexDoc : TypedDoc
     {
-      [Field] public BaseEntity Item1 { get; set; }
-      [Field] public Doc        Item2 { get; set; }
-      [Field] public object     Item3 { get; set; }
-      [Field] public object Item4 { get; set; }
-      [Field] public object Item5 { get; set; }
+      [Field] public BaseEntity Item1 { get; set; } //no need for attr because BaseEntity declares it on its own type
+      [Field] [CustomEntityTypeJsonHandler] public Doc     Item2 { get; set; } //Doc is polymorphic - need to declare at field level
+      [Field] [CustomEntityTypeJsonHandler] public object  Item3 { get; set; } //object is polymorphic
+      [Field] [CustomEntityTypeJsonHandler] public object  Item4 { get; set; }
+      [Field] [CustomEntityTypeJsonHandler] public object  Item5 { get; set; }
 
 
-      [Field] public Doc[]     DocArray { get; set; }
-      [Field] public List<Doc> DocList  { get; set; }
+      [Field] [CustomEntityTypeJsonHandler] public Doc[]     DocArray { get; set; } //array of polymorphic Doc objects
+      [Field] [CustomEntityTypeJsonHandler] public List<Doc> DocList  { get; set; } //list of polymorphic Doc objects
 
-      [Field] public object[]     ObjectArray { get; set; }
-      [Field] public List<object> ObjectList { get; set; }
+      [Field] [CustomEntityTypeJsonHandler] public object[]     ObjectArray { get; set; } //array of polymorphic objects
+      [Field] [CustomEntityTypeJsonHandler] public List<object> ObjectList { get; set; } //list of polymorphic objects
     }
 
   }

@@ -13,21 +13,29 @@ namespace Azos.Serialization.JSON
   /// For example: an CLR field of type  Animal[] gets populated by objects of Cat,Dog, Fish types
   /// as distinguished by a custom pattern match on their Json shapes
   /// </summary>
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public abstract class JsonHandlerAttribute : Attribute
   {
-    private static ConstrainedSetLookup<Type, JsonHandlerAttribute> s_Cache =
-      new ConstrainedSetLookup<Type, JsonHandlerAttribute>( site => site.GetCustomAttribute<JsonHandlerAttribute>(false) );
+    private static ConstrainedSetLookup<MemberInfo, JsonHandlerAttribute> s_Cache =
+      new ConstrainedSetLookup<MemberInfo, JsonHandlerAttribute>( site => site.GetCustomAttribute<JsonHandlerAttribute>(false) );
 
     /// <summary>
     /// Tries to find an attribute decorating the target site
     /// </summary>
-    public static JsonHandlerAttribute TryFind(Type site)
+    public static JsonHandlerAttribute TryFind(MemberInfo site)
     {
-      if (site==null) return null;
-      if (site.IsPrimitive || site==typeof(string) || (!site.IsClass && !site.IsValueType)) return null;
+      switch(site)
+      {
+        case null: return null;
 
-      return s_Cache[site];
+        case Type tp when (!tp.IsPrimitive) &&
+                          (tp != typeof(string)) &&
+                          (tp.IsClass || tp.IsValueType): return s_Cache[tp];
+
+        case PropertyInfo pi: return s_Cache[pi];
+
+        default: return null;
+      }
     }
 
 
