@@ -47,16 +47,35 @@ namespace Azos.Tests.Nub.Serialization
       {
         Name = "Veggies",
         Item1 = new EntityA { Name = "tomato", A = 250 },
-        Item2 = new EntityA { Name = "onions", A = 1250 },
+        Item2 = new EntityA { Name = "onion", A = 1250 },
         Item3 = new EntityB { Name = "potato", B = -900 }
       };
 
       var json = d1.ToJson();
 
-      var d2 = JsonReader.ToDoc<DocWithCustomType>(json);
+      var got = JsonReader.ToDoc<DocWithCustomType>(json);
 
-      d2.See();
+      got.See();
 
+      Aver.IsNotNull(got);
+      Aver.IsNotNull(got.Item1);
+      Aver.IsNotNull(got.Item2);
+      Aver.IsNotNull(got.Item3);
+
+      Aver.IsTrue(got.Item1 is EntityA);
+      Aver.IsTrue(got.Item2 is EntityA);
+      Aver.IsTrue(got.Item3 is EntityB);
+
+
+      Aver.AreEqual("Veggies", got.Name);
+
+      Aver.AreEqual("tomato", got.Item1.Name);
+      Aver.AreEqual("onion", got.Item2.Name);
+      Aver.AreEqual("potato", got.Item3.Name);
+
+      Aver.AreEqual(250,  ((EntityA)got.Item1).A);
+      Aver.AreEqual(1250, ((EntityA)got.Item2).A);
+      Aver.AreEqual(-900, ((EntityB)got.Item3).B);
     }
 
 
