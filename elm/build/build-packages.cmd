@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.531
-set HEADLINE=DocLogicalComparer + arow hdr switch
+set VER=1.0.532
+set HEADLINE=Add JsonHandlerAttribute for polymorphic json support
 
 call vs2017-build-release %VER%
 

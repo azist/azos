@@ -60,7 +60,7 @@ namespace Azos.Serialization.JSON
         /// </summary>
         public static string Write(object data, JsonWritingOptions options = null, IFormatProvider formatProvider = null)
         {
-            if (options==null) options = JsonWritingOptions.Compact;
+            if (options==null) options = JsonWritingOptions.CompactRowsAsMap;
 
             var sb = new StringBuilder(0xff);
             using( var wri =  formatProvider==null ?
