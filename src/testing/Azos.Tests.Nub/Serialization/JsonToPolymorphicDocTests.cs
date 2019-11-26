@@ -12,7 +12,7 @@ namespace Azos.Tests.Nub.Serialization
   {
     private const string JSON1 = @"
       {
-       ""EntityArray"": [
+       ""Entities"": [
             {""Name"": ""Buick"", ""Mileage"": 54000},
             {""Name"": ""Honda"", ""Mileage"": 12350},
             {""Name"": ""Berezka"", ""ColorSystem"": ""SECAM""}
@@ -50,25 +50,52 @@ namespace Azos.Tests.Nub.Serialization
        ]
       }";
 
+    private const string JSON3 = @"
+      {
+       ""Text"" : ""Learn Chinese!"",
+       ""Docs"": [
+            {
+               ""Entities"": [
+                    {""Name"": ""1Buick"", ""Mileage"": 54000},
+                    {""Name"": ""1Honda"", ""Mileage"": 12350},
+                    {""Name"": ""1Berezka"", ""ColorSystem"": ""1SECAM""}
+                ] ,
+                 ""MyTv"":     {""Name"": ""1Grundig"", ""ColorSystem"": ""1PAL/NTSC""},
+                 ""MyCar"":    {""Name"": ""1Ford"", ""Mileage"": 1000123},
+                 ""Favorite"": {""Name"": ""1VAZ 2103"", ""Mileage"": 120123}
+            },
+            {
+               ""Entities"": [
+                    {""Name"": ""2Buick"", ""Mileage"": -54000},
+                    {""Name"": ""2Honda"", ""Mileage"": -12350},
+                    {""Name"": ""2Berezka"", ""ColorSystem"": ""2SECAM""}
+                ] ,
+                 ""MyTv"":     {""Name"": ""2Grundig"", ""ColorSystem"": ""2PAL/NTSC""},
+                 ""MyCar"":    {""Name"": ""2Ford"", ""Mileage"": -1000123},
+                 ""Favorite"": {""Name"": ""2VAZ 2103"", ""Mileage"": -120123}
+            }
+      ]}
+      ";
+
 
     [Run]
     public void PolymorphicArrays()
     {
-      var got = JsonReader.ToDoc<DocWithArray>(JSON1);
+      var got = JsonReader.ToDoc<DocWithArray>(JSON1); //<---ARRAYS
 
       got.See();
 
       Aver.IsNotNull(got);
-      Aver.IsNotNull(got.EntityArray);
-      Aver.AreEqual(3, got.EntityArray.Length);
+      Aver.IsNotNull(got.Entities);
+      Aver.AreEqual(3, got.Entities.Length);
 
-      Aver.IsTrue(got.EntityArray[0] is Car);
-      Aver.IsTrue(got.EntityArray[1] is Car);
-      Aver.IsTrue(got.EntityArray[2] is TV);
+      Aver.IsTrue(got.Entities[0] is Car);
+      Aver.IsTrue(got.Entities[1] is Car);
+      Aver.IsTrue(got.Entities[2] is TV);
 
-      Aver.AreEqual(54000, ((Car)got.EntityArray[0]).Mileage);
-      Aver.AreEqual(12350, ((Car)got.EntityArray[1]).Mileage);
-      Aver.AreEqual("SECAM", ((TV)got.EntityArray[2]).ColorSystem);
+      Aver.AreEqual(54000, ((Car)got.Entities[0]).Mileage);
+      Aver.AreEqual(12350, ((Car)got.Entities[1]).Mileage);
+      Aver.AreEqual("SECAM", ((TV)got.Entities[2]).ColorSystem);
 
       Aver.IsNotNull(got.MyTv);
       Aver.IsNotNull(got.MyCar);
@@ -83,21 +110,21 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void PolymorphicLists()
     {
-      var got = JsonReader.ToDoc<DocWithArray>(JSON1);
+      var got = JsonReader.ToDoc<DocWithList>(JSON1);//<---LISTS
 
       got.See();
 
       Aver.IsNotNull(got);
-      Aver.IsNotNull(got.EntityArray);
-      Aver.AreEqual(3, got.EntityArray.Length);
+      Aver.IsNotNull(got.Entities);
+      Aver.AreEqual(3, got.Entities.Count);
 
-      Aver.IsTrue(got.EntityArray[0] is Car);
-      Aver.IsTrue(got.EntityArray[1] is Car);
-      Aver.IsTrue(got.EntityArray[2] is TV);
+      Aver.IsTrue(got.Entities[0] is Car);
+      Aver.IsTrue(got.Entities[1] is Car);
+      Aver.IsTrue(got.Entities[2] is TV);
 
-      Aver.AreEqual(54000, ((Car)got.EntityArray[0]).Mileage);
-      Aver.AreEqual(12350, ((Car)got.EntityArray[1]).Mileage);
-      Aver.AreEqual("SECAM", ((TV)got.EntityArray[2]).ColorSystem);
+      Aver.AreEqual(54000, ((Car)got.Entities[0]).Mileage);
+      Aver.AreEqual(12350, ((Car)got.Entities[1]).Mileage);
+      Aver.AreEqual("SECAM", ((TV)got.Entities[2]).ColorSystem);
 
       Aver.IsNotNull(got.MyTv);
       Aver.IsNotNull(got.MyCar);
@@ -170,6 +197,62 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual("BW", ((TV)got.ObjectList[2]).ColorSystem);
     }
 
+    [Run]
+    public void ArraysofDocsWithSubArrays()
+    {
+      var got = JsonReader.ToDoc<DocSubArrays>(JSON3);
+
+      got.See();
+
+      Aver.IsNotNull(got);
+      Aver.AreEqual("Learn Chinese!", got.Text);
+      Aver.IsNotNull(got.Docs);
+      Aver.AreEqual(2, got.Docs.Length);
+
+      var ones = got.Docs[0].Entities;
+      Aver.IsNotNull(ones);
+      Aver.AreEqual(3, ones.Length);
+
+      Aver.IsTrue(ones[0] is Car);
+      Aver.IsTrue(ones[1] is Car);
+      Aver.IsTrue(ones[2] is TV);
+
+      Aver.AreEqual(54000, ((Car)ones[0]).Mileage);
+      Aver.AreEqual(12350, ((Car)ones[1]).Mileage);
+      Aver.AreEqual("1SECAM", ((TV)ones[2]).ColorSystem);
+
+      Aver.IsNotNull(got.Docs[0].MyTv);
+      Aver.IsNotNull(got.Docs[0].MyCar);
+      Aver.IsNotNull(got.Docs[0].Favorite);
+
+      Aver.AreEqual("1PAL/NTSC", got.Docs[0].MyTv.ColorSystem);
+      Aver.AreEqual(1_000_123, got.Docs[0].MyCar.Mileage);
+      Aver.IsTrue(got.Docs[0].Favorite is Car);//it did inject Car into BaseEntity
+      Aver.AreEqual("1VAZ 2103", ((Car)got.Docs[0].Favorite).Name);
+
+      var twos = got.Docs[1].Entities;
+      Aver.IsNotNull(twos);
+      Aver.AreEqual(3, twos.Length);
+
+      Aver.IsTrue(twos[0] is Car);
+      Aver.IsTrue(twos[1] is Car);
+      Aver.IsTrue(twos[2] is TV);
+
+      Aver.AreEqual(-54000, ((Car)twos[0]).Mileage);
+      Aver.AreEqual(-12350, ((Car)twos[1]).Mileage);
+      Aver.AreEqual("2SECAM", ((TV)twos[2]).ColorSystem);
+
+      Aver.IsNotNull(got.Docs[1].MyTv);
+      Aver.IsNotNull(got.Docs[1].MyCar);
+      Aver.IsNotNull(got.Docs[1].Favorite);
+
+      Aver.AreEqual("2PAL/NTSC", got.Docs[1].MyTv.ColorSystem);
+      Aver.AreEqual(-1_000_123, got.Docs[1].MyCar.Mileage);
+      Aver.IsTrue(got.Docs[1].Favorite is Car);//it did inject Car into BaseEntity
+      Aver.AreEqual("2VAZ 2103", ((Car)got.Docs[1].Favorite).Name);
+
+    }
+
     /// <summary>
     /// Example of Json deserialization polymorphism based on JSON map structure
     /// </summary>
@@ -208,7 +291,7 @@ namespace Azos.Tests.Nub.Serialization
       [Field] public TV MyTv { get; set; }
       [Field] public Car MyCar { get; set; }
       [Field] public BaseEntity Favorite { get; set; }
-      [Field] public BaseEntity[] EntityArray{  get; set;}
+      [Field] public BaseEntity[] Entities{  get; set;}
     }
 
     public class DocWithList : TypedDoc
@@ -216,7 +299,7 @@ namespace Azos.Tests.Nub.Serialization
       [Field] public TV MyTv { get; set; }
       [Field] public Car MyCar { get; set; }
       [Field] public BaseEntity Favorite { get; set; }
-      [Field] public List<BaseEntity> EntityList { get; set; }
+      [Field] public List<BaseEntity> Entities { get; set; }
     }
 
     //Notice how we perform polymorphic JSon processing
@@ -237,6 +320,12 @@ namespace Azos.Tests.Nub.Serialization
 
       [Field] [CustomEntityTypeJsonHandler] public object[]     ObjectArray { get; set; } //array of polymorphic objects
       [Field] [CustomEntityTypeJsonHandler] public List<object> ObjectList { get; set; } //list of polymorphic objects
+    }
+
+    public class DocSubArrays : TypedDoc
+    {
+      [Field] public string Text{ get; set; }
+      [Field] public DocWithArray[] Docs{ get; set; }
     }
 
   }
