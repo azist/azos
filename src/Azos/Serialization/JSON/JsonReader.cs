@@ -124,6 +124,24 @@ namespace Azos.Serialization.JSON
     }
 
     /// <summary>
+    /// Converts JSONMap into typed data document of the requested type.
+    /// The requested type must be derived from Azos.Data.TypedDoc.
+    /// The extra data found in JSON map will be placed in AmorphousData dictionary if the row implements IAmorphousData, discarded otherwise.
+    /// Note: This method provides "the best match" and does not guarantee that all data will/can be converted from JSON, i.e.
+    ///  it can only convert one dimensional arrays and Lists of either primitive or TypeRow-derived entries
+    /// </summary>
+    /// <param name="type">TypedDoc subtype to convert into</param>
+    /// <param name="json">JSON data to convert into data doc</param>
+    /// <param name="fromUI">When true indicates that data came from UI, hence NonUI-marked fields should be skipped. True by default</param>
+    /// <param name="nameBinding">Used for backend name matching or null (any target)</param>
+    public static TypedDoc ToDoc(Type type, string json, bool fromUI = true, NameBinding? nameBinding = null)
+    {
+      var map =  (json.NonBlank(nameof(json)).JsonToDataObject(true) as JsonDataMap).NonNull("json is not a map");
+
+      return ToDoc(type, map, fromUI, nameBinding);
+    }
+
+    /// <summary>
     /// Generic version of ToDoc(Type...)/>
     /// </summary>
     /// <typeparam name="T">TypedDoc</typeparam>
@@ -140,6 +158,23 @@ namespace Azos.Serialization.JSON
     {
       var map = (json.NonBlank(nameof(json)).JsonToDataObject(true) as JsonDataMap).NonNull("json is not a map");
       return ToDoc(typeof(T), map, fromUI, nameBinding) as T;
+    }
+
+
+    /// <summary>
+    /// Converts JSONMap into supplied row instance.
+    /// The extra data found in JSON map will be placed in AmorphousData dictionary if the row implements IAmorphousData, discarded otherwise.
+    /// Note: This method provides "the best match" and does not guarantee that all data will/can be converted from JSON, i.e.
+    ///  it can only convert one dimensional arrays and Lists of either primitive or TypeRow-derived entries
+    /// </summary>
+    /// <param name="doc">Data document instance to convert into</param>
+    /// <param name="json">JSON data to convert into row</param>
+    /// <param name="fromUI">When true indicates that data came from UI, hence NonUI-marked fields should be skipped. True by default</param>
+    /// <param name="nameBinding">Used for backend name matching or null (any target)</param>
+    public static void ToDoc(Doc doc, string json, bool fromUI = true, NameBinding? nameBinding = null)
+    {
+      var map = (json.NonBlank(nameof(json)).JsonToDataObject(true) as JsonDataMap).NonNull("json is not a map");
+      ToDoc(doc, map, fromUI, nameBinding);
     }
 
 
