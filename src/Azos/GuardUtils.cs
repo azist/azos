@@ -161,6 +161,69 @@ namespace Azos
       return type;
     }
 
+    /// <summary>
+    /// Ensures that a type value is not null and is of the specified type or one of its subtypes
+    /// </summary>
+    public static Type IsOfType(this Type type,
+                               Type expectedType,
+                               string name = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null)
+    {
+      if (type == null || !expectedType.NonNull(nameof(expectedType)).IsAssignableFrom(type))
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_PARAMETER_OFTYPE_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, expectedType.Name));
+      }
+      return type;
+    }
+
+
+    /// <summary>
+    /// Ensures that a type value is not null and is of the specified type or one of its subtypes
+    /// </summary>
+    public static TValue ValueIsOfType<T, TValue>(this TValue value,
+                               string name = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null)
+    {
+      if (value == null || !typeof(T).IsAssignableFrom(value.GetType()))
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_PARAMETER_VALUEOFTYPE_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, typeof(T).Name));
+      }
+      return value;
+    }
+
+    /// <summary>
+    /// Ensures that a type value is not null and is of the specified type or one of its subtypes
+    /// </summary>
+    public static TValue ValueIsOfType<TValue>(this TValue value,
+                               Type expectedType,
+                               string name = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null)
+    {
+      if (value == null || !expectedType.NonNull(nameof(expectedType)).IsAssignableFrom(value.GetType()))
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_PARAMETER_VALUEOFTYPE_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, expectedType.Name));
+      }
+      return value;
+    }
+
 
     /// <summary>
     /// Ensures that a config node value is non-null existing node

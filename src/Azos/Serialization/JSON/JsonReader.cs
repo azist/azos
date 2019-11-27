@@ -157,9 +157,23 @@ namespace Azos.Serialization.JSON
     {
       if (doc == null || jsonMap == null)
         throw new JSONDeserializationException(StringConsts.ARGUMENT_ERROR + "JSONReader.ToDoc(doc|jsonMap=null)");
+
       var field = "";
       try
       {
+        var tDoc = doc.GetType();
+        var customHandler = JsonHandlerAttribute.TryFind(tDoc);
+        if (customHandler != null)
+        {
+          var castResult = customHandler.TypeCastOnRead(jsonMap, tDoc, fromUI, nameBinding ?? NameBinding.ByCode);
+
+          //only reacts to ChangeSource because this method works on pre-allocated doc
+          if (castResult.Outcome == JsonHandlerAttribute.TypeCastOutcome.ChangedSourceValue)
+          {
+            jsonMap = (castResult.Value as JsonDataMap).NonNull("Changed source value must be of JsonDataMap type for root data documents");
+          }
+        }
+
         toDoc(doc, nameBinding.HasValue ? nameBinding.Value : NameBinding.ByCode, jsonMap, ref field, fromUI);
       }
       catch (Exception error)
@@ -171,7 +185,32 @@ namespace Azos.Serialization.JSON
 
     private static TypedDoc toTypedDoc(Type type, NameBinding? nameBinding, JsonDataMap jsonMap, ref string field, bool fromUI)
     {
-      var doc = (TypedDoc)SerializationUtils.MakeNewObjectInstance(type);
+      var toAllocate = type;
+
+      var customHandler = JsonHandlerAttribute.TryFind(type);
+      if (customHandler != null)
+      {
+        var castResult = customHandler.TypeCastOnRead(jsonMap, type, fromUI, nameBinding ?? NameBinding.ByCode);
+
+        if (castResult.Outcome >= JsonHandlerAttribute.TypeCastOutcome.ChangedTargetType)
+        {
+          toAllocate = castResult.ToType.IsOfType(type, "Changed type must be a subtype of specific document type");
+        }
+
+        if (castResult.Outcome == JsonHandlerAttribute.TypeCastOutcome.ChangedSourceValue)
+        {
+          jsonMap = (castResult.Value as JsonDataMap).NonNull("Changed source value must be of JsonDataMap type for root data documents");
+        }
+        else if (castResult.Outcome == JsonHandlerAttribute.TypeCastOutcome.HandledCast)
+        {
+            return castResult.Value.ValueIsOfType(type, "HandledCast must return TypedDoc for root data documents") as TypedDoc;
+        }
+      }
+
+      if (toAllocate.IsAbstract)
+        throw new JSONDeserializationException(StringConsts.JSON_DESERIALIZATION_ABSTRACT_TYPE_ERROR.Args(toAllocate.Name, nameof(JsonHandlerAttribute)));
+
+      var doc = (TypedDoc)SerializationUtils.MakeNewObjectInstance(toAllocate);
       toDoc(doc, nameBinding.HasValue ? nameBinding.Value : NameBinding.ByCode, jsonMap, ref field, fromUI);
       return doc;
     }

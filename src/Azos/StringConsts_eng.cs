@@ -428,6 +428,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string GUARDED_PARAMETER_OFTYPE_ERROR =
          "Guarded method '{0}' type parameter '{1}' may not be null and must be of '{2}' type or its descendants";
 
+    public const string GUARDED_PARAMETER_VALUEOFTYPE_ERROR =
+         "Guarded method '{0}' value '{1}' may not be null and must be of '{2}' type or its descendants";
+
     public const string GUARDED_CONFIG_NODE_PARAMETER_MAY_NOT_BE_EMPTY_ERROR =
         "Guarded method '{0}' config node parameter '{1}' may not be null or empty";
 

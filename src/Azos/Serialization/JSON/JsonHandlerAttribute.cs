@@ -13,11 +13,11 @@ namespace Azos.Serialization.JSON
   /// For example: an CLR field of type  Animal[] gets populated by objects of Cat,Dog, Fish types
   /// as distinguished by a custom pattern match on their Json shapes
   /// </summary>
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
   public abstract class JsonHandlerAttribute : Attribute
   {
     private static ConstrainedSetLookup<MemberInfo, JsonHandlerAttribute> s_Cache =
-      new ConstrainedSetLookup<MemberInfo, JsonHandlerAttribute>( site => site.GetCustomAttribute<JsonHandlerAttribute>(false) );
+      new ConstrainedSetLookup<MemberInfo, JsonHandlerAttribute>( site => site.GetCustomAttribute<JsonHandlerAttribute>(true) );
 
     /// <summary>
     /// Tries to find an attribute decorating the target site

@@ -8,7 +8,7 @@ using Azos.Serialization.JSON;
 namespace Azos.Tests.Nub.Serialization
 {
   [Runnable]
-  public class JsonToPolymorphicDocTests
+  public class JsonPolymorphismTests
   {
     private const string JSON1 = @"
       {
