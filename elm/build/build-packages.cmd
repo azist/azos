@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.532
-set HEADLINE=Add JsonHandlerAttribute for polymorphic json support
+set VER=1.0.532.1
+set HEADLINE=Svc: Add JsonHandlerAttribute for polymorphic json support
 
 call vs2017-build-release %VER%
 
