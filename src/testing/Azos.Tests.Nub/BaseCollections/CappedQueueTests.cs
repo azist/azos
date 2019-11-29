@@ -132,12 +132,12 @@ namespace Azos.Tests.Nub.BaseCollections
     }
 
     [Run]
-    public void SetCountLimit_LoseOld()
+    public void SetCountLimit_DiscardOld()
     {
       var sut = new CappedQueue<MyItem>(i => i == null ? 0 : i.Name == null ? 0 : i.Name.Length);
 
       sut.CountLimit = 3;
-      sut.Handling = QueueLimitHandling.LoseOld;
+      sut.Handling = QueueLimitHandling.DiscardOld;
 
       Aver.IsTrue(sut.TryEnqueue(new MyItem { Name = "Cat" }));
       Aver.AreEqual(1, sut.Count);
@@ -178,12 +178,12 @@ namespace Azos.Tests.Nub.BaseCollections
     }
 
     [Run]
-    public void SetCountLimit_LoseOverflow()
+    public void SetCountLimit_DiscardNew()
     {
       var sut = new CappedQueue<MyItem>(i => i == null ? 0 : i.Name == null ? 0 : i.Name.Length);
 
       sut.CountLimit = 3;
-      sut.Handling = QueueLimitHandling.LoseOverflow;
+      sut.Handling = QueueLimitHandling.DiscardNew;
 
       Aver.IsTrue(sut.TryEnqueue(new MyItem { Name = "Cat" }));
       Aver.AreEqual(1, sut.Count);

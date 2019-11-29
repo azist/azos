@@ -15,24 +15,24 @@ namespace Azos.Collections
     public enum QueueLimitHandling
     {
       /// <summary>
-      /// Dequeue old data to make enough space for new data
+      /// Dequeue and discard the old data at the head to make enough space for the new data which is being inserted at the tail
       /// </summary>
-      LoseOld = 0,
+      DiscardOld = 0,
 
       /// <summary>
-      /// Ignore the new data that is over the limit
+      /// Discard the new data which is being inserted at the tail, keep the already queued head as-is
       /// </summary>
-      LoseOverflow,
+      DiscardNew,
 
       /// <summary>
-      /// Throw an error
+      /// Throw an error when the new data does not fit into the queue
       /// </summary>
       Throw
     }
 
   /// <summary>
-  /// Represents a thread-safe concurrent queue of T with limits imposed on total count and
-  /// approximated total size of all items in relative units. Once the limit/s is/are reached a queue can either
+  /// Represents a thread-safe concurrent queue of T with limits imposed on the total count and
+  /// an approximated total size of all items expressed in relative units. Once the limit/s is/are reached a queue can either
   /// discard old or new messages or throw exception.
   /// This class can be used as a base building block for flow control.
   /// The class itself is Disposable which is a form of cancellation token
@@ -47,21 +47,28 @@ namespace Azos.Collections
   public sealed class CappedQueue<T> : IEnumerable<T>
   {
 
-    public CappedQueue(Func<T, long> getItemSize, Action<T> lostItem = null)
+    /// <summary>
+    /// Creates na instances of a thread-safe concurrent queue of T with limits imposed on the total count and
+    /// an approximated total size of all items expressed in relative units. Once the limit/s is/are reached a queue can either
+    /// discard old or new messages or throw exception.
+    /// </summary>
+    /// <param name="getItemSize">Required functor which computes the size of queue item. Keep in mind that for reference types it can be null</param>
+    /// <param name="discardedItem">Optional functor which is called for every item discarded at the queue head (Handling=DiscardOld)</param>
+    public CappedQueue(Func<T, long> getItemSize, Action<T> discardedItem = null)
     {
       m_GetItemSize = getItemSize.NonNull(nameof(getItemSize));
-      m_LostItem = lostItem;
+      m_DiscardedItem = discardedItem;
     }
 
 
     private Func<T, long> m_GetItemSize;
-    private Action<T> m_LostItem;
+    private Action<T> m_DiscardedItem;
     private ConcurrentQueue<T> m_Data = new ConcurrentQueue<T>();
     private int m_EnqueuedCount;
     private long m_EnqueuedSize;
 
 
-    public IEnumerator<T> GetEnumerator() => m_Data.GetEnumerator();
+    public IEnumerator<T> GetEnumerator()   => m_Data.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => m_Data.GetEnumerator();
 
     /// <summary>
@@ -98,12 +105,12 @@ namespace Azos.Collections
     public int Count => m_Data.Count;
 
     /// <summary>
-    ///  Tries to enqueue an item in the queue, depending on the set limits and Handling property,
-    ///  the operation may either succeed, partially succeed causing removal of older data or fail either with exception
-    ///  or returning false
+    ///  Tries to enqueue an item in the queue, depending on the set limits and the Handling property,
+    ///  the operation may either succeed, partially succeed causing removal of the older data or fail either with an exception
+    ///  or just return false
     /// </summary>
     /// <param name="item">Item to enqueue</param>
-    /// <returns>True when item was enqueued</returns>
+    /// <returns>True when item was enqueued; throws if set to QueueLimitHandling.Throw</returns>
     public bool TryEnqueue(T item)
     {
       var maxCount = CountLimit;
@@ -114,11 +121,11 @@ namespace Azos.Collections
            (maxSize  > 0 && Thread.VolatileRead(ref m_EnqueuedSize)  >= maxSize)
          )
       {
-        if (Handling==QueueLimitHandling.LoseOld)
+        if (Handling==QueueLimitHandling.DiscardOld)
           trimOldExcess();
         else if (Handling==QueueLimitHandling.Throw)
           throw new AzosException(StringConsts.COLLECTION_CAPPED_QUEUE_LIMIT_ERROR.Args(nameof(CappedQueue<T>), Handling));
-        else return false;//LoseOverflow
+        else return false;//DiscardNew
       }
 
       var sz = m_GetItemSize(item);
@@ -144,10 +151,13 @@ namespace Azos.Collections
 
     public bool TryPeek(out T item) => m_Data.TryPeek(out item);
 
+    //this is needed to prevent thread stall
+    //if one thread gets to trimOldExcess and another one keeps adding, the first thread may never exit the delete loop
+    //it will exit the loop after MAX iterations
+    private static readonly int MAX_ITERATIONS = Math.Max(10, System.Environment.ProcessorCount);
 
     private void trimOldExcess()
     {
-      const int MAX_ITERATIONS = 16;
       var maxCount = CountLimit;
       var maxSize = SizeLimit;
 
@@ -159,12 +169,12 @@ namespace Azos.Collections
               i++
           )
       {
-        if (!m_Data.TryDequeue(out var lost)) break;
-        var sz = m_GetItemSize(lost);
+        if (!m_Data.TryDequeue(out var discarded)) break;
+        var sz = m_GetItemSize(discarded);
         Interlocked.Decrement(ref m_EnqueuedCount);
         Interlocked.Add(ref m_EnqueuedSize, -sz);
 
-        m_LostItem?.Invoke(lost);
+        m_DiscardedItem?.Invoke(discarded);
       }
     }
 
