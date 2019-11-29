@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
@@ -8,6 +9,27 @@ using Azos.Conf;
 
 namespace Azos.Collections
 {
+    /// <summary>
+    /// Designates modes of operation when queue exceeds the set limit
+    /// </summary>
+    public enum QueueLimitHandling
+    {
+      /// <summary>
+      /// Dequeue old data to make enough space for new data
+      /// </summary>
+      LoseOld = 0,
+
+      /// <summary>
+      /// Ignore the new data that is over the limit
+      /// </summary>
+      LoseOverflow,
+
+      /// <summary>
+      /// Throw an error
+      /// </summary>
+      Throw
+    }
+
   /// <summary>
   /// Represents a thread-safe concurrent queue of T with limits imposed on total count and
   /// approximated total size of all items in relative units. Once the limit/s is/are reached a queue can either
@@ -22,9 +44,8 @@ namespace Azos.Collections
   /// For example, you may place a limit of 1,000 total items, but a queue might have 1000+(cpu count) items (e.g. 1004) at any given time
   /// before it starts to shrink. This is an expected behavior as the queue guarantees only an eventual relative limit enforcement in general.
   /// </remarks>
-  public sealed class CappedQueue<T>
+  public sealed class CappedQueue<T> : IEnumerable<T>
   {
-    public enum LimitHandling { LoseOld = 0, LoseOverflow, Throw }
 
     public CappedQueue(Func<T, long> getItemSize, Action<T> lostItem = null)
     {
@@ -32,11 +53,16 @@ namespace Azos.Collections
       m_LostItem = lostItem;
     }
 
+
     private Func<T, long> m_GetItemSize;
     private Action<T> m_LostItem;
     private ConcurrentQueue<T> m_Data = new ConcurrentQueue<T>();
     private int m_EnqueuedCount;
     private long m_EnqueuedSize;
+
+
+    public IEnumerator<T> GetEnumerator() => m_Data.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => m_Data.GetEnumerator();
 
     /// <summary>
     /// Returns the a total count of enqueued items
@@ -52,7 +78,7 @@ namespace Azos.Collections
     /// <summary>
     /// Specifies how to handle the case when limit is reached: Lose old data, lose new (over the limit) data, or throw
     /// </summary>
-    [Config] public LimitHandling Handling { get; set; }
+    [Config] public QueueLimitHandling Handling { get; set; }
 
     /// <summary>
     /// When set to a number &gt;0 imposes a limit on the count of items in this queue
@@ -64,6 +90,12 @@ namespace Azos.Collections
     /// The size is measured in relative units (see GetSize(T) override)
     /// </summary>
     [Config] public long SizeLimit{  get; set; }
+
+
+    /// <summary>
+    /// Gets total count directly from the queue
+    /// </summary>
+    public int Count => m_Data.Count;
 
     /// <summary>
     ///  Tries to enqueue an item in the queue, depending on the set limits and Handling property,
@@ -82,9 +114,9 @@ namespace Azos.Collections
            (maxSize  > 0 && Thread.VolatileRead(ref m_EnqueuedSize)  >= maxSize)
          )
       {
-        if (Handling==LimitHandling.LoseOld)
+        if (Handling==QueueLimitHandling.LoseOld)
           trimOldExcess();
-        else if (Handling==LimitHandling.Throw)
+        else if (Handling==QueueLimitHandling.Throw)
           throw new AzosException(StringConsts.COLLECTION_CAPPED_QUEUE_LIMIT_ERROR.Args(nameof(CappedQueue<T>), Handling));
         else return false;//LoseOverflow
       }
