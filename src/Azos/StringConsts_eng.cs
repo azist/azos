@@ -213,6 +213,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
         public const string STRING_VALUE_COULD_NOT_BE_GOTTEN_AS_TYPE_ERROR = "String value '{0}' could not be gotten as type '{1}' ";
 
 
+    public const string COLLECTION_CAPPED_QUEUE_LIMIT_ERROR =
+      "{0} limit is reached and can not enqueue more data. The Handling is `{1}`. Try changing Handling or increase the limits";
+
     public const string SLIM_STREAM_CORRUPTED_ERROR = "Slim data stream is corrupted: ";
 
     public const string SECDB_STREAM_CORRUPTED_ERROR = "SecDB data stream is corrupted: ";

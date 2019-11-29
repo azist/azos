@@ -11,7 +11,7 @@ namespace Azos.IO
   /// <summary>
   /// Represents a "port"/connection to an external console which maintains a registry of IConsoleOut objects, each uniquely named.
   /// IConsolePort instances owns all IConsoleOut instances it created, which are all disposed on IConsolePort dispose.
-  /// This class is thread-safe
+  /// The implementation must be thread-safe
   /// </summary>
   public interface IConsolePort : Collections.INamed, IDisposable
   {
