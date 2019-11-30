@@ -21,7 +21,6 @@ namespace Azos.IO.Connectivity
     {
       m_Port = port;
       m_Name = name;
-      m_Port._Register(this);
     }
 
     protected override void Destructor()

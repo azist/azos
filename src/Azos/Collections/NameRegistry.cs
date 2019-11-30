@@ -136,7 +136,7 @@ namespace Azos.Collections
 
       public Registry(IEnumerable<T> other, bool caseSensitive) : this(caseSensitive)
       {
-        foreach(var item in other)
+        foreach(var item in other.NonNull(nameof(other)))
           m_Data[item.Name] = item;
 
         Thread.MemoryBarrier();
@@ -162,6 +162,8 @@ namespace Azos.Collections
       {
         get
         {
+          name.NonNull(nameof(name));
+
           var data = m_Data;//atomic
           T result;
           if (data.TryGetValue(name, out result)) return result;
@@ -179,7 +181,9 @@ namespace Azos.Collections
       /// </summary>
       public bool Register(T item)
       {
-        lock(m_Sync)
+        ((object)item).NonNull(nameof(item));
+
+        lock (m_Sync)
         {
           if (m_Data.ContainsKey(item.Name)) return false;
 
@@ -209,6 +213,8 @@ namespace Azos.Collections
       /// </summary>
       public bool RegisterOrReplace(T item, out T existing)
       {
+        ((object)item).NonNull(nameof(item));
+
         bool hadExisting;
         lock(m_Sync)
         {
@@ -240,7 +246,9 @@ namespace Azos.Collections
       /// </summary>
       public bool Unregister(T item)
       {
-        lock(m_Sync)
+        ((object)item).NonNull(nameof(item));
+
+        lock (m_Sync)
         {
           if (!m_Data.ContainsKey(item.Name)) return false;
 
@@ -261,7 +269,9 @@ namespace Azos.Collections
       /// </summary>
       public bool Unregister(string name)
       {
-        lock(m_Sync)
+        name.NonNull(nameof(name));
+
+        lock (m_Sync)
         {
           T item;
           if (!m_Data.TryGetValue(name, out item)) return false;
@@ -295,11 +305,16 @@ namespace Azos.Collections
       ///  new item. The first lookup is performed in a lock-free way and if an item is found then it is immediately returned.
       ///  The second check and factory call operation is performed atomically under the lock to ensure consistency
       /// </summary>
+      public T GetOrRegister(string name, Func<string, T> regFactory)
+        => this.GetOrRegister<string>(name, n => regFactory(n), name, out var wasAdded);
+
+      /// <summary>
+      /// Tries to find an item by name, and returns it if it is found, otherwise calls a factory function supplying context value and registers the obtained
+      ///  new item. The first lookup is performed in a lock-free way and if an item is found then it is immediately returned.
+      ///  The second check and factory call operation is performed atomically under the lock to ensure consistency
+      /// </summary>
       public T GetOrRegister<TContext>(string name, Func<TContext, T> regFactory, TContext context)
-      {
-        bool wasAdded;
-        return this.GetOrRegister<TContext>(name, regFactory, context, out wasAdded);
-      }
+       => this.GetOrRegister<TContext>(name, regFactory, context, out var wasAdded);
 
 
       /// <summary>
@@ -309,6 +324,9 @@ namespace Azos.Collections
       /// </summary>
       public T GetOrRegister<TContext>(string name, Func<TContext, T> regFactory, TContext context, out bool wasAdded)
       {
+        name.NonNull(nameof(name));
+        regFactory.NonNull(nameof(regFactory));
+
         //1st check - lock-free lookup attempt
         var data = m_Data;
         T result;
@@ -367,13 +385,13 @@ namespace Azos.Collections
       public bool ContainsName(string name)
       {
         var data = m_Data;
-        return data.ContainsKey(name);
+        return data.ContainsKey(name.NonNull(nameof(name)));
       }
 
       public bool TryGetValue(string name, out T value)
       {
         var data = m_Data;
-        return data.TryGetValue(name, out value);
+        return data.TryGetValue(name.NonNull(nameof(name)), out value);
       }
 
       //called under the lock

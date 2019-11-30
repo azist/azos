@@ -25,6 +25,7 @@ namespace Azos.IO.Connectivity
       if (name.IsNullOrWhiteSpace()) name = Guid.NewGuid().ToString();
       m_Name = name;
       m_Default = new TeleConsoleOut(this, "Default");
+      m_Outs.Register(m_Default);
       m_Signal = new ManualResetEvent(false);
       m_Thread = new Thread(threadBody);
       m_Thread.Name = GetType().Name;
@@ -59,17 +60,13 @@ namespace Azos.IO.Connectivity
     public IConsoleOut DefaultConsole => m_Default;
 
     public IConsoleOut GetOrCreate(string name)
-    {
-      throw new NotImplementedException();
-    }
+     =>  m_Outs.GetOrRegister(name, n => new TeleConsoleOut(this, n));
 
-    internal void _Register(TeleConsoleOut console) => m_Outs.Register(console);
     internal void _Unregister(TeleConsoleOut console)
     {
       m_Outs.Unregister(console);
       if (m_Default==console) m_Default = null;
     }
-
 
 
     internal void Emit(TeleConsoleMsg msg)
