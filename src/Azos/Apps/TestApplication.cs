@@ -61,7 +61,7 @@ namespace Azos.Apps
             Apps.ExecutionContext.__UnbindApplication(this);
         }
 
-        public virtual IO.IConsolePort ConsolePort { get; set; }
+        public virtual IO.Console.IConsolePort ConsolePort { get; set; }
 
         public virtual bool IsUnitTest { get; set; }
 
@@ -274,6 +274,6 @@ namespace Azos.Apps
           return DefaultAppVarResolver.ResolveNamedVar(this, name, out value);
         }
 
-        public void SetConsolePort(IO.IConsolePort port) => this.ConsolePort = port;
+        public void SetConsolePort(IO.Console.IConsolePort port) => this.ConsolePort = port;
   }
 }

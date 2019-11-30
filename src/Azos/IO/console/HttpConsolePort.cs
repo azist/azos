@@ -10,7 +10,7 @@ using Azos.Collections;
 using Azos.Conf;
 using Azos.Web;
 
-namespace Azos.IO.Connectivity
+namespace Azos.IO.Console
 {
   /// <summary>
   /// Provides tele (remote) console port implementation based on Http/s

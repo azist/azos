@@ -11,7 +11,7 @@ using System.Reflection;
 
 using Azos.Conf;
 using Azos.Platform;
-using Azos.IO;
+using Azos.IO.Console;
 using Azos.Glue.Tools;
 
 namespace Azos.Tools.Gluec

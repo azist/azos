@@ -6,7 +6,7 @@
 using System;
 using System.Threading;
 
-using Azos.IO;
+using Azos.IO.Console;
 using Azos.Log;
 using Azos.Platform;
 using Azos.Wave;

@@ -9,7 +9,7 @@ using System.Text;
 using System.Diagnostics;
 
 using Azos;
-using Azos.IO;
+using Azos.IO.Console;
 using Azos.Apps;
 using Azos.Wave;
 using Azos.Platform;

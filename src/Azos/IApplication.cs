@@ -40,7 +40,7 @@ namespace Azos
      /// <summary>
      /// Returns the ConsolePort used by this application, or null if this application does not have any specific console ports assigned
      /// </summary>
-     IO.IConsolePort ConsolePort { get;}
+     IO.Console.IConsolePort ConsolePort { get;}
 
      /// <summary>
      /// Application Id is a system unique identifier of this application type (not to be confused with instance).
@@ -206,7 +206,7 @@ namespace Azos
     /// <summary>
     /// Sets application-wide ConsolePort. This is typically called by script runners and various system hosts
     /// </summary>
-    void SetConsolePort(IO.IConsolePort port);
+    void SetConsolePort(IO.Console.IConsolePort port);
 
     /// <summary>
     /// Initiates the stop of the application by setting its Stopping to true and Active to false so

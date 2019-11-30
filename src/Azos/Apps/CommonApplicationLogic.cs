@@ -134,7 +134,7 @@ namespace Azos.Apps
     private Atom m_AppId;
     private Guid m_InstanceId = Guid.NewGuid();
     protected DateTime m_StartTime;
-    private IO.IConsolePort m_ConsolePort;
+    private IO.Console.IConsolePort m_ConsolePort;
 
     private string m_Name;
     private bool m_AllowNesting;
@@ -190,8 +190,8 @@ namespace Azos.Apps
 
     #region Properties
 
-    /// <summary> References COnsolePort for this app or null </summary>
-    public IO.IConsolePort ConsolePort => m_ConsolePort;
+    /// <summary> References ConsolePort for this app or null </summary>
+    public IO.Console.IConsolePort ConsolePort => m_ConsolePort;
 
     /// <summary>True if this app chassis is a test rig </summary>
     public virtual bool IsUnitTest => m_ConfigRoot.AttrByName(CONFIG_UNIT_TEST_ATTR).ValueAsBool();
@@ -282,7 +282,7 @@ namespace Azos.Apps
     /// <summary>
     /// Sets app-wide console out port
     /// </summary>
-    public void SetConsolePort(IO.IConsolePort port) => m_ConsolePort = port;
+    public void SetConsolePort(IO.Console.IConsolePort port) => m_ConsolePort = port;
 
     /// <summary>
     /// Converts universal time to local time as of TimeLocation property

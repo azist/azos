@@ -5,8 +5,9 @@
 </FILE_LICENSE>*/
 
 using System;
+using Syscon=System.Console;
 
-namespace Azos.IO
+namespace Azos.IO.Console
 {
   /// <summary>
   /// Implements IConsolePort using local in-process Console
@@ -58,20 +59,20 @@ namespace Azos.IO
       //does nothing for this class
     }
 
-    public ConsoleColor BackgroundColor { get => Console.BackgroundColor; set => Console.BackgroundColor = value; }
-    public ConsoleColor ForegroundColor { get => Console.ForegroundColor; set => Console.ForegroundColor = value; }
+    public ConsoleColor BackgroundColor { get => Syscon.BackgroundColor; set => Syscon.BackgroundColor = value; }
+    public ConsoleColor ForegroundColor { get => Syscon.ForegroundColor; set => Syscon.ForegroundColor = value; }
 
 
     public IConsolePort Port { get; private set;}
 
     public string Name { get; private set; }
 
-    public void Beep() => Console.Beep();
-    public void Clear() => Console.Clear();
+    public void Beep() => Syscon.Beep();
+    public void Clear() => Syscon.Clear();
 
-    public void ResetColor() => Console.ResetColor();
-    public void Write(string content) => Console.Write(content);
-    public void WriteLine() => Console.WriteLine();
-    public void WriteLine(string content) => Console.WriteLine(content);
+    public void ResetColor() => Syscon.ResetColor();
+    public void Write(string content) => Syscon.Write(content);
+    public void WriteLine() => Syscon.WriteLine();
+    public void WriteLine(string content) => Syscon.WriteLine(content);
   }
 }

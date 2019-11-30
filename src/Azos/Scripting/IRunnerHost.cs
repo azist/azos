@@ -8,7 +8,7 @@ using System.Reflection;
 
 using Azos.Apps;
 using Azos.Conf;
-using Azos.IO;
+using Azos.IO.Console;
 
 namespace Azos.Scripting
 {

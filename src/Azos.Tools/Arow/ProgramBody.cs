@@ -8,7 +8,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Reflection;
 
-using Azos.IO;
+using Azos.IO.Console;
 using Azos.Conf;
 using Azos.Platform;
 using Azos.Serialization.Arow;

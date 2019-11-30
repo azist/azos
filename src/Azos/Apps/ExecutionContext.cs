@@ -61,7 +61,7 @@ namespace Azos.Apps
     /// Returns the effective ConsolePort - the one taken from the current App, if it is null app stack is tried.
     /// If non of the apps return ConsolePort, then NOPConsolePort is returned
     /// </summary>
-    public static IO.IConsolePort EffectiveApplicationConsolePort
+    public static IO.Console.IConsolePort EffectiveApplicationConsolePort
     {
       get
       {
@@ -76,7 +76,7 @@ namespace Azos.Apps
           }
         }
 
-        if (result==null) result = IO.NOPConsolePort.Default;
+        if (result==null) result = IO.Console.NOPConsolePort.Default;
         return result;
       }
     }

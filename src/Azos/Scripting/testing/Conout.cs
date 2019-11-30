@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-using Azos.IO;
+using Azos.IO.Console;
 using Azos.Serialization.JSON;
 using Azos.Platform;
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Azos.IO.Connectivity
+namespace Azos.IO.Console
 {
 
   public struct TeleConsoleMsg : IJsonWritable, IJsonReadable

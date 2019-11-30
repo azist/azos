@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Azos.IO
+namespace Azos.IO.Console
 {
   /// <summary>
   /// Implements IConsolePort which does not do anything

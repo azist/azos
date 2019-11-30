@@ -4,12 +4,12 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
+using Syscon=System.Console;
 using System.Threading;
 
 using Azos.Conf;
 
-namespace Azos.IO
+namespace Azos.IO.Console
 {
   /// <summary>
   /// Provides helper methods for working with/implementing IRemoteTerminal
@@ -38,14 +38,14 @@ namespace Azos.IO
     {
       var ind = "".PadLeft(lvl);
 
-      Console.WriteLine(ind + "Application: " + data.ApplicationName);
-      Console.WriteLine(ind + "Code: {0}  Source: {1}".Args(data.Code, data.Source));
-      Console.WriteLine(ind + "Type: " + data.TypeName);
-      Console.WriteLine(ind + "Message: " + data.Message);
-      Console.WriteLine(ind + "Stack: " + data.StackTrace);
+      Syscon.WriteLine(ind + "Application: " + data.ApplicationName);
+      Syscon.WriteLine(ind + "Code: {0}  Source: {1}".Args(data.Code, data.Source));
+      Syscon.WriteLine(ind + "Type: " + data.TypeName);
+      Syscon.WriteLine(ind + "Message: " + data.Message);
+      Syscon.WriteLine(ind + "Stack: " + data.StackTrace);
       if (data.InnerException != null)
       {
-        Console.WriteLine(ind + "Inner exception: ");
+        Syscon.WriteLine(ind + "Inner exception: ");
         ShowRemoteExceptionData(data.InnerException, lvl + 2);
       }
     }
@@ -77,7 +77,7 @@ namespace Azos.IO
           m_Thread.Name = GetType().FullName;
           m_Thread.Start();
 
-          Console.CancelKeyPress += (_, e) => { Abort("CTRL+C\r\n"); e.Cancel = true;};
+          Syscon.CancelKeyPress += (_, e) => { Abort("CTRL+C\r\n"); e.Cancel = true;};
         }
       }
 
@@ -104,7 +104,7 @@ namespace Azos.IO
       {
         try
         {
-          m_Line = Console.ReadLine();
+          m_Line = Syscon.ReadLine();
         }
         catch (ThreadAbortException)
         {

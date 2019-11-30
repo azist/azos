@@ -88,7 +88,7 @@ namespace Azos
     /// <summary>
     /// Returns an effective ConsolePort which is taken from the application/nesting chain
     /// </summary>
-    public static IO.IConsolePort AppConsolePort => ExecutionContext.EffectiveApplicationConsolePort;
+    public static IO.Console.IConsolePort AppConsolePort => ExecutionContext.EffectiveApplicationConsolePort;
 
     /// <summary>
     /// Returns the current call context user session. The returned value is never null and returns NOPSession with fake user if there is no real user session

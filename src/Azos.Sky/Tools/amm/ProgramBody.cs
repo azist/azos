@@ -9,7 +9,7 @@ using System.IO;
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Collections;
-using Azos.IO;
+using Azos.IO.Console;
 using Azos.IO.FileSystem;
 using Azos.IO.FileSystem.Local;
 using Azos.IO.FileSystem.Packaging;

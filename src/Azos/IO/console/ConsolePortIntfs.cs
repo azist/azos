@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Azos.IO
+namespace Azos.IO.Console
 {
   /// <summary>
   /// Represents a "port"/connection to an external console which maintains a registry of IConsoleOut objects, each uniquely named.

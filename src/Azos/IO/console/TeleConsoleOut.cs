@@ -10,7 +10,7 @@ using Azos.Collections;
 using Azos.Conf;
 using Azos.Web;
 
-namespace Azos.IO.Connectivity
+namespace Azos.IO.Console
 {
   /// <summary>
   /// Implements IConsoleOut for derivatives of TeleConsolePort

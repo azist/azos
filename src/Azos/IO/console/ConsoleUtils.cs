@@ -13,7 +13,7 @@ using Azos.Text;
 using Azos.Security;
 
 
-namespace Azos.IO
+namespace Azos.IO.Console
 {
   /// <summary>
   /// Provides various console-helper utilities
@@ -29,12 +29,12 @@ namespace Azos.IO
 
       while (true)
       {
-        char c = Console.ReadKey(true).KeyChar;
+        char c = System.Console.ReadKey(true).KeyChar;
         if (Char.IsControl(c)) return buff;
         buff += c;
 
         if (substitute != (char)0)
-          Console.Write(substitute);
+          System.Console.Write(substitute);
 
       }
     }
@@ -49,7 +49,7 @@ namespace Azos.IO
 
       while (true)
       {
-        char c = Console.ReadKey(true).KeyChar;
+        char c = System.Console.ReadKey(true).KeyChar;
         if (Char.IsControl(c))
         {
           result.Seal();
@@ -64,7 +64,7 @@ namespace Azos.IO
         Array.Clear(buf, 0, buf.Length);
 
         if (substitute != (char)0)
-          Console.Write(substitute);
+          System.Console.Write(substitute);
 
       }
     }

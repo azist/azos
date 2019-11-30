@@ -7,7 +7,7 @@ using System;
 using System.Threading;
 
 using Azos.Conf;
-using Azos.IO;
+using Azos.IO.Console;
 using Azos.Glue;
 
 namespace Azos.Sky
