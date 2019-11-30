@@ -92,7 +92,7 @@ namespace Azos.Log
     }
 
     /// <summary>
-    /// Identifies the emitting application by including it asset identifier, taken from App.AssetId
+    /// Identifies the emitting application by including it asset identifier, taken from App.AppId
     /// </summary>
     [Field, Field(isArow: true, backendName: "app")]
     public Atom App
