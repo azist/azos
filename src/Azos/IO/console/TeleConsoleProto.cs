@@ -79,7 +79,9 @@ namespace Azos.IO.Console
   {
     [Field] public Atom App{ get; set; }
     [Field] public DateTime TimestampUtc { get; set; }
-    [Field] public List<TeleConsoleMsg> Data{ get; set; }
+
+    #warning TODO USE JSON string so it does not get re-serialized by server (senseless operation) the payload must be JSOned withtout CRLF for SSE
+    [Field] public List<TeleConsoleMsg> Data{ get; set; } //<---  this is parsed, should we not use STRING in pre-serialized JSON
   }
 
 
