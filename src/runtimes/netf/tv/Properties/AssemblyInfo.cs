@@ -1,22 +1,17 @@
-/*<FILE_LICENSE>
- * Azos (A to Z Application Operating System) Framework
- * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
- * See the LICENSE file in the project root for more information.
-</FILE_LICENSE>*/
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("phash")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("tv")]
+[assembly: AssemblyDescription("Tele Vision Server")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("phash")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCompany("Azist Group")]
+[assembly: AssemblyProduct("tv")]
+[assembly: AssemblyCopyright("Copyright © Azist Group 2019")]
+[assembly: AssemblyTrademark("Azos TV")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -25,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("3c8a4999-2245-4160-9bd8-82b68d37bd78")]
+[assembly: Guid("9130c7c0-038e-4a77-bd3c-0b2d8e4fdd24")]
 
 // Version information for an assembly consists of the following four values:
 //
