@@ -41,12 +41,20 @@ namespace Azos.IO.Console
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
       wri.Write("{\"n\": "); JsonWriter.EncodeString(wri, Name, options); wri.Write(",");
-      wri.Write("\"c\": "); Cmd.ToString(); wri.Write(",");
+      wri.Write("\"c\": \""); wri.Write(Cmd.ToString()); wri.Write("\",");
       wri.Write("\"t\": "); JsonWriter.EncodeString(wri, Text, options);
+
       if (Background.HasValue)
-        wri.Write(",\"bg\": "); wri.Write(Background.Value.ToString());
+      {
+        wri.Write(",\"bg\": ");
+        wri.Write(Background.Value.ToString());
+      }
+
       if (Foreground.HasValue)
-        wri.Write(",\"fg\": "); wri.Write(Foreground.Value.ToString());
+      {
+        wri.Write(",\"fg\": ");
+        wri.Write(Foreground.Value.ToString());
+      }
       wri.Write("}");
     }
 

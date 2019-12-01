@@ -18,13 +18,14 @@ namespace Azos.IO.Console
   /// </summary>
   public abstract class TeleConsolePort : DisposableObject, IConsolePort
   {
+    public const string DEFAULT_CONSOLE_NAME = "*";
 
     public TeleConsolePort(IApplication app, string name = null)
     {
       m_App = app.NonNull(nameof(app));
       if (name.IsNullOrWhiteSpace()) name = Guid.NewGuid().ToString();
       m_Name = name;
-      m_Default = new TeleConsoleOut(this, "Default");
+      m_Default = new TeleConsoleOut(this, DEFAULT_CONSOLE_NAME);
       m_Outs.Register(m_Default);
       m_Signal = new ManualResetEvent(false);
       m_Thread = new Thread(threadBody);

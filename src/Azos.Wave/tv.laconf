@@ -1,6 +1,66 @@
 ﻿app
 {
+  name=tv
+  environment-name="dev"
+  log-root=$(~AZOS_TEST_ROOT)
+  log-csv="Azos.Log.Sinks.CSVFileSink, Azos"
+  debug-default-action="Log,Throw"
+
+  log
+  {
+    name="LogSvc"
+    sink
+    {
+      type=$(/$log-csv)
+      name="csv"
+      path=$(/$log-root)
+      file-name="{0:yyyyMMdd}-$(/$name).csv.log"
+      generate-failover-msg=false
+    }
+  }
+
   wave
   {
-  }
+    server
+    {
+        prefix{ name="http://+:1316/" }
+
+        gate {  enabled=false }
+
+        default-error-handler
+        {
+            show-dump { match{name="localhost" order=1 is-local=true } }
+            log {  match {name=all} }
+        }
+
+        dispatcher
+        {
+
+            filter
+            {
+              name="Errors" order=0 type="Azos.Wave.Filters.ErrorFilter, Azos.Wave"
+              show-dump
+              {
+                match{name="localhost" order=1 is-local=true }
+              }
+
+              log
+              {
+                match{name="all" var{name="aaa" default="1223"} }
+              }
+            }
+
+            handler
+            {
+              name="MVC TV"
+              order=0
+              type="Azos.Wave.Handlers.MvcHandler, Azos.Wave"
+              type-location { name="local" assembly="Azos.Wave.dll" ns{ name="Azos.Wave.Tv"} }
+              match{ path="/{type}/{mvc-action}" var{query-name="*"} }
+            }
+
+        }
+
+    }//server
+  }//wave
 }

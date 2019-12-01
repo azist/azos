@@ -22,6 +22,7 @@ namespace Azos.Wave.Tv
           app.SetConsolePort(LocalConsolePort.Default);
           System.Environment.ExitCode = runServer(app);
         }
+        ConsoleUtils.Info("{0} exit time".Args(DateTime.UtcNow));
       }
       catch (Exception error)
       {
@@ -47,11 +48,23 @@ namespace Azos.Wave.Tv
         return 0;
       }
 
-      using(var web = new WaveServer(app))
+      using (var web = new WaveServer(app))
       {
         web.Configure(null);
         web.Start();
+        ConsoleUtils.Info("{0} start time".Args(DateTime.UtcNow));
+
+        Console.WriteLine("Server is listening on:");
+        web.Prefixes.ForEach(p => Console.WriteLine("     {0}".Args(p)));
+        Console.WriteLine();
+        Console.WriteLine("Strike <ENTER> to terminate ...");
+
+        new Azos.Log.Sinks.ConsoleSink((Azos.Log.Sinks.ISinkOwner)app.Log, "con", 0){  Colored =true }.Start();
+
         Console.ReadLine();
+
+        Console.WriteLine("...terminating");
+        Console.WriteLine();
       }
 
       return 0;
