@@ -1,4 +1,10 @@
-﻿using Azos.Data;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using Azos.Data;
 using Azos.Serialization.JSON;
 using System;
 using System.Collections.Generic;
@@ -75,13 +81,36 @@ namespace Azos.IO.Console
     }
   }
 
+  /// <summary>
+  /// Describes a batch of TeleConsoleMsg sent to the remote port server
+  /// </summary>
   public sealed class TeleConsoleMsgBatch : TypedDoc
   {
-    [Field] public Atom App{ get; set; }
-    [Field] public DateTime TimestampUtc { get; set; }
+    private static readonly JsonWritingOptions JSON_OPTIONS = new JsonWritingOptions{ MemberLineBreak = false, ObjectLineBreak = false };
 
-    #warning TODO USE JSON string so it does not get re-serialized by server (senseless operation) the payload must be JSOned withtout CRLF for SSE
-    [Field] public List<TeleConsoleMsg> Data{ get; set; } //<---  this is parsed, should we not use STRING in pre-serialized JSON
+    public TeleConsoleMsgBatch() { }
+    /// <summary>
+    /// Sets the DataJsonLine from the enumerable serialized in the compact JSON format without line breaks
+    /// which is useful for efficient transmission and use in cases like SSE(server sent event data: protocol)
+    /// </summary>
+    public TeleConsoleMsgBatch(Atom app, DateTime utcNow, IEnumerable<TeleConsoleMsg> data)
+    {
+      App = app;
+      TimestampUtcMs = utcNow.ToMillisecondsSinceUnixEpochStart();
+      DataJsonLine = JsonWriter.Write(data.NonNull(nameof(data)), JSON_OPTIONS);
+    }
+
+
+    [Field] public Atom App { get; private set; }
+    [Field] public long TimestampUtcMs { get; private set; }
+
+    /// <summary>
+    /// The data is marshaled as a pre-serialized terse json
+    /// so servers/relays do not need to recode the data object.
+    /// The data may not have newline characters (they have to be escaped)
+    /// </summary>
+    [Field] public string DataJsonLine { get; private set; }
+
   }
 
 

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
+using Azos.Log;
 using Azos.Web;
 
 namespace Azos.IO.Console
@@ -16,13 +17,12 @@ namespace Azos.IO.Console
   /// Provides a base abstraction for tele (remote) console port implementations.
   /// The communication is done on the dedicated system thread
   /// </summary>
-  public abstract class TeleConsolePort : DisposableObject, IConsolePort
+  public abstract class TeleConsolePort : ApplicationComponent, IConsolePort
   {
     public const string DEFAULT_CONSOLE_NAME = "*";
 
-    public TeleConsolePort(IApplication app, string name = null)
+    public TeleConsolePort(IApplication app, string name = null) : base(app)
     {
-      m_App = app.NonNull(nameof(app));
       if (name.IsNullOrWhiteSpace()) name = Guid.NewGuid().ToString();
       m_Name = name;
       m_Default = new TeleConsoleOut(this, DEFAULT_CONSOLE_NAME);
@@ -43,7 +43,6 @@ namespace Azos.IO.Console
       base.Destructor();
     }
 
-    private IApplication m_App;
     private string m_Name;
     private TeleConsoleOut m_Default;
     private Registry<TeleConsoleOut> m_Outs = new Registry<TeleConsoleOut>();
@@ -51,14 +50,19 @@ namespace Azos.IO.Console
     private Thread m_Thread;
     private ManualResetEvent m_Signal;
 
-    private HttpClient m_Http;
-
-
-    public IApplication App => m_App;
+    public override string ComponentLogTopic => CoreConsts.APPLICATION_TOPIC;
     public string Name => m_Name;
     public IConsoleOut this[string name] => m_Outs[name] ?? m_Default;
     public bool IsRemote => true;
     public IConsoleOut DefaultConsole => m_Default;
+
+    /// <summary>
+    /// Controls the level of detail in error logging.
+    /// 0 =no logging, 1 = only severe errors, 2 = all errors
+    /// </summary>
+    [Config(Default = 99)]
+    public int LogDetail {  get; set; } = 99;//log all
+
 
     public IConsoleOut GetOrCreate(string name)
      =>  m_Outs.GetOrRegister(name, n => new TeleConsoleOut(this, n));
@@ -73,7 +77,11 @@ namespace Azos.IO.Console
     internal void Emit(TeleConsoleMsg msg)
     {
       if (Disposed) return;//can not enqueue anymore, do not throw, the console just disconnected
-      m_Queue.TryEnqueue(msg);
+
+      var ok = m_Queue.TryEnqueue(msg);
+
+      if (!ok && LogDetail>1)
+        WriteLog(MessageType.Error, ".Emit()", "Queue limit reached");
     }
 
     private void threadBody()
@@ -87,14 +95,7 @@ namespace Azos.IO.Console
         }
         catch(Exception error)
         {
-          m_App.Log.Write( new Log.Message{
-             Type = Log.MessageType.Error,
-             App = m_App.AppId,
-             Exception = error,
-             From = "threadBody()",
-             Topic = CoreConsts.APPLICATION_TOPIC,
-             Text = "Leaked: "+error.ToMessageWithType()
-          });
+          WriteLog(MessageType.CatastrophicError, ".threadBody()", "Leaked: " + error.ToMessageWithType(), error);
           if (!Disposed) m_Signal.WaitOne(2000);//throttle down
         }
       }
@@ -106,34 +107,28 @@ namespace Azos.IO.Console
 
       while(true)
       {
-
-        var batch = new List<TeleConsoleMsg>();
+        var list = new List<TeleConsoleMsg>();
         for(int i = 0, totalSize = 0; totalSize < MAX_BATCH_SIZE; i++)
         {
           if (!m_Queue.TryDequeue(out var msg)) break;
           totalSize += msg.Size;
-          batch.Add(msg);
+          list.Add(msg);
         }
 
-        if (batch.Count == 0) break;
+        if (list.Count == 0) break;
 
-        var frame = new TeleConsoleMsgBatch
-        {
-          App = m_App.AppId,
-          TimestampUtc = m_App.TimeSource.UTCNow,
-          Data = batch
-        };
-
-        send(frame);
+        var batch = new TeleConsoleMsgBatch(App.AppId, App.TimeSource.UTCNow, list);
+        send(batch);
       }//while
     }
 
     private void send(TeleConsoleMsgBatch batch)
     {
-      var retry = Disposed ? 1 : 5;
+      var retry = Disposed ? 1 : 5; //on dispose we DO NOT retry at all
 
       for(var i=0; i<retry; i++)
       {
+        if (i > 0) m_Signal.WaitOne(i * 2000);//throttle down
         try
         {
           SendMsgBatchOnce(batch);
@@ -141,18 +136,10 @@ namespace Azos.IO.Console
         }
         catch(Exception error)
         {
-          m_App.Log.Write(new Log.Message
-          {
-            Type = Log.MessageType.Error,
-            App = m_App.AppId,
-            Exception = error,
-            From = nameof(send),
-            Topic = CoreConsts.APPLICATION_TOPIC,
-            Text = "Leaked: " + error.ToMessageWithType()
-          });
-          if (!Disposed) m_Signal.WaitOne((i + 1) * 2000);//throttle down
+          if (LogDetail>1) WriteLog(MessageType.Error, ".send().for(retry)", "Leaked: " + error.ToMessageWithType(), error);
         }
       }//for
+      if (LogDetail>0) WriteLog(MessageType.CriticalAlert, ".send()", "Lost batch after {0} retries".Args(retry));
     }
 
     /// <summary>
