@@ -21,6 +21,10 @@ namespace Azos.Data.AST
     public abstract XlatContext Translate(Expression expression);
   }
 
+  /// <summary>
+  /// Generically typed Xlat - derive your custom translations from this class
+  /// </summary>
+  /// <typeparam name="TContext"></typeparam>
   public abstract class Xlat<TContext> : Xlat where TContext : XlatContext
   {
     public sealed override XlatContext Translate(Expression expression)
@@ -29,7 +33,9 @@ namespace Azos.Data.AST
     public abstract TContext TranslateInContext(Expression expression);
   }
 
-
+  /// <summary>
+  /// Translation context base
+  /// </summary>
   public abstract class XlatContext
   {
     protected XlatContext(Xlat xlat)
@@ -47,15 +53,17 @@ namespace Azos.Data.AST
     public abstract void Visit(BinaryExpression value);
   }
 
+  /// <summary>
+  /// Generically typed xlat context base - derive your implementations form this class
+  /// </summary>
+  /// <typeparam name="TXlat"></typeparam>
   public abstract class XlatContext<TXlat> : XlatContext where TXlat : Xlat
   {
     protected XlatContext(TXlat xlat) : base (xlat)
     {
     }
 
-    private Xlat m_Translator;
-
-    public new TXlat Translator => base.Translator as TXlat;
+    public new TXlat Translator => (TXlat)base.Translator;
   }
 
 }

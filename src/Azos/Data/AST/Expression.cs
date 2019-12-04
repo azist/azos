@@ -18,12 +18,22 @@ namespace Azos.Data.AST
   }
 
   /// <summary>
+  /// Provides abstraction for operators
+  /// </summary>
+  public abstract class OperatorExpression : Expression
+  {
+    [Field(required: true, MinLength = 1)]
+    public string Operator { get; set; }
+  }
+
+
+  /// <summary>
   /// Represents a value, such as a constant literal
   /// </summary>
   public class ValueExpression : Expression
   {
     [Field]
-    public object Value { get; set; }//may contain json array or json data map as-is
+    public object Value { get; set; }//may contain null, json array or json data map as-is
 
     public override void Accept(XlatContext ctx)
      => ctx.Visit(this);
@@ -34,28 +44,20 @@ namespace Azos.Data.AST
   /// </summary>
   public class IdentifierExpression : Expression
   {
-    [Field]
+    [Field(required: true, MinLength = 1)]
     public object Identifier { get; set; }//may contain json array or json data map as-is
 
     public override void Accept(XlatContext ctx)
      => ctx.Visit(this);
   }
 
-  /// <summary>
-  /// Provides abstraction for operators
-  /// </summary>
-  public abstract class OperatorExpression : Expression
-  {
-    [Field]
-    public string Operator { get; set; }
-  }
 
   /// <summary>
   /// Represents an operator that has a single operand, e.g. a negation or "not" operator
   /// </summary>
   public class UnaryExpression : OperatorExpression
   {
-    [Field]
+    [Field(required: true)]
     public Expression Operand { get; set; }
 
     public override void Accept(XlatContext ctx) => ctx.Visit(this);
@@ -66,8 +68,8 @@ namespace Azos.Data.AST
   /// </summary>
   public class BinaryExpression : OperatorExpression
   {
-    [Field] public Expression LeftOperand {  get; set; }
-    [Field] public Expression RightOperand { get; set; }
+    [Field(required: true)] public Expression LeftOperand {  get; set; }
+    [Field(required: true)] public Expression RightOperand { get; set; }
 
     public override void Accept(XlatContext ctx) => ctx.Visit(this);
   }
