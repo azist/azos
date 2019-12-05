@@ -39,17 +39,11 @@ namespace Azos.Data.AST
       }
     }
 
-    //public override SqlXlatContext TranslateInContext(Expression expression)
-    //{
-    //  var result = new SqlXlatContext(this);
-    //  expression.Accept(result);
-    //  return result;
-    //}
   }
 
   public abstract class SqlXlatContext : XlatContext<SqlBaseXlat>
   {
-    public SqlXlatContext(SqlBaseXlat xlat) : base(xlat)
+    protected SqlXlatContext(SqlBaseXlat xlat) : base(xlat)
     {
     }
 
