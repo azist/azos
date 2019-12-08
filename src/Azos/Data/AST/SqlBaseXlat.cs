@@ -20,6 +20,8 @@ namespace Azos.Data.AST
         yield return "not";
         yield return "in";
         yield return "exists";
+        yield return "+";
+        yield return "-";
       }
     }
 
@@ -30,12 +32,18 @@ namespace Azos.Data.AST
         yield return "and";
         yield return "or";
         yield return "=";
-        yield return "!=";
+        yield return "<>";
         yield return "<";
         yield return ">";
         yield return "<=";
         yield return ">=";
         yield return "like";
+
+        yield return "-";
+        yield return "+";
+        yield return "*";
+        yield return "/";
+        yield return "%";
       }
     }
 
@@ -61,7 +69,12 @@ namespace Azos.Data.AST
     /// </summary>
     public IEnumerable<IDataParameter> Parameters => m_Parameters;
 
-    protected abstract IDataParameter MakeParameter(ValueExpression value);
+    /// <summary>
+    /// Override to create a parameter, assigning (and converting) value.
+    /// You can throw ASTException if some unsupported value was passed-in
+    /// </summary>
+    protected abstract IDataParameter MakeAndAssignParameter(ValueExpression value);
+
     protected virtual string NullLiteral => "NULL";
     protected virtual string MasterAlias => "T1";
     protected virtual char IdentifierQuote => '"';
@@ -69,21 +82,66 @@ namespace Azos.Data.AST
     protected virtual string MapUnaryOperator(string oper) => oper.ToUpperInvariant();
     protected virtual string MapBinaryOperator(string oper, bool rhsNull) => rhsNull ? "IS" :  oper.ToUpperInvariant();
 
+    /// <summary>
+    /// Assigns an optional functor which gets called during identifier validation,
+    /// this is handy in many business-specific cases to
+    /// limit the column names without having to override this class
+    /// </summary>
+    public Func<IdentifierExpression, bool> IdentifierFilter { get; set;}
+
 
     public override void Visit(ValueExpression value)
     {
+      value.NonNull(nameof(value));
+
       if (value.Value==null)
       {
         m_Sql.Append(NullLiteral);
         return;
       }
 
-      var p = MakeParameter(value);
-      m_Sql.Append(p);
+      var p = MakeAndAssignParameter(value);
+      m_Sql.Append(p.ParameterName);
+      m_Parameters.Add(p);
+    }
+
+    public override void Visit(ArrayValueExpression array)
+    {
+      array.NonNull(nameof(array));
+
+      if (array.Value == null)
+      {
+        m_Sql.Append(NullLiteral);
+        return;
+      }
+
+      m_Sql.Append('(');
+      var first = true;
+
+      foreach(var elm in array.Value)
+      {
+        if (!first) m_Sql.Append(',');
+
+        if (elm==null)
+          m_Sql.Append(NullLiteral);
+        else
+          elm.Accept(this);
+
+        first = false;
+      }
+
+      m_Sql.Append(')');
     }
 
     public override void Visit(IdentifierExpression id)
     {
+      id.NonNull(nameof(id)).Identifier.NonBlank(nameof(id.Identifier));
+
+
+      //check that id is accepted
+      var f = IdentifierFilter;
+      if (f!=null && !f(id)) throw new ASTException(StringConsts.AST_BAD_IDENTIFIER_ERROR.Args(id.Identifier));
+
       m_Sql.Append(MasterAlias);
       m_Sql.Append('.');
       m_Sql.Append(IdentifierQuote);
@@ -93,9 +151,14 @@ namespace Azos.Data.AST
 
     public override void Visit(UnaryExpression unary)
     {
+      unary.NonNull(nameof(unary));
+
       m_Sql.Append("(");
 
-      //check to see that operators are in the accepted range
+
+      if (!unary.Operator.NonBlank(nameof(unary.Operator)).IsOneOf(Translator.UnaryOperators))
+        throw new ASTException(StringConsts.AST_UNSUPPORTED_UNARY_OPERATOR_ERROR.Args(unary.Operator));
+
       m_Sql.Append(MapUnaryOperator(unary.Operator));
 
       unary.Operand.Accept(this);
@@ -105,6 +168,8 @@ namespace Azos.Data.AST
 
     public override void Visit(BinaryExpression binary)
     {
+      binary.NonNull(nameof(binary));
+
       m_Sql.Append("(");
 
       binary.LeftOperand.Accept(this);
@@ -114,7 +179,9 @@ namespace Azos.Data.AST
 
       var isNull = binary.RightOperand == null || binary.RightOperand is ValueExpression ve && ve.Value == null;
 
-      //check to see that operators are in the accepted range
+      if (!binary.Operator.NonBlank(nameof(binary.Operator)).IsOneOf(Translator.BinaryOperators))
+        throw new ASTException(StringConsts.AST_UNSUPPORTED_BINARY_OPERATOR_ERROR.Args(binary.Operator));
+
       m_Sql.Append(MapBinaryOperator(binary.Operator, isNull));
 
       m_Sql.Append(" ");

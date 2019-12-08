@@ -40,12 +40,24 @@ namespace Azos.Data.AST
   }
 
   /// <summary>
+  /// Represents an array of values, such as the one used with IN operator in SQL
+  /// </summary>
+  public class ArrayValueExpression : Expression
+  {
+    [Field]
+    public IEnumerable<ValueExpression> Value { get; set; }
+
+    public override void Accept(XlatContext ctx)
+     => ctx.Visit(this);
+  }
+
+  /// <summary>
   /// Represents an identifier such as column/field name
   /// </summary>
   public class IdentifierExpression : Expression
   {
     [Field(required: true, MinLength = 1)]
-    public object Identifier { get; set; }//may contain json array or json data map as-is
+    public string Identifier { get; set; }
 
     public override void Accept(XlatContext ctx)
      => ctx.Visit(this);

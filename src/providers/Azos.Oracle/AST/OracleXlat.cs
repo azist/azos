@@ -22,9 +22,12 @@ namespace Azos.Data.AST
     {
     }
 
-    protected override IDataParameter MakeParameter(ValueExpression value)
+    private int m_ParamCount;
+
+    protected override IDataParameter MakeAndAssignParameter(ValueExpression value)
     {
-      throw new NotImplementedException();
+      var p = new Oracle.ManagedDataAccess.Client.OracleParameter("P{0}".Args(m_ParamCount++), value.Value);
+      return p;
     }
   }
 }

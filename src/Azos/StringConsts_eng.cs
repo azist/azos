@@ -679,6 +679,11 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
         "Assertion failure";
 
 
+    public const string AST_UNSUPPORTED_UNARY_OPERATOR_ERROR = "Unsupported unary operator: '{0}'";
+    public const string AST_UNSUPPORTED_BINARY_OPERATOR_ERROR = "Unsupported binary operator: '{0}'";
+    public const string AST_BAD_IDENTIFIER_ERROR = "Bad identifier: '{0}'";
+
+
     public const string CA_PROCESSOR_EXCEPTION_ERROR =
         "{0} processor {1} error: {2}";
 

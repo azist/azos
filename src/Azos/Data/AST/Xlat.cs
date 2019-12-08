@@ -48,9 +48,10 @@ namespace Azos.Data.AST
     public Xlat Translator => m_Translator;
 
     public abstract void Visit(ValueExpression value);
-    public abstract void Visit(IdentifierExpression value);
-    public abstract void Visit(UnaryExpression value);
-    public abstract void Visit(BinaryExpression value);
+    public abstract void Visit(ArrayValueExpression array);
+    public abstract void Visit(IdentifierExpression id);
+    public abstract void Visit(UnaryExpression unary);
+    public abstract void Visit(BinaryExpression binary);
   }
 
   /// <summary>
