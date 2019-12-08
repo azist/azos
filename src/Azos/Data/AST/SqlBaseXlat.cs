@@ -78,6 +78,8 @@ namespace Azos.Data.AST
     protected virtual string NullLiteral => "NULL";
     protected virtual string MasterAlias => "T1";
     protected virtual char IdentifierQuote => '"';
+    protected abstract string ParameterOpenSpan{ get;}
+    protected virtual string ParameterCloseSpan => "";
 
     protected virtual string MapUnaryOperator(string oper) => oper.ToUpperInvariant();
     protected virtual string MapBinaryOperator(string oper, bool rhsNull) => rhsNull ? "IS" :  oper.ToUpperInvariant();
@@ -101,7 +103,9 @@ namespace Azos.Data.AST
       }
 
       var p = MakeAndAssignParameter(value);
+      m_Sql.Append(ParameterOpenSpan);
       m_Sql.Append(p.ParameterName);
+      m_Sql.Append(ParameterCloseSpan);
       m_Parameters.Add(p);
     }
 

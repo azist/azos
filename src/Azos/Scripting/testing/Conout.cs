@@ -151,7 +151,7 @@ namespace Azos.Scripting
 
 
     /// <summary>
-    /// Writes object into console in JSON format wit a header
+    /// Writes object into console in JSON format with a header
     /// </summary>
     public static void See(this object obj, string header, JsonWritingOptions options = null)
     {
