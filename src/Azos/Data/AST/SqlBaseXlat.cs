@@ -55,7 +55,7 @@ namespace Azos.Data.AST
     {
     }
 
-    private StringBuilder m_Sql = new StringBuilder(512);
+    protected StringBuilder m_Sql = new StringBuilder(512);
     private List<IDataParameter> m_Parameters = new List<IDataParameter>(16);
 
 
@@ -84,6 +84,15 @@ namespace Azos.Data.AST
     protected virtual string MapUnaryOperator(string oper) => oper.ToUpperInvariant();
     protected virtual string MapBinaryOperator(string oper, bool rhsNull) => rhsNull ? "IS" :  oper.ToUpperInvariant();
 
+
+    protected static readonly HashSet<Type> DEFAULT_PRIMITIVE_TYPES = new HashSet<Type>{ typeof(byte), typeof(short), typeof(int), typeof(long) };
+
+    protected virtual bool HandlePrimitiveValue(ValueExpression expr)
+    {
+      var tv = expr.Value.GetType();
+      return DEFAULT_PRIMITIVE_TYPES.Contains(tv);
+    }
+
     /// <summary>
     /// Assigns an optional functor which gets called during identifier validation,
     /// this is handy in many business-specific cases to
@@ -99,6 +108,12 @@ namespace Azos.Data.AST
       if (value.Value==null)
       {
         m_Sql.Append(NullLiteral);
+        return;
+      }
+
+      if (HandlePrimitiveValue(value))
+      {
+        m_Sql.Append(value.Value.ToString());
         return;
       }
 

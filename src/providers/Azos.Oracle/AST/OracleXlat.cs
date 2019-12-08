@@ -24,11 +24,11 @@ namespace Azos.Data.AST
 
     private int m_ParamCount;
 
-    protected override string ParameterOpenSpan => "";
+    protected override string ParameterOpenSpan => ":";
 
     protected override IDataParameter MakeAndAssignParameter(ValueExpression value)
     {
-      var p = new Oracle.ManagedDataAccess.Client.OracleParameter("@P{0}".Args(m_ParamCount++), value.Value);
+      var p = new Oracle.ManagedDataAccess.Client.OracleParameter("P{0}".Args(m_ParamCount++), value.Value);
       return p;
     }
   }

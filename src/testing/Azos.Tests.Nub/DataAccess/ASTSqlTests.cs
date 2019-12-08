@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 
+using Azos.Data;
 using Azos.Data.AST;
 using Azos.Scripting;
 
@@ -12,13 +14,13 @@ namespace Azos.Tests.Nub.DataAccess
   public class ASTSqlTests
   {
     [Run]
-    public void Test1()
+    public void SimpleBinary()
     {
       var ast = new BinaryExpression
       {
-        LeftOperand = new IdentifierExpression{  Identifier = "Name" },
+        LeftOperand = new IdentifierExpression { Identifier = "Name" },
         Operator = "=",
-        RightOperand = new ValueExpression{  Value = "Kozlovich"}
+        RightOperand = new ValueExpression { Value = "Kozlovich" }
       };
 
       ast.See("AST content");
@@ -29,6 +31,51 @@ namespace Azos.Tests.Nub.DataAccess
       ctx.Parameters.See();
 
       Aver.AreEqual("(T1.\"Name\" = ??P0)", ctx.SQL.ToString());
+      Aver.AreEqual("P0", ctx.Parameters.First().ParameterName);
+      Aver.AreEqual("Kozlovich", ctx.Parameters.First().Value.AsString());
+    }
+
+
+    [Run]
+    public void SimpleBinaryWithUnary()
+    {
+      var ast = new BinaryExpression
+      {
+        LeftOperand = new IdentifierExpression{  Identifier = "Latitude" },
+        Operator = ">=",
+        RightOperand = new UnaryExpression{ Operator = "-", Operand = new ValueExpression{  Value = 22.3d}}
+      };
+
+      ast.See("AST content");
+
+      var xlat = new TeztXlat();
+      var ctx = xlat.TranslateInContext(ast);
+      ctx.SQL.See();
+      ctx.Parameters.See();
+
+      Aver.AreEqual("(T1.\"Latitude\" >= (-??P0))", ctx.SQL.ToString());
+      Aver.AreEqual("P0", ctx.Parameters.First().ParameterName);
+      Aver.AreEqual(22.3d, ctx.Parameters.First().Value.AsDouble());
+    }
+
+    [Run]
+    public void SimpleBinaryWithUnaryPrimitive()
+    {
+      var ast = new BinaryExpression
+      {
+        LeftOperand = new IdentifierExpression { Identifier = "Latitude" },
+        Operator = ">=",
+        RightOperand = new UnaryExpression { Operator = "-", Operand = new ValueExpression { Value = 1080 } }
+      };
+
+      ast.See("AST content");
+
+      var xlat = new TeztXlat();
+      var ctx = xlat.TranslateInContext(ast);
+      ctx.SQL.See();
+
+      Aver.AreEqual("(T1.\"Latitude\" >= (-1080))", ctx.SQL.ToString());
+      Aver.IsFalse(ctx.Parameters.Any());
     }
 
 
