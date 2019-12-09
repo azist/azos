@@ -45,7 +45,7 @@ namespace Azos.Data.AST
   public class ArrayValueExpression : Expression
   {
     [Field]
-    public IEnumerable<ValueExpression> Value { get; set; }
+    public IEnumerable<ValueExpression> ArrayValue { get; set; }
 
     public override void Accept(XlatContext ctx)
      => ctx.Visit(this);

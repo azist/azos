@@ -128,7 +128,7 @@ namespace Azos.Data.AST
     {
       array.NonNull(nameof(array));
 
-      if (array.Value == null)
+      if (array.ArrayValue == null)
       {
         m_Sql.Append(NullLiteral);
         return;
@@ -137,7 +137,7 @@ namespace Azos.Data.AST
       m_Sql.Append('(');
       var first = true;
 
-      foreach(var elm in array.Value)
+      foreach(var elm in array.ArrayValue)
       {
         if (!first) m_Sql.Append(',');
 

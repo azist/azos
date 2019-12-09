@@ -11,14 +11,22 @@ namespace Azos.Data.AST
   /// </summary>
   public sealed class ExpressionJsonHandlerAttribute : JsonHandlerAttribute
   {
+    private static readonly Dictionary<string, Type> PATTERNS = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase)
+    {
+      {nameof(ValueExpression.Value),           typeof(ValueExpression)},
+      {nameof(ArrayValueExpression.ArrayValue), typeof(ArrayValueExpression)},
+      {nameof(IdentifierExpression.Identifier), typeof(IdentifierExpression)},
+      {nameof(UnaryExpression.Operand),         typeof(UnaryExpression)},
+      {nameof(BinaryExpression.LeftOperand),    typeof(BinaryExpression)},
+      {nameof(BinaryExpression.RightOperand),   typeof(BinaryExpression)}
+    };
+
     public override TypeCastResult TypeCastOnRead(object v, Type toType, bool fromUI, JsonReader.NameBinding nameBinding)
     {
       if (v is JsonDataMap map)
       {
-        if (map.ContainsKey(nameof(ValueExpression.Value))) return new TypeCastResult(typeof(ValueExpression));
-        if (map.ContainsKey(nameof(IdentifierExpression.Identifier))) return new TypeCastResult(typeof(IdentifierExpression));
-        if (map.ContainsKey(nameof(UnaryExpression.Operand))) return new TypeCastResult(typeof(UnaryExpression));
-        if (map.ContainsKey(nameof(BinaryExpression.LeftOperand))) return new TypeCastResult(typeof(BinaryExpression));
+        foreach(var k in map.Keys)
+         if (PATTERNS.TryGetValue(k, out var type)) return new TypeCastResult(type);
       }
 
       return TypeCastResult.NothingChanged;
