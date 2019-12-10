@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Azos.Conf;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
@@ -11,8 +12,25 @@ namespace Azos.Data.AST
   /// </summary>
   public abstract class SqlBaseXlat : Xlat<SqlXlatContext>
   {
-    public override bool IsCaseSensitive => throw new NotImplementedException();
+    protected SqlBaseXlat(string name = null) : base(name) { }
+    protected SqlBaseXlat(IConfigSectionNode conf): base(conf) { }
 
+#pragma warning disable 0649
+    [Config] private bool m_IsCaseSensitive;
+#pragma warning restore 0649
+
+    public override bool IsCaseSensitive => m_IsCaseSensitive;
+
+    /// <summary>
+    /// Assigns an optional functor which gets called during identifier validation,
+    /// this is handy in many business-specific cases to
+    /// limit the column names without having to override this class
+    /// </summary>
+    public Func<IdentifierExpression, bool> IdentifierFilter { get; set; }
+
+    /// <summary>
+    /// Returns a stream of supported unary operators
+    /// </summary>
     public override IEnumerable<string> UnaryOperators
     {
       get
@@ -25,6 +43,9 @@ namespace Azos.Data.AST
       }
     }
 
+    /// <summary>
+    /// Returns a stream of supported binary operators
+    /// </summary>
     public override IEnumerable<string> BinaryOperators
     {
       get
@@ -49,6 +70,11 @@ namespace Azos.Data.AST
 
   }
 
+
+
+  /// <summary>
+  /// Provides abstraction for sql-based translation contexts
+  /// </summary>
   public abstract class SqlXlatContext : XlatContext<SqlBaseXlat>
   {
     protected SqlXlatContext(SqlBaseXlat xlat) : base(xlat)
@@ -65,7 +91,7 @@ namespace Azos.Data.AST
     public string SQL => m_Sql.ToString();
 
     /// <summary>
-    /// Returns list of parameters
+    /// Returns list of SQL parameters created during translation
     /// </summary>
     public IEnumerable<IDataParameter> Parameters => m_Parameters;
 
@@ -75,30 +101,54 @@ namespace Azos.Data.AST
     /// </summary>
     protected abstract IDataParameter MakeAndAssignParameter(ValueExpression value);
 
+    /// <summary>
+    /// Null literal
+    /// </summary>
     protected virtual string NullLiteral => "NULL";
+
+    /// <summary>
+    /// Master target object(table) alias, `T1` is used by default
+    /// </summary>
     protected virtual string MasterAlias => "T1";
+
+    /// <summary>
+    /// Identifier quote, default tis doublequote
+    /// </summary>
     protected virtual char IdentifierQuote => '"';
-    protected abstract string ParameterOpenSpan{ get;}
+
+    /// <summary>
+    /// Parameter open span, such as `@` for msSQL
+    /// </summary>
+    protected abstract string ParameterOpenSpan{ get; }
+
+    /// <summary>
+    /// Parameter close span, most databases do not use it
+    /// </summary>
     protected virtual string ParameterCloseSpan => "";
 
+    /// <summary>
+    /// Maps unary operator e.g. "not" -> "NOT"
+    /// </summary>
     protected virtual string MapUnaryOperator(string oper) => oper.ToUpperInvariant();
+
+    /// <summary>
+    /// Maps binary operator, if right hand side is null then emits IS NULL by default
+    /// </summary>
     protected virtual string MapBinaryOperator(string oper, bool rhsNull) => rhsNull ? "IS" :  oper.ToUpperInvariant();
 
-
+    /// <summary>
+    /// Constant set of types qualified as "primitive" which are inlined in SQL and do not generate parameters
+    /// </summary>
     protected static readonly HashSet<Type> DEFAULT_PRIMITIVE_TYPES = new HashSet<Type>{ typeof(byte), typeof(short), typeof(int), typeof(long) };
 
+    /// <summary>
+    /// Returns true if the ValueExpression represents a primitive
+    /// </summary>
     protected virtual bool HandlePrimitiveValue(ValueExpression expr)
     {
       var tv = expr.Value.GetType();
       return DEFAULT_PRIMITIVE_TYPES.Contains(tv);
     }
-
-    /// <summary>
-    /// Assigns an optional functor which gets called during identifier validation,
-    /// this is handy in many business-specific cases to
-    /// limit the column names without having to override this class
-    /// </summary>
-    public Func<IdentifierExpression, bool> IdentifierFilter { get; set;}
 
 
     public override void Visit(ValueExpression value)
@@ -158,7 +208,7 @@ namespace Azos.Data.AST
 
 
       //check that id is accepted
-      var f = IdentifierFilter;
+      var f = Translator.IdentifierFilter;
       if (f!=null && !f(id)) throw new ASTException(StringConsts.AST_BAD_IDENTIFIER_ERROR.Args(id.Identifier));
 
       m_Sql.Append(MasterAlias);

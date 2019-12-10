@@ -3,33 +3,70 @@ using System.Collections.Generic;
 using System.Text;
 
 using Azos.Collections;
+using Azos.Conf;
 
 namespace Azos.Data.AST
 {
   /// <summary>
-  /// Translates the expressions per concrete technology, e.g. MsSql or MongoDb
+  /// Translates an expressions per concrete technology, e.g. MsSql or MongoDb
   /// </summary>
   public abstract class Xlat : INamed
   {
+    protected Xlat(string name = null)
+    {
+      m_Name = name;
+      if (m_Name.IsNullOrWhiteSpace()) m_Name = Guid.NewGuid().ToString();
+    }
 
+    protected Xlat(IConfigSectionNode conf)
+    {
+      ConfigAttribute.Apply(this, conf);
+      if (m_Name.IsNullOrWhiteSpace()) m_Name = Guid.NewGuid().ToString();
+    }
+
+    [Config] private string m_Name;
+
+    /// <summary>
+    /// Returns true of the translation handles identifiers as case-sensitive
+    /// </summary>
     public abstract bool IsCaseSensitive { get; }
+
+    /// <summary>
+    /// Returns a stream of supported unary operators
+    /// </summary>
     public abstract IEnumerable<string> UnaryOperators{ get; }
+
+    /// <summary>
+    /// Returns a stream of supported binary operators
+    /// </summary>
     public abstract IEnumerable<string> BinaryOperators { get; }
 
-    public string Name => throw new NotImplementedException();
 
+    /// <summary>
+    /// Name for this translator instance
+    /// </summary>
+    public string Name => m_Name;
+
+    /// <summary>
+    /// Translates expression into base XlatContext
+    /// </summary>
     public abstract XlatContext Translate(Expression expression);
   }
 
   /// <summary>
   /// Generically typed Xlat - derive your custom translations from this class
   /// </summary>
-  /// <typeparam name="TContext"></typeparam>
   public abstract class Xlat<TContext> : Xlat where TContext : XlatContext
   {
+    protected Xlat(string name = null) : base(name) { }
+    protected Xlat(IConfigSectionNode conf) : base(conf) { }
+
     public sealed override XlatContext Translate(Expression expression)
       => TranslateInContext(expression);
 
+    /// <summary>
+    /// Translates expression into specific TContext type
+    /// </summary>
     public abstract TContext TranslateInContext(Expression expression);
   }
 
@@ -45,25 +82,37 @@ namespace Azos.Data.AST
 
     private Xlat m_Translator;
 
+    /// <summary>
+    /// References Xlat that this context is for
+    /// </summary>
     public Xlat Translator => m_Translator;
 
+    /// <summary> Implements visitor pattern for ValueExpression</summary>
     public abstract void Visit(ValueExpression value);
+
+    /// <summary> Implements visitor pattern for ArrayValueExpression</summary>
     public abstract void Visit(ArrayValueExpression array);
+
+    /// <summary> Implements visitor pattern for IdentifierExpression</summary>
     public abstract void Visit(IdentifierExpression id);
+
+    /// <summary> Implements visitor pattern for UnaryExpression</summary>
     public abstract void Visit(UnaryExpression unary);
+
+    /// <summary> Implements visitor pattern for BinaryExpression</summary>
     public abstract void Visit(BinaryExpression binary);
   }
 
   /// <summary>
   /// Generically typed xlat context base - derive your implementations form this class
   /// </summary>
-  /// <typeparam name="TXlat"></typeparam>
   public abstract class XlatContext<TXlat> : XlatContext where TXlat : Xlat
   {
-    protected XlatContext(TXlat xlat) : base (xlat)
-    {
-    }
+    protected XlatContext(TXlat xlat) : base (xlat){ }
 
+    /// <summary>
+    /// References Xlat of TXlat type that this context is for
+    /// </summary>
     public new TXlat Translator => (TXlat)base.Translator;
   }
 
