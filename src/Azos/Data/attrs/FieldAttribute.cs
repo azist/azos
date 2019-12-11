@@ -17,7 +17,7 @@ namespace Azos.Data
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple=true, Inherited=false)]
-  public sealed class FieldAttribute : TargetedAttribute
+  public sealed partial class FieldAttribute : TargetedAttribute
   {
     public FieldAttribute(
           string targetName   = ANY_TARGET,
@@ -122,6 +122,10 @@ namespace Azos.Data
     }
 
 
+    /// <summary>
+    /// Clones the field as a whole from another TypedDocument type. This constructor is typically used
+    /// to borrow field definitions between layers, such as form borrows it from data access layer
+    /// </summary>
     public FieldAttribute(Type cloneFromDocType): base(ANY_TARGET, null)
     {
       if (cloneFromDocType == null || !typeof(TypedDoc).IsAssignableFrom(cloneFromDocType))
@@ -129,7 +133,23 @@ namespace Azos.Data
       CloneFromDocType = cloneFromDocType;
     }
 
+    /// <summary>
+    /// Creates a field definition attribute which inherits all of the attributes of another field attribute declared on the same
+    /// data document property with the specified `cloneTarget` target. An error is thrown if such field def attribute with the specified target is not found.
+    /// Circular dependencies are prohibited. This constructor has no effect on dynamic (non-typed) data documents as the inheritance is ignored for
+    /// dynamic schemas
+    /// </summary>
+    /// <param name="cloneTarget">Name of target which the inherited-from attribute would be decorated with. Cyclical references are prohibited</param>
+    /// <param name="targetName">Name of this target. Cyclical references are prohibited</param>
+    public FieldAttribute(string cloneTarget, string targetName) : base(targetName)
+    {
+      CloneFromTargetName = cloneTarget.IsNullOrWhiteSpace() ? ANY_TARGET : cloneTarget;
+    }
 
+    /// <summary>
+    /// Creates a field def attribute cloning all fields from prototype/proto field name then optionally overriding one by one.
+    /// You can not reference the same `protoType` as cyclical references are not supported
+    /// </summary>
     public FieldAttribute(
           Type protoType,
           string protoFieldName, //Schema:Field
@@ -231,13 +251,18 @@ namespace Azos.Data
     /// </summary>
     public Type CloneFromDocType { get; private set; }
 
+    /// <summary>
+    /// When set, points to another attribute declaration on the same member with the specified targetName effectively "inheriting" this attribute
+    /// from another
+    /// </summary>
+    public string CloneFromTargetName { get; private set; }
+
 
     private StoreFlag m_StoreFlag;
     /// <summary>
     /// Determines whether field should be loaded/stored from/to storage
     /// </summary>
     public StoreFlag StoreFlag { get => m_StoreFlag; set => m_StoreFlag = CheckNotSealed(value); }
-
 
     private string m_BackendName;
     /// <summary>

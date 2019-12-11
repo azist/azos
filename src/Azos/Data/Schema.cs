@@ -197,6 +197,7 @@ namespace Azos.Data
                   break;
                 }
 
+                FieldAttribute.FixupInheritedTargets($"{tdoc.Name}.{prop.Name}", fattrs);
 
                 var fdef = new FieldDef(prop.Name, order, prop.PropertyType, fattrs, prop);
                 m_FieldDefs.Register(fdef);
