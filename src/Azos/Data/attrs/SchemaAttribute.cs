@@ -26,7 +26,7 @@ namespace Azos.Data
     /// Returns the name of schema that decorated class represents, i.e. the name of database table i.e. "TBL_PERSON".
     /// This value is set so datastore implementation can use it instead of inferring table name from declaring class name
     /// </summary>
-    public string Name { get => m_Name ?? string.Empty; set => m_Name = CheckNotSealed(value);}
+    public string Name { get => m_Name ?? string.Empty; set => m_Name = AssignState(value);}
 
 
     private bool m_Immutable;
@@ -35,7 +35,7 @@ namespace Azos.Data
     /// This attribute allows some backends to perform some optimizations (such as better failover data handling and caching) as any version of the data
     /// that could be found is valid and is the latest
     /// </summary>
-    public bool Immutable { get => m_Immutable; set => m_Immutable = CheckNotSealed(value); }
+    public bool Immutable { get => m_Immutable; set => m_Immutable = AssignState(value); }
 
 
     public override int GetHashCode() => base.GetHashCode() ^ Name.GetHashCodeSenseCase();

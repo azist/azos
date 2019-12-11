@@ -5,6 +5,8 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 using Azos.Conf;
 using Azos.Platform;
@@ -31,11 +33,26 @@ namespace Azos.Data
     }
 
     private bool m_Sealed;
+    private HashSet<string> m_AssignedPropNames;
 
     /// <summary>
     /// Returns true when attribute is sealed and can not change
     /// </summary>
     public bool Sealed => m_Sealed;
+
+    /// <summary>
+    /// Returns stream of properties which have been set before this instance was sealed
+    /// </summary>
+    public IEnumerable<string> AssignedPropNames => m_AssignedPropNames!=null ? m_AssignedPropNames : Enumerable.Empty<string>();
+
+    /// <summary>
+    /// Returns true if the specified named property was assigned
+    /// </summary>
+    public bool PropertyWasAssigned(string propName)
+    {
+      if (m_AssignedPropNames==null || propName.IsNullOrWhiteSpace()) return false;
+      return m_AssignedPropNames.Contains(propName);
+    }
 
     /// <summary>
     /// Called by derivative implementations to seal the instance, so it can not change
@@ -47,9 +64,12 @@ namespace Azos.Data
       if (Sealed) throw new DataException("{0} is sealed and can not be altered".Args(GetType().Name));
     }
 
-    protected T CheckNotSealed<T>(T value)
+    protected T AssignState<T>(T value, [System.Runtime.CompilerServices.CallerMemberName]string propName = null)
     {
       CheckNotSealed();
+
+      if (m_AssignedPropNames==null) m_AssignedPropNames = new HashSet<string>();
+      m_AssignedPropNames.Add(propName);
       return value;
     }
 
@@ -63,7 +83,7 @@ namespace Azos.Data
       get => m_TargetName;
       set
       {
-        var v = CheckNotSealed(value);
+        var v = AssignState(value);
         m_TargetName = v.IsNullOrWhiteSpace() ? ANY_TARGET : v;
       }
     }
@@ -75,7 +95,7 @@ namespace Azos.Data
     public string Description
     {
       get => m_Description;
-      set => m_Description = CheckNotSealed(value);
+      set => m_Description = AssignState(value);
     }
 
 
@@ -90,7 +110,11 @@ namespace Azos.Data
     public string MetadataContent
     {
       get => m_MetadataContent;
-      set => m_MetadataContent = CheckNotSealed(value);
+      set
+      {
+        m_MetadataContent = AssignState(value);
+        m_Metadata = null;//delete cached version
+      }
     }
 
     /// <summary>

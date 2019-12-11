@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+
 
 using Azos.Conf;
 using Azos.Platform;
@@ -14,9 +16,6 @@ using Azos.Serialization.JSON;
 
 namespace Azos.Data
 {
-  /// <summary>
-  /// Provides information about table schema that this typed row is a part of
-  /// </summary>
   public partial class FieldAttribute
   {
     /// <summary>
@@ -40,7 +39,7 @@ namespace Azos.Data
             return;
           }
 
-          var parent = all.Single( a => a.TargetName.EqualsOrdIgnoreCase(self.CloneFromTargetName));//this throws if none or > 1
+          var parent = all.Single( a => a.TargetName.EqualsSenseCase(self.CloneFromTargetName));//this throws if none or > 1
           if (!done.Contains(parent))
           {
             process(parent);
@@ -66,10 +65,63 @@ namespace Azos.Data
       }
     }
 
+    private static readonly IEnumerable<PropertyInfo> ALL_PROPS =
+                               typeof(FieldAttribute).GetProperties(BindingFlags.Public |
+                                                                    BindingFlags.Instance |
+                                                                    BindingFlags.DeclaredOnly)
+                                                     .Where(pi => pi.CanWrite);
+
     private static void inheritAttribute(FieldAttribute parent, FieldAttribute self)
     {
       //merge attributes from parent into self prop by prop
-      //....
+      foreach(var pi in ALL_PROPS)
+      {
+        if (pi.Name==nameof(MetadataContent))
+        {
+          if (self.MetadataContent.IsNullOrWhiteSpace())
+            self.MetadataContent = parent.MetadataContent;
+          else if (parent.MetadataContent.IsNotNullOrWhiteSpace())
+          { //merge
+            var conf1 = ParseMetadataContent(parent.MetadataContent);
+            var conf2 = ParseMetadataContent(self.MetadataContent);
+
+            var merged = new LaconicConfiguration();
+            merged.CreateFromMerge(conf1, conf2);
+            self.MetadataContent = merged.SaveToString();
+          }
+
+          continue;
+        }//metadata merge
+
+        if (pi.Name==nameof(ValueList))
+        {
+          if (!self.HasValueList)
+            self.ValueList = parent.ValueList;
+          else if (parent.HasValueList)
+          { //merge
+            var vl1 = parent.ParseValueList(true);
+            var vl2 = self.ParseValueList(true);
+
+            vl2.Append(vl1);//merge missing in self from parent
+
+
+
+            //remove all that start with REMOVE
+            // to remove a key include an override with:  `keyABC: #del#` (item keyed on `keyABC` will be removed)
+            const string DELETE = "#del#";
+            vl2.Where(kvp => kvp.Value.AsString().EqualsOrdIgnoreCase(DELETE))
+               .ToArray()
+               .ForEach( kvp => vl2.Remove(kvp.Key) );
+
+            self.ValueList = BuildValueListString(vl2);//reconstitute jsonmap back into string
+          }
+
+          continue;
+        }
+
+        if (self.PropertyWasAssigned(pi.Name)) continue;//was overridden
+        pi.SetValue(self, pi.GetValue(parent));//set value
+      }
     }
 
   }

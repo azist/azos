@@ -5,6 +5,8 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Text;
+
 
 using Azos.Conf;
 using Azos.Platform;
@@ -262,13 +264,13 @@ namespace Azos.Data
     /// <summary>
     /// Determines whether field should be loaded/stored from/to storage
     /// </summary>
-    public StoreFlag StoreFlag { get => m_StoreFlag; set => m_StoreFlag = CheckNotSealed(value); }
+    public StoreFlag StoreFlag { get => m_StoreFlag; set => m_StoreFlag = AssignState(value); }
 
     private string m_BackendName;
     /// <summary>
     /// Provides an overridden name for this field
     /// </summary>
-    public string BackendName { get => m_BackendName; set => m_BackendName = CheckNotSealed(value); }
+    public string BackendName { get => m_BackendName; set => m_BackendName = AssignState(value); }
 
 
     private string m_BackendType;
@@ -276,42 +278,51 @@ namespace Azos.Data
     /// Provides an overridden type for this field in backend,
     /// i.e. CLR string may be stored as ErlPid in Erlang
     /// </summary>
-    public string BackendType { get => m_BackendType; set => m_BackendType = CheckNotSealed(value); }
+    public string BackendType { get => m_BackendType; set => m_BackendType = AssignState(value); }
 
 
     private bool m_Key;
     /// <summary>
     /// Determines whether this field is a part of the primary key
     /// </summary>
-    public bool Key { get => m_Key; set => m_Key = CheckNotSealed(value); }
+    public bool Key { get => m_Key; set => m_Key = AssignState(value); }
 
 
     private DataKind m_Kind;
     /// <summary>
     /// Provides hint/classification for textual field data
     /// </summary>
-    public DataKind Kind { get => m_Kind; set => m_Kind = CheckNotSealed(value); }
+    public DataKind Kind { get => m_Kind; set => m_Kind = AssignState(value); }
 
 
     private bool m_Required;
     /// <summary>
     /// Determines whether the field must have data
     /// </summary>
-    public bool Required { get => m_Required; set => m_Required = CheckNotSealed(value); }
+    public bool Required { get => m_Required; set => m_Required = AssignState(value); }
 
 
     private bool m_Visible;
     /// <summary>
     /// Determines whether the field is shown to user (e.g. as a grid column)
     /// </summary>
-    public bool Visible { get => m_Visible; set => m_Visible = CheckNotSealed(value); }
+    public bool Visible { get => m_Visible; set => m_Visible = AssignState(value); }
 
 
     private string m_ValueList;
     /// <summary>
     /// Returns a ";/,/|"-delimited list of permitted field values - used for lookup validation
     /// </summary>
-    public string ValueList { get => m_ValueList; set => m_ValueList = CheckNotSealed(value); }
+    public string ValueList
+    {
+      get => m_ValueList;
+      set
+      {
+        m_ValueList = AssignState(value);
+        m_CacheValueList_Insensitive = null;
+        m_CacheValueList_Sensitive = null;
+      }
+    }
 
     /// <summary>
     /// Returns true if the value list is set or internal JSONDataMap is set
@@ -344,7 +355,8 @@ namespace Azos.Data
     }
 
     /// <summary>
-    /// Returns a string parsed into key values as:  val1: descr1,val2: desc2...
+    /// Returns a string parsed into key values as:  'val1: descr1, val2: desc2...'
+    /// The spec: The values are separated with comma, pipe or semicolon having key names separated by colon from descriptions
     /// </summary>
     public static JsonDataMap ParseValueListString(string valueList, bool caseSensitiveKeys = false)
     {
@@ -363,68 +375,88 @@ namespace Azos.Data
       return result;
     }
 
+    /// <summary>
+    /// Returns a string representation of JsonDataMap per value list specification:
+    /// The values are separated with comma, pipe or semicolon having key names separated by colon from descriptions
+    /// Example: 'key1: value1, key2: value2.... '
+    /// </summary>
+    public static string BuildValueListString(JsonDataMap map)
+    {
+      if (map==null) return null;
+      var sb = new StringBuilder();
+      var first = true;
+      foreach(var kvp in map)
+      {
+        if (!first) sb.Append("; ");
+        first = false;
+        sb.AppendFormat("{0}:{1}", kvp.Key, kvp.Value);
+      }
+      return sb.ToString();
+    }
+
+
 
     private object m_Min;
     /// <summary>
     /// Provides low-bound validation check
     /// </summary>
-    public object Min { get => m_Min; set => m_Min = CheckNotSealed(value); }
+    public object Min { get => m_Min; set => m_Min = AssignState(value); }
 
 
     private object m_Max;
     /// <summary>
     /// Provides high-bound validation check
     /// </summary>
-    public object Max { get => m_Max; set => m_Max = CheckNotSealed(value); }
+    public object Max { get => m_Max; set => m_Max = AssignState(value); }
 
 
     private object m_Default;
     /// <summary>
     /// Provides default value
     /// </summary>
-    public object Default { get => m_Default; set => m_Default = CheckNotSealed(value); }
+    public object Default { get => m_Default; set => m_Default = AssignState(value); }
 
 
     private int m_MinLength;
     /// <summary>
     /// Imposes a limit on minimum amount of characters in a textual field
     /// </summary>
-    public int MinLength { get => m_MinLength; set => m_MinLength = CheckNotSealed(value); }
+    public int MinLength { get => m_MinLength; set => m_MinLength = AssignState(value); }
 
 
     private int m_MaxLength;
     /// <summary>
     /// Imposes a limit on maximum amount of characters in a textual field
     /// </summary>
-    public int MaxLength { get => m_MaxLength; set => m_MaxLength = CheckNotSealed(value); }
+    public int MaxLength { get => m_MaxLength; set => m_MaxLength = AssignState(value); }
 
 
     private CharCase m_CharCase;
     /// <summary>
     /// Controls character casing of textual fields
     /// </summary>
-    public CharCase CharCase { get => m_CharCase; set => m_CharCase = CheckNotSealed(value); }
+    public CharCase CharCase { get => m_CharCase; set => m_CharCase = AssignState(value); }
 
 
     private string m_FormatRegExp;
     /// <summary>
     /// Regular expression used for field format validation if set
     /// </summary>
-    public string FormatRegExp { get => m_FormatRegExp; set => m_FormatRegExp = CheckNotSealed(value); }
+    public string FormatRegExp { get => m_FormatRegExp; set => m_FormatRegExp = AssignState(value); }
 
 
     private string m_FormatDescription;
     /// <summary>
     /// Description for regular expression used for field format validation if set
     /// </summary>
-    public string FormatDescription { get => m_FormatDescription; set => m_FormatDescription = CheckNotSealed(value); }
+    public string FormatDescription { get => m_FormatDescription; set => m_FormatDescription = AssignState(value); }
 
 
     private string m_DisplayFormat;
     /// <summary>
     /// Display format string or null
     /// </summary>
-    public string DisplayFormat { get => m_DisplayFormat; set => m_DisplayFormat = CheckNotSealed(value); }
+    public string DisplayFormat { get => m_DisplayFormat; set => m_DisplayFormat = AssignState(value); }
 
 
     private bool m_NonUI;
@@ -432,7 +464,7 @@ namespace Azos.Data
     /// If true indicates that this field is ignored when generating UI and ignored when UI supplies the value to the server.
     /// Pass true to protect server-only structures from being modified by client
     /// </summary>
-    public bool NonUI { get => m_NonUI; set => m_NonUI = CheckNotSealed(value); }
+    public bool NonUI { get => m_NonUI; set => m_NonUI = AssignState(value); }
 
 
     private bool m_IsArow;
@@ -440,7 +472,7 @@ namespace Azos.Data
     /// True if this field definition is used by Arow serializer. This used here for convenience not to repeat voluminous field attributes for
     /// Arow serialization as field def already contains all data see Azos.Serialization.Arow
     /// </summary>
-    public bool IsArow { get => m_IsArow; set => m_IsArow = CheckNotSealed(value); }
+    public bool IsArow { get => m_IsArow; set => m_IsArow = AssignState(value); }
 
 
     public override int GetHashCode() => base.GetHashCode() ^ (int)Kind ^ (int)StoreFlag ^ (Required ? 0b10101010 : 0b01010101);
@@ -450,7 +482,7 @@ namespace Azos.Data
       var other = obj as FieldAttribute;
       if (other==null) return false;
 
-      if (!base.Equals(other)) return false;
+      if (!base.Equals(other)) return false; //target metadataContent description
 
       var equ =
           this.StoreFlag   == other.StoreFlag &&
@@ -480,7 +512,6 @@ namespace Azos.Data
           this.MaxLength   == other.MaxLength &&
           this.CharCase    == other.CharCase &&
           this.ValueList.EqualsOrdSenseCase(other.ValueList) &&
-          this.MetadataContent.EqualsOrdSenseCase(other.MetadataContent) &&
           this.NonUI == other.NonUI &&
           this.FormatRegExp.EqualsOrdSenseCase(other.FormatRegExp) &&
           this.FormatDescription.EqualsOrdSenseCase(other.FormatDescription)&&
