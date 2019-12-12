@@ -158,6 +158,7 @@ namespace Azos.Data
 
 
               var tattrs = tdoc.GetCustomAttributes(typeof(SchemaAttribute), false).Cast<SchemaAttribute>();
+              tattrs.ForEach(a => a.StopPropAssignmentTracking());
               m_SchemaAttrs = new List<SchemaAttribute>( tattrs );
 
               //20191026 DKh. Expand resource references in Descriptions
