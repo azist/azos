@@ -178,5 +178,58 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual(100, def["L1"].Metadata.Navigate("sub/$z").ValueAsInt());
     }
 
+
+    public class Bad_RecurseDoc : TypedDoc
+    {
+      [Field(description: "Common description", metadata: "a=1 b=2 sub{ z=100 }")]
+      [Field("L1", "L3", Description = "cycle!!!")]
+      [Field("L2", "L1", Description ="in the middle")]
+      [Field("L3", "L2", Description="cycle")]
+      public string Data { get; set; }
+    }
+
+    public class Bad_RefNotExistsDoc : TypedDoc
+    {
+      [Field(description: "Common description", metadata: "a=1 b=2 sub{ z=100 }")]
+      [Field("L1", "I dont exist", Description = "cycle!!!")]
+      public string Data { get; set; }
+    }
+
+
+    [Run]
+    public void BadRecursion()
+    {
+      try
+      {
+        var schema = Schema.GetForTypedDoc<Bad_RecurseDoc>();
+      }
+      catch(Exception error)
+      {
+        Conout.WriteLine("Expected and got: "+error.ToMessageWithType());
+        Aver.IsNotNull(error.InnerException);
+        Aver.IsTrue(error.InnerException.Message.Contains("Cyclical"));
+        return;
+      }
+      Aver.Fail("Did not get expected exception");
+    }
+
+    [Run]
+    public void BadRefNotExists()
+    {
+      try
+      {
+        var schema = Schema.GetForTypedDoc<Bad_RefNotExistsDoc>();
+      }
+      catch (Exception error)
+      {
+        Conout.WriteLine("Expected and got: " + error.ToMessageWithType());
+        Aver.IsNotNull(error.InnerException);
+        Aver.IsTrue(error.InnerException.Message.Contains("no matching"));
+        return;
+      }
+      Aver.Fail("Did not get expected exception");
+    }
+
+
   }
 }
