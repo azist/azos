@@ -173,6 +173,8 @@ namespace Azos.Data
                                   .Cast<FieldAttribute>()
                                   .ToArray();
 
+                fattrs.ForEach(a => a.StopPropAssignmentTracking());
+
                 //Interpret [Field(CloneFromType)]
                 for(var i=0; i<fattrs.Length; i++)
                 {

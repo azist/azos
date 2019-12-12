@@ -23,16 +23,19 @@ namespace Azos.Data
 
     protected TargetedAttribute(string targetName)
     {
-        TargetName = targetName.IsNullOrWhiteSpace() ? ANY_TARGET : targetName;
+      m_TargetName = targetName.IsNullOrWhiteSpace() ? ANY_TARGET : targetName;
+      m_PropAssignmentTracking = true;
     }
 
     protected TargetedAttribute(string targetName, string metadata)
     {
-      TargetName = targetName.IsNullOrWhiteSpace() ? ANY_TARGET : targetName;
-      MetadataContent = metadata;
+      m_TargetName = targetName.IsNullOrWhiteSpace() ? ANY_TARGET : targetName;
+      m_MetadataContent = metadata;
+      m_PropAssignmentTracking = true;
     }
 
     private bool m_Sealed;
+    private bool m_PropAssignmentTracking;
     private HashSet<string> m_AssignedPropNames;
 
     /// <summary>
@@ -64,12 +67,17 @@ namespace Azos.Data
       if (Sealed) throw new DataException("{0} is sealed and can not be altered".Args(GetType().Name));
     }
 
+    internal void StopPropAssignmentTracking() => m_PropAssignmentTracking = false;
+
     protected T AssignState<T>(T value, [System.Runtime.CompilerServices.CallerMemberName]string propName = null)
     {
       CheckNotSealed();
 
-      if (m_AssignedPropNames==null) m_AssignedPropNames = new HashSet<string>();
-      m_AssignedPropNames.Add(propName);
+      if (m_PropAssignmentTracking)
+      {
+        if (m_AssignedPropNames==null) m_AssignedPropNames = new HashSet<string>();
+        m_AssignedPropNames.Add(propName);
+      }
       return value;
     }
 
@@ -88,7 +96,7 @@ namespace Azos.Data
       }
     }
 
-    private string m_Description;
+    protected string m_Description;
     /// <summary>
     /// Provides description
     /// </summary>
@@ -99,7 +107,7 @@ namespace Azos.Data
     }
 
 
-    private string m_MetadataContent;
+    protected string m_MetadataContent;
 
     [NonSerialized]
     private IConfigSectionNode m_Metadata;

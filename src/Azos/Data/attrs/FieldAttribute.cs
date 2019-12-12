@@ -46,26 +46,26 @@ namespace Azos.Data
           bool isArow         = false
       ) : base(targetName, metadata)
     {
-      Description = description;
-      StoreFlag = storeFlag;
-      BackendName = backendName;
-      BackendType = backendType;
-      Key = key;
-      Kind = kind;
-      Required = required;
-      Visible = visible;
-      Min = min;
-      Max = max;
-      Default = dflt;
-      MinLength = minLength;
-      MaxLength = maxLength;
-      CharCase = charCase;
-      ValueList = valueList;
-      NonUI = nonUI;
-      FormatRegExp = formatRegExp;
-      FormatDescription = formatDescr;
-      DisplayFormat = displayFormat;
-      IsArow = isArow;
+      m_Description = description;
+      m_StoreFlag = storeFlag;
+      m_BackendName = backendName;
+      m_BackendType = backendType;
+      m_Key = key;
+      m_Kind = kind;
+      m_Required = required;
+      m_Visible = visible;
+      m_Min = min;
+      m_Max = max;
+      m_Default = dflt;
+      m_MinLength = minLength;
+      m_MaxLength = maxLength;
+      m_CharCase = charCase;
+      m_ValueList = valueList;
+      m_NonUI = nonUI;
+      m_FormatRegExp = formatRegExp;
+      m_FormatDescription = formatDescr;
+      m_DisplayFormat = displayFormat;
+      m_IsArow = isArow;
     }
 
     /// <summary>
@@ -98,29 +98,29 @@ namespace Azos.Data
       if (valueList == null)
         throw new DataException("FieldAttribute(JSONDataMap valueList==null)");
 
-      Description = description;
-      StoreFlag = storeFlag;
-      BackendName = backendName;
-      BackendType = backendType;
-      Key = key;
-      Kind = kind;
-      Required = required;
-      Visible = visible;
-      Min = min;
-      Max = max;
-      Default = dflt;
-      MinLength = minLength;
-      MaxLength = maxLength;
-      CharCase = charCase;
-      NonUI = nonUI;
-      FormatRegExp = formatRegExp;
-      FormatDescription = formatDescr;
-      DisplayFormat = displayFormat;
+      m_Description = description;
+      m_StoreFlag = storeFlag;
+      m_BackendName = backendName;
+      m_BackendType = backendType;
+      m_Key = key;
+      m_Kind = kind;
+      m_Required = required;
+      m_Visible = visible;
+      m_Min = min;
+      m_Max = max;
+      m_Default = dflt;
+      m_MinLength = minLength;
+      m_MaxLength = maxLength;
+      m_CharCase = charCase;
+      m_NonUI = nonUI;
+      m_FormatRegExp = formatRegExp;
+      m_FormatDescription = formatDescr;
+      m_DisplayFormat = displayFormat;
 
       m_CacheValueListPresetInCtor = true;
       m_CacheValueList_Insensitive = valueList;
       m_CacheValueList_Sensitive = valueList;
-      ValueList = null;
+      m_ValueList = null;
     }
 
 
@@ -199,26 +199,26 @@ namespace Azos.Data
 
         try
         {
-          StoreFlag        = storeFlag    == null? protoAttr.StoreFlag   : (StoreFlag)storeFlag;
-          BackendName      = backendName  == null? protoAttr.BackendName : backendName;
-          BackendType      = backendType  == null? protoAttr.BackendType : backendType;
-          Key              = key          == null? protoAttr.Key         : (bool)key;
-          Kind             = kind         == null? protoAttr.Kind        : (DataKind)kind;
-          Required         = required     == null? protoAttr.Required    : (bool)required;
-          Visible          = visible      == null? protoAttr.Visible     : (bool)visible;
-          Min              = min          == null? protoAttr.Min         : min;
-          Max              = max          == null? protoAttr.Max         : max;
-          Default          = dflt         == null? protoAttr.Default     : dflt;
-          MinLength        = minLength    == null? protoAttr.MinLength   : (int)minLength;
-          MaxLength        = maxLength    == null? protoAttr.MaxLength   : (int)maxLength;
-          CharCase         = charCase     == null? protoAttr.CharCase    : (CharCase)charCase;
-          ValueList        = valueList    == null? protoAttr.ValueList   : valueList;
-          Description      = description  == null? protoAttr.Description : description;
-          NonUI            = nonUI        == null? protoAttr.NonUI       : (bool)nonUI;
-          FormatRegExp     = formatRegExp == null? protoAttr.FormatRegExp: formatRegExp;
-          FormatDescription= formatDescr  == null? protoAttr.FormatDescription: formatDescr;
-          DisplayFormat    = displayFormat== null? protoAttr.DisplayFormat : displayFormat;
-          IsArow           = isArow       == null? protoAttr.IsArow        : (bool)isArow;
+          m_StoreFlag        = storeFlag    == null? protoAttr.StoreFlag   : (StoreFlag)storeFlag;
+          m_BackendName      = backendName  == null? protoAttr.BackendName : backendName;
+          m_BackendType      = backendType  == null? protoAttr.BackendType : backendType;
+          m_Key              = key          == null? protoAttr.Key         : (bool)key;
+          m_Kind             = kind         == null? protoAttr.Kind        : (DataKind)kind;
+          m_Required         = required     == null? protoAttr.Required    : (bool)required;
+          m_Visible          = visible      == null? protoAttr.Visible     : (bool)visible;
+          m_Min              = min          == null? protoAttr.Min         : min;
+          m_Max              = max          == null? protoAttr.Max         : max;
+          m_Default          = dflt         == null? protoAttr.Default     : dflt;
+          m_MinLength        = minLength    == null? protoAttr.MinLength   : (int)minLength;
+          m_MaxLength        = maxLength    == null? protoAttr.MaxLength   : (int)maxLength;
+          m_CharCase         = charCase     == null? protoAttr.CharCase    : (CharCase)charCase;
+          m_ValueList        = valueList    == null? protoAttr.ValueList   : valueList;
+          m_Description      = description  == null? protoAttr.Description : description;
+          m_NonUI            = nonUI        == null? protoAttr.NonUI       : (bool)nonUI;
+          m_FormatRegExp     = formatRegExp == null? protoAttr.FormatRegExp: formatRegExp;
+          m_FormatDescription= formatDescr  == null? protoAttr.FormatDescription: formatDescr;
+          m_DisplayFormat    = displayFormat== null? protoAttr.DisplayFormat : displayFormat;
+          m_IsArow           = isArow       == null? protoAttr.IsArow        : (bool)isArow;
 
 
 
@@ -233,7 +233,7 @@ namespace Azos.Data
 
             var merged = new LaconicConfiguration();
             merged.CreateFromMerge(conf1, conf2);
-            MetadataContent = merged.SaveToString();
+            m_MetadataContent = merged.SaveToString();
           }
         }
         catch(Exception err)

@@ -67,9 +67,8 @@ namespace Azos.Data
 
     private static readonly IEnumerable<PropertyInfo> ALL_PROPS =
                                typeof(FieldAttribute).GetProperties(BindingFlags.Public |
-                                                                    BindingFlags.Instance |
-                                                                    BindingFlags.DeclaredOnly)
-                                                     .Where(pi => pi.CanWrite);
+                                                                    BindingFlags.Instance)
+                                                     .Where(pi => pi.Name != nameof(TargetName) && pi.CanWrite && pi.SetMethod.IsPublic);
 
     private static void inheritAttribute(FieldAttribute parent, FieldAttribute self)
     {
