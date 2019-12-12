@@ -141,11 +141,11 @@ namespace Azos.Data
     /// Circular dependencies are prohibited. This constructor has no effect on dynamic (non-typed) data documents as the inheritance is ignored for
     /// dynamic schemas
     /// </summary>
-    /// <param name="cloneTarget">Name of target which the inherited-from attribute would be decorated with. Cyclical references are prohibited</param>
-    /// <param name="targetName">Name of this target. Cyclical references are prohibited</param>
-    public FieldAttribute(string cloneTarget, string targetName) : base(targetName)
+    /// <param name="targetName">Target name, may not be null or blank</param>
+    /// <param name="deriveFromTargetName">From target name, may be null which indicates ANY_TARGET</param>
+    public FieldAttribute(string targetName, string deriveFromTargetName) : base(targetName.NonBlank(nameof(targetName)))
     {
-      CloneFromTargetName = cloneTarget.IsNullOrWhiteSpace() ? ANY_TARGET : cloneTarget;
+      DeriveFromTargetName = deriveFromTargetName.IsNullOrWhiteSpace() ? ANY_TARGET : deriveFromTargetName;
     }
 
     /// <summary>
@@ -257,7 +257,7 @@ namespace Azos.Data
     /// When set, points to another attribute declaration on the same member with the specified targetName effectively "inheriting" this attribute
     /// from another
     /// </summary>
-    public string CloneFromTargetName { get; private set; }
+    public string DeriveFromTargetName { get; private set; }
 
 
     private StoreFlag m_StoreFlag;

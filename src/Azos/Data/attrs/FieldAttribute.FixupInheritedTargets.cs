@@ -33,13 +33,13 @@ namespace Azos.Data
         if (!graph.Add(self)) throw new DataException("Cyclical target reference: "+self.TargetName);
         try
         {
-          if (self.CloneFromTargetName == null)
+          if (self.DeriveFromTargetName == null)
           {
             done.Add(self);
             return;
           }
 
-          var parent = all.Single( a => a.TargetName.EqualsSenseCase(self.CloneFromTargetName));//this throws if none or > 1
+          var parent = all.Single( a => a.TargetName.EqualsSenseCase(self.DeriveFromTargetName));//this throws if none or > 1
           if (!done.Contains(parent))
           {
             process(parent);
