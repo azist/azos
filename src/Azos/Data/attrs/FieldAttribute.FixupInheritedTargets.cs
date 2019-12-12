@@ -61,7 +61,7 @@ namespace Azos.Data
       }
       catch(Exception error)
       {
-        throw new DataException("Fieldset `{0}` contains bad `cloneTarget` references to targets that are either not found in any [Field] attribute instance on that field, contain reference cycles, or missing the [Field] declarations without clone dependencies. The graph could not be resolved".Args(fieldName), error);
+        throw new DataException(StringConsts.CRUD_FIELDDEF_TARGET_DERIVATION_ERROR.Args(fieldName), error);
       }
     }
 

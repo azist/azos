@@ -137,7 +137,7 @@ namespace Azos.Data
 
     /// <summary>
     /// Creates a field definition attribute which inherits all of the attributes of another field attribute declared on the same
-    /// data document property with the specified `cloneTarget` target. An error is thrown if such field def attribute with the specified target is not found.
+    /// data document property with the specified `deriveFromTargetName` target. An error is thrown if such field def attribute with the specified target is not found.
     /// Circular dependencies are prohibited. This constructor has no effect on dynamic (non-typed) data documents as the inheritance is ignored for
     /// dynamic schemas
     /// </summary>
