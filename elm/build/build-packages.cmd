@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.533
-set HEADLINE=AST SQL Expressions
+set VER=1.0.535
+set HEADLINE=Metadata Target Derivation
 
 call vs2017-build-release %VER%
 
