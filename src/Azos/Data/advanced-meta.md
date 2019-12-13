@@ -69,6 +69,7 @@ attributes targeted by name at a specific system/concept/use-case/technology (mo
 ## Multi-Targeting, Target Derivation
 
 ## Custom Metadata
+Many applications need to store application-specific metadata elements which can be as simple as a linear list of named variables or as complex as hierarchical structures. Azos stores custom information in `MetadataContent` string property of `Field` attribute, and provides a `Metadata` accessor which is a root configuration object of `IConfigSectionNode`.
 
 ## Metadata Indirection with Resource File References
 Large government standards have much documentation which clarifies the use cases/rules and expectations, typically going down to a field level.
