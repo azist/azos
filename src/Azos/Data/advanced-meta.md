@@ -69,7 +69,35 @@ attributes targeted by name at a specific system/concept/use-case/technology (mo
 ## Multi-Targeting, Target Derivation
 
 ## Custom Metadata
-Many applications need to store application-specific metadata elements which can be as simple as a linear list of named variables or as complex as hierarchical structures. Azos stores custom information in `MetadataContent` string property of `Field` attribute, and provides a `Metadata` accessor which is a root configuration object of `IConfigSectionNode`.
+Custom applications often need to store app-specific metadata elements which can be as simple as a list of named variables or as complex as a hierarchical structure with variables at different levels. Azos stores custom information in `MetadataContent` string property of `Field` attribute, and provides a `Metadata` accessor which is a root configuration object of `IConfigSectionNode`, consequently metadata is a configuration content.
+
+Here are a few examples:
+```csharp
+public class SegmentAbc : CLaimSegment
+{
+  . . . 
+  [Field(targetName: EDI, //this is for EDI processor
+         backendName: "9Z", //field is called '9Z' in EDI data stream
+         metadata: @"fmt='counter' mode='strict' pub{ legacy-lbl='Code Request Overrides'}")] 
+  public List<CodeRequestItem> Codes{ get; set; } 
+  . . . 
+}  
+```
+The metadata content is inlined and you can get it in code like so:
+```
+  var schema = Schema.GetForTypedDoc<SegmentAbc>();
+  var defCodes = schema["Codes"];
+  var edi = defCodes[EDI];
+  
+  Conout.Writeline(edi.Metadata.Navigate("$fmt").ValueAsString()); // counter
+  Conout.Writeline(edi.Metadata.Navigate("$mode").ValueAsString()); // strict
+  Conout.Writeline(edi.Metadata.Navigate("pub/$legacy-lbl").ValueAsString()); // Code Request Overrides
+```
+In practice the above snippet was taken from government-regulated data message which gets serialized as EDI or XML, the EDI target tells the system how to call the field in the EDI stream and how to handle partial matches.
+
+By convention, the metadata residing under `'pub'` is harvested and returned by the **ApiDocumentation Generator**, this is done on purpose not to leak/disclose sensitive data. The name of the public section may be changed at the ApiGenerator class. 
+
+
 
 ## Metadata Indirection with Resource File References
 Large government standards have much documentation which clarifies the use cases/rules and expectations, typically going down to a field level.
