@@ -118,6 +118,25 @@ would use metadata targeted at that use case** by its logical target name.
 This design is NOT SQL-specific. Multi-targeting capabilities are as beneficial in general data contract modeling, NoSQL modeling, Service Layer/API modeling
 and any kind of modeling in general.
 
+You **should use target name constant values** which are typically declared in the very core ring (in terms of onion architecture) of your solution:
+```csharp
+  public static class Data
+  {
+    public const string LEGACY = "legacy";
+    public const string LEVEL1 = "L1";
+    public const string LEVEL2 = "L2";
+    ...
+  }
+  ...
+  public class Patient : TypedDoc
+  {
+    [Field(targetName: Data.LEGACY.....)]
+    [Field(targetName: Data.LEVEL1.....)]
+    [Field(targetName: Data.LEVEL2.....)]
+    public int Prop { get; set; }
+  }
+```
+
 
 ## Target Derivation / Inheritance Pattern
 Azos `FieldAttribute` has a constructor variant that implements an inheritance pattern which greatly **reduces the number of copious re-declarations**
@@ -134,7 +153,7 @@ of the same metadata. Let us look at the example:
 
 Line 10 declares a field targeting "ANY_TARGET" (target name is not set), notice the use of lower-case .ctor parameter references.
 The subsequent declarations define new targets "edi" and "mds" each deriving (borrowing) all of the metadata from the "null" target
-which references line 10. Consequently, `Field` entry for "mds" would contain all metadata declared on line 10 with additions overrides
+which references line 10. Consequently, `Field` entry for "mds" would contain all metadata declared on line 10 with additional overrides
 declared on line 14. Notice the use of upper-case property accessors (e.g. `MetadataContent=...`) as the target derivation .ctor does not 
 take any other parameters.
 
@@ -152,21 +171,27 @@ You can create chain inheritance patterns, for example this is used for multi-le
   public string MyField { get; set;}
 ```
 Notice that every subsequent level borrows all attributes from the prior one, which in turn borrows it from its prior one etc...
+Now we can perform validation targeting specific level like so:
+```csharp
+  var errors = doc.Validate("LEVEL3"); 
+```
 
-The cyclical references are detected and thrown at runtime.
+The **cyclical references** are not allowed *(detected and thrown at runtime)*.
+
 
 #### Structural merges
 Derivation becomes even more appreciated when one needs to override/merge/mix-in complex structured values. This is used for `ValueList` and 
 `MetadataContent` properties. Lets look at the example:
 ```csharp
  [Field(valueList: "a: apple, b: borland, m: microsoft")]
- [Field("newAge","*", ValueList = "a: #del#, i: ibm")]// only [b,m] remain in the list, [i] is added => [b,m,i]
+ [Field("newAge","*", ValueList = "a: #del#, i: ibm")]// only inherited [b,m] remain in the list, [i] is added => [b,m,i]
  public string Hardcoded{ get; set;}
 ```
 The second field declaration erases "a" key and adds "i" for "ibm" value. The keys are deleted using "#del#" reserved value.
 As a side note, notice that the second line references the first one by `ANY_TARGET` moniker '*' (you could pass null instead).
+Any existing keys get replaced by newer once (overridden).
 
-The similar process applies to structural merges of custom metadata, only custom metadata merges can be controlled with `_override` parameters
+The similar process applies to **structural merges of custom metadata**, only custom metadata merges can be controlled with `_override` parameters
 as they are implemented using standard [Azos Configuration Patterns](/src/Azos/Conf). For example:
 
 ```csharp
@@ -192,6 +217,41 @@ See [Target Inherit Unit Tests](/src/testing/Azos.Tests.Nub/DataAccess/FieldAttr
 
 
 ## Cloning and Prototyping Patterns
+
+Many application have variations of similar models. An example of that would be user data document which contains name, email, 
+and password hash fields, however a user registration form contains all of those fields but not the ones for password - instead of password hash and salt, 
+the form contains 2 password fields for entry during registration.
+
+The first pattern is called field clone. It **borrows ALL field attributes from one data document into another**, the field property names have to be the same,
+for example:
+```csharp
+  //in DocumentA class:
+  [Field(...lots of metadata..)]
+  [Field(...lots of metadata..)]
+  public string MyData { get; set; }
+
+  //in DocumentB class:
+  [Field(typeof(DocumentA))] //<--- would clone everything (all field attributes) from DocumentA.MyData
+  public string MyData { get; set; }
+
+```
+See [Attribute Cloning Unit Tests](/src/testing/Azos.Tests.Nub/DataAccess/FieldAttrCloningTests.cs) for more details.
+
+The second pattern is more advanced. You can specify clone-from type and prototype field name and then partially override values:
+```csharp
+  //in DocumentA class:
+  [Field(...lots of metadata..)]
+  [Field(...lots of metadata..)]
+  public string MyData { get; set; }
+
+  //in DocumentB class:
+  [Field(typeof(DocumentA), "MyData", maxLength: 30)] //<--- would clone from DocumentA.MyData/ANY_TARGET 
+  [Field(typeof(DocumentA), "targetX:MyData", required: false)] //<--- would clone from DocumentA.MyData/targetX 
+  public string MyData2 { get; set; }
+```
+You can also specify prototype target name using "protoTargetName:protoFieldName"
+
+See [Attribute Prototyping Unit Tests](/src/testing/Azos.Tests.Nub/DataAccess/FieldAttrPrototyping.cs) for more details.
 
 
 ## Custom Metadata
