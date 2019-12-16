@@ -11,7 +11,7 @@ namespace Azos.Platform
   /// and the total item count must be limited by system design (e.g. system Type instances, Attribute instances etc.).
   /// This class is used for efficient thread-safe caching of items by TKey, speculating on the fact that total set
   /// of items is limited and with time the system will add all of items, consequently no mutations will be necessary
-  /// and all requests will be served by lock-free thread-safe read-only Get() operation on and immutable copy.
+  /// and all requests will be served by lock-free thread-safe read-only Get() operation on an immutable copy.
   /// This class is inefficient for adding items which do not exist in the set, as it creates yet another copy of internal dictionary.
   /// The AddItem functor is called under the lock and must not have any side effects (must contain only read code which gets TValue by TKey from source).
   /// </summary>
@@ -23,6 +23,14 @@ namespace Azos.Platform
     private object m_Lock = new object();
     private volatile Dictionary<TKey, TValue> m_Data = new Dictionary<TKey, TValue>();
 
+    /// <summary>
+    /// Creates an instance of ConstrainedSetLookup. The instance is thread safe and it may be beneficial
+    /// to allocate it as a static field
+    /// </summary>
+    /// <param name="addItem">
+    /// References the functor which gets called on addition of items when their keys do not exist in the set yet.
+    /// The functor is invoked under the lock and must not have any side-effects and be relatively efficient (must not have any long (50ms+) blocking code)
+    /// </param>
     public ConstrainedSetLookup(Func<TKey, TValue> addItem) => AddItem = addItem.NonNull(nameof(addItem));
 
     /// <summary>
@@ -30,6 +38,16 @@ namespace Azos.Platform
     /// The functor is invoked under the lock and must not have any side-effects and be relatively efficient (must not have any long (50ms+) blocking code)
     /// </summary>
     public readonly Func<TKey, TValue> AddItem;
+
+    /// <summary>
+    /// Tries to find a TValue by key in the set. If TKey is not present, then invokes a AddItem function
+    /// </summary>
+    public TValue this[TKey key] => Get(key);
+
+    /// <summary>
+    /// Returns snapshot count at this moment
+    /// </summary>
+    public int Count => m_Data.Count;
 
     /// <summary>
     /// Tries to find a TValue by key in the set. If TKey is not present, then invokes a AddItem function
@@ -54,8 +72,30 @@ namespace Azos.Platform
     }
 
     /// <summary>
-    /// Tries to find a TValue by key in the set. If TKey is not present, then invokes a AddItem function
+    /// Removes one keyed item returning true if key was found and removed
     /// </summary>
-    public TValue this[TKey key] => Get(key);
+    public bool Remove(TKey key)
+    {
+      lock(m_Lock)
+      {
+        if (!m_Data.ContainsKey(key)) return false;
+        var cache = new Dictionary<TKey, TValue>(m_Data);
+        cache.Remove(key);
+        Thread.MemoryBarrier();
+        m_Data = cache;//atomic
+      }
+      return true;
+    }
+
+    /// <summary>
+    /// Deletes all data at once
+    /// </summary>
+    public void Purge()
+    {
+      var data = new Dictionary<TKey, TValue>(m_Data);
+      Thread.MemoryBarrier();
+      m_Data = data;
+    }
+
   }
 }

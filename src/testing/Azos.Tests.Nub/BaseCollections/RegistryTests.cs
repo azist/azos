@@ -13,28 +13,28 @@ using Azos.Scripting;
 namespace Azos.Tests.Nub.BaseCollections
 {
 
-                       public class NamedClazz : INamed
-                       {
-                         public NamedClazz(string name, int data)
-                         {
-                           m_Name = name;
-                           m_Data = data;
-                         }
-                         private string m_Name;
-                         private int m_Data;
-                         public string Name { get { return m_Name; } }
-                         public int Data { get { return m_Data; } }
-                       }
+  public class NamedClazz : INamed
+  {
+    public NamedClazz(string name, int data)
+    {
+      m_Name = name;
+      m_Data = data;
+    }
+    private string m_Name;
+    private int m_Data;
+    public string Name { get { return m_Name; } }
+    public int Data { get { return m_Data; } }
+  }
 
-                       public class OrderedClazz : NamedClazz, IOrdered
-                       {
-                         public OrderedClazz(string name, int order, int data) : base (name, data)
-                         {
-                           m_Order = order;
-                         }
-                         private int m_Order;
-                         public int Order{ get { return m_Order; } }
-                       }
+  public class OrderedClazz : NamedClazz, IOrdered
+  {
+    public OrderedClazz(string name, int order, int data) : base (name, data)
+    {
+      m_Order = order;
+    }
+    private int m_Order;
+    public int Order{ get { return m_Order; } }
+  }
 
 
 
