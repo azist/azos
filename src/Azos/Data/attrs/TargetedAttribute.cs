@@ -199,11 +199,19 @@ namespace Azos.Data
       if (!value.StartsWith(PFX)) return value;
       value = value.Substring(PFX.Length);
 
-      var res = value.IsNullOrWhiteSpace() ? "schemas.laconf" : "{0}.laconf".Args(value);
+      var useDefaultName = value.IsNullOrWhiteSpace();
 
-      var resContent = tDoc.NonNull(nameof(tDoc))
-                            .GetText(res)
-                            .NonBlank("Resource `{0}` referenced by {1}.{2}.{3}".Args(res, tDoc.Name, entity, name));
+      var res = useDefaultName ? "schemas.laconf" : "{0}.laconf".Args(value);
+
+      var resContent = tDoc.NonNull(nameof(tDoc)).GetText(res);
+
+      if (resContent==null && useDefaultName)
+      {
+        res = "{0}.laconf".Args(tDoc.Name);
+        resContent = tDoc.GetText(res);
+      }
+
+      resContent.NonBlank("Resource `{0}` referenced by {1}.{2}.{3}".Args(res, tDoc.Name, entity, name));
 
       try
       {
