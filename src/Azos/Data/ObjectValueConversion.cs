@@ -757,35 +757,33 @@ namespace Azos.Data
          }
 
 
-
-
-
-
-
-
          public static DateTime AsDateTime(this object val, System.Globalization.DateTimeStyles styles = System.Globalization.DateTimeStyles.None)
          {
             if (val is string)
             {
               var sval = ((string)val).Trim();
 
-              if (DateTime.TryParse(sval, null,styles, out var dtval)) return dtval;
+              if (DateTime.TryParse(sval, null, styles, out var dtval)) return dtval;
 
               long ival;
-              if (long.TryParse(sval, out ival)) return new DateTime(ival);
+              if (long.TryParse(sval, out ival)) return ival.FromSecondsSinceUnixEpochStart();
 
               double dval;
-              if (double.TryParse(sval, out dval)) return new DateTime((long)dval);
+              if (double.TryParse(sval, out dval)) return ((long)dval).FromSecondsSinceUnixEpochStart();
 
               decimal dcval;
-              if (decimal.TryParse(sval, out dcval)) return new DateTime((long)dcval);
+              if (decimal.TryParse(sval, out dcval)) return ((long)dcval).FromSecondsSinceUnixEpochStart();
             }
 
-            if (val is int) { return new DateTime((int)val); }
-            if (val is long) { return new DateTime((long)val); }
-            if (val is double) { return new DateTime((long)((double)val)); }
-            if (val is float) { return new DateTime((long)((float)val)); }
-            if (val is decimal) { return new DateTime((long)((decimal)val)); }
+            if (val is int _int)     { return ((long)_int) .FromSecondsSinceUnixEpochStart(); }
+            if (val is uint _uint)   { return ((long)_uint).FromSecondsSinceUnixEpochStart(); }
+            if (val is long  _long)  { return (_long) .FromSecondsSinceUnixEpochStart(); }
+            if (val is ulong _ulong) { return (_ulong).FromSecondsSinceUnixEpochStart(); }
+
+            if (val is double  _double)  { return ((long)_double).FromSecondsSinceUnixEpochStart();  }
+            if (val is float   _float)   { return ((long)_float).FromSecondsSinceUnixEpochStart();   }
+            if (val is decimal _decimal) { return ((long)_decimal).FromSecondsSinceUnixEpochStart(); }
+
             return Convert.ToDateTime(val);
          }
 

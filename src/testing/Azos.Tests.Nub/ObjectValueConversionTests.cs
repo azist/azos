@@ -89,7 +89,9 @@ namespace Azos.Tests.Nub
             Aver.AreEqual(true, obj.AsNullableBool());
 
             Aver.AreEqual("123", obj.AsString());
-            Aver.AreEqual(123, obj.AsDateTime().Ticks);
+            Aver.AreEqual(1970, obj.AsDateTime().Year);
+            Aver.AreEqual(2, obj.AsDateTime().Minute);
+
             Aver.AreEqual(123, obj.AsTimeSpan().Ticks);
 
             Aver.IsTrue( TestEnum.B == obj.AsEnum(TestEnum.A));
@@ -133,7 +135,8 @@ namespace Azos.Tests.Nub
             Aver.AreEqual(true, obj.AsNullableBool());
 
             Aver.AreEqual("123", obj.AsString());
-            Aver.AreEqual(123, obj.AsDateTime().Ticks);
+            Aver.AreEqual(1970, obj.AsDateTime().Year);
+            Aver.AreEqual(2, obj.AsDateTime().Minute);
             Aver.AreEqual(123, obj.AsTimeSpan().Ticks);
 
             Aver.IsTrue(TestEnum.B == obj.AsEnum(TestEnum.A));
@@ -219,7 +222,8 @@ namespace Azos.Tests.Nub
             Aver.AreEqual(true, obj.AsNullableBool());
 
             Aver.AreEqual("123", obj.AsString());
-            Aver.AreEqual(123, obj.AsDateTime().Ticks);
+            Aver.AreEqual(1970, obj.AsDateTime().Year);
+            Aver.AreEqual(2, obj.AsDateTime().Minute);
             Aver.AreEqual(123, obj.AsTimeSpan().Ticks);
 
             Aver.IsTrue(TestEnum.B == obj.AsEnum(TestEnum.A));
@@ -262,7 +266,8 @@ namespace Azos.Tests.Nub
             Aver.AreEqual(true, obj.AsNullableBool());
 
             Aver.AreEqual("123", obj.AsString());
-            Aver.AreEqual(123, obj.AsDateTime().Ticks);
+            Aver.AreEqual(1970, obj.AsDateTime().Year);
+            Aver.AreEqual(2, obj.AsDateTime().Minute);
             Aver.AreEqual(123, obj.AsTimeSpan().Ticks);
 
             Aver.IsTrue(TestEnum.B == obj.AsEnum(TestEnum.A));
@@ -305,7 +310,8 @@ namespace Azos.Tests.Nub
             Aver.AreEqual(true, obj.AsNullableBool());
 
             Aver.AreEqual("123", obj.AsString());
-            Aver.AreEqual(123, obj.AsDateTime().Ticks);
+            Aver.AreEqual(1970, obj.AsDateTime().Year);
+            Aver.AreEqual(2, obj.AsDateTime().Minute);
             Aver.AreEqual(123, obj.AsTimeSpan().Ticks);
 
             Aver.IsTrue(TestEnum.B == obj.AsEnum(TestEnum.A));

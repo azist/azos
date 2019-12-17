@@ -1967,7 +1967,9 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual(bl, true);
       Aver.AreEqual(bt, (byte)23);
       Aver.AreEqual(chr, Convert.ToChar(1256));
-      Aver.AreEqual(date, new DateTime(1256));
+      Aver.AreEqual(date.Year, 1970);
+      Aver.AreEqual(date.Minute, 20);
+      Aver.AreEqual(date.Second, 56);
       Aver.AreEqual(decim, 1256);
       Aver.AreEqual(doubl, 1256.0D);
       Aver.IsTrue(enm == (BSONElementType)1256);
@@ -1987,7 +1989,9 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual(n_bl, true);
       Aver.AreEqual(n_bt, (byte)23);
       Aver.AreEqual(n_chr, Convert.ToChar(1256));
-      Aver.AreEqual(n_date, new DateTime(1256));
+      Aver.AreEqual(n_date.Value.Year, 1970);
+      Aver.AreEqual(n_date.Value.Minute, 20);
+      Aver.AreEqual(n_date.Value.Second, 56);
       Aver.AreEqual(n_decim, 1256);
       Aver.AreEqual(n_doubl, 1256.0D);
       Aver.AreEqual(n_ts, TimeSpan.FromTicks(1256));
@@ -2006,7 +2010,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void TestInt64ElementIConvertable()
     {
-      var element = new BSONInt64Element("name", 1256000000000);
+      var element = new BSONInt64Element("name", 19_256_000_000);
 
       var bl = element.AsBool();
       var date = element.AsDateTime();
@@ -2018,13 +2022,15 @@ namespace Azos.Tests.Nub.Serialization
       var uint64 = element.AsULong();
 
       Aver.AreEqual(bl, true);
-      Aver.AreEqual(date, new DateTime(1256000000000));
-      Aver.AreEqual(decim, 1256000000000);
-      Aver.AreEqual(doubl, 1256000000000.0D);
-      Aver.AreEqual(int64, 1256000000000);
-      Aver.AreEqual(single, 1256000000000);
-      Aver.AreEqual(str, "1256000000000");
-      Aver.IsTrue(uint64 == 1256000000000);
+      Aver.AreEqual(date.Year, 2580);
+      Aver.AreEqual(date.Minute, 53);
+      Aver.AreEqual(date.Second, 20);
+      Aver.AreEqual(decim, 19_256_000_000);
+      Aver.AreEqual(doubl, 19_256_000_000.0D);
+      Aver.AreEqual(int64, 19_256_000_000);
+      Aver.AreEqual(single, 19_256_000_000);
+      Aver.AreEqual(str, "19256000000");
+      Aver.IsTrue(uint64 == 19_256_000_000);
     }
 
     [Run]
@@ -2078,7 +2084,9 @@ namespace Azos.Tests.Nub.Serialization
 
       Aver.AreEqual(bl, true);
       Aver.AreEqual(chr, '1');
-      Aver.AreEqual(date, new DateTime(1256));
+      Aver.AreEqual(date.Year, 1970);
+      Aver.AreEqual(date.Minute, 20);
+      Aver.AreEqual(date.Second, 56);
       Aver.AreEqual(decim, 1256);
       Aver.AreEqual(doubl, 1256.0D);
       Aver.AreEqual(int16, 1256);
