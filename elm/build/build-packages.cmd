@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.535
-set HEADLINE=Metadata Target Derivation
+set VER=1.0.537
+set HEADLINE=Json Date Handling and DocReadOptions
 
 call vs2017-build-release %VER%
 
