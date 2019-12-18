@@ -7,14 +7,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.IO;
+using System.Text;
 
 using Azos.Conf;
 using Azos.CodeAnalysis.Source;
 using Azos.CodeAnalysis.JSON;
 using Azos.Data;
-using System.Linq;
 
 namespace Azos.Serialization.JSON
 {
@@ -24,7 +24,7 @@ namespace Azos.Serialization.JSON
   public static class JsonReader
   {
     /// <summary>
-    /// Specifies how reader should match JSON to row field property member or backend names
+    /// Specifies how reader should match JSON to data document field property member or backend names
     /// </summary>
     public struct NameBinding
     {
@@ -35,10 +35,15 @@ namespace Azos.Serialization.JSON
 
       public static NameBinding ByBackendName(string targetName) => new NameBinding(By.BackendName, targetName);
 
-      private NameBinding(By by, string tagetName) { BindBy = by; TargetName = tagetName; }
+      public NameBinding(By by, string tagetName, bool localDates = false) { BindBy = by; TargetName = tagetName; LocalDates = localDates;}
 
       public readonly By BindBy;
       public readonly string TargetName;
+
+      /// <summary>
+      /// When true converts dates to local time, default = false which adjust dates to UTC
+      /// </summary>
+      public readonly bool LocalDates;
     }
 
 
@@ -259,7 +264,7 @@ namespace Azos.Serialization.JSON
         field = mfld.Key;
         var fv = mfld.Value;
 
-        //Multitargeting for deserialization to TypedDoc from JSON
+        //Multi-targeting for deserialization to TypedDoc from JSON
         Schema.FieldDef def;
         if (nameBinding.BindBy == NameBinding.By.CodeName)
           def = doc.Schema[field];
@@ -317,7 +322,6 @@ namespace Azos.Serialization.JSON
     {
       var fieldCustomHandler = JsonHandlerAttribute.TryFind(def.MemberInfo);
       var converted = cast(fv, def.Type, fromUI, nameBinding, fieldCustomHandler);
-      ////Console.WriteLine($"{def.Name} = {converted} ({(converted!=null ? converted.GetType().Name : "null")})");
 
       if (converted != null)
       {
@@ -383,8 +387,25 @@ namespace Azos.Serialization.JSON
       }
 
       var nntp = toType;
-      if (toType.IsGenericType && nntp.GetGenericTypeDefinition() == typeof(Nullable<>))
+      if (nntp.IsGenericType && nntp.GetGenericTypeDefinition() == typeof(Nullable<>))
         nntp = toType.GetGenericArguments()[0];
+
+
+      if (nntp==typeof(DateTime))
+      {
+        if (nameBinding.LocalDates)
+        {
+          var d = v.AsDateTime(System.Globalization.DateTimeStyles.AssumeLocal);
+         // if (d.Kind == DateTimeKind.Utc) d = d.ToLocalTime();
+          return d;
+        }
+        else //UTC (the default)
+        {
+          var d = v.AsDateTime(System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal);
+        //  if (d.Kind == DateTimeKind.Local) d = d.ToUniversalTime();
+          return d;
+        }
+      }
 
 
       //Custom JSON Readable (including config)
