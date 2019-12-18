@@ -66,7 +66,7 @@ namespace Azos.Security
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options) => JsonWriter.EncodeString(wri, ToString(), options);
 
-    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
       if (data == null) return (true, new SysAuthToken());
 

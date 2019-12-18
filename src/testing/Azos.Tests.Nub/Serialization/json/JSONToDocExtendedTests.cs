@@ -38,7 +38,7 @@ namespace Azos.Tests.Nub.Serialization
       public string Text;
       public int Length;
 
-      public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+      public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
       {
         if (data==null) return (false, this);
 
@@ -216,9 +216,9 @@ namespace Azos.Tests.Nub.Serialization
         Guid = Guid.NewGuid(),
         Atom = new Atom(),
         Timespan = TimeSpan.FromSeconds(123),
-        DateTime = new DateTime(1980, 2, 3),
+        DateTime = new DateTime(1980, 2, 3, 0,0,0, DateTimeKind.Utc),
         Nls = new NLSMap("{eng: {n: 'a', d: 'b'}}"),
-        DateRange = new DateRange(new DateTime(1980, 2, 2), new DateTime(1990, 3, 3)),
+        DateRange = new DateRange(new DateTime(1980, 2, 2,0,0,0,DateTimeKind.Utc), new DateTime(1990, 3, 3, 0,0,0, DateTimeKind.Utc)),
         Amount = new Amount("usd", 34.78m),
         Fid = new FID(1234),
         Metal = MetalType.Platinum,
@@ -334,7 +334,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Test_WithVariousNullableStructsDoc_DateTime()
     {
-      var d1 = new WithVariousNullableStructsDoc { DateTime = new DateTime(1980, 2, 3) };
+      var d1 = new WithVariousNullableStructsDoc { DateTime = new DateTime(1980, 2, 3,0,0,0, DateTimeKind.Utc) };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
       var map = json.JsonToDataObject() as JsonDataMap;
@@ -362,7 +362,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Test_WithVariousNullableStructsDoc_DateRange()
     {
-      var d1 = new WithVariousNullableStructsDoc { DateRange = new DateRange(new DateTime(1980, 2,2), new DateTime(1990,3,3)) };
+      var d1 = new WithVariousNullableStructsDoc { DateRange = new DateRange(new DateTime(1980, 2,2,0,0,0,DateTimeKind.Utc), new DateTime(1990,3,3,0,0,0,DateTimeKind.Utc)) };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       Console.WriteLine(json);
       var map = json.JsonToDataObject() as JsonDataMap;

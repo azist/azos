@@ -132,12 +132,12 @@ namespace Azos.Data.Directory
        );
     }
 
-    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
       if (data == null) return (true, null);
       if (data is JsonDataMap map)
       {
-        var (m, id) = ((IJsonReadable)Id).ReadAsJson(map["id"], fromUI, nameBinding);
+        var (m, id) = ((IJsonReadable)Id).ReadAsJson(map["id"], fromUI, options);
         if (!m) return (false, null);
 
         this.m_Id = (ItemId)id;
@@ -148,7 +148,7 @@ namespace Azos.Data.Directory
         m_LastUseUtc = map["lu"].AsDateTime(styles: System.Globalization.DateTimeStyles.AdjustToUniversal);
         SlidingExpirationMinutes = map["sx"].AsInt();
         Data = map["dat"].AsString();
-        (Index as IJsonReadable).ReadAsJson(map["idx"], fromUI, nameBinding);
+        (Index as IJsonReadable).ReadAsJson(map["idx"], fromUI, options);
 
         return (true, this);
       }

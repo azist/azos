@@ -79,8 +79,8 @@ namespace Azos.Serialization.JSON
     /// <param name="v">A value to cast, e.g. int, string or JsonDataMap or JsonDataArray</param>
     /// <param name="toType">Requested CLR type to cast into. The result must be assignment compatible with this type</param>
     /// <param name="fromUI">True when datagram comes from user interface</param>
-    /// <param name="nameBinding">Controls field name matching</param>
+    /// <param name="options">Controls field name matching</param>
     /// <returns>TypeCastResult which provides value and/or type</returns>
-    public abstract TypeCastResult TypeCastOnRead(object v, Type toType, bool fromUI, JsonReader.NameBinding nameBinding);
+    public abstract TypeCastResult TypeCastOnRead(object v, Type toType, bool fromUI, JsonReader.DocReadOptions options);
   }
 }

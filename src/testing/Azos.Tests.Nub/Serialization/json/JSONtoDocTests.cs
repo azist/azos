@@ -1101,7 +1101,7 @@ namespace Azos.Tests.Nub.Serialization
             }";
 
             var row = new RowWithTargetedNames();
-            JsonReader.ToDoc(row, str.JsonToDataObject() as JsonDataMap, nameBinding: JsonReader.NameBinding.ByBackendName(null));
+            JsonReader.ToDoc(row, str.JsonToDataObject() as JsonDataMap, options: JsonReader.DocReadOptions.BindByBackendName(null));
             Aver.AreEqual( "Ivan",    row.FirstName);
             Aver.AreEqual( "Kozelov", row.LastName);
             Aver.AreEqual( 123,       row.Age);
@@ -1114,7 +1114,7 @@ namespace Azos.Tests.Nub.Serialization
             }";
 
             row = new RowWithTargetedNames();
-            JsonReader.ToDoc(row, str.JsonToDataObject() as JsonDataMap, nameBinding: JsonReader.NameBinding.ByBackendName("MY-TARGET"));
+            JsonReader.ToDoc(row, str.JsonToDataObject() as JsonDataMap, options: JsonReader.DocReadOptions.BindByBackendName("MY-TARGET"));
             Aver.AreEqual( "Ivan",    row.FirstName);
             Aver.AreEqual( "Kozelov", row.LastName);
             Aver.AreEqual( 123,       row.Age);

@@ -319,7 +319,7 @@ namespace Azos.Tests.Nub.Serialization
             var row1 = new MySimpleData
             {
               Name = "Graf Orlov",
-              DOB = new DateTime(1980,12,11,19,23,11),
+              DOB = new DateTime(1980,12,11,19,23,11, DateTimeKind.Utc),
               Certified = true,
               ServiceYears = 37,
               Salary = 123455.8712m
@@ -340,7 +340,7 @@ namespace Azos.Tests.Nub.Serialization
             var row1 = new MySimpleAmorphousData
             {
               Name = "Graf Orlov",
-              DOB = new DateTime(1980,12,11,19,23,11),
+              DOB = new DateTime(1980,12,11,19,23,11, DateTimeKind.Utc),
               Certified = true,
               ServiceYears = 37,
               Salary = 123455.8712m
@@ -368,7 +368,7 @@ namespace Azos.Tests.Nub.Serialization
               D1 = new MySimpleData
               {
                 Name = "Graf Orlov",
-                DOB = new DateTime(1980,12,11,19,23,11),
+                DOB = new DateTime(1980,12,11,19,23,11, DateTimeKind.Utc),
                 Certified = true,
                 ServiceYears = 37,
                 Salary = 123455.8712m
@@ -376,7 +376,7 @@ namespace Azos.Tests.Nub.Serialization
               D2 = new MySimpleData
               {
                 Name = "Oleg Popov",
-                DOB = new DateTime(1981,11,01,14,08,19),
+                DOB = new DateTime(1981,11,01,14,08,19, DateTimeKind.Utc),
                 Certified = true,
                 ServiceYears = 37,
                 Salary = 123455.8712m
@@ -400,7 +400,7 @@ namespace Azos.Tests.Nub.Serialization
               D1 = new MySimpleData
               {
                 Name = "Graf Orlov",
-                DOB = new DateTime(1980,12,11,19,23,11),
+                DOB = new DateTime(1980,12,11,19,23,11, DateTimeKind.Utc),
                 Certified = true,
                 ServiceYears = 37,
                 Salary = 123455.8712m
@@ -428,7 +428,7 @@ namespace Azos.Tests.Nub.Serialization
                 new MySimpleData
                 {
                   Name = "Graf Orlov",
-                  DOB = new DateTime(1980,12,11,19,23,11),
+                  DOB = new DateTime(1980,12,11,19,23,11, DateTimeKind.Utc),
                   Certified = true,
                   ServiceYears = 37,
                   Salary = 123455.8712m
@@ -436,7 +436,7 @@ namespace Azos.Tests.Nub.Serialization
                 new MySimpleData
                 {
                   Name = "Oleg Popov",
-                  DOB = new DateTime(1981,11,01,14,08,19),
+                  DOB = new DateTime(1981,11,01,14,08,19, DateTimeKind.Utc),
                   Certified = true,
                   ServiceYears = 37,
                   Salary = 123455.8712m
@@ -462,7 +462,7 @@ namespace Azos.Tests.Nub.Serialization
                 new MySimpleData
                 {
                   Name = "Graf Orlov",
-                  DOB = new DateTime(1980,12,11,19,23,11),
+                  DOB = new DateTime(1980,12,11,19,23,11, DateTimeKind.Utc),
                   Certified = true,
                   ServiceYears = 37,
                   Salary = 123455.8712m
@@ -470,7 +470,7 @@ namespace Azos.Tests.Nub.Serialization
                 new MySimpleData
                 {
                   Name = "Oleg Popov",
-                  DOB = new DateTime(1981,11,01,14,08,19),
+                  DOB = new DateTime(1981,11,01,14,08,19, DateTimeKind.Utc),
                   Certified = true,
                   ServiceYears = 37,
                   Salary = 123455.8712m

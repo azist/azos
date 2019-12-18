@@ -124,7 +124,7 @@ namespace Azos.Tests.Nub.Serialization.json
     public void Doc_LocalDates_fromLocal()
     {
       var json = "{date: '1985-12-31T23:59:53-05:00', ndate: null}";
-      var doc = JsonReader.ToDoc<DateDoc>(json, nameBinding: new JsonReader.NameBinding(JsonReader.NameBinding.By.CodeName,null, localDates: true));
+      var doc = JsonReader.ToDoc<DateDoc>(json, options: new JsonReader.DocReadOptions(JsonReader.DocReadOptions.By.CodeName,null, localDates: true));
       Aver.IsNotNull(doc);
       doc.Date.See("Kind: "+doc.Date.Kind);
 
@@ -143,7 +143,7 @@ namespace Azos.Tests.Nub.Serialization.json
     public void Doc_UTCDates_fromLocal_1()
     {
       var json = "{date: '1985-12-31T23:59:53-05:00', ndate: null}"; //notice that date is supplied with -5:00 local timezone
-      var doc = JsonReader.ToDoc<DateDoc>(json, nameBinding: new JsonReader.NameBinding(JsonReader.NameBinding.By.CodeName, null, localDates: false));
+      var doc = JsonReader.ToDoc<DateDoc>(json, options: new JsonReader.DocReadOptions(JsonReader.DocReadOptions.By.CodeName, null, localDates: false));
       Aver.IsNotNull(doc);
       doc.Date.See("Kind: " + doc.Date.Kind);
 
@@ -162,7 +162,7 @@ namespace Azos.Tests.Nub.Serialization.json
     public void Doc_UTCDates_fromLocal_2()
     {
       var json = "{date: '1985-12-31T23:59:53-07:30', ndate: null}"; //notice that date is supplied with -7:30 local timezone
-      var doc = JsonReader.ToDoc<DateDoc>(json, nameBinding: new JsonReader.NameBinding(JsonReader.NameBinding.By.CodeName, null, localDates: false));
+      var doc = JsonReader.ToDoc<DateDoc>(json, options: new JsonReader.DocReadOptions(JsonReader.DocReadOptions.By.CodeName, null, localDates: false));
       Aver.IsNotNull(doc);
       doc.Date.See("Kind: " + doc.Date.Kind);
 
@@ -181,7 +181,7 @@ namespace Azos.Tests.Nub.Serialization.json
     public void Doc_UTCDates_fromUTC()
     {
       var json = "{date: '1985-12-31T23:59:53Z', ndate: null}";
-      var doc = JsonReader.ToDoc<DateDoc>(json, nameBinding: new JsonReader.NameBinding(JsonReader.NameBinding.By.CodeName, null, localDates: false));
+      var doc = JsonReader.ToDoc<DateDoc>(json, options: new JsonReader.DocReadOptions(JsonReader.DocReadOptions.By.CodeName, null, localDates: false));
       Aver.IsNotNull(doc);
       doc.Date.See("Kind: " + doc.Date.Kind);
 

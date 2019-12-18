@@ -97,7 +97,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
     {
       var comparer = new DocLogicalComparer();
 
-      var d1 = new Doc2() { S1 = "in d1", B1 = true, I1 = 1234, DT1 =new DateTime(1980, 09, 15), NI1 = null, NL1 = 9_000_000_000L, S2 = null, NDT1 = null };
+      var d1 = new Doc2() { S1 = "in d1", B1 = true, I1 = 1234, DT1 =new DateTime(1980, 09, 15, 0,0,0,DateTimeKind.Utc), NI1 = null, NL1 = 9_000_000_000L, S2 = null, NDT1 = null };
 
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
 
@@ -119,7 +119,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
       var d1 = new Doc3
       {
         D1 = new Doc1{ S1 = "asdf"},
-        D2 = new Doc2() { S1 = "in d1", B1 = true, I1 = 1234, DT1 = new DateTime(1980, 09, 15), NI1 = null, NL1 = 9_000_000_000L, S2 = null, NDT1 = null }
+        D2 = new Doc2() { S1 = "in d1", B1 = true, I1 = 1234, DT1 = new DateTime(1980, 09, 15, 0, 0, 0, DateTimeKind.Utc), NI1 = null, NL1 = 9_000_000_000L, S2 = null, NDT1 = null }
       };
 
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
@@ -142,7 +142,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
       var d1 = new Doc4
       {
         COL1 = new[]{ null, null, new Doc1 { S1 = "asdf" }, new Doc1 { S1 = "forgfoot" }, new Doc1 { S1 = "eat borsch!" } },
-        COL2 = new[]{ new Doc2() { S1 = "in d1", B1 = true, I1 = 1234, DT1 = new DateTime(1980, 09, 15), NI1 = null, NL1 = 9_000_000_000L, S2 = null, NDT1 = null }}
+        COL2 = new[]{ new Doc2() { S1 = "in d1", B1 = true, I1 = 1234, DT1 = new DateTime(1980, 09, 15, 0, 0, 0, DateTimeKind.Utc), NI1 = null, NL1 = 9_000_000_000L, S2 = null, NDT1 = null }}
       };
 
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
@@ -165,7 +165,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
       var d1 = new Doc5
       {
         COL1 = new List<Doc1> { null, null, new Doc1 { S1 = "asdf" }, new Doc1 { S1 = "forgfoot" }, new Doc1 { S1 = "eat borsch!" } },
-        COL2 = new List<Doc2> { new Doc2() { S1 = "in d1", B1 = true, I1 = 1234, DT1 = new DateTime(1980, 09, 15), NI1 = null, NL1 = 9_000_000_000L, S2 = null, NDT1 = null } }
+        COL2 = new List<Doc2> { new Doc2() { S1 = "in d1", B1 = true, I1 = 1234, DT1 = new DateTime(1980, 09, 15, 0, 0, 0, DateTimeKind.Utc), NI1 = null, NL1 = 9_000_000_000L, S2 = null, NDT1 = null } }
       };
 
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
@@ -189,7 +189,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
       var d1 = new Doc5
       {
         COL1 = new List<Doc1> { null, null, new Doc1 { S1 = "asdf" }, new Doc1 { S1 = "forgfoot" }, new Doc1 { S1 = "eat borsch!" } },
-        COL2 = new List<Doc2> { new Doc2() { S1 = "in d1", B1 = true, I1 = 1234, DT1 = new DateTime(1980, 09, 15), NI1 = null, NL1 = 9_000_000_000L, S2 = null, NDT1 = null } }
+        COL2 = new List<Doc2> { new Doc2() { S1 = "in d1", B1 = true, I1 = 1234, DT1 = new DateTime(1980, 09, 15, 0, 0, 0, DateTimeKind.Utc), NI1 = null, NL1 = 9_000_000_000L, S2 = null, NDT1 = null } }
       };
 
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);

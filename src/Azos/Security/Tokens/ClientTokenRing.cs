@@ -96,7 +96,7 @@ namespace Azos.Security.Tokens
       TToken content = null;
       try
       {
-        content = JsonReader.ToDoc<TToken>(deciphered, nameBinding: JsonReader.NameBinding.ByBackendName(RingToken.PROTECTED_MSG_TARGET));
+        content = JsonReader.ToDoc<TToken>(deciphered, options: JsonReader.DocReadOptions.BindByBackendName(RingToken.PROTECTED_MSG_TARGET));
       }
       catch(Exception error)
       {

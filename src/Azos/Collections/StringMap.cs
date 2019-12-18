@@ -112,7 +112,7 @@ namespace Azos.Collections
       JsonWriter.WriteMap(wri, m_Data, nestingLevel, options);
     }
 
-    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
       if (data==null) return (true, null);
       if (data is JsonDataMap map)

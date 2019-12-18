@@ -82,7 +82,7 @@ namespace Azos.Tests.Nub.Serialization
     //Shows how to handle custom deserialization via a "policy" embodied in a custom handler
     public class Struct1Handler : JsonHandlerAttribute
     {
-      public override TypeCastResult TypeCastOnRead(object v, Type toType, bool fromUI, JsonReader.NameBinding nameBinding)
+      public override TypeCastResult TypeCastOnRead(object v, Type toType, bool fromUI, JsonReader.DocReadOptions options)
       {
         if (v is JsonDataMap map)
         {
@@ -102,7 +102,7 @@ namespace Azos.Tests.Nub.Serialization
 
     public class Struct2Handler : JsonHandlerAttribute
     {
-      public override TypeCastResult TypeCastOnRead(object v, Type toType, bool fromUI, JsonReader.NameBinding nameBinding)
+      public override TypeCastResult TypeCastOnRead(object v, Type toType, bool fromUI, JsonReader.DocReadOptions options)
       {
         if (v is JsonDataMap map)
         {
@@ -134,7 +134,7 @@ namespace Azos.Tests.Nub.Serialization
 
     public class EntityHandler : JsonHandlerAttribute
     {
-      public override TypeCastResult TypeCastOnRead(object v, Type toType, bool fromUI, JsonReader.NameBinding nameBinding)
+      public override TypeCastResult TypeCastOnRead(object v, Type toType, bool fromUI, JsonReader.DocReadOptions options)
       {
         if (v is JsonDataMap map)
         {

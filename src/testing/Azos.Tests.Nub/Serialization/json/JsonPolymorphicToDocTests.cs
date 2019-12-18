@@ -327,7 +327,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       public const string TYPE_MONIKER = "$type";
 
-      public override TypeCastResult TypeCastOnRead(object v, Type toType, bool fromUI, JsonReader.NameBinding nameBinding)
+      public override TypeCastResult TypeCastOnRead(object v, Type toType, bool fromUI, JsonReader.DocReadOptions options)
       {
         if (v is JsonDataMap map)
         {

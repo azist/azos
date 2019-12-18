@@ -270,7 +270,7 @@ namespace Azos
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     => JsonWriter.EncodeString(wri, IsZero ? "#0" : Value, options);
 
-    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
       if (data==null) return (true, Atom.ZERO);
 

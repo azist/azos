@@ -702,13 +702,13 @@ namespace Azos.Data
     /// </summary>
     /// <param name="data">Data to deserialize, must be JsonDataMap to succeed</param>
     /// <param name="fromUI">True is passed when the deserialization is coming from a datagram supplied by user interface</param>
-    /// <param name="nameBinding">Specifies how to bind names</param>
+    /// <param name="options">Specifies how to bind names</param>
     /// <returns>Tuple of (bool match, IJsonReadable self)</returns>
-    public virtual (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    public virtual (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
       if (data is JsonDataMap map)
       {
-        JsonReader.ToDoc(this, map, fromUI, nameBinding);
+        JsonReader.ToDoc(this, map, fromUI, options);
         return (true, this);
       }
       return (false, this);

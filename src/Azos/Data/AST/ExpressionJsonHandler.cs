@@ -21,7 +21,7 @@ namespace Azos.Data.AST
       {nameof(BinaryExpression.RightOperand),   typeof(BinaryExpression)}
     };
 
-    public override TypeCastResult TypeCastOnRead(object v, Type toType, bool fromUI, JsonReader.NameBinding nameBinding)
+    public override TypeCastResult TypeCastOnRead(object v, Type toType, bool fromUI, JsonReader.DocReadOptions options)
     {
       if (v is JsonDataMap map)
       {
