@@ -415,13 +415,11 @@ namespace Azos.Serialization.JSON
         if (options.LocalDates)
         {
           var d = v.AsDateTime(System.Globalization.DateTimeStyles.AssumeLocal);
-         // if (d.Kind == DateTimeKind.Utc) d = d.ToLocalTime();
           return d;
         }
         else //UTC (the default)
         {
           var d = v.AsDateTime(System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal);
-        //  if (d.Kind == DateTimeKind.Local) d = d.ToUniversalTime();
           return d;
         }
       }
