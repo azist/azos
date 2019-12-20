@@ -407,6 +407,10 @@ namespace Azos.Log
 
   public static class MessageExtensions
   {
+    /// <summary>
+    /// Passes through an existing log message if it is null, does not have exception, or has exception set to WrappedException instance already,
+    /// otherwise clones the message into a new instance wrapping the Exception as WrappedException
+    /// </summary>
     public static Message ThisOrNewSafeWrappedException(this Message msg, bool captureStack = true)
     {
       if (msg == null || msg.Exception == null || msg.Exception is WrappedException) return msg;

@@ -93,7 +93,7 @@ namespace Azos.Collections
     [Config] public int CountLimit{  get; set; }
 
     /// <summary>
-    /// Whens set to a value &gt;0 imposes a limit on the total size of all items in this queue.
+    /// When set to a value &gt;0 imposes a limit on the total size of all items in this queue.
     /// The size is measured in relative units (see GetSize(T) override)
     /// </summary>
     [Config] public long SizeLimit{  get; set; }

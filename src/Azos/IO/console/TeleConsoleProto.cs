@@ -42,7 +42,7 @@ namespace Azos.IO.Console
 
 
     /// <summary> Returns an approximate size in relative units (e.g. `chars`) used to estimate memory requirements</summary>
-    public int Size => Text != null ? Text.Length : 0;
+    public int Size => Text!=null ? Text.Length : 0;//This is slower: Text?.Length ?? 0;
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {

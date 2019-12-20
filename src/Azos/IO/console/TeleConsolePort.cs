@@ -63,6 +63,22 @@ namespace Azos.IO.Console
     [Config(Default = 99)]
     public int LogDetail {  get; set; } = 99;//log all
 
+    /// <summary>
+    /// Specifies how to handle the case when limit is reached: Lose old data, lose new (over the limit) data, or throw
+    /// </summary>
+    [Config] public QueueLimitHandling LimitHandling { get => m_Queue.Handling; set => m_Queue.Handling = value; }
+
+    /// <summary>
+    /// When set to a number &gt;0 imposes a limit on the count of TeleConsoleMsg instances in this queue
+    /// </summary>
+    [Config] public int CountLimit { get => m_Queue.CountLimit; set => m_Queue.CountLimit = value; }
+
+    /// <summary>
+    /// When set to a value &gt;0 imposes a limit on the total size of all TeleConsoleMsg instances in this queue.
+    /// The size is measured in relative units based on TeleConsoleMsg.Text.Length
+    /// </summary>
+    [Config] public long SizeLimit { get => m_Queue.SizeLimit; set => m_Queue.SizeLimit = value; }
+
 
     public IConsoleOut GetOrCreate(string name)
      =>  m_Outs.GetOrRegister(name, n => new TeleConsoleOut(this, n));
