@@ -11,7 +11,7 @@ namespace Azos
 {
   /// <summary>
   /// Call guard exceptions thrown by the framework to indicate violations of value constraints.
-  /// Guards are typically applied to method parameters
+  /// Guards are typically applied to method parameters in a fluent manner
   /// </summary>
   [Serializable]
   public class CallGuardException : AzosException, IHttpStatusProvider
@@ -139,6 +139,27 @@ namespace Azos
                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
       }
       return obj;
+    }
+
+
+    /// <summary>
+    /// Ensures that a nullable value-typed value is not null
+    /// </summary>
+    public static Nullable<T> NonNull<T>(this Nullable<T> value,
+                               string name = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null) where T : struct
+    {
+      if (!value.HasValue)
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_PARAMETER_MAY_NOT_BE_NULL_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+      }
+      return value;
     }
 
     /// <summary>

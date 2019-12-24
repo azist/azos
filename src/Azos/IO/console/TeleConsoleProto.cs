@@ -110,8 +110,6 @@ namespace Azos.IO.Console
     /// The data may not have newline characters (they have to be escaped)
     /// </summary>
     [Field] public string DataJsonLine { get; private set; }
-
   }
-
 
 }
