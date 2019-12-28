@@ -22,9 +22,10 @@ namespace Azos.Data
     /// <summary>
     /// Validates data document using schema/supplied field definitions.
     /// Override to perform custom validations,
-    /// i.e. TypeDocs may directly access properties and write some validation type-safe code
-    /// The method is not expected to throw exception in case of failed validation, rather return exception instance because
-    ///  throwing exception really hampers validation performance when many docs/rows need to be validated
+    /// i.e. TypeDocs may directly access properties and write some validation type-safe code.
+    /// The method is not expected to throw exception in case of failed business logic validation, rather return exception instance because
+    ///  throwing exception really hampers validation performance when many docs/rows need to be validated.
+    /// The thrown exception indicates an unexpected condition/a bug in the validation logic itself.
     /// </summary>
     public virtual Exception Validate(string targetName)
     {
@@ -195,7 +196,7 @@ namespace Azos.Data
         {
           var fv = value.ToString();
           if (!parsed.ContainsKey(fv))
-            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(16, "..")));
+            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(9, "..")));
         }
       }
 
@@ -205,7 +206,7 @@ namespace Azos.Data
       {
         var fv = value.ToString();
         if (!dynValueList.ContainsKey(fv))
-          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(16, "..")));
+          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(9, "..")));
       }
 
       return null;

@@ -83,7 +83,7 @@ namespace Azos.Tests.Nub.DataAccess
 
     public class ValListDoc : TypedDoc
     {
-      [Field(description: "Common description", valueList:"a:apple, b:banana, z:zukini")]
+      [Field(description: "Common description", valueList:"a:apple, b:banana, z|zuk:zukini")]
       [Field("L1", null, ValueList = @"
         a:  advaita,
         c:  cherry  ,
@@ -109,25 +109,28 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsNotNull(def2);
 
       Aver.AreEqual("Common description", def1[null].Description);
-      Aver.AreEqual(3, def1[null].ParseValueList().Count);
+      Aver.AreEqual(4, def1[null].ParseValueList().Count);
       Aver.AreEqual("apple", def1[null].ParseValueList()["a"].AsString());
       Aver.AreEqual("banana", def1[null].ParseValueList()["b"].AsString());
       Aver.AreEqual("zukini", def1[null].ParseValueList()["z"].AsString());
+      Aver.AreEqual("zukini", def1[null].ParseValueList()["zuk"].AsString());
       Aver.IsNull(def1[null].Default);
 
       Aver.AreEqual("Common description", def1["L1"].Description);
-      Aver.AreEqual(3, def1["L1"].ParseValueList().Count);
+      Aver.AreEqual(4, def1["L1"].ParseValueList().Count);
       Aver.AreEqual("advaita", def1["L1"].ParseValueList()["a"].AsString());
       Aver.AreEqual("banana", def1["L1"].ParseValueList()["b"].AsString());
       Aver.AreEqual("cherry", def1["L1"].ParseValueList()["c"].AsString());
+      Aver.AreEqual("zukini", def1["L1"].ParseValueList()["zuk"].AsString());
       Aver.IsNull(def1["L1"].Default);
 
       Aver.AreEqual("luna", def1["L2"].Description);
-      Aver.AreEqual(4, def1["L2"].ParseValueList().Count);
+      Aver.AreEqual(5, def1["L2"].ParseValueList().Count);
       Aver.AreEqual("advaita", def1["L2"].ParseValueList()["a"].AsString());
       Aver.AreEqual("banana", def1["L2"].ParseValueList()["b"].AsString());
       Aver.AreEqual("cherry", def1["L2"].ParseValueList()["c"].AsString());
       Aver.AreEqual("zoom", def1["L2"].ParseValueList()["z"].AsString());
+      Aver.AreEqual("zukini", def1["L2"].ParseValueList()["zuk"].AsString());
       Aver.AreEqual("Uncle Toad", def1["L2"].Default as string);
 
       Aver.AreEqual("About2", def2[null].Description);

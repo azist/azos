@@ -757,6 +757,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string CRUD_FIELD_ATTR_PROTOTYPE_CTOR_ERROR = "Field attribute construction from prototype error: {0}";
 
+    public const string CRUD_FIELD_VALUE_LIST_DUP_ERROR = "Value list `{0}..` contains a duplicate key `{1}`";
+
     public const string CRUD_TYPED_DOC_RECURSIVE_FIELD_DEFINITION_ERROR = "TypedDoc '{0}' recursive field definition. Check for [Field(prototype..)] cycle";
 
     public const string CRUD_TYPED_DOC_SINGLE_CLONED_FIELD_ERROR = "TypedDoc '{0}' defines field clone via [Field(....)]]'{1}' in which case only a single [Field(....)] decoration is allowed";

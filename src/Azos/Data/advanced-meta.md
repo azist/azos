@@ -183,11 +183,11 @@ The **cyclical references** are not allowed *(detected and thrown at runtime)*.
 Derivation becomes even more appreciated when one needs to override/merge/mix-in complex structured values. This is used for `ValueList` and 
 `MetadataContent` properties. Lets look at the example:
 ```csharp
- [Field(valueList: "a: apple, b: borland, m: microsoft")]
- [Field("newAge","*", ValueList = "a: #del#, i: ibm")]// only inherited [b,m] remain in the list, [i] is added => [b,m,i]
+ [Field(valueList: "a|apl: apple, b: borland, m: microsoft")]
+ [Field("newAge","*", ValueList = "a: #del#, i: ibm")]// only inherited [apl, b,m] remain in the list, [i] is added => [apl, b,m,i]
  public string Hardcoded{ get; set;}
 ```
-The second field declaration erases "a" key and adds "i" for "ibm" value. The keys are deleted using "#del#" reserved value.
+The second field declaration erases "a" key *(but keeps its alias "apl")* and adds "i" for "ibm" value. The keys are deleted using "#del#" reserved value.
 As a side note, notice that the second line references the first one by `ANY_TARGET` moniker '*' (you could pass null instead).
 Any existing keys get replaced by newer once (overridden).
 
@@ -327,6 +327,54 @@ Example:
   }
 
 ```
+
+## Value Lists
+Value lists represent a set (as the name implies) of applicable field values.
+Value lists have finite number of typically hard-coded (by declaration) choices, such as codes, enums etc.
+Value lists are typically used as a source of drop-down choices in UI controls (views).
+The value list gets consulted with by `doc.Validate()`: a field value may not be present in an
+acceptable `valueList` set - this is a validation error.
+
+You should not use value lists for indefinite number of values such as values obtained from database
+of unknown length - these cases need to be validated using custom logic (via module dep injection).
+Value lists contain a well-defined small set of values, typically less than 20 values.
+
+> We have used this system with 100+ hard-coded 3-char codes for government-defined forms just fine *(e.g. NCPDP Claim Data)*
+
+There are two ways of specifying value lists for fields: **declarative** and **imperative**.
+
+**Important:** both ways of obtaining field value lists support multi-targeting - that is: you can return different values depending on 
+a target of applicability *(see multi targeting above)*
+
+**Declaratively**, you specify acceptable value lists using `[Field]` attribute:
+```csharp
+  [Field(valueList: "a|apl: apple, b: banana")]
+  public string Fruit....
+```
+
+The list is a string having its items delimited by either `","` or `";"`. The `key:values` are delimited by `":"`. Extra spaces is trimmed.
+You can provide alternate keys using `"|"` sub delimiter - notice the use of `"|"` pipe in the above key specification which is
+analogous to re-declaring the entry with the same description more than once using different keys. 
+This is very useful for hard-coded form codes like: `1|01: Normal benefit coverage span` *(e.g. in EDI standard)*
+
+**Imperatively**, you can get value list from logic/modules which typically get the values from database.
+To do this, you can override data `Doc` method:
+
+```csharp
+ [Inject] ILookupLogic m_Lookups;
+ ...
+ public override JsonDataMap GetDynamicFieldValueList(Schema.FieldDef fdef, string targetName, string isoLang)
+ {
+  if (fdef.Name=nameof(MyField)) 
+    return m_Lookups.GetMyFieldValueList(targetName, isoLang);
+  else
+    return base.GetDynamicFieldValueList(fdef, targetName, isoLang);
+ }
+```
+
+
+
+
 
 
 

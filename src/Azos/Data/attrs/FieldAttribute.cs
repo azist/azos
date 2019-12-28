@@ -354,6 +354,15 @@ namespace Azos.Data
       }
     }
 
+
+    public const char VALUE_LIST_SEPARATOR_1 = ',';
+    public const char VALUE_LIST_SEPARATOR_2 = ';';
+    public const char VALUE_LIST_ALT_KEY_SEPARATOR = '|';
+
+    private static readonly char[] VALUE_LIST_SEPARATORS = new[]{ VALUE_LIST_SEPARATOR_1 , VALUE_LIST_SEPARATOR_2 };
+    private static readonly char[] VALUE_LIST_ALT_KEY_SEPARATORS = new[] { VALUE_LIST_ALT_KEY_SEPARATOR };
+
+
     /// <summary>
     /// Returns a string parsed into key values as:  'val1: descr1, val2: desc2...'
     /// The spec: The values are separated with comma, pipe or semicolon having key names separated by colon from descriptions
@@ -363,13 +372,33 @@ namespace Azos.Data
       var result = new JsonDataMap(caseSensitiveKeys);
       if (valueList.IsNullOrWhiteSpace()) return result;
 
-      var segs = valueList.Split(',','|',';');
+      var segs = valueList.Split(VALUE_LIST_SEPARATORS, StringSplitOptions.RemoveEmptyEntries);
       foreach(var seg in segs)
       {
+        if (seg.IsNullOrWhiteSpace()) continue;
+
         var i = seg.LastIndexOf(':');
-        if (i>0&&i<seg.Length-1) result[seg.Substring(0,i).Trim()] = seg.Substring(i+1).Trim();
-        else
-          result[seg] = seg;
+        var key = seg.Trim();
+        var val = key;
+
+        if (i>0 && i<seg.Length-1)
+        {
+          key = seg.Substring(0, i).Trim();
+          val = seg.Substring(i+1).Trim();
+        }
+
+        var altkeys = key.Split(VALUE_LIST_ALT_KEY_SEPARATORS, StringSplitOptions.RemoveEmptyEntries);
+        foreach(var altkey in altkeys)
+        {
+          if (altkey.IsNullOrWhiteSpace()) continue;
+
+          var ak = altkey.Trim();
+
+          if (result.ContainsKey(ak))
+            throw new DataException(StringConsts.CRUD_FIELD_VALUE_LIST_DUP_ERROR.Args(valueList.TakeFirstChars(32), ak));
+
+          result[ak] = val;
+        }
       }
 
       return result;

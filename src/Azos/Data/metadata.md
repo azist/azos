@@ -110,7 +110,7 @@ The following table describes `FieldAttribute` properties (that is: metadata for
  kind |DataKind| Specifies data kinds such as: `Text, ScreenName, Color, Date, DateTime, DateTimeLocal, EMail, Month, Number, Range, Money, Search, Telephone, Time, Url, Week`
  required|bool| True to indicate that field must have a non-null value
  visible|bool| True indicates that field is shown on the UI (used for MVVM)
-valueList|string| A delimited list of permissible lookup values (lookup dictionary)
+valueList|string| A delimited list of permissible lookup values (lookup dictionary). List values are separated with either comma or semicolon having keys delimited from value with colons. Example: `"a: apple, b: banana"` or `"a:apple;b:banana"`. You can separate alternate keys with pipes, example: `"01|1|one: Choice one;02|2|two: Choice two"`
 dflt|object|Default field value (if any)
 min|object|Minimum allowed value or null
 max|object|Maximum allowed value or null
