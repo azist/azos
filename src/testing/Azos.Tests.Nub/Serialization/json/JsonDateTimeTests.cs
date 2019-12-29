@@ -96,7 +96,7 @@ namespace Azos.Tests.Nub.Serialization.json
     [Run]
     public void Doc_DefaultUTC_fromUTC_2()
     {
-      var json = "{date: '1985-12-31T23:59:53Z', ndate: '1985-12-31T23:59:53-05:00'}";
+      var json = "{date: '1985-12-31T23:59:53Z', ndate: '1985-12-31T23:59:53-03:00'}";
       var doc = JsonReader.ToDoc<DateDoc>(json);
       Aver.IsNotNull(doc);
       doc.See();
@@ -111,51 +111,58 @@ namespace Azos.Tests.Nub.Serialization.json
       Aver.AreEqual(59, doc.Date.Minute);
       Aver.AreEqual(53, doc.Date.Second);
 
+      var date = new DateTime(1985, 12, 31, 23, 59, 53, DateTimeKind.Utc).AddHours(+3);//UTC equivalent of json
+
       Aver.IsTrue(DateTimeKind.Utc == doc.NDate.Value.Kind);//second one is local but converted to UTC as asked for
-      Aver.AreEqual(1986, doc.NDate.Value.Year);
-      Aver.AreEqual(1, doc.NDate.Value.Month);
-      Aver.AreEqual(1, doc.NDate.Value.Day);
-      Aver.AreEqual(4, doc.NDate.Value.Hour);//offset by +5 hrs
-      Aver.AreEqual(59, doc.NDate.Value.Minute);
-      Aver.AreEqual(53, doc.NDate.Value.Second);
+      Aver.AreEqual(date.Year, doc.NDate.Value.Year);
+      Aver.AreEqual(date.Month, doc.NDate.Value.Month);
+      Aver.AreEqual(date.Day, doc.NDate.Value.Day);
+      Aver.AreEqual(date.Hour, doc.NDate.Value.Hour);
+      Aver.AreEqual(date.Minute, doc.NDate.Value.Minute);
+      Aver.AreEqual(date.Second, doc.NDate.Value.Second);
     }
 
     [Run]
     public void Doc_LocalDates_fromLocal()
     {
-      var json = "{date: '1985-12-31T23:59:53-05:00', ndate: null}";
+      var json = "{date: '1985-12-31T23:59:53-01:00', ndate: null}";
       var doc = JsonReader.ToDoc<DateDoc>(json, options: new JsonReader.DocReadOptions(JsonReader.DocReadOptions.By.CodeName,null, localDates: true));
       Aver.IsNotNull(doc);
       doc.Date.See("Kind: "+doc.Date.Kind);
 
       Aver.IsNull(doc.NDate);
 
+      var date = new DateTime(1985, 12, 31, 23, 59, 53, DateTimeKind.Utc).AddHours(+1);//UTC equivalent of json
+      date = TimeZoneInfo .ConvertTimeFromUtc(date, TimeZoneInfo.Local);
+
       Aver.IsTrue(DateTimeKind.Local == doc.Date.Kind);//asked for local date and got local
-      Aver.AreEqual(1985, doc.Date.Year);
-      Aver.AreEqual(12, doc.Date.Month);
-      Aver.AreEqual(31, doc.Date.Day);
-      Aver.AreEqual(23, doc.Date.Hour);
-      Aver.AreEqual(59, doc.Date.Minute);
-      Aver.AreEqual(53, doc.Date.Second);
+      Aver.AreEqual(date.Year, doc.Date.Year);
+      Aver.AreEqual(date.Month, doc.Date.Month);
+      Aver.AreEqual(date.Day, doc.Date.Day);
+      Aver.AreEqual(date.Hour, doc.Date.Hour);
+      Aver.AreEqual(date.Minute, doc.Date.Minute);
+      Aver.AreEqual(date.Second, doc.Date.Second);
     }
 
     [Run]
     public void Doc_UTCDates_fromLocal_1()
     {
-      var json = "{date: '1985-12-31T23:59:53-05:00', ndate: null}"; //notice that date is supplied with -5:00 local timezone
+      var json = "{date: '1985-12-31T23:59:53-04:00', ndate: null}"; //notice that date is supplied with -5:00 local timezone
       var doc = JsonReader.ToDoc<DateDoc>(json, options: new JsonReader.DocReadOptions(JsonReader.DocReadOptions.By.CodeName, null, localDates: false));
       Aver.IsNotNull(doc);
       doc.Date.See("Kind: " + doc.Date.Kind);
 
       Aver.IsNull(doc.NDate);
 
+      var date = new DateTime(1985, 12, 31, 23, 59, 53, DateTimeKind.Utc).AddHours(+4);//UTC equivalent of json
+
       Aver.IsTrue(DateTimeKind.Utc == doc.Date.Kind);//asked for UTC
-      Aver.AreEqual(1986, doc.Date.Year);
-      Aver.AreEqual(1, doc.Date.Month);
-      Aver.AreEqual(1, doc.Date.Day);
-      Aver.AreEqual(4, doc.Date.Hour);//offset by +5 hrs
-      Aver.AreEqual(59, doc.Date.Minute);
-      Aver.AreEqual(53, doc.Date.Second);
+      Aver.AreEqual(date.Year, doc.Date.Year);
+      Aver.AreEqual(date.Month, doc.Date.Month);
+      Aver.AreEqual(date.Day, doc.Date.Day);
+      Aver.AreEqual(date.Hour, doc.Date.Hour);
+      Aver.AreEqual(date.Minute, doc.Date.Minute);
+      Aver.AreEqual(date.Second, doc.Date.Second);
     }
 
     [Run]
