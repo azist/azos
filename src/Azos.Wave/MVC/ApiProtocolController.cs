@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,11 +16,17 @@ namespace Azos.Wave.Mvc
   )]
   public abstract class ApiProtocolController : Controller
   {
+    /// <summary>
+    /// Common NoCache Api doc entry
+    /// </summary>
     public const string API_DOC_HDR_NO_CACHE = "NoCache: pragma no cache";
 
 
     /// <summary>
-    /// Applies the filter to the data store returning JSON result
+    /// Applies the filter to the data store returning JSON result.
+    /// Note:
+    ///  this method does not return 404 if filter yields no results, this is because 404 would indicate an absence
+    /// of the filter resource (filter not found), whereas an empty filter result is returned as HTTP 200 with an empty/null result array/object.
     /// </summary>
     protected async Task<object> ApplyFilter<TFilter>(TFilter filter) where TFilter : class, IBusinessFilterModel
     {
@@ -64,7 +71,7 @@ namespace Azos.Wave.Mvc
     }
 
     /// <summary>
-    /// Analyzes the result of a logic call and returns either JSON {OK=true|false} with HTP status 404 when nothing is returned
+    /// Analyzes the result of a logic call and returns either JSON {OK=true|false} with HTTP status 404 when nothing is returned
     /// </summary>
     public async Task<object> GetLogicResult<T>(Task<T> result)
     {
@@ -72,9 +79,10 @@ namespace Azos.Wave.Mvc
       var is404 = data == null;
       if (!is404)
       {
-        var en = data as IEnumerable<object>;
-
-        is404 = en != null && !en.Any();
+        //20191228 JPK+DKh warning:
+        //IEnumerable<struct> is not assignable to IEnumerable<object> see issue #224
+        var en = data as IEnumerable;
+        is404 = en != null && !en.Cast<object>().Any();
       }
 
       if (is404)

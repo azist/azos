@@ -20,7 +20,7 @@ namespace Azos.Data
   public enum FormMode { Unspecified = 0, Insert, Update, Delete}
 
   /// <summary>
-  /// Struct returned from Form.Save()
+  /// Struct returned from Form.Save(): it is either an error (IsSuccess==false), or TResult
   /// </summary>
   public struct SaveResult<TResult>
   {
