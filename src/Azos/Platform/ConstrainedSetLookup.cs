@@ -21,7 +21,7 @@ namespace Azos.Platform
   public sealed class ConstrainedSetLookup<TKey, TValue>
   {
     private object m_Lock = new object();
-    private volatile Dictionary<TKey, TValue> m_Data = new Dictionary<TKey, TValue>();
+    private volatile Dictionary<TKey, TValue> m_Data;
 
     /// <summary>
     /// Creates an instance of ConstrainedSetLookup. The instance is thread safe and it may be beneficial
@@ -31,7 +31,15 @@ namespace Azos.Platform
     /// References the functor which gets called on addition of items when their keys do not exist in the set yet.
     /// The functor is invoked under the lock and must not have any side-effects and be relatively efficient (must not have any long (50ms+) blocking code)
     /// </param>
-    public ConstrainedSetLookup(Func<TKey, TValue> addItem) => AddItem = addItem.NonNull(nameof(addItem));
+    /// <param name="comparer">
+    /// Optional Key equality comparer
+    /// </param>
+    public ConstrainedSetLookup(Func<TKey, TValue> addItem, IEqualityComparer<TKey> comparer = null)
+    {
+      AddItem = addItem.NonNull(nameof(addItem));
+      m_Data = comparer == null ? new Dictionary<TKey, TValue>() : m_Data = new Dictionary<TKey, TValue>(comparer);
+      Thread.MemoryBarrier();
+    }
 
     /// <summary>
     /// References the functor which gets called on addition of items when their keys do not exist in the set yet.
@@ -62,7 +70,7 @@ namespace Azos.Platform
 
         result = AddItem(key);
 
-        var cache = new Dictionary<TKey, TValue>(m_Data);
+        var cache = new Dictionary<TKey, TValue>(m_Data, m_Data.Comparer);
         cache[key] = result;
         Thread.MemoryBarrier();
         m_Data = cache;//atomic
@@ -79,7 +87,7 @@ namespace Azos.Platform
       lock(m_Lock)
       {
         if (!m_Data.ContainsKey(key)) return false;
-        var cache = new Dictionary<TKey, TValue>(m_Data);
+        var cache = new Dictionary<TKey, TValue>(m_Data, m_Data.Comparer);
         cache.Remove(key);
         Thread.MemoryBarrier();
         m_Data = cache;//atomic
@@ -92,7 +100,7 @@ namespace Azos.Platform
     /// </summary>
     public void Purge()
     {
-      var data = new Dictionary<TKey, TValue>(m_Data);
+      var data = new Dictionary<TKey, TValue>(m_Data.Comparer);
       Thread.MemoryBarrier();
       m_Data = data;
     }

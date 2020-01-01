@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 
 using Azos.Collections;
+using Azos.Platform;
 using Azos.Serialization.JSON;
 
 namespace Azos.Data
@@ -66,6 +67,7 @@ namespace Azos.Data
             m_Order = order;
             m_Type = type;
             m_Attrs = new List<FieldAttribute>(attrs);
+            m_TargetAttrsCache = new ConstrainedSetLookup<string, FieldAttribute>(findFieldAttributeFor, StringComparer.InvariantCultureIgnoreCase);
 
             if (m_Attrs.Count<1)
               throw new DataException(StringConsts.CRUD_FIELDDEF_ATTR_MISSING_ERROR.Args(name));
@@ -98,6 +100,7 @@ namespace Azos.Data
             m_NonNullableType = Type.GetType( info.GetString("nnt"), true);
             m_Attrs = info.GetValue("attrs", typeof(List<FieldAttribute>)) as List<FieldAttribute>;
             m_AnyTargetKey = info.GetBoolean("atk");
+            m_TargetAttrsCache = new ConstrainedSetLookup<string, FieldAttribute>(findFieldAttributeFor, StringComparer.InvariantCultureIgnoreCase);
 
             var mtp = info.GetString("mtp");
             if (mtp!=null)
@@ -229,7 +232,21 @@ namespace Azos.Data
         }
 
 
-        private volatile Dictionary<string, FieldAttribute> m_TargetAttrsCache = new Dictionary<string, FieldAttribute>(StringComparer.InvariantCultureIgnoreCase);
+        private Azos.Platform.ConstrainedSetLookup<string, FieldAttribute> m_TargetAttrsCache;
+        private FieldAttribute findFieldAttributeFor(string target)
+        {
+          FieldAttribute result = null;
+
+          if (target != FieldAttribute.ANY_TARGET)
+          {
+            result = m_Attrs.FirstOrDefault(a => target.EqualsIgnoreCase(a.TargetName));
+          }
+
+          if (result == null)
+            result = m_Attrs.FirstOrDefault(a => TargetedAttribute.ANY_TARGET.EqualsIgnoreCase(a.TargetName));
+
+          return result;
+        }
 
         /// <summary>
         /// Returns a FieldAttribute that matches the supplied targetName, or if one was not defined then
@@ -237,33 +254,17 @@ namespace Azos.Data
         /// </summary>
         public FieldAttribute this[string targetName]
         {
-            get
-            {
-              if (targetName.IsNullOrWhiteSpace()) targetName = FieldAttribute.ANY_TARGET;
+          get
+          {
+            if (targetName.IsNullOrWhiteSpace())
+              targetName = FieldAttribute.ANY_TARGET;
 
-              FieldAttribute result = null;
-              if (!m_TargetAttrsCache.TryGetValue(targetName, out result))
-              {
-                if (targetName!=FieldAttribute.ANY_TARGET)
-                {
-                    result = m_Attrs.FirstOrDefault(a => targetName.EqualsIgnoreCase(a.TargetName));
-                }
-
-                if (result==null)
-                  result = m_Attrs.FirstOrDefault(a => TargetedAttribute.ANY_TARGET.EqualsIgnoreCase(a.TargetName) );
-
-                var dict = new Dictionary<string, FieldAttribute>(m_TargetAttrsCache, StringComparer.InvariantCultureIgnoreCase);
-                dict[targetName] = result;
-                System.Threading.Thread.MemoryBarrier();
-                m_TargetAttrsCache = dict;//atomic
-              }
-
-              return result;
-            }
+            return m_TargetAttrsCache[targetName];
+          }
         }
 
         /// <summary>
-        /// Returns the name of the field in backend that was possibly overriden for a particular target
+        /// Returns the name of the field in backend that was possibly overridden for a particular target
         /// </summary>
         public string GetBackendNameForTarget(string targetName)
         {
@@ -272,7 +273,7 @@ namespace Azos.Data
         }
 
         /// <summary>
-        /// Returns the name of the field in backend that was possibly overriden for a particular target
+        /// Returns the name of the field in backend that was possibly overridden for a particular target
         /// along with store flag
         /// </summary>
         public string GetBackendNameForTarget(string targetName, out FieldAttribute attr)

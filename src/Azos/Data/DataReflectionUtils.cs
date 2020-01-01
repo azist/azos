@@ -121,7 +121,7 @@ namespace Azos.Data
         );
 
     /// <summary>
-    /// Returns FieldDescriptors set for the specified tTypedDocument and target name
+    /// Returns FieldDescriptors set for the specified docType and target name
     /// </summary>
     public static FieldDescriptors GetFieldDescriptorsFor(Type docType, string targetName)
     {
