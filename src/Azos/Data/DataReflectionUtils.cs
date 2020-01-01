@@ -31,22 +31,43 @@ namespace Azos.Data
     public const string META_FIELD_ORDER = "ord";
 
     /// <summary>
+    /// An attribute name used for FieldDescriptor deterministic ordering. Some
+    /// algorithms, such as positional serialization rely on specific ordering.
+    /// The attribute gets included in FieldDef's metadata property
+    /// </summary>
+    public const string META_FIELD_ORDER_ALT = "order";
+
+    /// <summary>
     /// Field Descriptor provides pre-calculated targeted data about a field in a Data document
     /// </summary>
     public struct FieldDescriptor
     {
-      internal FieldDescriptor(string name, Schema.FieldDef def, FieldAttribute atr, IConfigSectionNode meta)
+      internal FieldDescriptor(string name, Schema.FieldDef def, FieldAttribute atr)
       {
         TargetFieldName = name;
         FieldDef = def;
         Attr = atr;
-        Meta = meta;
       }
 
+      /// <summary>
+      /// The name of the field for the target - taken from BackendName
+      /// </summary>
       public readonly string TargetFieldName;
+
+      /// <summary>
+      /// Original schema field definition object
+      /// </summary>
       public readonly Schema.FieldDef FieldDef;
+
+      /// <summary>
+      /// Attribute that matches the target
+      /// </summary>
       public readonly FieldAttribute Attr;
-      public readonly IConfigSectionNode Meta;
+
+      /// <summary>
+      /// Metadata associated with the field or null
+      /// </summary>
+      public IConfigSectionNode Meta => Attr?.Metadata;
 
       /// <summary>
       /// Returns true if this instance represents an assigned value
@@ -65,15 +86,20 @@ namespace Azos.Data
         m_Schema = schema;
         m_TargetName = targetName;
         m_Data = new Dictionary<string, FieldDescriptor>(StringComparer.InvariantCultureIgnoreCase);
+        m_DataList = new List<FieldDescriptor>();
 
         foreach (var fd in source)
+        {
           m_Data[fd.TargetFieldName] = fd;
+          m_DataList.Add(fd);
+        }
       }
 
       private readonly Type m_DocType;
       private readonly Schema m_Schema;
       private readonly string m_TargetName;
       private readonly Dictionary<string, FieldDescriptor> m_Data;
+      private readonly List<FieldDescriptor> m_DataList;
 
       /// <summary>
       /// A type of data document that this set is for
@@ -98,6 +124,12 @@ namespace Azos.Data
         => m_Data.TryGetValue(name.NonNull(nameof(name)), out var existing) ? existing : default(FieldDescriptor);
 
       /// <summary>
+      /// Accesses FieldDescriptor by its sequence/index as defined by `ord` metadata attribute
+      /// </summary>
+      public FieldDescriptor this[int i]
+        => (i >=0 && i < m_DataList.Count) ? m_DataList[i] : new FieldDescriptor();
+
+      /// <summary>
       /// Total count in the set
       /// </summary>
       public int Count => m_Data.Count;
@@ -113,8 +145,10 @@ namespace Azos.Data
 
             var schema = Schema.GetForTypedDoc(t);
             var fields = schema
-                  .Select(fd => new FieldDescriptor(fd.GetBackendNameForTarget(targetName), fd, fd[targetName], meta: fd[targetName].Metadata))
-                  .OrderBy(fd => fd.Meta != null ? fd.Meta.AttrByName(META_FIELD_ORDER).ValueAsInt() : 0);
+                  .Select(fd => (fd: fd, attr: fd[targetName]))
+                  .Where(item => item.attr!=null)
+                  .Select(item => new FieldDescriptor(item.fd.GetBackendNameForTarget(targetName), item.fd, item.attr))
+                  .OrderBy(fd => fd.Meta != null ? fd.Meta.Of(META_FIELD_ORDER, META_FIELD_ORDER_ALT).ValueAsInt() : fd.FieldDef.Order);
 
             return new FieldDescriptors(t, schema, targetName, fields);
           })
@@ -140,9 +174,9 @@ namespace Azos.Data
            var schema = Schema.GetForTypedDoc(t);
            var fields = schema
                  .Select(fd => (fd: fd, attr: fd[targetName]))
-                 .Where(item => item.attr.TargetName.EqualsIgnoreCase(targetName))
-                 .Select(item => new FieldDescriptor(item.fd.GetBackendNameForTarget(targetName), item.fd, item.attr, meta: item.attr.Metadata))
-                 .OrderBy(fd => fd.Meta != null ? fd.Meta.AttrByName(META_FIELD_ORDER).ValueAsInt() : 0);
+                 .Where(item => item.attr != null && item.attr.TargetName.EqualsIgnoreCase(targetName))
+                 .Select(item => new FieldDescriptor(item.fd.GetBackendNameForTarget(targetName), item.fd, item.attr))
+                 .OrderBy(fd => fd.Meta != null ? fd.Meta.Of(META_FIELD_ORDER, META_FIELD_ORDER_ALT).ValueAsInt() : fd.FieldDef.Order);
 
            return new FieldDescriptors(t, schema, targetName, fields);
          })

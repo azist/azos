@@ -170,7 +170,7 @@ namespace Azos.Data
         public IEnumerable<FieldAttribute>   Attrs { get { return m_Attrs;}}
 
         /// <summary>
-        /// Gets absolute field order index in a row
+        /// Gets absolute field order index in a data document/row of data
         /// </summary>
         public int                           Order { get {return m_Order;} }
 
