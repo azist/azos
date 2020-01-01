@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.537
-set HEADLINE=Json Date Handling and DocReadOptions
+set VER=1.0.538
+set HEADLINE=DataReflectionUtils refactoring
 
 call vs2017-build-release %VER%
 
