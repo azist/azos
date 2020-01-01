@@ -132,5 +132,34 @@ namespace Azos.Data
       return s_Cache[docType][targetName];
     }
 
+
+    private static ConstrainedSetLookup<Type, ConstrainedSetLookup<string, FieldDescriptors>> s_ExactCache =
+        new ConstrainedSetLookup<Type, ConstrainedSetLookup<string, FieldDescriptors>>(t =>
+         new ConstrainedSetLookup<string, FieldDescriptors>(targetName => {
+
+           var schema = Schema.GetForTypedDoc(t);
+           var fields = schema
+                 .Select(fd => (fd: fd, attr: fd[targetName]))
+                 .Where(item => item.attr.TargetName.EqualsIgnoreCase(targetName))
+                 .Select(item => new FieldDescriptor(item.fd.GetBackendNameForTarget(targetName), item.fd, item.attr, meta: item.attr.Metadata))
+                 .OrderBy(fd => fd.Meta != null ? fd.Meta.AttrByName(META_FIELD_ORDER).ValueAsInt() : 0);
+
+           return new FieldDescriptors(t, schema, targetName, fields);
+         })
+        );
+
+    /// <summary>
+    /// Returns FieldDescriptors set for the specified docType and exactly for the specified target name -
+    /// if a [Field] does not match the target then that field is skipped altogether
+    /// </summary>
+    public static FieldDescriptors GetFieldDescriptorsExactlyFor(Type docType, string targetName)
+    {
+      docType.IsOfType<TypedDoc>(nameof(docType));
+
+      if (targetName.IsNullOrWhiteSpace()) targetName = TargetedAttribute.ANY_TARGET;
+
+      return s_ExactCache[docType][targetName];
+    }
+
   }
 }
