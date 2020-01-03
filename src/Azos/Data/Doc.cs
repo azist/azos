@@ -27,7 +27,7 @@ namespace Azos.Data
   public interface IDataDoc : IEquatable<Doc>, IEnumerable<Object>, IValidatable, IConfigurable, IConfigurationPersistent
   {
     /// <summary>
-    /// Returns schema object that describes fields of this document
+    /// Returns schema object that describes field structure of this document
     /// </summary>
     Schema Schema { get; }
 

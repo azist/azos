@@ -21,7 +21,7 @@ namespace Azos.Log
   /// </summary>
   [Serializable, Arow]
   [BSONSerializable("A05AEE0F-A33C-4B1D-AA45-CDEAF894A095")]
-  public sealed class Message : TypedDoc, IArchiveLoggable
+  public sealed class Message : TypedDoc, IArchiveLoggable, IBSONSerializable, IBSONDeserializable
   {
     public const string BSON_FLD_APP = "app";
     public const string BSON_FLD_CHANNEL = "chn";
