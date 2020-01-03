@@ -5,6 +5,8 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections;
+using System.Runtime.Serialization;
 using System.Text;
 
 using Azos.Conf;
@@ -32,6 +34,20 @@ namespace Azos.Log.Sinks
     /// </summary>
     [Config]
     public string LogTimeFormat { get; set; }
+
+    /// <summary>
+    /// True to include custom exception fields
+    /// </summary>
+    [Config(Default = true)]
+    public bool IncludeFields {  get ; set; } = true;
+
+    /// <summary>
+    /// True to include exception "data"
+    /// </summary>
+    [Config]
+    public bool IncludeData { get; set; }
+
+    private IFormatterConverter m_FormatterConverter = new FormatterConverter();
 
     protected override string DoFormatMessage(Message msg)
     {
@@ -81,14 +97,51 @@ namespace Azos.Log.Sinks
       output.Append(sp); output.Append    ("| Source    "); output.AppendLine(error.Source);
       output.Append(sp); output.Append    ("| Target    "); output.AppendLine(error.TargetSite?.Name);
       output.Append(sp); output.Append    ("| Message   "); output.AppendLine(error.Message?.Replace("\n", "\n       .    "+sp));
-      output.Append(sp); output.AppendLine("| Stack     ");
 
+      //20191023 DKh
+      if (IncludeFields)
+      {
+        try
+        {
+          var info = new SerializationInfo(error.GetType(), m_FormatterConverter);
+          var ctx = new StreamingContext(StreamingContextStates.All);
+          error.GetObjectData(info, ctx);
+          var e = info.GetEnumerator();
+          while(e.MoveNext())
+            if (e.Current.Name.IndexOf('-')>0)//we only dump custom exception fields with '-' in between segments
+              output.AppendLine(sp + "| `{0}` = \"{1}\"".Args(e.Current.Name, e.Current.Value));
+        }
+        catch(Exception fldError)
+        {
+          output.AppendLine(sp + " !!! Error getting custom exception fields: " + fldError.ToMessageWithType());
+        }
+      }
+
+      //20191023 DKh
+      if (IncludeData && error.Data!=null)
+      {
+        try
+        {
+          foreach(var okvp in error.Data)
+          {
+            var de = (DictionaryEntry)okvp;
+            output.AppendLine(sp + "| ['{0}'] = \"{1}\"".Args(de.Key, de.Value));
+          }
+        }
+        catch (Exception fldError)
+        {
+          output.AppendLine(sp + " !!! Error getting custom exception fields: " + fldError.ToMessageWithType());
+        }
+      }
+
+      output.Append(sp); output.AppendLine("| Stack     ");
       var stackTrace = error.StackTrace;
 
       if (stackTrace.IsNotNullOrWhiteSpace())
         output.AppendLine(sp + stackTrace.Replace("\n", "\n"+sp) );
       else
         output.AppendLine(sp + " <no stack trace> ");
+
 
       dumpException(output, error.InnerException, level+1);
     }

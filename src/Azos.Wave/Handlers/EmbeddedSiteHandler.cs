@@ -74,13 +74,13 @@ namespace Azos.Wave.Handlers
         try
         {
           var bi = new BuildInformation(assembly);
-          m_LastModifiedDate = bi.DateStampUTC.DateTimeToHTTPCookieDateTime();
+          m_LastModifiedDate = WebUtils.DateTimeToHTTPLastModifiedHeaderDateTime(bi.DateStampUTC);
         }
         catch(Exception err)
         {
           //no build info
           WriteLog(Log.MessageType.Warning, "ctor", "Assembly '{0}' has no BUILD_INFO".Args(assembly.FullName), error:  err);
-          m_LastModifiedDate = App.TimeSource.UTCNow.DateTimeToHTTPCookieDateTime();
+          m_LastModifiedDate = WebUtils.DateTimeToHTTPLastModifiedHeaderDateTime(App.TimeSource.UTCNow);
         }
       }
 

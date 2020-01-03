@@ -137,7 +137,7 @@ namespace Azos.Financial
           JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("iso", m_CurrencyISO), new DictionaryEntry("val", m_Value));
         }
 
-        public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+        public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
         {
           if (data is JsonDataMap map)
           {

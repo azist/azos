@@ -5,7 +5,9 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Principal;
+using System.Text;
 
 namespace Azos.Apps
 {
@@ -133,6 +135,56 @@ namespace Azos.Apps
      /// This method is useful for security, i.e. when user logs-in we may want to re-generate ID
      /// </summary>
      void RegenerateID();
+  }
+
+}
+
+
+namespace Azos
+{
+  using Apps;
+
+  /// <summary>
+  /// Provides extension methods for ISession
+  /// </summary>
+  public static class SessionExtensions
+  {
+    public static readonly char[] DATA_CTX_DELIMITERS = new []{' ', ',', ';'};
+
+    /// <summary>
+    /// Returns an enumerable of DataContextName segments parsed out of SessionDataContextName.
+    /// Multiple segments are divided by the either of: ' ', ',', ';' characters/
+    /// An empty sequence is returned for null session or null or empty context
+    /// </summary>
+    public static IEnumerable<string> GetDataContextNameSegments(this ISession session)
+    {
+      if (session == null || session.DataContextName.IsNullOrWhiteSpace())
+        yield break;
+
+      var segs = session.DataContextName.Split(DATA_CTX_DELIMITERS);
+
+      foreach(var seg in segs)
+      {
+        if (seg.IsNotNullOrWhiteSpace())
+          yield return seg;
+      }
+    }
+
+    /// <summary>
+    /// Returns a re-composed DataContextName string which is obtained and normalized out of Session object.
+    /// The segments are parsed and sorted. Extra delimiters removed.
+    /// The function ensures logical equality, e.g. "main, data,business" will be normalized to "business,data,main".
+    /// An empty string is returned for null session or null or empty context
+    /// </summary>
+    public static string GetNormalizedDataContextName(this ISession session)
+    {
+      var sb = new StringBuilder(48);
+      var result = session.GetDataContextNameSegments()
+             .OrderBy( s => s)
+             .Aggregate(new StringBuilder(48), (b, s) => (b.Length == 0 ? b : b.Append(',')).Append(s), b => b.ToString().ToLowerInvariant());
+
+      return result;
+    }
   }
 
 }

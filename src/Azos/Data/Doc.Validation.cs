@@ -22,9 +22,10 @@ namespace Azos.Data
     /// <summary>
     /// Validates data document using schema/supplied field definitions.
     /// Override to perform custom validations,
-    /// i.e. TypeDocs may directly access properties and write some validation type-safe code
-    /// The method is not expected to throw exception in case of failed validation, rather return exception instance because
-    ///  throwing exception really hampers validation performance when many docs/rows need to be validated
+    /// i.e. TypeDocs may directly access properties and write some validation type-safe code.
+    /// The method is not expected to throw exception in case of failed business logic validation, rather return exception instance because
+    ///  throwing exception really hampers validation performance when many docs/rows need to be validated.
+    /// The thrown exception indicates an unexpected condition/a bug in the validation logic itself.
     /// </summary>
     public virtual Exception Validate(string targetName)
     {
@@ -112,7 +113,7 @@ namespace Azos.Data
     {
       if (atr.MinLength > 0)
       {
-        if (value is IEnumerable<object> eobj && eobj.Count() < atr.MinLength)
+        if (value is IEnumerable eobj && eobj.Cast<object>().Count() < atr.MinLength)
           return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength));
 
         if (value.ToString().Length < atr.MinLength)
@@ -121,7 +122,7 @@ namespace Azos.Data
 
       if (atr.MaxLength > 0)
       {
-        if (value is IEnumerable<object> eobj && eobj.Count() > atr.MaxLength)
+        if (value is IEnumerable eobj && eobj.Cast<object>().Count() > atr.MaxLength)
           return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength));
 
         if (value.ToString().Length > atr.MaxLength)
@@ -146,6 +147,11 @@ namespace Azos.Data
       else if (atr.Kind == DataKind.Telephone)
       {
         if (!Azos.Text.DataEntryUtils.CheckTelephone(value.ToString()))
+          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_PHONE_ERROR);
+      }
+      else if (atr.Kind == DataKind.Uri)
+      {
+        if (!Uri.TryCreate(value.ToString(), UriKind.RelativeOrAbsolute, out var _))
           return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_PHONE_ERROR);
       }
 
@@ -190,7 +196,7 @@ namespace Azos.Data
         {
           var fv = value.ToString();
           if (!parsed.ContainsKey(fv))
-            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(16, "..")));
+            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(9, "..")));
         }
       }
 
@@ -200,7 +206,7 @@ namespace Azos.Data
       {
         var fv = value.ToString();
         if (!dynValueList.ContainsKey(fv))
-          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(16, "..")));
+          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(9, "..")));
       }
 
       return null;

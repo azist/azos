@@ -11,6 +11,7 @@ using System.Globalization;
 using Azos.Data;
 using Azos.Time;
 using Azos.Apps;
+using System.Linq;
 
 namespace Azos.Conf
 {
@@ -65,7 +66,10 @@ namespace Azos.Conf
             /// <returns>Converted value to desired type then back to string, using optional formatting and default if conversion did not succeed</returns>
             public static string GetValueAs(string value, string type, string dflt = null, string fmt = null)
             {
-              var mi = typeof(StringValueConversion).GetMethod("As"+type.CapitalizeFirstChar(), BindingFlags.Public | BindingFlags.Static);
+              var mn = "As" + type.CapitalizeFirstChar();
+
+              var mi = typeof(StringValueConversion).GetMethods()
+                                                    .FirstOrDefault(i => i.IsStatic && i.IsPublic && i.Name == mn && i.GetParameters().Length==2);
 
               object result;
               if (!string.IsNullOrWhiteSpace(dflt))

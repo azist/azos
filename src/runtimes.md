@@ -128,7 +128,7 @@ PAL *(100% managed code)* is a central interface hub containing references to pl
 When a particular EXE (entry point) is built, it is **statically linked against some particular runtime**, e.g. .NET Framework or .NET Core.
 PlatformAbstractionLayer moves the details specific to the runtime into separate module which is injected at the application entry-point.
 The ideology of Azos (and any other well-architected software) recommends to keep the entry modules (exes) as small as possible, having
-all of the business logic in the class libraries built against Azos in a platform-agnostic way (.NET standard).
+all of the business logic in the class libraries built against Azos in a platform-agnostic way (.NET Standard).
 This way all of the code can be easily ported to the different platform/runtime
 
 Example of the aforementioned `trun` CLI tool built against the full .NET Framework:
@@ -151,7 +151,7 @@ See [Platform Abstraction](/src/Azos/Platform/Abstraction) for more details
 
 Since **Azos is a full-stack solution**, it **does not use any 3rd-party libraries** besides
 standard BCL and Microsoft-supplied ones (e.g. `Microsoft.CSharp.dll`). This makes **Azos an alt-stack
-choice** for working with .Net. Azos provides all of the core services by itself - something which is 
+choice** for working with .Net. Azos provides all of the core services itself - something which is 
 usually accomplished using myriads of 3rd party disjoint systems.
 
 ---

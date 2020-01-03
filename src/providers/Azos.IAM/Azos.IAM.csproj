@@ -19,12 +19,8 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\..\Azos\Azos.csproj" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="Protocol\forms\" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

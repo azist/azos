@@ -4,6 +4,7 @@ using System.Collections;
 
 using Azos.Data;
 using Azos.Serialization.JSON;
+using System.Globalization;
 
 namespace Azos.Time
 {
@@ -135,11 +136,12 @@ namespace Azos.Time
       JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("start", Start), new DictionaryEntry("end", End));
     }
 
-    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
       if( data is JsonDataMap map)
       {
-        return (true, new DateRange(map["start"].AsNullableDateTime(), map["end"].AsNullableDateTime() ));
+        var styles = options.HasValue && options.Value.LocalDates ? DateTimeStyles.AssumeLocal : DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal;
+        return (true, new DateRange(map["start"].AsNullableDateTime(styles: styles), map["end"].AsNullableDateTime(styles: styles) ));
       }
 
       return (false, null);

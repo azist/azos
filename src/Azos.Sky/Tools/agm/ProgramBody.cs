@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 using System;
 
-using Azos.IO;
+using Azos.IO.Console;
 using Azos.Conf;
 using Azos.Apps;
 using Azos.Platform;

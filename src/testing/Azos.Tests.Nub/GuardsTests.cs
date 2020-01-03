@@ -55,6 +55,18 @@ namespace Azos.Tests.Nub
 
 
     [Run]
+    public void Nullable_NonNull()
+    {
+      int? x = 123;
+
+      Aver.AreEqual(123,  x.NonNull());
+
+      x = null;
+      Aver.Throws<CallGuardException>(() => x.NonNull());
+    }
+
+
+    [Run]
     public void IsOfType()
     {
       Type x = GetType();
@@ -90,6 +102,34 @@ namespace Azos.Tests.Nub
         Aver.IsTrue(error.Message.Contains("must be of 'Exception' type"));
       }
     }
+
+    [Run]
+    public void ValueIsOfType()
+    {
+      object x = this;
+
+      Aver.IsTrue(this == x.ValueIsOfType<GuardTests, object>());
+      Aver.IsTrue(this == x.ValueIsOfType<object, object>());
+      Aver.IsTrue(this == x.ValueIsOfType(typeof(GuardTests)));
+      Aver.IsTrue(this == x.ValueIsOfType(typeof(object)));
+
+      x = new AzosException();
+
+      Aver.IsTrue(x == x.ValueIsOfType<Exception, object>());
+      Aver.IsTrue(x == x.ValueIsOfType<object, object>());
+      Aver.Throws<CallGuardException>(() => x.ValueIsOfType<GuardTests, object>());
+
+      Aver.IsTrue(x == x.ValueIsOfType(typeof(object)));
+      Aver.IsTrue(x == x.ValueIsOfType(typeof(object)));
+      Aver.Throws<CallGuardException>(() => x.ValueIsOfType(typeof(GuardTests)));
+
+      x = null;
+      Aver.Throws<CallGuardException>(() => x.ValueIsOfType(typeof(GuardTests)));
+      x = typeof(Exception);
+      Aver.Throws<CallGuardException>(() => x.ValueIsOfType(typeof(GuardTests)));
+    }
+
+
 
     [Run]
     public void NonBlank()

@@ -5,6 +5,7 @@ using System.Text;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
+using Azos.IAM.Protocol;
 
 namespace Azos.IAM.Server.Data
 {
@@ -64,13 +65,15 @@ namespace Azos.IAM.Server.Data
 
     [Field(required: true,
            kind: DataKind.ScreenName,
+           minLength: Sizes.ENTITY_ID_MIN,
+           maxLength: Sizes.ENTITY_ID_MAX,
            description: "Unique Policy ID",
            metadata: "idx{name='main' order=0 unique=true dir=asc}")]
-    [Field(typeof(Group), nameof(ID), TMONGO, backendName: "id")]
+    [Field(typeof(Policy), nameof(ID), TMONGO, backendName: "id")]
     public string ID { get; set; }
 
     [Field(required: true, description: "Contains a list of time periods with policy data")]
-    [Field(typeof(EntityWithRights), nameof(Periods), TMONGO, backendName: "periods")]
+    [Field(typeof(Policy), nameof(Periods), TMONGO, backendName: "periods")]
     public PolicyPeriod[] Periods { get; set; }
 
   }

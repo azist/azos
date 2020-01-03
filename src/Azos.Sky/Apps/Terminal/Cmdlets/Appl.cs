@@ -38,7 +38,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
                  From = "{0}.StopNow".Args(GetType().FullName),
                  Text = text
               });
-              App.Stop();
+              ((IApplicationImplementation)App).Stop();
               return text;//noone may see this as App may terminate faster than response delivered
             }
 

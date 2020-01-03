@@ -141,7 +141,7 @@ namespace Azos.Standards
       JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("unit", UnitName), new DictionaryEntry("value", Value));
     }
 
-    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
       if (data is JsonDataMap map)
       {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Apps.Injection;
@@ -11,8 +10,7 @@ namespace Azos.IAM.Protocol
 {
   public sealed class GroupListFilter : FilterModel<IEnumerable<GroupInfo>>
   {
-    [Inject] IAdminLogic m_Logic;
-
+    [Inject] IAdminLogic m_Admin;
 
     [Field(description: "Filters by name pattern")]
     public string Name {  get; set; }
@@ -23,7 +21,7 @@ namespace Azos.IAM.Protocol
     public GDID G_ChildAccount { get; set; }
 
     protected override async Task<SaveResult<IEnumerable<GroupInfo>>> DoSaveAsync()
-     => new SaveResult<IEnumerable<GroupInfo>>(await m_Logic.FilterAsync(this));
+     => new SaveResult<IEnumerable<GroupInfo>>(await m_Admin.FilterListAsync(this));
   }
 
   public sealed class GroupInfo : TransientModel

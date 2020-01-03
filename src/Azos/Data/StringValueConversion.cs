@@ -332,17 +332,23 @@ namespace Azos.Data
             return ObjectValueConversion.AsNullableGUID(val, dflt);
          }
 
-         public static DateTime AsDateTimeOrThrow(this string val)
+         public static DateTime AsDateTimeOrThrow(this string val, DateTimeStyles styles = DateTimeStyles.None)
          {
-            return ObjectValueConversion.AsDateTime(val);
+            return ObjectValueConversion.AsDateTime(val, styles);
          }
 
          public static DateTime AsDateTime(this string val, DateTime dflt)
+         => val.AsDateTime(dflt, DateTimeStyles.None);
+
+         public static DateTime AsDateTime(this string val, DateTime dflt, DateTimeStyles styles)
          {
-            return ObjectValueConversion.AsDateTime(val, dflt);
+            return ObjectValueConversion.AsDateTime(val, dflt, styles: styles);
          }
 
-         public static DateTime AsDateTimeFormat(this string val, DateTime dflt, string fmt, DateTimeStyles fmtStyles = DateTimeStyles.None)
+         public static DateTime AsDateTimeFormat(this string val, DateTime dflt, string fmt)
+          => val.AsDateTimeFormat(dflt, fmt,  DateTimeStyles.None);
+
+         public static DateTime AsDateTimeFormat(this string val, DateTime dflt, string fmt, DateTimeStyles fmtStyles)
          {
             DateTime result;
             return DateTime.TryParseExact(val, fmt, null, fmtStyles, out result) ? result : dflt;

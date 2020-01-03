@@ -25,7 +25,7 @@ namespace Azos.Apps
   ///  this application does not log, does not store data and does not do anything else
   /// still satisfying its contract
   /// </summary>
-  public class NOPApplication : IApplication
+  public class NOPApplication : IApplicationImplementation
   {
 
      private static readonly NOPApplication s_Instance = new NOPApplication();
@@ -95,6 +95,8 @@ namespace Azos.Apps
 
         public bool ForceInvariantCulture { get { return false; } }
 
+
+        public IO.Console.IConsolePort ConsolePort => null;
 
         public Atom AppId => Atom.ZERO;
 
@@ -231,6 +233,8 @@ namespace Azos.Apps
         {
           return DefaultAppVarResolver.ResolveNamedVar(this, name, out value);
         }
+
+        public void SetConsolePort(IO.Console.IConsolePort port){ }
 
     #endregion
 

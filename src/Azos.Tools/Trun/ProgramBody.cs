@@ -10,7 +10,7 @@ using System.Reflection;
 
 using Azos.Apps;
 using Azos.Conf;
-using Azos.IO;
+using Azos.IO.Console;
 using Azos.Platform;
 using Azos.Scripting;
 
@@ -27,6 +27,8 @@ namespace Azos.Tools.Trun
           {
            using(var app = new AzosApplication(true, args, null))
            {
+             app.SetConsolePort(LocalConsolePort.Default);
+
              Console.CancelKeyPress += (_, e) => { app.Stop(); e.Cancel = true;};
 
              System.Environment.ExitCode = run(app);

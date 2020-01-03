@@ -115,16 +115,14 @@ namespace Azos.Conf
          }
 
          var members =  getAllFieldsOrProps( etp );
-
          foreach(var mem in members)
          {
            var mattr = mem.GetCustomAttributes(typeof(ConfigAttribute), true).FirstOrDefault() as ConfigAttribute;
            if (mattr==null) continue;
 
-           //20130708 DKh - default attribute name taken from member name if path==null
+           //default attribute name taken from member name if path==null
            if (string.IsNullOrWhiteSpace(mattr.Path))
                 mattr.Path =  GetConfigPathsForMember(mem);
-           //---
 
            mattr.evalAttributeVars(etp);
 
@@ -219,14 +217,12 @@ namespace Azos.Conf
        {
            var mn = member.Name;
 
-           if (member is FieldInfo)
+           if (member is FieldInfo fi)
            {
-                var fi = (FieldInfo)member;
-                if (fi.IsPrivate)
-                {
-                    if (mn.StartsWith("m_", StringComparison.InvariantCulture) ||
-                        mn.StartsWith("s_", StringComparison.InvariantCulture)) mn = mn.Remove(0, 2);
-                }
+             //the field prefixes are swallowed
+             if (mn.Length>2 && (mn.StartsWith("m_", StringComparison.InvariantCulture) ||
+                                 mn.StartsWith("s_", StringComparison.InvariantCulture))
+                ) mn = mn.Remove(0, 2);
            }
 
            var sb = new StringBuilder();

@@ -65,5 +65,20 @@ namespace WinFormsTest
         {
               write(MessageType.Debug);
         }
+
+    private void btnWebCall_Click(object sender, EventArgs e)
+    {
+      try
+      {
+
+        throw new Azos.Web.WebCallException("Custom exception text", "/zhaba/push", "GET", 403, "Access denied", "Abazh is prohibited");
+      }
+      catch(Exception error)
+      {
+      error.Data["AAA"] = 123.456d;
+      FormsAmbient.App.Log.Write(new Azos.Log.Message { Type = MessageType.Error, Topic = "WebCall", From = tbFrom.Text, Text = tbText.Text,
+       Exception = error });
+      }
     }
+  }
 }

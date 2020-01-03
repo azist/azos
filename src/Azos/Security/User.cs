@@ -84,8 +84,17 @@ namespace Azos.Security
 
     public Credentials Credentials => m_Credentials ?? BlankCredentials.Instance;
 
+    /// <summary>
+    /// System authentication token - this token is issued by the security manager and
+    /// used "inside" the system perimietr - it should never be disclosed to the public/outside
+    /// consuming parties, as external callers should use appropriate credentials (e.g. Bearer)
+    /// in place of this token.
+    /// </summary>
     public SysAuthToken AuthToken => m_AuthenticationToken;
 
+    /// <summary>
+    /// User name/id which uniquely identifies the user in the system
+    /// </summary>
     public string Name => m_Name ?? string.Empty;
 
     public string Description => m_Description ?? string.Empty;

@@ -5,15 +5,16 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.IO;
+using System.Text;
 
 using Azos.Conf;
 using Azos.CodeAnalysis.Source;
 using Azos.CodeAnalysis.JSON;
 using Azos.Data;
-using System.Linq;
 
 namespace Azos.Serialization.JSON
 {
@@ -23,21 +24,45 @@ namespace Azos.Serialization.JSON
   public static class JsonReader
   {
     /// <summary>
-    /// Specifies how reader should match JSON to row field property member or backend names
+    /// Specifies how reader should match JSON to data document field property member or backend names along
+    /// with other data document reading options such as DateTime handling
     /// </summary>
-    public struct NameBinding
+    public struct DocReadOptions
     {
       /// <summary> By Name in Code | By BackendName attribute </summary>
       public enum By{ CodeName = 0, BackendName}
 
-      public static readonly NameBinding ByCode = new NameBinding(By.CodeName, null);
+      /// <summary>
+      /// Bind by property names as specified in code and use UTC dates
+      /// </summary>
+      public static readonly DocReadOptions BindByCode = new DocReadOptions(By.CodeName, null);
 
-      public static NameBinding ByBackendName(string targetName) => new NameBinding(By.BackendName, targetName);
+      /// <summary>
+      /// Bind by backend name for the specified target, Use UTC dates
+      /// </summary>
+      public static DocReadOptions BindByBackendName(string targetName) => new DocReadOptions(By.BackendName, targetName);
 
-      private NameBinding(By by, string tagetName) { BindBy = by; TargetName = tagetName; }
+      public DocReadOptions(By by, string tagetName, bool localDates = false)
+      {
+        BindBy = by;
+        TargetName = tagetName;
+        LocalDates = localDates;
+      }
 
+      /// <summary>
+      /// Specifies whether to bind by field property name in code or FieldAttribute.BackendName
+      /// </summary>
       public readonly By BindBy;
+
+      /// <summary>
+      /// TargetName to bind by, used to get the right attribute for each FieldDef in a data document Schema
+      /// </summary>
       public readonly string TargetName;
+
+      /// <summary>
+      /// When true converts dates to local time, default = false which adjust dates to UTC
+      /// </summary>
+      public readonly bool LocalDates;
     }
 
 
@@ -106,15 +131,15 @@ namespace Azos.Serialization.JSON
     /// <param name="type">TypedDoc subtype to convert into</param>
     /// <param name="jsonMap">JSON data to convert into data doc</param>
     /// <param name="fromUI">When true indicates that data came from UI, hence NonUI-marked fields should be skipped. True by default</param>
-    /// <param name="nameBinding">Used for backend name matching or null (any target)</param>
-    public static TypedDoc ToDoc(Type type, JsonDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null)
+    /// <param name="options">Used for backend name matching or null (any target)</param>
+    public static TypedDoc ToDoc(Type type, JsonDataMap jsonMap, bool fromUI = true, DocReadOptions? options = null)
     {
       if (!typeof(TypedDoc).IsAssignableFrom(type) || jsonMap==null)
         throw new JSONDeserializationException(StringConsts.ARGUMENT_ERROR+"JSONReader.ToDoc(type|jsonMap=null)");
       var field = "";
       try
       {
-        return toTypedDoc(type, nameBinding, jsonMap, ref field, fromUI);
+        return toTypedDoc(type, options, jsonMap, ref field, fromUI);
       }
       catch(Exception error)
       {
@@ -123,12 +148,57 @@ namespace Azos.Serialization.JSON
     }
 
     /// <summary>
-    /// Generic version of ToDoc(Type, JSONDataMap, bool)/>
+    /// Converts JSONMap into typed data document of the requested type.
+    /// The requested type must be derived from Azos.Data.TypedDoc.
+    /// The extra data found in JSON map will be placed in AmorphousData dictionary if the row implements IAmorphousData, discarded otherwise.
+    /// Note: This method provides "the best match" and does not guarantee that all data will/can be converted from JSON, i.e.
+    ///  it can only convert one dimensional arrays and Lists of either primitive or TypeRow-derived entries
+    /// </summary>
+    /// <param name="type">TypedDoc subtype to convert into</param>
+    /// <param name="json">JSON data to convert into data doc</param>
+    /// <param name="fromUI">When true indicates that data came from UI, hence NonUI-marked fields should be skipped. True by default</param>
+    /// <param name="options">Used for backend name matching or null (any target)</param>
+    public static TypedDoc ToDoc(Type type, string json, bool fromUI = true, DocReadOptions? options = null)
+    {
+      var map =  (json.NonBlank(nameof(json)).JsonToDataObject(true) as JsonDataMap).NonNull("json is not a map");
+
+      return ToDoc(type, map, fromUI, options);
+    }
+
+    /// <summary>
+    /// Generic version of ToDoc(Type...)/>
     /// </summary>
     /// <typeparam name="T">TypedDoc</typeparam>
-    public static T ToDoc<T>(JsonDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null) where T: TypedDoc
+    public static T ToDoc<T>(JsonDataMap jsonMap, bool fromUI = true, DocReadOptions? options = null) where T: TypedDoc
     {
-      return ToDoc(typeof(T), jsonMap, fromUI, nameBinding) as T;
+      return ToDoc(typeof(T), jsonMap, fromUI, options) as T;
+    }
+
+    /// <summary>
+    /// Generic version of ToDoc(Type, JSONDataMap, DocReadOptions)/>
+    /// </summary>
+    /// <typeparam name="T">TypedDoc</typeparam>
+    public static T ToDoc<T>(string json, bool fromUI = true, DocReadOptions? options = null) where T : TypedDoc
+    {
+      var map = (json.NonBlank(nameof(json)).JsonToDataObject(true) as JsonDataMap).NonNull("json is not a map");
+      return ToDoc(typeof(T), map, fromUI, options) as T;
+    }
+
+
+    /// <summary>
+    /// Converts JSONMap into supplied row instance.
+    /// The extra data found in JSON map will be placed in AmorphousData dictionary if the row implements IAmorphousData, discarded otherwise.
+    /// Note: This method provides "the best match" and does not guarantee that all data will/can be converted from JSON, i.e.
+    ///  it can only convert one dimensional arrays and Lists of either primitive or TypeRow-derived entries
+    /// </summary>
+    /// <param name="doc">Data document instance to convert into</param>
+    /// <param name="json">JSON data to convert into row</param>
+    /// <param name="fromUI">When true indicates that data came from UI, hence NonUI-marked fields should be skipped. True by default</param>
+    /// <param name="options">Used for backend name matching or null (any target)</param>
+    public static void ToDoc(Doc doc, string json, bool fromUI = true, DocReadOptions? options = null)
+    {
+      var map = (json.NonBlank(nameof(json)).JsonToDataObject(true) as JsonDataMap).NonNull("json is not a map");
+      ToDoc(doc, map, fromUI, options);
     }
 
 
@@ -141,15 +211,29 @@ namespace Azos.Serialization.JSON
     /// <param name="doc">Data document instance to convert into</param>
     /// <param name="jsonMap">JSON data to convert into row</param>
     /// <param name="fromUI">When true indicates that data came from UI, hence NonUI-marked fields should be skipped. True by default</param>
-    /// <param name="nameBinding">Used for backend name matching or null (any target)</param>
-    public static void ToDoc(Doc doc, JsonDataMap jsonMap, bool fromUI = true, NameBinding? nameBinding = null)
+    /// <param name="options">Used for backend name matching or null (any target)</param>
+    public static void ToDoc(Doc doc, JsonDataMap jsonMap, bool fromUI = true, DocReadOptions? options = null)
     {
       if (doc == null || jsonMap == null)
         throw new JSONDeserializationException(StringConsts.ARGUMENT_ERROR + "JSONReader.ToDoc(doc|jsonMap=null)");
+
       var field = "";
       try
       {
-        toDoc(doc, nameBinding.HasValue ? nameBinding.Value : NameBinding.ByCode, jsonMap, ref field, fromUI);
+        var tDoc = doc.GetType();
+        var customHandler = JsonHandlerAttribute.TryFind(tDoc);
+        if (customHandler != null)
+        {
+          var castResult = customHandler.TypeCastOnRead(jsonMap, tDoc, fromUI, options ?? DocReadOptions.BindByCode);
+
+          //only reacts to ChangeSource because this method works on pre-allocated doc
+          if (castResult.Outcome == JsonHandlerAttribute.TypeCastOutcome.ChangedSourceValue)
+          {
+            jsonMap = (castResult.Value as JsonDataMap).NonNull("Changed source value must be of JsonDataMap type for root data documents");
+          }
+        }
+
+        toDoc(doc, options.HasValue ? options.Value : DocReadOptions.BindByCode, jsonMap, ref field, fromUI);
       }
       catch (Exception error)
       {
@@ -158,15 +242,40 @@ namespace Azos.Serialization.JSON
     }
 
 
-    private static TypedDoc toTypedDoc(Type type, NameBinding? nameBinding, JsonDataMap jsonMap, ref string field, bool fromUI)
+    private static TypedDoc toTypedDoc(Type type, DocReadOptions? options, JsonDataMap jsonMap, ref string field, bool fromUI)
     {
-      var doc = (TypedDoc)SerializationUtils.MakeNewObjectInstance(type);
-      toDoc(doc, nameBinding.HasValue ? nameBinding.Value : NameBinding.ByCode, jsonMap, ref field, fromUI);
+      var toAllocate = type;
+
+      var customHandler = JsonHandlerAttribute.TryFind(type);
+      if (customHandler != null)
+      {
+        var castResult = customHandler.TypeCastOnRead(jsonMap, type, fromUI, options ?? DocReadOptions.BindByCode);
+
+        if (castResult.Outcome >= JsonHandlerAttribute.TypeCastOutcome.ChangedTargetType)
+        {
+          toAllocate = castResult.ToType.IsOfType(type, "Changed type must be a subtype of specific document type");
+        }
+
+        if (castResult.Outcome == JsonHandlerAttribute.TypeCastOutcome.ChangedSourceValue)
+        {
+          jsonMap = (castResult.Value as JsonDataMap).NonNull("Changed source value must be of JsonDataMap type for root data documents");
+        }
+        else if (castResult.Outcome == JsonHandlerAttribute.TypeCastOutcome.HandledCast)
+        {
+            return castResult.Value.ValueIsOfType(type, "HandledCast must return TypedDoc for root data documents") as TypedDoc;
+        }
+      }
+
+      if (toAllocate.IsAbstract)
+        throw new JSONDeserializationException(StringConsts.JSON_DESERIALIZATION_ABSTRACT_TYPE_ERROR.Args(toAllocate.Name, nameof(JsonHandlerAttribute)));
+
+      var doc = (TypedDoc)SerializationUtils.MakeNewObjectInstance(toAllocate);
+      toDoc(doc, options.HasValue ? options.Value : DocReadOptions.BindByCode, jsonMap, ref field, fromUI);
       return doc;
     }
 
 
-    private static void toDoc(Doc doc, NameBinding nameBinding, JsonDataMap jsonMap, ref string field, bool fromUI)
+    private static void toDoc(Doc doc, DocReadOptions options, JsonDataMap jsonMap, ref string field, bool fromUI)
     {
       var amorph = doc as IAmorphousData;
       foreach (var mfld in jsonMap)
@@ -174,12 +283,12 @@ namespace Azos.Serialization.JSON
         field = mfld.Key;
         var fv = mfld.Value;
 
-        //Multitargeting for deserilization to TypedDoc from JSON
+        //Multi-targeting for deserialization to TypedDoc from JSON
         Schema.FieldDef def;
-        if (nameBinding.BindBy == NameBinding.By.CodeName)
+        if (options.BindBy == DocReadOptions.By.CodeName)
           def = doc.Schema[field];
         else
-          def = doc.Schema.TryFindFieldByTargetedBackendName(nameBinding.TargetName, field);//what about case sensitive json name?
+          def = doc.Schema.TryFindFieldByTargetedBackendName(options.TargetName, field);//what about case sensitive json name?
 
         //No such field exists in a typed doc, try to put in amorphous data
         if (def == null)
@@ -194,14 +303,15 @@ namespace Azos.Serialization.JSON
 
         if (fromUI && def.NonUI) continue;//skip NonUI fields
 
+        //weed out NULLS here
         if (fv == null)
         {
           doc.SetFieldValue(def, null);
           continue;
         }
 
-        //fv is Never null here
-        var wasset = setOneField(doc, def, fv, fromUI, nameBinding); //<------------------- field assignment
+        //fv is NEVER NULL here
+        var wasset = setOneField(doc, def, fv, fromUI, options); //<------------------- field assignment
 
         //try to put in amorphous data if could not be set in a field
         if (!wasset && amorph != null)
@@ -224,15 +334,15 @@ namespace Azos.Serialization.JSON
       }
 
       if (amorph != null && amorph.AmorphousDataEnabled)
-        amorph.AfterLoad("json");
+        amorph.AfterLoad(options.TargetName ?? "json");
     }
 
-    private static bool setOneField(Doc doc, Schema.FieldDef def, object fv, bool fromUI, NameBinding nameBinding)
+    private static bool setOneField(Doc doc, Schema.FieldDef def, object fv, bool fromUI, DocReadOptions options)
     {
-      var converted = cast(fv, def.Type, fromUI, nameBinding);
-      ////Console.WriteLine($"{def.Name} = {converted} ({(converted!=null ? converted.GetType().Name : "null")})");
+      var fieldCustomHandler = JsonHandlerAttribute.TryFind(def.MemberInfo);
+      var converted = cast(fv, def.Type, fromUI, options, fieldCustomHandler);
 
-      if (converted!=null)
+      if (converted != null)
       {
         doc.SetFieldValue(def, converted);
         return true;
@@ -243,10 +353,21 @@ namespace Azos.Serialization.JSON
 
 
     //Returns non null on success; may return null for collection sub-element in which case null=null and does not indicate failure
-    private static object cast(object v, Type toType, bool fromUI, NameBinding nameBinding)
+    private static object cast(object v, Type toType, bool fromUI, DocReadOptions options, JsonHandlerAttribute fieldCustomHandler = null)
     {
       //used only for collections inner calls
       if (v==null) return null;
+
+      var customHandler = fieldCustomHandler ?? JsonHandlerAttribute.TryFind(toType);
+      if (customHandler != null)
+      {
+        var castResult = customHandler.TypeCastOnRead(v, toType, fromUI, options);
+
+        if (castResult.Outcome >= JsonHandlerAttribute.TypeCastOutcome.ChangedTargetType) toType = castResult.ToType;
+
+        if (castResult.Outcome == JsonHandlerAttribute.TypeCastOutcome.ChangedSourceValue) v = castResult.Value;
+        else if (castResult.Outcome == JsonHandlerAttribute.TypeCastOutcome.HandledCast) return castResult.Value;
+      }
 
       //object goes as is
       if (toType == typeof(object)) return v;
@@ -285,8 +406,24 @@ namespace Azos.Serialization.JSON
       }
 
       var nntp = toType;
-      if (toType.IsGenericType && nntp.GetGenericTypeDefinition() == typeof(Nullable<>))
+      if (nntp.IsGenericType && nntp.GetGenericTypeDefinition() == typeof(Nullable<>))
         nntp = toType.GetGenericArguments()[0];
+
+      //20191217 DKh
+      if (nntp==typeof(DateTime))
+      {
+        if (options.LocalDates)
+        {
+          var d = v.AsDateTime(System.Globalization.DateTimeStyles.AssumeLocal);
+          return d;
+        }
+        else //UTC (the default)
+        {
+          var d = v.AsDateTime(System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal);
+          return d;
+        }
+      }
+      //20191217 DKh
 
 
       //Custom JSON Readable (including config)
@@ -300,8 +437,11 @@ namespace Azos.Serialization.JSON
             toAllocate == typeof(ConfigSectionNode) ||
             toAllocate == typeof(IConfigSectionNode)) toAllocate = typeof(MemoryConfiguration);
 
+        if (toAllocate.IsAbstract)
+          throw new JSONDeserializationException(StringConsts.JSON_DESERIALIZATION_ABSTRACT_TYPE_ERROR.Args(toAllocate.Name, nameof(JsonHandlerAttribute)));
+
         var newval = SerializationUtils.MakeNewObjectInstance(toAllocate) as IJsonReadable;
-        var got = newval.ReadAsJson(v, fromUI, nameBinding);//this may re-allocate the result based of newval
+        var got = newval.ReadAsJson(v, fromUI, options);//this may re-allocate the result based of newval
 
         if (!got.match) return null;
 
@@ -320,10 +460,10 @@ namespace Azos.Serialization.JSON
       //field def = []
       if (toType.IsArray)
       {
-        var fvseq = v as IEnumerable<object>;
+        var fvseq = v as IEnumerable;
         if (fvseq == null) return null;//can not set non enumerable into array
 
-        var arr = fvseq.Select(e => cast(e, toType.GetElementType(), fromUI, nameBinding)).ToArray();
+        var arr = fvseq.Cast<object>().Select(e => cast(e, toType.GetElementType(), fromUI, options, fieldCustomHandler)).ToArray();
         var newval = Array.CreateInstance(toType.GetElementType(), arr.Length);
         for(var i=0; i<newval.Length; i++)
           newval.SetValue(arr[i], i);
@@ -334,11 +474,11 @@ namespace Azos.Serialization.JSON
       //field def = List<t>
       if (toType.IsGenericType && toType.GetGenericTypeDefinition() == typeof(List<>))
       {
-        var fvseq = v as IEnumerable<object>;
+        var fvseq = v as IEnumerable;
         if (fvseq == null) return false;//can not set non enumerable into List<t>
 
-        var arr = fvseq.Select(e => cast(e, toType.GetGenericArguments()[0], fromUI, nameBinding)).ToArray();
-        var newval = SerializationUtils.MakeNewObjectInstance(toType) as System.Collections.IList;
+        var arr = fvseq.Cast<object>().Select(e => cast(e, toType.GetGenericArguments()[0], fromUI, options, fieldCustomHandler)).ToArray();
+        var newval = SerializationUtils.MakeNewObjectInstance(toType) as IList;
         for (var i = 0; i < arr.Length; i++)
           newval.Add(arr[i]);
 

@@ -10,6 +10,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Diagnostics;
+using Azos.Apps;
+using System.Runtime.CompilerServices;
 
 namespace Azos
 {
@@ -18,6 +20,15 @@ namespace Azos
   /// </summary>
   public static class CoreUtils
   {
+    /// <summary>
+    /// Returns true for DEV or LOCAL environments.
+    /// This method is used to ascertain the "non-prod" nature of the either and is typically used
+    /// to disclose or cloak/block sensitive information/details in things like logs and debug endpoints
+    /// (e.g. config content listing, debugging etc...)
+    /// </summary>
+    public static bool IsDeveloperEnvironment(this IApplication app)
+     => app.NonNull(nameof(app)).EnvironmentName.IsOneOf(CoreConsts.ENVIRONMENTS_DEVELOPER);
+
     /// <summary>
     /// Returns the name of entry point executable file optionally with its path
     /// </summary>
@@ -241,6 +252,32 @@ namespace Azos
 
       return true;
     }
+
+    /// <summary>
+    /// Encloses an action in try catch and logs the error if it leaked from action. This method never leaks.
+    /// Returns true if there was no error on action success, or false if error leaked from action and was logged by component.
+    /// The actual logging depends on component log level
+    /// </summary>
+    public static bool DontLeak(this IApplicationComponent cmp, Action action, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error)
+    {
+      var ac = (cmp.NonNull(nameof(cmp)) as ApplicationComponent).NonNull("Internal error: not a AC");
+      action.NonNull(nameof(action));
+      try
+      {
+        action();
+        return true;
+      }
+      catch(Exception error)
+      {
+        if (errorText.IsNullOrWhiteSpace()) errorText = "Error leaked: ";
+        errorText += error.ToMessageWithType();
+
+        ac.WriteLog(errorLogType, errorFrom, errorText, error);
+      }
+
+      return false;
+    }
+
 
   }
 }

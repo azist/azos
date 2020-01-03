@@ -17,6 +17,7 @@ using Azos.Time;
 
 using Azos.Sky.Metabase;
 using Azos.Sky.Contracts;
+using Azos.Data;
 
 namespace Azos.Sky.Coordination
 {
@@ -180,7 +181,7 @@ namespace Azos.Sky.Coordination
 
       if (shardingKey == null) shardingKey = App.Random.NextRandomInteger;
 
-      var idx = (uint)Mdb.ShardingUtils.ObjectToShardingID(shardingKey) % hosts.Length;
+      var idx = (uint)ShardingUtils.ObjectToShardingID(shardingKey) % hosts.Length;
 
       var idx1 = -1L;
       for (var c = 0; c < hosts.Length; c++)

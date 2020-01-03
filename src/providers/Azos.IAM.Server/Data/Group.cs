@@ -1,4 +1,5 @@
 ﻿using Azos.Data;
+using Azos.IAM.Protocol;
 
 namespace Azos.IAM.Server.Data
 {
@@ -13,7 +14,11 @@ namespace Azos.IAM.Server.Data
     [Field(typeof(Group), nameof(G_Parent), TMONGO, backendName: "g_par")]
     public GDID G_Parent { get; set;}
 
-    [Field(required: true, kind: DataKind.ScreenName, metadata: "idx{name='main' order=1 unique=true dir=asc}")]
+    [Field(required: true,
+           kind: DataKind.ScreenName,
+           minLength: Sizes.ENTITY_ID_MIN,
+           maxLength: Sizes.ENTITY_ID_MAX,
+           metadata: "idx{name='main' order=1 unique=true dir=asc}")]
     [Field(typeof(Group), nameof(ID), TMONGO, backendName: "id")]
     public string ID { get; set; }
 

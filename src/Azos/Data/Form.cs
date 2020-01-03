@@ -20,7 +20,7 @@ namespace Azos.Data
   public enum FormMode { Unspecified = 0, Insert, Update, Delete}
 
   /// <summary>
-  /// Struct returned from Form.Save()
+  /// Struct returned from Form.Save(): it is either an error (IsSuccess==false), or TResult
   /// </summary>
   public struct SaveResult<TResult>
   {
@@ -73,6 +73,7 @@ namespace Azos.Data
       public const string JSON_MODE_PROPERTY = "__FormMode";
       public const string JSON_CSRF_PROPERTY = CoreConsts.CSRF_TOKEN_NAME;
       public const string JSON_ROUNDTRIP_PROPERTY = "__Roundtrip";
+      public const string JSON_TYPE_PROPERTY = "__FormType";
 
 
       protected Form() {}

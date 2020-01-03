@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.510.10
-set HEADLINE=Svc rel fix slash in URI pat match
+set VER=1.0.538
+set HEADLINE=DataReflectionUtils refactoring
 
 call vs2017-build-release %VER%
 

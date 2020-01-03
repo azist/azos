@@ -830,33 +830,5 @@ f
     }
 
 
-    [Run]
-    public void IsValidJSIdentifier()
-    {
-      Aver.IsFalse( ((string)null).IsValidJSIdentifier() );
-      Aver.IsFalse( "".IsValidJSIdentifier() );
-      Aver.IsFalse( "1".IsValidJSIdentifier() );
-      Aver.IsFalse( "1aaa".IsValidJSIdentifier() );
-
-      Aver.IsTrue( "a1".IsValidJSIdentifier() );
-
-      Aver.IsTrue( "a".IsValidJSIdentifier() );
-      Aver.IsTrue( "b".IsValidJSIdentifier() );
-
-      Aver.IsTrue( "_b7878".IsValidJSIdentifier() );
-      Aver.IsTrue( "_7878".IsValidJSIdentifier() );
-      Aver.IsTrue( "$1".IsValidJSIdentifier() );
-      Aver.IsTrue( "$$1".IsValidJSIdentifier() );
-
-      Aver.IsFalse( "let".IsValidJSIdentifier() );
-      Aver.IsFalse( "var".IsValidJSIdentifier() );
-      Aver.IsFalse( "class".IsValidJSIdentifier() );
-      Aver.IsFalse( "return".IsValidJSIdentifier() );
-      Aver.IsFalse( "function".IsValidJSIdentifier() );
-      Aver.IsFalse( "volatile".IsValidJSIdentifier() );
-
-      Aver.IsTrue( "_let".IsValidJSIdentifier() );
-    }
-
   }
 }

@@ -19,6 +19,13 @@ namespace Azos
 
       public const string CSRF_TOKEN_NAME = "__CSRFToken";
 
+
+      public const string ENVIRONMENT_LOCAL = "local";
+      public const string ENVIRONMENT_DEV = "dev";
+      public const string ENVIRONMENT_PROD = "prod";
+
+      public static readonly string[] ENVIRONMENTS_DEVELOPER = {ENVIRONMENT_DEV, ENVIRONMENT_LOCAL, "devel", "development", "localhost", "loc"};
+
       public static readonly Geometry.LatLng DEFAULT_GEO_LOCATION = new Geometry.LatLng("41.4996374,-81.6936649", "Cleveland, OH, USA");
 
     #region External parameters
@@ -88,6 +95,7 @@ namespace Azos
       public const string TIME_TOPIC = "Time";
       public const string SHIP_TOPIC = "Ship";
       public const string GLUE_TOPIC = "Glue";
+      public const string CLIENT_TOPIC = "Client";
       public const string PAY_TOPIC = "Pay";
       public const string ERLANG_TOPIC = "Erl";
       public const string CACHE_TOPIC = "Cache";
@@ -99,6 +107,7 @@ namespace Azos
       public const string WEBMSG_TOPIC = "WMsg";
       public const string RUN_TOPIC = "Run";
       public const string WEB_TOPIC = "Web";
+      public const string CMS_TOPIC = "CMS";
       public const string WAVE_TOPIC = "Wave";
       public const string DOC_TOPIC = "Doc";
 

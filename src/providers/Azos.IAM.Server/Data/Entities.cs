@@ -3,6 +3,7 @@
 using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
+using Azos.IAM.Protocol;
 
 namespace Azos.IAM.Server.Data
 {
@@ -19,7 +20,10 @@ namespace Azos.IAM.Server.Data
   /// </summary>
   public class TimePeriod : BaseDoc
   {
-    [Field(required: true, description: "Provides a short name for this period of time, e.g. 'Christmas 2018'")]
+    [Field(required: true,
+           minLength: Sizes.NAME_MIN,
+           maxLength: Sizes.NAME_MAX,
+           description: "Provides a short name for this period of time, e.g. 'Christmas 2018'")]
     [Field(typeof(TimePeriod), nameof(Name), TMONGO, backendName: "nm")]
     public string Name { get; set; }
 
@@ -37,8 +41,6 @@ namespace Azos.IAM.Server.Data
   /// </summary>
   public abstract class Entity : BaseDoc
   {
-    public const string CHANGE_TYPE_VALUE_LIST = "U:Update,C:Create,D:Delete";
-
     [Field(key: true, required: true, description: "Primary key which identifies this entity")]
     [Field(typeof(Entity), nameof(GDID), TMONGO, backendName: "_id")]
     public GDID GDID{ get; set;}
@@ -47,11 +49,11 @@ namespace Azos.IAM.Server.Data
     [Field(typeof(Entity), nameof(VersionTimestamp), TMONGO, backendName: "_vt")]
     public DateTime? VersionTimestamp { get; set; }
 
-    [Field(required: true, description: "Version status", valueList: CHANGE_TYPE_VALUE_LIST)]
+    [Field(required: true, description: "Version status", valueList: ValueLists.ENTITY_VERSION_STATUS_VALUE_LIST)]
     [Field(typeof(Entity), nameof(VersionStatus), TMONGO, backendName: "_vs")]
     public char? VersionStatus {  get; set; }
 
-    [Field(required: true, description: "Actor/User who caused the change")]//not indexed, use Audit for searches instead
+    [Field(required: true, description: "Actor/User who authored the version")]//not indexed, use Audit for searches instead
     [Field(typeof(Entity), nameof(G_VersionActor), TMONGO, backendName: "_va")]
     public GDID G_VersionActor { get; set; }
   }
@@ -62,13 +64,39 @@ namespace Azos.IAM.Server.Data
   /// </summary>
   public abstract class EntityWithProperties : Entity
   {
-    [Field(description: "Provides an optional description")]
+    [Field(
+        maxLength: Sizes.DESCRIPTION_MAX,
+        description: "Provides an optional description")]
     [Field(typeof(EntityWithProperties), nameof(Description), TMONGO, backendName: "d")]
     public string Description { get; set; }
 
-    [Field(required: false, description: "Properties")]
+    [Field(required: false,
+           maxLength: Sizes.PROPERTY_COUNT_MAX,
+           description: "Properties")]
     [Field(typeof(EntityWithProperties), nameof(PropertyData), TMONGO, backendName: "props")]
     public JsonDataMap PropertyData { get; set; }//JsonDataMap is used because it is supported by all ser frameworks, but we only store strings
+
+    public override Exception Validate(string targetName)
+    {
+      var ve = base.Validate(targetName);
+      if (ve!=null) return ve;
+
+      if (PropertyData==null) return null;
+
+      foreach(var kvp in PropertyData)
+      {
+        if (kvp.Key.Length > Sizes.PROPERTY_NAME_MAX)
+          return new FieldValidationException(this, kvp.Key.TakeLastChars(32, ".."),
+                            StringConsts.ENTITY_PROPERTY_NAME_LONG_ERROR.Args(Sizes.PROPERTY_NAME_MAX));
+
+        if (kvp.Value != null && kvp.Value.AsString().Length > Sizes.PROPERTY_VALUE_MAX)
+          return new FieldValidationException(this, kvp.Key.TakeLastChars(32, ".."),
+                            StringConsts.ENTITY_PROPERTY_VALUE_LONG_ERROR.Args(Sizes.PROPERTY_VALUE_MAX));
+      }
+
+      return null;
+    }
+
   }
 
   /// <summary>
@@ -91,7 +119,9 @@ namespace Azos.IAM.Server.Data
     /// <summary>
     /// The Audit* family of columns provide the minimum history in case of Audit log deletion/purge
     /// </summary>
-    [Field(required: true, description: "Captures the actor/user account who created this entity. This value never changes after that")]
+    [Field(required: true,
+           maxLength: Sizes.ACCOUNT_TITLE_MAX,
+           description: "Captures the actor/user account who created this entity. This value never changes after that")]
     [Field(typeof(EntityWithRights), nameof(AuditCreateActorTitle), TMONGO, backendName: "a_ca")]
     public string    AuditCreateActorTitle { get; set; }
 
@@ -105,7 +135,9 @@ namespace Azos.IAM.Server.Data
     /// <summary>
     /// The Audit* family of columns provide the minimum history in case of Audit log deletion/purge
     /// </summary>
-    [Field(required: true, description: "Captures the actor/user account title who has performed the last modifications")]
+    [Field(required: true,
+           maxLength: Sizes.ACCOUNT_TITLE_MAX,
+           description: "Captures the actor/user account title who has performed the last modifications")]
     [Field(typeof(EntityWithRights), nameof(AuditLastModifyActorTitle), TMONGO, backendName: "a_lma")]
     public string    AuditLastModifyActorTitle { get; set; }
 
@@ -123,12 +155,22 @@ namespace Azos.IAM.Server.Data
     [Field(typeof(EntityWithRights), nameof(LockDate), TMONGO, backendName: "lckd")]
     public DateTime? LockDate { get; set; }
 
-    [Field(description: "Optional note associated with optional temporary lock timestamp. A note may contain a reason why entity is locked-out")]
+    /// <summary>
+    /// If this date is specified and the the current UTC is over this date then Lock considers to be auto-lifted
+    /// </summary>
+    [Field(description: "If this date is specified and the the current UTC is over this date then Lock considers to be auto-lifted")]
+    [Field(typeof(EntityWithRights), nameof(LockAutoResetDate), TMONGO, backendName: "lckard")]
+    public DateTime? LockAutoResetDate { get; set; }
+
+    [Field(maxLength: Sizes.NOTE_MAX,
+           description: "Optional note associated with optional temporary lock timestamp. A note may contain a reason why entity is locked-out")]
     [Field(typeof(EntityWithRights), nameof(LockNote), TMONGO, backendName: "lckn")]
     public string    LockNote { get; set; }
 
 
-    [Field(required: false, description: "Access rights")]
+    [Field(required: false,
+           maxLength: Sizes.RIGHTS_DATA_MAX,
+           description: "Access rights")]
     [Field(typeof(EntityWithRights), nameof(RightsData), TMONGO, backendName: "r")]
     public string RightsData
     {

@@ -66,7 +66,7 @@ namespace Azos.Collections
     public interface IOrderedRegistry<out T> : IRegistry<T> where T : INamed, IOrdered
     {
       /// <summary>
-      /// Returns items that registry contains ordered by their Order property.
+      /// Returns items that the registry contains, ordered by their Order property.
       /// The returned sequence is pre-sorted during alteration of registry, so this property access is efficient.
       /// Note: since registry does reading in a lock-free manner, it is possible to have an inconsistent read snapshot
       ///  of ordered items which may capture items that have already/not yet been added to the registry
@@ -105,12 +105,15 @@ namespace Azos.Collections
 
 
     /// <summary>
-    /// Represents a thread-safe registry of T. This class is efficient for lock-free concurrent read access and is
-    /// not designed for cases when frequent modifications happen. It is ideal for lookup of named instances
+    /// Represents a thread-safe registry of T. This class is efficient for lock-free concurrent read access (and enumeration) and
+    /// is not designed for cases when frequent modifications happen. It is ideal for lookups of named instances
     /// (such as components) that have much longer life time span than components that look them up.
-    /// Registry performs lock-free lookup which speeds-up many concurrent operations that need to map
-    /// names into objects. The enumeration over registry makes a snapshot of its data, hence a registry may
-    /// get modified by other threads while being enumerated (snapshot consistency).
+    /// Registry performs lock-free lookup which speeds-up many concurrent operations that need to map string
+    /// names into objects. The enumeration over registry uses a logical snapshot of its data, hence a registry may
+    /// get modified by other threads while being enumerated (snapshot consistency is provided), as all modifications
+    /// are performed on a new instance of internal data structure.
+    /// The performance for read is O(1) regardless of record count or number of concurrent readers, whereas concurrent mutation performance is O(n * c) where
+    /// c is the number of concurrent mutators and n is the record count
     /// </summary>
     [Serializable]
     public class Registry<T> : IRegistry<T> where T : INamed
@@ -133,7 +136,7 @@ namespace Azos.Collections
 
       public Registry(IEnumerable<T> other, bool caseSensitive) : this(caseSensitive)
       {
-        foreach(var item in other)
+        foreach(var item in other.NonNull(nameof(other)))
           m_Data[item.Name] = item;
 
         Thread.MemoryBarrier();
@@ -159,6 +162,8 @@ namespace Azos.Collections
       {
         get
         {
+          name.NonNull(nameof(name));
+
           var data = m_Data;//atomic
           T result;
           if (data.TryGetValue(name, out result)) return result;
@@ -176,7 +181,9 @@ namespace Azos.Collections
       /// </summary>
       public bool Register(T item)
       {
-        lock(m_Sync)
+        ((object)item).NonNull(nameof(item));
+
+        lock (m_Sync)
         {
           if (m_Data.ContainsKey(item.Name)) return false;
 
@@ -206,6 +213,8 @@ namespace Azos.Collections
       /// </summary>
       public bool RegisterOrReplace(T item, out T existing)
       {
+        ((object)item).NonNull(nameof(item));
+
         bool hadExisting;
         lock(m_Sync)
         {
@@ -237,7 +246,9 @@ namespace Azos.Collections
       /// </summary>
       public bool Unregister(T item)
       {
-        lock(m_Sync)
+        ((object)item).NonNull(nameof(item));
+
+        lock (m_Sync)
         {
           if (!m_Data.ContainsKey(item.Name)) return false;
 
@@ -258,7 +269,9 @@ namespace Azos.Collections
       /// </summary>
       public bool Unregister(string name)
       {
-        lock(m_Sync)
+        name.NonNull(nameof(name));
+
+        lock (m_Sync)
         {
           T item;
           if (!m_Data.TryGetValue(name, out item)) return false;
@@ -292,11 +305,16 @@ namespace Azos.Collections
       ///  new item. The first lookup is performed in a lock-free way and if an item is found then it is immediately returned.
       ///  The second check and factory call operation is performed atomically under the lock to ensure consistency
       /// </summary>
+      public T GetOrRegister(string name, Func<string, T> regFactory)
+        => this.GetOrRegister<string>(name, n => regFactory(n), name, out var wasAdded);
+
+      /// <summary>
+      /// Tries to find an item by name, and returns it if it is found, otherwise calls a factory function supplying context value and registers the obtained
+      ///  new item. The first lookup is performed in a lock-free way and if an item is found then it is immediately returned.
+      ///  The second check and factory call operation is performed atomically under the lock to ensure consistency
+      /// </summary>
       public T GetOrRegister<TContext>(string name, Func<TContext, T> regFactory, TContext context)
-      {
-        bool wasAdded;
-        return this.GetOrRegister<TContext>(name, regFactory, context, out wasAdded);
-      }
+       => this.GetOrRegister<TContext>(name, regFactory, context, out var wasAdded);
 
 
       /// <summary>
@@ -306,6 +324,9 @@ namespace Azos.Collections
       /// </summary>
       public T GetOrRegister<TContext>(string name, Func<TContext, T> regFactory, TContext context, out bool wasAdded)
       {
+        name.NonNull(nameof(name));
+        regFactory.NonNull(nameof(regFactory));
+
         //1st check - lock-free lookup attempt
         var data = m_Data;
         T result;
@@ -331,6 +352,7 @@ namespace Azos.Collections
         }
       }
 
+      //notice that enumeration does not cause extra copy allocation
       public IEnumerator<T> GetEnumerator()
       {
         var data = m_Data;//atomic
@@ -363,13 +385,13 @@ namespace Azos.Collections
       public bool ContainsName(string name)
       {
         var data = m_Data;
-        return data.ContainsKey(name);
+        return data.ContainsKey(name.NonNull(nameof(name)));
       }
 
       public bool TryGetValue(string name, out T value)
       {
         var data = m_Data;
-        return data.TryGetValue(name, out value);
+        return data.TryGetValue(name.NonNull(nameof(name)), out value);
       }
 
       //called under the lock
@@ -405,7 +427,7 @@ namespace Azos.Collections
       }
 
 
-      private List<T> m_OrderedValues;
+      private volatile List<T> m_OrderedValues;
 
       /// <summary>
       /// Returns items that registry contains ordered by their Order property.

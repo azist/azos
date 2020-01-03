@@ -19,7 +19,7 @@ namespace Azos.IAM.Protocol
     public string FilterExpression {  get; set; }
 
     protected override async Task<SaveResult<IEnumerable<EntityInfo>>> DoSaveAsync()
-     => new SaveResult<IEnumerable<EntityInfo>>(await m_Logic.FilterAsync(this));
+     => new SaveResult<IEnumerable<EntityInfo>>(await m_Logic.FilterListAsync(this));
   }
 
   public sealed class EntityInfo : TransientModel

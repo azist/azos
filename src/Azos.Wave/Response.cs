@@ -528,7 +528,7 @@ namespace Azos.Wave
 
         AddHeader(WebConsts.HTTP_SET_COOKIE,
                              "{0}={1};path=/;expires={2};HttpOnly"
-                           .Args(cookieName, cv, Work.App.TimeSource.UTCNow.AddYears(100).DateTimeToHTTPCookieDateTime() ));
+                           .Args(cookieName, cv, WebUtils.DateTimeToHTTPCookieDateTime(Work.App.TimeSource.UTCNow.AddYears(100))));
       }
 
 

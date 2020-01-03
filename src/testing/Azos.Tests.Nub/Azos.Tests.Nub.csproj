@@ -7,6 +7,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\out\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -16,11 +17,17 @@
   <ItemGroup>
     <None Remove="DataAccess\custom\aaa.laconf" />
     <None Remove="DataAccess\schemas.laconf" />
+    <None Remove="Web\MultiPart\Resources\bmp.dat" />
+    <None Remove="Web\MultiPart\Resources\test.dat" />
+    <None Remove="Web\MultiPart\Resources\txt.dat" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="DataAccess\custom\aaa.laconf" />
     <EmbeddedResource Include="DataAccess\schemas.laconf" />
+    <EmbeddedResource Include="Web\MultiPart\Resources\bmp.dat" />
+    <EmbeddedResource Include="Web\MultiPart\Resources\test.dat" />
+    <EmbeddedResource Include="Web\MultiPart\Resources\txt.dat" />
   </ItemGroup>
 
   <ItemGroup>

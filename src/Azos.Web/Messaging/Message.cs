@@ -41,7 +41,7 @@ namespace Azos.Web.Messaging
       public bool HasContent{ get{ return Content!= null || ContentURL.IsNotNullOrWhiteSpace();} }
     }
 
-    protected Message(){ }
+    public Message(){ }
 
     public Message(Guid? id, DateTime? utcCreateDate = null)
     {

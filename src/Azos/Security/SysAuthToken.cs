@@ -12,7 +12,8 @@ namespace Azos.Security
   /// <summary>
   /// Represents security provider-internal ID that SecurityManager assigns into User object on authentication.
   /// These tokens can be used in place of Credentials to re-authenticate users or to re-query user rights (e.g. upon re/authorization).
-  /// External parties should never be supplied with this struct as it is system backend internal token used inside the system
+  /// External parties should never be supplied this struct as it is a system backend-internal token meant to be used only inside the system
+  /// perimeter (e.g. corporate intranet, data center network etc.)
   /// </summary>
   [Serializable]
   public struct SysAuthToken : IEquatable<SysAuthToken>, IJsonWritable, IJsonReadable
@@ -65,7 +66,7 @@ namespace Azos.Security
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options) => JsonWriter.EncodeString(wri, ToString(), options);
 
-    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
       if (data == null) return (true, new SysAuthToken());
 
@@ -80,7 +81,7 @@ namespace Azos.Security
 
     /// <summary>
     /// Tries to parse the token represented by string obtained from ToString() call.
-    /// Null/Empty strings are treated as a successful conversion to unassigned
+    /// Null/Empty strings are treated as a successful conversion to an unassigned value
     /// </summary>
     public static bool TryParse(string token, out SysAuthToken parsed)
     {

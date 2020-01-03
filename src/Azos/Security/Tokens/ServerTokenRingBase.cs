@@ -56,7 +56,7 @@ namespace Azos.Security.Tokens
     [Config]
     public string IssuerName
     {
-      get => m_IssuerName.IsNotNullOrWhiteSpace() ? m_IssuerName : Log.Message.DefaultHostName;
+      get => m_IssuerName.IsNotNullOrWhiteSpace() ? m_IssuerName : Platform.Computer.HostName;
       set => m_IssuerName = value;
     }
 
@@ -147,7 +147,7 @@ namespace Azos.Security.Tokens
       if (!s_TableNames.TryGetValue(ttoken, out var name))
       {
         var schema = Schema.GetForTypedDoc(ttoken);
-        name = schema.GetTableAttrForTarget(null).Name;
+        name = schema.GetSchemaAttrForTarget(null).Name;
         var dict = new Dictionary<Type, string>(s_TableNames);
         dict[ttoken] = name;
         System.Threading.Thread.MemoryBarrier();

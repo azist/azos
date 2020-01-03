@@ -48,11 +48,11 @@ namespace Azos.Tests.Nub.Application
       string got;
       Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "FID", out got));
       Aver.IsTrue( got.IsNotNullOrWhiteSpace() );
-      Console.WriteLine(got);
+      got.See();
 
       Aver.IsTrue(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "FIDX", out got));
       Aver.IsTrue(got.IsNotNullOrWhiteSpace());
-      Console.WriteLine(got);
+      got.See();
     }
 
     [Run]

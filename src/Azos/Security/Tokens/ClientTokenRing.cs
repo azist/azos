@@ -43,7 +43,7 @@ namespace Azos.Security.Tokens
     [Config]
     public string IssuerName
     {
-      get => m_IssuerName.IsNotNullOrWhiteSpace() ? m_IssuerName : Log.Message.DefaultHostName;
+      get => m_IssuerName.IsNotNullOrWhiteSpace() ? m_IssuerName : Platform.Computer.HostName;
       set => m_IssuerName = value;
     }
 
@@ -96,7 +96,7 @@ namespace Azos.Security.Tokens
       TToken content = null;
       try
       {
-        content = JsonReader.ToDoc<TToken>(deciphered, nameBinding: JsonReader.NameBinding.ByBackendName(RingToken.PROTECTED_MSG_TARGET));
+        content = JsonReader.ToDoc<TToken>(deciphered, options: JsonReader.DocReadOptions.BindByBackendName(RingToken.PROTECTED_MSG_TARGET));
       }
       catch(Exception error)
       {

@@ -1,9 +1,10 @@
-﻿# Data Schema Metadata
+﻿# Data Document Schema / Metadata
 Back to [Documentation Index](/src/documentation-index.md)
 
 This section describes accessing/working with Data in Azos.
 See also:
 - [Data Access Overview](readme.md) 
+- [Advanced Metadata](advanced-meta.md)
 - [Data Validation with Domains](domains.md)
 - [Data Modeling](modeling.md)
 
@@ -59,7 +60,7 @@ version/structure, as in the example below, older system has slightly different 
 );
 ```
 
-or you can get a schema for any of `TypedDoc` derivatives which "shape" data explicitly - by constitution. An important
+or you can get a schema for any of `TypedDoc` derivatives which "shape" data explicitly - by type layout/constitution. An important
 distinction between ad-hoc and typed schemas - the typed schema instances are pooled per type, so
 if you obtain the schema **for the same type you will get the same instance for all calls**.
 
@@ -92,8 +93,13 @@ if you obtain the schema **for the same type you will get the same instance for 
 
 ## Field Attribute
 
-The [`FieldAttribute`](Attributes.cs#L159) class is the cornerstone of metadata specification. Public class properties must
+The [`FieldAttribute`](attrs/FieldAttribute.cs) class is the cornerstone of metadata specification. Public class properties must
 be decorated by one or more (in case of multi-targeting) `[Field]` attributes. 
+
+Every public property of a data document class decorated by one or more `[Field]` attribute/s is called a data document field and
+gets represented as an instance of [`Schema.FieldDef`](Schema.FieldDef.cs) class. A `FieldDef`, in turn, has a collection of 
+`FieldAttribute` instances which describe the field traits per `TargetName`. A collection has at least one attribute with "*" target which
+is also called `const ANY_TARGET`. Please see [Advanced Metadata](advanced-meta.md) for details on multi targeting, resource redirection etc...
 
 The following table describes `FieldAttribute` properties (that is: metadata for fields in data documents):
 
@@ -104,7 +110,7 @@ The following table describes `FieldAttribute` properties (that is: metadata for
  kind |DataKind| Specifies data kinds such as: `Text, ScreenName, Color, Date, DateTime, DateTimeLocal, EMail, Month, Number, Range, Money, Search, Telephone, Time, Url, Week`
  required|bool| True to indicate that field must have a non-null value
  visible|bool| True indicates that field is shown on the UI (used for MVVM)
-valueList|string| A delimited list of permissible lookup values (lookup dictionary)
+valueList|string| A delimited list of permissible lookup values (lookup dictionary). List values are separated with either comma or semicolon having keys delimited from value with colons. Example: `"a: apple, b: banana"` or `"a:apple;b:banana"`. You can separate alternate keys with pipes, example: `"01|1|one: Choice one;02|2|two: Choice two"`
 dflt|object|Default field value (if any)
 min|object|Minimum allowed value or null
 max|object|Maximum allowed value or null
@@ -234,13 +240,9 @@ metadata supplied via `[Field]` attributes:
 
 
 
-
-
-
-
-
 See also:
 - [Data Access Overview](readme.md)
+- [Advanced Metadata](advanced-meta.md)
 - [Data Validation with Domains](domains.md)
 - [Data Modeling](modeling.md)
 

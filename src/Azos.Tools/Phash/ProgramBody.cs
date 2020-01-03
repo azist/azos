@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 
 using Azos.Apps;
-using Azos.IO;
+using Azos.IO.Console;
 using Azos.Security;
 using Azos.Serialization.JSON;
 using Azos.Platform;

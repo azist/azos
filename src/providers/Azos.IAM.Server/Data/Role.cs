@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 using Azos.Data;
+using Azos.IAM.Protocol;
 
 namespace Azos.IAM.Server.Data
 {
@@ -16,9 +15,11 @@ namespace Azos.IAM.Server.Data
   {
     [Field(required: true,
            kind: DataKind.ScreenName,
+           minLength: Sizes.ENTITY_ID_MIN,
+           maxLength: Sizes.ENTITY_ID_MAX,
            description: "Unique Role ID. Do not change the ID as all links to it will become invalid",
            metadata: "idx{name='main' order=0 unique=true dir=asc}")]
-    [Field(typeof(Group), nameof(ID), TMONGO, backendName: "id")]
+    [Field(typeof(Role), nameof(ID), TMONGO, backendName: "id")]
     public string ID { get; set; }
   }
 }

@@ -27,7 +27,7 @@ namespace Azos.Data
   public interface IDataDoc : IEquatable<Doc>, IEnumerable<Object>, IValidatable, IConfigurable, IConfigurationPersistent
   {
     /// <summary>
-    /// Returns schema object that describes fields of this document
+    /// Returns schema object that describes field structure of this document
     /// </summary>
     Schema Schema { get; }
 
@@ -656,52 +656,59 @@ namespace Azos.Data
     #region IJSONWritable
 
     /// <summary>
-    /// Writes row as JSON either as an array or map depending on JSONWritingOptions.RowsAsMap setting.
-    /// Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
+    /// Writes doc as JSON either as an array or map depending on JSONWritingOptions.RowsAsMap setting.
+    /// Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class.
+    /// Override to perform custom JSOn serialization
     /// </summary>
     public virtual void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
-        if (options==null || !options.RowsAsMap)
+      if (options==null || !options.RowsAsMap)
+      {
+        JsonWriter.WriteArray(wri, this, nestingLevel, options);
+        return;
+      }
+
+      var map = new Dictionary<string, object>();
+
+      foreach(var fd in Schema)
+      {
+        string name;
+
+        var val = FilterJsonSerializerField(fd, options, out name);
+        if (name.IsNullOrWhiteSpace()) continue;//field was excluded for Json serialization
+
+        AddJsonSerializerField(fd, options, map, name, val);
+      }
+
+      if (this is IAmorphousData amorph)
+      {
+        if (amorph.AmorphousDataEnabled)
         {
-          JsonWriter.WriteArray(wri, this, nestingLevel, options);
-          return;
-        }
-
-        var map = new Dictionary<string, object>();
-
-        foreach(var fd in Schema)
-        {
-          string name;
-
-          var val = FilterJsonSerializerField(fd, options, out name);
-          if (name.IsNullOrWhiteSpace()) continue;
-
-          AddJsonSerializerField(fd, options, map, name, val);
-        }
-
-        if (this is IAmorphousData amorph)
-        {
-          if (amorph.AmorphousDataEnabled)
+          foreach(var kv in amorph.AmorphousData)
           {
-            foreach(var kv in amorph.AmorphousData)
-            {
-              var key = kv.Key;
-              while(map.ContainsKey(key)) key+="_";
-              AddJsonSerializerField(null, options, map, key, kv.Value);
-            }
+            var key = kv.Key;
+            while(map.ContainsKey(key)) key += "_";
+            AddJsonSerializerField(null, options, map, key, kv.Value);
           }
         }
+      }
 
-        JsonWriter.WriteMap(wri, map, nestingLevel, options);
+      JsonWriter.WriteMap(wri, map, nestingLevel, options);//perform actual Json writing
     }
 
-
-
-    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    /// <summary>
+    /// Override to perform custom deserialization from Json.
+    /// The default implementation delegates the work to JsonReader class
+    /// </summary>
+    /// <param name="data">Data to deserialize, must be JsonDataMap to succeed</param>
+    /// <param name="fromUI">True is passed when the deserialization is coming from a datagram supplied by user interface</param>
+    /// <param name="options">Specifies how to bind names</param>
+    /// <returns>Tuple of (bool match, IJsonReadable self)</returns>
+    public virtual (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
       if (data is JsonDataMap map)
       {
-        JsonReader.ToDoc(this, map, fromUI, nameBinding);
+        JsonReader.ToDoc(this, map, fromUI, options);
         return (true, this);
       }
       return (false, this);
