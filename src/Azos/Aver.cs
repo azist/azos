@@ -79,8 +79,8 @@ namespace Azos
            throw new AvermentException(StringConsts.AVER_THROWS_MSG_MISMATCH_ERROR.Args(
                                         method.Name,
                                         attr.MsgMatch,
-                                        attr.Message,
-                                        error.Message), from, error);
+                                        attr.Message.TakeLastChars(36, ".."),
+                                        error.Message.TakeLastChars(36, "..")), from, error);
         }
 
         return true;

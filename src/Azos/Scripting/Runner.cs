@@ -415,19 +415,25 @@ namespace Azos.Scripting
       {
         if (error is TargetInvocationException tie) error = tie.InnerException;
 
+        var original = error;
+
         if (state!=null)
          state.ForEach(tpl => tpl.a.After(this, runnable, id, method.mi, method.attr, tpl.s, ref error));
 
         if (error!=null)
-          throw;//keep original stack frame
+        {
+          if (error==original) throw;//keep original stack frame
+          throw error;
+        }
         else
-          return;
+          return;//error suppressed by attribute
       }
 
       if (state != null)
       {
         Exception error = null;
         state.ForEach(tpl => tpl.a.After(this, runnable, id, method.mi, method.attr, tpl.s, ref error));
+        if (error!=null) throw error;
       }
     }
 
