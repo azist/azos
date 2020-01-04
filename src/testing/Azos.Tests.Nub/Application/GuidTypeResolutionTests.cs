@@ -34,6 +34,69 @@ namespace Azos.Tests.Nub.Application
       GuidTypeAttribute.GetGuidTypeAttribute<ClassB, TeztAnotherAttribute>(typeof(ClassB));//throws
     }
 
+    [Run]
+    public void Test_04()
+    {
+      var got = GuidTypeAttribute.GetGuidTypeAttribute<ClassB, TeztIdAttribute>(typeof(ClassB));
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got is TeztIdAttribute);
+      Aver.AreEqual(Guid.Parse("AE243F77-25D3-4841-BEBE-4C8CE0B364E4"), got.TypeGuid);
+    }
+
+    [Run]
+    public void Test_05()
+    {
+      var resolver = new GuidTypeResolver<ClassA, TeztIdAttribute>(typeof(ClassA), typeof(ClassB));
+      var got = resolver.Resolve(Guid.Parse("7554D6D1-B62E-419A-B88D-2B69B51746DC"));
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got == typeof(ClassA));
+
+      got = resolver.Resolve(Guid.Parse("AE243F77-25D3-4841-BEBE-4C8CE0B364E4"));
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got == typeof(ClassB));
+    }
+
+    [Run]
+    public void Test_06()
+    {
+      var resolver = new GuidTypeResolver<ClassA, TeztIdAttribute>("r{ assembly{name='Azos.Tests.Nub.dll' ns='Azos.Tests.Nub.App*'}}".AsLaconicConfig());
+      var got = resolver.Resolve(Guid.Parse("7554D6D1-B62E-419A-B88D-2B69B51746DC"));
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got == typeof(ClassA));
+
+      got = resolver.Resolve(Guid.Parse("AE243F77-25D3-4841-BEBE-4C8CE0B364E4"));
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got == typeof(ClassB));
+    }
+
+    [Run]
+    public void Test_07()
+    {
+      var resolver = new GuidTypeResolver<ClassA, TeztAnotherAttribute>("r{ assembly{name='Azos.Tests.Nub.dll'}}".AsLaconicConfig());
+      var got = resolver.Resolve(Guid.Parse("AE243F77-25D3-4841-BEBE-4C8CE0B364E4"));
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got == typeof(ClassA));
+
+      got = resolver.Resolve(Guid.Parse("C3653758-B881-4C9A-A357-C0537CAFEC5C"));
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got == typeof(ClassA2));
+    }
+
+
+    [Run]
+    public void Test_08()
+    {
+      var resolver = new GuidTypeResolver<ClassA, TeztAnotherAttribute>("r{ assembly{name='Azos.Tests.Nub.dll'}}".AsLaconicConfig());
+      var got = resolver.TryResolve(Guid.Parse("7554D6D1-B62E-419A-B88D-2B69B51746DC"));//guid form a different attribute type
+      Aver.IsNull(got);
+    }
+
+    [Run, Aver.Throws(typeof(AzosException), Message = "does not map to any")]
+    public void Test_09()
+    {
+      var resolver = new GuidTypeResolver<ClassA, TeztAnotherAttribute>("r{ assembly{name='Azos.Tests.Nub.dll'}}".AsLaconicConfig());
+      resolver.Resolve(Guid.Parse("7554D6D1-B62E-419A-B88D-2B69B51746DC"));//THROWS
+    }
 
     public class TeztIdAttribute : GuidTypeAttribute
     {
@@ -53,12 +116,12 @@ namespace Azos.Tests.Nub.Application
     }
 
     [TeztId("AE243F77-25D3-4841-BEBE-4C8CE0B364E4")]
-    public class ClassB
+    public class ClassB : ClassA
     {
 
     }
 
-    [TeztAnother("{C3653758-B881-4C9A-A357-C0537CAFEC5C}")]
+    [TeztAnother("C3653758-B881-4C9A-A357-C0537CAFEC5C")]
     public class ClassA2 : ClassA
     {
 

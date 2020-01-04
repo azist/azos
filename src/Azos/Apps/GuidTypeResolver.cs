@@ -53,11 +53,21 @@ namespace Azos.Apps
     /// </summary>
     public static TAttribute GetGuidTypeAttribute<TDecorationTarget, TAttribute>(Type type) where TAttribute : GuidTypeAttribute
     {
-      var result = s_Cache[type.IsOfType<TDecorationTarget>(nameof(type))]?[typeof(TAttribute)] as TAttribute;
+      var result = TryGetGuidTypeAttribute<TDecorationTarget, TAttribute>(type);
 
       if (result == null)
         throw new AzosException(StringConsts.GUID_TYPE_RESOLVER_MISSING_ATTRIBUTE_ERROR.Args(type.FullName, typeof(TAttribute).FullName));
 
+      return result;
+    }
+
+    /// <summary>
+    /// Returns TAttribute:GuidTypeAttribute for a type.
+    /// If type is not decorated by the attribute then null is returned
+    /// </summary>
+    public static TAttribute TryGetGuidTypeAttribute<TDecorationTarget, TAttribute>(Type type) where TAttribute : GuidTypeAttribute
+    {
+      var result = s_Cache[type.IsOfType<TDecorationTarget>(nameof(type))]?[typeof(TAttribute)] as TAttribute;
       return result;
     }
 
@@ -129,10 +139,11 @@ namespace Azos.Apps
 
         var asm = Assembly.LoadFrom(asmName);
 
-        foreach (var type in asm.GetTypes().Where(t => t.IsPublic && t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(TDecorationTarget))))
+        foreach (var type in asm.GetTypes().Where( t => t.IsClass && !t.IsAbstract && typeof(TDecorationTarget).IsAssignableFrom(t))) //.Where(t => t.IsPublic && t.IsClass && !t.IsAbstract && typeof(TDecorationTarget).IsAssignableFrom(t)))
         {
           if (asmNS.IsNotNullOrWhiteSpace() && !Azos.Text.Utils.MatchPattern(type.FullName, asmNS)) continue;
-          var atr = GuidTypeAttribute.GetGuidTypeAttribute<TDecorationTarget, TAttribute>(type);
+          var atr = GuidTypeAttribute.TryGetGuidTypeAttribute<TDecorationTarget, TAttribute>(type);
+          if (atr==null) continue;
 
           Type existing;
           if (m_Cache.TryGetValue(atr.TypeGuid, out existing))
