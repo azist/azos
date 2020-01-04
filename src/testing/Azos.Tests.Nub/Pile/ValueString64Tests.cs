@@ -68,10 +68,10 @@ namespace Azos.Tests.Nub.Pile
       "Allocated string[{0:n0}] in {1:n0}ms    ValueString[{2:n0}]{3:n0}    Complex[{4:n0}]{5:n0}".SeeArgs(a1.Length, e1, a2.Length,  e2, a3.Length, e3);
     }
 
-    [Run, Aver.Throws(typeof(AzosException), Message = "Length > 16")]
+    [Run, Aver.Throws(typeof(AzosException), Message = "Length > 64")]
     public void TooLong()
     {
-      var v = new VALS("jpofiaojdfopisjapofijapsojidfpoisajpofjaspojpiaofsdjf");
+      var v = new VALS("jpofiaojdfopisjapofijapsojidfpoisajpofjaspojpiaofsdjfyitrreuytieyirtyeiuytiuey");
     }
 
     [Run]
