@@ -40,7 +40,7 @@ namespace Azos.Log
   /// <summary>
   /// Marker interface for entities that can be stored in archives, such as access/telemetry logs
   /// </summary>
-  public interface IArchiveLoggable : IBSONDeserializable, IBSONSerializable//IDataDoc
+  public interface IArchiveLoggable : IDataDoc
   {
 
   }

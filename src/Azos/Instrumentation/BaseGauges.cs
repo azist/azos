@@ -29,6 +29,7 @@ namespace Azos.Instrumentation
     /// <summary>
     /// Gets gauge value
     /// </summary>
+    [Field, Field(isArow: true, backendName: "v")]
     public long Value { get { return m_Value; } }
 
     public override object ValueAsObject { get { return m_Value; } }
@@ -60,7 +61,7 @@ namespace Azos.Instrumentation
 
     protected override void SummarizeAggregation()
     {
-      m_Value = m_Sum / m_Count;
+      m_Value = m_Sum / Count;
     }
   }
 
@@ -80,6 +81,7 @@ namespace Azos.Instrumentation
     /// <summary>
     /// Gets gauge value
     /// </summary>
+    [Field, Field(isArow: true, backendName: "v")]
     public double Value { get { return m_Value; } }
 
     public override object ValueAsObject { get { return m_Value; } }
@@ -111,8 +113,8 @@ namespace Azos.Instrumentation
 
     protected override void SummarizeAggregation()
     {
-      if (m_Count > 0)
-        m_Value = m_Sum / (double)m_Count;
+      if (Count > 0)
+        m_Value = m_Sum / (double)Count;
     }
   }
 
@@ -132,6 +134,7 @@ namespace Azos.Instrumentation
     /// <summary>
     /// Gets gauge value
     /// </summary>
+    [Field, Field(isArow: true, backendName: "v")]
     public decimal Value { get { return m_Value; } }
 
     public override object ValueAsObject { get { return m_Value; } }
@@ -163,8 +166,8 @@ namespace Azos.Instrumentation
 
     protected override void SummarizeAggregation()
     {
-      if (m_Count > 0)
-        m_Value = m_Sum / (decimal)m_Count;
+      if (Count > 0)
+        m_Value = m_Sum / (decimal)Count;
     }
   }
 
@@ -202,6 +205,7 @@ namespace Azos.Instrumentation
     /// <summary>
     /// Gets gauge value
     /// </summary>
+    [Field, Field(isArow: true, backendName: "v")]
     public Amount Value { get { return m_Value; } }
 
     public override object ValueAsObject { get { return m_Value; } }
@@ -235,8 +239,8 @@ namespace Azos.Instrumentation
 
     protected override void SummarizeAggregation()
     {
-      if (m_Count > 0)
-        m_Value = m_Sum / (double)m_Count;
+      if (Count > 0)
+        m_Value = m_Sum / (double)Count;
     }
   }
 }
