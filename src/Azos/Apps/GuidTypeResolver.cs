@@ -10,11 +10,12 @@ using System.Linq;
 using System.Reflection;
 
 using Azos.Conf;
+using Azos.Platform;
 
 namespace Azos.Apps
 {
   /// <summary>
-  /// Describe an entity that resolve type guids into local CLR types
+  /// Describe an entity that resolve type Guid ids into CLR type objects
   /// </summary>
   public interface IGuidTypeResolver
   {
@@ -33,73 +34,58 @@ namespace Azos.Apps
   /// <summary>
   /// Provides information about the decorated type: assigns a globally-unique immutable type id
   /// </summary>
+  [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   public abstract class GuidTypeAttribute : Attribute
   {
     /// <summary>
-    /// Returns TypeGuidAttribute for a type encapsulated in guid.
+    /// Returns TAttribute:GuidTypeAttribute for a type represented by a Guid.
     /// If type is not decorated by the attribute then exception is thrown
     /// </summary>
-    public static A GetGuidTypeAttribute<T, A>(Guid guid, IGuidTypeResolver resolver) where A : GuidTypeAttribute
+    public static TAttribute GetGuidTypeAttribute<TDecorationTarget, TAttribute>(Guid guid, IGuidTypeResolver resolver) where TAttribute : GuidTypeAttribute
     {
-      if (resolver == null)
-        throw new AzosException(StringConsts.ARGUMENT_ERROR + typeof(A).FullName + ".GetGuidTypeAttribute(resolver==null)");
-
-      var type = resolver.Resolve(guid);
-      return GetGuidTypeAttribute<T, A>(type);
+      var type = resolver.NonNull(nameof(resolver)).Resolve(guid);
+      return GetGuidTypeAttribute<TDecorationTarget, TAttribute>(type);
     }
 
     /// <summary>
-    /// Returns TypeGuidAttribute for a type.
+    /// Returns TAttribute:GuidTypeAttribute for a type.
     /// If type is not decorated by the attribute then exception is thrown
     /// </summary>
-    public static A GetGuidTypeAttribute<T, A>(Type type) where A : GuidTypeAttribute
+    public static TAttribute GetGuidTypeAttribute<TDecorationTarget, TAttribute>(Type type) where TAttribute : GuidTypeAttribute
     {
-      if (type == null || !typeof(T).IsAssignableFrom(type))
-        throw new AzosException(StringConsts.ARGUMENT_ERROR + typeof(A).FullName + ".GetGuidTypeAttribute(todo=null|!" + typeof(T).FullName + ")");
+      var result = s_Cache[type.IsOfType<TDecorationTarget>(nameof(type))]?[typeof(TAttribute)] as TAttribute;
 
-      var result = getGuidTypeAttributeCore<A>(type);
       if (result == null)
-        throw new AzosException(StringConsts.GUID_TYPE_RESOLVER_MISSING_ATTRIBUTE_ERROR.Args(type.FullName, typeof(A).FullName));
+        throw new AzosException(StringConsts.GUID_TYPE_RESOLVER_MISSING_ATTRIBUTE_ERROR.Args(type.FullName, typeof(TAttribute).FullName));
 
       return result;
     }
 
-    private static volatile Dictionary<Type, GuidTypeAttribute> s_Cache = new Dictionary<Type, GuidTypeAttribute>();
-    private static A getGuidTypeAttributeCore<A>(Type type) where A : GuidTypeAttribute
-    {
-      GuidTypeAttribute result;
-      if (!s_Cache.TryGetValue(type, out result))
-      {
-        var attrs = type.GetCustomAttributes(typeof(A), false);
-        if (attrs.Length > 0) result = attrs[0] as A;
-        if (result != null)
-        {
-          var dict = new Dictionary<Type, GuidTypeAttribute>(s_Cache);
-          dict[type] = result;
-          System.Threading.Thread.MemoryBarrier();
-          s_Cache = dict;//atomic
-        }
-      }
-      return result as A;
-    }
+    private static ConstrainedSetLookup<Type, ConstrainedSetLookup<Type, GuidTypeAttribute>> s_Cache =
+      new ConstrainedSetLookup<Type, ConstrainedSetLookup<Type, GuidTypeAttribute>>(
+        ttarget => new ConstrainedSetLookup<Type, GuidTypeAttribute>( tattr => ttarget.GetCustomAttribute(tattr, false) as GuidTypeAttribute)
+    );
 
-    public GuidTypeAttribute(string typeGuid)
+
+    protected GuidTypeAttribute(string typeGuid)
     {
-      Guid guid;
-      if (!Guid.TryParse(typeGuid, out guid))
+      if (!Guid.TryParse(typeGuid.NonBlank(nameof(typeGuid)), out var guid))
         throw new AzosException(StringConsts.ARGUMENT_ERROR + GetType().FullName + ".ctor(typeGuid unparsable)");
 
       TypeGuid = guid;
     }
 
+    /// <summary>
+    /// The Guid of the decorated type which can be mapped back to the Type object which it decorates
+    /// </summary>
     public readonly Guid TypeGuid;
   }
 
   /// <summary>
-  /// Provides default type resolver implementation which looks for types in listed assemblies
-  /// looking for types decorated with the specified attribute
+  /// Provides default type resolver implementation which looks for types in the listed assemblies.
+  /// The searched types must be of TDecorationTarget descent decorated with the specified TAttribute attribute
   /// </summary>
-  public class GuidTypeResolver<T, A> : IGuidTypeResolver where T: class where A : GuidTypeAttribute
+  public class GuidTypeResolver<TDecorationTarget, TAttribute> : IGuidTypeResolver where TDecorationTarget: class where TAttribute : GuidTypeAttribute
   {
     public const string CONFIG_ASSEMBLY_SECTION = "assembly";
     public const string CONFIG_NS_ATTR = "ns";
@@ -109,7 +95,7 @@ namespace Azos.Apps
     {
        if (types==null || types.Length==0) throw new AzosException(StringConsts.ARGUMENT_ERROR + "GuidTypeResolver.ctor(types==null|Empty)");
 
-       var mappings = types.ToDictionary( t => GuidTypeAttribute.GetGuidTypeAttribute<T, A>(t).TypeGuid, t => t );
+       var mappings = types.ToDictionary( t => GuidTypeAttribute.GetGuidTypeAttribute<TDecorationTarget, TAttribute>(t).TypeGuid, t => t );
        ctor(mappings);
     }
 
@@ -124,7 +110,9 @@ namespace Azos.Apps
       if (mappings.Count != mappings.Distinct().Count())
         throw new AzosException(StringConsts.ARGUMENT_ERROR + "GuidTypeResolver.ctor(mappings has duplicates)");
 
-      m_Cache = new Dictionary<Guid,Type>(mappings);
+      m_Cache = new Dictionary<Guid, Type>(mappings);
+
+      System.Threading.Thread.MemoryBarrier();
     }
 
     public GuidTypeResolver(IConfigSectionNode conf)
@@ -141,10 +129,10 @@ namespace Azos.Apps
 
         var asm = Assembly.LoadFrom(asmName);
 
-        foreach (var type in asm.GetTypes().Where(t => t.IsPublic && t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(T))))
+        foreach (var type in asm.GetTypes().Where(t => t.IsPublic && t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(TDecorationTarget))))
         {
           if (asmNS.IsNotNullOrWhiteSpace() && !Azos.Text.Utils.MatchPattern(type.FullName, asmNS)) continue;
-          var atr = GuidTypeAttribute.GetGuidTypeAttribute<T, A>(type);
+          var atr = GuidTypeAttribute.GetGuidTypeAttribute<TDecorationTarget, TAttribute>(type);
 
           Type existing;
           if (m_Cache.TryGetValue(atr.TypeGuid, out existing))
@@ -156,6 +144,8 @@ namespace Azos.Apps
 
       if (m_Cache.Count == 0)
         throw new AzosException(StringConsts.GUID_TYPE_RESOLVER_NO_TYPES_ERROR.Args(this.GetType().DisplayNameWithExpandedGenericArgs()));
+
+      System.Threading.Thread.MemoryBarrier();
     }
 
     private Dictionary<Guid, Type> m_Cache;
@@ -166,8 +156,7 @@ namespace Azos.Apps
     /// </summary>
     public Type TryResolve(Guid guid)
     {
-      Type result;
-      if (m_Cache.TryGetValue(guid, out result)) return result;
+      if (m_Cache.TryGetValue(guid, out var result)) return result;
       return null;
     }
 
@@ -176,9 +165,8 @@ namespace Azos.Apps
     /// </summary>
     public Type Resolve(Guid guid)
     {
-      Type result;
-      if (m_Cache.TryGetValue(guid, out result)) return result;
-      throw new AzosException(StringConsts.GUID_TYPE_RESOLVER_ERROR.Args(guid, typeof(T).Name));
+      if (m_Cache.TryGetValue(guid, out var result)) return result;
+      throw new AzosException(StringConsts.GUID_TYPE_RESOLVER_ERROR.Args(guid, typeof(TDecorationTarget).Name));
     }
   }
 }
