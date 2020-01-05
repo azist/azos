@@ -19,7 +19,8 @@ namespace Azos.Log
   /// <summary>
   /// Represents a Log message
   /// </summary>
-  [Serializable, Arow]
+  [Serializable]
+  [Arow("3AD5E8E1-871C-4B8F-AE16-6D04492B17DF")]
   [BSONSerializable("A05AEE0F-A33C-4B1D-AA45-CDEAF894A095")]
   public sealed class Message : TypedDoc, IArchiveLoggable, IBSONSerializable, IBSONDeserializable
   {

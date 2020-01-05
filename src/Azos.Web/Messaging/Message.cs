@@ -16,10 +16,12 @@ namespace Azos.Web.Messaging
   /// <summary>
   /// Represents an email msg that needs to be sent
   /// </summary>
-  [Serializable, Arow]
+  [Serializable]
+  [Arow("31B5D987-5DBF-4CE9-AFFA-6684005D2F8F")]
   public class Message : TypedDoc
   {
-    [Serializable, Arow]
+    [Serializable]
+    [Arow("593907F9-0577-466F-8228-03C4EB24AE50")]
     public class Attachment : TypedDoc
     {
       public Attachment(string name, byte[] content, string contentType)
