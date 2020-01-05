@@ -5,14 +5,18 @@
 </FILE_LICENSE>*/
 using System;
 
+using Azos.Apps;
+
 
 namespace Azos.Serialization.Arow
 {
   /// <summary>
-  /// Denotes types that generate Arow ser/deser core
+  /// Designate data document types that support Arow serialization -
+  /// types that generate Arow serialization/deserialization method cores
   /// </summary>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
-  public sealed class ArowAttribute : Attribute
+  public sealed class ArowAttribute : GuidTypeAttribute
   {
+    public ArowAttribute(string typeGuid) : base(typeGuid){ }
   }
 }

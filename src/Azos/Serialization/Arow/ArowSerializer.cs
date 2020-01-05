@@ -32,7 +32,7 @@ namespace Azos.Serialization.Arow
   /// Arow format is purposely designed for "[a]daptable [row]"/version tolerant serialization that eschews creating extra copies and
   /// object instances. The serializer is used in conjunction with cli compiler that generates type-specific static serializer cores
   /// for every type that supports the format.
-  /// The serializer supports primitives, Azos intrinsics like GDID, PilePointer, NLSMap, custom TypedDocs and List/arrays of the aforementioned types
+  /// The serializer supports primitives, Azos intrinsics like Atom, GDID, PilePointer, NLSMap, custom TypedDocs and List/arrays of the aforementioned types
   /// </summary>
   /// <remarks>
   /// By design this serializer does not support polymorphic TypedDoc types in this version
@@ -98,7 +98,7 @@ namespace Azos.Serialization.Arow
     }
 
 
-    private const int INITIAL_BUFFER_CAPACITY = 4 * 1024;//Typical "business" object has 15 8 byte field, and 10 32 byte fields < 700 bytes
+    private const int INITIAL_BUFFER_CAPACITY = 4 * 1024;//Typical "business" object has 15 8 byte fields, and 10 32 byte fields < 700 bytes
     private const int BUFFER_TRIM_CAPACITY = 128 * 1024;
 
     //TLS is used since this is 100% sync CPU-bound operation

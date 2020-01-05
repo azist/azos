@@ -14,7 +14,7 @@ namespace Azos.Security.Tokens
   /// IDP service supplying this temp token.
   /// This class stipulates general contract for Access and Refresh tokens, having the difference only in their intent
   /// </summary>
-  [Arow]
+  [Arow("5069E0CA-65F7-4860-BA1E-7E85F8DE35B3")]
   public abstract class ClientAccessTokenBase : RingToken
   {
     /// <summary>
@@ -40,7 +40,7 @@ namespace Azos.Security.Tokens
   /// IDP service supplying this temp token.
   /// AccessCode tokens are typically short-lived (e.g. less than 3 minutes)
   /// </summary>
-  [Arow]
+  [Arow("C102EA13-6C57-49F1-9353-E5057B3885C5")]
   public sealed class ClientAccessCodeToken : ClientAccessTokenBase
   {
     public override int TokenByteStrength => 16;
@@ -66,7 +66,7 @@ namespace Azos.Security.Tokens
   /// IDP service supplying this refresh token.
   /// RefreshTokens are typically long-lived (e.g. ~1day)
   /// </summary>
-  [Arow]
+  [Arow("74B800F4-8473-4277-85E3-E09AA8EAE128")]
   public sealed class ClientRefreshCodeToken : ClientAccessTokenBase
   {
     public override int TokenByteStrength => 32;

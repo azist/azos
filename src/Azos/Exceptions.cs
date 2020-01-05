@@ -121,7 +121,8 @@ namespace Azos
   /// <summary>
   /// Marshals exception details
   /// </summary>
-  [Serializable, Arow]
+  [Serializable]
+  [Arow("CBE82107-8FDA-4A2C-84D2-5D953907C9A0")]
   [BSONSerializable("A339F46F-6637-4396-B148-094BAFFB4BE6")]
   public sealed class WrappedExceptionData : TypedDoc, IBSONSerializable, IBSONDeserializable
   {

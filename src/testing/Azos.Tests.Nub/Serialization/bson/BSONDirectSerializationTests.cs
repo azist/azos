@@ -21,7 +21,7 @@ namespace Azos.Tests.Nub.Serialization
   public class BSONDirectSerializationTests
   {
     [BSONSerializable("25C155E8-59DC-4E5B-A9AD-6A94CB4381BD")]
-    public class TypicalData : IArchiveLoggable
+    public class TypicalData : IBSONDeserializable, IBSONSerializable
     {
       public Guid     Guid         { get; set; } // PKFieldName
       public bool     True         { get; set; } public const string BSON_FLD_TRUE         = "True";
