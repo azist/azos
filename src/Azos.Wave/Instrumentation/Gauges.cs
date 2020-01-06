@@ -7,6 +7,7 @@
 using System;
 
 using Azos.Instrumentation;
+using Azos.Serialization.Arow;
 using Azos.Serialization.BSON;
 
 namespace Azos.Wave.Instrumentation
@@ -33,6 +34,7 @@ namespace Azos.Wave.Instrumentation
   /// Provides request count received by server
   /// </summary>
   [Serializable]
+  [Arow("6D5E45F2-31AE-4E39-959D-F6731149D861")]
   [BSONSerializable("8B3780A4-91AC-4E0F-B748-20E41245DD83")]
   public class ServerRequest : WaveLongGauge, INetInstrument
   {
@@ -49,6 +51,7 @@ namespace Azos.Wave.Instrumentation
   /// Provides request count received by server portal
   /// </summary>
   [Serializable]
+  [Arow("80C63B05-7C30-4CAC-932D-770D498264D9")]
   [BSONSerializable("C7D3DAC5-A90C-4CA3-8381-82C1F09C7290")]
   public class ServerPortalRequest : WaveLongGauge, INetInstrument
   {
@@ -66,6 +69,7 @@ namespace Azos.Wave.Instrumentation
   /// Provides request count that were denied by the server gate
   /// </summary>
   [Serializable]
+  [Arow("EEC0AAE6-5F8C-4150-B800-0D499F40B430")]
   [BSONSerializable("D7193047-D4F4-4375-9298-000B76E1139C")]
   public class ServerGateDenial : WaveLongGauge, INetInstrument, ISecurityInstrument, IWarningInstrument
   {
@@ -83,6 +87,7 @@ namespace Azos.Wave.Instrumentation
   /// Provides the count of exceptions that server had to handle as no other member of processing chain did
   /// </summary>
   [Serializable]
+  [Arow("84BA5853-260C-4CB8-9300-CEE62314EE48")]
   [BSONSerializable("E9F9A864-7A11-401C-B641-8A4F9F9AC330")]
   public class ServerHandleException : WaveLongGauge, IErrorInstrument
   {
@@ -100,6 +105,7 @@ namespace Azos.Wave.Instrumentation
   /// Provides the count of exceptions that filter handled
   /// </summary>
   [Serializable]
+   [Arow("5D23F85E-0247-48CC-9794-D70B46AE96C8")]
   [BSONSerializable("C6571EC6-477F-4B0E-BE96-BFAC608E4A15")]
   public class FilterHandleException : WaveLongGauge, IErrorInstrument
   {
@@ -117,6 +123,7 @@ namespace Azos.Wave.Instrumentation
   /// The current level of taken request accept semaphore slots
   /// </summary>
   [Serializable]
+  [Arow("4E8824D5-1333-424F-A4E0-B6380186F9BF")]
   [BSONSerializable("01B04329-59DF-4908-B4AC-3F962A5C4043")]
   public class ServerAcceptSemaphoreCount : WaveLongGauge, INetInstrument, ICPUInstrument
   {
@@ -133,6 +140,7 @@ namespace Azos.Wave.Instrumentation
   /// The current level of taken request work semaphore slots
   /// </summary>
   [Serializable]
+  [Arow("6701E768-5B30-49F3-8664-334BACCC4086")]
   [BSONSerializable("DC0ECC2C-E1E8-4CC6-A418-B22E4B1136C0")]
   public class ServerWorkSemaphoreCount : WaveLongGauge, INetInstrument, ICPUInstrument
   {
@@ -150,6 +158,7 @@ namespace Azos.Wave.Instrumentation
   /// How many response object were written into
   /// </summary>
   [Serializable]
+  [Arow("564A6D4C-8811-4E7E-B81D-A3ED1969BF92")]
   [BSONSerializable("3053438B-2EA7-44C5-A98C-954801852424")]
   public class WorkContextWrittenResponse : WaveLongGauge, INetInstrument
   {
@@ -166,6 +175,7 @@ namespace Azos.Wave.Instrumentation
   /// How many response object were buffered
   /// </summary>
   [Serializable]
+  [Arow("2B73D508-3129-4434-8CA9-4CF9E08A5C1D")]
   [BSONSerializable("B74EFA07-98FA-4901-84C9-2115CC5C0B9F")]
   public class WorkContextBufferedResponse : WaveLongGauge, INetInstrument, IMemoryInstrument
   {
@@ -183,6 +193,7 @@ namespace Azos.Wave.Instrumentation
   /// How many response bytes were buffered
   /// </summary>
   [Serializable]
+  [Arow("1F22A5E0-8AE4-4AC2-8D76-68F38449CAD9")]
   [BSONSerializable("1CEEE153-7E7F-41AB-867D-E8BD17A9F49C")]
   public class WorkContextBufferedResponseBytes : WaveLongGauge, INetInstrument, IMemoryInstrument
   {
@@ -200,6 +211,7 @@ namespace Azos.Wave.Instrumentation
   /// How many work contexts were created
   /// </summary>
   [Serializable]
+  [Arow("4D6425E8-3E57-4AD5-A4EC-707D96A1D25D")]
   [BSONSerializable("C7D5AE04-9F46-43CE-BD6E-C144605F58F9")]
   public class WorkContextCtor : WaveLongGauge
   {
@@ -216,6 +228,7 @@ namespace Azos.Wave.Instrumentation
   /// How many work contexts were destroyed
   /// </summary>
   [Serializable]
+  [Arow("CB84EFF2-3F67-472D-A801-6BB45025EE22")]
   [BSONSerializable("2FDFE526-EC6D-4F69-82E9-DB3CAA61302B")]
   public class WorkContextDctor : WaveLongGauge
   {
@@ -232,6 +245,7 @@ namespace Azos.Wave.Instrumentation
   /// How many times work semaphore was released
   /// </summary>
   [Serializable]
+  [Arow("52904D36-E76D-4E33-A3B0-D45384143CEE")]
   [BSONSerializable("D2149368-395F-41A3-B311-BE02AB80DAEF")]
   public class WorkContextWorkSemaphoreRelease : WaveLongGauge, INetInstrument, ICPUInstrument
   {
@@ -248,6 +262,7 @@ namespace Azos.Wave.Instrumentation
   /// How many work contexts got aborted
   /// </summary>
   [Serializable]
+  [Arow("6B9CD963-03D0-429A-905E-0939ABA8BF7C")]
   [BSONSerializable("FB056D3B-25BA-4850-B54B-E87FDC36FC6D")]
   public class WorkContextAborted : WaveLongGauge
   {
@@ -264,6 +279,7 @@ namespace Azos.Wave.Instrumentation
   /// How many work contexts got handled
   /// </summary>
   [Serializable]
+  [Arow("5874A803-16C0-4590-AEC5-8594DF900D5F")]
   [BSONSerializable("FE4CC0FF-EE4F-49AD-9732-D8B616B7B71F")]
   public class WorkContextHandled : WaveLongGauge
   {
@@ -280,6 +296,7 @@ namespace Azos.Wave.Instrumentation
   /// How many work contexts requested not to be closed at the end of the initial request processing cycle
   /// </summary>
   [Serializable]
+  [Arow("A12562A0-F81D-4972-949B-A37A5E6CBC58")]
   [BSONSerializable("DA084926-9C5A-4A3A-91AB-F4371BF10384")]
   public class WorkContextNoDefaultClose : WaveLongGauge, INetInstrument
   {
@@ -297,6 +314,7 @@ namespace Azos.Wave.Instrumentation
   /// How many work contexts requested session state
   /// </summary>
   [Serializable]
+  [Arow("9C36D37E-C3D2-4308-8487-B2A42985BCDE")]
   [BSONSerializable("AEAF6DCC-44EE-42B6-828C-AE6566BB0DF2")]
   public class WorkContextNeedsSession : WaveLongGauge
   {
@@ -313,6 +331,7 @@ namespace Azos.Wave.Instrumentation
   /// How many new sessions created
   /// </summary>
   [Serializable]
+  [Arow("537FB7BA-D762-427D-A440-69E6382389CB")]
   [BSONSerializable("6FF747A0-21DD-47B0-BDA2-AFF35584713D")]
   public class SessionNew : WaveLongGauge
   {
@@ -329,6 +348,7 @@ namespace Azos.Wave.Instrumentation
   /// How many existing sessions found
   /// </summary>
   [Serializable]
+  [Arow("29AC4FD3-9AF2-4CF6-83AD-B16EBD339EC1")]
   [BSONSerializable("FE36F8A2-EE50-4576-9311-2A01CFD6DC66")]
   public class SessionExisting : WaveLongGauge
   {
@@ -345,6 +365,7 @@ namespace Azos.Wave.Instrumentation
   /// How many sessions ended by request
   /// </summary>
   [Serializable]
+  [Arow("C9534BAA-A081-478B-B32E-B673FC2041F5")]
   [BSONSerializable("A07EAC9B-D6FE-4067-BB63-DAAE4F7DDF87")]
   public class SessionEnd : WaveLongGauge
   {
@@ -361,6 +382,7 @@ namespace Azos.Wave.Instrumentation
   /// How many sessions supplied invalid identifier (by client)
   /// </summary>
   [Serializable]
+  [Arow("76FB857E-3C51-40C4-A61D-72A9EB0896AB")]
   [BSONSerializable("4CCCE6C8-6E87-4410-B78E-5CA017F36BAE")]
   public class SessionInvalidID : WaveLongGauge
   {
@@ -377,6 +399,7 @@ namespace Azos.Wave.Instrumentation
   /// How many geo lookups have been requested
   /// </summary>
   [Serializable]
+  [Arow("32C5DA16-2025-4740-B82F-D161030A9DEA")]
   [BSONSerializable("85B8D099-46B7-4B6F-BC87-BA3DC2B9E2DA")]
   public class GeoLookup : WaveLongGauge
   {
@@ -393,6 +416,7 @@ namespace Azos.Wave.Instrumentation
   /// How many geo lookups have resulted in finding the geo location
   /// </summary>
   [Serializable]
+  [Arow("6BA83E49-92E7-4A23-98D0-CC5CAD9C43D5")]
   [BSONSerializable("D417038B-2F22-4ACD-AFEE-FF206B629A83")]
   public class GeoLookupHit : WaveLongGauge
   {

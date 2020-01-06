@@ -7,6 +7,8 @@
 using System;
 
 using Azos.Instrumentation;
+using Azos.Serialization.Arow;
+using Azos.Serialization.BSON;
 
 namespace Azos.Wave.Cms.Instrumentation
 {
@@ -14,6 +16,8 @@ namespace Azos.Wave.Cms.Instrumentation
   /// How many Cms requests made
   /// </summary>
   [Serializable]
+  [Arow("ABA005FA-3BD4-4AFA-B62C-92E06DD0B82F")]
+  [BSONSerializable("5B039CE7-EEA7-4419-85ED-891A2459FA85")]
   public sealed class RequestCountGauge : LongGauge
   {
     //.ctor used by SnapshotAllLongInto()
@@ -30,6 +34,8 @@ namespace Azos.Wave.Cms.Instrumentation
   /// How many Cms requests resulted in a found content response
   /// </summary>
   [Serializable]
+  [Arow("8CE2816E-9BF5-4C24-AF35-96659957322E")]
+  [BSONSerializable("F37F16BF-9711-4223-A403-03258B783884")]
   public sealed class ResponseCountGauge : LongGauge
   {
     //.ctor used by SnapshotAllLongInto()
@@ -47,6 +53,8 @@ namespace Azos.Wave.Cms.Instrumentation
   /// Cached content record count
   /// </summary>
   [Serializable]
+  [Arow("5C0E227C-C5D3-4CC1-9CC8-A9227D747425")]
+  [BSONSerializable("8D357005-4837-4458-A6A2-A5B3A8481CC8")]
   public sealed class CacheRecordCountGauge : LongGauge
   {
     //.ctor used by SnapshotAllLongInto()
@@ -63,6 +71,8 @@ namespace Azos.Wave.Cms.Instrumentation
   /// Expired cache content record count
   /// </summary>
   [Serializable]
+  [Arow("A830C246-B30A-4C04-BAF6-DB013748EE0F")]
+  [BSONSerializable("12E0CE01-7604-4041-B518-D27955536E3C")]
   public sealed class CacheExpiredRecordCountGauge : LongGauge
   {
     //.ctor used by SnapshotAllLongInto()
@@ -79,6 +89,8 @@ namespace Azos.Wave.Cms.Instrumentation
   /// How many times the cache was hit
   /// </summary>
   [Serializable]
+  [Arow("C7982DC1-161F-411A-B229-5A5F3D5579C3")]
+  [BSONSerializable("F0B27F69-E6C5-4770-9A48-2900B1E7F353")]
   public sealed class CacheHitCountGauge : LongGauge
   {
     //.ctor used by SnapshotAllLongInto()
@@ -95,6 +107,8 @@ namespace Azos.Wave.Cms.Instrumentation
   /// How many times the cache was hit
   /// </summary>
   [Serializable]
+  [Arow("F0B27F69-E6C5-4770-9A48-2900B1E7F353")]
+  [BSONSerializable("A59E89EB-0AA7-478E-B794-B3063AC23E15")]
   public sealed class CacheMissCountGauge : LongGauge
   {
     //.ctor used by SnapshotAllLongInto()
@@ -111,6 +125,8 @@ namespace Azos.Wave.Cms.Instrumentation
   /// Average content fetch latency
   /// </summary>
   [Serializable]
+  [Arow("63B04E33-4C1F-4C2E-855E-E0329E45B3E8")]
+  [BSONSerializable("6A272DC1-AEC7-4F59-8078-F90AC1277B73")]
   public sealed class ContentFetchLatencyGauge : LongGauge
   {
     //.ctor used by SnapshotAllLongInto()
