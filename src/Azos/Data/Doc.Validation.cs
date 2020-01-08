@@ -111,10 +111,21 @@ namespace Azos.Data
 
     protected virtual Exception CheckValueLength(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value)
     {
+      if (atr.MinLength < 1 && atr.MaxLength < 1) return null;
+
+      var isString = value is string;
+      var eobj = value as IEnumerable;
+      var ecount = eobj != null ? eobj.Cast<object>().Count() : -1;
+
       if (atr.MinLength > 0)
       {
-        if (value is IEnumerable eobj && eobj.Cast<object>().Count() < atr.MinLength)
-          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength));
+        if (!isString && ecount >= 0)
+        {
+          if (ecount < atr.MinLength)
+            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength));
+
+          return null;
+        }
 
         if (value.ToString().Length < atr.MinLength)
           return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength));
@@ -122,8 +133,13 @@ namespace Azos.Data
 
       if (atr.MaxLength > 0)
       {
-        if (value is IEnumerable eobj && eobj.Cast<object>().Count() > atr.MaxLength)
-          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength));
+        if (!isString && ecount >= 0)
+        {
+          if (ecount > atr.MaxLength)
+            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength));
+
+          return null;
+        }
 
         if (value.ToString().Length > atr.MaxLength)
           return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength));
