@@ -179,6 +179,7 @@ namespace Azos.Data
       if (value is IValidatable validatable)
         return validatable.Validate(targetName);
 
+      //precedence of IFs is important, IDictionary is IEnumerable
       if (value is IDictionary dict)//Dictionary<string, IValidatable>
       {
         foreach (var v in dict.Values)
@@ -194,9 +195,11 @@ namespace Azos.Data
       {
         foreach (var v in enm)
         {
-          if (!(v is IValidatable vv)) continue;
-          var error = vv.Validate(targetName);
-          if (error != null) return error;
+          if (v is IValidatable vv)
+          {
+            var error = vv.Validate(targetName);
+            if (error != null) return error;
+          }
         }
       }
 
