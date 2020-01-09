@@ -115,34 +115,34 @@ namespace Azos.Data
 
       var isString = value is string;
       var eobj = value as IEnumerable;
-      var ecount = eobj != null ? eobj.Cast<object>().Count() : -1;
+      var ecount = !isString && eobj != null ? eobj.Cast<object>().Count() : -1;
 
       if (atr.MinLength > 0)
       {
-        if (!isString && ecount >= 0)
+        if (ecount >= 0)
         {
           if (ecount < atr.MinLength)
             return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength));
-
-          return null;
         }
-
-        if (value.ToString().Length < atr.MinLength)
-          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength));
+        else
+        {
+          if (value.ToString().Length < atr.MinLength)
+            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength));
+        }
       }
 
       if (atr.MaxLength > 0)
       {
-        if (!isString && ecount >= 0)
+        if (ecount >= 0)
         {
           if (ecount > atr.MaxLength)
             return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength));
-
-          return null;
         }
-
-        if (value.ToString().Length > atr.MaxLength)
-          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength));
+        else
+        {
+          if (value.ToString().Length > atr.MaxLength)
+            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength));
+        }
       }
 
       return null;
