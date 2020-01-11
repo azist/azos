@@ -12,14 +12,14 @@ namespace Azos.Instrumentation
   /// </summary>
   public abstract class Event : Datum
   {
-      protected Event() : base() {}
+    protected Event() : base() {}
 
-      protected Event(string source) : base(source) {}
+    protected Event(string source) : base(source) {}
 
-      protected Event(string source, DateTime utcDateTime) : base(source, utcDateTime) {}
+    protected Event(string source, DateTime utcDateTime) : base(source, utcDateTime) {}
 
-      public override object ValueAsObject { get { return Count; } }
+    public override object ValueAsObject { get { return Count; } }
 
-      public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_OCCURENCE; } }
+    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_OCCURENCE; } }
   }
 }
