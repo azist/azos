@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.538
-set HEADLINE=DataReflectionUtils refactoring
+set VER=1.0.539
+set HEADLINE=Add Arow support and Timeter
 
 call vs2017-build-release %VER%
 
