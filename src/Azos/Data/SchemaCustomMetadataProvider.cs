@@ -131,7 +131,7 @@ namespace Azos.Data
         if (lookup != null)//non-null blank lookup is treated as blank lookup overshadowing the hard-coded choices from .ValueList
         {
           if (nvlist.IsValueCreated)
-            nvlist.Value.DeleteAllChildren();
+            nvlist.Value.DeleteAllAttributes();
 
           lookup.ForEach( item => nvlist.Value.AddAttributeNode(item.Key, item.Value));
         }
