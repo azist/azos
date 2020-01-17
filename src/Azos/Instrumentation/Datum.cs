@@ -35,6 +35,12 @@ namespace Azos.Instrumentation
     public const string BUSINESS_SOURCE = "BsnsLgc";
     #endregion
 
+    /// <summary>
+    /// True if a The string null/blank or *
+    /// </summary>
+    public static bool IsUnspecifiedSourceString(string src) => src.IsNullOrWhiteSpace() || src.EqualsOrdSenseCase(UNSPECIFIED_SOURCE);
+
+
     #region .ctor
     protected Datum()
     {
@@ -101,11 +107,17 @@ namespace Azos.Instrumentation
     /// <summary>
     /// Returns datum source. Data are rolled-up by type of recorded datum instances and source
     /// </summary>
+    [Field, Field(isArow: true, backendName: "src")]
     public virtual string Source
     {
       get  => m_Source ?? UNSPECIFIED_SOURCE;
       protected set => m_Source = value;
     }
+
+    /// <summary>
+    /// True if this instance represent an unspecified source
+    /// </summary>
+    public bool IsUnspecifiedSource => IsUnspecifiedSourceString(Source);
 
     /// <summary>
     /// Returns rate of occurrence string
