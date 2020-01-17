@@ -51,10 +51,9 @@ namespace Azos.Wave
     {
       if (src==null) throw new WaveException(StringConsts.ARGUMENT_ERROR+typeof(MvcActionException).Name+"Wrap(src=null)");
 
-      var trace = src.StackTrace;
       return new MvcActionException(controller,
                                     action,
-                                    "Controller action body: '{0}'.'{1}'. Exception: {2} Trace: \r\n {3}".Args(controller, action, src.ToMessageWithType(), trace),
+                                    "Controller action body: '{0}'.'{1}'. Exception: {2}".Args(controller, action, src.ToMessageWithType()),
                                     src);
     }
 
@@ -62,14 +61,12 @@ namespace Azos.Wave
     {
       if (src==null) throw new WaveException(StringConsts.ARGUMENT_ERROR+typeof(MvcActionException).Name+"Wrap(src=null)");
 
-      var trace = src.StackTrace;
       return new MvcActionException(controller,
                                     action,
-                                    "Controller action result processing: '{0}'.'{1}' -> {2}. Exception: {3} Trace: \r\n {4}".Args(controller,
-                                                                                                                                 action,
-                                                                                                                                 result==null ? "<null>" : result.GetType().FullName,
-                                                                                                                                 src.ToMessageWithType(),
-                                                                                                                                 trace),
+                                    "Controller action result processing: '{0}'.'{1}' -> {2}. Exception: {3}".Args(controller,
+                                                                                                                   action,
+                                                                                                                   result==null ? "<null>" : result.GetType().FullName,
+                                                                                                                   src.ToMessageWithType()),
                                     src);
     }
 
