@@ -206,25 +206,28 @@ namespace Azos.Data
       return null;
     }
 
+    /// <summary>
+    ///Dynamic value lists override static ones:
+    /// * If a dynamic value list is null then hard coded ValueList is enforced if it is specified;
+    /// * If a dynamic list is non-null then it is enforced if it is not blank, otherwise nothing is checked;
+    /// Therefore: you may return an empty non-null dynamic list to prevent application of ValueList check for specific field/target
+    /// </summary>
     protected virtual Exception CheckValueList(string targetName, Schema.FieldDef fdef,  FieldAttribute atr, object value)
     {
-      if (atr.HasValueList)//check dictionary
-      {
-        var parsed = atr.ParseValueList();
-        if (isSimpleKeyStringMap(parsed))
-        {
-          var fv = value.ToString();
-          if (!parsed.ContainsKey(fv))
-            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(9, "..")));
-        }
-      }
-
-      //check dynamic value list
+      //try to obtain dynamic value list
       var dynValueList = GetDynamicFieldValueList(fdef, targetName, null);
-      if (dynValueList != null)//check dictionary
+      if (dynValueList != null)//check dynamic list is supplied
       {
+        if (dynValueList.Count == 0) return null;//Nothing to check against; this is used to return empty list to override ValueList list
         var fv = value.ToString();
         if (!dynValueList.ContainsKey(fv))
+         return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(9, "..")));
+      }
+      else if (atr.HasValueList)//check ValueList dictionary
+      {
+        var parsed = atr.ParseValueList();
+        var fv = value.ToString();
+        if (!parsed.ContainsKey(fv))
           return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(9, "..")));
       }
 

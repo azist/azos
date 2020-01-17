@@ -128,8 +128,13 @@ namespace Azos.Data
       if (doc!=null)
       {
         var lookup = doc.GetDynamicFieldValueList(def, context.DataTargetName, null);
-        if (lookup != null)
-         lookup.ForEach( item => nvlist.Value.AddAttributeNode(item.Key, item.Value));
+        if (lookup != null)//non-null blank lookup is treated as blank lookup overshadowing the hard-coded choices from .ValueList
+        {
+          if (nvlist.IsValueCreated)
+            nvlist.Value.DeleteAllChildren();
+
+          lookup.ForEach( item => nvlist.Value.AddAttributeNode(item.Key, item.Value));
+        }
       }
 
     }

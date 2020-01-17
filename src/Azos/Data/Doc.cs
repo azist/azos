@@ -609,11 +609,14 @@ namespace Azos.Data
 
 
     /// <summary>
-    /// Override to get list of permissible field values for the specified field.
+    /// Override to get a list of permissible field values for the specified field for the specified target.
     /// This method is used by validation to extract dynamic pick list entries form data stores
     /// as dictated by business logic. The override must be efficient and typically rely on caching of
     /// values gotten from the datastore. This method should NOT return more than a manageable limited number of records (e.g. less than 100)
-    /// in a single form drop-down/combo, as the large lookups are expected to be implemented using complex lookup models (e.g. dialog boxes in UI)
+    /// in a single form drop-down/combo, as the large lookups are expected to be implemented using complex lookup models (e.g. dialog boxes in UI).
+    /// Return a null to indicate an absence of a value list for the specified field.
+    /// Return an empty JsonDataMap to indicate that dynamic value list is present, but there is nothing to check against - this is used to
+    /// override a static fdef.ValueList which would be enforced otherwise.
     /// </summary>
     public virtual JsonDataMap GetDynamicFieldValueList(Schema.FieldDef fdef,
                                                         string targetName,
@@ -628,7 +631,7 @@ namespace Azos.Data
     /// (i.e. field description, requirement, value list etc.) as dictated by business logic.
     /// This method IS NOT used by doc validation, only by client that feeds from doc metadata.
     /// The default implementation returns the original field def, you can return a substituted field def
-    ///  per particular business logic
+    ///  for a specific business logic need
     /// </summary>
     public virtual Schema.FieldDef GetClientFieldDef(Schema.FieldDef fdef,
                                                       string targetName,
@@ -772,16 +775,6 @@ namespace Azos.Data
 
 
     #region .pvt
-
-    private bool isSimpleKeyStringMap(JsonDataMap map)
-    {
-      if (map == null) return false;
-
-      foreach (var val in map.Values)
-        if (val != null && !(val is string)) return false;
-
-      return true;
-    }
 
     private struct docFieldValueEnumerator : IEnumerator<object>
     {
