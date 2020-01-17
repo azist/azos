@@ -326,8 +326,10 @@ namespace Azos.Log
     {
       return new Message
       {
+        m_Gdid = m_Gdid,
         m_Guid = m_Guid,
         m_RelatedTo = m_RelatedTo,
+        m_Channel = m_Channel,
         m_App = m_App,
         m_Type = m_Type,
         m_Source = m_Source,
@@ -339,7 +341,6 @@ namespace Azos.Log
         m_Parameters = m_Parameters,
         m_Exception = m_Exception,
         m_ArchiveDimensions = m_ArchiveDimensions,
-        m_Channel = m_Channel
       };
     }
 
