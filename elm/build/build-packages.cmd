@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.539
-set HEADLINE=Add Arow support and Timeter
+set VER=1.0.540
+set HEADLINE=Service rel fixing latest issues
 
 call vs2017-build-release %VER%
 
