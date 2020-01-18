@@ -134,7 +134,7 @@ namespace Azos.Data
       {
         if (MetadataContent.IsNullOrWhiteSpace()) return null;
         if (m_Metadata==null)//not thread safe but its ok, in the worst case 2nd copy will be made
-          m_Metadata = ParseMetadataContent(m_MetadataContent);
+          m_Metadata = ParseMetadataContent(m_MetadataContent, GetType().Name + ".Metadata.get");
 
         return m_Metadata;
       }
@@ -157,7 +157,7 @@ namespace Azos.Data
     /// <summary>
     /// Parses content with or without root node
     /// </summary>
-    public static ConfigSectionNode ParseMetadataContent(string content)
+    public static ConfigSectionNode ParseMetadataContent(string content, string caller = null)
     {
       try
       {
@@ -176,7 +176,11 @@ namespace Azos.Data
       }
       catch(Exception error)
       {
-        throw new DataException(StringConsts.CRUD_METADATA_PARSE_ERROR.Args(error.ToMessageWithType(), content.TakeFirstChars(48)), error);
+        throw new DataException(StringConsts.CRUD_METADATA_PARSE_ERROR.Args(
+                                      caller ?? CoreConsts.NULL_STRING,
+                                      error.ToMessageWithType(),
+                                      content.TakeFirstChars(48)),
+                                error);
       }
     }
 

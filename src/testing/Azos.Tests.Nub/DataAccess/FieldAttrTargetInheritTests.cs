@@ -152,7 +152,7 @@ namespace Azos.Tests.Nub.DataAccess
 
     public class MetadataDoc : TypedDoc
     {
-      [Field(description: "Common description", metadata: "a=1 b=2 sub{ z=100 }")]
+      [Field(description: "Common description", metadata: "a=1 b=2 sub{ z=100 } ")]
       [Field("L1", null, MetadataContent = "c=-2 b=18", Description = "abcd")]
       public string Data { get; set; }
     }

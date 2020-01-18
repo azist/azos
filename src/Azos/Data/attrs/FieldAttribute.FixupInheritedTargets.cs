@@ -45,7 +45,7 @@ namespace Azos.Data
             process(parent);
           }
           //now merge DEP -> ONE
-          inheritAttribute(parent, self);
+          inheritAttribute(parent, self, fieldName);
           done.Add(self);
         }
         finally
@@ -70,7 +70,7 @@ namespace Azos.Data
                                                                     BindingFlags.Instance)
                                                      .Where(pi => pi.Name != nameof(TargetName) && pi.CanWrite && pi.SetMethod.IsPublic);
 
-    private static void inheritAttribute(FieldAttribute parent, FieldAttribute self)
+    private static void inheritAttribute(FieldAttribute parent, FieldAttribute self, string callSite)
     {
       //merge attributes from parent into self prop by prop
       foreach(var pi in ALL_PROPS)
@@ -81,8 +81,8 @@ namespace Azos.Data
             self.MetadataContent = parent.MetadataContent;
           else if (parent.MetadataContent.IsNotNullOrWhiteSpace())
           { //merge
-            var conf1 = ParseMetadataContent(parent.MetadataContent);
-            var conf2 = ParseMetadataContent(self.MetadataContent);
+            var conf1 = ParseMetadataContent(parent.MetadataContent, callSite);
+            var conf2 = ParseMetadataContent(self.MetadataContent, callSite);
 
             var merged = new LaconicConfiguration();
             merged.CreateFromMerge(conf1, conf2);

@@ -753,7 +753,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string CRUD_QUERY_RESOLVER_ALREADY_STARTED_ERROR = "CRUD QueryResolver already started to be used and can not be configured";
 
-    public const string CRUD_METADATA_PARSE_ERROR = "Metadata parse exception: '{0}'. Metadata: {1}";
+    public const string CRUD_METADATA_PARSE_ERROR = "Metadata parse at '{0}' exception: '{1}'. Metadata: {2}";
 
     public const string CRUD_FIELD_ATTR_PROTOTYPE_CTOR_ERROR = "Field attribute construction from prototype error: {0}";
 

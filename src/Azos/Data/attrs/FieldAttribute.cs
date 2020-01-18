@@ -228,8 +228,9 @@ namespace Azos.Data
           if (protoAttr.MetadataContent.IsNullOrWhiteSpace()) MetadataContent = metadata;
           else
           {
-            var conf1 = ParseMetadataContent(protoAttr.MetadataContent);
-            var conf2 = ParseMetadataContent(metadata);
+            var callSite = $"Proto of `{protoType.Name}`.`{protoFieldDef.Name}`";
+            var conf1 = ParseMetadataContent(protoAttr.MetadataContent, callSite);
+            var conf2 = ParseMetadataContent(metadata, callSite);
 
             var merged = new LaconicConfiguration();
             merged.CreateFromMerge(conf1, conf2);
