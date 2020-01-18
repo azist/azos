@@ -41,19 +41,23 @@ namespace Azos.Log.Sinks
     }
 
     /// <summary>
-    /// Warning: don't override this method in derived destinations, use
+    /// Warning: i n most cases don't override this method in derived destinations, use
     /// DoFormatMessage() instead!
     /// </summary>
     protected override void DoWriteMessage(Message msg)
     {
+      var wri = m_Writer;
+      if (wri == null) return;
       var txtMsg = DoFormatMessage(msg);
-      m_Writer.WriteLine( txtMsg );
+      wri.WriteLine( txtMsg );
     }
 
     protected internal override void DoPulse()
     {
+      var wri = m_Writer;
+      if (wri == null) return;
       base.DoPulse();
-      m_Writer.Flush();
+      wri.Flush();
     }
 
     /// <summary>

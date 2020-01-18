@@ -28,8 +28,9 @@ namespace Azos.Log
   public abstract class LogDaemonBase : DaemonWithInstrumentation<IApplicationComponent>, ILogImplementation, ISinkOwnerRegistration
   {
     #region CONSTS
-    internal const string CONFIG_SINK_SECTION   = "sink";
-    internal const string CONFIG_DEFAULT_FAILOVER_ATTR = "default-failover";
+    public const string CONFIG_SINK_SECTION   = "sink";
+    public const string CONFIG_DEFAULT_FAILOVER_ATTR = "default-failover";
+    public const string CONFIG_RELIABLE_ATTR = "reliable";
     #endregion
 
 
@@ -85,6 +86,7 @@ namespace Azos.Log
 
     private MemoryBufferSink m_InstrBuffer;
 
+    private bool m_Reliable = true;
     #endregion
 
 
@@ -132,6 +134,20 @@ namespace Azos.Log
     {
       get { return m_InstrBuffer.BufferSize; }
       set { m_InstrBuffer.BufferSize = value; }
+    }
+
+    /// <summary>
+    /// Determines whether this service blocks on stop longer until all buffered messages have been tried to be dispatched into all sinks.
+    /// This property is true by default.
+    /// Certain sinks may take considerable time to fail per message (e.g. database connection timeout), consequently buffered messages
+    ///  processing may delay service stop significantly if this property is true
+    /// </summary>
+    [Config("$" + CONFIG_RELIABLE_ATTR, true)]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
+    public bool Reliable
+    {
+      get { return m_Reliable; }
+      set { m_Reliable = value; }
     }
 
     /// <summary>
@@ -297,7 +313,7 @@ namespace Azos.Log
             sink.WaitForCompleteStop();
           } catch
           {
-#warning REVISE - must not eat exceptions
+#warning REVISE - must not eat exceptions - use Conout?
           }  // Can't do much here in case of an error
       }
     }

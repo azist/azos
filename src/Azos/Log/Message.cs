@@ -277,18 +277,7 @@ namespace Azos.Log
       Source = line;
     }
 
-    public override string ToString()
-    {
-      return "{0}/{1}, {2}, {3}, {4}, {5}, {6}, {7}".Args(
-                           m_Type,
-                           m_Source,
-                           m_UTCTimeStamp,
-                           Host,
-                           From,
-                           Topic,
-                           Text,
-                           Exception != null ? Exception.ToString() : string.Empty);
-    }
+    public override string ToString() => "{0:yyyyMMdd-HHmmss.fff}, {1}, {2}, {3}, {4}".Args(m_UTCTimeStamp, m_Type, Topic, From, Text);
 
     /// <summary>
     /// Supplants the from string with caller as JSON string

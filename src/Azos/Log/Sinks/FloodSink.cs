@@ -169,6 +169,8 @@ namespace Azos.Log.Sinks
 
     private void flush()
     {
+      if (!Running && !ComponentDirector.LogDaemon.Reliable) return;
+
       try
       {
         if (m_Count==0) return;
@@ -192,7 +194,8 @@ namespace Azos.Log.Sinks
           var txt = new StringBuilder();
           foreach(var m in m_List)
           {
-            txt.Append("--> ");
+            if (!Running && !ComponentDirector.LogDaemon.Reliable) return;
+            txt.Append("@");
             txt.AppendLine( m.ToString() );
             txt.AppendLine();
             txt.AppendLine();

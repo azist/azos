@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.0.540
+set VER=1.0.540.1
 set HEADLINE=Service rel fixing latest issues
 
 call vs2017-build-release %VER%

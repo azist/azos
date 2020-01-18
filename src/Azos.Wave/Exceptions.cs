@@ -6,7 +6,7 @@
 
 using System;
 using System.Runtime.Serialization;
-
+using System.Text;
 using Azos.Web;
 
 namespace Azos.Wave
@@ -151,16 +151,17 @@ namespace Azos.Wave
     {
       get
       {
-         var result = "> ";
+         var result = new StringBuilder(":>", 128);
 
          Exception error = this;
          while(error is FilterPipelineException fpe)
          {
-            result += "{0} > ".Args(fpe.FilterName);
+            result.Append(fpe.FilterName);
+            result.Append(">");
             error = error.InnerException;
          }
 
-         return result;
+         return result.ToString();
       }
     }
 
@@ -182,7 +183,8 @@ namespace Azos.Wave
     {
       get
       {
-        return "{0} {1}".Args(FilterPath, RootException!=null? RootException.ToMessageWithType() : SysConsts.NULL_STRING);
+        var cause = RootException;
+        return FilterPath + " " +(cause != null ? cause.ToMessageWithType() : SysConsts.NULL_STRING);
       }
     }
 
