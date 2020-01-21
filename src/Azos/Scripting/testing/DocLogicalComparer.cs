@@ -136,7 +136,7 @@ namespace Azos.Scripting
         var eq = TestValueEqu(ctx, src, mfd.Name, ofn, mval, oval);
         if (!eq)
         {
-          //difference is already reported by the method
+          //difference is already reported by the method TestValueEqu
         }
       }
     }
@@ -152,7 +152,7 @@ namespace Azos.Scripting
         string ofn  = null;
         if (ofd == null)
         {
-          if (FindMissingInAmorphous && other is IAmorphousData oad && oad.AmorphousDataEnabled)
+          if (other is IAmorphousData oad && oad.AmorphousDataEnabled)
           {
             if (!oad.AmorphousData.TryGetValue(kvp.Key, out oval))
             {
@@ -177,7 +177,7 @@ namespace Azos.Scripting
         var eq = TestValueEqu(ctx, src, kvp.Key, ofn, mval, oval);
         if (!eq)
         {
-          //difference is already reported by the method
+          //difference is already reported by the method TestValueEqu
         }
       }
     }
