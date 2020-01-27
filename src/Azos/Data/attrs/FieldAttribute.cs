@@ -15,12 +15,15 @@ using Azos.Serialization.JSON;
 namespace Azos.Data
 {
   /// <summary>
-  /// Provides information about table schema that this typed row is a part of
+  /// Decorates data document fields, providing metadata for targeted Schema.FiedDef objects
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple=true, Inherited=false)]
   public sealed partial class FieldAttribute : TargetedAttribute
   {
+    /// <summary>
+    /// Decorates data document fields, providing metadata for targeted Schema.FiedDef objects
+    /// </summary>
     public FieldAttribute(
           string targetName   = ANY_TARGET,
           StoreFlag storeFlag = StoreFlag.LoadAndStore,
@@ -69,7 +72,7 @@ namespace Azos.Data
     }
 
     /// <summary>
-    /// Used for injection of pre-parsed value list
+    /// Decorates data document fields, providing metadata for targeted Schema.FiedDef objects. This .cotr is used for injection of pre-parsed value list
     /// </summary>
     public FieldAttribute(
           JsonDataMap valueList,
@@ -125,8 +128,9 @@ namespace Azos.Data
 
 
     /// <summary>
-    /// Clones the field as a whole from another TypedDocument type. This constructor is typically used
-    /// to borrow field definitions between layers, such as form borrows it from data access layer
+    /// Decorates data document fields, providing metadata for targeted Schema.FiedDef objects.
+    /// This .ctor clones the field as a whole from another TypedDocument type. This constructor is typically used
+    /// to borrow field definitions between layers, such as form model borrows it from data access layer
     /// </summary>
     public FieldAttribute(Type cloneFromDocType): base(ANY_TARGET, null)
     {
@@ -136,7 +140,8 @@ namespace Azos.Data
     }
 
     /// <summary>
-    /// Creates a field definition attribute which inherits all of the attributes of another field attribute declared on the same
+    /// Decorates data document fields, providing metadata for targeted Schema.FiedDef objects.
+    /// This .ctor creates a field definition attribute which inherits all of the attributes of another field attribute declared on the same
     /// data document property with the specified `deriveFromTargetName` target. An error is thrown if such field def attribute with the specified target is not found.
     /// Circular dependencies are prohibited. This constructor has no effect on dynamic (non-typed) data documents as the inheritance is ignored for
     /// dynamic schemas
@@ -149,8 +154,9 @@ namespace Azos.Data
     }
 
     /// <summary>
-    /// Creates a field def attribute cloning all fields from prototype/proto field name then optionally overriding one by one.
-    /// You can not reference the same `protoType` as cyclical references are not supported
+    /// Decorates data document fields, providing metadata for targeted Schema.FiedDef objects.
+    /// This .ctor creates a field def attribute cloning all fields from prototype/proto field name then optionally overriding one by one.
+    /// You can not reference the same `protoType` as cyclical references are not allowed
     /// </summary>
     public FieldAttribute(
           Type protoType,

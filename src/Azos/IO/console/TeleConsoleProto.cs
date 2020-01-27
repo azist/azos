@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using Azos.Data;
+using Azos.Serialization.Arow;
 using Azos.Serialization.JSON;
 using System;
 using System.Collections.Generic;
@@ -46,21 +47,26 @@ namespace Azos.IO.Console
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
-      wri.Write("{\"n\": "); JsonWriter.EncodeString(wri, Name, options); wri.Write(",");
-      wri.Write("\"c\": \""); wri.Write(Cmd.ToString()); wri.Write("\",");
-      wri.Write("\"t\": "); JsonWriter.EncodeString(wri, Text, options);
+      wri.Write("{\"n\":"); JsonWriter.EncodeString(wri, Name, options); wri.Write(",");
+      wri.Write("\"c\":\""); wri.Write(Cmd.ToString()); wri.Write("\"");
+
+      if (Text!=null)
+      {
+        wri.Write(",\"t\":"); JsonWriter.EncodeString(wri, Text, options);
+      }
 
       if (Background.HasValue)
       {
-        wri.Write(",\"bg\": ");
+        wri.Write(",\"bg\":");
         wri.Write(Background.Value.ToString());
       }
 
       if (Foreground.HasValue)
       {
-        wri.Write(",\"fg\": ");
+        wri.Write(",\"fg\":");
         wri.Write(Foreground.Value.ToString());
       }
+
       wri.Write("}");
     }
 
@@ -84,6 +90,7 @@ namespace Azos.IO.Console
   /// <summary>
   /// Describes a batch of TeleConsoleMsg sent to the remote port server
   /// </summary>
+  [Arow("54E28C9F-402B-4FFF-9436-87A5D98AF716")]
   public sealed class TeleConsoleMsgBatch : TypedDoc
   {
     private static readonly JsonWritingOptions JSON_OPTIONS = new JsonWritingOptions{ MemberLineBreak = false, ObjectLineBreak = false };
@@ -95,21 +102,29 @@ namespace Azos.IO.Console
     /// </summary>
     public TeleConsoleMsgBatch(Atom app, DateTime utcNow, IEnumerable<TeleConsoleMsg> data)
     {
+      Host = Azos.Platform.Computer.HostName;
       App = app;
       TimestampUtcMs = utcNow.ToMillisecondsSinceUnixEpochStart();
       DataJsonLine = JsonWriter.Write(data.NonNull(nameof(data)), JSON_OPTIONS);
     }
 
 
-    [Field] public Atom App { get; private set; }
-    [Field] public long TimestampUtcMs { get; private set; }
+    [Field(description: "Origin host name")]
+    public string Host { get; private set; }
+
+    [Field(description: "Origin application id")]
+    public Atom App { get; private set; }
+
+    [Field(description: "Origin UTC time stamp")]
+    public long TimestampUtcMs { get; private set; }
 
     /// <summary>
     /// The data is marshaled as a pre-serialized terse json
     /// so servers/relays do not need to recode the data object.
     /// The data may not have newline characters (they have to be escaped)
     /// </summary>
-    [Field] public string DataJsonLine { get; private set; }
+    [Field(description: "Json data payload")]
+    public string DataJsonLine { get; private set; }
   }
 
 }
