@@ -59,11 +59,17 @@ namespace Azos.Data.Access.MongoDb
       m_Converter = new DataDocConverter();
     }
 
+    protected override void Destructor()
+    {
+      DisposeAndNull(ref m_QueryResolver);
+      base.Destructor();
+    }
+
     #endregion
 
     #region Fields
 
-        private QueryResolver    m_QueryResolver;
+    private QueryResolver    m_QueryResolver;
         private DataDocConverter m_Converter;
 
     #endregion
