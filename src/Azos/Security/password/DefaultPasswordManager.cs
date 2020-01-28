@@ -97,6 +97,12 @@ namespace Azos.Security
       DefaultStrengthLevel = PasswordStrengthLevel.Normal;
     }
 
+    protected override void Destructor()
+    {
+      base.Destructor();
+      cleanupAlgorithms();
+    }
+
     #endregion
 
     #region Fields
@@ -223,10 +229,13 @@ namespace Azos.Security
 
     #region Protected
 
+
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
-      m_Algorithms.Clear();
+
+      cleanupAlgorithms();
+
       foreach (var algoNode in node.Children.Where(cn => cn.IsSameName(CONFIG_ALGORITHM_SECTION)))
       {
         var name = algoNode.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
@@ -426,6 +435,13 @@ namespace Azos.Security
 
     #region Private
 
+
+    private void cleanupAlgorithms()
+    {
+      m_Algorithms.ForEach(a => this.DontLeak(() => a.Dispose(), errorFrom: nameof(cleanupAlgorithms)));
+      m_Algorithms.Clear();
+    }
+
     private static bool isSymbol(char c)
     {
       return Char.IsSymbol(c) || Char.IsPunctuation(c);
@@ -446,7 +462,7 @@ namespace Azos.Security
     private int getMinLengthForLevel(PasswordFamily family, PasswordStrengthLevel level)
     {
       switch (level)
-      {              //todo:  OGEE - what does this code do?
+      {
         case PasswordStrengthLevel.Minimum:     return 4 -  (family == PasswordFamily.Text ? 0 : 1);
         case PasswordStrengthLevel.BelowNormal: return 5 -  (family == PasswordFamily.Text ? 0 : 1);
         default:                                return 6 -  (family == PasswordFamily.Text ? 0 : 1); // Normal
@@ -458,7 +474,7 @@ namespace Azos.Security
     private int getMaxLengthForLevel(PasswordFamily family, PasswordStrengthLevel level)
     {
       switch (level)
-      {              //todo:  OGEE - what does this code do?
+      {
         case PasswordStrengthLevel.Minimum:     return 5 -  (family == PasswordFamily.Text ? 0 : 1);
         case PasswordStrengthLevel.BelowNormal: return 6 -  (family == PasswordFamily.Text ? 0 : 1);
         default:                                return 8 -  (family == PasswordFamily.Text ? 0 : 2); // Normal
