@@ -54,13 +54,18 @@ namespace Azos.Log
 
     private void ctor() => m_InstrBuffer = new MemoryBufferSink(this, false);//does not get registered in sinks
 
-    protected override void Destructor()
+    private void cleanupSinks()
     {
-      base.Destructor();
-
       foreach (var sink in m_Sinks.OrderedValues.Reverse())
         sink.Dispose();
 
+      m_Sinks.Clear();
+    }
+
+    protected override void Destructor()
+    {
+      base.Destructor();
+      cleanupSinks();
       DisposeAndNull(ref m_InstrBuffer);
     }
 
@@ -264,6 +269,10 @@ namespace Azos.Log
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
+
+      if (node==null || !node.Exists) return;
+
+      cleanupSinks();
 
       foreach (var snode in node.Children.Where(n => n.IsSameName(CONFIG_SINK_SECTION)))
       {
