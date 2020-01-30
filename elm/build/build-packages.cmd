@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.540.1
-set HEADLINE=Service rel fixing latest issues
+set VER=1.0.540.3
+set HEADLINE=Service release root mem leaks and logging
 
 call vs2017-build-release %VER%
 

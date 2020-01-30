@@ -54,9 +54,10 @@ namespace Azos.Log.Sinks
 
     protected internal override void DoPulse()
     {
+      base.DoPulse();
+
       var wri = m_Writer;
       if (wri == null) return;
-      base.DoPulse();
       wri.Flush();
     }
 
