@@ -6,7 +6,7 @@
 
 using Azos.Apps.Injection;
 
-namespace Azos.Sky.Apps.HostGovernor
+namespace Azos.Apps.HostGovernor
 {
   /// <summary>
   /// Implements contracts trampoline that uses a singleton instance of HostGovernorService

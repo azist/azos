@@ -16,12 +16,12 @@ using Azos.Apps;
 
 using Azos.Sky.Metabase;
 
-namespace Azos.Sky.Apps.HostGovernor
+namespace Azos.Apps.HostGovernor
 {
   /// <summary>
   /// Provides Host Governor Services - this is a singleton class
   /// </summary>
-  public sealed class HostGovernorService : Daemon, Contracts.IPinger
+  public sealed class HostGovernorService : Daemon, Sky.Contracts.IPinger
   {
     #region CONSTS
       public const string THREAD_NAME = "HostGovernorService";
@@ -40,7 +40,7 @@ namespace Azos.Sky.Apps.HostGovernor
       public HostGovernorService(IApplication app, bool launchedByARD, bool ardUpdateProblem) : base(app)
       {
         if (!App.Singletons.GetOrCreate(() => this).created)
-          throw new AHGOVException(StringConsts.AHGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
+          throw new AHGOVException(Sky.StringConsts.AHGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
 
         m_LaunchedByARD = launchedByARD;
         m_ARDUpdateProblem = ardUpdateProblem;

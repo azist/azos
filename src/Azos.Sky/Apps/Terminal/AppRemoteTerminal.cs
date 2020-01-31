@@ -15,6 +15,7 @@ using Azos.Collections;
 using Azos.Data;
 using Azos.Security;
 
+using Azos.Sky;
 using Azos.Sky.Contracts;
 using Azos.Sky.Security.Permissions.Admin;
 
@@ -143,13 +144,13 @@ namespace Azos.Apps.Terminal
       return new RemoteTerminalInfo
       {
         TerminalName = Name,
-        WelcomeMsg = "Connected to '[{0}]{1}'@'{2}' on {3:G} {4:T} UTC. Session '{5}'".Args(SkySystem.MetabaseApplicationName,
+        WelcomeMsg = "Connected to '[{0}]{1}'@'{2}' on {3:G} {4:T} UTC. Session '{5}'".Args(App.AppId,
                                                                      App.Name,
-                                                                     App.HostName,
+                                                                     App.GetThisHostName(),
                                                                      App.TimeSource.Now,
                                                                      App.TimeSource.UTCNow,
                                                                      Name),
-        Host = App.HostName,
+        Host = App.GetThisHostName(),
         AppName = App.Name,
         ServerLocalTime = App.TimeSource.Now,
         ServerUTCTime = App.TimeSource.UTCNow
@@ -202,7 +203,7 @@ namespace Azos.Apps.Terminal
       var tp = Cmdlets.FirstOrDefault(cmd => cmd.Name.EqualsIgnoreCase(cname));
 
       if (tp == null)
-        return StringConsts.RT_CMDLET_DONTKNOW_ERROR.Args(cname);
+        return Sky.StringConsts.RT_CMDLET_DONTKNOW_ERROR.Args(cname);
 
       //Check cmdlet security
       Permission.AuthorizeAndGuardAction(App, tp);
@@ -210,7 +211,7 @@ namespace Azos.Apps.Terminal
 
       var cmdlet = Activator.CreateInstance(tp, this, command) as Cmdlet;
       if (cmdlet == null)
-        throw new SkyException(StringConsts.RT_CMDLET_ACTIVATION_ERROR.Args(cname));
+        throw new SkyException(Sky.StringConsts.RT_CMDLET_ACTIVATION_ERROR.Args(cname));
 
       using (cmdlet)
       {
