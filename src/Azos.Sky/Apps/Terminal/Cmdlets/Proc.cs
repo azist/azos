@@ -11,13 +11,12 @@ using Azos.Conf;
 using Azos.Glue;
 using Azos.Sky.Workers;
 
-namespace Azos.Sky.Apps.Terminal.Cmdlets
+namespace Azos.Apps.Terminal.Cmdlets
 {
-
   /// <summary>
   /// Process Manager
   /// </summary>
-  public class Proc : Cmdlet
+  public class Proc : SkyAppCmdlet
   {
     public const string CONFIG_ALLOC_SECTION    = "alloc";
     public const string CONFIG_SPAWN_SECTION    = "spawn";

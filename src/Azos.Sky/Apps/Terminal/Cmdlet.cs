@@ -6,10 +6,13 @@
 
 using Azos.Conf;
 
-namespace Azos.Sky.Apps.Terminal
+using Azos.Sky;
+
+namespace Azos.Apps.Terminal
 {
   /// <summary>
-  /// Provides generalization for commandlet - terminal command handler
+  /// Provides generalization for a "commandlet" - an application terminal command handler.
+  /// This base class can execute in a common IApplication and does not require ISkyApplication
   /// </summary>
   public abstract class Cmdlet : DisposableObject
   {
@@ -22,7 +25,7 @@ namespace Azos.Sky.Apps.Terminal
     protected AppRemoteTerminal m_Terminal;
     protected IConfigSectionNode m_Args;
 
-    public ISkyApplication App => m_Terminal.App;
+    public IApplication App => m_Terminal.App;
 
     /// <summary>
     /// Override to perform actual cmdlet work. Return string result
@@ -33,5 +36,15 @@ namespace Azos.Sky.Apps.Terminal
     /// Override to produce help content
     /// </summary>
     public abstract string GetHelp();
+  }
+
+  /// <summary>
+  /// Provides base for cmdlets which execute in SkyApplication chassis (e.g. require metabase)
+  /// </summary>
+  public abstract class SkyAppCmdlet : Cmdlet
+  {
+    protected SkyAppCmdlet(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args){ }
+
+    public new ISkyApplication App => base.App.AsSky();
   }
 }

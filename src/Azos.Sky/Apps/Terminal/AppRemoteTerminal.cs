@@ -19,53 +19,8 @@ using Azos.Sky.Contracts;
 using Azos.Sky.Security.Permissions.Admin;
 
 
-namespace Azos.Sky.Apps.Terminal
+namespace Azos.Apps.Terminal
 {
-
-  /// <summary>
-  /// Internal framework registry of AppRemoteTerminal
-  /// </summary>
-  internal sealed class AppRemoteTerminalRegistry
-  {
-    private AppRemoteTerminalRegistry() { }
-
-    private object m_IDLock = new object();
-    private int m_ID;
-    private Registry<AppRemoteTerminal> m_Registry = new Registry<AppRemoteTerminal>();
-
-    /// <summary>
-    /// Returns singleton instance of AppRemoteTerminalRegistry per application
-    /// </summary>
-    public static AppRemoteTerminalRegistry Instance(IApplication app)
-      => app.NonNull(nameof(app))
-            .Singletons
-            .GetOrCreate( () => new AppRemoteTerminalRegistry() )
-            .instance;
-
-    public IEnumerable<AppRemoteTerminal> All => m_Registry;
-
-    public int NextID()
-    {
-      lock (m_IDLock)
-      {
-        m_ID++;
-        return m_ID;
-      }
-    }
-
-    public void AdjustID(int id)
-    {
-      lock (m_IDLock)
-      {
-        if (id > m_ID) m_ID = id;
-      }
-    }
-
-    public bool Register(AppRemoteTerminal term) => m_Registry.Register(term);
-    public bool Unregister(AppRemoteTerminal term) => m_Registry.Unregister(term);
-  }
-
-
   /// <summary>
   /// Provides base for terminal application management capabilities. This is a Glue server
   /// </summary>
@@ -115,7 +70,7 @@ namespace Azos.Sky.Apps.Terminal
     }
 
 #pragma warning disable 649
-    [Inject] ISkyApplication m_App;
+    [Inject] IApplication m_App;
 #pragma warning restore 649
 
     private int m_ID;
@@ -127,7 +82,10 @@ namespace Azos.Sky.Apps.Terminal
     private ScriptRunner m_ScriptRunner;
 
 
-    public ISkyApplication App => m_App.NonNull(nameof(m_App));
+    /// <summary>
+    /// Application chassis context for this terminal session
+    /// </summary>
+    public IApplication App => m_App.NonNull(nameof(m_App));
 
     /// <summary>
     /// Returns unique terminal session ID
@@ -175,7 +133,7 @@ namespace Azos.Sky.Apps.Terminal
 
     public virtual RemoteTerminalInfo Connect(string who)
     {
-      m_Who = who ?? SysConsts.UNKNOWN_ENTITY;
+      m_Who = who ?? Sky.SysConsts.UNKNOWN_ENTITY;
       var now = App.TimeSource.UTCNow;
       m_WhenConnected = now;
       m_WhenInteracted = now;
@@ -216,7 +174,7 @@ namespace Azos.Sky.Apps.Terminal
 
       if (!command.EndsWith("}")) command += "{}";
 
-      var cmd = TerminalUtils.ParseCommand(command, m_Vars);
+      var cmd = Sky.TerminalUtils.ParseCommand(command, m_Vars);
       var result = new MemoryConfiguration();
       result.EnvironmentVarResolver = cmd.EnvironmentVarResolver;
       m_ScriptRunner.Execute(cmd, result);

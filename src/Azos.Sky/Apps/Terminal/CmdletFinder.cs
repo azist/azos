@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 
 
-namespace Azos.Sky.Apps.Terminal
+namespace Azos.Apps.Terminal
 {
   /// <summary>
   /// Provides enumerations of well-known cmdlets and facilities to find process-specific cmdlets

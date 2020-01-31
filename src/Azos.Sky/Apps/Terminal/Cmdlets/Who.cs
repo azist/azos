@@ -8,7 +8,7 @@ using System.Text;
 
 using Azos.Conf;
 
-namespace Azos.Sky.Apps.Terminal.Cmdlets
+namespace Azos.Apps.Terminal.Cmdlets
 {
   public class Who : Cmdlet
   {

@@ -101,7 +101,7 @@ namespace Azos.Apps
       //2. what host is this?
       m_HostName = determineHostName(null);
 
-      //Sets cluster host name in all log messages
+      //Sets cluster host name (e.g. in all log messages)
       if (m_HostName.IsNotNullOrWhiteSpace())
          Platform.Computer._____SetHostName(m_HostName);
 
