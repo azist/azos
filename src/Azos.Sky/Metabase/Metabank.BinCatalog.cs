@@ -12,7 +12,7 @@ using Azos;
 using Azos.Conf;
 using Azos.IO.FileSystem.Packaging;
 
-using Azos.Sky.Apps.HostGovernor;
+using Azos.Apps.HostGovernor;
 
 namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
 

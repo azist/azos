@@ -10,7 +10,7 @@ using System.Linq;
 using Azos.IO.FileSystem;
 using Azos.Conf;
 
-using Azos.Sky.Apps;
+using Azos.Apps;
 
 namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
 

@@ -14,8 +14,8 @@ using Azos.Instrumentation;
 using Azos.Platform.Instrumentation;
 using Azos.Serialization.JSON;
 
-using Azos.Sky.Apps;
-using Azos.Sky.Apps.ZoneGovernor;
+using Azos.Apps;
+using Azos.Apps.ZoneGovernor;
 
 namespace Azos.Sky.WebManager.Controllers
 {

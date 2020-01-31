@@ -7,7 +7,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using Azos.Sky.Apps;
+using Azos.Apps;
 using Azos.Conf;
 
 using Azos.Sky.Coordination;

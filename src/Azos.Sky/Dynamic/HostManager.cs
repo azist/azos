@@ -10,7 +10,6 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Instrumentation;
 
-using Azos.Sky.Apps;
 using Azos.Sky.Metabase;
 
 namespace Azos.Sky.Dynamic

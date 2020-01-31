@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using Azos.Sky.Apps.Terminal;
+using Azos.Apps.Terminal;
 
 namespace Azos.Sky.Hosts.azgov
 {

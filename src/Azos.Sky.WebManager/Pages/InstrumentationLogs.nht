@@ -4,8 +4,8 @@
     using{ns="Azos.Wave"}
     using{ns="Azos.Log"}
     using{ns="Azos"}
-    using{ns="Azos.Sky.Apps"}
-    using{ns="Azos.Sky.Apps.ZoneGovernor"}
+    using{ns="Azos.Apps"}
+    using{ns="Azos.Apps.ZoneGovernor"}
     using{ns="Azos.Sky.WebManager.Controls"}
     base-class-name="HeadMaster"
     namespace="Azos.Sky.WebManager.Pages"
