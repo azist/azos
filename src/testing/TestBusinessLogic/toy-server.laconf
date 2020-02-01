@@ -53,6 +53,8 @@
 
       binding { name="inproc" type="Azos.Glue.Native.InProcBinding, Azos" }
 
+      binding { name="appterm" type="Azos.Sky.Glue.AppTermBinding, Azos.Sky" }
+
       binding
       {
          name="mpx" type="Azos.Glue.Native.MpxBinding, Azos"
@@ -70,9 +72,11 @@
 
     servers
     {
-      server {name="local" node="inproc://localhost" contract-servers="BusinessLogic.Server.JokeServer, BusinessLogic; BusinessLogic.Server.JokeCalculatorServer, BusinessLogic"}
-      server {name="sync"  node="sync://*:8000"   contract-servers="BusinessLogic.Server.JokeServer, BusinessLogic; BusinessLogic.Server.JokeCalculatorServer, BusinessLogic"}
-      server {name="mpx"   node="mpx://*:5701"  contract-servers="BusinessLogic.Server.JokeServer, BusinessLogic;BusinessLogic.Server.JokeCalculatorServer, BusinessLogic"}
+      server {name="local" node="inproc://localhost" contract-servers="TestBusinessLogic.Server.JokeServer, TestBusinessLogic; TestBusinessLogic.Server.JokeCalculatorServer, TestBusinessLogic"}
+      server {name="sync"  node="sync://*:8000"   contract-servers="TestBusinessLogic.Server.JokeServer, TestBusinessLogic; TestBusinessLogic.Server.JokeCalculatorServer, TestBusinessLogic"}
+      server {name="mpx"   node="mpx://*:5701"  contract-servers="TestBusinessLogic.Server.JokeServer, TestBusinessLogic; TestBusinessLogic.Server.JokeCalculatorServer, TestBusinessLogic"}
+
+      server {name="term" node="appterm://localhost:7797" contract-servers="Azos.Apps.Terminal.AppRemoteTerminal, Azos.Sky"}
     }
 
 

@@ -50,7 +50,7 @@ namespace Azos.Apps.Terminal
 
     public AppRemoteTerminal()
     {
-      m_ID = AppRemoteTerminalRegistry.Instance(App).NextID();
+      m_ID = AppRemoteTerminalRegistry.GenerateId();
 
       m_Name = new ELink((ulong)m_ID, null).Link;
       m_Vars = new Vars();
@@ -66,7 +66,6 @@ namespace Azos.Apps.Terminal
     public void OnDeserialization(object sender)
     {
       var registry = AppRemoteTerminalRegistry.Instance(App);
-      registry.AdjustID(m_ID);
       registry.Register(this);
     }
 
@@ -74,7 +73,7 @@ namespace Azos.Apps.Terminal
     [Inject] IApplication m_App;
 #pragma warning restore 649
 
-    private int m_ID;
+    private ulong m_ID;
     private string m_Name;
     private string m_Who;
     private DateTime m_WhenConnected;
@@ -91,7 +90,7 @@ namespace Azos.Apps.Terminal
     /// <summary>
     /// Returns unique terminal session ID
     /// </summary>
-    public int ID { get { return m_ID; } }
+    public ulong ID { get { return m_ID; } }
 
     /// <summary>
     /// Returns unique terminal session ID as an alpha link

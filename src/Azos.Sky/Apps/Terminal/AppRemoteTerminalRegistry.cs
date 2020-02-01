@@ -28,8 +28,6 @@ namespace Azos.Apps.Terminal
   {
     private AppRemoteTerminalRegistry() { }
 
-    private object m_IDLock = new object();
-    private int m_ID;
     private Registry<AppRemoteTerminal> m_Registry = new Registry<AppRemoteTerminal>();
 
     /// <summary>
@@ -43,22 +41,8 @@ namespace Azos.Apps.Terminal
 
     public IEnumerable<AppRemoteTerminal> All => m_Registry;
 
-    public int NextID()
-    {
-      lock (m_IDLock)
-      {
-        m_ID++;
-        return m_ID;
-      }
-    }
+    public static ulong GenerateId() => FID.Generate().ID;
 
-    public void AdjustID(int id)
-    {
-      lock (m_IDLock)
-      {
-        if (id > m_ID) m_ID = id;
-      }
-    }
 
     public bool Register(AppRemoteTerminal term) => m_Registry.Register(term);
     public bool Unregister(AppRemoteTerminal term) => m_Registry.Unregister(term);
