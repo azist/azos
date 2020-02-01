@@ -30,6 +30,7 @@ namespace Azos.Apps.Terminal.Cmdlets
     public override string Execute()
     {
       var stopNowHour = m_Args.AttrByName(CONFIG_STOP_NOW_HR_ATTR).ValueAsInt(-10);
+
       if (stopNowHour == App.LocalizedTime.Hour)
       {
         var text = Sky.StringConsts.APPL_CMD_STOPPING_INFO.Args(m_Terminal.Name, m_Terminal.WhenConnected, m_Terminal.Who);

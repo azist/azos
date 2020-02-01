@@ -24,28 +24,18 @@ namespace Azos.Apps.Terminal
   /// <summary>
   /// Internal framework registry of AppRemoteTerminal
   /// </summary>
-  internal sealed class AppRemoteTerminalRegistry
+  internal static class AppRemoteTerminalRegistry
   {
-    private AppRemoteTerminalRegistry() { }
+    private static Registry<AppRemoteTerminal> s_Registry = new Registry<AppRemoteTerminal>();
 
-    private Registry<AppRemoteTerminal> m_Registry = new Registry<AppRemoteTerminal>();
 
-    /// <summary>
-    /// Returns singleton instance of AppRemoteTerminalRegistry per application
-    /// </summary>
-    public static AppRemoteTerminalRegistry Instance(IApplication app)
-      => app.NonNull(nameof(app))
-            .Singletons
-            .GetOrCreate( () => new AppRemoteTerminalRegistry() )
-            .instance;
-
-    public IEnumerable<AppRemoteTerminal> All => m_Registry;
+    public static IEnumerable<AppRemoteTerminal> All => s_Registry;
 
     public static ulong GenerateId() => FID.Generate().ID;
 
 
-    public bool Register(AppRemoteTerminal term) => m_Registry.Register(term);
-    public bool Unregister(AppRemoteTerminal term) => m_Registry.Unregister(term);
+    public static bool Register(AppRemoteTerminal term) => s_Registry.Register(term);
+    public static bool Unregister(AppRemoteTerminal term) => s_Registry.Unregister(term);
   }
 
 }

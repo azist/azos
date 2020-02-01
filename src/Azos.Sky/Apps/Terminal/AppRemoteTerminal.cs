@@ -59,15 +59,11 @@ namespace Azos.Apps.Terminal
 
     protected override void Destructor()
     {
-      AppRemoteTerminalRegistry.Instance(App).Unregister(this);
+      AppRemoteTerminalRegistry.Unregister(this);
       base.Destructor();
     }
 
-    public void OnDeserialization(object sender)
-    {
-      var registry = AppRemoteTerminalRegistry.Instance(App);
-      registry.Register(this);
-    }
+    public void OnDeserialization(object sender) => AppRemoteTerminalRegistry.Register(this);
 
 #pragma warning disable 649
     [Inject] IApplication m_App;
@@ -138,12 +134,12 @@ namespace Azos.Apps.Terminal
       m_WhenConnected = now;
       m_WhenInteracted = now;
 
-      AppRemoteTerminalRegistry.Instance(App).Register(this);
+      AppRemoteTerminalRegistry.Register(this);
 
       return new RemoteTerminalInfo
       {
         TerminalName = Name,
-        WelcomeMsg = "Connected to '[{0}]{1}'@'{2}' on {3:G} {4:T} UTC. Session '{5}'".Args(App.AppId,
+        WelcomeMsg = "Connected to '[{0}]{1}'@'{2}' on {3:G} {4:T} UTC. Session '{5}'".Args(App.AppId.IsZero ? "#" : App.AppId.Value,
                                                                      App.Name,
                                                                      App.GetThisHostName(),
                                                                      App.TimeSource.Now,

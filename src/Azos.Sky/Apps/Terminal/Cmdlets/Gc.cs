@@ -22,7 +22,8 @@ namespace Azos.Apps.Terminal.Cmdlets
         var before = GC.GetTotalMemory(false);
         System.GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
         var after = GC.GetTotalMemory(false);
-        return "GC took {0} ms. and freed {1} bytes".Args(watch.ElapsedMilliseconds, before - after);
+        var freed = before - after;
+        return "GC took {0:n0} ms. and freed {1:n0}".Args(watch.ElapsedMilliseconds, IOUtils.FormatByteSizeWithPrefix(freed, longPfx: true));
     }
 
     public override string GetHelp()

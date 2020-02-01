@@ -1,5 +1,7 @@
 ﻿app
 {
+  id="toysrv"
+  name="ToyServer"
   log-root=$(~AZOS_TEST_ROOT)\
   log
   {
