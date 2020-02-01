@@ -11,7 +11,7 @@ using Azos.Log;
 using Azos.Platform;
 
 using Azos.Apps;
-using Azos.Sky.Apps.HostGovernor;
+using Azos.Apps.HostGovernor;
 
 namespace Azos.Sky.Hosts.ahgov
 {

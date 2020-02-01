@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 
 
-namespace Azos.Sky.Apps.Terminal
+namespace Azos.Apps.Terminal
 {
   /// <summary>
   /// Provides enumerations of well-known cmdlets and facilities to find process-specific cmdlets
@@ -23,7 +23,7 @@ namespace Azos.Sky.Apps.Terminal
     {
       get
       {
-        return FindByNamespace(typeof(AppRemoteTerminal), "Azos.Sky.Apps.Terminal.Cmdlets");
+        return FindByNamespace(typeof(AppRemoteTerminal), "Azos.Apps.Terminal.Cmdlets");
       }
     }
 
@@ -34,7 +34,7 @@ namespace Azos.Sky.Apps.Terminal
     {
       get
       {
-        return FindByNamespace(typeof(AppRemoteTerminal), "Azos.Sky.Apps.HostGovernor.Cmdlets");
+        return FindByNamespace(typeof(AppRemoteTerminal), "Azos.Apps.HostGovernor.Cmdlets");
       }
     }
 
@@ -45,7 +45,7 @@ namespace Azos.Sky.Apps.Terminal
     {
       get
       {
-        return FindByNamespace(typeof(AppRemoteTerminal), "Azos.Sky.Apps.ZoneGovernor.Cmdlets");
+        return FindByNamespace(typeof(AppRemoteTerminal), "Azos.Apps.ZoneGovernor.Cmdlets");
       }
     }
 

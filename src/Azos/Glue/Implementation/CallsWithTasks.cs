@@ -23,7 +23,7 @@ namespace Azos.Glue.Implementation
           m_Buckets[i] = new LinkedList<CallSlot>();
       }
 
-      private int m_BucketCount;
+      //private int m_BucketCount;
       private LinkedList<CallSlot>[] m_Buckets;
 
       /// <summary>
@@ -34,7 +34,7 @@ namespace Azos.Glue.Implementation
          var requestID = call.RequestID;
 
          //getBucket() inlined for performance
-         var idx = (requestID.GetHashCode() & CoreConsts.ABS_HASH_MASK) % m_BucketCount;
+         var idx = (requestID.GetHashCode() & CoreConsts.ABS_HASH_MASK) % BUCKETS;
          var bucket = m_Buckets[idx];
 
          lock(bucket) bucket.AddLast(call);

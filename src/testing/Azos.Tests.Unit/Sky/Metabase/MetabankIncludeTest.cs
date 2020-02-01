@@ -8,7 +8,6 @@ using Azos.Apps;
 using Azos.IO.FileSystem.Local;
 using Azos.Scripting;
 
-using Azos.Sky.Apps;
 using Azos.Sky.Metabase;
 
 namespace Azos.Tests.Unit.Sky.Metabase

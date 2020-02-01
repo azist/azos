@@ -6,27 +6,24 @@
 
 using Azos.Conf;
 
-namespace Azos.Sky.Apps.Terminal.Cmdlets
+namespace Azos.Apps.Terminal.Cmdlets
 {
-
-    public class Conf : Cmdlet
+  public class Conf : Cmdlet
+  {
+    public Conf(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args)
     {
-        public Conf(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args)
-        {
-
-        }
-
-        public override string Execute()
-        {
-            var conf = new LaconicConfiguration();
-            conf.CreateFromNode( App.ConfigRoot );
-            return conf.SaveToString();
-        }
-
-        public override string GetHelp()
-        {
-            return "Fetches current configuration tree";
-        }
     }
 
+    public override string Execute()
+    {
+      var conf = new LaconicConfiguration();
+      conf.CreateFromNode( App.ConfigRoot );
+      return conf.SaveToString();
+    }
+
+    public override string GetHelp()
+    {
+      return "Fetches current process configuration tree";
+    }
+  }
 }

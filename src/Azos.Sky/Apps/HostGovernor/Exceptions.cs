@@ -6,13 +6,13 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Azos.Sky.Apps.HostGovernor
+namespace Azos.Apps.HostGovernor
 {
   /// <summary>
   /// Thrown to indicate AHGOV related problems
   /// </summary>
   [Serializable]
-  public class AHGOVException : SkyException
+  public class AHGOVException : Sky.SkyException
   {
     public AHGOVException() : base() { }
     public AHGOVException(string message) : base(message) { }

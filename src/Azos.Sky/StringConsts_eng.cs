@@ -24,6 +24,9 @@ namespace Azos.Sky
     public const string RT_CMDLET_DONTKNOW_ERROR =
                   "Server: do not know how to handle cmdlet '{0}'. Use 'help' to see cmdlet list";
 
+    public const string RT_CMDLET_CAPABILITY_NOT_SKY_APP_ERROR =
+                  "Commandlet capability '{0}' is not supported on the current IApplication chassis. This capability is available only in ISkyApplication chassis";
+
     public const string PERMISSION_DESCRIPTION_RemoteTerminalOperatorPermission =
        "Controls whether users can access remote terminals";
 

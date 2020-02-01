@@ -17,8 +17,7 @@ using Azos.Serialization.JSON;
 using Azos.Web;
 using Azos.Wave.Mvc;
 
-using Azos.Sky.Apps;
-using Azos.Sky.Apps.ZoneGovernor;
+using Azos.Apps.ZoneGovernor;
 using Azos.Sky.Metabase;
 
 namespace Azos.Sky.WebManager.Controllers
@@ -242,7 +241,7 @@ namespace Azos.Sky.WebManager.Controllers
       cmpMap["instrumentable"] = instrumentable != null;
       cmpMap["instrumentationEnabled"] = instrumentable != null ? instrumentable.InstrumentationEnabled : false;
       cmpMap["SID"] = cmp.ComponentSID;
-      cmpMap["startTime"] = Sky.Apps.Terminal.Cmdlets.Appl.DetailedComponentDateTime( cmp.ComponentStartTime );
+      cmpMap["startTime"] = Apps.Terminal.Cmdlets.App.DetailedComponentDateTime( cmp.ComponentStartTime );
       cmpMap["tp"] = cmp.GetType().FullName;
       if (cmp.ComponentCommonName.IsNotNullOrWhiteSpace()) cmpMap["commonName"] = cmp.ComponentCommonName;
       if (cmp is INamed) cmpMap["name"] = ((INamed)cmp).Name;
@@ -331,7 +330,7 @@ namespace Azos.Sky.WebManager.Controllers
         componentMap["instrumentable"] = instrumentable != null;
         componentMap["instrumentationEnabled"] = instrumentable != null ? instrumentable.InstrumentationEnabled : false;
         componentMap["SID"] = cmp.ComponentSID;
-        componentMap["startTime"] = Apps.Terminal.Cmdlets.Appl.DetailedComponentDateTime( cmp.ComponentStartTime );
+        componentMap["startTime"] = Azos.Apps.Terminal.Cmdlets.App.DetailedComponentDateTime( cmp.ComponentStartTime );
         componentMap["tp"] = cmp.GetType().FullName;
         if (cmp.ComponentCommonName.IsNotNullOrWhiteSpace()) componentMap["commonName"] = cmp.ComponentCommonName;
         if (cmp is INamed) componentMap["name"] = ((INamed)cmp).Name;

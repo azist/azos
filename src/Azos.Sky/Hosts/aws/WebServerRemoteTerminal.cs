@@ -4,7 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Sky.Apps.Terminal;
+using Azos.Apps.Terminal;
 
 namespace Azos.Sky.Hosts.aws
 {

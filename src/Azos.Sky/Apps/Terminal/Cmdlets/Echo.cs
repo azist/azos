@@ -6,10 +6,10 @@
 
 using Azos.Conf;
 
-namespace Azos.Sky.Apps.Terminal.Cmdlets
+namespace Azos.Apps.Terminal.Cmdlets
 {
   /// <summary>
-  /// Echo text
+  /// Echoes text
   /// </summary>
   public class Echo: Cmdlet
   {
@@ -22,7 +22,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
 
     public override string GetHelp()
     {
-      return @"Echo text";
+      return @"Echoes text";
     }
   }
 }
