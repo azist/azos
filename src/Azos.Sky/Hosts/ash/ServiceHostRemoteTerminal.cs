@@ -11,7 +11,7 @@ namespace Azos.Sky.Hosts.ash
   /// <summary>
   /// Implements Sky Service Host remote terminal
   /// </summary>
-  public class ServiceHostRemoteTerminal : AppRemoteTerminal
+  public class ServiceHostRemoteTerminal : SkyAppRemoteTerminal
   {
     public ServiceHostRemoteTerminal() : base() { }
     // no additional commandlets

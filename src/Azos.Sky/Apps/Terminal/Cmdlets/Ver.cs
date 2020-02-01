@@ -7,6 +7,7 @@ using System.Text;
 using System.Reflection;
 
 using Azos.Conf;
+using Azos.Sky;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
@@ -20,10 +21,18 @@ namespace Azos.Apps.Terminal.Cmdlets
     {
       var result = new StringBuilder(0xff);
       result.AppendLine("Server Version/Build information:");
-      result.AppendLine(" App:       " + App.Name);
+      result.AppendLine(" App:       [{0}] {1}".Args(App.AppId.IsZero ? "#" : App.AppId.Value,  App.Name));
       result.AppendLine(" Azos Core: " + BuildInformation.ForFramework);
       result.AppendLine(" Azos Sky:  " + new BuildInformation( typeof(Azos.Sky.SkySystem).Assembly ));
-      result.AppendLine(" Host:      " + new BuildInformation( Assembly.GetEntryAssembly() ));
+
+      string host  = "n/a";
+      try
+      {
+        host = new BuildInformation(Assembly.GetEntryAssembly()).ToString();
+      }
+      catch{ }
+
+      result.AppendLine(" Host:      " + host);
 
       return result.ToString();
     }

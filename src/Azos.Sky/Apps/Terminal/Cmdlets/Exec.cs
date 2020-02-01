@@ -37,7 +37,7 @@ namespace Azos.Apps.Terminal.Cmdlets
 
     public override string GetHelp()
     {
-      return @"Executes commands";
+      return @"Executes command batch";
     }
   }
 }

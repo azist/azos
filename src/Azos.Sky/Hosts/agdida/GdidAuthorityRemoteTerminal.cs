@@ -11,7 +11,7 @@ namespace Azos.Sky.Hosts.agdida
   /// <summary>
   /// Implements Gdid generator Authority remote terminal
   /// </summary>
-  public class GdidAuthorityRemoteTerminal : AppRemoteTerminal
+  public class GdidAuthorityRemoteTerminal : SkyAppRemoteTerminal
   {
     public GdidAuthorityRemoteTerminal() : base() { }
 

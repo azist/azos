@@ -113,7 +113,7 @@ namespace Azos.Apps.Terminal
     /// <summary>
     /// Provides cmdlets
     /// </summary>
-    public virtual IEnumerable<Type> Cmdlets { get { return CmdletFinder.Common; } }
+    public virtual IEnumerable<Type> Cmdlets => CmdletFinder.BaseAzos;
 
     /// <summary>
     /// Provides variable resolver
