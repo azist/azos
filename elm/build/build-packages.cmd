@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.540.3
-set HEADLINE=Service release root mem leaks and logging
+set VER=1.1.0
+set HEADLINE=Sky App terminals support for Azos apps
 
 call vs2017-build-release %VER%
 
