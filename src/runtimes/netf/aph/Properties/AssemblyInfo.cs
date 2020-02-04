@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("aph")]
 [assembly: AssemblyDescription("Azos Sky, Sky Process Host")]
-[assembly: AssemblyCopyright("Copyright © Azist Group 2019")]
+[assembly: AssemblyCopyright("Copyright © Azist Group 2020")]
 [assembly: AssemblyCompany("Azist Group")]
 [assembly: AssemblyProduct("aph")]
 [assembly: AssemblyTrademark("Azos Sky")]
