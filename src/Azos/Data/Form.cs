@@ -166,7 +166,7 @@ namespace Azos.Data
       if (valError != null)
         return new SaveResult<TSaveResult>(valError);
 
-      this.BeforeSave(DataStoreTargetName);
+      DoBeforeSave(DataStoreTargetName);
 
       return await DoSaveAsync();
     }

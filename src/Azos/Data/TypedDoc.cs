@@ -111,13 +111,16 @@ namespace Azos.Data
       }
 
 
+      void IAmorphousData.BeforeSave(string targetName) => DoBeforeSave(targetName);
+      void IAmorphousData.AfterLoad(string targetName) => DoAfterLoad(targetName);
+
       /// <summary>
       /// Invoked to allow the doc to transform its state into AmorphousData bag.
-      /// For example, this may be usefull to store extra data that is not a part of established business schema.
+      /// For example, this may be useful to store extra data that is not a part of established business schema.
       /// The operation is performed per particular targetName (name of physical backend). Simply put, this method allows
       ///  business code to "specify what to do before object gets saved in THE PARTICULAR TARGET backend store"
       /// </summary>
-      public virtual void BeforeSave(string targetName)
+      protected virtual void DoBeforeSave(string targetName)
       {
 
       }
@@ -128,10 +131,10 @@ namespace Azos.Data
       /// The operation is performed per particular targetName (name of physical backend).
       /// Simply put, this method allows business code to "specify what to do after object gets loaded from THE PARTICULAR TARGET backend store".
       /// An example: suppose current MongoDB collection stores 3 fields for name, and we want to collapse First/Last/Middle name fields into one field.
-      /// If we change rowschema then it will only contain 1 field which is not present in the database, however those 'older' fields will get populated
+      /// If we change schema then it will only contain 1 field which is not present in the database, however those 'older' fields will get populated
       /// into AmorphousData giving us an option to merge older 3 fields into 1 within AfterLoad() implementation
       /// </summary>
-      public virtual void AfterLoad(string targetName)
+      protected virtual void DoAfterLoad(string targetName)
       {
 
       }
