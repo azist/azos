@@ -904,7 +904,7 @@ namespace Azos.Tests.Nub.Serialization
 
            public int Age{ get { return (int)((DateTime.Now-DOB).TotalDays / 365d);}}//Age is now a calculated property, so existing code does not break
 
-           protected override void DoAfterLoad(string targetName)
+           protected override void DoAmorphousDataAfterLoad(string targetName)
            {
              if (targetName=="MyLegacySystem")//if data came from THIS system
              {

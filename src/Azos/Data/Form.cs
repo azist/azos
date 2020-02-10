@@ -161,18 +161,47 @@ namespace Azos.Data
     /// </summary>
     public async virtual Task<SaveResult<TSaveResult>> SaveAsync()
     {
+      DoAmorphousDataBeforeSave(DataStoreTargetName);
+
+      DoBeforeValidateOnSave();
+
       var valError = this.Validate(DataStoreTargetName);
+
+      DoAfterValidateOnSave(ref valError);
 
       if (valError != null)
         return new SaveResult<TSaveResult>(valError);
 
-      DoBeforeSave(DataStoreTargetName);
+      DoBeforeSave();
 
       return await DoSaveAsync();
     }
 
     public sealed async override Task<SaveResult<object>> SaveReturningObjectAsync()
      => (await SaveAsync()).ToObject();
+
+    /// <summary>
+    /// Override to perform pre-validate step on Save(). This can be used to default required field values among other things.
+    /// Note: this is called after amorphous data save, so the validation can assume the state of AmorphousData
+    /// </summary>
+    protected virtual void DoBeforeValidateOnSave(){ }
+
+    /// <summary>
+    /// Override to perform post-validate step on Save(). For example, you can mask/disregard validation error
+    /// by setting it to null
+    /// </summary>
+    /// <param name="valError">Reference to validation error instance which you can disregard by setting to null</param>
+    protected virtual void DoAfterValidateOnSave(ref Exception valError){ }
+
+
+    /// <summary>
+    /// Override to perform post-successful-validate pre-save step on Save().
+    /// This override is typically used to generate a unique ID for inserts (as determined by FormMode)
+    /// in the absence of validation errors so the ID does NOT get generated and wasted when there is/are validation errors.
+    /// This method is NOT called if validation finds errors in prior steps of Save() flow
+    /// </summary>
+    protected virtual void DoBeforeSave() { }
+
 
     /// <summary>
     /// Override to save model into data store. Return "predictable" exception (such as key violation) as a value instead of throwing.
