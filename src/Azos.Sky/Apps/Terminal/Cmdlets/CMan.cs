@@ -25,6 +25,9 @@ namespace Azos.Apps.Terminal.Cmdlets
     public const string CONFIG_PARAM_ATTR = "param";
     public const string CONFIG_VALUE_ATTR = "value";
 
+    public const string CONFIG_CALL_ATTR = "call";
+    public const string CONFIG_CALL_LIST_ATTR = "call-list";
+
 
     public static ApplicationComponent GetApplicationComponentBySIDorName(IApplication app, IConfigSectionNode args)
     {
@@ -52,6 +55,12 @@ namespace Azos.Apps.Terminal.Cmdlets
       var cname = m_Args.AttrByName(CONFIG_NAME_ATTR).Value;
       var param = m_Args.AttrByName(CONFIG_PARAM_ATTR).Value;
       var value = m_Args.AttrByName(CONFIG_VALUE_ATTR).Value;
+      var call = m_Args[CONFIG_CALL_ATTR, CONFIG_CALL_LIST_ATTR];
+
+      //todo: add accept: header to return json etc...
+
+      //cman{ sid=123 call-list{} }}; // for Help
+      //cman{ sid=123 call{ directsql{sql="select 2+2 from DUAL"} }};
 
       var sb = new StringBuilder(1024);
       sb.AppendLine(AppRemoteTerminal.MARKUP_PRAGMA);
@@ -67,7 +76,12 @@ namespace Azos.Apps.Terminal.Cmdlets
         if (sid>0) cmp = ApplicationComponent.GetAppComponentBySID(App, sid);
         if (cmp==null && cname.IsNotNullOrWhiteSpace()) cmp = ApplicationComponent.GetAppComponentByCommonName(App, cname);
         if (cmp!=null)
-          details(sb, cmp, param, value);
+        {
+          if (call.Exists)
+            doCall(sb, cmp, call, call.IsSameName(CONFIG_CALL_LIST_ATTR));
+          else
+            details(sb, cmp, param, value);
+        }
         else
           sb.AppendFormat("<f color=red>Component with the supplied SID and CommonName was not found\n");
       }
@@ -218,6 +232,51 @@ return
       sb.AppendLine(pfx+"<f color=gray>Director: <f color=magenta> "+(dir==null? " -none- " : dir.GetType().FullName));
       if (dir is ApplicationComponent)
         dumpDetails(sb, dir as ApplicationComponent, level+1);
+    }
+
+    private bool doCall(StringBuilder sb, ApplicationComponent cmp, IConfigSectionNode call, bool isHelp)
+    {
+      var callable = cmp as IExternallyCallable;
+      if (callable==null)
+      {
+        sb.AppendFormat("<f color=red>Component is not IExternallyCallable\n");
+        return false;
+      }
+
+      var handler = callable.GetExternalCallHandler();
+
+      if (isHelp)
+      {
+        foreach(var type in handler.SupportedRequestTypes)
+        {
+          var response = handler.DescribeRequest(type);
+          sb.AppendFormat("<f color=white>{0}\n" ,type.Name);
+          sb.AppendFormat("<f color=gray>{0}\n\n", response.Content);
+        }
+        return true;
+      }
+
+      var any = false;
+      foreach(var request in call.Children)
+      {
+        var response = handler.HandleRequest(request);
+
+        if (response==null)
+        {
+          sb.AppendFormat("<f color=red>Call request was not handled\n");
+          return false;
+        }
+        any = true;
+
+        sb.AppendFormat("@`{0}` status: {0} / {1}\n", request.RootPath, response.StatusCode, response.StatusDescription);
+        sb.AppendFormat("Content type: {0}", response.ContentType);
+        sb.AppendFormat("Content: \n");
+        sb.Append(response.Content);
+        sb.AppendLine();
+        sb.AppendLine();
+      }
+
+      return any;
     }
 
   }

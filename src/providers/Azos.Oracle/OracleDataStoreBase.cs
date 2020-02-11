@@ -35,7 +35,7 @@ namespace Azos.Data.Access.Oracle
     private void ctor()
     {
       m_ExternalCallHandler = new ExternalCallHandler<OracleDataStoreBase>(App, this,
-        typeof(Instrumentation.PipeSql)
+        typeof(Instrumentation.DirectSql)
       );
     }
     #endregion

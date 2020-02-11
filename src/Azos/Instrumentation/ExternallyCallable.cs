@@ -11,6 +11,8 @@ namespace Azos.Instrumentation
 
   public interface IExternalCallHandler
   {
+    ExternalCallResponse DescribeRequest(Type request);
+    ExternalCallResponse DescribeRequest(IConfigSectionNode request);
     ExternalCallResponse HandleRequest(IConfigSectionNode request);
 
     IEnumerable<Type> SupportedRequestTypes { get; }
@@ -34,6 +36,8 @@ namespace Azos.Instrumentation
 
     public IEnumerable<Type> SupportedRequestTypes => m_SupportedRequestTypes;
 
+    public virtual ExternalCallResponse DescribeRequest(Type request)
+     => DescribeRequest((request.NonNull(nameof(request)).Name + "{ }").AsLaconicConfig());
 
     public virtual ExternalCallResponse DescribeRequest(IConfigSectionNode request)
      => DoProcessRequest(request, false);
@@ -44,7 +48,7 @@ namespace Azos.Instrumentation
     protected virtual ExternalCallResponse DoProcessRequest(IConfigSectionNode request, bool execute)
     {
       if (request == null || !request.Exists) return null;//unknown request
-      var tr = SupportedRequestTypes.FirstOrDefault(t => t.Name.EqualsOrdIgnoreCase(request.Name));
+      var tr = SupportedRequestTypes.FirstOrDefault(t => t.Name.EqualsOrdIgnoreCase(request.Name));// command-name{ ... }
       if (tr == null) return null;//unknown
 
       //Execution demands handler authorization
@@ -90,8 +94,33 @@ namespace Azos.Instrumentation
 
   public sealed class ExternalCallResponse
   {
+    /// <summary>
+    /// Creates an OK/200 response
+    /// </summary>
+    public ExternalCallResponse(string contentType, string content)
+    {
+      StatusCode = 200;
+      StatusDescription = "OK";
+      ContentType = contentType;
+      Content = content;
+    }
+
+    /// <summary>
+    /// Instance with the specified status
+    /// </summary>
+    public ExternalCallResponse(int status, string statusDescription, string contentType, string content)
+    {
+      StatusCode = status;
+      StatusDescription = statusDescription;
+      ContentType = contentType;
+      Content = content;
+    }
+
+    /// <summary>
+    /// Although this mechanism is not built specifically for web, it uses HTTP return codes by convention
+    /// </summary>
     public int    StatusCode        { get; private set; }
-    public int    StatusDescription { get; private set; }
+    public string StatusDescription { get; private set; }
 
     public string Content           { get; private set; }
     public string ContentType       { get; private set; }

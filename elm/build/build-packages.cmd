@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.1.0
-set HEADLINE=Sky App terminals support for Azos apps
+set VER=1.1.0.2
+set HEADLINE=Svc release IExternallyCallable and advanced script pattern matches
 
 call vs2017-build-release %VER%
 
