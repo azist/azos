@@ -15,9 +15,9 @@ using Azos.Security;
 
 namespace Azos.Instrumentation
 {
-
   /// <summary>
-  /// Denotes an entity that has external parameters that can be get/set
+  /// Denotes an entity that has parameters that can be get/set from an external source, such as an app terminal session.
+  /// This API is sync only because setting properties is a CPU-bound fast operation
   /// </summary>
   public interface IExternallyParameterized
   {

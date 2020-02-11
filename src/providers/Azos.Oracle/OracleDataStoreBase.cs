@@ -21,7 +21,7 @@ namespace Azos.Data.Access.Oracle
   /// <summary>
   /// Implements Oracle store base functionality
   /// </summary>
-  public abstract class OracleDataStoreBase : ApplicationComponent, IDataStoreImplementation
+  public abstract class OracleDataStoreBase : ApplicationComponent, IDataStoreImplementation, IExternallyCallable
   {
     #region CONSTS
     public const string STR_FOR_TRUE = "T";
@@ -29,8 +29,15 @@ namespace Azos.Data.Access.Oracle
     #endregion
 
     #region .ctor/.dctor
-    protected OracleDataStoreBase(IApplication app) : base(app){ }
-    protected OracleDataStoreBase(IApplicationComponent director) : base(director){ }
+    protected OracleDataStoreBase(IApplication app) : base(app) => ctor();
+    protected OracleDataStoreBase(IApplicationComponent director) : base(director) => ctor();
+
+    private void ctor()
+    {
+      m_ExternalCallHandler = new ExternalCallHandler<OracleDataStoreBase>(App, this,
+        typeof(Instrumentation.PipeSql)
+      );
+    }
     #endregion
 
     #region Private Fields
@@ -51,6 +58,8 @@ namespace Azos.Data.Access.Oracle
     private DateTimeKind m_DateTimeKind = DateTimeKind.Utc;
 
     private bool m_InstrumentationEnabled;
+
+    private ExternalCallHandler<OracleDataStoreBase> m_ExternalCallHandler;
     #endregion
 
     #region IInstrumentation
@@ -86,6 +95,12 @@ namespace Azos.Data.Access.Oracle
     {
       return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
     }
+
+    /// <summary>
+    /// Returns a handler which processes external administration calls, such as the ones originating from
+    /// the application terminal
+    /// </summary>
+    public IExternalCallHandler GetExternalCallHandler() => m_ExternalCallHandler;
     #endregion
 
     #region Properties
@@ -115,7 +130,7 @@ namespace Azos.Data.Access.Oracle
       }
     }
 
-    [Config]
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_DATA)]
     public StoreLogLevel LogLevel { get; set;}
 
     /// <summary>
@@ -124,7 +139,7 @@ namespace Azos.Data.Access.Oracle
     [Config]
     public string SchemaName { get; set; }
 
-    [Config]
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
     public virtual string TargetName
     {
       get{ return m_TargetName.IsNullOrWhiteSpace() ? "ORACLE" : m_TargetName;}
@@ -208,7 +223,7 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     /// Allocates Oracle connection. Override to do custom connection setup, such as `ALTER SESSION` etc...
     /// </summary>
-    protected virtual async Task<OracleConnection> GetConnection()
+    public virtual async Task<OracleConnection> GetConnection()
     {
       var connectString = this.ConnectString;
 
