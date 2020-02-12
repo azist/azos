@@ -50,6 +50,8 @@ namespace Azos.Apps.Terminal.Cmdlets
         <f color=yellow>cmd=string<f color=gray> - command to run
         <f color=yellow>args=int<f color=gray> - arguments
         <f color=yellow>timeout=int_ms<f color=gray> - for how long to wait for process exit
+ <f color=cyan> NOTE: 
+    Requires  <f color=red>SystemAdministratorPermission(AccessLevel.ADVANCED)<f color=cyan> grant 
 ";
     }
   }

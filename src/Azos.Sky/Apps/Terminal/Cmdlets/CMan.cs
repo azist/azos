@@ -242,7 +242,7 @@ return
       var callable = cmp as IExternallyCallable;
       if (callable==null)
       {
-        sb.AppendFormat("<f color=red>Component is not IExternallyCallable\n");
+        sb.AppendFormat("<f color=red>This component is not IExternallyCallable\n");
         return false;
       }
 
@@ -266,13 +266,13 @@ return
 
         if (response==null)
         {
-          sb.AppendFormat("<f color=red>Call request was not handled\n");
+          sb.AppendFormat("<f color=red>Call request `{0}` was not handled \n".Args(request.RootPath));
           return false;
         }
         any = true;
 
-        sb.AppendFormat("@`{0}` status: {1} / {2}\n", request.RootPath, response.StatusCode, response.StatusDescription);
-        sb.AppendFormat("Content type: {0}", response.ContentType);
+        sb.AppendFormat("@`{0}` | Status: {1} / {2}\n", request.RootPath, response.StatusCode, response.StatusDescription);
+        sb.AppendFormat("Content type: {0}\n", response.ContentType);
         sb.AppendFormat("Content: \n");
         sb.Append(response.Content);
         sb.AppendLine();

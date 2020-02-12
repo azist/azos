@@ -250,7 +250,7 @@ namespace Azos.Instrumentation
                   else
                   {
                     //filter out, do not throw
-                    if (!Permission.AuthorizeAction(app, prop)) return null;
+                    if (!Permission.AuthorizeAction(app, prop)) return null;//not found because of lack of security
                   }
                 }
                 return prop;
