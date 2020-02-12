@@ -143,7 +143,7 @@ namespace Azos.Security
       var failed = !permission.Check(app, session);
 
       if (failed)
-        throw new AuthorizationException(string.Format(StringConsts.SECURITY_AUTHROIZATION_ERROR, failed, actionName ?? CoreConsts.UNKNOWN));
+        throw new AuthorizationException(string.Format(StringConsts.SECURITY_AUTHROIZATION_ERROR, permission.FullPath, actionName ?? CoreConsts.UNKNOWN));
     }
 
     /// <summary>
