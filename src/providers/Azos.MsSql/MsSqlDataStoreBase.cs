@@ -21,7 +21,7 @@ namespace Azos.Data.Access.MsSql
   /// <summary>
   /// Implements Oracle store base functionality
   /// </summary>
-  public abstract class MsSqlDataStoreBase : ApplicationComponent, IDataStoreImplementation
+  public abstract class MsSqlDataStoreBase : ApplicationComponent, IDataStoreImplementation, IExternallyCallable
   {
     #region CONSTS
     public const string STR_FOR_TRUE = "T";
