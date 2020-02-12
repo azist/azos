@@ -242,7 +242,16 @@ namespace Azos.Instrumentation
                     (!isSet && (atr.SecurityCheck & ExternalParameterSecurityCheck.OnGet)!=0)
                     )
                 {
-                  Permission.AuthorizeAndGuardAction(app, prop);
+                  if (isSet)
+                  {
+                    //throws
+                    Permission.AuthorizeAndGuardAction(app, prop);
+                  }
+                  else
+                  {
+                    //filter out, do not throw
+                    if (!Permission.AuthorizeAction(app, prop)) return null;
+                  }
                 }
                 return prop;
               }

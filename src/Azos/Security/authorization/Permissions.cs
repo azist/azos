@@ -316,9 +316,9 @@ namespace Azos.Security
     #region Protected
 
     /// <summary>
-    /// Override to perform access level checks per user's AccessLevel instance.
+    /// Override to perform access level checks per user's AccessLevel ACL entry.
     /// True if  accessLevel satisfies permission requirements.
-    /// The default implementation checks the access.Level
+    /// The default implementation just checks the access.Level
     /// </summary>
     protected virtual bool DoCheckAccessLevel(IApplication app, ISession session, AccessLevel access)
     {

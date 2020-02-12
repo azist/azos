@@ -11,6 +11,7 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Collections;
 using Azos.Instrumentation;
+using Azos.Security;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
@@ -171,6 +172,8 @@ return
     {
       if (param.IsNotNullOrWhiteSpace())
       {
+        App.Authorize(new  SystemAdministratorPermission(AccessLevel.VIEW_CHANGE));
+
         sb.AppendLine("<f color=gray>Trying to set parameter <f color=yellow>'{0}'<f color=gray> to value  <f color=cyan>'{1}'".Args(param, value ?? "<null>"));
         if (!ExternalParameterAttribute.SetParameter(cmp.App, cmp, param, value))
         {
@@ -268,7 +271,7 @@ return
         }
         any = true;
 
-        sb.AppendFormat("@`{0}` status: {0} / {1}\n", request.RootPath, response.StatusCode, response.StatusDescription);
+        sb.AppendFormat("@`{0}` status: {1} / {2}\n", request.RootPath, response.StatusCode, response.StatusDescription);
         sb.AppendFormat("Content type: {0}", response.ContentType);
         sb.AppendFormat("Content: \n");
         sb.Append(response.Content);

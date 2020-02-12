@@ -12,7 +12,7 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Data.Modeling;
 using Azos.Instrumentation;
-
+using Azos.Security;
 using Oracle.ManagedDataAccess.Client;
 
 
@@ -117,7 +117,8 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     /// Get/Sets Oracle database connection string
     /// </summary>
-    [Config]
+    [SystemAdministratorPermission(AccessLevel.ADVANCED)]
+    [Config, ExternalParameter(nameof(ConnectString), ExternalParameterSecurityCheck.OnGetSet, CoreConsts.EXT_PARAM_GROUP_DATA)]
     public string ConnectString
     {
       get
@@ -139,7 +140,8 @@ namespace Azos.Data.Access.Oracle
     [Config]
     public string SchemaName { get; set; }
 
-    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
+    [SystemAdministratorPermission(AccessLevel.ADVANCED)]
+    [Config, ExternalParameter(nameof(TargetName), ExternalParameterSecurityCheck.OnSet, CoreConsts.EXT_PARAM_GROUP_DATA)]
     public virtual string TargetName
     {
       get{ return m_TargetName.IsNullOrWhiteSpace() ? "ORACLE" : m_TargetName;}

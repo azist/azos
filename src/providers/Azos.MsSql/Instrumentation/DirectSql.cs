@@ -12,19 +12,19 @@ using Azos.Serialization.JSON;
 using Azos.Web;
 using Azos.Security;
 
-using Oracle.ManagedDataAccess.Client;
+using System.Data.SqlClient;
 
-namespace Azos.Data.Access.Oracle.Instrumentation
+namespace Azos.Data.Access.MsSql.Instrumentation
 {
   /// <summary>
-  /// Provides direct ORCL sql execution capability
+  /// Provides direct Microsoft SQL Server sql execution capability
   /// </summary>
   [SystemAdministratorPermission(AccessLevel.ADVANCED)]
-  public sealed class DirectSql : ExternalCallRequest<OracleDataStoreBase>
+  public sealed class DirectSql : ExternalCallRequest<MsSqlDataStoreBase>
   {
     public const int MAX = 1000;
 
-    public DirectSql(OracleDataStoreBase store) : base (store){ }
+    public DirectSql(MsSqlDataStoreBase store) : base (store){ }
 
 
     [Config]
@@ -35,7 +35,7 @@ namespace Azos.Data.Access.Oracle.Instrumentation
 
     public override ExternalCallResponse Describe()
     => new ExternalCallResponse(ContentType.TEXT,
-@"Pipes SQL directly into ORCL for execution.
+@"Pipes SQL directly into MS-SQL for execution.
 supply Sql content via `SQL` attribute.
 The maximum row count is capped at {0}".Args(MAX));
 
@@ -74,7 +74,7 @@ The maximum row count is capped at {0}".Args(MAX));
       return new ExternalCallResponse(ContentType.JSON, json);
     }
 
-    private void bindParams(OracleCommand cmd)
+    private void bindParams(SqlCommand cmd)
     {
       if (Parameters != null && Parameters.Exists) return;
       //cmd.Parameters.AddWithValue(p.Name, p.Value);

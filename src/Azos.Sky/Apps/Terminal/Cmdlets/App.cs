@@ -12,6 +12,7 @@ using Azos.Conf;
 using Azos.Collections;
 
 using Azos.Sky;
+using Azos.Security;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
@@ -33,6 +34,8 @@ namespace Azos.Apps.Terminal.Cmdlets
 
       if (stopNowHour == App.LocalizedTime.Hour)
       {
+        App.Authorize(new SystemAdministratorPermission(AccessLevel.ADVANCED));
+
         var text = Sky.StringConsts.APPL_CMD_STOPPING_INFO.Args(m_Terminal.Name, m_Terminal.WhenConnected, m_Terminal.Who);
         App.Log.Write( new Azos.Log.Message
         {
@@ -136,7 +139,8 @@ namespace Azos.Apps.Terminal.Cmdlets
 @"Displays the status of the Application Container:
         Pass <f color=yellow>stop-now-hour<f color=gray>=app_local_hour to stop the App.
         This is needed so that an inadvertent stopping of the App container
-        is precluded. The parameter must match the current local App time
+        is precluded. The parameter must match the current local App time and
+        the caller must have SystemAdministratorPermission(AccessLevel.ADVANCED) grant
 ";
     }
 

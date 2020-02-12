@@ -152,7 +152,7 @@ namespace Azos.Apps.Terminal
       };
     }
 
-    [AppRemoteTerminalPermission]
+    [RemoteTerminalOperatorPermission]
     public virtual string Execute(string command)
     {
       m_WhenInteracted = App.TimeSource.UTCNow;

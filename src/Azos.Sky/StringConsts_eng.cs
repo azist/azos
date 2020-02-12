@@ -30,9 +30,6 @@ namespace Azos.Sky
     public const string PERMISSION_DESCRIPTION_RemoteTerminalOperatorPermission =
        "Controls whether users can access remote terminals";
 
-    public const string PERMISSION_DESCRIPTION_AppRemoteTerminalPermission =
-       "Controls whether users can access remote terminal of application context";
-
     public const string GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR = "GDIDGenerator failed to obtain GDIDBlock from any authority. Tried: \n";
 
     public const string GDIDGEN_SET_TESTING_ERROR = "GDIDGenerator can not set TestingAuthorityGlueNode as the block was already allocated";

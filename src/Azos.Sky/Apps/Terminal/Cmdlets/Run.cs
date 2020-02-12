@@ -3,16 +3,13 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Conf;
-using Azos.Apps.Terminal;
+using Azos.Security;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
+  [SystemAdministratorPermission(AccessLevel.ADVANCED)]
   public class Run : Cmdlet
   {
     public const string CONFIG_CMD_ATTR = "cmd";
