@@ -34,7 +34,7 @@ namespace Azos.Data.Access.Oracle
 
     private void ctor()
     {
-      m_ExternalCallHandler = new ExternalCallHandler<OracleDataStoreBase>(App, this,
+      m_ExternalCallHandler = new ExternalCallHandler<OracleDataStoreBase>(App, this, null,
         typeof(Instrumentation.DirectSql)
       );
     }
@@ -100,7 +100,7 @@ namespace Azos.Data.Access.Oracle
     /// Returns a handler which processes external administration calls, such as the ones originating from
     /// the application terminal
     /// </summary>
-    public IExternalCallHandler GetExternalCallHandler() => m_ExternalCallHandler;
+    public virtual IExternalCallHandler GetExternalCallHandler() => m_ExternalCallHandler;
     #endregion
 
     #region Properties

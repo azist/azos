@@ -63,17 +63,20 @@ namespace Azos.Instrumentation
     /// </summary>
     /// <param name="app">Application context for DI and authorization</param>
     /// <param name="context">Call target context</param>
+    /// <param name="parent">Parent handler which gets called if this one could not handle the request or null</param>
     /// <param name="supportedRequestTypes">An array of types which this handler recognizes/ Must be of ExternalCallRequest&lt;TContext&gt; subtype</param>
-    public ExternalCallHandler(IApplication app, TContext context, params Type[] supportedRequestTypes)
+    public ExternalCallHandler(IApplication app, TContext context, IExternalCallHandler parent, params Type[] supportedRequestTypes)
     {
       m_App = app.NonNull(nameof(app));
       Context = context.NonNull(nameof(context));
+      m_ParentHandler = parent;
       m_SupportedRequestTypes = supportedRequestTypes.NonNull(nameof(supportedRequestTypes))
                                               .ForEach(t => t.IsOfType<ExternalCallRequest<TContext>>());
     }
 
     private IApplication m_App;
     protected IEnumerable<Type> m_SupportedRequestTypes;
+    private IExternalCallHandler m_ParentHandler;
 
     /// <summary>
     /// Application context
@@ -86,6 +89,11 @@ namespace Azos.Instrumentation
     public TContext Context { get; private set; }
 
     /// <summary>
+    /// Chained call handler which will be called for requests which could not be handled by this one or null
+    /// </summary>
+    public IExternalCallHandler Parent => m_ParentHandler;
+
+    /// <summary>
     /// Types which this handler recognizes for processing
     /// </summary>
     public IEnumerable<Type> SupportedRequestTypes => m_SupportedRequestTypes;
@@ -94,19 +102,33 @@ namespace Azos.Instrumentation
     /// Describes request type
     /// </summary>
     public virtual ExternalCallResponse DescribeRequest(Type request)
-     => DescribeRequest((request.NonNull(nameof(request)).Name + "{ }").AsLaconicConfig());
+      => DescribeRequest((request.NonNull(nameof(request)).Name + "{ }").AsLaconicConfig());
 
      /// <summary>
      /// Describes request vector
      /// </summary>
     public virtual ExternalCallResponse DescribeRequest(IConfigSectionNode request)
-     => DoProcessRequest(request, false);
+    {
+      var result = DoProcessRequest(request, false);
+
+      if (result == null && m_ParentHandler != null)
+        result = m_ParentHandler.DescribeRequest(request);
+
+      return result;
+    }
 
     /// <summary>
     /// Handles (executes) the request. returns null for unknown/unrecognized/unsupported request type
     /// </summary>
     public virtual ExternalCallResponse HandleRequest(IConfigSectionNode request)
-     => DoProcessRequest(request, true);
+    {
+      var result = DoProcessRequest(request, true);
+
+      if (result == null && m_ParentHandler != null)
+        result = m_ParentHandler.HandleRequest(request);
+
+      return result;
+    }
 
     /// <summary>
     /// Override to process request

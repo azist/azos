@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.1.0.3
-set HEADLINE=Svc release with security patches for cmdlets
+set VER=1.1.0.4
+set HEADLINE=Svc release for IExtrenalCallHandler
 
 call vs2017-build-release %VER%
 
