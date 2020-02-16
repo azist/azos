@@ -157,7 +157,14 @@ namespace Azos.Scripting
       public bool      GetBool(string attr)          => this[attr].Value.AsBool(handling: ConvertErrorHandling.Throw);
       public bool?     GetNullableBool(string attr)  => this[attr].Value.AsNullableBool(handling: ConvertErrorHandling.Throw);
 
+      /// <summary>
+      /// Returns a string attribute which is required to be present, but may have a null or empty value
+      /// </summary>
       public string    GetString(string attr)         => this[attr].Value;
+
+      /// <summary>
+      /// Returns a string value which must be a non-blank value (non-null, non-whitespace)
+      /// </summary>
       public string    GetRequiredString(string attr) => GetString(attr).NonBlank(attr);
 
       public Atom      GetAtom(string attr)          => this[attr].Value.AsAtom(Atom.ZERO, handling: ConvertErrorHandling.Throw);

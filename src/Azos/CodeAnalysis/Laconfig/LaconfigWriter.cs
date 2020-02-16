@@ -185,7 +185,13 @@ namespace Azos.CodeAnalysis.Laconfig
                                 wasAttr = true;
                                 writeString(sb, anode.Name);
                                 sb.Append("=");
-                                writeString(sb, anode.VerbatimValue);
+
+                                var v = anode.VerbatimValue;
+
+                                if (v==null)
+                                  sb.Append("null");
+                                else
+                                  writeString(sb, v);
                             }
 
                             bool wasChild = false;

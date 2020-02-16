@@ -38,6 +38,7 @@ namespace Azos.CodeAnalysis.Laconfig
         LITERALS_START,
 
             tStringLiteral,
+            tNull,
 
         LITERALS_END
   }

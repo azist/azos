@@ -21,7 +21,11 @@ namespace Azos.CodeAnalysis.Laconfig
     /// </summary>
     public static LaconfigTokenType Resolve(string str)
     {
-      if (str.Length!=1) return LaconfigTokenType.tIdentifier;
+      if (str.Length!=1)
+      {
+        return str.EqualsOrdSenseCase("null") ? LaconfigTokenType.tNull
+                                              : LaconfigTokenType.tIdentifier;
+      }
 
       var c = str[0];
 
