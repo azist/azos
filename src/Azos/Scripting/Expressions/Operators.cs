@@ -1,0 +1,46 @@
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using Azos.Conf;
+
+namespace Azos.Scripting.Expressions
+{
+  /// <summary>
+  /// Implements a type-safe binary operator with concrete left and right operand types
+  /// </summary>
+  public abstract class BinaryOperator<TContext, TResult, TLeftOperand, TRightOperand> : Expression<TContext, TResult>, IBinaryOperator
+  {
+    public Expression<TContext, TLeftOperand> LeftOperand { get; set; }
+    public Expression<TContext, TRightOperand> RightOperand { get; set; }
+
+    IExpression IBinaryOperator.LeftOperand => LeftOperand;
+    IExpression IBinaryOperator.RightOperand => RightOperand;
+
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+      LeftOperand = FactoryUtils.MakeAndConfigure<Expression<TContext, TLeftOperand>>(node);
+      RightOperand = FactoryUtils.MakeAndConfigure<Expression<TContext, TRightOperand>>(node);
+    }
+  }
+
+  /// <summary>
+  /// Implements a type-safe unary operator of a concrete operand type
+  /// </summary>
+  public abstract class UnaryOperator<TContext, TResult, TOperand> : Expression<TContext, TResult>, IUnaryOperator
+  {
+    public Expression<TContext, TOperand> Operand { get; set; }
+    IExpression IUnaryOperator.Operand => Operand;
+
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+      Operand = FactoryUtils.MakeAndConfigure<Expression<TContext, TOperand>>(node);
+    }
+  }
+
+
+}
