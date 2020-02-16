@@ -2,7 +2,7 @@
 
 The `Azos.Scripting.Expressions` namespace provides types for building expression trees from 
 config sources.
-This is used as an ad-hock scripting in various places, such as advanced log filtering.
+This is used as an ad-hoc scripting in various places, such as advanced log filtering.
 
 An abstract syntax expression tree is formed by injection of appropriate expression node types (such as operators)
 from config script vector, consequently you can create complex expressions.
