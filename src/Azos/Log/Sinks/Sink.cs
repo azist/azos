@@ -158,10 +158,10 @@ namespace Azos.Log.Sinks
 
 
     /// <summary>
-    /// Gets/sets filter expression for this destination.
+    /// Gets/sets filter expression for this sink.
     /// Filter expressions get dynamically compiled into filter assembly,
     /// consequently it is not a good practice to create too many different filters.
-    /// Filters are heavyweight, and it is advisable to use them ONLY WHEN regular destination filtering (using Min/Max levels, dates and times) can not be used
+    /// Filters are relatively heavyweight, and it is advisable to use them ONLY WHEN regular sink filtering (using Min/Max levels, dates and times) can not be used
     ///  to achieve the desired result
     /// </summary>
     public MessageFilterExpression Filter
@@ -391,227 +391,227 @@ namespace Azos.Log.Sinks
 
     #region Public
 
-        /// <summary>
-        /// Sends the message into destination doing filter checks first.
-        /// </summary>
-        public void Send(Message msg)
-        {
-          if (!Running) return;
-          if (m_OnlyFailures) return;
+    /// <summary>
+    /// Sends the message into destination doing filter checks first.
+    /// </summary>
+    public void Send(Message msg)
+    {
+      if (!Running) return;
+      if (m_OnlyFailures) return;
 
-          SendRegularAndFailures(msg);
+      SendRegularAndFailures(msg);
+    }
+
+    internal void SendRegularAndFailures(Message msg)
+    {
+      if (!Running) return;
+
+      //When there was failure and it was not long enough
+      if (m_LastErrorTimestamp.HasValue)
+      if ((LocalizedTime - m_LastErrorTimestamp.Value).TotalMilliseconds < m_RestartProcessingAfterMs)
+      {
+        //this is after than throwing exception
+        var error = new AzosException(string.Format(StringConsts.LOGSVC_SINK_IS_OFFLINE_ERROR, Name));
+        SetError(error, msg);
+        return;
+      }
+
+      try
+      {
+        if (!Channel.IsZero && msg.Channel != Channel) return;
+
+        if (!satisfyFilter(msg)) return;
+
+        if (m_Levels.Count > 0)
+        {
+            bool found = false;
+            foreach (var r in m_Levels)
+                if (r.Item1 <= msg.Type && msg.Type <= r.Item2)
+                {
+                    found = true;
+                    break;
+                }
+              if (!found)
+                  return;
         }
 
-        internal void SendRegularAndFailures(Message msg)
+        var msgLocalTime = UniversalTimeToLocalizedTime(msg.UTCTimeStamp);
+
+        if (
+            (!m_MinLevel.HasValue   || msg.Type >= m_MinLevel.Value) &&
+            (!m_MaxLevel.HasValue   || msg.Type <= m_MaxLevel.Value) &&
+            (!m_DaysOfWeek.HasValue || m_DaysOfWeek.Value.Contains(msgLocalTime.DayOfWeek)) &&
+            (!m_StartDate.HasValue  || msgLocalTime >= m_StartDate.Value) &&
+            (!m_EndDate.HasValue    || msgLocalTime <= m_EndDate.Value) &&
+            (!m_StartTime.HasValue  || msgLocalTime.TimeOfDay >= m_StartTime.Value) &&
+            (!m_EndTime.HasValue    || msgLocalTime.TimeOfDay <= m_EndTime.Value)
+            )
         {
-           if (!Running) return;
-
-           //When there was failure and it was not long enough
-           if (m_LastErrorTimestamp.HasValue)
-           if ((LocalizedTime - m_LastErrorTimestamp.Value).TotalMilliseconds < m_RestartProcessingAfterMs)
-           {
-             //this is after than throwing exception
-             var error = new AzosException(string.Format(StringConsts.LOGSVC_SINK_IS_OFFLINE_ERROR, Name));
-             SetError(error, msg);
-             return;
-           }
-
-          try
-          {
-            if (!Channel.IsZero && msg.Channel != Channel) return;
-
-            if (!satisfyFilter(msg)) return;
-
-            if (m_Levels.Count > 0)
+            if (!m_MaxProcessingTimeMs.HasValue)
+              DoSend(msg);
+            else
             {
-                bool found = false;
-                foreach (var r in m_Levels)
-                    if (r.Item1 <= msg.Type && msg.Type <= r.Item2)
-                    {
-                        found = true;
-                        break;
-                    }
-                 if (!found)
-                     return;
+              m_StopWatch.Restart();
+              DoSend(msg);
+              m_StopWatch.Stop();
+
+              if (m_LastError != null) m_AverageProcessingTimeMs = 0f;//reset average time to 0 after 1st successful execution after prior failure
+
+              //EMA filter
+              m_AverageProcessingTimeMs = ( PROCESSING_TIME_EMA_FILTER * m_StopWatch.ElapsedMilliseconds) +
+                                          ( (1.0f - PROCESSING_TIME_EMA_FILTER) * m_AverageProcessingTimeMs );
+
+              if (m_AverageProcessingTimeMs > m_MaxProcessingTimeMs.Value)
+              throw new AzosException(string.Format(StringConsts.LOGSVC_SINK_EXCEEDS_MAX_PROCESSING_TIME_ERROR,
+                                                    Name,
+                                                    m_MaxProcessingTimeMs,
+                                                    m_StopWatch.ElapsedMilliseconds));
             }
 
-            var msgLocalTime = UniversalTimeToLocalizedTime(msg.UTCTimeStamp);
+            if (m_LastError != null) SetError(null, msg);//clear-out error
+        }
 
-            if (
-                (!m_MinLevel.HasValue   || msg.Type >= m_MinLevel.Value) &&
-                (!m_MaxLevel.HasValue   || msg.Type <= m_MaxLevel.Value) &&
-                (!m_DaysOfWeek.HasValue || m_DaysOfWeek.Value.Contains(msgLocalTime.DayOfWeek)) &&
-                (!m_StartDate.HasValue  || msgLocalTime >= m_StartDate.Value) &&
-                (!m_EndDate.HasValue    || msgLocalTime <= m_EndDate.Value) &&
-                (!m_StartTime.HasValue  || msgLocalTime.TimeOfDay >= m_StartTime.Value) &&
-                (!m_EndTime.HasValue    || msgLocalTime.TimeOfDay <= m_EndTime.Value)
-               )
-            {
-                if (!m_MaxProcessingTimeMs.HasValue)
-                 DoSend(msg);
-                else
-                {
-                   m_StopWatch.Restart();
-                    DoSend(msg);
-                   m_StopWatch.Stop();
+      }
+      catch (Exception error)
+      {
+        //WARNING!!!
+        //under no condition MAY any exception escape from here
+        SetError(error, msg);
+      }
+    }
 
-                   if (m_LastError != null) m_AverageProcessingTimeMs = 0f;//reset average time to 0 after 1st successful execution after prior failure
+    /// <summary>
+    /// Provides periodic notification of destinations from central Log thread even if there are no messages to write.
+    /// Override DoPulse to commit internal batching buffers provided by particular destinations
+    /// </summary>
+    public void Pulse()
+    {
+      if (!Running) return;
+      try
+      {
+        DoPulse();
+      }
+      catch (Exception error)
+      {
+      //WARNING!!!
+      //under no condition MAY any exception escape from here
+      SetError(error, null);
+      }
+    }
 
-                   //EMA filter
-                   m_AverageProcessingTimeMs = ( PROCESSING_TIME_EMA_FILTER * m_StopWatch.ElapsedMilliseconds) +
-                                               ( (1.0f - PROCESSING_TIME_EMA_FILTER) * m_AverageProcessingTimeMs );
+    /// <summary>
+    /// Parses levels into a tuple list of level ranges
+    /// </summary>
+    /// <param name="levels">String representation of levels using ',' or ';' or '|'
+    /// as range group delimiters, and '-' as range indicators.  If first/second bound of the range
+    /// is empty, the min/max value of that bound is assumed.
+    /// Examples: "Debug-DebugZ | Error", "-DebugZ | Info | Warning", "Info-", "DebugB-DebugC, Error"</param>
+    public static LevelsList ParseLevels(string levels)
+    {
+      var result = new LevelsList();
 
-                   if (m_AverageProcessingTimeMs > m_MaxProcessingTimeMs.Value)
-                    throw new AzosException(string.Format(StringConsts.LOGSVC_SINK_EXCEEDS_MAX_PROCESSING_TIME_ERROR,
-                                                         Name,
-                                                         m_MaxProcessingTimeMs,
-                                                         m_StopWatch.ElapsedMilliseconds));
-                }
-
-                if (m_LastError != null) SetError(null, msg);//clear-out error
-            }
-
-          }
-          catch (Exception error)
+      if (!string.IsNullOrWhiteSpace(levels))
+          foreach (var p in levels.Split(',', ';', '|'))
           {
-            //WARNING!!!
-            //under no condition MAY any exception escape from here
-            SetError(error, msg);
+              var minmax = p.Split(new char[] { '-' }, 2).Select(s => s.Trim()).ToArray();
+
+              if (minmax.Length == 0)
+                  throw new AzosException(StringConsts.ARGUMENT_ERROR + "levels: " + p);
+
+              MessageType min, max;
+
+              if (string.IsNullOrWhiteSpace(minmax[0]))
+                  min = MessageType.Debug;
+              else if (!Enum.TryParse(minmax[0], true, out min))
+                  throw new AzosException(StringConsts.ARGUMENT_ERROR +
+                      "levels: {0} (error parsing: {1})".Args(p, minmax[0]));
+
+              if (minmax.Length < 2)
+                  max = min;
+              else if (string.IsNullOrWhiteSpace(minmax[1]))
+                  max = MessageType.CatastrophicError;
+              else if (!Enum.TryParse(minmax[1], true, out max))
+                  throw new AzosException(StringConsts.ARGUMENT_ERROR +
+                      "levels: {0} (error parsing: {1})".Args(p, minmax[1]));
+
+              result.Add(new Tuple<MessageType, MessageType>(min, max));
           }
-        }
 
-        /// <summary>
-        /// Provides periodic notification of destinations from central Log thread even if there are no messages to write.
-        /// Override DoPulse to commit internal batching buffers provided by particular destinations
-        /// </summary>
-        public void Pulse()
-        {
-           if (!Running) return;
-           try
-           {
-              DoPulse();
-           }
-           catch (Exception error)
-           {
-            //WARNING!!!
-            //under no condition MAY any exception escape from here
-            SetError(error, null);
-           }
-        }
-
-        /// <summary>
-        /// Parses levels into a tuple list of level ranges
-        /// </summary>
-        /// <param name="levels">String representation of levels using ',' or ';' or '|'
-        /// as range group delimiters, and '-' as range indicators.  If first/second bound of the range
-        /// is empty, the min/max value of that bound is assumed.
-        /// Examples: "Debug-DebugZ | Error", "-DebugZ | Info | Warning", "Info-", "DebugB-DebugC, Error"</param>
-        public static LevelsList ParseLevels(string levels)
-        {
-            var result = new LevelsList();
-
-            if (!string.IsNullOrWhiteSpace(levels))
-                foreach (var p in levels.Split(',', ';', '|'))
-                {
-                    var minmax = p.Split(new char[] { '-' }, 2).Select(s => s.Trim()).ToArray();
-
-                    if (minmax.Length == 0)
-                        throw new AzosException(StringConsts.ARGUMENT_ERROR + "levels: " + p);
-
-                    MessageType min, max;
-
-                    if (string.IsNullOrWhiteSpace(minmax[0]))
-                        min = MessageType.Debug;
-                    else if (!Enum.TryParse(minmax[0], true, out min))
-                        throw new AzosException(StringConsts.ARGUMENT_ERROR +
-                            "levels: {0} (error parsing: {1})".Args(p, minmax[0]));
-
-                    if (minmax.Length < 2)
-                        max = min;
-                    else if (string.IsNullOrWhiteSpace(minmax[1]))
-                        max = MessageType.CatastrophicError;
-                    else if (!Enum.TryParse(minmax[1], true, out max))
-                        throw new AzosException(StringConsts.ARGUMENT_ERROR +
-                            "levels: {0} (error parsing: {1})".Args(p, minmax[1]));
-
-                    result.Add(new Tuple<MessageType, MessageType>(min, max));
-                }
-
-            return result;
-        }
+      return result;
+    }
 
 
-        #endregion
+    #endregion
 
 
-        #region Protected
+    #region Protected
 
-        /// <summary>
-        /// Override to perform derivative-specific configuration
-        /// </summary>
-        protected override void DoConfigure(IConfigSectionNode node)
-        {
-          base.DoConfigure(node);
+    /// <summary>
+    /// Override to perform derivative-specific configuration
+    /// </summary>
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
 
-          var expr = node.AttrByName(CONFIG_FILTER_ATTR).Value;
-          if (!string.IsNullOrWhiteSpace(expr))
-           m_Filter = new MessageFilterExpression(expr);
+      var expr = node.AttrByName(CONFIG_FILTER_ATTR).Value;
+      if (!string.IsNullOrWhiteSpace(expr))
+        m_Filter = new MessageFilterExpression(expr);
 
-          m_Levels = ParseLevels(node.AttrByName(CONFIG_LEVELS_ATTR).Value);
-        }
+      m_Levels = ParseLevels(node.AttrByName(CONFIG_LEVELS_ATTR).Value);
+    }
 
-        /// <summary>
-        /// Notifies log service of exception that surfaced during processing of a particular message
-        /// </summary>
-        protected void SetError(Exception error, Message msg)
-        {
-          if (error != null)
-          {
-            ComponentDirector.LogDaemon.FailoverDestination(this, error, msg);
-            m_LastError = error;
-            m_LastErrorTimestamp = LocalizedTime;
-          }
-          else
-          {
-            m_LastError = null;
-            ComponentDirector.LogDaemon.FailoverDestination(this, null, null);
-            m_LastErrorTimestamp = null;
-          }
-        }
+    /// <summary>
+    /// Notifies log service of exception that surfaced during processing of a particular message
+    /// </summary>
+    protected void SetError(Exception error, Message msg)
+    {
+      if (error != null)
+      {
+        ComponentDirector.LogDaemon.FailoverDestination(this, error, msg);
+        m_LastError = error;
+        m_LastErrorTimestamp = LocalizedTime;
+      }
+      else
+      {
+        m_LastError = null;
+        ComponentDirector.LogDaemon.FailoverDestination(this, null, null);
+        m_LastErrorTimestamp = null;
+      }
+    }
 
-        /// <summary>
-        /// Performs physical send, i.e. storage in file for FileDestinations
-        /// </summary>
-        protected internal abstract void DoSend(Message entry);
+    /// <summary>
+    /// Performs physical send, i.e. storage in file for FileDestinations
+    /// </summary>
+    protected internal abstract void DoSend(Message entry);
 
-        /// <summary>
-        /// Provides periodic notification of destinations from central Log thread even if there are no messages to write.
-        /// Override to commit internal batching buffers provided by particular destinations
-        /// </summary>
-        protected internal virtual void DoPulse()
-        {
+    /// <summary>
+    /// Provides periodic notification of destinations from central Log thread even if there are no messages to write.
+    /// Override to commit internal batching buffers provided by particular destinations
+    /// </summary>
+    protected internal virtual void DoPulse()
+    {
 
-        }
+    }
 
     #endregion
 
 
     #region .pvt
 
-        private bool satisfyFilter(Message msg)
-        {
-          //to avoid possible thread collisions
-          var mf = FilterMethod;
-          var fe = m_Filter;
+    private bool satisfyFilter(Message msg)
+    {
+      //to avoid possible thread collisions
+      var mf = FilterMethod;
+      var fe = m_Filter;
 
-          if (mf != null)
-             if (!mf(this, msg)) return false;
+      if (mf != null)
+          if (!mf(this, msg)) return false;
 
-          if (fe!=null)
-           return fe.Evaluate(this, msg);
+      if (fe!=null)
+        return fe.Evaluate(this, msg);
 
-          return true;
-        }
+      return true;
+    }
 
     #endregion
   }

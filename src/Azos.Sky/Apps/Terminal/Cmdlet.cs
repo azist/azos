@@ -18,8 +18,8 @@ namespace Azos.Apps.Terminal
   {
     protected Cmdlet(AppRemoteTerminal terminal, IConfigSectionNode args)
     {
-        m_Terminal = terminal;
-        m_Args = args;
+      m_Terminal = terminal.NonNull(nameof(terminal));
+      m_Args = args.NonEmpty(nameof(args));
     }
 
     protected AppRemoteTerminal m_Terminal;

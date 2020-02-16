@@ -14,7 +14,7 @@ namespace WaveTestSite.Controllers
   [ApiControllerDoc(BaseUri = "/mvc/testapidoc", Title = "TestApiDoc", Description = "This controller is used for testing")]
   public class TestApiDoc : ApiDocController
   {
-    protected override ApiDocGenerator MakeDocGenerator()
+    protected override ApiDocGenerator MakeDocGenerator(string dataContext)
     {
       var gen = new ApiDocGenerator(App);
       gen.Locations.Add(new ApiDocGenerator.ControllerLocation("TestBusinessLogic.dll", "WaveTestSite.Cont*"));

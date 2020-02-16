@@ -129,7 +129,7 @@ namespace Azos.Instrumentation
             /// Specifies how often OS instrumentation such as CPU and RAM is sampled.
             /// Value of zero disables OS sampling
             /// </summary>
-            [Config("$os-interval-ms|$os-instrumentation-interval-ms")]
+            [Config("$os-interval-ms|$os-interval|$os-instrumentation-interval-ms")]
             [ExternalParameter]
             public int OSInstrumentationIntervalMS
             {

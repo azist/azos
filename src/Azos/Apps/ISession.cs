@@ -149,6 +149,9 @@ namespace Azos
   /// </summary>
   public static class SessionExtensions
   {
+    /// <summary>
+    /// Characters used as data context segment delimiters: {' ', ',', ';'}
+    /// </summary>
     public static readonly char[] DATA_CTX_DELIMITERS = new []{' ', ',', ';'};
 
     /// <summary>
@@ -166,14 +169,14 @@ namespace Azos
       foreach(var seg in segs)
       {
         if (seg.IsNotNullOrWhiteSpace())
-          yield return seg;
+          yield return seg.Trim();
       }
     }
 
     /// <summary>
     /// Returns a re-composed DataContextName string which is obtained and normalized out of Session object.
     /// The segments are parsed and sorted. Extra delimiters removed.
-    /// The function ensures logical equality, e.g. "main, data,business" will be normalized to "business,data,main".
+    /// The function ensures logical equality, e.g. "main,   data  ,business" will be normalized to "business,data,main".
     /// An empty string is returned for null session or null or empty context
     /// </summary>
     public static string GetNormalizedDataContextName(this ISession session)
@@ -181,7 +184,7 @@ namespace Azos
       var sb = new StringBuilder(48);
       var result = session.GetDataContextNameSegments()
              .OrderBy( s => s)
-             .Aggregate(new StringBuilder(48), (b, s) => (b.Length == 0 ? b : b.Append(',')).Append(s), b => b.ToString().ToLowerInvariant());
+             .Aggregate(sb, (b, s) => (b.Length == 0 ? b : b.Append(',')).Append(s), b => b.ToString().ToLowerInvariant());
 
       return result;
     }
