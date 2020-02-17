@@ -63,7 +63,9 @@ namespace Azos.Data
 
     private void field(Schema.FieldDef def, IMetadataGenerator context, ConfigSectionNode data, TypedDoc doc)
     {
-      var fname = def.GetBackendNameForTarget(context.DataTargetName, out var fatr);
+      var dataTargetName = context.GetDataTargetName(doc.GetType(), null);
+
+      var fname = def.GetBackendNameForTarget(dataTargetName, out var fatr);
       if (fatr==null) return;
 
       if (context.DetailLevel> MetadataDetailLevel.Public)
@@ -127,7 +129,7 @@ namespace Azos.Data
       //if doc!=null call doc.GetClientFieldValueList on the instance to get values from Database lookups etc...
       if (doc!=null)
       {
-        var lookup = doc.GetDynamicFieldValueList(def, context.DataTargetName, null);
+        var lookup = doc.GetDynamicFieldValueList(def, dataTargetName, null);
         if (lookup != null)//non-null blank lookup is treated as blank lookup overshadowing the hard-coded choices from .ValueList
         {
           if (nvlist.IsValueCreated)

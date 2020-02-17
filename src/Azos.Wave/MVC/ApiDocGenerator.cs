@@ -130,7 +130,27 @@ namespace Azos.Wave.Mvc
     /// <summary>
     /// Specifies target name used for data docs/schema targeted metadata extraction
     /// </summary>
-    public string DataTargetName { get; set;}
+    public string DefaultDataTargetName { get; set; }
+
+    /// <summary>
+    /// An optional callback used by GetDataTargetName()
+    /// </summary>
+    public Func<Type, object, string> DataTargetNameCallback { get; set;}
+
+
+    /// <summary>
+    /// Gets data target name for the specified type, and its optional instance.
+    /// Base implementation tries to delegate to DataTargetNameCallback if it is set, otherwise returning DefaultDataTargetName.
+    /// This mechanism is used to get proper target names in call context, for example
+    /// you may need to get different metadata depending on a call context such as Session.DataContextName etc.
+    /// </summary>
+    public virtual string GetDataTargetName(Type type, object instance)
+    {
+      var callback = DataTargetNameCallback;
+
+      return callback==null ? DefaultDataTargetName
+                            : callback(type, instance);
+    }
 
     /// <summary>
     /// Generates the resulting config object
