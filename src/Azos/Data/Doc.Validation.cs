@@ -11,6 +11,77 @@ using System.Linq;
 
 namespace Azos.Data
 {
+  public enum ValidationErrorMode : byte
+  {
+    /// <summary>
+    /// Validations trips on a first validation error found. This is the fastest method but
+    /// the caller would only get one error at a time
+    /// </summary>
+    Single = 0,
+
+    /// <summary>
+    /// The system would try to validate more items (such as fields) at once even if errors
+    /// have been identified, as long as these checks do not slow the system down significantly (e.g. no external calls)
+    /// </summary>
+    FastBatch,
+
+    /// <summary>
+    /// The system will try to validate as many items as it can in the presence of validation failures,
+    /// regardless of possible performance issues
+    /// </summary>
+    Batch
+  }
+
+  public struct ValidationState
+  {
+    /// <summary>
+    /// Allocates new validation state without errors.
+    /// If validation succeeds the Validate method succession shall return a copy of this state
+    /// </summary>
+    /// <param name="targetName">The target name to perform validation under. Controls attribute/metadata selection</param>
+    /// <param name="mode">A hint specifying whether the system shall break on the first error or continue with error batch</param>
+    public ValidationState(string targetName, ValidationErrorMode mode)
+    {
+      TargetName = targetName;
+      ErrorMode = mode;
+      Error = null;
+    }
+
+    /// <summary>
+    /// Allocates a new validation state with the specified error added to existing state
+    /// </summary>
+    /// <param name="existing">Existing context state that the new state will be based on</param>
+    /// <param name="error">An error to return</param>
+    public ValidationState(ValidationState existing, Exception error)
+    {
+      TargetName = existing.TargetName;
+      ErrorMode = existing.ErrorMode;
+      Error = null;//existing.Error + error;
+    }
+
+    /// <summary>
+    /// The target name of the validation to be performed against. This controls metadata applicable to specific
+    /// validation
+    /// </summary>
+    public readonly string TargetName;
+
+    /// <summary>
+    /// Describes the mode of validation: Single error vs Error Batch
+    /// </summary>
+    public readonly ValidationErrorMode ErrorMode;
+
+    /// <summary>
+    /// Returns validation error or errors. Returns null if there are no validation errors
+    /// </summary>
+    public readonly Exception Error;
+
+    public bool HasErrors => Error != null;
+    public bool NoErrors => Error == null;
+
+    public override string ToString() => $"ValCtx(`{TargetName}`)";
+  }
+
+
   public partial class Doc
   {
     /// <summary>

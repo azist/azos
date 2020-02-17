@@ -142,7 +142,7 @@ namespace Azos.Wave.Mvc
     /// Gets data target name for the specified type, and its optional instance.
     /// Base implementation tries to delegate to DataTargetNameCallback if it is set, otherwise returning DefaultDataTargetName.
     /// This mechanism is used to get proper target names in call context, for example
-    /// you may need to get different metadata depending on a call context such as Session.DataContextName etc.
+    /// you may need to get a different metadata depending on a call context such as Session.DataContextName etc.
     /// </summary>
     public virtual string GetDataTargetName(Type type, object instance)
     {

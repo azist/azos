@@ -90,7 +90,7 @@ namespace Azos
     /// Gets data target name for the specified type, and its optional instance.
     /// Default implementations typically just return DefaultDataTargetName.
     /// This mechanism is used to get proper target names in call context, for example
-    /// you may need to get different metadata depending on a call context such as Session.DataContextName etc.
+    /// you may need to get a different metadata depending on a call context such as Session.DataContextName etc.
     /// </summary>
     string GetDataTargetName(Type type, object instance);
 
