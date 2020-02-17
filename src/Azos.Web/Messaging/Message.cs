@@ -112,31 +112,31 @@ namespace Azos.Web.Messaging
     public MessageAddressBuilder AddressBCCBuilder     { get{ return m_Builder_AddressBCC     ?? (m_Builder_AddressBCC     = new MessageAddressBuilder(m_AddressBCC,    (b) => m_AddressBCC     = b.ToString())); } }
 
 
-    public override Exception Validate(string target)
+    public override ValidState Validate(ValidState state)
     {
-      var ve = base.Validate(target);
-      if (ve !=null) return ve;
+      state = base.Validate(state);
+      if (state.ShouldStop) return state;
 
       try  { var b = AddressFromBuilder; }
-      catch(Exception error) { return new FieldValidationException(this.Schema.DisplayName, "AddressFrom", error.ToMessageWithType()); }
+      catch(Exception error) { return new ValidState(state, new FieldValidationException(this.Schema.DisplayName, "AddressFrom", error.ToMessageWithType())); }
 
       try { var b = AddressReplyToBuilder; }
-      catch (Exception error) { return new FieldValidationException(this.Schema.DisplayName, "AddressReplyTo", error.ToMessageWithType()); }
+      catch (Exception error) { return new ValidState(state, new FieldValidationException(this.Schema.DisplayName, "AddressReplyTo", error.ToMessageWithType())); }
 
       try { var b = AddressCCBuilder; }
-      catch (Exception error) { return new FieldValidationException(this.Schema.DisplayName, "AddressCC", error.ToMessageWithType()); }
+      catch (Exception error) { return new ValidState(state, new FieldValidationException(this.Schema.DisplayName, "AddressCC", error.ToMessageWithType())); }
 
       try { var b = AddressBCCBuilder; }
-      catch (Exception error) { return new FieldValidationException(this.Schema.DisplayName, "AddressBCC", error.ToMessageWithType()); }
+      catch (Exception error) { return new ValidState(state, new FieldValidationException(this.Schema.DisplayName, "AddressBCC", error.ToMessageWithType())); }
 
       try
       {
         var b = AddressToBuilder;
-        if (!b.All.Any()) return new FieldValidationException(this.Schema.DisplayName, "AddressTo", "No TO");
+        if (!b.All.Any()) return new ValidState(state, new FieldValidationException(this.Schema.DisplayName, "AddressTo", "No TO"));
       }
-      catch(Exception error) { return new FieldValidationException(this.Schema.DisplayName, "AddressTo", error.ToMessageWithType()); }
+      catch(Exception error) { return new ValidState(state, new FieldValidationException(this.Schema.DisplayName, "AddressTo", error.ToMessageWithType())); }
 
-      return null;
+      return state;
     }
   }
 }

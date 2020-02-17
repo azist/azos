@@ -469,15 +469,15 @@ namespace Azos.Data
             /// The method is not expected to throw exception in case of failed validation, rather return exception instance because
             ///  throwing exception really hampers validation performance when many rows need to be validated
             /// </summary>
-            public virtual Exception Validate(string targetName)
+            public virtual ValidState Validate(ValidState state)
             {
                 foreach(var row in this)
                 {
-                    var error = row.Validate(targetName);
-                    if (error!=null) return error;
+                    state = row.Validate(state);
+                    if (state.ShouldStop) break;
                 }
 
-                return null;
+                return state;
             }
 
 

@@ -151,12 +151,12 @@ namespace Azos.Sky.Workers
       DoPrepareForEnqueuePostValidate(targetName);
     }
 
-    public override Exception Validate(string targetName)
+    public override ValidState Validate(ValidState state)
     {
-      var ve = base.Validate(targetName);
-      if (ve != null) return ve;
-
-      return null;
+      state = base.Validate(state);
+      if (state.ShouldStop) return state;
+      //todo
+      return state;
     }
 
     protected virtual void DoPrepareForEnqueuePreValidate(string targetName) { }

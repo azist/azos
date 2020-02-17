@@ -43,11 +43,11 @@ namespace Azos.Tests.Nub.DataAccess
 
       [Field(valueList: "key:val")] public string S1{ get;set;}
 
-      public override Exception Validate(string targetName)
+      public override ValidState Validate(ValidState state)
       {
         Aver.IsNotNull(m_App);
         Aver.IsNotNull(m_Module);
-        return base.Validate(targetName);
+        return base.Validate(state);
       }
     }
 
@@ -60,10 +60,10 @@ namespace Azos.Tests.Nub.DataAccess
       [Field] public DocDirectField D1 { get; set; }
       [Field] public DocDirectField D2 { get; set; }
 
-      public override Exception Validate(string targetName)
+      public override ValidState Validate(ValidState state)
       {
         Aver.IsNotNull(m_Module);
-        return base.Validate(targetName);
+        return base.Validate(state);
       }
     }
 
@@ -75,10 +75,10 @@ namespace Azos.Tests.Nub.DataAccess
       [Field(min: 100)] public int? IMin { get; set; }
       [Field] public DocCompositeField[] DArray { get; set; }
 
-      public override Exception Validate(string targetName)
+      public override ValidState Validate(ValidState state)
       {
         Aver.IsNotNull(m_Module);
-        return base.Validate(targetName);
+        return base.Validate(state);
       }
     }
 
@@ -90,10 +90,10 @@ namespace Azos.Tests.Nub.DataAccess
       [Field(min: 100)] public int? IMin { get; set; }
       [Field] public List<object> DList { get; set; }
 
-      public override Exception Validate(string targetName)
+      public override ValidState Validate(ValidState state)
       {
         Aver.IsNotNull(m_Module);
-        return base.Validate(targetName);
+        return base.Validate(state);
       }
     }
 
@@ -106,10 +106,10 @@ namespace Azos.Tests.Nub.DataAccess
       [Field(min: 100)] public int? IMin { get; set; }
       [Field] public Dictionary<string, DocCompositeField> DDict { get; set; }
 
-      public override Exception Validate(string targetName)
+      public override ValidState Validate(ValidState state)
       {
         Aver.IsNotNull(m_Module);
-        return base.Validate(targetName);
+        return base.Validate(state);
       }
     }
 
