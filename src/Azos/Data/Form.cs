@@ -163,14 +163,14 @@ namespace Azos.Data
     {
       DoAmorphousDataBeforeSave(DataStoreTargetName);
 
-      DoBeforeValidateOnSave();
+      var validationState = DoBeforeValidateOnSave();
 
-      var valError = this.Validate(DataStoreTargetName);
+      validationState = this.Validate(validationState);
 
-      DoAfterValidateOnSave(ref valError);
+      validationState = DoAfterValidateOnSave(ref validationState);
 
-      if (valError != null)
-        return new SaveResult<TSaveResult>(valError);
+      if (validationState.HasErrors)
+        return new SaveResult<TSaveResult>(validationState.Error);
 
       DoBeforeSave();
 
@@ -182,16 +182,19 @@ namespace Azos.Data
 
     /// <summary>
     /// Override to perform pre-validate step on Save(). This can be used to default required field values among other things.
-    /// Note: this is called after amorphous data save, so the validation can assume the state of AmorphousData
+    /// Returns a ValidState initialized to DataStoreTargetName and ValidErrorMode as desired in a specific case.
+    /// Default implementation sets `ValidErrorMode.Single` meaning: the system will stop validation on a first validation error
+    /// and return it. Override to use other modes such as `ValidErrorMode.Batch`
+    /// Note: this is called after amorphous data save, so the validation can assume that the state of AmorphousData is initialized
     /// </summary>
-    protected virtual void DoBeforeValidateOnSave(){ }
+    protected virtual ValidState DoBeforeValidateOnSave() => new ValidState(DataStoreTargetName, ValidErrorMode.Single);
 
     /// <summary>
     /// Override to perform post-validate step on Save(). For example, you can mask/disregard validation error
-    /// by setting it to null
+    /// by returning a clean ValidState instance
     /// </summary>
-    /// <param name="valError">Reference to validation error instance which you can disregard by setting to null</param>
-    protected virtual void DoAfterValidateOnSave(ref Exception valError){ }
+    /// <param name="state">Validation state instance which you can disregard by returning a new ValidState without an error</param>
+    protected virtual ValidState DoAfterValidateOnSave(ref ValidState state) => state;
 
 
     /// <summary>
