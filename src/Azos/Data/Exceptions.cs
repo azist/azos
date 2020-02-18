@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Azos.Data
@@ -156,6 +157,7 @@ namespace Azos.Data
         result = new ValidationBatchException(existingException);
 
       result.Batch.Add(newException);
+
       return result;
     }
 
@@ -177,6 +179,14 @@ namespace Azos.Data
     /// A list of errors in this batch
     /// </summary>
     public readonly List<Exception> Batch;
+
+    /// <summary>
+    /// Flattens inner ValidationBatchException into a single stream
+    /// </summary>
+    public IEnumerable<Exception> All
+     => Batch.SelectMany(e => e is ValidationBatchException vbe ? vbe.Batch
+                                                                :  e is AggregateException ae ? ae.InnerExceptions
+                                                                                              : e.ToEnumerable() );
 
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
