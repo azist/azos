@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.1.0.4
-set HEADLINE=Svc release for IExtrenalCallHandler
+set VER=1.2.0
+set HEADLINE=New validation with ValidState context
 
 call vs2017-build-release %VER%
 

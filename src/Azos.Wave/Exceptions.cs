@@ -7,6 +7,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Text;
+using Azos.Serialization.JSON;
 using Azos.Web;
 
 namespace Azos.Wave
@@ -326,40 +327,40 @@ namespace Azos.Wave
   /// </summary>
   public static class ExceptionExtensions
   {
-     /// <summary>
-     /// Describes exception for client response transmission as JSONDataMap
-     /// </summary>
-     public static Serialization.JSON.JsonDataMap ToClientResponseJSONMap(this Exception error, bool detailed)
-     {
-       var actual = error;
-       if (actual is FilterPipelineException fpe)
-         actual = fpe.RootException;
+    /// <summary>
+    /// Describes exception into JsonDataMap for responding to client
+    /// </summary>
+    public static JsonDataMap ToClientResponseJsonMap(this Exception error, bool withDump)
+    {
+      if (error == null) return null;
 
-       var result = new Azos.Serialization.JSON.JsonDataMap();
-       result["OK"] = false;
+      var actual = error;
+      if (actual is FilterPipelineException fpe)
+        actual = fpe.RootException;
 
-       if (actual is IHttpStatusProvider st)
-       {
+      var result = new JsonDataMap();
+      result["OK"] = false;
+
+      if (actual is IHttpStatusProvider st)
+      {
         result["HttpStatusCode"] = st.HttpStatusCode;
         result["HttpStatusDescription"] = st.HttpStatusDescription;
-       }
+      }
 
-       if (detailed)
-       {
-         result["Error"] = error.Message;
-         result["Type"] = error.GetType().FullName;
-         result["StackTrace"] = error.StackTrace;
-         if (error.InnerException!=null)
-            result["Inner"] = error.InnerException.ToClientResponseJSONMap(detailed);
-       }
-       else
-       {
-         result["Error"] = actual.GetType().Name;
-       }
+      result["Error"] = actual.GetType().Name;
+      result["IsAuthorization"] = Security.AuthorizationException.IsDenotedBy(actual);
 
-       result["IsAuthorization"] = Security.AuthorizationException.IsDenotedBy(actual);
+      if (withDump)
+      {
+        result["dev-cause"] = new WrappedExceptionData(actual, false);
+        result["dev-dump"] = new WrappedExceptionData(error, true);
+      }
 
-       return result;
+      if (actual is IExternalStatusProvider esp)
+        result["data"] = esp.ProvideExternalStatus(withDump);
+
+
+      return result;
     }
   }
 }

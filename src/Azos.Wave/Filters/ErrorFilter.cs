@@ -201,7 +201,7 @@ namespace Azos.Wave.Filters
           if (json)
           {
              work.Response.ContentType = ContentType.JSON;
-             work.Response.WriteJSON(error.ToClientResponseJSONMap(showDump));
+             work.Response.WriteJSON(error.ToClientResponseJsonMap(showDump), JsonWritingOptions.PrettyPrintRowsAsMap);
           }
           else
           {
