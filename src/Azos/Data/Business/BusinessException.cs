@@ -22,23 +22,6 @@ namespace Azos.Data.Business
      => InnerException.SearchThisOrInnerExceptionOf<IHttpStatusProvider>()?.HttpStatusDescription ?? "Processing error";
 
     public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
-    {
-      var result = new JsonDataMap();
-      result["ns"] = "business";
-      result["code"] = Code;
-
-      var esp = this.InnerException.SearchThisOrInnerExceptionOf<IExternalStatusProvider>();
-
-      if (esp != null)
-      {
-        var errorData = esp.ProvideExternalStatus(includeDump);
-        if (errorData != null)
-          result["error"] = errorData;
-
-        return result;
-      }
-
-      return result;
-    }
+     => this.DefaultBuildErrorStatusProviderMap(includeDump, "business");
   }
 }

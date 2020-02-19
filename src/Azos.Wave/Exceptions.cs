@@ -97,22 +97,9 @@ namespace Azos.Wave
 
     public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
     {
-      var result = new JsonDataMap();
-      result["ns"] = "wave.mvc";
-      result["code"] = Code;
-      result["controller"] = Controller;
-      result["action"] = Action;
-
-      var esp = this.InnerException.SearchThisOrInnerExceptionOf<IExternalStatusProvider>();
-
-      if (esp != null)
-      {
-        var errorData = esp.ProvideExternalStatus(includeDump);
-        if (errorData != null)
-          result["error"] = errorData;
-
-        return result;
-      }
+      var result = this.DefaultBuildErrorStatusProviderMap(includeDump, "wave.mvc");
+      result[CoreConsts.EXT_STATUS_KEY_CONTROLLER] = Controller;
+      result[CoreConsts.EXT_STATUS_KEY_ACTION] = Action;
 
       return result;
     }
@@ -228,7 +215,7 @@ namespace Azos.Wave
   /// Thrown to indicate various Http status conditions
   /// </summary>
   [Serializable]
-  public class HTTPStatusException : WaveException, IHttpStatusProvider
+  public class HTTPStatusException : WaveException, IHttpStatusProvider, IExternalStatusProvider
   {
     public const string STATUS_CODE_FLD_NAME = "HTTPSE-SC";
     public const string STATUS_DESCRIPTION_FLD_NAME = "HTTPSE-SD";
@@ -342,6 +329,15 @@ namespace Azos.Wave
       info.AddValue(STATUS_DESCRIPTION_FLD_NAME, StatusDescription);
       base.GetObjectData(info, context);
     }
+
+    public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
+    {
+      var result = this.DefaultBuildErrorStatusProviderMap(includeDump, "wave.mvc");
+      result[CoreConsts.EXT_STATUS_KEY_HTTP_CODE] = StatusCode;
+      result[CoreConsts.EXT_STATUS_KEY_HTTP_DESCRIPTION] = StatusDescription;
+
+      return result;
+    }
   }
 
   /// <summary>
@@ -350,7 +346,7 @@ namespace Azos.Wave
   public static class ExceptionExtensions
   {
     /// <summary>
-    /// Describes exception into JsonDataMap for responding to client
+    /// Describes exception into JsonDataMap suitable for use as client response
     /// </summary>
     public static JsonDataMap ToClientResponseJsonMap(this Exception error, bool withDump)
     {
@@ -361,23 +357,17 @@ namespace Azos.Wave
         actual = fpe.RootException;
 
       var result = new JsonDataMap();
-      result["OK"] = false;
+      result[CoreConsts.EXT_STATUS_KEY_OK] = false;
 
       var http = actual.SearchThisOrInnerExceptionOf<IHttpStatusProvider>();
       if (http!=null)
       {
-        result["HttpStatusCode"] = http.HttpStatusCode;
-        result["HttpStatusDescription"] = http.HttpStatusDescription;
+        result[CoreConsts.EXT_STATUS_KEY_HTTP_CODE] = http.HttpStatusCode;
+        result[CoreConsts.EXT_STATUS_KEY_HTTP_DESCRIPTION] = http.HttpStatusDescription;
       }
 
-      result["Error"] = actual.GetType().Name;
-      result["IsAuthorization"] = Security.AuthorizationException.IsDenotedBy(actual);
-
-      if (withDump)
-      {
-        result["dev-cause"] = new WrappedExceptionData(actual, false);
-        result["dev-dump"] = new WrappedExceptionData(error, true);
-      }
+      result[CoreConsts.EXT_STATUS_KEY_ERROR] = actual.GetType().Name;
+      result[CoreConsts.EXT_STATUS_KEY_IS_AUTH] = Security.AuthorizationException.IsDenotedBy(actual);
 
       var esp = actual.SearchThisOrInnerExceptionOf<IExternalStatusProvider>();
       if (esp != null)
@@ -385,7 +375,12 @@ namespace Azos.Wave
         var data = esp.ProvideExternalStatus(withDump);
 
         if (data != null)
-          result["data"] = data;
+          result[CoreConsts.EXT_STATUS_KEY_DATA] = data;
+      }
+
+      if (withDump)
+      {
+        result[CoreConsts.EXT_STATUS_KEY_DEV_DUMP] = new WrappedExceptionData(error, true);
       }
 
       return result;

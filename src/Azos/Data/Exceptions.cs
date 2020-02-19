@@ -39,7 +39,7 @@ namespace Azos.Data
     public string HttpStatusDescription => WebConsts.STATUS_400_DESCRIPTION + " / Data validation";
 
     public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
-     => new JsonDataMap{ {"ns", "data.validation"}, {"type", GetType().Name}, {"code", this.Code} };
+     => this.DefaultBuildErrorStatusProviderMap(includeDump, "data.validation");
   }
 
   /// <summary>
@@ -49,18 +49,36 @@ namespace Azos.Data
   public class DocValidationException : ValidationException
   {
     public const string SCHEMA_NAME_FLD_NAME = "DOCVE-SCH";
+    public const string CLIENT_MESSAGE_FLD_NAME = "DOCVE-CM";
 
     public const string WHAT = "Schema: '{0}'; ";
 
-    public DocValidationException(string schemaName) : base(WHAT.Args(schemaName)) { SchemaName = schemaName; }
-    public DocValidationException(string schemaName, string message) : base(WHAT.Args(schemaName) + message) { SchemaName = schemaName; }
-    public DocValidationException(string schemaName, string message, Exception inner) : base(WHAT.Args(schemaName) + message, inner) { SchemaName = schemaName; }
+    public DocValidationException(string schemaName) : base(WHAT.Args(schemaName))
+    {
+      SchemaName = schemaName;
+      ClientMessage = "Validation error";
+    }
+
+    public DocValidationException(string schemaName, string message) : base(WHAT.Args(schemaName) + message)
+    {
+      SchemaName = schemaName;
+      ClientMessage = message;
+    }
+
+    public DocValidationException(string schemaName, string message, Exception inner) : base(WHAT.Args(schemaName) + message, inner)
+    {
+      SchemaName = schemaName;
+      ClientMessage = message;
+    }
+
     protected DocValidationException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
       SchemaName = info.GetString(SCHEMA_NAME_FLD_NAME);
+      ClientMessage = info.GetString(CLIENT_MESSAGE_FLD_NAME);
     }
 
     public readonly string SchemaName;
+    public readonly string ClientMessage;
 
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
@@ -68,13 +86,15 @@ namespace Azos.Data
         throw new DataException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
 
       info.AddValue(SCHEMA_NAME_FLD_NAME, SchemaName);
+      info.AddValue(CLIENT_MESSAGE_FLD_NAME, ClientMessage);
       base.GetObjectData(info, context);
     }
 
     public override JsonDataMap ProvideExternalStatus(bool includeDump)
     {
       var result = base.ProvideExternalStatus(includeDump);
-      result["schema"] = SchemaName;
+      result[CoreConsts.EXT_STATUS_KEY_SCHEMA] = SchemaName;
+      result[CoreConsts.EXT_STATUS_KEY_MESSAGE] = ClientMessage;
       return result;
     }
   }
@@ -85,9 +105,9 @@ namespace Azos.Data
   [Serializable]
   public class FieldValidationException : ValidationException
   {
-    public const string SCHEMA_NAME_FLD_NAME    = "DOCVE-SCH";
-    public const string FIELD_NAME_FLD_NAME     = "DOCVE-FN";
-    public const string CLIENT_MESSAGE_FLD_NAME = "DOCVE-CM";
+    public const string SCHEMA_NAME_FLD_NAME    = "FVE-SCH";
+    public const string FIELD_NAME_FLD_NAME     = "FVE-FN";
+    public const string CLIENT_MESSAGE_FLD_NAME = "FVE-CM";
 
     public const string WHAT = "Schema field: '{0}'.{1}; ";
 
@@ -145,9 +165,9 @@ namespace Azos.Data
     public override JsonDataMap ProvideExternalStatus(bool includeDump)
     {
       var result = base.ProvideExternalStatus(includeDump);
-      result["schema"] = SchemaName;
-      result["field"] = FieldName;
-      result["msg"] = ClientMessage;
+      result[CoreConsts.EXT_STATUS_KEY_SCHEMA] = SchemaName;
+      result[CoreConsts.EXT_STATUS_KEY_FIELD] = FieldName;
+      result[CoreConsts.EXT_STATUS_KEY_MESSAGE] = ClientMessage;
       return result;
     }
   }
@@ -216,11 +236,11 @@ namespace Azos.Data
     {
       var result = base.ProvideExternalStatus(includeDump);
 
-      result["batch"] = All.Select( e => {
+      result[CoreConsts.EXT_STATUS_KEY_BATCH] = All.Select( e => {
         var map = e is IExternalStatusProvider esp ? esp.ProvideExternalStatus(includeDump) : new JsonDataMap{ };
 
         if (includeDump)
-         map["dev-dump"] = new WrappedExceptionData(e, true);
+          map[CoreConsts.EXT_STATUS_KEY_DEV_DUMP] = new WrappedExceptionData(e, true);
 
         return map;
       });
