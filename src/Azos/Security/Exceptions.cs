@@ -43,15 +43,6 @@ namespace Azos.Security
     /// in the chain of InnerException/s of the specified exception
     /// </summary>
     public static bool IsDenotedBy(Exception error)
-    {
-      while(error!=null)
-      {
-        if (error is AuthorizationException) return true;
-        error = error.InnerException;
-      }
-
-      return false;
-    }
-
+     => error.SearchThisOrInnerExceptionOf<AuthorizationException>() != null;
   }
 }

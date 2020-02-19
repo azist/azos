@@ -254,6 +254,24 @@ namespace Azos
     }
 
     /// <summary>
+    /// Searches an Exception and its InnerException chain for first instance of T or null.
+    /// The original instance may be null itself in which case null is returned
+    /// </summary>
+    public static T SearchThisOrInnerExceptionOf<T>(this Exception target) where T : class
+    {
+      while(target != null)
+      {
+        var match = target as T;
+        if (match != null) return match;
+
+        target = target.InnerException;
+      }
+
+      return null;
+    }
+
+
+    /// <summary>
     /// Encloses an action in try catch and logs the error if it leaked from action. This method never leaks.
     /// Returns true if there was no error on action success, or false if error leaked from action and was logged by component.
     /// The actual logging depends on component log level

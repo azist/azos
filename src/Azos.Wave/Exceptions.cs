@@ -43,7 +43,7 @@ namespace Azos.Wave
   /// Wraps inner exceptions capturing stack trace in inner implementing blocks
   /// </summary>
   [Serializable]
-  public class MvcActionException : MvcException
+  public class MvcActionException : MvcException, IExternalStatusProvider
   {
     public const string CONTROLLER_FLD_NAME = "MVCAE-C";
     public const string ACTION_FLD_NAME = "MVCAE-A";
@@ -93,6 +93,28 @@ namespace Azos.Wave
       info.AddValue(CONTROLLER_FLD_NAME, Controller);
       info.AddValue(ACTION_FLD_NAME, Action);
       base.GetObjectData(info, context);
+    }
+
+    public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
+    {
+      var result = new JsonDataMap();
+      result["ns"] = "wave.mvc";
+      result["code"] = Code;
+      result["controller"] = Controller;
+      result["action"] = Action;
+
+      var esp = this.InnerException.SearchThisOrInnerExceptionOf<IExternalStatusProvider>();
+
+      if (esp != null)
+      {
+        var errorData = esp.ProvideExternalStatus(includeDump);
+        if (errorData != null)
+          result["error"] = errorData;
+
+        return result;
+      }
+
+      return result;
     }
   }
 
@@ -341,10 +363,11 @@ namespace Azos.Wave
       var result = new JsonDataMap();
       result["OK"] = false;
 
-      if (actual is IHttpStatusProvider st)
+      var http = actual.SearchThisOrInnerExceptionOf<IHttpStatusProvider>();
+      if (http!=null)
       {
-        result["HttpStatusCode"] = st.HttpStatusCode;
-        result["HttpStatusDescription"] = st.HttpStatusDescription;
+        result["HttpStatusCode"] = http.HttpStatusCode;
+        result["HttpStatusDescription"] = http.HttpStatusDescription;
       }
 
       result["Error"] = actual.GetType().Name;
@@ -356,9 +379,14 @@ namespace Azos.Wave
         result["dev-dump"] = new WrappedExceptionData(error, true);
       }
 
-      if (actual is IExternalStatusProvider esp)
-        result["data"] = esp.ProvideExternalStatus(withDump);
+      var esp = actual.SearchThisOrInnerExceptionOf<IExternalStatusProvider>();
+      if (esp != null)
+      {
+        var data = esp.ProvideExternalStatus(withDump);
 
+        if (data != null)
+          result["data"] = data;
+      }
 
       return result;
     }

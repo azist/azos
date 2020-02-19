@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.2.0
+set VER=1.2.0.1
 set HEADLINE=New validation with ValidState context
 
 call vs2017-build-release %VER%
