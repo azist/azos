@@ -13,7 +13,7 @@ namespace Azos.Scripting.Expressions
   /// <summary>
   /// Derive your filters from here, e.g. Log.Message Filter
   /// </summary>
-  public abstract class BoolFilter<TContext> : UnaryOperator<TContext, bool, bool>
+  public abstract class BoolFilter<TContext> : Expression<TContext, bool>
   {
   }
 
@@ -73,6 +73,7 @@ namespace Azos.Scripting.Expressions
                        .Value
                        .Default()
                        .Split(d)
+                       .Select(v => v.Trim())
                        .Where(s => s.IsNotNullOrWhiteSpace())
                        .ToArray();
 
@@ -80,6 +81,7 @@ namespace Azos.Scripting.Expressions
                         .Value
                         .Default()
                         .Split(d)
+                        .Select(v => v.Trim())
                         .Where(s => s.IsNotNullOrWhiteSpace())
                         .ToArray();
     }

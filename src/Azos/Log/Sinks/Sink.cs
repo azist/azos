@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,20 +40,14 @@ namespace Azos.Log.Sinks
   public delegate bool MessageFilterHandler(Sink sink, Message msg);
 
   /// <summary>
-  /// Represents logging message destination - an abstract entity that messages are written to by LogService.
-  /// Destinations must be efficient as they block logger thread. They provide failover mechanism when
+  /// Represents logging message sink (aka destination) - an abstract entity that messages are written to by LogService.
+  /// Sinks must be efficient as they block logger thread. They provide failover mechanism when
   ///  processing can not be completed. Once failed, the processing can try to be resumed after configurable interval.
-  /// Destinations also provide optional SLA on the time it takes to perform actual message write - once exceeded destination is considered to have failed.
-  /// Basic efficient filtering is provided for times, dates and levels. Complex C# expression-based filtering is also supported
+  /// Sinks also provide optional SLA on the time it takes to perform actual message write - once exceeded a sink is considered to have failed.
+  /// Basic efficient filtering is provided for times, dates and levels. Complex filtering support via predicate expression trees
   /// </summary>
   public abstract class Sink : DaemonWithInstrumentation<ISinkOwner>, IConfigurable, INamed, IOrdered
   {
-    #region Local Classes
-
-    public class LevelsList : List<Tuple<MessageType,MessageType>> {}
-
-    #endregion
-
     #region CONSTS
     public const string CONFIG_FAILOVER_ATTR = "failover";
     public const string CONFIG_GENERATE_FAILOVER_MSG_ATTR = "generate-failover-msg";
@@ -65,7 +60,7 @@ namespace Azos.Log.Sinks
     public const string CONFIG_END_DATE_ATTR = "end-date";
     public const string CONFIG_START_TIME_ATTR = "start-time";
     public const string CONFIG_END_TIME_ATTR = "end-time";
-    public const string CONFIG_FILTER_ATTR = "filter";
+    public const string CONFIG_FILTER_SECT = "filter";
     public const string CONFIG_TEST_ON_START_ATTR = "test-on-start";
 
     public const string CONFIG_MAX_PROCESSING_TIME_MS_ATTR = "max-processing-time-ms";
@@ -85,13 +80,10 @@ namespace Azos.Log.Sinks
 
     #region .ctor
 
-    protected Sink(ISinkOwner owner) : this(owner, null, 0)
-    {
-    }
-
+    protected Sink(ISinkOwner owner) : this(owner, null, 0){ }
     protected Sink(ISinkOwner owner, string name, int order) : base(owner)
     {
-      m_Levels = new LevelsList();
+      m_Levels = new Filters.LevelsList();
       Name = name.IsNullOrWhiteSpace() ? "{0}.{1}".Args(GetType().Name, FID.Generate().ID.ToString("X")) : name;
       m_Order = order;
       ((ISinkOwnerRegistration)owner).Register(this);
@@ -99,7 +91,7 @@ namespace Azos.Log.Sinks
 
     internal Sink(ISinkOwner owner, bool _) : base(owner)
     {
-      m_Levels = new LevelsList();
+      m_Levels = new Filters.LevelsList();
       //this overload purposely does not do registration with owner
     }
 
@@ -116,13 +108,13 @@ namespace Azos.Log.Sinks
 
     private DateTime? m_LastErrorTimestamp;
 
-    private MessageFilterExpression m_Filter;
+    private Filters.LogMessageFilter m_Filter;
 
     private System.Diagnostics.Stopwatch m_StopWatch = new System.Diagnostics.Stopwatch();
 
     private MessageType? m_MinLevel;
     private MessageType? m_MaxLevel;
-    private LevelsList   m_Levels;
+    private Filters.LevelsList   m_Levels;
     private DaysOfWeek? m_DaysOfWeek;
     private DateTime? m_StartDate;
     private DateTime? m_EndDate;
@@ -158,13 +150,15 @@ namespace Azos.Log.Sinks
 
 
     /// <summary>
-    /// Gets/sets filter expression for this sink.
-    /// Filter expressions get dynamically compiled into filter assembly,
-    /// consequently it is not a good practice to create too many different filters.
-    /// Filters are relatively heavyweight, and it is advisable to use them ONLY WHEN regular sink filtering (using Min/Max levels, dates and times) can not be used
-    ///  to achieve the desired result
+    /// Gets/sets filter expression tree for this sink.
+    /// When set, filter expressions get consulted with  during log message processing by the sink.
     /// </summary>
-    public MessageFilterExpression Filter
+    /// <remarks>
+    /// Filters expressions have a bit more performance overhead than simple filtering with other sink properties, and it is advisable to use
+    /// filter expressions ONLY WHEN regular sink filtering (using Min/Max levels, dates and times) can not be used to achieve the desired result.
+    /// The performance difference only affects log scenarios writing 10Ks of messages a second
+    /// </remarks>
+    public Filters.LogMessageFilter Filter
     {
       get { return m_Filter; }
       set { m_Filter = value; }
@@ -173,27 +167,17 @@ namespace Azos.Log.Sinks
     /// <summary>
     /// References message filtering method or null
     /// </summary>
-    public MessageFilterHandler FilterMethod
-    {
-      get;
-      set;
-    }
+    public MessageFilterHandler FilterMethod { get;  set; }
 
     /// <summary>
     /// Returns last error that this destination has encountered
     /// </summary>
-    public Exception LastError
-    {
-      get { return m_LastError; }
-    }
+    public Exception LastError => m_LastError;
 
     /// <summary>
     /// Returns last error timestamp (if any)in localized time
     /// </summary>
-    private DateTime? LastErrorTimestamp
-    {
-      get { return m_LastErrorTimestamp; }
-    }
+    private DateTime? LastErrorTimestamp  => m_LastErrorTimestamp;
 
     /// <summary>
     /// Imposes a minimum log level constraint
@@ -217,10 +201,13 @@ namespace Azos.Log.Sinks
       set { m_MaxLevel = value;}
     }
 
-    public LevelsList Levels
+    /// <summary>
+    /// A list of level ranges
+    /// </summary>
+    public Filters.LevelsList Levels
     {
       get { return m_Levels; }
-      set { m_Levels = value ?? new LevelsList(); }
+      set { m_Levels = value ?? new Filters.LevelsList(); }
     }
 
     /// <summary>
@@ -311,7 +298,7 @@ namespace Azos.Log.Sinks
 
 
     /// <summary>
-    /// Sets destination name used for failover of this one
+    /// Sets sink name used for failover of this one
     /// </summary>
     [Config("$" + CONFIG_FAILOVER_ATTR)]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
@@ -323,7 +310,7 @@ namespace Azos.Log.Sinks
 
 
     /// <summary>
-    /// Indicates whether this destination should try to test the underlying sink on startup.
+    /// Indicates whether this sink should try to test the underlying sink on startup.
     /// For example DB-based destinations will try to connect to server upon log service launch when this property is true
     /// </summary>
     [Config("$" + CONFIG_TEST_ON_START_ATTR)]
@@ -368,11 +355,7 @@ namespace Azos.Log.Sinks
     /// Returns average time it takes destination implementation to write the log message to actual sink.
     /// This property is only computed when MaxProcessingTimeMs limit is imposed, otherwise it returns 0f
     /// </summary>
-    public float AverageProcessingTimeMs
-    {
-      get { return m_AverageProcessingTimeMs; }
-    }
-
+    public float AverageProcessingTimeMs => m_AverageProcessingTimeMs;
 
     /// <summary>
     /// Specifies how much time must pass before processing will be tried to resume after failure.
@@ -420,7 +403,7 @@ namespace Azos.Log.Sinks
       {
         if (!Channel.IsZero && msg.Channel != Channel) return;
 
-        if (!satisfyFilter(msg)) return;
+        if (!applyFilterExpressions(msg)) return;
 
         if (m_Levels.Count > 0)
         {
@@ -499,50 +482,7 @@ namespace Azos.Log.Sinks
       }
     }
 
-    /// <summary>
-    /// Parses levels into a tuple list of level ranges
-    /// </summary>
-    /// <param name="levels">String representation of levels using ',' or ';' or '|'
-    /// as range group delimiters, and '-' as range indicators.  If first/second bound of the range
-    /// is empty, the min/max value of that bound is assumed.
-    /// Examples: "Debug-DebugZ | Error", "-DebugZ | Info | Warning", "Info-", "DebugB-DebugC, Error"</param>
-    public static LevelsList ParseLevels(string levels)
-    {
-      var result = new LevelsList();
-
-      if (!string.IsNullOrWhiteSpace(levels))
-          foreach (var p in levels.Split(',', ';', '|'))
-          {
-              var minmax = p.Split(new char[] { '-' }, 2).Select(s => s.Trim()).ToArray();
-
-              if (minmax.Length == 0)
-                  throw new AzosException(StringConsts.ARGUMENT_ERROR + "levels: " + p);
-
-              MessageType min, max;
-
-              if (string.IsNullOrWhiteSpace(minmax[0]))
-                  min = MessageType.Debug;
-              else if (!Enum.TryParse(minmax[0], true, out min))
-                  throw new AzosException(StringConsts.ARGUMENT_ERROR +
-                      "levels: {0} (error parsing: {1})".Args(p, minmax[0]));
-
-              if (minmax.Length < 2)
-                  max = min;
-              else if (string.IsNullOrWhiteSpace(minmax[1]))
-                  max = MessageType.CatastrophicError;
-              else if (!Enum.TryParse(minmax[1], true, out max))
-                  throw new AzosException(StringConsts.ARGUMENT_ERROR +
-                      "levels: {0} (error parsing: {1})".Args(p, minmax[1]));
-
-              result.Add(new Tuple<MessageType, MessageType>(min, max));
-          }
-
-      return result;
-    }
-
-
     #endregion
-
 
     #region Protected
 
@@ -553,11 +493,11 @@ namespace Azos.Log.Sinks
     {
       base.DoConfigure(node);
 
-      var expr = node.AttrByName(CONFIG_FILTER_ATTR).Value;
-      if (!string.IsNullOrWhiteSpace(expr))
-        m_Filter = new MessageFilterExpression(expr);
+      var nFilter = node[CONFIG_FILTER_SECT];
+      if (nFilter.Exists)
+        m_Filter = FactoryUtils.MakeAndConfigure<Filters.LogMessageFilter>(nFilter, typeof(Filters.LogMessageFilter));
 
-      m_Levels = ParseLevels(node.AttrByName(CONFIG_LEVELS_ATTR).Value);
+      m_Levels = Filters.LevelsList.Parse(node.AttrByName(CONFIG_LEVELS_ATTR).Value);
     }
 
     /// <summary>
@@ -598,17 +538,17 @@ namespace Azos.Log.Sinks
 
     #region .pvt
 
-    private bool satisfyFilter(Message msg)
+    private bool applyFilterExpressions(Message msg)
     {
-      //to avoid possible thread collisions
+      //thread safe copy
       var mf = FilterMethod;
       var fe = m_Filter;
 
       if (mf != null)
           if (!mf(this, msg)) return false;
 
-      if (fe!=null)
-        return fe.Evaluate(this, msg);
+      if (fe != null)
+        return fe.Evaluate(msg);
 
       return true;
     }

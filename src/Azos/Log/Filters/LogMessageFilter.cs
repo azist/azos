@@ -14,24 +14,26 @@ namespace Azos.Log.Filters
   /// </summary>
   public class LogMessageFilter : BoolFilter<Message>
   {
-    public BoolFilter<Message> Tree{ get; set; }
+    public const string CONFIG_TREE_SECTION = "tree";
+
+    public Expression<Message, bool> Tree{ get; set; }
 
     /// <summary>
     /// Override to perform custom logic. Base implementation evaluates Tree if it is not null
     /// </summary>
     public override bool Evaluate(Message context)
     {
-      var tree = Tree;
-      if (tree==null) return true;//pass by default
-      return tree.Evaluate(context);
+      var root = Tree;
+      if (root == null) return true;//passes filter by default
+      return root.Evaluate(context);
     }
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
-      var nTree = node["tree"];
+      var nTree = node[CONFIG_TREE_SECTION];
       if (nTree.Exists)
-       Tree = FactoryUtils.MakeAndConfigure<BoolFilter<Message>>(nTree);
+       Tree = FactoryUtils.MakeAndConfigure<Expression<Message, bool>>(nTree);
     }
   }
 }
