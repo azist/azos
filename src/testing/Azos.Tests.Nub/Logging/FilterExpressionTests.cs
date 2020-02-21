@@ -281,12 +281,12 @@ namespace Azos.Tests.Nub.Logging
         App = Atom.Encode("dud")
       };
 
-      //var cnt=100_000;
+      //var cnt = 500_000;
       //var time = Timeter.StartNew();
-      //for(var i=0; i<cnt; i++)
+      //for (var i = 0; i < cnt; i++)
       //{
-      //var got = filter.Evaluate(msg);
-      //Aver.AreEqual(expect, got);
+      //  var got = filter.Evaluate(msg);
+      //  Aver.AreEqual(expect, got);
       //}
       //"Rate {0:n0} ops/sec".Args(cnt / (time.ElapsedMs / 1000d)).See();
     }

@@ -10,8 +10,12 @@ using Azos.Scripting.Expressions;
 namespace Azos.Log.Filters
 {
   /// <summary>
-  /// Derive class to override Evaluate(Message) with custom filtering logic
+  /// Derive class to override Evaluate(Message) with custom filtering logic.
   /// </summary>
+  /// <remarks>
+  /// A typical filter expression tree with 2-3 nodes yields multi million ops/sec performance on a single thread.
+  /// As there is no locking and no global state, performance scales linearly on multiple threads
+  /// </remarks>
   public class LogMessageFilter : BoolFilter<Message>
   {
     public const string CONFIG_TREE_SECTION = "tree";

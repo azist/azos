@@ -12,6 +12,13 @@ namespace Azos.Scripting.Expressions
   /// Denotes an abstract expression, which can possibly be an operator.
   /// You can access expressions polymorphically using EvaludateObject()
   /// </summary>
+  /// <remarks>
+  /// This technology is very efficient as it is based on a type-safe expressions and static compilation
+  /// with dynamic composition (e.g. via configuration).
+  /// A typical filter expression tree (e.g. in log filtering) with 2-3 nodes yields multi
+  /// million ops/sec performance on a single thread.
+  /// As there is no locking and no global state, performance scales linearly on multiple threads
+  /// </remarks>
   public interface IExpression : IConfigurable
   {
     /// <summary>
