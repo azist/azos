@@ -8,10 +8,10 @@ using Azos.Scripting.Expressions;
 
 namespace Azos.Log.Filters
 {
-  public class And       : BoolAndOperator       <Message> { }
-  public class Or        : BoolOrOperator        <Message> { }
-  public class Xor       : BoolXorOperator       <Message> { }
-  public class Not       : BoolNotOperator       <Message> { }
-  public class Equals    : BoolEqualsOperator    <Message> { }
-  public class NotEquals : BoolNotEqualsOperator <Message> { }
+  public class And       : BoolAnd       <Message> { }
+  public class Or        : BoolOr        <Message> { }
+  public class Xor       : BoolXor       <Message> { }
+  public class Not       : BoolNot       <Message> { }
+  public class Equals    : BoolEquals    <Message> { }
+  public class NotEquals : BoolNotEquals <Message> { }
 }

@@ -17,7 +17,8 @@ namespace Azos.Scripting.Expressions
   /// with dynamic composition (e.g. via configuration).
   /// A typical filter expression tree (e.g. in log filtering) with 2-3 nodes yields multi
   /// million ops/sec performance on a single thread.
-  /// As there is no locking and no global state, performance scales linearly on multiple threads
+  /// As there is no locking and no global state, performance scales linearly on multiple threads.
+  /// The expression evaluation implementation must be thread-safe (e.g. take all args in local variables in calling method)
   /// </remarks>
   public interface IExpression : IConfigurable
   {

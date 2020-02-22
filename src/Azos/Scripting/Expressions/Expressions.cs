@@ -22,6 +22,19 @@ namespace Azos.Scripting.Expressions
     }
 
     public abstract object EvaluateObject(object context);
+
+    /// <summary> Makes entity with descriptive error </summary>
+    protected virtual T Make<T>(IConfigSectionNode parent, string section) where T : IConfigurable
+    {
+      try
+      {
+        return FactoryUtils.MakeAndConfigure<T>(parent.NonNull(nameof(parent))[section.NonBlank(nameof(section))]);
+      }
+      catch(ConfigException error)
+      {
+        throw new ScriptingException("Expression `{0}` declaration error while trying to make `{1}` around:  ... {2} ...".Args(GetType().Name, section, parent.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact)), error);
+      }
+    }
   }
 
   public abstract class Expression<TContext, TResult> : Expression

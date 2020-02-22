@@ -6,66 +6,92 @@
 
 namespace Azos.Scripting.Expressions
 {
-  public class BoolAndOperator<TContext> : BinaryOperator<TContext, bool, bool, bool>
-  {
-    public override bool Evaluate(TContext context)
-     => LeftOperand.Evaluate(context) && RightOperand.Evaluate(context);
-  }
-
-  public class BoolOrOperator<TContext> : BinaryOperator<TContext, bool, bool, bool>
-  {
-    public override bool Evaluate(TContext context)
-     => LeftOperand.Evaluate(context) || RightOperand.Evaluate(context);
-  }
-
-  public class BoolXorOperator<TContext> : BinaryOperator<TContext, bool, bool, bool>
-  {
-    public override bool Evaluate(TContext context)
-     => LeftOperand.Evaluate(context) ^ RightOperand.Evaluate(context);
-  }
-
-  public class BoolEqualsOperator<TContext> : BinaryOperator<TContext, bool, bool, bool>
-  {
-    public override bool Evaluate(TContext context)
-     => LeftOperand.Evaluate(context) == RightOperand.Evaluate(context);
-  }
-
-  public class BoolNotEqualsOperator<TContext> : BinaryOperator<TContext, bool, bool, bool>
-  {
-    public override bool Evaluate(TContext context)
-     => LeftOperand.Evaluate(context) != RightOperand.Evaluate(context);
-  }
-
-  public class BoolObjectEqualsOperator<TContext> : BinaryOperator<TContext, bool, object, object>
+  public class BoolAnd<TContext> : BinaryOperator<TContext, bool, bool, bool>
   {
     public override bool Evaluate(TContext context)
     {
-      var left = LeftOperand.Evaluate(context);
-      var right = RightOperand.Evaluate(context);
-      if (left == null && right == null) return true;
-      if (left == null || right == null) return false;
-
-      return left.Equals(right);
+      var left = LeftOperand.NonNull(nameof(LeftOperand));
+      var right = RightOperand.NonNull(nameof(RightOperand));
+      return left.Evaluate(context) && right.Evaluate(context);
     }
   }
 
-  public class BoolObjectNotEqualsOperator<TContext> : BinaryOperator<TContext, bool, object, object>
+  public class BoolOr<TContext> : BinaryOperator<TContext, bool, bool, bool>
   {
     public override bool Evaluate(TContext context)
     {
-      var left = LeftOperand.Evaluate(context);
-      var right = RightOperand.Evaluate(context);
-      if (left == null && right == null) return false;
-      if (left == null || right == null) return true;
-
-      return !left.Equals(right);
+      var left = LeftOperand.NonNull(nameof(LeftOperand));
+      var right = RightOperand.NonNull(nameof(RightOperand));
+      return left.Evaluate(context) || right.Evaluate(context);
     }
   }
 
-  public class BoolNotOperator<TContext> : UnaryOperator<TContext, bool, bool>
+  public class BoolXor<TContext> : BinaryOperator<TContext, bool, bool, bool>
   {
     public override bool Evaluate(TContext context)
-      => !Operand.Evaluate(context);
+    {
+      var left = LeftOperand.NonNull(nameof(LeftOperand));
+      var right = RightOperand.NonNull(nameof(RightOperand));
+      return left.Evaluate(context) ^ right.Evaluate(context);
+    }
+  }
+
+  public class BoolEquals<TContext> : BinaryOperator<TContext, bool, bool, bool>
+  {
+    public override bool Evaluate(TContext context)
+    {
+      var left = LeftOperand.NonNull(nameof(LeftOperand));
+      var right = RightOperand.NonNull(nameof(RightOperand));
+      return left.Evaluate(context) == right.Evaluate(context);
+    }
+  }
+
+  public class BoolNotEquals<TContext> : BinaryOperator<TContext, bool, bool, bool>
+  {
+    public override bool Evaluate(TContext context)
+    {
+      var left = LeftOperand.NonNull(nameof(LeftOperand));
+      var right = RightOperand.NonNull(nameof(RightOperand));
+      return left.Evaluate(context) != right.Evaluate(context);
+    }
+  }
+
+  public class BoolObjectEquals<TContext> : BinaryOperator<TContext, bool, object, object>
+  {
+    public override bool Evaluate(TContext context)
+    {
+      var left = LeftOperand.NonNull(nameof(LeftOperand));
+      var right = RightOperand.NonNull(nameof(RightOperand));
+
+      var lv = left.Evaluate(context);
+      var rv = right.Evaluate(context);
+      if (lv == null && rv == null) return true;
+      if (lv == null || rv == null) return false;
+
+      return lv.Equals(rv);
+    }
+  }
+
+  public class BoolObjectNotEquals<TContext> : BinaryOperator<TContext, bool, object, object>
+  {
+    public override bool Evaluate(TContext context)
+    {
+      var left = LeftOperand.NonNull(nameof(LeftOperand));
+      var right = RightOperand.NonNull(nameof(RightOperand));
+
+      var lv = left.Evaluate(context);
+      var rv = right.Evaluate(context);
+      if (lv == null && rv == null) return true;
+      if (lv == null || rv == null) return false;
+
+      return !lv.Equals(rv);
+    }
+  }
+
+  public class BoolNot<TContext> : UnaryOperator<TContext, bool, bool>
+  {
+    public override bool Evaluate(TContext context)
+      => !Operand.NonNull(nameof(Operand)).Evaluate(context);
   }
 
 }

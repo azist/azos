@@ -35,9 +35,7 @@ namespace Azos.Log.Filters
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
-      var nTree = node[CONFIG_TREE_SECTION];
-      if (nTree.Exists)
-       Tree = FactoryUtils.MakeAndConfigure<Expression<Message, bool>>(nTree);
+      Tree = Make<Expression<Message, bool>>(node, CONFIG_TREE_SECTION);
     }
   }
 }

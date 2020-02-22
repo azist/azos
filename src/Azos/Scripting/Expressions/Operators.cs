@@ -4,12 +4,14 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
 using Azos.Conf;
+using Azos.Data;
 
 namespace Azos.Scripting.Expressions
 {
   /// <summary>
-  /// Implements a type-safe binary operator with concrete left and right operand types
+  /// Implements a type-safe binary operator with the concrete left and right operand types
   /// </summary>
   public abstract class BinaryOperator<TContext, TResult, TLeftOperand, TRightOperand> : Expression<TContext, TResult>, IBinaryOperator
   {
@@ -25,8 +27,8 @@ namespace Azos.Scripting.Expressions
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
-      LeftOperand = FactoryUtils.MakeAndConfigure<Expression<TContext, TLeftOperand>>(node[CONFIG_LEFT_SECT]);
-      RightOperand = FactoryUtils.MakeAndConfigure<Expression<TContext, TRightOperand>>(node[CONFIG_RIGHT_SECT]);
+      LeftOperand = Make<Expression<TContext, TLeftOperand>>(node, CONFIG_LEFT_SECT);
+      RightOperand = Make<Expression<TContext, TRightOperand>>(node, CONFIG_RIGHT_SECT);
     }
   }
 
@@ -43,9 +45,7 @@ namespace Azos.Scripting.Expressions
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
-      Operand = FactoryUtils.MakeAndConfigure<Expression<TContext, TOperand>>(node[CONFIG_OPERAND_SECT]);
+      Operand = Make<Expression<TContext, TOperand>>(node, CONFIG_OPERAND_SECT);
     }
   }
-
-
 }

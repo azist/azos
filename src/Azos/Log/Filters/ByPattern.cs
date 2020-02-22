@@ -13,7 +13,7 @@ namespace Azos.Log.Filters
   /// </summary>
   public sealed class ByTopic : PatternSetFilter<Message>
   {
-    protected override string GetValue(Message context) => context.Topic;
+    protected override string GetValue(Message context) => context?.Topic;
   }
 
   /// <summary>
@@ -21,7 +21,7 @@ namespace Azos.Log.Filters
   /// </summary>
   public sealed class ByFrom : PatternSetFilter<Message>
   {
-    protected override string GetValue(Message context) => context.From;
+    protected override string GetValue(Message context) => context?.From;
   }
 
   /// <summary>
@@ -29,7 +29,7 @@ namespace Azos.Log.Filters
   /// </summary>
   public sealed class ByText : PatternSetFilter<Message>
   {
-    protected override string GetValue(Message context) => context.Text;
+    protected override string GetValue(Message context) => context?.Text;
   }
 
 
@@ -38,7 +38,7 @@ namespace Azos.Log.Filters
   /// </summary>
   public sealed class ByHost : PatternSetFilter<Message>
   {
-    protected override string GetValue(Message context) => context.Host;
+    protected override string GetValue(Message context) => context?.Host;
   }
 
   /// <summary>
@@ -46,7 +46,7 @@ namespace Azos.Log.Filters
   /// </summary>
   public sealed class ByChannel : PatternSetFilter<Message>
   {
-    protected override string GetValue(Message context) => context.Channel.Value;
+    protected override string GetValue(Message context) => context?.Channel.Value;
   }
 
   /// <summary>
@@ -54,7 +54,7 @@ namespace Azos.Log.Filters
   /// </summary>
   public sealed class ByApp : PatternSetFilter<Message>
   {
-    protected override string GetValue(Message context) => context.App.Value;
+    protected override string GetValue(Message context) => context?.App.Value;
   }
 
 

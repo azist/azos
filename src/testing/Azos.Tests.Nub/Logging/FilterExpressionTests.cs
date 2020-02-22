@@ -253,7 +253,8 @@ namespace Azos.Tests.Nub.Logging
     {
       tree
       {
-        type='Azos.Log.Filters.ByApp' include='DUD'
+        type='Azos.Log.Filters.ByApp'
+        include='DUD'
       }
     }")]
 
@@ -263,7 +264,143 @@ namespace Azos.Tests.Nub.Logging
     {
       tree
       {
-        type='Azos.Log.Filters.ByApp' include='DUD' case=true
+        type='Azos.Log.Filters.ByApp' include='dud' case=true
+      }
+    }")]
+
+    [Run("23", @"
+    expect=true
+    def
+    {
+      tree
+      {
+        type='Azos.Log.Filters.And'
+        left
+        {
+          type='Azos.Log.Filters.And'
+          left{ type='Azos.Log.Filters.ByApp' exclude='DUD' case=true}
+          right
+          {
+            type='Azos.Log.Filters.And'
+            left{ type='Azos.Log.Filters.ByApp' include='DUD' case=false}
+            right
+            {
+              type='Azos.Log.Filters.And'
+              left{ type='Azos.Log.Filters.Not' operand{ type='Azos.Log.Filters.ByChannel' include='NOTTHERE'} }
+              right
+              {
+                type='Azos.Log.Filters.Xor'
+                left
+                {
+                  type='Azos.Log.Filters.ByText' include='*loved*' exclude='*titanic*'
+                }
+                right
+                {
+                  type='Azos.Log.Filters.ByText' exclude='*loved*'
+                }
+              }
+            }
+          }
+          right
+          {
+            type='Azos.Log.Filters.ByText' exclude='*.AAAAAAAAAAAAAAAAA'
+          }
+        }
+        right
+        {
+          type='Azos.Log.Filters.ByHost' include='*.com'
+        }
+      }
+    }")]
+
+    [Run("24", @"
+    expect=false
+    def
+    {
+      tree
+      {
+        type='Azos.Log.Filters.And'
+        left
+        {
+          type='Azos.Log.Filters.And'
+          left{ type='Azos.Log.Filters.ByApp' exclude='DUD' case=true}
+          right
+          {
+            type='Azos.Log.Filters.And'
+            left{ type='Azos.Log.Filters.ByApp' include='DUD' case=false}
+            right
+            {
+              type='Azos.Log.Filters.And'
+              left{ type='Azos.Log.Filters.Not' operand{ type='Azos.Log.Filters.ByChannel' include='NOTTHERE'} }
+              right
+              {
+                type='Azos.Log.Filters.Xor'
+                left
+                {
+                  type='Azos.Log.Filters.ByText' include='*loved*' exclude='*titanic*'
+                }
+                right
+                {
+                  type='Azos.Log.Filters.ByText' include='*loved*'   // xor true ^ true
+                }
+              }
+            }
+          }
+          right
+          {
+            type='Azos.Log.Filters.ByText' exclude='*.AAAAAAAAAAAAAAAAA'
+          }
+        }
+        right
+        {
+          type='Azos.Log.Filters.ByHost' include='*.com'
+        }
+      }
+    }")]
+
+    [Run("25", @"
+    expect=true
+    def
+    {
+      type-paths='Azos.Log.Filters, Azos'
+      tree
+      {
+        type='And'
+        left
+        {
+          type='And'
+          left{ type='ByApp' exclude='DUD' case=true}
+          right
+          {
+            type='And'
+            left{ type='ByApp' include='DUD' case=false}
+            right
+            {
+              type='And'
+              left{ type='Not' operand{ type='Azos.Log.Filters.ByChannel' include='NOTTHERE'} }
+              right
+              {
+                type='Azos.Log.Filters.Xor'
+                left
+                {
+                  type='ByText' include='*loved*' exclude='*titanic*'
+                }
+                right
+                {
+                  type='Azos.Log.Filters.ByText' exclude='*loved*'
+                }
+              }
+            }
+          }
+          right
+          {
+            type='Azos.Log.Filters.ByText' exclude='*.AAAAAAAAAAAAAAAAA'
+          }
+        }
+        right
+        {
+          type='ByHost' include='*.com'
+        }
       }
     }")]
     public void FromConf(IConfigSectionNode def, bool expect)
