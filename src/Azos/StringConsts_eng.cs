@@ -128,7 +128,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
         public const string CONFIGURATION_TYPE_NOT_SUPPLIED_ERROR = "Type not supplied either as 'type' attribute or default";
 
-        public const string CONFIGURATION_TYPE_RESOLVE_ERROR = "Type name '{0}' could not be resolved into type object";
+        public const string CONFIGURATION_TYPE_RESOLVE_ERROR =
+         "Type name '{0}' could not be resolved into a type object. If you use non fully-qualified type names, then ensure that parent node config chain defines an '{1}' attribute which contains a semicolon-delimited list of type search locations for partial type names used under that config node level";
 
         public const string CONFIGURATION_CLONE_EMPTY_NODE_ERROR = "Empty sentinel nodes can not be cloned";
 

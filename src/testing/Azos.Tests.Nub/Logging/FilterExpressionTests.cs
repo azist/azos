@@ -362,7 +362,7 @@ namespace Azos.Tests.Nub.Logging
     expect=true
     def
     {
-      type-paths='Azos.Log.Filters, Azos'
+      type-path='Azos.Log.Filters, Azos'
       tree
       {
         type='And'
