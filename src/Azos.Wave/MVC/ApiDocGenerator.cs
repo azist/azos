@@ -8,6 +8,7 @@ using Azos.Collections;
 using Azos.Conf;
 using Azos.Security;
 using Azos.Text;
+using Azos.Data;
 
 namespace Azos.Wave.Mvc
 {
@@ -133,23 +134,23 @@ namespace Azos.Wave.Mvc
     public string DefaultDataTargetName { get; set; }
 
     /// <summary>
-    /// An optional callback used by GetDataTargetName()
+    /// An optional callback used by GetSchemaDataTargetName()
     /// </summary>
-    public Func<Type, object, string> DataTargetNameCallback { get; set;}
+    public Func<Schema, IDataDoc, string> SchemaDataTargetNameCallback { get; set;}
 
 
     /// <summary>
-    /// Gets data target name for the specified type, and its optional instance.
+    /// Gets data target name for the specified schema/type, and its optional instance.
     /// Base implementation tries to delegate to DataTargetNameCallback if it is set, otherwise returning DefaultDataTargetName.
     /// This mechanism is used to get proper target names in call context, for example
     /// you may need to get a different metadata depending on a call context such as Session.DataContextName etc.
     /// </summary>
-    public virtual string GetDataTargetName(Type type, object instance)
+    public virtual string GetSchemaDataTargetName(Schema schema, IDataDoc instance)
     {
-      var callback = DataTargetNameCallback;
+      var callback = SchemaDataTargetNameCallback;
 
       return callback==null ? DefaultDataTargetName
-                            : callback(type, instance);
+                            : callback(schema, instance);
     }
 
     /// <summary>

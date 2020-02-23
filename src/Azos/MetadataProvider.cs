@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 
 using Azos.Conf;
+using Azos.Data;
 
 namespace Azos
 {
@@ -87,12 +88,12 @@ namespace Azos
     bool IsWellKnownType(Type type);
 
     /// <summary>
-    /// Gets data target name for the specified type, and its optional instance.
+    /// Gets data target name for the specified schema/doc type, and its optional instance.
     /// Default implementations typically just return DefaultDataTargetName.
     /// This mechanism is used to get proper target names in call context, for example
     /// you may need to get a different metadata depending on a call context such as Session.DataContextName etc.
     /// </summary>
-    string GetDataTargetName(Type type, object instance);
+    string GetSchemaDataTargetName(Schema schema, IDataDoc instance);
 
     /// <summary>
     /// Adds a type with an optional instance to be described, this is typically used to register Permissions and Doc schemas

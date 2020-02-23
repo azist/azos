@@ -35,12 +35,15 @@ namespace Azos.Data
       {
         ndoc.AddAttributeNode("typed-doc-type", context.AddTypeToDescribe(schema.TypedDocType));
 
-        try
-        { //this may fail because there may be constructor incompatibility, then we just can get instance-specific metadata
-          doc = Activator.CreateInstance(schema.TypedDocType, true) as TypedDoc;
-          context.App.InjectInto(doc);
+        if (!schema.TypedDocType.IsAbstract)
+        {
+          try
+          { //this may fail because there may be constructor incompatibility, then we just can get instance-specific metadata
+            doc = Activator.CreateInstance(schema.TypedDocType, true) as TypedDoc;
+            context.App.InjectInto(doc);
+          }
+          catch { }
         }
-        catch { }
       }
 
       foreach (var def in schema)
@@ -48,7 +51,8 @@ namespace Azos.Data
         var nfld = ndoc.AddChildNode("field");
         try
         {
-          field(def, context, nfld, doc);
+          var targetName = context.GetSchemaDataTargetName(schema, doc);
+          field(targetName, def, context, nfld, doc);
         }
         catch(Exception error)
         {
@@ -61,11 +65,10 @@ namespace Azos.Data
       return ndoc;
     }
 
-    private void field(Schema.FieldDef def, IMetadataGenerator context, ConfigSectionNode data, TypedDoc doc)
+    private void field(string targetName, Schema.FieldDef def, IMetadataGenerator context, ConfigSectionNode data, TypedDoc doc)
     {
-      var dataTargetName = context.GetDataTargetName(doc.GetType(), null);
+      var fname = def.GetBackendNameForTarget(targetName, out var fatr);
 
-      var fname = def.GetBackendNameForTarget(dataTargetName, out var fatr);
       if (fatr==null) return;
 
       if (context.DetailLevel> MetadataDetailLevel.Public)
@@ -129,7 +132,7 @@ namespace Azos.Data
       //if doc!=null call doc.GetClientFieldValueList on the instance to get values from Database lookups etc...
       if (doc!=null)
       {
-        var lookup = doc.GetDynamicFieldValueList(def, dataTargetName, null);
+        var lookup = doc.GetDynamicFieldValueList(def, targetName, null);
         if (lookup != null)//non-null blank lookup is treated as blank lookup overshadowing the hard-coded choices from .ValueList
         {
           if (nvlist.IsValueCreated)
