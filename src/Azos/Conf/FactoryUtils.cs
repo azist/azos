@@ -14,7 +14,6 @@ using Azos.Data;
 
 namespace Azos.Conf
 {
-#warning Must revise test coverage
   /// <summary>
   /// Provides helper methods for dynamic object creation and configuration
   /// </summary>
@@ -237,17 +236,17 @@ namespace Azos.Conf
           if (atrPaths.Value.IsNullOrWhiteSpace()) return null;
 
           var segs = atrPaths.Value.Split(';');
-          foreach(var seg in segs.Where(s=> s.IsNotNullOrWhiteSpace()))
+          foreach(var seg in segs.Where(s => s.IsNotNullOrWhiteSpace()))
           {
             var kvp = seg.SplitKVP(',');
             var fqn = $"{kvp.Key}.{tName}, {kvp.Value}"; //recompose NS.Type, Assembly key etc..
 
             var result =  Type.GetType(fqn);
-            if (result != null) return result; //trip on first match
+            if (result != null) return result; //trip on the first match
           }
 
           //none of the searched segments of type-path matched, so we fail
-          return null;//need exception here
+          return null;
         }
         scope = scope.Parent;
       }//while
