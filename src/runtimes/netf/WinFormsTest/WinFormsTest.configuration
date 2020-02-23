@@ -42,8 +42,17 @@
          name="$(/$log-name)"
          path="$(/$log-root)"
          file-name="{0:yyyyMMdd}-$($name).csv.log"
-         generate-failover-msg="true"
-        />
+         generate-failover-msg="true">
+
+      <filter>
+        <tree type='Azos.Log.Filters.And'>
+          <left  type='Azos.Log.Filters.ByFrom' exclude='*lenin*' />
+          <right type='Azos.Log.Filters.ByText' exclude='*lenin*' />
+        </tree>
+      </filter>
+
+
+     </sink>
 
     <sink  type="$(/$log-debug)"
      name="dbg"
