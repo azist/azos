@@ -6,17 +6,24 @@
 
 using Azos.Conf;
 using Azos.Text;
+
 using System.Linq;
 
 namespace Azos.Scripting.Expressions
 {
   /// <summary>
-  /// Derive your filters from here, e.g. Log.Message Filter
+  /// Represents a general purpose predicate
   /// </summary>
-  public abstract class BoolFilter<TContext> : Expression<TContext, bool>
+  public abstract class Predicate<TContext> : Expression<TContext, bool>
   {
   }
 
+  /// <summary>
+  /// Derive your filters from here, e.g. Log.Message Filter
+  /// </summary>
+  public abstract class BoolFilter<TContext> : Predicate<TContext>
+  {
+  }
 
   /// <summary>
   /// Base for filters with pattern sets having include/exclude patterns
