@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.2.0.1
-set HEADLINE=New validation with ValidState context
+set VER=1.2.2
+set HEADLINE=Add type-path and more expression tree support
 
 call vs2017-build-release %VER%
 
