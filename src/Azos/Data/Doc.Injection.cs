@@ -6,8 +6,6 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
 using Azos.Apps.Injection;
 
@@ -29,14 +27,16 @@ namespace Azos.Data
     {
       foreach(var fdef in Schema)
       {
+        if (fdef.NonNullableType.IsValueType) continue;//no  DI on value types
+
         var v = GetFieldValue(fdef);
         if (v==null) continue;
 
-        if (v is Doc vdoc)
+        if (v is Doc vdoc) //Order of pattern matches is important
         {
           injector.App.InjectInto(vdoc);
         }
-        else if (v is IDictionary vdict)
+        else if (v is IDictionary vdict) //then DICT as it is also IEnumerable
         {
           foreach(var dv in vdict.Values)
           {
@@ -45,7 +45,7 @@ namespace Azos.Data
             injector.App.InjectInto(dv);
           }
         }
-        else if (v is IEnumerable vedoc)
+        else if (v is IEnumerable vedoc) //only then IEnumerable
         {
           foreach(var ev in vedoc)
           {
