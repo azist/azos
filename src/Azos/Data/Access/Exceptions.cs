@@ -58,8 +58,13 @@ namespace Azos.Data.Access
     /// </summary>
     public readonly KeyViolationKind KeyViolationKind;
 
-    public int HttpStatusCode => IsKeyViolation ?  WebConsts.STATUS_409 : WebConsts.STATUS_500;
-    public string HttpStatusDescription => IsKeyViolation ? WebConsts.STATUS_409_DESCRIPTION + "/ Key Violation" : WebConsts.STATUS_500_DESCRIPTION;
+    public int HttpStatusCode
+     => IsKeyViolation ?  WebConsts.STATUS_409
+                       : this.InnerException.SearchThisOrInnerExceptionOf<IHttpStatusProvider>()?.HttpStatusCode ?? WebConsts.STATUS_500;
+
+    public string HttpStatusDescription
+     => IsKeyViolation ? WebConsts.STATUS_409_DESCRIPTION + "/ Key Violation"
+                       : this.InnerException.SearchThisOrInnerExceptionOf<IHttpStatusProvider>()?.HttpStatusDescription ?? WebConsts.STATUS_500_DESCRIPTION;
 
     /// <summary>
     /// Provides the name of entity/index/field that was violated and resulted in this exception

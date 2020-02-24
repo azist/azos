@@ -359,7 +359,7 @@ namespace Azos.Wave
       var result = new JsonDataMap();
       result[CoreConsts.EXT_STATUS_KEY_OK] = false;
 
-      var http = actual.SearchThisOrInnerExceptionOf<IHttpStatusProvider>();
+      var http = error.SearchThisOrInnerExceptionOf<IHttpStatusProvider>();
       if (http!=null)
       {
         result[CoreConsts.EXT_STATUS_KEY_HTTP_CODE] = http.HttpStatusCode;
@@ -367,9 +367,9 @@ namespace Azos.Wave
       }
 
       result[CoreConsts.EXT_STATUS_KEY_ERROR] = actual.GetType().Name;
-      result[CoreConsts.EXT_STATUS_KEY_IS_AUTH] = Security.AuthorizationException.IsDenotedBy(actual);
+      result[CoreConsts.EXT_STATUS_KEY_IS_AUTH] = Security.AuthorizationException.IsDenotedBy(error);
 
-      var esp = actual.SearchThisOrInnerExceptionOf<IExternalStatusProvider>();
+      var esp = error.SearchThisOrInnerExceptionOf<IExternalStatusProvider>();
       if (esp != null)
       {
         var data = esp.ProvideExternalStatus(withDump);

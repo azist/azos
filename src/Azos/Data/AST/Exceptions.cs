@@ -7,13 +7,15 @@
 using System;
 using System.Runtime.Serialization;
 
+using Azos.Serialization.JSON;
+
 namespace Azos.Data.AST
 {
   /// <summary>
   /// Base exception thrown by the abstract syntax tree processing
   /// </summary>
   [Serializable]
-  public class ASTException : DataException , IHttpStatusProvider
+  public class ASTException : DataException , IHttpStatusProvider , IExternalStatusProvider
   {
     public ASTException() { }
     public ASTException(string message) : base(message) { }
@@ -22,6 +24,13 @@ namespace Azos.Data.AST
 
     public int HttpStatusCode => WebConsts.STATUS_400;
     public string HttpStatusDescription => WebConsts.STATUS_400_DESCRIPTION + " / Bad Expression";
+
+    public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
+    {
+      var result = this.DefaultBuildErrorStatusProviderMap(includeDump, "data.query");
+      result[CoreConsts.EXT_STATUS_KEY_MESSAGE] = this.Message;
+      return result;
+    }
   }
 
 }
