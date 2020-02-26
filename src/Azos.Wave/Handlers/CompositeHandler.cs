@@ -89,7 +89,7 @@ namespace Azos.Wave.Handlers
         var subHandler = m_Handlers.OrderedValues.FirstOrDefault(handler => handler.MakeMatch(work));
 
         if (subHandler==null)
-          throw HTTPStatusException.NotFound_404(StringConsts.NO_HANDLER_FOR_WORK_ERROR.Args(work.About));
+          throw HTTPStatusException.NotFound_404(StringConsts.NO_HANDLER_ERROR);
 
         subHandler.FilterAndHandleWork(work);
       }

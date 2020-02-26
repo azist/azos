@@ -15,12 +15,12 @@ namespace Azos.Data
 {
 
   /// <summary>
-  /// Denotes form modes: unspecified | insert | edit
+  /// Denotes form modes: unspecified | insert | update | delete
   /// </summary>
-  public enum FormMode { Unspecified = 0, Insert, Edit}
+  public enum FormMode { Unspecified = 0, Insert, Update, Delete}
 
   /// <summary>
-  /// Struct returned from Form.Save()
+  /// Struct returned from Form.Save(): it is either an error (IsSuccess==false), or TResult
   /// </summary>
   public struct SaveResult<TResult>
   {
@@ -73,6 +73,7 @@ namespace Azos.Data
       public const string JSON_MODE_PROPERTY = "__FormMode";
       public const string JSON_CSRF_PROPERTY = CoreConsts.CSRF_TOKEN_NAME;
       public const string JSON_ROUNDTRIP_PROPERTY = "__Roundtrip";
+      public const string JSON_TYPE_PROPERTY = "__FormType";
 
 
       protected Form() {}
@@ -160,18 +161,50 @@ namespace Azos.Data
     /// </summary>
     public async virtual Task<SaveResult<TSaveResult>> SaveAsync()
     {
-      var valError = this.Validate(DataStoreTargetName);
+      DoAmorphousDataBeforeSave(DataStoreTargetName);
 
-      if (valError != null)
-        return new SaveResult<TSaveResult>(valError);
+      var validationState = DoBeforeValidateOnSave();
 
-      this.BeforeSave(DataStoreTargetName);
+      validationState = this.Validate(validationState);
+
+      validationState = DoAfterValidateOnSave(ref validationState);
+
+      if (validationState.HasErrors)
+        return new SaveResult<TSaveResult>(validationState.Error);
+
+      DoBeforeSave();
 
       return await DoSaveAsync();
     }
 
     public sealed async override Task<SaveResult<object>> SaveReturningObjectAsync()
      => (await SaveAsync()).ToObject();
+
+    /// <summary>
+    /// Override to perform pre-validate step on Save(). This can be used to default required field values among other things.
+    /// Returns a ValidState initialized to DataStoreTargetName and ValidErrorMode as desired in a specific case.
+    /// Default implementation sets `ValidErrorMode.Single` meaning: the system will stop validation on a first validation error
+    /// and return it. Override to use other modes such as `ValidErrorMode.Batch`
+    /// Note: this is called after amorphous data save, so the validation can assume that the state of AmorphousData is initialized
+    /// </summary>
+    protected virtual ValidState DoBeforeValidateOnSave() => new ValidState(DataStoreTargetName, ValidErrorMode.Single);
+
+    /// <summary>
+    /// Override to perform post-validate step on Save(). For example, you can mask/disregard validation error
+    /// by returning a clean ValidState instance
+    /// </summary>
+    /// <param name="state">Validation state instance which you can disregard by returning a new ValidState without an error</param>
+    protected virtual ValidState DoAfterValidateOnSave(ref ValidState state) => state;
+
+
+    /// <summary>
+    /// Override to perform post-successful-validate pre-save step on Save().
+    /// This override is typically used to generate a unique ID for inserts (as determined by FormMode)
+    /// in the absence of validation errors so the ID does NOT get generated and wasted when there is/are validation errors.
+    /// This method is NOT called if validation finds errors in prior steps of Save() flow
+    /// </summary>
+    protected virtual void DoBeforeSave() { }
+
 
     /// <summary>
     /// Override to save model into data store. Return "predictable" exception (such as key violation) as a value instead of throwing.

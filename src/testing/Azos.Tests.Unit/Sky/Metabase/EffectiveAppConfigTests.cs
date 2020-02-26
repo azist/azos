@@ -6,12 +6,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-using Azos.Sky.Apps;
+using Azos.Apps;
 using Azos.IO.FileSystem.Local;
 using Azos.Scripting;
 
 using Azos.Sky.Metabase;
-using Azos.Apps;
 
 namespace Azos.Tests.Unit.Sky.Metabase
 {

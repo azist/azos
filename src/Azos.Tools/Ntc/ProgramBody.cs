@@ -13,7 +13,7 @@ using System.IO;
 
 using Azos.Conf;
 using Azos.Templatization;
-using Azos.IO;
+using Azos.IO.Console;
 using Azos.Platform;
 
 namespace Azos.Tools.Ntc

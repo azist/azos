@@ -20,7 +20,7 @@ namespace Azos.Security
     /// Returns an instance of the fake user that has no rights
     /// </summary>
     public static User Fake => new User(BlankCredentials.Instance,
-                                        new AuthenticationToken(),
+                                        new SysAuthToken(),
                                         UserStatus.Invalid,
                                           "John Doe",
                                           "Fake user",
@@ -32,7 +32,7 @@ namespace Azos.Security
     private User() { } //for quicker serialization
 
     public User(Credentials credentials,
-                AuthenticationToken token,
+                SysAuthToken token,
                 UserStatus status,
                 string name,
                 string descr,
@@ -49,7 +49,7 @@ namespace Azos.Security
     }
 
     public User(Credentials credentials,
-                AuthenticationToken token,
+                SysAuthToken token,
                 string name,
                 Rights rights, DateTime? utcNow = null) : this(credentials, token, UserStatus.User, name, null, rights, utcNow)
     {
@@ -62,7 +62,7 @@ namespace Azos.Security
     private DateTime m_StatusTimeStampUTC;
 
     private Credentials m_Credentials;
-    private AuthenticationToken m_AuthenticationToken;
+    private SysAuthToken m_AuthenticationToken;
 
     private UserStatus m_Status;
     private string m_Name;
@@ -84,8 +84,17 @@ namespace Azos.Security
 
     public Credentials Credentials => m_Credentials ?? BlankCredentials.Instance;
 
-    public AuthenticationToken AuthToken => m_AuthenticationToken;
+    /// <summary>
+    /// System authentication token - this token is issued by the security manager and
+    /// used "inside" the system perimietr - it should never be disclosed to the public/outside
+    /// consuming parties, as external callers should use appropriate credentials (e.g. Bearer)
+    /// in place of this token.
+    /// </summary>
+    public SysAuthToken AuthToken => m_AuthenticationToken;
 
+    /// <summary>
+    /// User name/id which uniquely identifies the user in the system
+    /// </summary>
     public string Name => m_Name ?? string.Empty;
 
     public string Description => m_Description ?? string.Empty;

@@ -10,12 +10,13 @@ using System.Text;
 using System.Diagnostics;
 using System.Threading;
 
+using Azos.Sky;
 using Azos.Apps;
 using Azos.Log;
 
 using Azos.Sky.Metabase;
 
-namespace Azos.Sky.Apps.HostGovernor
+namespace Azos.Apps.HostGovernor
 {
   /// <summary>
   /// Represents an application managed by the HostGovernorService instance - the Sky application that gets installed/updated/executed by
@@ -199,10 +200,10 @@ namespace Azos.Sky.Apps.HostGovernor
       }
 
       if (m_Process.HasExited)
-        throw new AHGOVException(StringConsts.AHGOV_APP_PROCESS_CRASHED_AT_STARTUP_ERROR.Args(Name, exe, args));
+        throw new AHGOVException(Sky.StringConsts.AHGOV_APP_PROCESS_CRASHED_AT_STARTUP_ERROR.Args(Name, exe, args));
 
       if (m_Process.StandardOutput==null)
-        throw new AHGOVException(StringConsts.AHGOV_APP_PROCESS_STD_OUT_NULL_ERROR.Args(Name, exe, args));
+        throw new AHGOVException(Sky.StringConsts.AHGOV_APP_PROCESS_STD_OUT_NULL_ERROR.Args(Name, exe, args));
 
       if (!m_Process.StandardOutput.EndOfStream)
       {
@@ -215,7 +216,7 @@ namespace Azos.Sky.Apps.HostGovernor
           }
       }
 
-      throw new AHGOVException(StringConsts.AHGOV_APP_PROCESS_NO_SUCCESS_AT_STARTUP_ERROR.Args(Name, exe, args));
+      throw new AHGOVException(Sky.StringConsts.AHGOV_APP_PROCESS_NO_SUCCESS_AT_STARTUP_ERROR.Args(Name, exe, args));
     }
 
     private void closeProcess()

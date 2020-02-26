@@ -2,20 +2,24 @@
  Usage:
 <f color=white>
    phash <f color=darkCyan>[/h | /? | /help]
+              [/k | /key  bit_length]
               [/pp | /pretty]
               [/ne | /noentropy]
               [/st | /score]
               [/lvl |/level]
+              [/alg]
 
 <f color=magenta>
  Options:
 
  <f color=darkCyan>/h | /help | /?<f color=gray> - displays help message
+ <f color=darkCyan>/k | /key  bit-length <f color=gray> - generates a random key of the specified bit length
  <f color=darkCyan>/pp | /pretty <f color=gray> - pretty prints hashed password
- <f color=darkCyan>/ne | /noentropy <f color=gray> - precludes entropy acquisition from user
+ <f color=darkCyan>/ne | /noentropy <f color=gray> - precludes extra entropy acquisition from user
  <f color=darkCyan>/st | /score  <int><f color=gray> - strength score threshold
+ <f color=darkCyan>/alg | /algorithm  <name><f color=gray> - use specified named password hashing algorithm
 
-  <f color=darkCyan>/lvl | /level  <level><f color=gray> - the strength level of hash
+ <f color=darkCyan>/lvl | /level  <level><f color=gray> - the strength level of hash
               level = <f color=darkRed>Default| Minimum |BelowNormal|Normal|AboveNormal|Maximum
 
 <f color=magenta>
@@ -23,5 +27,13 @@
 <f color=yellow>
   phash -pp -st 90 -lvl Normal<f color=gray>
  Pretty print with score threshold 90% hashing strength Normal
+
+ <f color=yellow>
+  phash -alg kdf -ne<f color=gray>
+ Use 'kdf' algorithm skipping extra entropy acquisition
+
+ <f color=yellow>
+  phash -k 256<f color=gray>
+ Generate 256 crypto-safe random key of 256 bits in length
 
 <pop>

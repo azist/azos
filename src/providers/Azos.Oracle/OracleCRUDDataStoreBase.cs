@@ -40,6 +40,13 @@ namespace Azos.Data.Access.Oracle
       m_QueryResolver = new QueryResolver(this);
       ConnectString = cs;
     }
+
+    protected override void Destructor()
+    {
+      DisposeAndNull(ref m_QueryResolver);
+      base.Destructor();
+    }
+
     #endregion
 
     #region Fields

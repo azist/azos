@@ -20,7 +20,7 @@ namespace Azos.Tests.Nub.Geometry
         {
            var cleveland = new LatLng("41°29'13'', -81°38'26''");
 
-           Console.WriteLine(cleveland);
+           "Cleveland: {0}".SeeArgs(cleveland);
            Aver.AreEqual("41°29'13'', -81°38'26''", cleveland.ToString());
         }
 
@@ -30,12 +30,12 @@ namespace Azos.Tests.Nub.Geometry
            var cleveland = new LatLng("41.4868145,-81.6406292");
            var losangeles = new LatLng("34.1610243,-117.9465513");
 
-           Console.WriteLine(cleveland);
-           Console.WriteLine(losangeles);
+           "Cleveland: {0}".SeeArgs(cleveland);
+           "Los Angeles: {0}".SeeArgs(losangeles);
 
-           var dist = cleveland.HaversineEarthDistanceKm(losangeles);
+          var dist = cleveland.HaversineEarthDistanceKm(losangeles);
 
-           Console.WriteLine(dist);
+           "Distance: {0} km".SeeArgs(dist);
            Aver.AreEqual(3265, (int)dist);
         }
 
@@ -45,12 +45,12 @@ namespace Azos.Tests.Nub.Geometry
            var cleveland = new LatLng("41.4868145,-81.6406292");
            var losangeles = new LatLng("34.1610243,-117.9465513");
 
-           Console.WriteLine(cleveland);
-           Console.WriteLine(losangeles);
+           Conout.WriteLine(cleveland);
+           Conout.WriteLine(losangeles);
 
            var dist = losangeles.HaversineEarthDistanceKm(cleveland);
 
-           Console.WriteLine(dist);
+           Conout.WriteLine(dist);
            Aver.AreEqual(3265, (int)dist);
         }
 
@@ -61,12 +61,12 @@ namespace Azos.Tests.Nub.Geometry
            var cleveland = new LatLng("41°29'13'', -81°38'26''");
            var losangeles = new LatLng("34°9'40'', -117°56'48''");
 
-           Console.WriteLine(cleveland);
-           Console.WriteLine(losangeles);
+           Conout.WriteLine(cleveland);
+           Conout.WriteLine(losangeles);
 
            var dist = cleveland.HaversineEarthDistanceKm(losangeles);
 
-           Console.WriteLine(dist);
+           Conout.WriteLine(dist);
            Aver.AreEqual(3265, (int)dist);
         }
 
@@ -77,12 +77,12 @@ namespace Azos.Tests.Nub.Geometry
            var cleveland = new LatLng("41.4868145,-81.6406292");
            var moscow = new LatLng("55.7530361,37.6217305");
 
-           Console.WriteLine(cleveland);
-           Console.WriteLine(moscow);
+           Conout.WriteLine(cleveland);
+           Conout.WriteLine(moscow);
 
            var dist = cleveland.HaversineEarthDistanceKm(moscow);
 
-           Console.WriteLine(dist);
+           Conout.WriteLine(dist);
            Aver.AreEqual(7786, (int)dist);
         }
 
@@ -92,12 +92,12 @@ namespace Azos.Tests.Nub.Geometry
            var cleveland = new LatLng("41.4868145,-81.6406292");
            var moscow = new LatLng("55.7530361,37.6217305");
 
-           Console.WriteLine(cleveland);
-           Console.WriteLine(moscow);
+           Conout.WriteLine(cleveland);
+           Conout.WriteLine(moscow);
 
            var dist = moscow.HaversineEarthDistanceKm(cleveland);
 
-           Console.WriteLine(dist);
+           Conout.WriteLine(dist);
            Aver.AreEqual(7786, (int)dist);
         }
 
@@ -107,12 +107,12 @@ namespace Azos.Tests.Nub.Geometry
            var cleveland = new LatLng("41°29'13'', -81°38'26''");
            var moscow = new LatLng("55°45'11'', 37°37'18''");
 
-           Console.WriteLine(cleveland);
-           Console.WriteLine(moscow);
+           Conout.WriteLine(cleveland);
+           Conout.WriteLine(moscow);
 
            var dist = cleveland.HaversineEarthDistanceKm(moscow);
 
-           Console.WriteLine(dist);
+           Conout.WriteLine(dist);
            Aver.AreEqual(7786, (int)dist);
         }
 
@@ -124,12 +124,12 @@ namespace Azos.Tests.Nub.Geometry
            var cleveland = new LatLng("41.4868145,-81.6406292");
            var melbourne = new LatLng("-37.5210205,144.7461265");
 
-           Console.WriteLine(cleveland);
-           Console.WriteLine(melbourne);
+           Conout.WriteLine(cleveland);
+           Conout.WriteLine(melbourne);
 
            var dist = melbourne.HaversineEarthDistanceKm(cleveland);
 
-           Console.WriteLine(dist);
+           Conout.WriteLine(dist);
            Aver.AreEqual(16058, (int)dist);
         }
 
@@ -139,12 +139,12 @@ namespace Azos.Tests.Nub.Geometry
            var cleveland = new LatLng("41.4868145,-81.6406292");
            var melbourne = new LatLng("-37.5210205,144.7461265");
 
-           Console.WriteLine(cleveland);
-           Console.WriteLine(melbourne);
+           Conout.WriteLine(cleveland);
+           Conout.WriteLine(melbourne);
 
            var dist = cleveland.HaversineEarthDistanceKm(melbourne);
 
-           Console.WriteLine(dist);
+           Conout.WriteLine(dist);
            Aver.AreEqual(16058, (int)dist);
         }
 
@@ -154,12 +154,12 @@ namespace Azos.Tests.Nub.Geometry
            var cleveland = new LatLng("41°29'13'', -81°38'26''");
            var melbourne = new LatLng("-37°31'16'', 144°44'46''");
 
-           Console.WriteLine(cleveland);
-           Console.WriteLine(melbourne);
+           Conout.WriteLine(cleveland);
+           Conout.WriteLine(melbourne);
 
            var dist = cleveland.HaversineEarthDistanceKm(melbourne);
 
-           Console.WriteLine(dist);
+           Conout.WriteLine(dist);
            Aver.AreEqual(16058, (int)dist);
         }
     }

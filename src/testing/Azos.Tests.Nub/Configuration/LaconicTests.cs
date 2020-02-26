@@ -407,8 +407,8 @@ root
   {
     ""atr with space""=1
     atr2=""val with space""
-    ""atr{3}""=''
-    ""atr=4""=''
+    ""atr{3}""=null
+    ""atr=4""=null
     atr5=""this goes on \n\r new\\next line""
     child3.1
     {
@@ -430,7 +430,7 @@ root
         Console.WriteLine(txt);
 
         Aver.AreEqual(
- @"very-root{childSection1{name=Alex}child2=Muxa{name=Boris}child3{""atr with space""=1 atr2=""val with space"" ""atr{3}""='' ""atr=4""='' atr5=""this goes on \n\r new\\next line"" child3.1{}child3.2{child3.2.1{}}child3.3{}}}",
+ @"very-root{childSection1{name=Alex}child2=Muxa{name=Boris}child3{""atr with space""=1 atr2=""val with space"" ""atr{3}""=null ""atr=4""=null atr5=""this goes on \n\r new\\next line"" child3.1{}child3.2{child3.2.1{}}child3.3{}}}",
    txt);
         }
 

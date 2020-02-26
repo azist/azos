@@ -8,10 +8,13 @@ using System.IO;
 using System.Diagnostics;
 using System.Reflection;
 
-using Azos.IO;
+using Azos.IO.Console;
 using Azos.Conf;
 using Azos.Platform;
 using Azos.Serialization.Arow;
+using Azos.Serialization.JSON;
+using System.Linq;
+using Azos.Data;
 
 namespace Azos.Tools.Arow
 {
@@ -61,12 +64,32 @@ namespace Azos.Tools.Arow
       if (!File.Exists(asmFileName)) throw new Exception("Assembly file does not exist");
       if (!Directory.Exists(path)) throw new Exception("Output path does not exist");
 
-      var assembly = Assembly.LoadFrom(asmFileName);
+      //20191106 DKh
+      //var assembly = Assembly.LoadFrom(asmFileName);
+      Assembly assembly;
+      try
+      {
+        assembly = Assembly.LoadFrom(asmFileName);
+
+        var schemas = assembly.GetTypes()//this throws on invalid loader exception as
+                            .Where(t => typeof(TypedDoc).IsAssignableFrom(t))
+                            .Select(t => Schema.GetForTypedDoc(t))//it touches all type/schemas
+                            .ToArray();
+        ConsoleUtils.Info("Assembly contains {0} data document schemas".Args(schemas.Length));
+      }
+      catch(Exception asmerror)
+      {
+        ConsoleUtils.Error("Could not load assembly: `{0}`".Args(asmFileName));
+        ConsoleUtils.Warning("Exception: ");
+        ConsoleUtils.Warning(asmerror.ToJson(JsonWritingOptions.PrettyPrintASCII));
+        throw;
+      }
 
       using(var generator = new CodeGenerator())
       {
         generator.RootPath = path;
         generator.CodeSegregation = config.Root["c", "code"].AttrByIndex(0).ValueAsEnum(CodeGenerator.GeneratedCodeSegregation.FilePerNamespace);
+        generator.HeaderDetailLevel = config.Root["hdr", "header", "hl"].AttrByIndex(0).ValueAsInt(255);
         generator.Generate( assembly );
       }
     }

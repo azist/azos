@@ -43,7 +43,10 @@ namespace Azos.Time
 
 
     /// <summary>
-    /// Denotes app-global time source - an entity that supplies time in this application instance
+    /// Defines time source - an entity that supplies local and UTC times. A concrete implementation
+    ///  may elect to get accurate times from the network or other external precision time sources (i.e. NASA atomic clock).
+    /// The split-second time accuracy is necessary in some distributed algorithms such as the ones that use precision time stamps
+    /// to established the relative order of distributed events during data reconciliation (e.g. multi-master replication)
     /// </summary>
     public interface ITimeSource : IApplicationComponent, ILocalizedTimeProvider
     {
@@ -93,12 +96,12 @@ namespace Azos.Time
        new int ResolutionMs { get; set; }
 
        /// <summary>
-       /// Internall call, developers - do not call
+       /// Internal call, developers - do not call
        /// </summary>
        void __InternalRegisterEvent(Event evt);
 
        /// <summary>
-       /// Internall call, developers - do not call
+       /// Internal call, developers - do not call
        /// </summary>
        void __InternalUnRegisterEvent(Event evt);
     }

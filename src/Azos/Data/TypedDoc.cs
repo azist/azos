@@ -111,13 +111,16 @@ namespace Azos.Data
       }
 
 
+      void IAmorphousData.BeforeSave(string targetName) => DoAmorphousDataBeforeSave(targetName);
+      void IAmorphousData.AfterLoad(string targetName) => DoAmorphousDataAfterLoad(targetName);
+
       /// <summary>
       /// Invoked to allow the doc to transform its state into AmorphousData bag.
-      /// For example, this may be usefull to store extra data that is not a part of established business schema.
+      /// For example, this may be useful to store extra data that is not a part of established business schema.
       /// The operation is performed per particular targetName (name of physical backend). Simply put, this method allows
-      ///  business code to "specify what to do before object gets saved in THE PARTICULAR TARGET backend store"
+      ///  business code to "specify what to do with amorphous data before object gets saved in THE PARTICULAR TARGET backend store"
       /// </summary>
-      public virtual void BeforeSave(string targetName)
+      protected virtual void DoAmorphousDataBeforeSave(string targetName)
       {
 
       }
@@ -126,12 +129,12 @@ namespace Azos.Data
       /// Invoked to allow the doc to hydrate its fields/state from AmorphousData bag.
       /// For example, this may be used to reconstruct some temporary object state that is not stored as a part of established business schema.
       /// The operation is performed per particular targetName (name of physical backend).
-      /// Simply put, this method allows business code to "specify what to do after object gets loaded from THE PARTICULAR TARGET backend store".
+      /// Simply put, this method allows business code to "specify what to do with amorphous data after object gets loaded from THE PARTICULAR TARGET backend store".
       /// An example: suppose current MongoDB collection stores 3 fields for name, and we want to collapse First/Last/Middle name fields into one field.
-      /// If we change rowschema then it will only contain 1 field which is not present in the database, however those 'older' fields will get populated
+      /// If we change schema then it will only contain 1 field which is not present in the database, however those 'older' fields will get populated
       /// into AmorphousData giving us an option to merge older 3 fields into 1 within AfterLoad() implementation
       /// </summary>
-      public virtual void AfterLoad(string targetName)
+      protected virtual void DoAmorphousDataAfterLoad(string targetName)
       {
 
       }

@@ -11,35 +11,70 @@ namespace Azos
   /// </summary>
   public static class CoreConsts
   {
-      public const string NULL_STRING = "<null>";
+    public const string NULL_STRING = "<null>";
 
-      public const int ABS_HASH_MASK = 0x7FFFFFFF;
+    public const int ABS_HASH_MASK = 0x7FFFFFFF;
 
-      public const int MAX_BYTE_BUFFER_SIZE = 2147483647 - 256 - 15; // 2 Gbyte - 256 (reserved for object headers etc.) - 15 bytes (16-aligned)
+    public const int MAX_BYTE_BUFFER_SIZE = 2147483647 - 256 - 15; // 2 Gbyte - 256 (reserved for object headers etc.) - 15 bytes (16-aligned)
 
-      public const string CSRF_TOKEN_NAME = "__CSRFToken";
+    public const string CSRF_TOKEN_NAME = "__CSRFToken";
 
-      public static readonly Geometry.LatLng DEFAULT_GEO_LOCATION = new Geometry.LatLng("41.4996374,-81.6936649", "Cleveland, OH, USA");
+
+    public const string ENVIRONMENT_LOCAL = "local";
+    public const string ENVIRONMENT_DEV = "dev";
+    public const string ENVIRONMENT_PROD = "prod";
+
+    public static readonly string[] ENVIRONMENTS_DEVELOPER = {ENVIRONMENT_DEV, ENVIRONMENT_LOCAL, "devel", "development", "localhost", "loc"};
+
+    public static readonly Geometry.LatLng DEFAULT_GEO_LOCATION = new Geometry.LatLng("41.4996374,-81.6936649", "Cleveland, OH, USA");
+
+    #region IExternalStatusProvider keys
+
+    public const string EXT_STATUS_KEY_OK = "OK";
+    public const string EXT_STATUS_KEY_ERROR = "error";
+    public const string EXT_STATUS_KEY_IS_AUTH = "isauth";
+
+    public const string EXT_STATUS_KEY_DATA = "data";
+    public const string EXT_STATUS_KEY_NS = "ns";
+    public const string EXT_STATUS_KEY_TYPE = "type";
+    public const string EXT_STATUS_KEY_CODE = "code";
+    public const string EXT_STATUS_KEY_CAUSE = "cause";
+
+    public const string EXT_STATUS_KEY_SCHEMA = "schema";
+    public const string EXT_STATUS_KEY_FIELD = "field";
+    public const string EXT_STATUS_KEY_MESSAGE = "message";
+
+    public const string EXT_STATUS_KEY_BATCH = "batch";
+
+    public const string EXT_STATUS_KEY_CONTROLLER = "controller";
+    public const string EXT_STATUS_KEY_ACTION = "action";
+
+    public const string EXT_STATUS_KEY_HTTP_CODE = "http::code";
+    public const string EXT_STATUS_KEY_HTTP_DESCRIPTION = "http::descr";
+
+    public const string EXT_STATUS_KEY_DEV_DUMP = "dev::dump";
+
+    #endregion
 
     #region External parameters
-      public const string EXT_PARAM_CONTENT_LACONIC = "laconic://";
-      public const string EXT_PARAM_CONTENT_JSON = "json://";
+    public const string EXT_PARAM_CONTENT_LACONIC = "laconic://";
+    public const string EXT_PARAM_CONTENT_JSON = "json://";
 
-      public const string EXT_PARAM_GROUP_PILE = "pile";
-      public const string EXT_PARAM_GROUP_GLUE = "glue";
-      public const string EXT_PARAM_GROUP_LOCKING = "locking";
-      public const string EXT_PARAM_GROUP_MESSAGING = "messaging";
-      public const string EXT_PARAM_GROUP_OBJSTORE = "objectstore";
-      public const string EXT_PARAM_GROUP_WEB = "web";
-      public const string EXT_PARAM_GROUP_INSTRUMENTATION = "instrumentation";
-      public const string EXT_PARAM_GROUP_CACHE = "cache";
-      public const string EXT_PARAM_GROUP_DATA = "data";
-      public const string EXT_PARAM_GROUP_LOG = "log";
-      public const string EXT_PARAM_GROUP_TIME = "time";
-      public const string EXT_PARAM_GROUP_PAY = "pay";
-      public const string EXT_PARAM_GROUP_SHIPPING = "shipping";
-      public const string EXT_PARAM_GROUP_SECURITY = "security";
-      public const string EXT_PARAM_GROUP_SOCIAL = "social";
+    public const string EXT_PARAM_GROUP_PILE = "pile";
+    public const string EXT_PARAM_GROUP_GLUE = "glue";
+    public const string EXT_PARAM_GROUP_LOCKING = "locking";
+    public const string EXT_PARAM_GROUP_MESSAGING = "messaging";
+    public const string EXT_PARAM_GROUP_OBJSTORE = "objectstore";
+    public const string EXT_PARAM_GROUP_WEB = "web";
+    public const string EXT_PARAM_GROUP_INSTRUMENTATION = "instrumentation";
+    public const string EXT_PARAM_GROUP_CACHE = "cache";
+    public const string EXT_PARAM_GROUP_DATA = "data";
+    public const string EXT_PARAM_GROUP_LOG = "log";
+    public const string EXT_PARAM_GROUP_TIME = "time";
+    public const string EXT_PARAM_GROUP_PAY = "pay";
+    public const string EXT_PARAM_GROUP_SHIPPING = "shipping";
+    public const string EXT_PARAM_GROUP_SECURITY = "security";
+    public const string EXT_PARAM_GROUP_SOCIAL = "social";
     #endregion
 
     #region Code Analysis
@@ -88,6 +123,7 @@ namespace Azos
       public const string TIME_TOPIC = "Time";
       public const string SHIP_TOPIC = "Ship";
       public const string GLUE_TOPIC = "Glue";
+      public const string CLIENT_TOPIC = "Client";
       public const string PAY_TOPIC = "Pay";
       public const string ERLANG_TOPIC = "Erl";
       public const string CACHE_TOPIC = "Cache";
@@ -99,7 +135,9 @@ namespace Azos
       public const string WEBMSG_TOPIC = "WMsg";
       public const string RUN_TOPIC = "Run";
       public const string WEB_TOPIC = "Web";
+      public const string CMS_TOPIC = "CMS";
       public const string WAVE_TOPIC = "Wave";
+      public const string DOC_TOPIC = "Doc";
 
       public static readonly Atom LOG_CHANNEL_SECURITY = Atom.Encode("sec");
 

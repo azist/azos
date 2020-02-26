@@ -12,6 +12,9 @@ namespace Azos
   /// </summary>
   public static class DateUtils
   {
+    /// <summary>
+    /// Unix epoch start. This value MUST be UTC
+    /// </summary>
     public static readonly DateTime UNIX_EPOCH_START_DATE = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     /// <summary>
@@ -107,7 +110,7 @@ namespace Azos
     }
 
     /// <summary>
-    /// Tuncate date to specific resolution
+    /// Truncate date to specific resolution
     /// </summary>
     public static DateTime Truncate(this DateTime now, long tickResolution)
     {
@@ -116,7 +119,7 @@ namespace Azos
 
 
     /// <summary>
-    /// Returns an approximate string represention of the point in time relative to this one,
+    /// Returns an approximate string representation of the point in time relative to this one,
     /// in the most suitable scale, that is:  "1 year ago" or "in 1 year"; "45 minutes ago" or "in 45 minutes". Supports ISO_LANG=eng only
     /// </summary>
     public static string ApproximateTimeDistance(this DateTime fromDate, DateTime toDate)

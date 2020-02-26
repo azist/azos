@@ -16,7 +16,8 @@ namespace Azos.Sky.WebMessaging
   /// <summary>
   /// Represents messages stored in Azos Sky system
   /// </summary>
-  [Serializable, Arow]
+  [Serializable]
+  [Arow("2CD2311A-B703-4C23-994A-DA3ED3D32C97")]
   public class SkyWebMessage : Message
   {
     protected SkyWebMessage() { }

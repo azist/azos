@@ -24,19 +24,23 @@ namespace Azos
      /// The general use of this flag is discouraged as code constructs should not form special cases just for unit testing,
      /// however in some cases this flag is useful. It is not exposed via App. static accessors
      /// </summary>
-     bool IsUnitTest{ get; }
+     bool IsUnitTest { get; }
 
      /// <summary>
      /// True when the app should force the process-wide invariant culture regardless of machine-level culture.
      /// This is used in server applications
      /// </summary>
-     bool ForceInvariantCulture{ get; }
+     bool ForceInvariantCulture { get; }
 
      /// <summary>
      /// Provides access to "environment-name" attribute, e.g. "DEV" / "TEST" / "PROD" etc.
      /// </summary>
      string EnvironmentName { get; }
 
+     /// <summary>
+     /// Returns the ConsolePort used by this application, or null if this application does not have any specific console ports assigned
+     /// </summary>
+     IO.Console.IConsolePort ConsolePort { get;}
 
      /// <summary>
      /// Application Id is a system unique identifier of this application type (not to be confused with instance).
@@ -52,7 +56,7 @@ namespace Azos
      /// <summary>
      /// Returns true when this app container allows nesting of another one
      /// </summary>
-     bool AllowNesting{ get; }
+     bool AllowNesting { get; }
 
      /// <summary>
      /// Returns time stamp when application started as localized app time
@@ -76,12 +80,6 @@ namespace Azos
      /// Returns true after Dispose() was called to indicate that application is shutting down
      /// </summary>
      bool ShutdownStarted { get;}
-
-     /// <summary>
-     /// Initiates the stop of the application by setting its Stopping to true and Active to false so
-     /// dependent workers may start to complete
-     /// </summary>
-     void Stop();
 
 
      /// <summary>
@@ -144,7 +142,9 @@ namespace Azos
 
      /// <summary>
      /// References time source - an entity that supplies local and UTC times. The concrete implementation
-     ///  may elect to get accurate times from the network or other external precision time sources (i.e. NASA atomic clock)
+     ///  may elect to get accurate times from the network or other external precision time sources (i.e. NASA atomic clock).
+     /// The split-second time accuracy is necessary in some distributed algorithms such as the ones that use precision time stamps
+     /// to established the relative order of distributed events during data reconciliation (e.g. multi-master replication)
      /// </summary>
      Time.ITimeSource TimeSource { get; }
 
@@ -193,37 +193,6 @@ namespace Azos
      IApplicationSingletonManager Singletons {  get; }
 
      /// <summary>
-     /// Registers an instance of IConfigSettings with application container to receive a call when
-     ///  underlying app configuration changes
-     /// </summary>
-     /// <returns>True if settings instance was not found and was added</returns>
-    bool RegisterConfigSettings(Conf.IConfigSettings settings);
-
-     /// <summary>
-     /// Removes the registration of IConfigSettings from application container
-     /// </summary>
-     /// <returns>True if settings instance was found and removed</returns>
-     bool UnregisterConfigSettings(Conf.IConfigSettings settings);
-
-     /// <summary>
-     /// Forces notification of all registered IConfigSettings-implementers about configuration change
-     /// </summary>
-     void NotifyAllConfigSettingsAboutChange();
-
-     /// <summary>
-     /// Registers an instance of IApplicationFinishNotifiable with application container to receive a call when
-     ///  underlying application instance will finish its life cycle.
-     /// </summary>
-     /// <returns>True if notifiable instance was not found and was added</returns>
-     bool RegisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable);
-
-     /// <summary>
-     /// Removes the registration of IApplicationFinishNotifiable from application container
-     /// </summary>
-     /// <returns>True if notifiable instance was found and removed</returns>
-     bool UnregisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable);
-
-     /// <summary>
      /// Performs resolution of the named application variable into its value.
      /// This mechanism is referenced by Configuration environment vars which start with app prefix
      /// which is "App." by default, so $(~App.InstanceID) will resolve to IApplication.InstanceID etc.
@@ -232,4 +201,48 @@ namespace Azos
   }
 
 
+  public interface IApplicationImplementation : IApplication
+  {
+    /// <summary>
+    /// Sets application-wide ConsolePort. This is typically called by script runners and various system hosts
+    /// </summary>
+    void SetConsolePort(IO.Console.IConsolePort port);
+
+    /// <summary>
+    /// Initiates the stop of the application by setting its Stopping to true and Active to false so
+    /// dependent workers may start to complete
+    /// </summary>
+    void Stop();
+
+    /// <summary>
+    /// Registers an instance of IConfigSettings with application container to receive a call when
+    ///  underlying app configuration changes
+    /// </summary>
+    /// <returns>True if settings instance was not found and was added</returns>
+    bool RegisterConfigSettings(Conf.IConfigSettings settings);
+
+    /// <summary>
+    /// Removes the registration of IConfigSettings from application container
+    /// </summary>
+    /// <returns>True if settings instance was found and removed</returns>
+    bool UnregisterConfigSettings(Conf.IConfigSettings settings);
+
+    /// <summary>
+    /// Forces notification of all registered IConfigSettings-implementers about configuration change
+    /// </summary>
+    void NotifyAllConfigSettingsAboutChange();
+
+    /// <summary>
+    /// Registers an instance of IApplicationFinishNotifiable with application container to receive a call when
+    ///  underlying application instance will finish its life cycle.
+    /// </summary>
+    /// <returns>True if notifiable instance was not found and was added</returns>
+    bool RegisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable);
+
+    /// <summary>
+    /// Removes the registration of IApplicationFinishNotifiable from application container
+    /// </summary>
+    /// <returns>True if notifiable instance was found and removed</returns>
+    bool UnregisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable);
+  }
 }

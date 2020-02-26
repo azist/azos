@@ -26,6 +26,7 @@
 * [Data Access](/src/Azos/Data)
   * [Data Access Overview](/src/Azos/Data) 
   * [Schema Metadata](/src/Azos/Data/metadata.md)
+  * [Advanced Metadata](/src/Azos/Data/advanced-meta.md)
   * [Data Validation with Domains](/src/Azos/Data/domains.md)
   * [Data Modeling](/src/Azos/Data/modeling.md)
 * [Glue](/src/Azos/Glue) - interprocess communication

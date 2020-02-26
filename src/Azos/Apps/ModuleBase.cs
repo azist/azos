@@ -72,7 +72,6 @@ namespace Azos.Apps
 
     public virtual string Name  => m_Name.IsNotNullOrWhiteSpace() ? m_Name : GetType().FullName;
 
-#warning Add Unit test for creating modules declared out-of order t make sure that this property works as expected
     public int Order { get{ return m_Order;} }
 
     public virtual bool InstrumentationEnabled { get; set; }

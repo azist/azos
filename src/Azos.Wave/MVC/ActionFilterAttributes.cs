@@ -194,7 +194,7 @@ namespace Azos.Wave.Mvc
 
     protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
     {
-      if (!work.RequestedJSON)
+      if (!work.RequestedJson)
       {
         work.Response.StatusCode = WebConsts.STATUS_406;
         work.Response.StatusDescription = WebConsts.STATUS_406_DESCRIPTION;

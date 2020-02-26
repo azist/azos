@@ -24,11 +24,11 @@ namespace Azos.Sky
     public const string RT_CMDLET_DONTKNOW_ERROR =
                   "Server: do not know how to handle cmdlet '{0}'. Use 'help' to see cmdlet list";
 
+    public const string RT_CMDLET_CAPABILITY_NOT_SKY_APP_ERROR =
+                  "Commandlet capability '{0}' is not supported on the current IApplication chassis. This capability is available only in ISkyApplication chassis";
+
     public const string PERMISSION_DESCRIPTION_RemoteTerminalOperatorPermission =
        "Controls whether users can access remote terminals";
-
-    public const string PERMISSION_DESCRIPTION_AppRemoteTerminalPermission =
-       "Controls whether users can access remote terminal of application context";
 
     public const string GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR = "GDIDGenerator failed to obtain GDIDBlock from any authority. Tried: \n";
 
@@ -329,10 +329,6 @@ namespace Azos.Sky
     public const string SKY_SVC_CLIENT_MAPPING_CTOR_ERROR = "Service hub ContractMapping.ctor(' {0} ') error: {1}";
 
 
-    public const string SECURITY_AUTH_TOKEN_SERIALIZATION_ERROR = "{0} can not serialize unexpected data '{1}'. Token.Data must be of a 'string' type";
-    public const string SECURITY_AUTH_TOKEN_DESERIALIZATION_ERROR = "{0} could not deserialize unexpected data. Caught: {1}";
-
-
     public const string LOCK_SESSION_PATH_ERROR = "LockSession can not be created at the path '{0}'. Error: {1}";
     public const string LOCK_SESSION_ZGOV_SETUP_ERROR = "Invalid metabase setup. Locking failover host count is different from primary host count in the zone '{0}'";
     public const string LOCK_SESSION_NOT_ACTIVE_ERROR = "LockSession '{0}' / '{1}' is not present in the list of active sessions";
@@ -392,14 +388,9 @@ namespace Azos.Sky
     public const string MDB_STORE_CONFIG_MANY_CENTRAL_ERROR =
        "MDBStore config specifies more than one central area";
 
-    public const string MDB_OBJECT_SHARDING_ID_ERROR =
-   "Can not obtain sharding ID from object of type '{0}'";
-
     public const string PM_HOSTSET_CONFIG_MISSING_NAME_ERROR   = "ProcessManager hostset config is missing the 'name' attribute";
     public const string PM_HOSTSET_CONFIG_DUPLICATE_NAME_ERROR = "ProceeManager hostset config already contains HostSet named '{0}'";
     public const string PM_HOSTSET_CONFIG_PATH_MISSING_ERROR   = "ProceeManager hostset config 'path' is missing for HostSet named '{0}'";
-
-    
 
     public const string TODO_QUEUE_NOT_FOUND_ERROR = "Todo queue '{0}' not found";
     public const string TODO_QUEUE_ENQUEUE_DIFFERENT_ERROR = "Can not enqueue todos from different queues in one enqueue call";

@@ -60,7 +60,7 @@ namespace Azos.Serialization.JSON
         /// </summary>
         public static string Write(object data, JsonWritingOptions options = null, IFormatProvider formatProvider = null)
         {
-            if (options==null) options = JsonWritingOptions.Compact;
+            if (options==null) options = JsonWritingOptions.CompactRowsAsMap;
 
             var sb = new StringBuilder(0xff);
             using( var wri =  formatProvider==null ?
@@ -237,32 +237,30 @@ namespace Azos.Serialization.JSON
             var ms = data.Millisecond;
             if (ms>0)
             {
-                wri.Write('.');
+              wri.Write('.');
 
-                if (ms>99) wri.Write(ms);
-                else if (ms>9) { wri.Write('0'); wri.Write(ms); }
-                else { wri.Write("00"); wri.Write(ms); }
+              if (ms>99) wri.Write(ms);
+              else if (ms>9) { wri.Write('0'); wri.Write(ms); }
+              else { wri.Write("00"); wri.Write(ms); }
             }
 
             if (data.Kind==DateTimeKind.Utc)
-                wri.Write('Z');
+              wri.Write('Z');
             else
             {
-                //var offset = utcOffset==null ? TimeZoneInfo.Local.BaseUtcOffset : utcOffset.Value;
-                //dlat 2014/06/15
-                var offset = utcOffset==null ? TimeZoneInfo.Local.GetUtcOffset(data) : utcOffset.Value;
+              var offset = utcOffset==null ? TimeZoneInfo.Local.GetUtcOffset(data) : utcOffset.Value;
 
-                wri.Write( offset.Ticks<0 ? '-' : '+' );
+              wri.Write( offset.Ticks<0 ? '-' : '+' );
 
-                hour = Math.Abs(offset.Hours);
-                if (hour>9) wri.Write(hour);
-                else { wri.Write('0'); wri.Write(hour); }
+              hour = Math.Abs(offset.Hours);
+              if (hour>9) wri.Write(hour);
+              else { wri.Write('0'); wri.Write(hour); }
 
-                wri.Write(':');
+              wri.Write(':');
 
-                minute = Math.Abs(offset.Minutes);
-                if (minute>9) wri.Write(minute);
-                else { wri.Write('0'); wri.Write(minute); }
+              minute = Math.Abs(offset.Minutes);
+              if (minute>9) wri.Write(minute);
+              else { wri.Write('0'); wri.Write(minute); }
             }
 
 
@@ -400,42 +398,40 @@ namespace Azos.Serialization.JSON
                         }
 
 
-                             //20150620 DKh
-                             private struct dictEnumberable : IEnumerable<DictionaryEntry>
-                             {
-                               public dictEnumberable(IDictionary dict) { Dictionary = dict;}
+                        private struct dictEnumberable : IEnumerable<DictionaryEntry>
+                        {
+                          public dictEnumberable(IDictionary dict) { Dictionary = dict;}
 
-                               private readonly IDictionary Dictionary;
+                          private readonly IDictionary Dictionary;
 
-                               public IEnumerator<DictionaryEntry> GetEnumerator()
-                               {
-                                 return new dictEnumerator(Dictionary.GetEnumerator());
-                               }
+                          public IEnumerator<DictionaryEntry> GetEnumerator()
+                          {
+                            return new dictEnumerator(Dictionary.GetEnumerator());
+                          }
 
-                               IEnumerator IEnumerable.GetEnumerator()
-                               {
-                                 return Dictionary.GetEnumerator();
-                               }
-                             }
+                          IEnumerator IEnumerable.GetEnumerator()
+                          {
+                            return Dictionary.GetEnumerator();
+                          }
+                        }
 
-                             //20150620 DKh
-                             private struct dictEnumerator : IEnumerator<DictionaryEntry>
-                             {
+                        private struct dictEnumerator : IEnumerator<DictionaryEntry>
+                        {
 
-                               public dictEnumerator(IDictionaryEnumerator enumerator) { Enumerator = enumerator;}
+                          public dictEnumerator(IDictionaryEnumerator enumerator) { Enumerator = enumerator;}
 
-                               private readonly IDictionaryEnumerator Enumerator;
+                          private readonly IDictionaryEnumerator Enumerator;
 
-                               public DictionaryEntry Current { get { return (DictionaryEntry)Enumerator.Current; } }
+                          public DictionaryEntry Current { get { return (DictionaryEntry)Enumerator.Current; } }
 
-                               public void Dispose() {}
+                          public void Dispose() {}
 
-                               object IEnumerator.Current { get { return Enumerator.Current; } }
+                          object IEnumerator.Current { get { return Enumerator.Current; } }
 
-                               public bool MoveNext() { return Enumerator.MoveNext(); }
+                          public bool MoveNext() { return Enumerator.MoveNext(); }
 
-                               public void Reset() { Enumerator.Reset();}
-                             }
+                          public void Reset() { Enumerator.Reset();}
+                        }
 
 
                         private static void writeMap(TextWriter wri, IDictionary data, int level, JsonWritingOptions opt)
@@ -458,12 +454,11 @@ namespace Azos.Serialization.JSON
                             var first = true;
                             foreach(DictionaryEntry entry in data)
                             {
-                              //20160324 DKh
                               if (opt.MapSkipNulls)
                               {
                                 if (entry.Value == null) continue;
 
-                                // 20161009 Dkh, Ogee NLSMap is a special type which is treated as a ref type for perf optimization
+                                // NLSMap is a special type which is treated as a ref type for perf optimization
                                 if (entry.Value is NLSMap && ((NLSMap)entry.Value).Count == 0) continue;
                               }
 

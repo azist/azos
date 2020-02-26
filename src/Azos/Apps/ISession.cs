@@ -5,7 +5,9 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Principal;
+using System.Text;
 
 namespace Azos.Apps
 {
@@ -40,11 +42,18 @@ namespace Azos.Apps
      /// </summary>
      Guid ID { get; }
 
+    /// <summary>
+    /// Returns Session ID secret - the ulong that additionally identifies this session.
+    /// This property is needed for cross-check upon GUID id lookup, so that
+    /// Session ID GUID can not be forged by the client - a form of a "password"
+    /// </summary>
+     ulong IDSecret {get;}
 
-     /// <summary>
-     /// References a user this session is for
-     /// </summary>
-     Security.User  User { get; set;}
+
+    /// <summary>
+    /// References a user this session is for
+    /// </summary>
+    Security.User  User { get; set;}
 
 
      /// <summary>
@@ -75,7 +84,8 @@ namespace Azos.Apps
      SessionLoginType LastLoginType { get; }
 
      /// <summary>
-     /// References item dictionary that may be used to persist object graphs per session
+     /// References item dictionary that may be used to persist object graphs per session.
+     /// The property is lazily allocated on first access
      /// </summary>
      IDictionary<object, object> Items { get; }
 
@@ -83,6 +93,18 @@ namespace Azos.Apps
      /// Shortcut to this.Items.TryGetValue(...). Returns null if key is not found
      /// </summary>
      object this[object key] { get; set;}
+
+
+     /// <summary>
+     /// Establishes an optional name(or names, using space or comma delimiters) for target data context that the session operates under.
+     /// For example, this may be used to store target database instance name.
+     /// Among other things, this property may be checked by permissions to provide context-aware security
+     /// checks and data store may respect it to connect the session to the specific database instance (connect/string)
+     /// </summary>
+     /// <remarks>
+     /// Usage of this property is way more efficient than using Items[key] pattern
+     /// </remarks>
+     string DataContextName { get; set; }
 
 
      /// <summary>
@@ -113,6 +135,59 @@ namespace Azos.Apps
      /// This method is useful for security, i.e. when user logs-in we may want to re-generate ID
      /// </summary>
      void RegenerateID();
+  }
+
+}
+
+
+namespace Azos
+{
+  using Apps;
+
+  /// <summary>
+  /// Provides extension methods for ISession
+  /// </summary>
+  public static class SessionExtensions
+  {
+    /// <summary>
+    /// Characters used as data context segment delimiters: {' ', ',', ';'}
+    /// </summary>
+    public static readonly char[] DATA_CTX_DELIMITERS = new []{' ', ',', ';'};
+
+    /// <summary>
+    /// Returns an enumerable of DataContextName segments parsed out of SessionDataContextName.
+    /// Multiple segments are divided by the either of: ' ', ',', ';' characters/
+    /// An empty sequence is returned for null session or null or empty context
+    /// </summary>
+    public static IEnumerable<string> GetDataContextNameSegments(this ISession session)
+    {
+      if (session == null || session.DataContextName.IsNullOrWhiteSpace())
+        yield break;
+
+      var segs = session.DataContextName.Split(DATA_CTX_DELIMITERS);
+
+      foreach(var seg in segs)
+      {
+        if (seg.IsNotNullOrWhiteSpace())
+          yield return seg.Trim();
+      }
+    }
+
+    /// <summary>
+    /// Returns a re-composed DataContextName string which is obtained and normalized out of Session object.
+    /// The segments are parsed and sorted. Extra delimiters removed.
+    /// The function ensures logical equality, e.g. "main,   data  ,business" will be normalized to "business,data,main".
+    /// An empty string is returned for null session or null or empty context
+    /// </summary>
+    public static string GetNormalizedDataContextName(this ISession session)
+    {
+      var sb = new StringBuilder(48);
+      var result = session.GetDataContextNameSegments()
+             .OrderBy( s => s)
+             .Aggregate(sb, (b, s) => (b.Length == 0 ? b : b.Append(',')).Append(s), b => b.ToString().ToLowerInvariant());
+
+      return result;
+    }
   }
 
 }

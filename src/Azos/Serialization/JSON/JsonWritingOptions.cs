@@ -132,7 +132,7 @@ namespace Azos.Serialization.JSON
         /// Specifies language ISO code (3 chars) that is used (when set) by the NLSMap class,
         /// so only entries for that particular language are included. When NLSMap contains entries for more than 1 language,
         /// but user needs only one entry received for his/her selected language, this option can be set, then NLSMap will only inline
-        /// Name:Descr pair for that language. If a map does not contain an entry for the reequested lang then NLSMapLanguageISODefault
+        /// Name:Descr pair for that language. If a map does not contain an entry for the requested lang then NLSMapLanguageISODefault
         /// will be tried
         /// </summary>
         [Config]
@@ -171,7 +171,7 @@ namespace Azos.Serialization.JSON
         public bool MemberLineBreak;
 
         /// <summary>
-        /// Specifies whether the target of serialization only deals with ASCII characeters,
+        /// Specifies whether the target of serialization only deals with ASCII characters,
         /// so any non-ASCII character with code above 127 must be escaped with unicode escape sequence
         /// </summary>
         [Config]

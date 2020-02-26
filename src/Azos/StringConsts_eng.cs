@@ -59,35 +59,40 @@ namespace Azos
         public const string LOGDAEMON_SINK_START_ERROR =
             "Log daemon '{0}' could not start sink '{1}'. Sink.TestOnStart = {2}. Sink exception:\n   {3}";
 
-        public const string LOGSVC_DESTINATION_EXCEEDS_MAX_PROCESSING_TIME_ERROR =
-            "Destination '{0}' exceeded allowed max processing time. Allowed {1} ms, took {2} ms";
+        public const string LOGSVC_SINK_EXCEEDS_MAX_PROCESSING_TIME_ERROR =
+            "Log sink '{0}' exceeded allowed max processing time. Allowed {1} ms, but took {2} ms";
 
-        public const string LOGSVC_FILE_DESTINATION_FILENAME_ERROR =
-            "Destination '{0}'.'file-name' pattern '{1}' is incorrect: {2}";
+        public const string LOGSVC_FILE_SINK_FILENAME_ERROR =
+            "Log sink '{0}'.'file-name' pattern '{1}' is incorrect: {2}";
 
-        public const string LOGSVC_FILE_DESTINATION_PATH_ERROR =
-            "Destination '{0}'.'path' pattern '{1}' is incorrect: {2}";
+        public const string LOGSVC_FILE_SINK_PATH_ERROR =
+            "Log sink '{0}'.'path' pattern '{1}' is incorrect: {2}";
 
-        public const string LOGSVC_DESTINATION_IS_OFFLINE_ERROR =
-            "Destination '{0}' is offline due to prior failure and RestartProcessingAfterMs timespan has not expired yet";
+        public const string LOGSVC_SINK_IS_OFFLINE_ERROR =
+            "Log sink '{0}' is offline due to prior failure and RestartProcessingAfterMs timespan has not expired yet";
 
         public const string LOGSVC_FAILOVER_MSG_TEXT =
-            "Message {0} delivery failed over from destination '{1}' to '{2}'. Average processing latency of failed destination '{3}'";
+            "Log message {0} delivery failed over from sink '{1}' to '{2}'. Average processing latency of failed sink is {3} ms";
 
         public const string DI_ATTRIBUTE_TYPE_INCOMPATIBILITY_ERROR =
         "Incompatible injection types. Injection type expectation of '{0}' is not assignable into the field: {1} {2}";
 
         public const string DI_ATTRIBUTE_APPLY_ERROR =
-        "Error while applying attribute [{0}] on class '{1}' instance field {2}: {3}";
+        "Error while applying attribute [{0}] on class '{1}' instance field '{2}': {3}";
 
         public const string DI_UNSATISIFED_INJECTION_ERROR =
-@"Dependency injection on class '{0}' instance field {1} could not be satisfied using: [{2}].
+@"Dependency injection on class '{0}' instance field '{1}' could not be satisfied using: [{2}].
 The injected value has to be present in app chassis having its type assignment compatible with the target field or 'Type' constraint;
 and the name of module or INamed entity must match if the 'Name' constraint was specified in the attribute";
+
+        public const string SHARDING_OBJECT_ID_ERROR =
+          "Can not obtain sharding ID from object of type '{0}'";
 
         public const string AVER_THROWS_NOT_THROWN_ERROR = "Method '{0}' is decorated with {1} averment, but nothing was thrown";
         public const string AVER_THROWS_TYPE_MISMATCH_ERROR = "Method '{0}' averment expects exception of type '{1}' to be thrown, but '{2}' was thrown instead";
         public const string AVER_THROWS_MSG_MISMATCH_ERROR = "Method '{0}' exception averment mismatch. Expected {1} '{2}' but got '{3}'";
+        public const string AVER_TIME_MIN_ERROR_ERROR = "Method '{0}' avers to be completed in at least {1:n0} ms but completed in {2:n0} ms instead";
+        public const string AVER_TIME_MAX_ERROR_ERROR = "Method '{0}' avers to be completed in at most {1:n0} ms but completed in {2:n0} ms instead";
 
         public const string RUN_ATTR_BAD_CONFIG_ERROR = "RunAttribute specifies bad config syntax: ";
         public const string RUN_BINDER_METHOD_ARGS_MISSING_ERROR = "Method '{0}' arguments are not supplied by the Run() attribute";
@@ -123,7 +128,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
         public const string CONFIGURATION_TYPE_NOT_SUPPLIED_ERROR = "Type not supplied either as 'type' attribute or default";
 
-        public const string CONFIGURATION_TYPE_RESOLVE_ERROR = "Type name '{0}' could not be resolved into type object";
+        public const string CONFIGURATION_TYPE_RESOLVE_ERROR =
+         "Type name '{0}' could not be resolved into a type object. If you do not use fully-qualified type names, then ensure that parent node config chain defines an '{1}' attribute which contains a semicolon-delimited list of type search locations for partial type names used under that config node level";
 
         public const string CONFIGURATION_CLONE_EMPTY_NODE_ERROR = "Empty sentinel nodes can not be cloned";
 
@@ -207,6 +213,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
         public const string STRING_VALUE_COULD_NOT_BE_GOTTEN_AS_TYPE_ERROR = "String value '{0}' could not be gotten as type '{1}' ";
 
+
+    public const string COLLECTION_CAPPED_QUEUE_LIMIT_ERROR =
+      "{0} limit is reached and can not enqueue more data. The Handling is `{1}`. Try changing Handling or increase the limits";
 
     public const string SLIM_STREAM_CORRUPTED_ERROR = "Slim data stream is corrupted: ";
 
@@ -414,11 +423,17 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
       "Cannot include path: '{0}'. Exception: {1}";
 
 
+    public const string GUARDED_ACTION_SCOPE_ERROR =
+        "Guarded action {0} threw: {1}";
+
     public const string GUARDED_PARAMETER_MAY_NOT_BE_NULL_ERROR =
         "Guarded method '{0}' parameter '{1}' may not be null";
 
     public const string GUARDED_PARAMETER_OFTYPE_ERROR =
          "Guarded method '{0}' type parameter '{1}' may not be null and must be of '{2}' type or its descendants";
+
+    public const string GUARDED_PARAMETER_VALUEOFTYPE_ERROR =
+         "Guarded method '{0}' value '{1}' may not be null and must be of '{2}' type or its descendants";
 
     public const string GUARDED_CONFIG_NODE_PARAMETER_MAY_NOT_BE_EMPTY_ERROR =
         "Guarded method '{0}' config node parameter '{1}' may not be null or empty";
@@ -665,6 +680,11 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
         "Assertion failure";
 
 
+    public const string AST_UNSUPPORTED_UNARY_OPERATOR_ERROR = "Unsupported unary operator: '{0}'";
+    public const string AST_UNSUPPORTED_BINARY_OPERATOR_ERROR = "Unsupported binary operator: '{0}'";
+    public const string AST_BAD_IDENTIFIER_ERROR = "Bad identifier: '{0}'";
+
+
     public const string CA_PROCESSOR_EXCEPTION_ERROR =
         "{0} processor {1} error: {2}";
 
@@ -687,10 +707,18 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
 
     public const string JSON_SERIALIZATION_MAX_NESTING_EXCEEDED_ERROR =
-              "JSONWriter can not serialize object graph as it exceeds max nesting level of {0}. Graph may contain reference cycles";
+        "JSONWriter can not serialize object graph as it exceeds max nesting level of {0}. Graph may contain reference cycles";
+
+
+    public const string JSON_DESERIALIZATION_ABSTRACT_TYPE_ERROR =
+        "Type `{0}` is abstract. Did you forget to decorate the field or the type with custom {1} derivative to allow for object polymorphism on deserialization?";
 
 
     public const string CRUD_CURSOR_ALREADY_ENUMERATED_ERROR = "CRUD Cursor was already enumerated";
+
+
+    public const string CRUD_FIELDDEF_TARGET_DERIVATION_ERROR =
+      "Fieldset `{0}` contains bad `deriveFromTargetName` references to targets that are either not found in any [Field] attribute instance on that field, contain reference cycles, or missing the [Field] declarations without derivation dependencies. The field dependency graph could not be resolved";
 
     public const string CRUD_FIELDDEF_ATTR_MISSING_ERROR = "CRUD FieldDef must be constructed using at least one [Field] attribute. Name: '{0}'";
 
@@ -708,6 +736,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string CRUD_FIELD_VALUE_PHONE_ERROR = "Field value is not a valid Telephone";
 
+    public const string CRUD_FIELD_VALUE_URI_ERROR = "Field value is not a valid Uri";
+
     public const string CRUD_FIELD_VALUE_REGEXP_ERROR = "Field value is not valid per defined format: {0}";
 
     public const string CRUD_FIELD_VALUE_MIN_BOUND_ERROR = "Field value is below the permitted min bound";
@@ -724,9 +754,11 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string CRUD_QUERY_RESOLVER_ALREADY_STARTED_ERROR = "CRUD QueryResolver already started to be used and can not be configured";
 
-    public const string CRUD_FIELD_ATTR_METADATA_PARSE_ERROR = "Field attribute metadata parse exception: '{0}'. Metadata: {1}";
+    public const string CRUD_METADATA_PARSE_ERROR = "Metadata parse at '{0}' exception: '{1}'. Metadata: {2}";
 
     public const string CRUD_FIELD_ATTR_PROTOTYPE_CTOR_ERROR = "Field attribute construction from prototype error: {0}";
+
+    public const string CRUD_FIELD_VALUE_LIST_DUP_ERROR = "Value list `{0}..` contains a duplicate key `{1}`";
 
     public const string CRUD_TYPED_DOC_RECURSIVE_FIELD_DEFINITION_ERROR = "TypedDoc '{0}' recursive field definition. Check for [Field(prototype..)] cycle";
 
@@ -736,7 +768,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string CRUD_TYPE_IS_NOT_DERIVED_FROM_ROW_ERROR = "CRUD supplied type of '{0}' is not a Row-derivative";
 
-    public const string CRUD_TYPE_IS_NOT_DERIVED_FROM_TYPED_ROW_ERROR = "CRUD supplied type of '{0}' is not a TypedRow-derivative";
+    public const string CRUD_TYPE_IS_NOT_DERIVED_FROM_TYPED_DOC_ERROR = "CRUD supplied type of '{0}' is not a TypedDoc-derivative";
 
     public const string CRUD_FIND_BY_KEY_LENGTH_ERROR = "CRUD table FindByKey/KeyRowFromValues was supplied wrong number of key field values";
 
@@ -954,6 +986,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string METADATA_GENERATION_SCHEMA_FIELD_ERROR = "Error generating metadata for Schema `{0}` field `{1}`: {2}";
 
 
+    public const string OVERPUNCH_TO_NUMBER_ERROR = "Signed overpunch value of `{0}` is not parsable as a number";
+
     public const string PILE_CACHE_SCV_START_PILE_NULL_ERROR =
       "Pile cache service can not start because pile is null";
 
@@ -1066,6 +1100,19 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string SEALED_STRING_TOO_BIG_ERROR =  "SealedString value of {0} bytes is too big";
 
 
+    public const string DIRECTORY_COLLECTION_IS_NULL_OR_EMPTY_ERROR = "Directory operation'{0}' error: Item collection name is null or white space";
+    public const string DIRECTORY_COLLECTION_CHARACTER_ERROR = "Directory operation'{0}' error: Item collection name contains an invalid character '{1}'. Collection names may only contain base ASCII/Latin characters or digits 'A'..'Z'/'0'..'9' digits or '_'";
+    public const string DIRECTORY_COLLECTION_MAX_LEN_ERROR = "Directory operation'{0}' error: Item collection name of {1} characters exceeds max len of {2}";
+
+
+    public const string CLIENT_WRONG_ENDPOINT_SERVICE_ERROR = "The supplied endpoint does not belong to this service: '{0}'";
+
+    public const string CLIENT_WRONG_TRANSPORT_TYPE_ERROR = "Service '{0}' can not release transport '{1}'";
+
+    public const string WEB_CALL_RETURN_JSONMAP_ERROR = "The received content is not representable as JsonDataMap: '{0}..'";
+    public const string WEB_CALL_UNSUCCESSFUL_ERROR = "Web call to `..{0}` was unsuccessful: HTTP {1} - {2}";
+
+
     public const string AROW_SATELLITE_ASSEMBLY_NAME_ERROR = "Could not find serialization satellite for assembly `{0}` as the name pattern does not match. The source assembly file name must end with `*.dll` by convention";
     public const string AROW_SATELLITE_ASSEMBLY_LOAD_ERROR = "Satellite assembly `{0}` load failure: {1}";
     public const string AROW_TYPE_NOT_SUPPORTED_ERROR =  "ArowSerializer does not have a ITypeSerializationCore registered for type '{0}'";
@@ -1076,10 +1123,30 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string AROW_DESER_CORRUPT_ERROR =  "Arow deserialization is corrupt";
     public const string AROW_HEADER_CORRUPT_ERROR =  "Arow header is corrupted";
 
+
+    public const string MULTIPART_DOUBLE_EOL_ISNT_FOUND_AFTER_HEADER_ERROR = "Multipart: Double \\r\\n isn't found after header.";
+    public const string MULTIPART_PARTS_COULDNT_BE_EMPTY_ERROR = "Multipart: Parts can not be null or empty.";
+    public const string MULTIPART_PART_COULDNT_BE_EMPTY_ERROR = "Multipart: Part can not be empty";
+    public const string MULTIPART_PART_MUST_BE_ENDED_WITH_EOL_ERROR = "Multipart: Part must be ended with EOL.";
+    public const string MULTIPART_PART_IS_ALREADY_REGISTERED_ERROR = "Multipart: Part with the name {0} is already registered.";
+    public const string MULTIPART_PART_EMPTY_NAME_ERROR = "Multipart: Name of part couldn't be null or empty.";
+    public const string MULTIPART_NO_LF_NOR_CRLF_ISNT_FOUND_ERROR = "Neither \\r\\n nor \\n are found. Invalid multipart stream.";
+    public const string MULTIPART_BOUNDARY_MISMATCH_ERROR = "Multipart: Boundary from stream doesn't match expected boundary.\r\nExpected=\"{0}\".\r\nActual=\"{1}\".";
+    public const string MULTIPART_BOUNDARY_COULDNT_BE_SHORTER_3_ERROR = "Multipart: Boundary couldn't be shorter than 3 chars.";
+    public const string MULTIPART_BOUNDARY_IS_TOO_SHORT = "Multipart: Full boundary is too short.";
+    public const string MULTIPART_BOUNDARY_SHOULD_START_WITH_HYPHENS = "Multipart: Boundary should start with double hyphen.";
+    public const string MULTIPART_TERMINATOR_ISNT_FOUND_ERROR = "Multipart: Terminator isn't found.";
+    public const string MULTIPART_PART_SEGMENT_ISNT_TERMINATED_CORRECTLY_ERROR = "Multipart isn't terminated with {0}.";
+    public const string MULTIPART_STREAM_NOT_NULL_MUST_SUPPORT_READ_ERROR = "Multipart: Stream couldn't be null and must support read operation.";
+    public const string MULTIPART_STREAM_NOT_NULL_MUST_SUPPORT_WRITE_ERROR = "Multipart: Stream couldn't be null and must support write operation.";
+    public const string MULTIPART_SPECIFIED_BOUNDARY_ISNT_FOUND_ERROR = "Specified boundary not found. Invalid multipart stream.";
+
+
     public const string GUID_TYPE_RESOLVER_NO_TYPES_ERROR = "{0} has no guid-decorated types registered";
     public const string GUID_TYPE_RESOLVER_ERROR = "Type id '{0}' does not map to any {1} type";
     public const string GUID_TYPE_RESOLVER_DUPLICATE_ATTRIBUTE_ERROR = "Type '{0}' specifies duplicate Guid '{1}' already used by '{2}'";
     public const string GUID_TYPE_RESOLVER_MISSING_ATTRIBUTE_ERROR = "Type '{0}' does not specify the required [{1}(...)] attribute in its declaration";
+
 
 
     public const string METADATA_CTOR_CONTENT_ERROR = "Metadata specification error. `{0}`.ctor(`{1}` content is bad). Revise attribute declaration. Cause: {2}";

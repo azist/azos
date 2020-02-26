@@ -15,57 +15,13 @@ using Azos.Collections;
 using Azos.Data;
 using Azos.Security;
 
+using Azos.Sky;
 using Azos.Sky.Contracts;
 using Azos.Sky.Security.Permissions.Admin;
 
 
-namespace Azos.Sky.Apps.Terminal
+namespace Azos.Apps.Terminal
 {
-
-  /// <summary>
-  /// Internal framework registry of AppRemoteTerminal
-  /// </summary>
-  internal sealed class AppRemoteTerminalRegistry
-  {
-    private AppRemoteTerminalRegistry() { }
-
-    private object m_IDLock = new object();
-    private int m_ID;
-    private Registry<AppRemoteTerminal> m_Registry = new Registry<AppRemoteTerminal>();
-
-    /// <summary>
-    /// Returns singleton instance of AppRemoteTerminalRegistry per application
-    /// </summary>
-    public static AppRemoteTerminalRegistry Instance(IApplication app)
-      => app.NonNull(nameof(app))
-            .Singletons
-            .GetOrCreate( () => new AppRemoteTerminalRegistry() )
-            .instance;
-
-    public IEnumerable<AppRemoteTerminal> All => m_Registry;
-
-    public int NextID()
-    {
-      lock (m_IDLock)
-      {
-        m_ID++;
-        return m_ID;
-      }
-    }
-
-    public void AdjustID(int id)
-    {
-      lock (m_IDLock)
-      {
-        if (id > m_ID) m_ID = id;
-      }
-    }
-
-    public bool Register(AppRemoteTerminal term) => m_Registry.Register(term);
-    public bool Unregister(AppRemoteTerminal term) => m_Registry.Unregister(term);
-  }
-
-
   /// <summary>
   /// Provides base for terminal application management capabilities. This is a Glue server
   /// </summary>
@@ -94,7 +50,7 @@ namespace Azos.Sky.Apps.Terminal
 
     public AppRemoteTerminal()
     {
-      m_ID = AppRemoteTerminalRegistry.Instance(App).NextID();
+      m_ID = AppRemoteTerminalRegistry.GenerateId();
 
       m_Name = new ELink((ulong)m_ID, null).Link;
       m_Vars = new Vars();
@@ -103,22 +59,17 @@ namespace Azos.Sky.Apps.Terminal
 
     protected override void Destructor()
     {
-      AppRemoteTerminalRegistry.Instance(App).Unregister(this);
+      AppRemoteTerminalRegistry.Unregister(this);
       base.Destructor();
     }
 
-    public void OnDeserialization(object sender)
-    {
-      var registry = AppRemoteTerminalRegistry.Instance(App);
-      registry.AdjustID(m_ID);
-      registry.Register(this);
-    }
+    public void OnDeserialization(object sender) => AppRemoteTerminalRegistry.Register(this);
 
 #pragma warning disable 649
-    [Inject] ISkyApplication m_App;
+    [Inject] IApplication m_App;
 #pragma warning restore 649
 
-    private int m_ID;
+    private ulong m_ID;
     private string m_Name;
     private string m_Who;
     private DateTime m_WhenConnected;
@@ -127,12 +78,15 @@ namespace Azos.Sky.Apps.Terminal
     private ScriptRunner m_ScriptRunner;
 
 
-    public ISkyApplication App => m_App.NonNull(nameof(m_App));
+    /// <summary>
+    /// Application chassis context for this terminal session
+    /// </summary>
+    public IApplication App => m_App.NonNull(nameof(m_App));
 
     /// <summary>
     /// Returns unique terminal session ID
     /// </summary>
-    public int ID { get { return m_ID; } }
+    public ulong ID { get { return m_ID; } }
 
     /// <summary>
     /// Returns unique terminal session ID as an alpha link
@@ -159,7 +113,7 @@ namespace Azos.Sky.Apps.Terminal
     /// <summary>
     /// Provides cmdlets
     /// </summary>
-    public virtual IEnumerable<Type> Cmdlets { get { return CmdletFinder.Common; } }
+    public virtual IEnumerable<Type> Cmdlets => CmdletFinder.BaseAzos;
 
     /// <summary>
     /// Provides variable resolver
@@ -175,30 +129,30 @@ namespace Azos.Sky.Apps.Terminal
 
     public virtual RemoteTerminalInfo Connect(string who)
     {
-      m_Who = who ?? SysConsts.UNKNOWN_ENTITY;
+      m_Who = who ?? Sky.SysConsts.UNKNOWN_ENTITY;
       var now = App.TimeSource.UTCNow;
       m_WhenConnected = now;
       m_WhenInteracted = now;
 
-      AppRemoteTerminalRegistry.Instance(App).Register(this);
+      AppRemoteTerminalRegistry.Register(this);
 
       return new RemoteTerminalInfo
       {
         TerminalName = Name,
-        WelcomeMsg = "Connected to '[{0}]{1}'@'{2}' on {3:G} {4:T} UTC. Session '{5}'".Args(SkySystem.MetabaseApplicationName,
+        WelcomeMsg = "Connected to '[{0}]{1}'@'{2}' on {3:G} {4:T} UTC. Session '{5}'".Args(App.AppId.IsZero ? "#" : App.AppId.Value,
                                                                      App.Name,
-                                                                     App.HostName,
+                                                                     App.GetThisHostName(),
                                                                      App.TimeSource.Now,
                                                                      App.TimeSource.UTCNow,
                                                                      Name),
-        Host = App.HostName,
+        Host = App.GetThisHostName(),
         AppName = App.Name,
         ServerLocalTime = App.TimeSource.Now,
         ServerUTCTime = App.TimeSource.UTCNow
       };
     }
 
-    [AppRemoteTerminalPermission]
+    [RemoteTerminalOperatorPermission]
     public virtual string Execute(string command)
     {
       m_WhenInteracted = App.TimeSource.UTCNow;
@@ -216,7 +170,7 @@ namespace Azos.Sky.Apps.Terminal
 
       if (!command.EndsWith("}")) command += "{}";
 
-      var cmd = TerminalUtils.ParseCommand(command, m_Vars);
+      var cmd = Sky.TerminalUtils.ParseCommand(command, m_Vars);
       var result = new MemoryConfiguration();
       result.EnvironmentVarResolver = cmd.EnvironmentVarResolver;
       m_ScriptRunner.Execute(cmd, result);
@@ -244,7 +198,7 @@ namespace Azos.Sky.Apps.Terminal
       var tp = Cmdlets.FirstOrDefault(cmd => cmd.Name.EqualsIgnoreCase(cname));
 
       if (tp == null)
-        return StringConsts.RT_CMDLET_DONTKNOW_ERROR.Args(cname);
+        return Sky.StringConsts.RT_CMDLET_DONTKNOW_ERROR.Args(cname);
 
       //Check cmdlet security
       Permission.AuthorizeAndGuardAction(App, tp);
@@ -252,7 +206,7 @@ namespace Azos.Sky.Apps.Terminal
 
       var cmdlet = Activator.CreateInstance(tp, this, command) as Cmdlet;
       if (cmdlet == null)
-        throw new SkyException(StringConsts.RT_CMDLET_ACTIVATION_ERROR.Args(cname));
+        throw new SkyException(Sky.StringConsts.RT_CMDLET_ACTIVATION_ERROR.Args(cname));
 
       using (cmdlet)
       {

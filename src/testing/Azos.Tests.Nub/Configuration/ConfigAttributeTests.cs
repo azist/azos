@@ -65,6 +65,24 @@ root
       public void Configure(IConfigSectionNode node) => ConfigAttribute.Apply(this, node);
     }
 
+    public class EntityC
+    {
+      [Config]private   string  m_Private;
+      [Config]protected string  m_Protected;
+      [Config]public    string  m_Public;
+
+      public string Private => m_Private;
+      public string Protected => m_Protected;
+      public string Public => m_Public;
+
+      [Config]private   string PrivateProp { get; set; }
+      [Config]protected string ProtectedProp { get; set; }
+      [Config]public    string PublicProp { get; set; }
+
+      public string GetPrivateProp() => PrivateProp;
+      public string GetProtectedProp() => ProtectedProp;
+    }
+
 
     [Run]
     public void CreateWithType()
@@ -98,6 +116,25 @@ root
       Aver.AreEqual("client1", entity.Client.AttrByName("name").Value);
       Aver.AreEqual("server1", entity.Server.AttrByName("name").Value);
     }
+
+    [Run]
+    public void ApplyToFieldWithDifferentAccessModifiers()
+    {
+      var cfg = "private=pvt protected=prot public=pub private-prop=pvt2 protected-prop=prot2 public-prop=pub2".AsLaconicConfig();
+      var obj = new EntityC();
+      ConfigAttribute.Apply(obj, cfg);
+
+      obj.See();
+
+      Aver.AreEqual("pvt", obj.Private);
+      Aver.AreEqual("prot", obj.Protected);
+      Aver.AreEqual("pub", obj.Public);
+
+      Aver.AreEqual("pvt2", obj.GetPrivateProp());
+      Aver.AreEqual("prot2", obj.GetProtectedProp());
+      Aver.AreEqual("pub2", obj.PublicProp);
+    }
+
   }
 #pragma warning restore 649
 }

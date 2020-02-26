@@ -175,13 +175,13 @@ namespace Azos.Wave.Filters
             actual = mvce.InnerException;
 
 
-          var securityError = Security.AuthorizationException.IsDenotedBy(actual);
+          var securityError = Security.AuthorizationException.IsDenotedBy(error);
 
-
-          if (actual is IHttpStatusProvider httpStatusProvider)
+          var hsp = error.SearchThisOrInnerExceptionOf<IHttpStatusProvider>();
+          if (hsp != null)
           {
-            work.Response.StatusCode = httpStatusProvider.HttpStatusCode;
-            work.Response.StatusDescription = httpStatusProvider.HttpStatusDescription;
+            work.Response.StatusCode = hsp.HttpStatusCode;
+            work.Response.StatusDescription = hsp.HttpStatusDescription;
           }
           else
           {
@@ -201,7 +201,7 @@ namespace Azos.Wave.Filters
           if (json)
           {
              work.Response.ContentType = ContentType.JSON;
-             work.Response.WriteJSON(error.ToClientResponseJSONMap(showDump));
+             work.Response.WriteJSON(error.ToClientResponseJsonMap(showDump), JsonWritingOptions.PrettyPrintRowsAsMap);
           }
           else
           {
@@ -274,7 +274,22 @@ namespace Azos.Wave.Filters
               if (matched!=null) break;
             }
             if (matched!=null)
+            {
+              matched["$ip"] = work.EffectiveCallerIPEndPoint.ToString();
+              matched["$ua"] = work.Request.UserAgent.TakeFirstChars(78, "..");
+              matched["$mtd"] = work.Request.HttpMethod;
+              matched["$uri"] = work.Request.Url.ToString().TakeFirstChars(78, "..");
+              matched["$ref"] = work.Request.UrlReferrer?.ToString().TakeFirstChars(78, "..");
+              matched["$stat"] = "{0}/{1}".Args(work.Response.StatusCode, work.Response.StatusDescription);
+
+              if (work.Portal!=null)
+               matched["$portal"] = work.Portal.Name;
+
+              if (work.GeoEntity!=null)
+               matched["$geo"] = work.GeoEntity.LocalityName;
+
               work.Log(Log.MessageType.Error, error.ToMessageWithType(), typeof(ErrorFilter).FullName, pars: matched.ToJson(JsonWritingOptions.CompactASCII));
+            }
           }
 
       }

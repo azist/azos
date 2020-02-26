@@ -60,7 +60,7 @@ namespace Azos.Glue.Implementation
 
            //note: they are kept as instance fields per ServerHandler instance, not static!!!
            private object m_SingletonInstancesLock = new object();
-           private Dictionary<Type, object> m_SingletonInstances;
+           private volatile Dictionary<Type, object> m_SingletonInstances;
 
        #endregion
 
@@ -610,6 +610,7 @@ namespace Azos.Glue.Implementation
 
                            var dict = new Dictionary<Type, object>( m_SingletonInstances );
                            dict[server.Implementation] = result;
+                           Thread.MemoryBarrier();
                            m_SingletonInstances = dict;//atomic
                          }
                        }
@@ -684,7 +685,7 @@ namespace Azos.Glue.Implementation
 
                    if (ah == null) return;
 
-                   if (ah.Credentials==null && ah.Token.Data==null) return;
+                   if (ah.Credentials==null && !ah.Token.Assigned) return;
 
                    User user;
                    if (ah.Credentials!=null)

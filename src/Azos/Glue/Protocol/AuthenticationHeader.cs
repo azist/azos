@@ -19,13 +19,13 @@ namespace Azos.Glue.Protocol
     [Serializable]
     public sealed class AuthenticationHeader : Header
     {
-        private AuthenticationToken m_Token;
+        private SysAuthToken m_Token;
         private Credentials m_Credentials;
 
         /// <summary>
         /// Returns AuthenticationToken
         /// </summary>
-        public AuthenticationToken Token { get { return m_Token;} }
+        public SysAuthToken Token { get { return m_Token;} }
 
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Azos.Glue.Protocol
         public Credentials Credentials { get { return m_Credentials;} }
 
 
-        public AuthenticationHeader(AuthenticationToken token)
+        public AuthenticationHeader(SysAuthToken token)
         {
             m_Token = token;
         }

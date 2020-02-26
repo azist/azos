@@ -7,20 +7,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
+using System.Threading;
 
 using Azos.Data;
-using Azos.Serialization.JSON;
 using Azos.Serialization.BSON;
+using Azos.Platform;
 
 namespace Azos.Instrumentation
 {
   /// <summary>
-  /// Base class for single measurement events (datums) reported to instrumentation
+  /// Base class for a single measurement events (singular: datum/plural: data) reported to instrumentation
   /// </summary>
   [Serializable]
-  public abstract class Datum : Azos.Log.IArchiveLoggable, IJsonWritable
+  public abstract class Datum : TypedDoc, Azos.Log.IArchiveLoggable, IBSONSerializable, IBSONDeserializable
   {
     #region CONST
     public const string BSON_FLD_SOURCE = "src";
@@ -34,6 +34,12 @@ namespace Azos.Instrumentation
     public const string FRAMEWORK_SOURCE = "Frmwrk";
     public const string BUSINESS_SOURCE = "BsnsLgc";
     #endregion
+
+    /// <summary>
+    /// True if a The string null/blank or *
+    /// </summary>
+    public static bool IsUnspecifiedSourceString(string src) => src.IsNullOrWhiteSpace() || src.EqualsOrdSenseCase(UNSPECIFIED_SOURCE);
+
 
     #region .ctor
     protected Datum()
@@ -56,55 +62,62 @@ namespace Azos.Instrumentation
 
     #region Fields
     private string m_Source;
-    protected int m_Count;
-    protected DateTime m_UTCTime;
-    protected DateTime m_UTCEndTime;
+    private int m_Count;
+    private DateTime m_UTCTime;
+    private DateTime m_UTCEndTime;
     #endregion
 
     #region Properties
     /// <summary>
     /// Returns UTC time stamp when event happened
     /// </summary>
+    [Field, Field(isArow: true, backendName: "sts")]
     public DateTime UTCTime
     {
-      get { return m_UTCTime; }
+      get => m_UTCTime;
+      protected set => m_UTCTime = value;
     }
 
     /// <summary>
     /// Returns UTC time stamp when event happened. This property may be gotten only if IsAggregated==true, otherwise UTCTime value is returned
     /// </summary>
+    [Field, Field(isArow: true, backendName: "ets")]
     public DateTime UTCEndTime
     {
-      get { return m_Count == 0 ? m_UTCTime : m_UTCEndTime; }
+      get => m_Count == 0 ? m_UTCTime : m_UTCEndTime;
+      protected set => m_UTCEndTime = value;
     }
 
 
     /// <summary>
     /// Indicates whether this instance represents a rollup/aggregation of multiple events
     /// </summary>
-    public bool IsAggregated
-    {
-      get { return m_Count > 0; }
-    }
+    public bool IsAggregated => m_Count > 0;
 
     /// <summary>
     /// Returns count of measurements. This property may be gotten only if IsAggregated==true, otherwise zero is returned
     /// </summary>
+    [Field, Field(isArow: true, backendName: "cnt")]
     public int Count
     {
-      get
-      {
-        return m_Count;
-      }
+      get => m_Count;
+      protected set => m_Count = value;
     }
 
     /// <summary>
     /// Returns datum source. Data are rolled-up by type of recorded datum instances and source
     /// </summary>
+    [Field, Field(isArow: true, backendName: "src")]
     public virtual string Source
     {
-      get { return m_Source ?? UNSPECIFIED_SOURCE; }
+      get  => m_Source ?? UNSPECIFIED_SOURCE;
+      protected set => m_Source = value;
     }
+
+    /// <summary>
+    /// True if this instance represent an unspecified source
+    /// </summary>
+    public bool IsUnspecifiedSource => IsUnspecifiedSourceString(Source);
 
     /// <summary>
     /// Returns rate of occurrence string
@@ -133,10 +146,7 @@ namespace Azos.Instrumentation
     /// <summary>
     /// Returns description for data that this datum represents. Base implementation returns full type name of this instance
     /// </summary>
-    public virtual string Description
-    {
-      get { return GetType().FullName; }
-    }
+    public virtual string Description => GetType().FullName;
 
 
     /// <summary>
@@ -147,7 +157,7 @@ namespace Azos.Instrumentation
     /// <summary>
     /// Provides numeric value used for charts
     /// </summary>
-    public virtual object PlotValue { get { return ValueAsObject; } }
+    public virtual object PlotValue => ValueAsObject;
 
     /// <summary>
     /// Provides name for units that value is measured in
@@ -156,35 +166,27 @@ namespace Azos.Instrumentation
     #endregion
 
     #region Public
-    private static Dictionary<Type, IEnumerable<Type>> s_ViewGroupInterfaces = new Dictionary<Type, IEnumerable<Type>>();
+    private static ConstrainedSetLookup<Type, IEnumerable<Type>> s_ViewGroupInterfaces = new ConstrainedSetLookup<Type, IEnumerable<Type>>( tp =>{
+      var result = tp.GetInterfaces()
+                     .Where(i => Attribute.IsDefined(i, typeof(InstrumentViewGroup)))
+                     .ToArray();
+      return result;
+    });
 
     /// <summary>
     /// Returns Datum classification interfaces marked with InstrumentViewGroup attribute. The implementation is cached for efficiency
     /// </summary>
-    public IEnumerable<Type> ViewGroupInterfaces { get { return GetViewGroupInterfaces(GetType()); } }
+    public IEnumerable<Type> ViewGroupInterfaces => GetViewGroupInterfaces(GetType());
 
     /// <summary>
     /// Returns Datum classification interfaces marked with InstrumentViewGroup attribute. The implementation is cached for efficiency
     /// </summary>
     public static IEnumerable<Type> GetViewGroupInterfaces(Type tDatum)
-    {
-      var dict = s_ViewGroupInterfaces;//atomic
-
-      IEnumerable<Type> result = null;
-      if (dict.TryGetValue(tDatum, out result)) return result;
-
-      result = tDatum.GetInterfaces().Where(i => Attribute.IsDefined(i, typeof(InstrumentViewGroup)));
-
-      dict = new Dictionary<Type, IEnumerable<Type>>(dict);
-      dict[tDatum] = result;
-
-      s_ViewGroupInterfaces = dict;//atomic
-
-      return result;
-    }
+      => s_ViewGroupInterfaces[tDatum.IsOfType(typeof(Datum))];
 
     /// <summary>
-    /// Aggregates events, for example from multiple threads into one
+    /// Aggregates multiple data instances (e.g.from multiple threads) into one single instance. This is the "reduce" operation which
+    /// makes aggregate instance, then concatenates all data events, them finalizes operation by calling SummarizeAggregation()
     /// </summary>
     public Datum Aggregate(IEnumerable<Datum> many)
     {
@@ -226,15 +228,6 @@ namespace Azos.Instrumentation
     public virtual void ReduceSourceDetail(int reductionLevel)
     {
       if (reductionLevel < 0) m_Source = string.Empty;
-    }
-
-    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
-    {
-      var data = new Dictionary<string, object>();
-
-      WriteJSONFields(data, options);
-
-      JsonWriter.WriteMap(wri, data, nestingLevel, options);
     }
 
     public virtual bool IsKnownTypeForBSONDeserialization(Type type)
@@ -281,25 +274,6 @@ namespace Azos.Instrumentation
     protected abstract Datum MakeAggregateInstance();
     protected virtual void AggregateEvent(Datum dat) { }
     protected virtual void SummarizeAggregation() { }
-
-    protected virtual void WriteJSONFields(IDictionary<string, object> data, JsonWritingOptions options)
-    {
-      data["cnt"] = this.Count;
-      data["sd"] = this.UTCTime;
-      data["ed"] = this.UTCEndTime;
-      data["rate"] = this.Rate;
-      data["val"] = this.ValueAsObject;
-      data["plt"] = this.PlotValue;
-
-      if (options != null && options.Purpose >= JsonSerializationPurpose.Marshalling)
-      {
-        data["src"] = this.Source;
-        data["aggr"] = this.IsAggregated;
-        data["tp"] = this.GetType().FullName;
-        data["descr"] = this.Description;
-        data["unit"] = this.ValueUnitName;
-      }
-    }
     #endregion
   }
 }

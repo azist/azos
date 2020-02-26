@@ -66,13 +66,11 @@ namespace Azos.Wave
       m_Portals.ForEach( p => p.Dispose() );
 
       DisposableObject.DisposeAndNull(ref m_ContentFS);
-      DisposableObject.DisposeAndNull(ref m_CMSBank);
     }
 
     private FileSystemSessionConnectParams m_ContentFSConnect;
     private FileSystem m_ContentFS;
     private string m_ContentFSRootPath;
-    private CMS.ICMSBankImplementation m_CMSBank;
 
     internal Registry<Portal> m_Portals;
 
@@ -91,16 +89,6 @@ namespace Azos.Wave
     /// Returns file system that serves static content for portals
     /// </summary>
     public IFileSystem ContentFileSystem => m_ContentFS;
-
-    /// <summary>
-    /// Returns the ICMSBank instance
-    /// </summary>
-    public CMS.ICMSBank CMSBank => m_CMSBank;
-
-    /// <summary>
-    /// Returns true if CMS is initializes with non-NOP CMS bank
-    /// </summary>
-    public bool CMSAvailable{ get{ return !(m_CMSBank is CMS.NOPCMSBank);} }
 
     public FileSystemSessionConnectParams ContentFileSystemConnectParams => m_ContentFSConnect;
 
@@ -147,17 +135,6 @@ namespace Azos.Wave
       if (m_ContentFSRootPath.IsNullOrWhiteSpace())
        throw new WaveException(StringConsts.CONFIG_PORTAL_HUB_FS_ROOT_PATH_ERROR.Args(CONFIG_CONTENT_FS_SECTION, CONFIG_FS_ROOT_PATH_ATTR));
 
-      //todo temporary - uncomment after done
-      //var cmsNode = node[CONFIG_CMS_BANK_SECTION];
-      //if (cmsNode.Exists)
-      //{
-      //  m_CMSBank = FactoryUtils.MakeAndConfigure<CMS.ICMSBankImplementation>(cmsNode, typeof(CMS.CMSBank));
-      //  var svc = m_CMSBank as ServiceModel.Service;
-      //  if (svc!=null)
-      //    svc.Start();
-      //}
-      //else
-        m_CMSBank = CMS.NOPCMSBank.Instance;
     }
 
 

@@ -1,6 +1,6 @@
 ﻿<push><b color=black><f color=white>
 Azos Sky Service Host<f color=gray>
-Copyright (c) 2019 Azist Group
+Copyright (c) 2020 Azist Group
 Version 1.0 / Nov 2018
 
 <pop>

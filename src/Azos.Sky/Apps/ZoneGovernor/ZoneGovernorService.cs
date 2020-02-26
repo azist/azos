@@ -15,9 +15,12 @@ using Azos.Log;
 using Azos.Collections;
 using Azos.Instrumentation;
 
+using Azos.Sky;
+using Azos.Sky.Contracts;
 using Azos.Sky.Metabase;
+using Azos.Sky.Locking.Server;
 
-namespace Azos.Sky.Apps.ZoneGovernor
+namespace Azos.Apps.ZoneGovernor
 {
   /// <summary>
   /// Provides Zone Governor Services - this is a singleton class
@@ -49,7 +52,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
     public ZoneGovernorService(IApplication app) : base(app)
     {
       if (!App.Singletons.GetOrCreate(() => this).created)
-        throw new AZGOVException(StringConsts.AZGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
+        throw new AZGOVException(Sky.StringConsts.AZGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
 
       m_SubInstr = new InstrumentationDaemon(this);
       m_SubInstrReductionLevels = new Dictionary<string,int>();
@@ -57,10 +60,10 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
       m_SubLog = new LogDaemon(this);
 
-      m_SubHosts = new Registry<Contracts.HostInfo>();
-      m_DynamicHostSlots = new Registry<Contracts.DynamicHostInfo>();
+      m_SubHosts = new Registry<HostInfo>();
+      m_DynamicHostSlots = new Registry<DynamicHostInfo>();
 
-      m_Locker = new Locking.Server.LockServerService( this );
+      m_Locker = new LockServerService( this );
     }
 
     protected override void Destructor()
@@ -96,12 +99,12 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
     private LogDaemon m_SubLog;
 
-    private Registry<Contracts.HostInfo> m_SubHosts;
-    private Registry<Contracts.DynamicHostInfo> m_DynamicHostSlots;
+    private Registry<HostInfo> m_SubHosts;
+    private Registry<DynamicHostInfo> m_DynamicHostSlots;
 
     private double m_CPULoadFactor = 1d;
 
-    private Locking.Server.LockServerService m_Locker;
+    private LockServerService m_Locker;
 
     private Thread m_Thread;
     private AutoResetEvent m_WaitEvent;
@@ -137,7 +140,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
     /// <summary>
     /// Returns locking server that this zgov hosts
     /// </summary>
-    public Contracts.ILocker Locker { get { return m_Locker; } }
+    public ILocker Locker { get { return m_Locker; } }
     #endregion
 
     #region Public
@@ -192,7 +195,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
         slg.Write(msg);
       }
 
-      return (int)(Log.SkyZoneSink.MAX_BUF_SIZE * m_CPULoadFactor);
+      return (int)(Sky.Log.SkyZoneSink.MAX_BUF_SIZE * m_CPULoadFactor);
     }
 
     /// <summary>
@@ -208,7 +211,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
     /// <summary>
     /// Registers /updates existing subordinate host information. This method implements IZoneHostRegistry contract
     /// </summary>
-    public void RegisterSubordinateHost(Contracts.HostInfo host, Contracts.DynamicHostID? hid)
+    public void RegisterSubordinateHost(HostInfo host, DynamicHostID? hid)
     {
       if (!Running || m_SubHosts==null || host==null) return;
 
@@ -216,7 +219,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
       var zHosts = App.GetThisHostMetabaseSection().ParentZone.ZoneGovernorHosts.Where(hh => !App.HostName.IsSameRegionPath(hh.RegionPath));
       foreach (var z in zHosts)
-        using (var cl = App.GetServiceClientHub().MakeNew<Contracts.IZoneHostReplicatorClient>(z))
+        using (var cl = App.GetServiceClientHub().MakeNew<IZoneHostReplicatorClient>(z))
           cl.Async_PostHostInfo(host, hid);
     }
 
@@ -224,9 +227,9 @@ namespace Azos.Sky.Apps.ZoneGovernor
     /// Returns registred subordinate hosts, optionally taking search pattern. This method implements IZoneHostRegistry contract.
     /// Match pattern can contain up to one * wildcard and multiple ? wildcards
     /// </summary>
-    public IEnumerable<Contracts.HostInfo> GetSubordinateHosts(string hostNameSearchPattern)
+    public IEnumerable<HostInfo> GetSubordinateHosts(string hostNameSearchPattern)
     {
-      if (!Running || m_SubHosts==null) return Enumerable.Empty<Contracts.HostInfo>();
+      if (!Running || m_SubHosts==null) return Enumerable.Empty<HostInfo>();
 
       var matches = hostNameSearchPattern.IsNullOrWhiteSpace()
                   ? m_SubHosts
@@ -238,7 +241,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
     /// <summary>
     /// Returns information for specified subordinate host or null
     /// </summary>
-    public Contracts.HostInfo GetSubordinateHost(string hostName)
+    public HostInfo GetSubordinateHost(string hostName)
     {
       if (!Running || m_SubHosts==null || hostName.IsNullOrWhiteSpace()) return null;
 
@@ -254,10 +257,10 @@ namespace Azos.Sky.Apps.ZoneGovernor
       return m_SubHosts[hostName];
     }
 
-    public Contracts.DynamicHostID Spawn(string hostPath, string id)
+    public DynamicHostID Spawn(string hostPath, string id)
     {
       var zone = App.GetThisHostMetabaseSection().ParentZone;
-      if (!Running || m_DynamicHostSlots == null) return new Contracts.DynamicHostID(null, zone.RegionPath);
+      if (!Running || m_DynamicHostSlots == null) return new DynamicHostID(null, zone.RegionPath);
 
       // TODO: Check zone
       var host = App.Metabase.CatalogReg.NavigateHost(hostPath) as Metabank.SectionHost;
@@ -265,14 +268,14 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
       if (id == null) id = App.GdidProvider.GenerateOneGdid(SysConsts.GDID_NS_DYNAMIC_HOST, SysConsts.GDID_NAME_DYNAMIC_HOST).ToString();
 
-      var hid = new Contracts.DynamicHostID(id, zone.RegionPath);
+      var hid = new DynamicHostID(id, zone.RegionPath);
 
       var dhi = m_DynamicHostSlots[id];
       if (dhi == null)
       {
         var stamp = App.TimeSource.UTCNow;
 
-        dhi = new Contracts.DynamicHostInfo(id);
+        dhi = new DynamicHostInfo(id);
         dhi.Stamp = stamp;
         dhi.Owner = App.HostName;
         dhi.Votes = 1;
@@ -280,13 +283,13 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
         var hosts = zone.ZoneGovernorHosts.Where(hh => !App.HostName.IsSameRegionPath(hh.RegionPath));
         foreach (var h in hosts)
-          using (var cl = App.GetServiceClientHub().MakeNew<Contracts.IZoneHostReplicatorClient>(h))
+          using (var cl = App.GetServiceClientHub().MakeNew<IZoneHostReplicatorClient>(h))
             cl.Async_PostDynamicHostInfo(hid, dhi.Stamp, dhi.Owner, dhi.Votes);
       }
       return hid;
     }
 
-    public void PostDynamicHostInfo(Contracts.DynamicHostID hid, DateTime stamp, string owner, int votes)
+    public void PostDynamicHostInfo(DynamicHostID hid, DateTime stamp, string owner, int votes)
     {
       if (!Running || m_DynamicHostSlots == null) return;
       var zone = App.GetThisHostMetabaseSection().ParentZone;
@@ -296,7 +299,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
       var post = false;
       if (dhi == null)
       {
-        dhi = new Contracts.DynamicHostInfo(hid.ID);
+        dhi = new DynamicHostInfo(hid.ID);
         post = true;
         m_DynamicHostSlots.Register(dhi);
       }
@@ -316,19 +319,19 @@ namespace Azos.Sky.Apps.ZoneGovernor
       {
         var hosts = zone.ZoneGovernorHosts.Where(hh => !App.HostName.IsSameRegionPath(hh.RegionPath));
         foreach (var h in hosts)
-          using (var cl = App.GetServiceClientHub().MakeNew<Contracts.IZoneHostReplicatorClient>(h))
+          using (var cl = App.GetServiceClientHub().MakeNew<IZoneHostReplicatorClient>(h))
             cl.Async_PostDynamicHostInfo(hid, dhi.Stamp, dhi.Owner, dhi.Votes);
       }
     }
 
-    public void PostHostInfo(Contracts.HostInfo host, Contracts.DynamicHostID? hid)
+    public void PostHostInfo(HostInfo host, DynamicHostID? hid)
     {
       if (!Running || m_SubHosts==null || host==null) return;
 
       registerSubordinateHost(host, hid);
     }
 
-    public Contracts.DynamicHostInfo GetDynamicHostInfo(Contracts.DynamicHostID hid)
+    public DynamicHostInfo GetDynamicHostInfo(DynamicHostID hid)
     {
       if (!Running || m_DynamicHostSlots == null) return null;
 
@@ -379,7 +382,7 @@ namespace Azos.Sky.Apps.ZoneGovernor
 
         ip = "D";
 
-        m_Locker.Configure(node[Locking.Server.LockServerService.CONFIG_LOCK_SERVER_SECTION]);
+        m_Locker.Configure(node[LockServerService.CONFIG_LOCK_SERVER_SECTION]);
 
         ip = "E";
 
@@ -522,17 +525,17 @@ namespace Azos.Sky.Apps.ZoneGovernor
         m_SubInstrCallerCount = m_SubInstrCallers.Count();
     }
 
-    private void registerSubordinateHost(Contracts.HostInfo host, Contracts.DynamicHostID? hid)
+    private void registerSubordinateHost(HostInfo host, DynamicHostID? hid)
     {
       try
       {
         var shost = App.Metabase.CatalogReg.NavigateHost(host.Name);
         if (!shost.HasDirectOrIndirectParentZoneGovernor(App.GetThisHostMetabaseSection(), iAmZoneGovernor: false, transcendNOC: false))
-          throw new AZGOVException(StringConsts.AZGOV_REGISTER_SUBORDINATE_HOST_PARENT_ERROR.Args(App.HostName, host.Name));
+          throw new AZGOVException(Sky.StringConsts.AZGOV_REGISTER_SUBORDINATE_HOST_PARENT_ERROR.Args(App.HostName, host.Name));
       }
       catch (Exception error)
       {
-        throw new AZGOVException(StringConsts.AZGOV_REGISTER_SUBORDINATE_HOST_ERROR.Args(host.Name, error.ToMessageWithType()), error);
+        throw new AZGOVException(Sky.StringConsts.AZGOV_REGISTER_SUBORDINATE_HOST_ERROR.Args(host.Name, error.ToMessageWithType()), error);
       }
 
       m_SubHosts.RegisterOrReplace(host);

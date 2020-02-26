@@ -45,7 +45,7 @@ namespace Azos
     #region STATIC
     /// <summary>
     /// Checks to see if the IDisposable reference is not null and sets it to null in a thread-safe way then calls Dispose().
-    /// Returns false if it is already null or not the original reference
+    /// Returns false if it is already null or not the original reference captured at the invocation
     /// </summary>
     public static bool DisposeAndNull<T>(ref T obj) where T : class, IDisposable
     {

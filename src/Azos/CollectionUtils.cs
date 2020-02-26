@@ -56,7 +56,9 @@ namespace Azos
     }
 
     /// <summary>
-    /// Partitions the source sequence into subsequences of the specified size
+    /// Partitions the source sequence into subsequences of up to the specified size.
+    /// The operation enumerates the source only once via an internal accumulator, making
+    /// this function safe for deferred execution
     /// </summary>
     public static IEnumerable<IEnumerable<T>> BatchBy<T>(this IEnumerable<T> src, int size)
     {

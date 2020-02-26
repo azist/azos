@@ -27,7 +27,7 @@ namespace Azos.Data
   public interface IDataDoc : IEquatable<Doc>, IEnumerable<Object>, IValidatable, IConfigurable, IConfigurationPersistent
   {
     /// <summary>
-    /// Returns schema object that describes fields of this document
+    /// Returns schema object that describes field structure of this document
     /// </summary>
     Schema Schema { get; }
 
@@ -609,11 +609,14 @@ namespace Azos.Data
 
 
     /// <summary>
-    /// Override to get list of permissible field values for the specified field.
+    /// Override to get a list of permissible field values for the specified field for the specified target.
     /// This method is used by validation to extract dynamic pick list entries form data stores
     /// as dictated by business logic. The override must be efficient and typically rely on caching of
     /// values gotten from the datastore. This method should NOT return more than a manageable limited number of records (e.g. less than 100)
-    /// in a single form drop-down/combo, as the large lookups are expected to be implemented using complex lookup models (e.g. dialog boxes in UI)
+    /// in a single form drop-down/combo, as the large lookups are expected to be implemented using complex lookup models (e.g. dialog boxes in UI).
+    /// Return a null to indicate an absence of a value list for the specified field.
+    /// Return an empty JsonDataMap to indicate that dynamic value list is present, but there is nothing to check against - this is used to
+    /// override a static fdef.ValueList which would be enforced otherwise.
     /// </summary>
     public virtual JsonDataMap GetDynamicFieldValueList(Schema.FieldDef fdef,
                                                         string targetName,
@@ -628,7 +631,7 @@ namespace Azos.Data
     /// (i.e. field description, requirement, value list etc.) as dictated by business logic.
     /// This method IS NOT used by doc validation, only by client that feeds from doc metadata.
     /// The default implementation returns the original field def, you can return a substituted field def
-    ///  per particular business logic
+    ///  for a specific business logic need
     /// </summary>
     public virtual Schema.FieldDef GetClientFieldDef(Schema.FieldDef fdef,
                                                       string targetName,
@@ -656,52 +659,59 @@ namespace Azos.Data
     #region IJSONWritable
 
     /// <summary>
-    /// Writes row as JSON either as an array or map depending on JSONWritingOptions.RowsAsMap setting.
-    /// Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
+    /// Writes doc as JSON either as an array or map depending on JSONWritingOptions.RowsAsMap setting.
+    /// Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class.
+    /// Override to perform custom JSOn serialization
     /// </summary>
     public virtual void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
-        if (options==null || !options.RowsAsMap)
+      if (options==null || !options.RowsAsMap)
+      {
+        JsonWriter.WriteArray(wri, this, nestingLevel, options);
+        return;
+      }
+
+      var map = new Dictionary<string, object>();
+
+      foreach(var fd in Schema)
+      {
+        string name;
+
+        var val = FilterJsonSerializerField(fd, options, out name);
+        if (name.IsNullOrWhiteSpace()) continue;//field was excluded for Json serialization
+
+        AddJsonSerializerField(fd, options, map, name, val);
+      }
+
+      if (this is IAmorphousData amorph)
+      {
+        if (amorph.AmorphousDataEnabled)
         {
-          JsonWriter.WriteArray(wri, this, nestingLevel, options);
-          return;
-        }
-
-        var map = new Dictionary<string, object>();
-
-        foreach(var fd in Schema)
-        {
-          string name;
-
-          var val = FilterJsonSerializerField(fd, options, out name);
-          if (name.IsNullOrWhiteSpace()) continue;
-
-          AddJsonSerializerField(fd, options, map, name, val);
-        }
-
-        if (this is IAmorphousData amorph)
-        {
-          if (amorph.AmorphousDataEnabled)
+          foreach(var kv in amorph.AmorphousData)
           {
-            foreach(var kv in amorph.AmorphousData)
-            {
-              var key = kv.Key;
-              while(map.ContainsKey(key)) key+="_";
-              AddJsonSerializerField(null, options, map, key, kv.Value);
-            }
+            var key = kv.Key;
+            while(map.ContainsKey(key)) key += "_";
+            AddJsonSerializerField(null, options, map, key, kv.Value);
           }
         }
+      }
 
-        JsonWriter.WriteMap(wri, map, nestingLevel, options);
+      JsonWriter.WriteMap(wri, map, nestingLevel, options);//perform actual Json writing
     }
 
-
-
-    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    /// <summary>
+    /// Override to perform custom deserialization from Json.
+    /// The default implementation delegates the work to JsonReader class
+    /// </summary>
+    /// <param name="data">Data to deserialize, must be JsonDataMap to succeed</param>
+    /// <param name="fromUI">True is passed when the deserialization is coming from a datagram supplied by user interface</param>
+    /// <param name="options">Specifies how to bind names</param>
+    /// <returns>Tuple of (bool match, IJsonReadable self)</returns>
+    public virtual (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
       if (data is JsonDataMap map)
       {
-        JsonReader.ToDoc(this, map, fromUI, nameBinding);
+        JsonReader.ToDoc(this, map, fromUI, options);
         return (true, this);
       }
       return (false, this);
@@ -765,16 +775,6 @@ namespace Azos.Data
 
 
     #region .pvt
-
-    private bool isSimpleKeyStringMap(JsonDataMap map)
-    {
-      if (map == null) return false;
-
-      foreach (var val in map.Values)
-        if (val != null && !(val is string)) return false;
-
-      return true;
-    }
 
     private struct docFieldValueEnumerator : IEnumerator<object>
     {

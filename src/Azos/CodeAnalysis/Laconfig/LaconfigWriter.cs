@@ -185,7 +185,13 @@ namespace Azos.CodeAnalysis.Laconfig
                                 wasAttr = true;
                                 writeString(sb, anode.Name);
                                 sb.Append("=");
-                                writeString(sb, anode.VerbatimValue);
+
+                                var v = anode.VerbatimValue;
+
+                                if (v==null)
+                                  sb.Append("null");
+                                else
+                                  writeString(sb, v);
                             }
 
                             bool wasChild = false;
@@ -213,7 +219,15 @@ namespace Azos.CodeAnalysis.Laconfig
                         {
                           if (data.IsNullOrEmpty())
                           {
-                            sb.Append("''");
+                            sb.Append("\"\"");
+                            return;
+                          }
+
+                          if (data.EqualsOrdIgnoreCase("null"))
+                          {
+                            sb.Append("\"");
+                            sb.Append(data);
+                            sb.Append("\"");
                             return;
                           }
 
@@ -234,6 +248,8 @@ namespace Azos.CodeAnalysis.Laconfig
                                 switch (c)
                                 {
                                     case '\\':  { buf.Append(@"\\"); quotes = true; break; }
+                                    case '/':   { buf.Append(@"/"); quotes = true; break; }
+                                    case '|':   { buf.Append(@"|"); quotes = true; break; }
                                     case (char)CharCodes.Char0:     { buf.Append(@"\0"); quotes = true; break; }
                                     case (char)CharCodes.AlertBell: { buf.Append(@"\a"); quotes = true; break; }
                                     case (char)CharCodes.Backspace: { buf.Append(@"\b"); quotes = true; break; }

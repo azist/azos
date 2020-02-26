@@ -106,7 +106,7 @@ namespace Azos.Sky.Workers
       this.Tries = todo.SysTries;
     }
 
-    private static Dictionary<string, Type> s_TypesCache = new Dictionary<string, Type>(StringComparer.Ordinal);
+    //private static volatile Dictionary<string, Type> s_TypesCache = new Dictionary<string, Type>(StringComparer.Ordinal);
 
     /// <summary>
     /// Materializes the Todo instance represented by this frame in the scope of IGuidTypeResolver

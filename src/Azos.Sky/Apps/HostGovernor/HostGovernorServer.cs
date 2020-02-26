@@ -6,7 +6,7 @@
 
 using Azos.Apps.Injection;
 
-namespace Azos.Sky.Apps.HostGovernor
+namespace Azos.Apps.HostGovernor
 {
   /// <summary>
   /// Implements contracts trampoline that uses a singleton instance of HostGovernorService
@@ -21,7 +21,7 @@ namespace Azos.Sky.Apps.HostGovernor
 
     public HostGovernorService Service => m_App.NonNull(nameof(m_App))
                                                .Singletons
-                                               .Get<HostGovernorService>() ?? throw new AHGOVException(StringConsts.AHGOV_INSTANCE_NOT_ALLOCATED_ERROR);
+                                               .Get<HostGovernorService>() ?? throw new AHGOVException(Sky.StringConsts.AHGOV_INSTANCE_NOT_ALLOCATED_ERROR);
 
     public Sky.Contracts.HostInfo GetHostInfo() => Service.GetHostInfo();
     public void Ping() => Service.Ping();

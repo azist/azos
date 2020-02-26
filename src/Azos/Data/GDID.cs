@@ -209,7 +209,7 @@ namespace Azos.Data
           wri.Write('"');
         }
 
-        (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+        (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
         {
           try
           {
@@ -369,7 +369,7 @@ namespace Azos.Data
       JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("gdid", GDID), new DictionaryEntry("sym", Symbol));
     }
 
-    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
       if (data is JsonDataMap map)
       {

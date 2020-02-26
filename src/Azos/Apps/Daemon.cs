@@ -77,15 +77,15 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Returns true when daemon is active or about to become active.
-    /// Check in daemon implementation loops/threads/tasks
+    /// Returns true when daemon is non disposed, active or about to become active.
+    /// You can poll this as a cancellation token in daemon implementation loops/threads/tasks
     /// </summary>
     public bool Running
     {
       get
       {
         var status = m_Status;
-        return status == DaemonStatus.Active || status == DaemonStatus.Starting;
+        return !Disposed && (status == DaemonStatus.Active || status == DaemonStatus.Starting);
       }
     }
 

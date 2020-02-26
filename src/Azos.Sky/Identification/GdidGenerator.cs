@@ -535,7 +535,7 @@ namespace Azos.Sky.Identification
 
         private const int MIN_BLOCK_SZ = 2;
         private const double NORM_IDS_PER_SEC = 16;//suppose we generate 16 ids every second, every thread 1 per sec, 16 threads
-        private const double NORM_AUTH_CALL_EVERY_SEC = 5.0;//normal case, call authority every seconds
+        private const double NORM_AUTH_CALL_EVERY_SEC = 1.0;//normal case, call authority every seconds
         private const double MIN_TIME_SLICE_SEC = 0.01d;//10ms
 
     private GdidBlock allocateBlock(sequence seq, int blockSize, ulong? vicinity = GDID.COUNTER_MAX)
@@ -561,7 +561,7 @@ namespace Azos.Sky.Identification
 
         blockSize = MIN_BLOCK_SZ + (int)((NORM_AUTH_CALL_EVERY_SEC * NORM_IDS_PER_SEC) / avg);
       }
-////Console.WriteLine("|--------------------> Block size is: "+blockSize);
+
       return allocateBlockSomewhere(seq, blockSize, vicinity);
     }
 

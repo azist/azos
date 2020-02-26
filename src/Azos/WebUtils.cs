@@ -4,7 +4,9 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -45,12 +47,16 @@ namespace Azos
 
 
     /// <summary>
-    /// Strip simple html from string
+    /// Converts UTC date time string suitable for use as Cookie expiration filed
     /// </summary>
-    public static string StripSimpleHtml(this string str)
-    {
-      return WebUtility.HtmlDecode(Regex.Replace(str, @"<[^>]+>|&nbsp;", "").Trim());
-    }
+    public static string DateTimeToHTTPCookieDateTime(DateTime utcDateTime)
+      => utcDateTime.ToString("ddd, dd-MMM-yyyy HH':'mm':'ss 'GMT'", DateTimeFormatInfo.InvariantInfo);
+
+    /// <summary>
+    /// Converts UTC date time string suitable for use as Cookie expiration filed
+    /// </summary>
+    public static string DateTimeToHTTPLastModifiedHeaderDateTime(DateTime utcDateTime)
+      => utcDateTime.ToString("ddd, dd MMM yyyy HH':'mm':'ss 'GMT'", DateTimeFormatInfo.InvariantInfo);
 
     /// <summary>
     /// Returns true when supplied name can be used for JS identifier naming (var names, func/class names etc..)
@@ -211,7 +217,7 @@ namespace Azos
     /// </summary>
     public static string ComposeURLQueryString(IDictionary<string, object> qParams)
     {
-      if (qParams == null || qParams.Count <= 0)
+      if (qParams == null || qParams.Count < 1)
         return string.Empty;
 
       var builder = new StringBuilder();
@@ -232,4 +238,30 @@ namespace Azos
 
 
   }
+
+  /// <summary>
+  /// Facilitates construction of URI queries escaping all values as needed
+  /// </summary>
+  public sealed class UriQueryBuilder : IEnumerable<KeyValuePair<string, object>>
+  {
+    public UriQueryBuilder(){ }
+    public UriQueryBuilder(string uri) { Uri = uri; }
+
+
+    public readonly string Uri;
+    public readonly Dictionary<string, object> Data = new Dictionary<string, object>();
+
+    public void Add(string key, object value) => Data.Add(key, value);
+
+    public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => Data.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => Data.GetEnumerator();
+
+    public override string ToString()
+    {
+      var query = WebUtils.ComposeURLQueryString(Data);
+      return Uri.IsNotNullOrEmpty() ? Uri + (query.IsNotNullOrWhiteSpace()? "?" : "") + query : query;
+    }
+  }
+
+
 }

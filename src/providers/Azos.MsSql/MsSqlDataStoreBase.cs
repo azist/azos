@@ -14,14 +14,14 @@ using Azos.Data.Modeling;
 using Azos.Instrumentation;
 
 using System.Data.SqlClient;
-
+using Azos.Security;
 
 namespace Azos.Data.Access.MsSql
 {
   /// <summary>
   /// Implements Oracle store base functionality
   /// </summary>
-  public abstract class MsSqlDataStoreBase : ApplicationComponent, IDataStoreImplementation
+  public abstract class MsSqlDataStoreBase : ApplicationComponent, IDataStoreImplementation, IExternallyCallable
   {
     #region CONSTS
     public const string STR_FOR_TRUE = "T";
@@ -29,8 +29,15 @@ namespace Azos.Data.Access.MsSql
     #endregion
 
     #region .ctor/.dctor
-    protected MsSqlDataStoreBase(IApplication app) : base(app){ }
-    protected MsSqlDataStoreBase(IApplicationComponent director) : base(director){ }
+    protected MsSqlDataStoreBase(IApplication app) : base(app) => ctor();
+    protected MsSqlDataStoreBase(IApplicationComponent director) : base(director) => ctor();
+
+    private void ctor()
+    {
+      m_ExternalCallHandler = new ExternalCallHandler<MsSqlDataStoreBase>(App, this, null,
+        typeof(Instrumentation.DirectSql)
+      );
+    }
     #endregion
 
     #region Private Fields
@@ -51,6 +58,8 @@ namespace Azos.Data.Access.MsSql
     private DateTimeKind m_DateTimeKind = DateTimeKind.Utc;
 
     private bool m_InstrumentationEnabled;
+
+    private ExternalCallHandler<MsSqlDataStoreBase> m_ExternalCallHandler;
     #endregion
 
     #region IInstrumentation
@@ -86,6 +95,12 @@ namespace Azos.Data.Access.MsSql
     {
       return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
     }
+
+    /// <summary>
+    /// Returns a handler which processes external administration calls, such as the ones originating from
+    /// the application terminal
+    /// </summary>
+    public virtual IExternalCallHandler GetExternalCallHandler() => m_ExternalCallHandler;
     #endregion
 
     #region Properties
@@ -102,7 +117,8 @@ namespace Azos.Data.Access.MsSql
     /// <summary>
     /// Get/Sets Oracle database connection string
     /// </summary>
-    [Config]
+    [SystemAdministratorPermission(AccessLevel.ADVANCED)]
+    [Config, ExternalParameter(nameof(ConnectString), ExternalParameterSecurityCheck.OnGetSet, CoreConsts.EXT_PARAM_GROUP_DATA)]
     public string ConnectString
     {
       get
@@ -115,7 +131,7 @@ namespace Azos.Data.Access.MsSql
       }
     }
 
-    [Config]
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_DATA)]
     public StoreLogLevel LogLevel { get; set;}
 
     /// <summary>
@@ -124,10 +140,11 @@ namespace Azos.Data.Access.MsSql
     [Config]
     public string SchemaName { get; set; }
 
-    [Config]
+    [SystemAdministratorPermission(AccessLevel.ADVANCED)]
+    [Config, ExternalParameter(nameof(TargetName), ExternalParameterSecurityCheck.OnSet, CoreConsts.EXT_PARAM_GROUP_DATA)]
     public virtual string TargetName
     {
-      get{ return m_TargetName.IsNullOrWhiteSpace() ? "ORACLE" : m_TargetName;}
+      get{ return m_TargetName.IsNullOrWhiteSpace() ? "MSSQL" : m_TargetName;}
       set{ m_TargetName = value;}
     }
 
@@ -208,7 +225,7 @@ namespace Azos.Data.Access.MsSql
     /// <summary>
     /// Allocates Oracle connection. Override to do custom connection setup, such as `ALTER SESSION` etc...
     /// </summary>
-    protected virtual async Task<SqlConnection> GetConnection()
+    public virtual async Task<SqlConnection> GetConnection()
     {
       var connectString = this.ConnectString;
 

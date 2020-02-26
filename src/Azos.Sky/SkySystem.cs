@@ -7,7 +7,7 @@
 using Azos.Conf;
 using Azos.Data.Access;
 
-using Azos.Sky.Apps;
+using Azos.Apps;
 using Azos.Sky.Identification;
 using Azos.Sky.Metabase;
 

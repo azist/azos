@@ -70,7 +70,7 @@ namespace Azos.IO.FileSystem.Packaging
       /// </summary>
       /// <param name="master">Master sample copy</param>
       /// <param name="comparand">The second manifest being compared to the master</param>
-      /// <param name="oneWay">If true iterates on master, so extra files in comparand will not be detected. False by default in whoch case iterates on master first then on comparand</param>
+      /// <param name="oneWay">If true iterates on master, so extra files in comparand will not be detected. False by default in which case iterates on master first then on comparand</param>
       /// <returns>True when comparand has all files/directories that the master lists</returns>
       public static bool HasTheSameContent(this IConfigSectionNode master, IConfigSectionNode comparand, bool oneWay = false)
       {

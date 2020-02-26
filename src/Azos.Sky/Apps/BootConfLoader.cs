@@ -101,9 +101,9 @@ namespace Azos.Apps
       //2. what host is this?
       m_HostName = determineHostName(null);
 
-      //Sets cluster host name in all log messages
+      //Sets cluster host name (e.g. in all log messages)
       if (m_HostName.IsNotNullOrWhiteSpace())
-        Message.DefaultHostName = m_HostName;
+         Platform.Computer._____SetHostName(m_HostName);
 
       //3. Mount Metabank
       m_Metabase = mountMetabank();
@@ -146,7 +146,7 @@ namespace Azos.Apps
 
       //Sets cluster host name in all log messages
       if (m_HostName.IsNotNullOrWhiteSpace())
-        Message.DefaultHostName = m_HostName;
+        Platform.Computer._____SetHostName(m_HostName);
 
       //3. Mount metabank
       var mNode = m_BootApplication.ConfigRoot[CONFIG_SKY_SECTION][CONFIG_METABASE_SECTION];
@@ -250,7 +250,7 @@ namespace Azos.Apps
           m_HostName = m_HostName + m_DynamicHostNameSuffix;//no spaces between
           writeLog(MessageType.Trace, "The actual dynamic instance host name is: '{0}'".Args(m_HostName));
 
-          Message.DefaultHostName = m_HostName;
+          Platform.Computer._____SetHostName(m_HostName);
         }
 
         writeLog(MessageType.Trace, "...app config obtained");

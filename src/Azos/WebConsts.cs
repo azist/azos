@@ -11,11 +11,12 @@ namespace Azos
   /// </summary>
   public static class WebConsts
   {
-    public const string HTTP_POST   = "POST";
-    public const string HTTP_PUT    = "PUT";
-    public const string HTTP_GET    = "GET";
-    public const string HTTP_DELETE = "DELETE";
-    public const string HTTP_PATCH  = "PATCH";
+    public const string HTTP_POST    = "POST";
+    public const string HTTP_PUT     = "PUT";
+    public const string HTTP_GET     = "GET";
+    public const string HTTP_DELETE  = "DELETE";
+    public const string HTTP_PATCH   = "PATCH";
+    public const string HTTP_OPTIONS = "OPTIONS";
 
 
     public const string HTTP_HDR_AUTHORIZATION = "Authorization";
@@ -23,9 +24,12 @@ namespace Azos
     public const string HTTP_HDR_USER_AGENT = "User-Agent";
     public const string HTTP_HDR_CONTENT_TYPE = "Content-Type";
     public const string HTTP_HDR_CONTENT_DISPOSITION = "Content-disposition";
+    public const string HTTP_HDR_X_FORWARDED_FOR = "X-Forwarded-For";
     public const string HTTP_SET_COOKIE = "Set-Cookie";
     public const string HTTP_WWW_AUTHENTICATE = "WWW-Authenticate";
 
+    public const string AUTH_SCHEME_BASIC = "Basic";
+    public const string AUTH_SCHEME_BEARER = "Bearer";
 
     public const int STATUS_200 = 200;  public const string STATUS_200_DESCRIPTION = "OK";
 

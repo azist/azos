@@ -47,7 +47,6 @@ namespace Azos.Wave.Mvc
   /// <summary>
   /// Decorates MVC Actions
   /// </summary>
-  [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
   public sealed class ActionAttribute : ActionBaseAttribute
   {
     public ActionAttribute() { }
@@ -102,7 +101,6 @@ namespace Azos.Wave.Mvc
   /// <summary>
   /// Decorates MVC Actions which happen on HTTP GET
   /// </summary>
-  [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
   public sealed class ActionOnGetAttribute : ActionBaseAttribute
   {
     public ActionOnGetAttribute() { }
@@ -115,7 +113,6 @@ namespace Azos.Wave.Mvc
   /// <summary>
   /// Decorates MVC Actions which happen on HTTP POST
   /// </summary>
-  [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
   public sealed class ActionOnPostAttribute : ActionBaseAttribute
   {
     public ActionOnPostAttribute() { }
@@ -128,7 +125,6 @@ namespace Azos.Wave.Mvc
   /// <summary>
   /// Decorates MVC Actions which happen on HTTP PUT
   /// </summary>
-  [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
   public sealed class ActionOnPutAttribute : ActionBaseAttribute
   {
     public ActionOnPutAttribute() { }
@@ -141,7 +137,6 @@ namespace Azos.Wave.Mvc
   /// <summary>
   /// Decorates MVC Actions which happen on HTTP PATCH
   /// </summary>
-  [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
   public sealed class ActionOnPatchAttribute : ActionBaseAttribute
   {
     public ActionOnPatchAttribute() { }
@@ -154,7 +149,6 @@ namespace Azos.Wave.Mvc
   /// <summary>
   /// Decorates MVC Actions which happen on HTTP DELETE
   /// </summary>
-  [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
   public sealed class ActionOnDeleteAttribute : ActionBaseAttribute
   {
     public ActionOnDeleteAttribute() { }

@@ -59,7 +59,7 @@ namespace Azos.Tests.Unit.AppModel
                 public void ApplicationStartAfterInit(IApplication application)
                 {
                    FinishNotifiablesTests.RESULT += "B";
-                   application.RegisterAppFinishNotifiable( new SuperEnder());
+                   ((IApplicationImplementation)application).RegisterAppFinishNotifiable( new SuperEnder());
                 }
 
                 public void Configure(IConfigSectionNode node)

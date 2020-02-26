@@ -13,14 +13,28 @@ namespace Azos.Wave.Mvc
   /// Serves Api documentation produced by ApiDocGenerator
   /// </summary>
   [NoCache]
+  [ApiControllerDoc]
   public abstract class ApiDocController : Controller
   {
-    protected static Dictionary<Type, ConfigSectionNode> s_Data = new Dictionary<Type, ConfigSectionNode>();
+    protected static Dictionary<string, ConfigSectionNode> s_Data = new Dictionary<string, ConfigSectionNode>();
 
     /// <summary>
-    /// Factory method for ApiDocgenerator. Sets generation locations
+    /// This method is called before cache read and any data generation.
+    /// Override to reject the supplied dataContext from processing. This is needed to filter-out contexts that are not supported.
+    /// The string is normalized (e.g. names are sorted and trimmed).
+    /// Throw a 400 exception for unsupported context. You can also check the caller security and throw 401/403
+    /// for requests that require authorization as you may have public schemas and private schemas which should NOT be disclosed to
+    /// unauthorized users. The base implementation does nothing
     /// </summary>
-    protected abstract ApiDocGenerator MakeDocGenerator();
+    protected virtual void CheckDataContext(string dataContext)
+    {
+    }
+
+    /// <summary>
+    /// Factory method for ApiDocgenerator. Sets generation locations and target depending on normalized data context string
+    /// </summary>
+    protected abstract ApiDocGenerator MakeDocGenerator(string dataContext);
+
 
     /// <summary>
     /// Override to generate data by calling ApiDocGenerator ad/or caching the result as necessary
@@ -29,28 +43,48 @@ namespace Azos.Wave.Mvc
     {
       get
       {
-        var t = GetType();//of the caller instance
+        var dctx = Ambient.CurrentCallSession.GetNormalizedDataContextName();
+        //This will throw if context is unsupported (HTTP400) or caller does not have access (HTTP401/403)
+        CheckDataContext(dctx);
+
+        var tp = GetType();//of the caller instance, used just as a cache key for THIS controller
+        var key = dctx + "::" + tp.AssemblyQualifiedName;//the dctx is sanitized, so arbitrary dctxs are not allowed
+
         lock(s_Data)
         {
-          if (s_Data.TryGetValue(t, out var data)) return data;
-          var gen = MakeDocGenerator();
+          if (s_Data.TryGetValue(key, out var data)) return data;
+          var gen = MakeDocGenerator(dctx);
           data = gen.Generate();
-          s_Data[t] = data;
+          s_Data[key] = data;
           return data;
         }
       }
     }
 
 
-
+    [ApiEndpointDoc(
+      Title ="Whole Documentation Set",
+      Description ="Gets all metadata for all scopes and endpoints returning it as JSON or Laconic (easier to read)",
+      Methods = new []{"GET=Gets full doc set"},
+      ResponseContent = "JSON or Laconic containing Api doc data"
+      )]
     [Action(Name = "all"), HttpGet]
     public object All()
     {
-      if (WorkContext.RequestedJSON) return new JSONResult(Data, JsonWritingOptions.PrettyPrintRowsAsMap);
+      if (WorkContext.RequestedJson) return new JsonResult(Data, JsonWritingOptions.PrettyPrintRowsAsMap);
       return Data.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
     }
 
-
+    [ApiEndpointDoc(
+      Title = "Table of Contents",
+      Description = "Provides table of contents (TOC) generated as an outline of the whole documentation set",
+      Methods = new[] { "GET=Gets the toc" },
+      RequestQueryParameters = new[]{
+         "uriPattern=Pattern  match string applied as a filter to Api endpoint URIs",
+         "typePattern=Pattern  match string applied as a filter to type schemas used by Api"
+      },
+      ResponseContent = "HTML view or Json data of TOC"
+      )]
     [Action(Name = "toc"), HttpGet]
     public object Toc(string uriPattern = null, string typePattern = null)
     {
@@ -112,7 +146,7 @@ namespace Azos.Wave.Mvc
             return d;
           });
 
-      if (WorkContext.RequestedJSON) return new JSONResult(data, JsonWritingOptions.PrettyPrintRowsAsMap);
+      if (WorkContext.RequestedJson) return new JsonResult(data, JsonWritingOptions.PrettyPrintRowsAsMap);
 
       return TocView(data);
     }
@@ -123,6 +157,15 @@ namespace Azos.Wave.Mvc
      => new Templatization.StockContent.ApiDoc_Toc(data);
 
 
+    [ApiEndpointDoc(
+     Title = "Data Contract Schema",
+     Description = "Provides schema listing for custom data contract - a type used by the Api",
+     Methods = new[] { "GET=Gets the schema" },
+     RequestQueryParameters = new[]{
+         "id=Required type run-id or sku for type to be described",
+     },
+     ResponseContent = "HTML view or Json schema data"
+     )]
     [Action(Name = "schema"), HttpGet]
     public object Schema(string id)
     {
@@ -141,7 +184,7 @@ namespace Azos.Wave.Mvc
 
       if (data.Length==0) return new Http404NotFound();
 
-      if (WorkContext.RequestedJSON) return data;
+      if (WorkContext.RequestedJson) return data;
 
       return SchemaView(data);
     }
@@ -149,12 +192,22 @@ namespace Azos.Wave.Mvc
     protected virtual object SchemaView(IEnumerable<IConfigSectionNode> data)
      => new Templatization.StockContent.ApiDoc_Schema(data);
 
+
+    [ApiEndpointDoc(
+    Title = "Scope Details",
+    Description = "Documentation page for a scope (aka controller) containing general help text along with inventory of all endpoints",
+    Methods = new[] { "GET=Gets the scope HTML view or Json" },
+    RequestQueryParameters = new[]{
+         "id=Required type run-id for the scope to be described",
+    },
+    ResponseContent = "HTML view or Json scope data"
+    )]
     [Action(Name = "scope"), HttpGet]
     public object Scope(string id)
     {
       var data = Data.Children.FirstOrDefault(c => c.IsSameName("scope") && c.ValOf("run-id").EqualsOrdIgnoreCase(id));
       if (data==null) return new Http404NotFound();
-      if (WorkContext.RequestedJSON) return data;
+      if (WorkContext.RequestedJson) return data;
 
       var scopeContent = data.ValOf("doc-content");
       var excision = MarkdownUtils.ExciseSection(scopeContent, "## Endpoints");
@@ -217,9 +270,9 @@ namespace Azos.Wave.Mvc
 
 
       //eval variables
-      var finalMarkdown = "{0}\n{1}\n{2}".Args(excision.content.Substring(0, excision.iexcision),
+      var finalMarkdown = "{0}\n{1}\n{2}".Args(excision.content?.Substring(0, excision.iexcision),
                                                epContent.ToString(),
-                                               excision.content.Substring(excision.iexcision));
+                                               excision.content?.Substring(excision.iexcision));
 
       //eval type references
       finalMarkdown = MarkdownUtils.EvaluateVariables(finalMarkdown, v =>

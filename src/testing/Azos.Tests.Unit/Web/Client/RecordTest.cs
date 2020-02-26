@@ -3,8 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,16 +57,16 @@ namespace Azos.Tests.Unit.Web.Client
           'Required': false,
           'Visible': false,
           'Size': 15,
-          'DefaultValue': 'HAB',
+          'DefaultValue': 'QWE',
           'Key': true,
           'Case': 'Upper',
           'LookupDict': {
-            'HAB': 'HAB.rs Health and Beauty',
-            'READRS': 'READ.rs Book Business',
-            'SLRS': 'SL.RS General Business'
+            'QWE': 'QWE Qwerty Business',
+            'XYZ': 'XYZ Flight Systems',
+            'ABCD': 'ABCD Moon Parity'
           }
         },
-        'val': 'HAB'
+        'val': 'QWE'
       },
       {
         'def': {
@@ -142,14 +142,14 @@ namespace Azos.Tests.Unit.Web.Client
       Aver.AreEqual(0, attr.MinLength);
       Aver.AreEqual(15, attr.MaxLength);
       Aver.IsTrue(CharCase.Upper == attr.CharCase);
-      Aver.AreObjectsEqual("HAB", attr.Default);
+      Aver.AreObjectsEqual("QWE", attr.Default);
 
-      var map1 = FieldAttribute.ParseValueListString("HAB:HAB.rs Health and Beauty,READRS:READ.rs Book Business,SLRS:SL.RS General Business", true);
+      var map1 = FieldAttribute.ParseValueListString("QWE:QWE Qwerty Business,XYZ:XYZ Flight Systems,ABCD:ABCD Moon Parity", true);
       var map2 = attr.ParseValueList(true);
       Aver.IsTrue(map1.SequenceEqual(map2));
 
-      Aver.AreObjectsEqual("''{Name=Vertical_ID Type=string Description=Vertical Required=False Visible=False Size=15 DefaultValue=HAB Key=True Case=Upper LookupDict=\"{\\\"HAB\\\":\\\"HAB.rs Health and Beauty\\\",\\\"READRS\\\":\\\"READ.rs Book Business\\\",\\\"SLRS\\\":\\\"SL.RS General Business\\\"}\"}", attr.MetadataContent);
-      Aver.AreObjectsEqual("HAB", rec["Vertical_ID"]);
+      Aver.AreObjectsEqual("''{Name=Vertical_ID Type=string Description=Vertical Required=False Visible=False Size=15 DefaultValue=QWE Key=True Case=Upper LookupDict=\"{\\\"QWE\\\":\\\"QWE Qwerty Business\\\",\\\"XYZ\\\":\\\"XYZ Flight Systems\\\",\\\"ABCD\\\":\\\"ABCD Moon Parity\\\"}\"}", attr.MetadataContent);
+      Aver.AreObjectsEqual("QWE", rec["Vertical_ID"]);
 
       fdef = rec.Schema["Table_ID"];
       Aver.IsNotNull(fdef);

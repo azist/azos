@@ -55,7 +55,7 @@ namespace Azos.IO.FileSystem.SVN
       if (unm.IsNotNullOrWhiteSpace())
       {
         var cred = new IDPasswordCredentials(unm, upwd);
-        var at = new AuthenticationToken(ServerURL, unm);
+        var at = new SysAuthToken(ServerURL, unm);
         User = new User(cred, at, UserStatus.User, unm, unm, Rights.None);
       }
     }

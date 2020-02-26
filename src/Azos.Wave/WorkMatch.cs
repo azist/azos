@@ -457,7 +457,7 @@ namespace Azos.Wave
       {
         if (m_AcceptJson)
         {
-          if (!work.RequestedJSON) return false;
+          if (!work.RequestedJson) return false;
         }
 
         if (m_AcceptTypes==null) return true;

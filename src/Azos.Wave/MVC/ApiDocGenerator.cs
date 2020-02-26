@@ -8,6 +8,7 @@ using Azos.Collections;
 using Azos.Conf;
 using Azos.Security;
 using Azos.Text;
+using Azos.Data;
 
 namespace Azos.Wave.Mvc
 {
@@ -17,6 +18,8 @@ namespace Azos.Wave.Mvc
   /// </summary>
   public class ApiDocGenerator : IMetadataGenerator
   {
+    public const string DEFAULT_PUBLIC_METADATA_SECTION = "pub";
+
     /// <summary>
     /// Represents a MVC controller scope during metadata generation
     /// </summary>
@@ -66,7 +69,7 @@ namespace Azos.Wave.Mvc
       public readonly string Namespace;
 
       /// <summary>
-      /// returns all controller types regardless of ApiDoc decorations
+      /// returns all controller types regardless of ApiDoc decorations and ignore patterns
       /// </summary>
       public IEnumerable<Type> AllControllerTypes
       {
@@ -85,6 +88,10 @@ namespace Azos.Wave.Mvc
     public ApiDocGenerator(IApplication app){ m_App = app.NonNull(nameof(app)); }
 
     private IApplication m_App;
+    private string m_PublicMetadataSection = DEFAULT_PUBLIC_METADATA_SECTION;
+
+    public IApplication App => m_App;
+
 
     private class instanceList : List<(object item, bool wasDescribed)>
     {
@@ -95,12 +102,16 @@ namespace Azos.Wave.Mvc
     private Dictionary<Type, instanceList> m_TypesToDescribe = new Dictionary<Type, instanceList>();
 
 
-    public IApplication App => m_App;
 
     /// <summary>
     /// A list of locations where system looks for controllers to generate Api docs from
     /// </summary>
     public List<ControllerLocation> Locations { get; } = new List<ControllerLocation>();
+
+    /// <summary>
+    /// A list of Type pattern matches that must be ignored during metadata discovery, e.g. "System.Threading.*"
+    /// </summary>
+    public List<string> IgnoreTypePatterns { get; } = new List<string>();
 
 
     /// <summary>
@@ -109,9 +120,38 @@ namespace Azos.Wave.Mvc
     public MetadataDetailLevel DetailLevel { get; set;}
 
     /// <summary>
+    /// Name of public metadata config section, `pub` by default
+    /// </summary>
+    public string PublicMetadataSection
+    {
+      get => m_PublicMetadataSection ?? DEFAULT_PUBLIC_METADATA_SECTION;
+      set => m_PublicMetadataSection = value;
+    }
+
+    /// <summary>
     /// Specifies target name used for data docs/schema targeted metadata extraction
     /// </summary>
-    public string DataTargetName { get; set;}
+    public string DefaultDataTargetName { get; set; }
+
+    /// <summary>
+    /// An optional callback used by GetSchemaDataTargetName()
+    /// </summary>
+    public Func<Schema, IDataDoc, string> SchemaDataTargetNameCallback { get; set;}
+
+
+    /// <summary>
+    /// Gets data target name for the specified schema/type, and its optional instance.
+    /// Base implementation tries to delegate to DataTargetNameCallback if it is set, otherwise returning DefaultDataTargetName.
+    /// This mechanism is used to get proper target names in call context, for example
+    /// you may need to get a different metadata depending on a call context such as Session.DataContextName etc.
+    /// </summary>
+    public virtual string GetSchemaDataTargetName(Schema schema, IDataDoc instance)
+    {
+      var callback = SchemaDataTargetNameCallback;
+
+      return callback==null ? DefaultDataTargetName
+                            : callback(schema, instance);
+    }
 
     /// <summary>
     /// Generates the resulting config object
@@ -123,9 +163,10 @@ namespace Azos.Wave.Mvc
       var data = MakeConfig();
 
       var allControllers = Locations.SelectMany(loc => loc.AllControllerTypes)
-                 .Select( t => (tController: t, aController: t.GetCustomAttribute<ApiControllerDocAttribute>() ))
-                 .Where(tpl => FilterControllerType(tpl.tController, tpl.aController))
-                 .OrderBy( tpl => FilterControllerType(tpl.tController, tpl.aController));
+                 .Where    ( t => !IgnoreTypePatterns.Any(ignore => t.FullName.MatchPattern(ignore) ))
+                 .Select   ( t => (tController: t, aController: t.GetCustomAttribute<ApiControllerDocAttribute>() ))
+                 .Where    ( tpl => FilterControllerType(tpl.tController, tpl.aController))
+                 .OrderBy  ( tpl => OrderControllerType(tpl.tController, tpl.aController));
 
       foreach(var controller in allControllers)
         PopulateController(data, controller.tController, controller.aController);
@@ -207,6 +248,7 @@ namespace Azos.Wave.Mvc
       if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
         return "map<{0},{1}>".Args(AddTypeToDescribe(type.GetGenericArguments()[0]), AddTypeToDescribe(type.GetGenericArguments()[1]));
 
+      if (IgnoreTypePatterns.Any(ignore => type.FullName.MatchPattern(ignore))) return DetailLevel > MetadataDetailLevel.Public ? type.Name : "sys";
 
       instanceList list;
       if (!m_TypesToDescribe.TryGetValue(type, out list))
@@ -237,5 +279,21 @@ namespace Azos.Wave.Mvc
 
     public virtual void PopulateController(ConfigSectionNode data, Type ctlType, ApiControllerDocAttribute ctlAttr)
      => CustomMetadataAttribute.Apply(ctlType, new ControllerContext(this, ctlAttr), this, data);
+
+    /// <summary>
+    /// Writes error to the generator, e.g. using a log
+    /// </summary>
+    public void ReportError(Log.MessageType type, Exception error)
+    {
+      if (error==null) return;
+
+      App.Log.Write(new Log.Message{
+        Type = type,
+        Topic = CoreConsts.DOC_TOPIC,
+        From = GetType().Name,
+        Text = error.ToMessageWithType(),
+        Exception = error
+      });
+    }
   }
 }

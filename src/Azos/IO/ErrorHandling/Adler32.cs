@@ -112,7 +112,7 @@ namespace Azos.IO.ErrorHandling
 
 
             /// <summary>
-            /// Addes string to checksum
+            /// Adds string to checksum
             /// </summary>
             public void Add(string buff)
             {

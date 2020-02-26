@@ -262,7 +262,7 @@ namespace WaveTestSite.Controllers
 
         if (map) return result;
 
-        return new JSONResult(result, JsonWritingOptions.Compact);
+        return new JsonResult(result, JsonWritingOptions.Compact);
       }
 
       [Action, ApiEndpointDoc]
@@ -342,17 +342,17 @@ namespace WaveTestSite.Controllers
 
         public class Person : TypedDoc
         {
-          [Field]
+          [Field(metadata: "z=true b=234")]
           public string ID { get; set;}
 
-          [Field(metadata:@"Placeholder='Enter Your First Name' Case='caps'")]// LookupDict='{""key1"": ""value1"", ""key2"": ""value2""}'}")]
+          [Field(metadata:@"pub{Placeholder='Enter Your First Name' Case='caps'}")]// LookupDict='{""key1"": ""value1"", ""key2"": ""value2""}'}")]
           public string FirstName { get; set;}
 
-          [Field(required: true, visible: true)]
+          [Field(required: true, visible: true, metadata:"pvt='privatedata' pub{a=1 b='some string'}")]
           public string LastName { get; set;}
 
 
-          [Field(required: true, description: "Public Status")]//, backendName: "zhaba")]
+          [Field(required: true, description: "Public Status", metadata: "pub{msg='everything is public'}")]//, backendName: "zhaba")]
           public StatusCode PubStatus{get; set;}
 
           [Field(required: false, description: "Private Status")]

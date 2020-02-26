@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using Azos.Conf;
 
 namespace Azos.Apps.Injection
@@ -83,6 +84,7 @@ namespace Azos.Apps.Injection
         result = MakeInjector(type);
         var dict = new Dictionary<Type, TypeInjector>(m_Infos);
         dict.Add(type, result);
+        Thread.MemoryBarrier();
         m_Infos = dict;//atomic
       }
 
