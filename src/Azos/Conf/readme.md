@@ -2,21 +2,23 @@
 
 Back to [Documentation Index](/src/documentation-index.md)
 
-This section describes configuration engine in Azos which is used in many different ways not only for file-based configuration. Many functions/components which need to get a structured dynamic data vector use config engine.
+This section describes configuration engine in Azos which is used in many different ways. Many functions/components which need to get a structured dynamic data vector use config engine, because of this the **term "configuration" in Azos** does not  imply working with application config files only, but **has a much broader meaning/applicability**.
+
 Here is a list of a few use-cases **besides** typical configuration:
-- Application command line arguments are parsed into configuration, consequently various components may get injected/configured from command line, file or any other source in a uniform way
+- Application **command line arguments** are parsed into configuration, consequently various components may get injected/configured from command line, file or any other source in a uniform way
+- **Security ACL/Rights** are stored as config tree (it is a security descriptor tree)
 - Sky `cmdlets` (commandlets) are typed-in in application terminal. The commands are written in any supported config tree syntax (e.g. XML, JSON, Laconic)
-- Metadata generator which generates API documentation from controllers, builds the metadata tree into a "configuration" object which can later be saved into various formats or served right from memory
-- Testing script runner dumps test results into configuration
-- Complex business logic uses IoC principle and performs DI of suitable strategies at runtime having its rules stored as config vectors in data store/db
-- Abstract Expression Tree nodes are fully inject-able from configuration thus allowing for complex expressions/logic (e.g. complex log sink filtering) construction from config vector with one line `.Configure(node)`
+- Metadata generator which generates API documentation from controllers, builds the **metadata tree into a "configuration" object** which can later be saved into various formats or served right from memory
+- Testing script runner dumps **test results into a data object** which represents a results of a test session
+- Complex **business logic uses IoC principle and performs DI of suitable strategies** at runtime having its **rules stored as config vectors in data store/db**
+- **Abstract Expression Tree** nodes are fully inject-able from configuration thus allowing for complex expressions/logic (e.g. complex log sink filtering) construction from config vector with one line `.Configure(node)`
 
 
 See also:
-- [Data Schema](metadata.md)
-- [Advanced Metadata](advanced-meta.md)
-- [Data Validation with Domains](domains.md)
-- [Data Modeling](modeling.md)
+- [Laconic Format](laconic-format.md)
+- [Json Format](json-format.md)
+- [Xml Format](xml-format.md)
+- [Command Args Format](cmdarg-format.md)
 
 ## Overview
 The configuration framework is built for contemporary apps which are usually deployed on multiple hosts having different
@@ -65,7 +67,9 @@ Cluster app configuration is accessed using `Sky.Metabase` which provides both g
 The Sky applications use `SkyApplication` chassis which first boots from local config then mounts config from metabase store which is mounted using a virtual file system. See [Metabase Documentation](/src/Azos.Sky/Metabase)
 
 ## Configuration Content Formats
-Configuration supports **Laconic**, **JSON**, **XML** formats, all of which have the same eventual semantic expressed in a different syntax.
+Configuration supports [**Laconic**](laconic-format.md), [**JSON**](json-format.md), [**XML**](xml-format.md) formats, all of which have the same eventual semantic expressed in a different syntax.
+
+Although not technically a true format, a [**command-line argument**](cmdarg-format.md) parser also parses CLI args into a config tree.
 
 > **Practical Recommendation:** Use Laconic format for all of the app configuration except for the stored content (e.g. in DB) and interop where JSON should be used instead
 
@@ -82,76 +86,7 @@ private const string JSON_SOURCE =
  @"{ ""root"":{ ""-section-value"":""-900"",""a"":""1"",""b"":""2"",""sub"":{ ""z"":""my\nmessage!""} } }";
 ```
 
-### Laconic Format
-
-Laconic format is somewhat similar to [HOCON](https://en.wikipedia.org/wiki/HOCON), however it probably predates them as it was devised in the early 2000s (though not called "Laconic" at that time).
-
-> **LACONIC** means "terse" or "concise" in Greek, as in a "Laconic speech"
-
-```csharp
- root=-900
- {
-   a=1 //single line comment
-   b=2 /* block comment */
-   |* another nested /* block */ comment *|
-   sub{z='my\nmessage! "OK"'}
-   c=$"
-   verbatim
-   strings
-   "
- }
-```
-This is the **default choice for writing config files** as it is the simplest format that has the following pros:
-
-- Terse format (e.g. XML is much more verbose, so is JSON)
-- Optional quotes, both single and dbl
-- Line comments
-- Block comments
-- Verbatim strings + strings escapes a-la C# (e.g. `"\n\rFunny: \u3748\u2423"` )
-
-Laconic cons:
-
-- This format is not understood by built-in DB parses, store DB configuration vectors in JSON or XML formats instead (this is rarely needed when strategy/entity config is stored in the database)
-
-
-## JSON
-```json
-{
-  "root": {
-  "-section-value": "-900",
-  "a": "1",
-  "b": "2",
-  "sub":{
-    "z": "my\nmessage! \"OK\""
-  }
-  "c": "\n verbatim \n strings "
- }
-}
-```
-
-The only advantage of JSON over Laconic is if you need to read it somewhere else which rarely happens, e.g. if you need to read in in a SQL query. JSON is used for cases when config vector is stored in DBs or sent to client. Other than that, JSON is much harder to use because it does not support comments (classic json does not), and has much longer footprint/more typing and extra quotes.
-
-Consider the difference:
-```csharp
- a=1{b=one{} b=two{} b=three{} c{atr=val}}
-
- - vs -
-
- {"a":{"-section-value": "1","b":[{"-section-value": "one"},{"-section-value": "two"},{"-section-value": "three"}],"c":{"atr":"val"} }}
-
-```
-
-## XML
-```xml
-  <!-- only block comments -->
-  <root a="1" b="2" c="&#10; verbatim &#10; strings ">
-   -900
-   <sub z="my\nmessage! &quot;OK&quot;">
-   </sub>
-  </root>
-```
-XML is very similar to JSON in its limitations. It is verbose, does not have line comments (which is very inconvenient) and requires additional escape sequences. In practice this format should only be used for persisting config snippets in DBs and other external systems.
-
+> **Azos Config Framework is format-INDEPENDENT:** the config functionality such as macros, variable evaluation, navigation, property binding, etc. works over node trees in memory and does not depend on the content format which this tree was loaded from/saved into
 
 
 
@@ -160,10 +95,10 @@ XML is very similar to JSON in its limitations. It is verbose, does not have lin
 -----------------------
 
 See also:
-- [Data Schema](metadata.md)
-- [Advanced Metadata](advanced-meta.md)
-- [Data Validation with Domains](domains.md)
-- [Data Modeling](modeling.md)
+- [Laconic Format](laconic-format.md)
+- [Json Format](json-format.md)
+- [Xml Format](xml-format.md)
+- [Command Args Format](cmdarg-format.md)
 
 Back to [Documentation Index](/src/documentation-index.md)
 
