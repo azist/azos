@@ -73,6 +73,13 @@ namespace Azos.Serialization.JSON
     /// Returns process global IJsonReaderBackend if one was set, or an instance of ClassicJsonReaderBackend as the default value.
     /// Null is never returned
     /// </summary>
+    /// <remarks>
+    /// App context and DI is not used here purposely not to couple Json framework to higher-level components.
+    /// The need to switch Json parsing library at runtime multiple times is non existent, and this mechanism
+    /// is provided more for special use cases like profiling with different json parsers.
+    /// The Wave vNext uses JSON via a DI-installed module, whereas this is a lower-level service used in general context
+    /// where DI is not even available
+    /// </remarks>
     internal static IJsonReaderBackend ReaderBackend
     {
       get
@@ -83,9 +90,10 @@ namespace Azos.Serialization.JSON
     }
 
     /// <summary>
+    /// System method, app developers do not call.
     /// Sets process-wide reader backend. Passing null resets the backend to ClassicJsonReaderBackend
     /// </summary>
-    public static void SetReaderBackend(IJsonReaderBackend backend)
+    public static void ____SetReaderBackend(IJsonReaderBackend backend)
     {
       s_ReaderBackend = backend;
     }
