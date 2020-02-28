@@ -43,9 +43,9 @@ namespace Azos.CodeAnalysis.JSON
     {
       JsonTokenType tt;
 
-      s_KeywordList.TryGetValue(str, out tt);
+      if (s_KeywordList.TryGetValue(str, out tt)) return tt;
 
-      return (tt!=JsonTokenType.tUnknown) ? tt : JsonTokenType.tIdentifier;
+      return JsonTokenType.tIdentifier;
     }
 
   }
