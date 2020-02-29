@@ -51,6 +51,10 @@ namespace Azos.Serialization.JSON.Backends
         case JsonTokenType.tTrue:           return true;
         case JsonTokenType.tFalse:          return false;
         case JsonTokenType.tStringLiteral:  return token.Text;
+        case JsonTokenType.tIntLiteral:     return (int)token.ULValue;
+        case JsonTokenType.tLongIntLiteral: return (long)token.ULValue;
+        case JsonTokenType.tDoubleLiteral:  return token.DValue;
+
         case JsonTokenType.tPlus: {
           token = fetchPrimary(tokens);//skip "+"
 
@@ -71,6 +75,8 @@ namespace Azos.Serialization.JSON.Backends
           throw new JazonDeserializationException(JsonMsgCode.eNumericLiteralExpectedAfterSignOperator, "Numeric literal expected", token.Position);
         }
       }
+
+      ///////Console.WriteLine(token.ToJson());
 
       throw new JazonDeserializationException(JsonMsgCode.eSyntaxError, "Bad syntax", token.Position);
     }

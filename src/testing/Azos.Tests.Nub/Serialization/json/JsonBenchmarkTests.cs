@@ -1,6 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Threading.Tasks;
 
 using Azos.Scripting;
@@ -12,6 +16,11 @@ namespace Azos.Tests.Nub.Serialization
   [Runnable]
   public class JsonBenchmarkTests
   {
+    static JsonBenchmarkTests()
+    {
+      JsonReader.____SetReaderBackend(new Azos.Serialization.JSON.Backends.JazonReaderBackend());
+    }
+
     [Run("cnt=250000 par=false")]
     [Run("cnt=250000 par=true")]
     public void Test_SimpleObject(int cnt, bool par)

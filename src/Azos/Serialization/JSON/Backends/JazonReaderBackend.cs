@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-
+using Azos.CodeAnalysis.JSON;
 using Azos.CodeAnalysis.Source;
 
 namespace Azos.Serialization.JSON.Backends
@@ -20,17 +20,20 @@ namespace Azos.Serialization.JSON.Backends
   {
     public object DeserializeFromJson(string json, bool caseSensitiveMaps)
     {
-      throw new NotImplementedException();
+      var source = new StringSource(json, JsonLanguage.Instance);//todo: reuse instance
+      return JazonParser.Parse(source, caseSensitiveMaps);
     }
 
     public object DeserializeFromJson(Stream stream, bool caseSensitiveMaps, Encoding encoding)
     {
-      throw new NotImplementedException();
+      using (var source = encoding == null ? new StreamSource(stream, JsonLanguage.Instance)
+                                           : new StreamSource(stream, encoding, JsonLanguage.Instance))
+        return JazonParser.Parse(source, caseSensitiveMaps);
     }
 
     public object DeserializeFromJson(ISourceText source, bool caseSensitiveMaps)
     {
-      throw new NotImplementedException();
+      return JazonParser.Parse(source, caseSensitiveMaps);
     }
   }
 }

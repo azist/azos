@@ -66,7 +66,7 @@ namespace Azos.Serialization.JSON.Backends
     public bool IsError => Type < 0;
     public JsonMsgCode MsgCode => IsError ? (JsonMsgCode)ULValue : JsonMsgCode.INFOS;
     public bool IsPrimary => !IsNonLanguage && Type != JsonTokenType.tComment;
-    public bool IsNonLanguage => Type > JsonTokenType.NONLANG_START && Type < JsonTokenType.NONLANG_END;
+    public bool IsNonLanguage => Type==JsonTokenType.tUnknown || (Type > JsonTokenType.NONLANG_START && Type < JsonTokenType.NONLANG_END);
     public int  OrdinalType => (int)Type;
     public bool IsTextualLiteral => Type == JsonTokenType.tStringLiteral;
     public bool IsNumericLiteral => Type > JsonTokenType.NUMLITERALS_START && Type < JsonTokenType.NUMLITERALS_END;
@@ -276,8 +276,11 @@ namespace Azos.Serialization.JSON.Backends
               #region Turn On Strings
               if ((chr == '$') && ((nchr == '"') || (nchr == '\'')))
               {
-                yield return flush();
-                if (isError) yield break;
+                if (buffer.Length>0)
+                {
+                  yield return flush();
+                  if (isError) yield break;
+                }
                 isString = true;
                 isVerbatim = true;
                 stringEnding = nchr;
@@ -286,8 +289,11 @@ namespace Azos.Serialization.JSON.Backends
               }
               if ((chr == '"') || (chr == '\''))
               {
-                yield return flush();
-                if (isError) yield break;
+                if (buffer.Length>0)
+                {
+                  yield return flush();
+                  if (isError) yield break;
+                }
                 isString = true;
                 isVerbatim = false;
                 stringEnding = chr;
@@ -300,8 +306,11 @@ namespace Azos.Serialization.JSON.Backends
 
               if ((chr == ' ') || (chr == '\t')) //space or TAB
               {
-                yield return flush();
-                if (isError) yield break;
+                if (buffer.Length>0)
+                {
+                  yield return flush();
+                  if (isError) yield break;
+                }
                 continue; //eat it
               }
 
@@ -318,8 +327,11 @@ namespace Azos.Serialization.JSON.Backends
                   ((chr == '.') && (!JsonIdentifiers.ValidateDigit(nchr)))
                  )
               {
-                yield return flush();
-                if (isError) yield break;
+                if (buffer.Length > 0)
+                {
+                  yield return flush();
+                  if (isError) yield break;
+                }
 
                 bufferAdd(chr);
 
@@ -382,9 +394,11 @@ namespace Azos.Serialization.JSON.Backends
        //=======================================================================================================================
       #endregion
 
-
-      yield return flush(); //flush any remains
-      if (isError) yield break;
+      if (buffer.Length>0)
+      {
+        yield return flush(); //flush any remains
+        if (isError) yield break;
+      }
 
       #region Post-walk check
       if (!wasFlush)
