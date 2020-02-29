@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Azos.CodeAnalysis;
@@ -59,6 +65,11 @@ namespace Azos.Serialization.JSON.Backends
 
     public bool IsError => Type < 0;
     public JsonMsgCode MsgCode => IsError ? (JsonMsgCode)ULValue : JsonMsgCode.INFOS;
+    public bool IsPrimary => !IsNonLanguage && Type != JsonTokenType.tComment;
+    public bool IsNonLanguage => Type > JsonTokenType.NONLANG_START && Type < JsonTokenType.NONLANG_END;
+    public int  OrdinalType => (int)Type;
+    public bool IsTextualLiteral => Type == JsonTokenType.tStringLiteral;
+    public bool IsNumericLiteral => Type > JsonTokenType.NUMLITERALS_START && Type < JsonTokenType.NUMLITERALS_END;
   }
 
 
