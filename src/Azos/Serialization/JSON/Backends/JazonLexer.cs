@@ -73,6 +73,7 @@ namespace Azos.Serialization.JSON.Backends
     private readonly ISourceText source;
 
     char chr, nchr;
+    bool wasFlush;
     bool isError;
     bool isCommentBlock;
     char commentBlockEnding;
@@ -88,7 +89,7 @@ namespace Azos.Serialization.JSON.Backends
     int posCol = 0;
     int posChar = 0;
 
-    SourcePosition tagStartPos, tagEndPos;
+    SourcePosition tagStartPos;
 
     StringBuilder buffer = new StringBuilder(128);
 
@@ -124,7 +125,6 @@ namespace Azos.Serialization.JSON.Backends
     {
       if (buffer.Length == 0) tagStartPos = srcPos();
       buffer.Append(c);
-      tagEndPos = srcPos();
     }
 
 
@@ -376,7 +376,7 @@ namespace Azos.Serialization.JSON.Backends
       if (isError) yield break;
 
       #region Post-walk check
-      if (tokens.Count < 2)
+      if (!wasFlush)
         yield return new JazonToken(JsonMsgCode.ePrematureEOF, srcPos(), "Premature EOF");
 
 
@@ -404,9 +404,9 @@ namespace Azos.Serialization.JSON.Backends
           (buffer.Length == 0)
          ) return new JazonToken(JsonTokenType.tUnknown, tagStartPos, null);
 
-      string text = buffer.ToString();
-
+      var text = buffer.ToString();
       buffer.Length = 0;
+      wasFlush = true;
 
       var type = JsonTokenType.tUnknown;
 
