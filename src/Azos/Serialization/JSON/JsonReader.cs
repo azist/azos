@@ -65,7 +65,7 @@ namespace Azos.Serialization.JSON
     }
 
 
-    private static readonly IJsonReaderBackend DEFAULT_READER_BACKEND = new Backends.ClassicJsonReaderBackend();
+    private static readonly IJsonReaderBackend DEFAULT_READER_BACKEND = new Backends.JazonReaderBackend();// .ClassicJsonReaderBackend();
 
     private static IJsonReaderBackend s_ReaderBackend;
 

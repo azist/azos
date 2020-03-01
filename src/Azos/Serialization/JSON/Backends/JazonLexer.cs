@@ -174,8 +174,11 @@ namespace Azos.Serialization.JSON.Backends
           {
             if ((!isString) && (!isCommentBlock))
             {
-              yield return flush();
-              if (isError) yield break;
+              if (buffer.Length>0)
+              {
+                yield return flush();
+                if (isError) yield break;
+              }
               if (isCommentLine)
               {
                 isCommentLine = false;
@@ -218,7 +221,7 @@ namespace Azos.Serialization.JSON.Backends
             }
             else if (chr == stringEnding)
             {
-              yield return flush();
+              yield return flush(); //even empty
               if (isError) yield break;
               isString = false;
               continue; // eat terminating string char
@@ -246,8 +249,11 @@ namespace Azos.Serialization.JSON.Backends
               //turn on comment block
               if (((chr == '/') || (chr == '|')) && (nchr == '*'))
               {
-                yield return flush();
-                if (isError) yield break;
+                if (buffer.Length>0)
+                {
+                  yield return flush();
+                  if (isError) yield break;
+                }
                 isCommentBlock = true;
                 commentBlockEnding = chr;
                 moveNext();
@@ -257,8 +263,11 @@ namespace Azos.Serialization.JSON.Backends
               //turn on comment line
               if ((chr == '/') && (nchr == '/'))
               {
-                yield return flush();
-                if (isError) yield break;
+                if (buffer.Length>0)
+                {
+                  yield return flush();
+                  if (isError) yield break;
+                }
                 isCommentLine = true;
                 moveNext();
                 continue;
@@ -268,8 +277,11 @@ namespace Azos.Serialization.JSON.Backends
               //directives MUST be the first non-white char on the line
               if (freshLine && chr == '#')
               {
-                yield return flush();
-                if (isError) yield break;
+                if (buffer.Length>0)
+                {
+                  yield return flush();
+                  if (isError) yield break;
+                }
                 isCommentLine = true;
                 isDirective = true;
                 continue;

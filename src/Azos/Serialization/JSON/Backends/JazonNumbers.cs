@@ -21,7 +21,7 @@ namespace Azos.Serialization.JSON.Backends
     {
       if (strToInt(str, out value))
       {
-        type = value > UInt32.MaxValue ? type = JsonTokenType.tLongIntLiteral : JsonTokenType.tIntLiteral;
+        type = value > Int32.MaxValue ? type = JsonTokenType.tLongIntLiteral : JsonTokenType.tIntLiteral;
         return true;
       }
 
@@ -57,7 +57,10 @@ namespace Azos.Serialization.JSON.Backends
       {
         var c = str[i];
         if (c<'0' || c>'9') { ok = false; break; }
-        num = (num * 10) + ((uint)c - '0');
+        checked
+        {
+          num = (num * 10) + ((uint)c - '0');
+        }
         ok = true;
       }
       if (ok) return true;
@@ -97,7 +100,7 @@ namespace Azos.Serialization.JSON.Backends
       for (var i=0; i<str.Length; i++)
       {
         var c = str[i];
-        if ((c > '9' && c!='e' && c!='E') || (c<'0' && c!='.'))
+        if ((c > '9' && c!='e' && c!='E') || (c<'0' && c!='.' && c!='-' && c!='+'))
         {
           num=0;
           return false;
