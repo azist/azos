@@ -15,6 +15,7 @@ using Azos.Serialization.JSON;
 using Azos.CodeAnalysis.Source;
 using Azos.Serialization.JSON.Backends;
 using Azos.CodeAnalysis.JSON;
+using Azos.Text;
 
 namespace Azos.Tests.Nub.Serialization
 {
@@ -421,6 +422,139 @@ namespace Azos.Tests.Nub.Serialization
       var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null},]    , /* comment: comment */  , }";
       var src = new StringSource(json);
       var got = JazonParser.Parse(src, true) as JsonDataMap;
+    }
+
+
+
+    [Run]
+    public void Object_1()
+    {
+      var json = @"{ 
+      ""a"": 1, 'b': true, ""c"": null, d: false, e: {}, /* some comment */ f: [],
+       g: 'string',
+  /*
+    this
+    is
+    all
+    comment
+    */
+       h: ""string2""
+ //this is a complex
+ //multiline
+
+  ,
+    list: [
+        +11,-12,
+
+
+
+
+
+        -345e3, null ,
+      ], //notice trailing comma
+
+}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual(1, got["a"]);
+      Aver.AreObjectsEqual(true, got["b"]);
+      Aver.AreObjectsEqual(null, got["c"]);
+      Aver.AreObjectsEqual(false, got["d"]);
+
+      Aver.IsTrue(got["e"] is JsonDataMap);
+      Aver.IsTrue(got["f"] is JsonDataArray);
+
+      Aver.AreObjectsEqual("string", got["g"]);
+      Aver.AreObjectsEqual("string2", got["h"]);
+
+      Aver.IsTrue(got["list"] is JsonDataArray);
+      Aver.AreEqual(4, (got["list"] as JsonDataArray).Count);
+
+      Aver.AreObjectsEqual(11, (got["list"] as JsonDataArray)[0]);
+      Aver.AreObjectsEqual(-12, (got["list"] as JsonDataArray)[1]);
+      Aver.AreObjectsEqual(-345e3d, (got["list"] as JsonDataArray)[2]);
+      Aver.AreObjectsEqual(null, (got["list"] as JsonDataArray)[3]);
+
+    }
+
+
+    [Run]
+    public void Object_2()
+    {
+      var json = @"{ /*
+      ""a"": 1, 'b': true, ""c"": null, d: false, e: {}, |* some comment *| f: [],
+       g: 'string',
+
+    this
+    is
+    all
+    comment
+
+       h: ""string2""
+ //this is a complex
+ //multiline
+
+  ,
+    list: [
+        +11,-12,
+
+
+
+
+
+        -345e3, null ,
+      ], //notice trailing comma
+    */
+     a: 123, }";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreEqual(1, got.Count);
+      Aver.AreObjectsEqual(123, got["a"]);
+    }
+
+    [Run]
+    public void Object_3()
+    {
+      var json = @"{ s: $'/*
+      ""a"": 1, ''b'': true, ""c"": null, d: false, e: {}, |* some comment *| f: [],
+       g: ''string'',
+
+    this
+    is
+    all
+    comment
+
+       h: ""string2""
+ //this is a complex
+ //multiline
+
+  ,
+    list: [
+        +11,   -12,
+
+
+
+
+
+        -345e3, null ,
+      ], //notice trailing comma
+    */',
+     a: -123, }";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+
+      got["s"].See();
+
+      Aver.AreEqual(2, got.Count);
+      Aver.IsTrue(got["s"].ToString().MatchPattern("/* 'b': true*g: 'string',*+11,   -12*trailing comma*/"));
+      Aver.AreObjectsEqual(-123, got["a"]);
+
     }
 
   }
