@@ -17,7 +17,7 @@ namespace Azos.CodeAnalysis.JSON
   /// </summary>
   public static class JsonKeywords
   {
-    private static Dictionary<string, JsonTokenType> s_KeywordList = new Dictionary<string, JsonTokenType>();
+    private static Dictionary<string, JsonTokenType> s_KeywordList = new Dictionary<string, JsonTokenType>(StringComparer.Ordinal);
 
     static JsonKeywords()
     {

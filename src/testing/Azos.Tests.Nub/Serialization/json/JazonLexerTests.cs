@@ -33,7 +33,7 @@ namespace Azos.Tests.Nub.Serialization
       var src = new StringSource(json);
       var lxr = new JazonLexer(src);
 
-      lxr.Scan().Select(t => "{0} `{1}`".Args(t.Type, t.Text) ).See();
+      lxr.Select(t => "{0} `{1}`".Args(t.Type, t.Text) ).See();
 
     }
 

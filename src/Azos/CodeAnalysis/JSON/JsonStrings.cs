@@ -20,9 +20,10 @@ namespace Azos.CodeAnalysis.JSON
 
     public static string UnescapeString(string str)
     {
-      if (str.IndexOf('\\')==-1) return str;//20131215 DKh 6.3% speed improvement in Integration test
+      //quick return strings that are not escaped
+      if (str.IndexOf('\\') == -1) return str;
 
-      StringBuilder sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder(str.Length);
 
       for (int i = 0; i < str.Length; i++)
       {

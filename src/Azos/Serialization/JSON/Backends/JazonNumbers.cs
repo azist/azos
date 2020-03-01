@@ -94,6 +94,16 @@ namespace Azos.Serialization.JSON.Backends
 
     private static bool strToFloat(string str, out double num)
     {
+      for (var i=0; i<str.Length; i++)
+      {
+        var c = str[i];
+        if ((c > '9' && c!='e' && c!='E') || (c<'0' && c!='.'))
+        {
+          num=0;
+          return false;
+        }
+      }
+
       return Double.TryParse(str,
                              NumberStyles.Float,
                              CultureInfo.InvariantCulture,  out num);

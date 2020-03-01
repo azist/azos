@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Azos.CodeAnalysis;
@@ -16,47 +17,42 @@ namespace Azos.Serialization.JSON.Backends
   public struct JazonToken
   {
     // Error
-    internal JazonToken(JsonMsgCode code, SourcePosition position, string text)
+    internal JazonToken(JsonMsgCode code, string text)
     {
       Type = (JsonTokenType)(-1);
-      Position = position;
       Text = text;
       ULValue = (ulong)code;
       DValue = 0d;
     }
 
     // Identifier
-    internal JazonToken(JsonTokenType type, SourcePosition position, string text)
+    internal JazonToken(JsonTokenType type, string text)
     {
       Type = type;
-      Position = position;
       Text = text;
       ULValue = 0ul;
       DValue = 0d;
     }
 
     //Int, or Long value
-    internal JazonToken(JsonTokenType type, SourcePosition position, string text, ulong ulValue)
+    internal JazonToken(JsonTokenType type, string text, ulong ulValue)
     {
       Type = type;
-      Position = position;
       Text = text;
       ULValue = ulValue;
       DValue = 0d;
     }
 
     //Double value
-    internal JazonToken(JsonTokenType type, SourcePosition position, string text, double dValue)
+    internal JazonToken(JsonTokenType type,  string text, double dValue)
     {
       Type = type;
-      Position = position;
       Text = text;
       ULValue = 0ul;
       DValue = dValue;
     }
 
     public readonly JsonTokenType Type;
-    public readonly SourcePosition Position;
 
     public readonly string Text;
     //To avoid boxing the primitives are stored in-place
@@ -67,20 +63,29 @@ namespace Azos.Serialization.JSON.Backends
     public JsonMsgCode MsgCode => IsError ? (JsonMsgCode)ULValue : JsonMsgCode.INFOS;
     public bool IsPrimary => !IsNonLanguage && Type != JsonTokenType.tComment;
     public bool IsNonLanguage => Type==JsonTokenType.tUnknown || (Type > JsonTokenType.NONLANG_START && Type < JsonTokenType.NONLANG_END);
-    public int  OrdinalType => (int)Type;
-    public bool IsTextualLiteral => Type == JsonTokenType.tStringLiteral;
-    public bool IsNumericLiteral => Type > JsonTokenType.NUMLITERALS_START && Type < JsonTokenType.NUMLITERALS_END;
   }
 
 
 
-  internal class JazonLexer
+  internal class JazonLexer : IEnumerator<JazonToken>, IEnumerable<JazonToken>
   {
     public JazonLexer(ISourceText src)
     {
       source = src;
+      result = run().GetEnumerator();
     }
 
+    public bool MoveNext() => result.MoveNext();
+    void IEnumerator.Reset() => result.Reset();
+    void IDisposable.Dispose() => result.Dispose();
+    public JazonToken Current => result.Current;
+    object IEnumerator.Current => result.Current;
+
+    IEnumerator IEnumerable.GetEnumerator() => result;
+    IEnumerator<JazonToken> IEnumerable<JazonToken>.GetEnumerator() => result;
+
+
+    private readonly IEnumerator<JazonToken> result;
     private readonly ISourceText source;
 
     char chr, nchr;
@@ -102,9 +107,9 @@ namespace Azos.Serialization.JSON.Backends
 
     SourcePosition tagStartPos;
 
-    StringBuilder buffer = new StringBuilder(128);
+    StringBuilder buffer = new StringBuilder(256);
 
-
+    public SourcePosition Position => tagStartPos;
 
     private void moveNext()
     {
@@ -140,10 +145,10 @@ namespace Azos.Serialization.JSON.Backends
 
 
 
-    public IEnumerable<JazonToken> Scan()
+    private IEnumerable<JazonToken> run()
     {
 
-      yield return new JazonToken(JsonTokenType.tBOF, srcPos(), string.Empty);
+      yield return new JazonToken(JsonTokenType.tBOF, string.Empty);
 
       #region Main walk
       //=======================================================================================================================
@@ -156,7 +161,7 @@ namespace Azos.Serialization.JSON.Backends
         {
           if ((isString) && (!isVerbatim))
           {
-            yield return new JazonToken(JsonMsgCode.eUnterminatedString, srcPos(), "Unterminated string");
+            yield return new JazonToken(JsonMsgCode.eUnterminatedString,  "Unterminated string");
             yield break;//no further parsing
           }
 
@@ -207,7 +212,7 @@ namespace Azos.Serialization.JSON.Backends
 
               if (source.EOF)
               {
-                yield return new JazonToken(JsonMsgCode.eUnterminatedString, srcPos(), "Unterminated string");
+                yield return new JazonToken(JsonMsgCode.eUnterminatedString, "Unterminated string");
                 yield break;//stop further processing, as string did not terminate but EOF reached
               }
             }
@@ -315,11 +320,11 @@ namespace Azos.Serialization.JSON.Backends
               }
 
               if (
-                  (chr == ';') ||
+                 // (chr == ';') ||
                   (chr == '{') ||
                   (chr == '}') ||
-                  (chr == '(') ||
-                  (chr == ')') ||
+                //  (chr == '(') ||
+                //  (chr == ')') ||
                   (chr == '[') ||
                   (chr == ']') ||
                   (chr == ',') ||
@@ -402,23 +407,33 @@ namespace Azos.Serialization.JSON.Backends
 
       #region Post-walk check
       if (!wasFlush)
-        yield return new JazonToken(JsonMsgCode.ePrematureEOF, srcPos(), "Premature EOF");
+        yield return new JazonToken(JsonMsgCode.ePrematureEOF, "Premature EOF");
 
 
       if (isCommentBlock)
-        yield return new JazonToken(JsonMsgCode.eUnterminatedComment, srcPos(), "Unterminated comment");
+        yield return new JazonToken(JsonMsgCode.eUnterminatedComment,  "Unterminated comment");
 
 
       if (isString)
-        yield return new JazonToken(JsonMsgCode.eUnterminatedString, srcPos(), "Unterminated string");
+        yield return new JazonToken(JsonMsgCode.eUnterminatedString, "Unterminated string");
 
 
       #endregion
 
-      yield return new JazonToken(JsonTokenType.tEOF, new SourcePosition(posLine, posCol, posChar), string.Empty);
+      yield return new JazonToken(JsonTokenType.tEOF, string.Empty);
     }//Scan
 
 
+    private static readonly string[] INTERNS;
+
+
+
+    static JazonLexer()
+    {
+      INTERNS = new string[0xff];
+      for(var i=0; i<0xff; i++)
+       INTERNS[i] = string.Intern(((char)i).ToString());
+    }
 
     private JazonToken flush()
     {
@@ -427,10 +442,25 @@ namespace Azos.Serialization.JSON.Backends
           (!isCommentBlock) &&
           (!isCommentLine) &&
           (buffer.Length == 0)
-         ) return new JazonToken(JsonTokenType.tUnknown, tagStartPos, null);
+         ) return new JazonToken(JsonTokenType.tUnknown, null);
 
-      var text = buffer.ToString();
-      buffer.Length = 0;
+      //var text = buffer.ToString();
+      string text;
+      if (buffer.Length==1)
+      {
+        var fc = buffer[0];
+        if (fc<0xff)
+         text = INTERNS[fc];
+        else
+         text = buffer.ToString();
+      }
+      else
+      {
+        text = buffer.ToString();
+      }
+
+
+      buffer.Clear();
       wasFlush = true;
 
       var type = JsonTokenType.tUnknown;
@@ -448,19 +478,19 @@ namespace Azos.Serialization.JSON.Backends
           catch (StringEscapeErrorException err)
           {
             isError = true;
-            return new JazonToken(JsonMsgCode.eInvalidStringEscape, tagStartPos, err.ErroredEscape);
+            return new JazonToken(JsonMsgCode.eInvalidStringEscape, err.ErroredEscape);
           }
         }
 
-        return new JazonToken(JsonTokenType.tStringLiteral, tagStartPos, text);
+        return new JazonToken(JsonTokenType.tStringLiteral,  text);
       }
       else if (isCommentLine && isDirective)//directives treated similar to line comments
       {
-        return new JazonToken(JsonTokenType.tDirective, tagStartPos, text);
+        return new JazonToken(JsonTokenType.tDirective, text);
       }
       else if (isCommentBlock || isCommentLine)
       {
-        return new JazonToken(JsonTokenType.tComment, tagStartPos, text);
+        return new JazonToken(JsonTokenType.tComment,  text);
       }
       else
       {
@@ -468,48 +498,36 @@ namespace Azos.Serialization.JSON.Backends
         {
           if (JazonNumbers.ConvertInteger(text, out type, out var ulv))
           {
-            return new JazonToken(type, tagStartPos, text, ulv);
+            return new JazonToken(type, text, ulv);
           }
 
           if (JazonNumbers.ConvertDouble(text, out type, out var dblv))
           {
-            return new JazonToken(type, tagStartPos, text, dblv);
+            return new JazonToken(type, text, dblv);
           }
         }
         catch (OverflowException)
         {
           isError = true;
-          return new JazonToken(JsonMsgCode.eValueTooBig, tagStartPos, text);
+          return new JazonToken(JsonMsgCode.eValueTooBig, text);
         }
 
         type = JsonKeywords.Resolve(text);
-
-        if (type == JsonTokenType.tIdentifier)
-        {
-          //////if (text.StartsWith("$"))
-          //////{
-          //////  text = text.Remove(0, 1); //take care of verbatim names like: $class, $method, $var etc..
-          //////  tagStartPos = new SourcePosition(tagStartPos.LineNumber, tagStartPos.ColNumber + 1, tagStartPos.CharNumber + 1);
-          //////}
-
-          if (!JsonIdentifiers.Validate(text))
-          {
-            isError = true;
-            return new JazonToken(JsonMsgCode.eInvalidIdentifier, tagStartPos, text);
-          }
-        }
-
-        return new JazonToken(type, tagStartPos, text);
+/*
+        ////////if (type == JsonTokenType.tIdentifier)
+        ////////{
+        ////////  if (!JsonIdentifiers.Validate(text))
+        ////////  {
+        ////////    isError = true;
+        ////////    return new JazonToken(JsonMsgCode.eInvalidIdentifier, tagStartPos, text);
+        ////////  }
+        ////////}
+ */
+        return new JazonToken(type, text);
       }//not comment
 
     }//flush
 
 
-  }//FSM
-
-
-
-
-
-
+  }
 }
