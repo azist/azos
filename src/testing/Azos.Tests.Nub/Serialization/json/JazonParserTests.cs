@@ -224,6 +224,72 @@ namespace Azos.Tests.Nub.Serialization
       var src = new StringSource(json);
       var got = JazonParser.Parse(src, true) as JsonDataMap;
     }
+
+
+    [Run]
+    public void Depth_1()
+    {
+      var json = @"{ v: 'abc'}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual("abc", got["v"]);
+    }
+
+    [Run]
+    public void Depth_2()
+    {
+      var json = @"{ v: 'abc'}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true, 1) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual("abc", got["v"]);
+    }
+
+    [Run]
+    [Aver.Throws(typeof(JazonDeserializationException), Message = "eGraphDepthLimit")]
+    public void Depth_3()
+    {
+      var json = @"{ v: 'abc'}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true, 0) as JsonDataMap;
+    }
+
+    [Run]
+    public void Depth_4()
+    {
+      var json = @"{ v: {v2: 'abc'}}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true, 2) as JsonDataMap;
+
+      var v = got["v"] as JsonDataMap;
+      Aver.IsNotNull(v);
+      Aver.AreObjectsEqual("abc", v["v2"]);
+    }
+
+    [Run]
+    [Aver.Throws(typeof(JazonDeserializationException), Message = "eGraphDepthLimit")]
+    public void Depth_5()
+    {
+      var json = @"{ v: {v2: 'abc'}}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true, 1) as JsonDataMap;
+    }
+
+
+    [Run]
+    public void Depth_6()
+    {
+      var json = @"123";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true, 0);//only allow root values, not objects or arrays
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual(123, got);
+    }
+
   }
 }
 

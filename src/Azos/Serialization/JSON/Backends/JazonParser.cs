@@ -14,13 +14,12 @@ namespace Azos.Serialization.JSON.Backends
 {
   public static class JazonParser
   {
-    public static object Parse(ISourceText src, bool senseCase)
+    public static object Parse(ISourceText src, bool senseCase, int maxDepth = 64)
     {
-#warning add a limit to parsing depth (e.g. 256)
-
+      if (maxDepth<0) maxDepth = 0;// 0 = root literal value
       var lexer = new JazonLexer(src);
       fetchPrimary(lexer);
-      var data = doAny(lexer, senseCase);
+      var data = doAny(lexer, senseCase, maxDepth);
 
       return data;
     }
@@ -39,14 +38,14 @@ namespace Azos.Serialization.JSON.Backends
       return tokens.Current;
     }
 
-    private static object doAny(JazonLexer lexer, bool senseCase)
+    private static object doAny(JazonLexer lexer, bool senseCase, int maxDepth)
     {
       var token = lexer.Current;
 
       switch(token.Type)
       {
-        case JsonTokenType.tBraceOpen:      return doObject(lexer, senseCase);
-        case JsonTokenType.tSqBracketOpen:  return doArray(lexer, senseCase);
+        case JsonTokenType.tBraceOpen:      return doObject(lexer, senseCase, maxDepth - 1);
+        case JsonTokenType.tSqBracketOpen:  return doArray(lexer, senseCase, maxDepth - 1);
         case JsonTokenType.tNull:           return null;
         case JsonTokenType.tTrue:           return true;
         case JsonTokenType.tFalse:          return false;
@@ -77,8 +76,11 @@ namespace Azos.Serialization.JSON.Backends
       throw new JazonDeserializationException(token.IsError ? token.MsgCode : JsonMsgCode.eSyntaxError, "Bad syntax", lexer.Position);
     }
 
-    private static JsonDataArray doArray(JazonLexer lexer, bool senseCase)
+    private static JsonDataArray doArray(JazonLexer lexer, bool senseCase, int maxDepth)
     {
+      if (maxDepth < 0)
+        throw new JazonDeserializationException(JsonMsgCode.eGraphDepthLimit, "The graph is too deep", lexer.Position);
+
       var token = fetchPrimary(lexer); // skip [
 
       var arr = new JsonDataArray();
@@ -87,7 +89,7 @@ namespace Azos.Serialization.JSON.Backends
       {
         while (true)
         {
-          var item = doAny(lexer, senseCase);
+          var item = doAny(lexer, senseCase, maxDepth);
           arr.Add( item );  // [any, any, any]
 
           token = fetchPrimary(lexer);
@@ -103,8 +105,11 @@ namespace Azos.Serialization.JSON.Backends
       return arr;
     }
 
-    private static JsonDataMap doObject(JazonLexer lexer, bool senseCase)
+    private static JsonDataMap doObject(JazonLexer lexer, bool senseCase, int maxDepth)
     {
+      if (maxDepth < 0)
+        throw new JazonDeserializationException(JsonMsgCode.eGraphDepthLimit, "The graph is too deep", lexer.Position);
+
       var token = fetchPrimary(lexer); // skip {
 
       var obj = new JsonDataMap(senseCase);
@@ -126,7 +131,7 @@ namespace Azos.Serialization.JSON.Backends
 
           token = fetchPrimary(lexer);
 
-          var value = doAny(lexer, senseCase);
+          var value = doAny(lexer, senseCase, maxDepth);
 
           obj[key] = value;
 
