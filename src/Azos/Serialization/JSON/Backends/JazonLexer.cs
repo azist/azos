@@ -424,16 +424,16 @@ namespace Azos.Serialization.JSON.Backends
     }//Scan
 
 
-    private static readonly string[] INTERNS;
+    //private static readonly string[] INTERNS;
 
 
 
-    static JazonLexer()
-    {
-      INTERNS = new string[0xff];
-      for(var i=0; i<0xff; i++)
-       INTERNS[i] = string.Intern(((char)i).ToString());
-    }
+    //static JazonLexer()
+    //{
+    //  INTERNS = new string[0xff];
+    //  for(var i=0; i<0xff; i++)
+    //   INTERNS[i] = string.Intern(((char)i).ToString());
+    //}
 
     private JazonToken flush()
     {
@@ -444,29 +444,15 @@ namespace Azos.Serialization.JSON.Backends
           (buffer.Length == 0)
          ) return new JazonToken(JsonTokenType.tUnknown, null);
 
-      //var text = buffer.ToString();
-      string text;
-      if (buffer.Length==1)
-      {
-        var fc = buffer[0];
-        if (fc<0xff)
-         text = INTERNS[fc];
-        else
-         text = buffer.ToString();
-      }
-      else
-      {
-        text = buffer.ToString();
-      }
-
-
-      buffer.Clear();
       wasFlush = true;
 
       var type = JsonTokenType.tUnknown;
 
       if (isString)
       {
+        var text = buffer.ToString();
+        buffer.Clear();
+
         type = JsonTokenType.tStringLiteral;
 
         if (!isVerbatim)
@@ -486,14 +472,48 @@ namespace Azos.Serialization.JSON.Backends
       }
       else if (isCommentLine && isDirective)//directives treated similar to line comments
       {
+        var text = buffer.ToString();
+        buffer.Clear();
         return new JazonToken(JsonTokenType.tDirective, text);
       }
       else if (isCommentBlock || isCommentLine)
       {
+        var text = buffer.ToString();
+        buffer.Clear();
         return new JazonToken(JsonTokenType.tComment,  text);
       }
       else
       {
+        string text;
+        if (buffer.Length==1)
+        {
+          var fc = buffer[0];
+
+          switch(fc)
+          {
+            case '{': { buffer.Clear(); return new JazonToken(JsonTokenType.tBraceOpen, "{");      }
+            case '}': { buffer.Clear(); return new JazonToken(JsonTokenType.tBraceClose, "}");     }
+            case '[': { buffer.Clear(); return new JazonToken(JsonTokenType.tSqBracketOpen, "[");  }
+            case ']': { buffer.Clear(); return new JazonToken(JsonTokenType.tSqBracketClose, "]"); }
+            case ',': { buffer.Clear(); return new JazonToken(JsonTokenType.tComma, ",");          }
+            case ':': { buffer.Clear(); return new JazonToken(JsonTokenType.tColon, ":");          }
+            case '+': { buffer.Clear(); return new JazonToken(JsonTokenType.tPlus, "+");           }
+            case '-': { buffer.Clear(); return new JazonToken(JsonTokenType.tMinus, "-");          }
+          }
+
+          text = buffer.ToString();
+        }
+        else
+        {
+          text = buffer.ToString();
+
+          if (text == "null")    { buffer.Clear(); return new JazonToken(JsonTokenType.tNull, "null"); }
+          if (text == "false") { buffer.Clear(); return new JazonToken(JsonTokenType.tFalse, "false"); }
+          if (text == "true")  { buffer.Clear(); return new JazonToken(JsonTokenType.tTrue, "true"); }
+        }
+        buffer.Clear();
+
+
         try
         {
           if (JazonNumbers.ConvertInteger(text, out type, out var ulv))
@@ -512,7 +532,7 @@ namespace Azos.Serialization.JSON.Backends
           return new JazonToken(JsonMsgCode.eValueTooBig, text);
         }
 
-        type = JsonKeywords.Resolve(text);
+        type = JsonTokenType.tIdentifier;
 /*
         ////////if (type == JsonTokenType.tIdentifier)
         ////////{
