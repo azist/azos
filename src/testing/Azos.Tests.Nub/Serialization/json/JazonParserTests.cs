@@ -290,6 +290,139 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreObjectsEqual(123, got);
     }
 
+    [Run]
+    public void TrailingComma_Array_1()
+    {
+      var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null},]}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      var a = got["a"] as JsonDataArray;
+      Aver.IsNotNull(a);
+      Aver.AreEqual(2, a.Count);
+      Aver.AreObjectsEqual(1, a[0]);
+      Aver.AreObjectsEqual(-2, a[1]);
+
+      var b = got["b"] as JsonDataArray;
+      Aver.IsNotNull(b);
+      Aver.AreEqual(3, b.Count);
+      Aver.AreObjectsEqual(true, (b[0] as JsonDataMap)["f"]);
+      Aver.AreObjectsEqual(false, (b[1] as JsonDataMap)["f"]);
+      Aver.AreObjectsEqual(null, (b[2] as JsonDataMap)["f"]);
+    }
+
+    [Run]
+    public void TrailingComma_Array_2()
+    {
+      var json = @"{ a: [1,-2,/*comment,*/], b: [{f: true},{f: false},{f: null},/*comment,,,*/]}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      var a = got["a"] as JsonDataArray;
+      Aver.IsNotNull(a);
+      Aver.AreEqual(2, a.Count);
+      Aver.AreObjectsEqual(1, a[0]);
+      Aver.AreObjectsEqual(-2, a[1]);
+
+      var b = got["b"] as JsonDataArray;
+      Aver.IsNotNull(b);
+      Aver.AreEqual(3, b.Count);
+      Aver.AreObjectsEqual(true, (b[0] as JsonDataMap)["f"]);
+      Aver.AreObjectsEqual(false, (b[1] as JsonDataMap)["f"]);
+      Aver.AreObjectsEqual(null, (b[2] as JsonDataMap)["f"]);
+    }
+
+    [Run]
+    [Aver.Throws(typeof(JazonDeserializationException), Message = "eSyntaxError")]
+    public void TrailingComma_Array_3()
+    {
+      var json = @"{ a: [1,-2,,], b: [{f: true},{f: false},{f: null},]}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+    }
+
+    [Run]
+    [Aver.Throws(typeof(JazonDeserializationException), Message = "eSyntaxError")]
+    public void TrailingComma_Array_4()
+    {
+      var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null}, ,]}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+    }
+
+    [Run]
+    [Aver.Throws(typeof(JazonDeserializationException), Message = "eSyntaxError")]
+    public void TrailingComma_Array_5()
+    {
+      var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null},/* comment: comment */ ,]}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+    }
+
+    [Run]
+    public void TrailingComma_Object_1()
+    {
+      var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null},]    ,  }";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      var a = got["a"] as JsonDataArray;
+      Aver.IsNotNull(a);
+      Aver.AreEqual(2, a.Count);
+      Aver.AreObjectsEqual(1, a[0]);
+      Aver.AreObjectsEqual(-2, a[1]);
+
+      var b = got["b"] as JsonDataArray;
+      Aver.IsNotNull(b);
+      Aver.AreEqual(3, b.Count);
+      Aver.AreObjectsEqual(true, (b[0] as JsonDataMap)["f"]);
+      Aver.AreObjectsEqual(false, (b[1] as JsonDataMap)["f"]);
+      Aver.AreObjectsEqual(null, (b[2] as JsonDataMap)["f"]);
+    }
+
+    [Run]
+    public void TrailingComma_Object_2()
+    {
+      var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null},]    , /* comment: comment */  }";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      var a = got["a"] as JsonDataArray;
+      Aver.IsNotNull(a);
+      Aver.AreEqual(2, a.Count);
+      Aver.AreObjectsEqual(1, a[0]);
+      Aver.AreObjectsEqual(-2, a[1]);
+
+      var b = got["b"] as JsonDataArray;
+      Aver.IsNotNull(b);
+      Aver.AreEqual(3, b.Count);
+      Aver.AreObjectsEqual(true, (b[0] as JsonDataMap)["f"]);
+      Aver.AreObjectsEqual(false, (b[1] as JsonDataMap)["f"]);
+      Aver.AreObjectsEqual(null, (b[2] as JsonDataMap)["f"]);
+    }
+
+    [Run]
+    [Aver.Throws(typeof(JazonDeserializationException), Message = "eObjectKeyExpected")]
+    public void TrailingComma_Object_3()
+    {
+      var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null},]    ,   , }";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+    }
+
+    [Run]
+    [Aver.Throws(typeof(JazonDeserializationException), Message = "eObjectKeyExpected")]
+    public void TrailingComma_Object_4()
+    {
+      var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null},]    , /* comment: comment */  , }";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+    }
+
   }
 }
 

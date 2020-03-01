@@ -137,7 +137,8 @@ namespace Azos.Serialization.JSON.Backends
 
           token = fetchPrimary(lexer);
           if (token.Type != JsonTokenType.tComma) break;
-          token = fetchPrimary(lexer);
+          token = fetchPrimary(lexer);//eat comma
+          if (token.Type == JsonTokenType.tBraceClose) break;//allow for {el,} trailing coma at the end
         }
 
         if (token.Type != JsonTokenType.tBraceClose)
