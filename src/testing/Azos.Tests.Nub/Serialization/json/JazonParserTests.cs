@@ -31,6 +31,199 @@ namespace Azos.Tests.Nub.Serialization
       got.See();
 
     }
+
+    [Run]
+    public void ULongMax()
+    {
+      var json = @"{ v: 18446744073709551615}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual(ulong.MaxValue, got["v"]);
+
+    }
+
+    [Run]
+    public void Long_1()
+    {
+      var json = @"{ v: -9223372036854775808}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual(long.MinValue, got["v"]);
+
+    }
+
+    [Run]
+    public void Long_2()
+    {
+      var json = @"{ v: 9223372036854775807}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual(long.MaxValue, got["v"]);
+
+    }
+
+    [Run]
+    public void Long_3()
+    {
+      var json = @"{ v: +9223372036854775807}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual(long.MaxValue, got["v"]);
+
+    }
+
+    [Run]
+    public void Int_1()
+    {
+      var json = @"{ v: -2147483647}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual(int.MinValue+1, got["v"]);//+1 because lexer treats int as [-2147483647, +2147483647] whereas int min is -214748364[8]
+    }
+
+    [Run]
+    public void Int_2()
+    {
+      var json = @"{ v: 2147483647}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual(int.MaxValue, got["v"]);
+
+    }
+
+    [Run]
+    public void Int_3()
+    {
+      var json = @"{ v: +2147483647}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual(int.MaxValue, got["v"]);
+
+    }
+
+    [Run]
+    [Aver.Throws(typeof(JazonDeserializationException), Message = "eSyntaxError")]
+    public void Int_4()
+    {
+      var json = @"{ v: ++1}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+    }
+
+    [Run]
+    [Aver.Throws(typeof(JazonDeserializationException), Message = "eSyntaxError")]
+    public void Int_5()
+    {
+      var json = @"{ v: --1}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+    }
+
+    [Run]
+    [Aver.Throws(typeof(JazonDeserializationException), Message = "eValueTooBig")]
+    public void Int_6()
+    {
+      var json = @"{ v: 687346857632847659872364785623480580392805982312348927318497293749826346213786482376}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+    }
+
+
+    [Run]
+    public void Dbl_1()
+    {
+      var json = @"{ v: 2.12}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual(2.12d, got["v"]);
+    }
+
+    [Run]
+    public void Dbl_2()
+    {
+      var json = @"{ v: +2.12}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual(2.12d, got["v"]);
+    }
+
+    [Run]
+    public void Dbl_3()
+    {
+      var json = @"{ v: -2.12}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual(-2.12d, got["v"]);
+    }
+
+    [Run]
+    public void Dbl_4()
+    {
+      var json = @"{ v: -2e3}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual(-2e3, got["v"]);
+    }
+
+    [Run]
+    public void Dbl_5()
+    {
+      var json = @"{ v: -2.2e3}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+
+      Aver.IsNotNull(got);
+      Aver.AreObjectsEqual(-2.2e3, got["v"]);
+    }
+
+    [Run]
+    [Aver.Throws(typeof(JazonDeserializationException), Message = "eSyntaxError")]
+    public void Dbl_6()
+    {
+      var json = @"{ v: --2.2e3}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+    }
+
+    [Run]
+    [Aver.Throws(typeof(JazonDeserializationException), Message = "eSyntaxError")]
+    public void Dbl_7()
+    {
+      var json = @"{ v: ++2.2e3}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+    }
+
+    [Run]
+    [Aver.Throws(typeof(JazonDeserializationException), Message = "eValueTooBig")]
+    public void Dbl_8()
+    {
+      var json = @"{ v: 6873468576328476598723647856234805803928059823123489273184972937498263462137864823.76}";
+      var src = new StringSource(json);
+      var got = JazonParser.Parse(src, true) as JsonDataMap;
+    }
   }
 }
 

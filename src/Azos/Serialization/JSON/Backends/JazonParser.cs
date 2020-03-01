@@ -52,7 +52,7 @@ namespace Azos.Serialization.JSON.Backends
         case JsonTokenType.tFalse:          return false;
         case JsonTokenType.tStringLiteral:  return token.Text;
         case JsonTokenType.tIntLiteral:     return (int)token.ULValue;
-        case JsonTokenType.tLongIntLiteral: return (long)token.ULValue;
+        case JsonTokenType.tLongIntLiteral: return token.ULValue > long.MaxValue ? token.ULValue : (object)(long)token.ULValue;
         case JsonTokenType.tDoubleLiteral:  return token.DValue;
 
         case JsonTokenType.tPlus: {
@@ -74,7 +74,7 @@ namespace Azos.Serialization.JSON.Backends
         }
       }
 
-      throw new JazonDeserializationException(JsonMsgCode.eSyntaxError, "Bad syntax", lexer.Position);
+      throw new JazonDeserializationException(token.IsError ? token.MsgCode : JsonMsgCode.eSyntaxError, "Bad syntax", lexer.Position);
     }
 
     private static JsonDataArray doArray(JazonLexer lexer, bool senseCase)

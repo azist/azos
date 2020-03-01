@@ -157,6 +157,18 @@ namespace Azos.Tests.Nub.Serialization
       Aver.IsTrue(JsonMsgCode.eValueTooBig == (JsonMsgCode)got.ULValue);
     }
 
+    [Run]
+    public void Int_5()
+    {
+      var json = "18446744073709551615";
+      var src = new StringSource(json);
+      var lxr = new JazonLexer(src);
+
+      var got = lxr.Skip(1).First();
+      Aver.IsTrue(JsonTokenType.tLongIntLiteral == got.Type);
+      Aver.AreEqual(ulong.MaxValue, got.ULValue);
+    }
+
 
     [Run]
     public void Doubles_1()
