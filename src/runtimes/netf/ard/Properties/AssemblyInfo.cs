@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("ard")]
 [assembly: AssemblyProduct("ard")]
-[assembly: AssemblyCopyright("Copyright © Azist Group 2019")]
+[assembly: AssemblyCopyright("Copyright © Azist Group 2020")]
 [assembly: AssemblyDescription("Azos Sky, Root Daemon")]
 [assembly: AssemblyCompany("Azist Group")]
 [assembly: AssemblyTrademark("Azos Sky")]

@@ -19,9 +19,22 @@ namespace Azos.Wave.Mvc
     protected static Dictionary<string, ConfigSectionNode> s_Data = new Dictionary<string, ConfigSectionNode>();
 
     /// <summary>
-    /// Factory method for ApiDocgenerator. Sets generation locations
+    /// This method is called before cache read and any data generation.
+    /// Override to reject the supplied dataContext from processing. This is needed to filter-out contexts that are not supported.
+    /// The string is normalized (e.g. names are sorted and trimmed).
+    /// Throw a 400 exception for unsupported context. You can also check the caller security and throw 401/403
+    /// for requests that require authorization as you may have public schemas and private schemas which should NOT be disclosed to
+    /// unauthorized users. The base implementation does nothing
     /// </summary>
-    protected abstract ApiDocGenerator MakeDocGenerator();
+    protected virtual void CheckDataContext(string dataContext)
+    {
+    }
+
+    /// <summary>
+    /// Factory method for ApiDocgenerator. Sets generation locations and target depending on normalized data context string
+    /// </summary>
+    protected abstract ApiDocGenerator MakeDocGenerator(string dataContext);
+
 
     /// <summary>
     /// Override to generate data by calling ApiDocGenerator ad/or caching the result as necessary
@@ -30,13 +43,17 @@ namespace Azos.Wave.Mvc
     {
       get
       {
-        var tp = GetType();//of the caller instance
         var dctx = Ambient.CurrentCallSession.GetNormalizedDataContextName();
-        var key = dctx+"::"+tp.AssemblyQualifiedName;
+        //This will throw if context is unsupported (HTTP400) or caller does not have access (HTTP401/403)
+        CheckDataContext(dctx);
+
+        var tp = GetType();//of the caller instance, used just as a cache key for THIS controller
+        var key = dctx + "::" + tp.AssemblyQualifiedName;//the dctx is sanitized, so arbitrary dctxs are not allowed
+
         lock(s_Data)
         {
           if (s_Data.TryGetValue(key, out var data)) return data;
-          var gen = MakeDocGenerator();
+          var gen = MakeDocGenerator(dctx);
           data = gen.Generate();
           s_Data[key] = data;
           return data;

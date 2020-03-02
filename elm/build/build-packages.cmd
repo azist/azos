@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.540.3
-set HEADLINE=Service release root mem leaks and logging
+set VER=1.2.2
+set HEADLINE=Add type-path and more expression tree support
 
 call vs2017-build-release %VER%
 

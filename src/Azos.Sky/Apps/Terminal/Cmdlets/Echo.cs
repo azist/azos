@@ -22,7 +22,12 @@ namespace Azos.Apps.Terminal.Cmdlets
 
     public override string GetHelp()
     {
-      return @"Echoes text";
+      return
+@"Echoes node value which can be set to var path, 
+  for example: 
+   `$ echo=$(~AZIST_HOME);`
+     or 
+   `$ echo=$(/$a){a=123}`";
     }
   }
 }

@@ -8,6 +8,7 @@ using Azos.Collections;
 using Azos.Conf;
 using Azos.Security;
 using Azos.Text;
+using Azos.Data;
 
 namespace Azos.Wave.Mvc
 {
@@ -130,7 +131,27 @@ namespace Azos.Wave.Mvc
     /// <summary>
     /// Specifies target name used for data docs/schema targeted metadata extraction
     /// </summary>
-    public string DataTargetName { get; set;}
+    public string DefaultDataTargetName { get; set; }
+
+    /// <summary>
+    /// An optional callback used by GetSchemaDataTargetName()
+    /// </summary>
+    public Func<Schema, IDataDoc, string> SchemaDataTargetNameCallback { get; set;}
+
+
+    /// <summary>
+    /// Gets data target name for the specified schema/type, and its optional instance.
+    /// Base implementation tries to delegate to DataTargetNameCallback if it is set, otherwise returning DefaultDataTargetName.
+    /// This mechanism is used to get proper target names in call context, for example
+    /// you may need to get a different metadata depending on a call context such as Session.DataContextName etc.
+    /// </summary>
+    public virtual string GetSchemaDataTargetName(Schema schema, IDataDoc instance)
+    {
+      var callback = SchemaDataTargetNameCallback;
+
+      return callback==null ? DefaultDataTargetName
+                            : callback(schema, instance);
+    }
 
     /// <summary>
     /// Generates the resulting config object

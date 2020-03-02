@@ -50,7 +50,7 @@ namespace Azos.Apps.Terminal
 
     public AppRemoteTerminal()
     {
-      m_ID = AppRemoteTerminalRegistry.Instance(App).NextID();
+      m_ID = AppRemoteTerminalRegistry.GenerateId();
 
       m_Name = new ELink((ulong)m_ID, null).Link;
       m_Vars = new Vars();
@@ -59,22 +59,17 @@ namespace Azos.Apps.Terminal
 
     protected override void Destructor()
     {
-      AppRemoteTerminalRegistry.Instance(App).Unregister(this);
+      AppRemoteTerminalRegistry.Unregister(this);
       base.Destructor();
     }
 
-    public void OnDeserialization(object sender)
-    {
-      var registry = AppRemoteTerminalRegistry.Instance(App);
-      registry.AdjustID(m_ID);
-      registry.Register(this);
-    }
+    public void OnDeserialization(object sender) => AppRemoteTerminalRegistry.Register(this);
 
 #pragma warning disable 649
     [Inject] IApplication m_App;
 #pragma warning restore 649
 
-    private int m_ID;
+    private ulong m_ID;
     private string m_Name;
     private string m_Who;
     private DateTime m_WhenConnected;
@@ -91,7 +86,7 @@ namespace Azos.Apps.Terminal
     /// <summary>
     /// Returns unique terminal session ID
     /// </summary>
-    public int ID { get { return m_ID; } }
+    public ulong ID { get { return m_ID; } }
 
     /// <summary>
     /// Returns unique terminal session ID as an alpha link
@@ -118,7 +113,7 @@ namespace Azos.Apps.Terminal
     /// <summary>
     /// Provides cmdlets
     /// </summary>
-    public virtual IEnumerable<Type> Cmdlets { get { return CmdletFinder.Common; } }
+    public virtual IEnumerable<Type> Cmdlets => CmdletFinder.BaseAzos;
 
     /// <summary>
     /// Provides variable resolver
@@ -139,12 +134,12 @@ namespace Azos.Apps.Terminal
       m_WhenConnected = now;
       m_WhenInteracted = now;
 
-      AppRemoteTerminalRegistry.Instance(App).Register(this);
+      AppRemoteTerminalRegistry.Register(this);
 
       return new RemoteTerminalInfo
       {
         TerminalName = Name,
-        WelcomeMsg = "Connected to '[{0}]{1}'@'{2}' on {3:G} {4:T} UTC. Session '{5}'".Args(App.AppId,
+        WelcomeMsg = "Connected to '[{0}]{1}'@'{2}' on {3:G} {4:T} UTC. Session '{5}'".Args(App.AppId.IsZero ? "#" : App.AppId.Value,
                                                                      App.Name,
                                                                      App.GetThisHostName(),
                                                                      App.TimeSource.Now,
@@ -157,7 +152,7 @@ namespace Azos.Apps.Terminal
       };
     }
 
-    [AppRemoteTerminalPermission]
+    [RemoteTerminalOperatorPermission]
     public virtual string Execute(string command)
     {
       m_WhenInteracted = App.TimeSource.UTCNow;

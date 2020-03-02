@@ -4,7 +4,7 @@ using Azos.IAM.Protocol;
 namespace Azos.IAM.Server.Data
 {
   /// <summary>
-  /// Represents a set of users, a unit of user hierarchy organization.
+  /// Represents a set of accounts, a unit of account hierarchical organization.
   /// </summary>
   public sealed class Group : EntityWithRights
   {

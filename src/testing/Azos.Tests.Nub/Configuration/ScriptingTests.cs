@@ -355,7 +355,7 @@ const string rschemaExpected=
   PK_COLUMN=counter
   table=patient
   {
-    column=$(/$PK_COLUMN)
+    column=""$(/$PK_COLUMN)""
     {
       type=TCounter
       required=true
@@ -382,7 +382,7 @@ const string rschemaExpected=
   }
   table=charge
   {
-    column=$(/$PK_COLUMN)
+    column=""$(/$PK_COLUMN)""
     {
       type=TCounter
       required=true

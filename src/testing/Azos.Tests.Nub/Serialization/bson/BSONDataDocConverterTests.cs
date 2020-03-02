@@ -892,7 +892,7 @@ namespace Azos.Tests.Nub.Serialization
          {
            [Field] public string FirstName{get;set;}
            [Field] public string LastName{get;set;}
-           [Field] public int Age{get;set;} //suppose we designed it a few years back and made a mistake - keeping an age as an INT (instread of a date)
+           [Field] public int Age{get;set;} //suppose we designed it a few years back and made a mistake - keeping an age as an INT (instead of a date)
          }
 
          public class RowVersionB : AmorphousTypedDoc
@@ -904,7 +904,7 @@ namespace Azos.Tests.Nub.Serialization
 
            public int Age{ get { return (int)((DateTime.Now-DOB).TotalDays / 365d);}}//Age is now a calculated property, so existing code does not break
 
-           public override void AfterLoad(string targetName)
+           protected override void DoAmorphousDataAfterLoad(string targetName)
            {
              if (targetName=="MyLegacySystem")//if data came from THIS system
              {

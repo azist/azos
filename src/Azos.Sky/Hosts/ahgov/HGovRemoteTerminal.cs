@@ -14,7 +14,7 @@ namespace Azos.Sky.Hosts.ahgov
   /// <summary>
   /// Implements Sky Host Governor remote terminal
   /// </summary>
-  public class HGovRemoteTerminal : AppRemoteTerminal
+  public class HGovRemoteTerminal : SkyAppRemoteTerminal
   {
     public HGovRemoteTerminal() : base()
     {

@@ -10,7 +10,7 @@ namespace Azos.Sky.Hosts.aph
   /// <summary>
   /// Implements Process Host remote terminal
   /// </summary>
-  public class ProcessHostRemoteTerminal : AppRemoteTerminal
+  public class ProcessHostRemoteTerminal : SkyAppRemoteTerminal
   {
     public ProcessHostRemoteTerminal() : base() { }
 

@@ -12,6 +12,7 @@ namespace Azos.Time
   public struct Timeter
   {
     private static readonly long FREQUENCY_MS = Stopwatch.Frequency / 1000;//ms
+    private static readonly double FREQUENCY_SEC = Stopwatch.Frequency;//sec
 
 
     public static Timeter StartNew()
@@ -59,6 +60,11 @@ namespace Azos.Time
     /// This is typically used to measure Call/Api latency where sub-ms resolution is not required
     /// </summary>
     public long ElapsedMs => ElapsedRaw / FREQUENCY_MS;
+
+    /// <summary>
+    /// Returns double number of seconds
+    /// </summary>
+    public double ElapsedSec => ElapsedRaw / FREQUENCY_SEC;
 
   }
 }

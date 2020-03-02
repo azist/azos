@@ -148,7 +148,13 @@ namespace Azos.Sky.Tools.ascon
               {
                 var c = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.Write("{0}@{1}@{2}>".Args(hinfo.TerminalName, hinfo.AppName, hinfo.Host));
+                Console.Write("{0}@{1}@{2} ".Args(hinfo.TerminalName, hinfo.AppName, hinfo.Host));
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write("{0:hh:mm:ss.fff}".Args(app.TimeSource.LocalizedTime));
+                Console.ForegroundColor = ConsoleColor.DarkCyan;
+                Console.WriteLine(app.TimeSource.TimeLocation.ToString());
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("$ ");
                 Console.ForegroundColor = c;
               }
               var command = "";

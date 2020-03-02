@@ -76,25 +76,27 @@ namespace Azos.IAM.Server.Data
     [Field(typeof(EntityWithProperties), nameof(PropertyData), TMONGO, backendName: "props")]
     public JsonDataMap PropertyData { get; set; }//JsonDataMap is used because it is supported by all ser frameworks, but we only store strings
 
-    public override Exception Validate(string targetName)
+    public override ValidState Validate(ValidState state)
     {
-      var ve = base.Validate(targetName);
-      if (ve!=null) return ve;
+      state = base.Validate(state);
+      if (state.ShouldStop) return state;
 
-      if (PropertyData==null) return null;
+      if (PropertyData==null) return state;
 
       foreach(var kvp in PropertyData)
       {
         if (kvp.Key.Length > Sizes.PROPERTY_NAME_MAX)
-          return new FieldValidationException(this, kvp.Key.TakeLastChars(32, ".."),
-                            StringConsts.ENTITY_PROPERTY_NAME_LONG_ERROR.Args(Sizes.PROPERTY_NAME_MAX));
+          state = new ValidState(state, new FieldValidationException(this, kvp.Key.TakeLastChars(32, ".."),
+                            StringConsts.ENTITY_PROPERTY_NAME_LONG_ERROR.Args(Sizes.PROPERTY_NAME_MAX)));
 
         if (kvp.Value != null && kvp.Value.AsString().Length > Sizes.PROPERTY_VALUE_MAX)
-          return new FieldValidationException(this, kvp.Key.TakeLastChars(32, ".."),
-                            StringConsts.ENTITY_PROPERTY_VALUE_LONG_ERROR.Args(Sizes.PROPERTY_VALUE_MAX));
+          state = new ValidState(state, new FieldValidationException(this, kvp.Key.TakeLastChars(32, ".."),
+                            StringConsts.ENTITY_PROPERTY_VALUE_LONG_ERROR.Args(Sizes.PROPERTY_VALUE_MAX)));
+
+        if (state.ShouldStop) break;
       }
 
-      return null;
+      return state;
     }
 
   }

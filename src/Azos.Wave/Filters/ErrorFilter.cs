@@ -175,13 +175,13 @@ namespace Azos.Wave.Filters
             actual = mvce.InnerException;
 
 
-          var securityError = Security.AuthorizationException.IsDenotedBy(actual);
+          var securityError = Security.AuthorizationException.IsDenotedBy(error);
 
-
-          if (actual is IHttpStatusProvider httpStatusProvider)
+          var hsp = error.SearchThisOrInnerExceptionOf<IHttpStatusProvider>();
+          if (hsp != null)
           {
-            work.Response.StatusCode = httpStatusProvider.HttpStatusCode;
-            work.Response.StatusDescription = httpStatusProvider.HttpStatusDescription;
+            work.Response.StatusCode = hsp.HttpStatusCode;
+            work.Response.StatusDescription = hsp.HttpStatusDescription;
           }
           else
           {
@@ -201,7 +201,7 @@ namespace Azos.Wave.Filters
           if (json)
           {
              work.Response.ContentType = ContentType.JSON;
-             work.Response.WriteJSON(error.ToClientResponseJSONMap(showDump));
+             work.Response.WriteJSON(error.ToClientResponseJsonMap(showDump), JsonWritingOptions.PrettyPrintRowsAsMap);
           }
           else
           {

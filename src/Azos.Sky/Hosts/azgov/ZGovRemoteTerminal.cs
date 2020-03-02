@@ -14,7 +14,7 @@ namespace Azos.Sky.Hosts.azgov
   /// <summary>
   /// Implements Sky Zone Governor remote terminal
   /// </summary>
-  public class ZGovRemoteTerminal : AppRemoteTerminal
+  public class ZGovRemoteTerminal : SkyAppRemoteTerminal
   {
     public ZGovRemoteTerminal() : base() { }
 

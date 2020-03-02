@@ -7,6 +7,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Text;
+using Azos.Serialization.JSON;
 using Azos.Web;
 
 namespace Azos.Wave
@@ -42,7 +43,7 @@ namespace Azos.Wave
   /// Wraps inner exceptions capturing stack trace in inner implementing blocks
   /// </summary>
   [Serializable]
-  public class MvcActionException : MvcException
+  public class MvcActionException : MvcException, IExternalStatusProvider
   {
     public const string CONTROLLER_FLD_NAME = "MVCAE-C";
     public const string ACTION_FLD_NAME = "MVCAE-A";
@@ -92,6 +93,15 @@ namespace Azos.Wave
       info.AddValue(CONTROLLER_FLD_NAME, Controller);
       info.AddValue(ACTION_FLD_NAME, Action);
       base.GetObjectData(info, context);
+    }
+
+    public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
+    {
+      var result = this.DefaultBuildErrorStatusProviderMap(includeDump, "wave.mvc");
+      result[CoreConsts.EXT_STATUS_KEY_CONTROLLER] = Controller;
+      result[CoreConsts.EXT_STATUS_KEY_ACTION] = Action;
+
+      return result;
     }
   }
 
@@ -205,7 +215,7 @@ namespace Azos.Wave
   /// Thrown to indicate various Http status conditions
   /// </summary>
   [Serializable]
-  public class HTTPStatusException : WaveException, IHttpStatusProvider
+  public class HTTPStatusException : WaveException, IHttpStatusProvider, IExternalStatusProvider
   {
     public const string STATUS_CODE_FLD_NAME = "HTTPSE-SC";
     public const string STATUS_DESCRIPTION_FLD_NAME = "HTTPSE-SD";
@@ -319,6 +329,15 @@ namespace Azos.Wave
       info.AddValue(STATUS_DESCRIPTION_FLD_NAME, StatusDescription);
       base.GetObjectData(info, context);
     }
+
+    public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
+    {
+      var result = this.DefaultBuildErrorStatusProviderMap(includeDump, "wave.mvc");
+      result[CoreConsts.EXT_STATUS_KEY_HTTP_CODE] = StatusCode;
+      result[CoreConsts.EXT_STATUS_KEY_HTTP_DESCRIPTION] = StatusDescription;
+
+      return result;
+    }
   }
 
   /// <summary>
@@ -326,40 +345,45 @@ namespace Azos.Wave
   /// </summary>
   public static class ExceptionExtensions
   {
-     /// <summary>
-     /// Describes exception for client response transmission as JSONDataMap
-     /// </summary>
-     public static Serialization.JSON.JsonDataMap ToClientResponseJSONMap(this Exception error, bool detailed)
-     {
-       var actual = error;
-       if (actual is FilterPipelineException fpe)
-         actual = fpe.RootException;
+    /// <summary>
+    /// Describes exception into JsonDataMap suitable for use as client response
+    /// </summary>
+    public static JsonDataMap ToClientResponseJsonMap(this Exception error, bool withDump)
+    {
+      if (error == null) return null;
 
-       var result = new Azos.Serialization.JSON.JsonDataMap();
-       result["OK"] = false;
+      var actual = error;
+      if (actual is FilterPipelineException fpe)
+        actual = fpe.RootException;
 
-       if (actual is IHttpStatusProvider st)
-       {
-        result["HttpStatusCode"] = st.HttpStatusCode;
-        result["HttpStatusDescription"] = st.HttpStatusDescription;
-       }
+      var result = new JsonDataMap();
+      result[CoreConsts.EXT_STATUS_KEY_OK] = false;
 
-       if (detailed)
-       {
-         result["Error"] = error.Message;
-         result["Type"] = error.GetType().FullName;
-         result["StackTrace"] = error.StackTrace;
-         if (error.InnerException!=null)
-            result["Inner"] = error.InnerException.ToClientResponseJSONMap(detailed);
-       }
-       else
-       {
-         result["Error"] = actual.GetType().Name;
-       }
+      var http = error.SearchThisOrInnerExceptionOf<IHttpStatusProvider>();
+      if (http!=null)
+      {
+        result[CoreConsts.EXT_STATUS_KEY_HTTP_CODE] = http.HttpStatusCode;
+        result[CoreConsts.EXT_STATUS_KEY_HTTP_DESCRIPTION] = http.HttpStatusDescription;
+      }
 
-       result["IsAuthorization"] = Security.AuthorizationException.IsDenotedBy(actual);
+      result[CoreConsts.EXT_STATUS_KEY_ERROR] = actual.GetType().Name;
+      result[CoreConsts.EXT_STATUS_KEY_IS_AUTH] = Security.AuthorizationException.IsDenotedBy(error);
 
-       return result;
+      var esp = error.SearchThisOrInnerExceptionOf<IExternalStatusProvider>();
+      if (esp != null)
+      {
+        var data = esp.ProvideExternalStatus(withDump);
+
+        if (data != null)
+          result[CoreConsts.EXT_STATUS_KEY_DATA] = data;
+      }
+
+      if (withDump)
+      {
+        result[CoreConsts.EXT_STATUS_KEY_DEV_DUMP] = new WrappedExceptionData(error, true);
+      }
+
+      return result;
     }
   }
 }

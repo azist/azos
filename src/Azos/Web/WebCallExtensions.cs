@@ -136,7 +136,7 @@ namespace Azos.Web
             raw = await response.Content.ReadAsStringAsync();
 
           if (!isSuccess)
-            throw new WebCallException(StringConsts.WEB_CALL_UNSUCCESSFUL_ERROR.Args(uri.SplitKVP('?').Key.TakeLastChars(12),
+            throw new WebCallException(StringConsts.WEB_CALL_UNSUCCESSFUL_ERROR.Args(uri.SplitKVP('?').Key.TakeLastChars(48),
                                                                                     (int)response.StatusCode,
                                                                                     response.StatusCode),
                                        uri,
@@ -145,7 +145,7 @@ namespace Azos.Web
                                        response.ReasonPhrase,
                                        raw.TakeFirstChars(512, ".."));
 
-          return (raw.JsonToDataObject() as JsonDataMap).NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(raw.TakeFirstChars(32)));
+          return (raw.JsonToDataObject() as JsonDataMap).NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(raw.TakeFirstChars(48)));
         }//using response
       }//using request
     }

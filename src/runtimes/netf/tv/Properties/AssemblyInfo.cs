@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Azist Group")]
 [assembly: AssemblyProduct("tv")]
-[assembly: AssemblyCopyright("Copyright © Azist Group 2019")]
+[assembly: AssemblyCopyright("Copyright © Azist Group 2020")]
 [assembly: AssemblyTrademark("Azos TV")]
 [assembly: AssemblyCulture("")]
 

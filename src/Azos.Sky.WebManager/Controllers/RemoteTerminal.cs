@@ -11,7 +11,6 @@ using System.Text;
 using Azos;
 using Azos.Wave;
 using Azos.Wave.Mvc;
-using Azos.Data;
 
 using Azos.Apps.Terminal;
 using Azos.Sky.Security.Permissions.Admin;
@@ -60,7 +59,6 @@ namespace Azos.Sky.WebManager.Controllers
 
       [Action]
       [RemoteTerminalOperatorPermission]
-      [AppRemoteTerminalPermission]
       public object Execute(string command)
       {
         WorkContext.NeedsSession();

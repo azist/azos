@@ -11,7 +11,7 @@ namespace Azos.Sky.Hosts.aws
   /// <summary>
   /// Implements Web Server remote terminal
   /// </summary>
-  public class WebServerRemoteTerminal : AppRemoteTerminal
+  public class WebServerRemoteTerminal : SkyAppRemoteTerminal
   {
     public WebServerRemoteTerminal() : base() { }
 

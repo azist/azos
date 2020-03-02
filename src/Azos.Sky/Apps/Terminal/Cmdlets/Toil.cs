@@ -5,18 +5,18 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
 using Azos.Conf;
+using Azos.Security;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
 
   public enum ToilType { Cpu, Ram, RamCpu }
 
+  [SystemAdministratorPermission(AccessLevel.VIEW)]
   public class Toil : Cmdlet
   {
     public const string CONFIG_TYPE_ATTR = "type";

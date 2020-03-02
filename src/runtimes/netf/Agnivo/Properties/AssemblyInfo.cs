@@ -15,7 +15,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompany("Azist Group")]
 [assembly: AssemblyProduct("Agnivo")]
 [assembly: AssemblyTrademark("Azos Sky")]
-[assembly: AssemblyCopyright("Copyright © Azist Group 2019")]
+[assembly: AssemblyCopyright("Copyright © Azist Group 2020")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCulture("")]
 

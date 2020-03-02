@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 
 using Azos.Conf;
+using Azos.Data;
 
 namespace Azos
 {
@@ -60,9 +61,9 @@ namespace Azos
     MetadataDetailLevel DetailLevel {  get; }
 
     /// <summary>
-    /// Target name used for extraction of targeted metadata such as database backend target name used in data documents/ schemas
+    /// Default target name used for extraction of targeted metadata such as database backend target name used in data documents/ schemas
     /// </summary>
-    string DataTargetName { get; }
+    string DefaultDataTargetName { get; }
 
     /// <summary>
     /// Name of public metadata config section, typically `pub`
@@ -85,6 +86,14 @@ namespace Azos
     /// Returns true if the specified type is well-known and should not need to be described, e.g. a 'string' does not need to be described
     /// </summary>
     bool IsWellKnownType(Type type);
+
+    /// <summary>
+    /// Gets data target name for the specified schema/doc type, and its optional instance.
+    /// Default implementations typically just return DefaultDataTargetName.
+    /// This mechanism is used to get proper target names in call context, for example
+    /// you may need to get a different metadata depending on a call context such as Session.DataContextName etc.
+    /// </summary>
+    string GetSchemaDataTargetName(Schema schema, IDataDoc instance);
 
     /// <summary>
     /// Adds a type with an optional instance to be described, this is typically used to register Permissions and Doc schemas

@@ -73,17 +73,18 @@ namespace Azos.Security.Tokens
     public abstract int TokenDefaultExpirationSeconds { get; }
 
 
-    public override Exception Validate(string targetName)
+    public override ValidState Validate(ValidState state)
     {
-      var ve = base.Validate(targetName);//ensure base constraints first (e.g. `Type` is required)
-      if (ve != null) return ve;
+      state = base.Validate(state);//ensure base constraints first (e.g. `Type` is required)
+      if (state.ShouldStop) return state;
 
       //Check type signature to ensure that the serialized token does not get deserialized into another one
       //using dynamic formats (e.g. JSON)
       //Type is a required field
-      if (Type != GetType().Name) return new FieldValidationException(this, nameof(Type), "Token Type Mismatch");
+      if (Type != GetType().Name)
+        state = new ValidState(state, new FieldValidationException(this, nameof(Type), "Token Type Mismatch"));
 
-      return null;
+      return state;
     }
 
     protected override Exception CheckValueLength(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value)

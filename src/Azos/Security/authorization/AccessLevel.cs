@@ -28,6 +28,13 @@ namespace Azos.Security
     /// <summary> Full CRUD level: bearer can view, add, update, and delete data</summary>
     public const int VIEW_CHANGE_DELETE = 3;
 
+    /// <summary>
+    /// Bearers have above the full control. In the scope of system administration permissions only:  this is typically used
+    /// to protect irrevocable actions, direct data access, ability to launch arbitrary processes and other activities that
+    /// might destabilize the system
+    /// </summary>
+    public const int ADVANCED = 1000;
+
     public const string CONFIG_LEVEL_ATTR = "level";
 
     public static readonly IConfigSectionNode DENIED_CONF = "p{level=0}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);

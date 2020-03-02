@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,20 +40,14 @@ namespace Azos.Log.Sinks
   public delegate bool MessageFilterHandler(Sink sink, Message msg);
 
   /// <summary>
-  /// Represents logging message destination - an abstract entity that messages are written to by LogService.
-  /// Destinations must be efficient as they block logger thread. They provide failover mechanism when
+  /// Represents logging message sink (aka destination) - an abstract entity that messages are written to by LogService.
+  /// Sinks must be efficient as they block logger thread. They provide failover mechanism when
   ///  processing can not be completed. Once failed, the processing can try to be resumed after configurable interval.
-  /// Destinations also provide optional SLA on the time it takes to perform actual message write - once exceeded destination is considered to have failed.
-  /// Basic efficient filtering is provided for times, dates and levels. Complex C# expression-based filtering is also supported
+  /// Sinks also provide optional SLA on the time it takes to perform actual message write - once exceeded a sink is considered to have failed.
+  /// Basic efficient filtering is provided for times, dates and levels. Complex filtering support via predicate expression trees
   /// </summary>
   public abstract class Sink : DaemonWithInstrumentation<ISinkOwner>, IConfigurable, INamed, IOrdered
   {
-    #region Local Classes
-
-    public class LevelsList : List<Tuple<MessageType,MessageType>> {}
-
-    #endregion
-
     #region CONSTS
     public const string CONFIG_FAILOVER_ATTR = "failover";
     public const string CONFIG_GENERATE_FAILOVER_MSG_ATTR = "generate-failover-msg";
@@ -65,7 +60,7 @@ namespace Azos.Log.Sinks
     public const string CONFIG_END_DATE_ATTR = "end-date";
     public const string CONFIG_START_TIME_ATTR = "start-time";
     public const string CONFIG_END_TIME_ATTR = "end-time";
-    public const string CONFIG_FILTER_ATTR = "filter";
+    public const string CONFIG_FILTER_SECT = "filter";
     public const string CONFIG_TEST_ON_START_ATTR = "test-on-start";
 
     public const string CONFIG_MAX_PROCESSING_TIME_MS_ATTR = "max-processing-time-ms";
@@ -85,13 +80,10 @@ namespace Azos.Log.Sinks
 
     #region .ctor
 
-    protected Sink(ISinkOwner owner) : this(owner, null, 0)
-    {
-    }
-
+    protected Sink(ISinkOwner owner) : this(owner, null, 0){ }
     protected Sink(ISinkOwner owner, string name, int order) : base(owner)
     {
-      m_Levels = new LevelsList();
+      m_Levels = new Filters.LevelsList();
       Name = name.IsNullOrWhiteSpace() ? "{0}.{1}".Args(GetType().Name, FID.Generate().ID.ToString("X")) : name;
       m_Order = order;
       ((ISinkOwnerRegistration)owner).Register(this);
@@ -99,7 +91,7 @@ namespace Azos.Log.Sinks
 
     internal Sink(ISinkOwner owner, bool _) : base(owner)
     {
-      m_Levels = new LevelsList();
+      m_Levels = new Filters.LevelsList();
       //this overload purposely does not do registration with owner
     }
 
@@ -116,13 +108,13 @@ namespace Azos.Log.Sinks
 
     private DateTime? m_LastErrorTimestamp;
 
-    private MessageFilterExpression m_Filter;
+    private Filters.LogMessageFilter m_Filter;
 
     private System.Diagnostics.Stopwatch m_StopWatch = new System.Diagnostics.Stopwatch();
 
     private MessageType? m_MinLevel;
     private MessageType? m_MaxLevel;
-    private LevelsList   m_Levels;
+    private Filters.LevelsList   m_Levels;
     private DaysOfWeek? m_DaysOfWeek;
     private DateTime? m_StartDate;
     private DateTime? m_EndDate;
@@ -158,13 +150,15 @@ namespace Azos.Log.Sinks
 
 
     /// <summary>
-    /// Gets/sets filter expression for this destination.
-    /// Filter expressions get dynamically compiled into filter assembly,
-    /// consequently it is not a good practice to create too many different filters.
-    /// Filters are heavyweight, and it is advisable to use them ONLY WHEN regular destination filtering (using Min/Max levels, dates and times) can not be used
-    ///  to achieve the desired result
+    /// Gets/sets filter expression tree for this sink.
+    /// When set, filter expressions get consulted with  during log message processing by the sink.
     /// </summary>
-    public MessageFilterExpression Filter
+    /// <remarks>
+    /// Filters expressions have a bit more performance overhead than simple filtering with other sink properties, and it is advisable to use
+    /// filter expressions ONLY WHEN regular sink filtering (using Min/Max levels, dates and times) can not be used to achieve the desired result.
+    /// The performance difference only affects log scenarios writing 10Ks of messages a second
+    /// </remarks>
+    public Filters.LogMessageFilter Filter
     {
       get { return m_Filter; }
       set { m_Filter = value; }
@@ -173,27 +167,17 @@ namespace Azos.Log.Sinks
     /// <summary>
     /// References message filtering method or null
     /// </summary>
-    public MessageFilterHandler FilterMethod
-    {
-      get;
-      set;
-    }
+    public MessageFilterHandler FilterMethod { get;  set; }
 
     /// <summary>
     /// Returns last error that this destination has encountered
     /// </summary>
-    public Exception LastError
-    {
-      get { return m_LastError; }
-    }
+    public Exception LastError => m_LastError;
 
     /// <summary>
     /// Returns last error timestamp (if any)in localized time
     /// </summary>
-    private DateTime? LastErrorTimestamp
-    {
-      get { return m_LastErrorTimestamp; }
-    }
+    private DateTime? LastErrorTimestamp  => m_LastErrorTimestamp;
 
     /// <summary>
     /// Imposes a minimum log level constraint
@@ -217,10 +201,13 @@ namespace Azos.Log.Sinks
       set { m_MaxLevel = value;}
     }
 
-    public LevelsList Levels
+    /// <summary>
+    /// A list of level ranges
+    /// </summary>
+    public Filters.LevelsList Levels
     {
       get { return m_Levels; }
-      set { m_Levels = value ?? new LevelsList(); }
+      set { m_Levels = value ?? new Filters.LevelsList(); }
     }
 
     /// <summary>
@@ -311,7 +298,7 @@ namespace Azos.Log.Sinks
 
 
     /// <summary>
-    /// Sets destination name used for failover of this one
+    /// Sets sink name used for failover of this one
     /// </summary>
     [Config("$" + CONFIG_FAILOVER_ATTR)]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
@@ -323,7 +310,7 @@ namespace Azos.Log.Sinks
 
 
     /// <summary>
-    /// Indicates whether this destination should try to test the underlying sink on startup.
+    /// Indicates whether this sink should try to test the underlying sink on startup.
     /// For example DB-based destinations will try to connect to server upon log service launch when this property is true
     /// </summary>
     [Config("$" + CONFIG_TEST_ON_START_ATTR)]
@@ -368,11 +355,7 @@ namespace Azos.Log.Sinks
     /// Returns average time it takes destination implementation to write the log message to actual sink.
     /// This property is only computed when MaxProcessingTimeMs limit is imposed, otherwise it returns 0f
     /// </summary>
-    public float AverageProcessingTimeMs
-    {
-      get { return m_AverageProcessingTimeMs; }
-    }
-
+    public float AverageProcessingTimeMs => m_AverageProcessingTimeMs;
 
     /// <summary>
     /// Specifies how much time must pass before processing will be tried to resume after failure.
@@ -391,227 +374,184 @@ namespace Azos.Log.Sinks
 
     #region Public
 
-        /// <summary>
-        /// Sends the message into destination doing filter checks first.
-        /// </summary>
-        public void Send(Message msg)
-        {
-          if (!Running) return;
-          if (m_OnlyFailures) return;
+    /// <summary>
+    /// Sends the message into destination doing filter checks first.
+    /// </summary>
+    public void Send(Message msg)
+    {
+      if (!Running) return;
+      if (m_OnlyFailures) return;
 
-          SendRegularAndFailures(msg);
+      SendRegularAndFailures(msg);
+    }
+
+    internal void SendRegularAndFailures(Message msg)
+    {
+      if (!Running) return;
+
+      //When there was failure and it was not long enough
+      if (m_LastErrorTimestamp.HasValue)
+      if ((LocalizedTime - m_LastErrorTimestamp.Value).TotalMilliseconds < m_RestartProcessingAfterMs)
+      {
+        //this is after than throwing exception
+        var error = new AzosException(string.Format(StringConsts.LOGSVC_SINK_IS_OFFLINE_ERROR, Name));
+        SetError(error, msg);
+        return;
+      }
+
+      try
+      {
+        if (!Channel.IsZero && msg.Channel != Channel) return;
+
+        if (!applyFilterExpressions(msg)) return;
+
+        if (m_Levels.Count > 0)
+        {
+            bool found = false;
+            foreach (var r in m_Levels)
+                if (r.Item1 <= msg.Type && msg.Type <= r.Item2)
+                {
+                    found = true;
+                    break;
+                }
+              if (!found)
+                  return;
         }
 
-        internal void SendRegularAndFailures(Message msg)
+        var msgLocalTime = UniversalTimeToLocalizedTime(msg.UTCTimeStamp);
+
+        if (
+            (!m_MinLevel.HasValue   || msg.Type >= m_MinLevel.Value) &&
+            (!m_MaxLevel.HasValue   || msg.Type <= m_MaxLevel.Value) &&
+            (!m_DaysOfWeek.HasValue || m_DaysOfWeek.Value.Contains(msgLocalTime.DayOfWeek)) &&
+            (!m_StartDate.HasValue  || msgLocalTime >= m_StartDate.Value) &&
+            (!m_EndDate.HasValue    || msgLocalTime <= m_EndDate.Value) &&
+            (!m_StartTime.HasValue  || msgLocalTime.TimeOfDay >= m_StartTime.Value) &&
+            (!m_EndTime.HasValue    || msgLocalTime.TimeOfDay <= m_EndTime.Value)
+            )
         {
-           if (!Running) return;
-
-           //When there was failure and it was not long enough
-           if (m_LastErrorTimestamp.HasValue)
-           if ((LocalizedTime - m_LastErrorTimestamp.Value).TotalMilliseconds < m_RestartProcessingAfterMs)
-           {
-             //this is after than throwing exception
-             var error = new AzosException(string.Format(StringConsts.LOGSVC_SINK_IS_OFFLINE_ERROR, Name));
-             SetError(error, msg);
-             return;
-           }
-
-          try
-          {
-            if (!Channel.IsZero && msg.Channel != Channel) return;
-
-            if (!satisfyFilter(msg)) return;
-
-            if (m_Levels.Count > 0)
+            if (!m_MaxProcessingTimeMs.HasValue)
+              DoSend(msg);
+            else
             {
-                bool found = false;
-                foreach (var r in m_Levels)
-                    if (r.Item1 <= msg.Type && msg.Type <= r.Item2)
-                    {
-                        found = true;
-                        break;
-                    }
-                 if (!found)
-                     return;
+              m_StopWatch.Restart();
+              DoSend(msg);
+              m_StopWatch.Stop();
+
+              if (m_LastError != null) m_AverageProcessingTimeMs = 0f;//reset average time to 0 after 1st successful execution after prior failure
+
+              //EMA filter
+              m_AverageProcessingTimeMs = ( PROCESSING_TIME_EMA_FILTER * m_StopWatch.ElapsedMilliseconds) +
+                                          ( (1.0f - PROCESSING_TIME_EMA_FILTER) * m_AverageProcessingTimeMs );
+
+              if (m_AverageProcessingTimeMs > m_MaxProcessingTimeMs.Value)
+              throw new AzosException(string.Format(StringConsts.LOGSVC_SINK_EXCEEDS_MAX_PROCESSING_TIME_ERROR,
+                                                    Name,
+                                                    m_MaxProcessingTimeMs,
+                                                    m_StopWatch.ElapsedMilliseconds));
             }
 
-            var msgLocalTime = UniversalTimeToLocalizedTime(msg.UTCTimeStamp);
-
-            if (
-                (!m_MinLevel.HasValue   || msg.Type >= m_MinLevel.Value) &&
-                (!m_MaxLevel.HasValue   || msg.Type <= m_MaxLevel.Value) &&
-                (!m_DaysOfWeek.HasValue || m_DaysOfWeek.Value.Contains(msgLocalTime.DayOfWeek)) &&
-                (!m_StartDate.HasValue  || msgLocalTime >= m_StartDate.Value) &&
-                (!m_EndDate.HasValue    || msgLocalTime <= m_EndDate.Value) &&
-                (!m_StartTime.HasValue  || msgLocalTime.TimeOfDay >= m_StartTime.Value) &&
-                (!m_EndTime.HasValue    || msgLocalTime.TimeOfDay <= m_EndTime.Value)
-               )
-            {
-                if (!m_MaxProcessingTimeMs.HasValue)
-                 DoSend(msg);
-                else
-                {
-                   m_StopWatch.Restart();
-                    DoSend(msg);
-                   m_StopWatch.Stop();
-
-                   if (m_LastError != null) m_AverageProcessingTimeMs = 0f;//reset average time to 0 after 1st successful execution after prior failure
-
-                   //EMA filter
-                   m_AverageProcessingTimeMs = ( PROCESSING_TIME_EMA_FILTER * m_StopWatch.ElapsedMilliseconds) +
-                                               ( (1.0f - PROCESSING_TIME_EMA_FILTER) * m_AverageProcessingTimeMs );
-
-                   if (m_AverageProcessingTimeMs > m_MaxProcessingTimeMs.Value)
-                    throw new AzosException(string.Format(StringConsts.LOGSVC_SINK_EXCEEDS_MAX_PROCESSING_TIME_ERROR,
-                                                         Name,
-                                                         m_MaxProcessingTimeMs,
-                                                         m_StopWatch.ElapsedMilliseconds));
-                }
-
-                if (m_LastError != null) SetError(null, msg);//clear-out error
-            }
-
-          }
-          catch (Exception error)
-          {
-            //WARNING!!!
-            //under no condition MAY any exception escape from here
-            SetError(error, msg);
-          }
+            if (m_LastError != null) SetError(null, msg);//clear-out error
         }
 
-        /// <summary>
-        /// Provides periodic notification of destinations from central Log thread even if there are no messages to write.
-        /// Override DoPulse to commit internal batching buffers provided by particular destinations
-        /// </summary>
-        public void Pulse()
-        {
-           if (!Running) return;
-           try
-           {
-              DoPulse();
-           }
-           catch (Exception error)
-           {
-            //WARNING!!!
-            //under no condition MAY any exception escape from here
-            SetError(error, null);
-           }
-        }
+      }
+      catch (Exception error)
+      {
+        //WARNING!!!
+        //under no condition MAY any exception escape from here
+        SetError(error, msg);
+      }
+    }
 
-        /// <summary>
-        /// Parses levels into a tuple list of level ranges
-        /// </summary>
-        /// <param name="levels">String representation of levels using ',' or ';' or '|'
-        /// as range group delimiters, and '-' as range indicators.  If first/second bound of the range
-        /// is empty, the min/max value of that bound is assumed.
-        /// Examples: "Debug-DebugZ | Error", "-DebugZ | Info | Warning", "Info-", "DebugB-DebugC, Error"</param>
-        public static LevelsList ParseLevels(string levels)
-        {
-            var result = new LevelsList();
+    /// <summary>
+    /// Provides periodic notification of destinations from central Log thread even if there are no messages to write.
+    /// Override DoPulse to commit internal batching buffers provided by particular destinations
+    /// </summary>
+    public void Pulse()
+    {
+      if (!Running) return;
+      try
+      {
+        DoPulse();
+      }
+      catch (Exception error)
+      {
+      //WARNING!!!
+      //under no condition MAY any exception escape from here
+      SetError(error, null);
+      }
+    }
 
-            if (!string.IsNullOrWhiteSpace(levels))
-                foreach (var p in levels.Split(',', ';', '|'))
-                {
-                    var minmax = p.Split(new char[] { '-' }, 2).Select(s => s.Trim()).ToArray();
+    #endregion
 
-                    if (minmax.Length == 0)
-                        throw new AzosException(StringConsts.ARGUMENT_ERROR + "levels: " + p);
+    #region Protected
 
-                    MessageType min, max;
+    /// <summary>
+    /// Override to perform derivative-specific configuration
+    /// </summary>
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
 
-                    if (string.IsNullOrWhiteSpace(minmax[0]))
-                        min = MessageType.Debug;
-                    else if (!Enum.TryParse(minmax[0], true, out min))
-                        throw new AzosException(StringConsts.ARGUMENT_ERROR +
-                            "levels: {0} (error parsing: {1})".Args(p, minmax[0]));
+      var nFilter = node[CONFIG_FILTER_SECT];
+      if (nFilter.Exists)
+        m_Filter = FactoryUtils.MakeAndConfigure<Filters.LogMessageFilter>(nFilter, typeof(Filters.LogMessageFilter));
 
-                    if (minmax.Length < 2)
-                        max = min;
-                    else if (string.IsNullOrWhiteSpace(minmax[1]))
-                        max = MessageType.CatastrophicError;
-                    else if (!Enum.TryParse(minmax[1], true, out max))
-                        throw new AzosException(StringConsts.ARGUMENT_ERROR +
-                            "levels: {0} (error parsing: {1})".Args(p, minmax[1]));
+      m_Levels = Filters.LevelsList.Parse(node.AttrByName(CONFIG_LEVELS_ATTR).Value);
+    }
 
-                    result.Add(new Tuple<MessageType, MessageType>(min, max));
-                }
+    /// <summary>
+    /// Notifies log service of exception that surfaced during processing of a particular message
+    /// </summary>
+    protected void SetError(Exception error, Message msg)
+    {
+      if (error != null)
+      {
+        ComponentDirector.LogDaemon.FailoverDestination(this, error, msg);
+        m_LastError = error;
+        m_LastErrorTimestamp = LocalizedTime;
+      }
+      else
+      {
+        m_LastError = null;
+        ComponentDirector.LogDaemon.FailoverDestination(this, null, null);
+        m_LastErrorTimestamp = null;
+      }
+    }
 
-            return result;
-        }
+    /// <summary>
+    /// Performs physical send, i.e. storage in file for FileDestinations
+    /// </summary>
+    protected internal abstract void DoSend(Message entry);
 
+    /// <summary>
+    /// Provides periodic notification of destinations from central Log thread even if there are no messages to write.
+    /// Override to commit internal batching buffers provided by particular destinations
+    /// </summary>
+    protected internal virtual void DoPulse()
+    {
 
-        #endregion
-
-
-        #region Protected
-
-        /// <summary>
-        /// Override to perform derivative-specific configuration
-        /// </summary>
-        protected override void DoConfigure(IConfigSectionNode node)
-        {
-          base.DoConfigure(node);
-
-          var expr = node.AttrByName(CONFIG_FILTER_ATTR).Value;
-          if (!string.IsNullOrWhiteSpace(expr))
-           m_Filter = new MessageFilterExpression(expr);
-
-          m_Levels = ParseLevels(node.AttrByName(CONFIG_LEVELS_ATTR).Value);
-        }
-
-        /// <summary>
-        /// Notifies log service of exception that surfaced during processing of a particular message
-        /// </summary>
-        protected void SetError(Exception error, Message msg)
-        {
-          if (error != null)
-          {
-            ComponentDirector.LogDaemon.FailoverDestination(this, error, msg);
-            m_LastError = error;
-            m_LastErrorTimestamp = LocalizedTime;
-          }
-          else
-          {
-            m_LastError = null;
-            ComponentDirector.LogDaemon.FailoverDestination(this, null, null);
-            m_LastErrorTimestamp = null;
-          }
-        }
-
-        /// <summary>
-        /// Performs physical send, i.e. storage in file for FileDestinations
-        /// </summary>
-        protected internal abstract void DoSend(Message entry);
-
-        /// <summary>
-        /// Provides periodic notification of destinations from central Log thread even if there are no messages to write.
-        /// Override to commit internal batching buffers provided by particular destinations
-        /// </summary>
-        protected internal virtual void DoPulse()
-        {
-
-        }
+    }
 
     #endregion
 
 
     #region .pvt
 
-        private bool satisfyFilter(Message msg)
-        {
-          //to avoid possible thread collisions
-          var mf = FilterMethod;
-          var fe = m_Filter;
+    private bool applyFilterExpressions(Message msg)
+    {
+      //thread safe copy
+      var mf = FilterMethod;
+      var fe = m_Filter;
 
-          if (mf != null)
-             if (!mf(this, msg)) return false;
+      if (mf != null)
+          if (!mf(this, msg)) return false;
 
-          if (fe!=null)
-           return fe.Evaluate(this, msg);
+      if (fe != null)
+        return fe.Evaluate(msg);
 
-          return true;
-        }
+      return true;
+    }
 
     #endregion
   }

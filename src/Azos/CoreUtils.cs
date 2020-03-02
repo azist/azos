@@ -12,6 +12,7 @@ using System.Text;
 using System.Diagnostics;
 using Azos.Apps;
 using System.Runtime.CompilerServices;
+using Azos.Serialization.JSON;
 
 namespace Azos
 {
@@ -252,6 +253,53 @@ namespace Azos
 
       return true;
     }
+
+    /// <summary>
+    /// Searches an Exception and its InnerException chain for the first instance of T or null.
+    /// The original instance may be null itself in which case null is returned
+    /// </summary>
+    public static T SearchThisOrInnerExceptionOf<T>(this Exception target) where T : class
+    {
+      while(target != null)
+      {
+        var match = target as T;
+        if (match != null) return match;
+
+        target = target.InnerException;
+      }
+
+      return null;
+    }
+
+    /// <summary>
+    /// Builds a default map with base exception descriptor, searching its InnerException chain for IExternalStatusProvider.
+    /// This method never returns null as the very root data map is always built
+    /// </summary>
+    public static JsonDataMap DefaultBuildErrorStatusProviderMap(this Exception error, bool includeDump, string ns, string type = null)
+    {
+      var result = new JsonDataMap
+      {
+        { CoreConsts.EXT_STATUS_KEY_NS, ns.NonBlank(nameof(ns)) },
+        { CoreConsts.EXT_STATUS_KEY_TYPE, type.Default(error.GetType().Name) }
+      };
+
+      if (error is AzosException aze)
+      {
+        result[CoreConsts.EXT_STATUS_KEY_CODE] = aze.Code;
+      }
+
+      var inner = error.InnerException.SearchThisOrInnerExceptionOf<IExternalStatusProvider>();
+
+      if (inner != null)
+      {
+        var innerData = inner.ProvideExternalStatus(includeDump);
+        if (innerData != null)
+          result[CoreConsts.EXT_STATUS_KEY_CAUSE] = innerData;
+      }
+
+      return result;
+    }
+
 
     /// <summary>
     /// Encloses an action in try catch and logs the error if it leaked from action. This method never leaks.

@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyProduct("azgov")]
 [assembly: AssemblyTitle("azgov")]
-[assembly: AssemblyCopyright("Copyright © Azist Group 2019")]
+[assembly: AssemblyCopyright("Copyright © Azist Group 2020")]
 [assembly: AssemblyDescription("Azos Sky, Zone Governor")]
 [assembly: AssemblyCompany("Azist Group")]
 [assembly: AssemblyTrademark("Azos Sky")]

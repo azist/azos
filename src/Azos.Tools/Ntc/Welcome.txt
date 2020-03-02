@@ -1,6 +1,6 @@
 ﻿<push><b color=black><f color=white>
 Azos Template Compiler<f color=gray>
-Copyright (c) 2019 Azist Group
+Copyright (c) 2020 Azist Group
 Version 2.2 / Azos as of Nov 2018
 
 <pop>

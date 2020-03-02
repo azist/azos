@@ -1319,5 +1319,20 @@ namespace Azos
         return null;
       }
     }
+
+    //https://en.wikipedia.org/wiki/Binary_prefix#kibi
+    /// <summary>
+    /// Formats long numbers to sizes like 1024 -> 1 kb
+    /// </summary>
+    public static string FormatByteSizeWithPrefix(long size, bool longPfx = false)
+    {
+      if (size <                1024) return "{1:n0} {0}".Args(longPfx ? "bytes" : "bt", size);
+      if (size <             750_000) return "{1:n1} {0}".Args(longPfx ? "kilo bytes" : "kb",size / 1024f);
+      if (size <         750_000_000) return "{1:n1} {0}".Args(longPfx ? "mega bytes" : "mb",size / 1_048_576f);
+      if (size <     750_000_000_000) return "{1:n1} {0}".Args(longPfx ? "giga bytes" : "gb",size / 1_073_741_824f);
+      if (size < 750_000_000_000_000) return "{1:n1} {0}".Args(longPfx ? "tera bytes" : "tb", size / 1_099_511_627_776f);
+      return "{1:n1} {0}".Args(longPfx ? "peta bytes" : "pb", size / 1_125_899_906_842_624f);
+    }
+
   }
 }

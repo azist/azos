@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("amm")]
 [assembly: AssemblyProduct("amm")]
 [assembly: AssemblyDescription("Azos Sky, Metabase Manager cli")]
-[assembly: AssemblyCopyright("Copyright © Azist 2019")]
+[assembly: AssemblyCopyright("Copyright © Azist 2020")]
 [assembly: AssemblyCompany("Azist Group")]
 [assembly: AssemblyTrademark("Azos Sky")]
 [assembly: AssemblyConfiguration("")]

@@ -2,7 +2,7 @@
 
 Back to [Documentation Index](/src/documentation-index.md)
 
-This section described accessing/working with Data in Azos.
+This section describes accessing/working with Data in Azos.
 
 See also:
 - [Data Schema](metadata.md)

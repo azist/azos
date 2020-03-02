@@ -26,7 +26,7 @@ namespace Azos.Tools.Getdatetime
         Console.WriteLine("Date/Time Utility");
         Console.WriteLine("Returns system data time in a specified format");
         Console.ForegroundColor = ConsoleColor.Gray;
-        Console.WriteLine("Copyright (c) 2019 Azist Group");
+        Console.WriteLine("Copyright (c) 2020 Azist Group");
         Console.WriteLine("Version 3.0 / Azos as of Oct 2018");
         Console.WriteLine();
         Console.ForegroundColor = ConsoleColor.Magenta;

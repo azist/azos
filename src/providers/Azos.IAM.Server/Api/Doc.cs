@@ -10,7 +10,7 @@ namespace Azos.IAM.Server.Api
   [ApiControllerDoc(BaseUri ="/doc", Authentication = "pub")]
   public class Doc : ApiDocController
   {
-    protected override ApiDocGenerator MakeDocGenerator()
+    protected override ApiDocGenerator MakeDocGenerator(string dataContext)
     {
       var generator = new ApiDocGenerator(App);
       generator.Locations.Add( new ApiDocGenerator.ControllerLocation("Azos.IAM.Server.dll", "*Api*"));

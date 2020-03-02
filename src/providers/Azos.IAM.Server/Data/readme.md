@@ -33,7 +33,7 @@ on AZos unified platform, as such, sharing many app features (config, logging, t
 - Custom entity **property and trait indexing** - ability to efficiently query entities on their traits
 - **Policies** - a set of rules/settings applied in time assignment spans to entities
 - Policy-based Group/Account/Login lock-out, password reset, complexity enforcement, can not reuse X old, min edit distance etc.
-- **Async notifications via web hooks** - host system gets notified of the security events, such as lock-out etc.
+- **Async notifications via web hooks** - host system gets notified of the security events, such as lock-out, password resets etc.
 
 ### Datastore
 AZIAM stores its data in a backend-agnostic store, performing near-real-time multi-master data replication of all of the entity changes between 
@@ -93,7 +93,7 @@ the effective policy already calculated.
 ## Entity Indexing
 AZIAM Server is designed to support a variety of systems/use cases, as such, it supports custom entity properties.
 `Index` table is provided to index custom entity props and other entity traits (which are specific to a particular system use-cases).
-The index is populated on data mutation operations as specified in the mutation Api call.
+The index is populated on data mutation operations as specified in a data change (mutation) Api call.
 
 ## Change Auditing
 An `Audit` table retains a detailed log of all changes to all entities in the system (except for `Audit` and other system internal tables).
@@ -106,27 +106,26 @@ The server deletes out-dated `Audit` data as specified by the effective policy.
 
 
 ## Token Ring Services
-AZIAM server implements token ring - a mechanism for storage of custom tokens which represent arbitrary server-side data specific
-to your application. For example, you can use tokens for email conform codes, OAuth authorization codes etc.
+AZIAM server implements token ring - a mechanism for storing custom tokens which represent arbitrary server-side data specific to your application. For example, you can use tokens for email confirmation codes, OAuth authorization codes etc. 
 
-Th AZIAM server provides a server-side token ring, that is: the client is only given a short unique token code which points to the 
-server-side state. Contrast this with client-side token rings which roundtrip the whole token data via encrypted client payload.
+> Server-side tokens are more secure because they can not be compromised even if their cipher is cracked. Server-side tokens can also be invalidated at any time, whereas client-side token rely on expiration and blacklisting instead.
+
+Th AZIAM server provides a server-side token ring, that is: the client is only given a relatively short unique token code which points to the 
+server-side state. Contrast this with client-side token rings which roundtrip the whole token data via an encrypted client payload blob.
 
 
 ## Muti-Factor Authentication
 The multi-factor (e.g. 2FA) authentication flow operates as follows:
 1. User tries to log-in using the appropriate credential type (e.g. id/pwd)
 2. Depending on the credential type used, the applicable policy is applied. 
- **NOTE:** The policy is always fetched even using login ID only (even if the password is bad), this is
- needed to possibly lock account after X invalid attempts (see below)
+ **NOTE:** The policy is always fetched even using login ID only (even if the password is bad), this is needed to possibly lock account after X invalid attempts (see below)
 3. The policy defines account login requirements and limits etc..
 4. The `LoginStatus` table is updated to reflect the latest status change
 5. If the login is not acceptable (e.g. wrong password), the error is returned
 6. If the login is acceptable, but the policy requires 2FA, the IAM server `.Authenticate(cred)` method
  returns a `User` subject with an `Invalid` status having its rights contain the pragma/permission
- to with a 2FA token which contains the pointer to secret/code that was conveyed to the user using the secondary
- authentication channel (e.g. a Text Message, an Email) - details are defined by policy.
-7. Users are now presented with an interstitial UI to enter the secret conveyed to them over the secondary channel.
+ with a 2FA token which contains the pointer to secret/code that was conveyed to the user using the secondary authentication channel (e.g. a Text Message, an Email) - details are defined by the policy.
+7. Users are now presented with an interstitial UI to enter the secret conveyed to them over the secondary channel (e.g. SMS text, email etc.).
 8. The secret answer is combined with the 2FA token supplied in the prior step using `.MultifactorSecretCredentials(2fatoken, secret)`
   into `.Authenticate(cred)`, if the secret is correct, the system returns a valid `User` principal object 
 
@@ -143,11 +142,11 @@ The following p-code is an example of the above:
   //mftoken contains: {"token", "secret", "channels"}  you send the "secret" to the user
   //in any of acceptable ways as returned in "channels" (e.g. SMS vs phone).
   //Never return "secret" as a part of the interstitial prompt/page itself!!!
-  //Note: the channel communication IS NOT provided by IAM serve, you need to use whatever messaging infrastructure
+  //Note: the channel communication IS NOT provided by the IAM server, you need to use whatever messaging infrastructure
   //you application supports
 
-  //Display a page, with hidden field populated by mftoken.token, and a text field
-  //where user needs to post a "secret" answer that was supplied to him over the 2nd channel (e.g. SMS)
+  //Display a page, with a hidden field populated by mftoken.token, and a text field
+  //where user needs to post a "secret" answer that was supplied to him over the 2nd channel (e.g. SMS text message)
   displayInterstitial(mftoken);
 ...
   //user posts:
@@ -178,7 +177,7 @@ intervention to resolve (e.g. a process similar to "reset password" to unlock an
 after the reset data which is governed by the effective policy
 
 ### Should not be able to re-use LOGIN/EMAIL after it is inactivated
-The login record becomes marked as deleted, but not physically removed, hence one may not-re-use someone else's ID for their own accounts.
+The login record becomes marked as deleted, but not physically removed, hence one may not-re-use someone elses ID for their own accounts.
 
 ### Password change schedule
 The password change schedule is specified in the effective policy and IZM server periodically scans all of the accounts, triggering 
@@ -190,7 +189,7 @@ The settings are dictated by the effective policy
 
 ### Permission Assignment Date spans
 In some cases individual permissions may require temporal assignments.
-The mechanics if this is left up to a concrete permission, having the spans kept in the ACL, as an example:
+The mechanics of this is up to a concrete permission, having the spans kept in the ACL, as an example:
 ```csharp
   permission
   {

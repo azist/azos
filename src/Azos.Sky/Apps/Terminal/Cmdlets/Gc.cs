@@ -18,16 +18,24 @@ namespace Azos.Apps.Terminal.Cmdlets
 
     public override string Execute()
     {
-        var watch = Stopwatch.StartNew();
-        var before = GC.GetTotalMemory(false);
-        System.GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
-        var after = GC.GetTotalMemory(false);
-        return "GC took {0} ms. and freed {1} bytes".Args(watch.ElapsedMilliseconds, before - after);
+      var watch = Stopwatch.StartNew();
+      var before = GC.GetTotalMemory(false);
+      GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+
+      if (m_Args.Of("wait").ValueAsBool())
+      {
+        GC.WaitForPendingFinalizers();
+      }
+
+      var after = GC.GetTotalMemory(false);
+      var freed = before - after;
+      return "GC took {0:n0} ms. and freed {1:n0}".Args(watch.ElapsedMilliseconds, IOUtils.FormatByteSizeWithPrefix(freed, longPfx: true));
     }
 
     public override string GetHelp()
     {
-        return "Invokes garbage collector on all generations";
+        return @"Invokes garbage collector on all generations.
+    Pass `wait=true` to wait for pending finalizers";
     }
   }
 

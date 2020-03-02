@@ -195,15 +195,15 @@ namespace Azos.Sky.Workers
       DoPrepareForEnqueuePostValidate(targetName);
     }
 
-    public override Exception Validate(string targetName)
+    public override ValidState Validate(ValidState state)
     {
-      var ve = base.Validate(targetName);
-      if (ve != null) return ve;
+      state = base.Validate(state);
+      if (state.ShouldStop) return state;
 
       if (SysID.IsZero)
-        return new FieldValidationException(this, "SysID", "SysID.IsZero, use NewTodo<>() to make new instances");
+        state = new ValidState(state, new FieldValidationException(this, "SysID", "SysID.IsZero, use NewTodo<>() to make new instances"));
 
-      return null;
+      return state;
     }
 
     protected virtual void DoPrepareForEnqueuePreValidate(string targetName) { }

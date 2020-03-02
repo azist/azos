@@ -17,6 +17,18 @@ namespace Azos.Apps.Terminal
   public static class CmdletFinder
   {
     /// <summary>
+    /// Provides common cmdlets supported by all Azos applications (non-sky)
+    /// </summary>
+    public static IEnumerable<Type> BaseAzos
+    {
+      get
+      {
+        return Common.Where( t => !typeof(SkyAppCmdlet).IsAssignableFrom(t));//exclude Sky-specific commands
+      }
+    }
+
+
+    /// <summary>
     /// Provides common cmdlets supported by all servers
     /// </summary>
     public static IEnumerable<Type> Common

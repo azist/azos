@@ -4,6 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Serialization.JSON;
+
 namespace Azos
 {
   /// <summary>
@@ -15,5 +17,24 @@ namespace Azos
   {
     int HttpStatusCode {  get; }
     string HttpStatusDescription {  get; }
+  }
+
+  /// <summary>
+  /// Denotes entities capable of providing their status data to external callers,
+  /// for example this is used for custom exceptions which respond with a detailed
+  /// list of causes, such as validation exceptions include failed schema/field names etc.
+  /// The status data get disclosed to callers even if exception developer details are not disclosed,
+  /// for example if `show-dump`=false
+  /// </summary>
+  public interface IExternalStatusProvider
+  {
+    /// <summary>
+    /// Provides data describing the entity status/state.
+    /// Implementor may provide logic to conditionally disclose details
+    /// based on Session/Principal context
+    /// </summary>
+    /// <param name="includeDump">True to include dev dump, such as stack traces</param>
+    /// <returns>JsonDataMap filled with data or null if there is nothing to provide</returns>
+    JsonDataMap ProvideExternalStatus(bool includeDump);
   }
 }
