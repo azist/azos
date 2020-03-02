@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.2.2
-set HEADLINE=Add type-path and more expression tree support
+set VER=1.2.5.1
+set HEADLINE=Introduce JazonReaderBackend
 
 call vs2017-build-release %VER%
 
