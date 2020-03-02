@@ -17,7 +17,7 @@ namespace Azos.CodeAnalysis.JSON
   /// </summary>
   public static class JsonKeywords
   {
-    private static Dictionary<string, JsonTokenType> s_KeywordList = new Dictionary<string, JsonTokenType>();
+    private static Dictionary<string, JsonTokenType> s_KeywordList = new Dictionary<string, JsonTokenType>(StringComparer.Ordinal);
 
     static JsonKeywords()
     {
@@ -43,9 +43,9 @@ namespace Azos.CodeAnalysis.JSON
     {
       JsonTokenType tt;
 
-      s_KeywordList.TryGetValue(str, out tt);
+      if (s_KeywordList.TryGetValue(str, out tt)) return tt;
 
-      return (tt!=JsonTokenType.tUnknown) ? tt : JsonTokenType.tIdentifier;
+      return JsonTokenType.tIdentifier;
     }
 
   }

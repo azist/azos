@@ -13,7 +13,6 @@ using System.Text;
 
 using Azos.Conf;
 using Azos.CodeAnalysis.Source;
-using Azos.CodeAnalysis.JSON;
 using Azos.Data;
 
 namespace Azos.Serialization.JSON
@@ -66,43 +65,65 @@ namespace Azos.Serialization.JSON
     }
 
 
+    private static readonly IJsonReaderBackend DEFAULT_READER_BACKEND = new Backends.JazonReaderBackend();//As of 20200302 Switched to Jazon// .ClassicJsonReaderBackend();
+
+    private static IJsonReaderBackend s_ReaderBackend;
+
+    /// <summary>
+    /// Returns process global IJsonReaderBackend if one was set, or an instance of ClassicJsonReaderBackend as the default value.
+    /// Null is never returned
+    /// </summary>
+    /// <remarks>
+    /// App context and DI is not used here purposely not to couple Json framework to higher-level components.
+    /// The need to switch Json parsing library at runtime multiple times is non existent, and this mechanism
+    /// is provided more for special use cases like profiling with different json parsers.
+    /// The Wave vNext uses JSON via a DI-installed module, whereas this is a lower-level service used in general context
+    /// where DI is not even available
+    /// </remarks>
+    internal static IJsonReaderBackend ReaderBackend
+    {
+      get
+      {
+        var backend = s_ReaderBackend;
+        return backend != null ? backend : DEFAULT_READER_BACKEND;
+      }
+    }
+
+    /// <summary>
+    /// System method, app developers do not call.
+    /// Sets process-wide reader backend. Passing null resets the backend to ClassicJsonReaderBackend
+    /// </summary>
+    public static void ____SetReaderBackend(IJsonReaderBackend backend)
+    {
+      s_ReaderBackend = backend;
+    }
+
+
     #region Public
 
     public static dynamic DeserializeDynamic(Stream stream, Encoding encoding = null, bool caseSensitiveMaps = true)
-    {
-        return deserializeDynamic( read(stream, encoding, caseSensitiveMaps));
-    }
+     => deserializeDynamic( ReaderBackend.DeserializeFromJson(stream, caseSensitiveMaps, encoding));
 
     public static dynamic DeserializeDynamic(string source, bool caseSensitiveMaps = true)
-    {
-        return deserializeDynamic( read(source, caseSensitiveMaps));
-    }
+     => deserializeDynamic(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
 
     public static dynamic DeserializeDynamic(ISourceText source, bool caseSensitiveMaps = true)
-    {
-        return deserializeDynamic( read(source, caseSensitiveMaps));
-    }
+     => deserializeDynamic(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
 
     public static IJsonDataObject DeserializeDataObject(Stream stream, Encoding encoding = null, bool caseSensitiveMaps = true)
-    {
-        return deserializeObject( read(stream, encoding, caseSensitiveMaps));
-    }
+     => deserializeObject(ReaderBackend.DeserializeFromJson(stream, caseSensitiveMaps, encoding));
 
     public static IJsonDataObject DeserializeDataObject(string source, bool caseSensitiveMaps = true)
-    {
-        return deserializeObject( read(source, caseSensitiveMaps));
-    }
+     => deserializeObject(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
 
     public static IJsonDataObject DeserializeDataObjectFromFile(string filePath, Encoding encoding = null, bool caseSensitiveMaps = true)
     {
         using(var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-          return deserializeObject( read(fs, encoding, caseSensitiveMaps));
+          return deserializeObject(ReaderBackend.DeserializeFromJson(fs, caseSensitiveMaps, encoding));
     }
 
     public static IJsonDataObject DeserializeDataObject(ISourceText source, bool caseSensitiveMaps = true)
-    {
-        return deserializeObject( read(source, caseSensitiveMaps));
-    }
+     => deserializeObject(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
 
 
     /// <summary>
@@ -520,28 +541,6 @@ namespace Azos.Serialization.JSON
         return data;
     }
 
-    private static object read(Stream stream, Encoding encoding, bool caseSensitiveMaps)
-    {
-        using(var source = encoding==null ? new StreamSource(stream, JsonLanguage.Instance)
-                                          : new StreamSource(stream, encoding, JsonLanguage.Instance))
-            return read(source, caseSensitiveMaps);
-    }
-
-    private static object read(string data, bool caseSensitiveMaps)
-    {
-        var source = new StringSource(data, JsonLanguage.Instance);
-        return read(source, caseSensitiveMaps);
-    }
-
-    private static object read(ISourceText source, bool caseSensitiveMaps)
-    {
-        var lexer = new JsonLexer(source, throwErrors: true);
-        var parser = new JsonParser(lexer, throwErrors: true, caseSensitiveMaps: caseSensitiveMaps);
-
-        parser.Parse();
-
-        return parser.ResultContext.ResultObject;
-    }
     #endregion
 
   }
