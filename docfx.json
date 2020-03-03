@@ -4,7 +4,7 @@
       "src": [
         {
           "files": [
-            "XXXsrc/Azos.Web/Azos.Web.csproj",
+            "COMMENT-----XXXsrc/Azos.Web/Azos.Web.csproj",
             "src/**/Azos*.csproj"
           ],
           "exclude": [
@@ -64,7 +64,7 @@
 
     "globalMetadata": {
       "_appTitle": "A to Z Sky OS",
-      "_appFooter": "Copyright (c)2018 - 2019 Azist Group",
+      "_appFooter": "Copyright (c) 2020 Azist Group",
       "_appLogoPath": "doc/img/azos-toolbar-emblem.96.png",
       "_appFaviconPath": "doc/img/favicon.ico",
       "_disableBreadcrumb": true,
