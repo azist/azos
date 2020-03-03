@@ -7,8 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
+
 using System.Reflection;
 
 using Azos.IO;
@@ -35,7 +34,7 @@ namespace Azos.Serialization.Arow
   /// The serializer supports primitives, Azos intrinsics like Atom, GDID, PilePointer, NLSMap, custom TypedDocs and List/arrays of the aforementioned types
   /// </summary>
   /// <remarks>
-  /// By design this serializer does not support polymorphic TypedDoc types in this version
+  /// The new version supports polymorphic TypedDoc serialization
   /// </remarks>
   public static class ArowSerializer
   {
@@ -47,7 +46,8 @@ namespace Azos.Serialization.Arow
 
     /// <summary>
     /// Registers all Arow type serialization cores in the satellite assembly of the calling assembly.
-    /// A satellite assembly is the one that is called the same name as the calling assembly with ".Serialization" suffix, co-located with the calling assembly
+    /// A satellite assembly is the one that is called the same name as the calling assembly with ".Serialization" suffix,
+    /// having its file co-located with the calling assembly
     /// </summary>
     public static void RegisterTypeSerializationSatelliteForThisAssembly()
     {
@@ -57,7 +57,8 @@ namespace Azos.Serialization.Arow
 
     /// <summary>
     /// Registers all Arow type serialization cores in the satellite assembly of the specifies assembly.
-    /// A satellite assembly is the one that is called the same name with ".Serialization" suffix, co-located with the specified assembly
+    /// A satellite assembly is the one that is called the same name with ".Serialization" suffix, having its file
+    /// co-located with the specified assembly
     /// </summary>
     public static void RegisterTypeSerializationSatelliteFor(Assembly assembly)
     {
@@ -98,7 +99,7 @@ namespace Azos.Serialization.Arow
     }
 
 
-    private const int INITIAL_BUFFER_CAPACITY = 4 * 1024;//Typical "business" object has 15 8 byte fields, and 10 32 byte fields < 700 bytes
+    private const int INITIAL_BUFFER_CAPACITY = 4 * 1024;//A typical "business" object has 15 8 byte fields, and 10 32 byte fields < 700 bytes
     private const int BUFFER_TRIM_CAPACITY = 128 * 1024;
 
     //TLS is used since this is 100% sync CPU-bound operation

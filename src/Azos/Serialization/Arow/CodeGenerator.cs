@@ -16,7 +16,7 @@ using Azos.Data;
 namespace Azos.Serialization.Arow
 {
   /// <summary>
-  /// Generates code for serilaizer and deserializer
+  /// Generates code for serializer and deserializer
   /// </summary>
   public class CodeGenerator : DisposableObject
   {
