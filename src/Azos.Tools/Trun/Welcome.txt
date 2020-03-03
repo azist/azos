@@ -1,6 +1,6 @@
 ﻿<push><b color=black><f color=white>
 Azos Test Runner<f color=gray>
-Copyright (c) 2019 Azist Group
-Version 3.0 / Azos as of May 2019
+Copyright (c) 2020 Azist Group
+Version 3.5 / Azos as of Dec 2019
 
 <pop>

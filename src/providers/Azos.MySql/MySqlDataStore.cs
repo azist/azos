@@ -23,27 +23,33 @@ namespace Azos.Data.Access.MySql
   public class MySqlDataStore : MySQLDataStoreBase, ICRUDDataStoreImplementation
   {
     #region CONSTS
-        public const string SCRIPT_FILE_SUFFIX = ".mys.sql";
+    public const string SCRIPT_FILE_SUFFIX = ".mys.sql";
     #endregion
 
     #region .ctor/.dctor
 
-      public MySqlDataStore(IApplication app) : base(app) => ctor();
-      public MySqlDataStore(IApplication app, string cs) : base(app) => ctor(cs);
-      public MySqlDataStore(IApplicationComponent director) : base(director) => ctor();
-      public MySqlDataStore(IApplicationComponent director, string cs) : base(director) => ctor(cs);
+    public MySqlDataStore(IApplication app) : base(app) => ctor();
+    public MySqlDataStore(IApplication app, string cs) : base(app) => ctor(cs);
+    public MySqlDataStore(IApplicationComponent director) : base(director) => ctor();
+    public MySqlDataStore(IApplicationComponent director, string cs) : base(director) => ctor(cs);
 
-      private void ctor(string cs = null)
-      {
-        m_QueryResolver = new QueryResolver(this);
-        ConnectString = cs;
-      }
+    private void ctor(string cs = null)
+    {
+      m_QueryResolver = new QueryResolver(this);
+      ConnectString = cs;
+    }
+
+    protected override void Destructor()
+    {
+      DisposeAndNull(ref m_QueryResolver);
+      base.Destructor();
+    }
 
     #endregion
 
     #region Fields
 
-        private QueryResolver m_QueryResolver;
+    private QueryResolver m_QueryResolver;
 
     #endregion
 

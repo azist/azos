@@ -9,9 +9,9 @@ using System.Linq;
 using System.IO;
 using System.Reflection;
 
-using Azos.Apps;
 using Azos.Data;
 using Azos.Conf;
+using Azos.Text;
 
 namespace Azos.Wave.Handlers
 {
@@ -265,7 +265,7 @@ namespace Azos.Wave.Handlers
               if (work.Portal==null)
                 key = typeName;
               else
-                key = PORTAL_PREFIX+work.Portal.Name+typeName;
+                key = PORTAL_PREFIX + work.Portal.Name + typeName;
 
 
               //1 Lookup in cache
@@ -276,8 +276,9 @@ namespace Azos.Wave.Handlers
               if (result!=null)
               {
                 var lookup = new TypeLookup(m_Lookup);//thread safe copy
-
                 lookup[key] =  result;//other thread may have added already
+
+                System.Threading.Thread.MemoryBarrier();
                 m_Lookup = lookup;//atomic
                 return result;
               }
@@ -298,41 +299,46 @@ namespace Azos.Wave.Handlers
 
               while(true)
               {
-                  foreach(var loc in  m_TypeLocations.OrderedValues)
+                foreach(var loc in  m_TypeLocations.OrderedValues)
+                {
+                  if (portal!=null)
                   {
-                      if (portal!=null)
-                      {
-                        if (!portal.EqualsOrdIgnoreCase(loc.Portal)) continue;
-                      }
-                      else
-                      {
-                        if (loc.Portal.IsNotNullOrWhiteSpace()) continue;
-                      }
-
-                      var asm = loc.Assembly;
-                      if (asm==null)
-                        asm = Assembly.LoadFrom(loc.AssemblyName);
-
-                      var namespaces = loc.Namespaces;
-                      if (namespaces!=null && namespaces.Any())
-                      {
-                        foreach(var ns in loc.Namespaces)
-                        {
-                          var nsn = ns.Trim();
-                          if (!nsn.EndsWith("."))
-                            nsn+='.';
-                          var result = asm.GetType(nsn + clrTName, false, true);
-                          if (result!=null) return result;
-                        }
-                      }
-                      else
-                      {
-                          return asm.GetType(clrTName, false, true);
-                      }
+                    if (!portal.EqualsOrdIgnoreCase(loc.Portal)) continue;
+                  }
+                  else
+                  {
+                    if (loc.Portal.IsNotNullOrWhiteSpace()) continue;
                   }
 
-                  if (portal == null) break;
-                  portal = null;
+                  var asm = loc.Assembly;
+                  if (asm==null)
+                    asm = Assembly.LoadFrom(loc.AssemblyName);
+
+                  //explicit ns pattern is required
+                  var namespaces = loc.Namespaces;
+                  if (namespaces==null) continue;
+
+                  var matches = asm.GetTypes()
+                                   .Where(t =>
+                                            t.IsPublic &&
+                                           !t.IsAbstract &&
+                                           !t.IsGenericTypeDefinition &&
+                                            t.Name.EqualsOrdIgnoreCase(clrTName) &&
+                                            namespaces.Any(ns => t.Namespace.MatchPattern(ns, senseCase: true))
+                                         )
+                                   .ToArray();
+
+                  if (matches.Length==0) continue;//not found in this typelocation
+                  if (matches.Length>1)
+                    WriteLog(Log.MessageType.Warning,
+                             nameof(lookupTargetInLocations),
+                             StringConsts.TYPE_MULTIPLE_RESOLUTION_WARNING.Args(typeName, matches[0].AssemblyQualifiedName));
+
+                  return matches[0];
+                }
+
+                if (portal == null) break;
+                portal = null;//2nd iteration
               }//while
 
 
@@ -347,10 +353,9 @@ namespace Azos.Wave.Handlers
               for(var i=0; i<key.Length; i++)
               {
                 var c = key[i];
-                if (c < '-') return false;
-                if (c > '9' && c < 'A') return false;
-                if (c > 'Z' && c < 'a' && c != '\\') return false;
-                if (c > 'z' && c < '�') return false;
+                if (char.IsLetterOrDigit(c)) continue;
+                if (c=='/' || c=='\\' || c=='-' || c=='_' || c=='.') continue;
+                return false;
               }
 
               return true;

@@ -102,21 +102,28 @@ namespace Azos.Wave
 
 
     #region .ctor
-      public WaveServer(IApplication app) : base(app) => ctor();
-      public WaveServer(IApplicationComponent director) : base(director) => ctor();
-      public WaveServer(IApplication app, string name) : this(app) => Name = name;
-      public WaveServer(IApplicationComponent director, string name) : this(director) => Name = name;
+    public WaveServer(IApplication app) : base(app) => ctor();
+    public WaveServer(IApplicationComponent director) : base(director) => ctor();
+    public WaveServer(IApplication app, string name) : this(app) => Name = name;
+    public WaveServer(IApplicationComponent director, string name) : this(director) => Name = name;
 
-      private void ctor()
-      {
-        m_Prefixes = new EventedList<string,WaveServer>(this, true);
-        m_Prefixes.GetReadOnlyEvent = (l) => Status != DaemonStatus.Inactive;
-      }
+    private void ctor()
+    {
+      m_Prefixes = new EventedList<string, WaveServer>(this, true);
+      m_Prefixes.GetReadOnlyEvent = (l) => Status != DaemonStatus.Inactive;
+    }
+
+    protected override void Destructor()
+    {
+      base.Destructor();
+      DisposeIfDisposableAndNull(ref m_Gate);
+      DisposeIfDisposableAndNull(ref m_Dispatcher);
+    }
     #endregion
 
     #region Fields
 
-      private string m_EnvironmentName;
+    private string m_EnvironmentName;
 
       private int m_KernelHttpQueueLimit = DEFAULT_KERNEL_HTTP_QUEUE_LIMIT;
       private int m_ParallelAccepts = DEFAULT_PARALLEL_ACCEPTS;
@@ -509,14 +516,18 @@ namespace Azos.Wave
            m_Prefixes.Add(name);
 
         var nGate = node[CONFIG_GATE_SECTION];
-
         if (nGate.Exists)
+        {
+          DisposeIfDisposableAndNull(ref m_Gate);
           m_Gate = FactoryUtils.MakeAndConfigure<INetGateImplementation>(nGate, typeof(NetGate), args: new object[]{this});
+        }
 
         var nDispatcher = node[CONFIG_DISPATCHER_SECTION];
-
         if (nDispatcher.Exists)
+        {
+          DisposeIfDisposableAndNull(ref m_Dispatcher);
           m_Dispatcher = FactoryUtils.MakeAndConfigure<WorkDispatcher>(nDispatcher, typeof(WorkDispatcher), args: new object[]{this});
+        }
 
         ErrorFilter.ConfigureMatches(node[CONFIG_DEFAULT_ERROR_HANDLER_SECTION], m_ErrorShowDumpMatches, m_ErrorLogMatches, null, GetType().FullName);
       }
@@ -694,23 +705,26 @@ namespace Azos.Wave
 
      private void callback(IAsyncResult result)
      {
-       if (m_Listener==null) return;//callback sometime happens when listener is null on shutdown
-       if (!m_Listener.IsListening) return;
+       var listener = m_Listener;
+       if (listener==null) return;//callback sometime happens when listener is null on shutdown
+       if (!listener.IsListening) return;
 
        //This is called on its own pool thread by HttpListener
        bool gateAccessDenied = false;
        HttpListenerContext listenerContext;
        try
        {
-         listenerContext = m_Listener.EndGetContext(result);
+         listenerContext = listener.EndGetContext(result);
+
+         if (!Running) return;
 
          if (m_InstrumentationEnabled) Interlocked.Increment(ref m_stat_ServerRequest);
 
-
-         if (m_Gate!=null)
+         var gate = m_Gate;
+         if (gate!=null)
             try
             {
-              var action = m_Gate.CheckTraffic(new HTTPIncomingTraffic(listenerContext.Request, GateCallerRealIpAddressHeader));
+              var action = gate.CheckTraffic(new HTTPIncomingTraffic(listenerContext.Request, GateCallerRealIpAddressHeader));
               if (action!=GateAction.Allow)
               {
                 //access denied

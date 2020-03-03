@@ -4,14 +4,14 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Sky.Apps.Terminal;
+using Azos.Apps.Terminal;
 
 namespace Azos.Sky.Hosts.agdida
 {
   /// <summary>
   /// Implements Gdid generator Authority remote terminal
   /// </summary>
-  public class GdidAuthorityRemoteTerminal : AppRemoteTerminal
+  public class GdidAuthorityRemoteTerminal : SkyAppRemoteTerminal
   {
     public GdidAuthorityRemoteTerminal() : base() { }
 

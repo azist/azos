@@ -11,6 +11,7 @@ using Azos.Apps;
 using Azos.Time;
 using Azos.Instrumentation;
 using Azos.Serialization.BSON;
+using Azos.Data;
 
 namespace Azos.Log
 {
@@ -39,7 +40,7 @@ namespace Azos.Log
   /// <summary>
   /// Marker interface for entities that can be stored in archives, such as access/telemetry logs
   /// </summary>
-  public interface IArchiveLoggable : IBSONSerializable, IBSONDeserializable
+  public interface IArchiveLoggable : IDataDoc
   {
 
   }

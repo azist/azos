@@ -23,10 +23,10 @@ namespace Azos.Data
   public interface IValidatable
   {
     /// <summary>
-    /// Validates entity state per particular named target, for performance reasons returns
-    /// validation exception/or aggregate (instead of throwing)
+    /// Validates entity state per particular validation state context, for performance reasons returns
+    /// validation state as a struct initialized with a dingle or batch exception (instead of throwing)
     /// </summary>
-    Exception Validate(string targetName);
+    ValidState Validate(ValidState state);
   }
 
   /// <summary>

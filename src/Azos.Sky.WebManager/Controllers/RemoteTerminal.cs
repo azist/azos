@@ -11,9 +11,8 @@ using System.Text;
 using Azos;
 using Azos.Wave;
 using Azos.Wave.Mvc;
-using Azos.Data;
 
-using Azos.Sky.Apps.Terminal;
+using Azos.Apps.Terminal;
 using Azos.Sky.Security.Permissions.Admin;
 
 namespace Azos.Sky.WebManager.Controllers
@@ -60,7 +59,6 @@ namespace Azos.Sky.WebManager.Controllers
 
       [Action]
       [RemoteTerminalOperatorPermission]
-      [AppRemoteTerminalPermission]
       public object Execute(string command)
       {
         WorkContext.NeedsSession();
@@ -74,10 +72,10 @@ namespace Azos.Sky.WebManager.Controllers
 
           var plainText = true;
           if (result.IsNotNullOrWhiteSpace())
-            if (result.StartsWith(Sky.Apps.Terminal.AppRemoteTerminal.MARKUP_PRAGMA))
+            if (result.StartsWith(Apps.Terminal.AppRemoteTerminal.MARKUP_PRAGMA))
             {
-              result = result.Remove(0, Sky.Apps.Terminal.AppRemoteTerminal.MARKUP_PRAGMA.Length);
-              result = Azos.IO.ConsoleUtils.WriteMarkupContentAsHTML(result);
+              result = result.Remove(0, Apps.Terminal.AppRemoteTerminal.MARKUP_PRAGMA.Length);
+              result = Azos.IO.Console.ConsoleUtils.WriteMarkupContentAsHTML(result);
               plainText = false;
             }
 

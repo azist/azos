@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 
 using Azos.Conf;
+using Azos.Data;
 
 namespace Azos
 {
@@ -47,7 +48,6 @@ namespace Azos
   /// </summary>
   public interface IMetadataGenerator
   {
-
     /// <summary>
     /// Application context
     /// </summary>
@@ -61,9 +61,20 @@ namespace Azos
     MetadataDetailLevel DetailLevel {  get; }
 
     /// <summary>
-    /// Target name used for extraction of targeted metadata such as database backend target name used in data documents/ schemas
+    /// Default target name used for extraction of targeted metadata such as database backend target name used in data documents/ schemas
     /// </summary>
-    string DataTargetName {  get; }
+    string DefaultDataTargetName { get; }
+
+    /// <summary>
+    /// Name of public metadata config section, typically `pub`
+    /// </summary>
+    string PublicMetadataSection { get; }
+
+
+    /// <summary>
+    /// A list of Type pattern matches that must be ignored during metadata discovery, e.g. "System.Threading.*"
+    /// </summary>
+    List<string> IgnoreTypePatterns{ get; }
 
     /// <summary>
     /// Generates metadata into ConfigSectionNode structure
@@ -77,12 +88,25 @@ namespace Azos
     bool IsWellKnownType(Type type);
 
     /// <summary>
+    /// Gets data target name for the specified schema/doc type, and its optional instance.
+    /// Default implementations typically just return DefaultDataTargetName.
+    /// This mechanism is used to get proper target names in call context, for example
+    /// you may need to get a different metadata depending on a call context such as Session.DataContextName etc.
+    /// </summary>
+    string GetSchemaDataTargetName(Schema schema, IDataDoc instance);
+
+    /// <summary>
     /// Adds a type with an optional instance to be described, this is typically used to register Permissions and Doc schemas
     /// </summary>
     /// <param name="type">A type to describe</param>
     /// <param name="instance">Optional instance of the type</param>
     /// <returns>An instance unique ID identifying the type, if the type is already added to the set (and of the same instance), returns its existing id</returns>
     string AddTypeToDescribe(Type type, object instance = null);
+
+    /// <summary>
+    /// Writes error to the generator, e.g. using a log
+    /// </summary>
+    void ReportError(Log.MessageType type, Exception error);
   }
 
 

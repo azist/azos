@@ -77,6 +77,8 @@ namespace Azos.Wave
 
       public override string ComponentLogTopic => CoreConsts.WAVE_TOPIC;
 
+      public override string ComponentCommonName => Name;
+
       /// <summary>
       /// Returns the handler instance name
       /// </summary>
@@ -146,7 +148,7 @@ namespace Azos.Wave
 
 
       /// <summary>
-      /// Handles the work -  first involes all filters then calls HandleWork to do actual processing
+      /// Handles the work -  first invokes all filters then calls HandleWork to do actual processing
       /// Note: This method is re-entrant by multiple threads
       /// </summary>
       public void FilterAndHandleWork(WorkContext work)

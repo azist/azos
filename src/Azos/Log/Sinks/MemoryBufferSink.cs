@@ -18,6 +18,7 @@ namespace Azos.Log.Sinks
   public sealed class MemoryBufferSink : Sink
   {
     public const int BUFFER_SIZE_DEFAULT = 1024;
+    public const int BUFFER_SIZE_MAX = 250 * 1024;
 
     public MemoryBufferSink(ISinkOwner owner) : base(owner)
     {
@@ -39,14 +40,15 @@ namespace Azos.Log.Sinks
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
     public int BufferSize
     {
-        get { return m_BufferSize;}
-        set
-        {
-            if (value==m_BufferSize) return;
-            if (value<1) value=1;
-            m_BufferSize = value;
-            m_Buffer = null; //atomic
-        }
+      get { return m_BufferSize;}
+      set
+      {
+        if (value==m_BufferSize) return;
+        if (value<1) value = 1;
+        if (value>BUFFER_SIZE_MAX) value = BUFFER_SIZE_MAX;
+        m_BufferSize = value;
+        m_Buffer = null; //atomic
+      }
     }
 
 
@@ -65,26 +67,24 @@ namespace Azos.Log.Sinks
     /// </summary>
     public IEnumerable<Message> BufferedTimeDescending  { get { return buffered(false).OrderBy( msg => -msg.UTCTimeStamp.Ticks ); } }
 
-          private IEnumerable<Message> buffered(bool asc)
+    private IEnumerable<Message> buffered(bool asc)
+    {
+        var buffer = m_Buffer;  //atomic
+        if (buffer==null) yield break;
+
+        if (asc)
+          for(var i=0; i<buffer.Length; i++)
           {
-              var buffer = m_Buffer;  //atomic
-              if (buffer==null) yield break;
-
-              if (asc)
-                for(var i=0; i<buffer.Length; i++)
-                {
-                  var elm = buffer[i];
-                  if (elm!=null) yield return elm;
-                }
-              else
-                for(var i=buffer.Length-1; i>=0; i--)
-                {
-                  var elm = buffer[i];
-                  if (elm!=null) yield return elm;
-                }
+            var elm = buffer[i];
+            if (elm!=null) yield return elm;
           }
-
-
+        else
+          for(var i=buffer.Length-1; i>=0; i--)
+          {
+            var elm = buffer[i];
+            if (elm!=null) yield return elm;
+          }
+    }
 
     /// <summary>
     /// Deletes all buffered messages

@@ -17,7 +17,7 @@ namespace Azos.Wave.Mvc
   {
     public NoCacheAttribute() { }
 
-    public bool Force{ get; set; }
+    public bool Force{ get; set; } = true;
 
 
     protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)

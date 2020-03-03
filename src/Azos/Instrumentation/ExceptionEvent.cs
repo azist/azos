@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 
 using Azos.Apps;
+using Azos.Serialization.Arow;
 using Azos.Serialization.BSON;
 
 namespace Azos.Instrumentation
@@ -18,6 +19,7 @@ namespace Azos.Instrumentation
   /// Represents an exception event recorded by instrumentation
   /// </summary>
   [Serializable]
+  [Arow("2A09545F-B237-4008-BEE8-26508724AB89")]
   [BSONSerializable("16DA09DD-AB74-469A-A1B6-A06BEA42EDF8")]
   public class ExceptionEvent : Event, IErrorInstrument
   {

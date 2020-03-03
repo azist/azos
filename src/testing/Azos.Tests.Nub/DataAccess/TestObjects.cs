@@ -18,7 +18,7 @@ namespace Azos.Tests.Nub.DataAccess
 {
 
     [Serializable]
-    [Table(targetName: "SPARTA_SYSTEM", name: "dimperson")]
+    [Schema(targetName: "SPARTA_SYSTEM", name: "dimperson")]
     public class Person : TypedDoc
     {
         public Person() {}
@@ -92,15 +92,15 @@ namespace Azos.Tests.Nub.DataAccess
         [Field(required: true)]
         public string Description {get; set;}
 
-        public override Exception Validate(string targetName)
+        public override ValidState Validate(ValidState state)
         {
-          var error = base.Validate(targetName);
-          if (error!=null) return error;
+          state = base.Validate(state);
+          if (state.ShouldStop) return state;
 
           if (!Description.Contains("Chaplin"))
-            return new FieldValidationException("Chaplin is required in description", "Description");
+            state = new ValidState(state, new FieldValidationException("Chaplin is required in description", "Description"));
 
-          return null;
+          return state;
         }
 
     }

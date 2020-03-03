@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+using Azos.Serialization.JSON;
 using System;
 using System.Runtime.Serialization;
 
@@ -18,7 +19,7 @@ namespace Azos.Data.Access
   /// Thrown by data access classes
   /// </summary>
   [Serializable]
-  public class DataAccessException : DataException, IHttpStatusProvider
+  public class DataAccessException : DataException, IHttpStatusProvider, IExternalStatusProvider
   {
     public const string KEY_VIOLATION_KIND_FLD_NAME = "DAE-KVK";
     public const string KEY_VIOLATION_FLD_NAME = "DAE-KV";
@@ -57,8 +58,13 @@ namespace Azos.Data.Access
     /// </summary>
     public readonly KeyViolationKind KeyViolationKind;
 
-    public int HttpStatusCode => IsKeyViolation ?  WebConsts.STATUS_409 : WebConsts.STATUS_500;
-    public string HttpStatusDescription => IsKeyViolation ? WebConsts.STATUS_409_DESCRIPTION + "/ Key Violation" : WebConsts.STATUS_500_DESCRIPTION;
+    public int HttpStatusCode
+     => IsKeyViolation ?  WebConsts.STATUS_409
+                       : this.InnerException.SearchThisOrInnerExceptionOf<IHttpStatusProvider>()?.HttpStatusCode ?? WebConsts.STATUS_500;
+
+    public string HttpStatusDescription
+     => IsKeyViolation ? WebConsts.STATUS_409_DESCRIPTION + "/ Key Violation"
+                       : this.InnerException.SearchThisOrInnerExceptionOf<IHttpStatusProvider>()?.HttpStatusDescription ?? WebConsts.STATUS_500_DESCRIPTION;
 
     /// <summary>
     /// Provides the name of entity/index/field that was violated and resulted in this exception
@@ -73,5 +79,8 @@ namespace Azos.Data.Access
       info.AddValue(KEY_VIOLATION_FLD_NAME, KeyViolation);
       base.GetObjectData(info, context);
     }
+
+    public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
+     => this.DefaultBuildErrorStatusProviderMap(includeDump, "data.access");
   }
 }

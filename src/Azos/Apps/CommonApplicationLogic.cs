@@ -27,7 +27,7 @@ namespace Azos.Apps
   /// Provides base implementation of IApplication for various application kinds
   /// </summary>
   [ConfigMacroContext]
-  public abstract partial class CommonApplicationLogic : DisposableObject, IApplication
+  public abstract partial class CommonApplicationLogic : DisposableObject, IApplicationImplementation
   {
     #region CONSTS
     public const string CONFIG_SWITCH = "config";
@@ -134,6 +134,7 @@ namespace Azos.Apps
     private Atom m_AppId;
     private Guid m_InstanceId = Guid.NewGuid();
     protected DateTime m_StartTime;
+    private IO.Console.IConsolePort m_ConsolePort;
 
     private string m_Name;
     private bool m_AllowNesting;
@@ -188,6 +189,9 @@ namespace Azos.Apps
 
 
     #region Properties
+
+    /// <summary> References ConsolePort for this app or null </summary>
+    public IO.Console.IConsolePort ConsolePort => m_ConsolePort;
 
     /// <summary>True if this app chassis is a test rig </summary>
     public virtual bool IsUnitTest => m_ConfigRoot.AttrByName(CONFIG_UNIT_TEST_ATTR).ValueAsBool();
@@ -274,6 +278,11 @@ namespace Azos.Apps
 
 
     #region Public
+
+    /// <summary>
+    /// Sets app-wide console out port
+    /// </summary>
+    public void SetConsolePort(IO.Console.IConsolePort port) => m_ConsolePort = port;
 
     /// <summary>
     /// Converts universal time to local time as of TimeLocation property

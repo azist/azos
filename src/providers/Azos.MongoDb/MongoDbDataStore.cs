@@ -59,11 +59,17 @@ namespace Azos.Data.Access.MongoDb
       m_Converter = new DataDocConverter();
     }
 
+    protected override void Destructor()
+    {
+      DisposeAndNull(ref m_QueryResolver);
+      base.Destructor();
+    }
+
     #endregion
 
     #region Fields
 
-        private QueryResolver    m_QueryResolver;
+    private QueryResolver    m_QueryResolver;
         private DataDocConverter m_Converter;
 
     #endregion
@@ -326,7 +332,7 @@ namespace Azos.Data.Access.MongoDb
           if (schema.TypedDocType!=null)
             tableName = schema.TypedDocType.Name;//without namespace
 
-          var tableAttr = schema.GetTableAttrForTarget(TargetName);
+          var tableAttr = schema.GetSchemaAttrForTarget(TargetName);
           if (tableAttr!=null && tableAttr.Name.IsNotNullOrWhiteSpace()) tableName = tableAttr.Name;
           return tableName;
         }

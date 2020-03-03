@@ -10,7 +10,7 @@ using System.IO;
 
 using Azos.Data.Modeling;
 using Azos.Conf;
-using Azos.IO;
+using Azos.IO.Console;
 using Azos.Platform;
 
 namespace Azos.Tools.Rsc

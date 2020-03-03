@@ -5,7 +5,6 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
-using System.Threading;
 
 using Azos.Platform;
 
@@ -59,6 +58,31 @@ namespace Azos.Apps
     }
 
     /// <summary>
+    /// Returns the effective ConsolePort - the one taken from the current App, if it is null app stack is tried.
+    /// If non of the apps return ConsolePort, then NOPConsolePort is returned
+    /// </summary>
+    public static IO.Console.IConsolePort EffectiveApplicationConsolePort
+    {
+      get
+      {
+        var result = Application.ConsolePort;
+        if (result!=null) return result;
+        lock(s_AppStack)
+        {
+          foreach(var app in s_AppStack)//stack enumerates in reverse order of push()
+          {
+            result = app.ConsolePort;
+            if (result!=null) return result;
+          }
+        }
+
+        if (result==null) result = IO.Console.NOPConsolePort.Default;
+        return result;
+      }
+    }
+
+
+    /// <summary>
     /// Framework internal app bootstrapping method.
     /// Sets root application context
     /// </summary>
@@ -75,7 +99,9 @@ namespace Azos.Apps
         if (s_Application!=null && !s_Application.AllowNesting)
           throw new AzosException(StringConsts.APP_CONTAINER_NESTING_ERROR.Args(application.GetType().FullName, s_Application.GetType().FullName));
 
-        s_AppStack.Push( s_Application );
+        if (s_Application!=null)
+          s_AppStack.Push( s_Application );
+
         s_Application = application;
       }
     }

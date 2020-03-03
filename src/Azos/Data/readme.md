@@ -2,10 +2,11 @@
 
 Back to [Documentation Index](/src/documentation-index.md)
 
-This section described accessing/working with Data in Azos.
+This section describes accessing/working with Data in Azos.
 
 See also:
 - [Data Schema](metadata.md)
+- [Advanced Metadata](advanced-meta.md)
 - [Data Validation with Domains](domains.md)
 - [Data Modeling](modeling.md)
 
@@ -29,10 +30,10 @@ Azos data access was designed with the following data-store types in mind:
 * **Unstructured** data accessed via custom APIs(parse CSV files etc.)
 * **Non-homogeneous** data: all/some of the aforementioned sources may be needed in the same system
 
-The data access is facilitated via the [`Azos.Data.Access.IDataStore`](Access/IDataStore.cs) interface which is just a 
+The app-level data access is facilitated via the [`Azos.Data.Access.IDataStore`](Access/IDataStore.cs) interface which is just a 
 marker interface for the application chassis.
 
-Every system may select a combination of the following strategies that fit the particular case the best:
+Your system may select a combination of the following strategies that fit your particular case the best:
 
 * Calling 3rd party services (e.g. via REST/SOAP/RPC) - pulling data via some API calls
 * Read/Write some data via app-specific APIs (classes/props/methods) - similar to ORM
@@ -43,7 +44,7 @@ Every system may select a combination of the following strategies that fit the p
 
 Any POCO (Plain CLR) class instance may be used to access data, as data stores are just interfaces, 
 for example:  `MyCar car = MyApp.Data.GetCarsByDriver("Frank-123");`, as the function in the preceding 
-example may return a domain object `MyCar`.
+example may return a domain object `MyCar` *(this is used as an example only - try to use DI without service location of the App var)*.
 
 Azos.Data namespace provides a very convenient base for business logic/domain models
  building blocks, which are also typically used in a CRUD scenarios:
@@ -59,7 +60,7 @@ for every field. Fields may be of complex types (e.g. a field of type `List<Pati
 contained in Docs. See [Schema Metadata](metadata.md) for more details.
 
 ### Data Documents
-A data document "[Doc](Doc.cs)" is a string of data, it consists of fields where every field is defined by a FieldDef from Schema.
+A data document "[Doc](Doc.cs)" is a string of data, it consists of fields where every field is defined by a `FieldDef` in documents `Schema`.
 Think of data doc as a classes directly or indirectly inheriting from `Doc`, where properties decorated with `[Field]` attribute get read/written 
 from/to actual data store. 
 **Documents can nest** - they **can contain fields of complex types**, thus forming hierarchical data structures. *You have to keep in mind though,
@@ -67,11 +68,11 @@ that for the best backend portability it is better to use linear row-like "data 
 
 A `Schema` is a property of a `Doc`. `FieldDef` is a property of a field within a document. There are two types of data documents:
 
-* Dynamic Data Documents
-* Typed Data Documents
+* **Dynamic** Data Documents
+* **Typed** Data Documents
 
 Dynamic documents are instances of [`DynamicDoc`](DynamicDoc.cs) class, they keep data internally in an `object[]`.
-Typed rows are instances of sub-types of a [`TypedDoc`](TypedDoc.cs). The fields of typed doc must be explicitly 
+Typed rows are instances of direct or indirect sub-types of a [`TypedDoc`](TypedDoc.cs). The fields of typed doc must be explicitly 
 declared in code and tagged with a [`[Field]`](Attributes.cs) attribute which defines field's detailed FieldDef.
 
 This design is very flexible, as both doc types stem from `Doc` abstract class, which has the following key
@@ -246,6 +247,7 @@ of automatic data binding, which is very convenient in CRUD applications.
 
 See also:
 - [Data Schema](metadata.md)
+- [Advanced Metadata](advanced-meta.md)
 - [Data Validation with Domains](domains.md)
 - [Data Modeling](modeling.md)
 

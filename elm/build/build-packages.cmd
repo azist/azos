@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.0.507.5
-set HEADLINE=Dat.Doc dep injection if fields
+set VER=1.2.5.1
+set HEADLINE=Introduce JazonReaderBackend
 
 call vs2017-build-release %VER%
 

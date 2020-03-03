@@ -27,6 +27,8 @@
 
   <ItemGroup>
     <None Remove="BUILD_INFO.txt" />
+    <None Remove="Tv\Help.txt" />
+    <None Remove="Tv\Welcome.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,15 +38,24 @@
     <Compile Include="Templatization\StockContent\.tc\ApiDoc-Toc.nht.auto.cs" />
     <Compile Include="Templatization\StockContent\.tc\Error.nht.auto.cs" />
     <Compile Include="Templatization\StockContent\.tc\Master.nht.auto.cs" />
+    <Compile Include="Templatization\StockContent\.tc\OAuthLogin.nht.auto.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="BUILD_INFO.txt" />
+    <EmbeddedResource Include="Tv\Help.txt" />
+    <EmbeddedResource Include="Tv\Welcome.txt" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\Azos\Azos.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="tv.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

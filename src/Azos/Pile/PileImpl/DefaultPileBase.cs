@@ -622,6 +622,7 @@ namespace Azos.Pile
 
            var adr = newSeg.Allocate(buffer, serializedSize, payloadSize, serializerVersion, isLink);
            var pp = new PilePointer(newSegs.Count-1, adr);
+           Thread.MemoryBarrier();
            m_Segments = newSegs;
            return pp;
         }
@@ -975,6 +976,7 @@ namespace Azos.Pile
                     }
                   }
               }
+              Thread.MemoryBarrier();
               m_Segments = newSegs;//atomic
           }//lock barrier
         }
@@ -1098,6 +1100,7 @@ namespace Azos.Pile
             while(newSegments.Count>0 && newSegments[newSegments.Count-1]==null)
              newSegments.RemoveAt(newSegments.Count-1);
 
+            Thread.MemoryBarrier();
             m_Segments = newSegments;//atomic
         }//lock
 

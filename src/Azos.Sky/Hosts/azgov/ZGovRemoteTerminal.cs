@@ -7,14 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using Azos.Sky.Apps.Terminal;
+using Azos.Apps.Terminal;
 
 namespace Azos.Sky.Hosts.azgov
 {
   /// <summary>
   /// Implements Sky Zone Governor remote terminal
   /// </summary>
-  public class ZGovRemoteTerminal : AppRemoteTerminal
+  public class ZGovRemoteTerminal : SkyAppRemoteTerminal
   {
     public ZGovRemoteTerminal() : base() { }
 

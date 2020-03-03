@@ -36,11 +36,9 @@ namespace Azos.Wave
       public const string WRONG_DISPATCHER_HANDLER_UNREGISTRATION_ERROR =
         "Can not unregister a handler '{0}' because it does not belong to this dispatcher";
 
-      public const string NO_HANDLER_FOR_WORK_ERROR =
-        "No suitable handler for work '{0}' could be matched";
+      public const string NO_HANDLER_ERROR = "No suitable work handler could be matched";
 
-      public const string URI_PATTERN_PARSE_ERROR =
-        "Uri pattern '{0}' could not be parsed: {1}";
+      public const string URI_PATTERN_PARSE_ERROR = "Uri pattern '{0}' could not be parsed: {1}";
 
       public const string URI_WILDCARD_PARSE_ERROR =
         "Pattern may contain only one {{*var_name}} wildcard capture variable as the very last pattern segment";
@@ -68,8 +66,8 @@ namespace Azos.Wave
       public const string DONT_KNOW_ACTION_ERROR =
         "Dont know how to handle site action: ";
 
-      public const string NOT_FOUND_ERROR =
-        "404 Not Found: ";
+      public const string TYPE_MULTIPLE_RESOLUTION_WARNING =
+      "Search for type `{0}` resolved into `{1}` yielding more than one match. Revise the typelocations/namespace pattern match configuration";
 
       public const string ERROR_PAGE_TEMPLATE_TYPE_ERROR =
         "Custom error page could not be created. Supplied type '{0}'. Error: {1}";
@@ -157,6 +155,6 @@ namespace Azos.Wave
       public const string CONFIG_PORTAL_LOCALIZATION_FILE_ERROR =  "Portal '{0}' points to localization message file '{1}' which could not be read: {2}";
 
 
-      public const string CMS_NAVIGATE_T_ERROR =  "Portal '{0}' CMSContext.Navigate<{1}>('{2}') does not land at a resource of desired type";
+      public const string CMS_ID_ERROR =  "Got invalid ContentId `{0}`='{1}'. Only the following characters are permitted in Cms ContentId: 'a-z|A-Z|0-9|.|-|_' and be no longer than {2} chars.";
   }
 }

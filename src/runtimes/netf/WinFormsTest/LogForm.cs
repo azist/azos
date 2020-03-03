@@ -21,7 +21,7 @@ namespace WinFormsTest
 {
     public partial class LogForm : Form
     {
-        const int CNT = 5;
+        const int CNT = 1;
 
         public LogForm()
         {
@@ -38,7 +38,7 @@ namespace WinFormsTest
         private void write(MessageType t)
         {
           for(var i=0; i<CNT; i++)
-             FormsAmbient.App.Log.Write( new Azos.Log.Message{Type = t, From = tbFrom.Text, Text = tbText.Text + i.ToString()});
+             FormsAmbient.App.Log.Write( new Azos.Log.Message{Type = t, Topic = "LogForm", From = tbFrom.Text, Text = tbText.Text + i.ToString(), Exception = new AzosException("AZ5 was pressed")});
         }
 
         private void btnTrace_Click(object sender, EventArgs e)
@@ -65,5 +65,20 @@ namespace WinFormsTest
         {
               write(MessageType.Debug);
         }
+
+    private void btnWebCall_Click(object sender, EventArgs e)
+    {
+      try
+      {
+
+        throw new Azos.Web.WebCallException("Custom exception text", "/zhaba/push", "GET", 403, "Access denied", "Abazh is prohibited");
+      }
+      catch(Exception error)
+      {
+      error.Data["AAA"] = 123.456d;
+      FormsAmbient.App.Log.Write(new Azos.Log.Message { Type = MessageType.Error, Topic = "WebCall", From = tbFrom.Text, Text = tbText.Text,
+       Exception = error });
+      }
     }
+  }
 }

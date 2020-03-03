@@ -66,7 +66,7 @@ namespace Azos.Sky.Glue
                                                                                               request.Headers[0].GetType().FullName));
 
         if (ahdr.Token.Assigned)
-         data["auth-token"] = Security.SkyAuthenticationTokenSerializer.Serialize(ahdr.Token);
+         data["auth-token"] = ahdr.Token.ToString();
 
         if (ahdr.Credentials!=null)
         {

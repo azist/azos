@@ -1,0 +1,10 @@
+﻿schemas
+{
+  TestDataDocA
+  {
+    description="Schema-level description is here"
+    Name {description="My long description" value-list="A:Apple,B:Book"}
+    Field {description="Description of field"}
+  }
+
+}

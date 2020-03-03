@@ -42,7 +42,7 @@ namespace WinFormsTest.ConsoleUtils
 
       using (var output = new MemoryStream())
       {
-        Azos.IO.ConsoleUtils.WriteMarkupContentAsHTML(output, content);
+        Azos.IO.Console.ConsoleUtils.WriteMarkupContentAsHTML(output, content);
 
         var outStr = Encoding.UTF8.GetString(output.GetBuffer(), 0, (int)output.Position);
 

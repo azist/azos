@@ -7,7 +7,7 @@
 using System;
 
 using Azos.Conf;
-using Azos.IO;
+using Azos.IO.Console;
 
 namespace Azos.Log.Sinks
 {

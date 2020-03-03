@@ -17,9 +17,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("WinFormsTest")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("IT ADAPTER Inc")]
+[assembly: AssemblyCompany("Azist")]
 [assembly: AssemblyProduct("WinFormsTest")]
-[assembly: AssemblyCopyright("Copyright ©  2011-2016 IT ADAPTER Inc")]
+[assembly: AssemblyCopyright("Copyright ©  2011-2020 Azist")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

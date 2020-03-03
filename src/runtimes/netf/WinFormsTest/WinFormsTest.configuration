@@ -1,9 +1,9 @@
 ﻿<!-- Comment-->
 <app
        name="Manual Win Forms Test App(WinFormsTest.exe)"
-       log-root="$(~AZOS_TEST_ROOT)\"
+       log-root="$(~AZOS_TEST_ROOT)\logs\"
        log-csv="Azos.Log.Sinks.CSVFileSink, Azos"
-       log-debug="Azos.Log.Sinks.DebugSinks, Azos"
+       log-debug="Azos.Log.Sinks.DebugSink, Azos"
        log-mongo="Azos.Log.Sinks.MongoDbSink, Azos.MongoDb"
        log-name="test-client"
        trace-disable="true"
@@ -36,13 +36,40 @@
 
 
 
-  <log name="Logger" default-failover="destFailures">
+  <log name="Logger" default-failover="failures">
 
     <sink  type="$(/$log-csv)"
          name="$(/$log-name)"
          path="$(/$log-root)"
          file-name="{0:yyyyMMdd}-$($name).csv.log"
+         generate-failover-msg="true">
+
+      <filter>
+        <tree type='Azos.Log.Filters.And'>
+          <left  type='Azos.Log.Filters.ByFrom' exclude='*lenin*' />
+          <right type='Azos.Log.Filters.ByText' exclude='*lenin*' />
+        </tree>
+      </filter>
+
+
+     </sink>
+
+    <sink  type="$(/$log-debug)"
+     name="dbg"
+     path="$(/$log-root)"
+     file-name="{0:yyyyMMdd}-$($name).dbg.log"
+     min-level="error"
+     generate-failover-msg="true"
+     Xinclude-fields="false"
+     Xinclude-data="true"
         />
+
+    <sink  type="$(/$log-csv)"
+     name="failures"
+     only-failures="true"
+     path="$(/$log-root)"
+     file-name="{0:yyyyMMdd}-$($name).FAIL.csv.log"
+    />
   </log>
 <!--
     <sink  type="$(/$log-csv)"

@@ -173,7 +173,7 @@ namespace Azos.Sky.WebManager
 
     }
 
-    private  Dictionary<string, Type> s_PageTypes = new Dictionary<string,Type>();
+    private volatile Dictionary<string, Type> s_PageTypes = new Dictionary<string,Type>();
 
     /// <summary>
     /// Makes localized page instance per session
@@ -205,6 +205,7 @@ namespace Azos.Sky.WebManager
                 localizedType = Type.GetType(tname, false);
                 var dict = new Dictionary<string, Type>(s_PageTypes);
                 dict[key] = localizedType;
+                System.Threading.Thread.MemoryBarrier();
                 s_PageTypes = dict;//atomic
               }
           }

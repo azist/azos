@@ -9,9 +9,10 @@ using Azos.Conf;
 namespace Azos.Log.Sinks
 {
   /// <summary>
-  /// Implements a sink that is based on another instance of LogDaemon, which provides asynchronous buffering and failover capabilities
+  /// Implements a sink that is based on another instance of LogDaemon, which provides
+  /// asynchronous buffering and failover capabilities
   /// </summary>
-  public class LogDaemonSink : Sink
+  public sealed class LogDaemonSink : Sink
   {
     public LogDaemonSink(ISinkOwner owner) : base(owner)
     {
@@ -21,6 +22,12 @@ namespace Azos.Log.Sinks
     public LogDaemonSink(ISinkOwner owner, string name, int order) : base(owner, name, order)
     {
       m_Daemon = new LogDaemon(this);
+    }
+
+    protected override void Destructor()
+    {
+      base.Destructor();
+      DisposeAndNull(ref m_Daemon);
     }
 
     private LogDaemon  m_Daemon;
@@ -35,6 +42,12 @@ namespace Azos.Log.Sinks
     {
       base.DoStart();
       m_Daemon.Start();
+    }
+
+    protected override void DoSignalStop()
+    {
+      base.DoSignalStop();
+      m_Daemon.SignalStop();
     }
 
     protected override void DoWaitForCompleteStop()

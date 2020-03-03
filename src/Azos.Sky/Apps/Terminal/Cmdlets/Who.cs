@@ -8,7 +8,7 @@ using System.Text;
 
 using Azos.Conf;
 
-namespace Azos.Sky.Apps.Terminal.Cmdlets
+namespace Azos.Apps.Terminal.Cmdlets
 {
   public class Who : Cmdlet
   {
@@ -18,7 +18,7 @@ namespace Azos.Sky.Apps.Terminal.Cmdlets
     {
       var result = new StringBuilder(0xff);
 
-      var registry = AppRemoteTerminalRegistry.Instance(App).All;
+      var registry = AppRemoteTerminalRegistry.All;
 
       foreach (var t in registry)
         result.AppendFormat("{0}-{1}-{2}-{3}\n", t.Name, t.Who, t.WhenConnected, t.WhenInteracted);

@@ -34,7 +34,8 @@ namespace Azos.CodeAnalysis.JSON
             eObjectKeyExpected,
             eColonOperatorExpected,
             eNumericLiteralExpectedAfterSignOperator,
-            eDuplicateObjectKey
+            eDuplicateObjectKey,
+            eGraphDepthLimit
 
 
     }

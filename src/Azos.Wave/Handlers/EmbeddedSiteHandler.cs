@@ -74,13 +74,13 @@ namespace Azos.Wave.Handlers
         try
         {
           var bi = new BuildInformation(assembly);
-          m_LastModifiedDate = bi.DateStampUTC.DateTimeToHTTPCookieDateTime();
+          m_LastModifiedDate = WebUtils.DateTimeToHTTPLastModifiedHeaderDateTime(bi.DateStampUTC);
         }
         catch(Exception err)
         {
           //no build info
           WriteLog(Log.MessageType.Warning, "ctor", "Assembly '{0}' has no BUILD_INFO".Args(assembly.FullName), error:  err);
-          m_LastModifiedDate = App.TimeSource.UTCNow.DateTimeToHTTPCookieDateTime();
+          m_LastModifiedDate = WebUtils.DateTimeToHTTPLastModifiedHeaderDateTime(App.TimeSource.UTCNow);
         }
       }
 
@@ -254,7 +254,7 @@ namespace Azos.Wave.Handlers
           stream.Seek(0, SeekOrigin.Begin);
           work.Response.WriteStream(stream);
         }
-        else throw new HTTPStatusException(WebConsts.STATUS_404, WebConsts.STATUS_404_DESCRIPTION, StringConsts.NOT_FOUND_ERROR + resName);
+        else throw new HTTPStatusException(WebConsts.STATUS_404, WebConsts.STATUS_404_DESCRIPTION, resName);
       }
 
       private string getResourcePath(string sitePath)

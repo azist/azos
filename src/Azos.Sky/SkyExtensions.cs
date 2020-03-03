@@ -38,10 +38,13 @@ namespace Azos.Sky
       => app.AsSky().Metabase.CatalogReg.NavigateHost(app.AsSky().HostName);
 
     /// <summary>
-    /// Returns ISkyApp.HostName
+    /// Returns ISkyApp.HostName or Platform.Computer.HostName if the app is not SkyApp
     /// </summary>
     public static string GetThisHostName(this IApplication app)
-      => app.AsSky().HostName;
+    {
+      if (app.NonNull(nameof(app)) is ISkyApplication sky) return sky.HostName;
+      return Platform.Computer.HostName;
+    }
 
     /// <summary>
     /// Returns Metabank.SectionNOC (metabase's information about the NOC this host is in)

@@ -1,0 +1,6 @@
+﻿<push><b color=black><f color=white>
+Azos TeleVision Host<f color=gray>
+Copyright (c) 2019-2020 Azist Group
+Version 0.1 / Azos as of Dec 2019
+
+<pop>

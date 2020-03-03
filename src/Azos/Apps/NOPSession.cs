@@ -37,6 +37,11 @@ namespace Azos.Apps
             get { return s_ID; }
         }
 
+        public ulong IDSecret
+        {
+          get { return 0; }
+        }
+
         public Guid? OldID
         {
            get { return null;}
@@ -77,6 +82,9 @@ namespace Azos.Apps
         {
             get { return CoreConsts.ISO_LANG_ENGLISH;}
         }
+
+
+        public string DataContextName { get => null; set { } }
 
 
         public IDictionary<object, object> Items

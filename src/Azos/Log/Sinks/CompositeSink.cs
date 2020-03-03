@@ -29,12 +29,18 @@ namespace Azos.Log.Sinks
     {
     }
 
+    private void cleanupSinks()
+    {
+      foreach (var sink in m_Sinks.OrderedValues.Reverse())
+        sink.Dispose();
+
+      m_Sinks.Clear();
+    }
+
     protected override void Destructor()
     {
       base.Destructor();
-
-      foreach (var sink in m_Sinks.OrderedValues.Reverse())
-        sink.Dispose();
+      cleanupSinks();
     }
 
     private OrderedRegistry<Sink> m_Sinks = new OrderedRegistry<Sink>();
@@ -51,6 +57,10 @@ namespace Azos.Log.Sinks
     protected override void DoConfigure(Conf.IConfigSectionNode node)
     {
       base.DoConfigure(node);
+
+      if (node==null || !node.Exists) return;
+
+      cleanupSinks();
 
       foreach (var dnode in node.Children.Where(n => n.Name.EqualsIgnoreCase(LogDaemonBase.CONFIG_SINK_SECTION)))
       {

@@ -135,7 +135,7 @@ namespace Azos.Text
 
 
     /// <summary>
-    /// Returns true if supplied string matches pattern that can contain multiple char span (*) wildcards and
+    /// Returns true if the supplied string matches a specified pattern that can contain multiple char span (*) wildcards and
     /// multiple single-char (?) wildcards
     /// </summary>
     public static bool MatchPattern(this string str,     //     some address

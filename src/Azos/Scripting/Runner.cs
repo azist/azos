@@ -22,6 +22,7 @@ namespace Azos.Scripting
   public class Runner : ApplicationComponent
   {
     public static readonly char[] DELIMITERS = new []{',', ';', '|'};
+    public const char NOT = '~';
 
     public const string CONFIG_ARGS_SECTION = "args";
 
@@ -61,10 +62,10 @@ namespace Azos.Scripting
     protected IConfigSectionNode m_Args;
     protected argsVarResolver m_ArgsResolver;
 
-    protected string[] m_Categories;
-    protected string[] m_Namespaces;
-    protected string[] m_Methods;
-    protected string[] m_Names;
+    protected (string val, bool not)[] m_Categories;
+    protected (string val, bool not)[] m_Namespaces;
+    protected (string val, bool not)[] m_Methods;
+    protected (string val, bool not)[] m_Names;
 
 
     /// <summary>
@@ -85,61 +86,67 @@ namespace Azos.Scripting
 
     public override string ComponentLogTopic => CoreConsts.RUN_TOPIC;
 
+
+    protected static string JoinPredicateList((string val, bool not)[] list)
+    {
+      if (list==null) return string.Empty;
+      return string.Join(",", list.Select(one =>  one.not ? (NOT + one.val) : (one.val)  ));
+    }
+
+    protected static (string val, bool not)[] ParsePredicateList(string val)
+    {
+      if (val.IsNullOrWhiteSpace()) return null;
+      var segs = val.Split(DELIMITERS);
+      return segs.Where(seg => seg.IsNotNullOrWhiteSpace())
+                 .Select( seg =>
+                 {
+                   seg = seg.Trim();
+                   return seg.Length>1 && seg[0]==NOT ?(seg.Substring(1), true) : (seg, false);
+                 }).ToArray();
+    }
+
     /// <summary>
-    /// If set, applies category filter fixtures and test methods in the specified categories.
-    /// Multiple categories are delimited by ',' or ';' or '|'
+    /// If set, applies category filter to fixtures and test methods in the specified categories.
+    /// Multiple categories are delimited by ',' or ';' or '|'. Use "~" for NOT e.g. "~Disk*" = "All but the ones starting with `Disk`"
     /// </summary>
     [Config]
     public string Categories
     {
-      get { return m_Categories==null ? string.Empty : string.Join(",", m_Categories); }
-      set
-      {
-        m_Categories = value.IsNullOrWhiteSpace() ? null : value.Split(DELIMITERS, StringSplitOptions.RemoveEmptyEntries);
-      }
+      get => JoinPredicateList(m_Categories);
+      set => m_Categories = ParsePredicateList(value);
     }
-
 
     /// <summary>
     /// If set filters the namespace names.
-    /// Multiple patterns delimited by ',' or ';' or '|'
+    /// Multiple patterns delimited by ',' or ';' or '|'. Use "~" for NOT e.g. "~Disk*" = "All but the ones starting with `Disk`"
     /// </summary>
     [Config]
     public string Namespaces
     {
-      get { return m_Namespaces==null ? string.Empty : string.Join(",", m_Namespaces); }
-      set
-      {
-        m_Namespaces = value.IsNullOrWhiteSpace() ? null : value.Split(DELIMITERS, StringSplitOptions.RemoveEmptyEntries);
-      }
+      get => JoinPredicateList(m_Namespaces);
+      set => m_Namespaces = ParsePredicateList(value);
     }
 
     /// <summary>
     /// If set filters the method names.
-    /// Multiple patterns delimited by ',' or ';' or '|'
+    /// Multiple patterns delimited by ',' or ';' or '|'. Use "~" for NOT e.g. "~Disk*" = "All but the ones starting with `Disk`"
     /// </summary>
     [Config]
     public string Methods
     {
-      get { return m_Methods==null ? string.Empty : string.Join(",", m_Methods); }
-      set
-      {
-        m_Methods = value.IsNullOrWhiteSpace() ? null : value.Split(DELIMITERS, StringSplitOptions.RemoveEmptyEntries);
-      }
+      get => JoinPredicateList(m_Methods);
+      set => m_Methods = ParsePredicateList(value);
     }
 
     /// <summary>
     /// If set filters by method case names (attribute instance names).
-    /// Multiple patterns delimited by ',' or ';' or '|'
+    /// Multiple patterns delimited by ',' or ';' or '|'. Use "~" for NOT e.g. "~Disk*" = "All but the ones starting with `Disk`"
     /// </summary>
     [Config]
     public string Names
     {
-      get { return m_Names==null ? string.Empty : string.Join(",", m_Names); }
-      set
-      {
-        m_Names = value.IsNullOrWhiteSpace() ? null : value.Split(DELIMITERS, StringSplitOptions.RemoveEmptyEntries);
-      }
+      get => JoinPredicateList(m_Names);
+      set => m_Names = ParsePredicateList(value);
     }
 
 
@@ -226,7 +233,7 @@ namespace Azos.Scripting
       {
         if (attr.Category.IsNotNullOrWhiteSpace())
         {
-          if (!m_Categories.Any( c => attr.Category.MatchPattern(c, senseCase: false ))) return false;
+          if (!MatchPredicates(m_Categories, attr.Category, false)) return false;
         }
         else return false;
       }
@@ -260,6 +267,17 @@ namespace Azos.Scripting
       }
     }
 
+    protected static bool MatchPredicates(IEnumerable<(string val, bool not)> predicates, string value, bool caseSensitive)
+    {
+      return
+        (
+          !predicates.Any( one => !one.not) ||
+           predicates.Where( one => !one.not ).Any( one => value.MatchPattern(one.val, senseCase: caseSensitive))
+        )
+        &&
+        predicates.Where( one => one.not).All(one => !value.MatchPattern(one.val, senseCase: caseSensitive));
+    }
+
     /// <summary>
     /// Determines if the runnable should run in which case returns true.
     /// Filter is based on this instance properties (such as Categories etc.)
@@ -270,23 +288,23 @@ namespace Azos.Scripting
       {
         if (runnableHasMethodLevelCategories || attr.Category.IsNotNullOrWhiteSpace())
         {
-          if (!m_Categories.Any( c => attr.Category.MatchPattern(c, senseCase: false ))) return false;
+          if (!MatchPredicates(m_Categories, attr.Category, false)) return false;
         }
       }
 
       if (m_Namespaces!=null)
       {
-        if (!m_Namespaces.Any( p => mi.DeclaringType.Namespace.MatchPattern( p, senseCase: true ))) return false;
+        if (!MatchPredicates(m_Namespaces, mi.DeclaringType.Namespace, true)) return false;
       }
 
       if (m_Methods!=null)
       {
-        if (!m_Methods.Any( p => "{0}.{1}".Args(mi.DeclaringType.Name, mi.Name).MatchPattern( p, senseCase: true ))) return false;
+        if (!MatchPredicates(m_Methods, "{0}.{1}".Args(mi.DeclaringType.Name, mi.Name), true)) return false;
       }
 
 
       if (m_Names==null) return !attr.ExplicitName;
-      return m_Names.Any( p => attr.Name.MatchPattern( p, senseCase: true ));
+      return MatchPredicates(m_Names, attr.Name, true);
     }
 
     /// <summary>
@@ -343,8 +361,8 @@ namespace Azos.Scripting
       var alreadyHandled = false;
       try
       {
-        Console.SetOut( Host.ConsoleOut );
-        Console.SetError( Host.ConsoleError );
+ //       Console.SetOut( Host.ConsoleOut );
+//        Console.SetError( Host.ConsoleError );
 
         var args = MakeMethodParameters(method);
         try
@@ -353,14 +371,7 @@ namespace Azos.Scripting
 
           if (!alreadyHandled)
           {
-            if (!this.Emulate)
-            {
-              var ret = method.mi.Invoke(runnable, args); //<------------------ MAKE  A CALL !!!!!
-              if (ret is Task t)
-              {
-                t.GetAwaiter().GetResult();//discard the result, if this throws it throws as-if from Invoke()
-              }
-            }
+            if (!this.Emulate) InvokeRunMethod(runnable, fid, method, ref args); //<---- CALL the method
 
             if (hook!=null) hook.Epilogue(this, fid, method.mi, method.attr, null);
           }
@@ -382,6 +393,7 @@ namespace Azos.Scripting
         try
         {
           if (hook!=null) handled = hook.Epilogue(this, fid, method.mi, method.attr, error);
+          if (handled) error = null;
         }
         catch(Exception eex)
         {
@@ -395,6 +407,52 @@ namespace Azos.Scripting
       }
 
       Host.AfterMethodRun(this, fid, method.mi, method.attr, error);
+    }
+
+    /// <summary>
+    /// Calls the actual method checking for RunHookAttributes like averments. This method is not called for emulation
+    /// </summary>
+    protected virtual void InvokeRunMethod(object runnable, FID id, (MethodInfo mi, RunAttribute attr) method, ref object[] args)
+    {
+      var hatrs = RunHookAttribute.GetAllOf(method.mi);
+
+      List<(RunHookAttribute a, object s)> state = null;
+      foreach(var hatr in hatrs)
+      {
+        if (state==null) state = new List<(RunHookAttribute, object)>();
+        state.Add( (hatr, hatr.Before(this, runnable, id, method.mi, method.attr, ref args) ));
+      }
+
+      try
+      {
+        var ret = method.mi.Invoke(runnable, args); //<------------------ MAKE  A CALL !!!!!
+        if (ret is Task t)
+          t.GetAwaiter().GetResult();//discard the result, if this throws it throws as-if from Invoke()
+      }
+      catch(Exception error)
+      {
+        if (error is TargetInvocationException tie) error = tie.InnerException;
+
+        var original = error;
+
+        if (state!=null)
+         state.ForEach(tpl => tpl.a.After(this, runnable, id, method.mi, method.attr, tpl.s, ref error));
+
+        if (error!=null)
+        {
+          if (error==original) throw;//keep original stack frame
+          throw error;
+        }
+        else
+          return;//error suppressed by attribute
+      }
+
+      if (state != null)
+      {
+        Exception error = null;
+        state.ForEach(tpl => tpl.a.After(this, runnable, id, method.mi, method.attr, tpl.s, ref error));
+        if (error!=null) throw error;
+      }
     }
 
     /// <summary>

@@ -14,14 +14,16 @@ using Azos.Conf;
 using Azos.Collections;
 using Azos.Apps;
 
+using Azos.Sky;
 using Azos.Sky.Metabase;
+using Azos.Sky.Contracts;
 
-namespace Azos.Sky.Apps.HostGovernor
+namespace Azos.Apps.HostGovernor
 {
   /// <summary>
   /// Provides Host Governor Services - this is a singleton class
   /// </summary>
-  public sealed class HostGovernorService : Daemon, Contracts.IPinger
+  public sealed class HostGovernorService : Daemon, Sky.Contracts.IPinger
   {
     #region CONSTS
       public const string THREAD_NAME = "HostGovernorService";
@@ -40,7 +42,7 @@ namespace Azos.Sky.Apps.HostGovernor
       public HostGovernorService(IApplication app, bool launchedByARD, bool ardUpdateProblem) : base(app)
       {
         if (!App.Singletons.GetOrCreate(() => this).created)
-          throw new AHGOVException(StringConsts.AHGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
+          throw new AHGOVException(Sky.StringConsts.AHGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
 
         m_LaunchedByARD = launchedByARD;
         m_ARDUpdateProblem = ardUpdateProblem;
@@ -165,12 +167,12 @@ namespace Azos.Sky.Apps.HostGovernor
         get { return m_AppStartOrder;}
       }
 
-      public Contracts.DynamicHostID? DynamicHostID
+      public DynamicHostID? DynamicHostID
       {
         get
         {
           if (m_DynamicHostID.IsNullOrWhiteSpace()) return null;
-          return new Contracts.DynamicHostID(m_DynamicHostID, App.GetThisHostMetabaseSection().ParentZone.RegionPath);
+          return new DynamicHostID(m_DynamicHostID, App.GetThisHostMetabaseSection().ParentZone.RegionPath);
         }
       }
 
@@ -178,9 +180,9 @@ namespace Azos.Sky.Apps.HostGovernor
 
     #region Public
 
-      public Contracts.HostInfo GetHostInfo()
+      public HostInfo GetHostInfo()
       {
-        return Contracts.HostInfo.ForThisHost(App);
+        return HostInfo.ForThisHost(App);
       }
 
       public void Ping()
@@ -284,7 +286,7 @@ namespace Azos.Sky.Apps.HostGovernor
             try
             {
               if (m_ARDUpdateProblem)
-               log(MessageType.CatastrophicError, FROM, StringConsts.AHGOV_ARD_UPDATE_PROBLEM_ERROR);
+               log(MessageType.CatastrophicError, FROM, Sky.StringConsts.AHGOV_ARD_UPDATE_PROBLEM_ERROR);
               else
               {
                  if (StartupInstallCheck)
@@ -357,9 +359,9 @@ namespace Azos.Sky.Apps.HostGovernor
             any = true;
             try
             {
-              using (var cl = App.GetServiceClientHub().MakeNew<Contracts.IZoneHostRegistryClient>(zgov.RegionPath))
+              using (var cl = App.GetServiceClientHub().MakeNew<IZoneHostRegistryClient>(zgov.RegionPath))
               {
-                cl.RegisterSubordinateHost(Contracts.HostInfo.ForThisHost(App), DynamicHostID);
+                cl.RegisterSubordinateHost(HostInfo.ForThisHost(App), DynamicHostID);
                 ok = true;
                 break;
               }

@@ -132,7 +132,7 @@ namespace Azos.Log.Sinks
         }
         catch(Exception error)
         {
-          throw new AzosException(StringConsts.LOGSVC_FILE_DESTINATION_PATH_ERROR.Args(Name, path, error.ToMessageWithType()), error);
+          throw new AzosException(StringConsts.LOGSVC_FILE_SINK_PATH_ERROR.Args(Name, path, error.ToMessageWithType()), error);
         }
 
       var fn = m_FileName;
@@ -149,7 +149,7 @@ namespace Azos.Log.Sinks
       }
       catch(Exception error)
       {
-        throw new AzosException(StringConsts.LOGSVC_FILE_DESTINATION_FILENAME_ERROR.Args(Name, fn, error.ToMessageWithType()), error);
+        throw new AzosException(StringConsts.LOGSVC_FILE_SINK_FILENAME_ERROR.Args(Name, fn, error.ToMessageWithType()), error);
       }
 
       if (path.IsNotNullOrWhiteSpace() && !Directory.Exists(path))

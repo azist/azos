@@ -127,11 +127,13 @@ namespace Azos.Apps
         get
         {
           if (m_Items==null)
-              lock(m_ItemsLock)
-              {
-                if (m_Items==null)
-                  m_Items = new ConcurrentDictionary<object,object>(4, 16);
-              }
+          {
+            lock(m_ItemsLock)
+            {
+              if (m_Items==null)
+                m_Items = new ConcurrentDictionary<object,object>(4, 16);
+            }
+          }
           return m_Items;
         }
     }
@@ -143,12 +145,26 @@ namespace Azos.Apps
     {
       get
       {
+        if (m_Items==null) return null;
+
         object result;
         if (Items.TryGetValue(key, out result)) return result;
         return null;
       }
       set { Items[key] = value;}
     }
+
+
+    /// <summary>
+    /// Establishes an optional name(or names, using space or comma delimiters) for target data context that the session operates under.
+    /// For example, this may be used to store target database instance name.
+    /// Among other things, this property may be checked by permissions to provide context-aware security
+    /// checks and data store may respect it to connect the session to the specific database instance (connect/string)
+    /// </summary>
+    /// <remarks>
+    /// Usage of this property is way more efficient than using Items[key] pattern
+    /// </remarks>
+    public virtual string DataContextName { get; set; }
 
 
     public virtual void Acquire()

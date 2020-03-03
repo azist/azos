@@ -6,12 +6,12 @@
 using System;
 using System.Threading;
 
-using Azos.IO;
+using Azos.IO.Console;
 using Azos.Log;
 using Azos.Platform;
 
 using Azos.Apps;
-using Azos.Sky.Apps.ZoneGovernor;
+using Azos.Apps.ZoneGovernor;
 
 namespace Azos.Sky.Hosts.azgov
 {

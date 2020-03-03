@@ -4,6 +4,7 @@
 <f color=white>
    arow <f color=green>assembly<f color=yellow> out-path <f color=darkCyan>[/h | /? | /help]
               [/c | /code  FilePerNamespace|FilePerType|AllInOne]
+              [/hdr | /header | /hl  <int 0..4>]
 
  <f color=green>assembly<f color=gray> - source assembly file (with path)
  <f color=yellow>out-path<f color=gray> - directory path where to create files  - must exist
@@ -12,10 +13,14 @@
  Options:
 
  <f color=darkCyan>/c | /code<f color=gray> - how to organize gen code in files
+ <f color=darkCyan>/hdr | /header | /hl<f color=gray> - integer header detail level;
+      0 = no header
+      1 = minimum header (fx build stamp)
+      2 = with dates/user stamps etc..
 
 <f color=magenta>
  Examples:
 
 <f color=yellow>
-  arow "mytypes.dll" "..\source\ArowSer\"
+  arow "mytypes.dll" "..\source\ArowSer\"  /hdr 0
 <pop>

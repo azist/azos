@@ -788,7 +788,7 @@ CREATE TABLE `tbl_employee` (
     #region Inner
 
     [Serializable]
-    [Table(name: "tbl_employee")]
+    [Schema(name: "tbl_employee")]
     public class Employee : TypedDoc
     {
       [Field(required: true, key: true)]

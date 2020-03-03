@@ -6,13 +6,13 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Azos.Sky.Apps.ZoneGovernor
+namespace Azos.Apps.ZoneGovernor
 {
   /// <summary>
   /// Thrown to indicate AZGOV related problems
   /// </summary>
   [Serializable]
-  public class AZGOVException : SkyException
+  public class AZGOVException : Sky.SkyException
   {
     public AZGOVException() : base() { }
     public AZGOVException(string message) : base(message) { }

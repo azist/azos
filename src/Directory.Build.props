@@ -14,7 +14,7 @@
     <Authors>Azist, @dzhabis, @dkh</Authors>
     <Company>Azist Group</Company>
     <Description>AZOS - A to Z Application OS</Description>
-    <Copyright>2019 Azist Group</Copyright>
+    <Copyright>2020 Azist Group</Copyright>
     <PackageProjectUrl>http://zhabis.com/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/azist/azos</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>

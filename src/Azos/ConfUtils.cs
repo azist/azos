@@ -162,14 +162,47 @@ namespace Azos
     }
 
     /// <summary>
-    /// A shortcut to node.NonNull(nameof(node)).AttrByName(attrName); You can retrieve section by name using indexer
+    /// A shortcut to node.NonNull(nameof(node)).AttrByName(attrName)
     /// </summary>
     public static IConfigAttrNode Of(this IConfigSectionNode node, string attrName) => node.NonNull(nameof(node)).AttrByName(attrName);
+
+    /// <summary>
+    /// A shortcut to node.NonNull(nameof(node)).AttrByName(attrName); If the first named attribute does not exist then the second is tried
+    /// </summary>
+    public static IConfigAttrNode Of(this IConfigSectionNode node, string attrName1, string attrName2)
+    {
+      var attr = node.NonNull(nameof(node)).AttrByName(attrName1);
+      if (attr.Exists) return attr;
+      return node.AttrByName(attrName2);
+    }
+
+    /// <summary>
+    /// A shortcut to node.NonNull(nameof(node)).AttrByName(attrName); If the first named attribute does not exist then the second is tried, and so on..
+    /// </summary>
+    public static IConfigAttrNode Of(this IConfigSectionNode node, string attrName1, string attrName2, string attrName3)
+    {
+      var attr = node.NonNull(nameof(node)).AttrByName(attrName1);
+      if (attr.Exists) return attr;
+      attr = node.AttrByName(attrName2);
+      if (attr.Exists) return attr;
+      return node.AttrByName(attrName3);
+    }
 
     /// <summary>
     /// A shortcut to node.Of(attrName).Value
     /// </summary>
     public static string ValOf(this IConfigSectionNode node, string attrName) => node.Of(attrName).Value;
+
+    /// <summary>
+    /// A shortcut to node.Of(attrName1, attrName2).Value
+    /// </summary>
+    public static string ValOf(this IConfigSectionNode node, string attrName1, string attrName2) => node.Of(attrName1, attrName2).Value;
+
+    /// <summary>
+    /// A shortcut to node.Of(attrName1, attrName2, attrName3).Value
+    /// </summary>
+    public static string ValOf(this IConfigSectionNode node, string attrName1, string attrName2, string attrName3) => node.Of(attrName1, attrName2, attrName3).Value;
+
 
   }
 }

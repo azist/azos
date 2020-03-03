@@ -19,9 +19,10 @@ namespace Azos.Log
   /// <summary>
   /// Represents a Log message
   /// </summary>
-  [Serializable, Arow]
+  [Serializable]
+  [Arow("3AD5E8E1-871C-4B8F-AE16-6D04492B17DF")]
   [BSONSerializable("A05AEE0F-A33C-4B1D-AA45-CDEAF894A095")]
-  public sealed class Message : TypedDoc, IArchiveLoggable
+  public sealed class Message : TypedDoc, IArchiveLoggable, IBSONSerializable, IBSONDeserializable
   {
     public const string BSON_FLD_APP = "app";
     public const string BSON_FLD_CHANNEL = "chn";
@@ -36,8 +37,6 @@ namespace Azos.Log
     public const string BSON_FLD_PARAMETERS = "prm";
     public const string BSON_FLD_EXCEPTION = "ex";
     public const string BSON_FLD_ARCHIVE_DIMENSIONS = "arc";
-
-    public static string DefaultHostName;
 
     #region Private Fields
     private GDID m_Gdid;
@@ -94,7 +93,7 @@ namespace Azos.Log
     }
 
     /// <summary>
-    /// Identifies the emitting application by including it asset identifier, taken from App.AssetId
+    /// Identifies the emitting application by including it asset identifier, taken from App.AppId
     /// </summary>
     [Field, Field(isArow: true, backendName: "app")]
     public Atom App
@@ -264,7 +263,7 @@ namespace Azos.Log
     public Message()
     {
       m_Guid = Guid.NewGuid();
-      m_Host = Message.DefaultHostName ?? System.Environment.MachineName;
+      m_Host = Platform.Computer.HostName;
       m_UTCTimeStamp = Ambient.UTCNow;
       m_App = Apps.ExecutionContext.Application.AppId;
     }
@@ -278,18 +277,7 @@ namespace Azos.Log
       Source = line;
     }
 
-    public override string ToString()
-    {
-      return "{0}/{1}, {2}, {3}, {4}, {5}, {6}, {7}".Args(
-                           m_Type,
-                           m_Source,
-                           m_UTCTimeStamp,
-                           Host,
-                           From,
-                           Topic,
-                           Text,
-                           Exception != null ? Exception.ToString() : string.Empty);
-    }
+    public override string ToString() => "{0:yyyyMMdd-HHmmss.fff}, {1}, {2}, {3}, {4}, {5}, {6}".Args(m_UTCTimeStamp, m_Guid.ToString().TakeLastChars(8), m_Host, m_Type, Topic, From, Text);
 
     /// <summary>
     /// Supplants the from string with caller as JSON string
@@ -327,8 +315,10 @@ namespace Azos.Log
     {
       return new Message
       {
+        m_Gdid = m_Gdid,
         m_Guid = m_Guid,
         m_RelatedTo = m_RelatedTo,
+        m_Channel = m_Channel,
         m_App = m_App,
         m_Type = m_Type,
         m_Source = m_Source,
@@ -340,7 +330,6 @@ namespace Azos.Log
         m_Parameters = m_Parameters,
         m_Exception = m_Exception,
         m_ArchiveDimensions = m_ArchiveDimensions,
-        m_Channel = m_Channel
       };
     }
 
@@ -409,6 +398,10 @@ namespace Azos.Log
 
   public static class MessageExtensions
   {
+    /// <summary>
+    /// Passes through an existing log message if it is null, does not have exception, or has exception set to WrappedException instance already,
+    /// otherwise clones the message into a new instance wrapping the Exception as WrappedException
+    /// </summary>
     public static Message ThisOrNewSafeWrappedException(this Message msg, bool captureStack = true)
     {
       if (msg == null || msg.Exception == null || msg.Exception is WrappedException) return msg;

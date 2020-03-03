@@ -105,8 +105,7 @@ namespace Azos.Instrumentation
               get { return m_Provider; }
               set
               {
-                ensureInactive("InstrumentationService.Provider.set()");
-
+                CheckDaemonInactive();
                 m_Provider = value;
               }
             }
@@ -130,7 +129,7 @@ namespace Azos.Instrumentation
             /// Specifies how often OS instrumentation such as CPU and RAM is sampled.
             /// Value of zero disables OS sampling
             /// </summary>
-            [Config("$os-interval-ms|$os-instrumentation-interval-ms")]
+            [Config("$os-interval-ms|$os-interval|$os-instrumentation-interval-ms")]
             [ExternalParameter]
             public int OSInstrumentationIntervalMS
             {
@@ -487,12 +486,6 @@ namespace Azos.Instrumentation
 
 
 
-                private void ensureInactive(string msg)
-                {
-                  if (Status != DaemonStatus.Inactive)
-                          throw new AzosException(StringConsts.DAEMON_INVALID_STATE + msg);
-                }
-
                 private void threadSpin()
                 {
                   try
@@ -552,7 +545,7 @@ namespace Azos.Instrumentation
                   var remainder = m_ProcessingIntervalMS % samplingRate;
 
                   var count = m_ProcessingIntervalMS / samplingRate;
-                  for (int i = 0; i < count; i++)
+                  for (int i = 0; i < count && Running; i++)
                   {
                     Platform.Instrumentation.CPUUsage.Record     (this, Platform.Computer.CurrentProcessorUsagePct);
                     Platform.Instrumentation.RAMUsage.Record     (this, Platform.Computer.GetMemoryStatus().LoadPct);
@@ -560,7 +553,7 @@ namespace Azos.Instrumentation
                     m_Trigger.WaitOne(samplingRate);
                   }
 
-                  if (remainder > 20) m_Trigger.WaitOne(remainder);
+                  if (Running && remainder > 20) m_Trigger.WaitOne(remainder);
                 }
 
 

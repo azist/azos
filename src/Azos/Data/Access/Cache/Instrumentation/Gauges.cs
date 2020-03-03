@@ -7,6 +7,7 @@
 using System;
 
 using Azos.Instrumentation;
+using Azos.Serialization.Arow;
 using Azos.Serialization.BSON;
 
 namespace Azos.Data.Access.Cache.Instrumentation
@@ -33,6 +34,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// Provides record count in the instance
   /// </summary>
   [Serializable]
+  [Arow("19E21AFF-CB76-424D-A589-B9D0E2CB8B9D")]
   [BSONSerializable("EE85901B-0938-4E4E-94C9-08D9FCBDF596")]
   public class RecordCount : CacheLongGauge
   {
@@ -50,6 +52,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// Provides page count in the instance
   /// </summary>
   [Serializable]
+  [Arow("23C21C02-35EC-45DE-9C2B-B622D9D0F8C1")]
   [BSONSerializable("A2F449C6-F753-48D3-8F5E-A787486671DE")]
   public class PageCount : CacheLongGauge
   {
@@ -67,6 +70,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// Provides the ratio of how many buckets are loaded with pages vs. bucket count
   /// </summary>
   [Serializable]
+  [Arow("F2C26547-E9F2-41BE-AEF4-3AA413F1488B")]
   [BSONSerializable("C4A4D261-3CE8-4390-8159-A3F844C94613")]
   public class BucketPageLoadFactor : CacheDoubleGauge
   {
@@ -84,6 +88,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// How many times Get() resulted in cache hit
   /// </summary>
   [Serializable]
+  [Arow("2B2E066B-9248-4D14-A066-513BDD112927")]
   [BSONSerializable("0D2A407F-A621-401B-BA12-43F10BBB7C1B")]
   public class HitCount : CacheLongGauge
   {
@@ -100,6 +105,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// How many times Get() resulted in cache miss
   /// </summary>
   [Serializable]
+  [Arow("80E93C87-F5CC-4112-A2FF-DE1879C23E3E")]
   [BSONSerializable("A8ECACE4-160A-4CBD-9320-C3EB3BBBD290")]
   public class MissCount : CacheLongGauge
   {
@@ -116,6 +122,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// How many times factory func was called from GetOrPut()
   /// </summary>
   [Serializable]
+  [Arow("9DE7FE81-7DA4-4E0F-AFA2-820E36D7EE36")]
   [BSONSerializable("FD14D7B5-AB6E-4AA9-BE83-5505ABFD9046")]
   public class ValueFactoryCount : CacheLongGauge
   {
@@ -133,6 +140,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// How many times tables were swept
   /// </summary>
   [Serializable]
+  [Arow("9E50E9D9-E269-4615-9322-EF6474EFB7F3")]
   [BSONSerializable("43634669-4EE9-4523-A53A-44E0AD2D610A")]
   public class SweepTableCount : CacheLongGauge
   {
@@ -149,6 +157,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// How many pages swept
   /// </summary>
   [Serializable]
+  [Arow("88B2D743-B5C4-4B9A-81AA-D4A1906B464E")]
   [BSONSerializable("E3088D04-23F9-4912-B201-6FBD432E3369")]
   public class SweepPageCount : CacheLongGauge
   {
@@ -165,6 +174,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// How many records removed by sweep
   /// </summary>
   [Serializable]
+  [Arow("554B86FE-0DD7-4514-83BE-487AF979CF50")]
   [BSONSerializable("1C9CA300-6EAF-4D4D-B7F9-91992AE2995A")]
   public class SweepRemoveCount : CacheLongGauge
   {
@@ -181,6 +191,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// How many times Put() was called
   /// </summary>
   [Serializable]
+  [Arow("B63F54AD-2FD5-43DF-8F7F-9CA8BF6C52DE")]
   [BSONSerializable("627AC6C5-DF74-4469-B57B-A227ABF25A5D")]
   public class PutCount : CacheLongGauge
   {
@@ -197,6 +208,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// How many times a call to Put() resulted in insert
   /// </summary>
   [Serializable]
+  [Arow("1060CFAA-6436-4B77-803E-D7FE0F61C36F")]
   [BSONSerializable("2827F80F-232E-4A30-9BF2-C8B8FCB88045")]
   public class PutInsertCount : CacheLongGauge
   {
@@ -213,6 +225,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// How many times a call to Put() resulted in relacement of existing item by key without collision
   /// </summary>
   [Serializable]
+  [Arow("2480354B-2F73-4C2A-80D7-28AE300C5BA1")]
   [BSONSerializable("9E141E0D-AC1A-42CA-911C-BCCCBD780DFE")]
   public class PutReplaceCount : CacheLongGauge
   {
@@ -229,6 +242,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// How many times a call to Put() resulted in bucket collision that created a page
   /// </summary>
   [Serializable]
+  [Arow("C49A46B5-C059-4BFF-B557-BD3E870CCA57")]
   [BSONSerializable("70D39507-2509-48D0-9562-991875B9AFF1")]
   public class PutPageCreateCount : CacheLongGauge
   {
@@ -245,6 +259,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// How many times a call to Put() resulted in new value overriding existing because of collision (old value lost)
   /// </summary>
   [Serializable]
+  [Arow("C77A0FF1-A8F3-4A07-AAAF-80956FFDEEAF")]
   [BSONSerializable("83466E38-5B26-46FF-9FC4-6E020C9554D0")]
   public class PutCollisionCount : CacheLongGauge
   {
@@ -263,6 +278,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// because existing item had higher priority than the newer one
   /// </summary>
   [Serializable]
+  [Arow("3176B8F3-81CF-4074-9B8B-3AA6871B5795")]
   [BSONSerializable("17DA488B-F132-47F5-88B0-0C26EF64603E")]
   public class PutPriorityPreventedCollisionCount : CacheLongGauge
   {
@@ -287,6 +303,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// How many pages have been deleted, a page gets deleted when there are no records stored in it
   /// </summary>
   [Serializable]
+  [Arow("DB3717AB-B6F4-4599-B6D8-000A3C47C916")]
   [BSONSerializable("479D1249-E16A-43F1-B37F-3B8EDE90F68A")]
   public class RemovePageCount : CacheLongGauge
   {
@@ -303,6 +320,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// How many records have been found and removed
   /// </summary>
   [Serializable]
+  [Arow("C94675F9-6984-44BB-A83E-E0DBFFD0243B")]
   [BSONSerializable("0428041A-4694-4525-BC30-00B6A1DD6C22")]
   public class RemoveHitCount : CacheLongGauge
   {
@@ -319,6 +337,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   /// How many records have been sought to be removed but were not found
   /// </summary>
   [Serializable]
+  [Arow("F595768C-9276-4169-A4EC-E046C664FB15")]
   [BSONSerializable("98267767-8F49-4A8B-A068-00D942A8AF74")]
   public class RemoveMissCount : CacheLongGauge
   {

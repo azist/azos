@@ -1,5 +1,7 @@
 ﻿app
 {
+  id="toysrv"
+  name="ToyServer"
   log-root=$(~AZOS_TEST_ROOT)\
   log
   {
@@ -53,6 +55,8 @@
 
       binding { name="inproc" type="Azos.Glue.Native.InProcBinding, Azos" }
 
+      binding { name="appterm" type="Azos.Sky.Glue.AppTermBinding, Azos.Sky" }
+
       binding
       {
          name="mpx" type="Azos.Glue.Native.MpxBinding, Azos"
@@ -70,9 +74,11 @@
 
     servers
     {
-      server {name="local" node="inproc://localhost" contract-servers="BusinessLogic.Server.JokeServer, BusinessLogic; BusinessLogic.Server.JokeCalculatorServer, BusinessLogic"}
-      server {name="sync"  node="sync://*:8000"   contract-servers="BusinessLogic.Server.JokeServer, BusinessLogic; BusinessLogic.Server.JokeCalculatorServer, BusinessLogic"}
-      server {name="mpx"   node="mpx://*:5701"  contract-servers="BusinessLogic.Server.JokeServer, BusinessLogic;BusinessLogic.Server.JokeCalculatorServer, BusinessLogic"}
+      server {name="local" node="inproc://localhost" contract-servers="TestBusinessLogic.Server.JokeServer, TestBusinessLogic; TestBusinessLogic.Server.JokeCalculatorServer, TestBusinessLogic"}
+      server {name="sync"  node="sync://*:8000"   contract-servers="TestBusinessLogic.Server.JokeServer, TestBusinessLogic; TestBusinessLogic.Server.JokeCalculatorServer, TestBusinessLogic"}
+      server {name="mpx"   node="mpx://*:5701"  contract-servers="TestBusinessLogic.Server.JokeServer, TestBusinessLogic; TestBusinessLogic.Server.JokeCalculatorServer, TestBusinessLogic"}
+
+      server {name="term" node="appterm://localhost:7797" contract-servers="Azos.Apps.Terminal.AppRemoteTerminal, Azos.Sky"}
     }
 
 
@@ -117,7 +123,7 @@
         status="System"
         id="dima"
         //password = thejake
-        password='{"algo":"MD5","fam":"Text","hash":"WtaG\\/XLsvvrC5CCpmm92Aw==","salt":"g7sni3\\/uh08Ttb2Yar9optRPtd3aIQaDe89UTA=="}'
+        password='{"alg":"MD5","fam":"Text","hash":"WtaG\\/XLsvvrC5CCpmm92Aw==","salt":"g7sni3\\/uh08Ttb2Yar9optRPtd3aIQaDe89UTA=="}'
         rights
         {
            BusinessLogic{ Sultan{ level="12" }}
@@ -132,7 +138,7 @@
         status="System"
         id="serge"
         //password = thejake
-        password='{"algo":"MD5","fam":"Text","hash":"\\/jps4fYHDMpfjbJag\\/\\/yhQ==","salt":"EHIMX9k8V0rtPwnLqeBO6eUe"}'
+        password='{"alg":"MD5","fam":"Text","hash":"\\/jps4fYHDMpfjbJag\\/\\/yhQ==","salt":"EHIMX9k8V0rtPwnLqeBO6eUe"}'
       }
    }
   }

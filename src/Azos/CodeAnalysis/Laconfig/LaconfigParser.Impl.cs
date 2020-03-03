@@ -61,9 +61,14 @@ namespace Azos.CodeAnalysis.Laconfig
                if (token.Type==LaconfigTokenType.tEQ)
                {
                     fetchPrimary();
-                    if (token.Type!=LaconfigTokenType.tIdentifier && token.Type!=LaconfigTokenType.tStringLiteral)
-                          errorAndAbort(LaconfigMsgCode.eSectionOrAttributeValueExpected);
-                    config.Root.Value = token.Text;
+                    if (token.Type!=LaconfigTokenType.tIdentifier &&
+                        token.Type!=LaconfigTokenType.tStringLiteral &&
+                        token.Type != LaconfigTokenType.tNull)
+                    {
+                      errorAndAbort(LaconfigMsgCode.eSectionOrAttributeValueExpected);
+                    }
+
+                    config.Root.Value = token.Type==LaconfigTokenType.tNull ? null :  token.Text;
                     fetchPrimary();
                }
 
@@ -101,11 +106,16 @@ namespace Azos.CodeAnalysis.Laconfig
                        populateSection(subsection);
                     }else if (token.Type==LaconfigTokenType.tEQ)//section with value or attribute
                     {
-                       fetchPrimary();
-                       if (token.Type!=LaconfigTokenType.tIdentifier && token.Type!=LaconfigTokenType.tStringLiteral)
-                          errorAndAbort(LaconfigMsgCode.eSectionOrAttributeValueExpected);
+                       fetchPrimary();//skip =
 
-                       var value = token.Text;
+                       if (token.Type!=LaconfigTokenType.tIdentifier &&
+                           token.Type!=LaconfigTokenType.tStringLiteral &&
+                           token.Type!=LaconfigTokenType.tNull)
+                       {
+                         errorAndAbort(LaconfigMsgCode.eSectionOrAttributeValueExpected);
+                       }
+
+                       var value = token.Type==LaconfigTokenType.tNull ? null : token.Text;
                        fetchPrimary();//skip value
 
                        if (token.Type==LaconfigTokenType.tBraceOpen)//section with value

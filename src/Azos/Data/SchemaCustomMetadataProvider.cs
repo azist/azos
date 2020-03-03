@@ -35,12 +35,15 @@ namespace Azos.Data
       {
         ndoc.AddAttributeNode("typed-doc-type", context.AddTypeToDescribe(schema.TypedDocType));
 
-        try
-        { //this may fail because there may be constructor incompatibility, then we just can get instance-specific metadata
-          doc = Activator.CreateInstance(schema.TypedDocType, true) as TypedDoc;
-          context.App.InjectInto(doc);
+        if (!schema.TypedDocType.IsAbstract)
+        {
+          try
+          { //this may fail because there may be constructor incompatibility, then we just can get instance-specific metadata
+            doc = Activator.CreateInstance(schema.TypedDocType, true) as TypedDoc;
+            context.App.InjectInto(doc);
+          }
+          catch { }
         }
-        catch { }
       }
 
       foreach (var def in schema)
@@ -48,20 +51,24 @@ namespace Azos.Data
         var nfld = ndoc.AddChildNode("field");
         try
         {
-          field(def, context, nfld, doc);
+          var targetName = context.GetSchemaDataTargetName(schema, doc);
+          field(targetName, def, context, nfld, doc);
         }
         catch(Exception error)
         {
-          throw new CustomMetadataException(StringConsts.METADATA_GENERATION_SCHEMA_FIELD_ERROR.Args(schema.Name, def.Name, error.ToMessageWithType()), error);
+          var err = new CustomMetadataException(StringConsts.METADATA_GENERATION_SCHEMA_FIELD_ERROR.Args(schema.Name, def.Name, error.ToMessageWithType()), error);
+          nfld.AddAttributeNode("--ERROR--", StringConsts.METADATA_GENERATION_SCHEMA_FIELD_ERROR.Args(schema.Name, def.Name, "<logged>"));
+          context.ReportError(Log.MessageType.CriticalAlert, err);
         }
       }
 
       return ndoc;
     }
 
-    private void field(Schema.FieldDef def, IMetadataGenerator context, ConfigSectionNode data, TypedDoc doc)
+    private void field(string targetName, Schema.FieldDef def, IMetadataGenerator context, ConfigSectionNode data, TypedDoc doc)
     {
-      var fname = def.GetBackendNameForTarget(context.DataTargetName, out var fatr);
+      var fname = def.GetBackendNameForTarget(targetName, out var fatr);
+
       if (fatr==null) return;
 
       if (context.DetailLevel> MetadataDetailLevel.Public)
@@ -72,7 +79,28 @@ namespace Azos.Data
         data.AddAttributeNode("is-arow", fatr.IsArow);
         data.AddAttributeNode("store-flag", fatr.StoreFlag);
         data.AddAttributeNode("backend-type", fatr.BackendType);
-        if (fatr.Metadata != null) data.AddChildNode(fatr.Metadata);
+
+        //try to disclose ALL metadata (as we are above PUBLIC)
+        if (fatr.Metadata != null && fatr.Metadata.Exists)
+        {
+          var metad = data.AddChildNode("meta");
+          metad.MergeSections(fatr.Metadata);
+          metad.MergeAttributes(fatr.Metadata);
+        }
+      }
+      else //try to disclose pub-only metadata
+      {
+        var pubSection = context.PublicMetadataSection;
+        if (fatr.Metadata != null && pubSection.IsNotNullOrWhiteSpace())
+        {
+          var metasrc = fatr.Metadata[pubSection];//<-- pub metadata only
+          if (metasrc.Exists)
+          {
+            var metad = data.AddChildNode("meta");
+            metad.MergeSections(metasrc);
+            metad.MergeAttributes(metasrc);
+          }
+        }
       }
 
       data.AddAttributeNode("name", fname);
@@ -82,8 +110,7 @@ namespace Azos.Data
       if (fatr.Description.IsNotNullOrWhiteSpace()) data.AddAttributeNode("description", fatr.Description);
       data.AddAttributeNode("key", fatr.Key);
 
-      if (def.Type==typeof(string))
-        data.AddAttributeNode("kind", fatr.Kind);
+      data.AddAttributeNode("kind", fatr.Kind);
 
       data.AddAttributeNode("required", fatr.Required);
       data.AddAttributeNode("visible", fatr.Required);
@@ -105,9 +132,14 @@ namespace Azos.Data
       //if doc!=null call doc.GetClientFieldValueList on the instance to get values from Database lookups etc...
       if (doc!=null)
       {
-        var lookup = doc.GetDynamicFieldValueList(def, context.DataTargetName, null);
-        if (lookup != null)
-         lookup.ForEach( item => nvlist.Value.AddAttributeNode(item.Key, item.Value));
+        var lookup = doc.GetDynamicFieldValueList(def, targetName, null);
+        if (lookup != null)//non-null blank lookup is treated as blank lookup overshadowing the hard-coded choices from .ValueList
+        {
+          if (nvlist.IsValueCreated)
+            nvlist.Value.DeleteAllAttributes();
+
+          lookup.ForEach( item => nvlist.Value.AddAttributeNode(item.Key, item.Value));
+        }
       }
 
     }

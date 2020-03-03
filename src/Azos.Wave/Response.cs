@@ -211,7 +211,7 @@ namespace Azos.Wave
       {
         if (data==null) return;
         setWasWrittenTo();
-        m_NetResponse.ContentType = Azos.Web.ContentType.JSON;
+        m_NetResponse.ContentType = Azos.Web.ContentType.JSON + ";charset=" + Encoding.WebName;
         JsonWriter.Write(data, new NonClosingStreamWrap( getStream() ), options, Encoding);
       }
 
@@ -366,10 +366,9 @@ namespace Azos.Wave
           m_NetResponse.Headers[HttpResponseHeader.Pragma] = "no-cache";
           m_NetResponse.Headers[HttpResponseHeader.Expires] = "0";
           m_NetResponse.Headers[HttpResponseHeader.Vary] = "*";
-        } else
+        }
+        else
         {
-          //if (control.MaxAgeSec.HasValue)
-          //  m_NetResponse.Headers[HttpRequestHeader.Expires] = App.TimeSource.UTCNow.AddSeconds(control.MaxAgeSec.Value).DateTimeToHTTPCookieDateTime();
           if (vary.IsNotNullOrWhiteSpace())
             m_NetResponse.Headers[HttpResponseHeader.Vary] = vary;
         }
@@ -384,14 +383,6 @@ namespace Azos.Wave
       public bool SetNoCacheHeaders(bool force = true)
       {
         return SetCacheControlHeaders(CacheControl.NoCache, force);
-        //if (!force && m_NetResponse.Headers[HttpResponseHeader.CacheControl].IsNotNullOrWhiteSpace())
-        //  return false;
-
-        //m_NetResponse.Headers[HttpResponseHeader.CacheControl] = "no-cache, no-store, must-revalidate";
-        //m_NetResponse.Headers[HttpResponseHeader.Pragma] = "no-cache";
-        //m_NetResponse.Headers[HttpResponseHeader.Expires] = "0";
-        //m_NetResponse.Headers[HttpResponseHeader.Vary] = "*";
-        //return true;
       }
 
       /// <summary>
@@ -537,7 +528,7 @@ namespace Azos.Wave
 
         AddHeader(WebConsts.HTTP_SET_COOKIE,
                              "{0}={1};path=/;expires={2};HttpOnly"
-                           .Args(cookieName, cv, Work.App.TimeSource.UTCNow.AddYears(100).DateTimeToHTTPCookieDateTime() ));
+                           .Args(cookieName, cv, WebUtils.DateTimeToHTTPCookieDateTime(Work.App.TimeSource.UTCNow.AddYears(100))));
       }
 
 

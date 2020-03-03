@@ -1,22 +1,22 @@
 ﻿/*
 	This file contains general scripts
 */
-schema 
+schema
 {
 	PK_COLUMN="counter"
-		
-	
+
+
 	scripts
 	{
 		script-only=true
-		
+
 		names
 		{
 			column=first_name  {type=THumanName  required=true  comment="First name"}
 			column=middle_name {type=THumanName  required=false comment="Middle name (optional)"}
 			column=last_name   {type=THumanName  required=true  comment="Last name"}
 		}
-		
+
 		usaddress
 		{
 			column=addr_line1 {type=TAddrLine  required=true  comment="Address line 1"}
@@ -25,7 +25,7 @@ schema
 			column=addr_state {type=TAddrUSState required=true  comment="Address US state"}
 			column=addr_zip   {type=TAddrUSZip   required=true  comment="Address US Zip"}
 		}
-		
+
 		usperson
 		{
 			_call=/scripts/names{}

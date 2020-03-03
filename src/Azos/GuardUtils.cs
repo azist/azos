@@ -11,7 +11,7 @@ namespace Azos
 {
   /// <summary>
   /// Call guard exceptions thrown by the framework to indicate violations of value constraints.
-  /// Guards are typically applied to method parameters
+  /// Guards are typically applied to method parameters in a fluent manner
   /// </summary>
   [Serializable]
   public class CallGuardException : AzosException, IHttpStatusProvider
@@ -52,6 +52,64 @@ namespace Azos
       info.AddValue(PARAM_FLD_NAME, ParamName);
       base.GetObjectData(info, context);
     }
+
+    /// <summary>
+    /// Surrounds an action by protected scope: any exception thrown by this action gets wrapped in a CallGuardException.
+    /// If action is unassigned, nothing is done
+    /// </summary>
+    /// <remarks>
+    /// You can use another version of this function with action argument in order not to create unneeded closures
+    /// </remarks>
+    public static void Protect(Action action,
+                              [CallerFilePath]   string callFile = null,
+                              [CallerLineNumber] int callLine = 0,
+                              [CallerMemberName] string callMember = null)
+    {
+      if (action==null) return;
+
+      try
+      {
+        action();
+      }
+      catch(Exception error)
+      {
+        var callSite = GuardUtils.callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                     nameof(action),
+                                     StringConsts.GUARDED_ACTION_SCOPE_ERROR
+                                                 .Args(callSite ?? CoreConsts.UNKNOWN, error.ToMessageWithType()),
+                                     error);
+      }
+    }
+
+    /// <summary>
+    /// Surrounds an action by protected scope: any exception thrown by this action gets wrapped in a CallGuardException.
+    /// If action is unassigned, nothing is done
+    /// </summary>
+    /// <remarks>
+    /// Use this function with action argument not to create unneeded closures
+    /// </remarks>
+    public static void Protect<TArg>(TArg arg, Action<TArg> action,
+                              [CallerFilePath]   string callFile = null,
+                              [CallerLineNumber] int callLine = 0,
+                              [CallerMemberName] string callMember = null)
+    {
+      if (action == null) return;
+
+      try
+      {
+        action(arg);
+      }
+      catch (Exception error)
+      {
+        var callSite = GuardUtils.callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                     nameof(action),
+                                     StringConsts.GUARDED_ACTION_SCOPE_ERROR
+                                                 .Args(callSite ?? CoreConsts.UNKNOWN, error.ToMessageWithType()),
+                                     error);
+      }
+    }
   }
 
 
@@ -60,7 +118,7 @@ namespace Azos
   /// </summary>
   public static class GuardUtils
   {
-    private static string callSiteOf(string file, int line, string member)
+    internal static string callSiteOf(string file, int line, string member)
     => "{2}@{0}:{1}".Args(file.IsNotNullOrWhiteSpace() ? System.IO.Path.GetFileName(file) : CoreConsts.UNKNOWN, line, member);
 
     /// <summary>
@@ -83,6 +141,27 @@ namespace Azos
       return obj;
     }
 
+
+    /// <summary>
+    /// Ensures that a nullable value-typed value is not null
+    /// </summary>
+    public static Nullable<T> NonNull<T>(this Nullable<T> value,
+                               string name = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null) where T : struct
+    {
+      if (!value.HasValue)
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_PARAMETER_MAY_NOT_BE_NULL_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+      }
+      return value;
+    }
+
     /// <summary>
     /// Ensures that a type value is not null and is of the specified type or one of its subtypes
     /// </summary>
@@ -101,6 +180,69 @@ namespace Azos
                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, typeof(T).Name));
       }
       return type;
+    }
+
+    /// <summary>
+    /// Ensures that a type value is not null and is of the specified type or one of its subtypes
+    /// </summary>
+    public static Type IsOfType(this Type type,
+                               Type expectedType,
+                               string name = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null)
+    {
+      if (type == null || !expectedType.NonNull(nameof(expectedType)).IsAssignableFrom(type))
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_PARAMETER_OFTYPE_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, expectedType.Name));
+      }
+      return type;
+    }
+
+
+    /// <summary>
+    /// Ensures that a type value is not null and is of the specified type or one of its subtypes
+    /// </summary>
+    public static TValue ValueIsOfType<T, TValue>(this TValue value,
+                               string name = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null)
+    {
+      if (value == null || !typeof(T).IsAssignableFrom(value.GetType()))
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_PARAMETER_VALUEOFTYPE_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, typeof(T).Name));
+      }
+      return value;
+    }
+
+    /// <summary>
+    /// Ensures that a type value is not null and is of the specified type or one of its subtypes
+    /// </summary>
+    public static TValue ValueIsOfType<TValue>(this TValue value,
+                               Type expectedType,
+                               string name = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null)
+    {
+      if (value == null || !expectedType.NonNull(nameof(expectedType)).IsAssignableFrom(value.GetType()))
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_PARAMETER_VALUEOFTYPE_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, expectedType.Name));
+      }
+      return value;
     }
 
 

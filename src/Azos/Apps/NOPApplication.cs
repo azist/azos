@@ -25,7 +25,7 @@ namespace Azos.Apps
   ///  this application does not log, does not store data and does not do anything else
   /// still satisfying its contract
   /// </summary>
-  public class NOPApplication : IApplication
+  public class NOPApplication : DisposableObject, IApplicationImplementation
   {
 
      private static readonly NOPApplication s_Instance = new NOPApplication();
@@ -54,12 +54,32 @@ namespace Azos.Apps
         m_EventTimer = new EventTimer(this);
     }
 
+    //Added for symmetry, as NOPApplication is never going to be disposed anyway as it is a process singleton
+    //which is ALWAYS PRESENT, even when outside of any concrete application scope
+    protected override void Destructor()
+    {
+      DisposeIfDisposableAndNull(ref m_EventTimer);
+      DisposeIfDisposableAndNull(ref m_TimeSource);
+      DisposeIfDisposableAndNull(ref m_Module);
+      DisposeIfDisposableAndNull(ref m_SecurityManager);
+      DisposeIfDisposableAndNull(ref m_DataStore);
+      DisposeIfDisposableAndNull(ref m_Glue);
+      DisposeIfDisposableAndNull(ref m_ObjectStore);
+      DisposeIfDisposableAndNull(ref m_Instrumentation);
+      DisposeIfDisposableAndNull(ref m_Log);
+      DisposeIfDisposableAndNull(ref m_Realm);
+      DisposeIfDisposableAndNull(ref m_DependencyInjector);
+      DisposeIfDisposableAndNull(ref m_Singletons);
+
+      base.Destructor();
+    }
 
 
-     /// <summary>
-     /// Returns a singleton instance of the NOPApplication
-     /// </summary>
-     public static NOPApplication Instance
+
+    /// <summary>
+    /// Returns a singleton instance of the NOPApplication
+    /// </summary>
+    public static IApplication Instance
      {
        get { return s_Instance; }
      }
@@ -95,6 +115,8 @@ namespace Azos.Apps
 
         public bool ForceInvariantCulture { get { return false; } }
 
+
+        public IO.Console.IConsolePort ConsolePort => null;
 
         public Atom AppId => Atom.ZERO;
 
@@ -231,6 +253,8 @@ namespace Azos.Apps
         {
           return DefaultAppVarResolver.ResolveNamedVar(this, name, out value);
         }
+
+        public void SetConsolePort(IO.Console.IConsolePort port){ }
 
     #endregion
 

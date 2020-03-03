@@ -157,7 +157,7 @@ namespace Azos
     }
 
     /// <summary>
-    /// Constructs the ASCII8 from ulong primitive
+    /// Constructs an Atom from an ulong primitive
     /// </summary>
     public Atom(ulong id) => ID = id;
 
@@ -199,7 +199,7 @@ namespace Azos
 
     //intern pool for speed
     private static object s_Lock = new object();
-    private static Dictionary<ulong, string> s_Cache = new Dictionary<ulong, string>();
+    private static volatile Dictionary<ulong, string> s_Cache = new Dictionary<ulong, string>();
 
     /// <summary>
     /// Returns string of up to 8 ASCII characters which this ID was constructed from.
@@ -216,11 +216,12 @@ namespace Azos
         lock(s_Lock)
         {
           if (s_Cache.TryGetValue(ID, out value)) return value;
-          value = getValue();
           var dict = new Dictionary<ulong, string>(s_Cache);
-          dict.Add(ID, value);
+          value = getValue();
+          dict[ID] = value;
+          System.Threading.Thread.MemoryBarrier();
           s_Cache = dict; //atomic swap
-        }//ensures full memory barrier
+        }
 
         return value;
       }
@@ -269,7 +270,7 @@ namespace Azos
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     => JsonWriter.EncodeString(wri, IsZero ? "#0" : Value, options);
 
-    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.NameBinding? nameBinding)
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
       if (data==null) return (true, Atom.ZERO);
 

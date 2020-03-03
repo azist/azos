@@ -101,21 +101,23 @@ namespace Azos.Log.Sinks
 
     protected internal override void DoSend(Message entry)
     {
-        if (string.IsNullOrEmpty(ToAddress)) return;
+      var smtp = m_Smtp;
+      if (smtp==null) return;
 
-        var from = new MailAddress(this.FromAddress, this.FromName);
-        var to = new MailAddress(ToAddress);
+      if (string.IsNullOrEmpty(ToAddress)) return;
+
+      var from = new MailAddress(this.FromAddress, this.FromName);
+      var to = new MailAddress(ToAddress);
 
 
-        using (var email = new MailMessage(from, to))
-        {
+      using (var email = new MailMessage(from, to))
+      {
+        email.Subject = this.Subject ?? entry.Topic;
+        email.Body = (this.Body??string.Empty) + entry.ToString();//for now
+        email.CC.Add(ToAddress);
 
-            email.Subject = this.Subject ?? entry.Topic;
-            email.Body = (this.Body??string.Empty) + entry.ToString();//for now
-            email.CC.Add(ToAddress);
-
-            m_Smtp.Send(email);
-        }
+        smtp.Send(email);
+      }
     }
   }
 }

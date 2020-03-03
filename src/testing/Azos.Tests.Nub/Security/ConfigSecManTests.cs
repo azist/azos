@@ -32,7 +32,7 @@ app
         status='User'
         id='user1'
         //password = thejake
-        password='{""algo"":""MD5"",""fam"":""Text"",""hash"":""WtaG\\/XLsvvrC5CCpmm92Aw=="",""salt"":""g7sni3\\/uh08Ttb2Yar9optRPtd3aIQaDe89UTA==""}'
+        password='{""alg"":""MD5"",""fam"":""Text"",""hash"":""WtaG\\/XLsvvrC5CCpmm92Aw=="",""salt"":""g7sni3\\/uh08Ttb2Yar9optRPtd3aIQaDe89UTA==""}'
         rights
         {
            Azos{ Tests{ Nub{ Security{
@@ -49,7 +49,7 @@ app
         status='User'
         id='user2'
         //password = thejake
-        password='{""algo"":""MD5"",""fam"":""Text"",""hash"":""WtaG\\/XLsvvrC5CCpmm92Aw=="",""salt"":""g7sni3\\/uh08Ttb2Yar9optRPtd3aIQaDe89UTA==""}'
+        password='{""alg"":""MD5"",""fam"":""Text"",""hash"":""WtaG\\/XLsvvrC5CCpmm92Aw=="",""salt"":""g7sni3\\/uh08Ttb2Yar9optRPtd3aIQaDe89UTA==""}'
         rights
         {
            Azos{ Tests{ Nub{ Security{
@@ -67,8 +67,40 @@ app
         status='System'
         id='sys'
         //password = thejake
-        password='{""algo"":""MD5"",""fam"":""Text"",""hash"":""\\/jps4fYHDMpfjbJag\\/\\/yhQ=="",""salt"":""EHIMX9k8V0rtPwnLqeBO6eUe""}'
+        password='{""alg"":""MD5"",""fam"":""Text"",""hash"":""\\/jps4fYHDMpfjbJag\\/\\/yhQ=="",""salt"":""EHIMX9k8V0rtPwnLqeBO6eUe""}'
       }
+
+
+      user
+      {
+        name='UserKDF1'
+        description='User1 with KDF password'
+        status='User'
+        id='ukdf1'
+        //password = thejake
+        password='{""alg"":""KDF"",""fam"":""Text"",""h"":""ZiZBXDp1HlN6J0XpXlTx31UPtaHZShRZr2nlJsEKIJc"",""s"":""1k1E2tS-equdggnLdaJKQhEkckPgDfnzmA31kVCOzZg""}'
+      }
+
+      user
+      {
+        name='UserKDF2'
+        description='User2 with KDF password'
+        status='User'
+        id='ukdf2'
+        //password = thejake
+        password='{""alg"":""KDF"",""fam"":""Text"",""h"":""5BCbpaurWHlWsGyNGw4gp-O7A2sCemzct0homL-2oNM"",""s"":""q72tF6uMRHi44BESeMAgNpLhSBPvUxbrjd4qFXlMBJg""}'
+      }
+
+      user
+      {
+        name='UserKDF3'
+        description='User3 with KDF password'
+        status='User'
+        id='ukdf3'
+        //password = zizi-kaka12345
+        password='{""alg"":""KDF"",""fam"":""Text"",""h"":""VsTnGyPjBzVOr_5fpMlua15dRN4OeT7hW5eep342hjw"",""s"":""-iuNdH1R6OXbeKbRh73MyhYtCb9retMKYMG2-SV5Nns""}'
+      }
+
     }//users
   }//security
 }//app
@@ -101,6 +133,14 @@ app
     }
 
     [Run]
+    public void Authenticate_BadUser_UriCredentials()
+    {
+      var credentials = new EntityUriCredentials("sadfsafsa");
+      var user = m_App.SecurityManager.Authenticate(credentials);
+      Aver.IsTrue(user.Status == UserStatus.Invalid);
+    }
+
+    [Run]
     public void Authenticate_RegularUser()
     {
       var credentials = new IDPasswordCredentials("user1", "thejake");
@@ -109,6 +149,61 @@ app
       Aver.AreEqual("User1", user.Name);
       Aver.AreEqual("Just a User", user.Description);
     }
+
+    [Run]
+    public void Authenticate_Reauthenticate_RegularUser()
+    {
+      void ensure(User u)
+      {
+        Aver.IsTrue(u.Status == UserStatus.User);
+        Aver.AreEqual("User1", u.Name);
+        Aver.AreEqual("Just a User", u.Description);
+      }
+
+      var credentials = new IDPasswordCredentials("user1", "thejake");
+      var user = m_App.SecurityManager.Authenticate(credentials);
+      ensure(user);
+
+      var token = user.AuthToken;
+      var user2 = m_App.SecurityManager.Authenticate(token);
+      ensure(user2);
+
+      m_App.SecurityManager.Authenticate(user2);//re-authenticate in-place
+      ensure(user2);
+    }
+
+    [Run]
+    public void Authenticate_RegularUser_UriCredentials()
+    {
+      var credentials = new EntityUriCredentials("user1");
+      var user = m_App.SecurityManager.Authenticate(credentials);
+      Aver.IsTrue(user.Status == UserStatus.User);
+      Aver.AreEqual("User1", user.Name);
+      Aver.AreEqual("Just a User", user.Description);
+    }
+
+    [Run]
+    public void Authenticate_Reauthenticate_RegularUser_UriCredentials()
+    {
+      void ensure(User u)
+      {
+        Aver.IsTrue(u.Status == UserStatus.User);
+        Aver.AreEqual("User1", u.Name);
+        Aver.AreEqual("Just a User", u.Description);
+      }
+
+      var credentials = new EntityUriCredentials("user1");
+      var user = m_App.SecurityManager.Authenticate(credentials);
+      ensure(user);
+
+      var token = user.AuthToken;
+      var user2 = m_App.SecurityManager.Authenticate(token);
+      ensure(user2);
+
+      m_App.SecurityManager.Authenticate(user2);//re-authenticate in-place
+      ensure(user2);
+    }
+
 
     [Run]
     public void Authenticate_SystemUser()
@@ -281,6 +376,53 @@ app
          .And(new TeztPermissionB(6))//sys bypasses all security altogether
          .And(new TeztPermissionC(6))
       );
+    }
+
+
+    [Run]
+    public void Authenticate_RegularUser_1_KDFPassword()
+    {
+      var credentials = new IDPasswordCredentials("ukdf1", "thejake");
+      var user = m_App.SecurityManager.Authenticate(credentials);
+      Aver.IsTrue(user.Status == UserStatus.User);
+      Aver.AreEqual("UserKDF1", user.Name);
+      Aver.AreEqual("User1 with KDF password", user.Description);
+    }
+
+    [Run]
+    public void Authenticate_RegularUser_2_KDFPassword()
+    {
+      var credentials = new IDPasswordCredentials("ukdf2", "thejake");
+      var user = m_App.SecurityManager.Authenticate(credentials);
+      Aver.IsTrue(user.Status == UserStatus.User);
+      Aver.AreEqual("UserKDF2", user.Name);
+      Aver.AreEqual("User2 with KDF password", user.Description);
+    }
+
+    [Run]
+    public void Authenticate_RegularUser_1_Invalid_KDFPassword()
+    {
+      var credentials = new IDPasswordCredentials("ukdf1", "zizi-kaka12345");
+      var user = m_App.SecurityManager.Authenticate(credentials);
+      Aver.IsTrue(user.Status == UserStatus.Invalid);
+    }
+
+    [Run]
+    public void Authenticate_RegularUser_2_Invalid_KDFPassword()
+    {
+      var credentials = new IDPasswordCredentials("ukdf2", "zizi-kaka12345");
+      var user = m_App.SecurityManager.Authenticate(credentials);
+      Aver.IsTrue(user.Status == UserStatus.Invalid);
+    }
+
+    [Run]
+    public void Authenticate_RegularUser_3_KDFPassword()
+    {
+      var credentials = new IDPasswordCredentials("ukdf3", "zizi-kaka12345");
+      var user = m_App.SecurityManager.Authenticate(credentials);
+      Aver.IsTrue(user.Status == UserStatus.User);
+      Aver.AreEqual("UserKDF3", user.Name);
+      Aver.AreEqual("User3 with KDF password", user.Description);
     }
 
   }

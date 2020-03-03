@@ -177,7 +177,7 @@ namespace Azos.Data.Access.MongoDb
       /// <summary>
       /// Gets appropriate database. It does not need to be disposed
       /// </summary>
-      protected Database GetDatabase()
+      protected virtual Database GetDatabase()
       {
         //cstring may either have server cs, or contain laconic config  mongo{server='' database=''}
         var cstring = m_ConnectString;

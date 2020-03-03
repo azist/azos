@@ -15,9 +15,9 @@ using Azos.Security;
 
 namespace Azos.Instrumentation
 {
-
   /// <summary>
-  /// Denotes an entity that has external parameters that can be get/set
+  /// Denotes an entity that has parameters that can be get/set from an external source, such as an app terminal session.
+  /// This API is sync only because setting properties is a CPU-bound fast operation
   /// </summary>
   public interface IExternallyParameterized
   {
@@ -242,7 +242,16 @@ namespace Azos.Instrumentation
                     (!isSet && (atr.SecurityCheck & ExternalParameterSecurityCheck.OnGet)!=0)
                     )
                 {
-                  Permission.AuthorizeAndGuardAction(app, prop);
+                  if (isSet)
+                  {
+                    //throws
+                    Permission.AuthorizeAndGuardAction(app, prop);
+                  }
+                  else
+                  {
+                    //filter out, do not throw
+                    if (!Permission.AuthorizeAction(app, prop)) return null;//not found because of lack of security
+                  }
                 }
                 return prop;
               }
