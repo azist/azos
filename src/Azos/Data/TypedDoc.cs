@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Azos.Data
 {
@@ -50,24 +52,41 @@ namespace Azos.Data
 
         #region Public
 
-            public override object GetFieldValue(Schema.FieldDef fdef)
-            {
-                var pinf = fdef.MemberInfo;
-                var result = pinf.GetValue(this, null);
+        public override object GetFieldValue(Schema.FieldDef fdef)
+        {
+          var pinf = fdef.MemberInfo;
+          var result = pinf.GetValue(this, null);
 
-                if (result==DBNull.Value) result = null;
+          if (result==DBNull.Value) result = null;
 
-                return result;
-            }
+          return result;
+        }
 
-            public override void SetFieldValue(Schema.FieldDef fdef, object value)
-            {
-                var pinf = fdef.MemberInfo;
+        private Platform.ConstrainedSetLookup<PropertyInfo, Action<TypedDoc, object>> s_Lookup =
+           new Platform.ConstrainedSetLookup<PropertyInfo, Action<TypedDoc, object>>( pi => makeLambda(pi));
 
-                value = ConvertFieldValueToDef(fdef, value);
+        public override void SetFieldValue(Schema.FieldDef fdef, object value)
+        {
+          var pinf = fdef.MemberInfo;
 
-                pinf.SetValue(this, value, null);
-            }
+          value = ConvertFieldValueToDef(fdef, value);
+
+
+          //s_Lookup[pinf](this, value);
+          pinf.SetValue(this, value, null);
+        }
+
+        //20200305
+        private static Action<TypedDoc, object> makeLambda(PropertyInfo pi)
+        {
+          var self = Expression.Parameter(typeof(object), "self");
+          var val = Expression.Parameter(typeof(object), "val");
+          var prop = Expression.Property( Expression.TypeAs(self, pi.DeclaringType), pi);
+
+          var set = Expression.Assign(prop, Expression.TypeAs(val, pi.PropertyType));
+
+          return Expression.Lambda<Action<TypedDoc, object>>(set, self, val).Compile();
+        }
 
         #endregion
 

@@ -376,8 +376,10 @@ namespace Azos.Serialization.JSON
     //Returns non null on success; may return null for collection sub-element in which case null=null and does not indicate failure
     private static object cast(object v, Type toType, bool fromUI, DocReadOptions options, JsonHandlerAttribute fieldCustomHandler = null)
     {
+      //See #264 - the collection inability to cast has no amorphous data so it MUST throw
       //used only for collections inner calls
       if (v==null) return null;
+
 
       var customHandler = fieldCustomHandler ?? JsonHandlerAttribute.TryFind(toType);
       if (customHandler != null)
