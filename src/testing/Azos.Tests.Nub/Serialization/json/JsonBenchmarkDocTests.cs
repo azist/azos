@@ -6,13 +6,12 @@
 
 using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using Azos.Scripting;
 using Azos.Time;
 using Azos.Serialization.JSON;
 using Azos.Data;
-using Azos.Financial;
-using System.Collections.Generic;
 
 namespace Azos.Tests.Nub.Serialization
 {
@@ -24,8 +23,8 @@ namespace Azos.Tests.Nub.Serialization
       JsonReader.____SetReaderBackend(new Azos.Serialization.JSON.Backends.JazonReaderBackend());
     }
 
-    [Run("cnt=50000 par=false")]
-    [Run("cnt=50000 par=true")]
+    [Run("cnt=75000 par=false")]
+    [Run("cnt=75000 par=true")]
     public void Test_TypicalPerson(int cnt, bool par)
     {
       var json=@"{ 
@@ -56,15 +55,15 @@ Assets: 3673456.18
         Aver.IsNotNull(got);
       }
 
-      //var got= JsonReader.ToDoc<TypicalPerson>(json);
+      //var got = JsonReader.ToDoc<TypicalPerson>(json);
       //var fd = Schema.GetForTypedDoc<TypicalPerson>()["FirstName"];
       //void body()
       //{
-      // //800 m/sec  200 m/sec paral
-      // // got.FirstName = "aaaaaaaaaaa";
+      //  //800 m/sec  200 m/sec paral
+      //  // got.FirstName = "aaaaaaaaaaa";
 
-      // //5.8 m/sec  21 m/sec paral
-      // got.SetFieldValue(fd, "aaaaaaaaaaa");
+      //  //5.8 m/sec  21 m/sec paral
+      //  got.SetFieldValue(fd, "aaaaaaaaaaa");
       //}
 
 

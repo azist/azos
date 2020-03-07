@@ -380,7 +380,6 @@ namespace Azos.Serialization.JSON
       //used only for collections inner calls
       if (v==null) return null;
 
-
       var customHandler = fieldCustomHandler ?? JsonHandlerAttribute.TryFind(toType);
       if (customHandler != null)
       {

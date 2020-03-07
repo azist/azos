@@ -62,30 +62,13 @@ namespace Azos.Data
           return result;
         }
 
-        private Platform.ConstrainedSetLookup<PropertyInfo, Action<TypedDoc, object>> s_Lookup =
-           new Platform.ConstrainedSetLookup<PropertyInfo, Action<TypedDoc, object>>( pi => makeLambda(pi));
 
         public override void SetFieldValue(Schema.FieldDef fdef, object value)
         {
-          var pinf = fdef.MemberInfo;
-
+         // var pinf = fdef.MemberInfo;
           value = ConvertFieldValueToDef(fdef, value);
-
-
-          //s_Lookup[pinf](this, value);
-          pinf.SetValue(this, value, null);
-        }
-
-        //20200305
-        private static Action<TypedDoc, object> makeLambda(PropertyInfo pi)
-        {
-          var self = Expression.Parameter(typeof(object), "self");
-          var val = Expression.Parameter(typeof(object), "val");
-          var prop = Expression.Property( Expression.TypeAs(self, pi.DeclaringType), pi);
-
-          var set = Expression.Assign(prop, Expression.TypeAs(val, pi.PropertyType));
-
-          return Expression.Lambda<Action<TypedDoc, object>>(set, self, val).Compile();
+          //pinf.SetValue(this, value, null);
+          fdef.SetPropertyValue(this, value);
         }
 
         #endregion
