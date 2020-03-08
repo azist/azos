@@ -25,7 +25,7 @@ namespace Azos.Data
   /// Within a single era, GDID structure may identify
   ///   2^60 = 1,152,921,504,606,846,976(per authority) * 16(authorities) = 2^64 = 18,446,744,073,709,551,616 total combinations.
   /// Because of such a large number of combinations supported by GDID.ID alone (having the same Era), some systems may
-  /// always use Era=0 and only store the ID part (i.e. as UNSIGNED BIGINT in SQL datastores).
+  /// always use Era=0 and only store the ID part (i.e. as UNSIGNED BIGINT in SQL data stores).
   /// Note GDID.Zero is never returned by generators as it represents the absence of a value (special value)
   /// </summary>
   [Serializable]
@@ -51,7 +51,7 @@ namespace Azos.Data
         public const int AUTHORITY_MAX    = 0x0f;
 
         /// <summary>
-        /// Zero GDID singleton
+        /// Zero GDID constant which is equivalent to an uninitialized structure with zero era and zero authority and zero counter
         /// </summary>
         public static readonly GDID ZERO = new GDID(0, 0ul);
 
@@ -116,7 +116,7 @@ namespace Azos.Data
         }
 
         /// <summary>
-        /// True is this instance is invalid - represents 0:0:0
+        /// True is this instance is invalid/Zero - represents 0:0:0
         /// </summary>
         public bool IsZero
         {
@@ -124,7 +124,7 @@ namespace Azos.Data
         }
 
         /// <summary>
-        /// Returns the guaranted parsable stable string representation of GDID in the form 'Era:Authority:Counter'
+        /// Returns the guaranteed parsable stable string representation of GDID in the form 'Era:Authority:Counter'
         /// </summary>
         public override string ToString()
         {

@@ -283,7 +283,7 @@ namespace Azos.Serialization.JSON
         }
         else if (castResult.Outcome == JsonHandlerAttribute.TypeCastOutcome.HandledCast)
         {
-            return castResult.Value.ValueIsOfType(type, "HandledCast must return TypedDoc for root data documents") as TypedDoc;
+          return castResult.Value.ValueIsOfType(type, "HandledCast must return TypedDoc for root data documents") as TypedDoc;
         }
       }
 
@@ -299,6 +299,7 @@ namespace Azos.Serialization.JSON
     private static void toDoc(Doc doc, DocReadOptions options, JsonDataMap jsonMap, ref string field, bool fromUI)
     {
       var amorph = doc as IAmorphousData;
+      var schema = doc.Schema;
       foreach (var mfld in jsonMap)
       {
         field = mfld.Key;
@@ -307,9 +308,9 @@ namespace Azos.Serialization.JSON
         //Multi-targeting for deserialization to TypedDoc from JSON
         Schema.FieldDef def;
         if (options.BindBy == DocReadOptions.By.CodeName)
-          def = doc.Schema[field];
+          def = schema[field];
         else
-          def = doc.Schema.TryFindFieldByTargetedBackendName(options.TargetName, field);//what about case sensitive json name?
+          def = schema.TryFindFieldByTargetedBackendName(options.TargetName, field);//what about case sensitive json name?
 
         //No such field exists in a typed doc, try to put in amorphous data
         if (def == null)

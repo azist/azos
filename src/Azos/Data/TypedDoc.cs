@@ -67,7 +67,7 @@ namespace Azos.Data
         {
          // var pinf = fdef.MemberInfo;
           value = ConvertFieldValueToDef(fdef, value);
-          //pinf.SetValue(this, value, null);
+         // pinf.SetValue(this, value, null);
           fdef.SetPropertyValue(this, value);
         }
 
@@ -105,8 +105,8 @@ namespace Azos.Data
       {
         get
         {
-          if (m_AmorphousData==null)
-          m_AmorphousData = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+          if (m_AmorphousData == null)
+            m_AmorphousData = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
           return m_AmorphousData;
         }

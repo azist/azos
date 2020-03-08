@@ -92,16 +92,24 @@ namespace Azos.Data
         m_AnyTargetKey = this[null].Key;
       }
 
-
+      //20200305 DKh
       private static Action<TypedDoc, object> makeSetterLambda(PropertyInfo pi)
       {
         var self = Expression.Parameter(typeof(object), "self");
         var val  = Expression.Parameter(typeof(object), "val");
         var prop = Expression.Property(Expression.TypeAs(self, pi.DeclaringType), pi);
 
-        var set = Expression.Assign(prop, Expression.Convert(val, pi.PropertyType));
+        Expression set;
+        if (pi.PropertyType.IsValueType)
+        {
+          set = Expression.Condition(Expression.Equal(val, Expression.Constant(null)),
+                 Expression.Assign(prop, Expression.Default(pi.PropertyType)),
+                 Expression.Assign(prop, Expression.Unbox(val, pi.PropertyType)));
+        }
+        else
+         set = Expression.Assign(prop, Expression.Convert(val, pi.PropertyType));
 
-        return Expression.Lambda<Action<TypedDoc, object>>(set, self, val).Compile();
+        return Expression.Lambda<Action<TypedDoc, object>>(set, self, val).Compile();//System.Runtime.CompilerServices.DebugInfoGenerator.CreatePdbGenerator());
       }
 
       private FieldDef(SerializationInfo info, StreamingContext context)

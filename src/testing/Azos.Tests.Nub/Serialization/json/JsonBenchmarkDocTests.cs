@@ -24,10 +24,10 @@ namespace Azos.Tests.Nub.Serialization
     }
 
     [Run("cnt=75000 par=false")]
-    [Run("cnt=75000 par=true")]
+    //[Run("cnt=75000 par=true")]
     public void Test_TypicalPerson(int cnt, bool par)
     {
-      var json=@"{ 
+      var json= @"{ 
 FirstName: 'Dodik',
 LastName: 'Bonderman',
 MiddleName: 'Boruch',
@@ -51,7 +51,7 @@ Assets: 3673456.18
       void body()
       {
         var got = JsonReader.ToDoc<TypicalPerson>(json);
-        //got.See();
+       // got.See();
         Aver.IsNotNull(got);
       }
 
