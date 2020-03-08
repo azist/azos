@@ -251,5 +251,60 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreObjectsEqual("/* */3", map["c"]);
     }
 
+
+    [Run]
+    public void EmptyStrings_1()
+    {
+      var map = JZ.DeserializeFromJson(@"{ a: ''}", true) as JsonDataMap;
+      Aver.IsNotNull(map);
+      Aver.AreEqual(1, map.Count);
+      Aver.AreObjectsEqual("", map["a"]);
+    }
+
+    [Run]
+    public void EmptyStrings_2()
+    {
+      var map = JZ.DeserializeFromJson(@"{ a: '', b: """"}", true) as JsonDataMap;
+      Aver.IsNotNull(map);
+      Aver.AreEqual(2, map.Count);
+      Aver.AreObjectsEqual("", map["a"]);
+      Aver.AreObjectsEqual("", map["b"]);
+    }
+
+    [Run]
+    public void EmptyStrings_3()
+    {
+      var map = JZ.DeserializeFromJson(@"{ a: '',b: """", c: $""
+
+      ""}", true) as JsonDataMap;
+      Aver.IsNotNull(map);
+      Aver.AreEqual(3, map.Count);
+      Aver.AreObjectsEqual("", map["a"]);
+      Aver.AreObjectsEqual("", map["b"]);
+      Aver.IsTrue(map["c"].ToString().IsNullOrWhiteSpace());
+    }
+
+    [Run]
+    public void EmptyStrings_4()
+    {
+      var map = JZ.DeserializeFromJson(@"{ a: '', b: '\n\n\r\u3456 abc',c: """" }", true) as JsonDataMap;
+      Aver.IsNotNull(map);
+      Aver.AreEqual(3, map.Count);
+      Aver.AreObjectsEqual("", map["a"]);
+      Aver.AreObjectsEqual("\n\n\r\u3456 abc", map["b"]);
+      Aver.IsTrue(map["c"].ToString().IsNullOrWhiteSpace());
+    }
+
+    [Run]
+    public void EmptyStrings_5()
+    {
+      var map = JZ.DeserializeFromJson(@"{ a: '', b: $'\n\n\r\u3456 abc',c: """" }", true) as JsonDataMap;
+      Aver.IsNotNull(map);
+      Aver.AreEqual(3, map.Count);
+      Aver.AreObjectsEqual("", map["a"]);
+      Aver.AreObjectsEqual(@"\n\n\r\u3456 abc", map["b"]);
+      Aver.IsTrue(map["c"].ToString().IsNullOrWhiteSpace());
+    }
+
   }
 }
