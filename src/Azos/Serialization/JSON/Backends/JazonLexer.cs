@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+
 using Azos.CodeAnalysis;
 using Azos.CodeAnalysis.JSON;
 using Azos.CodeAnalysis.Source;
@@ -55,13 +56,14 @@ namespace Azos.Serialization.JSON.Backends
     public readonly JsonTokenType Type;
 
     public readonly string Text;
-    //To avoid boxing the primitives are stored in-place
+
+    //To avoid boxing the primitives are stored in-place, StructLayout Explicit with overlap of long over dbl does not yield any benefits
     public readonly ulong ULValue;//bool is stored as 1
     public readonly double DValue;
 
     public bool IsError => Type < 0;
     public JsonMsgCode MsgCode => IsError ? (JsonMsgCode)ULValue : JsonMsgCode.INFOS;
-    public bool IsPrimary => !IsNonLanguage && Type != JsonTokenType.tComment;
+    public bool IsPrimary => Type > JsonTokenType.SYMBOLS_START; // !IsNonLanguage && Type != JsonTokenType.tComment;
     public bool IsNonLanguage => Type==JsonTokenType.tUnknown || (Type > JsonTokenType.NONLANG_START && Type < JsonTokenType.NONLANG_END);
   }
 
@@ -72,6 +74,9 @@ namespace Azos.Serialization.JSON.Backends
     public JazonLexer(ISourceText src)
     {
       source = src;
+
+      buffer = new StringBuilder(256);//caching this in TLS does not change much
+
       result = run().GetEnumerator();
     }
 
@@ -107,7 +112,7 @@ namespace Azos.Serialization.JSON.Backends
 
     SourcePosition tagStartPos;
 
-    StringBuilder buffer = new StringBuilder(256);
+    StringBuilder buffer;
 
     public SourcePosition Position => tagStartPos;
 
@@ -118,12 +123,6 @@ namespace Azos.Serialization.JSON.Backends
       chr = source.ReadChar();
       nchr = source.PeekChar();
     }
-
-    private SourcePosition srcPos()
-    {
-      return new SourcePosition(posLine, posCol, posChar);
-    }
-
 
     //this is done on purpose do NOT use Char.isSymbol in .NET
     //we can control what WE consider symbols
@@ -139,7 +138,7 @@ namespace Azos.Serialization.JSON.Backends
 
     private void bufferAdd(char c)
     {
-      if (buffer.Length == 0) tagStartPos = srcPos();
+      if (buffer.Length == 0) tagStartPos = new SourcePosition(posLine, posCol, posChar);
       buffer.Append(c);
     }
 
@@ -436,24 +435,14 @@ namespace Azos.Serialization.JSON.Backends
     }//Scan
 
 
-    //private static readonly string[] INTERNS;
-
-
-
-    //static JazonLexer()
-    //{
-    //  INTERNS = new string[0xff];
-    //  for(var i=0; i<0xff; i++)
-    //   INTERNS[i] = string.Intern(((char)i).ToString());
-    //}
 
     private JazonToken flush()
     {
       if (
+          (buffer.Length == 0) &&
           (!isString) &&
           (!isCommentBlock) &&
-          (!isCommentLine) &&
-          (buffer.Length == 0)
+          (!isCommentLine)
          ) return new JazonToken(JsonTokenType.tUnknown, null);
 
       wasFlush = true;
@@ -497,21 +486,29 @@ namespace Azos.Serialization.JSON.Backends
       else
       {
         string text;
-        if (buffer.Length==1)
+        var blen = buffer.Length;
+        if (blen==1)
         {
           var fc = buffer[0];
 
           switch(fc)
           {
-            case '{': { buffer.Clear(); return new JazonToken(JsonTokenType.tBraceOpen, "{");      }
-            case '}': { buffer.Clear(); return new JazonToken(JsonTokenType.tBraceClose, "}");     }
+            case '+': { buffer.Clear(); return new JazonToken(JsonTokenType.tPlus, "+");           }
+            case ',': { buffer.Clear(); return new JazonToken(JsonTokenType.tComma, ",");          }
+            case '-': { buffer.Clear(); return new JazonToken(JsonTokenType.tMinus, "-");          }
+            case ':': { buffer.Clear(); return new JazonToken(JsonTokenType.tColon, ":");          }
             case '[': { buffer.Clear(); return new JazonToken(JsonTokenType.tSqBracketOpen, "[");  }
             case ']': { buffer.Clear(); return new JazonToken(JsonTokenType.tSqBracketClose, "]"); }
-            case ',': { buffer.Clear(); return new JazonToken(JsonTokenType.tComma, ",");          }
-            case ':': { buffer.Clear(); return new JazonToken(JsonTokenType.tColon, ":");          }
-            case '+': { buffer.Clear(); return new JazonToken(JsonTokenType.tPlus, "+");           }
-            case '-': { buffer.Clear(); return new JazonToken(JsonTokenType.tMinus, "-");          }
+            case '{': { buffer.Clear(); return new JazonToken(JsonTokenType.tBraceOpen, "{");      }
+            case '}': { buffer.Clear(); return new JazonToken(JsonTokenType.tBraceClose, "}");     }
           }
+
+          text = buffer.ToString();
+        }
+        else if (blen==4)
+        {
+          if (buffer[0] == 'n' && buffer[1] == 'u' && buffer[2] == 'l' && buffer[3] == 'l') { buffer.Clear(); return new JazonToken(JsonTokenType.tNull, "null");}
+          if (buffer[0] == 't' && buffer[1] == 'r' && buffer[2] == 'u' && buffer[3] == 'e') { buffer.Clear(); return new JazonToken(JsonTokenType.tTrue, "true");}
 
           text = buffer.ToString();
         }
@@ -519,9 +516,9 @@ namespace Azos.Serialization.JSON.Backends
         {
           text = buffer.ToString();
 
-          if (text == "null")    { buffer.Clear(); return new JazonToken(JsonTokenType.tNull, "null"); }
+      //    if (text == "null")    { buffer.Clear(); return new JazonToken(JsonTokenType.tNull, "null"); }
           if (text == "false") { buffer.Clear(); return new JazonToken(JsonTokenType.tFalse, "false"); }
-          if (text == "true")  { buffer.Clear(); return new JazonToken(JsonTokenType.tTrue, "true"); }
+      //    if (text == "true")  { buffer.Clear(); return new JazonToken(JsonTokenType.tTrue, "true"); }
         }
         buffer.Clear();
 
@@ -545,21 +542,11 @@ namespace Azos.Serialization.JSON.Backends
         }
 
         type = JsonTokenType.tIdentifier;
-/*
-        ////////if (type == JsonTokenType.tIdentifier)
-        ////////{
-        ////////  if (!JsonIdentifiers.Validate(text))
-        ////////  {
-        ////////    isError = true;
-        ////////    return new JazonToken(JsonMsgCode.eInvalidIdentifier, tagStartPos, text);
-        ////////  }
-        ////////}
- */
+
         return new JazonToken(type, text);
       }//not comment
 
     }//flush
-
 
   }
 }

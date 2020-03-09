@@ -344,7 +344,7 @@ namespace Azos.Data
     public abstract object GetFieldValue(Schema.FieldDef fdef);
 
     /// <summary>
-    /// Sets value of the field, for typeddocs it accesses property using reflection; for dynamic rows it sets data into
+    /// Sets value of the field, for typeddocs it accesses property using reflection/lambda; for dynamic rows it sets data into
     ///  row buffer array using field index(order)
     /// </summary>
     public abstract void SetFieldValue(Schema.FieldDef fdef, object value);

@@ -23,8 +23,8 @@ namespace Azos.Tests.Nub.Serialization
       JsonReader.____SetReaderBackend(new Azos.Serialization.JSON.Backends.JazonReaderBackend());
     }
 
-    [Run("cnt=75000 par=false")]
-    //[Run("cnt=75000 par=true")]
+    [Run("cnt=150000 par=false")]
+    [Run("cnt=750000 par=true")]
     public void Test_TypicalPerson(int cnt, bool par)
     {
       var json= @"{ 
