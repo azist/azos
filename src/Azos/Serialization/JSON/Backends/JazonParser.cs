@@ -34,7 +34,7 @@ namespace Azos.Serialization.JSON.Backends
     private static JazonToken fetchPrimary(JazonLexer tokens)
     {
       do fetch(tokens);
-      while (!tokens.Current.IsPrimary);
+      while (!tokens.Current.IsPrimary && !tokens.Current.IsError);
       return tokens.Current;
     }
 

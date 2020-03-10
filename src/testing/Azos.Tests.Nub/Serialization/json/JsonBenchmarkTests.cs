@@ -21,8 +21,10 @@ namespace Azos.Tests.Nub.Serialization
       JsonReader.____SetReaderBackend(new Azos.Serialization.JSON.Backends.JazonReaderBackend());
     }
 
-    [Run("cnt=250000 par=false")]
-    [Run("cnt=250000 par=true")]
+    //[Run("cnt=250000 par=false")]
+    //[Run("cnt=250000 par=true")]
+    [Run("cnt=25000 par=false")]
+    [Run("cnt=25000 par=true")]
     public void Test_Primitives(int cnt, bool par)
     {
       var json = @"{ a: 1, b: 2, c: true, d: null, e: false, f: false, g: true, i1: 3, i4: 2, i5: 125, i6: 18, f1: true, f2: true, f3: false,
@@ -50,8 +52,10 @@ namespace Azos.Tests.Nub.Serialization
     }
 
 
-    [Run("cnt=250000 par=false")]
-    [Run("cnt=250000 par=true")]
+    //[Run("cnt=250000 par=false")]
+    //[Run("cnt=250000 par=true")]
+    [Run("cnt=25000 par=false")]
+    [Run("cnt=25000 par=true")]
     public void Test_SimpleObject(int cnt, bool par)
     {
       var json=@"{ a: 1, b: ""something"", c: null, d: {}, e: 23.7}";
@@ -75,8 +79,10 @@ namespace Azos.Tests.Nub.Serialization
 
     }
 
-    [Run("cnt=150000 par=false")]
-    [Run("cnt=150000 par=true")]
+    //[Run("cnt=150000 par=false")]
+    //[Run("cnt=150000 par=true")]
+    [Run("cnt=15000 par=false")]
+    [Run("cnt=15000 par=true")]
     public void Test_ModerateObject(int cnt, bool par)
     {
       var json = @"{ a: 1, b: true, c: 3, d: { a: ""qweqweqwewqeqw"", b: ""werwerwrwrwe6778687"" }, e: [ 1, 2, null, null, 3, 4, {a: 1}, {a: 2}] }";
@@ -100,8 +106,10 @@ namespace Azos.Tests.Nub.Serialization
 
     }
 
-    [Run("cnt=95000 par=false")]
-    [Run("cnt=95000 par=true")]
+    //[Run("cnt=95000 par=false")]
+    //[Run("cnt=95000 par=true")]
+    [Run("cnt=9500 par=false")]
+    [Run("cnt=9500 par=true")]
     public void Test_ComplexObject(int cnt, bool par)
     {
       var json = @"
@@ -154,11 +162,11 @@ RLEASE MODE  <================================================
 
  Started 03/08/2020 18:13:59
 Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkTests ...
-  - Test_Primitives  {cnt=250000 par=false} Did 250,000 in 4.7 sec at 52,683 ops/sec
+  - Test_Primitives  {cnt=250000 par=false} Did 250,000 in 4.7 sec at 53,997 ops/sec
 [OK]
   - Test_Primitives  {cnt=250000 par=true} [1] Did 250,000 in 0.6 sec at 425,205 ops/sec
 [OK]
-  - Test_SimpleObject  {cnt=250000 par=false} Did 250,000 in 0.9 sec at 293,743 ops/sec
+  - Test_SimpleObject  {cnt=250000 par=false} Did 250,000 in 0.9 sec at 315,253 ops/sec
 [OK]
   - Test_SimpleObject  {cnt=250000 par=true} [1] Did 250,000 in 0.1 sec at 2,143,198 ops/sec
 [OK]
@@ -166,9 +174,9 @@ Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkTests ...
 [OK]
   - Test_ModerateObject  {cnt=150000 par=true} [1] Did 150,000 in 0.1 sec at 1,039,787 ops/sec
 [OK]
-  - Test_ComplexObject  {cnt=95000 par=false} Did 95,000 in 4.6 sec at 20,737 ops/sec
+  - Test_ComplexObject  {cnt=95000 par=false} Did 95,000 in 4.6 sec at 21,120 ops/sec
 [OK]
-  - Test_ComplexObject  {cnt=95000 par=true} [1] Did 95,000 in 0.6 sec at 166,252 ops/sec
+  - Test_ComplexObject  {cnt=95000 par=true} [1] Did 95,000 in 0.6 sec at 167,312 ops/sec
 [OK]
 
  Started 02/26/2020 21:09:57

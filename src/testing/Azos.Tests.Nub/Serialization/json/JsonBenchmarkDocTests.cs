@@ -23,8 +23,10 @@ namespace Azos.Tests.Nub.Serialization
       JsonReader.____SetReaderBackend(new Azos.Serialization.JSON.Backends.JazonReaderBackend());
     }
 
-    [Run("cnt=150000 par=false")]
-    [Run("cnt=750000 par=true")]
+    //[Run("cnt=50000 par=false")]
+    //[Run("cnt=50000 par=true")]
+    [Run("cnt=5000 par=false")]
+    [Run("cnt=5000 par=true")]
     public void Test_TypicalPerson(int cnt, bool par)
     {
       var json= @"{ 
@@ -54,18 +56,6 @@ Assets: 3673456.18
        // got.See();
         Aver.IsNotNull(got);
       }
-
-      //var got = JsonReader.ToDoc<TypicalPerson>(json);
-      //var fd = Schema.GetForTypedDoc<TypicalPerson>()["FirstName"];
-      //void body()
-      //{
-      //  //800 m/sec  200 m/sec paral
-      //  // got.FirstName = "aaaaaaaaaaa";
-
-      //  //5.8 m/sec  21 m/sec paral
-      //  got.SetFieldValue(fd, "aaaaaaaaaaa");
-      //}
-
 
       var time = Timeter.StartNew();
 
@@ -122,6 +112,15 @@ Assets: 3673456.18
 }
 
 /*
+
+RELEASE Started 03/09/2020 19:53:12
+Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkDocTests ...
+  - Test_TypicalPerson  {cnt=50000 par=false} Did 50,000 in 1.7 sec at 28,730 ops/sec
+[OK]
+  - Test_TypicalPerson  {cnt=50000 par=true} [1] Did 50,000 in 0.2 sec at 236,023 ops/sec
+[OK]
+
+
  RELEASE 20200305 before optimization to lambda and other
    - Test_TypicalPerson  {cnt=50000 par=false} Did 50,000 in 2.1 sec at 24,176 ops/sec
 [OK]

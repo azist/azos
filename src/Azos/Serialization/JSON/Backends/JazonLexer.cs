@@ -63,7 +63,7 @@ namespace Azos.Serialization.JSON.Backends
 
     public bool IsError => Type < 0;
     public JsonMsgCode MsgCode => IsError ? (JsonMsgCode)ULValue : JsonMsgCode.INFOS;
-    public bool IsPrimary => Type > JsonTokenType.SYMBOLS_START; // !IsNonLanguage && Type != JsonTokenType.tComment;
+    public bool IsPrimary => Type > JsonTokenType.SYMBOLS_START; //  !IsNonLanguage && Type != JsonTokenType.tComment;
     public bool IsNonLanguage => Type==JsonTokenType.tUnknown || (Type > JsonTokenType.NONLANG_START && Type < JsonTokenType.NONLANG_END);
   }
 
