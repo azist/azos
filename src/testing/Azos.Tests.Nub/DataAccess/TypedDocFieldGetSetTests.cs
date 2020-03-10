@@ -1,7 +1,10 @@
-﻿using Azos.Scripting;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using Azos.Scripting;
 
 using Azos.Data;
 using Azos.Time;
@@ -55,6 +58,22 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual(null, sut.Int2);
       sut["Int2"] = 1890;
       Aver.AreEqual(1890, sut.Int2);
+    }
+
+    [Run]
+    public void Int3()
+    {
+      var sut = new Typed();
+      sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["Int3"], null);
+      Aver.AreEqual(0, sut.Int3);
+      sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["Int3"], -1234);
+      Aver.AreEqual(-1234, sut.Int3);
+      sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["Int3"], null);
+      Aver.AreEqual(0, sut.Int3);
+      sut["Int3"] = null;
+      Aver.AreEqual(0, sut.Int3);
+      sut["Int3"] = 890;
+      Aver.AreEqual(890, sut.Int3);
     }
 
     [Run]
@@ -244,13 +263,16 @@ namespace Azos.Tests.Nub.DataAccess
       "Speed: {0:n0} ops/sec".SeeArgs(CNT / time.ElapsedSec);
     }
 
-    public enum MyEnum{ A = 0 ,B,C}
+    public enum MyEnum{ A = 0, B, C}
 
     public class Typed : TypedDoc
     {
       [Field] public string String1{ get; set;}
       [Field] public int Int1 { get; set; }
       [Field] public int? Int2 { get; set; }
+
+      private int m_Int3;  //uses getter and setter methods
+      [Field] public int Int3 { get { return m_Int3 - 3;} set {m_Int3 = value + 3;} }
 
       [Field] public MyEnum MyEnum1 { get; set; }
       [Field] public MyEnum? MyEnum2 { get; set; }
