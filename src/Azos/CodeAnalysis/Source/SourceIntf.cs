@@ -14,38 +14,38 @@ namespace Azos.CodeAnalysis.Source
       /// </summary>
       public interface ISourceText
       {
-            /// <summary>
-            /// Resets source to beginning
-            /// </summary>
-            void Reset();
+        /// <summary>
+        /// Resets source to beginning
+        /// </summary>
+        void Reset();
 
 
-            /// <summary>
-            /// Indicates whether last character has been read
-            /// </summary>
-            bool EOF { get; }
+        /// <summary>
+        /// Indicates whether last character has been read
+        /// </summary>
+        bool EOF { get; }
 
-            /// <summary>
-            /// Returns next char and advances position
-            /// </summary>
-            char ReadChar();
-
-
-            /// <summary>
-            /// Returns next char without advancing position
-            /// </summary>
-            char PeekChar();
+        /// <summary>
+        /// Returns next char and advances position
+        /// </summary>
+        char ReadChar();
 
 
-            /// <summary>
-            /// Indicates what language this source is supplied in
-            /// </summary>
-            Language Language { get; }
+        /// <summary>
+        /// Returns next char without advancing position
+        /// </summary>
+        char PeekChar();
 
-            /// <summary>
-            /// Provides a meaningful name to a source code
-            /// </summary>
-            string Name { get; }
+
+        /// <summary>
+        /// Indicates what language this source is supplied in
+        /// </summary>
+        Language Language { get; }
+
+        /// <summary>
+        /// Provides a meaningful name to a source code
+        /// </summary>
+        string Name { get; }
       }
 
       /// <summary>

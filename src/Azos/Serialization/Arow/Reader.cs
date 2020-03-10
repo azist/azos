@@ -193,7 +193,7 @@ namespace Azos.Serialization.Arow
          var has = streamer.ReadBool();
          if (!has) continue;
          var vrow = new TDoc();
-         if (Reader.TryReadRow(docScope, vrow, streamer, name+'_'+i.ToString()))
+         if (Reader.TryReadRow(docScope, vrow, streamer, name+'_'+i.ToString())) //todo Why extra string instance?
            arr[i] = vrow;
        }
        return arr;
@@ -212,8 +212,8 @@ namespace Azos.Serialization.Arow
            continue;
          }
          var vrow = new TDoc();
-         if (Reader.TryReadRow(docScope, vrow, streamer, name+'_'+i.ToString()))
-           lst.Add( vrow );
+         if (Reader.TryReadRow(docScope, vrow, streamer, name+'_'+i.ToString())) //todo Why extra string instance?
+          lst.Add( vrow );
        }
        return lst;
     }
@@ -404,7 +404,7 @@ namespace Azos.Serialization.Arow
       var len = ReadArrayLength(streamer);
       var arr = new byte[len];
       for(var i=0; i<len; i++)
-       arr[i] = streamer.ReadByte();
+       arr[i] = streamer.ReadByte();  //todo  Why not use streamer.readByteArray?
       return arr;
     }
 

@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Azos.Data
 {
@@ -50,24 +52,24 @@ namespace Azos.Data
 
         #region Public
 
-            public override object GetFieldValue(Schema.FieldDef fdef)
-            {
-                var pinf = fdef.MemberInfo;
-                var result = pinf.GetValue(this, null);
+        public override object GetFieldValue(Schema.FieldDef fdef)
+        {
+          var pinf = fdef.MemberInfo;
+          var result = pinf.GetValue(this, null);
 
-                if (result==DBNull.Value) result = null;
+          if (result==DBNull.Value) result = null;
 
-                return result;
-            }
+          return result;
+        }
 
-            public override void SetFieldValue(Schema.FieldDef fdef, object value)
-            {
-                var pinf = fdef.MemberInfo;
 
-                value = ConvertFieldValueToDef(fdef, value);
-
-                pinf.SetValue(this, value, null);
-            }
+        public override void SetFieldValue(Schema.FieldDef fdef, object value)
+        {
+         // var pinf = fdef.MemberInfo;
+          value = ConvertFieldValueToDef(fdef, value);
+         // pinf.SetValue(this, value, null);
+          fdef.SetPropertyValue(this, value);
+        }
 
         #endregion
 
@@ -103,8 +105,8 @@ namespace Azos.Data
       {
         get
         {
-          if (m_AmorphousData==null)
-          m_AmorphousData = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+          if (m_AmorphousData == null)
+            m_AmorphousData = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
           return m_AmorphousData;
         }

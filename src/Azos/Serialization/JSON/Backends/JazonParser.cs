@@ -34,9 +34,18 @@ namespace Azos.Serialization.JSON.Backends
     private static JazonToken fetchPrimary(JazonLexer tokens)
     {
       do fetch(tokens);
-      while (!tokens.Current.IsPrimary);
+      while (!tokens.Current.IsPrimary && !tokens.Current.IsError);
       return tokens.Current;
     }
+
+    private static readonly object TRUE;
+    private static readonly object FALSE;
+    static JazonParser()
+    {
+      TRUE = true;
+      FALSE = false;
+    }
+
 
     private static object doAny(JazonLexer lexer, bool senseCase, int maxDepth)
     {
@@ -47,8 +56,8 @@ namespace Azos.Serialization.JSON.Backends
         case JsonTokenType.tBraceOpen:      return doObject(lexer, senseCase, maxDepth - 1);
         case JsonTokenType.tSqBracketOpen:  return doArray(lexer, senseCase, maxDepth - 1);
         case JsonTokenType.tNull:           return null;
-        case JsonTokenType.tTrue:           return true;
-        case JsonTokenType.tFalse:          return false;
+        case JsonTokenType.tTrue:           return TRUE;
+        case JsonTokenType.tFalse:          return FALSE;
         case JsonTokenType.tStringLiteral:  return token.Text;
         case JsonTokenType.tIntLiteral:     return (int)token.ULValue;
         case JsonTokenType.tLongIntLiteral: return token.ULValue > long.MaxValue ? token.ULValue : (object)(long)token.ULValue;
