@@ -13,40 +13,31 @@ namespace Azos.Data.Access
 {
 
   /// <summary>
-  /// Decorator interface for entities used to uniquely identify entities in a store
+  /// Marker for keys which uniquely identify entities in a store
   /// </summary>
-  public interface IDataStoreKey
-  {
-  }
+  public interface IDataStoreKey { }
 
   /// <summary>
-  /// Represents a key (key field) used in databases that identify entities with BIGINT identity/autoinc columns
+  /// Represents a key (key field) used in databases that identify entities with BIGINT identity/autoincremented columns
   /// </summary>
   [Serializable]
-  public struct CounterDataStoreKey : IDataStoreKey
+  public struct CounterDataStoreKey : IDataStoreKey, IEquatable<CounterDataStoreKey>
   {
-    public readonly Int64 Counter;
+    public CounterDataStoreKey(Int64 value) =>  Counter = value;
 
-    public CounterDataStoreKey(Int64 value)
-    {
-      Counter = value;
-    }
+    public readonly long Counter;
 
-    public override string  ToString()
-    {
- 	    return string.Format("KEY[COUNTER = {0}]", Counter); // do not localize
-    }
+    public override string ToString() => "KEY[COUNTER = {0}]".Args(Counter);
 
-    public override int  GetHashCode()
-    {
- 	    return Counter.GetHashCode();
-    }
+    public override int GetHashCode() => Counter.GetHashCode();
 
-    public override bool  Equals(object obj)
-    {
-      if(obj==null || !(obj is CounterDataStoreKey)) return false;
-      return Counter.Equals(((CounterDataStoreKey)obj).Counter);
-    }
+    public override bool Equals(object obj)
+     => (obj is CounterDataStoreKey other) ? this.Equals(other) : false;
+
+    public bool Equals(CounterDataStoreKey other)=> this.Counter == other.Counter;
+
+    public static bool operator ==(CounterDataStoreKey a, CounterDataStoreKey b) =>  a.Equals(b);
+    public static bool operator !=(CounterDataStoreKey a, CounterDataStoreKey b) => !a.Equals(b);
   }
 
 
@@ -57,15 +48,9 @@ namespace Azos.Data.Access
   [Serializable]
   public sealed class NameValueDataStoreKey : Dictionary<string, object>, IDataStoreKey
   {
-    public NameValueDataStoreKey() : base(StringComparer.InvariantCultureIgnoreCase)
-    {
+    public NameValueDataStoreKey() : base(StringComparer.InvariantCultureIgnoreCase){ }
 
-    }
-
-    public NameValueDataStoreKey(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-
-    }
+    private NameValueDataStoreKey(SerializationInfo info, StreamingContext context) : base(info, context){ }
 
     public NameValueDataStoreKey(params object[] pairs) : base(StringComparer.InvariantCultureIgnoreCase)
     {

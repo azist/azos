@@ -6,16 +6,12 @@
 
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Azos.Data;
 
 using Azos.Scripting;
 using Azos.Serialization.JSON;
-using static Azos.Aver.ThrowsAttribute;
 
 namespace Azos.Tests.Nub.DataAccess
 {
@@ -32,14 +28,14 @@ namespace Azos.Tests.Nub.DataAccess
       }
 
       [Run]
-      [Aver.Throws(typeof(DataException), Message="GDID can not be created from the supplied", MsgMatch=MatchType.Contains) ]
+      [Aver.Throws(typeof(DataException), Message="GDID can not be created from the supplied") ]
       public void GDID_2()
       {
         var gdid = new GDID(0, 16, 89078);
       }
 
       [Run]
-      [Aver.Throws(typeof(DataException), Message="GDID can not be created from the supplied", MsgMatch=MatchType.Contains) ]
+      [Aver.Throws(typeof(DataException), Message="GDID can not be created from the supplied") ]
       public void GDID_3()
       {
         var gdid = new GDID(0, 12, GDID.COUNTER_MAX+1);
@@ -203,7 +199,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsFalse( nullable.HasValue);
       }
 
-      [Run()]
+      [Run]
       public void GDID_BinBuffer()
       {
         var gdid = new GDID(0,1,0x4b);
@@ -213,7 +209,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.AreEqual(gdid, gdid2);
       }
 
-      [Run()]
+      [Run]
       public void GDID_BinBufferAndTryParseBin()
       {
         var gdid = new GDID(347827,15,0xaedb3434b);
@@ -228,7 +224,7 @@ namespace Azos.Tests.Nub.DataAccess
       }
 
 
-      [Run()]
+      [Run]
       public void GDID_RangeComparer()
       {
         Aver.AreEqual(-1, GDIDRangeComparer.Instance.Compare( new GDID(0, 1, 2), new GDID(1,1,2)));
@@ -244,7 +240,7 @@ namespace Azos.Tests.Nub.DataAccess
 
       }
 
-      [Run()]
+      [Run]
       public void GDID_Zero()
       {
         var zero = GDID.ZERO;
@@ -254,7 +250,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsFalse( zero.IsZero );
       }
 
-      [Run()]
+      [Run]
       public void GDID_RequiredRow_1()
       {
         var row = new GDIDRow();
@@ -276,7 +272,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.AreEqual("GDID", ((FieldValidationException)err).FieldName);
       }
 
-      [Run()]
+      [Run]
       public void GDID_RequiredRow_2()
       {
         var row = new NullableGDIDRow();
