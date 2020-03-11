@@ -331,15 +331,12 @@ namespace Azos.Serialization.JSON.Backends
               }
 
               if (
-                 // (chr == ';') ||
-                  (chr == '{') ||
-                  (chr == '}') ||
-                //  (chr == '(') ||
-                //  (chr == ')') ||
-                  (chr == '[') ||
-                  (chr == ']') ||
                   (chr == ',') ||
                   (chr == ':') ||
+                  (chr == '{') ||
+                  (chr == '}') ||
+                  (chr == '[') ||
+                  (chr == ']') ||
                   ((chr == '.') && (!JsonIdentifiers.ValidateDigit(nchr)))
                  )
               {

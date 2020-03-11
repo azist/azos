@@ -87,19 +87,19 @@ namespace Azos.Serialization.JSON
         }
 
 
-        public JsonDataMap(): base(StringComparer.InvariantCulture)
-        {
+        public JsonDataMap(): base(StringComparer.Ordinal)//StringComparer.InvariantCulture
+    {
           CaseSensitive = true;
         }
 
-        public JsonDataMap(bool caseSensitive): base(caseSensitive ? StringComparer.InvariantCulture : StringComparer.InvariantCultureIgnoreCase)
+        public JsonDataMap(bool caseSensitive) : base(caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase )//StringComparer.InvariantCulture : StringComparer.InvariantCultureIgnoreCase)
         {
           CaseSensitive = caseSensitive;
         }
 
-        protected JsonDataMap(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context)
+        protected JsonDataMap(System.Runtime.Serialization.SerializationInfo info,
+                              System.Runtime.Serialization.StreamingContext context) : base(info, context)
         {
-
         }
 
 

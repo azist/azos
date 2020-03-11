@@ -113,6 +113,13 @@ Assets: 3673456.18
 
 /*
 
+RELEASE Started 03/10/2020 22:26:28
+Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkDocTests ...
+  - Test_TypicalPerson  {cnt=50000 par=false} Did 50,000 in 1.6 sec at 32,185 ops/sec
+[OK]
+  - Test_TypicalPerson  {cnt=50000 par=true} [1] Did 50,000 in 0.2 sec at 263,860 ops/sec
+[OK]
+
 RELEASE Started 03/09/2020 19:53:12
 Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkDocTests ...
   - Test_TypicalPerson  {cnt=50000 par=false} Did 50,000 in 1.7 sec at 28,730 ops/sec
