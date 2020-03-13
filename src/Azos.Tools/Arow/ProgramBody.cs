@@ -71,17 +71,19 @@ namespace Azos.Tools.Arow
       {
         assembly = Assembly.LoadFrom(asmFileName);
 
-        var schemas = assembly.GetTypes()//this throws on invalid loader exception as
-                            .Where(t => typeof(TypedDoc).IsAssignableFrom(t))
-                            .Select(t => Schema.GetForTypedDoc(t))//it touches all type/schemas
-                            .ToArray();
+        var allTypes = CodeGenerator.DefaultScanForAllRowTypes(assembly);
+
+        //this throws on invalid loader exception as
+        var schemas = allTypes.Select(t => Schema.GetForTypedDoc(t)).ToArray();//it touches all type/schemas because of .ToArray()
         ConsoleUtils.Info("Assembly contains {0} data document schemas".Args(schemas.Length));
       }
       catch(Exception asmerror)
       {
         ConsoleUtils.Error("Could not load assembly: `{0}`".Args(asmFileName));
         ConsoleUtils.Warning("Exception: ");
-        ConsoleUtils.Warning(asmerror.ToJson(JsonWritingOptions.PrettyPrintASCII));
+        ConsoleUtils.Warning(asmerror.ToMessageWithType());
+        Console.WriteLine();
+        ConsoleUtils.Warning(new WrappedExceptionData(asmerror).ToJson(JsonWritingOptions.PrettyPrintASCII));
         throw;
       }
 

@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.2.5.3
+set VER=1.2.5.5
 set HEADLINE=Svc release, fixes and enhancements
 
 call vs2017-build-release %VER%

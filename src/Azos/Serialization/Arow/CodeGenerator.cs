@@ -97,11 +97,23 @@ namespace Azos.Serialization.Arow
       File.WriteAllText(fn, content.ToString());
     }
 
+    public static IEnumerable<Type> DefaultScanForAllRowTypes(Assembly asm)
+    {
+      var allTypes = asm.NonNull(nameof(asm)).GetTypes();
+
+      var result = allTypes.Where(t => t.IsClass &&
+                                       !t.IsAbstract &&
+                                       !t.IsGenericTypeDefinition &&
+                                       Attribute.IsDefined(t, typeof(ArowAttribute), false) && typeof(TypedDoc).IsAssignableFrom(t))
+                                .OrderBy(t => t.Namespace)
+                                .ToArray();
+      return result;
+    }
+
+
     protected virtual IEnumerable<Type> GetRowTypes(Assembly asm)
     {
-      var types = asm.GetTypes().Where( t => t.IsClass && Attribute.IsDefined(t, typeof(ArowAttribute), false) && typeof(TypedDoc).IsAssignableFrom(t))
-                                .OrderBy( t => t.Namespace )
-                                .ToArray();
+      var types = DefaultScanForAllRowTypes(asm);
       return types;
     }
 
