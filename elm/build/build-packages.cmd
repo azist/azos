@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.2.5.1
-set HEADLINE=Introduce JazonReaderBackend
+set VER=1.2.5.3
+set HEADLINE=Svc release, fixes and enhancements
 
 call vs2017-build-release %VER%
 
