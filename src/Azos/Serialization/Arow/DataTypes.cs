@@ -28,7 +28,7 @@ namespace Azos.Serialization.Arow
     Amount,
 
     Byte,
-    ByteArray,
+    ByteArray,//special optimization case
     SByte,
 
     Int16,

@@ -100,7 +100,7 @@ namespace Azos.Serialization.Arow
 
 
     private const int INITIAL_BUFFER_CAPACITY = 4 * 1024;//A typical "business" object has 15 8 byte fields, and 10 32 byte fields < 700 bytes
-    private const int BUFFER_TRIM_CAPACITY = 128 * 1024;
+    private const int BUFFER_TRIM_CAPACITY = 75 * 1024;// < LOH
 
     //TLS is used since this is 100% sync CPU-bound operation
     [ThreadStatic] private static MemoryStream ts_WriteStream;
@@ -121,7 +121,7 @@ namespace Azos.Serialization.Arow
       var writer = ts_Writer;
       var result = ts_Subarray;
 
-      if (stream==null)
+      if (stream==null) //method is not re-entrant
       {
         stream = new MemoryStream(INITIAL_BUFFER_CAPACITY);
         writer = SlimFormat.Instance.GetWritingStreamer();

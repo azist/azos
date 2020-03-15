@@ -136,7 +136,7 @@ namespace Azos.Serialization.Arow
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
     public static void WriteEORow(WritingStreamer streamer)
     {
-      streamer.Write((ulong)0x00);//null name
+      streamer.Write((ulong)0x00);//null name/atom
     }
 
     public static void WriteNull(WritingStreamer streamer, ulong name)
