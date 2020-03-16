@@ -34,7 +34,7 @@ namespace Azos.Serialization.Arow
   /// The serializer supports primitives, Azos intrinsics like Atom, GDID, PilePointer, NLSMap, custom TypedDocs and List/arrays of the aforementioned types
   /// </summary>
   /// <remarks>
-  /// The new version supports polymorphic TypedDoc serialization
+  /// The version does not support polymorphic TypedDoc serialization
   /// </remarks>
   public static class ArowSerializer
   {
