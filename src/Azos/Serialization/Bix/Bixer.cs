@@ -36,8 +36,8 @@ namespace Azos.Serialization.Bix
   /// </para>
   /// <para>
   /// While it is possible to inter-operate between other formats, Bix is built for high performance,
-  /// features and bare-bones maintenance and implementation simplicity, as such its code base is orders
-  /// of magnitude smaller than that of Protobuf and other similar frameworks.
+  /// feature richness and zero maintenance/simplicity as its code base is orders of magnitude smaller
+  /// than that of Protobuf and other similar frameworks.
   /// </para>
   /// </remarks>
   public static class Bixer
