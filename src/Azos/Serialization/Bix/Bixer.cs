@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
+using Azos.Data;
+
 namespace Azos.Serialization.Bix
 {
   /// <summary>
@@ -42,13 +44,8 @@ namespace Azos.Serialization.Bix
   /// </remarks>
   public static class Bixer
   {
-    /// <summary>
-    /// Declares target name used by Bix serialization framework for Before/After call hooks on forms etc..
-    /// </summary>
-    public const string BIXER_TARGET = "~~~BIXER~~~";
-
     private static object s_Lock = new object();
-    private static volatile Dictionary<Type, BixCore> s_Cores = new Dictionary<Type, BixCore>();
+    private static volatile Dictionary<TargetedType, BixCore> s_Index = new Dictionary<TargetedType, BixCore>();
 
 
     /// <summary>
@@ -79,7 +76,7 @@ namespace Azos.Serialization.Bix
       var asmFileName = assembly.NonNull(nameof(assembly)).Location.Trim();
       var i = asmFileName.LastIndexOf(EXT);
       if (i != asmFileName.Length - EXT.Length)
-        throw new BixException(StringConsts.AROW_SATELLITE_ASSEMBLY_NAME_ERROR.Args(asmFileName));
+        throw new BixException(StringConsts.BIX_SATELLITE_ASSEMBLY_NAME_ERROR.Args(asmFileName));
 
       asmFileName = asmFileName.Substring(0, i) + suffix.Default(BIXER_ASSEMBLY_SUFFIX);
 
@@ -90,12 +87,12 @@ namespace Azos.Serialization.Bix
       }
       catch (Exception error)
       {
-        throw new BixException(StringConsts.AROW_SATELLITE_ASSEMBLY_LOAD_ERROR.Args(asmFileName, error.ToMessageWithType()), error);
+        throw new BixException(StringConsts.BIX_SATELLITE_ASSEMBLY_LOAD_ERROR.Args(asmFileName, error.ToMessageWithType()), error);
       }
     }
 
     /// <summary>
-    /// Registers all IBixCore type serialization handlers from the specified assembly so
+    /// Registers all BixCore type serialization handlers from the specified assembly so
     /// so they can be globally recognized for serialization of TypedDoc in Bix format
     /// </summary>
     public static void RegisterTypeSerializationCores(Assembly asm)
@@ -105,39 +102,112 @@ namespace Azos.Serialization.Bix
 
       lock(s_Lock)
       {
-        var dict = new Dictionary<Type, BixCore>(s_Cores);
+        var dict = new Dictionary<TargetedType, BixCore>(s_Index);
 
         allCores.ForEach( tc => {
           var core = Activator.CreateInstance(tc) as BixCore;
-          var targetType = core.GetTargetType();
-          dict[targetType] = core;
+          var ttp = core.TargetedType;
+          dict[ttp] = core;
         });
 
         System.Threading.Thread.MemoryBarrier();
 
-        s_Cores = dict;//atomic
+        s_Index = dict;//atomic
       }
     }
 
     /// <summary>
-    /// Registers IBixCore so it can be globally recognized for serialization of TypedDoc in Bix format
+    /// Registers BixCore so it can be globally recognized for serialization of TypedDoc in Bix format
     /// </summary>
     public static bool RegisterTypeSerializationCore(BixCore core)
     {
-      var targetType = core.NonNull(nameof(core)).GetTargetType();
+      var ttp = core.NonNull(nameof(core)).TargetedType;
 
       lock (s_Lock)
       {
-        if (s_Cores.TryGetValue(targetType, out var existing) && object.ReferenceEquals(existing, core)) return false;
-        var dict = new Dictionary<Type, BixCore>(s_Cores);
-        dict[targetType] = core;
+        if (s_Index.TryGetValue(ttp, out var existing) && object.ReferenceEquals(existing, core)) return false;
+        var dict = new Dictionary<TargetedType, BixCore>(s_Index);
+        dict[ttp] = core;
 
         System.Threading.Thread.MemoryBarrier();
 
-        s_Cores = dict;//atomic
+        s_Index = dict;//atomic
 
         return true;
       }
+    }
+
+    public static void Serialize<T>(T doc, BixWriter writer, BixContext ctx = null) where T : TypedDoc
+    {
+      if (ctx==null) ctx = BixContext.ObtainDefault();
+
+      var ttp = new TargetedType(ctx.TargetName, doc.GetType());//actual type of payload
+      if (!s_Index.TryGetValue(ttp, out var core) || !(core is BixCore<T> coreT))
+        throw new BixException(StringConsts.BIX_TYPE_NOT_SUPPORTED_ERROR.Args(ttp));
+
+
+      if (doc is IAmorphousData ad && ad.AmorphousDataEnabled)
+      {
+        ad.BeforeSave(ctx.TargetName);
+      }
+
+      //1 Header
+      if (ctx.HasHeader) Writer.WriteHeader(writer);
+
+      //2 Body
+      coreT.Serialize(doc, writer);
+
+      //3 EORow
+      Writer.WriteEORow(writer);
+
+      ctx.DisposeDefault();
+    }
+
+    public static T Deserialize<T>(BixReader reader, BixContext ctx = null) where T : TypedDoc
+    {
+      var (got, ok) = TryDeserialize<T>(reader, ctx);
+
+      if (!ok)
+        throw new BixException(StringConsts.BIX_TYPE_NOT_SUPPORTED_ERROR.Args(typeof(T).FullName));
+
+      return got;
+    }
+
+    internal static (T doc, bool ok) TryDeserializeRootOrInternal<T>(bool root, BixReader reader, BixContext ctx = null) where T : TypedDoc
+    {
+      if (ctx == null) ctx = BixContext.ObtainDefault();
+
+      //1 Header
+      if (ctx.HasHeader) Reader.ReadHeader(reader);
+
+      TargetedType ttp;
+      if ((root && ctx.PolymorphicRoot) || (!root && ctx.PolymorphicFields))
+      {
+        //read type identity from stream
+        ttp = new TargetedType();//todo
+      }
+      else
+      {
+        //take type identity from t
+        ttp = new TargetedType(ctx.TargetName, typeof(T));
+      }
+
+      if (!s_Index.TryGetValue(ttp, out var core) || !(core is BixCore<T> coreT))
+        return (null, false);
+
+      T doc = SerializationUtils.MakeNewObjectInstance(ttp.Type) as T;
+
+      //2 Body
+      coreT.Deserialize(doc, reader);
+
+      if (doc is IAmorphousData ad && ad.AmorphousDataEnabled)
+      {
+        ad.AfterLoad(ctx.TargetName);
+      }
+
+      ctx.DisposeDefault();
+
+      return (doc, true);
     }
 
   }

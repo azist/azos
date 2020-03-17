@@ -4,8 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-
 using Azos.Data;
 
 namespace Azos.Serialization.Bix
@@ -17,7 +15,7 @@ namespace Azos.Serialization.Bix
   public abstract class BixCore
   {
     /// <summary> Returns the target type which this BixCore implementation handles </summary>
-    public abstract Type GetTargetType();
+    public abstract TargetedType TargetedType{ get; }
   }
 
   /// <summary>
@@ -26,16 +24,23 @@ namespace Azos.Serialization.Bix
   /// </summary>
   public abstract class BixCore<T> : BixCore where T : TypedDoc
   {
-    public sealed override Type GetTargetType() => typeof(T);
+    protected BixCore(string targetName)
+    {
+      m_TargetedType = new TargetedType(targetName, typeof(T));
+    }
 
-    ///// <summary>
-    ///// Serializes typed data document into BixWriter
-    ///// </summary>
-    //public abstract void Serialize(T doc, BixWriter writer);
+    private TargetedType m_TargetedType;
 
-    ///// <summary>
-    ///// Deserializes typed data document from BixWriter
-    ///// </summary>
-    //public abstract void Deserialize(T doc, BixReader reader);
+    public sealed override TargetedType TargetedType => m_TargetedType;
+
+    /// <summary>
+    /// Serializes typed data document into BixWriter
+    /// </summary>
+    public abstract void Serialize(T doc, BixWriter writer);
+
+    /// <summary>
+    /// Deserializes typed data document from BixWriter
+    /// </summary>
+    public abstract void Deserialize(T doc, BixReader reader);
   }
 }
