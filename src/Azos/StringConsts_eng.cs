@@ -1148,6 +1148,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string GUID_TYPE_RESOLVER_MISSING_ATTRIBUTE_ERROR = "Type '{0}' does not specify the required [{1}(...)] attribute in its declaration";
 
 
+    public const string BIX_STREAM_CORRUPTED_ERROR = "Bix data stream is corrupted: ";
     public const string BIX_SATELLITE_ASSEMBLY_NAME_ERROR = "Could not find Bix serialization satellite for assembly `{0}` as the name pattern does not match. The source assembly file name must end with `*.dll` by convention";
     public const string BIX_SATELLITE_ASSEMBLY_LOAD_ERROR = "Bix satellite assembly `{0}` load failure: {1}";
     public const string BIX_TYPE_NOT_SUPPORTED_ERROR = "Bixer does not have a matching BixCore<'{0}'> for target '{1}'";
@@ -1159,6 +1160,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string BIX_HEADER_CORRUPT_ERROR = "Bix header is corrupt";
 
     public const string BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR = "Attempt to write an array [{0}] of {1} is over the allowed limit of {2}";
+    public const string BIX_READ_X_ARRAY_MAX_SIZE_ERROR = "Attempt to read an array [{0}] of {1} is over the allowed limit of {2}";
 
 
     public const string METADATA_CTOR_CONTENT_ERROR = "Metadata specification error. `{0}`.ctor(`{1}` content is bad). Revise attribute declaration. Cause: {2}";
