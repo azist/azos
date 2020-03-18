@@ -17,6 +17,8 @@ namespace Azos.Serialization.Bix
   /// </summary>
   public struct BixWriter
   {
+    public BixWriter(Stream stream) => m_Stream = stream;
+
     private readonly Stream m_Stream;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -25,22 +27,6 @@ namespace Azos.Serialization.Bix
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(byte value) => m_Stream.WriteByte(value);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteBOF(bool value)
-    {
-      Write(Format.HDR1);
-      Write(Format.HDR2);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteEOF(bool value) => Write(Format.NULL);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteNull(ulong name)
-    {
-      Write(name);
-      Write((byte)WireType.Null);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(bool value) => Write(value ? Format.TRUE : Format.FALSE);
@@ -60,18 +46,18 @@ namespace Azos.Serialization.Bix
     {
       var len = value.Length;
       if (len > Format.MAX_BYTE_ARRAY_LEN)
-        throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "sbyte", Format.MAX_INT_ARRAY_LEN));
+        throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "sbyte", Format.MAX_BYTE_ARRAY_LEN));
 
       this.Write(len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]); //WITH compression of every element
+        this.Write(value[i]);
     }
 
     public void Write(short[] value)
     {
       var len = value.Length;
       if (len > Format.MAX_SHORT_ARRAY_LEN)
-        throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "short", Format.MAX_INT_ARRAY_LEN));
+        throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "short", Format.MAX_SHORT_ARRAY_LEN));
 
       this.Write(len);
       for (int i = 0; i < len; i++)
@@ -82,7 +68,7 @@ namespace Azos.Serialization.Bix
     {
       var len = value.Length;
       if (len > Format.MAX_SHORT_ARRAY_LEN)
-        throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "ushort", Format.MAX_INT_ARRAY_LEN));
+        throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "ushort", Format.MAX_SHORT_ARRAY_LEN));
 
       this.Write(len);
       for (int i = 0; i < len; i++)
