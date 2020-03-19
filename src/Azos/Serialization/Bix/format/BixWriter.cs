@@ -507,6 +507,17 @@ namespace Azos.Serialization.Bix
       this.Write((byte)(sign | scale));
     }
 
+    public void Write(decimal? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public unsafe void Write(double value)
     {
       var buf = Format.GetBuff32();
@@ -524,6 +535,17 @@ namespace Azos.Serialization.Bix
       m_Stream.Write(buf, 0, 8);
     }
 
+    public void Write(double? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public unsafe void Write(float value)
     {
       var buf = Format.GetBuff32();
@@ -534,6 +556,18 @@ namespace Azos.Serialization.Bix
       buf[3] = (byte)(core >> 24);
       m_Stream.Write(buf, 0, 4);
     }
+
+    public void Write(float? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
 
     public void Write(int value)
     {
@@ -560,6 +594,17 @@ namespace Azos.Serialization.Bix
           b = (byte)(b | 0x80);
         m_Stream.WriteByte(b);
       }
+    }
+
+    public void Write(int? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
     }
 
     public void Write(long value)
@@ -589,7 +634,29 @@ namespace Azos.Serialization.Bix
       }
     }
 
+    public void Write(long? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public void Write(sbyte value) => m_Stream.WriteByte((byte)value);
+
+    public void Write(sbyte? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
 
     public void Write(short value)
     {
@@ -618,9 +685,33 @@ namespace Azos.Serialization.Bix
       }
     }
 
+    public void Write(short? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public void Write(string value)
     {
+      if (value==null)
+      {
+        Write(false);
+        return;
+      }
+      Write(true);
+
       var len = value.Length;
+      if (len==0)
+      {
+        Write((int)0);
+        return;
+      }
+
       if (len > Format.MAX_STR_LEN)//This is much faster than Encoding.GetByteCount()
       {
         var encoded = Format.ENCODING.GetBytes(value);
@@ -651,6 +742,17 @@ namespace Azos.Serialization.Bix
       }
     }
 
+    public void Write(uint? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public void Write(ulong value)
     {
       var has = true;
@@ -663,6 +765,17 @@ namespace Azos.Serialization.Bix
           b = (byte)(b | 0x80);
         m_Stream.WriteByte(b);
       }
+    }
+
+    public void Write(ulong? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
     }
 
     public void Write(ushort value)
@@ -679,10 +792,32 @@ namespace Azos.Serialization.Bix
       }
     }
 
+    public void Write(ushort? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public void Write(DateTime value)
     {
       m_Stream.WriteBEUInt64((ulong)value.Ticks);
       m_Stream.WriteByte((byte)value.Kind);
+    }
+
+    public void Write(DateTime? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
     }
 
     public void Write(TimeSpan value)
@@ -690,9 +825,31 @@ namespace Azos.Serialization.Bix
       Write(value.Ticks);
     }
 
+    public void Write(TimeSpan? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public void Write(Guid value)
     {
       Write(value.ToByteArray());
+    }
+
+    public void Write(Guid? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
     }
 
     public  void Write(Data.GDID value)
@@ -701,9 +858,31 @@ namespace Azos.Serialization.Bix
       Write(value.ID);
     }
 
+    public void Write(Data.GDID? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public void Write(FID value)
     {
       m_Stream.WriteBEUInt64(value.ID);
+    }
+
+    public void Write(FID? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
     }
 
     public void Write(Pile.PilePointer value)
@@ -711,6 +890,17 @@ namespace Azos.Serialization.Bix
       Write(value.NodeID);
       Write(value.Segment);
       Write(value.Address);
+    }
+
+    public void Write(Pile.PilePointer? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
     }
 
     public void Write(NLSMap map)
@@ -733,14 +923,43 @@ namespace Azos.Serialization.Bix
       }
     }
 
+    public void Write(NLSMap? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public void Write(Financial.Amount value)
     {
       Write(value.CurrencyISO);
       Write(value.Value);
     }
 
+    public void Write(Financial.Amount? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public void Write(Collections.StringMap map)
     {
+      if (map==null)
+      {
+        Write(false);
+        return;
+      }
+      Write(true);
+
       Write(map.CaseSensitive);
       Write((int)map.Count);
 
@@ -752,6 +971,15 @@ namespace Azos.Serialization.Bix
     }
 
     public void Write(Atom value) => Write(value.ID);
-
+    public void Write(Atom? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
   }
 }

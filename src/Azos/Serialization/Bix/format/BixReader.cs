@@ -52,7 +52,12 @@ namespace Azos.Serialization.Bix
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ReadBool() => ReadByte() != 0;
+    public bool ReadBool()//important to inline as this is used by all Nullables* and ref types
+    {
+      var b = m_Stream.ReadByte();
+      if (b < 0) throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadBool(): eof");
+      return b != 0;
+    }
 
     public bool? ReadNullableBool()
     {
@@ -115,7 +120,7 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_BYTE_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "sbytes?", Format.MAX_BYTE_ARRAY_LEN));
 
-      var result = new sbyte[len];
+      var result = new sbyte?[len];
 
       for (int i = 0; i < len; i++)
         result[i] = ReadNullableSbyte();
@@ -473,6 +478,12 @@ namespace Azos.Serialization.Bix
                           (byte)(bits_3 & 0x7F));
     }
 
+    public decimal? ReadNullableDecimal()
+    {
+      if (ReadBool()) return ReadDecimal();
+      return null;
+    }
+
     public unsafe double ReadDouble()
     {
       var buf = Format.GetBuff32();
@@ -493,6 +504,12 @@ namespace Azos.Serialization.Bix
       return *(double*)(&core);
     }
 
+    public double? ReadNullableDouble()
+    {
+      if (ReadBool()) return ReadDouble();
+      return null;
+    }
+
     public unsafe float ReadFloat()
     {
       var buf = Format.GetBuff32();
@@ -503,6 +520,12 @@ namespace Azos.Serialization.Bix
                           (int)buf[2] << 16 |
                           (int)buf[3] << 24);
       return *(float*)(&core);
+    }
+
+    public float? ReadNullableFloat()
+    {
+      if (ReadBool()) return ReadFloat();
+      return null;
     }
 
     public int ReadInt()
@@ -533,6 +556,12 @@ namespace Azos.Serialization.Bix
       return neg ? ~result : result;
     }
 
+    public int? ReadNullableInt()
+    {
+      if (ReadBool()) return ReadInt();
+      return null;
+    }
+
     public long ReadLong()
     {
       long result = 0;
@@ -561,11 +590,23 @@ namespace Azos.Serialization.Bix
       return neg ? ~result : result;
     }
 
+    public long? ReadNullableLong()
+    {
+      if (ReadBool()) return ReadLong();
+      return null;
+    }
+
     public sbyte ReadSbyte()
     {
       var b = m_Stream.ReadByte();
       if (b < 0) throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadSbyte(): eof");
       return (sbyte)b;
+    }
+
+    public sbyte? ReadNullableSbyte()
+    {
+      if (ReadBool()) return ReadSbyte();
+      return null;
     }
 
     public short ReadShort()
@@ -596,12 +637,19 @@ namespace Azos.Serialization.Bix
       return (short)(neg ? ~result : result);
     }
 
+    public short? ReadNullableShort()
+    {
+      if (ReadBool()) return ReadShort();
+      return null;
+    }
+
     public string ReadString()
     {
-      var has = this.ReadBool();
-      if (!has) return null;
+      if (!ReadBool()) return null;
 
       var bsz = this.ReadInt();
+      if (bsz==0) return string.Empty;
+
       if (bsz < Format.STR_BUF_SZ)
       {
         var reused = Format.GetStrBuff();
@@ -641,6 +689,12 @@ namespace Azos.Serialization.Bix
       return result;
     }
 
+    public uint? ReadNullableUint()
+    {
+      if (ReadBool()) return ReadUint();
+      return null;
+    }
+
     public ulong ReadUlong()
     {
       ulong result = 0;
@@ -660,6 +714,12 @@ namespace Azos.Serialization.Bix
       }
 
       return result;
+    }
+
+    public ulong? ReadNullableUlong()
+    {
+      if (ReadBool()) return ReadUlong();
+      return null;
     }
 
 
@@ -684,11 +744,23 @@ namespace Azos.Serialization.Bix
       return result;
     }
 
+    public ushort? ReadNullableUshort()
+    {
+      if (ReadBool()) return ReadUshort();
+      return null;
+    }
+
     public DateTime ReadDateTime()
     {
       var ticks = (long)m_Stream.ReadBEUInt64();
       var kind = (DateTimeKind)m_Stream.ReadByte();
       return new DateTime(ticks, kind);
+    }
+
+    public DateTime? ReadNullableDateTime()
+    {
+      if (ReadBool()) return ReadDateTime();
+      return null;
     }
 
     public TimeSpan ReadTimeSpan()
@@ -697,10 +769,22 @@ namespace Azos.Serialization.Bix
       return TimeSpan.FromTicks(ticks);
     }
 
+    public TimeSpan? ReadNullableTimeSpan()
+    {
+      if (ReadBool()) return ReadTimeSpan();
+      return null;
+    }
+
     public Guid ReadGuid()
     {
       var arr = this.ReadByteArray();//inefficient copy!!
       return new Guid(arr);
+    }
+
+    public Guid? ReadNullableGuid()
+    {
+      if (ReadBool()) return ReadGuid();
+      return null;
     }
 
     public Data.GDID ReadGDID()
@@ -710,11 +794,24 @@ namespace Azos.Serialization.Bix
       return new Data.GDID(era, id);
     }
 
+    public Data.GDID? ReadNullableGDID()
+    {
+      if (ReadBool()) return ReadGDID();
+      return null;
+    }
+
     public FID ReadFID()
     {
       var id = m_Stream.ReadBEUInt64();
       return new FID(id);
     }
+
+    public FID? ReadNullableFIDt()
+    {
+      if (ReadBool()) return ReadFID();
+      return null;
+    }
+
 
     public Pile.PilePointer ReadPilePointer()
     {
@@ -722,6 +819,12 @@ namespace Azos.Serialization.Bix
       var seg = this.ReadInt();
       var adr = this.ReadInt();
       return new Pile.PilePointer(node, seg, adr);
+    }
+
+    public Pile.PilePointer? ReadNullablePilePointer()
+    {
+      if (ReadBool()) return ReadPilePointer();
+      return null;
     }
 
     public NLSMap ReadNLSMap()
@@ -745,6 +848,12 @@ namespace Azos.Serialization.Bix
       return new NLSMap(data);
     }
 
+    public NLSMap? ReadNullableNLSMap()
+    {
+      if (ReadBool()) return ReadNLSMap();
+      return null;
+    }
+
     public Financial.Amount ReadAmount()
     {
       var iso = ReadString();
@@ -753,8 +862,16 @@ namespace Azos.Serialization.Bix
       return Financial.Amount.Deserialize(iso, val);
     }
 
+    public Financial.Amount? ReadNullableAmount()
+    {
+      if (ReadBool()) return ReadAmount();
+      return null;
+    }
+
     public Collections.StringMap ReadStringMap()
     {
+      if (!ReadBool()) return null;
+
       var senseCase = ReadBool();
 
       var dict = Collections.StringMap.MakeDictionary(senseCase);
@@ -771,6 +888,12 @@ namespace Azos.Serialization.Bix
     }
 
     public Atom ReadAtom() => new Atom(ReadUlong());
+
+    public Atom? ReadNullableAtom()
+    {
+      if (ReadBool()) return ReadAtom();
+      return null;
+    }
 
   }
 }
