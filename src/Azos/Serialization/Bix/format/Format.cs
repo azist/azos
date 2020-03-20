@@ -28,6 +28,12 @@ namespace Azos.Serialization.Bix
     public const int MAX_FLOAT_ARRAY_LEN = MAX_BYTE_ARRAY_LEN / 4;
     public const int MAX_DECIMAL_ARRAY_LEN = MAX_BYTE_ARRAY_LEN / 13;
     public const int MAX_STRING_ARRAY_CNT = MAX_BYTE_ARRAY_LEN / 48;
+    public const int MAX_GUID_ARRAY_LEN = MAX_BYTE_ARRAY_LEN / 16;
+    public const int MAX_GDID_ARRAY_LEN = MAX_BYTE_ARRAY_LEN / 12;
+    public const int MAX_PPTR_ARRAY_LEN = MAX_BYTE_ARRAY_LEN / 12;
+    public const int MAX_NLS_ARRAY_LEN = 1024;
+    public const int MAX_AMOUNT_ARRAY_LEN = MAX_BYTE_ARRAY_LEN / 16;
+    public const int MAX_SMAP_ARRAY_LEN = 1024;
 
 
     public const int STR_BUF_SZ = 96 * 1024;// ensure placement in LOH
