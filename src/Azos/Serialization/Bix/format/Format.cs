@@ -34,6 +34,7 @@ namespace Azos.Serialization.Bix
     public const int MAX_NLS_ARRAY_LEN = 1024;
     public const int MAX_AMOUNT_ARRAY_LEN = MAX_BYTE_ARRAY_LEN / 16;
     public const int MAX_SMAP_ARRAY_LEN = 1024;
+    public const int MAX_COLLECTION_LEN = 1024;
 
 
     public const int STR_BUF_SZ = 96 * 1024;// ensure placement in LOH

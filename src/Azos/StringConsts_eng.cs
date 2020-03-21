@@ -1160,6 +1160,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string BIX_HEADER_CORRUPT_ERROR = "Bix header is corrupt";
 
     public const string BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR = "Attempt to write an array [{0}] of {1} is over the allowed limit of {2}";
+    public const string BIX_WRITE_X_COLLECTION_MAX_SIZE_ERROR = "Attempt to write a collection [{0}] of {1} is over the allowed limit of {2}";
     public const string BIX_READ_X_ARRAY_MAX_SIZE_ERROR = "Attempt to read an array [{0}] of {1} is over the allowed limit of {2}";
 
 
