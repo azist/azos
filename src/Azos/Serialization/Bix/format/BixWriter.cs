@@ -872,6 +872,7 @@ namespace Azos.Serialization.Bix
     #endregion
 
     #region STRING
+#warning TRY to use stream of CHArs instead of encoding
     public void Write(string value)
     {
       if (value == null)
@@ -1522,7 +1523,7 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_COLLECTION_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_COLLECTION_MAX_SIZE_ERROR.Args(len, typeof(T).Name, Format.MAX_COLLECTION_LEN));
 
-      this.Write(len);
+      Write(len);
       foreach (var elm in value) write(this, elm);
     }
     #endregion
