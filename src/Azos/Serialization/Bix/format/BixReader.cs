@@ -427,6 +427,38 @@ namespace Azos.Serialization.Bix
     }
     #endregion
 
+    #region UINT
+
+    public uint ReadUint()
+    {
+      uint result = 0;
+      var bitcnt = 0;
+      var has = true;
+
+      while (has)
+      {
+        if (bitcnt > 31)
+          throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadUint()");
+
+        var b = m_Stream.ReadByte();
+        if (b < 0) throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadUint(): eof");
+        has = (b & 0x80) != 0;
+        result |= (uint)(b & 0x7f) << bitcnt;
+        bitcnt += 7;
+      }
+
+      return result;
+    }
+
+    public uint? ReadNullableUint()
+    {
+      if (ReadBool()) return ReadUint();
+      return null;
+    }
+
+    public TCollection ReadUintCollection<TCollection>() where TCollection : class, ICollection<uint>, new()
+     => ReadCollection<TCollection, uint>(bix => bix.ReadUint());
+
     public uint[] ReadUintArray()
     {
       if (!ReadBool()) return null;
@@ -442,6 +474,9 @@ namespace Azos.Serialization.Bix
 
       return result;
     }
+
+    public TCollection ReadNullableUintCollection<TCollection>() where TCollection : class, ICollection<uint?>, new()
+     => ReadCollection<TCollection, uint?>(bix => bix.ReadNullableUint());
 
     public uint?[] ReadNullableUintArray()
     {
@@ -459,6 +494,48 @@ namespace Azos.Serialization.Bix
       return result;
     }
 
+    #endregion
+
+    #region LONG
+
+    public long ReadLong()
+    {
+      long result = 0;
+      var b = m_Stream.ReadByte();
+      if (b < 0) throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadLong(): eof");
+
+      var neg = ((b & 1) != 0);
+
+
+      var has = (b & 0x80) > 0;
+      result |= ((long)(b & 0x7f) >> 1);
+      var bitcnt = 6;
+
+      while (has)
+      {
+        if (bitcnt > 63)
+          throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadLong()");
+
+        b = m_Stream.ReadByte();
+        if (b < 0) throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadLong(): eof");
+        has = (b & 0x80) > 0;
+        result |= (long)(b & 0x7f) << bitcnt;
+        bitcnt += 7;
+      }
+
+      return neg ? ~result : result;
+    }
+
+    public long? ReadNullableLong()
+    {
+      if (ReadBool()) return ReadLong();
+      return null;
+    }
+
+    public TCollection ReadLongCollection<TCollection>() where TCollection : class, ICollection<long>, new()
+    => ReadCollection<TCollection, long>(bix => bix.ReadLong());
+
+
     public long[] ReadLongArray()
     {
       if (!ReadBool()) return null;
@@ -474,6 +551,10 @@ namespace Azos.Serialization.Bix
 
       return result;
     }
+
+
+    public TCollection ReadNullableLongCollection<TCollection>() where TCollection : class, ICollection<long?>, new()
+    => ReadCollection<TCollection, long?>(bix => bix.ReadNullableLong());
 
     public long?[] ReadNullableLongArray()
     {
@@ -491,6 +572,40 @@ namespace Azos.Serialization.Bix
       return result;
     }
 
+    #endregion
+
+    #region ULONG
+
+    public ulong ReadUlong()
+    {
+      ulong result = 0;
+      var bitcnt = 0;
+      var has = true;
+
+      while (has)
+      {
+        if (bitcnt > 63)
+          throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadUlong()");
+
+        var b = m_Stream.ReadByte();
+        if (b < 0) throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadUlong(): eof");
+        has = (b & 0x80) > 0;
+        result |= (ulong)(b & 0x7f) << bitcnt;
+        bitcnt += 7;
+      }
+
+      return result;
+    }
+
+    public ulong? ReadNullableUlong()
+    {
+      if (ReadBool()) return ReadUlong();
+      return null;
+    }
+
+    public TCollection ReadUlongCollection<TCollection>() where TCollection : class, ICollection<ulong>, new()
+      => ReadCollection<TCollection, ulong>(bix => bix.ReadUlong());
+
     public ulong[] ReadUlongArray()
     {
       if (!ReadBool()) return null;
@@ -506,6 +621,9 @@ namespace Azos.Serialization.Bix
 
       return result;
     }
+
+    public TCollection ReadNullableUlongCollection<TCollection>() where TCollection : class, ICollection<ulong?>, new()
+      => ReadCollection<TCollection, ulong?>(bix => bix.ReadNullableUlong());
 
     public ulong?[] ReadNullableUlongArray()
     {
@@ -523,6 +641,39 @@ namespace Azos.Serialization.Bix
       return result;
     }
 
+    #endregion
+
+    #region DOUBLE
+
+    public unsafe double ReadDouble()
+    {
+      var buf = Format.GetBuff32();
+      ReadFromStream(buf, 8);
+
+      uint seg1 = (uint)((int)buf[0] |
+                          (int)buf[1] << 8 |
+                          (int)buf[2] << 16 |
+                          (int)buf[3] << 24);
+
+      uint seg2 = (uint)((int)buf[4] |
+                          (int)buf[5] << 8 |
+                          (int)buf[6] << 16 |
+                          (int)buf[7] << 24);
+
+      ulong core = (ulong)seg2 << 32 | (ulong)seg1;
+
+      return *(double*)(&core);
+    }
+
+    public double? ReadNullableDouble()
+    {
+      if (ReadBool()) return ReadDouble();
+      return null;
+    }
+
+    public TCollection ReadDoubleCollection<TCollection>() where TCollection : class, ICollection<double>, new()
+     => ReadCollection<TCollection, double>(bix => bix.ReadDouble());
+
     public double[] ReadDoubleArray()
     {
       if (!ReadBool()) return null;
@@ -538,6 +689,9 @@ namespace Azos.Serialization.Bix
 
       return result;
     }
+
+    public TCollection ReadNullableDoubleCollection<TCollection>() where TCollection : class, ICollection<double?>, new()
+     => ReadCollection<TCollection, double?>(bix => bix.ReadNullableDouble());
 
     public double?[] ReadNullableDoubleArray()
     {
@@ -555,13 +709,38 @@ namespace Azos.Serialization.Bix
       return result;
     }
 
+    #endregion
+
+    #region FLOAT
+
+    public unsafe float ReadFloat()
+    {
+      var buf = Format.GetBuff32();
+      ReadFromStream(buf, 4);
+
+      uint core = (uint)((int)buf[0] |
+                          (int)buf[1] << 8 |
+                          (int)buf[2] << 16 |
+                          (int)buf[3] << 24);
+      return *(float*)(&core);
+    }
+
+    public float? ReadNullableFloat()
+    {
+      if (ReadBool()) return ReadFloat();
+      return null;
+    }
+
+    public TCollection ReadFloatCollection<TCollection>() where TCollection : class, ICollection<float>, new()
+    => ReadCollection<TCollection, float>(bix => bix.ReadFloat());
+
     public float[] ReadFloatArray()
     {
       if (!ReadBool()) return null;
 
       var len = this.ReadInt();
       if (len > Format.MAX_FLOAT_ARRAY_LEN)
-        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "floats", Format.MAX_FLOAT_ARRAY_LEN));
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "float", Format.MAX_FLOAT_ARRAY_LEN));
 
       var result = new float[len];
 
@@ -571,13 +750,16 @@ namespace Azos.Serialization.Bix
       return result;
     }
 
+    public TCollection ReadNullableFloatCollection<TCollection>() where TCollection : class, ICollection<float?>, new()
+    => ReadCollection<TCollection, float?>(bix => bix.ReadNullableFloat());
+
     public float?[] ReadNullableFloatArray()
     {
       if (!ReadBool()) return null;
 
       var len = this.ReadInt();
       if (len > Format.MAX_FLOAT_ARRAY_LEN)
-        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "floats?", Format.MAX_FLOAT_ARRAY_LEN));
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "float?", Format.MAX_FLOAT_ARRAY_LEN));
 
       var result = new float?[len];
 
@@ -586,6 +768,31 @@ namespace Azos.Serialization.Bix
 
       return result;
     }
+
+    #endregion
+
+    #region DECIMAL
+    public decimal ReadDecimal()
+    {
+      var bits_0 = ReadInt();
+      var bits_1 = ReadInt();
+      var bits_2 = ReadInt();
+      var bits_3 = ReadByte();
+      return new Decimal(bits_0,
+                          bits_1,
+                          bits_2,
+                          (bits_3 & 0x80) != 0,
+                          (byte)(bits_3 & 0x7F));
+    }
+
+    public decimal? ReadNullableDecimal()
+    {
+      if (ReadBool()) return ReadDecimal();
+      return null;
+    }
+
+    public TCollection ReadDecimalCollection<TCollection>() where TCollection : class, ICollection<decimal>, new()
+    => ReadCollection<TCollection, decimal>(bix => bix.ReadDecimal());
 
     public decimal[] ReadDecimalArray()
     {
@@ -603,6 +810,9 @@ namespace Azos.Serialization.Bix
       return result;
     }
 
+    public TCollection ReadNullableDecimalCollection<TCollection>() where TCollection : class, ICollection<decimal?>, new()
+    => ReadCollection<TCollection, decimal?>(bix => bix.ReadNullableDecimal());
+
     public decimal?[] ReadNullableDecimalArray()
     {
       if (!ReadBool()) return null;
@@ -618,6 +828,8 @@ namespace Azos.Serialization.Bix
 
       return result;
     }
+
+    #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public char ReadChar() => (char)ReadUshort();
@@ -667,106 +879,6 @@ namespace Azos.Serialization.Bix
       return result;
     }
 
-    public decimal ReadDecimal()
-    {
-      var bits_0 = ReadInt();
-      var bits_1 = ReadInt();
-      var bits_2 = ReadInt();
-      var bits_3 = ReadByte();
-      return new Decimal(bits_0,
-                          bits_1,
-                          bits_2,
-                          (bits_3 & 0x80) != 0,
-                          (byte)(bits_3 & 0x7F));
-    }
-
-    public decimal? ReadNullableDecimal()
-    {
-      if (ReadBool()) return ReadDecimal();
-      return null;
-    }
-
-    public unsafe double ReadDouble()
-    {
-      var buf = Format.GetBuff32();
-      ReadFromStream(buf, 8);
-
-      uint seg1 = (uint)((int)buf[0] |
-                          (int)buf[1] << 8 |
-                          (int)buf[2] << 16 |
-                          (int)buf[3] << 24);
-
-      uint seg2 = (uint)((int)buf[4] |
-                          (int)buf[5] << 8 |
-                          (int)buf[6] << 16 |
-                          (int)buf[7] << 24);
-
-      ulong core = (ulong)seg2 << 32 | (ulong)seg1;
-
-      return *(double*)(&core);
-    }
-
-    public double? ReadNullableDouble()
-    {
-      if (ReadBool()) return ReadDouble();
-      return null;
-    }
-
-    public unsafe float ReadFloat()
-    {
-      var buf = Format.GetBuff32();
-      ReadFromStream(buf, 4);
-
-      uint core = (uint)((int)buf[0] |
-                          (int)buf[1] << 8 |
-                          (int)buf[2] << 16 |
-                          (int)buf[3] << 24);
-      return *(float*)(&core);
-    }
-
-    public float? ReadNullableFloat()
-    {
-      if (ReadBool()) return ReadFloat();
-      return null;
-    }
-
-
-
-    public long ReadLong()
-    {
-      long result = 0;
-      var b = m_Stream.ReadByte();
-      if (b < 0) throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadLong(): eof");
-
-      var neg = ((b & 1) != 0);
-
-
-      var has = (b & 0x80) > 0;
-      result |= ((long)(b & 0x7f) >> 1);
-      var bitcnt = 6;
-
-      while (has)
-      {
-        if (bitcnt > 63)
-          throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadLong()");
-
-        b = m_Stream.ReadByte();
-        if (b < 0) throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadLong(): eof");
-        has = (b & 0x80) > 0;
-        result |= (long)(b & 0x7f) << bitcnt;
-        bitcnt += 7;
-      }
-
-      return neg ? ~result : result;
-    }
-
-    public long? ReadNullableLong()
-    {
-      if (ReadBool()) return ReadLong();
-      return null;
-    }
-
-
 
 
 
@@ -795,59 +907,9 @@ namespace Azos.Serialization.Bix
       return Format.ENCODING.GetString(buf);
     }
 
-    public uint ReadUint()
-    {
-      uint result = 0;
-      var bitcnt = 0;
-      var has = true;
 
-      while (has)
-      {
-        if (bitcnt > 31)
-          throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadUint()");
 
-        var b = m_Stream.ReadByte();
-        if (b < 0) throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadUint(): eof");
-        has = (b & 0x80) != 0;
-        result |= (uint)(b & 0x7f) << bitcnt;
-        bitcnt += 7;
-      }
 
-      return result;
-    }
-
-    public uint? ReadNullableUint()
-    {
-      if (ReadBool()) return ReadUint();
-      return null;
-    }
-
-    public ulong ReadUlong()
-    {
-      ulong result = 0;
-      var bitcnt = 0;
-      var has = true;
-
-      while (has)
-      {
-        if (bitcnt > 63)
-          throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadUlong()");
-
-        var b = m_Stream.ReadByte();
-        if (b < 0) throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "ReadUlong(): eof");
-        has = (b & 0x80) > 0;
-        result |= (ulong)(b & 0x7f) << bitcnt;
-        bitcnt += 7;
-      }
-
-      return result;
-    }
-
-    public ulong? ReadNullableUlong()
-    {
-      if (ReadBool()) return ReadUlong();
-      return null;
-    }
 
 
 
