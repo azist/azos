@@ -831,6 +831,7 @@ namespace Azos.Serialization.Bix
 
     #endregion
 
+    #region CHAR
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public char ReadChar() => (char)ReadUshort();
 
@@ -840,11 +841,17 @@ namespace Azos.Serialization.Bix
       return ReadChar();
     }
 
+    public TCollection ReadCharCollection<TCollection>() where TCollection : class, ICollection<char>, new()
+    => ReadCollection<TCollection, char>(bix => bix.ReadChar());
+
     public char[] ReadCharArray()
     {
       if (!ReadBool()) return null;
       return ReadString().ToCharArray();
     }
+
+    public TCollection ReadNullableCharCollection<TCollection>() where TCollection : class, ICollection<char?>, new()
+    => ReadCollection<TCollection, char?>(bix => bix.ReadNullableChar());
 
     public char?[] ReadNullableCharArray()
     {
@@ -862,25 +869,10 @@ namespace Azos.Serialization.Bix
       return result;
     }
 
-    public string[] ReadStringArray()
-    {
-      if (!ReadBool()) return null;
 
-      var len = ReadInt();
+    #endregion
 
-      if (len > Format.MAX_STRING_ARRAY_CNT)
-        throw new BixException(StringConsts.SLIM_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "strings", Format.MAX_STRING_ARRAY_CNT));
-
-      var result = new string[len];
-
-      for (int i = 0; i < len; i++)
-        result[i] = ReadString();
-
-      return result;
-    }
-
-
-
+    #region STRING
 
     public string ReadString()
     {
@@ -907,12 +899,29 @@ namespace Azos.Serialization.Bix
       return Format.ENCODING.GetString(buf);
     }
 
+    public TCollection ReadStringCollection<TCollection>() where TCollection : class, ICollection<string>, new()
+    => ReadCollection<TCollection, string>(bix => bix.ReadString());
 
+    public string[] ReadStringArray()
+    {
+      if (!ReadBool()) return null;
 
+      var len = ReadInt();
 
+      if (len > Format.MAX_STRING_ARRAY_CNT)
+        throw new BixException(StringConsts.SLIM_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "strings", Format.MAX_STRING_ARRAY_CNT));
 
+      var result = new string[len];
 
+      for (int i = 0; i < len; i++)
+        result[i] = ReadString();
 
+      return result;
+    }
+
+    #endregion
+
+    #region DATETIME
 
     public DateTime ReadDateTime()
     {
@@ -927,6 +936,46 @@ namespace Azos.Serialization.Bix
       return null;
     }
 
+    public TCollection ReadDateTimeCollection<TCollection>() where TCollection : class, ICollection<DateTime>, new()
+    => ReadCollection<TCollection, DateTime>(bix => bix.ReadDateTime());
+
+    public DateTime[] ReadDateTimeArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_LONG_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "datetime", Format.MAX_LONG_ARRAY_LEN));
+
+      var result = new DateTime[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadDateTime();
+
+      return result;
+    }
+
+    public TCollection ReadNullableDateTimeCollection<TCollection>() where TCollection : class, ICollection<DateTime?>, new()
+    => ReadCollection<TCollection, DateTime?>(bix => bix.ReadNullableDateTime());
+
+    public DateTime?[] ReadNullableDateTimeArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_LONG_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "datetime?", Format.MAX_LONG_ARRAY_LEN));
+
+      var result = new DateTime?[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadNullableDateTime();
+
+      return result;
+    }
+
+    #endregion
+
     public TimeSpan ReadTimeSpan()
     {
       var ticks = this.ReadLong();
@@ -939,10 +988,20 @@ namespace Azos.Serialization.Bix
       return null;
     }
 
-    public Guid ReadGuid()
+    public unsafe Guid ReadGuid()
     {
-      var arr = this.ReadByteArray();//inefficient copy!!
-      return new Guid(arr);
+      var raw1 = ReadUlong();
+      var raw2 = ReadUlong();
+
+      var result = Guid.Empty;
+
+      var pGuid = (ulong*)&result;
+      pGuid[0] = raw1;
+      pGuid[1] = raw2;
+
+      return result;
+      //var arr = this.ReadByteArray();//inefficient copy!!
+      //return new Guid(arr);
     }
 
     public Guid? ReadNullableGuid()

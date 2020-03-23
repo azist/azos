@@ -629,6 +629,7 @@ namespace Azos.Serialization.Bix
 
     public unsafe void Write(double value)
     {
+#warning Why not use direct pointer cast and write UINT instead of buffer? or write byte-by-byte?
       var buf = Format.GetBuff32();
       ulong core = *(ulong*)(&value);
 
@@ -1040,9 +1041,19 @@ namespace Azos.Serialization.Bix
     #endregion
 
     #region GUID
-    public void Write(Guid value)
+    public unsafe void Write(Guid value)
     {
-      WriteBuffer(value.ToByteArray());
+      ulong raw1 = 0;
+      ulong raw2 = 0;
+
+      var pGuid = (ulong*)&value;
+      raw1 = pGuid[0];
+      raw2 = pGuid[1];
+
+      Write(raw1);
+      Write(raw2);
+
+      //WriteBuffer(value.ToByteArray());
     }
 
     public void WriteCollection(ICollection<Guid> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
