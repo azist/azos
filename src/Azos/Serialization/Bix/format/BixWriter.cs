@@ -1398,7 +1398,7 @@ namespace Azos.Serialization.Bix
     }
     #endregion
 
-    #region StringMap
+    #region STRING MAP
     //why do we need screen map? only for optimization of serialization better than JsonMap?
     public void Write(Collections.StringMap map)
     {

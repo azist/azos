@@ -1409,6 +1409,7 @@ namespace Azos.Serialization.Bix
     }
     #endregion
 
+    #region ATOM
     public Atom ReadAtom() => new Atom(ReadUlong());
 
     public Atom? ReadNullableAtom()
@@ -1416,6 +1417,45 @@ namespace Azos.Serialization.Bix
       if (ReadBool()) return ReadAtom();
       return null;
     }
+
+    public TCollection ReadAtomCollection<TCollection>() where TCollection : class, ICollection<Atom>, new()
+    => ReadCollection<TCollection, Atom>(bix => bix.ReadAtom());
+
+    public Atom[] ReadAtomArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_LONG_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "atom", Format.MAX_LONG_ARRAY_LEN));
+
+      var result = new Atom[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadAtom();
+
+      return result;
+    }
+
+    public TCollection ReadNullableAtomCollection<TCollection>() where TCollection : class, ICollection<Atom?>, new()
+      => ReadCollection<TCollection, Atom?>(bix => bix.ReadNullableAtom());
+
+    public Atom?[] ReadNullableAtomArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_LONG_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "atom?", Format.MAX_LONG_ARRAY_LEN));
+
+      var result = new Atom?[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadNullableAtom();
+
+      return result;
+    }
+    #endregion
 
     #region Collection
     /// <summary>
