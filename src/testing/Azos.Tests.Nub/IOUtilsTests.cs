@@ -50,5 +50,67 @@ namespace Azos.Tests.Nub
         Base64FullCycle(a);
       }
     }
+
+    [Run("v='1883739E-48F0-4FA7-9DF2-AF6B067D605D'")]
+    [Run("v='F13C9A02-C1BF-4C1A-89F7-19DB1CD441F7'")]
+    [Run("v='3FAF3D3E-1DEA-43E8-8684-DF046CC10498'")]
+    [Run("v='450F098F-FA0B-4CE1-BE3C-03665945C77E'")]
+    public void GuidCasting(Guid v)
+    {
+      var tpl = IOUtils.CastGuidToLongs(v);
+      var got = IOUtils.CastGuidFromLongs(tpl.s1, tpl.s2);
+      Aver.AreEqual(v, got);
+      v.See();
+      got.See();
+    }
+
+    [Run("v='1883739E-48F0-4FA7-9DF2-AF6B067D605D'")]
+    [Run("v='F13C9A02-C1BF-4C1A-89F7-19DB1CD441F7'")]
+    [Run("v='3FAF3D3E-1DEA-43E8-8684-DF046CC10498'")]
+    [Run("v='450F098F-FA0B-4CE1-BE3C-03665945C77E'")]
+    public void FastGuidEncoding(Guid v)
+    {
+      var buf = new byte[32];
+      buf.FastEncodeGuid(0, v);
+      var got = buf.FastDecodeGuid(0);
+      Aver.AreEqual(v, got);
+      v.See();
+      got.See();
+    }
+
+//// - BenchmarkFastGuidEncoding
+////ToByteArray()    does  69,902,950 ops/sec
+////FastEncodeGuid() does 161,775,859 ops/sec
+
+    [Run("!guidbench","")]
+    public void BenchmarkFastGuidEncoding()
+    {
+      const int CNT = 25_000_000;
+      var v = Guid.Parse("3FAF3D3E-1DEA-43E8-8684-DF046CC10498");
+      var buf = new byte[32];
+
+      var t = Azos.Time.Timeter.StartNew();
+      for(var i=0; i<CNT; i++)
+      {
+        v.ToByteArray();
+      }
+      t.Stop();
+
+      var e1 = t.ElapsedSec;
+      t = Azos.Time.Timeter.StartNew();
+      for (var i = 0; i < CNT; i++)
+      {
+        buf.FastEncodeGuid(0, v);
+      //  IOUtils.CastGuidToLongs(v);
+      }
+      t.Stop();
+      var e2 = t.ElapsedSec;
+
+      "\nToByteArray() does {0:n0} ops/sec".SeeArgs(CNT/e1);
+      "\nFastEncodeGuid() does {0:n0} ops/sec".SeeArgs(CNT / e2);
+
+    }
+
+
   }
 }

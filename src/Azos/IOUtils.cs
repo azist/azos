@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Azos
@@ -41,6 +42,7 @@ namespace Azos
     /// </summary>
     Printable
   }
+
 
   /// <summary>
   /// Provides IO-related utility extensions
@@ -1241,6 +1243,64 @@ namespace Azos
                       buf[offset++],
                       buf[offset]);
     }
+
+
+    /// <summary>
+    /// Casts Guid data as a tuple of two longs. This is needed to avoid extra allocations
+    /// </summary>
+    public unsafe static (ulong s1, ulong s2) CastGuidToLongs(Guid value)
+    {
+      var praw = (ulong*)&value;
+      return (praw[0], praw[1]);
+    }
+
+    /// <summary>
+    /// Casts two longs as Guid. This is needed to avoid extra allocations
+    /// </summary>
+    public unsafe static Guid CastGuidFromLongs(ulong s1, ulong s2)
+    {
+      var result = Guid.Empty;
+      var praw = (ulong*)&result;
+      praw[0] = s1;
+      praw[1] = s2;
+      return result;
+    }
+
+    /// <summary>
+    /// Efficiently encodes guid into existing byte[] using re-casting thus avoiding extra copies and allocations
+    /// </summary>
+    public static unsafe void FastEncodeGuid(this byte[] buff, int offset, Guid value)
+    {
+      Aver.IsTrue(buff.NonNull(nameof(buff)).Length - offset >= 16, nameof(FastEncodeGuid));
+
+      fixed (byte* pBuff = buff)
+      {
+        var pfrom = (long*)&value;
+        var pto = (long*)(pBuff + offset);
+        pto[0] = pfrom[0];
+        pto[1] = pfrom[1];
+      }
+    }
+
+    /// <summary>
+    /// Efficiently decodes guid from the existing byte[] using re-casting thus avoiding extra copies and allocations
+    /// </summary>
+    public static unsafe Guid FastDecodeGuid(this byte[] buff, int offset)
+    {
+      Aver.IsTrue(buff.NonNull(nameof(buff)).Length - offset >= 16, nameof(FastDecodeGuid));
+
+      var result = Guid.Empty;
+      fixed (byte* pBuff = buff)
+      {
+        var pto = (long*)&result;
+        var pfrom = (long*)(pBuff + offset);
+        pto[0] = pfrom[0];
+        pto[1] = pfrom[1];
+      }
+
+      return result;
+    }
+
 
     /// <summary>
     /// Represents byte[] as a web-safe string, replacing `+` with `-` and `/` with `_`
