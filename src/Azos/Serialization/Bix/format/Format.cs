@@ -61,21 +61,25 @@ namespace Azos.Serialization.Bix
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static byte[] GetBuff32()
     {
-      if (ts_Buff32 == null)
+      var buf = ts_Buff32;
+      if (buf == null)
       {
-        ts_Buff32 = new byte[32];
+        buf = new byte[32];
+        ts_Buff32 = buf;
       }
-      return ts_Buff32;
+      return buf;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static byte[] GetStrBuff()
     {
-      if (ts_StrBuff == null)
+      var buf = ts_StrBuff;
+      if (buf == null)
       {
-        ts_StrBuff = new byte[STR_BUF_SZ];
+        buf = new byte[STR_BUF_SZ];
+        ts_StrBuff = buf;
       }
-      return ts_StrBuff;
+      return buf;
     }
 
   }

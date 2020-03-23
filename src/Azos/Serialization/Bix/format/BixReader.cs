@@ -976,6 +976,7 @@ namespace Azos.Serialization.Bix
 
     #endregion
 
+    #region TIMESPAN
     public TimeSpan ReadTimeSpan()
     {
       var ticks = this.ReadLong();
@@ -988,20 +989,53 @@ namespace Azos.Serialization.Bix
       return null;
     }
 
-    public unsafe Guid ReadGuid()
+    public TCollection ReadTimeSpanCollection<TCollection>() where TCollection : class, ICollection<TimeSpan>, new()
+     => ReadCollection<TCollection, TimeSpan>(bix => bix.ReadTimeSpan());
+
+    public TimeSpan[] ReadTimeSpanArray()
     {
-      var raw1 = ReadUlong();
-      var raw2 = ReadUlong();
+      if (!ReadBool()) return null;
 
-      var result = Guid.Empty;
+      var len = this.ReadInt();
+      if (len > Format.MAX_LONG_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "timespan", Format.MAX_LONG_ARRAY_LEN));
 
-      var pGuid = (ulong*)&result;
-      pGuid[0] = raw1;
-      pGuid[1] = raw2;
+      var result = new TimeSpan[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadTimeSpan();
 
       return result;
-      //var arr = this.ReadByteArray();//inefficient copy!!
-      //return new Guid(arr);
+    }
+
+    public TCollection ReadNullableTimeSpanCollection<TCollection>() where TCollection : class, ICollection<TimeSpan?>, new()
+     => ReadCollection<TCollection, TimeSpan?>(bix => bix.ReadNullableTimeSpan());
+
+    public TimeSpan?[] ReadNullableTimeSpanArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_LONG_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "timespan?", Format.MAX_LONG_ARRAY_LEN));
+
+      var result = new TimeSpan?[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadNullableTimeSpan();
+
+      return result;
+    }
+
+
+    #endregion
+
+    #region GUID
+    public unsafe Guid ReadGuid()
+    {
+      var buf = Format.GetBuff32();
+      ReadFromStream(buf, 16);
+      return buf.FastDecodeGuid(0);
     }
 
     public Guid? ReadNullableGuid()
@@ -1010,6 +1044,48 @@ namespace Azos.Serialization.Bix
       return null;
     }
 
+    public TCollection ReadGuidCollection<TCollection>() where TCollection : class, ICollection<Guid>, new()
+     => ReadCollection<TCollection, Guid>(bix => bix.ReadGuid());
+
+    public Guid[] ReadGuidArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_GUID_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "guid", Format.MAX_GUID_ARRAY_LEN));
+
+      var result = new Guid[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadGuid();
+
+      return result;
+    }
+
+    public TCollection ReadNullableGuidCollection<TCollection>() where TCollection : class, ICollection<Guid?>, new()
+     => ReadCollection<TCollection, Guid?>(bix => bix.ReadNullableGuid());
+
+    public Guid?[] ReadNullableGuidArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_GUID_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "guid?", Format.MAX_GUID_ARRAY_LEN));
+
+      var result = new Guid?[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadNullableGuid();
+
+      return result;
+    }
+
+
+    #endregion
+
+    #region GDID
     public Data.GDID ReadGDID()
     {
       var era = ReadUint();
@@ -1023,19 +1099,102 @@ namespace Azos.Serialization.Bix
       return null;
     }
 
+
+    public TCollection ReadGDIDCollection<TCollection>() where TCollection : class, ICollection<Data.GDID>, new()
+     => ReadCollection<TCollection, Data.GDID>(bix => bix.ReadGDID());
+
+    public Data.GDID[] ReadGDIDArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_GDID_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "gdid", Format.MAX_GDID_ARRAY_LEN));
+
+      var result = new Data.GDID[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadGDID();
+
+      return result;
+    }
+
+    public TCollection ReadNullableGDIDCollection<TCollection>() where TCollection : class, ICollection<Data.GDID?>, new()
+      => ReadCollection<TCollection, Data.GDID?>(bix => bix.ReadNullableGDID());
+
+    public Data.GDID?[] ReadNullableGDIDArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_GDID_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "gdid?", Format.MAX_GDID_ARRAY_LEN));
+
+      var result = new Data.GDID?[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadNullableGDID();
+
+      return result;
+    }
+
+    #endregion
+
+
+    #region FID
     public FID ReadFID()
     {
       var id = m_Stream.ReadBEUInt64();
       return new FID(id);
     }
 
-    public FID? ReadNullableFIDt()
+    public FID? ReadNullableFID()
     {
       if (ReadBool()) return ReadFID();
       return null;
     }
 
+    public TCollection ReadFIDCollection<TCollection>() where TCollection : class, ICollection<FID>, new()
+     => ReadCollection<TCollection, FID>(bix => bix.ReadFID());
 
+    public FID[] ReadFIDArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_LONG_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "fid", Format.MAX_LONG_ARRAY_LEN));
+
+      var result = new FID[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadFID();
+
+      return result;
+    }
+
+    public TCollection ReadNullableFIDCollection<TCollection>() where TCollection : class, ICollection<FID?>, new()
+      => ReadCollection<TCollection, FID?>(bix => bix.ReadNullableFID());
+
+    public FID?[] ReadNullableFIDArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_LONG_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "fid?", Format.MAX_LONG_ARRAY_LEN));
+
+      var result = new FID?[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadNullableFID();
+
+      return result;
+    }
+
+    #endregion
+
+    #region PilePointer
     public Pile.PilePointer ReadPilePointer()
     {
       var node = this.ReadInt();
@@ -1050,6 +1209,46 @@ namespace Azos.Serialization.Bix
       return null;
     }
 
+    public TCollection ReadPilePointerCollection<TCollection>() where TCollection : class, ICollection<Pile.PilePointer>, new()
+    => ReadCollection<TCollection, Pile.PilePointer>(bix => bix.ReadPilePointer());
+
+    public Pile.PilePointer[] ReadPilePointerArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_PPTR_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "pptr", Format.MAX_PPTR_ARRAY_LEN));
+
+      var result = new Pile.PilePointer[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadPilePointer();
+
+      return result;
+    }
+
+    public TCollection ReadNullablePilePointerCollection<TCollection>() where TCollection : class, ICollection<Pile.PilePointer?>, new()
+      => ReadCollection<TCollection, Pile.PilePointer?>(bix => bix.ReadNullablePilePointer());
+
+    public Pile.PilePointer?[] ReadNullablePilePointerArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_LONG_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "fid?", Format.MAX_LONG_ARRAY_LEN));
+
+      var result = new Pile.PilePointer?[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadNullablePilePointer();
+
+      return result;
+    }
+    #endregion
+
+    #region NLSMap
     public NLSMap ReadNLSMap()
     {
       var cnt = ReadUshort();
@@ -1077,6 +1276,46 @@ namespace Azos.Serialization.Bix
       return null;
     }
 
+    public TCollection ReadNLSMapCollection<TCollection>() where TCollection : class, ICollection<NLSMap>, new()
+    => ReadCollection<TCollection, NLSMap>(bix => bix.ReadNLSMap());
+
+    public NLSMap[] ReadNLSMapArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_NLS_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "nls", Format.MAX_NLS_ARRAY_LEN));
+
+      var result = new NLSMap[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadNLSMap();
+
+      return result;
+    }
+
+    public TCollection ReadNullableNLSMapCollection<TCollection>() where TCollection : class, ICollection<NLSMap?>, new()
+      => ReadCollection<TCollection, NLSMap?>(bix => bix.ReadNullableNLSMap());
+
+    public NLSMap?[] ReadNullableNLSMapArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_NLS_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "nls?", Format.MAX_NLS_ARRAY_LEN));
+
+      var result = new NLSMap?[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadNullableNLSMap();
+
+      return result;
+    }
+    #endregion
+
+    #region AMOUNT
     public Financial.Amount ReadAmount()
     {
       var iso = ReadString();
@@ -1091,6 +1330,46 @@ namespace Azos.Serialization.Bix
       return null;
     }
 
+    public TCollection ReadAmountCollection<TCollection>() where TCollection : class, ICollection<Financial.Amount>, new()
+    => ReadCollection<TCollection, Financial.Amount>(bix => bix.ReadAmount());
+
+    public Financial.Amount[] ReadAmountArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_AMOUNT_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "amount", Format.MAX_AMOUNT_ARRAY_LEN));
+
+      var result = new Financial.Amount[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadAmount();
+
+      return result;
+    }
+
+    public TCollection ReadNullableAmountCollection<TCollection>() where TCollection : class, ICollection<Financial.Amount?>, new()
+      => ReadCollection<TCollection, Financial.Amount?>(bix => bix.ReadNullableAmount());
+
+    public Financial.Amount?[] ReadNullableAmountArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_AMOUNT_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "amount?", Format.MAX_AMOUNT_ARRAY_LEN));
+
+      var result = new Financial.Amount?[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadNullableAmount();
+
+      return result;
+    }
+    #endregion
+
+    #region STRING MAP
     public Collections.StringMap ReadStringMap()
     {
       if (!ReadBool()) return null;
@@ -1109,6 +1388,26 @@ namespace Azos.Serialization.Bix
 
       return new Collections.StringMap(senseCase, dict);
     }
+
+    public TCollection ReadStringMapCollection<TCollection>() where TCollection : class, ICollection<Collections.StringMap>, new()
+      => ReadCollection<TCollection, Collections.StringMap>(bix => bix.ReadStringMap());
+
+    public Collections.StringMap[] ReadStringMapArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = this.ReadInt();
+      if (len > Format.MAX_SMAP_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "smap", Format.MAX_SMAP_ARRAY_LEN));
+
+      var result = new Collections.StringMap[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadStringMap();
+
+      return result;
+    }
+    #endregion
 
     public Atom ReadAtom() => new Atom(ReadUlong());
 

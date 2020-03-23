@@ -1043,17 +1043,9 @@ namespace Azos.Serialization.Bix
     #region GUID
     public unsafe void Write(Guid value)
     {
-      ulong raw1 = 0;
-      ulong raw2 = 0;
-
-      var pGuid = (ulong*)&value;
-      raw1 = pGuid[0];
-      raw2 = pGuid[1];
-
-      Write(raw1);
-      Write(raw2);
-
-      //WriteBuffer(value.ToByteArray());
+      var buf = Format.GetBuff32();
+      buf.FastEncodeGuid(0, value);
+      m_Stream.Write(buf, 0, 16);
     }
 
     public void WriteCollection(ICollection<Guid> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));

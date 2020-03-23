@@ -34,9 +34,14 @@ namespace Azos.Serialization.Bix
     Buffer,
 
     /// <summary>
-    /// Data Document object
+    /// Data Document object without type ID
     /// </summary>
     Doc,
+
+    /// <summary>
+    /// Data Document object prefixed with document type ID
+    /// </summary>
+    DocWithType,
 
     /// <summary>
     /// Json Payload
@@ -109,7 +114,9 @@ namespace Azos.Serialization.Bix
     PilePointerNull,
 
     NLSMap,
-    NLSMapNull
+    NLSMapNull,
+
+    StringMap
   }
 
 }
