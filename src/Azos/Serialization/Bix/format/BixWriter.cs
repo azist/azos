@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -24,6 +25,9 @@ namespace Azos.Serialization.Bix
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Flush() => m_Stream.Flush();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(TypeCode type) => m_Stream.WriteByte((byte)type);
 
     #region BYTE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1505,6 +1509,37 @@ namespace Azos.Serialization.Bix
 
       Write(json);
     }
+
+    //public void WriteCollectionOfAnyValue(ICollection<object> value, string targetName) => WriteCollection(value, (bix, elm) => bix.WriteAnyValue(elm, targetName));
+
+    //public void WriteAnyValue(object value, string targetName)
+    //{
+    //  var tp = GetTypeCode(value);
+    //  Write((byte)tp);
+    //  if (value==null) return;
+
+    //}
+    //#endregion
+
+    //#region JsonDataMap
+    //public void WriteMap(IDictionary<string, object> value, string targetName)
+    //{
+    //  if (value == null)
+    //  {
+    //    Write(false);
+    //    return;
+    //  }
+    //  Write(true);
+
+    //  Write(value.CaseSensitive);
+    //  Write((int)value.Count);
+
+    //  foreach(var kvp in value)
+    //  {
+    //    Write(kvp.Key);
+    //    WriteAnyValue(kvp.Value, targetName);
+    //  }
+    //}
     #endregion
 
     #region Collection

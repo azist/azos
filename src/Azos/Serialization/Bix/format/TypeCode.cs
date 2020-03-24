@@ -12,9 +12,9 @@ namespace Azos.Serialization.Bix
   /// Arrays write .Array prefix first then the element type
   /// Complex object are serialized as JSON
   /// </summary>
-  public enum DataType : byte
+  public enum TypeCode : byte
   {
-    Reserved = 0,
+    Null = 0,
 
     /// <summary>
     /// Array is a prefix code which is followed by array element type. Arrays are length-prefixed
@@ -26,7 +26,7 @@ namespace Azos.Serialization.Bix
     /// Lists are collections of elements just like arrays but are written using IEnumerable so they are more generic.
     /// Lists perform slower than arrays but offer greater flexibility
     /// </summary>
-    List,
+    Collection,
 
     /// <summary>
     /// Effectively a special optimization for raw byte array
@@ -44,7 +44,7 @@ namespace Azos.Serialization.Bix
     DocWithType,
 
     /// <summary>
-    /// Json Payload
+    /// Json-serialized payloa Payload
     /// </summary>
     Object,
 
@@ -116,7 +116,8 @@ namespace Azos.Serialization.Bix
     NLSMap,
     NLSMapNull,
 
-    StringMap
+    StringMap,
+    JsonDataMap
   }
 
 }
