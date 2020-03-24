@@ -47,8 +47,8 @@ namespace Azos.Serialization.Bix
                                                           //Encoding.GetByteCount() to save time
 
 
-    public const byte HDR1 = 0x3A;
-    public const byte HDR2 = 0xA3;
+    public const byte HDR1 = 0xB1;
+    public const int HDR2 = 0b1010_0000;
 
     public const byte NULL = 0x00;
 

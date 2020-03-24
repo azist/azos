@@ -45,7 +45,7 @@ namespace Azos.Serialization.Bix
   public static class Bixer
   {
     private static object s_Lock = new object();
-    private static volatile Dictionary<TargetedType, BixCore> s_Index = new Dictionary<TargetedType, BixCore>();
+    internal static volatile Dictionary<TargetedType, BixCore> s_Index = new Dictionary<TargetedType, BixCore>();
 
 
     /// <summary>
@@ -137,35 +137,30 @@ namespace Azos.Serialization.Bix
       }
     }
 
-    public static void Serialize<T>(T doc, BixWriter writer, BixContext ctx = null) where T : TypedDoc
+
+    public static void Serialize(BixWriter writer, object root, BixContext ctx = null)
     {
-      if (ctx==null) ctx = BixContext.ObtainDefault();
+      if (!writer.IsAssigned) throw new BixException(StringConsts.ARGUMENT_ERROR+"{0}.!Assigned".Args(nameof(BixWriter)));
 
-      var ttp = new TargetedType(ctx.TargetName, doc.GetType());//actual type of payload
-      if (!s_Index.TryGetValue(ttp, out var core) || !(core is BixCore<T> coreT))
-        throw new BixException(StringConsts.BIX_TYPE_NOT_SUPPORTED_ERROR.Args(ttp));
-
-
-      if (doc is IAmorphousData ad && ad.AmorphousDataEnabled)
-      {
-        ad.BeforeSave(ctx.TargetName);
-      }
+      if (ctx == null) ctx = BixContext.ObtainDefault();
 
       //1 Header
-      if (ctx.HasHeader) Writer.WriteHeader(writer);
+      if (ctx.HasHeader) Writer.WriteHeader(writer, ctx);
 
-      //2 Body
-      coreT.Serialize(doc, writer);
-
-      //3 EORow
-      Writer.WriteEORow(writer);
+      //2 Payload
+      Writer.WriteAny(writer, root, ctx);
 
       ctx.DisposeDefault();
     }
 
+    public static object Deserialize(BixReader reader, BixContext ctx = null)
+    {
+      return null;
+    }
+
     public static T Deserialize<T>(BixReader reader, BixContext ctx = null) where T : TypedDoc
     {
-      var (got, ok) = TryDeserialize<T>(reader, ctx);
+      var (got, ok) = TryDeserializeRootOrInternal<T>(true, reader, ctx);
 
       if (!ok)
         throw new BixException(StringConsts.BIX_TYPE_NOT_SUPPORTED_ERROR.Args(typeof(T).FullName));

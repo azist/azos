@@ -23,6 +23,8 @@ namespace Azos.Serialization.Bix
 
     private readonly Stream m_Stream;
 
+    public bool IsAssigned => m_Stream!=null;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Flush() => m_Stream.Flush();
 
@@ -565,6 +567,7 @@ namespace Azos.Serialization.Bix
 
     #region ULONG
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(ulong value)
     {
       var has = true;
@@ -1402,47 +1405,6 @@ namespace Azos.Serialization.Bix
     }
     #endregion
 
-    #region STRING MAP
-    //why do we need screen map? only for optimization of serialization better than JsonMap?
-    public void Write(Collections.StringMap map)
-    {
-      if (map==null)
-      {
-        Write(false);
-        return;
-      }
-      Write(true);
-
-      Write(map.CaseSensitive);
-      Write((int)map.Count);
-
-      foreach (var kvp in map)
-      {
-        Write(kvp.Key);
-        Write(kvp.Value);
-      }
-    }
-
-    public void WriteCollection(ICollection<Collections.StringMap> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
-    public void Write(Collections.StringMap[] value)
-    {
-      if (value == null)
-      {
-        Write(false);
-        return;
-      }
-      Write(true);
-
-      var len = value.Length;
-      if (len > Format.MAX_SMAP_ARRAY_LEN)
-        throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "smap", Format.MAX_SMAP_ARRAY_LEN));
-
-      this.Write(len);
-      for (int i = 0; i < len; i++)
-        this.Write(value[i]);
-    }
-    #endregion
-
     #region Atom
     public void Write(Atom value) => Write(value.ID);
 
@@ -1497,49 +1459,17 @@ namespace Azos.Serialization.Bix
 
     #endregion
 
-    #region OBJECT (JSON)
-    public void WriteObject(object value, string targetName)
+    #region JSON (object)
+    public void WriteJson(object value, string targetName)
     {
       var target = JsonWritingOptions.CompactRowsAsMap;
       if (targetName.IsNotNullOrWhiteSpace())
       {
         target = new JsonWritingOptions(target){ RowMapTargetName = targetName };
       }
-      var json = JsonWriter.Write(value, JsonWritingOptions.CompactRowsAsMap);
 
-      Write(json);
+      JsonWriter.Write(value, m_Stream, target, Format.ENCODING);
     }
-
-    //public void WriteCollectionOfAnyValue(ICollection<object> value, string targetName) => WriteCollection(value, (bix, elm) => bix.WriteAnyValue(elm, targetName));
-
-    //public void WriteAnyValue(object value, string targetName)
-    //{
-    //  var tp = GetTypeCode(value);
-    //  Write((byte)tp);
-    //  if (value==null) return;
-
-    //}
-    //#endregion
-
-    //#region JsonDataMap
-    //public void WriteMap(IDictionary<string, object> value, string targetName)
-    //{
-    //  if (value == null)
-    //  {
-    //    Write(false);
-    //    return;
-    //  }
-    //  Write(true);
-
-    //  Write(value.CaseSensitive);
-    //  Write((int)value.Count);
-
-    //  foreach(var kvp in value)
-    //  {
-    //    Write(kvp.Key);
-    //    WriteAnyValue(kvp.Value, targetName);
-    //  }
-    //}
     #endregion
 
     #region Collection

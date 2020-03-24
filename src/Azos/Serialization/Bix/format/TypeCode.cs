@@ -44,9 +44,19 @@ namespace Azos.Serialization.Bix
     DocWithType,
 
     /// <summary>
-    /// Json-serialized payloa Payload
+    /// Json-serialized payload, which is the last resort
     /// </summary>
-    Object,
+    JsonObject,
+
+    /// <summary>
+    /// IDictionary(string, any)
+    /// </summary>
+    Map,
+
+    /// <summary>
+    /// IEnumerable(any)
+    /// </summary>
+    Sequence,
 
     Atom,
     AtomNull,
@@ -114,10 +124,7 @@ namespace Azos.Serialization.Bix
     PilePointerNull,
 
     NLSMap,
-    NLSMapNull,
-
-    StringMap,
-    JsonDataMap
+    NLSMapNull
   }
 
 }

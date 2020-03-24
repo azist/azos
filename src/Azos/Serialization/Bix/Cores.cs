@@ -16,6 +16,16 @@ namespace Azos.Serialization.Bix
   {
     /// <summary> Returns the target type which this BixCore implementation handles </summary>
     public abstract TargetedType TargetedType{ get; }
+
+    /// <summary>
+    /// Serializes typed data document into BixWriter
+    /// </summary>
+    public abstract void Serialize(BixWriter writer, TypedDoc doc, BixContext ctx);
+
+    /// <summary>
+    /// Deserializes typed data document from BixReader
+    /// </summary>
+    public abstract void Deserialize(BixReader reader, TypedDoc doc, BixContext ctx);
   }
 
   /// <summary>
@@ -36,11 +46,21 @@ namespace Azos.Serialization.Bix
     /// <summary>
     /// Serializes typed data document into BixWriter
     /// </summary>
-    public abstract void Serialize(T doc, BixWriter writer);
+    public sealed override void Serialize(BixWriter writer, TypedDoc doc, BixContext ctx) => SerializeCore(writer, (T)doc, ctx);
+
+    /// <summary>
+    /// Serializes typed data document into BixWriter
+    /// </summary>
+    public sealed override void Deserialize(BixReader reader, TypedDoc doc, BixContext ctx) => DeserializeCore(reader, (T)doc, ctx);
+
+    /// <summary>
+    /// Serializes typed data document into BixWriter
+    /// </summary>
+    public abstract void SerializeCore(BixWriter writer, T doc, BixContext ctx);
 
     /// <summary>
     /// Deserializes typed data document from BixWriter
     /// </summary>
-    public abstract void Deserialize(T doc, BixReader reader);
+    public abstract void DeserializeCore(BixReader reader, T doc, BixContext ctx);
   }
 }
