@@ -138,7 +138,7 @@ namespace Azos.Serialization.Bix
     }
 
 
-    public static void Serialize(BixWriter writer, object root, BixContext ctx = null)
+    public static void SerializeAny(BixWriter writer, object root, BixContext ctx = null)
     {
       if (!writer.IsAssigned) throw new BixException(StringConsts.ARGUMENT_ERROR+"{0}.!Assigned".Args(nameof(BixWriter)));
 
@@ -153,7 +153,22 @@ namespace Azos.Serialization.Bix
       ctx.DisposeDefault();
     }
 
-    public static object Deserialize(BixReader reader, BixContext ctx = null)
+    public static void Serialize(BixWriter writer, TypedDoc root, BixContext ctx = null)
+    {
+      if (!writer.IsAssigned) throw new BixException(StringConsts.ARGUMENT_ERROR + "{0}.!Assigned".Args(nameof(BixWriter)));
+
+      if (ctx == null) ctx = BixContext.ObtainDefault();
+
+      //1 Header
+      if (ctx.HasHeader) Writer.WriteHeader(writer, ctx);
+
+      //2 Payload
+      Writer.WriteDoc(writer, root, ctx);
+
+      ctx.DisposeDefault();
+    }
+
+    public static object DeserializeAny(BixReader reader, BixContext ctx = null)
     {
       return null;
     }

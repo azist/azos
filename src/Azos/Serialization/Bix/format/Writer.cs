@@ -824,10 +824,11 @@ namespace Azos.Serialization.Bix
 
     #region JSON / Object
     public static void WriteJson(BixWriter writer, object value, BixContext ctx) { writer.Write(TypeCode.JsonObject); writer.WriteJson(value, ctx.TargetName); }
-    public static void WriteFieldJson(BixWriter writer, ulong name, object value, BixContext ctx) { writer.Write(name); WriteJson(writer, value, ctx); }
     #endregion
 
     #region Any / Polymorphic
+
+    public static void WriteAnyField(BixWriter writer, ulong name, object value, BixContext ctx) { writer.Write(name); WriteAny(writer, value, ctx); }
 
     /// <summary>
     /// This functions writes "any" value from object. It is orders of magnitude slower than statically-linked type-safe code
@@ -847,6 +848,11 @@ namespace Azos.Serialization.Bix
         return;
       }
 
+      if (value is IBixWritable wri)//must be AFTER doc
+      {
+        if (wri.WriteToBix(writer, ctx)) return;
+      }
+
       var t = value.GetType(); //handle polymorphic
 
       //1 - Try to get direct type
@@ -858,7 +864,8 @@ namespace Azos.Serialization.Bix
       }
 
       //2 - Try to dispatch of ICollection<T>
-      if (value is ICollection)//quick reject filter
+      var sequence = value as ICollection;
+      if (sequence != null)//quick reject filter
       {
         foreach(var ti in t.GetInterfaces().Where(ti => ti.GetGenericTypeDefinition() == typeof(ICollection<>)))
         {
@@ -873,7 +880,7 @@ namespace Azos.Serialization.Bix
 
       //3 - try MAP and generic collection[T]
       if (value is IDictionary<string, object> map){ WriteMap(writer, map, ctx); return; }
-      if (value is ICollection seq) { WriteSequence(writer, seq, ctx); return; }
+      if (sequence != null) { WriteSequence(writer, sequence, ctx); return; }
 
       //4 - as a last resort default to Json
       WriteJson(writer, value, ctx);
@@ -931,14 +938,16 @@ namespace Azos.Serialization.Bix
         return;
       }
 
-      var ttp = new TargetedType(ctx.TargetName, doc.GetType());//actual type of payload
+      var (ttp, handled) = ctx.OnDocWrite(writer, doc);//does amorphous.beforeSave()
+      if (handled) return;
+
+      if (doc is IBixWritable wri)
+      {
+        if (wri.WriteToBix(writer, ctx)) return;//handled by custom writer
+      }
+
       if (!Bixer.s_Index.TryGetValue(ttp, out var core))
         throw new BixException(StringConsts.BIX_TYPE_NOT_SUPPORTED_ERROR.Args(ttp));
-
-      if (doc is IAmorphousData ad && ad.AmorphousDataEnabled)//todo Add check for ctx.CallAmorphousBeforeSave
-      {
-        ad.BeforeSave(ctx.TargetName);
-      }
 
       if (ctx.PolymorphicFields)
         writer.Write(TypeCode.DocWithType);

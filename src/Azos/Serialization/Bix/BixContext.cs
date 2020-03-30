@@ -4,15 +4,18 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Data;
 using System;
+
+using Azos.Data;
+
+#pragma warning disable CA1063
 
 namespace Azos.Serialization.Bix
 {
   /// <summary>
   /// Provides context scope for Bix operations: serialization and de-serialization
   /// </summary>
-  public sealed class BixContext : IDisposable
+  public class BixContext : IDisposable
   {
     public const int DEFAULT_MAX_DEPTH = 32;
 
@@ -22,16 +25,16 @@ namespace Azos.Serialization.Bix
     /// Returns an instance of context initialized for making local blocking call.
     /// The instance needs to be released by calling .Dispose()
     /// </summary>
-    public static BixContext Obtain(string targetName  =  null,
+    public static T Obtain<T>(string targetName  =  null,
                                 int maxDepth       =  DEFAULT_MAX_DEPTH,
                                 bool hasHeader     =  true,
                                 bool polyRoot      =  true,
                                 bool polyField     =  true,
-                                object state       =  null)
+                                object state       =  null) where T : BixContext, new()
     {
-      var self = ts_Instance;
+      var self = ts_Instance as T;
       if (self==null)
-        self = new BixContext();
+        self = new T();
       else
         ts_Instance = null;
 
@@ -63,7 +66,7 @@ namespace Azos.Serialization.Bix
     /// <summary>
     /// Recycles the instance so it can be re-used by the next call to .Obtain()
     /// </summary>
-    public void Dispose()
+    public virtual void Dispose()
     {
       m_Default = false;
       State = null;
@@ -81,5 +84,23 @@ namespace Azos.Serialization.Bix
     public bool    PolymorphicRoot   { get; private set; }
     public bool    PolymorphicFields { get; private set; }
     public object  State             { get; private set; }
+
+    /// <summary>
+    /// Override to get targeted type of the document to write and perform other pre-processing such
+    /// as calling IAmorphousData.BeforeSave(TargetName) if enabled
+    /// Return true if your method handled serialization (in which case you need to write appropriate TypeCode),
+    /// false to indicate that writing is not handled by your code and the system should continue writing
+    /// </summary>
+    protected internal virtual (TargetedType type, bool handled) OnDocWrite(BixWriter writer, TypedDoc doc)
+    {
+      if (doc is IAmorphousData ad && ad.AmorphousDataEnabled)
+      {
+        ad.BeforeSave(TargetName);
+      }
+      return (new TargetedType(TargetName, doc.GetType()), false);
+    }
+
   }
 }
+
+#pragma warning restore CA1063
