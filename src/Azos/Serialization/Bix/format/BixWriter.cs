@@ -875,7 +875,6 @@ namespace Azos.Serialization.Bix
     #endregion
 
     #region STRING
-#warning TRY to use stream of CHArs instead of encoding
     public void Write(string value)
     {
       if (value == null)

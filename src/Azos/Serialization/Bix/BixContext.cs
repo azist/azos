@@ -106,7 +106,7 @@ namespace Azos.Serialization.Bix
     public void IncreaseNesting()
     {
       m_Nesting++;
-      if (m_Nesting > MaxDepth) throw new BixException();
+      if (m_Nesting > MaxDepth) throw new BixException(StringConsts.BIX_MAX_SERIALIZATION_DEPTH_ERROR.Args(MaxDepth));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
