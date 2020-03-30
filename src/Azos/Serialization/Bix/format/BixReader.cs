@@ -1369,46 +1369,6 @@ namespace Azos.Serialization.Bix
     }
     #endregion
 
-    #region STRING MAP
-    public Collections.StringMap ReadStringMap()
-    {
-      if (!ReadBool()) return null;
-
-      var senseCase = ReadBool();
-
-      var dict = Collections.StringMap.MakeDictionary(senseCase);
-
-      var count = ReadInt();
-      for (var i = 0; i < count; i++)
-      {
-        var key = ReadString();
-        var value = ReadString();
-        dict[key] = value;
-      }
-
-      return new Collections.StringMap(senseCase, dict);
-    }
-
-    public TCollection ReadStringMapCollection<TCollection>() where TCollection : class, ICollection<Collections.StringMap>, new()
-      => ReadCollection<TCollection, Collections.StringMap>(bix => bix.ReadStringMap());
-
-    public Collections.StringMap[] ReadStringMapArray()
-    {
-      if (!ReadBool()) return null;
-
-      var len = this.ReadInt();
-      if (len > Format.MAX_SMAP_ARRAY_LEN)
-        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "smap", Format.MAX_SMAP_ARRAY_LEN));
-
-      var result = new Collections.StringMap[len];
-
-      for (int i = 0; i < len; i++)
-        result[i] = ReadStringMap();
-
-      return result;
-    }
-    #endregion
-
     #region ATOM
     public Atom ReadAtom() => new Atom(ReadUlong());
 

@@ -65,7 +65,7 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_BYTE_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "byte", Format.MAX_BYTE_ARRAY_LEN));
 
-      Write(len);
+      Write((uint)len);
       m_Stream.Write(buffer, 0, len);
     }
 
@@ -83,9 +83,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_BYTE_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "byte?", Format.MAX_BYTE_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     #endregion
@@ -119,9 +119,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_BYTE_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "bool", Format.MAX_BYTE_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     public void WriteCollection(ICollection<bool?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
@@ -138,9 +138,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_BYTE_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "bool?", Format.MAX_BYTE_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
     #endregion
 
@@ -172,9 +172,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_BYTE_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "sbyte", Format.MAX_BYTE_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     public void WriteCollection(ICollection<sbyte?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
@@ -191,14 +191,13 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_BYTE_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "sbyte?", Format.MAX_BYTE_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
     #endregion
 
     #region SHORT
-
     public void Write(short value)
     {
       byte b = 0;
@@ -251,9 +250,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_SHORT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "short", Format.MAX_SHORT_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]); //WITH compression of every element
+        Write(value[i]); //WITH compression of every element
     }
 
     public void WriteCollection(ICollection<short?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
@@ -270,16 +269,13 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_SHORT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "short?", Format.MAX_SHORT_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]); //WITH compression of every element
+        Write(value[i]); //WITH compression of every element
     }
-
-
     #endregion
 
     #region USHORT
-
     public void Write(ushort value)
     {
       var has = true;
@@ -319,9 +315,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_SHORT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "ushort", Format.MAX_SHORT_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]); //WITH compression of every element
+        Write(value[i]); //WITH compression of every element
     }
 
     public void WriteCollection(ICollection<ushort?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
@@ -338,9 +334,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_SHORT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "ushort?", Format.MAX_SHORT_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]); //WITH compression of every element
+        Write(value[i]); //WITH compression of every element
     }
     #endregion
 
@@ -397,9 +393,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_INT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "int", Format.MAX_INT_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]); //WITH compression of every element
+        Write(value[i]); //WITH compression of every element
     }
 
     public void WriteCollection(ICollection<int?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
@@ -416,13 +412,14 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_INT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "int?", Format.MAX_INT_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]); //WITH compression of every element
+        Write(value[i]); //WITH compression of every element
     }
     #endregion
 
     #region UINT
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(uint value)
     {
       var has = true;
@@ -462,9 +459,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_INT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "uint", Format.MAX_INT_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]); //WITH compression of every element
+        Write(value[i]); //WITH compression of every element
     }
 
     public void WriteCollection(ICollection<uint?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
@@ -481,9 +478,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_INT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "uint?", Format.MAX_INT_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]); //WITH compression of every element
+        Write(value[i]); //WITH compression of every element
     }
     #endregion
 
@@ -540,9 +537,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "long", Format.MAX_LONG_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]); //WITH compression of every element
+        Write(value[i]); //WITH compression of every element
     }
 
     public void WriteCollection(ICollection<long?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
@@ -559,9 +556,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "long?", Format.MAX_LONG_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]); //WITH compression of every element
+        Write(value[i]); //WITH compression of every element
     }
     #endregion
 
@@ -607,9 +604,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "ulong", Format.MAX_LONG_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]); //WITH compression of every element
+        Write(value[i]); //WITH compression of every element
     }
 
     public void WriteCollection(ICollection<ulong?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
@@ -626,9 +623,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "ulong?", Format.MAX_LONG_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]); //WITH compression of every element
+        Write(value[i]); //WITH compression of every element
     }
     #endregion
 
@@ -677,9 +674,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_DOUBLE_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "double", Format.MAX_DOUBLE_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     public void WriteCollection(ICollection<double?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
@@ -696,14 +693,13 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_DOUBLE_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "double?", Format.MAX_DOUBLE_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
     #endregion
 
     #region FLOAT
-
     public unsafe void Write(float value)
     {
       var buf = Format.GetBuff32();
@@ -740,9 +736,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_FLOAT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "float", Format.MAX_FLOAT_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     public void WriteCollection(ICollection<float?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
@@ -759,20 +755,19 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_FLOAT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "float?", Format.MAX_FLOAT_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
-
     #endregion
 
     #region DECIMAL
     public void Write(decimal value)
     {
       var bits = decimal.GetBits(value);
-      this.Write(bits[0]);
-      this.Write(bits[1]);
-      this.Write(bits[2]);
+      Write(bits[0]);
+      Write(bits[1]);
+      Write(bits[2]);
 
       byte sign = (bits[3] & 0x80000000) != 0 ? (byte)0x80 : (byte)0x00;
       byte scale = (byte)((bits[3] >> 16) & 0x7F);
@@ -805,9 +800,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_DECIMAL_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "decimal", Format.MAX_DECIMAL_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     public void WriteCollection(ICollection<decimal?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
@@ -824,9 +819,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_DECIMAL_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "decimal?", Format.MAX_DECIMAL_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
     #endregion
 
@@ -873,9 +868,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_SHORT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "char?", Format.MAX_SHORT_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
     #endregion
 
@@ -893,14 +888,14 @@ namespace Azos.Serialization.Bix
       var len = value.Length;
       if (len == 0)
       {
-        Write((int)0);
+        Write((uint)0);
         return;
       }
 
       if (len > Format.MAX_STR_LEN)//This is much faster than Encoding.GetByteCount()
       {
         var encoded = Format.ENCODING.GetBytes(value);
-        Write(encoded.Length);
+        Write((uint)encoded.Length);
         m_Stream.Write(encoded, 0, encoded.Length);
         return;
       }
@@ -909,7 +904,7 @@ namespace Azos.Serialization.Bix
       var buf = Format.GetStrBuff();
       var bcnt = Format.ENCODING.GetBytes(value, 0, len, buf, 0);
 
-      Write(bcnt);
+      Write((uint)bcnt);
       m_Stream.Write(buf, 0, bcnt);
     }
 
@@ -927,9 +922,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_STRING_ARRAY_CNT)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "string", Format.MAX_STRING_ARRAY_CNT));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
     #endregion
 
@@ -955,9 +950,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "datetime", Format.MAX_LONG_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     public void Write(DateTime? value)
@@ -985,7 +980,7 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "datetime?", Format.MAX_LONG_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
         this.Write(value[i]);
     }
@@ -1011,9 +1006,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "timespan", Format.MAX_LONG_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     public void Write(TimeSpan? value)
@@ -1041,9 +1036,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "timespan?", Format.MAX_LONG_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
     #endregion
 
@@ -1069,9 +1064,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_GUID_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "guid", Format.MAX_GUID_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     public void Write(Guid? value)
@@ -1099,7 +1094,7 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_GUID_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "guid?", Format.MAX_GUID_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
         this.Write(value[i]);
     }
@@ -1126,9 +1121,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_GDID_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "gdid", Format.MAX_GDID_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     public void Write(Data.GDID? value)
@@ -1156,7 +1151,7 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_GDID_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "gdid?", Format.MAX_GDID_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
         this.Write(value[i]);
     }
@@ -1182,9 +1177,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "fid", Format.MAX_LONG_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     public void Write(FID? value)
@@ -1212,9 +1207,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "fid?", Format.MAX_LONG_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     #endregion
@@ -1241,9 +1236,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_PPTR_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "pptr", Format.MAX_PPTR_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     public void Write(Pile.PilePointer? value)
@@ -1271,7 +1266,7 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_PPTR_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "pptr?", Format.MAX_PPTR_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
         this.Write(value[i]);
     }
@@ -1312,9 +1307,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_NLS_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "nls", Format.MAX_NLS_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     public void Write(NLSMap? value)
@@ -1342,9 +1337,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_NLS_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "nls?", Format.MAX_NLS_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
     #endregion
 
@@ -1369,9 +1364,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_AMOUNT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "amount", Format.MAX_AMOUNT_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     public void Write(Financial.Amount? value)
@@ -1399,9 +1394,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_AMOUNT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "amount?", Format.MAX_AMOUNT_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
     #endregion
 
@@ -1422,9 +1417,9 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "atom", Format.MAX_LONG_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
 
     public void Write(Atom? value)
@@ -1452,11 +1447,10 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "atom?", Format.MAX_LONG_ARRAY_LEN));
 
-      this.Write(len);
+      Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
-
     #endregion
 
     #region JSON (object)
@@ -1491,7 +1485,7 @@ namespace Azos.Serialization.Bix
       if (len > Format.MAX_COLLECTION_LEN)
         throw new BixException(StringConsts.BIX_WRITE_X_COLLECTION_MAX_SIZE_ERROR.Args(len, typeof(T).Name, Format.MAX_COLLECTION_LEN));
 
-      Write(len);
+      Write((uint)len);
       foreach (var elm in value) write(this, elm);
     }
     #endregion

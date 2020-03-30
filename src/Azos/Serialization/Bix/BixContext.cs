@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using System.Runtime.CompilerServices;
 using Azos.Data;
 
 #pragma warning disable CA1063
@@ -62,6 +62,7 @@ namespace Azos.Serialization.Bix
     }
 
     private bool m_Default;
+    private int m_Nesting;
 
     /// <summary>
     /// Recycles the instance so it can be re-used by the next call to .Obtain()
@@ -69,6 +70,7 @@ namespace Azos.Serialization.Bix
     public virtual void Dispose()
     {
       m_Default = false;
+      m_Nesting = 0;
       State = null;
       ts_Instance = this;
     }
@@ -98,6 +100,19 @@ namespace Azos.Serialization.Bix
         ad.BeforeSave(TargetName);
       }
       return (new TargetedType(TargetName, doc.GetType()), false);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void IncreaseNesting()
+    {
+      m_Nesting++;
+      if (m_Nesting > MaxDepth) throw new BixException();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void DecreaseNesting()
+    {
+      m_Nesting--;
     }
 
   }

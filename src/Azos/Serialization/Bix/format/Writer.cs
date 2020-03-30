@@ -842,12 +842,14 @@ namespace Azos.Serialization.Bix
         return;
       }
 
+      //1 - TypedDoc
       if (value is TypedDoc doc)
       {
         WriteDoc(writer, doc, ctx);
         return;
       }
 
+      //2 - Custom BixWritable
       if (value is IBixWritable wri)//must be AFTER doc
       {
         if (wri.WriteToBix(writer, ctx)) return;
@@ -855,7 +857,7 @@ namespace Azos.Serialization.Bix
 
       var t = value.GetType(); //handle polymorphic
 
-      //1 - Try to get direct type
+      //3 - Try to get direct type
       var fn = GetWriteFunctionForType(t);
       if (fn != null)
       {
@@ -863,7 +865,8 @@ namespace Azos.Serialization.Bix
         return;
       }
 
-      //2 - Try to dispatch of ICollection<T>
+
+      //4 - Try to dispatch of ICollection<T>
       var sequence = value as ICollection;
       if (sequence != null)//quick reject filter
       {
@@ -878,11 +881,11 @@ namespace Azos.Serialization.Bix
         }
       }
 
-      //3 - try MAP and generic collection[T]
+      //4 - try MAP and generic collection[T]
       if (value is IDictionary<string, object> map){ WriteMap(writer, map, ctx); return; }
       if (sequence != null) { WriteSequence(writer, sequence, ctx); return; }
 
-      //4 - as a last resort default to Json
+      //5 - as a last resort default to Json
       WriteJson(writer, value, ctx);
     }
 
@@ -898,14 +901,18 @@ namespace Azos.Serialization.Bix
       }
       writer.Write(true);
 
+      ctx.IncreaseNesting();//this throws on depth
+
       writer.Write(value is JsonDataMap jdm ? jdm.CaseSensitive : true);
-      writer.Write(value.Count);
+      writer.Write((uint)value.Count);
 
       foreach (var kvp in value)
       {
         writer.Write(kvp.Key);
         WriteAny(writer, kvp.Value, ctx);
       }
+
+      ctx.DecreaseNesting();
     }
 
     public static void WriteSequence(BixWriter writer, ICollection value, BixContext ctx)
@@ -919,12 +926,16 @@ namespace Azos.Serialization.Bix
       }
       writer.Write(true);
 
-      writer.Write(value.Count);
+      ctx.IncreaseNesting();//this throws on depth
+
+      writer.Write((uint)value.Count);
 
       foreach (var one in value)
       {
         WriteAny(writer, one, ctx);
       }
+
+      ctx.DecreaseNesting();
     }
     #endregion
 
@@ -937,6 +948,8 @@ namespace Azos.Serialization.Bix
         writer.Write(false);
         return;
       }
+
+      ctx.IncreaseNesting();//this throws on depth
 
       var (ttp, handled) = ctx.OnDocWrite(writer, doc);//does amorphous.beforeSave()
       if (handled) return;
@@ -957,6 +970,31 @@ namespace Azos.Serialization.Bix
       writer.Write(true);//not null
 
       core.Serialize(writer, doc, ctx);
+
+      ctx.DecreaseNesting();
+    }
+
+    public static void WriteDocSequence(BixWriter writer, ICollection<TypedDoc> value, BixContext ctx)
+    {
+      writer.Write(TypeCode.Sequence);
+
+      if (value == null)
+      {
+        writer.Write(false);
+        return;
+      }
+      writer.Write(true);
+
+      ctx.IncreaseNesting();//this throws on depth
+
+      writer.Write((uint)value.Count);
+
+      foreach (var one in value)
+      {
+        WriteDoc(writer, one, ctx);
+      }
+
+      ctx.DecreaseNesting();
     }
 
     #endregion
