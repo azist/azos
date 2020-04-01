@@ -633,7 +633,6 @@ namespace Azos.Serialization.Bix
 
     public unsafe void Write(double value)
     {
-#warning Why not use direct pointer cast and write UINT instead of buffer? or write byte-by-byte?
       var buf = Format.GetBuff32();
       ulong core = *(ulong*)(&value);
 
@@ -926,6 +925,10 @@ namespace Azos.Serialization.Bix
         Write(value[i]);
     }
     #endregion
+
+
+    ZAKONCHIL TYT
+
 
     #region DATETIME
 
