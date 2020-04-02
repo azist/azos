@@ -920,12 +920,7 @@ namespace Azos.Serialization.Bix
 
     #endregion
 
-
-    ZAKONCHIL TYT
-
-
     #region DATETIME
-
     public DateTime ReadDateTime()
     {
       var ticks = (long)m_Stream.ReadBEUInt64();
@@ -946,7 +941,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "datetime", Format.MAX_LONG_ARRAY_LEN));
 
@@ -965,7 +960,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "datetime?", Format.MAX_LONG_ARRAY_LEN));
 
@@ -976,7 +971,6 @@ namespace Azos.Serialization.Bix
 
       return result;
     }
-
     #endregion
 
     #region TIMESPAN
@@ -999,7 +993,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "timespan", Format.MAX_LONG_ARRAY_LEN));
 
@@ -1018,7 +1012,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "timespan?", Format.MAX_LONG_ARRAY_LEN));
 
@@ -1029,8 +1023,6 @@ namespace Azos.Serialization.Bix
 
       return result;
     }
-
-
     #endregion
 
     #region GUID
@@ -1054,7 +1046,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_GUID_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "guid", Format.MAX_GUID_ARRAY_LEN));
 
@@ -1073,7 +1065,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_GUID_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "guid?", Format.MAX_GUID_ARRAY_LEN));
 
@@ -1084,8 +1076,6 @@ namespace Azos.Serialization.Bix
 
       return result;
     }
-
-
     #endregion
 
     #region GDID
@@ -1110,7 +1100,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_GDID_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "gdid", Format.MAX_GDID_ARRAY_LEN));
 
@@ -1129,7 +1119,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_GDID_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "gdid?", Format.MAX_GDID_ARRAY_LEN));
 
@@ -1140,9 +1130,7 @@ namespace Azos.Serialization.Bix
 
       return result;
     }
-
     #endregion
-
 
     #region FID
     public FID ReadFID()
@@ -1164,7 +1152,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "fid", Format.MAX_LONG_ARRAY_LEN));
 
@@ -1219,7 +1207,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_PPTR_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "pptr", Format.MAX_PPTR_ARRAY_LEN));
 
@@ -1238,9 +1226,9 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
-      if (len > Format.MAX_LONG_ARRAY_LEN)
-        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "fid?", Format.MAX_LONG_ARRAY_LEN));
+      var len = ReadUint();
+      if (len > Format.MAX_PPTR_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "pptr?", Format.MAX_PPTR_ARRAY_LEN));
 
       var result = new Pile.PilePointer?[len];
 
@@ -1286,7 +1274,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_NLS_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "nls", Format.MAX_NLS_ARRAY_LEN));
 
@@ -1305,7 +1293,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_NLS_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "nls?", Format.MAX_NLS_ARRAY_LEN));
 
@@ -1340,7 +1328,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_AMOUNT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "amount", Format.MAX_AMOUNT_ARRAY_LEN));
 
@@ -1359,7 +1347,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_AMOUNT_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "amount?", Format.MAX_AMOUNT_ARRAY_LEN));
 
@@ -1388,7 +1376,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "atom", Format.MAX_LONG_ARRAY_LEN));
 
@@ -1407,7 +1395,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "atom?", Format.MAX_LONG_ARRAY_LEN));
 
@@ -1420,6 +1408,15 @@ namespace Azos.Serialization.Bix
     }
     #endregion
 
+    #region JSON (object)
+    public IJsonDataObject ReadJson()
+    {
+      var json = ReadString();
+      if (json.IsNullOrWhiteSpace()) return null;
+      return JsonReader.DeserializeDataObject(json, true);
+    }
+    #endregion
+
     #region Collection
     /// <summary>
     /// Reads a collection of T using a functor
@@ -1428,7 +1425,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = ReadInt();
+      var len = ReadUint();
       if (len > Format.MAX_COLLECTION_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, typeof(T).Name, Format.MAX_COLLECTION_LEN));
 

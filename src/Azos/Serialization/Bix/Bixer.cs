@@ -187,37 +187,39 @@ namespace Azos.Serialization.Bix
     {
       if (ctx == null) ctx = BixContext.ObtainDefault();
 
-      //1 Header
-      if (ctx.HasHeader) Reader.ReadHeader(reader);
+      throw new NotImplementedException();
 
-      TargetedType ttp;
-      if ((root && ctx.PolymorphicRoot) || (!root && ctx.PolymorphicFields))
-      {
-        //read type identity from stream
-        ttp = new TargetedType();//todo
-      }
-      else
-      {
-        //take type identity from t
-        ttp = new TargetedType(ctx.TargetName, typeof(T));
-      }
+      ////1 Header
+      //if (ctx.HasHeader) Reader.ReadHeader(reader);
 
-      if (!s_Index.TryGetValue(ttp, out var core) || !(core is BixCore<T> coreT))
-        return (null, false);
+      //TargetedType ttp;
+      //if ((root && ctx.PolymorphicRoot) || (!root && ctx.PolymorphicFields))
+      //{
+      //  //read type identity from stream
+      //  ttp = new TargetedType();//todo
+      //}
+      //else
+      //{
+      //  //take type identity from t
+      //  ttp = new TargetedType(ctx.TargetName, typeof(T));
+      //}
 
-      T doc = SerializationUtils.MakeNewObjectInstance(ttp.Type) as T;
+      //if (!s_Index.TryGetValue(ttp, out var core) || !(core is BixCore<T> coreT))
+      //  return (null, false);
 
-      //2 Body
-      coreT.Deserialize(doc, reader);
+      //T doc = SerializationUtils.MakeNewObjectInstance(ttp.Type) as T;
 
-      if (doc is IAmorphousData ad && ad.AmorphousDataEnabled)
-      {
-        ad.AfterLoad(ctx.TargetName);
-      }
+      ////2 Body
+      //coreT.Deserialize(doc, reader);
 
-      ctx.DisposeDefault();
+      //if (doc is IAmorphousData ad && ad.AmorphousDataEnabled)
+      //{
+      //  ad.AfterLoad(ctx.TargetName);
+      //}
 
-      return (doc, true);
+      //ctx.DisposeDefault();
+
+      //return (doc, true);
     }
 
   }

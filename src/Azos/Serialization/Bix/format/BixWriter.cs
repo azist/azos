@@ -926,16 +926,22 @@ namespace Azos.Serialization.Bix
     }
     #endregion
 
-
-    ZAKONCHIL TYT
-
-
     #region DATETIME
-
     public void Write(DateTime value)
     {
       m_Stream.WriteBEUInt64((ulong)value.Ticks);
       m_Stream.WriteByte((byte)value.Kind);
+    }
+
+    public void Write(DateTime? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
     }
 
     public void WriteCollection(ICollection<DateTime> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
@@ -957,16 +963,6 @@ namespace Azos.Serialization.Bix
         Write(value[i]);
     }
 
-    public void Write(DateTime? value)
-    {
-      if (value.HasValue)
-      {
-        Write(true);
-        Write(value.Value);
-        return;
-      }
-      Write(false);
-    }
 
     public void WriteCollection(ICollection<DateTime?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
     public void Write(DateTime?[] value)
@@ -984,7 +980,7 @@ namespace Azos.Serialization.Bix
 
       Write((uint)len);
       for (int i = 0; i < len; i++)
-        this.Write(value[i]);
+        Write(value[i]);
     }
     #endregion
 
@@ -1052,6 +1048,17 @@ namespace Azos.Serialization.Bix
       m_Stream.Write(buf, 0, 16);
     }
 
+    public void Write(Guid? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public void WriteCollection(ICollection<Guid> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
     public void Write(Guid[] value)
     {
@@ -1071,16 +1078,6 @@ namespace Azos.Serialization.Bix
         Write(value[i]);
     }
 
-    public void Write(Guid? value)
-    {
-      if (value.HasValue)
-      {
-        Write(true);
-        Write(value.Value);
-        return;
-      }
-      Write(false);
-    }
 
     public void WriteCollection(ICollection<Guid?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
     public void Write(Guid?[] value)
@@ -1109,6 +1106,17 @@ namespace Azos.Serialization.Bix
       Write(value.ID);
     }
 
+    public void Write(Data.GDID? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public void WriteCollection(ICollection<Data.GDID> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
     public void Write(Data.GDID[] value)
     {
@@ -1126,17 +1134,6 @@ namespace Azos.Serialization.Bix
       Write((uint)len);
       for (int i = 0; i < len; i++)
         Write(value[i]);
-    }
-
-    public void Write(Data.GDID? value)
-    {
-      if (value.HasValue)
-      {
-        Write(true);
-        Write(value.Value);
-        return;
-      }
-      Write(false);
     }
 
     public void WriteCollection(ICollection<Data.GDID?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
@@ -1165,6 +1162,17 @@ namespace Azos.Serialization.Bix
       m_Stream.WriteBEUInt64(value.ID);
     }
 
+    public void Write(FID? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public void WriteCollection(ICollection<FID> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
     public void Write(FID[] value)
     {
@@ -1184,16 +1192,6 @@ namespace Azos.Serialization.Bix
         Write(value[i]);
     }
 
-    public void Write(FID? value)
-    {
-      if (value.HasValue)
-      {
-        Write(true);
-        Write(value.Value);
-        return;
-      }
-      Write(false);
-    }
 
     public void WriteCollection(ICollection<FID?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
     public void Write(FID?[] value)
@@ -1224,6 +1222,17 @@ namespace Azos.Serialization.Bix
       Write(value.Address);
     }
 
+    public void Write(Pile.PilePointer? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public void WriteCollection(ICollection<Pile.PilePointer> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
     public void Write(Pile.PilePointer[] value)
     {
@@ -1241,17 +1250,6 @@ namespace Azos.Serialization.Bix
       Write((uint)len);
       for (int i = 0; i < len; i++)
         Write(value[i]);
-    }
-
-    public void Write(Pile.PilePointer? value)
-    {
-      if (value.HasValue)
-      {
-        Write(true);
-        Write(value.Value);
-        return;
-      }
-      Write(false);
     }
 
     public void WriteCollection(ICollection<Pile.PilePointer?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
@@ -1289,7 +1287,7 @@ namespace Azos.Serialization.Bix
         var nd = map.m_Data[i];
         Write((byte)((nd.ISO & 0xff0000) >> 16));
         Write((byte)((nd.ISO & 0x00ff00) >> 08));
-        Write((byte)((nd.ISO & 0xFF)));
+        Write((byte)((nd.ISO & 0xff)));
         Write(nd.Name);
         Write(nd.Description);
       }
@@ -1352,6 +1350,17 @@ namespace Azos.Serialization.Bix
       Write(value.Value);
     }
 
+    public void Write(Financial.Amount? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public void WriteCollection(ICollection<Financial.Amount> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
     public void Write(Financial.Amount[] value)
     {
@@ -1371,16 +1380,6 @@ namespace Azos.Serialization.Bix
         Write(value[i]);
     }
 
-    public void Write(Financial.Amount? value)
-    {
-      if (value.HasValue)
-      {
-        Write(true);
-        Write(value.Value);
-        return;
-      }
-      Write(false);
-    }
 
     public void WriteCollection(ICollection<Financial.Amount?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
     public void Write(Financial.Amount?[] value)
@@ -1405,6 +1404,17 @@ namespace Azos.Serialization.Bix
     #region Atom
     public void Write(Atom value) => Write(value.ID);
 
+    public void Write(Atom? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
     public void WriteCollection(ICollection<Atom> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
     public void Write(Atom[] value)
     {
@@ -1424,16 +1434,6 @@ namespace Azos.Serialization.Bix
         Write(value[i]);
     }
 
-    public void Write(Atom? value)
-    {
-      if (value.HasValue)
-      {
-        Write(true);
-        Write(value.Value);
-        return;
-      }
-      Write(false);
-    }
 
     public void WriteCollection(ICollection<Atom?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
     public void Write(Atom?[] value)
@@ -1464,7 +1464,12 @@ namespace Azos.Serialization.Bix
         target = new JsonWritingOptions(target){ RowMapTargetName = targetName };
       }
 
-      JsonWriter.Write(value, m_Stream, target, Format.ENCODING);
+      //although size is not really needed as Json parser is a true FSM, specific implementation of Json backend
+      //may not support partial stream parsing, hence the size prefix (via string copy).
+      //This method does not have to be super-fast as it is used as the very last resort and is slow anyway
+      //Direct version would have been: JsonWriter.Write(value, m_Stream, target, Format.ENCODING);
+      var json = JsonWriter.Write(value, target);
+      Write(json);
     }
     #endregion
 
