@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Apps;
 using Azos.Data;
 
 namespace Azos.Serialization.Bix
@@ -16,21 +17,14 @@ namespace Azos.Serialization.Bix
   {
     protected BixCore()
     {
-      //var t = GetType();
-      //var a = BixAttribute.GetGuidTypeAttribute<TypedDoc, BixAttribute>(t);
-      //m_TypeId = IOUtils.CastGuidToLongs(a.TypeGuid);
+      var t = GetType(); //this should be T, not GetType!!!!
+     Attribute = BixAttribute.GetGuidTypeAttribute<TypedDoc, BixAttribute>(t);
     }
 
-    private (ulong, ulong) m_TypeId;
+    protected readonly BixAttribute Attribute;
 
     /// <summary> Returns the target type which this BixCore implementation handles </summary>
     public abstract TargetedType TargetedType{ get; }
-
-    /// <summary>
-    /// Returns a unique GUID for the type being Bixed.
-    /// The Guid is represented as a tuple of 2 ulongs for speed
-    /// </summary>
-    public (ulong, ulong) TypeId => m_TypeId;
 
     /// <summary>
     /// Serializes typed data document into BixWriter
