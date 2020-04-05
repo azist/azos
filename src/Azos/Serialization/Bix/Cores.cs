@@ -14,8 +14,23 @@ namespace Azos.Serialization.Bix
   /// </summary>
   public abstract class BixCore
   {
+    protected BixCore()
+    {
+      //var t = GetType();
+      //var a = BixAttribute.GetGuidTypeAttribute<TypedDoc, BixAttribute>(t);
+      //m_TypeId = IOUtils.CastGuidToLongs(a.TypeGuid);
+    }
+
+    private (ulong, ulong) m_TypeId;
+
     /// <summary> Returns the target type which this BixCore implementation handles </summary>
     public abstract TargetedType TargetedType{ get; }
+
+    /// <summary>
+    /// Returns a unique GUID for the type being Bixed.
+    /// The Guid is represented as a tuple of 2 ulongs for speed
+    /// </summary>
+    public (ulong, ulong) TypeId => m_TypeId;
 
     /// <summary>
     /// Serializes typed data document into BixWriter

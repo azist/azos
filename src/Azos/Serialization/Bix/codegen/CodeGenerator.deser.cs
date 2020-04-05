@@ -74,8 +74,8 @@ namespace Azos.Serialization.Bix
       var tcName = t.FullNameWithExpandedGenericArgs().Replace('+','.');
 
       //Specialized handling via dict
-      string code;
-      if (!Reader.DESER_TYPE_MAP.TryGetValue(t, out code)) //we go by the model that we have now, if what was ser does not match put it in amorphous
+      string code = null;
+  //    if (!Reader.DESER_TYPE_MAP.TryGetValue(t, out code)) //we go by the model that we have now, if what was ser does not match put it in amorphous
       {
         if (isNullable || !isValueType)
           source.AppendLine("           if (dt==DataType.Null) {{ doc.{0} = null; continue;}} ".Args(prop));

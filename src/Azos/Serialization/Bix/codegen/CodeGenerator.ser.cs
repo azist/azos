@@ -37,19 +37,20 @@ namespace Azos.Serialization.Bix
       if (name==0) return;//no name specified
 
       var prop = fdef.MemberInfo.Name;
-      var isNullable = fdef.Type != fdef.NonNullableType;
+      var tp = fdef.Type;
+      var isNullable = tp != fdef.NonNullableType;
 
       source.AppendLine("      // '{0}' = {1}".Args(fatr.BackendName, name));
 
       //if direct write is supported
-      if (Writer.IsWriteSupported(fdef.Type))
+      if (Writer.IsWriteSupported(tp))
       {
         source.AppendLine("      BWR.WriteField(writer, {0}, doc.{1});".Args(name, prop));
         return;
       }
 
       //has an interface<T> which supports direct write(intf<T>)
-      foreach (var ti in fdef.Type.GetInterfaces().Where(ti => ti.GetGenericTypeDefinition() == typeof(ICollection<>)))
+      foreach (var ti in tp.GetInterfaces().Where(ti => ti.GetGenericTypeDefinition() == typeof(ICollection<>)))
       {
         if (Writer.IsWriteSupported(ti))
         {
@@ -69,18 +70,17 @@ namespace Azos.Serialization.Bix
       }
 
       //is data document
-      if (typeof(TypedDoc).IsAssignableFrom(fdef.Type))
+      if (typeof(TypedDoc).IsAssignableFrom(tp))
       {
         source.AppendLine("      BWR.WriteDocField(writer, {0}, doc.{1}, ctx);".Args(name, prop));
         return;
       }
 
       //is IEnumerable of TypedDoc and use C# co-variance feature passing IEnumerable<MyDoc> into IEnumerable<Doc>
-      if (fdef.Type
-              .GetInterfaces()
-              .Any(ti => ti.GetGenericTypeDefinition() == typeof(IEnumerable<>) &&
-                          typeof(TypedDoc).IsAssignableFrom(ti.GetGenericArguments()[0])
-                  ))
+      if (tp.GetInterfaces()
+            .Any(ti => ti.GetGenericTypeDefinition() == typeof(IEnumerable<>) &&
+                       typeof(TypedDoc).IsAssignableFrom(ti.GetGenericArguments()[0])
+                ))
       {
         source.AppendLine("      BWR.WriteDocSequenceField(writer, {0}, doc.{1}, ctx);".Args(name, prop));
         return;
