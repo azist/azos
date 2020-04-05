@@ -22,7 +22,7 @@ namespace Azos.Serialization.Bix
     Array,
 
     /// <summary>
-    /// List is a prefix code which is followed by list element type.
+    /// Collection is a prefix code which is followed by list element type.
     /// Lists are collections of elements just like arrays but are written using IEnumerable so they are more generic.
     /// Lists perform slower than arrays but offer greater flexibility
     /// </summary>

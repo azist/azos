@@ -940,6 +940,9 @@ namespace Azos.Serialization.Bix
     #endregion
 
     #region DOC
+
+    public static void WriteDocField(BixWriter writer, ulong name, TypedDoc doc, BixContext ctx) { writer.Write(name); WriteDoc(writer, doc, ctx); }
+
     public static void WriteDoc(BixWriter writer, TypedDoc doc, BixContext ctx)
     {
       if (doc == null)
@@ -974,7 +977,10 @@ namespace Azos.Serialization.Bix
       ctx.DecreaseNesting();
     }
 
-    public static void WriteDocSequence(BixWriter writer, ICollection<TypedDoc> value, BixContext ctx)
+
+    public static void WriteDocSequenceField(BixWriter writer, ulong name, IEnumerable<TypedDoc> value, BixContext ctx) { writer.Write(name); WriteDocSequence(writer, value, ctx); }
+
+    public static void WriteDocSequence(BixWriter writer, IEnumerable<TypedDoc> value, BixContext ctx)
     {
       writer.Write(TypeCode.Sequence);
 
@@ -987,7 +993,8 @@ namespace Azos.Serialization.Bix
 
       ctx.IncreaseNesting();//this throws on depth
 
-      writer.Write((uint)value.Count);
+      var cnt = value is ICollection col ? col.Count : value.Count();
+      writer.Write((uint)cnt);
 
       foreach (var one in value)
       {
