@@ -13,7 +13,8 @@ using Azos.Data;
 namespace Azos.Serialization.Bix
 {
   /// <summary>
-  /// Provides context scope for Bix operations: serialization and de-serialization
+  /// Provides context scope for Bix operations: serialization and de-serialization.
+  /// You can override and provide custom context which provides custom document read/write handling
   /// </summary>
   public class BixContext : IDisposable
   {

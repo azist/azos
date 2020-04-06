@@ -965,12 +965,17 @@ namespace Azos.Serialization.Bix
       if (!Bixer.s_Index.TryGetValue(ttp, out var core))
         throw new BixException(StringConsts.BIX_TYPE_NOT_SUPPORTED_ERROR.Args(ttp));
 
-      if (ctx.PolymorphicFields)
-        writer.Write(TypeCode.DocWithType);
-      else
-        writer.Write(TypeCode.Doc);
+      var emitTypeId = ctx.PolymorphicFields;
 
+      writer.Write( emitTypeId ? TypeCode.DocWithType : TypeCode.Doc);
       writer.Write(true);//not null
+
+      if (emitTypeId)
+      {
+        var tid = core.Attribute.TypeFguid;
+        writer.Write(tid.S1);
+        writer.Write(tid.S2);
+      }
 
       core.Serialize(writer, doc, ctx);
 

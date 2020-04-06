@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Apps;
 using Azos.Data;
 
 namespace Azos.Serialization.Bix
@@ -15,16 +14,24 @@ namespace Azos.Serialization.Bix
   /// </summary>
   public abstract class BixCore
   {
-    protected BixCore()
+    protected BixCore(string targetName)
     {
-      var t = GetType(); //this should be T, not GetType!!!!
-     Attribute = BixAttribute.GetGuidTypeAttribute<TypedDoc, BixAttribute>(t);
+      var t = GetType();
+      while(t != null && t != typeof(BixCore<>)) t = t.BaseType;
+      Aver.IsNotNull(t, "Internal error, BixCore<T> could not be found in derivation chain of {0}".Args(GetType().FullNameWithExpandedGenericArgs()));
+
+      t = t.GetGenericArguments()[0]; //this is done here not to introduce extra virtual methods
+      Attribute = BixAttribute.GetGuidTypeAttribute<TypedDoc, BixAttribute>(t);
+      TargetedType = new TargetedType(targetName, t);
     }
 
-    protected readonly BixAttribute Attribute;
+    /// <summary>
+    /// BixAttribute instance that decorates the type
+    /// </summary>
+    public readonly BixAttribute Attribute;
 
     /// <summary> Returns the target type which this BixCore implementation handles </summary>
-    public abstract TargetedType TargetedType{ get; }
+    public readonly TargetedType TargetedType;
 
     /// <summary>
     /// Serializes typed data document into BixWriter
@@ -43,14 +50,7 @@ namespace Azos.Serialization.Bix
   /// </summary>
   public abstract class BixCore<T> : BixCore where T : TypedDoc
   {
-    protected BixCore(string targetName)
-    {
-      m_TargetedType = new TargetedType(targetName, typeof(T));
-    }
-
-    private TargetedType m_TargetedType;
-
-    public sealed override TargetedType TargetedType => m_TargetedType;
+    protected BixCore(string targetName) : base(targetName) { }
 
     /// <summary>
     /// Serializes typed data document into BixWriter
