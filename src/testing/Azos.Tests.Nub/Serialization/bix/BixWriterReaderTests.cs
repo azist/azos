@@ -16,6 +16,70 @@ namespace Azos.Tests.Nub.Serialization
   [Runnable]
   public class BixWriterReaderTests
   {
+    #region test corpus
+    private void testScalar<T>(T v, Action<BixWriter> write, Func<BixReader, T> read) where T : IEquatable<T>
+    {
+      var ms = new MemoryStream();
+      var reader = new BixReader(ms);
+      var writer = new BixWriter(ms);
+
+      ms.Position = 0;
+      write(writer);
+      ms.Position = 0;
+      var got = read(reader);
+
+      Aver.AreEqual(v, got);
+    }
+
+    private void testScalar<T>(Nullable<T> v, Action<BixWriter> write, Func<BixReader, Nullable<T>> read) where T : struct, IEquatable<T>
+    {
+      var ms = new MemoryStream();
+      var reader = new BixReader(ms);
+      var writer = new BixWriter(ms);
+
+      ms.Position = 0;
+      write(writer);
+      ms.Position = 0;
+      var got = read(reader);
+
+      Aver.AreEqual(v, got);
+    }
+
+    private void testCollection<T>(ICollection<T> v, Action<BixWriter> write, Func<BixReader, ICollection<T>> read)
+    {
+      var ms = new MemoryStream();
+      var reader = new BixReader(ms);
+      var writer = new BixWriter(ms);
+
+      ms.Position = 0;
+      write(writer);
+      ms.Position = 0;
+      var got = read(reader);
+
+      if (v == null && got == null) return;
+
+      Aver.IsTrue(v.SequenceEqual(got));
+    }
+
+    private void testArray<T>(T[] v, Action<BixWriter> write, Func<BixReader, T[]> read)
+    {
+      var ms = new MemoryStream();
+      var reader = new BixReader(ms);
+      var writer = new BixWriter(ms);
+
+      ms.Position = 0;
+      write(writer);
+      ms.Position = 0;
+      var got = read(reader);
+
+      if (v == null && got == null) return;
+
+      Aver.IsTrue(v.SequenceEqual(got));
+    }
+    #endregion
+
+
+
     #region BYTE
     [Run] public void Byte_01()
     {
@@ -90,66 +154,94 @@ namespace Azos.Tests.Nub.Serialization
     }
     #endregion
 
-
-    private void testScalar<T>(T v, Action<BixWriter> write, Func<BixReader, T> read) where T : IEquatable<T>
+    #region BOOL
+    [Run]
+    public void Bool_01()
     {
-      var ms = new MemoryStream();
-      var reader = new BixReader(ms);
-      var writer = new BixWriter(ms);
-
-      ms.Position = 0;
-      write(writer);
-      ms.Position = 0;
-      var got = read(reader);
-
-      Aver.AreEqual(v, got);
+      bool v = false;
+      testScalar(v, w => w.Write(v), r => r.ReadBool());
     }
 
-    private void testScalar<T>(Nullable<T> v, Action<BixWriter> write, Func<BixReader, Nullable<T>> read) where T : struct, IEquatable<T>
+    [Run]
+    public void Bool_02()
     {
-      var ms = new MemoryStream();
-      var reader = new BixReader(ms);
-      var writer = new BixWriter(ms);
-
-      ms.Position = 0;
-      write(writer);
-      ms.Position = 0;
-      var got = read(reader);
-
-      Aver.AreEqual(v, got);
+      bool v = true;
+      testScalar(v, w => w.Write(v), r => r.ReadBool());
     }
 
-    private void testCollection<T>(ICollection<T> v, Action<BixWriter> write, Func<BixReader, ICollection<T>> read)
+    [Run]
+    public void Bool_03_Nullable()
     {
-      var ms = new MemoryStream();
-      var reader = new BixReader(ms);
-      var writer = new BixWriter(ms);
-
-      ms.Position = 0;
-      write(writer);
-      ms.Position = 0;
-      var got = read(reader);
-
-      if (v==null && got==null) return;
-
-      Aver.IsTrue(v.SequenceEqual(got));
+      bool? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableBool());
     }
 
-    private void testArray<T>(T[] v, Action<BixWriter> write, Func<BixReader, T[]> read)
+    [Run]
+    public void Bool_04_Nullable()
     {
-      var ms = new MemoryStream();
-      var reader = new BixReader(ms);
-      var writer = new BixWriter(ms);
-
-      ms.Position = 0;
-      write(writer);
-      ms.Position = 0;
-      var got = read(reader);
-
-      if (v == null && got == null) return;
-
-      Aver.IsTrue(v.SequenceEqual(got));
+      bool? v = true;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableBool());
     }
+
+    [Run]
+    public void Bool_05_Collection()
+    {
+      List<bool> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadBoolCollection<List<bool>>());
+    }
+
+    [Run]
+    public void Bool_06_Collection()
+    {
+      List<bool> v = new List<bool> { false, true, true };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadBoolCollection<List<bool>>());
+    }
+
+    [Run]
+    public void Bool_07_CollectionNullable()
+    {
+      List<bool?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableBoolCollection<List<bool?>>());
+    }
+
+    [Run]
+    public void Bool_08_CollectionNullable()
+    {
+      List<bool?> v = new List<bool?> { true, null, false, false, null, true };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableBoolCollection<List<bool?>>());
+    }
+
+    [Run]
+    public void Bool_09_Array()
+    {
+      bool[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadBoolArray());
+    }
+
+    [Run]
+    public void Bool_10_Array()
+    {
+      bool[] v = new bool[] { true, false, true, true };
+      testArray(v, w => w.Write(v), r => r.ReadBoolArray());
+    }
+
+    [Run]
+    public void Bool_11_ArrayNullable()
+    {
+      bool?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableBoolArray());
+    }
+
+    [Run]
+    public void Bool_12_ArrayNullable()
+    {
+      bool?[] v = new bool?[] { true, null, false, false };
+      testArray(v, w => w.Write(v), r => r.ReadNullableBoolArray());
+    }
+    #endregion
+
+
+
 
   }
 }
