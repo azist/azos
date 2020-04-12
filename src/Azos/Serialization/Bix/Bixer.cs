@@ -137,7 +137,9 @@ namespace Azos.Serialization.Bix
       }
     }
 
-
+    /// <summary>
+    /// Serializes any object polymorphically
+    /// </summary>
     public static void SerializeAny(BixWriter writer, object root, BixContext ctx = null)
     {
       if (!writer.IsAssigned) throw new BixException(StringConsts.ARGUMENT_ERROR+"{0}.!Assigned".Args(nameof(BixWriter)));
@@ -153,6 +155,9 @@ namespace Azos.Serialization.Bix
       ctx.DisposeDefault();
     }
 
+    /// <summary>
+    /// Serializes data document
+    /// </summary>
     public static void Serialize(BixWriter writer, TypedDoc root, BixContext ctx = null)
     {
       if (!writer.IsAssigned) throw new BixException(StringConsts.ARGUMENT_ERROR + "{0}.!Assigned".Args(nameof(BixWriter)));
@@ -163,7 +168,7 @@ namespace Azos.Serialization.Bix
       if (ctx.HasHeader) Writer.WriteHeader(writer, ctx);
 
       //2 Payload
-      Writer.WriteDoc(writer, root, ctx);
+      Writer.WriteDoc(writer, root, ctx, isRoot: true);
 
       ctx.DisposeDefault();
     }

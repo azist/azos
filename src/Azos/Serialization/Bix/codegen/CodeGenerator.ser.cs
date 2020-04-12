@@ -40,7 +40,7 @@ namespace Azos.Serialization.Bix
       var tp = fdef.Type;
       var isNullable = tp != fdef.NonNullableType;
 
-      source.AppendLine("      // '{0}' = {1}".Args(fatr.BackendName, name));
+      source.AppendLine("      // '{0}'@{1} = {2}".Args(fatr.BackendName, targetName, name));
 
       //if direct write is supported
       if (Writer.IsWriteSupported(tp))

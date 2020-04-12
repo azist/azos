@@ -845,7 +845,7 @@ namespace Azos.Serialization.Bix
       //1 - TypedDoc
       if (value is TypedDoc doc)
       {
-        WriteDoc(writer, doc, ctx);
+        WriteDoc(writer, doc, ctx, isRoot: false);
         return;
       }
 
@@ -941,9 +941,9 @@ namespace Azos.Serialization.Bix
 
     #region DOC
 
-    public static void WriteDocField(BixWriter writer, ulong name, TypedDoc doc, BixContext ctx) { writer.Write(name); WriteDoc(writer, doc, ctx); }
+    public static void WriteDocField(BixWriter writer, ulong name, TypedDoc doc, BixContext ctx) { writer.Write(name); WriteDoc(writer, doc, ctx, false); }
 
-    public static void WriteDoc(BixWriter writer, TypedDoc doc, BixContext ctx)
+    public static void WriteDoc(BixWriter writer, TypedDoc doc, BixContext ctx, bool isRoot)
     {
       if (doc == null)
       {
@@ -965,7 +965,7 @@ namespace Azos.Serialization.Bix
       if (!Bixer.s_Index.TryGetValue(ttp, out var core))
         throw new BixException(StringConsts.BIX_TYPE_NOT_SUPPORTED_ERROR.Args(ttp));
 
-      var emitTypeId = ctx.PolymorphicFields;
+      var emitTypeId = ctx.PolymorphicMembers || (isRoot && ctx.PolymorphicRoot);
 
       writer.Write( emitTypeId ? TypeCode.DocWithType : TypeCode.Doc);
       writer.Write(true);//not null
@@ -1003,7 +1003,7 @@ namespace Azos.Serialization.Bix
 
       foreach (var one in value)
       {
-        WriteDoc(writer, one, ctx);
+        WriteDoc(writer, one, ctx, false);
       }
 
       ctx.DecreaseNesting();
@@ -1018,10 +1018,11 @@ namespace Azos.Serialization.Bix
     {
       var flags = 0;
       if (ctx.PolymorphicRoot)   flags |= 0b0010;
-      if (ctx.PolymorphicFields) flags |= 0b0001;
+      if (ctx.PolymorphicMembers) flags |= 0b0001;
 
       writer.Write(Format.HDR1);
       writer.Write((byte)(Format.HDR2 | flags));
+      writer.Write(ctx.Version);
     }
 
     #endregion

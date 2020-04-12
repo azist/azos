@@ -26,25 +26,13 @@ namespace Azos.Serialization.Bix
     /// Returns an instance of context initialized for making local blocking call.
     /// The instance needs to be released by calling .Dispose()
     /// </summary>
-    public static T Obtain<T>(string targetName  =  null,
-                                int maxDepth       =  DEFAULT_MAX_DEPTH,
-                                bool hasHeader     =  true,
-                                bool polyRoot      =  true,
-                                bool polyField     =  true,
-                                object state       =  null) where T : BixContext, new()
+    public static T Obtain<T>() where T : BixContext, new()
     {
       var self = ts_Instance as T;
       if (self==null)
         self = new T();
       else
         ts_Instance = null;
-
-      self.TargetName = targetName.IsNullOrWhiteSpace() ? FieldAttribute.ANY_TARGET : targetName;
-      self.MaxDepth = maxDepth.KeepBetween(0, 1024);
-      self.HasHeader = hasHeader;
-      self.PolymorphicRoot = polyRoot;
-      self.PolymorphicFields = polyField;
-      self.State = state;
 
       return self;
     }
@@ -64,6 +52,14 @@ namespace Azos.Serialization.Bix
 
     private bool m_Default;
     private int m_Nesting;
+    private Atom m_Version;
+    private string m_TargetName = TargetedAttribute.ANY_TARGET;
+    private int m_MaxDepth = DEFAULT_MAX_DEPTH;
+    private bool m_HasHeader;
+    private bool m_PolymorphicRoot;
+    private bool m_PolymorphicMembers = true;
+    private object m_State;
+
 
     /// <summary>
     /// Recycles the instance so it can be re-used by the next call to .Obtain()
@@ -71,7 +67,13 @@ namespace Azos.Serialization.Bix
     public virtual void Dispose()
     {
       m_Default = false;
+      m_TargetName = TargetedAttribute.ANY_TARGET;
+      Version = Format.VERSION;
       m_Nesting = 0;
+      m_MaxDepth = DEFAULT_MAX_DEPTH;
+      m_HasHeader = false;
+      m_PolymorphicRoot = false;
+      m_PolymorphicMembers = true;
       State = null;
       ts_Instance = this;
     }
@@ -81,12 +83,13 @@ namespace Azos.Serialization.Bix
       if (m_Default) Dispose();
     }
 
-    public string  TargetName        { get; private set; }
-    public int     MaxDepth          { get; private set; }
-    public bool    HasHeader         { get; private set; }
-    public bool    PolymorphicRoot   { get; private set; }
-    public bool    PolymorphicFields { get; private set; }
-    public object  State             { get; private set; }
+    public Atom Version { get => m_Version; set => m_Version = value; }
+    public string  TargetName        { get => m_TargetName; set => m_TargetName = value.IsNullOrWhiteSpace() ? TargetedAttribute.ANY_TARGET : value; }
+    public int     MaxDepth          { get => m_MaxDepth; set => m_MaxDepth = value.KeepBetween(0, 1024); }
+    public bool    HasHeader         { get => m_HasHeader; set => m_HasHeader = value; }
+    public bool    PolymorphicRoot   { get => m_PolymorphicRoot; set => m_PolymorphicRoot = value; }
+    public bool    PolymorphicMembers { get => m_PolymorphicMembers; set => m_PolymorphicMembers = value; }
+    public object  State             { get => m_State; set => m_State = value; }
 
     /// <summary>
     /// Override to get targeted type of the document to write and perform other pre-processing such
