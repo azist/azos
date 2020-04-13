@@ -17,7 +17,7 @@ namespace Azos.Tests.Nub.Serialization
   public class BixWriterReaderTests
   {
     #region test corpus
-    private void testScalar<T>(T v, Action<BixWriter> write, Func<BixReader, T> read) where T : IEquatable<T>
+    private void testScalar<T>(T v, Action<BixWriter> write, Func<BixReader, T> read, int sz = 0) where T : IEquatable<T>
     {
       var ms = new MemoryStream();
       var reader = new BixReader(ms);
@@ -25,13 +25,17 @@ namespace Azos.Tests.Nub.Serialization
 
       ms.Position = 0;
       write(writer);
+
+      if (sz>0)
+        Aver.AreEqual(sz, ms.Position);
+
       ms.Position = 0;
       var got = read(reader);
 
       Aver.AreEqual(v, got);
     }
 
-    private void testScalar<T>(Nullable<T> v, Action<BixWriter> write, Func<BixReader, Nullable<T>> read) where T : struct, IEquatable<T>
+    private void testScalar<T>(Nullable<T> v, Action<BixWriter> write, Func<BixReader, Nullable<T>> read, int sz = 0) where T : struct, IEquatable<T>
     {
       var ms = new MemoryStream();
       var reader = new BixReader(ms);
@@ -39,13 +43,17 @@ namespace Azos.Tests.Nub.Serialization
 
       ms.Position = 0;
       write(writer);
+
+      if (sz > 0)
+        Aver.AreEqual(sz, ms.Position);
+
       ms.Position = 0;
       var got = read(reader);
 
       Aver.AreEqual(v, got);
     }
 
-    private void testCollection<T>(ICollection<T> v, Action<BixWriter> write, Func<BixReader, ICollection<T>> read)
+    private void testCollection<T>(ICollection<T> v, Action<BixWriter> write, Func<BixReader, ICollection<T>> read, int sz = 0)
     {
       var ms = new MemoryStream();
       var reader = new BixReader(ms);
@@ -53,6 +61,10 @@ namespace Azos.Tests.Nub.Serialization
 
       ms.Position = 0;
       write(writer);
+
+      if (sz > 0)
+        Aver.AreEqual(sz, ms.Position);
+
       ms.Position = 0;
       var got = read(reader);
 
@@ -61,7 +73,7 @@ namespace Azos.Tests.Nub.Serialization
       Aver.IsTrue(v.SequenceEqual(got));
     }
 
-    private void testArray<T>(T[] v, Action<BixWriter> write, Func<BixReader, T[]> read)
+    private void testArray<T>(T[] v, Action<BixWriter> write, Func<BixReader, T[]> read, int sz = 0)
     {
       var ms = new MemoryStream();
       var reader = new BixReader(ms);
@@ -69,6 +81,10 @@ namespace Azos.Tests.Nub.Serialization
 
       ms.Position = 0;
       write(writer);
+
+      if (sz > 0)
+        Aver.AreEqual(sz, ms.Position);
+
       ms.Position = 0;
       var got = read(reader);
 
@@ -159,28 +175,28 @@ namespace Azos.Tests.Nub.Serialization
     public void Bool_01()
     {
       bool v = false;
-      testScalar(v, w => w.Write(v), r => r.ReadBool());
+      testScalar(v, w => w.Write(v), r => r.ReadBool(), 1);
     }
 
     [Run]
     public void Bool_02()
     {
       bool v = true;
-      testScalar(v, w => w.Write(v), r => r.ReadBool());
+      testScalar(v, w => w.Write(v), r => r.ReadBool(), 1);
     }
 
     [Run]
     public void Bool_03_Nullable()
     {
       bool? v = null;
-      testScalar(v, w => w.Write(v), r => r.ReadNullableBool());
+      testScalar(v, w => w.Write(v), r => r.ReadNullableBool(), 1);
     }
 
     [Run]
     public void Bool_04_Nullable()
     {
       bool? v = true;
-      testScalar(v, w => w.Write(v), r => r.ReadNullableBool());
+      testScalar(v, w => w.Write(v), r => r.ReadNullableBool(), 2);
     }
 
     [Run]
@@ -240,7 +256,97 @@ namespace Azos.Tests.Nub.Serialization
     }
     #endregion
 
+    #region SBYTE
+    [Run]
+    public void SByte_01()
+    {
+      sbyte v = 0;
+      testScalar(v, w => w.Write(v), r => r.ReadSbyte(), 1);
+    }
 
+    [Run]
+    public void SByte_02()
+    {
+      sbyte v = -128;
+      testScalar(v, w => w.Write(v), r => r.ReadSbyte(), 1);
+
+      v = 127;
+      testScalar(v, w => w.Write(v), r => r.ReadSbyte(), 1);
+    }
+
+    [Run]
+    public void SByte_03_Nullable()
+    {
+      sbyte? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableSbyte(), 1);
+    }
+
+    [Run]
+    public void SByte_04_Nullable()
+    {
+      sbyte? v = -128;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableSbyte(), 2);
+
+      v = 127;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableSbyte(), 2);
+    }
+
+    [Run]
+    public void SByte_05_Collection()
+    {
+      List<sbyte> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadSbyteCollection<List<sbyte>>(), 1);
+    }
+
+    [Run]
+    public void SByte_06_Collection()
+    {
+      List<sbyte> v = new List<sbyte> { 0, -1, 127, -128, 0 };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadSbyteCollection<List<sbyte>>(), 1+1+5);
+    }
+
+    [Run]
+    public void SByte_07_CollectionNullable()
+    {
+      List<sbyte?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableSbyteCollection<List<sbyte?>>(), 1);
+    }
+
+    [Run]
+    public void SByte_08_CollectionNullable()
+    {
+      List<sbyte?> v = new List<sbyte?> { 0, null, -128, null, 127 };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableSbyteCollection<List<sbyte?>>(), 1+1+8);
+    }
+
+    [Run]
+    public void SByte_09_Array()
+    {
+      sbyte[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadSbyteArray(), 1);
+    }
+
+    [Run]
+    public void SByte_10_Array()
+    {
+      sbyte[] v = new sbyte[] { 1, -2, 127, -128 };
+      testArray(v, w => w.Write(v), r => r.ReadSbyteArray(), 1+1+4);
+    }
+
+    [Run]
+    public void SByte_11_ArrayNullable()
+    {
+      sbyte?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableSbyteArray(), 1);
+    }
+
+    [Run]
+    public void SByte_12_ArrayNullable()
+    {
+      sbyte?[] v = new sbyte?[] { 1, null, -128, 127, 0, 9 };
+      testArray(v, w => w.Write(v), r => r.ReadNullableSbyteArray(), 1+1+11);
+    }
+    #endregion
 
 
   }
