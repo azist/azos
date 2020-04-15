@@ -94,7 +94,7 @@ namespace Azos.Tests.Nub.Serialization
     }
     #endregion
 
-
+    // ---------------------------------------------
 
     #region BYTE
     [Run] public void Byte_01()
@@ -299,7 +299,6 @@ namespace Azos.Tests.Nub.Serialization
     }
     #endregion
 
-
     #region SHORT
     [Run]
     public void Short_01()
@@ -379,6 +378,242 @@ namespace Azos.Tests.Nub.Serialization
 
     #endregion
 
+    #region USHORT
+    [Run]
+    public void Ushort_01()
+    {
+      ushort v = ushort.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadUshort(), 1);
+
+      v = ushort.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadUshort(), 3);
+
+      v = 0;
+      testScalar(v, w => w.Write(v), r => r.ReadUshort(), 1);
+
+      v = 256;
+      testScalar(v, w => w.Write(v), r => r.ReadUshort(), 2);
+    }
+
+    [Run]
+    public void Ushort_02_Nullable()
+    {
+      ushort? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableUshort(), 1);
+
+      v = ushort.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableUshort(), 2);
+
+      v = ushort.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableUshort(), 4);
+
+      v = 0;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableUshort(), 2);
+
+      v = 256;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableUshort(), 3);
+    }
+
+    [Run]
+    public void Ushort_03_Collection()
+    {
+      List<ushort> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadUshortCollection<List<ushort>>(), 1);
+
+      v = new List<ushort> { 0, 300, 127, 700, 0 };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadUshortCollection<List<ushort>>(), 1 + 1 + 7);
+    }
+
+
+    [Run]
+    public void Ushort_04_CollectionNullable()
+    {
+      List<ushort?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableUshortCollection<List<ushort?>>(), 1);
+
+      v = new List<ushort?> { 0, null, 300, null, 180 };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableUshortCollection<List<ushort?>>(), 1 + 1 + 10);
+    }
+
+    [Run]
+    public void Ushort_05_Array()
+    {
+      ushort[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadUshortArray(), 1);
+
+      v = new ushort[] { 1, 300, 127, 728 };
+      testArray(v, w => w.Write(v), r => r.ReadUshortArray(), 1 + 1 + 6);
+    }
+
+    [Run]
+    public void Ushort_06_ArrayNullable()
+    {
+      ushort?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableUshortArray(), 1);
+
+      v = new ushort?[] { 1, null, 1282, 1227, 0, 9 };
+      testArray(v, w => w.Write(v), r => r.ReadNullableUshortArray(), 1 + 1 + 13);
+    }
+
+    #endregion
+
+    #region INT
+    [Run]
+    public void Int_01()
+    {
+      int v = int.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadInt(), 5);
+
+      v = int.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadInt(), 5);
+
+      v = 0;
+      testScalar(v, w => w.Write(v), r => r.ReadInt(), 1);
+
+      v = 256;
+      testScalar(v, w => w.Write(v), r => r.ReadInt(), 2);
+    }
+
+    [Run]
+    public void Int_02_Nullable()
+    {
+      int? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 1);
+
+      v = int.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 6);
+
+      v = int.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 6);
+
+      v = 0;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 2);
+
+      v = 256;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 3);
+    }
+
+    [Run]
+    public void Int_03_Collection()
+    {
+      List<int> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadIntCollection<List<int>>(), 1);
+
+      v = new List<int> { 0, -1, 127, -128, 0 };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadIntCollection<List<int>>(), 1 + 1 + 7);
+    }
+
+
+    [Run]
+    public void Int_04_CollectionNullable()
+    {
+      List<int?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableIntCollection<List<int?>>(), 1);
+
+      v = new List<int?> { 0, null, -130, null, 180 };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableIntCollection<List<int?>>(), 1 + 1 + 10);
+    }
+
+    [Run]
+    public void Int_05_Array()
+    {
+      int[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadIntArray(), 1);
+
+      v = new int[] { 1, -12, 127, -728 };
+      testArray(v, w => w.Write(v), r => r.ReadIntArray(), 1 + 1 + 6);
+    }
+
+    [Run]
+    public void Int_06_ArrayNullable()
+    {
+      int?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableIntArray(), 1);
+
+      v = new int?[] { 1, null, -1282, 1227, 0, 9 };
+      testArray(v, w => w.Write(v), r => r.ReadNullableIntArray(), 1 + 1 + 13);
+    }
+
+    #endregion
+
+    #region UINT
+    [Run]
+    public void Uint_01()
+    {
+      uint v = uint.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadUint(), 1);
+
+      v = uint.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadUint(), 5);
+
+      v = 0;
+      testScalar(v, w => w.Write(v), r => r.ReadUint(), 1);
+
+      v = 256;
+      testScalar(v, w => w.Write(v), r => r.ReadUint(), 2);
+    }
+
+    [Run]
+    public void Uint_02_Nullable()
+    {
+      uint? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableUint(), 1);
+
+      v = uint.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableUint(), 2);
+
+      v = uint.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableUint(), 6);
+
+      v = 0;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableUint(), 2);
+
+      v = 256;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableUint(), 3);
+    }
+
+    [Run]
+    public void Uint_03_Collection()
+    {
+      List<uint> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadUintCollection<List<uint>>(), 1);
+
+      v = new List<uint> { 0, 300, 127, 700, 0 };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadUintCollection<List<uint>>(), 1 + 1 + 7);
+    }
+
+
+    [Run]
+    public void Uint_04_CollectionNullable()
+    {
+      List<uint?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableUintCollection<List<uint?>>(), 1);
+
+      v = new List<uint?> { 0, null, 300, null, 180 };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableUintCollection<List<uint?>>(), 1 + 1 + 10);
+    }
+
+    [Run]
+    public void Uint_05_Array()
+    {
+      uint[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadUintArray(), 1);
+
+      v = new uint[] { 1, 300, 127, 728 };
+      testArray(v, w => w.Write(v), r => r.ReadUintArray(), 1 + 1 + 6);
+    }
+
+    [Run]
+    public void Uint_06_ArrayNullable()
+    {
+      uint?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableUintArray(), 1);
+
+      v = new uint?[] { 1, null, 1282, 1227, 0, 9 };
+      testArray(v, w => w.Write(v), r => r.ReadNullableUintArray(), 1 + 1 + 13);
+    }
+
+    #endregion
 
   }
 }

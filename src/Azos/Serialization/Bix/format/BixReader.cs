@@ -334,7 +334,7 @@ namespace Azos.Serialization.Bix
       return result;
     }
 
-    public TCollection ReadNullabeUshortCollection<TCollection>() where TCollection : class, ICollection<ushort?>, new()
+    public TCollection ReadNullableUshortCollection<TCollection>() where TCollection : class, ICollection<ushort?>, new()
      => ReadCollection<TCollection, ushort?>(bix => bix.ReadNullableUshort());
 
     public ushort?[] ReadNullableUshortArray()
