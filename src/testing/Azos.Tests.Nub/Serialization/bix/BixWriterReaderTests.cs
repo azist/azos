@@ -853,7 +853,6 @@ namespace Azos.Tests.Nub.Serialization
 
     #endregion
 
-
     #region FLOAT
     [Run]
     public void Float_01()
@@ -929,6 +928,85 @@ namespace Azos.Tests.Nub.Serialization
 
       v = new float?[] { 1, null, 1282, 1227, 0, 9 };
       testArray(v, w => w.Write(v), r => r.ReadNullableFloatArray(), 1 + 1 + 26);
+    }
+
+    #endregion
+
+    #region DECIMAL
+    [Run]
+    public void Decimal_01()
+    {
+      decimal v = decimal.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadDecimal(), 4);
+
+      v = decimal.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadDecimal(), 4);
+
+      v = 0;
+      testScalar(v, w => w.Write(v), r => r.ReadDecimal(), 4);
+
+      v = 256;
+      testScalar(v, w => w.Write(v), r => r.ReadDecimal(), 5);
+    }
+
+    [Run]
+    public void Decimal_02_Nullable()
+    {
+      decimal? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDecimal(), 1);
+
+      v = decimal.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDecimal(), 5);
+
+      v = decimal.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDecimal(), 5);
+
+      v = 0;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDecimal(), 5);
+
+      v = 256;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDecimal(), 6);
+    }
+
+    [Run]
+    public void Decimal_03_Collection()
+    {
+      List<decimal> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadDecimalCollection<List<decimal>>(), 1);
+
+      v = new List<decimal> { 0, 300.4m, 127e4m, -700.11m, 0 };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadDecimalCollection<List<decimal>>(), 1 + 1 + 26);
+    }
+
+
+    [Run]
+    public void Decimal_04_CollectionNullable()
+    {
+      List<decimal?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableDecimalCollection<List<decimal?>>(), 1);
+
+      v = new List<decimal?> { 0, null, -300, null, 180 };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableDecimalCollection<List<decimal?>>(), 1 + 1 + 19);
+    }
+
+    [Run]
+    public void Decimal_05_Array()
+    {
+      decimal[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadDecimalArray(), 1);
+
+      v = new decimal[] { 1.02m, 300, 127e5m, -728e11m };
+      testArray(v, w => w.Write(v), r => r.ReadDecimalArray(), 1 + 1 + 27);
+    }
+
+    [Run]
+    public void Decimal_06_ArrayNullable()
+    {
+      decimal?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableDecimalArray(), 1);
+
+      v = new decimal?[] { 1, null, 1282, 1227, 0, 9 };
+      testArray(v, w => w.Write(v), r => r.ReadNullableDecimalArray(), 1 + 1 + 28);
     }
 
     #endregion
