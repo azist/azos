@@ -1175,7 +1175,19 @@ namespace Azos.Tests.Nub.Serialization
     }
 
     [Run]
-    public void String_02_Collection()
+    public void String_03_Unicode_Length()
+    {
+      //DO NOT ALTER this string
+      string v = @"Я вас любил 终过鬼门关 Աեցեհի իմ լավ Bần chỉ là một anh nghèo xác, Yukarda mavi gök, asağıda yağız yer yaratıldıkta";
+      //DO NOT ALTER this string
+
+      var fileLength = 156;//When saved using UTF8 without BOM
+
+      testScalar(v, w => w.Write(v), r => r.ReadString(), StringComparison.Ordinal, 1/*null*/+ 2/*over127 len 2bytes*/+ fileLength);
+    }
+
+    [Run]
+    public void String_04_Collection()
     {
       List<string> v = null;
       testCollection(v, w => w.WriteCollection(v), r => r.ReadStringCollection<List<string>>(), 1);
@@ -1186,7 +1198,7 @@ namespace Azos.Tests.Nub.Serialization
 
 
     [Run]
-    public void String_03_Array()
+    public void String_05_Array()
     {
       string[] v = null;
       testArray(v, w => w.Write(v), r => r.ReadStringArray(), 1);
