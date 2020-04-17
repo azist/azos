@@ -18,6 +18,25 @@ namespace Azos.Tests.Nub.Serialization
   public class BixWriterReaderTests
   {
     #region test corpus
+
+    private void testScalar(string v, Action<BixWriter> write, Func<BixReader, string> read, StringComparison comp, int sz = 0)
+    {
+      var ms = new MemoryStream();
+      var reader = new BixReader(ms);
+      var writer = new BixWriter(ms);
+
+      ms.Position = 0;
+      write(writer);
+
+      if (sz > 0)
+        Aver.AreEqual(sz, ms.Position);
+
+      ms.Position = 0;
+      var got = read(reader);
+
+      Aver.AreEqual(v, got, comp);
+    }
+
     private void testScalar<T>(T v, Action<BixWriter> write, Func<BixReader, T> read, int sz = 0) where T : IEquatable<T>
     {
       var ms = new MemoryStream();
@@ -1009,6 +1028,164 @@ namespace Azos.Tests.Nub.Serialization
       testArray(v, w => w.Write(v), r => r.ReadNullableDecimalArray(), 1 + 1 + 28);
     }
 
+    #endregion
+
+    #region CHAR
+    [Run]
+    public void Char_01()
+    {
+      char v = char.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadChar(), 1);
+
+      v = char.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadChar(), 3);
+
+      v = 'a';
+      testScalar(v, w => w.Write(v), r => r.ReadChar(), 1);
+
+      v = (char)256;
+      testScalar(v, w => w.Write(v), r => r.ReadChar(), 2);
+    }
+
+    [Run]
+    public void Char_02_Nullable()
+    {
+      char? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableChar(), 1);
+
+      v = char.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableChar(), 2);
+
+      v = char.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableChar(), 4);
+
+      v = 'a';
+      testScalar(v, w => w.Write(v), r => r.ReadNullableChar(), 2);
+
+      v = (char)256;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableChar(), 3);
+    }
+
+    [Run]
+    public void Char_03_Collection()
+    {
+      List<char> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadCharCollection<List<char>>(), 1);
+
+      v = new List<char> { 'a', 'b', 'c' };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadCharCollection<List<char>>(), 1 + 1 + 3);
+    }
+
+
+    [Run]
+    public void Char_04_CollectionNullable()
+    {
+      List<char?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableCharCollection<List<char?>>(), 1);
+
+      v = new List<char?> { 'a', null, 'b', null, 'z' };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableCharCollection<List<char?>>(), 1 + 1 + 8);
+    }
+
+    [Run]
+    public void Char_05_Array()
+    {
+      char[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadCharArray(), 1);
+
+      v = new char[] { 'a', 'b', 'c' };
+      testArray(v, w => w.Write(v), r => r.ReadCharArray(), 1 + 1 + 4);
+    }
+
+    [Run]
+    public void Char_06_ArrayNullable()
+    {
+      char?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableCharArray(), 1);
+
+      v = new char?[] { 'a', null, 'b', null, 'z' };
+      testArray(v, w => w.Write(v), r => r.ReadNullableCharArray(), 1 + 1 + 8);
+    }
+
+    #endregion
+
+    #region STRING
+    [Run]
+    public void String_01()
+    {
+      string v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadString(), StringComparison.Ordinal, 1);
+
+      v = "abc";
+      testScalar(v, w => w.Write(v), r => r.ReadString(), StringComparison.Ordinal, 5);
+    }
+
+    [Run]
+    public void String_02_Unicode()
+    {
+      string v = @"
+      Я вас любил: любовь ещё, быть может,
+      В душе моей угасла не совсем;
+      Но пусть она вас больше не тревожит;
+      Я не хочу печалить вас ничем.
+      Я вас любил безмолвно, безнадежно,
+      То робостью, то ревностью томим;
+      Я вас любил так искренно, так нежно,
+      Как дай вам Бог любимой быть другим.";
+      testScalar(v, w => w.Write(v), r => r.ReadString(), StringComparison.Ordinal);
+
+      v = @"久有归天愿
+        终过鬼门关
+        千里来寻归宿
+        春华变苍颜
+        到处群魔乱舞
+        更有妖雾盘绕
+        暗道入阴间
+        过了阎王殿
+        险处不须看";
+      testScalar(v, w => w.Write(v), r => r.ReadString(), StringComparison.Ordinal);
+
+      v = @"
+   Աեցեհի իմ լավ ?ւղիե լավարար,
+   Կյաեբս չտայի կասկածի մհգիե...
+   Այեպհս կ?ւզհի մհկե իեծ ?ավատր,
+   Այեպհս կ?ւզհի ?ավատալ մհկիե։";
+      testScalar(v, w => w.Write(v), r => r.ReadString(), StringComparison.Ordinal);
+
+      v = @"Bần chỉ là một anh nghèo xác, ngày ngày lang-thang khắp xóm này qua xóm khác xin ăn. Quần áo rách-mướp Bần cũng chả coi sao, 
+      chân không có giầy và đầu cũng chẳng có mũ. Giời nắng hay giời mưa Bần không bao giờ quan-tâm. Một ngưòi như Bần thì ai cũng tưởng 
+      là không còn có gì là quí-vât nữa. Thế nhưng ta nhầm vì Bần có cái quạt mo, Bần quí lắm. Bần quí và giữ luôn không rời bỏ bao giờ. 
+      Giời nắng thì Bần che đầu, giời mưa Bần cũng nhờ nó mà đỡ ướt. Muốn ngồi Bần dùng làm chiếu và đêm đến các chú muỗi vo-ve thì Bần dùng 
+      để dánh đuổi các chú ấy. ";
+      testScalar(v, w => w.Write(v), r => r.ReadString(), StringComparison.Ordinal);
+
+      v = @"Yukarda mavi gök, asağıda yağız yer yaratıldıkta; ikisinin arasında insan oğlu yaratılmış. 
+      İnsan oğulları üzerine ecdadım Bumın hakan, İstemi hakan tahta oturmuş; oturarak Türk milletinin ülkesini, 
+      türesini, idare edivermiş, tanzim edivermis. Dört taraf hep düşman imiş. Asker sevk edip dört taraftaki kavmi
+      hep (itaati altına) almış hep muti kılmış. Başlılara baş eğdirmiş, dizlilere diz çöktürmüş. ";
+      testScalar(v, w => w.Write(v), r => r.ReadString(), StringComparison.Ordinal);
+    }
+
+    [Run]
+    public void String_02_Collection()
+    {
+      List<string> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadStringCollection<List<string>>(), 1);
+
+      v = new List<string> { "a", null, "c" };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadStringCollection<List<string>>(), 1 + 1 + 7);
+    }
+
+
+    [Run]
+    public void String_03_Array()
+    {
+      string[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadStringArray(), 1);
+
+      v = new string[] { "a", null, "c" };
+      testArray(v, w => w.Write(v), r => r.ReadStringArray(), 1 + 1 + 7);
+    }
     #endregion
 
   }
