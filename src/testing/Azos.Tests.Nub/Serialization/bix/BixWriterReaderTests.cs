@@ -1124,6 +1124,14 @@ namespace Azos.Tests.Nub.Serialization
     public void String_02_Unicode()
     {
       string v = @"
+      §1 b^2+4ac=D  
+      §2
+       (a+b)² = a² + 2ab + b² => (2+3)^2 = 2^2 + 2*2*3 + 3^2 => 5^2 = 4 + 12 + 9 = 25
+       © æ  ß is beta   א ~> alpha * ש => Ԙ
+       ";
+      testScalar(v, w => w.Write(v), r => r.ReadString(), StringComparison.Ordinal);
+
+      v = @"
       Я вас любил: любовь ещё, быть может,
       В душе моей угасла не совсем;
       Но пусть она вас больше не тревожит;
