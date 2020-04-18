@@ -92,7 +92,7 @@ namespace Azos.Data
         }
 
         /// <summary>
-        /// Returns the 60 bits of counter segment of this id (without athority segment upper 4 bits)
+        /// Returns the 60 bits of counter segment of this id (without authority segment upper 4 bits)
         /// </summary>
         public UInt64 Counter
         {

@@ -92,7 +92,7 @@ namespace Azos.Data.Access
 
 
     /// <summary>
-    /// Returns sequnce information enumerable for all sequences in the named scope
+    /// Returns sequence information enumerable for all sequences in the named scope
     /// </summary>
     IEnumerable<ISequenceInfo> GetSequenceInfos(string scopeName);
 
