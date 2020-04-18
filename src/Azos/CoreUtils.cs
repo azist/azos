@@ -128,7 +128,7 @@ namespace Azos
 
     /// <summary>
     /// Returns the full name of the type optionally prefixed with verbatim id specifier '@'.
-    /// The generic arguments ar expanded into their full names i.e.
+    /// The generic arguments are expanded into their full names i.e.
     ///   List'1[System.Object]  ->  System.Collections.Generic.List&lt;System.Object&gt;
     /// </summary>
     public static string FullNameWithExpandedGenericArgs(this Type type, bool verbatimPrefix = true)
