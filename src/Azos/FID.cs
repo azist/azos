@@ -51,21 +51,28 @@ namespace Azos
   /// The ID consists of 3 segments: [timestamp: 24bit][threadseed: 24bit][counter: 16 bit].
   /// This is needed because:
   ///  a). FID stays unique after process restarts
-  ///  b). This design does not use interlock on global seed, but uses thread-static vars which is 10-20 times faster
+  ///  b). This design does not use interlock on global seed, but uses thread-static vars
+  ///      which is 10-20 times faster as they avoid global LCK prefix
   ///
-  /// The timestamp is the number of 100ms intervals elapsed since Jan 1 2015 expressed as a 24 bit unsigned int, which gives 2^24 = 16,777,216 combinations
+  /// The timestamp is the number of 100ms intervals elapsed since Jan 1 2019 expressed as a 24 bit unsigned int, which gives 2^24 = 16,777,216 combinations
   /// which covers 19 days (around 2 weeks) at 100 msec resolution, consequently the ID will generate duplicates after this period.
   /// This struct is useful for creating unique IDs for protocol/traffic messages that live for a limited time (no more than 2 weeks).
   /// Caution: This ID does not identify the machine or process, only items within the process, however when a hosting process restarts(i.e. crash or reboot)
   /// the new IDs will not collide with IDs generated right before the crash for at least 14 days (14 day sliding window).
   /// In a parallel test on 6 Core i7 3.2 GHz this class generates 405 million IDs/sec, which is 57 times faster than Guid that only generates 7 million IDs/sec
   /// </summary>
+  /// <remarks>
+  /// The use of thread-static vars is an optimization technique and does not affected ASYNC flow.
+  /// While its true that thread statics do not flow async context, it has no relevance for this struct as it only
+  /// guarantees uniqueness process-wide, not thread affinity, consequently an async code may continue on a different thread
+  /// with a different thread seed which is an expected and acceptable behavior
+  /// </remarks>
   [Serializable]
   public struct FID : IEquatable<FID>, Data.Idgen.IDistributedStableHashProvider, IJsonWritable, IJsonReadable
   {
     private const int MASK_16_BIT = 0x0000ffff;
     private const int MASK_24_BIT = 0x00ffffff;
-    private static readonly DateTime START = new DateTime(2015, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    private static readonly DateTime START = new DateTime(2019, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     private static int s_Seed;
 
@@ -108,43 +115,26 @@ namespace Azos
       return new FID(id);
     }
 
-    public override bool Equals(object obj)
-    {
-      if (!(obj is FID)) return false;
-      return this.Equals((FID)obj);
-    }
+    public bool Equals(FID other) => this.ID == other.ID;
 
-    public bool Equals(FID other)
-    {
-      return this.ID == other.ID;
-    }
+    public override bool Equals(object obj) => obj is FID other ? this.Equals(other) : false;
 
-    public override int GetHashCode()
-    {
-      return ID.GetHashCode();
-    }
+    public ulong GetDistributedStableHash() => ID;
+
+    public override int GetHashCode() => ID.GetHashCode();
 
     public override string ToString()
-    {
-      return "{0}-{1}-{2}".Args(ID >> 40, (ID >> 16) & MASK_24_BIT, ID & MASK_16_BIT);
-    }
+     => "{0}-{1}-{2}".Args(ID >> 40, (ID >> 16) & MASK_24_BIT, ID & MASK_16_BIT);
 
-    public ulong GetDistributedStableHash()
-    {
-      return ID;
-    }
 
     /// <summary>
     /// Converts to Guid by copying ID twice - this is used when in correlation in logs to associate multiple messages into topic.
-    /// Warning: the returned Guid is a fake one (hence the name), and not really unique pe UUID spec
+    /// Warning: the returned Guid is a fake one (hence the name), and not really unique per UUID spec
     /// </summary>
-    public Guid ToFakeGuidTag()
-    {
-      var b = new byte[16];
-      b.WriteBEUInt64(0, ID);
-      b.WriteBEUInt64(4, ID);
-      return new Guid( b );
-    }
+    public Guid ToFakeGuidTag() => IOUtils.CastGuidFromLongs(ID, ID);
+
+    public static bool operator ==(FID lhs, FID rhs) =>  lhs.Equals(rhs);
+    public static bool operator !=(FID lhs, FID rhs) => !lhs.Equals(rhs);
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
      => wri.Write(this.ID);
@@ -160,8 +150,5 @@ namespace Azos
         return (false, null);
       }
     }
-
-    public static bool operator ==(FID lhs, FID rhs) => lhs.Equals(rhs);
-    public static bool operator !=(FID lhs, FID rhs) => !lhs.Equals(rhs);
   }
 }

@@ -13,7 +13,7 @@ using Azos.Scripting;
 namespace Azos
 {
   /// <summary>
-  /// Provides basic averments for test construction. May call Aver.Fail(msg) manually
+  /// Provides averments for test and general constraints. You may call trigger exceptions by calling  Aver.Fail(msg) manually
   /// </summary>
   public static class Aver
   {
