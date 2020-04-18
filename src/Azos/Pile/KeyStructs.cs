@@ -7,7 +7,7 @@
 using System;
 
 using Azos.Data;
-using Azos.Data.Access;
+using Azos.Data.Idgen;
 using Azos.IO.ErrorHandling;
 
 namespace Azos.Pile

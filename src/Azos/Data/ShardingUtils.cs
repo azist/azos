@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 
 using Azos.Data.Access;
+using Azos.Data.Idgen;
 using Azos.IO.ErrorHandling;
 
 

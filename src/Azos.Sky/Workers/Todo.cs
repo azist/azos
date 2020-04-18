@@ -8,7 +8,7 @@ using System;
 using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Data;
-using Azos.Data.Access;
+using Azos.Data.Idgen;
 
 namespace Azos.Sky.Workers
 {

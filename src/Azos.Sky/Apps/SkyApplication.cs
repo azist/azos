@@ -7,7 +7,7 @@ using System;
 
 using Azos.Log;
 using Azos.Conf;
-using Azos.Data.Access;
+using Azos.Data.Idgen;
 using Azos.Wave;
 
 using Azos.Sky;

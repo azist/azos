@@ -40,7 +40,7 @@ namespace Azos
   /// </para>
   /// </remarks>
   [Serializable]
-  public struct Atom : IEquatable<Atom>, Data.Access.IDistributedStableHashProvider, IJsonWritable, IJsonReadable
+  public struct Atom : IEquatable<Atom>, Data.Idgen.IDistributedStableHashProvider, IJsonWritable, IJsonReadable
   {
 
     /// <summary>

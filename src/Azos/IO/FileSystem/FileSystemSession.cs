@@ -223,7 +223,7 @@ namespace Azos.IO.FileSystem
           /// <summary>
           /// Returns unique sequence provider for the system or null if it is not supported
           /// </summary>
-          public virtual Data.Access.IUniqueSequenceProvider UniqueSequenceProvider { get { return null; } }
+          public virtual Data.Idgen.IUniqueSequenceProvider UniqueSequenceProvider { get { return null; } }
 
         #endregion
 

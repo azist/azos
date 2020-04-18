@@ -29,7 +29,7 @@ namespace Azos.Data
   /// Note GDID.Zero is never returned by generators as it represents the absence of a value (special value)
   /// </summary>
   [Serializable]
-  public struct GDID : Access.IDataStoreKey, Access.IDistributedStableHashProvider,
+  public struct GDID : Access.IDataStoreKey, Idgen.IDistributedStableHashProvider,
                        IComparable<GDID>,
                        IEquatable<GDID>,
                        IComparable,

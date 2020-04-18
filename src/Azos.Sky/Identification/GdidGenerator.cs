@@ -12,7 +12,7 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Collections;
 using Azos.Data;
-using Azos.Data.Access;
+using Azos.Data.Idgen;
 using Azos.Log;
 
 using Azos.Sky.Contracts;

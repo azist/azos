@@ -9,7 +9,7 @@ using Azos.Web.Messaging;
 using Azos.Serialization.Arow;
 using Azos.Data;
 using Azos.Apps.Injection;
-using Azos.Data.Access;
+using Azos.Data.Idgen;
 
 namespace Azos.Sky.WebMessaging
 {
