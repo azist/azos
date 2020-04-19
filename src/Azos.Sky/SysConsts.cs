@@ -55,7 +55,6 @@ namespace Azos.Sky
     public const string EXT_PARAM_GROUP_WORKER = "worker";
 
     public const string LOG_TOPIC_METABASE = "mtbs";
-    public const string LOG_TOPIC_ID_GEN = "idgen";
     public const string LOG_TOPIC_APP_MANAGEMENT = "AppMgmt";
     public const string LOG_TOPIC_HOST_GOV = "hgov";
     public const string LOG_TOPIC_ZONE_GOV = "zgov";
