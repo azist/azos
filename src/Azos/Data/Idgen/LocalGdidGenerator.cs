@@ -1,7 +1,12 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 using Azos.Apps;
 using Azos.Collections;
@@ -26,7 +31,6 @@ namespace Azos.Data.Idgen
   /// <remarks>
   /// By design, this class can generate per authority up to 2^28 = ~268M ids per second, handling around 100 years since 2020, which equates to
   /// 2^60 combinations. Upon the exhaustion of 268M ids the timestamp gets assigned to the current one.
-
   /// Format:
   /// <code>
   ///  - ERA 32 bits - : AUTH 4bits : COUNTER 60 bits
@@ -39,8 +43,9 @@ namespace Azos.Data.Idgen
   public sealed class LocalGdidGenerator : ApplicationComponent, IConfigurable, IGdidProvider
   {
     //Maximum number of counter per 1 second slice
-    private const int MAX_INC = 268_435_000;// 2 ^ (60 - 32) = 268_435_456 - 456(rounding)
+    private const int MAX_COUNTER_PER_TIME_STAMP = 268_000_000;// 2 ^ (60 - 32) = 268_435_456 (rounded to millions)
     public static readonly DateTime START = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    public const int MAX_BATCH = 1024;
 
     internal class scope : INamed
     {
@@ -53,6 +58,7 @@ namespace Azos.Data.Idgen
       internal scope Scope { get; set; }
       public string Name { get; set; }
       public volatile int Counter;
+      public ulong Timestamp;
 
 
       public uint Era => 0;
@@ -69,13 +75,14 @@ namespace Azos.Data.Idgen
     private void ctor()
     {
       m_Name = Guid.NewGuid().ToString();
-      initTimestamp();
     }
 
     private string m_Name;
     private int m_Authority;
 
     private Registry<scope> m_Scopes = new Registry<scope>();
+
+    public string Name => m_Name;
 
     [Config]
     public uint Era{ get; set; }
@@ -99,18 +106,11 @@ namespace Azos.Data.Idgen
 
     public IEnumerable<string> SequenceScopeNames => m_Scopes.Names;
 
-    public string Name => m_Name;
 
     public void Configure(IConfigSectionNode node)
     {
       ConfigAttribute.Apply(this, node);
     }
-
-    public GDID GenerateOneGdid(string scopeName, string sequenceName, int blockSize = 0, ulong? vicinity = 1152921504606846975, bool noLWM = false)
-     => generate(scopeName.NonBlank(nameof(scopeName)), sequenceName.NonBlank(nameof(sequenceName)), 1).first;
-
-    public ulong GenerateOneSequenceId(string scopeName, string sequenceName, int blockSize = 0, ulong? vicinity = ulong.MaxValue, bool noLWM = false)
-    => generate(scopeName.NonBlank(nameof(scopeName)), sequenceName.NonBlank(nameof(sequenceName)), 1).first.Counter;
 
     public IEnumerable<ISequenceInfo> GetSequenceInfos(string scopeName)
     {
@@ -118,6 +118,12 @@ namespace Azos.Data.Idgen
       if (scope==null) Enumerable.Empty<ISequenceInfo>();
       return scope.Sequences.Values;
     }
+
+    public GDID GenerateOneGdid(string scopeName, string sequenceName, int blockSize = 0, ulong? vicinity = 1152921504606846975, bool noLWM = false)
+     => generate(scopeName.NonBlank(nameof(scopeName)), sequenceName.NonBlank(nameof(sequenceName)), 1).first;
+
+    public ulong GenerateOneSequenceId(string scopeName, string sequenceName, int blockSize = 0, ulong? vicinity = ulong.MaxValue, bool noLWM = false)
+     => generate(scopeName.NonBlank(nameof(scopeName)), sequenceName.NonBlank(nameof(sequenceName)), 1).first.Counter;
 
     public GDID[] TryGenerateManyConsecutiveGdids(string scopeName, string sequenceName, int gdidCount, ulong? vicinity = 1152921504606846975, bool noLWM = false)
     {
@@ -137,53 +143,59 @@ namespace Azos.Data.Idgen
       return result;
     }
 
-    private ulong m_Timestamp;
-
-    private bool initTimestamp()
+    private bool initTimestamp(sequence seq)
     {
-      var was = m_Timestamp;
+      var was = seq.Timestamp;
       var nowdt = App.TimeSource.UTCNow;
       var span = nowdt - START;
-      Aver.IsTrue(nowdt > START && span.TotalSeconds < uint.MaxValue, "App.Timesource is not set to current time `{0}` or it is now the year of 2150 or beyond".Args(START));
-      var now = ((ulong)span.TotalSeconds) << (60 - 32);
-      m_Timestamp = now;
-      return  now > was;
+      Aver.IsTrue(nowdt > START && span.TotalSeconds < uint.MaxValue, "App.Timesource is not set to current time after `{0}` or it is now the year of 2150 or beyond".Args(START));
+      var now = ((ulong)span.TotalSeconds) << (60 - 32);//60 bit counter - 32 upper bits used for timestamp
+      seq.Timestamp = now;
+      return  now > was;//true if at least a second has passed since the last call
     }
 
-    private (GDID first, int count) generate(string scopeName,string seqName, int count)
+    private (GDID first, int count) generate(string scopeName, string seqName, int count)
     {
-      if (count<1) count = count.KeepBetween(1, 1024);
+      count = count.KeepBetween(1, MAX_BATCH);
+
       var scope = m_Scopes.GetOrRegister(scopeName, n => new scope{ Name = n } );
-      var seq = scope.Sequences.GetOrRegister(seqName, n => new sequence{ Name = n });
+      var seq = scope.Sequences.GetOrRegister(seqName, n =>
+      {
+        //this safeguard is needed to ensure a passage of at least 1 second
+        //in case of a quick re-allocation of the class on restart etc...
+        System.Threading.Thread.Sleep(1050);
+        return new sequence { Name = n };
+      });
+
       lock(seq)
       {
         var counter = seq.Counter;
-        var increment = Math.Min(MAX_INC - counter, count);
+        var increment = Math.Min(MAX_COUNTER_PER_TIME_STAMP - counter, count);
 
-        if (increment>0)
+        if (increment>0 && seq.Timestamp>0)
         {
           seq.Counter += increment;
         }
         else
         {
-          const int MAX_WAIT_SPINS = 30;
+          const int MAX_WAIT_SPINS = 30;//of 100 ms slices
           var spin = 0;
-          while(!initTimestamp()) //spinlock - safeguard of block exhaustion within a second (not practically possible)
+          while(!initTimestamp(seq)) //spinlock - safeguard of block exhaustion within a second (not practically possible)
           {
-            //safeguard in case of large clock drift due to clock change
+            //safeguard in case of large clock drift due to clock change back by more than 3 seconds
             spin++;
 
-            if (spin>MAX_WAIT_SPINS)
+            if (spin > MAX_WAIT_SPINS)
               throw new AzosException("Local GDID generation failed because wait limit was exceeded due to a significant clock drift");
 
-            System.Threading.Thread.Sleep(105);
+            System.Threading.Thread.Sleep(100);
           }
 
           counter = Authority == 0 ? 1 : 0;
           seq.Counter = counter + increment;
         }
 
-        var id = m_Timestamp | (0x0F_FF_FFFFUL & (ulong)counter);
+        var id = seq.Timestamp | (0x0F_FF_FFFFUL & (ulong)counter);
 
         return (new GDID(Era, Authority, id), increment);
       }//lock
