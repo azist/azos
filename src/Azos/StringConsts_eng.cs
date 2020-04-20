@@ -1123,6 +1123,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string AROW_DESER_CORRUPT_ERROR =  "Arow deserialization is corrupt";
     public const string AROW_HEADER_CORRUPT_ERROR =  "Arow header is corrupted";
 
+    public const string LOCAL_GDID_GEN_SYSTEM_TIME_CHANGE_ERROR =
+      "Local GDID generation failed because wait period for the next time slot was exceeded due to a significant clock drift. Did system time change? This generator needs an accurate time source synchronized down to 1 second";
+
 
     public const string MULTIPART_DOUBLE_EOL_ISNT_FOUND_AFTER_HEADER_ERROR = "Multipart: Double \\r\\n isn't found after header.";
     public const string MULTIPART_PARTS_COULDNT_BE_EMPTY_ERROR = "Multipart: Parts can not be null or empty.";

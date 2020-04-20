@@ -40,6 +40,25 @@ namespace Azos.Tests.Nub.DataAccess
     }
 
     [Run]
+    public void Basic_OneSequence()
+    {
+      var sut = new LocalGdidGenerator(NOPApplication.Instance);
+
+      var set = new HashSet<ulong>();
+
+      const int CNT = 100;
+
+      for (var i = 0; i < CNT; i++)
+      {
+        var got = sut.GenerateOneSequenceId("a", "a");
+        "{0}".SeeArgs(got);
+        Aver.IsTrue(set.Add(got));
+      }
+
+      Aver.AreEqual(CNT, set.Count);
+    }
+
+    [Run]
     public void Basic_ManyGdid()
     {
       var sut = new LocalGdidGenerator(NOPApplication.Instance);
@@ -58,6 +77,54 @@ namespace Azos.Tests.Nub.DataAccess
       }
 
       Aver.AreEqual(CNT * 16, set.Count);
+    }
+
+    [Run]
+    public void Basic_ManySequence()
+    {
+      var sut = new LocalGdidGenerator(NOPApplication.Instance);
+
+      var set = new HashSet<ulong>();
+
+      const int CNT = 100;
+
+      for (var i = 0; i < CNT; i++)
+      {
+        var got = sut.TryGenerateManyConsecutiveSequenceIds("a", "a", 16);
+        "Start: {0}  count: {1}".SeeArgs(got.StartInclusive, got.Count);
+        Aver.AreEqual(16, got.Count);
+        Aver.IsTrue(set.Add(got.StartInclusive)); //adding first and last
+        Aver.IsTrue(set.Add(got.StartInclusive+(ulong)(got.Count-1)));
+      }
+
+      Aver.AreEqual(CNT * 2, set.Count);
+    }
+
+    [Run]
+    public void OverflowTimeSlot_ManySequence()
+    {
+      var sut = new LocalGdidGenerator(NOPApplication.Instance);
+
+      var set = new HashSet<ulong>();
+
+      const int CNT = 750_000;
+
+      for (var i = 0; i < CNT; i++)
+      {
+        var got = sut.TryGenerateManyConsecutiveSequenceIds("a", "a", 1024);
+
+        if (i % 25_000 ==0)
+        {
+          var buf = new byte[8];
+          buf.WriteBEUInt64(got.StartInclusive);
+          "Start: {0}  {1}  count: {2}".SeeArgs(buf.ToDumpString(DumpFormat.Hex), got.StartInclusive, got.Count, got.StartInclusive);
+        }
+
+        Aver.IsTrue(set.Add(got.StartInclusive)); //adding first and last
+        Aver.IsTrue(set.Add(got.StartInclusive + (ulong)(got.Count - 1)));
+      }
+
+      Aver.AreEqual(CNT * 2, set.Count);
     }
 
     [Run]

@@ -187,17 +187,18 @@ namespace Azos.Data.Idgen
         }
         else
         {
-          const int MAX_WAIT_SPINS = 30;//of 100 ms slices
+          const int MAX_WAIT_SPINS = 50;//of 100 ms slices = 5 seconds
           var spin = 0;
           while(!initTimestamp(seq)) //spinlock - safeguard of block exhaustion within a second (not practically possible)
           {
             //safeguard in case of large clock drift due to clock change back by more than 3 seconds
             if (spin++ > MAX_WAIT_SPINS)
-              throw new AzosException("Local GDID generation failed because wait limit was exceeded due to a significant clock drift");
+              throw new AzosException("Local GDID generation failed because wait limit was exceeded due to a significant clock drift. Did system time change?");
 
             System.Threading.Thread.Sleep(100);
           }
 
+          increment = count;
           counter = Authority == 0 ? 1 : 0; //GDID(0,0,0) represents Zero, authority 0 counter starts with 1
           seq.Counter = counter + increment;
         }
