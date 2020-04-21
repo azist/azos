@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.2.5.6
-set HEADLINE=Svc release, add LocalGdidGenerator
+set VER=1.2.5.7
+set HEADLINE=Svc release, add AdHocMapDecorator add more validations to Web.Message
 
 call vs2017-build-release %VER%
 
