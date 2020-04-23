@@ -14,7 +14,7 @@
 *.csproj eol=lf
 *.sln eol=lf
 *.xml=lf
-*.laconf eol=lf linguist-language=java
+*.laconf inguist-language=Java
 *.json=lf
 *.yml=lf
 *.rschema=lf
