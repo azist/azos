@@ -14,7 +14,7 @@
 *.csproj eol=lf
 *.sln eol=lf
 *.xml=lf
-*.laconf=lf
+*.laconf=lf linguist-language=C#
 *.json=lf
 *.yml=lf
 *.rschema=lf
