@@ -18,8 +18,15 @@ namespace Azos.Web.Messaging
   /// </summary>
   public abstract class MessageEntity : TypedDoc
   {
+    //Note: the following impose a maximum theoretical limits/lengths on content.
+    //Actual limits depend or implementing systems as this is just a safe guard to prevent overflow attacks at minimum
     public const int MAX_TAGS = 128;
     public const int MAX_TAG_LENGTH = 48;
+    public const int MAX_ATTACHMENTS = 1024;
+    public const int MAX_ADDR_LEN = 128 * 1024;
+    public const int MAX_TEXT_VAL_LEN = 256 * 1024;
+    public const int MAX_TEXT_CONTENT_LEN = 32 * 1024 * 1024;
+
 
 
     /// <summary> Override to specify a different limit imposed on a total number of tag array elements </summary>
@@ -70,6 +77,7 @@ namespace Azos.Web.Messaging
   [Arow("31B5D987-5DBF-4CE9-AFFA-6684005D2F8F")]
   public class Message : MessageEntity
   {
+
     [Serializable]
     [Arow("593907F9-0577-466F-8228-03C4EB24AE50")]
     public class Attachment : MessageEntity
@@ -82,18 +90,25 @@ namespace Azos.Web.Messaging
         ContentType = contentType ?? Web.ContentType.BINARY;
       }
 
-      [Field(backendName: "nm", isArow: true)]   public string Name { get; set; }
+      [Field(maxLength: MAX_TEXT_VAL_LEN, backendName: "nm", isArow: true)]
+      public string Name { get; set; }
 
       /// <summary>
       /// Relative weight of attachment expressed in "units" such as characters or bytes / megabytes etc.
       /// The units depend on a system which handles the content.
       /// This is to be used only by clients for estimation of content size upon fetch
       /// </summary>
-      [Field(backendName: "wg", isArow: true)]   public long   UnitWeight { get; set; }
+      [Field(backendName: "wg", isArow: true)]
+      public long   UnitWeight { get; set; }
 
-      [Field(backendName: "ct", isArow: true)]   public byte[] Content { get; set; }
-      [Field(backendName: "curl", isArow: true)] public string ContentURL { get; set; }
-      [Field(backendName: "tp", isArow: true)]   public string ContentType { get; set; }
+      [Field(backendName: "ct", isArow: true)]
+      public byte[] Content { get; set; }
+
+      [Field(maxLength: MAX_TEXT_VAL_LEN, backendName: "curl", isArow: true)]
+      public string ContentURL { get; set; }
+
+      [Field(maxLength: MAX_TEXT_VAL_LEN, backendName: "tp", isArow: true)]
+      public string ContentType { get; set; }
 
       /// <summary>
       /// Returns true to indicate that the content has fetched either as byte[] or URL (that yet needs to be fetched).
@@ -116,44 +131,62 @@ namespace Azos.Web.Messaging
     /// Every message has an ID of type GUID generated upon the creation, it is used for unique identification
     /// in small systems and message co-relation into conversation threads
     /// </summary>
-    [Field(backendName: "id", isArow: true)] public Guid  ID { get; private set;}
+    [Field(backendName: "id", isArow: true)]
+    public Guid  ID { get; private set;}
 
     /// <summary>
     /// When set, identifies the message in a thread which this one relates to
     /// </summary>
-    [Field(backendName: "rel", isArow: true)] public Guid?  RelatedID { get; set;}
+    [Field(backendName: "rel", isArow: true)]
+    public Guid?  RelatedID { get; set;}
 
-    [Field(backendName: "cdt", isArow: true)] public DateTime CreateDateUTC { get; set;}
+    [Field(backendName: "cdt", isArow: true)]
+    public DateTime CreateDateUTC { get; set;}
 
-    [Field(backendName: "pr", isArow: true)] public MsgPriority   Priority   { get; set;}
-    [Field(backendName: "im", isArow: true)] public MsgImportance Importance { get; set;}
+    [Field(backendName: "pr", isArow: true)]
+    public MsgPriority   Priority   { get; set;}
 
-    [Field(backendName: "a_frm", isArow: true)]  public string AddressFrom    { get{ return m_AddressFrom;   }  set{ m_AddressFrom    = value; m_Builder_AddressFrom    = null;} }
-    [Field(backendName: "a_rto", isArow: true)]  public string AddressReplyTo { get{ return m_AddressReplyTo;}  set{ m_AddressReplyTo = value; m_Builder_AddressReplyTo = null;} }
-    [Field(backendName: "a_to",  isArow: true)]  public string AddressTo      { get{ return m_AddressTo;     }  set{ m_AddressTo      = value; m_Builder_AddressTo      = null;} }
-    [Field(backendName: "a_cc",  isArow: true)]  public string AddressCC      { get{ return m_AddressCC;     }  set{ m_AddressCC      = value; m_Builder_AddressCC      = null;} }
-    [Field(backendName: "a_bcc", isArow: true)]  public string AddressBCC     { get{ return m_AddressBCC;    }  set{ m_AddressBCC     = value; m_Builder_AddressBCC     = null;} }
+    [Field(backendName: "im", isArow: true)]
+    public MsgImportance Importance { get; set;}
+
+    [Field(maxLength: MAX_ADDR_LEN, backendName: "a_frm", isArow: true)]
+    public string AddressFrom    { get => m_AddressFrom;     set{ m_AddressFrom    = value; m_Builder_AddressFrom    = null;} }
+
+    [Field(maxLength: MAX_ADDR_LEN, backendName: "a_rto", isArow: true)]
+    public string AddressReplyTo { get => m_AddressReplyTo;  set{ m_AddressReplyTo = value; m_Builder_AddressReplyTo = null;} }
+
+    [Field(maxLength: MAX_ADDR_LEN, backendName: "a_to",  isArow: true)]
+    public string AddressTo      { get => m_AddressTo;   set{ m_AddressTo      = value; m_Builder_AddressTo      = null;} }
+
+    [Field(maxLength: MAX_ADDR_LEN, backendName: "a_cc",  isArow: true)]
+    public string AddressCC      { get => m_AddressCC;   set{ m_AddressCC      = value; m_Builder_AddressCC      = null;} }
+
+    [Field(maxLength: MAX_ADDR_LEN, backendName: "a_bcc", isArow: true)]
+    public string AddressBCC     { get => m_AddressBCC;  set{ m_AddressBCC     = value; m_Builder_AddressBCC     = null;} }
 
     /// <summary>Subject short text </summary>
-    [Field(backendName: "sb", isArow: true)] public string Subject{ get; set; }
+    [Field(maxLength: MAX_TEXT_CONTENT_LEN, backendName: "sb", isArow: true)]
+    public string Subject{ get; set; }
 
     /// <summary>Short text body </summary>
-    [Field(backendName: "short", isArow: true)] public string ShortBody{ get; set; }
+    [Field(maxLength: MAX_TEXT_CONTENT_LEN, backendName: "short", isArow: true)]
+    public string ShortBody{ get; set; }
 
     /// <summary>Plain/text body </summary>
-    [Field(backendName: "plain", isArow: true)] public string Body{ get; set; }
+    [Field(maxLength: MAX_TEXT_CONTENT_LEN, backendName: "plain", isArow: true)]
+    public string Body{ get; set; }
 
     /// <summary>Rich-formatted body per content type </summary>
-    [Field(backendName: "rich", isArow: true)] public string RichBody{ get; set; }
-
-    /// <summary>Ad-hoc tags for this message</summary>
-    [Field(backendName: "tags", isArow: true)] public string[] Tags { get; set; }
+    [Field(maxLength: MAX_TEXT_CONTENT_LEN, backendName: "rich", isArow: true)]
+    public string RichBody{ get; set; }
 
     /// <summary>Rich body content type </summary>
-    [Field(backendName: "rctp", isArow: true)] public string RichBodyContentType{ get; set; }
+    [Field(maxLength: MAX_TEXT_VAL_LEN, backendName: "rctp", isArow: true)]
+    public string RichBodyContentType{ get; set; }
 
     /// <summary>Collection of Attachments </summary>
-    [Field(backendName: "ats", isArow: true)] public Attachment[] Attachments { get; set; }
+    [Field(maxLength: MAX_ATTACHMENTS, backendName: "ats", isArow: true)]
+    public Attachment[] Attachments { get; set; }
 
     private string m_AddressFrom;
     private string m_AddressReplyTo;
@@ -167,11 +200,21 @@ namespace Azos.Web.Messaging
     [NonSerialized]private MessageAddressBuilder m_Builder_AddressCC;
     [NonSerialized]private MessageAddressBuilder m_Builder_AddressBCC;
 
-    public MessageAddressBuilder AddressFromBuilder    { get{ return m_Builder_AddressFrom    ?? (m_Builder_AddressFrom    = new MessageAddressBuilder(m_AddressFrom,   (b) => m_AddressFrom    = b.ToString())); } }
-    public MessageAddressBuilder AddressReplyToBuilder { get{ return m_Builder_AddressReplyTo ?? (m_Builder_AddressReplyTo = new MessageAddressBuilder(m_AddressReplyTo,(b) => m_AddressReplyTo = b.ToString())); } }
-    public MessageAddressBuilder AddressToBuilder      { get{ return m_Builder_AddressTo      ?? (m_Builder_AddressTo      = new MessageAddressBuilder(m_AddressTo,     (b) => m_AddressTo      = b.ToString())); } }
-    public MessageAddressBuilder AddressCCBuilder      { get{ return m_Builder_AddressCC      ?? (m_Builder_AddressCC      = new MessageAddressBuilder(m_AddressCC,     (b) => m_AddressCC      = b.ToString())); } }
-    public MessageAddressBuilder AddressBCCBuilder     { get{ return m_Builder_AddressBCC     ?? (m_Builder_AddressBCC     = new MessageAddressBuilder(m_AddressBCC,    (b) => m_AddressBCC     = b.ToString())); } }
+
+    public MessageAddressBuilder AddressFromBuilder
+      => m_Builder_AddressFrom    ?? (m_Builder_AddressFrom    = new MessageAddressBuilder(m_AddressFrom,   (b) => m_AddressFrom    = b.ToString()));
+
+    public MessageAddressBuilder AddressReplyToBuilder
+      => m_Builder_AddressReplyTo ?? (m_Builder_AddressReplyTo = new MessageAddressBuilder(m_AddressReplyTo,(b) => m_AddressReplyTo = b.ToString()));
+
+    public MessageAddressBuilder AddressToBuilder
+      => m_Builder_AddressTo      ?? (m_Builder_AddressTo      = new MessageAddressBuilder(m_AddressTo,     (b) => m_AddressTo      = b.ToString()));
+
+    public MessageAddressBuilder AddressCCBuilder
+      => m_Builder_AddressCC      ?? (m_Builder_AddressCC      = new MessageAddressBuilder(m_AddressCC,     (b) => m_AddressCC      = b.ToString()));
+
+    public MessageAddressBuilder AddressBCCBuilder
+      => m_Builder_AddressBCC     ?? (m_Builder_AddressBCC     = new MessageAddressBuilder(m_AddressBCC,    (b) => m_AddressBCC     = b.ToString()));
 
 
 
@@ -189,25 +232,34 @@ namespace Azos.Web.Messaging
         if (state.ShouldStop) return state;
       }
 
-      try  { var b = AddressFromBuilder; }
-      catch(Exception error) { return new ValidState(state, new FieldValidationException(this.Schema.DisplayName, "AddressFrom", error.ToMessageWithType())); }
+      if (CreateDateUTC.Kind != DateTimeKind.Utc)
+      {
+        state = new ValidState(state, new FieldValidationException(this.Schema.DisplayName, nameof(CreateDateUTC), ".Kind != UTC"));
+        if (state.ShouldStop) return state;
+      }
 
-      try { var b = AddressReplyToBuilder; }
-      catch (Exception error) { return new ValidState(state, new FieldValidationException(this.Schema.DisplayName, "AddressReplyTo", error.ToMessageWithType())); }
 
-      try { var b = AddressCCBuilder; }
-      catch (Exception error) { return new ValidState(state, new FieldValidationException(this.Schema.DisplayName, "AddressCC", error.ToMessageWithType())); }
+      state = state.Of(
+        s => checkAddress(s, () => AddressFromBuilder,    nameof(AddressFrom)),
+        s => checkAddress(s, () => AddressReplyToBuilder, nameof(AddressReplyTo)),
+        s => checkAddress(s, () => AddressToBuilder,      nameof(AddressTo)),
+        s => checkAddress(s, () => AddressCCBuilder,      nameof(AddressCC)),
+        s => checkAddress(s, () => AddressBCCBuilder,     nameof(AddressBCC))
+      );
 
-      try { var b = AddressBCCBuilder; }
-      catch (Exception error) { return new ValidState(state, new FieldValidationException(this.Schema.DisplayName, "AddressBCC", error.ToMessageWithType())); }
+      return state;
+    }
 
+    private ValidState checkAddress(ValidState state, Func<MessageAddressBuilder> check, string fname)
+    {
       try
       {
-        var b = AddressToBuilder;
-        if (!b.All.Any()) return new ValidState(state, new FieldValidationException(this.Schema.DisplayName, "AddressTo", "No TO"));
+        check();
       }
-      catch(Exception error) { return new ValidState(state, new FieldValidationException(this.Schema.DisplayName, "AddressTo", error.ToMessageWithType())); }
-
+      catch (Exception error)
+      {
+        state = new ValidState(state, new FieldValidationException(this.Schema.DisplayName, fname, error.ToMessageWithType()));
+      }
       return state;
     }
   }

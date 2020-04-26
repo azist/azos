@@ -167,6 +167,63 @@ namespace Azos.Data
     public int ErrorCount => Error==null ? 0 : Error is ValidationBatchException vbe ? vbe.Batch.Count : 1;
 
     public override string ToString() => $"ValState(`{TargetName}`)";
+
+    /// <summary>
+    /// Performs validation checks one by one returning as soon as the validation should stop.
+    /// This is a syntax sugar not to write `if (state.ShouldStop()) return state;` every time
+    /// </summary>
+    public ValidState Of(Func<ValidState, ValidState> f1,
+                         Func<ValidState, ValidState> f2,
+                         Func<ValidState, ValidState> f3 = null,
+                         Func<ValidState, ValidState> f4 = null,
+                         Func<ValidState, ValidState> f5 = null,
+                         Func<ValidState, ValidState> f6 = null,
+                         Func<ValidState, ValidState> f7 = null,
+                         Func<ValidState, ValidState> f8 = null)
+    {
+      var state = this;
+
+      if (f1 != null) { state = f1(state); if (state.ShouldStop) return state; }
+      if (f2 != null) { state = f2(state); if (state.ShouldStop) return state; }
+      if (f3 != null) { state = f3(state); if (state.ShouldStop) return state; }
+      if (f4 != null) { state = f4(state); if (state.ShouldStop) return state; }
+      if (f5 != null) { state = f5(state); if (state.ShouldStop) return state; }
+      if (f6 != null) { state = f6(state); if (state.ShouldStop) return state; }
+      if (f7 != null) { state = f7(state); if (state.ShouldStop) return state; }
+      if (f8 != null) state = f8(state);
+
+      return state;
+    }
+
+    /// <summary>
+    /// Performs validation checks one by one returning as soon as the validation should stop.
+    /// This is a syntax sugar not to write `if (state.ShouldStop()) return state;` every time.
+    /// This version of the function passes a TContext value between calls
+    /// </summary>
+    public ValidState Of<TContext>(TContext ctx,
+                                   Func<TContext, ValidState, ValidState> f1,
+                                   Func<TContext, ValidState, ValidState> f2,
+                                   Func<TContext, ValidState, ValidState> f3 = null,
+                                   Func<TContext, ValidState, ValidState> f4 = null,
+                                   Func<TContext, ValidState, ValidState> f5 = null,
+                                   Func<TContext, ValidState, ValidState> f6 = null,
+                                   Func<TContext, ValidState, ValidState> f7 = null,
+                                   Func<TContext, ValidState, ValidState> f8 = null)
+    {
+      var state = this;
+
+      if (f1 != null) { state = f1(ctx, state); if (state.ShouldStop) return state; }
+      if (f2 != null) { state = f2(ctx, state); if (state.ShouldStop) return state; }
+      if (f3 != null) { state = f3(ctx, state); if (state.ShouldStop) return state; }
+      if (f4 != null) { state = f4(ctx, state); if (state.ShouldStop) return state; }
+      if (f5 != null) { state = f5(ctx, state); if (state.ShouldStop) return state; }
+      if (f6 != null) { state = f6(ctx, state); if (state.ShouldStop) return state; }
+      if (f7 != null) { state = f7(ctx, state); if (state.ShouldStop) return state; }
+      if (f8 != null) state = f8(ctx, state);
+
+      return state;
+    }
+
   }
 
 
