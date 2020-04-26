@@ -178,11 +178,11 @@ namespace Azos.Data
   [Serializable]
   public sealed class ValidationBatchException : ValidationException
   {
-    public const string BATCH_FLD_NAME = "BACTHVE-BATCH";
+    public const string BATCH_FLD_NAME = "BATCHVE-BATCH";
 
     /// <summary>
     /// Links two errors together into ValidationBatchException, creating a new instance if necessary.
-    /// Both parameters can be null. A new instance is create only if existing exception is not null
+    /// Both parameters can be null. A new instance is created only if existing exception is not null
     /// and is not of ValidationBatchException type, otherwise new exception is added to an existing batch instance.
     /// The method may return null if both exceptions are null.
     /// </summary>
