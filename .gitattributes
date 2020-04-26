@@ -13,8 +13,9 @@
 *.hrl eol=lf
 *.csproj eol=lf
 *.sln eol=lf
-*.xml=lf
-*.laconf=lf
-*.json=lf
-*.yml=lf
-*.rschema=lf
+*.xml eol=lf
+*.laconf eol=lf linguist-language=C#
+*.sky eol=lf linguist-language=C#
+*.json eol==lf
+*.yml eol==lf
+*.rschema eol=lf linguist-language=C#
