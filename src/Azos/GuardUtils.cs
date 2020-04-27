@@ -205,7 +205,7 @@ namespace Azos
 
 
     /// <summary>
-    /// Ensures that a type value is not null and is of the specified type or one of its subtypes
+    /// Ensures that a value is not null and is of the specified type or one of its subtypes
     /// </summary>
     public static TValue ValueIsOfType<T, TValue>(this TValue value,
                                string name = null,
@@ -225,7 +225,7 @@ namespace Azos
     }
 
     /// <summary>
-    /// Ensures that a type value is not null and is of the specified type or one of its subtypes
+    /// Ensures that a value is not null and is of the specified type or one of its subtypes
     /// </summary>
     public static TValue ValueIsOfType<TValue>(this TValue value,
                                Type expectedType,
@@ -244,7 +244,6 @@ namespace Azos
       }
       return value;
     }
-
 
     /// <summary>
     /// Ensures that a config node value is non-null existing node
