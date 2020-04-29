@@ -44,18 +44,18 @@ Consider the following filter payload is submitted to customer list API as an ex
 ```json
 POST /customer/list  application/json
 {
-  pagingCount: 75,
-  AdvancedFilter: {
-     Operator: "and",
-     LeftOperand: {
-      Operator: "=",
-      LeftOperand: { Identifier: "FNAME"},
-      RightOperand: { Value: "Joseph"}
+  "pagingCount": 75,
+  "AdvancedFilter": {
+     "Operator": "and",
+     "LeftOperand": {
+      "Operator": "=",
+      "LeftOperand": { "Identifier": "FNAME"},
+      "RightOperand": { "Value": "Joseph"}
     },
-    RightOperand: {
-      Operator: "=",
-      LeftOperand: { Identifier: "LNAME"},
-      RightOperand: { Value: "Appleman"}
+    "RightOperand": {
+      "Operator": "=",
+      "LeftOperand": { "Identifier": "LNAME"},
+      "RightOperand": { "Value": "Appleman"}
     }
   }
 }
