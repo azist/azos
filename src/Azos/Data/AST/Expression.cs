@@ -11,11 +11,13 @@ namespace Azos.Data.AST
   /// <summary>
   /// Provides general ancestor for abstract syntax tree nodes
   /// </summary>
-  [ExpressionJsonHandlerAttribute]
+  [ExpressionJsonHandler]
   public abstract class Expression : AmorphousTypedDoc
   {
+    /// <summary>
+    /// Implements a visitor pattern in XlatContext (translation context)
+    /// </summary>
     public abstract void Accept(XlatContext ctx);
-
   }
 
   /// <summary>
