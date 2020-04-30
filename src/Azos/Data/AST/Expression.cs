@@ -25,7 +25,7 @@ namespace Azos.Data.AST
   /// </summary>
   public abstract class OperatorExpression : Expression
   {
-    [Field(required: true, MinLength = 1)]
+    [Field(required: true, MinLength = 1, Description = "Operator, such as '==', '!=' etc...")]
     public string Operator { get; set; }
   }
 
@@ -35,8 +35,11 @@ namespace Azos.Data.AST
   /// </summary>
   public class ValueExpression : Expression
   {
-    [Field]
-    public object Value { get; set; }//may contain null, json array or json data map as-is
+    [Field(description: "Provides a value such as null, a string, scalar, or array/map")]
+    public object Value { get; set; }
+
+    [Field(description: "Provides an optional type hint for the value, typically type system CNAME(Canonical Name) for example a `utctime` hint may be used to decorate a string value to treat is as a UTC DateTime value")]
+    public string TypeHint{  get; set; }
 
     public override void Accept(XlatContext ctx)
      => ctx.Visit(this);
@@ -47,7 +50,7 @@ namespace Azos.Data.AST
   /// </summary>
   public class ArrayValueExpression : Expression
   {
-    [Field]
+    [Field(description: "An array of ValueExpressions; as the ones used with IN in SQL etc")]
     public IEnumerable<ValueExpression> ArrayValue { get; set; }
 
     public override void Accept(XlatContext ctx)
@@ -59,7 +62,7 @@ namespace Azos.Data.AST
   /// </summary>
   public class IdentifierExpression : Expression
   {
-    [Field(required: true, MinLength = 1)]
+    [Field(required: true, MinLength = 1, Description = "Represents an identifier, such as a column/field name")]
     public string Identifier { get; set; }
 
     public override void Accept(XlatContext ctx)
@@ -72,7 +75,7 @@ namespace Azos.Data.AST
   /// </summary>
   public class UnaryExpression : OperatorExpression
   {
-    [Field(required: true)]
+    [Field(required: true, Description = "A single operand of the unary operator")]
     public Expression Operand { get; set; }
 
     public override void Accept(XlatContext ctx) => ctx.Visit(this);
@@ -83,8 +86,11 @@ namespace Azos.Data.AST
   /// </summary>
   public class BinaryExpression : OperatorExpression
   {
-    [Field(required: true)] public Expression LeftOperand {  get; set; }
-    [Field(required: true)] public Expression RightOperand { get; set; }
+    [Field(required: true, Description = "Left operand of the binary operator")]
+    public Expression LeftOperand {  get; set; }
+
+    [Field(required: true, Description = "Right operand of the binary operator")]
+    public Expression RightOperand { get; set; }
 
     public override void Accept(XlatContext ctx) => ctx.Visit(this);
   }
