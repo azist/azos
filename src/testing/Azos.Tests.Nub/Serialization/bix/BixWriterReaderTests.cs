@@ -1366,5 +1366,73 @@ namespace Azos.Tests.Nub.Serialization
 
     #endregion
 
+
+    #region GUID
+    [Run]
+    public void Guid_01()
+    {
+      Guid v = Guid.Empty;
+      testScalar(v, w => w.Write(v), r => r.ReadGuid(), 16);
+
+      v = Guid.NewGuid();
+      testScalar(v, w => w.Write(v), r => r.ReadGuid(), 16);
+    }
+
+    [Run]
+    public void Guid_02_Nullable()
+    {
+      Guid? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableGuid(), 1);
+
+      v = Guid.Empty;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableGuid(), 17);
+
+      v = Guid.NewGuid();
+      testScalar(v, w => w.Write(v), r => r.ReadNullableGuid(), 17);
+    }
+
+    [Run]
+    public void Guid_03_Collection()
+    {
+      List<Guid> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadGuidCollection<List<Guid>>(), 1);
+
+      v = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadGuidCollection<List<Guid>>(), 1 + 1 + 32);
+    }
+
+
+    [Run]
+    public void Guid_04_CollectionNullable()
+    {
+      List<Guid?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableGuidCollection<List<Guid?>>(), 1);
+
+      v = new List<Guid?> { Guid.NewGuid(), null, Guid.NewGuid(), null, Guid.NewGuid() };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableGuidCollection<List<Guid?>>(), 1 + 1 + 53);
+    }
+
+    [Run]
+    public void Guid_05_Array()
+    {
+      Guid[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadGuidArray(), 1);
+
+      v = new Guid[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
+      testArray(v, w => w.Write(v), r => r.ReadGuidArray(), 1 + 1 + 48);
+    }
+
+    [Run]
+    public void Guid_06_ArrayNullable()
+    {
+      Guid?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableGuidArray(), 1);
+
+      v = new Guid?[] { Guid.NewGuid(), null, Guid.NewGuid(), null, Guid.NewGuid(), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullableGuidArray(), 1 + 1 + 54);
+    }
+
+    #endregion
+
   }
 }
