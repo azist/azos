@@ -1208,5 +1208,85 @@ namespace Azos.Tests.Nub.Serialization
     }
     #endregion
 
+
+    #region DateTime
+    [Run]
+    public void DateTime_01()
+    {
+      DateTime v = DateTime.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadDateTime(), 9);
+
+      v = DateTime.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadDateTime(), 9);
+
+      v = new DateTime(2009, 12, 18, 14, 18, 07, DateTimeKind.Utc);
+      testScalar(v, w => w.Write(v), r => r.ReadDateTime(), 9);
+
+      v = new DateTime(2009, 12, 18, 14, 18, 07, DateTimeKind.Local);
+      testScalar(v, w => w.Write(v), r => r.ReadDateTime(), 9);
+    }
+
+    [Run]
+    public void DateTime_02_Nullable()
+    {
+      DateTime? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDateTime(), 1);
+
+      v = DateTime.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDateTime(), 10);
+
+      v = DateTime.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDateTime(), 10);
+
+      v = new DateTime(2009, 12, 18, 14, 18, 07, DateTimeKind.Utc);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDateTime(), 10);
+
+      v = new DateTime(2009, 12, 18, 14, 18, 07, DateTimeKind.Local);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDateTime(), 10);
+    }
+
+    [Run]
+    public void DateTime_03_Collection()
+    {
+      List<DateTime> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadDateTimeCollection<List<DateTime>>(), 1);
+
+      v = new List<DateTime> { new DateTime(1980, 1,1), new DateTime(2050, 4,3) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadDateTimeCollection<List<DateTime>>(), 1 + 1 + 18);
+    }
+
+
+    [Run]
+    public void DateTime_04_CollectionNullable()
+    {
+      List<DateTime?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableDateTimeCollection<List<DateTime?>>(), 1);
+
+      v = new List<DateTime?> { new DateTime(1980, 1, 1), null, new DateTime(2090, 4, 3), null, new DateTime(2020, 8, 12) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableDateTimeCollection<List<DateTime?>>(), 1 + 1 + 32);
+    }
+
+    [Run]
+    public void DateTime_05_Array()
+    {
+      DateTime[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadDateTimeArray(), 1);
+
+      v = new DateTime[] { new DateTime(1920, 1, 1), new DateTime(1950, 1, 1), new DateTime(1980, 11, 12) };
+      testArray(v, w => w.Write(v), r => r.ReadDateTimeArray(), 1 + 1 + 27);
+    }
+
+    [Run]
+    public void DateTime_06_ArrayNullable()
+    {
+      DateTime?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableDateTimeArray(), 1);
+
+      v = new DateTime?[] { new DateTime(1910, 1, 1), null, new DateTime(1920, 1, 1), null, new DateTime(1940, 1, 1), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullableDateTimeArray(), 1 + 1 + 33);
+    }
+
+    #endregion
+
   }
 }
