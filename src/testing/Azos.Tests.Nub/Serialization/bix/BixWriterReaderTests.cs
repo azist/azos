@@ -1208,7 +1208,6 @@ namespace Azos.Tests.Nub.Serialization
     }
     #endregion
 
-
     #region DateTime
     [Run]
     public void DateTime_01()
@@ -1284,6 +1283,85 @@ namespace Azos.Tests.Nub.Serialization
 
       v = new DateTime?[] { new DateTime(1910, 1, 1), null, new DateTime(1920, 1, 1), null, new DateTime(1940, 1, 1), null };
       testArray(v, w => w.Write(v), r => r.ReadNullableDateTimeArray(), 1 + 1 + 33);
+    }
+
+    #endregion
+
+    #region TimeSpan
+    [Run]
+    public void TimeSpan_01()
+    {
+      TimeSpan v = TimeSpan.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadTimeSpan(), 10);
+
+      v = TimeSpan.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadTimeSpan(), 10);
+
+      v = new TimeSpan(17);
+      testScalar(v, w => w.Write(v), r => r.ReadTimeSpan(), 1);
+
+      v = new TimeSpan(256);
+      testScalar(v, w => w.Write(v), r => r.ReadTimeSpan(), 2);
+    }
+
+    [Run]
+    public void TimeSpan_02_Nullable()
+    {
+      TimeSpan? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableTimeSpan(), 1);
+
+      v = TimeSpan.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableTimeSpan(), 11);
+
+      v = TimeSpan.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableTimeSpan(), 11);
+
+      v = new TimeSpan(17);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableTimeSpan(), 2);
+
+      v = new TimeSpan(256);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableTimeSpan(), 3);
+    }
+
+    [Run]
+    public void TimeSpan_03_Collection()
+    {
+      List<TimeSpan> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadTimeSpanCollection<List<TimeSpan>>(), 1);
+
+      v = new List<TimeSpan> { new TimeSpan(256), new TimeSpan(1) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadTimeSpanCollection<List<TimeSpan>>(), 1 + 1 + 3);
+    }
+
+
+    [Run]
+    public void TimeSpan_04_CollectionNullable()
+    {
+      List<TimeSpan?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableTimeSpanCollection<List<TimeSpan?>>(), 1);
+
+      v = new List<TimeSpan?> { new TimeSpan(5), null, new TimeSpan(5), null, new TimeSpan(256) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableTimeSpanCollection<List<TimeSpan?>>(), 1 + 1 + 9);
+    }
+
+    [Run]
+    public void TimeSpan_05_Array()
+    {
+      TimeSpan[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadTimeSpanArray(), 1);
+
+      v = new TimeSpan[] { new TimeSpan(5), new TimeSpan(5), new TimeSpan(5) };
+      testArray(v, w => w.Write(v), r => r.ReadTimeSpanArray(), 1 + 1 + 3);
+    }
+
+    [Run]
+    public void TimeSpan_06_ArrayNullable()
+    {
+      TimeSpan?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableTimeSpanArray(), 1);
+
+      v = new TimeSpan?[] { new TimeSpan(5), null, new TimeSpan(256), null, new TimeSpan(7), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullableTimeSpanArray(), 1 + 1 + 10);
     }
 
     #endregion
