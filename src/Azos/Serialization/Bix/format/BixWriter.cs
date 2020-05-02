@@ -1102,8 +1102,9 @@ namespace Azos.Serialization.Bix
     #region GDID
     public void Write(Data.GDID value)
     {
-      Write(value.Era);
-      Write(value.ID);
+      var buf = Format.GetBuff32();
+      value.WriteIntoBuffer(buf);
+      m_Stream.Write(buf, 0, sizeof(uint) + sizeof(ulong));
     }
 
     public void Write(Data.GDID? value)

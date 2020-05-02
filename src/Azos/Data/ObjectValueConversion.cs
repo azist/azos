@@ -838,7 +838,6 @@ namespace Azos.Data
                 GDID gdid;
                 if (GDID.TryParse(sval, out gdid)) return gdid;
 
-                //20160109 DKH also interpret string via ELink
                 try
                 {
                   var elink = new ELink(sval);

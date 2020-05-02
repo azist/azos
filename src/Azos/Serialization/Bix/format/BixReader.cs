@@ -1081,9 +1081,9 @@ namespace Azos.Serialization.Bix
     #region GDID
     public Data.GDID ReadGDID()
     {
-      var era = ReadUint();
-      var id = ReadUlong();
-      return new Data.GDID(era, id);
+      var buf = Format.GetBuff32();
+      ReadFromStream(buf, sizeof(uint) + sizeof(ulong));
+      return new Data.GDID(buf);
     }
 
     public Data.GDID? ReadNullableGDID()

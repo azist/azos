@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
+using Azos.Data;
 using Azos.Scripting;
 using Azos.Serialization.Bix;
 
@@ -1366,7 +1366,6 @@ namespace Azos.Tests.Nub.Serialization
 
     #endregion
 
-
     #region GUID
     [Run]
     public void Guid_01()
@@ -1433,6 +1432,78 @@ namespace Azos.Tests.Nub.Serialization
     }
 
     #endregion
+
+    #region GDID
+    [Run]
+    public void GDID_01()
+    {
+      GDID v = GDID.ZERO;
+      testScalar(v, w => w.Write(v), r => r.ReadGDID(), 12);
+
+      v = new GDID(uint.MinValue, ulong.MinValue);
+      testScalar(v, w => w.Write(v), r => r.ReadGDID(), 12);
+
+      v = new GDID(uint.MaxValue, ulong.MaxValue);
+      testScalar(v, w => w.Write(v), r => r.ReadGDID(), 12);
+    }
+
+    [Run]
+    public void GDID_02_Nullable()
+    {
+      GDID? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableGDID(), 1);
+
+      v = new GDID(uint.MinValue, ulong.MinValue);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableGDID(), 13);
+
+      v = new GDID(uint.MaxValue, ulong.MaxValue);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableGDID(), 13);
+    }
+
+    [Run]
+    public void GDID_03_Collection()
+    {
+      List<GDID> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadGDIDCollection<List<GDID>>(), 1);
+
+      v = new List<GDID> { new GDID(1,1), new GDID(1,1) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadGDIDCollection<List<GDID>>(), 1 + 1 + 24);
+    }
+
+
+    [Run]
+    public void GDID_04_CollectionNullable()
+    {
+      List<GDID?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableGDIDCollection<List<GDID?>>(), 1);
+
+      v = new List<GDID?> { new GDID(1,5), null, new GDID(1,5), null, new GDID(1,256) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableGDIDCollection<List<GDID?>>(), 1 + 1 + 41);
+    }
+
+    [Run]
+    public void GDID_05_Array()
+    {
+      GDID[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadGDIDArray(), 1);
+
+      v = new GDID[] { new GDID(1,5), new GDID(1,5), new GDID(2,5) };
+      testArray(v, w => w.Write(v), r => r.ReadGDIDArray(), 1 + 1 + 36);
+    }
+
+    [Run]
+    public void GDID_06_ArrayNullable()
+    {
+      GDID?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableGDIDArray(), 1);
+
+      v = new GDID?[] { new GDID(2,5), null, new GDID(256,78782), null, new GDID(7,8900), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullableGDIDArray(), 1 + 1 + 42);
+    }
+
+    #endregion
+
+
 
   }
 }
