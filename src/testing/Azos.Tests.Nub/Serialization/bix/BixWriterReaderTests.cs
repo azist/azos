@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Azos.Data;
+using Azos.Pile;
 using Azos.Scripting;
 using Azos.Serialization.Bix;
 
@@ -337,6 +338,20 @@ namespace Azos.Tests.Nub.Serialization
 
       v = 256;
       testScalar(v, w => w.Write(v), r => r.ReadShort(), 2);
+
+      // ------------
+
+      v = -1;
+      testScalar(v, w => w.Write(v), r => r.ReadShort(), 1);
+
+      v = 1;
+      testScalar(v, w => w.Write(v), r => r.ReadShort(), 1);
+
+      v = -32;
+      testScalar(v, w => w.Write(v), r => r.ReadShort(), 1);
+
+      v = 32;
+      testScalar(v, w => w.Write(v), r => r.ReadShort(), 1);
     }
 
     [Run]
@@ -356,6 +371,20 @@ namespace Azos.Tests.Nub.Serialization
 
       v = 256;
       testScalar(v, w => w.Write(v), r => r.ReadNullableShort(), 3);
+
+      // ------------
+
+      v = -1;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableShort(), 2);
+
+      v = 1;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableShort(), 2);
+
+      v = -32;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableShort(), 2);
+
+      v = 32;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableShort(), 2);
     }
 
     [Run]
@@ -495,6 +524,20 @@ namespace Azos.Tests.Nub.Serialization
 
       v = 256;
       testScalar(v, w => w.Write(v), r => r.ReadInt(), 2);
+
+      // ------------
+
+      v = -1;
+      testScalar(v, w => w.Write(v), r => r.ReadInt(), 1);
+
+      v = 1;
+      testScalar(v, w => w.Write(v), r => r.ReadInt(), 1);
+
+      v = -32;
+      testScalar(v, w => w.Write(v), r => r.ReadInt(), 1);
+
+      v = 32;
+      testScalar(v, w => w.Write(v), r => r.ReadInt(), 1);
     }
 
     [Run]
@@ -514,6 +557,20 @@ namespace Azos.Tests.Nub.Serialization
 
       v = 256;
       testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 3);
+
+      // ------------
+
+      v = -1;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 2);
+
+      v = 1;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 2);
+
+      v = -32;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 2);
+
+      v = 32;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 2);
     }
 
     [Run]
@@ -653,6 +710,20 @@ namespace Azos.Tests.Nub.Serialization
 
       v = 256;
       testScalar(v, w => w.Write(v), r => r.ReadLong(), 2);
+
+      // ------------
+
+      v = -1;
+      testScalar(v, w => w.Write(v), r => r.ReadLong(), 1);
+
+      v = 1;
+      testScalar(v, w => w.Write(v), r => r.ReadLong(), 1);
+
+      v = -32;
+      testScalar(v, w => w.Write(v), r => r.ReadLong(), 1);
+
+      v = 32;
+      testScalar(v, w => w.Write(v), r => r.ReadLong(), 1);
     }
 
     [Run]
@@ -672,6 +743,20 @@ namespace Azos.Tests.Nub.Serialization
 
       v = 256;
       testScalar(v, w => w.Write(v), r => r.ReadNullableLong(), 3);
+
+      // ------------
+
+      v = -1;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableLong(), 2);
+
+      v = 1;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableLong(), 2);
+
+      v = -32;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableLong(), 2);
+
+      v = 32;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableLong(), 2);
     }
 
     [Run]
@@ -1576,6 +1661,75 @@ namespace Azos.Tests.Nub.Serialization
 
     #endregion
 
+    #region PilePointer
+    [Run]
+    public void PilePointer_01()
+    {
+      PilePointer v = default(PilePointer);
+      testScalar(v, w => w.Write(v), r => r.ReadPilePointer(), 3);
+
+      v = new PilePointer(int.MinValue, int.MinValue, int.MinValue);
+      testScalar(v, w => w.Write(v), r => r.ReadPilePointer(), 15);
+
+      v = new PilePointer(int.MaxValue, int.MaxValue, int.MaxValue);
+      testScalar(v, w => w.Write(v), r => r.ReadPilePointer(), 15);
+    }
+
+    [Run]
+    public void PilePointer_02_Nullable()
+    {
+      PilePointer? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullablePilePointer(), 1);
+
+      v = new PilePointer(int.MinValue, int.MinValue, int.MinValue);
+      testScalar(v, w => w.Write(v), r => r.ReadNullablePilePointer(), 16);
+
+      v = new PilePointer(int.MaxValue, int.MaxValue, int.MaxValue);
+      testScalar(v, w => w.Write(v), r => r.ReadNullablePilePointer(), 16);
+    }
+
+    [Run]
+    public void PilePointer_03_Collection()
+    {
+      List<PilePointer> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadPilePointerCollection<List<PilePointer>>(), 1);
+
+      v = new List<PilePointer> { new PilePointer(0, 0, 1), new PilePointer(0, 0, 2) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadPilePointerCollection<List<PilePointer>>(), 1 + 1 + 6);
+    }
+
+
+    [Run]
+    public void PilePointer_04_CollectionNullable()
+    {
+      List<PilePointer?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullablePilePointerCollection<List<PilePointer?>>(), 1);
+
+      v = new List<PilePointer?> { new PilePointer(0,0,1), null, new PilePointer(0,0,1), null, new PilePointer(0,0,2) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullablePilePointerCollection<List<PilePointer?>>(), 1 + 1 + 14);
+    }
+
+    [Run]
+    public void PilePointer_05_Array()
+    {
+      PilePointer[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadPilePointerArray(), 1);
+
+      v = new PilePointer[] { new PilePointer(1, 0, 1), new PilePointer(10,0,2), new PilePointer(20,0,3) };
+      testArray(v, w => w.Write(v), r => r.ReadPilePointerArray(), 1 + 1 + 9);
+    }
+
+    [Run]
+    public void PilePointer_06_ArrayNullable()
+    {
+      PilePointer?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullablePilePointerArray(), 1);
+
+      v = new PilePointer?[] { new PilePointer(3, 9, 2), null, new PilePointer(2, 0, 1), null, new PilePointer(0, 0, 2), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullablePilePointerArray(), 1 + 1 + 15);
+    }
+
+    #endregion
 
   }
 }
