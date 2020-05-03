@@ -14,6 +14,8 @@ namespace Azos
   {
     public const string SECURITY_NON_AUTHENTICATED = "<non-authenticated>";
 
+    public const string IMMUTABLE_SYS_INSTANCE = "System instance of `{0}` is immutable";
+
 
     public const string APP_SET_MEMORY_MODEL_ERROR =
       "The App.SetMemoryModel() method must be called at process entry point before the app container allocation";

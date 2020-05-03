@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 
 using Azos.Conf;
@@ -16,7 +15,7 @@ using Azos.Data;
 namespace Azos.Serialization.JSON
 {
   /// <summary>
-    /// Represents a JSON-serializable structure that keys [N]ame and [D]escription on lang ISO.
+    /// Represents a JSON-serializable structure that keys [N]ame and [D]escription on language ISO.
     /// It respects JSONWritingOptions.NLSMapLanguageISO and NLSMapLanguageISODefault
     /// </summary>
     [Serializable] //this type is directly handled by slim writer/reader
