@@ -110,6 +110,9 @@ namespace Azos.Tests.Nub.Serialization
 
       if (v == null && got == null) return;
 
+      //v.See();
+      //got.See();
+
       Aver.IsTrue(v.SequenceEqual(got));
     }
     #endregion
@@ -1503,6 +1506,75 @@ namespace Azos.Tests.Nub.Serialization
 
     #endregion
 
+    #region FID
+    [Run]
+    public void FID_01()
+    {
+      FID v = default(FID);
+      testScalar(v, w => w.Write(v), r => r.ReadFID(), 8);
+
+      v = new FID(ulong.MinValue);
+      testScalar(v, w => w.Write(v), r => r.ReadFID(), 8);
+
+      v = new FID(ulong.MaxValue);
+      testScalar(v, w => w.Write(v), r => r.ReadFID(), 8);
+    }
+
+    [Run]
+    public void FID_02_Nullable()
+    {
+      FID? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableFID(), 1);
+
+      v = new FID(ulong.MinValue);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableFID(), 9);
+
+      v = new FID(ulong.MaxValue);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableFID(), 9);
+    }
+
+    [Run]
+    public void FID_03_Collection()
+    {
+      List<FID> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadFIDCollection<List<FID>>(), 1);
+
+      v = new List<FID> { new FID(123), new FID(456) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadFIDCollection<List<FID>>(), 1 + 1 + 16);
+    }
+
+
+    [Run]
+    public void FID_04_CollectionNullable()
+    {
+      List<FID?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableFIDCollection<List<FID?>>(), 1);
+
+      v = new List<FID?> { new FID(123), null, new FID(456), null, new FID(789) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableFIDCollection<List<FID?>>(), 1 + 1 + 29);
+    }
+
+    [Run]
+    public void FID_05_Array()
+    {
+      FID[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadFIDArray(), 1);
+
+      v = new FID[] { new FID(1), new FID(2), new FID(3) };
+      testArray(v, w => w.Write(v), r => r.ReadFIDArray(), 1 + 1 + 24);
+    }
+
+    [Run]
+    public void FID_06_ArrayNullable()
+    {
+      FID?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableFIDArray(), 1);
+
+      v = new FID?[] { new FID(1), null, new FID(2), null, new FID(3), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullableFIDArray(), 1 + 1 + 30);
+    }
+
+    #endregion
 
 
   }

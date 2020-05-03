@@ -1171,7 +1171,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = this.ReadUint();
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "fid?", Format.MAX_LONG_ARRAY_LEN));
 
