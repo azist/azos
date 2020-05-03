@@ -303,6 +303,12 @@ this \r\n is not escape'
 
         Aver.AreEqual("It is green", nls["eng"].Description);
         Aver.AreEqual(null, nls["rus"].Description);
+
+        Aver.AreEqual("Cucumber", nls[CoreConsts.ISOA_LANG_ENGLISH].Name);
+        Aver.AreEqual(null, nls[CoreConsts.ISOA_LANG_RUSSIAN].Name);
+
+        Aver.AreEqual("It is green", nls[CoreConsts.ISOA_LANG_ENGLISH].Description);
+        Aver.AreEqual(null, nls[CoreConsts.ISOA_LANG_RUSSIAN].Description);
     }
 
     [Run]
@@ -339,6 +345,12 @@ this \r\n is not escape'
 
         Aver.AreEqual("It is green", nls["eng"].Description);
         Aver.AreEqual("Es ist grün", nls["deu"].Description);
+
+        Aver.AreEqual("Cucumber", nls[CoreConsts.ISOA_LANG_ENGLISH].Name);
+        Aver.AreEqual("Gurke",    nls[CoreConsts.ISOA_LANG_GERMAN].Name);
+
+        Aver.AreEqual("It is green", nls[CoreConsts.ISOA_LANG_ENGLISH].Description);
+        Aver.AreEqual("Es ist grün", nls[CoreConsts.ISOA_LANG_GERMAN].Description);
     }
 
     [Run]
@@ -404,8 +416,8 @@ this \r\n is not escape'
         dynamic read = json.JsonToDynamic();
         Aver.IsNotNull(read);
 
-        Aver.AreEqual("Cucumber", read.ENG.n);
-        Aver.AreEqual("Gurke", read.DEU.n);
+        Aver.AreEqual("Cucumber", read.eng.n);
+        Aver.AreEqual("Gurke", read.deu.n);
     }
 
     [Run]
@@ -416,7 +428,7 @@ this \r\n is not escape'
         var nls = new NLSMap(content);
 
 
-        var options = new JsonWritingOptions{ NLSMapLanguageISO = "deu", Purpose = JsonSerializationPurpose.UIFeed};
+        var options = new JsonWritingOptions{ NLSMapLanguageISO = CoreConsts.ISOA_LANG_GERMAN, Purpose = JsonSerializationPurpose.UIFeed};
         var json = nls.ToJson(options);
         Console.WriteLine(json);
 
@@ -435,7 +447,7 @@ this \r\n is not escape'
         var nls = new NLSMap(content);
 
 
-        var options = new JsonWritingOptions{ NLSMapLanguageISO = "rus", Purpose = JsonSerializationPurpose.UIFeed};
+        var options = new JsonWritingOptions{ NLSMapLanguageISO = CoreConsts.ISOA_LANG_RUSSIAN, Purpose = JsonSerializationPurpose.UIFeed};
         var json = nls.ToJson(options);
         Console.WriteLine(json);
 

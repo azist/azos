@@ -717,10 +717,7 @@ namespace Azos.IO
       var data = new NLSMap.NDPair[cnt];
       for(var i=0; i<cnt; i++)
       {
-        var iso0 = this.ReadByte();
-        var iso1 = this.ReadByte();
-        var iso2 = this.ReadByte();
-        var iso = (iso0<<16) + (iso1<<8) + (iso2);
+        var iso = this.ReadAtom();
         var name = this.ReadString();
         var descr = this.ReadString();
         data[i] = new NLSMap.NDPair(iso, name, descr);

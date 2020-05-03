@@ -726,9 +726,7 @@ namespace Azos.IO
       for(var i=0; i<map.m_Data.Length; i++)
       {
         var nd = map.m_Data[i];
-        this.Write((byte)((nd.ISO & 0xff0000)>>16));
-        this.Write((byte)((nd.ISO & 0x00ff00)>>08));
-        this.Write((byte)((nd.ISO & 0xFF)));
+        this.Write(nd.ISO);
         this.Write(nd.Name);
         this.Write(nd.Description);
       }

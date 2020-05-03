@@ -12,6 +12,7 @@ using Azos.Data;
 using Azos.Pile;
 using Azos.Scripting;
 using Azos.Serialization.Bix;
+using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Nub.Serialization
 {
@@ -1730,6 +1731,77 @@ namespace Azos.Tests.Nub.Serialization
     }
 
     #endregion
+
+
+    //#region NLSMap
+    //[Run]
+    //public void NLSMap_01()
+    //{
+    //  NLSMap v = default(NLSMap);
+    //  testScalar(v, w => w.Write(v), r => r.ReadNLSMap(), 3);
+
+    //  v = new NLSMap(int.MinValue, int.MinValue, int.MinValue);
+    //  testScalar(v, w => w.Write(v), r => r.ReadNLSMap(), 15);
+
+    //  v = new NLSMap(int.MaxValue, int.MaxValue, int.MaxValue);
+    //  testScalar(v, w => w.Write(v), r => r.ReadNLSMap(), 15);
+    //}
+
+    //[Run]
+    //public void NLSMap_02_Nullable()
+    //{
+    //  NLSMap? v = null;
+    //  testScalar(v, w => w.Write(v), r => r.ReadNullableNLSMap(), 1);
+
+    //  v = new NLSMap(int.MinValue, int.MinValue, int.MinValue);
+    //  testScalar(v, w => w.Write(v), r => r.ReadNullableNLSMap(), 16);
+
+    //  v = new NLSMap(int.MaxValue, int.MaxValue, int.MaxValue);
+    //  testScalar(v, w => w.Write(v), r => r.ReadNullableNLSMap(), 16);
+    //}
+
+    //[Run]
+    //public void NLSMap_03_Collection()
+    //{
+    //  List<NLSMap> v = null;
+    //  testCollection(v, w => w.WriteCollection(v), r => r.ReadNLSMapCollection<List<NLSMap>>(), 1);
+
+    //  v = new List<NLSMap> { new NLSMap(0, 0, 1), new NLSMap(0, 0, 2) };
+    //  testCollection(v, w => w.WriteCollection(v), r => r.ReadNLSMapCollection<List<NLSMap>>(), 1 + 1 + 6);
+    //}
+
+
+    //[Run]
+    //public void NLSMap_04_CollectionNullable()
+    //{
+    //  List<NLSMap?> v = null;
+    //  testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableNLSMapCollection<List<NLSMap?>>(), 1);
+
+    //  v = new List<NLSMap?> { new NLSMap(0, 0, 1), null, new NLSMap(0, 0, 1), null, new NLSMap(0, 0, 2) };
+    //  testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableNLSMapCollection<List<NLSMap?>>(), 1 + 1 + 14);
+    //}
+
+    //[Run]
+    //public void NLSMap_05_Array()
+    //{
+    //  NLSMap[] v = null;
+    //  testArray(v, w => w.Write(v), r => r.ReadNLSMapArray(), 1);
+
+    //  v = new NLSMap[] { new NLSMap(1, 0, 1), new NLSMap(10, 0, 2), new NLSMap(20, 0, 3) };
+    //  testArray(v, w => w.Write(v), r => r.ReadNLSMapArray(), 1 + 1 + 9);
+    //}
+
+    //[Run]
+    //public void NLSMap_06_ArrayNullable()
+    //{
+    //  NLSMap?[] v = null;
+    //  testArray(v, w => w.Write(v), r => r.ReadNullableNLSMapArray(), 1);
+
+    //  v = new NLSMap?[] { new NLSMap(3, 9, 2), null, new NLSMap(2, 0, 1), null, new NLSMap(0, 0, 2), null };
+    //  testArray(v, w => w.Write(v), r => r.ReadNullableNLSMapArray(), 1 + 1 + 15);
+    //}
+
+    //#endregion
 
   }
 }

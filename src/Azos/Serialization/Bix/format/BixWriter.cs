@@ -1286,9 +1286,7 @@ namespace Azos.Serialization.Bix
       for (var i = 0; i < map.m_Data.Length; i++)
       {
         var nd = map.m_Data[i];
-        Write((byte)((nd.ISO & 0xff0000) >> 16));
-        Write((byte)((nd.ISO & 0x00ff00) >> 08));
-        Write((byte)((nd.ISO & 0xff)));
+        Write(nd.ISO);
         Write(nd.Name);
         Write(nd.Description);
       }
@@ -1403,6 +1401,7 @@ namespace Azos.Serialization.Bix
     #endregion
 
     #region Atom
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(Atom value) => Write(value.ID);
 
     public void Write(Atom? value)

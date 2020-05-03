@@ -132,8 +132,8 @@ namespace Azos.Serialization.JSON
         private bool m_IsSystem;
         private T nonsys<T>(T v) => m_IsSystem ? throw new AzosException(StringConsts.IMMUTABLE_SYS_INSTANCE.Args(nameof(JsonWritingOptions))) : v;
 
-        private string m_NLSMapLanguageISO;
-        private string m_NLSMapLanguageISODefault = CoreConsts.ISO_LANG_ENGLISH;
+        private Atom m_NLSMapLanguageISO;
+        private Atom m_NLSMapLanguageISODefault = CoreConsts.ISOA_LANG_ENGLISH;
         private int m_IndentWidth;
         private bool m_SpaceSymbols;
         private bool m_ObjectLineBreak;
@@ -162,7 +162,7 @@ namespace Azos.Serialization.JSON
         /// will be tried
         /// </summary>
         [Config]
-        public string NLSMapLanguageISO
+        public Atom NLSMapLanguageISO
         {
           get => m_NLSMapLanguageISO;
           set => m_NLSMapLanguageISO = nonsys(value);
@@ -172,7 +172,7 @@ namespace Azos.Serialization.JSON
         /// Specified language ISO default for NLSMap lookup, "eng" is used for default
         /// </summary>
         [Config]
-        public string NLSMapLanguageISODefault
+        public Atom NLSMapLanguageISODefault
         {
           get => m_NLSMapLanguageISODefault;
           set => m_NLSMapLanguageISODefault = nonsys(value);
