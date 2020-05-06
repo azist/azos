@@ -211,7 +211,7 @@ namespace Azos.Instrumentation
     /// <summary>
     /// Creates an OK/200 response
     /// </summary>
-    public ExternalCallResponse(string contentType, string content)
+    public ExternalCallResponse(string contentType, object content)
     {
       StatusCode = 200;
       StatusDescription = "OK";
@@ -222,7 +222,7 @@ namespace Azos.Instrumentation
     /// <summary>
     /// Instance with the specified status
     /// </summary>
-    public ExternalCallResponse(int status, string statusDescription, string contentType, string content)
+    public ExternalCallResponse(int status, string statusDescription, string contentType, object content)
     {
       StatusCode = status;
       StatusDescription = statusDescription;
@@ -241,9 +241,10 @@ namespace Azos.Instrumentation
     public string StatusDescription { get; private set; }
 
     /// <summary>
-    /// Content of ContentType
+    /// Content of ContentType. By convention this is string. If it is not a string then most implementations
+    /// represent the object as JSON
     /// </summary>
-    public string Content           { get; private set; }
+    public object Content           { get; private set; }
 
     /// <summary>
     /// Content type uses MIME types by convention

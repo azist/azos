@@ -12,6 +12,7 @@ using Azos.Conf;
 using Azos.Collections;
 using Azos.Instrumentation;
 using Azos.Security;
+using Azos.Serialization.JSON;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
@@ -237,6 +238,7 @@ return
         dumpDetails(sb, dir as ApplicationComponent, level+1);
     }
 
+
     private bool doCall(StringBuilder sb, ApplicationComponent cmp, IConfigSectionNode call, bool isHelp)
     {
       var callable = cmp as IExternallyCallable;
@@ -272,9 +274,20 @@ return
         any = true;
 
         sb.AppendFormat("@`{0}` | Status: {1} / {2}\n", request.RootPath, response.StatusCode, response.StatusDescription);
-        sb.AppendFormat("Content type: {0}\n", response.ContentType);
+        sb.AppendFormat("Content type: {0}\n", response.ContentType);//logical content type
         sb.AppendFormat("Content: \n");
-        sb.Append(response.Content);
+
+        //========== CONTENT handling ==========
+        if (response.Content==null) sb.Append("");
+        else if (response.Content is string strContent) sb.Append(strContent); //simple pass-through
+        else
+        {
+          //otherwise content gets converted to string using JSON
+          var jsonContent = response.Content.ToJson(CONSOLE_JSON_FMT);
+          sb.AppendLine(jsonContent);
+        }
+        //======================================
+
         sb.AppendLine();
         sb.AppendLine();
       }

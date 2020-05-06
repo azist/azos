@@ -5,17 +5,23 @@
 </FILE_LICENSE>*/
 
 using Azos.Conf;
-
+using Azos.Serialization.JSON;
 using Azos.Sky;
 
 namespace Azos.Apps.Terminal
 {
   /// <summary>
   /// Provides generalization for a "commandlet" - an application terminal command handler.
-  /// This base class can execute in a common IApplication and does not require ISkyApplication
+  /// This base class can execute in a common IApplication and does not require [ISkyApplication]
   /// </summary>
   public abstract class Cmdlet : DisposableObject
   {
+    /// <summary>
+    /// Establishes JSON format for console interaction: PrettyPrintRowsAsMap with ASCIITarget encoding
+    /// </summary>
+    public static readonly JsonWritingOptions CONSOLE_JSON_FMT = new JsonWritingOptions(JsonWritingOptions.PrettyPrintRowsAsMap) { ASCIITarget = true };
+
+
     protected Cmdlet(AppRemoteTerminal terminal, IConfigSectionNode args)
     {
       m_Terminal = terminal.NonNull(nameof(terminal));
