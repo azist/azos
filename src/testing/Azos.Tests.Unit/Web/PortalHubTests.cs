@@ -78,8 +78,8 @@ app{
           Aver.IsTrue(paris is MockPortalFrench);
           Aver.IsTrue(berlin is MockPortalGerman);
 
-          Aver.AreEqual(CoreConsts.ISO_LANG_FRENCH, paris.DefaultLanguageISOCode);
-          Aver.AreEqual(CoreConsts.ISO_LANG_GERMAN, berlin.DefaultLanguageISOCode);
+          Aver.AreEqual(CoreConsts.ISOA_LANG_FRENCH, paris.DefaultLanguageISOCode);
+          Aver.AreEqual(CoreConsts.ISOA_LANG_GERMAN, berlin.DefaultLanguageISOCode);
 
           Aver.IsNotNull(paris.DefaultTheme);
           Aver.AreEqual("Eiffel", paris.DefaultTheme.Name);
@@ -97,15 +97,15 @@ app{
 
     protected MockPortalFrench(PortalHub hub, IConfigSectionNode conf) : base(hub, conf){}
 
-    public override string DefaultISOCountry { get { return CoreConsts.ISO_COUNTRY_USA; } }
+    public override Atom DefaultISOCountry { get { return CoreConsts.ISOA_COUNTRY_USA; } }
 
-    public override string DefaultLanguageISOCode { get{ return CoreConsts.ISO_LANG_FRENCH;}}
+    public override Atom DefaultLanguageISOCode { get{ return CoreConsts.ISOA_LANG_FRENCH;}}
 
-    public override string DefauISOCurrency { get{ return CoreConsts.ISO_CURRENCY_EUR;}}
+    public override Atom DefauISOCurrency { get{ return CoreConsts.ISOA_CURRENCY_EUR;}}
 
-    public override string CountryISOCodeToLanguageISOCode(string countryISOCode)
+    public override Atom CountryISOCodeToLanguageISOCode(string countryISOCode)
     {
-      return CoreConsts.ISO_LANG_FRENCH;
+      return CoreConsts.ISOA_LANG_FRENCH;
     }
 
     public override string AmountToString(Azos.Financial.Amount amount, Portal.MoneyFormat format = MoneyFormat.WithCurrencySymbol, ISession session = null)
@@ -132,15 +132,15 @@ app{
 
     protected MockPortalGerman(PortalHub hub, IConfigSectionNode conf) : base(hub, conf){}
 
-    public override string DefaultISOCountry { get { return CoreConsts.ISO_COUNTRY_USA; } }
+    public override Atom DefaultISOCountry { get { return CoreConsts.ISOA_COUNTRY_USA; } }
 
-    public override string DefaultLanguageISOCode { get{ return CoreConsts.ISO_LANG_GERMAN;}}
+    public override Atom DefaultLanguageISOCode { get{ return CoreConsts.ISOA_LANG_GERMAN;}}
 
-    public override string DefauISOCurrency { get{ return CoreConsts.ISO_CURRENCY_EUR;}}
+    public override Atom DefauISOCurrency { get{ return CoreConsts.ISOA_CURRENCY_EUR;}}
 
-    public override string CountryISOCodeToLanguageISOCode(string countryISOCode)
+    public override Atom CountryISOCodeToLanguageISOCode(string countryISOCode)
     {
-      return CoreConsts.ISO_LANG_GERMAN;
+      return CoreConsts.ISOA_LANG_GERMAN;
     }
 
     public override string AmountToString(Azos.Financial.Amount amount, Portal.MoneyFormat format = MoneyFormat.WithCurrencySymbol, ISession session = null)

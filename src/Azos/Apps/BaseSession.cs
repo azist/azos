@@ -112,12 +112,9 @@ namespace Azos.Apps
 
 
     /// <summary>
-    /// Returns user language preference or null
+    /// Returns user language preference or Atom.Zero
     /// </summary>
-    public virtual string LanguageISOCode
-    {
-        get { return CoreConsts.ISO_LANG_ENGLISH;}
-    }
+    public virtual Atom LanguageISOCode => CoreConsts.ISOA_LANG_ENGLISH;
 
     /// <summary>
     /// Provides a thread-safe dictionary of items

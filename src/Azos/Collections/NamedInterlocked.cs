@@ -142,8 +142,8 @@ namespace Azos.Collections
 
     public Amount Add(Amount arg)
     {
-      var slot = getSlot(arg.CurrencyISO);
-      return new Amount(arg.CurrencyISO, Interlocked.Add(ref slot.Long, convertDecimalToLong(arg.Value)));
+      var slot = getSlot(arg.ISO.Value);
+      return new Amount(arg.ISO, Interlocked.Add(ref slot.Long, convertDecimalToLong(arg.Value)));
     }
 
     /// <summary>

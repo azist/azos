@@ -214,6 +214,8 @@ namespace Azos
     {
       get
       {
+        if (IsZero) return null;
+
         //lock-free lookup covers 99.99% of cases
         if (s_Cache.TryGetValue(ID, out var value)) return value;
 
@@ -241,7 +243,8 @@ namespace Azos
     public ulong GetDistributedStableHash() => ID;
     public override int GetHashCode() => ID.GetHashCode();
 
-    public override string ToString() => IsZero ? "Atom(zero)" : "Atom(0x{0:X8}, `{1}`)".Args(ID, Value);
+    //important to keep this as Value because Atoms are used in many format strings (which uses toString())
+    public override string ToString() => Value;
 
 
     public static bool operator == (Atom lhs, Atom rhs) =>  lhs.Equals(rhs);

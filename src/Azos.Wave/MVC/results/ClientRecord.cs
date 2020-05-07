@@ -18,9 +18,9 @@ namespace Azos.Wave.Mvc
   {
     public ClientRecord(Doc doc,
                         Exception validationError,
+                        Atom isoLang,
                         string recID = null,
                         string target = null,
-                        string isoLang = null,
                         Client.ModelFieldValueListLookupFunc valueListLookupFunc = null)
     {
       RecID = recID;
@@ -34,9 +34,9 @@ namespace Azos.Wave.Mvc
     public ClientRecord(Doc doc,
                         Exception validationError,
                         Func<Schema.FieldDef, JsonDataMap> simpleValueListLookupFunc,
+                        Atom isoLang,
                         string recID = null,
-                        string target = null,
-                        string isoLang = null)
+                        string target = null)
     {
       RecID = recID;
       Doc = doc;
@@ -53,7 +53,7 @@ namespace Azos.Wave.Mvc
     public readonly Doc Doc;
     public readonly Exception ValidationError;
     public readonly string Target;
-    public readonly string IsoLang;
+    public readonly Atom IsoLang;
     public readonly Client.ModelFieldValueListLookupFunc ValueListLookupFunc;
 
 
@@ -62,7 +62,7 @@ namespace Azos.Wave.Mvc
       var gen = (work.Portal!=null) ? work.Portal.RecordModelGenerator
                                     : Client.RecordModelGenerator.DefaultInstance;
 
-      work.Response.WriteJSON( gen.RowToRecordInitJSON(Doc, ValidationError, RecID, Target, IsoLang, ValueListLookupFunc) );
+      work.Response.WriteJSON( gen.RowToRecordInitJSON(Doc, ValidationError, IsoLang, RecID, Target, ValueListLookupFunc) );
     }
   }
 

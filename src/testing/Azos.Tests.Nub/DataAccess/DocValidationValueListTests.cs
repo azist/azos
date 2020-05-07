@@ -213,7 +213,7 @@ namespace Azos.Tests.Nub.DataAccess
       [Field(description: "this uses custom validation using imperative code")]
       public string Field3{  get; set;}
 
-      public override JsonDataMap GetDynamicFieldValueList(Schema.FieldDef fdef, string targetName, string isoLang)
+      public override JsonDataMap GetDynamicFieldValueList(Schema.FieldDef fdef, string targetName, Atom isoLang)
       {
         if (fdef.Name==nameof(Field3)) return new JsonDataMap{ {"a", "Adam"}, {"b", "Boris"}, { "n", "Nancy" } };
         return base.GetDynamicFieldValueList(fdef, targetName, isoLang);

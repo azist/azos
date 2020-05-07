@@ -27,7 +27,7 @@ namespace Azos.Sky.WebManager
         /// <summary>
         /// Returns language code for session - defaulted from geo-location
         /// </summary>
-        public override string LanguageISOCode
+        public override Atom LanguageISOCode
         {
           get
           {
@@ -43,7 +43,7 @@ namespace Azos.Sky.WebManager
             if (lang.IsNullOrWhiteSpace())
              lang = Localizer.ISO_LANG_ENGLISH;
 
-            return lang;
+            return Atom.Encode(lang);
           }
         }
     }

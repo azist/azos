@@ -745,7 +745,7 @@ namespace Azos.IO
 
     public override void Write(Financial.Amount value)
     {
-      this.Write(value.CurrencyISO);
+      this.Write(value.ISO);
       this.Write(value.Value);
     }
 

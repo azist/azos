@@ -596,7 +596,7 @@ namespace Azos.Serialization.BSON
 
         public static BSONDocumentElement Amount_CLRtoBSON(string name, Amount amount)
         {
-          var curEl = new BSONStringElement("c", amount.CurrencyISO);
+          var curEl = new BSONStringElement("c", amount.ISO.Value ?? string.Empty);
           var valEl = Decimal_CLRtoBSON("v", amount.Value);
           var doc = new BSONDocument();
           doc.Set(curEl).Set(valEl);

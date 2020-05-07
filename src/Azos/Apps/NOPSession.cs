@@ -78,9 +78,9 @@ namespace Azos.Apps
             set {}
         }
 
-        public string LanguageISOCode
+        public Atom LanguageISOCode
         {
-            get { return CoreConsts.ISO_LANG_ENGLISH;}
+            get { return CoreConsts.ISOA_LANG_ENGLISH;}
         }
 
 

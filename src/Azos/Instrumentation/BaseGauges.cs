@@ -181,7 +181,7 @@ namespace Azos.Instrumentation
 
     private static string makeSource(string source, Amount value)
     {
-      var prefix = value.CurrencyISO + CURRENCY_DELIM;
+      var prefix = value.ISO.Value + CURRENCY_DELIM;
       if (source == null || !source.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
         return prefix + source;
       else
@@ -191,13 +191,13 @@ namespace Azos.Instrumentation
     protected AmountGauge(string source, Amount value) : base(makeSource(source, value))
     {
       m_Value = value;
-      m_Sum = new Amount(value.CurrencyISO, 0M);
+      m_Sum = new Amount(value.ISO, 0M);
     }
 
     protected AmountGauge(string source, Amount value, DateTime utcDateTime, bool skipSourceConstruction = false) : base(makeSource(source, value), utcDateTime)
     {
       m_Value = value;
-      m_Sum = new Amount(value.CurrencyISO, 0M);
+      m_Sum = new Amount(value.ISO, 0M);
     }
 
     private Amount m_Value;

@@ -14,14 +14,14 @@ using Azos.Conf;
 namespace Azos.Wave.Cms
 {
   /// <summary>
-  /// Provides information about a language: an iso code and a name
+  /// Provides information about a language: an iso code atom and a name
   /// </summary>
   [Serializable]
   public struct LangInfo : INamed
   {
     public const string CONFIG_LANG_INFO_SECTION = "lang-info";
 
-    public static readonly LangInfo GENERIC_ENGLISH = new LangInfo(CoreConsts.ISO_LANG_ENGLISH, "English");
+    public static readonly LangInfo GENERIC_ENGLISH = new LangInfo(CoreConsts.ISOA_LANG_ENGLISH, "English");
 
     /// <summary>
     /// Returns enumerable of LangInfo structures made of "lang-info" config sections
@@ -44,26 +44,28 @@ namespace Azos.Wave.Cms
       return result.IsAssigned ? result : dflt.Value;
     }
 
-    public LangInfo(string iso, string name)
+    public LangInfo(Atom iso, string name)
     {
-      ISO = iso.NonBlankMinMax(2, 3, nameof(iso));
+      ISO = iso;
       Name = name.NonBlank(nameof(name));
     }
 
     public LangInfo(IConfigSectionNode cfg) : this(
-      cfg.NonNull(nameof(cfg)).AttrByName(nameof(ISO)).Value,
+      Atom.Encode(cfg.NonNull(nameof(cfg)).AttrByName(nameof(ISO)).Value.NonBlank(nameof(ISO))),//throws on bad atom
       cfg.NonNull(nameof(cfg)).AttrByName(nameof(Name)).Value)
     {
 
     }
 
     /// <summary>
-    /// Language ISO code
+    /// Language ISO code atom.
     /// </summary>
     /// <remarks>
+    /// Since language codes are a limited set, they are stored as atoms for efficiency and consistency.
+    /// You can use Atom.Encode(string) to encode a string.
     /// See: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
     /// </remarks>
-    public readonly string ISO;
+    public readonly Atom ISO;
 
     /// <summary>
     /// Language name
@@ -74,7 +76,7 @@ namespace Azos.Wave.Cms
     /// <summary>
     /// Returns true if this is an assigned structure
     /// </summary>
-    public bool IsAssigned => ISO != null;
+    public bool IsAssigned => !ISO.IsZero;
 
     public override string ToString() => $"[{ISO}]'{Name}'";
   }

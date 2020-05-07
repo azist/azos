@@ -1345,7 +1345,7 @@ namespace Azos.Serialization.Bix
     #region Amount
     public void Write(Financial.Amount value)
     {
-      Write(value.CurrencyISO);
+      Write(value.ISO);
       Write(value.Value);
     }
 

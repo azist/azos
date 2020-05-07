@@ -439,7 +439,7 @@ namespace Azos.Data
     protected virtual Exception CheckValueList(string targetName, Schema.FieldDef fdef,  FieldAttribute atr, object value)
     {
       //try to obtain dynamic value list
-      var dynValueList = GetDynamicFieldValueList(fdef, targetName, null);
+      var dynValueList = GetDynamicFieldValueList(fdef, targetName, Atom.ZERO);
       if (dynValueList != null)//check dynamic list is supplied
       {
         if (dynValueList.Count == 0) return null;//Nothing to check against; this is used to return empty list to override ValueList list

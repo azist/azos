@@ -57,9 +57,9 @@ namespace Azos.Apps
 
 
      /// <summary>
-     /// Returns user's language preference or null
+     /// Returns user's language preference or Atom.ZERO for none
      /// </summary>
-     string LanguageISOCode{ get;}
+     Atom LanguageISOCode{ get;}
 
 
      /// <summary>

@@ -737,10 +737,10 @@ namespace Azos.IO
 
     public override Financial.Amount ReadAmount()
     {
-      var iso = ReadString();
+      var iso = ReadAtom();
       var val = ReadDecimal();
 
-      return Financial.Amount.Deserialize(iso, val);
+      return new Financial.Amount(iso, val);
     }
 
     public override Financial.Amount? ReadNullableAmount()

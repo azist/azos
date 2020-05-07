@@ -26,8 +26,7 @@ namespace Azos.Tests.Nub
     public void Zero_ToString_Value()
     {
       var x = new Atom(0);
-      Console.WriteLine(x.ToString());
-      Aver.AreEqual("Atom(zero)", x.ToString());
+      Aver.IsNull( x.ToString());
       Aver.IsNull( x.Value );
     }
 
@@ -53,14 +52,14 @@ namespace Azos.Tests.Nub
     public void Test_ToString()
     {
       var x = new Atom(0x3041304130413041ul);
-      Aver.AreEqual("Atom(0x3041304130413041, `A0A0A0A0`)", x.ToString());
+      Aver.AreEqual("A0A0A0A0", x.ToString());
     }
 
     [Run]
     public void Encode_ToString()
     {
       var x = Atom.Encode("ALEX");
-      Aver.AreEqual("Atom(0x58454C41, `ALEX`)", x.ToString());
+      Aver.AreEqual("ALEX", x.ToString());
     }
 
     [Run]
@@ -89,6 +88,7 @@ namespace Azos.Tests.Nub
       var x = Atom.Encode(null);
       Aver.AreEqual(0ul, x.ID);
       Aver.IsTrue(x.IsZero);
+      Aver.IsNull(x.ToString());
     }
 
     [Run, Aver.Throws(typeof(AzosException), Message = "blank")]

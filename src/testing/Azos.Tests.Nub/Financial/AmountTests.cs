@@ -184,21 +184,21 @@ namespace Azos.Tests.Nub.Financial
     }
 
     [Run]
-    [Aver.Throws(typeof(FinancialException), Message="parse", MsgMatch=MatchType.Contains)]
     public void Parse_3()
     {
-        Amount.Parse("-123.12");
+      var a = Amount.Parse("-123.12");
+      Aver.AreEqual(new Amount(null, -123.12m), a);
     }
 
     [Run]
-    [Aver.Throws(typeof(FinancialException), Message="parse", MsgMatch = MatchType.Contains)]
+    [Aver.Throws(typeof(FinancialException), Message="parse")]
     public void Parse_4()
     {
         var a = Amount.Parse("-1 23.12");
     }
 
     [Run]
-    [Aver.Throws(typeof(FinancialException), Message="parse", MsgMatch = MatchType.Contains)]
+    [Aver.Throws(typeof(FinancialException), Message="parse")]
     public void Parse_5()
     {
         var a = Amount.Parse(":-123.12");
@@ -206,7 +206,7 @@ namespace Azos.Tests.Nub.Financial
 
 
     [Run]
-    [Aver.Throws(typeof(FinancialException), Message="parse", MsgMatch = MatchType.Contains)]
+    [Aver.Throws(typeof(FinancialException), Message="parse")]
     public void Parse_6()
     {
         var a = Amount.Parse(":123");
@@ -220,12 +220,18 @@ namespace Azos.Tests.Nub.Financial
     }
 
     [Run]
-    [Aver.Throws(typeof(FinancialException), Message="parse", MsgMatch = MatchType.Contains)]
+    [Aver.Throws(typeof(FinancialException), Message="parse")]
     public void Parse_8()
     {
         Amount.Parse("-123.12 :");
     }
 
+    [Run]
+    [Aver.Throws(typeof(FinancialException), Message = "parse")]
+    public void Parse_9()
+    {
+      Amount.Parse("123.12:ooooooooooooooooooooooooooooooooooooooooooooooooooo");
+    }
 
     [Run]
     public void TryParse_1()
@@ -311,6 +317,18 @@ namespace Azos.Tests.Nub.Financial
         var parsed = Amount.TryParse("-1123 :  uah", out a);
         Aver.IsTrue( parsed );
         Aver.AreEqual( new Amount("UAH", -1123M), a);
+    }
+
+    [Run]
+    public void TryParse_11()
+    {
+      Amount a;
+      Aver.IsFalse(Amount.TryParse(":usd", out a));
+      Aver.IsFalse(Amount.TryParse(":usduyfuyiuyoiuyoiuyoiuyiouyiouyiuyuiyiuy", out a));
+      Aver.IsFalse(Amount.TryParse("123 :", out a));
+      Aver.IsFalse(Amount.TryParse("123 :    ooooooooooooooo", out a));
+      Aver.IsTrue(Amount.TryParse("123", out a));
+      Aver.IsTrue(Amount.TryParse("-123", out a));
     }
 
   }

@@ -145,14 +145,14 @@ namespace Azos.Wave.Cms.Default
     }
 
     /// <summary>
-    /// Implements <see cref="ICmsFacade.GetContentAsync(ContentId, string, ICacheParams)"/>
+    /// Implements <see cref="ICmsFacade.GetContentAsync(ContentId, Atom?, ICacheParams)"/>
     /// </summary>
-    public async Task<Content> GetContentAsync(ContentId id, string isoLang = null, ICacheParams caching = null)
+    public async Task<Content> GetContentAsync(ContentId id, Atom? isoLang = null, ICacheParams caching = null)
     {
       if (!id.IsAssigned)
         throw new CmsException($"{StringConsts.ARGUMENT_ERROR} {nameof(CmsFacade)}.{nameof(GetContentAsync)}(!id.IsAssigned)");
 
-      if (isoLang.IsNullOrWhiteSpace()) isoLang = this.DefaultGlobalLanguage.ISO;
+      if (!isoLang.HasValue || isoLang.Value.IsZero) isoLang = this.DefaultGlobalLanguage.ISO;
 
       if (caching == null) caching = getEffectiveCaching();
 
@@ -163,7 +163,7 @@ namespace Azos.Wave.Cms.Default
       }
 
       var now = App.TimeSource.UTCNow;
-      var existing = tryLookupExisting(id, isoLang, now, caching);
+      var existing = tryLookupExisting(id, isoLang.Value, now, caching);
       if (existing != null)
       {
         if (InstrumentationEnabled)
@@ -180,7 +180,7 @@ namespace Azos.Wave.Cms.Default
         Interlocked.Increment(ref m_stat_CacheMissCount);
       }
 
-      var fetched = await fetchAndCacheContent(id, isoLang, now, caching);
+      var fetched = await fetchAndCacheContent(id, isoLang.Value, now, caching);
 
       if (InstrumentationEnabled && fetched!=null)
       {
@@ -249,16 +249,16 @@ namespace Azos.Wave.Cms.Default
     //private vector{ContentId, ISO}
     private struct idiso : IEquatable<idiso>
     {
-      public idiso(ContentId id, string isoLang)
+      public idiso(ContentId id, Atom isoLang)
       {
         Id = id;
-        IsoLang = IOUtils.PackISO3CodeToInt(isoLang);
+        IsoLang = isoLang;
       }
       public ContentId Id;
-      public int IsoLang;
+      public Atom IsoLang;
 
       public bool Equals(idiso other)   => this.Id.Equals(other.Id) && this.IsoLang==other.IsoLang;
-      public override int GetHashCode() => Id.GetHashCode() ^ IsoLang;
+      public override int GetHashCode() => Id.GetHashCode() ^ IsoLang.GetHashCode();
     }
 
     private class dict : Dictionary<idiso, (DateTime sd, object content)> { }
@@ -277,7 +277,7 @@ namespace Azos.Wave.Cms.Default
      => m_Data[(id.GetHashCode() & CoreConsts.ABS_HASH_MASK) % BUCKET_COUNT];
 
     //this method is 100% in-memory CPU-bound, no need for async
-    private Content tryLookupExisting(ContentId id, string isoLang, DateTime now, ICacheParams caching)
+    private Content tryLookupExisting(ContentId id, Atom isoLang, DateTime now, ICacheParams caching)
     {
       if (caching.ReadCacheMaxAgeSec < 0) return null;//Bypass cache altogether
 
@@ -302,7 +302,7 @@ namespace Azos.Wave.Cms.Default
         throw new AvermentException($"Key '{id}' yields cache dict entry '{tuple.content?.GetType().Name}' which is neither a Content|AbsentValue");
     }
 
-    private async Task<Content> fetchAndCacheContent(ContentId id, string isoLang, DateTime now, ICacheParams caching)
+    private async Task<Content> fetchAndCacheContent(ContentId id, Atom isoLang, DateTime now, ICacheParams caching)
     {
       var key = new idiso(id, isoLang);
       var added = false;
@@ -330,7 +330,7 @@ namespace Azos.Wave.Cms.Default
     }
 
     //this call must return instantly, the task may take long time to complete
-    private async Task<Content> fetchAndCacheContentBody(ContentId id, string isoLang, DateTime now, ICacheParams caching)
+    private async Task<Content> fetchAndCacheContentBody(ContentId id, Atom isoLang, DateTime now, ICacheParams caching)
     {
       await Task.Yield();
       var key = new idiso(id, isoLang);

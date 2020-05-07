@@ -272,27 +272,25 @@ namespace Azos.Standards
     private static readonly IDictionary<string, string> s_Alpha3
       = new Dictionary<string, string>(s_Alpha2.ToDictionary(pair => pair.Value, pair => pair.Key), StringComparer.OrdinalIgnoreCase);
 
-    public static string ToAlpha3(string alpha2, string def = null)
+    public static string ToAlpha3(string alpha2, string dflt = null)
     {
-      string result;
-      if (alpha2 != null && s_Alpha2.TryGetValue(alpha2, out result)) return result;
-      return def==null ? null : def.ToUpper();
+      if (alpha2 != null && s_Alpha2.TryGetValue(alpha2, out var result)) return result;
+      return dflt==null ? null : dflt.ToUpper();
     }
-    public static string ToAlpha2(string alpha3, string def = null)
+    public static string ToAlpha2(string alpha3, string dflt = null)
     {
-      string result;
-      if (alpha3 != null && s_Alpha3.TryGetValue(alpha3, out result)) return result;
-      return def==null ? null : def.ToUpper();
+      if (alpha3 != null && s_Alpha3.TryGetValue(alpha3, out var result)) return result;
+      return dflt==null ? null : dflt.ToUpper();
     }
-    public static string Normalize3(string code, string def = null)
+    public static string Normalize3(string code, string dflt = null)
     {
       if (code != null && s_Alpha3.ContainsKey(code)) return code.ToUpper();
-      return ToAlpha3(code, def);
+      return ToAlpha3(code, dflt);
     }
-    public static string Normalize2(string code, string def = null)
+    public static string Normalize2(string code, string dflt = null)
     {
       if (code != null && s_Alpha2.ContainsKey(code)) return code.ToUpper();
-      return ToAlpha2(code, def);
+      return ToAlpha2(code, dflt);
     }
   }
 }

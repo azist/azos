@@ -205,7 +205,7 @@ namespace WaveTestSite.Controllers
           DOB = new DateTime(1980, 07, 05),
           Puzzle = new JsonDataMap{ {"Image", "/mvc/tester/captcha?key=PersonPuzzle"}, {"Question", "Enter the current Year"}}
         };
-        return new ClientRecord(row, null);
+        return new ClientRecord(row, null, Atom.ZERO);
       }
 
       [ActionOnPost(Name ="person"), ApiEndpointDoc]
@@ -237,7 +237,7 @@ namespace WaveTestSite.Controllers
         doc.Puzzle.Remove("Answer");
 
         makePuzzle();
-        return new ClientRecord(doc, error);
+        return new ClientRecord(doc, error, Atom.ZERO);
       }
 
       [Action, ApiEndpointDoc]
