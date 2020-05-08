@@ -97,8 +97,8 @@ namespace Azos.Tests.Nub
 0040: 65 72 20 6C 69 6E 65 73 | 20 67 6F 65 73 20 68 61    er·lines·goes·ha
 0050: 73 20 64 69 64 20 68 61 | 76 65 20 6E 6F 74 20 67    s·did·have·not·g
 0060: 65 74 20 69 73 20 6D 61 | 79 20 62 65 20 74 68 65    et·is·may·be·the
-0070: 6E 20 64 6F 65 73                                    n·does",
-      "I walk\n lines\r\n\n but not this then has what more characters longer lines goes has did have not get is may be then does".ToDumpString());
+0070: 6E 20 64 6F 65 73                                    n·does".ToLinuxLines(),
+      "I walk\n lines\r\n\n but not this then has what more characters longer lines goes has did have not get is may be then does".ToDumpString().ToLinuxLines());
     }
 
     [Run]
@@ -119,8 +119,8 @@ namespace Azos.Tests.Nub
       Aver.AreEqual(
 @"0000: 042F 0020 043C 043E 0433 0443 0020 0435 | 0441 0442 044C 0020 0441 0442 0435 043A    Я·могу·есть·стек
 0010: 043B 043E 002C 0020 043E 043D 043E 0020 | 043C 043D 0435 0020 043D 0435 0020 0432    ло,·оно·мне·не·в
-0020: 0440 0435 0434 0438 0442 002E                                                        редит.",
-"Я могу есть стекло, оно мне не вредит.".ToDumpString());
+0020: 0440 0435 0434 0438 0442 002E                                                        редит.".ToLinuxLines(),
+"Я могу есть стекло, оно мне не вредит.".ToDumpString().ToLinuxLines());
     }
 
 
