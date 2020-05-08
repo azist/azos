@@ -16,8 +16,6 @@ namespace Azos.Wave.Mvc
   [ApiControllerDoc]
   public abstract class ApiDocController : Controller
   {
-    protected static Dictionary<string, ConfigSectionNode> s_Data = new Dictionary<string, ConfigSectionNode>();
-
     /// <summary>
     /// This method is called before cache read and any data generation.
     /// Override to reject the supplied dataContext from processing. This is needed to filter-out contexts that are not supported.
@@ -36,6 +34,16 @@ namespace Azos.Wave.Mvc
     protected abstract ApiDocGenerator MakeDocGenerator(string dataContext);
 
 
+    protected class docCacheSingleton : Dictionary<string, ConfigSectionNode> { }
+
+    /// <summary>
+    /// Returns a singleton cache dictionary static to App instance.
+    /// The returned instance is NOT thread safe and needs to be synchronized on.
+    /// </summary>
+    protected docCacheSingleton GetAppStaticDataCache()
+     => App.Singletons.GetOrCreate( () => new docCacheSingleton() ).instance;
+
+
     /// <summary>
     /// Override to generate data by calling ApiDocGenerator ad/or caching the result as necessary
     /// </summary>
@@ -50,12 +58,14 @@ namespace Azos.Wave.Mvc
         var tp = GetType();//of the caller instance, used just as a cache key for THIS controller
         var key = dctx + "::" + tp.AssemblyQualifiedName;//the dctx is sanitized, so arbitrary dctxs are not allowed
 
-        lock(s_Data)
+        var cache = GetAppStaticDataCache();
+
+        lock (cache)
         {
-          if (s_Data.TryGetValue(key, out var data)) return data;
+          if (cache.TryGetValue(key, out var data)) return data;
           var gen = MakeDocGenerator(dctx);
           data = gen.Generate();
-          s_Data[key] = data;
+          cache[key] = data;
           return data;
         }
       }
