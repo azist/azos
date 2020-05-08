@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.2.5.7
-set HEADLINE=Svc release, add AdHocMapDecorator add more validations to Web.Message
+set VER=1.3.0
+set HEADLINE=Atoms used for ISO codes in NLSMap and Amount, Portal etc.
 
 call vs2017-build-release %VER%
 
