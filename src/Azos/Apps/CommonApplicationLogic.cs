@@ -344,7 +344,7 @@ namespace Azos.Apps
     {
         if (m_ShutdownStarted || settings==null) return false;
         lock(m_ConfigSettings)
-          if (!m_ConfigSettings.Contains(settings, Collections.ReferenceEqualityComparer<IConfigSettings>.Default))
+          if (!m_ConfigSettings.Contains(settings, Collections.ReferenceEqualityComparer<IConfigSettings>.Instance))
           {
               m_ConfigSettings.Add(settings);
               return true;
@@ -382,7 +382,7 @@ namespace Azos.Apps
         if (m_ShutdownStarted || notifiable==null) return false;
 
         lock(m_FinishNotifiables)
-          if (!m_FinishNotifiables.Contains(notifiable, Collections.ReferenceEqualityComparer<IApplicationFinishNotifiable>.Default))
+          if (!m_FinishNotifiables.Contains(notifiable, Collections.ReferenceEqualityComparer<IApplicationFinishNotifiable>.Instance))
           {
               m_FinishNotifiables.Add(notifiable);
               return true;
