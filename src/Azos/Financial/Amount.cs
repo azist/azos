@@ -13,7 +13,7 @@ using Azos.Serialization.JSON;
 namespace Azos.Financial
 {
   /// <summary>
-  /// Represents monetary amount with currency
+  /// Represents monetary amount with currency ISO atom
   /// </summary>
   [Serializable]
   public struct Amount : IEquatable<Amount>, IComparable<Amount>, IJsonWritable, IJsonReadable

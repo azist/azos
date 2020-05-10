@@ -44,6 +44,22 @@ namespace Azos.Tests.Nub.Financial
 
 
     [Run]
+    public void Equality()
+    {
+      Aver.IsTrue(new Amount("usd", 10M).Equals(new Amount("usd", 10M)));
+      Aver.IsTrue(new Amount("USD", 10M).Equals(new Amount("usd", 10M)));
+      Aver.IsTrue(new Amount(CoreConsts.ISOA_CURRENCY_USD, 10M).Equals(new Amount("usd", 10M)));
+
+      Aver.IsFalse(new Amount("cad", 10M).GetHashCode().Equals(new Amount("cad", 10.01M)));
+
+      Aver.AreEqual(new Amount("usd", 10M).GetHashCode(), new Amount("usd", 10M).GetHashCode());
+      Aver.AreEqual(new Amount("uSd", 10M).GetHashCode(), new Amount("usd", 10M).GetHashCode());
+      Aver.AreNotEqual(new Amount("cad", 10M).GetHashCode(), new Amount("usd", 10M).GetHashCode());
+      Aver.AreNotEqual(new Amount("cad", 10M).GetHashCode(), new Amount("cad", 10.01M).GetHashCode());
+    }
+
+
+    [Run]
     public void Equal()
     {
         Aver.IsTrue( new Amount("usd", 10M)  ==  new Amount("usd", 10M) );

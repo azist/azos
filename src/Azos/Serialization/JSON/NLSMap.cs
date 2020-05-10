@@ -138,7 +138,7 @@ namespace Azos.Serialization.JSON
 
       internal NDPair[] m_Data;
 
-      public bool IsAssigned => m_Data != null;
+      public bool IsAssigned => m_Data != null && m_Data.Length > 0;
 
       public NDPair this[string langIso]
       {

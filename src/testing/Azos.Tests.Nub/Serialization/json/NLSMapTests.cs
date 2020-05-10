@@ -188,7 +188,7 @@ namespace Azos.Tests.Nub.Serialization
     }
 
 
-      [Run]
+    [Run]
     public void NLSMap_JSONSerializationRoundtrip()
     {
       var content="{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
@@ -352,6 +352,15 @@ namespace Azos.Tests.Nub.Serialization
     {
       var nls = new NLSMap();
       var nls2 = new NLSMap();
+      Aver.IsTrue(nls.Equals(nls2));
+      Aver.AreEqual(nls.GetHashCode(), nls2.GetHashCode());
+    }
+
+    [Run]
+    public void Equality_1_0()
+    {
+      var nls = new NLSMap(new NLSMap.NDPair[0]);
+      var nls2 = new NLSMap(new NLSMap.NDPair[0]);
       Aver.IsTrue(nls.Equals(nls2));
       Aver.AreEqual(nls.GetHashCode(), nls2.GetHashCode());
     }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Azos.Data;
+using Azos.Financial;
 using Azos.Pile;
 using Azos.Scripting;
 using Azos.Serialization.Bix;
@@ -1732,15 +1733,11 @@ namespace Azos.Tests.Nub.Serialization
 
     #endregion
 
-
     #region NLSMap
     [Run]
     public void NLSMap_01()
     {
       NLSMap v = default(NLSMap);
-      testScalar(v, w => w.Write(v), r => r.ReadNLSMap(), 1);
-
-      v = new NLSMap(new NLSMap.NDPair[0]);
       testScalar(v, w => w.Write(v), r => r.ReadNLSMap(), 1);
 
       v = new NLSMap(new NLSMap.NDPair[]{ new NLSMap.NDPair(CoreConsts.ISOA_LANG_ENGLISH, "CUC", "Cucumber")});
@@ -1749,7 +1746,7 @@ namespace Azos.Tests.Nub.Serialization
         Aver.AreEqual("CUC", got[CoreConsts.ISOA_LANG_ENGLISH].Name);
         Aver.AreEqual("Cucumber", got[CoreConsts.ISOA_LANG_ENGLISH].Description);
         return got;
-      }, 1 + 4 + 4 + 9);
+      }, 1 + 5 + 5 + 9);
     }
 
     [Run]
@@ -1758,16 +1755,14 @@ namespace Azos.Tests.Nub.Serialization
       NLSMap? v = null;
       testScalar(v, w => w.Write(v), r => r.ReadNullableNLSMap(), 1);
 
-      v = new NLSMap(new NLSMap.NDPair[0]);
-      testScalar(v, w => w.Write(v), r => r.ReadNullableNLSMap(), 2);
-
       v = new NLSMap(new NLSMap.NDPair[] { new NLSMap.NDPair(CoreConsts.ISOA_LANG_ENGLISH, "CUC", "Cucumber") });
       testScalar(v, w => w.Write(v), r => {
-        var got = r.ReadNLSMap();
-        Aver.AreEqual("CUC", got[CoreConsts.ISOA_LANG_ENGLISH].Name);
-        Aver.AreEqual("Cucumber", got[CoreConsts.ISOA_LANG_ENGLISH].Description);
+        var got = r.ReadNullableNLSMap();
+        Aver.IsTrue(got.HasValue);
+        Aver.AreEqual("CUC", got.Value[CoreConsts.ISOA_LANG_ENGLISH].Name);
+        Aver.AreEqual("Cucumber", got.Value[CoreConsts.ISOA_LANG_ENGLISH].Description);
         return got;
-      }, 1   + 1 + 4 + 4 + 9);
+      }, 1   + 1 + 5 + 5 + 9);
     }
 
     [Run]
@@ -1776,7 +1771,7 @@ namespace Azos.Tests.Nub.Serialization
       List<NLSMap> v = null;
       testCollection(v, w => w.WriteCollection(v), r => r.ReadNLSMapCollection<List<NLSMap>>(), 1);
 
-      v = new List<NLSMap> { new NLSMap("{eng: {n: 'Name', d: {'Description'}}}"), new NLSMap("{eng: {n: 'N', d: {'D'}}, rus: {n: 'I', d: {'O'}}}") };
+      v = new List<NLSMap> { new NLSMap("{eng: {n: 'Name', d: 'Description'}}"), new NLSMap("{eng: {n: 'N', d: 'D'}, rus: {n: 'I', d: 'O'}}") };
       testCollection(v, w => w.WriteCollection(v), r => {
       var got = r.ReadNLSMapCollection<List<NLSMap>>();
         Aver.AreEqual(2, got.Count);
@@ -1797,7 +1792,7 @@ namespace Azos.Tests.Nub.Serialization
       List<NLSMap?> v = null;
       testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableNLSMapCollection<List<NLSMap?>>(), 1);
 
-      v = new List<NLSMap?> { new NLSMap("{eng: {n: 'Name', d: {'Description'}}}"), null, null, new NLSMap("{eng: {n: 'N', d: {'D'}}, rus: {n: 'I', d: {'O'}}}") };
+      v = new List<NLSMap?> { new NLSMap("{eng: {n: 'Name', d: 'Description'}}"), null, null, new NLSMap("{eng: {n: 'N', d: 'D'}, rus: {n: 'I', d: 'O'}}") };
       testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableNLSMapCollection<List<NLSMap?>>());
     }
 
@@ -1807,7 +1802,7 @@ namespace Azos.Tests.Nub.Serialization
       NLSMap[] v = null;
       testArray(v, w => w.Write(v), r => r.ReadNLSMapArray(), 1);
 
-      v = new NLSMap[] { new NLSMap("{eng: {n: 'Name', d: {'Description'}}}"), new NLSMap() };
+      v = new NLSMap[] { new NLSMap("{eng: {n: 'Name', d: 'Description'}}"), new NLSMap() };
       testArray(v, w => w.Write(v), r => r.ReadNLSMapArray());
     }
 
@@ -1817,8 +1812,92 @@ namespace Azos.Tests.Nub.Serialization
       NLSMap?[] v = null;
       testArray(v, w => w.Write(v), r => r.ReadNullableNLSMapArray(), 1);
 
-      v = new NLSMap?[] { new NLSMap("{eng: {n: 'Name', d: {'Description'}}}"), null, null, new NLSMap("{eng: {n: 'N', d: {'D'}}, rus: {n: 'I', d: {'O'}}}") };
-      testArray(v, w => w.Write(v), r => r.ReadNullableNLSMapArray(), 1 + 1 + 15);
+      v = new NLSMap?[] { new NLSMap("{eng: {n: 'Name', d: 'Description'}}"), null, null, new NLSMap("{eng: {n: 'N', d: 'D'}, rus: {n: 'I', d: 'O'}}") };
+      testArray(v, w => w.Write(v), r => r.ReadNullableNLSMapArray());
+    }
+
+    #endregion
+
+
+    #region Amount
+    [Run]
+    public void Amount_01()
+    {
+      Amount v = default(Amount);
+      testScalar(v, w => w.Write(v), r => r.ReadAmount(), 1 + 4);
+
+      v = new Amount(CoreConsts.ISOA_CURRENCY_USD, 10.1M);
+      testScalar(v, w => w.Write(v), r => {
+        var got = r.ReadAmount();
+        Aver.AreEqual(CoreConsts.ISOA_CURRENCY_USD, got.ISO);
+        Aver.AreEqual(10.1M, got.Value);
+        return got;
+      }, 4 + 5);
+    }
+
+    [Run]
+    public void Amount_02_Nullable()
+    {
+      Amount? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableAmount(), 1);
+
+      v = new Amount(CoreConsts.ISOA_CURRENCY_USD, 10.1M);
+      testScalar(v, w => w.Write(v), r => {
+        var got = r.ReadNullableAmount();
+        Aver.IsTrue(got.HasValue);
+        Aver.AreEqual(CoreConsts.ISOA_CURRENCY_USD, got.Value.ISO);
+        Aver.AreEqual(10.1M, got.Value.Value);
+        return got;
+      }, 1 + 4 + 5);
+    }
+
+    [Run]
+    public void Amount_03_Collection()
+    {
+      List<Amount> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadAmountCollection<List<Amount>>(), 1);
+
+      v = new List<Amount> { new Amount("usd", 10), new Amount("cad", 20) };
+      testCollection(v, w => w.WriteCollection(v), r => {
+        var got = r.ReadAmountCollection<List<Amount>>();
+        Aver.AreEqual(2, got.Count);
+        Aver.AreEqual("usd", got[0].ISO.Value);
+        Aver.AreEqual(10M, got[0].Value);
+        Aver.AreEqual("cad", got[1].ISO.Value);
+        Aver.AreEqual(20M, got[1].Value);
+        return got;
+      });
+    }
+
+
+    [Run]
+    public void Amount_04_CollectionNullable()
+    {
+      List<Amount?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableAmountCollection<List<Amount?>>(), 1);
+
+      v = new List<Amount?> { null, null, new Amount("usd", 10), new Amount("cad", 20) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableAmountCollection<List<Amount?>>());
+    }
+
+    [Run]
+    public void Amount_05_Array()
+    {
+      Amount[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadAmountArray(), 1);
+
+      v = new Amount[] { new Amount("usd", 10), new Amount("cad", 20), new Amount() };
+      testArray(v, w => w.Write(v), r => r.ReadAmountArray());
+    }
+
+    [Run]
+    public void Amount_06_ArrayNullable()
+    {
+      Amount?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableAmountArray(), 1);
+
+      v = new Amount?[] { new Amount("usd", 10), null, new Amount("cad", 20), new Amount(), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullableAmountArray());
     }
 
     #endregion

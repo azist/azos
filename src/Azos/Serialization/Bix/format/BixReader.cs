@@ -1243,7 +1243,7 @@ namespace Azos.Serialization.Bix
     public NLSMap ReadNLSMap()
     {
       var cnt = ReadUshort();
-      if (cnt <= 0) return new NLSMap();
+      if (cnt == 0) return new NLSMap();
       if (cnt > NLSMap.MAX_ISO_COUNT) throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "Exceeded NLSMap.MAX_ISO_COUNT");
 
       var data = new NLSMap.NDPair[cnt];
