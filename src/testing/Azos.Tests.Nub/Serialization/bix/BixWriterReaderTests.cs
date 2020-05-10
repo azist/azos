@@ -1901,5 +1901,87 @@ namespace Azos.Tests.Nub.Serialization
 
     #endregion
 
+
+
+    #region Atom
+    [Run]
+    public void Atom_01()
+    {
+      Atom v = default(Atom);
+      testScalar(v, w => w.Write(v), r => r.ReadAtom(), 1);
+
+      v = CoreConsts.ISOA_COUNTRY_CANADA;
+      testScalar(v, w => w.Write(v), r => r.ReadAtom(), 4);
+
+      v = Atom.Encode("abracada");
+      testScalar(v, w => w.Write(v), r => {
+        var got = r.ReadAtom();
+        Aver.AreEqual("abracada", got.Value);
+        return got;
+      }, 1 + 8);
+    }
+
+    [Run]
+    public void Atom_02_Nullable()
+    {
+      Atom? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableAtom(), 1);
+
+      v = CoreConsts.ISOA_COUNTRY_CANADA;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableAtom(), 1+4);
+
+      v = Atom.Encode("abracada");
+      testScalar(v, w => w.Write(v), r => {
+        var got = r.ReadNullableAtom();
+        Aver.IsTrue(got.HasValue);
+        Aver.AreEqual("abracada", got.Value.Value);
+        return got;
+      }, 1 + 1 + 8);
+    }
+
+    [Run]
+    public void Atom_03_Collection()
+    {
+      List<Atom> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadAtomCollection<List<Atom>>(), 1);
+
+      v = new List<Atom> { Atom.Encode("abc"), Atom.Encode("defg") };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadAtomCollection<List<Atom>>());
+    }
+
+
+    [Run]
+    public void Atom_04_CollectionNullable()
+    {
+      List<Atom?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableAtomCollection<List<Atom?>>(), 1);
+
+      v = new List<Atom?> { null, Atom.Encode("abc"), Atom.Encode("defg"), null, null, Atom.Encode("1") };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableAtomCollection<List<Atom?>>());
+    }
+
+    [Run]
+    public void Atom_05_Array()
+    {
+      Atom[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadAtomArray(), 1);
+
+      v = new Atom[] { Atom.Encode("abc"), Atom.Encode("defg") };
+      testArray(v, w => w.Write(v), r => r.ReadAtomArray());
+    }
+
+    [Run]
+    public void Atom_06_ArrayNullable()
+    {
+      Atom?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableAtomArray(), 1);
+
+      v = new Atom?[] { null, Atom.Encode("abc"), Atom.Encode("defg"), null, null, Atom.Encode("1") };
+      testArray(v, w => w.Write(v), r => r.ReadNullableAtomArray());
+    }
+
+    #endregion
+
+
   }
 }
