@@ -84,16 +84,16 @@ namespace Azos.Serialization.JSON
                                                           new System.Collections.DictionaryEntry("d", Description));
         }
 
-      public override int GetHashCode() => ISO.GetHashCode();
-      public override bool Equals(object obj) => obj is NDPair pair ? this.Equals(pair) : false;
+        public override int GetHashCode() => ISO.GetHashCode();
+        public override bool Equals(object obj) => obj is NDPair pair ? this.Equals(pair) : false;
 
-      public bool Equals(NDPair other) => this.ISO == other.ISO &&
-                                          this.Name.EqualsOrdSenseCase(other.Name) &&
-                                          this.Description.EqualsOrdSenseCase(other.Description);
+        public bool Equals(NDPair other) => this.ISO == other.ISO &&
+                                            this.Name.EqualsOrdSenseCase(other.Name) &&
+                                            this.Description.EqualsOrdSenseCase(other.Description);
 
-      public static bool operator ==(NDPair a, NDPair b) => a.Equals(b);
-      public static bool operator !=(NDPair a, NDPair b) => !a.Equals(b);
-    }
+        public static bool operator ==(NDPair a, NDPair b) => a.Equals(b);
+        public static bool operator !=(NDPair a, NDPair b) => !a.Equals(b);
+      }
 
       //used by ser
       internal NLSMap(NDPair[] data)
@@ -137,6 +137,8 @@ namespace Azos.Serialization.JSON
       }
 
       internal NDPair[] m_Data;
+
+      public bool IsAssigned => m_Data != null;
 
       public NDPair this[string langIso]
       {
@@ -194,6 +196,7 @@ namespace Azos.Serialization.JSON
            lst.Add(other.m_Data[j]);
         }
         if (lst.Count > MAX_ISO_COUNT) throw new AzosException("Exceeded NLSMap.MAX_ISO_COUNT");
+
         return new NLSMap( lst.ToArray() );
       }
 
@@ -221,6 +224,10 @@ namespace Azos.Serialization.JSON
           if (other.m_Data == null) return true;
           return false;
         }
+        if (other.m_Data == null) return false;
+
+        if (m_Data.Length != other.m_Data.Length) return false;
+
         return m_Data.SequenceEqual(other.m_Data);
       }
 

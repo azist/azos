@@ -1733,75 +1733,95 @@ namespace Azos.Tests.Nub.Serialization
     #endregion
 
 
-    //#region NLSMap
-    //[Run]
-    //public void NLSMap_01()
-    //{
-    //  NLSMap v = default(NLSMap);
-    //  testScalar(v, w => w.Write(v), r => r.ReadNLSMap(), 3);
+    #region NLSMap
+    [Run]
+    public void NLSMap_01()
+    {
+      NLSMap v = default(NLSMap);
+      testScalar(v, w => w.Write(v), r => r.ReadNLSMap(), 1);
 
-    //  v = new NLSMap(int.MinValue, int.MinValue, int.MinValue);
-    //  testScalar(v, w => w.Write(v), r => r.ReadNLSMap(), 15);
+      v = new NLSMap(new NLSMap.NDPair[0]);
+      testScalar(v, w => w.Write(v), r => r.ReadNLSMap(), 1);
 
-    //  v = new NLSMap(int.MaxValue, int.MaxValue, int.MaxValue);
-    //  testScalar(v, w => w.Write(v), r => r.ReadNLSMap(), 15);
-    //}
+      v = new NLSMap(new NLSMap.NDPair[]{ new NLSMap.NDPair(CoreConsts.ISOA_LANG_ENGLISH, "CUC", "Cucumber")});
+      testScalar(v, w => w.Write(v), r => {
+        var got = r.ReadNLSMap();
+        Aver.AreEqual("CUC", got[CoreConsts.ISOA_LANG_ENGLISH].Name);
+        Aver.AreEqual("Cucumber", got[CoreConsts.ISOA_LANG_ENGLISH].Description);
+        return got;
+      }, 1 + 4 + 4 + 9);
+    }
 
-    //[Run]
-    //public void NLSMap_02_Nullable()
-    //{
-    //  NLSMap? v = null;
-    //  testScalar(v, w => w.Write(v), r => r.ReadNullableNLSMap(), 1);
+    [Run]
+    public void NLSMap_02_Nullable()
+    {
+      NLSMap? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableNLSMap(), 1);
 
-    //  v = new NLSMap(int.MinValue, int.MinValue, int.MinValue);
-    //  testScalar(v, w => w.Write(v), r => r.ReadNullableNLSMap(), 16);
+      v = new NLSMap(new NLSMap.NDPair[0]);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableNLSMap(), 2);
 
-    //  v = new NLSMap(int.MaxValue, int.MaxValue, int.MaxValue);
-    //  testScalar(v, w => w.Write(v), r => r.ReadNullableNLSMap(), 16);
-    //}
+      v = new NLSMap(new NLSMap.NDPair[] { new NLSMap.NDPair(CoreConsts.ISOA_LANG_ENGLISH, "CUC", "Cucumber") });
+      testScalar(v, w => w.Write(v), r => {
+        var got = r.ReadNLSMap();
+        Aver.AreEqual("CUC", got[CoreConsts.ISOA_LANG_ENGLISH].Name);
+        Aver.AreEqual("Cucumber", got[CoreConsts.ISOA_LANG_ENGLISH].Description);
+        return got;
+      }, 1   + 1 + 4 + 4 + 9);
+    }
 
-    //[Run]
-    //public void NLSMap_03_Collection()
-    //{
-    //  List<NLSMap> v = null;
-    //  testCollection(v, w => w.WriteCollection(v), r => r.ReadNLSMapCollection<List<NLSMap>>(), 1);
+    [Run]
+    public void NLSMap_03_Collection()
+    {
+      List<NLSMap> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNLSMapCollection<List<NLSMap>>(), 1);
 
-    //  v = new List<NLSMap> { new NLSMap(0, 0, 1), new NLSMap(0, 0, 2) };
-    //  testCollection(v, w => w.WriteCollection(v), r => r.ReadNLSMapCollection<List<NLSMap>>(), 1 + 1 + 6);
-    //}
+      v = new List<NLSMap> { new NLSMap("{eng: {n: 'Name', d: {'Description'}}}"), new NLSMap("{eng: {n: 'N', d: {'D'}}, rus: {n: 'I', d: {'O'}}}") };
+      testCollection(v, w => w.WriteCollection(v), r => {
+      var got = r.ReadNLSMapCollection<List<NLSMap>>();
+        Aver.AreEqual(2, got.Count);
+        Aver.AreEqual("Name", got[0]["eng"].Name);
+        Aver.AreEqual("N", got[1]["eng"].Name);
+        Aver.AreEqual("Description", got[0]["eng"].Description);
+        Aver.AreEqual("D", got[1]["eng"].Description);
+        Aver.AreEqual("I", got[1]["rus"].Name);
+        Aver.AreEqual("O", got[1]["rus"].Description);
+        return got;
+      });
+    }
 
 
-    //[Run]
-    //public void NLSMap_04_CollectionNullable()
-    //{
-    //  List<NLSMap?> v = null;
-    //  testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableNLSMapCollection<List<NLSMap?>>(), 1);
+    [Run]
+    public void NLSMap_04_CollectionNullable()
+    {
+      List<NLSMap?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableNLSMapCollection<List<NLSMap?>>(), 1);
 
-    //  v = new List<NLSMap?> { new NLSMap(0, 0, 1), null, new NLSMap(0, 0, 1), null, new NLSMap(0, 0, 2) };
-    //  testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableNLSMapCollection<List<NLSMap?>>(), 1 + 1 + 14);
-    //}
+      v = new List<NLSMap?> { new NLSMap("{eng: {n: 'Name', d: {'Description'}}}"), null, null, new NLSMap("{eng: {n: 'N', d: {'D'}}, rus: {n: 'I', d: {'O'}}}") };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableNLSMapCollection<List<NLSMap?>>());
+    }
 
-    //[Run]
-    //public void NLSMap_05_Array()
-    //{
-    //  NLSMap[] v = null;
-    //  testArray(v, w => w.Write(v), r => r.ReadNLSMapArray(), 1);
+    [Run]
+    public void NLSMap_05_Array()
+    {
+      NLSMap[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNLSMapArray(), 1);
 
-    //  v = new NLSMap[] { new NLSMap(1, 0, 1), new NLSMap(10, 0, 2), new NLSMap(20, 0, 3) };
-    //  testArray(v, w => w.Write(v), r => r.ReadNLSMapArray(), 1 + 1 + 9);
-    //}
+      v = new NLSMap[] { new NLSMap("{eng: {n: 'Name', d: {'Description'}}}"), new NLSMap() };
+      testArray(v, w => w.Write(v), r => r.ReadNLSMapArray());
+    }
 
-    //[Run]
-    //public void NLSMap_06_ArrayNullable()
-    //{
-    //  NLSMap?[] v = null;
-    //  testArray(v, w => w.Write(v), r => r.ReadNullableNLSMapArray(), 1);
+    [Run]
+    public void NLSMap_06_ArrayNullable()
+    {
+      NLSMap?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableNLSMapArray(), 1);
 
-    //  v = new NLSMap?[] { new NLSMap(3, 9, 2), null, new NLSMap(2, 0, 1), null, new NLSMap(0, 0, 2), null };
-    //  testArray(v, w => w.Write(v), r => r.ReadNullableNLSMapArray(), 1 + 1 + 15);
-    //}
+      v = new NLSMap?[] { new NLSMap("{eng: {n: 'Name', d: {'Description'}}}"), null, null, new NLSMap("{eng: {n: 'N', d: {'D'}}, rus: {n: 'I', d: {'O'}}}") };
+      testArray(v, w => w.Write(v), r => r.ReadNullableNLSMapArray(), 1 + 1 + 15);
+    }
 
-    //#endregion
+    #endregion
 
   }
 }
