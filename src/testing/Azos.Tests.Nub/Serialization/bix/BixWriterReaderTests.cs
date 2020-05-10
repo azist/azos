@@ -1818,7 +1818,6 @@ namespace Azos.Tests.Nub.Serialization
 
     #endregion
 
-
     #region Amount
     [Run]
     public void Amount_01()

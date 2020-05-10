@@ -85,6 +85,16 @@ namespace Azos.Data
       ID =  bytes.ReadBEUInt64(4);
     }
 
+    public unsafe GDID(byte* ptr)
+    {
+      if (ptr == null)
+        throw new DataException(StringConsts.ARGUMENT_ERROR + "GDID.ctor(ptr==null)");
+
+      var idx = 0;
+      Era = IOUtils.ReadBEUInt32(ptr, ref idx);
+      ID = IOUtils.ReadBEUInt64(ptr, ref idx);
+    }
+
     public readonly UInt32 Era;
     public readonly UInt64 ID;
 
@@ -245,7 +255,8 @@ namespace Azos.Data
       return false;
     }
 
-    public static bool TryParse(string str, out GDID gdid)
+    //todo: Candidate for Span<char> rewrite
+    public static unsafe bool TryParse(string str, out GDID gdid)
     {
       gdid = GDID.ZERO;
       if (str==null) return false;
@@ -288,12 +299,15 @@ namespace Azos.Data
       }
 
       //HEX format
-      str = str.Trim();
+      str = str.Trim(); //trim returns as-is if there is nothing to trim
+
       var ix = str.IndexOf("0x", StringComparison.OrdinalIgnoreCase);
       if (ix == 0) ix += 2;//skip 0x
       else ix = 0;
 
-      var buf = new byte[sizeof(uint) + sizeof(ulong)];
+      const int SZ = sizeof(uint) + sizeof(ulong);
+
+      var buf = stackalloc byte[SZ];
       var j = 0;
       for(var i=ix; i<str.Length;)
       {
@@ -302,11 +316,11 @@ namespace Azos.Data
         var dl = hexDigit(str[i]); i++;
         if (dl<0) return false;
 
-        if (j==buf.Length) return false;
+        if (j==SZ) return false;
         buf[j] = (byte)((dh << 4) + dl);
         j++;
       }
-      if (j<buf.Length) return false;
+      if (j<SZ) return false;
 
       gdid = new GDID(buf);
       return true;

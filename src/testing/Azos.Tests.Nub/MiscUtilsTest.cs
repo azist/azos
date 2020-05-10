@@ -113,6 +113,19 @@ namespace Azos.Tests.Nub
         Aver.AreEqual(4,idx);
     }
 
+
+    [Run]
+    public unsafe void ReadWriteBEInt32TestBuffer()
+    {
+      var ptr = stackalloc byte[4];
+      IOUtils.WriteBEUInt32(ptr, 0, 0xFACACA07);
+
+      var idx = 0;
+      Aver.AreEqual(0xFACACA07, IOUtils.ReadBEUInt32(ptr, ref idx));
+      Aver.AreEqual(4, idx);
+    }
+
+
     [Run]
     public void ReadWriteLEInt32TestArray()
     {
@@ -165,6 +178,17 @@ namespace Azos.Tests.Nub
         var idx = 0;
         Aver.AreEqual(0xFACACA07EBEDDAFE, buf.ReadBEUInt64(ref idx));
         Aver.AreEqual(8,idx);
+    }
+
+    [Run]
+    public unsafe void ReadWriteBEInt64TestBuffer()
+    {
+      var ptr = stackalloc byte[8];
+      IOUtils.WriteBEUInt64(ptr, 0, 0xFACACA07EBEDDAFE);
+
+      var idx = 0;
+      Aver.AreEqual(0xFACACA07EBEDDAFE, IOUtils.ReadBEUInt64(ptr, ref idx));
+      Aver.AreEqual(8, idx);
     }
 
     [Run]

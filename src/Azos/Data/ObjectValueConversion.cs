@@ -827,27 +827,25 @@ namespace Azos.Data
          {
             if (val==null) return GDID.ZERO;
 
-            if (val is GDID) return (GDID)val;
+            if (val is GDID gdval) return gdval;
+            if (val is ELink elval) return elval.GDID;
 
-            if (val is ELink) return ((ELink)val).GDID;
-
-            if (val is string)
+            if (val is string sval)
             {
-                var sval = ((string)val).Trim();
+              GDID gdid;
+              if (GDID.TryParse(sval, out gdid)) return gdid;
 
-                GDID gdid;
-                if (GDID.TryParse(sval, out gdid)) return gdid;
-
-                try
-                {
-                  var elink = new ELink(sval);
-                  return elink.GDID;
-                }
-                catch{}
+              try
+              {
+                var elink = new ELink(sval);
+                return elink.GDID;
+              }
+              catch{}
             }
 
-            if (val is ulong) { return new GDID(0,(ulong)val); }
-            if (val is byte[]) { return new GDID((byte[])val); }
+            if (val is ulong ulval) { return new GDID(0, ulval); }
+            if (val is byte[] bval) { return new GDID(bval); }
+
             return new GDID(0, Convert.ToUInt64(val));
          }
 
