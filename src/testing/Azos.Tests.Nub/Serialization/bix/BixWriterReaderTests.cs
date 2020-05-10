@@ -1296,6 +1296,18 @@ namespace Azos.Tests.Nub.Serialization
       v = new string[] { "a", null, "c" };
       testArray(v, w => w.Write(v), r => r.ReadStringArray(), 1 + 1 + 7);
     }
+
+    [Run]
+    public void String_06_LongStrings()
+    {
+      string v = new string('盘', 250_000);
+      testScalar(v, w => w.Write(v), r => r.ReadString(), StringComparison.Ordinal);
+
+      var arr = new string[] { null, v, "abcd", "def", new string('a', 2_000_000) };
+      testCollection(arr, w => w.WriteCollection(new List<string>(arr)), r => r.ReadStringCollection<List<string>>());
+      testArray(arr, w => w.Write(arr), r => r.ReadStringArray());
+    }
+
     #endregion
 
     #region DateTime
@@ -1901,8 +1913,6 @@ namespace Azos.Tests.Nub.Serialization
 
     #endregion
 
-
-
     #region Atom
     [Run]
     public void Atom_01()
@@ -1978,6 +1988,74 @@ namespace Azos.Tests.Nub.Serialization
 
       v = new Atom?[] { null, Atom.Encode("abc"), Atom.Encode("defg"), null, null, Atom.Encode("1") };
       testArray(v, w => w.Write(v), r => r.ReadNullableAtomArray());
+    }
+
+    #endregion
+
+    #region JSON
+    [Run]
+    public void Json_01()
+    {
+      object v = null;
+      var ms = new MemoryStream();
+      var reader = new BixReader(ms);
+      var writer = new BixWriter(ms);
+
+      writer.WriteJson(v, null);
+
+      ms.Position = 0;
+      var got = reader.ReadJson();
+
+      Aver.IsNull(got);
+    }
+
+    [Run]
+    public void Json_02()
+    {
+      object v = new {a = 1, b = -123.78};
+      var ms = new MemoryStream();
+      var reader = new BixReader(ms);
+      var writer = new BixWriter(ms);
+
+      writer.WriteJson(v, null);
+      ms.GetBuffer().ToDumpString(DumpFormat.Hex).See();
+
+
+      ms.Position = 0;
+      var got = reader.ReadJson() as JsonDataMap;
+      Aver.IsNotNull(got);
+      got.See();
+      Aver.AreEqual(2, got.Count);
+      Aver.AreEqual(1, got["a"].AsInt());
+      Aver.AreEqual(-123.78, got["b"].AsDouble());
+    }
+
+    [Run]
+    public void Json_03()
+    {
+      object v = new object []{ new { a = 1, b = -123.78 }, null, new DateTime(2020, 03, 07, 0,0,0, DateTimeKind.Utc), true, "message"};
+      var ms = new MemoryStream();
+      var reader = new BixReader(ms);
+      var writer = new BixWriter(ms);
+
+      writer.WriteJson(v, null);
+      ms.GetBuffer().ToDumpString(DumpFormat.Hex).See();
+
+
+      ms.Position = 0;
+      var got = reader.ReadJson() as JsonDataArray;
+      Aver.IsNotNull(got);
+      got.See();
+      Aver.AreEqual(5, got.Count);
+      Aver.IsTrue(got[0] is JsonDataMap);
+      Aver.AreEqual(1, (got[0] as JsonDataMap)["a"].AsInt());
+      Aver.AreEqual(-123.78, (got[0] as JsonDataMap)["b"].AsDouble());
+      Aver.IsNull(got[1]);
+      Aver.AreEqual(2020, got[2].AsDateTime().Year);
+      Aver.IsTrue(got[3] is bool);
+      Aver.IsTrue((bool)got[3]);
+      Aver.IsTrue(got[4] is string);
+      Aver.AreEqual("message", got[4].AsString());
     }
 
     #endregion

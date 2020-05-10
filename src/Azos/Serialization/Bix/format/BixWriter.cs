@@ -1458,6 +1458,12 @@ namespace Azos.Serialization.Bix
     #region JSON (object)
     public void WriteJson(object value, string targetName)
     {
+      if (value == null)
+      {
+        Write(false);
+        return;
+      }
+
       var target = JsonWritingOptions.CompactRowsAsMap;
       if (targetName.IsNotNullOrWhiteSpace())
       {
