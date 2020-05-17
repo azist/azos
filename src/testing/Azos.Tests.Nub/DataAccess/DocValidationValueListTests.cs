@@ -33,6 +33,12 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual("banana", sut["B"].AsString());
     }
 
+    [Run, Aver.Throws(typeof(DataException), Message ="duplicate key")]
+    public void ParseValList_1_withalt()
+    {
+      var sut = FieldAttribute.ParseValueListString("01|1|a|A: one, 2|02: two");
+    }
+
     [Run]
     public void ParseValList_2()
     {
@@ -44,6 +50,21 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual("banana", sut["b"].AsString());
       Aver.AreEqual(null, sut["A"].AsString());
       Aver.AreEqual(null, sut["B"].AsString());
+    }
+
+    [Run]
+    public void ParseValList_2_withalt()
+    {
+      var sut = FieldAttribute.ParseValueListString("01|1|a|A: one, 2|02: two", caseSensitiveKeys: true);//no error because of case sensitive
+      Aver.IsNotNull(sut);
+      Aver.IsTrue(sut.CaseSensitive);
+      Aver.AreEqual(6, sut.Count);
+      Aver.AreEqual("one", sut["1"].AsString());
+      Aver.AreEqual("one", sut["01"].AsString());
+      Aver.AreEqual("one", sut["a"].AsString());
+      Aver.AreEqual("one", sut["A"].AsString());
+      Aver.AreEqual("two", sut["2"].AsString());
+      Aver.AreEqual("two", sut["02"].AsString());
     }
 
     [Run]
@@ -201,12 +222,43 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsNull(doc.Validate());
     }
 
+    [Run]
+    public void TypedDoc_7()
+    {
+      var doc = new Doc1 { Field2 = "a" };//In list
+      Aver.IsNull(doc.Validate());
+      doc.Field2 = "ap";
+      Aver.IsNull(doc.Validate());
+      doc.Field2 = "azz";
+      Aver.IsNotNull(doc.Validate());
+
+      doc.Field2 = "b";
+      Aver.IsNull(doc.Validate());
+      doc.Field2 = "ba";
+      Aver.IsNull(doc.Validate());
+      doc.Field2 = "bazz";
+      Aver.IsNotNull(doc.Validate());
+
+      doc.Field2 = "c";
+      Aver.IsNull(doc.Validate());
+      doc.Field2 = "ch";
+      Aver.IsNull(doc.Validate());
+
+      doc.Field2 = "d";
+      Aver.IsNull(doc.Validate());
+      doc.Field2 = "dy";
+      Aver.IsNull(doc.Validate());
+      doc.Field2 = "di";
+      Aver.IsNull(doc.Validate());
+
+    }
+
     public class Doc1 : TypedDoc
     {
       [Field(valueList: "a:apple,b:banana;c:cherry,d:dynamo")]
       public string Field1{  get ; set; }
 
-      [Field(valueList: "(0):apple; b(anana): Banana Fruit; c(herry): cherry fruit; d:dynamo")]
+      [Field(valueList: "a|ap:apple,b|ba:banana;c|ch:cherry,d|dy|di:dynamo")]
       public string Field2 { get; set; }
 
 
