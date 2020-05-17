@@ -23,7 +23,7 @@ namespace Azos.Pile
   ///  should more than 1 pile be allocated than this pointer would need to be wrapped in some other structure along with source IPile reference
   /// </summary>
   [Serializable]
-  public struct PilePointer : IEquatable<PilePointer>, IJsonWritable, IJsonReadable, IRequired
+  public struct PilePointer : IEquatable<PilePointer>, IJsonWritable, IJsonReadable, IValidatable
   {
     /// <summary>
     /// Returns a -1:-1 non-valid pointer (either local or distributed)
@@ -71,8 +71,6 @@ namespace Azos.Pile
     /// </summary>
     public bool Valid => Segment >= 0 && Address >= 0;
 
-    public bool CheckRequired(string targetName) => Valid;
-
     /// <summary>
     /// Returns true if the pointer has positive distributed NodeID and has a valid local pointer
     /// </summary>
@@ -113,6 +111,12 @@ namespace Azos.Pile
       }
 
       return (false, null);
+    }
+
+    public ValidState Validate(ValidState state, string scope = null)
+    {
+      if (!Valid) state = new ValidState(state, new ValidationException(StringConsts.PILE_PTR_VALIDATION_ERROR.Args(this, scope)));
+      return state;
     }
 
     public static bool operator ==(PilePointer l, PilePointer r) => l.Equals(r);

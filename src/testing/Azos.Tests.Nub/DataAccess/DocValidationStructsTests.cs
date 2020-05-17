@@ -5,21 +5,16 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-using Azos.Apps;
-using Azos.Apps.Injection;
-using Azos.Conf;
 using Azos.Data;
 using Azos.Financial;
+using Azos.Pile;
 using Azos.Scripting;
-using Azos.Time;
 
 namespace Azos.Tests.Nub.DataAccess
 {
   [Runnable]
-  public class DocValidationRequiredStructsTests
+  public class DocValidationStructsTests
   {
     [Run]
     public void Test_GDID()
@@ -122,6 +117,37 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsNull(ve);
     }
 
+    [Run]
+    public void Test_Pointer()
+    {
+      var doc = new PPDoc
+      {
+        NPointer = null,
+        Pointer = new PilePointer(1,3)
+      };
+
+      var ve = doc.Validate();
+      Aver.IsNull(ve);
+
+      doc.NPointer = PilePointer.Invalid;
+      ve = doc.Validate();
+      Aver.IsNotNull(ve);
+      ve.See("doc.NPointer = PilePointer.Invalid:\n");
+
+      doc.NPointer = null;
+      ve = doc.Validate();
+      Aver.IsNull(ve);
+
+      doc.NPointer = new PilePointer(1,1,1);
+      ve = doc.Validate();
+      Aver.IsNull(ve);
+
+      doc.Pointer = PilePointer.Invalid;
+      ve = doc.Validate();
+      Aver.IsNotNull(ve);
+      ve.See("doc.Pointer = PilePointer.Invalid:\n");
+    }
+
     public class GdidDoc : TypedDoc
     {
       [Field(required: false)]
@@ -148,30 +174,13 @@ namespace Azos.Tests.Nub.DataAccess
       public Amount AmountRequired { get; set; }
     }
 
-    public class DateRangeDoc : TypedDoc
+    public class PPDoc : TypedDoc
     {
-      [Field(required: false)]
-      public DateRange? NDateRangeNotRequired { get; set; }
-      [Field(required: true)]
-      public DateRange? NDateRangeRequired { get; set; }
+      [Field]
+      public PilePointer?  NPointer{  get; set;}
 
-      [Field(required: false)]
-      public DateRange DateRangeNotRequired { get; set; }
-      [Field(required: true)]
-      public DateRange DateRangeRequired { get; set; }
-    }
-
-    public class HourListDoc : TypedDoc
-    {
-      [Field(required: false)]
-      public HourList? NHourListNotRequired { get; set; }
-      [Field(required: true)]
-      public HourList? NHourListRequired { get; set; }
-
-      [Field(required: false)]
-      public HourList HourListNotRequired { get; set; }
-      [Field(required: true)]
-      public HourList HourListRequired { get; set; }
+      [Field]
+      public PilePointer Pointer { get; set; }
     }
 
   }

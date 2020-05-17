@@ -955,6 +955,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string FINANCIAL_AMOUNT_PARSE_ERROR =
             "Could not parse amount '{0}'";
 
+    public const string PILE_PTR_VALIDATION_ERROR = "Pile pointer `{0}` value is invalid for '{1}'";
+
     public const string PILE_AV_BAD_PILEID_ERROR =  "Pile access violation. Piled '{0}' does not resolve to IPile instance by PileID";
 
     public const string PILE_AV_BAD_SEGMENT_ERROR =  "Pile access violation. Bad segment: ";
