@@ -21,7 +21,7 @@ namespace Azos.Serialization.JSON
     /// Warning: ISO codes are CASE sensitive
     /// </summary>
     [Serializable]
-    public struct NLSMap : IEnumerable<KeyValuePair<string, NLSMap.NDPair>>, IEquatable<NLSMap>,  IJsonWritable, IJsonReadable
+    public struct NLSMap : IEnumerable<KeyValuePair<string, NLSMap.NDPair>>, IEquatable<NLSMap>,  IJsonWritable, IJsonReadable, IRequired
     {
       //There are roughly 6,500 spoken languages in the world today.
       //However, about 2,000 of those languages have fewer than 1,000 speakers
@@ -139,6 +139,8 @@ namespace Azos.Serialization.JSON
       internal NDPair[] m_Data;
 
       public bool IsAssigned => m_Data != null && m_Data.Length > 0;
+
+      public bool CheckRequired(string targetName) => IsAssigned;
 
       public NDPair this[string langIso]
       {

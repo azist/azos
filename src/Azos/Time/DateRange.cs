@@ -17,7 +17,7 @@ namespace Azos.Time
   /// <summary>
   /// Represents a range of dates denoted by start/end date/times
   /// </summary>
-  public struct DateRange : IEquatable<DateRange>, IJsonWritable, IJsonReadable, IFormattable
+  public struct DateRange : IEquatable<DateRange>, IJsonWritable, IJsonReadable, IFormattable, IRequired
   {
     /// <summary>
     /// Create a range, at least one component is required. If both are specified both need to be in the same timezone and
@@ -53,6 +53,8 @@ namespace Azos.Time
     /// Returns true if neither dates are set
     /// </summary>
     public bool IsUnassigned => !Start.HasValue && !End.HasValue;
+
+    public bool CheckRequired(string targetName) => !IsUnassigned;
 
     /// <summary>
     /// Specified the kind of the range: Unspecified|Local|Utc

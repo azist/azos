@@ -16,7 +16,7 @@ namespace Azos.Financial
   /// Represents monetary amount with currency ISO atom
   /// </summary>
   [Serializable]
-  public struct Amount : IEquatable<Amount>, IComparable<Amount>, IJsonWritable, IJsonReadable
+  public struct Amount : IEquatable<Amount>, IComparable<Amount>, IJsonWritable, IJsonReadable, IRequired
   {
     private static readonly IFormatProvider INVARIANT = CultureInfo.InvariantCulture;
 
@@ -35,6 +35,8 @@ namespace Azos.Financial
     public readonly decimal Value;
 
     public bool IsEmpty => ISO.IsZero && Value == default(decimal);
+
+    public bool CheckRequired(string targetName) => !IsEmpty;
 
     /// <summary>
     /// Performs currency ISO equality comparison

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Azos.Data;
@@ -17,7 +18,7 @@ namespace Azos.Time
   /// Efficiently represents a list of minute-aligned time spans within a day
   /// which is typically used for operation hours/schedules
   /// </summary>
-  public struct HourList : IEquatable<HourList>, IJsonWritable, IJsonReadable, IValidatable
+  public struct HourList : IEquatable<HourList>, IJsonWritable, IJsonReadable, IValidatable, IRequired
   {
     public const int MINUTES_PER_DAY = 24 * 60;
 
@@ -105,6 +106,8 @@ namespace Azos.Time
 
     public bool IsAssigned => Data.IsNotNullOrWhiteSpace();
 
+    public bool CheckRequired(string targetName) => IsAssigned;
+
     /// <summary>
     /// Returns ordered set of hour spans. Throws if data is assigned but invalid
     /// </summary>
@@ -166,6 +169,9 @@ namespace Azos.Time
     public override string ToString() => Data.Default("<unassigned>");
     public bool Equals(HourList other) => this.Data.EqualsOrdSenseCase(other.Data);
 
+    public static bool operator ==(HourList a, HourList b) =>  a.Equals(b);
+    public static bool operator !=(HourList a, HourList b) => !a.Equals(b);
+
     /// <summary>
     /// Returns true when two instances contain representations of identical spans or both are unassigned.
     /// Throws is one of instances contain invalid data
@@ -199,7 +205,7 @@ namespace Azos.Time
     {
       m_Spans = parse(Data);
       if (m_Spans == null)
-        throw new TimeoutException(StringConsts.TIME_HOURLIST_BAD_SPEC.Args(Data.TakeFirstChars(64)));
+        throw new TimeException(StringConsts.TIME_HOURLIST_BAD_SPEC.Args(Data.TakeFirstChars(64)));
     }
 
     // 8:00-12:00,12:30pm-4:45pm,21:00-22:15
@@ -261,6 +267,8 @@ namespace Azos.Time
       return result;
     }
 
+    private static readonly IFormatProvider INVARIANT = CultureInfo.InvariantCulture;
+
     private static int parseMinutes(string str)
     {
       if (str.IsNullOrWhiteSpace()) return -1;
@@ -272,8 +280,8 @@ namespace Azos.Time
       }
       if (i == 0 || i == str.Length) return -1;
 
-      if (!int.TryParse(str.Substring(0, i), out var h)) return -1;
-      if (!int.TryParse(str.Substring(i+1), out var m)) return -1;
+      if (!int.TryParse(str.Substring(0, i), NumberStyles.None, INVARIANT, out var h)) return -1;
+      if (!int.TryParse(str.Substring(i+1), NumberStyles.None, INVARIANT, out var m)) return -1;
       if (h < 0 || h > 23) return -1;
       if (m < 0 || m > 59) return -1;
 
