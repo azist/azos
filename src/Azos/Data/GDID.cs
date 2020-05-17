@@ -36,7 +36,8 @@ namespace Azos.Data
                        IEquatable<GDID>,
                        IComparable,
                        IJsonWritable,
-                       IJsonReadable
+                       IJsonReadable,
+                       IRequired
   {
     private static readonly IFormatProvider INVARIANT = CultureInfo.InvariantCulture;
     private static readonly string[] SAUTHORITIES = new []{"0", "1" , "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" , "11" , "12" , "13" , "14" , "15"};
@@ -142,6 +143,8 @@ namespace Azos.Data
     /// True is this instance is invalid/Zero - represents 0:0:0
     /// </summary>
     public bool IsZero => Era==0 && ID==0;
+
+    public bool CheckRequired(string targetName) => !IsZero;
 
     /// <summary>
     /// Returns the guaranteed parsable stable string representation of GDID in the form 'Era:Authority:Counter'

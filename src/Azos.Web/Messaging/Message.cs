@@ -38,9 +38,9 @@ namespace Azos.Web.Messaging
     /// <summary>Ad-hoc tags for this entity</summary>
     [Field(backendName: "tags", isArow: true)] public string[] Tags { get; set; }
 
-    public override ValidState Validate(ValidState state)
+    public override ValidState Validate(ValidState state, string scope = null)
     {
-      state = base.Validate(state);
+      state = base.Validate(state, scope);
       if (state.ShouldStop) return state;
 
       if (this.Tags != null)
@@ -218,9 +218,9 @@ namespace Azos.Web.Messaging
 
 
 
-    public override ValidState Validate(ValidState state)
+    public override ValidState Validate(ValidState state, string scope = null)
     {
-      state = base.Validate(state);
+      state = base.Validate(state, scope);
       if (state.ShouldStop) return state;
 
       if (this.Body.IsNullOrWhiteSpace() &&

@@ -17,16 +17,56 @@ namespace Azos.Data
   /// <param name="fdef">A field that filtering is done for</param>
   public delegate bool FieldFilterFunc(Doc doc, Access.IDataStoreKey key, Schema.FieldDef fdef);
 
+
   /// <summary>
-  /// Denotes an entity that supports validation
+  /// Implemented by entities that check whether their state has the required data or not, possibly conditionally
+  /// depending on a targetName.
+  /// This interface is typically implemented by structs, which may be assigned, but not representing a logical assignment.
+  /// For example, a GDID.Zero being assigned as a value, does not represent a required data value (Zero is invalid).
+  /// You can also implement this on classes, so even if an object instance of implementing class is not null, that object may not represent
+  /// a required value per given target(system/use-case).
+  /// </summary>
+  public interface IRequired
+  {
+    /// <summary>
+    /// Checks required state for the supplied target. Returns true if an instance state has the required value
+    /// </summary>
+    /// <param name="targetName">
+    /// The target scope under which  the state check is done.
+    /// Most implementations do not depend on targets and just ignore the value</param>
+    /// <returns>
+    /// True if this instance state represents a required value.
+    /// False when this instance does not have required data for the specified target, for example a struct is in default state
+    /// and is effectively not logically assigned
+    /// </returns>
+    bool CheckRequired(string targetName);
+  }
+
+
+  /// <summary>
+  /// Defines entities that support custom validation logic
   /// </summary>
   public interface IValidatable
   {
     /// <summary>
     /// Validates entity state per particular validation state context, for performance reasons returns
-    /// validation state as a struct initialized with a dingle or batch exception (instead of throwing)
+    /// validation state as a struct initialized with a single or a of batch exception (instead of throwing).
     /// </summary>
-    ValidState Validate(ValidState state);
+    /// <param name="state">The validation state that should be used and returned back</param>
+    /// <param name="scope">
+    /// An optional name of the scope which calls/causes this validation.
+    /// For example, this may be a field name when a custom field value type (e.g. a struct or a nested Doc) get validated
+    /// as a part of larger data structure. It is used to report field/collection subscript of value location
+    /// e.g. "Products[2]" typically in nested data types. An implementation may use the scope name to include it in the error
+    /// text/field to point to the error location more accurately
+    /// </param>
+    /// <remarks>
+    /// This design is done for allocation-free validation of very many entities (e.g. multiple 100K/sec data documents).
+    /// When entities pass validation (in a most common case), no heap allocations are necessary.
+    /// An optional scope name is passed as a separate parameter from ValidState because in practice it is needed mostly for
+    /// nested IValidatable such as custom data types so they can report a name of the field that contains them
+    /// </remarks>
+    ValidState Validate(ValidState state, string scope = null);
   }
 
   /// <summary>

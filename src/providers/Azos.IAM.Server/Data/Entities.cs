@@ -76,9 +76,9 @@ namespace Azos.IAM.Server.Data
     [Field(typeof(EntityWithProperties), nameof(PropertyData), TMONGO, backendName: "props")]
     public JsonDataMap PropertyData { get; set; }//JsonDataMap is used because it is supported by all ser frameworks, but we only store strings
 
-    public override ValidState Validate(ValidState state)
+    public override ValidState Validate(ValidState state, string scope = null)
     {
-      state = base.Validate(state);
+      state = base.Validate(state, scope);
       if (state.ShouldStop) return state;
 
       if (PropertyData==null) return state;

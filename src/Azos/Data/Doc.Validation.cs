@@ -245,11 +245,18 @@ namespace Azos.Data
     ///  throwing exception really hampers validation performance when many docs/rows need to be validated.
     /// The thrown exception indicates an unexpected condition/a bug in the validation logic itself.
     /// </summary>
-    public virtual ValidState Validate(ValidState state)
+    /// <param name="state">The <see cref="ValidState"/> that gets passed in and returned</param>
+    /// <param name="scope">
+    /// Optional logical scope name, such as a name of parent document used for complex structure validation,
+    /// for example you can use the value to add to special validation exception details to include the "parent path" of validation.
+    /// This is passed as a separate parameter from ValidState because in practice it is needed mostly for nested IValidatable such as
+    /// custom data types so they can report a name of the field that contains them
+    /// </param>
+    public virtual ValidState Validate(ValidState state, string scope = null)
     {
       foreach(var fd in Schema)
       {
-        state = ValidateField(state, fd);
+        state = ValidateField(state, fd, scope);
         if (state.ShouldStop) break;
       }
 
@@ -262,48 +269,48 @@ namespace Azos.Data
     /// The method is not expected to throw exception in case of failed validation, rather return exception instance because
     ///  throwing exception really hampers validation performance when many rows need to be validated
     /// </summary>
-    public virtual ValidState ValidateField(ValidState state, Schema.FieldDef fdef)
+    public virtual ValidState ValidateField(ValidState state, Schema.FieldDef fdef, string scope = null)
     {
       if (fdef == null)
         throw new FieldValidationException(Schema.DisplayName,
-                                                CoreConsts.NULL_STRING,
-                                                StringConsts.ARGUMENT_ERROR + ".ValidateField(fdef=null)");
+                                           CoreConsts.NULL_STRING,
+                                           StringConsts.ARGUMENT_ERROR + ".ValidateField(fdef=null)");
 
       var atr = fdef[state.TargetName];
       if (atr==null) return state; //not found per target
 
       var value = GetFieldValue(fdef);
 
-      var (hasValue, error) = CheckValueRequired(state.TargetName, fdef, atr, value);
+      var (hasValue, error) = CheckValueRequired(state.TargetName, fdef, atr, value, scope);
       if (error != null) return new ValidState(state, error);
-      if (!hasValue) return state;//nothing left to check
+      if (!hasValue) return state;//nothing else left to check
 
 
-      state = CheckValueIValidatable(state, fdef, atr, value);
+      state = CheckValueIValidatable(state, fdef, atr, value, scope);
       if (state.ShouldStop) return state;
 
-      error = CheckValueLength(state.TargetName, fdef, atr, value);
+      error = CheckValueLength(state.TargetName, fdef, atr, value, scope);
       if (error != null)
       {
         state = new ValidState(state, error);
         if (state.ShouldStop) return state;
       }
 
-      error = CheckValueKind(state.TargetName, fdef, atr, value);
+      error = CheckValueKind(state.TargetName, fdef, atr, value, scope);
       if (error != null)
       {
         state = new ValidState(state, error);
         if (state.ShouldStop) return state;
       }
 
-      error = CheckValueMinMax(state.TargetName, fdef, atr, value);
+      error = CheckValueMinMax(state.TargetName, fdef, atr, value, scope);
       if (error != null)
       {
         state = new ValidState(state, error);
         if (state.ShouldStop) return state;
       }
 
-      error = CheckValueRegExp(state.TargetName, fdef, atr, value);
+      error = CheckValueRegExp(state.TargetName, fdef, atr, value, scope);
       if (error != null)
       {
         state = new ValidState(state, error);
@@ -311,7 +318,7 @@ namespace Azos.Data
       }
 
       //this is at the end as ValueList check might induce a database call  to get a pick list (when it is not cached)
-      error = CheckValueList(state.TargetName, fdef, atr, value);
+      error = CheckValueList(state.TargetName, fdef, atr, value, scope);
       if (error != null)
       {
         state = new ValidState(state, error);
@@ -322,11 +329,14 @@ namespace Azos.Data
     }
 
 
-    protected virtual (bool hasValue, Exception error) CheckValueRequired(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value)
+    protected virtual (bool hasValue, Exception error) CheckValueRequired(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value, string scope)
     {
-      if (value == null ||
-         (value is string strv && strv.IsNullOrWhiteSpace()) ||
-         (value is GDID gdid && gdid.IsZero))
+      var missing =
+           (value == null) ||
+           (value is string strv && strv.IsNullOrWhiteSpace()) || //string null, or whitespace are treated as missing
+           (value is IRequired ireq && !ireq.CheckRequired(targetName));
+
+      if (missing)
       {
         if (atr.Required)
           return (false, new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_REQUIRED_ERROR));
@@ -337,7 +347,7 @@ namespace Azos.Data
       return (true, null);
     }
 
-    protected virtual Exception CheckValueLength(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value)
+    protected virtual Exception CheckValueLength(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value, string scope)
     {
       if (atr.MinLength < 1 && atr.MaxLength < 1) return null;
 
@@ -376,7 +386,7 @@ namespace Azos.Data
       return null;
     }
 
-    protected virtual Exception CheckValueKind(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value)
+    protected virtual Exception CheckValueKind(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value, string scope)
     {
       if (atr.Kind == DataKind.ScreenName)
       {
@@ -402,10 +412,12 @@ namespace Azos.Data
       return null;
     }
 
-    protected virtual ValidState CheckValueIValidatable(ValidState state, Schema.FieldDef fdef, FieldAttribute atr, object value)
+    protected string GetInnerScope(Schema.FieldDef fdef, string scope) => scope.IsNullOrWhiteSpace() ? fdef.Name : scope + "." + fdef.Name;
+
+    protected virtual ValidState CheckValueIValidatable(ValidState state, Schema.FieldDef fdef, FieldAttribute atr, object value, string scope)
     {
       if (value is IValidatable validatable)
-        return validatable.Validate(state);
+        return validatable.Validate(state, GetInnerScope(fdef, scope));
 
       //precedence of IFs is important, IDictionary is IEnumerable
       if (value is IDictionary dict)//Dictionary<string, IValidatable>
@@ -414,7 +426,7 @@ namespace Azos.Data
         {
           if (state.ShouldStop) break;
           if (v is IValidatable vv)
-            state = vv.Validate(state);
+            state = vv.Validate(state, GetInnerScope(fdef, scope));
         }
       }
       else if (value is IEnumerable enm)//List<IValidatable>, IValidatable[]
@@ -423,7 +435,7 @@ namespace Azos.Data
         {
           if (state.ShouldStop) break;
           if (v is IValidatable vv)
-            state = vv.Validate(state);
+            state = vv.Validate(state, GetInnerScope(fdef, scope));
         }
       }
 
@@ -436,7 +448,7 @@ namespace Azos.Data
     /// * If a dynamic list is non-null then it is enforced if it is not blank, otherwise nothing is checked;
     /// Therefore: you may return an empty non-null dynamic list to prevent application of ValueList check for specific field/target
     /// </summary>
-    protected virtual Exception CheckValueList(string targetName, Schema.FieldDef fdef,  FieldAttribute atr, object value)
+    protected virtual Exception CheckValueList(string targetName, Schema.FieldDef fdef,  FieldAttribute atr, object value, string scope)
     {
       //try to obtain dynamic value list
       var dynValueList = GetDynamicFieldValueList(fdef, targetName, Atom.ZERO);
@@ -459,7 +471,7 @@ namespace Azos.Data
     }
 
 
-    protected virtual Exception CheckValueMinMax(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value)
+    protected virtual Exception CheckValueMinMax(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value, string scope)
     {
       if (!(value is IComparable val)) return null;
 
@@ -494,7 +506,7 @@ namespace Azos.Data
       return null;
     }
 
-    protected virtual Exception CheckValueRegExp(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value)
+    protected virtual Exception CheckValueRegExp(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value, string scope)
     {
       if (atr.FormatRegExp.IsNotNullOrWhiteSpace())
       {

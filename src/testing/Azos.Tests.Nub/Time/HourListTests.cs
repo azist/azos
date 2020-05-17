@@ -25,7 +25,7 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Test01()
+    public void Single_HourOnly()
     {
       var got = new HourList("1-2");
       Aver.AreEqual(1, got.Spans.Count());
@@ -34,7 +34,7 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Test02()
+    public void Single_FractionMinute()
     {
       var got = new HourList("1-2.25");
       Aver.AreEqual(1, got.Spans.Count());
@@ -43,7 +43,7 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Test03()
+    public void Single_WithMinute()
     {
       var got = new HourList("1-2:15");
       Aver.AreEqual(1, got.Spans.Count());
@@ -51,8 +51,18 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual(75, got.Spans.First().DurationMinutes);
     }
 
+
     [Run]
-    public void Test04()
+    public void Single_AM()
+    {
+      var got = new HourList("1am-2:0am");
+      Aver.AreEqual(1, got.Spans.Count());
+      Aver.AreEqual(60, got.Spans.First().StartMinute);
+      Aver.AreEqual(60, got.Spans.First().DurationMinutes);
+    }
+
+    [Run]
+    public void Single_AM_Minutes()
     {
       var got = new HourList("1am-2:15am");
       Aver.AreEqual(1, got.Spans.Count());
@@ -61,7 +71,25 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Test05()
+    public void Single_PM()
+    {
+      var got = new HourList("1pm-2pm");
+      Aver.AreEqual(1, got.Spans.Count());
+      Aver.AreEqual(13*60, got.Spans.First().StartMinute);
+      Aver.AreEqual(60, got.Spans.First().DurationMinutes);
+    }
+
+    [Run]
+    public void Single_PM_Minutes()
+    {
+      var got = new HourList("1:10pm-2:45pm");
+      Aver.AreEqual(1, got.Spans.Count());
+      Aver.AreEqual(13 * 60 + 10, got.Spans.First().StartMinute);
+      Aver.AreEqual(60 + 45 - 10, got.Spans.First().DurationMinutes);
+    }
+
+    [Run]
+    public void Spaces()
     {
       var got = new HourList(" 1:00am  - 2:15");
       Aver.AreEqual(1, got.Spans.Count());
@@ -70,7 +98,7 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Test06()
+    public void Spaces02()
     {
       var got = new HourList(" 1.00      -     2.25am        ");
       Aver.AreEqual(1, got.Spans.Count());
@@ -79,7 +107,7 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Test07()
+    public void Spaces03()
     {
       var got = new HourList(" 1.00      -     2.25am        ");
       Aver.AreEqual(1, got.Spans.Count());
@@ -91,7 +119,7 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Test08()
+    public void TwentyFour()
     {
       var got = new HourList(" 1.00 - 23 ");
       Aver.AreEqual(1, got.Spans.Count());
@@ -105,7 +133,7 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Test09()
+    public void IsCovered()
     {
       var got = new HourList("1-14");
       Aver.AreEqual(1, got.Spans.Count());
@@ -123,7 +151,7 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Test10()
+    public void Equals_IsEquivalent_GetHachCode01()
     {
       var got = new HourList("1-14");
       Aver.AreEqual(1, got.Spans.Count());
@@ -134,7 +162,7 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Test11()
+    public void quals_IsEquivalent_GetHachCode02()
     {
       var got = new HourList("1-14");
       Aver.AreEqual(1, got.Spans.Count());
@@ -145,7 +173,7 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Test12()
+    public void quals_IsEquivalent_GetHachCode03()
     {
       var got = new HourList("1-14, 2:30pm-7:15pm, 23-24");
       Aver.AreEqual(3, got.Spans.Count());
@@ -158,7 +186,7 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Test13()
+    public void TwelvePM()
     {
       var got = new HourList("23-12pm");
       Aver.AreEqual(1, got.Spans.Count());
@@ -168,7 +196,7 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Test14()
+    public void CaryToNextDay()
     {
       var got = new HourList("23-1am");
       Aver.AreEqual(1, got.Spans.Count());
@@ -178,7 +206,7 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Test15()
+    public void Multiple01()
     {
       var got = new HourList("8-12, 12:30-5pm, 23-1:12am");
       Aver.AreEqual(3, got.Spans.Count());
@@ -193,6 +221,35 @@ namespace Azos.Tests.Nub.Time
 
       got.See();
     }
+
+    [Run]
+    public void TryParse_Blank()
+    {
+      Aver.IsFalse(HourList.TryParse("", out var got));
+      Aver.IsFalse(HourList.TryParse(null, out got));
+    }
+
+    [Run]
+    public void TryParse_Single()
+    {
+      Aver.IsTrue(HourList.TryParse("1-2", out var got));
+      Aver.IsTrue(HourList.TryParse("2-3", out got));
+      Aver.IsTrue(HourList.TryParse("14.5-18:30", out got));
+      Aver.IsTrue(HourList.TryParse("14.5-18.62", out got));
+    }
+
+    [Run]
+    public void TryParse_Single_Malformed()
+    {
+      Aver.IsFalse(HourList.TryParse("14.z-18:30", out var got));
+      Aver.IsFalse(HourList.TryParse("14.5-18:t", out got));
+      Aver.IsFalse(HourList.TryParse("14.5-18:", out got));
+      Aver.IsFalse(HourList.TryParse("14.5-:2", out got));
+      Aver.IsFalse(HourList.TryParse("14.5-", out got));
+      Aver.IsFalse(HourList.TryParse("14.5-18:62", out got));
+    }
+
+
 
     //Build failed?
     //todo:  parse, try parse,  exceptions, JSOPn serialization, refactor exception constant

@@ -151,9 +151,9 @@ namespace Azos.Sky.Workers
       DoPrepareForEnqueuePostValidate(targetName);
     }
 
-    public override ValidState Validate(ValidState state)
+    public override ValidState Validate(ValidState state, string scope = null)
     {
-      state = base.Validate(state);
+      state = base.Validate(state, scope);
       if (state.ShouldStop) return state;
       //todo
       return state;

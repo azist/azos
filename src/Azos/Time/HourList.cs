@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Time
@@ -17,7 +17,7 @@ namespace Azos.Time
   /// Efficiently represents a list of minute-aligned time spans within a day
   /// which is typically used for operation hours/schedules
   /// </summary>
-  public struct HourList : IEquatable<HourList>, IJsonWritable, IJsonReadable
+  public struct HourList : IEquatable<HourList>, IJsonWritable, IJsonReadable, IValidatable
   {
     public const int MINUTES_PER_DAY = 24 * 60;
 
@@ -34,6 +34,7 @@ namespace Azos.Time
       public readonly int DurationMinutes;
 
       public int FinishMinute => StartMinute + DurationMinutes;
+      public bool IsAssigned => StartMinute!=0 || DurationMinutes!=0;
 
       public string Start
       {
@@ -113,10 +114,38 @@ namespace Azos.Time
       {
         if (m_Spans != null) return m_Spans;
         if (!IsAssigned) return Enumerable.Empty<Span>();
-
-        m_Spans = parse(Data);
-        if (m_Spans == null) throw new TimeoutException(StringConsts.ARGUMENT_ERROR + " Bad hour list syntax, out of order, or overlap in `{0}`".Args(Data.TakeFirstChars(64)));
+        parseState();
         return m_Spans;
+      }
+    }
+
+
+    /// <summary>
+    /// Returns count of spans or 0
+    /// </summary>
+    public int Count
+    {
+      get
+      {
+        if (m_Spans!=null) return m_Spans.Length;
+        if (!IsAssigned) return 0;
+        parseState();
+        return m_Spans.Length;
+      }
+    }
+
+    /// <summary>
+    /// Provides indexer access to span collection. Default span is returned if index is out of bounds, check for Span.IsAssigned
+    /// </summary>
+    public Span this[int i]
+    {
+      get
+      {
+        if (i<0) return default(Span);
+        if (m_Spans != null) return i < m_Spans.Length ? m_Spans[i] : default(Span);
+        if (!IsAssigned) return default(Span);
+        parseState();
+        return i < m_Spans.Length ? m_Spans[i] : default(Span);
       }
     }
 
@@ -153,6 +182,25 @@ namespace Azos.Time
       return (false, null);
     }
 
+    public ValidState Validate(ValidState state, string scope)
+    {
+      if (Data.IsNotNullOrWhiteSpace() && m_Spans==null)
+      {
+        m_Spans = parse(Data);
+        if (m_Spans==null)
+        {
+          state = new ValidState(state, new ValidationException(StringConsts.TIME_HOURLIST_BAD_SPEC_FOR.Args(Data.TakeFirstChars(64), scope)));
+        }
+      }
+      return state;
+    }
+
+    private void parseState()
+    {
+      m_Spans = parse(Data);
+      if (m_Spans == null)
+        throw new TimeoutException(StringConsts.TIME_HOURLIST_BAD_SPEC.Args(Data.TakeFirstChars(64)));
+    }
 
     // 8:00-12:00,12:30pm-4:45pm,21:00-22:15
     // 8-1:30pm;14-18.5;23-2
