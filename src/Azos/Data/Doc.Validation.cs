@@ -417,7 +417,7 @@ namespace Azos.Data
 
 
     private static ValidState validateIValidatable(Doc self, PooledRefSet flow, IValidatable validatable, ValidState state, string scope)
-    => !flow.Contains(self) ? validatable.Validate(state, scope) : state;
+    => !flow.Contains(validatable) ? validatable.Validate(state, scope) : state;
 
     private static ValidState validateIDictionary(Doc self, PooledRefSet flow, IDictionary dict, ValidState state, string scope)
     {
