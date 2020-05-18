@@ -16,6 +16,7 @@ namespace Azos
 
     public const string IMMUTABLE_SYS_INSTANCE = "System instance of `{0}` is immutable";
 
+    public const string FLOW_NO_REF_CYCLES_VIOLATION_ERROR = "State machine '{0}' caused violation of NoRefCycles constraint. Most likely the object graph has cycles which are either not supported or the operation body failed to check for presence of the reference in the set";
 
     public const string APP_SET_MEMORY_MODEL_ERROR =
       "The App.SetMemoryModel() method must be called at process entry point before the app container allocation";

@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Collections;
 using System;
 using System.Collections;
 using System.Linq;
@@ -414,30 +415,85 @@ namespace Azos.Data
 
     protected string GetInnerScope(Schema.FieldDef fdef, string scope) => scope.IsNullOrWhiteSpace() ? fdef.Name : scope + "." + fdef.Name;
 
+
+    private static ValidState validateIValidatable(Doc self, PooledRefSet flow, IValidatable validatable, ValidState state, string scope)
+    => !flow.Contains(self) ? validatable.Validate(state, scope) : state;
+
+    private static ValidState validateIDictionary(Doc self, PooledRefSet flow, IDictionary dict, ValidState state, string scope)
+    {
+      foreach (var v in dict.Values)
+      {
+        if (state.ShouldStop) break;
+        if (v is IValidatable vv && !flow.Contains(vv))
+          state = vv.Validate(state, scope);
+      }
+      return state;
+    }
+
+    private static ValidState validateIEnumerable(Doc self, PooledRefSet flow, IEnumerable enm, ValidState state, string scope)
+    {
+      foreach (var v in enm)
+      {
+        if (state.ShouldStop) break;
+        if (v is IValidatable vv && !flow.Contains(vv))
+          state = vv.Validate(state, scope);
+      }
+      return state;
+    }
+
     protected virtual ValidState CheckValueIValidatable(ValidState state, Schema.FieldDef fdef, FieldAttribute atr, object value, string scope)
     {
+      //////DKh 20200517
+      ////////if (value is IValidatable validatable)
+      ////////  return validatable.Validate(state, GetInnerScope(fdef, scope));
+
+      ////////precedence of IFs is important, IDictionary is IEnumerable
+      //////if (value is IDictionary dict)//Dictionary<string, IValidatable>
+      //////{
+      //////  foreach (var v in dict.Values)
+      //////  {
+      //////    if (state.ShouldStop) break;
+      //////    if (v is IValidatable vv)
+      //////      state = vv.Validate(state, GetInnerScope(fdef, scope));
+      //////  }
+      //////}
+      //////else if (value is IEnumerable enm)//List<IValidatable>, IValidatable[]
+      //////{
+      //////  foreach (var v in enm)
+      //////  {
+      //////    if (state.ShouldStop) break;
+      //////    if (v is IValidatable vv)
+      //////      state = vv.Validate(state, GetInnerScope(fdef, scope));
+      //////  }
+      //////}
+
       if (value is IValidatable validatable)
-        return validatable.Validate(state, GetInnerScope(fdef, scope));
+        return PooledRefSet.NoRefCycles("Doc.CheckValueIValidatable.IVal", //name of the state machine
+                                         this, //reference to cycle subject - the document itself
+                                         validatable,//arg1
+                                         state, //arg2
+                                         GetInnerScope(fdef, scope),//arg3
+                                         body: validateIValidatable
+                                       );//machine
 
       //precedence of IFs is important, IDictionary is IEnumerable
       if (value is IDictionary dict)//Dictionary<string, IValidatable>
-      {
-        foreach (var v in dict.Values)
-        {
-          if (state.ShouldStop) break;
-          if (v is IValidatable vv)
-            state = vv.Validate(state, GetInnerScope(fdef, scope));
-        }
-      }
-      else if (value is IEnumerable enm)//List<IValidatable>, IValidatable[]
-      {
-        foreach (var v in enm)
-        {
-          if (state.ShouldStop) break;
-          if (v is IValidatable vv)
-            state = vv.Validate(state, GetInnerScope(fdef, scope));
-        }
-      }
+        return PooledRefSet.NoRefCycles("Doc.CheckValueIValidatable.IDict",
+                                          this,
+                                          dict,
+                                          state,
+                                          GetInnerScope(fdef, scope),
+                                          body: validateIDictionary
+                                        );
+
+      if (value is IEnumerable enm)//List<IValidatable>, IValidatable[]
+        return PooledRefSet.NoRefCycles("Doc.CheckValueIValidatable.IEnum",
+                                            this,
+                                            enm,
+                                            state,
+                                            GetInnerScope(fdef, scope),
+                                            body: validateIEnumerable
+                                        );
 
       return state;
     }
