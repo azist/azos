@@ -416,26 +416,26 @@ namespace Azos.Data
     protected string GetInnerScope(Schema.FieldDef fdef, string scope) => scope.IsNullOrWhiteSpace() ? fdef.Name : scope + "." + fdef.Name;
 
 
-    private static ValidState validateIValidatable(Doc self, PooledRefSet flow, IValidatable validatable, ValidState state, string scope)
-    => !flow.Contains(validatable) ? validatable.Validate(state, scope) : state;
+    private static ValidState validateIValidatable(Doc self, ObjectGraph graph, IValidatable validatable, ValidState state, string scope)
+    => !graph.Visited(validatable) ? validatable.Validate(state, scope) : state;
 
-    private static ValidState validateIDictionary(Doc self, PooledRefSet flow, IDictionary dict, ValidState state, string scope)
+    private static ValidState validateIDictionary(Doc self, ObjectGraph graph, IDictionary dict, ValidState state, string scope)
     {
       foreach (var v in dict.Values)
       {
         if (state.ShouldStop) break;
-        if (v is IValidatable vv && !flow.Contains(vv))
+        if (v is IValidatable vv && !graph.Visited(vv))
           state = vv.Validate(state, scope);
       }
       return state;
     }
 
-    private static ValidState validateIEnumerable(Doc self, PooledRefSet flow, IEnumerable enm, ValidState state, string scope)
+    private static ValidState validateIEnumerable(Doc self, ObjectGraph graph, IEnumerable enm, ValidState state, string scope)
     {
       foreach (var v in enm)
       {
         if (state.ShouldStop) break;
-        if (v is IValidatable vv && !flow.Contains(vv))
+        if (v is IValidatable vv && !graph.Visited(vv))
           state = vv.Validate(state, scope);
       }
       return state;
@@ -468,32 +468,41 @@ namespace Azos.Data
       //////}
 
       if (value is IValidatable validatable)
-        return PooledRefSet.NoRefCycles("Doc.CheckValueIValidatable.IVal", //name of the state machine
+      {
+        var got = ObjectGraph.Scope("Doc.CheckValueIValidatable.IVal", //name of the state machine
                                          this, //reference to cycle subject - the document itself
                                          validatable,//arg1
                                          state, //arg2
                                          GetInnerScope(fdef, scope),//arg3
                                          body: validateIValidatable
                                        );//machine
+        return got.OK ? got.result : state;
+      }
 
       //precedence of IFs is important, IDictionary is IEnumerable
       if (value is IDictionary dict)//Dictionary<string, IValidatable>
-        return PooledRefSet.NoRefCycles("Doc.CheckValueIValidatable.IDict",
+      {
+        var got = ObjectGraph.Scope("Doc.CheckValueIValidatable.IDict",
                                           this,
                                           dict,
                                           state,
                                           GetInnerScope(fdef, scope),
                                           body: validateIDictionary
                                         );
+        return got.OK ? got.result : state;
+      }
 
       if (value is IEnumerable enm)//List<IValidatable>, IValidatable[]
-        return PooledRefSet.NoRefCycles("Doc.CheckValueIValidatable.IEnum",
+      {
+        var got = ObjectGraph.Scope("Doc.CheckValueIValidatable.IEnum",
                                             this,
                                             enm,
                                             state,
                                             GetInnerScope(fdef, scope),
                                             body: validateIEnumerable
                                         );
+        return got.OK ? got.result : state;
+      }
 
       return state;
     }
