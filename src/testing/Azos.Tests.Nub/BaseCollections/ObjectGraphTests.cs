@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Azos.Collections;
 using Azos.Scripting;
 
@@ -62,6 +63,29 @@ namespace Azos.Tests.Nub.BaseCollections
       Aver.IsTrue(got.OK);
       return got.result;
     }
+
+    [Run]
+    public void Test3()
+    {
+      Parallel.For(0, 50_000, _ => {
+        var list = new List<int>();
+        var got = ObjectGraph.Scope("A", this, list, (i, g, lst) => {
+          Aver.AreEqual(0, g.CallDepth);
+          Aver.IsFalse(g.Visited(i));
+          Aver.IsTrue(g.InFlow(i));
+          Aver.IsTrue(g.Current == i);
+          var result = body(lst);
+          Aver.AreEqual(1, g.Machine.m_CallDepth);
+          return result;
+        });
+
+        Aver.IsTrue(got.OK);
+        Aver.AreEqual(123, got.result);
+        Aver.AreEqual(123, list.Count);
+        list.ForEach((v, idx) => Aver.AreEqual(v, idx + 1));
+      });
+    }
+
 
   }
 }
