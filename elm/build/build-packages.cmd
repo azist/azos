@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.3.0
-set HEADLINE=Atoms used for ISO codes in NLSMap and Amount, Portal etc.
+set VER=1.4.0
+set HEADLINE=Validation and DI graph cycle detection, HourList, IRequired
 
 call vs2017-build-release %VER%
 
