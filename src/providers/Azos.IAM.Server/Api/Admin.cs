@@ -20,7 +20,7 @@ namespace Azos.IAM.Server.Api
     [Inject] IAdminLogic m_Logic;
 
     [ActionOnPost]
-    public async Task<object> Filter(IBusinessFilterModel filter) => await ApplyFilter(filter);
+    public async Task<object> Filter(IBusinessFilterModel filter) => await ApplyFilterAsync(filter);
 
     [ActionOnGet]
     public async Task<object> EntityBody(string tEntity, GDID gEntity)
@@ -33,7 +33,7 @@ namespace Azos.IAM.Server.Api
     }
 
     [ActionOnPost]
-    public async Task<object> Change(ChangeForm change) => await SaveEdit(change);
+    public async Task<object> Change(ChangeForm change) => await SaveEditAsync(change);
 
 
     #region dynamic binding
