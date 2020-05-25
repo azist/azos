@@ -443,29 +443,8 @@ namespace Azos.Data
 
     protected virtual ValidState CheckValueIValidatable(ValidState state, Schema.FieldDef fdef, FieldAttribute atr, object value, string scope)
     {
-      //////DKh 20200517
-      ////////if (value is IValidatable validatable)
-      ////////  return validatable.Validate(state, GetInnerScope(fdef, scope));
-
-      ////////precedence of IFs is important, IDictionary is IEnumerable
-      //////if (value is IDictionary dict)//Dictionary<string, IValidatable>
-      //////{
-      //////  foreach (var v in dict.Values)
-      //////  {
-      //////    if (state.ShouldStop) break;
-      //////    if (v is IValidatable vv)
-      //////      state = vv.Validate(state, GetInnerScope(fdef, scope));
-      //////  }
-      //////}
-      //////else if (value is IEnumerable enm)//List<IValidatable>, IValidatable[]
-      //////{
-      //////  foreach (var v in enm)
-      //////  {
-      //////    if (state.ShouldStop) break;
-      //////    if (v is IValidatable vv)
-      //////      state = vv.Validate(state, GetInnerScope(fdef, scope));
-      //////  }
-      //////}
+      //20200517 DKh using ObjectGraph.Scope()
+      //--------------------------------------
 
       if (value is IValidatable validatable)
       {
