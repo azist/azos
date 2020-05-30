@@ -22,8 +22,8 @@ namespace Azos.Client
       ConfigAttribute.Apply(this, conf.NonEmpty(nameof(conf)));
     }
 
-    [Config] protected string m_Network;
-    [Config] protected string m_Binding;
+    [Config] protected Atom m_Network;
+    [Config] protected Atom m_Binding;
     [Config] protected string m_RemoteAddress;
     [Config] protected string m_Contract;
     [Config] protected int m_Shard;
@@ -43,9 +43,9 @@ namespace Azos.Client
     IOrderedRegistry<IAspect> IEndpoint.Aspects => m_Aspects;
     public OrderedRegistry<IAspect> Aspects => m_Aspects;
 
-    public virtual string Network => m_Network;
+    public virtual Atom Network => m_Network;
 
-    public virtual string Binding => m_Binding;
+    public virtual Atom Binding => m_Binding;
 
     public virtual string RemoteAddress => m_RemoteAddress;
 

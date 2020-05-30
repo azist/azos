@@ -9,11 +9,12 @@ using System;
 namespace Azos.Client
 {
   /// <summary>
-  /// Assigns a specific endpoint, network, binding, remote address, and contract
+  /// Assigns a specific endpoint, network, binding, remote address, and contract.
+  /// This structure gets produced by Service when resolving/routing call request parameters
   /// </summary>
   public struct EndpointAssignment : IEquatable<EndpointAssignment>
   {
-    public EndpointAssignment(IEndpoint ep, string net, string binding, string addr, string contract)
+    public EndpointAssignment(IEndpoint ep, Atom net, Atom binding, string addr, string contract)
     {
       Endpoint = ep;
       Network = net;
@@ -23,8 +24,8 @@ namespace Azos.Client
     }
 
     public readonly IEndpoint Endpoint;
-    public readonly string Network;
-    public readonly string Binding;
+    public readonly Atom Network;
+    public readonly Atom Binding;
     public readonly string RemoteAddress;
     public readonly string Contract;
 

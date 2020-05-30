@@ -60,8 +60,8 @@ namespace Azos.Client
     protected bool m_InstrumentationEnabled;
     private OrderedRegistry<IAspect> m_Aspects = new OrderedRegistry<IAspect>(caseSensitive: false);
 
-    [Config] protected string m_DefaultNetwork;
-    [Config] protected string m_DefaultBinding;
+    [Config] protected Atom m_DefaultNetwork;
+    [Config] protected Atom m_DefaultBinding;
     [Config] protected int m_DefaultTimeoutMs;
 
 
@@ -74,8 +74,8 @@ namespace Azos.Client
     IOrderedRegistry<IAspect> IService.Aspects => m_Aspects;
     public OrderedRegistry<IAspect> Aspects => m_Aspects;
 
-    public virtual string DefaultNetwork   => m_DefaultNetwork;
-    public virtual string DefaultBinding   => m_DefaultBinding;
+    public virtual Atom DefaultNetwork   => m_DefaultNetwork;
+    public virtual Atom DefaultBinding   => m_DefaultBinding;
     public virtual int    DefaultTimeoutMs => m_DefaultTimeoutMs;
 
     public ITransportImplementation AcquireTransport(EndpointAssignment assignment, bool reserve)
@@ -105,14 +105,14 @@ namespace Azos.Client
       throw new ClientException(StringConsts.CLIENT_WRONG_TRANSPORT_TYPE_ERROR.Args(Name, transport.GetType().Name)); ;
     }
 
-    public IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, object shardKey = null, string network = null, string binding = null)
+    public IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, object shardKey = null, Atom? network = null, Atom? binding = null)
     {
       if (Disposed) return Enumerable.Empty<EndpointAssignment>();
       return DoGetEndpointsForCall(remoteAddress.NonBlank(nameof(remoteAddress)),
                                    contract.NonBlank(nameof(contract)),
                                    shardKey,
-                                   network.Default(DefaultNetwork),
-                                   binding.Default(DefaultBinding));
+                                   network ?? DefaultNetwork,
+                                   binding ?? DefaultBinding);
     }
 
     /// <summary>
@@ -122,7 +122,7 @@ namespace Azos.Client
     protected abstract void EndpointsHaveChanged();
     protected abstract TTransport DoAcquireTransport(EndpointAssignment assignment, bool reserve);
     protected abstract void DoReleaseTransport(TTransport transport);
-    protected abstract IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, object shardKey, string network, string binding);
+    protected abstract IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, object shardKey, Atom network, Atom binding);
 
 
 

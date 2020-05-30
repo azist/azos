@@ -11,7 +11,7 @@ namespace Azos
   /// digit or letter characters packed and stored as ulong system primitive. Typically used for system IDs of assets
   /// such as log and instrumentation channels, codes and classifications (e.g. ISO codes).
   /// The use of atoms obviates the costly string allocations for various codes which pretty much remain
-  /// the same (e.g. ISO language, currency, country codes)
+  /// the same for the application lifetime (e.g. ISO language, currency, country codes, various system component names etc..)
   /// <para>
   /// The framework treats the type efficiently in many areas
   /// such as binary, BSON and JSON serialization. Short ID strings represented as Atom en masse greatly
@@ -31,7 +31,7 @@ namespace Azos
   /// large number of objects (100Ks / second) containing short strings which identify a limited set of system objects,
   /// for example log message channel IDs, app IDs, instrumentation data channels/ and the like.
   /// Since the value fits into CPU register and does not produce references with consequential garbage collection the
-  /// performance may be improved sometimes 5x-10x.
+  /// overall performance may be improved sometimes 5x-10x.
   /// </para>
   /// <para>
   /// The trick is to NOT convert strings into ASCII via .Encode() (that is why it is a static method, not a .ctor)
