@@ -20,8 +20,18 @@ namespace Azos
     public const string SITE_FLD_NAME = "GUARD-SITE";
     public const string PARAM_FLD_NAME = "GUARD-PARAM";
 
-    public CallGuardException(string callSite, string parameterName, string message) : base(message) { }
-    public CallGuardException(string callSite, string parameterName, string message, Exception inner) : base(message, inner) { }
+    public CallGuardException(string callSite, string parameterName, string message) : base(message)
+    {
+      CallSite = callSite;
+      ParamName = parameterName;
+    }
+
+    public CallGuardException(string callSite, string parameterName, string message, Exception inner) : base(message, inner)
+    {
+      CallSite = callSite;
+      ParamName = parameterName;
+    }
+
     protected CallGuardException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
       PutDetailsInHttpStatus = info.GetBoolean(DETAILS_FLD_NAME);
