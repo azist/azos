@@ -29,14 +29,16 @@ namespace Azos.Client
     public readonly string RemoteAddress;
     public readonly string Contract;
 
+    public override string ToString() => "{0}({1},{2},{3},`{4}`)".Args((Endpoint?.GetType().Name).Default("[NONE]"), Network, Binding, Contract, RemoteAddress);
+
     public override int GetHashCode() => (Endpoint != null ? Endpoint.GetHashCode() : 0) ^ (RemoteAddress != null ? RemoteAddress.GetHashCode() : 0);
     public override bool Equals(object obj) => obj is EndpointAssignment epa ? this.Equals(epa) : false;
     public bool Equals(EndpointAssignment other)
-     => this.RemoteAddress == other.RemoteAddress &&
-        this.Endpoint == other.Endpoint &&
-        this.Contract == other.Contract &&
+     => this.Endpoint == other.Endpoint &&
+        this.Network == other.Network &&
         this.Binding == other.Binding &&
-        this.Network == other.Network;
+        this.RemoteAddress.EqualsOrdSenseCase(other.RemoteAddress) &&
+        this.Contract.EqualsOrdSenseCase(other.Contract);
 
     public static bool operator ==(EndpointAssignment a, EndpointAssignment b) => a.Equals(b);
     public static bool operator !=(EndpointAssignment a, EndpointAssignment b) => !a.Equals(b);

@@ -5,12 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Net.Http;
-
-using Azos.Apps;
-using Azos.Collections;
-using Azos.Instrumentation;
 
 namespace Azos.Client
 {
@@ -29,6 +23,30 @@ namespace Azos.Client
   /// <summary>
   /// Transport implementation
   /// </summary>
-  public interface ITransportImplementation : ITransport, IDisposable{ }
+  public interface ITransportImplementation : ITransport, IDisposable
+  {
+  }
+
+  /// <summary>
+  /// Transport implementation for use with TrasportPool
+  /// </summary>
+  public interface IPooledTrasportImplementation : ITransportImplementation
+  {
+    /// <summary>
+    /// Returns true if this call transition transport state from free to acquired
+    /// </summary>
+    bool TryAcquire();
+    bool Release();
+
+    /// <summary>
+    /// True is the transport is acquired for use
+    /// </summary>
+    bool IsAcquired{ get;}
+
+    /// <summary>
+    /// Returns when the transport was used for the last time
+    /// </summary>
+    DateTime LastUseUtc{ get;}
+  }
 
 }
