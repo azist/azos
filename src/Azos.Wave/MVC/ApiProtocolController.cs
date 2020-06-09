@@ -49,7 +49,7 @@ namespace Azos.Wave.Mvc
                            .SaveAsync();
 
       if (saved.IsSuccess)
-        return saved.Result;
+        return new { OK = true, data = saved.Result };
 
       throw new BusinessException($"Could not save model `{model.GetType().Name}`: {saved.Error.ToMessageWithType()}", saved.Error);
     }
@@ -65,7 +65,7 @@ namespace Azos.Wave.Mvc
                            .SaveAsync();
 
       if (saved.IsSuccess)
-        return saved.Result;
+        return new { OK = true, data = saved.Result };
 
       throw new BusinessException($"Could not save model `{model.GetType().Name}`: {saved.Error.ToMessageWithType()}", saved.Error);
     }
@@ -89,7 +89,7 @@ namespace Azos.Wave.Mvc
         WorkContext.Response.StatusCode = WebConsts.STATUS_404;
         WorkContext.Response.StatusDescription = WebConsts.STATUS_404_DESCRIPTION;
       }
-      return new { OK = !is404, result };
+      return new { OK = !is404, data = result };
     }
   }
 }
