@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.4.0
+set VER=1.4.1
 set HEADLINE=Validation and DI graph cycle detection, HourList, IRequired
 
 call vs2017-build-release %VER%
