@@ -30,7 +30,7 @@ namespace Azos.Client
   /// <summary>
   /// Transport implementation for use with TrasportPool
   /// </summary>
-  public interface IPooledTrasportImplementation : ITransportImplementation
+  public interface IManagedTrasportImplementation : ITransportImplementation
   {
     /// <summary>
     /// Returns true if this call transition transport state from free to acquired

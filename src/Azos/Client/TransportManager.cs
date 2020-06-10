@@ -8,16 +8,24 @@ using Azos.Conf;
 
 namespace Azos.Client
 {
+#warning WIP
   /// <summary>
-  /// Helper class that manages the lifetime of particular type transport instances
+  /// Helper class that manages the lifetime of particular type transport instances.
+  /// The implementation tries to avoid extra allocations for performance
   /// </summary>
-  ///
-
-  #warning wip  not done
-  public abstract class TransportPool<TService, TTransport> : DisposableObject where TService : class, IServiceImplementation
-                                                                               where TTransport : class, IPooledTrasportImplementation
+  public abstract class TransportManager<TService, TTransport> : DisposableObject where TService : class, IServiceImplementation
+                                                                                  where TTransport : class, IManagedTrasportImplementation
   {
-    public TransportPool(TService service, IConfigSectionNode config)
+
+    private class ep
+    {
+      List<TTransport> m_List = new List<TTransport>();//all transports for this endpoint
+      Queue<TaskCompletionSource<TTransport>> m_Waiters = new Queue<TaskCompletionSource<TTransport>>();
+    }
+
+
+
+    public TransportManager(TService service, IConfigSectionNode config)
     {
       m_Service = service.NonNull(nameof(service));
       ConfigAttribute.Apply(this, config);
@@ -25,6 +33,7 @@ namespace Azos.Client
 
     protected override void Destructor()
     {
+      //stop all????
       base.Destructor();
     }
 
@@ -159,7 +168,7 @@ namespace Azos.Client
       List<TTransport> lst;
       lock(m_Transports)
       {
-        if (!m_Transports.TryGetValue(assignment, out lst)) return null;//nothing exists yet
+        if (!m_Transports.TryGetValue(assignment, out lst)) return null;//nothing exists yet, allocate new
       }
 
       var time = Time.Timeter.StartNew();
@@ -180,9 +189,9 @@ namespace Azos.Client
         }
 
         if (m_TimeoutMs > 0 && time.ElapsedMs > m_TimeoutMs)
-         throw new ClientException("Timeout of {0} ms exceeded while getting transport for `{1}`. Revise transport pool limits".Args(m_TimeoutMs, assignment));
+         throw new ClientException("Timeout of {0} ms exceeded while getting transport for `{1}`. Revise transport manager limits".Args(m_TimeoutMs, assignment));
 
-        await Task.Delay(Platform.RandomGenerator.Instance.NextScaledRandomInteger(10, 37));
+        await Task.Delay(Platform.RandomGenerator.Instance.NextScaledRandomInteger(10, 50));
       }
 
       return null;
