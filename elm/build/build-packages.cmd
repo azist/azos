@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.4.1
-set HEADLINE=Validation and DI graph cycle detection, HourList, IRequired
+set VER=1.4.2
+set HEADLINE=Add ICallFlow and fixes
 
 call vs2017-build-release %VER%
 
