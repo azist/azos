@@ -322,7 +322,6 @@ namespace Azos.Wave
       /// </summary>
       public void Redirect(string url, WebConsts.RedirectCode code = WebConsts.RedirectCode.Found_302)
       {
-        //20160707 DKh m_NetResponse.Redirect(url);
         m_NetResponse.Headers.Set(HttpResponseHeader.Location, url);
         m_NetResponse.StatusCode        = WebConsts.GetRedirectStatusCode(code);
         m_NetResponse.StatusDescription = WebConsts.GetRedirectStatusDescription(code);

@@ -101,5 +101,10 @@ namespace Azos
     /// </summary>
     public static Security.User CurrentCallUser => CurrentCallSession.User;
 
+    /// <summary>
+    /// Returns the current call flow or null
+    /// </summary>
+    public static ICallFlow CurrentCallFlow => ExecutionContext.CallFlow;
+
   }
 }

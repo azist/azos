@@ -15,13 +15,15 @@ namespace Azos.Apps
   /// Provides access to execution context - that groups Application and Session objects.
   /// All objects may be either application-global or (logical)thread-level.
   /// Effectively ExecutionContext.Application is the central chassis per process.
-  /// The async code flows Session context automatically via AsyncFlowMutableLocal, however custom contexts should flow via passing it to functors.
+  /// The async code flows Session context automatically via AsyncFlowMutableLocal,
+  /// however custom business contexts should flow via passing it to functors.
   /// </summary>
   public static class ExecutionContext
   {
     private static volatile IApplication s_Application;
     private static Stack<IApplication> s_AppStack = new Stack<IApplication>();
     private static AsyncFlowMutableLocal<ISession> ats_Session = new AsyncFlowMutableLocal<ISession>();
+    private static AsyncFlowMutableLocal<ICallFlow> ats_CallFlow = new AsyncFlowMutableLocal<ICallFlow>();
 
 
     /// <summary>
@@ -56,6 +58,11 @@ namespace Azos.Apps
         return callFlowSession != null  && callFlowSession.GetType() != typeof(NOPSession);
       }
     }
+
+    /// <summary>
+    /// Returns a current call flow if any, or null if none is used
+    /// </summary>
+    public static ICallFlow CallFlow => ats_CallFlow.Value;
 
     /// <summary>
     /// Returns the effective ConsolePort - the one taken from the current App, if it is null app stack is tried.
@@ -122,11 +129,19 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Internal framework-only method to bind thread-level/async flow context
+    /// Internal framework-only method to bind thread-level/async session context
     /// </summary>
     public static void __SetThreadLevelSessionContext(ISession session)
     {
       ats_Session.Value = session;
+    }
+
+    /// <summary>
+    /// Internal framework-only method to bind thread-level/async flow context
+    /// </summary>
+    public static void __SetThreadLevelCallContext(ICallFlow call)
+    {
+      ats_CallFlow.Value = call;
     }
 
     /// <summary>
