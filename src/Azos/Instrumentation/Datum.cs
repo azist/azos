@@ -7,11 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
-using System.Threading;
 
 using Azos.Data;
-using Azos.Serialization.BSON;
 using Azos.Platform;
 
 namespace Azos.Instrumentation
@@ -20,16 +17,9 @@ namespace Azos.Instrumentation
   /// Base class for a single measurement events (singular: datum/plural: data) reported to instrumentation
   /// </summary>
   [Serializable]
-  public abstract class Datum : TypedDoc, Azos.Log.IArchiveLoggable, IBSONSerializable, IBSONDeserializable
+  public abstract class Datum : TypedDoc, Azos.Log.IArchiveLoggable
   {
     #region CONST
-    public const string BSON_FLD_SOURCE = "src";
-    public const string BSON_FLD_COUNT = "cnt";
-    public const string BSON_FLD_TIME = "t";
-    public const string BSON_FLD_END_TIME = "et";
-    public const string BSON_FLD_VALUE = "val";
-    public const string BSON_FLD_UNIT = "un";
-
     public const string UNSPECIFIED_SOURCE = "*";
     public const string FRAMEWORK_SOURCE = "Frmwrk";
     public const string BUSINESS_SOURCE = "BsnsLgc";
@@ -228,33 +218,6 @@ namespace Azos.Instrumentation
     public virtual void ReduceSourceDetail(int reductionLevel)
     {
       if (reductionLevel < 0) m_Source = string.Empty;
-    }
-
-    public virtual bool IsKnownTypeForBSONDeserialization(Type type)
-    {
-      return false;
-    }
-
-    public virtual void SerializeToBSON(BSONSerializer serializer, BSONDocument doc, IBSONSerializable parent, ref object context)
-    {
-      serializer.AddTypeIDField(doc, parent, this, context);
-
-      doc.Add(BSON_FLD_COUNT, m_Count)
-        .Add(BSON_FLD_TIME, m_UTCTime);
-      if (m_Count > 0)
-        doc.Add(BSON_FLD_END_TIME, m_UTCEndTime);
-
-      if ((serializer.Flags & BSONSerializationFlags.UIOnly) == 0)
-        doc.Add(BSON_FLD_SOURCE, Source);
-    }
-
-    public virtual void DeserializeFromBSON(BSONSerializer serializer, BSONDocument doc, ref object context)
-    {
-      m_Count = doc.TryGetObjectValueOf(BSON_FLD_COUNT).AsInt();
-      m_UTCTime = doc.TryGetObjectValueOf(BSON_FLD_TIME).AsDateTime();
-      if (m_Count > 0)
-        m_UTCEndTime = doc.TryGetObjectValueOf(BSON_FLD_END_TIME).AsDateTime();
-      m_Source = doc.TryGetObjectValueOf(BSON_FLD_SOURCE).AsString();
     }
 
     public override string ToString()
