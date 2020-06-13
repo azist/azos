@@ -46,8 +46,8 @@ namespace Azos.Data.Access.Cache
             if (key is string)
               return DefaultStringKeyToCacheKey((string)key);
 
-            if (key is IDistributedStableHashProvider)
-              return ((IDistributedStableHashProvider)key).GetDistributedStableHash();//covers GDID and parcels as well
+            if (key is Idgen.IDistributedStableHashProvider)
+              return ((Idgen.IDistributedStableHashProvider)key).GetDistributedStableHash();//covers GDID and parcels as well
 
             return (ulong)key.GetHashCode();
         }

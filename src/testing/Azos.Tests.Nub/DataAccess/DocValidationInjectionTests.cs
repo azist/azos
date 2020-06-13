@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -43,11 +49,11 @@ namespace Azos.Tests.Nub.DataAccess
 
       [Field(valueList: "key:val")] public string S1{ get;set;}
 
-      public override ValidState Validate(ValidState state)
+      public override ValidState Validate(ValidState state, string scope = null)
       {
         Aver.IsNotNull(m_App);
         Aver.IsNotNull(m_Module);
-        return base.Validate(state);
+        return base.Validate(state, scope);
       }
     }
 
@@ -60,10 +66,10 @@ namespace Azos.Tests.Nub.DataAccess
       [Field] public DocDirectField D1 { get; set; }
       [Field] public DocDirectField D2 { get; set; }
 
-      public override ValidState Validate(ValidState state)
+      public override ValidState Validate(ValidState state, string scope = null)
       {
         Aver.IsNotNull(m_Module);
-        return base.Validate(state);
+        return base.Validate(state, scope);
       }
     }
 
@@ -75,10 +81,10 @@ namespace Azos.Tests.Nub.DataAccess
       [Field(min: 100)] public int? IMin { get; set; }
       [Field] public DocCompositeField[] DArray { get; set; }
 
-      public override ValidState Validate(ValidState state)
+      public override ValidState Validate(ValidState state, string scope = null)
       {
         Aver.IsNotNull(m_Module);
-        return base.Validate(state);
+        return base.Validate(state, scope);
       }
     }
 
@@ -90,10 +96,10 @@ namespace Azos.Tests.Nub.DataAccess
       [Field(min: 100)] public int? IMin { get; set; }
       [Field] public List<object> DList { get; set; }
 
-      public override ValidState Validate(ValidState state)
+      public override ValidState Validate(ValidState state, string scope = null)
       {
         Aver.IsNotNull(m_Module);
-        return base.Validate(state);
+        return base.Validate(state, scope);
       }
     }
 
@@ -106,10 +112,10 @@ namespace Azos.Tests.Nub.DataAccess
       [Field(min: 100)] public int? IMin { get; set; }
       [Field] public Dictionary<string, DocCompositeField> DDict { get; set; }
 
-      public override ValidState Validate(ValidState state)
+      public override ValidState Validate(ValidState state, string scope = null)
       {
         Aver.IsNotNull(m_Module);
-        return base.Validate(state);
+        return base.Validate(state, scope);
       }
     }
 

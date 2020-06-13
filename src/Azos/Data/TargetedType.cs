@@ -6,7 +6,7 @@ namespace Azos.Data
   /// Represents a tuple of Type with string TargetName which is needed in many cases working with
   /// providers targeted by name
   /// </summary>
-  public struct TargetedType : IEquatable<TargetedType>
+  public struct TargetedType : IEquatable<TargetedType>, IRequired
   {
     public TargetedType(string target, Type type)
     {
@@ -19,6 +19,8 @@ namespace Azos.Data
 
     /// <summary> True if this struct is assigned - does not represent a default instance </summary>
     public bool IsAssigned => Type != null;
+
+    public bool CheckRequired(string targetName) => IsAssigned;
 
     public bool Equals(TargetedType other)
      => this.Type == other.Type && this.TargetName.EqualsOrdSenseCase(other.TargetName);

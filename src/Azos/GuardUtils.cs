@@ -20,8 +20,18 @@ namespace Azos
     public const string SITE_FLD_NAME = "GUARD-SITE";
     public const string PARAM_FLD_NAME = "GUARD-PARAM";
 
-    public CallGuardException(string callSite, string parameterName, string message) : base(message) { }
-    public CallGuardException(string callSite, string parameterName, string message, Exception inner) : base(message, inner) { }
+    public CallGuardException(string callSite, string parameterName, string message) : base(message)
+    {
+      CallSite = callSite;
+      ParamName = parameterName;
+    }
+
+    public CallGuardException(string callSite, string parameterName, string message, Exception inner) : base(message, inner)
+    {
+      CallSite = callSite;
+      ParamName = parameterName;
+    }
+
     protected CallGuardException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
       PutDetailsInHttpStatus = info.GetBoolean(DETAILS_FLD_NAME);
@@ -205,7 +215,7 @@ namespace Azos
 
 
     /// <summary>
-    /// Ensures that a type value is not null and is of the specified type or one of its subtypes
+    /// Ensures that a value is not null and is of the specified type or one of its subtypes
     /// </summary>
     public static TValue ValueIsOfType<T, TValue>(this TValue value,
                                string name = null,
@@ -225,7 +235,7 @@ namespace Azos
     }
 
     /// <summary>
-    /// Ensures that a type value is not null and is of the specified type or one of its subtypes
+    /// Ensures that a value is not null and is of the specified type or one of its subtypes
     /// </summary>
     public static TValue ValueIsOfType<TValue>(this TValue value,
                                Type expectedType,
@@ -244,7 +254,6 @@ namespace Azos
       }
       return value;
     }
-
 
     /// <summary>
     /// Ensures that a config node value is non-null existing node

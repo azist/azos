@@ -12,7 +12,7 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Collections;
 using Azos.Data;
-using Azos.Data.Access;
+using Azos.Data.Idgen;
 using Azos.Log;
 
 using Azos.Sky.Contracts;
@@ -270,7 +270,7 @@ namespace Azos.Sky.Identification
 
     #region Properties
 
-    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_ID_GEN;
+    public override string ComponentLogTopic => CoreConsts.TOPIC_ID_GEN;
     public override string ComponentCommonName { get { return "gdidgen-"+Name; }}
 
     /// <summary>

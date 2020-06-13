@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 using Azos.Serialization.JSON;
@@ -29,298 +30,304 @@ namespace Azos.Data
   /// Note GDID.Zero is never returned by generators as it represents the absence of a value (special value)
   /// </summary>
   [Serializable]
-  public struct GDID : Access.IDataStoreKey, Access.IDistributedStableHashProvider,
+  public struct GDID : Access.IDataStoreKey,
+                       Idgen.IDistributedStableHashProvider,
                        IComparable<GDID>,
                        IEquatable<GDID>,
                        IComparable,
                        IJsonWritable,
-                       IJsonReadable
+                       IJsonReadable,
+                       IRequired
   {
-        public const UInt64 AUTHORITY_MASK = 0xf000000000000000;
-        public const UInt64 COUNTER_MASK   = 0x0fffffffffffffff;//0x 0f  ff  ff  ff  ff  ff  ff  ff
-                                                                //    1   2   3   4   5   6   7   8
+    private static readonly IFormatProvider INVARIANT = CultureInfo.InvariantCulture;
+    private static readonly string[] SAUTHORITIES = new []{"0", "1" , "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" , "11" , "12" , "13" , "14" , "15"};
 
-        /// <summary>
-        /// Provides maximum value for counter segment
-        /// </summary>
-        public const UInt64 COUNTER_MAX    = COUNTER_MASK;
+    public const UInt64 AUTHORITY_MASK = 0xf000000000000000;
+    public const UInt64 COUNTER_MASK   = 0x0fffffffffffffff;//0x 0f  ff  ff  ff  ff  ff  ff  ff
+                                                            //    1   2   3   4   5   6   7   8
 
-        /// <summary>
-        /// Provides maximum value for authority segment
-        /// </summary>
-        public const int AUTHORITY_MAX    = 0x0f;
+    /// <summary>
+    /// Provides maximum value for counter segment
+    /// </summary>
+    public const UInt64 COUNTER_MAX    = COUNTER_MASK;
 
-        /// <summary>
-        /// Zero GDID constant which is equivalent to an uninitialized structure with zero era and zero authority and zero counter
-        /// </summary>
-        public static readonly GDID ZERO = new GDID(0, 0ul);
+    /// <summary>
+    /// Provides maximum value for authority segment
+    /// </summary>
+    public const int AUTHORITY_MAX    = 0x0f;
 
-        public readonly UInt32 Era;
-        public readonly UInt64 ID;
-
-        public GDID(UInt32 era, UInt64 id)
-        {
-          Era = era;
-          ID = id;
-        }
-
-        public GDID(uint era, int authority, UInt64 counter)
-        {
-          if (authority>AUTHORITY_MAX || counter>COUNTER_MAX)
-            throw new DataException(StringConsts.DISTRIBUTED_DATA_GDID_CTOR_ERROR.Args(authority, AUTHORITY_MAX, counter, COUNTER_MAX));
-
-          Era = era;
-          ID = (((UInt64)authority)<<60) | (counter & COUNTER_MASK);
-        }
-
-        public GDID(byte[] bytes, int startIdx = 0)
-        {
-          if (bytes==null || startIdx <0 || (bytes.Length-startIdx)<sizeof(uint)+sizeof(ulong))
-            throw new DataException(StringConsts.ARGUMENT_ERROR+"GDID.ctor(bytes==null<minsz)");
-
-          Era = bytes.ReadBEUInt32();
-          ID =  bytes.ReadBEUInt64(4);
-        }
+    /// <summary>
+    /// Zero GDID constant which is equivalent to an uninitialized structure with zero era and zero authority and zero counter
+    /// </summary>
+    public static readonly GDID ZERO = new GDID(0, 0ul);
 
 
-        /// <summary>
-        /// Returns the 0..15 index of the authority that issued this ID
-        /// </summary>
-        public int Authority
-        {
-          get { return (int)( (ID & AUTHORITY_MASK) >> 60 );  }
-        }
+    public GDID(UInt32 era, UInt64 id)
+    {
+      Era = era;
+      ID = id;
+    }
 
-        /// <summary>
-        /// Returns the 60 bits of counter segment of this id (without authority segment upper 4 bits)
-        /// </summary>
-        public UInt64 Counter
-        {
-          get { return ID & COUNTER_MASK; }
-        }
+    public GDID(uint era, int authority, UInt64 counter)
+    {
+      if (authority>AUTHORITY_MAX || counter>COUNTER_MAX)
+        throw new DataException(StringConsts.DISTRIBUTED_DATA_GDID_CTOR_ERROR.Args(authority, AUTHORITY_MAX, counter, COUNTER_MAX));
 
-        /// <summary>
-        /// Returns the GDID buffer as BigEndian Era:ID tuple
-        /// </summary>
-        public byte[] Bytes
-        {
-          get
-          {  //WARNING!!! NEVER EVER CHANGE this method without considering the effect:
-             // Database keys RELY on the specific byte ordering for proper tree balancing
-             // MUST use BIG ENDIAN encoding  ERA, COUNTER not vice-versa
-            var result = new byte[sizeof(uint)+sizeof(ulong)];
-            result.WriteBEUInt32(0, Era);
-            result.WriteBEUInt64(4, ID);
-            return result;
-          }
-        }
+      Era = era;
+      ID = (((UInt64)authority)<<60) | (counter & COUNTER_MASK);
+    }
 
-        /// <summary>
-        /// True is this instance is invalid/Zero - represents 0:0:0
-        /// </summary>
-        public bool IsZero
-        {
-          get{ return Era==0 && ID==0;}
-        }
+    public GDID(byte[] bytes, int startIdx = 0)
+    {
+      if (bytes==null || startIdx <0 || (bytes.Length-startIdx)<sizeof(uint)+sizeof(ulong))
+        throw new DataException(StringConsts.ARGUMENT_ERROR+"GDID.ctor(bytes==null<minsz)");
 
-        /// <summary>
-        /// Returns the guaranteed parsable stable string representation of GDID in the form 'Era:Authority:Counter'
-        /// </summary>
-        public override string ToString()
-        {
-          // WARNING!!! returned string representation must be parsable in the original form 'Era:Authority:Counter' and must not change
-          return Era.ToString() + ":" + Authority.ToString() + ":" + Counter.ToString();
-        }
+      Era = bytes.ReadBEUInt32();
+      ID =  bytes.ReadBEUInt64(4);
+    }
 
-        public string ToHexString() { return Era.ToString("X8") + ID.ToString("X16"); }
+    public unsafe GDID(byte* ptr)
+    {
+      if (ptr == null)
+        throw new DataException(StringConsts.ARGUMENT_ERROR + "GDID.ctor(ptr==null)");
 
-        public override int GetHashCode()
-        {
- 	        return (int)Era ^ (int)ID ^ (int)(ID >> 32);
-        }
+      var idx = 0;
+      Era = IOUtils.ReadBEUInt32(ptr, ref idx);
+      ID = IOUtils.ReadBEUInt64(ptr, ref idx);
+    }
 
-        public ulong GetDistributedStableHash()
-        {
-          return  ((ulong)Era << 32) ^ ID;
-        }
+    public readonly UInt32 Era;
+    public readonly UInt64 ID;
 
-        public override bool  Equals(object obj)
-        {
- 	        if(obj==null || !(obj is GDID)) return false;
-          return this.Equals(((GDID)obj));
-        }
+    /// <summary>
+    /// Returns the 0..15 index of the authority that issued this ID
+    /// </summary>
+    public int Authority => (int)( (ID & AUTHORITY_MASK) >> 60 );
 
-        public int CompareTo(GDID other)
-        {
-          var result = this.Era.CompareTo(other.Era);
-          if (result!=0) return result;
-          return this.ID.CompareTo(other.ID);
-        }
+    /// <summary>
+    /// Returns the 60 bits of counter segment of this id (without authority segment upper 4 bits)
+    /// </summary>
+    public UInt64 Counter => ID & COUNTER_MASK;
 
-        public int CompareTo(object obj)
-        {
-          if (obj==null) return -1;
-          return this.CompareTo((GDID)obj);
-        }
+    /// <summary>
+    /// Returns the GDID buffer as BigEndian Era:ID tuple
+    /// </summary>
+    public byte[] Bytes
+    {
+      get
+      { //WARNING!!! NEVER EVER CHANGE this method without considering the effect:
+        // Database keys RELY on the specific byte ordering for proper tree balancing
+        // MUST use BIG ENDIAN encoding  ERA, COUNTER not vice-versa
+        var result = new byte[sizeof(uint)+sizeof(ulong)];
+        result.WriteBEUInt32(0, Era);
+        result.WriteBEUInt64(4, ID);
+        return result;
+      }
+    }
 
-        public bool Equals(GDID other)
-        {
-          return (this.Era == other.Era) && (this.ID == other.ID);
-        }
+    /// <summary>
+    /// Writes value into an existing buffer (thus avoiding allocation) starting at the specified index,
+    /// the buffer /index must be big enough to take 12 bytes
+    /// </summary>
+    public void WriteIntoBuffer(byte[] buff, int startIndex = 0)
+    {
+      if (buff==null || startIndex < 0 || startIndex + 12 >= buff.Length)
+        throw new DataException(StringConsts.ARGUMENT_ERROR + "GDID.WriteIntoBuffer(buff==null<minsz)");
 
-        public static bool operator ==(GDID x, GDID y)
-        {
-          return x.Equals(y);
-        }
-
-        public static bool operator !=(GDID x, GDID y)
-        {
-          return !x.Equals(y);
-        }
-
-        public static bool operator <(GDID x, GDID y)
-        {
-          return x.CompareTo(y) < 0;
-        }
-
-        public static bool operator >(GDID x, GDID y)
-        {
-          return x.CompareTo(y) > 0;
-        }
-
-         public static bool operator <=(GDID x, GDID y)
-        {
-          return x.CompareTo(y)<=0;
-        }
-
-        public static bool operator >=(GDID x, GDID y)
-        {
-          return x.CompareTo(y)>=0;
-        }
-
-        void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options)
-        {
-          wri.Write('"');
-          wri.Write(Era);
-          wri.Write(':');
-          wri.Write(Authority);
-          wri.Write(':');
-          wri.Write(Counter);
-          wri.Write('"');
-        }
-
-        (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
-        {
-          try
-          {
-            return (true, data.AsGDID());
-          }
-          catch
-          {
-            return (false, null);
-          }
-        }
-
-        public static GDID Parse(string str)
-        {
-          GDID result;
-          if (!TryParse(str, out result))
-            throw new DataException(StringConsts.DISTRIBUTED_DATA_GDID_PARSE_ERROR.Args(str));
-
-          return result;
-        }
-
-        private static int hexDigit(char c)
-        {
-          var d = c - '0';
-          if (d>=0 && d<=9) return d;
-
-          d = c - 'A';
-          if (d>=0 && d<=5) return 10 + d;
-
-          d = c - 'a';
-          if (d>=0 && d<=5) return 10 + d;
-
-          return -1;
-        }
+      buff.WriteBEUInt32(startIndex, Era);
+      buff.WriteBEUInt64(startIndex + 4, ID);
+    }
 
 
-        public static bool TryParse(string str, out GDID? gdid)
-        {
-          GDID parsed;
-          if (TryParse(str, out parsed))
-          {
-            gdid = parsed;
-            return true;
-          }
+    /// <summary>
+    /// True is this instance is invalid/Zero - represents 0:0:0
+    /// </summary>
+    public bool IsZero => Era==0 && ID==0;
 
-          gdid = null;
-          return false;
-        }
+    public bool CheckRequired(string targetName) => !IsZero;
 
-        public static bool TryParse(string str, out GDID gdid)
-        {
-          gdid = GDID.ZERO;
-          if (str==null) return false;
+    /// <summary>
+    /// Returns the guaranteed parsable stable string representation of GDID in the form 'Era:Authority:Counter'
+    /// </summary>
+    public override string ToString()
+    {
+      // WARNING!!! returned string representation must be parsable in the original form 'Era:Authority:Counter' and must not change
+      return Era.ToString(INVARIANT) + ":" + SAUTHORITIES[Authority] + ":" + Counter.ToString(INVARIANT);
+    }
 
-          var ic = str.IndexOf(':');
-          if (ic>-1) //regular Era:Auth:Counter format
-          {
-            const int MIN_LEN = 5;// "0:0:0"
-            if (str.IsNullOrWhiteSpace() || str.Length<MIN_LEN) return false;
+    public string ToHexString() => Era.ToString("X8") + ID.ToString("X16");
 
-            string sera, sau, sctr;
-            var i1 = ic;
-            if (i1<=0 || i1==str.Length-1) return false;
+    public override int GetHashCode() => (int)Era ^ (int)ID ^ (int)(ID >> 32);
 
-            sera = str.Substring(0, i1);
+    public ulong GetDistributedStableHash() => ((ulong)Era << 32) ^ ID;
 
-            var i2 = str.IndexOf(':', i1+1);
-            if (i2<0 || i2==str.Length-1 || i2==i1+1) return false;
+    public override bool Equals(object obj) => obj is GDID gdid ? this.Equals(gdid) : false;
+    public bool          Equals(GDID other) => (this.Era == other.Era) && (this.ID == other.ID);
 
-            sau = str.Substring(i1+1, i2-i1-1);
+    public int CompareTo(object obj)
+    {
+      if (obj==null) return -1;
+      return this.CompareTo((GDID)obj);
+    }
 
-            sctr = str.Substring(i2+1);
+    public int CompareTo(GDID other)
+    {
+      var result = this.Era.CompareTo(other.Era);
+      if (result!=0) return result;
+      return this.ID.CompareTo(other.ID);
+    }
 
-            uint era=0;
-            if (!uint.TryParse(sera, out era)) return false;
+    public static bool operator == (GDID x, GDID y) => x.Equals(y);
+    public static bool operator != (GDID x, GDID y) => !x.Equals(y);
+    public static bool operator <  (GDID x, GDID y) => x.CompareTo(y) < 0;
+    public static bool operator >  (GDID x, GDID y) => x.CompareTo(y) > 0;
+    public static bool operator <= (GDID x, GDID y) => x.CompareTo(y) <= 0;
+    public static bool operator >= (GDID x, GDID y) => x.CompareTo(y) >= 0;
 
-            byte au=0;
-            if (!byte.TryParse(sau, out au)) return false;
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
+    {
+      wri.Write('"');
+      itoa(wri, Era);
+      wri.Write(':');
+      itoa(wri, (ulong)Authority);
+      wri.Write(':');
+      itoa(wri, Counter);
+      wri.Write('"');
+    }
 
-            ulong ctr;
-            if (!ulong.TryParse(sctr, out ctr)) return false;
+    private static unsafe void itoa(TextWriter wri, ulong v)
+    {
+      var buf = stackalloc char[24];//max char length of ulong number is 21
+      var i = 0;
+      while(true)
+      {
+        buf[i++] = (char)('0' + (v % 10));
+        v /= 10;
+        if (v == 0) break;
+      }
 
-            if (au>AUTHORITY_MAX || ctr>COUNTER_MAX) return false;
+      while(--i>=0) wri.Write(buf[i]);
+    }
 
-            gdid = new GDID(era, au, ctr);
-            return true;
-          }
+    (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
+    {
+      try
+      {
+        return (true, data.AsGDID());
+      }
+      catch
+      {
+        return (false, null);
+      }
+    }
 
-          //HEX format
-          str = str.Trim();
-          var ix = str.IndexOf("0x", StringComparison.OrdinalIgnoreCase);
-          if (ix == 0) ix += 2;//skip 0x
-          else ix = 0;
+    public static GDID Parse(string str)
+    {
+      GDID result;
+      if (!TryParse(str, out result))
+        throw new DataException(StringConsts.DISTRIBUTED_DATA_GDID_PARSE_ERROR.Args(str.TakeFirstChars(10)));
 
-          var buf = new byte[sizeof(uint) + sizeof(ulong)];
-          var j = 0;
-          for(var i=ix; i<str.Length;)
-          {
-            var dh = hexDigit(str[i]); i++;
-            if (dh<0 || i==str.Length) return false;
-            var dl = hexDigit(str[i]); i++;
-            if (dl<0) return false;
+      return result;
+    }
 
-            if (j==buf.Length) return false;
-            buf[j] = (byte)((dh << 4) + dl);
-            j++;
-          }
-          if (j<buf.Length) return false;
+    private static int hexDigit(char c)
+    {
+      var d = c - '0';
+      if (d>=0 && d<=9) return d;
 
-          gdid = new GDID(buf);
-          return true;
-        }
+      d = c - 'A';
+      if (d>=0 && d<=5) return 10 + d;
+
+      d = c - 'a';
+      if (d>=0 && d<=5) return 10 + d;
+
+      return -1;
+    }
+
+
+    public static bool TryParse(string str, out GDID? gdid)
+    {
+      GDID parsed;
+      if (TryParse(str, out parsed))
+      {
+        gdid = parsed;
+        return true;
+      }
+
+      gdid = null;
+      return false;
+    }
+
+    //todo: Candidate for Span<char> rewrite
+    public static unsafe bool TryParse(string str, out GDID gdid)
+    {
+      gdid = GDID.ZERO;
+      if (str==null) return false;
+
+      var ic = str.IndexOf(':');
+      if (ic>-1) //regular Era:Auth:Counter format
+      {
+        const int MIN_LEN = 5;// "0:0:0"
+        if (str.IsNullOrWhiteSpace() || str.Length<MIN_LEN) return false;
+
+        string sera, sau, sctr;
+        var i1 = ic;
+        if (i1<=0 || i1==str.Length-1) return false;
+
+        sera = str.Substring(0, i1);
+
+        var i2 = str.IndexOf(':', i1+1);
+        if (i2<0 || i2==str.Length-1 || i2==i1+1) return false;
+
+        sau = str.Substring(i1+1, i2-i1-1);
+
+        sctr = str.Substring(i2+1);
+
+
+        const NumberStyles ISTYLES = NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
+
+        uint era=0;
+        if (!uint.TryParse(sera, ISTYLES, INVARIANT, out era)) return false;
+
+        byte au=0;
+        if (!byte.TryParse(sau, ISTYLES, INVARIANT, out au)) return false;
+
+        ulong ctr;
+        if (!ulong.TryParse(sctr, ISTYLES, INVARIANT, out ctr)) return false;
+
+        if (au>AUTHORITY_MAX || ctr>COUNTER_MAX) return false;
+
+        gdid = new GDID(era, au, ctr);
+        return true;
+      }
+
+      //HEX format
+      str = str.Trim(); //trim returns as-is if there is nothing to trim
+
+      var ix = str.IndexOf("0x", StringComparison.OrdinalIgnoreCase);
+      if (ix == 0) ix += 2;//skip 0x
+      else ix = 0;
+
+      const int SZ = sizeof(uint) + sizeof(ulong);
+
+      var buf = stackalloc byte[SZ];
+      var j = 0;
+      for(var i=ix; i<str.Length;)
+      {
+        var dh = hexDigit(str[i]); i++;
+        if (dh<0 || i==str.Length) return false;
+        var dl = hexDigit(str[i]); i++;
+        if (dl<0) return false;
+
+        if (j==SZ) return false;
+        buf[j] = (byte)((dh << 4) + dl);
+        j++;
+      }
+      if (j<SZ) return false;
+
+      gdid = new GDID(buf);
+      return true;
+    }
   }
 
 

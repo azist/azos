@@ -31,10 +31,10 @@ namespace TestBusinessLogic
 
     [Inject] private ILog m_Log;
 
-    public override ValidState Validate(ValidState state)
+    public override ValidState Validate(ValidState state, string scope = null)
     {
       m_Log.NonNull(nameof(m_Log)).Write(MessageType.Info, "Validate was called");
-      return base.Validate(state);
+      return base.Validate(state, scope);
     }
   }
 }

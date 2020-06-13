@@ -80,7 +80,7 @@ namespace Azos.Sky.WebManager
       }
     }
 
-    private  string recGeneratorLocalization(Azos.Wave.Client.RecordModelGenerator sender, string schema, string field, string value, string isoLang)
+    private  string recGeneratorLocalization(Azos.Wave.Client.RecordModelGenerator sender, string schema, string field, string value, Atom isoLang)
     {
       if (value.IsNullOrWhiteSpace()) return value;
 
@@ -91,13 +91,13 @@ namespace Azos.Sky.WebManager
       if (session==null) return value;
 
       isoLang = session.LanguageISOCode;
-      if (isoLang==ISO_LANG_ENGLISH) return value;
+      if (isoLang.Value==ISO_LANG_ENGLISH) return value;
 
 
       if (schema.IsNullOrWhiteSpace()) schema = LOC_ANY_SCHEMA_KEY;
       if (field.IsNullOrWhiteSpace())  field = LOC_ANY_FIELD_KEY;
       bool exists;
-      var lv = lookupValue(isoLang, schema, field, value, out exists);
+      var lv = lookupValue(isoLang.Value, schema, field, value, out exists);
 
       #if DEVELOPMENT
       if (!exists)
@@ -224,7 +224,7 @@ namespace Azos.Sky.WebManager
     /// <summary>
     /// Tries to determine work context lang and returns it or ENG
     /// </summary>
-    public  string GetLanguage(WorkContext work = null)
+    public string GetLanguage(WorkContext work = null)
     {
       if (work==null) work = WorkContext.Current;
       if (work==null) return ISO_LANG_ENGLISH;
@@ -233,7 +233,7 @@ namespace Azos.Sky.WebManager
 
       var session = work.Session as WebManagerSession;
       if (session!=null)
-        lang = session.LanguageISOCode;
+        lang = session.LanguageISOCode.Value;
       else
         if (work.GeoEntity!=null)
         {

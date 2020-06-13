@@ -23,8 +23,8 @@ namespace Azos.Client
                                                     object shardKey,
                                                     Func<IHttpTransport, CancellationToken?, Task<TResult>> body,
                                                     CancellationToken? cancellation = null,
-                                                    string network = null,
-                                                    string binding = null)
+                                                    Atom? network = null,
+                                                    Atom? binding = null)
     {
       body.NonNull(nameof(body));
       var assignments = service.NonNull(nameof(service))

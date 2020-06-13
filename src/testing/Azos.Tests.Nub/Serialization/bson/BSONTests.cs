@@ -2717,7 +2717,7 @@ namespace Azos.Tests.Nub.Serialization
       Aver.IsNotNull(qryAmount["amount"]);
       Aver.IsTrue(qryAmount["amount"] is BSONDocumentElement);
       var docAmount = ((BSONDocumentElement)qryAmount["amount"]).Value;
-      Aver.AreEqual("RUB", docAmount["c"].ObjectValue.AsString());
+      Aver.AreEqual("rub", docAmount["c"].ObjectValue.AsString());
       Aver.AreObjectsEqual(DataDocConverter.Decimal_CLRtoBSON("decimal", dec).ObjectValue, docAmount["v"].ObjectValue);
     }
 

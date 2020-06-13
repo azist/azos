@@ -14,6 +14,9 @@ namespace Azos
   {
     public const string SECURITY_NON_AUTHENTICATED = "<non-authenticated>";
 
+    public const string IMMUTABLE_SYS_INSTANCE = "System instance of `{0}` is immutable";
+
+    public const string FLOW_NO_REF_CYCLES_VIOLATION_ERROR = "State machine '{0}' caused violation of NoRefCycles constraint. Most likely the object graph has cycles which are either not supported or the operation body failed to check for presence of the reference in the set";
 
     public const string APP_SET_MEMORY_MODEL_ERROR =
       "The App.SetMemoryModel() method must be called at process entry point before the app container allocation";
@@ -953,6 +956,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string FINANCIAL_AMOUNT_PARSE_ERROR =
             "Could not parse amount '{0}'";
 
+    public const string PILE_PTR_VALIDATION_ERROR = "Pile pointer `{0}` value is invalid for '{1}'";
+
     public const string PILE_AV_BAD_PILEID_ERROR =  "Pile access violation. Piled '{0}' does not resolve to IPile instance by PileID";
 
     public const string PILE_AV_BAD_SEGMENT_ERROR =  "Pile access violation. Bad segment: ";
@@ -1122,6 +1127,12 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string AROW_MAX_ARRAY_LEN_ERROR =  "Array max length of {0} exceeded by Arow deserialization";
     public const string AROW_DESER_CORRUPT_ERROR =  "Arow deserialization is corrupt";
     public const string AROW_HEADER_CORRUPT_ERROR =  "Arow header is corrupted";
+
+    public const string LOCAL_GDID_GEN_SYSTEM_TIME_CHANGE_ERROR =
+      "Local GDID generation failed because wait period for the next time slot was exceeded due to a significant clock drift. Did system time change? This generator needs an accurate time source synchronized down to 1 second";
+
+    public const string TIME_HOURLIST_BAD_SPEC = "Bad hour list syntax, out of order, or span overlap in value `{0}`";
+    public const string TIME_HOURLIST_BAD_SPEC_FOR = "Bad hour list syntax, out of order, or span overlap in value `{0}` specified for '{1}'";
 
 
     public const string MULTIPART_DOUBLE_EOL_ISNT_FOUND_AFTER_HEADER_ERROR = "Multipart: Double \\r\\n isn't found after header.";

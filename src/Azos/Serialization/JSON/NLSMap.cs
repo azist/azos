@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 
 using Azos.Conf;
@@ -16,11 +15,13 @@ using Azos.Data;
 namespace Azos.Serialization.JSON
 {
   /// <summary>
-    /// Represents a JSON-serializable structure that keys [N]ame and [D]escription on lang ISO.
-    /// It respects JSONWritingOptions.NLSMapLanguageISO and NLSMapLanguageISODefault
+    /// Represents a JSON-serializable structure that keys [N]ame and [D]escription on language ISO.
+    /// It respects JSONWritingOptions.NLSMapLanguageISO and NLSMapLanguageISODefault.
+    /// The ISO code is stored as Atom for maximum efficiency.
+    /// Warning: ISO codes are CASE sensitive
     /// </summary>
-    [Serializable] //this type is directly handled by slim writer/reader
-    public struct NLSMap : IEnumerable<KeyValuePair<string, NLSMap.NDPair>>, IJsonWritable, IJsonReadable
+    [Serializable]
+    public struct NLSMap : IEnumerable<KeyValuePair<string, NLSMap.NDPair>>, IEquatable<NLSMap>,  IJsonWritable, IJsonReadable, IRequired
     {
       //There are roughly 6,500 spoken languages in the world today.
       //However, about 2,000 of those languages have fewer than 1,000 speakers
@@ -35,11 +36,18 @@ namespace Azos.Serialization.JSON
 
         public Builder Add(string langIso, string n, string d)
         {
-           if (langIso.IsNullOrWhiteSpace()) return this;
+          if (langIso.IsNullOrWhiteSpace()) return this;
+          return Add(Atom.Encode(langIso), n, d);
+        }
 
-           if (m_Data ==null) m_Data = new List<NDPair>();
-           if (m_Data.Count==MAX_ISO_COUNT) throw new AzosException("Exceeded NLSMap.MAX_ISO_COUNT");
-           m_Data.Add( new NDPair(IOUtils.PackISO3CodeToInt(langIso), n, d) );
+        public Builder Add(Atom langIso, string n, string d)
+        {
+           if (m_Data == null)
+             m_Data = new List<NDPair>();
+           else
+             if (m_Data.Count == MAX_ISO_COUNT) throw new AzosException("Exceeded NLSMap.MAX_ISO_COUNT");
+
+           m_Data.Add( new NDPair(langIso, n, d) );
            return this;
         }
 
@@ -60,13 +68,13 @@ namespace Azos.Serialization.JSON
       /// <summary>
       /// Localized Name:Description pair
       /// </summary>
-      public struct NDPair : IJsonWritable
+      public struct NDPair : IJsonWritable, IEquatable<NDPair>
       {
-        internal NDPair(int iso, string name, string descr){ISO = iso; Name = name; Description = descr;}
+        internal NDPair(Atom iso, string name, string descr){ISO = iso; Name = name; Description = descr;}
 
-        public bool IsAssigned{ get{ return ISO!=0; } }
+        public bool IsAssigned => !ISO.IsZero;
 
-        public readonly int ISO;
+        public readonly Atom ISO;
         public readonly string Name;
         public readonly string Description;
 
@@ -75,6 +83,16 @@ namespace Azos.Serialization.JSON
           JsonWriter.WriteMap(wri, nestingLevel, options, new System.Collections.DictionaryEntry("n", Name),
                                                           new System.Collections.DictionaryEntry("d", Description));
         }
+
+        public override int GetHashCode() => ISO.GetHashCode();
+        public override bool Equals(object obj) => obj is NDPair pair ? this.Equals(pair) : false;
+
+        public bool Equals(NDPair other) => this.ISO == other.ISO &&
+                                            this.Name.EqualsOrdSenseCase(other.Name) &&
+                                            this.Description.EqualsOrdSenseCase(other.Description);
+
+        public static bool operator ==(NDPair a, NDPair b) => a.Equals(b);
+        public static bool operator !=(NDPair a, NDPair b) => !a.Equals(b);
       }
 
       //used by ser
@@ -109,35 +127,41 @@ namespace Azos.Serialization.JSON
         if (!nlsNode.HasChildren) return;
 
         var cnt = nlsNode.ChildCount;
-        if (cnt>MAX_ISO_COUNT) throw new AzosException("Exceeded NLSMap.MAX_ISO_COUNT");
+        if (cnt > MAX_ISO_COUNT) throw new AzosException("Exceeded NLSMap.MAX_ISO_COUNT");
         m_Data = new NDPair[cnt];
         for(var i=0; i<cnt; i++)
         {
           var node = nlsNode[i];
-          m_Data[i] = new NDPair( IOUtils.PackISO3CodeToInt(node.Name), node.AttrByName("n").Value, node.AttrByName("d").Value );
+          m_Data[i] = new NDPair( Atom.Encode(node.Name) , node.AttrByName("n").Value, node.AttrByName("d").Value );
         }
       }
 
       internal NDPair[] m_Data;
 
+      public bool IsAssigned => m_Data != null && m_Data.Length > 0;
+
+      public bool CheckRequired(string targetName) => IsAssigned;
+
       public NDPair this[string langIso]
       {
         get
         {
-          return m_Data!=null
-                  ? this[IOUtils.PackISO3CodeToInt(langIso)]
+          return m_Data != null
+                  ? this[Atom.Encode(langIso)]
                   : new NDPair();
         }
       }
 
-      public NDPair this[int iso]
+      public NDPair this[Atom iso]
       {
         get
         {
-          if (m_Data!=null)
+          if (m_Data != null)
           {
+            //the sequential search is used because most systems have < 6 entries (typically 2-4 e.g.: "eng", "fra", "spa", "chi" etc.)
+            //hashtables start to pay off when collection has 8 or more items (when doing simple key search like here)
             for(var i=0; i<m_Data.Length; i++)
-              if (m_Data[i].ISO==iso) return m_Data[i];
+              if (m_Data[i].ISO == iso) return m_Data[i];
           }
 
           return new NDPair();
@@ -145,10 +169,7 @@ namespace Azos.Serialization.JSON
       }
 
 
-      public int Count
-      {
-        get { return m_Data==null ? 0 : m_Data.Length; }
-      }
+      public int Count => m_Data == null ? 0 : m_Data.Length;
 
 
       /// <summary>
@@ -176,32 +197,45 @@ namespace Azos.Serialization.JSON
           if (!found)
            lst.Add(other.m_Data[j]);
         }
-        if (lst.Count>MAX_ISO_COUNT) throw new AzosException("Exceeded NLSMap.MAX_ISO_COUNT");
+        if (lst.Count > MAX_ISO_COUNT) throw new AzosException("Exceeded NLSMap.MAX_ISO_COUNT");
+
         return new NLSMap( lst.ToArray() );
       }
 
-      public override string ToString()
-      {
-        return JsonWriter.Write(this, JsonWritingOptions.Compact);
-      }
+      public override string ToString() => JsonWriter.Write(this, JsonWritingOptions.Compact);
 
 
       public override int GetHashCode()
       {
-        return m_Data!=null ? m_Data.Aggregate( 0, (n1, n2) => n1.GetHashCode() ^ n2.GetHashCode()) : 0;
+        if (m_Data == null) return 0;
+
+        var result = 0;
+        for(var i=0; i < m_Data.Length; i++)
+        {
+          result ^= m_Data[i].GetHashCode();
+        }
+        return result;
       }
 
-      public override bool Equals(object obj)
+      public override bool Equals(object obj) => obj is NLSMap other ? this.Equals(other) : false;
+
+      public bool Equals(NLSMap other)
       {
-        if (!(obj is NLSMap)) return false;
-        var other = (NLSMap)obj;
-        if (this.m_Data==null)
+        if (this.m_Data == null)
         {
-          if (other.m_Data==null) return true;
+          if (other.m_Data == null) return true;
           return false;
         }
+        if (other.m_Data == null) return false;
+
+        if (m_Data.Length != other.m_Data.Length) return false;
+
         return m_Data.SequenceEqual(other.m_Data);
       }
+
+      public static bool operator ==(NLSMap a, NLSMap b) => a.Equals(b);
+      public static bool operator !=(NLSMap a, NLSMap b) => !a.Equals(b);
+
 
       public enum GetParts{ Name, Description, NameOrDescription, DescriptionOrName, NameAndDescription, DescriptionAndName}
 
@@ -303,12 +337,12 @@ namespace Azos.Serialization.JSON
 
         if (options==null ||
             options.Purpose==JsonSerializationPurpose.Marshalling ||
-            options.NLSMapLanguageISO.IsNullOrWhiteSpace())
+            options.NLSMapLanguageISO.IsZero)
         {
           JsonWriter.WriteMap(wri, nestingLevel, options,
                               m_Data.Select
                               (
-                                e => new System.Collections.DictionaryEntry(IOUtils.UnpackISO3CodeFromInt(e.ISO), e)
+                                e => new System.Collections.DictionaryEntry(e.ISO.Value, e)
                               ).ToArray() );
 
           return;
@@ -316,7 +350,7 @@ namespace Azos.Serialization.JSON
 
         var pair = this[options.NLSMapLanguageISO];
 
-        if (!pair.IsAssigned && !options.NLSMapLanguageISODefault.EqualsOrdIgnoreCase(options.NLSMapLanguageISO))
+        if (!pair.IsAssigned && options.NLSMapLanguageISODefault != options.NLSMapLanguageISO)
           pair = this[options.NLSMapLanguageISODefault];
 
         if (pair.IsAssigned)
@@ -348,7 +382,7 @@ namespace Azos.Serialization.JSON
       public IEnumerator<KeyValuePair<string, NLSMap.NDPair>> GetEnumerator()
       {
         return m_Data==null ? Enumerable.Empty<KeyValuePair<string, NLSMap.NDPair>>().GetEnumerator()
-                            : m_Data.Select( nd => new KeyValuePair<string, NLSMap.NDPair>( IOUtils.UnpackISO3CodeFromInt(nd.ISO), nd)).GetEnumerator()
+                            : m_Data.Select( nd => new KeyValuePair<string, NLSMap.NDPair>( nd.ISO.Value, nd)).GetEnumerator()
         ;
       }
 

@@ -7,25 +7,8 @@
 using System;
 using System.Collections.Generic;
 
-namespace Azos.Data.Access
+namespace Azos.Data.Idgen
 {
-
-  /// <summary>
-  /// Denotes entities that provide ULONG STABLE hash code for use in a distributed (large scale) system.
-  /// This is needed primarily for cluster/large datasets to properly compute 64bit sharding addresses and to differentiate
-  /// from GetHashCode() that returns 32 bits unstable hash for local object location in hashtables.
-  /// DO not confuse with object.GetHashCode() which is un-suitable for long-term persistence
-  /// </summary>
-  public interface IDistributedStableHashProvider
-  {
-    /// <summary>
-    /// Provides 64 bit STABLE hash suitable for distributed system application.
-    /// This hash may NOT depend on platform as it is used for storage.
-    /// Warning! DO NOT CALL object.GetHashCode() as it may not be suitable for storage
-    /// </summary>
-    ulong GetDistributedStableHash();
-  }
-
   /// <summary>
   /// Provides basic information about a named sequence.
   /// Warning!!! This class represents informational-only data which CAN NOT be used for real identification

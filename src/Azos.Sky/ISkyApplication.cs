@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 using Azos.Conf;
-using Azos.Data.Access;
+using Azos.Data.Idgen;
 
 using Azos.Sky.Locking;
 using Azos.Sky.Metabase;

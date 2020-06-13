@@ -32,7 +32,7 @@ namespace Azos.Wave.Cms.Default
     /// The in-memory caching is already done by CmsFacade so the implementation of this method
     /// should go and fetch content directly without extra in-memory caching.
     /// </remarks>
-    Task<Content> FetchContentAsync(ContentId id, string isoLang, DateTime utcNow, ICacheParams caching);
+    Task<Content> FetchContentAsync(ContentId id, Atom isoLang, DateTime utcNow, ICacheParams caching);
   }
 
 }

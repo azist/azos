@@ -788,7 +788,7 @@ namespace Azos.Sky.Metabase
       }
 
 
-            private Dictionary<Thread, _fss> m_FSSessionCache = new Dictionary<Thread, _fss>(ReferenceEqualityComparer<Thread>.Default);
+            private Dictionary<Thread, _fss> m_FSSessionCache = new Dictionary<Thread, _fss>(ReferenceEqualityComparer<Thread>.Instance);
             private Thread m_FSSessionCacheThread;
             private AutoResetEvent m_FSSessionCacheThreadWaiter;
 

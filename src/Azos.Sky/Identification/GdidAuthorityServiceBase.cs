@@ -126,7 +126,7 @@ namespace Azos.Sky.Identification
     #endregion
 
     #region Properties
-    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_ID_GEN;
+    public override string ComponentLogTopic => CoreConsts.TOPIC_ID_GEN;
 
     /// <summary>
     /// Specifies where and how the service persists data on disk

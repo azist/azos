@@ -14,15 +14,23 @@ namespace Azos.Apps
   /// <summary>
   /// Provides singleton instance management (get/set/remove) functionality.
   /// The implementor gets allocated once per application context.  All methods are thread-safe.
+  /// This is needed not to create process-static variables, rather create App-static variables.
   /// Singleton instances are keyed on their type - this is designed on purpose as components should not
   /// create global ad hoc object instances (see remarks). The manager disposes all singleton instances on
   /// its own dispose, to bypass this behavior remove all items yourself prior to disposing ApplicationSingletonManager itself
   /// </summary>
   /// <remarks>
+  /// <para>
   /// Why singletons keyed on type vs. app-global instances keyed on arbitrary value? -
   /// this is done on purpose as we do not want to promote global instance creation.
-  /// Should you need to create global instances do so via specially-designed root entity such as module
+  /// Should you need to create global instances, do so via specially-designed root entity such as module
   /// or app-wide singleton.
+  /// </para>
+  /// <para>
+  /// Unlike process-static variables, this implementation maintains a list of singleton instances typically per-application context
+  /// (but it may be used for other purposes as well). This allows for multi app-container nesting in the same process
+  /// (e.g. a test host app hosting a client app being tested)
+  /// </para>
   /// </remarks>
   public interface IApplicationSingletonManager : IEnumerable<object>
   {
@@ -32,11 +40,11 @@ namespace Azos.Apps
     T Get<T>() where T : class;
 
     /// <summary>
-    /// Tries to get a singleton instance if it exists, if does not then calls a factory and
-    /// sets under thread-safe lock. Returns a tuple of (T, bool) later set to true if factory was invoked.
+    /// Tries to get a singleton instance if it exists, if it does not exist then calls a factory and
+    /// sets the value under a thread-safe lock. Returns a tuple of (T, bool) later set to true if factory was invoked.
     /// If factory call returns null, the whole Create is canceled (as-if only Get() was called)
     /// </summary>
-    (T instance, bool created) GetOrCreate<T>(System.Func<T> factory) where T : class;
+    (T instance, bool created) GetOrCreate<T>(Func<T> factory) where T : class;
 
     /// <summary>
     /// Tries to remove instance for the specified type. Returns true if found and removed.

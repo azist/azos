@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 using System;
 using System.IO;
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Security
@@ -16,7 +17,7 @@ namespace Azos.Security
   /// perimeter (e.g. corporate intranet, data center network etc.)
   /// </summary>
   [Serializable]
-  public struct SysAuthToken : IEquatable<SysAuthToken>, IJsonWritable, IJsonReadable
+  public struct SysAuthToken : IEquatable<SysAuthToken>, IJsonWritable, IJsonReadable, IRequired
   {
     public const string DELIMIT = "::";
 
@@ -55,6 +56,8 @@ namespace Azos.Security
     /// </summary>
     public bool Assigned => m_Realm.IsNotNullOrWhiteSpace() || m_Data.IsNotNullOrWhiteSpace();
 
+    public bool CheckRequired(string targetName) => Assigned;
+
     public override string ToString()  => Realm + DELIMIT + Data;
 
     public override int GetHashCode() => Realm.GetHashCode() ^ Data.GetHashCode();
@@ -62,7 +65,7 @@ namespace Azos.Security
     public override bool Equals(object obj) => obj is SysAuthToken other ? this.Equals(other) : false;
 
     public bool Equals(SysAuthToken other) => this.m_Realm.EqualsOrdSenseCase(other.m_Realm) &&
-                                                     this.m_Data.EqualsOrdSenseCase(other.m_Data);
+                                              this.m_Data.EqualsOrdSenseCase(other.m_Data);
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options) => JsonWriter.EncodeString(wri, ToString(), options);
 

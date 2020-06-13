@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.2.5.5
-set HEADLINE=Svc release, fixes and enhancements
+set VER=1.4.2
+set HEADLINE=Add ICallFlow and fixes
 
 call vs2017-build-release %VER%
 

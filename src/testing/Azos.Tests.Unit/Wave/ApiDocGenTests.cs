@@ -40,7 +40,7 @@ namespace Azos.Tests.Unit.Wave
     [Field] public string FirstName { get; set; }
     [Field] public string LastName { get; set; }
 
-    public override JsonDataMap GetDynamicFieldValueList(Schema.FieldDef fdef, string targetName, string isoLang)
+    public override JsonDataMap GetDynamicFieldValueList(Schema.FieldDef fdef, string targetName, Atom isoLang)
     {
       if (fdef.Name == nameof(FirstName)) return new JsonDataMap
       {

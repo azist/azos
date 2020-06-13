@@ -121,7 +121,8 @@ namespace Azos.Wave.Handlers
             throw MvcActionException.WrapActionBodyError(target.GetType().FullName, action, error);
           }
 
-          if (mi.ReturnType==typeof(void)) return;
+          //20200610 DKh if (mi.ReturnType == typeof(void)) return;
+          if (mi.ReturnType==typeof(void) || mi.ReturnType==typeof(Task)) return;
 
           try
           {

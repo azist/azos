@@ -542,7 +542,7 @@ namespace Azos.Glue
               {
                 var lst = new List<Transport>(m_Transports);
 
-                if (!lst.Contains(transport, ReferenceEqualityComparer<Transport>.Default))
+                if (!lst.Contains(transport, ReferenceEqualityComparer<Transport>.Instance))
                   lst.Add(transport);
 
                 Thread.MemoryBarrier();

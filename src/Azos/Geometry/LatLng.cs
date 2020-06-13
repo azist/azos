@@ -73,10 +73,7 @@ namespace Azos.Geometry
     /// <summary>
     /// Name of this location
     /// </summary>
-    public string Name
-    {
-      get { return m_Name ?? this.ToString();}
-    }
+    public string Name => m_Name.Default(ToString());
 
     /// <summary>
     /// Latitude in degrees
@@ -147,28 +144,18 @@ namespace Azos.Geometry
       return "{0}°{1}'{2}''".Args(d, m, s);
     }
 
-    public override string ToString()
-    {
-      return "{0}, {1}".Args(ComponentToString(Lat), ComponentToString(Lng));
-    }
+    public override string ToString() => "{0}, {1}".Args(ComponentToString(Lat), ComponentToString(Lng));
 
-    public override int GetHashCode()
-    {
-      return m_Lat.GetHashCode() ^ m_Lng.GetHashCode();
-    }
+    public override int GetHashCode() => m_Lat.GetHashCode() ^ m_Lng.GetHashCode();
 
-    public bool Equals(LatLng other)
-    {
-      return this.m_Lat == other.m_Lat &&
-             this.m_Lng == other.m_Lng &&
-             this.m_Name == other.m_Name;
-    }
+    public bool Equals(LatLng other) => this.m_Lat == other.m_Lat &&
+                                        this.m_Lng == other.m_Lng &&
+                                        this.m_Name == other.m_Name;
 
-    public override bool Equals(object obj)
-    {
-      if (!(obj is LatLng)) return false;
-      return Equals((LatLng)obj);
-    }
+    public override bool Equals(object obj) => obj is LatLng ll ? this.Equals(ll) : false;
+
+    public static bool operator ==(LatLng a, LatLng b) =>  a.Equals(b);
+    public static bool operator !=(LatLng a, LatLng b) => !a.Equals(b);
 
 
     private double parseDeg(string val)
@@ -231,9 +218,6 @@ namespace Azos.Geometry
       JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("name", m_Name),
                                                       new DictionaryEntry("location", "{0}, {1}".Args(ComponentToString(Lat), ComponentToString(Lng))));
     }
-
-
   }
-
 
 }

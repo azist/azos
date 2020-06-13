@@ -6,51 +6,42 @@
 
 using System;
 using System.Collections;
-
+using System.Globalization;
 using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Financial
 {
   /// <summary>
-  /// Represents monetary amount with currency
+  /// Represents monetary amount with currency ISO atom
   /// </summary>
   [Serializable]
-  public struct Amount : IEquatable<Amount>, IComparable<Amount>, IJsonWritable, IJsonReadable
+  public struct Amount : IEquatable<Amount>, IComparable<Amount>, IJsonWritable, IJsonReadable, IRequired
   {
-    internal static Amount Deserialize(string currencyISO, decimal value)
+    private static readonly IFormatProvider INVARIANT = CultureInfo.InvariantCulture;
+
+    public Amount(string iso, decimal value) : this(iso.IsNullOrWhiteSpace() ? Atom.ZERO : Atom.Encode(iso.ToLowerInvariant().Trim()), value)
     {
-      var result = new Amount();
-      result.m_CurrencyISO = currencyISO;
-      result.m_Value = value;
-      return result;
     }
 
-    public Amount(string currencyISO, decimal value)
+    public Amount(Atom iso, decimal value)
     {
-      m_CurrencyISO = (currencyISO ?? string.Empty).Trim();
-      if (m_CurrencyISO.Length != 3)
-        throw new FinancialException(StringConsts.ARGUMENT_ERROR + typeof(Amount).FullName + ".ctor(currencyISO '{0}' length is not equal to 3)".Args(currencyISO));
-      m_Value = value;
+      ISO = iso;
+      Value = value;
     }
 
 
+    public readonly Atom ISO;
+    public readonly decimal Value;
 
-    private string m_CurrencyISO;
-    private decimal m_Value;
+    public bool IsEmpty => ISO.IsZero && Value == default(decimal);
 
-    public string  CurrencyISO { get{ return m_CurrencyISO ?? string.Empty;} }
-    public decimal Value       { get{ return m_Value;} }
-
-    public bool IsEmpty { get { return m_CurrencyISO.IsNullOrWhiteSpace() && m_Value == 0m; } }
+    public bool CheckRequired(string targetName) => !IsEmpty;
 
     /// <summary>
-    /// Performs case-insensitive currency equality comparison
+    /// Performs currency ISO equality comparison
     /// </summary>
-    public bool IsSameCurrencyAs(Amount other)
-    {
-      return CurrencyISO.EqualsOrdIgnoreCase(other.CurrencyISO);
-    }
+    public bool IsSameCurrencyAs(Amount other) => ISO == other.ISO;
 
 
     public static Amount Parse(string val)
@@ -67,14 +58,16 @@ namespace Azos.Financial
         }
         else
         {
-          var iso = i<val.Length-1 ? val.Substring(i+1) : string.Empty;
-          var dv = decimal.Parse( val.Substring(0, i) );
+          var iso = val.Substring(i+1);
+          iso = iso.Trim();
+          if (iso.IsNullOrWhiteSpace()) Aver.Fail("Nothing after :");
+          var dv = decimal.Parse( val.Substring(0, i), INVARIANT );
           return new Amount(iso, dv);
         }
       }
       catch
       {
-        throw new FinancialException(StringConsts.FINANCIAL_AMOUNT_PARSE_ERROR.Args(val));
+        throw new FinancialException(StringConsts.FINANCIAL_AMOUNT_PARSE_ERROR.Args(val.TakeFirstChars(24, "..")));
       }
     }
 
@@ -96,56 +89,46 @@ namespace Azos.Financial
       {
         var iso = i<val.Length-1 ? val.Substring(i+1) : string.Empty;
         if (i==0) return false;
+        iso = iso.Trim();
+        if (iso.IsNullOrWhiteSpace()) return false;
+        if (!Atom.TryEncode(iso, out var isoa)) return false;
         decimal dv;
-        if (!decimal.TryParse( val.Substring(0, i), out dv )) return false;
-        result = new Amount(iso, dv);
+        if (!decimal.TryParse( val.Substring(0, i), NumberStyles.Any, INVARIANT, out dv )) return false;
+        result = new Amount(isoa, dv);
         return true;
       }
     }
 
     #region Object overrides and intfs
 
-        public override string ToString()
-        {
-          return "{0}:{1}".Args(m_Value.ToString("G"), m_CurrencyISO);
-        }
+    public override string ToString() => $"{Value.ToString("G", INVARIANT)}:{ISO}";
 
-        public override int GetHashCode()
-        {
-          return m_CurrencyISO.GetHashCode() ^ m_Value.GetHashCode();
-        }
+    public override int GetHashCode() => ISO.GetHashCode() ^ Value.GetHashCode();
 
-        public override bool Equals(object obj)
-        {
-          if (!(obj is Amount)) return false;
-          return Equals((Amount)obj);
-        }
+    public override bool Equals(object obj) => obj is Amount other ? this.Equals(other) : false;
 
-        public bool Equals(Amount other)
-        {
-          return IsSameCurrencyAs(other) && m_Value == other.m_Value;
-        }
+    public bool Equals(Amount other) => IsSameCurrencyAs(other) && Value == other.Value;
 
 
-        public int CompareTo(Amount other)
-        {
-          return this.Equals(other) ? 0 : this < other ? -1 : +1;
-        }
+    public int CompareTo(Amount other) => this.Equals(other) ? 0 : this < other ? -1 : +1;
 
-        void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options)
-        {
-          JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("iso", m_CurrencyISO), new DictionaryEntry("val", m_Value));
-        }
+    void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options)
+    {
+      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("iso", ISO.Value), new DictionaryEntry("val", Value));
+    }
 
-        public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
-        {
-          if (data is JsonDataMap map)
-          {
-            return (true, new Amount(map["iso"].AsString(), map["val"].AsDecimal()));
-          }
+    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
+    {
+      if (data is JsonDataMap map)
+      {
+        if (
+            Atom.TryEncode(map["iso"].AsString(), out var iso) &&
+            decimal.TryParse(map["val"].AsString(), NumberStyles.Any, INVARIANT, out var val)
+           ) return (true, new Amount(iso, val));
+      }
 
-          return (false, null);
-        }
+      return (false, null);
+    }
 
 
     #endregion
@@ -186,62 +169,60 @@ namespace Azos.Financial
     {
       if (! left.IsSameCurrencyAs(right)) throw new FinancialException(StringConsts.FINANCIAL_AMOUNT_DIFFERENT_CURRENCIES_ERROR.Args('+', left, right));
 
-      return new Amount(left.m_CurrencyISO, left.m_Value + right.m_Value);
+      return new Amount(left.ISO, left.Value + right.Value);
     }
 
     public static Amount operator -(Amount left, Amount right)
     {
       if (! left.IsSameCurrencyAs(right)) throw new FinancialException(StringConsts.FINANCIAL_AMOUNT_DIFFERENT_CURRENCIES_ERROR.Args('-', left, right));
 
-      return new Amount(left.m_CurrencyISO, left.m_Value - right.m_Value);
+      return new Amount(left.ISO, left.Value - right.Value);
     }
 
     public static Amount operator *(Amount left, int right)
     {
-      return new Amount(left.m_CurrencyISO, left.m_Value * right);
+      return new Amount(left.ISO, left.Value * right);
     }
 
     public static Amount operator *(int left, Amount right)
     {
-      return new Amount(right.m_CurrencyISO, right.m_Value * left);
+      return new Amount(right.ISO, right.Value * left);
     }
 
     public static Amount operator *(Amount left, decimal right)
     {
-      return new Amount(left.m_CurrencyISO, left.m_Value * right);
+      return new Amount(left.ISO, left.Value * right);
     }
 
     public static Amount operator *(decimal left, Amount right)
     {
-      return new Amount(right.m_CurrencyISO, right.m_Value * left);
+      return new Amount(right.ISO, right.Value * left);
     }
 
     public static Amount operator *(Amount left, double right)
     {
-      return new Amount(left.m_CurrencyISO, left.m_Value * (decimal)right);
+      return new Amount(left.ISO, left.Value * (decimal)right);
     }
 
     public static Amount operator *(double left, Amount right)
     {
-      return new Amount(right.m_CurrencyISO, right.m_Value * (decimal)left);
+      return new Amount(right.ISO, right.Value * (decimal)left);
     }
 
     public static Amount operator /(Amount left, int right)
     {
-      return new Amount(left.m_CurrencyISO, left.m_Value / right);
+      return new Amount(left.ISO, left.Value / right);
     }
 
     public static Amount operator /(Amount left, decimal right)
     {
-      return new Amount(left.m_CurrencyISO, left.m_Value / right);
+      return new Amount(left.ISO, left.Value / right);
     }
 
     public static Amount operator /(Amount left, double right)
     {
-      return new Amount(left.m_CurrencyISO, left.m_Value / (decimal)right);
+      return new Amount(left.ISO, left.Value / (decimal)right);
     }
-
     #endregion
-
   }
 }

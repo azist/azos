@@ -1102,8 +1102,9 @@ namespace Azos.Serialization.Bix
     #region GDID
     public void Write(Data.GDID value)
     {
-      Write(value.Era);
-      Write(value.ID);
+      var buf = Format.GetBuff32();
+      value.WriteIntoBuffer(buf);
+      m_Stream.Write(buf, 0, sizeof(uint) + sizeof(ulong));
     }
 
     public void Write(Data.GDID? value)
@@ -1285,9 +1286,7 @@ namespace Azos.Serialization.Bix
       for (var i = 0; i < map.m_Data.Length; i++)
       {
         var nd = map.m_Data[i];
-        Write((byte)((nd.ISO & 0xff0000) >> 16));
-        Write((byte)((nd.ISO & 0x00ff00) >> 08));
-        Write((byte)((nd.ISO & 0xff)));
+        Write(nd.ISO);
         Write(nd.Name);
         Write(nd.Description);
       }
@@ -1346,7 +1345,7 @@ namespace Azos.Serialization.Bix
     #region Amount
     public void Write(Financial.Amount value)
     {
-      Write(value.CurrencyISO);
+      Write(value.ISO);
       Write(value.Value);
     }
 
@@ -1402,6 +1401,7 @@ namespace Azos.Serialization.Bix
     #endregion
 
     #region Atom
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(Atom value) => Write(value.ID);
 
     public void Write(Atom? value)
@@ -1458,6 +1458,12 @@ namespace Azos.Serialization.Bix
     #region JSON (object)
     public void WriteJson(object value, string targetName)
     {
+      if (value == null)
+      {
+        Write(false);
+        return;
+      }
+
       var target = JsonWritingOptions.CompactRowsAsMap;
       if (targetName.IsNotNullOrWhiteSpace())
       {

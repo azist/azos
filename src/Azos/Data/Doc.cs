@@ -620,7 +620,7 @@ namespace Azos.Data
     /// </summary>
     public virtual JsonDataMap GetDynamicFieldValueList(Schema.FieldDef fdef,
                                                         string targetName,
-                                                        string isoLang)
+                                                        Atom isoLang)
     {
       return null;
     }
@@ -635,7 +635,7 @@ namespace Azos.Data
     /// </summary>
     public virtual Schema.FieldDef GetClientFieldDef(Schema.FieldDef fdef,
                                                       string targetName,
-                                                      string isoLang)
+                                                      Atom isoLang)
     {
       return fdef;
     }
@@ -649,7 +649,7 @@ namespace Azos.Data
     /// </summary>
     public virtual object GetClientFieldValue(Schema.FieldDef fdef,
                                               string targetName,
-                                              string isoLang)
+                                              Atom isoLang)
     {
       return GetFieldValue(fdef);
     }

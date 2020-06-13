@@ -8,9 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
+using Azos.Data;
+using Azos.Financial;
+using Azos.Pile;
 using Azos.Scripting;
 using Azos.Serialization.Bix;
+using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Nub.Serialization
 {
@@ -109,6 +112,9 @@ namespace Azos.Tests.Nub.Serialization
       var got = read(reader);
 
       if (v == null && got == null) return;
+
+      //v.See();
+      //got.See();
 
       Aver.IsTrue(v.SequenceEqual(got));
     }
@@ -334,6 +340,20 @@ namespace Azos.Tests.Nub.Serialization
 
       v = 256;
       testScalar(v, w => w.Write(v), r => r.ReadShort(), 2);
+
+      // ------------
+
+      v = -1;
+      testScalar(v, w => w.Write(v), r => r.ReadShort(), 1);
+
+      v = 1;
+      testScalar(v, w => w.Write(v), r => r.ReadShort(), 1);
+
+      v = -32;
+      testScalar(v, w => w.Write(v), r => r.ReadShort(), 1);
+
+      v = 32;
+      testScalar(v, w => w.Write(v), r => r.ReadShort(), 1);
     }
 
     [Run]
@@ -353,6 +373,20 @@ namespace Azos.Tests.Nub.Serialization
 
       v = 256;
       testScalar(v, w => w.Write(v), r => r.ReadNullableShort(), 3);
+
+      // ------------
+
+      v = -1;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableShort(), 2);
+
+      v = 1;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableShort(), 2);
+
+      v = -32;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableShort(), 2);
+
+      v = 32;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableShort(), 2);
     }
 
     [Run]
@@ -492,6 +526,20 @@ namespace Azos.Tests.Nub.Serialization
 
       v = 256;
       testScalar(v, w => w.Write(v), r => r.ReadInt(), 2);
+
+      // ------------
+
+      v = -1;
+      testScalar(v, w => w.Write(v), r => r.ReadInt(), 1);
+
+      v = 1;
+      testScalar(v, w => w.Write(v), r => r.ReadInt(), 1);
+
+      v = -32;
+      testScalar(v, w => w.Write(v), r => r.ReadInt(), 1);
+
+      v = 32;
+      testScalar(v, w => w.Write(v), r => r.ReadInt(), 1);
     }
 
     [Run]
@@ -511,6 +559,20 @@ namespace Azos.Tests.Nub.Serialization
 
       v = 256;
       testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 3);
+
+      // ------------
+
+      v = -1;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 2);
+
+      v = 1;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 2);
+
+      v = -32;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 2);
+
+      v = 32;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableInt(), 2);
     }
 
     [Run]
@@ -650,6 +712,20 @@ namespace Azos.Tests.Nub.Serialization
 
       v = 256;
       testScalar(v, w => w.Write(v), r => r.ReadLong(), 2);
+
+      // ------------
+
+      v = -1;
+      testScalar(v, w => w.Write(v), r => r.ReadLong(), 1);
+
+      v = 1;
+      testScalar(v, w => w.Write(v), r => r.ReadLong(), 1);
+
+      v = -32;
+      testScalar(v, w => w.Write(v), r => r.ReadLong(), 1);
+
+      v = 32;
+      testScalar(v, w => w.Write(v), r => r.ReadLong(), 1);
     }
 
     [Run]
@@ -669,6 +745,20 @@ namespace Azos.Tests.Nub.Serialization
 
       v = 256;
       testScalar(v, w => w.Write(v), r => r.ReadNullableLong(), 3);
+
+      // ------------
+
+      v = -1;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableLong(), 2);
+
+      v = 1;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableLong(), 2);
+
+      v = -32;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableLong(), 2);
+
+      v = 32;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableLong(), 2);
     }
 
     [Run]
@@ -1206,7 +1296,770 @@ namespace Azos.Tests.Nub.Serialization
       v = new string[] { "a", null, "c" };
       testArray(v, w => w.Write(v), r => r.ReadStringArray(), 1 + 1 + 7);
     }
+
+    [Run]
+    public void String_06_LongStrings()
+    {
+      string v = new string('盘', 250_000);
+      testScalar(v, w => w.Write(v), r => r.ReadString(), StringComparison.Ordinal);
+
+      var arr = new string[] { null, v, "abcd", "def", new string('a', 2_000_000) };
+      testCollection(arr, w => w.WriteCollection(new List<string>(arr)), r => r.ReadStringCollection<List<string>>());
+      testArray(arr, w => w.Write(arr), r => r.ReadStringArray());
+    }
+
     #endregion
+
+    #region DateTime
+    [Run]
+    public void DateTime_01()
+    {
+      DateTime v = DateTime.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadDateTime(), 9);
+
+      v = DateTime.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadDateTime(), 9);
+
+      v = new DateTime(2009, 12, 18, 14, 18, 07, DateTimeKind.Utc);
+      testScalar(v, w => w.Write(v), r => r.ReadDateTime(), 9);
+
+      v = new DateTime(2009, 12, 18, 14, 18, 07, DateTimeKind.Local);
+      testScalar(v, w => w.Write(v), r => r.ReadDateTime(), 9);
+    }
+
+    [Run]
+    public void DateTime_02_Nullable()
+    {
+      DateTime? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDateTime(), 1);
+
+      v = DateTime.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDateTime(), 10);
+
+      v = DateTime.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDateTime(), 10);
+
+      v = new DateTime(2009, 12, 18, 14, 18, 07, DateTimeKind.Utc);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDateTime(), 10);
+
+      v = new DateTime(2009, 12, 18, 14, 18, 07, DateTimeKind.Local);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableDateTime(), 10);
+    }
+
+    [Run]
+    public void DateTime_03_Collection()
+    {
+      List<DateTime> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadDateTimeCollection<List<DateTime>>(), 1);
+
+      v = new List<DateTime> { new DateTime(1980, 1,1), new DateTime(2050, 4,3) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadDateTimeCollection<List<DateTime>>(), 1 + 1 + 18);
+    }
+
+
+    [Run]
+    public void DateTime_04_CollectionNullable()
+    {
+      List<DateTime?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableDateTimeCollection<List<DateTime?>>(), 1);
+
+      v = new List<DateTime?> { new DateTime(1980, 1, 1), null, new DateTime(2090, 4, 3), null, new DateTime(2020, 8, 12) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableDateTimeCollection<List<DateTime?>>(), 1 + 1 + 32);
+    }
+
+    [Run]
+    public void DateTime_05_Array()
+    {
+      DateTime[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadDateTimeArray(), 1);
+
+      v = new DateTime[] { new DateTime(1920, 1, 1), new DateTime(1950, 1, 1), new DateTime(1980, 11, 12) };
+      testArray(v, w => w.Write(v), r => r.ReadDateTimeArray(), 1 + 1 + 27);
+    }
+
+    [Run]
+    public void DateTime_06_ArrayNullable()
+    {
+      DateTime?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableDateTimeArray(), 1);
+
+      v = new DateTime?[] { new DateTime(1910, 1, 1), null, new DateTime(1920, 1, 1), null, new DateTime(1940, 1, 1), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullableDateTimeArray(), 1 + 1 + 33);
+    }
+
+    #endregion
+
+    #region TimeSpan
+    [Run]
+    public void TimeSpan_01()
+    {
+      TimeSpan v = TimeSpan.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadTimeSpan(), 10);
+
+      v = TimeSpan.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadTimeSpan(), 10);
+
+      v = new TimeSpan(17);
+      testScalar(v, w => w.Write(v), r => r.ReadTimeSpan(), 1);
+
+      v = new TimeSpan(256);
+      testScalar(v, w => w.Write(v), r => r.ReadTimeSpan(), 2);
+    }
+
+    [Run]
+    public void TimeSpan_02_Nullable()
+    {
+      TimeSpan? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableTimeSpan(), 1);
+
+      v = TimeSpan.MinValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableTimeSpan(), 11);
+
+      v = TimeSpan.MaxValue;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableTimeSpan(), 11);
+
+      v = new TimeSpan(17);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableTimeSpan(), 2);
+
+      v = new TimeSpan(256);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableTimeSpan(), 3);
+    }
+
+    [Run]
+    public void TimeSpan_03_Collection()
+    {
+      List<TimeSpan> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadTimeSpanCollection<List<TimeSpan>>(), 1);
+
+      v = new List<TimeSpan> { new TimeSpan(256), new TimeSpan(1) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadTimeSpanCollection<List<TimeSpan>>(), 1 + 1 + 3);
+    }
+
+
+    [Run]
+    public void TimeSpan_04_CollectionNullable()
+    {
+      List<TimeSpan?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableTimeSpanCollection<List<TimeSpan?>>(), 1);
+
+      v = new List<TimeSpan?> { new TimeSpan(5), null, new TimeSpan(5), null, new TimeSpan(256) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableTimeSpanCollection<List<TimeSpan?>>(), 1 + 1 + 9);
+    }
+
+    [Run]
+    public void TimeSpan_05_Array()
+    {
+      TimeSpan[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadTimeSpanArray(), 1);
+
+      v = new TimeSpan[] { new TimeSpan(5), new TimeSpan(5), new TimeSpan(5) };
+      testArray(v, w => w.Write(v), r => r.ReadTimeSpanArray(), 1 + 1 + 3);
+    }
+
+    [Run]
+    public void TimeSpan_06_ArrayNullable()
+    {
+      TimeSpan?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableTimeSpanArray(), 1);
+
+      v = new TimeSpan?[] { new TimeSpan(5), null, new TimeSpan(256), null, new TimeSpan(7), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullableTimeSpanArray(), 1 + 1 + 10);
+    }
+
+    #endregion
+
+    #region GUID
+    [Run]
+    public void Guid_01()
+    {
+      Guid v = Guid.Empty;
+      testScalar(v, w => w.Write(v), r => r.ReadGuid(), 16);
+
+      v = Guid.NewGuid();
+      testScalar(v, w => w.Write(v), r => r.ReadGuid(), 16);
+    }
+
+    [Run]
+    public void Guid_02_Nullable()
+    {
+      Guid? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableGuid(), 1);
+
+      v = Guid.Empty;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableGuid(), 17);
+
+      v = Guid.NewGuid();
+      testScalar(v, w => w.Write(v), r => r.ReadNullableGuid(), 17);
+    }
+
+    [Run]
+    public void Guid_03_Collection()
+    {
+      List<Guid> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadGuidCollection<List<Guid>>(), 1);
+
+      v = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadGuidCollection<List<Guid>>(), 1 + 1 + 32);
+    }
+
+
+    [Run]
+    public void Guid_04_CollectionNullable()
+    {
+      List<Guid?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableGuidCollection<List<Guid?>>(), 1);
+
+      v = new List<Guid?> { Guid.NewGuid(), null, Guid.NewGuid(), null, Guid.NewGuid() };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableGuidCollection<List<Guid?>>(), 1 + 1 + 53);
+    }
+
+    [Run]
+    public void Guid_05_Array()
+    {
+      Guid[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadGuidArray(), 1);
+
+      v = new Guid[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
+      testArray(v, w => w.Write(v), r => r.ReadGuidArray(), 1 + 1 + 48);
+    }
+
+    [Run]
+    public void Guid_06_ArrayNullable()
+    {
+      Guid?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableGuidArray(), 1);
+
+      v = new Guid?[] { Guid.NewGuid(), null, Guid.NewGuid(), null, Guid.NewGuid(), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullableGuidArray(), 1 + 1 + 54);
+    }
+
+    #endregion
+
+    #region GDID
+    [Run]
+    public void GDID_01()
+    {
+      GDID v = GDID.ZERO;
+      testScalar(v, w => w.Write(v), r => r.ReadGDID(), 12);
+
+      v = new GDID(uint.MinValue, ulong.MinValue);
+      testScalar(v, w => w.Write(v), r => r.ReadGDID(), 12);
+
+      v = new GDID(uint.MaxValue, ulong.MaxValue);
+      testScalar(v, w => w.Write(v), r => r.ReadGDID(), 12);
+    }
+
+    [Run]
+    public void GDID_02_Nullable()
+    {
+      GDID? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableGDID(), 1);
+
+      v = new GDID(uint.MinValue, ulong.MinValue);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableGDID(), 13);
+
+      v = new GDID(uint.MaxValue, ulong.MaxValue);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableGDID(), 13);
+    }
+
+    [Run]
+    public void GDID_03_Collection()
+    {
+      List<GDID> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadGDIDCollection<List<GDID>>(), 1);
+
+      v = new List<GDID> { new GDID(1,1), new GDID(1,1) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadGDIDCollection<List<GDID>>(), 1 + 1 + 24);
+    }
+
+
+    [Run]
+    public void GDID_04_CollectionNullable()
+    {
+      List<GDID?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableGDIDCollection<List<GDID?>>(), 1);
+
+      v = new List<GDID?> { new GDID(1,5), null, new GDID(1,5), null, new GDID(1,256) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableGDIDCollection<List<GDID?>>(), 1 + 1 + 41);
+    }
+
+    [Run]
+    public void GDID_05_Array()
+    {
+      GDID[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadGDIDArray(), 1);
+
+      v = new GDID[] { new GDID(1,5), new GDID(1,5), new GDID(2,5) };
+      testArray(v, w => w.Write(v), r => r.ReadGDIDArray(), 1 + 1 + 36);
+    }
+
+    [Run]
+    public void GDID_06_ArrayNullable()
+    {
+      GDID?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableGDIDArray(), 1);
+
+      v = new GDID?[] { new GDID(2,5), null, new GDID(256,78782), null, new GDID(7,8900), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullableGDIDArray(), 1 + 1 + 42);
+    }
+
+    #endregion
+
+    #region FID
+    [Run]
+    public void FID_01()
+    {
+      FID v = default(FID);
+      testScalar(v, w => w.Write(v), r => r.ReadFID(), 8);
+
+      v = new FID(ulong.MinValue);
+      testScalar(v, w => w.Write(v), r => r.ReadFID(), 8);
+
+      v = new FID(ulong.MaxValue);
+      testScalar(v, w => w.Write(v), r => r.ReadFID(), 8);
+    }
+
+    [Run]
+    public void FID_02_Nullable()
+    {
+      FID? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableFID(), 1);
+
+      v = new FID(ulong.MinValue);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableFID(), 9);
+
+      v = new FID(ulong.MaxValue);
+      testScalar(v, w => w.Write(v), r => r.ReadNullableFID(), 9);
+    }
+
+    [Run]
+    public void FID_03_Collection()
+    {
+      List<FID> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadFIDCollection<List<FID>>(), 1);
+
+      v = new List<FID> { new FID(123), new FID(456) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadFIDCollection<List<FID>>(), 1 + 1 + 16);
+    }
+
+
+    [Run]
+    public void FID_04_CollectionNullable()
+    {
+      List<FID?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableFIDCollection<List<FID?>>(), 1);
+
+      v = new List<FID?> { new FID(123), null, new FID(456), null, new FID(789) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableFIDCollection<List<FID?>>(), 1 + 1 + 29);
+    }
+
+    [Run]
+    public void FID_05_Array()
+    {
+      FID[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadFIDArray(), 1);
+
+      v = new FID[] { new FID(1), new FID(2), new FID(3) };
+      testArray(v, w => w.Write(v), r => r.ReadFIDArray(), 1 + 1 + 24);
+    }
+
+    [Run]
+    public void FID_06_ArrayNullable()
+    {
+      FID?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableFIDArray(), 1);
+
+      v = new FID?[] { new FID(1), null, new FID(2), null, new FID(3), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullableFIDArray(), 1 + 1 + 30);
+    }
+
+    #endregion
+
+    #region PilePointer
+    [Run]
+    public void PilePointer_01()
+    {
+      PilePointer v = default(PilePointer);
+      testScalar(v, w => w.Write(v), r => r.ReadPilePointer(), 3);
+
+      v = new PilePointer(int.MinValue, int.MinValue, int.MinValue);
+      testScalar(v, w => w.Write(v), r => r.ReadPilePointer(), 15);
+
+      v = new PilePointer(int.MaxValue, int.MaxValue, int.MaxValue);
+      testScalar(v, w => w.Write(v), r => r.ReadPilePointer(), 15);
+    }
+
+    [Run]
+    public void PilePointer_02_Nullable()
+    {
+      PilePointer? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullablePilePointer(), 1);
+
+      v = new PilePointer(int.MinValue, int.MinValue, int.MinValue);
+      testScalar(v, w => w.Write(v), r => r.ReadNullablePilePointer(), 16);
+
+      v = new PilePointer(int.MaxValue, int.MaxValue, int.MaxValue);
+      testScalar(v, w => w.Write(v), r => r.ReadNullablePilePointer(), 16);
+    }
+
+    [Run]
+    public void PilePointer_03_Collection()
+    {
+      List<PilePointer> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadPilePointerCollection<List<PilePointer>>(), 1);
+
+      v = new List<PilePointer> { new PilePointer(0, 0, 1), new PilePointer(0, 0, 2) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadPilePointerCollection<List<PilePointer>>(), 1 + 1 + 6);
+    }
+
+
+    [Run]
+    public void PilePointer_04_CollectionNullable()
+    {
+      List<PilePointer?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullablePilePointerCollection<List<PilePointer?>>(), 1);
+
+      v = new List<PilePointer?> { new PilePointer(0,0,1), null, new PilePointer(0,0,1), null, new PilePointer(0,0,2) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullablePilePointerCollection<List<PilePointer?>>(), 1 + 1 + 14);
+    }
+
+    [Run]
+    public void PilePointer_05_Array()
+    {
+      PilePointer[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadPilePointerArray(), 1);
+
+      v = new PilePointer[] { new PilePointer(1, 0, 1), new PilePointer(10,0,2), new PilePointer(20,0,3) };
+      testArray(v, w => w.Write(v), r => r.ReadPilePointerArray(), 1 + 1 + 9);
+    }
+
+    [Run]
+    public void PilePointer_06_ArrayNullable()
+    {
+      PilePointer?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullablePilePointerArray(), 1);
+
+      v = new PilePointer?[] { new PilePointer(3, 9, 2), null, new PilePointer(2, 0, 1), null, new PilePointer(0, 0, 2), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullablePilePointerArray(), 1 + 1 + 15);
+    }
+
+    #endregion
+
+    #region NLSMap
+    [Run]
+    public void NLSMap_01()
+    {
+      NLSMap v = default(NLSMap);
+      testScalar(v, w => w.Write(v), r => r.ReadNLSMap(), 1);
+
+      v = new NLSMap(new NLSMap.NDPair[]{ new NLSMap.NDPair(CoreConsts.ISOA_LANG_ENGLISH, "CUC", "Cucumber")});
+      testScalar(v, w => w.Write(v), r => {
+        var got = r.ReadNLSMap();
+        Aver.AreEqual("CUC", got[CoreConsts.ISOA_LANG_ENGLISH].Name);
+        Aver.AreEqual("Cucumber", got[CoreConsts.ISOA_LANG_ENGLISH].Description);
+        return got;
+      }, 1 + 5 + 5 + 9);
+    }
+
+    [Run]
+    public void NLSMap_02_Nullable()
+    {
+      NLSMap? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableNLSMap(), 1);
+
+      v = new NLSMap(new NLSMap.NDPair[] { new NLSMap.NDPair(CoreConsts.ISOA_LANG_ENGLISH, "CUC", "Cucumber") });
+      testScalar(v, w => w.Write(v), r => {
+        var got = r.ReadNullableNLSMap();
+        Aver.IsTrue(got.HasValue);
+        Aver.AreEqual("CUC", got.Value[CoreConsts.ISOA_LANG_ENGLISH].Name);
+        Aver.AreEqual("Cucumber", got.Value[CoreConsts.ISOA_LANG_ENGLISH].Description);
+        return got;
+      }, 1   + 1 + 5 + 5 + 9);
+    }
+
+    [Run]
+    public void NLSMap_03_Collection()
+    {
+      List<NLSMap> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNLSMapCollection<List<NLSMap>>(), 1);
+
+      v = new List<NLSMap> { new NLSMap("{eng: {n: 'Name', d: 'Description'}}"), new NLSMap("{eng: {n: 'N', d: 'D'}, rus: {n: 'I', d: 'O'}}") };
+      testCollection(v, w => w.WriteCollection(v), r => {
+      var got = r.ReadNLSMapCollection<List<NLSMap>>();
+        Aver.AreEqual(2, got.Count);
+        Aver.AreEqual("Name", got[0]["eng"].Name);
+        Aver.AreEqual("N", got[1]["eng"].Name);
+        Aver.AreEqual("Description", got[0]["eng"].Description);
+        Aver.AreEqual("D", got[1]["eng"].Description);
+        Aver.AreEqual("I", got[1]["rus"].Name);
+        Aver.AreEqual("O", got[1]["rus"].Description);
+        return got;
+      });
+    }
+
+
+    [Run]
+    public void NLSMap_04_CollectionNullable()
+    {
+      List<NLSMap?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableNLSMapCollection<List<NLSMap?>>(), 1);
+
+      v = new List<NLSMap?> { new NLSMap("{eng: {n: 'Name', d: 'Description'}}"), null, null, new NLSMap("{eng: {n: 'N', d: 'D'}, rus: {n: 'I', d: 'O'}}") };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableNLSMapCollection<List<NLSMap?>>());
+    }
+
+    [Run]
+    public void NLSMap_05_Array()
+    {
+      NLSMap[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNLSMapArray(), 1);
+
+      v = new NLSMap[] { new NLSMap("{eng: {n: 'Name', d: 'Description'}}"), new NLSMap() };
+      testArray(v, w => w.Write(v), r => r.ReadNLSMapArray());
+    }
+
+    [Run]
+    public void NLSMap_06_ArrayNullable()
+    {
+      NLSMap?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableNLSMapArray(), 1);
+
+      v = new NLSMap?[] { new NLSMap("{eng: {n: 'Name', d: 'Description'}}"), null, null, new NLSMap("{eng: {n: 'N', d: 'D'}, rus: {n: 'I', d: 'O'}}") };
+      testArray(v, w => w.Write(v), r => r.ReadNullableNLSMapArray());
+    }
+
+    #endregion
+
+    #region Amount
+    [Run]
+    public void Amount_01()
+    {
+      Amount v = default(Amount);
+      testScalar(v, w => w.Write(v), r => r.ReadAmount(), 1 + 4);
+
+      v = new Amount(CoreConsts.ISOA_CURRENCY_USD, 10.1M);
+      testScalar(v, w => w.Write(v), r => {
+        var got = r.ReadAmount();
+        Aver.AreEqual(CoreConsts.ISOA_CURRENCY_USD, got.ISO);
+        Aver.AreEqual(10.1M, got.Value);
+        return got;
+      }, 4 + 5);
+    }
+
+    [Run]
+    public void Amount_02_Nullable()
+    {
+      Amount? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableAmount(), 1);
+
+      v = new Amount(CoreConsts.ISOA_CURRENCY_USD, 10.1M);
+      testScalar(v, w => w.Write(v), r => {
+        var got = r.ReadNullableAmount();
+        Aver.IsTrue(got.HasValue);
+        Aver.AreEqual(CoreConsts.ISOA_CURRENCY_USD, got.Value.ISO);
+        Aver.AreEqual(10.1M, got.Value.Value);
+        return got;
+      }, 1 + 4 + 5);
+    }
+
+    [Run]
+    public void Amount_03_Collection()
+    {
+      List<Amount> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadAmountCollection<List<Amount>>(), 1);
+
+      v = new List<Amount> { new Amount("usd", 10), new Amount("cad", 20) };
+      testCollection(v, w => w.WriteCollection(v), r => {
+        var got = r.ReadAmountCollection<List<Amount>>();
+        Aver.AreEqual(2, got.Count);
+        Aver.AreEqual("usd", got[0].ISO.Value);
+        Aver.AreEqual(10M, got[0].Value);
+        Aver.AreEqual("cad", got[1].ISO.Value);
+        Aver.AreEqual(20M, got[1].Value);
+        return got;
+      });
+    }
+
+
+    [Run]
+    public void Amount_04_CollectionNullable()
+    {
+      List<Amount?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableAmountCollection<List<Amount?>>(), 1);
+
+      v = new List<Amount?> { null, null, new Amount("usd", 10), new Amount("cad", 20) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableAmountCollection<List<Amount?>>());
+    }
+
+    [Run]
+    public void Amount_05_Array()
+    {
+      Amount[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadAmountArray(), 1);
+
+      v = new Amount[] { new Amount("usd", 10), new Amount("cad", 20), new Amount() };
+      testArray(v, w => w.Write(v), r => r.ReadAmountArray());
+    }
+
+    [Run]
+    public void Amount_06_ArrayNullable()
+    {
+      Amount?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableAmountArray(), 1);
+
+      v = new Amount?[] { new Amount("usd", 10), null, new Amount("cad", 20), new Amount(), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullableAmountArray());
+    }
+
+    #endregion
+
+    #region Atom
+    [Run]
+    public void Atom_01()
+    {
+      Atom v = default(Atom);
+      testScalar(v, w => w.Write(v), r => r.ReadAtom(), 1);
+
+      v = CoreConsts.ISOA_COUNTRY_CANADA;
+      testScalar(v, w => w.Write(v), r => r.ReadAtom(), 4);
+
+      v = Atom.Encode("abracada");
+      testScalar(v, w => w.Write(v), r => {
+        var got = r.ReadAtom();
+        Aver.AreEqual("abracada", got.Value);
+        return got;
+      }, 1 + 8);
+    }
+
+    [Run]
+    public void Atom_02_Nullable()
+    {
+      Atom? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableAtom(), 1);
+
+      v = CoreConsts.ISOA_COUNTRY_CANADA;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableAtom(), 1+4);
+
+      v = Atom.Encode("abracada");
+      testScalar(v, w => w.Write(v), r => {
+        var got = r.ReadNullableAtom();
+        Aver.IsTrue(got.HasValue);
+        Aver.AreEqual("abracada", got.Value.Value);
+        return got;
+      }, 1 + 1 + 8);
+    }
+
+    [Run]
+    public void Atom_03_Collection()
+    {
+      List<Atom> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadAtomCollection<List<Atom>>(), 1);
+
+      v = new List<Atom> { Atom.Encode("abc"), Atom.Encode("defg") };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadAtomCollection<List<Atom>>());
+    }
+
+
+    [Run]
+    public void Atom_04_CollectionNullable()
+    {
+      List<Atom?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableAtomCollection<List<Atom?>>(), 1);
+
+      v = new List<Atom?> { null, Atom.Encode("abc"), Atom.Encode("defg"), null, null, Atom.Encode("1") };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableAtomCollection<List<Atom?>>());
+    }
+
+    [Run]
+    public void Atom_05_Array()
+    {
+      Atom[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadAtomArray(), 1);
+
+      v = new Atom[] { Atom.Encode("abc"), Atom.Encode("defg") };
+      testArray(v, w => w.Write(v), r => r.ReadAtomArray());
+    }
+
+    [Run]
+    public void Atom_06_ArrayNullable()
+    {
+      Atom?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableAtomArray(), 1);
+
+      v = new Atom?[] { null, Atom.Encode("abc"), Atom.Encode("defg"), null, null, Atom.Encode("1") };
+      testArray(v, w => w.Write(v), r => r.ReadNullableAtomArray());
+    }
+
+    #endregion
+
+    #region JSON
+    [Run]
+    public void Json_01()
+    {
+      object v = null;
+      var ms = new MemoryStream();
+      var reader = new BixReader(ms);
+      var writer = new BixWriter(ms);
+
+      writer.WriteJson(v, null);
+
+      ms.Position = 0;
+      var got = reader.ReadJson();
+
+      Aver.IsNull(got);
+    }
+
+    [Run]
+    public void Json_02()
+    {
+      object v = new {a = 1, b = -123.78};
+      var ms = new MemoryStream();
+      var reader = new BixReader(ms);
+      var writer = new BixWriter(ms);
+
+      writer.WriteJson(v, null);
+      ms.GetBuffer().ToDumpString(DumpFormat.Hex).See();
+
+
+      ms.Position = 0;
+      var got = reader.ReadJson() as JsonDataMap;
+      Aver.IsNotNull(got);
+      got.See();
+      Aver.AreEqual(2, got.Count);
+      Aver.AreEqual(1, got["a"].AsInt());
+      Aver.AreEqual(-123.78, got["b"].AsDouble());
+    }
+
+    [Run]
+    public void Json_03()
+    {
+      object v = new object []{ new { a = 1, b = -123.78 }, null, new DateTime(2020, 03, 07, 0,0,0, DateTimeKind.Utc), true, "message"};
+      var ms = new MemoryStream();
+      var reader = new BixReader(ms);
+      var writer = new BixWriter(ms);
+
+      writer.WriteJson(v, null);
+      ms.GetBuffer().ToDumpString(DumpFormat.Hex).See();
+
+
+      ms.Position = 0;
+      var got = reader.ReadJson() as JsonDataArray;
+      Aver.IsNotNull(got);
+      got.See();
+      Aver.AreEqual(5, got.Count);
+      Aver.IsTrue(got[0] is JsonDataMap);
+      Aver.AreEqual(1, (got[0] as JsonDataMap)["a"].AsInt());
+      Aver.AreEqual(-123.78, (got[0] as JsonDataMap)["b"].AsDouble());
+      Aver.IsNull(got[1]);
+      Aver.AreEqual(2020, got[2].AsDateTime().Year);
+      Aver.IsTrue(got[3] is bool);
+      Aver.IsTrue((bool)got[3]);
+      Aver.IsTrue(got[4] is string);
+      Aver.AreEqual("message", got[4].AsString());
+    }
+
+    #endregion
+
 
   }
 }

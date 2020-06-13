@@ -47,7 +47,7 @@ namespace Azos.Wave.Cms
     /// <param name="caching">Optional cache handling specification</param>
     /// <returns>Content or Null if it is not found</returns>
     /// <remarks>Tries to synchronously take the request from cache, and then fires up an async IO call</remarks>
-    Task<Content> GetContentAsync(ContentId id, string isoLang = null, ICacheParams caching = null);
+    Task<Content> GetContentAsync(ContentId id, Atom? isoLang = null, ICacheParams caching = null);
   }
 
 }

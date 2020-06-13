@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-
+using System.Runtime.CompilerServices;
 using Azos.Serialization.JSON;
 
 namespace Azos
@@ -9,14 +9,18 @@ namespace Azos
   /// <summary>
   /// Provides an efficient representation of a system string value which contains from 1 up to 8 ASCII-only
   /// digit or letter characters packed and stored as ulong system primitive. Typically used for system IDs of assets
-  /// such as log and instrumentation channels. <para>The framework treats the type efficiently in many areas
+  /// such as log and instrumentation channels, codes and classifications (e.g. ISO codes).
+  /// The use of atoms obviates the costly string allocations for various codes which pretty much remain
+  /// the same for the application lifetime (e.g. ISO language, currency, country codes, various system component names etc..)
+  /// <para>
+  /// The framework treats the type efficiently in many areas
   /// such as binary, BSON and JSON serialization. Short ID strings represented as Atom en masse greatly
   /// relieve the GC pressure in network/data processing apps.
   /// </para>
   /// The ranges of acceptable characters are: '0..9|a..z' upper or lower case, and '-','_' which
   /// are the only allowed separators.
   /// <para>
-  /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than 1000), having
+  /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than a few thousand), having
   /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as these
   /// bloat the system Atom intern pool
   /// </para>
@@ -27,20 +31,20 @@ namespace Azos
   /// large number of objects (100Ks / second) containing short strings which identify a limited set of system objects,
   /// for example log message channel IDs, app IDs, instrumentation data channels/ and the like.
   /// Since the value fits into CPU register and does not produce references with consequential garbage collection the
-  /// performance may be improved sometimes 5x-10x.
+  /// overall performance may be improved sometimes 5x-10x.
   /// </para>
   /// <para>
   /// The trick is to NOT convert strings into ASCII via .Encode() (that is why it is a static method, not a .ctor)
   /// but instead rely on static readonly (constant) values for naming channels, applications and other system assets.
   /// Instead of emitting "app1" string value in every log message we can now emit and store just a ulong 8 byte primitive.
-  /// The packing works right to left, so the ulong may be var-bit compressed (e.g. using ULEB, Slim etc.).
+  /// The packing works right to left, so the ulong may be var-bit compressed (e.g. using ULEB, Bix, Slim etc.).
   /// </para>
   /// <para>
   /// The string value is constrained to ASCII-only digits, upper or lower case letters and the following separators:  '-','_'
   /// </para>
   /// </remarks>
   [Serializable]
-  public struct Atom : IEquatable<Atom>, Data.Access.IDistributedStableHashProvider, IJsonWritable, IJsonReadable
+  public struct Atom : IEquatable<Atom>, Data.Idgen.IDistributedStableHashProvider, IJsonWritable, IJsonReadable
   {
 
     /// <summary>
@@ -51,6 +55,7 @@ namespace Azos
     /// <summary>
     /// Returns true if the character is valid per Atom rule: [0..9|A..Z|a..z|_|-]
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsValidChar(char c) =>
             (c >= '0' && c <= '9') ||
             (c >= 'A' && c <= 'Z') ||
@@ -58,11 +63,11 @@ namespace Azos
             (c == '_' || c=='-');
 
     /// <summary>
-    /// Encodes the string value into Atom. The value must contain ASCII only 1 to 8 characters
-    /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not be whitespace.
+    /// Encodes the string value into an Atom. The value must contain ASCII only 1 to 8 characters
+    /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not have whitespace.
     /// Null is encoded as Atom(0).
     /// <para>
-    /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than 1000), having
+    /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than a few thousand), having
     /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as these
     /// bloat the system Atom intern pool
     /// </para>
@@ -91,7 +96,7 @@ namespace Azos
     /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not be whitespace.
     /// Null is encoded as Atom(0).
     /// <para>
-    /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than 1000), having
+    /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than a few thousand), having
     /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as these
     /// bloat the system Atom intern pool
     /// </para>
@@ -128,7 +133,7 @@ namespace Azos
     /// and may not be whitespace. The numeric ID should start with '#' prefix and may have optional  binary or hex prefixes, e.g. "#0x3234"
     /// Null is encoded as Atom(0).
     /// <para>
-    /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than 1000), having
+    /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than a few thousand), having
     /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as these
     /// bloat the system Atom intern pool
     /// </para>
@@ -162,7 +167,7 @@ namespace Azos
     public Atom(ulong id) => ID = id;
 
     /// <summary>
-    /// Returns ulong ID value of the Atom. This value is the only value which Atom consists of, hence Atoms fit in 64bit CPU registers 1:1
+    /// Returns ulong ID value of the Atom. This value is the only value which Atom consists of (stores), hence Atoms fit in 64bit CPU registers 1:1
     /// </summary>
     public readonly ulong ID;
 
@@ -209,6 +214,8 @@ namespace Azos
     {
       get
       {
+        if (IsZero) return null;
+
         //lock-free lookup covers 99.99% of cases
         if (s_Cache.TryGetValue(ID, out var value)) return value;
 
@@ -236,7 +243,8 @@ namespace Azos
     public ulong GetDistributedStableHash() => ID;
     public override int GetHashCode() => ID.GetHashCode();
 
-    public override string ToString() => IsZero ? "Atom(zero)" : "Atom(0x{0:X8}, `{1}`)".Args(ID, Value);
+    //important to keep this as Value because Atoms are used in many format strings (which uses toString())
+    public override string ToString() => Value;
 
 
     public static bool operator == (Atom lhs, Atom rhs) =>  lhs.Equals(rhs);

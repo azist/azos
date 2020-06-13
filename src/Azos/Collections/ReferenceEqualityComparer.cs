@@ -3,29 +3,26 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Collections;
 
 namespace Azos.Collections
 {
   /// <summary>
-  /// Checks for reference equality. Use ReferenceEqualityComparer(T).Default
+  /// Checks for reference equality
   /// </summary>
-  public sealed class ReferenceEqualityComparer<T> : EqualityComparer<T>
+  public sealed class ReferenceEqualityComparer<T> : IEqualityComparer<T>, IEqualityComparer
   {
-    public ReferenceEqualityComparer() {}
+    public static readonly ReferenceEqualityComparer<T> Instance = new ReferenceEqualityComparer<T>();
 
-    public override bool Equals(T x, T y)
-    {
-        return object.ReferenceEquals(x, y);
-    }
+    private ReferenceEqualityComparer() {}
 
-    public override int GetHashCode(T obj)
-    {
-        return RuntimeHelpers.GetHashCode(obj);
-    }
+    public bool Equals(T x, T y) => object.ReferenceEquals(x, y);
+    public int GetHashCode(T obj) => RuntimeHelpers.GetHashCode(obj);
+
+    bool IEqualityComparer.Equals(object x, object y) => object.ReferenceEquals(x, y);
+    int IEqualityComparer.GetHashCode(object obj) => RuntimeHelpers.GetHashCode(obj);
   }
 }
 

@@ -68,7 +68,7 @@ namespace Azos
   /// with a different thread seed which is an expected and acceptable behavior
   /// </remarks>
   [Serializable]
-  public struct FID : IEquatable<FID>, Data.Access.IDistributedStableHashProvider, IJsonWritable, IJsonReadable
+  public struct FID : IEquatable<FID>, Data.Idgen.IDistributedStableHashProvider, IJsonWritable, IJsonReadable
   {
     private const int MASK_16_BIT = 0x0000ffff;
     private const int MASK_24_BIT = 0x00ffffff;

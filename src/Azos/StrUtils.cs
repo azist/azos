@@ -1,4 +1,4 @@
-/*<FILE_LICENSE>
+﻿/*<FILE_LICENSE>
  * Azos (A to Z Application Operating System) Framework
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
@@ -391,6 +391,60 @@ namespace Azos
 
       return linux.Replace(WIN_UNIX_LINE_BRAKES[1], WIN_UNIX_LINE_BRAKES[0]);
     }
+
+
+    /// <summary>
+    /// Creates a hex editor like hex / char dump of a string value
+    /// printing verbatim binary char values
+    /// </summary>
+    public static string ToDumpString(this string str)
+    {
+      if (str==null) return null;
+      var result = new StringBuilder();
+      var txt = new StringBuilder();
+
+      var wide = str.Any(c => c > 0xff);
+
+      var i=0;
+      for(; i<str.Length; i++)
+      {
+        var c = str[i];
+        if (i % 16==0)
+        {
+          if (txt.Length>0)
+          {
+            result.Append("   ");
+            result.Append(txt.ToString());
+            txt.Clear();
+          }
+          if (i>0) result.AppendLine();
+          result.Append(i.ToString("X4"));
+          result.Append(": ");
+        }else if (i % 8 ==0)
+        {
+          result.Append("| ");
+        }
+
+        result.Append(((int)c).ToString(wide ? "X4" : "X2"));
+        result.Append(' ');
+        txt.Append(c<'!' ? '·' : c);
+      }
+
+      for(var j=0; i++ % 16!=0; j++)
+      {
+        if (j==8) result.Append("  ");
+        result.Append(wide ? "     " : "   ");
+      }
+
+      if (txt.Length > 0)
+      {
+        result.Append("   ");
+        result.Append(txt.ToString());
+      }
+
+      return result.ToString();
+    }
+
 
     /// <summary>
     /// Creates a string listing char-by char difference between strings

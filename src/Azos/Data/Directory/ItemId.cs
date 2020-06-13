@@ -15,7 +15,7 @@ namespace Azos.Data.Directory
   /// <summary>
   /// Identifies a directory item using unique Id within a named collection
   /// </summary>
-  public struct ItemId : IEquatable<ItemId>, IDistributedStableHashProvider, IJsonReadable, IJsonWritable
+  public struct ItemId : IEquatable<ItemId>, Idgen.IDistributedStableHashProvider, IJsonReadable, IJsonWritable
   {
     public const int MAX_TYPE_NAME_LEN = 32;
 

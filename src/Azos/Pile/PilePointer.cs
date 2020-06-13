@@ -23,12 +23,12 @@ namespace Azos.Pile
   ///  should more than 1 pile be allocated than this pointer would need to be wrapped in some other structure along with source IPile reference
   /// </summary>
   [Serializable]
-  public struct PilePointer : IEquatable<PilePointer>, IJsonWritable, IJsonReadable
+  public struct PilePointer : IEquatable<PilePointer>, IJsonWritable, IJsonReadable, IValidatable
   {
     /// <summary>
     /// Returns a -1:-1 non-valid pointer (either local or distributed)
     /// </summary>
-    public static PilePointer Invalid{ get{ return new PilePointer(-1,-1);} }
+    public static PilePointer Invalid => new PilePointer(-1,-1);
 
     /// <summary>
     /// Creates distributed pointer
@@ -69,32 +69,20 @@ namespace Azos.Pile
     /// Returns true if the pointer has positive segment and address, however this does not mean that pointed-to data exists.
     /// Even if this is a valid local pointer it may be an invalid distributed pointer
     /// </summary>
-    public bool Valid{ get{ return Segment>=0 && Address>=0;}}
+    public bool Valid => Segment >= 0 && Address >= 0;
 
     /// <summary>
     /// Returns true if the pointer has positive distributed NodeID and has a valid local pointer
     /// </summary>
-    public bool DistributedValid{ get{ return NodeID>=0 && Valid;}}
+    public bool DistributedValid{ get{ return NodeID >= 0 && Valid;}}
 
-    public override int GetHashCode()
-    {
-      return Address;
-    }
+    public override int GetHashCode() => Address;
 
-    public override bool Equals(object obj)
-    {
-      if (obj is PilePointer)
-       return this.Equals((PilePointer)obj);
+    public override bool Equals(object obj) => obj is PilePointer pp ? this.Equals(pp) : false;
 
-      return false;
-    }
-
-    public bool Equals(PilePointer other)
-    {
-      return (this.NodeID == other.NodeID) &&
-             (this.Segment == other.Segment) &&
-             (this.Address == other.Address);
-    }
+    public bool Equals(PilePointer other) => (this.NodeID == other.NodeID) &&
+                                             (this.Segment == other.Segment) &&
+                                             (this.Address == other.Address);
 
     public override string ToString()
     {
@@ -125,19 +113,19 @@ namespace Azos.Pile
       return (false, null);
     }
 
-    public static bool operator ==(PilePointer l, PilePointer r)
+    public ValidState Validate(ValidState state, string scope = null)
     {
-      return l.Equals(r);
+      if (!Valid) state = new ValidState(state, new ValidationException(StringConsts.PILE_PTR_VALIDATION_ERROR.Args(this, scope)));
+      return state;
     }
 
-    public static bool operator !=(PilePointer l, PilePointer r)
-    {
-      return !l.Equals(r);
-    }
+    public static bool operator ==(PilePointer l, PilePointer r) => l.Equals(r);
 
-    public static object operator &(IPile pile, PilePointer ptr)
-    {
-      return pile.NonNull(nameof(pile)).Get(ptr);//->     var x = pile&ptr;
-    }
+    public static bool operator !=(PilePointer l, PilePointer r) => !l.Equals(r);
+
+    /// <summary>
+    /// Dereference operator: var x = pile ^ ptr;
+    /// </summary>
+    public static object operator ^(IPile pile, PilePointer ptr) => pile.NonNull(nameof(pile)).Get(ptr);//->     var x = pile ^ ptr;
   }
 }

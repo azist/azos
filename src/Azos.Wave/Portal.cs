@@ -271,17 +271,17 @@ namespace Azos.Wave
       /// <summary>
       /// Returns default country ISO code for this portal
       /// </summary>
-      public abstract string DefaultISOCountry { get; }
+      public abstract Atom DefaultISOCountry { get; }
 
       /// <summary>
       /// Returns default language ISO code for this portal
       /// </summary>
-      public abstract string DefaultLanguageISOCode{ get; }
+      public abstract Atom DefaultLanguageISOCode{ get; }
 
       /// <summary>
       /// Returns default currency ISO code for this portal
       /// </summary>
-      public abstract string DefauISOCurrency{ get; }
+      public abstract Atom DefauISOCurrency{ get; }
 
 
       /// <summary>
@@ -309,9 +309,9 @@ namespace Azos.Wave
       /// The search is first done in this portal then in inherited portals.
       /// Returns an empty string if no translation is possible
       /// </summary>
-      public virtual string TranslateContent(string contentKey, string isoLang = null, WorkContext work = null)
+      public virtual string TranslateContent(string contentKey, Atom? isoLang = null, WorkContext work = null)
       {
-        if (isoLang.IsNullOrWhiteSpace())
+        if (!isoLang.HasValue || isoLang.Value.IsZero)
           isoLang = GetLanguageISOCode(work);
 
         string result;
@@ -323,7 +323,7 @@ namespace Azos.Wave
           var content = portal.m_LocalizableContent;
 
           if (content.TryGetValue(contentKey+"_"+isoLang, out result)) return result;
-          if (!isoLang.EqualsOrdIgnoreCase(portal.DefaultLanguageISOCode))
+          if (isoLang.Value != portal.DefaultLanguageISOCode)
           {
             if (content.TryGetValue(contentKey+"_"+portal.DefaultLanguageISOCode, out result)) return result;
           }
@@ -338,9 +338,9 @@ namespace Azos.Wave
       /// <summary>
       /// Tries to determine session/work context lang and returns it or DefaultLanguageISOCode
       /// </summary>
-      public virtual string GetLanguageISOCode(WorkContext work = null)
+      public virtual Atom GetLanguageISOCode(WorkContext work = null)
       {
-        string lang = null;
+        var lang = Atom.ZERO;
 
         if (work==null)
           work = WorkContext.Current;
@@ -353,27 +353,26 @@ namespace Azos.Wave
         }
         else
         {
-          // 9/13/2016 OGee session can be exists but not acquired
           work.NeedsSession(onlyExisting: true);
           var session = work.Session;
-          if (session!=null)
+          if (session != null)
             lang = session.LanguageISOCode;
 
-          if (lang.IsNullOrWhiteSpace() && work.GeoEntity!=null && work.GeoEntity.Location.HasValue)
+          if (lang.IsZero && work.GeoEntity != null && work.GeoEntity.Location.HasValue)
           {
             var country = work.GeoEntity.CountryISOName;
             lang =  CountryISOCodeToLanguageISOCode(country);
           }
         }
 
-        return lang.IsNullOrWhiteSpace() ? this.DefaultLanguageISOCode : lang;
+        return lang.IsZero ? this.DefaultLanguageISOCode : lang;
       }
 
 
       /// <summary>
       /// Converts country code into language code per this portal
       /// </summary>
-      public abstract string CountryISOCodeToLanguageISOCode(string countryISOCode);
+      public abstract Atom CountryISOCodeToLanguageISOCode(string countryISOCode);
 
 
       /// <summary>
@@ -446,7 +445,7 @@ namespace Azos.Wave
       protected abstract Dictionary<string, string> GetLocalizableContent();
 
 
-      private string recGeneratorLocalization(Client.RecordModelGenerator gen, string schema, string field, string value, string isoLang)
+      private string recGeneratorLocalization(Client.RecordModelGenerator gen, string schema, string field, string value, Atom isoLang)
       {
         return DoLocalizeRecordModel(schema, field, value, isoLang);
       }
@@ -454,13 +453,13 @@ namespace Azos.Wave
       /// <summary>
       /// Localizes record model schema:field:value
       /// </summary>
-      protected virtual string DoLocalizeRecordModel(string schema, string field, string value, string isoLang)
+      protected virtual string DoLocalizeRecordModel(string schema, string field, string value, Atom isoLang)
       {
         if (value.IsNullOrWhiteSpace()) return value;
 
         if (!m_LocalizationData.Exists) return value;//nowhere to lookup
 
-        if (isoLang.IsNullOrWhiteSpace())
+        if (isoLang.IsZero)
         {
           var session = ExecutionContext.Session;
           if (session==null) return value;
@@ -468,10 +467,10 @@ namespace Azos.Wave
           isoLang = session.LanguageISOCode;
         }
 
-        if (isoLang.IsNullOrWhiteSpace())
+        if (isoLang.IsZero)
          isoLang = DefaultLanguageISOCode;
 
-        if (isoLang.EqualsOrdIgnoreCase(CoreConsts.ISO_LANG_ENGLISH)) return value;
+        if (isoLang==CoreConsts.ISOA_LANG_ENGLISH) return value;
 
         if (schema.IsNullOrWhiteSpace()) schema = LOC_ANY_SCHEMA_KEY;
         if (field.IsNullOrWhiteSpace())  field = LOC_ANY_FIELD_KEY;
@@ -501,11 +500,11 @@ namespace Azos.Wave
         return lv;
       }
 
-      protected virtual string DoLookupLocalizationValue(string isoLang, string schema, string field, string value, out bool exists)
+      protected virtual string DoLookupLocalizationValue(Atom isoLang, string schema, string field, string value, out bool exists)
       {
         exists = false;
 
-        var nlang = m_LocalizationData[isoLang];
+        var nlang = m_LocalizationData[isoLang.Value];
         if (!nlang.Exists) return value;
         var nschema = nlang[schema, LOC_ANY_SCHEMA_KEY];
         if (!nschema.Exists) return value;

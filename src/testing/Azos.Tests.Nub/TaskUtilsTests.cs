@@ -19,6 +19,16 @@ namespace Azos.Tests.Nub
   public class TaskUtilsTests
   {
     [Run]
+    public void TryGetCompletedTaskResultAsObject_0()
+    {
+      Task task = Task.CompletedTask;
+      var got = task.TryGetCompletedTaskResultAsObject();
+      Aver.IsFalse(got.ok);
+      Aver.IsNull(got.result);
+    }
+
+
+    [Run]
     public void TryGetCompletedTaskResultAsObject_1()
     {
       Task task = Task.FromResult(123);

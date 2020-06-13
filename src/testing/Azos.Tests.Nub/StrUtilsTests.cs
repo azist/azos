@@ -1,4 +1,4 @@
-/*<FILE_LICENSE>
+﻿/*<FILE_LICENSE>
  * Azos (A to Z Application Operating System) Framework
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
@@ -77,6 +77,52 @@ namespace Azos.Tests.Nub
     {
       Aver.AreEqual("I walk\r\n lines\r\n\r\n", "I walk\n lines\r\n\n".ToWindowsLines());
     }
+
+    [Run]
+    public void ToDumpString_0()
+    {
+      Aver.AreEqual(null, ((string)null).ToDumpString());
+      Aver.AreEqual("", "".ToDumpString());
+    }
+
+
+    [Run]
+    public void ToDumpString_1()
+    {
+      Aver.AreEqual(
+@"0000: 49 20 77 61 6C 6B 0A 20 | 6C 69 6E 65 73 0D 0A 0A    I·walk··lines···
+0010: 20 62 75 74 20 6E 6F 74 | 20 74 68 69 73 20 74 68    ·but·not·this·th
+0020: 65 6E 20 68 61 73 20 77 | 68 61 74 20 6D 6F 72 65    en·has·what·more
+0030: 20 63 68 61 72 61 63 74 | 65 72 73 20 6C 6F 6E 67    ·characters·long
+0040: 65 72 20 6C 69 6E 65 73 | 20 67 6F 65 73 20 68 61    er·lines·goes·ha
+0050: 73 20 64 69 64 20 68 61 | 76 65 20 6E 6F 74 20 67    s·did·have·not·g
+0060: 65 74 20 69 73 20 6D 61 | 79 20 62 65 20 74 68 65    et·is·may·be·the
+0070: 6E 20 64 6F 65 73                                    n·does".ToLinuxLines(),
+      "I walk\n lines\r\n\n but not this then has what more characters longer lines goes has did have not get is may be then does".ToDumpString().ToLinuxLines());
+    }
+
+    [Run]
+    public void ToDumpString_2()
+    {
+      "\n{0}\n".SeeArgs("I walk\n lines\r\n\n but not this then has what more characters longer lines goes has did have not get is may be then does".ToDumpString());
+    }
+
+    [Run]
+    public void ToDumpString_3()
+    {
+      Aver.AreEqual("0000: 53 68 6F 72 74 20 6C 69 | 6E 65                      Short·line", "Short line".ToDumpString());
+    }
+
+    [Run]
+    public void ToDumpString_4()
+    {
+      Aver.AreEqual(
+@"0000: 042F 0020 043C 043E 0433 0443 0020 0435 | 0441 0442 044C 0020 0441 0442 0435 043A    Я·могу·есть·стек
+0010: 043B 043E 002C 0020 043E 043D 043E 0020 | 043C 043D 0435 0020 043D 0435 0020 0432    ло,·оно·мне·не·в
+0020: 0440 0435 0434 0438 0442 002E                                                        редит.".ToLinuxLines(),
+"Я могу есть стекло, оно мне не вредит.".ToDumpString().ToLinuxLines());
+    }
+
 
     [Run]
     public void DiffStrings_1()

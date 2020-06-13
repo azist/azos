@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+
+using Azos.Collections;
 using Azos.Conf;
 
 namespace Azos.Apps.Injection
@@ -26,7 +28,14 @@ namespace Azos.Apps.Injection
     public void InjectInto(object target)
     {
       target.NonNull(nameof(target));
+      ObjectGraph.Scope(nameof(ApplicationDependencyInjector), target, body);
+    }
+
+    private bool body(object target, ObjectGraph graph)
+    {
+      if (graph.Visited(target)) return false;
       DoInjectInto(target);
+      return true;
     }
 
     private object m_InfoLock = new object();

@@ -138,6 +138,7 @@ namespace Azos
       public const string CMS_TOPIC = "CMS";
       public const string WAVE_TOPIC = "Wave";
       public const string DOC_TOPIC = "Doc";
+      public const string TOPIC_ID_GEN = "idg";
 
       public static readonly Atom LOG_CHANNEL_SECURITY = Atom.Encode("sec");
 
@@ -147,10 +148,22 @@ namespace Azos
       public const string ISO_LANG_GERMAN  = "deu";
       public const string ISO_LANG_FRENCH  = "fre";
 
+      public static readonly Atom ISOA_LANG_ENGLISH = Atom.Encode(ISO_LANG_ENGLISH);
+      public static readonly Atom ISOA_LANG_RUSSIAN = Atom.Encode(ISO_LANG_RUSSIAN);
+      public static readonly Atom ISOA_LANG_SPANISH = Atom.Encode(ISO_LANG_SPANISH);
+      public static readonly Atom ISOA_LANG_GERMAN  = Atom.Encode(ISO_LANG_GERMAN);
+      public static readonly Atom ISOA_LANG_FRENCH  = Atom.Encode(ISO_LANG_FRENCH);
+
       public const string ISO_CURRENCY_USD  = "usd";
       public const string ISO_CURRENCY_EUR  = "eur";
       public const string ISO_CURRENCY_MXN  = "mxn";
       public const string ISO_CURRENCY_RUB  = "rub";
+
+      public static readonly Atom ISOA_CURRENCY_USD = Atom.Encode(ISO_CURRENCY_USD);
+      public static readonly Atom ISOA_CURRENCY_EUR = Atom.Encode(ISO_CURRENCY_EUR);
+      public static readonly Atom ISOA_CURRENCY_MXN = Atom.Encode(ISO_CURRENCY_MXN);
+      public static readonly Atom ISOA_CURRENCY_RUB = Atom.Encode(ISO_CURRENCY_RUB);
+
 
       public const string ISO_COUNTRY_USA      = "usa";
       public const string ISO_COUNTRY_RUSSIA   = "rus";
@@ -158,10 +171,17 @@ namespace Azos
       public const string ISO_COUNTRY_MEXICO   = "mex";
       public const string ISO_COUNTRY_CANADA   = "can";
       public const string ISO_COUNTRY_FRANCE   = "fra";
+
+      public static readonly Atom ISOA_COUNTRY_USA     = Atom.Encode(ISO_COUNTRY_USA);
+      public static readonly Atom ISOA_COUNTRY_RUSSIA  = Atom.Encode(ISO_COUNTRY_RUSSIA);
+      public static readonly Atom ISOA_COUNTRY_GERMANY = Atom.Encode(ISO_COUNTRY_GERMANY);
+      public static readonly Atom ISOA_COUNTRY_MEXICO  = Atom.Encode(ISO_COUNTRY_MEXICO);
+      public static readonly Atom ISOA_COUNTRY_CANADA  = Atom.Encode(ISO_COUNTRY_CANADA);
+      public static readonly Atom ISOA_COUNTRY_FRANCE  = Atom.Encode(ISO_COUNTRY_FRANCE);
     #endregion
 
     #region Units
-      public const string UNIT_NAME_OCCURENCE = "occr.";
+    public const string UNIT_NAME_OCCURENCE = "occr.";
       public const string UNIT_NAME_UNSPECIFIED = "unspc.";
       public const string UNIT_NAME_RECORD = "recs.";
       public const string UNIT_NAME_OBJECT = "obj.";

@@ -64,7 +64,7 @@ namespace Azos.Sky.Hosts.agdida
                     app.Log.Write(new Message
                     {
                       Type = MessageType.Info,
-                      Topic = SysConsts.LOG_TOPIC_ID_GEN,
+                      Topic = CoreConsts.TOPIC_ID_GEN,
                       From = FROM,
                       Text = "Main loop received CR|LF. Exiting..."
                     });
@@ -89,7 +89,7 @@ namespace Azos.Sky.Hosts.agdida
           app.Log.Write(new Message
           {
             Type = MessageType.CatastrophicError,
-            Topic = SysConsts.LOG_TOPIC_ID_GEN,
+            Topic = CoreConsts.TOPIC_ID_GEN,
             From = FROM,
             Text = "Exception leaked in run(): " + error.ToMessageWithType(),
             Exception = error

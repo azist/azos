@@ -85,9 +85,9 @@ namespace Azos.IAM.Server.Data
     public string ConfirmMethod { get; set; }
 
 
-    public override ValidState Validate(ValidState state)
+    public override ValidState Validate(ValidState state, string scope = null)
     {
-      state = base.Validate(state);
+      state = base.Validate(state, scope);
       if (state.ShouldStop) return state;
 
       if (ExternalProviderData == null) return state;

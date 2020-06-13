@@ -92,9 +92,9 @@ namespace Azos.Tests.Nub.DataAccess
         [Field(required: true)]
         public string Description {get; set;}
 
-        public override ValidState Validate(ValidState state)
+        public override ValidState Validate(ValidState state, string scope = null)
         {
-          state = base.Validate(state);
+          state = base.Validate(state, scope);
           if (state.ShouldStop) return state;
 
           if (!Description.Contains("Chaplin"))

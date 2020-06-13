@@ -499,7 +499,7 @@ namespace Azos.Serialization.BSON
           return DoConvertCLRtoBSON(fieldName, data, tp, targetName);
 
         if (ts_References==null)
-            ts_References = new HashSet<object>(Collections.ReferenceEqualityComparer<object>.Default);
+            ts_References = new HashSet<object>(Collections.ReferenceEqualityComparer<object>.Instance);
 
         if (ts_References.Contains(data))
             throw new BSONException(StringConsts.CLR_BSON_CONVERSION_REFERENCE_CYCLE_ERROR.Args(tp.FullName));
@@ -596,7 +596,7 @@ namespace Azos.Serialization.BSON
 
         public static BSONDocumentElement Amount_CLRtoBSON(string name, Amount amount)
         {
-          var curEl = new BSONStringElement("c", amount.CurrencyISO);
+          var curEl = new BSONStringElement("c", amount.ISO.Value ?? string.Empty);
           var valEl = Decimal_CLRtoBSON("v", amount.Value);
           var doc = new BSONDocument();
           doc.Set(curEl).Set(valEl);

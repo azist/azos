@@ -6,8 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace Azos.Platform
@@ -17,14 +15,16 @@ namespace Azos.Platform
   /// This class is thread-safe. The internal implementation is based on a fixed-size array of Dictionary objects
   /// to minimize inter-locking. Do not allocate/deallocate this class often, instead allocate
   /// once per service that needs to synchronize by keys and call methods on the instance.
+  /// The locks provided by this class are re-entrant by the same thread
   /// </summary>
   public sealed class KeyedMonitor<TKey>
   {
-          private class _slot
-          {
-            public _slot() { RefCount = 1; }
-            public volatile int RefCount;
-          }
+    //lock ticket accessible by TKey; ref counting control lifecycle
+    private class _slot
+    {
+      public _slot() { RefCount = 1; }
+      public volatile int RefCount;
+    }
 
 
     public KeyedMonitor(IEqualityComparer<TKey> comparer = null)
@@ -81,7 +81,9 @@ namespace Azos.Platform
         if (!bucket.TryGetValue(key, out _lock))
         {
           _lock = new _slot();
+          Monitor.Enter(_lock);
           bucket.Add(key, _lock);
+          return;
         }
         else
           _lock.RefCount++;
@@ -105,6 +107,12 @@ namespace Azos.Platform
           _lock = new _slot();
           Monitor.Enter(_lock);
           bucket.Add(key, _lock);
+          return true;
+        }
+        var taken = Monitor.TryEnter(_lock);
+        if (taken)
+        {
+          _lock.RefCount++;
           return true;
         }
       }

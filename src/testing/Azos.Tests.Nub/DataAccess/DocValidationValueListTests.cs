@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -27,6 +33,12 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual("banana", sut["B"].AsString());
     }
 
+    [Run, Aver.Throws(typeof(DataException), Message ="duplicate key")]
+    public void ParseValList_1_withalt()
+    {
+      var sut = FieldAttribute.ParseValueListString("01|1|a|A: one, 2|02: two");
+    }
+
     [Run]
     public void ParseValList_2()
     {
@@ -38,6 +50,21 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual("banana", sut["b"].AsString());
       Aver.AreEqual(null, sut["A"].AsString());
       Aver.AreEqual(null, sut["B"].AsString());
+    }
+
+    [Run]
+    public void ParseValList_2_withalt()
+    {
+      var sut = FieldAttribute.ParseValueListString("01|1|a|A: one, 2|02: two", caseSensitiveKeys: true);//no error because of case sensitive
+      Aver.IsNotNull(sut);
+      Aver.IsTrue(sut.CaseSensitive);
+      Aver.AreEqual(6, sut.Count);
+      Aver.AreEqual("one", sut["1"].AsString());
+      Aver.AreEqual("one", sut["01"].AsString());
+      Aver.AreEqual("one", sut["a"].AsString());
+      Aver.AreEqual("one", sut["A"].AsString());
+      Aver.AreEqual("two", sut["2"].AsString());
+      Aver.AreEqual("two", sut["02"].AsString());
     }
 
     [Run]
@@ -195,19 +222,50 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsNull(doc.Validate());
     }
 
+    [Run]
+    public void TypedDoc_7()
+    {
+      var doc = new Doc1 { Field2 = "a" };//In list
+      Aver.IsNull(doc.Validate());
+      doc.Field2 = "ap";
+      Aver.IsNull(doc.Validate());
+      doc.Field2 = "azz";
+      Aver.IsNotNull(doc.Validate());
+
+      doc.Field2 = "b";
+      Aver.IsNull(doc.Validate());
+      doc.Field2 = "ba";
+      Aver.IsNull(doc.Validate());
+      doc.Field2 = "bazz";
+      Aver.IsNotNull(doc.Validate());
+
+      doc.Field2 = "c";
+      Aver.IsNull(doc.Validate());
+      doc.Field2 = "ch";
+      Aver.IsNull(doc.Validate());
+
+      doc.Field2 = "d";
+      Aver.IsNull(doc.Validate());
+      doc.Field2 = "dy";
+      Aver.IsNull(doc.Validate());
+      doc.Field2 = "di";
+      Aver.IsNull(doc.Validate());
+
+    }
+
     public class Doc1 : TypedDoc
     {
       [Field(valueList: "a:apple,b:banana;c:cherry,d:dynamo")]
       public string Field1{  get ; set; }
 
-      [Field(valueList: "(0):apple; b(anana): Banana Fruit; c(herry): cherry fruit; d:dynamo")]
+      [Field(valueList: "a|ap:apple,b|ba:banana;c|ch:cherry,d|dy|di:dynamo")]
       public string Field2 { get; set; }
 
 
       [Field(description: "this uses custom validation using imperative code")]
       public string Field3{  get; set;}
 
-      public override JsonDataMap GetDynamicFieldValueList(Schema.FieldDef fdef, string targetName, string isoLang)
+      public override JsonDataMap GetDynamicFieldValueList(Schema.FieldDef fdef, string targetName, Atom isoLang)
       {
         if (fdef.Name==nameof(Field3)) return new JsonDataMap{ {"a", "Adam"}, {"b", "Boris"}, { "n", "Nancy" } };
         return base.GetDynamicFieldValueList(fdef, targetName, isoLang);

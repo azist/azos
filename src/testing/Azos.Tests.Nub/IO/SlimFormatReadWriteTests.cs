@@ -1498,13 +1498,13 @@ namespace Azos.Tests.Nub.IO
 
                 Aver.IsNotNull(map2);
                 Aver.AreEqual(3, map2.Count);
-                Aver.AreEqual("Cream>Serum>Day", map2["ENG"].Name);
+                Aver.AreEqual("Cream>Serum>Day", map2["eng"].Name);
                 Aver.AreEqual("Крем>Серум>Дневной", map2["rus"].Name);
-                Aver.AreEqual("Ein Drek", map2["dEu"].Name);
+                Aver.AreEqual("Ein Drek", map2["deu"].Name);
 
-                Aver.AreEqual("Daily Serum Care", map2["ENG"].Description);
+                Aver.AreEqual("Daily Serum Care", map2["eng"].Description);
                 Aver.AreEqual("Дневной Уход Серум", map2["rus"].Description);
-                Aver.AreEqual(null, map2["dEu"].Description);
+                Aver.AreEqual(null, map2["deu"].Description);
 
                 ms.Position = 0;
                 NLSMap nullmap = new NLSMap();
@@ -1545,9 +1545,12 @@ namespace Azos.Tests.Nub.IO
 
                         Aver.IsTrue(map2.HasValue);
                         Aver.AreEqual(3, map2.Value.Count);
-                        Aver.AreEqual("Cream>Serum>Day", map2.Value["ENG"].Name);
+                        Aver.AreEqual("Cream>Serum>Day", map2.Value["eng"].Name);
                         Aver.AreEqual("Крем>Серум>Дневной", map2.Value["rus"].Name);
-                        Aver.AreEqual("Ein Drek", map2.Value["dEu"].Name);
+                        Aver.AreEqual("Крем>Серум>Дневной", map2.Value[CoreConsts.ISOA_LANG_RUSSIAN].Name);
+                        Aver.AreEqual("Ein Drek", map2.Value["deu"].Name);
+                        Aver.AreEqual("Ein Drek", map2.Value[CoreConsts.ISOA_LANG_GERMAN].Name);
+
 
 
                         ms.Position = 0;

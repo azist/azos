@@ -492,6 +492,18 @@ namespace Azos
     }
 
     /// <summary>
+    /// Reads an unsigned integer encoded as big endian from buffer at the specified index
+    /// and increments the idx by the number of bytes read
+    /// </summary>
+    public static unsafe uint ReadBEUInt32(byte* ptr, ref int idx)
+    {
+      return  ((uint)ptr[idx++] << 24) +
+              ((uint)ptr[idx++] << 16) +
+              ((uint)ptr[idx++] << 8) +
+               (uint)ptr[idx++];
+    }
+
+    /// <summary>
     /// Reads an unsigned integer encoded as little endian from buffer at the specified index
     /// and increments the idx by the number of bytes read
     /// </summary>
@@ -541,6 +553,22 @@ namespace Azos
              ((ulong)buf[idx++] << 16) +
              ((ulong)buf[idx++] << 8) +
              ((ulong)buf[idx++]);
+    }
+
+    /// <summary>
+    /// Reads an integer encoded as big endian from buffer at the specified index
+    /// and increments the idx by the number of bytes read
+    /// </summary>
+    public static unsafe UInt64 ReadBEUInt64(byte* ptr, ref int idx)
+    {
+      return ((ulong)ptr[idx++] << 56) +
+             ((ulong)ptr[idx++] << 48) +
+             ((ulong)ptr[idx++] << 40) +
+             ((ulong)ptr[idx++] << 32) +
+             ((ulong)ptr[idx++] << 24) +
+             ((ulong)ptr[idx++] << 16) +
+             ((ulong)ptr[idx++] << 8) +
+             ((ulong)ptr[idx++]);
     }
 
     /// <summary>
@@ -869,6 +897,17 @@ namespace Azos
     }
 
     /// <summary>
+    /// Writes an unsigned integer encoded as big endian to buffer at the specified index
+    /// </summary>
+    public static unsafe void WriteBEUInt32(byte* ptr, int idx, UInt32 value)
+    {
+      ptr[idx + 0] = (byte)(value >> 24);
+      ptr[idx + 1] = (byte)(value >> 16);
+      ptr[idx + 2] = (byte)(value >> 8);
+      ptr[idx + 3] = (byte)(value);
+    }
+
+    /// <summary>
     /// Writes an unsigned integer encoded as little endian to buffer at the specified index
     /// </summary>
     public static void WriteLEUInt32(this byte[] buf, int idx, UInt32 value)
@@ -908,6 +947,21 @@ namespace Azos
       buf[idx + 5] = (byte)(value >> 16);
       buf[idx + 6] = (byte)(value >> 8);
       buf[idx + 7] = (byte)(value);
+    }
+
+    /// <summary>
+    /// Writes an unsigned long integer encoded as big endian to buffer at the specified index
+    /// </summary>
+    public static unsafe void WriteBEUInt64(byte* ptr, int idx, UInt64 value)
+    {
+      ptr[idx + 0] = (byte)(value >> 56);
+      ptr[idx + 1] = (byte)(value >> 48);
+      ptr[idx + 2] = (byte)(value >> 40);
+      ptr[idx + 3] = (byte)(value >> 32);
+      ptr[idx + 4] = (byte)(value >> 24);
+      ptr[idx + 5] = (byte)(value >> 16);
+      ptr[idx + 6] = (byte)(value >> 8);
+      ptr[idx + 7] = (byte)(value);
     }
 
     /// <summary>

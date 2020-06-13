@@ -1081,9 +1081,9 @@ namespace Azos.Serialization.Bix
     #region GDID
     public Data.GDID ReadGDID()
     {
-      var era = ReadUint();
-      var id = ReadUlong();
-      return new Data.GDID(era, id);
+      var buf = Format.GetBuff32();
+      ReadFromStream(buf, sizeof(uint) + sizeof(ulong));
+      return new Data.GDID(buf);
     }
 
     public Data.GDID? ReadNullableGDID()
@@ -1171,7 +1171,7 @@ namespace Azos.Serialization.Bix
     {
       if (!ReadBool()) return null;
 
-      var len = this.ReadInt();
+      var len = this.ReadUint();
       if (len > Format.MAX_LONG_ARRAY_LEN)
         throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "fid?", Format.MAX_LONG_ARRAY_LEN));
 
@@ -1243,16 +1243,13 @@ namespace Azos.Serialization.Bix
     public NLSMap ReadNLSMap()
     {
       var cnt = ReadUshort();
-      if (cnt <= 0) return new NLSMap();
+      if (cnt == 0) return new NLSMap();
       if (cnt > NLSMap.MAX_ISO_COUNT) throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "Exceeded NLSMap.MAX_ISO_COUNT");
 
       var data = new NLSMap.NDPair[cnt];
       for (var i = 0; i < cnt; i++)
       {
-        var iso0 = this.ReadByte();
-        var iso1 = this.ReadByte();
-        var iso2 = this.ReadByte();
-        var iso = (iso0 << 16) + (iso1 << 8) + (iso2);
+        var iso = this.ReadAtom();
         var name = this.ReadString();
         var descr = this.ReadString();
         data[i] = new NLSMap.NDPair(iso, name, descr);
@@ -1309,10 +1306,10 @@ namespace Azos.Serialization.Bix
     #region AMOUNT
     public Financial.Amount ReadAmount()
     {
-      var iso = ReadString();
+      var iso = ReadAtom();
       var val = ReadDecimal();
 
-      return Financial.Amount.Deserialize(iso, val);
+      return new Financial.Amount(iso, val);
     }
 
     public Financial.Amount? ReadNullableAmount()
@@ -1361,6 +1358,7 @@ namespace Azos.Serialization.Bix
     #endregion
 
     #region ATOM
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Atom ReadAtom() => new Atom(ReadUlong());
 
     public Atom? ReadNullableAtom()

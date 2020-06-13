@@ -73,9 +73,9 @@ namespace Azos.Security.Tokens
     public abstract int TokenDefaultExpirationSeconds { get; }
 
 
-    public override ValidState Validate(ValidState state)
+    public override ValidState Validate(ValidState state, string scope = null)
     {
-      state = base.Validate(state);//ensure base constraints first (e.g. `Type` is required)
+      state = base.Validate(state, scope);//ensure base constraints first (e.g. `Type` is required)
       if (state.ShouldStop) return state;
 
       //Check type signature to ensure that the serialized token does not get deserialized into another one
@@ -87,7 +87,7 @@ namespace Azos.Security.Tokens
       return state;
     }
 
-    protected override Exception CheckValueLength(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value)
+    protected override Exception CheckValueLength(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value, string scope)
     {
       if (fdef.Name==nameof(ID) && !targetName.EqualsOrdSenseCase(PROTECTED_MSG_TARGET))
       {
@@ -96,7 +96,7 @@ namespace Azos.Security.Tokens
           return new FieldValidationException(this, nameof(ID), "Token ID byte length is {0} bytes, but must be {1} bytes".Args(l, TokenByteStrength));
       }
 
-      return base.CheckValueLength(targetName, fdef, atr, value);
+      return base.CheckValueLength(targetName, fdef, atr, value, scope);
     }
   }
 }

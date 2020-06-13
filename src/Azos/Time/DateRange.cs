@@ -1,17 +1,23 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.IO;
 using System.Collections;
+using System.Globalization;
 
 using Azos.Data;
 using Azos.Serialization.JSON;
-using System.Globalization;
 
 namespace Azos.Time
 {
   /// <summary>
   /// Represents a range of dates denoted by start/end date/times
   /// </summary>
-  public struct DateRange : IEquatable<DateRange>, IJsonWritable, IJsonReadable, IFormattable
+  public struct DateRange : IEquatable<DateRange>, IJsonWritable, IJsonReadable, IFormattable, IRequired
   {
     /// <summary>
     /// Create a range, at least one component is required. If both are specified both need to be in the same timezone and
@@ -47,6 +53,8 @@ namespace Azos.Time
     /// Returns true if neither dates are set
     /// </summary>
     public bool IsUnassigned => !Start.HasValue && !End.HasValue;
+
+    public bool CheckRequired(string targetName) => !IsUnassigned;
 
     /// <summary>
     /// Specified the kind of the range: Unspecified|Local|Utc

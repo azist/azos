@@ -3,8 +3,9 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-
 using System;
+
+using Azos.Data;
 
 namespace Azos.Wave.Cms
 {
@@ -14,7 +15,7 @@ namespace Azos.Wave.Cms
   /// a block represents a concrete piece of content on a page/document/interface
   /// </summary>
   [Serializable]
-  public struct ContentId : IEquatable<ContentId>
+  public struct ContentId : IEquatable<ContentId>, IRequired
   {
     /// <summary>
     /// Imposes a limit on the content id segment identifier
@@ -62,6 +63,8 @@ namespace Azos.Wave.Cms
     /// Returns true if this is an assigned structure
     /// </summary>
     public bool IsAssigned => Portal != null;
+
+    public bool CheckRequired(string targetName) => IsAssigned;
 
     public bool Equals(ContentId other)
       => this.Block.EqualsOrdIgnoreCase(other.Block) && //most specific

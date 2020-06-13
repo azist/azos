@@ -23,7 +23,7 @@ namespace Azos.Wave.Client
   /// <param name="value">English value</param>
   /// <param name="isoLang">Requested language or null</param>
   /// <returns>Localized value, i.e. depending on user culture looks-up culture-specific version of value</returns>
-  public delegate string ModelLocalizationEventHandler(RecordModelGenerator sender, string schema, string field, string value, string isoLang);
+  public delegate string ModelLocalizationEventHandler(RecordModelGenerator sender, string schema, string field, string value, Atom isoLang);
 
 
   /// <summary>
@@ -40,7 +40,7 @@ namespace Azos.Wave.Client
                                                             Doc  doc,
                                                             Schema.FieldDef fdef,
                                                             string target,
-                                                            string isoLang);
+                                                            Atom isoLang);
 
   /// <summary>
   /// Facilitates tasks of JSON generation for record models/data docs as needed by WV.RecordModel client library.
@@ -116,9 +116,9 @@ namespace Azos.Wave.Client
       /// </summary>
       public virtual JsonDataMap RowToRecordInitJSON(Doc doc,
                                                      Exception validationError,
+                                                     Atom isoLang,
                                                      string recID = null,
                                                      string target = null,
-                                                     string isoLang = null,
                                                      ModelFieldValueListLookupFunc valueListLookup = null)
       {
         var result = new JsonDataMap();
@@ -127,7 +127,7 @@ namespace Azos.Wave.Client
 
         result["OK"] = true;
         result["ID"] = recID;
-        if (isoLang.IsNotNullOrWhiteSpace())
+        if (!isoLang.IsZero)
           result["ISOLang"] = isoLang;
 
         //20140914 DKh
@@ -183,7 +183,7 @@ namespace Azos.Wave.Client
                                                    string schema,
                                                    Schema.FieldDef fdef,
                                                    string target,
-                                                   string isoLang,
+                                                   Atom isoLang,
                                                    ModelFieldValueListLookupFunc valueListLookup)
       {
         var result = new JsonDataMap();
@@ -266,7 +266,7 @@ namespace Azos.Wave.Client
 
 
 
-      protected virtual string OnLocalizeString(string schema, string prop, string value, string isoLang)
+      protected virtual string OnLocalizeString(string schema, string prop, string value, Atom isoLang)
       {
         if (ModelLocalization==null) return value;
         return ModelLocalization(this, schema, prop, value, isoLang);

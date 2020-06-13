@@ -132,7 +132,7 @@ namespace Azos.Data
       //if doc!=null call doc.GetClientFieldValueList on the instance to get values from Database lookups etc...
       if (doc!=null)
       {
-        var lookup = doc.GetDynamicFieldValueList(def, targetName, null);
+        var lookup = doc.GetDynamicFieldValueList(def, targetName, Atom.ZERO);
         if (lookup != null)//non-null blank lookup is treated as blank lookup overshadowing the hard-coded choices from .ValueList
         {
           if (nvlist.IsValueCreated)

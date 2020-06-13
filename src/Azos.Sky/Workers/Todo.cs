@@ -8,7 +8,7 @@ using System;
 using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Data;
-using Azos.Data.Access;
+using Azos.Data.Idgen;
 
 namespace Azos.Sky.Workers
 {
@@ -195,9 +195,9 @@ namespace Azos.Sky.Workers
       DoPrepareForEnqueuePostValidate(targetName);
     }
 
-    public override ValidState Validate(ValidState state)
+    public override ValidState Validate(ValidState state, string scope = null)
     {
-      state = base.Validate(state);
+      state = base.Validate(state, scope);
       if (state.ShouldStop) return state;
 
       if (SysID.IsZero)

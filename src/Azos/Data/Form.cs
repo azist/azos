@@ -5,9 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Azos.Serialization.JSON;
 
@@ -167,7 +164,7 @@ namespace Azos.Data
 
       validationState = this.Validate(validationState);
 
-      validationState = DoAfterValidateOnSave(ref validationState);
+      validationState = DoAfterValidateOnSave(validationState);
 
       if (validationState.HasErrors)
         return new SaveResult<TSaveResult>(validationState.Error);
@@ -194,7 +191,7 @@ namespace Azos.Data
     /// by returning a clean ValidState instance
     /// </summary>
     /// <param name="state">Validation state instance which you can disregard by returning a new ValidState without an error</param>
-    protected virtual ValidState DoAfterValidateOnSave(ref ValidState state) => state;
+    protected virtual ValidState DoAfterValidateOnSave(ValidState state) => state;
 
 
     /// <summary>

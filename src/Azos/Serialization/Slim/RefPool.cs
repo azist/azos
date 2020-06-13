@@ -58,7 +58,7 @@ namespace Azos.Serialization.Slim
 
        private SerializationOperation m_Mode;
        private QuickRefList m_List = new QuickRefList(POOL_CAPACITY);
-       private Dictionary<object, int> m_Dict = new Dictionary<object,int>(POOL_CAPACITY, Collections.ReferenceEqualityComparer<object>.Default);
+       private Dictionary<object, int> m_Dict = new Dictionary<object,int>(POOL_CAPACITY, Collections.ReferenceEqualityComparer<object>.Instance);
        private List<_ISerializableFixup> m_Fixups = new List<_ISerializableFixup>();
        private List<_OnDeserializedCallback> m_OnDeserializedCallbacks = new List<_OnDeserializedCallback>();
 

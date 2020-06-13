@@ -132,15 +132,14 @@ namespace Azos.Wave.Cms.Default
     }
 
     /// <summary>
-    /// Implements <see cref="ICmsSource.FetchContentAsync(ContentId, string, DateTime, ICacheParams)"/>
+    /// Implements <see cref="ICmsSource.FetchContentAsync(ContentId, Atom, DateTime, ICacheParams)"/>
     /// </summary>
-    public async Task<Content> FetchContentAsync(ContentId id, string isoLang, DateTime utcNow, ICacheParams caching)
+    public async Task<Content> FetchContentAsync(ContentId id, Atom isoLang, DateTime utcNow, ICacheParams caching)
     {
       ensureOperationalState();
       var appliedIsoLang = ComponentDirector.DefaultGlobalLanguage.ISO; //in future this can be moved to property per portal
 
-      if (isoLang.IsNullOrWhiteSpace())
-        isoLang = appliedIsoLang;
+      if (isoLang.IsZero) isoLang = appliedIsoLang;
 
       var dirPath = m_FS.CombinePaths(m_FSRootPath, id.Portal, id.Namespace);
 
@@ -195,7 +194,7 @@ namespace Azos.Wave.Cms.Default
                                  txtContent,
                                  binContent,
                                  ctp.ContentType,
-                                 new LangInfo(appliedIsoLang, appliedIsoLang),
+                                 new LangInfo(appliedIsoLang, appliedIsoLang.Value),
                                  attachmentFileName: id.Block,
                                  createUser: createUser,
                                  modifyUser: modifyUser,
@@ -213,11 +212,11 @@ namespace Azos.Wave.Cms.Default
         throw new CmsException($"CMS component {GetType().Name} is not configured: file system is not set");
     }
 
-    private (string fn, string ext) getFileNameWithLangIso(string fileName, string langIso)
+    private (string fn, string ext) getFileNameWithLangIso(string fileName, Atom langIso)
     {
       var fn = Path.GetFileNameWithoutExtension(fileName);
       var ext = Path.GetExtension(fileName);//includes the '.'
-      return ($"{fn}_{langIso}{ext}", ext);
+      return ($"{fn}_{langIso.Value}{ext}", ext);
     }
   }
 }

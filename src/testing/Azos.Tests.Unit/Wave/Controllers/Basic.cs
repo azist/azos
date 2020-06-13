@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using Azos.Web;
 using Azos.Wave.Mvc;
@@ -9,6 +10,20 @@ namespace Azos.Tests.Unit.Wave.Controllers
   {
     [Action]
     public object ActionPlainText() => "Response in plain text";
+
+    [Action]
+    public void ActionVoidPlainTextWrite()
+    {
+      WorkContext.Response.ContentType = ContentType.TEXT;
+      WorkContext.Response.Write("0123456789");
+    }
+
+    [Action]
+    public async Task ActionTaskPlainTextWrite()
+    {
+      WorkContext.Response.ContentType = ContentType.TEXT;
+      WorkContext.Response.Write("0123456789");
+    }
 
     [Action]
     public object ActionObjectLiteral() => new {a = 1, b = true, d = new DateTime(1980, 1, 1)};
