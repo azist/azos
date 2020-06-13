@@ -21,8 +21,6 @@ namespace Azos.Instrumentation
   {
     #region CONST
     public const string UNSPECIFIED_SOURCE = "*";
-    public const string FRAMEWORK_SOURCE = "Frmwrk";
-    public const string BUSINESS_SOURCE = "BsnsLgc";
     #endregion
 
     /// <summary>
@@ -34,48 +32,60 @@ namespace Azos.Instrumentation
     #region .ctor
     protected Datum()
     {
-      m_UTCTime = Ambient.UTCNow;
+      m_StartUtc = Ambient.UTCNow;
     }
 
     protected Datum(string source)
     {
       m_Source = source;
-      m_UTCTime = Ambient.UTCNow;
+      m_StartUtc = Ambient.UTCNow;
     }
 
     protected Datum(string source, DateTime utcDateTime)
     {
       m_Source = source;
-      m_UTCTime = utcDateTime;
+      m_StartUtc = utcDateTime;
     }
     #endregion
 
     #region Fields
+    private GDID m_Gdid;
     private string m_Source;
     private int m_Count;
-    private DateTime m_UTCTime;
-    private DateTime m_UTCEndTime;
+    private DateTime m_StartUtc;
+    private DateTime m_EndUtc;
     #endregion
 
     #region Properties
+
+    /// <summary>
+    /// Global distributed ID used by distributed log warehouses. GDID.ZERO for local logging applications
+    /// </summary>
+    [Field, Field(isArow: true, backendName: "gdid")]
+    public GDID Gdid
+    {
+      get => m_Gdid;
+      set => m_Gdid = value;
+    }
+
     /// <summary>
     /// Returns UTC time stamp when event happened
     /// </summary>
     [Field, Field(isArow: true, backendName: "sts")]
-    public DateTime UTCTime
+    public DateTime StartUtc
     {
-      get => m_UTCTime;
-      protected set => m_UTCTime = value;
+      get => m_StartUtc;
+      protected set => m_StartUtc = value;
     }
 
     /// <summary>
     /// Returns UTC time stamp when event happened. This property may be gotten only if IsAggregated==true, otherwise UTCTime value is returned
     /// </summary>
     [Field, Field(isArow: true, backendName: "ets")]
-    public DateTime UTCEndTime
+    public DateTime EndUtc
     {
-      get => m_Count == 0 ? m_UTCTime : m_UTCEndTime;
-      protected set => m_UTCEndTime = value;
+      get => m_Count == 0 ? m_StartUtc : m_EndUtc;
+      protected set => m_EndUtc = value;
     }
 
 
@@ -105,6 +115,11 @@ namespace Azos.Instrumentation
     }
 
     /// <summary>
+    /// Returns archive dimensions vector which by default short-circuits to Source
+    /// </summary>
+    public virtual string ArchiveDimensions => Source;
+
+    /// <summary>
     /// True if this instance represent an unspecified source
     /// </summary>
     public bool IsUnspecifiedSource => IsUnspecifiedSourceString(Source);
@@ -118,17 +133,13 @@ namespace Azos.Instrumentation
       {
         if (m_Count <= 0) return CoreConsts.UNKNOWN;
 
-        var span = m_UTCEndTime - m_UTCTime;
+        var span = m_EndUtc - m_StartUtc;
 
         if (m_Count == 1 && span.TotalMilliseconds < 0.1) return string.Empty;
 
         var rate = m_Count / span.TotalSeconds;
 
-        if (rate > 1.0)
-          return string.Format("{0:0.00}/sec.", rate);
-
-        rate = rate * 1000;
-        return string.Format("{0:0.00}/msec.", rate);
+        return Math.Abs(rate) > 1.0 ? "{0:0.00}/sec.".Args(rate) : "{0:0.00}/msec.".Args(1000 * rate);
       }
     }
 
@@ -189,14 +200,14 @@ namespace Azos.Instrumentation
       foreach (var e in many)
       {
         cnt++;
-        if (e.UTCTime < start) start = e.UTCTime;
-        if (e.UTCTime > end) end = e.UTCTime;
+        if (e.StartUtc < start) start = e.StartUtc;
+        if (e.StartUtc > end) end = e.StartUtc;
         result.AggregateEvent(e);
       }
 
       result.m_Count = cnt;
-      result.m_UTCTime = start;
-      result.m_UTCEndTime = end;
+      result.m_StartUtc = start;
+      result.m_EndUtc = end;
       result.SummarizeAggregation();
 
       return result;
@@ -217,7 +228,7 @@ namespace Azos.Instrumentation
     /// </summary>
     public virtual void ReduceSourceDetail(int reductionLevel)
     {
-      if (reductionLevel < 0) m_Source = string.Empty;
+      if (reductionLevel < 0) m_Source = null;
     }
 
     public override string ToString()
