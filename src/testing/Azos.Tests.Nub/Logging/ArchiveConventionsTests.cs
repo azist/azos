@@ -1,0 +1,55 @@
+/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+
+using System;
+
+using Azos.Log;
+using Azos.Scripting;
+
+namespace Azos.Tests.Nub.Logging
+{
+  [Runnable]
+  public class ArchiveConventionsTests
+  {
+
+    //In this test we try to setup our own logger instance manually
+    //injecting memory buffer by code
+    [Run]
+    public void Test01()
+    {
+      var got = ArchiveConventions.DecodeArchiveDimensionsMap((string)null);
+      Aver.IsNull(got);
+
+      got = ArchiveConventions.DecodeArchiveDimensionsMap("       ");
+      Aver.IsNull(got);
+
+      got = ArchiveConventions.DecodeArchiveDimensionsMap((IArchiveLoggable)null);
+      Aver.IsNull(got);
+
+      got = ArchiveConventions.DecodeArchiveDimensionsMap("not a content produced by convention");
+      Aver.IsNull(got);
+    }
+
+
+    [Run]
+    public void Test02()
+    {
+      var encoded = ArchiveConventions.EncodeArchiveDimensions( new { a = 1, b = 3 });
+      encoded.See();
+
+      var decoded = ArchiveConventions.DecodeArchiveDimensionsMap(encoded);
+      Aver.IsNotNull(decoded);
+      Aver.AreEqual(2, decoded.Count);
+
+      Aver.AreObjectsEqual(1, decoded["a"]);
+      Aver.AreObjectsEqual(3, decoded["b"]);
+
+    }
+
+
+  }
+}
