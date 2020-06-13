@@ -22,7 +22,6 @@ namespace Azos.Instrumentation.Self
 
   [Serializable]
   [Arow("0A2258D7-D918-434C-83A3-A229B4368450")]
-  [BSONSerializable("4FCE71FC-4082-4783-AB78-05F541DB9213")]
   public class RecordCount : SelfInstrumentationLongGauge, IMemoryInstrument
   {
     protected RecordCount(long value) : base(value) { }
@@ -40,7 +39,6 @@ namespace Azos.Instrumentation.Self
 
   [Serializable]
   [Arow("C66CC4FD-6D35-41F2-A207-9CFACCC26B50")]
-  [BSONSerializable("FA356440-4E5B-4504-A887-97FB9AD66194")]
   public class RecordLoad : SelfInstrumentationLongGauge, IMemoryInstrument
   {
     protected RecordLoad(long value) : base(value) { }
@@ -59,7 +57,6 @@ namespace Azos.Instrumentation.Self
 
   [Serializable]
   [Arow("E354C50D-BCE5-4310-B085-2A45EC23839C")]
-  [BSONSerializable("947A802D-42BF-424E-B294-120C47A26E12")]
   public class ProcessingInterval : SelfInstrumentationLongGauge
   {
     protected ProcessingInterval(long value) : base(value) { }
@@ -78,7 +75,6 @@ namespace Azos.Instrumentation.Self
 
   [Serializable]
   [Arow("A2FA4349-6C0C-4F62-BE58-63B2FECF8BAF")]
-  [BSONSerializable("9D3B3DE2-4CA5-4FC7-9827-D79D26E39F80")]
   public class BufferMaxAge : SelfInstrumentationLongGauge, IMemoryInstrument
   {
     protected BufferMaxAge(long value) : base(value) { }

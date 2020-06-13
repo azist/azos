@@ -18,7 +18,6 @@ namespace Azos.Sky.Locking.Instrumentation
   /// </summary>
   [Serializable]
   [Arow("4258663D-21C0-48CB-9CFD-4EB335D923CC")]
-  [BSONSerializable("C189E810-9971-4225-94C3-306FEFB40600")]
   public sealed class LockSessions : LockingClientGauge
   {
     internal LockSessions(long value) : base(Datum.UNSPECIFIED_SOURCE, value) { }
@@ -36,7 +35,6 @@ namespace Azos.Sky.Locking.Instrumentation
   /// </summary>
   [Serializable]
   [Arow("4EF3D2B7-C4EF-4F87-985E-B3D85DDB5EA0")]
-  [BSONSerializable("06A5C7D0-7A28-4E8C-B642-B089B33717C1")]
   public sealed class LockTransactionRequests : LockingClientGauge
   {
     internal LockTransactionRequests(string src, long value) : base(src, value) { }
