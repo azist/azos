@@ -14,31 +14,37 @@ namespace Azos.Client
   /// </summary>
   public struct EndpointAssignment : IEquatable<EndpointAssignment>
   {
-    public EndpointAssignment(IEndpoint ep, Atom net, Atom binding, string addr, string contract)
+    public EndpointAssignment(IEndpoint ep, string mappedAddr, string mappedContract)
     {
-      Endpoint = ep;
-      Network = net;
-      Binding = binding;
-      RemoteAddress = addr;
-      Contract = contract;
+      Endpoint = ep.NonNull(nameof(ep));
+      MappedRemoteAddress = mappedAddr;
+      MappedContract = mappedContract;
     }
 
+    /// <summary>
+    /// An actual endpoint assigned to handle the call. The effective address, and contract are taken from the endpoint,
+    /// whereas the rest of the field in this structure represent the requested value that got mapped/assigned into the real endpoint
+    /// </summary>
     public readonly IEndpoint Endpoint;
-    public readonly Atom Network;
-    public readonly Atom Binding;
-    public readonly string RemoteAddress;
-    public readonly string Contract;
 
-    public override string ToString() => "{0}({1},{2},{3},`{4}`)".Args((Endpoint?.GetType().Name).Default("[NONE]"), Network, Binding, Contract, RemoteAddress);
+    /// <summary>
+    /// Returns the originally requested RemoteAddress that got mapped/assigned to this Endpoint
+    /// </summary>
+    public readonly string MappedRemoteAddress;
 
-    public override int GetHashCode() => (Endpoint != null ? Endpoint.GetHashCode() : 0) ^ (RemoteAddress != null ? RemoteAddress.GetHashCode() : 0);
+    /// <summary>
+    /// Returns the originally requested Contract that got mapped/assigned to this Endpoint
+    /// </summary>
+    public readonly string MappedContract;
+
+    public override string ToString() => "{0}(`{1}`->`{2}`)".Args((Endpoint?.GetType().Name).Default("[NONE]"), MappedRemoteAddress.Default("?"), (Endpoint?.RemoteAddress).Default("?"));
+
+    public override int GetHashCode() => (Endpoint != null ? Endpoint.GetHashCode() : 0) ^ (MappedRemoteAddress != null ? MappedRemoteAddress.GetHashCode() : 0);
     public override bool Equals(object obj) => obj is EndpointAssignment epa ? this.Equals(epa) : false;
     public bool Equals(EndpointAssignment other)
      => this.Endpoint == other.Endpoint &&
-        this.Network == other.Network &&
-        this.Binding == other.Binding &&
-        this.RemoteAddress.EqualsOrdSenseCase(other.RemoteAddress) &&
-        this.Contract.EqualsOrdSenseCase(other.Contract);
+        this.MappedRemoteAddress.EqualsOrdSenseCase(other.MappedRemoteAddress) &&
+        this.MappedContract.EqualsOrdSenseCase(other.MappedContract);
 
     public static bool operator ==(EndpointAssignment a, EndpointAssignment b) => a.Equals(b);
     public static bool operator !=(EndpointAssignment a, EndpointAssignment b) => !a.Equals(b);

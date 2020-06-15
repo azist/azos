@@ -11,6 +11,7 @@ using System.Threading;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Text;
 
 namespace Azos.Client
 {
@@ -70,14 +71,15 @@ namespace Azos.Client
       if (!m_EPCache.TryGetValue(key, out var shards))
       {
         shards = m_Endpoints.Where(ep =>
-              ep.RemoteAddress.EqualsIgnoreCase(remoteAddress) &&
-              ep.Contract.EqualsIgnoreCase(contract) &&
-              ep.Binding == binding &&
-              ep.Network == network
-            ).GroupBy(ep => ep.Shard)
-             .OrderBy(g => g.Key)
-             .Select(g => g.OrderBy(ep => ep.ShardOrder).Select( ep => new EndpointAssignment(ep, network, binding, remoteAddress, contract)).ToArray())
-             .ToArray();
+                    remoteAddress.MatchPattern(ep.RemoteAddress) &&
+                    contract.MatchPattern(ep.Contract) &&
+                    ep.Binding == binding &&
+                    ep.Network == network
+                ).GroupBy(ep => ep.Shard)
+                 .OrderBy(g => g.Key)
+                 .Select(g => g.OrderBy(ep => ep.ShardOrder)
+                               .Select( ep => new EndpointAssignment(ep, remoteAddress, contract)).ToArray())
+                 .ToArray();
 
         if (shards.Length==0) return Enumerable.Empty<EndpointAssignment>();
 

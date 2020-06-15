@@ -46,13 +46,17 @@ namespace Azos.Client
 
     /// <summary>
     /// Provides remote address routing/logical host/partition name which is used to match the callers address.
-    /// For Sky apps this is a metabase host name (regional path) of the target server which provides the service
+    /// For Sky apps this is a metabase host name (regional path) of the target server which provides the service.
+    /// Some provider may implement pattern matching on remote addresses, for example `Primary*` would match
+    /// multiple requested logical addressed (e.g. `Primary1, Primary2`) assigned to this endpoint
     /// </summary>
     string RemoteAddress { get; }
 
     /// <summary>
     /// Provides logical contract name for the functionality which this service endpoint covers.
-    /// For Http bindings this typically contains URI root path, such as "/user/admin"
+    /// Contracts allow to provide more fine-grained assignment of different endpoints serving of otherwise the same logical address.
+    /// For Http bindings this typically contains URI root path, such as "/user/admin".
+    /// Some providers may implement pattern matching on contract names.
     /// </summary>
     string Contract {  get; }
 
