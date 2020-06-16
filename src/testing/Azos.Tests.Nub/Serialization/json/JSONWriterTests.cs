@@ -574,6 +574,20 @@ namespace Azos.Tests.Nub.Serialization
             Aver.AreEqual(@"{""d_f"":true,""d_five"":4,""d_seven"":7.1}", json);
         }
 
+        [Run]
+        public void SortMapKeys()
+        {
+          var dict = new JsonDataMap(){ {"z", 1}, {"g",-2}, {"a", 3}, {"b", 7} };
+
+          var json = dict.ToJson(JsonWritingOptions.Compact);
+          json.See();
+
+          json = dict.ToJson(new JsonWritingOptions(JsonWritingOptions.Compact){ MapSortKeys = true});
+          json.See();
+          Aver.AreEqual(@"{""a"":3,""b"":7,""g"":-2,""z"":1}", json);
+
+        }
+
     }
 
 }
