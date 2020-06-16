@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.4.2
-set HEADLINE=Add ICallFlow and fixes
+set VER=1.4.3
+set HEADLINE=Add ArchiveConventions
 
 call vs2017-build-release %VER%
 
