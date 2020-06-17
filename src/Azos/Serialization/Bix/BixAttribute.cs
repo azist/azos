@@ -11,7 +11,10 @@ namespace Azos.Serialization.Bix
 {
   /// <summary>
   /// Decorates data document types that support Bix serialization -
-  /// types that generate Bix serialization/deserialization method cores
+  /// types that generate Bix serialization/deserialization method cores.
+  /// This class can also be cross-used for type discriminator function in JSON serialization
+  /// of TypedDocs, since the Bix attribute is already decorating most types, it can be re-used
+  /// for Json polymorphism
   /// </summary>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
   public sealed class BixAttribute : GuidTypeAttribute
