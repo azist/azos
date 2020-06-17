@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.4.3
-set HEADLINE=Add ArchiveConventions
+set VER=1.4.4
+set HEADLINE=Add Bix Polymorphism to Json
 
 call vs2017-build-release %VER%
 
