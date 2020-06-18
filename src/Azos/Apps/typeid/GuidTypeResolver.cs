@@ -98,7 +98,7 @@ namespace Azos.Apps
     private volatile Dictionary<Fguid, Type> m_Cache2;
 
 
-    public void AddTypes(IEnumerable<(Guid id, Type type)> batch)
+    public void AddTypes(IEnumerable<(Guid id, Type type)> batch, bool throwDups = true)
     {
       if (batch==null) return;
       if (!batch.Any() || batch.All(e => m_Cache1.TryGetValue(e.id, out var _))) return;
@@ -107,6 +107,11 @@ namespace Azos.Apps
       var cache2 = new Dictionary<Fguid, Type>(m_Cache2);
       foreach(var pair in batch)
       {
+        if (throwDups && cache1.TryGetValue(pair.id, out var existing) && pair.type != existing)
+        {
+          throw new AzosException(StringConsts.GUID_TYPE_RESOLVER_DUPLICATE_ATTRIBUTE_ERROR.Args(pair.type.FullName, pair.id, existing.FullName));
+        }
+
         cache1[pair.id] = pair.type;
         cache2[pair.id] = pair.type;
       }
