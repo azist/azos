@@ -23,7 +23,7 @@ namespace Azos.Data.Business
     /// Initializes an instance
     /// </summary>
     /// <param name="sys">System is required</param>
-    /// <param name="type">Type is optional, so you can pass Aztom.ZERO</param>
+    /// <param name="type">Type is optional, so you can pass Atom.ZERO</param>
     /// <param name="address">Required entity address</param>
     public EntityId(Atom sys, Atom type, string address)
     {
@@ -65,7 +65,7 @@ namespace Azos.Data.Business
 
     public override int GetHashCode() => System.GetHashCode() ^ Type.GetHashCode() ^ Address.GetHashCode();
 
-    public ulong GetDistributedStableHash() => ShardingUtils.StringToShardingID(Address);
+    public ulong GetDistributedStableHash() => (((ulong)System.GetHashCode() << 32) ^ (ulong)Type.GetHashCode()) ^ ShardingUtils.StringToShardingID(Address);
 
     public override bool Equals(object obj) => obj is EntityId other ? this.Equals(other) : false;
 
@@ -103,6 +103,8 @@ namespace Azos.Data.Business
       if (i < 1 || i == val.Length - SYS_PREFIX.Length) return false;
       var ssys = val.Substring(0, i);
       var sadr = val.Substring(i + SYS_PREFIX.Length);
+
+      if (sadr.IsNullOrWhiteSpace()) return false;
 
       Atom type = Atom.ZERO;
       var j = ssys.IndexOf(TP_PREFIX);
