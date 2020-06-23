@@ -91,7 +91,7 @@ namespace Azos.Serialization.JSON
 
     /// <summary>
     /// System method, app developers do not call.
-    /// Sets process-wide reader backend. Passing null resets the backend to ClassicJsonReaderBackend
+    /// Sets process-wide reader backend. Passing null resets the backend to DEFAULT_READER_BACKEND
     /// </summary>
     public static void ____SetReaderBackend(IJsonReaderBackend backend)
     {

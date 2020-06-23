@@ -125,6 +125,7 @@ namespace Azos.Serialization.JSON
           this.RowsetMetadata           = other.RowsetMetadata;
           this.Purpose                  = other.Purpose;
           this.MapSkipNulls             = other.MapSkipNulls;
+          this.MapSortKeys              = other.MapSortKeys;
           this.RowMapTargetName         = other.RowMapTargetName;
         }
 
@@ -145,6 +146,7 @@ namespace Azos.Serialization.JSON
         private bool m_RowsetMetadata;
         private JsonSerializationPurpose m_Purpose;
         private bool   m_MapSkipNulls;
+        private bool   m_MapSortKeys;
         private string m_RowMapTargetName;
 
 
@@ -294,6 +296,16 @@ namespace Azos.Serialization.JSON
         {
           get => m_MapSkipNulls;
           set => m_MapSkipNulls = nonsys(value);
+        }
+
+        /// <summary>
+        /// If true, then sorts keys by name ascending
+        /// </summary>
+        [Config]
+        public bool MapSortKeys
+        {
+          get => m_MapSortKeys;
+          set => m_MapSortKeys = nonsys(value);
         }
 
 

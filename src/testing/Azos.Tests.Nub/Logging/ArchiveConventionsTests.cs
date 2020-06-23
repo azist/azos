@@ -50,6 +50,21 @@ namespace Azos.Tests.Nub.Logging
 
     }
 
+    [Run]
+    public void Test03()
+    {
+      var encoded1 = ArchiveConventions.EncodeArchiveDimensions(new { a = 1, b = 3 });
+      var encoded2 = ArchiveConventions.EncodeArchiveDimensions(new { b = 3, a = 1, c = (string)null });
+      encoded1.See();
+      encoded2.See();
+      Aver.AreEqual(encoded1, encoded2);
 
+      var decoded = ArchiveConventions.DecodeArchiveDimensionsMap(encoded1);
+      Aver.IsNotNull(decoded);
+      Aver.AreEqual(2, decoded.Count);
+
+      Aver.AreObjectsEqual(1, decoded["a"]);
+      Aver.AreObjectsEqual(3, decoded["b"]);
+    }
   }
 }

@@ -18,7 +18,8 @@ namespace Azos.Log
   {
     private static readonly JsonWritingOptions JSON_FORMAT = new JsonWritingOptions(JsonWritingOptions.CompactRowsAsMap)
     {
-      MapSkipNulls =true,
+      MapSkipNulls = true,
+      MapSortKeys = true,
       ISODates = true
     };
 
