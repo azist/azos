@@ -111,7 +111,7 @@ namespace Azos.Pile
     /// <summary>
     /// Returns the percentage of occupied table slots.
     /// When this number exceeds high-water-mark threshold the table is grown,
-    /// otheriwse if the number falls below the low-water-mark level then the table is shrunk
+    /// otherwise if the number falls below the low-water-mark level then the table is shrunk
     /// </summary>
     double LoadFactor{ get;}
 
