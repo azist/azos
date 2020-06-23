@@ -10,7 +10,7 @@ using System.Collections.Generic;
 namespace Azos.Data.Access
 {
   /// <summary>
-  /// Represents a buffer-less unidicrectional reader that binds IEnumerable(Doc) and the backend resource
+  /// Represents a buffer-less unidirectional reader that binds IEnumerable(Doc) and the backend resource
   /// (such as SQLReader or other object which is internal to the backend).
   /// The cursor is NOT thread-safe and must be disposed properly by closing all resources associated with it.
   /// Only one iteration (one call to GetEnumerator) is possible
@@ -43,7 +43,7 @@ namespace Azos.Data.Access
     }
 
     /// <summary>
-    /// This method is not inteded to be called by application developers
+    /// This method is not intended to be called by application developers
     /// </summary>
     protected Cursor(IEnumerable<Doc> source)
     {
