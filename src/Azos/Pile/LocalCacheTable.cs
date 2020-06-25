@@ -708,8 +708,16 @@ namespace Azos.Pile
         {
            if (ageSec==0 || entry.AgeSec < ageSec)
            {
-             Interlocked.Increment(ref m_stat_GetHit);
-             return m_Cache.m_Pile.Get(ptr);
+             try
+             {
+               var got = m_Cache.m_Pile.Get(ptr);
+               Interlocked.Increment(ref m_stat_GetHit);
+               return got;
+             }
+             catch(PileAccessViolationException)
+             {
+               //the pointer is bad, so it is a miss, just exit out of here as-if pointer was not valid
+             }
            }
         }
       }

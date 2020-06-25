@@ -113,8 +113,6 @@ namespace Azos.Data
     void AfterLoad(string targetName);
   }
 
-
-
   /// <summary>
   /// Supplies caching params
   /// </summary>
@@ -143,5 +141,16 @@ namespace Azos.Data
     /// When true would cache the instance of AbsentData to signify the absence of data in the backend for key
     /// </summary>
     bool CacheAbsentData { get; }
+  }
+
+  /// <summary>
+  /// Denotes entities that have schemas, such as rowsets and data Docs
+  /// </summary>
+  public interface IOfSchema
+  {
+    /// <summary>
+    /// Defines data schema for this instance
+    /// </summary>
+    Schema Schema{  get; }
   }
 }

@@ -24,13 +24,8 @@ namespace Azos.Data
   /// Marker interface - abstraction for data documents, interface used as constraint on other interfaces
   /// typically used in domain entity design. Doc class is the only one implementing this interface
   /// </summary>
-  public interface IDataDoc : IEquatable<Doc>, IEnumerable<Object>, IValidatable, IConfigurable, IConfigurationPersistent
+  public interface IDataDoc : IOfSchema, IEquatable<Doc>, IEnumerable<Object>, IValidatable, IConfigurable, IConfigurationPersistent
   {
-    /// <summary>
-    /// Returns schema object that describes field structure of this document
-    /// </summary>
-    Schema Schema { get; }
-
     /// <summary>
     /// Gets/sets field values by name
     /// </summary>

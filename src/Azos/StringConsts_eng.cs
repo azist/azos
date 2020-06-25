@@ -298,6 +298,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
        "Error mapping type '{0}' to record model field. No mapping exists";
 
 
+    public const string APP_INJECTED_CONFIG_FILE_NOT_FOUND_ERROR =
+         "Specified application configuration file `{0}` does not exist. Revise command line arguments for `-{1}` switch";
+
     public const string APP_CONFIG_SETTING_NOT_FOUND_ERROR =
         "Application configuration setting \"{0}\" not found.";
 
@@ -309,7 +312,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
         "This can happen if external variable providers keep on yielding resolved values with new variables which never resolve within the allowed limit of {1} iterations";
 
     public const string CONFIG_NO_PROVIDER_LOAD_FILE_ERROR =
-        "No configuration provider can open file name: ";
+        "No configuration provider can load content from file name: ";
 
     public const string CONFIG_NO_PROVIDER_HANDLE_FILE_ERROR =
         "No configuration provider can handle file name: ";
