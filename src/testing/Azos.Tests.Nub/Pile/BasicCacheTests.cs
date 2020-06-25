@@ -103,7 +103,7 @@ namespace Azos.Tests.Nub.Pile
 
     [Run("cnt = 1000")]
     [Run("cnt = 50000")]
-    [Run("cnt = 500000")]
+    [Run("cnt = 375000")]
     public void PutDurableParallel(int cnt)
     {
       using (var m_Sut = new LocalCache(NOPApplication.Instance))
