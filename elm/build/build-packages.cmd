@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.4.4
-set HEADLINE=Add Bix Polymorphism to Json
+set VER=1.4.5
+set HEADLINE=Svc feature release
 
 call vs2017-build-release %VER%
 
