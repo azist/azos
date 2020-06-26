@@ -27,26 +27,35 @@ namespace Azos.Tests.Nub.Pile
         Aver.IsTrue(PutResult.Inserted == tbl.Put(1, "my string 1234567", out var ptr));
         Aver.IsTrue(PutResult.Inserted == tbl.PutPointer(123_000_000, ptr));
 
+        Aver.IsTrue(tbl.ContainsKey(1));
         var got = tbl.Get(1);
         Aver.AreObjectsEqual("my string 1234567", got);
 
+        Aver.IsFalse(tbl.ContainsKey(2));
         got = tbl.Get(2);
         Aver.AreObjectsEqual(null, got);
 
+        Aver.IsTrue(tbl.ContainsKey(123_000_000));
         got = tbl.Get(123_000_000);
         Aver.AreObjectsEqual("my string 1234567", got);
 
         Aver.AreEqual(2, tbl.Count);
         Aver.AreEqual(1, m_Sut.Pile.ObjectCount);
 
-        Aver.IsTrue(tbl.Remove(123_000_000));
+        Aver.IsTrue(tbl.Remove(123_000_000));// <---------- explicitly DELETE one key
 
         Aver.AreEqual(1, tbl.Count);
         Aver.AreEqual(0, m_Sut.Pile.ObjectCount);
 
+        Aver.IsTrue(tbl.ContainsKey(1));//it still contains key "1"
+        got = tbl.Get(1);// but it points to non - existing value
+        Aver.IsNull(got);//and returns NULL
+
+        Aver.IsFalse(tbl.ContainsKey(2));
         got = tbl.Get(2);
         Aver.IsNull(got);
 
+        Aver.IsFalse(tbl.ContainsKey(123_000_000)); //this key was explicitly deleted above
         got = tbl.Get(123_000_000);
         Aver.IsNull(got);
       }
