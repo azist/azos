@@ -316,7 +316,7 @@ namespace Azos.Pile
 
                            var hcode = comparer.GetHashCode( entry.Key );
 
-                           var putResult = Table.putEntry(newEntries,
+                           var (putResult, _) = Table.putEntry(newEntries,
                                           entry.Key,
                                           hcode,
                                           null,
@@ -760,11 +760,15 @@ namespace Azos.Pile
       return PilePointer.Invalid;
     }
 
-
-
     public PutResult Put(TKey key, object obj, int? maxAgeSec = null, int priority = 0, DateTime? absoluteExpirationUTC = null)
+      => Put(key, obj, out var _, maxAgeSec, priority, absoluteExpirationUTC);
+
+    public PutResult Put(TKey key, object obj, out PilePointer ptr, int? maxAgeSec = null, int priority = 0, DateTime? absoluteExpirationUTC = null)
     {
       if (obj==null) throw new PileException(StringConsts.ARGUMENT_ERROR+GetType().Name+".Put(obj==null)");
+
+      ptr = PilePointer.Invalid;
+
       if (!m_Cache.Running) return PutResult.Collision;
 
       int hashCode;
@@ -775,7 +779,7 @@ namespace Azos.Pile
       try
       {
         var age = maxAgeSec ?? m_Options.DefaultMaxAgeSec;
-        result = putEntry(bucket, key, hashCode, obj, age, priority, absoluteExpirationUTC);
+        (result, ptr) = putEntry(bucket, key, hashCode, obj, age, priority, absoluteExpirationUTC);
         if (result!=PutResult.Collision)
         {
           if (result==PutResult.Inserted) bucket.COUNT++;
@@ -818,7 +822,7 @@ namespace Azos.Pile
       try
       {
         var age = maxAgeSec ?? m_Options.DefaultMaxAgeSec;
-        result = putEntry(bucket.Entries, key, hashCode, null, ptr, 0, age, priority, absoluteExpirationUTC, null);
+        (result, _) = putEntry(bucket.Entries, key, hashCode, null, ptr, 0, age, priority, absoluteExpirationUTC, null);
         if (result!=PutResult.Collision)
         {
           if (result==PutResult.Inserted) bucket.COUNT++;
@@ -1008,19 +1012,19 @@ namespace Azos.Pile
       }
 
 
-      private PutResult putEntry(_bucket bucket, TKey key, int hashCode, object data, int maxAgeSec,int priority, DateTime? absoluteExpirationUTC)
+      private (PutResult res, PilePointer ptr) putEntry(_bucket bucket, TKey key, int hashCode, object data, int maxAgeSec,int priority, DateTime? absoluteExpirationUTC)
       {
         return putEntry(bucket.Entries, key, hashCode, data, PilePointer.Invalid, 0, maxAgeSec, priority, absoluteExpirationUTC, (o) => m_Cache.m_Pile.Put(o));
       }
 
-      private PutResult putEntry(_entry[] entries, TKey key, int hashCode, object data, PilePointer ptrData, int existingAgeSec, int  maxAgeSec,int priority, DateTime? absoluteExpirationUTC, Func<object, PilePointer> fPilePut)
+      private (PutResult res, PilePointer ptr) putEntry(_entry[] entries, TKey key, int hashCode, object data, PilePointer ptrData, int existingAgeSec, int  maxAgeSec,int priority, DateTime? absoluteExpirationUTC, Func<object, PilePointer> fPilePut)
       {
         return m_CollisionMode==Pile.CollisionMode.Durable ?
            putEntryDurable    (entries, key, hashCode, data, ptrData, existingAgeSec, maxAgeSec, absoluteExpirationUTC, fPilePut):
            putEntrySpeculative(entries, key, hashCode, data, ptrData, existingAgeSec, maxAgeSec, priority, absoluteExpirationUTC, fPilePut);
       }
 
-      private PutResult putEntryDurable(_entry[] entries, TKey key, int hashCode, object data, PilePointer ptrData, int existingAgeSec, int  maxAgeSec, DateTime? absoluteExpirationUTC, Func<object, PilePointer> fPilePut)
+      private (PutResult res, PilePointer ptr) putEntryDurable(_entry[] entries, TKey key, int hashCode, object data, PilePointer ptrData, int existingAgeSec, int  maxAgeSec, DateTime? absoluteExpirationUTC, Func<object, PilePointer> fPilePut)
       {
         var entryLocationIdx = (hashCode & CoreConsts.ABS_HASH_MASK) % entries.Length;
         var entryIdx = entryLocationIdx;
@@ -1042,7 +1046,7 @@ namespace Azos.Pile
             entry.Priority = 0;
             entry.ExpirationUTC = absoluteExpirationUTC ?? new DateTime(0);
             entries[entryIdx] = entry;//swap value type
-            return PutResult.Inserted;
+            return (PutResult.Inserted, ptrData);
           }
 
           if (entry.IsChain)
@@ -1079,7 +1083,7 @@ namespace Azos.Pile
             m_Cache.m_Pile.Delete( entry.DataPointer, throwInvalid: false );//delete old, lastly we dont want to corrupt existing
             entry.DataPointer = ptr;
             entries[entryIdx] = entry;
-            return found ? PutResult.Replaced : PutResult.Inserted;
+            return (found ? PutResult.Replaced : PutResult.Inserted, ptrData);
           }
 
           if (m_Comparer.Equals(entry.Key, key))//replace with the same key
@@ -1091,7 +1095,7 @@ namespace Azos.Pile
             entry.Priority = 0;
             entry.ExpirationUTC = absoluteExpirationUTC ?? new DateTime(0);
             entries[entryIdx] = entry;
-            return PutResult.Replaced;
+            return (PutResult.Replaced, ptrData);
           }
 
 
@@ -1115,10 +1119,10 @@ namespace Azos.Pile
             entries[entryIdx] = chain;
           }
         }//for probe
-        return PutResult.Inserted;
+        return (PutResult.Inserted, ptrData);
       }
 
-      private PutResult putEntrySpeculative(_entry[] entries, TKey key, int hashCode, object data, PilePointer ptrData, int existingAgeSec, int  maxAgeSec, int priority, DateTime? absoluteExpirationUTC, Func<object, PilePointer> fPilePut)
+      private (PutResult res, PilePointer ptr) putEntrySpeculative(_entry[] entries, TKey key, int hashCode, object data, PilePointer ptrData, int existingAgeSec, int  maxAgeSec, int priority, DateTime? absoluteExpirationUTC, Func<object, PilePointer> fPilePut)
       {
         var entryLocationIdx = (hashCode & CoreConsts.ABS_HASH_MASK) % entries.Length;
 
@@ -1156,9 +1160,9 @@ namespace Azos.Pile
                   if (secondPass)
                   {
                     Interlocked.Increment(ref m_stat_PutOverwrite);
-                    return PutResult.Overwritten;
+                    return (PutResult.Overwritten, ptrData);
                   }
-                  return sameKey ? PutResult.Replaced : PutResult.Inserted;
+                  return (sameKey ? PutResult.Replaced : PutResult.Inserted, ptrData);
                 }
                 entryIdx++;
                 if (entryIdx==entries.Length) entryIdx = 0;//wrap
@@ -1169,7 +1173,7 @@ namespace Azos.Pile
           //could not find at first pass, try second time
           secondPass = true;
         }
-        return PutResult.Collision;
+        return (PutResult.Collision, PilePointer.Invalid);
       }
 
 
