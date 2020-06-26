@@ -12,6 +12,47 @@ namespace Azos.Tests.Nub.Pile
   [Runnable]
   public class BasicCacheTests
   {
+    [Run]
+    public void PutGetSamePointer()
+    {
+      using (var m_Sut = new LocalCache(NOPApplication.Instance))
+      {
+        m_Sut.Pile = new DefaultPile(m_Sut);
+        m_Sut.Start();
+
+        m_Sut.DefaultTableOptions = new TableOptions("*") { CollisionMode = CollisionMode.Durable};
+
+        var tbl = m_Sut.GetOrCreateTable<int>("a");
+
+        Aver.IsTrue(PutResult.Inserted == tbl.Put(1, "my string 1234567", out var ptr));
+        Aver.IsTrue(PutResult.Inserted == tbl.PutPointer(123_000_000, ptr));
+
+        var got = tbl.Get(1);
+        Aver.AreObjectsEqual("my string 1234567", got);
+
+        got = tbl.Get(2);
+        Aver.AreObjectsEqual(null, got);
+
+        got = tbl.Get(123_000_000);
+        Aver.AreObjectsEqual("my string 1234567", got);
+
+        Aver.AreEqual(2, tbl.Count);
+        Aver.AreEqual(1, m_Sut.Pile.ObjectCount);
+
+        Aver.IsTrue(tbl.Remove(123_000_000));
+
+        Aver.AreEqual(1, tbl.Count);
+        Aver.AreEqual(0, m_Sut.Pile.ObjectCount);
+
+        got = tbl.Get(2);
+        Aver.IsNull(got);
+
+        got = tbl.Get(123_000_000);
+        Aver.IsNull(got);
+      }
+    }
+
+
     [Run("cnt = 100")]
     [Run("cnt = 10000")]
     [Run("cnt = 150000")]
