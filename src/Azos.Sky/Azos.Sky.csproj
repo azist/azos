@@ -70,6 +70,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Chronicle\Server\" />
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\out\Debug\</OutputPath>
     <DocumentationFile>..\..\out\Debug\Azos.Sky.xml</DocumentationFile>
