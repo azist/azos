@@ -86,7 +86,7 @@ namespace Azos.Data
     /// <param name="caching">Caching options, or null for defaults</param>
     /// <param name="fFetch">Required functor that performs actual fetch when the value is NOT found in cache</param>
     /// <param name="fFilter">Optional functor - additional filter applied to existing values</param>
-    /// <param name="extraPut">Optional functor (cache, TResult, PilePointer, ICacheParams) which can be used to add the piled value to other cache tables (indexes) </param>
+    /// <param name="extraPut">Optional functor (cache, TKey, TResult, ICacheParams) which can be used to add the piled value to other cache tables (indexes) </param>
     /// <returns>Cached reference type value, or null if not found or absent</returns>
     public static TResult FetchThrough<TKey, TResult>(this ICache cache,
                                                       TKey key,
@@ -94,7 +94,7 @@ namespace Azos.Data
                                                       ICacheParams caching,
                                                       Func<TKey, TResult> fFetch,
                                                       Func<TKey, TResult, TResult> fFilter = null,
-                                                      Action<ICache, TResult, PilePointer, ICacheParams> extraPut = null
+                                                      Action<ICache, TKey, TResult, ICacheParams> extraPut = null
                                                       ) where TResult : class
     {
       cache.NonNull(nameof(cache));
@@ -129,8 +129,11 @@ namespace Azos.Data
       var wAge = caching.WriteCacheMaxAgeSec;
       if (wAge >=0 )
       {
-        tbl.Put(key, (object)result ?? AbsentValue.Instance, out var ptr, wAge >0 ? wAge : (int?)null, caching.WriteCachePriority);
-        extraPut?.Invoke(cache, result, ptr, caching);
+        var pr = tbl.Put(key, (object)result ?? AbsentValue.Instance, out var ptr, wAge >0 ? wAge : (int?)null, caching.WriteCachePriority);
+        if (pr != PutResult.Collision && ptr.Valid)
+        {
+          extraPut?.Invoke(cache, key, result, caching);
+        }
       }
 
       return result;
@@ -150,7 +153,7 @@ namespace Azos.Data
     /// <param name="caching">Caching options, or null for defaults</param>
     /// <param name="fFetch">Required async functor that performs actual fetch when the value is NOT found in cache</param>
     /// <param name="fFilter">Optional functor - additional filter applied to existing values</param>
-    /// <param name="extraPut">Optional functor (cache, TResult, PilePointer, ICacheParams) which can be used to add the piled value to other cache tables (indexes) </param>
+    /// <param name="extraPut">Optional functor (cache, TKey, TResult, ICacheParams) which can be used to add the piled value to other cache tables (indexes) </param>
     /// <returns>Cached reference type value, or null if not found or absent</returns>
     public static async Task<TResult> FetchThroughAsync<TKey, TResult>(this ICache cache,
                                                            TKey key,
@@ -158,7 +161,7 @@ namespace Azos.Data
                                                            ICacheParams caching,
                                                            Func<TKey, Task<TResult>> fFetch,
                                                            Func<TKey, TResult, TResult> fFilter = null,
-                                                           Action<ICache, TResult, PilePointer, ICacheParams> extraPut = null
+                                                           Action<ICache, TKey, TResult, ICacheParams> extraPut = null
                                                            ) where TResult : class
     {
       cache.NonNull(nameof(cache));
@@ -193,8 +196,11 @@ namespace Azos.Data
       var wAge = caching.WriteCacheMaxAgeSec;
       if (wAge >= 0)
       {
-        tbl.Put(key, (object)result ?? AbsentValue.Instance, out var ptr, wAge > 0 ? wAge : (int?)null, caching.WriteCachePriority);
-        extraPut?.Invoke(cache, result, ptr, caching);
+        var pr = tbl.Put(key, (object)result ?? AbsentValue.Instance, out var ptr, wAge > 0 ? wAge : (int?)null, caching.WriteCachePriority);
+        if (pr != PutResult.Collision && ptr.Valid)
+        {
+          extraPut?.Invoke(cache, key, result, caching);
+        }
       }
 
       return result;
@@ -275,7 +281,7 @@ namespace Azos.Data
                                                                      string tblCache,
                                                                      ICacheParams caching,
                                                                      Func<TKey, TData, TSaveResult> fSave,
-                                                                     Action<ICache, TData, PilePointer, ICacheParams> extraPut = null
+                                                                     Action<ICache, TKey, TData, ICacheParams> extraPut = null
                                                                      ) where TData : class
     {
       cache.NonNull(nameof(cache));
@@ -290,8 +296,11 @@ namespace Azos.Data
       if (wAge >= 0)
       {
         var tbl = cache.GetOrCreateTable<TKey>(tblCache);
-        tbl.Put(key, data, out var ptr, wAge > 0 ? wAge : (int?)null, caching.WriteCachePriority);
-        extraPut?.Invoke(cache, data, ptr, caching);
+        var pr = tbl.Put(key, data, out var ptr, wAge > 0 ? wAge : (int?)null, caching.WriteCachePriority);
+        if (pr != PutResult.Collision && ptr.Valid)
+        {
+          extraPut?.Invoke(cache, key, data, caching);
+        }
       }
 
       return result;
@@ -309,7 +318,7 @@ namespace Azos.Data
     /// <param name="tblCache">The name of a cache table</param>
     /// <param name="caching">Caching options, or null for default</param>
     /// <param name="fSave">Synchronous functor that performs backend save</param>
-    /// <param name="extraPut">Optional functor (cache, TData, PilePointer, ICacheParams) which can be used to add the piled value to other cache tables (indexes) </param>
+    /// <param name="extraPut">Optional functor (cache, TKey, TData, ICacheParams) which can be used to add the piled value to other cache tables (indexes) </param>
     /// <returns>A result of the call to `fSave` functor</returns>
     public static async Task<TSaveResult> SaveThroughAsync<TKey, TData, TSaveResult>(this ICache cache,
                                                                      TKey key,
@@ -317,7 +326,7 @@ namespace Azos.Data
                                                                      string tblCache,
                                                                      ICacheParams caching,
                                                                      Func<TKey, TData, Task<TSaveResult>> fSave,
-                                                                     Action<ICache, TData, PilePointer, ICacheParams> extraPut = null
+                                                                     Action<ICache, TKey, TData, ICacheParams> extraPut = null
                                                                      ) where TData : class
     {
       cache.NonNull(nameof(cache));
@@ -332,8 +341,11 @@ namespace Azos.Data
       if (wAge >= 0)
       {
         var tbl = cache.GetOrCreateTable<TKey>(tblCache);
-        tbl.Put(key, data, out var ptr, wAge > 0 ? wAge : (int?)null, caching.WriteCachePriority);
-        extraPut?.Invoke(cache, data, ptr, caching);
+        var pr = tbl.Put(key, data, out var ptr, wAge > 0 ? wAge : (int?)null, caching.WriteCachePriority);
+        if (pr != PutResult.Collision && ptr.Valid)
+        {
+          extraPut?.Invoke(cache, key, data, caching);
+        }
       }
 
       return result;

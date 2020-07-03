@@ -79,7 +79,7 @@ namespace Azos.Tests.Nub.DataAccess
     [Run]
     public void TryParse01()
     {
-      Aver.IsTrue(EntityId.TryParse("a@b://adr1", out var v));
+      Aver.IsTrue(EntityId.TryParse("a@b::adr1", out var v));
       Aver.IsTrue(v.IsAssigned);
       Aver.AreEqual(Atom.Encode("a"), v.Type);
       Aver.AreEqual(Atom.Encode("b"), v.System);
@@ -89,7 +89,7 @@ namespace Azos.Tests.Nub.DataAccess
     [Run]
     public void TryParse02()
     {
-      Aver.IsTrue(EntityId.TryParse("b://adr1", out var v));
+      Aver.IsTrue(EntityId.TryParse("b::adr1", out var v));
       Aver.IsTrue(v.IsAssigned);
       Aver.AreEqual(Atom.ZERO, v.Type);
       Aver.AreEqual(Atom.Encode("b"), v.System);
@@ -99,52 +99,52 @@ namespace Azos.Tests.Nub.DataAccess
     [Run]
     public void TryParse03()
     {
-      Aver.IsTrue(EntityId.TryParse("system01://@://long-address-string", out var v));
+      Aver.IsTrue(EntityId.TryParse("system01::@://long-address::-string", out var v));
       Aver.IsTrue(v.IsAssigned);
       Aver.AreEqual(Atom.ZERO, v.Type);
       Aver.AreEqual(Atom.Encode("system01"), v.System);
-      Aver.AreEqual("@://long-address-string", v.Address);
+      Aver.AreEqual("@://long-address::-string", v.Address);
     }
 
     [Run]
     public void TryParse04()
     {
-      Aver.IsFalse(EntityId.TryParse("://abc", out var v));
+      Aver.IsFalse(EntityId.TryParse("::abc", out var v));
       Aver.IsFalse(v.IsAssigned);
     }
 
     [Run]
     public void TryParse05()
     {
-      Aver.IsFalse(EntityId.TryParse("aa://", out var v));
+      Aver.IsFalse(EntityId.TryParse("aa::", out var v));
       Aver.IsFalse(v.IsAssigned);
     }
 
     [Run]
     public void TryParse06()
     {
-      Aver.IsFalse(EntityId.TryParse("bbb@aa://", out var v));
+      Aver.IsFalse(EntityId.TryParse("bbb@aa::", out var v));
       Aver.IsFalse(v.IsAssigned);
     }
 
     [Run]
     public void TryParse07()
     {
-      Aver.IsFalse(EntityId.TryParse("bbb@://", out var v));
+      Aver.IsFalse(EntityId.TryParse("bbb@::", out var v));
       Aver.IsFalse(v.IsAssigned);
     }
 
     [Run]
     public void TryParse08()
     {
-      Aver.IsFalse(EntityId.TryParse("aaa://             ", out var v));
+      Aver.IsFalse(EntityId.TryParse("aaa::             ", out var v));
       Aver.IsFalse(v.IsAssigned);
     }
 
     [Run]
     public void TryParse09()
     {
-      Aver.IsFalse(EntityId.TryParse("         @aaa://gggg", out var v));
+      Aver.IsFalse(EntityId.TryParse("         @aaa::gggg", out var v));
       Aver.IsFalse(v.IsAssigned);
     }
 
@@ -158,35 +158,42 @@ namespace Azos.Tests.Nub.DataAccess
     [Run]
     public void TryParse11()
     {
-      Aver.IsFalse(EntityId.TryParse("a b@dd://aaa", out var v));
+      Aver.IsFalse(EntityId.TryParse("a b@dd::aaa", out var v));
       Aver.IsFalse(v.IsAssigned);
     }
 
     [Run]
     public void TryParse12()
     {
-      Aver.IsFalse(EntityId.TryParse("ab@d d://aaa", out var v));
+      Aver.IsFalse(EntityId.TryParse("ab@d d::aaa", out var v));
       Aver.IsFalse(v.IsAssigned);
     }
 
     [Run]
     public void TryParse13()
     {
-      Aver.IsFalse(EntityId.TryParse("ab@d*d://aaa", out var v));
+      Aver.IsFalse(EntityId.TryParse("ab@d*d::aaa", out var v));
       Aver.IsFalse(v.IsAssigned);
     }
 
     [Run]
     public void TryParse14()
     {
-      Aver.IsFalse(EntityId.TryParse("ab@dd://                             ", out var v));
+      Aver.IsFalse(EntityId.TryParse("ab@dd::                             ", out var v));
+      Aver.IsFalse(v.IsAssigned);
+    }
+
+    [Run]
+    public void TryParse15()
+    {
+      Aver.IsFalse(EntityId.TryParse("::", out var v));
       Aver.IsFalse(v.IsAssigned);
     }
 
     [Run]
     public void JSON01()
     {
-      var v = EntityId.Parse("abc@def://12:15:178");
+      var v = EntityId.Parse("abc@def::12:15:178");
       var obj = new {a =  v};
       var json = obj.ToJson();
       json.See();
@@ -205,7 +212,7 @@ namespace Azos.Tests.Nub.DataAccess
     [Run]
     public void JSON02()
     {
-      var d1 = new  Doc1{ V1 = EntityId.Parse("abc@def://12:15:178") };
+      var d1 = new  Doc1{ V1 = EntityId.Parse("abc@def::12:15:178") };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       json.See();
       var got = JsonReader.ToDoc<Doc1>(json);
@@ -218,7 +225,7 @@ namespace Azos.Tests.Nub.DataAccess
     [Run]
     public void JSON03()
     {
-      var d1 = new Doc1 { V1 = EntityId.Parse("abc@def://12:15:178"), V2 = EntityId.Parse("lic://i9973od") };
+      var d1 = new Doc1 { V1 = EntityId.Parse("abc@def::12:15:178"), V2 = EntityId.Parse("lic::i9973od") };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       json.See();
       var got = JsonReader.ToDoc<Doc1>(json);
@@ -226,6 +233,19 @@ namespace Azos.Tests.Nub.DataAccess
 
       Aver.AreEqual(d1.V1, got.V1);
       Aver.AreEqual(d1.V2, got.V2);
+    }
+
+    [Run]
+    public void JSON04()
+    {
+      var d1 = new Doc1 { V1 = EntityId.Parse("abc@def::abc@def::456"), V2 = EntityId.Parse("lic:::::") };
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
+      json.See();
+      var got = JsonReader.ToDoc<Doc1>(json);
+      got.See();
+
+      Aver.AreEqual("abc@def::456", got.V1.Address);
+      Aver.AreEqual(":::", got.V2.Value.Address);
     }
   }
 }

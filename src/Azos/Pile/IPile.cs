@@ -119,7 +119,7 @@ namespace Azos.Pile
     /// without creating the link. Specifies the total size of the block in bytes. If this size is less than
     /// actual object payload then allocates the block of the payload size
     /// </param>
-    // <returns>a new PilePointer pointing at the stored payload</returns>
+    /// <returns>A new PilePointer pointing at the stored payload</returns>
     PilePointer Put(object obj, uint lifeSpanSec = 0, int preallocateBlockSize = 0);
 
     /// <summary>

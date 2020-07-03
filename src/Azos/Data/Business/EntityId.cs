@@ -10,14 +10,14 @@ namespace Azos.Data.Business
   /// A tuple of (SYSTEM: Atom, TYPE: Atom, ADDRESS: Atom) used for identification of entities in business systems.
   /// The concept is somewhat similar to an "URI" in its intended purpose, as it identifies objects by an "Address"
   /// string which is interpreted in a scope of "Type", which in turn is in the scope of a "System".
-  /// As a string, an EntityId is formatted like: `type@system://address`, for example: `vin@car://1A8987339HBz0909W874`
-  /// vs `license@car://I9973OD`. The system qualifier is required, but type qualifier is optional, which denotes "default type"
-  /// for example: `car://I9973OD` is a valid EntityId pointing to a "car" system "license" type by default
+  /// As a string, an EntityId is formatted like: `type@system::address`, for example: `vin@car::1A8987339HBz0909W874`
+  /// vs `license@car::I9973OD`. The system qualifier is required, but type qualifier is optional, which denotes "default type"
+  /// for example: `car::I9973OD` is a valid EntityId pointing to a "car" system "license" type by default
   /// </summary>
   public struct EntityId : IEquatable<EntityId>, IDistributedStableHashProvider, IJsonReadable, IJsonWritable, IRequired
   {
     public const string TP_PREFIX = "@";
-    public const string SYS_PREFIX = "://";
+    public const string SYS_PREFIX = "::";
 
     /// <summary>
     /// Initializes an instance
