@@ -129,8 +129,11 @@ namespace Azos.Data
       var wAge = caching.WriteCacheMaxAgeSec;
       if (wAge >=0 )
       {
-        tbl.Put(key, (object)result ?? AbsentValue.Instance, out var ptr, wAge >0 ? wAge : (int?)null, caching.WriteCachePriority);
-        extraPut?.Invoke(cache, result, ptr, caching);
+        var pr = tbl.Put(key, (object)result ?? AbsentValue.Instance, out var ptr, wAge >0 ? wAge : (int?)null, caching.WriteCachePriority);
+        if (pr != PutResult.Collision && ptr.Valid)
+        {
+          extraPut?.Invoke(cache, result, ptr, caching);
+        }
       }
 
       return result;
@@ -193,8 +196,11 @@ namespace Azos.Data
       var wAge = caching.WriteCacheMaxAgeSec;
       if (wAge >= 0)
       {
-        tbl.Put(key, (object)result ?? AbsentValue.Instance, out var ptr, wAge > 0 ? wAge : (int?)null, caching.WriteCachePriority);
-        extraPut?.Invoke(cache, result, ptr, caching);
+        var pr = tbl.Put(key, (object)result ?? AbsentValue.Instance, out var ptr, wAge > 0 ? wAge : (int?)null, caching.WriteCachePriority);
+        if (pr != PutResult.Collision && ptr.Valid)
+        {
+          extraPut?.Invoke(cache, result, ptr, caching);
+        }
       }
 
       return result;
@@ -290,8 +296,11 @@ namespace Azos.Data
       if (wAge >= 0)
       {
         var tbl = cache.GetOrCreateTable<TKey>(tblCache);
-        tbl.Put(key, data, out var ptr, wAge > 0 ? wAge : (int?)null, caching.WriteCachePriority);
-        extraPut?.Invoke(cache, data, ptr, caching);
+        var pr = tbl.Put(key, data, out var ptr, wAge > 0 ? wAge : (int?)null, caching.WriteCachePriority);
+        if (pr != PutResult.Collision && ptr.Valid)
+        {
+          extraPut?.Invoke(cache, data, ptr, caching);
+        }
       }
 
       return result;
@@ -332,8 +341,11 @@ namespace Azos.Data
       if (wAge >= 0)
       {
         var tbl = cache.GetOrCreateTable<TKey>(tblCache);
-        tbl.Put(key, data, out var ptr, wAge > 0 ? wAge : (int?)null, caching.WriteCachePriority);
-        extraPut?.Invoke(cache, data, ptr, caching);
+        var pr = tbl.Put(key, data, out var ptr, wAge > 0 ? wAge : (int?)null, caching.WriteCachePriority);
+        if (pr!=PutResult.Collision && ptr.Valid)
+        {
+          extraPut?.Invoke(cache, data, ptr, caching);
+        }
       }
 
       return result;
