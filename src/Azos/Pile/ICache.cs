@@ -135,7 +135,7 @@ namespace Azos.Pile
   }
 
   /// <summary>
-  /// Denotes statuses of cache table Put
+  /// Results of cache table Put() operation: Collision | Inserted | Replaced | Overwritten
   /// </summary>
   public enum PutResult
   {
