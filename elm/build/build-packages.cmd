@@ -1,7 +1,7 @@
 @echo on
 
 set VER=1.4.7
-set HEADLINE=310,311,313 Svc release
+set HEADLINE=310,311,313,318 Svc release
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
