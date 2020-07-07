@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +21,7 @@ using Azos.Time;
 namespace Azos.Sky.Chronicle
 {
   [Bix("5843A744-54CF-4E22-99CF-A91F0C2CE08C")]
-  [Schema(Description = "Provides model for filtering log chronicles")]
+  [Schema(Description = "Provides model for filtering instrumentation chronicles")]
   public sealed class InstrumentationChronicleFilter : FilterModel<IEnumerable<Datum>>
   {
     [Field(isArow: true, backendName: "gdid", description: "Measurement datum GDID")]

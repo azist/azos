@@ -21,6 +21,11 @@ namespace Azos.Wave.Mvc
     /// </summary>
     public const string API_DOC_HDR_NO_CACHE = "NoCache: pragma no cache";
 
+    /// <summary>
+    /// Common app/JSON doc entry
+    /// </summary>
+    public const string API_DOC_HDR_ACCEPT_JSON = "Accept: application/json";
+
 
     /// <summary>
     /// Applies the filter to the data store returning JSON result.
