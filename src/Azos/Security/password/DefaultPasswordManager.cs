@@ -253,6 +253,9 @@ namespace Azos.Security
 
         var kdf = new PBKDF2PasswordHashingAlgorithm(this, "KDF");
         m_Algorithms.Register(kdf);
+
+        var nop = new NopPasswordHashingAlgorithm(this, "NOP");
+        m_Algorithms.Register(nop);
       }
 
       foreach (var algo in m_Algorithms)

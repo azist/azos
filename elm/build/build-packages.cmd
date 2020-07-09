@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.4.7
-set HEADLINE=310,311,313,318 Svc release
+set VER=1.4.8
+set HEADLINE=Svc release add NopPasswordHashingAlgorithm
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
