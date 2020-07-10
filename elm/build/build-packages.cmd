@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.4.8
+set VER=1.4.8.2
 set HEADLINE=Svc release add NopPasswordHashingAlgorithm
 call vs2017-build-release %VER%
 
