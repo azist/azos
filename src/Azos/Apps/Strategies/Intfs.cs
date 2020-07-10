@@ -19,6 +19,15 @@ namespace Azos.Apps.Strategies
   }
 
   /// <summary>
+  /// Marker interface for strategy traits/qualities. This interfaces are used by IStrategyContext derivatives
+  /// to designate specific traits used for strategy pattern matching performed by IStrategyBinder based on supplied IStrategyContext
+  /// </summary>
+  public interface IStrategyTrait
+  {
+
+  }
+
+  /// <summary>
   /// Outlines contract for strategy factories which bind specific strategy contract instances to specific business cases (contexts).
   /// Finds a strategy implementation which satisfies the specified contract type, and is configured in a
   /// way specific for the concrete use-case as supplied via Context property.

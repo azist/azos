@@ -456,7 +456,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string GUARDED_STRING_PARAMETER_MUST_BE_BETWEEN_MIN_MAX_LEN_ERROR =
         "Guarded method '{0}' string parameter '{1}' = '{2}' length is {3} but must be between {4} and {5}";
 
-
+    public const string GUARDED_PARAMETER_CONDITION_ERROR =
+         "Guarded method '{0}' parameter '{1}' failed condition check";
 
     public const string STREAM_READ_EOF_ERROR =
         "Stream EOF before operation could complete: ";

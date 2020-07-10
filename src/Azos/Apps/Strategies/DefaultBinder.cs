@@ -12,7 +12,7 @@ namespace Azos.Apps.Strategies
   /// Provides most basic IStrategyBinder implementation, resolving
   /// strategies from all assemblies by IStrategy
   /// </summary>
-  public sealed class DefaultBinderLogic : ModuleBase, IStrategyBinder
+  public class DefaultBinderLogic : ModuleBase, IStrategyBinder
   {
     public DefaultBinderLogic(IApplication app) : base(app) {}
     public DefaultBinderLogic(IModule parent) : base(parent) {}
@@ -25,6 +25,7 @@ namespace Azos.Apps.Strategies
     [Config] private string m_Assemblies;
 #pragma warning restore 0649
 
+#warning use Binding handler here
     private Dictionary<Type, Type> m_Cache;
 
     protected override bool DoApplicationAfterInit()
