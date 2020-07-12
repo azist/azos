@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.4.8.2
-set HEADLINE=Svc release add NopPasswordHashingAlgorithm
+set VER=1.4.9
+set HEADLINE=Add Azos.Apps.Strategies
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
