@@ -20,7 +20,8 @@ namespace Azos.Apps.Strategies
 
   /// <summary>
   /// Marker interface for strategy traits/qualities. This interfaces are used by IStrategyContext derivatives
-  /// to designate specific traits used for strategy pattern matching performed by IStrategyBinder based on supplied IStrategyContext
+  /// to designate specific traits used for strategy pattern matching performed by IStrategyBinder/BinderHandler
+  /// based on supplied IStrategyContext
   /// </summary>
   public interface IStrategyTrait
   {

@@ -12,10 +12,10 @@ namespace Azos.Apps.Strategies
   /// Provides most basic IStrategyBinder implementation, resolving
   /// strategies from all assemblies by IStrategy
   /// </summary>
-  public class DefaultBinderLogic : ModuleBase, IStrategyBinder
+  public class DefaultBinder : ModuleBase, IStrategyBinder
   {
-    public DefaultBinderLogic(IApplication app) : base(app) {}
-    public DefaultBinderLogic(IModule parent) : base(parent) {}
+    public DefaultBinder(IApplication app) : base(app) {}
+    public DefaultBinder(IModule parent) : base(parent) {}
 
     public override bool IsHardcodedModule => false;
 
@@ -25,15 +25,38 @@ namespace Azos.Apps.Strategies
     [Config] private string m_Assemblies;
 #pragma warning restore 0649
 
-#warning use Binding handler here
-    private Dictionary<Type, Type> m_Cache;
+    private Dictionary<Type, BindingHandler> m_Cache;
+
+    private IConfigSectionNode m_BindingHandlerConfig;
+
+    protected virtual BindingHandler MakeBindingHandler(Type tTarget)
+     => FactoryUtils.Make<BindingHandler>(m_BindingHandlerConfig, typeof(BindingHandler), new object[]{ tTarget, m_BindingHandlerConfig});
+
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+
+      if (node!=null)
+      {
+        m_BindingHandlerConfig = node["binding-handler","binding","handler"];
+        if (m_BindingHandlerConfig.Exists)
+        {
+          var cfg = new MemoryConfiguration();
+          cfg.CreateFromNode(m_BindingHandlerConfig);
+          m_BindingHandlerConfig = cfg.Root;
+          return;
+        }
+      }
+
+      m_BindingHandlerConfig = Configuration.NewEmptyRoot();
+    }
 
     protected override bool DoApplicationAfterInit()
     {
       m_Assemblies.NonBlank("Assemblies not configured");
       var anames = m_Assemblies.Split(';');
 
-      m_Cache = new Dictionary<Type, Type>();
+      m_Cache = new Dictionary<Type, BindingHandler>();
 
       var asms = anames.Where(n => n.IsNotNullOrWhiteSpace())
                        .Select(n => Assembly.LoadFrom(n.Trim()));
@@ -47,12 +70,23 @@ namespace Azos.Apps.Strategies
         {
           var intfs = type.GetInterfaces().Where(ti => typeof(IStrategy).IsAssignableFrom(ti));
           foreach (var intf in intfs)
-            m_Cache[intf] = type;
+          {
+            if (m_Cache.TryGetValue(intf, out var handler))
+            {
+              handler.Register(type);
+            }
+            else
+            {
+              handler = MakeBindingHandler(intf);
+              handler.Register(type);
+              m_Cache[intf] = handler;
+            }
+          }
         }
       }
 
       if (m_Cache.Count == 0)
-        throw new StrategyException("The {0} is not configured with any strategies. Revise assembly bindings".Args(nameof(DefaultBinderLogic)));
+        throw new StrategyException("The {0} is not configured with any strategies. Revise assembly bindings".Args(nameof(DefaultBinder)));
 
       return base.DoApplicationAfterInit();
     }
@@ -64,17 +98,13 @@ namespace Azos.Apps.Strategies
     public TStrategy Bind<TStrategy, TContext>(TContext context) where TStrategy : class, IStrategy<TContext>
                                                                  where TContext : IStrategyContext
     {
-      if (!m_Cache.TryGetValue(typeof(TStrategy), out var ttarget))
+      if (!m_Cache.TryGetValue(typeof(TStrategy), out var handler))
         throw new StrategyException("Strategy `{0}` could not be resolved".Args(typeof(TStrategy).DisplayNameWithExpandedGenericArgs()));
 
-      var result = Activator.CreateInstance(ttarget) as TStrategy;
-      var impl = result as IStrategyImplementation<TContext>;
+      var result = handler.Bind<TStrategy, TContext>(context);
 
+      result.NonNull("Activation of `{0}` failed".Args(typeof(TStrategy).DisplayNameWithExpandedGenericArgs()));
 
-      result.NonNull("Activation of `{0}` failed".Args(ttarget.DisplayNameWithExpandedGenericArgs()));
-      impl.NonNull("Is not `{0}`".Args(typeof(IStrategyImplementation<TContext>).DisplayNameWithExpandedGenericArgs()));
-
-      impl.SetContext(context);
       App.InjectInto(result);
 
       return result;

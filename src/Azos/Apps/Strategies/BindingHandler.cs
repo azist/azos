@@ -37,7 +37,8 @@ namespace Azos.Apps.Strategies
     }
 
     /// <summary>
-    /// Override after registration of implementor types has finished
+    /// Override to take action after registration of implementor types has finished, for example you can
+    /// use this method to build lookup indexes/dictionaries for faster strategy pattern matching during binding process
     /// </summary>
     public virtual void FinalizeRegistration(){ }
 
