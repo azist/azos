@@ -23,7 +23,7 @@ namespace Azos.Sky.Identification
   /// <summary>
   /// Implemented by custom entities that transact GdidAuthority for getting new blocks
   /// </summary>
-  public interface IGdidAuthorityAccessor
+  public interface IGdidAuthorityAccessor : IApplicationComponent, IConfigurable
   {
     Task<GdidBlock> AllocateBlockAsync(string scopeName, string sequenceName, int blockSize, ulong? vicinity = GDID.COUNTER_MAX);
   }

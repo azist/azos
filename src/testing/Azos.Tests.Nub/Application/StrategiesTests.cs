@@ -66,7 +66,7 @@ namespace Azos.Tests.Nub.Application
 
     public class MyStartContext : IMyStratContext
     {
-      public string Value{  get; set;}
+      public string Value{ get; set;}
     }
 
     interface IMyStrat1 : IStrategy<IMyStratContext>
