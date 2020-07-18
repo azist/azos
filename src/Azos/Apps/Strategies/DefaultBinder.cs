@@ -1,8 +1,13 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 using Azos.Conf;
 
@@ -79,7 +84,7 @@ namespace Azos.Apps.Strategies
             {
               handler = MakeBindingHandler(intf);
               handler.Register(type);
-              m_Cache[intf] = handler;
+              m_Cache[intf] = handler;//keyed on IStrategy-derived interface type
             }
           }
         }
@@ -87,6 +92,8 @@ namespace Azos.Apps.Strategies
 
       if (m_Cache.Count == 0)
         throw new StrategyException("The {0} is not configured with any strategies. Revise assembly bindings".Args(nameof(DefaultBinder)));
+
+      foreach(var kvp in m_Cache) kvp.Value.FinalizeRegistration();
 
       return base.DoApplicationAfterInit();
     }
@@ -103,7 +110,7 @@ namespace Azos.Apps.Strategies
 
       var result = handler.Bind<TStrategy, TContext>(context);
 
-      result.NonNull("Activation of `{0}` failed".Args(typeof(TStrategy).DisplayNameWithExpandedGenericArgs()));
+      result.NonNull("Strategy binding of `{0}` failed for context `{1}`".Args(typeof(TStrategy).DisplayNameWithExpandedGenericArgs(), typeof(TContext).DisplayNameWithExpandedGenericArgs()));
 
       App.InjectInto(result);
 

@@ -1,26 +1,36 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 using Azos.Conf;
 
 namespace Azos.Apps.Strategies
 {
   /// <summary>
-  /// Provides a base for handling binding logic such as matching strategy type and parameters
+  /// Provides a base for handling binding logic such as binding strategy contract to strategy implementing type instance
+  /// of the best matching type as determined by pattern matching based on trait/context analysis.
+  /// The system uses an instance of BindingHandler for every TargetStrategyContract
   /// </summary>
   public class BindingHandler
   {
     public BindingHandler(Type tTarget, IConfigSectionNode config)
     {
-      TargetStrategyType = tTarget.IsOfType<IStrategy>()
+      TargetStrategyContract = tTarget.IsOfType<IStrategy>()
                                   .IsTrue(t => t.IsInterface);
     }
 
     private List<Type> m_List = new List<Type>();
 
-    public readonly Type TargetStrategyType;
+    /// <summary>
+    /// The target strategy interface type
+    /// </summary>
+    public readonly Type TargetStrategyContract;
 
 
     /// <summary>
@@ -30,8 +40,8 @@ namespace Azos.Apps.Strategies
     {
       implementor.NonNull(nameof(implementor));
 
-      if (!TargetStrategyType.IsAssignableFrom(implementor))
-        throw new StrategyException("The `{0}` is not an implementor of `{1}` strategy contract".Args(implementor.DisplayNameWithExpandedGenericArgs(), TargetStrategyType.DisplayNameWithExpandedGenericArgs()));
+      if (!TargetStrategyContract.IsAssignableFrom(implementor))
+        throw new StrategyException("The `{0}` is not an implementor of `{1}` strategy contract".Args(implementor.DisplayNameWithExpandedGenericArgs(), TargetStrategyContract.DisplayNameWithExpandedGenericArgs()));
 
       return DoRegister(implementor);
     }
@@ -72,7 +82,12 @@ namespace Azos.Apps.Strategies
     /// Override to do complex matching (e.g. pattern matching) based on context strategy traits
     /// </summary>
     protected virtual Type FindMatchingImplementor(IStrategyContext context)
-     => m_List.FirstOrDefault();
+    {
+      var match = StrategyPatternAttribute.MatchBest(context, m_List);
+      if (match.any) return match.type;
+
+      return m_List.FirstOrDefault();
+    }
 
     /// <summary>
     /// Returns an instance of T implementing TStrategy. Returns null in case of failure.
