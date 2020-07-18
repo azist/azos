@@ -8,6 +8,7 @@
 using System.Collections.Generic;
 
 using Azos.Apps;
+using Azos.Apps.Injection;
 using Azos.Apps.Strategies;
 using Azos.Conf;
 using Azos.Data;
@@ -90,8 +91,13 @@ namespace Azos.Tests.Nub.Application
 
     class MyStrat2Impl : Strategy<IMyStratContext>, IMyStrat2
     {
+    #pragma warning disable 0649
+      [Inject] IStrategyBinder m_Binder;//dependency
+    #pragma warning restore 0649
+
       public string SomethingElse()
       {
+        Aver.IsNotNull(m_Binder, "DI failed"); //test DI
         return "SomethingElse {0}.{1}".Args(GetType().Name, Context.Value);
       }
     }

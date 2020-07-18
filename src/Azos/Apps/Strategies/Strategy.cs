@@ -11,10 +11,10 @@ using Azos.Data;
 namespace Azos.Apps.Strategies
 {
   /// <summary>
-  /// Represents a strategy which embodies context-specific logic along with its configuration params.
+  /// Represents a strategy which embodies context-specific logic along with its configuration parameters.
   /// Unlike regular "logic" which represents context-agnostic behavior, strategies implement
   /// behaviors specific to given business context. Strategy instances are obtained by calling
-  /// `IStrategyBinderLogic.Bind(ctx)` and should NOT be cached for reuse.
+  /// `IStrategyBinder.Bind(ctx)` and should NOT be cached for reuse.
   /// The binder matches the most appropriate strategy configuration for the requested context, fetching
   /// strategy config parameters from an external store if necessary and aggressively caching them.
   /// </summary>

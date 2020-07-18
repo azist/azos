@@ -51,7 +51,7 @@ namespace Azos.Apps.Strategies
     /// form that lat/lng "pattern" setting to the actual lat/lng which this decorated context
     /// represents, thus performing distance-based pattern matching
     /// </example>
-    long GetPatternMatchScore(IConfigSectionNode pattern);
+    double GetPatternMatchScore(IConfigSectionNode pattern);
   }
 
   /// <summary>
@@ -90,20 +90,20 @@ namespace Azos.Apps.Strategies
     /// <summary>
     /// Override to do custom score matching, the default implementation uses IPatternStrategyTrait
     /// </summary>
-    public virtual long GetMatchScoreScore(IStrategyContext context)
+    public virtual double GetMatchScoreScore(IStrategyContext context)
      => context is IPatternStrategyTrait patternContext ? patternContext.GetPatternMatchScore(Pattern) : 0;
 
     /// <summary>
     /// Tries to match the first type which matches the context or null if nothing matches
     /// </summary>
     /// <returns>(any(bool): true when any strategy type was decorated with StrategyPatternAttribute and context is IPatternStrategyTrait)</returns>
-    public static (bool any, Type type, long score) MatchBest(IStrategyContext context, IEnumerable<Type> types)
+    public static (bool any, Type type, double score) MatchBest(IStrategyContext context, IEnumerable<Type> types)
     {
       if (context== null || types == null) return (false, null, 0);
 
       bool any = false;
       Type bestMatch = null;
-      long bestScore = 0;
+      double bestScore = 0d;
 
       foreach(var t in types)
       {
