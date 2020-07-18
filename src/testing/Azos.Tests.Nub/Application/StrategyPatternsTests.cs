@@ -35,8 +35,8 @@ namespace Azos.Tests.Nub.Application
 
     /// <summary>
     /// In this example we will match the strategy implementing type which is geographically closer
-    /// to the point of interest - our context. This is done using standard [StrategyPattern] attribute
-    /// and custom pattern score calculation in IPatternStrategyTrait implementation (see below)
+    /// to the point of interest - our context. This is achieved using a standard [StrategyPattern] attribute
+    /// and a custom pattern score calculation in IPatternStrategyTrait implementation (see below)
     /// </summary>
     [Run]
     public void TestGeoStrategy_Proximity()
@@ -50,7 +50,7 @@ namespace Azos.Tests.Nub.Application
         var ctx = new GeoProximityContext{  Location = new LatLng("41.500136,-81.7005492", "Cleveland")};
         var got = binder.Bind<IGeoStrat, IGeoStratContext>(ctx);
 
-        //We get NY strategy implementation, because NY is closer to Cleveland than others in California
+        //We get NY strategy implementation, because NY is closer to Cleveland than others (in California)
         Aver.IsTrue(got is NewYorkStrat);
         Aver.AreEqual("New York customers in Cleveland", got.RunStrategyWork());
 
@@ -99,7 +99,7 @@ namespace Azos.Tests.Nub.Application
         //Now try Washington DC
         ctx.Location = new LatLng("38.9079407,-77.0355777", "Washington");
         got = binder.Bind<IGeoStrat, IGeoStratContext>(ctx);
-        //SF is sister of Washington
+        //SF is a sister of Washington
         Aver.IsTrue(got is SanFranciscoStrat);
         Aver.AreEqual("San Francisco California customers in Washington", got.RunStrategyWork());
 
