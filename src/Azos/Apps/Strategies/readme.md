@@ -1,8 +1,8 @@
-﻿# Strategies
+﻿# Strategy Pattern and Business-Driven IOC
 
 Back to [Documentation Index](/src/documentation-index.md)
 
-Azos framework provides a built in strategy pattern facilities. Strategy pattern is intended to
+Azos framework provides a built-in strategy pattern with dynamic implementor binding (a form of DI for business logic). Strategy pattern is intended to
 provide various algorithm implementations per required contract. 
 See https://en.wikipedia.org/wiki/Strategy_pattern
 
