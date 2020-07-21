@@ -23,7 +23,7 @@ namespace Azos.Wave
   /// Represents a context for request/response server processing in WAVE framework
   /// </summary>
   [Serialization.Slim.SlimSerializationProhibited]
-  public class WorkContext : DisposableObject
+  public class WorkContext : DisposableObject, Apps.ICallFlow
   {
     #region .ctor/.dctor
       private static AsyncFlowMutableLocal<WorkContext> ats_Current = new AsyncFlowMutableLocal<WorkContext>();
@@ -41,7 +41,12 @@ namespace Azos.Wave
         m_Response = new Response(this, listenerContext.Response);
 
         ats_Current.Value = this;
+        Apps.ExecutionContext.__SetThreadLevelCallContext(this);
         Interlocked.Increment(ref m_Server.m_stat_WorkContextCtor);
+
+        var flowHdr = m_Server.CallFlowHeader;
+        if (flowHdr.IsNotNullOrWhiteSpace())
+          m_ListenerContext.Response.AddHeader(flowHdr, m_ID.ToString());
       }
 
       /// <summary>
@@ -58,6 +63,7 @@ namespace Azos.Wave
         }
 
         ats_Current.Value = null;
+        Apps.ExecutionContext.__SetThreadLevelCallContext(null);
         ReleaseWorkSemaphore();
         m_Response.Dispose();
       }

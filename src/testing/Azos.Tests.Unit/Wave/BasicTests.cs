@@ -34,6 +34,20 @@ namespace Azos.Tests.Unit.Wave
     }
 
     [Run]
+    public async Task ActionVoidPlainTextWrite()
+    {
+      var got = await Client.GetStringAsync("actionvoidplaintextwrite");
+      Aver.AreEqual("0123456789", got);
+    }
+
+    [Run]
+    public async Task ActionTaskPlainTextWrite()
+    {
+      var got = await Client.GetStringAsync("actiontaskplaintextwrite");
+      Aver.AreEqual("0123456789", got);
+    }
+
+    [Run]
     public async Task ActionObjectLiteral()
     {
       var got = (await Client.GetStringAsync("actionobjectliteral")).JsonToDataObject() as JsonDataMap;

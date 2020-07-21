@@ -14,6 +14,7 @@
 * [Application Chassis](/src/Azos/Apps)
   * App Components
   * [Dependency Injection](/src/Azos/Apps/Injection)
+  * [Strategy Pattern and Business-Driven IOC](/src/Azos/Apps/Strategies)
   * Modules
   * Singleton Instances
   * Volatile Object Store

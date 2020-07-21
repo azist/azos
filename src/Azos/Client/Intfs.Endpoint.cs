@@ -16,7 +16,7 @@ namespace Azos.Client
 {
   /// <summary>
   /// Represents an abstraction of a remote service endpoint.
-  /// Endpoints provide connection point for services.
+  /// Endpoints provide a connection point for services.
   /// Each endpoint represents a specific connection type via Binding(protocol)
   /// </summary>
   public interface IEndpoint : IApplicationComponent
@@ -36,23 +36,27 @@ namespace Azos.Client
     /// Depending on implementation, the actual physical remote endpoint address is calculated based on
     /// logical RemoteAddress, logical Network, binding/protocol, and contract - a logical "sub-service"/"port".
     /// </summary>
-    string Network { get; }
+    Atom Network { get; }
 
     /// <summary>
     /// Provides logical binding name for this endpoint, for example "https". Bindings are protocols/connection methods supported.
     /// A typical REST-full system typically uses http/s bindings.
     /// </summary>
-    string Binding { get; }
+    Atom Binding { get; }
 
     /// <summary>
     /// Provides remote address routing/logical host/partition name which is used to match the callers address.
-    /// For Sky apps this is a metabase host name (regional path) of the target server which provides the service
+    /// For Sky apps this is a metabase host name (regional path) of the target server which provides the service.
+    /// Some provider may implement pattern matching on remote addresses, for example `Primary*` would match
+    /// multiple requested logical addressed (e.g. `Primary1, Primary2`) assigned to this endpoint
     /// </summary>
     string RemoteAddress { get; }
 
     /// <summary>
     /// Provides logical contract name for the functionality which this service endpoint covers.
-    /// For Http bindings this typically contains URI root path, such as "/user/admin"
+    /// Contracts allow to provide more fine-grained assignment of different endpoints serving of otherwise the same logical address.
+    /// For Http bindings this typically contains URI root path, such as "/user/admin".
+    /// Some providers may implement pattern matching on contract names.
     /// </summary>
     string Contract {  get; }
 
@@ -60,7 +64,7 @@ namespace Azos.Client
     /// Groups endpoints by logical shard. Shard numbers are positive consecutive integers starting from 0 (e.g. 0,1,2,3...)
     /// If sharding is not used then all endpoints are set to the same shard of 0.
     /// Before service calls are made, the system takes "shardKey" and tries to find the partition based on sharding object,
-    /// this way the load may be parallelized in "strands" of execution.
+    /// this way the load may be parallelized in "strands" of execution
     /// </summary>
     int Shard { get; }
 
@@ -68,7 +72,7 @@ namespace Azos.Client
     /// Relative order of endpoint per shard.
     /// Endpoints are tried in ascending order e.g. 0=Primary, 1=Secondary etc...
     /// When calculating the destination endpoint, the system uses RemoteAddress (and possibly other parameters such as current QOS/statistics) first
-    /// (for the appropriate binding/contract), then shard, then ShardOrder within the shard, thus you may designate
+    /// (for the appropriate binding/contract), then shard, then ShardOrder within the shard, thus you may designate endpoints as
     /// primary/secondary/tertiary etc.. using this parameter
     /// </summary>
     int ShardOrder { get; }
@@ -125,7 +129,7 @@ namespace Azos.Client
 
 
     /// <summary>
-    /// Notifies endpoint o call success. This typically used to update call statistics
+    /// Notifies endpoint of call success. This typically used to update call statistics
     /// </summary>
     void NotifyCallSuccess(ITransport transport);
 

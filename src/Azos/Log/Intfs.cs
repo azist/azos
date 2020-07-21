@@ -42,7 +42,13 @@ namespace Azos.Log
   /// </summary>
   public interface IArchiveLoggable : IDataDoc
   {
-
+    /// <summary>
+    /// Gets archive dimension content for later retrieval of entity by key, e.g. a user ID may be
+    /// used to retrieve log messages related to a user.
+    /// In most cases CSV, JSON or Laconic content is stored, the format depends on a concrete system
+    /// which uses this content as an opaque field
+    /// </summary>
+    string ArchiveDimensions { get; }
   }
 
 

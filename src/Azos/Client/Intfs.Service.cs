@@ -38,12 +38,12 @@ namespace Azos.Client
     /// Gets default network name for this service if any, e.g. "internoc".
     /// Simple implementations typically do not use named logical networks, so this value is set to "default" or empty
     /// </summary>
-    string DefaultNetwork { get; }
+    Atom DefaultNetwork { get; }
 
     /// <summary>
     /// Gets default binding name for this service, e.g. "https".
     /// </summary>
-    string DefaultBinding {  get; }
+    Atom DefaultBinding {  get; }
 
     /// <summary>
     /// When &gt; 0 imposes a call timeout expressed in milliseconds, otherwise the system uses hard-coded timeout (e.g. 10 sec)
@@ -61,18 +61,23 @@ namespace Azos.Client
     ///   The system resolves this address to physical address depending on binding and contract on the remote host
     /// </param>
     /// <param name="contract">Service contract name</param>
-    /// <param name="shardKey">Optional sharding parameter. The system will direct the call to the appropriate shard in the service partition if it is used</param>
+    /// <param name="shardKey">
+    ///  Optional sharding parameter. The system will direct the call to the appropriate shard in the service partition if it is used.
+    ///  You can use primitive values (such as integers/longs etc.) for sharding, as long as you do not change what value is used for
+    ///  `shardKey` parameter, the call routing will remain deterministic
+    /// </param>
     /// <param name="network">The name of the logical network to use for a call, or null to use the default network</param>
     /// <param name="binding">
     ///   The service binding to use, or null for default.
     ///   Bindings are connection technology/protocols (such as Http(s)/Glue/GRPC etc..) used to make the call
     /// </param>
     /// <returns>Endpoint(s) which should be (re)tried in the order of enumeration</returns>
-    IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, object shardKey = null, string network = null, string binding = null);
+    IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, object shardKey = null, Atom? network = null, Atom? binding = null);
 
     /// <summary>
     /// Gets the physical transport used to make remote calls. Depending on implementation the system
-    /// may return a pooled transport, re-use already acquired one (if transport supports multiplexing) etc.
+    /// may return a pooled transport, re-use already acquired one (if transport supports multiplexing) etc. or
+    /// allocate a new one. The call has to be paired with `ReleaseTransport(transport)`
     /// </summary>
     /// <param name="assignment">Endpoint to connect to</param>
     /// <param name="reserve">Pass true to reserve this transport for the caller. The caller must release the reserved transport</param>

@@ -12,7 +12,6 @@ using Azos.Collections;
 
 namespace Azos.Apps.Injection
 {
-
   /// <summary>
   /// Decorates fields that should be injected with app-rooted services (for example log or data store).
   /// A call to IApplication.DependencyInjector.InjectInto(instance) performs injection.

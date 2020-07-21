@@ -20,7 +20,6 @@ namespace Azos.Web.Messaging.Instrumentation
 
   [Serializable]
   [Arow("090A8785-0764-4CBD-9B92-47D7A38C9681")]
-  [BSONSerializable("AF384279-1916-4A74-B4EC-E426435D8E48")]
   public class MessagingSinkCount : MessagingSinkLongGauge
   {
     public MessagingSinkCount(string source, long value) : base(source, value) { }
@@ -42,7 +41,6 @@ namespace Azos.Web.Messaging.Instrumentation
 
   [Serializable]
   [Arow("F3DC839B-0538-43AF-98DF-22935A8073B8")]
-  [BSONSerializable("352086BB-36DB-4B27-9F85-41933FB8BD6E")]
   public class MessagingFallbackCount : MessagingSinkLongGauge
   {
     public MessagingFallbackCount(string source, long value) : base(source, value) { }
@@ -64,7 +62,6 @@ namespace Azos.Web.Messaging.Instrumentation
 
   [Serializable]
   [Arow("9BB4AFCB-EC6E-4B59-807F-1F43EA371D8D")]
-  [BSONSerializable("FDED631F-1C0D-4C2D-8F86-3400D203CA7F")]
   public class MessagingSinkErrorCount : MessagingSinkLongGauge
   {
     protected MessagingSinkErrorCount(string source, long value) : base(source, value) { }
@@ -86,7 +83,6 @@ namespace Azos.Web.Messaging.Instrumentation
 
   [Serializable]
   [Arow("1C1C927F-53B3-4EA3-A522-B384ACC5D0E8")]
-  [BSONSerializable("D277AA37-EAD1-45F0-8FB4-6A96D0E74CD7")]
   public class MessagingFallbackErrorCount : MessagingSinkLongGauge
   {
     protected MessagingFallbackErrorCount(string source, long value) : base(source, value) { }

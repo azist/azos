@@ -451,6 +451,12 @@ namespace Azos.Serialization.JSON
 
                             wri.Write('{');
 
+                            //20200615 DKh #304
+                            if (opt.MapSortKeys)
+                            {
+                              data = data.OrderBy( kvp => (kvp.Key?.ToString()).Default(string.Empty), StringComparer.Ordinal);
+                            }
+
                             var first = true;
                             foreach(DictionaryEntry entry in data)
                             {

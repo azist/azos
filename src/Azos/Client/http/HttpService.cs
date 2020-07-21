@@ -11,33 +11,34 @@ using System.Threading;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Text;
 
 namespace Azos.Client
 {
   /// <summary>
-  /// Implements a remote Http(s) service
+  /// Implements a remote Http(s) service client
   /// </summary>
   public class HttpService : ServiceBase<HttpEndpoint, HttpTransport>, IHttpService
   {
     private struct cacheKey : IEquatable<cacheKey>
     {
-      public cacheKey(string addr, string contr, string bin, string net)
+      public cacheKey(string addr, string contr, Atom bin, Atom net)
       {
         RemoteAddress = addr; Contract = contr; Binding = bin; Network = net;
       }
       public readonly string RemoteAddress;
       public readonly string Contract;
-      public readonly string Binding;
-      public readonly string Network;
+      public readonly Atom Binding;
+      public readonly Atom Network;
 
-      public override int GetHashCode() => (RemoteAddress ?? "").GetHashCodeOrdIgnoreCase() ^ (Network ?? "").GetHashCodeOrdIgnoreCase();
+      public override int GetHashCode() => (RemoteAddress ?? "").GetHashCodeOrdIgnoreCase() ^ Network.GetHashCode();
       public override bool Equals(object obj) => obj is cacheKey ck ? this.Equals(ck) : false;
 
       public bool Equals(cacheKey other)
        => this.RemoteAddress.EqualsOrdIgnoreCase(other.RemoteAddress) &&
           this.Contract.EqualsOrdIgnoreCase(other.Contract) &&
-          this.Binding.EqualsOrdIgnoreCase(other.Binding) &&
-          this.Network.EqualsOrdIgnoreCase(other.Network);
+          this.Binding == other.Binding &&
+          this.Network == other.Network;
     }
 
 
@@ -62,7 +63,7 @@ namespace Azos.Client
       m_EPCache = new Dictionary<cacheKey, EndpointAssignment[][]>();//clear cache after endpoints change
     }
 
-    protected override IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, object shardKey, string network, string binding)
+    protected override IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, object shardKey, Atom network, Atom binding)
     {
       var shard = (int)Data.ShardingUtils.ObjectToShardingID(shardKey) & CoreConsts.ABS_HASH_MASK;
 
@@ -70,14 +71,15 @@ namespace Azos.Client
       if (!m_EPCache.TryGetValue(key, out var shards))
       {
         shards = m_Endpoints.Where(ep =>
-              ep.RemoteAddress.EqualsIgnoreCase(remoteAddress) &&
-              ep.Contract.EqualsIgnoreCase(contract) &&
-              ep.Binding.EqualsIgnoreCase(binding) &&
-              ep.Network.EqualsIgnoreCase(network)
-            ).GroupBy(ep => ep.Shard)
-             .OrderBy(g => g.Key)
-             .Select(g => g.OrderBy(ep => ep.ShardOrder).Select( ep => new EndpointAssignment(ep, network, binding, remoteAddress, contract)).ToArray())
-             .ToArray();
+                    remoteAddress.MatchPattern(ep.RemoteAddress) &&
+                    contract.MatchPattern(ep.Contract) &&
+                    ep.Binding == binding &&
+                    ep.Network == network
+                ).GroupBy(ep => ep.Shard)
+                 .OrderBy(g => g.Key)
+                 .Select(g => g.OrderBy(ep => ep.ShardOrder)
+                               .Select( ep => new EndpointAssignment(ep, remoteAddress, contract)).ToArray())
+                 .ToArray();
 
         if (shards.Length==0) return Enumerable.Empty<EndpointAssignment>();
 

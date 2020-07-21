@@ -298,6 +298,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
        "Error mapping type '{0}' to record model field. No mapping exists";
 
 
+    public const string APP_INJECTED_CONFIG_FILE_NOT_FOUND_ERROR =
+         "Specified application configuration file `{0}` does not exist. Revise command line arguments for `-{1}` switch";
+
     public const string APP_CONFIG_SETTING_NOT_FOUND_ERROR =
         "Application configuration setting \"{0}\" not found.";
 
@@ -309,7 +312,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
         "This can happen if external variable providers keep on yielding resolved values with new variables which never resolve within the allowed limit of {1} iterations";
 
     public const string CONFIG_NO_PROVIDER_LOAD_FILE_ERROR =
-        "No configuration provider can open file name: ";
+        "No configuration provider can load content from file name: ";
 
     public const string CONFIG_NO_PROVIDER_HANDLE_FILE_ERROR =
         "No configuration provider can handle file name: ";
@@ -453,7 +456,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string GUARDED_STRING_PARAMETER_MUST_BE_BETWEEN_MIN_MAX_LEN_ERROR =
         "Guarded method '{0}' string parameter '{1}' = '{2}' length is {3} but must be between {4} and {5}";
 
-
+    public const string GUARDED_PARAMETER_CONDITION_ERROR =
+         "Guarded method '{0}' parameter '{1}' failed condition check";
 
     public const string STREAM_READ_EOF_ERROR =
         "Stream EOF before operation could complete: ";
@@ -1114,6 +1118,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string CLIENT_WRONG_TRANSPORT_TYPE_ERROR = "Service '{0}' can not release transport '{1}'";
 
+    public const string HTTP_CLIENT_CALL_FAILED = "Call to {0} on `{1}` eventually failed; {2} endpoints tried; See .InnerException";
+
+
     public const string WEB_CALL_RETURN_JSONMAP_ERROR = "The received content is not representable as JsonDataMap: '{0}..'";
     public const string WEB_CALL_UNSUCCESSFUL_ERROR = "Web call to `..{0}` was unsuccessful: HTTP {1} - {2}";
 
@@ -1161,6 +1168,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string BIX_STREAM_CORRUPTED_ERROR = "Bix data stream is corrupted: ";
     public const string BIX_SATELLITE_ASSEMBLY_NAME_ERROR = "Could not find Bix serialization satellite for assembly `{0}` as the name pattern does not match. The source assembly file name must end with `*.dll` by convention";
+    public const string BIX_CONFIGURED_ASSEMBLY_LOAD_ERROR = "Bix configuration includes assembly `{0}` which failed to load with: {1}.\n You may need to revise the `{2}` app config section";
     public const string BIX_SATELLITE_ASSEMBLY_LOAD_ERROR = "Bix satellite assembly `{0}` load failure: {1}";
     public const string BIX_TYPE_NOT_SUPPORTED_ERROR = "Bixer does not have a matching BixCore<`{0}`>";
     public const string BIX_MEMBER_TYPE_NOT_SUPPORTED_ERROR = "Bix members of type '{0}' are not supported";

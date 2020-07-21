@@ -322,19 +322,19 @@ namespace Azos.Instrumentation
 
                   if (taking)
                   {
-                    if (datum.UTCTime >= utcStart)
+                    if (datum.StartUtc >= utcStart)
                      yield return datum;
                     idx++;
                     continue;
                   }
 
-                  if (datum.UTCTime>=utcStart)
+                  if (datum.StartUtc>=utcStart)
                   {
                     taking = true;
                     continue;
                   }
 
-                  var span = (int)(utcStart - datum.UTCTime).TotalSeconds;//can not be negative because of prior if
+                  var span = (int)(utcStart - datum.StartUtc).TotalSeconds;//can not be negative because of prior if
                   var offset = span<5 ? 1 : span<10 ? FINE_SEC_SAMPLES : span * COARSE_SEC_SAMPLES;
                   idx += offset;
                 }//while
@@ -658,10 +658,10 @@ namespace Azos.Instrumentation
                   {
                     var existing = data[idx];
                     if (existing!=null)
-                      m_BufferOldestDatumUTC = existing.UTCTime;
+                      m_BufferOldestDatumUTC = existing.StartUtc;
                   }
                   else
-                   m_BufferOldestDatumUTC = result.UTCTime;
+                   m_BufferOldestDatumUTC = result.StartUtc;
 
                   data[idx] = result;
                 }

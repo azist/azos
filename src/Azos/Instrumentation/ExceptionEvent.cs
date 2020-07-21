@@ -9,9 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Azos.Apps;
 using Azos.Serialization.Arow;
-using Azos.Serialization.BSON;
 
 namespace Azos.Instrumentation
 {
@@ -20,7 +18,6 @@ namespace Azos.Instrumentation
   /// </summary>
   [Serializable]
   [Arow("2A09545F-B237-4008-BEE8-26508724AB89")]
-  [BSONSerializable("16DA09DD-AB74-469A-A1B6-A06BEA42EDF8")]
   public class ExceptionEvent : Event, IErrorInstrument
   {
     public const string BSON_FLD_EXCEPTION_TYPE = "etp";
@@ -60,12 +57,6 @@ namespace Azos.Instrumentation
     private string m_ExceptionType;
 
     public string ExceptionType { get { return m_ExceptionType; } }
-
-    public override void SerializeToBSON(BSONSerializer serializer, BSONDocument doc, IBSONSerializable parent, ref object context)
-    {
-      base.SerializeToBSON(serializer, doc, parent, ref context);
-      doc.Add(BSON_FLD_EXCEPTION_TYPE, m_ExceptionType);
-    }
 
     [NonSerialized]
     private Dictionary<string, int> m_Errors;

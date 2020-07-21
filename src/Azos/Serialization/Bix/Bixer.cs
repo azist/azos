@@ -8,7 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-
+using Azos.Apps;
+using Azos.Conf;
 using Azos.Data;
 
 namespace Azos.Serialization.Bix
@@ -44,9 +45,19 @@ namespace Azos.Serialization.Bix
   /// </remarks>
   public static class Bixer
   {
+    public const string CONFIG_AZOS_SERIALIZATION_BIX_SECTION = "azos-serialization-bix";
+    public const string CONFIG_ASSEMBLY_SECTION = "assembly";
+
     private static object s_Lock = new object();
     internal static volatile Dictionary<TargetedType, BixCore> s_Index = new Dictionary<TargetedType, BixCore>();
+    private static GuidTypeResolver<TypedDoc, BixAttribute> s_Resolver = new GuidTypeResolver<TypedDoc, BixAttribute>();
 
+
+
+    /// <summary>
+    /// Returns a resolver which maps Guid/FastGuid to Type objects
+    /// </summary>
+    public static IGuidTypeResolver GuidTypeResolver => s_Resolver;
 
     /// <summary>
     /// Registers all IBixCore implementors from a satellite assembly of the calling assembly.
@@ -99,16 +110,24 @@ namespace Azos.Serialization.Bix
     {
       var allTypes = asm.NonNull(nameof(asm)).GetTypes();
       var allCores = allTypes.Where(t => t.IsClass && !t.IsAbstract && typeof(BixCore).IsAssignableFrom(t));
+      var allDocs = allTypes.Where(t => t.IsClass && !t.IsAbstract && typeof(TypedDoc).IsAssignableFrom(t))
+                            .Select(t => (t: t, a: GuidTypeAttribute.TryGetGuidTypeAttribute<TypedDoc, BixAttribute>(t)))
+                            .Where( pair => pair.a!=null)
+                            .Select( pair => (pair.a.TypeGuid, pair.t) );
 
       lock(s_Lock)
       {
         var dict = new Dictionary<TargetedType, BixCore>(s_Index);
+        var toAdd = new List<(Guid, Type)>(allDocs);
 
         allCores.ForEach( tc => {
           var core = Activator.CreateInstance(tc) as BixCore;
           var ttp = core.TargetedType;
           dict[ttp] = core;
+          toAdd.Add((core.Attribute.TypeGuid, ttp.Type));
         });
+
+        s_Resolver.AddTypes(toAdd);
 
         System.Threading.Thread.MemoryBarrier();
 
@@ -128,14 +147,39 @@ namespace Azos.Serialization.Bix
         if (s_Index.TryGetValue(ttp, out var existing) && object.ReferenceEquals(existing, core)) return false;
         var dict = new Dictionary<TargetedType, BixCore>(s_Index);
         dict[ttp] = core;
+        s_Resolver.AddTypes((core.Attribute.TypeGuid, ttp.Type).ToEnumerable());
 
         System.Threading.Thread.MemoryBarrier();
 
         s_Index = dict;//atomic
-
         return true;
       }
     }
+
+    /// <summary>
+    /// Registers assemblies from config section: r{ assembly{name='assembly1.dll'} assembly{name='assembly2.dll'} }
+    /// </summary>
+    public static void RegisterFromConfiguration(IConfigSectionNode conf)
+    {
+      if (conf==null || !conf.Exists) return;
+
+      foreach (var nasm in conf.Children.Where(n => n.IsSameName(CONFIG_ASSEMBLY_SECTION)))
+      {
+        var asmName = nasm.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
+        if (asmName.IsNullOrWhiteSpace()) continue;
+
+        try
+        {
+          var asm = Assembly.LoadFrom(asmName);
+          RegisterTypeSerializationCores(asm);
+        }
+        catch (Exception error)
+        {
+          throw new BixException(StringConsts.BIX_CONFIGURED_ASSEMBLY_LOAD_ERROR.Args(asmName, error.ToMessageWithType(), CONFIG_AZOS_SERIALIZATION_BIX_SECTION), error);
+        }
+      }
+    }
+
 
     /// <summary>
     /// Serializes any object polymorphically

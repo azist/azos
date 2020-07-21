@@ -36,18 +36,6 @@ namespace Azos.Instrumentation
 
     public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_UNSPECIFIED; } }
 
-    public override void SerializeToBSON(BSONSerializer serializer, BSONDocument doc, IBSONSerializable parent, ref object context)
-    {
-      base.SerializeToBSON(serializer, doc, parent, ref context);
-      doc.Add(BSON_FLD_VALUE, m_Value);
-    }
-
-    public override void DeserializeFromBSON(BSONSerializer serializer, BSONDocument doc, ref object context)
-    {
-      m_Value = doc.TryGetObjectValueOf(BSON_FLD_VALUE).AsLong();
-      base.DeserializeFromBSON(serializer, doc, ref context);
-    }
-
     [NonSerialized]
     private long m_Sum;
 
@@ -87,18 +75,6 @@ namespace Azos.Instrumentation
     public override object ValueAsObject { get { return m_Value; } }
 
     public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_UNSPECIFIED; } }
-
-    public override void SerializeToBSON(BSONSerializer serializer, BSONDocument doc, IBSONSerializable parent, ref object context)
-    {
-      base.SerializeToBSON(serializer, doc, parent, ref context);
-      doc.Add(BSON_FLD_VALUE, m_Value);
-    }
-
-    public override void DeserializeFromBSON(BSONSerializer serializer, BSONDocument doc, ref object context)
-    {
-      m_Value = doc.TryGetObjectValueOf(BSON_FLD_VALUE).AsDouble();
-      base.DeserializeFromBSON(serializer, doc, ref context);
-    }
 
     [NonSerialized]
     private double m_Sum;
@@ -140,18 +116,6 @@ namespace Azos.Instrumentation
     public override object ValueAsObject { get { return m_Value; } }
 
     public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_UNSPECIFIED; } }
-
-    public override void SerializeToBSON(BSONSerializer serializer, BSONDocument doc, IBSONSerializable parent, ref object context)
-    {
-      base.SerializeToBSON(serializer, doc, parent, ref context);
-      doc.Set(DataDocConverter.Decimal_CLRtoBSON(BSON_FLD_VALUE, m_Value));
-    }
-
-    public override void DeserializeFromBSON(BSONSerializer serializer, BSONDocument doc, ref object context)
-    {
-      base.DeserializeFromBSON(serializer, doc, ref context);
-      m_Value = DataDocConverter.Decimal_BSONtoCLR(doc[BSON_FLD_VALUE]);
-    }
 
     [NonSerialized]
     private decimal m_Sum;
@@ -213,18 +177,6 @@ namespace Azos.Instrumentation
     public override object PlotValue { get { return m_Value.Value; } }
 
     public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_MONEY; } }
-
-    public override void SerializeToBSON(BSONSerializer serializer, BSONDocument doc, IBSONSerializable parent, ref object context)
-    {
-      base.SerializeToBSON(serializer, doc, parent, ref context);
-      doc.Set(DataDocConverter.Amount_CLRtoBSON(BSON_FLD_VALUE, m_Value));
-    }
-
-    public override void DeserializeFromBSON(BSONSerializer serializer, BSONDocument doc, ref object context)
-    {
-      base.DeserializeFromBSON(serializer, doc, ref context);
-      m_Value = DataDocConverter.Amount_BSONtoCLR((BSONDocumentElement)doc[BSON_FLD_VALUE]);
-    }
 
     [NonSerialized]
     private Amount m_Sum;

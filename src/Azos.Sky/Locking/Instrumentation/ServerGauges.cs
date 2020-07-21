@@ -16,7 +16,6 @@ namespace Azos.Sky.Locking.Instrumentation
   /// </summary>
   [Serializable]
   [Arow("3C295A45-28AC-487A-A040-D78B5D95C43D")]
-  [BSONSerializable("615ECDF5-0593-4F56-AD6D-5C4164D68A1B")]
   public sealed class ServerLockTransactions : LockingServerGauge
   {
     internal ServerLockTransactions(string src, long value) : base(src, value) { }
@@ -33,7 +32,6 @@ namespace Azos.Sky.Locking.Instrumentation
   /// </summary>
   [Serializable]
   [Arow("88B2ACEA-59EC-4243-B862-27F7AEE1797C")]
-  [BSONSerializable("51A3BBC6-7B33-4F01-9FA8-AEE8CA6EB665")]
   public sealed class ServerEndLockSessionCalls : LockingServerGauge
   {
     internal ServerEndLockSessionCalls(long value) : base(Datum.UNSPECIFIED_SOURCE, value) { }
@@ -50,7 +48,6 @@ namespace Azos.Sky.Locking.Instrumentation
   /// </summary>
   [Serializable]
   [Arow("7A0336B6-75B8-4625-BC40-9451D9411CA2")]
-  [BSONSerializable("501689C3-B2AD-43C7-97D4-D6BDE7853EE4")]
   public sealed class ServerTrustLevel : LockingServerDoubleGauge
   {
     internal ServerTrustLevel(double value) : base(Datum.UNSPECIFIED_SOURCE, value) { }
@@ -67,7 +64,6 @@ namespace Azos.Sky.Locking.Instrumentation
   /// </summary>
   [Serializable]
   [Arow("DE39EC10-C8EB-4E97-9329-5C28E7793E95")]
-  [BSONSerializable("C93A4229-C261-466A-B7A2-D77845BA7AC3")]
   public sealed class ServerCallsNorm : LockingServerDoubleGauge
   {
     internal ServerCallsNorm(double value) : base(Datum.UNSPECIFIED_SOURCE, value) { }
@@ -84,7 +80,6 @@ namespace Azos.Sky.Locking.Instrumentation
   /// </summary>
   [Serializable]
   [Arow("A219D4B6-8CAC-4D9D-9D85-F7E00B4A4365")]
-  [BSONSerializable("51C49154-C017-480D-9CA7-1E9E20771F23")]
   public sealed class ServerExpiredRecords : LockingServerGauge
   {
     internal ServerExpiredRecords(long value) : base(Datum.UNSPECIFIED_SOURCE, value) { }
@@ -101,7 +96,6 @@ namespace Azos.Sky.Locking.Instrumentation
   /// </summary>
   [Serializable]
   [Arow("B1F5501B-C778-4583-83EA-F4EDFBF8570E")]
-  [BSONSerializable("4D7295AC-FE3C-4382-B698-D4F00522FC52")]
   public sealed class ServerExpiredSessions : LockingServerGauge
   {
     internal ServerExpiredSessions(long value) : base(Datum.UNSPECIFIED_SOURCE, value) { }
@@ -118,7 +112,6 @@ namespace Azos.Sky.Locking.Instrumentation
   /// </summary>
   [Serializable]
   [Arow("19678A92-7F23-4FDB-95F3-DE2306063FC0")]
-  [BSONSerializable("811ED7C5-E27F-474D-BC4D-7DE4A0303668")]
   public sealed class ServerRemovedEmptyTables : LockingServerGauge
   {
     internal ServerRemovedEmptyTables(long value) : base(Datum.UNSPECIFIED_SOURCE, value) { }
@@ -135,7 +128,6 @@ namespace Azos.Sky.Locking.Instrumentation
   /// </summary>
   [Serializable]
   [Arow("3EB81D57-C9A2-4245-B6D0-70A1E795D3AE")]
-  [BSONSerializable("988FC14B-4631-472C-8252-E30AD78C8369")]
   public sealed class ServerNamespaceTables : LockingServerGauge
   {
     internal ServerNamespaceTables(string nsname, long value) : base(nsname, value) { }
@@ -152,7 +144,6 @@ namespace Azos.Sky.Locking.Instrumentation
   /// </summary>
   [Serializable]
   [Arow("56C447D2-D713-4D05-8F02-C448FB366174")]
-  [BSONSerializable("2F85C218-D985-41F9-838F-FBED90BAC563")]
   public sealed class ServerNamespaceTableRecordCount : LockingServerGauge
   {
     internal ServerNamespaceTableRecordCount(string nsTname, long value) : base(nsTname, value) { }

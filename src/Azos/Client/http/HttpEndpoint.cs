@@ -143,7 +143,7 @@ namespace Azos.Client
     /// </summary>
     protected virtual HttpClient MakeHttpClient()
     {
-      var result = new HttpClient(m_ClientHandler);
+      var result = new HttpClient(m_ClientHandler, disposeHandler: false);
       result.Timeout = TimeSpan.FromMilliseconds(TimeoutMs > 0 ? TimeoutMs : this.Service.DefaultTimeoutMs > 0 ? Service.DefaultTimeoutMs : DEFAULT_TIMEOUT_MS);
       result.BaseAddress = this.Uri.NonNull("`{0}` is not configured".Args(nameof(Uri)));
 
@@ -178,7 +178,8 @@ namespace Azos.Client
 
     public override void NotifyCallSuccess(ITransport transport)
     {
-      throw new NotImplementedException();
+      //throw new NotImplementedException();
+      //reset circuit breaker etc...
     }
 
   }

@@ -57,9 +57,8 @@ namespace Azos.Log
     private string m_ArchiveDimensions;
     #endregion
 
+
     #region Properties
-
-
 
     /// <summary>
     /// Global distributed ID used by distributed log warehouses. GDID.ZERO for local logging applications
