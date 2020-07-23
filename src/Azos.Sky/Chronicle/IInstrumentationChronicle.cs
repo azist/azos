@@ -22,7 +22,7 @@ namespace Azos.Sky.Chronicle
     /// <summary>
     /// Writes an enumerable of datum instances into chronicle
     /// </summary>
-    Task WriteAsync(IEnumerable<Datum> data);
+    Task WriteAsync(InstrumentationBatch data);
 
     /// <summary>
     /// Gets chronicle (a list) of datum instances satisfying the supplied InstrumentationChronicleFilter object

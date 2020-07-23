@@ -10,20 +10,20 @@ using System.Threading.Tasks;
 using Azos.Apps.Injection;
 using Azos.Data;
 using Azos.Data.Business;
-using Azos.Log;
+using Azos.Instrumentation;
 using Azos.Serialization.Bix;
 using Azos.Time;
 
 namespace Azos.Sky.Chronicle
 {
-  [Bix("DDD07B97-355E-4CF2-8E82-496CE77A265E")]
-  [Schema(Description = "Provides model for log batch upload")]
-  public sealed class LogBatch : PersistedModel<ChangeResult>
+  [Bix("59D75289-D75C-4A9B-8F0B-D5D453CA8412")]
+  [Schema(Description = "Provides model for instrumentation batch upload")]
+  public sealed class InstrumentationBatch : PersistedModel<ChangeResult>
   {
     [Field(isArow: true, required: true, backendName: "d", description: "Data to upload")]
-    public Message[] Data{ get; set; }
+    public Datum[] Data{ get; set; }
 
-    [Inject] ILogChronicleLogic m_Chronicle;
+    [Inject] IInstrumentationChronicleLogic m_Chronicle;
 
     protected async override Task<SaveResult<ChangeResult>> DoSaveAsync()
     {

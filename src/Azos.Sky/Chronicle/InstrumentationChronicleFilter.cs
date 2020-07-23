@@ -34,7 +34,7 @@ namespace Azos.Sky.Chronicle
     public DateRange? TimeRange { get; set; }
 
 
-    [Field(isArow: true, backendName: "af", description: "Advanced filter, whcih can be used for filter by archive dimensions")]
+    [Field(isArow: true, backendName: "af", description: "Advanced filter, which can be used for filter by archive dimensions")]
     public Expression AdvancedFilter{  get; set;}
 
     [Inject] IInstrumentationChronicle m_Chronicle;

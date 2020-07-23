@@ -464,8 +464,8 @@ namespace Azos.Log.Sinks
     }
 
     /// <summary>
-    /// Provides periodic notification of destinations from central Log thread even if there are no messages to write.
-    /// Override DoPulse to commit internal batching buffers provided by particular destinations
+    /// Provides periodic notification of sinks from central Log thread even if there are no messages to write.
+    /// Override DoPulse to commit internal batching buffers provided by particular sinks
     /// </summary>
     public void Pulse()
     {
@@ -476,9 +476,9 @@ namespace Azos.Log.Sinks
       }
       catch (Exception error)
       {
-      //WARNING!!!
-      //under no condition MAY any exception escape from here
-      SetError(error, null);
+        //WARNING!!!
+        //under no condition MAY any exception escape from here
+        SetError(error, null);
       }
     }
 
