@@ -193,33 +193,8 @@ namespace Azos.Log
     /// <summary>
     /// Writes log message into log
     /// </summary>
-    public void Write(MessageType type, string text, string topic = null, string from = null)
-    {
-        Write(type, text, false, topic, from);
-    }
-
-    /// <summary>
-    /// Writes log message into log
-    /// </summary>
-    public void Write(MessageType type, string text, bool urgent, string topic = null, string from = null)
-    {
-        Write(new Message
-        {
-            Type = type,
-            Topic = topic,
-            From = from,
-            Text = text
-        }, urgent);
-    }
-
-    /// <summary>
-    /// Writes log message into log
-    /// </summary>
     /// <param name="msg">Message to write</param>
-    public void Write(Message msg)
-    {
-        Write(msg, false);
-    }
+    public void Write(Message msg) => Write(msg, false);
 
     /// <summary>
     /// Writes log message into log
