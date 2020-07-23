@@ -92,7 +92,7 @@ static string conf3 = @"
         }
 
         [Run]
-        [Aver.Throws(typeof(AzosException), Message="No log destinations registered", MsgMatch=Aver.ThrowsAttribute.MatchType.Contains)]
+        [Aver.Throws(typeof(AzosException), Message="No log sinks registered", MsgMatch=Aver.ThrowsAttribute.MatchType.Contains)]
         public void Case3_ExistsOnAppLevelButDoesNotCascade()
         {
             var root = Azos.Conf.XMLConfiguration.CreateFromXML(conf3).Root;

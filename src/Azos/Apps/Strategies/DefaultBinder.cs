@@ -91,7 +91,7 @@ namespace Azos.Apps.Strategies
       }
 
       if (m_Cache.Count == 0)
-        throw new StrategyException("The {0} is not configured with any strategies. Revise assembly bindings".Args(nameof(DefaultBinder)));
+        throw new StrategyException(StringConsts.STRAT_BINDING_NOTHING_REGISTERED_ERROR.Args(nameof(DefaultBinder)));
 
       foreach(var kvp in m_Cache) kvp.Value.FinalizeRegistration();
 
@@ -106,11 +106,12 @@ namespace Azos.Apps.Strategies
                                                                  where TContext : IStrategyContext
     {
       if (!m_Cache.TryGetValue(typeof(TStrategy), out var handler))
-        throw new StrategyException("Strategy `{0}` could not be resolved".Args(typeof(TStrategy).DisplayNameWithExpandedGenericArgs()));
+        throw new StrategyException(StringConsts.STRAT_BINDING_UNRESOLVED_ERROR.Args(typeof(TStrategy).DisplayNameWithExpandedGenericArgs()));
 
       var result = handler.Bind<TStrategy, TContext>(context);
 
-      result.NonNull("Strategy binding of `{0}` failed for context `{1}`".Args(typeof(TStrategy).DisplayNameWithExpandedGenericArgs(), typeof(TContext).DisplayNameWithExpandedGenericArgs()));
+      if (result==null)
+        throw new StrategyException(StringConsts.STRAT_BINDING_MATCH_ERROR.Args(typeof(TStrategy).DisplayNameWithExpandedGenericArgs(), typeof(TContext).DisplayNameWithExpandedGenericArgs()));
 
       App.InjectInto(result);
 

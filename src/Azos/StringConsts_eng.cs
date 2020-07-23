@@ -1186,5 +1186,16 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
 
     public const string METADATA_CTOR_CONTENT_ERROR = "Metadata specification error. `{0}`.ctor(`{1}` content is bad). Revise attribute declaration. Cause: {2}";
+
+
+    public const string STRAT_BINDING_NOTHING_REGISTERED_ERROR =
+      "The `{0}` is not configured with any strategies. Revise assembly bindings";
+
+    public const string STRAT_BINDING_UNRESOLVED_ERROR =
+      "Strategy binding error: contract `{0}` could not be resolved into any actual implementing type. Revise assembly bindings";
+
+    public const string STRAT_BINDING_MATCH_ERROR =
+      "Strategy binding error: contract `{0}` failed to match context `{1}`. Revise assembly bindings and strategy traits/pattern matching decorations";
+
   }
 }
