@@ -32,7 +32,7 @@ namespace Azos.Log
     protected override void DoConfigure(IConfigSectionNode node)
     {
       var nlog = node.NonEmpty(nameof(node))[CommonApplicationLogic.CONFIG_LOG_SECTION]
-                     .NonEmpty($"Missing config `{CommonApplicationLogic.CONFIG_LOG_SECTION}` section");
+                     .NonEmpty($"`{CommonApplicationLogic.CONFIG_LOG_SECTION}` config section");
 
       DisposeAndNull(ref m_Log);
 
@@ -43,7 +43,7 @@ namespace Azos.Log
 
     protected override bool DoApplicationAfterInit()
     {
-      m_Log.NonNull("Log not configured");
+      m_Log.NonNull("`{0}` not configured".Args(CommonApplicationLogic.CONFIG_LOG_SECTION));
 
       if (m_Log is Daemon d)
         d.StartByApplication();

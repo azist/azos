@@ -445,7 +445,7 @@ namespace Azos.Log.Sinks
                                           ( (1.0f - PROCESSING_TIME_EMA_FILTER) * m_AverageProcessingTimeMs );
 
               if (m_AverageProcessingTimeMs > m_MaxProcessingTimeMs.Value)
-              throw new AzosException(string.Format(StringConsts.LOGSVC_SINK_EXCEEDS_MAX_PROCESSING_TIME_ERROR,
+              throw new LogException(string.Format(StringConsts.LOGSVC_SINK_EXCEEDS_MAX_PROCESSING_TIME_ERROR,
                                                     Name,
                                                     m_MaxProcessingTimeMs,
                                                     m_StopWatch.ElapsedMilliseconds));

@@ -262,7 +262,7 @@ namespace Azos.Log
       base.DoStart();
 
       if (!SinksAreOptional && m_Sinks.Count == 0)
-        throw new AzosException(StringConsts.LOGSVC_NODESTINATIONS_ERROR);
+        throw new LogException(StringConsts.LOGSVC_NOSINKS_ERROR.Args(Name));
 
       foreach (var sink in m_Sinks.OrderedValues)
         try
@@ -271,7 +271,7 @@ namespace Azos.Log
         }
         catch (Exception error)
         {
-          throw new AzosException(
+          throw new LogException(
                 StringConsts.LOGDAEMON_SINK_START_ERROR.Args(Name, sink.Name, sink.TestOnStart, error.Message),
                 error);
         }

@@ -33,8 +33,8 @@ namespace Azos
         public const string OPERATION_NOT_SUPPORTED_ERROR =
             "Operation not supported: ";
 
-        public const string LOGSVC_NODESTINATIONS_ERROR =
-            "No log destinations registered. Log daemon could not start";
+        public const string LOGSVC_NOSINKS_ERROR =
+            "No log sinks registered. Log daemon `{0}` could not start";
 
         public const string DAEMON_INVALID_STATE =
             "Daemon is in inappropriate state for requested operation: ";
@@ -432,32 +432,32 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string GUARDED_ACTION_SCOPE_ERROR =
         "Guarded action {0} threw: {1}";
 
-    public const string GUARDED_PARAMETER_MAY_NOT_BE_NULL_ERROR =
-        "Guarded method '{0}' parameter '{1}' may not be null";
+    public const string GUARDED_CLAUSE_MAY_NOT_BE_NULL_ERROR =
+        "Guarded method '{0}' clause '{1}' may not be null";
 
-    public const string GUARDED_PARAMETER_OFTYPE_ERROR =
-         "Guarded method '{0}' type parameter '{1}' may not be null and must be of '{2}' type or its descendants";
+    public const string GUARDED_CLAUSE_OFTYPE_ERROR =
+         "Guarded method '{0}' type clause '{1}' may not be null and must be of '{2}' type or its descendants";
 
-    public const string GUARDED_PARAMETER_VALUEOFTYPE_ERROR =
-         "Guarded method '{0}' value '{1}' may not be null and must be of '{2}' type or its descendants";
+    public const string GUARDED_CLAUSE_VALUEOFTYPE_ERROR =
+         "Guarded method '{0}' clause value '{1}' may not be null and must be of '{2}' type or its descendants";
 
-    public const string GUARDED_CONFIG_NODE_PARAMETER_MAY_NOT_BE_EMPTY_ERROR =
-        "Guarded method '{0}' config node parameter '{1}' may not be null or empty";
+    public const string GUARDED_CONFIG_NODE_CLAUSE_MAY_NOT_BE_EMPTY_ERROR =
+        "Guarded method '{0}' config node clause '{1}' may not be null or empty";
 
-    public const string GUARDED_STRING_PARAMETER_MAY_NOT_BE_BLANK_ERROR =
-        "Guarded method '{0}' string parameter '{1}' may not be null or blank/whitespace";
+    public const string GUARDED_STRING_CLAUSE_MAY_NOT_BE_BLANK_ERROR =
+        "Guarded method '{0}' string clause '{1}' may not be null or blank/whitespace";
 
-    public const string GUARDED_STRING_PARAMETER_MAY_NOT_EXCEED_MAX_LEN_ERROR =
-        "Guarded method '{0}' string parameter '{1}' = '{2}' length of {3} exceeds the max length of {4}";
+    public const string GUARDED_STRING_CLAUSE_MAY_NOT_EXCEED_MAX_LEN_ERROR =
+        "Guarded method '{0}' string clause '{1}' = '{2}' length of {3} exceeds the max length of {4}";
 
-    public const string GUARDED_STRING_PARAMETER_MAY_NOT_BE_LESS_MIN_LEN_ERROR =
-        "Guarded method '{0}' string parameter '{1}' = '{2}' length of {3} is less than the min length of {4}";
+    public const string GUARDED_STRING_CLAUSE_MAY_NOT_BE_LESS_MIN_LEN_ERROR =
+        "Guarded method '{0}' string clause '{1}' = '{2}' length of {3} is less than the min length of {4}";
 
-    public const string GUARDED_STRING_PARAMETER_MUST_BE_BETWEEN_MIN_MAX_LEN_ERROR =
-        "Guarded method '{0}' string parameter '{1}' = '{2}' length is {3} but must be between {4} and {5}";
+    public const string GUARDED_STRING_CLAUSE_MUST_BE_BETWEEN_MIN_MAX_LEN_ERROR =
+        "Guarded method '{0}' string clause '{1}' = '{2}' length is {3} but must be between {4} and {5}";
 
-    public const string GUARDED_PARAMETER_CONDITION_ERROR =
-         "Guarded method '{0}' parameter '{1}' failed condition check";
+    public const string GUARDED_CLAUSE_CONDITION_ERROR =
+        "Guarded method '{0}' clause '{1}' failed condition check";
 
     public const string STREAM_READ_EOF_ERROR =
         "Stream EOF before operation could complete: ";
