@@ -6,10 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Azos.Apps.Injection;
-using Azos.Conf;
+
 using Azos.Instrumentation;
-using Azos.Log;
 using Azos.Sky.Chronicle;
 
 namespace Azos.Sky.Instrumentation
@@ -19,13 +17,23 @@ namespace Azos.Sky.Instrumentation
   /// </summary>
   public sealed class ChronicleInstrumentationProvider : InstrumentationProvider
   {
-    public const int BATCH_SIZE = 64;
+    public const int BATCH_SIZE = 96;
 
-    public ChronicleInstrumentationProvider() : base(null) {}
-    public ChronicleInstrumentationProvider(InstrumentationDaemon director) : base(director) {}
+    public ChronicleInstrumentationProvider(InstrumentationDaemon director) : base(director){ }
 
-    [Inject] IInstrumentationChronicleLogic m_Chronicle;
+    //The dependency may NOT be available at time of construction of this object
+    //because this boots before other framework services, hence - service location
+    IInstrumentationChronicleLogic m_Chronicle;
+    IInstrumentationChronicleLogic Chronicle
+    {
+      get
+      {
+        if (m_Chronicle==null)
+          m_Chronicle = App.ModuleRoot.Get<IInstrumentationChronicleLogic>();
 
+        return m_Chronicle;
+      }
+    }
 
     protected internal override object BeforeBatch() => new List<Datum>();
 
@@ -48,9 +56,9 @@ namespace Azos.Sky.Instrumentation
         Data = data
       };
 
-      m_Chronicle.WriteAsync(batch)
-                  .GetAwaiter()
-                  .GetResult();
+      Chronicle.WriteAsync(batch)
+               .GetAwaiter()
+               .GetResult();
     }
   }
 }

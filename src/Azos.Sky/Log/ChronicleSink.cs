@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 
-using Azos.Apps.Injection;
 using Azos.Log;
 using Azos.Log.Sinks;
 
@@ -24,8 +23,20 @@ namespace Azos.Sky.Log
     public ChronicleSink(ISinkOwner owner) : base(owner) { }
     public ChronicleSink(ISinkOwner owner, string name, int order) : base(owner, name, order) { }
 
+    //The dependency may NOT be available at time of construction of this object
+    //because this boots before other framework services, hence - service location
+    ILogChronicleLogic m_Chronicle;
+    ILogChronicleLogic Chronicle
+    {
+      get
+      {
+        if (m_Chronicle == null)
+          m_Chronicle = App.ModuleRoot.Get<ILogChronicleLogic>();
 
-    [Inject] ILogChronicleLogic m_Chronicle;
+        return m_Chronicle;
+      }
+    }
+
 
     private List<Message> m_ToSend = new List<Message>();
 
@@ -50,9 +61,9 @@ namespace Azos.Sky.Log
         m_ToSend.Clear();
 
 
-      m_Chronicle.WriteAsync(batch)
-                 .GetAwaiter()
-                 .GetResult();
+      Chronicle.WriteAsync(batch)
+               .GetAwaiter()
+               .GetResult();
 
       base.DoPulse();
     }
