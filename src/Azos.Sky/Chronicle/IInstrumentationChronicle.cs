@@ -25,9 +25,10 @@ namespace Azos.Sky.Chronicle
     Task WriteAsync(InstrumentationBatch data);
 
     /// <summary>
-    /// Gets chronicle (a list) of datum instances satisfying the supplied InstrumentationChronicleFilter object
+    /// Gets chronicle (a list) of datum frames satisfying the supplied InstrumentationChronicleFilter object.
+    /// Datum Frames encapsulate low-level raw data representation
     /// </summary>
-    Task<IEnumerable<Datum>> GetAsync(InstrumentationChronicleFilter filter);
+    Task<IEnumerable<DatumFrame>> GetRawAsync(InstrumentationChronicleFilter filter);
   }
 
   /// <summary>
@@ -35,6 +36,14 @@ namespace Azos.Sky.Chronicle
   /// </summary>
   public interface IInstrumentationChronicleLogic : IInstrumentationChronicle, IDataBusinessLogic
   {
+    ///// <summary>
+    ///// Maps chronicle data frames into polymorphic datum instances.
+    ///// The InvalidDatum instance gets returned for DatumFrames that could not be mapped
+    ///// </summary>
+    //Datum Materialize(DatumFrame frame);
+
+    //Type MapInstrumentType(Guid id);
+    //Guid MapInstrumentType(Type tInstrument);
   }
 
 }

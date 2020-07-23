@@ -22,13 +22,13 @@ namespace Azos.Sky.Chronicle
 {
   [Bix("5843A744-54CF-4E22-99CF-A91F0C2CE08C")]
   [Schema(Description = "Provides model for filtering instrumentation chronicles")]
-  public sealed class InstrumentationChronicleFilter : FilterModel<IEnumerable<Datum>>
+  public sealed class InstrumentationChronicleFilter : FilterModel<IEnumerable<DatumFrame>>
   {
     [Field(isArow: true, backendName: "gdid", description: "Measurement datum GDID")]
     public GDID Gdid { get; set; }
 
-    [Field(isArow: true, backendName: "names", description: "Semicolon-separated instrument/type names")]
-    public string Names {  get; set;}
+    [Field(isArow: true, backendName: "tps", description: "An array of instrument type IDs")]
+    public Guid[] InstrumentTypes {  get; set;}
 
     [Field(isArow: true, backendName: "utcr", description: "Log message start/end date UTC time range")]
     public DateRange? TimeRange { get; set; }
@@ -39,8 +39,8 @@ namespace Azos.Sky.Chronicle
 
     [Inject] IInstrumentationChronicle m_Chronicle;
 
-    protected async override Task<SaveResult<IEnumerable<Datum>>> DoSaveAsync()
-     => new SaveResult<IEnumerable<Datum>>(await m_Chronicle.GetAsync(this));
+    protected async override Task<SaveResult<IEnumerable<DatumFrame>>> DoSaveAsync()
+     => new SaveResult<IEnumerable<DatumFrame>>(await m_Chronicle.GetRawAsync(this));
   }
 
 }
