@@ -18,8 +18,10 @@ namespace Azos.Instrumentation
 
     protected Event(string source, DateTime utcDateTime) : base(source, utcDateTime) {}
 
-    public override object ValueAsObject { get { return Count; } }
+    public override object ValueAsObject => Count;
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_OCCURENCE; } }
+    public override double? RefValue => Count;
+
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_OCCURENCE;
   }
 }

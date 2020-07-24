@@ -15,7 +15,7 @@ namespace Azos.Sky.Chronicle
   /// <summary>
   /// Provides client for consuming ILogChronicle and  IInstrumentationChronicle remote services
   /// </summary>
-  public sealed class ChronicleWebClientLogic : ModuleBase, ILogChronicleLogic, IInstrumentationChronicleLogic
+  public sealed class ChronicleWebClientLogic : ModuleBase, ILogChronicleLogic, IInstrumentationChronicleClientLogic
   {
     public ChronicleWebClientLogic(IApplication application) : base(application) { }
     public ChronicleWebClientLogic(IModule parent) : base(parent) { }
@@ -27,10 +27,48 @@ namespace Azos.Sky.Chronicle
     public override bool IsHardcodedModule => false;
     public override string ComponentLogTopic => "chronicle";
 
+    public Task WriteAsync(LogBatch data)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter)
+    {
+      throw new NotImplementedException();
+    }
+
+    public DatumFrame Map(Datum datum)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Datum TryMaterialize(DatumFrame frame)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Type MapInstrumentType(Guid id)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Guid MapInstrumentType(Type tInstrument)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task WriteAsync(InstrumentationBatch data)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<DatumFrame>> GetAsync(InstrumentationChronicleFilter filter)
+    {
+      throw new NotImplementedException();
+    }
 
 
-
-
+    /*
     public async Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter)
     {
        var response = await m_Server.Call("REMOTE ADDRESS",
@@ -58,20 +96,7 @@ namespace Azos.Sky.Chronicle
 
       return result;
     }
+    */
 
-    public Task WriteAsync(LogBatch data)
-    {
-      throw new NotImplementedException();
-    }
-
-    public Task WriteAsync(InstrumentationBatch data)
-    {
-      throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<DatumFrame>> GetRawAsync(InstrumentationChronicleFilter filter)
-    {
-      throw new NotImplementedException();
-    }
   }
 }

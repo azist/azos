@@ -21,7 +21,7 @@ namespace Azos.Sky.Chronicle
   public sealed class InstrumentationBatch : PersistedModel<ChangeResult>
   {
     [Field(isArow: true, required: true, backendName: "d", description: "Data to upload")]
-    public Datum[] Data{ get; set; }
+    public DatumFrame[] Data{ get; set; }
 
     [Inject] IInstrumentationChronicleLogic m_Chronicle;
 

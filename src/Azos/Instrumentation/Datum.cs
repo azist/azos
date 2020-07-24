@@ -152,6 +152,16 @@ namespace Azos.Instrumentation
     /// </summary>
     public virtual string Description => GetType().FullName;
 
+    /// <summary>
+    /// Provides a relative reference value for the datum.
+    /// It is used a scalar representation of possibly complex value for
+    /// relative comparison/reference. For example: blood pressure gauge tracks
+    /// both systolic and diastolic components, however it can override RefValue
+    /// to grade both components on a 0..1 scale taking the maximum
+    /// of the two, this way we can query instrumentation archive for various blood
+    /// pressure levels uniformly
+    /// </summary>
+    public virtual double? RefValue => ValueAsObject.AsNullableDouble();
 
     /// <summary>
     /// Provides access to value polymorphically

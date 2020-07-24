@@ -24,7 +24,7 @@ namespace Azos.Sky.Chronicle
   [Schema(Description = "Provides model for filtering instrumentation chronicles")]
   public sealed class InstrumentationChronicleFilter : FilterModel<IEnumerable<DatumFrame>>
   {
-    [Field(isArow: true, backendName: "gdid", description: "Measurement datum GDID")]
+    [Field(isArow: true, backendName: "gdid", description: "Measurement datum GDID to fetch a specific measurement or ZERO")]
     public GDID Gdid { get; set; }
 
     [Field(isArow: true, backendName: "tps", description: "An array of instrument type IDs")]
@@ -40,7 +40,7 @@ namespace Azos.Sky.Chronicle
     [Inject] IInstrumentationChronicle m_Chronicle;
 
     protected async override Task<SaveResult<IEnumerable<DatumFrame>>> DoSaveAsync()
-     => new SaveResult<IEnumerable<DatumFrame>>(await m_Chronicle.GetRawAsync(this));
+     => new SaveResult<IEnumerable<DatumFrame>>(await m_Chronicle.GetAsync(this));
   }
 
 }
