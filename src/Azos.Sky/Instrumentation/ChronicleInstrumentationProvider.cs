@@ -23,13 +23,13 @@ namespace Azos.Sky.Instrumentation
 
     //The dependency may NOT be available at time of construction of this object
     //because this boots before other framework services, hence - service location
-    IInstrumentationChronicleClientLogic m_Chronicle;
-    IInstrumentationChronicleClientLogic Chronicle
+    IInstrumentationChronicleLogic m_Chronicle;
+    IInstrumentationChronicleLogic Chronicle
     {
       get
       {
         if (m_Chronicle==null)
-          m_Chronicle = App.ModuleRoot.Get<IInstrumentationChronicleClientLogic>();
+          m_Chronicle = App.ModuleRoot.Get<IInstrumentationChronicleLogic>();
 
         return m_Chronicle;
       }
@@ -53,7 +53,7 @@ namespace Azos.Sky.Instrumentation
     {
       var batch = new InstrumentationBatch
       {
-        Data = data.Select(d => Chronicle.Map(d)).ToArray()
+        Data = data.Select(d => d.ToJsonDataMap() ).ToArray()
       };
 
       Chronicle.WriteAsync(batch)

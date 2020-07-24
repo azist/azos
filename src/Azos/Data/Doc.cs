@@ -654,21 +654,15 @@ namespace Azos.Data
     #region IJSONWritable
 
     /// <summary>
-    /// Writes doc as JSON either as an array or map depending on JSONWritingOptions.RowsAsMap setting.
-    /// Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class.
-    /// Override to perform custom JSOn serialization
+    /// Returns this object converted to JsonDataMap. Only shallow conversion is done, that is:
+    /// any complex values are added as-is.
+    /// This method is the backbone of DOC to JSON serialization
     /// </summary>
-    public virtual void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+    public virtual JsonDataMap ToJsonDataMap(JsonWritingOptions options = null)
     {
-      if (options==null || !options.RowsAsMap)
-      {
-        JsonWriter.WriteArray(wri, this, nestingLevel, options);
-        return;
-      }
+      var map = new JsonDataMap();
 
-      var map = new Dictionary<string, object>();
-
-      foreach(var fd in Schema)
+      foreach (var fd in Schema)
       {
         string name;
 
@@ -682,14 +676,32 @@ namespace Azos.Data
       {
         if (amorph.AmorphousDataEnabled)
         {
-          foreach(var kv in amorph.AmorphousData)
+          foreach (var kv in amorph.AmorphousData)
           {
             var key = kv.Key;
-            while(map.ContainsKey(key)) key += "_";
+            while (map.ContainsKey(key)) key += "_";
             AddJsonSerializerField(null, options, map, key, kv.Value);
           }
         }
       }
+
+      return map;
+    }
+
+    /// <summary>
+    /// Writes doc as JSON either as an array or map depending on JSONWritingOptions.RowsAsMap setting.
+    /// Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class.
+    /// Override to perform custom JSOn serialization
+    /// </summary>
+    public virtual void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+    {
+      if (options==null || !options.RowsAsMap)
+      {
+        JsonWriter.WriteArray(wri, this, nestingLevel, options);
+        return;
+      }
+
+      var map = ToJsonDataMap(options);
 
       JsonWriter.WriteMap(wri, map, nestingLevel, options);//perform actual Json writing
     }

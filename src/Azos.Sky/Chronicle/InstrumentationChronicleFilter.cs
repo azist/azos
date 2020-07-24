@@ -16,13 +16,14 @@ using Azos.Data.Business;
 using Azos.Instrumentation;
 using Azos.Log;
 using Azos.Serialization.Bix;
+using Azos.Serialization.JSON;
 using Azos.Time;
 
 namespace Azos.Sky.Chronicle
 {
   [Bix("5843A744-54CF-4E22-99CF-A91F0C2CE08C")]
   [Schema(Description = "Provides model for filtering instrumentation chronicles")]
-  public sealed class InstrumentationChronicleFilter : FilterModel<IEnumerable<DatumFrame>>
+  public sealed class InstrumentationChronicleFilter : FilterModel<IEnumerable<JsonDataMap>>
   {
     [Field(isArow: true, backendName: "gdid", description: "Measurement datum GDID to fetch a specific measurement or ZERO")]
     public GDID Gdid { get; set; }
@@ -39,8 +40,8 @@ namespace Azos.Sky.Chronicle
 
     [Inject] IInstrumentationChronicle m_Chronicle;
 
-    protected async override Task<SaveResult<IEnumerable<DatumFrame>>> DoSaveAsync()
-     => new SaveResult<IEnumerable<DatumFrame>>(await m_Chronicle.GetAsync(this));
+    protected async override Task<SaveResult<IEnumerable<JsonDataMap>>> DoSaveAsync()
+     => new SaveResult<IEnumerable<JsonDataMap>>(await m_Chronicle.GetAsync(this));
   }
 
 }

@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 using Azos.Apps.Injection;
 using Azos.Data;
 using Azos.Data.Business;
-using Azos.Instrumentation;
 using Azos.Serialization.Bix;
+using Azos.Serialization.JSON;
 using Azos.Time;
 
 namespace Azos.Sky.Chronicle
@@ -21,7 +21,7 @@ namespace Azos.Sky.Chronicle
   public sealed class InstrumentationBatch : PersistedModel<ChangeResult>
   {
     [Field(isArow: true, required: true, backendName: "d", description: "Data to upload")]
-    public DatumFrame[] Data{ get; set; }
+    public JsonDataMap[] Data{ get; set; }
 
     [Inject] IInstrumentationChronicleLogic m_Chronicle;
 
