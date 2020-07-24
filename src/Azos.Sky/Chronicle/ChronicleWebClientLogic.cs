@@ -1,15 +1,23 @@
-﻿using Azos.Apps;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+using Azos.Apps;
 using Azos.Client;
+using Azos.Conf;
 using Azos.Instrumentation;
 using Azos.Log;
 using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 using Azos.Web;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Azos.Sky.Chronicle
 {
@@ -18,66 +26,100 @@ namespace Azos.Sky.Chronicle
   /// </summary>
   public sealed class ChronicleWebClientLogic : ModuleBase, ILogChronicleLogic, IInstrumentationChronicleLogic
   {
+    public const string CONFIG_SERVICE_SECTION = "service";
+
     public ChronicleWebClientLogic(IApplication application) : base(application) { }
     public ChronicleWebClientLogic(IModule parent) : base(parent) { }
 
+    protected override void Destructor()
+    {
+      DisposeAndNull(ref m_Server);
+      base.Destructor();
+    }
 
     private HttpService m_Server;
 
 
     public override bool IsHardcodedModule => false;
-    public override string ComponentLogTopic => "chronicle";
+    public override string ComponentLogTopic => CoreConsts.INSTRUMENTATION_TOPIC;
 
-    public Task WriteAsync(LogBatch data)
+
+    /// <summary>
+    /// Logical service address of logger
+    /// </summary>
+    [Config]
+    public string LogServiceAddress{  get; set; }
+
+    /// <summary>
+    /// Logical service address of instrumentation
+    /// </summary>
+    [Config]
+    public string InstrumentationServiceAddress { get; set; }
+
+
+    protected override void DoConfigure(IConfigSectionNode node)
     {
-      throw new NotImplementedException();
+      base.DoConfigure(node);
+      DisposeAndNull(ref m_Server);
+      if (node == null) return;
+
+      m_Server = FactoryUtils.MakeDirectedComponent<HttpService>(this,
+                                                                 node[CONFIG_SERVICE_SECTION],
+                                                                 typeof(HttpService),
+                                                                 new object[] { node });
     }
 
-    public Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter)
+    protected override bool DoApplicationAfterInit()
     {
-      throw new NotImplementedException();
-    }
-
-    public Task WriteAsync(InstrumentationBatch data)
-    {
-      throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<JsonDataMap>> GetAsync(InstrumentationChronicleFilter filter)
-    {
-      throw new NotImplementedException();
+      m_Server.NonNull("Service not configured");
+      return base.DoApplicationAfterInit();
     }
 
 
-    /*
+    public async Task WriteAsync(LogBatch data)
+    {
+      var response = await m_Server.Call(LogServiceAddress,
+                                          nameof(ILogChronicleLogic),
+                                          0,
+                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", data));
+#warning how do we assert correct answer?  OK = true?
+    }
+
     public async Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter)
     {
-       var response = await m_Server.Call("REMOTE ADDRESS",
-                                           nameof(ILogChronicleLogic),
-                                           0,
-                                           (http, ct) => http.Client.PostAndGetJsonMapAsync("", filter));
-
-       var result = response.UnwrapPayloadArray()
-               .OfType<JsonDataMap>()
-               .Select(imap => JsonReader.ToDoc<Message>(imap));
-
-       return result;
-    }
-
-    public async Task<IEnumerable<Datum>> GetAsync(InstrumentationChronicleFilter filter)
-    {
-      var response = await m_Server.Call("REMOTE ADDRESS",
-                                           nameof(IInstrumentationChronicleLogic),
-                                           0,
-                                           (http, ct) => http.Client.PostAndGetJsonMapAsync("", filter));
+      var response = await m_Server.Call(LogServiceAddress,
+                                          nameof(ILogChronicleLogic),
+                                          0,
+                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", filter));
 
       var result = response.UnwrapPayloadArray()
               .OfType<JsonDataMap>()
-              .Select(imap => JsonReader.ToDoc<Datum>(imap));
+              .Select(imap => JsonReader.ToDoc<Message>(imap));
 
       return result;
     }
-    */
+
+    public async Task WriteAsync(InstrumentationBatch data)
+    {
+      var response = await m_Server.Call(InstrumentationServiceAddress,
+                                         nameof(IInstrumentationChronicleLogic),
+                                         0,
+                                         (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", data));
+#warning how do we assert correct answer?  OK = true?
+    }
+
+    public async Task<IEnumerable<JsonDataMap>> GetAsync(InstrumentationChronicleFilter filter)
+    {
+      var response = await m_Server.Call(InstrumentationServiceAddress,
+                                           nameof(IInstrumentationChronicleLogic),
+                                           0,
+                                           (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", filter));
+
+      var result = response.UnwrapPayloadArray()
+                           .OfType<JsonDataMap>();
+
+      return result;
+    }
 
   }
 }
