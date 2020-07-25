@@ -4,6 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
+
 using Azos.Conf;
 
 namespace Azos.Apps
@@ -34,7 +36,7 @@ namespace Azos.Apps
   /// <summary>
   /// Defines abstraction for an entity that is controlled by Start/Stop commands and has a status
   /// </summary>
-  public interface IDaemon : IDaemonView, IConfigurable
+  public interface IDaemon : IDaemonView, IConfigurable, IDisposable
   {
     /// <summary>
     /// Blocking call that starts the service instance

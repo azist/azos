@@ -7,8 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
-using IDataBusinessLogic = Azos.Data.Business.IBusinessLogic;
+using Azos.Apps;
 using Azos.Instrumentation;
 using Azos.Serialization.JSON;
 
@@ -44,7 +43,7 @@ namespace Azos.Sky.Chronicle
   /// <summary>
   /// Outlines a contract for implementing logic of IInstrumentationChronicle
   /// </summary>
-  public interface IInstrumentationChronicleLogic : IInstrumentationChronicle, IDataBusinessLogic
+  public interface IInstrumentationChronicleLogic : IInstrumentationChronicle, IModule
   {
   }
 
