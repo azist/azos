@@ -12,9 +12,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Client;
 using Azos.Conf;
-using Azos.Instrumentation;
 using Azos.Log;
-using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 using Azos.Web;
 
@@ -79,7 +77,7 @@ namespace Azos.Sky.Chronicle
     public async Task WriteAsync(LogBatch data)
     {
       var response = await m_Server.Call(LogServiceAddress,
-                                          nameof(ILogChronicleLogic),
+                                          nameof(ILogChronicle),
                                           0,
                                           (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", data));
 #warning how do we assert correct answer?  OK = true?
@@ -88,7 +86,7 @@ namespace Azos.Sky.Chronicle
     public async Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter)
     {
       var response = await m_Server.Call(LogServiceAddress,
-                                          nameof(ILogChronicleLogic),
+                                          nameof(ILogChronicle),
                                           0,
                                           (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", filter));
 
@@ -102,7 +100,7 @@ namespace Azos.Sky.Chronicle
     public async Task WriteAsync(InstrumentationBatch data)
     {
       var response = await m_Server.Call(InstrumentationServiceAddress,
-                                         nameof(IInstrumentationChronicleLogic),
+                                         nameof(IInstrumentationChronicle),
                                          0,
                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", data));
 #warning how do we assert correct answer?  OK = true?
@@ -111,7 +109,7 @@ namespace Azos.Sky.Chronicle
     public async Task<IEnumerable<JsonDataMap>> GetAsync(InstrumentationChronicleFilter filter)
     {
       var response = await m_Server.Call(InstrumentationServiceAddress,
-                                           nameof(IInstrumentationChronicleLogic),
+                                           nameof(IInstrumentationChronicle),
                                            0,
                                            (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", filter));
 
