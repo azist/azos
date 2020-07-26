@@ -16,6 +16,7 @@ using Azos.Data.Access.MongoDb;
 using Azos.Conf;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Serialization.BSON;
+using System.Linq;
 
 namespace Azos.Sky.Chronicle.Server
 {
@@ -114,12 +115,25 @@ namespace Azos.Sky.Chronicle.Server
       }
     }
 
-    public Task<IEnumerable<JsonDataMap>> GetAsync(InstrumentationChronicleFilter filter)
+    public Task WriteAsync(LogBatch data)
     {
-      throw new NotImplementedException();
+      var toSend = data.NonNull(nameof(data)).Data.NonNull(nameof(data));
+      var cLog = LogDb[COLLECTION_LOG];
+
+      foreach(var batch in toSend.BatchBy(16))
+      {
+        var bsons = batch.Select(msg => {
+          //todo Assign GDID
+          //msg.Gdid =
+          return s_LogBson.Serialize(msg);
+        });
+        cLog.Insert(bsons.ToArray());
+      }
+
+      return Task.CompletedTask;
     }
 
-    public Task WriteAsync(LogBatch data)
+    public Task<IEnumerable<JsonDataMap>> GetAsync(InstrumentationChronicleFilter filter)
     {
       throw new NotImplementedException();
     }
