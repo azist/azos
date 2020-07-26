@@ -6,7 +6,7 @@ The concept is somewhat similar to GraphQL.
 > **Warning:** Ad-hoc querying ability is an advanced feature which should be carefully designed in your application 
 > and data source as opening your underlying data store (such as SQL) for *any kind of ad-hoc filtering may be a
 > dangerous* and unneeded practice. The fields/columns to search on may not all be indexed. Special care must be taken to 
-> ensure that clients can not bring servers down. You should limit search-able column/field lists using Xlat 
+> ensure that clients can not bring servers down with complex queries. You should limit search-able column/field lists using Xlat 
 > IndentifierLookup and limit supported tree operator types
 
 An AST expression tree is built of series of nodes, all JSON-serializable. The nodes implement visitor design pattern which 
@@ -40,7 +40,7 @@ An example of forming an AST tree by code:
 
 ## Advanced Search API
 
-Consider the following filter payload is submitted to customer list API as an example:
+Consider the following filter payload submitted to customer list API as an example:
 ```json
 POST /customer/list  application/json
 {

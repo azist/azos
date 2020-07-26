@@ -109,6 +109,12 @@ namespace Azos.Data.Access.MongoDb
 
     public const string CONNECTION_STRING_NULL_OR_EMPTY_ERROR = "Connection string null or empty";
     public const string CONNECTION_STRING_INVALID_ERROR = "Connection string '{0}' is invalid: {1}";
+
+    //Do not disclose "Mongo" because these are public messages
+    public const string AST_UNSUPPORTED_UNARY_OPERATOR_ERROR = "Unsupported AST unary operator: '{0}'";
+    public const string AST_UNSUPPORTED_BINARY_OPERATOR_ERROR = "Unsupported AST binary operator: '{0}'";
+    public const string AST_BAD_IDENTIFIER_ERROR = "Bad AST identifier: '{0}'";
+
   }
 }
 

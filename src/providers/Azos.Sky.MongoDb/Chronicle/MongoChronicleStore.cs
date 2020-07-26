@@ -93,7 +93,7 @@ namespace Azos.Sky.Chronicle.Server
       if (m_Bundled != null) m_Bundled.WaitForCompleteStop();
     }
 
-    private static BSONSerializer s_LogBson = new BSONSerializer(new BSONTypeResolver(typeof(Message)));
+    private static BSONSerializer s_LogBson = new BSONSerializer(new BSONTypeResolver(typeof(Message))) { PKFieldName = Query._ID };
     public Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter) => Task.FromResult(get(filter));
     private IEnumerable<Message> get(LogChronicleFilter filter)
     {
@@ -120,7 +120,7 @@ namespace Azos.Sky.Chronicle.Server
       var toSend = data.NonNull(nameof(data)).Data.NonNull(nameof(data));
       var cLog = LogDb[COLLECTION_LOG];
 
-      foreach(var batch in toSend.BatchBy(16))
+      foreach(var batch in toSend.BatchBy(0xf))
       {
         var bsons = batch.Select(msg => {
           //todo Assign GDID
