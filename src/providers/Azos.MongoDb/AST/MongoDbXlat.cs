@@ -45,7 +45,8 @@ namespace Azos.Data.AST
     public override MongoDbXlatContext TranslateInContext(Expression expression)
     {
       var result = new MongoDbXlatContext(this);
-      expression.Accept(result);
+      var root = expression.Accept(result) as BSONElement;
+      result.Query.Set(root);
       return result;
     }
 
@@ -111,7 +112,6 @@ namespace Azos.Data.AST
     }
 
     protected QDoc m_Query;
-    protected BSONElement m_Operand;
 
     /// <summary>
     /// Returns built Mongo DB Query Document
@@ -144,7 +144,7 @@ namespace Azos.Data.AST
     }
 
 
-    public override void Visit(ValueExpression value)
+    public override object Visit(ValueExpression value)
     {
       value.NonNull(nameof(value));
 
@@ -165,34 +165,36 @@ namespace Azos.Data.AST
       //m_Sql.Append(p.ParameterName);
       //m_Sql.Append(ParameterCloseSpan);
       //m_Parameters.Add(p);
+
+      return null;
     }
 
-    public override void Visit(ArrayValueExpression array)
+    public override object Visit(ArrayValueExpression array)
     {
       array.NonNull(nameof(array));
-
+      return null;
     }
 
-    public override void Visit(IdentifierExpression id)
+    public override object Visit(IdentifierExpression id)
     {
       id.NonNull(nameof(id)).Identifier.NonBlank(nameof(id.Identifier));
 
       //check that id is accepted
       var f = Translator.IdentifierFilter;
       if (f != null && !f(id)) throw new ASTException(StringConsts.AST_BAD_IDENTIFIER_ERROR.Args(id.Identifier));
-
+      return null;
     }
 
-    public override void Visit(UnaryExpression unary)
+    public override object Visit(UnaryExpression unary)
     {
       unary.NonNull(nameof(unary));
 
       if (!unary.Operator.NonBlank(nameof(unary.Operator)).IsOneOf(Translator.UnaryOperators))
         throw new ASTException(StringConsts.AST_UNSUPPORTED_UNARY_OPERATOR_ERROR.Args(unary.Operator));
-
+      return null;
     }
 
-    public override void Visit(BinaryExpression binary)
+    public override object Visit(BinaryExpression binary)
     {
       binary.NonNull(nameof(binary));
 
@@ -201,25 +203,21 @@ namespace Azos.Data.AST
 
 
       binary.LeftOperand.Accept(this);
-      var left = m_Operand;
+      var left = binary.LeftOperand.Accept(this) as BSONElement;
 
       var isNull = (binary.RightOperand == null || binary.RightOperand is ValueExpression ve && ve.Value == null);
 
+      BSONElement right;
       if (isNull)
-        m_Operand = new BSONNullElement();
+        right = new BSONNullElement();
       else
-        binary.RightOperand.Accept(this);
-
-      var right = m_Operand;
+        right = binary.RightOperand.Accept(this) as BSONElement;
 
       var op = MapBinaryOperator(binary.Operator, isNull);
 
       var elmBinary = new BSONArrayElement(op, new[] { left, right });
 
-      if (m_Query.Count==0)
-        m_Query.Set(elmBinary);
-      else
-        m_Operand = elmBinary;
+      return elmBinary;
     }
   }
 }
