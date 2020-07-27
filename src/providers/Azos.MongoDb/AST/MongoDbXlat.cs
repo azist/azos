@@ -13,6 +13,9 @@ using Azos.Conf;
 using QDoc = Azos.Data.Access.MongoDb.Connector.Query;
 using Azos.Serialization.BSON;
 using Azos.Data.Access.MongoDb;
+using System.Linq;
+using Azos.Serialization.JSON;
+using System.Collections;
 
 namespace Azos.Data.AST
 {
@@ -63,14 +66,6 @@ namespace Azos.Data.AST
 
     public static readonly Dictionary<string, string> UNARY_OPS = new Dictionary<string, string>(StringComparer.Ordinal)
     {
-       {"!", "$not"},
-       {"not", "$not"},
-
-       {"in", "$in"},
-
-       {"nin", "$nin"},
-
-       {"exists", "$exists"}
     };
 
     public static readonly Dictionary<string, string> BINARY_OPS = new Dictionary<string, string>(StringComparer.Ordinal)
@@ -94,6 +89,11 @@ namespace Azos.Data.AST
        {"or", "$or"},
        {"|", "$or"},
        {"||", "$or"},
+
+       {"not", "$not"},//is a binary logical disjunction {field: {$not: { <operator-expression> }}}
+       {"in", "$in"}, //{ field: { $in: [<value1>, <value2>, ... <valueN> ] } }
+       {"nin", "$nin"},//{ field: { $nin: [ <value1>, <value2> ... <valueN> ]} }
+       {"exists", "$exists"}//{ field: { $exists: <boolean> } }
     };
 
 
@@ -127,52 +127,20 @@ namespace Azos.Data.AST
     /// <summary>
     /// Maps binary operator e.g. "and" => "$and"
     /// </summary>
-    protected virtual string MapBinaryOperator(string oper, bool rhsNull) => MongoDbXlat.BINARY_OPS[oper];
-
-    /// <summary>
-    /// Constant set of types qualified as "primitive" which are inlined in SQL and do not generate parameters
-    /// </summary>
-    protected static readonly HashSet<Type> DEFAULT_PRIMITIVE_TYPES = new HashSet<Type> { typeof(byte), typeof(short), typeof(int), typeof(long) };
-
-    /// <summary>
-    /// Returns true if the ValueExpression represents a primitive
-    /// </summary>
-    protected virtual bool HandlePrimitiveValue(ValueExpression expr)
-    {
-      var tv = expr.Value.GetType();
-      return DEFAULT_PRIMITIVE_TYPES.Contains(tv);
-    }
+    protected virtual string MapBinaryOperator(string oper) => MongoDbXlat.BINARY_OPS[oper];
 
 
     public override object Visit(ValueExpression value)
     {
       value.NonNull(nameof(value));
-
-      //if (value.Value == null)
-      //{
-      //  m_Sql.Append(NullLiteral);
-      //  return;
-      //}
-
-      //if (HandlePrimitiveValue(value))
-      //{
-      //  m_Sql.Append(value.Value.ToString());
-      //  return;
-      //}
-
-      //var p = MakeAndAssignParameter(value);
-      //m_Sql.Append(ParameterOpenSpan);
-      //m_Sql.Append(p.ParameterName);
-      //m_Sql.Append(ParameterCloseSpan);
-      //m_Parameters.Add(p);
-
-      return null;
+      return value.Value;
     }
 
     public override object Visit(ArrayValueExpression array)
     {
-      array.NonNull(nameof(array));
-      return null;
+      return array.NonNull(nameof(array))
+                  .ArrayValue.NonNull(nameof(array))
+                  .Select(v => v.Accept(this) as BSONElement);
     }
 
     public override object Visit(IdentifierExpression id)
@@ -182,7 +150,7 @@ namespace Azos.Data.AST
       //check that id is accepted
       var f = Translator.IdentifierFilter;
       if (f != null && !f(id)) throw new ASTException(StringConsts.AST_BAD_IDENTIFIER_ERROR.Args(id.Identifier));
-      return null;
+      return id.Identifier;
     }
 
     public override object Visit(UnaryExpression unary)
@@ -191,6 +159,9 @@ namespace Azos.Data.AST
 
       if (!unary.Operator.NonBlank(nameof(unary.Operator)).IsOneOf(Translator.UnaryOperators))
         throw new ASTException(StringConsts.AST_UNSUPPORTED_UNARY_OPERATOR_ERROR.Args(unary.Operator));
+
+      //None supported at the time
+
       return null;
     }
 
@@ -201,24 +172,64 @@ namespace Azos.Data.AST
       if (!binary.Operator.NonBlank(nameof(binary.Operator)).IsOneOf(Translator.BinaryOperators))
         throw new ASTException(StringConsts.AST_UNSUPPORTED_BINARY_OPERATOR_ERROR.Args(binary.Operator));
 
+      var op = MapBinaryOperator(binary.Operator);
 
-      binary.LeftOperand.Accept(this);
-      var left = binary.LeftOperand.Accept(this) as BSONElement;
+      var left = binary.LeftOperand
+                       .NonNull(nameof(binary.LeftOperand))
+                       .Accept(this);
 
       var isNull = (binary.RightOperand == null || binary.RightOperand is ValueExpression ve && ve.Value == null);
 
-      BSONElement right;
-      if (isNull)
-        right = new BSONNullElement();
-      else
-        right = binary.RightOperand.Accept(this) as BSONElement;
+      if (left is string identifier) //{identifier: {$lt: value} }
+      {
+        if (isNull)
+          return new BSONDocumentElement(identifier, new BSONDocument().Set(new BSONNullElement(op)));
 
-      var op = MapBinaryOperator(binary.Operator, isNull);
+        var value = binary.RightOperand.Accept(this);
 
-      var elmBinary = new BSONArrayElement(op, new[] { left, right });
+        var right = new BSONDocument();
+        if (value is IEnumerable vie)
+        {
+        //todo: need to handle array
+       //   var arr = vie.Cast<object>().Select( e => new BSONElement(e));
+       //   right.Set(new BSONArrayElement(op, arr));
+        }
+        else
+        {
+          try
+          {
+            right.Add(op, value, false, true);
+          }
+          catch
+          {
+            throwSyntaxErrorNear(binary, "unsupported RightOperand value `{0}`".Args(value == null ? "<null>" : value.GetType().Name));
+          }
+        }
+        return new BSONDocumentElement(identifier, right);
+      }
 
-      return elmBinary;
+      if (left is BSONElement complex)
+      {
+        BSONElement right = null;
+        if (isNull)
+        {
+          throwSyntaxErrorNear(binary, "unexpected null in compound statement");
+        }
+        else
+        {
+          right = binary.RightOperand.Accept(this) as BSONElement;
+          if (right == null) throwSyntaxErrorNear(binary, "unsupported RightOperand value");
+        }
+
+        return new BSONArrayElement(op, new[] { complex, right });
+      }
+
+      return throwSyntaxErrorNear(binary, "unsupported construct");
     }
+
+    private object throwSyntaxErrorNear(Expression expr, string cause)
+      => throw new ASTException(StringConsts.AST_BAD_SYNTAX_ERROR.Args(cause, expr.ToJson(JsonWritingOptions.CompactRowsAsMap).TakeFirstChars(48)));
+
   }
 }
 

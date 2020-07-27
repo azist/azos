@@ -115,6 +115,8 @@ namespace Azos.Data.Access.MongoDb
     public const string AST_UNSUPPORTED_BINARY_OPERATOR_ERROR = "Unsupported AST binary operator: '{0}'";
     public const string AST_BAD_IDENTIFIER_ERROR = "Bad AST identifier: '{0}'";
 
+    public const string AST_BAD_SYNTAX_ERROR = "Bad AST syntax ({0}) near: ... {1} ...";
+
   }
 }
 
