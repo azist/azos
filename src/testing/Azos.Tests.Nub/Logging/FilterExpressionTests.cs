@@ -262,7 +262,7 @@ namespace Azos.Tests.Nub.Logging
     }")]
 
     [Run("22", @"
-    expect=false
+    expect=true
     def
     {
       tree
@@ -272,6 +272,16 @@ namespace Azos.Tests.Nub.Logging
     }")]
 
     [Run("23", @"
+    expect=false
+    def
+    {
+      tree
+      {
+        type='Azos.Log.Filters.ByApp' include='DuD' case=true
+      }
+    }")]
+
+    [Run("24", @"
     expect=true
     def
     {
@@ -316,7 +326,7 @@ namespace Azos.Tests.Nub.Logging
       }
     }")]
 
-    [Run("24", @"
+    [Run("25", @"
     expect=false
     def
     {
@@ -361,7 +371,7 @@ namespace Azos.Tests.Nub.Logging
       }
     }")]
 
-    [Run("25", @"
+    [Run("26", @"
     expect=true
     def
     {
@@ -421,14 +431,14 @@ namespace Azos.Tests.Nub.Logging
         App = Atom.Encode("dud")
       };
 
-      //var cnt = 500_000;
-      //var time = Timeter.StartNew();
-      //for (var i = 0; i < cnt; i++)
-      //{
-      //  var got = filter.Evaluate(msg);
-      //  Aver.AreEqual(expect, got);
-      //}
-      //"Rate {0:n0} ops/sec".Args(cnt / (time.ElapsedMs / 1000d)).See();
+      //////var cnt = 500_000;
+      //////var time = Azos.Time.Timeter.StartNew();
+      //////for (var i = 0; i < cnt; i++)
+      //////{
+        var got = filter.Evaluate(msg);
+        Aver.AreEqual(expect, got);
+      //////}
+      //////"Rate {0:n0} ops/sec".Args(cnt / (time.ElapsedMs / 1000d)).See();
     }
   }
 }
