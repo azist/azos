@@ -80,7 +80,7 @@ namespace Azos.Sky.Chronicle
                                           nameof(ILogChronicle),
                                           0,
                                           (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", data));
-#warning how do we assert correct answer?  OK = true?
+      response.UnwrapChangeResult();
     }
 
     public async Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter)
@@ -103,7 +103,7 @@ namespace Azos.Sky.Chronicle
                                          nameof(IInstrumentationChronicle),
                                          0,
                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", data));
-#warning how do we assert correct answer?  OK = true?
+      response.UnwrapChangeResult();
     }
 
     public async Task<IEnumerable<JsonDataMap>> GetAsync(InstrumentationChronicleFilter filter)

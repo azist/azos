@@ -54,7 +54,7 @@ namespace Azos.Wave.Mvc
                            .SaveAsync();
 
       if (saved.IsSuccess)
-        return new { OK = true, data = saved.Result };
+        return saved.Result;
 
       throw new BusinessException($"Could not save model `{model.GetType().Name}`: {saved.Error.ToMessageWithType()}", saved.Error);
     }
@@ -70,7 +70,7 @@ namespace Azos.Wave.Mvc
                            .SaveAsync();
 
       if (saved.IsSuccess)
-        return new { OK = true, data = saved.Result };
+        return saved.Result;
 
       throw new BusinessException($"Could not save model `{model.GetType().Name}`: {saved.Error.ToMessageWithType()}", saved.Error);
     }

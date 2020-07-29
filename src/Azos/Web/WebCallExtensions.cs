@@ -152,14 +152,39 @@ namespace Azos.Web
 
 
     /// <summary>
-    /// Processes the "wrap" Json protocol such as: '{OK: true, data: {...}}'
-    /// Throws averment exceptions if OK!=true, no 'data' key was returned or data is not an existing map
+    /// Processes the "wrap" Json protocol such as: '{OK: true, . . . }'
+    /// Throws averment exceptions if OK!=true or data is null. Passes-through the original caller
+    /// </summary>
+    public static JsonDataMap ExpectOK(this JsonDataMap data)
+    {
+      data.NonNull(nameof(data));
+      Aver.IsTrue(data["OK"].AsBool(), "OK != true");
+      return data;
+    }
+
+    /// <summary>
+    /// Processes the "wrap" Json protocol with ChangeResult such as: '{OK: true, change: "Inserted", affected: 3, message: "...", data: {...}}'
+    /// Throws averment exceptions if OK!=true, no 'data' or 'change' keys are returned
+    /// </summary>
+    public static Data.Business.ChangeResult UnwrapChangeResult(this JsonDataMap data)
+    {
+      data.NonNull(nameof(data)).ExpectOK();
+
+      Aver.IsTrue(data.ContainsKey("change"), "no ['change'] key");
+      Aver.IsTrue(data.ContainsKey("data"), "no ['data'] key");
+
+      return new Data.Business.ChangeResult(data);
+    }
+
+
+    /// <summary>
+    /// Processes the "wrap" Json protocol with JsonDataMap such as: '{OK: true, data: {...map...}}'
+    /// Throws averment exceptions if OK!=true, no 'data' key was returned or data is not a json map
     /// </summary>
     public static JsonDataMap UnwrapPayloadMap(this JsonDataMap data)
     {
-      data.NonNull(nameof(data));
+      data.NonNull(nameof(data)).ExpectOK();
 
-      Aver.IsTrue(data["OK"].AsBool(), "OK != true");
       Aver.IsTrue(data.ContainsKey("data"), "no ['data'] key");
       var result = data["data"] as JsonDataMap;
       Aver.IsNotNull(result, "['data'] is not map");
@@ -168,14 +193,13 @@ namespace Azos.Web
     }
 
     /// <summary>
-    /// Processes the "wrap" Json protocol such as: '{OK: true, data: [...]}'
-    /// Throws averment exceptions if OK!=true, no 'data' key was returned or data is not an existing array
+    /// Processes the "wrap" Json protocol with JsonDataArray such as: '{OK: true, data: [...array...]}'
+    /// Throws averment exceptions if OK!=true, no 'data' key was returned or data is not a json array
     /// </summary>
     public static JsonDataArray UnwrapPayloadArray(this JsonDataMap data)
     {
-      data.NonNull(nameof(data));
+      data.NonNull(nameof(data)).ExpectOK();
 
-      Aver.IsTrue(data["OK"].AsBool(), "OK != true");
       Aver.IsTrue(data.ContainsKey("data"), "no ['data'] key");
       var result = data["data"] as JsonDataArray;
       Aver.IsNotNull(result, "['data'] is not array");
