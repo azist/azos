@@ -11,7 +11,6 @@ using System.Runtime.CompilerServices;
 
 using Azos.Data;
 using Azos.Serialization.JSON;
-using Azos.Serialization.BSON;
 using Azos.Serialization.Arow;
 
 namespace Azos.Log
@@ -21,22 +20,8 @@ namespace Azos.Log
   /// </summary>
   [Serializable]
   [Arow("3AD5E8E1-871C-4B8F-AE16-6D04492B17DF")]
-  [BSONSerializable("A05AEE0F-A33C-4B1D-AA45-CDEAF894A095")]
-  public sealed class Message : TypedDoc, IArchiveLoggable, IBSONSerializable, IBSONDeserializable
+  public sealed class Message : TypedDoc, IArchiveLoggable
   {
-    public const string BSON_FLD_APP = "app";
-    public const string BSON_FLD_CHANNEL = "chn";
-    public const string BSON_FLD_RELATED_TO = "rel";
-    public const string BSON_FLD_TYPE = "tp";
-    public const string BSON_FLD_SOURCE = "src";
-    public const string BSON_FLD_TIMESTAMP = "uts";
-    public const string BSON_FLD_HOST = "hst";
-    public const string BSON_FLD_FROM = "frm";
-    public const string BSON_FLD_TOPIC = "top";
-    public const string BSON_FLD_TEXT = "txt";
-    public const string BSON_FLD_PARAMETERS = "prm";
-    public const string BSON_FLD_EXCEPTION = "ex";
-    public const string BSON_FLD_ARCHIVE_DIMENSIONS = "arc";
 
     #region Private Fields
     private GDID m_Gdid;
@@ -332,67 +317,6 @@ namespace Azos.Log
       };
     }
 
-
-    #region BSON Serialization
-    public bool IsKnownTypeForBSONDeserialization(Type type)
-    {
-      return type == typeof(WrappedException);
-    }
-
-    public void SerializeToBSON(BSONSerializer serializer, BSONDocument doc, IBSONSerializable parent, ref object context)
-    {
-      serializer.AddTypeIDField(doc, parent, this, context);
-
-      var skipNull = (serializer.Flags ^ BSONSerializationFlags.KeepNull) == 0;
-
-      doc.Add(serializer.PKFieldName, m_Guid, required: true)
-        .Add(BSON_FLD_RELATED_TO, m_RelatedTo, skipNull)
-        .Add(BSON_FLD_CHANNEL, m_Channel.ID, skipNull)
-        .Add(BSON_FLD_APP, m_App.ID, skipNull)
-        .Add(BSON_FLD_TYPE, m_Type.ToString(), skipNull, required: true)
-        .Add(BSON_FLD_SOURCE, m_Source, skipNull)
-        .Add(BSON_FLD_TIMESTAMP, m_UTCTimeStamp, skipNull)
-        .Add(BSON_FLD_HOST, m_Host, skipNull)
-        .Add(BSON_FLD_FROM, m_From, skipNull)
-        .Add(BSON_FLD_TOPIC, m_Topic, skipNull)
-        .Add(BSON_FLD_TEXT, m_Text, skipNull)
-        .Add(BSON_FLD_PARAMETERS, m_Parameters, skipNull)
-        .Add(BSON_FLD_ARCHIVE_DIMENSIONS, m_ArchiveDimensions, skipNull);
-
-      if (m_Exception == null) return;
-
-      var we = m_Exception as WrappedException;
-      if (we == null)
-        we = WrappedException.ForException(m_Exception);
-
-      doc.Add(BSON_FLD_EXCEPTION, serializer.Serialize(we, parent: this), skipNull);
-    }
-
-    public void DeserializeFromBSON(BSONSerializer serializer, BSONDocument doc, ref object context)
-    {
-      m_Guid = doc.TryGetObjectValueOf(serializer.PKFieldName).AsGUID(Guid.Empty);
-
-      m_RelatedTo = doc.TryGetObjectValueOf(BSON_FLD_RELATED_TO).AsGUID(Guid.Empty);
-
-      m_Channel = new Atom( doc.TryGetObjectValueOf(BSON_FLD_CHANNEL).AsULong(0) );
-      m_App = new Atom( doc.TryGetObjectValueOf(BSON_FLD_APP).AsULong(0) );
-
-      m_Type = doc.TryGetObjectValueOf(BSON_FLD_TYPE).AsEnum(MessageType.Info);
-      m_Source = doc.TryGetObjectValueOf(BSON_FLD_SOURCE).AsInt();
-      m_UTCTimeStamp = doc.TryGetObjectValueOf(BSON_FLD_TIMESTAMP).AsDateTime(Ambient.UTCNow);
-      m_Host = doc.TryGetObjectValueOf(BSON_FLD_HOST).AsString();
-      m_From = doc.TryGetObjectValueOf(BSON_FLD_FROM).AsString();
-      m_Topic = doc.TryGetObjectValueOf(BSON_FLD_TOPIC).AsString();
-      m_Text = doc.TryGetObjectValueOf(BSON_FLD_TEXT).AsString();
-      m_Parameters = doc.TryGetObjectValueOf(BSON_FLD_PARAMETERS).AsString();
-      m_ArchiveDimensions = doc.TryGetObjectValueOf(BSON_FLD_ARCHIVE_DIMENSIONS).AsString();
-
-      var ee = doc[BSON_FLD_EXCEPTION] as BSONDocumentElement;
-      if (ee == null) return;
-
-      m_Exception = WrappedException.MakeFromBSON(serializer, ee.Value);
-    }
-    #endregion
   }
 
   public static class MessageExtensions

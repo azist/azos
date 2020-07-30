@@ -29,7 +29,6 @@ namespace Azos.Log.Sinks
        m_Options = JsonWritingOptions.CompactASCII;
     }
 
-    private BSONSerializer m_Serializer = new BSONSerializer();
     private IBSONSerializable m_Known = new BSONParentKnownTypes(typeof(Message));
 
     private JsonWritingOptions m_Options;
@@ -46,8 +45,7 @@ namespace Azos.Log.Sinks
 
     protected override string DoFormatMessage(Message msg)
     {
-      var doc = m_Serializer.Serialize(msg, m_Known);
-      return doc.ToJson(m_Options)+"\n\n";
+      return msg.ToJson(m_Options)+"\n\n";
     }
 
   }

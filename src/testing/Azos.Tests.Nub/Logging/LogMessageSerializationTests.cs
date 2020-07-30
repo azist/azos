@@ -98,30 +98,30 @@ namespace Azos.Tests.Nub.Logging
       }
     }
 
-    [Run("cnt=500000 error=false")]
-    [Run("cnt=10000 error=true")]
-    public void Benchmark_BSON(int cnt, bool error)
-    {
-      var msg = error ? withError() : withoutError();
-      var ser = new BSONSerializer();
+    ////[Run("cnt=500000 error=false")]
+    ////[Run("cnt=10000 error=true")]
+    ////public void Benchmark_BSON(int cnt, bool error)
+    ////{
+    ////  var msg = error ? withError() : withoutError();
+    ////  var ser = new BSONSerializer();
 
-      var writer = SlimFormat.Instance.MakeWritingStreamer();
+    ////  var writer = SlimFormat.Instance.MakeWritingStreamer();
 
-      using (var ms = new MemoryStream())
-      {
-        writer.BindStream(ms);
+    ////  using (var ms = new MemoryStream())
+    ////  {
+    ////    writer.BindStream(ms);
 
-        var sw = Stopwatch.StartNew();
-        for (var i = 0; i < cnt; i++)
-        {
-          var doc = ser.Serialize(msg);
-          doc.WriteAsBSON(ms);
-        }
+    ////    var sw = Stopwatch.StartNew();
+    ////    for (var i = 0; i < cnt; i++)
+    ////    {
+    ////      var doc = ser.Serialize(msg);
+    ////      doc.WriteAsBSON(ms);
+    ////    }
 
-        sw.Stop();
-        Console.WriteLine("Wrote {0:n2} BSON bytes for {1:n0} in {2:n0}ms at {3:n0} ops/sec".Args(ms.Position, cnt, sw.ElapsedMilliseconds, cnt / (sw.ElapsedMilliseconds / 1000d)));
-      }
-    }
+    ////    sw.Stop();
+    ////    Console.WriteLine("Wrote {0:n2} BSON bytes for {1:n0} in {2:n0}ms at {3:n0} ops/sec".Args(ms.Position, cnt, sw.ElapsedMilliseconds, cnt / (sw.ElapsedMilliseconds / 1000d)));
+    ////  }
+    ////}
 
 
     private Message withoutError()

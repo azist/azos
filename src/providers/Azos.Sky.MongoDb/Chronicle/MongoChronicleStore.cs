@@ -112,7 +112,7 @@ namespace Azos.Sky.Chronicle.Server
         int i = 0;
         foreach(var bdoc in cursor)
         {
-          var msg = LogMsgConverter.FromBson(bdoc);
+          var msg = BsonConvert.FromBson(bdoc);
           yield return msg;
 
           if (++i > MAX_DOC_COUNT) break;
@@ -133,12 +133,12 @@ namespace Azos.Sky.Chronicle.Server
 
       if (filter.RelId.HasValue)
       {
-        andNodes.Add(new BSONBinaryElement(Message.BSON_FLD_RELATED_TO, new BSONBinary(BSONBinaryType.UUID, filter.RelId.Value.ToNetworkByteOrder())));
+   //     andNodes.Add(new BSONBinaryElement(Message.BSON_FLD_RELATED_TO, new BSONBinary(BSONBinaryType.UUID, filter.RelId.Value.ToNetworkByteOrder())));
       }
 
       if (filter.Channel.HasValue && !filter.Channel.Value.IsZero)
       {
-        andNodes.Add(new BSONInt64Element(Message.BSON_FLD_CHANNEL, (long)filter.Channel.Value.ID));
+  //      andNodes.Add(new BSONInt64Element(Message.BSON_FLD_CHANNEL, (long)filter.Channel.Value.ID));
       }
 
       //todo add more...
@@ -158,7 +158,7 @@ namespace Azos.Sky.Chronicle.Server
         var bsons = batch.Select(msg => {
           //todo Assign GDID
           //msg.Gdid =
-          return LogMsgConverter.ToBson(msg);
+          return BsonConvert.ToBson(msg);
         });
         cLog.Insert(bsons.ToArray());
       }

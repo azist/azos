@@ -7,7 +7,7 @@ using Azos.Serialization.BSON;
 
 namespace Azos.Sky.Chronicle.Server
 {
-  public static class LogMsgConverter
+  public static class BsonConvert
   {
     public static BSONDocument ToBson(Message msg)
     {
