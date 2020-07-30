@@ -84,7 +84,7 @@ namespace Azos.Sky.Glue
       else if (msg.ReturnValue is Contracts.RemoteTerminalInfo rtrm)
         data["return"] = rtrm;
       else if (msg.ReturnValue is WrappedExceptionData wed)
-        data["return"] = new JsonDataMap{ {"error-content", wed.ToBase64()}};
+        data["return"] = new JsonDataMap{ {"error-content", wed.ToJson(JsonWritingOptions.CompactRowsAsMap)}};
       else
         throw new ProtocolException(StringConsts.GLUE_BINDING_RESPONSE_ERROR.Args(nameof(AppTermBinding),"unsupported ReturnValue `{0}`".Args(msg.ReturnValue)));
 
