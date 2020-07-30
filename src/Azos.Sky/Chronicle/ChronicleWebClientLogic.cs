@@ -69,7 +69,10 @@ namespace Azos.Sky.Chronicle
 
     protected override bool DoApplicationAfterInit()
     {
-      m_Server.NonNull("Service not configured");
+      m_Server.NonNull("Not configured Server of config section `{0}`".Args(CONFIG_SERVICE_SECTION));
+      LogServiceAddress.NonBlank(nameof(LogServiceAddress));
+      LogServiceAddress.NonBlank(nameof(InstrumentationServiceAddress));
+
       return base.DoApplicationAfterInit();
     }
 

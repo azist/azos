@@ -25,8 +25,8 @@ namespace Azos.Data.AST
   /// </summary>
   public class MongoDbXlat : Xlat<MongoDbXlatContext>
   {
-    protected MongoDbXlat(string name = null) : base(name) { }
-    protected MongoDbXlat(IConfigSectionNode conf) : base(conf) { }
+    public MongoDbXlat(string name = null) : base(name) { }
+    public MongoDbXlat(IConfigSectionNode conf) : base(conf) { }
 
 #pragma warning disable 0649
     [Config] private bool m_IsCaseSensitive;

@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,7 +17,7 @@ using Azos.Data.Access.MongoDb;
 using Azos.Conf;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Serialization.BSON;
-using System.Linq;
+using Azos.Data.AST;
 
 namespace Azos.Sky.Chronicle.Server
 {
@@ -93,27 +94,59 @@ namespace Azos.Sky.Chronicle.Server
       if (m_Bundled != null) m_Bundled.WaitForCompleteStop();
     }
 
+    private static MongoDbXlat m_LogXlat = new MongoDbXlat();
     private static BSONSerializer s_LogBson = new BSONSerializer(new BSONTypeResolver(typeof(Message))) { PKFieldName = Query._ID };
     public Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter) => Task.FromResult(get(filter));
     private IEnumerable<Message> get(LogChronicleFilter filter)
     {
       filter.NonNull(nameof(filter));
       var cLog = LogDb[COLLECTION_LOG];
-      var query = Query.ID_EQ_Int32(123);//<--- todo: BUILD query for filter
+
+      var query = buildLogFilterQuery(filter);
+//todo: Finish the Advanced filter
+      //var ctx = m_LogXlat.TranslateInContext(filter.AdvancedFilter);
+     // var query = query;// ctx.Query;
+
       using(var cursor = cLog.Find(query, filter.PagingStartIndex, FETCH_BY_LOG))
       {
         int i = 0;
         foreach(var bdoc in cursor)
         {
-          var msg = new Message();
-          s_LogBson.Deserialize(bdoc, msg);
-
+          var msg = LogMsgConverter.FromBson(bdoc);
           yield return msg;
 
           if (++i > MAX_DOC_COUNT) break;
         }
       }
     }
+
+    private Query buildLogFilterQuery(LogChronicleFilter filter)
+    {
+      var query = new Query();
+
+      var andNodes = new List<BSONElement>();
+
+      if (filter.Id.HasValue)
+      {  //todo: replace "id" constant
+        andNodes.Add(new BSONBinaryElement("id", new BSONBinary(BSONBinaryType.UUID, filter.Id.Value.ToNetworkByteOrder())));
+      }
+
+      if (filter.RelId.HasValue)
+      {
+        andNodes.Add(new BSONBinaryElement(Message.BSON_FLD_RELATED_TO, new BSONBinary(BSONBinaryType.UUID, filter.RelId.Value.ToNetworkByteOrder())));
+      }
+
+      if (filter.Channel.HasValue && !filter.Channel.Value.IsZero)
+      {
+        andNodes.Add(new BSONInt64Element(Message.BSON_FLD_CHANNEL, (long)filter.Channel.Value.ID));
+      }
+
+      //todo add more...
+
+      query.Set(new BSONArrayElement("$and", andNodes.ToArray()));
+      return query;
+    }
+
 
     public Task WriteAsync(LogBatch data)
     {
@@ -125,7 +158,7 @@ namespace Azos.Sky.Chronicle.Server
         var bsons = batch.Select(msg => {
           //todo Assign GDID
           //msg.Gdid =
-          return s_LogBson.Serialize(msg);
+          return LogMsgConverter.ToBson(msg);
         });
         cLog.Insert(bsons.ToArray());
       }
