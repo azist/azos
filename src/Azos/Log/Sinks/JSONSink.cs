@@ -29,8 +29,6 @@ namespace Azos.Log.Sinks
        m_Options = JsonWritingOptions.CompactASCII;
     }
 
-    private IBSONSerializable m_Known = new BSONParentKnownTypes(typeof(Message));
-
     private JsonWritingOptions m_Options;
 
     protected override void DoConfigure(IConfigSectionNode node)

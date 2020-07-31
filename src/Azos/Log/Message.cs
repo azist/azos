@@ -22,6 +22,26 @@ namespace Azos.Log
   [Arow("3AD5E8E1-871C-4B8F-AE16-6D04492B17DF")]
   public sealed class Message : TypedDoc, IArchiveLoggable
   {
+    /// <summary>
+    /// Creates log message defaulting from Message.DefaultHostName and UTCTime
+    /// </summary>
+    [Serialization.Slim.SlimDeserializationCtorSkip]
+    public Message()
+    {
+      m_Guid = Guid.NewGuid();
+      m_Host = Platform.Computer.HostName;
+      m_UTCTimeStamp = Ambient.UTCNow;
+      m_App = Apps.ExecutionContext.Application.AppId;
+    }
+
+    /// <summary>
+    /// Creates message with Parameters supplanted with caller file name and line #
+    /// </summary>
+    public Message(object pars, [CallerFilePath] string file = null, [CallerLineNumber] int line = 0) : this()
+    {
+      SetParamsAsObject(FormatCallerParams(pars, file, line));
+      Source = line;
+    }
 
     #region Private Fields
     private GDID m_Gdid;
@@ -240,31 +260,12 @@ namespace Azos.Log
 
     #endregion
 
-    /// <summary>
-    /// Creates log message defaulting from Message.DefaultHostName and UTCTime
-    /// </summary>
-    [Azos.Serialization.Slim.SlimDeserializationCtorSkip]
-    public Message()
-    {
-      m_Guid = Guid.NewGuid();
-      m_Host = Platform.Computer.HostName;
-      m_UTCTimeStamp = Ambient.UTCNow;
-      m_App = Apps.ExecutionContext.Application.AppId;
-    }
+
+    public override string ToString()
+      => "{0:yyyyMMdd-HHmmss.fff}, {1}, {2}, {3}, {4}, {5}, {6}".Args(m_UTCTimeStamp, m_Guid.ToString().TakeLastChars(8), m_Host, m_Type, Topic, From, Text);
 
     /// <summary>
-    /// Creates message with Parameters supplanted with caller file name and line #
-    /// </summary>
-    public Message(object pars, [CallerFilePath] string file = null, [CallerLineNumber] int line = 0) : this()
-    {
-      SetParamsAsObject(FormatCallerParams(pars, file, line));
-      Source = line;
-    }
-
-    public override string ToString() => "{0:yyyyMMdd-HHmmss.fff}, {1}, {2}, {3}, {4}, {5}, {6}".Args(m_UTCTimeStamp, m_Guid.ToString().TakeLastChars(8), m_Host, m_Type, Topic, From, Text);
-
-    /// <summary>
-    /// Supplants the from string with caller as JSON string
+    /// Supplants the from string with caller info encoded as JSON string
     /// </summary>
     public static object FormatCallerParams(object pars,
                                             [CallerFilePath]  string file = null,
@@ -285,19 +286,24 @@ namespace Azos.Log
         };
     }
 
+    /// <summary>
+    /// Sets parameter content as JSON representation of the supplied object
+    /// </summary>
     public Message SetParamsAsObject(object p)
     {
       if (p == null)
         m_Parameters = null;
       else
-        m_Parameters = p.ToJson(JsonWritingOptions.CompactASCII);
+        m_Parameters = p.ToJson(JsonWritingOptions.CompactRowsAsMap);
 
       return this;
     }
 
+    /// <summary>
+    /// Deep clones all fields into a new instance
+    /// </summary>
     public Message Clone()
-    {
-      return new Message
+    => new Message
       {
         m_Gdid = m_Gdid,
         m_Guid = m_Guid,
@@ -315,7 +321,6 @@ namespace Azos.Log
         m_Exception = m_Exception,
         m_ArchiveDimensions = m_ArchiveDimensions,
       };
-    }
 
   }
 
