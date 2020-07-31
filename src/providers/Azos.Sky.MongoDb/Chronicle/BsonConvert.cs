@@ -20,21 +20,21 @@ namespace Azos.Sky.Chronicle.Server
     public const string FLD_GDID = Query._ID;
 
     public const string FLD_GUID = "id";
-    public const string FLD_RELATED_TO = "rel";
+    public const string FLD_RELATED_TO = "rl";
 
-    public const string FLD_CHANNEL = "c";
-    public const string FLD_APP = "a";
-    public const string FLD_TYPE = "t";
-    public const string FLD_SOURCE = "s";
+    public const string FLD_CHANNEL = "ch";
+    public const string FLD_APP = "ap";
+    public const string FLD_TYPE = "tp";
+    public const string FLD_SOURCE = "sr";
     public const string FLD_TIMESTAMP = "utc";
-    public const string FLD_HOST = "h";
-    public const string FLD_FROM = "f";
-    public const string FLD_TOPIC = "t";
+    public const string FLD_HOST = "hst";
+    public const string FLD_FROM = "frm";
+    public const string FLD_TOPIC = "top";
     public const string FLD_TEXT = "txt";
     public const string FLD_PARAMETERS = "par";
-    public const string FLD_WED = "wexd";
+    public const string FLD_WED = "ex";
 
-    public const string FLD_AD = "ad";
+    public const string FLD_AD = "dim";
 
 
 
