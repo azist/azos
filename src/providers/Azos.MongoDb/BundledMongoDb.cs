@@ -146,7 +146,7 @@ namespace Azos.Data.Access.MongoDb
     /// Sets the data directory, if null then uses default locations: /data/db on Linux and macOS, \data\db on Windows
     /// See: https://docs.mongodb.com/manual/reference/program/mongod/
     /// </summary>
-    [Config("$mongo-quiet", Default = true)]
+    [Config("$mongo-dbpath")]
     public string Mongo_dbpath
     {
       get => m_Mongo_dbpath;
@@ -162,7 +162,7 @@ namespace Azos.Data.Access.MongoDb
     /// See: https://docs.mongodb.com/manual/reference/program/mongod/
     /// </summary>
     [Config("$mongo-directoryperdb", Default = true)]
-    public bool Mongo_directoyperdb
+    public bool Mongo_directoryperdb
     {
       get => m_Mongo_directoryperdb;
       set

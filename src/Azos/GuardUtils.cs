@@ -145,7 +145,7 @@ namespace Azos
         var callSite = callSiteOf(callFile, callLine, callMember);
         throw new CallGuardException(callSite,
                                  name,
-                                 StringConsts.GUARDED_PARAMETER_MAY_NOT_BE_NULL_ERROR
+                                 StringConsts.GUARDED_CLAUSE_MAY_NOT_BE_NULL_ERROR
                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
       }
       return obj;
@@ -166,7 +166,7 @@ namespace Azos
         var callSite = callSiteOf(callFile, callLine, callMember);
         throw new CallGuardException(callSite,
                                  name,
-                                 StringConsts.GUARDED_PARAMETER_MAY_NOT_BE_NULL_ERROR
+                                 StringConsts.GUARDED_CLAUSE_MAY_NOT_BE_NULL_ERROR
                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
       }
       return value;
@@ -186,7 +186,7 @@ namespace Azos
         var callSite = callSiteOf(callFile, callLine, callMember);
         throw new CallGuardException(callSite,
                                  name,
-                                 StringConsts.GUARDED_PARAMETER_OFTYPE_ERROR
+                                 StringConsts.GUARDED_CLAUSE_OFTYPE_ERROR
                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, typeof(T).Name));
       }
       return type;
@@ -207,7 +207,7 @@ namespace Azos
         var callSite = callSiteOf(callFile, callLine, callMember);
         throw new CallGuardException(callSite,
                                  name,
-                                 StringConsts.GUARDED_PARAMETER_OFTYPE_ERROR
+                                 StringConsts.GUARDED_CLAUSE_OFTYPE_ERROR
                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, expectedType.Name));
       }
       return type;
@@ -228,7 +228,7 @@ namespace Azos
         var callSite = callSiteOf(callFile, callLine, callMember);
         throw new CallGuardException(callSite,
                                  name,
-                                 StringConsts.GUARDED_PARAMETER_VALUEOFTYPE_ERROR
+                                 StringConsts.GUARDED_CLAUSE_VALUEOFTYPE_ERROR
                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, typeof(T).Name));
       }
       return value;
@@ -249,7 +249,7 @@ namespace Azos
         var callSite = callSiteOf(callFile, callLine, callMember);
         throw new CallGuardException(callSite,
                                  name,
-                                 StringConsts.GUARDED_PARAMETER_VALUEOFTYPE_ERROR
+                                 StringConsts.GUARDED_CLAUSE_VALUEOFTYPE_ERROR
                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, expectedType.Name));
       }
       return value;
@@ -269,7 +269,7 @@ namespace Azos
         var callSite = callSiteOf(callFile, callLine, callMember);
         throw new CallGuardException(callSite,
                                  name,
-                                 StringConsts.GUARDED_CONFIG_NODE_PARAMETER_MAY_NOT_BE_EMPTY_ERROR
+                                 StringConsts.GUARDED_CONFIG_NODE_CLAUSE_MAY_NOT_BE_EMPTY_ERROR
                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
       }
       return node;
@@ -289,7 +289,7 @@ namespace Azos
         var callSite = callSiteOf(callFile, callLine, callMember);
         throw new CallGuardException(callSite,
                                  name,
-                                 StringConsts.GUARDED_STRING_PARAMETER_MAY_NOT_BE_BLANK_ERROR
+                                 StringConsts.GUARDED_STRING_CLAUSE_MAY_NOT_BE_BLANK_ERROR
                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
       }
       return str;
@@ -311,7 +311,7 @@ namespace Azos
         var callSite = callSiteOf(callFile, callLine, callMember);
         throw new CallGuardException(callSite,
                                  name,
-                                 StringConsts.GUARDED_STRING_PARAMETER_MAY_NOT_EXCEED_MAX_LEN_ERROR
+                                 StringConsts.GUARDED_STRING_CLAUSE_MAY_NOT_EXCEED_MAX_LEN_ERROR
                                             .Args(callSite ?? CoreConsts.UNKNOWN,
                                                   name ?? CoreConsts.UNKNOWN,
                                                   str.TakeFirstChars(15, ".."),
@@ -337,7 +337,7 @@ namespace Azos
         var callSite = callSiteOf(callFile, callLine, callMember);
         throw new CallGuardException(callSite,
                                      name,
-                                     StringConsts.GUARDED_STRING_PARAMETER_MAY_NOT_BE_LESS_MIN_LEN_ERROR
+                                     StringConsts.GUARDED_STRING_CLAUSE_MAY_NOT_BE_LESS_MIN_LEN_ERROR
                                                  .Args(callSite ?? CoreConsts.UNKNOWN,
                                                   name ?? CoreConsts.UNKNOWN,
                                                   str.TakeFirstChars(15, ".."),
@@ -364,7 +364,7 @@ namespace Azos
         var callSite = callSiteOf(callFile, callLine, callMember);
         throw new CallGuardException(callSite,
                                      name,
-                                     StringConsts.GUARDED_STRING_PARAMETER_MUST_BE_BETWEEN_MIN_MAX_LEN_ERROR
+                                     StringConsts.GUARDED_STRING_CLAUSE_MUST_BE_BETWEEN_MIN_MAX_LEN_ERROR
                                                  .Args(callSite ?? CoreConsts.UNKNOWN,
                                                   name ?? CoreConsts.UNKNOWN,
                                                   str.TakeFirstChars(15, ".."),
@@ -391,7 +391,7 @@ namespace Azos
         var callSite = callSiteOf(callFile, callLine, callMember);
         throw new CallGuardException(callSite,
                                  name,
-                                 StringConsts.GUARDED_PARAMETER_CONDITION_ERROR
+                                 StringConsts.GUARDED_CLAUSE_CONDITION_ERROR
                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
       }
       return value;

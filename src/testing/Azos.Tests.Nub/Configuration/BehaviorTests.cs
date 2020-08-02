@@ -67,7 +67,7 @@ static string conf3 = @"
             var root = Azos.Conf.XMLConfiguration.CreateFromXML(conf1).Root;
             using(var app = new AzosApplication(new string[0], root ))
             {
-                app.Log.Write(Log.MessageType.Info, "Khello!");
+                app.Log.Write(new Message{Type=Log.MessageType.Info, Text="Khello!"});
 
                 Aver.AreEqual(1, ((LogDaemon)app.Log).Sinks.Count());
                 System.Threading.Thread.Sleep(1000);//wait for flush
@@ -82,7 +82,7 @@ static string conf3 = @"
             var root = Azos.Conf.XMLConfiguration.CreateFromXML(conf2).Root;
             using(var app = new AzosApplication(new string[0],  root ))
             {
-                app.Log.Write(Log.MessageType.Info, "Khello!");
+                app.Log.Write(new Message{Type= Log.MessageType.Info, Text = "Khello!"});
 
                 Aver.AreEqual(1, ((LogDaemon)app.Log).Sinks.Count());
                 System.Threading.Thread.Sleep(1000);//wait for flush
@@ -92,7 +92,7 @@ static string conf3 = @"
         }
 
         [Run]
-        [Aver.Throws(typeof(AzosException), Message="No log destinations registered", MsgMatch=Aver.ThrowsAttribute.MatchType.Contains)]
+        [Aver.Throws(typeof(AzosException), Message="No log sinks registered", MsgMatch=Aver.ThrowsAttribute.MatchType.Contains)]
         public void Case3_ExistsOnAppLevelButDoesNotCascade()
         {
             var root = Azos.Conf.XMLConfiguration.CreateFromXML(conf3).Root;

@@ -7,33 +7,43 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
-using IDataBusinessLogic = Azos.Data.Business.IBusinessLogic;
+using Azos.Apps;
 using Azos.Instrumentation;
+using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Chronicle
 {
-
   /// <summary>
-  /// Outlines a high-level contract for working with instrumentation data archives (chronicles)
+  /// Outlines a high-level contract for working with instrumentation data archives (chronicles).
+  /// The chronicle archive operates in a type-agnostic way passing data as array of JsonDataMap objects acting like raw datum frames.
+  /// Each frame contains bix type discriminator allowing for optional de-serialization into original Datum-derived type
+  /// if assemblies containing these types are present and registered with the app container
   /// </summary>
+  /// <remarks>
+  /// IInstrumentationChronicle servers supports instrumentation data streams produced by any environment/language, not
+  /// necessarily CLR-enabled. Bix type discriminator sets a GUID/UUID per every gauge/instrument type which can be cross-mapped on
+  /// various platforms, for example: you can create a "VoltageGauge" and assign it a GUID via C# class and Bix attribute, then map that guid
+  /// to a "VoltageGauge" name in Node.js or Python system, and vice-versa.
+  /// </remarks>
   public interface IInstrumentationChronicle
   {
     /// <summary>
     /// Writes an enumerable of datum instances into chronicle
     /// </summary>
-    Task WriteAsync(IEnumerable<Datum> data);
+    Task WriteAsync(InstrumentationBatch data);
 
     /// <summary>
-    /// Gets chronicle (a list) of datum instances satisfying the supplied InstrumentationChronicleFilter object
+    /// Gets chronicle (a list) of datum frames satisfying the supplied InstrumentationChronicleFilter object.
+    /// Datum frames (JsonDataMap) contain raw data for every individual measurement sample
     /// </summary>
-    Task<IEnumerable<Datum>> GetAsync(InstrumentationChronicleFilter filter);
+    Task<IEnumerable<JsonDataMap>> GetAsync(InstrumentationChronicleFilter filter);
   }
+
 
   /// <summary>
   /// Outlines a contract for implementing logic of IInstrumentationChronicle
   /// </summary>
-  public interface IInstrumentationChronicleLogic : IInstrumentationChronicle, IDataBusinessLogic
+  public interface IInstrumentationChronicleLogic : IInstrumentationChronicle, IModule
   {
   }
 

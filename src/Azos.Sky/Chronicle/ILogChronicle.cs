@@ -7,8 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
-using Azos.Data.Business;
+using Azos.Apps;
 using Azos.Log;
 
 namespace Azos.Sky.Chronicle
@@ -33,7 +32,7 @@ namespace Azos.Sky.Chronicle
   /// <summary>
   /// Outlines a contract for implementing logic of ILogChronicle
   /// </summary>
-  public interface ILogChronicleLogic : ILogChronicle, IBusinessLogic
+  public interface ILogChronicleLogic : ILogChronicle, IModule
   {
   }
 

@@ -11,6 +11,7 @@ using Azos.Data;
 using Azos.Apps;
 using Azos.Serialization.BSON;
 using Azos.Serialization.Arow;
+using Azos.Serialization.JSON;
 
 namespace Azos
 {
@@ -123,26 +124,9 @@ namespace Azos
   /// </summary>
   [Serializable]
   [Arow("CBE82107-8FDA-4A2C-84D2-5D953907C9A0")]
-  [BSONSerializable("A339F46F-6637-4396-B148-094BAFFB4BE6")]
-  public sealed class WrappedExceptionData : TypedDoc, IBSONSerializable, IBSONDeserializable
+  public sealed class WrappedExceptionData : TypedDoc
   {
-
-    /// <summary>
-    /// Creates an instance of WrappedExceptionData saturating it from base64-encoded BSON data.
-    /// This method complements .ToBase64()
-    /// </summary>
-    public static WrappedExceptionData FromBase64(string base64)
-    {
-      var bin = Convert.FromBase64String(base64);
-      var doc = BSONDocument.FromArray(bin);
-      var ser = new BSONSerializer();
-      var result = new WrappedExceptionData();
-      object ctx = null;
-      result.DeserializeFromBSON(ser, doc, ref ctx);
-      return result;
-    }
-
-    internal WrappedExceptionData(){}
+    public WrappedExceptionData(){}
 
     /// <summary>
     /// Initializes instance form local exception
@@ -265,65 +249,13 @@ namespace Azos
       return string.Format("[{0}:{1}:{2}] {3}", TypeName, Code, ApplicationName, Message);
     }
 
-    public void SerializeToBSON(BSONSerializer serializer, BSONDocument doc, IBSONSerializable parent, ref object context)
-    {
-      serializer.AddTypeIDField(doc, parent, this, context);
-
-      doc.Set( new BSONStringElement("tname", TypeName))
-         .Set( new BSONStringElement("msg",   Message))
-         .Set( new BSONInt32Element ("code",  Code))
-         .Set( new BSONStringElement("app",   ApplicationName))
-         .Set( new BSONStringElement("src",   Source))
-         .Set( new BSONStringElement("trace", StackTrace));
-
-      if (WrappedData!=null)
-        doc.Set( new BSONStringElement("wdata", WrappedData));
-
-      if (m_InnerException==null) return;
-
-      doc.Set( new BSONDocumentElement("inner", serializer.Serialize(m_InnerException, parent: this)) );
-    }
-
-    public bool IsKnownTypeForBSONDeserialization(Type type)
-    {
-      return type==typeof(WrappedExceptionData);
-    }
-
-    public void DeserializeFromBSON(BSONSerializer serializer, BSONDocument doc, ref object context)
-    {
-      m_TypeName        = doc.TryGetObjectValueOf("tname").AsString();
-      m_Message         = doc.TryGetObjectValueOf("msg").AsString();
-      m_Code            = doc.TryGetObjectValueOf("code").AsInt();
-      m_ApplicationName = doc.TryGetObjectValueOf("app").AsString();
-      m_Source          = doc.TryGetObjectValueOf("src").AsString();
-      m_StackTrace      = doc.TryGetObjectValueOf("trace").AsString();
-      m_WrappedData     = doc.TryGetObjectValueOf("wdata").AsString();
-
-      var iv = doc["inner"] as BSONDocumentElement;
-      if (iv==null) return;
-
-      m_InnerException = new WrappedExceptionData();
-      serializer.Deserialize(iv.Value, m_InnerException);
-    }
-
-    /// <summary>
-    /// Serializes the instance as base64-encoded BSON data. This method complements .FromBase64(string)
-    /// </summary>
-    public string ToBase64()
-    {
-      var ser = new BSONSerializer();
-      var doc = ser.Serialize(this);
-      var bin = doc.WriteAsBSONToNewArray();
-      return Convert.ToBase64String(bin, Base64FormattingOptions.None);
-    }
   }
 
   /// <summary>
   /// Represents exception that contains data about causing exception with all of it's chain
   /// </summary>
   [Serializable]
-  [BSONSerializable("A43ABD0D-22B2-4012-8A24-280A038FD943")]
-  public sealed class WrappedException : AzosException, IBSONSerializable, IBSONDeserializable
+  public sealed class WrappedException : AzosException
   {
     public const string WRAPPED_FLD_NAME = "WE-W";
 
@@ -339,14 +271,6 @@ namespace Azos
        we = new WrappedException( new WrappedExceptionData(root, captureStack) );
 
       return we;
-    }
-
-    public static WrappedException MakeFromBSON(BSONSerializer serializer, BSONDocument doc)
-    {
-      var wrp = doc["wrp"] as BSONDocumentElement;
-      var result = wrp==null ? new WrappedException() : new WrappedException(wrp.Value.TryGetObjectValueOf("msg").AsString());
-      serializer.Deserialize(doc, result);
-      return result;
     }
 
     internal WrappedException() {}
@@ -366,7 +290,7 @@ namespace Azos
     /// <summary>
     /// Returns wrapped exception data
     /// </summary>
-    public WrappedExceptionData Wrapped { get { return m_Wrapped; } }
+    public WrappedExceptionData Wrapped => m_Wrapped;
 
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
@@ -374,26 +298,6 @@ namespace Azos
         throw new AzosException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetObjectData(info=null)");
       info.AddValue(WRAPPED_FLD_NAME, m_Wrapped);
       base.GetObjectData(info, context);
-    }
-
-    public void SerializeToBSON(BSONSerializer serializer, BSONDocument doc, IBSONSerializable parent, ref object context)
-    {
-      serializer.AddTypeIDField(doc, parent, this, context);
-      doc.Set( new BSONDocumentElement("wrp", serializer.Serialize(m_Wrapped, parent: this)));
-    }
-
-    public bool IsKnownTypeForBSONDeserialization(Type type)
-    {
-      return type==typeof(WrappedExceptionData);
-    }
-
-    public void DeserializeFromBSON(BSONSerializer serializer, BSONDocument doc, ref object context)
-    {
-      var iv = doc["wrp"] as BSONDocumentElement;
-      if (iv==null) return;
-
-      m_Wrapped = new WrappedExceptionData();
-      serializer.Deserialize(iv.Value, m_Wrapped);
     }
   }
 

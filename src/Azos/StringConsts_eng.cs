@@ -33,8 +33,8 @@ namespace Azos
         public const string OPERATION_NOT_SUPPORTED_ERROR =
             "Operation not supported: ";
 
-        public const string LOGSVC_NODESTINATIONS_ERROR =
-            "No log destinations registered. Log daemon could not start";
+        public const string LOGSVC_NOSINKS_ERROR =
+            "No log sinks registered. Log daemon `{0}` could not start";
 
         public const string DAEMON_INVALID_STATE =
             "Daemon is in inappropriate state for requested operation: ";
@@ -432,32 +432,32 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string GUARDED_ACTION_SCOPE_ERROR =
         "Guarded action {0} threw: {1}";
 
-    public const string GUARDED_PARAMETER_MAY_NOT_BE_NULL_ERROR =
-        "Guarded method '{0}' parameter '{1}' may not be null";
+    public const string GUARDED_CLAUSE_MAY_NOT_BE_NULL_ERROR =
+        "Guarded method '{0}' clause '{1}' may not be null";
 
-    public const string GUARDED_PARAMETER_OFTYPE_ERROR =
-         "Guarded method '{0}' type parameter '{1}' may not be null and must be of '{2}' type or its descendants";
+    public const string GUARDED_CLAUSE_OFTYPE_ERROR =
+         "Guarded method '{0}' type clause '{1}' may not be null and must be of '{2}' type or its descendants";
 
-    public const string GUARDED_PARAMETER_VALUEOFTYPE_ERROR =
-         "Guarded method '{0}' value '{1}' may not be null and must be of '{2}' type or its descendants";
+    public const string GUARDED_CLAUSE_VALUEOFTYPE_ERROR =
+         "Guarded method '{0}' clause value '{1}' may not be null and must be of '{2}' type or its descendants";
 
-    public const string GUARDED_CONFIG_NODE_PARAMETER_MAY_NOT_BE_EMPTY_ERROR =
-        "Guarded method '{0}' config node parameter '{1}' may not be null or empty";
+    public const string GUARDED_CONFIG_NODE_CLAUSE_MAY_NOT_BE_EMPTY_ERROR =
+        "Guarded method '{0}' config node clause '{1}' may not be null or empty";
 
-    public const string GUARDED_STRING_PARAMETER_MAY_NOT_BE_BLANK_ERROR =
-        "Guarded method '{0}' string parameter '{1}' may not be null or blank/whitespace";
+    public const string GUARDED_STRING_CLAUSE_MAY_NOT_BE_BLANK_ERROR =
+        "Guarded method '{0}' string clause '{1}' may not be null or blank/whitespace";
 
-    public const string GUARDED_STRING_PARAMETER_MAY_NOT_EXCEED_MAX_LEN_ERROR =
-        "Guarded method '{0}' string parameter '{1}' = '{2}' length of {3} exceeds the max length of {4}";
+    public const string GUARDED_STRING_CLAUSE_MAY_NOT_EXCEED_MAX_LEN_ERROR =
+        "Guarded method '{0}' string clause '{1}' = '{2}' length of {3} exceeds the max length of {4}";
 
-    public const string GUARDED_STRING_PARAMETER_MAY_NOT_BE_LESS_MIN_LEN_ERROR =
-        "Guarded method '{0}' string parameter '{1}' = '{2}' length of {3} is less than the min length of {4}";
+    public const string GUARDED_STRING_CLAUSE_MAY_NOT_BE_LESS_MIN_LEN_ERROR =
+        "Guarded method '{0}' string clause '{1}' = '{2}' length of {3} is less than the min length of {4}";
 
-    public const string GUARDED_STRING_PARAMETER_MUST_BE_BETWEEN_MIN_MAX_LEN_ERROR =
-        "Guarded method '{0}' string parameter '{1}' = '{2}' length is {3} but must be between {4} and {5}";
+    public const string GUARDED_STRING_CLAUSE_MUST_BE_BETWEEN_MIN_MAX_LEN_ERROR =
+        "Guarded method '{0}' string clause '{1}' = '{2}' length is {3} but must be between {4} and {5}";
 
-    public const string GUARDED_PARAMETER_CONDITION_ERROR =
-         "Guarded method '{0}' parameter '{1}' failed condition check";
+    public const string GUARDED_CLAUSE_CONDITION_ERROR =
+        "Guarded method '{0}' clause '{1}' failed condition check";
 
     public const string STREAM_READ_EOF_ERROR =
         "Stream EOF before operation could complete: ";
@@ -821,100 +821,6 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string ELINK_CHAR_LENGTH_ERROR = "ELink '{0}' could not be read as it contains an invalid character data length";
     public const string ELINK_CSUM_MISMATCH_ERROR = "ELink '{0}' could not be read as its checksum does not match";
 
-
-    public const string ERL_DS_RPC_EXEC_ERROR                 = "ErlDataStore could not execute RPC call '{0}'. Error: {1}";
-
-    public const string ERL_DS_START_REMOTE_ABSENT_ERROR      = "ErlDataStore could not start as required remote name is absent";
-    public const string ERL_DS_START_REMOTE_DUPLICATE_ERROR   = "ErlDataStore could not start as remote name '{0}' is already used by another instance. An app may only have one ErlDataStore with the same remote node name";
-
-    public const string ERL_DS_QUERY_SCRIPT_PARSE_ERROR       = "ErlDataStore could not parse script query source '{0}'. Error: {1}";
-    public const string ERL_DS_QUERY_PARAM_NOT_FOUND_ERROR    = "ErlDataStore could not bind script query source '{0}' as param '{1}' was not found";
-
-    public const string ERL_DS_QUERY_SUBSCR_NOT_FOUND_ERROR   = "ErlDataStore subscription query must include Subscriber::pid() parameter";
-    public const string ERL_DS_QUERY_TMSTAMP_NOT_FOUND_ERROR  = "ErlDataStore subscription query must include Timestamp::long() parameter";
-    public const string ERL_DS_QUERY_TMSTAMP_CTX_ABSENT_ERROR = "ErlDataStore subscription Timestamp::long() is absent in context";
-
-    public const string ERL_DS_SCHEMA_NOT_KNOWN_ERROR         = "Schema '{0}' is not known in: {1}";
-    public const string ERL_DS_SCHEMA_INVALID_VALUE_ERROR     = "Schema '{0}' has invalid value in term {1}";
-    public const string ERL_DS_SCHEMA_MAP_NOT_KNOWN_ERROR     = "ErlSchema name '{0}' is not known in the map set";
-    public const string ERL_DS_SCHEMA_MAP_ERL_TYPE_ERROR      = "ErlSchema mapping does not handle '{0}' erl type";
-    public const string ERL_DS_INVALID_RESP_PROTOCOL_ERROR    = "ErlDataStore received an invalid protocol response: ";
-    public const string ERL_DS_CRUD_WRITE_FAILED_ERROR        = "ErlDataStore CRUD write failed: ";
-    public const string ERL_DS_CRUD_RESP_SCH_MISMATCH_ERROR   = "ErlDataStore map can not convert to row erlang tuple named '{0}' per supplied schema name '{1}'";
-    public const string ERL_DS_CRUD_RESP_SCH_FLD_COUNT_ERROR  =
-           "ErlDataStore map can not convert to row Erlang tuple named '{0}' per supplied CRUD schema name '{1}' as field count differ";
-    public const string ERL_DS_INTERNAL_MAPPING_ERROR         = "ErlDataStore internal mapping error: ";
-
-    public const string ERL_ATOM_SIZE_TOO_LONG_ERROR          = "Atom size is too long!";
-    public const string ERL_ATOM_TABLE_IS_FULL_ERROR          = "Atom table is full!";
-    public const string ERL_BIG_INTEGER_OVERFLOW_ERROR        = "Big integer overflow";
-    public const string ERL_CANNOT_CONVERT_TYPES_ERROR        = "Cannot convert type {0} to {1}";
-    public const string ERL_CANNOT_CONVERT_TYPES_CYCLE_ERROR  = "Cannot convert type {0} to {1} as there is a reference cycle";
-    public const string ERL_CANNOT_CLONE_INSTANCE_ERROR       = "Cannot clone instance of type {0}";
-    public const string ERL_CANNOT_READ_FROM_STREAM_ERROR     = "Cannot read from input stream";
-    public const string ERL_CONFIG_SINGLE_NODE_ERROR          = "Configuration must contain a single local node (found: {0} local nodes)";
-    public const string ERL_CONNECTION                        = "connection {0} {1} {2}";
-    public const string ERL_CONN_ACCEPT_FROM                  = "Accept from {0}:{1}";
-    public const string ERL_CONN_ACCEPT_ERROR                 = "Error accepting connection from {0}";
-    public const string ERL_CONN_ALREADY_CONNECTED_ERROR      = "Already connected";
-    public const string ERL_CONN_CANT_CONNECT_TO_NODE_ERROR   = "Cannot establish connection to node {0}";
-    public const string ERL_CONN_CANT_CONNECT_TO_HOST_ERROR   = "Cannot establish {0} connection to host {1}:{2}";
-    public const string ERL_CONN_CANT_RPC_TO_LOCAL_NODE_ERROR = "Cannot make rpc calls on local node!";
-    public const string ERL_CONN_HANDSHAKE_FAILED_ERROR       = "Handshake failed - {0}";
-    public const string ERL_CONN_HANDSHAKE_DATA_ERROR         = "Handshake failed - data/protocol error";
-    public const string ERL_CONN_HANDSHAKE_EXT_PIDS_ERROR     = "Handshake failed - peer cannot handle extended pids and ports";
-    public const string ERL_CONN_HANDSHAKE_REF_ERROR          = "Handshake failed - peer cannot handle extended references";
-    public const string ERL_CONN_INVALID_DATA_FROM_PEER_ERROR = "Invalid data from remote node";
-    public const string ERL_CONN_EOF_AFTER_N_BYTES_ERROR      = "EOF after {0} of {1} bytes";
-    public const string ERL_CONN_LOCAL_RPC_ERROR              = "Cannot make rpc calls on local node!";
-    public const string ERL_CONN_MSG_SIZE_TOO_LONG_ERROR      = "Message size too long (max={0}, got={1})";
-    public const string ERL_CONN_NO_COMMON_PROTO_ERROR        = "No common protocol found - cannot connect";
-    public const string ERL_CONN_NOT_CONNECTED_ERROR          = "Not connected";
-    public const string ERL_CONN_PEER_AUTH_ERROR              = "Peer authentication error";
-    public const string ERL_CONN_READ_TOO_SHORT_ERROR         = "Read {0} out of {1} bytes!";
-    public const string ERL_CONN_REMOTE_CLOSED_ERROR          = "Remote connection closed";
-    public const string ERL_CONN_TIMEOUT_ERROR                = "Timeout waiting for connect to {0}:{1}";
-    public const string ERL_CONN_UNAUTH_COOKIE_ERROR          = "Remote cookie not authorized: {0}";
-    public const string ERL_CONN_UNKNOWN_REMOTE_NODE_ERROR    = "Unknown remote node type";
-    public const string ERL_CONN_UNKNOWN_TAG_ERROR            = "Unknown tag {0}: {1}";
-    public const string ERL_CONN_WRONG_STATUS_ERROR           = "Peer replied with status '{0}' instead of 'ok'";
-    public const string ERL_EPMD_INVALID_RESPONSE_ERROR       = "No valid EPMD response from host {0} for node {1}: {2}";
-    public const string ERL_EPMD_INVALID_PORT_ERROR           = "EPMD couldn't resolve port number for node '{0}'";
-    public const string ERL_EPMD_FAILED_TO_CONNECT_ERROR      = "Failed to connect to EPMD server";
-    public const string ERL_EPMD_LOOKUP_R4                    = "LOOKUP {0} (ver=r4)";
-    public const string ERL_EPMD_NOT_FOUND                    = "NOT FOUND";
-    public const string ERL_EPMD_NO_RESPONSE                  = "No EPMD response";
-    public const string ERL_EPMD_NOT_RESPONDING               = "Epmd not responding on host '{0}' when looking up node '{1}'";
-    public const string ERL_EPMD_OK                           = "OK";
-    public const string ERL_EPMD_PORT                         = "PORT {0}";
-    public const string ERL_EPMD_PUBLISH                      = "PUBLISH {0} (port={1}, ver={2})";
-    public const string ERL_EPMD_UNPUBLISH                    = "UNPUBLISH {0} (port={1}, res=OK[assumed])";
-    public const string ERL_INVALID_IO_REQUEST                = "Invalid Erlang I/O request: ";
-    public const string ERL_INVALID_MBOX_NAME_ERROR           = "Invalid mailbox name";
-    public const string ERL_INVALID_MFA_FORMAT_ERROR          = "Invalid MFA format (expected \"Module:Function(Arg1, Arg2, ..., ArgN)\")";
-    public const string ERL_INVALID_RPC_REQUEST_ERROR         = "Invalid rpc request {0}";
-    public const string ERL_INVALID_TERM_TYPE_ERROR           = "Invalid term type (expected: {0}, got tag: {1})";
-    public const string ERL_INVALID_DATA_FORMAT_ERROR         = "Invalid data format (version tag: {0})";
-    public const string ERL_INVALID_FORMATTING_CHAR_ERROR     = "Invalid formatting character '{0}' in {1}";
-    public const string ERL_INVALID_NUMBER_OF_ARGS_ERROR      = "Invalid number of arguments";
-    public const string ERL_INVALID_VALUE_CAST_ERROR          = "Cannot cast type {0} to {1} (value={2})";
-    public const string ERL_INVALID_VALUE_ERROR               = "Invalid value ({0})";
-    public const string ERL_INVALID_VALUE_LENGTH_ERROR        = "Invalid value length ({0})";
-    public const string ERL_INVALID_VALUE_TYPE_ERROR          = "Invalid {0} value type: {1}";
-    public const string ERL_INVALID_VARIABLE_TYPE_ERROR       = "Invalid variable type: {0}";
-    public const string ERL_MISSING_VALUE_FOR_ARGUMENT_ERROR  = "Missing value for argument #{0}: ~{1}";
-    public const string ERL_PARSING_AT_ERROR                  = "Error parsing {0} at pos {1}";
-    public const string ERL_REF_ID_ARGUMENT_ERROR             = "Expected ID array of 3 integers!";
-    public const string ERL_STOPPING_SERVER                   = "Node {0} stopping {1} server";
-    public const string ERL_UNBOUND_VARIABLE_ERROR            = "Unbound variable!";
-    public const string ERL_UNSUPPORTED_ELEMENT_TYPE_ERROR    = "Unsupported type of element {0}: {1}";
-    public const string ERL_UNSUPPORTED_TERM_TYPE_ERROR       = "Unsupported term type (tag: {0})";
-    public const string ERL_VALUE_MUST_NOT_BE_NULL_ERROR      = "Value must not be null!";
-    public const string ERL_VALUE_TOO_LARGE_FOR_TYPE_ERROR    = "Value too large for {0} type (arity={1})";
-    public const string ERL_VARIABLE_NOT_FOUND_ERROR          = "Variable {0} not found!";
-    public const string ERL_VARIABLE_INVALID_VALUE_TYPE_ERROR = "Invalid variable {0} value type (got={1}, expected={2})";
-    public const string ERL_WRONG_VALUE_FOR_ARGUMENT_ERROR    = "Wrong value type for argument #{0}: {1}";
-
     public const string CACHE_VALUE_FACTORY_ERROR = "Cache value factory func threw error from {0}. Exception: {1}";
     public const string CACHE_RECORD_ITEM_DISPOSE_ERROR = "Cache value threw error while trying to be disposed from {0}. Exception: {1}";
 
@@ -1186,5 +1092,16 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
 
     public const string METADATA_CTOR_CONTENT_ERROR = "Metadata specification error. `{0}`.ctor(`{1}` content is bad). Revise attribute declaration. Cause: {2}";
+
+
+    public const string STRAT_BINDING_NOTHING_REGISTERED_ERROR =
+      "The `{0}` is not configured with any strategies. Revise assembly bindings";
+
+    public const string STRAT_BINDING_UNRESOLVED_ERROR =
+      "Strategy binding error: contract `{0}` could not be resolved into any actual implementing type. Revise assembly bindings";
+
+    public const string STRAT_BINDING_MATCH_ERROR =
+      "Strategy binding error: contract `{0}` failed to match context `{1}`. Revise assembly bindings and strategy traits/pattern matching decorations";
+
   }
 }
