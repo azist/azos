@@ -82,7 +82,7 @@ namespace Azos.Log
     public Guid Guid
     {
       get => m_Guid;
-      internal set => m_Guid = value;
+      set => m_Guid = value;
     }
 
     /// <summary>
