@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.4.10
-set HEADLINE=Add IPatternStrategyTrait to Azos.Apps.Strategies; add GdidAccessor for agm
+set VER=1.4.11
+set HEADLINE=Log Chronicles RTM
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
