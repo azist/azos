@@ -21,6 +21,7 @@ namespace Azos.Sky.Chronicle.Server
   /// </summary>
   public sealed class ChronicleServerLogic : ModuleBase, ILogChronicleLogic, IInstrumentationChronicleLogic
   {
+    public const string CONFIG_STORE_SECTION = "store";
     public const string CONFIG_LOG_STORE_SECTION = "log-store";
     public const string CONFIG_INSTRUMENTATION_STORE_SECTION = "instrumentation-store";
 
@@ -51,11 +52,23 @@ namespace Azos.Sky.Chronicle.Server
 
       if (node == null) return;
 
-      m_Log = FactoryUtils.MakeAndConfigureDirectedComponent<ILogChronicleStoreLogicImplementation>(this,
-                                 node[CONFIG_LOG_STORE_SECTION].NonEmpty(CONFIG_LOG_STORE_SECTION));
+      var nStore = node[CONFIG_STORE_SECTION];
+      if (nStore.Exists)
+      {
+        m_Log = FactoryUtils.MakeAndConfigureDirectedComponent<ILogChronicleStoreLogicImplementation>(this, nStore);
+        m_Instrumentation = m_Log.ValueAsType<IInstrumentationChronicleStoreLogicImplementation>("cfg section `{0}`".Args(CONFIG_STORE_SECTION));
+        App.InjectInto(m_Log);
+      }
+      else
+      {
+        m_Log = FactoryUtils.MakeAndConfigureDirectedComponent<ILogChronicleStoreLogicImplementation>(this,
+                                  node[CONFIG_LOG_STORE_SECTION].NonEmpty(CONFIG_LOG_STORE_SECTION));
+        App.InjectInto(m_Log);
 
-      m_Instrumentation = FactoryUtils.MakeAndConfigureDirectedComponent<IInstrumentationChronicleStoreLogicImplementation>(this,
-                                 node[CONFIG_INSTRUMENTATION_STORE_SECTION].NonEmpty(CONFIG_INSTRUMENTATION_STORE_SECTION));
+        m_Instrumentation = FactoryUtils.MakeAndConfigureDirectedComponent<IInstrumentationChronicleStoreLogicImplementation>(this,
+                                  node[CONFIG_INSTRUMENTATION_STORE_SECTION].NonEmpty(CONFIG_INSTRUMENTATION_STORE_SECTION));
+        App.InjectInto(m_Instrumentation);
+      }
     }
 
     protected override bool DoApplicationAfterInit()
