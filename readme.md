@@ -15,7 +15,7 @@ necessary for creation of **typical business** to **Facebook-scale** application
 
 [Azos Documentation Index](/src/documentation-index.md)
 
-Azos includes::
+Azos includes:
 - Application chassis (component hierarchy container)
 - Configuration (supports external cluster configuration)
 - DI
