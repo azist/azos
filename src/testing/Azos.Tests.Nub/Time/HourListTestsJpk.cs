@@ -86,10 +86,5 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual(1, got.Spans.Count());
     }
 
-
-
-    //Build failed?
-    //todo:  parse, try parse,  exceptions, JSOPn serialization, refactor exception constant
-
   }
 }
