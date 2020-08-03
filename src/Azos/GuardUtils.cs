@@ -256,6 +256,25 @@ namespace Azos
     }
 
     /// <summary>
+    /// Ensures that the value is not null and can be type-casted to TResult, then performs type cast
+    /// throwing CallGuardException otherwise
+    /// </summary>
+    public static TResult ValueAsType<TResult>(this object value,
+                               string name = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null)
+    {
+      if (value is TResult result) return result;
+
+      var callSite = callSiteOf(callFile, callLine, callMember);
+      throw new CallGuardException(callSite,
+                                  name,
+                                  StringConsts.GUARDED_CLAUSE_TYPECAST_ERROR
+                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, typeof(TResult).DisplayNameWithExpandedGenericArgs()));
+    }
+
+    /// <summary>
     /// Ensures that a config node value is non-null existing node
     /// </summary>
     public static T NonEmpty<T>(this T node,
