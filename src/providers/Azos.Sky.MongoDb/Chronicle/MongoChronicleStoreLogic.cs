@@ -50,6 +50,7 @@ namespace Azos.Sky.Chronicle.Server
       base.Destructor();
     }
 
+#pragma warning disable 0649
     [Inject] IGdidProviderModule m_Gdid;
 
     private string m_GdidScopeName;
@@ -68,7 +69,7 @@ namespace Azos.Sky.Chronicle.Server
 
     [Config]
     private string m_CsInstrDatabase;
-
+#pragma warning restore 0649
 
     public override string ComponentLogTopic => CoreConsts.INSTRUMENTATION_TOPIC;
 
