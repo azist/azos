@@ -94,7 +94,12 @@ namespace Azos.Data
 
         if (pi.Name==nameof(ValueList))
         {
-          if (!self.HasValueList)
+          if (self.ValueList==null && self.PropertyWasAssigned(nameof(ValueList)))//explicit reset
+          {
+            self.ValueList = null;
+            continue;
+          }
+          else if (!self.HasValueList)
             self.ValueList = parent.ValueList;
           else if (parent.HasValueList)
           { //merge

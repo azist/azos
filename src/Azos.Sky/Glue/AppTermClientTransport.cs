@@ -105,7 +105,7 @@ namespace Azos.Sky.Glue
       {
         var errorContent = map["error-content"].AsString();
         if (errorContent!=null)
-          returnValue =  WrappedExceptionData.FromBase64(errorContent);
+          returnValue =  JsonReader.ToDoc<WrappedExceptionData>(errorContent);
         else
           returnValue = new Contracts.RemoteTerminalInfo(map);
 

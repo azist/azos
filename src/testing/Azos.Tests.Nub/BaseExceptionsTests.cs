@@ -18,7 +18,7 @@ namespace Azos.Tests.Nub
   {
 
     [Run]
-    public void WrappedExceptionData_BSON()
+    public void WrappedExceptionData_JSON()
     {
       try
       {
@@ -27,18 +27,12 @@ namespace Azos.Tests.Nub
       catch(Exception caught)
       {
         var wed = new WrappedExceptionData(caught);
-        var ser = new Azos.Serialization.BSON.BSONSerializer();
 
-        var doc = ser.Serialize(wed);
+        var json = wed.ToJson(JsonWritingOptions.CompactRowsAsMap);
 
-        var wed2 = new WrappedExceptionData();
-        object ctx = null;
-        wed2.DeserializeFromBSON(ser, doc, ref ctx);
+        json.See();
 
-        Console.WriteLine();
-        Console.WriteLine($"BSON:");
-        Console.WriteLine($"-----------------------------");
-        Console.WriteLine(doc.ToJson());
+        var wed2 = JsonReader.ToDoc<WrappedExceptionData>(json);
 
         averWrappedExceptionEquality(wed, wed2);
       }
@@ -73,28 +67,6 @@ namespace Azos.Tests.Nub
       }
     }
 
-
-    [Run]
-    public void WrappedExceptionData_BASE64()
-    {
-      try
-      {
-        throw new AzosException("Oy vei!", new AzosException("Inside")){ Code = 223322, Source = "Karlson" };
-      }
-      catch(Exception caught)
-      {
-        var wed = new WrappedExceptionData(caught);
-        var base64 = wed.ToBase64();
-
-        Console.WriteLine();
-        Console.WriteLine($"Base64 {base64.Length} bytes:");
-        Console.WriteLine($"-----------------------------");
-        Console.WriteLine(base64);
-
-        var wed2 = WrappedExceptionData.FromBase64(base64);
-        averWrappedExceptionEquality(wed, wed2);
-      }
-    }
 
     private void averWrappedExceptionEquality(WrappedExceptionData d1, WrappedExceptionData d2)
     {

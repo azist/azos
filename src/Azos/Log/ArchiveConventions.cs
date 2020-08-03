@@ -56,7 +56,7 @@ namespace Azos.Log
     }
 
     /// <summary>
-    /// Returns a terse json object encoding into string, or null if supplied argument is null.
+    /// Returns a terse json object encoded into a string, or null if the supplied argument is null.
     /// The encoded string is prefixed with AD_HASHBANG to mark the content as the one
     /// encoded with this convention
     /// </summary>

@@ -43,6 +43,10 @@ namespace Azos.Wave
         ats_Current.Value = this;
         Apps.ExecutionContext.__SetThreadLevelCallContext(this);
         Interlocked.Increment(ref m_Server.m_stat_WorkContextCtor);
+
+        var flowHdr = m_Server.CallFlowHeader;
+        if (flowHdr.IsNotNullOrWhiteSpace())
+          m_ListenerContext.Response.AddHeader(flowHdr, m_ID.ToString());
       }
 
       /// <summary>

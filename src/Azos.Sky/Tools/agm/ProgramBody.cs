@@ -53,8 +53,21 @@ namespace Azos.Sky.Tools.agm
           return;
         }
 
+        IGdidAuthorityAccessor accessor = null;
+        string connectToAuthority = null;
         var authority = app.CommandArgs.AttrByIndex(0).Value;
-        var connectToAuthority = authority.ToResolvedServiceNode(false).ConnectString;
+
+        if (authority.StartsWith("@"))//use accessor instead
+        {
+          authority = authority.Remove(0, 1);
+          var cfg = authority.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+          accessor = FactoryUtils.MakeAndConfigureComponent<IGdidAuthorityAccessor>(app, cfg);
+        }
+        else
+        {
+          connectToAuthority = authority.ToResolvedServiceNode(false).ConnectString;
+        }
+
         var scope = app.CommandArgs.AttrByIndex(1).Value;
         var seq = app.CommandArgs.AttrByIndex(2).Value;
         var bsize = app.CommandArgs.AttrByIndex(3).ValueAsInt(1);
@@ -62,7 +75,7 @@ namespace Azos.Sky.Tools.agm
         if (!silent)
         {
           ConsoleUtils.Info("Authority:  " + authority);
-          ConsoleUtils.Info("Connect to: " + connectToAuthority);
+          ConsoleUtils.Info(accessor!=null ? ("Connect via: {0}" + accessor.GetType().Name) : ("Connect to: {0}" + connectToAuthority));
           ConsoleUtils.Info("Scope:      " + scope);
           ConsoleUtils.Info("Sequence:   " + seq);
           ConsoleUtils.Info("Block Size: " + bsize);
@@ -72,8 +85,11 @@ namespace Azos.Sky.Tools.agm
 
         var w = System.Diagnostics.Stopwatch.StartNew();
 
-        var generator = new GdidGenerator(app);
-        generator.AuthorityHosts.Register(new GdidGenerator.AuthorityHost(app, connectToAuthority));
+        var generator = new GdidGenerator(app, accessor);
+        if (connectToAuthority.IsNotNullOrWhiteSpace())
+        {
+            generator.AuthorityHosts.Register(new GdidGenerator.AuthorityHost(app, connectToAuthority));
+        }
 
 
         var json = app.CommandArgs["j", "json"].Exists;
@@ -110,6 +126,9 @@ namespace Azos.Sky.Tools.agm
           Console.WriteLine();
           ConsoleUtils.Info("Run time: " + w.Elapsed.ToString());
         }
+
+        DisposableObject.DisposeAndNull(ref generator);
+        DisposableObject.DisposeIfDisposableAndNull(ref accessor);
       }//using APP
 
     }

@@ -17,7 +17,7 @@ namespace Azos.Data.AST
     /// <summary>
     /// Implements a visitor pattern in XlatContext (translation context)
     /// </summary>
-    public abstract void Accept(XlatContext ctx);
+    public abstract object Accept(XlatContext ctx);
   }
 
   /// <summary>
@@ -41,7 +41,7 @@ namespace Azos.Data.AST
     [Field(description: "Provides an optional type hint for the value, typically type system CNAME(Canonical Name) for example a `utctime` hint may be used to decorate a string value to treat is as a UTC DateTime value")]
     public string TypeHint{  get; set; }
 
-    public override void Accept(XlatContext ctx)
+    public override object Accept(XlatContext ctx)
      => ctx.Visit(this);
   }
 
@@ -53,7 +53,7 @@ namespace Azos.Data.AST
     [Field(description: "An array of ValueExpressions; as the ones used with IN in SQL etc")]
     public IEnumerable<ValueExpression> ArrayValue { get; set; }
 
-    public override void Accept(XlatContext ctx)
+    public override object Accept(XlatContext ctx)
      => ctx.Visit(this);
   }
 
@@ -65,7 +65,7 @@ namespace Azos.Data.AST
     [Field(required: true, MinLength = 1, Description = "Represents an identifier, such as a column/field name")]
     public string Identifier { get; set; }
 
-    public override void Accept(XlatContext ctx)
+    public override object Accept(XlatContext ctx)
      => ctx.Visit(this);
   }
 
@@ -78,7 +78,7 @@ namespace Azos.Data.AST
     [Field(required: true, Description = "A single operand of the unary operator")]
     public Expression Operand { get; set; }
 
-    public override void Accept(XlatContext ctx) => ctx.Visit(this);
+    public override object Accept(XlatContext ctx) => ctx.Visit(this);
   }
 
   /// <summary>
@@ -92,7 +92,7 @@ namespace Azos.Data.AST
     [Field(required: true, Description = "Right operand of the binary operator")]
     public Expression RightOperand { get; set; }
 
-    public override void Accept(XlatContext ctx) => ctx.Visit(this);
+    public override object Accept(XlatContext ctx) => ctx.Visit(this);
   }
 
 

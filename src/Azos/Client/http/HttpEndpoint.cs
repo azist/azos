@@ -178,7 +178,8 @@ namespace Azos.Client
 
     public override void NotifyCallSuccess(ITransport transport)
     {
-      throw new NotImplementedException();
+      //throw new NotImplementedException();
+      //reset circuit breaker etc...
     }
 
   }

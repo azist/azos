@@ -477,16 +477,27 @@ namespace Azos.Apps
       //try to read from  /config file
       var configFile = m_CommandArgs[CONFIG_SWITCH].AttrByIndex(0).Value;
 
-      if (string.IsNullOrEmpty(configFile))
-          configFile = GetDefaultConfigFileName();
+      var confWasSpecified = true;
+      if (configFile.IsNullOrWhiteSpace())
+      {
+        configFile = GetDefaultConfigFileName();
+        confWasSpecified = false;
+      }
 
 
       Configuration conf;
 
       if (File.Exists(configFile))
-          conf = Configuration.ProviderLoadFromFile(configFile);
+      {
+        conf = Configuration.ProviderLoadFromFile(configFile);
+      }
       else
-          conf = new MemoryConfiguration();
+      {
+        if (confWasSpecified)
+          throw new AzosException(StringConsts.APP_INJECTED_CONFIG_FILE_NOT_FOUND_ERROR.Args(configFile, CONFIG_SWITCH));
+
+        conf = new MemoryConfiguration();
+      }
 
       conf.Application = this;
 

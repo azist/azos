@@ -89,6 +89,9 @@ namespace Azos.Tests.Nub.DataAccess
         c:  cherry  ,
         z: #del# ")]
       [Field("L2", "L1", ValueList = "z: zoom", Default = "Uncle Toad", Description = "luna")]
+      [Field("L3", "L2")]//still has the same value list
+      [Field("L4", "L3", ValueList = null)]//<------------------- reset value list
+      [Field("L5", "L4", ValueList = "a: another, z: zima")]//completely different value
       public string Data1 { get; set; }
 
       [Field(description: "About2", valueList: "dct: doctor; car: car")]
@@ -133,6 +136,7 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual("zukini", def1["L2"].ParseValueList()["zuk"].AsString());
       Aver.AreEqual("Uncle Toad", def1["L2"].Default as string);
 
+
       Aver.AreEqual("About2", def2[null].Description);
       Aver.AreEqual(2,        def2[null].ParseValueList().Count);
       Aver.AreEqual("doctor", def2[null].ParseValueList()["dct"].AsString());
@@ -149,6 +153,44 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual("mar",       def2["JVC"].ParseValueList()["bar"].AsString());
       Aver.AreEqual("self",      def2["JVC"].ParseValueList()["dct"].AsString());
     }
+
+    [Run]
+    public void ValueLists_Reset()
+    {
+      var schema = Schema.GetForTypedDoc<ValListDoc>();
+      Aver.AreEqual(2, schema.FieldCount);
+      var def1 = schema["Data1"];
+      Aver.IsNotNull(def1);
+
+      Aver.IsTrue(def1[null].HasValueList);
+      Aver.IsTrue(def1["L1"].HasValueList);
+      Aver.IsTrue(def1["L2"].HasValueList);
+      Aver.IsTrue(def1["L3"].HasValueList);
+      Aver.IsFalse(def1["L4"].HasValueList);
+      Aver.IsTrue(def1["L5"].HasValueList);
+
+      Aver.AreEqual(4, def1[null].ParseValueList().Count);
+      Aver.AreEqual(4, def1["L1"].ParseValueList().Count);
+      Aver.AreEqual(5, def1["L2"].ParseValueList().Count);
+      Aver.AreEqual(5, def1["L3"].ParseValueList().Count);
+      Aver.AreEqual(0, def1["L4"].ParseValueList().Count);
+      Aver.AreEqual(2, def1["L5"].ParseValueList().Count);
+
+      Aver.AreEqual("apple", def1[null].ParseValueList()["a"].AsString());
+      Aver.AreEqual("advaita", def1["L1"].ParseValueList()["a"].AsString());
+      Aver.AreEqual("advaita", def1["L2"].ParseValueList()["a"].AsString());
+      Aver.AreEqual("advaita", def1["L3"].ParseValueList()["a"].AsString());
+      Aver.IsNull(def1["L4"].ParseValueList()["a"]);
+      Aver.AreEqual("another", def1["L5"].ParseValueList()["a"].AsString());
+
+      Aver.AreEqual("zukini", def1[null].ParseValueList()["z"].AsString());
+      Aver.AreEqual(null, def1["L1"].ParseValueList()["z"].AsString());
+      Aver.AreEqual("zoom", def1["L2"].ParseValueList()["z"].AsString());
+      Aver.AreEqual("zoom", def1["L3"].ParseValueList()["z"].AsString());
+      Aver.AreEqual(null, def1["L4"].ParseValueList()["z"].AsString());
+      Aver.AreEqual("zima", def1["L5"].ParseValueList()["z"].AsString());
+    }
+
 
     public class MetadataDoc : TypedDoc
     {

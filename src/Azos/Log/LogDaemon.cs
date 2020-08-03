@@ -49,7 +49,7 @@ namespace Azos.Log
     /// <summary>
     /// Creates a new logging daemon instance
     /// </summary>
-    public LogDaemon(Daemon director) : base(director) {}
+    public LogDaemon(IApplicationComponent director) : base(director) {}
 
     #endregion
 

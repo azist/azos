@@ -73,6 +73,8 @@ namespace Azos.Wave
 
       public const string DEFAULT_CLIENT_VARS_COOKIE_NAME = "WV.CV";
 
+      public const string DEFAUL_CALL_FLOW_HEADER = "wv-call-flow";
+
       public const int ACCEPT_THREAD_GRANULARITY_MS = 250;
 
       public const int INSTRUMENTATION_DUMP_PERIOD_MS = 3377;
@@ -125,69 +127,69 @@ namespace Azos.Wave
 
     private string m_EnvironmentName;
 
-      private int m_KernelHttpQueueLimit = DEFAULT_KERNEL_HTTP_QUEUE_LIMIT;
-      private int m_ParallelAccepts = DEFAULT_PARALLEL_ACCEPTS;
-      private int m_ParallelWorks = DEFAULT_PARALLEL_WORKS;
+    private int m_KernelHttpQueueLimit = DEFAULT_KERNEL_HTTP_QUEUE_LIMIT;
+    private int m_ParallelAccepts = DEFAULT_PARALLEL_ACCEPTS;
+    private int m_ParallelWorks = DEFAULT_PARALLEL_WORKS;
 
-      private ushort m_DrainEntityBodyTimeoutSec = DEFAULT_DRAIN_ENTITY_BODY_TIMEOUT_SEC;
-      private ushort m_EntityBodyTimeoutSec      = DEFAULT_ENTITY_BODY_TIMEOUT_SEC;
-      private ushort m_HeaderWaitTimeoutSec      = DEFAULT_HEADER_WAIT_TIMEOUT_SEC;
-      private ushort m_IdleConnectionTimeoutSec  = DEFAULT_IDLE_CONNECTION_TIMEOUT_SEC;
-      private ushort m_RequestQueueTimeoutSec    = DEFAULT_REQUEST_QUEUE_TIMEOUT_SEC;
-      private uint   m_MinSendBytesPerSecond     = DEFAULT_MIN_SEND_BYTES_PER_SECOND;
+    private ushort m_DrainEntityBodyTimeoutSec = DEFAULT_DRAIN_ENTITY_BODY_TIMEOUT_SEC;
+    private ushort m_EntityBodyTimeoutSec      = DEFAULT_ENTITY_BODY_TIMEOUT_SEC;
+    private ushort m_HeaderWaitTimeoutSec      = DEFAULT_HEADER_WAIT_TIMEOUT_SEC;
+    private ushort m_IdleConnectionTimeoutSec  = DEFAULT_IDLE_CONNECTION_TIMEOUT_SEC;
+    private ushort m_RequestQueueTimeoutSec    = DEFAULT_REQUEST_QUEUE_TIMEOUT_SEC;
+    private uint   m_MinSendBytesPerSecond     = DEFAULT_MIN_SEND_BYTES_PER_SECOND;
 
-      private HttpListener m_Listener;
-      private bool m_IgnoreClientWriteErrors = true;
-      private bool m_LogHandleExceptionErrors;
-      private EventedList<string, WaveServer> m_Prefixes;
+    private HttpListener m_Listener;
+    private bool m_IgnoreClientWriteErrors = true;
+    private bool m_LogHandleExceptionErrors;
+    private EventedList<string, WaveServer> m_Prefixes;
 
-      private Thread m_AcceptThread;
-      private Thread m_InstrumentationThread;
-      private AutoResetEvent m_InstrumentationThreadWaiter;
+    private Thread m_AcceptThread;
+    private Thread m_InstrumentationThread;
+    private AutoResetEvent m_InstrumentationThreadWaiter;
 
-      private Semaphore m_AcceptSemaphore;
-      internal Semaphore m_WorkSemaphore;
+    private Semaphore m_AcceptSemaphore;
+    internal Semaphore m_WorkSemaphore;
 
-      private INetGate m_Gate;
-      private WorkDispatcher m_Dispatcher;
+    private INetGate m_Gate;
+    private WorkDispatcher m_Dispatcher;
 
-      private string m_ClientVarsCookieName;
+    private string m_ClientVarsCookieName;
 
-      private OrderedRegistry<WorkMatch> m_ErrorShowDumpMatches = new OrderedRegistry<WorkMatch>();
-      private OrderedRegistry<WorkMatch> m_ErrorLogMatches = new OrderedRegistry<WorkMatch>();
+    private OrderedRegistry<WorkMatch> m_ErrorShowDumpMatches = new OrderedRegistry<WorkMatch>();
+    private OrderedRegistry<WorkMatch> m_ErrorLogMatches = new OrderedRegistry<WorkMatch>();
 
 
-      //*Instrumentation Statistics*//
-      internal bool m_InstrumentationEnabled;
+    //*Instrumentation Statistics*//
+    internal bool m_InstrumentationEnabled;
 
-          internal long m_stat_ServerRequest;
-          internal long m_stat_ServerGateDenial;
-          internal long m_stat_ServerHandleException;
-          internal long m_stat_FilterHandleException;
+    internal long m_stat_ServerRequest;
+    internal long m_stat_ServerGateDenial;
+    internal long m_stat_ServerHandleException;
+    internal long m_stat_FilterHandleException;
 
-          internal long m_stat_ServerAcceptSemaphoreCount;
-          internal long m_stat_ServerWorkSemaphoreCount;
+    internal long m_stat_ServerAcceptSemaphoreCount;
+    internal long m_stat_ServerWorkSemaphoreCount;
 
-          internal long m_stat_WorkContextWrittenResponse;
-          internal long m_stat_WorkContextBufferedResponse;
-          internal long m_stat_WorkContextBufferedResponseBytes;
-          internal long m_stat_WorkContextCtor;
-          internal long m_stat_WorkContextDctor;
-          internal long m_stat_WorkContextWorkSemaphoreRelease;
-          internal long m_stat_WorkContextAborted;
-          internal long m_stat_WorkContextHandled;
-          internal long m_stat_WorkContextNoDefaultClose;
-          internal long m_stat_WorkContextNeedsSession;
+    internal long m_stat_WorkContextWrittenResponse;
+    internal long m_stat_WorkContextBufferedResponse;
+    internal long m_stat_WorkContextBufferedResponseBytes;
+    internal long m_stat_WorkContextCtor;
+    internal long m_stat_WorkContextDctor;
+    internal long m_stat_WorkContextWorkSemaphoreRelease;
+    internal long m_stat_WorkContextAborted;
+    internal long m_stat_WorkContextHandled;
+    internal long m_stat_WorkContextNoDefaultClose;
+    internal long m_stat_WorkContextNeedsSession;
 
-          internal long m_stat_SessionNew;
-          internal long m_stat_SessionExisting;
-          internal long m_stat_SessionEnd;
-          internal long m_stat_SessionInvalidID;
+    internal long m_stat_SessionNew;
+    internal long m_stat_SessionExisting;
+    internal long m_stat_SessionEnd;
+    internal long m_stat_SessionInvalidID;
 
-          internal long m_stat_GeoLookup;
-          internal long m_stat_GeoLookupHit;
+    internal long m_stat_GeoLookup;
+    internal long m_stat_GeoLookupHit;
 
-          internal NamedInterlocked m_stat_PortalRequest = new NamedInterlocked();
+    internal NamedInterlocked m_stat_PortalRequest = new NamedInterlocked();
 
     #endregion
 
@@ -215,6 +217,12 @@ namespace Azos.Wave
           m_EnvironmentName = value;
         }
       }
+
+      /// <summary>
+      /// Optional name of header used for disclosure of WorkContext.ID. If set to null, suppresses the header
+      /// </summary>
+      [Config(Default = DEFAUL_CALL_FLOW_HEADER)]
+      public string CallFlowHeader { get; set;} = DEFAUL_CALL_FLOW_HEADER;
 
       /// <summary>
       /// Provides the name of cookie where server keeps client vars

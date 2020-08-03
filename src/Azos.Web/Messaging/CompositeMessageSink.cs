@@ -87,7 +87,7 @@ namespace Azos.Web.Messaging
       catch (Exception error)
       {
         AbortStart();
-        App.Log.Write(MessageType.CatastrophicError, error.ToMessageWithType(), "DoStart() exception", "CompositeMessageSink");
+        WriteLog(MessageType.CatastrophicError, nameof(DoStart), error.ToMessageWithType(), error);
         throw error;
       }
     }
@@ -102,7 +102,7 @@ namespace Azos.Web.Messaging
       }
       catch (Exception error)
       {
-        App.Log.Write(MessageType.CatastrophicError, error.ToMessageWithType(), "DoSignalStop() exception", "CompositeMessageSink");
+        WriteLog(MessageType.CatastrophicError, nameof(DoSignalStop), error.ToMessageWithType(), error);
         throw error;
       }
     }
@@ -117,7 +117,7 @@ namespace Azos.Web.Messaging
       }
       catch (Exception error)
       {
-        App.Log.Write(MessageType.CatastrophicError, error.ToMessageWithType(), "DoWaitForCompleteStop() exception", "CompositeMessageSink");
+        WriteLog(MessageType.CatastrophicError, nameof(DoWaitForCompleteStop), error.ToMessageWithType(), error);
         throw error;
       }
     }

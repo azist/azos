@@ -18,7 +18,7 @@ namespace Azos.Tests.Unit.Sky.Identification
 
     public void Prologue(Runner runner, FID id)
     {
-      m_Mock = new MockGdidAuthorityAccessor();
+      m_Mock = new MockGdidAuthorityAccessor(NOPApplication.Instance);
       m_Gen = new GdidGenerator(NOPApplication.Instance, m_Mock);
     }
 

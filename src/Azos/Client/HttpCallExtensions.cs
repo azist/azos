@@ -30,11 +30,13 @@ namespace Azos.Client
       var assignments = service.NonNull(nameof(service))
                                .GetEndpointsForCall(remoteAddress, contract, shardKey, network, binding);
 
-      var tries = 1;
+      var tries = 0;
       List<Exception> errors = null;
       foreach(var assigned in assignments)
       {
         if (!assigned.Endpoint.IsAvailable) continue;//offline or Circuit tripped  todo:  instrument
+
+        tries++;
 
         var ep = assigned.Endpoint as IEndpointImplementation;
 
@@ -66,11 +68,9 @@ namespace Azos.Client
         {
           service.ReleaseTransport(transport);
         }
-
-        tries++;
       }//foreach
 
-      throw new ClientException("Call eventually failed; {0} endpoints tried; See .InnerException".Args(tries),
+      throw new ClientException(StringConsts.HTTP_CLIENT_CALL_FAILED.Args(service.GetType().Name, remoteAddress.TakeLastChars(32, "..."), tries),
                                 errors != null ? new AggregateException(errors) :
                                                  new AggregateException("No inner errors"));//todo LOG etc...
     }

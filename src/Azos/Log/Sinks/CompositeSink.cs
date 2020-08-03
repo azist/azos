@@ -79,7 +79,7 @@ namespace Azos.Log.Sinks
         }
         catch (Exception error)
         {
-          throw new AzosException(
+          throw new LogException(
                 StringConsts.LOGDAEMON_SINK_START_ERROR.Args(Name, sink.Name, sink.TestOnStart, error.Message),
                 error);
         }

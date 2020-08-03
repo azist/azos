@@ -5,7 +5,9 @@
    agm <f color=green>auth_node scope sequence [block_size]<f color=darkCyan>[/h | /? | /help]
               [/s | /silent]
 
- <f color=green>auth_node<f color=gray> - Authority glue node (i.e. "async://127.0.0.1:2300")
+ <f color=green>auth_node<f color=gray> - Either authority glue node (e.g. "async://127.0.0.1:2300")
+  or Laconic config vector for IGdidAuthorityAccessor implementation
+  The config content must start with a single `@`
  <f color=green>scope<f color=gray> - Sequence scope name (namespace)
  <f color=green>sequence<f color=gray> - Name of sequence
  <f color=green>block_size<f color=gray> - Howe many values to reserve at once
@@ -24,5 +26,10 @@
 <f color=yellow>
   agm "async://192.168.1.123:2300" DEV patient 25 <f color=gray>
 Get next 25 'patient' sequence values in the scope 'DEV'
+
+
+<f color=yellow>
+  agm "@type='MySystem.MyGdidAuthorityAccessor, MyAssembly' ....." DEV patient 25 <f color=gray>
+Get next 25 'patient' sequence values in the scope 'DEV' accessing authority using the specified accessor type
 
 <pop>
