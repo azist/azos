@@ -21,51 +21,59 @@ namespace Azos.Sky.Chronicle.Server
     {
       var query = new Query();
 
-      var andNodes = new List<BSONElement>();
+      var andNodes = new List<BSONDocumentElement>();
+
+      void add(BSONElement elm) => andNodes.Add(new BSONDocumentElement(new BSONDocument().Set(elm)));
+
+
+      if (!filter.Gdid.IsZero)
+      {
+        add(DataDocConverter.GDID_CLRtoBSON(BsonConvert.FLD_GDID, filter.Gdid) );
+      }
 
       if (filter.Id.HasValue)
       {
-        andNodes.Add(DataDocConverter.GUID_CLRtoBSON(BsonConvert.FLD_GUID, filter.Id.Value));
+        add(DataDocConverter.GUID_CLRtoBSON(BsonConvert.FLD_GUID, filter.Id.Value) );
       }
 
       if (filter.RelId.HasValue)
       {
-        andNodes.Add(DataDocConverter.GUID_CLRtoBSON(BsonConvert.FLD_RELATED_TO, filter.RelId.Value));
+        add(DataDocConverter.GUID_CLRtoBSON(BsonConvert.FLD_RELATED_TO, filter.RelId.Value));
       }
 
       if (filter.Channel.HasValue && !filter.Channel.Value.IsZero)
       {
-        andNodes.Add(new BSONInt64Element(BsonConvert.FLD_CHANNEL, (long)filter.Channel.Value.ID));
+        add(new BSONInt64Element(BsonConvert.FLD_CHANNEL, (long)filter.Channel.Value.ID));
       }
 
       if (filter.Application.HasValue && !filter.Application.Value.IsZero)
       {
-        andNodes.Add(new BSONInt64Element(BsonConvert.FLD_APP, (long)filter.Application.Value.ID));
+        add(new BSONInt64Element(BsonConvert.FLD_APP, (long)filter.Application.Value.ID));
       }
 
       if (filter.TimeRange.HasValue && filter.TimeRange.Value.Start.HasValue)
       {
-        andNodes.Add(new BSONDocumentElement(BsonConvert.FLD_TIMESTAMP, new BSONDocument().Set(new BSONDateTimeElement("$gte", filter.TimeRange.Value.Start.Value)) ));
+        add(new BSONDocumentElement(BsonConvert.FLD_TIMESTAMP, new BSONDocument().Set(new BSONDateTimeElement("$gte", filter.TimeRange.Value.Start.Value)) ));
       }
 
       if (filter.TimeRange.HasValue && filter.TimeRange.Value.End.HasValue)
       {
-        andNodes.Add(new BSONDocumentElement(BsonConvert.FLD_TIMESTAMP, new BSONDocument().Set(new BSONDateTimeElement("$lte", filter.TimeRange.Value.End.Value))));
+        add(new BSONDocumentElement(BsonConvert.FLD_TIMESTAMP, new BSONDocument().Set(new BSONDateTimeElement("$lte", filter.TimeRange.Value.End.Value))));
       }
 
 
       if (filter.MinType.HasValue)
       {
-        andNodes.Add(new BSONDocumentElement(BsonConvert.FLD_TYPE, new BSONDocument().Set(new BSONInt32Element("$gte", (int)filter.MinType.Value))));
+        add(new BSONDocumentElement(BsonConvert.FLD_TYPE, new BSONDocument().Set(new BSONInt32Element("$gte", (int)filter.MinType.Value))));
       }
 
       if (filter.MaxType.HasValue)
       {
-        andNodes.Add(new BSONDocumentElement(BsonConvert.FLD_TYPE, new BSONDocument().Set(new BSONInt32Element("$lte", (int)filter.MaxType.Value))));
+        add(new BSONDocumentElement(BsonConvert.FLD_TYPE, new BSONDocument().Set(new BSONInt32Element("$lte", (int)filter.MaxType.Value))));
       }
 
-
-      query.Set(new BSONArrayElement("$and", andNodes.ToArray()));
+      if (andNodes.Count > 0)
+       query.Set(new BSONArrayElement("$and", andNodes.ToArray()));
 
       //todo: Finish the Advanced filter
       //var ctx = m_LogXlat.TranslateInContext(filter.AdvancedFilter);

@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.4.13
+set VER=1.4.14
 set HEADLINE=Log Chronicles RTM
 call vs2017-build-release %VER%
 
