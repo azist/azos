@@ -35,8 +35,8 @@ namespace Azos.Sky.Chronicle.Server
       base.Destructor();
     }
 
-    private ILogChronicleStoreLogicImplementation m_Log;
-    private IInstrumentationChronicleStoreLogicImplementation m_Instrumentation;
+    private ILogChronicleStoreImplementation m_Log;
+    private IInstrumentationChronicleStoreImplementation m_Instrumentation;
 
 
     public override bool IsHardcodedModule => false;
@@ -55,19 +55,16 @@ namespace Azos.Sky.Chronicle.Server
       var nStore = node[CONFIG_STORE_SECTION];
       if (nStore.Exists)
       {
-        m_Log = FactoryUtils.MakeAndConfigureDirectedComponent<ILogChronicleStoreLogicImplementation>(this, nStore);
-        m_Instrumentation = m_Log.ValueAsType<IInstrumentationChronicleStoreLogicImplementation>("cfg section `{0}`".Args(CONFIG_STORE_SECTION));
-        App.InjectInto(m_Log);
+        m_Log = FactoryUtils.MakeAndConfigureDirectedComponent<ILogChronicleStoreImplementation>(this, nStore);
+        m_Instrumentation = m_Log.CastTo<IInstrumentationChronicleStoreImplementation>("cfg section `{0}`".Args(CONFIG_STORE_SECTION));
       }
       else
       {
-        m_Log = FactoryUtils.MakeAndConfigureDirectedComponent<ILogChronicleStoreLogicImplementation>(this,
+        m_Log = FactoryUtils.MakeAndConfigureDirectedComponent<ILogChronicleStoreImplementation>(this,
                                   node[CONFIG_LOG_STORE_SECTION].NonEmpty(CONFIG_LOG_STORE_SECTION));
-        App.InjectInto(m_Log);
 
-        m_Instrumentation = FactoryUtils.MakeAndConfigureDirectedComponent<IInstrumentationChronicleStoreLogicImplementation>(this,
+        m_Instrumentation = FactoryUtils.MakeAndConfigureDirectedComponent<IInstrumentationChronicleStoreImplementation>(this,
                                   node[CONFIG_INSTRUMENTATION_STORE_SECTION].NonEmpty(CONFIG_INSTRUMENTATION_STORE_SECTION));
-        App.InjectInto(m_Instrumentation);
       }
     }
 
@@ -75,6 +72,17 @@ namespace Azos.Sky.Chronicle.Server
     {
       m_Log.NonNull($"Configured {nameof(m_Log)}").Start();
       m_Instrumentation.NonNull($"Configured {nameof(m_Instrumentation)}").Start();
+
+      App.InjectInto(m_Log);
+      m_Log.Start();
+
+      if (m_Log != m_Instrumentation)
+      {
+        App.InjectInto(m_Instrumentation);
+        m_Instrumentation.Start();
+      }
+
+
       return base.DoApplicationAfterInit();
     }
 
@@ -82,6 +90,7 @@ namespace Azos.Sky.Chronicle.Server
     {
       m_Log.WaitForCompleteStop();
       m_Instrumentation.WaitForCompleteStop();
+
       return base.DoApplicationBeforeCleanup();
     }
 

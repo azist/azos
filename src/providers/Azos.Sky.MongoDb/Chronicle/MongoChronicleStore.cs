@@ -24,7 +24,7 @@ namespace Azos.Sky.Chronicle.Server
   /// <summary>
   /// Implements ILogChronicleStoreLogic and IInstrumentationChronicleStoreLogic using MongoDb
   /// </summary>
-  public sealed class MongoChronicleStoreLogic : Daemon, ILogChronicleStoreLogicImplementation, IInstrumentationChronicleStoreLogicImplementation
+  public sealed class MongoChronicleStore : Daemon, ILogChronicleStoreImplementation, IInstrumentationChronicleStoreImplementation
   {
     public const string CONFIG_BUNDLED_MONGO_SECTION = "bundled-mongo";
 
@@ -41,8 +41,8 @@ namespace Azos.Sky.Chronicle.Server
     public const int FETCH_BY_LOG = 128;
 
 
-    public MongoChronicleStoreLogic(IApplication application) : base(application) { }
-    public MongoChronicleStoreLogic(IModule parent) : base(parent) { }
+    public MongoChronicleStore(IApplication application) : base(application) { }
+    public MongoChronicleStore(IApplicationComponent parent) : base(parent) { }
 
     protected override void Destructor()
     {
@@ -84,7 +84,7 @@ namespace Azos.Sky.Chronicle.Server
       var nbundled = node[CONFIG_BUNDLED_MONGO_SECTION];
       if (nbundled.Exists)
       {
-        m_Bundled = FactoryUtils.MakeAndConfigureDirectedComponent<BundledMongoDb>(this, nbundled);
+        m_Bundled = FactoryUtils.MakeAndConfigureDirectedComponent<BundledMongoDb>(this, nbundled, typeof(BundledMongoDb));
       }
     }
 
