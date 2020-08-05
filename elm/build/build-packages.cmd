@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.4.14
-set HEADLINE=Log Chronicles RTM
+set VER=1.4.15
+set HEADLINE=Log Chronicles RTM, WIP 332,333,334 
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

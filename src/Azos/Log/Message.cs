@@ -322,6 +322,22 @@ namespace Azos.Log
         m_ArchiveDimensions = m_ArchiveDimensions,
       };
 
+
+    protected override object FilterJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, out string name)
+    {
+      if (
+          (def.Name == nameof(RelatedTo) && RelatedTo == Guid.Empty) ||
+          (def.Name == nameof(Channel) && Channel.IsZero) ||
+          (def.Name == nameof(Parameters) && Parameters.IsNullOrWhiteSpace()) ||
+          (def.Name == nameof(ExceptionData) && ExceptionData==null)  ||
+          (def.Name == nameof(ArchiveDimensions) && ArchiveDimensions.IsNullOrWhiteSpace())
+         )
+      {
+        name = null;
+        return null;
+      }
+      return base.FilterJsonSerializerField(def, options, out name);
+    }
   }
 
   public static class MessageExtensions

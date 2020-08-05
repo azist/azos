@@ -13,8 +13,7 @@ namespace Azos.Sky.Identification.Server
 {
 
   /// <summary>
-  /// Implements GDIDAuthority contract trampoline that uses a singleton instance of GDIDAuthorityService to
-  ///  allocate blocks
+  /// Implements GDIDAuthority contract trampoline that uses a IGdidAuthorityModule to allocate blocks
   /// </summary>
   public sealed class GdidAuthority : IGdidAuthority
   {

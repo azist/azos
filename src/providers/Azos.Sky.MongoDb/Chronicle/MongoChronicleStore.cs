@@ -159,6 +159,7 @@ namespace Azos.Sky.Chronicle.Server
           {
             msg.Gdid = m_Gdid.Provider.GenerateOneGdid(scopeName: m_GdidScopeName, sequenceName: COLLECTION_LOG);
           }
+          if (msg.Guid == Guid.Empty) msg.Guid = Guid.NewGuid();
           return BsonConvert.ToBson(msg);
         });
 
