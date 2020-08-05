@@ -53,6 +53,7 @@ namespace Azos.Sky
 
     public const string EXT_PARAM_GROUP_METABASE = "metabase";
     public const string EXT_PARAM_GROUP_WORKER = "worker";
+    public const string EXT_PARAM_GROUP_IDGEN = "idgen";
 
     public const string LOG_TOPIC_METABASE = "mtbs";
     public const string LOG_TOPIC_APP_MANAGEMENT = "AppMgmt";
