@@ -85,7 +85,6 @@ namespace Azos.Tests.Nub.Application
       void TestB();
     }
 
-#pragma warning disable 649
 
     public class ModuleA : ModuleBase, IModuleA
     {
@@ -124,7 +123,6 @@ namespace Azos.Tests.Nub.Application
         Aver.AreEqual("value456789", this.ValueB);
       }
     }
-#pragma warning restore 649
 
   }
 }

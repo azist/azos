@@ -91,9 +91,7 @@ namespace Azos.Tests.Nub.Application
 
     class MyStrat2Impl : Strategy<IMyStratContext>, IMyStrat2
     {
-    #pragma warning disable 0649
       [Inject] IStrategyBinder m_Binder;//dependency
-    #pragma warning restore 0649
 
       public string SomethingElse()
       {

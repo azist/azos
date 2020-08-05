@@ -15,9 +15,7 @@ namespace Azos.Sky.Workers
   [Serializable]
   public abstract class Signal : AmorphousTypedDoc
   {
-#pragma warning disable 649
     [Inject] ISkyApplication m_App;
-#pragma warning restore 649
 
     public ISkyApplication App => m_App.NonNull(nameof(m_App));
 

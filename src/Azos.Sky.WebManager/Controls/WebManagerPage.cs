@@ -48,9 +48,7 @@ namespace Azos.Sky.WebManager.Controls
     private string m_Keywords;
     private string m_Viewport;
 
-#pragma warning disable 649
     [Inject] private ISkyApplication m_App;
-#pragma warning restore 649
 
     public ISkyApplication App => m_App;
     public Localizer Localizer => Localizer.Of(App);

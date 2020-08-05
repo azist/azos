@@ -12,7 +12,7 @@ using Azos.Conf;
 using Azos.Collections;
 using Azos.Log;
 
-namespace Azos.Sky.Identification
+namespace Azos.Sky.Identification.Server
 {
   /// <summary>
   /// Base for GdidAuthority and GdidPersistenceLocation services
@@ -114,9 +114,8 @@ namespace Azos.Sky.Identification
     #endregion
 
     #region .ctor/.dctor
-      protected GdidAuthorityServiceBase(IApplication app) : base(app)
-      {
-      }
+    protected GdidAuthorityServiceBase(IApplication app) : base(app){ }
+    protected GdidAuthorityServiceBase(IApplicationComponent dir) : base(dir) { }
     #endregion
 
     #region Fields

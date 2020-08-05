@@ -13,10 +13,6 @@ using Azos.Time;
 
 namespace Azos.Tests.Nub.Configuration
 {
-    #pragma warning disable 0649,0169
-
-
-
         public enum MyEnum {A,B,C,D}
 
         [Config("MyClass/data")]

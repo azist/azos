@@ -41,21 +41,21 @@ namespace Azos.Sky
       "AUTHORITY = {0}. This is a warning because an extra care should be taken with AUTHORITY assignment";
 
 
-    public const string GDIDAUTH_INSTANCE_ALREADY_ALLOCATED_ERROR = "GDIDAuthorityService instance is already allocated";
-    public const string GDIDAUTH_INSTANCE_NOT_RUNNING_ERROR = "GDIDAuthorityService instance is not running or shutting down";
-    public const string GDIDAUTH_LOCATIONS_CONFIG_ERROR = "GDIDAuthorityServiceBase locations configuration error: ";
+    public const string GDIDAUTH_INSTANCE_ALREADY_ALLOCATED_ERROR = "GdidAuthorityService instance is already allocated";
+    public const string GDIDAUTH_INSTANCE_NOT_RUNNING_ERROR = "GdidAuthorityService instance is not running or shutting down";
+    public const string GDIDAUTH_LOCATIONS_CONFIG_ERROR = "GdidAuthorityServiceBase locations configuration error: ";
     public const string GDIDAUTH_LOCATIONS_READ_FAILURE_ERROR = "GDIDAuthorityServiceBase was not able to read sequence value from any persistence locations. Exception(s): ";
     public const string GDIDAUTH_LOCATION_PERSISTENCE_FAILURE_ERROR = "GDIDAuthorityServiceBase was not able to persist sequence increment in any persistence locations. Exception(s): ";
-    public const string GDIDAUTH_DISK_PATH_TOO_LONG_ERROR = "GDIDAuthorityService can not save sequence, path is too long. Use shorter sequence and scope names. Path: {0}";
-    public const string GDIDAUTH_NAME_INVALID_CHARS_ERROR = "GDIDAuthorityService can not use the supplied name '{0}' as it contains invalid chars. Scope and sequence names, may only contain alphanumeric or ['-','.','_'] chars and may only start from and end with either a Latin letter or a digit";
-    public const string GDIDAUTH_NAME_INVALID_LEN_ERROR = "GDIDAuthorityService can not use the supplied name '{0}' as it is either null/blank or longer than the limit of {1}";
-    public const string GDIDAUTH_IDS_INVALID_AUTHORITY_VALUE_ERROR = "GDIDAuthorityService.AuthorityIDs set to invalid value of '{0}'. An array of at least one element having all of its element values between 0..0x0f is required";
-    public const string GDIDAUTH_ID_DATA_PARSING_ERROR = "GDIDAuthorityService::_id parsing error of '{0}'. Inner: {1}";
-    public const string GDIDAUTH_ERA_EXHAUSTED_ERROR = "GDIDAuthorityService CATASTROPHIC FAILURE scope '{0}', sequence '{1}'. The era is exhausted. No more generation possible";
+    public const string GDIDAUTH_DISK_PATH_TOO_LONG_ERROR = "GdidAuthorityService can not save sequence, path is too long. Use shorter sequence and scope names. Path: {0}";
+    public const string GDIDAUTH_NAME_INVALID_CHARS_ERROR = "GdidAuthorityService can not use the supplied name '{0}' as it contains invalid chars. Scope and sequence names, may only contain alphanumeric or ['-','.','_'] chars and may only start from and end with either a Latin letter or a digit";
+    public const string GDIDAUTH_NAME_INVALID_LEN_ERROR = "GdidAuthorityService can not use the supplied name '{0}' as it is either null/blank or longer than the limit of {1}";
+    public const string GDIDAUTH_IDS_INVALID_AUTHORITY_VALUE_ERROR = "GdidAuthorityService.AuthorityIDs set to invalid value of '{0}'. An array of at least one element having all of its element values between 0..0x0f is required";
+    public const string GDIDAUTH_ID_DATA_PARSING_ERROR = "GdidAuthorityService::_id parsing error of '{0}'. Inner: {1}";
+    public const string GDIDAUTH_ERA_EXHAUSTED_ERROR = "GdidAuthorityService CATASTROPHIC FAILURE scope '{0}', sequence '{1}'. The era is exhausted. No more id generation possible";
 
-    public const string GDIDAUTH_ERA_EXHAUSTED_ALERT = "GDIDAuthorityService CRITICAL ALERT scope '{0}', sequence '{1}'. The era is about to be exhausted";
+    public const string GDIDAUTH_ERA_EXHAUSTED_ALERT = "GdidAuthorityService CRITICAL ALERT scope '{0}', sequence '{1}'. The era is about to be exhausted";
 
-    public const string GDIDAUTH_ERA_PROMOTED_WARNING = "GDIDAuthorityService Era in scope '{0}', sequence '{1}' has been promoted to {2}";
+    public const string GDIDAUTH_ERA_PROMOTED_WARNING = "GdidAuthorityService Era in scope '{0}', sequence '{1}' has been promoted to {2}";
 
 
     public const string HOST_SET_BUILDER_SINGLETON_CONFIG_ERROR =

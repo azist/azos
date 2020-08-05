@@ -11,8 +11,9 @@ using Azos.Conf;
 using Azos.Data;
 
 using Azos.Sky.Contracts;
+using Azos.Apps;
 
-namespace Azos.Sky.Identification
+namespace Azos.Sky.Identification.Server
 {
   /// <summary>
   /// Generates Global Distributed IDs - singleton, only one instance of this service may be allocated per process
@@ -42,6 +43,17 @@ namespace Azos.Sky.Identification
     /// </summary>
     public GdidAuthorityService(IApplication app) : base(app)
     {
+      //singleton is used as a mutex
+      if (!App.Singletons.GetOrCreate(() => this).created)//mutex
+        throw new GdidException(StringConsts.GDIDAUTH_INSTANCE_ALREADY_ALLOCATED_ERROR);
+    }
+
+    /// <summary>
+    /// Creates a singleton instance or throws if instance is already created
+    /// </summary>
+    public GdidAuthorityService(IApplicationComponent dir) : base(dir)
+    {
+      //singleton is used as a mutex
       if (!App.Singletons.GetOrCreate(() => this).created)
         throw new GdidException(StringConsts.GDIDAUTH_INSTANCE_ALREADY_ALLOCATED_ERROR);
     }
@@ -165,11 +177,11 @@ namespace Azos.Sky.Identification
 
         if (value >= GDID.COUNTER_MAX - (ulong)(blockSize + 1))//its time to update ERA (+1 for safeguard/edge case)
         {
-            if (era==uint.MaxValue-4)//ALERT, with some room
+            if (era>=uint.MaxValue - 16)//ALERT, with some room
             {
               WriteLog(MessageType.CriticalAlert, "allocate()", StringConsts.GDIDAUTH_ERA_EXHAUSTED_ALERT.Args(scopeName, sequenceName));
             }
-            if (era==uint.MaxValue) //hard stop
+            if (era==uint.MaxValue - 1) //hard stop
             {
               var txt = StringConsts.GDIDAUTH_ERA_EXHAUSTED_ERROR.Args(scopeName, sequenceName);
               WriteLog(MessageType.CatastrophicError, "allocate()", txt);

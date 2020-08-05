@@ -64,7 +64,7 @@ namespace Azos.Sky.Identification
       var got = await m_Server.Call(AuthorityAddress.NonBlank(nameof(AuthorityAddress)),
                                     nameof(IGdidAuthority),
                                     ++m_Shard,
-                                    (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", args));
+                                    (http, ct) => http.Client.PostAndGetJsonMapAsync("block", args));
 
       var result = JsonReader.ToDoc<GdidBlock>( got.UnwrapPayloadMap() );
 

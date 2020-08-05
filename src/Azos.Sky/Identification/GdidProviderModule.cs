@@ -23,7 +23,7 @@ namespace Azos.Sky.Identification
   }
 
   /// <summary>
-  /// Provides default implementation for GdidGeneratorHost
+  /// Provides default implementation for GdidProviderModule which uses GdidGenerator with remote accessor or LocalGdidGenerator
   /// </summary>
   public sealed class GdidProviderModule : ModuleBase, IGdidProviderModule
   {

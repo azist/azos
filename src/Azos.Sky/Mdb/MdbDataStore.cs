@@ -16,6 +16,7 @@ using Azos.Instrumentation;
 using Azos.Pile;
 
 using Azos.Sky.Identification;
+using Azos.Sky.Identification.Server;
 
 namespace Azos.Sky.Mdb
 {

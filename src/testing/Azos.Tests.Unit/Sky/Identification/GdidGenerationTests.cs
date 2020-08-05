@@ -14,6 +14,7 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Scripting;
 using Azos.Sky.Identification;
+using Azos.Sky.Identification.Server;
 
 namespace Azos.Tests.Unit.Sky.Identification
 {

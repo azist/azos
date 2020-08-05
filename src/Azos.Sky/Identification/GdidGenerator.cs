@@ -410,8 +410,8 @@ namespace Azos.Sky.Identification
       scopeName = scopeName.Trim();
       sequenceName = sequenceName.Trim();
 
-      GdidAuthorityService.CheckNameValidity(scopeName);
-      GdidAuthorityService.CheckNameValidity(sequenceName);
+      Server.GdidAuthorityService.CheckNameValidity(scopeName);
+      Server.GdidAuthorityService.CheckNameValidity(sequenceName);
 
       var scope = m_Scopes.GetOrRegister(scopeName, (snm) => new scope{Name = snm}, scopeName);
 
@@ -499,8 +499,8 @@ namespace Azos.Sky.Identification
       scopeName = scopeName.Trim();
       sequenceName = sequenceName.Trim();
 
-      GdidAuthorityService.CheckNameValidity(scopeName);
-      GdidAuthorityService.CheckNameValidity(sequenceName);
+      Server.GdidAuthorityService.CheckNameValidity(scopeName);
+      Server.GdidAuthorityService.CheckNameValidity(sequenceName);
 
       var scope = m_Scopes.GetOrRegister(scopeName, (snm) => new scope{Name = snm}, scopeName);
 
