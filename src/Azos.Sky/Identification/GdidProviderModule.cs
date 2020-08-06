@@ -27,7 +27,7 @@ namespace Azos.Sky.Identification
     /// <summary>
     /// Returns ScopePrefix that gets appended  before the scope name. In most cases this property is null
     /// </summary>
-    string ScopePrefix{ get; }
+    string ScopePrefix { get; }
 
     /// <summary>
     /// Returns ScopePrefix that gets appended  before the scope name. In most cases this property is null

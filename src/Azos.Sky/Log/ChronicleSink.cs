@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Azos.Log;
 using Azos.Log.Sinks;
 
@@ -50,22 +50,28 @@ namespace Azos.Sky.Log
 
     protected internal override void DoPulse()
     {
-      var batch = new LogBatch
-      {
-        Data = m_ToSend.ToArray()
-      };
+      base.DoPulse();
+
+      if (m_ToSend.Count==0) return;
+
+      var toSend = m_ToSend.ToArray();
 
       if (m_ToSend.Count > BATCH_TRIM)
         m_ToSend = new List<Message>();
       else
         m_ToSend.Clear();
 
+      foreach(var slice in toSend.BatchBy(0xff))
+      {
+        var batch = new LogBatch
+        {
+          Data = slice.ToArray()
+        };
 
-      Chronicle.WriteAsync(batch)
-               .GetAwaiter()
-               .GetResult();
-
-      base.DoPulse();
+        Chronicle.WriteAsync(batch)
+                 .GetAwaiter()
+                 .GetResult();
+      }
     }
 
   }
