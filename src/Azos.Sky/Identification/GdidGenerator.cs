@@ -353,7 +353,7 @@ namespace Azos.Sky.Identification
       if (scopeName==null)
         throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".GetSequenceInfos(scopeName=null)");
 
-      if (m_ScopePrefix!=null)
+      if (m_ScopePrefix.IsNotNullOrWhiteSpace())
         scopeName = m_ScopePrefix + scopeName;
 
       var scope = m_Scopes[scopeName];
@@ -404,8 +404,8 @@ namespace Azos.Sky.Identification
       if (scopeName==null || sequenceName==null)
         throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".GenerateOneGDID(scopeName|sequenceName=null)");
 
-      if (m_ScopePrefix!=null) scopeName = m_ScopePrefix + scopeName;
-      if (m_SequencePrefix!=null) sequenceName = m_SequencePrefix + sequenceName;
+      if (m_ScopePrefix.IsNotNullOrWhiteSpace()) scopeName = m_ScopePrefix + scopeName;
+      if (m_SequencePrefix.IsNotNullOrWhiteSpace()) sequenceName = m_SequencePrefix + sequenceName;
 
       scopeName = scopeName.Trim();
       sequenceName = sequenceName.Trim();
@@ -493,8 +493,8 @@ namespace Azos.Sky.Identification
       if (gdidCount<=0)
         throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".TryGenerateManyConsecutiveGDIDs(gdidCount<=0)");
 
-      if (m_ScopePrefix!=null) scopeName = m_ScopePrefix + scopeName;
-      if (m_SequencePrefix!=null) sequenceName = m_SequencePrefix + sequenceName;
+      if (m_ScopePrefix.IsNotNullOrWhiteSpace()) scopeName = m_ScopePrefix + scopeName;
+      if (m_SequencePrefix.IsNotNullOrWhiteSpace()) sequenceName = m_SequencePrefix + sequenceName;
 
       scopeName = scopeName.Trim();
       sequenceName = sequenceName.Trim();

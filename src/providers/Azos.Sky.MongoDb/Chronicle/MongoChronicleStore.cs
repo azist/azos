@@ -18,6 +18,7 @@ using Azos.Conf;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Sky.Identification;
 using Azos.Apps.Injection;
+using Azos.Sky.Identification.Server;
 
 namespace Azos.Sky.Chronicle.Server
 {
@@ -52,7 +53,6 @@ namespace Azos.Sky.Chronicle.Server
 
     [Inject] IGdidProviderModule m_Gdid;
 
-    private string m_GdidScopeName;
     private Database m_LogDb;
     private Database m_InstrDb;
 
@@ -88,10 +88,6 @@ namespace Azos.Sky.Chronicle.Server
 
     protected override void DoStart()
     {
-      m_GdidScopeName = App.EnvironmentName.NonBlank("App.EnvironmentName configured of `app/$environment-name`");
-
-      WriteLog(MessageType.Info, nameof(DoStart), "Chronicle store is configured with GDID scope `app/$environment-name`: " + m_GdidScopeName);
-
       base.DoStart();
 
       if (m_Bundled != null)
@@ -157,7 +153,7 @@ namespace Azos.Sky.Chronicle.Server
         var bsons = batch.Select(msg => {
           if (msg.Gdid.IsZero)
           {
-            msg.Gdid = m_Gdid.Provider.GenerateOneGdid(scopeName: m_GdidScopeName, sequenceName: COLLECTION_LOG);
+            msg.Gdid = m_Gdid.Provider.GenerateOneGdid(scopeName: SysConsts.GDID_NS_CHRONICLES, sequenceName: COLLECTION_LOG);
           }
           if (msg.Guid == Guid.Empty) msg.Guid = Guid.NewGuid();
           return BsonConvert.ToBson(msg);
