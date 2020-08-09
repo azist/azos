@@ -303,22 +303,25 @@ namespace Azos.Tests.Nub.Time
     }
 
 
-    [Run, Aver.Throws(typeof(TimeException), Message=".null")]
+    [Run, Aver.Throws(typeof(ValidationException), Message="unassigned")]
     public void Error_1()
     {
       var x = new DateRange(null, null);
+      throw x.Validate(new ValidState(null, ValidErrorMode.Single)).Error;
     }
 
-    [Run, Aver.Throws(typeof(TimeException), Message = ".Kind")]
+    [Run, Aver.Throws(typeof(ValidationException), Message = "kinds")]
     public void Error_2()
     {
       var x = new DateRange(new DateTime(1800, 1, 1 ,1,1,1,DateTimeKind.Local), new DateTime(1800, 1, 1, 1, 1, 1, DateTimeKind.Utc));
+      throw x.Validate(new ValidState(null, ValidErrorMode.Single)).Error;
     }
 
-    [Run, Aver.Throws(typeof(TimeException), Message = "<")]
+    [Run, Aver.Throws(typeof(ValidationException), Message = "<")]
     public void Error_3()
     {
       var x = new DateRange(new DateTime(1900, 1, 1), new DateTime(1822, 1, 1));
+      throw x.Validate(new ValidState(null, ValidErrorMode.Single)).Error;
     }
 
 
