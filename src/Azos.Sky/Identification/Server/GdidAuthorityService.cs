@@ -112,7 +112,7 @@ namespace Azos.Sky.Identification.Server
       CheckNameValidity(sequenceName);
 
       if (blockSize<=0)
-        throw new GdidException(StringConsts.ARGUMENT_ERROR+"AllocateBlock(blockSize<=0)");
+        throw new Data.ValidationException(StringConsts.ARGUMENT_ERROR + "AllocateBlock(blockSize<=0)");
 
       scopeName = scopeName.ToUpperInvariant();//different cases for readability
       sequenceName = sequenceName.ToLowerInvariant();

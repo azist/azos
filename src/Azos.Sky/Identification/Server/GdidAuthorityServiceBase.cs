@@ -93,7 +93,7 @@ namespace Azos.Sky.Identification.Server
       {
         if (name.IsNullOrWhiteSpace() ||
             name.Length>MAX_NAME_LENGTH)
-            throw new GdidException(StringConsts.GDIDAUTH_NAME_INVALID_LEN_ERROR.Args(name, MAX_NAME_LENGTH));
+            throw new Data.ValidationException(StringConsts.GDIDAUTH_NAME_INVALID_LEN_ERROR.Args(name, MAX_NAME_LENGTH));
 
         for(var i=0; i<name.Length; i++)
         {
@@ -102,7 +102,7 @@ namespace Azos.Sky.Identification.Server
           if (c>='A' && c<='Z') continue;
           if (c>='a' && c<='z') continue;
           if (i!=0 && (c=='_'||c=='.'||c=='-') && i!=name.Length-1) continue;
-          throw new GdidException(StringConsts.GDIDAUTH_NAME_INVALID_CHARS_ERROR.Args(name));
+          throw new Data.ValidationException(StringConsts.GDIDAUTH_NAME_INVALID_CHARS_ERROR.Args(name));
         }
       }
 
