@@ -30,6 +30,15 @@ namespace Azos.Wave.Filters
     public string DataContextHeader { get; set; }
 
 
+    /// <summary>
+    /// When set, gets used instead of the standard `Authorization` header first, this way
+    /// applications may be called from browsers with MODHeader modules which should not affect other
+    /// applications sensitive to standard Authorization header
+    /// </summary>
+    [Config]
+    public string AltAuthorizationHeader { get ; set;}
+
+
     //disregard onlyExisting parameter, for APIs the session context is ephemeral
     protected internal override void FetchExistingOrMakeNewSession(WorkContext work, bool onlyExisting = false)
      => base.FetchExistingOrMakeNewSession(work, false);
@@ -69,8 +78,18 @@ namespace Azos.Wave.Filters
         }
       }
 
-      var hdr = work.Request.Headers[WebConsts.HTTP_HDR_AUTHORIZATION]?.TrimStart(' ');
-      if (hdr.IsNullOrWhiteSpace()) return session;//unauthorized
+      string hdr = null;
+
+      if (AltAuthorizationHeader.IsNotNullOrWhiteSpace())
+      {
+        hdr = work.Request.Headers[AltAuthorizationHeader]?.TrimStart(' ');
+      }
+
+      if (hdr.IsNullOrWhiteSpace())
+      {
+        hdr = work.Request.Headers[WebConsts.HTTP_HDR_AUTHORIZATION]?.TrimStart(' ');
+        if (hdr.IsNullOrWhiteSpace()) return session;//unauthorized
+      }
 
       Credentials credentials = null;
 
