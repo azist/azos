@@ -60,10 +60,7 @@ namespace Azos.Security
     public SecurityLogMask SecurityLogMask{ get; set;}
     public MessageType SecurityLogLevel { get; set; }
 
-    public Conf.IConfigSectionNode GetUserLogArchiveDimensions(IIdentityDescriptor identity)
-    {
-      return null;
-    }
+    public string GetUserLogArchiveDimensions(IIdentityDescriptor identity) => null;
 
     public void LogSecurityMessage(SecurityLogAction action, Log.Message msg, IIdentityDescriptor identity = null)
     {

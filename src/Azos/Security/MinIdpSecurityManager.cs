@@ -9,41 +9,63 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Data;
 using Azos.Instrumentation;
 using Azos.Log;
 
 namespace Azos.Security
 {
   /// <summary>
-  /// Provides security manager implementation that authenticates and authorizes users from configuration
+  /// Outlines the contract for stores which service MinIdp (Minimum identity provider)
   /// </summary>
-  public class ConfigSecurityManager : DaemonWithInstrumentation<IApplicationComponent>, ISecurityManagerImplementation
+  public interface IMinIdpStore : IApplicationComponent
+  {
+    /// <summary>
+    /// Cache age limit in seconds, set to 0 to disable caching
+    /// </summary>
+    int MaxCacheAgeSec{ get;}
+
+    Task<MinIdpUserData> GetByIdAsync(string id);
+    Task<MinIdpUserData> GetByUriAsync(string uri);
+    Task<MinIdpUserData> GetBySysAsync(SysAuthToken sysId);
+  }
+
+
+  /// <summary>
+  /// Sets contract for DTO - data stored in MinIdp system
+  /// </summary>
+  public sealed class MinIdpUserData
+  {
+    public long SysId { get; set; }
+    public Atom Realm { get; set; }
+    public UserStatus Status { get; set; }
+    public DateTime CreateUtc { get; set;}
+    public DateTime ModifyUtc { get; set; }
+    public DateTime EndUtc    { get; set; }
+    public string Id          { get; set; }
+    public string Password    { get; set; }
+    public string Name        { get; set; }
+    public string Description { get; set; }
+    public string Role        { get; set; }
+    public Rights Rights      { get; set; }
+    public string Note { get; set; }
+  }
+
+
+  /// <summary>
+  /// MinIdp Provides security manager implementation that authenticates and authorizes users via IMinIdpStore
+  /// </summary>
+  public class MinIdpSecurityManager : DaemonWithInstrumentation<IApplicationComponent>, ISecurityManagerImplementation
   {
     #region CONSTS
-    public const string CONFIG_USERS_SECTION = "users";
-    public const string CONFIG_USER_SECTION = "user";
-
     public const string CONFIG_RIGHTS_SECTION = Rights.CONFIG_ROOT_SECTION;
-    public const string CONFIG_PERMISSION_SECTION = "permission";
     public const string CONFIG_PASSWORD_MANAGER_SECTION = "password-manager";
     public const string CONFIG_CRYPTOGRAPHY_SECTION = "cryptography";
-
-    public const string CONFIG_DESCRIPTION_ATTR = "description";
-    public const string CONFIG_STATUS_ATTR = "status";
-    public const string CONFIG_ID_ATTR = "id";
-    public const string CONFIG_PASSWORD_ATTR = "password";
     #endregion
 
     #region .ctor
-    /// <summary>
-    /// Constructs security manager that authenticates users listed in application configuration
-    /// </summary>
-    public ConfigSecurityManager(IApplication app) : base(app) { }
-
-    /// <summary>
-    /// Constructs security manager that authenticates users listed in the supplied configuration section
-    /// </summary>
-    public ConfigSecurityManager(IApplicationComponent director) : base(director) { }
+    public MinIdpSecurityManager(IApplication app) : base(app) { }
+    public MinIdpSecurityManager(IApplicationComponent director) : base(director) { }
 
     protected override void Destructor()
     {
@@ -54,7 +76,7 @@ namespace Azos.Security
     #endregion
 
     #region Fields
-    private IConfigSectionNode m_Config;
+    private IMinIdpStore m_Store;
     private IPasswordManagerImplementation m_PasswordManager;
     private ICryptoManagerImplementation m_Cryptography;
     private bool m_InstrumentationEnabled;
@@ -62,8 +84,12 @@ namespace Azos.Security
 
     #region Properties
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
+    public override string ComponentCommonName => "secman";
 
-    public bool SupportsTrueAsynchrony => false;
+    public ICryptoManager     Cryptography    => m_Cryptography;
+    public IPasswordManager   PasswordManager => m_PasswordManager;
+
+    public bool SupportsTrueAsynchrony => true;
 
     [Config(Default = false)]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_PAY)]
@@ -72,18 +98,6 @@ namespace Azos.Security
       get { return m_InstrumentationEnabled; }
       set { m_InstrumentationEnabled = value; }
     }
-
-    public override string ComponentCommonName { get { return "secman"; } }
-
-    /// <summary>
-    /// Returns config node that this instance is configured from.
-    /// If null is returned then manager performs authentication from application configuration
-    /// </summary>
-    public IConfigSectionNode Config          => m_Config;
-
-    public ICryptoManager     Cryptography    => m_Cryptography;
-    public IPasswordManager   PasswordManager => m_PasswordManager;
-
 
     [Config(Default = SecurityLogMask.Custom)]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
@@ -97,7 +111,7 @@ namespace Azos.Security
 
     public string GetUserLogArchiveDimensions(IIdentityDescriptor identity)
     {
-      if (identity==null) return null;
+      if (identity == null) return null;
       return ArchiveConventions.EncodeArchiveDimensions(new { un = identity.IdentityDescriptorName });
     }
 
@@ -117,9 +131,8 @@ namespace Azos.Security
       logSecurityMessage(msg);
     }
 
-    public Task<User> AuthenticateAsync(Credentials credentials) => Task.FromResult(Authenticate(credentials));
-
-    public User Authenticate(Credentials credentials)
+    public User Authenticate(Credentials credentials) => AuthenticateAsync(credentials).GetAwaiter().GetResult();
+    public virtual async Task<User> AuthenticateAsync(Credentials credentials)
     {
       if (credentials is BearerCredentials bearer)
       {
@@ -128,68 +141,53 @@ namespace Azos.Security
         if (accessToken!=null)//if token is valid
         {
           if (SysAuthToken.TryParse(accessToken.SubjectSysAuthToken, out var sysToken))
-            return Authenticate(sysToken);
+            return await AuthenticateAsync(sysToken);
         }
-      }
-
-      var sect = m_Config ?? App.ConfigRoot[CommonApplicationLogic.CONFIG_SECURITY_SECTION];
-
-      if (sect.Exists)
+      } else if (credentials is IDPasswordCredentials idpass)
       {
-        IConfigSectionNode usern = sect.Configuration.EmptySection;
-
-        if (credentials is IDPasswordCredentials idpass) usern = findUserNode(sect, idpass);
-        if (credentials is EntityUriCredentials enturi) usern = findUserNode(sect, enturi);
-
-        if (usern.Exists)
+        var data = await m_Store.GetByIdAsync(idpass.ID);
+        if (data!=null)
         {
-          var name = usern.AttrByName(CONFIG_NAME_ATTR).ValueAsString(string.Empty);
-          var descr = usern.AttrByName(CONFIG_DESCRIPTION_ATTR).ValueAsString(string.Empty);
-          var status = usern.AttrByName(CONFIG_STATUS_ATTR).ValueAsEnum(UserStatus.Invalid);
-
-          var rights = Rights.None;
-
-          var rightsn = usern[CONFIG_RIGHTS_SECTION];
-
-          if (rightsn.Exists)
-          {
-            var data = new MemoryConfiguration();
-            data.CreateFromNode(rightsn);
-            rights = new Rights(data);
-          }
-
-          return new User(credentials,
-                          credToAuthToken(credentials),
-                          status,
-                          name,
-                          descr,
-                          rights, App.TimeSource.UTCNow);
+          var user = TryAuthenticateUser(data, idpass);
+          if (user!=null) return user;
+        }
+      } else if (credentials is EntityUriCredentials enturi)
+      {
+        var data = await m_Store.GetByUriAsync(enturi.Uri);
+        if (data!=null)
+        {
+          var user = TryAuthenticateUser(data, enturi);
+          if (user != null) return user;
         }
       }
 
-      return new User(credentials,
-                      new SysAuthToken(),
-                      UserStatus.Invalid,
-                      StringConsts.SECURITY_NON_AUTHENTICATED,
-                      StringConsts.SECURITY_NON_AUTHENTICATED,
-                      Rights.None, App.TimeSource.UTCNow);
+      return MakeBadUser(credentials);
     }
 
-    public Task<User> AuthenticateAsync(SysAuthToken token) => Task.FromResult(Authenticate(token));
 
-    public User Authenticate(SysAuthToken token)
+
+    public User Authenticate(SysAuthToken token) => AuthenticateAsync(token).GetAwaiter().GetResult();
+
+    public virtual async Task<User> AuthenticateAsync(SysAuthToken token)
     {
-      var credentials = authTokenToCred(token);
-      return Authenticate(credentials);
+      var data = await m_Store.GetBySysAsync(token);
+      if (data!=null)
+      {
+        var user = TryAuthenticateUser(data);
+        if (user != null) return user;
+      }
+
+      return MakeBadUser(null);
     }
 
-    public Task AuthenticateAsync(User user) { Authenticate(user); return Task.CompletedTask;}
 
-    public void Authenticate(User user)
+    public void Authenticate(User user) => AuthenticateAsync(user).GetAwaiter().GetResult();
+
+    public async Task AuthenticateAsync(User user)
     {
       if (user == null) return;
       var token = user.AuthToken;
-      var reuser = Authenticate(token);
+      var reuser = await AuthenticateAsync(token);
 
       user.___update_status(reuser.Status, reuser.Name, reuser.Description, reuser.Rights, App.TimeSource.UTCNow);
     }
@@ -213,10 +211,46 @@ namespace Azos.Security
     #endregion
 
     #region Protected
+
+    protected virtual User MakeBadUser(Credentials credentials)
+    {
+      return new User(credentials ?? BlankCredentials.Instance,
+                      new SysAuthToken(),
+                      UserStatus.Invalid,
+                      StringConsts.SECURITY_NON_AUTHENTICATED,
+                      StringConsts.SECURITY_NON_AUTHENTICATED,
+                      Rights.None, App.TimeSource.UTCNow);
+    }
+
+    /// <summary>
+    /// Return null if cant
+    /// </summary>
+    protected virtual User TryAuthenticateUser(MinIdpUserData data, IDPasswordCredentials idpass)
+    {
+       return null;
+    }
+
+    /// <summary>
+    /// Return null if cant
+    /// </summary>
+    protected virtual User TryAuthenticateUser(MinIdpUserData data, EntityUriCredentials enturi)
+    {
+       return null;
+    }
+
+    /// <summary>
+    /// Return null if cant
+    /// </summary>
+    protected virtual User TryAuthenticateUser(MinIdpUserData data)
+    {
+      return null;
+    }
+
+
+
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
-      m_Config = node;
 
       DisposeAndNull(ref m_Cryptography);
       m_Cryptography = FactoryUtils.MakeAndConfigureDirectedComponent<ICryptoManagerImplementation>(
@@ -255,29 +289,29 @@ namespace Azos.Security
 
     #region Private
 
-    private IConfigSectionNode findUserNode(IConfigSectionNode securityRootNode, EntityUriCredentials cred)
-    {
-      var users = securityRootNode[CONFIG_USERS_SECTION];
+    //////private IConfigSectionNode findUserNode(IConfigSectionNode securityRootNode, EntityUriCredentials cred)
+    //////{
+    //////  var users = securityRootNode[CONFIG_USERS_SECTION];
 
-      return users.Children
-                  .FirstOrDefault(cn => cn.IsSameName(CONFIG_USER_SECTION) &&
-                                        cn.ValOf(CONFIG_ID_ATTR).EqualsOrdSenseCase(cred.Uri)) ?? users.Configuration.EmptySection;
-    }
+    //////  return users.Children
+    //////              .FirstOrDefault(cn => cn.IsSameName(CONFIG_USER_SECTION) &&
+    //////                                    cn.ValOf(CONFIG_ID_ATTR).EqualsOrdSenseCase(cred.Uri)) ?? users.Configuration.EmptySection;
+    //////}
 
-    private IConfigSectionNode findUserNode(IConfigSectionNode securityRootNode, IDPasswordCredentials cred)
-    {
-      var users = securityRootNode[CONFIG_USERS_SECTION];
+    //////private IConfigSectionNode findUserNode(IConfigSectionNode securityRootNode, IDPasswordCredentials cred)
+    //////{
+    //////  var users = securityRootNode[CONFIG_USERS_SECTION];
 
-      using (var password = cred.SecurePassword)
-      {
-        bool needRehash = false;
-        return users.Children.FirstOrDefault(cn => cn.IsSameName(CONFIG_USER_SECTION)
-                                                && cn.ValOf(CONFIG_ID_ATTR).EqualsOrdSenseCase(cred.ID)
-                                                && m_PasswordManager.Verify(password, HashedPassword.FromString(cn.ValOf(CONFIG_PASSWORD_ATTR)), out needRehash)
-                                            ) ?? users.Configuration.EmptySection;
+    //////  using (var password = cred.SecurePassword)
+    //////  {
+    //////    bool needRehash = false;
+    //////    return users.Children.FirstOrDefault(cn => cn.IsSameName(CONFIG_USER_SECTION)
+    //////                                            && cn.ValOf(CONFIG_ID_ATTR).EqualsOrdSenseCase(cred.ID)
+    //////                                            && m_PasswordManager.Verify(password, HashedPassword.FromString(cn.ValOf(CONFIG_PASSWORD_ATTR)), out needRehash)
+    //////                                        ) ?? users.Configuration.EmptySection;
 
-      }
-    }
+    //////  }
+    //////}
 
     private SysAuthToken credToAuthToken(Credentials credentials)
     {
