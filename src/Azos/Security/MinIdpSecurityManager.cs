@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Conf;
-using Azos.Data;
 using Azos.Instrumentation;
 using Azos.Log;
 
@@ -36,7 +35,9 @@ namespace Azos.Security
   /// </summary>
   public sealed class MinIdpUserData
   {
-    public long SysId { get; set; }
+    public SysAuthToken SysToken => new SysAuthToken(Realm.Value, SysId.ToString());
+
+    public ulong SysId { get; set; }
     public Atom Realm { get; set; }
     public UserStatus Status { get; set; }
     public DateTime CreateUtc { get; set;}
@@ -99,6 +100,14 @@ namespace Azos.Security
       set { m_InstrumentationEnabled = value; }
     }
 
+
+    /// <summary>
+    /// If set imposes a filter/constraint on realms which can be authenticated
+    /// </summary>
+    [Config]
+    public Atom RealmConstraint{ get; private set; }
+
+
     [Config(Default = SecurityLogMask.Custom)]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
     public SecurityLogMask SecurityLogMask { get; set;}
@@ -137,8 +146,8 @@ namespace Azos.Security
       if (credentials is BearerCredentials bearer)
       {
         var oauth = App.ModuleRoot.Get<Services.IOAuthModule>();
-        var accessToken = oauth.TokenRing.GetAsync<Tokens.AccessToken>(bearer.Token).GetAwaiter().GetResult();//since this manager is sync-only
-        if (accessToken!=null)//if token is valid
+        var accessToken = await oauth.TokenRing.GetAsync<Tokens.AccessToken>(bearer.Token);
+        if (accessToken != null)//if token is valid
         {
           if (SysAuthToken.TryParse(accessToken.SubjectSysAuthToken, out var sysToken))
             return await AuthenticateAsync(sysToken);
@@ -146,15 +155,15 @@ namespace Azos.Security
       } else if (credentials is IDPasswordCredentials idpass)
       {
         var data = await m_Store.GetByIdAsync(idpass.ID);
-        if (data!=null)
+        if (data != null)
         {
           var user = TryAuthenticateUser(data, idpass);
-          if (user!=null) return user;
+          if (user != null) return user;
         }
       } else if (credentials is EntityUriCredentials enturi)
       {
         var data = await m_Store.GetByUriAsync(enturi.Uri);
-        if (data!=null)
+        if (data != null)
         {
           var user = TryAuthenticateUser(data, enturi);
           if (user != null) return user;
@@ -222,28 +231,53 @@ namespace Azos.Security
                       Rights.None, App.TimeSource.UTCNow);
     }
 
-    /// <summary>
-    /// Return null if cant
-    /// </summary>
-    protected virtual User TryAuthenticateUser(MinIdpUserData data, IDPasswordCredentials idpass)
+    protected virtual User MakeOkUser(Credentials credentials, MinIdpUserData data)
     {
-       return null;
+      return new User(credentials ?? BlankCredentials.Instance,
+                      data.SysToken,
+                      data.Status,
+                      data.Name,
+                      data.Description,
+                      data.Rights,
+                      App.TimeSource.UTCNow);
     }
 
     /// <summary>
-    /// Return null if cant
+    /// Plain user id/password
     /// </summary>
-    protected virtual User TryAuthenticateUser(MinIdpUserData data, EntityUriCredentials enturi)
+    protected virtual User TryAuthenticateUser(MinIdpUserData data, IDPasswordCredentials cred)
     {
-       return null;
+      if (!RealmConstraint.IsZero  &&  data.Realm != RealmConstraint) return null;
+
+      using (var password = cred.SecurePassword)
+      {
+        cred.Forget();
+        var pass = m_PasswordManager.Verify(password, HashedPassword.FromString(data.Password), out var needRehash);
+        if (!pass) return null;
+      }
+
+      return MakeOkUser(cred, data);
     }
 
     /// <summary>
-    /// Return null if cant
+    /// URI reference
+    /// </summary>
+    protected virtual User TryAuthenticateUser(MinIdpUserData data, EntityUriCredentials cred)
+    {
+      if (!RealmConstraint.IsZero && data.Realm != RealmConstraint) return null;
+
+      cred.Forget();
+      return MakeOkUser(cred, data);
+    }
+
+    /// <summary>
+    /// For SysAuthToken
     /// </summary>
     protected virtual User TryAuthenticateUser(MinIdpUserData data)
     {
-      return null;
+      if (!RealmConstraint.IsZero && data.Realm != RealmConstraint) return null;
+
+      return MakeOkUser(null, data);
     }
 
 
@@ -288,64 +322,6 @@ namespace Azos.Security
     #endregion
 
     #region Private
-
-    //////private IConfigSectionNode findUserNode(IConfigSectionNode securityRootNode, EntityUriCredentials cred)
-    //////{
-    //////  var users = securityRootNode[CONFIG_USERS_SECTION];
-
-    //////  return users.Children
-    //////              .FirstOrDefault(cn => cn.IsSameName(CONFIG_USER_SECTION) &&
-    //////                                    cn.ValOf(CONFIG_ID_ATTR).EqualsOrdSenseCase(cred.Uri)) ?? users.Configuration.EmptySection;
-    //////}
-
-    //////private IConfigSectionNode findUserNode(IConfigSectionNode securityRootNode, IDPasswordCredentials cred)
-    //////{
-    //////  var users = securityRootNode[CONFIG_USERS_SECTION];
-
-    //////  using (var password = cred.SecurePassword)
-    //////  {
-    //////    bool needRehash = false;
-    //////    return users.Children.FirstOrDefault(cn => cn.IsSameName(CONFIG_USER_SECTION)
-    //////                                            && cn.ValOf(CONFIG_ID_ATTR).EqualsOrdSenseCase(cred.ID)
-    //////                                            && m_PasswordManager.Verify(password, HashedPassword.FromString(cn.ValOf(CONFIG_PASSWORD_ATTR)), out needRehash)
-    //////                                        ) ?? users.Configuration.EmptySection;
-
-    //////  }
-    //////}
-
-    private SysAuthToken credToAuthToken(Credentials credentials)
-    {
-      if (credentials is IDPasswordCredentials idpass)
-        return new SysAuthToken(this.GetType().FullName, "idp\n{0}\n{1}".Args(idpass.ID, idpass.Password));
-
-      if (credentials is EntityUriCredentials enturi)
-        return new SysAuthToken(this.GetType().FullName, "uri\n{0}".Args(enturi.Uri));
-
-      return new SysAuthToken();//invalid token
-    }
-
-    private Credentials authTokenToCred(SysAuthToken token)
-    {
-      if (token.Data.IsNullOrWhiteSpace())
-        return BlankCredentials.Instance;
-
-      var seg = token.Data.Split('\n');
-
-      if (seg.Length < 2)
-        return BlankCredentials.Instance;
-
-
-      if (seg[0].EqualsOrdSenseCase("idp"))
-      {
-        if (seg.Length < 3)  return BlankCredentials.Instance;
-        return new IDPasswordCredentials(seg[1], seg[2]);
-      }
-
-      if (seg[0].EqualsOrdSenseCase("uri")) return new EntityUriCredentials(seg[1]);
-
-      return BlankCredentials.Instance;
-    }
-
 
     private void logSecurityMessage(Log.Message msg)
     {
