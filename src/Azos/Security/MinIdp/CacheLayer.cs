@@ -18,14 +18,14 @@ namespace Azos.Security.MinIdp
   {
     public CacheLayer(IApplicationComponent dir, IConfigSectionNode cfg) : base(dir)
     {
-
+      scan();
     }
 
 
     private IMinIdpStore m_Store;
 
     private object m_DataLock = new object();
-    private Dictionary<string, MinIdpUserData> m_IdxId;
+    private Dictionary<string, (DateTime ts, MinIdpUserData d)> m_IdxId;
     private Dictionary<SysAuthToken, MinIdpUserData> m_IdxSysToken;
     private Dictionary<string, MinIdpUserData> m_IdxUri;
 
@@ -41,12 +41,10 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetByIdAsync(string id)
     {
-      MinIdpUserData data;
-
       lock(m_DataLock)
-        if (m_IdxId.TryGetValue(id, out data)) return data;
+        if (m_IdxId.TryGetValue(id, out var existing)) return existing.d;
 
-      data = await m_Store.GetByIdAsync(id);
+      var data = await m_Store.GetByIdAsync(id);
 
       updateIndexes(data);
       return data;
@@ -54,12 +52,10 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetBySysAsync(SysAuthToken sysToken)
     {
-      MinIdpUserData data;
-
       lock (m_DataLock)
-        if (m_IdxSysToken.TryGetValue(sysToken, out data)) return data;
+        if (m_IdxSysToken.TryGetValue(sysToken, out var existing)) return existing;
 
-      data = await m_Store.GetBySysAsync(sysToken);
+      var data = await m_Store.GetBySysAsync(sysToken);
 
       updateIndexes(data);
       return data;
@@ -67,12 +63,10 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetByUriAsync(string uri)
     {
-      MinIdpUserData data;
-
       lock (m_DataLock)
-        if (m_IdxUri.TryGetValue(uri, out data)) return data;
+        if (m_IdxUri.TryGetValue(uri, out var existing)) return existing;
 
-      data = await m_Store.GetByUriAsync(uri);
+      var data = await m_Store.GetByUriAsync(uri);
 
       updateIndexes(data);
       return data;
@@ -80,12 +74,62 @@ namespace Azos.Security.MinIdp
 
     private void updateIndexes(MinIdpUserData data)
     {
+      if (data==null) return;
+
+      var maxAge = MaxCacheAgeSec;
+      if (maxAge < 1) return;
+
+      var entry = (DateTime.UtcNow.AddSeconds(maxAge), data);
       lock (m_DataLock)
       {
-        m_IdxId[data.Id] = data;
+        m_IdxId[data.Id] = entry;
         m_IdxSysToken[data.SysToken] = data;
         m_IdxUri[data.ScreenName] = data;
       }
     }
+
+    private void scan()
+    {
+      const int RESCAN_MS = 1500;
+      try
+      {
+        scanOnce();
+      }
+      catch(Exception error)
+      {
+        WriteLog(Log.MessageType.Error, nameof(scan), "Leaked: "+error.ToMessageWithType(), error);
+      }
+
+      if (!Disposed || App.Active)
+        Task.Delay(RESCAN_MS).ContinueWith(_ => scan());
+    }
+
+    private void scanOnce()
+    {
+      if (Disposed || !App.Active) return;
+
+      var toKill = new List<MinIdpUserData>();
+      var now = DateTime.UtcNow;
+      lock(m_DataLock)
+      {
+        foreach(var kvp in m_IdxId)
+        {
+          if (kvp.Value.ts > now) continue;
+          toKill.Add(kvp.Value.d);
+        }
+
+        if (toKill.Count>0)
+        {
+          foreach(var item in toKill)
+          {
+            m_IdxId.Remove(item.Id);
+            m_IdxSysToken.Remove(item.SysToken);
+            m_IdxUri.Remove(item.ScreenName);
+          }
+        }
+      }
+
+    }
+
   }
 }
