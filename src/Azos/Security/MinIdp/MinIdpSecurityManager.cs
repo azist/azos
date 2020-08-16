@@ -12,47 +12,8 @@ using Azos.Conf;
 using Azos.Instrumentation;
 using Azos.Log;
 
-namespace Azos.Security
+namespace Azos.Security.MinIdp
 {
-  /// <summary>
-  /// Outlines the contract for stores which service MinIdp (Minimum identity provider)
-  /// </summary>
-  public interface IMinIdpStore : IApplicationComponent
-  {
-    /// <summary>
-    /// Cache age limit in seconds, set to 0 to disable caching
-    /// </summary>
-    int MaxCacheAgeSec{ get;}
-
-    Task<MinIdpUserData> GetByIdAsync(string id);
-    Task<MinIdpUserData> GetByUriAsync(string uri);
-    Task<MinIdpUserData> GetBySysAsync(SysAuthToken sysId);
-  }
-
-
-  /// <summary>
-  /// Sets contract for DTO - data stored in MinIdp system
-  /// </summary>
-  public sealed class MinIdpUserData
-  {
-    public SysAuthToken SysToken => new SysAuthToken(Realm.Value, SysId.ToString());
-
-    public ulong SysId { get; set; }
-    public Atom Realm { get; set; }
-    public UserStatus Status { get; set; }
-    public DateTime CreateUtc { get; set;}
-    public DateTime ModifyUtc { get; set; }
-    public DateTime EndUtc    { get; set; }
-    public string Id          { get; set; }
-    public string Password    { get; set; }
-    public string Name        { get; set; }
-    public string Description { get; set; }
-    public string Role        { get; set; }
-    public Rights Rights      { get; set; }
-    public string Note { get; set; }
-  }
-
-
   /// <summary>
   /// MinIdp Provides security manager implementation that authenticates and authorizes users via IMinIdpStore
   /// </summary>
