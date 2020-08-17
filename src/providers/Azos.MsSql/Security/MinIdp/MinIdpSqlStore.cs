@@ -85,7 +85,17 @@ WHERE
          CreateUtc =reader["CUTC"].AsDateTime(),
          StartUtc = reader["SUTC"].AsDateTime(),
          EndUtc = reader["EUTC"].AsDateTime(),
-         //todo....
+         LoginId = id,
+         LoginPassword = reader["PWD"].AsString(),
+         LoginStartUtc = reader["LOGIN_SUTC"].AsDateTime(),
+         LoginEndUtc = reader["LOGIN_EUTC"].AsDateTime(),
+         ScreenName = reader["SNAME"].AsString(),
+         Name = reader["NAME"].AsString(),
+         Description = reader["DESCR"].AsString(),
+         Role = reader["ROLE"].AsString(),
+         Rights = new Rights(reader["rights"].AsJSONConfig().Configuration),
+         Note = reader["NOTE"] is DBNull ? null : reader["NOTE"].AsString()
+       //todo....
      });
 
 
