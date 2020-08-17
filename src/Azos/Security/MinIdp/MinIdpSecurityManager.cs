@@ -40,6 +40,7 @@ namespace Azos.Security.MinIdp
     #endregion
 
     #region Fields
+    private Atom m_Realm;
     private IMinIdpStoreImplementation m_Store;
     private IPasswordManagerImplementation m_PasswordManager;
     private ICryptoManagerImplementation m_Cryptography;
@@ -66,10 +67,18 @@ namespace Azos.Security.MinIdp
 
 
     /// <summary>
-    /// If set imposes a filter/constraint on realms which can be authenticated
+    /// Required. Dictates in what realm this security operates
     /// </summary>
     [Config]
-    public Atom RealmConstraint{ get; private set; }
+    public Atom Realm
+    {
+      get => m_Realm;
+      set
+      {
+        CheckDaemonInactive();
+        m_Realm = value;
+      }
+    }
 
 
     [Config(Default = SecurityLogMask.Custom)]
@@ -211,7 +220,7 @@ namespace Azos.Security.MinIdp
     /// </summary>
     protected virtual User TryAuthenticateUser(MinIdpUserData data, IDPasswordCredentials cred)
     {
-      if (!RealmConstraint.IsZero  &&  data.Realm != RealmConstraint) return null;
+      if (data.Realm != Realm) return null;
 
       using (var password = cred.SecurePassword)
       {
@@ -228,7 +237,7 @@ namespace Azos.Security.MinIdp
     /// </summary>
     protected virtual User TryAuthenticateUser(MinIdpUserData data, EntityUriCredentials cred)
     {
-      if (!RealmConstraint.IsZero && data.Realm != RealmConstraint) return null;
+      if (data.Realm != Realm) return null;
 
       cred.Forget();
       return MakeOkUser(cred, data);
@@ -239,7 +248,7 @@ namespace Azos.Security.MinIdp
     /// </summary>
     protected virtual User TryAuthenticateUser(MinIdpUserData data)
     {
-      if (!RealmConstraint.IsZero && data.Realm != RealmConstraint) return null;
+      if (data.Realm != Realm) return null;
 
       return MakeOkUser(null, data);
     }
@@ -270,6 +279,9 @@ namespace Azos.Security.MinIdp
 
     protected override void DoStart()
     {
+      if (m_Realm.IsZero)
+        throw new CallGuardException(nameof(MinIdpSecurityManager), nameof(Realm), "Must be configured");
+
       m_PasswordManager.NonNull($"{nameof(PasswordManager)} config").Start();
       m_Cryptography.NonNull($"{nameof(Cryptography)} config").Start();
       m_Store.NonNull($"{nameof(Store)} config").Start();
