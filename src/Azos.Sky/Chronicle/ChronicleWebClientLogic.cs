@@ -61,10 +61,11 @@ namespace Azos.Sky.Chronicle
       DisposeAndNull(ref m_Server);
       if (node == null) return;
 
+      var nServer = node[CONFIG_SERVICE_SECTION];
       m_Server = FactoryUtils.MakeDirectedComponent<HttpService>(this,
-                                                                 node[CONFIG_SERVICE_SECTION],
+                                                                 nServer,
                                                                  typeof(HttpService),
-                                                                 new object[] { node });
+                                                                 new object[] { nServer });
     }
 
     protected override bool DoApplicationAfterInit()

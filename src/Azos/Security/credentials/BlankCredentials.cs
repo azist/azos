@@ -15,7 +15,7 @@ namespace Azos.Security
   {
     private BlankCredentials(){ }
 
-    private static BlankCredentials m_Instance;
+    private static BlankCredentials s_Instance;
 
     /// <summary>
     /// Singleton instance of blank credentials
@@ -24,9 +24,9 @@ namespace Azos.Security
     {
       get
       {
-        if (m_Instance==null)
-          m_Instance = new BlankCredentials();
-        return m_Instance;
+        if (s_Instance==null)
+          s_Instance = new BlankCredentials();
+        return s_Instance;
       }
     }
   }

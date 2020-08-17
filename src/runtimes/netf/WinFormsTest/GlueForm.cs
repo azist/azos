@@ -33,7 +33,7 @@ using TestBusinessLogic;
 
 namespace WinFormsTest
 {
-  #pragma warning disable 0649,0169,0067
+  #pragma warning disable 0169,0067
 
   public partial class GlueForm : System.Windows.Forms.Form
   {

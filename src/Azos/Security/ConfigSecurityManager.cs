@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Instrumentation;
+using Azos.Log;
 
 namespace Azos.Security
 {
@@ -94,15 +95,10 @@ namespace Azos.Security
 
     #region Public
 
-    public IConfigSectionNode GetUserLogArchiveDimensions(IIdentityDescriptor identity)
+    public string GetUserLogArchiveDimensions(IIdentityDescriptor identity)
     {
       if (identity==null) return null;
-
-      var cfg = new MemoryConfiguration();
-      cfg.Create("ad");
-      cfg.Root.AddAttributeNode("un", identity.IdentityDescriptorName);
-
-      return cfg.Root;
+      return ArchiveConventions.EncodeArchiveDimensions(new { un = identity.IdentityDescriptorName });
     }
 
     public void LogSecurityMessage(SecurityLogAction action, Log.Message msg, IIdentityDescriptor identity = null)
@@ -115,7 +111,7 @@ namespace Azos.Security
         if (identity==null)
           identity = ExecutionContext.Session.User;
 
-        msg.ArchiveDimensions = GetUserLogArchiveDimensions(identity).ToLaconicString();
+        msg.ArchiveDimensions = GetUserLogArchiveDimensions(identity);
       }
 
       logSecurityMessage(msg);
@@ -238,7 +234,7 @@ namespace Azos.Security
     protected override void DoStart()
     {
       if (m_PasswordManager == null) throw new SecurityException("{0}.PasswordManager == null/not configured");
-      if (m_Cryptography == null) throw new SecurityException("{0}.Cruptography == null/not configured");
+      if (m_Cryptography == null) throw new SecurityException("{0}.Cryptography == null/not configured");
 
       m_PasswordManager.Start();
       m_Cryptography.Start();

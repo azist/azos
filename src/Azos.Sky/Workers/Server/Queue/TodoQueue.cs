@@ -97,7 +97,6 @@ namespace Azos.Sky.Workers.Server.Queue
 
     #region Fields
 
-    #pragma warning disable CS0649
     [Config]
     private string m_Name;
 
@@ -108,7 +107,6 @@ namespace Azos.Sky.Workers.Server.Queue
 
     [Config]
     private ExecuteMode m_Mode;
-    #pragma warning restore CS0649
 
     private int m_AcquireTimeoutSec = DEFAULT_ACQUIRE_TIMEOUT_SEC;
 

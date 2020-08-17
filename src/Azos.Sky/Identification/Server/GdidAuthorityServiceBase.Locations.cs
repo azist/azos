@@ -10,7 +10,7 @@ using System.IO;
 using Azos.Conf;
 using Azos.Collections;
 
-namespace Azos.Sky.Identification{ public partial class GdidAuthorityServiceBase {
+namespace Azos.Sky.Identification.Server{ public partial class GdidAuthorityServiceBase {
 
 
   public abstract class PersistenceLocation : INamed, IOrdered

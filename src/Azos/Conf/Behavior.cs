@@ -13,7 +13,7 @@ using System.Text;
 namespace Azos.Conf
 {
 
-#pragma warning disable 0649,0169
+#pragma warning disable 0169
 
     /// <summary>
     /// Represents a piece of logic that can be applied to different entities declaratively as attribute or through configuration.

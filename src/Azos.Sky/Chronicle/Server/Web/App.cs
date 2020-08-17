@@ -28,6 +28,11 @@ namespace Azos.Sky.Chronicle.Server.Web
   //[Release(ReleaseType.Preview, 2020, 07, 05, "Initial Release", Description = "Preview release of API")]
   public class App : ApiProtocolController
   {
+
+    //we need to know the type of View that
+    //implements visualization and return it
+    //it can be in a different assembly (the view)
+
     [Action]
     public object Index() => "<h1>Chronicle App</h1>";
 

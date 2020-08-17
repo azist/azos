@@ -144,8 +144,11 @@ namespace Azos.Text
                                          char wsc ='?',
                                          bool senseCase = false)
     {
+
       var snws = str.IsNullOrWhiteSpace();
       var pnws = pattern.IsNullOrWhiteSpace();
+
+      if (!pnws && pattern.Length==1 && pattern[0]==wc) return true;//quick pattern match for "*" = match anything quickly
 
       if (snws && pnws) return true;
       if (snws || pnws) return false;
@@ -184,6 +187,7 @@ namespace Azos.Text
         pistr++;
         istr = pistr;
       }
+
       return false;
     }
 

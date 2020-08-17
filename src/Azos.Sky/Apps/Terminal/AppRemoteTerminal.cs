@@ -65,9 +65,7 @@ namespace Azos.Apps.Terminal
 
     public void OnDeserialization(object sender) => AppRemoteTerminalRegistry.Register(this);
 
-#pragma warning disable 649
     [Inject] IApplication m_App;
-#pragma warning restore 649
 
     private ulong m_ID;
     private string m_Name;

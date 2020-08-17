@@ -26,9 +26,7 @@ namespace Azos.Sky.WebMessaging
       GDID = gdid ?? GdidProvider.GenerateOneGdid(SysConsts.GDID_NS_MESSAGING, SysConsts.GDID_NAME_MESSAGING_MESSAGE);
     }
 
-#pragma warning disable 649
     [Inject] IGdidProvider m_GdidProvider;
-#pragma warning restore 649
 
     protected IGdidProvider GdidProvider => m_GdidProvider.NonNull(nameof(m_GdidProvider));
 

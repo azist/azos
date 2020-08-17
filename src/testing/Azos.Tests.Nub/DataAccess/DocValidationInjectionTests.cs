@@ -15,7 +15,6 @@ using Azos.Conf;
 using Azos.Data;
 using Azos.Scripting;
 
-#pragma warning disable 649
 namespace Azos.Tests.Nub.DataAccess
 {
   [Runnable]
@@ -430,8 +429,5 @@ namespace Azos.Tests.Nub.DataAccess
       }
     }
 
-
-
   }
-#pragma warning restore 649
 }

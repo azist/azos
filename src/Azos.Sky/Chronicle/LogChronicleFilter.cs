@@ -50,7 +50,7 @@ namespace Azos.Sky.Chronicle
     [Field(isArow: true, backendName: "af", description: "Advanced filter, which can be used for filter by archive dimensions")]
     public Expression AdvancedFilter{  get; set;}
 
-    [Inject] ILogChronicle m_Chronicle;
+    [InjectModule] ILogChronicle m_Chronicle;
 
     protected async override Task<SaveResult<IEnumerable<Message>>> DoSaveAsync()
      => new SaveResult<IEnumerable<Message>>(await m_Chronicle.GetAsync(this));

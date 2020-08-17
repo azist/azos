@@ -259,7 +259,7 @@ namespace Azos
     /// Ensures that the value is not null and can be type-casted to TResult, then performs type cast
     /// throwing CallGuardException otherwise
     /// </summary>
-    public static TResult ValueAsType<TResult>(this object value,
+    public static TResult CastTo<TResult>(this object value,
                                string name = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,

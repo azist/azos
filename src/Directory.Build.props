@@ -8,7 +8,7 @@
 
     <PreserveCompilationContext>false</PreserveCompilationContext>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
+    <NoWarn>1701;1702;1705;1591;649</NoWarn>
 
 
     <Authors>Azist, @dzhabis, @dkh</Authors>

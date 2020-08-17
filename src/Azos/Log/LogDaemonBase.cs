@@ -329,11 +329,11 @@ namespace Azos.Log
           return;
         }
 
-        if (msg==null) return; //i.e. OnPulse()
-
         var failoverName = sink.Failover;
+
         if (string.IsNullOrEmpty(failoverName))
             failoverName = this.DefaultFailover;
+
         if (string.IsNullOrEmpty(failoverName))  return;//nowhere to failover
 
         var failover = m_Sinks[failoverName];
@@ -344,7 +344,10 @@ namespace Azos.Log
 
         try
         {
-          failover.SendRegularAndFailures(msg);
+            if (msg != null) //null on error from OnPulse()
+            {
+              failover.SendRegularAndFailures(msg);
+            }
 
             if (sink.GenerateFailoverMessages || failover.GenerateFailoverMessages)
             {
@@ -354,13 +357,14 @@ namespace Azos.Log
               emsg.Topic = CoreConsts.LOG_TOPIC;
               emsg.Text = string.Format(
                       StringConsts.LOGSVC_FAILOVER_MSG_TEXT,
-                      msg.Guid,
+                      (msg?.Guid.ToString()).Default("--none--"),
                       sink.Name,
                       failover.Name,
                       sink.AverageProcessingTimeMs);
-              emsg.RelatedTo = msg.Guid;
-              emsg.Exception = error;
 
+              if (msg!=null) emsg.RelatedTo = msg.Guid;
+
+              emsg.Exception = error;
 
               failover.SendRegularAndFailures(emsg);
             }

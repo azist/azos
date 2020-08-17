@@ -433,9 +433,7 @@ namespace Azos.Apps
 
     #region Protected
 
-#pragma warning disable 649
     [Config] private bool m_LogCallerFileLines;
-#pragma warning restore 649
 
     protected Guid WriteLog(MessageType type,
                             string from,

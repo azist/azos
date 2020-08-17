@@ -20,15 +20,9 @@ namespace Azos.Wave.Filters
   public class SessionFilter : WorkFilter
   {
     #region CONSTS
-      /// <summary>
-      /// Use this name in access deny rule in NetGate setup to block user who create too many sessions
-      /// </summary>
-      public const string NETGATE_NEWSESSION_VAR_NAME = "newSession";
-
       public const string CONF_COOKIE_NAME_ATTR = "session-cookie-name";
-
+      public const string CONF_GATE_NEW_SESSION_VAR_ATTR = "gate-new-session-var";
       public const string DEFAULT_COOKIE_NAME = "SID";
-
 
       public const string CONF_SESSION_TIMEOUT_MS_ATTR = "session-timeout-ms";
 
@@ -48,12 +42,14 @@ namespace Azos.Wave.Filters
       {
         m_CookieName = confNode.AttrByName(CONF_COOKIE_NAME_ATTR).ValueAsString(DEFAULT_COOKIE_NAME);
         m_SessionTimeoutMs = confNode.AttrByName(CONF_SESSION_TIMEOUT_MS_ATTR).ValueAsInt(DEFAULT_SESSION_TIMEOUT_MS);
-      }
+        m_GateNewSessionVar = confNode.AttrByName(CONF_GATE_NEW_SESSION_VAR_ATTR).Value;
+    }
 
     #endregion
 
     #region Fields
 
+     private string m_GateNewSessionVar;
      private string m_CookieName = DEFAULT_COOKIE_NAME;
      private int m_SessionTimeoutMs = DEFAULT_SESSION_TIMEOUT_MS;
 
@@ -78,6 +74,16 @@ namespace Azos.Wave.Filters
       {
         get { return m_SessionTimeoutMs;}
         set { m_SessionTimeoutMs = value<0 ? 0 : value; }
+      }
+
+
+      /// <summary>
+      /// When set, bumps the gate variable name if it is enabled
+      /// </summary>
+      public string GateNewSessionVar
+      {
+        get { return m_GateNewSessionVar; }
+        set { GateNewSessionVar = value; }
       }
 
     #endregion
@@ -141,10 +147,11 @@ namespace Azos.Wave.Filters
           if (session==null)
           {
             foundExisting = false;
-            if (NetGate!=null && NetGate.Enabled)
+            var vn = m_GateNewSessionVar;
+            if (NetGate!=null && NetGate.Enabled && vn.IsNotNullOrWhiteSpace())
                NetGate.IncreaseVariable(IO.Net.Gate.TrafficDirection.Incoming,
                                      work.EffectiveCallerIPEndPoint.Address.ToString(),
-                                     NETGATE_NEWSESSION_VAR_NAME,
+                                     vn,
                                      1);
 
             session = MakeNewSession(work);

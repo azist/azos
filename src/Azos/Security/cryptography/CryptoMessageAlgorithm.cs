@@ -22,10 +22,9 @@ namespace Azos.Security
     {
       ConfigAttribute.Apply(this, config.NonEmpty("{0}.ctor(config=null|!Exists)".Args(GetType().Name)));
     }
-#pragma warning disable 0649
+
     [Config]
     private string m_Name;
-#pragma warning restore 0649
 
     public string Name => m_Name;
 
