@@ -23,6 +23,7 @@ namespace Azos.Security.MinIdp
     public const string CONFIG_RIGHTS_SECTION = Rights.CONFIG_ROOT_SECTION;
     public const string CONFIG_PASSWORD_MANAGER_SECTION = "password-manager";
     public const string CONFIG_CRYPTOGRAPHY_SECTION = "cryptography";
+    public const string CONFIG_STORE_SECTION = "store";
     #endregion
 
     #region .ctor
@@ -32,13 +33,14 @@ namespace Azos.Security.MinIdp
     protected override void Destructor()
     {
       base.Destructor();
+      DisposeAndNull(ref m_Store);
       DisposeAndNull(ref m_PasswordManager);
       DisposeAndNull(ref m_Cryptography);
     }
     #endregion
 
     #region Fields
-    private IMinIdpStore m_Store;
+    private IMinIdpStoreImplementation m_Store;
     private IPasswordManagerImplementation m_PasswordManager;
     private ICryptoManagerImplementation m_Cryptography;
     private bool m_InstrumentationEnabled;
@@ -48,6 +50,7 @@ namespace Azos.Security.MinIdp
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
     public override string ComponentCommonName => "secman";
 
+    public IMinIdpStore       Store => m_Store;
     public ICryptoManager     Cryptography    => m_Cryptography;
     public IPasswordManager   PasswordManager => m_PasswordManager;
 
@@ -213,7 +216,7 @@ namespace Azos.Security.MinIdp
       using (var password = cred.SecurePassword)
       {
         cred.Forget();
-        var pass = m_PasswordManager.Verify(password, HashedPassword.FromString(data.Password), out var needRehash);
+        var pass = m_PasswordManager.Verify(password, HashedPassword.FromString(data.LoginPassword), out var needRehash);
         if (!pass) return null;
       }
 
@@ -258,27 +261,32 @@ namespace Azos.Security.MinIdp
                                               this,
                                               node[CONFIG_PASSWORD_MANAGER_SECTION],
                                               typeof(DefaultPasswordManager));
+
+      DisposeAndNull(ref m_Store);
+      m_Store = FactoryUtils.MakeAndConfigureDirectedComponent<IMinIdpStoreImplementation>(
+                                              this,
+                                              node[CONFIG_STORE_SECTION]);
     }
 
     protected override void DoStart()
     {
-      if (m_PasswordManager == null) throw new SecurityException("{0}.PasswordManager == null/not configured");
-      if (m_Cryptography == null) throw new SecurityException("{0}.Cryptography == null/not configured");
-
-      m_PasswordManager.Start();
-      m_Cryptography.Start();
+      m_PasswordManager.NonNull($"{nameof(PasswordManager)} config").Start();
+      m_Cryptography.NonNull($"{nameof(Cryptography)} config").Start();
+      m_Store.NonNull($"{nameof(Store)} config").Start();
     }
 
     protected override void DoSignalStop()
     {
       m_PasswordManager.SignalStop();
       m_Cryptography.SignalStop();
+      m_Store.SignalStop();
     }
 
     protected override void DoWaitForCompleteStop()
     {
       m_PasswordManager.WaitForCompleteStop();
       m_Cryptography.WaitForCompleteStop();
+      m_Store.WaitForCompleteStop();
     }
     #endregion
 

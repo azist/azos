@@ -14,15 +14,23 @@ using Azos.Instrumentation;
 
 namespace Azos.Security.MinIdp
 {
-  public sealed class CacheLayer : ApplicationComponent, IMinIdpStore
+  /// <summary>
+  /// Provides in-memory caching wrapper for target IMinIdpStore
+  /// </summary>
+  public sealed class CacheLayer : DaemonWithInstrumentation<MinIdpSecurityManager>, IMinIdpStoreImplementation
   {
-    public CacheLayer(IApplicationComponent dir, IConfigSectionNode cfg) : base(dir)
+    public CacheLayer(MinIdpSecurityManager dir) : base(dir)
     {
-      scan();
+    }
+
+    protected override void Destructor()
+    {
+      base.Destructor();
+      DisposeAndNull(ref m_Store);
     }
 
 
-    private IMinIdpStore m_Store;
+    private IMinIdpStoreImplementation m_Store;
 
     private object m_DataLock = new object();
     private Dictionary<string, (DateTime ts, MinIdpUserData d)> m_IdxId;
@@ -31,6 +39,13 @@ namespace Azos.Security.MinIdp
 
 
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
+
+
+    public IMinIdpStore Store => m_Store;
+
+
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
+    public override bool InstrumentationEnabled { get; set; }
 
     /// <summary>
     /// Cache age limit in seconds, set to 0 to disable caching
@@ -82,7 +97,7 @@ namespace Azos.Security.MinIdp
       var entry = (DateTime.UtcNow.AddSeconds(maxAge), data);
       lock (m_DataLock)
       {
-        m_IdxId[data.Id] = entry;
+        m_IdxId[data.LoginId] = entry;
         m_IdxSysToken[data.SysToken] = data;
         m_IdxUri[data.ScreenName] = data;
       }
@@ -100,13 +115,13 @@ namespace Azos.Security.MinIdp
         WriteLog(Log.MessageType.Error, nameof(scan), "Leaked: "+error.ToMessageWithType(), error);
       }
 
-      if (!Disposed || App.Active)
+      if (Running)
         Task.Delay(RESCAN_MS).ContinueWith(_ => scan());
     }
 
     private void scanOnce()
     {
-      if (Disposed || !App.Active) return;
+      if (!Running) return;
 
       var toKill = new List<MinIdpUserData>();
       var now = DateTime.UtcNow;
@@ -122,13 +137,30 @@ namespace Azos.Security.MinIdp
         {
           foreach(var item in toKill)
           {
-            m_IdxId.Remove(item.Id);
+            m_IdxId.Remove(item.LoginId);
             m_IdxSysToken.Remove(item.SysToken);
             m_IdxUri.Remove(item.ScreenName);
           }
         }
       }
 
+    }
+
+
+    protected override void DoStart()
+    {
+      m_Store.NonNull($"{nameof(Store)} config").Start();
+      scan();
+    }
+
+    protected override void DoSignalStop()
+    {
+      m_Store.SignalStop();
+    }
+
+    protected override void DoWaitForCompleteStop()
+    {
+      m_Store.WaitForCompleteStop();
     }
 
   }
