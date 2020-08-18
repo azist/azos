@@ -19,7 +19,7 @@ namespace Azos.Data.Access.MongoDb.Connector
   /// The Azos MongoDB connector is purposely created for specific needs such as using MongoDB as a device yielding 4x-8x better throughput than the official driver.
   /// It does not support: Mongo security, sharding and replication
   /// </summary>
-  public sealed class MongoClient : ApplicationComponent, INamed, IConfigurable, IInstrumentable
+  public sealed class MongoClient : ApplicationComponent, INamed, IConfigurable, IInstrumentable, IExternallyCallable
   {
     #region CONSTS
 
@@ -66,6 +66,10 @@ namespace Azos.Data.Access.MongoDb.Connector
                                           "MongoClient('{0}'::{1})".Args(m_Name, Guid.NewGuid().ToString()),
                                           e => managementEventBody(),
                                           MANAGEMENT_INTERVAL);
+
+      m_ExternalCallHandler = new ExternalCallHandler<MongoClient>(App, this, null,
+          typeof(Instrumentation.DirectDb)
+        );
     }
 
     protected override void Destructor()
@@ -89,6 +93,7 @@ namespace Azos.Data.Access.MongoDb.Connector
     private Time.Event m_ManagementEvent;
     internal Registry<ServerNode> m_Servers = new Registry<ServerNode>();
 
+    private ExternalCallHandler<MongoClient> m_ExternalCallHandler;
     #endregion
 
 
@@ -134,6 +139,13 @@ namespace Azos.Data.Access.MongoDb.Connector
     {
       get { return this[Connection.DEFAUL_LOCAL_NODE];}
     }
+
+
+    /// <summary>
+    /// Returns a handler which processes external administration calls, such as the ones originating from
+    /// the application terminal
+    /// </summary>
+    public IExternalCallHandler GetExternalCallHandler() => m_ExternalCallHandler;
 
     #endregion
 

@@ -80,7 +80,6 @@ namespace Azos.Security.MinIdp
       }
     }
 
-
     [Config(Default = SecurityLogMask.Custom)]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
     public SecurityLogMask SecurityLogMask { get; set;}
