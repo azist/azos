@@ -6,7 +6,6 @@
 
 using System;
 
-using Azos;
 using Azos.Wave.Mvc;
 using Azos.Sky.Security.Permissions.Admin;
 using Azos.Data;
@@ -23,13 +22,27 @@ namespace Azos.Apps.Terminal.Web
     [Action]
     public object Index()
     {
+      string esc(string s)
+       => s.Replace("\"", "'")
+           .Replace("<", "&lt;")
+           .Replace(">","&gt;");
+
+      WorkContext.NeedsSession();
+      var html = typeof(Sky.Apps.Terminal.Web.Html).GetText("Console.htm");
+
+      html = html.Replace("[:USER:]", esc(WorkContext.Session.User.Name))
+                 .Replace("[:APP:]", esc(App.AppId.Value))
+                 .Replace("[:HOST:]", esc(Computer.HostName))
+                 .Replace("[:ENV:]", esc(App.EnvironmentName));
+
       WorkContext.Response.ContentType = ContentType.HTML;
-      return typeof(Sky.Apps.Terminal.Web.Html).GetText("Console.htm");
+      return html;
     }
 
     [ActionOnPost(Name = "connection")]
     public object Connection_Connect()
     {
+      WorkContext.NeedsSession();
       var who = "{0}-{1}".Args(WorkContext.EffectiveCallerIPEndPoint.Address, WorkContext.Session.User);
 
       var terminal = AppRemoteTerminal.MakeNewTerminal(App);
@@ -39,7 +52,7 @@ namespace Azos.Apps.Terminal.Web
       var handle = Guid.NewGuid();
       App.ObjectStore.CheckIn(handle, terminal);
 
-      return GetLogicResult(new {handle});
+      return GetLogicResult(new {handle, info});
     }
 
     [ActionOnDelete(Name = "connection")]
@@ -72,11 +85,11 @@ namespace Azos.Apps.Terminal.Web
               plainText = false;
             }
 
-          return GetLogicResult(new { Success = true, PlainText = plainText, Result = result });
+          return GetLogicResult(new { success = true, plainText, result });
         }
         catch (Exception error)
         {
-          return GetLogicResult(new { Success = false, Msg = error.Message, Exception = new WrappedExceptionData(error) });
+          return GetLogicResult(new { success = false, msg = error.Message, exception = new WrappedExceptionData(error) });
         }
       }
       finally
@@ -95,7 +108,7 @@ namespace Azos.Apps.Terminal.Web
        }
 
        var result = App.ObjectStore.CheckOut(guid) as AppRemoteTerminal;
-       if (result==null) throw HTTPStatusException.NotFound_404("Bad handle");
+       if (result==null) throw HTTPStatusException.NotFound_404("Bad terminal");
 
        return (result, guid);
     }

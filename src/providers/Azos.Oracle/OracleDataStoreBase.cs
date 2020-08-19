@@ -132,7 +132,7 @@ namespace Azos.Data.Access.Oracle
     }
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_DATA)]
-    public StoreLogLevel LogLevel { get; set;}
+    public StoreLogLevel DataLogLevel { get; set;}
 
     /// <summary>
     /// Provides schema name which is typically prepended to object names during SQL construction, e.g. "MYSCHEMA"."TABLE1"

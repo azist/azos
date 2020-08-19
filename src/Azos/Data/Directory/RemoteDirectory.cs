@@ -37,7 +37,7 @@ namespace Azos.Data.Directory
     public override string ComponentLogTopic => CoreConsts.DATA_TOPIC;
 
     [Config]
-    public StoreLogLevel LogLevel { get; set; }
+    public StoreLogLevel DataLogLevel { get; set; }
 
     [Config]
     public string TargetName

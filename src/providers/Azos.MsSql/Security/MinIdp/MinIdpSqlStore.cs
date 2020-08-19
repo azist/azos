@@ -53,7 +53,7 @@ namespace Azos.Security.MinIdp
     }
 
 
-    public async Task<MinIdpUserData> GetByIdAsync(string id)
+    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
      => await fetch( cmd => {
        cmd.CommandText = @"
 SELECT
@@ -61,7 +61,7 @@ SELECT
 FROM
   MIDP_LOGIN tlg,
   MIDP_USER tusr,
-  MIDP_ROLE TRL
+  MIDP_ROLE trl
 WHERE
   (tlg.ID = @USER_ID) and
   (tlg.REALM = @REALM) and
@@ -76,7 +76,7 @@ WHERE
   (trl.SUTC < @UTC_NOW)  and (trl.EUTC > @UTC_NOW)
 ";
        cmd.Parameters.AddWithValue("@USER_ID", id);
-       cmd.Parameters.AddWithValue("@REALM", "??????????????");
+       cmd.Parameters.AddWithValue("@REALM", realm.ID);
        cmd.Parameters.AddWithValue("@UTC_NOW", App.TimeSource.UTCNow);
      }, reader => new MinIdpUserData{
          SysId = reader["SYSID"].AsULong(),
@@ -93,23 +93,89 @@ WHERE
          Name = reader["NAME"].AsString(),
          Description = reader["DESCR"].AsString(),
          Role = reader["ROLE"].AsString(),
-         Rights = new Rights(reader["rights"].AsJSONConfig().Configuration),
+         Rights = new Rights(reader["RIGHTS"].AsJSONConfig().Configuration),
          Note = reader["NOTE"] is DBNull ? null : reader["NOTE"].AsString()
-       //todo....
      });
 
 
-    public async Task<MinIdpUserData> GetBySysAsync(SysAuthToken sysToken)
+    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
      => await fetch(cmd => {
-       cmd.CommandText = "aa";
-       cmd.Parameters.AddWithValue("A", "Jeremy");
-     }, reader => null);
+       cmd.CommandText = @"
+SELECT
+  tusr.*, trl.RIGHTS
+FROM
+  MIDP_USER tusr,
+  MIDP_ROLE trl
+WHERE
+  (tusr.SYSID = @SYSID) and
+  (tusr.REALM = @REALM) and
+  (tusr.ROLE = trl.ID) and
+  (trl.REALM = @REALM) and
+  (tusr.SUTC < @UTC_NOW) and (tusr.EUTC > @UTC_NOW) and
+  (trl.SUTC < @UTC_NOW)  and (trl.EUTC > @UTC_NOW)
+";
+       cmd.Parameters.AddWithValue("@SYSID", sysToken.AsLong());
+       cmd.Parameters.AddWithValue("@REALM", realm.ID);
+       cmd.Parameters.AddWithValue("@UTC_NOW", App.TimeSource.UTCNow);
+     }, reader => new MinIdpUserData
+     {
+       SysId = reader["SYSID"].AsULong(),
+       Realm = reader["REALM"].AsAtom(Atom.ZERO, ConvertErrorHandling.ReturnDefault),
+       Status = mapStatus(reader["STAT"].AsInt(0)),
+       CreateUtc = reader["CUTC"].AsDateTime(),
+       StartUtc = reader["SUTC"].AsDateTime(),
+       EndUtc = reader["EUTC"].AsDateTime(),
+       LoginId = null,
+       LoginPassword = null,
+       LoginStartUtc = null,
+       LoginEndUtc = null,
+       ScreenName = reader["SNAME"].AsString(),
+       Name = reader["NAME"].AsString(),
+       Description = reader["DESCR"].AsString(),
+       Role = reader["ROLE"].AsString(),
+       Rights = new Rights(reader["RIGHTS"].AsJSONConfig().Configuration),
+       Note = reader["NOTE"] is DBNull ? null : reader["NOTE"].AsString()
+     });
 
-    public async Task<MinIdpUserData> GetByUriAsync(string uri)
+
+    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
      => await fetch(cmd => {
-       cmd.CommandText = "aa";
-       cmd.Parameters.AddWithValue("A", "Jeremy");
-     }, reader => null);
+       cmd.CommandText = @"
+SELECT
+  tusr.*, trl.RIGHTS
+FROM
+  MIDP_USER tusr,
+  MIDP_ROLE trl
+WHERE
+  (tusr.SNAME = @SNAME) and
+  (tusr.REALM = @REALM) and
+  (tusr.ROLE = trl.ID) and
+  (trl.REALM = @REALM) and
+  (tusr.SUTC < @UTC_NOW) and (tusr.EUTC > @UTC_NOW) and
+  (trl.SUTC < @UTC_NOW)  and (trl.EUTC > @UTC_NOW)
+";
+       cmd.Parameters.AddWithValue("@SNAME", uri);
+       cmd.Parameters.AddWithValue("@REALM", realm.ID);
+       cmd.Parameters.AddWithValue("@UTC_NOW", App.TimeSource.UTCNow);
+     }, reader => new MinIdpUserData
+     {
+       SysId = reader["SYSID"].AsULong(),
+       Realm = realm,
+       Status = mapStatus(reader["STAT"].AsInt(0)),
+       CreateUtc = reader["CUTC"].AsDateTime(),
+       StartUtc = reader["SUTC"].AsDateTime(),
+       EndUtc = reader["EUTC"].AsDateTime(),
+       LoginId = null,
+       LoginPassword = null,
+       LoginStartUtc = null,
+       LoginEndUtc = null,
+       ScreenName = reader["SNAME"].AsString(),
+       Name = reader["NAME"].AsString(),
+       Description = reader["DESCR"].AsString(),
+       Role = reader["ROLE"].AsString(),
+       Rights = new Rights(reader["RIGHTS"].AsJSONConfig().Configuration),
+       Note = reader["NOTE"] is DBNull ? null : reader["NOTE"].AsString()
+     });
 
 
 
@@ -166,7 +232,7 @@ BEGIN
   FROM
     MIDP_LOGIN tlg,
     MIDP_USER tusr,
-    MIDP_ROLE TRL
+    MIDP_ROLE trl
   WHERE
     (tlg.ID = @USER_ID) and
     (tlg.REALM = @REALM) and
@@ -180,4 +246,59 @@ BEGIN
     (tlg.SUTC < @UTC_NOW)  and (tlg.EUTC > @UTC_NOW)  and
     (trl.SUTC < @UTC_NOW)  and (trl.EUTC > @UTC_NOW)
 END;
+
+-- ----------------------------------------------------------------------
+
+BEGIN
+  DECLARE @SYSID bigint
+  SET @SYSID = 5000
+
+  DECLARE @REALM bigint
+  SET @REALM = 97
+
+  DECLARE @UTC_NOW datetime
+  SET @UTC_NOW = '08/17/2020'
+
+  SELECT
+    tusr.*, trl.RIGHTS
+  FROM
+    MIDP_USER tusr,
+    MIDP_ROLE trl
+  WHERE
+    (tusr.SYSID = @SYSID) and
+    (tusr.REALM = @REALM) and
+    (tusr.ROLE = trl.ID) and
+    (trl.REALM = @REALM) and
+    (tusr.SUTC < @UTC_NOW) and (tusr.EUTC > @UTC_NOW) and
+    (trl.SUTC < @UTC_NOW)  and (trl.EUTC > @UTC_NOW)
+END;
+
+------------------------------------------------------------
+
+
+BEGIN
+  DECLARE @SNAME varchar(128)
+  SET @SNAME = 'msmith97'
+
+  DECLARE @REALM bigint
+  SET @REALM = 97
+
+  DECLARE @UTC_NOW datetime
+  SET @UTC_NOW = '08/17/2020'
+
+  SELECT
+    tusr.*, trl.RIGHTS
+  FROM
+    MIDP_USER tusr,
+    MIDP_ROLE trl
+  WHERE
+    (tusr.SNAME = @SNAME) and
+    (tusr.REALM = @REALM) and
+    (tusr.ROLE = trl.ID) and
+    (trl.REALM = @REALM) and
+    (tusr.SUTC < @UTC_NOW) and (tusr.EUTC > @UTC_NOW) and
+    (trl.SUTC < @UTC_NOW)  and (trl.EUTC > @UTC_NOW)
+END;
+
+
 */

@@ -4,9 +4,13 @@
 <head>
   <meta charset="utf-8">
 
-  <title>Remote Terminal</title>
+  <title>[:USER:]@[:APP:] on `[:HOST:]`/`[:ENV:]` </title>
   <meta name="description" content="App Remote Terminal">
-  <meta name="author" content="RonJ">
+  <meta name="author" content="Azos">
+
+  <script>
+    const ABOUT_SESSION = "[:USER:]@[:APP:] on `[:HOST:]`/`[:ENV:]`";
+  </script>
 
   <style>
 .conForeColor_Black       { color: black; }     .conBackColor_Black       { background-color: black;   }
@@ -117,6 +121,15 @@
       margin-bottom: 10px;
     }
 
+    .echo{
+      white-space: pre;
+      margin: 1px;
+      margin-left: 6px;
+      border-left: 2px solid #343434;
+      padding: 2px;
+      box-shadow: inset 1px 1px 6px #282828;
+    }
+
 
   </style>
 
@@ -134,10 +147,50 @@
   </div>
   <textarea id="stdin" class="stdin" placeholder="Try typing 'help' then hit <F1> to send..."></textarea>
 
-  <button class="clear" onclick="document.getElementById('stdout').innerHTML=''">CLEAR</button>
-  <button class="send">SEND</button>
+  <button class="clear" onclick="cls()">CLEAR</button>
+  <button class="send" onclick="send()">SEND</button>
 
   <script>
+    const txtStdin = document.getElementById("stdin");
+    const divStdout = document.getElementById("stdout");
+
+    let SESSION = "none yet";
+
+    const HTML_TAGS = {'&': '&amp;', '<': '&lt;', '>': '&gt;' };
+    function rtg(tag) { return HTML_TAGS[tag] || tag; }
+    function html(str) {return str.replace(/[&<>]/g, rtg); }
+
+
+    function cls() {
+      document.getElementById('stdout').innerHTML = ABOUT_SESSION;
+    }
+
+    async function send() {
+      const cmd = txtStdin.value;
+
+      echo(cmd);
+      return;
+      const response = await fetch('/system/webconsole/command', {
+        method: 'POST',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: { handle: SESSION, command: cmd }
+      });
+
+      alert(response.json());
+    }
+
+    function echo(str) {
+      let div = document.createElement("div");
+      div.innerHTML = html(str);
+      div.className = "echo";
+
+      divStdout.appendChild(div);
+      div.scrollIntoView()
+    }
+
+
 
   </script>
 </body>

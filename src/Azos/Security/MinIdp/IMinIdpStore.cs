@@ -16,9 +16,9 @@ namespace Azos.Security.MinIdp
   /// </summary>
   public interface IMinIdpStore : IApplicationComponent
   {
-    Task<MinIdpUserData> GetByIdAsync(string id);
-    Task<MinIdpUserData> GetByUriAsync(string uri);
-    Task<MinIdpUserData> GetBySysAsync(SysAuthToken sysToken);
+    Task<MinIdpUserData> GetByIdAsync(Atom realm, string id);
+    Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri);
+    Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken);
   }
 
   /// <summary>
@@ -45,8 +45,8 @@ namespace Azos.Security.MinIdp
 
     public string LoginId         { get; set; }//tbl_login.id    vchar(36)
     public string LoginPassword   { get; set; }//tbl_login.pwd   vchar(2k) -- contains PWD JSON
-    public DateTime LoginStartUtc { get; set; }//tbl_login.sd
-    public DateTime LoginEndUtc   { get; set; }//tbl_login.ed
+    public DateTime? LoginStartUtc { get; set; }//tbl_login.sd
+    public DateTime? LoginEndUtc   { get; set; }//tbl_login.ed
 
 
     public string ScreenName  { get; set; }//tbl_user.screenName vchar(36)

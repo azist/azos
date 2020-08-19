@@ -67,7 +67,7 @@ namespace Azos.Security.MinIdp
 
 
     /// <summary>
-    /// Required. Dictates in what realm this security operates
+    /// Required. Dictates in what realm this security implementation operates
     /// </summary>
     [Config]
     public Atom Realm
@@ -126,7 +126,7 @@ namespace Azos.Security.MinIdp
         }
       } else if (credentials is IDPasswordCredentials idpass)
       {
-        var data = await m_Store.GetByIdAsync(idpass.ID);
+        var data = await m_Store.GetByIdAsync(Realm, idpass.ID);
         if (data != null)
         {
           var user = TryAuthenticateUser(data, idpass);
@@ -134,7 +134,7 @@ namespace Azos.Security.MinIdp
         }
       } else if (credentials is EntityUriCredentials enturi)
       {
-        var data = await m_Store.GetByUriAsync(enturi.Uri);
+        var data = await m_Store.GetByUriAsync(Realm, enturi.Uri);
         if (data != null)
         {
           var user = TryAuthenticateUser(data, enturi);
@@ -151,11 +151,14 @@ namespace Azos.Security.MinIdp
 
     public virtual async Task<User> AuthenticateAsync(SysAuthToken token)
     {
-      var data = await m_Store.GetBySysAsync(token);
-      if (data!=null)
+      if (Realm.Value.EqualsOrdSenseCase(token.Realm))
       {
-        var user = TryAuthenticateUser(data);
-        if (user != null) return user;
+        var data = await m_Store.GetBySysAsync(Realm, token.Data);
+        if (data!=null)
+        {
+          var user = TryAuthenticateUser(data);
+          if (user != null) return user;
+        }
       }
 
       return MakeBadUser(null);
