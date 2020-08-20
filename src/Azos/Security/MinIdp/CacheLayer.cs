@@ -20,6 +20,8 @@ namespace Azos.Security.MinIdp
   /// </summary>
   public sealed class CacheLayer : DaemonWithInstrumentation<MinIdpSecurityManager>, IMinIdpStoreImplementation
   {
+    public const int DEFAULT_CACHE_AGE_SEC = 30;
+
     public CacheLayer(MinIdpSecurityManager dir) : base(dir)
     {
     }
@@ -62,8 +64,8 @@ namespace Azos.Security.MinIdp
     /// <summary>
     /// Cache age limit in seconds, set to 0 to disable caching
     /// </summary>
-    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_SECURITY, CoreConsts.EXT_PARAM_GROUP_CACHE)]
-    public int MaxCacheAgeSec { get; set; }
+    [Config(Default = DEFAULT_CACHE_AGE_SEC), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_SECURITY, CoreConsts.EXT_PARAM_GROUP_CACHE)]
+    public int MaxCacheAgeSec { get; set; } = DEFAULT_CACHE_AGE_SEC;
 
 
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
@@ -158,6 +160,15 @@ namespace Azos.Security.MinIdp
 
     }
 
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+
+      DisposeAndNull(ref m_Store);
+      m_Store = FactoryUtils.MakeAndConfigureDirectedComponent<IMinIdpStoreImplementation>(
+                                              this,
+                                              node[MinIdpSecurityManager.CONFIG_STORE_SECTION]);
+    }
 
     protected override void DoStart()
     {
