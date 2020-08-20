@@ -27,10 +27,11 @@ app
   security
   {
     type='Azos.Security.MinIdp.MinIdpSecurityManager, Azos'
-    realm = 'r1'
+    realm = '1r'
     store
     {
        type='Azos.Security.MinIdp.CacheLayer, Azos'
+       //max-cache-age-sec=0
        store
        {
          type='Azos.Security.MinIdp.MinIdpSqlStore, Azos.MsSql'
@@ -55,70 +56,64 @@ app
     }
 
 
-    [Run("realm=1")]
-    [Run("realm=2")]
-    public void Authenticate_BadUserPassword(int realm)
+    [Run]
+    public void Authenticate_BadUserPassword()
     {
       var credentials = new IDPasswordCredentials("user1", "wqerwqerwqer");
       var user = m_App.SecurityManager.Authenticate(credentials);
       Aver.IsTrue(user.Status== UserStatus.Invalid);
     }
 
-    [Run("realm=1")]
-    [Run("realm=2")]
-    public void Authenticate_BadUser_SysToken1(int realm)
+    [Run]
+    public void Authenticate_BadUser_SysToken1()
     {
-      var tok = new SysAuthToken("r{0}".Args(realm), "23423423423423");
+      var tok = new SysAuthToken("1r", "23423423423423");
       var user = m_App.SecurityManager.Authenticate(tok);
       Aver.IsTrue(user.Status == UserStatus.Invalid);
     }
 
-    [Run("realm=1")]
-    public void Authenticate_BadUser_SysToken2(int realm)
+    [Run]
+    public void Authenticate_BadUser_SysToken2()
     {
-      var tok = new SysAuthToken("4535r1", "1");
+      var tok = new SysAuthToken("4535r1", "5001");
       var user = m_App.SecurityManager.Authenticate(tok);
       Aver.IsTrue(user.Status == UserStatus.Invalid);
     }
 
-    [Run("realm=1")]
-    [Run("realm=2")]
-    public void Authenticate_BadUser_UriCredentials(int realm)
+    [Run]
+    public void Authenticate_BadUser_UriCredentials()
     {
-      var credentials = new EntityUriCredentials("sadfsafsa");
+      var credentials = new EntityUriCredentials("usr12222222");
       var user = m_App.SecurityManager.Authenticate(credentials);
       Aver.IsTrue(user.Status == UserStatus.Invalid);
     }
 
 
-    [Run("realm=1 name='R1User1' pwd='thejake'")]
-    [Run("realm=2 name='R2User1' pwd='awsedr'")]
-    public void Authenticate_IDPasswordCredentials(int realm, string name, string pwd)
+    [Run]
+    public void Authenticate_IDPasswordCredentials()
     {
-      var credentials = new IDPasswordCredentials("user1", pwd);
+      var credentials = new IDPasswordCredentials("user1", "awsedr");
       var user = m_App.SecurityManager.Authenticate(credentials);
       Aver.IsTrue(user.Status == UserStatus.User);
-      Aver.AreEqual(name, user.Name);
+      Aver.AreEqual("User1", user.Name);
     }
 
-    [Run("realm=1 name='R1User1' data=t1")]
-    [Run("realm=2 name='R2User1' data=t1")]
-    public void Authenticate_SysToken(int realm, string name, string data)
+    [Run]
+    public void Authenticate_SysToken()
     {
-      var tok = new SysAuthToken("r{0}".Args(realm), data);
+      var tok = new SysAuthToken("1r", "5001");
       var user = m_App.SecurityManager.Authenticate(tok);
       Aver.IsTrue(user.Status == UserStatus.User);
-      Aver.AreEqual(name, user.Name);
+      Aver.AreEqual("User1", user.Name);
     }
 
-    [Run("realm=1 name='R1User1'")]
-    [Run("realm=2 name='R2User1'")]
-    public void Authenticate_UriCredentials(int realm, string name)
+    [Run]
+    public void Authenticate_UriCredentials()
     {
-      var credentials = new EntityUriCredentials("uri1");
+      var credentials = new EntityUriCredentials("usr1");
       var user = m_App.SecurityManager.Authenticate(credentials);
       Aver.IsTrue(user.Status == UserStatus.User);
-      Aver.AreEqual(name, user.Name);
+      Aver.AreEqual("User1", user.Name);
     }
 
 
