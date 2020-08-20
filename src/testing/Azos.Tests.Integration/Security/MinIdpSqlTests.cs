@@ -17,7 +17,7 @@ using Azos.Security;
 namespace Azos.Tests.Integration.Security
 {
   [Runnable]
-  public class MinIdpTests  : IRunnableHook
+  public class MinIdpSqlTests  : IRunnableHook
   {
 
     private static string confR1 =
@@ -34,7 +34,7 @@ app
        store
        {
          type='Azos.Security.MinIdp.MinIdpSqlStore, Azos.MsSql'
-         connect-string='Data Source=OCTOD;Initial Catalog=MINIDP;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False'
+         connect-string='Data Source=$(~App.HOST);Initial Catalog=MINIDP;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False'
        }
     }
   }

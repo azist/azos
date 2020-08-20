@@ -16,6 +16,8 @@ namespace Azos.Apps
     public const string CORE_CONSTS_PREFIX = "CoreConsts.";
     public const string COUNTER_PREFIX = "Counter.";
 
+    public const string HOST = "HOST";
+
     /// <summary>
     /// Application instance Guid with dashes
     /// </summary>
@@ -45,6 +47,13 @@ namespace Azos.Apps
       app.NonNull(nameof(app));
       value = "";
       if (name.IsNullOrWhiteSpace()) return false;
+
+
+      if (name.EqualsOrdIgnoreCase(HOST))
+      {
+        value = Azos.Platform.Computer.HostName;
+        return true;
+      }
 
       if (name.EqualsOrdIgnoreCase(FID))
       {
