@@ -76,7 +76,7 @@ WHERE
   (trl.SUTC < @UTC_NOW)  and (trl.EUTC > @UTC_NOW)
 ";
        cmd.Parameters.AddWithValue("@USER_ID", id);
-       cmd.Parameters.AddWithValue("@REALM", realm.ID);
+       cmd.Parameters.AddWithValue("@REALM", (long)realm.ID);
        cmd.Parameters.AddWithValue("@UTC_NOW", App.TimeSource.UTCNow);
      }, reader => new MinIdpUserData{
          SysId = reader["SYSID"].AsULong(),
@@ -115,7 +115,7 @@ WHERE
   (trl.SUTC < @UTC_NOW)  and (trl.EUTC > @UTC_NOW)
 ";
        cmd.Parameters.AddWithValue("@SYSID", sysToken.AsLong());
-       cmd.Parameters.AddWithValue("@REALM", realm.ID);
+       cmd.Parameters.AddWithValue("@REALM", (long)realm.ID);
        cmd.Parameters.AddWithValue("@UTC_NOW", App.TimeSource.UTCNow);
      }, reader => new MinIdpUserData
      {
@@ -155,7 +155,7 @@ WHERE
   (trl.SUTC < @UTC_NOW)  and (trl.EUTC > @UTC_NOW)
 ";
        cmd.Parameters.AddWithValue("@SNAME", uri);
-       cmd.Parameters.AddWithValue("@REALM", realm.ID);
+       cmd.Parameters.AddWithValue("@REALM", (long)realm.ID);
        cmd.Parameters.AddWithValue("@UTC_NOW", App.TimeSource.UTCNow);
      }, reader => new MinIdpUserData
      {
@@ -198,9 +198,11 @@ WHERE
           cmd.CommandType = CommandType.Text;
           builder(cmd);
           using (var reader = await cmd.ExecuteReaderAsync())
-            return body(reader);
+            if (await reader.ReadAsync()) return body(reader);
         }
       }
+
+      return null;
     }
 
     private UserStatus mapStatus(int status)

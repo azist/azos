@@ -13,7 +13,6 @@ using Azos.Apps;
 using Azos.Data;
 using Azos.Scripting;
 using Azos.Security;
-using Azos.Security.MinIdp;
 
 namespace Azos.Tests.Integration.Security
 {
@@ -35,7 +34,7 @@ app
        store
        {
          type='Azos.Security.MinIdp.MinIdpSqlStore, Azos.MsSql'
-
+         connect-string='Data Source=OCTOD;Initial Catalog=MINIDP;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False'
        }
     }
   }
