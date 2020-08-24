@@ -16,16 +16,17 @@ using Azos.Web;
 namespace Azos.Apps.Terminal.Web
 {
   [NoCache]
+//#warning TURN back on!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   [RemoteTerminalOperatorPermission]
   public class WebConsole : ApiProtocolController
   {
     [Action]
-    public object Index()
+    public void Index()
     {
       string esc(string s)
-       => s.Replace("\"", "'")
-           .Replace("<", "&lt;")
-           .Replace(">","&gt;");
+       => s.IsNullOrWhiteSpace() ? "" : s.Replace("\"", "'")
+                                         .Replace("<", "&lt;")
+                                         .Replace(">","&gt;");
 
       WorkContext.NeedsSession();
       var html = typeof(Sky.Apps.Terminal.Web.Html).GetText("Console.htm");
@@ -36,7 +37,7 @@ namespace Azos.Apps.Terminal.Web
                  .Replace("[:ENV:]", esc(App.EnvironmentName));
 
       WorkContext.Response.ContentType = ContentType.HTML;
-      return html;
+      WorkContext.Response.Write(html);
     }
 
     [ActionOnPost(Name = "connection")]

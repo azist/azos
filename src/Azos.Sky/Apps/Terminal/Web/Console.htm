@@ -13,30 +13,35 @@
   </script>
 
   <style>
-.conForeColor_Black       { color: black; }     .conBackColor_Black       { background-color: black;   }
-.conForeColor_DarkBlue    { color: #202080; }   .conBackColor_DarkBlue    { background-color: #202080; }
+.conForeColor_Black       { color: #080800; }   .conBackColor_Black       { background-color: #080800; }
+.conForeColor_DarkBlue    { color: #2020a0; }   .conBackColor_DarkBlue    { background-color: #2020a0; }
 .conForeColor_DarkGreen   { color: #208020; }   .conBackColor_DarkGreen   { background-color: #208020; }
 .conForeColor_DarkCyan    { color: #208060; }   .conBackColor_DarkCyan    { background-color: #208060; }
-.conForeColor_DarkRed     { color: #902520; }   .conBackColor_DarkRed     { background-color: #902520; }
-.conForeColor_DarkMagenta { color: #802080; }   .conBackColor_DarkMagenta { background-color: #802080; }
-.conForeColor_DarkYellow  { color: #809020; }   .conBackColor_DarkYellow  { background-color: #809020; }
-.conForeColor_Gray        { color: #a0a0a0; }    .conBackColor_Gray       { background-color: #a0a0a0; }
+.conForeColor_DarkRed     { color: #b03020; }   .conBackColor_DarkRed     { background-color: #b03020; }
+.conForeColor_DarkMagenta { color: #842080; }   .conBackColor_DarkMagenta { background-color: #842080; }
+.conForeColor_DarkYellow  { color: #889430; }   .conBackColor_DarkYellow  { background-color: #889430; }
+.conForeColor_Gray        { color: #808080; }    .conBackColor_Gray       { background-color: #808080; }
 .conForeColor_DarkGray    { color: #606060; }    .conBackColor_DarkGray   { background-color: #606060; }
-.conForeColor_Blue        { color: #5050ff; }    .conBackColor_Blue       { background-color: #5050ff; }
-.conForeColor_Green       { color: #60ff20; }    .conBackColor_Green      { background-color: #60ff20; }
-.conForeColor_Cyan        { color: #20ffff; }    .conBackColor_Cyan       { background-color: #20ffff; }
+.conForeColor_Blue        { color: #4070ff; }    .conBackColor_Blue       { background-color: #4070ff; }
+.conForeColor_Green       { color: #90ff30; }    .conBackColor_Green      { background-color: #90ff30; }
+.conForeColor_Cyan        { color: #40e0ff; }    .conBackColor_Cyan       { background-color: #40e0ff; }
 .conForeColor_Red         { color: #ff5020; }    .conBackColor_Red        { background-color: #ff5020; }
-.conForeColor_Magenta     { color: #ff30d0; }    .conBackColor_Magenta    { background-color: #ff30d0; }
-.conForeColor_Yellow      { color: #ffff20; }    .conBackColor_Yellow     { background-color: #ffff20; }
+.conForeColor_Magenta     { color: #ff70d0; }    .conBackColor_Magenta    { background-color: #ff70d0; }
+.conForeColor_Yellow      { color: #f8ff50; }    .conBackColor_Yellow     { background-color: #f8ff50; }
 .conForeColor_White       { color: white;   }    .conBackColor_White      { background-color: white;   }
 
     html {
      font-family: 'Lucida Console';
-     font-size: 12px;
-     line-height: 18px;
+     font-size: 14px;
+     line-height: 16px;
+    }
+
+    pre{
+     font-family: inherit;
     }
 
     body{
+     font-family: inherit;
      width: 100%;
      margin: 0px;
      padding: 0px;
@@ -123,11 +128,24 @@
 
     .echo{
       white-space: pre;
-      margin: 1px;
       margin-left: 6px;
-      border-left: 2px solid #343434;
+      border-left: 4px solid #343434;
+      padding: 4px;
+      background-color: #101f1f;
+    }
+
+    .response{
+      white-space: pre;
+      margin: 2px;
+      border: none;
       padding: 2px;
-      box-shadow: inset 1px 1px 6px #282828;
+    }
+
+    .error{
+      white-space: pre;
+      margin: 1px;
+      border: none;
+      color: #f87510;
     }
 
 
@@ -162,35 +180,90 @@
 
 
     function cls() {
-      document.getElementById('stdout').innerHTML = ABOUT_SESSION;
+      document.getElementById('stdout').innerHTML = ABOUT_SESSION + "<br><hr><br>";
+    }
+
+    async function connect() {
+      try {
+        const response = await fetch('connection', {
+          method: 'POST',
+          cache: 'no-cache',
+          credentials: 'same-origin'
+        });
+
+        if (!response.ok) throw ` --> !OK Status [${response.status}] / '${response.statusText}'`
+
+        const got = await response.json();
+
+        SESSION = got.data.handle;
+        putResponse(JSON.stringify(got, null, 2));
+      }
+      catch (e) {
+        error(e);
+      }
     }
 
     async function send() {
       const cmd = txtStdin.value;
 
       echo(cmd);
-      return;
-      const response = await fetch('/system/webconsole/command', {
-        method: 'POST',
-        cache: 'no-cache',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' },
-        body: { handle: SESSION, command: cmd }
-      });
+      try {
+        const response = await fetch('command', {
+          method: 'POST',
+          cache: 'no-cache',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ handle: SESSION, command: cmd })
+        });
 
-      alert(response.json());
+        if (!response.ok) throw ` --> !OK Status [${response.status}] / '${response.statusText}'`
+
+        const got = await response.json();
+      //  echo(JSON.stringify(got));
+
+        if (got.OK && got.data.success) {
+          putResponse(got.data.result, !got.data.plainText);
+        } else {
+          error(JSON.stringify(got.data, null, 2));
+        }
+      }
+      catch (e) {
+        error(e);
+      }
     }
 
     function echo(str) {
       let div = document.createElement("div");
-      div.innerHTML = html(str);
+      div.innerHTML = html(`${str}`);
       div.className = "echo";
 
       divStdout.appendChild(div);
-      div.scrollIntoView()
+      div.scrollIntoView({block: "end", inline: "nearest", behavior: "smooth"})
     }
 
+    function putResponse(str, asis) {
+      let div = document.createElement("div");
+      div.innerHTML = asis ? str : html(`${str}`);
+      div.className = "response";
 
+      divStdout.appendChild(div);
+      div.scrollIntoView({block: "end", inline: "nearest", behavior: "smooth"})
+    }
+
+    function error(str) {
+      let div = document.createElement("div");
+      div.innerHTML = html(`${str}`);
+      div.className = "error";
+
+      divStdout.appendChild(div);
+      div.scrollIntoView({block: "end", inline: "nearest", behavior: "smooth"})
+    }
+
+    async function run() {
+      await connect();
+    }
+
+    run();
 
   </script>
 </body>
