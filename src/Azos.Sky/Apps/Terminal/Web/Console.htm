@@ -36,6 +36,14 @@
      line-height: 16px;
     }
 
+    @media only screen and (max-width: 725px){
+      html {
+        font-size: 9px;
+        line-height: 10px;
+        transition: 0.25s;
+      }
+    }
+
     pre{
      font-family: inherit;
     }
@@ -74,6 +82,9 @@
       color: #c0e090;
       padding: 8px;
       resize: none;
+
+      font-size: inherit;
+      line-height: inherit;
     }
 
     .stdin:focus{
@@ -173,6 +184,8 @@
     const divStdout = document.getElementById("stdout");
 
     let SESSION = "none yet";
+    const HISTORY = [];
+    let idxHistory = 0;
 
     const HTML_TAGS = {'&': '&amp;', '<': '&lt;', '>': '&gt;' };
     function rtg(tag) { return HTML_TAGS[tag] || tag; }
@@ -205,6 +218,16 @@
 
     async function send() {
       const cmd = txtStdin.value;
+
+      if (cmd === "") return;
+
+      HISTORY.push(cmd);
+      idxHistory = HISTORY.length;
+
+      if (cmd === "cls") {
+        cls();
+        return;
+      }
 
       echo(cmd);
       try {
@@ -259,11 +282,30 @@
       div.scrollIntoView({block: "end", inline: "nearest", behavior: "smooth"})
     }
 
+    function history(dir) {
+      if (HISTORY.length === 0) return;
+
+      idxHistory += dir;
+
+      if (idxHistory >= 0 && idxHistory < HISTORY.length) {
+        const cmd = HISTORY[idxHistory];
+        txtStdin.value = cmd;
+      }
+    }
+
     async function run() {
       await connect();
     }
 
     run();
+
+    document.onkeydown = function (e) {
+      if (e.keyCode == 13 && e.ctrlKey) send();//enter
+      else if (e.keyCode == 38 && e.ctrlKey) history(-1);//up
+      else if (e.keyCode == 40 && e.ctrlKey) history(1);//down
+      else return;
+      e.preventDefault();
+    };
 
   </script>
 </body>
