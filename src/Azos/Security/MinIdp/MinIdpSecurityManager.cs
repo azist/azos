@@ -117,7 +117,9 @@ namespace Azos.Security.MinIdp
     {
       if (credentials is BearerCredentials bearer)
       {
-        var oauth = App.ModuleRoot.Get<Services.IOAuthModule>();
+        var oauth = App.ModuleRoot.TryGet<Services.IOAuthModule>();
+        if (oauth == null) return MakeBadUser(credentials);
+
         var accessToken = await oauth.TokenRing.GetAsync<Tokens.AccessToken>(bearer.Token);
         if (accessToken != null)//if token is valid
         {

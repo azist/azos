@@ -117,13 +117,35 @@ namespace Azos.Security
       logSecurityMessage(msg);
     }
 
+    protected virtual User MakeBadUser(Credentials credentials)
+    {
+      return new User(credentials,
+                           new SysAuthToken(),
+                           UserStatus.Invalid,
+                           StringConsts.SECURITY_NON_AUTHENTICATED,
+                           StringConsts.SECURITY_NON_AUTHENTICATED,
+                           Rights.None, App.TimeSource.UTCNow);
+    }
+
+    protected virtual User MakeUser(Credentials credentials, SysAuthToken sysToken, UserStatus status, string name, string descr, Rights rights)
+    {
+      return new User(credentials,
+                          sysToken,
+                          status,
+                          name,
+                          descr,
+                          rights, App.TimeSource.UTCNow);
+    }
+
     public Task<User> AuthenticateAsync(Credentials credentials) => Task.FromResult(Authenticate(credentials));
 
     public User Authenticate(Credentials credentials)
     {
       if (credentials is BearerCredentials bearer)
       {
-        var oauth = App.ModuleRoot.Get<Services.IOAuthModule>();
+        var oauth = App.ModuleRoot.TryGet<Services.IOAuthModule>();
+        if (oauth == null) return MakeBadUser(credentials);
+
         var accessToken = oauth.TokenRing.GetAsync<Tokens.AccessToken>(bearer.Token).GetAwaiter().GetResult();//since this manager is sync-only
         if (accessToken!=null)//if token is valid
         {
@@ -158,21 +180,16 @@ namespace Azos.Security
             rights = new Rights(data);
           }
 
-          return new User(credentials,
+          return MakeUser(credentials,
                           credToAuthToken(credentials),
                           status,
                           name,
                           descr,
-                          rights, App.TimeSource.UTCNow);
+                          rights);
         }
       }
 
-      return new User(credentials,
-                      new SysAuthToken(),
-                      UserStatus.Invalid,
-                      StringConsts.SECURITY_NON_AUTHENTICATED,
-                      StringConsts.SECURITY_NON_AUTHENTICATED,
-                      Rights.None, App.TimeSource.UTCNow);
+      return MakeBadUser(credentials);
     }
 
     public Task<User> AuthenticateAsync(SysAuthToken token) => Task.FromResult(Authenticate(token));
