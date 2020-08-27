@@ -7,9 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using Azos.Apps;
-using Azos.Data.Access;
 using Azos.Data.AST;
+using Azos.Data.Business;
 
 namespace Azos.Data.Directory
 {
@@ -37,17 +38,17 @@ namespace Azos.Data.Directory
     /// <summary>
     /// Saves an item to directory
     /// </summary>
-    Task SaveAsync(Item item);
+    Task<ChangeResult> SaveAsync(Item item);
 
     /// <summary>
     /// Updates LastUseUtc timestamp for items that use sliding expiration. Returns true if an item was found and updated
     /// </summary>
-    Task<bool> TouchAsync(EntityId id);
+    Task<ChangeResult> TouchAsync(IEnumerable<EntityId> ids);
 
     /// <summary>
     /// Tries to delete an item, returning true if an item found and marked for deletion
     /// </summary>
-    Task<bool> DeleteAsync(EntityId id);
+    Task<ChangeResult> DeleteAsync(EntityId id);
 
     /// <summary>
     /// Finds item/items that satisfy the queryExpression which is an object graph representing an expression tree
