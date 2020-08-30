@@ -197,7 +197,7 @@ namespace Azos.Log.Sinks
             if (!Running && !ComponentDirector.LogDaemon.Reliable) return;
             txt.Append("@");
             txt.AppendLine( m.ToString() );
-            txt.AppendLine();
+            txt.AppendLine( m.Parameters.TakeFirstChars(128, "..") );
             txt.AppendLine();
 
             if (m_MaxTextLength>0 && txt.Length>m_MaxTextLength) break;

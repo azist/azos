@@ -4,14 +4,14 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
-using Azos.Log;
+
+using Azos.Platform;
 using Azos.Security;
+
 using Azos.Sky.Security.Permissions.Chronicle;
 using Azos.Wave.Mvc;
+using Azos.Web;
 
 namespace Azos.Sky.Chronicle.Server.Web
 {
@@ -28,13 +28,24 @@ namespace Azos.Sky.Chronicle.Server.Web
   //[Release(ReleaseType.Preview, 2020, 07, 05, "Initial Release", Description = "Preview release of API")]
   public class App : ApiProtocolController
   {
+    [Action(Name = "log")]
+    public void Log()
+    {
+      string esc(string s)
+        => s.IsNullOrWhiteSpace() ? "" : s.Replace("\"", "'")
+                                          .Replace("<", "&lt;")
+                                          .Replace(">", "&gt;");
 
-    //we need to know the type of View that
-    //implements visualization and return it
-    //it can be in a different assembly (the view)
+      WorkContext.NeedsSession();
+      var html = typeof(App).GetText("LogView.htm");
 
-    [Action]
-    public object Index() => "<h1>Chronicle App</h1>";
+      html = html.Replace("[:USER:]", esc(WorkContext.Session.User.Name))
+                 .Replace("[:APP:]", esc(App.AppId.Value))
+                 .Replace("[:HOST:]", esc(Computer.HostName))
+                 .Replace("[:ENV:]", esc(App.EnvironmentName));
 
+      WorkContext.Response.ContentType = ContentType.HTML;
+      WorkContext.Response.Write(html);
+    }
   }
 }
