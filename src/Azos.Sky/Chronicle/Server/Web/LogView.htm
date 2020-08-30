@@ -41,8 +41,8 @@
     }
 
     header{
-        background: #ffce00;
-        border-bottom: 2px solid #e5b500;
+        background: #c8c8c0;
+        border-bottom: 2px solid #b4b4b4;
         position: fixed;
         padding: 12px;
         height: 28px;
@@ -50,6 +50,15 @@
         top: 0px;
         width: 100%;
         z-index: 1;
+        transition: 0.2s;
+    }
+
+    .filter{
+       height: auto;
+       opacity: 0.80;
+       box-shadow: 0px 10px 60px #a0a0a0;
+       border: none;
+       background-color: #2a2a2a; /*#ffce00;*/
     }
 
     .logo{
@@ -60,12 +69,35 @@
 
     .header-title {
         font-size: 30px;
-        color: #644;
+        color: #686868;
         position: relative;
         top: -22px;
         display: inline;
         margin-left: 8px;
         white-space: nowrap;
+    }
+
+    .filter .header-title{
+      color: #9aa087;
+    }
+
+    .menu{
+      position: absolute;
+      z-index: 1000;
+      right: 34px;
+      top: 10px;
+      border: none;
+      border-radius: 4px;
+      padding: 5px;
+      color: #606060;
+      font-size: 18px;
+      background-color: rgba(255,255,255, 0.5);
+      outline: none;
+    }
+
+    .menu:hover{
+      background-color: rgba(255,255,255, 0.75);
+      color: #404040;
     }
 
     @media only screen and (max-width: 480px)  {
@@ -95,7 +127,8 @@
     }
 
     section#body.over{
-        filter: blur(2px);
+        filter: blur(6px);
+        transition: 0.4s;
     }
 
     @media only screen and (max-width: 480px){
@@ -105,48 +138,11 @@
      }
     }
 
-    ul{
-        margin: 4px;
-        padding-inline-start: 24px;
-        list-style-type: decimal;
-    }
-
-    li{
-        margin-bottom: 4px;
-    }
-
-    .code{
-        font-family: "Lucida Console", Monaco, monospace;
-        padding: 8px;
-        margin: 4px;
-        border-radius: 8px;
-        background: #eaeaea;
-        color: #606060;
-        word-break: break-all;
-    }
-
-    hr{
-        border: 1px solid #bbb;
-        margin: 30px;
-        padding-top: 1px;
-    }
-
     a{
         color: #4080e0;
         text-decoration: none;
     }
 
-    .card{
-      display: inline-block;
-      float: left;
-      border: 1px solid #e8e8e8;
-      background: #f8f8f0;
-      padding: 4px;
-      border-radius: 4px;
-      margin: 4px;
-      box-shadow: 1px 1px 2px #ddd;
-      color: #999;
-    }
 
     .clearfix{
       clear: both;
@@ -201,21 +197,79 @@
       text-overflow: ellipsis;
     }
 
+    label{
+      color: #9e9e9e;
+    }
+
+    input, textarea{
+      display: block;
+      margin: 4px;
+      margin-bottom: 6px;
+      outline: none;
+      padding: 4px;
+      border: 1px solid #808080;
+      border-radius: 4px;
+      background-color: #707070;
+      width: 90%;
+      font-size: inherit;
+      resize: none;
+      color: #f0f0f0;
+    }
+
+    .form-block{
+      width: 270px;
+      float: left;
+    }
+
+    .apply{
+      border: none;
+      border-radius: 4px;
+      padding: 5px;
+      color: #f0f0f0;
+      font-size: 18px;
+      background-color: rgba(10,150,255, 0.8);
+      outline: none;
+    }
+
+    .apply:hover{
+      background-color: rgba(225,245,255, 0.9);
+      color: #404040;
+    }
+
 </style>
 
 </head>
 
 <body>
-  <header>
+  <header id="hdrMain">
     <svg class="logo" viewBox="0 0 640 640" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><g id="Lepestki"><path d="M11.15,327.457c89.474,-45.308 207.314,-68.871 334.797,-60.494c109.793,7.213 209.794,37.005 288.85,81.363c-87.242,145.289 -205.417,232.199 -330.635,223.972c-119.564,-7.856 -222.905,-100.962 -293.012,-244.841Z" style="fill:url(#_Linear1);" /><path d="M8.378,319.69c67.264,-77.888 168.404,-146.97 289.589,-190.282c104.367,-37.304 207.5,-49.737 296.26,-40.261c-30.448,169.751 -109.882,297.739 -228.915,340.282c-113.657,40.623 -241.889,-4.348 -356.934,-109.739Z" style="fill:#f30;fill-opacity:0.603922;" /><path d="M8.489,319.645c89.475,-45.308 207.315,-68.872 334.797,-60.495c109.793,7.213 209.794,37.005 288.85,81.363c-87.242,145.289 -205.417,232.2 -330.635,223.972c-119.564,-7.856 -222.905,-100.962 -293.012,-244.84Z" style="fill:#9dff00;fill-opacity:0.94902;" /><path d="M8.434,319.601c78.898,-64.074 189.719,-113.125 316.088,-133.047c108.829,-17.153 212.399,-10.056 298.254,15.923c-57.59,161.432 -156.622,272.552 -280.744,292.119c-118.518,18.682 -237.464,-49.646 -333.598,-174.995Z" style="fill:#fbff00;fill-opacity:0.545098;" /></g><g id="AZOS" opacity="0.880645"><path d="M215.641,458.087l-19.233,0l-7.666,-50.288l-43.344,0l-7.665,50.288l-18.676,0l0,-0.578l38.884,-226.151l19.094,0l38.606,226.729Zm-29.407,-68.062l-19.094,-122.541l-19.233,122.541l38.327,0Z" style="fill:#141414;fill-opacity:0.8;fill-rule:nonzero;" /><path d="M304.56,458.087l-71.358,0l0,-8.815l49.476,-114.593l-44.32,0l0,-17.196l66.202,0l0,8.959l-49.616,114.448l49.616,0l0,17.197Z" style="fill:#141414;fill-opacity:0.8;fill-rule:nonzero;" /><path d="M408.809,441.757c0,10.887 -5.25,16.33 -15.749,16.33l-46.55,0c-10.406,0 -15.609,-5.443 -15.609,-16.33l0,-107.945c0,-10.886 5.203,-16.329 15.609,-16.329l46.55,0c10.499,0 15.749,5.443 15.749,16.329l0,107.945Zm-18.536,-0.578l0,-106.789l-40.836,0l0,106.789l40.836,0Z" style="fill:#141414;fill-opacity:0.8;fill-rule:nonzero;" /><path d="M512.083,441.757c0,10.887 -5.25,16.33 -15.749,16.33l-42.508,0c-10.499,0 -15.749,-5.443 -15.749,-16.33l0,-31.935l18.257,0l0,31.646l37.491,0l0,-28.034l-48.501,-41.184c-4.646,-3.853 -6.968,-8.862 -6.968,-15.028l0,-23.41c0,-10.886 5.249,-16.329 15.749,-16.329l41.95,0c10.499,0 15.749,5.443 15.749,16.329l0,28.034l-17.979,0l0,-27.745l-37.491,0l0,24.566l48.92,41.184c4.552,3.757 6.829,8.863 6.829,15.318l0,26.588Z" style="fill:#141414;fill-opacity:0.8;fill-rule:nonzero;" /></g><defs><linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-49.8243,-191.824,191.824,-49.8243,423.982,532.151)"><stop offset="0" style="stop-color:#000;stop-opacity:0.643137" /><stop offset="1" style="stop-color:#90918d;stop-opacity:0.643137" /></linearGradient></defs></svg>
     <div class="header-title">Log Chronicles</div>
-    <div class=clearfix></div>
-    This is where filter goes <button class="filter" onclick="cls()">Filter</button>
-    <form>
-     <input type=text> <br>
-     <input type=text> <br>
-     <input type=text> <br>
-     <input type=text> <br>
+    <button class="menu" onclick="toggleFilter()">
+      &#8634; filter
+    </button>
+
+    <form id="frmFilter" style="display: none" autocomplete="off">
+     <div class="form-block">
+       <label for="Gdid">Gdid</label>    <input type=text name="Gdid">
+       <label for="Id">Id</label>      <input type=text name="Id">
+       <label for="RelId">RelId</label>   <input type=text name="RelId">
+       <label for="Channel">Channel</label> <input type=text name="Channel">
+       <label for="Application">Application</label> <input type=text name="Application">
+     </div>
+
+     <div class="form-block">
+       <label for="StartUtc">Start Utc</label>   <input type=text name="StartUtc">
+       <label for="EndUtc">End Utc</label>     <input type=text name="EndUtc">
+
+       <label for="MinType">Min Type</label> <input type=text name="MinType">
+       <label for="MaxType">Max Type</label> <input type=text name="MaxType">
+     </div>
+     <div class="form-block">
+       <label for="AdvancedFilter">Advanced</label> <textarea name="AdvancedFilter" rows=7> </textarea>
+       <button class="apply" onclick="alert()">&#8623; apply filter</button>
+     </div>
+
+
     </form>
   </header>
 
@@ -416,20 +470,31 @@ Check and try again</td>
  </footer>
 
   <script>
-    const txtStdin = document.getElementById("stdin");
-    const divStdout = document.getElementById("stdout");
+    let filterOpen = false;
 
     let SESSION = "none yet";
     const HISTORY = [];
-    let idxHistory = 0;
 
     const HTML_TAGS = {'&': '&amp;', '<': '&lt;', '>': '&gt;' };
     function rtg(tag) { return HTML_TAGS[tag] || tag; }
     function html(str) {return str.replace(/[&<>]/g, rtg); }
 
 
-    function cls() {
-      document.getElementById('stdout').innerHTML = ABOUT_SESSION + "<br><hr><br>";
+
+    function toggleFilter() {
+      const hdrMain = document.getElementById("hdrMain");
+      const sectBody = document.getElementById("body");
+      const frmFilter = document.getElementById("frmFilter");
+      filterOpen = !filterOpen;
+      if (filterOpen) {
+        hdrMain.classList.add("filter");
+        sectBody.classList.add("over");
+        frmFilter.style.display = "block";
+      } else {
+        hdrMain.classList.remove("filter");
+        sectBody.classList.remove("over");
+        frmFilter.style.display = "none";
+      }
     }
 
     async function connect() {
