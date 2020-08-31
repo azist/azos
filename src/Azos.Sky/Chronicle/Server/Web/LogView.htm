@@ -423,6 +423,59 @@
       color: #404040;
     }
 
+    .modal-curtain {
+      X--display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 1000; /* Sit on top */
+      padding-top: 100px; /* Location of the box */
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.45);
+    }
+
+    .modal-body {
+      background-color: #fefefe;
+      margin: auto;
+      width: 85%;
+      box-shadow: 2px 8px 12px rgba(0,0,0,0.45);
+    }
+
+    .modal-close {
+      float: right;
+      font-size: 2em;
+      font-weight: bold;
+      color: #848484;
+      cursor: pointer;
+      margin-top: 1px;
+      margin-right: 8px;
+    }
+
+    .modal-close:hover, .modal-close:focus {
+      color: #252525;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .modal-title{
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #636363;
+      background: #d2d2d2;
+      padding: 8px;
+    }
+
+    .modal-content{
+      padding: 8px;
+    }
+
+    .modal-footer{
+      padding: 8px;
+      background: #f0f0f0;
+    }
+
 
 </style>
 
@@ -438,19 +491,19 @@
 
     <form id="frmFilter" style="display: none" autocomplete="off" onsubmit="return false">
      <div class="form-block">
-       <label for="Gdid">Gdid</label>    <input type=text name="Gdid" placeholder="0:0:0">
-       <label for="Id">Id</label>      <input type=text name="Id" placeholder="guid:00000000-0000-0000-0000-000000000000">
-       <label for="RelId">RelId</label>   <input type=text name="RelId" placeholder="guid:00000000-0000-0000-0000-000000000000">
-       <label for="Channel">Channel</label> <input type=text name="Channel" placeholder="A(8)">
-       <label for="Application">Application</label> <input type=text name="Application" placeholder="A(8)">
+       <label for="fldGdid">Gdid</label>       <input type=text id="fldGdid" placeholder="0:0:0">
+       <label for="fldId">Id</label>           <input type=text id="fldId" placeholder="guid:00000000-0000-0000-0000-000000000000">
+       <label for="fldRelId">RelId</label>     <input type=text id="fldRelId" placeholder="guid:00000000-0000-0000-0000-000000000000">
+       <label for="fldChannel">Channel</label> <input type=text id="fldChannel" placeholder="A(8)">
+       <label for="fldApplication">Application</label> <input type=text id="fldApplication" placeholder="A(8)">
      </div>
 
      <div class="form-block">
-       <label for="StartUtc">Start Utc</label>   <input type=text name="StartUtc" placeholder="ISO8601: YYYY-MM-DDThh:mm:ss.fffZ">
-       <label for="EndUtc">End Utc</label>     <input type=text name="EndUtc" placeholder="ISO8601: YYYY-MM-DDThh:mm:ss.fffZ">
+       <label for="fldStartUtc">Start Utc</label>   <input type=text id="fldStartUtc" placeholder="ISO8601: YYYY-MM-DDThh:mm:ss.fffZ">
+       <label for="fldEndUtc">End Utc</label>     <input type=text id="fldEndUtc" placeholder="ISO8601: YYYY-MM-DDThh:mm:ss.fffZ">
 
-       <label for="MinType">Min Type</label>
-       <select name="MinType">
+       <label for="fldMinType">Min Type</label>
+       <select id="fldMinType">
          <option value="">-- unset --</option>
          <option value="Debug">Debug</option>
          <option value="Trace">Trace</option>
@@ -466,8 +519,8 @@
          <option value="CatastrophicError">CatastrophicError</option>
        </select>
 
-       <label for="MaxType">Max Type</label>
-       <select name="MaxType">
+       <label for="fldMaxType">Max Type</label>
+       <select id="fldMaxType">
          <option value="">-- unset --</option>
          <option value="Debug">Debug</option>
          <option value="Trace">Trace</option>
@@ -484,12 +537,12 @@
        </select>
      </div>
      <div class="form-block">
-       <label for="AdvancedFilter">Advanced</label> <textarea name="AdvancedFilter" rows=7 placeholder="json expression"></textarea>
+       <label for="fldAdvancedFilter">Advanced</label> <textarea id="fldAdvancedFilter" rows=7 placeholder="json expression"></textarea>
 
-       <label for="chkFullGuids">Full Guids</label> <input type="checkbox" name="chkFullGuids" id="chkFullGuids" checked onclick="buildGrid(serverResponse.data)">
-       <label for="chkChannel">Channel</label> <input type="checkbox" name="chkChannel" id="chkChannel" checked onclick="buildGrid(serverResponse.data)">
-       <label for="chkAdims">Adims</label> <input type="checkbox" name="chkAdims" id="chkAdims" onclick="buildGrid(serverResponse.data)">
-       <select>
+       <label for="chkFullGuids">Full Guids</label> <input type="checkbox" id="chkFullGuids" checked onclick="buildGrid(serverResponse.data)">
+       <label for="chkChannel">Channel</label> <input type="checkbox"  id="chkChannel" checked onclick="buildGrid(serverResponse.data)">
+       <label for="chkAdims">Adims</label> <input type="checkbox"  id="chkAdims" onclick="buildGrid(serverResponse.data)">
+       <select id="cboSave">
          <option value="" disabled selected>..Select saved filter..</option>
        </select>
        <button class="apply" onclick="apply()">&#8623; apply</button>
@@ -502,199 +555,25 @@
 
  <section id="body">
   <table id="grid">
-    <thead id="gridHead">
-      <tr>
-        <th>Gdid</th>
-        <th>Guid</th>
-        <th>Rel</th>
-        <th>Type</th>
-        <th>Utc</th>
-        <th>App</th>
-        <th>Host</th>
-        <th>Chn</th>
-        <th>Topic</th>
-        <th>From (src)</th>
-        <th>Text</th>
-        <th>Params</th>
-        <th>Error</th>
-      </tr>
-    </thead>
-    <tbody id="gridBody">
-        <tr>
-          <td>0:3:7923874</td>
-          <td>..1c61822eacfa</td>
-          <td>..1c61822eacfa</td>
-          <td>Info</td>
-          <td>12/24/2020 16:25</td>
-          <td>myapp</td>
-          <td>WMED0001</td>
-          <td>oplog</td>
-          <td>Business</td>
-          <td>TakeRequest.OK (0)</td>
-          <td>The request has generated no payload</td>
-          <td class=snippet>{json: ok,
-  flag: true;}
-           </td>
-          <td>none</td>
-        </tr>
-
-        <tr class=error>
-          <td>0:3:7923874</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>12/24/2020 16:25</td>
-          <td>Error</td>
-          <td>WMED0001</td>
-          <td>oplog</td>
-          <td>myapp</td>
-          <td>Business</td>
-          <td>TakeRequest.OK (0)</td>
-          <td class=text>The request has generated no payload. This may be due to the following reasons:
-1. The host is down
-2. You have no rights
-Check and try again</td>
-          <td class=snippet>{json: ok}</tdclass=snippet>
-          <td>none</td>
-        </tr>
-
-        <tr>
-          <td>0:3:7923874</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>12/24/2020 16:25</td>
-          <td>Info</td>
-          <td>WMED0001</td>
-          <td>oplog</td>
-          <td>myapp</td>
-          <td>Business</td>
-          <td>TakeRequest.OK (0)</td>
-          <td>The request has generated no payload</td>
-          <td class=snippet>{json: ok}</td>
-          <td>none</td>
-        </tr>
-
-        <tr>
-          <td>0:3:7923874</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>12/24/2020 16:25</td>
-          <td>Info</td>
-          <td>WMED0001</td>
-          <td>oplog</td>
-          <td>myapp</td>
-          <td>Business</td>
-          <td>TakeRequest.OK (0)</td>
-          <td class=text>Here is an example of a long line of text. It does not have any specific strcuture, so it is expected to be flown from line to another line</td>
-          <td class=snippet>{json: ok}</td>
-          <td>none</td>
-        </tr>
-
-
-        <tr>
-          <td>0:3:7923874</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>12/24/2020 16:25</td>
-          <td>Info</td>
-          <td>WMED0001</td>
-          <td>oplog</td>
-          <td>myapp</td>
-          <td>Business</td>
-          <td>TakeRequest.OK (0)</td>
-          <td>The request has generated no payload</td>
-          <td class=snippet>{json: ok}</td>
-          <td>none</td>
-        </tr>
-
-
-        <tr>
-          <td>0:3:7923874</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>12/24/2020 16:25</td>
-          <td>Info</td>
-          <td>WMED0001</td>
-          <td>oplog</td>
-          <td>myapp</td>
-          <td>Business</td>
-          <td>TakeRequest.OK</td>
-          <td>The request has generated no payload</td>
-          <td class=snippet>{json: ok}</td>
-          <td>none</td>
-        </tr>
-
-        <tr class=warning>
-          <td>0:3:7923874</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>12/24/2020 16:25</td>
-          <td>Warning</td>
-          <td>WMED0001</td>
-          <td>oplog</td>
-          <td>myapp</td>
-          <td>Business</td>
-          <td>TakeRequest.OK</td>
-          <td>The request has generated no payload</td>
-          <td class=snippet>{json: ok}</tdclass=snippet>
-          <td>none</td>
-        </tr>
-
-        <tr>
-          <td>0:3:7923874</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>12/24/2020 16:25</td>
-          <td>Info</td>
-          <td>WMED0001</td>
-          <td>oplog</td>
-          <td>myapp</td>
-          <td>Business</td>
-          <td>TakeRequest.OK</td>
-          <td>The request has generated no payload</td>
-          <td class=snippet>{json: ok}</td>
-          <td>none</td>
-        </tr>
-
-        <tr class=catastrophe>
-          <td>0:3:7923874</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>12/24/2020 16:25</td>
-          <td>CatastrophicError</td>
-          <td>WMED0001</td>
-          <td>oplog</td>
-          <td>myapp</td>
-          <td>Business</td>
-          <td>TakeRequest.OK</td>
-          <td>The request has generated no payload</td>
-          <td class=snippet>{json: ok}</td>
-          <td>none</td>
-        </tr>
-
-        <tr>
-          <td>0:3:7923874</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>7e00075f-90bb-4d33-b797-1c61822eacfa</td>
-          <td>12/24/2020 16:25</td>
-          <td>Info</td>
-          <td>WMED0001</td>
-          <td>oplog</td>
-          <td>myapp</td>
-          <td>Business</td>
-          <td>TakeRequest.OK</td>
-          <td>The request has generated no payload</td>
-          <td class=snippet>{json: ok}</td>
-          <td>none</td>
-        </tr>
-
-
-     </tbodyid="gridHead">
-
+    <thead id="gridHead">    </thead>
+    <tbody id="gridBody">    </tbody>
   </table>
  </section>
  <footer>
    Sky Log Chronicle Browser&copy;2008-2020 Azos Sky
  </footer>
+
+ <section id="modal-curtain" class="modal-curtain">
+
+  <div class="modal-body">
+    <span class="modal-close">&times;</span>
+    <div class="modal-title">Modal Title</div>
+    <div class="modal-content">Modal Content</div>
+    <div class="modal-footer">footer</div>
+  </div>
+
+ </section>
+
 
   <script>
     let filterIsOpen = false;
@@ -730,18 +609,29 @@ Check and try again</td>
     function buildFilter() {
       const result = {};
 
-      result.a = 1;
+      function fld(name) {
+        const elm = document.getElementById("fld" + name);
+        if (!elm) return;
+        const val = elm.value;
+        if (!val) return;
+        result[name] = val;
+      }
+
+      ["Gdid", "Id", "RelId", "Channel", "Application", "MinType", "MaxType", "AdvancedFilter"].forEach(f => fld(f));
 
       return result;
     }
 
     async function apply() {
       serverResponse = TEZT_RESPONSE;
+
+      const filter = buildFilter();
+      alert(JSON.stringify(filter));
+
       buildGrid(serverResponse.data);
       toggleFilter(false);
       return;
 
-      const filter = buildFilter();
 
       try {
         const response = await fetch('../log/filter', {
@@ -780,7 +670,7 @@ Check and try again</td>
       const channel = document.getElementById("chkChannel").checked;
 
       gridHead.innerHTML = `
-        <tr>
+      <tr>
         <th>Gdid</th>
         <th>Guid</th>
         <th>Rel</th>

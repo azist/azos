@@ -262,7 +262,7 @@ namespace Azos.Log
 
 
     public override string ToString()
-      => "{0:yyyyMMdd-HHmmss.fff}, {1}, {2}, {3}, {4}, {5}, {6}".Args(m_UTCTimeStamp, m_Guid.ToString().TakeLastChars(8), m_Host, m_Type, Topic, From, Text);
+      => "{0:yyyyMMdd-HHmmss.fff}, {1}, {2}, {3}, {4}, {5}, {6}".Args(m_UTCTimeStamp, m_Guid, m_Host, m_Type, Topic, From, Text);
 
     /// <summary>
     /// Supplants the from string with caller info encoded as JSON string
