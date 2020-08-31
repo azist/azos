@@ -10,6 +10,142 @@
 
   <script>
     const ABOUT_SESSION = "[:USER:]@[:APP:] on `[:HOST:]`/`[:ENV:]`";
+
+
+    const TEZT_RESPONSE = {
+      "data": [
+        {
+          "Gdid": "0:10:0",
+          "Guid": "dc06d988-ae74-44c8-856e-a952de63bcc8",
+          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
+          "App": "rtpb",
+          "Channel": "oplog",
+          "Type": "TraceA",
+          "Source": 0,
+          "UTCTimeStamp": "2020-08-14T16:28:09.571Z",
+          "Host": "/us/east/cle/BIZMIX-WU001",
+          "From": "TeztLogic.CheckBenefitsAsync",
+          "Topic": "blogic",
+          "Text": "Got Rtpb request",
+          "Parameters": "{a: 1, b:2, c: true}"
+        },
+        {
+          "Gdid": "0:10:1",
+          "Guid": "4ce97f15-0ff4-4589-b674-3b8c876f5cf1",
+          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
+          "App": "rtpb",
+          "Channel": "oplog",
+          "Type": "Warning",
+          "Source": 0,
+          "UTCTimeStamp": "2020-08-14T16:28:09.571Z",
+          "Host": "/us/east/cle/BIZMIX-WU001",
+          "From": "TeztLogic.CheckBenefitsAsync",
+          "Topic": "blogic",
+          "Text": "Rtpb route",
+          "Parameters": "{a: 1, b:2, c: true}",
+          "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"pcn\":\"ROMAX\"}"
+        },
+        {
+          "Gdid": "0:10:2",
+          "Guid": "5ff7d72a-b4bb-4241-b512-20dd1eb1f4c8",
+          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
+          "App": "rtpb",
+          "Channel": "oplog",
+          "Type": "TraceA",
+          "Source": 0,
+          "UTCTimeStamp": "2020-08-14T16:28:11.274Z",
+          "Host": "/us/east/cle/BIZMIX-WU001",
+          "From": "TeztLogic.CheckBenefitsAsync",
+          "Topic": "blogic",
+          "Text": "[0] DZ req and hese is a good example of a long line of text that goes and goes but does not have any line breaks characters in it",
+          "Parameters": "{a: 1, b:2, c: true}",
+          "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"mbr\":\"mbr@pbm::FAKE03TEST2018\\\/01\",\"pcn\":\"ROMAX\"}"
+        },
+        {
+          "Gdid": "0:10:3",
+          "Guid": "2c03060b-f2e7-4d21-9e14-89d834d5bf8b",
+          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
+          "App": "rtpb",
+          "Channel": "oplog",
+          "Type": "Warning",
+          "Source": 0,
+          "UTCTimeStamp": "2020-08-14T16:28:12.450Z",
+          "Host": "/us/east/cle/BIZMIX-WU001",
+          "From": "TeztLogic.CheckBenefitsAsync",
+          "Topic": "blogic",
+          "Text": "[0] DZ rsp",
+          "Parameters": "{a: 1, b:2, c: true}",
+          "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"mbr\":\"mbr@pbm::FAKE03TEST2018\\\/01\",\"pcn\":\"ROMAX\"}"
+        },
+        {
+          "Gdid": "0:10:4",
+          "Guid": "c5c50bd5-39c7-4cd7-8371-9a35ae296d72",
+          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
+          "App": "rtpb",
+          "Channel": "oplog",
+          "Type": "TraceA",
+          "Source": 0,
+          "UTCTimeStamp": "2020-08-14T16:28:12.450Z",
+          "Host": "/us/east/cle/BIZMIX-WU001",
+          "From": "TeztLogic.CheckBenefitsAsync",
+          "Topic": "blogic",
+          "Text": "[1] DZ req another line which is very very long on its own and probably does not ven fit by itself on the first line of text in this div \n has multiple lines \n and yet another \n looks like script \n\n\n\n\n\n\n\n\n very many line breaks before this line",
+          "Parameters": "{a: 1, b:2, c: true}",
+          "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"mbr\":\"mbr@pbm::FAKE03TEST2018\\\/01\",\"pcn\":\"ROMAX\"}"
+        },
+        {
+          "Gdid": "0:10:5",
+          "Guid": "d858814c-ca5c-45bd-9651-0ed697b0e94e",
+          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
+          "App": "rtpb",
+          "Channel": "oplog",
+          "Type": "Error",
+          "Source": 0,
+          "UTCTimeStamp": "2020-08-14T16:28:13.091Z",
+          "Host": "/us/east/cle/BIZMIX-WU001",
+          "From": "TeztLogic.CheckBenefitsAsync",
+          "Topic": "blogic",
+          "Text": "[1] DZ rsp",
+          "Parameters": "{a: 1, b:2, c: true}",
+          "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"mbr\":\"mbr@pbm::FAKE03TEST2018\\\/01\",\"pcn\":\"ROMAX\"}"
+        },
+        {
+          "Gdid": "0:10:6",
+          "Guid": "d1b5da03-f66d-4fc3-8e6b-2637f745f2fb",
+          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
+          "App": "rtpb",
+          "Channel": "oplog",
+          "Type": "Emergency",
+          "Source": 0,
+          "UTCTimeStamp": "2020-08-14T16:28:13.091Z",
+          "Host": "/us/east/cle/BIZMIX-WU001",
+          "From": "TeztLogic.CheckBenefitsAsync",
+          "Topic": "blogic",
+          "Text": "[2] DZ req",
+          "Parameters": "{a: 1, b:2, c: true}",
+          "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"mbr\":\"mbr@pbm::FAKE03TEST2018\\\/01\",\"pcn\":\"ROMAX\"}"
+        },
+        {
+          "Gdid": "0:10:7",
+          "Guid": "df2d2c8d-a92a-47b2-bdaa-aeccbf2be44f",
+          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
+          "App": "rtpb",
+          "Channel": "oplog",
+          "Type": "TraceA",
+          "Source": 0,
+          "UTCTimeStamp": "2020-08-14T16:28:13.278Z",
+          "Host": "/us/east/cle/BIZMIX-WU001",
+          "From": "TeztLogic.CheckBenefitsAsync",
+          "Topic": "blogic",
+          "Text": "[2] DZ rsp",
+          "Parameters": "{a: 1, b:2, c: true}",
+          "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"mbr\":\"mbr@pbm::FAKE03TEST2018\\\/01\",\"pcn\":\"ROMAX\"}"
+        }
+
+      ],
+      "OK": true
+    };
+
   </script>
 
   <style>
@@ -41,8 +177,8 @@
     }
 
     header{
-        background: #c8c8c0;
-        border-bottom: 2px solid #b4b4b4;
+        background: linear-gradient(90deg, #e4e4e4 10%, #c8c8c0);
+        border-bottom: 1px solid #c4c4c4;
         position: fixed;
         padding: 12px;
         height: 28px;
@@ -58,12 +194,12 @@
        opacity: 0.80;
        box-shadow: 0px 10px 60px #a0a0a0;
        border: none;
-       background-color: #2a2a2a; /*#ffce00;*/
+       background: #2a2a2a;
     }
 
     .logo{
-        width: 72px;
-        height: 72px;
+        width: 68px;
+        height: 68px;
         margin: -10px -2px -10px 0px
     }
 
@@ -172,15 +308,20 @@
      border-bottom: 2px solid #ccc;
     }
 
-    .warning{
+    .msg-type-warning{
       background-color: #f4f4a0 !important;
     }
 
-    .error{
+    .msg-type-error{
       background-color: #f4c0c0 !important;
     }
 
-    .catastrophe{
+    .msg-type-emergency{
+      background-color: #303030 !important;
+      color: #fea000 !important;
+    }
+
+    .msg-type-catastrophicerror{
       background-color: #303030 !important;
       color: #fe5000 !important;
     }
@@ -191,10 +332,23 @@
     }
 
     .text{
-      white-space: pre;
+      white-space: normal;
       max-width: 30em;
+      max-height: 4.25em;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    .text-pre{
+      white-space: pre;
+      max-width: 30em;
+      max-height: 4.25em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .wide{
+      max-width: 75em;
     }
 
     label{
@@ -272,7 +426,7 @@
   <header id="hdrMain">
     <svg class="logo" viewBox="0 0 640 640" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><g id="Lepestki"><path d="M11.15,327.457c89.474,-45.308 207.314,-68.871 334.797,-60.494c109.793,7.213 209.794,37.005 288.85,81.363c-87.242,145.289 -205.417,232.199 -330.635,223.972c-119.564,-7.856 -222.905,-100.962 -293.012,-244.841Z" style="fill:url(#_Linear1);" /><path d="M8.378,319.69c67.264,-77.888 168.404,-146.97 289.589,-190.282c104.367,-37.304 207.5,-49.737 296.26,-40.261c-30.448,169.751 -109.882,297.739 -228.915,340.282c-113.657,40.623 -241.889,-4.348 -356.934,-109.739Z" style="fill:#f30;fill-opacity:0.603922;" /><path d="M8.489,319.645c89.475,-45.308 207.315,-68.872 334.797,-60.495c109.793,7.213 209.794,37.005 288.85,81.363c-87.242,145.289 -205.417,232.2 -330.635,223.972c-119.564,-7.856 -222.905,-100.962 -293.012,-244.84Z" style="fill:#9dff00;fill-opacity:0.94902;" /><path d="M8.434,319.601c78.898,-64.074 189.719,-113.125 316.088,-133.047c108.829,-17.153 212.399,-10.056 298.254,15.923c-57.59,161.432 -156.622,272.552 -280.744,292.119c-118.518,18.682 -237.464,-49.646 -333.598,-174.995Z" style="fill:#fbff00;fill-opacity:0.545098;" /></g><g id="AZOS" opacity="0.880645"><path d="M215.641,458.087l-19.233,0l-7.666,-50.288l-43.344,0l-7.665,50.288l-18.676,0l0,-0.578l38.884,-226.151l19.094,0l38.606,226.729Zm-29.407,-68.062l-19.094,-122.541l-19.233,122.541l38.327,0Z" style="fill:#141414;fill-opacity:0.8;fill-rule:nonzero;" /><path d="M304.56,458.087l-71.358,0l0,-8.815l49.476,-114.593l-44.32,0l0,-17.196l66.202,0l0,8.959l-49.616,114.448l49.616,0l0,17.197Z" style="fill:#141414;fill-opacity:0.8;fill-rule:nonzero;" /><path d="M408.809,441.757c0,10.887 -5.25,16.33 -15.749,16.33l-46.55,0c-10.406,0 -15.609,-5.443 -15.609,-16.33l0,-107.945c0,-10.886 5.203,-16.329 15.609,-16.329l46.55,0c10.499,0 15.749,5.443 15.749,16.329l0,107.945Zm-18.536,-0.578l0,-106.789l-40.836,0l0,106.789l40.836,0Z" style="fill:#141414;fill-opacity:0.8;fill-rule:nonzero;" /><path d="M512.083,441.757c0,10.887 -5.25,16.33 -15.749,16.33l-42.508,0c-10.499,0 -15.749,-5.443 -15.749,-16.33l0,-31.935l18.257,0l0,31.646l37.491,0l0,-28.034l-48.501,-41.184c-4.646,-3.853 -6.968,-8.862 -6.968,-15.028l0,-23.41c0,-10.886 5.249,-16.329 15.749,-16.329l41.95,0c10.499,0 15.749,5.443 15.749,16.329l0,28.034l-17.979,0l0,-27.745l-37.491,0l0,24.566l48.92,41.184c4.552,3.757 6.829,8.863 6.829,15.318l0,26.588Z" style="fill:#141414;fill-opacity:0.8;fill-rule:nonzero;" /></g><defs><linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-49.8243,-191.824,191.824,-49.8243,423.982,532.151)"><stop offset="0" style="stop-color:#000;stop-opacity:0.643137" /><stop offset="1" style="stop-color:#90918d;stop-opacity:0.643137" /></linearGradient></defs></svg>
     <div class="header-title">Log Chronicles</div>
-    <button class="menu"  id="btnMenu" onclick="toggleFilter()">
+    <button class="menu"  id="btnMenu" onclick="toggleFilter(!filterIsOpen)">
       &#8634; filter
     </button>
 
@@ -326,14 +480,14 @@
      <div class="form-block">
        <label for="AdvancedFilter">Advanced</label> <textarea name="AdvancedFilter" rows=7 placeholder="json expression"></textarea>
 
-       <label for="chkFullGuids">Full Guids</label> <input type="checkbox" name="chkFullGuids" checked>
-       <label for="chkChannel">Channel</label> <input type="checkbox" name="chkChannel">
-       <label for="chkAdims">Adims</label> <input type="checkbox" name="chkAdims">
+       <label for="chkFullGuids">Full Guids</label> <input type="checkbox" name="chkFullGuids" id="chkFullGuids" checked onclick="buildGrid(serverResponse.data)">
+       <label for="chkChannel">Channel</label> <input type="checkbox" name="chkChannel" id="chkChannel" checked onclick="buildGrid(serverResponse.data)">
+       <label for="chkAdims">Adims</label> <input type="checkbox" name="chkAdims" id="chkAdims" onclick="buildGrid(serverResponse.data)">
        <select>
          <option value="" disabled selected>..Select saved filter..</option>
        </select>
-       <button class="apply" onclick="alert()">&#8623; apply</button>
-       <button class="save" onclick="alert()">&#8667; save</button>
+       <button class="apply" onclick="apply()">&#8623; apply</button>
+       <button class="save" onclick="save()">&#8667; save</button>
      </div>
 
 
@@ -342,7 +496,7 @@
 
  <section id="body">
   <table id="grid">
-    <thead>
+    <thead id="gridHead">
       <tr>
         <th>Gdid</th>
         <th>Guid</th>
@@ -359,7 +513,7 @@
         <th>Error</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="gridBody">
         <tr>
           <td>0:3:7923874</td>
           <td>..1c61822eacfa</td>
@@ -528,7 +682,7 @@ Check and try again</td>
         </tr>
 
 
-     </tbody>
+     </tbodyid="gridHead">
 
   </table>
  </section>
@@ -537,24 +691,24 @@ Check and try again</td>
  </footer>
 
   <script>
-    let filterOpen = false;
-
-    let SESSION = "none yet";
-    const HISTORY = [];
+    let filterIsOpen = false;
+    let serverResponse = TEZT_RESPONSE;
 
     const HTML_TAGS = {'&': '&amp;', '<': '&lt;', '>': '&gt;' };
     function rtg(tag) { return HTML_TAGS[tag] || tag; }
-    function html(str) {return str.replace(/[&<>]/g, rtg); }
+    function html(str) { return str === undefined || str == null || !(str.replace) ? "" : str.replace(/[&<>]/g, rtg); }
 
 
 
-    function toggleFilter() {
+    function toggleFilter(open) {
       const hdrMain = document.getElementById("hdrMain");
       const sectBody = document.getElementById("body");
       const frmFilter = document.getElementById("frmFilter");
       const btnMenu = document.getElementById("btnMenu");
-      filterOpen = !filterOpen;
-      if (filterOpen) {
+
+      filterIsOpen = open;
+
+      if (open) {
         hdrMain.classList.add("filter");
         sectBody.classList.add("over");
         frmFilter.style.display = "block";
@@ -567,109 +721,123 @@ Check and try again</td>
       }
     }
 
-    async function connect() {
-      try {
-        const response = await fetch('connection', {
-          method: 'POST',
-          cache: 'no-cache',
-          credentials: 'same-origin'
-        });
+    function buildFilter() {
+      const result = {};
 
-        if (!response.ok) throw ` --> !OK Status [${response.status}] / '${response.statusText}'`
+      result.a = 1;
 
-        const got = await response.json();
-
-        SESSION = got.data.handle;
-        putResponse(JSON.stringify(got, null, 2));
-      }
-      catch (e) {
-        error(e);
-      }
+      return result;
     }
 
-    async function send() {
-      const cmd = txtStdin.value;
+    async function apply() {
+      serverResponse = TEZT_RESPONSE;
+      buildGrid(serverResponse.data);
+      toggleFilter(false);
+      return;
 
-      if (cmd === "") return;
+      const filter = buildFilter();
 
-      HISTORY.push(cmd);
-      idxHistory = HISTORY.length;
-
-      if (cmd === "cls") {
-        cls();
-        return;
-      }
-
-      echo(cmd);
       try {
-        const response = await fetch('command', {
+        const response = await fetch('../log/filter', {
           method: 'POST',
           cache: 'no-cache',
           credentials: 'same-origin',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ handle: SESSION, command: cmd })
+          body: JSON.stringify(filter)
         });
 
         if (!response.ok) throw ` --> !OK Status [${response.status}] / '${response.statusText}'`
 
         const got = await response.json();
-      //  echo(JSON.stringify(got));
 
-        if (got.OK && got.data.success) {
-          putResponse(got.data.result, !got.data.plainText);
+        if (got.OK && got.data) {
+          buildGrid(got.data);
         } else {
-          error(JSON.stringify(got.data, null, 2));
+          throw JSON.stringify(got.data, null, 2);
         }
       }
       catch (e) {
-        error(e);
+        alert("ERROR: " + e);
       }
+
     }
 
-    function echo(str) {
-      let div = document.createElement("div");
-      div.innerHTML = html(`${str}`);
-      div.className = "echo";
-
-      divStdout.appendChild(div);
-      div.scrollIntoView({block: "end", inline: "nearest", behavior: "smooth"})
+    function save() {
+      alert("In progress...");
     }
 
-    function putResponse(str, asis) {
-      let div = document.createElement("div");
-      div.innerHTML = asis ? str : html(`${str}`);
-      div.className = "response";
 
-      divStdout.appendChild(div);
-      div.scrollIntoView({block: "end", inline: "nearest", behavior: "smooth"})
+    function buildGrid(data) {
+      const gridHead = document.getElementById("gridHead");
+      const gridBody = document.getElementById("gridBody");
+      const fullGuids = document.getElementById("chkFullGuids").checked;
+      const channel = document.getElementById("chkChannel").checked;
+
+      gridHead.innerHTML = `
+        <tr>
+        <th>Gdid</th>
+        <th>Guid</th>
+        <th>Rel</th>
+        <th>Type</th>
+        <th>Utc</th>`+
+        (channel ?
+          `<th>App</th>
+          <th>Host</th>
+          <th>Chn</th>
+          <th>Topic</th>` : ``
+        )+
+        `<th>From (src)</th>
+        <th>Text</th>
+        <th>Params</th>
+        <th>Error</th>
+      </tr>
+      `;
+      gridBody.innerHTML = "";
+
+
+      let body = "";
+      for (const msg of data) body += buildOneMsg(msg, fullGuids, channel);
+      for (const msg of data) body += buildOneMsg(msg, fullGuids, channel);
+      for (const msg of data) body += buildOneMsg(msg, fullGuids, channel);
+      for (const msg of data) body += buildOneMsg(msg, fullGuids, channel);
+      for (const msg of data) body += buildOneMsg(msg, fullGuids, channel);
+      for (const msg of data) body += buildOneMsg(msg, fullGuids, channel);
+      for (const msg of data) body += buildOneMsg(msg, fullGuids, channel);
+      gridBody.innerHTML = body;
+
     }
 
-    function error(str) {
-      let div = document.createElement("div");
-      div.innerHTML = html(`${str}`);
-      div.className = "error";
-
-      divStdout.appendChild(div);
-      div.scrollIntoView({block: "end", inline: "nearest", behavior: "smooth"})
+    function guid(v, full) {
+      if (!v) return "";
+      if (full || !v.length || !v.substr || v.length < 12) return v;
+      return ".." + v.substr(v.length - 12)
     }
 
-    function history(dir) {
-      if (HISTORY.length === 0) return;
-
-      idxHistory += dir;
-
-      if (idxHistory >= 0 && idxHistory < HISTORY.length) {
-        const cmd = HISTORY[idxHistory];
-        txtStdin.value = cmd;
-      }
+    function buildOneMsg(msg, fullGuids, channel) {
+      return `<tr class="msg-type-${html(msg.Type).toLowerCase()}">
+          <td>${html(msg.Gdid)}</td>
+          <td>${html(guid(msg.Guid, fullGuids))}</td>
+          <td>${html(guid(msg.RelatedTo, fullGuids))}</td>
+          <td>${html(msg.Type)}</td>
+          <td>${html(msg.UTCTimeStamp)}</td>`+
+          (
+          channel ?
+              `<td>${html(msg.App)}</td>
+              <td>${html(msg.Host)}</td>
+              <td>${html(msg.Channel)}</td>
+              <td>${html(msg.Topic)}</td>` : ` `
+          ) +
+        `<td>${html(msg.From)} #${html((msg.Source | 0).toString())}</td>
+          <td> <div class="text${msg.Text && msg.Text.indexOf && msg.Text.indexOf('\n') < 0 ? "" : "-pre"}${channel ? "" : " wide"}">${html(msg.Text)}</div></td>
+          <td class="snippet">${html(msg.Parameters)}</td>
+          <td>${html(msg.ExceptionData)}</td>
+        </tr>`;
     }
 
-    async function run() {
-      await connect();
-    }
 
-    run();
+    buildGrid(serverResponse.data);
 
+/*
     document.onkeydown = function (e) {
       if (e.keyCode == 13 && e.ctrlKey) send();//enter
       else if (e.keyCode == 38 && e.ctrlKey) history(-1);//up
@@ -677,7 +845,7 @@ Check and try again</td>
       else return;
       e.preventDefault();
     };
-
+*/
   </script>
 </body>
 
