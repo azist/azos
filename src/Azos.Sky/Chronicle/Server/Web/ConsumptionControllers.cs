@@ -10,9 +10,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Log;
+using Azos.Platform;
 using Azos.Security;
 using Azos.Sky.Security.Permissions.Chronicle;
 using Azos.Wave.Mvc;
+using Azos.Web;
 
 namespace Azos.Sky.Chronicle.Server.Web
 {
@@ -29,6 +31,27 @@ namespace Azos.Sky.Chronicle.Server.Web
   [Release(ReleaseType.Preview, 2020, 07, 05, "Initial Release", Description = "Preview release of API")]
   public class Log : ApiProtocolController
   {
+    [Action(Name = "view")]
+    public void View()
+    {
+      string esc(string s)
+        => s.IsNullOrWhiteSpace() ? "" : s.Replace("\"", "'")
+                                          .Replace("<", "&lt;")
+                                          .Replace(">", "&gt;");
+
+      WorkContext.NeedsSession();
+      var html = typeof(Log).GetText("LogView.htm");
+
+      html = html.Replace("[:USER:]", esc(WorkContext.Session.User.Name))
+                 .Replace("[:APP:]", esc(App.AppId.Value))
+                 .Replace("[:HOST:]", esc(Computer.HostName))
+                 .Replace("[:ENV:]", esc(App.EnvironmentName));
+
+      WorkContext.Response.ContentType = ContentType.HTML;
+      WorkContext.Response.Write(html);
+    }
+
+
     [ApiEndpointDoc(Title = "Filter",
                     Uri = "filter",
                     Description = "Queries log chronicle by applying a structured filter `{@LogChronicleFilter}`",

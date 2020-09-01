@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.4.18
-set HEADLINE=AuthorizeSessionFilter new features, Mongo direct cmds 
+set VER=1.4.19.1
+set HEADLINE=Log Browser 
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

@@ -24,7 +24,7 @@
           "Source": 0,
           "UTCTimeStamp": "2020-08-14T16:28:09.571Z",
           "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.CheckBenefitsAsync",
+          "From": "TeztLogic.Check",
           "Topic": "blogic",
           "Text": "Got Rtpb request",
           "Parameters": "{a: 1, b:2, c: true}"
@@ -39,7 +39,7 @@
           "Source": 0,
           "UTCTimeStamp": "2020-08-14T16:28:09.571Z",
           "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.CheckBenefitsAsync",
+          "From": "TeztLogic.Check",
           "Topic": "blogic",
           "Text": "Rtpb route",
           "Parameters": "{\"a\": 1, \"b\":2, \"c\": true, \"sub\": {\"a\": [null, 1, \"string\", true, null, null, 0, 45e3, 2, null, false], \"flag\": false}, \"msg\": \"this is a <b> string msg\", \"k\": null}",
@@ -55,7 +55,7 @@
           "Source": 0,
           "UTCTimeStamp": "2020-08-14T16:28:11.274Z",
           "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.CheckBenefitsAsync",
+          "From": "TeztLogic.Check",
           "Topic": "blogic",
           "Text": "[0] DZ req and hese is a good example of a long line of text that goes and goes but does not have any line breaks characters in it",
           "Parameters": "{a: 1, b:2, c: true}",
@@ -71,7 +71,7 @@
           "Source": 0,
           "UTCTimeStamp": "2020-08-14T16:28:12.450Z",
           "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.CheckBenefitsAsync",
+          "From": "TeztLogic.Check",
           "Topic": "blogic",
           "Text": "[0] DZ rsp",
           "Parameters": "{a: 1, b:2, c: true}",
@@ -87,7 +87,7 @@
           "Source": 0,
           "UTCTimeStamp": "2020-08-14T16:28:12.450Z",
           "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.CheckBenefitsAsync",
+          "From": "TeztLogic.Check",
           "Topic": "blogic",
           "Text": "[1] DZ req another line which is very very long on its own and probably does not ven fit by itself on the first line of text in this div \n has multiple lines \n and yet another \n looks like script \n\n\n\n\n\n\n\n\n very many line breaks before this line",
           "Parameters": "{a: 1, b:2, c: true}",
@@ -103,7 +103,7 @@
           "Source": 0,
           "UTCTimeStamp": "2020-08-14T16:28:13.091Z",
           "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.CheckBenefitsAsync",
+          "From": "TeztLogic.Check",
           "Topic": "blogic",
           "Text": "[1] DZ rsp",
           "Parameters": "{a: 1, b:2, c: true}",
@@ -119,7 +119,7 @@
           "Source": 0,
           "UTCTimeStamp": "2020-08-14T16:28:13.091Z",
           "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.CheckBenefitsAsync",
+          "From": "TeztLogic.Check",
           "Topic": "blogic",
           "Text": "[2] DZ req",
           "Parameters": "{a: 1, b:2, c: true}",
@@ -135,7 +135,7 @@
           "Source": 0,
           "UTCTimeStamp": "2020-08-14T16:28:13.278Z",
           "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.CheckBenefitsAsync",
+          "From": "TeztLogic.Check",
           "Topic": "blogic",
           "Text": "[2] DZ rsp",
           "Parameters": "{a: 1, b:2, c: true}",
@@ -335,6 +335,10 @@
     .snippet{
       font-family: 'Lucida Console, monospace';
       font-size: 8px;
+      max-width: 30em;
+      max-height: 4.25em;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .text{
@@ -568,6 +572,17 @@
          <option value="Emergency">Emergency</option>
          <option value="CatastrophicError">CatastrophicError</option>
        </select>
+
+       <label for="fldCount">Results Count</label>
+       <select id="fldCount">
+         <option value="25">25</option>
+         <option value="50">50</option>
+         <option value="75">75</option>
+         <option value="100">100</option>
+         <option value="150">150</option>
+         <option value="200">200</option>
+         <option value="300">300</option>
+       </select>
      </div>
      <div class="form-block">
        <label for="fldAdvancedFilter">Advanced</label> <textarea id="fldAdvancedFilter" rows=7 placeholder="json expression"></textarea>
@@ -593,7 +608,7 @@
   </table>
  </section>
  <footer>
-   Sky Log Chronicle Browser&copy;2008-2020 Azos Sky
+   Sky Log Chronicles Browser&copy;2008-2020 Azos Sky
  </footer>
 
  <section id="modal-curtain" class="modal-curtain">
@@ -610,7 +625,7 @@
 
   <script>
     let filterIsOpen = false;
-    let serverResponse = TEZT_RESPONSE;
+    let serverResponse = {ok: true, data: []};
 
     const HTML_TAGS = {'&': '&amp;', '<': '&lt;', '>': '&gt;' };
     function rtg(tag) { return HTML_TAGS[tag] || tag; }
@@ -652,22 +667,25 @@
 
       ["Gdid", "Id", "RelId", "Channel", "Application", "MinType", "MaxType", "AdvancedFilter"].forEach(f => fld(f));
 
+      const sd = document.getElementById("fldStartUtc").value;
+      const ed = document.getElementById("fldEndUtc").value;
+      if (sd || ed) {
+        let range = {};
+        if (sd) range["start"] = sd;
+        if (ed) range["end"] = ed;
+        result["TimeRange"] = range;
+      }
+
+      result["PagingCount"] = document.getElementById("fldCount").value | 0;
       return result;
     }
 
     async function apply() {
-      serverResponse = TEZT_RESPONSE;
-
       const filter = buildFilter();
-      alert(JSON.stringify(filter));
-
-      buildGrid(serverResponse.data);
-      toggleFilter(false);
-      return;
-
+      //alert(JSON.stringify(filter));
 
       try {
-        const response = await fetch('../log/filter', {
+        const response = await fetch('./filter', {
           method: 'POST',
           cache: 'no-cache',
           credentials: 'same-origin',
@@ -681,19 +699,20 @@
 
         if (got.OK && got.data) {
           buildGrid(got.data);
+          toggleFilter(false);
         } else {
           throw JSON.stringify(got.data, null, 2);
         }
       }
       catch (e) {
-        alert("ERROR: " + e);
+        //alert("ERROR: " + e);
+        showModal("Error fetching data", e, null);
       }
 
     }
 
     function save() {
-      //alert("In progress...");
-      showModal("My title", "content", "");
+      showModal("Save filter", "In progress...", "");
     }
 
 
@@ -730,11 +749,6 @@
       for (const msg of data) {
         gridBody.logMessages.push(msg);
         body += buildOneMsg(gridBody.logMessages.length - 1, msg, fullGuids, channel);
-
-        body += buildOneMsg(gridBody.logMessages.length - 1, msg, fullGuids, channel);
-        body += buildOneMsg(gridBody.logMessages.length - 1, msg, fullGuids, channel);
-        body += buildOneMsg(gridBody.logMessages.length - 1, msg, fullGuids, channel);
-        body += buildOneMsg(gridBody.logMessages.length-1, msg, fullGuids, channel);
       }
 
       gridBody.innerHTML = body;
@@ -762,7 +776,7 @@
           ) +
         `<td>${html(msg.From)} #${html((msg.Source | 0).toString())}</td>
           <td> <div class="text${msg.Text && msg.Text.indexOf && msg.Text.indexOf('\n') < 0 ? "" : "-pre"}${channel ? "" : " wide"}" onclick="showText(${i})">${html(msg.Text)}</div></td>
-          <td class="snippet" onclick="showParams(${i})">${html(msg.Parameters)}</td>
+          <td> <div class="snippet" onclick="showParams(${i})">${html(msg.Parameters)}</div></td>
           <td onclick="showError(${i})">${html(msg.ExceptionData)}</td>
         </tr>`;
     }
@@ -881,7 +895,7 @@
     }
 
 
-    buildGrid(serverResponse.data);
+   // buildGrid(serverResponse.data);
 
 
     document.onkeydown = function (e) {
@@ -893,6 +907,7 @@
       e.preventDefault();*/
     };
 
+    apply();
   </script>
 </body>
 

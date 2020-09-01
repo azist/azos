@@ -16,7 +16,6 @@ using Azos.Web;
 namespace Azos.Apps.Terminal.Web
 {
   [NoCache]
-//#warning TURN back on!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   [RemoteTerminalOperatorPermission]
   public class WebConsole : ApiProtocolController
   {
