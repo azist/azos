@@ -42,7 +42,7 @@
           "From": "TeztLogic.CheckBenefitsAsync",
           "Topic": "blogic",
           "Text": "Rtpb route",
-          "Parameters": "{a: 1, b:2, c: true}",
+          "Parameters": "{\"a\": 1, \"b\":2, \"c\": true, \"sub\": {\"a\": [null, 1, \"string\", true, null, null, 0, 45e3, 2, null, false], \"flag\": false}, \"msg\": \"this is a <b> string msg\", \"k\": null}",
           "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"pcn\":\"ROMAX\"}"
         },
         {
@@ -424,10 +424,10 @@
     }
 
     .modal-curtain {
-      X--display: none; /* Hidden by default */
+      display: none;
       position: fixed;
-      z-index: 1000; /* Sit on top */
-      padding-top: 100px; /* Location of the box */
+      z-index: 1000;
+      padding-top: 8vh;
       left: 0;
       top: 0;
       width: 100%;
@@ -437,6 +437,7 @@
     }
 
     .modal-body {
+      display: none;
       background-color: #fefefe;
       margin: auto;
       width: 85%;
@@ -474,9 +475,41 @@
     .modal-footer{
       padding: 8px;
       background: #f0f0f0;
+      color: #a0a0a0;
     }
 
+    .modal-text{
+      white-space: normal;
+      max-height: 75vh;
+      overflow-y: auto;
+      padding: 4px;
+    }
 
+    .modal-text-pre{
+      font-family: 'Lucida Console';
+      white-space: pre;
+      max-height: 75vh;
+      overflow: auto;
+      padding: 4px;
+    }
+
+    .modal-params{
+      font-family: 'Lucida Console';
+      font-size: 1.2em;
+      white-space: pre;
+      max-height: 75vh;
+      overflow: auto;
+      color: #e0e0e0;
+      background: #404040;
+      padding: 8px;
+      margin: -8px;
+    }
+
+    .code-key { color: #949494; }
+    .code-string { color: #20d4ff; }
+    .code-number { color: #70f010; }
+    .code-boolean { color: #f0d090; }
+    .code-null { color: #f48080; }
 </style>
 
 </head>
@@ -565,11 +598,11 @@
 
  <section id="modal-curtain" class="modal-curtain">
 
-  <div class="modal-body">
-    <span class="modal-close">&times;</span>
-    <div class="modal-title">Modal Title</div>
-    <div class="modal-content">Modal Content</div>
-    <div class="modal-footer">footer</div>
+  <div id="modal-body" class="modal-body">
+    <span class="modal-close" onclick="hideModal()">&times;</span>
+    <div id="modal-title" class="modal-title">Modal Title</div>
+    <div id="modal-content" class="modal-content">Modal Content</div>
+    <div id="modal-footer" class="modal-footer">footer</div>
   </div>
 
  </section>
@@ -659,7 +692,8 @@
     }
 
     function save() {
-      alert("In progress...");
+      //alert("In progress...");
+      showModal("My title", "content", "");
     }
 
 
@@ -692,15 +726,18 @@
 
 
       let body = "";
-      for (const msg of data) body += buildOneMsg(msg, fullGuids, channel);
-      for (const msg of data) body += buildOneMsg(msg, fullGuids, channel);
-      for (const msg of data) body += buildOneMsg(msg, fullGuids, channel);
-      for (const msg of data) body += buildOneMsg(msg, fullGuids, channel);
-      for (const msg of data) body += buildOneMsg(msg, fullGuids, channel);
-      for (const msg of data) body += buildOneMsg(msg, fullGuids, channel);
-      for (const msg of data) body += buildOneMsg(msg, fullGuids, channel);
-      gridBody.innerHTML = body;
+      gridBody.logMessages = [];
+      for (const msg of data) {
+        gridBody.logMessages.push(msg);
+        body += buildOneMsg(gridBody.logMessages.length - 1, msg, fullGuids, channel);
 
+        body += buildOneMsg(gridBody.logMessages.length - 1, msg, fullGuids, channel);
+        body += buildOneMsg(gridBody.logMessages.length - 1, msg, fullGuids, channel);
+        body += buildOneMsg(gridBody.logMessages.length - 1, msg, fullGuids, channel);
+        body += buildOneMsg(gridBody.logMessages.length-1, msg, fullGuids, channel);
+      }
+
+      gridBody.innerHTML = body;
     }
 
     function guid(v, full) {
@@ -709,8 +746,8 @@
       return ".." + v.substr(v.length - 12)
     }
 
-    function buildOneMsg(msg, fullGuids, channel) {
-      return `<tr class="msg-type-${html(msg.Type).toLowerCase()}">
+    function buildOneMsg(i, msg, fullGuids, channel) {
+      return `<tr class="msg-type-${html(msg.Type).toLowerCase()}" ondblclick="showMsgJson(${i})">
           <td>${html(msg.Gdid)}</td>
           <td>${html(guid(msg.Guid, fullGuids))}</td>
           <td>${html(guid(msg.RelatedTo, fullGuids))}</td>
@@ -724,24 +761,138 @@
               <td>${html(msg.Topic)}</td>` : ` `
           ) +
         `<td>${html(msg.From)} #${html((msg.Source | 0).toString())}</td>
-          <td> <div class="text${msg.Text && msg.Text.indexOf && msg.Text.indexOf('\n') < 0 ? "" : "-pre"}${channel ? "" : " wide"}">${html(msg.Text)}</div></td>
-          <td class="snippet">${html(msg.Parameters)}</td>
-          <td>${html(msg.ExceptionData)}</td>
+          <td> <div class="text${msg.Text && msg.Text.indexOf && msg.Text.indexOf('\n') < 0 ? "" : "-pre"}${channel ? "" : " wide"}" onclick="showText(${i})">${html(msg.Text)}</div></td>
+          <td class="snippet" onclick="showParams(${i})">${html(msg.Parameters)}</td>
+          <td onclick="showError(${i})">${html(msg.ExceptionData)}</td>
         </tr>`;
+    }
+
+
+    function hiJson(json) {
+      if (!json) return "";
+      json = html(json);
+      return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        let cls = 'number';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+              cls = 'key';
+          } else {
+              cls = 'string';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'boolean';
+        } else if (/null/.test(match)) {
+          cls = 'null';
+        }
+        return `<span class="code-${cls}">${match}</span>`;
+      });
+    }
+
+    function showMsgJson(i) {
+      toggleFilter(false);
+      const msg = document.getElementById("gridBody").logMessages[i];
+
+      let value = JSON.stringify(msg, null, 2);
+      value = hiJson(value);
+
+      content = `<div class="modal-params"}">${value}</div>`;
+
+      showModal("Message json", content, msg.Guid);
+    }
+
+    function showText(i) {
+      toggleFilter(false);
+
+      const msg = document.getElementById("gridBody").logMessages[i];
+      const value = msg.Text;
+      if (!value) return;
+
+      let content = `<div class="modal-text${msg.Text && msg.Text.indexOf && msg.Text.indexOf('\n') < 0 ? "" : "-pre"}">${html(value)}</div>`;
+
+
+      showModal("Text", content, msg.Guid);
+    }
+
+    function showParams(i) {
+      toggleFilter(false);
+
+      const msg = document.getElementById("gridBody").logMessages[i];
+      let value = msg.Parameters;
+      if (!value) return;
+
+      let content = "";
+
+      //try json
+      try {
+        const obj = JSON.parse(value);
+        value = JSON.stringify(obj, null, 2);//pretty print
+        value = hiJson(value);
+        content = `<div class="modal-params"}">${value}</div>`;
+      } catch {
+        content = `<div class="modal-params"}">${html(value)}</div>`;
+      }
+
+      showModal("Parameters", content, msg.Guid);
+    }
+
+    function showError(i) {
+      toggleFilter(false);
+
+      const msg = document.getElementById("gridBody").logMessages[i];
+      let value = msg.ExceptionData;
+      if (!value) return;
+
+      const obj = JSON.parse(value);
+      value = JSON.stringify(obj, null, 2);//pretty print
+      value = hiJson(value);
+      content = `<div class="modal-params"}">${value}</div>`;
+
+      showModal("Error data", content, msg.Guid);
+    }
+
+    const elmCurtain = document.getElementById("modal-curtain");
+    const elmBody = document.getElementById("modal-body");
+    const elmTitle = document.getElementById("modal-title");
+    const elmContent = document.getElementById("modal-content");
+    const elmFooter = document.getElementById("modal-footer");
+
+    function showModal(title, content, footer) {
+      elmTitle.innerText = title;
+      elmContent.innerHTML = content;
+      elmFooter.innerHTML = footer;
+
+      elmCurtain.style.display = "block";
+      elmBody.style.display = "block";
+      document.body.style.overflow = "hidden";
+
+      if (!filterIsOpen) document.getElementById("body").classList.add("over");
+    }
+
+    function hideModal() {
+      elmTitle.innerText = "";
+      elmContent.innerHTML = "";
+      elmFooter.innerHTML = "";
+
+      elmCurtain.style.display = "none";
+      elmBody.style.display = "none";
+
+      document.body.style.overflow = "auto";
+      if (!filterIsOpen) document.getElementById("body").classList.remove("over");
     }
 
 
     buildGrid(serverResponse.data);
 
-/*
+
     document.onkeydown = function (e) {
-      if (e.keyCode == 13 && e.ctrlKey) send();//enter
+      if (e.keyCode == 27) hideModal();//ESC
+      /*if (e.keyCode == 13 && e.ctrlKey) send();//enter
       else if (e.keyCode == 38 && e.ctrlKey) history(-1);//up
       else if (e.keyCode == 40 && e.ctrlKey) history(1);//down
       else return;
-      e.preventDefault();
+      e.preventDefault();*/
     };
-*/
+
   </script>
 </body>
 
