@@ -685,11 +685,12 @@
       //alert(JSON.stringify(filter));
 
       try {
-        const response = await fetch('./filter', {
+        let uri = "filter";
+        const response = await fetch(uri, {
           method: 'POST',
           cache: 'no-cache',
           credentials: 'same-origin',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' , 'Accept': 'application/json'},
           body: JSON.stringify(filter)
         });
 
@@ -776,11 +777,28 @@
           ) +
         `<td>${html(msg.From)} #${html((msg.Source | 0).toString())}</td>
           <td> <div class="text${msg.Text && msg.Text.indexOf && msg.Text.indexOf('\n') < 0 ? "" : "-pre"}${channel ? "" : " wide"}" onclick="showText(${i})">${html(msg.Text)}</div></td>
-          <td> <div class="snippet" onclick="showParams(${i})">${html(msg.Parameters)}</div></td>
-          <td onclick="showError(${i})">${html(msg.ExceptionData)}</td>
+          <td> <div class="snippet" onclick="showParams(${i})">${html(snippet(msg.Parameters))}</div></td>
+          <td <div class="snippet" onclick="showError(${i})">${html(rootError(msg.ExceptionData))}</div ></td >
         </tr>`;
     }
 
+
+    function snippet(params) {
+      if (!params || !params.length) return "";
+      if (params.length > 96) {
+        return params.substr(0, 95) + "....";
+      }
+      return params;
+    }
+
+    function rootError(err) {
+      let result = "";
+      while (err) {
+        result = err.TypeName;
+        err = err.InnerException;
+      }
+      return result;
+    }
 
     function hiJson(json) {
       if (!json) return "";
@@ -856,8 +874,7 @@
       let value = msg.ExceptionData;
       if (!value) return;
 
-      const obj = JSON.parse(value);
-      value = JSON.stringify(obj, null, 2);//pretty print
+      value = JSON.stringify(value, null, 2);//pretty print
       value = hiJson(value);
       content = `<div class="modal-params"}">${value}</div>`;
 
