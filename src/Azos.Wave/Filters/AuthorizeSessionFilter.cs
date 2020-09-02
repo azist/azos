@@ -8,6 +8,7 @@ using System;
 
 using Azos.Security;
 using Azos.Conf;
+using Azos.Instrumentation;
 
 namespace Azos.Wave.Filters
 {
@@ -28,6 +29,9 @@ namespace Azos.Wave.Filters
     /// When set, reads the named request header and injects its content into session's DataContextName property
     /// </summary>
     [Config]
+    [ExternalParameter("DataContextHeader",
+                        ExternalParameterSecurityCheck.OnSet, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
+    [SystemAdministratorPermission(AccessLevel.ADVANCED)]
     public string DataContextHeader { get; set; }
 
 
@@ -37,6 +41,9 @@ namespace Azos.Wave.Filters
     /// applications sensitive to standard Authorization header
     /// </summary>
     [Config]
+    [ExternalParameter("AltAuthorizationHeader",
+                        ExternalParameterSecurityCheck.OnSet, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
+    [SystemAdministratorPermission(AccessLevel.ADVANCED)]
     public string AltAuthorizationHeader { get ; set;}
 
 
@@ -44,7 +51,46 @@ namespace Azos.Wave.Filters
     /// When set will bump the named Gate var on every bad auth request which did not produce a Valid user
     /// </summary>
     [Config]
+    [ExternalParameter("GateBadAuthVar",
+                        ExternalParameterSecurityCheck.OnSet, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
+    [SystemAdministratorPermission(AccessLevel.ADVANCED)]
     public string GateBadAuthVar{ get; set; }
+
+
+    /// <summary>
+    /// WARNING: Use extreme caution!!! This property is used ONLY in cases of corporate-paralyzed environments.
+    /// Sets default impersonation authorization header value which is used as the last resort while
+    /// reading Authorization header. The system would use this value only WHEN no other Alt/Authorization headers supplied.
+    /// Used to mock authentication of clients temporarily incapable of sending a true Authorization header.
+    /// This property should never be set in production systems as it is basically a bypass of all security.
+    /// The PRACTICAL need for this setting arose due to problems while setting system integration channels
+    /// with a 3rd party due to exorbitant amounts of corporate bureaucracy, and inability to quickly re-deploy
+    /// software with a different configuration. When set, provides the value as-if supplied by Authorization header coming
+    /// in HttpRequest. During integration periods, the callers may temporarily be unable to send real Authorization header.
+    /// </summary>
+    [Config]
+    [ExternalParameter("DefaultImpersonationAuthorizationHeaderValue",
+                        ExternalParameterSecurityCheck.OnSet,
+                        CoreConsts.EXT_PARAM_GROUP_SECURITY)]
+    [SystemAdministratorPermission(AccessLevel.ADVANCED)]
+    public string DefaultImpersonationAuthorizationHeaderValue { get; set; }
+
+
+
+    /// <summary>
+    /// When set and passed at the beginning of the Bearer credentials, treats bearer payload as BASIC scheme
+    /// </summary>
+    [Config]
+    [ExternalParameter("BearerBasicPrefix",
+                        ExternalParameterSecurityCheck.OnSet,
+                        CoreConsts.EXT_PARAM_GROUP_SECURITY)]
+    [SystemAdministratorPermission(AccessLevel.ADVANCED)]
+    public string BearerBasicPrefix
+    {
+      get;
+      set;
+    }
+
 
 
     //disregard onlyExisting parameter, for APIs the session context is ephemeral
@@ -88,15 +134,24 @@ namespace Azos.Wave.Filters
 
       string hdr = null;
 
-      if (AltAuthorizationHeader.IsNotNullOrWhiteSpace())
+      var altHdrName = AltAuthorizationHeader;
+      if (altHdrName.IsNotNullOrWhiteSpace())
       {
-        hdr = work.Request.Headers[AltAuthorizationHeader]?.TrimStart(' ');
+        hdr = work.Request.Headers[altHdrName]?.TrimStart(' ');
       }
 
       if (hdr.IsNullOrWhiteSpace())
       {
+        //real AUTHORIZATION header
         hdr = work.Request.Headers[WebConsts.HTTP_HDR_AUTHORIZATION]?.TrimStart(' ');
-        if (hdr.IsNullOrWhiteSpace()) return session;//unauthorized
+        if (hdr.IsNullOrWhiteSpace())
+        {
+          var mockHdrName = DefaultImpersonationAuthorizationHeaderValue;
+          if (mockHdrName.IsNotNullOrEmpty())
+           hdr = mockHdrName;
+          else
+           return session;//unauthorized
+        }
       }
 
       Credentials credentials = null;
@@ -110,8 +165,17 @@ namespace Azos.Wave.Filters
         }
         else if (hdr.StartsWith(BEARER, StringComparison.OrdinalIgnoreCase))
         {
+          var pfxBasic = BearerBasicPrefix;
           var bearer = hdr.Substring(BEARER.Length).Trim();
-          credentials = new BearerCredentials(bearer);
+          if (pfxBasic.IsNotNullOrWhiteSpace() && bearer.IsNotNullOrWhiteSpace() && bearer.StartsWith(pfxBasic))
+          {
+            var basicContent = bearer.Substring(pfxBasic.Length).Trim();
+            credentials = IDPasswordCredentials.FromBasicAuth(basicContent);
+          }
+          else
+          {
+            credentials = new BearerCredentials(bearer);
+          }
         }
       }
       catch { }

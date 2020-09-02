@@ -162,7 +162,7 @@
               type="WaveTestSite.Handlers.PushHandler, TestBusinessLogic"
               match{path="push" }
             }
-			*/
+         */
 
             // handler
             // {
@@ -238,6 +238,7 @@
                 type="Azos.Wave.Handlers.MvcHandler, Azos.Wave"
 
                 type-location { name="local" assembly="TestBusinessLogic.dll" ns{ name="WaveTestSite.Controllers"} }
+                type-location { name="sky" assembly="Azos.Sky.dll" ns{ name="Azos.Apps.Terminal.Web*"} }
 
                 match{ path="mvc/{type}/{mvc-action}" var{query-name="*"} }
             }

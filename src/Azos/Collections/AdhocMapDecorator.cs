@@ -4,16 +4,19 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Serialization.JSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Azos.Collections
 {
   /// <summary>
   /// Implements a decorator pattern over a IDictionary&lt;string, object&gt; ensuring a controlled access to key/value pairs
   /// </summary>
-  public class AdhocMapDecorator : IDictionary<string, object>
+  public class AdhocMapDecorator : IDictionary<string, object>, IJsonWritable, IJsonReadable
   {
     public AdhocMapDecorator(IDictionary<string, object> data)
      => m_Data = data.NonNull(nameof(data));
@@ -53,5 +56,19 @@ namespace Azos.Collections
 
     protected virtual object GetValue(string key)             => m_Data[key];
     protected virtual void SetValue(string key, object value) => m_Data[key] = value;
+
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+     => JsonWriter.WriteMap(wri, m_Data.Select(kvp => new DictionaryEntry(kvp.Key, kvp.Value)), nestingLevel, options);
+
+    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
+    {
+      if (data is JsonDataMap map)
+      {
+        map.ForEach(kvp => Add(kvp));
+        return (true, this);
+      }
+
+      return (false, null);
+    }
   }
 }

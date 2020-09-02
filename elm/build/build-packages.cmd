@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.4.16
-set HEADLINE=Log Chronicles RTM, Fix 331 
+set VER=1.4.19.3
+set HEADLINE=Log Browser 
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

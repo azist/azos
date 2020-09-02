@@ -39,7 +39,7 @@ namespace Azos.Sky.Mdb
     public string m_BankName;
 
     private bool m_InstrumentationEnabled;
-    private StoreLogLevel m_LogLevel;
+    private StoreLogLevel m_DataLogLevel;
     private string m_TargetName;
 
 
@@ -90,10 +90,10 @@ namespace Azos.Sky.Mdb
 
     [Config]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
-    public StoreLogLevel LogLevel
+    public StoreLogLevel DataLogLevel
     {
-      get { return m_LogLevel; }
-      set { m_LogLevel = value;}
+      get { return m_DataLogLevel; }
+      set { m_DataLogLevel = value;}
     }
 
     [Config]

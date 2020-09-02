@@ -17,6 +17,14 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Security\MinIdp\ms-sql-schema.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Security\MinIdp\ms-sql-schema.sql" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <ProjectReference Include="..\..\Azos\Azos.csproj" />

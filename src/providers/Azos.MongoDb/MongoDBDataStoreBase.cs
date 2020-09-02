@@ -134,7 +134,7 @@ namespace Azos.Data.Access.MongoDb
       }
 
       [Config]
-      public StoreLogLevel LogLevel { get; set;}
+      public StoreLogLevel DataLogLevel { get; set;}
 
       [Config]
       public string TargetName

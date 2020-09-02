@@ -40,6 +40,7 @@ namespace Azos.Security.MinIdp
     #endregion
 
     #region Fields
+    private Atom m_Realm;
     private IMinIdpStoreImplementation m_Store;
     private IPasswordManagerImplementation m_PasswordManager;
     private ICryptoManagerImplementation m_Cryptography;
@@ -66,11 +67,18 @@ namespace Azos.Security.MinIdp
 
 
     /// <summary>
-    /// If set imposes a filter/constraint on realms which can be authenticated
+    /// Required. Dictates in what realm this security implementation operates
     /// </summary>
     [Config]
-    public Atom RealmConstraint{ get; private set; }
-
+    public Atom Realm
+    {
+      get => m_Realm;
+      set
+      {
+        CheckDaemonInactive();
+        m_Realm = value;
+      }
+    }
 
     [Config(Default = SecurityLogMask.Custom)]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
@@ -109,7 +117,9 @@ namespace Azos.Security.MinIdp
     {
       if (credentials is BearerCredentials bearer)
       {
-        var oauth = App.ModuleRoot.Get<Services.IOAuthModule>();
+        var oauth = App.ModuleRoot.TryGet<Services.IOAuthModule>();
+        if (oauth == null) return MakeBadUser(credentials);
+
         var accessToken = await oauth.TokenRing.GetAsync<Tokens.AccessToken>(bearer.Token);
         if (accessToken != null)//if token is valid
         {
@@ -118,7 +128,7 @@ namespace Azos.Security.MinIdp
         }
       } else if (credentials is IDPasswordCredentials idpass)
       {
-        var data = await m_Store.GetByIdAsync(idpass.ID);
+        var data = await m_Store.GetByIdAsync(Realm, idpass.ID);
         if (data != null)
         {
           var user = TryAuthenticateUser(data, idpass);
@@ -126,7 +136,7 @@ namespace Azos.Security.MinIdp
         }
       } else if (credentials is EntityUriCredentials enturi)
       {
-        var data = await m_Store.GetByUriAsync(enturi.Uri);
+        var data = await m_Store.GetByUriAsync(Realm, enturi.Uri);
         if (data != null)
         {
           var user = TryAuthenticateUser(data, enturi);
@@ -143,11 +153,14 @@ namespace Azos.Security.MinIdp
 
     public virtual async Task<User> AuthenticateAsync(SysAuthToken token)
     {
-      var data = await m_Store.GetBySysAsync(token);
-      if (data!=null)
+      if (Realm.Value.EqualsOrdSenseCase(token.Realm))
       {
-        var user = TryAuthenticateUser(data);
-        if (user != null) return user;
+        var data = await m_Store.GetBySysAsync(Realm, token.Data);
+        if (data!=null)
+        {
+          var user = TryAuthenticateUser(data);
+          if (user != null) return user;
+        }
       }
 
       return MakeBadUser(null);
@@ -211,7 +224,7 @@ namespace Azos.Security.MinIdp
     /// </summary>
     protected virtual User TryAuthenticateUser(MinIdpUserData data, IDPasswordCredentials cred)
     {
-      if (!RealmConstraint.IsZero  &&  data.Realm != RealmConstraint) return null;
+      if (data.Realm != Realm) return null;
 
       using (var password = cred.SecurePassword)
       {
@@ -228,7 +241,7 @@ namespace Azos.Security.MinIdp
     /// </summary>
     protected virtual User TryAuthenticateUser(MinIdpUserData data, EntityUriCredentials cred)
     {
-      if (!RealmConstraint.IsZero && data.Realm != RealmConstraint) return null;
+      if (data.Realm != Realm) return null;
 
       cred.Forget();
       return MakeOkUser(cred, data);
@@ -239,7 +252,7 @@ namespace Azos.Security.MinIdp
     /// </summary>
     protected virtual User TryAuthenticateUser(MinIdpUserData data)
     {
-      if (!RealmConstraint.IsZero && data.Realm != RealmConstraint) return null;
+      if (data.Realm != Realm) return null;
 
       return MakeOkUser(null, data);
     }
@@ -270,6 +283,9 @@ namespace Azos.Security.MinIdp
 
     protected override void DoStart()
     {
+      if (m_Realm.IsZero)
+        throw new CallGuardException(nameof(MinIdpSecurityManager), nameof(Realm), "Must be configured");
+
       m_PasswordManager.NonNull($"{nameof(PasswordManager)} config").Start();
       m_Cryptography.NonNull($"{nameof(Cryptography)} config").Start();
       m_Store.NonNull($"{nameof(Store)} config").Start();

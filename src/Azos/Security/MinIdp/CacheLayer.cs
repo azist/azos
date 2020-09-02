@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Data;
 using Azos.Instrumentation;
 
 namespace Azos.Security.MinIdp
@@ -19,6 +20,8 @@ namespace Azos.Security.MinIdp
   /// </summary>
   public sealed class CacheLayer : DaemonWithInstrumentation<MinIdpSecurityManager>, IMinIdpStoreImplementation
   {
+    public const int DEFAULT_CACHE_AGE_SEC = 30;
+
     public CacheLayer(MinIdpSecurityManager dir) : base(dir)
     {
     }
@@ -29,13 +32,24 @@ namespace Azos.Security.MinIdp
       DisposeAndNull(ref m_Store);
     }
 
+    private struct realmed : IEquatable<realmed>
+    {
+      public realmed(Atom r, string k){   Realm = r;   Key = k; }
+      public readonly Atom Realm;
+      public readonly string Key;
+
+      public override bool Equals(object obj) => obj is realmed v ? this.Equals(v) : false;
+      public override int GetHashCode() => Realm.GetHashCode() ^ (Key==null ? 0 : Key.GetHashCode());
+      public bool Equals(realmed other) => this.Realm == other.Realm && this.Key.EqualsOrdSenseCase(other.Key);
+    }
+
 
     private IMinIdpStoreImplementation m_Store;
 
     private object m_DataLock = new object();
-    private Dictionary<string, (DateTime ts, MinIdpUserData d)> m_IdxId;
-    private Dictionary<SysAuthToken, MinIdpUserData> m_IdxSysToken;
-    private Dictionary<string, MinIdpUserData> m_IdxUri;
+    private Dictionary<realmed, (DateTime ts, MinIdpUserData d)> m_IdxId = new Dictionary<realmed, (DateTime ts, MinIdpUserData d)>();
+    private Dictionary<realmed, MinIdpUserData> m_IdxSysToken = new Dictionary<realmed, MinIdpUserData>();
+    private Dictionary<realmed, MinIdpUserData> m_IdxUri = new Dictionary<realmed, MinIdpUserData>();
 
 
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
@@ -50,44 +64,44 @@ namespace Azos.Security.MinIdp
     /// <summary>
     /// Cache age limit in seconds, set to 0 to disable caching
     /// </summary>
-    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_SECURITY, CoreConsts.EXT_PARAM_GROUP_CACHE)]
-    public int MaxCacheAgeSec { get; set; }
+    [Config(Default = DEFAULT_CACHE_AGE_SEC), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_SECURITY, CoreConsts.EXT_PARAM_GROUP_CACHE)]
+    public int MaxCacheAgeSec { get; set; } = DEFAULT_CACHE_AGE_SEC;
 
 
-    public async Task<MinIdpUserData> GetByIdAsync(string id)
+    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
     {
       lock(m_DataLock)
-        if (m_IdxId.TryGetValue(id, out var existing)) return existing.d;
+        if (m_IdxId.TryGetValue(new realmed(realm, id), out var existing)) return existing.d;
 
-      var data = await m_Store.GetByIdAsync(id);
+      var data = await m_Store.GetByIdAsync(realm, id);
 
-      updateIndexes(data);
+      updateIndexes(realm, data);
       return data;
     }
 
-    public async Task<MinIdpUserData> GetBySysAsync(SysAuthToken sysToken)
+    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
     {
       lock (m_DataLock)
-        if (m_IdxSysToken.TryGetValue(sysToken, out var existing)) return existing;
+        if (m_IdxSysToken.TryGetValue(new realmed(realm, sysToken), out var existing)) return existing;
 
-      var data = await m_Store.GetBySysAsync(sysToken);
+      var data = await m_Store.GetBySysAsync(realm, sysToken);
 
-      updateIndexes(data);
+      updateIndexes(realm, data);
       return data;
     }
 
-    public async Task<MinIdpUserData> GetByUriAsync(string uri)
+    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
     {
       lock (m_DataLock)
-        if (m_IdxUri.TryGetValue(uri, out var existing)) return existing;
+        if (m_IdxUri.TryGetValue(new realmed(realm, uri), out var existing)) return existing;
 
-      var data = await m_Store.GetByUriAsync(uri);
+      var data = await m_Store.GetByUriAsync(realm, uri);
 
-      updateIndexes(data);
+      updateIndexes(realm, data);
       return data;
     }
 
-    private void updateIndexes(MinIdpUserData data)
+    private void updateIndexes(Atom realm, MinIdpUserData data)
     {
       if (data==null) return;
 
@@ -97,9 +111,9 @@ namespace Azos.Security.MinIdp
       var entry = (DateTime.UtcNow.AddSeconds(maxAge), data);
       lock (m_DataLock)
       {
-        m_IdxId[data.LoginId] = entry;
-        m_IdxSysToken[data.SysToken] = data;
-        m_IdxUri[data.ScreenName] = data;
+        m_IdxId      [new realmed(realm, data.LoginId)]       = entry;
+        m_IdxSysToken[new realmed(realm, data.SysToken.Data)] = data;
+        m_IdxUri     [new realmed(realm, data.ScreenName)]    = data;
       }
     }
 
@@ -137,19 +151,30 @@ namespace Azos.Security.MinIdp
         {
           foreach(var item in toKill)
           {
-            m_IdxId.Remove(item.LoginId);
-            m_IdxSysToken.Remove(item.SysToken);
-            m_IdxUri.Remove(item.ScreenName);
+            m_IdxId.Remove(new realmed(item.Realm, item.LoginId));
+            m_IdxSysToken.Remove(new realmed(item.Realm, item.SysToken.Data));
+            m_IdxUri.Remove(new realmed(item.Realm, item.ScreenName));
           }
         }
       }
 
     }
 
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+
+      DisposeAndNull(ref m_Store);
+      m_Store = FactoryUtils.MakeAndConfigureDirectedComponent<IMinIdpStoreImplementation>(
+                                              this,
+                                              node[MinIdpSecurityManager.CONFIG_STORE_SECTION]);
+    }
 
     protected override void DoStart()
     {
-      m_Store.NonNull($"{nameof(Store)} config").Start();
+      m_Store.NonNull($"{nameof(Store)} config")
+             .Start();
+
       scan();
     }
 
@@ -161,6 +186,12 @@ namespace Azos.Security.MinIdp
     protected override void DoWaitForCompleteStop()
     {
       m_Store.WaitForCompleteStop();
+      lock(m_DataLock)
+      {
+        m_IdxId.Clear();
+        m_IdxSysToken.Clear();
+        m_IdxUri.Clear();
+      }
     }
 
   }

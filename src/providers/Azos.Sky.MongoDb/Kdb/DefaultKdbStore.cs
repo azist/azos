@@ -97,15 +97,11 @@ namespace Azos.Sky.Kdb
 
     public string TargetName{ get { return Kdb_TARGET; } }
 
-    StoreLogLevel IDataStoreImplementation.LogLevel
+    StoreLogLevel IDataStoreImplementation.DataLogLevel
     {
-      get { return this.LogLevel >= MessageType.Trace ? StoreLogLevel.Trace : StoreLogLevel.Debug; }
+      get { return this.ComponentEffectiveLogLevel >= MessageType.Trace ? StoreLogLevel.Trace : StoreLogLevel.Debug; }
       set {}
     }
-
-    [Config(Default = MessageType.Error)]
-    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-    public MessageType LogLevel { get; set; }
 
     public ShardSet RootShardSet { get { return m_RootShardSet; } }
     #endregion
@@ -297,8 +293,7 @@ namespace Azos.Sky.Kdb
 
       internal void Log(MessageType tp, string from, string text, Exception error = null, Guid? related = null)
       {
-        //if (InstrumentationEnabled && tp >= MessageType.Error) Interlocked.Increment(ref m_stat_WorkerLoggedError);
-        if (tp < LogLevel) return;
+        if (tp < ComponentEffectiveLogLevel) return;
         App.Log.Write(new Message
         {
           Type = tp,

@@ -4,7 +4,7 @@ using Azos.Serialization.JSON;
 using System;
 using System.IO;
 
-namespace Azos.Data.Business
+namespace Azos.Data
 {
   /// <summary>
   /// A tuple of (SYSTEM: Atom, TYPE: Atom, ADDRESS: Atom) used for identification of entities in business systems.
@@ -59,13 +59,15 @@ namespace Azos.Data.Business
     /// <summary>
     /// Returns a string representation which can be used with Parse()/TryParse() calls
     /// </summary>
-    public string AsString => Type.IsZero ? System + SYS_PREFIX + Address : Type + "@" + System + SYS_PREFIX + Address;
+    public string AsString => Type.IsZero ? System + SYS_PREFIX + Address : Type + TP_PREFIX + System + SYS_PREFIX + Address;
 
     public override string ToString() => "{0}(`{1}`)".Args(GetType().Name, AsString);
 
     public override int GetHashCode() => System.GetHashCode() ^ Type.GetHashCode() ^ Address.GetHashCode();
 
-    public ulong GetDistributedStableHash() => (((ulong)System.GetHashCode() << 32) ^ (ulong)Type.GetHashCode()) ^ ShardingUtils.StringToShardingID(Address);
+    public ulong GetDistributedStableHash() => (System.GetDistributedStableHash() << 32) ^
+                                                Type.GetDistributedStableHash() ^
+                                                ShardingUtils.StringToShardingID(Address);
 
     public override bool Equals(object obj) => obj is EntityId other ? this.Equals(other) : false;
 
@@ -126,6 +128,5 @@ namespace Azos.Data.Business
 
     public static implicit operator string(EntityId v) => v.AsString;
     public static implicit operator EntityId(string v) => Parse(v);
-
   }
 }
