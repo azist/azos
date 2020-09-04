@@ -13,12 +13,10 @@ using Azos.Apps;
 using Azos.Log;
 using Azos.Serialization.JSON;
 
-using Azos.Data.Access.MongoDb;
 using Azos.Conf;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Sky.Identification;
 using Azos.Apps.Injection;
-using Azos.Sky.Identification.Server;
 
 namespace Azos.Sky.Chronicle.Server
 {
@@ -27,41 +25,23 @@ namespace Azos.Sky.Chronicle.Server
   /// </summary>
   public sealed class MongoChronicleStore : Daemon, ILogChronicleStoreImplementation, IInstrumentationChronicleStoreImplementation
   {
-    public const string CONFIG_BUNDLED_MONGO_SECTION = "bundled-mongo";
-
     public const string DEFAULT_DB = "sky_chron";
 
     public const string COLLECTION_LOG = "sky_log";
     public const string COLLECTION_INSTR = "sky_ins";
 
-    public const string SEQUENCE_LOG = "chronicle_sky_log";
-    public const string SEQUENCE_INSTR = "chronicle_sky_ins";
-
     public const int MAX_FETCH_DOC_COUNT = 8 * 1024;
     public const int MAX_INSERT_DOC_COUNT = 8 * 1024;
     public const int FETCH_BY_LOG = 128;
 
-
     public MongoChronicleStore(IApplication application) : base(application) { }
     public MongoChronicleStore(IApplicationComponent parent) : base(parent) { }
-
-    protected override void Destructor()
-    {
-      DisposeAndNull(ref m_Bundled);
-      base.Destructor();
-    }
 
     [Inject] IGdidProviderModule m_Gdid;
 
     private Database m_LogDb;
     private Database m_InstrDb;
 
-
-    [Config(Default = DEFAULT_DB)]
-    private string m_DbNameLog = DEFAULT_DB;
-
-    [Config(Default = DEFAULT_DB)]
-    private string m_DbNameInstr = DEFAULT_DB;
 
     [Config]
     private string m_CsLogDatabase;
@@ -71,49 +51,15 @@ namespace Azos.Sky.Chronicle.Server
 
     public override string ComponentLogTopic => CoreConsts.INSTRUMENTATION_TOPIC;
 
-    private BundledMongoDb m_Bundled;
-
-    protected override void DoConfigure(IConfigSectionNode node)
-    {
-      base.DoConfigure(node);
-      DisposeAndNull(ref m_Bundled);
-      if (node==null) return;
-
-      var nbundled = node[CONFIG_BUNDLED_MONGO_SECTION];
-      if (nbundled.Exists)
-      {
-        m_Bundled = FactoryUtils.MakeAndConfigureDirectedComponent<BundledMongoDb>(this, nbundled, typeof(BundledMongoDb));
-      }
-    }
 
     protected override void DoStart()
     {
       base.DoStart();
 
-      if (m_Bundled != null)
-      {
-        m_Bundled.Start();
-        m_LogDb = m_Bundled.GetDatabase(m_DbNameLog);
-        m_InstrDb = m_Bundled.GetDatabase(m_DbNameInstr);
-      }
-      else
-      {
-        m_LogDb = App.GetMongoDatabaseFromConnectString(m_CsLogDatabase);
-        m_InstrDb = App.GetMongoDatabaseFromConnectString(m_CsInstrDatabase);
-      }
+      m_LogDb = App.GetMongoDatabaseFromConnectString(m_CsLogDatabase, DEFAULT_DB);
+      m_InstrDb = App.GetMongoDatabaseFromConnectString(m_CsInstrDatabase, DEFAULT_DB);
     }
 
-    protected override void DoSignalStop()
-    {
-      base.DoSignalStop();
-      if (m_Bundled != null) m_Bundled.SignalStop();
-    }
-
-    protected override void DoWaitForCompleteStop()
-    {
-      base.DoWaitForCompleteStop();
-      if (m_Bundled != null) m_Bundled.WaitForCompleteStop();
-    }
 
     public Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter) => Task.FromResult(get(filter));
     private IEnumerable<Message> get(LogChronicleFilter filter)

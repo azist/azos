@@ -21,6 +21,8 @@ namespace Azos.Client
       MappedContract = mappedContract;
     }
 
+    public bool IsAssigned => Endpoint != null;
+
     /// <summary>
     /// An actual endpoint assigned to handle the call. The effective address, and contract are taken from the endpoint,
     /// whereas the rest of the field in this structure represent the requested value that got mapped/assigned into the real endpoint
