@@ -57,7 +57,7 @@ namespace Azos.Client
       var first = assignments.NonNull(nameof(assignments)).FirstOrDefault();
       if (!first.IsAssigned) throw new ClientException(StringConsts.HTTP_CLIENT_CALL_ASSIGMENT_ERROR.Args("No assignments provided"));
 
-      var service = first.Endpoint as IHttpService;
+      var service = first.Endpoint.Service as IHttpService;
       if (service==null) throw new ClientException(StringConsts.HTTP_CLIENT_CALL_ASSIGMENT_ERROR.Args("Wrong service type assignments"));
 
       if (!assignments.All(a => a.Endpoint.Service == service &&

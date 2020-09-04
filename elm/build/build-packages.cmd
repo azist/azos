@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.4.19.5
+set VER=1.4.19.7
 set HEADLINE=Log Browser 
 call vs2017-build-release %VER%
 

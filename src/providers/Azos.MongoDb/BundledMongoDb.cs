@@ -220,7 +220,7 @@ namespace Azos.Data.Access.MongoDb
 
     protected string GetDatabaseConnectStringUnsafe(string dbName)
     {
-      return "mongo{{server='{0}' db='{2}'}}".Args(ServerNode.ConnectString, dbName.NonBlank(nameof(dbName)));
+      return "mongo{{server='{0}' db='{1}'}}".Args(ServerNode.ConnectString, dbName.NonBlank(nameof(dbName)));
     }
 
     protected Database GetDatabaseUnsafe(string dbName)
