@@ -16,6 +16,7 @@ using Azos.Web;
 using Azos.Serialization.JSON;
 using Azos.Web.GeoLookup;
 using Azos.Platform;
+using System.Collections.Generic;
 
 namespace Azos.Wave
 {
@@ -112,6 +113,8 @@ namespace Azos.Wave
       private GeoEntity m_GeoEntity;
 
       private bool m_IsAuthenticated;
+
+      private Dictionary<string, object> m_CallFlowValues;
     #endregion
 
     #region Properties
@@ -120,12 +123,35 @@ namespace Azos.Wave
       /// <summary>
       /// Uniquely identifies the request
       /// </summary>
-      public Guid ID{ get{ return m_ID;} }
+      public Guid ID => m_ID;
 
-      /// <summary>
-      /// Returns the application that this context is under
-      /// </summary>
-      public IApplication App => m_Server.App;
+      string Apps.ICallFlow.CallerAddress => EffectiveCallerIPEndPoint.ToString();
+      string Apps.ICallFlow.CallerAgent   => Request.UserAgent.TakeFirstChars(96, "..");
+      string Apps.ICallFlow.CallerPort    => Request.HttpMethod + "  " + Request.Url.ToString().TakeFirstChars(96, "..");
+
+      object Apps.ICallFlow.this[string key]
+      {
+        get
+        {
+          key.NonNull(nameof(key));
+          if (m_CallFlowValues != null && m_CallFlowValues.TryGetValue(key, out var existing)) return existing;
+          return null;
+        }
+        set
+        {
+          key.NonNull(nameof(key));
+          if (m_CallFlowValues == null) m_CallFlowValues = new Dictionary<string, object>(StringComparer.Ordinal);
+          m_CallFlowValues[key] = value;
+        }
+      }
+
+    IEnumerable<KeyValuePair<string, object>> Apps.ICallFlow.Items
+      => m_CallFlowValues==null ? Enumerable.Empty<KeyValuePair<string, object>>() : m_CallFlowValues;
+
+    /// <summary>
+    /// Returns the application that this context is under
+    /// </summary>
+    public IApplication App => m_Server.App;
 
       /// <summary>
       /// Returns the server that this context is under
