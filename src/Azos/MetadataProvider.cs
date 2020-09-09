@@ -111,7 +111,7 @@ namespace Azos
 
 
   /// <summary>
-  /// Implemented by class which provide metadata from their instance (not only types), e.g. a Permission may need to provide
+  /// Implemented by classes which provide metadata from their instances (not just from their types), e.g. a `Permission` may need to provide
   /// metadata based on its instance state such as requested access level
   /// </summary>
   public interface IInstanceCustomMetadataProvider
@@ -257,7 +257,7 @@ namespace Azos
         }
       }
 
-      //Default SKU is added for types only taking type name (which may not be unique, so set SKU on the public types)
+      //Default SKU is added for types only taking type name (which may not be globally unique, so set `SKU` attribute on the public types)
       if (target is Type typeTarget)
       {
         if (data.AttrByName(CONFIG_SKU_ATTR).Value.IsNullOrWhiteSpace())
