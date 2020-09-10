@@ -82,7 +82,7 @@ namespace Azos.Apps.Strategies
     public readonly IConfigSectionNode Pattern;
 
 
-    private static ConstrainedSetLookup<Type, IEnumerable<StrategyPatternAttribute>> s_Lookup = new ConstrainedSetLookup<Type, IEnumerable<StrategyPatternAttribute>>
+    private static FiniteSetLookup<Type, IEnumerable<StrategyPatternAttribute>> s_Lookup = new FiniteSetLookup<Type, IEnumerable<StrategyPatternAttribute>>
     (
       t => t.GetCustomAttributes<StrategyPatternAttribute>(false)
     );

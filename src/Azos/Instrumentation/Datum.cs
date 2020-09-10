@@ -180,7 +180,7 @@ namespace Azos.Instrumentation
     #endregion
 
     #region Public
-    private static ConstrainedSetLookup<Type, IEnumerable<Type>> s_ViewGroupInterfaces = new ConstrainedSetLookup<Type, IEnumerable<Type>>( tp =>{
+    private static FiniteSetLookup<Type, IEnumerable<Type>> s_ViewGroupInterfaces = new FiniteSetLookup<Type, IEnumerable<Type>>( tp =>{
       var result = tp.GetInterfaces()
                      .Where(i => Attribute.IsDefined(i, typeof(InstrumentViewGroup)))
                      .ToArray();

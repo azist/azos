@@ -62,7 +62,7 @@ namespace Azos.Data
         m_Order = order;
         m_Type = type;
         m_Attrs = new List<FieldAttribute>(attrs);
-        m_TargetAttrsCache = new ConstrainedSetLookup<string, FieldAttribute>(findFieldAttributeFor, StringComparer.InvariantCultureIgnoreCase);
+        m_TargetAttrsCache = new FiniteSetLookup<string, FieldAttribute>(findFieldAttributeFor, StringComparer.InvariantCultureIgnoreCase);
 
         if (m_Attrs.Count<1)
           throw new DataException(StringConsts.CRUD_FIELDDEF_ATTR_MISSING_ERROR.Args(name));
@@ -120,7 +120,7 @@ namespace Azos.Data
         m_NonNullableType = Type.GetType( info.GetString("nnt"), true);
         m_Attrs = info.GetValue("attrs", typeof(List<FieldAttribute>)) as List<FieldAttribute>;
         m_AnyTargetKey = info.GetBoolean("atk");
-        m_TargetAttrsCache = new ConstrainedSetLookup<string, FieldAttribute>(findFieldAttributeFor, StringComparer.InvariantCultureIgnoreCase);
+        m_TargetAttrsCache = new FiniteSetLookup<string, FieldAttribute>(findFieldAttributeFor, StringComparer.InvariantCultureIgnoreCase);
 
         var mtp = info.GetString("mtp");
         if (mtp!=null)
@@ -258,7 +258,7 @@ namespace Azos.Data
       }
 
 
-      private Azos.Platform.ConstrainedSetLookup<string, FieldAttribute> m_TargetAttrsCache;
+      private Azos.Platform.FiniteSetLookup<string, FieldAttribute> m_TargetAttrsCache;
       private FieldAttribute findFieldAttributeFor(string target)
       {
         FieldAttribute result = null;

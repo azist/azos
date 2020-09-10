@@ -139,9 +139,9 @@ namespace Azos.Data
     }
 
 
-    private static ConstrainedSetLookup<Type, ConstrainedSetLookup<string, FieldDescriptors>> s_Cache =
-        new ConstrainedSetLookup<Type, ConstrainedSetLookup<string, FieldDescriptors>>( t =>
-          new ConstrainedSetLookup<string, FieldDescriptors>( targetName => {
+    private static FiniteSetLookup<Type, FiniteSetLookup<string, FieldDescriptors>> s_Cache =
+        new FiniteSetLookup<Type, FiniteSetLookup<string, FieldDescriptors>>( t =>
+          new FiniteSetLookup<string, FieldDescriptors>( targetName => {
 
             var schema = Schema.GetForTypedDoc(t);
             var fields = schema
@@ -167,9 +167,9 @@ namespace Azos.Data
     }
 
 
-    private static ConstrainedSetLookup<Type, ConstrainedSetLookup<string, FieldDescriptors>> s_ExactCache =
-        new ConstrainedSetLookup<Type, ConstrainedSetLookup<string, FieldDescriptors>>(t =>
-         new ConstrainedSetLookup<string, FieldDescriptors>(targetName => {
+    private static FiniteSetLookup<Type, FiniteSetLookup<string, FieldDescriptors>> s_ExactCache =
+        new FiniteSetLookup<Type, FiniteSetLookup<string, FieldDescriptors>>(t =>
+         new FiniteSetLookup<string, FieldDescriptors>(targetName => {
 
            var schema = Schema.GetForTypedDoc(t);
            var fields = schema
