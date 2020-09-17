@@ -569,8 +569,8 @@
     <form id="frmFilter" style="display: none" autocomplete="off" onsubmit="return false">
      <div class="form-block">
        <label for="fldGdid">Gdid</label>       <input type=text id="fldGdid" placeholder="0:0:0">
-       <label for="fldId">Id</label>           <input type=text id="fldId" placeholder="guid:00000000-0000-0000-0000-000000000000">
-       <label for="fldRelId">RelId</label>     <input type=text id="fldRelId" placeholder="guid:00000000-0000-0000-0000-000000000000">
+       <label for="fldId">Id</label>           <input type=text id="fldId" placeholder="guid:00000000-0000-0000-0000-000000000000" value="[:FILTER-ID:]">
+       <label for="fldRelId">RelId</label>     <input type=text id="fldRelId" placeholder="guid:00000000-0000-0000-0000-000000000000" value="[:FILTER-REL:]">
        <label for="fldChannel">Channel</label> <input type=text id="fldChannel" placeholder="A(8)">
        <label for="fldApplication">Application</label> <input type=text id="fldApplication" placeholder="A(8)">
      </div>
@@ -583,9 +583,26 @@
        <select id="fldMinType">
          <option value="">-- unset --</option>
          <option value="Debug">Debug</option>
+         <option value="DebugA">DebugA</option>
+         <option value="DebugB">DebugB</option>
+         <option value="DebugC">DebugC</option>
+         <option value="DebugD">DebugD</option>
+         <option value="DebugSQL">DebugSQL</option>
+         <option value="DebugZ">DebugZ</option>
          <option value="Trace">Trace</option>
+         <option value="TraceA">TraceA</option>
+         <option value="TraceB">TraceB</option>
+         <option value="TraceC">TraceC</option>
+         <option value="TraceD">TraceD</option>
          <option value="TraceErrors">TraceErrors</option>
+         <option value="TraceSQL">TraceSQL</option>
+         <option value="TraceZ">TraceZ</option>
          <option value="Info">Info</option>
+         <option value="InfoA">InfoA</option>
+         <option value="InfoB">InfoB</option>
+         <option value="InfoC">InfoC</option>
+         <option value="InfoD">InfoD</option>
+         <option value="InfoZ">InfoZ</option>
          <option value="SecurityAudit">SecurityAudit</option>
          <option value="Notice">Notice</option>
          <option value="Warning">Warning</option>
@@ -600,9 +617,26 @@
        <select id="fldMaxType">
          <option value="">-- unset --</option>
          <option value="Debug">Debug</option>
+         <option value="DebugA">DebugA</option>
+         <option value="DebugB">DebugB</option>
+         <option value="DebugC">DebugC</option>
+         <option value="DebugD">DebugD</option>
+         <option value="DebugSQL">DebugSQL</option>
+         <option value="DebugZ">DebugZ</option>
          <option value="Trace">Trace</option>
+         <option value="TraceA">TraceA</option>
+         <option value="TraceB">TraceB</option>
+         <option value="TraceC">TraceC</option>
+         <option value="TraceD">TraceD</option>
          <option value="TraceErrors">TraceErrors</option>
+         <option value="TraceSQL">TraceSQL</option>
+         <option value="TraceZ">TraceZ</option>
          <option value="Info">Info</option>
+         <option value="InfoA">InfoA</option>
+         <option value="InfoB">InfoB</option>
+         <option value="InfoC">InfoC</option>
+         <option value="InfoD">InfoD</option>
+         <option value="InfoZ">InfoZ</option>
          <option value="SecurityAudit">SecurityAudit</option>
          <option value="Notice">Notice</option>
          <option value="Warning">Warning</option>
@@ -623,6 +657,7 @@
          <option value="200">200</option>
          <option value="300">300</option>
          <option value="500">500</option>
+         <option value="750">750</option>
        </select>
      </div>
      <div class="form-block">
@@ -727,8 +762,6 @@
 
     async function apply() {
      //// buildGrid(TEZT_RESPONSE.data); return;
-
-
       const filter = buildFilter();
       //alert(JSON.stringify(filter));
 
@@ -747,6 +780,7 @@
         const got = await response.json();
 
         if (got.OK && got.data) {
+          serverResponse = got;
           buildGrid(got.data);
           toggleFilter(false);
         } else {
@@ -958,10 +992,6 @@
       document.body.style.overflow = "auto";
       if (!filterIsOpen) document.getElementById("body").classList.remove("over");
     }
-
-
-   // buildGrid(serverResponse.data);
-
 
     document.onkeydown = function (e) {
       if (e.keyCode == 27) hideModal();//ESC

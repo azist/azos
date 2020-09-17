@@ -32,7 +32,7 @@ namespace Azos.Sky.Chronicle.Server.Web
   public class Log : ApiProtocolController
   {
     [Action(Name = "view")]
-    public void View()
+    public void View(Guid? id = null, Guid? rel = null)
     {
       string esc(string s)
         => s.IsNullOrWhiteSpace() ? "" : s.Replace("\"", "'")
@@ -45,7 +45,10 @@ namespace Azos.Sky.Chronicle.Server.Web
       html = html.Replace("[:USER:]", esc(WorkContext.Session.User.Name))
                  .Replace("[:APP:]", esc(App.AppId.Value))
                  .Replace("[:HOST:]", esc(Computer.HostName))
-                 .Replace("[:ENV:]", esc(App.EnvironmentName));
+                 .Replace("[:ENV:]", esc(App.EnvironmentName))
+                 .Replace("[:FILTER-ID:]", id.HasValue ? id.ToString() : "")
+                 .Replace("[:FILTER-REL:]", rel.HasValue ? rel.ToString() : "");
+
 
       WorkContext.Response.ContentType = ContentType.HTML;
       WorkContext.Response.Write(html);
