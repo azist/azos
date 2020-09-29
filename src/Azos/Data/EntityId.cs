@@ -59,11 +59,11 @@ namespace Azos.Data
     /// <summary>
     /// Returns a string representation which can be used with Parse()/TryParse() calls
     /// </summary>
-    public string AsString => Type.IsZero ? System + SYS_PREFIX + Address : Type + TP_PREFIX + System + SYS_PREFIX + Address;
+    public string AsString => IsAssigned ? (Type.IsZero ? System + SYS_PREFIX + Address : Type + TP_PREFIX + System + SYS_PREFIX + Address) : string.Empty;
 
-    public override string ToString() => "{0}(`{1}`)".Args(GetType().Name, AsString);
+    public override string ToString() => IsAssigned ? "{0}(`{1}`)".Args(GetType().Name, AsString) : string.Empty;
 
-    public override int GetHashCode() => System.GetHashCode() ^ Type.GetHashCode() ^ Address.GetHashCode();
+    public override int GetHashCode() => System.GetHashCode() ^ Type.GetHashCode() ^ (Address==null ? 0 :  Address.GetHashCode());
 
     public ulong GetDistributedStableHash() => (System.GetDistributedStableHash() << 32) ^
                                                 Type.GetDistributedStableHash() ^
