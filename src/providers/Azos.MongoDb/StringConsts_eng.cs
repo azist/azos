@@ -117,6 +117,10 @@ namespace Azos.Data.Access.MongoDb
 
     public const string AST_BAD_SYNTAX_ERROR = "Bad AST syntax ({0}) near: ... {1} ...";
 
+    public const string MONGO_CLIENT_CALL_FAILED = "Call to {0} on `{1}` eventually failed; {2} endpoints tried; See .InnerException";
+
+    public const string MONGO_CLIENT_CALL_ASSIGMENT_ERROR = "MongoDbService .Call() can not be made due to invalid endpoint assignments: {0}";
+
   }
 }
 

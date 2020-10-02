@@ -10,29 +10,29 @@ using System.Linq;
 using System.Threading;
 
 using Azos.Apps;
+using Azos.Client;
 using Azos.Conf;
 using Azos.Text;
 
-namespace Azos.Client
+namespace Azos.Data.Access.MongoDb.Client
 {
   /// <summary>
-  /// Implements a remote Http(s) service client
+  /// Implements a remote MongoDb(s) service client
   /// </summary>
-  public class HttpService : ServiceBase<HttpEndpoint, HttpTransport>, IHttpService
+  public class MongoDbService : ServiceBase<MongoDbEndpoint, MongoDbTransport>, IHttpService
   {
-    public HttpService(IApplicationComponent director, IConfigSectionNode conf) : base(director, conf)
+    public MongoDbService(IApplicationComponent director, IConfigSectionNode conf) : base(director, conf)
     {
-      Web.WebSettings.RequireInitilizedServicePointManager(App);
     }
 
     protected override void Destructor()
     {
-      m_Transports.ForEach( kvp => this.DontLeak( () => kvp.Value.Dispose()) );
+      m_Transports.ForEach(kvp => this.DontLeak(() => kvp.Value.Dispose()));
       base.Destructor();
     }
 
     private object m_TransportLock = new object();
-    private volatile Dictionary<EndpointAssignment, HttpTransport> m_Transports = new Dictionary<EndpointAssignment, HttpTransport>();
+    private volatile Dictionary<EndpointAssignment, MongoDbTransport> m_Transports = new Dictionary<EndpointAssignment, MongoDbTransport>();
     private volatile Dictionary<EndpointAssignment.Request, EndpointAssignment[][]> m_EPCache = new Dictionary<EndpointAssignment.Request, EndpointAssignment[][]>();
 
     protected override void EndpointsHaveChanged()
@@ -76,26 +76,26 @@ namespace Azos.Client
       var shard = (int)Data.ShardingUtils.ObjectToShardingID(shardKey) & CoreConsts.ABS_HASH_MASK;
 
       var shards = DoGetEndpointsForAllShardsArray(remoteAddress, contract, network, binding);
-      if (shards==null || shards.Length==0) return Enumerable.Empty<EndpointAssignment>();
+      if (shards == null || shards.Length == 0) return Enumerable.Empty<EndpointAssignment>();
 
       var result = shards[shard % shards.Length];
       return result;
     }
 
-    protected override HttpTransport DoAcquireTransport(EndpointAssignment assignment, bool reserve)
+    protected override MongoDbTransport DoAcquireTransport(EndpointAssignment assignment, bool reserve)
     {
       if (reserve)
       {
-        return new HttpTransport(assignment);
+        return new MongoDbTransport(assignment);
       }
 
       if (m_Transports.TryGetValue(assignment, out var transport)) return transport;
-      lock(m_TransportLock)
+      lock (m_TransportLock)
       {
         if (m_Transports.TryGetValue(assignment, out transport)) return transport;
 
-        transport = new HttpTransport(assignment);
-        var dict = new Dictionary<EndpointAssignment, HttpTransport>(m_Transports);
+        transport = new MongoDbTransport(assignment);
+        var dict = new Dictionary<EndpointAssignment, MongoDbTransport>(m_Transports);
         dict[assignment] = transport;
         Thread.MemoryBarrier();
         m_Transports = dict;
@@ -104,7 +104,7 @@ namespace Azos.Client
       return transport;
     }
 
-    protected override void DoReleaseTransport(HttpTransport endpoint)
+    protected override void DoReleaseTransport(MongoDbTransport endpoint)
     {
       //do nothing
     }
