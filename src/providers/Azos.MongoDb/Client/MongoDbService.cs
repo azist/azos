@@ -19,7 +19,7 @@ namespace Azos.Data.Access.MongoDb.Client
   /// <summary>
   /// Implements a remote MongoDb(s) service client
   /// </summary>
-  public class MongoDbService : ServiceBase<MongoDbEndpoint, MongoDbTransport>, IHttpService
+  public class MongoDbService : ServiceBase<MongoDbEndpoint, MongoDbTransport>, IMongoDbService
   {
     public MongoDbService(IApplicationComponent director, IConfigSectionNode conf) : base(director, conf)
     {

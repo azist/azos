@@ -33,25 +33,25 @@ namespace Azos.Data.Access.MongoDb.Client
     /// <param name="network">Logical network name used for endpoint address resolution, e.g. this is used to segregate traffic by physical channels</param>
     /// <param name="binding">Logical binding (sub-protocol) name (e.g. json/bix)</param>
     /// <returns>TResult call result or throws `ClientException` if call eventually failed after all failovers tried</returns>
-    public static Task<TResult> Call<TResult>(this IMongoDbService service,
-                                                    string remoteAddress,
-                                                    string contract,
-                                                    object shardKey,
-                                                    Func<IMongoDbTransport, CancellationToken?, Task<TResult>> body,
-                                                    CancellationToken? cancellation = null,
-                                                    Atom? network = null,
-                                                    Atom? binding = null)
+    public static TResult CallSync<TResult>(this IMongoDbService service,
+                                              string remoteAddress,
+                                              string contract,
+                                              object shardKey,
+                                              Func<IMongoDbTransport, CancellationToken?, TResult> body,
+                                              CancellationToken? cancellation = null,
+                                              Atom? network = null,
+                                              Atom? binding = null)
     {
       body.NonNull(nameof(body));
       var assignments = service.NonNull(nameof(service))
                                .GetEndpointsForCall(remoteAddress, contract, shardKey, network, binding);
 
-      return assignments.Call(body, cancellation);
+      return assignments.CallSync(body, cancellation);
     }
 
-    public static async Task<TResult> Call<TResult>(this IEnumerable<EndpointAssignment> assignments,
-                                                    Func<IMongoDbTransport, CancellationToken?, Task<TResult>> body,
-                                                    CancellationToken? cancellation = null)
+    public static TResult CallSync<TResult>(this IEnumerable<EndpointAssignment> assignments,
+                                             Func<IMongoDbTransport, CancellationToken?, TResult> body,
+                                             CancellationToken? cancellation = null)
     {
       body.NonNull(nameof(body));
 
@@ -82,7 +82,7 @@ namespace Azos.Data.Access.MongoDb.Client
         try
         {
           var tx = (transport as IMongoDbTransport).NonNull("Implementation error: cast to IMongoDbTransport");
-          var result = await body(tx, cancellation);
+          var result = body(tx, cancellation);
           CallGuardException.Protect(ep, _ => _.NotifyCallSuccess(transport));
           return result;
         }
