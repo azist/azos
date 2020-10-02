@@ -55,18 +55,19 @@ namespace Azos.Client
 
     private object m_TransportLock = new object();
     private volatile Dictionary<EndpointAssignment, HttpTransport> m_Transports = new Dictionary<EndpointAssignment, HttpTransport>();
-
     private volatile Dictionary<cacheKey, EndpointAssignment[][]> m_EPCache = new Dictionary<cacheKey, EndpointAssignment[][]>();
 
     protected override void EndpointsHaveChanged()
     {
       m_EPCache = new Dictionary<cacheKey, EndpointAssignment[][]>();//clear cache after endpoints change
+      Thread.MemoryBarrier();
     }
 
-    protected override IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, object shardKey, Atom network, Atom binding)
-    {
-      var shard = (int)Data.ShardingUtils.ObjectToShardingID(shardKey) & CoreConsts.ABS_HASH_MASK;
+    protected override IEnumerable<IEnumerable<EndpointAssignment>> DoGetEndpointsForAllShards(string remoteAddress, string contract, Atom network, Atom binding)
+     => DoGetEndpointsForAllShardsArray(remoteAddress, contract, network, binding);
 
+    protected virtual EndpointAssignment[][] DoGetEndpointsForAllShardsArray(string remoteAddress, string contract, Atom network, Atom binding)
+    {
       var key = new cacheKey(remoteAddress, contract, binding, network);
       if (!m_EPCache.TryGetValue(key, out var shards))
       {
@@ -78,17 +79,26 @@ namespace Azos.Client
                 ).GroupBy(ep => ep.Shard)
                  .OrderBy(g => g.Key)
                  .Select(g => g.OrderBy(ep => ep.ShardOrder)
-                               .Select( ep => new EndpointAssignment(ep, remoteAddress, contract)).ToArray())
+                               .Select(ep => new EndpointAssignment(ep, remoteAddress, contract)).ToArray())
                  .ToArray();
 
-        if (shards.Length==0) return Enumerable.Empty<EndpointAssignment>();
+        if (shards.Length == 0) return null;
 
-        var dict = new Dictionary<cacheKey, EndpointAssignment[][]>();
+        var dict = new Dictionary<cacheKey, EndpointAssignment[][]>(m_EPCache);
         dict[key] = shards;
         Thread.MemoryBarrier();
         m_EPCache = dict;//atomic
       }
 
+      return shards;
+    }
+
+    protected override IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, object shardKey, Atom network, Atom binding)
+    {
+      var shard = (int)Data.ShardingUtils.ObjectToShardingID(shardKey) & CoreConsts.ABS_HASH_MASK;
+
+      var shards = DoGetEndpointsForAllShardsArray(remoteAddress, contract, network, binding);
+      if (shards==null || shards.Length==0) return Enumerable.Empty<EndpointAssignment>();
 
       var result = shards[shard % shards.Length];
       return result;

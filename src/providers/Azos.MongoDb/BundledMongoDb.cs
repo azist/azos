@@ -12,11 +12,14 @@ using Azos.Conf;
 using Azos.Instrumentation;
 
 using Azos.Data.Access.MongoDb.Connector;
+using System.Linq;
 
 namespace Azos.Data.Access.MongoDb
 {
   /// <summary>
   /// Provides interface to run local `mongod` instance bundled with the application.
+  /// This is an "appliance-mode" deployment where database is not treated as a separate entity
+  /// but as a part of application.
   /// This class is helpful for tasks such as organizing local key-ring buffers and other data storages
   /// in the environments where deployment and configuration of a separate MongoDb instance may not be feasible
   /// </summary>
@@ -128,6 +131,26 @@ namespace Azos.Data.Access.MongoDb
     }
 
     /// <summary>
+    /// Returns a primary ip if multiple are specified.
+    /// The primary is the first entry in ip bind list delimited with comma.
+    /// If none define then returns MONGO_BIND_IP_DFLT (localhost).
+    /// See https://docs.mongodb.com/manual/reference/program/mongod/
+    /// </summary>
+    public string MongoPrimaryBindIp
+    {
+      get
+      {
+        var ips = Mongo_bind_ip;
+        if (ips.IsNullOrWhiteSpace()) return MONGO_BIND_IP_DFLT;
+
+        if (ips.IndexOf(',')<0) return ips;
+
+        var segs = ips.Split(',');
+        return segs.FirstOrDefault(ip => ip.IsNotNullOrWhiteSpace()).Default(MONGO_BIND_IP_DFLT);
+      }
+    }
+
+    /// <summary>
     /// When set suppresses output form database commands, repl activity etc.
     /// See: https://docs.mongodb.com/manual/reference/program/mongod/
     /// </summary>
@@ -173,6 +196,11 @@ namespace Azos.Data.Access.MongoDb
     }
 
     /// <summary>
+    /// Server node which this instance listens on
+    /// </summary>
+    public Glue.Node ServerNode => new Glue.Node("{0}://{1}:{2}".Args(MongoClient.MONGO_BINDING, MongoPrimaryBindIp, m_Mongo_port));
+
+    /// <summary>
     /// Returns MongoDb connect string for the bundled instance. The daemon must be running or exception is thrown
     /// </summary>
     public string GetDatabaseConnectString(string dbName)
@@ -192,7 +220,7 @@ namespace Azos.Data.Access.MongoDb
 
     protected string GetDatabaseConnectStringUnsafe(string dbName)
     {
-      return "mongo{{server='mongo://{0}:{1}' db='{2}'}}".Args(m_Mongo_bind_ip ?? "localhost", m_Mongo_port, dbName.NonBlank(nameof(dbName)));
+      return "mongo{{server='{0}' db='{1}'}}".Args(ServerNode.ConnectString, dbName.NonBlank(nameof(dbName)));
     }
 
     protected Database GetDatabaseUnsafe(string dbName)

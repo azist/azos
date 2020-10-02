@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.4.19.3
-set HEADLINE=Log Browser 
+set VER=1.4.20
+set HEADLINE=Log Browser improvements 
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

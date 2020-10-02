@@ -14,6 +14,11 @@ namespace Azos.Security.MinIdp
   /// <summary>
   /// Outlines the contract for stores serving the underlying IDP data for MinIdp (Minimum identity provider)
   /// </summary>
+  /// <remarks>
+  /// This interface provides a consumption-only channel for building MinIdp security managers.
+  /// The admin/data change functionality is purposely left out from this contract and is typically
+  /// provided by specific implementations of IMinIdpStore using externally callable command pattern
+  /// </remarks>
   public interface IMinIdpStore : IApplicationComponent
   {
     Task<MinIdpUserData> GetByIdAsync(Atom realm, string id);
@@ -30,7 +35,8 @@ namespace Azos.Security.MinIdp
 
 
   /// <summary>
-  /// Sets contract for DTO - data stored in MinIdp system
+  /// Sets contract for DTO - data stored in MinIdp system. This class is not meant to be exposed
+  /// in various public contexts as it represents and internal data tuple for MinIdp implementation
   /// </summary>
   public sealed class MinIdpUserData
   {
@@ -43,11 +49,10 @@ namespace Azos.Security.MinIdp
     public DateTime StartUtc  { get; set; }//tbl_user.sd
     public DateTime EndUtc    { get; set; }//tbl_user.ed
 
-    public string LoginId         { get; set; }//tbl_login.id    vchar(36)
-    public string LoginPassword   { get; set; }//tbl_login.pwd   vchar(2k) -- contains PWD JSON
+    public string    LoginId       { get; set; }//tbl_login.id    vchar(36)
+    public string    LoginPassword { get; set; }//tbl_login.pwd   vchar(2k) -- contains PWD JSON
     public DateTime? LoginStartUtc { get; set; }//tbl_login.sd
     public DateTime? LoginEndUtc   { get; set; }//tbl_login.ed
-
 
     public string ScreenName  { get; set; }//tbl_user.screenName vchar(36)
     public string Name        { get; set; }//tbl_user.name   vchar(64)

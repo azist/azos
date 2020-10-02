@@ -115,6 +115,15 @@ namespace Azos.Client
                                    binding ?? DefaultBinding);
     }
 
+    public IEnumerable<IEnumerable<EndpointAssignment>> GetEndpointsForAllShards(string remoteAddress, string contract, Atom? network = null, Atom? binding = null)
+    {
+      if (Disposed) return Enumerable.Empty<IEnumerable<EndpointAssignment>>();
+      return DoGetEndpointsForAllShards(remoteAddress.NonBlank(nameof(remoteAddress)),
+                                   contract.NonBlank(nameof(contract)),
+                                   network ?? DefaultNetwork,
+                                   binding ?? DefaultBinding);
+    }
+
     /// <summary>
     /// Called by system after endpoints have changed, for example when more endpoints have been added.
     /// The overrides are typically used to clear cached values
@@ -123,7 +132,7 @@ namespace Azos.Client
     protected abstract TTransport DoAcquireTransport(EndpointAssignment assignment, bool reserve);
     protected abstract void DoReleaseTransport(TTransport transport);
     protected abstract IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, object shardKey, Atom network, Atom binding);
-
+    protected abstract IEnumerable<IEnumerable<EndpointAssignment>> DoGetEndpointsForAllShards(string remoteAddress, string contract, Atom network, Atom binding);
 
 
 

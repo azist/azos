@@ -11,9 +11,9 @@ using System.Threading;
 namespace Azos.Platform
 {
   /// <summary>
-  /// Provides a thread-safe lock-free lookup by TKey of a constrained set of TValue items, such as system types.
+  /// Provides a thread-safe lock-free lookup by TKey of a finite(constrained by design) set of TValue items, such as system types.
   /// The set is constrained by design in two ways: it can only add items if they are not present in the set already,
-  /// and the total item count must be limited by system design (e.g. system Type instances, Attribute instances etc.).
+  /// and the total item count must be finite/limited by system design (e.g. system Type instances, Attribute instances etc.).
   /// This class is used for efficient thread-safe caching of items by TKey, speculating on the fact that total set
   /// of items is limited and with time the system will add all of items, consequently no mutations will be necessary
   /// and all requests will be served by lock-free thread-safe read-only Get() operation on an immutable copy.
@@ -23,13 +23,13 @@ namespace Azos.Platform
   /// <typeparam name="TKey">Type of key to lookup-by</typeparam>
   /// <typeparam name="TValue">Type of value to map to key</typeparam>
   /// <remarks>This is an advanced class which should rarely be used by business app developers</remarks>
-  public sealed class ConstrainedSetLookup<TKey, TValue>
+  public sealed class FiniteSetLookup<TKey, TValue>
   {
     private object m_Lock = new object();
     private volatile Dictionary<TKey, TValue> m_Data;
 
     /// <summary>
-    /// Creates an instance of ConstrainedSetLookup. The instance is thread safe and it may be beneficial
+    /// Creates an instance of FiniteSetLookup. The instance is thread safe and it may be beneficial
     /// to allocate it as a static field
     /// </summary>
     /// <param name="addItem">
@@ -39,7 +39,7 @@ namespace Azos.Platform
     /// <param name="comparer">
     /// Optional Key equality comparer
     /// </param>
-    public ConstrainedSetLookup(Func<TKey, TValue> addItem, IEqualityComparer<TKey> comparer = null)
+    public FiniteSetLookup(Func<TKey, TValue> addItem, IEqualityComparer<TKey> comparer = null)
     {
       AddItem = addItem.NonNull(nameof(addItem));
       m_Data = comparer == null ? new Dictionary<TKey, TValue>() : m_Data = new Dictionary<TKey, TValue>(comparer);
