@@ -13,7 +13,7 @@ for remote/cloud debugging.
 
 There are **three test "tiers"** used in Azos framework:
 
-1. [Azos.Tests.Nub](Azos.Tests.Nub) - tests the very base "crux" of the framework - the functionality 
+1. [Azos.Tests.Nub](Azos.Tests.Nub) - tests the very base "core" of the framework - the functionality 
  which everything else is based on (config, app chassis, modules etc.). The nub tests must be quick to 
  execute and they are used for basic regression testing while developing Azos itself. Nub testing does not
  (and it should not) provide full comprehensive coverage of functionality, rather it is purposed to
@@ -30,7 +30,7 @@ There are **three test "tiers"** used in Azos framework:
 
 ##### Run Tests using CLI
 Run nub tests from console on **Linux** or **Mac** (can only use `run-core` runtime):
-```batch
+```bash
 ~/azos/out/Debug/run-core
 $ dotnet trun.dll Azos.Tests.Nub.dll
 ```
@@ -53,7 +53,7 @@ C:\azos\out\Debug\run-core> dotnet trun.dll -?
 ```
 
 ##### Run Specific Tests
-Use `-r` switch to configure test script runner with **pattern search predicate expressions**.
+Use the `-r` switch to configure test script runner with **pattern search predicate expressions**.
 Pattern expressions use `?` for a single character match and `*` for multiple char match. 
 The `~` character denotes "not"/inversion and may appear only at the very beginning of a pattern expression.
 
@@ -61,6 +61,13 @@ For example:
 - `*Session` will match strings ending with "Session"
 - `~*Session` will match anything BUT strings ending with "Session"
 - `Test_?3` matches on any single character before "3" at the end
+
+You can apply pattern search to the following properties of runnable classes/methods:
+- Categories - defined via `[Runnable(category: "mycategory1"]` attribute decoration
+- Namespace names - pattern applied to namespace names which contain `[Runnable]` classes
+- Method names - pattern applied to class/method names
+- Names - named test cases
+
 
 You can **combine multiple pattern** filters using `,` `;` or `|` delimiters.
 When processing patterns the system applies logic depending on the pattern types: direct, or inverted.
@@ -77,7 +84,7 @@ $ dotnet trun.dll Azos.Tests.Nub.dll -r namespaces=RunnerTests.Inject*;MyLogic.D
 
 Search by namespace names and method names:
 
-```batch
+```bash
 ~/azos/out/Debug/run-core
 $ dotnet trun.dll Azos.Tests.Nub.dll -r namespaces=RunnerTests.Inject* methods=*Json_Read?-* names=case?
 # with AND NOT
@@ -85,13 +92,25 @@ $ dotnet trun.dll Azos.Tests.Nub.dll -r namespaces=*Inject*;*Session*;~*Secur* m
 ```
 
 Specific method names:
-```batch
+```bash
 ~/azos/out/Debug/run-core
 $ dotnet trun.dll Azos.Tests.Nub.dll -r methods=*AsJson*
 ```
 
+Cases of specific category:
+```bash
+# hub or draw categories
+$ dotnet trun.dll MyTests.dll -r categories=hub,draw
+
+# but not i/o tests
+$ dotnet trun.dll MyTests.dll -r categories=hub,draw,~io
+
+# hub category, namespace "Serialization", any method by for the ones called "_Fail"
+$ dotnet trun.dll MyTests.dll -r categories=hub namespaces=*Serialization* methods=~*_Fail
+```
+
 Use `names` parameter to invoke **explicitly-named test cases**:
-```batch
+```bash
 ~/azos/out/Debug/run-core
 $ dotnet trun.dll MyTesting.dll -r names=MySpecialTest
 ```
@@ -110,17 +129,32 @@ public void Special()
 ##### Emulate Tests
 This is needed to see what tests will run, but don't run them. Emulation helps to identify the test
 configuration/setup issues.
-```batch
+```bash
 ~/azos/out/Debug/run-core
 $ dotnet trun.dll Azos.Tests.Integration.dll -r emulate=true
 ```
 
 ##### Save Results into File
 Pass `out=<file>.xml|json|laconf` specifier to the `-host` switch:
-```batch
+```bash
 ~/azos/out/Debug/run-core
 $ dotnet trun.dll Azos.Tests.Integration.dll -host out="~/azos/out/results.laconf"
 ```
+
+##### Custom Testing Host
+In some CI/CD environments (e.g. [Azure DevOps](https://azure.microsoft.com/en-us/services/devops/)) you may need to run the tests in a different hosting environment, for example
+Azos uses [Appveyor](https://www.appveyor.com/) host for its CI auto build.
+
+The `-host` switch is used to inject a different text host type (taken from `appveyor.yml')`:
+```yml
+ test_script:
+ - cd ..\out\Release\run-netf
+ - trun Azos.Tests.Nub.dll -ec -host type="Azos.Scripting.TestRunnerAppVeyorHost, Azos"
+```
+
+In the example above, the `Azos.Scripting.TestRunnerAppVeyorHost` uses special hooks
+specific to [Appveyor Build Worker API](https://www.appveyor.com/docs/build-worker-api/) 
+to report testing results in real time
 
 ---
 Back to [Documentation Index](/src/documentation-index.md)
