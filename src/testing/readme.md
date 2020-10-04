@@ -143,7 +143,7 @@ $ dotnet trun.dll Azos.Tests.Integration.dll -host out="~/azos/out/results.lacon
 
 ##### Custom Testing Host
 In some CI/CD environments (e.g. [Azure DevOps](https://azure.microsoft.com/en-us/services/devops/)) you may need to run the tests in a different hosting environment, for example
-Azos uses [Appveyor](https://www.appveyor.com/) host for its CI auto build.
+Azos uses [Appveyor](https://www.appveyor.com/) service for its CI auto build.
 
 The `-host` switch is used to inject a different text host type (taken from `appveyor.yml')`:
 ```yml
