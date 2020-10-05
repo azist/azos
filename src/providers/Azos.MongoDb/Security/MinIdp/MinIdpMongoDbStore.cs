@@ -58,7 +58,7 @@ namespace Azos.Security.MinIdp
 
     private Task<BSONDocument> fetch(Atom realm, string collection, Query query)
      => Task.FromResult(m_Mongo.CallSync(m_RemoteAddress,  //the driver is by-design synchronous as of today
-                                 "MinIdp",
+                                 nameof(IMinIdpStore),
                                  null,
                                  (tx, c) => tx.Db[BsonDataModel.GetCollectionName(realm, collection)].FindOne(query)
                         ));

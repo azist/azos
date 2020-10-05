@@ -68,11 +68,7 @@ namespace Azos.Security.MinIdp
     public static void ReadRole(BSONDocument bson, MinIdpUserData data)
     {
       if (bson[Query._ID] is BSONStringElement role) data.Role = role.Value;
-      if (bson[FLD_RIGHTS] is BSONStringElement rights)
-      {
-        var cfg = rights.Value.AsLaconicConfig(handling: Data.ConvertErrorHandling.ReturnDefault).Configuration;
-        data.Rights = new Rights(cfg);
-      }
+      if (bson[FLD_RIGHTS] is BSONStringElement rights) data.Rights = rights.Value;
     }
   }
 }

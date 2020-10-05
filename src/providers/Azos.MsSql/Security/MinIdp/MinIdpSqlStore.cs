@@ -93,7 +93,7 @@ WHERE
          Name = reader["NAME"].AsString(),
          Description = reader["DESCR"].AsString(),
          Role = reader["ROLE"].AsString(),
-         Rights = new Rights(reader["RIGHTS"].AsJSONConfig().Configuration),
+         Rights = reader["RIGHTS"].AsString(),
          Note = reader["NOTE"] is DBNull ? null : reader["NOTE"].AsString()
      });
 
@@ -133,7 +133,7 @@ WHERE
        Name = reader["NAME"].AsString(),
        Description = reader["DESCR"].AsString(),
        Role = reader["ROLE"].AsString(),
-       Rights = new Rights(reader["RIGHTS"].AsJSONConfig().Configuration),
+       Rights = reader["RIGHTS"].AsString(),
        Note = reader["NOTE"] is DBNull ? null : reader["NOTE"].AsString()
      });
 
@@ -173,7 +173,7 @@ WHERE
        Name = reader["NAME"].AsString(),
        Description = reader["DESCR"].AsString(),
        Role = reader["ROLE"].AsString(),
-       Rights = new Rights(reader["RIGHTS"].AsJSONConfig().Configuration),
+       Rights = reader["RIGHTS"].AsString(),
        Note = reader["NOTE"] is DBNull ? null : reader["NOTE"].AsString()
      });
 

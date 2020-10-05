@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Data;
 using Azos.Instrumentation;
 using Azos.Log;
 
@@ -210,12 +211,21 @@ namespace Azos.Security.MinIdp
 
     protected virtual User MakeOkUser(Credentials credentials, MinIdpUserData data)
     {
-      return new User(credentials ?? BlankCredentials.Instance,
+      var rights = Rights.None;
+      if (credentials == null) credentials = BlankCredentials.Instance;
+
+      var cfg = data.Rights.AsJSONConfig(handling: ConvertErrorHandling.ReturnDefault);
+      if (cfg == null)
+        WriteLog(MessageType.Warning, nameof(MakeOkUser), "Rights could not be read for `{0}`@`{1}`".Args(credentials, Realm));
+      else
+        rights = new Rights(cfg.Configuration);
+
+      return new User(credentials,
                       data.SysToken,
                       data.Status,
                       data.Name,
                       data.Description,
-                      data.Rights,
+                      rights,
                       App.TimeSource.UTCNow);
     }
 

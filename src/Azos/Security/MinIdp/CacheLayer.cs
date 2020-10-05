@@ -28,8 +28,8 @@ namespace Azos.Security.MinIdp
 
     protected override void Destructor()
     {
-      base.Destructor();
       DisposeAndNull(ref m_Store);
+      base.Destructor();
     }
 
     private struct realmed : IEquatable<realmed>
@@ -163,8 +163,9 @@ namespace Azos.Security.MinIdp
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
-
       DisposeAndNull(ref m_Store);
+      if (node==null) return;
+
       m_Store = FactoryUtils.MakeAndConfigureDirectedComponent<IMinIdpStoreImplementation>(
                                               this,
                                               node[MinIdpSecurityManager.CONFIG_STORE_SECTION]);
