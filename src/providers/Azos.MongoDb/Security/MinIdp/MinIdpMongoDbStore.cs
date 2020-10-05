@@ -15,6 +15,7 @@ using Azos.Data;
 using Azos.Instrumentation;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Data.Access.MongoDb.Client;
+using Azos.Serialization.BSON;
 
 namespace Azos.Security.MinIdp
 {
@@ -59,17 +60,74 @@ namespace Azos.Security.MinIdp
       }
     }
 
+    private Task<BSONDocument> fetch(Atom realm, string collection, Query query)
+     => Task.FromResult(m_Mongo.CallSync(m_RemoteAddress,  //the driver is synchronous as of today
+                                 "MinIdp",
+                                 null,
+                                 (tx, c) => tx.Db[BsonDataModel.GetCollectionName(realm, collection)].FindOne(query)
+                        ));
+
 
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
-     => null;
+    {
+      if (id.IsNullOrWhiteSpace()) return null;
+      var login = await fetch(realm, BsonDataModel.COLLECTION_LOGIN, Query.ID_EQ_String(id));
+      if (login==null) return null;
+
+      var result = new MinIdpUserData();
+      BsonDataModel.ReadLogin(login, result);
+      if (result.SysId==0) return null;
+
+      var user = await fetch(realm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(result.SysId));
+      if (user==null) return null;
+      BsonDataModel.ReadUser(user, result);
+
+      var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
+      if (role == null) return null;
+      BsonDataModel.ReadRole(role, result);
+
+      return result;
+    }
 
 
     public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
-     => null;
+    {
+      var sysId = sysToken.AsULong();
+      if (sysId==0) return null;
+
+      var user = await fetch(realm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(sysId));
+      if (user == null) return null;
+
+      var result = new MinIdpUserData();
+      BsonDataModel.ReadUser(user, result);
+
+      var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
+      if (role == null) return null;
+      BsonDataModel.ReadRole(role, result);
+
+      return result;
+    }
 
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
-     => null;
+    {
+      if (uri.IsNullOrWhiteSpace()) return null;
+
+      var qry = new Query();
+      qry.Set(new BSONStringElement(BsonDataModel.FLD_SCREENNAME, uri));
+
+      var user = await fetch(realm, BsonDataModel.COLLECTION_USER, qry);
+      if (user == null) return null;
+
+      var result = new MinIdpUserData();
+      BsonDataModel.ReadUser(user, result);
+
+      var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
+      if (role == null) return null;
+      BsonDataModel.ReadRole(role, result);
+
+      return result;
+    }
 
 
 

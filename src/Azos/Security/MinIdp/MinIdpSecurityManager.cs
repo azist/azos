@@ -283,7 +283,7 @@ namespace Azos.Security.MinIdp
 
     protected override void DoStart()
     {
-      if (m_Realm.IsZero)
+      if (m_Realm.IsZero || !m_Realm.IsValid)
         throw new CallGuardException(nameof(MinIdpSecurityManager), nameof(Realm), "Must be configured");
 
       m_PasswordManager.NonNull($"{nameof(PasswordManager)} config").Start();

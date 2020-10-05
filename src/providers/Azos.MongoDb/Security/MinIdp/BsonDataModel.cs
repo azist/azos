@@ -15,10 +15,17 @@ namespace Azos.Security.MinIdp
   /// </summary>
   internal static class BsonDataModel
   {
+    public const string COLLECTION_LOGIN = "lin";
+    public const string COLLECTION_USER = "usr";
+    public const string COLLECTION_ROLE = "rol";
+
+
     public const string FLD_DATAVERSION = "_v";
 
+    public const string FLD_SYSID = "sysid";
     public const string FLD_STATUS = "status";
     public const string FLD_RIGHTS = "rights";
+    public const string FLD_PASSWORD = "pwd";
 
     public const string FLD_CREATEUTC = "cutc";
     public const string FLD_STARTUTC = "sutc";
@@ -30,8 +37,18 @@ namespace Azos.Security.MinIdp
     public const string FLD_NOTE = "note";
 
 
-    public static string GetCollectionName(Atom realm, string name) => $"{realm.Value}_{name}";
+    public static string GetCollectionName(Atom realm, string name) => $"midp_{name}_{realm.Value}";
 
+
+    public static void ReadLogin(BSONDocument bson, MinIdpUserData data)
+    {
+      if (bson[Query._ID] is BSONStringElement id) data.LoginId = id.Value;
+      if (bson[FLD_SYSID] is BSONInt64Element sysid) data.SysId = (ulong)sysid.Value;
+      if (bson[FLD_PASSWORD] is BSONStringElement pwd) data.LoginPassword = pwd.Value;
+
+      if (bson[FLD_STARTUTC] is BSONDateTimeElement sdt) data.LoginStartUtc = sdt.Value;
+      if (bson[FLD_ENDUTC] is BSONDateTimeElement edt) data.LoginEndUtc = edt.Value;
+    }
 
     public static void ReadUser(BSONDocument bson, MinIdpUserData data)
     {
