@@ -5,8 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -24,23 +22,21 @@ namespace Azos.Security.MinIdp
   /// </summary>
   public sealed class MinIdpMongoDbStore : DaemonWithInstrumentation<IApplicationComponent>, IMinIdpStoreImplementation
   {
+    public const string CONFIG_MONGO_SECTION = "mongo";
+
     public MinIdpMongoDbStore(IApplicationComponent dir) : base(dir)
     {
     }
 
     protected override void Destructor()
     {
+      DisposeAndNull(ref m_Mongo);
       base.Destructor();
     }
 
 
     private MongoDbService m_Mongo;
     private string m_RemoteAddress;
-
-    void example()
-    {
-      m_Mongo.CallSync("REMOTE ADDREESS", "*", 0, (tx, c) => tx.Db["ronj"].Find(Query.ID_EQ_Int32(1234)));
-    }
 
 
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
@@ -130,9 +126,23 @@ namespace Azos.Security.MinIdp
     }
 
 
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+      DisposeAndNull(ref m_Mongo);
+      if (node == null) return;
+
+      var nServer = node[CONFIG_MONGO_SECTION];
+      m_Mongo = FactoryUtils.MakeDirectedComponent<MongoDbService>(this,
+                                                                 nServer,
+                                                                 typeof(MongoDbService),
+                                                                 new object[] { nServer });
+    }
+
 
     protected override void DoStart()
     {
+      m_Mongo.NonNull("Not configured Mongo of config section `{0}`".Args(CONFIG_MONGO_SECTION));
       m_RemoteAddress.NonBlank("RemoteAddress string");
     }
 
