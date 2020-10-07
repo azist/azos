@@ -72,7 +72,7 @@ namespace Azos.Sky.Chronicle
     {
       m_Server.NonNull("Not configured Server of config section `{0}`".Args(CONFIG_SERVICE_SECTION));
       LogServiceAddress.NonBlank(nameof(LogServiceAddress));
-      LogServiceAddress.NonBlank(nameof(InstrumentationServiceAddress));
+      InstrumentationServiceAddress.NonBlank(nameof(InstrumentationServiceAddress));
 
       return base.DoApplicationAfterInit();
     }

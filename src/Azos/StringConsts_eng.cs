@@ -84,8 +84,8 @@ namespace Azos
         "Error while applying attribute [{0}] on class '{1}' instance field '{2}': {3}";
 
         public const string DI_UNSATISIFED_INJECTION_ERROR =
-@"Dependency injection on class '{0}' instance field '{1}' could not be satisfied using: [{2}].
-The injected value has to be present in app chassis having its type assignment compatible with the target field or 'Type' constraint;
+@"Dependency injection on class '{0}' instance field '{1}' is not marked as `optional` and could not be satisfied using: [{2}].
+The injected value has to be present in app chassis having its type assignment-compatible with the target field or 'Type' constraint;
 and the name of module or INamed entity must match if the 'Name' constraint was specified in the attribute";
 
         public const string SHARDING_OBJECT_ID_ERROR =
