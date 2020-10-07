@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -26,7 +27,10 @@ namespace Azos.Web
     /// </summary>
     public static async Task<JsonDataMap> GetJsonMapAsync(this HttpClient client, string uri)
     {
-      var raw = await client.NonNull(nameof(client)).GetStringAsync(uri.NonBlank(nameof(uri)));
+      var raw = await client.NonNull(nameof(client))
+                            .GetStringAsync(uri.NonBlank(nameof(uri)))
+                            .ConfigureAwait(false);
+
       var jdm = raw.JsonToDataObject() as JsonDataMap;
       return jdm.NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(raw.TakeFirstChars(32)));
     }
@@ -39,8 +43,10 @@ namespace Azos.Web
                                                                       string uri,
                                                                       object body,
                                                                       string contentType = null,
-                                                                      JsonWritingOptions options = null)
-     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Post, body);
+                                                                      JsonWritingOptions options = null,
+                                                                      bool fetchErrorContent = true,
+                                                                      IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
+     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Post, body, contentType, options, fetchErrorContent, requestHeaders).ConfigureAwait(false);
 
 
 
@@ -52,8 +58,10 @@ namespace Azos.Web
                                                                      string uri,
                                                                      object body,
                                                                      string contentType = null,
-                                                                     JsonWritingOptions options = null)
-     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Put, body);
+                                                                     JsonWritingOptions options = null,
+                                                                     bool fetchErrorContent = true,
+                                                                     IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
+     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Put, body, contentType, options, fetchErrorContent, requestHeaders).ConfigureAwait(false);
 
 
 
@@ -64,11 +72,13 @@ namespace Azos.Web
     /// A body is a string, a binary blob or object converted to json using JsonWritingOptions
     /// </summary>
     public static async Task<JsonDataMap> PatchAndGetJsonMapAsync(this HttpClient client,
-                                                                       string uri,
-                                                                       object body,
-                                                                       string contentType = null,
-                                                                       JsonWritingOptions options = null)
-     => await CallAndGetJsonMapAsync(client, uri, PATCH, body);
+                                                                    string uri,
+                                                                    object body,
+                                                                    string contentType = null,
+                                                                    JsonWritingOptions options = null,
+                                                                    bool fetchErrorContent = true,
+                                                                    IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
+     => await CallAndGetJsonMapAsync(client, uri, PATCH, body, contentType, options, fetchErrorContent, requestHeaders).ConfigureAwait(false);
 
 
     /// <summary>
@@ -76,11 +86,13 @@ namespace Azos.Web
     /// A body is a string, a binary blob or object converted to json using JsonWritingOptions
     /// </summary>
     public static async Task<JsonDataMap> DeleteAndGetJsonMapAsync(this HttpClient client,
-                                                                        string uri,
-                                                                        object body = null,
-                                                                        string contentType = null,
-                                                                        JsonWritingOptions options = null)
-     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Delete, body);
+                                                                     string uri,
+                                                                     object body = null,
+                                                                     string contentType = null,
+                                                                     JsonWritingOptions options = null,
+                                                                     bool fetchErrorContent = true,
+                                                                     IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
+     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Delete, body, contentType, options, fetchErrorContent, requestHeaders).ConfigureAwait(false);
 
 
 
@@ -94,7 +106,8 @@ namespace Azos.Web
                                                                       object body,
                                                                       string contentType = null,
                                                                       JsonWritingOptions options = null,
-                                                                      bool fetchErrorContent = true)
+                                                                      bool fetchErrorContent = true,
+                                                                      IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
     {
       HttpContent content = null;
 
@@ -125,15 +138,20 @@ namespace Azos.Web
         if (content != null)
           request.Content = content;
 
-        using (var response = await client.NonNull().SendAsync(request, fetchErrorContent ? HttpCompletionOption.ResponseContentRead
-                                                                                          : HttpCompletionOption.ResponseHeadersRead))
+        if (requestHeaders != null)
         {
-          //20191022 DKh
-          //response.EnsureSuccessStatusCode();
+          foreach(var pair in requestHeaders)
+            request.Headers.Add(pair.Key, pair.Value);
+        }
+
+        using (var response = await client.NonNull().SendAsync(request, fetchErrorContent ? HttpCompletionOption.ResponseContentRead
+                                                                                          : HttpCompletionOption.ResponseHeadersRead)
+                                                    .ConfigureAwait(false))
+        {
           var isSuccess = response.IsSuccessStatusCode;
           string raw = string.Empty;
           if (isSuccess || fetchErrorContent)
-            raw = await response.Content.ReadAsStringAsync();
+            raw = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
           if (!isSuccess)
             throw new WebCallException(StringConsts.WEB_CALL_UNSUCCESSFUL_ERROR.Args(uri.SplitKVP('?').Key.TakeLastChars(48),

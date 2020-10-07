@@ -32,7 +32,7 @@ namespace Azos.Client
     /// <param name="network">Logical network name used for endpoint address resolution, e.g. this is used to segregate traffic by physical channels</param>
     /// <param name="binding">Logical binding (sub-protocol) name (e.g. json/bix)</param>
     /// <returns>TResult call result or throws `ClientException` if call eventually failed after all failovers tried</returns>
-    public static Task<TResult> Call<TResult>(this IHttpService service,
+    public static async Task<TResult> Call<TResult>(this IHttpService service,
                                                     string remoteAddress,
                                                     string contract,
                                                     object shardKey,
@@ -45,7 +45,7 @@ namespace Azos.Client
       var assignments = service.NonNull(nameof(service))
                                .GetEndpointsForCall(remoteAddress, contract, shardKey, network, binding);
 
-      return assignments.Call(body, cancellation);
+      return await assignments.Call(body, cancellation).ConfigureAwait(false);
     }
 
     public static async Task<TResult> Call<TResult>(this IEnumerable<EndpointAssignment> assignments,
@@ -81,7 +81,7 @@ namespace Azos.Client
         try
         {
           var http = (transport as IHttpTransport).NonNull("Implementation error: cast to IHttpTransport");
-          var result = await body(http, cancellation);
+          var result = await body(http, cancellation).ConfigureAwait(false);
           CallGuardException.Protect(ep, _ => _.NotifyCallSuccess(transport));
           return result;
         }
