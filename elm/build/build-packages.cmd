@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.4.20
-set HEADLINE=Log Browser improvements 
+set VER=1.5.0
+set HEADLINE=Optional DI, Configure await 
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
