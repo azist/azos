@@ -218,13 +218,14 @@ namespace Azos.Data
     public readonly List<Exception> Batch;
 
     /// <summary>
-    /// Flattens inner ValidationBatchException into a single stream
+    /// Flattens inner exceptions of ValidationBatchException into a single stream
     /// </summary>
     public IEnumerable<Exception> All
      => Batch.Where(e => e != null)
              .SelectMany(e =>
-                         e is ValidationBatchException vbe ? vbe.Batch :  e is AggregateException ae ? ae.InnerExceptions
-                                                                                                     : e.ToEnumerable() );
+                         e is ValidationBatchException vbe ? vbe.All :  e is AggregateException ae ? ae.InnerExceptions
+                                                                                                     : e.ToEnumerable() )
+             .Where(e => e != null);
 
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
@@ -237,13 +238,14 @@ namespace Azos.Data
       var result = base.ProvideExternalStatus(includeDump);
 
       result[CoreConsts.EXT_STATUS_KEY_BATCH] = All.Select( e => {
-        var map = e is IExternalStatusProvider esp ? esp.ProvideExternalStatus(includeDump) : new JsonDataMap{ };
+        var map = e is IExternalStatusProvider esp ? esp.ProvideExternalStatus(includeDump)
+                                                   : new JsonDataMap{  };
 
         if (includeDump)
-          map[CoreConsts.EXT_STATUS_KEY_DEV_DUMP] = new WrappedExceptionData(e, true);
+          map[CoreConsts.EXT_STATUS_KEY_DEV_DUMP] = new WrappedExceptionData(e, false, false);
 
         return map;
-      });
+      }).ToArray();
 
       return result;
     }

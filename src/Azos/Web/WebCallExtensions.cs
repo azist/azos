@@ -23,6 +23,11 @@ namespace Azos.Web
   public static class WebCallExtensions
   {
     /// <summary>
+    /// ISets maximum error content length in characters
+    /// </summary>
+    public const int CALL_ERROR_CONTENT_MAX_LENGTH = 32 * 1024;
+
+    /// <summary>
     /// Gets string response containing json and returns it as JsonDataMap
     /// </summary>
     public static async Task<JsonDataMap> GetJsonMapAsync(this HttpClient client, string uri)
@@ -154,14 +159,14 @@ namespace Azos.Web
             raw = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
           if (!isSuccess)
-            throw new WebCallException(StringConsts.WEB_CALL_UNSUCCESSFUL_ERROR.Args(uri.SplitKVP('?').Key.TakeLastChars(48),
+            throw new WebCallException(StringConsts.WEB_CALL_UNSUCCESSFUL_ERROR.Args(uri.SplitKVP('?').Key.TakeLastChars(64),
                                                                                     (int)response.StatusCode,
                                                                                     response.StatusCode),
                                        uri,
                                        method.Method,
                                        (int)response.StatusCode,
                                        response.ReasonPhrase,
-                                       raw.TakeFirstChars(512, ".."));
+                                       raw.TakeFirstChars(CALL_ERROR_CONTENT_MAX_LENGTH, "..."));
 
           return (raw.JsonToDataObject() as JsonDataMap).NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(raw.TakeFirstChars(48)));
         }//using response
