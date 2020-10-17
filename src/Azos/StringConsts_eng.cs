@@ -1084,6 +1084,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string BIX_MEMBER_TYPE_NOT_SUPPORTED_ERROR = "Bix members of type '{0}' are not supported";
     public const string BIX_GENERATOR_PATH_DOESNOT_EXIST_ERROR = "Bix code generator: path '{0}' does not exist";
 
+    public const string BIX_JSON_HANDLER_UNRESOLVED_TYPE_ID_ERROR =
+      "Bix type id `{0}` could not be resolved by BixJsonHandler. Did you register type resolver assemblies?";
+
     public const string BIX_MAX_SERIALIZATION_DEPTH_ERROR = "Bix max serialization depth of {0} was exceeded. Bix only supports DAGs and does not support cyclical references.";
     public const string BIX_MAX_ARRAY_LEN_ERROR = "Array max length of {0} exceeded by Bix deserialization";
     public const string BIX_DESER_CORRUPT_ERROR = "Bix deserialization is corrupt";

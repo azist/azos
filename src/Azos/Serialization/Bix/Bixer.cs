@@ -114,7 +114,7 @@ namespace Azos.Serialization.Bix
                             .Select(t => (t: t, a: GuidTypeAttribute.TryGetGuidTypeAttribute<TypedDoc, BixAttribute>(t)))
                             .Where( pair => pair.a!=null)
                             .Select( pair => (pair.a.TypeGuid, pair.t) );
-
+ ///////////Azos.Scripting.Conout.See(allDocs.ToList());
       lock(s_Lock)
       {
         var dict = new Dictionary<TargetedType, BixCore>(s_Index);
