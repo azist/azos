@@ -28,10 +28,15 @@ Here is an example code:
 
   wget http://kikimora.com/jaba/call -P -E
 ```
-THis demonstate how to:
+This demonstate how to:
 - Take item
 - book another item 
 - all of them in un-ordered list
+
+Here is another code block in HTML:
+```
+ <html><body>Text</body></html>
+```
 
 Also see the ordered list:
 1. Item one

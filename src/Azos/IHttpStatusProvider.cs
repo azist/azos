@@ -24,7 +24,8 @@ namespace Azos
   /// for example this is used for custom exceptions which respond with a detailed
   /// list of causes, such as validation exceptions include failed schema/field names etc.
   /// The status data get disclosed to callers even if exception developer details are not disclosed,
-  /// for example if `show-dump`=false
+  /// for example when `show-dump`=false stack traces and other development-related details are not included,
+  /// however the result map entries which describe the essence of the error are still added
   /// </summary>
   public interface IExternalStatusProvider
   {
