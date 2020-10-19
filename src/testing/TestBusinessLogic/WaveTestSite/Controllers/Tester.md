@@ -28,6 +28,15 @@ Here is an example code:
 
   wget http://kikimora.com/jaba/call -P -E
 ```
+
+This line has **strong** and *italic* segments in it.
+
+Here is another line with **** empty bold and empty ** italic. File.*
+doc/**/file.*.ext
+
+This is an example of a link http://yahoo.com
+and here is another example:  [This is alink to Wikipedia](http://wikipedia.org)
+
 This demonstate how to:
 - Take item
 - book another item 
