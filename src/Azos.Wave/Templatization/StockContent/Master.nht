@@ -59,13 +59,15 @@
     h5 {  font-size: 1.1em; }
 
     pre{
-        padding: 10px;
-        border: 1px solid #dcc;
-        background: #fff;
-        box-shadow: 0px 0px 4px #ccc;
-        color: #444;
-        border-radius: 6px;
-        margin: 8px;
+        font-family: monospace;
+        font-size: 12px;
+        padding: 6px;
+        border: 1px solid #eee;
+        background: #fafaf2;
+        box-shadow: 0px 0px 10px #ccc;
+        color: #424242;
+        border-radius: 4px;
+        margin: 2px;
         overflow: auto;
     }
 

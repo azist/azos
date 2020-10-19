@@ -221,7 +221,12 @@ namespace Azos.Wave.Mvc
     [Action(Name = "scope"), HttpGet]
     public object Scope(string id)
     {
-      var data = Data.Children.FirstOrDefault(c => c.IsSameName("scope") && c.ValOf("run-id").EqualsOrdIgnoreCase(id));
+      var data = Data.Children.FirstOrDefault(c =>
+          c.IsSameName("scope") &&
+          (
+            c.ValOf("run-id").EqualsOrdIgnoreCase(id) ||
+            c.ValOf("sku").EqualsOrdIgnoreCase(id) //20201018 DKh
+          ));
       if (data==null) return new Http404NotFound();
       if (WorkContext.RequestedJson) return data;
 
