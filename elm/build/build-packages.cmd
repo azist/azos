@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.5.0
-set HEADLINE=Optional DI, Configure await 
+set VER=1.5.1
+set HEADLINE=Service release 
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
