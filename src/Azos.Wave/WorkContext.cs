@@ -592,23 +592,34 @@ namespace Azos.Wave
         {
           throw HTTPStatusException.NotAcceptable_406("Missing content-type");
         }
-        //Multi-part
-        if (ctp.IndexOf(ContentType.FORM_MULTIPART_ENCODED)>=0)
-        {
-          var boundary = Multipart.ParseContentType(ctp);
-          var mp = Multipart.ReadFromStream(Request.InputStream, ref boundary, Request.ContentEncoding);
-          result =  mp.ToJSONDataMap();
-        }
-        else //Form URL encoded
-        if (ctp.IndexOf(ContentType.FORM_URL_ENCODED)>=0)
-          result = JsonDataMap.FromURLEncodedStream(new Azos.IO.NonClosingStreamWrap(Request.InputStream),
-                                                  Request.ContentEncoding);
-        else//JSON
-        if (ctp.IndexOf(ContentType.JSON)>=0)
-          result = JsonReader.DeserializeDataObject(new Azos.IO.NonClosingStreamWrap(Request.InputStream),
-                                                  Request.ContentEncoding) as JsonDataMap;
 
-        return result;
+        try
+        {
+          //Multi-part
+          if (ctp.IndexOf(ContentType.FORM_MULTIPART_ENCODED)>=0)
+          {
+            var boundary = Multipart.ParseContentType(ctp);
+            var mp = Multipart.ReadFromStream(Request.InputStream, ref boundary, Request.ContentEncoding);
+            result =  mp.ToJSONDataMap();
+          }
+          else //Form URL encoded
+          if (ctp.IndexOf(ContentType.FORM_URL_ENCODED)>=0)
+            result = JsonDataMap.FromURLEncodedStream(new Azos.IO.NonClosingStreamWrap(Request.InputStream),
+                                                    Request.ContentEncoding);
+          else//JSON
+          if (ctp.IndexOf(ContentType.JSON)>=0)
+            result = JsonReader.DeserializeDataObject(new Azos.IO.NonClosingStreamWrap(Request.InputStream),
+                                                    Request.ContentEncoding) as JsonDataMap;
+
+          return result;
+        }
+        catch(Exception error)
+        {
+          throw new HTTPStatusException(WebConsts.STATUS_400,
+                                        WebConsts.STATUS_400_DESCRIPTION + " body",
+                                        error.ToMessageWithType(),
+                                        error);
+        }
       }
 
     #endregion
