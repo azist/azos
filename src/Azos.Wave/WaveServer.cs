@@ -202,6 +202,10 @@ namespace Azos.Wave
 
       public override string ComponentCommonName { get { return "ws-"+Name; }}
 
+      /// <summary>
+      /// Provides a list of served endpoints
+      /// </summary>
+      public override string ServiceDescription => Prefixes.Aggregate(string.Empty, (s, p) => s + "  " + p);
 
 
       /// <summary>

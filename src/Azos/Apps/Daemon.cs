@@ -77,6 +77,13 @@ namespace Azos.Apps
     }
 
     /// <summary>
+    /// Provides short textual service description which is typically used by hosting apps
+    /// to describe the services provided to callers.
+    /// Usually this lists end-points that the server is listening on etc..
+    /// </summary>
+    public virtual string ServiceDescription => GetType().Name;
+
+    /// <summary>
     /// Returns true when daemon is non disposed, active or about to become active.
     /// You can poll this as a cancellation token in daemon implementation loops/threads/tasks
     /// </summary>
