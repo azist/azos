@@ -1689,9 +1689,24 @@ namespace Azos.Conf
 
         private ConfigSectionNode getIncludedNodeRoot(ConfigSectionNode pragma)
         {
-          var ndProvider = pragma[Configuration.CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION];
+          var copyPath = pragma.AttrByName(Configuration.CONFIG_INCLUDE_PRAGMA_COPY_ATTR).Value;
 
+          var ndProvider = pragma[Configuration.CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION];
           var fileName = pragma.AttrByName(Configuration.CONFIG_INCLUDE_PRAGMA_FILE_ATTR).ValueAsString();
+
+          if (copyPath.IsNotNullOrWhiteSpace())
+          {
+            if (ndProvider.Exists || fileName.IsNotNullOrWhiteSpace())
+              throw new ConfigException("May not specify either '{0}' or '{1}' when '{2}' is used"
+                                        .Args(Configuration.CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION,
+                                              Configuration.CONFIG_INCLUDE_PRAGMA_FILE_ATTR,
+                                              Configuration.CONFIG_INCLUDE_PRAGMA_COPY_ATTR));
+
+            var root = pragma.NavigateSection(copyPath);
+            return root.Exists ? root : null;
+          }
+
+
           if (fileName.IsNullOrWhiteSpace() && !ndProvider.Exists)
             throw new ConfigException("missing '{0}' or '{1}'".Args(Configuration.CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION,
                                                                     Configuration.CONFIG_INCLUDE_PRAGMA_FILE_ATTR));

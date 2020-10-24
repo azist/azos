@@ -64,6 +64,20 @@ namespace Azos.Apps
 
     #region .ctor/.dctor
 
+    /// <summary>
+    /// Processes all include pragmas if they are specified in the root `process-includes` attribute.
+    /// This method is called for auto-loaded entry point config automatically.
+    /// You may call this method for configs acquired from external sources prior to
+    /// passing it to application .ctor
+    /// </summary>
+    public static void ProcessAllExistingConfigurationIncludes(ConfigSectionNode appConfigRoot)
+    {
+      appConfigRoot.NonNull(nameof(appConfigRoot));
+      var includePragma = appConfigRoot.AttrByName(CONFIG_PROCESS_INCLUDES).Value;
+      if (includePragma.IsNotNullOrWhiteSpace())
+        appConfigRoot.ProcessAllExistingIncludes(nameof(CommonApplicationLogic), includePragma);
+    }
+
     //fx internal, called by derivatives
     protected CommonApplicationLogic() { }
 
@@ -500,9 +514,7 @@ namespace Azos.Apps
       conf.Application = this;
 
       //20190416 DKh added support for root config pragma includes
-      var includePragma = conf.Root.AttrByName(CONFIG_PROCESS_INCLUDES).Value;
-      if (includePragma.IsNotNullOrWhiteSpace())
-        conf.Root.ProcessAllExistingIncludes(GetType().FullName, includePragma);
+      ProcessAllExistingConfigurationIncludes(conf.Root);
 
       return conf;
     }
