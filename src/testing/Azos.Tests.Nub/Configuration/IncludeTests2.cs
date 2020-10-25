@@ -153,5 +153,60 @@ namespace Azos.Tests.Nub.Configuration
       CommonApplicationLogic.ProcessAllExistingConfigurationIncludes(cfg);
     }
 
+    [Run, Aver.Throws(typeof(ConfigException), "recursive depth exceeded")]
+    public void ProcessAppIncludeCopies_Recursion()
+    {
+      var cfg = @"app
+      {
+        process-includes=include
+
+        include
+        {
+          name=include
+          copy=!/include
+        }
+      }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+
+      CommonApplicationLogic.ProcessAllExistingConfigurationIncludes(cfg);
+    }
+
+    [Run]
+    public void ProcessAppIncludeCopies_Optional()
+    {
+      var cfg = @"app
+      {
+        process-includes=include
+
+        include
+        {
+          name=a
+          copy=/not-there
+        }
+      }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+
+      CommonApplicationLogic.ProcessAllExistingConfigurationIncludes(cfg);
+
+      cfg.ToLaconicString().See();
+
+      Aver.AreEqual(0, cfg.ChildCount);
+    }
+
+    [Run, Aver.Throws(typeof(ConfigException), "did not land at an existing node")]
+    public void ProcessAppIncludeCopies_Required()
+    {
+      var cfg = @"app
+      {
+        process-includes=include
+
+        include
+        {
+          name=a
+          copy=!/not-there
+        }
+      }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+
+      CommonApplicationLogic.ProcessAllExistingConfigurationIncludes(cfg);
+    }
+
   }
 }

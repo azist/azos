@@ -323,7 +323,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string CONFIG_VARS_EVAL_ERROR =
         "Configuration variable '{0}' evaluation error: {1}";
 
-    public const string CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR = "Include pragma recursive depths exceeded: {0}";
+    public const string CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR = "Include pragma recursive depth exceeded: {0}";
 
     public const string CONFIG_BEHAVIOR_APPLY_ERROR =
         "Error while applying behavior to {0}. Error: {1}";
