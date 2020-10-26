@@ -18,7 +18,9 @@ namespace Azos.Security.MinIdp
   /// <remarks>
   /// This interface provides a consumption-only channel for building MinIdp security managers.
   /// The admin/data change functionality is purposely left out from this contract and is typically
-  /// provided by specific implementations of IMinIdpStore using externally callable command pattern
+  /// provided by specific implementations of IMinIdpStore using externally callable command pattern.
+  /// The activity time span filtering performed by the store is optional as the security manager filters the dates anyway
+  /// as of the calling UTC now stamp.
   /// </remarks>
   public interface IMinIdpStore : IApplicationComponent
   {

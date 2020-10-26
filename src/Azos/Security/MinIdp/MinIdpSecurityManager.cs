@@ -229,12 +229,27 @@ namespace Azos.Security.MinIdp
                       App.TimeSource.UTCNow);
     }
 
+
+    protected virtual bool CheckDates(MinIdpUserData data)
+    {
+      data.NonNull(nameof(data));
+      var now = App.TimeSource.UTCNow;
+      if (data.StartUtc > now) return false;
+      if (data.EndUtc <= now) return false;
+
+      if (data.LoginStartUtc.HasValue && data.LoginStartUtc.Value > now) return false;
+      if (data.LoginEndUtc.HasValue && data.LoginEndUtc.Value <= now) return false;
+
+      return true;
+    }
+
     /// <summary>
     /// Plain user id/password
     /// </summary>
     protected virtual User TryAuthenticateUser(MinIdpUserData data, IDPasswordCredentials cred)
     {
       if (data.Realm != Realm) return null;
+      if (!CheckDates(data)) return null;
 
       using (var password = cred.SecurePassword)
       {
@@ -252,6 +267,7 @@ namespace Azos.Security.MinIdp
     protected virtual User TryAuthenticateUser(MinIdpUserData data, EntityUriCredentials cred)
     {
       if (data.Realm != Realm) return null;
+      if (!CheckDates(data)) return null;
 
       cred.Forget();
       return MakeOkUser(cred, data);
@@ -263,6 +279,7 @@ namespace Azos.Security.MinIdp
     protected virtual User TryAuthenticateUser(MinIdpUserData data)
     {
       if (data.Realm != Realm) return null;
+      if (!CheckDates(data)) return null;
 
       return MakeOkUser(null, data);
     }
@@ -310,9 +327,9 @@ namespace Azos.Security.MinIdp
 
     protected override void DoWaitForCompleteStop()
     {
-      m_PasswordManager.WaitForCompleteStop();
-      m_Cryptography.WaitForCompleteStop();
       m_Store.WaitForCompleteStop();
+      m_Cryptography.WaitForCompleteStop();
+      m_PasswordManager.WaitForCompleteStop();
     }
     #endregion
 
