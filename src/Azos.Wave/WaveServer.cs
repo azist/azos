@@ -500,7 +500,7 @@ namespace Azos.Wave
 
       protected override void DoConfigure(IConfigSectionNode node)
       {
-        if (node==null)
+        if (node==null || !node.Exists)
         {
           //0 get very root
           node = App.ConfigRoot[SysConsts.CONFIG_WAVE_SECTION];

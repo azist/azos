@@ -130,7 +130,7 @@ namespace Azos.Apps
     {
       s_Application = new AzosApplication(args, null);
 
-      var nBoot = s_Application.ConfigRoot[CONFIG_BOOT_SECTION, SysConsts.CONFIG_WAVE_SECTION];
+      var nBoot = s_Application.ConfigRoot[CONFIG_BOOT_SECTION];
       s_Server = FactoryUtils.MakeAndConfigureComponent<Daemon>(s_Application, nBoot, typeof(WaveServer));
       s_Server.Start();
     }

@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.5.2
+set VER=1.5.3
 set HEADLINE=Service release 
 call vs2017-build-release %VER%
 
