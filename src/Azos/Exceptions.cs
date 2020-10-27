@@ -136,18 +136,18 @@ namespace Azos
 
       m_Source = error.Source;
       if (captureStack)
+      {
         m_StackTrace = error.StackTrace;
+      }
 
       if (error.InnerException != null)
       {
-        m_InnerException = new WrappedExceptionData(error.InnerException, captureStack: false, captureExternalStatus: false);
+        m_InnerException = new WrappedExceptionData(error.InnerException, captureStack, captureExternalStatus);
       }
 
-      if (captureExternalStatus)
+      if (captureExternalStatus && error is IExternalStatusProvider esp)
       {
-        var esp = error.SearchThisOrInnerExceptionOf<IExternalStatusProvider>();
-        if (esp != null)
-          m_ExternalStatus = esp.ProvideExternalStatus(captureStack);
+        m_ExternalStatus = esp.ProvideExternalStatus(captureStack);
       }
     }
 
