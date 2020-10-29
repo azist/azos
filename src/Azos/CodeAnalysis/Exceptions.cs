@@ -37,24 +37,18 @@ namespace Azos.CodeAnalysis
     [NonSerialized]
     public readonly ICodeProcessor CodeProcessor;
 
-    public string GetWrappedData()
-    {
-      return "{0}({1}{2}){3}".Args(CodeProcessor.GetType().Name, CodeProcessor.Language,
-        CodeProcessor.Context != null ? ", context=" + CodeProcessor.Context.GetType().Name : string.Empty,
-        CodeProcessor.Messages != null ? ": " + CodeProcessor.Messages.ToString() : string.Empty);
-    }
-
     public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
     {
       var map = this.DefaultBuildErrorStatusProviderMap(includeDump, "code.analysis");
       if (CodeProcessor == null) return map;
 
       if (CodeProcessor.Language != null) map["code.lang"] = CodeProcessor.Language.ToString();
+      if (CodeProcessor.Messages != null) map["code.msgs"] = CodeProcessor.Messages.ToString();
 
       if (includeDump)
       {
+        map["code.processor"] = CodeProcessor.GetType().DisplayNameWithExpandedGenericArgs();
         if (CodeProcessor.Context != null) map["code.ctx"] = CodeProcessor.Context.GetType().Name;
-        if (CodeProcessor.Messages != null) map["code.msgs"] = CodeProcessor.Messages.ToString();
       }
 
       return map;

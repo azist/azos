@@ -257,7 +257,9 @@ namespace Azos
   }
 
   /// <summary>
-  /// Represents exception that contains data about causing exception with all of it's chain
+  /// Represents exception that contains data about causing exception with all of it's chain.
+  /// WrappedExceptions are used to marshal any kind of exceptions across the process boundaries even when
+  /// actual exception types are not present on the other system (e.g. the other system may even be written in a different language)
   /// </summary>
   [Serializable]
   public sealed class WrappedException : AzosException
@@ -267,13 +269,13 @@ namespace Azos
     /// <summary>
     /// Returns an exception wrapped into WrappedException. If the exception is already wrapped, it is returned as-is
     /// </summary>
-    public static WrappedException ForException(Exception root, bool captureStack = true)
+    public static WrappedException ForException(Exception root, bool captureStack = true, bool captureExternalStatus = true)
     {
       if (root==null) return null;
 
       var we = root as WrappedException;
       if (we==null)
-       we = new WrappedException( new WrappedExceptionData(root, captureStack) );
+       we = new WrappedException( new WrappedExceptionData(root, captureStack, captureExternalStatus) );
 
       return we;
     }
