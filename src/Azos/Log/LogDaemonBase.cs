@@ -200,14 +200,17 @@ namespace Azos.Log
     /// Writes log message into log
     /// </summary>
     /// <param name="msg">Message to write</param>
-    /// <param name="urgent">Indicates that the logging service implementation must
-    /// make an effort to write the message to its destinations urgently</param>
+    /// <param name="urgent">
+    /// Indicates that the logging service implementation must
+    /// make an effort to write the message to its destination sinks urgently
+    /// </param>
     public void Write(Message msg, bool urgent)
     {
         if (Status != DaemonStatus.Active) return;
 
-
         if (msg==null) return;
+
+        msg.InitDefaultFields(App);
 
         if (msg.Type>=MessageType.Emergency) m_LastCatastrophy = msg;
         else
@@ -215,7 +218,7 @@ namespace Azos.Log
         else
         if (msg.Type>=MessageType.Warning) m_LastWarning = msg;
 
-        if (m_InstrumentationEnabled) m_InstrBuffer.Send( msg);
+        if (m_InstrumentationEnabled) m_InstrBuffer.Send(msg);
 
         DoWrite(msg, urgent);
     }

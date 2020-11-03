@@ -87,8 +87,12 @@ namespace Azos.Sky.Chronicle.Server
 
     public Task WriteAsync(LogBatch data)
     {
-      var toSend = data.NonNull(nameof(data)).Data.NonNull(nameof(data));
       if (!Running) return Task.CompletedTask;
+
+      var toSend = data.NonNull(nameof(data))
+                       .Data.NonNull(nameof(data))
+                       .Where(m => m != null);
+
 
       var cLog = m_LogDb[COLLECTION_LOG];
 
@@ -96,12 +100,14 @@ namespace Azos.Sky.Chronicle.Server
       using(var errors = new ErrorLogBatcher(App.Log){Type = MessageType.Critical, From = this.ComponentLogFromPrefix+nameof(WriteAsync), Topic = ComponentLogTopic})
       foreach (var batch in toSend.BatchBy(0xf))
       {
-        var bsons = batch.Select(msg => {
+        var bsons = batch.Select(msg =>
+        {
           if (msg.Gdid.IsZero)
-          {
             msg.Gdid = m_Gdid.Provider.GenerateOneGdid(scopeName: SysConsts.GDID_NS_CHRONICLES, sequenceName: COLLECTION_LOG);
-          }
-          if (msg.Guid == Guid.Empty) msg.Guid = Guid.NewGuid();
+
+          if (msg.Guid == Guid.Empty)
+            msg.Guid = Guid.NewGuid();
+
           return BsonConvert.ToBson(msg);
         });
 
