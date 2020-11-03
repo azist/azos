@@ -20,7 +20,7 @@ namespace Azos.Sky.Chronicle
   [Schema(Description = "Provides model for log batch upload")]
   public sealed class LogBatch : PersistedModel<ChangeResult>
   {
-    [Field(isArow: true, required: true, backendName: "d", description: "Data to upload")]
+    [Field(isArow: true, required: true, minLength: 1, maxLength: 5000, backendName: "d", description: "Data to upload")]
     public Message[] Data{ get; set; }
 
     [Inject] ILogChronicleLogic m_Chronicle;
@@ -29,7 +29,7 @@ namespace Azos.Sky.Chronicle
     {
       var t = Timeter.StartNew();
       await m_Chronicle.WriteAsync(this);
-      return new SaveResult<ChangeResult>(new ChangeResult(ChangeResult.ChangeType.Inserted, Data.Length, $"Done in {t.ElapsedMs} ms", null));
+      return new SaveResult<ChangeResult>(new ChangeResult(ChangeResult.ChangeType.Inserted, Data!=null ? Data.Length : 0, $"Done in {t.ElapsedMs} ms", null));
     }
   }
 

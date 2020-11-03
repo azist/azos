@@ -105,8 +105,7 @@ namespace Azos.Sky.Chronicle.Server
           if (msg.Gdid.IsZero)
             msg.Gdid = m_Gdid.Provider.GenerateOneGdid(scopeName: SysConsts.GDID_NS_CHRONICLES, sequenceName: COLLECTION_LOG);
 
-          if (msg.Guid == Guid.Empty)
-            msg.Guid = Guid.NewGuid();
+          msg.InitDefaultFields(App);
 
           return BsonConvert.ToBson(msg);
         });

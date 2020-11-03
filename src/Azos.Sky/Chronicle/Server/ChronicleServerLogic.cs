@@ -82,7 +82,6 @@ namespace Azos.Sky.Chronicle.Server
         m_Instrumentation.Start();
       }
 
-
       return base.DoApplicationAfterInit();
     }
 
@@ -95,16 +94,16 @@ namespace Azos.Sky.Chronicle.Server
     }
 
     public async Task WriteAsync(LogBatch data)
-      => await m_Log.NonNull().WriteAsync(data);
+      => await m_Log.NonNull().WriteAsync(data.NonNull(nameof(data)));
 
     public async Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter)
-      => await m_Log.NonNull().GetAsync(filter);
+      => await m_Log.NonNull().GetAsync(filter.NonNull(nameof(filter)));
 
     public async Task WriteAsync(InstrumentationBatch data)
-      => await m_Instrumentation.NonNull().WriteAsync(data);
+      => await m_Instrumentation.NonNull().WriteAsync(data.NonNull(nameof(data)));
 
     public async Task<IEnumerable<JsonDataMap>> GetAsync(InstrumentationChronicleFilter filter)
-      => await m_Instrumentation.NonNull().GetAsync(filter);
+      => await m_Instrumentation.NonNull().GetAsync(filter.NonNull(nameof(filter)));
 
   }
 }

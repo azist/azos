@@ -33,13 +33,13 @@ namespace Azos.Log
     {
       if (app==null) app = Apps.ExecutionContext.Application;
 
-      if (m_Guid==default(Guid))
+      if (m_Guid == Guid.Empty)
         m_Guid = Guid.NewGuid();
 
       if (m_Host.IsNullOrWhiteSpace())
         m_Host = Platform.Computer.HostName;
 
-      if (m_UTCTimeStamp==default(DateTime))
+      if (m_UTCTimeStamp == default(DateTime))
         m_UTCTimeStamp = app.TimeSource.UTCNow;
 
       if (m_App.IsZero)
