@@ -59,7 +59,7 @@ namespace Azos.Data.Access.Oracle
 
     private bool m_InstrumentationEnabled;
 
-    private ExternalCallHandler<OracleDataStoreBase> m_ExternalCallHandler;
+    protected ExternalCallHandler<OracleDataStoreBase> m_ExternalCallHandler;
     #endregion
 
     #region IInstrumentation

@@ -81,7 +81,12 @@ namespace Azos.Apps
     /// to describe the services provided to callers.
     /// Usually this lists end-points that the server is listening on etc..
     /// </summary>
-    public virtual string ServiceDescription => GetType().Name;
+    public virtual string ServiceDescription => GetType().DisplayNameWithExpandedGenericArgs();
+
+    /// <summary>
+    /// Provides short textual current service status description, e.g. Daemons report their Status property
+    /// </summary>
+    public virtual string StatusDescription => Status.ToString();
 
     /// <summary>
     /// Returns true when daemon is non disposed, active or about to become active.

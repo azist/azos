@@ -194,25 +194,30 @@ return
 
       var pfx = level<=0?string.Empty : string.Empty.PadLeft(level)+"->";
 
-      sb.AppendLine(pfx+"<f color=white>SID: <f color=yellow> "+cmp.ComponentSID);
-      sb.AppendLine(pfx+"<f color=gray>CommonName: <f color=magenta> "+cmp.ComponentCommonName);
-      sb.AppendLine(pfx+"<f color=gray>Start Time (local): <f color=yellow> "+cmp.ComponentStartTime);
-      sb.AppendLine(pfx+"<f color=gray>Type: <f color=yellow> "+cmp.GetType().FullName);
-      sb.AppendLine(pfx+"<f color=gray>Assembly: <f color=yellow> "+cmp.GetType().Assembly.FullName);
-      sb.AppendLine(pfx+"<f color=gray>Service: <f color=yellow> "+(cmp is Azos.Apps.Daemon ? "Yes" : "No") );
+      sb.AppendLine(pfx + "<f color=white>SID: <f color=yellow> "+cmp.ComponentSID);
+      sb.AppendLine(pfx + "<f color=gray>CommonName: <f color=magenta> "+cmp.ComponentCommonName);
+      sb.AppendLine(pfx + "<f color=gray>Start Time (local): <f color=yellow> "+cmp.ComponentStartTime);
+      sb.AppendLine(pfx + "<f color=gray>Type: <f color=yellow> "+cmp.GetType().FullName);
+      sb.AppendLine(pfx + "<f color=gray>Assembly: <f color=yellow> "+cmp.GetType().Assembly.FullName);
+      sb.AppendLine(pfx + "<f color=gray>Daemon: <f color=yellow> "+(cmp is IDaemon ? "Yes" : "No") );
       if (cmp is INamed)
-        sb.AppendLine(pfx+"<f color=gray>Name: <f color=green> "+((INamed)cmp).Name);
+        sb.AppendLine(pfx + "<f color=gray>Name: <f color=green> "+((INamed)cmp).Name);
 
-      sb.AppendLine(pfx+"<f color=gray>Interfaces: <f color=yellow> "+cmp.GetType()
+      if (cmp is IComponentDescription cdescr)
+      {
+        sb.AppendLine(pfx + "<f color=gray>Description: <f color=cyan> " + cdescr.ServiceDescription);
+        sb.AppendLine(pfx + "<f color=gray>Status: <f color=cyan> " + cdescr.StatusDescription);
+      }
+
+
+      sb.AppendLine(pfx + "<f color=gray>Interfaces: <f color=yellow> " + cmp.GetType()
                                                                           .GetInterfaces()
-                                                                          .OrderBy(it=>it.FullName)
-                                                                          .Aggregate("",(r,i)=>
-                                                                              r+(typeof(IExternallyParameterized).IsAssignableFrom(i) ?
-                                                                                  "<f color=cyan>{0}<f color=yellow>".Args(i.Name) : i.Name)+", ") );
+                                                                          .OrderBy(it => it.FullName)
+                                                                          .Aggregate("", (r,i) => r + i.Name + ", " ));
 
       sb.AppendLine();
       sb.AppendLine();
-      sb.AppendLine(pfx+"Parameters: ");
+      sb.AppendLine(pfx + "Parameters: ");
       sb.AppendLine();
 
       var pars = ExternalParameterAttribute.GetParametersWithAttrs(cmp.GetType());

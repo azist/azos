@@ -19,7 +19,7 @@ namespace Azos.Apps
   /// <summary>
   /// Defines abstraction for an entity that is controlled by Start/Stop commands and has a status
   /// </summary>
-  public interface IDaemonView : IApplicationComponent, Collections.INamed
+  public interface IDaemonView : IApplicationComponent, Collections.INamed, IComponentDescription
   {
     /// <summary>
     /// Current service status
@@ -31,13 +31,6 @@ namespace Azos.Apps
     /// Check in service implementation loops/threads/tasks
     /// </summary>
     bool Running { get; }
-
-    /// <summary>
-    /// Provides short textual service description which is typically used by hosting apps
-    /// to describe the services provided to callers.
-    /// Usually this lists end-points that the server is listening on etc..
-    /// </summary>
-    string ServiceDescription {  get; }
   }
 
   /// <summary>

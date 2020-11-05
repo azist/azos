@@ -65,6 +65,12 @@ namespace Azos.Client
 
     public virtual string StatusMsg => m_StatusMsg;
 
+    public virtual string ServiceDescription => "{0}:{1}:{2}://{3}::{4}.{5}".Args(Network, Binding, Contract, RemoteAddress, Shard, ShardOrder);
+
+    public virtual string StatusDescription => "{0} / {1}".Args(IsAvailable ? "Available" : "Unavailable Circuit: {0}; Offline: {1}".Args(CircuitBreakerTimeStampUtc, OfflineTimeStampUtc),  StatusMsg);
+
+    public override string ToString() => GetType().DisplayNameWithExpandedGenericArgs() + " " + ServiceDescription.TakeFirstChars(128);
+
     public abstract CallErrorClass NotifyCallError(ITransport transport, Exception error);
     public abstract void NotifyCallSuccess(ITransport transport);
 
