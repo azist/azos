@@ -290,10 +290,10 @@ namespace Azos.Text
         for(var i=0; i<line.Length-2;)
         {
           var si = line.IndexOf("**", i);
-          if (si<0 && si+2==line.Length) break;
+          if (si < 0 || si+2==line.Length) break;
           i = si+2;
           var ei = line.IndexOf("**", si+2);
-          if (ei<0) break;
+          if (ei < 0) break;
           i = ei+2;
 
           var mid = line.Substring(si + 2, ei - si - 2);
@@ -305,7 +305,7 @@ namespace Azos.Text
         for (var i = 0; i < line.Length - 1;)
         {
           var si = line.IndexOf("*", i);
-          if (si < 0 && si + 1 == line.Length) break;
+          if (si < 0 || si + 1 == line.Length) break;
           i = si + 1;
           var ei = line.IndexOf("*", si + 1);
           if (ei < 0) break;

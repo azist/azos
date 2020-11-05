@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.5.4
-set HEADLINE=Service release, ORCL connect string translation 
+set VER=1.5.5
+set HEADLINE=Service release, log msg 
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
