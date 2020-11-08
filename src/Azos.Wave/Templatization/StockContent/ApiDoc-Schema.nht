@@ -12,8 +12,8 @@
 #</laconf>
 #[class]
 
-  public readonly IEnumerable<IConfigSectionNode> Data;
-  public ApiDoc_Schema(IEnumerable<IConfigSectionNode> data) : base()  => Data = data;
+  public readonly IConfigSectionNode Data;
+  public ApiDoc_Schema(IConfigSectionNode data) : base()  => Data = data;
   public override string Title { get {return "Azos Api Documentation Schema"; } }
 
   private string flag(IConfigSectionNode data, string name)=> data.AttrByName(name).ValueAsBool() ? "X" : "";
@@ -22,22 +22,21 @@
  Api Type Schema
 
 #[override renderBody()]
-<h1>"?[Data.First().ValOf("sku")]" Schema</h1>
-This section describes a complex (non-scalar) data type "?[Data.First().ValOf("sku")]" used by API operations.
+<h1>"?[Data.ValOf("sku")]" Schema</h1>
+This section describes a complex (non-scalar) data type "?[Data.ValOf("sku")]" used by API operations.
 <p>
 Go back to <a href="./toc">Api Table of Contents.</a>
 </p>
 
 @[{
-  var cnt = 1;
-  foreach(var item in Data) type(cnt++, item);
+  type(Data);
 }]
 
 <p>
 Go back to <a href="./toc">Api Table of Contents.</a>
 </p>
 
-#[type(int cnt, IConfigSectionNode data)]
+#[type(IConfigSectionNode data)]
 @[
   var docData = data["data-doc"];
   var permData = data["permission"];

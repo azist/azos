@@ -101,8 +101,8 @@ namespace Azos.Wave.Mvc
 
     private class instanceList : List<(object item, bool wasDescribed)>
     {
-      public instanceList() { Guid = Guid.NewGuid(); }
-      public readonly Guid Guid;
+      public instanceList(string id) => ID = id;
+      public readonly string ID;
     }
 
     private Dictionary<Type, instanceList> m_TypesToDescribe = new Dictionary<Type, instanceList>();
@@ -195,7 +195,7 @@ namespace Azos.Wave.Mvc
             found = true;
 
             //add type id
-            var typeSection = typesSection.AddChildNode("{0}-{1}".Args(kvp.Value.Guid, i));
+            var typeSection = typesSection.AddChildNode("{0}::{1}".Args(kvp.Value.ID, i));
             CustomMetadataAttribute.Apply(kvp.Key, rec.item, this, typeSection);
 
             //add reverse index for SKU -> type id
@@ -213,6 +213,7 @@ namespace Azos.Wave.Mvc
     {
       typeof(object), typeof(string),
       typeof(decimal), typeof(DateTime), typeof(TimeSpan),
+      typeof(GDID), typeof(Atom), typeof(Guid),
       typeof(sbyte),  typeof(byte),
       typeof(short),  typeof(ushort),
       typeof(int),    typeof(uint),
@@ -246,6 +247,9 @@ namespace Azos.Wave.Mvc
       if (type == typeof(decimal)) return "decimal";
       if (type == typeof(DateTime)) return "datetime";
       if (type == typeof(TimeSpan)) return "timespan";
+      if (type == typeof(GDID)) return "gdid";
+      if (type == typeof(Atom)) return "atom";
+      if (type == typeof(Guid)) return "gdid";
       if (type.IsPrimitive) return "{0}".Args(type.Name.ToLowerInvariant());
       if (type.IsArray) return "{0}[]".Args(AddTypeToDescribe(type.GetElementType()));
       if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) return "{0}?".Args(AddTypeToDescribe(type.GetGenericArguments()[0]));
@@ -259,19 +263,19 @@ namespace Azos.Wave.Mvc
       instanceList list;
       if (!m_TypesToDescribe.TryGetValue(type, out list))
       {
-        list = new instanceList();
+        list = new instanceList("{0:x2}-{1}".Args(m_TypesToDescribe.Count, MetadataUtils.GetMetadataTokenId(type)));
         list.Add((null, false));//always at index #0
         m_TypesToDescribe.Add(type, list);
       }
 
       var idx = list.FindIndex( litem => object.ReferenceEquals(litem.item, instance));
-      if (idx<0)
+      if (idx < 0)
       {
         list.Add((instance, false));
         idx = list.Count-1;
       }
 
-      return "{0}-{1}".Args(list.Guid, idx);
+      return "{0}::{1}".Args(list.ID, idx);
     }
 
     public virtual ConfigSectionNode MakeConfig() => Configuration.NewEmptyRoot(GetType().Name);
