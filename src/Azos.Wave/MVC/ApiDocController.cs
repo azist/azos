@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using System.Text.RegularExpressions;
 using Azos.Conf;
 using Azos.Serialization.JSON;
 using Azos.Text;
@@ -205,8 +205,24 @@ namespace Azos.Wave.Mvc
       return SchemaView(data);
     }
 
+    //map<int,string>
+    //array<int>
+    //ref:3433-343
+    //array<ref:78343495-839>
+    protected string MapType(string t)
+    {
+      var i = t.IndexOf("<");
+      if (i>0)
+      {
+        var j = t.LastIndexOf(">");
+
+      }
+
+      return t; //  a href="schema?id=?[href]"> ?[d]</a>
+    }
+
     protected virtual object SchemaView(IConfigSectionNode data)
-     => new Templatization.StockContent.ApiDoc_Schema(data);
+      => new Templatization.StockContent.ApiDoc_Schema(data, MapType);
 
 
     [ApiEndpointDoc(

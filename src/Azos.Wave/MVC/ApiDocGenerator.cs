@@ -195,7 +195,7 @@ namespace Azos.Wave.Mvc
             found = true;
 
             //add type id
-            var typeSection = typesSection.AddChildNode("{0}::{1}".Args(kvp.Value.ID, i));
+            var typeSection = typesSection.AddChildNode("{0}:{1}".Args(kvp.Value.ID, i));
             CustomMetadataAttribute.Apply(kvp.Key, rec.item, this, typeSection);
 
             //add reverse index for SKU -> type id
@@ -251,9 +251,9 @@ namespace Azos.Wave.Mvc
       if (type == typeof(Atom)) return "atom";
       if (type == typeof(Guid)) return "gdid";
       if (type.IsPrimitive) return "{0}".Args(type.Name.ToLowerInvariant());
-      if (type.IsArray) return "{0}[]".Args(AddTypeToDescribe(type.GetElementType()));
-      if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) return "{0}?".Args(AddTypeToDescribe(type.GetGenericArguments()[0]));
-      if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)) return "{0}[]".Args(AddTypeToDescribe(type.GetGenericArguments()[0]));
+      if (type.IsArray) return "array<{0}>".Args(AddTypeToDescribe(type.GetElementType()));
+      if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) return "nullable<{0}>".Args(AddTypeToDescribe(type.GetGenericArguments()[0]));
+      if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)) return "array<{0}>".Args(AddTypeToDescribe(type.GetGenericArguments()[0]));
 
       if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
         return "map<{0},{1}>".Args(AddTypeToDescribe(type.GetGenericArguments()[0]), AddTypeToDescribe(type.GetGenericArguments()[1]));
@@ -263,7 +263,7 @@ namespace Azos.Wave.Mvc
       instanceList list;
       if (!m_TypesToDescribe.TryGetValue(type, out list))
       {
-        list = new instanceList("{0:x2}-{1}".Args(m_TypesToDescribe.Count, MetadataUtils.GetMetadataTokenId(type)));
+        list = new instanceList("ref:{0:x2}-{1}".Args(m_TypesToDescribe.Count, MetadataUtils.GetMetadataTokenId(type)));
         list.Add((null, false));//always at index #0
         m_TypesToDescribe.Add(type, list);
       }
@@ -275,7 +275,7 @@ namespace Azos.Wave.Mvc
         idx = list.Count-1;
       }
 
-      return "{0}::{1}".Args(list.ID, idx);
+      return "{0}:{1}".Args(list.ID, idx);
     }
 
     public virtual ConfigSectionNode MakeConfig() => Configuration.NewEmptyRoot(GetType().Name);
