@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.5.6
-set HEADLINE=Service release, dctl cmdlet with component descriptors 
+set VER=1.5.7
+set HEADLINE=Service release, ApiDoc fixes 
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
