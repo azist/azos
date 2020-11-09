@@ -213,15 +213,20 @@ namespace Azos.Wave.Mvc
     protected string MapType(string t)
     {
       if (t.IsNullOrWhiteSpace()) return t;
-      while(true)
-      {
-        var i = t.IndexOf('(');
-        if (i<0) break;
-        var j= t.LastIndexOf(')');
-        if (j<=i) break;
 
-        var inner = MapType(t.Substring(i+1, j-i-1));
-        t = t.Substring(0, i) + "&lt;" + inner + "&gt;" + t.Substring(j+1);
+      var i = t.IndexOf('(');
+      if (i>=0)
+      {
+        var j = t.LastIndexOf(')');
+        if (j>i)
+        {
+          var iraw = t.Substring(i + 1, j - i - 1);
+          var inner = string.Join(", ", iraw.Split(',')
+                                          .Where(s => s.IsNotNullOrWhiteSpace())
+                                          .Select(s => MapType(s)));
+
+          t = t.Substring(0, i) + "&lt;" + inner + "&gt;" + t.Substring(j+1);
+        }
       }
 
       //try to parse type id

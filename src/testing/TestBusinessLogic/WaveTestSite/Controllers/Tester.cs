@@ -378,6 +378,9 @@ namespace WaveTestSite.Controllers
 
 
           [Field]
+          public Person PersonField { get; set; }
+
+          [Field]
           public List<int> AListOfIntField{ get; set;}
 
           [Field]

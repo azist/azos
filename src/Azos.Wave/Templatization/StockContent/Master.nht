@@ -44,28 +44,27 @@
 <style>
     htmtl, body {
         background: #f4f4f4;
-        font-family: Tahoma, Arial, sans-serif;
-        font-size: 14px;
-        color: #444;
+        font-family: Verdana, Arial, sans-serif;
+        font-size: 12px;
+        color: #484848;
         padding: 0px;
         margin: 0px;
         min-width: 480px
     }
 
-    h1 {  font-size: 1.6em; }
-    h2 {  font-size: 1.4em; }
-    h3 {  font-size: 1.3em; }
-    h4 {  font-size: 1.2em; }
+    h1 {  font-size: 1.45em; }
+    h2 {  font-size: 1.35em; }
+    h3 {  font-size: 1.28em; }
+    h4 {  font-size: 1.15em; }
     h5 {  font-size: 1.1em; }
 
     pre{
         font-family: monospace;
         font-size: 12px;
         padding: 6px;
-        border: 1px solid #eee;
-        background: #fafaf2;
-        box-shadow: 0px 0px 10px #ccc;
-        color: #424242;
+        border: 1px solid #e8efef;
+        background: #f0f0f8;
+        color: #a080e0;
         border-radius: 4px;
         margin: 2px;
         overflow: auto;
@@ -80,12 +79,13 @@
         box-shadow: 0px 0px 8px #888;
         top: 0px;
         width: 100%;
+        filter: sepia(0.8);
     }
 
     .logo{
         width: 72px;
         height: 72px;
-        margin: -10px -2px -10px 0px
+        margin: -10px -2px -10px 0px;
     }
 
     .header-title {
@@ -153,8 +153,9 @@
     }
 
     a{
-        color: #4080e0;
+        color: #3080d0;
         text-decoration: none;
+        font-size: 1.05em;
     }
 
     .card{
@@ -182,18 +183,29 @@
 
     td{
       padding: 4px;
-      border-right: 1px dotted #ddd;
+      border-right: 1px solid #e4e8e8;
+      color: #525252;
     }
 
-    tr:nth-child(even) {background-color: #e8e8e8;}
+    tr:nth-child(even) {background-color: #e8f0f4;}
 
     thead{
-     background: #d4d4d4;
+     background: #e0e4e8;
      color: #484848;
      padding: 4px;
-     border-bottom: 2px solid #ccc;
+     border-right: 1px solid #e4e8e8;
     }
 
+
+    .text-blue  { color: #4090f4; }
+    .text-red   { color: #f84010; }
+    .text-green { color: #30d410; }
+    .text-yellow{ color: #b8c800; }
+
+    .text-hi-blue  { text-shadow: 0px 0px 8px #4090f4; }
+    .text-hi-red   { text-shadow: 0px 0px 8px #f84010; }
+    .text-hi-green { text-shadow: 0px 0px 8px #30d410; }
+    .text-hi-yellow{ text-shadow: 0px 0px 8px #b8c800; }
 
 
 </style>

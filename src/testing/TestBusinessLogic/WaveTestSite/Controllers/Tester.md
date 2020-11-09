@@ -47,6 +47,17 @@ Here is another code block in HTML:
  <html><body>Text</body></html>
 ```
 
+In addition to standard markdown you can use spans with various colors:
+* This is <span class="text-blue">blue text</span>
+* This is <span class="text-red">red text</span>
+* This is <span class="text-green">green text</span>
+* This is <span class="text-yellow">yellow</span>
+* This is <span class="text-hi-blue">blue text</span>
+* This is <span class="text-hi-red">red text</span>
+* This is <span class="text-hi-green">green text</span>
+* This is <span class="text-hi-yellow">yellow</span>
+
+
 Also see the ordered list:
 1. Item one
 2. Item two
