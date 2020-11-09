@@ -251,19 +251,19 @@ namespace Azos.Wave.Mvc
       if (type == typeof(Atom)) return "atom";
       if (type == typeof(Guid)) return "gdid";
       if (type.IsPrimitive) return "{0}".Args(type.Name.ToLowerInvariant());
-      if (type.IsArray) return "array<{0}>".Args(AddTypeToDescribe(type.GetElementType()));
-      if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) return "nullable<{0}>".Args(AddTypeToDescribe(type.GetGenericArguments()[0]));
-      if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)) return "array<{0}>".Args(AddTypeToDescribe(type.GetGenericArguments()[0]));
+      if (type.IsArray) return "array({0})".Args(AddTypeToDescribe(type.GetElementType()));
+      if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) return "nullable({0})".Args(AddTypeToDescribe(type.GetGenericArguments()[0]));
+      if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)) return "array({0})".Args(AddTypeToDescribe(type.GetGenericArguments()[0]));
 
       if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
-        return "map<{0},{1}>".Args(AddTypeToDescribe(type.GetGenericArguments()[0]), AddTypeToDescribe(type.GetGenericArguments()[1]));
+        return "map({0},{1})".Args(AddTypeToDescribe(type.GetGenericArguments()[0]), AddTypeToDescribe(type.GetGenericArguments()[1]));
 
       if (IgnoreTypePatterns.Any(ignore => type.FullName.MatchPattern(ignore))) return DetailLevel > MetadataDetailLevel.Public ? type.Name : "sys";
 
       instanceList list;
       if (!m_TypesToDescribe.TryGetValue(type, out list))
       {
-        list = new instanceList("ref:{0:x2}-{1}".Args(m_TypesToDescribe.Count, MetadataUtils.GetMetadataTokenId(type)));
+        list = new instanceList("@{0:x2}-{1}".Args(m_TypesToDescribe.Count, MetadataUtils.GetMetadataTokenId(type)));
         list.Add((null, false));//always at index #0
         m_TypesToDescribe.Add(type, list);
       }

@@ -207,15 +207,33 @@ namespace Azos.Wave.Mvc
 
     //map<int,string>
     //array<int>
+    //array<@8343495-839>
+    //array<array<@78343495-839>>
     //ref:3433-343
-    //array<ref:78343495-839>
     protected string MapType(string t)
     {
-      var i = t.IndexOf("<");
-      if (i>0)
+      if (t.IsNullOrWhiteSpace()) return t;
+      while(true)
       {
-        var j = t.LastIndexOf(">");
+        var i = t.IndexOf('(');
+        if (i<0) break;
+        var j= t.LastIndexOf(')');
+        if (j<=i) break;
 
+        var inner = MapType(t.Substring(i+1, j-i-1));
+        t = t.Substring(0, i) + "&lt;" + inner + "&gt;" + t.Substring(j+1);
+      }
+
+      //try to parse type id
+      if (t.StartsWith("@"))
+      {
+        //generate A tag with href to schema id looked-up by type id
+        const string TSCH = "type-schemas";
+        var tref = Data[TSCH][t];
+        if (tref.Exists)
+        {
+          return $"<a href = \"schema?id={t}\">{tref.ValOf("sku")}</a>";
+        }
       }
 
       return t; //  a href="schema?id=?[href]"> ?[d]</a>

@@ -375,6 +375,29 @@ namespace WaveTestSite.Controllers
 
           [Field(storeFlag: StoreFlag.None, metadata:@"ControlType=Puzzle Stored=true")]
           public JsonDataMap Puzzle { get; set;}
+
+
+          [Field]
+          public List<int> AListOfIntField{ get; set;}
+
+          [Field]
+          public List<int?> AListOfNullableIntField { get; set; }
+
+          [Field]
+          public List<List<int?>> AListOfListOfNullableIntField { get; set; }
+
+          [Field]
+          public Dictionary<string,int> ADictOfStringIntField { get; set; }
+
+          [Field]
+          public Dictionary<string, int?[]> ADictOfStringNullableIntArrayField { get; set; }
+
+          [Field]
+          public Dictionary<string, List<Person>> ADictOfStringPersonListField { get; set; }
+
+          [Field]
+          public Dictionary<Person, List<Person>> ADictOfPersonPersonListField { get; set; }
+
         }
 
 
