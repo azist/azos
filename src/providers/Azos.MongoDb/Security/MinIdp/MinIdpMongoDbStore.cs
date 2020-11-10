@@ -20,12 +20,28 @@ namespace Azos.Security.MinIdp
   /// <summary>
   /// Provides IMinIdpStore implementation based on MongoDb
   /// </summary>
-  public sealed class MinIdpMongoDbStore : DaemonWithInstrumentation<IApplicationComponent>, IMinIdpStoreImplementation
+  public sealed class MinIdpMongoDbStore : DaemonWithInstrumentation<IApplicationComponent>, IMinIdpStoreImplementation, IExternallyCallable
   {
     public const string CONFIG_MONGO_SECTION = "mongo";
 
     public MinIdpMongoDbStore(IApplicationComponent dir) : base(dir)
     {
+      m_ExternalCallHandler = new ExternalCallHandler<MinIdpMongoDbStore>(App, this, null,
+           // typeof(Instrumentation.ListRoles),
+           // typeof(Instrumentation.GetRole),
+            typeof(Instrumentation.SetRole)
+           // typeof(Instrumentation.DropRole),
+
+           // typeof(Instrumentation.ListUsers),
+           // typeof(Instrumentation.GetUser),
+           // typeof(Instrumentation.SetUser),
+           // typeof(Instrumentation.DropUser),
+
+           // typeof(Instrumentation.ListLogins),
+           // typeof(Instrumentation.GetLogin),
+           // typeof(Instrumentation.SetLogin),
+           // typeof(Instrumentation.DropLogin)
+          );
     }
 
     protected override void Destructor()
@@ -35,6 +51,7 @@ namespace Azos.Security.MinIdp
     }
 
 
+    private ExternalCallHandler<MinIdpMongoDbStore> m_ExternalCallHandler;
     private MongoDbService m_Mongo;
     private string m_RemoteAddress;
 
@@ -44,6 +61,8 @@ namespace Azos.Security.MinIdp
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
     public override bool InstrumentationEnabled { get; set; }
+
+    public IExternalCallHandler GetExternalCallHandler() => m_ExternalCallHandler;
 
     [Config("$remoteaddress;$remote;$address;$remote-address")]
     public string RemoteAddress
@@ -55,6 +74,14 @@ namespace Azos.Security.MinIdp
         m_RemoteAddress = value;
       }
     }
+
+
+    internal TResult Access<TResult>(Func<IMongoDbTransport, TResult> body)
+     => m_Mongo.CallSync(m_RemoteAddress,  //the driver is by-design synchronous as of today
+                                 nameof(IMinIdpStore),
+                                 null,
+                                 (tx, c) => body(tx)
+                        );
 
     private Task<BSONDocument> fetch(Atom realm, string collection, Query query)
      => Task.FromResult(m_Mongo.CallSync(m_RemoteAddress,  //the driver is by-design synchronous as of today
