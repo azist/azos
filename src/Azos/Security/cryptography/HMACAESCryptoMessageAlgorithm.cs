@@ -35,7 +35,7 @@ namespace Azos.Security
   /// The Unprotect() phase repeats the process in reverse, applying AES256 decipher using the IV,
   /// then re-computes the HMAC(IV, deciphered_msg) to ensure that deciphered byte[] re-hashes into the same HMAC for its private key.
   ///
-  /// Multiple Keys
+  /// Multiple Keys / Key Rotation
   /// <para>
   /// Key rotation ensures that an attacker may not assume that the algorithm uses the same key for every message,
   /// furthermore there are 2 different keys used for every message protection and their inter-relationship may not be inferred either.
@@ -179,6 +179,9 @@ namespace Azos.Security
       }
     }
 
+    //key rotation uses different keys based on IV
+    //the IV is random for every call (message instance), consequently the choice of keys is random
+    //for every call
     private (byte[] hmac, byte[] aes) getKeys(byte[] iv)
     {
       var nonce = iv[0] ^ iv[iv.Length-1];
