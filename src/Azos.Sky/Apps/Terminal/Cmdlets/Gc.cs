@@ -10,7 +10,7 @@ using Azos.Conf;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
-  public class Gc : Cmdlet
+  public sealed class Gc : Cmdlet
   {
     public Gc(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args)
     {

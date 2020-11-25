@@ -16,7 +16,7 @@ namespace Azos.Apps.Terminal.Cmdlets
   /// Daemon control
   /// </summary>
   [SystemAdministratorPermission(AccessLevel.ADVANCED)]
-  public class Dctl : Cmdlet
+  public sealed class Dctl : Cmdlet
   {
     public enum Action
     {
@@ -39,10 +39,10 @@ namespace Azos.Apps.Terminal.Cmdlets
 
     public override string Execute()
     {
-      var daemon = CMan.GetApplicationComponentBySIDorName(App, m_Args) as IDaemon;
+      var daemon = Manc.GetApplicationComponentBySIDorName(App, m_Args) as IDaemon;
 
       if (daemon==null)
-        return "The specified component is not a IDaemon";
+        return "The specified component is not an IDaemon";
 
       var action = m_Args.AttrByName(CONFIG_ACTION_ATTR).ValueAsEnum<Action>();
 

@@ -14,7 +14,7 @@ namespace Azos.Apps.Terminal.Cmdlets
   /// <summary>
   /// Execute commands
   /// </summary>
-  public class Exec: Cmdlet
+  public sealed class Exec: Cmdlet
   {
     public const string CONFIG_TO_ATTR = "to";
 

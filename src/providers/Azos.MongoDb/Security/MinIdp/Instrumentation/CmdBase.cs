@@ -5,11 +5,7 @@
 </FILE_LICENSE>*/
 
 using Azos.Conf;
-using Azos.Data.Access.MongoDb.Client;
-using Azos.Glue;
 using Azos.Instrumentation;
-using Azos.Security;
-using Azos.Serialization.BSON;
 using Azos.Serialization.JSON;
 using Azos.Web;
 
@@ -41,8 +37,8 @@ namespace Azos.Security.MinIdp.Instrumentation
 
     protected virtual void Validate()
     {
-      if (Realm.IsValid) throw new SecurityException("Parameter `$realm` must be a valid Atom");
-      if (Id.IsNotNullOrWhiteSpace()) throw new SecurityException("Parameter `$id` is not set");
+      if (Realm.IsValid) throw new SecurityException("Parameter `$realm` must be a valid Atom"){ Code = -100 };
+      if (Id.IsNotNullOrWhiteSpace()) throw new SecurityException("Parameter `$id` is not set") { Code = -150 };
     }
 
     protected abstract object ExecuteBody();

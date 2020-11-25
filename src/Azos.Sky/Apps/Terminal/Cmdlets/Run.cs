@@ -10,7 +10,7 @@ using Azos.Security;
 namespace Azos.Apps.Terminal.Cmdlets
 {
   [SystemAdministratorPermission(AccessLevel.ADVANCED)]
-  public class Run : Cmdlet
+  public sealed class Run : Cmdlet
   {
     public const string CONFIG_CMD_ATTR = "cmd";
     public const string CONFIG_ARGS_ATTR = "args";

@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Azos.Apps;
 using Azos.Conf;
 using Azos.Collections;
 using Azos.Instrumentation;
@@ -17,9 +16,9 @@ using Azos.Serialization.JSON;
 namespace Azos.Apps.Terminal.Cmdlets
 {
   /// <summary>
-  /// Component Manager
+  /// Component Manager / Manager of Components
   /// </summary>
-  public class CMan : Cmdlet
+  public sealed class Manc : Cmdlet
   {
 
     public const string CONFIG_SID_ATTR = "sid";
@@ -46,7 +45,7 @@ namespace Azos.Apps.Terminal.Cmdlets
     }
 
 
-    public CMan(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args)
+    public Manc(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args)
     {
 
     }
@@ -61,8 +60,8 @@ namespace Azos.Apps.Terminal.Cmdlets
 
       //todo: add accept: header to return json etc...
 
-      //cman{ sid=123 call-list{} }}; // for Help
-      //cman{ sid=123 call{ directsql{sql="select 2+2 from DUAL"} }};
+      //manc{ sid=123 call-list{} }}; // for Help
+      //manc{ sid=123 call{ directsql{sql="select 2+2 from DUAL"} }};
 
       var sb = new StringBuilder(1024);
       sb.AppendLine(AppRemoteTerminal.MARKUP_PRAGMA);
