@@ -13,7 +13,7 @@ using Azos.Web;
 namespace Azos.Security.MinIdp.Instrumentation
 {
   /// <summary>
-  /// Sets role data
+  /// Base command
   /// </summary>
   [SystemAdministratorPermission(AccessLevel.ADVANCED)]
   public abstract class CmdBase : ExternalCallRequest<MinIdpMongoDbStore>
@@ -22,10 +22,6 @@ namespace Azos.Security.MinIdp.Instrumentation
 
     [Config]
     public Atom Realm {  get; set;}
-
-    [Config]
-    public string Id { get; set; }
-
 
     public sealed override ExternalCallResponse Execute()
     {
@@ -38,14 +34,9 @@ namespace Azos.Security.MinIdp.Instrumentation
     protected virtual void Validate()
     {
       if (Realm.IsValid) throw new SecurityException("Parameter `$realm` must be a valid Atom"){ Code = -100 };
-      if (Id.IsNotNullOrWhiteSpace()) throw new SecurityException("Parameter `$id` is not set") { Code = -150 };
-      if (Id.Length > BsonDataModel.MAX_ID_LEN) throw new SecurityException("Length of `$id` is over maximum of {0}".Args(BsonDataModel.MAX_ID_LEN)) { Code = -151 };
     }
 
     protected abstract object ExecuteBody();
-    //{
-    //  Context.Access((tx) => tx.Db);
-    //}
 
     protected virtual ExternalCallResponse ToResponse(object result)
     {
@@ -53,5 +44,24 @@ namespace Azos.Security.MinIdp.Instrumentation
       return new ExternalCallResponse(ContentType.JSON, json);
     }
 
+  }
+
+  /// <summary>
+  /// Base command with ID
+  /// </summary>
+  public abstract class IdCmdBase : CmdBase
+  {
+    public IdCmdBase(MinIdpMongoDbStore mongo) : base(mongo) { }
+
+    [Config]
+    public string Id { get; set; }
+
+
+    protected override void Validate()
+    {
+      base.Validate();
+      if (Id.IsNotNullOrWhiteSpace()) throw new SecurityException("Parameter `$id` is not set") { Code = -150 };
+      if (Id.Length > BsonDataModel.MAX_ID_LEN) throw new SecurityException("Length of `$id` is over maximum of {0}".Args(BsonDataModel.MAX_ID_LEN)) { Code = -151 };
+    }
   }
 }

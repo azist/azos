@@ -4,21 +4,19 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System.Linq;
+
 using Azos.Conf;
-using Azos.Data.Access.MongoDb.Client;
-using Azos.Glue;
 using Azos.Instrumentation;
-using Azos.Security;
 using Azos.Serialization.BSON;
 using Azos.Web;
-using System.Linq;
 
 namespace Azos.Security.MinIdp.Instrumentation
 {
   /// <summary>
   /// Sets role data
   /// </summary>
-  public sealed class SetRole : CmdBase
+  public sealed class SetRole : IdCmdBase
   {
     public SetRole(MinIdpMongoDbStore mongo) : base(mongo) { }
 
@@ -32,6 +30,7 @@ namespace Azos.Security.MinIdp.Instrumentation
 ```
   SetRole
   {
+    realm='realm' //atom
     id='roleId' //string
     rights      //config vector
     {
