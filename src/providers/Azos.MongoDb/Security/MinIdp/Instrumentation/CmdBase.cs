@@ -39,6 +39,7 @@ namespace Azos.Security.MinIdp.Instrumentation
     {
       if (Realm.IsValid) throw new SecurityException("Parameter `$realm` must be a valid Atom"){ Code = -100 };
       if (Id.IsNotNullOrWhiteSpace()) throw new SecurityException("Parameter `$id` is not set") { Code = -150 };
+      if (Id.Length > BsonDataModel.MAX_ID_LEN) throw new SecurityException("Length of `$id` is over maximum of {0}".Args(BsonDataModel.MAX_ID_LEN)) { Code = -151 };
     }
 
     protected abstract object ExecuteBody();

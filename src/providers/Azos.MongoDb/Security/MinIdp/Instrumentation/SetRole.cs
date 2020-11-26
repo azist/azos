@@ -10,9 +10,8 @@ using Azos.Glue;
 using Azos.Instrumentation;
 using Azos.Security;
 using Azos.Serialization.BSON;
-using Azos.Serialization.JSON;
 using Azos.Web;
-
+using System.Linq;
 
 namespace Azos.Security.MinIdp.Instrumentation
 {
@@ -28,12 +27,38 @@ namespace Azos.Security.MinIdp.Instrumentation
 
     public override ExternalCallResponse Describe()
     => new ExternalCallResponse(ContentType.TEXT,
-@"Sets Role data");
+@"
+# Sets role data
+```
+  SetRole
+  {
+    id='roleId' //string
+    rights      //config vector
+    {
+      ns{ perm{ ... } ...}
+      ...
+    }
+  }
+```");
+
+    protected override void Validate()
+    {
+      base.Validate();
+      if (Rights==null || !Rights.Exists) throw new SecurityException("Missing `$rights`") { Code = -1000 };
+    }
 
     protected override object ExecuteBody()
     {
-      Context.Access((tx) => tx.Db);
-      return "";
+      Context.Access((tx) => {
+        var crole = tx.Db[BsonDataModel.GetCollectionName(this.Realm, BsonDataModel.COLLECTION_ROLE)];
+        var role = new BSONDocument();
+        role.Set(new BSONStringElement(BsonDataModel._ID, Id));
+        role.Set(new BSONStringElement(BsonDataModel.FLD_RIGHTS, Rights.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact)));
+        var cr = crole.Save(role);
+        Aver.IsNull(cr.WriteErrors, cr.WriteErrors.First().Message);
+        return cr;
+      });
+      return "OK";
     }
 
   }
