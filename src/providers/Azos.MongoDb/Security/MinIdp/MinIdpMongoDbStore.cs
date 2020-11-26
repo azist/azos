@@ -27,10 +27,10 @@ namespace Azos.Security.MinIdp
     public MinIdpMongoDbStore(IApplicationComponent dir) : base(dir)
     {
       m_ExternalCallHandler = new ExternalCallHandler<MinIdpMongoDbStore>(App, this, null,
-           // typeof(Instrumentation.ListRoles),
-           // typeof(Instrumentation.GetRole),
-            typeof(Instrumentation.SetRole)
-           // typeof(Instrumentation.DropRole),
+            typeof(Instrumentation.ListRoles),
+            typeof(Instrumentation.GetRole),
+            typeof(Instrumentation.SetRole),
+            typeof(Instrumentation.DropRole)
 
            // typeof(Instrumentation.ListUsers),
            // typeof(Instrumentation.GetUser),
