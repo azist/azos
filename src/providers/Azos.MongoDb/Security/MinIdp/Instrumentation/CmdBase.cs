@@ -60,8 +60,26 @@ namespace Azos.Security.MinIdp.Instrumentation
     protected override void Validate()
     {
       base.Validate();
-      if (Id.IsNotNullOrWhiteSpace()) throw new SecurityException("Parameter `$id` is not set") { Code = -150 };
+      if (Id.IsNullOrWhiteSpace()) throw new SecurityException("Parameter `$id` is not set") { Code = -150 };
       if (Id.Length > BsonDataModel.MAX_ID_LEN) throw new SecurityException("Length of `$id` is over maximum of {0}".Args(BsonDataModel.MAX_ID_LEN)) { Code = -151 };
+    }
+  }
+
+  /// <summary>
+  /// Base command with long ID
+  /// </summary>
+  public abstract class LongIdCmdBase : CmdBase
+  {
+    public LongIdCmdBase(MinIdpMongoDbStore mongo) : base(mongo) { }
+
+    [Config]
+    public long Id { get; set; }
+
+
+    protected override void Validate()
+    {
+      base.Validate();
+      if (Id==0) throw new SecurityException("Parameter `$id` is not set") { Code = -150 };
     }
   }
 }

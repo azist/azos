@@ -18,13 +18,18 @@ namespace Azos.Security.MinIdp
     public const string _ID = Query._ID;
 
     public const int MAX_ID_LEN = 64;
+    public const int MAX_NOTE_LEN = 4 * 1024;
+    public const int MAX_DESCR_LEN = 256;
+    public const int MAX_NAME_LEN  = 64;
+    public const int MAX_SNAME_LEN = 48;
+
 
     public const string COLLECTION_LOGIN = "lin";
     public const string COLLECTION_USER = "usr";
     public const string COLLECTION_ROLE = "rol";
 
 
-    public const string FLD_DATAVERSION = "_v";
+    //public const string FLD_DATAVERSION = "_v";
 
     public const string FLD_SYSID = "sysid";
     public const string FLD_STATUS = "status";

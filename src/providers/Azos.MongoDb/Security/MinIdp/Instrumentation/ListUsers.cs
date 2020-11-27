@@ -4,8 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System.Linq;
-
 using Azos.Conf;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Instrumentation;
@@ -15,36 +13,33 @@ using Azos.Web;
 namespace Azos.Security.MinIdp.Instrumentation
 {
   /// <summary>
-  /// Deletes role
+  /// Lists all users
   /// </summary>
-  public sealed class DropRole : IdCmdBase
+  public sealed class ListUsers : CmdBase
   {
-    public DropRole(MinIdpMongoDbStore mongo) : base(mongo) { }
+    public ListUsers(MinIdpMongoDbStore mongo) : base(mongo) { }
 
 
     public override ExternalCallResponse Describe()
     => new ExternalCallResponse(ContentType.TEXT,
 @"
-# Deletes role
+# Lists all users
 ```
-  DropRole
+  ListUsers
   {
     realm='realm' //atom
-    id='roleId' //string
   }
 ```");
 
     protected override object ExecuteBody()
     {
-      var crud = Context.Access((tx) => {
-        var crole = tx.Db[BsonDataModel.GetCollectionName(this.Realm, BsonDataModel.COLLECTION_ROLE)];
+      var bson = Context.Access((tx) => {
+        var crole = tx.Db[BsonDataModel.GetCollectionName(this.Realm, BsonDataModel.COLLECTION_USER)];
 
-        var cr = crole.DeleteOne(Query.ID_EQ_String(this.Id));
-        Aver.IsNull(cr.WriteErrors, cr.WriteErrors.First().Message);
-        return cr;
+        return crole.FindAndFetchAll(new Query());
       });
 
-      return crud;
+      return bson.ToJson(JsonWritingOptions.PrettyPrintASCII);
     }
 
   }

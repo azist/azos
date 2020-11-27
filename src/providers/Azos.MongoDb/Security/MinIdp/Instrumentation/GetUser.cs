@@ -15,36 +15,34 @@ using Azos.Web;
 namespace Azos.Security.MinIdp.Instrumentation
 {
   /// <summary>
-  /// Deletes role
+  /// Gets user data
   /// </summary>
-  public sealed class DropRole : IdCmdBase
+  public sealed class GetUser : LongIdCmdBase
   {
-    public DropRole(MinIdpMongoDbStore mongo) : base(mongo) { }
+    public GetUser(MinIdpMongoDbStore mongo) : base(mongo) { }
 
 
     public override ExternalCallResponse Describe()
     => new ExternalCallResponse(ContentType.TEXT,
 @"
-# Deletes role
+# Get user data
 ```
-  DropRole
+  GetUser
   {
     realm='realm' //atom
-    id='roleId' //string
+    id=123 //long
   }
 ```");
 
     protected override object ExecuteBody()
     {
-      var crud = Context.Access((tx) => {
-        var crole = tx.Db[BsonDataModel.GetCollectionName(this.Realm, BsonDataModel.COLLECTION_ROLE)];
+      var bson = Context.Access((tx) => {
+        var crole = tx.Db[BsonDataModel.GetCollectionName(this.Realm, BsonDataModel.COLLECTION_USER)];
 
-        var cr = crole.DeleteOne(Query.ID_EQ_String(this.Id));
-        Aver.IsNull(cr.WriteErrors, cr.WriteErrors.First().Message);
-        return cr;
+       return crole.FindOne(Query.ID_EQ_Int64(this.Id));
       });
 
-      return crud;
+      return bson.ToJson(JsonWritingOptions.PrettyPrintASCII);
     }
 
   }
