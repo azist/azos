@@ -35,12 +35,12 @@ namespace Azos.Security.MinIdp
             typeof(Instrumentation.ListUsers),
             typeof(Instrumentation.GetUser),
             typeof(Instrumentation.SetUser),
-            typeof(Instrumentation.DropUser)
+            typeof(Instrumentation.DropUser),
 
-           // typeof(Instrumentation.ListLogins),
-           // typeof(Instrumentation.GetLogin),
-           // typeof(Instrumentation.SetLogin),
-           // typeof(Instrumentation.DropLogin)
+            typeof(Instrumentation.ListLogins),
+            typeof(Instrumentation.GetLogin),
+            typeof(Instrumentation.SetLogin),
+            typeof(Instrumentation.DropLogin)
           );
     }
 
