@@ -25,7 +25,7 @@ namespace Azos.Security.MinIdp
 
     public const string COLLECTION_LOGIN = "lin";
     public const string COLLECTION_USER = "usr";
-    public const string COLLECTION_ROLE = "rol";
+    public const string COLLECTION_ROLE = "rol";    //aaa
 
     public const string FLD_SYSID = "sysid";
     public const string FLD_STATUS = "status";
