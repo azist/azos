@@ -29,8 +29,6 @@ namespace Azos.Security.MinIdp
     public const string COLLECTION_ROLE = "rol";
 
 
-    //public const string FLD_DATAVERSION = "_v";
-
     public const string FLD_SYSID = "sysid";
     public const string FLD_STATUS = "status";
     public const string FLD_RIGHTS = "rights";
