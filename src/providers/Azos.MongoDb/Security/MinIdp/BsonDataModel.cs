@@ -23,11 +23,9 @@ namespace Azos.Security.MinIdp
     public const int MAX_NAME_LEN  = 64;
     public const int MAX_SNAME_LEN = 48;
 
-
     public const string COLLECTION_LOGIN = "lin";
     public const string COLLECTION_USER = "usr";
     public const string COLLECTION_ROLE = "rol";
-
 
     public const string FLD_SYSID = "sysid";
     public const string FLD_STATUS = "status";
