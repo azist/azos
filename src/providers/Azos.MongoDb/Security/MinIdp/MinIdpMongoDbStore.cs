@@ -91,6 +91,19 @@ namespace Azos.Security.MinIdp
                         ));
 
 
+    private MinIdpUserData checkDates(MinIdpUserData data)
+    {
+      if (data==null) return null;
+      var now = App.TimeSource.UTCNow;
+      if (data.StartUtc > now) return null;
+      if (data.EndUtc <= now) return null;
+
+      if (data.LoginStartUtc.HasValue && data.LoginStartUtc.Value > now) return null;
+      if (data.LoginEndUtc.HasValue && data.LoginEndUtc.Value <= now) return null;
+
+      return data;
+    }
+
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
     {
       if (id.IsNullOrWhiteSpace()) return null;
@@ -104,12 +117,13 @@ namespace Azos.Security.MinIdp
       var user = await fetch(realm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(result.SysId));
       if (user==null) return null;
       BsonDataModel.ReadUser(user, result);
+      if (result.Role.IsNullOrWhiteSpace()) return null;
 
       var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
       if (role == null) return null;
       BsonDataModel.ReadRole(role, result);
 
-      return result;
+      return checkDates(result);
     }
 
 
@@ -123,34 +137,18 @@ namespace Azos.Security.MinIdp
 
       var result = new MinIdpUserData();
       BsonDataModel.ReadUser(user, result);
+      if (result.Role.IsNullOrWhiteSpace()) return null;
 
       var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
       if (role == null) return null;
       BsonDataModel.ReadRole(role, result);
 
-      return result;
+      return checkDates(result);
     }
 
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
-    {
-      if (uri.IsNullOrWhiteSpace()) return null;
-
-      var qry = new Query();
-      qry.Set(new BSONStringElement(BsonDataModel.FLD_SCREENNAME, uri));
-
-      var user = await fetch(realm, BsonDataModel.COLLECTION_USER, qry);
-      if (user == null) return null;
-
-      var result = new MinIdpUserData();
-      BsonDataModel.ReadUser(user, result);
-
-      var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
-      if (role == null) return null;
-      BsonDataModel.ReadRole(role, result);
-
-      return result;
-    }
+    => await GetByIdAsync(realm, uri);//for MinIdp mongo the URI is the login name for simplicity
 
 
     protected override void DoConfigure(IConfigSectionNode node)

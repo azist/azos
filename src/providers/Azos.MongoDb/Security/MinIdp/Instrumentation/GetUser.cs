@@ -50,7 +50,8 @@ namespace Azos.Security.MinIdp.Instrumentation
         {nameof(SetUser.StartUtc), bson[BsonDataModel.FLD_STARTUTC].ObjectValue},
         {nameof(SetUser.EndUtc),   bson[BsonDataModel.FLD_ENDUTC].ObjectValue},
 
-        {nameof(SetUser.ScreenName),   bson[BsonDataModel.FLD_SCREENNAME].ObjectValue},
+        {nameof(SetUser.Role),   bson[BsonDataModel.FLD_ROLE].ObjectValue},
+
         {nameof(SetUser.Name),   bson[BsonDataModel.FLD_NAME].ObjectValue},
         {nameof(SetUser.Description),   bson[BsonDataModel.FLD_DESCRIPTION].ObjectValue},
         {nameof(SetUser.Note),   bson[BsonDataModel.FLD_NOTE].ObjectValue},

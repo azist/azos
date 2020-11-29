@@ -24,7 +24,7 @@ namespace Azos.Security.MinIdp.Instrumentation
     [Config] public UserStatus? Status { get; set; }
     [Config] public DateTime? StartUtc { get; set; }
     [Config] public DateTime? EndUtc { get; set; }
-    [Config] public string ScreenName { get; set; }
+    [Config] public string Role { get; set; }
     [Config] public string Name { get; set; }
     [Config] public string Description { get; set; }
     [Config] public string Note { get; set; }
@@ -55,8 +55,8 @@ namespace Azos.Security.MinIdp.Instrumentation
       base.Validate();
 
       if (!Status.HasValue) throw new SecurityException("Missing `$Status`") { Code = -2001 };
-      if (ScreenName.IsNullOrWhiteSpace()) throw new SecurityException("Missing `$ScreeName`") { Code = -2002 };
-      if (ScreenName.Length > BsonDataModel.MAX_SNAME_LEN) throw new SecurityException("`$ScreeName` is over {0}".Args(BsonDataModel.MAX_SNAME_LEN)) { Code = -2003 };
+      if (Role.IsNullOrWhiteSpace()) throw new SecurityException("Missing `$Role`") { Code = -2002 };
+      if (Role.Length > BsonDataModel.MAX_ID_LEN) throw new SecurityException("`$Role` is over {0}".Args(BsonDataModel.MAX_ID_LEN)) { Code = -2003 };
 
       if (Name.IsNullOrWhiteSpace()) throw new SecurityException("Missing `$Name`") { Code = -2004 };
       if (Name.Length > BsonDataModel.MAX_NAME_LEN) throw new SecurityException("`$Name` is over {0}".Args(BsonDataModel.MAX_NAME_LEN)) { Code = -2005 };
@@ -87,8 +87,8 @@ namespace Azos.Security.MinIdp.Instrumentation
         user.Set(new BSONDateTimeElement(BsonDataModel.FLD_CREATEUTC, Context.App.TimeSource.UTCNow));
         user.Set(new BSONDateTimeElement(BsonDataModel.FLD_STARTUTC, StartUtc.Value));
         user.Set(new BSONDateTimeElement(BsonDataModel.FLD_ENDUTC, EndUtc.Value));
+        user.Set(new BSONStringElement(BsonDataModel.FLD_ROLE, Role));
 
-        user.Set(new BSONStringElement(BsonDataModel.FLD_SCREENNAME, ScreenName));
         user.Set(new BSONStringElement(BsonDataModel.FLD_NAME, Name));
         user.Set(new BSONStringElement(BsonDataModel.FLD_DESCRIPTION, Description));
         user.Set(new BSONStringElement(BsonDataModel.FLD_NOTE, Note));
