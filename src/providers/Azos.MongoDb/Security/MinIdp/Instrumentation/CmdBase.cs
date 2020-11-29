@@ -9,7 +9,6 @@ using Azos.Instrumentation;
 using Azos.Serialization.JSON;
 using Azos.Web;
 
-
 namespace Azos.Security.MinIdp.Instrumentation
 {
   /// <summary>

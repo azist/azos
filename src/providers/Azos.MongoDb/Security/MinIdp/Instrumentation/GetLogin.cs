@@ -9,6 +9,7 @@ using System.Linq;
 using Azos.Conf;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Instrumentation;
+using Azos.Serialization.BSON;
 using Azos.Serialization.JSON;
 using Azos.Web;
 
@@ -25,9 +26,9 @@ namespace Azos.Security.MinIdp.Instrumentation
     public override ExternalCallResponse Describe()
     => new ExternalCallResponse(ContentType.TEXT,
 @"
-# Get user data
+# Get login data
 ```
-  GetUser
+  GetLogin
   {
     realm='realm' //atom
     login='login' //string
@@ -42,7 +43,15 @@ namespace Azos.Security.MinIdp.Instrumentation
        return crole.FindOne(Query.ID_EQ_String(this.Id));
       });
 
-      return bson.ToJson(JsonWritingOptions.PrettyPrintASCII);
+      return new JsonDataMap
+      {
+        {nameof(SetLogin.Id),       bson[BsonDataModel._ID].ObjectValue},
+        {nameof(SetLogin.SysId),    bson[BsonDataModel.FLD_SYSID].ObjectValue},
+        {nameof(SetLogin.Password), "*******"},
+        {"createUtc",               bson[BsonDataModel.FLD_CREATEUTC].ObjectValue},
+        {nameof(SetLogin.StartUtc), bson[BsonDataModel.FLD_STARTUTC].ObjectValue},
+        {nameof(SetLogin.EndUtc),   bson[BsonDataModel.FLD_ENDUTC].ObjectValue},
+      };
     }
 
   }
