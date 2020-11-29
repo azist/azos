@@ -42,7 +42,12 @@ namespace Azos.Security.MinIdp.Instrumentation
        return crole.FindOne(Query.ID_EQ_String(this.Id));
       });
 
-      return bson.ToJson(JsonWritingOptions.PrettyPrintASCII);
+      return new JsonDataMap
+      {
+        {nameof(SetRole.Id),       bson[BsonDataModel._ID].ObjectValue},
+        {nameof(SetRole.Rights),    bson[BsonDataModel.FLD_RIGHTS].ObjectValue},
+        {"createUtc",               bson[BsonDataModel.FLD_CREATEUTC].ObjectValue}
+      };
     }
 
   }

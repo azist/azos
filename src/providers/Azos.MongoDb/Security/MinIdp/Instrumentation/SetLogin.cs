@@ -58,17 +58,17 @@ namespace Azos.Security.MinIdp.Instrumentation
     protected override object ExecuteBody()
     {
       var crud = Context.Access((tx) => {
-        var cusr = tx.Db[BsonDataModel.GetCollectionName(this.Realm, BsonDataModel.COLLECTION_LOGIN)];
-        var user = new BSONDocument();
-        user.Set(new BSONStringElement(BsonDataModel._ID, Id));
-        user.Set(new BSONInt64Element(BsonDataModel.FLD_SYSID, SysId));
-        user.Set(new BSONDateTimeElement(BsonDataModel.FLD_CREATEUTC, Context.App.TimeSource.UTCNow));
-        user.Set(new BSONDateTimeElement(BsonDataModel.FLD_STARTUTC, StartUtc.Value));
-        user.Set(new BSONDateTimeElement(BsonDataModel.FLD_ENDUTC, EndUtc.Value));
+        var clin = tx.Db[BsonDataModel.GetCollectionName(this.Realm, BsonDataModel.COLLECTION_LOGIN)];
+        var login = new BSONDocument();
+        login.Set(new BSONStringElement(BsonDataModel._ID, Id));
+        login.Set(new BSONInt64Element(BsonDataModel.FLD_SYSID, SysId));
+        login.Set(new BSONDateTimeElement(BsonDataModel.FLD_CREATEUTC, Context.App.TimeSource.UTCNow));
+        login.Set(new BSONDateTimeElement(BsonDataModel.FLD_STARTUTC, StartUtc.Value));
+        login.Set(new BSONDateTimeElement(BsonDataModel.FLD_ENDUTC, EndUtc.Value));
 
-        user.Set(new BSONStringElement(BsonDataModel.FLD_PASSWORD, Password));
+        login.Set(new BSONStringElement(BsonDataModel.FLD_PASSWORD, Password));
 
-        var cr = cusr.Save(user);
+        var cr = clin.Save(login);
         Aver.IsNull(cr.WriteErrors, cr.WriteErrors.First().Message);
         return cr;
       });
