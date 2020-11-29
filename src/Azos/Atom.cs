@@ -63,7 +63,7 @@ namespace Azos
             (c == '_' || c=='-');
 
     /// <summary>
-    /// Encodes the string value into an Atom. The value must contain ASCII only 1 to 8 characters
+    /// Encodes a string value into an Atom. The value must contain ASCII only 1 to 8 characters
     /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not have whitespace.
     /// Null is encoded as Atom(0).
     /// <para>
@@ -92,8 +92,8 @@ namespace Azos
     }
 
     /// <summary>
-    /// Tries to encodes a string value into Atom. The value must contain ASCII only 1 to 8 characters
-    /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not be whitespace.
+    /// Tries to encode a string value into Atom. The value must contain ASCII only 1 to 8 characters
+    /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not contain whitespace.
     /// Null is encoded as Atom(0).
     /// <para>
     /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than a few thousand), having
@@ -130,7 +130,7 @@ namespace Azos
     /// <summary>
     /// Tries to encode a string value or numeric ID represented as string into Atom.
     /// The string value must contain ASCII only 1 to 8 characters conforming to [0..9|A..Z|a..z|_|-] pattern
-    /// and may not be whitespace. The numeric ID should start with '#' prefix and may have optional  binary or hex prefixes, e.g. "#0x3234"
+    /// and may not contain whitespace. The numeric ID should start with '#' prefix and may have optional  binary or hex prefixes, e.g. "#0x3234"
     /// Null is encoded as Atom(0).
     /// <para>
     /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than a few thousand), having

@@ -13,7 +13,7 @@ namespace Azos.Data
 {
   /// <summary>
   /// Defines mode of validation error generation: whether the system should stop validation on the
-  /// very first error (if any), or should continue validating generating more errors
+  /// very first error (if any), or should continue validating generating more errors (which can take longer)
   /// </summary>
   public enum ValidErrorMode : byte
   {
