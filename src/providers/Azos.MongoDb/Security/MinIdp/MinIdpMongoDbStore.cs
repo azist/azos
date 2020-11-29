@@ -14,15 +14,26 @@ using Azos.Instrumentation;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Data.Access.MongoDb.Client;
 using Azos.Serialization.BSON;
+using Azos.Serialization.JSON;
 
 namespace Azos.Security.MinIdp
 {
   /// <summary>
-  /// Provides IMinIdpStore implementation based on MongoDb
+  /// Provides IMinIdpStore implementation based on MongoDb.
+  /// The store supports users with multiple logins and grants permission sets via named role assignments
   /// </summary>
+  /// <remarks>
+  /// In order to bootstrap the security system for the first use,
+  /// the store implements a root login data seeding - upon start it tests if the database has a
+  /// root system user id with `ROOT_USER_SYSID = 1`, and if there is no such user, creates it with the limited lifespan
+  /// so the root login can then be used to create other users/logins/roles. The auto created root login can then be disabled
+  /// explicitly or it will expire past its lifetime length (default: 24 hrs)
+  /// </remarks>
   public sealed class MinIdpMongoDbStore : DaemonWithInstrumentation<IApplicationComponent>, IMinIdpStoreImplementation, IExternallyCallable
   {
     public const string CONFIG_MONGO_SECTION = "mongo";
+    public const long   ROOT_USER_SYSID = 1;
+    public const double DEFAUL_ROOT_LOGIN_LIFETIME_HRS = 24;
 
     public MinIdpMongoDbStore(IApplicationComponent dir) : base(dir)
     {
@@ -75,6 +86,35 @@ namespace Azos.Security.MinIdp
       }
     }
 
+    /// <summary>
+    /// If set, checks whether the named root SYSTEM login exists in the specified realm,
+    /// and creates it if it does not with 24 hr expiration.
+    /// This is needed to bootstrap the system
+    /// </summary>
+    [Config] public Atom RootRealm{  get; set; }
+
+    /// <summary>
+    /// If set, checks whether the named root SYSTEM login exists in the specified realm,
+    /// and creates it if it does not with 24 hr expiration.
+    /// This is needed to bootstrap the system
+    /// </summary>
+    [Config] public string RootLogin { get; set; }
+
+    /// <summary>
+    /// If set, checks whether the named root SYSTEM login exists in the specified realm,
+    /// and creates it if it does not with 24 hr expiration.
+    /// This is needed to bootstrap the system
+    /// </summary>
+    [Config] public string RootPwdVector { get; set; }
+
+
+    /// <summary>
+    /// When set, limits the life of root login which is auto-created
+    /// </summary>
+    [Config] public double RootLoginLifetimeHours { get; set; }
+
+
+
 
     internal TResult Access<TResult>(Func<IMongoDbTransport, TResult> body)
      => m_Mongo.CallSync(m_RemoteAddress,  //the driver is by-design synchronous as of today
@@ -107,6 +147,7 @@ namespace Azos.Security.MinIdp
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
     {
       if (id.IsNullOrWhiteSpace()) return null;
+      id = id.ToLowerInvariant();
       var login = await fetch(realm, BsonDataModel.COLLECTION_LOGIN, Query.ID_EQ_String(id));
       if (login==null) return null;
 
@@ -117,11 +158,15 @@ namespace Azos.Security.MinIdp
       var user = await fetch(realm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(result.SysId));
       if (user==null) return null;
       BsonDataModel.ReadUser(user, result);
-      if (result.Role.IsNullOrWhiteSpace()) return null;
 
-      var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
-      if (role == null) return null;
-      BsonDataModel.ReadRole(role, result);
+      if (result.Role.IsNotNullOrWhiteSpace())
+      {
+        var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
+        if (role==null) return null;
+        BsonDataModel.ReadRole(role, result);
+      }
+      if (result.Status < UserStatus.System && result.Role.IsNullOrWhiteSpace()) return null;
+
 
       return checkDates(result);
     }
@@ -137,11 +182,15 @@ namespace Azos.Security.MinIdp
 
       var result = new MinIdpUserData();
       BsonDataModel.ReadUser(user, result);
-      if (result.Role.IsNullOrWhiteSpace()) return null;
 
-      var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
-      if (role == null) return null;
-      BsonDataModel.ReadRole(role, result);
+      if (result.Role.IsNotNullOrWhiteSpace())
+      {
+        var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
+        if (role == null) return null;
+        BsonDataModel.ReadRole(role, result);
+      }
+      if (result.Status < UserStatus.System && result.Role.IsNullOrWhiteSpace()) return null;
+
 
       return checkDates(result);
     }
@@ -169,11 +218,76 @@ namespace Azos.Security.MinIdp
     {
       m_Mongo.NonNull("Not configured Mongo of config section `{0}`".Args(CONFIG_MONGO_SECTION));
       m_RemoteAddress.NonBlank("RemoteAddress string");
+
+      checkRootAccess();
     }
 
     protected override void DoSignalStop() { }
 
     protected override void DoWaitForCompleteStop() { }
+
+    private void checkRootAccess()
+    {
+      if (RootRealm.IsZero ||
+          RootLogin.IsNullOrWhiteSpace() ||
+          RootPwdVector.IsNullOrWhiteSpace()) return;
+
+      var rootUser = fetch(RootRealm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(ROOT_USER_SYSID)).GetAwaiter().GetResult();//sync call;
+      if (rootUser == null)
+      {
+        var rel = Guid.NewGuid();
+
+        WriteLog(Log.MessageType.Notice,
+                 nameof(checkRootAccess),
+                 "No root user found. Creating root user SID = {0} LOGIN = `{1}`".Args(ROOT_USER_SYSID, RootLogin),
+                 related: rel);
+
+        makeRootLogin(rel);
+     }
+    }
+
+    private void makeRootLogin(Guid rel)
+    {
+      var now = App.TimeSource.UTCNow;
+
+      var lifeHrs = RootLoginLifetimeHours;
+      if (lifeHrs <= 0) lifeHrs = DEFAUL_ROOT_LOGIN_LIFETIME_HRS;
+
+      var setUser = new Instrumentation.SetUser(this){
+        Id = ROOT_USER_SYSID,
+        Realm = RootRealm,
+        Status = UserStatus.System,//root login is SYSTEM by definition
+        Name = RootLogin,
+        Description = RootLogin,
+        Note = "Root login auto created by `{0}`".Args(Platform.Computer.HostName),
+        StartUtc = now,
+        EndUtc = now.AddHours(lifeHrs)
+        //role is optional so it is null
+      };
+
+      var setLogin = new Instrumentation.SetLogin(this){
+         Realm = RootRealm,
+         SysId  = ROOT_USER_SYSID,
+         Id = RootLogin,
+         Password = RootPwdVector,
+         StartUtc = now,
+         EndUtc = now.AddHours(lifeHrs)
+      };
+
+      var got = setUser.Execute();
+      WriteLog(Log.MessageType.Notice,
+               nameof(makeRootLogin),
+               "{0} result".Args(nameof(setUser)),
+               related: rel,
+               pars: got.ToJson());
+
+      got = setLogin.Execute();
+      WriteLog(Log.MessageType.Notice,
+               nameof(makeRootLogin),
+               "{0} result".Args(nameof(setLogin)),
+               related: rel,
+               pars: got.ToJson());
+    }
 
   }
 }

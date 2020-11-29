@@ -60,7 +60,7 @@ namespace Azos.Security.MinIdp.Instrumentation
       var crud = Context.Access((tx) => {
         var clin = tx.Db[BsonDataModel.GetCollectionName(this.Realm, BsonDataModel.COLLECTION_LOGIN)];
         var login = new BSONDocument();
-        login.Set(new BSONStringElement(BsonDataModel._ID, Id));
+        login.Set(new BSONStringElement(BsonDataModel._ID, Id.ToLowerInvariant()));
         login.Set(new BSONInt64Element(BsonDataModel.FLD_SYSID, SysId));
         login.Set(new BSONDateTimeElement(BsonDataModel.FLD_CREATEUTC, Context.App.TimeSource.UTCNow));
         login.Set(new BSONDateTimeElement(BsonDataModel.FLD_STARTUTC, StartUtc.Value));
