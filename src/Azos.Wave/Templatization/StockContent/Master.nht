@@ -110,8 +110,9 @@
     footer{
         text-align: center;
         color: #999;
-        margin-top: 20px;
-        margin-bottom: 10px;
+        padding-top: 20px;
+        padding-bottom: 14px;
+        background: linear-gradient(-3deg, #e8e8e0 0%, #f4f4f4 70%)
     }
 
     section#body{
@@ -213,12 +214,11 @@
 #[extraStyles()]
 
 #[defaultFooter()]
+&copy; ?[Context.App.Copyright]
+<br />
 ?[Context.App.Name] / ?[Context.App.Description]
 <br />
-  This site is served by the <strong><a href="https://github.com/azist/azos" target="_blank">Azos Wave (GitHub)</a></strong> framework
+  Generated ?[Context.App.TimeSource.UTCNow.ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture)] for ?[Context.EffectiveCallerIPEndPoint]
 <br />
-  Generated on ?[DateTime.Now]  for ?[Context.EffectiveCallerIPEndPoint]
+  Served by <strong><a href="https://github.com/azist/azos" target="_blank">AZOS (github)</a></strong>
   &nbsp;
-<br />
-&copy; ?[Context.App.Copyright]
-&nbsp;
