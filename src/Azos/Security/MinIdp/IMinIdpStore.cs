@@ -22,7 +22,7 @@ namespace Azos.Security.MinIdp
   /// The activity time span filtering performed by the store is optional as the security manager filters the dates anyway
   /// as of the calling UTC now stamp.
   /// </remarks>
-  public interface IMinIdpStore : IApplicationComponent
+  public interface IMinIdpStore
   {
     Task<MinIdpUserData> GetByIdAsync(Atom realm, string id);
     Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri);

@@ -43,7 +43,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Security\MinIdp\Server\" />
     <Folder Include="_build\" />
   </ItemGroup>
 

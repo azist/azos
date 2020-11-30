@@ -65,19 +65,31 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
     {
-      var map = await m_Server.Call(m_RemoteAddress, nameof(IMinIdpStore), id, (tx, c) => tx.Client.PostAndGetJsonMapAsync(nameof(GetByIdAsync), new { realm, id}));
+      var map = await m_Server.Call(m_RemoteAddress,
+                                    nameof(IMinIdpStore),
+                                    id,
+                                    (tx, c) => tx.Client.PostAndGetJsonMapAsync(nameof(GetByIdAsync), new { realm, id}));
+
       return JsonReader.ToDoc<MinIdpUserData>(map);
     }
 
     public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
     {
-      var map = await m_Server.Call(m_RemoteAddress, nameof(IMinIdpStore), sysToken, (tx, c) => tx.Client.PostAndGetJsonMapAsync(nameof(GetBySysAsync), new { realm, sysToken }));
+      var map = await m_Server.Call(m_RemoteAddress,
+                                    nameof(IMinIdpStore),
+                                    sysToken,
+                                    (tx, c) => tx.Client.PostAndGetJsonMapAsync(nameof(GetBySysAsync), new { realm, sysToken }));
+
       return JsonReader.ToDoc<MinIdpUserData>(map);
     }
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
     {
-      var map = await m_Server.Call(m_RemoteAddress, nameof(IMinIdpStore), uri, (tx, c) => tx.Client.PostAndGetJsonMapAsync(nameof(GetByUriAsync), new { realm, uri }));
+      var map = await m_Server.Call(m_RemoteAddress,
+                                    nameof(IMinIdpStore),
+                                    uri,
+                                    (tx, c) => tx.Client.PostAndGetJsonMapAsync(nameof(GetByUriAsync), new { realm, uri }));
+
       return JsonReader.ToDoc<MinIdpUserData>(map);
     }
   }
