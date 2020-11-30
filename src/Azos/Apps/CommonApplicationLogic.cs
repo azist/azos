@@ -34,6 +34,8 @@ namespace Azos.Apps
 
     public const string CONFIG_NAME_ATTR = "name";
     public const string CONFIG_ID_ATTR = "id";
+    public const string CONFIG_COPYRIGHT_ATTR = "copyright";
+    public const string CONFIG_DESCRIPTION_ATTR = "description";
     public const string CONFIG_UNIT_TEST_ATTR = "unit-test";
     public const string CONFIG_FORCE_INVARIANT_CULTURE_ATTR = "force-invariant-culture";
     public const string CONFIG_ENVIRONMENT_NAME_ATTR = "environment-name";
@@ -212,6 +214,12 @@ namespace Azos.Apps
 
     /// <summary>Provides access to "environment-name" attribute, e.g. "DEV" vs "PROD"</summary>
     public string EnvironmentName => m_ConfigRoot.AttrByName(CONFIG_ENVIRONMENT_NAME_ATTR).Value;
+
+    /// <summary>Provides access to "copyright" attribute, e.g. "(c) 2021 Azist Group"</summary>
+    public string Copyright => m_ConfigRoot.AttrByName(CONFIG_COPYRIGHT_ATTR).Value.Default("2021 Azist Group");
+
+    /// <summary>Provides access to "description" attribute, e.g. "xyz application"</summary>
+    public string Description => m_ConfigRoot.AttrByName(CONFIG_DESCRIPTION_ATTR).Value.Default("AZ OS application");
 
     /// <summary>True to force app container set process-wide invariant culture on boot</summary>
     public virtual bool ForceInvariantCulture => m_ConfigRoot.AttrByName(CONFIG_FORCE_INVARIANT_CULTURE_ATTR).ValueAsBool();

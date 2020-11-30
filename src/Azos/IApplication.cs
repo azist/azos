@@ -38,6 +38,16 @@ namespace Azos
      string EnvironmentName { get; }
 
      /// <summary>
+     /// Provides copyright string for the application
+     /// </summary>
+     string Copyright {  get; }
+
+     /// <summary>
+     /// Provides short app description which may be publicly visible
+     /// </summary>
+     string Description { get; }
+
+     /// <summary>
      /// Returns the ConsolePort used by this application, or null if this application does not have any specific console ports assigned
      /// </summary>
      IO.Console.IConsolePort ConsolePort { get;}

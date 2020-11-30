@@ -213,9 +213,11 @@
 #[extraStyles()]
 
 #[defaultFooter()]
-&copy; 2020&nbsp;&nbsp;Azist Group
+?[Context.App.Name] / ?[Context.App.Description]
 <br />
-        This site is served by the <strong><a href="https://github.com/azist/azos" target="_blank">Azos Wave (GitHub)</a></strong> framework
+  This site is served by the <strong><a href="https://github.com/azist/azos" target="_blank">Azos Wave (GitHub)</a></strong> framework
 <br />
-        Generated on ?[DateTime.Now]  for ?[Context.EffectiveCallerIPEndPoint]
+  Generated on ?[DateTime.Now]  for ?[Context.EffectiveCallerIPEndPoint]
   &nbsp;
+<br />
+&copy; ?[Context.App.Copyright]

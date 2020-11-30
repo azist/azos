@@ -115,6 +115,9 @@ namespace Azos.Apps
 
         public bool ForceInvariantCulture { get { return false; } }
 
+        public string Description => "NOP Application";
+
+        public string Copyright => "2020 Framework";
 
         public IO.Console.IConsolePort ConsolePort => null;
 

@@ -63,6 +63,10 @@ namespace Azos.Apps
 
         public virtual IO.Console.IConsolePort ConsolePort { get; set; }
 
+        public virtual string Copyright { get; set; }
+
+        public virtual string Description { get; set;}
+
         public virtual bool IsUnitTest { get; set; }
 
         public virtual string EnvironmentName { get; set; }
