@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 using Azos.Apps;
 using Azos.Client;
@@ -15,17 +16,60 @@ using Azos.Data;
 using Azos.Web;
 using Azos.Instrumentation;
 using Azos.Serialization.JSON;
+using Azos.Log;
 
 namespace Azos.Security.MinIdp
 {
   /// <summary>
   /// Implements IMinIdpStore by calling a remote MinIdpServer using Web
   /// </summary>
-  public sealed class WebClientStore : DaemonWithInstrumentation<MinIdpSecurityManager>, IMinIdpStoreImplementation
+  public sealed class WebClientStore : DaemonWithInstrumentation<MinIdpSecurityManager>, IMinIdpStoreImplementation, IExternallyCallable
   {
     public const string CONFIG_SERVER_SECTION = "server";
 
-    public WebClientStore(MinIdpSecurityManager dir) : base(dir) { }
+    [SystemAdministratorPermission(AccessLevel.ADVANCED)]
+    public sealed class Exec : ExternalCallRequest<WebClientStore>
+    {
+      public Exec(WebClientStore ctx) : base(ctx){ }
+
+      public IConfigSectionNode Script { get; set;}
+
+      public override void Configure(IConfigSectionNode node)
+      {
+        Script = node;
+      }
+
+      [Config] public Atom Realm {  get ; set;}
+
+      public override ExternalCallResponse Describe() => new ExternalCallResponse(ContentType.TEXT, "Executes an MinIdp management script");
+
+      public override ExternalCallResponse Execute()
+      {
+        Script.NonEmpty(nameof(Script));
+
+        var results = new List<(string step, bool ok, string message)>();
+        foreach(var step in Script.Children)
+        {
+          try
+          {
+            var trace = Context.ExecCommand(Realm, step).GetAwaiter().GetResult();
+            results.Add((step.RootPath, true, trace.ToJson(JsonWritingOptions.PrettyPrintASCII)));
+          }
+          catch(Exception error)
+          {
+            results.Add((step.RootPath, false, error.ToMessageWithType()));
+          }
+        }
+
+        return new ExternalCallResponse(ContentType.JSON, new {OK = true, results});
+      }
+    }
+
+
+    public WebClientStore(MinIdpSecurityManager dir) : base(dir)
+    {
+      m_Handler = new ExternalCallHandler<WebClientStore>(App, this, null, typeof(Exec));
+    }
 
     protected override void Destructor()
     {
@@ -33,12 +77,14 @@ namespace Azos.Security.MinIdp
       base.Destructor();
     }
 
+    private ExternalCallHandler<WebClientStore> m_Handler;
     private HttpService m_Server;
 
     private string m_RemoteAddress;
 
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
+    public IExternalCallHandler GetExternalCallHandler() => m_Handler;
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
     public override bool InstrumentationEnabled { get; set; }
@@ -68,7 +114,7 @@ namespace Azos.Security.MinIdp
       var map = await m_Server.Call(m_RemoteAddress,
                                     nameof(IMinIdpStore),
                                     id,
-                                    (tx, c) => tx.Client.PostAndGetJsonMapAsync(nameof(GetByIdAsync), new { realm, id}));
+                                    (tx, c) => tx.Client.PostAndGetJsonMapAsync("byid", new { realm, id}));
 
       return JsonReader.ToDoc<MinIdpUserData>(map);
     }
@@ -78,7 +124,7 @@ namespace Azos.Security.MinIdp
       var map = await m_Server.Call(m_RemoteAddress,
                                     nameof(IMinIdpStore),
                                     sysToken,
-                                    (tx, c) => tx.Client.PostAndGetJsonMapAsync(nameof(GetBySysAsync), new { realm, sysToken }));
+                                    (tx, c) => tx.Client.PostAndGetJsonMapAsync("bysys", new { realm, sysToken }));
 
       return JsonReader.ToDoc<MinIdpUserData>(map);
     }
@@ -88,9 +134,35 @@ namespace Azos.Security.MinIdp
       var map = await m_Server.Call(m_RemoteAddress,
                                     nameof(IMinIdpStore),
                                     uri,
-                                    (tx, c) => tx.Client.PostAndGetJsonMapAsync(nameof(GetByUriAsync), new { realm, uri }));
+                                    (tx, c) => tx.Client.PostAndGetJsonMapAsync("byuri", new { realm, uri }));
 
       return JsonReader.ToDoc<MinIdpUserData>(map);
     }
+
+    public async Task<IEnumerable<object>> ExecCommand(Atom realm, IConfigSectionNode step)
+    {
+      var stepSrc = step.NonEmpty(nameof(step)).ToLaconicString();
+
+      var shards = m_Server.GetEndpointsForAllShards(m_RemoteAddress, nameof(IMinIdpStore));
+
+      //broadcast command to all shards
+      var result = new List<object>();
+      foreach(var shard in shards)
+      {
+        try
+        {
+          var call = await shard.Call((http, ct) => http.Client.PostAndGetJsonMapAsync("exec", new { realm, stepSrc }));
+          result.Add(call);
+        }
+        catch(Exception error)
+        {
+          var e = new WrappedExceptionData(error, false, true);
+          result.Add(e);
+        }
+      }
+
+      return result;
+    }
+
   }
 }

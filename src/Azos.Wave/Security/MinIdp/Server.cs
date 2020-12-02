@@ -6,7 +6,9 @@
 
 using System;
 using System.Threading.Tasks;
-
+using Azos.Conf;
+using Azos.Instrumentation;
+using Azos.Wave;
 using Azos.Wave.Mvc;
 
 namespace Azos.Security.MinIdp
@@ -15,34 +17,56 @@ namespace Azos.Security.MinIdp
   /// Controller for serving IMinIdpStore remotely
   /// </summary>
   [NoCache]
-
-  //Do we need any permissions here at all??
-  //[IdpPermission] <---- do we need this permission?? TBD
-  [AuthenticatedUserPermission]
+  [IdpPermission]
   [ApiControllerDoc(
     BaseUri = "/minidp/server",
     Connection = "default/keep alive",
     Title = "MinIdp Server",
     Authentication = "Token/Default",
     Description = "Provides API for accessing MinIdp store remotely",
-    TypeSchemas = new[] { typeof(AuthenticatedUserPermission) }
+    TypeSchemas = new[] { typeof(IdpPermission) }
   )]
-  [Release(ReleaseType.Preview, 2020, 11, 29, "Initial Release", Description = "Preview release of API")]
+  [Release(ReleaseType.Preview, 2020, 12, 01, "Initial Release", Description = "Preview release of API")]
   public sealed class Server : ApiProtocolController
   {
     private MinIdpSecurityManager Secman
      => (App.SecurityManager as MinIdpSecurityManager).NonNull("App.SecMan is not {0}".Args(nameof(MinIdpSecurityManager)));
 
-    [Action]
-    public async Task<object> GetByIdAsync(Atom realm, string id)
+    [Action(Name = "byid")]
+    public async Task<object> GetById(Atom realm, string id)
      => this.GetLogicResult(await Secman.Store.GetByIdAsync(realm, id));
 
-    [Action]
-    public async Task<object> GetBySysAsync(Atom realm, string sysToken)
+    [Action(Name = "bysys")]
+    public async Task<object> GetBySys(Atom realm, string sysToken)
     => this.GetLogicResult(await Secman.Store.GetBySysAsync(realm, sysToken));
 
-    [Action]
-    public async Task<object> GetByUriAsync(Atom realm, string uri)
+    [Action(Name = "byuri")]
+    public async Task<object> GetByUri(Atom realm, string uri)
     => this.GetLogicResult(await Secman.Store.GetByUriAsync(realm, uri));
+
+    [ActionOnPost(Name = "exec")]
+    public void ExecCommand(Atom realm, string cmd)
+    {
+      IConfigSectionNode command = null;
+
+      try
+      {
+        command = cmd.NonBlank(nameof(cmd))
+                     .AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+      }
+      catch(Exception error)
+      {
+        throw HTTPStatusException.BadRequest_400("Bad command syntax: " + error.ToMessageWithType());
+      }
+
+      var callable = (Secman.Store as IExternallyCallable).NonNull("Is not {0}".Args(nameof(IExternallyCallable)));
+      var handler = callable.GetExternalCallHandler();
+      var got = handler.HandleRequest(command);
+
+      WorkContext.Response.StatusCode = got.StatusCode;
+      WorkContext.Response.StatusDescription = got.StatusDescription;
+      WorkContext.Response.ContentType = got.ContentType;
+      WorkContext.Response.Write(got.Content);
+    }
   }
 }
