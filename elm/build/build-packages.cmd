@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.5.7
-set HEADLINE=Service release, ApiDoc fixes 
+set VER=1.5.8
+set HEADLINE=MinIdp pre-release 
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
