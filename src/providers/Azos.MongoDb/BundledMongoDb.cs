@@ -247,7 +247,12 @@ namespace Azos.Data.Access.MongoDb
         args += " --bind_ip \"{0}\"".Args(m_Mongo_bind_ip);
 
       if (m_Mongo_dbpath.IsNotNullOrWhiteSpace())
+      {
+        //20201205 DKh #378
+        IOUtils.EnsureAccessibleDirectory(m_Mongo_dbpath);
+
         args += " --dbpath \"{0}\"".Args(m_Mongo_dbpath);
+      }
 
       if (m_Mongo_quiet) args += " --quiet";
 
