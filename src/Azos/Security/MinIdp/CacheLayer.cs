@@ -17,13 +17,11 @@ namespace Azos.Security.MinIdp
   /// <summary>
   /// Provides in-memory caching wrapper for target IMinIdpStore
   /// </summary>
-  public sealed class CacheLayer : DaemonWithInstrumentation<MinIdpSecurityManager>, IMinIdpStoreImplementation
+  public sealed class CacheLayer : DaemonWithInstrumentation<IApplicationComponent>, IMinIdpStoreImplementation
   {
     public const int DEFAULT_CACHE_AGE_SEC = 30;
 
-    public CacheLayer(MinIdpSecurityManager dir) : base(dir)
-    {
-    }
+    public CacheLayer(IApplicationComponent dir) : base(dir){  }
 
     protected override void Destructor()
     {

@@ -23,7 +23,7 @@ namespace Azos.Security.MinIdp
   /// <summary>
   /// Implements IMinIdpStore by calling a remote MinIdpServer using Web
   /// </summary>
-  public sealed class WebClientStore : DaemonWithInstrumentation<MinIdpSecurityManager>, IMinIdpStoreImplementation, IExternallyCallable
+  public sealed class WebClientStore : DaemonWithInstrumentation<IApplicationComponent>, IMinIdpStoreImplementation, IExternallyCallable
   {
     public const string CONFIG_SERVER_SECTION = "server";
 
@@ -66,7 +66,7 @@ namespace Azos.Security.MinIdp
     }
 
 
-    public WebClientStore(MinIdpSecurityManager dir) : base(dir)
+    public WebClientStore(IApplicationComponent dir) : base(dir)
     {
       m_Handler = new ExternalCallHandler<WebClientStore>(App, this, null, typeof(Exec));
     }
@@ -80,8 +80,6 @@ namespace Azos.Security.MinIdp
     private ExternalCallHandler<WebClientStore> m_Handler;
     private HttpService m_Server;
 
-    private string m_RemoteAddress;
-
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
     public IExternalCallHandler GetExternalCallHandler() => m_Handler;
@@ -89,6 +87,12 @@ namespace Azos.Security.MinIdp
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
     public override bool InstrumentationEnabled { get; set; }
 
+
+    /// <summary>
+    /// Logical service address of IDP server
+    /// </summary>
+    [Config, ExternalParameter("idpServerAddress", ExternalParameterSecurityCheck.OnSet, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
+    public string IdpServerAddress { get; set; }
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
@@ -111,7 +115,7 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
     {
-      var map = await m_Server.Call(m_RemoteAddress,
+      var map = await m_Server.Call(IdpServerAddress,
                                     nameof(IMinIdpStore),
                                     id,
                                     (tx, c) => tx.Client.PostAndGetJsonMapAsync("byid", new { realm, id}));
@@ -121,7 +125,7 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
     {
-      var map = await m_Server.Call(m_RemoteAddress,
+      var map = await m_Server.Call(IdpServerAddress,
                                     nameof(IMinIdpStore),
                                     sysToken,
                                     (tx, c) => tx.Client.PostAndGetJsonMapAsync("bysys", new { realm, sysToken }));
@@ -131,7 +135,7 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
     {
-      var map = await m_Server.Call(m_RemoteAddress,
+      var map = await m_Server.Call(IdpServerAddress,
                                     nameof(IMinIdpStore),
                                     uri,
                                     (tx, c) => tx.Client.PostAndGetJsonMapAsync("byuri", new { realm, uri }));
@@ -143,7 +147,7 @@ namespace Azos.Security.MinIdp
     {
       var stepSrc = step.NonEmpty(nameof(step)).ToLaconicString();
 
-      var shards = m_Server.GetEndpointsForAllShards(m_RemoteAddress, nameof(IMinIdpStore));
+      var shards = m_Server.GetEndpointsForAllShards(IdpServerAddress, nameof(IMinIdpStore));
 
       //broadcast command to all shards
       var result = new List<object>();
