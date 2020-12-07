@@ -91,7 +91,7 @@ namespace Azos.Security.MinIdp
     /// <summary>
     /// Logical service address of IDP server
     /// </summary>
-    [Config, ExternalParameter("idpServerAddress", ExternalParameterSecurityCheck.OnSet, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
+    [Config, ExternalParameter("IdpServerAddress", ExternalParameterSecurityCheck.OnSet, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
     public string IdpServerAddress { get; set; }
 
     protected override void DoConfigure(IConfigSectionNode node)
@@ -110,6 +110,7 @@ namespace Azos.Security.MinIdp
     protected override void DoStart()
     {
       m_Server.NonNull("Not configured Server of config section `{0}`".Args(CONFIG_SERVER_SECTION));
+      IdpServerAddress.NonBlank(nameof(IdpServerAddress));
       base.DoStart();
     }
 
