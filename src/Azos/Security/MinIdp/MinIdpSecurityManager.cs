@@ -18,7 +18,7 @@ namespace Azos.Security.MinIdp
   /// <summary>
   /// MinIdp Provides security manager implementation that authenticates and authorizes users via IMinIdpStore implementation
   /// </summary>
-  public class MinIdpSecurityManager : DaemonWithInstrumentation<IApplicationComponent>, ISecurityManagerImplementation
+  public class MinIdpSecurityManager : DaemonWithInstrumentation<IApplicationComponent>, ISecurityManagerImplementation, IMinIdpStoreContainer
   {
     #region CONSTS
     public const string CONFIG_RIGHTS_SECTION = Rights.CONFIG_ROOT_SECTION;

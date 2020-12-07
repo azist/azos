@@ -29,6 +29,15 @@ namespace Azos.Security.MinIdp
     Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken);
   }
 
+
+  /// <summary>
+  /// Entities which have IMinIdpStore
+  /// </summary>
+  public interface IMinIdpStoreContainer
+  {
+    IMinIdpStore Store { get; }
+  }
+
   /// <summary>
   /// Outlines the contract for stores serving the underlying IDP data for MinIdp (Minimum identity provider)
   /// </summary>

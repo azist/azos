@@ -33,17 +33,39 @@ namespace Azos.Security.MinIdp
     private MinIdpSecurityManager Secman
      => (App.SecurityManager as MinIdpSecurityManager).NonNull("App.SecMan is not {0}".Args(nameof(MinIdpSecurityManager)));
 
+    private IMinIdpStore Store
+    {
+      get
+      {
+        IMinIdpStoreContainer container = Secman;
+        while(true)
+        {
+          var result = container.Store;
+
+          result.NonNull("Configuration error");
+
+          if (result is IMinIdpStoreContainer next)
+          {
+            container = next;
+            continue;
+          }
+
+          return result;
+        }
+      }
+    }
+
     [Action(Name = "byid")]
     public async Task<object> GetById(Atom realm, string id)
-     => this.GetLogicResult(await Secman.Store.GetByIdAsync(realm, id));
+     => this.GetLogicResult(await Store.GetByIdAsync(realm, id));
 
     [Action(Name = "bysys")]
     public async Task<object> GetBySys(Atom realm, string sysToken)
-    => this.GetLogicResult(await Secman.Store.GetBySysAsync(realm, sysToken));
+    => this.GetLogicResult(await Store.GetBySysAsync(realm, sysToken));
 
     [Action(Name = "byuri")]
     public async Task<object> GetByUri(Atom realm, string uri)
-    => this.GetLogicResult(await Secman.Store.GetByUriAsync(realm, uri));
+    => this.GetLogicResult(await Store.GetByUriAsync(realm, uri));
 
     [ActionOnPost(Name = "exec")]
     public void ExecCommand(Atom realm, string cmd)
@@ -60,7 +82,7 @@ namespace Azos.Security.MinIdp
         throw HTTPStatusException.BadRequest_400("Bad command syntax: " + error.ToMessageWithType());
       }
 
-      var callable = (Secman.Store as IExternallyCallable).NonNull("Is not {0}".Args(nameof(IExternallyCallable)));
+      var callable = (Store as IExternallyCallable).NonNull("Is not {0}".Args(nameof(IExternallyCallable)));
       var handler = callable.GetExternalCallHandler();
       var got = handler.HandleRequest(command);
 

@@ -58,7 +58,7 @@ namespace Azos.Data.Access.MongoDb.Client
       var first = assignments.NonNull(nameof(assignments)).FirstOrDefault();
       if (!first.IsAssigned) throw new ClientException(StringConsts.MONGO_CLIENT_CALL_ASSIGMENT_ERROR.Args("No assignments provided"));
 
-      var service = first.Endpoint.Service as IHttpService;
+      var service = first.Endpoint.Service as IMongoDbService;
       if (service==null) throw new ClientException(StringConsts.MONGO_CLIENT_CALL_ASSIGMENT_ERROR.Args("Wrong service type assignments"));
 
       if (!assignments.All(a => a.Endpoint.Service == service &&
