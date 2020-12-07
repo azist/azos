@@ -228,6 +228,18 @@ namespace Azos.Security.MinIdp
 
     private void checkRootAccess()
     {
+      if (!Running) return;
+
+      var dpup = Access(tx => { try{ tx.Db.Ping(); return true; }catch{ return false; }} );
+
+      if (!dpup && Running)
+      {
+        Task.Delay(App.Random.NextScaledRandomInteger(50, 250))
+            .ContinueWith(a => checkRootAccess());
+        return;
+      }
+
+
       if (RootRealm.IsZero ||
           RootLogin.IsNullOrWhiteSpace() ||
           RootPwdVector.IsNullOrWhiteSpace()) return;
