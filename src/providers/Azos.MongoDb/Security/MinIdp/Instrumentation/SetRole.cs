@@ -55,7 +55,7 @@ namespace Azos.Security.MinIdp.Instrumentation
         role.Set(new BSONStringElement(BsonDataModel.FLD_RIGHTS, Rights.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact)));
         role.Set(new BSONDateTimeElement(BsonDataModel.FLD_CREATEUTC, Context.App.TimeSource.UTCNow));
         var cr = crole.Save(role);
-        Aver.IsNull(cr.WriteErrors, cr.WriteErrors.First().Message);
+        Aver.IsNull(cr.WriteErrors, cr.WriteErrors?.FirstOrDefault().Message);
         return cr;
       });
       return crud;

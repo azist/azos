@@ -95,7 +95,7 @@ namespace Azos.Security.MinIdp.Instrumentation
         user.Set(new BSONStringElement(BsonDataModel.FLD_NOTE, Note));
 
         var cr = cusr.Save(user);
-        Aver.IsNull(cr.WriteErrors, cr.WriteErrors.First().Message);
+        Aver.IsNull(cr.WriteErrors, cr.WriteErrors?.FirstOrDefault().Message);
         return cr;
       });
       return crud;

@@ -38,7 +38,7 @@ namespace Azos.Security.MinIdp.Instrumentation
         var crole = tx.Db[BsonDataModel.GetCollectionName(this.Realm, BsonDataModel.COLLECTION_LOGIN)];
 
         var cr = crole.DeleteOne(Query.ID_EQ_String(this.Id));
-        Aver.IsNull(cr.WriteErrors, cr.WriteErrors.First().Message);
+        Aver.IsNull(cr.WriteErrors, cr.WriteErrors?.FirstOrDefault().Message);
         return cr;
       });
 
