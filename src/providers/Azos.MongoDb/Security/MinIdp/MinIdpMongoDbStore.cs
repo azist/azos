@@ -151,7 +151,7 @@ namespace Azos.Security.MinIdp
       var login = await fetch(realm, BsonDataModel.COLLECTION_LOGIN, Query.ID_EQ_String(id));
       if (login==null) return null;
 
-      var result = new MinIdpUserData();
+      var result = new MinIdpUserData{ Realm = realm };
       BsonDataModel.ReadLogin(login, result);
       if (result.SysId==0) return null;
 
@@ -180,7 +180,7 @@ namespace Azos.Security.MinIdp
       var user = await fetch(realm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(sysId));
       if (user == null) return null;
 
-      var result = new MinIdpUserData();
+      var result = new MinIdpUserData{ Realm = realm };
       BsonDataModel.ReadUser(user, result);
 
       if (result.Role.IsNotNullOrWhiteSpace())
