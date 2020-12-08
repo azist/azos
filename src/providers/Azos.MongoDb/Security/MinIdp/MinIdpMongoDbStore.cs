@@ -219,43 +219,74 @@ namespace Azos.Security.MinIdp
       m_Mongo.NonNull("Not configured Mongo of config section `{0}`".Args(CONFIG_MONGO_SECTION));
       m_RemoteAddress.NonBlank("RemoteAddress string");
 
-      checkRootAccess();
+      var rel = Guid.NewGuid();
+      checkRootAccess(rel);
     }
 
     protected override void DoSignalStop() { }
 
     protected override void DoWaitForCompleteStop() { }
 
-    private void checkRootAccess()
+    private void checkRootAccess(Guid rel)
+    {
+      try
+      {
+        checkRootAccessUnsafe(rel);
+      }
+      catch(Exception error)
+      {
+        WriteLog(Log.MessageType.CriticalAlert,
+                nameof(checkRootAccess),
+                "Operation leaked: " + error.ToMessageWithType(),
+                related: rel,
+                error: error);
+      }
+    }
+
+    private void checkRootAccessUnsafe(Guid rel)
     {
       if (!Running) return;
 
-      var dpup = Access(tx => { try{ tx.Db.Ping(); return true; }catch{ return false; }} );
+      var dbup = Access(tx => { try{ tx.Db.Ping(); return true; }catch{ return false; }} );
 
-      if (!dpup && Running)
+      if (!dbup && Running)
       {
         Task.Delay(App.Random.NextScaledRandomInteger(50, 250))
-            .ContinueWith(a => checkRootAccess());
+            .ContinueWith(a => checkRootAccess(rel));
         return;
       }
-
 
       if (RootRealm.IsZero ||
           RootLogin.IsNullOrWhiteSpace() ||
           RootPwdVector.IsNullOrWhiteSpace()) return;
 
+      WriteLog(Log.MessageType.Info,
+                 nameof(checkRootAccessUnsafe),
+                 "Min Idp db is up. Starting to check the presence of root login SID = {0}`".Args(ROOT_USER_SYSID),
+                 related: rel);
+
       var rootUser = fetch(RootRealm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(ROOT_USER_SYSID)).GetAwaiter().GetResult();//sync call;
       if (rootUser == null)
       {
-        var rel = Guid.NewGuid();
-
         WriteLog(Log.MessageType.Notice,
-                 nameof(checkRootAccess),
+                 nameof(checkRootAccessUnsafe),
                  "No root user found. Creating root user SID = {0} LOGIN = `{1}`".Args(ROOT_USER_SYSID, RootLogin),
                  related: rel);
 
         makeRootLogin(rel);
-     }
+
+        WriteLog(Log.MessageType.Notice,
+                 nameof(checkRootAccessUnsafe),
+                 "Root user created".Args(ROOT_USER_SYSID, RootLogin),
+                 related: rel);
+      }
+      else
+      {
+        WriteLog(Log.MessageType.Info,
+                    nameof(checkRootAccessUnsafe),
+                    "Root login record already exists",
+                    related: rel);
+      }
     }
 
     private void makeRootLogin(Guid rel)
