@@ -43,7 +43,7 @@ namespace Azos.Security.MinIdp.Instrumentation
     Status=User //UserStatus
     StartUtc=UTC //UTCDateTime
     EndUtc=UTC //UTCDateTime
-    ScreenName='screenname' //string
+    Role='role'//string
     Name='name'//string
     Description='descr'//string
     Note='note text'//string
@@ -55,13 +55,13 @@ namespace Azos.Security.MinIdp.Instrumentation
       base.Validate();
 
       if (!Status.HasValue) throw new SecurityException("Missing `$Status`") { Code = -2001 };
-      if (Role.IsNullOrWhiteSpace()) throw new SecurityException("Missing `$Role`") { Code = -2002 };
-      if (Role.Length > BsonDataModel.MAX_ID_LEN) throw new SecurityException("`$Role` is over {0}".Args(BsonDataModel.MAX_ID_LEN)) { Code = -2003 };
+      if (Status != UserStatus.System && Role.IsNullOrWhiteSpace()) throw new SecurityException("Missing `$Role` for non system users") { Code = -2002 };
+      if (Role?.Length > BsonDataModel.MAX_ID_LEN) throw new SecurityException("`$Role` is over {0}".Args(BsonDataModel.MAX_ID_LEN)) { Code = -2003 };
 
       if (Name.IsNullOrWhiteSpace()) throw new SecurityException("Missing `$Name`") { Code = -2004 };
       if (Name.Length > BsonDataModel.MAX_NAME_LEN) throw new SecurityException("`$Name` is over {0}".Args(BsonDataModel.MAX_NAME_LEN)) { Code = -2005 };
 
-      if (!Description.IsNullOrWhiteSpace())
+      if (Description.IsNotNullOrWhiteSpace())
       {
          if (Description.Length > BsonDataModel.MAX_DESCR_LEN) throw new SecurityException("`$Description` is over {0}".Args(BsonDataModel.MAX_DESCR_LEN)) { Code = -2006 };
       }
@@ -70,7 +70,7 @@ namespace Azos.Security.MinIdp.Instrumentation
       if (!StartUtc.HasValue) StartUtc = Context.App.TimeSource.UTCNow;
       if (!EndUtc.HasValue) EndUtc = StartUtc.Value.AddDays(1.1);
 
-      if (!Note.IsNullOrWhiteSpace())
+      if (Note.IsNotNullOrWhiteSpace())
       {
         if (Note.Length > BsonDataModel.MAX_NOTE_LEN) throw new SecurityException("`$Note` is over {0}".Args(BsonDataModel.MAX_NOTE_LEN)) { Code = -2007 };
       }
@@ -87,7 +87,8 @@ namespace Azos.Security.MinIdp.Instrumentation
         user.Set(new BSONDateTimeElement(BsonDataModel.FLD_CREATEUTC, Context.App.TimeSource.UTCNow));
         user.Set(new BSONDateTimeElement(BsonDataModel.FLD_STARTUTC, StartUtc.Value));
         user.Set(new BSONDateTimeElement(BsonDataModel.FLD_ENDUTC, EndUtc.Value));
-        user.Set(new BSONStringElement(BsonDataModel.FLD_ROLE, Role));
+
+        user.Set(new BSONStringElement(BsonDataModel.FLD_ROLE, Role.Default(string.Empty)));
 
         user.Set(new BSONStringElement(BsonDataModel.FLD_NAME, Name));
         user.Set(new BSONStringElement(BsonDataModel.FLD_DESCRIPTION, Description));
