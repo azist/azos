@@ -81,6 +81,7 @@ namespace Azos.Security.MinIdp
     private HttpService m_Server;
 
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
+    public override string ComponentCommonName => "minidp";
 
     public IExternalCallHandler GetExternalCallHandler() => m_Handler;
 

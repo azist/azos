@@ -47,9 +47,9 @@ namespace Azos.Security.MinIdp.Instrumentation
     {
       base.Validate();
 
-      if (SysId==0) throw new SecurityException("Missing `$SysId`") { Code = -2001 };
-      if (Password.IsNullOrWhiteSpace()) throw new SecurityException("Missing `$Password`") { Code = -2002 };
-      if (Password.Length > BsonDataModel.MAX_PWD_LEN) throw new SecurityException("`$Password` vector len is over {0}".Args(BsonDataModel.MAX_PWD_LEN)) { Code = -2003 };
+      if (SysId==0) throw new CallGuardException(GetType().Name, "SysId", "Missing `$SysId`") { Code = -2001 };
+      if (Password.IsNullOrWhiteSpace()) throw new CallGuardException(GetType().Name, "Password", "Missing `$Password`") { Code = -2002 };
+      if (Password.Length > BsonDataModel.MAX_PWD_LEN) throw new CallGuardException(GetType().Name, "Password", "`$Password` vector len is over {0}".Args(BsonDataModel.MAX_PWD_LEN)) { Code = -2003 };
 
       if (!StartUtc.HasValue) StartUtc = Context.App.TimeSource.UTCNow;
       if (!EndUtc.HasValue) EndUtc = StartUtc.Value.AddDays(1.1);
@@ -72,6 +72,7 @@ namespace Azos.Security.MinIdp.Instrumentation
         Aver.IsNull(cr.WriteErrors, cr.WriteErrors?.FirstOrDefault().Message);
         return cr;
       });
+
       return crud;
     }
 

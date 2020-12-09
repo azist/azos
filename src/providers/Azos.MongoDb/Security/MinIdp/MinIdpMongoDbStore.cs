@@ -68,6 +68,7 @@ namespace Azos.Security.MinIdp
 
 
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
+    public override string ComponentCommonName => "minidp";
 
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_SECURITY)]

@@ -43,7 +43,7 @@ namespace Azos.Security.MinIdp.Instrumentation
     protected override void Validate()
     {
       base.Validate();
-      if (Rights==null || !Rights.Exists) throw new SecurityException("Missing `$rights`") { Code = -1000 };
+      if (Rights==null || !Rights.Exists) throw new CallGuardException(GetType().Name, "Rights", "Missing `$rights`") { Code = -1000 };
     }
 
     protected override object ExecuteBody()
@@ -58,6 +58,7 @@ namespace Azos.Security.MinIdp.Instrumentation
         Aver.IsNull(cr.WriteErrors, cr.WriteErrors?.FirstOrDefault().Message);
         return cr;
       });
+
       return crud;
     }
 

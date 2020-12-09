@@ -32,7 +32,7 @@ namespace Azos.Security.MinIdp.Instrumentation
 
     protected virtual void Validate()
     {
-      if (!Realm.IsValid) throw new SecurityException("Parameter `$realm` must be a valid Atom"){ Code = -100 };
+      if (!Realm.IsValid) throw new CallGuardException(GetType().Name, "Realm", "Parameter `$realm` must be a valid Atom"){ Code = -100 };
     }
 
     protected abstract object ExecuteBody();
@@ -59,8 +59,8 @@ namespace Azos.Security.MinIdp.Instrumentation
     protected override void Validate()
     {
       base.Validate();
-      if (Id.IsNullOrWhiteSpace()) throw new SecurityException("Parameter `$id` is not set") { Code = -150 };
-      if (Id.Length > BsonDataModel.MAX_ID_LEN) throw new SecurityException("Length of `$id` is over maximum of {0}".Args(BsonDataModel.MAX_ID_LEN)) { Code = -151 };
+      if (Id.IsNullOrWhiteSpace()) throw new CallGuardException(GetType().Name, "Id",  "Parameter `$id` is not set") { Code = -150 };
+      if (Id.Length > BsonDataModel.MAX_ID_LEN) throw new CallGuardException(GetType().Name, "Id", "Length of `$id` is over maximum of {0}".Args(BsonDataModel.MAX_ID_LEN)) { Code = -151 };
     }
   }
 
@@ -78,7 +78,7 @@ namespace Azos.Security.MinIdp.Instrumentation
     protected override void Validate()
     {
       base.Validate();
-      if (Id==0) throw new SecurityException("Parameter `$id` is not set") { Code = -150 };
+      if (Id==0) throw new CallGuardException(GetType().Name, "Id", "Parameter `$id` is not set") { Code = -150 };
     }
   }
 }

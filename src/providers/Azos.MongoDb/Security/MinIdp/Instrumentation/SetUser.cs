@@ -54,16 +54,16 @@ namespace Azos.Security.MinIdp.Instrumentation
     {
       base.Validate();
 
-      if (!Status.HasValue) throw new SecurityException("Missing `$Status`") { Code = -2001 };
-      if (Status != UserStatus.System && Role.IsNullOrWhiteSpace()) throw new SecurityException("Missing `$Role` for non system users") { Code = -2002 };
-      if (Role?.Length > BsonDataModel.MAX_ID_LEN) throw new SecurityException("`$Role` is over {0}".Args(BsonDataModel.MAX_ID_LEN)) { Code = -2003 };
+      if (!Status.HasValue) throw new CallGuardException(GetType().Name, "Status", "Missing `$Status`") { Code = -2001 };
+      if (Status != UserStatus.System && Role.IsNullOrWhiteSpace()) throw new CallGuardException(GetType().Name, "Role", "Missing `$Role` for non system users") { Code = -2002 };
+      if (Role?.Length > BsonDataModel.MAX_ID_LEN) throw new CallGuardException(GetType().Name, "Role", "`$Role` is over {0}".Args(BsonDataModel.MAX_ID_LEN)) { Code = -2003 };
 
-      if (Name.IsNullOrWhiteSpace()) throw new SecurityException("Missing `$Name`") { Code = -2004 };
-      if (Name.Length > BsonDataModel.MAX_NAME_LEN) throw new SecurityException("`$Name` is over {0}".Args(BsonDataModel.MAX_NAME_LEN)) { Code = -2005 };
+      if (Name.IsNullOrWhiteSpace()) throw new CallGuardException(GetType().Name, "Name", "Missing `$Name`") { Code = -2004 };
+      if (Name.Length > BsonDataModel.MAX_NAME_LEN) throw new CallGuardException(GetType().Name, "Name", "`$Name` is over {0}".Args(BsonDataModel.MAX_NAME_LEN)) { Code = -2005 };
 
       if (Description.IsNotNullOrWhiteSpace())
       {
-         if (Description.Length > BsonDataModel.MAX_DESCR_LEN) throw new SecurityException("`$Description` is over {0}".Args(BsonDataModel.MAX_DESCR_LEN)) { Code = -2006 };
+         if (Description.Length > BsonDataModel.MAX_DESCR_LEN) throw new CallGuardException(GetType().Name, "Description", "`$Description` is over {0}".Args(BsonDataModel.MAX_DESCR_LEN)) { Code = -2006 };
       }
       else Description = Name;
 
@@ -72,7 +72,7 @@ namespace Azos.Security.MinIdp.Instrumentation
 
       if (Note.IsNotNullOrWhiteSpace())
       {
-        if (Note.Length > BsonDataModel.MAX_NOTE_LEN) throw new SecurityException("`$Note` is over {0}".Args(BsonDataModel.MAX_NOTE_LEN)) { Code = -2007 };
+        if (Note.Length > BsonDataModel.MAX_NOTE_LEN) throw new CallGuardException(GetType().Name, "Note", "`$Note` is over {0}".Args(BsonDataModel.MAX_NOTE_LEN)) { Code = -2007 };
       }
       else Note = string.Empty;
     }
@@ -98,6 +98,7 @@ namespace Azos.Security.MinIdp.Instrumentation
         Aver.IsNull(cr.WriteErrors, cr.WriteErrors?.FirstOrDefault().Message);
         return cr;
       });
+
       return crud;
     }
 
