@@ -214,7 +214,7 @@ namespace Azos.Data.Access.MongoDb.Connector
       foreach(var server in m_Servers)
         server.ManagerVisit();
 
-      //todo Dump statistics
+      //todo future: Dump statistics
     }
 
     #endregion

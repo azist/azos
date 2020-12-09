@@ -7,15 +7,14 @@
 using System;
 using System.Collections.Generic;
 
-
 using Azos.Serialization.BSON;
 
 namespace Azos.Data.Access.MongoDb.Connector
 {
   /// <summary>
   /// Represents a UNIDIRECTIONAL SINGLE-pass (no buffering) cursor returned by the Find(query) command.
-  /// The cursor needs to be closed by calling Dispose() if the eof has not been reached OR
-  /// it will auto-close on EOF. The cursor may be enumerated only once. It is NOT thread-safe
+  /// The cursor needs to be closed by calling Dispose() if the EOF has not been reached OR
+  /// it will auto-close on EOF automatically. The cursor may be enumerated only once. It is NOT thread-safe
   /// </summary>
   public sealed class Cursor : DisposableObject, IEnumerable<BSONDocument>, IEnumerator<BSONDocument>
   {
@@ -24,9 +23,9 @@ namespace Azos.Data.Access.MongoDb.Connector
     internal Cursor(Int64 id, Collection collection, Query query, BSONDocument selector, BSONDocument[] initialData)
     {
       m_ID = id;
-      m_Collection = collection;
-      m_Query = query;
-      m_Selector = selector;
+      m_Collection = collection.NonNull(nameof(collection));
+      m_Query = query.NonNull(nameof(query));
+      m_Selector = selector;//or null
 
       m_Buffered = initialData;
       m_Index = -1;
@@ -39,7 +38,7 @@ namespace Azos.Data.Access.MongoDb.Connector
 
     protected override void Destructor()
     {
-      //the Server perriodically auto-closes EOF/Disposed cursors in batches
+      //the Server periodically auto-closes EOF/Disposed cursors in batches
     }
 
     private Int64 m_ID;
@@ -58,27 +57,27 @@ namespace Azos.Data.Access.MongoDb.Connector
     /// <summary>
     /// Server-supplied cursor ID
     /// </summary>
-    public Int64 ID { get{ return m_ID;}}
+    public Int64 ID => m_ID;
 
     /// <summary>
     /// Collection that cursor is open against
     /// </summary>
-    public Collection Collection{ get{ return m_Collection;} }
+    public Collection Collection => m_Collection;
 
     /// <summary>
     /// Query that was sent to the server and resulted in this cursor
     /// </summary>
-    public Query Query{ get{ return m_Query;} }
+    public Query Query => m_Query;
 
     /// <summary>
     /// Optional selector that was issued with Query or NULL
     /// </summary>
-    public BSONDocument Selector{ get{ return m_Selector;} }
+    public BSONDocument Selector => m_Selector;
 
     /// <summary>
     /// True if EOF has been reached
     /// </summary>
-    public bool EOF{ get{return m_EOF;} }
+    public bool EOF => m_EOF;
 
 
     /// <summary>
@@ -87,67 +86,65 @@ namespace Azos.Data.Access.MongoDb.Connector
     public int FetchBy
     {
       get{ return m_FetchBy;}
-      //if fetchBy == 1, then mongoDB closes cursor after query, so we cannot do GET_MORE
-      set { m_FetchBy = value<=0?DEFAULT_FETCH_BY : value==1 ? 2 : value; }
+      //if fetchBy == 1, then mongoDB closes cursor after query, so we cannot call GET_MORE
+      set { m_FetchBy = value<=0 ? DEFAULT_FETCH_BY : value==1 ? 2 : value; }
     }
 
 
 
-    public IEnumerator<BSONDocument> GetEnumerator(){ return this; }
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() { return this; }
+    public IEnumerator<BSONDocument> GetEnumerator() => this;
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => this;
 
-                #region IEnumerator<BSONDocument>
-                  public BSONDocument Current
-                  {
-                    get { return m_Current; }
-                  }
+    #region IEnumerator<BSONDocument>
+    public BSONDocument Current => m_Current;
 
-                  object System.Collections.IEnumerator.Current
-                  {
-                    get { return this.Current; }
-                  }
+    object System.Collections.IEnumerator.Current => this.Current;
 
-                  public bool MoveNext()
-                  {
-                    if (EOF) return false;
-                    m_Index++;
-                    if (m_Index==m_Buffered.Length)
-                    {
-                       fetchNextChunk();
-                       if (EOF)
-                         return false;
+    public bool MoveNext()
+    {
+      if (EOF) return false;
 
-                       m_Index=0;
-                    }
-                    m_Current = m_Buffered[m_Index];
-                    return true;
-                  }
+      m_Index++;
 
-                  public void Reset()
-                  {
-                    throw new MongoDbConnectorException(StringConsts.CURSOR_ENUM_ALREADY_STARTED_ERROR);
-                  }
-                #endregion
-
-     #region .pvt
-
-      private void fetchNextChunk()
+      if (m_Index==m_Buffered.Length)
       {
-          EnsureObjectNotDisposed();
-          var connection = m_Collection.Server.AcquireConnection();
-          try
-          {
-            var reqId = m_Collection.Database.NextRequestID;
-            m_Buffered = connection.GetMore(reqId, this);
-            m_EOF = m_Buffered==null || m_Buffered.Length==0;
-          }
-          finally
-          {
-            connection.Release();
-          }
+          fetchNextChunk();
+          if (EOF)
+            return false;
+
+          m_Index=0;
       }
 
-     #endregion
+      m_Current = m_Buffered[m_Index];
+
+      return true;
+    }
+
+    public void Reset()
+    {
+      throw new MongoDbConnectorException(StringConsts.CURSOR_ENUM_ALREADY_STARTED_ERROR);
+    }
+    #endregion
+
+    #region .pvt
+
+    private void fetchNextChunk()
+    {
+        EnsureObjectNotDisposed();
+        var connection = m_Collection.Server.AcquireConnection();
+        try
+        {
+          var reqId = m_Collection.Database.NextRequestID;
+          m_Buffered = connection.GetMore(reqId, this);
+          m_EOF = m_Buffered==null || m_Buffered.Length==0;
+        }
+        finally
+        {
+          connection.Release();
+        }
+    }
+
+    #endregion
 
 
   }

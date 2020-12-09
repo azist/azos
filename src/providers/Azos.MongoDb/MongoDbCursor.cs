@@ -6,9 +6,11 @@
 
 using System.Collections.Generic;
 
-
 namespace Azos.Data.Access.MongoDb
 {
+  /// <summary>
+  /// Implements Cursor abstraction using Mongo db technology
+  /// </summary>
   public sealed class MongoDbCursor : Cursor
   {
     internal MongoDbCursor(Connector.Cursor cursor, IEnumerable<Doc> source) : base(source)
