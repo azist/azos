@@ -32,7 +32,7 @@ namespace Azos.Security.MinIdp.Instrumentation
 
     protected virtual void Validate()
     {
-      if (!Realm.IsValid) throw new CallGuardException(GetType().Name, "Realm", "Parameter `$realm` must be a valid Atom"){ Code = -100 };
+      if (!Realm.IsValid || Realm.IsZero) throw new CallGuardException(GetType().Name, "Realm", "Parameter `$realm` must be a valid non zero Atom"){ Code = -100 };
     }
 
     protected abstract object ExecuteBody();

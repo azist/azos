@@ -37,9 +37,9 @@ namespace Azos.Security.MinIdp.Instrumentation
     protected override object ExecuteBody()
     {
       var crud = Context.Access((tx) => {
-        var crole = tx.Db[BsonDataModel.GetCollectionName(this.Realm, BsonDataModel.COLLECTION_ROLE)];
+        var cuser = tx.Db[BsonDataModel.GetCollectionName(this.Realm, BsonDataModel.COLLECTION_USER)];
 
-        var cr = crole.DeleteOne(Query.ID_EQ_Int64(this.Id));
+        var cr = cuser.DeleteOne(Query.ID_EQ_Int64(this.Id));
         Aver.IsNull(cr.WriteErrors, cr.WriteErrors?.FirstOrDefault().Message);
         return cr;
       });
