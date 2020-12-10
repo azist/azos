@@ -30,6 +30,7 @@ namespace Azos.Sky.Chronicle.Server.Web
   public class Log : ApiProtocolController
   {
     [Action(Name = "view")]
+    [ChroniclePermission(ChronicleAccessLevel.Browse)]
     public void View(Guid? id = null, Guid? rel = null)
     {
       string esc(string s)
@@ -63,6 +64,7 @@ namespace Azos.Sky.Chronicle.Server.Web
                     ResponseContent = "JSON filter result - enumerable of `{@Message}`",
                     TypeSchemas = new[]{typeof(Message)})]
     [ActionOnPost(Name = "filter"), AcceptsJson]
+    [ChroniclePermission(ChronicleAccessLevel.Browse)]
     public async Task<object> Filter(LogChronicleFilter filter) => await ApplyFilterAsync(filter);
 
     [ApiEndpointDoc(Title = "Batch",
@@ -73,7 +75,8 @@ namespace Azos.Sky.Chronicle.Server.Web
                     ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
                     RequestBody = "JSON representation of `{@LogBatch}`",
                     ResponseContent = "Api Change Result")]
-    [ActionOnPost(Name = "batch"), AcceptsJson, ChroniclePermission(AccessLevel.VIEW_CHANGE)]
+    [ActionOnPost(Name = "batch"), AcceptsJson]
+    [ChroniclePermission(ChronicleAccessLevel.Emit)]
     public async Task<object> PostDataBatch(LogBatch batch) => await SaveNewAsync(batch);
   }
 
@@ -100,6 +103,7 @@ namespace Azos.Sky.Chronicle.Server.Web
                     ResponseContent = "JSON filter result - enumerable of `{@Datum}`",
                     TypeSchemas = new[] { typeof(Message) })]
     [ActionOnPost(Name = "filter"), AcceptsJson]
+    [ChroniclePermission(ChronicleAccessLevel.Browse)]
     public async Task<object> Filter(InstrumentationChronicleFilter filter) => await ApplyFilterAsync(filter);
 
     [ApiEndpointDoc(Title = "Batch",
@@ -110,7 +114,8 @@ namespace Azos.Sky.Chronicle.Server.Web
                     ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
                     RequestBody = "JSON representation of `{@InstrumentationBatch}`",
                     ResponseContent = "Api Change Result")]
-    [ActionOnPost(Name = "batch"), AcceptsJson, ChroniclePermission(AccessLevel.VIEW_CHANGE)]
+    [ActionOnPost(Name = "batch"), AcceptsJson]
+    [ChroniclePermission(ChronicleAccessLevel.Emit)]
     public async Task<object> PostDataBatch(InstrumentationBatch batch) => await SaveNewAsync(batch);
   }
 }

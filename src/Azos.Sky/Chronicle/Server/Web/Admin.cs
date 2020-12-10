@@ -17,7 +17,7 @@ using Azos.Wave.Mvc;
 namespace Azos.Sky.Chronicle.Server.Web
 {
   [NoCache]
-  [ChroniclePermission(AccessLevel.ADVANCED)]
+  [ChroniclePermission(ChronicleAccessLevel.Archive)]
   [ApiControllerDoc(
     BaseUri = "/chronicle/admin",
     Connection = "default/keep alive",
