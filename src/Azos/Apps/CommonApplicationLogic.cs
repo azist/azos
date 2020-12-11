@@ -127,6 +127,10 @@ namespace Azos.Apps
     {
       m_ShutdownStarted = true;
 
+      DisposeAndNull(ref m_Realm);
+      DisposeAndNull(ref m_Singletons);
+      DisposeAndNull(ref m_DefaultDependencyInjector);
+
       DisposeAndNull(ref m_NOPEventTimer);
       DisposeAndNull(ref m_DefaultTimeSource);
       DisposeAndNull(ref m_NOPSecurityManager);
@@ -137,9 +141,6 @@ namespace Azos.Apps
       DisposeAndNull(ref m_NOPModule);
       DisposeAndNull(ref m_NOPLog);
 
-      DisposeAndNull(ref m_Realm);
-      DisposeAndNull(ref m_Singletons);
-      DisposeAndNull(ref m_DefaultDependencyInjector);
       base.Destructor();
     }
     #endregion
