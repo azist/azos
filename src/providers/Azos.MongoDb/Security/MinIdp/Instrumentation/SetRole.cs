@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
 using System.Linq;
 
 using Azos.Conf;
@@ -20,8 +21,8 @@ namespace Azos.Security.MinIdp.Instrumentation
   {
     public SetRole(MinIdpMongoDbStore mongo) : base(mongo) { }
 
-    [Config]
-    public IConfigSectionNode Rights { get; set; }
+    [Config("rights")] public IConfigSectionNode Rights { get; set; }
+    [Config] public string Acl { get; set; }
 
     public override ExternalCallResponse Describe()
     => new ExternalCallResponse(ContentType.TEXT,
@@ -32,18 +33,36 @@ namespace Azos.Security.MinIdp.Instrumentation
   {
     realm='realm' //atom
     id='roleId' //string
-    rights      //config vector
+    rights      //config vector or use acl
     {
       ns{ perm{ ... } ...}
       ...
     }
+    // OR use ACL string attribute
+    acl='...laconic acl...' //config string ACL may be use in place of rights
   }
 ```");
 
     protected override void Validate()
     {
       base.Validate();
-      if (Rights==null || !Rights.Exists) throw new CallGuardException(GetType().Name, "Rights", "Missing `$rights`") { Code = -1000 };
+
+      if (Acl.IsNotNullOrWhiteSpace())
+      {
+        if (Rights != null && Rights.Exists)
+          throw new CallGuardException(GetType().Name, "Acl", "Must use either `rights{}` or `$acl`") { Code = -1000 };
+
+        try
+        {
+          Rights = Acl.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+        }
+        catch(Exception error)
+        {
+          throw new CallGuardException(GetType().Name, "Acl", "Bad `$acl`: " + error.ToMessageWithType(), error) { Code = -1000 };
+        }
+      }
+
+      if (Rights==null || !Rights.Exists) throw new CallGuardException(GetType().Name, "Rights", "Missing `rights{}`") { Code = -1000 };
     }
 
     protected override object ExecuteBody()

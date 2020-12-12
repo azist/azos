@@ -64,6 +64,7 @@ namespace Azos.Security.MinIdp
     {
       if (bson[_ID] is BSONInt64Element sysid) data.SysId = (ulong)sysid.Value;
       if (bson[FLD_STATUS] is BSONInt32Element status) data.Status = (UserStatus)status.Value;
+      if (bson[FLD_ROLE] is BSONStringElement role) data.Role = role.Value;
 
       if (bson[FLD_CREATEUTC] is BSONDateTimeElement cdt) data.CreateUtc = cdt.Value;
       if (bson[FLD_STARTUTC] is BSONDateTimeElement sdt) data.StartUtc = sdt.Value;
@@ -72,6 +73,7 @@ namespace Azos.Security.MinIdp
       if (bson[FLD_NAME] is BSONStringElement name) data.Name = name.Value;
       if (bson[FLD_DESCRIPTION] is BSONStringElement descr) data.Description = descr.Value;
       if (bson[FLD_NOTE] is BSONStringElement note) data.Note = note.Value;
+
     }
 
     public static void ReadRole(BSONDocument bson, MinIdpUserData data)
