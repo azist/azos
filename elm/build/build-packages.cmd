@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.5.9.9
+set VER=1.5.9.10
 set HEADLINE=MinIdp pre-release 
 call vs2017-build-release %VER%
 
