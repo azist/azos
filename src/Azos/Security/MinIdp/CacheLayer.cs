@@ -67,8 +67,11 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
     {
-      lock(m_DataLock)
-        if (m_IdxId.TryGetValue(new realmed(realm, id), out var existing)) return existing.d;
+      if (!Running) return null;
+
+      if (MaxCacheAgeSec>0)
+        lock(m_DataLock)
+          if (m_IdxId.TryGetValue(new realmed(realm, id), out var existing)) return existing.d;
 
       var data = await m_Store.GetByIdAsync(realm, id);
 
@@ -78,8 +81,11 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
     {
-      lock (m_DataLock)
-        if (m_IdxSysToken.TryGetValue(new realmed(realm, sysToken), out var existing)) return existing;
+      if (!Running) return null;
+
+      if (MaxCacheAgeSec > 0)
+        lock (m_DataLock)
+          if (m_IdxSysToken.TryGetValue(new realmed(realm, sysToken), out var existing)) return existing;
 
       var data = await m_Store.GetBySysAsync(realm, sysToken);
 
@@ -89,8 +95,11 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
     {
-      lock (m_DataLock)
-        if (m_IdxUri.TryGetValue(new realmed(realm, uri), out var existing)) return existing;
+      if (!Running) return null;
+
+      if (MaxCacheAgeSec > 0)
+        lock (m_DataLock)
+          if (m_IdxUri.TryGetValue(new realmed(realm, uri), out var existing)) return existing;
 
       var data = await m_Store.GetByUriAsync(realm, uri);
 
@@ -100,7 +109,7 @@ namespace Azos.Security.MinIdp
 
     private void updateIndexes(Atom realm, MinIdpUserData data)
     {
-      if (data==null) return;
+      if (data==null || !Running) return;
 
       var maxAge = MaxCacheAgeSec;
       if (maxAge < 1) return;
@@ -116,7 +125,7 @@ namespace Azos.Security.MinIdp
 
     private void scan()
     {
-      const int RESCAN_MS = 1500;
+      const int RESCAN_MS = 2500;
       try
       {
         scanOnce();
@@ -154,7 +163,6 @@ namespace Azos.Security.MinIdp
           }
         }
       }
-
     }
 
     protected override void DoConfigure(IConfigSectionNode node)
