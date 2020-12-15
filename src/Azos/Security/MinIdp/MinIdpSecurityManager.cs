@@ -214,7 +214,7 @@ namespace Azos.Security.MinIdp
       var rights = Rights.None;
       if (credentials == null) credentials = BlankCredentials.Instance;
 
-      var cfg = data.Rights.AsJSONConfig(handling: ConvertErrorHandling.ReturnDefault);
+      var cfg = data.Rights.AsLaconicConfig(handling: ConvertErrorHandling.ReturnDefault);
       if (cfg == null)
         WriteLog(MessageType.Warning, nameof(MakeOkUser), "Rights could not be read for `{0}`@`{1}`".Args(credentials, Realm));
       else

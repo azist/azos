@@ -136,8 +136,6 @@ namespace Azos.Wave.Filters
 
         if (session==null)
         {
-          //20160124 DKh to use long term tokens
-          //if (onlyExisting) return;//do not create anything
           if (onlyExisting)
           {
             session = TryMakeSessionFromExistingLongTermToken(work);
