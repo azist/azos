@@ -122,7 +122,7 @@ namespace Azos.Security.MinIdp
                                     id,
                                     (tx, c) => tx.Client.PostAndGetJsonMapAsync("byid", new { realm, id}));
 
-      return JsonReader.ToDoc<MinIdpUserData>(map);
+      return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
     }
 
     public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
@@ -132,7 +132,7 @@ namespace Azos.Security.MinIdp
                                     sysToken,
                                     (tx, c) => tx.Client.PostAndGetJsonMapAsync("bysys", new { realm, sysToken }));
 
-      return JsonReader.ToDoc<MinIdpUserData>(map);
+      return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
     }
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
@@ -142,7 +142,7 @@ namespace Azos.Security.MinIdp
                                     uri,
                                     (tx, c) => tx.Client.PostAndGetJsonMapAsync("byuri", new { realm, uri }));
 
-      return JsonReader.ToDoc<MinIdpUserData>(map);
+      return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
     }
 
     public async Task<IEnumerable<object>> ExecCommand(Atom realm, IConfigSectionNode step)
