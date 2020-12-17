@@ -12,14 +12,15 @@ namespace Azos.Tests.Nub.Application
   [Runnable]
   public class SessionTests
   {
-    [Run("dcn='z d e g' norm='D,E,G,Z'")]
-    [Run("dcn='zIMa,peTer,AleX' norm='ALEX,PETER,ZIMA'")]
-    [Run("dcn='zIMa;peter,peTer;AleX' norm='ALEX,PETER,PETER,ZIMA'")]
+    [Run("dcn='z d e g' norm='d,e,g,z'")]
+    [Run("dcn='zIMa,peTer,AleX' norm='alex,peter,zima'")]
+    [Run("dcn='zIMa;peter,  peTer;AleX      ' norm='alex,peter,peter,zima'")]
     public void DataContextNorm(string dcn, string norm)
     {
       var session = new BaseSession(Guid.NewGuid(), 0);
       session.DataContextName = dcn;
-      session.GetNormalizedDataContextName();
+      var got = session.GetNormalizedDataContextName();
+      Aver.AreEqual(norm, got);
     }
 
     [Run("it=15 delay=50")]
