@@ -273,7 +273,7 @@ namespace Azos.Data
     /// <param name="tblCache">The name of a cache table</param>
     /// <param name="caching">Caching options, or null for default</param>
     /// <param name="fSave">Synchronous functor that performs backend save</param>
-    /// <param name="extraPut">Optional functor (cache, TData, PilePointer, ICacheParams) which can be used to add the piled value to other cache tables (indexes) </param>
+    /// <param name="extraPut">Optional functor (cache, TKey, TData,ICacheParams) which can be used to add the piled value to other cache tables (indexes) </param>
     /// <returns>A result of the call to `fSave` functor</returns>
     public static TSaveResult SaveThrough<TKey, TData, TSaveResult>(this ICache cache,
                                                                      TKey key,
