@@ -25,12 +25,13 @@ diverse requirements spanning modern and legacy systems.
 **Azos framework provides** a flexible uniform way of implementing a custom **security system of any level of complexity**
 as needed for a particular application, or application system such as a distributed cloud application(s).
 
-Application [Chassis](/src/Azos/Apps) provides a uniform way of implementing app-wide security system via 
-[`ISecurityManager`](ISecurityManager.cs) contract which provides the security services described below in more detail below.
+Application [Chassis](/src/Azos/Apps) defines a uniform way of implementing app-wide security system via 
+[`ISecurityManager`](ISecurityManager.cs) contract which provides the security services described in more detail below.
 
 ### Quick Overview
 Here is a quick overview how application security works in Azos.
 
+#### Sessions and Users
 In Azos, all code execution happens under a `Session` scope, even the ones that do not need session still have `NOPSession` instance for
 uniformity and simplification of design. 
 
@@ -42,8 +43,12 @@ Sessions object provides data about the user interaction session with a particul
 preferences in a session object, which can default from user. For example, scripting systems, such as `RemoteTerminal` implementations use sessions to store
 their session variable values. When user logs-in they set their principal and create session object which may be preserved between calls.
 **Session objects are always available for every call flow**, be it synchronous or 
-asynchronous (using await) ones. The session is always accessible via `Ambient.CurrentCallSession` system property which should be rarely (if ever)
-used in business code. Business code should pass sessions as a class prop/method parameter instead.
+asynchronous (using await) ones. The session is always accessible via `Ambient.CurrentCallSession { get; }` system property which should be rarely (if ever)
+used in business code. Business code should pass sessions as a class prop/method parameter instead. 
+
+In addition, `Session` exposes `DataContextName` property which is much needed in many modern applications as "tenant id" or 
+"database instance name". Your application may support access checks based on target data context, inheriting its permissions from 
+[`DataContextualPermission`](authorization/DataContextualPermission.cs)
 
 > Contrary to what many purists say, Ambient is NOT an anti-pattern if it is used judiciously for a limited set of app-wide cross-cutting
 > concerns like Session/User/CallFlow scope. Azos makes a fully conscious design decision to use it in system code, and as a matter of fact
@@ -51,21 +56,21 @@ used in business code. Business code should pass sessions as a class prop/method
 > the proper use of Ambient pattern does not make testing harder, to the contrary - it **structures application cross-cutting services 
 > much better around a predefined set of concepts available in any application**
 
-`Session` object has a [`User`](User.cs) property which embodies data about the "user" (aka "the subject") of the session. These concepts have nothing to do with
+`Session` object exposes a [`User`](User.cs) property which embodies data about the "user" (aka "the subject") of the session. These concepts have nothing to do with
 OS-provided impersonation, however you may have a system where `User` principal is set from the OS one - that is up to a concrete `ISecurityManager`
-implementation. Just like the session object which can be accessed via `Ambient` class, the subject user is accessible via `Ambient.CurrentCallUser`
+implementation. Just like the session object which can be accessed via `Ambient` class, the subject user is accessible via `Ambient.CurrentCallUser { get; }`
 however, the business code should pass-in the User and session objects via object properties/method parameters for business purposes. The Ambient
 design pattern is provided for system-level code (similar to `Thread.CurrentPrincipal`).
 
+#### Authentication
+Authentication is a process of establishing who the user is which results in setting `User` property of a session object.
+The `Session` and `User` objects are set by system-level security code, such as network authentication boundaries(Wave/Glue filters).
 
-
-
-
-
-## Authentication
-Authentication is a process of establishing who the user/caller is. Authentication is required in all applications irregardless 
-of the method and IDP (Identity Provider) used. In practice, the authentication methods require various forms of **IDP (Identity Provider) integrations**, 
+Authentication is required in all applications irregardless of the method and IDP (Identity Provider) used. In practice, the authentication methods require various forms of **IDP (Identity Provider) integrations**, 
 whilst many organizations to this day maintain their business **user records in custom-built legacy** system (e.g. SQL database tables).
+
+These security boundaries obtain a token from the caller (e.g. via Authorization header) and then transact the `ISecurityManager.Authenticate`
+method which yields a `User` object which is then typically assigned into `session.User` property.
 
 User-facing apps may authenticate users via HTML form post and maintain their identity token via a browser session
 cookie object.
@@ -74,6 +79,7 @@ The API apps typically authenticate users using `Access Tokens` (such as JWT) wh
 client-side data embedded in a token itself (and protected cryptographically), such as the ones used with 
 **claim-based identity**, or may require used of **server-side token authorities** which for additional security
 are cross-checked via a back channel for every API call.
+
 
 The number of authentication modes and methods is really unlimited, hence Azos provides an abstraction via 
 [Credentials](credentials/Credentials.cs) abstract class which has the following concretions:
@@ -103,7 +109,7 @@ interface ISecurityManager
 
 
 
-## Authorization
+#### Authorization
 From the authorization standpoint, business applications are notorious for having many security-addressable
 pieces and parts, for example: many app have their fields, buttons, and even drop-down choices  
 restricted/limited during data entry.
