@@ -2,14 +2,18 @@
 
  Back to [Documentation Index](/src/documentation-index.md)
 
-This section describes application security, authentication, authorization, permissions and cryptography.
+This section covers a broad span of application security:
+- authentication and IDP (Identity Providers)
+- authorization, access control, roles, rights and permissions
+- password management: generating, verifying, changing
+- message protection algorithms (cryptography)
 
 See also:
 - [Dependency Injection](/src/Azos/Apps/Injection)
 - [Configuration](/src/Azos/Conf)
 
-The security topic is a very broad and complex one as modern systems may need to use various 
-approaches to application security mechanisms such as authentication and authorization. 
+The security topic is a very broad and complex one as modern systems may need to employ various 
+application security mechanisms such as the ones needed for authentication and authorization. 
 Integration capabilities with other 3rd party providers is a must in almost every application these days.
 Modern business applications typically use a combination of various contemporary and legacy technologies
 as they need to span existing enterprise apps which may not be strangled/rewritten for practicality reasons.
@@ -21,8 +25,41 @@ diverse requirements spanning modern and legacy systems.
 **Azos framework provides** a flexible uniform way of implementing a custom **security system of any level of complexity**
 as needed for a particular application, or application system such as a distributed cloud application(s).
 
-The application [Chassis](/src/Azos/Apps) provides a uniform way of implementing security system via [`ISecurityManager`](ISecurityManager.cs) contract
-which provides the following main services described below.
+Application [Chassis](/src/Azos/Apps) provides a uniform way of implementing app-wide security system via 
+[`ISecurityManager`](ISecurityManager.cs) contract which provides the security services described below in more detail below.
+
+### Quick Overview
+Here is a quick overview how application security works in Azos.
+
+In Azos, all code execution happens under a `Session` scope, even the ones that do not need session still have `NOPSession` instance for
+uniformity and simplification of design. 
+
+> Do not confuse the general concept of a session with legacy "fat" session concept from the past (e.g. web sessions in classic ASP.Net). 
+> In Azos a session is a lite transient object which does not introduce any performance degradation. At the same time
+> you can make a stateful session object which gets persisted (e.g. in state database), however this pattern is rarely needed these days.
+
+Sessions object provides data about the user interaction session with a particular application, for example: one may store language, formatting and other
+preferences in a session object, which can default from user. For example, scripting systems, such as `RemoteTerminal` implementations use sessions to store
+their session variable values. When user logs-in they set their principal and create session object which may be preserved between calls.
+**Session objects are always available for every call flow**, be it synchronous or 
+asynchronous (using await) ones. The session is always accessible via `Ambient.CurrentCallSession` system property which should be rarely (if ever)
+used in business code. Business code should pass sessions as a class prop/method parameter instead.
+
+> Contrary to what many purists say, Ambient is NOT an anti-pattern if it is used judiciously for a limited set of app-wide cross-cutting
+> concerns like Session/User/CallFlow scope. Azos makes a fully conscious design decision to use it in system code, and as a matter of fact
+> most other frameworks use the same pattern under the hood (e.g. DI is based on an internal service locator). Just like the App Chassis pattern, 
+> the proper use of Ambient pattern does not make testing harder, to the contrary - it **structures application cross-cutting services 
+> much better around a predefined set of concepts available in any application**
+
+`Session` object has a [`User`](User.cs) property which embodies data about the "user" (aka "the subject") of the session. These concepts have nothing to do with
+OS-provided impersonation, however you may have a system where `User` principal is set from the OS one - that is up to a concrete `ISecurityManager`
+implementation. Just like the session object which can be accessed via `Ambient` class, the subject user is accessible via `Ambient.CurrentCallUser`
+however, the business code should pass-in the User and session objects via object properties/method parameters for business purposes. The Ambient
+design pattern is provided for system-level code (similar to `Thread.CurrentPrincipal`).
+
+
+
+
 
 
 ## Authentication
