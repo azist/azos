@@ -117,32 +117,56 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
     {
-      var map = await m_Server.Call(IdpServerAddress,
-                                    nameof(IMinIdpStore),
-                                    id,
-                                    (tx, c) => tx.Client.PostAndGetJsonMapAsync("byid", new { realm, id}));
+      try
+      {
+        var map = await m_Server.Call(IdpServerAddress,
+                                      nameof(IMinIdpStore),
+                                      id,
+                                      (tx, c) => tx.Client.PostAndGetJsonMapAsync("byid", new { realm, id}));
 
-      return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
+        return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
+      }
+      catch(WebCallException wce)
+      {
+        if (wce.HttpStatusCode == 404) return null;//404 treated as user not found
+        throw;
+      }
     }
 
     public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
     {
-      var map = await m_Server.Call(IdpServerAddress,
-                                    nameof(IMinIdpStore),
-                                    sysToken,
-                                    (tx, c) => tx.Client.PostAndGetJsonMapAsync("bysys", new { realm, sysToken }));
+      try
+      {
+        var map = await m_Server.Call(IdpServerAddress,
+                                      nameof(IMinIdpStore),
+                                      sysToken,
+                                      (tx, c) => tx.Client.PostAndGetJsonMapAsync("bysys", new { realm, sysToken }));
 
-      return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
+        return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
+      }
+      catch (WebCallException wce)
+      {
+        if (wce.HttpStatusCode == 404) return null;//404 treated as user not found
+        throw;
+      }
     }
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
     {
-      var map = await m_Server.Call(IdpServerAddress,
-                                    nameof(IMinIdpStore),
-                                    uri,
-                                    (tx, c) => tx.Client.PostAndGetJsonMapAsync("byuri", new { realm, uri }));
+      try
+      {
+        var map = await m_Server.Call(IdpServerAddress,
+                                      nameof(IMinIdpStore),
+                                      uri,
+                                      (tx, c) => tx.Client.PostAndGetJsonMapAsync("byuri", new { realm, uri }));
 
-      return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
+        return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
+      }
+      catch (WebCallException wce)
+      {
+        if (wce.HttpStatusCode == 404) return null;//404 treated as user not found
+        throw;
+      }
     }
 
     public async Task<IEnumerable<object>> ExecCommand(Atom realm, IConfigSectionNode step)

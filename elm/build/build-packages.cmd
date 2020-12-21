@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.5.11
-set HEADLINE=CacheDecorator 
+set VER=1.5.12
+set HEADLINE=MinIdp fixes 
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

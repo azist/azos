@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Data;
 using System;
 using System.Security.Principal;
 
@@ -165,10 +166,7 @@ namespace Azos.Security
     /// Confusion comes from the fact that what Microsoft calls role really is just a single named permission -
     ///  a role is a named permission set in Azos.
     /// </summary>
-    public bool IsInRole(string role)
-    {
-      return m_Status.ToString().ToUpperInvariant() == role.ToUpperInvariant();
-    }
+    public bool IsInRole(string role) => m_Status == role.AsEnum(UserStatus.Invalid);
 
     #endregion
 

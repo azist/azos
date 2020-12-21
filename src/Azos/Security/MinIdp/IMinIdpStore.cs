@@ -51,7 +51,7 @@ namespace Azos.Security.MinIdp
   /// in various public contexts as it represents and internal data tuple for MinIdp implementation
   /// </summary>
   [Bix("21AF1418-ED04-40E7-9B71-0B1EAAA8AE33")]
-  [Schema(Description = @"Sets contract for DTO - data stored in MinIdp system. This doc is not meant to be exposed 
+  [Schema(Description = @"Sets contract for DTO - data stored in MinIdp system. This doc is not meant to be exposed
   in various public contexts as it represents and internal data tuple for MinIdp implementation")]
   public sealed class MinIdpUserData : TypedDoc
   {
