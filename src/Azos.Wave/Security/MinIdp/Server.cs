@@ -90,6 +90,14 @@ namespace Azos.Security.MinIdp
       var handler = callable.GetExternalCallHandler();
       var got = handler.HandleRequest(command);
 
+      if (got == null)
+      {
+        WorkContext.Response.StatusCode = 400;
+        WorkContext.Response.StatusDescription = "Bad request: command not understood";
+        WorkContext.Response.WriteJSON(new {OK = false, cmd = command.Name});
+        return;
+      }
+
       WorkContext.Response.StatusCode = got.StatusCode;
       WorkContext.Response.StatusDescription = got.StatusDescription;
       WorkContext.Response.ContentType = got.ContentType;
