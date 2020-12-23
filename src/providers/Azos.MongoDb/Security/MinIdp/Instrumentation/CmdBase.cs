@@ -39,7 +39,8 @@ namespace Azos.Security.MinIdp.Instrumentation
 
     protected virtual ExternalCallResponse ToResponse(object result)
     {
-      var json = result.ToJson(JsonWritingOptions.PrettyPrintASCII);
+      var response = new {OK = true, data = result};
+      var json = response.ToJson(JsonWritingOptions.PrettyPrintASCII);
       return new ExternalCallResponse(ContentType.JSON, json);
     }
 

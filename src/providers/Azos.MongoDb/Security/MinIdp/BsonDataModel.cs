@@ -15,6 +15,7 @@ namespace Azos.Security.MinIdp
   /// </summary>
   internal static class BsonDataModel
   {
+    public const int FETCH_LIMIT_LIST = 1024;
     public const string _ID = Query._ID;
 
     public const int MAX_ID_LEN = 64;

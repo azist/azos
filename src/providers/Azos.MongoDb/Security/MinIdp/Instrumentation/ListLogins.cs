@@ -37,7 +37,7 @@ namespace Azos.Security.MinIdp.Instrumentation
       var bson = Context.Access((tx) => {
         var crole = tx.Db[BsonDataModel.GetCollectionName(this.Realm, BsonDataModel.COLLECTION_LOGIN)];
 
-        return crole.FindAndFetchAll(new Query());
+        return crole.FindAndFetchAll(new Query(), cursorFetchLimit: BsonDataModel.FETCH_LIMIT_LIST);
       });
 
       return bson.Select(doc => {
