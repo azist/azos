@@ -28,6 +28,7 @@ namespace Azos.Security.MinIdp
     TypeSchemas = new[] { typeof(IdpPermission) }
   )]
   [Release(ReleaseType.Preview, 2020, 12, 01, "Initial Release", Description = "Preview release of API")]
+  [Release(ReleaseType.Release, 2020, 12, 24, "Release", Description = "RTM release")]
   public sealed class Server : ApiProtocolController
   {
     private MinIdpSecurityManager Secman
@@ -58,32 +59,54 @@ namespace Azos.Security.MinIdp
     }
 
 
-
+    [ApiEndpointDoc(
+      Title = "MinIdp query ById",
+      Description = "Executed MinIdp authentication query by id",
+      RequestBody = "{realm: atom, id: string}",
+      RequestQueryParameters = new[]{"realm: atom", "id: string"},
+      Methods = new[]{"POST: json body", "GET: query params"})]
     [Action(Name = "byid")]
     public async Task<object> GetById(Atom realm, string id)
      => this.GetLogicResult(await Store.GetByIdAsync(realm, id));
 
+    [ApiEndpointDoc(
+      Title = "MinIdp query BySys",
+      Description = "Executed MinIdp authentication query by system auth token",
+      RequestBody = "{realm: atom, sysToken: string}",
+      RequestQueryParameters = new[] { "realm: atom", "sysToken: string" },
+      Methods = new[] { "POST: json body", "GET: query params" })]
     [Action(Name = "bysys")]
     public async Task<object> GetBySys(Atom realm, string sysToken)
     => this.GetLogicResult(await Store.GetBySysAsync(realm, sysToken));
 
+    [ApiEndpointDoc(
+      Title = "MinIdp query ByUri",
+      Description = "Executed MinIdp authentication query by entity Uri",
+      RequestBody = "{realm: atom, uri: string}",
+      RequestQueryParameters = new[] { "realm: atom", "uri: string" },
+      Methods = new[] { "POST: json body", "GET: query params" })]
     [Action(Name = "byuri")]
     public async Task<object> GetByUri(Atom realm, string uri)
     => this.GetLogicResult(await Store.GetByUriAsync(realm, uri));
 
+    [ApiEndpointDoc(
+      Title = "Executes MinIdp management script",
+      Description = "Executes MinIdp management script",
+      RequestBody = "{source: laconicString}",
+      Methods = new []{"POST: json body"})]
     [ActionOnPost(Name = "exec")]
-    public void ExecCommand(Atom realm, string cmd)
+    public void ExecCommand(string source)
     {
       IConfigSectionNode command = null;
 
       try
       {
-        command = cmd.NonBlank(nameof(cmd))
-                     .AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+        command = source.NonBlank(nameof(source))
+                           .AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
       }
       catch(Exception error)
       {
-        throw HTTPStatusException.BadRequest_400("Bad command syntax: " + error.ToMessageWithType());
+        throw new HTTPStatusException(400, "Bad command syntax", error.ToMessageWithType());
       }
 
       var callable = (TargetStore as IExternallyCallable).NonNull("Is not {0}".Args(nameof(IExternallyCallable)));

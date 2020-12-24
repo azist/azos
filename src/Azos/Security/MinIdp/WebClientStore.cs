@@ -41,7 +41,34 @@ namespace Azos.Security.MinIdp
 
       [Config] public Atom Realm {  get ; set;}
 
-      public override ExternalCallResponse Describe() => new ExternalCallResponse(ContentType.TEXT, "Executes an MinIdp management script");
+      public override ExternalCallResponse Describe()
+        => new ExternalCallResponse(ContentType.TEXT,
+@"#Executes an MinIdp management script
+```
+manc
+{
+  name=minidp
+  call
+  {
+    exec
+    {
+      DropRole //step 1
+      {
+        realm='realm' //atom
+        id='roleId' //string
+      }
+
+      SetRole //step 2 ...
+      {
+        realm='realm' //atom
+        id='roleId' //string
+        rights{ .... }
+      }
+    }
+  }
+}
+```
+");
 
       public override ExternalCallResponse Execute()
       {
@@ -52,7 +79,7 @@ namespace Azos.Security.MinIdp
         {
           try
           {
-            var trace = Context.ExecCommand(Realm, step).GetAwaiter().GetResult();
+            var trace = Context.ExecCommand(step).GetAwaiter().GetResult();
             results.Add((step.RootPath, true, trace.ToJson(JsonWritingOptions.PrettyPrintASCII)));
           }
           catch(Exception error)
@@ -115,61 +142,62 @@ namespace Azos.Security.MinIdp
       base.DoStart();
     }
 
-    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
+
+    private async Task<MinIdpUserData> guardedIdpAccess(Func<Task<MinIdpUserData>> body)
     {
       try
       {
-        var map = await m_Server.Call(IdpServerAddress,
-                                      nameof(IMinIdpStore),
-                                      id,
-                                      (tx, c) => tx.Client.PostAndGetJsonMapAsync("byid", new { realm, id}));
-
-        return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
+        var result = await body();
+        return result;
       }
-      catch(WebCallException wce)
+      catch(Exception cause)
       {
-        if (wce.HttpStatusCode == 404) return null;//404 treated as user not found
-        throw;
+        if (cause is WebCallException wce && wce.HttpStatusCode == 404) return null;//404 is treated as "user not found"
+
+        var error = new SecurityException(StringConsts.SECURITY_IDP_UPSTREAM_CALL_ERROR.Args(cause.ToMessageWithType()), cause);
+        WriteLog(MessageType.CriticalAlert, nameof(guardedIdpAccess), error.Message, error);
+        throw error;
       }
     }
+
+    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
+      => await guardedIdpAccess(async () =>
+          {
+              var map = await m_Server.Call(IdpServerAddress,
+                                            nameof(IMinIdpStore),
+                                            id,
+                                            (tx, c) => tx.Client
+                                                         .PostAndGetJsonMapAsync("byid", new { realm = realm, id = id}));//do NOT del prop names
+
+              return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
+          });
 
     public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
-    {
-      try
-      {
-        var map = await m_Server.Call(IdpServerAddress,
-                                      nameof(IMinIdpStore),
-                                      sysToken,
-                                      (tx, c) => tx.Client.PostAndGetJsonMapAsync("bysys", new { realm, sysToken }));
+      => await guardedIdpAccess(async () =>
+          {
+            var map = await m_Server.Call(IdpServerAddress,
+                                          nameof(IMinIdpStore),
+                                          sysToken,
+                                          (tx, c) => tx.Client
+                                                       .PostAndGetJsonMapAsync("bysys", new { realm = realm, sysToken = sysToken }));//do NOT del prop names
 
-        return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
-      }
-      catch (WebCallException wce)
-      {
-        if (wce.HttpStatusCode == 404) return null;//404 treated as user not found
-        throw;
-      }
-    }
+            return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
+          });
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
-    {
-      try
-      {
-        var map = await m_Server.Call(IdpServerAddress,
-                                      nameof(IMinIdpStore),
-                                      uri,
-                                      (tx, c) => tx.Client.PostAndGetJsonMapAsync("byuri", new { realm, uri }));
+      => await guardedIdpAccess(async () =>
+          {
+            var map = await m_Server.Call(IdpServerAddress,
+                                          nameof(IMinIdpStore),
+                                          uri,
+                                          (tx, c) => tx.Client
+                                                       .PostAndGetJsonMapAsync("byuri", new { realm = realm, uri =  uri }));//do NOT del prop names
 
-        return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
-      }
-      catch (WebCallException wce)
-      {
-        if (wce.HttpStatusCode == 404) return null;//404 treated as user not found
-        throw;
-      }
-    }
+            return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
+          });
 
-    public async Task<IEnumerable<object>> ExecCommand(Atom realm, IConfigSectionNode step)
+
+    public async Task<IEnumerable<object>> ExecCommand(IConfigSectionNode step)
     {
       var stepSrc = step.NonEmpty(nameof(step)).ToLaconicString();
 
@@ -181,7 +209,7 @@ namespace Azos.Security.MinIdp
       {
         try
         {
-          var call = await shard.Call((http, ct) => http.Client.PostAndGetJsonMapAsync("exec", new { realm, stepSrc }));
+          var call = await shard.Call((http, ct) => http.Client.PostAndGetJsonMapAsync("exec", new { source = stepSrc }));
           result.Add(call);
         }
         catch(Exception error)

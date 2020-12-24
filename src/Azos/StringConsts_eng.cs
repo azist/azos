@@ -235,6 +235,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string SECURITY_AUTHROIZATION_ERROR =
         "Authorization to '{0}' failed from '{1}'";
 
+    public const string SECURITY_IDP_UPSTREAM_CALL_ERROR =
+         "IDP upstream server call failure: {0}";
+
     public const string SECURITY_REPRESENT_CREDENTIALS_FORGOTTEN =
         "Credentials can not be represented as they are forgotten";
 
