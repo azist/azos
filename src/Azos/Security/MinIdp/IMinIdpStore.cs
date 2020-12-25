@@ -55,7 +55,7 @@ namespace Azos.Security.MinIdp
   in various public contexts as it represents and internal data tuple for MinIdp implementation")]
   public sealed class MinIdpUserData : TypedDoc
   {
-    public SysAuthToken SysToken => new SysAuthToken(Realm.Value, SysTokenData);
+    public SysAuthToken SysToken => new SysAuthToken(Realm.Value.Default("?"), SysTokenData.Default("?"));
 
     [Field] public ulong SysId        { get; set; }//tbl_user.pk <--- clustered primary key BIGINT
     [Field] public Atom  Realm        { get; set; }//tbl_user.realm  vchar(8)
