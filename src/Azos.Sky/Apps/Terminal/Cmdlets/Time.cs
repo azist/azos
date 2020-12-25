@@ -4,11 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Diagnostics;
-using System.Reflection;
 
 using Azos.Conf;
 
@@ -16,7 +12,7 @@ using Azos.Conf;
 namespace Azos.Apps.Terminal.Cmdlets
 {
 
-  public class Time : Cmdlet
+  public sealed class Time : Cmdlet
   {
     public Time(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args)
     {

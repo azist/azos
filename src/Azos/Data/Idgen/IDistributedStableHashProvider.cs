@@ -17,8 +17,9 @@ namespace Azos.Data.Idgen
   {
     /// <summary>
     /// Provides 64 bit STABLE hash suitable for distributed system application.
-    /// This hash may NOT depend on platform as it is used for storage.
-    /// Warning! DO NOT CALL object.GetHashCode() as it may not be suitable for storage
+    /// This hash may NOT depend on platform/implementation as it is used for storage and
+    /// always returns a stable predictable result for the same value regardless of platform.
+    /// Warning! DO NOT CALL object.GetHashCode() as it may not be suitable for storage (e.g. string.GetHashCode() is different in CLR 32 vs 64 bit)
     /// </summary>
     ulong GetDistributedStableHash();
   }

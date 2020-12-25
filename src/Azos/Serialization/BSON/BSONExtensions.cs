@@ -6,11 +6,32 @@
 using System;
 
 using Azos.Data;
+using Azos.Serialization.JSON;
 
 namespace Azos.Serialization.BSON
 {
   public static class BSONExtensions
   {
+
+    /// <summary>
+    /// Maps JsonDataMap to corresponding Bson document
+    /// </summary>
+    public static BSONDocument ToBson(this JsonDataMap map)
+    {
+      if (map==null) return null;
+
+      var result = new BSONDocument();
+
+      foreach (var kvp in map)
+        result.Add(kvp.Key, kvp.Value, skipNull: false, required: false);
+
+      return result;
+    }
+
+    /// <summary>
+    /// Adds BsonElement of relevant subtype for passed CLR primitive value.
+    /// Non-supported types are encoded as BsonStringElement(JSON)
+    /// </summary>
     public static BSONDocument Add(this BSONDocument document, string name, object value, bool skipNull = false, bool required = false)
     {
       if (value == null) return onNullOrEmpty(document, name, skipNull, required);
@@ -35,25 +56,25 @@ namespace Azos.Serialization.BSON
         case TypeCode.DateTime: return document.Set(new BSONDateTimeElement(name, (DateTime)value));
         case TypeCode.String:   return document.Set(new BSONStringElement(name, (string)value));
         case TypeCode.Object:
+        {
+          if (value is Guid guid)
           {
-            if (value is Guid)
-            {
-              var guid = (Guid)value;
-              if (guid == Guid.Empty) return onNullOrEmpty(document, name, skipNull, required);
-              return document.Set(new BSONBinaryElement(name, new BSONBinary(BSONBinaryType.UUID, ((Guid)value).ToNetworkByteOrder())));
-            }
-            else if (value is GDID)
-            {
-              var gdid = (GDID)value;
-              if (gdid.IsZero) return onNullOrEmpty(document, name, skipNull, required);
-              return document.Set(DataDocConverter.GDID_CLRtoBSON(name, gdid));
-            }
-            else if (value is TimeSpan)     return document.Set(new BSONInt64Element(name, ((TimeSpan)value).Ticks));
-            else if (value is BSONDocument) return document.Set(new BSONDocumentElement(name, (BSONDocument)value));
-            else if (value is byte[])       return document.Set(new BSONBinaryElement(name, new BSONBinary(BSONBinaryType.GenericBinary, (byte[])value)));
-            throw new BSONException("BSONDocument.Add(not supported object type '{0}')".Args(value.GetType().Name));
+            if (guid == Guid.Empty) return onNullOrEmpty(document, name, skipNull, required);
+            return document.Set(new BSONBinaryElement(name, new BSONBinary(BSONBinaryType.UUID, ((Guid)value).ToNetworkByteOrder())));
           }
-        default: throw new BSONException("BSONDocument.Add(not supported object type '{0}')".Args(value.GetType().Name));
+          else if (value is GDID gdid)
+          {
+            if (gdid.IsZero) return onNullOrEmpty(document, name, skipNull, required);
+            return document.Set(DataDocConverter.GDID_CLRtoBSON(name, gdid));
+          }
+          else if (value is Atom atom) return document.Set(new BSONInt64Element(name, (long)atom.ID));
+          else if (value is TimeSpan)     return document.Set(new BSONInt64Element(name, ((TimeSpan)value).Ticks));
+          else if (value is BSONDocument) return document.Set(new BSONDocumentElement(name, (BSONDocument)value));
+          else if (value is JsonDataMap jdm) return document.Set(new BSONDocumentElement(name, jdm.ToBson()));
+          else if (value is byte[])       return document.Set(new BSONBinaryElement(name, new BSONBinary(BSONBinaryType.GenericBinary, (byte[])value)));
+          throw new BSONException("BSONDocument.Add(not supported object type '{0}')".Args(value.GetType().Name));
+        }
+        default: return document.Set(new BSONStringElement(name, value.ToJson(JsonWritingOptions.CompactRowsAsMap)));
       }
     }
 

@@ -20,6 +20,18 @@ namespace Azos.Tests.Nub.DataAccess
     }
 
     [Run]
+    public void NotAssigned_GetHashCodeToStringEquals()
+    {
+      var v = default(EntityId);
+      Aver.AreEqual(0, v.GetHashCode());
+      Aver.AreEqual(0ul, v.GetDistributedStableHash());
+      Aver.AreEqual("", v.ToString());
+      Aver.AreEqual("", v.AsString);
+      Aver.IsTrue(default(EntityId).Equals(v));
+      Aver.IsTrue(default(EntityId) == v);
+    }
+
+    [Run]
     public void HasCodeEquals()
     {
       var v1 = new EntityId(Atom.Encode("sys"), Atom.Encode("tp1"), "address");

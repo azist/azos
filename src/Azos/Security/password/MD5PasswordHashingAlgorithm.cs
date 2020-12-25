@@ -68,10 +68,11 @@ namespace Azos.Security
 
     protected override MD5PasswordHashingOptions DoExtractPasswordHashingOptions(HashedPassword hash, out bool needRehash)
     {
-      needRehash = false;
+      var salt = hash["salt"].AsString(string.Empty);
+      needRehash = salt.IsNullOrWhiteSpace();
       return new MD5PasswordHashingOptions
       {
-        Salt = Convert.FromBase64String(hash["salt"].AsString())
+        Salt = Convert.FromBase64String(salt)
       };
     }
 

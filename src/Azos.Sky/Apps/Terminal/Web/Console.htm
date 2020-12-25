@@ -1,0 +1,313 @@
+﻿<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>[:USER:]@[:APP:] on `[:HOST:]`/`[:ENV:]` </title>
+  <meta name="description" content="App Remote Terminal">
+  <meta name="author" content="Azos">
+
+  <script>
+    const ABOUT_SESSION = "[:USER:]@[:APP:] on `[:HOST:]`/`[:ENV:]`";
+  </script>
+
+  <style>
+.conForeColor_Black       { color: #080800; }   .conBackColor_Black       { background-color: #080800; }
+.conForeColor_DarkBlue    { color: #2020a0; }   .conBackColor_DarkBlue    { background-color: #2020a0; }
+.conForeColor_DarkGreen   { color: #208020; }   .conBackColor_DarkGreen   { background-color: #208020; }
+.conForeColor_DarkCyan    { color: #208060; }   .conBackColor_DarkCyan    { background-color: #208060; }
+.conForeColor_DarkRed     { color: #b03020; }   .conBackColor_DarkRed     { background-color: #b03020; }
+.conForeColor_DarkMagenta { color: #842080; }   .conBackColor_DarkMagenta { background-color: #842080; }
+.conForeColor_DarkYellow  { color: #889430; }   .conBackColor_DarkYellow  { background-color: #889430; }
+.conForeColor_Gray        { color: #808080; }    .conBackColor_Gray       { background-color: #808080; }
+.conForeColor_DarkGray    { color: #606060; }    .conBackColor_DarkGray   { background-color: #606060; }
+.conForeColor_Blue        { color: #4070ff; }    .conBackColor_Blue       { background-color: #4070ff; }
+.conForeColor_Green       { color: #90ff30; }    .conBackColor_Green      { background-color: #90ff30; }
+.conForeColor_Cyan        { color: #40e0ff; }    .conBackColor_Cyan       { background-color: #40e0ff; }
+.conForeColor_Red         { color: #ff5020; }    .conBackColor_Red        { background-color: #ff5020; }
+.conForeColor_Magenta     { color: #ff70d0; }    .conBackColor_Magenta    { background-color: #ff70d0; }
+.conForeColor_Yellow      { color: #f8ff50; }    .conBackColor_Yellow     { background-color: #f8ff50; }
+.conForeColor_White       { color: white;   }    .conBackColor_White      { background-color: white;   }
+
+    html {
+     font-family: 'Lucida Console';
+     font-size: 14px;
+     line-height: 16px;
+    }
+
+    @media only screen and (max-width: 725px){
+      html {
+        font-size: 9px;
+        line-height: 10px;
+        transition: 0.25s;
+      }
+    }
+
+    pre{
+     font-family: inherit;
+    }
+
+    body{
+     font-family: inherit;
+     width: 100%;
+     margin: 0px;
+     padding: 0px;
+     background: #080800;
+     overflow: hidden;
+    }
+
+    .stdout {
+      width: 100%;
+      height: 70vh;
+      border: none;
+      box-sizing: border-box;
+      overflow-y: scroll;
+      overflow-x: auto;
+      color: #a0a890;
+      padding: 8px;
+    }
+
+
+    .stdin {
+      width: 100%;
+      height: 30vh;
+      overflow: auto;
+      padding: 2px;
+      background-color: #0a0a0a;
+      border: none;
+      box-sizing: border-box;
+      overflow-y: scroll;
+      overflow-x: auto;
+      color: #c0e090;
+      padding: 8px;
+      resize: none;
+
+      font-size: inherit;
+      line-height: inherit;
+    }
+
+    .stdin:focus{
+      border: none;
+      outline: 0;
+      box-shadow: inset 0px 0px 23px rgba(0,0,0, 0.9);
+      background-color: #0f0f0a;
+      transition: 0.3s;
+    }
+
+    .clear{
+      position: absolute;
+      z-index: 1000;
+      right: 45px;
+      top: 14px;
+      opacity: 0.35;
+      width: 75px;
+      height: 32px;
+    }
+
+    .clear:hover{
+      opacity: 0.65;
+      transition: 0.5s;
+    }
+
+    .send{
+      position: absolute;
+      z-index: 1000;
+      right: 45px;
+      bottom: 10px;
+      opacity: 0.35;
+      width: 75px;
+      height: 32px;
+    }
+
+    .send:hover{
+      opacity: 0.65;
+      transition: 0.5s;
+    }
+
+
+    hr
+    {
+      color: white;
+      height: 1px;
+      width: 100%;
+      border: none;
+      border-top: 1px dashed #505050;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .echo{
+      white-space: pre;
+      margin-left: 6px;
+      border-left: 4px solid #343434;
+      padding: 4px;
+      background-color: #101f1f;
+    }
+
+    .response{
+      white-space: pre;
+      margin: 2px;
+      border: none;
+      padding: 2px;
+    }
+
+    .error{
+      white-space: pre;
+      margin: 1px;
+      border: none;
+      color: #f87510;
+    }
+
+
+  </style>
+
+</head>
+
+<body>
+  <div class="stdout" id="stdout">
+   <span class="conForeColor_White"> App Remote Terminal &copy;2008-2020 Azos Sky</span><br>
+   <span class="conForeColor_DarkCyan">Version web 2.0 August 2020</span>
+   <span class="conForeColor_Blue">https://github.com/azist/azos</span>
+   <hr>
+   <span class="conForeColor_Gray">$&nbsp;connect...</span><br>
+   Establishing remote terminal session...
+
+  </div>
+  <textarea id="stdin" class="stdin" placeholder="Try typing 'help' then hit <F1> to send..."></textarea>
+
+  <button class="clear" onclick="cls()">CLEAR</button>
+  <button class="send" onclick="send()">SEND</button>
+
+  <script>
+    const txtStdin = document.getElementById("stdin");
+    const divStdout = document.getElementById("stdout");
+
+    let SESSION = "none yet";
+    const HISTORY = [];
+    let idxHistory = 0;
+
+    const HTML_TAGS = {'&': '&amp;', '<': '&lt;', '>': '&gt;' };
+    function rtg(tag) { return HTML_TAGS[tag] || tag; }
+    function html(str) {return str.replace(/[&<>]/g, rtg); }
+
+
+    function cls() {
+      document.getElementById('stdout').innerHTML = ABOUT_SESSION + "<br><hr><br>";
+    }
+
+    async function connect() {
+      try {
+        const response = await fetch('connection', {
+          method: 'POST',
+          cache: 'no-cache',
+          credentials: 'same-origin'
+        });
+
+        if (!response.ok) throw ` --> !OK Status [${response.status}] / '${response.statusText}'`
+
+        const got = await response.json();
+
+        SESSION = got.data.handle;
+        putResponse(JSON.stringify(got, null, 2));
+      }
+      catch (e) {
+        error(e);
+      }
+    }
+
+    async function send() {
+      const cmd = txtStdin.value;
+
+      if (cmd === "") return;
+
+      HISTORY.push(cmd);
+      idxHistory = HISTORY.length;
+
+      if (cmd === "cls") {
+        cls();
+        return;
+      }
+
+      echo(cmd);
+      try {
+        const response = await fetch('command', {
+          method: 'POST',
+          cache: 'no-cache',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ handle: SESSION, command: cmd })
+        });
+
+        if (!response.ok) throw ` --> !OK Status [${response.status}] / '${response.statusText}'`
+
+        const got = await response.json();
+      //  echo(JSON.stringify(got));
+
+        if (got.OK && got.data.success) {
+          putResponse(got.data.result, !got.data.plainText);
+        } else {
+          error(JSON.stringify(got.data, null, 2));
+        }
+      }
+      catch (e) {
+        error(e);
+      }
+    }
+
+    function echo(str) {
+      let div = document.createElement("div");
+      div.innerHTML = html(`${str}`);
+      div.className = "echo";
+
+      divStdout.appendChild(div);
+      div.scrollIntoView({block: "end", inline: "nearest", behavior: "smooth"})
+    }
+
+    function putResponse(str, asis) {
+      let div = document.createElement("div");
+      div.innerHTML = asis ? str : html(`${str}`);
+      div.className = "response";
+
+      divStdout.appendChild(div);
+      div.scrollIntoView({block: "end", inline: "nearest", behavior: "smooth"})
+    }
+
+    function error(str) {
+      let div = document.createElement("div");
+      div.innerHTML = html(`${str}`);
+      div.className = "error";
+
+      divStdout.appendChild(div);
+      div.scrollIntoView({block: "end", inline: "nearest", behavior: "smooth"})
+    }
+
+    function history(dir) {
+      if (HISTORY.length === 0) return;
+
+      idxHistory += dir;
+
+      if (idxHistory >= 0 && idxHistory < HISTORY.length) {
+        const cmd = HISTORY[idxHistory];
+        txtStdin.value = cmd;
+      }
+    }
+
+    async function run() {
+      await connect();
+    }
+
+    run();
+
+    document.onkeydown = function (e) {
+      if (e.keyCode == 13 && e.ctrlKey) send();//enter
+      else if (e.keyCode == 38 && e.ctrlKey) history(-1);//up
+      else if (e.keyCode == 40 && e.ctrlKey) history(1);//down
+      else return;
+      e.preventDefault();
+    };
+
+  </script>
+</body>
+
+</html>

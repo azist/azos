@@ -22,9 +22,7 @@ namespace Azos.Data.AST
     protected SqlBaseXlat(string name = null) : base(name) { }
     protected SqlBaseXlat(IConfigSectionNode conf): base(conf) { }
 
-#pragma warning disable 0649
     [Config] private bool m_IsCaseSensitive;
-#pragma warning restore 0649
 
     public override bool IsCaseSensitive => m_IsCaseSensitive;
 
@@ -158,20 +156,20 @@ namespace Azos.Data.AST
     }
 
 
-    public override void Visit(ValueExpression value)
+    public override object Visit(ValueExpression value)
     {
       value.NonNull(nameof(value));
 
       if (value.Value==null)
       {
         m_Sql.Append(NullLiteral);
-        return;
+        return m_Sql;
       }
 
       if (HandlePrimitiveValue(value))
       {
         m_Sql.Append(value.Value.ToString());
-        return;
+        return m_Sql;
       }
 
       var p = MakeAndAssignParameter(value);
@@ -179,16 +177,18 @@ namespace Azos.Data.AST
       m_Sql.Append(p.ParameterName);
       m_Sql.Append(ParameterCloseSpan);
       m_Parameters.Add(p);
+
+      return m_Sql;
     }
 
-    public override void Visit(ArrayValueExpression array)
+    public override object Visit(ArrayValueExpression array)
     {
       array.NonNull(nameof(array));
 
       if (array.ArrayValue == null)
       {
         m_Sql.Append(NullLiteral);
-        return;
+        return m_Sql;
       }
 
       m_Sql.Append('(');
@@ -207,9 +207,11 @@ namespace Azos.Data.AST
       }
 
       m_Sql.Append(')');
+
+      return m_Sql;
     }
 
-    public override void Visit(IdentifierExpression id)
+    public override object Visit(IdentifierExpression id)
     {
       id.NonNull(nameof(id)).Identifier.NonBlank(nameof(id.Identifier));
 
@@ -223,9 +225,11 @@ namespace Azos.Data.AST
       m_Sql.Append(IdentifierQuote);
       m_Sql.Append(id.Identifier);
       m_Sql.Append(IdentifierQuote);
+
+      return m_Sql;
     }
 
-    public override void Visit(UnaryExpression unary)
+    public override object Visit(UnaryExpression unary)
     {
       unary.NonNull(nameof(unary));
 
@@ -240,9 +244,11 @@ namespace Azos.Data.AST
       unary.Operand.Accept(this);
 
       m_Sql.Append(")");
+
+      return m_Sql;
     }
 
-    public override void Visit(BinaryExpression binary)
+    public override object Visit(BinaryExpression binary)
     {
       binary.NonNull(nameof(binary));
 
@@ -268,6 +274,8 @@ namespace Azos.Data.AST
         binary.RightOperand.Accept(this);
 
       m_Sql.Append(")");
+
+      return m_Sql;
     }
   }
 }

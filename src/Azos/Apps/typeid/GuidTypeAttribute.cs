@@ -51,9 +51,9 @@ namespace Azos.Apps
       return result;
     }
 
-    private static ConstrainedSetLookup<Type, ConstrainedSetLookup<Type, GuidTypeAttribute>> s_Cache =
-      new ConstrainedSetLookup<Type, ConstrainedSetLookup<Type, GuidTypeAttribute>>(
-        ttarget => new ConstrainedSetLookup<Type, GuidTypeAttribute>( tattr => ttarget.GetCustomAttribute(tattr, false) as GuidTypeAttribute)
+    private static FiniteSetLookup<Type, FiniteSetLookup<Type, GuidTypeAttribute>> s_Cache =
+      new FiniteSetLookup<Type, FiniteSetLookup<Type, GuidTypeAttribute>>(
+        ttarget => new FiniteSetLookup<Type, GuidTypeAttribute>( tattr => ttarget.GetCustomAttribute(tattr, false) as GuidTypeAttribute)
     );
 
 

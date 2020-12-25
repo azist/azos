@@ -19,15 +19,18 @@ namespace Azos.Data.Access.MongoDb.Connector
   /// The Azos MongoDB connector is purposely created for specific needs such as using MongoDB as a device yielding 4x-8x better throughput than the official driver.
   /// It does not support: Mongo security, sharding and replication
   /// </summary>
-  public sealed class MongoClient : ApplicationComponent, INamed, IConfigurable, IInstrumentable
+  public sealed class MongoClient : ApplicationComponent, INamed, IConfigurable, IInstrumentable, IExternallyCallable
   {
     #region CONSTS
+    public const string MONGO_BINDING = "mongo";
+    public const string APPLIANCE_BINDING = "appliance";
 
     public const string CONFIG_MONGO_CLIENT_SECTION = "mongo-db-client";
 
     public const string CONFIG_CS_ROOT_SECTION = "mongo";
     public const string CONFIG_CS_SERVER_ATTR = "server";
     public const string CONFIG_CS_DB_ATTR = "db";
+
 
     private static readonly TimeSpan MANAGEMENT_INTERVAL = TimeSpan.FromMilliseconds(4795);
     #endregion
@@ -66,6 +69,10 @@ namespace Azos.Data.Access.MongoDb.Connector
                                           "MongoClient('{0}'::{1})".Args(m_Name, Guid.NewGuid().ToString()),
                                           e => managementEventBody(),
                                           MANAGEMENT_INTERVAL);
+
+      m_ExternalCallHandler = new ExternalCallHandler<MongoClient>(App, this, null,
+          typeof(Instrumentation.DirectDb)
+        );
     }
 
     protected override void Destructor()
@@ -89,6 +96,7 @@ namespace Azos.Data.Access.MongoDb.Connector
     private Time.Event m_ManagementEvent;
     internal Registry<ServerNode> m_Servers = new Registry<ServerNode>();
 
+    private ExternalCallHandler<MongoClient> m_ExternalCallHandler;
     #endregion
 
 
@@ -116,14 +124,27 @@ namespace Azos.Data.Access.MongoDb.Connector
     public IRegistry<ServerNode> Servers { get{ return m_Servers;} }
 
     /// <summary>
-    /// Returns an existing server node or creates a new one
+    /// Returns an existing server node or creates a new one.
+    /// If the node binding is `appliance://(name)` then delegates the server resolution
+    /// to a optionally named appliance which is a module of type IMongoDbappliance loaded on app chassis
     /// </summary>
     public ServerNode this[Glue.Node node]
     {
       get
       {
-          EnsureObjectNotDisposed();
-          return m_Servers.GetOrRegister(node.Name, (n) => new ServerNode(this, n), node);
+        EnsureObjectNotDisposed();
+
+        if (node.Binding.EqualsOrdIgnoreCase(APPLIANCE_BINDING))
+        {
+          //lookup local appliance and take effective address from there
+          var name = node.Host;
+          var appliance = name.IsNotNullOrWhiteSpace() ? App.ModuleRoot.Get<IMongoDbAppliance>(name)
+                                                       : App.ModuleRoot.Get<IMongoDbAppliance>();
+          var effectiveNode = appliance.EffectiveServerNode;
+          return m_Servers.GetOrRegister(effectiveNode.Name, (nodes) => new ServerNode(this, nodes.n, nodes.a), (n: effectiveNode, a: node));
+        }
+
+        return m_Servers.GetOrRegister(node.Name, (n) => new ServerNode(this, n, new Glue.Node()), node);
       }
     }
 
@@ -134,6 +155,13 @@ namespace Azos.Data.Access.MongoDb.Connector
     {
       get { return this[Connection.DEFAUL_LOCAL_NODE];}
     }
+
+
+    /// <summary>
+    /// Returns a handler which processes external administration calls, such as the ones originating from
+    /// the application terminal
+    /// </summary>
+    public IExternalCallHandler GetExternalCallHandler() => m_ExternalCallHandler;
 
     #endregion
 
@@ -186,7 +214,7 @@ namespace Azos.Data.Access.MongoDb.Connector
       foreach(var server in m_Servers)
         server.ManagerVisit();
 
-      //todo Dump statistics
+      //todo future: Dump statistics
     }
 
     #endregion

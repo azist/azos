@@ -46,6 +46,9 @@ namespace Azos
 
     public const string EXT_STATUS_KEY_BATCH = "batch";
 
+    public const string EXT_STATUS_KEY_URI = "uri";
+    public const string EXT_STATUS_KEY_METHOD = "method";
+    public const string EXT_STATUS_KEY_CONTENT = "content";
     public const string EXT_STATUS_KEY_CONTROLLER = "controller";
     public const string EXT_STATUS_KEY_ACTION = "action";
 

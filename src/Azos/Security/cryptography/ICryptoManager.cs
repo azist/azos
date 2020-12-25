@@ -53,7 +53,7 @@ namespace Azos.Security
     /// Denotes algorithms instances that should be used for public message exchange,
     /// for example messages which roundtrip through public clients like browsers/mobile apps etc.
     /// </summary>
-    Public,
+    Public = 0,
 
     /// <summary>
     /// Denotes algorithms instances that should be used for internal in-system message exchange,

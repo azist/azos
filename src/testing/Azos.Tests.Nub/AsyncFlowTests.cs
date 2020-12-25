@@ -60,6 +60,22 @@ namespace Azos.Tests.Nub
     }
 
     [Run]
+    public async Task OneAsyncMethodFlow_DirectData_ConfigureAwait()
+    {
+      var data = new directData { Tag = "a7931" };
+      ats_Local.Value = data;
+      await Task.Delay(100).ConfigureAwait(false);
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("a7931", ats_Local.Value.Tag);
+      await Task.Delay(100).ConfigureAwait(false);
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("a7931", ats_Local.Value.Tag);
+      await Task.Delay(100).ConfigureAwait(false);
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+      Aver.AreEqual("a7931", ats_Local.Value.Tag);
+    }
+
+    [Run]
     public async Task OneAsyncMethodFlow_DirectData_Loop()
     {
       var data = new directData { Tag = "xcv" };
@@ -226,8 +242,9 @@ namespace Azos.Tests.Nub
     private volatile bool m_Signal;
 
     //this test emulates different physical originating call contexts
-    [Run]
-    public void AsyncFlowMutableParallelThreads()
+    [Run("capture=true")]
+    [Run("capture=false")]
+    public void AsyncFlowMutableParallelThreads(bool capture)
     {
       var list = new List<Thread>();
       for(var i=0; i<System.Environment.ProcessorCount*2; i++)
@@ -235,7 +252,7 @@ namespace Azos.Tests.Nub
         var t = new Thread(threadBody);
         t.IsBackground = false;
         list.Add(t);
-        t.Start();
+        t.Start(capture);
       }
 
       m_Signal = true;
@@ -243,15 +260,16 @@ namespace Azos.Tests.Nub
       list.ForEach(t => t.Join());
     }
 
-    private void threadBody() //this is needed to ensure different physical thread root caller context
+    private void threadBody(object ptrCapture) //this is needed to ensure different physical thread root caller context
     {
+      var capture = (bool)ptrCapture;
       while(!m_Signal) Thread.SpinWait(100);
 
-      var task = m1mutate();
+      var task = m1mutate(capture);
       task.GetAwaiter().GetResult();
     }
 
-    private async Task m1mutate()//every flow roots in its own PHYSICAL thread, and it still maintains proper call flow
+    private async Task m1mutate(bool capture)//every flow roots in its own PHYSICAL thread, and it still maintains proper call flow
     {
       var d1 = Ambient.Random.NextRandomWebSafeString();
       var d2 = Ambient.Random.NextRandomWebSafeString();
@@ -264,7 +282,7 @@ namespace Azos.Tests.Nub
         await Task.Yield();
         Aver.AreEqual(d1, ats_MutableParallel.Value.Tag);
 
-        await m2mutate(d2);
+        await m2mutate(d2, capture).ConfigureAwait(capture);
 
         await Task.Yield();
         //        Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
@@ -272,8 +290,11 @@ namespace Azos.Tests.Nub
       }
     }
 
-    private async Task m2mutate(string v)
+    private async Task m2mutate(string v, bool capture)
     {
+      Ambient.Random.NextRandomWebSafeString();//do something
+      await Task.Delay(10).ConfigureAwait(capture);
+      Ambient.Random.NextRandomWebSafeString();//do something
       await Task.Yield();
       ats_MutableParallel.Value = new directData { Tag = v }; //allocate completely new value
       await Task.Yield();

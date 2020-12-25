@@ -12,7 +12,6 @@ using Azos.Collections;
 
 namespace Azos.Apps.Injection
 {
-
   /// <summary>
   /// Decorates fields that should be injected with app-rooted services (for example log or data store).
   /// A call to IApplication.DependencyInjector.InjectInto(instance) performs injection.
@@ -30,6 +29,22 @@ namespace Azos.Apps.Injection
     /// When set, provides the expected type of injected instance, e.g. module type
     /// </summary>
     public Type Type { get; set; }
+
+
+    /// <summary>
+    /// When set to true (default is false), ignores system's inability to inject the dependency.
+    /// This is useful in some cases like feature-detection which can optionally rely
+    /// on a dependency then test whether certain feature was injected.
+    /// The best practice is to not use optional dependencies but for cases when a class provides
+    /// an extra service when hosting container has that extra dependency and breaking-out the logic
+    /// in multiple classes would have been impractical
+    /// </summary>
+    /// A typical example is the re-use of the same data Forms (data docs)
+    /// on both client and server tiers of the system - a client may not have all of the extra validation services
+    /// deployed, hence the form can detect the extra dependency and use it accordingly in its Validate() method
+    /// <remarks>
+    /// </remarks>
+    public bool Optional {  get; set; }
 
 
     public override string ToString()

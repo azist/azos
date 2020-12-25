@@ -11,7 +11,6 @@ using Azos.Log;
 
 namespace TestBusinessLogic
 {
-#pragma warning disable 649
   public class TextInfoReporter : IClientMsgInspector
   {
     [Inject] IApplication m_App;
@@ -59,5 +58,4 @@ namespace TestBusinessLogic
 
     public void Configure(Azos.Conf.IConfigSectionNode node) { }
   }
-#pragma warning restore 649
 }

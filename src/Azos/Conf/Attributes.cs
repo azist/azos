@@ -269,11 +269,11 @@ namespace Azos.Conf
        {
          try
          {
-           return node.ValueAsType(type, verbatim);
+           return node.ValueAsType(type, verbatim, strict: false);
          }
          catch(Exception error)
          {
-           throw new ConfigException(string.Format(StringConsts.CONFIGURATION_ATTR_APPLY_VALUE_ERROR, mname, tname, error.Message));
+           throw new ConfigException(StringConsts.CONFIGURATION_ATTR_APPLY_VALUE_ERROR.Args(mname, tname, error.Message), error);
          }
        }
 

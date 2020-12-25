@@ -31,13 +31,14 @@ namespace Azos.Data.Access
       value = null;
       return false;
     }
+
     public bool ExternalSetParameter(string name, object value, params string[] groups)
     {
       return false;
     }
 
 
-    public StoreLogLevel LogLevel { get; set;}
+    public StoreLogLevel DataLogLevel { get; set;}
 
     public void TestConnection()
     {

@@ -47,7 +47,7 @@ namespace Azos.Tests.Nub.Logging
           Aver.AreSameRef(sink, logger.Sinks.First());//now there is a sink registered which is this one
           Aver.IsTrue(sink.Running);//it was auto-started by the logger
 
-          logger.Write(MessageType.DebugB, "This is a message #1");//so this messages goes in it
+          logger.Write(new Message{Type= MessageType.DebugB, Text="This is a message #1"});//so this messages goes in it
 
           Thread.Sleep(DAEMON_FLUSH_WAIT_MS);//make sure async flush happens
 
@@ -60,7 +60,7 @@ namespace Azos.Tests.Nub.Logging
 
           sink.WaitForCompleteStop();//stop the sink
           Aver.IsFalse(sink.Running);
-          logger.Write(MessageType.Debug, "This is a message #2");
+          logger.Write(new Message{Type=MessageType.Debug, Text="This is a message #2"});
 
           Thread.Sleep(DAEMON_FLUSH_WAIT_MS);//make sure async flush happens
 
@@ -106,7 +106,7 @@ log
         var memsink = sink as MemoryBufferSink;
         Aver.IsNotNull(memsink);
 
-        logger.Write(MessageType.DebugC, "Yes #1");//so this messages goes in it
+        logger.Write(new Message{Type= MessageType.DebugC, Text = "Yes #1"});//so this messages goes in it
 
         Thread.Sleep(DAEMON_FLUSH_WAIT_MS);//make sure async flush happens
 
@@ -167,9 +167,9 @@ log
         Aver.IsNull( logger.Sinks["TheOneWhich isNotthere"]);
         Aver.IsNull( logger.Sinks[324234] );
 
-        logger.Write(MessageType.Info, "This was info");
-        logger.Write(MessageType.Debug, "Now debug");
-        logger.Write(MessageType.Error, "And now error");
+        logger.Write(new Message{Type=MessageType.Info, Text= "This was info"});
+        logger.Write(new Message{Type=MessageType.Debug,Text= "Now debug"});
+        logger.Write(new Message{Type=MessageType.Error,Text= "And now error"});
 
         Thread.Sleep(DAEMON_FLUSH_WAIT_MS);//make sure async flush happens
 

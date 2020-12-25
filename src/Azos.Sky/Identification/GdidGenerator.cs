@@ -23,7 +23,7 @@ namespace Azos.Sky.Identification
   /// <summary>
   /// Implemented by custom entities that transact GdidAuthority for getting new blocks
   /// </summary>
-  public interface IGdidAuthorityAccessor
+  public interface IGdidAuthorityAccessor : IApplicationComponent, IConfigurable
   {
     Task<GdidBlock> AllocateBlockAsync(string scopeName, string sequenceName, int blockSize, ulong? vicinity = GDID.COUNTER_MAX);
   }
@@ -353,7 +353,7 @@ namespace Azos.Sky.Identification
       if (scopeName==null)
         throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".GetSequenceInfos(scopeName=null)");
 
-      if (m_ScopePrefix!=null)
+      if (m_ScopePrefix.IsNotNullOrWhiteSpace())
         scopeName = m_ScopePrefix + scopeName;
 
       var scope = m_Scopes[scopeName];
@@ -404,14 +404,14 @@ namespace Azos.Sky.Identification
       if (scopeName==null || sequenceName==null)
         throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".GenerateOneGDID(scopeName|sequenceName=null)");
 
-      if (m_ScopePrefix!=null) scopeName = m_ScopePrefix + scopeName;
-      if (m_SequencePrefix!=null) sequenceName = m_SequencePrefix + sequenceName;
+      if (m_ScopePrefix.IsNotNullOrWhiteSpace()) scopeName = m_ScopePrefix + scopeName;
+      if (m_SequencePrefix.IsNotNullOrWhiteSpace()) sequenceName = m_SequencePrefix + sequenceName;
 
       scopeName = scopeName.Trim();
       sequenceName = sequenceName.Trim();
 
-      GdidAuthorityService.CheckNameValidity(scopeName);
-      GdidAuthorityService.CheckNameValidity(sequenceName);
+      Server.GdidAuthorityService.CheckNameValidity(scopeName);
+      Server.GdidAuthorityService.CheckNameValidity(sequenceName);
 
       var scope = m_Scopes.GetOrRegister(scopeName, (snm) => new scope{Name = snm}, scopeName);
 
@@ -493,14 +493,14 @@ namespace Azos.Sky.Identification
       if (gdidCount<=0)
         throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".TryGenerateManyConsecutiveGDIDs(gdidCount<=0)");
 
-      if (m_ScopePrefix!=null) scopeName = m_ScopePrefix + scopeName;
-      if (m_SequencePrefix!=null) sequenceName = m_SequencePrefix + sequenceName;
+      if (m_ScopePrefix.IsNotNullOrWhiteSpace()) scopeName = m_ScopePrefix + scopeName;
+      if (m_SequencePrefix.IsNotNullOrWhiteSpace()) sequenceName = m_SequencePrefix + sequenceName;
 
       scopeName = scopeName.Trim();
       sequenceName = sequenceName.Trim();
 
-      GdidAuthorityService.CheckNameValidity(scopeName);
-      GdidAuthorityService.CheckNameValidity(sequenceName);
+      Server.GdidAuthorityService.CheckNameValidity(scopeName);
+      Server.GdidAuthorityService.CheckNameValidity(sequenceName);
 
       var scope = m_Scopes.GetOrRegister(scopeName, (snm) => new scope{Name = snm}, scopeName);
 

@@ -12,7 +12,7 @@ using Azos.Glue;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
-    public class Glue : Cmdlet
+  public sealed class Glue : Cmdlet
   {
       public const string CONFIG_BINDING_ATTR = "binding";
       private const string VAL = "|<f color=yellow>{0}<f color=gray>\n" ;

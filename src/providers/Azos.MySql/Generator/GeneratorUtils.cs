@@ -81,9 +81,9 @@ namespace Azos.Data.Access.MySql
 
     public static void LogCommand(MySQLDataStoreBase store, string from, MySqlCommand cmd, Exception error)
     {
-        if (store.LogLevel==StoreLogLevel.None) return;
+        if (store.DataLogLevel==StoreLogLevel.None) return;
 
-        MessageType mt = store.LogLevel==StoreLogLevel.Debug ? MessageType.DebugSQL : MessageType.TraceSQL;
+        MessageType mt = store.DataLogLevel==StoreLogLevel.Debug ? MessageType.DebugSQL : MessageType.TraceSQL;
 
         var descr = new StringBuilder(512);
         descr.Append("Transaction: ");

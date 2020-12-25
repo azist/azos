@@ -31,6 +31,7 @@ namespace Azos.Conf
     public const  string  CONFIG_INCLUDE_PRAGMA_SESSION_SECTION = "session";
     public const  string  CONFIG_INCLUDE_PRAGMA_FILE_ATTR = "file";
     public const  string  CONFIG_INCLUDE_PRAGMA_REQUIRED_ATTR = "required";
+    public const  string  CONFIG_INCLUDE_PRAGMA_COPY_ATTR = "copy";
 
     public const  string  DEFAULT_VAR_ESCAPE = "$(###)";
     public const  string  DEFAULT_VAR_START = "$(";

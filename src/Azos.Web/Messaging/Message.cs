@@ -71,8 +71,22 @@ namespace Azos.Web.Messaging
 
 
   /// <summary>
-  /// Represents an email msg that needs to be sent
+  /// Represents a message such as email, SMS, MMS, voice call, etc..
+  /// The message gets delivered based on a "channel" field of address items, having
+  /// channel represent a named bus in a distributed messaging system. Every channel has its own addressing scheme,
+  /// backend sink and processing rules, e.g. "email" channel may be connected to default SMTP mailer, whereas
+  /// "massmx" may be sending emails via a cloud mailing account for sending email blasts.
+  /// Messages may mix multiple channels thus delivering content by various means e.g. email, voice call (e.g. Amazon Polly speech synthesis), and text at the same time.
   /// </summary>
+  /// <remarks>
+  /// Here is an example of multi-channel message addressing:
+  ///  From: {Channel: "email", Name: "Robot", Address: "nonreply@mybusiness.domain"}
+  ///  To: {Channel: "email", Name: "Customer1", Address: "customer1@theirmail.domain"},
+  ///      {Channel: "voice-call", Name: "Customer1", Address: "+15552227878"},
+  ///      {Channel: "sms", Name: "Customer1", Address: "+15551112345"}
+  ///  Subject:  Your cat Bobby
+  ///  Body:  Hello, we wanted to let you know that your cat Bobby is ready to go home. Bobby is hungry and meowing now! Thanks, The Cat Team
+  /// </remarks>
   [Serializable]
   [Arow("31B5D987-5DBF-4CE9-AFFA-6684005D2F8F")]
   public class Message : MessageEntity

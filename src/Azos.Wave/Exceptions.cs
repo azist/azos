@@ -346,7 +346,7 @@ namespace Azos.Wave
   public static class ExceptionExtensions
   {
     /// <summary>
-    /// Describes exception into JsonDataMap suitable for use as client response
+    /// Describes exception into JsonDataMap suitable for use as a client response
     /// </summary>
     public static JsonDataMap ToClientResponseJsonMap(this Exception error, bool withDump)
     {
@@ -380,7 +380,7 @@ namespace Azos.Wave
 
       if (withDump)
       {
-        result[CoreConsts.EXT_STATUS_KEY_DEV_DUMP] = new WrappedExceptionData(error, true);
+        result[CoreConsts.EXT_STATUS_KEY_DEV_DUMP] = new WrappedExceptionData(error, captureStack: true, captureExternalStatus: false);
       }
 
       return result;

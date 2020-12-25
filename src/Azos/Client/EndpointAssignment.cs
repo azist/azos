@@ -14,12 +14,43 @@ namespace Azos.Client
   /// </summary>
   public struct EndpointAssignment : IEquatable<EndpointAssignment>
   {
+    /// <summary>
+    /// Encapsulates requested (RemoteAddress, Contract, Binding, Network)
+    /// </summary>
+    public struct Request : IEquatable<Request>
+    {
+      public Request(string addr, string contr, Atom bin, Atom net)
+      {
+        RemoteAddress = addr; Contract = contr; Binding = bin; Network = net;
+      }
+      public readonly string RemoteAddress;
+      public readonly string Contract;
+      public readonly Atom Binding;
+      public readonly Atom Network;
+
+      public override int GetHashCode() => (RemoteAddress ?? "").GetHashCodeOrdIgnoreCase() ^ Network.GetHashCode();
+      public override bool Equals(object obj) => obj is Request req ? this.Equals(req) : false;
+
+      public bool Equals(Request other)
+       => this.RemoteAddress.EqualsOrdIgnoreCase(other.RemoteAddress) &&
+          this.Contract.EqualsOrdIgnoreCase(other.Contract) &&
+          this.Binding == other.Binding &&
+          this.Network == other.Network;
+
+      public static bool operator ==(Request left, Request right) => left.Equals(right);
+      public static bool operator !=(Request left, Request right) => !left.Equals(right);
+    }
+
+
+
     public EndpointAssignment(IEndpoint ep, string mappedAddr, string mappedContract)
     {
       Endpoint = ep.NonNull(nameof(ep));
       MappedRemoteAddress = mappedAddr;
       MappedContract = mappedContract;
     }
+
+    public bool IsAssigned => Endpoint != null;
 
     /// <summary>
     /// An actual endpoint assigned to handle the call. The effective address, and contract are taken from the endpoint,

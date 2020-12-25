@@ -6,10 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 using Azos.Data;
 using Azos.Platform;
+using Azos.Serialization.JSON;
 
 namespace Azos.Instrumentation
 {
@@ -17,7 +19,8 @@ namespace Azos.Instrumentation
   /// Base class for a single measurement events (singular: datum/plural: data) reported to instrumentation
   /// </summary>
   [Serializable]
-  public abstract class Datum : TypedDoc, Azos.Log.IArchiveLoggable
+  [Serialization.Bix.BixJsonHandler]
+  public abstract class Datum : AmorphousTypedDoc, Log.IArchiveLoggable
   {
     #region CONST
     public const string UNSPECIFIED_SOURCE = "*";
@@ -51,7 +54,7 @@ namespace Azos.Instrumentation
     #region Fields
     private GDID m_Gdid;
     private string m_Source;
-    private int m_Count;
+    private long m_Count;
     private DateTime m_StartUtc;
     private DateTime m_EndUtc;
     #endregion
@@ -98,7 +101,7 @@ namespace Azos.Instrumentation
     /// Returns count of measurements. This property may be gotten only if IsAggregated==true, otherwise zero is returned
     /// </summary>
     [Field, Field(isArow: true, backendName: "cnt")]
-    public int Count
+    public long Count
     {
       get => m_Count;
       protected set => m_Count = value;
@@ -117,7 +120,7 @@ namespace Azos.Instrumentation
     /// <summary>
     /// Returns archive dimensions vector which by default short-circuits to Source
     /// </summary>
-    public virtual string ArchiveDimensions => Source;
+    string Log.IArchiveLoggable.ArchiveDimensions => Source;
 
     /// <summary>
     /// True if this instance represent an unspecified source
@@ -149,6 +152,16 @@ namespace Azos.Instrumentation
     /// </summary>
     public virtual string Description => GetType().FullName;
 
+    /// <summary>
+    /// Provides a relative reference value for the datum.
+    /// It is used a scalar representation of possibly complex value for
+    /// relative comparison/reference. For example: blood pressure gauge tracks
+    /// both systolic and diastolic components, however it can override RefValue
+    /// to grade both components on a 0..1 scale taking the maximum
+    /// of the two, this way we can query instrumentation archive for various blood
+    /// pressure levels uniformly
+    /// </summary>
+    public virtual double? RefValue => ValueAsObject.AsNullableDouble();
 
     /// <summary>
     /// Provides access to value polymorphically
@@ -167,7 +180,7 @@ namespace Azos.Instrumentation
     #endregion
 
     #region Public
-    private static ConstrainedSetLookup<Type, IEnumerable<Type>> s_ViewGroupInterfaces = new ConstrainedSetLookup<Type, IEnumerable<Type>>( tp =>{
+    private static FiniteSetLookup<Type, IEnumerable<Type>> s_ViewGroupInterfaces = new FiniteSetLookup<Type, IEnumerable<Type>>( tp =>{
       var result = tp.GetInterfaces()
                      .Where(i => Attribute.IsDefined(i, typeof(InstrumentViewGroup)))
                      .ToArray();
@@ -248,6 +261,18 @@ namespace Azos.Instrumentation
     protected abstract Datum MakeAggregateInstance();
     protected virtual void AggregateEvent(Datum dat) { }
     protected virtual void SummarizeAggregation() { }
+
+
+    protected override void AddJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, Dictionary<string, object> jsonMap, string name, object value)
+    {
+      if (def?.Order == 0)
+      {
+        Serialization.Bix.BixJsonHandler.EmitJsonBixDiscriminator(this, jsonMap);
+      }
+
+      base.AddJsonSerializerField(def, options, jsonMap, name, value);
+    }
+
     #endregion
   }
 }

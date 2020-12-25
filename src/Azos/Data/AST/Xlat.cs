@@ -94,19 +94,19 @@ namespace Azos.Data.AST
     public Xlat Translator => m_Translator;
 
     /// <summary> Implements visitor pattern for ValueExpression</summary>
-    public abstract void Visit(ValueExpression value);
+    public abstract object Visit(ValueExpression value);
 
     /// <summary> Implements visitor pattern for ArrayValueExpression</summary>
-    public abstract void Visit(ArrayValueExpression array);
+    public abstract object Visit(ArrayValueExpression array);
 
     /// <summary> Implements visitor pattern for IdentifierExpression</summary>
-    public abstract void Visit(IdentifierExpression id);
+    public abstract object Visit(IdentifierExpression id);
 
     /// <summary> Implements visitor pattern for UnaryExpression</summary>
-    public abstract void Visit(UnaryExpression unary);
+    public abstract object Visit(UnaryExpression unary);
 
     /// <summary> Implements visitor pattern for BinaryExpression</summary>
-    public abstract void Visit(BinaryExpression binary);
+    public abstract object Visit(BinaryExpression binary);
   }
 
   /// <summary>

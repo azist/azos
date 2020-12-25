@@ -15,7 +15,7 @@ using Azos.Platform;
 namespace Azos.Apps.Terminal.Cmdlets
 {
 
-  public class Perf : Cmdlet
+  public sealed class Perf : Cmdlet
   {
     public const string CONFIG_DURATION_ATTR = "duration";
     public const string CONFIG_SAMPLE_ATTR = "sample";

@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,7 +50,10 @@ namespace Azos.Sky.Chronicle
     [Field(isArow: true, backendName: "af", description: "Advanced filter, which can be used for filter by archive dimensions")]
     public Expression AdvancedFilter{  get; set;}
 
-    [Inject] ILogChronicle m_Chronicle;
+    [Field(isArow: true, backendName: "crsh", description: "Cross shard, if true then server gets results from all shards")]
+    public bool CrossShard{ get; set;}
+
+    [InjectModule] ILogChronicle m_Chronicle;
 
     protected async override Task<SaveResult<IEnumerable<Message>>> DoSaveAsync()
      => new SaveResult<IEnumerable<Message>>(await m_Chronicle.GetAsync(this));

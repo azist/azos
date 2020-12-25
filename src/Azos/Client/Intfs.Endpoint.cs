@@ -19,7 +19,7 @@ namespace Azos.Client
   /// Endpoints provide a connection point for services.
   /// Each endpoint represents a specific connection type via Binding(protocol)
   /// </summary>
-  public interface IEndpoint : IApplicationComponent
+  public interface IEndpoint : IApplicationComponent, IComponentDescription
   {
     /// <summary>
     /// Returns service which this endpoint represents

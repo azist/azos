@@ -15,7 +15,7 @@ namespace Azos.Apps.Terminal.Cmdlets
   /// <summary>
   /// Pile Cache
   /// </summary>
-  public class Pilc : Cmdlet
+  public sealed class Pilc : Cmdlet
   {
     public const string CONFIG_TABLE_ATTR = "table";
     public const string CONFIG_PURGE_ATTR = "purge";
@@ -26,7 +26,7 @@ namespace Azos.Apps.Terminal.Cmdlets
 
     public override string Execute()
     {
-      var cache = CMan.GetApplicationComponentBySIDorName(App, m_Args) as ICache;
+      var cache = Manc.GetApplicationComponentBySIDorName(App, m_Args) as ICache;
 
       if (cache==null)
         return "The specified component is not of ICache type";

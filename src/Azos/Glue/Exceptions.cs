@@ -67,7 +67,7 @@ namespace Azos.Glue
   /// Thrown by the Glue framework when client message inspector fails with exception
   /// </summary>
   [Serializable]
-  public class ClientMsgInspectionException : GlueException, IWrappedExceptionDataSource
+  public class ClientMsgInspectionException : GlueException
   {
     public ClientMsgInspectionException(IClientMsgInspector inspector, Exception error)
       : base(StringConsts.GLUE_CLIENT_INSPECTORS_THREW_ERROR + error.Message, error) { m_Inspector = inspector; }
@@ -80,11 +80,6 @@ namespace Azos.Glue
     /// Returns inspector that threw exception
     /// </summary>
     public IClientMsgInspector Inspector { get { return m_Inspector; } }
-
-    public string GetWrappedData()
-    {
-      return "{0}(Name = {1})".Args(m_Inspector.GetType().Name, m_Inspector.Name);
-    }
   }
 
 

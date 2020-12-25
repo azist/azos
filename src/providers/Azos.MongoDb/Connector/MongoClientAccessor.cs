@@ -30,7 +30,7 @@ namespace Azos.Data.Access.MongoDb.Connector
     /// mongo{server="mongo://localhost:27017" db="myDB"}
     /// </code>
     /// </summary>
-    public static Database GetMongoDatabaseFromConnectString(this IApplication app, string cString)
+    public static Database GetMongoDatabaseFromConnectString(this IApplication app, string cString, string dfltDbName = null)
     {
       if (cString.IsNullOrWhiteSpace())
         throw new MongoDbConnectorException(StringConsts.CONNECTION_STRING_NULL_OR_EMPTY_ERROR);
@@ -41,13 +41,13 @@ namespace Azos.Data.Access.MongoDb.Connector
 
       var cs = root.AttrByName(MongoClient.CONFIG_CS_SERVER_ATTR).Value;
       var dbn = root.AttrByName(MongoClient.CONFIG_CS_DB_ATTR).Value;
-      if (cs.IsNullOrWhiteSpace() || dbn.IsNullOrWhiteSpace())
+      if (cs.IsNullOrWhiteSpace() || (dbn.IsNullOrWhiteSpace() && dfltDbName.IsNullOrWhiteSpace()))
         throw new MongoDbConnectorException(StringConsts.CONNECTION_STRING_INVALID_ERROR.Args(cString, "Missing attr '{0}' or '{1}'".Args(MongoClient.CONFIG_CS_SERVER_ATTR, MongoClient.CONFIG_CS_DB_ATTR)));
 
 
       var client = app.GetDefaultMongoClient();
       var server = client[new Glue.Node(cs)];
-      var database = server[dbn];
+      var database = server[dbn.Default(dfltDbName)];
       return database;
     }
 

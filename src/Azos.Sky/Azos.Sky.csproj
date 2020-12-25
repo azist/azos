@@ -6,7 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Apps\Terminal\Web\Console.htm" />
     <None Remove="BUILD_INFO.txt" />
+    <None Remove="Chronicle\Server\Web\LogView.htm" />
     <None Remove="Hosts\agdida\Welcome.txt" />
     <None Remove="Tools\agm\Help.txt" />
     <None Remove="Tools\agm\Welcome.txt" />
@@ -21,7 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Apps\Terminal\Web\Console.htm" />
     <EmbeddedResource Include="BUILD_INFO.txt" />
+    <EmbeddedResource Include="Chronicle\Server\Web\LogView.htm" />
     <EmbeddedResource Include="Hosts\agdida\Welcome.txt" />
     <EmbeddedResource Include="Tools\agm\Help.txt" />
     <EmbeddedResource Include="Tools\agm\Welcome.txt" />
@@ -68,10 +72,6 @@
     <None Update="azgov.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Chronicle\Server\" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

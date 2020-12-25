@@ -7,7 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Azos.Data.Access;
+
+using Azos.Apps;
+using Azos.Data.AST;
+using Azos.Data.Business;
 
 namespace Azos.Data.Directory
 {
@@ -23,43 +26,45 @@ namespace Azos.Data.Directory
 
   /// <summary>
   /// Represents a directory of string ID-keyed entities.
-  /// Directories are a form of KEY-Value vector databases
+  /// Directories are a form of KEY-Value tuple databases
   /// </summary>
-  public interface IDirectory : IDataStore
+  public interface IDirectory : IApplicationComponent
   {
     /// <summary>
     /// Gets an item directly by its primary key optionally updating it's last-use date
     /// </summary>
-    Task<Item> GetAsync(ItemId id, bool touch = false);
+    Task<Item> GetAsync(EntityId id, bool touch = false);
 
     /// <summary>
     /// Saves an item to directory
     /// </summary>
-    Task Save(Item item);
+    Task<ChangeResult> SaveAsync(Item item);
 
     /// <summary>
     /// Updates LastUseUtc timestamp for items that use sliding expiration. Returns true if an item was found and updated
     /// </summary>
-    Task<bool> Touch(ItemId id);
+    Task<ChangeResult> TouchAsync(IEnumerable<EntityId> ids);
 
     /// <summary>
     /// Tries to delete an item, returning true if an item found and marked for deletion
     /// </summary>
-    Task<bool> Delete(ItemId id);
+    Task<ChangeResult> DeleteAsync(EntityId id);
 
     /// <summary>
-    /// Finds item/items that satisfy the queryExpression which is a JSON object of expression tree:
-    /// `tbd`
+    /// Finds item/items that satisfy the queryExpression which is an object graph representing an expression tree
     /// </summary>
-    /// <param name="collection">Item collection name to query</param>
-    /// <param name="queryExpression">JSON query object</param>
+    /// <param name="entity">Entity designator uses the (System:Type) tuple to identify sub-directory to route query into</param>
+    /// <param name="queryExpression">Query expression graph</param>
     /// <returns>Item enumeration</returns>
-    Task<IEnumerable<Item>> Query(string collection, string queryExpression);
+    Task<IEnumerable<Item>> QueryAsync(EntityId entity, Expression queryExpression);
   }
 
-  public interface IDirectoryImplementation : IDirectory, IDataStoreImplementation
-  {
 
+  /// <summary>
+  /// Outlines a contract for implementing logic of IDirectory
+  /// </summary>
+  public interface IDirectoryLogic : IDirectory, IModule
+  {
   }
 
 }

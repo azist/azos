@@ -8,6 +8,7 @@ using Syscon=System.Console;
 using System.Threading;
 
 using Azos.Conf;
+using Azos.Serialization.JSON;
 
 namespace Azos.IO.Console
 {
@@ -38,11 +39,17 @@ namespace Azos.IO.Console
     {
       var ind = "".PadLeft(lvl);
 
-      Syscon.WriteLine(ind + "Application: " + data.ApplicationName);
+      Syscon.WriteLine(ind + "Application: {0}/{1} ".Args(data.AppName, data.AppId));
       Syscon.WriteLine(ind + "Code: {0}  Source: {1}".Args(data.Code, data.Source));
       Syscon.WriteLine(ind + "Type: " + data.TypeName);
       Syscon.WriteLine(ind + "Message: " + data.Message);
       Syscon.WriteLine(ind + "Stack: " + data.StackTrace);
+      if (data.ExternalStatus!=null)
+      {
+        Syscon.WriteLine(ind + "External details: ");
+        Syscon.WriteLine(ind + data.ExternalStatus.ToJson(JsonWritingOptions.CompactASCII));
+      }
+
       if (data.InnerException != null)
       {
         Syscon.WriteLine(ind + "Inner exception: ");

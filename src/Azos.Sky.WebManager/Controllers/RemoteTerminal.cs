@@ -72,9 +72,9 @@ namespace Azos.Sky.WebManager.Controllers
 
           var plainText = true;
           if (result.IsNotNullOrWhiteSpace())
-            if (result.StartsWith(Apps.Terminal.AppRemoteTerminal.MARKUP_PRAGMA))
+            if (result.StartsWith(Azos.Apps.Terminal.AppRemoteTerminal.MARKUP_PRAGMA))
             {
-              result = result.Remove(0, Apps.Terminal.AppRemoteTerminal.MARKUP_PRAGMA.Length);
+              result = result.Remove(0, Azos.Apps.Terminal.AppRemoteTerminal.MARKUP_PRAGMA.Length);
               result = Azos.IO.Console.ConsoleUtils.WriteMarkupContentAsHTML(result);
               plainText = false;
             }

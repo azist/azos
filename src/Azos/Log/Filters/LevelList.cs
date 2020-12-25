@@ -27,14 +27,14 @@ namespace Azos.Log.Filters
           var minmax = p.Split(new char[] { '-' }, 2).Select(s => s.Trim()).ToArray();
 
           if (minmax.Length == 0)
-            throw new AzosException(StringConsts.ARGUMENT_ERROR + "levels: " + p);
+            throw new LogException(StringConsts.ARGUMENT_ERROR + "levels: " + p);
 
           MessageType min, max;
 
           if (string.IsNullOrWhiteSpace(minmax[0]))
             min = MessageType.Debug;
           else if (!Enum.TryParse(minmax[0], true, out min))
-            throw new AzosException(StringConsts.ARGUMENT_ERROR +
+            throw new LogException(StringConsts.ARGUMENT_ERROR +
                 "levels: {0} (error parsing: {1})".Args(p, minmax[0]));
 
           if (minmax.Length < 2)
@@ -42,7 +42,7 @@ namespace Azos.Log.Filters
           else if (string.IsNullOrWhiteSpace(minmax[1]))
             max = MessageType.CatastrophicError;
           else if (!Enum.TryParse(minmax[1], true, out max))
-            throw new AzosException(StringConsts.ARGUMENT_ERROR +
+            throw new LogException(StringConsts.ARGUMENT_ERROR +
                 "levels: {0} (error parsing: {1})".Args(p, minmax[1]));
 
           result.Add((min, max));

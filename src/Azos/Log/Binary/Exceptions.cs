@@ -13,7 +13,7 @@ namespace Azos.Log.Binary
   /// Base exception thrown by the binlog-related framework
   /// </summary>
   [Serializable]
-  public class BinLogException : AzosException
+  public class BinLogException : LogException
   {
     public BinLogException() { }
     public BinLogException(string message) : base(message) { }

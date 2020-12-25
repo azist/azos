@@ -11,7 +11,6 @@ using System.Runtime.CompilerServices;
 
 using Azos.Data;
 using Azos.Serialization.JSON;
-using Azos.Serialization.BSON;
 using Azos.Serialization.Arow;
 
 namespace Azos.Log
@@ -21,22 +20,33 @@ namespace Azos.Log
   /// </summary>
   [Serializable]
   [Arow("3AD5E8E1-871C-4B8F-AE16-6D04492B17DF")]
-  [BSONSerializable("A05AEE0F-A33C-4B1D-AA45-CDEAF894A095")]
-  public sealed class Message : TypedDoc, IArchiveLoggable, IBSONSerializable, IBSONDeserializable
+  public sealed class Message : TypedDoc, IArchiveLoggable
   {
-    public const string BSON_FLD_APP = "app";
-    public const string BSON_FLD_CHANNEL = "chn";
-    public const string BSON_FLD_RELATED_TO = "rel";
-    public const string BSON_FLD_TYPE = "tp";
-    public const string BSON_FLD_SOURCE = "src";
-    public const string BSON_FLD_TIMESTAMP = "uts";
-    public const string BSON_FLD_HOST = "hst";
-    public const string BSON_FLD_FROM = "frm";
-    public const string BSON_FLD_TOPIC = "top";
-    public const string BSON_FLD_TEXT = "txt";
-    public const string BSON_FLD_PARAMETERS = "prm";
-    public const string BSON_FLD_EXCEPTION = "ex";
-    public const string BSON_FLD_ARCHIVE_DIMENSIONS = "arc";
+    public Message(){ }
+
+    /// <summary>
+    /// Initializes log message populating Guid, Host, UTCTimeStamp, App if they are unassigned,
+    /// defaulting from Message.DefaultHostName and UTCTime.
+    /// Calling this method multiple time has the same effect
+    /// </summary>
+    public Message InitDefaultFields(IApplication app = null)
+    {
+      if (app==null) app = Apps.ExecutionContext.Application;
+
+      if (m_Guid == Guid.Empty)
+        m_Guid = Guid.NewGuid();
+
+      if (m_Host.IsNullOrWhiteSpace())
+        m_Host = Platform.Computer.HostName;
+
+      if (m_UTCTimeStamp == default(DateTime))
+        m_UTCTimeStamp = app.TimeSource.UTCNow;
+
+      if (m_App.IsZero)
+        m_App = app.AppId;
+
+      return this;
+    }
 
     #region Private Fields
     private GDID m_Gdid;
@@ -77,7 +87,7 @@ namespace Azos.Log
     public Guid Guid
     {
       get => m_Guid;
-      internal set => m_Guid = value;
+      set => m_Guid = value;
     }
 
     /// <summary>
@@ -255,31 +265,12 @@ namespace Azos.Log
 
     #endregion
 
-    /// <summary>
-    /// Creates log message defaulting from Message.DefaultHostName and UTCTime
-    /// </summary>
-    [Azos.Serialization.Slim.SlimDeserializationCtorSkip]
-    public Message()
-    {
-      m_Guid = Guid.NewGuid();
-      m_Host = Platform.Computer.HostName;
-      m_UTCTimeStamp = Ambient.UTCNow;
-      m_App = Apps.ExecutionContext.Application.AppId;
-    }
+
+    public override string ToString()
+      => "{0:yyyyMMdd-HHmmss.fff}, {1}, {2}, {3}, {4}, {5}, {6}".Args(m_UTCTimeStamp, m_Guid, m_Host, m_Type, Topic, From, Text);
 
     /// <summary>
-    /// Creates message with Parameters supplanted with caller file name and line #
-    /// </summary>
-    public Message(object pars, [CallerFilePath] string file = null, [CallerLineNumber] int line = 0) : this()
-    {
-      SetParamsAsObject(FormatCallerParams(pars, file, line));
-      Source = line;
-    }
-
-    public override string ToString() => "{0:yyyyMMdd-HHmmss.fff}, {1}, {2}, {3}, {4}, {5}, {6}".Args(m_UTCTimeStamp, m_Guid.ToString().TakeLastChars(8), m_Host, m_Type, Topic, From, Text);
-
-    /// <summary>
-    /// Supplants the from string with caller as JSON string
+    /// Supplants the from string with caller info encoded as JSON string
     /// </summary>
     public static object FormatCallerParams(object pars,
                                             [CallerFilePath]  string file = null,
@@ -300,19 +291,24 @@ namespace Azos.Log
         };
     }
 
+    /// <summary>
+    /// Sets parameter content as JSON representation of the supplied object
+    /// </summary>
     public Message SetParamsAsObject(object p)
     {
       if (p == null)
         m_Parameters = null;
       else
-        m_Parameters = p.ToJson(JsonWritingOptions.CompactASCII);
+        m_Parameters = p.ToJson(JsonWritingOptions.CompactRowsAsMap);
 
       return this;
     }
 
+    /// <summary>
+    /// Deep clones all fields into a new instance
+    /// </summary>
     public Message Clone()
-    {
-      return new Message
+    => new Message
       {
         m_Gdid = m_Gdid,
         m_Guid = m_Guid,
@@ -330,69 +326,23 @@ namespace Azos.Log
         m_Exception = m_Exception,
         m_ArchiveDimensions = m_ArchiveDimensions,
       };
-    }
 
 
-    #region BSON Serialization
-    public bool IsKnownTypeForBSONDeserialization(Type type)
+    protected override object FilterJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, out string name)
     {
-      return type == typeof(WrappedException);
+      if (
+          (def.Name == nameof(RelatedTo) && RelatedTo == Guid.Empty) ||
+          (def.Name == nameof(Channel) && Channel.IsZero) ||
+          (def.Name == nameof(Parameters) && Parameters.IsNullOrWhiteSpace()) ||
+          (def.Name == nameof(ExceptionData) && ExceptionData==null)  ||
+          (def.Name == nameof(ArchiveDimensions) && ArchiveDimensions.IsNullOrWhiteSpace())
+         )
+      {
+        name = null;
+        return null;
+      }
+      return base.FilterJsonSerializerField(def, options, out name);
     }
-
-    public void SerializeToBSON(BSONSerializer serializer, BSONDocument doc, IBSONSerializable parent, ref object context)
-    {
-      serializer.AddTypeIDField(doc, parent, this, context);
-
-      var skipNull = (serializer.Flags ^ BSONSerializationFlags.KeepNull) == 0;
-
-      doc.Add(serializer.PKFieldName, m_Guid, required: true)
-        .Add(BSON_FLD_RELATED_TO, m_RelatedTo, skipNull)
-        .Add(BSON_FLD_CHANNEL, m_Channel.ID, skipNull)
-        .Add(BSON_FLD_APP, m_App.ID, skipNull)
-        .Add(BSON_FLD_TYPE, m_Type.ToString(), skipNull, required: true)
-        .Add(BSON_FLD_SOURCE, m_Source, skipNull)
-        .Add(BSON_FLD_TIMESTAMP, m_UTCTimeStamp, skipNull)
-        .Add(BSON_FLD_HOST, m_Host, skipNull)
-        .Add(BSON_FLD_FROM, m_From, skipNull)
-        .Add(BSON_FLD_TOPIC, m_Topic, skipNull)
-        .Add(BSON_FLD_TEXT, m_Text, skipNull)
-        .Add(BSON_FLD_PARAMETERS, m_Parameters, skipNull)
-        .Add(BSON_FLD_ARCHIVE_DIMENSIONS, m_ArchiveDimensions, skipNull);
-
-      if (m_Exception == null) return;
-
-      var we = m_Exception as WrappedException;
-      if (we == null)
-        we = WrappedException.ForException(m_Exception);
-
-      doc.Add(BSON_FLD_EXCEPTION, serializer.Serialize(we, parent: this), skipNull);
-    }
-
-    public void DeserializeFromBSON(BSONSerializer serializer, BSONDocument doc, ref object context)
-    {
-      m_Guid = doc.TryGetObjectValueOf(serializer.PKFieldName).AsGUID(Guid.Empty);
-
-      m_RelatedTo = doc.TryGetObjectValueOf(BSON_FLD_RELATED_TO).AsGUID(Guid.Empty);
-
-      m_Channel = new Atom( doc.TryGetObjectValueOf(BSON_FLD_CHANNEL).AsULong(0) );
-      m_App = new Atom( doc.TryGetObjectValueOf(BSON_FLD_APP).AsULong(0) );
-
-      m_Type = doc.TryGetObjectValueOf(BSON_FLD_TYPE).AsEnum(MessageType.Info);
-      m_Source = doc.TryGetObjectValueOf(BSON_FLD_SOURCE).AsInt();
-      m_UTCTimeStamp = doc.TryGetObjectValueOf(BSON_FLD_TIMESTAMP).AsDateTime(Ambient.UTCNow);
-      m_Host = doc.TryGetObjectValueOf(BSON_FLD_HOST).AsString();
-      m_From = doc.TryGetObjectValueOf(BSON_FLD_FROM).AsString();
-      m_Topic = doc.TryGetObjectValueOf(BSON_FLD_TOPIC).AsString();
-      m_Text = doc.TryGetObjectValueOf(BSON_FLD_TEXT).AsString();
-      m_Parameters = doc.TryGetObjectValueOf(BSON_FLD_PARAMETERS).AsString();
-      m_ArchiveDimensions = doc.TryGetObjectValueOf(BSON_FLD_ARCHIVE_DIMENSIONS).AsString();
-
-      var ee = doc[BSON_FLD_EXCEPTION] as BSONDocumentElement;
-      if (ee == null) return;
-
-      m_Exception = WrappedException.MakeFromBSON(serializer, ee.Value);
-    }
-    #endregion
   }
 
   public static class MessageExtensions

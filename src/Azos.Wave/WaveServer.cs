@@ -73,6 +73,8 @@ namespace Azos.Wave
 
       public const string DEFAULT_CLIENT_VARS_COOKIE_NAME = "WV.CV";
 
+      public const string DEFAUL_CALL_FLOW_HEADER = "wv-call-flow";
+
       public const int ACCEPT_THREAD_GRANULARITY_MS = 250;
 
       public const int INSTRUMENTATION_DUMP_PERIOD_MS = 3377;
@@ -125,69 +127,69 @@ namespace Azos.Wave
 
     private string m_EnvironmentName;
 
-      private int m_KernelHttpQueueLimit = DEFAULT_KERNEL_HTTP_QUEUE_LIMIT;
-      private int m_ParallelAccepts = DEFAULT_PARALLEL_ACCEPTS;
-      private int m_ParallelWorks = DEFAULT_PARALLEL_WORKS;
+    private int m_KernelHttpQueueLimit = DEFAULT_KERNEL_HTTP_QUEUE_LIMIT;
+    private int m_ParallelAccepts = DEFAULT_PARALLEL_ACCEPTS;
+    private int m_ParallelWorks = DEFAULT_PARALLEL_WORKS;
 
-      private ushort m_DrainEntityBodyTimeoutSec = DEFAULT_DRAIN_ENTITY_BODY_TIMEOUT_SEC;
-      private ushort m_EntityBodyTimeoutSec      = DEFAULT_ENTITY_BODY_TIMEOUT_SEC;
-      private ushort m_HeaderWaitTimeoutSec      = DEFAULT_HEADER_WAIT_TIMEOUT_SEC;
-      private ushort m_IdleConnectionTimeoutSec  = DEFAULT_IDLE_CONNECTION_TIMEOUT_SEC;
-      private ushort m_RequestQueueTimeoutSec    = DEFAULT_REQUEST_QUEUE_TIMEOUT_SEC;
-      private uint   m_MinSendBytesPerSecond     = DEFAULT_MIN_SEND_BYTES_PER_SECOND;
+    private ushort m_DrainEntityBodyTimeoutSec = DEFAULT_DRAIN_ENTITY_BODY_TIMEOUT_SEC;
+    private ushort m_EntityBodyTimeoutSec      = DEFAULT_ENTITY_BODY_TIMEOUT_SEC;
+    private ushort m_HeaderWaitTimeoutSec      = DEFAULT_HEADER_WAIT_TIMEOUT_SEC;
+    private ushort m_IdleConnectionTimeoutSec  = DEFAULT_IDLE_CONNECTION_TIMEOUT_SEC;
+    private ushort m_RequestQueueTimeoutSec    = DEFAULT_REQUEST_QUEUE_TIMEOUT_SEC;
+    private uint   m_MinSendBytesPerSecond     = DEFAULT_MIN_SEND_BYTES_PER_SECOND;
 
-      private HttpListener m_Listener;
-      private bool m_IgnoreClientWriteErrors = true;
-      private bool m_LogHandleExceptionErrors;
-      private EventedList<string, WaveServer> m_Prefixes;
+    private HttpListener m_Listener;
+    private bool m_IgnoreClientWriteErrors = true;
+    private bool m_LogHandleExceptionErrors;
+    private EventedList<string, WaveServer> m_Prefixes;
 
-      private Thread m_AcceptThread;
-      private Thread m_InstrumentationThread;
-      private AutoResetEvent m_InstrumentationThreadWaiter;
+    private Thread m_AcceptThread;
+    private Thread m_InstrumentationThread;
+    private AutoResetEvent m_InstrumentationThreadWaiter;
 
-      private Semaphore m_AcceptSemaphore;
-      internal Semaphore m_WorkSemaphore;
+    private Semaphore m_AcceptSemaphore;
+    internal Semaphore m_WorkSemaphore;
 
-      private INetGate m_Gate;
-      private WorkDispatcher m_Dispatcher;
+    private INetGate m_Gate;
+    private WorkDispatcher m_Dispatcher;
 
-      private string m_ClientVarsCookieName;
+    private string m_ClientVarsCookieName;
 
-      private OrderedRegistry<WorkMatch> m_ErrorShowDumpMatches = new OrderedRegistry<WorkMatch>();
-      private OrderedRegistry<WorkMatch> m_ErrorLogMatches = new OrderedRegistry<WorkMatch>();
+    private OrderedRegistry<WorkMatch> m_ErrorShowDumpMatches = new OrderedRegistry<WorkMatch>();
+    private OrderedRegistry<WorkMatch> m_ErrorLogMatches = new OrderedRegistry<WorkMatch>();
 
 
-      //*Instrumentation Statistics*//
-      internal bool m_InstrumentationEnabled;
+    //*Instrumentation Statistics*//
+    internal bool m_InstrumentationEnabled;
 
-          internal long m_stat_ServerRequest;
-          internal long m_stat_ServerGateDenial;
-          internal long m_stat_ServerHandleException;
-          internal long m_stat_FilterHandleException;
+    internal long m_stat_ServerRequest;
+    internal long m_stat_ServerGateDenial;
+    internal long m_stat_ServerHandleException;
+    internal long m_stat_FilterHandleException;
 
-          internal long m_stat_ServerAcceptSemaphoreCount;
-          internal long m_stat_ServerWorkSemaphoreCount;
+    internal long m_stat_ServerAcceptSemaphoreCount;
+    internal long m_stat_ServerWorkSemaphoreCount;
 
-          internal long m_stat_WorkContextWrittenResponse;
-          internal long m_stat_WorkContextBufferedResponse;
-          internal long m_stat_WorkContextBufferedResponseBytes;
-          internal long m_stat_WorkContextCtor;
-          internal long m_stat_WorkContextDctor;
-          internal long m_stat_WorkContextWorkSemaphoreRelease;
-          internal long m_stat_WorkContextAborted;
-          internal long m_stat_WorkContextHandled;
-          internal long m_stat_WorkContextNoDefaultClose;
-          internal long m_stat_WorkContextNeedsSession;
+    internal long m_stat_WorkContextWrittenResponse;
+    internal long m_stat_WorkContextBufferedResponse;
+    internal long m_stat_WorkContextBufferedResponseBytes;
+    internal long m_stat_WorkContextCtor;
+    internal long m_stat_WorkContextDctor;
+    internal long m_stat_WorkContextWorkSemaphoreRelease;
+    internal long m_stat_WorkContextAborted;
+    internal long m_stat_WorkContextHandled;
+    internal long m_stat_WorkContextNoDefaultClose;
+    internal long m_stat_WorkContextNeedsSession;
 
-          internal long m_stat_SessionNew;
-          internal long m_stat_SessionExisting;
-          internal long m_stat_SessionEnd;
-          internal long m_stat_SessionInvalidID;
+    internal long m_stat_SessionNew;
+    internal long m_stat_SessionExisting;
+    internal long m_stat_SessionEnd;
+    internal long m_stat_SessionInvalidID;
 
-          internal long m_stat_GeoLookup;
-          internal long m_stat_GeoLookupHit;
+    internal long m_stat_GeoLookup;
+    internal long m_stat_GeoLookupHit;
 
-          internal NamedInterlocked m_stat_PortalRequest = new NamedInterlocked();
+    internal NamedInterlocked m_stat_PortalRequest = new NamedInterlocked();
 
     #endregion
 
@@ -200,6 +202,10 @@ namespace Azos.Wave
 
       public override string ComponentCommonName { get { return "ws-"+Name; }}
 
+      /// <summary>
+      /// Provides a list of served endpoints
+      /// </summary>
+      public override string ServiceDescription => Prefixes.Aggregate(string.Empty, (s, p) => s + "  " + p);
 
 
       /// <summary>
@@ -215,6 +221,13 @@ namespace Azos.Wave
           m_EnvironmentName = value;
         }
       }
+
+      /// <summary>
+      /// Optional name of header used for disclosure of WorkContext.ID. If set to null, suppresses the header
+      /// </summary>
+      [Config(Default = DEFAUL_CALL_FLOW_HEADER)]
+      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
+      public string CallFlowHeader { get; set;} = DEFAUL_CALL_FLOW_HEADER;
 
       /// <summary>
       /// Provides the name of cookie where server keeps client vars
@@ -242,6 +255,7 @@ namespace Azos.Wave
       /// When true does not throw exceptions on client channel write
       /// </summary>
       [Config(Default=true)]
+      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
       public bool IgnoreClientWriteErrors
       {
         get { return m_IgnoreClientWriteErrors;}
@@ -253,7 +267,7 @@ namespace Azos.Wave
       }
 
       /// <summary>
-      /// When true writes errors that get thrown in server cathc-all HandleException methods
+      /// When true writes errors that get thrown in server catch-all HandleException methods
       /// </summary>
       [Config]
       [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
@@ -268,6 +282,7 @@ namespace Azos.Wave
       /// Establishes HTTP.sys kernel queue limit
       /// </summary>
       [Config]
+      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
       public int KernelHttpQueueLimit
       {
         get { return m_KernelHttpQueueLimit;}
@@ -285,6 +300,7 @@ namespace Azos.Wave
       /// Specifies how many requests can get accepted from kernel queue in parallel
       /// </summary>
       [Config(Default=DEFAULT_PARALLEL_ACCEPTS)]
+      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
       public int ParallelAccepts
       {
         get { return m_ParallelAccepts;}
@@ -303,6 +319,7 @@ namespace Azos.Wave
       /// Specifies how many instances of WorkContext(or derivatives) can be processed at the same time
       /// </summary>
       [Config(Default=DEFAULT_PARALLEL_WORKS)]
+      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
       public int ParallelWorks
       {
         get { return m_ParallelWorks;}
@@ -392,7 +409,7 @@ namespace Azos.Wave
       /// <summary>
       /// Returns HttpListener prefixes such as "http://+:8080/"
       /// </summary>
-      public IList<string> Prefixes { get { return m_Prefixes;}}
+      public IList<string> Prefixes => m_Prefixes;
 
 
       /// <summary>
@@ -409,10 +426,8 @@ namespace Azos.Wave
       }
 
       [Config]
-      public string GateCallerRealIpAddressHeader
-      {
-        get; set;
-      }
+      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
+      public string GateCallerRealIpAddressHeader  {  get; set;  }
 
 
       /// <summary>
@@ -488,7 +503,7 @@ namespace Azos.Wave
 
       protected override void DoConfigure(IConfigSectionNode node)
       {
-        if (node==null)
+        if (node==null || !node.Exists)
         {
           //0 get very root
           node = App.ConfigRoot[SysConsts.CONFIG_WAVE_SECTION];
