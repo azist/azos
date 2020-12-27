@@ -12,7 +12,6 @@ using System.Linq;
 using Azos.Apps;
 using Azos.Client;
 using Azos.Conf;
-using Azos.Data;
 using Azos.Web;
 using Azos.Instrumentation;
 using Azos.Serialization.JSON;
@@ -79,7 +78,7 @@ manc
         {
           try
           {
-            var trace = Context.ExecCommand(step).GetAwaiter().GetResult();
+            var trace = Context.ExecCommandAsync(step).GetAwaiter().GetResult();
             results.Add((step.RootPath, true, trace.ToJson(JsonWritingOptions.PrettyPrintASCII)));
           }
           catch(Exception error)
@@ -197,19 +196,26 @@ manc
           });
 
 
-    public async Task<IEnumerable<object>> ExecCommand(IConfigSectionNode step)
+    public async Task<IEnumerable<object>> ExecCommandAsync(IConfigSectionNode step)
     {
       var stepSrc = step.NonEmpty(nameof(step)).ToLaconicString();
 
+      //take all servers in all shards
       var shards = m_Server.GetEndpointsForAllShards(IdpServerAddress, nameof(IMinIdpStore));
 
-      //broadcast command to all shards
+      //and select physically distinct servers on their Uris
+      //regardless of shard ordering, because we need to apply this command on ALL PHYSICALL boxes
+      var allServers = shards.SelectMany(s => s)
+                             .DistinctBy(ep => ((IHttpEndpoint)ep.Endpoint).Uri);
+
+      //broadcast command to all physical servers
       var result = new List<object>();
-      foreach(var shard in shards)
+      foreach(var server in allServers)
       {
         try
         {
-          var call = await shard.Call((http, ct) => http.Client.PostAndGetJsonMapAsync("exec", new { source = stepSrc }));
+          var one = server.ToEnumerable();
+          var call = await one.Call((http, ct) => http.Client.PostAndGetJsonMapAsync("exec", new { source = stepSrc }));
           result.Add(call);
         }
         catch(Exception error)

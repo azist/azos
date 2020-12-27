@@ -209,10 +209,6 @@ namespace Azos.Wave.Filters
               credentials = new BearerCredentials(bearer);
             }
           }
-          else if (EnableSystemTokens && hdr.StartsWith(SYSTOKEN, StringComparison.OrdinalIgnoreCase))
-          {
-
-          }
         }
         catch { }
 

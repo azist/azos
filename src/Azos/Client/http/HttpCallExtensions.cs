@@ -31,7 +31,7 @@ namespace Azos.Client
     /// <param name="cancellation">Optional CancellationToken</param>
     /// <param name="network">Logical network name used for endpoint address resolution, e.g. this is used to segregate traffic by physical channels</param>
     /// <param name="binding">Logical binding (sub-protocol) name (e.g. json/bix)</param>
-    /// <returns>TResult call result or throws `ClientException` if call eventually failed after all failovers tried</returns>
+    /// <returns>TResult call result or throws `ClientException` if call eventually failed after all fail-overs tried</returns>
     public static async Task<TResult> Call<TResult>(this IHttpService service,
                                                     string remoteAddress,
                                                     string contract,
@@ -48,6 +48,16 @@ namespace Azos.Client
       return await assignments.Call(body, cancellation).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Orchestrates an Http/s call to a remote service pointed to by a set of EndpointAssigment objects.
+    /// This algorithm provides fail-over and circuit breaker functionality built-in.
+    /// An actual call is performed in a passed-in call body functor.
+    /// </summary>
+    /// <typeparam name="TResult">The resulting type of the call, as obtained from call body</typeparam>
+    /// <param name="assignments">An enumerable of hosts to be tried in sequence. The subsequent host are tried in case of failure</param>
+    /// <param name="body">Call body functor. May not be null</param>
+    /// <param name="cancellation">Optional CancellationToken</param>
+    /// <returns>TResult call result or throws `ClientException` if call eventually failed after all fail-overs tried</returns>
     public static async Task<TResult> Call<TResult>(this IEnumerable<EndpointAssignment> assignments,
                                                     Func<IHttpTransport, CancellationToken?, Task<TResult>> body,
                                                     CancellationToken? cancellation = null)
