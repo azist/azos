@@ -60,6 +60,9 @@ namespace Azos.Security
 
     public bool CheckRequired(string targetName) => Assigned;
 
+    /// <summary>
+    /// Returns a token representation which is parse-able back using Parse()/TryParse()
+    /// </summary>
     public override string ToString()  => Realm + DELIMIT + Data;
 
     public override int GetHashCode() => Realm.GetHashCode() ^ Data.GetHashCode();

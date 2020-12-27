@@ -23,9 +23,20 @@ namespace Azos.Web
   public static class WebCallExtensions
   {
     /// <summary>
-    /// ISets maximum error content length in characters
+    /// Sets maximum error content length in characters
     /// </summary>
     public const int CALL_ERROR_CONTENT_MAX_LENGTH = 32 * 1024;
+
+
+    private const string SYSTOKEN_SCHEME = WebConsts.AUTH_SCHEME_SYSTOKEN + " ";
+    /// <summary>
+    /// Creates a header entry `Authorization: Systoken [token]` for the specified user object.
+    /// User object may not be null
+    /// </summary>
+    public static KeyValuePair<string, string> MakeSysTokenAuthHeader(this Security.User user)
+      =>  new KeyValuePair<string, string>(WebConsts.HTTP_HDR_AUTHORIZATION,
+                                           SYSTOKEN_SCHEME + user.NonNull(nameof(user)).AuthToken.ToString());
+
 
     /// <summary>
     /// Gets string response containing json and returns it as JsonDataMap

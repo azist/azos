@@ -215,7 +215,8 @@ manc
         try
         {
           var one = server.ToEnumerable();
-          var call = await one.Call((http, ct) => http.Client.PostAndGetJsonMapAsync("exec", new { source = stepSrc }));
+          var impersonate = Ambient.CurrentCallUser.MakeSysTokenAuthHeader();
+          var call = await one.Call((http, ct) => http.Client.PostAndGetJsonMapAsync("exec", new { source = stepSrc }, requestHeaders: impersonate.ToEnumerable()));
           result.Add(call);
         }
         catch(Exception error)
