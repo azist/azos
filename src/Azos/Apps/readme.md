@@ -40,7 +40,7 @@ public static int Main(string[] args)
 
 ### Configuration Boot
 Upon its allocation, the `IApplication` object tries to acquire its configuration root node (conf vector). 
-You can optionally pass a prefabricated custom configuration vecotr to the `AzosApplication` constructor, in which case you will need to 
+You can optionally pass a prefabricated custom configuration vector to the `AzosApplication` constructor, in which case you will need to 
 get/make its content yourself. When `null` is passed instead (the default), the application would go and search for any 
 file/format supported by the configuration provider, by default it is either `Laconic`, `Json`, or `Xml` formats.
 The file is searched in location co-located with the executing process entry point, so for example, if your app is called "app1", then

@@ -216,20 +216,25 @@ namespace Azos
     }
 
     /// <summary>
-    /// Returns sequence of items distinct by the selected key. If key selection functor is null then returns input as-is
+    /// Returns a sequence of items distinct by the selected key.
+    /// If the key selector functor is null then returns input as-is
     /// </summary>
     public static IEnumerable<TResult> DistinctBy<TResult, TKey>(this IEnumerable<TResult> source,
-                                                               Func<TResult, TKey> selector,
-                                                               IEqualityComparer<TKey> distinctEqualityComparer = null)
+                                                                 Func<TResult, TKey> selector,
+                                                                 IEqualityComparer<TKey> distinctEqualityComparer = null)
     {
       if (source == null) yield break;
       if (selector == null)
         foreach (var item in source) yield return item;
 
       var set = distinctEqualityComparer!=null ? new HashSet<TKey>(distinctEqualityComparer) : new HashSet<TKey>();
-      foreach (TResult item in source)
+      foreach(var item in source)
+      {
         if (set.Add(selector(item)))
+        {
           yield return item;
+        }
+      }
     }
 
     /// <summary>
@@ -239,7 +244,7 @@ namespace Azos
     {
       yield return first;
 
-      if (others!=null)
+      if (others != null)
         foreach(var other in others) yield return other;
     }
 

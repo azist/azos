@@ -19,6 +19,10 @@ namespace Azos.Wave.Filters
   /// </summary>
   public sealed class AuthorizeSessionFilter : SessionFilter
   {
+    private const string BASIC = WebConsts.AUTH_SCHEME_BASIC + " ";
+    private const string BEARER = WebConsts.AUTH_SCHEME_BEARER + " ";
+    private const string SYSTOKEN = WebConsts.AUTH_SCHEME_SYSTOKEN + " ";
+
     public AuthorizeSessionFilter(WorkDispatcher dispatcher, string name, int order) : base(dispatcher, name, order) { }
     public AuthorizeSessionFilter(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode) { ConfigAttribute.Apply(this, confNode); }
     public AuthorizeSessionFilter(WorkHandler handler, string name, int order) : base(handler, name, order) { }
@@ -78,7 +82,9 @@ namespace Azos.Wave.Filters
 
 
     /// <summary>
-    /// When set and passed at the beginning of the Bearer credentials, treats bearer payload as BASIC scheme
+    /// When set and passed at the beginning of the Bearer credentials, treats bearer payload as payload with BASIC scheme.
+    /// This is useful for temp integrations with various parties which demand sending authorization with Bearer scheme,
+    /// yet IDP for token authorization is not available yet
     /// </summary>
     [Config]
     [ExternalParameter("BearerBasicPrefix",
@@ -86,6 +92,22 @@ namespace Azos.Wave.Filters
                         CoreConsts.EXT_PARAM_GROUP_SECURITY)]
     [SystemAdministratorPermission(AccessLevel.ADVANCED)]
     public string BearerBasicPrefix
+    {
+      get;
+      set;
+    }
+
+    /// <summary>
+    /// When set to true (false by default) enables `Authorization: Systoken {token}` scheme
+    /// authentication via SysAuthTokens. This should ONLY be enabled inside the internal service perimeter and not for the
+    /// externally/publicly-exposed services, as SysAuthToken is purely an internal system authentication method.
+    /// </summary>
+    [Config]
+    [ExternalParameter("EnableSystemTokens",
+                        ExternalParameterSecurityCheck.OnSet,
+                        CoreConsts.EXT_PARAM_GROUP_SECURITY)]
+    [SystemAdministratorPermission(AccessLevel.ADVANCED)]
+    public bool EnableSystemTokens
     {
       get;
       set;
@@ -114,9 +136,6 @@ namespace Azos.Wave.Filters
     //We always make a new in-memory ephemeral session which gets collected right after this request
     protected override WaveSession MakeNewSessionInstance(WorkContext work)
     {
-      const string BASIC = WebConsts.AUTH_SCHEME_BASIC + " ";
-      const string BEARER = WebConsts.AUTH_SCHEME_BEARER + " ";
-
       //Always create new session
       var session = base.MakeNewSessionInstance(work);
 
@@ -154,49 +173,65 @@ namespace Azos.Wave.Filters
         }
       }
 
-      Credentials credentials = null;
-
-      try
+      User user;
+      if (EnableSystemTokens && hdr.StartsWith(SYSTOKEN, StringComparison.OrdinalIgnoreCase))
       {
-        if (hdr.StartsWith(BASIC, StringComparison.OrdinalIgnoreCase))
-        {
-          var basic = hdr.Substring(BASIC.Length).Trim();
-          credentials = IDPasswordCredentials.FromBasicAuth(basic);
-        }
-        else if (hdr.StartsWith(BEARER, StringComparison.OrdinalIgnoreCase))
-        {
-          var pfxBasic = BearerBasicPrefix;
-          var bearer = hdr.Substring(BEARER.Length).Trim();
-          if (pfxBasic.IsNotNullOrWhiteSpace() && bearer.IsNotNullOrWhiteSpace() && bearer.StartsWith(pfxBasic))
-          {
-            var basicContent = bearer.Substring(pfxBasic.Length).Trim();
-            credentials = IDPasswordCredentials.FromBasicAuth(basicContent);
-          }
-          else
-          {
-            credentials = new BearerCredentials(bearer);
-          }
-        }
+        var sysTokenContent = hdr.Substring(SYSTOKEN.Length).Trim();
+
+        if (sysTokenContent.IsNullOrWhiteSpace() || // empty or null tokens treated as empty
+            !SysAuthToken.TryParse(sysTokenContent, out var sysToken))
+          throw HTTPStatusException.BadRequest_400("Bad [Authorization] header systoken");
+
+        user = App.SecurityManager.Authenticate(sysToken);//authenticate the user using Systoken
       }
-      catch { }
+      else//credentials
+      {
+        Credentials credentials = null;
 
-      if (credentials==null)
-        throw HTTPStatusException.BadRequest_400("Bad [Authorization] header");
+        try
+        {
+          if (hdr.StartsWith(BASIC, StringComparison.OrdinalIgnoreCase))
+          {
+            var basic = hdr.Substring(BASIC.Length).Trim();
+            credentials = IDPasswordCredentials.FromBasicAuth(basic);
+          }
+          else if (hdr.StartsWith(BEARER, StringComparison.OrdinalIgnoreCase))
+          {
+            var pfxBasic = BearerBasicPrefix;
+            var bearer = hdr.Substring(BEARER.Length).Trim();
+            if (pfxBasic.IsNotNullOrWhiteSpace() && bearer.IsNotNullOrWhiteSpace() && bearer.StartsWith(pfxBasic))
+            {
+              var basicContent = bearer.Substring(pfxBasic.Length).Trim();
+              credentials = IDPasswordCredentials.FromBasicAuth(basicContent);
+            }
+            else
+            {
+              credentials = new BearerCredentials(bearer);
+            }
+          }
+        }
+        catch { }
 
-      var user = App.SecurityManager.Authenticate(credentials);//authenticate the user
-      session.User = user;
+        if (credentials==null)
+          throw HTTPStatusException.BadRequest_400("Bad [Authorization] header");
+
+        user = App.SecurityManager.Authenticate(credentials);//authenticate the user
+      }
+
+      session.User = user;//<===========================================================I
       work.SetAuthenticated(user.IsAuthenticated);
 
-      //gate traffic
-      if (!user.IsAuthenticated && NetGate!=null && NetGate.Enabled)
+      //gate bad traffic
+      var gate = NetGate;
+      if (!user.IsAuthenticated && gate != null && gate.Enabled)
       {
-        var vn = GateBadAuthVar;
-        if (vn.IsNotNullOrWhiteSpace())
+        var vname = GateBadAuthVar;
+        if (vname.IsNotNullOrWhiteSpace())
         {
-          NetGate.IncreaseVariable(IO.Net.Gate.TrafficDirection.Incoming,
-                                     work.EffectiveCallerIPEndPoint.Address.ToString(),
-                                     vn,
-                                     1);
+          gate.IncreaseVariable(IO.Net.Gate.TrafficDirection.Incoming,
+                                work.EffectiveCallerIPEndPoint.Address.ToString(),
+                                vname,
+                                1);
         }
       }
 

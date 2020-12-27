@@ -87,6 +87,12 @@ namespace Azos.Security.MinIdp
       }
     }
 
+    [Config("$sys-token-algo;$sys-token-algorithm")]
+    public string SysTokenCryptoAlgorithmName { get; set; }
+
+    [Config("$sys-token-life-hrs")]
+    public double SysTokenLifespanHours { get; set; }
+
     /// <summary>
     /// If set, checks whether the named root SYSTEM login exists in the specified realm,
     /// and creates it if it does not with 24 hr expiration.
@@ -147,43 +153,25 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
     {
+      //0. check login, put to lower invariant
       if (id.IsNullOrWhiteSpace()) return null;
       id = id.ToLowerInvariant();
-      var login = await fetch(realm, BsonDataModel.COLLECTION_LOGIN, Query.ID_EQ_String(id));
-      if (login==null) return null;
 
+      //1. Fetch by login ID
+      var login = await fetch(realm, BsonDataModel.COLLECTION_LOGIN, Query.ID_EQ_String(id));
+      if (login == null) return null;
+
+      //2. Make subject principal data
       var result = new MinIdpUserData{ Realm = realm };
       BsonDataModel.ReadLogin(login, result);
-      if (result.SysId==0) return null;
+      if (result.SysId == 0) return null;
 
+      //3. Try to fetch user
       var user = await fetch(realm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(result.SysId));
-      if (user==null) return null;
-      BsonDataModel.ReadUser(user, result);
-
-      if (result.Role.IsNotNullOrWhiteSpace())
-      {
-        var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
-        if (role==null) return null;
-        BsonDataModel.ReadRole(role, result);
-      }
-      if (result.Status < UserStatus.System && result.Role.IsNullOrWhiteSpace()) return null;
-
-
-      return checkDates(result);
-    }
-
-
-    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
-    {
-      var sysId = sysToken.AsULong();
-      if (sysId==0) return null;
-
-      var user = await fetch(realm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(sysId));
       if (user == null) return null;
-
-      var result = new MinIdpUserData{ Realm = realm };
       BsonDataModel.ReadUser(user, result);
 
+      //4. Check and fetch role rights
       if (result.Role.IsNotNullOrWhiteSpace())
       {
         var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
@@ -193,6 +181,68 @@ namespace Azos.Security.MinIdp
       if (result.Status < UserStatus.System && result.Role.IsNullOrWhiteSpace()) return null;
 
 
+      //5. Check date spans
+      result = checkDates(result);
+      if (result == null) return null;
+
+      //6. Issue new SysAuthToken
+      var msg = new { id = result.SysId, exp = App.TimeSource.UTCNow.AddHours(SysTokenLifespanHours > 0 ? SysTokenLifespanHours : 0.25d ) };
+      result.SysTokenData = SysTokenCryptoAlgorithm.ProtectAsString(msg);
+
+      return result;
+    }
+
+
+
+
+    private ICryptoMessageAlgorithm SysTokenCryptoAlgorithm => App.SecurityManager
+                                                       .Cryptography
+                                                       .MessageProtectionAlgorithms[SysTokenCryptoAlgorithmName]
+                                                       .NonNull("Algo `{0}`".Args(SysTokenCryptoAlgorithmName))
+                                                       .IsTrue(a => a.Audience == CryptoMessageAlgorithmAudience.Internal &&
+                                                                    a.Flags.HasFlag(CryptoMessageAlgorithmFlags.Cipher) &&
+                                                                    a.Flags.HasFlag(CryptoMessageAlgorithmFlags.CanUnprotect),
+                                                                    "Algo `{0}` !internal !cipher".Args(SysTokenCryptoAlgorithmName));
+
+    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
+    {
+      //0. Check access token integrity by using message protection API
+      // only the server has the key to issue and check the message token.
+      // the downstream security managers (e.g. caches, clients, etc.)
+      // can not re-generate token as they don't have the key
+      if (sysToken.IsNullOrWhiteSpace()) return null;
+      var msg = SysTokenCryptoAlgorithm.UnprotectObject(sysToken) as JsonDataMap;
+      if (msg == null) return null;//corrupted or forged token
+      var sysId = msg["id"].AsULong(0);
+      if (sysId == 0) return null;
+      var expire = msg["exp"].AsDateTime(default(DateTime),
+                                       ConvertErrorHandling.ReturnDefault,
+                                       System.Globalization.DateTimeStyles.AssumeUniversal |
+                                       System.Globalization.DateTimeStyles.AdjustToUniversal
+                                      );
+      if (expire <= App.TimeSource.UTCNow) return null;//expired
+
+      //1. Fetch user record by sysId(ULONG)
+      var user = await fetch(realm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(sysId));
+      if (user == null) return null;
+
+      //2. Make subject principal data
+      //Notice: the sys access token is NOT regenerated here, as the act of token consumption does not
+      //extend its life. Only a true login via credentials generates a NEW token
+      //that is why we make subject data with the `sysToken` as supplied in the call param
+      var result = new MinIdpUserData{ Realm = realm, SysTokenData = sysToken };
+      BsonDataModel.ReadUser(user, result);
+
+      //3. Check and fetch role rights
+      if (result.Role.IsNotNullOrWhiteSpace())
+      {
+        var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
+        if (role == null) return null;
+        BsonDataModel.ReadRole(role, result);
+      }
+      if (result.Status < UserStatus.System && result.Role.IsNullOrWhiteSpace()) return null;
+
+      //4. Check validity dates
       return checkDates(result);
     }
 
@@ -219,6 +269,8 @@ namespace Azos.Security.MinIdp
     {
       m_Mongo.NonNull("Not configured Mongo of config section `{0}`".Args(CONFIG_MONGO_SECTION));
       m_RemoteAddress.NonBlank("RemoteAddress string");
+
+      var algo = this.SysTokenCryptoAlgorithm;//this throws if not configured properly
 
       var rel = Guid.NewGuid();
       checkRootAccess(rel);
