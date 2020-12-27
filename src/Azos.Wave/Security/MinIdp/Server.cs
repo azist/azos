@@ -91,10 +91,11 @@ namespace Azos.Security.MinIdp
 
     [ApiEndpointDoc(
       Title = "Executes MinIdp management script",
-      Description = "Executes MinIdp management script",
+      Description = "Executes MinIdp management script responding with json result object",
       RequestBody = "{source: laconicString}",
-      Methods = new []{"POST: json body"})]
-    [ActionOnPost(Name = "exec")]
+      Methods = new []{"POST: json body"},
+      ResponseContent = "Json object {OK: bool, ctype: string, data: {}}")]
+    [ActionOnPost(Name = "exec"), AcceptsJson]
     public void ExecCommand(string source)
     {
       IConfigSectionNode command = null;
@@ -123,8 +124,7 @@ namespace Azos.Security.MinIdp
 
       WorkContext.Response.StatusCode = got.StatusCode;
       WorkContext.Response.StatusDescription = got.StatusDescription;
-      WorkContext.Response.ContentType = got.ContentType;
-      WorkContext.Response.Write(got.Content);
+      WorkContext.Response.WriteJSON(new {OK = true, ctype = got.ContentType, data = got.Content}, Serialization.JSON.JsonWritingOptions.PrettyPrintRowsAsMapASCII);
     }
   }
 }

@@ -68,26 +68,34 @@ manc
 }
 ```
 ");
+      private class step
+      {
+        public string src     {get; set;}
+        public bool   ok      { get; set; }
+        public object result  { get; set; }
+      }
+
 
       public override ExternalCallResponse Execute()
       {
         Script.NonEmpty(nameof(Script));
 
-        var results = new List<(string step, bool ok, string message)>();
+        var results = new List<step>();
         foreach(var step in Script.Children)
         {
           try
           {
-            var trace = Context.ExecCommandAsync(step).GetAwaiter().GetResult();
-            results.Add((step.RootPath, true, trace.ToJson(JsonWritingOptions.PrettyPrintASCII)));
+            var result = Context.ExecCommandAsync(step).GetAwaiter().GetResult();
+            results.Add(new step{src = step.RootPath, ok = true, result = result});
           }
           catch(Exception error)
           {
-            results.Add((step.RootPath, false, error.ToMessageWithType()));
+            var e = new WrappedExceptionData(error, false, true);
+            results.Add(new step{src = step.RootPath, ok = false, result = e});
           }
         }
 
-        return new ExternalCallResponse(ContentType.JSON, new {OK = true, results});
+        return new ExternalCallResponse(ContentType.JSON, new {OK = true, results = results}.ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII));
       }
     }
 
@@ -223,6 +231,7 @@ manc
         {
           var e = new WrappedExceptionData(error, false, true);
           result.Add(e);
+          //keep on executing script
         }
       }
 
