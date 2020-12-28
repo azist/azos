@@ -69,6 +69,9 @@ namespace Azos.Security.MinIdp
     {
       if (!Running) return null;
 
+      if (id.IsNullOrWhiteSpace()) return null;
+      id = id.ToLowerInvariant();
+
       if (MaxCacheAgeSec>0)
         lock(m_DataLock)
           if (m_IdxId.TryGetValue(new realmed(realm, id), out var existing)) return existing.d;
@@ -83,6 +86,8 @@ namespace Azos.Security.MinIdp
     {
       if (!Running) return null;
 
+      if (sysToken.IsNullOrWhiteSpace()) return null;
+
       if (MaxCacheAgeSec > 0)
         lock (m_DataLock)
           if (m_IdxSysToken.TryGetValue(new realmed(realm, sysToken), out var existing)) return existing;
@@ -96,6 +101,8 @@ namespace Azos.Security.MinIdp
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
     {
       if (!Running) return null;
+
+      if (uri.IsNullOrWhiteSpace()) return null;
 
       if (MaxCacheAgeSec > 0)
         lock (m_DataLock)
