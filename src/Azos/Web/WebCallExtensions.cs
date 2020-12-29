@@ -212,6 +212,21 @@ namespace Azos.Web
 
 
     /// <summary>
+    /// Processes the "wrap" Json protocol with JsonDataMap such as: '{OK: true, data: object}'
+    /// Throws averment exceptions if OK!=true, no 'data' key was returned.
+    /// The property 'data' may be NULL
+    /// </summary>
+    public static object UnwrapPayloadObject(this JsonDataMap data)
+    {
+      data.NonNull(nameof(data)).ExpectOK();
+
+      Aver.IsTrue(data.ContainsKey("data"), "no ['data'] key");
+      var result = data["data"];
+      return result;
+    }
+
+
+    /// <summary>
     /// Processes the "wrap" Json protocol with JsonDataMap such as: '{OK: true, data: {...map...}}'
     /// Throws averment exceptions if OK!=true, no 'data' key was returned or data is not a json map
     /// </summary>

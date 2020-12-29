@@ -29,6 +29,8 @@ namespace Azos.Tests.Nub.Security
 
       public override string ComponentLogTopic => "tezt";
 
+      public ICryptoMessageAlgorithm MessageProtectionAlgorithm => null;
+
       public Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
       {
         if (realm.Value == "r1" && id=="user1")

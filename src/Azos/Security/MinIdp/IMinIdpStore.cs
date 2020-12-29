@@ -24,6 +24,12 @@ namespace Azos.Security.MinIdp
   /// </remarks>
   public interface IMinIdpStore
   {
+    /// <summary>
+    /// Returns the optional algorithm used by the store to protect its payload or null.
+    /// This is used for transmission of the data returned by the store
+    /// </summary>
+    ICryptoMessageAlgorithm MessageProtectionAlgorithm { get; }
+
     Task<MinIdpUserData> GetByIdAsync(Atom realm, string id);
     Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri);
     Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken);

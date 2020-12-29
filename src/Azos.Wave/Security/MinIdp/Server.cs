@@ -59,15 +59,27 @@ namespace Azos.Security.MinIdp
     }
 
 
+    private object secure(IMinIdpStore store, object data, bool plain)
+    {
+      var crypt = store.MessageProtectionAlgorithm;
+      if (crypt != null && !(Ambient.CurrentCallUser.Status >= UserStatus.System && plain))
+        data = crypt.ProtectAsString(data, Serialization.JSON.JsonWritingOptions.PrettyPrintRowsAsMap);
+
+      return this.GetLogicResult(data);
+    }
+
     [ApiEndpointDoc(
       Title = "MinIdp query ById",
       Description = "Executed MinIdp authentication query by id",
       RequestBody = "{realm: atom, id: string}",
-      RequestQueryParameters = new[]{"realm: atom", "id: string"},
+      RequestQueryParameters = new[]{"realm: atom", "id: string", "plain: bool"},
       Methods = new[]{"POST: json body", "GET: query params"})]
     [Action(Name = "byid")]
-    public async Task<object> GetById(Atom realm, string id)
-     => this.GetLogicResult(await Store.GetByIdAsync(realm, id));
+    public async Task<object> GetById(Atom realm, string id, bool plain)
+    {
+      var store = Store;
+      return secure(store, await store.GetByIdAsync(realm, id), plain);
+    }
 
     [ApiEndpointDoc(
       Title = "MinIdp query BySys",
@@ -76,8 +88,11 @@ namespace Azos.Security.MinIdp
       RequestQueryParameters = new[] { "realm: atom", "sysToken: string" },
       Methods = new[] { "POST: json body", "GET: query params" })]
     [Action(Name = "bysys")]
-    public async Task<object> GetBySys(Atom realm, string sysToken)
-    => this.GetLogicResult(await Store.GetBySysAsync(realm, sysToken));
+    public async Task<object> GetBySys(Atom realm, string sysToken, bool plain)
+    {
+      var store = Store;
+      return secure(store, await store.GetBySysAsync(realm, sysToken), plain);
+    }
 
     [ApiEndpointDoc(
       Title = "MinIdp query ByUri",
@@ -86,8 +101,11 @@ namespace Azos.Security.MinIdp
       RequestQueryParameters = new[] { "realm: atom", "uri: string" },
       Methods = new[] { "POST: json body", "GET: query params" })]
     [Action(Name = "byuri")]
-    public async Task<object> GetByUri(Atom realm, string uri)
-    => this.GetLogicResult(await Store.GetByUriAsync(realm, uri));
+    public async Task<object> GetByUri(Atom realm, string uri, bool plain)
+    {
+      var store = Store;
+      return secure(store, await store.GetByUriAsync(realm, uri), plain);
+    }
 
     [ApiEndpointDoc(
       Title = "Executes MinIdp management script",

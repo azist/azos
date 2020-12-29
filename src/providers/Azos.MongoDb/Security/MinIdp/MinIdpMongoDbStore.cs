@@ -121,6 +121,19 @@ namespace Azos.Security.MinIdp
     [Config] public double RootLoginLifetimeHours { get; set; }
 
 
+    [Config("$msg-algo;$msg-algorithm")]
+    public string MessageProtectionAlgorithmName { get; set; }
+
+    public ICryptoMessageAlgorithm MessageProtectionAlgorithm => MessageProtectionAlgorithmName.IsNullOrWhiteSpace() ? null :
+                                                                      App.SecurityManager
+                                                                         .Cryptography
+                                                                         .MessageProtectionAlgorithms[MessageProtectionAlgorithmName]
+                                                                         .NonNull("Algo `{0}`".Args(MessageProtectionAlgorithmName))
+                                                                         .IsTrue(a => a.Audience == CryptoMessageAlgorithmAudience.Internal &&
+                                                                                      a.Flags.HasFlag(CryptoMessageAlgorithmFlags.Cipher) &&
+                                                                                      a.Flags.HasFlag(CryptoMessageAlgorithmFlags.CanUnprotect),
+                                                                                      "Algo `{0}` !internal !cipher".Args(MessageProtectionAlgorithmName));
+
 
 
     internal TResult Access<TResult>(Func<IMongoDbTransport, TResult> body)
@@ -271,6 +284,7 @@ namespace Azos.Security.MinIdp
       m_RemoteAddress.NonBlank("RemoteAddress string");
 
       var algo = this.SysTokenCryptoAlgorithm;//this throws if not configured properly
+      algo = this.MessageProtectionAlgorithm;//this throws if not configured properly
 
       var rel = Guid.NewGuid();
       checkRootAccess(rel);

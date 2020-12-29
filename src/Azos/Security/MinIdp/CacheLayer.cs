@@ -54,6 +54,8 @@ namespace Azos.Security.MinIdp
 
     public IMinIdpStore Store => m_Store;
 
+    public ICryptoMessageAlgorithm MessageProtectionAlgorithm => Store.MessageProtectionAlgorithm;
+
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
     public override bool InstrumentationEnabled { get; set; }

@@ -52,6 +52,7 @@ namespace Azos.Security.MinIdp
       }
     }
 
+    public ICryptoMessageAlgorithm MessageProtectionAlgorithm => null;
 
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
      => await fetch( cmd => {

@@ -124,6 +124,19 @@ manc
     public override bool InstrumentationEnabled { get; set; }
 
 
+    [Config("$msg-algo;$msg-algorithm")]
+    public string MessageProtectionAlgorithmName { get; set; }
+
+    public ICryptoMessageAlgorithm MessageProtectionAlgorithm => MessageProtectionAlgorithmName.IsNullOrWhiteSpace() ? null :
+                                                                      App.SecurityManager
+                                                                         .Cryptography
+                                                                         .MessageProtectionAlgorithms[MessageProtectionAlgorithmName]
+                                                                         .NonNull("Algo `{0}`".Args(MessageProtectionAlgorithmName))
+                                                                         .IsTrue(a => a.Audience == CryptoMessageAlgorithmAudience.Internal &&
+                                                                                      a.Flags.HasFlag(CryptoMessageAlgorithmFlags.Cipher) &&
+                                                                                      a.Flags.HasFlag(CryptoMessageAlgorithmFlags.CanUnprotect),
+                                                                                      "Algo `{0}` !internal !cipher".Args(MessageProtectionAlgorithmName));
+
     /// <summary>
     /// Logical service address of IDP server
     /// </summary>
@@ -147,6 +160,7 @@ manc
     {
       m_Server.NonNull("Not configured Server of config section `{0}`".Args(CONFIG_SERVER_SECTION));
       IdpServerAddress.NonBlank(nameof(IdpServerAddress));
+      var algo = this.MessageProtectionAlgorithm;//this throws if not configured properly
       base.DoStart();
     }
 
@@ -168,40 +182,64 @@ manc
       }
     }
 
+
+    private MinIdpUserData processResponse(JsonDataMap response)
+    {
+      var got = response.UnwrapPayloadObject();
+      if (got == null) return null;
+
+      var dataMap = got as JsonDataMap;
+
+      if (dataMap == null)
+      {
+        if (got is string ciphered)
+        {
+          dataMap = MessageProtectionAlgorithm.NonNull(nameof(MessageProtectionAlgorithm))
+                                              .UnprotectObject(ciphered) as JsonDataMap; //returns null if message could not be deciphered
+        }
+        else
+          throw new SecurityException(StringConsts.SECURITY_IDP_PROTOCOL_ERROR.Args("unsupported `data` of type `{0}`".Args(got.GetType().Name)));
+      }
+
+      if (dataMap == null) return null;
+
+      return JsonReader.ToDoc<MinIdpUserData>(dataMap);
+    }
+
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
       => await guardedIdpAccess(async () =>
           {
-              var map = await m_Server.Call(IdpServerAddress,
+              var response = await m_Server.Call(IdpServerAddress,
                                             nameof(IMinIdpStore),
                                             id,
                                             (tx, c) => tx.Client
                                                          .PostAndGetJsonMapAsync("byid", new { realm = realm, id = id}));//do NOT del prop names
 
-              return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
+              return processResponse(response);
           });
 
     public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
       => await guardedIdpAccess(async () =>
           {
-            var map = await m_Server.Call(IdpServerAddress,
+            var response = await m_Server.Call(IdpServerAddress,
                                           nameof(IMinIdpStore),
                                           sysToken,
                                           (tx, c) => tx.Client
                                                        .PostAndGetJsonMapAsync("bysys", new { realm = realm, sysToken = sysToken }));//do NOT del prop names
 
-            return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
+            return processResponse(response);
           });
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
       => await guardedIdpAccess(async () =>
           {
-            var map = await m_Server.Call(IdpServerAddress,
+            var response = await m_Server.Call(IdpServerAddress,
                                           nameof(IMinIdpStore),
                                           uri,
                                           (tx, c) => tx.Client
                                                        .PostAndGetJsonMapAsync("byuri", new { realm = realm, uri =  uri }));//do NOT del prop names
 
-            return JsonReader.ToDoc<MinIdpUserData>(map.UnwrapPayloadMap());
+            return processResponse(response);
           });
 
 
