@@ -16,6 +16,7 @@ using Azos.Web;
 using Azos.Instrumentation;
 using Azos.Serialization.JSON;
 using Azos.Log;
+using Azos.Data;
 
 namespace Azos.Security.MinIdp
 {
@@ -217,25 +218,50 @@ manc
                              .DistinctBy(ep => ((IHttpEndpoint)ep.Endpoint).Uri);
 
       //broadcast command to all physical servers
-      var result = new List<object>();
+      var impersonationAuthHeader = Ambient.CurrentCallUser.MakeSysTokenAuthHeader();//get current call flow identity
+      var results = new List<object>();
       foreach(var server in allServers)
       {
+        var result = new JsonDataMap();
+        result["host"] = ((IHttpEndpoint)server.Endpoint).Uri.ToString();
+        result["shard"] = "{0}[{1}]".Args(server.Endpoint.Shard, server.Endpoint.ShardOrder);
+        results.Add(result);
         try
         {
-          var one = server.ToEnumerable();
-          var impersonate = Ambient.CurrentCallUser.MakeSysTokenAuthHeader();
-          var call = await one.Call((http, ct) => http.Client.PostAndGetJsonMapAsync("exec", new { source = stepSrc }, requestHeaders: impersonate.ToEnumerable()));
-          result.Add(call);
+          var cohortOfOne = server.ToEnumerable();
+
+          var got = await cohortOfOne.Call
+          (
+            (http, ct) => http.Client
+                              .PostAndGetJsonMapAsync
+                               (
+                                 "exec",
+                                 new { source = stepSrc },
+                                 requestHeaders: impersonationAuthHeader.ToEnumerable()//Auth on remote server using this call flow identity
+                               )
+          );
+
+          //try to convert JSON from string representation to object, to avoid extra padding
+          if (got["data"] is string sdata && got["ctype"].AsString().IndexOf("json", StringComparison.InvariantCultureIgnoreCase)>=0)
+          {
+            try
+            {
+              var d = sdata.JsonToDataObject();//if conversion succeeds
+              got["data"] = d;//re-assigned parsed json as object
+            }catch{ /* otherwise, keep payload as is*/ }
+          }
+
+          result["response"] = got;
         }
         catch(Exception error)
         {
           var e = new WrappedExceptionData(error, false, true);
-          result.Add(e);
+          result["error"] = e;
           //keep on executing script
         }
       }
 
-      return result;
+      return results;
     }
 
   }
