@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.5.16
+set VER=1.5.17
 set HEADLINE=Impersonation + Systoken scheme 
 call vs2017-build-release %VER%
 
