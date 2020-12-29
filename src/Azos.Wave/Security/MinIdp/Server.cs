@@ -63,7 +63,7 @@ namespace Azos.Security.MinIdp
     {
       var crypt = store.MessageProtectionAlgorithm;
       if (crypt != null && !(Ambient.CurrentCallUser.Status >= UserStatus.System && plain))
-        data = crypt.ProtectAsString(data, Serialization.JSON.JsonWritingOptions.PrettyPrintRowsAsMap);
+        data = crypt.ProtectAsString(data, Serialization.JSON.JsonWritingOptions.CompactRowsAsMap);
 
       return this.GetLogicResult(data);
     }
@@ -85,7 +85,7 @@ namespace Azos.Security.MinIdp
       Title = "MinIdp query BySys",
       Description = "Executed MinIdp authentication query by system auth token",
       RequestBody = "{realm: atom, sysToken: string}",
-      RequestQueryParameters = new[] { "realm: atom", "sysToken: string" },
+      RequestQueryParameters = new[] { "realm: atom", "sysToken: string", "plain: bool" },
       Methods = new[] { "POST: json body", "GET: query params" })]
     [Action(Name = "bysys")]
     public async Task<object> GetBySys(Atom realm, string sysToken, bool plain)
@@ -98,7 +98,7 @@ namespace Azos.Security.MinIdp
       Title = "MinIdp query ByUri",
       Description = "Executed MinIdp authentication query by entity Uri",
       RequestBody = "{realm: atom, uri: string}",
-      RequestQueryParameters = new[] { "realm: atom", "uri: string" },
+      RequestQueryParameters = new[] { "realm: atom", "uri: string", "plain: bool" },
       Methods = new[] { "POST: json body", "GET: query params" })]
     [Action(Name = "byuri")]
     public async Task<object> GetByUri(Atom realm, string uri, bool plain)

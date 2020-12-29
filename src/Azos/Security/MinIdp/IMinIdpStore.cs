@@ -25,7 +25,7 @@ namespace Azos.Security.MinIdp
   public interface IMinIdpStore
   {
     /// <summary>
-    /// Returns the optional algorithm used by the store to protect its payload or null.
+    /// Returns an optional algorithm instance which is used by the store to protect its payload when it is set, or null.
     /// This is used for transmission of the data returned by the store
     /// </summary>
     ICryptoMessageAlgorithm MessageProtectionAlgorithm { get; }
