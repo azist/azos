@@ -20,6 +20,7 @@ namespace Azos.Log
     DebugB,
     DebugC,
     DebugD,
+    DebugError,
 
     /// <summary>
     /// Emitted by DataStore implementations

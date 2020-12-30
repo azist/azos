@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.5.17
-set HEADLINE=Impersonation + Systoken scheme 
+set VER=1.5.18
+set HEADLINE=Svc release, tracing in minidp
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

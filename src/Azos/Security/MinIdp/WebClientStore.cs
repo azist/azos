@@ -165,26 +165,46 @@ manc
     }
 
 
-    private async Task<MinIdpUserData> guardedIdpAccess(Func<Task<MinIdpUserData>> body)
+    private async Task<MinIdpUserData> guardedIdpAccess(Func<Guid, Task<MinIdpUserData>> body)
     {
+      var rel = Guid.NewGuid();
       try
       {
-        var result = await body();
+        if (ComponentEffectiveLogLevel < MessageType.Trace)
+          WriteLog(MessageType.DebugA, nameof(guardedIdpAccess), "#001 IDP.Call", related: rel);
+
+        var result = await body(rel);
+
+        if (ComponentEffectiveLogLevel < MessageType.Trace)
+          WriteLog(MessageType.DebugA, nameof(guardedIdpAccess), "#002 IDP.Call result. User name: `{0}`".Args(result?.Name), related: rel);
+
         return result;
       }
       catch(Exception cause)
       {
-        if (cause is WebCallException wce && wce.HttpStatusCode == 404) return null;//404 is treated as "user not found"
+        if (ComponentEffectiveLogLevel < MessageType.Trace)
+          WriteLog(MessageType.DebugError, nameof(guardedIdpAccess), "#003 IDP.Call result exception: {0}".Args(cause.ToMessageWithType()), related: rel);
+
+        if (cause is WebCallException wce && wce.HttpStatusCode == 404)
+        {
+          if (ComponentEffectiveLogLevel < MessageType.Trace)
+            WriteLog(MessageType.DebugA, nameof(guardedIdpAccess), "#004 Got WCE-404", related: rel);
+
+          return null;//404 is treated as "user not found"
+        }
 
         var error = new SecurityException(StringConsts.SECURITY_IDP_UPSTREAM_CALL_ERROR.Args(cause.ToMessageWithType()), cause);
-        WriteLog(MessageType.CriticalAlert, nameof(guardedIdpAccess), error.Message, error);
+        WriteLog(MessageType.CriticalAlert, nameof(guardedIdpAccess), error.Message, error: error, related: rel);
         throw error;
       }
     }
 
 
-    private MinIdpUserData processResponse(JsonDataMap response)
+    private MinIdpUserData processResponse(Guid rel, JsonDataMap response)
     {
+      if (ComponentEffectiveLogLevel < MessageType.Trace)
+        WriteLog(MessageType.DebugA, nameof(processResponse), "#100 Got response", related: rel, pars: response.ToJson(JsonWritingOptions.CompactASCII));
+
       var got = response.UnwrapPayloadObject();
       if (got == null) return null;
 
@@ -194,20 +214,43 @@ manc
       {
         if (got is string ciphered)
         {
-          dataMap = MessageProtectionAlgorithm.NonNull(nameof(MessageProtectionAlgorithm))
-                                              .UnprotectObject(ciphered) as JsonDataMap; //returns null if message could not be deciphered
+          if (ComponentEffectiveLogLevel < MessageType.Trace)
+            WriteLog(MessageType.DebugA, nameof(processResponse), "#150 Deciphering", related: rel, pars: ciphered);
+
+          var deciphered = MessageProtectionAlgorithm.NonNull(nameof(MessageProtectionAlgorithm))
+                                              .UnprotectObject(ciphered);
+
+          if (ComponentEffectiveLogLevel < MessageType.Trace)
+            WriteLog(MessageType.DebugA, nameof(processResponse), "#151 Deciphered", related: rel, pars: response.ToJson(JsonWritingOptions.CompactASCII));
+
+          dataMap =  deciphered as JsonDataMap; //returns null if message could not be deciphered
         }
         else
-          throw new SecurityException(StringConsts.SECURITY_IDP_PROTOCOL_ERROR.Args("unsupported `data` of type `{0}`".Args(got.GetType().Name)));
+        {
+          var etext = StringConsts.SECURITY_IDP_PROTOCOL_ERROR.Args("unsupported `data` of type `{0}`".Args(got.GetType().Name));
+
+          if (ComponentEffectiveLogLevel < MessageType.Trace)
+            WriteLog(MessageType.DebugError, nameof(processResponse), "#155 "+ etext, related: rel);
+
+          throw new SecurityException(etext);
+        }
       }
 
-      if (dataMap == null) return null;
+      if (dataMap == null)
+      {
+        if (ComponentEffectiveLogLevel < MessageType.Trace)
+          WriteLog(MessageType.DebugA, nameof(processResponse), "#160 datamap is Null", related: rel);
+        return null;
+      }
+
+      if (ComponentEffectiveLogLevel < MessageType.Trace)
+        WriteLog(MessageType.DebugA, nameof(processResponse), "#170 ToDoc", related: rel, pars: dataMap.ToJson(JsonWritingOptions.CompactASCII));
 
       return JsonReader.ToDoc<MinIdpUserData>(dataMap);
     }
 
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
-      => await guardedIdpAccess(async () =>
+      => await guardedIdpAccess(async (rel) =>
           {
               var response = await m_Server.Call(IdpServerAddress,
                                             nameof(IMinIdpStore),
@@ -215,11 +258,11 @@ manc
                                             (tx, c) => tx.Client
                                                          .PostAndGetJsonMapAsync("byid", new { realm = realm, id = id}));//do NOT del prop names
 
-              return processResponse(response);
+              return processResponse(rel, response);
           });
 
     public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
-      => await guardedIdpAccess(async () =>
+      => await guardedIdpAccess(async (rel) =>
           {
             var response = await m_Server.Call(IdpServerAddress,
                                           nameof(IMinIdpStore),
@@ -227,11 +270,11 @@ manc
                                           (tx, c) => tx.Client
                                                        .PostAndGetJsonMapAsync("bysys", new { realm = realm, sysToken = sysToken }));//do NOT del prop names
 
-            return processResponse(response);
+            return processResponse(rel, response);
           });
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
-      => await guardedIdpAccess(async () =>
+      => await guardedIdpAccess(async (rel) =>
           {
             var response = await m_Server.Call(IdpServerAddress,
                                           nameof(IMinIdpStore),
@@ -239,7 +282,7 @@ manc
                                           (tx, c) => tx.Client
                                                        .PostAndGetJsonMapAsync("byuri", new { realm = realm, uri =  uri }));//do NOT del prop names
 
-            return processResponse(response);
+            return processResponse(rel, response);
           });
 
 
