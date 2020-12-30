@@ -212,18 +212,18 @@ manc
 
       if (dataMap == null)
       {
-        if (got is string ciphered)
+        if (got is string ciphered && ciphered.IsNotNullOrWhiteSpace())
         {
           if (ComponentEffectiveLogLevel < MessageType.Trace)
             WriteLog(MessageType.DebugA, nameof(processResponse), "#150 Deciphering", related: rel, pars: ciphered);
 
           var deciphered = MessageProtectionAlgorithm.NonNull(nameof(MessageProtectionAlgorithm))
-                                              .UnprotectObject(ciphered);
+                                                     .UnprotectObject(ciphered);
 
-          if (ComponentEffectiveLogLevel < MessageType.Trace)
-            WriteLog(MessageType.DebugA, nameof(processResponse), "#151 Deciphered", related: rel, pars: response.ToJson(JsonWritingOptions.CompactASCII));
+          if (deciphered == null)//returns null if message could not be deciphered
+            WriteLog(MessageType.Critical, nameof(processResponse), StringConsts.SECURITY_IDP_RESPONSE_DECIPHER_ERROR, related: rel);
 
-          dataMap =  deciphered as JsonDataMap; //returns null if message could not be deciphered
+          dataMap =  deciphered as JsonDataMap;
         }
         else
         {

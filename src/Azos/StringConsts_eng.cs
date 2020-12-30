@@ -241,6 +241,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string SECURITY_IDP_PROTOCOL_ERROR =
          "IDP upstream server protocol error: {0}";
 
+    public const string SECURITY_IDP_RESPONSE_DECIPHER_ERROR =
+    "IDP upstream server response payload could not be deciphered. Are the crypto message protection keys configured correctly?";
+
     public const string SECURITY_REPRESENT_CREDENTIALS_FORGOTTEN =
         "Credentials can not be represented as they are forgotten";
 
