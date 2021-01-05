@@ -115,19 +115,46 @@ interface ISecurityManager
 
 #### Authorization
 From the authorization standpoint, business applications are notorious for having many security-addressable
-pieces and parts, for example: many apps have their fields, buttons, and even drop-down choices  
-restricted/limited during data entry.
+pieces and parts, for example: many apps have their fields, buttons, and even drop-down choices restricted/limited during data entry.
 
-It is not uncommon to have a requirement to implement a **resource-based** security, such as **row-level access control**.
+It is not uncommon to have requirements to implement a **resource-based** security, such as **row-level access control**.
 A typical example is insurance carrier groups, having their carrier representatives be able to see only members within certain groups.
 Usually these kind of systems have complex rights assignments like "Include all but these", "Exclude all but these..."
 
 A `User` principal object is accessible via `Session.User` property and represents an authenticated user principal.
 
-> Many think that `User` implies a human user. It does not. A user may be a robot, a process, an entity etc. The term can be used 
+> Many think that `User` implies a human user. It does not. A user may also be a robot, a process, an entity etc. The term can be used 
 > along with `Principal` interchangeably. 
  
 > You can use `Session.LastLoginType = (Human | Robot)` to determine how the session was initiated. See [ISession](/src/Azos/Apps/ISession.cs)
+
+User object exposes `Rights` property which is used as a round-trip bag between `ISecurityManager` calls to `Authenticate` and `Authorize`.
+This is a very important design point. The "rights" depend on particular `ISecurityManager` implementation - it is up to that implementation
+to interpret user `Rights` per specific system:
+```csharp
+  /// <summary>
+  /// Authorizes user by finding appropriate access level to permission by supplied path.
+  /// Depending on particular implementation, rights may be fully or partially cached in memory.
+  /// Note: this authorization call returns AccessLevel object that may contain a complex data structure.
+  /// The final assertion of user's ability to perform a certain action is encapsulated in Permission.Check() method.
+  /// Call Permission.AuthorizeAndGuardAction(MemberInfo, ISession) to guard classes and methods from unauthorized access
+  /// </summary>
+  /// <param name="user">A user to perform authorization for</param>
+  /// <param name="permission">An instance of permission to get</param>
+  /// <returns>AccessLevel granted to the specified permission</returns>
+  AccessLevel Authorize(User user, Permission permission);
+```
+
+The [`AccessLevel`](authorization/AccessLevel.cs) represents the actual authorization data which is in effect at the time of the call.
+The actual Authorization determination is performed in the [`Permission`](authorization/Permissions.cs) `Check` method.
+
+> Permissions are classes derived from `Attribute` so they can decorate classes and methods declaratively or be allocated imperatively
+> in code. This is a form of **inversion of control** - instead of handling all logic in one large class the system delegates the
+> work to the relevant entities, having `ISecurityManager` acting as a facade to the IDP/authorization stores, permissions representing
+> pieces of security-addressible functionality along with virtual `Check()` method which encapsulates the actual logic.
+
+> NOTE: Permission `Check()` executes in `ISession` scope, having `Session.User` object as a property. This allows to build complex
+> policy-based authorization schemes which depend on **Users, Rights and User Session objects**
 
 
 See also:
