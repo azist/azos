@@ -45,7 +45,7 @@ namespace Azos.Apps
     /// <summary>
     /// Returns Session ID secret - the ulong that additionally identifies this session.
     /// This property is needed for cross-check upon GUID id lookup, so that
-    /// Session ID GUID can not be forged by the client - a form of a "password"
+    /// Session ID GUID can not be forged by the client - a form of a "password"/key length extension
     /// </summary>
      ulong IDSecret {get;}
 
