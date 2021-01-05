@@ -112,7 +112,6 @@ interface ISecurityManager
 ```
 
 
-
 #### Authorization
 From the authorization standpoint, business applications are notorious for having many security-addressable
 pieces and parts, for example: many apps have their fields, buttons, and even drop-down choices restricted/limited during data entry.
@@ -145,17 +144,97 @@ to interpret user `Rights` per specific system:
   AccessLevel Authorize(User user, Permission permission);
 ```
 
-The [`AccessLevel`](authorization/AccessLevel.cs) represents the actual authorization data which is in effect at the time of the call.
-The actual Authorization determination is performed in the [`Permission`](authorization/Permissions.cs) `Check` method.
+The [`AccessLevel`](authorization/AccessLevel.cs) represents the actual authorization data - an **access control list** (ACL), which is in 
+effect at the time of the call. The actual Authorization determination is performed in the [`Permission`](authorization/Permissions.cs) `Check` method.
+
+The ACLs/rights store a configuration object of the following form:
+```cshrap
+namespace1
+{
+  namespaceX
+  {
+    permission1{ level=1 ... }
+  }
+}
+```
+
+Permissions have `Path` property which is a ACL config tree path, consequently when you create a typed permission in, for example: 
+`MySystem.Security.MyPermissions.BookMasterPermission` here is what an ACL grant may look like:
+```csharp
+  MySystem
+  {
+    Security{ MyPermissions{  BookMaster{ level = 4 }}}
+  }
+```
 
 > Permissions are classes derived from `Attribute` so they can decorate classes and methods declaratively or be allocated imperatively
 > in code. This is a form of **inversion of control** - instead of handling all logic in one large class the system delegates the
 > work to the relevant entities, having `ISecurityManager` acting as a facade to the IDP/authorization stores, permissions representing
-> pieces of security-addressible functionality along with virtual `Check()` method which encapsulates the actual logic.
+> pieces of security-addressable functionality along with virtual `Check()` method which encapsulates the actual logic.
 
 > NOTE: Permission `Check()` executes in `ISession` scope, having `Session.User` object as a property. This allows to build complex
 > policy-based authorization schemes which depend on **Users, Rights and User Session objects**
 
+The authorization functionality is built into WAVE and Glue surfaces, so you can add permissions at the declaration level:
+```csharp
+
+  [WorkerPermission]
+  public interface INotificationService
+  {
+    bool SendMsg(...);
+
+    [SupervisorPermission]
+    bool SendUrgentMsg(...);
+  }
+
+  [SchedulingPermission] //VIEW or up
+  public class Appointment : ApiProtocolController
+  {
+    [ActionOnGet]
+    public async Task<object> GetApt(string id){ .... }
+
+    [ActionOnPost, 
+     SchedulingPermission(SchedulingLevel.Create), // CREATE mode to post new entries
+     AdminPermission] // and ADMIN Permission
+    public async Task<object> PostApt(Appointment data){ .... }
+  }
+```
+
+> NOTE: Permissions are more granular than role-based security. It is always possible to derive a more general entity from its details, whereas
+> the opposite operation is not possible. If your system does not need to use granular permissions you can create permissions which
+> logically equate to roles for simplicity. In Azos a "role" is a named set of permissions and authorization is done based on permissions, 
+> not roles.
+
+
+Sometimes applications need to authorize actions using imperative code constructs, for example in the below example a determination
+of `DataContext` which authorization depends upon, is performed later in the code flow:
+```csharp
+  public async Task<ResponseMessage> ProcessAsync(RequestMessage request)
+  {
+    //quickly pre-check request if it is logically malformed
+    await preValidateRequest(request);
+
+    //determine data context name BEFORE we authorize the processing
+    var dataContext = routeDataContext(request);
+
+    //create our security check when we know dataContext
+    var demand = new RequestProcessingPermission(ProcessingLevel.Process, dataContext.Name);
+
+    //Authorize AFTER we know the data context
+    await App.Authorize(demand);//this throws AuthorizationException
+
+    //do actual work which was authorized at this point
+    var result = await processCore(request, dataContext);
+
+    return result;
+  }
+```
+
+> Notice in the example above, there is no passing around `User` or `Session` objects. This is because
+> the system uses Ambient context under the hood as it knows the current call flow principal. 
+> Notice that you can now use any kind of design because you do not need to carry `Session` around
+> many function calls that otherwise do not need it. The code above is 100% agnostic of its host - 
+> it does not care whether it is a web, console app or any other host process type
 
 See also:
 - [Configuration](/src/Azos/Conf)
