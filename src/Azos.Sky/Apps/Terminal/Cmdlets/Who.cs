@@ -10,7 +10,7 @@ using Azos.Conf;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
-  public class Who : Cmdlet
+  public sealed class Who : Cmdlet
   {
     public Who(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args) { }
 

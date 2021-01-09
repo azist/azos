@@ -4,21 +4,22 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Azos.Client
+namespace Azos.Data.Access.MongoDb.Client
 {
   /// <summary>
-  /// Provides extension methods for making service calls
+  /// Provides extension methods for making service calls to Mongo db
   /// </summary>
-  public static class HttpCallExtensions
+  public static class MongoDbCallExtensions
   {
     /// <summary>
-    /// Orchestrates an Http/s call to a remote service pointed to by a logical `remoteAddress`.
+    /// Orchestrates an Mongo/s call to a remote service pointed to by a logical `remoteAddress`.
     /// This algorithm provides sharding, fail-over and circuit breaker functionality built-in.
     /// An actual call is performed in a passed-in call body functor.
     /// </summary>
@@ -32,40 +33,40 @@ namespace Azos.Client
     /// <param name="network">Logical network name used for endpoint address resolution, e.g. this is used to segregate traffic by physical channels</param>
     /// <param name="binding">Logical binding (sub-protocol) name (e.g. json/bix)</param>
     /// <returns>TResult call result or throws `ClientException` if call eventually failed after all failovers tried</returns>
-    public static Task<TResult> Call<TResult>(this IHttpService service,
-                                                    string remoteAddress,
-                                                    string contract,
-                                                    object shardKey,
-                                                    Func<IHttpTransport, CancellationToken?, Task<TResult>> body,
-                                                    CancellationToken? cancellation = null,
-                                                    Atom? network = null,
-                                                    Atom? binding = null)
+    public static TResult CallSync<TResult>(this IMongoDbService service,
+                                              string remoteAddress,
+                                              string contract,
+                                              object shardKey,
+                                              Func<IMongoDbTransport, CancellationToken?, TResult> body,
+                                              CancellationToken? cancellation = null,
+                                              Atom? network = null,
+                                              Atom? binding = null)
     {
       body.NonNull(nameof(body));
       var assignments = service.NonNull(nameof(service))
                                .GetEndpointsForCall(remoteAddress, contract, shardKey, network, binding);
 
-      return assignments.Call(body, cancellation);
+      return assignments.CallSync(body, cancellation);
     }
 
-    public static async Task<TResult> Call<TResult>(this IEnumerable<EndpointAssignment> assignments,
-                                                    Func<IHttpTransport, CancellationToken?, Task<TResult>> body,
-                                                    CancellationToken? cancellation = null)
+    public static TResult CallSync<TResult>(this IEnumerable<EndpointAssignment> assignments,
+                                             Func<IMongoDbTransport, CancellationToken?, TResult> body,
+                                             CancellationToken? cancellation = null)
     {
       body.NonNull(nameof(body));
 
       var first = assignments.NonNull(nameof(assignments)).FirstOrDefault();
-      if (!first.IsAssigned) throw new ClientException(StringConsts.HTTP_CLIENT_CALL_ASSIGMENT_ERROR.Args("No assignments provided"));
+      if (!first.IsAssigned) throw new ClientException(StringConsts.MONGO_CLIENT_CALL_ASSIGMENT_ERROR.Args("No assignments provided"));
 
-      var service = first.Endpoint.Service as IHttpService;
-      if (service==null) throw new ClientException(StringConsts.HTTP_CLIENT_CALL_ASSIGMENT_ERROR.Args("Wrong service type assignments"));
+      var service = first.Endpoint.Service as IMongoDbService;
+      if (service==null) throw new ClientException(StringConsts.MONGO_CLIENT_CALL_ASSIGMENT_ERROR.Args("Wrong service type assignments"));
 
       if (!assignments.All(a => a.Endpoint.Service == service &&
                                 a.MappedContract == first.MappedContract &&
                                 a.MappedRemoteAddress == first.MappedRemoteAddress &&
                                 a.Endpoint.Network == first.Endpoint.Network &&
                                 a.Endpoint.Binding == first.Endpoint.Binding))
-       throw new ClientException(StringConsts.HTTP_CLIENT_CALL_ASSIGMENT_ERROR.Args("Inconsistent endpoint assignments"));
+       throw new ClientException(StringConsts.MONGO_CLIENT_CALL_ASSIGMENT_ERROR.Args("Inconsistent endpoint assignments"));
 
       var tries = 0;
       List<Exception> errors = null;
@@ -80,8 +81,8 @@ namespace Azos.Client
         var transport = service.AcquireTransport(assigned);
         try
         {
-          var http = (transport as IHttpTransport).NonNull("Implementation error: cast to IHttpTransport");
-          var result = await body(http, cancellation);
+          var tx = (transport as IMongoDbTransport).NonNull("Implementation error: cast to IMongoDbTransport");
+          var result = body(tx, cancellation);
           CallGuardException.Protect(ep, _ => _.NotifyCallSuccess(transport));
           return result;
         }
@@ -89,9 +90,6 @@ namespace Azos.Client
         {
           //Implementation error
           if (error is CallGuardException) throw;
-
-          //TaskCanceledException gets thrown on simple timeout even when cancellation was NOT requested
-          if (error is TaskCanceledException && cancellation.HasValue && cancellation.Value.IsCancellationRequested) throw;
 
           var errorClass = ep.NotifyCallError(transport, error);
           //todo instrument
@@ -107,7 +105,7 @@ namespace Azos.Client
         }
       }//foreach
 
-      throw new ClientException(StringConsts.HTTP_CLIENT_CALL_FAILED.Args(service.GetType().Name, first.MappedRemoteAddress.TakeLastChars(32, "..."), tries),
+      throw new ClientException(StringConsts.MONGO_CLIENT_CALL_FAILED.Args(service.GetType().Name, first.MappedRemoteAddress.TakeLastChars(32, "..."), tries),
                                 errors != null ? new AggregateException(errors) :
                                                  new AggregateException("No inner errors"));//todo LOG etc...
     }

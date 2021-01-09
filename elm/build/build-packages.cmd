@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.4.20
-set HEADLINE=Log Browser improvements 
+set VER=1.5.18
+set HEADLINE=Svc release, tracing in minidp
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

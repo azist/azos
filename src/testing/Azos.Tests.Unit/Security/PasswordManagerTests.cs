@@ -91,42 +91,27 @@ namespace Azos.Tests.Unit.Security
     [Run]
     public void AreEquivalent()
     {
-      var pm = new DefaultPasswordManager(NOPApplication.Instance);
-      pm.Start();
-
       var buf = IDPasswordCredentials.PlainPasswordToSecureBuffer("@8luE+5ky=");
       var hash1 = Manager.ComputeHash(PasswordFamily.Text, buf);
       var hash2 = HashedPassword.FromString(hash1.ToString());
 
-      try
-      {
-        Aver.IsTrue(pm.AreEquivalent(hash1, hash2));
-        Aver.Fail("no exception");
-      }
-      catch (AzosException e)
-      {
-        Aver.AreEqual(e.Message, StringConsts.DAEMON_INVALID_STATE +
-                                   typeof(DefaultPasswordManager).Name);
-      }
 
-      pm.SignalStop();
-      pm.WaitForCompleteStop();
 
-      Aver.IsTrue(pm.AreEquivalent(hash1, hash2));
+      Aver.IsTrue(m_Manager.AreEquivalent(hash1, hash2));
 
-      Aver.IsFalse(pm.AreEquivalent(null, null));
+      Aver.IsFalse(m_Manager.AreEquivalent(null, null));
 
       var hash3 = new HashedPassword("OTH", hash2.Family);
       hash3["hash"] = hash2["hash"];
       hash3["salt"] = hash2["salt"];
-      Aver.IsFalse(pm.AreEquivalent(hash1, hash3));
+      Aver.IsFalse(m_Manager.AreEquivalent(hash1, hash3));
 
       hash2 = Manager.ComputeHash(PasswordFamily.Text, buf);
-      Aver.IsFalse(pm.AreEquivalent(hash1, hash2));
+      Aver.IsFalse(m_Manager.AreEquivalent(hash1, hash2));
 
       buf = IDPasswordCredentials.PlainPasswordToSecureBuffer("qwerty");
       hash2 = Manager.ComputeHash(PasswordFamily.Text, buf);
-      Aver.IsFalse(pm.AreEquivalent(hash1, hash2));
+      Aver.IsFalse(m_Manager.AreEquivalent(hash1, hash2));
     }
 
     [Run]
@@ -168,15 +153,8 @@ namespace Azos.Tests.Unit.Security
       bool rehash, check;
 
       hash["salt"] = null;
-      try
-      {
-        check = Manager.Verify(buf, hash, out rehash);
-        Aver.Fail("no exception");
-      }
-      catch (AzosException e)
-      {
-        Aver.IsTrue(e.Message.Contains("ExtractPasswordHashingOptions((hash|hash[salt])==null)"));
-      }
+      check = Manager.Verify(buf, hash, out rehash);
+      Aver.IsFalse(check);//did not pass the check
 
       hash = null;
       try
@@ -190,22 +168,5 @@ namespace Azos.Tests.Unit.Security
       }
     }
 
-    [Run]
-    public void CheckServiceActive()
-    {
-      var pm = new DefaultPasswordManager(NOPApplication.Instance);
-      var buf = IDPasswordCredentials.PlainPasswordToSecureBuffer("@8luE+5ky=");
-
-      try
-      {
-        var hash = pm.ComputeHash(PasswordFamily.Text, buf);
-        Aver.Fail("no exception");
-      }
-      catch (AzosException e)
-      {
-        Aver.AreEqual(e.Message, StringConsts.DAEMON_INVALID_STATE +
-                                   typeof(DefaultPasswordManager).Name);
-      }
-    }
   }
 }

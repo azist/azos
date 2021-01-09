@@ -29,13 +29,15 @@ namespace Azos.Tests.Nub.Security
 
       public override string ComponentLogTopic => "tezt";
 
+      public ICryptoMessageAlgorithm MessageProtectionAlgorithm => null;
+
       public Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
       {
         if (realm.Value == "r1" && id=="user1")
-          return Task.FromResult(new MinIdpUserData{ SysId = 1, Realm = realm, CreateUtc = DateTime.Now, Name = "R1User1", Status = UserStatus.User, LoginId = "user1", LoginPassword = PWD1 });
+          return Task.FromResult(new MinIdpUserData{ SysId = 1, Realm = realm, CreateUtc = DateTime.UtcNow, StartUtc = DateTime.UtcNow.AddMinutes(-10), EndUtc = DateTime.UtcNow.AddMinutes(10), Name = "R1User1", Status = UserStatus.User, LoginId = "user1", LoginPassword = PWD1 });
 
         if (realm.Value == "r2" && id == "user1")
-          return Task.FromResult(new MinIdpUserData { SysId = 2, Realm = realm, CreateUtc = DateTime.Now, Name = "R2User1", Status = UserStatus.User, LoginId = "user1", LoginPassword = PWD2 });
+          return Task.FromResult(new MinIdpUserData { SysId = 2, Realm = realm, CreateUtc = DateTime.UtcNow, StartUtc = DateTime.UtcNow.AddMinutes(-10), EndUtc = DateTime.UtcNow.AddMinutes(10), Name = "R2User1", Status = UserStatus.User, LoginId = "user1", LoginPassword = PWD2 });
 
         return Task.FromResult<MinIdpUserData>(null);
       }
@@ -43,10 +45,10 @@ namespace Azos.Tests.Nub.Security
       public Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
       {
         if (realm.Value == "r1" && sysToken == "t1")
-          return Task.FromResult(new MinIdpUserData { SysId = 1, Realm = realm, CreateUtc = DateTime.Now, Name = "R1User1", Status = UserStatus.User });
+          return Task.FromResult(new MinIdpUserData { SysId = 1, Realm = realm, CreateUtc = DateTime.UtcNow, StartUtc = DateTime.UtcNow.AddMinutes(-10), EndUtc = DateTime.UtcNow.AddMinutes(10), Name = "R1User1", Status = UserStatus.User });
 
         if (realm.Value == "r2" && sysToken == "t1")
-          return Task.FromResult(new MinIdpUserData { SysId = 2, Realm = realm, CreateUtc = DateTime.Now, Name = "R2User1", Status = UserStatus.User });
+          return Task.FromResult(new MinIdpUserData { SysId = 2, Realm = realm, CreateUtc = DateTime.UtcNow, StartUtc = DateTime.UtcNow.AddMinutes(-10), EndUtc = DateTime.UtcNow.AddMinutes(10), Name = "R2User1", Status = UserStatus.User });
 
         return Task.FromResult<MinIdpUserData>(null);
       }
@@ -54,10 +56,10 @@ namespace Azos.Tests.Nub.Security
       public Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
       {
         if (realm.Value == "r1" && uri == "uri1")
-          return Task.FromResult(new MinIdpUserData { SysId = 1, Realm = realm, CreateUtc = DateTime.Now, Name = "R1User1", Status = UserStatus.User });
+          return Task.FromResult(new MinIdpUserData { SysId = 1, Realm = realm, CreateUtc = DateTime.UtcNow, StartUtc = DateTime.UtcNow.AddMinutes(-10), EndUtc = DateTime.UtcNow.AddMinutes(10), Name = "R1User1", Status = UserStatus.User });
 
         if (realm.Value == "r2" && uri == "uri1")
-          return Task.FromResult(new MinIdpUserData { SysId = 2, Realm = realm, CreateUtc = DateTime.Now, Name = "R2User1", Status = UserStatus.User });
+          return Task.FromResult(new MinIdpUserData { SysId = 2, Realm = realm, CreateUtc = DateTime.UtcNow, StartUtc = DateTime.UtcNow.AddMinutes(-10), EndUtc = DateTime.UtcNow.AddMinutes(10), Name = "R2User1", Status = UserStatus.User });
 
         return Task.FromResult<MinIdpUserData>(null);
       }

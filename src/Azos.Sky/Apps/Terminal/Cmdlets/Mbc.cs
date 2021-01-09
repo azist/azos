@@ -9,7 +9,7 @@ using Azos.Conf;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
-  public class Mbc : SkyAppCmdlet
+  public sealed class Mbc : SkyAppCmdlet
   {
     public Mbc(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args)
     {

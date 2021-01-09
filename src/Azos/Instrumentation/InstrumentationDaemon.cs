@@ -488,29 +488,51 @@ namespace Azos.Instrumentation
 
                 private void threadSpin()
                 {
+                  var rel = Guid.NewGuid();
+                  var errCount = 0;
                   try
                   {
+
                     while (Running)
                     {
-                      if (m_SelfInstrumented)
-                        instrumentSelf();
 
-                      write();
+                      try
+                      {
+                        if (m_SelfInstrumented)
+                          instrumentSelf();
 
-                      if (m_OSInstrumentationIntervalMS <= 0)
-                        m_Trigger.WaitOne(m_ProcessingIntervalMS);
-                      else
-                        instrumentOS();
+                        write();
+
+                        if (m_OSInstrumentationIntervalMS <= 0)
+                          m_Trigger.WaitOne(m_ProcessingIntervalMS);
+                        else
+                          instrumentOS();
+
+                        errCount = 0;//success
+                      }
+                      catch(Exception bodyError)
+                      {
+                        errCount++;
+                        WriteLog(errCount > 5 ? MessageType.Emergency : errCount > 1 ? MessageType.CriticalAlert : MessageType.Critical,
+                                 "threadSpin() loop",
+                                 "Leaked {0} consecutive times Exception: {1}".Args(errCount, bodyError.ToMessageWithType()),
+                                 error: bodyError,
+                                 related: rel);
+
+                        //progressive throttle
+                        m_Trigger.WaitOne(2500 + (1000 * errCount.KeepBetween(1, 15)));
+                      }
+
                     }//while
 
                     write();
                   }
                   catch(Exception e)
                   {
-                    WriteLog(MessageType.Emergency, " threadSpin() leaked exception", e.Message);
+                    WriteLog(MessageType.Emergency, " threadSpin()", "Leaked: " + e.ToMessageWithType(), e, related: rel);
                   }
 
-                  WriteLog(MessageType.Trace, "Exiting threadSpin()", null);
+                  WriteLog(MessageType.Trace, "Exiting threadSpin()", null, related: rel);
                 }
 
                 //adds data that described this very instance

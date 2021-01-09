@@ -78,9 +78,10 @@ namespace Azos.Tests.Nub
       Aver.AreEqual(d1.Code, d2.Code);
       Aver.AreEqual(d1.Source, d2.Source);
       Aver.AreEqual(d1.TypeName, d2.TypeName);
-      Aver.AreEqual(d1.ApplicationName, d2.ApplicationName);
+      Aver.AreEqual(d1.AppName, d2.AppName);
+      Aver.AreEqual(d1.AppId, d2.AppId);
       Aver.AreEqual(d1.StackTrace, d2.StackTrace);
-      Aver.AreEqual(d1.WrappedData, d2.WrappedData);
+      Aver.AreEqual(d1.ExternalStatus.ToJson(), d2.ExternalStatus.ToJson());
 
       if (d1.InnerException!=null)
         averWrappedExceptionEquality(d1.InnerException, d2.InnerException);

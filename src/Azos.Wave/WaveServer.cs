@@ -202,6 +202,10 @@ namespace Azos.Wave
 
       public override string ComponentCommonName { get { return "ws-"+Name; }}
 
+      /// <summary>
+      /// Provides a list of served endpoints
+      /// </summary>
+      public override string ServiceDescription => Prefixes.Aggregate(string.Empty, (s, p) => s + "  " + p);
 
 
       /// <summary>
@@ -222,6 +226,7 @@ namespace Azos.Wave
       /// Optional name of header used for disclosure of WorkContext.ID. If set to null, suppresses the header
       /// </summary>
       [Config(Default = DEFAUL_CALL_FLOW_HEADER)]
+      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
       public string CallFlowHeader { get; set;} = DEFAUL_CALL_FLOW_HEADER;
 
       /// <summary>
@@ -250,6 +255,7 @@ namespace Azos.Wave
       /// When true does not throw exceptions on client channel write
       /// </summary>
       [Config(Default=true)]
+      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
       public bool IgnoreClientWriteErrors
       {
         get { return m_IgnoreClientWriteErrors;}
@@ -261,7 +267,7 @@ namespace Azos.Wave
       }
 
       /// <summary>
-      /// When true writes errors that get thrown in server cathc-all HandleException methods
+      /// When true writes errors that get thrown in server catch-all HandleException methods
       /// </summary>
       [Config]
       [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
@@ -276,6 +282,7 @@ namespace Azos.Wave
       /// Establishes HTTP.sys kernel queue limit
       /// </summary>
       [Config]
+      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
       public int KernelHttpQueueLimit
       {
         get { return m_KernelHttpQueueLimit;}
@@ -293,6 +300,7 @@ namespace Azos.Wave
       /// Specifies how many requests can get accepted from kernel queue in parallel
       /// </summary>
       [Config(Default=DEFAULT_PARALLEL_ACCEPTS)]
+      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
       public int ParallelAccepts
       {
         get { return m_ParallelAccepts;}
@@ -311,6 +319,7 @@ namespace Azos.Wave
       /// Specifies how many instances of WorkContext(or derivatives) can be processed at the same time
       /// </summary>
       [Config(Default=DEFAULT_PARALLEL_WORKS)]
+      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
       public int ParallelWorks
       {
         get { return m_ParallelWorks;}
@@ -400,7 +409,7 @@ namespace Azos.Wave
       /// <summary>
       /// Returns HttpListener prefixes such as "http://+:8080/"
       /// </summary>
-      public IList<string> Prefixes { get { return m_Prefixes;}}
+      public IList<string> Prefixes => m_Prefixes;
 
 
       /// <summary>
@@ -417,10 +426,8 @@ namespace Azos.Wave
       }
 
       [Config]
-      public string GateCallerRealIpAddressHeader
-      {
-        get; set;
-      }
+      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
+      public string GateCallerRealIpAddressHeader  {  get; set;  }
 
 
       /// <summary>
@@ -496,7 +503,7 @@ namespace Azos.Wave
 
       protected override void DoConfigure(IConfigSectionNode node)
       {
-        if (node==null)
+        if (node==null || !node.Exists)
         {
           //0 get very root
           node = App.ConfigRoot[SysConsts.CONFIG_WAVE_SECTION];

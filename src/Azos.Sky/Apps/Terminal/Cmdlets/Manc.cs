@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Azos.Apps;
 using Azos.Conf;
 using Azos.Collections;
 using Azos.Instrumentation;
@@ -17,9 +16,9 @@ using Azos.Serialization.JSON;
 namespace Azos.Apps.Terminal.Cmdlets
 {
   /// <summary>
-  /// Component Manager
+  /// Component Manager / Manager of Components
   /// </summary>
-  public class CMan : Cmdlet
+  public sealed class Manc : Cmdlet
   {
 
     public const string CONFIG_SID_ATTR = "sid";
@@ -46,7 +45,7 @@ namespace Azos.Apps.Terminal.Cmdlets
     }
 
 
-    public CMan(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args)
+    public Manc(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args)
     {
 
     }
@@ -61,8 +60,8 @@ namespace Azos.Apps.Terminal.Cmdlets
 
       //todo: add accept: header to return json etc...
 
-      //cman{ sid=123 call-list{} }}; // for Help
-      //cman{ sid=123 call{ directsql{sql="select 2+2 from DUAL"} }};
+      //manc{ sid=123 call-list{} }}; // for Help
+      //manc{ sid=123 call{ directsql{sql="select 2+2 from DUAL"} }};
 
       var sb = new StringBuilder(1024);
       sb.AppendLine(AppRemoteTerminal.MARKUP_PRAGMA);
@@ -194,25 +193,30 @@ return
 
       var pfx = level<=0?string.Empty : string.Empty.PadLeft(level)+"->";
 
-      sb.AppendLine(pfx+"<f color=white>SID: <f color=yellow> "+cmp.ComponentSID);
-      sb.AppendLine(pfx+"<f color=gray>CommonName: <f color=magenta> "+cmp.ComponentCommonName);
-      sb.AppendLine(pfx+"<f color=gray>Start Time (local): <f color=yellow> "+cmp.ComponentStartTime);
-      sb.AppendLine(pfx+"<f color=gray>Type: <f color=yellow> "+cmp.GetType().FullName);
-      sb.AppendLine(pfx+"<f color=gray>Assembly: <f color=yellow> "+cmp.GetType().Assembly.FullName);
-      sb.AppendLine(pfx+"<f color=gray>Service: <f color=yellow> "+(cmp is Azos.Apps.Daemon ? "Yes" : "No") );
+      sb.AppendLine(pfx + "<f color=white>SID: <f color=yellow> "+cmp.ComponentSID);
+      sb.AppendLine(pfx + "<f color=gray>CommonName: <f color=magenta> "+cmp.ComponentCommonName);
+      sb.AppendLine(pfx + "<f color=gray>Start Time (local): <f color=yellow> "+cmp.ComponentStartTime);
+      sb.AppendLine(pfx + "<f color=gray>Type: <f color=yellow> "+cmp.GetType().FullName);
+      sb.AppendLine(pfx + "<f color=gray>Assembly: <f color=yellow> "+cmp.GetType().Assembly.FullName);
+      sb.AppendLine(pfx + "<f color=gray>Daemon: <f color=yellow> "+(cmp is IDaemon ? "Yes" : "No") );
       if (cmp is INamed)
-        sb.AppendLine(pfx+"<f color=gray>Name: <f color=green> "+((INamed)cmp).Name);
+        sb.AppendLine(pfx + "<f color=gray>Name: <f color=green> "+((INamed)cmp).Name);
 
-      sb.AppendLine(pfx+"<f color=gray>Interfaces: <f color=yellow> "+cmp.GetType()
+      if (cmp is IComponentDescription cdescr)
+      {
+        sb.AppendLine(pfx + "<f color=gray>Description: <f color=cyan> " + cdescr.ServiceDescription);
+        sb.AppendLine(pfx + "<f color=gray>Status: <f color=cyan> " + cdescr.StatusDescription);
+      }
+
+
+      sb.AppendLine(pfx + "<f color=gray>Interfaces: <f color=yellow> " + cmp.GetType()
                                                                           .GetInterfaces()
-                                                                          .OrderBy(it=>it.FullName)
-                                                                          .Aggregate("",(r,i)=>
-                                                                              r+(typeof(IExternallyParameterized).IsAssignableFrom(i) ?
-                                                                                  "<f color=cyan>{0}<f color=yellow>".Args(i.Name) : i.Name)+", ") );
+                                                                          .OrderBy(it => it.FullName)
+                                                                          .Aggregate("", (r,i) => r + i.Name + ", " ));
 
       sb.AppendLine();
       sb.AppendLine();
-      sb.AppendLine(pfx+"Parameters: ");
+      sb.AppendLine(pfx + "Parameters: ");
       sb.AppendLine();
 
       var pars = ExternalParameterAttribute.GetParametersWithAttrs(cmp.GetType());

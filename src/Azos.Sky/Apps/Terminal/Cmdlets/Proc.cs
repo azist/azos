@@ -16,7 +16,7 @@ namespace Azos.Apps.Terminal.Cmdlets
   /// <summary>
   /// Process Manager
   /// </summary>
-  public class Proc : SkyAppCmdlet
+  public sealed class Proc : SkyAppCmdlet
   {
     public const string CONFIG_ALLOC_SECTION    = "alloc";
     public const string CONFIG_SPAWN_SECTION    = "spawn";

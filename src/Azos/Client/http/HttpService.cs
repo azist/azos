@@ -20,28 +20,6 @@ namespace Azos.Client
   /// </summary>
   public class HttpService : ServiceBase<HttpEndpoint, HttpTransport>, IHttpService
   {
-    private struct cacheKey : IEquatable<cacheKey>
-    {
-      public cacheKey(string addr, string contr, Atom bin, Atom net)
-      {
-        RemoteAddress = addr; Contract = contr; Binding = bin; Network = net;
-      }
-      public readonly string RemoteAddress;
-      public readonly string Contract;
-      public readonly Atom Binding;
-      public readonly Atom Network;
-
-      public override int GetHashCode() => (RemoteAddress ?? "").GetHashCodeOrdIgnoreCase() ^ Network.GetHashCode();
-      public override bool Equals(object obj) => obj is cacheKey ck ? this.Equals(ck) : false;
-
-      public bool Equals(cacheKey other)
-       => this.RemoteAddress.EqualsOrdIgnoreCase(other.RemoteAddress) &&
-          this.Contract.EqualsOrdIgnoreCase(other.Contract) &&
-          this.Binding == other.Binding &&
-          this.Network == other.Network;
-    }
-
-
     public HttpService(IApplicationComponent director, IConfigSectionNode conf) : base(director, conf)
     {
       Web.WebSettings.RequireInitilizedServicePointManager(App);
@@ -55,11 +33,11 @@ namespace Azos.Client
 
     private object m_TransportLock = new object();
     private volatile Dictionary<EndpointAssignment, HttpTransport> m_Transports = new Dictionary<EndpointAssignment, HttpTransport>();
-    private volatile Dictionary<cacheKey, EndpointAssignment[][]> m_EPCache = new Dictionary<cacheKey, EndpointAssignment[][]>();
+    private volatile Dictionary<EndpointAssignment.Request, EndpointAssignment[][]> m_EPCache = new Dictionary<EndpointAssignment.Request, EndpointAssignment[][]>();
 
     protected override void EndpointsHaveChanged()
     {
-      m_EPCache = new Dictionary<cacheKey, EndpointAssignment[][]>();//clear cache after endpoints change
+      m_EPCache = new Dictionary<EndpointAssignment.Request, EndpointAssignment[][]>();//clear cache after endpoints change
       Thread.MemoryBarrier();
     }
 
@@ -68,7 +46,7 @@ namespace Azos.Client
 
     protected virtual EndpointAssignment[][] DoGetEndpointsForAllShardsArray(string remoteAddress, string contract, Atom network, Atom binding)
     {
-      var key = new cacheKey(remoteAddress, contract, binding, network);
+      var key = new EndpointAssignment.Request(remoteAddress, contract, binding, network);
       if (!m_EPCache.TryGetValue(key, out var shards))
       {
         shards = m_Endpoints.Where(ep =>
@@ -84,7 +62,7 @@ namespace Azos.Client
 
         if (shards.Length == 0) return null;
 
-        var dict = new Dictionary<cacheKey, EndpointAssignment[][]>(m_EPCache);
+        var dict = new Dictionary<EndpointAssignment.Request, EndpointAssignment[][]>(m_EPCache);
         dict[key] = shards;
         Thread.MemoryBarrier();
         m_EPCache = dict;//atomic

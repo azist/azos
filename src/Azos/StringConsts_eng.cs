@@ -84,8 +84,8 @@ namespace Azos
         "Error while applying attribute [{0}] on class '{1}' instance field '{2}': {3}";
 
         public const string DI_UNSATISIFED_INJECTION_ERROR =
-@"Dependency injection on class '{0}' instance field '{1}' could not be satisfied using: [{2}].
-The injected value has to be present in app chassis having its type assignment compatible with the target field or 'Type' constraint;
+@"Dependency injection on class '{0}' instance field '{1}' is not marked as `optional` and could not be satisfied using: [{2}].
+The injected value has to be present in app chassis having its type assignment-compatible with the target field or 'Type' constraint;
 and the name of module or INamed entity must match if the 'Name' constraint was specified in the attribute";
 
         public const string SHARDING_OBJECT_ID_ERROR =
@@ -235,6 +235,15 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string SECURITY_AUTHROIZATION_ERROR =
         "Authorization to '{0}' failed from '{1}'";
 
+    public const string SECURITY_IDP_UPSTREAM_CALL_ERROR =
+         "IDP upstream server call failure: {0}";
+
+    public const string SECURITY_IDP_PROTOCOL_ERROR =
+         "IDP upstream server protocol error: {0}";
+
+    public const string SECURITY_IDP_RESPONSE_DECIPHER_ERROR =
+    "IDP upstream server response payload could not be deciphered. Are the crypto message protection keys configured correctly?";
+
     public const string SECURITY_REPRESENT_CREDENTIALS_FORGOTTEN =
         "Credentials can not be represented as they are forgotten";
 
@@ -323,7 +332,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string CONFIG_VARS_EVAL_ERROR =
         "Configuration variable '{0}' evaluation error: {1}";
 
-    public const string CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR = "Include pragma recursive depths exceeded: {0}";
+    public const string CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR = "Include pragma recursive depth exceeded: {0}";
 
     public const string CONFIG_BEHAVIOR_APPLY_ERROR =
         "Error while applying behavior to {0}. Error: {1}";
@@ -1032,7 +1041,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string HTTP_CLIENT_CALL_ASSIGMENT_ERROR = "HttpService .Call() can not be made due to invalid endpoint assignments: {0}";
 
     public const string WEB_CALL_RETURN_JSONMAP_ERROR = "The received content is not representable as JsonDataMap: '{0}..'";
-    public const string WEB_CALL_UNSUCCESSFUL_ERROR = "Web call to `..{0}` was unsuccessful: HTTP {1} - {2}";
+    public const string WEB_CALL_UNSUCCESSFUL_ERROR = "Web call to `...{0}` was unsuccessful: HTTP {1} - {2}";
 
 
     public const string AROW_SATELLITE_ASSEMBLY_NAME_ERROR = "Could not find serialization satellite for assembly `{0}` as the name pattern does not match. The source assembly file name must end with `*.dll` by convention";
@@ -1083,6 +1092,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string BIX_TYPE_NOT_SUPPORTED_ERROR = "Bixer does not have a matching BixCore<`{0}`>";
     public const string BIX_MEMBER_TYPE_NOT_SUPPORTED_ERROR = "Bix members of type '{0}' are not supported";
     public const string BIX_GENERATOR_PATH_DOESNOT_EXIST_ERROR = "Bix code generator: path '{0}' does not exist";
+
+    public const string BIX_JSON_HANDLER_UNRESOLVED_TYPE_ID_ERROR =
+      "Bix type id `{0}` could not be resolved by BixJsonHandler. Did you register type resolver assemblies?";
 
     public const string BIX_MAX_SERIALIZATION_DEPTH_ERROR = "Bix max serialization depth of {0} was exceeded. Bix only supports DAGs and does not support cyclical references.";
     public const string BIX_MAX_ARRAY_LEN_ERROR = "Array max length of {0} exceeded by Bix deserialization";

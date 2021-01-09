@@ -30,6 +30,7 @@ namespace Azos
 
     public const string AUTH_SCHEME_BASIC = "Basic";
     public const string AUTH_SCHEME_BEARER = "Bearer";
+    public const string AUTH_SCHEME_SYSTOKEN = "Systoken";
 
     public const int STATUS_200 = 200;  public const string STATUS_200_DESCRIPTION = "OK";
 

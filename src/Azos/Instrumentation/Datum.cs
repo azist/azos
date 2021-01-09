@@ -265,7 +265,7 @@ namespace Azos.Instrumentation
 
     protected override void AddJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, Dictionary<string, object> jsonMap, string name, object value)
     {
-      if (def.Name==nameof(GDID))
+      if (def?.Order == 0)
       {
         Serialization.Bix.BixJsonHandler.EmitJsonBixDiscriminator(this, jsonMap);
       }

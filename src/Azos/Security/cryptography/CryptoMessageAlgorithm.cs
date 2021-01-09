@@ -44,7 +44,9 @@ namespace Azos.Security
     public abstract byte[] Unprotect(ArraySegment<byte> protectedMessage);
     public abstract byte[] UnprotectFromString(string protectedMessage);
 
-
+    /// <summary>
+    /// Populates key array of the specified length. No duplicate keys are allowed
+    /// </summary>
     protected byte[][] BuildKeysFromConfig(IConfigSectionNode config, string sectionName, int len)
     {
       var result = config.NonEmpty(nameof(config))
@@ -68,7 +70,7 @@ namespace Azos.Security
     {
       var result = keyNode.NonEmpty(nameof(keyNode))
                           .AttrByName(CONFIG_KEY_ATTR)
-                          .ValueAsByteArray(null)
+                          .ValueAsByteArray(null) //respects hex or base64: format
                           ??
                           throw new SecurityException("{0} config section `{1}` does not contain a valid key byte array".Args(GetType().Name, keyNode.RootPath));
 

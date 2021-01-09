@@ -9,8 +9,7 @@ using Azos.Log;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
-
-  public class Log : Cmdlet
+  public sealed class Log : Cmdlet
   {
     public const string CONFIG_TYPE_ATTR = "type";
     public const string CONFIG_ON_ATTR = "on";

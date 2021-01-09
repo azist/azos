@@ -17,7 +17,7 @@ namespace Azos.Apps.Terminal.Cmdlets
   public enum ToilType { Cpu, Ram, RamCpu }
 
   [SystemAdministratorPermission(AccessLevel.VIEW)]
-  public class Toil : Cmdlet
+  public sealed class Toil : Cmdlet
   {
     public const string CONFIG_TYPE_ATTR = "type";
     public const string CONFIG_TASKS_ATTR = "tasks";

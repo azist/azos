@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Conf;
-using Azos.Data;
 using Azos.Instrumentation;
 
 namespace Azos.Security.MinIdp
@@ -18,18 +17,16 @@ namespace Azos.Security.MinIdp
   /// <summary>
   /// Provides in-memory caching wrapper for target IMinIdpStore
   /// </summary>
-  public sealed class CacheLayer : DaemonWithInstrumentation<MinIdpSecurityManager>, IMinIdpStoreImplementation
+  public sealed class CacheLayer : DaemonWithInstrumentation<IApplicationComponent>, IMinIdpStoreImplementation, IMinIdpStoreContainer
   {
     public const int DEFAULT_CACHE_AGE_SEC = 30;
 
-    public CacheLayer(MinIdpSecurityManager dir) : base(dir)
-    {
-    }
+    public CacheLayer(IApplicationComponent dir) : base(dir){  }
 
     protected override void Destructor()
     {
-      base.Destructor();
       DisposeAndNull(ref m_Store);
+      base.Destructor();
     }
 
     private struct realmed : IEquatable<realmed>
@@ -57,6 +54,8 @@ namespace Azos.Security.MinIdp
 
     public IMinIdpStore Store => m_Store;
 
+    public ICryptoMessageAlgorithm MessageProtectionAlgorithm => Store.MessageProtectionAlgorithm;
+
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_SECURITY)]
     public override bool InstrumentationEnabled { get; set; }
@@ -70,8 +69,14 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
     {
-      lock(m_DataLock)
-        if (m_IdxId.TryGetValue(new realmed(realm, id), out var existing)) return existing.d;
+      if (!Running) return null;
+
+      if (id.IsNullOrWhiteSpace()) return null;
+      id = id.ToLowerInvariant();
+
+      if (MaxCacheAgeSec>0)
+        lock(m_DataLock)
+          if (m_IdxId.TryGetValue(new realmed(realm, id), out var existing)) return existing.d;
 
       var data = await m_Store.GetByIdAsync(realm, id);
 
@@ -81,8 +86,13 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
     {
-      lock (m_DataLock)
-        if (m_IdxSysToken.TryGetValue(new realmed(realm, sysToken), out var existing)) return existing;
+      if (!Running) return null;
+
+      if (sysToken.IsNullOrWhiteSpace()) return null;
+
+      if (MaxCacheAgeSec > 0)
+        lock (m_DataLock)
+          if (m_IdxSysToken.TryGetValue(new realmed(realm, sysToken), out var existing)) return existing;
 
       var data = await m_Store.GetBySysAsync(realm, sysToken);
 
@@ -92,8 +102,13 @@ namespace Azos.Security.MinIdp
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
     {
-      lock (m_DataLock)
-        if (m_IdxUri.TryGetValue(new realmed(realm, uri), out var existing)) return existing;
+      if (!Running) return null;
+
+      if (uri.IsNullOrWhiteSpace()) return null;
+
+      if (MaxCacheAgeSec > 0)
+        lock (m_DataLock)
+          if (m_IdxUri.TryGetValue(new realmed(realm, uri), out var existing)) return existing;
 
       var data = await m_Store.GetByUriAsync(realm, uri);
 
@@ -103,7 +118,7 @@ namespace Azos.Security.MinIdp
 
     private void updateIndexes(Atom realm, MinIdpUserData data)
     {
-      if (data==null) return;
+      if (data==null || !Running) return;
 
       var maxAge = MaxCacheAgeSec;
       if (maxAge < 1) return;
@@ -119,7 +134,7 @@ namespace Azos.Security.MinIdp
 
     private void scan()
     {
-      const int RESCAN_MS = 1500;
+      const int RESCAN_MS = 2500;
       try
       {
         scanOnce();
@@ -157,14 +172,14 @@ namespace Azos.Security.MinIdp
           }
         }
       }
-
     }
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
-
       DisposeAndNull(ref m_Store);
+      if (node==null) return;
+
       m_Store = FactoryUtils.MakeAndConfigureDirectedComponent<IMinIdpStoreImplementation>(
                                               this,
                                               node[MinIdpSecurityManager.CONFIG_STORE_SECTION]);

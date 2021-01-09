@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace Azos.Text
@@ -228,7 +229,7 @@ namespace Azos.Text
 
         if (isCodeBlock)
         {
-          result.AppendLine(lineFull);
+          result.AppendLine(WebUtility.HtmlEncode(lineFull));//<--- escape HTML #352
           return;
         }
 
@@ -281,10 +282,43 @@ namespace Azos.Text
           result.AppendLine();
           result.AppendLine("<p>");
         }
-        result.Append(line);
+        result.Append(processBoldItalic(line));
       }
 
+      string processBoldItalic(string line)
+      {
+        for(var i=0; i<line.Length-2;)
+        {
+          var si = line.IndexOf("**", i);
+          if (si < 0 || si+2==line.Length) break;
+          i = si+2;
+          var ei = line.IndexOf("**", si+2);
+          if (ei < 0) break;
+          i = ei+2;
 
+          var mid = line.Substring(si + 2, ei - si - 2);
+          if (mid.IsNullOrWhiteSpace()) continue;
+
+          line = line.Substring(0, si) + "<b>" + mid +"</b>"+ line.Substring(ei+2);
+        }
+
+        for (var i = 0; i < line.Length - 1;)
+        {
+          var si = line.IndexOf("*", i);
+          if (si < 0 || si + 1 == line.Length) break;
+          i = si + 1;
+          var ei = line.IndexOf("*", si + 1);
+          if (ei < 0) break;
+          i = ei + 1;
+
+          var mid = line.Substring(si + 1, ei - si - 1);
+          if (mid.IsNullOrWhiteSpace()) continue;
+
+          line = line.Substring(0, si) + "<i>" + mid + "</i>" + line.Substring(ei + 1);
+        }
+
+        return line;
+      }
 
 
       //loop by lines
@@ -303,7 +337,6 @@ namespace Azos.Text
 
       return result.ToString();
     }
-
 
   }
 }

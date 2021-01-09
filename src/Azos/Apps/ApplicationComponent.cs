@@ -311,6 +311,8 @@ namespace Azos.Apps
         Source = src
       };
 
+      msg.InitDefaultFields(App);
+
       if (related.HasValue) msg.RelatedTo = related.Value;
 
       App.Log.Write(msg);

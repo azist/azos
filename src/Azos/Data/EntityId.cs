@@ -7,7 +7,7 @@ using System.IO;
 namespace Azos.Data
 {
   /// <summary>
-  /// A tuple of (SYSTEM: Atom, TYPE: Atom, ADDRESS: Atom) used for identification of entities in business systems.
+  /// A tuple of (SYSTEM: Atom, TYPE: Atom, ADDRESS: string) used for identification of entities in business systems.
   /// The concept is somewhat similar to an "URI" in its intended purpose, as it identifies objects by an "Address"
   /// string which is interpreted in a scope of "Type", which in turn is in the scope of a "System".
   /// As a string, an EntityId is formatted like: `type@system::address`, for example: `vin@car::1A8987339HBz0909W874`

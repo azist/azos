@@ -11,7 +11,7 @@ using Azos.Sky;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
-  public class Ver : Cmdlet
+  public sealed class Ver : Cmdlet
   {
     public Ver(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args)
     {

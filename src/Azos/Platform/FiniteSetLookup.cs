@@ -17,7 +17,7 @@ namespace Azos.Platform
   /// This class is used for efficient thread-safe caching of items by TKey, speculating on the fact that total set
   /// of items is limited and with time the system will add all of items, consequently no mutations will be necessary
   /// and all requests will be served by lock-free thread-safe read-only Get() operation on an immutable copy.
-  /// This class is inefficient for adding items which do not exist in the set, as it creates yet another copy of internal dictionary.
+  /// This class is inefficient for adding items which do not exist in the set, as it creates yet another copy of the internal dictionary.
   /// The AddItem functor is called under the lock and must not have any side effects (must contain only read code which gets TValue by TKey from source).
   /// </summary>
   /// <typeparam name="TKey">Type of key to lookup-by</typeparam>
@@ -85,7 +85,8 @@ namespace Azos.Platform
     }
 
     /// <summary>
-    /// Removes one keyed item returning true if key was found and removed
+    /// Removes one keyed item returning true if key was found and removed.
+    /// This should be used in advanced cases only
     /// </summary>
     public bool Remove(TKey key)
     {
@@ -101,7 +102,8 @@ namespace Azos.Platform
     }
 
     /// <summary>
-    /// Deletes all data at once
+    /// Deletes all data at once.
+    /// This should be used in advanced cases only
     /// </summary>
     public void Purge()
     {

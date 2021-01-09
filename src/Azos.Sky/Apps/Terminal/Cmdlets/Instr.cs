@@ -15,7 +15,7 @@ namespace Azos.Apps.Terminal.Cmdlets
 
   public enum InstrType { View, Glue, ClientGlue, ServerGlue, Metabase, Mb = Metabase }
 
-  public class Instr : Cmdlet
+  public sealed class Instr : Cmdlet
   {
 
       public const string CONFIG_TYPE_ATTR = "type";

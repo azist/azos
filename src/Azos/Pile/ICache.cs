@@ -18,22 +18,22 @@ namespace Azos.Pile
   /// Pile allows to store hundreds of millions of objects without overloading the managed GC.
   /// The cache may be local or distributed
   /// </summary>
-  public interface ICache : IApplicationComponent
+  public interface ICache
   {
     /// <summary>
     /// Returns whether the cache key:value mappings are local or distributed
     /// </summary>
-    LocalityKind Locality { get;}
+    LocalityKind Locality { get; }
 
     /// <summary>
     /// Returns the model of key:value mapping persistence that this cache supports
     /// </summary>
-    ObjectPersistence Persistence { get;}
+    ObjectPersistence Persistence { get; }
 
     /// <summary>
     /// Returns the status of the pile where object are stored
     /// </summary>
-    IPileStatus PileStatus { get;}
+    IPileStatus PileStatus { get; }
 
 
     /// <summary>
@@ -54,7 +54,7 @@ namespace Azos.Pile
     ICacheTable<TKey> GetOrCreateTable<TKey>(string tableName, out bool createdNew, IEqualityComparer<TKey> keyComparer = null);
 
     /// <summary>
-    /// Returns existing table by name, if it does not exist thorws.
+    /// Returns existing table by name, if it does not exist throws.
     /// The TKey must correspond to existing table
     /// </summary>
     ICacheTable<TKey> GetTable<TKey>(string tableName);
@@ -63,7 +63,7 @@ namespace Azos.Pile
     /// <summary>
     /// Returns how many records are kept in cache
     /// </summary>
-    long Count{get;}
+    long Count{ get; }
 
 
     /// <summary>
@@ -289,7 +289,7 @@ namespace Azos.Pile
                   DateTime? putAbsoluteExpirationUTC = null);
   }
 
-  public interface ICacheImplementation : ICache, Apps.IDaemon, IInstrumentable
+  public interface ICacheImplementation : ICache, IApplicationComponent, IDaemon, IInstrumentable
   {
     /// <summary>
     /// Imposes a limit on maximum number of bytes that a pile can allocate of the system heap.
@@ -314,7 +314,7 @@ namespace Azos.Pile
     /// Sets default options for a table which is not found in TableOptions collection.
     /// If this property is null then every table assumes the set of constant values defined in Table class
     /// </summary>
-     TableOptions DefaultTableOptions { get; set;}
+    TableOptions DefaultTableOptions { get; set;}
   }
 
 

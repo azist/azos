@@ -64,7 +64,7 @@ namespace Azos.Client
 
 
     /// <summary>
-    /// When set to true, attaches Authorization header with sysAuthToken content, overriding
+    /// When set to true, attaches Authorization header with `SysToken` scheme and sysAuthToken content, overriding
     /// the AuthHeader value (if any)
     /// </summary>
     [Config]
@@ -151,6 +151,7 @@ namespace Azos.Client
         result.DefaultRequestHeaders.Accept.ParseAdd(ContentType.JSON);
 
       //If impersonation is used, it attaches headers per call obtained from Ambient security context
+      //https://stackoverflow.com/questions/50399003/send-httpclient-request-without-defaultrequestheaders
       if (!AuthImpersonate && AuthHeader.IsNotNullOrWhiteSpace())
         result.DefaultRequestHeaders.Authorization =
           new AuthenticationHeaderValue(AuthScheme, AuthHeader);

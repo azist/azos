@@ -10,7 +10,7 @@ using Azos.Conf;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
-  public class NetSvc : SkyAppCmdlet
+  public sealed class NetSvc : SkyAppCmdlet
   {
     public const string CONFIG_HOST_ATTR = "host";
     public const string CONFIG_NET_ATTR = "net";

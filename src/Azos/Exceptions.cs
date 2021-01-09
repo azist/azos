@@ -107,17 +107,6 @@ namespace Azos
     }
   }
 
-  /// <summary>
-  /// Provides textual portable data about this exception which will be used in wrapped exception.
-  /// Wrapped exceptions are used to marshal non serializable exceptions
-  /// </summary>
-  public interface IWrappedExceptionDataSource
-  {
-    /// <summary>
-    /// Gets portable textual representation of exception data for inclusion in wrapped exception
-    /// </summary>
-    string GetWrappedData();
-  }
 
   /// <summary>
   /// Marshals exception details
@@ -131,9 +120,9 @@ namespace Azos
     /// <summary>
     /// Initializes instance form local exception
     /// </summary>
-    public WrappedExceptionData(Exception error, bool captureStack = true)
+    public WrappedExceptionData(Exception error, bool captureStack = true, bool captureExternalStatus = true)
     {
-      if (error==null) throw new AzosException(StringConsts.ARGUMENT_ERROR+"WrappedExceptionData.ctor(error=null)");
+      error.NonNull(nameof(error));
 
       var tp = error.GetType();
       m_TypeName = tp.FullName;
@@ -141,27 +130,35 @@ namespace Azos
       if (error is AzosException)
         m_Code = ((AzosException)error).Code;
 
-      m_ApplicationName = ExecutionContext.Application.Name;
+      var app = ExecutionContext.Application;
+      m_AppId = app.AppId;
+      m_AppName = app.Name;
 
       m_Source = error.Source;
       if (captureStack)
+      {
         m_StackTrace = error.StackTrace;
+      }
 
       if (error.InnerException != null)
-        m_InnerException = new WrappedExceptionData(error.InnerException);
+      {
+        m_InnerException = new WrappedExceptionData(error.InnerException, captureStack, captureExternalStatus);
+      }
 
-      var source = error as IWrappedExceptionDataSource;
-      if (source != null)
-        m_WrappedData = source.GetWrappedData();
+      if (captureExternalStatus && error is IExternalStatusProvider esp)
+      {
+        m_ExternalStatus = esp.ProvideExternalStatus(captureStack);
+      }
     }
 
     private string m_TypeName;
     private string m_Message;
     private int m_Code;
-    private string m_ApplicationName;
+    private string m_AppName;
+    private Atom m_AppId;
     private string m_Source;
     private string m_StackTrace;
-    private string m_WrappedData;
+    private JsonDataMap m_ExternalStatus;
     private WrappedExceptionData m_InnerException;
 
     /// <summary>
@@ -214,28 +211,39 @@ namespace Azos
       set => m_StackTrace = value;
     }
 
+
+    /// <summary>
+    /// Returns the id of application
+    /// </summary>
+    [Field, Field(isArow: true, backendName: "appid")]
+    public Atom AppId
+    {
+      get => m_AppId;
+      set => m_AppId = value;
+    }
+
     /// <summary>
     /// Returns the name of remote application
     /// </summary>
     [Field, Field(isArow: true, backendName: "appname")]
-    public string ApplicationName
+    public string AppName
     {
-      get => m_ApplicationName ?? CoreConsts.UNKNOWN;
-      set => m_ApplicationName = value;
+      get => m_AppName ?? CoreConsts.UNKNOWN;
+      set => m_AppName = value;
     }
 
     /// <summary>
-    /// Returns wrapped date from IWrappedDataSource
+    /// Returns wrapped data from IExternalStatusProvider if any or null
     /// </summary>
-    [Field, Field(isArow: true, backendName: "wdata")]
-    public string WrappedData
+    [Field, Field(isArow: true, backendName: "exts")]
+    public JsonDataMap ExternalStatus
     {
-      get => m_WrappedData;
-      set => m_WrappedData = value;
+      get => m_ExternalStatus;
+      set => m_ExternalStatus = value;
     }
 
     /// <summary>
-    /// Returns the inner remote exception if any
+    /// Returns the inner remote exception if any or null
     /// </summary>
     [Field, Field(isArow: true, backendName: "inner")]
     public WrappedExceptionData InnerException
@@ -244,15 +252,14 @@ namespace Azos
       set => m_InnerException = value;
     }
 
-    public override string ToString()
-    {
-      return string.Format("[{0}:{1}:{2}] {3}", TypeName, Code, ApplicationName, Message);
-    }
+    public override string ToString() => $"[{TypeName}:{Code}:{AppId}] {Message}";
 
   }
 
   /// <summary>
-  /// Represents exception that contains data about causing exception with all of it's chain
+  /// Represents exception that contains data about causing exception with all of it's chain.
+  /// WrappedExceptions are used to marshal any kind of exceptions across the process boundaries even when
+  /// actual exception types are not present on the other system (e.g. the other system may even be written in a different language)
   /// </summary>
   [Serializable]
   public sealed class WrappedException : AzosException
@@ -262,13 +269,13 @@ namespace Azos
     /// <summary>
     /// Returns an exception wrapped into WrappedException. If the exception is already wrapped, it is returned as-is
     /// </summary>
-    public static WrappedException ForException(Exception root, bool captureStack = true)
+    public static WrappedException ForException(Exception root, bool captureStack = true, bool captureExternalStatus = true)
     {
       if (root==null) return null;
 
       var we = root as WrappedException;
       if (we==null)
-       we = new WrappedException( new WrappedExceptionData(root, captureStack) );
+       we = new WrappedException( new WrappedExceptionData(root, captureStack, captureExternalStatus) );
 
       return we;
     }

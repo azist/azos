@@ -18,7 +18,7 @@ using Azos.Security;
 using Azos.Sky;
 using Azos.Sky.Contracts;
 using Azos.Sky.Security.Permissions.Admin;
-
+using Azos.IO.Console;
 
 namespace Azos.Apps.Terminal
 {
@@ -168,7 +168,7 @@ namespace Azos.Apps.Terminal
 
       if (!command.EndsWith("}")) command += "{}";
 
-      var cmd = Sky.TerminalUtils.ParseCommand(command, m_Vars);
+      var cmd = TerminalUtils.ParseCommand(command, m_Vars);
       var result = new MemoryConfiguration();
       result.EnvironmentVarResolver = cmd.EnvironmentVarResolver;
       m_ScriptRunner.Execute(cmd, result);

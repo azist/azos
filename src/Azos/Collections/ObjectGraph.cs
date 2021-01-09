@@ -61,7 +61,7 @@ namespace Azos.Collections
       }
 
 
-      //flow works as stack: push, pull, consequently it does not capture cases like
+      //flow works as a stack: push, pull, consequently it does not capture cases like
       //for example traversing a linear list of objects which can repeat; flows capture cyclical references only
       internal readonly HashSet<object> m_Flow;
       //unlike flow, visited captures all visited references, even non-cyclical ones

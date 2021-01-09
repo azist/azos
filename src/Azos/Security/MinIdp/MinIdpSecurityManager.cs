@@ -9,15 +9,16 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Data;
 using Azos.Instrumentation;
 using Azos.Log;
 
 namespace Azos.Security.MinIdp
 {
   /// <summary>
-  /// MinIdp Provides security manager implementation that authenticates and authorizes users via IMinIdpStore
+  /// MinIdp Provides security manager implementation that authenticates and authorizes users via IMinIdpStore implementation
   /// </summary>
-  public class MinIdpSecurityManager : DaemonWithInstrumentation<IApplicationComponent>, ISecurityManagerImplementation
+  public class MinIdpSecurityManager : DaemonWithInstrumentation<IApplicationComponent>, ISecurityManagerImplementation, IMinIdpStoreContainer
   {
     #region CONSTS
     public const string CONFIG_RIGHTS_SECTION = Rights.CONFIG_ROOT_SECTION;
@@ -169,7 +170,7 @@ namespace Azos.Security.MinIdp
 
     public void Authenticate(User user) => AuthenticateAsync(user).GetAwaiter().GetResult();
 
-    public async Task AuthenticateAsync(User user)
+    public virtual async Task AuthenticateAsync(User user)
     {
       if (user == null) return;
       var token = user.AuthToken;
@@ -178,9 +179,9 @@ namespace Azos.Security.MinIdp
       user.___update_status(reuser.Status, reuser.Name, reuser.Description, reuser.Rights, App.TimeSource.UTCNow);
     }
 
-    public Task<AccessLevel> AuthorizeAsync(User user, Permission permission) => Task.FromResult(Authorize(user, permission));
+    public virtual Task<AccessLevel> AuthorizeAsync(User user, Permission permission) => Task.FromResult(Authorize(user, permission));
 
-    public AccessLevel Authorize(User user, Permission permission)
+    public virtual AccessLevel Authorize(User user, Permission permission)
     {
       if (user == null || permission == null)
         throw new SecurityException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".Authorize(user==null|permission==null)");
@@ -210,13 +211,39 @@ namespace Azos.Security.MinIdp
 
     protected virtual User MakeOkUser(Credentials credentials, MinIdpUserData data)
     {
-      return new User(credentials ?? BlankCredentials.Instance,
+      var rights = Rights.None;
+      if (credentials == null) credentials = BlankCredentials.Instance;
+
+      if (data.Rights.IsNotNullOrWhiteSpace())
+      {
+        var cfg = data.Rights.AsLaconicConfig(handling: ConvertErrorHandling.ReturnDefault);
+        if (cfg == null)
+          WriteLog(MessageType.Warning, nameof(MakeOkUser), "Rights could not be read for `{0}`@`{1}`".Args(credentials, Realm));
+        else
+          rights = new Rights(cfg.Configuration);
+      }
+
+      return new User(credentials,
                       data.SysToken,
                       data.Status,
                       data.Name,
                       data.Description,
-                      data.Rights,
+                      rights,
                       App.TimeSource.UTCNow);
+    }
+
+
+    protected virtual bool CheckDates(MinIdpUserData data)
+    {
+      data.NonNull(nameof(data));
+      var now = App.TimeSource.UTCNow;
+      if (data.StartUtc > now) return false;
+      if (data.EndUtc <= now) return false;
+
+      if (data.LoginStartUtc.HasValue && data.LoginStartUtc.Value > now) return false;
+      if (data.LoginEndUtc.HasValue && data.LoginEndUtc.Value <= now) return false;
+
+      return true;
     }
 
     /// <summary>
@@ -225,6 +252,7 @@ namespace Azos.Security.MinIdp
     protected virtual User TryAuthenticateUser(MinIdpUserData data, IDPasswordCredentials cred)
     {
       if (data.Realm != Realm) return null;
+      if (!CheckDates(data)) return null;
 
       using (var password = cred.SecurePassword)
       {
@@ -242,6 +270,7 @@ namespace Azos.Security.MinIdp
     protected virtual User TryAuthenticateUser(MinIdpUserData data, EntityUriCredentials cred)
     {
       if (data.Realm != Realm) return null;
+      if (!CheckDates(data)) return null;
 
       cred.Forget();
       return MakeOkUser(cred, data);
@@ -253,6 +282,7 @@ namespace Azos.Security.MinIdp
     protected virtual User TryAuthenticateUser(MinIdpUserData data)
     {
       if (data.Realm != Realm) return null;
+      if (!CheckDates(data)) return null;
 
       return MakeOkUser(null, data);
     }
@@ -283,7 +313,7 @@ namespace Azos.Security.MinIdp
 
     protected override void DoStart()
     {
-      if (m_Realm.IsZero)
+      if (m_Realm.IsZero || !m_Realm.IsValid)
         throw new CallGuardException(nameof(MinIdpSecurityManager), nameof(Realm), "Must be configured");
 
       m_PasswordManager.NonNull($"{nameof(PasswordManager)} config").Start();
@@ -300,9 +330,9 @@ namespace Azos.Security.MinIdp
 
     protected override void DoWaitForCompleteStop()
     {
-      m_PasswordManager.WaitForCompleteStop();
-      m_Cryptography.WaitForCompleteStop();
       m_Store.WaitForCompleteStop();
+      m_Cryptography.WaitForCompleteStop();
+      m_PasswordManager.WaitForCompleteStop();
     }
     #endregion
 

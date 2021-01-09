@@ -10,7 +10,7 @@ using Azos.Security;
 namespace Azos.Apps.Terminal.Cmdlets
 {
   [SystemAdministratorPermission(AccessLevel.ADVANCED)]
-  public class Conf : Cmdlet
+  public sealed class Conf : Cmdlet
   {
     public const string CONFIG_PATH_ATTR = "path";
 

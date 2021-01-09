@@ -34,6 +34,13 @@ namespace Azos.Serialization.Bix
       return true;
     }
 
+
+    /// <summary>
+    /// When set to true throws an exception if type could not be resolved by supplied discriminator. Default is false
+    /// </summary>
+    public bool ThrowOnUnresolvedType{ get; set; }
+
+
     public override TypeCastResult TypeCastOnRead(object v, Type toType, bool fromUI, JsonReader.DocReadOptions options)
     {
       if (v is JsonDataMap map)
@@ -45,7 +52,14 @@ namespace Azos.Serialization.Bix
 
         var tp = Bixer.GuidTypeResolver.TryResolve(tid);
 
-        if (tp==null) return TypeCastResult.NothingChanged;
+        //20201016DKh
+        if (tp==null)
+        {
+          if (ThrowOnUnresolvedType)
+            throw new BixException(StringConsts.BIX_JSON_HANDLER_UNRESOLVED_TYPE_ID_ERROR.Args(tid));
+
+          return TypeCastResult.NothingChanged;
+        }
 
         return new TypeCastResult(tp);
       }

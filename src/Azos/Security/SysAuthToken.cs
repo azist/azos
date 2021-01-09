@@ -30,7 +30,9 @@ namespace Azos.Security
     public SysAuthToken(string realm, byte[] data)
     {
       m_Realm = realm.NonBlank(nameof(realm));
-      m_Data = data.NonNull(nameof(data)).ToWebSafeBase64();
+      m_Data = data.NonNull(nameof(data))
+                   .IsTrue(d => d.Length > 0, nameof(data))
+                   .ToWebSafeBase64();
     }
 
     private string m_Realm;
@@ -58,6 +60,9 @@ namespace Azos.Security
 
     public bool CheckRequired(string targetName) => Assigned;
 
+    /// <summary>
+    /// Returns a token representation which is parse-able back using Parse()/TryParse()
+    /// </summary>
     public override string ToString()  => Realm + DELIMIT + Data;
 
     public override int GetHashCode() => Realm.GetHashCode() ^ Data.GetHashCode();
@@ -97,6 +102,7 @@ namespace Azos.Security
 
       var realm = token.Substring(0, i);
       var data = token.Substring(i+DELIMIT.Length);
+      if (realm.IsNullOrWhiteSpace() || data.IsNullOrWhiteSpace()) return false;
       parsed = new SysAuthToken(realm, data);
       return true;
     }

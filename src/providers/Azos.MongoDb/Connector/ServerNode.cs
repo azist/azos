@@ -11,7 +11,7 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Collections;
 using Azos.Glue;
-
+using System;
 
 namespace Azos.Data.Access.MongoDb.Connector
 {
@@ -62,9 +62,15 @@ namespace Azos.Data.Access.MongoDb.Connector
       if (!m_Client.Disposed)
         m_Client.m_Servers.Unregister( this );
 
-      killCursors(true);
+      var isLocalApplianceShutdown = !App.Active && m_ApplianceNode.Assigned;
+      var eText = isLocalApplianceShutdown ? "Mongo appliance chassis is shutting down: " : "";
+      var eType = isLocalApplianceShutdown ? Log.MessageType.InfoD : Log.MessageType.Error;
 
-      CloseAllConnections(true);//must be the last thing
+      this.DontLeak(() => killCursors(true),  eText, ".dctor(killCursors)", eType);
+
+      //must be the last thing after killCursors()
+      this.DontLeak(() => CloseAllConnections(true), eText, ".dctor(CloseAllConnections)", eType);
+
       base.Destructor();
     }
     #endregion
@@ -218,7 +224,7 @@ namespace Azos.Data.Access.MongoDb.Connector
     #region Public
 
     /// <summary>
-    /// Closes all connections. Waits untill all closed if wait==true, otherwise tries to close what it can
+    /// Closes all connections. Waits until all closed if wait==true, otherwise tries to close what it can
     /// </summary>
     public void CloseAllConnections(bool wait)
     {
@@ -265,18 +271,22 @@ namespace Azos.Data.Access.MongoDb.Connector
           }
 
 
-        private bool m_Managing = false;
     /// <summary>
-    /// Periodically invoked by the client to do management work, like close expired connections
+    /// Periodically invoked by the client to do management work, like closing expired connections
     /// </summary>
     internal void ManagerVisit()
+     => this.DontLeak(() => managerVisitUnsafe(), errorFrom: nameof(ManagerVisit));
+
+
+    private bool m_Managing = false;
+    private void managerVisitUnsafe()
     {
       if (m_Managing || Disposed) return;
       try
       {
         m_Managing = true;
-        closeInactiveConnections();
         killCursors(false);
+        closeInactiveConnections();
       }
       finally
       {
