@@ -9,19 +9,9 @@
 
 //namespace Azos.IO.Archiving
 //{
-
-//  public struct Journal<TEntry> : IEnumerable<TEntry>
-//  {
-
-//    public readonly ArchivePtr Start;
-
-//    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
-//    public IEnumerator<TEntry> GetEnumerator()
-//    {
-//      throw new NotImplementedException();
-//    }
-//  }
-
+//  /// <summary>
+//  /// Points to a data
+//  /// </summary>
 //  public struct ArchivePtr
 //  {
 //    public long PageOffset;
@@ -30,97 +20,114 @@
 
 //  public struct ArchiveEntry
 //  {
-//    public enum Status{ Corrupt =0, OK }
+//    public enum Status { Corrupt = 0, OK }
 //    public bool OK;
 //    public ArraySegment<byte> Entry;
 //  }
 
-//  /*
-//   Compression and Encryption of data at rest are to be handled by the FileSystem/External implementor of Stream
-
-//    Archive Container Format (Binary)
-//    ---------------------------------
-//    Header:
-//      FILE-HEADER = "#!/usr/bin/env bix\n";
-//      <file-hdeader> <metedata: json> <pages>
-//        metadata = JSON string with system attributes at the root:
-//        archive
-//        {
-//          cdt=createUTC
-//          version=integer
-//          entry-format
-//          {
-//            type=....
-//          }
-//        }
-
-//   Pages:
-//      page[]
-//   Page:
-//      ALIGNED BY 16
-//      PAGE-HDR = ASCII(`PAGE`)
-//      <PAGE-HDR><position: long><entry-stream>  <eof|page-hdr>
-
-//   Entry-stream:
-//      entries[]<eof | TERMINATOR-ENTRY-HDR>
-
-//    Entry format:
-//      ENTRY-HDR = `xABxBA` or  TERMINATOR-ENTRY-HDR = `\x00x00`
-//      <ENTRY-HDR><entry-len: varulong> <entry-content: byte[len]>
-//        2 bytes     1..9 bytes             1 byte...X        Shortest message:  4 bytes
-//      entry-len: varlong(e.g. LEB128) < MAX-ITEM-SZ configurable (16 MByte by default)
-
-//  */
-
-//  // An Archive is a unidirectional journal of byte[] entries which can only be sequentially appended to the very end of the archive.
-//  // Physically the entries are housed in frames
-//  //Represents binary archive container
-//  /// <summary>
-//  /// This class is not thread safe for writing and reading
-//  /// </summary>
-//  /// <typeparam name="TEntry"></typeparam>
-//  public abstract class ArchiveReader<TEntry> : DisposableObject
+//  public abstract class ArchiveDataAccessor : DisposableObject
 //  {
-//    public ArchiveReader(Stream dataStream)
+//    public const int MIN_PAGE_SIZE = 0xff;
+//    public const int MAX_PAGE_SIZE = 128 * 1024;//128k
+//    public const int DFLT_PAGE_SIZE = 1024;
+
+//    /// <summary>
+//    /// Controls page split on writing. Does not affect reading
+//    /// </summary>
+//    public int PageSizeBytes { get; set; }
+
+
+//    /// <summary>
+//    /// Return true if page was read into existing memory stream, false if it is torn in the underlying source
+//    /// </summary>
+//    public bool ReadPage(long pageOffset, MemoryStream into)//so it can grow as needed
 //    {
-//      m_Stream = dataStream.NonNull(nameof(Stream));
+//      return false;//torn
 //    }
 
+//    //appends at the end of file
+//    public void AppendPage(ArraySegment<byte> page)//page is formed for writing in some existing buffer
+//    {
+//       //where is logical address?
+//    }
+//  }
+
+
+
+//  /// <summary>
+//  /// This class is not thread safe and can only be iterated once
+//  /// </summary>
+//  public abstract class ArchiveReader<TEntry> : DisposableObject, IEnumerable<TEntry>, IEnumerator<TEntry>
+//  {
+//    public ArchiveReader(Stream dataStream, ArchivePtr start)
+//    {
+//      m_Stream = dataStream.NonNull(nameof(Stream));
+//      m_Start = start;
+//    }
+
+//    //enumerator destructor
 //    protected override void Destructor()
 //    {
 //      base.Destructor();
 //    }
 
 //    private Stream m_Stream;
+//    private ArchivePtr m_Start;
 //    private IConfigSectionNode m_Metadata;
 
+
+
+//    public Stream Stream => m_Stream;
+
+//    /// <summary>
+//    /// Returns the archive pointer where reading started from
+//    /// </summary>
+//    public ArchivePtr Start => m_Start;
 
 //    /// <summary>
 //    /// Returns archive metadata extracted from the header page
 //    /// </summary>
 //    public IConfigSectionNode Metadata => m_Metadata;
 
-//    /// <summary>
-//    /// Starts a lazy enumeration of the archive data, the actual processing is done
-//    /// as enumeration advances through the journal
-//    /// </summary>
-//    /// <param name="pointer">A pointer to start reading journal entries from</param>
-//    /// <returns></returns>
-//    public Journal<TEntry> ReadFrom(ArchivePtr pointer)
-//    {
-//      return null;
-//    }
 
+//    /// <summary>
+//    /// Restarts reading from the specified archive pointer position.
+//    /// The enumeration is being affected
+//    /// </summary>
+//    public void RestartAt(ArchivePtr start)
+//    {
+
+//    }
 //  }
 
 //  public abstract class ArchiveAppender<TEntry> : DisposableObject
 //  {
-//    public ArchiveAppender()
+//    /// <summary>
+//    /// Creates appender for adding data at the end of the existing reader
+//    /// </summary>
+//    public ArchiveAppender(ArchiveReader<TEntry> existing)
 //    {
+//      m_Stream = existing.NonNull(nameof(existing)).Stream;
+//      m_Metadata = existing.Metadata;
+//      m_Stream.Seek(0, SeekOrigin.End);
+//    }
 
+
+//    /// <summary>
+//    /// Creates a new archive. The stream must be at position 0
+//    /// </summary>
+//    public ArchiveAppender(Stream dataStream, IConfigSectionNode metadata)
+//    {
+//      m_Stream = dataStream.NonNull(nameof(Stream));
+//      m_Metadata = metadata.NonEmpty(nameof(metadata));
+//      Aver.IsTrue(m_Stream.Position == 0, "stream.pos!=0");
+//      //write header
+//      //write metadata
+//      //...
 //    }
 
 //    private Stream m_Stream;
+//    private IConfigSectionNode m_Metadata;
 
 //    protected override void Destructor()
 //    {
