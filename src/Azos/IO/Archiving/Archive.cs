@@ -9,6 +9,21 @@
 
 //namespace Azos.IO.Archiving
 //{
+//  public struct ArchiveMeta
+//  {
+//    public static ArchiveMeta Make(ConfigSectionNode data)
+//    {
+
+//    }
+//    public IConfigSectionNode Data;
+
+//    public bool IsCompressed => Data.Of("COMPRESS").ValueAsBool();
+//    public bool IsEncrypted => false;
+
+//    //public AccessorCompressor Compressor =>
+//  }
+
+
 //  /// <summary>
 //  /// Points to a data
 //  /// </summary>
@@ -25,6 +40,11 @@
 //    public ArraySegment<byte> Entry;
 //  }
 
+//  /// <summary>
+//  /// Must be thread-safe.
+//  /// This method may be called by multiple threads at the same time (even over the same source stream).
+//  /// The class performs internal cache/access coordination and tries to satisfy requests in lock-free manner
+//  /// </summary>
 //  public abstract class ArchiveDataAccessor : DisposableObject
 //  {
 //    public const int MIN_PAGE_SIZE = 0xff;
@@ -38,18 +58,41 @@
 
 
 //    /// <summary>
-//    /// Return true if page was read into existing memory stream, false if it is torn in the underlying source
+//    /// Return true if page was read into existing memory stream, false if it is torn in the underlying source.
+//    /// This method may be called by multiple threads at the same time (even over the same source stream).
+//    /// The class performs internal cache/access coordination and tries to satisfy requests in lock-free manner
 //    /// </summary>
-//    public bool ReadPage(long pageOffset, MemoryStream into)//so it can grow as needed
+//    public bool ReadPage(long pageOffset, Page page)//so it can grow as needed
 //    {
 //      return false;//torn
 //    }
 
 //    //appends at the end of file
-//    public void AppendPage(ArraySegment<byte> page)//page is formed for writing in some existing buffer
+//    public void AppendPage(Page page)//page is formed for writing in some existing buffer
 //    {
-//       //where is logical address?
+//      //where is logical address?
 //    }
+//  }
+
+//  /// <summary>
+//  /// Represents a "page" in an archive data stream. Archives can only be appended to.
+//  /// A page is an atomic unit of read and append to archives.
+//  /// Pages represent binary raw content present in RAM.
+//  /// Pages are obtained from ArchiveDataAccessor. Pages are appended to archives
+//  /// using ArchiveDataAccessor.AppendPage(page);
+//  /// </summary>
+//  public sealed class Page
+//  {
+//    private DateTime m_CreateUtc;
+//    private string m_CreateHost;
+//    private Atom m_CreateApp;
+
+//    private MemoryStream m_Raw; //we can use byte[] directly not to use MemoryStream instance
+
+//    /// <summary>
+//    /// Walks all raw entries. This is purely in-memory operation
+//    /// </summary>
+//    public IEnumerable<ArchiveEntry> All => null;
 //  }
 
 

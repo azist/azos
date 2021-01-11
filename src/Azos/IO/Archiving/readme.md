@@ -44,3 +44,52 @@ Pages are always 16-byte boundary aligned....WIP
 
 ---
 Back to [Documentation Index](/src/documentation-index.md)
+
+
+
+## Design Notes
+
+```csharp
+var fs = m_FileSession.GetFile("tran-2021-01-10.lar").GetStream();
+var data = VFSystemAccessor.Open(fs);
+//var data = VFSystemAccessor.Create(fs, ArchiveMetadata meta);//,  cmp: ComnpressionType.None, enc: EncryptorType.AES);
+var dataReader = new ErxTraxArchiveReader(data, new ArchivePtr(0));
+
+
+var fs2 = m_FileSession.GetFile("tran-2021-01-10.mcr.lix").GetStream();
+var idxMcr = new VFSystemFormat(fs2);
+var idxMcrReader = new StringIndexArchiveReader(idxMcr, new ArchivePtr(0));
+
+
+var totalCount = 0;
+var abrogatedCount = 0;
+
+//parallel read is used in CPU-intensive operations
+var gang = new ParallelReader(() => new ErxTraxArchiveReader(data, new ArchivePtr(0));
+
+
+Parallel.ForEach( entry => {  
+  gang.RestartAt(entry.Pointer);
+  var tx = gang.FirstOrDefault();
+  if (tx!=null)
+  {
+    totalCount++;
+    if (tx.Insurer.Medicare.CoverageLimit < 789.12M) 
+      abrogatedCount++; 
+  }
+});
+
+foreach(var entry in idxMcrReader)
+{
+  dataReader.RestartAt(entry.Pointer);
+  var tx = dataReader.FirstOrDefault();
+  if (tx!=null)
+  {
+    totalCount++;
+    if (tx.Insurer.Medicare.CoverageLimit < 789.12M) 
+      abrogatedCount++; 
+  }
+}
+
+return (totalCount, abrogatedCount);
+```
