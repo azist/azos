@@ -23,16 +23,6 @@
 //    //public AccessorCompressor Compressor =>
 //  }
 
-
-//  /// <summary>
-//  /// Points to a data
-//  /// </summary>
-//  public struct ArchivePtr
-//  {
-//    public long PageOffset;
-//    public int Address;
-//  }
-
 //  public struct ArchiveEntry
 //  {
 //    public enum Status { Corrupt = 0, OK }
@@ -75,34 +65,11 @@
 //  }
 
 //  /// <summary>
-//  /// Represents a "page" in an archive data stream. Archives can only be appended to.
-//  /// A page is an atomic unit of read and append to archives.
-//  /// Pages represent binary raw content present in RAM.
-//  /// Pages are obtained from ArchiveDataAccessor. Pages are appended to archives
-//  /// using ArchiveDataAccessor.AppendPage(page);
-//  /// </summary>
-//  public sealed class Page
-//  {
-//    private DateTime m_CreateUtc;
-//    private string m_CreateHost;
-//    private Atom m_CreateApp;
-
-//    private MemoryStream m_Raw; //we can use byte[] directly not to use MemoryStream instance
-
-//    /// <summary>
-//    /// Walks all raw entries. This is purely in-memory operation
-//    /// </summary>
-//    public IEnumerable<ArchiveEntry> All => null;
-//  }
-
-
-
-//  /// <summary>
 //  /// This class is not thread safe and can only be iterated once
 //  /// </summary>
 //  public abstract class ArchiveReader<TEntry> : DisposableObject, IEnumerable<TEntry>, IEnumerator<TEntry>
 //  {
-//    public ArchiveReader(Stream dataStream, ArchivePtr start)
+//    public ArchiveReader(Stream dataStream, ArchivePointer start)
 //    {
 //      m_Stream = dataStream.NonNull(nameof(Stream));
 //      m_Start = start;
@@ -115,7 +82,7 @@
 //    }
 
 //    private Stream m_Stream;
-//    private ArchivePtr m_Start;
+//    private ArchivePointer m_Start;
 //    private IConfigSectionNode m_Metadata;
 
 
@@ -125,7 +92,7 @@
 //    /// <summary>
 //    /// Returns the archive pointer where reading started from
 //    /// </summary>
-//    public ArchivePtr Start => m_Start;
+//    public ArchivePointer Start => m_Start;
 
 //    /// <summary>
 //    /// Returns archive metadata extracted from the header page
@@ -137,7 +104,7 @@
 //    /// Restarts reading from the specified archive pointer position.
 //    /// The enumeration is being affected
 //    /// </summary>
-//    public void RestartAt(ArchivePtr start)
+//    public void RestartAt(ArchivePointer start)
 //    {
 
 //    }
@@ -184,9 +151,9 @@
 //    /// </summary>
 //    /// <param name="entry"></param>
 //    /// <returns></returns>
-//    public ArchivePtr Append(TEntry entry)
+//    public ArchivePointer Append(TEntry entry)
 //    {
-//      return default(ArchivePtr);
+//      return default(ArchivePointer);
 //    }
 
 //    public async Task FlushAsync()
