@@ -22,12 +22,12 @@ namespace Azos.IO.Archiving
     /// <summary>
     /// Page ID - an offset of the page from the Archive beginning
     /// </summary>
-    public long PageOffset;
+    public readonly long PageOffset;
 
     /// <summary>
     /// An offset of entry relative to PageOffset
     /// </summary>
-    public int Address;
+    public readonly int Address;
 
     public bool Assigned => PageOffset > 0;
 
