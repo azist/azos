@@ -21,9 +21,12 @@ namespace Azos.IO.Archiving
   /// </summary>
   public sealed class Page
   {
-    private Page()
+    public enum Status { Invalid, Preloading, Reading, Writing }
+
+    internal Page(int defaultCapacity)
     {
-      m_Raw = new MemoryStream();
+      m_DefaultCapacity = defaultCapacity.KeepBetween(1024, Format.PAGE_MAX_LEN);
+      m_Raw = new MemoryStream(m_DefaultCapacity);
     }
 
     internal void CreateNew(IApplication app)
@@ -36,16 +39,46 @@ namespace Azos.IO.Archiving
     }
 
 
-    public enum Status { Invalid, Read, Writing }
+    internal MemoryStream BeginReading(long pageId)
+    {
+      m_PageId = pageId;
+      if (m_Raw.Capacity > m_DefaultCapacity)
+      {
+        m_Raw = new MemoryStream(m_DefaultCapacity);
+      }
+      else
+      {
+        m_Raw.Position = 0;
+        m_Raw.SetLength(0);
+      }
+      m_State = Status.Preloading;
+      return m_Raw;
+    }
 
+    internal void EndReading(DateTime utcCreate, Atom app, string host)
+    {
+      ensure(Status.Preloading);
+      m_Raw.Position = 0;
+      m_State = Status.Reading;
+      m_CreateUtc = utcCreate;
+      m_CreateApp = app;
+      m_CreateHost = host;
+    }
+
+
+
+    private int m_DefaultCapacity;
     private Status m_State;
+    private long m_PageId;
     private DateTime m_CreateUtc;
     private string m_CreateHost;
     private Atom m_CreateApp;
 
-    private MemoryStream m_Raw; //we can use byte[] directly not to use MemoryStream instance
-    private byte[] m_Buffer;
+    private MemoryStream m_Raw; //the stream contains raw  <entry-stream> without page headers etc...
 
+
+
+    public int DefaultCapacity => m_DefaultCapacity;
 
     /// <summary>
     /// Returns the current state of the page instance
@@ -59,8 +92,15 @@ namespace Azos.IO.Archiving
     {
       get
       {
-        for (var i = 0; i < m_Buffer.Length;)
-          yield return get(ref i);
+        ensure(Status.Reading);
+        var buffer = m_Raw.GetBuffer();
+        for (var adr = 0; adr < m_Raw.Length;)
+        {
+          var entry = get(buffer, ref adr);
+          yield return entry;
+          if (entry.State==Entry.Status.EOF) yield break;
+          if (entry.State < 0) yield break;//any error
+        }
       }
     }
 
@@ -71,36 +111,43 @@ namespace Azos.IO.Archiving
     {
       get
       {
-        if (address < 0 || address >= m_Buffer.Length) return new Entry();
-        return get(ref address);
+        ensure(Status.Reading);
+        var buffer = m_Raw.GetBuffer();
+        return get(buffer, ref address);
       }
     }
 
-    private Entry get(ref int address)
+    private void ensure(Status need)
+    {
+      if (m_State != need) throw new ArchivingException(StringConsts.ARCHIVE_PAGE_STATE_ERROR.Args(m_PageId, need));
+    }
+
+    private Entry get(byte[] buffer, ref int address)
     {
       var ptr = address;
-      if (address < 0 || address + Format.ENTRY_MIN_LEN >= m_Buffer.Length) return new Entry(Entry.Status.BadAddress);
+      if (address < 0 || address + Format.ENTRY_MIN_LEN >= m_Raw.Length) return new Entry(ptr, Entry.Status.BadAddress);
 
-      var h1 = m_Buffer[address];
-      if (h1 == Format.ENTRY_HEADER_1 && m_Buffer[++address] == Format.ENTRY_HEADER_2)
+      var h1 = buffer[address];
+      if (h1 == Format.ENTRY_HEADER_1 && buffer[++address] == Format.ENTRY_HEADER_2) // @>
       {
-        var len = m_Buffer.ReadBEInt32(ref address);//todo use varbit encoding 1-5 bytes
+        var len = 0;//buffer.ReadVarLen32(ref address);//todo use varbit encoding 1-5 bytes
         //check max length
 
-        if (len <= 0 || len > Format.ENTRY_MAX_LEN) return new Entry(Entry.Status.InvalidLength);//max length exceeded
+        if (len == 0 || len > Format.ENTRY_MAX_LEN) return new Entry(ptr, Entry.Status.InvalidLength);//max length exceeded
 
         var start = address;
         var end = address + len;
-        if (end >= m_Buffer.Length) return new Entry(Entry.Status.BadAddress);//beyond the block
+        if (end >= m_Raw.Length) return new Entry(ptr, Entry.Status.InvalidLength);//beyond the block
 
-        return new Entry(Entry.Status.Valid, ptr, new ArraySegment<byte>(m_Buffer, start, len));
+        return new Entry(ptr, new ArraySegment<byte>(buffer, start, len));//VALID!!!
       }
-      else if (h1 == Format.ENTRY_HEADER_EOF_1 && m_Buffer[++address] == Format.ENTRY_HEADER_EOF_2)
+      else if (h1 == Format.ENTRY_HEADER_EOF_1 && buffer[++address] == Format.ENTRY_HEADER_EOF_2)
       {
-        return new Entry(Entry.Status.EOF);//EOF
+        return new Entry(ptr, Entry.Status.EOF);//EOF
       }
-      else return new Entry(Entry.Status.BadHeader);//corruption
+      else return new Entry(ptr, Entry.Status.BadHeader);//corruption
     }
 
   }
 }
+

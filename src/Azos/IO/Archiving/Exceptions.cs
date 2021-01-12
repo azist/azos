@@ -7,7 +7,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Azos.IO.Streaming
+namespace Azos.IO.Archiving
 {
   /// <summary>
   /// Base exception thrown by the archiving framework

@@ -30,8 +30,8 @@ Archive file has the following format:
    [entry..[entry] <eof | TERMINATOR-ENTRY-HDR>
 
  entry:
-   ENTRY-HDR = ASCII(`OK`) or  TERMINATOR-ENTRY-HDR = `\x00x00`
-   <ENTRY-HDR><entry-len: varulong> <entry-content: byte[entry-len]>
+   ENTRY-HDR = ASCII(`@>`) or  TERMINATOR-ENTRY-HDR = `\x00x00`
+   <ENTRY-HDR><entry-len: varint> <entry-content: byte[entry-len]>
       2 bytes     1..9 bytes             1 byte...X        Shortest message:  4 bytes
    entry-len: varlong(e.g. LEB128) < MAX-ITEM-SZ configurable (16 MByte by default)
 ```

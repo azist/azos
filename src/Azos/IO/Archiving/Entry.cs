@@ -14,24 +14,26 @@ namespace Azos.IO.Archiving
   {
     public enum Status
     {
-      Unassigned = 0,
-      Valid = 1,
-      EOF = 2,
-      BadAddress = -100,
+      BadHeader = -102,
       InvalidLength = -101,
-      BadHeader = -102
+      BadAddress = -100,
+
+      Unassigned = 0,
+
+      Valid = 1,
+      EOF = 2
     }
 
-    public Entry(Status state)
+    public Entry(int address, Status state)
     {
+      Address = address;
       State = state;
-      Address = 0;
       Raw = new ArraySegment<byte>();
     }
 
-    public Entry(Status state, int address, ArraySegment<byte> raw)
+    public Entry(int address, ArraySegment<byte> raw)
     {
-      State = state;
+      State = Status.Valid;
       Address = address;
       Raw = raw;
     }

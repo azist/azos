@@ -9,35 +9,40 @@ using System;
 namespace Azos.IO.Archiving
 {
   /// <summary>
-  /// Points to an archive entry
+  /// Points to an archive entry on an archive page. A page is identified by a unique id (within archive volume)
+  /// which is technically an offset of that page in an archive data stream.
+  /// An entry is pointed-to using an "Address" offset relative to the page data stream start
   /// </summary>
-  public struct ArchivePointer : IEquatable<ArchivePointer>
+  public struct Bookmark : IEquatable<Bookmark>
   {
-    public ArchivePointer(long pageOffset, int address)
+    public Bookmark(long pageId, int address)
     {
-      PageOffset = pageOffset;
+      PageId = pageId;
       Address = address;
     }
 
     /// <summary>
     /// Page ID - an offset of the page from the Archive beginning
     /// </summary>
-    public readonly long PageOffset;
+    public readonly long PageId;
 
     /// <summary>
-    /// An offset of entry relative to PageOffset
+    /// An offset of entry relative to page data stream
     /// </summary>
     public readonly int Address;
 
-    public bool Assigned => PageOffset > 0;
+    /// <summary>
+    /// True when the instance points to some data page
+    /// </summary>
+    public bool Assigned => PageId > 0;
 
-    public bool Equals(ArchivePointer other) => this.PageOffset == other.PageOffset && this.Address == other.Address;
-    public override bool Equals(object obj) => obj is ArchivePointer other ? this.Equals(other) : false;
-    public override int GetHashCode() => (int)PageOffset ^ Address;
+    public bool Equals(Bookmark other) => this.PageId == other.PageId && this.Address == other.Address;
+    public override bool Equals(object obj) => obj is Bookmark other ? this.Equals(other) : false;
+    public override int GetHashCode() => (int)PageId ^ Address;
 
-    public override string ToString() => PageOffset.ToString("X4") + ":" + Address.ToString("X4");
+    public override string ToString() => PageId.ToString("X4") + ":" + Address.ToString("X4");
 
-    public static bool operator ==(ArchivePointer l, ArchivePointer r) => l.Equals(r);
-    public static bool operator !=(ArchivePointer l, ArchivePointer r) => !l.Equals(r);
+    public static bool operator ==(Bookmark l, Bookmark r) => l.Equals(r);
+    public static bool operator !=(Bookmark l, Bookmark r) => !l.Equals(r);
   }
 }
