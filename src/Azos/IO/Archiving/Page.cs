@@ -21,7 +21,7 @@ namespace Azos.IO.Archiving
   /// </summary>
   public sealed class Page
   {
-    public enum Status { Invalid, Preloading, Reading, Writing }
+    public enum Status { Unset, Preloading, Reading, Writing }
 
     internal Page(int defaultCapacity)
     {
@@ -29,16 +29,35 @@ namespace Azos.IO.Archiving
       m_Raw = new MemoryStream(m_DefaultCapacity);
     }
 
-    internal void CreateNew(IApplication app)
+    /// <summary>
+    /// Initializes the page instance for writing.
+    /// After this call you can call `Append()` and finalize the append with
+    /// the call to `EndWriting()`
+    /// </summary>
+    internal void BeginWriting(DateTime utcCreate, Atom app, string host)
     {
       m_Raw.Position = 0;
       m_State = Status.Writing;
-      m_CreateUtc = app.TimeSource.UTCNow;
-      m_CreateApp = app.AppId;
-      m_CreateHost = Platform.Computer.HostName;
+      m_CreateUtc = utcCreate;
+      m_CreateApp = app;
+      m_CreateHost = host;
     }
 
+    public void EndWriting()
+    {
+      ensure(Status.Writing);
+      m_Raw.WriteByte(Format.ENTRY_HEADER_EOF_1);
+      m_Raw.WriteByte(Format.ENTRY_HEADER_EOF_2);
+      m_State = Status.Unset;
+    }
 
+    /// <summary>
+    /// Returns the stream which the content should be loaded into.
+    /// The stream is reset to pos/len zero.
+    /// The accessor first calls `BeginRead(): MemoryStream`, the returned stream is filled with data
+    /// (e.g. from a compressed/encrypted source, then the accessor calls `EndReading()` to indicate
+    /// that the Page is ready to be enumerated
+    /// </summary>
     internal MemoryStream BeginReading(long pageId)
     {
       m_PageId = pageId;
@@ -55,6 +74,12 @@ namespace Azos.IO.Archiving
       return m_Raw;
     }
 
+    /// <summary>
+    /// Sets the page into Reading status. The page should be in Preloading status before this call.
+    /// The accessor first calls `BeginRead(): MemoryStream`, the returned stream is filled with data
+    /// (e.g. from a compressed/encrypted source, then the accessor calls `EndReading()` to indicate
+    /// that the Page is ready to be enumerated
+    /// </summary>
     internal void EndReading(DateTime utcCreate, Atom app, string host)
     {
       ensure(Status.Preloading);
@@ -84,6 +109,11 @@ namespace Azos.IO.Archiving
     /// Returns the current state of the page instance
     /// </summary>
     public Status State => m_State;
+
+    /// <summary>
+    /// Current page size
+    /// </summary>
+    public int Size => (int)m_Raw.Position;
 
     /// <summary>
     /// Walks all raw entries. This is purely in-memory operation
@@ -116,6 +146,27 @@ namespace Azos.IO.Archiving
         return get(buffer, ref address);
       }
     }
+
+    /// <summary>
+    /// Writes a raw representation of an entry, returning its address on a page
+    /// </summary>
+    public int Append(ArraySegment<byte> entry)
+    {
+      ensure(Status.Writing);
+      Aver.IsTrue(entry.Array != null && entry.Count > 0);
+
+      var addr = (int)m_Raw.Position;
+
+      m_Raw.WriteByte(Format.ENTRY_HEADER_1);
+      m_Raw.WriteByte(Format.ENTRY_HEADER_2);
+      m_Raw.WriteBEInt32(entry.Count); //todo change to VarLen32
+
+      m_Raw.Write(entry.Array, entry.Offset, entry.Count);
+
+      return addr;
+    }
+
+
 
     private void ensure(Status need)
     {
