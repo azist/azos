@@ -9,15 +9,15 @@ using System.Diagnostics;
 
 using Azos.Apps;
 using Azos.Conf;
-using Azos.Instrumentation;
+using System.Linq;
 
 using Azos.Data.Access.MongoDb.Connector;
-using System.Linq;
+using Azos.Instrumentation;
 
 namespace Azos.Data.Access.MongoDb
 {
   /// <summary>
-  /// Provides interface to run local `mongod` instance bundled with the application.
+  /// Provides interface to local `mongod` instance bundled with the application.
   /// This is an "appliance-mode" deployment where database is not treated as a separate entity
   /// but as a part of application.
   /// This class is helpful for tasks such as organizing local key-ring buffers and other data storages

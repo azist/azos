@@ -21,7 +21,7 @@ namespace Azos.IO.Archiving
   /// </summary>
   public sealed class Page
   {
-    public enum Status { Unset, Preloading, Reading, Writing }
+    public enum Status { Unset, Loading, Reading, EOF, Writing }
 
     internal Page(int defaultCapacity)
     {
@@ -34,8 +34,9 @@ namespace Azos.IO.Archiving
     /// After this call you can call `Append()` and finalize the append with
     /// the call to `EndWriting()`
     /// </summary>
-    internal void BeginWriting(DateTime utcCreate, Atom app, string host)
+    internal void BeginWriting(long pageId, DateTime utcCreate, Atom app, string host)
     {
+      m_PageId = pageId;
       m_Raw.Position = 0;
       m_State = Status.Writing;
       m_CreateUtc = utcCreate;
@@ -43,12 +44,13 @@ namespace Azos.IO.Archiving
       m_CreateHost = host;
     }
 
-    public void EndWriting()
+    public MemoryStream EndWriting()
     {
       ensure(Status.Writing);
       m_Raw.WriteByte(Format.ENTRY_HEADER_EOF_1);
       m_Raw.WriteByte(Format.ENTRY_HEADER_EOF_2);
       m_State = Status.Unset;
+      return m_Raw;
     }
 
     /// <summary>
@@ -70,24 +72,25 @@ namespace Azos.IO.Archiving
         m_Raw.Position = 0;
         m_Raw.SetLength(0);
       }
-      m_State = Status.Preloading;
+      m_State = Status.Loading;
       return m_Raw;
     }
 
     /// <summary>
-    /// Sets the page into Reading status. The page should be in Preloading status before this call.
+    /// Sets the page into Reading status. The page should be in `Loading` status before this call.
     /// The accessor first calls `BeginRead(): MemoryStream`, the returned stream is filled with data
     /// (e.g. from a compressed/encrypted source, then the accessor calls `EndReading()` to indicate
     /// that the Page is ready to be enumerated
     /// </summary>
     internal void EndReading(DateTime utcCreate, Atom app, string host)
     {
-      ensure(Status.Preloading);
+      ensure(Status.Loading);
       m_Raw.Position = 0;
-      m_State = Status.Reading;
+      m_State = m_Raw.Length > 0 ? Status.Reading : Status.EOF;
       m_CreateUtc = utcCreate;
       m_CreateApp = app;
       m_CreateHost = host;
+      m_State = Status.Unset;
     }
 
 

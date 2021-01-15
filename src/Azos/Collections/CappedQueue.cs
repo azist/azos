@@ -48,7 +48,7 @@ namespace Azos.Collections
   {
 
     /// <summary>
-    /// Creates na instances of a thread-safe concurrent queue of T with limits imposed on the total count and
+    /// Creates an instance of a thread-safe concurrent queue of T with limits imposed on the total count and
     /// an approximated total size of all items expressed in relative units. Once the limit/s is/are reached a queue can either
     /// discard old or new messages or throw exception.
     /// </summary>

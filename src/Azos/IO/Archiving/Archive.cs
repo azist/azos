@@ -23,13 +23,6 @@
 //    //public AccessorCompressor Compressor =>
 //  }
 
-//  public struct ArchiveEntry
-//  {
-//    public enum Status { Corrupt = 0, OK }
-//    public bool OK;
-//    public ArraySegment<byte> Entry;
-//  }
-
 //  /// <summary>
 //  /// Must be thread-safe.
 //  /// This method may be called by multiple threads at the same time (even over the same source stream).
