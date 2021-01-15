@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+using Azos.Serialization.Bix;
+
 namespace Azos.IO.Archiving
 {
   /// <summary>
@@ -17,10 +19,34 @@ namespace Azos.IO.Archiving
   /// </summary>
   public class DefaultVolume : DisposableObject, IVolume
   {
+    /// <summary>
+    /// Create a new volume
+    /// </summary>
+    public DefaultVolume(VolumeMetadataBuilder metadataBuilder, Stream stream, bool ownsStream = true)
+    {
+      m_Stream = stream.NonNull(nameof(stream));
+      (m_Stream.Length == 0).IsTrue("stream.!Empty");
+      metadataBuilder.Assigned.IsTrue("meta.!Assigned");
 
+      m_Reader = new BixReader(m_Stream);
+      m_Writer = new BixWriter(m_Stream);
+
+      m_Metadata = metadataBuilder.Built;
+      writeVolumeHeader();
+    }
+
+    /// <summary>
+    /// Mounts an existing volume
+    /// </summary>
     public DefaultVolume(Stream stream, bool ownsStream = true)
     {
       m_Stream = stream.NonNull(nameof(stream));
+      (m_Stream.Length > 0).IsTrue("stream.!Empty");
+
+      m_Reader = new BixReader(m_Stream);
+      m_Writer = new BixWriter(m_Stream);
+
+    //  m_Metadata = readMetadata();
     }
 
     protected override void Destructor()
@@ -32,8 +58,18 @@ namespace Azos.IO.Archiving
 
     private bool m_OwnsStream;
     private Stream m_Stream;
+    private BixReader m_Reader;
+    private BixWriter m_Writer;
     private IPageCache m_Cache;
+    private VolumeMetadata m_Metadata;
 
+
+
+    /// <summary>
+    /// Returns archive volume metadata. Metadata gets set only at the time of new archive creation and
+    /// it can not be mutated after creation
+    /// </summary>
+    public VolumeMetadata Metadata => m_Metadata;
 
     public int PageSizeBytes { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
@@ -49,7 +85,7 @@ namespace Azos.IO.Archiving
       pageId.IsTrue(v => v > 0, "pageId <= 0");
       page.NonNull(nameof(page));
 
-      //align pageId by 16
+      //align pageId by 16 in a loop...
 
       var pageData = page.BeginReading(pageId);
 
@@ -72,8 +108,72 @@ namespace Azos.IO.Archiving
     /// </summary>
     public long AppendPage(Page page)
     {
-      page.NonNull(nameof(page));
-      return -1;
+      page.NonNull(nameof(page))
+          .Ensure(Page.Status.Written);
+
+      lock(m_Stream)
+      {
+        var pageId = seekToNewPageLocation();
+        writeHeader(pageId, page);
+        writeData(page);
+       // m_Cache.Put(pageId, page.)
+        return pageId;
+      }
+    }
+
+
+    //the stream is guaranteed to be at 0
+    private void writeVolumeHeader()
+    {
+      //Volume file header
+      Format.VOLUME_HEADER.ForEach(c => m_Writer.Write((byte)c));
+      m_Writer.Write((byte)0x00);//null terminator
+      m_Writer.Write((byte)0x00);
+
+      m_Writer.Write($"Platform=Azos\nUri=https://github.com/azist/azos\nVolume={this.GetType().Name}\n");
+
+      var json = m_Metadata.Data.ToJSONString(Serialization.JSON.JsonWritingOptions.Compact);
+      m_Writer.Write(json);
+
+      for(var i=0; i<35; i++) m_Writer.Write((byte)0x20);
+    }
+
+    private long seekToNewPageLocation()
+    {
+      var result = IntUtils.Align16(m_Stream.Length);
+      m_Stream.Position = result;
+      return result;
+    }
+
+    private void writeHeader(long pageId, Page page)
+    {
+      //PAGE-HDR
+      m_Writer.Write(Format.PAGE_HEADER_1);
+      m_Writer.Write(Format.PAGE_HEADER_2);
+
+      //position: 2 bytes of pageId (3rd and 2nd)
+      m_Writer.Write((byte)(pageId >> 16));
+      m_Writer.Write((byte)(pageId >> 8));
+
+      //utcCreateDate
+      m_Writer.Write((ulong)page.CreateUtc.ToSecondsSinceUnixEpochStart());
+
+      //host
+      m_Writer.Write(page.CreateHost);
+
+      //app
+      m_Writer.Write(page.CreateApp);
+    }
+
+    private void writeData(Page page)
+    {
+      var data = page.Data;
+
+      //len
+      m_Writer.Write((uint)data.Count);
+
+      //data
+      m_Stream.Write(data.Array, 0, data.Count);
     }
 
 
@@ -89,7 +189,7 @@ namespace Azos.IO.Archiving
       //////{
       //////  pageData.SetLength(len);
       //////  for (var got = 0; got < len;)
-      //////    got += m_Stream.Read(pageData.GetBuffer(), 0, len - got);
+      //////    got += m_Stream.Read(pageData.GetBuffer(), got, len - got);
       //////}
 
 

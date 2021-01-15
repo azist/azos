@@ -416,6 +416,25 @@ namespace Azos
       return value;
     }
 
+    /// <summary>
+    /// Ensures that the condition is true
+    /// </summary>
+    public static void IsTrue(this bool condition,
+                               string name = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null)
+    {
+      if (!condition)
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_CLAUSE_CONDITION_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+      }
+    }
+
 
   }
 }

@@ -21,13 +21,26 @@ namespace Azos.IO.Archiving
   /// </summary>
   public sealed class Page
   {
-    public enum Status { Unset, Loading, Reading, EOF, Writing }
+    public enum Status { Unset, Loading, Reading, EOF, Writing, Written }
 
     internal Page(int defaultCapacity)
     {
       m_DefaultCapacity = defaultCapacity.KeepBetween(1024, Format.PAGE_MAX_LEN);
       m_Raw = new MemoryStream(m_DefaultCapacity);
     }
+
+    /*
+      NOTE Re: design choice for reuse of Page instances
+
+      Keep in mind, that archive reading/scrolling is not necessarily always going to materialize Entry objects.
+      You might just get the binary page data and analyze it in place without a higher-level read accessor, consequently
+      scrolling thorough a page may be a completely allocation-free procedure, therefore
+      it is important to NOT make any extra allocations, more so in a small LOH range which will load GC.
+
+      By avoiding Page instance allocation we can reuse the underlying memory chunk which otherwise would have been trashed
+      with every page fetch.
+    */
+
 
     /// <summary>
     /// Initializes the page instance for writing.
@@ -44,13 +57,18 @@ namespace Azos.IO.Archiving
       m_CreateHost = host;
     }
 
-    public MemoryStream EndWriting()
+    public void EndWriting()
     {
-      ensure(Status.Writing);
+      Ensure(Status.Writing);
       m_Raw.WriteByte(Format.ENTRY_HEADER_EOF_1);
       m_Raw.WriteByte(Format.ENTRY_HEADER_EOF_2);
-      m_State = Status.Unset;
-      return m_Raw;
+
+      //varbit entry header padding
+      m_Raw.WriteByte(0xAA);
+      m_Raw.WriteByte(0xAA);
+      m_Raw.WriteByte(0xAA);
+
+      m_State = Status.Written;
     }
 
     /// <summary>
@@ -84,13 +102,13 @@ namespace Azos.IO.Archiving
     /// </summary>
     internal void EndReading(DateTime utcCreate, Atom app, string host)
     {
-      ensure(Status.Loading);
+      Ensure(Status.Loading);
       m_Raw.Position = 0;
       m_State = m_Raw.Length > 0 ? Status.Reading : Status.EOF;
       m_CreateUtc = utcCreate;
       m_CreateApp = app;
       m_CreateHost = host;
-      m_State = Status.Unset;
+      m_State = Status.Reading;
     }
 
 
@@ -113,10 +131,14 @@ namespace Azos.IO.Archiving
     /// </summary>
     public Status State => m_State;
 
+    public DateTime CreateUtc => m_CreateUtc;
+    public string CreateHost => m_CreateHost;
+    public Atom CreateApp => m_CreateApp;
+
     /// <summary>
     /// Current page size
     /// </summary>
-    public int Size => (int)m_Raw.Position;
+    public ArraySegment<byte> Data => new ArraySegment<byte>(m_Raw.GetBuffer(), 0, (int)m_Raw.Length);
 
     /// <summary>
     /// Walks all raw entries. This is purely in-memory operation
@@ -125,7 +147,7 @@ namespace Azos.IO.Archiving
     {
       get
       {
-        ensure(Status.Reading);
+        Ensure(Status.Reading);
         var buffer = m_Raw.GetBuffer();
         for (var adr = 0; adr < m_Raw.Length;)
         {
@@ -144,7 +166,7 @@ namespace Azos.IO.Archiving
     {
       get
       {
-        ensure(Status.Reading);
+        Ensure(Status.Reading);
         var buffer = m_Raw.GetBuffer();
         return get(buffer, ref address);
       }
@@ -155,7 +177,7 @@ namespace Azos.IO.Archiving
     /// </summary>
     public int Append(ArraySegment<byte> entry)
     {
-      ensure(Status.Writing);
+      Ensure(Status.Writing);
       Aver.IsTrue(entry.Array != null && entry.Count > 0);
 
       var addr = (int)m_Raw.Position;
@@ -170,8 +192,11 @@ namespace Azos.IO.Archiving
     }
 
 
-
-    private void ensure(Status need)
+    /// <summary>
+    /// Asserts page to be in specific state
+    /// </summary>
+    /// <param name="need"></param>
+    public void Ensure(Status need)
     {
       if (m_State != need) throw new ArchivingException(StringConsts.ARCHIVE_PAGE_STATE_ERROR.Args(m_PageId, need));
     }

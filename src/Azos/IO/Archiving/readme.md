@@ -23,8 +23,8 @@ Archive file has the following format:
 
  page:
    Pages are always aligned by 16
-   PAGE-HDR = ASCII(`PAGE`)
-   <PAGE-HDR><position: long><utcCreateDate: unixBElong><host: utf8string><app: atomBElong><entry-stream>  <eof|page-hdr>
+   PAGE-HDR = ASCII(`PG`)
+   <PAGE-HDR><position: word><utcCreateDate: unixBElong><host: utf8string><app: atomBElong><len: beInt><entry-stream>  <eof|page-hdr>
              |-------- iv -----------------------------| - used for encryption             |compressed|
  entry-stream:
    [entry..[entry] <eof | TERMINATOR-ENTRY-HDR>

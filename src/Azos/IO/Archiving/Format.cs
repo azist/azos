@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,7 +12,12 @@ namespace Azos.IO.Archiving
 {
   public static class Format
   {
+    public const string VOLUME_HEADER = "#!/usr/bin/env bix\n";
+
     public const int PAGE_MAX_LEN = 128 * 1000 * 1024;//~128 Mb is the maximum page size
+
+    public const byte PAGE_HEADER_1 = (byte)'P';
+    public const byte PAGE_HEADER_2 = (byte)'G';
 
 
     public const int ENTRY_MIN_LEN = 2/*hdr*/ + 5 /*len*/ + 1/*payload*/;
