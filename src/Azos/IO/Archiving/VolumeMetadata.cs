@@ -26,6 +26,7 @@ namespace Azos.IO.Archiving
     public const string CONFIG_SCHEME_ATTR = "scheme";
     public const string CONFIG_ENCRYPTION_SECTION = "encryption";
     public const string CONFIG_COMPRESSION_SECTION = "compression";
+    public const string CONFIG_APP_SECTION = "app";
 
 
     internal VolumeMetadata(ConfigSectionNode data)
@@ -37,6 +38,7 @@ namespace Azos.IO.Archiving
 
 
     public IConfigSectionNode SectionSystem => Data[CONFIG_SYS_SECTION];
+    public IConfigSectionNode SectionApplication => SectionSystem[CONFIG_APP_SECTION];
     public IConfigSectionNode SectionEncryption => SectionSystem[CONFIG_ENCRYPTION_SECTION];
     public IConfigSectionNode SectionCompression => SectionSystem[CONFIG_COMPRESSION_SECTION];
 
@@ -58,11 +60,15 @@ namespace Azos.IO.Archiving
   /// </summary>
   public struct VolumeMetadataBuilder
   {
-    public VolumeMetadataBuilder(string rootName = null)
+    public static VolumeMetadataBuilder Make(string label, string rootName = null)
+      => new VolumeMetadataBuilder(label, rootName);
+
+    private VolumeMetadataBuilder(string label, string rootName)
     {
       Root = Configuration.NewEmptyRoot(rootName.Default(VolumeMetadata.CONFIG_VOLUME_SECTION));
       SectionSystem = Root.AddChildNode(VolumeMetadata.CONFIG_SYS_SECTION);
       SectionSystem.AddAttributeNode(VolumeMetadata.CONFIG_ID_ATTR, Guid.NewGuid());
+      SectionSystem.AddAttributeNode(VolumeMetadata.CONFIG_LABEL_ATTR, label.NonBlankMinMax(1, 1024));
     }
 
     public readonly ConfigSectionNode Root;
@@ -86,13 +92,6 @@ namespace Azos.IO.Archiving
       return this;
     }
 
-    public VolumeMetadataBuilder SetLabel(string label)
-    {
-      if (label.IsNotNullOrWhiteSpace())
-        SectionSystem.AttrByName(VolumeMetadata.CONFIG_LABEL_ATTR, true).Value = label;
-      return this;
-    }
-
     public VolumeMetadataBuilder SetDescription(string description)
     {
       if (description.IsNotNullOrWhiteSpace())
@@ -100,18 +99,41 @@ namespace Azos.IO.Archiving
       return this;
     }
 
-    public VolumeMetadataBuilder SetCompression(Action<ConfigSectionNode> compressionBuilder)
+    public VolumeMetadataBuilder SetApplicationSection(Action<ConfigSectionNode> applicationBuilder)
+    {
+      if (applicationBuilder == null) return this;
+
+      var application = Root[VolumeMetadata.CONFIG_APP_SECTION];
+
+      if (!application.Exists)
+       application = Root.AddChildNode(VolumeMetadata.CONFIG_APP_SECTION);
+
+      applicationBuilder(application);
+      return this;
+    }
+
+    public VolumeMetadataBuilder SetCompressionSection(Action<ConfigSectionNode> compressionBuilder)
     {
       if (compressionBuilder==null) return this;
-      var compression = Root.AddChildNode(VolumeMetadata.CONFIG_COMPRESSION_SECTION);
+
+      var compression = SectionSystem[VolumeMetadata.CONFIG_COMPRESSION_SECTION];
+
+      if (!compression.Exists)
+        compression = SectionSystem.AddChildNode(VolumeMetadata.CONFIG_COMPRESSION_SECTION);
+
       compressionBuilder(compression);
       return this;
     }
 
-    public VolumeMetadataBuilder SetEncryption(Action<ConfigSectionNode> encryptionBuilder)
+    public VolumeMetadataBuilder SetEncryptionSection(Action<ConfigSectionNode> encryptionBuilder)
     {
       if (encryptionBuilder == null) return this;
-      var encryption = Root.AddChildNode(VolumeMetadata.CONFIG_ENCRYPTION_SECTION);
+
+      var encryption = SectionSystem[VolumeMetadata.CONFIG_ENCRYPTION_SECTION];
+
+      if (!encryption.Exists)
+        encryption = SectionSystem.AddChildNode(VolumeMetadata.CONFIG_ENCRYPTION_SECTION);
+
       encryptionBuilder(encryption);
       return this;
     }
@@ -119,13 +141,13 @@ namespace Azos.IO.Archiving
     public VolumeMetadataBuilder SetCompressionScheme(string scheme)
     {
       if (scheme.IsNullOrWhiteSpace()) return this;
-      return SetCompression(node => node.AddAttributeNode(VolumeMetadata.CONFIG_SCHEME_ATTR, scheme));
+      return SetCompressionSection(node => node.AddAttributeNode(VolumeMetadata.CONFIG_SCHEME_ATTR, scheme));
     }
 
     public VolumeMetadataBuilder SetEncryptionScheme(string scheme)
     {
       if (scheme.IsNullOrWhiteSpace()) return this;
-      return SetEncryption(node => node.AddAttributeNode(VolumeMetadata.CONFIG_SCHEME_ATTR, scheme));
+      return SetEncryptionSection(node => node.AddAttributeNode(VolumeMetadata.CONFIG_SCHEME_ATTR, scheme));
     }
 
   }
