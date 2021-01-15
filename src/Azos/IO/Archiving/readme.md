@@ -13,7 +13,7 @@ storing and retrieving individual items.
 
 Archive file has the following format:
 ```bash
- <FILE-HEADER> <metedata: json> <pages>
+ <FILE-HEADER><00><00><info: string><metedata: jsonstring><pad: 35 0x20> <pages>
  
  FILE-HEADER: ASCII String = "#!/usr/bin/env bix\n\00";
  metadata: string Azos config JSON

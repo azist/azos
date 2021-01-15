@@ -704,6 +704,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string AST_BAD_IDENTIFIER_ERROR = "Bad identifier: '{0}'";
 
 
+    public const string ARCHIVE_VOLUME_HEADER_READ_ERROR = "The archive volume `{0}` header could not be mounted: {1}";
+
     public const string ARCHIVE_PAGE_STATE_ERROR = "The archive page @0x{0:X4} offset must be in `{1}` state";
 
 

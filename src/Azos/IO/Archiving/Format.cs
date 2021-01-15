@@ -14,6 +14,9 @@ namespace Azos.IO.Archiving
   {
     public const string VOLUME_HEADER = "#!/usr/bin/env bix\n";
 
+    public const int VOLUME_PAD_LEN = 35;
+    public const byte VOLUME_PAD_ASCII = 0x20;
+
     public const int PAGE_MAX_LEN = 128 * 1000 * 1024;//~128 Mb is the maximum page size
 
     public const byte PAGE_HEADER_1 = (byte)'P';

@@ -46,7 +46,7 @@ namespace Azos.IO.Archiving
       m_Reader = new BixReader(m_Stream);
       m_Writer = new BixWriter(m_Stream);
 
-    //  m_Metadata = readMetadata();
+      m_Metadata = readVolumeHeader();
     }
 
     protected override void Destructor()
@@ -122,6 +122,39 @@ namespace Azos.IO.Archiving
     }
 
 
+    private VolumeMetadata readVolumeHeader()
+    {
+      m_Stream.Position = 0;
+
+      try
+      {
+        //Volume file header
+        Format.VOLUME_HEADER.ForEach(c => Aver.IsTrue((byte)c == m_Reader.ReadByte(), "sig mismatch"));
+        Aver.AreEqual(0, m_Reader.ReadByte(), "no \0x00");//null terminator
+        Aver.AreEqual(0, m_Reader.ReadByte(), "no \0x00");
+
+        //Info
+        var info = m_Reader.ReadString();
+        Aver.IsFalse(info.IsNullOrWhiteSpace(), "no info");
+
+        //Json metadata
+        var json = m_Reader.ReadString();
+        Aver.IsFalse(info.IsNullOrWhiteSpace(), "no json");
+        var meta = Data.ObjectValueConversion.AsJSONConfig(json, handling: Data.ConvertErrorHandling.Throw);
+
+        //Pad
+        for (var i = 0; i < Format.VOLUME_PAD_LEN; i++)
+          Aver.AreEqual(Format.VOLUME_PAD_ASCII, m_Reader.ReadByte(), "bad pad");
+
+        return new VolumeMetadata(meta);
+      }
+      catch(Exception cause)
+      {
+        throw new ArchivingException(StringConsts.ARCHIVE_VOLUME_HEADER_READ_ERROR.Args(GetType().Name, cause.ToMessageWithType()), cause);
+      }
+    }
+
+
     //the stream is guaranteed to be at 0
     private void writeVolumeHeader()
     {
@@ -130,12 +163,16 @@ namespace Azos.IO.Archiving
       m_Writer.Write((byte)0x00);//null terminator
       m_Writer.Write((byte)0x00);
 
+      //Info
       m_Writer.Write($"Platform=Azos\nUri=https://github.com/azist/azos\nVolume={this.GetType().Name}\n");
 
+      //Json Metadata
       var json = m_Metadata.Data.ToJSONString(Serialization.JSON.JsonWritingOptions.Compact);
       m_Writer.Write(json);
 
-      for(var i=0; i<35; i++) m_Writer.Write((byte)0x20);
+      //Pad
+      for(var i=0; i<Format.VOLUME_PAD_LEN; i++)
+        m_Writer.Write(Format.VOLUME_PAD_ASCII);
     }
 
     private long seekToNewPageLocation()
