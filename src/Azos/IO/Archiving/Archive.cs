@@ -9,54 +9,6 @@
 
 //namespace Azos.IO.Archiving
 //{
-//  public struct ArchiveMeta
-//  {
-//    public static ArchiveMeta Make(ConfigSectionNode data)
-//    {
-
-//    }
-//    public IConfigSectionNode Data;
-
-//    public bool IsCompressed => Data.Of("COMPRESS").ValueAsBool();
-//    public bool IsEncrypted => false;
-
-//    //public AccessorCompressor Compressor =>
-//  }
-
-//  /// <summary>
-//  /// Must be thread-safe.
-//  /// This method may be called by multiple threads at the same time (even over the same source stream).
-//  /// The class performs internal cache/access coordination and tries to satisfy requests in lock-free manner
-//  /// </summary>
-//  public abstract class ArchiveDataAccessor : DisposableObject
-//  {
-//    public const int MIN_PAGE_SIZE = 0xff;
-//    public const int MAX_PAGE_SIZE = 128 * 1024;//128k
-//    public const int DFLT_PAGE_SIZE = 1024;
-
-//    /// <summary>
-//    /// Controls page split on writing. Does not affect reading
-//    /// </summary>
-//    public int PageSizeBytes { get; set; }
-
-
-//    /// <summary>
-//    /// Return true if page was read into existing memory stream, false if it is torn in the underlying source.
-//    /// This method may be called by multiple threads at the same time (even over the same source stream).
-//    /// The class performs internal cache/access coordination and tries to satisfy requests in lock-free manner
-//    /// </summary>
-//    public bool ReadPage(long pageOffset, Page page)//so it can grow as needed
-//    {
-//      return false;//torn
-//    }
-
-//    //appends at the end of file
-//    public void AppendPage(Page page)//page is formed for writing in some existing buffer
-//    {
-//      //where is logical address?
-//    }
-//  }
-
 //  /// <summary>
 //  /// This class is not thread safe and can only be iterated once
 //  /// </summary>

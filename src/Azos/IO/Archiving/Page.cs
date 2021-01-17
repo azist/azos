@@ -131,8 +131,20 @@ namespace Azos.IO.Archiving
     /// </summary>
     public Status State => m_State;
 
+    /// <summary>
+    /// The UTC of page creation
+    /// </summary>
     public DateTime CreateUtc => m_CreateUtc;
+
+    /// <summary>
+    /// Information about the user/host which created the page.
+    /// By Convention a user name is prepended before host name like so: `user@host` e.g. `dave@linmed001`
+    /// </summary>
     public string CreateHost => m_CreateHost;
+
+    /// <summary>
+    /// Id of application which created this page
+    /// </summary>
     public Atom CreateApp => m_CreateApp;
 
     /// <summary>

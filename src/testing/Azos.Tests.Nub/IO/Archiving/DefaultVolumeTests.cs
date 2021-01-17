@@ -18,7 +18,7 @@ namespace Azos.Tests.Nub.IO.Archiving
   public class DefaultVolumeTests
   {
     [Run]
-    public void Metadata_Create_Mount()
+    public void Metadata_Create_Multiple_Sections_Mount()
     {
       //var ms = new FileStream("c:\\azos\\archive.lar", FileMode.Create);//  new MemoryStream();
       var ms = new MemoryStream();

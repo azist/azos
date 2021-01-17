@@ -61,6 +61,12 @@ namespace Azos.IO.Archiving
     /// </summary>
     long MemoryLimit {  get; set; }
 
+
+    /// <summary>
+    /// Returns true if the cache contains the page without trying to fetch its data
+    /// </summary>
+    bool Contains(long pageId);
+
     /// <summary>
     /// Tries to get a page content by pageId
     /// </summary>

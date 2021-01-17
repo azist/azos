@@ -112,7 +112,7 @@ namespace Azos.IO.Archiving
       lock(m_Stream)
       {
         var pageId = seekToNewPageLocation();
-        writeHeader(pageId, page);
+        writePageHeader(pageId, page);
         writeData(page);
        // m_Cache.Put(pageId, page.)
         return pageId;
@@ -180,7 +180,45 @@ namespace Azos.IO.Archiving
       return result;
     }
 
-    private void writeHeader(long pageId, Page page)
+    //-1 = eof
+    private (long pageId, DateTime createUtc, Atom app, string host, int len) seekToExistingPageLocation(long pageId)
+    {
+      while(true)
+      {
+        var result = IntUtils.Align16(pageId);
+        if (result >= m_Stream.Length) return (-1, new DateTime(), Atom.ZERO, null, -1);//eof
+
+        m_Stream.Position = result;
+        if (m_Stream.ReadByte() == Format.PAGE_HEADER_1 && m_Stream.ReadByte() == Format.PAGE_HEADER_2)
+        {
+          var third = result >> 16;
+          var second = result >> 8;
+          if (m_Stream.ReadByte() == third && m_Stream.ReadByte() == second)
+          {
+            try
+            {
+              var createUtc = m_Reader.ReadUlong().FromSecondsSinceUnixEpochStart();
+              var host = m_Reader.ReadString();
+              var app = m_Reader.ReadAtom();
+              var len = (int)m_Reader.ReadUint();//uint varbit works faster
+
+              if (m_Stream.Position+len >= m_Stream.Length) return (-1, new DateTime(), Atom.ZERO, null, -1);
+
+              return (result, createUtc, app, host, len);
+            }
+            catch
+            {
+              //corrupted header
+              //todo Instrument
+            }
+          }
+        }
+
+        pageId = m_Stream.Position;
+      }//while
+    }
+
+    private void writePageHeader(long pageId, Page page)
     {
       //PAGE-HDR
       m_Writer.Write(Format.PAGE_HEADER_1);
