@@ -72,32 +72,61 @@ namespace Azos.IO.Archiving
     public int PageSizeBytes { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     /// <summary>
-    /// Fills the page instance with archive data performing necessary decompression/decryption
+    /// Fills an existing page instance with archive data performing necessary decompression/decryption
     /// when needed. Returns a positive long value with the next adjacent `pageId` or a negative
     /// value to indicate the EOF condition. This method MAY be called by multiple threads at the same time
     /// (even over the same source stream which this class accesses). The implementor MAY perform internal
-    /// cache/access coordination and tries to satisfy requests in lock-free manner
+    /// cache/access coordination and tries to satisfy requests in a lock-free manner
     /// </summary>
+    /// <param name="pageId">
+    /// Requested pageId. Note: `page.PageId` will contain an actual `pageId` which may be fast-forwarded
+    /// to the next readable block relative to the requested `pageId`
+    /// </param>
+    /// <param name="page">Existing page instance to fill with data</param>
+    /// <returns>
+    /// Returns a positive long value with the next adjacent `pageId` or a negative
+    /// value to indicate the EOF condition.
+    /// </returns>
     public long ReadPage(long pageId, Page page)
     {
       pageId.IsTrue(v => v > 0, "pageId <= 0");
       page.NonNull(nameof(page));
 
-      //align pageId by 16 in a loop...
-
       var pageData = page.BeginReading(pageId);
 
-      if (!m_Cache.TryGet(pageId, pageData))
+      //align pageId by 16 for cache lookup
+      pageId = IntUtils.Align16(pageId);
+      var requestedPageId = pageId;
+
+      PageInfo info;
+      int len;
+
+      var justFetched = false;
+
+      if (!m_Cache.TryGet(requestedPageId, pageData, out info))
       {
         lock (m_Stream)
         {
-          if (!m_Cache.TryGet(pageId, pageData))
-            loadFromStream(pageData);
+          if (!m_Cache.TryGet(requestedPageId, pageData, out info))
+          {
+            justFetched = true;
+
+            (pageId, info, len) = seekToExistingPageLocation(pageId);
+
+            if (len > 0)
+              loadFromStream(pageData, len);//possibly decipher and decompress
+          }
         }
       }
 
-      page.EndReading(new DateTime(), Atom.ZERO, "");
-      return 0;
+      //it is possible that >1 concurrent thread will put the same page in cache.
+      //this is fine as probability of this is low and the benefit of NOT adding in cache
+      //under global stream lock outweighs the possibly of calling a copious put(which is harmless)
+      if (justFetched)
+        m_Cache.Put(requestedPageId, info, new ArraySegment<byte>(pageData.GetBuffer(), 0, (int)pageData.Length));
+
+      page.EndReading(pageId, info.CreateUtc, info.App, info.Host);
+      return info.NextPageId;
     }
 
     /// <summary>
@@ -181,12 +210,12 @@ namespace Azos.IO.Archiving
     }
 
     //-1 = eof
-    private (long pageId, DateTime createUtc, Atom app, string host, int len) seekToExistingPageLocation(long pageId)
+    private (long pageId, PageInfo info, int len) seekToExistingPageLocation(long pageId)
     {
       while(true)
       {
         var result = IntUtils.Align16(pageId);
-        if (result >= m_Stream.Length) return (-1, new DateTime(), Atom.ZERO, null, -1);//eof
+        if (result >= m_Stream.Length) return (-1, new PageInfo(), -1);//eof
 
         m_Stream.Position = result;
         if (m_Stream.ReadByte() == Format.PAGE_HEADER_1 && m_Stream.ReadByte() == Format.PAGE_HEADER_2)
@@ -197,14 +226,15 @@ namespace Azos.IO.Archiving
           {
             try
             {
-              var createUtc = m_Reader.ReadUlong().FromSecondsSinceUnixEpochStart();
-              var host = m_Reader.ReadString();
-              var app = m_Reader.ReadAtom();
+              var info = new PageInfo();
+              info.CreateUtc = m_Reader.ReadUlong().FromSecondsSinceUnixEpochStart();
+              info.Host = m_Reader.ReadString();
+              info.App = m_Reader.ReadAtom();
               var len = (int)m_Reader.ReadUint();//uint varbit works faster
 
-              if (m_Stream.Position+len >= m_Stream.Length) return (-1, new DateTime(), Atom.ZERO, null, -1);
+              if (m_Stream.Position+len >= m_Stream.Length) return (-1, new PageInfo(), -1);
 
-              return (result, createUtc, app, host, len);
+              return (result, info, len);
             }
             catch
             {
@@ -252,11 +282,9 @@ namespace Azos.IO.Archiving
 
     //write:  1. compress ~25%  2. encrypt
     //read:  1. decrypt  2. decompress
-    private void loadFromStream(MemoryStream pageData) //called under lock
+    private void loadFromStream(MemoryStream pageData, int len) //called under lock, stream is at first raw byte[len]
     {
       //reads from m_Stream -> pageDataMemorySTream(a thread-safe copy)
-
-      //////var len = m_Stream.ReadBEInt32();
 
       //////if (nocompressionorencryption)
       //////{

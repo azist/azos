@@ -78,6 +78,7 @@ namespace Azos.IO.Archiving
     /// (e.g. from a compressed/encrypted source, then the accessor calls `EndReading()` to indicate
     /// that the Page is ready to be enumerated
     /// </summary>
+    /// <param name="pageId">The requested pageId</param>
     internal MemoryStream BeginReading(long pageId)
     {
       m_PageId = pageId;
@@ -100,9 +101,13 @@ namespace Azos.IO.Archiving
     /// (e.g. from a compressed/encrypted source, then the accessor calls `EndReading()` to indicate
     /// that the Page is ready to be enumerated
     /// </summary>
-    internal void EndReading(DateTime utcCreate, Atom app, string host)
+    internal void EndReading(long actualPageId, DateTime utcCreate, Atom app, string host)
     {
       Ensure(Status.Loading);
+
+      if (actualPageId > 0)
+        m_PageId = actualPageId;
+
       m_Raw.Position = 0;
       m_State = m_Raw.Length > 0 ? Status.Reading : Status.EOF;
       m_CreateUtc = utcCreate;

@@ -23,17 +23,26 @@ namespace Azos.IO.Archiving
     int PageSizeBytes { get; set; }
 
     /// <summary>
-    /// Fills the page instance with archive data performing necessary decompression/decryption
+    /// Fills an existing page instance with archive data performing necessary decompression/decryption
     /// when needed. Returns a positive long value with the next adjacent `pageId` or a negative
     /// value to indicate the EOF condition. This method MAY be called by multiple threads at the same time
     /// (even over the same source stream which this class accesses). The implementor MAY perform internal
-    /// cache/access coordination and tries to satisfy requests in lock-free manner
+    /// cache/access coordination and tries to satisfy requests in a lock-free manner
     /// </summary>
+    /// <param name="pageId">
+    /// Requested pageId. Note: `page.PageId` will contain an actual `pageId` which may be fast-forwarded
+    /// to the next readable block relative to the requested `pageId`
+    /// </param>
+    /// <param name="page">Existing page instance to fill with data</param>
+    /// <returns>
+    /// Returns a positive long value with the next adjacent `pageId` or a negative
+    /// value to indicate the EOF condition.
+    /// </returns>
     /// <remarks>
     /// <para>
     /// If the supplied `pageId` is not pointing to a correct volume memory space (e.g. corrupt file data),
     /// then the system scrolls to the fist subsequent readable page, so you can compare the `page.PageId` with
-    /// the requested value to detect any volume corruptions (when there are not corruptions both values are the same).
+    /// the requested value to detect any volume corruptions (when there are no corruptions both values are the same).
     /// </para>
     /// </remarks>
     long ReadPage(long pageId, Page page);
@@ -43,6 +52,18 @@ namespace Azos.IO.Archiving
     /// The implementor MAY perform internal cache/access coordination and tries to satisfy requests in lock-free manner
     /// </summary>
     long AppendPage(Page page);
+  }
+
+
+  /// <summary>
+  /// Provides page information
+  /// </summary>
+  public struct PageInfo
+  {
+    public DateTime CreateUtc;
+    public Atom App;
+    public string Host;
+    public long NextPageId;
   }
 
   /// <summary>
@@ -70,12 +91,12 @@ namespace Azos.IO.Archiving
     /// <summary>
     /// Tries to get a page content by pageId
     /// </summary>
-    bool TryGet(long pageId, MemoryStream pageData);
+    bool TryGet(long pageId, MemoryStream pageData, out PageInfo info);
 
     /// <summary>
     /// Puts data in cache
     /// </summary>
-    void Put(long pageId, Subarray<byte> content);//or byte[]?
+    void Put(long pageId, PageInfo info, ArraySegment<byte> content);
   }
 
 }
