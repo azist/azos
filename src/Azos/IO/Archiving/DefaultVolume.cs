@@ -6,7 +6,9 @@
 
 using System;
 using System.IO;
+using System.IO.Compression;
 
+using Azos.Security;
 using Azos.Serialization.Bix;
 
 namespace Azos.IO.Archiving
@@ -15,13 +17,14 @@ namespace Azos.IO.Archiving
   /// Provides default implementation for IVolume, providing optional
   /// page compression and encryption
   /// </summary>
-  public class DefaultVolume : DisposableObject, IVolume
+  public sealed class DefaultVolume : DisposableObject, IVolume
   {
     /// <summary>
     /// Create a new volume
     /// </summary>
-    public DefaultVolume(VolumeMetadataBuilder metadataBuilder, Stream stream, bool ownsStream = true)
+    public DefaultVolume(IApplication app, VolumeMetadataBuilder metadataBuilder, Stream stream, bool ownsStream = true)
     {
+      m_App = app.NonNull(nameof(app));
       m_Stream = stream.NonNull(nameof(stream));
       (m_Stream.Length == 0).IsTrue("stream.!Empty");
       metadataBuilder.Assigned.IsTrue("meta.!Assigned");
@@ -31,13 +34,16 @@ namespace Azos.IO.Archiving
 
       m_Metadata = metadataBuilder.Built;
       writeVolumeHeader();
+
+      ctor();
     }
 
     /// <summary>
     /// Mounts an existing volume
     /// </summary>
-    public DefaultVolume(Stream stream, bool ownsStream = true)
+    public DefaultVolume(IApplication app, Stream stream, bool ownsStream = true)
     {
+      m_App = app.NonNull(nameof(app));
       m_Stream = stream.NonNull(nameof(stream));
       (m_Stream.Length > 0).IsTrue("stream.!Empty");
 
@@ -45,6 +51,21 @@ namespace Azos.IO.Archiving
       m_Writer = new BixWriter(m_Stream);
 
       m_Metadata = readVolumeHeader();
+
+      ctor();
+    }
+
+    private void ctor()
+    {
+      if (m_Metadata.IsEncrypted)
+      {
+        m_Encryption = m_App.SecurityManager
+                            .Cryptography
+                            .MessageProtectionAlgorithms[m_Metadata.EncryptionScheme];
+
+        if (m_Encryption == null)
+          throw new ArchivingException(StringConsts.ARCHIVE_ENCRYPTION_SCHEME_NOT_SUPPORTED_ERROR.Args(m_Metadata.EncryptionScheme));
+      }
     }
 
     protected override void Destructor()
@@ -54,12 +75,15 @@ namespace Azos.IO.Archiving
       base.Destructor();
     }
 
+    private IApplication m_App;
     private bool m_OwnsStream;
     private Stream m_Stream;
     private BixReader m_Reader;
     private BixWriter m_Writer;
     private IPageCache m_Cache;
     private VolumeMetadata m_Metadata;
+    private int m_PageSizeBytes = Format.PAGE_DEFAULT_LEN;
+    private ICryptoMessageAlgorithm m_Encryption;
 
 
 
@@ -69,7 +93,14 @@ namespace Azos.IO.Archiving
     /// </summary>
     public VolumeMetadata Metadata => m_Metadata;
 
-    public int PageSizeBytes { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    /// <summary>
+    /// Page size in bytes. This affects writing of new pages which get split once this size is exceeded
+    /// </summary>
+    public int PageSizeBytes
+    {
+      get => m_PageSizeBytes;
+      set => m_PageSizeBytes = value.KeepBetween(Format.PAGE_MIN_LEN, Format.PAGE_MAX_LEN);
+    }
 
     /// <summary>
     /// Fills an existing page instance with archive data performing necessary decompression/decryption
@@ -101,7 +132,7 @@ namespace Azos.IO.Archiving
       PageInfo info;
       int len;
 
-      var justFetched = false;
+      var didFetch = false;
 
       if (!m_Cache.TryGet(requestedPageId, pageData, out info))
       {
@@ -109,11 +140,11 @@ namespace Azos.IO.Archiving
         {
           if (!m_Cache.TryGet(requestedPageId, pageData, out info))
           {
-            justFetched = true;
+            didFetch = true;
 
-            (pageId, info, len) = seekToExistingPageLocation(pageId);
+            (pageId, info, len) = seekToNextReadablePageLocation(pageId);
 
-            if (len > 0)
+            if (len > 0) //m_Stream is on data start
               loadFromStream(pageData, len);//possibly decipher and decompress
           }
         }
@@ -122,7 +153,7 @@ namespace Azos.IO.Archiving
       //it is possible that >1 concurrent thread will put the same page in cache.
       //this is fine as probability of this is low and the benefit of NOT adding in cache
       //under global stream lock outweighs the possibly of calling a copious put(which is harmless)
-      if (justFetched)
+      if (didFetch)
         m_Cache.Put(requestedPageId, info, new ArraySegment<byte>(pageData.GetBuffer(), 0, (int)pageData.Length));
 
       page.EndReading(pageId, info.CreateUtc, info.App, info.Host);
@@ -209,8 +240,8 @@ namespace Azos.IO.Archiving
       return result;
     }
 
-    //-1 = eof
-    private (long pageId, PageInfo info, int len) seekToExistingPageLocation(long pageId)
+    //-1 = eof, otherwise it keeps advancing
+    private (long pageId, PageInfo info, int len) seekToNextReadablePageLocation(long pageId)
     {
       while(true)
       {
@@ -232,9 +263,12 @@ namespace Azos.IO.Archiving
               info.App = m_Reader.ReadAtom();
               var len = (int)m_Reader.ReadUint();//uint varbit works faster
 
-              if (m_Stream.Position+len >= m_Stream.Length) return (-1, new PageInfo(), -1);
+              if (len < Format.PAGE_MAX_BUFFER_LEN)
+              {
+                if (m_Stream.Position+len >= m_Stream.Length) return (-1, new PageInfo(), -1);
 
-              return (result, info, len);
+                return (result, info, len);
+              }
             }
             catch
             {
@@ -280,32 +314,69 @@ namespace Azos.IO.Archiving
     }
 
 
+    private byte[] m_TempBuffer = new byte[128 * 1024];//accessed by 1 thread at a time
+    private MemoryStream m_TempMemoryStream = new MemoryStream(128 * 1024);//accessed by 1 thread at a time
+
     //write:  1. compress ~25%  2. encrypt
     //read:  1. decrypt  2. decompress
-    private void loadFromStream(MemoryStream pageData, int len) //called under lock, stream is at first raw byte[len]
+    //returns false for premature EOF - when m_Stream did not have enough LEN bytes
+    private void loadFromStream(MemoryStream pageData, int len) //called under LOCK, stream is at first raw byte[len]
     {
-      //reads from m_Stream -> pageDataMemorySTream(a thread-safe copy)
+      //reads from m_Stream -> pageDataMemoryStream(a thread-safe copy)
 
-      //////if (nocompressionorencryption)
-      //////{
-      //////  pageData.SetLength(len);
-      //////  for (var got = 0; got < len;)
-      //////    got += m_Stream.Read(pageData.GetBuffer(), got, len - got);
-      //////}
+      var direct = !m_Metadata.IsCompressed && !m_Metadata.IsEncrypted;
+      var ms = direct ? pageData : m_TempMemoryStream;
 
+      //read from file m_Stream
+      ms.SetLength(len);
+      var buf = ms.GetBuffer();
+      for (var total = 0; total < len;)
+      {
+        var got =  m_Stream.Read(buf, total, len - total);
+        if (got <= 0) throw new ArchivingException(StringConsts.ARCHIVE_PREMATURE_EOF_ERROR);//Premature EOF
+        total += got;
+      }
 
-      //////byte[] buf = null;//private memebr
+      //not compressed or encrypted then re-use the buffer
+      if (direct) return;
 
-      //////for(var got=0; got<len;)
-      ////// got += m_Stream.Read(buf, 0, len-got);
+      //decrypt
+      if (m_Encryption != null)
+      {
+        try
+        {
+          var deciphered = m_Encryption.Unprotect(new ArraySegment<byte>(ms.GetBuffer(), 0, (int)ms.Length));
+          if (deciphered == null) throw new SecurityException(StringConsts.ARCHIVE_PAGE_DECIPHER_INTEGRITY_ERROR);
+          ms = new MemoryStream(deciphered);
+        }
+        catch(Exception error)
+        {
+          throw new ArchivingException(StringConsts.ARCHIVE_PAGE_DECIPHER_ERROR.Args(error.ToMessageWithType()), error);
+        }
+      }
 
+      //decompress
+      var stream = m_Metadata.IsCompressed ? (Stream)new GZipStream(ms, CompressionMode.Decompress) : ms;
+      try
+      {
+        for(int cnt; (cnt = stream.Read(m_TempBuffer, 0, m_TempBuffer.Length)) > 0;)
+        {
+          pageData.Write(m_TempBuffer, 0, cnt);
+          if (pageData.Length > Format.PAGE_MAX_BUFFER_LEN)
+            throw new ArchivingException(StringConsts.ARCHIVE_PAGE_BUFFER_MAX_LENGTH_ERROR.Args(Format.PAGE_MAX_BUFFER_LEN));
+        }
+      }
+      catch(Exception error)
+      {
+        if (m_Metadata.IsCompressed)
+          throw new ArchivingException(StringConsts.ARCHIVE_PAGE_DECOMPRESSION_ERROR.Args(error.ToMessageWithType()), error);
 
-
-
-
-      //////pageData.Write(buf, 0, len);
-      ////////1 decrypt
-      ////////2 decompress
+        throw;
+      }
+      finally
+      {
+        if (m_Metadata.IsCompressed) stream.Dispose();
+      }
 
     }
 

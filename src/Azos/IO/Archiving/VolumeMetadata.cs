@@ -32,9 +32,16 @@ namespace Azos.IO.Archiving
     internal VolumeMetadata(ConfigSectionNode data)
     {
       Data = data.NonEmpty(nameof(data));
+
+      //these 2 need to be precomputed for speed
+      var sys = Data[CONFIG_SYS_SECTION];
+      IsEncrypted = sys[CONFIG_ENCRYPTION_SECTION].Of(CONFIG_SCHEME_ATTR).Value.IsNotNullOrWhiteSpace();
+      IsCompressed = sys[CONFIG_COMPRESSION_SECTION].Of(CONFIG_SCHEME_ATTR).Value.IsNotNullOrWhiteSpace();
     }
 
     public readonly IConfigSectionNode Data;
+    public readonly bool IsEncrypted;
+    public readonly bool IsCompressed;
 
 
     public IConfigSectionNode SectionSystem => Data[CONFIG_SYS_SECTION];
@@ -50,9 +57,8 @@ namespace Azos.IO.Archiving
     public string Description => SectionSystem.Of(CONFIG_DESCRIPTION_ATTR).Value;
     public Atom Channel => SectionSystem.Of(CONFIG_CHANNEL_ATTR).ValueAsAtom(Atom.ZERO);
 
-
-    public bool IsEncrypted => SectionEncryption.Of(CONFIG_SCHEME_ATTR).Exists;
-    public bool IsCompressed => SectionCompression.Of(CONFIG_SCHEME_ATTR).Exists;
+    public string EncryptionScheme => SectionEncryption.ValOf(CONFIG_SCHEME_ATTR);
+    public string CompressionScheme => SectionCompression.ValOf(CONFIG_SCHEME_ATTR);
   }
 
   /// <summary>

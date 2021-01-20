@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
+using Azos.Apps;
 using Azos.Scripting;
 using Azos.IO.Archiving;
 
@@ -40,12 +41,12 @@ namespace Azos.Tests.Nub.IO.Archiving
                                       .SetCompressionSection(cmp => { cmp.AddAttributeNode("z", 41); })
                                       .SetEncryptionSection(enc => { enc.AddAttributeNode("z", 99); });
 
-      var volume = new DefaultVolume(meta, ms);
+      var volume = new DefaultVolume(NOPApplication.Instance, meta, ms);
 
       volume.Dispose();
      // ms.GetBuffer().ToDumpString(DumpFormat.Hex).See();
 
-      volume = new DefaultVolume(ms);
+      volume = new DefaultVolume(NOPApplication.Instance, ms);
       volume.Metadata.See();
     }
   }

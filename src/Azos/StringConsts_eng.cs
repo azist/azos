@@ -705,13 +705,17 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
 
     public const string ARCHIVE_VOLUME_HEADER_READ_ERROR = "The archive volume `{0}` header could not be mounted: {1}";
-
     public const string ARCHIVE_PAGE_STATE_ERROR = "The archive page @0x{0:X4} offset must be in `{1}` state";
+    public const string ARCHIVE_ENCRYPTION_SCHEME_NOT_SUPPORTED_ERROR = "Archive encryption scheme `{0}` is not supported. Check algorithm configuration in app secman";
+    public const string ARCHIVE_PREMATURE_EOF_ERROR = "Premature stream EOF while filling Page";
+    public const string ARCHIVE_PAGE_DECIPHER_INTEGRITY_ERROR = "Page decipher data failed integrity check";
+    public const string ARCHIVE_PAGE_DECIPHER_ERROR = "Page data decipher error: {0}";
+    public const string ARCHIVE_PAGE_BUFFER_MAX_LENGTH_ERROR = "Page data max buffer length of {0} bytes exceeded";
+    public const string ARCHIVE_PAGE_DECOMPRESSION_ERROR = "Page data decompression error: {0}";
 
 
     public const string CA_PROCESSOR_EXCEPTION_ERROR =
         "{0} processor {1} error: {2}";
-
 
     public const string SCHEMA_INCLUDE_FILE_DOSNT_EXIST_ERROR =
         "Relational schema include file does not exist: ";

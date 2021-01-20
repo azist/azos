@@ -17,7 +17,10 @@ namespace Azos.IO.Archiving
     public const int VOLUME_PAD_LEN = 35;
     public const byte VOLUME_PAD_ASCII = 0x20;
 
-    public const int PAGE_MAX_LEN = 128 * 1000 * 1024;//~128 Mb is the maximum page size
+    public const int PAGE_MIN_LEN = 1024;//1 Kb is the minimum page size
+    public const int PAGE_DEFAULT_LEN = 96 * 1024;//96 Kb default (promoted to LOH)
+    public const int PAGE_MAX_LEN = 128 * 1024 * 1024;//~128 Mb is the maximum page size
+    public const int PAGE_MAX_BUFFER_LEN = 256 * 1024 * 1024;//~2568 Mb is the maximum page size
 
     public const byte PAGE_HEADER_1 = (byte)'P';
     public const byte PAGE_HEADER_2 = (byte)'G';
