@@ -77,6 +77,7 @@ namespace Azos.IO.Archiving
 
     private IApplication m_App;
     private bool m_OwnsStream;
+    private object m_StreamLock = new object();
     private Stream m_Stream;
     private BixReader m_Reader;
     private BixWriter m_Writer;
@@ -136,15 +137,15 @@ namespace Azos.IO.Archiving
 
       if (!m_Cache.TryGet(requestedPageId, pageData, out info))
       {
-        lock (m_Stream)
+        lock (m_StreamLock)
         {
           if (!m_Cache.TryGet(requestedPageId, pageData, out info))
           {
-            didFetch = true;
-
             (pageId, info, len) = seekToNextReadablePageLocation(pageId);
 
-            if (len > 0) //m_Stream is on data start
+            didFetch = pageId > 0;//vs EOF
+
+            if (didFetch) //m_Stream is on data start
               loadFromStream(pageData, len);//possibly decipher and decompress
           }
         }
@@ -157,7 +158,7 @@ namespace Azos.IO.Archiving
         m_Cache.Put(requestedPageId, info, new ArraySegment<byte>(pageData.GetBuffer(), 0, (int)pageData.Length));
 
       page.EndReading(pageId, info.CreateUtc, info.App, info.Host);
-      return info.NextPageId;
+      return didFetch ? info.NextPageId : -1;
     }
 
     /// <summary>
@@ -169,7 +170,7 @@ namespace Azos.IO.Archiving
       page.NonNull(nameof(page))
           .Ensure(Page.Status.Written);
 
-      lock(m_Stream)
+      lock(m_StreamLock)
       {
         var pageId = seekToNewPageLocation();
         writePageHeader(pageId, page);
@@ -245,14 +246,14 @@ namespace Azos.IO.Archiving
     {
       while(true)
       {
-        var result = IntUtils.Align16(pageId);
-        if (result >= m_Stream.Length) return (-1, new PageInfo(), -1);//eof
+        pageId = IntUtils.Align16(pageId);
+        if (pageId >= m_Stream.Length) return (-1, new PageInfo(), -1);//eof
 
-        m_Stream.Position = result;
+        m_Stream.Position = pageId;
         if (m_Stream.ReadByte() == Format.PAGE_HEADER_1 && m_Stream.ReadByte() == Format.PAGE_HEADER_2)
         {
-          var third = result >> 16;
-          var second = result >> 8;
+          var third = (byte)(pageId >> 16);
+          var second = (byte)(pageId >> 8);
           if (m_Stream.ReadByte() == third && m_Stream.ReadByte() == second)
           {
             try
@@ -263,11 +264,12 @@ namespace Azos.IO.Archiving
               info.App = m_Reader.ReadAtom();
               var len = (int)m_Reader.ReadUint();//uint varbit works faster
 
-              if (len < Format.PAGE_MAX_BUFFER_LEN)
+              if (len > 0 && len < Format.PAGE_MAX_BUFFER_LEN)
               {
                 if (m_Stream.Position+len >= m_Stream.Length) return (-1, new PageInfo(), -1);
 
-                return (result, info, len);
+                info.NextPageId = IntUtils.Align16(m_Stream.Position + len);
+                return (pageId, info, len);
               }
             }
             catch
