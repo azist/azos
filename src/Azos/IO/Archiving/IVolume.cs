@@ -73,6 +73,12 @@ namespace Azos.IO.Archiving
   public interface IPageCache
   {
     /// <summary>
+    /// Enables the cache. Disabled cache does not store and does not find anything in it.
+    /// Disabling cache does not lose items which are already stored, they just become "invisible" while cache is disabled
+    /// </summary>
+    bool Enabled { get; set; }
+
+    /// <summary>
     /// When set to greater than zero value imposes a time limit on buffer life in cache
     /// </summary>
     int LifeTimeSec{ get; set; }

@@ -23,8 +23,18 @@ namespace Azos.IO.Archiving
     /// Create a new volume
     /// </summary>
     public DefaultVolume(IApplication app, VolumeMetadataBuilder metadataBuilder, Stream stream, bool ownsStream = true)
+     : this(app, null, metadataBuilder, stream, ownsStream)
+    {
+    }
+
+
+    /// <summary>
+    /// Create a new volume backed by an optional `IPageCache` implementation instance
+    /// </summary>
+    public DefaultVolume(IApplication app, IPageCache cache, VolumeMetadataBuilder metadataBuilder, Stream stream, bool ownsStream = true)
     {
       m_App = app.NonNull(nameof(app));
+      m_Cache = cache;
       m_Stream = stream.NonNull(nameof(stream));
       (m_Stream.Length == 0).IsTrue("stream.!Empty");
       metadataBuilder.Assigned.IsTrue("meta.!Assigned");
@@ -42,8 +52,18 @@ namespace Azos.IO.Archiving
     /// Mounts an existing volume
     /// </summary>
     public DefaultVolume(IApplication app, Stream stream, bool ownsStream = true)
+     : this(app, null, stream, ownsStream)
+    {
+
+    }
+
+    /// <summary>
+    /// Mounts an existing volume backed by an optional `IPageCache` implementation instance
+    /// </summary>
+    public DefaultVolume(IApplication app, IPageCache cache, Stream stream, bool ownsStream = true)
     {
       m_App = app.NonNull(nameof(app));
+      m_Cache = cache;
       m_Stream = stream.NonNull(nameof(stream));
       (m_Stream.Length > 0).IsTrue("stream.!Empty");
 
@@ -86,6 +106,18 @@ namespace Azos.IO.Archiving
     private int m_PageSizeBytes = Format.PAGE_DEFAULT_LEN;
     private ICryptoMessageAlgorithm m_Encryption;
 
+
+
+    /// <summary>
+    /// Application which the volume gets mounted under
+    /// </summary>
+    public IApplication App => m_App;
+
+
+    /// <summary>
+    /// Optional page cache or null if no caching is used
+    /// </summary>
+    public IPageCache Cache => m_Cache;
 
 
     /// <summary>
@@ -134,12 +166,13 @@ namespace Azos.IO.Archiving
       int len;
 
       var didFetch = false;
+      var isCache = m_Cache!=null && m_Cache.Enabled;
 
-      if (!m_Cache.TryGet(requestedPageId, pageData, out info))
+      if (!isCache || !m_Cache.TryGet(requestedPageId, pageData, out info))
       {
         lock (m_StreamLock)
         {
-          if (!m_Cache.TryGet(requestedPageId, pageData, out info))
+          if (!isCache || !m_Cache.TryGet(requestedPageId, pageData, out info))
           {
             (pageId, info, len) = seekToNextReadablePageLocation(pageId);
 
@@ -154,7 +187,7 @@ namespace Azos.IO.Archiving
       //it is possible that >1 concurrent thread will put the same page in cache.
       //this is fine as probability of this is low and the benefit of NOT adding in cache
       //under global stream lock outweighs the possibly of calling a copious put(which is harmless)
-      if (didFetch)
+      if (didFetch && isCache)
         m_Cache.Put(requestedPageId, info, new ArraySegment<byte>(pageData.GetBuffer(), 0, (int)pageData.Length));
 
       page.EndReading(pageId, info.CreateUtc, info.App, info.Host);
@@ -175,7 +208,20 @@ namespace Azos.IO.Archiving
         var pageId = seekToNewPageLocation();
         writePageHeader(pageId, page);
         writeData(page);
-       // m_Cache.Put(pageId, page.)
+
+        if (m_Cache!=null && m_Cache.Enabled)
+        {
+          var info = new PageInfo
+          {
+            CreateUtc = page.CreateUtc,
+            App = page.CreateApp,
+            Host = page.CreateHost,
+            NextPageId = seekToNewPageLocation()
+          };
+
+          m_Cache.Put(pageId, info, page.Data);
+        }
+
         return pageId;
       }
     }
@@ -236,7 +282,7 @@ namespace Azos.IO.Archiving
 
     private long seekToNewPageLocation()
     {
-      var result = IntUtils.Align16(m_Stream.Length);
+      var result = IntUtils.Align16(m_Stream.Length);//always append at the very end
       m_Stream.Position = result;
       return result;
     }
