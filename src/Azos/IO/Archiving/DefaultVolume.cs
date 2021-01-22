@@ -33,8 +33,8 @@ namespace Azos.IO.Archiving
     /// <summary>
     /// Create a new volume
     /// </summary>
-    public DefaultVolume(IApplication app, VolumeMetadataBuilder metadataBuilder, Stream stream, bool ownsStream = true)
-     : this(app, null, metadataBuilder, stream, ownsStream)
+    public DefaultVolume(ICryptoManager crypto, VolumeMetadataBuilder metadataBuilder, Stream stream, bool ownsStream = true)
+     : this(crypto, null, metadataBuilder, stream, ownsStream)
     {
     }
 
@@ -42,9 +42,9 @@ namespace Azos.IO.Archiving
     /// <summary>
     /// Create a new volume backed by an optional `IPageCache` implementation instance
     /// </summary>
-    public DefaultVolume(IApplication app, IPageCache cache, VolumeMetadataBuilder metadataBuilder, Stream stream, bool ownsStream = true)
+    public DefaultVolume(ICryptoManager crypto, IPageCache cache, VolumeMetadataBuilder metadataBuilder, Stream stream, bool ownsStream = true)
     {
-      m_App = app.NonNull(nameof(app));
+      m_Crypto = crypto.NonNull(nameof(crypto));
       m_Cache = cache;
       m_Stream = stream.NonNull(nameof(stream));
       (m_Stream.Length == 0).IsTrue("stream.!Empty");
@@ -62,8 +62,8 @@ namespace Azos.IO.Archiving
     /// <summary>
     /// Mounts an existing volume
     /// </summary>
-    public DefaultVolume(IApplication app, Stream stream, bool ownsStream = true)
-     : this(app, null, stream, ownsStream)
+    public DefaultVolume(ICryptoManager crypto, Stream stream, bool ownsStream = true)
+     : this(crypto, null, stream, ownsStream)
     {
 
     }
@@ -71,9 +71,9 @@ namespace Azos.IO.Archiving
     /// <summary>
     /// Mounts an existing volume backed by an optional `IPageCache` implementation instance
     /// </summary>
-    public DefaultVolume(IApplication app, IPageCache cache, Stream stream, bool ownsStream = true)
+    public DefaultVolume(ICryptoManager crypto, IPageCache cache, Stream stream, bool ownsStream = true)
     {
-      m_App = app.NonNull(nameof(app));
+      m_Crypto = crypto.NonNull(nameof(crypto));
       m_Cache = cache;
       m_Stream = stream.NonNull(nameof(stream));
       (m_Stream.Length > 0).IsTrue("stream.!Empty");
@@ -90,9 +90,7 @@ namespace Azos.IO.Archiving
     {
       if (m_Metadata.IsEncrypted)
       {
-        m_Encryption = m_App.SecurityManager
-                            .Cryptography
-                            .MessageProtectionAlgorithms[m_Metadata.EncryptionScheme];
+        m_Encryption = m_Crypto.MessageProtectionAlgorithms[m_Metadata.EncryptionScheme];
 
         if (m_Encryption == null)
           throw new ArchivingException(StringConsts.ARCHIVE_ENCRYPTION_SCHEME_NOT_SUPPORTED_ERROR.Args(m_Metadata.EncryptionScheme));
@@ -115,7 +113,7 @@ namespace Azos.IO.Archiving
       base.Destructor();
     }
 
-    private IApplication m_App;
+    private ICryptoManager m_Crypto;
     private bool m_OwnsStream;
     private object m_StreamLock = new object();
     private Stream m_Stream;
@@ -126,12 +124,13 @@ namespace Azos.IO.Archiving
     private int m_PageSizeBytes = Format.PAGE_DEFAULT_LEN;
     private ICryptoMessageAlgorithm m_Encryption;
 
+    private int m_ReadErrorCount;
 
 
     /// <summary>
-    /// Application which the volume gets mounted under
+    /// Crypto manager used for encryption algorithm handling
     /// </summary>
-    public IApplication App => m_App;
+    public ICryptoManager Cryptography => m_Crypto;
 
 
     /// <summary>
@@ -154,6 +153,17 @@ namespace Azos.IO.Archiving
       get => m_PageSizeBytes;
       set => m_PageSizeBytes = value.KeepBetween(Format.PAGE_MIN_LEN, Format.PAGE_MAX_LEN);
     }
+
+
+    /// <summary>
+    /// Returns the total number of read errors encountered since the last call to `ResetReadErrorCount()`
+    /// </summary>
+    public int ReadErrorCount => m_ReadErrorCount;
+
+    /// <summary>
+    /// Sets `ReadErrorCount` to zero
+    /// </summary>
+    public void ResetReadErrorCount() => m_ReadErrorCount = 0;
 
     /// <summary>
     /// Fills an existing page instance with archive data performing necessary decompression/decryption
@@ -340,8 +350,7 @@ namespace Azos.IO.Archiving
             }
             catch
             {
-              //corrupted header
-              //todo Instrument
+              m_ReadErrorCount++;
             }
           }
         }
@@ -381,7 +390,6 @@ namespace Azos.IO.Archiving
       //1 - compress
       if (m_Metadata.IsCompressed)
       {
-        m_TempMemoryStream.Position = 0;
         m_TempMemoryStream.SetLength(0);
         using (var zip = new GZipStream(m_TempMemoryStream,
                                         m_Metadata.CompressionScheme

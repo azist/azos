@@ -50,7 +50,7 @@ namespace Azos.IO.Archiving
     internal void BeginWriting(long pageId, DateTime utcCreate, Atom app, string host)
     {
       m_PageId = pageId;
-      m_Raw.Position = 0;
+      m_Raw.SetLength(0);
       m_State = Status.Writing;
       m_CreateUtc = utcCreate;
       m_CreateApp = app;
@@ -88,7 +88,6 @@ namespace Azos.IO.Archiving
       }
       else
       {
-        m_Raw.Position = 0;
         m_Raw.SetLength(0);
       }
       m_State = Status.Loading;
