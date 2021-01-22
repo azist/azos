@@ -77,9 +77,9 @@ namespace Azos.Tests.Nub.IO.Archiving
     {
       var msData = new FileStream("c:\\azos\\calls.lar", FileMode.Create);//  new MemoryStream();
       var msIdxId = new FileStream("c:\\azos\\calls.id.lix", FileMode.Create);//  new MemoryStream();
-     // var msIdxFrom = new FileStream("c:\\azos\\calls.from.lix", FileMode.Create);//  new MemoryStream();
-      //var msData = new MemoryStream();
-      //var msIdx1 = new MemoryStream();
+                                                                              // var msIdxFrom = new FileStream("c:\\azos\\calls.from.lix", FileMode.Create);//  new MemoryStream();
+                                                                              //var msData = new MemoryStream();
+                                                                              //var msIdx1 = new MemoryStream();
 
       var meta = VolumeMetadataBuilder.Make("kikimor")
                                       .SetVersion(1, 1)
@@ -89,24 +89,24 @@ namespace Azos.Tests.Nub.IO.Archiving
       var volumeData = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msData);
       var volumeIdxId = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msIdxId);
 
-     // var aIdxId = new GuidIdxAppender(volumeIdxId,
-     //                                   NOPApplication.Instance.TimeSource,
-     //                                   NOPApplication.Instance.AppId, "dima@zhaba");
+      var aIdxId = new GuidIdxAppender(volumeIdxId,
+                                        NOPApplication.Instance.TimeSource,
+                                        NOPApplication.Instance.AppId, "dima@zhaba");
 
-     // var appender = new JsonArchiveAppender(volumeData,
-     //                                        NOPApplication.Instance.TimeSource,
-     //                                        NOPApplication.Instance.AppId,
-     //                                        "dima@zhaba",
-     //                                        onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(((PhoneCall)e).Id, b)));
+      var appender = new JsonArchiveAppender(volumeData,
+                                             NOPApplication.Instance.TimeSource,
+                                             NOPApplication.Instance.AppId,
+                                             "dima@zhaba",
+                                             onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(((PhoneCall)e).Id, b)));
 
-     // for (var i=0; i<100; i++)
-     // {
-     //   var call = PhoneCall.NewFake();
-     ////   appender.Append(call);
-     // }
+      for (var i = 0; i < 100; i++)
+      {
+        var call = PhoneCall.NewFake();
+          appender.Append(call);
+      }
 
-     // appender.Dispose();
-     // aIdxId.Dispose();
+      appender.Dispose();
+      aIdxId.Dispose();
 
       volumeIdxId.Dispose();
       volumeData.Dispose();

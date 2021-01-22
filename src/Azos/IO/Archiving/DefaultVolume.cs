@@ -76,7 +76,7 @@ namespace Azos.IO.Archiving
       m_Crypto = crypto.NonNull(nameof(crypto));
       m_Cache = cache;
       m_Stream = stream.NonNull(nameof(stream));
-      (m_Stream.Length > 0).IsTrue("stream.!Empty");
+      (m_Stream.Length > 0).IsTrue("stream.Empty");
 
       m_Reader = new BixReader(m_Stream);
       m_Writer = new BixWriter(m_Stream);
