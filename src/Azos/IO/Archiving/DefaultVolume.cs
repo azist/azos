@@ -20,6 +20,17 @@ namespace Azos.IO.Archiving
   public sealed class DefaultVolume : DisposableObject, IVolume
   {
     /// <summary>
+    /// Denotes compression scheme based on GZIP standard algorithm configured for the faster compression execution yielding minimal compression
+    /// </summary>
+    public const string COMPRESSION_SCHEME_GZIP = "gzip";
+
+    /// <summary>
+    /// Denotes compression scheme based on GZIP standard algorithm configured for the slower compression execution yielding maximum compression
+    /// </summary>
+    public const string COMPRESSION_SCHEME_GZIP_MAX = "gzip-max";
+
+
+    /// <summary>
     /// Create a new volume
     /// </summary>
     public DefaultVolume(IApplication app, VolumeMetadataBuilder metadataBuilder, Stream stream, bool ownsStream = true)
@@ -85,6 +96,15 @@ namespace Azos.IO.Archiving
 
         if (m_Encryption == null)
           throw new ArchivingException(StringConsts.ARCHIVE_ENCRYPTION_SCHEME_NOT_SUPPORTED_ERROR.Args(m_Metadata.EncryptionScheme));
+      }
+
+      if (m_Metadata.IsCompressed)
+      {
+        if (!m_Metadata.CompressionScheme.IsOneOf(COMPRESSION_SCHEME_GZIP, COMPRESSION_SCHEME_GZIP_MAX))
+          throw new ArchivingException(StringConsts.ARCHIVE_COMPRESSION_SCHEME_NOT_SUPPORTED_ERROR.Args(
+                     m_Metadata.CompressionScheme,
+                     "`{0}`, `{1}`".Args(COMPRESSION_SCHEME_GZIP, COMPRESSION_SCHEME_GZIP_MAX)
+                     ));
       }
     }
 
@@ -350,20 +370,42 @@ namespace Azos.IO.Archiving
       m_Writer.Write(page.CreateApp);
     }
 
-    private void writeData(Page page)
-    {
-      var data = page.Data;
-
-      //len
-      m_Writer.Write((uint)data.Count);
-
-      //data
-      m_Stream.Write(data.Array, 0, data.Count);
-    }
-
 
     private byte[] m_TempBuffer = new byte[128 * 1024];//accessed by 1 thread at a time
     private MemoryStream m_TempMemoryStream = new MemoryStream(128 * 1024);//accessed by 1 thread at a time
+
+    private void writeData(Page page)//under lock
+    {
+      var data = page.Data;
+
+      //1 - compress
+      if (m_Metadata.IsCompressed)
+      {
+        m_TempMemoryStream.Position = 0;
+        m_TempMemoryStream.SetLength(0);
+        using (var zip = new GZipStream(m_TempMemoryStream,
+                                        m_Metadata.CompressionScheme
+                                                  .EqualsOrdIgnoreCase(COMPRESSION_SCHEME_GZIP_MAX) ?
+                                                    CompressionLevel.Optimal :
+                                                    CompressionLevel.Fastest))
+        {
+          zip.Write(data.Array, data.Offset, data.Count);
+        }
+        data = new ArraySegment<byte>(m_TempMemoryStream.GetBuffer(), 0 , (int)m_TempMemoryStream.Length);
+      }
+
+      //2 - encrypt
+      if (m_Encryption != null)
+      {
+        var ciphered = m_Encryption.Protect(data);
+        data = new ArraySegment<byte>(ciphered);
+      }
+
+
+      m_Writer.Write((uint)data.Count);//len
+      m_Stream.Write(data.Array, 0, data.Count);//data
+    }
+
 
     //write:  1. compress ~25%  2. encrypt
     //read:  1. decrypt  2. decompress
