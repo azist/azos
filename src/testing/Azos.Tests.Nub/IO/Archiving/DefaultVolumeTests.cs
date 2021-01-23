@@ -13,6 +13,8 @@ using Azos.Apps;
 using Azos.Scripting;
 using Azos.IO.Archiving;
 using Azos.Data;
+using Azos.Log;
+using System.Threading.Tasks;
 
 namespace Azos.Tests.Nub.IO.Archiving
 {
@@ -50,6 +52,74 @@ namespace Azos.Tests.Nub.IO.Archiving
       volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, ms);
       volume.Metadata.See();
     }
+
+
+    [Run]
+    public void Write_LogMessages()
+    {
+      var msData = new FileStream("c:\\azos\\logging.lar", FileMode.Create);//  new MemoryStream();
+      var msIdxId = new FileStream("c:\\azos\\logging.guid.lix", FileMode.Create);
+
+      var meta = VolumeMetadataBuilder.Make("log messages")
+                                      .SetVersion(1, 1)
+                                      .SetDescription("Testing")
+                                      .SetChannel(Atom.Encode("tezt"));
+
+      var volumeData = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msData);
+      var volumeIdxId = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msIdxId);
+
+
+      volumeData.PageSizeBytes = 512*1024;
+      volumeIdxId.PageSizeBytes = 512*1024;
+
+      const int CNT = 16_000_000;
+      var time = Azos.Time.Timeter.StartNew();
+
+
+      Parallel.For(0, 16, _ =>{
+
+        var aIdxId = new GuidIdxAppender(volumeIdxId,
+                                          NOPApplication.Instance.TimeSource,
+                                          NOPApplication.Instance.AppId, "dima@zhaba");
+
+        var appender = new LogMessageArchiveAppender(volumeData,
+                                               NOPApplication.Instance.TimeSource,
+                                               NOPApplication.Instance.AppId,
+                                               "dima@zhaba",
+                                               onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(e.Guid, b)));
+
+
+        for (var i = 0; i < CNT / 16; i++)
+        {
+          var msg = new Message()
+          {
+            Source = 1,
+            Type = MessageType.DebugC,
+            From = "method1",
+            Topic = "Testing how",
+            Text = "it is a b vs d determination for you",
+            Exception = (i & 0xf) == 0 ? new Exception("This is an error") : null,
+              RelatedTo = Guid.NewGuid()
+          }.InitDefaultFields(NOPApplication.Instance);
+
+          appender.Append(msg);
+        }
+
+
+        appender.Dispose();
+        aIdxId.Dispose();
+
+      });
+
+      time.Stop();
+      "Did {0} in {1:n1} sec at {2:n2} ops/sec".SeeArgs(CNT, time.ElapsedSec, CNT / time.ElapsedSec);
+
+      volumeIdxId.Dispose();
+      volumeData.Dispose();
+
+      "CLOSED all".See();
+    }
+
 
 
     public class PhoneCall : TypedDoc
@@ -99,8 +169,9 @@ namespace Azos.Tests.Nub.IO.Archiving
                                              "dima@zhaba",
                                              onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(((PhoneCall)e).Id, b)));
 
-      volumeData.PageSizeBytes = 1024;
-      for (var i = 0; i < 75_000; i++)
+      volumeData.PageSizeBytes = 8024;
+      volumeIdxId.PageSizeBytes = 1024;
+      for (var i = 0; i < 500_000; i++)
       {
         var call = PhoneCall.NewFake();
         appender.Append(call);
