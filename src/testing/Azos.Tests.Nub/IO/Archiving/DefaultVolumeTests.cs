@@ -15,6 +15,7 @@ using Azos.IO.Archiving;
 using Azos.Data;
 using Azos.Log;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Azos.Tests.Nub.IO.Archiving
 {
@@ -90,6 +91,12 @@ namespace Azos.Tests.Nub.IO.Archiving
                                                onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(e.Guid, b)));
 
 
+        ////// Random Generation above is very slow, so swap with below or refactor to use a buffer of Message Objects instead
+        ////foreach (var msg in FakeBuilder.GenerateMany<FakeLogMessage>(1, 1, (ulong)CNT / PARA).Select(x => x.Instance))
+        ////{
+        ////  appender.Append(msg);
+        ////}
+
         for (var i = 0; i < CNT / PARA; i++)
         {
           var msg = new Message()
@@ -121,6 +128,154 @@ namespace Azos.Tests.Nub.IO.Archiving
       "CLOSED all".See();
     }
 
+
+    [Run]
+    public void Write_GzipLogMessages()
+    {
+      var msData = new FileStream("c:\\azos\\logging-gzip.lar", FileMode.Create);//  new MemoryStream();
+      var msIdxId = new FileStream("c:\\azos\\logging-gzip.guid.lix", FileMode.Create);
+
+      var meta = VolumeMetadataBuilder.Make("log messages")
+                                      .SetVersion(1, 1)
+                                      .SetDescription("Testing")
+                                      .SetChannel(Atom.Encode("tezt"))
+                                      .SetCompressionScheme("gzip");   // Add Gzip compression
+
+      var volumeData = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msData);
+      var volumeIdxId = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msIdxId);
+
+
+      volumeData.PageSizeBytes = 1024 * 1024;
+      volumeIdxId.PageSizeBytes = 128 * 1024;
+
+      const int CNT = 64_000_00;
+      const int PARA = 16;
+      var time = Azos.Time.Timeter.StartNew();
+
+
+      Parallel.For(0, PARA, new ParallelOptions() { MaxDegreeOfParallelism=4 }, _ => {
+
+        var aIdxId = new GuidIdxAppender(volumeIdxId,
+                                          NOPApplication.Instance.TimeSource,
+                                          NOPApplication.Instance.AppId, "dima@zhaba");
+
+        var appender = new LogMessageArchiveAppender(volumeData,
+                                               NOPApplication.Instance.TimeSource,
+                                               NOPApplication.Instance.AppId,
+                                               "dima@zhaba",
+                                               onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(e.Guid, b)));
+
+
+        // Random Generation above is very slow, so swap with below or refactor to use a buffer of Message Objects instead
+        foreach (var msg in FakeBuilder.GenerateMany<FakeLogMessage>(1, 1, (ulong)CNT / PARA).Select(x => x.Instance))
+        {
+          appender.Append(msg);
+        }
+
+        //for (var i = 0; i < CNT / PARA; i++)
+        //{
+        //  var msg = new Message()
+        //  {
+        //    Source = 1,
+        //    Type = MessageType.DebugC,
+        //    From = "method1",
+        //    Topic = "Testing how",
+        //    Text = "it is a b vs d determination for you",
+        //    Exception = (i & 0xf) == 0 ? new Exception("This is an exception text") : null,
+        //    RelatedTo = Guid.NewGuid()
+        //  }.InitDefaultFields();
+
+        //  appender.Append(msg);
+        //}
+
+
+        appender.Dispose();
+        aIdxId.Dispose();
+
+      });
+
+      time.Stop();
+      "Did {0:n0} in {1:n1} sec at {2:n2} ops/sec".SeeArgs(CNT, time.ElapsedSec, CNT / time.ElapsedSec);
+
+      volumeIdxId.Dispose();
+      volumeData.Dispose();
+
+      "CLOSED all".See();
+    }
+
+
+    [Run]
+    public void Write_GzipMaxLogMessages()
+    {
+      var msData = new FileStream("c:\\azos\\logging-gzip-max.lar", FileMode.Create);//  new MemoryStream();
+      var msIdxId = new FileStream("c:\\azos\\logging-gzip-max.guid.lix", FileMode.Create);
+
+      var meta = VolumeMetadataBuilder.Make("log messages")
+                                      .SetVersion(1, 1)
+                                      .SetDescription("Testing")
+                                      .SetChannel(Atom.Encode("tezt"))
+                                      .SetCompressionScheme("gzip-max");   // Add Gzip compression
+
+      var volumeData = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msData);
+      var volumeIdxId = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msIdxId);
+
+
+      volumeData.PageSizeBytes = 1024 * 1024;
+      volumeIdxId.PageSizeBytes = 128 * 1024;
+
+      const int CNT = 64_000_00;
+      const int PARA = 16;
+      var time = Azos.Time.Timeter.StartNew();
+
+
+      Parallel.For(0, PARA, _ => {
+
+        var aIdxId = new GuidIdxAppender(volumeIdxId,
+                                          NOPApplication.Instance.TimeSource,
+                                          NOPApplication.Instance.AppId, "dima@zhaba");
+
+        var appender = new LogMessageArchiveAppender(volumeData,
+                                               NOPApplication.Instance.TimeSource,
+                                               NOPApplication.Instance.AppId,
+                                               "dima@zhaba",
+                                               onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(e.Guid, b)));
+
+        // Random Generation above is very slow, so swap with below or refactor to use a buffer of Message Objects instead
+        foreach (var msg in FakeBuilder.GenerateMany<FakeLogMessage>(1, 1, (ulong)CNT / PARA).Select(x => x.Instance))
+        {
+          appender.Append(msg);
+        }
+
+        //for (var i = 0; i < CNT / PARA; i++)
+        //{
+        //  var msg = new Message()
+        //  {
+        //    Source = 1,
+        //    Type = MessageType.DebugC,
+        //    From = "method1",
+        //    Topic = "Testing how",
+        //    Text = "it is a b vs d determination for you",
+        //    Exception = (i & 0xf) == 0 ? new Exception("This is an exception text") : null,
+        //    RelatedTo = Guid.NewGuid()
+        //  }.InitDefaultFields();
+
+        //  appender.Append(msg);
+        //}
+
+
+        appender.Dispose();
+        aIdxId.Dispose();
+
+      });
+
+      time.Stop();
+      "Did {0:n0} in {1:n1} sec at {2:n2} ops/sec".SeeArgs(CNT, time.ElapsedSec, CNT / time.ElapsedSec);
+
+      volumeIdxId.Dispose();
+      volumeData.Dispose();
+
+      "CLOSED all".See();
+    }
 
 
     public class PhoneCall : TypedDoc
