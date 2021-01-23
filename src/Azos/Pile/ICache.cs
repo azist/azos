@@ -74,7 +74,7 @@ namespace Azos.Pile
 
 
   /// <summary>
-  /// Defines table collision modes: Speculative (prabability-based - ignores collisions) vs Durable (works slower but handles collisions)
+  /// Defines table collision modes: Speculative (probability-based - ignores collisions) vs Durable (works slower but handles collisions)
   /// </summary>
   public enum CollisionMode
   {

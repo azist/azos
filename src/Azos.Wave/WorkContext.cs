@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 using Azos.Log;
 using Azos.Web;
@@ -16,7 +17,6 @@ using Azos.Web;
 using Azos.Serialization.JSON;
 using Azos.Web.GeoLookup;
 using Azos.Platform;
-using System.Collections.Generic;
 
 namespace Azos.Wave
 {
@@ -114,7 +114,9 @@ namespace Azos.Wave
 
       private bool m_IsAuthenticated;
 
-      private Dictionary<string, object> m_CallFlowValues;
+      private string m_CallFlowDirectorName;
+      private volatile ConcurrentDictionary<string, object> m_CallFlowValues;
+
     #endregion
 
     #region Properties
@@ -124,6 +126,10 @@ namespace Azos.Wave
       /// Uniquely identifies the request
       /// </summary>
       public Guid ID => m_ID;
+
+      string Apps.ICallFlow.DirectorName => m_CallFlowDirectorName;
+
+      void Apps.ICallFlow.SetDirectorName(string name) => m_CallFlowDirectorName = name;
 
       string Apps.ICallFlow.CallerAddress => EffectiveCallerIPEndPoint.ToString();
       string Apps.ICallFlow.CallerAgent   => Request.UserAgent.TakeFirstChars(96, "..");
@@ -140,18 +146,25 @@ namespace Azos.Wave
         set
         {
           key.NonNull(nameof(key));
-          if (m_CallFlowValues == null) m_CallFlowValues = new Dictionary<string, object>(StringComparer.Ordinal);
+          if (m_CallFlowValues == null)
+          {
+            lock(m_ItemsLock)
+            {
+              if (m_CallFlowValues == null)
+                m_CallFlowValues = new ConcurrentDictionary<string, object>(StringComparer.Ordinal);
+            }
+          }
           m_CallFlowValues[key] = value;
         }
       }
 
-    IEnumerable<KeyValuePair<string, object>> Apps.ICallFlow.Items
-      => m_CallFlowValues==null ? Enumerable.Empty<KeyValuePair<string, object>>() : m_CallFlowValues;
+      IEnumerable<KeyValuePair<string, object>> Apps.ICallFlow.Items
+        => m_CallFlowValues==null ? Enumerable.Empty<KeyValuePair<string, object>>() : m_CallFlowValues;
 
-    /// <summary>
-    /// Returns the application that this context is under
-    /// </summary>
-    public IApplication App => m_Server.App;
+      /// <summary>
+      /// Returns the application that this context is under
+      /// </summary>
+      public IApplication App => m_Server.App;
 
       /// <summary>
       /// Returns the server that this context is under
