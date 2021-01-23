@@ -69,14 +69,15 @@ namespace Azos.Tests.Nub.IO.Archiving
       var volumeIdxId = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msIdxId);
 
 
-      volumeData.PageSizeBytes = 512*1024;
-      volumeIdxId.PageSizeBytes = 512*1024;
+      volumeData.PageSizeBytes = 1024*1024;
+      volumeIdxId.PageSizeBytes = 128*1024;
 
-      const int CNT = 16_000_000;
+      const int CNT = 64_000_000;
+      const int PARA = 16;
       var time = Azos.Time.Timeter.StartNew();
 
 
-      Parallel.For(0, 16, _ =>{
+      Parallel.For(0, PARA, _ =>{
 
         var aIdxId = new GuidIdxAppender(volumeIdxId,
                                           NOPApplication.Instance.TimeSource,
@@ -89,7 +90,7 @@ namespace Azos.Tests.Nub.IO.Archiving
                                                onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(e.Guid, b)));
 
 
-        for (var i = 0; i < CNT / 16; i++)
+        for (var i = 0; i < CNT / PARA; i++)
         {
           var msg = new Message()
           {
@@ -98,9 +99,9 @@ namespace Azos.Tests.Nub.IO.Archiving
             From = "method1",
             Topic = "Testing how",
             Text = "it is a b vs d determination for you",
-            Exception = (i & 0xf) == 0 ? new Exception("This is an error") : null,
-              RelatedTo = Guid.NewGuid()
-          }.InitDefaultFields(NOPApplication.Instance);
+            Exception = (i & 0xf) == 0 ? new Exception("This is an exception text") : null,
+            RelatedTo = Guid.NewGuid()
+          }.InitDefaultFields();
 
           appender.Append(msg);
         }
@@ -112,7 +113,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       });
 
       time.Stop();
-      "Did {0} in {1:n1} sec at {2:n2} ops/sec".SeeArgs(CNT, time.ElapsedSec, CNT / time.ElapsedSec);
+      "Did {0:n0} in {1:n1} sec at {2:n2} ops/sec".SeeArgs(CNT, time.ElapsedSec, CNT / time.ElapsedSec);
 
       volumeIdxId.Dispose();
       volumeData.Dispose();
