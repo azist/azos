@@ -72,7 +72,7 @@ namespace Azos.IO.Archiving
 
     public bool Flush()
     {
-      if (m_Page.State != Page.Status.Written) return false;
+      if (m_Page.State != Page.Status.Writing || m_Page.Data.Count == 0) return false;
 
       m_Page.EndWriting();
       var pageId = m_Volume.AppendPage(m_Page);

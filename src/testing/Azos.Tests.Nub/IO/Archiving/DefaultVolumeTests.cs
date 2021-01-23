@@ -77,9 +77,9 @@ namespace Azos.Tests.Nub.IO.Archiving
     {
       var msData = new FileStream("c:\\azos\\calls.lar", FileMode.Create);//  new MemoryStream();
       var msIdxId = new FileStream("c:\\azos\\calls.id.lix", FileMode.Create);//  new MemoryStream();
-                                                                              // var msIdxFrom = new FileStream("c:\\azos\\calls.from.lix", FileMode.Create);//  new MemoryStream();
-                                                                              //var msData = new MemoryStream();
-                                                                              //var msIdx1 = new MemoryStream();
+      //                                                                        // var msIdxFrom = new FileStream("c:\\azos\\calls.from.lix", FileMode.Create);//  new MemoryStream();
+      //                                                                        //var msData = new MemoryStream();
+      //                                                                        //var msIdx1 = new MemoryStream();
 
       var meta = VolumeMetadataBuilder.Make("kikimor")
                                       .SetVersion(1, 1)
@@ -99,10 +99,11 @@ namespace Azos.Tests.Nub.IO.Archiving
                                              "dima@zhaba",
                                              onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(((PhoneCall)e).Id, b)));
 
-      for (var i = 0; i < 100; i++)
+      volumeData.PageSizeBytes = 1024;
+      for (var i = 0; i < 75_000; i++)
       {
         var call = PhoneCall.NewFake();
-          appender.Append(call);
+        appender.Append(call);
       }
 
       appender.Dispose();
