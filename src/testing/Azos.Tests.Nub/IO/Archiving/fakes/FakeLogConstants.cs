@@ -12,6 +12,11 @@ namespace Azos.Tests.Nub.IO.Archiving
 	/// </summary>
   public static class FakeLogConstants
   {
+    public static readonly Atom FAKE_APP_GOV = Atom.Encode("gov");
+    public static readonly Atom FAKE_APP_BIZ = Atom.Encode("bizapp");
+
+    public static readonly Atom FAKE_CHANNEL_OPLOG = Atom.Encode("oplog");
+
 
     public const string FAKE_LOG_XML_REQ = @"
 <?xml version=""1.0"" encoding=""UTF-8""?>
@@ -95,7 +100,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 </Message>
 ";
 
-		public const string FAKE_LOG_FLOW_1 = 
+		public const string FAKE_LOG_FLOW_1 =
 			@"{""cadr"":""15.1.33.44:53322"",""cagn"":""insomnia/2020.4.1"",""cprt"":""POST  http://APPSRV-0001:80/fake/check"",""mid"":""3045D45130CD41139FCC36781DA6FEFA"",""rel"":""<na>""}";
 
 		public const string FAKE_LOG_FLOW_2 =
