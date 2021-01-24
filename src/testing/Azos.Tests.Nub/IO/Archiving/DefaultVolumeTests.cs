@@ -55,13 +55,13 @@ namespace Azos.Tests.Nub.IO.Archiving
     }
 
 
-    [Run("!arch-log", "scheme=null          cnt=1000000 para=16")]
-    [Run("!arch-log", "scheme=gzip          cnt=1000000 para=16")]
-    [Run("!arch-log", "scheme=gzip-max      cnt=1000000 para=16")]
+    [Run("!arch-log", "scheme=null          cnt=100000 para=16")]
+    [Run("!arch-log", "scheme=gzip          cnt=100000 para=16")]
+    [Run("!arch-log", "scheme=gzip-max      cnt=100000 para=16")]
     public void Write_LogMessages(string scheme, int CNT, int PARA)
     {
-      var msData = new FileStream("c:\\azos\\logging-{0}.lar".Args(scheme), FileMode.Create);
-      var msIdxId = new FileStream("c:\\azos\\logging-{0}.guid.lix".Args(scheme), FileMode.Create);
+      var msData = new FileStream("c:\\azos\\logging-{0}.lar".Args(scheme.Default("none")), FileMode.Create);
+      var msIdxId = new FileStream("c:\\azos\\logging-{0}.guid.lix".Args(scheme.Default("none")), FileMode.Create);
 
       var meta = VolumeMetadataBuilder.Make("log messages")
                                       .SetVersion(1, 1)
