@@ -8,13 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.Threading.Tasks;
+using System.Linq;
 
 using Azos.Apps;
 using Azos.Scripting;
 using Azos.IO.Archiving;
 using Azos.Data;
 using Azos.Log;
-using System.Threading.Tasks;
 
 namespace Azos.Tests.Nub.IO.Archiving
 {
@@ -32,7 +33,7 @@ namespace Azos.Tests.Nub.IO.Archiving
                                       .SetDescription("B vs D De-Terminator for doctor bubblegumization")
                                       .SetChannel(Atom.Encode("dvop"))
                                       .SetCompressionScheme(DefaultVolume.COMPRESSION_SCHEME_GZIP_MAX)
-                                      .SetEncryptionScheme("marsha-keys2")
+                                  //    .SetEncryptionScheme("aes1")
                                       .SetApplicationSection(app => {
                                         app.AddChildNode("user").AddAttributeNode("id", 111222);
                                         app.AddChildNode("user").AddAttributeNode("id", 783945);
@@ -41,8 +42,8 @@ namespace Azos.Tests.Nub.IO.Archiving
                                       })
                                       .SetApplicationSection(app => { app.AddAttributeNode("a", false); })
                                       .SetApplicationSection(app => { app.AddAttributeNode("b", true); })
-                                      .SetCompressionSection(cmp => { cmp.AddAttributeNode("z", 41); })
-                                      .SetEncryptionSection(enc => { enc.AddAttributeNode("z", 99); });
+                                      .SetCompressionSection(cmp => { cmp.AddAttributeNode("z", 41); });
+                                   //   .SetEncryptionSection(enc => { enc.AddAttributeNode("z", 99); });
 
       var volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, ms);
 
@@ -54,137 +55,62 @@ namespace Azos.Tests.Nub.IO.Archiving
     }
 
 
-    [Run]
-    public void Write_LogMessages()
+    [Run("!arch-log", "scheme=null          cnt=100000 para=16")]
+    [Run("!arch-log", "scheme=gzip          cnt=100000 para=16")]
+    [Run("!arch-log", "scheme=gzip-max      cnt=100000 para=16")]
+    public void Write_LogMessages(string scheme, int CNT, int PARA)
     {
-      var msData = new FileStream("c:\\azos\\logging.lar", FileMode.Create);//  new MemoryStream();
-      var msIdxId = new FileStream("c:\\azos\\logging.guid.lix", FileMode.Create);
+      var msData = new FileStream("c:\\azos\\logging-{0}.lar".Args(scheme.Default("none")), FileMode.Create);
+      var msIdxId = new FileStream("c:\\azos\\logging-{0}.guid.lix".Args(scheme.Default("none")), FileMode.Create);
 
       var meta = VolumeMetadataBuilder.Make("log messages")
                                       .SetVersion(1, 1)
                                       .SetDescription("Testing")
-                                      .SetChannel(Atom.Encode("tezt"));
+                                      .SetChannel(Atom.Encode("tezt"))
+                                      .SetCompressionScheme(scheme);   // Add optional compression
 
       var volumeData = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msData);
       var volumeIdxId = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msIdxId);
 
 
-      volumeData.PageSizeBytes = 1024*1024;
-      volumeIdxId.PageSizeBytes = 128*1024;
+      volumeData.PageSizeBytes = 1024 * 1024;
+      volumeIdxId.PageSizeBytes = 128 * 1024;
 
-      const int CNT = 64_000_000;
-      const int PARA = 16;
       var time = Azos.Time.Timeter.StartNew();
 
 
-      Parallel.For(0, PARA, _ =>{
+      Parallel.For(0, PARA, _ => {
 
-        var aIdxId = new GuidIdxAppender(volumeIdxId,
+        using(var aIdxId = new GuidIdxAppender(volumeIdxId,
                                           NOPApplication.Instance.TimeSource,
-                                          NOPApplication.Instance.AppId, "dima@zhaba");
-
-        var appender = new LogMessageArchiveAppender(volumeData,
-                                               NOPApplication.Instance.TimeSource,
-                                               NOPApplication.Instance.AppId,
-                                               "dima@zhaba",
-                                               onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(e.Guid, b)));
-
-
-        for (var i = 0; i < CNT / PARA; i++)
+                                          NOPApplication.Instance.AppId, "dima@zhaba"))
         {
-          var msg = new Message()
+          using(var appender = new LogMessageArchiveAppender(volumeData,
+                                                 NOPApplication.Instance.TimeSource,
+                                                 NOPApplication.Instance.AppId,
+                                                 "dima@zhaba",
+                                                 onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(e.Guid, b))))
           {
-            Source = 1,
-            Type = MessageType.DebugC,
-            From = "method1",
-            Topic = "Testing how",
-            Text = "it is a b vs d determination for you",
-            Exception = (i & 0xf) == 0 ? new Exception("This is an exception text") : null,
-            RelatedTo = Guid.NewGuid()
-          }.InitDefaultFields();
 
-          appender.Append(msg);
+            for(var i=0; i<CNT / PARA; i++)
+            {
+              var msg = FakeLogMessage.BuildRandom();
+              appender.Append(msg);
+            }
+
+          }
         }
-
-
-        appender.Dispose();
-        aIdxId.Dispose();
-
       });
 
       time.Stop();
-      "Did {0:n0} in {1:n1} sec at {2:n2} ops/sec".SeeArgs(CNT, time.ElapsedSec, CNT / time.ElapsedSec);
+      "Did {0:n0} in {1:n1} sec at {2:n2} ops/sec\n".SeeArgs(CNT, time.ElapsedSec, CNT / time.ElapsedSec);
 
       volumeIdxId.Dispose();
       volumeData.Dispose();
 
-      "CLOSED all".See();
+      "CLOSED all volumes\n".See();
     }
 
 
-
-    public class PhoneCall : TypedDoc
-    {
-      [Field] public Guid Id     { get; set; }
-      [Field] public DateTime StartUtc { get; set; }
-      [Field] public DateTime EndUtc { get; set; }
-      [Field] public string From { get; set; }
-      [Field] public string To { get; set; }
-
-      public static PhoneCall NewFake()
-        => new PhoneCall
-        {
-          Id = Guid.NewGuid(),
-          StartUtc = DateTime.UtcNow,
-          EndUtc = DateTime.UtcNow.AddMinutes(5),
-          From = Azos.Text.NaturalTextGenerator.GenerateFullName(),
-          To = Azos.Text.NaturalTextGenerator.GenerateFullName()
-        };
-    }
-
-
-    [Run]
-    public void Write_PhoneCalls()
-    {
-      var msData = new FileStream("c:\\azos\\calls.lar", FileMode.Create);//  new MemoryStream();
-      var msIdxId = new FileStream("c:\\azos\\calls.id.lix", FileMode.Create);//  new MemoryStream();
-      //                                                                        // var msIdxFrom = new FileStream("c:\\azos\\calls.from.lix", FileMode.Create);//  new MemoryStream();
-      //                                                                        //var msData = new MemoryStream();
-      //                                                                        //var msIdx1 = new MemoryStream();
-
-      var meta = VolumeMetadataBuilder.Make("kikimor")
-                                      .SetVersion(1, 1)
-                                      .SetDescription("Testing")
-                                      .SetChannel(Atom.Encode("tezt"));
-
-      var volumeData = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msData);
-      var volumeIdxId = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msIdxId);
-
-      var aIdxId = new GuidIdxAppender(volumeIdxId,
-                                        NOPApplication.Instance.TimeSource,
-                                        NOPApplication.Instance.AppId, "dima@zhaba");
-
-      var appender = new JsonArchiveAppender(volumeData,
-                                             NOPApplication.Instance.TimeSource,
-                                             NOPApplication.Instance.AppId,
-                                             "dima@zhaba",
-                                             onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(((PhoneCall)e).Id, b)));
-
-      volumeData.PageSizeBytes = 8024;
-      volumeIdxId.PageSizeBytes = 1024;
-      for (var i = 0; i < 500_000; i++)
-      {
-        var call = PhoneCall.NewFake();
-        appender.Append(call);
-      }
-
-      appender.Dispose();
-      aIdxId.Dispose();
-
-      volumeIdxId.Dispose();
-      volumeData.Dispose();
-
-      "CLOSED all".See();
-    }
   }
 }

@@ -395,7 +395,7 @@ namespace Azos.IO.Archiving
                                         m_Metadata.CompressionScheme
                                                   .EqualsOrdIgnoreCase(COMPRESSION_SCHEME_GZIP_MAX) ?
                                                     CompressionLevel.Optimal :
-                                                    CompressionLevel.Fastest))
+                                                    CompressionLevel.Fastest, true))
         {
           zip.Write(data.Array, data.Offset, data.Count);
         }
