@@ -103,7 +103,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
     internal class XmlReqBuilder : BuilderBase
     {
-      public override Atom GetApp() => Atom.Encode("fake");
+      public override Atom GetApp() => FakeLogConstants.FAKE_APP_TZT;
 
       public override Atom GetChannel() => FakeLogConstants.FAKE_CHANNEL_OPLOG;
 
@@ -135,9 +135,9 @@ namespace Azos.Tests.Nub.IO.Archiving
 
     internal class FlowInfoBuilder : BuilderBase
     {
-      public override Atom GetApp() => Atom.Encode("fake");
+      public override Atom GetApp() => FakeLogConstants.FAKE_APP_TZT;
 
-      public override Atom GetChannel() => Atom.Encode("oplog");
+      public override Atom GetChannel() => FakeLogConstants.FAKE_CHANNEL_OPLOG;
 
       public override string GetFrom() => "FakeLogic.CheckAsync";
 
@@ -161,9 +161,9 @@ namespace Azos.Tests.Nub.IO.Archiving
 
     internal class JsonRequestBuilder : BuilderBase
     {
-      public override Atom GetApp() => Atom.Encode("fake");
+      public override Atom GetApp() => FakeLogConstants.FAKE_APP_TZT;
 
-      public override Atom GetChannel() => Atom.Encode("oplog");
+      public override Atom GetChannel() => FakeLogConstants.FAKE_CHANNEL_OPLOG;
 
       public override string GetFrom() => "FakeLogic.CheckAsync";
 
@@ -178,9 +178,9 @@ namespace Azos.Tests.Nub.IO.Archiving
 
     internal class JsonResponseBuilder : BuilderBase
     {
-      public override Atom GetApp() => Atom.Encode("fake");
+      public override Atom GetApp() => FakeLogConstants.FAKE_APP_TZT;
 
-      public override Atom GetChannel() => Atom.Encode("oplog");
+      public override Atom GetChannel() => FakeLogConstants.FAKE_CHANNEL_OPLOG;
 
       public override string GetFrom() => "FakeLogic.CheckAsync";
 
@@ -195,9 +195,9 @@ namespace Azos.Tests.Nub.IO.Archiving
 
     internal class XmlRespBuilder : BuilderBase
     {
-      public override Atom GetApp() => Atom.Encode("fake");
+      public override Atom GetApp() => FakeLogConstants.FAKE_APP_TZT;
 
-      public override Atom GetChannel() => Atom.Encode("oplog");
+      public override Atom GetChannel() => FakeLogConstants.FAKE_CHANNEL_OPLOG;
 
       public override string GetFrom() => "FakeLogic.WriteResponseMessage";
 
@@ -227,9 +227,9 @@ namespace Azos.Tests.Nub.IO.Archiving
 
     internal class ExceptionBuilder : BuilderBase
     {
-      public override Atom GetApp() => Atom.Encode("fake");
+      public override Atom GetApp() => FakeLogConstants.FAKE_APP_TZT;
 
-      public override Atom GetChannel() => Atom.Encode("oplog");
+      public override Atom GetChannel() => FakeLogConstants.FAKE_CHANNEL_OPLOG;
 
       public override string GetFrom() => "FakeLogic.safeGetOneAsync";
 
@@ -247,9 +247,9 @@ namespace Azos.Tests.Nub.IO.Archiving
 
     internal class DZeroReqBuilder : BuilderBase
     {
-      public override Atom GetApp() => Atom.Encode("fake");
+      public override Atom GetApp() => FakeLogConstants.FAKE_APP_TZT;
 
-      public override Atom GetChannel() => Atom.Encode("oplog");
+      public override Atom GetChannel() => FakeLogConstants.FAKE_CHANNEL_OPLOG;
 
       public override string GetFrom() => "FakeLogic.DZeroAsync";
 
@@ -280,9 +280,9 @@ namespace Azos.Tests.Nub.IO.Archiving
 
     internal class DZeroRespBuilder : BuilderBase
     {
-      public override Atom GetApp() => Atom.Encode("fake");
+      public override Atom GetApp() => FakeLogConstants.FAKE_APP_TZT;
 
-      public override Atom GetChannel() => Atom.Encode("oplog");
+      public override Atom GetChannel() => FakeLogConstants.FAKE_CHANNEL_OPLOG;
 
       public override string GetFrom() => "FakeLogic.DZeroAsync";
 

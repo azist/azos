@@ -14,6 +14,7 @@ namespace Azos.Tests.Nub.IO.Archiving
   {
     public static readonly Atom FAKE_APP_GOV = Atom.Encode("gov");
     public static readonly Atom FAKE_APP_BIZ = Atom.Encode("bizapp");
+    public static readonly Atom FAKE_APP_TZT = Atom.Encode("fake");
 
     public static readonly Atom FAKE_CHANNEL_OPLOG = Atom.Encode("oplog");
 
