@@ -6,12 +6,15 @@
 
 using System;
 using System.Collections.Generic;
-using Azos.Conf;
 using Azos.Time;
 
 namespace Azos.IO.Archiving
 {
 #pragma warning disable CA1063
+  /// <summary>
+  /// Provides base functionality for appending entries to archives.
+  /// Concrete implementations handle serialization of specific `TEntry` entry types
+  /// </summary>
   public abstract class ArchiveAppender<TEntry> : IDisposable
   {
     /// <summary>
@@ -40,18 +43,25 @@ namespace Azos.IO.Archiving
 
     private readonly List<(TEntry entry, int addr)> m_Buffer;
 
+
+    public IVolume Volume         =>  m_Volume;
+    public ITimeSource TimeSource =>  m_Time;
+    public Page    Page           =>  m_Page;
+    public Atom    App            =>  m_App;
+    public string  Host           =>  m_Host;
+
     /// <summary>
     /// Appends the entry and immediately returns. This method is asynchronous by design as
-    /// it never blocks on internal write. Call Flush() to ensure the proper archive closure or dispose this instance
+    /// it never blocks on internal write. The pages are split automatically depending on Volume.PageSizeBytes setting.
+    /// Call Flush() to ensure the proper archive closure or dispose this instance
     /// </summary>
-    /// <param name="entry"></param>
     /// <returns>Entry address on a page</returns>
     public int Append(TEntry entry)
     {
       if (m_Page.Data.Count > m_Volume.PageSizeBytes) Flush();
 
       if (m_Page.State != Page.Status.Writing)
-        m_Page.BeginWriting(-1, m_Time.UTCNow, m_App, m_Host);
+        m_Page.BeginWriting(m_Time.UTCNow, m_App, m_Host);
 
 
       var binary = DoSerialize(entry);
@@ -70,12 +80,17 @@ namespace Azos.IO.Archiving
     protected abstract ArraySegment<byte> DoSerialize(TEntry entry);
 
 
+    /// <summary>
+    /// Appends accumulated page data to Volume. The `Append()` method
+    /// calls this automatically, so does `.Dispose()`
+    /// </summary>
     public bool Flush()
     {
       if (m_Page.State != Page.Status.Writing || m_Page.Data.Count == 0) return false;
 
       m_Page.EndWriting();
       var pageId = m_Volume.AppendPage(m_Page);
+      m_Page.__SetPageId(pageId);
 
       if (m_Buffer != null)
       {

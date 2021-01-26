@@ -47,9 +47,9 @@ namespace Azos.IO.Archiving
     /// After this call you can call `Append()` and finalize the append with
     /// the call to `EndWriting()`
     /// </summary>
-    internal void BeginWriting(long pageId, DateTime utcCreate, Atom app, string host)
+    internal void BeginWriting(DateTime utcCreate, Atom app, string host)
     {
-      m_PageId = pageId;
+      m_PageId = -1;
       m_Raw.SetLength(0);
       m_State = Status.Writing;
       m_CreateUtc = utcCreate;
@@ -57,7 +57,7 @@ namespace Azos.IO.Archiving
       m_CreateHost = host;
     }
 
-    public void EndWriting()
+    internal void EndWriting()
     {
       Ensure(Status.Writing);
       m_Raw.WriteByte(Format.ENTRY_HEADER_EOF_1);
@@ -134,6 +134,12 @@ namespace Azos.IO.Archiving
     /// Returns the current state of the page instance
     /// </summary>
     public Status State => m_State;
+
+
+    /// <summary>
+    /// Returns page id
+    /// </summary>
+    public long PageId => m_PageId;   internal void __SetPageId(long pageId) => m_PageId = pageId;
 
     /// <summary>
     /// The UTC of page creation
