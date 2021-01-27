@@ -77,7 +77,7 @@ namespace Azos.Security
     /// <param name="session">Non-null session scope under which permission is checked</param>
     /// <param name="dataContextName">String data context name as supplied from session. Non null/blank</param>
     /// <param name="dsRights">Existing rights/ACL node from  permission's ACL</param>
-    /// <param name="access">Permission's rot access grant+ACL</param>
+    /// <param name="access">Permission's root access grant+ACL</param>
     /// <returns>True if action is authorized to be performed</returns>
     protected virtual bool DoCheckDataStoreAccessLevel(IApplication app,
                                                        ISession session,
