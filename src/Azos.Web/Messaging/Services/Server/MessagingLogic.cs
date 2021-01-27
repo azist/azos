@@ -35,7 +35,7 @@ namespace Azos.Web.Messaging.Services.Server
       base.Destructor();
     }
 
-    //todo Implement
+    //todo Implement future document storage
     //    [Inject] Data.IDocStorage m_DocStorage;
 
     private MessageDaemon m_Router;
@@ -44,7 +44,7 @@ namespace Azos.Web.Messaging.Services.Server
 
     public override string ComponentLogTopic => CoreConsts.WEBMSG_TOPIC;
 
-    public async Task<string> SendAsync(Message message, MessageProps props)
+    public Task<string> SendAsync(Message message, MessageProps props)
     {
       //1. Save message into document storage, getting back a unique Id
       //which can be later used for query/retrieval
@@ -54,20 +54,20 @@ namespace Azos.Web.Messaging.Services.Server
       //the router implementation is 100% asynchronous by design
       m_Router.SendMsg(message);
 
-      return mid;
+      return Task.FromResult<string>(null); //mid;
     }
 
-    public async Task<IEnumerable<MessageInfo>> GetMessageListAsync(MessageListFilter filter)
-      => Enumerable.Empty<MessageInfo>();
+    public Task<IEnumerable<MessageInfo>> GetMessageListAsync(MessageListFilter filter)
+      => Task.FromResult(Enumerable.Empty<MessageInfo>());
 
-    public async Task<(Message msg, MessageProps props)> GetMessageAsync(string msgId, bool fetchProps = false)
-     => (null, null);
+    public Task<(Message msg, MessageProps props)> GetMessageAsync(string msgId, bool fetchProps = false)
+      => Task.FromResult<(Message, MessageProps)>((null, null));
 
-    public async Task<Message.Attachment> GetMessageAttachmentAsync(string msgId, int attId)
-     => null;
+    public Task<Message.Attachment> GetMessageAttachmentAsync(string msgId, int attId)
+      => Task.FromResult<Message.Attachment>(null);
 
-    public async Task<MessageStatusLog> GetMessageStatusLogAsync(string msgId)
-     => null;
+    public Task<MessageStatusLog> GetMessageStatusLogAsync(string msgId)
+      => Task.FromResult<MessageStatusLog>(null);
 
 
     protected override void DoConfigure(IConfigSectionNode node)
