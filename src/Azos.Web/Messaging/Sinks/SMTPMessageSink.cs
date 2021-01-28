@@ -13,7 +13,7 @@ using System.Net.Mail;
 using Azos.Conf;
 using Azos.Log;
 
-namespace Azos.Web.Messaging
+namespace Azos.Web.Messaging.Sinks
 {
   /// <summary>
   /// Implements msg sink based on SMTPClient

@@ -34,7 +34,7 @@ namespace Azos.Web.Messaging
 
     public override string ComponentLogTopic => CoreConsts.WEBMSG_TOPIC;
 
-    public IMessenger Messenger=> ComponentDirector;
+    public IMessenger Messenger => ComponentDirector;
 
     [Config]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_MESSAGING, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]

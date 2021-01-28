@@ -46,15 +46,19 @@ namespace Azos.Web.Messaging.Services.Server
 
     public Task<string> SendAsync(Message message, MessageProps props)
     {
-      //1. Save message into document storage, getting back a unique Id
-      //which can be later used for query/retrieval
-      var mid = Guid.NewGuid().ToString();  //await m_DocStorage.PutMessageAsync(message.NonNull(nameof(message)), props);
+      //1.  Validate
+      var ve = message.NonNull(nameof(message)).Validate();
+      if (ve != null) throw ve;
 
-      //2. Route message for delivery
+      //2. Save message into document storage, getting back a unique Id
+      //which can be later used for query/retrieval
+      message.ArchiveId = Guid.NewGuid().ToString();  //await m_DocStorage.PutMessageAsync(message.NonNull(nameof(message)), props);
+
+      //3. Route message for delivery
       //the router implementation is 100% asynchronous by design
       m_Router.SendMsg(message);
 
-      return Task.FromResult<string>(null); //mid;
+      return Task.FromResult<string>(null); //message.ArchiveId;
     }
 
     public Task<IEnumerable<MessageInfo>> GetMessageListAsync(MessageListFilter filter)
