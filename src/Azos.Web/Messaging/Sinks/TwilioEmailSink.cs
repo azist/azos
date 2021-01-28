@@ -32,15 +32,23 @@ namespace Azos.Web.Messaging.Sinks
     protected override bool DoSendMsg(Message msg)
     {
       var tw = toTwilioEmail(msg);
-      m_Twilio.Call(TwilioServiceAddress, GetType().Name, msg.Id, (http, ct) => http.Client.PostAndGetJsonMapAsync("send", tw))
-      .GetAwaiter().GetResult();
+
+      var task = m_Twilio.Call(TwilioServiceAddress,
+                              nameof(TwilioEmailSink),
+                              msg.Id, //sharding
+                              (http, ct) => http.Client.PostAndGetJsonMapAsync("send", tw));
+
+      var response = task.GetAwaiter().GetResult();//complete synchronously by design
+
+      //how do we write the response which has Twilio-specific assigned id etc...
+
       return true;
     }
 
     private JsonDataMap toTwilioEmail(Message msg)
     {
       var result = new JsonDataMap();
-
+      result["a"] = 1;
       return result;
     }
 

@@ -42,6 +42,10 @@ namespace Azos.Web.Messaging
 
     public abstract MsgChannels SupportedChannels { get; }
 
+    /// <summary>
+    /// Returns names of supported channels. A sink may support more than one channel, however
+    /// a typical sink supports only one channel, hence the default implementation which returns this sink name
+    /// </summary>
     public virtual IEnumerable<string> SupportedChannelNames { get { yield return Name; } }
 
 
@@ -50,7 +54,10 @@ namespace Azos.Web.Messaging
     public SendMessageErrorHandling ErrorHandlingMode{ get ; set; }
 
     /// <summary>
-    /// Performs actual sending of msg. This method does not have to be thread-safe as it is called by a single thread
+    /// Performs actual sending of msg. This method does not have to be thread-safe as it is called by a single thread.
+    /// The message has to pass Filter().
+    /// Returns true if message passed filter and was handled by the underlying implementation, false when it either did not pass filter
+    /// or could not be handled by the underlying provider (e.g. contains no usable address etc..)
     /// </summary>
     public bool SendMsg(Message msg)
     {
@@ -66,9 +73,14 @@ namespace Azos.Web.Messaging
       return sent;
     }
 
+    /// <summary>
+    /// Override to perform message filtering. This is called by `SendMsg(msg)`.
+    /// Return true if this sink can process the message in principle.
+    /// The default implementation matches sink on the channel specified in "TO" address
+    /// </summary>
     protected virtual bool Filter(Message msg)
     {
-      return msg.AddressToBuilder.MatchNamedChannel(this.SupportedChannelNames);
+      return msg.AddressToBuilder.MatchNamedChannel(this.SupportedChannelNames); //why does this not match on CC or BCC??
     }
 
     /// <summary>

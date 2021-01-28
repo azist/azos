@@ -110,9 +110,7 @@ namespace Azos.Web.Messaging
     #region Public
 
       public override string ToString()
-      {
-        return m_Config.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact);
-      }
+        => m_Config.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact);
 
       public bool MatchNamedChannel(IEnumerable<string> channelNames)
       {
@@ -144,7 +142,7 @@ namespace Azos.Web.Messaging
         aSection.AddAttributeNode(ATTR_CHANNEL_NAME, addressee.ChannelName);
         aSection.AddAttributeNode(ATTR_CHANNEL_ADDRESS, addressee.ChannelAddress);
 
-        if (MessageBuilderChange!=null) MessageBuilderChange(this);
+        MessageBuilderChange?.Invoke(this);
       }
 
     #endregion
