@@ -7,6 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
+
+using Azos.Serialization.Bix;
 
 namespace Azos.IO.Archiving
 {
@@ -126,8 +129,6 @@ namespace Azos.IO.Archiving
 
     private MemoryStream m_Raw; //the stream contains raw  <entry-stream> without page headers etc...
 
-
-
     public int DefaultCapacity => m_DefaultCapacity;
 
     /// <summary>
@@ -206,7 +207,7 @@ namespace Azos.IO.Archiving
 
       m_Raw.WriteByte(Format.ENTRY_HEADER_1);
       m_Raw.WriteByte(Format.ENTRY_HEADER_2);
-      m_Raw.WriteBEInt32(entry.Count); //todo change to VarLen32
+      writeVarLength(m_Raw, entry.Count);
 
       m_Raw.Write(entry.Array, entry.Offset, entry.Count);
 
@@ -217,7 +218,6 @@ namespace Azos.IO.Archiving
     /// <summary>
     /// Asserts page to be in specific state
     /// </summary>
-    /// <param name="need"></param>
     public void Ensure(Status need)
     {
       if (m_State != need) throw new ArchivingException(StringConsts.ARCHIVE_PAGE_STATE_ERROR.Args(m_PageId, need));
@@ -231,7 +231,7 @@ namespace Azos.IO.Archiving
       var h1 = buffer[address];
       if (h1 == Format.ENTRY_HEADER_1 && buffer[++address] == Format.ENTRY_HEADER_2) // @>
       {
-        var len = 0;//buffer.ReadVarLen32(ref address);//todo use varbit encoding 1-5 bytes
+        var len = readVarLength(buffer, ref address);
         //check max length
 
         if (len == 0 || len > Format.ENTRY_MAX_LEN) return new Entry(ptr, Entry.Status.InvalidLength);//max length exceeded
@@ -247,6 +247,45 @@ namespace Azos.IO.Archiving
         return new Entry(ptr, Entry.Status.EOF);//EOF
       }
       else return new Entry(ptr, Entry.Status.BadHeader);//corruption
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void writeVarLength(MemoryStream stream, int length)
+    {
+      uint value = (uint)length;
+      var has = true;
+      while (has)
+      {
+        byte b = (byte)(value & 0x7f);
+        value = value >> 7;
+        has = value != 0;
+        if (has)
+          b = (byte)(b | 0x80);
+        stream.WriteByte(b);
+      }
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int readVarLength(byte[] buffer, ref int address)//varbit UINT 1-5 bytes
+    {
+      uint result = 0;
+      var bitcnt = 0;
+      var has = true;
+
+      while (has)
+      {
+        if (bitcnt > 31)
+          throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "readVarLength(bit>31)");
+
+        if (address == buffer.Length) throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "readVarLength(): eof");
+        var b = buffer[address++];
+        has = (b & 0x80) != 0;
+        result |= (uint)(b & 0x7f) << bitcnt;
+        bitcnt += 7;
+      }
+
+      return (int)result;
     }
 
   }
