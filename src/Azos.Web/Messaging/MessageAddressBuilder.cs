@@ -23,15 +23,17 @@ namespace Azos.Web.Messaging
   public sealed class MessageAddressBuilder
   {
     #region CONSTS
-      public const string CONFIG_ROOT_SECT     = "as";
-      public const string CONFIG_A_SECT        = "a";
-      public const string ATTR_NAME            = "nm";
-      public const string ATTR_CHANNEL_NAME    = "cn";
-      public const string ATTR_CHANNEL_ADDRESS = "ca";
+    public const string CONFIG_ROOT_SECT     = "as";
+    public const string CONFIG_A_SECT        = "a";
+    public const string ATTR_NAME            = "nm";
+    public const string ATTR_CHANNEL_NAME    = "cn";
+    public const string ATTR_CHANNEL_ADDRESS = "ca";
     #endregion
 
     /// <summary>
-    /// Holds data about an addressee: {Name, Channel, Address (per channel)}, example {"Frank Borland", "UrgentSMTP", "frankb@xyz.com"}
+    /// Provides data for an addressee:
+    ///   {Name, Channel, Address (per channel)}, example {"Frank Borland", "UrgentSMTP", "frankb@xyz.com"}.
+    /// Note: The format of channel address string depends on the channel which this addressee points to
     /// </summary>
     public struct Addressee
     {
@@ -46,7 +48,7 @@ namespace Azos.Web.Messaging
       public readonly string ChannelName;
       public readonly string ChannelAddress;
 
-      public bool Assigned{ get{ return this.ChannelAddress.IsNotNullOrWhiteSpace();} }
+      public bool Assigned => this.ChannelAddress.IsNotNullOrWhiteSpace();
     }
 
     public static string OneAddressee(string name, string channelName, string channelAddress)
@@ -107,44 +109,40 @@ namespace Azos.Web.Messaging
       }
     }
 
-    #region Public
+    public override string ToString()
+      => m_Config.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact);
 
-      public override string ToString()
-        => m_Config.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact);
+    public bool MatchNamedChannel(IEnumerable<string> channelNames)
+    {
+      if (channelNames == null || !channelNames.Any()) return false;
+      var adrChannelNames = All.Select(a => a.ChannelName);
+      return adrChannelNames.Any(c => channelNames.Any(n => n.EqualsOrdIgnoreCase(c)));
+    }
 
-      public bool MatchNamedChannel(IEnumerable<string> channelNames)
-      {
-        if (channelNames == null || !channelNames.Any()) return false;
-        var adrChannelNames = All.Select(a => a.ChannelName);
-        return adrChannelNames.Any(c => channelNames.Any(n => n.EqualsOrdIgnoreCase(c)));
-      }
+    public IEnumerable<Addressee> GetMatchesForChannels(IEnumerable<string> channelNames)
+    {
+      if (channelNames == null || !channelNames.Any()) return Enumerable.Empty<Addressee>();
+      return All.Where(a => channelNames.Any(n => n.EqualsOrdIgnoreCase(a.ChannelName)));
+    }
 
-      public IEnumerable<Addressee> GetMatchesForChannels(IEnumerable<string> channelNames)
-      {
-        if (channelNames == null || !channelNames.Any()) return Enumerable.Empty<Addressee>();
-        return All.Where(a => channelNames.Any(n => n.EqualsOrdIgnoreCase(a.ChannelName)));
-      }
+    public Addressee GetFirstOrDefaultMatchForChannels(IEnumerable<string> channelNames)
+    {
+      return GetMatchesForChannels(channelNames).FirstOrDefault();
+    }
 
-      public Addressee GetFirstOrDefaultMatchForChannels(IEnumerable<string> channelNames)
-      {
-        return GetMatchesForChannels(channelNames).FirstOrDefault();
-      }
+    public void AddAddressee(string name, string channelName, string channelAddress)
+    {
+      AddAddressee(new Addressee(name, channelName, channelAddress));
+    }
 
-      public void AddAddressee(string name, string channelName, string channelAddress)
-      {
-        AddAddressee(new Addressee(name, channelName, channelAddress));
-      }
+    public void AddAddressee(Addressee addressee)
+    {
+      var aSection = m_Config.AddChildNode(CONFIG_A_SECT);
+      aSection.AddAttributeNode(ATTR_NAME, addressee.Name);
+      aSection.AddAttributeNode(ATTR_CHANNEL_NAME, addressee.ChannelName);
+      aSection.AddAttributeNode(ATTR_CHANNEL_ADDRESS, addressee.ChannelAddress);
 
-      public void AddAddressee(Addressee addressee)
-      {
-        var aSection = m_Config.AddChildNode(CONFIG_A_SECT);
-        aSection.AddAttributeNode(ATTR_NAME, addressee.Name);
-        aSection.AddAttributeNode(ATTR_CHANNEL_NAME, addressee.ChannelName);
-        aSection.AddAttributeNode(ATTR_CHANNEL_ADDRESS, addressee.ChannelAddress);
-
-        MessageBuilderChange?.Invoke(this);
-      }
-
-    #endregion
+      MessageBuilderChange?.Invoke(this);
+    }
   }
 }
