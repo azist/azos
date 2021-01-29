@@ -134,18 +134,18 @@ namespace Azos.Web.Messaging.Sinks
       var addressBCC = msg.AddressBCCBuilder.GetMatchesForChannels(SupportedChannelNames);
       var abcc = addressBCC.Select(fmtEmail).ToList();
 
-      var fa = addressFrom.ChannelAddress;
-      var fn = addressFrom.ChannelName;
+      var fa = addressFrom.Address;
+      var fn = addressFrom.Channel;
 
       if (fa.IsNullOrWhiteSpace()) fa = DefaultFromAddress;
       if (fn.IsNullOrWhiteSpace()) fn = DefaultFromName;
 
       var from = fmtEmail(fa, fn);
       var wasSent = false;
-      // todo ������������ �� MailMessageTo ������ ��������� ����� ������� � ����� ������, ���� �� - ������ ���� foreach
+
       foreach (var addressee in addressTo)
       {
-        var to = fmtEmail(addressee.ChannelAddress, addressee.Name);
+        var to = fmtEmail(addressee.Address, addressee.Name);
 
         using (var email = new MailMessage(from, to))
         {
@@ -209,7 +209,7 @@ namespace Azos.Web.Messaging.Sinks
 
     private MailAddress fmtEmail(MessageAddressBuilder.Addressee addressee)
     {
-      return fmtEmail(addressee.ChannelAddress, addressee.Name);
+      return fmtEmail(addressee.Address, addressee.Name);
     }
 
     private MailAddress fmtEmail(string address, string name)

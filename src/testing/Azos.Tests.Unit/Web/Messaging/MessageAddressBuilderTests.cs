@@ -18,36 +18,34 @@ namespace Azos.Tests.Unit.Web.Messaging
     public void BuildMessageAddress()
     {
       var config =
-      @"as
-        {
-          a
+      @"[
           {
-            nm=Peter
-            cn=Twilio
-            ca='+15005550005'
+            n: 'Peter',
+            c: 'Twilio',
+            a: '+15005550005'
           }
-          a
+          ,
           {
-            nm=Nick
-            cn=Mailgun
-            ca='nick@example.com'
+            n: 'Nick',
+            c: 'Mailgun',
+            a: 'nick@example.com'
           }
-        }";
+        ]";
 
       var builder = new MessageAddressBuilder(config);
       var addressees = builder.All.ToArray();
 
       Aver.AreEqual(addressees.Count(), 2);
       Aver.AreEqual(builder.ToString(),
-                    "as{a{nm=Peter cn=Twilio ca=+15005550005}a{nm=Nick cn=Mailgun ca=nick@example.com}}");
+                    @"[{""n"":""Peter"",""c"":""Twilio"",""a"":""+15005550005""},{""n"":""Nick"",""c"":""Mailgun"",""a"":""nick@example.com""}]");
 
       Aver.AreEqual(addressees[0].Name, "Peter");
-      Aver.AreEqual(addressees[0].ChannelName, "Twilio");
-      Aver.AreEqual(addressees[0].ChannelAddress, "+15005550005");
+      Aver.AreEqual(addressees[0].Channel, "Twilio");
+      Aver.AreEqual(addressees[0].Address, "+15005550005");
 
       Aver.AreEqual(addressees[1].Name, "Nick");
-      Aver.AreEqual(addressees[1].ChannelName, "Mailgun");
-      Aver.AreEqual(addressees[1].ChannelAddress, "nick@example.com");
+      Aver.AreEqual(addressees[1].Channel, "Mailgun");
+      Aver.AreEqual(addressees[1].Address, "nick@example.com");
 
       var ann = new MessageAddressBuilder.Addressee
       (
@@ -55,53 +53,51 @@ namespace Azos.Tests.Unit.Web.Messaging
         "SMTP",
         "ann@example.com"
       );
-      builder.AddAddressee(ann);
+      builder.Add(ann);
 
       addressees = builder.All.ToArray();
       Aver.AreEqual(addressees.Count(), 3);
       var str = builder.ToString();
       Aver.AreEqual(builder.ToString(),
-                    "as{a{nm=Peter cn=Twilio ca=+15005550005}a{nm=Nick cn=Mailgun ca=nick@example.com}a{nm=Ann cn=SMTP ca=ann@example.com}}");
+                    @"[{""n"":""Peter"",""c"":""Twilio"",""a"":""+15005550005""},{""n"":""Nick"",""c"":""Mailgun"",""a"":""nick@example.com""},{""n"":""Ann"",""c"":""SMTP"",""a"":""ann@example.com""}]");
 
       Aver.AreEqual(addressees[2].Name, "Ann");
-      Aver.AreEqual(addressees[2].ChannelName, "SMTP");
-      Aver.AreEqual(addressees[2].ChannelAddress, "ann@example.com");
+      Aver.AreEqual(addressees[2].Channel, "SMTP");
+      Aver.AreEqual(addressees[2].Address, "ann@example.com");
 
       builder = new MessageAddressBuilder(null);
-      builder.AddAddressee(ann);
-      Aver.AreEqual(builder.ToString(), "as{a{nm=Ann cn=SMTP ca=ann@example.com}}");
+      builder.Add(ann);
+      Aver.AreEqual(builder.ToString(), @"[{""n"":""Ann"",""c"":""SMTP"",""a"":""ann@example.com""}]");
       Aver.AreEqual(builder.All.Count(), 1);
 
-      builder = new MessageAddressBuilder("as{}");
+      builder = new MessageAddressBuilder("[]");
       Aver.AreEqual(builder.All.Count(), 0);
-      Aver.AreEqual(builder.ToString(), "as{}");
+      Aver.AreEqual(builder.ToString(), "[]");
     }
 
     [Run]
     public void MatchNames()
     {
       var config =
-      @"as
-        {
-          a
+      @"[
           {
-            nm=Peter
-            cn=Twilio
-            ca=+15005550005
+            n: 'Peter',
+            c: 'Twilio',
+            a: '+15005550005'
           }
-          a
+          ,
           {
-            nm=Nick
-            cn=Mailgun
-            ca=nick@example.com
+            n: 'Nick',
+            c: 'Mailgun',
+            a: 'nick@example.com'
           }
-          a
+          ,
           {
-            nm=Ann
-            cn=SMTP
-            ca=ann@example.com
+            n: 'Ann',
+            c: 'SMTP',
+            a: 'ann@example.com'
           }
-        }";
+        ]";
       var builder = new MessageAddressBuilder(config);
 
       var names = new string[] {"smtp"};
