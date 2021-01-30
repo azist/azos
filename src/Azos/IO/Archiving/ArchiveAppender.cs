@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+
 using Azos.Time;
 
 namespace Azos.IO.Archiving
@@ -13,7 +14,8 @@ namespace Azos.IO.Archiving
 #pragma warning disable CA1063
   /// <summary>
   /// Provides base functionality for appending entries to archives.
-  /// Concrete implementations handle serialization of specific `TEntry` entry types
+  /// Concrete implementations handle serialization of specific `TEntry` entry types.
+  /// This class instance is NOT thread-safe
   /// </summary>
   public abstract class ArchiveAppender<TEntry> : IDisposable
   {

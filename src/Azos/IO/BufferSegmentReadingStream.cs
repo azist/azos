@@ -15,14 +15,9 @@ namespace Azos.IO
   /// </summary>
   public sealed class BufferSegmentReadingStream : Stream
   {
-    public BufferSegmentReadingStream()
-    {
-    }
+    public BufferSegmentReadingStream(){ }
 
-    protected override void Dispose(bool disposing)
-    {
-
-    }
+    protected override void Dispose(bool disposing){ }
 
     private byte[] m_Buffer;
     private long m_Offset;
@@ -32,7 +27,7 @@ namespace Azos.IO
     /// <summary>
     /// Target stream that this stream wraps
     /// </summary>
-    public  byte[] Buffer { get{ return m_Buffer;} }
+    public  byte[] Buffer => m_Buffer;
 
     /// <summary>
     /// Sets byte[] as stream source
@@ -59,6 +54,21 @@ namespace Azos.IO
       m_Offset = idxStart;
       m_Count = count;
       m_Position = 0;
+    }
+
+    /// <summary>
+    /// Sets byte[] as stream source this method does the same as BindBuffer without extra if statements, correct data is expected to be supplied
+    /// </summary>
+    public void UnsafeBindBuffer(ArraySegment<byte> segment)
+      => UnsafeBindBuffer(segment.Array, segment.Offset, segment.Count);
+
+
+    /// <summary>
+    /// Sets buffer reference to null. This is used to sever the reference to byte[] so it does not get stuck in thread cached instance of this class
+    /// </summary>
+    public void UnbindBuffer()
+    {
+      m_Buffer = null;
     }
 
 
@@ -88,7 +98,7 @@ namespace Azos.IO
       }
       set
       {
-        if ( value < 0 || value>m_Count)
+        if ( value < 0 || value > m_Count)
          throw new AzosIOException(StringConsts.IO_STREAM_POSITION_ERROR.Args(value, m_Count));
         m_Position = value;
       }
@@ -96,9 +106,9 @@ namespace Azos.IO
 
     public override int ReadByte()
     {
-      if (m_Position<m_Count)
+      if (m_Position < m_Count)
       {
-       var idx = m_Offset+m_Position;
+       var idx = m_Offset + m_Position;
        m_Position++;
        return m_Buffer[idx];
       }
@@ -107,7 +117,7 @@ namespace Azos.IO
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-      if (m_Position+count>m_Count) count = (int)(m_Count - m_Position);
+      if (m_Position+count > m_Count) count = (int)(m_Count - m_Position);
       if (count<=0) return 0;//eof
       Array.Copy(m_Buffer, m_Offset+m_Position, buffer, (long)offset, (long)count);
       m_Position+=count;

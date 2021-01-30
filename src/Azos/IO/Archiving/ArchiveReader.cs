@@ -16,7 +16,7 @@ namespace Azos.IO.Archiving
   /// </summary>
   public abstract class ArchiveReader<TEntry>
   {
-    public ArchiveReader(IVolume volume, Bookmark start)
+    public ArchiveReader(IVolume volume)
     {
       Volume = volume.NonNull(nameof(volume));
     }
@@ -59,7 +59,8 @@ namespace Azos.IO.Archiving
 
 
     /// <summary>
-    /// Performs physical deserialization of entries. Override to materialize a concrete instance of TEntry
+    /// Performs physical deserialization of entries. Override to materialize a concrete instance of TEntry.
+    /// This method implementation is thread-safe
     /// </summary>
     public abstract TEntry Materialize(Entry entry);
   }
