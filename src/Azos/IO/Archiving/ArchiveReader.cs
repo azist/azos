@@ -4,89 +4,62 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Azos.IO.Archiving
 {
   /// <summary>
-  /// This class is not thread safe and can only be iterated only once
+  /// Facilitates reading archive data as IEnumerable(TEntry).
+  /// The instance methods are thread-safe: multiple threads may enumerate the instance in-parallel, however
+  /// each IEnumerable is not thread safe (by design)
   /// </summary>
-  public abstract class ArchiveReader<TEntry> : DisposableObject, IEnumerable<TEntry>
+  public abstract class ArchiveReader<TEntry>
   {
     public ArchiveReader(IVolume volume, Bookmark start)
     {
-      m_Volume = volume.NonNull(nameof(volume));
-      StartAt(start);
-    }
-
-    //enumerator destructor
-    protected override void Destructor()
-    {
-      base.Destructor();
-    }
-
-    private readonly IVolume m_Volume;
-    private Bookmark m_Start;
-    private Bookmark m_Current;
-    private Page m_Page;
-
-
-    public IVolume Volume => m_Volume;
-
-    /// <summary>
-    /// Returns the archive pointer where reading started from
-    /// </summary>
-    public Bookmark Start => m_Start;
-
-    /// <summary>
-    /// Restarts reading from the specified archive pointer position as if the instance was just re-allocated.
-    /// The enumeration is being affected
-    /// </summary>
-    public void StartAt(Bookmark start)
-    {
-      m_Start = start;
-      m_Current = start;
+      Volume = volume.NonNull(nameof(volume));
     }
 
     /// <summary>
-    /// Walks all pages
+    /// Volume which stores data
     /// </summary>
-    public IEnumerable<Page> Pages
+    public readonly IVolume Volume;
+
+    /// <summary>
+    /// Enumerates all pages starting at the specified pageId. Multiple threads can call this method at the same time
+    /// each getting its own enumerator
+    /// </summary>
+    public IEnumerable<Page> Pages(long startPageId)
     {
-      get
-      {
-        Page page = null;
+      var current = startPageId;
+      var page = new Page(Volume.PageSizeBytes);
+      while((current = Volume.ReadPage(current, page)) > 0)
         yield return page;
-      }
     }
 
     /// <summary>
-    /// Walks all raw page entries on all pages
+    /// Walks all raw page entries on all pages. You can materialize entries into TEntry by calling `TEntry Materialize(Entry)`.
+    /// Multiple threads can call this method at the same time
     /// </summary>
-    public IEnumerable<Entry> RawEntries
+    public IEnumerable<Entry> RawEntries(Bookmark start)
     {
-      get
-      {
-        foreach(var page in Pages)
-          foreach(var entry in page.Entries)
-              yield return entry;
-      }
+      foreach(var page in Pages(start.PageId))
+        foreach(var entry in page.Entries.Where(e => e.Address >= start.Address))
+            yield return entry;
     }
 
     /// <summary>
-    /// Walks all materialized `TEntry` entries on all pages
+    /// Walks all materialized `TEntry` entries on all pages.
+    /// Multiple threads can call this method at the same time
     /// </summary>
-    public IEnumerable<TEntry> Entries => RawEntries.Select(re => Materialize(re));
+    public IEnumerable<TEntry> Entries(Bookmark start)
+      => RawEntries(start).Where(item => item.State == Entry.Status.Valid)
+                          .Select(item => Materialize(item));
 
-
-    public IEnumerator<TEntry> GetEnumerator() => Entries.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => Entries.GetEnumerator();
 
     /// <summary>
-    /// Override to perform physical deserialization of entries
+    /// Performs physical deserialization of entries. Override to materialize a concrete instance of TEntry
     /// </summary>
     public abstract TEntry Materialize(Entry entry);
   }
