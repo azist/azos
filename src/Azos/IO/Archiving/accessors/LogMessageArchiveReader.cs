@@ -5,9 +5,8 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
+using Azos.Data;
 using Azos.Log;
 using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
@@ -43,9 +42,15 @@ namespace Azos.IO.Archiving
       if (reader.ReadBool())//if non-null message
       {
         result = new Message();
-        result.Gdid = reader.ReadGDID();
+
+        var ngdid = reader.ReadNullableGDID();
+        result.Gdid = ngdid.HasValue ? ngdid.Value : GDID.ZERO;
+
         result.Guid = reader.ReadGuid();
-        result.RelatedTo = reader.ReadGuid();
+
+        var nrel = reader.ReadNullableGuid();
+        result.RelatedTo = nrel.HasValue ? nrel.Value : Guid.Empty;
+
         result.Channel = reader.ReadAtom();
         result.App = reader.ReadAtom();
         result.Type = (MessageType)reader.ReadInt();

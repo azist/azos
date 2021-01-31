@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-
+using Azos.Data;
 using Azos.Log;
 using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
@@ -40,9 +40,9 @@ namespace Azos.IO.Archiving
       {
         m_Writer.Write(true); // NON-NULL
 
-        m_Writer.Write(entry.Gdid);
+        m_Writer.Write(entry.Gdid.IsZero ? (GDID?)null : entry.Gdid);//nullable Gdid will consume 1 byte instead of 12 zeros
         m_Writer.Write(entry.Guid);
-        m_Writer.Write(entry.RelatedTo);
+        m_Writer.Write(entry.RelatedTo == Guid.Empty ? (Guid?)null : entry.RelatedTo);//nullable Guid takes 1 byte instead of 16
         m_Writer.Write(entry.Channel);
         m_Writer.Write(entry.App);
         m_Writer.Write((int)entry.Type);
