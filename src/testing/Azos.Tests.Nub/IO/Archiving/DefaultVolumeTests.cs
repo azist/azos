@@ -81,6 +81,8 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       Parallel.For(0, PARA, _ => {
 
+        var app = Azos.Apps.ExecutionContext.Application;
+
         using(var aIdxId = new GuidIdxAppender(volumeIdxId,
                                           NOPApplication.Instance.TimeSource,
                                           NOPApplication.Instance.AppId, "dima@zhaba"))
@@ -92,7 +94,7 @@ namespace Azos.Tests.Nub.IO.Archiving
                                                  onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(e.Guid, b))))
           {
 
-            for(var i=0; i<CNT / PARA; i++)
+            for(var i=0; app.Active && i<CNT / PARA; i++)
             {
               var msg = FakeLogMessage.BuildRandom();
               appender.Append(msg);
