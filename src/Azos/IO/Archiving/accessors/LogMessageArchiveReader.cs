@@ -10,10 +10,14 @@ using System.Text;
 
 using Azos.Log;
 using Azos.Serialization.Bix;
+using Azos.Serialization.JSON;
 
 namespace Azos.IO.Archiving
 {
-  public class LogMessageArchiveReader : ArchiveReader<Message>
+  /// <summary>
+  /// Reads archives of Log.Message items. The implementation is thread-safe
+  /// </summary>
+  public sealed class LogMessageArchiveReader : ArchiveReader<Message>
   {
     public LogMessageArchiveReader(IVolume volume) : base(volume){ }
 
@@ -33,13 +37,34 @@ namespace Azos.IO.Archiving
       stream.UnsafeBindBuffer(entry.Raw);
       var reader = new BixReader(stream);
 
-      var has = reader.ReadBool();
 
-      if (!has) return null;
+      Message result = null;
 
-      var result = new Message();
+      if (reader.ReadBool())//if non-null message
+      {
+        result = new Message();
+        result.Gdid = reader.ReadGDID();
+        result.Guid = reader.ReadGuid();
+        result.RelatedTo = reader.ReadGuid();
+        result.Channel = reader.ReadAtom();
+        result.App = reader.ReadAtom();
+        result.Type = (MessageType)reader.ReadInt();
+        result.Source = reader.ReadInt();
+        result.UTCTimeStamp = reader.ReadDateTime();
 
-      //read.....
+        result.Host = reader.ReadString();
+        result.From = reader.ReadString();
+        result.Topic = reader.ReadString();
+        result.Text = reader.ReadString();
+        result.Parameters = reader.ReadString();
+        result.ArchiveDimensions = reader.ReadString();
+
+        var edata = reader.ReadString();
+        if (edata != null)
+        {
+          result.ExceptionData = JsonReader.ToDoc<WrappedExceptionData>(edata);
+        }
+      }
 
       stream.UnbindBuffer();
 

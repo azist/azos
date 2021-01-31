@@ -34,8 +34,13 @@ namespace Azos.IO.Archiving
     {
       var current = startPageId;
       var page = new Page(Volume.PageSizeBytes);
-      while((current = Volume.ReadPage(current, page)) > 0)
+      while(true)
+      {
+        current = Volume.ReadPage(current, page);
+        if (page.State == Page.Status.Reading)
         yield return page;
+        if (current <=0) break;
+      }
     }
 
     /// <summary>

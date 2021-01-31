@@ -183,7 +183,7 @@ namespace Azos.IO.Archiving
     /// </returns>
     public long ReadPage(long pageId, Page page)
     {
-      pageId.IsTrue(v => v > 0, "pageId <= 0");
+      pageId.IsTrue(v => v >= 0, "pageId < 0");
       page.NonNull(nameof(page));
 
       var pageData = page.BeginReading(pageId);
@@ -342,7 +342,7 @@ namespace Azos.IO.Archiving
 
               if (len > 0 && len < Format.PAGE_MAX_BUFFER_LEN)
               {
-                if (m_Stream.Position+len >= m_Stream.Length) return (-1, new PageInfo(), -1);
+                if (m_Stream.Position+len > m_Stream.Length) return (-1, new PageInfo(), -1);
 
                 info.NextPageId = IntUtils.Align16(m_Stream.Position + len);
                 return (pageId, info, len);
