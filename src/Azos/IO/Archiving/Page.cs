@@ -228,8 +228,8 @@ namespace Azos.IO.Archiving
       var ptr = address;
       if (address < 0 || address + Format.ENTRY_MIN_LEN >= m_Raw.Length) return new Entry(ptr, Entry.Status.BadAddress);
 
-      var h1 = buffer[address];
-      if (h1 == Format.ENTRY_HEADER_1 && buffer[++address] == Format.ENTRY_HEADER_2) // @>
+      var h1 = buffer[address++];
+      if (h1 == Format.ENTRY_HEADER_1 && buffer[address++] == Format.ENTRY_HEADER_2) // @>
       {
         var len = readVarLength(buffer, ref address);
         //check max length
@@ -237,8 +237,8 @@ namespace Azos.IO.Archiving
         if (len == 0 || len > Format.ENTRY_MAX_LEN) return new Entry(ptr, Entry.Status.InvalidLength);//max length exceeded
 
         var start = address;
-        var end = address + len;
-        if (end >= m_Raw.Length) return new Entry(ptr, Entry.Status.InvalidLength);//beyond the block
+        address += len;
+        if (address > m_Raw.Length) return new Entry(ptr, Entry.Status.InvalidLength);//beyond the block
 
         return new Entry(ptr, new ArraySegment<byte>(buffer, start, len));//VALID!!!
       }
