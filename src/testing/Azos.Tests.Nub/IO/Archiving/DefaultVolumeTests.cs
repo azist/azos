@@ -16,13 +16,77 @@ using Azos.Scripting;
 using Azos.IO.Archiving;
 using Azos.Data;
 using Azos.Log;
+using Azos.Security;
 
 namespace Azos.Tests.Nub.IO.Archiving
 {
   [Runnable]
   public class DefaultVolumeTests
   {
+    public static ICryptoManager NopCrypto => NOPApplication.Instance.SecurityManager.Cryptography;
+
+
     [Run]
+    public void Metadata_Basic()
+    {
+      var ms = new MemoryStream();
+      var meta = VolumeMetadataBuilder.Make("Volume-1")
+                                      .SetVersion(123,456)
+                                      .SetDescription("My volume");
+      var v1 = new DefaultVolume(NopCrypto, meta, ms);
+      var id = v1.Metadata.Id;
+      v1.Dispose();//it closes the stream
+
+      Aver.IsTrue(ms.Length>0);
+
+      var v2 = new DefaultVolume(NopCrypto, ms);
+      Aver.AreEqual(id, v2.Metadata.Id);
+      Aver.AreEqual("Volume-1", v2.Metadata.Label);
+      Aver.AreEqual("My volume", v2.Metadata.Description);
+      Aver.AreEqual(123, v2.Metadata.VersionMajor);
+      Aver.AreEqual(456, v2.Metadata.VersionMinor);
+      Aver.IsTrue(v2.Metadata.Channel.IsZero);
+      Aver.IsFalse(v2.Metadata.IsCompressed);
+      Aver.IsFalse(v2.Metadata.IsEncrypted);
+    }
+
+    [Run]
+    public void Metadata_AppSection()
+    {
+      var ms = new MemoryStream();
+      var meta = VolumeMetadataBuilder.Make("V1")
+                                      .SetApplicationSection(app => { app.AddAttributeNode("a", 1); })
+                                      .SetApplicationSection(app => { app.AddAttributeNode("b", -7); })
+                                      .SetApplicationSection(app => { app.AddChildNode("sub{ q=true b=-9 }".AsLaconicConfig()); });
+
+      var v1 = new DefaultVolume(NopCrypto, meta, ms);
+      var id = v1.Metadata.Id;
+      v1.Dispose();//it closes the stream
+
+      Aver.IsTrue(ms.Length > 0);
+
+      var v2 = new DefaultVolume(NopCrypto, ms);
+
+      v2.Metadata.See();
+
+      Aver.AreEqual(id, v2.Metadata.Id);
+      Aver.AreEqual("V1", v2.Metadata.Label);
+
+      Aver.IsTrue(v2.Metadata.SectionApplication.Exists);
+      Aver.AreEqual(1, v2.Metadata.SectionApplication.Of("a").ValueAsInt());
+      Aver.AreEqual(-7, v2.Metadata.SectionApplication.Of("b").ValueAsInt());
+      Aver.AreEqual(true, v2.Metadata.SectionApplication["sub"].Of("q").ValueAsBool());
+      Aver.AreEqual(-9, v2.Metadata.SectionApplication["sub"].Of("b").ValueAsInt());
+    }
+
+
+
+
+
+
+
+
+    // [Run]
     public void Metadata_Create_Multiple_Sections_Mount()
     {
       //var ms = new FileStream("c:\\azos\\archive.lar", FileMode.Create);//  new MemoryStream();

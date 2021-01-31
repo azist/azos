@@ -45,7 +45,7 @@ namespace Azos.IO.Archiving
 
 
     public IConfigSectionNode SectionSystem => Data[CONFIG_SYS_SECTION];
-    public IConfigSectionNode SectionApplication => SectionSystem[CONFIG_APP_SECTION];
+    public IConfigSectionNode SectionApplication => Data[CONFIG_APP_SECTION];
     public IConfigSectionNode SectionEncryption => SectionSystem[CONFIG_ENCRYPTION_SECTION];
     public IConfigSectionNode SectionCompression => SectionSystem[CONFIG_COMPRESSION_SECTION];
 
