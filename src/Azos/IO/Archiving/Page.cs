@@ -226,7 +226,8 @@ namespace Azos.IO.Archiving
     private Entry get(byte[] buffer, ref int address)
     {
       var ptr = address;
-      if (address < 0 || address + Format.ENTRY_MIN_LEN >= m_Raw.Length) return new Entry(ptr, Entry.Status.BadAddress);
+      var total = m_Raw.Length;
+      if (address < 0 || address + Format.ENTRY_MIN_LEN >= total) return new Entry(ptr, Entry.Status.EOF);
 
       var h1 = buffer[address++];
       if (h1 == Format.ENTRY_HEADER_1 && buffer[address++] == Format.ENTRY_HEADER_2) // @>
@@ -238,7 +239,7 @@ namespace Azos.IO.Archiving
 
         var start = address;
         address += len;
-        if (address > m_Raw.Length) return new Entry(ptr, Entry.Status.InvalidLength);//beyond the block
+        if (address > total) return new Entry(ptr, Entry.Status.InvalidLength);//beyond the block
 
         return new Entry(ptr, new ArraySegment<byte>(buffer, start, len));//VALID!!!
       }

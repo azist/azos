@@ -38,7 +38,7 @@ namespace Azos.Tests.Nub.IO.Archiving
                                           NOPApplication.Instance.TimeSource,
                                           NOPApplication.Instance.AppId, "dima@zhaba"))
       {
-        for(var i=0; i<10; i++)
+        for(var i=0; i<3; i++)
         {
           var msg = new Message()
           {
@@ -52,10 +52,10 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var reader = new LogMessageArchiveReader(volume);
 
-      foreach(var msg in reader.Entries(new Bookmark()))
+      foreach(var msg in reader.RawEntries(new Bookmark()))
       {
-        //msg.State.See();
-        msg.See();
+        msg.State.See();
+        //msg.See();
       }
 
       volume.Dispose();
