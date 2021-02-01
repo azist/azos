@@ -104,6 +104,23 @@ namespace Azos.Tests.Nub.IO.Archiving
       v1.ReadPage(pid, page);
       Aver.IsTrue(page.State == Page.Status.Reading);
 
+      var raw = page.Entries.ToArray();
+      Aver.AreEqual(3, raw.Length);
+
+      Aver.IsTrue(raw[0].State == Entry.Status.Valid);
+      Aver.IsTrue(raw[1].State == Entry.Status.Valid);
+      Aver.IsTrue(raw[2].State == Entry.Status.EOF);
+      Aver.AreEqual(0, raw[0].Address);
+      Aver.IsTrue(raw[1].Address > 0);
+
+      Aver.AreEqual(3, raw[0].Raw.Count);
+      Aver.AreEqual(1, raw[0].Raw.Array[raw[0].Raw.Offset + 0]);
+      Aver.AreEqual(2, raw[0].Raw.Array[raw[0].Raw.Offset + 1]);
+      Aver.AreEqual(3, raw[0].Raw.Array[raw[0].Raw.Offset + 2]);
+
+      Aver.AreEqual(2, raw[1].Raw.Count);
+      Aver.AreEqual(4, raw[1].Raw.Array[raw[1].Raw.Offset + 0]);
+      Aver.AreEqual(5, raw[1].Raw.Array[raw[1].Raw.Offset + 1]);
 
     }
 
