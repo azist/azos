@@ -14,6 +14,7 @@ namespace Azos.Tests.Nub.IO.Archiving
   {
     public static readonly Atom FAKE_APP_GOV = Atom.Encode("gov");
     public static readonly Atom FAKE_APP_BIZ = Atom.Encode("bizapp");
+    public static readonly Atom FAKE_APP_TZT = Atom.Encode("fake");
 
     public static readonly Atom FAKE_CHANNEL_OPLOG = Atom.Encode("oplog");
 
@@ -126,5 +127,25 @@ namespace Azos.Tests.Nub.IO.Archiving
 
 		public const string FAKE_LOG_DZERO_RSP =
 			@"{""got"":{""__entity"":""ResponseMessage"",""Version"":""D0"",""TransactionCode"":""B1"",""TransactionCount"":1,""HeaderResponseStatus"":""A"",""ServiceProviderIdQualifier"":""01"",""ServiceProviderId"":""1234567897"",""DateOfService"":""2020-11-06T00:00:00Z"",""PatientHeader"":{""__entity"":""TransactionResponsePatientHeader"",""Insurance"":{""__entity"":""InsuranceResponseSegment"",""GroupId"":""JREREM03"",""PlanId"":""FAK clon"",""PayerHealthPlanIdQualifier"":""03"",""PayerHealthPlanId"":""009999"",""CardholderId"":""JREREMTEST2018""},""Patient"":{""__entity"":""PatientResponseSegment"",""PatientFirstName"":""JON"",""PatientLastName"":""REREMY"",""DateOfBirth"":""1999-09-09T00:00:00-04:00""}},""Responses"":[{""__entity"":""TransactionResponse"",""Claim"":{""__entity"":""ClaimResponseSegment"",""PrescriptionServiceReferenceNumberQualifier"":""1"",""PrescriptionServiceReferenceNumber"":""001552220161""},""Pricing"":{""__entity"":""PricingResponseSegment"",""TotalAmountPaid"":291.83,""PatientPayAmount"":4,""IngredientCostPaid"":293.83,""DispensingFeePaid"":2,""PercentageTaxAmountPaid"":0,""IncentiveAmountPaid"":0,""OtherResponsePaidAmounts"":[],""BasisOfReimbursementDetermination"":""05"",""AmountAttributedToSalesTax"":0,""RemainingBenefitAmount"":0,""EstimatedGenericSavings"":292.94,""AmountAppliedToPeriodicDeductible"":0,""AmountOfCopay"":4,""AmountExceedingPeriodicBenefitMax"":0,""AmountAttributedToProcessorFee"":0,""AmountOfCoinsurance"":0,""AmountAttributedToBrandDrug"":0},""Status"":{""__entity"":""StatusResponseSegment"",""TransactionResponseStatus"":""P"",""AuthorizationNumber"":""818295001106TB"",""HelpDeskPhoneNumberQualifier"":""03"",""HelpDeskPhoneNumber"":""800-361-4542""}}]}}";
-	}
+
+    public const string FAKE_LOG_HOST_1 = "APPSRV-0001";
+
+    public const string FAKE_LOG_HOST_2 = "APPSRV-0002";
+
+    public const string FAKE_LOG_HOST_3 = "WEBSRV-0001";
+
+    public const string FAKE_LOG_HOST_4 = "APPSRV-0003";
+
+    public const string FAKE_LOG_DIM_1 = @"{ ""bin"" : ""009999"", ""chn"" : ""--any--"", ""clr"" : ""15.1.35.68:53399"", ""dctx"" : ""fake"", ""mbr"" : ""mbr@pbm::JREMETEST2018/01"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFA"", ""pcn"" : ""ABCD"" }";
+
+    public const string FAKE_LOG_DIM_2 = @"{ ""bin"" : ""009999"", ""chn"" : ""FAKE"", ""clr"" : ""15.2.35.68:53399"", ""dctx"" : ""fake"", ""mbr"" : ""mbr@pbm::JREMETEST2018/02"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFB"", ""pcn"" : ""ABCD"" }";
+
+    public const string FAKE_LOG_DIM_3 = @"{ ""bin"" : ""009999"", ""chn"" : ""--any--"", ""clr"" : ""15.3.35.68:53399"", ""dctx"" : ""fake"", ""mbr"" : ""mbr@pbm::JREMETEST2018/03"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFC"", ""pcn"" : ""ABCD"" }";
+
+    public const string FAKE_LOG_DIM_4 = @"{ ""bin"" : ""009993"", ""chn"" : ""none"", ""clr"" : ""15.4.35.68:53399"", ""dctx"" : ""none"", ""mbr"" : ""mbr@pbm::JREMETEST2018/01"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFD"", ""pcn"" : ""DCBA"" }";
+
+    public const string FAKE_LOG_DIM_5 = @"{ ""bin"" : ""009994"", ""chn"" : ""SUM"", ""clr"" : ""20.5.35.68:53399"", ""dctx"" : ""sum"", ""mbr"" : ""mbr@pbm::JREMETEST2018/01"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFE"", ""pcn"" : ""XYZ"" }";
+
+    public const string FAKE_LOG_DIM_6 = @"{ ""bin"" : ""009994"", ""chn"" : ""RED"", ""clr"" : ""30.0.0.69:53399"", ""dctx"" : ""red"", ""mbr"" : ""mbr@pbm::REDTEST2018/16"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFF"", ""pcn"" : ""XYZ"" }";
+  }
 }
