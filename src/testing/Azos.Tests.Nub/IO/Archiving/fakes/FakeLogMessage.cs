@@ -71,10 +71,10 @@ namespace Azos.Tests.Nub.IO.Archiving
       {
         var choice = Ambient.Random.NextScaledRandomInteger(1, 6);
 
-        if (choice == 1) return "APPSRV-0001";
-        if (choice == 2) return "APPSRV-0002";
-        if (choice == 3) return "WEBSRV-0001";
-        return "APPSRV-0003";
+        if (choice == 1) return FakeLogConstants.FAKE_LOG_HOST_1;
+        if (choice == 2) return FakeLogConstants.FAKE_LOG_HOST_2;
+        if (choice == 3) return FakeLogConstants.FAKE_LOG_HOST_3;
+        return FakeLogConstants.FAKE_LOG_HOST_4;
       }
 
       public virtual string GetParameters() => null;
@@ -263,12 +263,12 @@ namespace Azos.Tests.Nub.IO.Archiving
       {
         var choice = Ambient.Random.NextScaledRandomInteger(1, 12);
 
-        if (choice == 1) return @"{ ""bin"" : ""009999"", ""chn"" : ""--any--"", ""clr"" : ""15.1.35.68:53399"", ""dctx"" : ""fake"", ""mbr"" : ""mbr@pbm::JREMETEST2018/01"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFA"", ""pcn"" : ""ABCD"" }";
-        if (choice == 2) return @"{ ""bin"" : ""009999"", ""chn"" : ""FAKE"", ""clr"" : ""15.2.35.68:53399"", ""dctx"" : ""fake"", ""mbr"" : ""mbr@pbm::JREMETEST2018/02"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFB"", ""pcn"" : ""ABCD"" }";
-        if (choice == 3) return @"{ ""bin"" : ""009999"", ""chn"" : ""--any--"", ""clr"" : ""15.3.35.68:53399"", ""dctx"" : ""fake"", ""mbr"" : ""mbr@pbm::JREMETEST2018/03"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFC"", ""pcn"" : ""ABCD"" }";
-        if (choice < 7) return @"{ ""bin"" : ""009993"", ""chn"" : ""none"", ""clr"" : ""15.4.35.68:53399"", ""dctx"" : ""none"", ""mbr"" : ""mbr@pbm::JREMETEST2018/01"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFD"", ""pcn"" : ""DCBA"" }";
-        if (choice < 9) return @"{ ""bin"" : ""009994"", ""chn"" : ""SUM"", ""clr"" : ""20.5.35.68:53399"", ""dctx"" : ""sum"", ""mbr"" : ""mbr@pbm::JREMETEST2018/01"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFE"", ""pcn"" : ""XYZ"" }";
-        return @"{ ""bin"" : ""009994"", ""chn"" : ""RED"", ""clr"" : ""30.0.0.69:53399"", ""dctx"" : ""red"", ""mbr"" : ""mbr@pbm::REDTEST2018/16"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFF"", ""pcn"" : ""XYZ"" }";
+        if (choice == 1) return FakeLogConstants.FAKE_LOG_DIM_1;
+        if (choice == 2) return FakeLogConstants.FAKE_LOG_DIM_2;
+        if (choice == 3) return FakeLogConstants.FAKE_LOG_DIM_3;
+        if (choice < 7) return  FakeLogConstants.FAKE_LOG_DIM_4;
+        if (choice < 9) return  FakeLogConstants.FAKE_LOG_DIM_5;
+        return FakeLogConstants.FAKE_LOG_DIM_6;
 
       }
 
@@ -296,12 +296,12 @@ namespace Azos.Tests.Nub.IO.Archiving
       {
         var choice = Ambient.Random.NextScaledRandomInteger(1, 12);
 
-        if (choice == 1) return @"{ ""bin"" : ""009999"", ""chn"" : ""--any--"", ""clr"" : ""15.1.35.68:53399"", ""dctx"" : ""fake"", ""mbr"" : ""mbr@pbm::JREMETEST2018/01"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFA"", ""pcn"" : ""ABCD"" }";
-        if (choice == 2) return @"{ ""bin"" : ""009999"", ""chn"" : ""FAKE"", ""clr"" : ""15.2.35.68:53399"", ""dctx"" : ""fake"", ""mbr"" : ""mbr@pbm::JREMETEST2018/02"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFB"", ""pcn"" : ""ABCD"" }";
-        if (choice == 3) return @"{ ""bin"" : ""009999"", ""chn"" : ""--any--"", ""clr"" : ""15.3.35.68:53399"", ""dctx"" : ""fake"", ""mbr"" : ""mbr@pbm::JREMETEST2018/03"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFC"", ""pcn"" : ""ABCD"" }";
-        if (choice < 7) return @"{ ""bin"" : ""009993"", ""chn"" : ""none"", ""clr"" : ""15.4.35.68:53399"", ""dctx"" : ""none"", ""mbr"" : ""mbr@pbm::JREMETEST2018/01"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFD"", ""pcn"" : ""DCBA"" }";
-        if (choice < 9) return @"{ ""bin"" : ""009994"", ""chn"" : ""SUM"", ""clr"" : ""20.5.35.68:53399"", ""dctx"" : ""sum"", ""mbr"" : ""mbr@pbm::JREMETEST2018/01"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFE"", ""pcn"" : ""XYZ"" }";
-        return @"{ ""bin"" : ""009994"", ""chn"" : ""RED"", ""clr"" : ""30.0.0.69:53399"", ""dctx"" : ""red"", ""mbr"" : ""mbr@pbm::REDTEST2018/16"", ""mid"" : ""8045D45130CD41139FCC36781DA6FEFF"", ""pcn"" : ""XYZ"" }";
+        if (choice == 1) return FakeLogConstants.FAKE_LOG_DIM_1;
+        if (choice == 2) return FakeLogConstants.FAKE_LOG_DIM_2;
+        if (choice == 3) return FakeLogConstants.FAKE_LOG_DIM_3;
+        if (choice < 7) return FakeLogConstants.FAKE_LOG_DIM_4;
+        if (choice < 9) return FakeLogConstants.FAKE_LOG_DIM_5;
+        return FakeLogConstants.FAKE_LOG_DIM_6;
       }
 
       public override string GetParameters()
