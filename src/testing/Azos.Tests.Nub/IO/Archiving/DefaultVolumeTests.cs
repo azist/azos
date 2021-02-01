@@ -79,37 +79,63 @@ namespace Azos.Tests.Nub.IO.Archiving
       Aver.AreEqual(-9, v2.Metadata.SectionApplication["sub"].Of("b").ValueAsInt());
     }
 
-    [Run]
-    public void Page_Write_Read()
+    [Run("compress=null     pad=1000 remount=false")]
+    [Run("compress=gzip     pad=1000 remount=false")]
+    [Run("compress=gzip-max pad=1000 remount=false")]
+
+    [Run("compress=null     pad=1000 remount=true")]
+    [Run("compress=gzip     pad=1000 remount=true")]
+    [Run("compress=gzip-max pad=1000 remount=true")]
+    public void Page_Write_Read(string compress, int pad, bool remount)
     {
       var ms = new MemoryStream();
       var meta = VolumeMetadataBuilder.Make("Volume-1");
+
+      if (compress.IsNotNullOrWhiteSpace())
+      {
+        meta.SetCompressionScheme(compress);
+      }
+
       var v1 = new DefaultVolume(NopCrypto, meta, ms);
 
       var page = new Page(0);
       Aver.IsTrue(page.State == Page.Status.Unset);
       page.BeginWriting(new DateTime(1980, 7, 1, 15, 0, 0, DateTimeKind.Utc), Atom.Encode("app"), "dima@zhaba.com");
       Aver.IsTrue(page.State == Page.Status.Writing);
-      var adr = page.Append(new ArraySegment<byte>(new byte[] { 1, 2, 3 }, 0, 3));
-      Aver.AreEqual(0, adr);
-      adr = page.Append(new ArraySegment<byte>(new byte[] { 4, 5 }, 0, 2));
-      Aver.IsTrue(adr > 0);
+      var adr1 = page.Append(new ArraySegment<byte>(new byte[] { 1, 2, 3 }, 0, 3));
+      Aver.AreEqual(0, adr1);
+      var adr2 = page.Append(new ArraySegment<byte>(new byte[] { 4, 5 }, 0, 2));
+      Aver.IsTrue(adr2 > 0);
+      var adr3 = page.Append(new ArraySegment<byte>(new byte[pad]));
+      Aver.IsTrue(adr3 > adr2);
       page.EndWriting();
+
       Aver.IsTrue(page.State == Page.Status.Written);
       var pid = v1.AppendPage(page);  //append to volume
       Aver.IsTrue(page.State == Page.Status.Written);
+
+
+      "Written volume {0} Stream size is {1} bytes".SeeArgs(v1.Metadata.Id, ms.Length);
+
+      if (remount)
+      {
+        v1.Dispose();
+        v1 = new DefaultVolume(NopCrypto, ms);//re-mount existing data from stream
+        "Re-mounted volume {0}".SeeArgs(v1.Metadata.Id);
+      }
 
       page = new Page(0);//for experiment cleanness, we could have reused the existing page
       Aver.IsTrue(page.State == Page.Status.Unset);
       v1.ReadPage(pid, page);
       Aver.IsTrue(page.State == Page.Status.Reading);
 
-      var raw = page.Entries.ToArray();
-      Aver.AreEqual(3, raw.Length);
+      var raw = page.Entries.ToArray();//all entry enumeration test
+      Aver.AreEqual(4, raw.Length);
 
       Aver.IsTrue(raw[0].State == Entry.Status.Valid);
       Aver.IsTrue(raw[1].State == Entry.Status.Valid);
-      Aver.IsTrue(raw[2].State == Entry.Status.EOF);
+      Aver.IsTrue(raw[2].State == Entry.Status.Valid);
+      Aver.IsTrue(raw[3].State == Entry.Status.EOF);
       Aver.AreEqual(0, raw[0].Address);
       Aver.IsTrue(raw[1].Address > 0);
 
@@ -122,6 +148,24 @@ namespace Azos.Tests.Nub.IO.Archiving
       Aver.AreEqual(4, raw[1].Raw.Array[raw[1].Raw.Offset + 0]);
       Aver.AreEqual(5, raw[1].Raw.Array[raw[1].Raw.Offset + 1]);
 
+      Aver.AreEqual(pad, raw[2].Raw.Count);
+
+      var one = page[adr1]; //indexer test
+      Aver.IsTrue(one.State == Entry.Status.Valid);
+      Aver.AreEqual(3, one.Raw.Count);
+      Aver.AreEqual(1, one.Raw.Array[one.Raw.Offset + 0]);
+      Aver.AreEqual(2, one.Raw.Array[one.Raw.Offset + 1]);
+      Aver.AreEqual(3, one.Raw.Array[one.Raw.Offset + 2]);
+
+      one = page[adr2];
+      Aver.IsTrue(one.State == Entry.Status.Valid);
+      Aver.AreEqual(2, one.Raw.Count);
+      Aver.AreEqual(4, one.Raw.Array[one.Raw.Offset + 0]);
+      Aver.AreEqual(5, one.Raw.Array[one.Raw.Offset + 1]);
+
+      one = page[adr3];
+      Aver.IsTrue(one.State == Entry.Status.Valid);
+      Aver.AreEqual(pad, one.Raw.Count);
     }
 
 
