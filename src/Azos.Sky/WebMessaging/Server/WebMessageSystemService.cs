@@ -73,7 +73,7 @@ namespace Azos.Sky.WebMessaging.Server
       foreach (var adr in msg.AddressToBuilder.All)
       {
         idx++;
-        var channel = m_Channels[adr.ChannelName];
+        var channel = m_Channels[adr.Channel];
         if (channel==null)
         {
           matchedAll = false;
@@ -83,7 +83,7 @@ namespace Azos.Sky.WebMessaging.Server
 
         try
         {
-          var result = channel.Write(deliveryList, idx, adr.ChannelAddress, msg);
+          var result = channel.Write(deliveryList, idx, adr.Address, msg);
           if (result<0)
             deliveryList.Add(new MsgSendInfo(result, null, idx));
 

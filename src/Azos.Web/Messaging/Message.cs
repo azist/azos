@@ -20,6 +20,7 @@ namespace Azos.Web.Messaging
   {
     //Note: the following impose a maximum theoretical limits/lengths on content.
     //Actual limits depend or implementing systems as this is just a safe guard to prevent overflow attacks at minimum
+    public const int MAX_ARCHIVE_ID_LEN = 1024;
     public const int MAX_TAGS = 128;
     public const int MAX_TAG_LENGTH = 48;
     public const int MAX_ATTACHMENTS = 1024;
@@ -135,24 +136,30 @@ namespace Azos.Web.Messaging
     public Message(){ }
     public Message(Guid? id, DateTime? utcCreateDate = null)
     {
-      ID = id ?? Guid.NewGuid();
+      Id = id ?? Guid.NewGuid();
       Priority = MsgPriority.Normal;
       CreateDateUTC = utcCreateDate ?? Ambient.UTCNow;
     }
 
+    /// <summary>
+    /// Provided by message archive, uniquely identifies this message within archive.
+    /// This can be null is archiving is not supported by messaging provider
+    /// </summary>
+    [Field(maxLength: MAX_ARCHIVE_ID_LEN, backendName: "aid", isArow: true)]
+    public string ArchiveId { get; set; }
 
     /// <summary>
     /// Every message has an ID of type GUID generated upon the creation, it is used for unique identification
     /// in small systems and message co-relation into conversation threads
     /// </summary>
     [Field(backendName: "id", isArow: true)]
-    public Guid  ID { get; private set;}
+    public Guid  Id { get; private set;}
 
     /// <summary>
     /// When set, identifies the message in a thread which this one relates to
     /// </summary>
     [Field(backendName: "rel", isArow: true)]
-    public Guid?  RelatedID { get; set;}
+    public Guid?  RelatedId { get; set;}
 
     [Field(backendName: "cdt", isArow: true)]
     public DateTime CreateDateUTC { get; set;}

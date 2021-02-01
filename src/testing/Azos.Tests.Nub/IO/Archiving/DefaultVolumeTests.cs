@@ -16,13 +16,121 @@ using Azos.Scripting;
 using Azos.IO.Archiving;
 using Azos.Data;
 using Azos.Log;
+using Azos.Security;
 
 namespace Azos.Tests.Nub.IO.Archiving
 {
   [Runnable]
   public class DefaultVolumeTests
   {
+    public static ICryptoManager NopCrypto => NOPApplication.Instance.SecurityManager.Cryptography;
+
+
     [Run]
+    public void Metadata_Basic()
+    {
+      var ms = new MemoryStream();
+      var meta = VolumeMetadataBuilder.Make("Volume-1")
+                                      .SetVersion(123,456)
+                                      .SetDescription("My volume");
+      var v1 = new DefaultVolume(NopCrypto, meta, ms);
+      var id = v1.Metadata.Id;
+      v1.Dispose();//it closes the stream
+
+      Aver.IsTrue(ms.Length>0);
+
+      var v2 = new DefaultVolume(NopCrypto, ms);
+      Aver.AreEqual(id, v2.Metadata.Id);
+      Aver.AreEqual("Volume-1", v2.Metadata.Label);
+      Aver.AreEqual("My volume", v2.Metadata.Description);
+      Aver.AreEqual(123, v2.Metadata.VersionMajor);
+      Aver.AreEqual(456, v2.Metadata.VersionMinor);
+      Aver.IsTrue(v2.Metadata.Channel.IsZero);
+      Aver.IsFalse(v2.Metadata.IsCompressed);
+      Aver.IsFalse(v2.Metadata.IsEncrypted);
+    }
+
+    [Run]
+    public void Metadata_AppSection()
+    {
+      var ms = new MemoryStream();
+      var meta = VolumeMetadataBuilder.Make("V1")
+                                      .SetApplicationSection(app => { app.AddAttributeNode("a", 1); })
+                                      .SetApplicationSection(app => { app.AddAttributeNode("b", -7); })
+                                      .SetApplicationSection(app => { app.AddChildNode("sub{ q=true b=-9 }".AsLaconicConfig()); });
+
+      var v1 = new DefaultVolume(NopCrypto, meta, ms);
+      var id = v1.Metadata.Id;
+      v1.Dispose();//it closes the stream
+
+      Aver.IsTrue(ms.Length > 0);
+
+      var v2 = new DefaultVolume(NopCrypto, ms);
+
+      v2.Metadata.See();
+
+      Aver.AreEqual(id, v2.Metadata.Id);
+      Aver.AreEqual("V1", v2.Metadata.Label);
+
+      Aver.IsTrue(v2.Metadata.SectionApplication.Exists);
+      Aver.AreEqual(1, v2.Metadata.SectionApplication.Of("a").ValueAsInt());
+      Aver.AreEqual(-7, v2.Metadata.SectionApplication.Of("b").ValueAsInt());
+      Aver.AreEqual(true, v2.Metadata.SectionApplication["sub"].Of("q").ValueAsBool());
+      Aver.AreEqual(-9, v2.Metadata.SectionApplication["sub"].Of("b").ValueAsInt());
+    }
+
+    [Run]
+    public void Page_Write_Read()
+    {
+      var ms = new MemoryStream();
+      var meta = VolumeMetadataBuilder.Make("Volume-1");
+      var v1 = new DefaultVolume(NopCrypto, meta, ms);
+
+      var page = new Page(0);
+      Aver.IsTrue(page.State == Page.Status.Unset);
+      page.BeginWriting(new DateTime(1980, 7, 1, 15, 0, 0, DateTimeKind.Utc), Atom.Encode("app"), "dima@zhaba.com");
+      Aver.IsTrue(page.State == Page.Status.Writing);
+      var adr = page.Append(new ArraySegment<byte>(new byte[] { 1, 2, 3 }, 0, 3));
+      Aver.AreEqual(0, adr);
+      adr = page.Append(new ArraySegment<byte>(new byte[] { 4, 5 }, 0, 2));
+      Aver.IsTrue(adr > 0);
+      page.EndWriting();
+      Aver.IsTrue(page.State == Page.Status.Written);
+      var pid = v1.AppendPage(page);  //append to volume
+      Aver.IsTrue(page.State == Page.Status.Written);
+
+      page = new Page(0);//for experiment cleanness, we could have reused the existing page
+      Aver.IsTrue(page.State == Page.Status.Unset);
+      v1.ReadPage(pid, page);
+      Aver.IsTrue(page.State == Page.Status.Reading);
+
+      var raw = page.Entries.ToArray();
+      Aver.AreEqual(3, raw.Length);
+
+      Aver.IsTrue(raw[0].State == Entry.Status.Valid);
+      Aver.IsTrue(raw[1].State == Entry.Status.Valid);
+      Aver.IsTrue(raw[2].State == Entry.Status.EOF);
+      Aver.AreEqual(0, raw[0].Address);
+      Aver.IsTrue(raw[1].Address > 0);
+
+      Aver.AreEqual(3, raw[0].Raw.Count);
+      Aver.AreEqual(1, raw[0].Raw.Array[raw[0].Raw.Offset + 0]);
+      Aver.AreEqual(2, raw[0].Raw.Array[raw[0].Raw.Offset + 1]);
+      Aver.AreEqual(3, raw[0].Raw.Array[raw[0].Raw.Offset + 2]);
+
+      Aver.AreEqual(2, raw[1].Raw.Count);
+      Aver.AreEqual(4, raw[1].Raw.Array[raw[1].Raw.Offset + 0]);
+      Aver.AreEqual(5, raw[1].Raw.Array[raw[1].Raw.Offset + 1]);
+
+    }
+
+
+
+
+
+
+
+    // [Run]
     public void Metadata_Create_Multiple_Sections_Mount()
     {
       //var ms = new FileStream("c:\\azos\\archive.lar", FileMode.Create);//  new MemoryStream();
@@ -55,9 +163,9 @@ namespace Azos.Tests.Nub.IO.Archiving
     }
 
 
-    [Run("!arch-log", "scheme=null          cnt=100000 para=16")]
-    [Run("!arch-log", "scheme=gzip          cnt=100000 para=16")]
-    [Run("!arch-log", "scheme=gzip-max      cnt=100000 para=16")]
+    [Run("!arch-log", "scheme=null          cnt=16000000 para=16")]
+    [Run("!arch-log", "scheme=gzip          cnt=16000000 para=16")]
+    [Run("!arch-log", "scheme=gzip-max      cnt=16000000 para=16")]
     public void Write_LogMessages(string scheme, int CNT, int PARA)
     {
       var msData = new FileStream("c:\\azos\\logging-{0}.lar".Args(scheme.Default("none")), FileMode.Create);
@@ -81,6 +189,8 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       Parallel.For(0, PARA, _ => {
 
+        var app = Azos.Apps.ExecutionContext.Application;
+
         using(var aIdxId = new GuidIdxAppender(volumeIdxId,
                                           NOPApplication.Instance.TimeSource,
                                           NOPApplication.Instance.AppId, "dima@zhaba"))
@@ -92,7 +202,7 @@ namespace Azos.Tests.Nub.IO.Archiving
                                                  onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(e.Guid, b))))
           {
 
-            for(var i=0; i<CNT / PARA; i++)
+            for(var i=0; app.Active && i<CNT / PARA; i++)
             {
               var msg = FakeLogMessage.BuildRandom();
               appender.Append(msg);

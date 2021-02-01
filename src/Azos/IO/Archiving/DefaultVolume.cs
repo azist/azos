@@ -183,7 +183,7 @@ namespace Azos.IO.Archiving
     /// </returns>
     public long ReadPage(long pageId, Page page)
     {
-      pageId.IsTrue(v => v > 0, "pageId <= 0");
+      pageId.IsTrue(v => v >= 0, "pageId < 0");
       page.NonNull(nameof(page));
 
       var pageData = page.BeginReading(pageId);
@@ -233,11 +233,13 @@ namespace Azos.IO.Archiving
       page.NonNull(nameof(page))
           .Ensure(Page.Status.Written);
 
+      var data = preparePageDataForWriting(page);//compression and encryption happens outside of lock
+
       lock(m_StreamLock)
       {
         var pageId = seekToNewPageLocation();
         writePageHeader(pageId, page);
-        writeData(page);
+        writeData(data);
 
         if (m_Cache!=null && m_Cache.Enabled)
         {
@@ -342,7 +344,7 @@ namespace Azos.IO.Archiving
 
               if (len > 0 && len < Format.PAGE_MAX_BUFFER_LEN)
               {
-                if (m_Stream.Position+len >= m_Stream.Length) return (-1, new PageInfo(), -1);
+                if (m_Stream.Position+len > m_Stream.Length) return (-1, new PageInfo(), -1);
 
                 info.NextPageId = IntUtils.Align16(m_Stream.Position + len);
                 return (pageId, info, len);
@@ -380,18 +382,16 @@ namespace Azos.IO.Archiving
     }
 
 
-    private byte[] m_TempBuffer = new byte[128 * 1024];//accessed by 1 thread at a time
-    private MemoryStream m_TempMemoryStream = new MemoryStream(128 * 1024);//accessed by 1 thread at a time
-
-    private void writeData(Page page)//under lock
+    private ArraySegment<byte> preparePageDataForWriting(Page page)//this is NOT under LOCK
     {
       var data = page.Data;
 
       //1 - compress
       if (m_Metadata.IsCompressed)
       {
-        m_TempMemoryStream.SetLength(0);
-        using (var zip = new GZipStream(m_TempMemoryStream,
+        var tempStream = new MemoryStream(128 * 1024);//local
+        tempStream.SetLength(0);
+        using (var zip = new GZipStream(tempStream,
                                         m_Metadata.CompressionScheme
                                                   .EqualsOrdIgnoreCase(COMPRESSION_SCHEME_GZIP_MAX) ?
                                                     CompressionLevel.Optimal :
@@ -399,7 +399,7 @@ namespace Azos.IO.Archiving
         {
           zip.Write(data.Array, data.Offset, data.Count);
         }
-        data = new ArraySegment<byte>(m_TempMemoryStream.GetBuffer(), 0 , (int)m_TempMemoryStream.Length);
+        data = new ArraySegment<byte>(tempStream.GetBuffer(), 0, (int)tempStream.Length);
       }
 
       //2 - encrypt
@@ -409,11 +409,18 @@ namespace Azos.IO.Archiving
         data = new ArraySegment<byte>(ciphered);
       }
 
+      return data;
+    }
 
+    private void writeData(ArraySegment<byte> data)//under lock
+    {
       m_Writer.Write((uint)data.Count);//len
       m_Stream.Write(data.Array, 0, data.Count);//data
     }
 
+
+    private byte[] m_TempBuffer = new byte[128 * 1024];//accessed by 1 thread at a time
+    private MemoryStream m_TempMemoryStream = new MemoryStream(128 * 1024);//accessed by 1 thread at a time
 
     //write:  1. compress ~25%  2. encrypt
     //read:  1. decrypt  2. decompress

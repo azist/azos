@@ -9,16 +9,16 @@ using Azos.Conf;
 
 namespace Azos.Web.Messaging
 {
-    /// <summary>
-    /// Describes an entity that can send EMails
-    /// </summary>
-    public interface IMessenger : IApplicationComponent, IDaemonView
-    {
-      void SendMsg(Message msg);
-    }
+  /// <summary>
+  /// Describes an entity that can send Message(s) such as emails, text, voice calls etc.
+  /// </summary>
+  public interface IMessenger : IApplicationComponent, IDaemonView
+  {
+    void SendMsg(Message msg);
+  }
 
-    public interface IMessengerImplementation : IMessenger, IConfigurable, IDaemon
-    {
+  public interface IMessengerImplementation : IMessenger, IConfigurable, IDaemon
+  {
 
-    }
+  }
 }

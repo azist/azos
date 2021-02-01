@@ -23,7 +23,7 @@ namespace Azos.Serialization.Bix
 
     private readonly Stream m_Stream;
 
-    public bool IsAssigned => m_Stream!=null;
+    public bool IsAssigned => m_Stream != null;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Flush() => m_Stream.Flush();

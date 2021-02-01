@@ -121,8 +121,8 @@ namespace Azos.Web.Messaging
     {
       base.DoConfigure(node);
 
-      m_Sink = FactoryUtils.MakeAndConfigure<MessageSink>(node[CONFIG_SINK_SECTION], typeof(SMTPMessageSink), args: new object[] { this });
-      m_FallbackSink = FactoryUtils.MakeAndConfigure<MessageSink>(node[CONFIG_FALLBACK_SINK_SECTION], typeof(NOPMessageSink), args: new object[] { this });
+      m_Sink = FactoryUtils.MakeAndConfigure<MessageSink>(node[CONFIG_SINK_SECTION], typeof(Sinks.SMTPMessageSink), args: new object[] { this });
+      m_FallbackSink = FactoryUtils.MakeAndConfigure<MessageSink>(node[CONFIG_FALLBACK_SINK_SECTION], typeof(Sinks.NOPMessageSink), args: new object[] { this });
     }
 
     protected override void DoStart()

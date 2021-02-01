@@ -5,8 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Azos.IO.Archiving
 {
@@ -14,9 +12,8 @@ namespace Azos.IO.Archiving
   {
     public enum Status
     {
-      BadHeader = -102,
-      InvalidLength = -101,
-      BadAddress = -100,
+      BadHeader = -101,
+      InvalidLength = -100,
 
       Unassigned = 0,
 

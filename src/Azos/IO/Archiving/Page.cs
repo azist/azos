@@ -7,6 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
+
+using Azos.Serialization.Bix;
 
 namespace Azos.IO.Archiving
 {
@@ -47,9 +50,9 @@ namespace Azos.IO.Archiving
     /// After this call you can call `Append()` and finalize the append with
     /// the call to `EndWriting()`
     /// </summary>
-    internal void BeginWriting(long pageId, DateTime utcCreate, Atom app, string host)
+    internal void BeginWriting(DateTime utcCreate, Atom app, string host)
     {
-      m_PageId = pageId;
+      m_PageId = -1;
       m_Raw.SetLength(0);
       m_State = Status.Writing;
       m_CreateUtc = utcCreate;
@@ -57,7 +60,7 @@ namespace Azos.IO.Archiving
       m_CreateHost = host;
     }
 
-    public void EndWriting()
+    internal void EndWriting()
     {
       Ensure(Status.Writing);
       m_Raw.WriteByte(Format.ENTRY_HEADER_EOF_1);
@@ -126,14 +129,18 @@ namespace Azos.IO.Archiving
 
     private MemoryStream m_Raw; //the stream contains raw  <entry-stream> without page headers etc...
 
-
-
     public int DefaultCapacity => m_DefaultCapacity;
 
     /// <summary>
     /// Returns the current state of the page instance
     /// </summary>
     public Status State => m_State;
+
+
+    /// <summary>
+    /// Returns page id
+    /// </summary>
+    public long PageId => m_PageId;   internal void __SetPageId(long pageId) => m_PageId = pageId;
 
     /// <summary>
     /// The UTC of page creation
@@ -189,7 +196,9 @@ namespace Azos.IO.Archiving
     }
 
     /// <summary>
-    /// Writes a raw representation of an entry, returning its address on a page
+    /// Writes a raw representation of an entry, returning its address on a page.
+    /// This is a lower-level method, and for all business purposes use ArchiveAppender-derived class
+    /// which performs item serialization and page splitting
     /// </summary>
     public int Append(ArraySegment<byte> entry)
     {
@@ -200,7 +209,7 @@ namespace Azos.IO.Archiving
 
       m_Raw.WriteByte(Format.ENTRY_HEADER_1);
       m_Raw.WriteByte(Format.ENTRY_HEADER_2);
-      m_Raw.WriteBEInt32(entry.Count); //todo change to VarLen32
+      writeVarLength(m_Raw, entry.Count);
 
       m_Raw.Write(entry.Array, entry.Offset, entry.Count);
 
@@ -211,7 +220,6 @@ namespace Azos.IO.Archiving
     /// <summary>
     /// Asserts page to be in specific state
     /// </summary>
-    /// <param name="need"></param>
     public void Ensure(Status need)
     {
       if (m_State != need) throw new ArchivingException(StringConsts.ARCHIVE_PAGE_STATE_ERROR.Args(m_PageId, need));
@@ -220,19 +228,20 @@ namespace Azos.IO.Archiving
     private Entry get(byte[] buffer, ref int address)
     {
       var ptr = address;
-      if (address < 0 || address + Format.ENTRY_MIN_LEN >= m_Raw.Length) return new Entry(ptr, Entry.Status.BadAddress);
+      var total = m_Raw.Length;
+      if (address < 0 || address + Format.ENTRY_MIN_LEN >= total) return new Entry(ptr, Entry.Status.EOF);
 
-      var h1 = buffer[address];
-      if (h1 == Format.ENTRY_HEADER_1 && buffer[++address] == Format.ENTRY_HEADER_2) // @>
+      var h1 = buffer[address++];
+      if (h1 == Format.ENTRY_HEADER_1 && buffer[address++] == Format.ENTRY_HEADER_2) // @>
       {
-        var len = 0;//buffer.ReadVarLen32(ref address);//todo use varbit encoding 1-5 bytes
+        var len = readVarLength(buffer, ref address);
         //check max length
 
         if (len == 0 || len > Format.ENTRY_MAX_LEN) return new Entry(ptr, Entry.Status.InvalidLength);//max length exceeded
 
         var start = address;
-        var end = address + len;
-        if (end >= m_Raw.Length) return new Entry(ptr, Entry.Status.InvalidLength);//beyond the block
+        address += len;
+        if (address > total) return new Entry(ptr, Entry.Status.InvalidLength);//beyond the block
 
         return new Entry(ptr, new ArraySegment<byte>(buffer, start, len));//VALID!!!
       }
@@ -241,6 +250,45 @@ namespace Azos.IO.Archiving
         return new Entry(ptr, Entry.Status.EOF);//EOF
       }
       else return new Entry(ptr, Entry.Status.BadHeader);//corruption
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void writeVarLength(MemoryStream stream, int length)
+    {
+      uint value = (uint)length;
+      var has = true;
+      while (has)
+      {
+        byte b = (byte)(value & 0x7f);
+        value = value >> 7;
+        has = value != 0;
+        if (has)
+          b = (byte)(b | 0x80);
+        stream.WriteByte(b);
+      }
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int readVarLength(byte[] buffer, ref int address)//varbit UINT 1-5 bytes
+    {
+      uint result = 0;
+      var bitcnt = 0;
+      var has = true;
+
+      while (has)
+      {
+        if (bitcnt > 31)
+          throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "readVarLength(bit>31)");
+
+        if (address == buffer.Length) throw new BixException(StringConsts.BIX_STREAM_CORRUPTED_ERROR + "readVarLength(): eof");
+        var b = buffer[address++];
+        has = (b & 0x80) != 0;
+        result |= (uint)(b & 0x7f) << bitcnt;
+        bitcnt += 7;
+      }
+
+      return (int)result;
     }
 
   }
