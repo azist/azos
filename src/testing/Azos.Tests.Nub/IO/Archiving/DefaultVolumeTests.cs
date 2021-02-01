@@ -124,10 +124,16 @@ namespace Azos.Tests.Nub.IO.Archiving
         "Re-mounted volume {0}".SeeArgs(v1.Metadata.Id);
       }
 
-      page = new Page(0);//for experiment cleanness, we could have reused the existing page
+      page = new Page(0);//we could have reused the existing page but we re-allocate for experiment cleanness
       Aver.IsTrue(page.State == Page.Status.Unset);
       v1.ReadPage(pid, page);
       Aver.IsTrue(page.State == Page.Status.Reading);
+
+      //page header read correctly
+      Aver.AreEqual(new DateTime(1980, 7, 1, 15, 0, 0, DateTimeKind.Utc), page.CreateUtc);
+      Aver.AreEqual(Atom.Encode("app"), page.CreateApp);
+      Aver.AreEqual("dima@zhaba.com", page.CreateHost);
+
 
       var raw = page.Entries.ToArray();//all entry enumeration test
       Aver.AreEqual(4, raw.Length);
@@ -169,13 +175,37 @@ namespace Azos.Tests.Nub.IO.Archiving
     }
 
 
+    //[Run]
+    //public void Page_Write_Corrupt_Read(string compress, int count)
+    //{
+    //  var ms = new MemoryStream();
+    //  var meta = VolumeMetadataBuilder.Make("Volume-1");
+
+    //  if (compress.IsNotNullOrWhiteSpace())
+    //  {
+    //    meta.SetCompressionScheme(compress);
+    //  }
+
+    //  var v1 = new DefaultVolume(NopCrypto, meta, ms);
+
+    //  var page = new Page(0);
+    //  Aver.IsTrue(page.State == Page.Status.Unset);
+    //  page.BeginWriting(new DateTime(1980, 7, 1, 15, 0, 0, DateTimeKind.Utc), Atom.Encode("app"), "dima@zhaba.com");
+    //  Aver.IsTrue(page.State == Page.Status.Writing);
+    //  var adr1 = page.Append(new ArraySegment<byte>(new byte[] { 1, 2, 3 }, 0, 3));
+    //  Aver.AreEqual(0, adr1);
+    //  var adr2 = page.Append(new ArraySegment<byte>(new byte[] { 4, 5 }, 0, 2));
+    //  Aver.IsTrue(adr2 > 0);
+    //  var adr3 = page.Append(new ArraySegment<byte>(new byte[pad]));
+    //  Aver.IsTrue(adr3 > adr2);
+    //  page.EndWriting();
+
+    //}
 
 
 
-
-
-    // [Run]
-    public void Metadata_Create_Multiple_Sections_Mount()
+      // [Run]
+      public void Metadata_Create_Multiple_Sections_Mount()
     {
       //var ms = new FileStream("c:\\azos\\archive.lar", FileMode.Create);//  new MemoryStream();
       var ms = new MemoryStream();
