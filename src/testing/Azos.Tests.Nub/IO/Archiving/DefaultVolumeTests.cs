@@ -79,6 +79,33 @@ namespace Azos.Tests.Nub.IO.Archiving
       Aver.AreEqual(-9, v2.Metadata.SectionApplication["sub"].Of("b").ValueAsInt());
     }
 
+    [Run]
+    public void Page_Write_Read()
+    {
+      var ms = new MemoryStream();
+      var meta = VolumeMetadataBuilder.Make("Volume-1");
+      var v1 = new DefaultVolume(NopCrypto, meta, ms);
+
+      var page = new Page(0);
+      Aver.IsTrue(page.State == Page.Status.Unset);
+      page.BeginWriting(new DateTime(1980, 7, 1, 15, 0, 0, DateTimeKind.Utc), Atom.Encode("app"), "dima@zhaba.com");
+      Aver.IsTrue(page.State == Page.Status.Writing);
+      var adr = page.Append(new ArraySegment<byte>(new byte[] { 1, 2, 3 }, 0, 3));
+      Aver.AreEqual(0, adr);
+      adr = page.Append(new ArraySegment<byte>(new byte[] { 4, 5 }, 0, 2));
+      Aver.IsTrue(adr > 0);
+      page.EndWriting();
+      Aver.IsTrue(page.State == Page.Status.Written);
+      var pid = v1.AppendPage(page);  //append to volume
+      Aver.IsTrue(page.State == Page.Status.Written);
+
+      page = new Page(0);//for experiment cleanness, we could have reused the existing page
+      Aver.IsTrue(page.State == Page.Status.Unset);
+      v1.ReadPage(pid, page);
+      Aver.IsTrue(page.State == Page.Status.Reading);
+
+
+    }
 
 
 

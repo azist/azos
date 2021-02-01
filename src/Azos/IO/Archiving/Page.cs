@@ -196,7 +196,9 @@ namespace Azos.IO.Archiving
     }
 
     /// <summary>
-    /// Writes a raw representation of an entry, returning its address on a page
+    /// Writes a raw representation of an entry, returning its address on a page.
+    /// This is a lower-level method, and for all business purposes use ArchiveAppender-derived class
+    /// which performs item serialization and page splitting
     /// </summary>
     public int Append(ArraySegment<byte> entry)
     {
