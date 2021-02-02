@@ -79,37 +79,69 @@ namespace Azos.Tests.Nub.IO.Archiving
       Aver.AreEqual(-9, v2.Metadata.SectionApplication["sub"].Of("b").ValueAsInt());
     }
 
-    [Run]
-    public void Page_Write_Read()
+    [Run("compress=null     pad=1000 remount=false")]
+    [Run("compress=gzip     pad=1000 remount=false")]
+    [Run("compress=gzip-max pad=1000 remount=false")]
+
+    [Run("compress=null     pad=1000 remount=true")]
+    [Run("compress=gzip     pad=1000 remount=true")]
+    [Run("compress=gzip-max pad=1000 remount=true")]
+    public void Page_Write_Read(string compress, int pad, bool remount)
     {
       var ms = new MemoryStream();
       var meta = VolumeMetadataBuilder.Make("Volume-1");
+
+      if (compress.IsNotNullOrWhiteSpace())
+      {
+        meta.SetCompressionScheme(compress);
+      }
+
       var v1 = new DefaultVolume(NopCrypto, meta, ms);
 
       var page = new Page(0);
       Aver.IsTrue(page.State == Page.Status.Unset);
       page.BeginWriting(new DateTime(1980, 7, 1, 15, 0, 0, DateTimeKind.Utc), Atom.Encode("app"), "dima@zhaba.com");
       Aver.IsTrue(page.State == Page.Status.Writing);
-      var adr = page.Append(new ArraySegment<byte>(new byte[] { 1, 2, 3 }, 0, 3));
-      Aver.AreEqual(0, adr);
-      adr = page.Append(new ArraySegment<byte>(new byte[] { 4, 5 }, 0, 2));
-      Aver.IsTrue(adr > 0);
+      var adr1 = page.Append(new ArraySegment<byte>(new byte[] { 1, 2, 3 }, 0, 3));
+      Aver.AreEqual(0, adr1);
+      var adr2 = page.Append(new ArraySegment<byte>(new byte[] { 4, 5 }, 0, 2));
+      Aver.IsTrue(adr2 > 0);
+      var adr3 = page.Append(new ArraySegment<byte>(new byte[pad]));
+      Aver.IsTrue(adr3 > adr2);
       page.EndWriting();
+
       Aver.IsTrue(page.State == Page.Status.Written);
       var pid = v1.AppendPage(page);  //append to volume
       Aver.IsTrue(page.State == Page.Status.Written);
 
-      page = new Page(0);//for experiment cleanness, we could have reused the existing page
+
+      "Written volume {0} Stream size is {1} bytes".SeeArgs(v1.Metadata.Id, ms.Length);
+
+      if (remount)
+      {
+        v1.Dispose();
+        v1 = new DefaultVolume(NopCrypto, ms);//re-mount existing data from stream
+        "Re-mounted volume {0}".SeeArgs(v1.Metadata.Id);
+      }
+
+      page = new Page(0);//we could have reused the existing page but we re-allocate for experiment cleanness
       Aver.IsTrue(page.State == Page.Status.Unset);
       v1.ReadPage(pid, page);
       Aver.IsTrue(page.State == Page.Status.Reading);
 
-      var raw = page.Entries.ToArray();
-      Aver.AreEqual(3, raw.Length);
+      //page header read correctly
+      Aver.AreEqual(new DateTime(1980, 7, 1, 15, 0, 0, DateTimeKind.Utc), page.CreateUtc);
+      Aver.AreEqual(Atom.Encode("app"), page.CreateApp);
+      Aver.AreEqual("dima@zhaba.com", page.CreateHost);
+
+
+      var raw = page.Entries.ToArray();//all entry enumeration test
+      Aver.AreEqual(4, raw.Length);
 
       Aver.IsTrue(raw[0].State == Entry.Status.Valid);
       Aver.IsTrue(raw[1].State == Entry.Status.Valid);
-      Aver.IsTrue(raw[2].State == Entry.Status.EOF);
+      Aver.IsTrue(raw[2].State == Entry.Status.Valid);
+      Aver.IsTrue(raw[3].State == Entry.Status.EOF);
       Aver.AreEqual(0, raw[0].Address);
       Aver.IsTrue(raw[1].Address > 0);
 
@@ -122,11 +154,109 @@ namespace Azos.Tests.Nub.IO.Archiving
       Aver.AreEqual(4, raw[1].Raw.Array[raw[1].Raw.Offset + 0]);
       Aver.AreEqual(5, raw[1].Raw.Array[raw[1].Raw.Offset + 1]);
 
+      Aver.AreEqual(pad, raw[2].Raw.Count);
+
+      var one = page[adr1]; //indexer test
+      Aver.IsTrue(one.State == Entry.Status.Valid);
+      Aver.AreEqual(3, one.Raw.Count);
+      Aver.AreEqual(1, one.Raw.Array[one.Raw.Offset + 0]);
+      Aver.AreEqual(2, one.Raw.Array[one.Raw.Offset + 1]);
+      Aver.AreEqual(3, one.Raw.Array[one.Raw.Offset + 2]);
+
+      one = page[adr2];
+      Aver.IsTrue(one.State == Entry.Status.Valid);
+      Aver.AreEqual(2, one.Raw.Count);
+      Aver.AreEqual(4, one.Raw.Array[one.Raw.Offset + 0]);
+      Aver.AreEqual(5, one.Raw.Array[one.Raw.Offset + 1]);
+
+      one = page[adr3];
+      Aver.IsTrue(one.State == Entry.Status.Valid);
+      Aver.AreEqual(pad, one.Raw.Count);
     }
 
 
+    [Run("compress=null  count=100")]
+    [Run("compress=null  count=1000")]
+    [Run("compress=null  count=16000")]
+    [Run("compress=null  count=128000")]
+    public void Page_Write_CorruptPage_Read(int count)
+    {
+      var ms = new MemoryStream();
+      var meta = VolumeMetadataBuilder.Make("Volume-1");
+
+      var v1 = new DefaultVolume(NopCrypto, meta, ms);
+
+      var page = new Page(0);
+      Aver.IsTrue(page.State == Page.Status.Unset);
+
+      page.BeginWriting(new DateTime(1980, 7, 1, 15, 0, 0, DateTimeKind.Utc), Atom.Encode("app"), "dima@zhaba.com");
+
+      var data = new Dictionary<int, byte[]>();
+
+      for(var i=0; i < count; i++)
+      {
+        //generate 1/2 empty arrays for best compression, another 1/2/ filled with random data
+        var buf = ((i & 1) == 0) ? new byte[1 + (i & 0x7f)] : Platform.RandomGenerator.Instance.NextRandomBytes(1 + (i & 0x7f));
+        var adr = page.Append(new ArraySegment<byte>(buf));
+        data[adr] = buf;
+      }
+
+      Aver.AreEqual(data.Count, data.Keys.Distinct().Count());//all addresses are unique
+
+      page.EndWriting();
+
+      var pid = v1.AppendPage(page);  //append to volume
+
+      page = new Page(0);//we could have reused the existing page but we re-allocate for experiment cleanness
+      v1.ReadPage(pid, page);
+
+      //Aver that all are readable
+      foreach(var kvp in data)
+      {
+        var got = page[kvp.Key];
+        Aver.IsTrue(got.State == Entry.Status.Valid);
+        Aver.IsTrue(IOUtils.MemBufferEquals(kvp.Value, got.Raw.ToArray()));
+      }
+
+      //now corrupt First
+      var cadr = data.First().Key;
+      page.Data.Array[cadr] = 0xff;//corrupt underlying page memory
+      data[cadr] = null;//corrupted
+
+      //corrupt last
+      cadr = data.Last().Key;
+      page.Data.Array[cadr] = 0x00;//corrupt underlying page memory
+      data[cadr] = null;//corrupted
 
 
+      var keys = data.Keys.ToArray();
+      //corrupt a half of written
+      for(var i=0; i < data.Count / 2; i++)
+      {
+        cadr = keys[Platform.RandomGenerator.Instance.NextScaledRandomInteger(2, data.Count - 2)];
+        page.Data.Array[cadr] = 0xff;//corrupt underlying page memory
+        data[cadr] = null;//corrupted
+      }
+
+      "\nStream size is: {0:n0} bytes".SeeArgs(ms.Length);
+      "{0:n0} total entries, {1:n0} are corrupt \n".SeeArgs(data.Count, data.Where(kvp => kvp.Value == null).Count());
+
+      //Aver that all which are SET are still readable, others are corrupt
+      foreach (var kvp in data)
+      {
+        var got = page[kvp.Key];
+        if (kvp.Value != null)//was not corrupted
+        {
+          Aver.IsTrue(got.State == Entry.Status.Valid);
+          Aver.IsTrue(IOUtils.MemBufferEquals(kvp.Value, got.Raw.ToArray()));
+        }
+        else
+        {
+          Aver.IsTrue(got.State == Entry.Status.BadHeader);
+        }
+      }
+
+    }
 
 
 
