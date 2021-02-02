@@ -60,5 +60,64 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       volume.Dispose();
     }
+
+
+    [Run("compress=null  count=2")]
+    [Run("compress=null  count=100")]
+    [Run("compress=null  count=1000")]
+    [Run("compress=null  count=16000")]
+    [Run("compress=null  count=128000")]
+    public void Write_Read_Compare(string compress, int count)
+    {
+      var expected = FakeLogMessage.BuildRandomArr(count);
+      var ms = new MemoryStream();
+
+      var meta = VolumeMetadataBuilder.Make("Log archive")
+                                      .SetVersion(1, 0)
+                                      .SetDescription("Testing log messages")
+                                      .SetChannel(Atom.Encode("dvop"));
+
+      if (compress.IsNotNullOrWhiteSpace())
+      {
+        meta.SetCompressionScheme(compress);
+      }
+
+      var volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, ms);
+
+      using (var appender = new LogMessageArchiveAppender(volume,
+                                          NOPApplication.Instance.TimeSource,
+                                          NOPApplication.Instance.AppId, "dima@zhaba"))
+      {
+        for (var i = 0; i < count; i++)
+        {
+          appender.Append(expected[i]);
+        }
+      }
+
+      var reader = new LogMessageArchiveReader(volume);
+
+      var got = reader.Entries(new Bookmark()).ToArray();
+
+      Aver.AreEqual(expected.Length, got.Length);
+      for (int i = 0; i < count; i++)
+      {
+        Aver.AreEqual(expected[i].App, got[i].App);
+        Aver.AreEqual(expected[i].ArchiveDimensions, got[i].ArchiveDimensions);
+        Aver.AreEqual(expected[i].Channel, got[i].Channel);
+        Aver.AreEqual(expected[i].Exception?.Message, got[i].Exception?.Message);
+        Aver.AreEqual(expected[i].From, got[i].From);
+        Aver.AreEqual(expected[i].Gdid, got[i].Gdid);
+        Aver.AreEqual(expected[i].Guid.ToString(), got[i].Guid.ToString());
+        Aver.AreEqual(expected[i].Host, got[i].Host);
+        Aver.AreEqual(expected[i].Parameters, got[i].Parameters);
+        Aver.AreEqual(expected[i].RelatedTo.ToString(), got[i].RelatedTo.ToString());
+        Aver.AreEqual(expected[i].Text, got[i].Text);
+        Aver.AreEqual(expected[i].Topic, got[i].Topic);
+        Aver.AreEqual((int)expected[i].Type, (int)got[i].Type);
+        Aver.AreEqual(expected[i].UTCTimeStamp, got[i].UTCTimeStamp);
+      }
+
+      volume.Dispose();
+    }
   }
 }
