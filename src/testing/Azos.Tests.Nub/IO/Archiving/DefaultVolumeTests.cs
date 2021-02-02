@@ -175,37 +175,93 @@ namespace Azos.Tests.Nub.IO.Archiving
     }
 
 
-    //[Run]
-    //public void Page_Write_Corrupt_Read(string compress, int count)
-    //{
-    //  var ms = new MemoryStream();
-    //  var meta = VolumeMetadataBuilder.Make("Volume-1");
+    [Run("compress=null  count=100")]
+    [Run("compress=null  count=1000")]
+    [Run("compress=null  count=16000")]
+    [Run("compress=null  count=128000")]
+    public void Page_Write_CorruptPage_Read(int count)
+    {
+      var ms = new MemoryStream();
+      var meta = VolumeMetadataBuilder.Make("Volume-1");
 
-    //  if (compress.IsNotNullOrWhiteSpace())
-    //  {
-    //    meta.SetCompressionScheme(compress);
-    //  }
+      var v1 = new DefaultVolume(NopCrypto, meta, ms);
 
-    //  var v1 = new DefaultVolume(NopCrypto, meta, ms);
+      var page = new Page(0);
+      Aver.IsTrue(page.State == Page.Status.Unset);
 
-    //  var page = new Page(0);
-    //  Aver.IsTrue(page.State == Page.Status.Unset);
-    //  page.BeginWriting(new DateTime(1980, 7, 1, 15, 0, 0, DateTimeKind.Utc), Atom.Encode("app"), "dima@zhaba.com");
-    //  Aver.IsTrue(page.State == Page.Status.Writing);
-    //  var adr1 = page.Append(new ArraySegment<byte>(new byte[] { 1, 2, 3 }, 0, 3));
-    //  Aver.AreEqual(0, adr1);
-    //  var adr2 = page.Append(new ArraySegment<byte>(new byte[] { 4, 5 }, 0, 2));
-    //  Aver.IsTrue(adr2 > 0);
-    //  var adr3 = page.Append(new ArraySegment<byte>(new byte[pad]));
-    //  Aver.IsTrue(adr3 > adr2);
-    //  page.EndWriting();
+      page.BeginWriting(new DateTime(1980, 7, 1, 15, 0, 0, DateTimeKind.Utc), Atom.Encode("app"), "dima@zhaba.com");
 
-    //}
+      var data = new Dictionary<int, byte[]>();
+
+      for(var i=0; i < count; i++)
+      {
+        //generate 1/2 empty arrays for best compression, another 1/2/ filled with random data
+        var buf = ((i & 1) == 0) ? new byte[1 + (i & 0x7f)] : Platform.RandomGenerator.Instance.NextRandomBytes(1 + (i & 0x7f));
+        var adr = page.Append(new ArraySegment<byte>(buf));
+        data[adr] = buf;
+      }
+
+      Aver.AreEqual(data.Count, data.Keys.Distinct().Count());//all addresses are unique
+
+      page.EndWriting();
+
+      var pid = v1.AppendPage(page);  //append to volume
+
+      page = new Page(0);//we could have reused the existing page but we re-allocate for experiment cleanness
+      v1.ReadPage(pid, page);
+
+      //Aver that all are readable
+      foreach(var kvp in data)
+      {
+        var got = page[kvp.Key];
+        Aver.IsTrue(got.State == Entry.Status.Valid);
+        Aver.IsTrue(IOUtils.MemBufferEquals(kvp.Value, got.Raw.ToArray()));
+      }
+
+      //now corrupt First
+      var cadr = data.First().Key;
+      page.Data.Array[cadr] = 0xff;//corrupt underlying page memory
+      data[cadr] = null;//corrupted
+
+      //corrupt last
+      cadr = data.Last().Key;
+      page.Data.Array[cadr] = 0x00;//corrupt underlying page memory
+      data[cadr] = null;//corrupted
+
+
+      var keys = data.Keys.ToArray();
+      //corrupt a half of written
+      for(var i=0; i < data.Count / 2; i++)
+      {
+        cadr = keys[Platform.RandomGenerator.Instance.NextScaledRandomInteger(2, data.Count - 2)];
+        page.Data.Array[cadr] = 0xff;//corrupt underlying page memory
+        data[cadr] = null;//corrupted
+      }
+
+      "\nStream size is: {0:n0} bytes".SeeArgs(ms.Length);
+      "{0:n0} total entries, {1:n0} are corrupt \n".SeeArgs(data.Count, data.Where(kvp => kvp.Value == null).Count());
+
+      //Aver that all which are SET are still readable, others are corrupt
+      foreach (var kvp in data)
+      {
+        var got = page[kvp.Key];
+        if (kvp.Value != null)//was not corrupted
+        {
+          Aver.IsTrue(got.State == Entry.Status.Valid);
+          Aver.IsTrue(IOUtils.MemBufferEquals(kvp.Value, got.Raw.ToArray()));
+        }
+        else
+        {
+          Aver.IsTrue(got.State == Entry.Status.BadHeader);
+        }
+      }
+
+    }
 
 
 
-      // [Run]
-      public void Metadata_Create_Multiple_Sections_Mount()
+    // [Run]
+    public void Metadata_Create_Multiple_Sections_Mount()
     {
       //var ms = new FileStream("c:\\azos\\archive.lar", FileMode.Create);//  new MemoryStream();
       var ms = new MemoryStream();
