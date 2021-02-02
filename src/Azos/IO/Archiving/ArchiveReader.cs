@@ -37,8 +37,12 @@ namespace Azos.IO.Archiving
       while(true)
       {
         current = Volume.ReadPage(current, page);
+
         if (page.State == Page.Status.Reading)
-        yield return page;
+        {
+          yield return page;
+        }
+
         if (current <=0) break;
       }
     }

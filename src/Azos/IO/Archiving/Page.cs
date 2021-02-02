@@ -115,7 +115,6 @@ namespace Azos.IO.Archiving
       m_CreateUtc = utcCreate;
       m_CreateApp = app;
       m_CreateHost = host;
-      m_State = Status.Reading;
     }
 
 

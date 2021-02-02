@@ -1448,5 +1448,57 @@ namespace Azos
       return "{1:n1} {0}".Args(longPfx ? "peta bytes" : "pb", size / 1_125_899_906_842_624f);
     }
 
+
+    /// <summary>
+    /// Creates a hex editor like hex / char dump of a byte[] value
+    /// printing verbatim binary char values
+    /// </summary>
+    public static string ToHexDump(this byte[] buf)
+    {
+      if (buf == null) return null;
+      var result = new StringBuilder();
+      var txt = new StringBuilder();
+
+      var i = 0;
+      for (; i < buf.Length; i++)
+      {
+        var c = (char)buf[i];
+        if (i % 16 == 0)
+        {
+          if (txt.Length > 0)
+          {
+            result.Append("   ");
+            result.Append(txt.ToString());
+            txt.Clear();
+          }
+          if (i > 0) result.AppendLine();
+          result.Append(i.ToString("X8"));
+          result.Append(": ");
+        }
+        else if (i % 8 == 0)
+        {
+          result.Append("| ");
+        }
+
+        result.Append(((int)c).ToString("X2"));
+        result.Append(' ');
+        txt.Append((c != ' ' && c < '!') ? '·' : c);
+      }
+
+      for (var j = 0; i++ % 16 != 0; j++)
+      {
+        if (j == 8) result.Append("  ");
+        result.Append("   ");
+      }
+
+      if (txt.Length > 0)
+      {
+        result.Append("   ");
+        result.Append(txt.ToString());
+      }
+
+      return result.ToString();
+    }
+
   }
 }

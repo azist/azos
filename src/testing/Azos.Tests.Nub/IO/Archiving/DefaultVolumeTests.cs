@@ -14,8 +14,6 @@ using System.Linq;
 using Azos.Apps;
 using Azos.Scripting;
 using Azos.IO.Archiving;
-using Azos.Data;
-using Azos.Log;
 using Azos.Security;
 
 namespace Azos.Tests.Nub.IO.Archiving
@@ -257,6 +255,71 @@ namespace Azos.Tests.Nub.IO.Archiving
       }
 
     }
+
+
+
+    [Run("pc=5 vsz=11000 pgsize=1024  compress=null  count=10   sz=998")]
+    [Run("pc=2 vsz=11000 pgsize=9000  compress=null  count=10   sz=1000")]
+    [Run("pc=1 vsz=11000 pgsize=16000 compress=null  count=10   sz=1000")]
+
+    [Run("pc=5 vsz=1000 pgsize=1024  compress=gzip  count=10   sz=1000")]
+    [Run("pc=2 vsz=1000 pgsize=9000  compress=gzip  count=10   sz=1000")]
+    [Run("pc=1 vsz=1000 pgsize=16000 compress=gzip  count=10   sz=1000")]
+    public void Write_Read_Compare_PageSplit(int pc, int vsz, int pgsize, string compress, int count, int sz)
+    {
+      var expected = Enumerable.Range(0, count).Select(_ => new string(' ', sz)).ToArray();
+      var ms = new MemoryStream();
+
+      var meta = VolumeMetadataBuilder.Make("String archive")
+                                      .SetVersion(1, 0)
+                                      .SetDescription("Testing string messages")
+                                      .SetChannel(Atom.Encode("dvop"));
+
+      if (compress.IsNotNullOrWhiteSpace())
+      {
+        meta.SetCompressionScheme(compress);
+      }
+
+      var volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, ms);
+      volume.PageSizeBytes = pgsize;
+
+      using (var appender = new StringArchiveAppender(volume,
+                                          NOPApplication.Instance.TimeSource,
+                                          NOPApplication.Instance.AppId, "dima@zhaba"))
+      {
+        for (var i = 0; i < count; i++)
+        {
+          appender.Append(expected[i]);
+        }
+      }
+
+      "Volume data stream is {0:n0} bytes".SeeArgs(ms.Length);
+      Aver.IsTrue(ms.Length < vsz);
+
+   //   ms.GetBuffer().ToHexDump().See();
+
+      var reader = new StringArchiveReader(volume);
+
+   //   reader.Pages(0).Select(p => (p.State, p.Entries.Count())).See("PAGES/Entries: ");
+
+
+      var pageCount = reader.Pages(0).Count();
+      "Volume page count is: {0}".SeeArgs(pageCount);
+      Aver.AreEqual(pc, pageCount);
+
+
+
+      var got = reader.Entries(new Bookmark()).ToArray();
+
+      Aver.AreEqual(expected.Length, got.Length);
+      for (int i = 0; i < count; i++)
+      {
+        Aver.AreEqual(expected[i], got[i]);
+      }
+
+      volume.Dispose();
+    }
+
 
 
 
