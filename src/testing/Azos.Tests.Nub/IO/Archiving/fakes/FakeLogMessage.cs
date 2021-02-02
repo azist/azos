@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using System.Linq;
 using Azos.Log;
 
 namespace Azos.Tests.Nub.IO.Archiving
@@ -38,6 +38,20 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       return message;
     }
+
+    public static Message[] BuildRandomArr(int count)
+    {
+      var rv = new Message[count];
+      for (int i = 0; i < count; i++)
+      {
+        rv[i] = BuildRandom();
+      }
+      return rv;
+    }
+
+    public static string[] BuildRandomStringArr(int count)
+      => BuildRandomArr(count).Select(x => x.ToJsonDataMap().ToString()).ToArray();
+
 
 
     public static readonly BuilderBase[] BUILDERS =
