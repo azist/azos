@@ -62,12 +62,20 @@ namespace Azos.Tests.Nub.IO.Archiving
     }
 
 
-    [Run("compress=null  count=2")]
-    [Run("compress=null  count=100")]
-    [Run("compress=null  count=1000")]
-    [Run("compress=null  count=16000")]
-    [Run("compress=null  count=128000")]
-    public void Write_Read_Compare(string compress, int count)
+    [Run("compress=null pgsize=1000 count=2")]
+    [Run("compress=null pgsize=1000 count=100")]
+    [Run("compress=null pgsize=1000 count=1000")]
+    [Run("compress=null pgsize=1000 count=16000")]
+    [Run("compress=null pgsize=1000 count=32000")]
+    [Run("compress=null pgsize=1000000 count=32000")]
+
+    [Run("compress=gzip pgsize=1000 count=2")]
+    [Run("compress=gzip pgsize=1000 count=100")]
+    [Run("compress=gzip pgsize=1000 count=1000")]
+    [Run("compress=gzip pgsize=1000 count=16000")]
+    [Run("compress=gzip pgsize=1000 count=32000")]
+    [Run("compress=gzip pgsize=1000000 count=32000")]
+    public void Write_Read_Compare(string compress, int count, int pgsize)
     {
       var expected = FakeLogMessage.BuildRandomArr(count);
       var ms = new MemoryStream();
@@ -82,7 +90,10 @@ namespace Azos.Tests.Nub.IO.Archiving
         meta.SetCompressionScheme(compress);
       }
 
-      var volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, ms);
+      var volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, ms)
+      {
+        PageSizeBytes = pgsize
+      };
 
       using (var appender = new LogMessageArchiveAppender(volume,
                                           NOPApplication.Instance.TimeSource,
@@ -93,6 +104,8 @@ namespace Azos.Tests.Nub.IO.Archiving
           appender.Append(expected[i]);
         }
       }
+
+      "The volume is {0:n0} bytes".SeeArgs(ms.Length);
 
       var reader = new LogMessageArchiveReader(volume);
 
