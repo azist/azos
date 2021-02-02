@@ -13,31 +13,9 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Reads archives of String items. The implementation is thread-safe
   /// </summary>
-  public sealed class StringArchiveReader : ArchiveReader<string>
+  public sealed class StringArchiveReader : ArchiveBixReader<string>
   {
     public StringArchiveReader(IVolume volume) : base(volume){ }
-
-    [ThreadStatic] private static BufferSegmentReadingStream ts_Stream;
-
-    public override string Materialize(Entry entry)
-    {
-      if (entry.State != Entry.Status.Valid) return null;
-
-      var stream = ts_Stream;
-      if (stream == null)
-      {
-        stream = new BufferSegmentReadingStream();
-        ts_Stream = stream;
-      }
-
-      stream.UnsafeBindBuffer(entry.Raw);
-      var reader = new BixReader(stream);
-
-      string result = reader.ReadString();
-
-      stream.UnbindBuffer();
-
-      return result;
-    }
+    public override string MaterializeBix(BixReader reader) => reader.ReadString();
   }
 }

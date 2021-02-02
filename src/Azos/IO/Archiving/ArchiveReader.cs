@@ -4,6 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Serialization.Bix;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -59,12 +61,18 @@ namespace Azos.IO.Archiving
     }
 
     /// <summary>
-    /// Walks all materialized `TEntry` entries on all pages.
+    /// Walks all materialized `TEntry` entries on all pages starting at the supplied bookmark.
     /// Multiple threads can call this method at the same time
     /// </summary>
     public IEnumerable<TEntry> Entries(Bookmark start)
       => RawEntries(start).Where(item => item.State == Entry.Status.Valid)
                           .Select(item => Materialize(item));
+
+    /// <summary>
+    /// Walks all materialized `TEntry` entries on all pages.
+    /// Multiple threads can call this method at the same time
+    /// </summary>
+    public IEnumerable<TEntry> All => Entries(new Bookmark());
 
 
     /// <summary>
@@ -72,6 +80,40 @@ namespace Azos.IO.Archiving
     /// This method implementation is thread-safe
     /// </summary>
     public abstract TEntry Materialize(Entry entry);
+  }
+
+
+  /// <summary>
+  /// Facilitates creating readers which use BixReader. The implementation is thread-safe
+  /// </summary>
+  public abstract class ArchiveBixReader<TEntry> : ArchiveReader<TEntry>
+  {
+    public ArchiveBixReader(IVolume volume) : base(volume) { }
+
+    [ThreadStatic] private static BufferSegmentReadingStream ts_Stream;
+
+    public sealed override TEntry Materialize(Entry entry)
+    {
+      if (entry.State != Entry.Status.Valid) return default(TEntry);
+
+      var stream = ts_Stream;
+      if (stream == null)
+      {
+        stream = new BufferSegmentReadingStream();
+        ts_Stream = stream;
+      }
+
+      stream.UnsafeBindBuffer(entry.Raw);
+      var reader = new BixReader(stream);
+
+      TEntry result = MaterializeBix(reader);
+
+      stream.UnbindBuffer();
+
+      return result;
+    }
+
+    public abstract TEntry MaterializeBix(BixReader reader);
   }
 
 }
