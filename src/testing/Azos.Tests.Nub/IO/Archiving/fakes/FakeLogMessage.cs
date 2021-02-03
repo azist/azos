@@ -6,7 +6,9 @@
 
 using System;
 using System.Linq;
+using System.Text;
 using Azos.Log;
+using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Nub.IO.Archiving
 {
@@ -49,10 +51,35 @@ namespace Azos.Tests.Nub.IO.Archiving
       return rv;
     }
 
-    public static string[] BuildRandomStringArr(int count)
-      => BuildRandomArr(count).Select(x => x.ToJsonDataMap().ToString()).ToArray();
+    public static string[] BuildRandomASCIIStringArr(int count, int min, int max)
+     => Enumerable.Range(0, count)
+                  .Select( _ => Platform.RandomGenerator.Instance.NextRandomWebSafeString(min, max)).ToArray();
 
+    public static string[] BuildRandomUnicodeStringArr(int count, int min, int max)
+    {
+      const string BS = @"„Anführungszeichen“ 
+and some english text  a =()!@#$%^&*()_+=- ,.<>/?\|{}`~
+Οὐχὶ ταὐτὰ παρίσταταί μοι γιγνώσκειν, 
+ὦ ἄνδρες ᾿Αθηναῖοι გთხოვთ ახლავე გაიაროთ რეგისტრაცია
+Зарегистрируйтесь сейчас на Десятую Международную Конференцию
+我能吞下玻璃而不伤身体 मैं काँच खा सकता 
+हूँ और मुझे उससे कोई चोट नहीं पहुंचती
+";
 
+      var result = new string[count];
+      var sb = new StringBuilder();
+      for(var i=0; i<count; i++)
+      {
+        var l = Platform.RandomGenerator.Instance.NextScaledRandomInteger(min, max);
+
+        sb.Clear();
+        for(var j=0; j<l; j++)
+         sb.Append(BS[Platform.RandomGenerator.Instance.NextScaledRandomInteger(0, BS.Length-1)]);
+
+        result[i] = sb.ToString();
+      }
+      return result;
+    }
 
     public static readonly BuilderBase[] BUILDERS =
     {

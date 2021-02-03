@@ -6,30 +6,56 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using System.Threading.Tasks;
 using System.Linq;
 
 using Azos.Apps;
 using Azos.Scripting;
 using Azos.IO.Archiving;
-using Azos.Log;
 
 namespace Azos.Tests.Nub.IO.Archiving
 {
   [Runnable]
   public class StringTests
   {
-    
-    [Run("compress=null  count=1")]
-    [Run("compress=null  count=100")]
-    [Run("compress=null  count=1000")]
-    [Run("compress=null  count=16000")]
-    [Run("compress=null  count=64000")]
-    public void Write_Read_Compare_Strings(string compress, int count)
+    [Run("ascii=true pgsize=1024  compress=null  count=10   min=1000 max=1000")]
+    [Run("ascii=true pgsize=9000  compress=null  count=10   min=1000 max=1000")]
+    [Run("ascii=true pgsize=16000 compress=null  count=10   min=1000 max=1000")]
+    [Run("ascii=true pgsize=1024  compress=null  count=1000 min=10   max=500")]
+    [Run("ascii=true pgsize=9000  compress=null  count=1000 min=10   max=500")]
+    [Run("ascii=true pgsize=16000 compress=null  count=1000 min=10   max=500")]
+    [Run("ascii=true pgsize=1000000 compress=null  count=64000 min=10   max=345")]
+    [Run("ascii=true pgsize=32000000 compress=null  count=64000 min=10   max=345")]
+
+    [Run("ascii=false pgsize=1024  compress=null  count=10   min=1000 max=1000")]
+    [Run("ascii=false pgsize=9000  compress=null  count=10   min=1000 max=1000")]
+    [Run("ascii=false pgsize=16000 compress=null  count=10   min=1000 max=1000")]
+    [Run("ascii=false pgsize=1024  compress=null  count=1000 min=10   max=500")]
+    [Run("ascii=false pgsize=9000  compress=null  count=1000 min=10   max=500")]
+    [Run("ascii=false pgsize=16000 compress=null  count=1000 min=10   max=500")]
+    [Run("ascii=false pgsize=1000000 compress=null  count=64000 min=10   max=345")]
+    [Run("ascii=false pgsize=32000000 compress=null  count=64000 min=10   max=345")]
+
+    [Run("ascii=true pgsize=1024  compress=gzip  count=10   min=1000 max=1000")]
+    [Run("ascii=true pgsize=9000  compress=gzip  count=10   min=1000 max=1000")]
+    [Run("ascii=true pgsize=16000 compress=gzip  count=10   min=1000 max=1000")]
+    [Run("ascii=true pgsize=1024  compress=gzip  count=1000 min=10   max=500")]
+    [Run("ascii=true pgsize=9000  compress=gzip  count=1000 min=10   max=500")]
+    [Run("ascii=true pgsize=16000 compress=gzip  count=1000 min=10   max=500")]
+    [Run("ascii=true pgsize=1000000 compress=gzip  count=64000 min=10   max=345")]
+    [Run("ascii=true pgsize=32000000 compress=gzip  count=64000 min=10   max=345")]
+
+    [Run("ascii=false pgsize=1024  compress=gzip  count=10   min=1000 max=1000")]
+    [Run("ascii=false pgsize=9000  compress=gzip  count=10   min=1000 max=1000")]
+    [Run("ascii=false pgsize=16000 compress=gzip  count=10   min=1000 max=1000")]
+    [Run("ascii=false pgsize=1024  compress=gzip  count=1000 min=10   max=500")]
+    [Run("ascii=false pgsize=9000  compress=gzip  count=1000 min=10   max=500")]
+    [Run("ascii=false pgsize=16000 compress=gzip  count=1000 min=10   max=500")]
+    [Run("ascii=false pgsize=1000000 compress=gzip  count=64000 min=10   max=345")]
+    [Run("ascii=false pgsize=32000000 compress=gzip  count=64000 min=10   max=345")]
+    public void Write_Read_Compare_Strings(bool ascii, int pgsize, string compress, int count, int min, int max)
     {
-      var expected = FakeLogMessage.BuildRandomStringArr(count);
+      var expected = ascii ? FakeLogMessage.BuildRandomASCIIStringArr(count, min, max) : FakeLogMessage.BuildRandomUnicodeStringArr(count, min, max);
       var ms = new MemoryStream();
 
       var meta = VolumeMetadataBuilder.Make("String archive")
@@ -43,6 +69,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       }
 
       var volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, ms);
+      volume.PageSizeBytes = pgsize;
 
       using (var appender = new StringArchiveAppender(volume,
                                           NOPApplication.Instance.TimeSource,
@@ -54,13 +81,15 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
 
+      "Volume data stream is {0:n0} bytes".SeeArgs(ms.Length);
+
       var reader = new StringArchiveReader(volume);
 
       var got = reader.Entries(new Bookmark()).ToArray();
 
       Aver.AreEqual(expected.Length, got.Length);
       for (int i = 0; i < count; i++)
-      {        
+      {
         Aver.AreEqual(expected[i], got[i]);
       }
 

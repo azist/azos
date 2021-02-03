@@ -16,27 +16,12 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Reads archives of Log.Message items. The implementation is thread-safe
   /// </summary>
-  public sealed class LogMessageArchiveReader : ArchiveReader<Message>
+  public sealed class LogMessageArchiveReader : ArchiveBixReader<Message>
   {
     public LogMessageArchiveReader(IVolume volume) : base(volume){ }
 
-    [ThreadStatic] private static BufferSegmentReadingStream ts_Stream;
-
-    public override Message Materialize(Entry entry)
+    public override Message MaterializeBix(BixReader reader)
     {
-      if (entry.State != Entry.Status.Valid) return null;
-
-      var stream = ts_Stream;
-      if (stream == null)
-      {
-        stream = new BufferSegmentReadingStream();
-        ts_Stream = stream;
-      }
-
-      stream.UnsafeBindBuffer(entry.Raw);
-      var reader = new BixReader(stream);
-
-
       Message result = null;
 
       if (reader.ReadBool())//if non-null message
@@ -70,8 +55,6 @@ namespace Azos.IO.Archiving
           result.ExceptionData = JsonReader.ToDoc<WrappedExceptionData>(edata);
         }
       }
-
-      stream.UnbindBuffer();
 
       return result;
     }

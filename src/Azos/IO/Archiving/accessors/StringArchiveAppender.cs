@@ -16,6 +16,9 @@ namespace Azos.IO.Archiving
 {
   public sealed class StringArchiveAppender : ArchiveAppender<string>
   {
+    /// <summary>
+    /// Todo: Not thread safe
+    /// </summary>
     public StringArchiveAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<string, Bookmark> onPageCommit = null)
      : base(volume, time, app, host, onPageCommit)
     {

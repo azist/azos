@@ -14,8 +14,6 @@ using System.Linq;
 using Azos.Apps;
 using Azos.Scripting;
 using Azos.IO.Archiving;
-using Azos.Data;
-using Azos.Log;
 using Azos.Security;
 
 namespace Azos.Tests.Nub.IO.Archiving
@@ -89,12 +87,8 @@ namespace Azos.Tests.Nub.IO.Archiving
     public void Page_Write_Read(string compress, int pad, bool remount)
     {
       var ms = new MemoryStream();
-      var meta = VolumeMetadataBuilder.Make("Volume-1");
-
-      if (compress.IsNotNullOrWhiteSpace())
-      {
-        meta.SetCompressionScheme(compress);
-      }
+      var meta = VolumeMetadataBuilder.Make("Volume-1")
+                                      .SetCompressionScheme(compress);
 
       var v1 = new DefaultVolume(NopCrypto, meta, ms);
 
@@ -259,98 +253,122 @@ namespace Azos.Tests.Nub.IO.Archiving
     }
 
 
-
-    // [Run]
-    public void Metadata_Create_Multiple_Sections_Mount()
+    [Run("compress=null pgsz=1024  cnt=2000")]
+    [Run("compress=null pgsz=16000 cnt=2000")]
+    [Run("compress=gzip pgsz=1024  cnt=2000")]
+    [Run("compress=gzip pgsz=16000 cnt=2000")]
+    public void Corrupt_Volume_Read(string compress, int pgsz, int cnt)
     {
-      //var ms = new FileStream("c:\\azos\\archive.lar", FileMode.Create);//  new MemoryStream();
       var ms = new MemoryStream();
-
-      var meta = VolumeMetadataBuilder.Make("20210115-1745-doctor")
-                                      .SetVersion(99, 21)
-                                      .SetDescription("B vs D De-Terminator for doctor bubblegumization")
+      var meta = VolumeMetadataBuilder.Make("String archive")
+                                      .SetVersion(1, 0)
+                                      .SetDescription("Testing string messages")
                                       .SetChannel(Atom.Encode("dvop"))
-                                      .SetCompressionScheme(DefaultVolume.COMPRESSION_SCHEME_GZIP_MAX)
-                                  //    .SetEncryptionScheme("aes1")
-                                      .SetApplicationSection(app => {
-                                        app.AddChildNode("user").AddAttributeNode("id", 111222);
-                                        app.AddChildNode("user").AddAttributeNode("id", 783945);
-                                        app.AddAttributeNode("is-good", false);
-                                        app.AddAttributeNode("king-signature", Platform.RandomGenerator.Instance.NextRandomWebSafeString(150, 150));
-                                      })
-                                      .SetApplicationSection(app => { app.AddAttributeNode("a", false); })
-                                      .SetApplicationSection(app => { app.AddAttributeNode("b", true); })
-                                      .SetCompressionSection(cmp => { cmp.AddAttributeNode("z", 41); });
-                                   //   .SetEncryptionSection(enc => { enc.AddAttributeNode("z", 99); });
+                                      .SetCompressionScheme(compress);
 
-      var volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, ms);
+      var volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, ms)
+      {
+          PageSizeBytes = pgsz
+      };
+
+      using(var appender = new StringArchiveAppender(volume, NOPApplication.Instance.TimeSource, new Atom(65), "A@b.com"))
+      {
+        for(var i=0; i<cnt; i++)
+        {
+          appender.Append("string-data--------------------------------------------------------" + i.ToString());
+        }
+      }
+
+      "Volume size is {0:n0} bytes".SeeArgs(ms.Length);
+
+      var reader = new StringArchiveReader(volume);
+
+      var allCount = reader.All.Count();
+      Aver.AreEqual(cnt, allCount);
+
+      reader.All.ForEach( (s, i) => Aver.IsTrue(s.EndsWith("---" + i.ToString())));
+
+      var pageCount = reader.Pages(0).Count();
+      Aver.IsTrue(pageCount > 0);
+
+      "Before corruption: there are {0:n0} total records in {1:n0} pages".SeeArgs(allCount, pageCount);
+
+      var midPoint = ms.Length / 2;
+      ms.Position = midPoint;
+      for(var j=0; j<pgsz*2; j++) ms.WriteByte(0x00);//corruption
+
+      "-------------- corrupted {0:n0} bytes of {1:n0} total at {2:n0} position -----------  ".SeeArgs(pgsz*2, ms.Length, midPoint);
+
+      var allCount2 = reader.Entries(new Bookmark(), skipCorruptPages: true).Count();
+      Aver.IsTrue( allCount > allCount2);
+
+      var pageCount2 = reader.Pages(0, skipCorruptPages: true).Count();
+      Aver.IsTrue(pageCount > pageCount2);
+
+      "After corruption: there are {0:n0} total records in {1:n0} pages".SeeArgs(allCount2, pageCount2);
 
       volume.Dispose();
-     // ms.GetBuffer().ToDumpString(DumpFormat.Hex).See();
-
-      volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, ms);
-      volume.Metadata.See();
     }
 
 
-    [Run("!arch-log", "scheme=null          cnt=16000000 para=16")]
-    [Run("!arch-log", "scheme=gzip          cnt=16000000 para=16")]
-    [Run("!arch-log", "scheme=gzip-max      cnt=16000000 para=16")]
-    public void Write_LogMessages(string scheme, int CNT, int PARA)
+
+    [Run("pc=5 vsz=11000 pgsize=1024  compress=null  count=10   sz=998")]
+    [Run("pc=2 vsz=11000 pgsize=9000  compress=null  count=10   sz=1000")]
+    [Run("pc=1 vsz=11000 pgsize=16000 compress=null  count=10   sz=1000")]
+
+    [Run("pc=5 vsz=1000 pgsize=1024  compress=gzip  count=10   sz=1000")]
+    [Run("pc=2 vsz=1000 pgsize=9000  compress=gzip  count=10   sz=1000")]
+    [Run("pc=1 vsz=1000 pgsize=16000 compress=gzip  count=10   sz=1000")]
+    public void Write_Read_Compare_PageSplit(int pc, int vsz, int pgsize, string compress, int count, int sz)
     {
-      var msData = new FileStream("c:\\azos\\logging-{0}.lar".Args(scheme.Default("none")), FileMode.Create);
-      var msIdxId = new FileStream("c:\\azos\\logging-{0}.guid.lix".Args(scheme.Default("none")), FileMode.Create);
+      var expected = Enumerable.Range(0, count).Select(_ => new string(' ', sz)).ToArray();
+      var ms = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("log messages")
-                                      .SetVersion(1, 1)
-                                      .SetDescription("Testing")
-                                      .SetChannel(Atom.Encode("tezt"))
-                                      .SetCompressionScheme(scheme);   // Add optional compression
+      var meta = VolumeMetadataBuilder.Make("String archive")
+                                      .SetVersion(1, 0)
+                                      .SetDescription("Testing string messages")
+                                      .SetChannel(Atom.Encode("dvop"))
+                                      .SetCompressionScheme(compress);
 
-      var volumeData = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msData);
-      var volumeIdxId = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, msIdxId);
+      var volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, ms);
+      volume.PageSizeBytes = pgsize;
 
-
-      volumeData.PageSizeBytes = 1024 * 1024;
-      volumeIdxId.PageSizeBytes = 128 * 1024;
-
-      var time = Azos.Time.Timeter.StartNew();
-
-
-      Parallel.For(0, PARA, _ => {
-
-        var app = Azos.Apps.ExecutionContext.Application;
-
-        using(var aIdxId = new GuidIdxAppender(volumeIdxId,
+      using (var appender = new StringArchiveAppender(volume,
                                           NOPApplication.Instance.TimeSource,
                                           NOPApplication.Instance.AppId, "dima@zhaba"))
+      {
+        for (var i = 0; i < count; i++)
         {
-          using(var appender = new LogMessageArchiveAppender(volumeData,
-                                                 NOPApplication.Instance.TimeSource,
-                                                 NOPApplication.Instance.AppId,
-                                                 "dima@zhaba",
-                                                 onPageCommit: (e, b) => aIdxId.Append(new GuidBookmark(e.Guid, b))))
-          {
-
-            for(var i=0; app.Active && i<CNT / PARA; i++)
-            {
-              var msg = FakeLogMessage.BuildRandom();
-              appender.Append(msg);
-            }
-
-          }
+          appender.Append(expected[i]);
         }
-      });
+      }
 
-      time.Stop();
-      "Did {0:n0} in {1:n1} sec at {2:n2} ops/sec\n".SeeArgs(CNT, time.ElapsedSec, CNT / time.ElapsedSec);
+      "Volume data stream is {0:n0} bytes".SeeArgs(ms.Length);
+      Aver.IsTrue(ms.Length < vsz);
 
-      volumeIdxId.Dispose();
-      volumeData.Dispose();
+   //   ms.GetBuffer().ToHexDump().See();
 
-      "CLOSED all volumes\n".See();
+      var reader = new StringArchiveReader(volume);
+
+   //   reader.Pages(0).Select(p => (p.State, p.Entries.Count())).See("PAGES/Entries: ");
+
+
+      var pageCount = reader.Pages(0).Count();
+      "Volume page count is: {0}".SeeArgs(pageCount);
+      Aver.AreEqual(pc, pageCount);
+
+
+
+      var got = reader.Entries(new Bookmark()).ToArray();
+
+      Aver.AreEqual(expected.Length, got.Length);
+      for (int i = 0; i < count; i++)
+      {
+        Aver.AreEqual(expected[i], got[i]);
+      }
+
+      volume.Dispose();
     }
-
 
   }
 }

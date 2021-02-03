@@ -19,8 +19,8 @@ namespace Azos.IO.Archiving
 
     public const int PAGE_MIN_LEN = 1024;//1 Kb is the minimum page size
     public const int PAGE_DEFAULT_LEN = 96 * 1024;//96 Kb default (promoted to LOH)
-    public const int PAGE_MAX_LEN = 128 * 1024 * 1024;//~128 Mb is the maximum page size
-    public const int PAGE_MAX_BUFFER_LEN = 256 * 1024 * 1024;//~2568 Mb is the maximum page size
+    public const int PAGE_MAX_LEN = 96 * 1024 * 1024;//~96 Mb is the maximum page size
+    public const int PAGE_MAX_BUFFER_LEN = 256 * 1024 * 1024;//~256 Mb is the maximum page size
 
     public const byte PAGE_HEADER_1 = (byte)'P';
     public const byte PAGE_HEADER_2 = (byte)'G';

@@ -50,6 +50,20 @@ namespace Azos.IO.Archiving
     }
   }
 
+  public sealed class StringIdxReader : ArchiveBixReader<StringBookmark>
+  {
+    public StringIdxReader(IVolume volume) : base(volume){ }
+
+    public override StringBookmark MaterializeBix(BixReader reader)
+    {
+      var v = reader.ReadString();
+      var pid = reader.ReadLong();
+      var adr = reader.ReadInt();
+      return new StringBookmark(v, new Bookmark(pid, adr));
+    }
+  }
+
+
 
 
   public struct GuidBookmark

@@ -428,12 +428,12 @@ namespace Azos.IO.Archiving
     private void loadFromStream(MemoryStream pageData, int len) //called under LOCK, stream is at first raw byte[len]
     {
       //reads from m_Stream -> pageDataMemoryStream(a thread-safe copy)
-
       var direct = !m_Metadata.IsCompressed && !m_Metadata.IsEncrypted;
       var ms = direct ? pageData : m_TempMemoryStream;
 
       //read from file m_Stream
       ms.SetLength(len);
+      ms.Position = 0;
       var buf = ms.GetBuffer();
       for (var total = 0; total < len;)
       {
@@ -461,7 +461,7 @@ namespace Azos.IO.Archiving
       }
 
       //decompress
-      var stream = m_Metadata.IsCompressed ? (Stream)new GZipStream(ms, CompressionMode.Decompress) : ms;
+      var stream = m_Metadata.IsCompressed ? (Stream)new GZipStream(ms, CompressionMode.Decompress, true) : ms;
       try
       {
         for(int cnt; (cnt = stream.Read(m_TempBuffer, 0, m_TempBuffer.Length)) > 0;)
