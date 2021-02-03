@@ -286,7 +286,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var allCount = reader.All.Count();
       Aver.AreEqual(cnt, allCount);
 
-      reader.All.ForEach( (s, i) => Aver.IsTrue(s.EndsWith("---"+i.ToString())));
+      reader.All.ForEach( (s, i) => Aver.IsTrue(s.EndsWith("---" + i.ToString())));
 
       var pageCount = reader.Pages(0).Count();
       Aver.IsTrue(pageCount > 0);
@@ -299,10 +299,10 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       "-------------- corrupted {0:n0} bytes of {1:n0} total at {2:n0} position -----------  ".SeeArgs(pgsz*2, ms.Length, midPoint);
 
-      var allCount2 = reader.Entries(new Bookmark(), true).Count();
+      var allCount2 = reader.Entries(new Bookmark(), skipCorruptPages: true).Count();
       Aver.IsTrue( allCount > allCount2);
 
-      var pageCount2 = reader.Pages(0, true).Count();
+      var pageCount2 = reader.Pages(0, skipCorruptPages: true).Count();
       Aver.IsTrue(pageCount > pageCount2);
 
       "After corruption: there are {0:n0} total records in {1:n0} pages".SeeArgs(allCount2, pageCount2);
