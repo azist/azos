@@ -253,6 +253,64 @@ namespace Azos.Tests.Nub.IO.Archiving
     }
 
 
+    [Run("compress=null pgsz=1024  cnt=2000")]
+    [Run("compress=null pgsz=16000 cnt=2000")]
+    [Run("compress=gzip pgsz=1024  cnt=2000")]
+    [Run("compress=gzip pgsz=16000 cnt=2000")]
+    public void Corrupt_Volume_Read(string compress, int pgsz, int cnt)
+    {
+      var ms = new MemoryStream();
+      var meta = VolumeMetadataBuilder.Make("String archive")
+                                      .SetVersion(1, 0)
+                                      .SetDescription("Testing string messages")
+                                      .SetChannel(Atom.Encode("dvop"))
+                                      .SetCompressionScheme(compress);
+
+      var volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, ms)
+      {
+          PageSizeBytes = pgsz
+      };
+
+      using(var appender = new StringArchiveAppender(volume, NOPApplication.Instance.TimeSource, new Atom(65), "A@b.com"))
+      {
+        for(var i=0; i<cnt; i++)
+        {
+          appender.Append("string-data--------------------------------------------------------" + i.ToString());
+        }
+      }
+
+      "Volume size is {0:n0} bytes".SeeArgs(ms.Length);
+
+      var reader = new StringArchiveReader(volume);
+
+      var allCount = reader.All.Count();
+      Aver.AreEqual(cnt, allCount);
+
+      reader.All.ForEach( (s, i) => Aver.IsTrue(s.EndsWith("---"+i.ToString())));
+
+      var pageCount = reader.Pages(0).Count();
+      Aver.IsTrue(pageCount > 0);
+
+      "Before corruption: there are {0:n0} total records in {1:n0} pages".SeeArgs(allCount, pageCount);
+
+      var midPoint = ms.Length / 2;
+      ms.Position = midPoint;
+      for(var j=0; j<pgsz*2; j++) ms.WriteByte(0x00);//corruption
+
+      "-------------- corrupted {0:n0} bytes of {1:n0} total at {2:n0} position -----------  ".SeeArgs(pgsz*2, ms.Length, midPoint);
+
+      var allCount2 = reader.Entries(new Bookmark(), true).Count();
+      Aver.IsTrue( allCount > allCount2);
+
+      var pageCount2 = reader.Pages(0, true).Count();
+      Aver.IsTrue(pageCount > pageCount2);
+
+      "After corruption: there are {0:n0} total records in {1:n0} pages".SeeArgs(allCount2, pageCount2);
+
+      volume.Dispose();
+    }
+
+
 
     [Run("pc=5 vsz=11000 pgsize=1024  compress=null  count=10   sz=998")]
     [Run("pc=2 vsz=11000 pgsize=9000  compress=null  count=10   sz=1000")]
@@ -311,8 +369,6 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       volume.Dispose();
     }
-
-
 
   }
 }

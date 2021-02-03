@@ -32,13 +32,25 @@ namespace Azos.IO.Archiving
     /// Enumerates all pages starting at the specified pageId. Multiple threads can call this method at the same time
     /// each getting its own enumerator
     /// </summary>
-    public IEnumerable<Page> Pages(long startPageId)
+    public IEnumerable<Page> Pages(long startPageId, bool skipCorruptPages = false)
     {
       var current = startPageId;
       var page = new Page(Volume.PageSizeBytes);
       while(true)
       {
-        current = Volume.ReadPage(current, page);
+        try
+        {
+          current = Volume.ReadPage(current, page);
+        }
+        catch(ArchivingException)
+        {
+          if (skipCorruptPages)
+          {
+            current++; //re-align to next page header
+            continue;
+          }
+          throw;
+        }
 
         if (page.State == Page.Status.Reading)
         {
@@ -53,9 +65,9 @@ namespace Azos.IO.Archiving
     /// Walks all raw page entries on all pages. You can materialize entries into TEntry by calling `TEntry Materialize(Entry)`.
     /// Multiple threads can call this method at the same time
     /// </summary>
-    public IEnumerable<Entry> RawEntries(Bookmark start)
+    public IEnumerable<Entry> RawEntries(Bookmark start, bool skipCorruptPages = false)
     {
-      foreach(var page in Pages(start.PageId))
+      foreach(var page in Pages(start.PageId, skipCorruptPages))
         foreach(var entry in page.Entries.Where(e => e.Address >= start.Address))
             yield return entry;
     }
@@ -64,9 +76,10 @@ namespace Azos.IO.Archiving
     /// Walks all materialized `TEntry` entries on all pages starting at the supplied bookmark.
     /// Multiple threads can call this method at the same time
     /// </summary>
-    public IEnumerable<TEntry> Entries(Bookmark start)
-      => RawEntries(start).Where(item => item.State == Entry.Status.Valid)
-                          .Select(item => Materialize(item));
+    public IEnumerable<TEntry> Entries(Bookmark start, bool skipCorruptPages = false)
+      => RawEntries(start, skipCorruptPages)
+                            .Where(item => item.State == Entry.Status.Valid)
+                            .Select(item => Materialize(item));
 
     /// <summary>
     /// Walks all materialized `TEntry` entries on all pages.
