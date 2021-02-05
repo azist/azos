@@ -187,7 +187,7 @@ namespace Azos.Log.Sinks
     }
 
     /// <summary>
-    /// Override to create specific stream type. The default implementation creates a local FileStream instance
+    /// Factory method: override to create specific stream type. The default implementation creates a local FileStream instance
     /// </summary>
     protected virtual Stream MakeStream(string fileName)
     {
