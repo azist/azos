@@ -31,8 +31,8 @@ namespace Azos.Apps
     {
       m_Id = guid;
       m_DirectorName = directorName;
-      m_CallerAgent = callerAgent.Default(System.Reflection.Assembly.GetCallingAssembly().FullName);
-      m_CallerPort = callerPort.Default(System.Reflection.Assembly.GetEntryAssembly()?.FullName);
+      m_CallerAgent = callerAgent.Default(System.Reflection.Assembly.GetCallingAssembly().GetName().Name);
+      m_CallerPort = callerPort.Default(System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name);
     }
 
     private Guid m_Id;

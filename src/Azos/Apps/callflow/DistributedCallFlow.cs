@@ -152,7 +152,7 @@ namespace Azos.Apps
     /// If the current logical thread is already set with distributed flow then does nothing.
     /// Otherwise, sets the existing code flow step as the first step of the distributed one
     /// </summary>
-    public static DistributedCallFlow Capture(IApplication app, Guid? guid = null, string callerAgent = null, string callerPort = null)
+    public static DistributedCallFlow Start(IApplication app, string description, Guid? guid = null, string directorName = null, string callerAgent = null, string callerPort = null)
     {
       app.NonNull(nameof(app));
 
@@ -160,15 +160,16 @@ namespace Azos.Apps
 
       if (current == null)
       {
-        callerAgent = callerAgent.Default(System.Reflection.Assembly.GetCallingAssembly().FullName);
-        callerPort = callerPort.Default(System.Reflection.Assembly.GetEntryAssembly()?.FullName);
-        current = new CodeCallFlow(guid ?? Guid.NewGuid(), callerAgent, callerPort);
+        callerAgent = callerAgent.Default(System.Reflection.Assembly.GetCallingAssembly().GetName().Name);
+        callerPort = callerPort.Default(System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name);
+        current = new CodeCallFlow(guid ?? Guid.NewGuid(), directorName, callerAgent, callerPort);
       }
 
       var result = current as DistributedCallFlow;
       if (result == null)
       {
         result = new DistributedCallFlow();
+        result.m_Description = description;
         result.m_List.Add(new Step(app, ExecutionContext.Session, current));
         ExecutionContext.__SetThreadLevelCallContext(result);
       }
@@ -176,7 +177,43 @@ namespace Azos.Apps
       return result;
     }
 
+    public static DistributedCallFlow Continue(IApplication app, JsonDataMap existing, Guid? guid = null, string directorName = null, string callerAgent = null, string callerPort = null)
+    {
+      app.NonNull(nameof(app));
+      existing.IsTrue(v => v!=null && v.Count > 0, nameof(existing));
+
+      var current = ExecutionContext.CallFlow;
+
+      if (current == null)
+      {
+        callerAgent = callerAgent.Default(System.Reflection.Assembly.GetCallingAssembly().GetName().Name);
+        callerPort = callerPort.Default(System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name);
+        current = new CodeCallFlow(guid ?? Guid.NewGuid(), directorName, callerAgent, callerPort);
+      }
+
+      var result = current as DistributedCallFlow;
+      if (result == null)
+      {
+        result = new DistributedCallFlow();
+        result.ReadAsJson(existing, false, null);
+        result.m_List.Add(new Step(app, ExecutionContext.Session, current));
+        ExecutionContext.__SetThreadLevelCallContext(result);
+      }
+      else throw new AzosException("Distributed flow error: The context is already injected with DistributedCallFlow");
+
+      return result;
+    }
+
+    private string m_Description;
     private List<Step> m_List = new List<Step>();
+
+
+
+    /// <summary>
+    /// Provides short description for the whole flow.
+    /// It can only be set at the call flow start
+    /// </summary>
+    public string Description => m_Description;
 
     /// <summary>
     /// Returns the very first call flow frame which represents the entry point into a distributed call flow
@@ -237,14 +274,19 @@ namespace Azos.Apps
     {
       if (data is JsonDataMap map)
       {
+        m_Description = map["d"].AsString();
+
         var steps = map["steps"] as JsonDataArray;
         if (steps != null) m_List = steps.OfType<JsonDataMap>().Select(im => new Step(im)).ToList();
+
         return (true, this);
       }
       return (false, this);
     }
 
     public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
-      => JsonWriter.WriteMap(wri, nestingLevel + 1, options, new System.Collections.DictionaryEntry("steps", m_List));
+      => JsonWriter.WriteMap(wri, nestingLevel + 1, options,
+                    new System.Collections.DictionaryEntry("d", m_Description),
+                    new System.Collections.DictionaryEntry("steps", m_List));
   }
 }
