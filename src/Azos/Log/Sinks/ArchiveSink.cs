@@ -20,7 +20,7 @@ namespace Azos.Log.Sinks
     protected ArchiveSink(ISinkOwner owner) : base(owner) { }
     protected ArchiveSink(ISinkOwner owner, string name, int order) : base(owner, name, order) { }
 
-    protected DefaultVolume m_Volume;
+    protected IVolume m_Volume;
     protected LogMessageArchiveAppender m_Appender;
 
 

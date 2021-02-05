@@ -24,6 +24,7 @@ namespace Azos.Log.Sinks
     protected string        m_Path;
     protected string        m_FileName;
 
+    /// <summary> Primary target stream used for writing into main file </summary>
     protected Stream        m_Stream;
     protected string        m_StreamFileName;
     private bool            m_Recreate;
@@ -197,7 +198,7 @@ namespace Azos.Log.Sinks
     private void closeStream()
     {
       DoCloseStream();
-      DisposableObject.DisposeAndNull(ref m_Stream);
+      DisposeAndNull(ref m_Stream);
     }
   }
 }
