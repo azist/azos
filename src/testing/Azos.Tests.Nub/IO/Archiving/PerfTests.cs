@@ -83,7 +83,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
 
 
-    [Run("!arch-perf-read", "scheme=gzip search=$(~@term)")]// -r args='term=abcd'
+    [Run("!arch-perf-read", "scheme=gzip search=$(~@term)")]// trun Azos.Tests.Nub.dll -r args="term='abcd'" names=arch-perf-read
     public void Read_LogMessages(string scheme, string search)
     {
       search = search.Default("ABBA");
