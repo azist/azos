@@ -49,6 +49,22 @@ namespace Azos.IO.FileSystem
         /// Combines two or more path segments joining them using primary file system path separator
         /// </summary>
         string CombinePaths(string first, params string[] others);
+
+        /// <summary>
+        /// Returns a file name from full path or null if the specified path does not have a file path.
+        /// Keep in mind that a file system does not necessarily have to support hierarchical directory structure
+        /// </summary>
+        /// <param name="fullPath">Full path</param>
+        /// <returns>File name or null</returns>
+        string ExtractFileName(string fullPath);
+
+        /// <summary>
+        /// Returns an array of path segments - directory names on the path. The last name may be directory of a file name.
+        /// The specifics depend on particular file system support
+        /// </summary>
+        /// <param name="fullPath">Full path string like '/a/b/c'</param>
+        /// <returns>And array of segments</returns>
+        string[] SplitPathSegments(string fullPath);
     }
 
     public interface IFileSystemImplementation : IFileSystem, IConfigurable, IDisposable
