@@ -64,7 +64,24 @@ namespace Azos.IO.FileSystem.Local
       public override string ComponentCommonName { get { return "fslocal"; }}
     #endregion
 
-    #region Protected
+    #region Overrides
+
+      public override string[] SplitPathSegments(string fullPath)
+      {
+        if (fullPath.IsNullOrWhiteSpace()) return new string[0];
+
+        var idx = fullPath.IndexOf(Path.VolumeSeparatorChar);
+        if (idx >= 0) fullPath = (idx + 1 == fullPath.Length) ? string.Empty : fullPath.Substring(idx + 1);
+
+        var segs = fullPath.Split(Path.DirectorySeparatorChar,
+                                  Path.AltDirectorySeparatorChar)
+                           .Where(s => s.IsNotNullOrWhiteSpace());
+
+        return segs.ToArray();
+      }
+
+      public override string ExtractFileName(string fullPath)
+       => Path.GetFileName(fullPath);
 
       protected internal override void DoRefresh(FileSystemSessionItem item)
       {
