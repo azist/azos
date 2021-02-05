@@ -20,8 +20,8 @@ namespace Azos.Log.Sinks
     protected ArchiveSink(ISinkOwner owner) : base(owner) { }
     protected ArchiveSink(ISinkOwner owner, string name, int order) : base(owner, name, order) { }
 
-    private DefaultVolume m_Volume;
-    private LogMessageArchiveAppender m_Appender;
+    protected DefaultVolume m_Volume;
+    protected LogMessageArchiveAppender m_Appender;
 
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
@@ -47,39 +47,31 @@ namespace Azos.Log.Sinks
 
 
 
-    protected sealed override void DoOpenStream()
-    {
-      var meta = VolumeMetadataBuilder.Make(Name)
-                                      .SetVersion(ArchiveVersionMajor, ArchiveVersionMinor)
-                                      .SetChannel(ArchiveChannel)
-                                      .SetCompressionScheme(ArchiveCompressionScheme)
-                                      .SetEncryptionScheme(ArchiveEncryptionScheme)
-                                      .SetDescription(ArchiveDescription)
-                                      .SetApplicationSection(anode =>
-                                       {
-                                         var app = ArchiveApplicationSection;
-                                         if (app != null)
-                                         {
-                                           anode.MergeAttributes(app);
-                                           anode.MergeSections(app);
-                                         }
-                                       });
-      DoOpenArchive(meta);
-    }
+    protected virtual VolumeMetadataBuilder DoBuildMetadata()
+      => VolumeMetadataBuilder.Make(Name)
+                              .SetVersion(ArchiveVersionMajor, ArchiveVersionMinor)
+                              .SetChannel(ArchiveChannel)
+                              .SetCompressionScheme(ArchiveCompressionScheme)
+                              .SetEncryptionScheme(ArchiveEncryptionScheme)
+                              .SetDescription(ArchiveDescription)
+                              .SetApplicationSection(anode =>
+                              {
+                                var app = ArchiveApplicationSection;
+                                if (app != null)
+                                {
+                                  anode.MergeAttributes(app);
+                                  anode.MergeSections(app);
+                                }
+                              });
 
-    protected virtual void DoOpenArchive(VolumeMetadataBuilder meta)
+    protected override void DoOpenStream()
     {
+      var meta = DoBuildMetadata();
       m_Volume = new DefaultVolume(App.SecurityManager.Cryptography, meta, m_Stream, ownsStream: false);
       m_Appender = new LogMessageArchiveAppender(m_Volume, App.TimeSource, App.AppId, Platform.Computer.HostName);
     }
 
-    protected sealed override void DoCloseStream()
-    {
-      DoCloseArchive();
-      DisposeAndNull(ref m_Volume);
-    }
-
-    protected virtual void DoCloseArchive()
+    protected override void DoCloseStream()
     {
       DisposeAndNull(ref m_Appender);
       DisposeAndNull(ref m_Volume);
