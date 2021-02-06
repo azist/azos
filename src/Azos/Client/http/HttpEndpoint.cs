@@ -24,16 +24,23 @@ namespace Azos.Client
     /// <summary>
     /// Implements internal HttpClient wrapper which supports various aspects (e.g. IDistributedCallFlowAspect)
     /// </summary>
-    internal class ClientWithAspects : HttpClient, WebCallExtensions.IDistributedCallFlowAspect
+    internal class ClientWithAspects : HttpClient, WebCallExtensions.IDistributedCallFlowAspect, WebCallExtensions.IAuthImpersonationAspect
     {
       public ClientWithAspects(HttpEndpoint endpoint, HttpMessageHandler handler, bool disposeHandler) : base(handler, disposeHandler)
        => Endpoint = endpoint;
 
       public readonly HttpEndpoint Endpoint;
       public string DistributedCallFlowHeader =>  Endpoint.DistributedCallFlowHeader;
+      public string AuthImpersonationHeader => Endpoint.AuthImpersonateHeader;
 
       public DistributedCallFlow GetDistributedCallFlow()
         => Endpoint.EnableDistributedCallFlow ? ExecutionContext.CallFlow as DistributedCallFlow : null;
+
+      public string GetAuthImpersonationHeader()
+      {
+        if (!Endpoint.AuthImpersonate) return null;//turned off
+        return Ambient.CurrentCallUser.MakeSysTokenAuthHeader().Value;
+      }
     }
 
 
@@ -98,6 +105,12 @@ namespace Azos.Client
     /// </summary>
     [Config]
     public bool AuthImpersonate { get; internal set; }
+
+    /// <summary>
+    /// When set, overrides the standard HTTP `Authorization` header name when impersonation is used
+    /// </summary>
+    [Config]
+    public string AuthImpersonateHeader { get; internal set; }
 
 
     [Config(Default = true)]

@@ -39,6 +39,24 @@ namespace Azos.Web
     }
 
     /// <summary>
+    /// Designates the caller as authentication provider for remote impersonation - provides
+    /// header name and header value if caller impersonation is used
+    /// </summary>
+    public interface IAuthImpersonationAspect : ICallerAspect
+    {
+      /// <summary>
+      /// When non empty provides header name used for impersonation, otherwise standard HTTP `Authorization` header is used
+      /// </summary>
+      string AuthImpersonationHeader {  get; }
+
+      /// <summary>
+      /// Gets auth header value if impersonation is used or null
+      /// </summary>
+      string GetAuthImpersonationHeader();
+    }
+
+
+    /// <summary>
     /// Sets maximum error content length in characters
     /// </summary>
     public const int CALL_ERROR_CONTENT_MAX_LENGTH = 32 * 1024;
@@ -187,6 +205,16 @@ namespace Azos.Web
           {
             var hdr = dca.DistributedCallFlowHeader.Default(CoreConsts.HTTP_HDR_DEFAULT_CALL_FLOW);
             request.Headers.Add(hdr, dcf.ToHeaderValue());
+          }
+        }
+
+        if (client is IAuthImpersonationAspect aia)
+        {
+          var token = aia.GetAuthImpersonationHeader();
+          if (token.IsNotNullOrWhiteSpace())
+          {
+            var hdr = aia.AuthImpersonationHeader.Default(WebConsts.HTTP_HDR_AUTHORIZATION);
+            request.Headers.Add(hdr, token);
           }
         }
 
