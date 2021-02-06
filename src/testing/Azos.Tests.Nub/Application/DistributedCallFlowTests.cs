@@ -27,7 +27,7 @@ namespace Azos.Tests.Nub.Application
 
 
       var flow = DistributedCallFlow.Start(NOPApplication.Instance, "My call flow");
-      var jsonHeader = flow.ToJson(JsonWritingOptions.CompactASCII);
+      var jsonHeader = flow.ToHeaderValue();
       //SEND OVER HTTP -------------------------
       ExecutionContext.__SetThreadLevelCallContext(null);
       //--------------------------------------------------
@@ -36,7 +36,7 @@ namespace Azos.Tests.Nub.Application
       flow = DistributedCallFlow.Continue(NOPApplication.Instance, jsonHeader.JsonToDataObject() as JsonDataMap );
 
 
-      jsonHeader = flow.ToJson(JsonWritingOptions.CompactASCII);
+      jsonHeader = flow.ToHeaderValue();
       //SEND OVER HTTP -------------------------
       ExecutionContext.__SetThreadLevelCallContext(null);
       //--------------------------------------------------
