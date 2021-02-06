@@ -27,8 +27,8 @@ namespace Azos.Wave.Filters
     /// <summary>
     /// When set, enables injection of DistributedCallFlow context
     /// </summary>
-    [Config(Default = WaveServer.DEFAUL_CALL_FLOW_HEADER)]
-    public string DistributedCallFlowHeader { get; set; } = WaveServer.DEFAUL_CALL_FLOW_HEADER;
+    [Config(Default = CoreConsts.HTTP_HDR_DEFAULT_CALL_FLOW)]
+    public string DistributedCallFlowHeader { get; set; } = CoreConsts.HTTP_HDR_DEFAULT_CALL_FLOW;
 
     protected override void DoFilterWork(WorkContext work, IList<WorkFilter> filters, int thisFilterIndex)
     {

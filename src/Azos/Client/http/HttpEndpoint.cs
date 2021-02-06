@@ -9,7 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-
+using Azos.Apps;
 using Azos.Conf;
 using Azos.Web;
 
@@ -20,6 +20,22 @@ namespace Azos.Client
   /// </summary>
   public class HttpEndpoint : EndpointBase<HttpService>, IHttpEndpoint
   {
+    /// <summary>
+    /// Implements internal HttpClient wrapper which supports various aspects (e.g. IDistributedCallFlowAspect)
+    /// </summary>
+    internal class ClientWithAspects : HttpClient, WebCallExtensions.IDistributedCallFlowAspect
+    {
+      public ClientWithAspects(HttpEndpoint endpoint, HttpMessageHandler handler, bool disposeHandler) : base(handler, disposeHandler)
+       => Endpoint = endpoint;
+
+      public readonly HttpEndpoint Endpoint;
+      public string DistributedCallFlowHeader =>  Endpoint.DistributedCallFlowHeader;
+
+      public DistributedCallFlow GetDistributedCallFlow()
+        => Endpoint.EnableDistributedCallFlow ? ExecutionContext.CallFlow as DistributedCallFlow : null;
+    }
+
+
     public const int DEFAULT_TIMEOUT_MS = 10_000;
 
     public HttpEndpoint(HttpService service, IConfigSectionNode conf) : base(service, conf)
@@ -43,6 +59,18 @@ namespace Azos.Client
     /// </summary>
     [Config]
     public Uri Uri { get; private set; }
+
+    /// <summary>
+    /// When true, enables attaching an HTTP header containing DistributedCallFlow object (if available) to outgoing calls
+    /// </summary>
+    [Config]
+    public bool EnableDistributedCallFlow { get; private set; }
+
+    /// <summary>
+    /// When set, overrides the HTTP_HDR_DEFAULT_CALL_FLOW header name
+    /// </summary>
+    [Config]
+    public string DistributedCallFlowHeader { get; private set; }
 
     /// <summary> If True, automatically follows HTTP redirect </summary>
     [Config(Default = true)]
@@ -143,7 +171,7 @@ namespace Azos.Client
     /// </summary>
     protected virtual HttpClient MakeHttpClient()
     {
-      var result = new HttpClient(m_ClientHandler, disposeHandler: false);
+      var result = new ClientWithAspects(this, m_ClientHandler, disposeHandler: false);
       result.Timeout = TimeSpan.FromMilliseconds(TimeoutMs > 0 ? TimeoutMs : this.Service.DefaultTimeoutMs > 0 ? Service.DefaultTimeoutMs : DEFAULT_TIMEOUT_MS);
       result.BaseAddress = this.Uri.NonNull("`{0}` is not configured".Args(nameof(Uri)));
 

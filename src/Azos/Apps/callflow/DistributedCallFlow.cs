@@ -270,6 +270,13 @@ namespace Azos.Apps
       => Current.SetDirectorName(name);
 
 
+    /// <summary>
+    /// Returns header value which is a terse JSOn representation of the instance which can be used to
+    /// re-construct the value on the other host
+    /// </summary>
+    public string ToHeaderValue() => this.ToJson(JsonWritingOptions.CompactASCII);
+
+
     public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
       if (data is JsonDataMap map)

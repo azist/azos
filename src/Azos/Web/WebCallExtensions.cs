@@ -12,6 +12,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
+using Azos.Apps;
 using Azos.Data;
 using Azos.Serialization.JSON;
 
@@ -22,6 +23,21 @@ namespace Azos.Web
   /// </summary>
   public static class WebCallExtensions
   {
+    /// <summary> Marker interface for traits applicable to making web calls</summary>
+    public interface ICallerAspect { }
+
+    /// <summary> Indicates that the caller is capable of providing DistributedCallFlow context </summary>
+    public interface IDistributedCallFlowAspect : ICallerAspect
+    {
+      /// <summary> If non-empty provides header name to be used for sending DistributedCallFlow object, otherwise a default name is used</summary>
+      string DistributedCallFlowHeader {  get; }
+
+      /// <summary>
+      /// Gets the distributed call flow or NULL if not present or not enabled
+      /// </summary>
+      DistributedCallFlow GetDistributedCallFlow();
+    }
+
     /// <summary>
     /// Sets maximum error content length in characters
     /// </summary>
@@ -125,6 +141,10 @@ namespace Azos.Web
                                                                       bool fetchErrorContent = true,
                                                                       IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
     {
+      client.NonNull(nameof(client));
+      method.NonNull(nameof(method));
+      uri.NonNull(nameof(uri));
+
       HttpContent content = null;
 
       if (body != null)
@@ -149,7 +169,7 @@ namespace Azos.Web
         }
       }
 
-      using (var request = new HttpRequestMessage(method.NonNull(nameof(method)), uri.NonBlank(nameof(uri))))
+      using (var request = new HttpRequestMessage(method, uri))
       {
         if (content != null)
           request.Content = content;
@@ -160,9 +180,19 @@ namespace Azos.Web
             request.Headers.Add(pair.Key, pair.Value);
         }
 
-        using (var response = await client.NonNull().SendAsync(request, fetchErrorContent ? HttpCompletionOption.ResponseContentRead
-                                                                                          : HttpCompletionOption.ResponseHeadersRead)
-                                                    .ConfigureAwait(false))
+        if (client is IDistributedCallFlowAspect dca)
+        {
+          var dcf = dca.GetDistributedCallFlow();
+          if (dcf != null)
+          {
+            var hdr = dca.DistributedCallFlowHeader.Default(CoreConsts.HTTP_HDR_DEFAULT_CALL_FLOW);
+            request.Headers.Add(hdr, dcf.ToHeaderValue());
+          }
+        }
+
+        using (var response = await client.SendAsync(request, fetchErrorContent ? HttpCompletionOption.ResponseContentRead
+                                                                                : HttpCompletionOption.ResponseHeadersRead)
+                                          .ConfigureAwait(false))
         {
           var isSuccess = response.IsSuccessStatusCode;
           string raw = string.Empty;
