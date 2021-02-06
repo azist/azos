@@ -40,7 +40,7 @@ namespace Azos.Wave.Filters
         if (hdrName.IsNotNullOrWhiteSpace() &&  !(original is DistributedCallFlow))
         {
           DistributedCallFlow flow = null;
-          var hdrJson = work.Request.Headers[hdrName]?.Trim();
+          var hdrJson = work.Request.Headers[hdrName];
 
           if (hdrJson.IsNotNullOrWhiteSpace())
           {

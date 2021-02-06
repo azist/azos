@@ -66,8 +66,18 @@ namespace Azos.Log.Sinks
 
     protected override void DoOpenStream()
     {
-      var meta = DoBuildMetadata();
-      m_Volume = new DefaultVolume(App.SecurityManager.Cryptography, meta, m_Stream, ownsStream: false);
+      var isNew = m_Stream.Length == 0;
+
+      if (isNew)
+      {
+        var meta = DoBuildMetadata();
+        m_Volume = new DefaultVolume(App.SecurityManager.Cryptography, meta, m_Stream, ownsStream: false);
+      }
+      else
+      {
+        m_Volume = new DefaultVolume(App.SecurityManager.Cryptography, m_Stream, ownsStream: false);
+      }
+
       m_Appender = new LogMessageArchiveAppender(m_Volume, App.TimeSource, App.AppId, Platform.Computer.HostName);
     }
 
