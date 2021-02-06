@@ -299,7 +299,8 @@ manc
                              .DistinctBy(ep => ((IHttpEndpoint)ep.Endpoint).Uri);
 
       //broadcast command to all physical servers
-      var impersonationAuthHeader = Ambient.CurrentCallUser.MakeSysTokenAuthHeader();//get current call flow identity
+      //20210206 Impersonation aspect:
+      //var impersonationAuthHeader = Ambient.CurrentCallUser.MakeSysTokenAuthHeader();//get current call flow identity
       var results = new List<object>();
       foreach(var server in allServers)
       {
@@ -317,9 +318,11 @@ manc
                               .PostAndGetJsonMapAsync
                                (
                                  "exec",
-                                 new { source = stepSrc },
-                                 requestHeaders: impersonationAuthHeader.ToEnumerable()//Auth on remote server using this call flow identity
+                                 new { source = stepSrc }
                                )
+                              //   20210206 Impersonation aspect:
+                              //   requestHeaders: impersonationAuthHeader.ToEnumerable()//Auth on remote server using this call flow identity
+                              // )
           );
 
           //try to convert JSON from string representation to object, to avoid extra padding
