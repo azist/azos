@@ -5,17 +5,18 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
+
 using Azos.Data;
 using Azos.Serialization.Bix;
 using Azos.Time;
 
 namespace Azos.IO.Archiving
 {
-
-  public struct StringBookmark
+  /// <summary>
+  /// A tuple of (STRING:Bookmark) used for indexing archived data on string index value
+  /// </summary>
+  public struct StringBookmark : IEquatable<StringBookmark>
   {
     public StringBookmark(string value, Bookmark bm)
     {
@@ -25,31 +26,21 @@ namespace Azos.IO.Archiving
 
     public readonly string Value;
     public readonly Bookmark Bookmark;
+
+    public bool Assigned => Bookmark.Assigned;
+
+    public bool Equals(StringBookmark other) => this.Value.EqualsOrdSenseCase(other.Value) && this.Bookmark.Equals(other.Bookmark);
+    public override bool Equals(object obj) => obj is StringBookmark other ? this.Equals(other) : false;
+    public override int GetHashCode() => (Value != null ? Value.GetHashCode() : 0) ^ Bookmark.GetHashCode();
+    public override string ToString() => $"`{Value}` -> {Bookmark}";
+
+    public static bool operator ==(StringBookmark l, StringBookmark r) => l.Equals(r);
+    public static bool operator !=(StringBookmark l, StringBookmark r) => !l.Equals(r);
   }
 
-
-  public sealed class StringIdxAppender : ArchiveAppender<StringBookmark>
-  {
-    public StringIdxAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<StringBookmark, Bookmark> onPageCommit = null)
-     : base(volume, time, app, host, onPageCommit)
-    {
-      m_Stream = new MemoryStream();
-      m_Writer = new BixWriter(m_Stream);
-    }
-
-    private MemoryStream m_Stream;
-    private BixWriter m_Writer;
-
-    protected override ArraySegment<byte> DoSerialize(StringBookmark entry)
-    {
-      m_Stream.SetLength(0);
-      m_Writer.Write(entry.Value);
-      m_Writer.Write(entry.Bookmark.PageId);
-      m_Writer.Write(entry.Bookmark.Address);
-      return new ArraySegment<byte>(m_Stream.GetBuffer(), 0, (int)m_Stream.Length);
-    }
-  }
-
+  /// <summary>
+  /// Reads StringBookmark index entries. The instance is thread safe
+  /// </summary>
   public sealed class StringIdxReader : ArchiveBixReader<StringBookmark>
   {
     public StringIdxReader(IVolume volume) : base(volume){ }
@@ -62,6 +53,23 @@ namespace Azos.IO.Archiving
       return new StringBookmark(v, new Bookmark(pid, adr));
     }
   }
+
+  /// <summary>
+  /// Appends StringBookmarks to index. The instance is NOT thread-safe
+  /// </summary>
+  public sealed class StringIdxAppender : ArchiveBixAppender<StringBookmark>
+  {
+    public StringIdxAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<StringBookmark, Bookmark> onPageCommit = null)
+     : base(volume, time, app, host, onPageCommit){ }
+
+    protected override void DoSerializeBix(BixWriter wri, StringBookmark entry)
+    {
+      wri.Write(entry.Value);
+      wri.Write(entry.Bookmark.PageId);
+      wri.Write(entry.Bookmark.Address);
+    }
+  }
+
 
 
 

@@ -16,11 +16,12 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Represents a "page" in an archive data stream. Archives can only be appended to.
   /// A page is an atomic unit of reading from and appending to archives.
-  /// Pages represent binary raw content present in RAM.
-  /// Pages are created by Reader/Appender and populated by `ArchiveDataAccessor`. Pages are appended to archives
-  /// using `ArchiveDataAccessor.AppendPage(page)`;
-  /// Page instances are NOT thread-safe: any parallel/concurrent operation shall get
-  /// a different instance via a corresponding call to Reader/Appender
+  /// Pages represent binary raw content present in RAM. Pages are created by Reader/Appender and
+  /// populated by `IVolume` which may optionally compress and encrypt page content, however
+  /// business-level code should use derivatives of ArchiveAppender/ArchiveReader classes
+  /// which handle `IVolume` interaction.
+  /// Page instances are NOT thread-safe: any parallel/concurrent operation must get
+  /// a different instance via a corresponding call to reader/appender
   /// </summary>
   public sealed class Page
   {
