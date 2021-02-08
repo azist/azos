@@ -16,11 +16,12 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Represents a "page" in an archive data stream. Archives can only be appended to.
   /// A page is an atomic unit of reading from and appending to archives.
-  /// Pages represent binary raw content present in RAM.
-  /// Pages are created by Reader/Appender and populated by `ArchiveDataAccessor`. Pages are appended to archives
-  /// using `ArchiveDataAccessor.AppendPage(page)`;
-  /// Page instances are NOT thread-safe: any parallel/concurrent operation shall get
-  /// a different instance via a corresponding call to Reader/Appender
+  /// Pages represent binary raw content present in RAM. Pages are created by Reader/Appender and
+  /// populated by `IVolume` which may optionally compress and encrypt page content, however
+  /// business-level code should use derivatives of ArchiveAppender/ArchiveReader classes
+  /// which handle `IVolume` interaction.
+  /// Page instances are NOT thread-safe: any parallel/concurrent operation must get
+  /// a different instance via a corresponding call to reader/appender
   /// </summary>
   public sealed class Page
   {
@@ -28,7 +29,7 @@ namespace Azos.IO.Archiving
 
     internal Page(int defaultCapacity)
     {
-      m_DefaultCapacity = defaultCapacity.KeepBetween(1024, Format.PAGE_MAX_LEN);
+      m_DefaultCapacity = defaultCapacity.KeepBetween(Format.PAGE_MIN_LEN, Format.PAGE_MAX_LEN);
       m_Raw = new MemoryStream(m_DefaultCapacity);
     }
 
@@ -205,6 +206,9 @@ namespace Azos.IO.Archiving
       Aver.IsTrue(entry.Array != null && entry.Count > 0);
 
       var addr = (int)m_Raw.Position;
+
+      Aver.IsTrue(entry.Count < Format.ENTRY_MAX_LEN, "exceeded ENTRY_MAX_LEN");
+      Aver.IsTrue(addr + entry.Count < Format.PAGE_MAX_BUFFER_LEN, "exceeded PAGE_MAX_BUFFER_LEN");
 
       m_Raw.WriteByte(Format.ENTRY_HEADER_1);
       m_Raw.WriteByte(Format.ENTRY_HEADER_2);

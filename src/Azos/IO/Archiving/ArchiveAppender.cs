@@ -6,7 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.IO;
+using Azos.Serialization.Bix;
 using Azos.Time;
 
 namespace Azos.IO.Archiving
@@ -26,7 +27,7 @@ namespace Azos.IO.Archiving
     {
       m_Volume = volume.NonNull(nameof(volume));
       m_Time = time.NonNull(nameof(time));
-      m_Page = new Page(0);//?
+      m_Page = new Page(volume.PageSizeBytes);
       m_OnPageCommit = onPageCommit;//optional
 
       if (onPageCommit != null)
@@ -60,7 +61,10 @@ namespace Azos.IO.Archiving
     /// <returns>Entry address on a page</returns>
     public int Append(TEntry entry)
     {
-      if (m_Page.Data.Count > m_Volume.PageSizeBytes) Flush();
+      var splitAt = m_Volume.PageSizeBytes;
+      if (splitAt > Format.PAGE_MAX_LEN) splitAt = Format.PAGE_MAX_LEN;
+
+      if (m_Page.Data.Count > splitAt) Flush();
 
       if (m_Page.State != Page.Status.Writing)
         m_Page.BeginWriting(m_Time.UTCNow, m_App, m_Host);
@@ -105,6 +109,35 @@ namespace Azos.IO.Archiving
 
       return true;
     }
+  }
+
+  /// <summary>
+  /// Facilitates creating appenders which use BixWriter.
+  /// Warning: the instance is NOT thread-safe
+  /// </summary>
+  public abstract class ArchiveBixAppender<TEntry> : ArchiveAppender<TEntry>
+  {
+    public ArchiveBixAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<TEntry, Bookmark> onPageCommit = null)
+     : base(volume, time, app, host, onPageCommit)
+    {
+      m_Stream = new MemoryStream();
+      m_Writer = new BixWriter(m_Stream);
+    }
+
+    private MemoryStream m_Stream;
+    private BixWriter m_Writer;
+
+    protected sealed override ArraySegment<byte> DoSerialize(TEntry entry)
+    {
+      m_Stream.SetLength(0);
+      DoSerializeBix(m_Writer, entry);
+      return new ArraySegment<byte>(m_Stream.GetBuffer(), 0, (int)m_Stream.Length);
+    }
+
+    /// <summary>
+    /// Override to perform actual TEntry serialization using BixWriter
+    /// </summary>
+    protected abstract void DoSerializeBix(BixWriter wri, TEntry entry);
   }
 
 #pragma warning restore CA1063

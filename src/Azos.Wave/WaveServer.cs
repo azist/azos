@@ -73,8 +73,6 @@ namespace Azos.Wave
 
       public const string DEFAULT_CLIENT_VARS_COOKIE_NAME = "WV.CV";
 
-      public const string DEFAUL_CALL_FLOW_HEADER = "wv-call-flow";
-
       public const int ACCEPT_THREAD_GRANULARITY_MS = 250;
 
       public const int INSTRUMENTATION_DUMP_PERIOD_MS = 3377;
@@ -225,9 +223,9 @@ namespace Azos.Wave
       /// <summary>
       /// Optional name of header used for disclosure of WorkContext.ID. If set to null, suppresses the header
       /// </summary>
-      [Config(Default = DEFAUL_CALL_FLOW_HEADER)]
+      [Config(Default = CoreConsts.HTTP_HDR_DEFAULT_CALL_FLOW)]
       [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
-      public string CallFlowHeader { get; set;} = DEFAUL_CALL_FLOW_HEADER;
+      public string CallFlowHeader { get; set;} = CoreConsts.HTTP_HDR_DEFAULT_CALL_FLOW;
 
       /// <summary>
       /// Provides the name of cookie where server keeps client vars

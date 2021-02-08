@@ -184,7 +184,7 @@ namespace Azos.IO.FileSystem
                 }
 
         /// <summary>
-        /// Creates a new file optionally pre-allocating te specified number of bytes
+        /// Creates a new file optionally pre-allocating the specified number of bytes
         /// </summary>
         public FileSystemFile CreateFile(string name, int size = 0)
         {
