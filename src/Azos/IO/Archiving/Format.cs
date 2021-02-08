@@ -29,9 +29,9 @@ namespace Azos.IO.Archiving
     public const int PAGE_MAX_LEN = 130 * 1024 * 1024;//~130 Mb is the maximum page size
 
     /// <summary>
-    /// Absolute limit on internal page buffer - 270 MBytes
+    /// Absolute limit on internal page buffer - 200 MBytes
     /// </summary>
-    public const int PAGE_MAX_BUFFER_LEN = 270 * 1024 * 1024;//~270 Mb is the maximum page size
+    public const int PAGE_MAX_BUFFER_LEN = 200 * 1024 * 1024;//~200 Mb is the maximum page buffer size
 
     public const byte PAGE_HEADER_1 = (byte)'P';
     public const byte PAGE_HEADER_2 = (byte)'G';

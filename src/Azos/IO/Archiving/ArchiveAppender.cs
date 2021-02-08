@@ -61,7 +61,10 @@ namespace Azos.IO.Archiving
     /// <returns>Entry address on a page</returns>
     public int Append(TEntry entry)
     {
-      if (m_Page.Data.Count > m_Volume.PageSizeBytes) Flush();
+      var splitAt = m_Volume.PageSizeBytes;
+      if (splitAt > Format.PAGE_MAX_LEN) splitAt = Format.PAGE_MAX_LEN;
+
+      if (m_Page.Data.Count > splitAt) Flush();
 
       if (m_Page.State != Page.Status.Writing)
         m_Page.BeginWriting(m_Time.UTCNow, m_App, m_Host);

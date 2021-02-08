@@ -207,6 +207,9 @@ namespace Azos.IO.Archiving
 
       var addr = (int)m_Raw.Position;
 
+      Aver.IsTrue(entry.Count < Format.ENTRY_MAX_LEN, "exceeded ENTRY_MAX_LEN");
+      Aver.IsTrue(addr + entry.Count < Format.PAGE_MAX_BUFFER_LEN, "exceeded PAGE_MAX_BUFFER_LEN");
+
       m_Raw.WriteByte(Format.ENTRY_HEADER_1);
       m_Raw.WriteByte(Format.ENTRY_HEADER_2);
       writeVarLength(m_Raw, entry.Count);
