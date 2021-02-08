@@ -29,7 +29,7 @@ namespace Azos.IO.Archiving
 
     internal Page(int defaultCapacity)
     {
-      m_DefaultCapacity = defaultCapacity.KeepBetween(1024, Format.PAGE_MAX_LEN);
+      m_DefaultCapacity = defaultCapacity.KeepBetween(Format.PAGE_MIN_LEN, Format.PAGE_MAX_LEN);
       m_Raw = new MemoryStream(m_DefaultCapacity);
     }
 

@@ -27,7 +27,7 @@ namespace Azos.IO.Archiving
     {
       m_Volume = volume.NonNull(nameof(volume));
       m_Time = time.NonNull(nameof(time));
-      m_Page = new Page(0);//?
+      m_Page = new Page(volume.PageSizeBytes);
       m_OnPageCommit = onPageCommit;//optional
 
       if (onPageCommit != null)
