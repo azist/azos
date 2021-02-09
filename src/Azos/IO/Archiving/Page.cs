@@ -86,7 +86,7 @@ namespace Azos.IO.Archiving
     internal MemoryStream BeginReading(long pageId)
     {
       m_PageId = pageId;
-      if (m_Raw.Capacity > m_DefaultCapacity)
+      if (m_Raw.Capacity > (1.25 * m_DefaultCapacity))
       {
         m_Raw = new MemoryStream(m_DefaultCapacity);
       }

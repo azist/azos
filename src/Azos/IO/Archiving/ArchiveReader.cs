@@ -29,15 +29,21 @@ namespace Azos.IO.Archiving
     public readonly IVolume Volume;
 
     /// <summary>
-    /// Enumerates all pages starting at the specified pageId. Multiple threads can call this method at the same time
-    /// each getting its own enumerator
+    /// Enumerates all pages starting at the specified `pageId`.
+    /// This method yields back an enumeration of different page instances which could be used
+    /// for parallel processing unless `existingPageInstance` is supplied in which case that given page instance is re-used
+    /// for enumeration of the archive, consequently making it NOT a thread-safe operation.
+    /// Existing page instances are used as optimization technique for tight read loops and should only be used in special cases
+    /// to prevent extra page instance allocation (thus making it NOT thread-safe). The thread-safety concern only pertains to
+    /// the instances returned by the enumerator. The IEnumerator itself is NOT thread-safe
     /// </summary>
-    public IEnumerable<Page> Pages(long startPageId, bool skipCorruptPages = false)
+    public IEnumerable<Page> Pages(long startPageId, bool skipCorruptPages = false, Page existingPageInstance = null)
     {
       var current = startPageId;
-      var page = new Page(Volume.PageSizeBytes);
       while(true)
       {
+        var page = existingPageInstance ?? new Page(Volume.PageSizeBytes);
+
         try
         {
           current = Volume.ReadPage(current, page);
@@ -57,7 +63,7 @@ namespace Azos.IO.Archiving
           yield return page;
         }
 
-        if (current <=0) break;
+        if (current <= 0) break;
       }
     }
 

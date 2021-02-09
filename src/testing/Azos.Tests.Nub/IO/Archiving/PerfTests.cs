@@ -92,6 +92,9 @@ namespace Azos.Tests.Nub.IO.Archiving
       var volumeData = new DefaultVolume(CryptoMan, msData);
       var volumeIdxId = new DefaultVolume(CryptoMan, msIdxId);
 
+      volumeData.PageSizeBytes = 4 * 1024 * 1024;//<-------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      volumeIdxId.PageSizeBytes = 4 * 128 * 1024;
+
       var reader = new LogMessageArchiveReader(volumeData);
       var idxReader = new StringIdxReader(volumeIdxId);
 
@@ -99,16 +102,44 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var total = 0;
       var found = 0;
-      foreach (var idx in idxReader.All)
+      //foreach (var idx in idxReader.All)
+      //{
+      //  total++;
+      //  if (idx.Value.EqualsOrdIgnoreCase(search))
+      //  {
+      //    found++;
+      //    var data = reader.Entries(idx.Bookmark).FirstOrDefault();
+      //    data.See();
+      //  }
+      //}
+
+      //var page = new Page(volumeData.PageSizeBytes);
+      //foreach(var pi in volumeData.PageInfos(0))
+      //{
+      //  "{0} / {1} -> {2}".SeeArgs(pi.PageId, IOUtils.FormatByteSizeWithPrefix(pi.PageId),  pi.NextPageId);
+
+      //   volumeData.ReadPage(pi.PageId, page); // reader.Pages(pi.PageId).First();
+      //  "Page izzz {0}".SeeArgs(page.PageId);
+
+      //  //foreach (var page in reader.Pages(pi.PageId).Take(1))// .RawEntries(new Bookmark(pi.PageId, 0)))
+      //  //{
+      //  //  total++;
+      //  //}
+      //}
+
+
+
+      Parallel.ForEach(volumeData.PageInfos(0), /*new ParallelOptions{ MaxDegreeOfParallelism=1},*/  pi =>
       {
-         total++;
-         if (idx.Value.EqualsOrdIgnoreCase(search))
-         {
-           found++;
-           var data = reader.Entries(idx.Bookmark).FirstOrDefault();
-           data.See();
-         }
-      }
+        var ec = 0;
+        var page = reader.Pages(pi.PageId).First();
+        foreach (var entry in page.Entries.Take(1))
+        {
+          ec++;
+        }
+        System.Threading.Interlocked.Add(ref total, ec);
+      });
+
 
       time.Stop();
       "Did {0:n0} found {1:n0}({2:n5}%) in {3:n1} sec at {4:n2} ops/sec\n".SeeArgs(total, found, (double)found / total, time.ElapsedSec, total / time.ElapsedSec);
