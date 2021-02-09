@@ -177,6 +177,11 @@ namespace Azos.Apps
       return result;
     }
 
+    /// <summary>
+    /// Continues a distributed call flow on this LOGICAL thread (asynchronous chain) from the supplied state (JsonDataMap).
+    /// If the current logical thread is already set with distributed flow then throws exception.
+    /// Otherwise, sets the existing code flow step as the first step of the distributed one
+    /// </summary>
     public static DistributedCallFlow Continue(IApplication app, JsonDataMap existing, Guid? guid = null, string directorName = null, string callerAgent = null, string callerPort = null)
     {
       app.NonNull(nameof(app));
@@ -252,9 +257,9 @@ namespace Azos.Apps
 
     /// <summary>
     /// Returns a logical name of the primary flow originator/controller which GOVERNS the execution of various
-    /// steps of the flow. The name is returned from the first set property in the distributed call chain
+    /// steps of the flow. The name is returned from the first set (non null) property in the distributed call chain or null
     /// </summary>
-    public string DirectorName => m_List.FirstOrDefault(f => f.DirectorName.IsNotNullOrWhiteSpace()).DirectorName;
+    public string DirectorName => m_List.FirstOrDefault(f => f.DirectorName.IsNotNullOrWhiteSpace())?.DirectorName;
 
     public string CallerAddress => EntryPoint.CallerAddress;
 
