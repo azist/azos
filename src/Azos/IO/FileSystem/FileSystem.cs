@@ -156,6 +156,11 @@ namespace Azos.IO.FileSystem
           }
 
           /// <summary>
+          /// Returns the very root for the specified path, e.g. for windows it is a drive letter etc..
+          /// </summary>
+          public abstract string GetPathRoot(string fullPath);
+
+          /// <summary>
           /// Returns a file name from full path or null if the specified path does not have a file path.
           /// Keep in mind that a file system does not necessarily have to support hierarchical directory structure
           /// </summary>

@@ -50,7 +50,7 @@ namespace Azos.IO.FileSystem.SVN
 
     #region Public
 
-    public override string ComponentCommonName { get { return "fssvn"; }}
+      public override string ComponentCommonName { get { return "fssvn"; }}
 
       public override IFileSystemCapabilities GeneralCapabilities
       {
@@ -79,6 +79,11 @@ namespace Azos.IO.FileSystem.SVN
     #endregion
 
     #region Protected
+
+      public override string GetPathRoot(string fullPath)
+      {
+        return "/";
+      }
 
       public override string[] SplitPathSegments(string fullPath)
       {

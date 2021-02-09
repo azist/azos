@@ -70,6 +70,14 @@
      path="$(/$log-root)"
      file-name="{0:yyyyMMdd}-$($name).FAIL.csv.log"
     />
+
+    <sink
+     type="Azos.Log.Sinks.ArchiveSink, Azos"
+     name="archive"
+     path="$(/$log-root)"
+     file-name="{0:yyyyMMdd}-$($name).arch.lar"
+     ArchivePageSizeBytes="1"
+    />
   </log>
 <!--
     <sink  type="$(/$log-csv)"
