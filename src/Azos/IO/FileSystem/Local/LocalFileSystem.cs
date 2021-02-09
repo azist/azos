@@ -119,7 +119,9 @@ namespace Azos.IO.FileSystem.Local
         if (Directory.Exists(path))
         {
           var di = new DirectoryInfo(path);
-          return new FileSystemDirectory(session, di.Parent.FullName, di.Name, new FSH{m_Info=di});
+          //20210209 Fix #424
+          var parentPath = di.Parent != null ? di.Parent.FullName : di.Root.FullName;
+          return new FileSystemDirectory(session, parentPath, di.Name, new FSH{m_Info=di});
         }
         return null;
       }
