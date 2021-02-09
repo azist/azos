@@ -872,6 +872,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string FS_DUPLICATE_NAME_ERROR = "Can not have file system instance of type '{0}' with the name '{1}' as this name is already registered. ";
 
+    public const string FS_DIRECTORY_DOES_NOT_EXIST_ERROR = "File system directory `{0}` does not exist";
+
     public const string FS_SESSION_BAD_PARAMS_ERROR =
       "Can not create an instance of file system session '{0}'. Make sure that suitable derivative of FileSystemSessionConnectParams is passed for the particular file system";
 

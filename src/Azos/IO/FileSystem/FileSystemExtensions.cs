@@ -68,7 +68,8 @@ namespace Azos.IO.FileSystem
                         .ExtractFilePathAndName(fullPath.NonBlank(nameof(fullPath)));
 
       var dir = session[path] as FileSystemDirectory;
-      dir.NonNull("existing file path"); //todo throw different exception type
+      if (dir == null)
+        throw new FileSystemException(StringConsts.FS_DIRECTORY_DOES_NOT_EXIST_ERROR.Args(path.TakeLastChars(32, "...")));
 
       var file = dir[fileName] as FileSystemFile;
 
