@@ -32,9 +32,9 @@ namespace Azos.Security
     IPasswordManager PasswordManager { get; }
 
     /// <summary>
-    /// Provides cryptography services, such as message protection etc.
+    /// Provides cryptography services, such as message protection algorithms etc.
     /// </summary>
-    ICryptoManager Cryptography{ get; }
+    ICryptoManager Cryptography { get; }
 
     /// <summary>
     /// Authenticates user by checking the supplied credentials against the

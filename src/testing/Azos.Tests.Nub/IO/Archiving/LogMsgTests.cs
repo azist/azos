@@ -5,10 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using System.Threading.Tasks;
 using System.Linq;
 
 using Azos.Apps;
@@ -19,12 +16,14 @@ using Azos.Log;
 namespace Azos.Tests.Nub.IO.Archiving
 {
   [Runnable]
-  public class LogMsgTests
+  public class LogMsgTests : CryptoTestBase
   {
-    [Run]
-    public void WriteRead_1()
+    [Run("cnt=1")]
+    [Run("cnt=250")]
+    [Run("cnt=1000")]
+    public void WriteRead(int cnt)
     {
-      //var ms = new FileStream("c:\\azos\\archive.lar", FileMode.Create);//  new MemoryStream();
+      ////var ms = new FileStream("c:\\azos\\archive.lar", FileMode.Create);//  new MemoryStream();
       var ms = new MemoryStream();
 
       var meta = VolumeMetadataBuilder.Make("Log archive")
@@ -32,13 +31,13 @@ namespace Azos.Tests.Nub.IO.Archiving
                                       .SetDescription("Testing log messages")
                                       .SetChannel(Atom.Encode("dvop"));
 
-      var volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, ms);
+      var volume = new DefaultVolume(CryptoMan, meta, ms);
 
       using(var appender = new LogMessageArchiveAppender(volume,
                                           NOPApplication.Instance.TimeSource,
                                           NOPApplication.Instance.AppId, "dima@zhaba"))
       {
-        for(var i=0; i<10; i++)
+        for(var i=0; i<cnt; i++)
         {
           var msg = new Message()
           {
@@ -52,30 +51,42 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var reader = new LogMessageArchiveReader(volume);
 
-      foreach(var msg in reader.Entries(new Bookmark()))
-      {
-       // msg.State.See();
-        msg.See();
-      }
+      Aver.AreEqual(cnt, reader.All.Count());
+
+      reader.All.ForEach((m, i) => Aver.AreEqual("Message#" + i.ToString(), m.Text));
 
       volume.Dispose();
     }
 
 
-    [Run("compress=null pgsize=1000 count=2")]
-    [Run("compress=null pgsize=1000 count=100")]
-    [Run("compress=null pgsize=1000 count=1000")]
-    [Run("compress=null pgsize=1000 count=16000")]
-    [Run("compress=null pgsize=1000 count=32000")]
-    [Run("compress=null pgsize=1000000 count=32000")]
+    [Run("compress=null encrypt=null pgsize=1000 count=2")]
+    [Run("compress=null encrypt=null pgsize=1000 count=100")]
+    [Run("compress=null encrypt=null pgsize=1000 count=1000")]
+    [Run("compress=null encrypt=null pgsize=1000 count=16000")]
+    [Run("compress=null encrypt=null pgsize=1000 count=32000")]
+    [Run("compress=null encrypt=null pgsize=1000000 count=32000")]
 
-    [Run("compress=gzip pgsize=1000 count=2")]
-    [Run("compress=gzip pgsize=1000 count=100")]
-    [Run("compress=gzip pgsize=1000 count=1000")]
-    [Run("compress=gzip pgsize=1000 count=16000")]
-    [Run("compress=gzip pgsize=1000 count=32000")]
-    [Run("compress=gzip pgsize=1000000 count=32000")]
-    public void Write_Read_Compare(string compress, int count, int pgsize)
+    [Run("compress=gzip encrypt=null pgsize=1000 count=2")]
+    [Run("compress=gzip encrypt=null pgsize=1000 count=100")]
+    [Run("compress=gzip encrypt=null pgsize=1000 count=1000")]
+    [Run("compress=gzip encrypt=null pgsize=1000 count=16000")]
+    [Run("compress=gzip encrypt=null pgsize=1000 count=32000")]
+    [Run("compress=gzip encrypt=null pgsize=1000000 count=32000")]
+
+    [Run("compress=null encrypt=aes1 pgsize=1000 count=2")]
+    [Run("compress=null encrypt=aes1 pgsize=1000 count=100")]
+    [Run("compress=null encrypt=aes1 pgsize=1000 count=1000")]
+    [Run("compress=null encrypt=aes1 pgsize=1000 count=16000")]
+    [Run("compress=null encrypt=aes1 pgsize=1000 count=32000")]
+    [Run("compress=null encrypt=aes1 pgsize=1000000 count=32000")]
+
+    [Run("compress=gzip encrypt=aes1 pgsize=1000 count=2")]
+    [Run("compress=gzip encrypt=aes1 pgsize=1000 count=100")]
+    [Run("compress=gzip encrypt=aes1 pgsize=1000 count=1000")]
+    [Run("compress=gzip encrypt=aes1 pgsize=1000 count=16000")]
+    [Run("compress=gzip encrypt=aes1 pgsize=1000 count=32000")]
+    [Run("compress=gzip encrypt=aes1 pgsize=1000000 count=32000")]
+    public void Write_Read_Compare(string compress, string encrypt, int count, int pgsize)
     {
       var expected = FakeLogMessage.BuildRandomArr(count);
       var ms = new MemoryStream();
@@ -83,14 +94,11 @@ namespace Azos.Tests.Nub.IO.Archiving
       var meta = VolumeMetadataBuilder.Make("Log archive")
                                       .SetVersion(1, 0)
                                       .SetDescription("Testing log messages")
-                                      .SetChannel(Atom.Encode("dvop"));
+                                      .SetChannel(Atom.Encode("dvop"))
+                                      .SetCompressionScheme(compress)
+                                      .SetEncryptionScheme(encrypt);
 
-      if (compress.IsNotNullOrWhiteSpace())
-      {
-        meta.SetCompressionScheme(compress);
-      }
-
-      var volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, ms)
+      var volume = new DefaultVolume(CryptoMan, meta, ms)
       {
         PageSizeBytes = pgsize
       };

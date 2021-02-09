@@ -19,11 +19,8 @@ using Azos.Security;
 namespace Azos.Tests.Nub.IO.Archiving
 {
   [Runnable]
-  public class DefaultVolumeTests
+  public class DefaultVolumeTests : CryptoTestBase
   {
-    public static ICryptoManager NopCrypto => NOPApplication.Instance.SecurityManager.Cryptography;
-
-
     [Run]
     public void Metadata_Basic()
     {
@@ -31,13 +28,13 @@ namespace Azos.Tests.Nub.IO.Archiving
       var meta = VolumeMetadataBuilder.Make("Volume-1")
                                       .SetVersion(123,456)
                                       .SetDescription("My volume");
-      var v1 = new DefaultVolume(NopCrypto, meta, ms);
+      var v1 = new DefaultVolume(CryptoMan, meta, ms);
       var id = v1.Metadata.Id;
       v1.Dispose();//it closes the stream
 
       Aver.IsTrue(ms.Length>0);
 
-      var v2 = new DefaultVolume(NopCrypto, ms);
+      var v2 = new DefaultVolume(CryptoMan, ms);
       Aver.AreEqual(id, v2.Metadata.Id);
       Aver.AreEqual("Volume-1", v2.Metadata.Label);
       Aver.AreEqual("My volume", v2.Metadata.Description);
@@ -57,13 +54,13 @@ namespace Azos.Tests.Nub.IO.Archiving
                                       .SetApplicationSection(app => { app.AddAttributeNode("b", -7); })
                                       .SetApplicationSection(app => { app.AddChildNode("sub{ q=true b=-9 }".AsLaconicConfig()); });
 
-      var v1 = new DefaultVolume(NopCrypto, meta, ms);
+      var v1 = new DefaultVolume(CryptoMan, meta, ms);
       var id = v1.Metadata.Id;
       v1.Dispose();//it closes the stream
 
       Aver.IsTrue(ms.Length > 0);
 
-      var v2 = new DefaultVolume(NopCrypto, ms);
+      var v2 = new DefaultVolume(CryptoMan, ms);
 
       v2.Metadata.See();
 
@@ -77,20 +74,38 @@ namespace Azos.Tests.Nub.IO.Archiving
       Aver.AreEqual(-9, v2.Metadata.SectionApplication["sub"].Of("b").ValueAsInt());
     }
 
-    [Run("compress=null     pad=1000 remount=false")]
-    [Run("compress=gzip     pad=1000 remount=false")]
-    [Run("compress=gzip-max pad=1000 remount=false")]
 
-    [Run("compress=null     pad=1000 remount=true")]
-    [Run("compress=gzip     pad=1000 remount=true")]
-    [Run("compress=gzip-max pad=1000 remount=true")]
-    public void Page_Write_Read(string compress, int pad, bool remount)
+    [Run("compress=null     encrypt=null pad=1000 remount=false")]
+    [Run("compress=gzip     encrypt=null pad=1000 remount=false")]
+    [Run("compress=gzip-max encrypt=null pad=1000 remount=false")]
+
+    [Run("compress=null     encrypt=null pad=1000 remount=true")]
+    [Run("compress=gzip     encrypt=null pad=1000 remount=true")]
+    [Run("compress=gzip-max encrypt=null pad=1000 remount=true")]
+
+    [Run("compress=null     encrypt=aes1 pad=1000 remount=false")]
+    [Run("compress=gzip     encrypt=aes1 pad=1000 remount=false")]
+    [Run("compress=gzip-max encrypt=aes1 pad=1000 remount=false")]
+
+    [Run("compress=null     encrypt=aes1 pad=1000 remount=true")]
+    [Run("compress=gzip     encrypt=aes1 pad=1000 remount=true")]
+    [Run("compress=gzip-max encrypt=aes1 pad=1000 remount=true")]
+
+    [Run("compress=null     encrypt=aes2 pad=1000 remount=false")]
+    [Run("compress=gzip     encrypt=aes2 pad=1000 remount=false")]
+    [Run("compress=gzip-max encrypt=aes2 pad=1000 remount=false")]
+
+    [Run("compress=null     encrypt=aes2 pad=1000 remount=true")]
+    [Run("compress=gzip     encrypt=aes2 pad=1000 remount=true")]
+    [Run("compress=gzip-max encrypt=aes2 pad=1000 remount=true")]
+    public void Page_Write_Read(string compress, string encrypt, int pad, bool remount)
     {
       var ms = new MemoryStream();
       var meta = VolumeMetadataBuilder.Make("Volume-1")
-                                      .SetCompressionScheme(compress);
+                                      .SetCompressionScheme(compress)
+                                      .SetEncryptionScheme(encrypt);
 
-      var v1 = new DefaultVolume(NopCrypto, meta, ms);
+      var v1 = new DefaultVolume(CryptoMan, meta, ms);
 
       var page = new Page(0);
       Aver.IsTrue(page.State == Page.Status.Unset);
@@ -114,7 +129,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       if (remount)
       {
         v1.Dispose();
-        v1 = new DefaultVolume(NopCrypto, ms);//re-mount existing data from stream
+        v1 = new DefaultVolume(CryptoMan, ms);//re-mount existing data from stream
         "Re-mounted volume {0}".SeeArgs(v1.Metadata.Id);
       }
 
@@ -178,7 +193,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var ms = new MemoryStream();
       var meta = VolumeMetadataBuilder.Make("Volume-1");
 
-      var v1 = new DefaultVolume(NopCrypto, meta, ms);
+      var v1 = new DefaultVolume(CryptoMan, meta, ms);
 
       var page = new Page(0);
       Aver.IsTrue(page.State == Page.Status.Unset);
@@ -312,14 +327,30 @@ namespace Azos.Tests.Nub.IO.Archiving
 
 
 
-    [Run("pc=5 vsz=11000 pgsize=1024  compress=null  count=10   sz=998")]
-    [Run("pc=2 vsz=11000 pgsize=9000  compress=null  count=10   sz=1000")]
-    [Run("pc=1 vsz=11000 pgsize=16000 compress=null  count=10   sz=1000")]
+    [Run("pc=5 vsz=11000 pgsize=1024  compress=null encrypt=null count=10   sz=998")]
+    [Run("pc=2 vsz=11000 pgsize=9000  compress=null encrypt=null count=10   sz=1000")]
+    [Run("pc=1 vsz=11000 pgsize=16000 compress=null encrypt=null count=10   sz=1000")]
 
-    [Run("pc=5 vsz=1000 pgsize=1024  compress=gzip  count=10   sz=1000")]
-    [Run("pc=2 vsz=1000 pgsize=9000  compress=gzip  count=10   sz=1000")]
-    [Run("pc=1 vsz=1000 pgsize=16000 compress=gzip  count=10   sz=1000")]
-    public void Write_Read_Compare_PageSplit(int pc, int vsz, int pgsize, string compress, int count, int sz)
+    [Run("pc=5 vsz=1000 pgsize=1024  compress=gzip encrypt=null count=10   sz=1000")]
+    [Run("pc=2 vsz=1000 pgsize=9000  compress=gzip encrypt=null count=10   sz=1000")]
+    [Run("pc=1 vsz=1000 pgsize=16000 compress=gzip encrypt=null count=10   sz=1000")]
+
+    [Run("pc=5 vsz=11000 pgsize=1024  compress=null encrypt=aes1 count=10   sz=998")]
+    [Run("pc=2 vsz=11000 pgsize=9000  compress=null encrypt=aes1 count=10   sz=1000")]
+    [Run("pc=1 vsz=11000 pgsize=16000 compress=null encrypt=aes1 count=10   sz=1000")]
+
+    [Run("pc=5 vsz=1100 pgsize=1024  compress=gzip encrypt=aes1 count=10   sz=1000")]
+    [Run("pc=2 vsz=1000 pgsize=9000  compress=gzip encrypt=aes1 count=10   sz=1000")]
+    [Run("pc=1 vsz=1000 pgsize=16000 compress=gzip encrypt=aes1 count=10   sz=1000")]
+
+    [Run("pc=5 vsz=11000 pgsize=1024  compress=null encrypt=aes2 count=10   sz=998")]
+    [Run("pc=2 vsz=11000 pgsize=9000  compress=null encrypt=aes2 count=10   sz=1000")]
+    [Run("pc=1 vsz=11000 pgsize=16000 compress=null encrypt=aes2 count=10   sz=1000")]
+
+    [Run("pc=5 vsz=1100 pgsize=1024  compress=gzip encrypt=aes2 count=10   sz=1000")]
+    [Run("pc=2 vsz=1000 pgsize=9000  compress=gzip encrypt=aes2 count=10   sz=1000")]
+    [Run("pc=1 vsz=1000 pgsize=16000 compress=gzip encrypt=aes2 count=10   sz=1000")]
+    public void Write_Read_Compare_PageSplit(int pc, int vsz, int pgsize, string compress, string encrypt, int count, int sz)
     {
       var expected = Enumerable.Range(0, count).Select(_ => new string(' ', sz)).ToArray();
       var ms = new MemoryStream();
@@ -328,9 +359,10 @@ namespace Azos.Tests.Nub.IO.Archiving
                                       .SetVersion(1, 0)
                                       .SetDescription("Testing string messages")
                                       .SetChannel(Atom.Encode("dvop"))
-                                      .SetCompressionScheme(compress);
+                                      .SetCompressionScheme(compress)
+                                      .SetEncryptionScheme(encrypt);
 
-      var volume = new DefaultVolume(NOPApplication.Instance.SecurityManager.Cryptography, meta, ms);
+      var volume = new DefaultVolume(CryptoMan, meta, ms);
       volume.PageSizeBytes = pgsize;
 
       using (var appender = new StringArchiveAppender(volume,
