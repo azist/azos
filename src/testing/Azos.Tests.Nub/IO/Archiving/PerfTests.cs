@@ -89,7 +89,6 @@ namespace Azos.Tests.Nub.IO.Archiving
       var msData = new FileStream("c:\\azos\\logging-{0}-{1}.lar".Args(compress.Default("none"), encrypt.Default("none")), FileMode.Open);
       var msIdxId = new FileStream("c:\\azos\\logging-{0}-{1}.guid.lix".Args(compress.Default("none"), encrypt.Default("none")), FileMode.Open);
 
-
       var volumeData = new DefaultVolume(CryptoMan, msData);
       var volumeIdxId = new DefaultVolume(CryptoMan, msIdxId);
 

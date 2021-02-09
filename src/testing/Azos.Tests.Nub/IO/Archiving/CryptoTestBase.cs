@@ -6,14 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using System.Threading.Tasks;
-using System.Linq;
 
 using Azos.Apps;
 using Azos.Scripting;
-using Azos.IO.Archiving;
 using Azos.Security;
 
 namespace Azos.Tests.Nub.IO.Archiving
@@ -51,10 +46,39 @@ app
     }
   }
 }";
+
+    public static string APP_BAD_CRYPTO_CONF =
+    @"   /* this algorithms swap the keys to imitate a different keyset */
+app
+{
+  security
+  {
+    cryptography
+    {
+      algorithm
+      {
+        name='aes1'  default=true
+        type='Azos.Security.HMACAESCryptoMessageAlgorithm, Azos'
+        hmac{key='base64:kDCgyN6ZjYW_5DbxvCeIQepo73ZHcSTA-jXkRZrRxJD4a-Nb_xjL2peKn2qPexB74b473OSkpu7eZfM62SbTEQ'}
+        aes {key='base64:lnRTG7SPRLUWDhJ3yGPk8mf70sFJWpoi4qV91LHI_p4'}
+      }
+
+      algorithm
+      {
+        name='aes2'  default=true
+        type='Azos.Security.HMACAESCryptoMessageAlgorithm, Azos'
+        hmac{key='base64:Mrb6L5KuBwuUsDwMiIgQvwi2Wmh6vWtUWS102C3Ep00fI1vKPEH2xnqbUPqF6NrOAa1WrPoSuI0lxpSEkr7kXw'}
+        aes {key='base64:QdAo-dae468rStzc5EFc_BIcxdG99mhrPNYGPvd3mTk'}
+        aes {key= 'base64:4SzhSsfx3426ZQaWzrK2CHtggblhCQPGyhDY6djtWFE'}
+      }
+    }
+  }
+}";
+
     private AzosApplication m_App;
 
     void IRunnableHook.Prologue(Runner runner, FID id)
-     => m_App = new AzosApplication(null, APP_CRYPTO_CONF.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+     => m_App = new AzosApplication(true, null, APP_CRYPTO_CONF.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
 
     bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error)
     {

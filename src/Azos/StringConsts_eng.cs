@@ -709,7 +709,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string ARCHIVE_ENCRYPTION_SCHEME_NOT_SUPPORTED_ERROR = "Archive encryption scheme `{0}` is not supported. Check algorithm configuration in app secman";
     public const string ARCHIVE_COMPRESSION_SCHEME_NOT_SUPPORTED_ERROR = "Archive compression scheme `{0}` is not supported. This implementation supports: {1}";
     public const string ARCHIVE_PREMATURE_EOF_ERROR = "Premature stream EOF while filling Page";
-    public const string ARCHIVE_PAGE_DECIPHER_INTEGRITY_ERROR = "Page decipher data failed integrity check";
+    public const string ARCHIVE_PAGE_DECIPHER_INTEGRITY_ERROR = "Page decipher data failed integrity check. The data was either tampered or the encryption scheme is different from the one used during the creation of this archive";
     public const string ARCHIVE_PAGE_DECIPHER_ERROR = "Page data decipher error: {0}";
     public const string ARCHIVE_PAGE_BUFFER_MAX_LENGTH_ERROR = "Page data max buffer length of {0} bytes exceeded";
     public const string ARCHIVE_PAGE_DECOMPRESSION_ERROR = "Page data decompression error: {0}";
