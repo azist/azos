@@ -22,8 +22,8 @@ namespace Azos.Tests.Nub.IO.Archiving
   public class PerfTests : CryptoTestBase
   {
 
-    //[Run("!arch-perf-write", "compress=null   encrypt=null   cnt=16000000 para=16")]
-    [Run("!arch-perf-write", "compress=gzip   encrypt=aes1   cnt=16000000 para=16")]
+    [Run("!arch-perf-write", "compress=null   encrypt=null   cnt=16000000 para=16")]
+    //[Run("!arch-perf-write", "compress=gzip   encrypt=aes1   cnt=16000000 para=16")]
     public void Write_LogMessages(string compress, string encrypt, int CNT, int PARA)
     {
       var msData = new FileStream("c:\\azos\\logging-{0}-{1}.lar".Args(compress.Default("none"), encrypt.Default("none")), FileMode.Create);
@@ -80,8 +80,8 @@ namespace Azos.Tests.Nub.IO.Archiving
     }
 
 
-    //[Run("!arch-perf-read", "compress=null   encrypt=null   search=$(~@term)")]// -r args='term=abcd'
-    [Run("!arch-perf-read", "compress=gzip   encrypt=aes1   search=$(~@term)")]// -r args='term=abcd'
+    [Run("!arch-perf-read", "compress=null   encrypt=null   search=$(~@term)")]// -r args='term=abcd'
+    //[Run("!arch-perf-read", "compress=gzip   encrypt=aes1   search=$(~@term)")]// -r args='term=abcd'
     public void Read_LogMessages(string compress, string encrypt, string search)
     {
       search = search.Default("ABBA");
