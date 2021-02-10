@@ -299,6 +299,7 @@ manc
                              .DistinctBy(ep => ((IHttpEndpoint)ep.Endpoint).Uri);
 
       //broadcast command to all physical servers
+      //20210206 Impersonation aspect is not used because it is only needed for this ONE call to exec
       var impersonationAuthHeader = Ambient.CurrentCallUser.MakeSysTokenAuthHeader();//get current call flow identity
       var results = new List<object>();
       foreach(var server in allServers)

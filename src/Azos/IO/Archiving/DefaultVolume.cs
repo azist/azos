@@ -31,7 +31,7 @@ namespace Azos.IO.Archiving
 
 
     /// <summary>
-    /// Create a new volume
+    /// Creates a new volume
     /// </summary>
     public DefaultVolume(ICryptoManager crypto, VolumeMetadataBuilder metadataBuilder, Stream stream, bool ownsStream = true)
      : this(crypto, null, metadataBuilder, stream, ownsStream)
@@ -40,7 +40,7 @@ namespace Azos.IO.Archiving
 
 
     /// <summary>
-    /// Create a new volume backed by an optional `IPageCache` implementation instance
+    /// Creates a new volume backed by an optional `IPageCache` implementation instance
     /// </summary>
     public DefaultVolume(ICryptoManager crypto, IPageCache cache, VolumeMetadataBuilder metadataBuilder, Stream stream, bool ownsStream = true)
     {

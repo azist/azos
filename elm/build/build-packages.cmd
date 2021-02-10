@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.5.19
-set HEADLINE=Call flow director
+set VER=1.6.1
+set HEADLINE=Fixes, Log archiving, DistributedCallFlow handling
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

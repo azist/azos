@@ -19,26 +19,24 @@ using Azos.Security;
 namespace Azos.Tests.Nub.IO.Archiving
 {
   [Runnable]
-  public class PerfTests
+  public class PerfTests : CryptoTestBase
   {
-    public static ICryptoManager NopCrypto => NOPApplication.Instance.SecurityManager.Cryptography;
 
-
-   // [Run("!arch-perf-write", "scheme=null          cnt=16000000 para=16")]
-    [Run("!arch-perf-write", "scheme=gzip          cnt=16000000 para=16")]
-   // [Run("!arch-perf-write", "scheme=gzip-max      cnt=16000000 para=16")]
-    public void Write_LogMessages(string scheme, int CNT, int PARA)
+    //[Run("!arch-perf-write", "compress=null   encrypt=null   cnt=16000000 para=16")]
+    [Run("!arch-perf-write", "compress=gzip   encrypt=aes1   cnt=16000000 para=16")]
+    public void Write_LogMessages(string compress, string encrypt, int CNT, int PARA)
     {
-      var msData = new FileStream("c:\\azos\\logging-{0}.lar".Args(scheme.Default("none")), FileMode.Create);
-      var msIdxId = new FileStream("c:\\azos\\logging-{0}.guid.lix".Args(scheme.Default("none")), FileMode.Create);
+      var msData = new FileStream("c:\\azos\\logging-{0}-{1}.lar".Args(compress.Default("none"), encrypt.Default("none")), FileMode.Create);
+      var msIdxId = new FileStream("c:\\azos\\logging-{0}-{1}.guid.lix".Args(compress.Default("none"), encrypt.Default("none")), FileMode.Create);
 
       var meta = VolumeMetadataBuilder.Make("Perf")
                                       .SetVersion(1, 1)
                                       .SetDescription("Perf testing")
-                                      .SetCompressionScheme(scheme);   // Add optional compression
+                                      .SetCompressionScheme(compress)
+                                      .SetEncryptionScheme(encrypt);
 
-      var volumeData = new DefaultVolume(NopCrypto, meta, msData);
-      var volumeIdxId = new DefaultVolume(NopCrypto, meta, msIdxId);
+      var volumeData = new DefaultVolume(CryptoMan, meta, msData);
+      var volumeIdxId = new DefaultVolume(CryptoMan, meta, msIdxId);
 
 
       volumeData.PageSizeBytes = 1024 * 1024;
@@ -82,17 +80,18 @@ namespace Azos.Tests.Nub.IO.Archiving
     }
 
 
-
-    [Run("!arch-perf-read", "scheme=gzip search=$(~@term)")]// trun Azos.Tests.Nub.dll -r args="term='abcd'" names=arch-perf-read
-    public void Read_LogMessages(string scheme, string search)
+    //[Run("!arch-perf-read", "compress=null   encrypt=null   search=$(~@term)")]// -r args='term=abcd'
+    [Run("!arch-perf-read", "compress=gzip   encrypt=aes1   search=$(~@term)")]// -r args='term=abcd'
+    public void Read_LogMessages(string compress, string encrypt, string search)
     {
       search = search.Default("ABBA");
 
-      var msData = new FileStream("c:\\azos\\logging-{0}.lar".Args(scheme.Default("none")), FileMode.Open);
-      var msIdxId = new FileStream("c:\\azos\\logging-{0}.guid.lix".Args(scheme.Default("none")), FileMode.Open);
+      var msData = new FileStream("c:\\azos\\logging-{0}-{1}.lar".Args(compress.Default("none"), encrypt.Default("none")), FileMode.Open);
+      var msIdxId = new FileStream("c:\\azos\\logging-{0}-{1}.guid.lix".Args(compress.Default("none"), encrypt.Default("none")), FileMode.Open);
 
-      var volumeData = new DefaultVolume(NopCrypto, msData);
-      var volumeIdxId = new DefaultVolume(NopCrypto, msIdxId);
+
+      var volumeData = new DefaultVolume(CryptoMan, msData);
+      var volumeIdxId = new DefaultVolume(CryptoMan, msIdxId);
 
       var reader = new LogMessageArchiveReader(volumeData);
       var idxReader = new StringIdxReader(volumeIdxId);

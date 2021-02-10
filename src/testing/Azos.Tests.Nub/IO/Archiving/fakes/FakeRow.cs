@@ -11,6 +11,10 @@ using System.Collections.Generic;
 using Azos.Data;
 using Azos.Text;
 using Azos.Serialization.Bix;
+using Azos.Financial;
+using Azos.IO.Archiving;
+using Azos.Time;
+using System.IO;
 
 namespace Azos.Tests.Nub.IO.Archiving
 {
@@ -18,7 +22,6 @@ namespace Azos.Tests.Nub.IO.Archiving
   /// Public enum for identifying the known or unknown sex of an individual
   /// </summary>
   public enum Sex { Male, Female, Unspecified };
-
 
   /// <summary>
   /// An abstract model to inherit from for fake sample data used for archival testing
@@ -36,8 +39,6 @@ namespace Azos.Tests.Nub.IO.Archiving
         yield return new T().Populate(new GDID(era, authority, i)) as T;
       }
     }
-
-
 
     public FakeRow() { }
 
@@ -238,7 +239,6 @@ namespace Azos.Tests.Nub.IO.Archiving
     [Field(backendName: "ln")] public double Longitude { get; set; }
     [Field(backendName: "cd")] public DateTime CreateDate { get; set; }
 
-
     public override FakeRow Populate(GDID parentGdid)
     {
       ID = parentGdid;
@@ -371,6 +371,151 @@ namespace Azos.Tests.Nub.IO.Archiving
       ID = parentGdid;
 
       return this;
+    }
+  }
+
+
+  /// <summary>
+  /// A fake mumbo jumbo concrete implementation for testing indexing primitives
+  /// </summary>
+  [Bix("129A9012-CCD3-4AF0-9569-600AEAAFD650")]
+  public class MumboJumbo : FakeRow
+  {
+    public MumboJumbo() : base() { }
+
+    [Field(backendName: "cid")] public Guid CorrelationId { get; set; }
+    [Field(backendName: "did")] public long DeviceId { get; set; }
+    [Field(backendName: "pn")] public long PartNumber { get; set; }
+    [Field(backendName: "lt")] public double Latitude { get; set; }
+    [Field(backendName: "ln")] public double Longitude { get; set; }
+    [Field(backendName: "al")] public decimal Altitude { get; set; }
+    [Field(backendName: "cd")] public DateTime CreateDate { get; set; }
+    [Field(backendName: "nt")] public string Note { get; set; }
+    [Field(backendName: "amt")] public Amount Amt { get; set; }
+
+    public override FakeRow Populate(GDID parentGdid)
+    {
+      ID = parentGdid;
+      DeviceId = Ambient.Random.NextScaledRandomInteger(1, 10_000);
+      Latitude = Math.Round(Ambient.Random.NextScaledRandomDouble(-80, 80), 4);
+      Longitude = Math.Round(Ambient.Random.NextScaledRandomDouble(-180, 180), 4);
+      CreateDate = DateTime.Now.AddHours(Ambient.Random.NextScaledRandomInteger(1, 12)).AddMinutes(Ambient.Random.NextScaledRandomInteger(1, 60));
+      CorrelationId = Guid.NewGuid();
+      PartNumber = Ambient.Random.NextScaledRandomInteger(2, int.MaxValue);
+      Note = NaturalTextGenerator.Generate(50);
+      Amt = new Amount("usd", (decimal)Ambient.Random.NextScaledRandomDouble(0, 1_000_000D));
+
+      return this;
+    }
+
+    /* Set up control item */
+
+    public const uint CTL_GDID_ERA = 3;
+    public const int CTL_GDID_AUTH = 3;
+    public const ulong CTL_GDID_CNTR = 10_001;
+    public const long CTL_DEVICE_ID = 50_000_000L;
+    public const double CTL_LAT = 55.5D;
+    public const double CTL_LON = 55.5D;
+    public static readonly DateTime CTL_CREATE_DT = new DateTime(2000, 01, 01);
+    public static readonly Guid CTL_CID = Guid.Parse("129A9012-CCD3-4AF0-9569-600AEAAFD650");
+    public const long CTL_PNUM = 1;
+    public const string CTL_NOTE = "Fuzzy wuzzy was a bear";
+    public const decimal CTL_ALT = 9999.999M;
+    public static readonly Amount CTL_AMT = new Amount("usd", 2_000_000M);
+
+    public static MumboJumbo GetControl()
+    {
+      return new MumboJumbo()
+      {
+        ID = new GDID(CTL_GDID_ERA, CTL_GDID_AUTH, CTL_GDID_CNTR),
+        DeviceId = CTL_DEVICE_ID,
+        Latitude = CTL_LAT,
+        Longitude = CTL_LON,
+        CreateDate = CTL_CREATE_DT,
+        CorrelationId = CTL_CID,
+        PartNumber = CTL_PNUM,
+        Note = CTL_NOTE,
+        Altitude = CTL_ALT,
+        Amt = CTL_AMT
+      };
+    }
+  }
+
+  #endregion
+
+
+  #region Fake Row Appenders and Readers
+
+  /// <summary>
+  /// An archive appender for use with index primitive tests.
+  /// </summary>
+  public sealed class MumboJumboArchiveAppender : ArchiveAppender<MumboJumbo>
+  {
+    public MumboJumboArchiveAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<MumboJumbo, Bookmark> onPageCommit = null)
+     : base(volume, time, app, host, onPageCommit)
+    {
+      m_Stream = new MemoryStream();
+      m_Writer = new BixWriter(m_Stream);
+    }
+
+    private MemoryStream m_Stream;
+    private BixWriter m_Writer;
+
+    protected override ArraySegment<byte> DoSerialize(MumboJumbo entry)
+    {
+      m_Stream.SetLength(0);
+
+      if (entry == null)
+      {
+        m_Writer.Write(false); //NULL
+      }
+      else
+      {
+        m_Writer.Write(true); // NON-NULL
+
+        m_Writer.Write(entry.ID.IsZero ? (GDID?)null : entry.ID);
+        m_Writer.Write(entry.DeviceId);
+        m_Writer.Write(entry.Latitude);
+        m_Writer.Write(entry.Longitude);
+        m_Writer.Write(entry.CreateDate);
+        m_Writer.Write(entry.CorrelationId);
+        m_Writer.Write(entry.PartNumber);
+        m_Writer.Write(entry.Note);
+        m_Writer.Write(entry.Altitude);
+        m_Writer.Write(entry.Amt);
+      }
+      return new ArraySegment<byte>(m_Stream.GetBuffer(), 0, (int)m_Stream.Length);
+    }
+  }
+
+  /// <summary>
+  /// An archive reader for use with index primitive tests.
+  /// </summary>
+  public sealed class MumboJumboArchiveReader : ArchiveBixReader<MumboJumbo>
+  {
+    public MumboJumboArchiveReader(IVolume volume) : base(volume) { }
+
+    public override MumboJumbo MaterializeBix(BixReader reader)
+    {
+      MumboJumbo result = null;
+
+      if (reader.ReadBool())//if non-null message
+      {
+        result = new MumboJumbo();
+
+        var ngdid = reader.ReadNullableGDID();
+        result.ID = ngdid.HasValue ? ngdid.Value : GDID.ZERO;
+        result.DeviceId = reader.ReadLong();
+        result.Latitude = reader.ReadDouble();
+        result.Longitude = reader.ReadDouble();
+        result.CreateDate = reader.ReadDateTime();
+        result.CorrelationId = reader.ReadGuid();
+        result.PartNumber = reader.ReadLong();
+        result.Note = reader.ReadString();
+        result.Altitude = reader.ReadDecimal();
+        result.Amt = reader.ReadAmount();
+      }
+      return result;
     }
   }
 
