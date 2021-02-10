@@ -19,7 +19,8 @@ namespace Azos.IO.Archiving
   public interface IVolume : IDisposable
   {
     /// <summary>
-    /// Controls page split on writing. Does not affect reading
+    /// Controls page split on writing. Does not affect reading directly as readers try to infer
+    /// the average page size while reading through archived data
     /// </summary>
     int PageSizeBytes { get; set; }
 

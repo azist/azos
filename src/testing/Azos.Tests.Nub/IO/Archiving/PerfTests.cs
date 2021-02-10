@@ -92,8 +92,8 @@ namespace Azos.Tests.Nub.IO.Archiving
       var volumeData = new DefaultVolume(CryptoMan, msData);
       var volumeIdxId = new DefaultVolume(CryptoMan, msIdxId);
 
-      volumeData.PageSizeBytes = 4 * 1024 * 1024;//<-------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      volumeIdxId.PageSizeBytes = 4 * 128 * 1024;
+      //volumeData.PageSizeBytes = 4 * 1024 * 1024;//<-------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //volumeIdxId.PageSizeBytes = 4 * 128 * 1024;
 
       var reader = new LogMessageArchiveReader(volumeData);
       var idxReader = new StringIdxReader(volumeIdxId);
@@ -128,17 +128,44 @@ namespace Azos.Tests.Nub.IO.Archiving
       //}
 
 
-
-      Parallel.ForEach(volumeData.PageInfos(0), /*new ParallelOptions{ MaxDegreeOfParallelism=1},*/  pi =>
+      var prealloc = new Page(0); //SIGNIFICANT SLOW-DOWN WHILE ALLOCATING PAGES.   WHY MEMORY STREAM DOES ARRAY.CLEAR?
+      foreach (var page in reader.Pages(0, preallocatedPage: prealloc))//.Take(500))
       {
-        var ec = 0;
-        var page = reader.Pages(pi.PageId).First();
-        foreach (var entry in page.Entries.Take(1))
-        {
-          ec++;
-        }
-        System.Threading.Interlocked.Add(ref total, ec);
-      });
+        total++;
+        //if (total % 100 ==0)
+        // "Page {0} Avg size: {1}".SeeArgs(page.PageId, reader.AveragePageSizeBytes);
+      }
+
+
+      //Parallel.ForEach(volumeData.PageInfos(0), new ParallelOptions { MaxDegreeOfParallelism = 1 }, pi =>
+      //{
+      //  var ec = 0;
+      //  var page = reader.Pages(pi.PageId).First();
+      //  // "Page {0} Avg size: {1}".SeeArgs(page.PageId, reader.AveragePageSizeBytes);
+      //  //foreach (var entry in page.Entries)//.Take(1))
+      //  //{
+      //  //  ec++;
+      //  //}
+      //  System.Threading.Interlocked.Add(ref total, 1);//ec);
+      //});
+
+      //Parallel.ForEach(volumeData.PageInfos(0).BatchBy(32), /*new ParallelOptions { MaxDegreeOfParallelism = 1 },*/ pis =>
+      //{
+      //  var ec = 0;
+      //  var pg = new Page(2 * 1024 * 1024);
+      //  foreach(var pi in pis)
+      //  {
+      //    volumeData.ReadPage(pi.PageId, pg);
+      //    //foreach (var entry in pg.Entries)//.Take(1))
+      //    //{
+      //    //  ec++;
+      //    //}
+      //  }
+
+      //  System.Threading.Interlocked.Add(ref total, 1);//ec);
+
+      //});
+
 
 
       time.Stop();

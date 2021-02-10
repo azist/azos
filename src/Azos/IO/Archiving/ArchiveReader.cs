@@ -18,10 +18,17 @@ namespace Azos.IO.Archiving
   /// </summary>
   public abstract class ArchiveReader<TEntry>
   {
+    //EMA filter: the lower the number the more smoothing is done (less sensitive to changes)
+    private const float EMA_PAGE_SIZE_K = 0.257f;
+    private const float EMA_PAGE_SIZE_J = 1f - EMA_PAGE_SIZE_K;
+
     public ArchiveReader(IVolume volume)
     {
       Volume = volume.NonNull(nameof(volume));
+      m_AveragePageSizeBytes = volume.PageSizeBytes;
     }
+
+    private int m_AveragePageSizeBytes;
 
     /// <summary>
     /// Volume which stores data
@@ -29,20 +36,38 @@ namespace Azos.IO.Archiving
     public readonly IVolume Volume;
 
     /// <summary>
+    /// Returns an average page size as detected while reading past few pages.
+    /// The system tries to detect the real page sizes and use that to pre-allocate page buffers
+    /// to reduce re-allocation
+    /// </summary>
+    public int AveragePageSizeBytes => m_AveragePageSizeBytes;
+
+
+    /// <summary>
     /// Enumerates all pages starting at the specified `pageId`.
     /// This method yields back an enumeration of different page instances which could be used
-    /// for parallel processing unless `existingPageInstance` is supplied in which case that given page instance is re-used
+    /// for parallel processing unless `preallocatedPage` is supplied in which case that given page instance is re-used
     /// for enumeration of the archive, consequently making it NOT a thread-safe operation.
     /// Existing page instances are used as optimization technique for tight read loops and should only be used in special cases
     /// to prevent extra page instance allocation (thus making it NOT thread-safe). The thread-safety concern only pertains to
     /// the instances returned by the enumerator. The IEnumerator itself is NOT thread-safe
     /// </summary>
-    public IEnumerable<Page> Pages(long startPageId, bool skipCorruptPages = false, Page existingPageInstance = null)
+    public IEnumerable<Page> Pages(long startPageId, bool skipCorruptPages = false, Page preallocatedPage = null)
     {
+      //local flow average is needed because not all of the archive pages are necessarily the same size:
+      //they are the similar size around the same read area, consequently the local EMA provide more accurate estimate
+      float emaSize = AveragePageSizeBytes;
+
+      var i = 0;
       var current = startPageId;
       while(true)
       {
-        var page = existingPageInstance ?? new Page(Volume.PageSizeBytes);
+        var page = preallocatedPage;
+
+        if (page == null)
+          page = new Page((int)emaSize);
+        else
+          page.AdjustDefaultCapacity((int)emaSize);
 
         try
         {
@@ -60,6 +85,14 @@ namespace Azos.IO.Archiving
 
         if (page.State == Page.Status.Reading)
         {
+          var sz = (float)page.Data.Count;
+          emaSize = (sz * EMA_PAGE_SIZE_K) + (emaSize * EMA_PAGE_SIZE_J);
+
+          if ((i++ & 0b11) == 0)//every 4 iterations, calculate the average for the whole class based on an already averaged local
+          {
+            m_AveragePageSizeBytes = (int)((emaSize * EMA_PAGE_SIZE_K) + (m_AveragePageSizeBytes * EMA_PAGE_SIZE_J));
+          }
+
           yield return page;
         }
 

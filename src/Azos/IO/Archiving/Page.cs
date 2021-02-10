@@ -27,10 +27,17 @@ namespace Azos.IO.Archiving
   {
     public enum Status { Unset, Loading, Reading, EOF, Writing, Written }
 
-    internal Page(int defaultCapacity)
+    /// <summary>
+    /// Creates an instance of Page which is a unit of data archive.
+    /// Business applications should use ArchiveAppenders and ArchiveReaders
+    /// which manage page instance creation. The default capacity preallocates internal memory
+    /// buffer and plays an important role for page instance reuse as sufficient capacity ensures
+    /// copy-free operation
+    /// </summary>
+    public Page(int defaultCapacity)
     {
-      m_DefaultCapacity = defaultCapacity.KeepBetween(Format.PAGE_MIN_LEN, Format.PAGE_MAX_LEN);
       m_Raw = new MemoryStream(m_DefaultCapacity);
+      AdjustDefaultCapacity(defaultCapacity);
     }
 
     /*
@@ -86,13 +93,13 @@ namespace Azos.IO.Archiving
     internal MemoryStream BeginReading(long pageId)
     {
       m_PageId = pageId;
-      if (m_Raw.Capacity > (1.25 * m_DefaultCapacity))
+      if (m_Raw.Capacity > (2.25 * m_DefaultCapacity))//trim the buffer as it is too big. 25% extra margin
       {
         m_Raw = new MemoryStream(m_DefaultCapacity);
       }
       else
       {
-        m_Raw.SetLength(0);
+        m_Raw.SetLength(0);//just re-use the existing buffer
       }
       m_State = Status.Loading;
       return m_Raw;
@@ -132,6 +139,17 @@ namespace Azos.IO.Archiving
     public int DefaultCapacity => m_DefaultCapacity;
 
     /// <summary>
+    /// The default capacity controls the preallocation of internal memory
+    /// buffer and plays an important role for page instance reuse as sufficient capacity ensures
+    /// copy-free operation
+    /// </summary>
+    public void AdjustDefaultCapacity(int defaultCapacity)
+    {
+      m_DefaultCapacity = defaultCapacity.KeepBetween(Format.PAGE_MIN_LEN, Format.PAGE_MAX_LEN);
+    }
+
+
+    /// <summary>
     /// Returns the current state of the page instance
     /// </summary>
     public Status State => m_State;
@@ -159,7 +177,7 @@ namespace Azos.IO.Archiving
     public Atom CreateApp => m_CreateApp;
 
     /// <summary>
-    /// Current page size
+    /// Current page data
     /// </summary>
     public ArraySegment<byte> Data => new ArraySegment<byte>(m_Raw.GetBuffer(), 0, (int)m_Raw.Length);
 
