@@ -40,8 +40,6 @@ namespace Azos.Tests.Nub.IO.Archiving
       }
     }
 
-
-
     public FakeRow() { }
 
     [Field(backendName: "_id")] public GDID ID { get; set; }
@@ -241,7 +239,6 @@ namespace Azos.Tests.Nub.IO.Archiving
     [Field(backendName: "ln")] public double Longitude { get; set; }
     [Field(backendName: "cd")] public DateTime CreateDate { get; set; }
 
-
     public override FakeRow Populate(GDID parentGdid)
     {
       ID = parentGdid;
@@ -379,7 +376,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
 
   /// <summary>
-  /// A fake device location concrete implementation
+  /// A fake mumbo jumbo concrete implementation for testing indexing primitives
   /// </summary>
   [Bix("129A9012-CCD3-4AF0-9569-600AEAAFD650")]
   public class MumboJumbo : FakeRow
@@ -449,7 +446,9 @@ namespace Azos.Tests.Nub.IO.Archiving
 
   #region Fake Row Appenders and Readers
 
-
+  /// <summary>
+  /// An archive appender for use with index primitive tests.
+  /// </summary>
   public sealed class MumboJumboArchiveAppender : ArchiveAppender<MumboJumbo>
   {
     public MumboJumboArchiveAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<MumboJumbo, Bookmark> onPageCommit = null)
@@ -485,11 +484,13 @@ namespace Azos.Tests.Nub.IO.Archiving
         m_Writer.Write(entry.Altitude);
         m_Writer.Write(entry.Amt);
       }
-
       return new ArraySegment<byte>(m_Stream.GetBuffer(), 0, (int)m_Stream.Length);
     }
   }
 
+  /// <summary>
+  /// An archive reader for use with index primitive tests.
+  /// </summary>
   public sealed class MumboJumboArchiveReader : ArchiveBixReader<MumboJumbo>
   {
     public MumboJumboArchiveReader(IVolume volume) : base(volume) { }
@@ -514,7 +515,6 @@ namespace Azos.Tests.Nub.IO.Archiving
         result.Altitude = reader.ReadDecimal();
         result.Amt = reader.ReadAmount();
       }
-
       return result;
     }
   }
