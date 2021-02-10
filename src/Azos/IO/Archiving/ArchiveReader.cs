@@ -4,10 +4,12 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Serialization.Bix;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+
+using Azos.Serialization.Bix;
 
 namespace Azos.IO.Archiving
 {
@@ -30,18 +32,57 @@ namespace Azos.IO.Archiving
 
     private int m_AveragePageSizeBytes;
 
+    private Page m_Cached_1;
+    private Page m_Cached_2;
+    private Page m_Cached_3;
+    private Page m_Cached_4;
+    private Page m_Cached_5;
+
     /// <summary>
     /// Volume which stores data
     /// </summary>
     public readonly IVolume Volume;
 
     /// <summary>
-    /// Returns an average page size as detected while reading past few pages.
-    /// The system tries to detect the real page sizes and use that to pre-allocate page buffers
-    /// to reduce re-allocation
+    /// Returns an average page size as estimated while reading previous pages.
+    /// The system computes the average of a few real page sizes and use that to preallocate page buffers
+    /// to reduce page re-allocation
     /// </summary>
     public int AveragePageSizeBytes => m_AveragePageSizeBytes;
 
+
+    private Page getPageInstance(int size)
+    {
+       var result = Interlocked.Exchange(ref m_Cached_1, null) ??
+                    Interlocked.Exchange(ref m_Cached_2, null) ??
+                    Interlocked.Exchange(ref m_Cached_3, null) ??
+                    Interlocked.Exchange(ref m_Cached_4, null) ??
+                    Interlocked.Exchange(ref m_Cached_5, null);
+
+       if (result==null)
+         result = new Page(size);
+       else
+         result.AdjustDefaultCapacity(size);
+
+       return result;
+    }
+
+    /// <summary>
+    /// This method is an performance optimization technique which reduces the memory pressure
+    /// due to Page instance allocation. Recycles the page instance with the reader so it can reuse the existing page
+    /// instance instead of allocating a new one. WARNING: Special care should be taken while calling this method
+    /// from a parallel/multi-threaded code to make sure that no other asynchronous call flow happens with
+    /// the page instance being recycled
+    /// </summary>
+    public void Recycle(Page page)
+    {
+      if (page==null) return;
+      if (null == Interlocked.CompareExchange(ref m_Cached_1, page, null)) return;
+      if (null == Interlocked.CompareExchange(ref m_Cached_2, page, null)) return;
+      if (null == Interlocked.CompareExchange(ref m_Cached_3, page, null)) return;
+      if (null == Interlocked.CompareExchange(ref m_Cached_4, page, null)) return;
+      Interlocked.CompareExchange(ref m_Cached_5, page, null);
+    }
 
     /// <summary>
     /// Enumerates all pages starting at the specified `pageId`.
@@ -65,7 +106,7 @@ namespace Azos.IO.Archiving
         var page = preallocatedPage;
 
         if (page == null)
-          page = new Page((int)emaSize);
+          page = getPageInstance((int)emaSize);
         else
           page.AdjustDefaultCapacity((int)emaSize);
 

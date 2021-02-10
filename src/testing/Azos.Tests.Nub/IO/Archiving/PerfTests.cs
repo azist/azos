@@ -127,44 +127,51 @@ namespace Azos.Tests.Nub.IO.Archiving
       //  //}
       //}
 
-
-      var prealloc = new Page(0); //SIGNIFICANT SLOW-DOWN WHILE ALLOCATING PAGES.   WHY MEMORY STREAM DOES ARRAY.CLEAR?
-      foreach (var page in reader.Pages(0, preallocatedPage: prealloc))//.Take(500))
+      //Rent buffers from arena instead? who is going to release pages? page.Recycle() to release the buffer to the pool? What if they forget to call it?
+      //var prealloc = new Page(0); //SIGNIFICANT SLOW-DOWN WHILE ALLOCATING PAGES.   WHY MEMORY STREAM DOES ARRAY.CLEAR?
+      foreach (var page in reader.Pages(0/*, preallocatedPage: prealloc*/).Take(200))
       {
         total++;
         //if (total % 100 ==0)
-        // "Page {0} Avg size: {1}".SeeArgs(page.PageId, reader.AveragePageSizeBytes);
+        "Page {0:X8} is {1:n0}  --- Average size: {2:n0}".SeeArgs(page.PageId, page.Data.Array.Length, reader.AveragePageSizeBytes);
+        reader.Recycle(page);
       }
 
 
-      //Parallel.ForEach(volumeData.PageInfos(0), new ParallelOptions { MaxDegreeOfParallelism = 1 }, pi =>
+      //Parallel.ForEach(volumeData.PageInfos(0), new ParallelOptions { MaxDegreeOfParallelism = 8 }, pi =>
       //{
       //  var ec = 0;
       //  var page = reader.Pages(pi.PageId).First();
       //  // "Page {0} Avg size: {1}".SeeArgs(page.PageId, reader.AveragePageSizeBytes);
-      //  //foreach (var entry in page.Entries)//.Take(1))
-      //  //{
-      //  //  ec++;
-      //  //}
-      //  System.Threading.Interlocked.Add(ref total, 1);//ec);
-      //});
-
-      //Parallel.ForEach(volumeData.PageInfos(0).BatchBy(32), /*new ParallelOptions { MaxDegreeOfParallelism = 1 },*/ pis =>
-      //{
-      //  var ec = 0;
-      //  var pg = new Page(2 * 1024 * 1024);
-      //  foreach(var pi in pis)
+      //  foreach (var entry in page.Entries)//.Take(1))
       //  {
-      //    volumeData.ReadPage(pi.PageId, pg);
-      //    //foreach (var entry in pg.Entries)//.Take(1))
-      //    //{
-      //    //  ec++;
-      //    //}
+      //    if (entry.State == Entry.Status.Valid)
+      //    {
+      //      var msg = reader.Materialize(entry);
+      //      if (msg.Guid.ToString().StartsWith("faca")) msg.See();
+      //    }
+      //    ec++;
       //  }
-
-      //  System.Threading.Interlocked.Add(ref total, 1);//ec);
-
+      //  reader.Recycle(page);
+      //  System.Threading.Interlocked.Add(ref total, ec);//1);
       //});
+
+      //////Parallel.ForEach(volumeData.PageInfos(0).BatchBy(32), /*new ParallelOptions { MaxDegreeOfParallelism = 1 },*/ pis =>
+      //////{
+      //////  var ec = 0;
+      //////  var pg = new Page(2 * 1024 * 1024);
+      //////  foreach (var pi in pis)
+      //////  {
+      //////    volumeData.ReadPage(pi.PageId, pg);
+      //////    //foreach (var entry in pg.Entries)//.Take(1))
+      //////    //{
+      //////    //  ec++;
+      //////    //}
+      //////  }
+
+      //////  System.Threading.Interlocked.Add(ref total, 1);//ec);
+
+      //////});
 
 
 
