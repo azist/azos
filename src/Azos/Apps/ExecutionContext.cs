@@ -179,7 +179,7 @@ namespace Azos.Apps
 
       var log = app.Log;
 
-      if (log is Log.NOPLog) return;
+      if (log==null || log is Log.NOPLog) return;
 
       log.Write(new Log.Message
       {

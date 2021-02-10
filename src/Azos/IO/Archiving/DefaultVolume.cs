@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 
@@ -164,6 +165,46 @@ namespace Azos.IO.Archiving
     /// Sets `ReadErrorCount` to zero
     /// </summary>
     public void ResetReadErrorCount() => m_ReadErrorCount = 0;
+
+    //todo: comments
+    public PageInfo ReadPageInfo(long pageId)
+    {
+      pageId.IsTrue(v => v >= 0, "pageId < 0");
+
+      //align pageId by 16 for cache lookup
+      pageId = IntUtils.Align16(pageId);
+      var requestedPageId = pageId;
+
+      PageInfo info;
+      int len;
+
+      var isCache = m_Cache != null && m_Cache.Enabled;
+
+      if (!isCache || !m_Cache.TryGet(requestedPageId, out info))
+      {
+        lock (m_StreamLock)
+        {
+          if (!isCache || !m_Cache.TryGet(requestedPageId, out info))
+          {
+            (pageId, info, len) = seekToNextReadablePageLocation(pageId);
+          }
+        }
+      }
+
+      return info;
+    }
+
+    public IEnumerable<PageInfo> PageInfos(long pageId)
+    {
+      while(true)
+      {
+        var pi = ReadPageInfo(pageId);
+        if (!pi.Assigned) yield break;
+        yield return pi;
+        pageId = pi.NextPageId;
+      }
+    }
+
 
     /// <summary>
     /// Fills an existing page instance with archive data performing necessary decompression/decryption
@@ -337,6 +378,7 @@ namespace Azos.IO.Archiving
             try
             {
               var info = new PageInfo();
+              info.PageId = pageId;
               info.CreateUtc = m_Reader.ReadUlong().FromSecondsSinceUnixEpochStart();
               info.Host = m_Reader.ReadString();
               info.App = m_Reader.ReadAtom();

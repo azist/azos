@@ -391,7 +391,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
 
 
-      var got = reader.Entries(new Bookmark()).ToArray();
+      var got = reader.All.ToArray();
 
       Aver.AreEqual(expected.Length, got.Length);
       for (int i = 0; i < count; i++)
@@ -402,5 +402,42 @@ namespace Azos.Tests.Nub.IO.Archiving
       volume.Dispose();
     }
 
+
+    [Run("compress=null")]
+    [Run("compress=gzip")]
+    [Aver.Throws(typeof(ArchivingException), Message = "scheme is different")]
+    public void Crypto_Bad_Keys(string compress)
+    {
+      var expected = Enumerable.Range(0, 10).Select(_ => new string (' ', 15)).ToArray();
+      var ms = new MemoryStream();
+
+      var meta = VolumeMetadataBuilder.Make("String archive")
+                                      .SetVersion(1, 0)
+                                      .SetDescription("Testing string messages")
+                                      .SetChannel(Atom.Encode("dvop"))
+                                      .SetCompressionScheme(compress)
+                                      .SetEncryptionScheme("aes1");
+
+      using(var volume = new DefaultVolume(CryptoMan, meta, ms))
+        using (var appender = new StringArchiveAppender(volume,
+                                            NOPApplication.Instance.TimeSource,
+                                            NOPApplication.Instance.AppId, "dima@zhaba"))
+        {
+          for (var i = 0; i<expected.Length; i++)
+          {
+            appender.Append(expected[i]);
+          }
+        }
+
+      using(var app = new AzosApplication(null, APP_BAD_CRYPTO_CONF.AsLaconicConfig()))
+      {
+        using (var volume = new DefaultVolume(app.SecurityManager.Cryptography, ms))//different key set
+        {
+          var page = new Page(0);
+          volume.ReadPage(0,page);//throws
+
+        }
+      }
+    }
   }
 }

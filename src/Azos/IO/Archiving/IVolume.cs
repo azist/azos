@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Azos.IO.Archiving
@@ -18,9 +19,15 @@ namespace Azos.IO.Archiving
   public interface IVolume : IDisposable
   {
     /// <summary>
-    /// Controls page split on writing. Does not affect reading
+    /// Controls page split on writing. Does not affect reading directly as readers try to infer
+    /// the average page size while reading through archived data
     /// </summary>
     int PageSizeBytes { get; set; }
+
+
+    PageInfo ReadPageInfo(long pageId);
+
+    IEnumerable<PageInfo> PageInfos(long pageId);
 
     /// <summary>
     /// Fills an existing page instance with archive data performing necessary decompression/decryption
@@ -60,10 +67,13 @@ namespace Azos.IO.Archiving
   /// </summary>
   public struct PageInfo
   {
+    public long     PageId;
+    public long     NextPageId;
     public DateTime CreateUtc;
-    public Atom App;
-    public string Host;
-    public long NextPageId;
+    public Atom     App;
+    public string   Host;
+
+    public bool Assigned => PageId > 0;
   }
 
   /// <summary>
@@ -98,6 +108,11 @@ namespace Azos.IO.Archiving
     /// Tries to get a page content by pageId
     /// </summary>
     bool TryGet(long pageId, MemoryStream pageData, out PageInfo info);
+
+    /// <summary>
+    /// Tries to get a page info only by pageId
+    /// </summary>
+    bool TryGet(long pageId, out PageInfo info);
 
     /// <summary>
     /// Puts data in cache

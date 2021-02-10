@@ -25,7 +25,7 @@ namespace Azos.IO.FileSystem
       if (segments == null || segments.Length == 0) return false;
 
       //set to root
-      var dir = session[session.FileSystem.GeneralCapabilities.PathSeparatorCharacters[0].ToString()] as FileSystemDirectory;
+      var dir = session[session.FileSystem.GetPathRoot(fullPath)] as FileSystemDirectory;
       if (dir == null) return false;
 
       foreach (var seg in segments)
@@ -49,11 +49,13 @@ namespace Azos.IO.FileSystem
       var segs = fileSystem.NonNull(nameof(fileSystem))
                            .SplitPathSegments(fullPath);
 
+      var root = fileSystem.GetPathRoot(fullPath) ?? string.Empty;
+
       if (segs == null || segs.Length == 0) return (string.Empty, string.Empty);
       if (segs.Length == 1) return (string.Empty, segs[0]);
       if (segs.Length == 2) return (segs[0], segs[1]);
 
-      var path = fileSystem.CombinePaths(segs[0], segs.Skip(1).Take(segs.Length - 2).ToArray());
+      var path = root + fileSystem.CombinePaths(segs[0], segs.Skip(1).Take(segs.Length - 2).ToArray());
       var fn = segs[segs.Length - 1];
       return (path, fn);
     }
@@ -68,7 +70,8 @@ namespace Azos.IO.FileSystem
                         .ExtractFilePathAndName(fullPath.NonBlank(nameof(fullPath)));
 
       var dir = session[path] as FileSystemDirectory;
-      dir.NonNull("existing file path"); //todo throw different exception type
+      if (dir == null)
+        throw new FileSystemException(StringConsts.FS_DIRECTORY_DOES_NOT_EXIST_ERROR.Args(path.TakeLastChars(32, "...")));
 
       var file = dir[fileName] as FileSystemFile;
 
