@@ -31,7 +31,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var msIdxNt = new FileStream("c:\\azos\\mumbojumbo-{0}-{1}.nt.lix".Args(compress.Default("none"), encrypt.Default("none")), FileMode.Create);
       var msIdxAmt = new FileStream("c:\\azos\\mumbojumbo-{0}-{1}.amt.lix".Args(compress.Default("none"), encrypt.Default("none")), FileMode.Create);
 
-      var meta = VolumeMetadataBuilder.Make("Perf")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
@@ -68,7 +68,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       using (var aIdxId = new GdidIdxAppender(volumeIdxId, NOPApplication.Instance.TimeSource, NOPApplication.Instance.AppId, "dima@zhaba"))
       using (var aIdxCid = new GuidIdxAppender(volumeIdxCid, NOPApplication.Instance.TimeSource, NOPApplication.Instance.AppId, "dima@zhaba"))
       using (var aIdxDid = new LongIdxAppender(volumeIdxDid, NOPApplication.Instance.TimeSource, NOPApplication.Instance.AppId, "dima@zhaba"))
-      using (var aIdxPn = new LongIdxAppender(volumeIdxPn, NOPApplication.Instance.TimeSource, NOPApplication.Instance.AppId, "dima@zhaba"))
+      using (var aIdxPn = new IntIdxAppender(volumeIdxPn, NOPApplication.Instance.TimeSource, NOPApplication.Instance.AppId, "dima@zhaba"))
       using (var aIdxLt = new DoubleIdxAppender(volumeIdxLt, NOPApplication.Instance.TimeSource, NOPApplication.Instance.AppId, "dima@zhaba"))
       using (var aIdxLn = new DoubleIdxAppender(volumeIdxLn, NOPApplication.Instance.TimeSource, NOPApplication.Instance.AppId, "dima@zhaba"))
       using (var aIdxAl = new DecimalIdxAppender(volumeIdxAl, NOPApplication.Instance.TimeSource, NOPApplication.Instance.AppId, "dima@zhaba"))
@@ -85,7 +85,7 @@ namespace Azos.Tests.Nub.IO.Archiving
                                                   aIdxId.Append(new GdidBookmark(e.ID, b));
                                                   aIdxCid.Append(new GuidBookmark(e.CorrelationId, b));
                                                   aIdxDid.Append(new LongBookmark(e.DeviceId, b));
-                                                  aIdxPn.Append(new LongBookmark(e.PartNumber, b));
+                                                  aIdxPn.Append(new IntBookmark(e.PartNumber, b));
                                                   aIdxLt.Append(new DoubleBookmark(e.Latitude, b));
                                                   aIdxLn.Append(new DoubleBookmark(e.Longitude, b));
                                                   aIdxAl.Append(new DecimalBookmark(e.Altitude, b));
@@ -161,7 +161,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var idxIdReader = new GdidIdxReader(volumeIdxId);
       var idxCidReader = new GuidIdxReader(volumeIdxCid);
       var idxDidReader = new LongIdxReader(volumeIdxDid);
-      var idxPnReader = new LongIdxReader(volumeIdxPn);
+      var idxPnReader = new IntIdxReader(volumeIdxPn);
       var idxLtReader = new DoubleIdxReader(volumeIdxLt);
       var idxLnReader = new DoubleIdxReader(volumeIdxLn);
       var idxAlReader = new DecimalIdxReader(volumeIdxAl);
@@ -216,7 +216,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       if (!gotOne) Aver.Fail($"Failed to find DeviceId by {nameof(LongIdxReader)}");
       gotOne = false;
 
-      // Find by Long (PartNumber)
+      // Find by Int (PartNumber)
       foreach (var idx in idxPnReader.All)
       {
         if (idx.Value == ctlMumbo.PartNumber)
@@ -335,21 +335,32 @@ namespace Azos.Tests.Nub.IO.Archiving
       "CLOSED all volumes\n".See();
     }
 
-    [Run("compress=null   encrypt=null   cnt=50000")]
-    [Run("compress=gzip   encrypt=aes1   cnt=50000")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
-    public void Write_Read_Gdid_Indexing_MemoryStream(string compress, string encrypt, int CNT)
+    //[Run("compress=null   encrypt=null   cnt=1000000   idxCompress=null   idxEncrypt=null")]
+    //[Run("compress=gzip   encrypt=aes1   cnt=1000000   idxCompress=null   idxEncrypt=null")]
+
+    [Run("compress=null   encrypt=null   cnt=50000   idxCompress=null   idxEncrypt=null")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=gzip   idxEncrypt=aes1")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=null   idxEncrypt=null")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
+    public void Write_Read_Gdid_Indexing_MemoryStream(string compress, string encrypt, int CNT, string idxCompress, string idxEncrypt)
     {
       var msData = new MemoryStream();
       var msIdxId = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Perf")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
                                       .SetEncryptionScheme(encrypt);
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
-      var volumeIdxId = new DefaultVolume(CryptoMan, meta, msIdxId);
+
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+                                      .SetVersion(1, 1)
+                                      .SetDescription("MumboJumbo testing")
+                                      .SetCompressionScheme(idxCompress)
+                                      .SetEncryptionScheme(idxEncrypt);
+
+      var volumeIdxId = new DefaultVolume(CryptoMan, metaIdx, msIdxId);
 
       volumeData.PageSizeBytes = 1024 * 1024;
       volumeIdxId.PageSizeBytes = 128 * 1024;
@@ -419,21 +430,29 @@ namespace Azos.Tests.Nub.IO.Archiving
       "CLOSED all volumes\n".See();
     }
 
-    [Run("compress=null   encrypt=null   cnt=50000")]
-    [Run("compress=gzip   encrypt=aes1   cnt=50000")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
-    public void Write_Read_Guid_Indexing_MemoryStream(string compress, string encrypt, int CNT)
+    [Run("compress=null   encrypt=null   cnt=50000   idxCompress=null   idxEncrypt=null")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=gzip   idxEncrypt=aes1")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=null   idxEncrypt=null")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
+    public void Write_Read_Guid_Indexing_MemoryStream(string compress, string encrypt, int CNT, string idxCompress, string idxEncrypt)
     {
       var msData = new MemoryStream();
       var msIdxCid = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Perf")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
                                       .SetEncryptionScheme(encrypt);
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
-      var volumeIdxCid = new DefaultVolume(CryptoMan, meta, msIdxCid);
+
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+                                      .SetVersion(1, 1)
+                                      .SetDescription("MumboJumbo testing")
+                                      .SetCompressionScheme(idxCompress)
+                                      .SetEncryptionScheme(idxEncrypt);
+
+      var volumeIdxCid = new DefaultVolume(CryptoMan, metaIdx, msIdxCid);
 
       volumeData.PageSizeBytes = 1024 * 1024;
       volumeIdxCid.PageSizeBytes = 128 * 1024;
@@ -504,21 +523,32 @@ namespace Azos.Tests.Nub.IO.Archiving
       "CLOSED all volumes\n".See();
     }
 
-    [Run("compress=null   encrypt=null   cnt=50000")]
-    [Run("compress=gzip   encrypt=aes1   cnt=50000")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
-    public void Write_Read_Long_Indexing_MemoryStream(string compress, string encrypt, int CNT)
+    //[Run("compress=null   encrypt=null   cnt=1000000   idxCompress=null   idxEncrypt=null")]
+    //[Run("compress=gzip   encrypt=aes1   cnt=1000000   idxCompress=null   idxEncrypt=null")]
+
+    [Run("compress=null   encrypt=null   cnt=50000   idxCompress=null   idxEncrypt=null")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=gzip   idxEncrypt=aes1")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=null   idxEncrypt=null")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
+    public void Write_Read_Long_Indexing_MemoryStream(string compress, string encrypt, int CNT, string idxCompress, string idxEncrypt)
     {
       var msData = new MemoryStream();
       var msIdxDid = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Perf")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
                                       .SetEncryptionScheme(encrypt);
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
-      var volumeIdxDid = new DefaultVolume(CryptoMan, meta, msIdxDid);
+
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+                                      .SetVersion(1, 1)
+                                      .SetDescription("MumboJumbo testing")
+                                      .SetCompressionScheme(idxCompress)
+                                      .SetEncryptionScheme(idxEncrypt);
+
+      var volumeIdxDid = new DefaultVolume(CryptoMan, metaIdx, msIdxDid);
 
       volumeData.PageSizeBytes = 1024 * 1024;
       volumeIdxDid.PageSizeBytes = 128 * 1024;
@@ -590,21 +620,126 @@ namespace Azos.Tests.Nub.IO.Archiving
       "CLOSED all volumes\n".See();
     }
 
-    [Run("compress=null   encrypt=null   cnt=50000")]
-    [Run("compress=gzip   encrypt=aes1   cnt=50000")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
-    public void Write_Read_Double_Indexing_MemoryStream(string compress, string encrypt, int CNT)
+    //[Run("compress=null   encrypt=null   cnt=1000000   idxCompress=null   idxEncrypt=null")]
+    //[Run("compress=gzip   encrypt=aes1   cnt=1000000   idxCompress=null   idxEncrypt=null")]
+
+    [Run("compress=null   encrypt=null   cnt=50000   idxCompress=null   idxEncrypt=null")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=gzip   idxEncrypt=aes1")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=null   idxEncrypt=null")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
+    public void Write_Read_Int_Indexing_MemoryStream(string compress, string encrypt, int CNT, string idxCompress, string idxEncrypt)
     {
       var msData = new MemoryStream();
-      var msIdxLt = new MemoryStream();
+      var msIdxPn = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Perf")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
                                       .SetEncryptionScheme(encrypt);
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
-      var volumeIdxLt = new DefaultVolume(CryptoMan, meta, msIdxLt);
+
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+                                      .SetVersion(1, 1)
+                                      .SetDescription("MumboJumbo testing")
+                                      .SetCompressionScheme(idxCompress)
+                                      .SetEncryptionScheme(idxEncrypt);
+
+      var volumeIdxPn = new DefaultVolume(CryptoMan, metaIdx, msIdxPn);
+
+      volumeData.PageSizeBytes = 1024 * 1024;
+      volumeIdxPn.PageSizeBytes = 128 * 1024;
+
+      var timeWrite = Azos.Time.Timeter.StartNew();
+
+      var app = Azos.Apps.ExecutionContext.Application;
+
+      using (var aIdxPn = new IntIdxAppender(volumeIdxPn, NOPApplication.Instance.TimeSource, NOPApplication.Instance.AppId, "dima@zhaba"))
+      {
+        using (var appender = new MumboJumboArchiveAppender(volumeData,
+                                                NOPApplication.Instance.TimeSource,
+                                                NOPApplication.Instance.AppId,
+                                                "dima@zhaba",
+                                                onPageCommit: (e, b) =>
+                                                {
+                                                  aIdxPn.Append(new IntBookmark(e.PartNumber, b));
+                                                }
+                                                ))
+        {
+          var messages = FakeRow.GenerateMany<MumboJumbo>(1, 1, (ulong)(CNT * .5) - 1);
+          foreach (var m in messages)
+          {
+            appender.Append(m);
+          }
+          appender.Append(MumboJumbo.GetControl());
+          messages = FakeRow.GenerateMany<MumboJumbo>(1, 1, (ulong)(CNT * .5));
+          foreach (var m in messages)
+          {
+            appender.Append(m);
+          }
+        }
+      }
+
+      timeWrite.Stop();
+      "Did {0:n0} writes in {1:n1} sec at {2:n2} ops/sec\n".SeeArgs(CNT, timeWrite.ElapsedSec, CNT / timeWrite.ElapsedSec);
+
+
+      var ctlMumbo = MumboJumbo.GetControl();
+
+      var reader = new MumboJumboArchiveReader(volumeData);
+      var idxPnReader = new IntIdxReader(volumeIdxPn);
+
+      var timeRead = Azos.Time.Timeter.StartNew();
+
+      var gotOne = false;
+
+      // Find by Int (PartNumber)
+      foreach (var idx in idxPnReader.All)
+      {
+        if (idx.Value == ctlMumbo.PartNumber)
+        {
+          var data = reader.Entries(idx.Bookmark).FirstOrDefault();
+          data.See();
+          Aver.AreEqual(ctlMumbo.PartNumber, data.PartNumber);
+          gotOne = true;
+          break;
+        }
+      }
+      if (!gotOne) Aver.Fail($"Failed to find DeviceId by {nameof(IntIdxReader)}");
+
+
+      timeRead.Stop();
+      "Did {0:n0} reads in {1:n1} sec at {2:n2} ops/sec\n".SeeArgs(CNT, timeRead.ElapsedSec, CNT / timeRead.ElapsedSec);
+
+      volumeIdxPn.Dispose();
+      volumeData.Dispose();
+
+      "CLOSED all volumes\n".See();
+    }
+
+    [Run("compress=null   encrypt=null   cnt=50000   idxCompress=null   idxEncrypt=null")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=gzip   idxEncrypt=aes1")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=null   idxEncrypt=null")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
+    public void Write_Read_Double_Indexing_MemoryStream(string compress, string encrypt, int CNT, string idxCompress, string idxEncrypt)
+    {
+      var msData = new MemoryStream();
+      var msIdxLt = new MemoryStream();
+
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
+                                      .SetVersion(1, 1)
+                                      .SetDescription("MumboJumbo testing")
+                                      .SetCompressionScheme(compress)
+                                      .SetEncryptionScheme(encrypt);
+
+      var volumeData = new DefaultVolume(CryptoMan, meta, msData);
+
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+                                      .SetVersion(1, 1)
+                                      .SetDescription("MumboJumbo testing")
+                                      .SetCompressionScheme(idxCompress)
+                                      .SetEncryptionScheme(idxEncrypt);
+
+      var volumeIdxLt = new DefaultVolume(CryptoMan, metaIdx, msIdxLt);
 
       volumeData.PageSizeBytes = 1024 * 1024;
       volumeIdxLt.PageSizeBytes = 128 * 1024;
@@ -676,21 +811,29 @@ namespace Azos.Tests.Nub.IO.Archiving
       "CLOSED all volumes\n".See();
     }
 
-    [Run("compress=null   encrypt=null   cnt=50000")]
-    [Run("compress=gzip   encrypt=aes1   cnt=50000")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
-    public void Write_Read_Decimal_Indexing_MemoryStream(string compress, string encrypt, int CNT)
+    [Run("compress=null   encrypt=null   cnt=50000   idxCompress=null   idxEncrypt=null")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=gzip   idxEncrypt=aes1")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=null   idxEncrypt=null")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
+    public void Write_Read_Decimal_Indexing_MemoryStream(string compress, string encrypt, int CNT, string idxCompress, string idxEncrypt)
     {
       var msData = new MemoryStream();
       var msIdxAl = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Perf")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
                                       .SetEncryptionScheme(encrypt);
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
-      var volumeIdxAl = new DefaultVolume(CryptoMan, meta, msIdxAl);
+
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+                                      .SetVersion(1, 1)
+                                      .SetDescription("MumboJumbo testing")
+                                      .SetCompressionScheme(idxCompress)
+                                      .SetEncryptionScheme(idxEncrypt);
+
+      var volumeIdxAl = new DefaultVolume(CryptoMan, metaIdx, msIdxAl);
 
       volumeData.PageSizeBytes = 1024 * 1024;
       volumeIdxAl.PageSizeBytes = 128 * 1024;
@@ -761,21 +904,29 @@ namespace Azos.Tests.Nub.IO.Archiving
       "CLOSED all volumes\n".See();
     }
 
-    [Run("compress=null   encrypt=null   cnt=50000")]
-    [Run("compress=gzip   encrypt=aes1   cnt=50000")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
-    public void Write_Read_DateTime_Indexing_MemoryStream(string compress, string encrypt, int CNT)
+    [Run("compress=null   encrypt=null   cnt=50000   idxCompress=null   idxEncrypt=null")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=gzip   idxEncrypt=aes1")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=null   idxEncrypt=null")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
+    public void Write_Read_DateTime_Indexing_MemoryStream(string compress, string encrypt, int CNT, string idxCompress, string idxEncrypt)
     {
       var msData = new MemoryStream();
       var msIdxCd = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Perf")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
                                       .SetEncryptionScheme(encrypt);
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
-      var volumeIdxCd = new DefaultVolume(CryptoMan, meta, msIdxCd);
+
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+                                      .SetVersion(1, 1)
+                                      .SetDescription("MumboJumbo testing")
+                                      .SetCompressionScheme(idxCompress)
+                                      .SetEncryptionScheme(idxEncrypt);
+
+      var volumeIdxCd = new DefaultVolume(CryptoMan, metaIdx, msIdxCd);
 
       volumeData.PageSizeBytes = 1024 * 1024;
       volumeIdxCd.PageSizeBytes = 128 * 1024;
@@ -846,21 +997,29 @@ namespace Azos.Tests.Nub.IO.Archiving
       "CLOSED all volumes\n".See();
     }
 
-    [Run("compress=null   encrypt=null   cnt=50000")]
-    [Run("compress=gzip   encrypt=aes1   cnt=50000")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
-    public void Write_Read_String_Indexing_MemoryStream(string compress, string encrypt, int CNT)
+    [Run("compress=null   encrypt=null   cnt=50000   idxCompress=null   idxEncrypt=null")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=gzip   idxEncrypt=aes1")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=null   idxEncrypt=null")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
+    public void Write_Read_String_Indexing_MemoryStream(string compress, string encrypt, int CNT, string idxCompress, string idxEncrypt)
     {
       var msData = new MemoryStream();
       var msIdxNt = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Perf")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
                                       .SetEncryptionScheme(encrypt);
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
-      var volumeIdxNt = new DefaultVolume(CryptoMan, meta, msIdxNt);
+
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+                                      .SetVersion(1, 1)
+                                      .SetDescription("MumboJumbo testing")
+                                      .SetCompressionScheme(idxCompress)
+                                      .SetEncryptionScheme(idxEncrypt);
+
+      var volumeIdxNt = new DefaultVolume(CryptoMan, metaIdx, msIdxNt);
 
       volumeData.PageSizeBytes = 1024 * 1024;
       volumeIdxNt.PageSizeBytes = 128 * 1024;
@@ -931,21 +1090,29 @@ namespace Azos.Tests.Nub.IO.Archiving
       "CLOSED all volumes\n".See();
     }
 
-    [Run("compress=null   encrypt=null   cnt=50000")]
-    [Run("compress=gzip   encrypt=aes1   cnt=50000")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
-    public void Write_Read_Amount_Indexing_MemoryStream(string compress, string encrypt, int CNT)
+    [Run("compress=null   encrypt=null   cnt=50000   idxCompress=null   idxEncrypt=null")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=gzip   idxEncrypt=aes1")]
+    [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=null   idxEncrypt=null")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
+    public void Write_Read_Amount_Indexing_MemoryStream(string compress, string encrypt, int CNT, string idxCompress, string idxEncrypt)
     {
       var msData = new MemoryStream();
       var msIdxAmt = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Perf")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
                                       .SetEncryptionScheme(encrypt);
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
-      var volumeIdxAmt = new DefaultVolume(CryptoMan, meta, msIdxAmt);
+
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+                                      .SetVersion(1, 1)
+                                      .SetDescription("MumboJumbo testing")
+                                      .SetCompressionScheme(idxCompress)
+                                      .SetEncryptionScheme(idxEncrypt);
+
+      var volumeIdxAmt = new DefaultVolume(CryptoMan, metaIdx, msIdxAmt);
 
       volumeData.PageSizeBytes = 1024 * 1024;
       volumeIdxAmt.PageSizeBytes = 128 * 1024;
