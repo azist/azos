@@ -76,6 +76,7 @@ app
 }";
 
     private AzosApplication m_App;
+    protected IApplication App => m_App;
 
     void IRunnableHook.Prologue(Runner runner, FID id)
      => m_App = new AzosApplication(true, null, APP_CRYPTO_CONF.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));

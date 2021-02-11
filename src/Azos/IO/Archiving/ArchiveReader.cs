@@ -4,10 +4,13 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Serialization.Bix;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Azos.Serialization.Bix;
 
 namespace Azos.IO.Archiving
 {
@@ -30,18 +33,57 @@ namespace Azos.IO.Archiving
 
     private int m_AveragePageSizeBytes;
 
+    private Page m_Cached_1;
+    private Page m_Cached_2;
+    private Page m_Cached_3;
+    private Page m_Cached_4;
+    private Page m_Cached_5;
+
     /// <summary>
     /// Volume which stores data
     /// </summary>
     public readonly IVolume Volume;
 
     /// <summary>
-    /// Returns an average page size as detected while reading past few pages.
-    /// The system tries to detect the real page sizes and use that to pre-allocate page buffers
-    /// to reduce re-allocation
+    /// Returns an average page size as estimated while reading previous pages.
+    /// The system computes the average of a few real page sizes and use that to preallocate page buffers
+    /// to reduce page re-allocation
     /// </summary>
     public int AveragePageSizeBytes => m_AveragePageSizeBytes;
 
+
+    private Page getPageInstance(int size)
+    {
+       var result = Interlocked.Exchange(ref m_Cached_1, null) ??
+                    Interlocked.Exchange(ref m_Cached_2, null) ??
+                    Interlocked.Exchange(ref m_Cached_3, null) ??
+                    Interlocked.Exchange(ref m_Cached_4, null) ??
+                    Interlocked.Exchange(ref m_Cached_5, null);
+
+       if (result==null)
+         result = new Page(size);
+       else
+         result.AdjustDefaultCapacity(size);
+
+       return result;
+    }
+
+    /// <summary>
+    /// This method is an performance optimization technique which reduces the memory pressure caused by extra
+    /// Page instance allocation. Recycles the page instance with the reader so it can reuse the existing page
+    /// instance instead of allocating a new one. WARNING: Special care should be taken while calling this method
+    /// from a parallel/multi-threaded code to make sure that no other asynchronous call flow happens with the
+    /// page instance being recycled
+    /// </summary>
+    public void Recycle(Page page)
+    {
+      if (page==null) return;
+      if (null == Interlocked.CompareExchange(ref m_Cached_1, page, null)) return;
+      if (null == Interlocked.CompareExchange(ref m_Cached_2, page, null)) return;
+      if (null == Interlocked.CompareExchange(ref m_Cached_3, page, null)) return;
+      if (null == Interlocked.CompareExchange(ref m_Cached_4, page, null)) return;
+      Interlocked.CompareExchange(ref m_Cached_5, page, null);
+    }
 
     /// <summary>
     /// Enumerates all pages starting at the specified `pageId`.
@@ -52,7 +94,7 @@ namespace Azos.IO.Archiving
     /// to prevent extra page instance allocation (thus making it NOT thread-safe). The thread-safety concern only pertains to
     /// the instances returned by the enumerator. The IEnumerator itself is NOT thread-safe
     /// </summary>
-    public IEnumerable<Page> Pages(long startPageId, bool skipCorruptPages = false, Page preallocatedPage = null)
+    public IEnumerable<Page> GetPagesStartingAt(long startPageId, bool skipCorruptPages = false, Page preallocatedPage = null)
     {
       //local flow average is needed because not all of the archive pages are necessarily the same size:
       //they are the similar size around the same read area, consequently the local EMA provide more accurate estimate
@@ -65,7 +107,7 @@ namespace Azos.IO.Archiving
         var page = preallocatedPage;
 
         if (page == null)
-          page = new Page((int)emaSize);
+          page = getPageInstance((int)emaSize);
         else
           page.AdjustDefaultCapacity((int)emaSize);
 
@@ -101,35 +143,89 @@ namespace Azos.IO.Archiving
     }
 
     /// <summary>
-    /// Walks all raw page entries on all pages. You can materialize entries into TEntry by calling `TEntry Materialize(Entry)`.
-    /// Multiple threads can call this method at the same time
+    /// Walks all materialized `TEntry` entries on all pages starting at the supplied bookmark.
+    /// Multiple threads can call this method at the same time. You can also use Parallel.ForEach
+    /// having multiple threads process the `TEntry` instances in parallel, keep in mind that
+    /// `TEntry` deserialization is still executed on the main partitioner thread
     /// </summary>
-    public IEnumerable<Entry> RawEntries(Bookmark start, bool skipCorruptPages = false)
+    public IEnumerable<TEntry> GetEntriesStartingAt(Bookmark start, bool skipCorruptPages = false)
     {
-      foreach(var page in Pages(start.PageId, skipCorruptPages))
-        foreach(var entry in page.Entries.Where(e => e.Address >= start.Address))
-            yield return entry;
+      var secondaryPage = false;
+      foreach (var page in GetPagesStartingAt(start.PageId, skipCorruptPages))
+      {
+        try
+        {
+          foreach (var entry in page.Entries.Where(e => e.State == Entry.Status.Valid && (secondaryPage || e.Address >= start.Address)))
+          {
+            yield return Materialize(entry);
+          }
+        }
+        finally
+        {
+          Recycle(page);
+        }
+        secondaryPage = true;
+      }
     }
 
     /// <summary>
-    /// Walks all materialized `TEntry` entries on all pages starting at the supplied bookmark.
-    /// Multiple threads can call this method at the same time
+    /// Processes all entries in parallel batches of the specified size, page-by-page - each batch gets processed in parallel.
+    /// Batches are split at the page boundaries. The method is useful for performing CPU-intensive analysis of entries.
+    /// WARNING: NEVER rely on `Entry` buffer beyond the boundaries of `body` method. You can materialize valid entries by
+    /// calling `Materialize(entry)` of the reader
     /// </summary>
-    public IEnumerable<TEntry> Entries(Bookmark start, bool skipCorruptPages = false)
-      => RawEntries(start, skipCorruptPages)
-                            .Where(item => item.State == Entry.Status.Valid)
-                            .Select(item => Materialize(item));
+    /// <param name="start">Starting bookmark in the volume</param>
+    /// <param name="batchBy">The size of entry batch. Batches get processed in-parallel</param>
+    /// <param name="body">The body of the method. WARNING: do not retain any references to entry buffer past this method</param>
+    /// <param name="options">Optional parallel loop options</param>
+    /// <param name="skipCorruptPages">Skip corrupt data, if false then corrupt data throws an exception</param>
+    public void ParallelProcessRawEntryBatchesStartingAt(Bookmark start,
+                                                         int batchBy,
+                                                         Action<IEnumerable<Entry>, ParallelLoopState, long> body,
+                                                         ParallelOptions options = null,
+                                                         bool skipCorruptPages = false)
+    {
+      body.NonNull(nameof(body));
+      batchBy.IsTrue(v => v > 0, "batchBy < 1");
+
+      var secondaryPage = false;
+      foreach (var page in GetPagesStartingAt(start.PageId, skipCorruptPages))
+      {
+        var batches = page.Entries
+                          .Where(e => secondaryPage || e.Address >= start.Address)
+                          .BatchBy(batchBy);
+
+        bool wasCompleted;
+        try
+        {
+          if (options == null)
+            wasCompleted = Parallel.ForEach(batches, body).IsCompleted;
+          else
+            wasCompleted = Parallel.ForEach(batches, options, body).IsCompleted;
+        }
+        finally
+        {
+          Recycle(page);
+        }
+
+        if (!wasCompleted) break;
+
+        secondaryPage = true;
+      }
+    }
 
     /// <summary>
     /// Walks all materialized `TEntry` entries on all pages.
     /// Multiple threads can call this method at the same time
     /// </summary>
-    public IEnumerable<TEntry> All => Entries(new Bookmark());
+    public IEnumerable<TEntry> All => GetEntriesStartingAt(new Bookmark());
 
 
     /// <summary>
     /// Performs physical deserialization of entries. Override to materialize a concrete instance of TEntry.
-    /// This method implementation is thread-safe
+    /// WARNING: This method implementation MUST be thread-safe which also has the following requirement:
+    /// the deserialized TEntry should NEVER RELY on the original Entry buffer content after this method returns.
+    /// This is because the page instance may be recycled by other call flows after this method returns
     /// </summary>
     public abstract TEntry Materialize(Entry entry);
   }

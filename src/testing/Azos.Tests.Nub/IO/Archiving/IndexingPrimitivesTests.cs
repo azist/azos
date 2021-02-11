@@ -176,7 +176,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       {
         if (idx.Value == ctlMumbo.ID)
         {
-          var data = reader.Entries(idx.Bookmark).FirstOrDefault();
+          var data = reader.GetEntriesStartingAt(idx.Bookmark).FirstOrDefault();
           data.See();
           Aver.AreEqual(ctlMumbo.ID, data.ID);
           gotOne = true;
@@ -191,7 +191,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       {
         if (idx.Value == ctlMumbo.CorrelationId)
         {
-          var data = reader.Entries(idx.Bookmark).FirstOrDefault();
+          var data = reader.GetEntriesStartingAt(idx.Bookmark).FirstOrDefault();
           data.See();
           Aver.AreEqual(ctlMumbo.CorrelationId, data.CorrelationId);
           gotOne = true;
@@ -206,7 +206,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       {
         if (idx.Value == ctlMumbo.DeviceId)
         {
-          var data = reader.Entries(idx.Bookmark).FirstOrDefault();
+          var data = reader.GetEntriesStartingAt(idx.Bookmark).FirstOrDefault();
           data.See();
           Aver.AreEqual(ctlMumbo.DeviceId, data.DeviceId);
           gotOne = true;
@@ -221,7 +221,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       {
         if (idx.Value == ctlMumbo.PartNumber)
         {
-          var data = reader.Entries(idx.Bookmark).FirstOrDefault();
+          var data = reader.GetEntriesStartingAt(idx.Bookmark).FirstOrDefault();
           data.See();
           Aver.AreEqual(ctlMumbo.PartNumber, data.PartNumber);
           gotOne = true;
@@ -236,7 +236,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       {
         if (idx.Value == ctlMumbo.Latitude)
         {
-          var data = reader.Entries(idx.Bookmark).FirstOrDefault();
+          var data = reader.GetEntriesStartingAt(idx.Bookmark).FirstOrDefault();
           data.See();
           Aver.AreEqual(ctlMumbo.Latitude, data.Latitude);
           gotOne = true;
@@ -251,7 +251,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       {
         if (idx.Value == ctlMumbo.Longitude)
         {
-          var data = reader.Entries(idx.Bookmark).FirstOrDefault();
+          var data = reader.GetEntriesStartingAt(idx.Bookmark).FirstOrDefault();
           data.See();
           Aver.AreEqual(ctlMumbo.Longitude, data.Longitude);
           gotOne = true;
@@ -266,7 +266,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       {
         if (idx.Value == ctlMumbo.Altitude)
         {
-          var data = reader.Entries(idx.Bookmark).FirstOrDefault();
+          var data = reader.GetEntriesStartingAt(idx.Bookmark).FirstOrDefault();
           data.See();
           Aver.AreEqual(ctlMumbo.Altitude, data.Altitude);
           gotOne = true;
@@ -281,7 +281,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       {
         if (idx.Value == ctlMumbo.CreateDate)
         {
-          var data = reader.Entries(idx.Bookmark).FirstOrDefault();
+          var data = reader.GetEntriesStartingAt(idx.Bookmark).FirstOrDefault();
           data.See();
           Aver.AreEqual(ctlMumbo.CreateDate, data.CreateDate);
           gotOne = true;
@@ -296,7 +296,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       {
         if (idx.Value == ctlMumbo.Note)
         {
-          var data = reader.Entries(idx.Bookmark).FirstOrDefault();
+          var data = reader.GetEntriesStartingAt(idx.Bookmark).FirstOrDefault();
           data.See();
           Aver.AreEqual(ctlMumbo.Note, data.Note);
           gotOne = true;
@@ -311,7 +311,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       {
         if (idx.Value == ctlMumbo.Amt)
         {
-          var data = reader.Entries(idx.Bookmark).FirstOrDefault();
+          var data = reader.GetEntriesStartingAt(idx.Bookmark).FirstOrDefault();
           data.See();
           Aver.AreEqual(ctlMumbo.Amt, data.Amt);
           gotOne = true;
