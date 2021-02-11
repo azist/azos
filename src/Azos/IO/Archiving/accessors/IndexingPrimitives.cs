@@ -321,6 +321,68 @@ namespace Azos.IO.Archiving
   #endregion
 
 
+  #region INT
+  /// <summary>
+  /// A tuple of (Int32:Bookmark) used for indexing archived data on int index value
+  /// </summary>
+  public struct IntBookmark : IEquatable<IntBookmark>
+  {
+    public IntBookmark(int value, Bookmark bm)
+    {
+      Value = value;
+      Bookmark = bm;
+    }
+
+    public readonly int Value;
+    public readonly Bookmark Bookmark;
+
+    public bool Assigned => Bookmark.Assigned;
+
+    public bool Equals(IntBookmark other) => this.Value.Equals(other.Value) && this.Bookmark.Equals(other.Bookmark);
+    public override bool Equals(object obj) => obj is IntBookmark other ? this.Equals(other) : false;
+    public override int GetHashCode() => Value.GetHashCode() ^ Bookmark.GetHashCode();
+    public override string ToString() => $"`{Value}` -> {Bookmark}";
+
+    public static bool operator ==(IntBookmark l, IntBookmark r) => l.Equals(r);
+    public static bool operator !=(IntBookmark l, IntBookmark r) => !l.Equals(r);
+  }
+
+
+  /// <summary>
+  /// Reads IntBookmark index entries. The instance is thread safe
+  /// </summary>
+  public sealed class IntIdxReader : ArchiveBixReader<IntBookmark>
+  {
+    public IntIdxReader(IVolume volume) : base(volume) { }
+
+    public override IntBookmark MaterializeBix(BixReader reader)
+    {
+      var v = reader.ReadInt();
+      var pid = reader.ReadLong();
+      var adr = reader.ReadInt();
+      return new IntBookmark(v, new Bookmark(pid, adr));
+    }
+  }
+
+  /// <summary>
+  /// Appends IntBookmarks to index. The instance is NOT thread-safe
+  /// </summary>
+  public sealed class IntIdxAppender : ArchiveBixAppender<IntBookmark>
+  {
+    public IntIdxAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<IntBookmark, Bookmark> onPageCommit = null)
+     : base(volume, time, app, host, onPageCommit) { }
+
+    protected override void DoSerializeBix(BixWriter wri, IntBookmark entry)
+    {
+      wri.Write(entry.Value);
+      wri.Write(entry.Bookmark.PageId);
+      wri.Write(entry.Bookmark.Address);
+    }
+  }
+
+  #endregion
+
+
   #region DOUBLE
   /// <summary>
   /// A tuple of (Double:Bookmark) used for indexing archived data on double index value

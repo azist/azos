@@ -385,7 +385,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
     [Field(backendName: "cid")] public Guid CorrelationId { get; set; }
     [Field(backendName: "did")] public long DeviceId { get; set; }
-    [Field(backendName: "pn")] public long PartNumber { get; set; }
+    [Field(backendName: "pn")] public int PartNumber { get; set; }
     [Field(backendName: "lt")] public double Latitude { get; set; }
     [Field(backendName: "ln")] public double Longitude { get; set; }
     [Field(backendName: "al")] public decimal Altitude { get; set; }
@@ -418,7 +418,7 @@ namespace Azos.Tests.Nub.IO.Archiving
     public const double CTL_LON = 55.5D;
     public static readonly DateTime CTL_CREATE_DT = new DateTime(2000, 01, 01);
     public static readonly Guid CTL_CID = Guid.Parse("129A9012-CCD3-4AF0-9569-600AEAAFD650");
-    public const long CTL_PNUM = 1;
+    public const int CTL_PNUM = 1;
     public const string CTL_NOTE = "Fuzzy wuzzy was a bear";
     public const decimal CTL_ALT = 9999.999M;
     public static readonly Amount CTL_AMT = new Amount("usd", 2_000_000M);
@@ -510,7 +510,7 @@ namespace Azos.Tests.Nub.IO.Archiving
         result.Longitude = reader.ReadDouble();
         result.CreateDate = reader.ReadDateTime();
         result.CorrelationId = reader.ReadGuid();
-        result.PartNumber = reader.ReadLong();
+        result.PartNumber = reader.ReadInt();
         result.Note = reader.ReadString();
         result.Altitude = reader.ReadDecimal();
         result.Amt = reader.ReadAmount();
