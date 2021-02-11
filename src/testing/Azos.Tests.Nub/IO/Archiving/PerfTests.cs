@@ -15,6 +15,7 @@ using Azos.Apps;
 using Azos.Scripting;
 using Azos.IO.Archiving;
 using Azos.Security;
+using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Nub.IO.Archiving
 {
@@ -79,6 +80,8 @@ namespace Azos.Tests.Nub.IO.Archiving
       "CLOSED all volumes\n".See();
     }
 
+    private static readonly char[] SEPARATORS = new char[] { ',', '<', '>', ',', '"', '{', '}' };
+
 
     [Run("!arch-perf-read", "compress=null   encrypt=null   search=$(~@term)")]// -r args='term=abcd'
     //[Run("!arch-perf-read", "compress=gzip   encrypt=aes1   search=$(~@term)")]// -r args='term=abcd'
@@ -101,6 +104,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var time = Azos.Time.Timeter.StartNew();
 
       var total = 0;
+      var wordCount = 0;
       var found = 0;
       //foreach (var idx in idxReader.All)
       //{
@@ -127,34 +131,78 @@ namespace Azos.Tests.Nub.IO.Archiving
       //  //}
       //}
 
-      //Rent buffers from arena instead? who is going to release pages? page.Recycle() to release the buffer to the pool? What if they forget to call it?
-      //var prealloc = new Page(0); //SIGNIFICANT SLOW-DOWN WHILE ALLOCATING PAGES.   WHY MEMORY STREAM DOES ARRAY.CLEAR?
-      foreach (var page in reader.Pages(0/*, preallocatedPage: prealloc*/).Take(200))
-      {
-        total++;
-        //if (total % 100 ==0)
-        "Page {0:X8} is {1:n0}  --- Average size: {2:n0}".SeeArgs(page.PageId, page.Data.Array.Length, reader.AveragePageSizeBytes);
-        reader.Recycle(page);
-      }
+      ////////Rent buffers from arena instead? who is going to release pages? page.Recycle() to release the buffer to the pool? What if they forget to call it?
+      ////////var prealloc = new Page(0); //SIGNIFICANT SLOW-DOWN WHILE ALLOCATING PAGES.   WHY MEMORY STREAM DOES ARRAY.CLEAR?
+      //////foreach (var page in reader.GetPagesStartingAt(0/*, preallocatedPage: prealloc*/).Take(200))
+      //////{
+      //////  total++;
+      //////  //if (total % 100 ==0)
+      //////  "Page {0:X8} is {1:n0}  --- Average size: {2:n0}  Entries per page: {3:n0}".SeeArgs(page.PageId, page.Data.Array.Length, reader.AveragePageSizeBytes, page.Entries.Count());
+      //////  reader.Recycle(page);
+      //////}
+
 
 
       //Parallel.ForEach(volumeData.PageInfos(0), new ParallelOptions { MaxDegreeOfParallelism = 8 }, pi =>
       //{
       //  var ec = 0;
-      //  var page = reader.Pages(pi.PageId).First();
+      //  var wc = 0;
+      //  var page = reader.GetPagesStartingAt(pi.PageId).First();
       //  // "Page {0} Avg size: {1}".SeeArgs(page.PageId, reader.AveragePageSizeBytes);
       //  foreach (var entry in page.Entries)//.Take(1))
       //  {
       //    if (entry.State == Entry.Status.Valid)
       //    {
       //      var msg = reader.Materialize(entry);
+      //      if (msg.Text.IsNotNullOrWhiteSpace())
+      //        wc += msg.Text.Split(SEPARATORS).Length;
+
+      //      if (msg.Parameters.IsNotNullOrWhiteSpace())
+      //        wc += msg.Parameters.Split(SEPARATORS).Length;
+
       //      if (msg.Guid.ToString().StartsWith("faca")) msg.See();
       //    }
       //    ec++;
       //  }
       //  reader.Recycle(page);
       //  System.Threading.Interlocked.Add(ref total, ec);//1);
+      //  System.Threading.Interlocked.Add(ref wordCount, wc);//1);
       //});
+
+      reader.ParallelProcessRawEntryBatchesStartingAt(new Bookmark(), 8, (entries, loop, _) =>
+      {
+        var ec = 0;
+        var wc = 0;
+        foreach (var entry in entries)
+        {
+          if (!App.Active)
+          {
+            loop.Break();
+            return;
+          }
+
+          if (entry.State == Entry.Status.Valid)
+          {
+            ec++;
+
+            var msg = reader.Materialize(entry);
+
+            try
+            {
+              var map = msg.Text.JsonToDataObject() as JsonDataMap;
+              wc++;
+            }
+            catch
+            { }
+
+            // if (msg.Guid.ToString().StartsWith("faca")) msg.See();
+          }
+        }
+        if ((total & 0x0fff) == 0) "{0}".SeeArgs(total);
+        System.Threading.Interlocked.Add(ref total, ec);//1);
+        System.Threading.Interlocked.Add(ref wordCount, wc);//1);
+      }, new ParallelOptions{ MaxDegreeOfParallelism = 16});
+
 
       //////Parallel.ForEach(volumeData.PageInfos(0).BatchBy(32), /*new ParallelOptions { MaxDegreeOfParallelism = 1 },*/ pis =>
       //////{
@@ -176,7 +224,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
 
       time.Stop();
-      "Did {0:n0} found {1:n0}({2:n5}%) in {3:n1} sec at {4:n2} ops/sec\n".SeeArgs(total, found, (double)found / total, time.ElapsedSec, total / time.ElapsedSec);
+      "Did {0:n0} found {1:n0}({2:n5}%) in {3:n1} sec at {4:n2} ops/sec  WC = {5:n0}\n".SeeArgs(total, found, (double)found / total, time.ElapsedSec, total / time.ElapsedSec, wordCount);
 
       volumeIdxId.Dispose();
       volumeData.Dispose();
