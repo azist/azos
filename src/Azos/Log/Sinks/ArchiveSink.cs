@@ -25,6 +25,9 @@ namespace Azos.Log.Sinks
 
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
+    public int ArchivePageSizeBytes { get; set; }
+
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
     public int ArchiveVersionMajor { get; set; }
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
@@ -77,6 +80,8 @@ namespace Azos.Log.Sinks
       {
         m_Volume = new DefaultVolume(App.SecurityManager.Cryptography, m_Stream, ownsStream: false);
       }
+
+      if (ArchivePageSizeBytes > 0) m_Volume.PageSizeBytes = ArchivePageSizeBytes;
 
       m_Appender = new LogMessageArchiveAppender(m_Volume, App.TimeSource, App.AppId, Platform.Computer.HostName);
     }

@@ -66,6 +66,12 @@ namespace Azos.IO.FileSystem.Local
 
     #region Overrides
 
+      public override string GetPathRoot(string fullPath)
+      {
+        return Path.GetPathRoot(fullPath);
+      }
+
+
       public override string[] SplitPathSegments(string fullPath)
       {
         if (fullPath.IsNullOrWhiteSpace()) return new string[0];
@@ -119,7 +125,9 @@ namespace Azos.IO.FileSystem.Local
         if (Directory.Exists(path))
         {
           var di = new DirectoryInfo(path);
-          return new FileSystemDirectory(session, di.Parent.FullName, di.Name, new FSH{m_Info=di});
+          //20210209 Fix #424
+          var parentPath = di.Parent != null ? di.Parent.FullName : null;
+          return new FileSystemDirectory(session, parentPath==null ? di.Name : parentPath, parentPath==null ? @"\" : di.Name, new FSH{m_Info=di});
         }
         return null;
       }

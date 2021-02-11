@@ -22,8 +22,8 @@ namespace Azos.Tests.Nub.IO.Archiving
   public class PerfTests : CryptoTestBase
   {
 
-    //[Run("!arch-perf-write", "compress=null   encrypt=null   cnt=16000000 para=16")]
-    [Run("!arch-perf-write", "compress=gzip   encrypt=aes1   cnt=16000000 para=16")]
+    [Run("!arch-perf-write", "compress=null   encrypt=null   cnt=16000000 para=16")]
+    //[Run("!arch-perf-write", "compress=gzip   encrypt=aes1   cnt=16000000 para=16")]
     public void Write_LogMessages(string compress, string encrypt, int CNT, int PARA)
     {
       var msData = new FileStream("c:\\azos\\logging-{0}-{1}.lar".Args(compress.Default("none"), encrypt.Default("none")), FileMode.Create);
@@ -80,8 +80,8 @@ namespace Azos.Tests.Nub.IO.Archiving
     }
 
 
-    //[Run("!arch-perf-read", "compress=null   encrypt=null   search=$(~@term)")]// -r args='term=abcd'
-    [Run("!arch-perf-read", "compress=gzip   encrypt=aes1   search=$(~@term)")]// -r args='term=abcd'
+    [Run("!arch-perf-read", "compress=null   encrypt=null   search=$(~@term)")]// -r args='term=abcd'
+    //[Run("!arch-perf-read", "compress=gzip   encrypt=aes1   search=$(~@term)")]// -r args='term=abcd'
     public void Read_LogMessages(string compress, string encrypt, string search)
     {
       search = search.Default("ABBA");
@@ -89,9 +89,11 @@ namespace Azos.Tests.Nub.IO.Archiving
       var msData = new FileStream("c:\\azos\\logging-{0}-{1}.lar".Args(compress.Default("none"), encrypt.Default("none")), FileMode.Open);
       var msIdxId = new FileStream("c:\\azos\\logging-{0}-{1}.guid.lix".Args(compress.Default("none"), encrypt.Default("none")), FileMode.Open);
 
-
       var volumeData = new DefaultVolume(CryptoMan, msData);
       var volumeIdxId = new DefaultVolume(CryptoMan, msIdxId);
+
+      //volumeData.PageSizeBytes = 4 * 1024 * 1024;//<-------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //volumeIdxId.PageSizeBytes = 4 * 128 * 1024;
 
       var reader = new LogMessageArchiveReader(volumeData);
       var idxReader = new StringIdxReader(volumeIdxId);
@@ -100,16 +102,71 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var total = 0;
       var found = 0;
-      foreach (var idx in idxReader.All)
+      //foreach (var idx in idxReader.All)
+      //{
+      //  total++;
+      //  if (idx.Value.EqualsOrdIgnoreCase(search))
+      //  {
+      //    found++;
+      //    var data = reader.Entries(idx.Bookmark).FirstOrDefault();
+      //    data.See();
+      //  }
+      //}
+
+      //var page = new Page(volumeData.PageSizeBytes);
+      //foreach(var pi in volumeData.PageInfos(0))
+      //{
+      //  "{0} / {1} -> {2}".SeeArgs(pi.PageId, IOUtils.FormatByteSizeWithPrefix(pi.PageId),  pi.NextPageId);
+
+      //   volumeData.ReadPage(pi.PageId, page); // reader.Pages(pi.PageId).First();
+      //  "Page izzz {0}".SeeArgs(page.PageId);
+
+      //  //foreach (var page in reader.Pages(pi.PageId).Take(1))// .RawEntries(new Bookmark(pi.PageId, 0)))
+      //  //{
+      //  //  total++;
+      //  //}
+      //}
+
+
+      var prealloc = new Page(0); //SIGNIFICANT SLOW-DOWN WHILE ALLOCATING PAGES.   WHY MEMORY STREAM DOES ARRAY.CLEAR?
+      foreach (var page in reader.Pages(0, preallocatedPage: prealloc))//.Take(500))
       {
-         total++;
-         if (idx.Value.EqualsOrdIgnoreCase(search))
-         {
-           found++;
-           var data = reader.Entries(idx.Bookmark).FirstOrDefault();
-           data.See();
-         }
+        total++;
+        //if (total % 100 ==0)
+        // "Page {0} Avg size: {1}".SeeArgs(page.PageId, reader.AveragePageSizeBytes);
       }
+
+
+      //Parallel.ForEach(volumeData.PageInfos(0), new ParallelOptions { MaxDegreeOfParallelism = 1 }, pi =>
+      //{
+      //  var ec = 0;
+      //  var page = reader.Pages(pi.PageId).First();
+      //  // "Page {0} Avg size: {1}".SeeArgs(page.PageId, reader.AveragePageSizeBytes);
+      //  //foreach (var entry in page.Entries)//.Take(1))
+      //  //{
+      //  //  ec++;
+      //  //}
+      //  System.Threading.Interlocked.Add(ref total, 1);//ec);
+      //});
+
+      //Parallel.ForEach(volumeData.PageInfos(0).BatchBy(32), /*new ParallelOptions { MaxDegreeOfParallelism = 1 },*/ pis =>
+      //{
+      //  var ec = 0;
+      //  var pg = new Page(2 * 1024 * 1024);
+      //  foreach(var pi in pis)
+      //  {
+      //    volumeData.ReadPage(pi.PageId, pg);
+      //    //foreach (var entry in pg.Entries)//.Take(1))
+      //    //{
+      //    //  ec++;
+      //    //}
+      //  }
+
+      //  System.Threading.Interlocked.Add(ref total, 1);//ec);
+
+      //});
+
+
 
       time.Stop();
       "Did {0:n0} found {1:n0}({2:n5}%) in {3:n1} sec at {4:n2} ops/sec\n".SeeArgs(total, found, (double)found / total, time.ElapsedSec, total / time.ElapsedSec);
