@@ -214,6 +214,36 @@ namespace Azos.IO.Archiving
       }
     }
 
+
+    public void ParallelProcessPageBatchesStartingAt(long startPageId,
+                                                     int batchBy,
+                                                     Action<Page, ParallelLoopState, long> body,
+                                                     ParallelOptions options = null,
+                                                     bool skipCorruptPages = false)
+    {
+      body.NonNull(nameof(body));
+      batchBy = batchBy.KeepBetween(1, Environment.ProcessorCount);
+
+      foreach (var pages in GetPagesStartingAt(startPageId, skipCorruptPages).BatchBy(batchBy))
+      {
+        bool wasCompleted;
+        try
+        {
+          if (options == null)
+            wasCompleted = Parallel.ForEach(pages, body).IsCompleted;
+          else
+            wasCompleted = Parallel.ForEach(pages, options, body).IsCompleted;
+        }
+        finally
+        {
+          pages.ForEach( p => Recycle(p));
+        }
+
+        if (!wasCompleted) break;
+      }
+    }
+
+
     /// <summary>
     /// Walks all materialized `TEntry` entries on all pages.
     /// Multiple threads can call this method at the same time

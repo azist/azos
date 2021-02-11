@@ -142,38 +142,57 @@ namespace Azos.Tests.Nub.IO.Archiving
       //////}
 
 
+      ////////read all entries
+      //////foreach (var entry in reader.GetEntriesStartingAt(new Bookmark()/*, preallocatedPage: prealloc*/))//.Take(200));
+      //////{
+      //////  if (!App.Active) break;
+      //////  total++;
+      //////  if (entry.ExceptionData!=null) wordCount++;
+      //////  if ((total & 0xffff)==0) "Did {0:n0}".SeeArgs(total);
+      //////}
 
-      //Parallel.ForEach(volumeData.PageInfos(0), new ParallelOptions { MaxDegreeOfParallelism = 8 }, pi =>
+
+
+      //reader.ParallelProcessRawEntryBatchesStartingAt(new Bookmark(), 50, (entries, loop, _) =>
       //{
       //  var ec = 0;
       //  var wc = 0;
-      //  var page = reader.GetPagesStartingAt(pi.PageId).First();
-      //  // "Page {0} Avg size: {1}".SeeArgs(page.PageId, reader.AveragePageSizeBytes);
-      //  foreach (var entry in page.Entries)//.Take(1))
+      //  foreach (var entry in entries)
       //  {
+      //    if (!App.Active)
+      //    {
+      //      loop.Break();
+      //      return;
+      //    }
+
       //    if (entry.State == Entry.Status.Valid)
       //    {
+      //      ec++;
+
       //      var msg = reader.Materialize(entry);
-      //      if (msg.Text.IsNotNullOrWhiteSpace())
-      //        wc += msg.Text.Split(SEPARATORS).Length;
 
-      //      if (msg.Parameters.IsNotNullOrWhiteSpace())
-      //        wc += msg.Parameters.Split(SEPARATORS).Length;
+      //      try
+      //      {
+      //      //  System.Threading.Thread.SpinWait(8_000);
+      //        var map = msg.Text.JsonToDataObject() as JsonDataMap;
+      //        wc++;
+      //      }
+      //      catch
+      //      { }
 
-      //      if (msg.Guid.ToString().StartsWith("faca")) msg.See();
+      //      // if (msg.Guid.ToString().StartsWith("faca")) msg.See();
       //    }
-      //    ec++;
       //  }
-      //  reader.Recycle(page);
+      //  if ((total & 0x0fff) == 0) "{0}".SeeArgs(total);
       //  System.Threading.Interlocked.Add(ref total, ec);//1);
       //  System.Threading.Interlocked.Add(ref wordCount, wc);//1);
-      //});
+      //}, new ParallelOptions { MaxDegreeOfParallelism = 10 });
 
-      reader.ParallelProcessRawEntryBatchesStartingAt(new Bookmark(), 8, (entries, loop, _) =>
+      reader.ParallelProcessPageBatchesStartingAt(0, 5, (page, loop, _) =>
       {
         var ec = 0;
         var wc = 0;
-        foreach (var entry in entries)
+        foreach (var entry in page.Entries)
         {
           if (!App.Active)
           {
@@ -189,6 +208,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
             try
             {
+              //  System.Threading.Thread.SpinWait(8_000);
               var map = msg.Text.JsonToDataObject() as JsonDataMap;
               wc++;
             }
@@ -201,26 +221,7 @@ namespace Azos.Tests.Nub.IO.Archiving
         if ((total & 0x0fff) == 0) "{0}".SeeArgs(total);
         System.Threading.Interlocked.Add(ref total, ec);//1);
         System.Threading.Interlocked.Add(ref wordCount, wc);//1);
-      }, new ParallelOptions{ MaxDegreeOfParallelism = 16});
-
-
-      //////Parallel.ForEach(volumeData.PageInfos(0).BatchBy(32), /*new ParallelOptions { MaxDegreeOfParallelism = 1 },*/ pis =>
-      //////{
-      //////  var ec = 0;
-      //////  var pg = new Page(2 * 1024 * 1024);
-      //////  foreach (var pi in pis)
-      //////  {
-      //////    volumeData.ReadPage(pi.PageId, pg);
-      //////    //foreach (var entry in pg.Entries)//.Take(1))
-      //////    //{
-      //////    //  ec++;
-      //////    //}
-      //////  }
-
-      //////  System.Threading.Interlocked.Add(ref total, 1);//ec);
-
-      //////});
-
+      }, new ParallelOptions { MaxDegreeOfParallelism = 10 });
 
 
       time.Stop();
