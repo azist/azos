@@ -335,8 +335,8 @@ namespace Azos.Tests.Nub.IO.Archiving
       "CLOSED all volumes\n".See();
     }
 
-    //[Run("compress=null   encrypt=null   cnt=1000000   idxCompress=null   idxEncrypt=null")]
-    //[Run("compress=gzip   encrypt=aes1   cnt=1000000   idxCompress=null   idxEncrypt=null")]
+    //[Run("!arch-mumbo-idx-perf", "compress=null   encrypt=null   cnt=1000000   idxCompress=null   idxEncrypt=null")]
+    //[Run("!arch-mumbo-idx-perf", "compress=gzip   encrypt=aes1   cnt=1000000   idxCompress=null   idxEncrypt=null")]
 
     [Run("compress=null   encrypt=null   cnt=50000   idxCompress=null   idxEncrypt=null")]
     [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=gzip   idxEncrypt=aes1")]
@@ -523,8 +523,8 @@ namespace Azos.Tests.Nub.IO.Archiving
       "CLOSED all volumes\n".See();
     }
 
-    //[Run("compress=null   encrypt=null   cnt=1000000   idxCompress=null   idxEncrypt=null")]
-    //[Run("compress=gzip   encrypt=aes1   cnt=1000000   idxCompress=null   idxEncrypt=null")]
+    [Run("!arch-mumbo-idx-perf", "compress=null   encrypt=null   cnt=1000000   idxCompress=null   idxEncrypt=null")]
+    [Run("!arch-mumbo-idx-perf", "compress=gzip   encrypt=aes1   cnt=1000000   idxCompress=null   idxEncrypt=null")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* names=arch-mumbo-idx-perf
 
     [Run("compress=null   encrypt=null   cnt=50000   idxCompress=null   idxEncrypt=null")]
     [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=gzip   idxEncrypt=aes1")]
@@ -620,8 +620,8 @@ namespace Azos.Tests.Nub.IO.Archiving
       "CLOSED all volumes\n".See();
     }
 
-    //[Run("compress=null   encrypt=null   cnt=1000000   idxCompress=null   idxEncrypt=null")]
-    //[Run("compress=gzip   encrypt=aes1   cnt=1000000   idxCompress=null   idxEncrypt=null")]
+    [Run("!arch-mumbo-idx-perf", "compress=null   encrypt=null   cnt=1000000   idxCompress=null   idxEncrypt=null")]
+    [Run("!arch-mumbo-idx-perf", "compress=gzip   encrypt=aes1   cnt=1000000   idxCompress=null   idxEncrypt=null")]// trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* names=arch-mumbo-idx-perf
 
     [Run("compress=null   encrypt=null   cnt=50000   idxCompress=null   idxEncrypt=null")]
     [Run("compress=gzip   encrypt=aes1   cnt=50000   idxCompress=gzip   idxEncrypt=aes1")]
