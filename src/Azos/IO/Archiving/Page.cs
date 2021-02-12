@@ -15,13 +15,14 @@ namespace Azos.IO.Archiving
 {
   /// <summary>
   /// Represents a "page" in an archive data stream. Archives can only be appended to.
-  /// A page is an atomic unit of reading from and appending to archives.
+  /// A page is an atomic unit of reading-from and appending-to archives.
   /// Pages represent binary raw content present in RAM. Pages are created by Reader/Appender and
   /// populated by `IVolume` which may optionally compress and encrypt page content, however
-  /// business-level code should use derivatives of ArchiveAppender/ArchiveReader classes
+  /// business-level code should use derivatives of `ArchiveAppender`/`ArchiveReader` classes
   /// which handle `IVolume` interaction.
-  /// Page instances are NOT thread-safe: any parallel/concurrent operation must get
-  /// a different instance via a corresponding call to reader/appender
+  /// Page instances are NOT thread-safe for writing: any parallel/concurrent writing operation must get
+  /// a different instance via a corresponding call to appender. The reading operations are thread-safe:
+  /// multiple readers can share the same page instance
   /// </summary>
   public sealed class Page
   {
@@ -31,7 +32,7 @@ namespace Azos.IO.Archiving
     /// Creates an instance of Page which is a unit of data archive.
     /// Business applications should use ArchiveAppenders and ArchiveReaders
     /// which manage page instance creation. The default capacity preallocates internal memory
-    /// buffer and plays an important role for page instance reuse as sufficient capacity ensures
+    /// buffer and plays an important role in page instance reuse as sufficient capacity ensures
     /// copy-free operation
     /// </summary>
     public Page(int defaultCapacity)
@@ -56,7 +57,8 @@ namespace Azos.IO.Archiving
     /// <summary>
     /// Initializes the page instance for writing.
     /// After this call you can call `Append()` and finalize the append with
-    /// the call to `EndWriting()`
+    /// the call to `EndWriting()`.
+    /// Warning: writing data is not a thread-safe operation
     /// </summary>
     internal void BeginWriting(DateTime utcCreate, Atom app, string host)
     {
@@ -68,6 +70,11 @@ namespace Azos.IO.Archiving
       m_CreateHost = host;
     }
 
+    /// <summary>
+    /// Finalizes page writing by adding page termination EOF markers.
+    /// The page must be in `Writing` state after a call to `BeginWriting()`.
+    /// Warning: writing data is not a thread-safe operation
+    /// </summary>
     internal void EndWriting()
     {
       Ensure(Status.Writing);
@@ -83,11 +90,14 @@ namespace Azos.IO.Archiving
     }
 
     /// <summary>
+    /// Initializes a page for reading: transitions to `Loading` state.
     /// Returns the stream which the content should be loaded into.
     /// The stream is reset to pos/len zero.
     /// The accessor first calls `BeginRead(): MemoryStream`, the returned stream is filled with data
     /// (e.g. from a compressed/encrypted source, then the accessor calls `EndReading()` to indicate
-    /// that the Page is ready to be enumerated
+    /// that the Page is ready to be enumerated.
+    /// This method is not thread safe but once reading is finalized with `EndReading()` multiple threads can
+    /// read the same page instance
     /// </summary>
     /// <param name="pageId">The requested pageId</param>
     internal MemoryStream BeginReading(long pageId)
@@ -109,7 +119,9 @@ namespace Azos.IO.Archiving
     /// Sets the page into Reading status. The page should be in `Loading` status before this call.
     /// The accessor first calls `BeginRead(): MemoryStream`, the returned stream is filled with data
     /// (e.g. from a compressed/encrypted source, then the accessor calls `EndReading()` to indicate
-    /// that the Page is ready to be enumerated
+    /// that the Page is ready to be enumerated.
+    /// This method is not thread safe but once reading is finalized after it completes multiple threads can
+    /// read the same page instance
     /// </summary>
     internal void EndReading(long actualPageId, DateTime utcCreate, Atom app, string host)
     {
@@ -136,11 +148,16 @@ namespace Azos.IO.Archiving
 
     private MemoryStream m_Raw; //the stream contains raw  <entry-stream> without page headers etc...
 
+    /// <summary>
+    /// The default capacity controls the preallocation of internal memory
+    /// buffer and plays an important role in page instance reuse as sufficient capacity ensures
+    /// copy-free operation
+    /// </summary>
     public int DefaultCapacity => m_DefaultCapacity;
 
     /// <summary>
     /// The default capacity controls the preallocation of internal memory
-    /// buffer and plays an important role for page instance reuse as sufficient capacity ensures
+    /// buffer and plays an important role in page instance reuse as sufficient capacity ensures
     /// copy-free operation
     /// </summary>
     public void AdjustDefaultCapacity(int defaultCapacity)
@@ -182,7 +199,8 @@ namespace Azos.IO.Archiving
     public ArraySegment<byte> Data => new ArraySegment<byte>(m_Raw.GetBuffer(), 0, (int)m_Raw.Length);
 
     /// <summary>
-    /// Walks all raw entries. This is purely in-memory operation
+    /// Walks all raw entries. This is purely in-memory operation.
+    /// Page reading is a thread-safe operation
     /// </summary>
     public IEnumerable<Entry> Entries
     {
@@ -216,7 +234,8 @@ namespace Azos.IO.Archiving
     /// <summary>
     /// Writes a raw representation of an entry, returning its address on a page.
     /// This is a lower-level method, and for all business purposes use ArchiveAppender-derived class
-    /// which performs item serialization and page splitting
+    /// which performs item serialization and page splitting.
+    /// Warning: operations on page instances in writing status are not a thread-safe
     /// </summary>
     public int Append(ArraySegment<byte> entry)
     {

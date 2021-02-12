@@ -7,8 +7,8 @@
     <!--
     <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
     <RetainVMGarbageCollection>true</RetainVMGarbageCollection>
-    <ThreadPoolMinThreads>4</ThreadPoolMinThreads>
-    <ThreadPoolMaxThreads>25</ThreadPoolMaxThreads>
+    <ThreadPoolMinThreads>32</ThreadPoolMinThreads>
+    <ThreadPoolMaxThreads>128</ThreadPoolMaxThreads>
     -->
   </PropertyGroup>
 
