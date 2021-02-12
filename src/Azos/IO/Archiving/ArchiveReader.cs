@@ -15,17 +15,17 @@ using Azos.Serialization.Bix;
 namespace Azos.IO.Archiving
 {
   /// <summary>
-  /// Facilitates reading archive data as IEnumerable(TEntry).
+  /// Facilitates reading archive data as IEnumerable(Page).
   /// The instance methods are thread-safe: multiple threads may enumerate the instance in-parallel, however
   /// each IEnumerable is not thread safe (by design)
   /// </summary>
-  public abstract class ArchiveReader<TEntry>
+  public class ArchivePageReader
   {
     //EMA filter: the lower the number the more smoothing is done (less sensitive to changes)
     private const float EMA_PAGE_SIZE_K = 0.257f;
     private const float EMA_PAGE_SIZE_J = 1f - EMA_PAGE_SIZE_K;
 
-    public ArchiveReader(IVolume volume)
+    public ArchivePageReader(IVolume volume)
     {
       Volume = volume.NonNull(nameof(volume));
       m_AveragePageSizeBytes = volume.PageSizeBytes;
@@ -142,6 +142,74 @@ namespace Azos.IO.Archiving
       }
     }
 
+  }
+
+  /// <summary>
+  /// Facilitates reading archive data as `IEnumerable(object)`.
+  /// The instance methods are thread-safe: multiple threads may enumerate the instance in-parallel, however
+  /// each IEnumerable is not thread safe (by design)
+  /// </summary>
+  public abstract class ArchiveReader : ArchivePageReader
+  {
+    public ArchiveReader(IVolume volume) : base(volume)
+    {
+    }
+
+    /// <summary>
+    /// Walks all entries materialized as objects on all pages starting at the supplied bookmark.
+    /// Multiple threads can call this method at the same time. You can also use Parallel.ForEach
+    /// having multiple threads process the object instances in parallel, keep in mind that
+    /// object deserialization is still executed on the main partitioner thread.
+    /// Note: this method is supported for polymorphism. For better performance use typed version
+    /// of `ArchiveReader(TEntry)` which avoids possible boxing
+    /// </summary>
+    public abstract IEnumerable<object> GetEntriesAsObjectsStartingAt(Bookmark start, bool skipCorruptPages = false);
+
+    /// <summary>
+    /// Walks all materialized entries as objects on all pages.
+    /// Multiple threads can call this method at the same time.
+    /// Note: this method is supported for polymorphism. For better performance use typed version
+    /// of `ArchiveReader(TEntry)` which avoids possible boxing
+    /// </summary>
+    public IEnumerable<object> AllObjects => GetEntriesAsObjectsStartingAt(new Bookmark());
+
+
+    /// <summary>
+    /// Performs physical deserialization of entries. Override to materialize a concrete instance of TEntry.
+    /// WARNING: This method implementation MUST be thread-safe which also has the following requirement:
+    /// the deserialized TEntry should NEVER RELY on the original Entry buffer content after this method returns.
+    /// This is because the page instance may be recycled by other call flows after this method returns.
+    /// Note: this method is supported for polymorphism. For better performance use typed version
+    /// of `ArchiveReader(TEntry)` which avoids possible boxing
+    /// </summary>
+    public abstract object MaterializeObject(Entry entry);
+  }
+
+
+
+  /// <summary>
+  /// Facilitates reading archive data as `IEnumerable(TEntry)`.
+  /// The instance methods are thread-safe: multiple threads may enumerate the instance in-parallel, however
+  /// each IEnumerable is not thread safe (by design)
+  /// </summary>
+  public abstract class ArchiveReader<TEntry> : ArchiveReader
+  {
+    public ArchiveReader(IVolume volume) : base(volume)
+    {
+    }
+
+
+    /// <summary>
+    /// Walks all entries materialized as objects on all pages starting at the supplied bookmark.
+    /// Multiple threads can call this method at the same time. You can also use Parallel.ForEach
+    /// having multiple threads process the object instances in parallel, keep in mind that
+    /// object deserialization is still executed on the main partitioner thread.
+    /// Note: this method is supported for polymorphism. For better performance use typed version
+    /// of `ArchiveReader(TEntry)` which avoids possible boxing
+    /// </summary>
+    public sealed override IEnumerable<object> GetEntriesAsObjectsStartingAt(Bookmark start, bool skipCorruptPages = false)
+     => GetEntriesStartingAt(start, skipCorruptPages).Cast<object>();
+
     /// <summary>
     /// Walks all materialized `TEntry` entries on all pages starting at the supplied bookmark.
     /// Multiple threads can call this method at the same time. You can also use Parallel.ForEach
@@ -169,86 +237,17 @@ namespace Azos.IO.Archiving
     }
 
     /// <summary>
-    /// Processes all entries in parallel batches of the specified size, page-by-page - each batch gets processed in parallel.
-    /// Batches are split at the page boundaries. The method is useful for performing CPU-intensive analysis of entries.
-    /// WARNING: NEVER rely on `Entry` buffer beyond the boundaries of `body` method. You can materialize valid entries by
-    /// calling `Materialize(entry)` of the reader
-    /// </summary>
-    /// <param name="start">Starting bookmark in the volume</param>
-    /// <param name="batchBy">The size of entry batch. Batches get processed in-parallel</param>
-    /// <param name="body">The body of the method. WARNING: do not retain any references to entry buffer past this method</param>
-    /// <param name="options">Optional parallel loop options</param>
-    /// <param name="skipCorruptPages">Skip corrupt data, if false then corrupt data throws an exception</param>
-    public void ParallelProcessRawEntryBatchesStartingAt(Bookmark start,
-                                                         int batchBy,
-                                                         Action<IEnumerable<Entry>, ParallelLoopState, long> body,
-                                                         ParallelOptions options = null,
-                                                         bool skipCorruptPages = false)
-    {
-      body.NonNull(nameof(body));
-      batchBy.IsTrue(v => v > 0, "batchBy < 1");
-
-      var secondaryPage = false;
-      foreach (var page in GetPagesStartingAt(start.PageId, skipCorruptPages))
-      {
-        var batches = page.Entries
-                          .Where(e => secondaryPage || e.Address >= start.Address)
-                          .BatchBy(batchBy);
-
-        bool wasCompleted;
-        try
-        {
-          if (options == null)
-            wasCompleted = Parallel.ForEach(batches, body).IsCompleted;
-          else
-            wasCompleted = Parallel.ForEach(batches, options, body).IsCompleted;
-        }
-        finally
-        {
-          Recycle(page);
-        }
-
-        if (!wasCompleted) break;
-
-        secondaryPage = true;
-      }
-    }
-
-
-    public void ParallelProcessPageBatchesStartingAt(long startPageId,
-                                                     int batchBy,
-                                                     Action<Page, ParallelLoopState, long> body,
-                                                     ParallelOptions options = null,
-                                                     bool skipCorruptPages = false)
-    {
-      body.NonNull(nameof(body));
-      batchBy = batchBy.KeepBetween(1, Environment.ProcessorCount);
-
-      foreach (var pages in GetPagesStartingAt(startPageId, skipCorruptPages).BatchBy(batchBy))
-      {
-        bool wasCompleted;
-        try
-        {
-          if (options == null)
-            wasCompleted = Parallel.ForEach(pages, body).IsCompleted;
-          else
-            wasCompleted = Parallel.ForEach(pages, options, body).IsCompleted;
-        }
-        finally
-        {
-          pages.ForEach( p => Recycle(p));
-        }
-
-        if (!wasCompleted) break;
-      }
-    }
-
-
-    /// <summary>
     /// Walks all materialized `TEntry` entries on all pages.
     /// Multiple threads can call this method at the same time
     /// </summary>
     public IEnumerable<TEntry> All => GetEntriesStartingAt(new Bookmark());
+
+    /// <summary>
+    /// Performs physical deserialization of entries.
+    /// Note: this method is supported for polymorphism. For better performance use typed version
+    /// of `ArchiveReader(TEntry)` which avoids possible boxing
+    /// </summary>
+    public sealed override object MaterializeObject(Entry entry) => Materialize(entry);
 
 
     /// <summary>

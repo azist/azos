@@ -117,20 +117,6 @@ namespace Azos.Tests.Nub.IO.Archiving
       //  }
       //}
 
-      //var page = new Page(volumeData.PageSizeBytes);
-      //foreach(var pi in volumeData.PageInfos(0))
-      //{
-      //  "{0} / {1} -> {2}".SeeArgs(pi.PageId, IOUtils.FormatByteSizeWithPrefix(pi.PageId),  pi.NextPageId);
-
-      //   volumeData.ReadPage(pi.PageId, page); // reader.Pages(pi.PageId).First();
-      //  "Page izzz {0}".SeeArgs(page.PageId);
-
-      //  //foreach (var page in reader.Pages(pi.PageId).Take(1))// .RawEntries(new Bookmark(pi.PageId, 0)))
-      //  //{
-      //  //  total++;
-      //  //}
-      //}
-
       ////////Rent buffers from arena instead? who is going to release pages? page.Recycle() to release the buffer to the pool? What if they forget to call it?
       ////////var prealloc = new Page(0); //SIGNIFICANT SLOW-DOWN WHILE ALLOCATING PAGES.   WHY MEMORY STREAM DOES ARRAY.CLEAR?
       //////foreach (var page in reader.GetPagesStartingAt(0/*, preallocatedPage: prealloc*/).Take(200))
@@ -223,12 +209,84 @@ namespace Azos.Tests.Nub.IO.Archiving
         System.Threading.Interlocked.Add(ref wordCount, wc);//1);
       }, new ParallelOptions { MaxDegreeOfParallelism = 10 });
 
-
       time.Stop();
       "Did {0:n0} found {1:n0}({2:n5}%) in {3:n1} sec at {4:n2} ops/sec  WC = {5:n0}\n".SeeArgs(total, found, (double)found / total, time.ElapsedSec, total / time.ElapsedSec, wordCount);
 
       volumeIdxId.Dispose();
       volumeData.Dispose();
+      "CLOSED all volumes\n".See();
+    }
+
+
+    [Run("!arch-perf-read-2", "compress=gzip   encrypt=aes1   search=$(~@term) scount=10")]// -r args='term=abcd'
+    //[Run("!arch-perf-read", "compress=gzip   encrypt=aes1   search=$(~@term) scount=4")]// -r args='term=abcd'
+    public void Read_LogMessages_ByVolume(string compress, string encrypt, string search, int scount)
+    {
+      search = search.Default("ABBA");
+
+      var files = new List<FileStream>();
+      for(var i=0; i<scount;i++)
+      {
+        var data = new FileStream("c:\\azos\\logging-{0}-{1}.lar".Args(compress.Default("none"), encrypt.Default("none")),
+                                  FileMode.Open,
+                                  FileAccess.Read,
+                                  FileShare.Read,
+                                  4096,
+                                  FileOptions.RandomAccess);
+        files.Add(data);
+      }
+
+      var time = Azos.Time.Timeter.StartNew();
+
+      var total = 0;
+      var wordCount = 0;
+      var found = 0;
+
+      var psecond = 0;
+      files.ParallelProcessVolumeBatchesStartingAt(CryptoMan, 0, 8, volume => new LogMessageArchiveReader(volume),
+      (page, reader) =>{
+        var ec = 0;
+        var wc = 0;
+        foreach (var entry in page.Entries)
+        {
+          if (!App.Active)
+          {
+           // loop.Break();
+            return;
+          }
+
+          if (entry.State == Entry.Status.Valid)
+          {
+            ec++;
+
+            var msg = reader.Materialize(entry);
+
+            try
+            {
+              //  System.Threading.Thread.SpinWait(8_000);
+              var map = msg.Text.JsonToDataObject() as JsonDataMap;
+              wc++;
+            }
+            catch
+            { }
+
+            // if (msg.Guid.ToString().StartsWith("faca")) msg.See();
+          }
+        }
+        var now = DateTime.UtcNow.Second;
+        if (now!=psecond)
+        {
+          psecond = now;
+          "{0}".SeeArgs(total);
+        }
+        System.Threading.Interlocked.Add(ref total, ec);//1);
+        System.Threading.Interlocked.Add(ref wordCount, wc);//1);
+
+      });
+
+      time.Stop();
+      "Did {0:n0} found {1:n0}({2:n5}%) in {3:n1} sec at {4:n2} ops/sec  WC = {5:n0}\n".SeeArgs(total, found, (double)found / total, time.ElapsedSec, total / time.ElapsedSec, wordCount);
+      files.ForEach(f => f.Close());
       "CLOSED all volumes\n".See();
     }
 
