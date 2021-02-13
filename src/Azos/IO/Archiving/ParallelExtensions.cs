@@ -140,7 +140,7 @@ namespace Azos.IO.Archiving
 
         var main = readers[0];
 
-        foreach(var pageSet in main.Volume.PageInfos(startPageId).BatchBy(readers.Count))
+        foreach(var pageSet in main.Volume.ReadPageInfos(startPageId).BatchBy(readers.Count))
         {
           var tasks = new List<Task>();
 
@@ -149,13 +149,22 @@ namespace Azos.IO.Archiving
             {
               var kvp = (KeyValuePair<long, TReader>)objKvp;
               var reader = kvp.Value;
-              var page = reader.GetPagesStartingAt(kvp.Key).FirstOrDefault(p => p.State == Page.Status.Reading);
+              Page page = null;
+              try
+              {
+                page = reader.GetOnePageAt(kvp.Key, true);
+              }
+              catch
+              {
+                if (!skipCorruptPages) throw;
+              }
+
               if (page!=null)
               {
                 body(page, reader);
                 reader.Recycle(page);
               }
-            }, pair, TaskCreationOptions.LongRunning));
+            }, pair));
 
           Task.WaitAll(tasks.ToArray());
         }
