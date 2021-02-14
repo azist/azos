@@ -160,8 +160,11 @@ namespace Azos.Tests.Nub.IO.Archiving
       //      try
       //      {
       //      //  System.Threading.Thread.SpinWait(8_000);
-      //        var map = msg.Text.JsonToDataObject() as JsonDataMap;
-      //        wc++;
+      //      if (msg.Parameters.Length>0 && msg.Parameters.FirstOrDefault(c => !char.IsWhiteSpace(c))=='{')
+            ////{
+            ////  var map = msg.Parameters.JsonToDataObject() as JsonDataMap;
+            ////  wc++;
+            ////}
       //      }
       //      catch
       //      { }
@@ -190,13 +193,16 @@ namespace Azos.Tests.Nub.IO.Archiving
           {
             ec++;
 
-          //  var msg = reader.Materialize(entry);
+            var msg = reader.Materialize(entry);
 
             try
             {
               //  System.Threading.Thread.SpinWait(8_000);
-          //    var map = msg.Text.JsonToDataObject() as JsonDataMap;
-              wc++;
+              if (msg.Parameters.Length > 0 && msg.Parameters.FirstOrDefault(c => !char.IsWhiteSpace(c)) == '{')
+              {
+                var map = msg.Parameters.JsonToDataObject() as JsonDataMap;
+                wc++;
+              }
             }
             catch
             { }
@@ -244,41 +250,44 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var psecond = 0;
       files.ParallelProcessVolumeBatchesStartingAt(CryptoMan, 0, volume => new LogMessageArchiveReader(volume),
-      (page, reader, ctoken) =>{
-        var ec = 0;
-        var wc = 0;
-        foreach (var entry in page.Entries)
-        {
-          if (true == ctoken?.IsCancellationRequested) break;
-
-          if (entry.State == Entry.Status.Valid)
+        (page, reader, cancel) =>{
+          var ec = 0;
+          var wc = 0;
+          foreach (var entry in page.Entries)
           {
-            ec++;
+            if (cancel != null && cancel()) break;
 
-            var msg = reader.Materialize(entry);
-
-            try
+            if (entry.State == Entry.Status.Valid)
             {
-             //  System.Threading.Thread.SpinWait(8_000);
-              var map = msg.Text.JsonToDataObject() as JsonDataMap;
-              wc++;
+              ec++;
+
+              var msg = reader.Materialize(entry);
+
+              try
+              {
+                if (msg.Parameters.Length>0 && msg.Parameters.FirstOrDefault(c => !char.IsWhiteSpace(c))=='{')
+                {
+                  var map = msg.Parameters.JsonToDataObject() as JsonDataMap;
+                  wc++;
+                }
+              }
+              catch
+              { }
+
             }
-            catch
-            { }
-
-            // if (msg.Guid.ToString().StartsWith("faca")) msg.See();
           }
-        }
-        var now = DateTime.UtcNow.Second;
-        if (now!=psecond)
-        {
-          psecond = now;
-          "{0}".SeeArgs(total);
-        }
-        System.Threading.Interlocked.Add(ref total, ec);//1);
-        System.Threading.Interlocked.Add(ref wordCount, wc);//1);
+          var now = DateTime.UtcNow.Second;
+          if (now!=psecond)
+          {
+            psecond = now;
+            "{0}".SeeArgs(total);
+          }
+          System.Threading.Interlocked.Add(ref total, ec);//1);
+          System.Threading.Interlocked.Add(ref wordCount, wc);//1);
 
-      });
+        },
+        () => !App.Active//cancellation source
+      );
 
       time.Stop();
       "Did {0:n0} found {1:n0}({2:n5}%) in {3:n1} sec at {4:n2} ops/sec  WC = {5:n0}\n".SeeArgs(total, found, (double)found / total, time.ElapsedSec, total / time.ElapsedSec, wordCount);

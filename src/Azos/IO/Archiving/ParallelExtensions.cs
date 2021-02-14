@@ -111,13 +111,26 @@ namespace Azos.IO.Archiving
     }
 
 
-    //todo: Finish!!!
+    /// <summary>
+    /// Performs parallel processing of archive data sources supplied as enumerable of streams.
+    /// The count of streams controls the degree of stream parallelism.
+    /// The method delegates actual page-level work to `body` function which gets page-by-page stream as
+    /// materialized from multiple volumes mounted for every input stream.
+    /// </summary>
+    /// <typeparam name="TReader">Type of stream reader</typeparam>
+    /// <param name="dataSource">Enumerable of streams to process</param>
+    /// <param name="crypto">Crypto provider used for volume mounting</param>
+    /// <param name="startPageId">Starting page id - a position in the whole archive</param>
+    /// <param name="readerFactory">Factory method making TReader instances</param>
+    /// <param name="body">Worker body functor</param>
+    /// <param name="cancel">Optional cancellation functor which returns null if the processing should stop</param>
+    /// <param name="skipCorruptPages">False by default. When true skips archive page corruptions</param>
     public static void ParallelProcessVolumeBatchesStartingAt<TReader>(this IEnumerable<Stream> dataSource,
                                                               Security.ICryptoManager crypto,
                                                               long startPageId,
                                                               Func<IVolume, TReader> readerFactory,
-                                                              Action<Page, TReader, CancellationToken?> body,
-                                                              CancellationToken? ctoken = null,
+                                                              Action<Page, TReader, Func<bool>> body,
+                                                              Func<bool> cancel = null,
                                                               bool skipCorruptPages = false) where TReader : ArchiveReader
     {
       dataSource.NonNull(nameof(dataSource));
@@ -143,13 +156,13 @@ namespace Azos.IO.Archiving
 
         foreach(var pageSet in main.Volume.ReadPageInfos(startPageId).BatchBy(readers.Count))
         {
-          if (ctoken.HasValue && ctoken.Value.IsCancellationRequested) break;
+          if (cancel != null && cancel()) break;
 
           var tasks = new List<Task>();
 
           foreach(var pair in pageSet.Select((pi, i) => new KeyValuePair<long, TReader>(pi.PageId, readers[i % readers.Count])))
           {
-            if (ctoken.HasValue && ctoken.Value.IsCancellationRequested) break;
+            if (cancel != null && cancel()) break;
 
             tasks.Add(Task.Factory.StartNew(objKvp =>
             {
@@ -169,15 +182,16 @@ namespace Azos.IO.Archiving
               {
                 try
                 {
-                  body(page, reader, ctoken);
+                  body(page, reader, cancel);
                 }
                 finally
                 {
                   reader.Recycle(page);
                 }
               }
-            }, pair));
+            }, pair));//Task
           }
+
           Task.WaitAll(tasks.ToArray());
         }
       }
