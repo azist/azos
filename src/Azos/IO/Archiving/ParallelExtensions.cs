@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Azos.IO.Archiving
@@ -114,9 +115,9 @@ namespace Azos.IO.Archiving
     public static void ParallelProcessVolumeBatchesStartingAt<TReader>(this IEnumerable<Stream> dataSource,
                                                               Security.ICryptoManager crypto,
                                                               long startPageId,
-                                                              int batchBy,
                                                               Func<IVolume, TReader> readerFactory,
-                                                              Action<Page, TReader> body,
+                                                              Action<Page, TReader, CancellationToken?> body,
+                                                              CancellationToken? ctoken = null,
                                                               bool skipCorruptPages = false) where TReader : ArchiveReader
     {
       dataSource.NonNull(nameof(dataSource));
@@ -142,9 +143,14 @@ namespace Azos.IO.Archiving
 
         foreach(var pageSet in main.Volume.ReadPageInfos(startPageId).BatchBy(readers.Count))
         {
+          if (ctoken.HasValue && ctoken.Value.IsCancellationRequested) break;
+
           var tasks = new List<Task>();
 
           foreach(var pair in pageSet.Select((pi, i) => new KeyValuePair<long, TReader>(pi.PageId, readers[i % readers.Count])))
+          {
+            if (ctoken.HasValue && ctoken.Value.IsCancellationRequested) break;
+
             tasks.Add(Task.Factory.StartNew(objKvp =>
             {
               var kvp = (KeyValuePair<long, TReader>)objKvp;
@@ -152,30 +158,33 @@ namespace Azos.IO.Archiving
               Page page = null;
               try
               {
-                page = reader.GetOnePageAt(kvp.Key, true);
+                page = reader.GetOnePageAt(kvp.Key, exactPageId: true);
               }
               catch
               {
                 if (!skipCorruptPages) throw;
               }
 
-              if (page!=null)
+              if (page != null)
               {
-                body(page, reader);
-                reader.Recycle(page);
+                try
+                {
+                  body(page, reader, ctoken);
+                }
+                finally
+                {
+                  reader.Recycle(page);
+                }
               }
             }, pair));
-
+          }
           Task.WaitAll(tasks.ToArray());
         }
-
-
       }
       finally
       {
         readers.ForEach(r => r.Volume.Dispose());
       }
-
     }
 
 

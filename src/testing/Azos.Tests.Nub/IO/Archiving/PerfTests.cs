@@ -243,17 +243,13 @@ namespace Azos.Tests.Nub.IO.Archiving
       var found = 0;
 
       var psecond = 0;
-      files.ParallelProcessVolumeBatchesStartingAt(CryptoMan, 0, 8, volume => new LogMessageArchiveReader(volume),
-      (page, reader) =>{
+      files.ParallelProcessVolumeBatchesStartingAt(CryptoMan, 0, volume => new LogMessageArchiveReader(volume),
+      (page, reader, ctoken) =>{
         var ec = 0;
         var wc = 0;
         foreach (var entry in page.Entries)
         {
-          if (!App.Active)
-          {
-           // loop.Break();
-            return;
-          }
+          if (true == ctoken?.IsCancellationRequested) break;
 
           if (entry.State == Entry.Status.Valid)
           {
