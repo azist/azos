@@ -124,6 +124,7 @@ namespace Azos.IO.Archiving
     /// <param name="readerFactory">Factory method making TReader instances</param>
     /// <param name="body">Worker body functor</param>
     /// <param name="cancel">Optional cancellation functor which returns null if the processing should stop</param>
+    /// <param name="pageCache">Optional page cache which keeps pages in memory (as permitted by hardware)</param>
     /// <param name="skipCorruptPages">False by default. When true skips archive page corruptions</param>
     public static void ParallelProcessVolumeBatchesStartingAt<TReader>(this IEnumerable<Stream> dataSource,
                                                               Security.ICryptoManager crypto,
@@ -131,6 +132,7 @@ namespace Azos.IO.Archiving
                                                               Func<IVolume, TReader> readerFactory,
                                                               Action<Page, TReader, Func<bool>> body,
                                                               Func<bool> cancel = null,
+                                                              IPageCache pageCache = null,
                                                               bool skipCorruptPages = false) where TReader : ArchiveReader
     {
       dataSource.NonNull(nameof(dataSource));
@@ -145,7 +147,7 @@ namespace Azos.IO.Archiving
         foreach(var stream in dataSource)
         {
           if (stream==null || !stream.CanRead) continue;
-          var volume = new DefaultVolume(crypto, stream, false);
+          var volume = new DefaultVolume(crypto, pageCache, stream, false);
           var reader = readerFactory(volume);
           readers.Add(reader);
         }
