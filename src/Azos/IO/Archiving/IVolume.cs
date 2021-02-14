@@ -27,7 +27,7 @@ namespace Azos.IO.Archiving
 
     PageInfo ReadPageInfo(long pageId);
 
-    IEnumerable<PageInfo> PageInfos(long pageId);
+    IEnumerable<PageInfo> ReadPageInfos(long pageId);
 
     /// <summary>
     /// Fills an existing page instance with archive data performing necessary decompression/decryption
@@ -38,21 +38,23 @@ namespace Azos.IO.Archiving
     /// </summary>
     /// <param name="pageId">
     /// Requested pageId. Note: `page.PageId` will contain an actual `pageId` which may be fast-forwarded
-    /// to the next readable block relative to the requested `pageId`
+    /// to the next readable block relative to the requested `pageId` if `exactPageId` is not set to true.
     /// </param>
     /// <param name="page">Existing page instance to fill with data</param>
+    /// <param name="exactPageId">If true then will read the page exactly from the specified address</param>
     /// <returns>
     /// Returns a positive long value with the next adjacent `pageId` or a negative
-    /// value to indicate the EOF condition.
+    /// value to indicate the EOF condition. Throws on decipher/decompression or if bad page id was supplied when `exactPageId=true`
     /// </returns>
     /// <remarks>
     /// <para>
-    /// If the supplied `pageId` is not pointing to a correct volume memory space (e.g. corrupt file data),
-    /// then the system scrolls to the fist subsequent readable page, so you can compare the `page.PageId` with
+    /// If the supplied `pageId` is not pointing to a correct volume memory space (e.g. corrupt file data), AND
+    /// `exactPageId=true` then the system scrolls to the fist subsequent readable page header, so you can compare the `page.PageId` with
     /// the requested value to detect any volume corruptions (when there are no corruptions both values are the same).
+    /// Throws compression/decipher error if the underlying volume data is corrupted
     /// </para>
     /// </remarks>
-    long ReadPage(long pageId, Page page);
+    long ReadPage(long pageId, Page page, bool exactPageId = false);
 
     /// <summary>
     /// Appends the page at the end of volume. Returns the pageId of the appended page.

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Azos.IO.Archiving
@@ -110,13 +111,26 @@ namespace Azos.IO.Archiving
     }
 
 
-    //todo: Finish!!!
+    /// <summary>
+    /// Performs parallel processing of archive data sources supplied as enumerable of streams.
+    /// The count of streams controls the degree of stream parallelism.
+    /// The method delegates actual page-level work to `body` function which gets page-by-page stream as
+    /// materialized from multiple volumes mounted for every input stream.
+    /// </summary>
+    /// <typeparam name="TReader">Type of stream reader</typeparam>
+    /// <param name="dataSource">Enumerable of streams to process</param>
+    /// <param name="crypto">Crypto provider used for volume mounting</param>
+    /// <param name="startPageId">Starting page id - a position in the whole archive</param>
+    /// <param name="readerFactory">Factory method making TReader instances</param>
+    /// <param name="body">Worker body functor</param>
+    /// <param name="cancel">Optional cancellation functor which returns null if the processing should stop</param>
+    /// <param name="skipCorruptPages">False by default. When true skips archive page corruptions</param>
     public static void ParallelProcessVolumeBatchesStartingAt<TReader>(this IEnumerable<Stream> dataSource,
                                                               Security.ICryptoManager crypto,
                                                               long startPageId,
-                                                              int batchBy,
                                                               Func<IVolume, TReader> readerFactory,
-                                                              Action<Page, TReader> body,
+                                                              Action<Page, TReader, Func<bool>> body,
+                                                              Func<bool> cancel = null,
                                                               bool skipCorruptPages = false) where TReader : ArchiveReader
     {
       dataSource.NonNull(nameof(dataSource));
@@ -140,33 +154,51 @@ namespace Azos.IO.Archiving
 
         var main = readers[0];
 
-        foreach(var pageSet in main.Volume.PageInfos(startPageId).BatchBy(readers.Count))
+        foreach(var pageSet in main.Volume.ReadPageInfos(startPageId).BatchBy(readers.Count))
         {
+          if (cancel != null && cancel()) break;
+
           var tasks = new List<Task>();
 
           foreach(var pair in pageSet.Select((pi, i) => new KeyValuePair<long, TReader>(pi.PageId, readers[i % readers.Count])))
+          {
+            if (cancel != null && cancel()) break;
+
             tasks.Add(Task.Factory.StartNew(objKvp =>
             {
               var kvp = (KeyValuePair<long, TReader>)objKvp;
               var reader = kvp.Value;
-              var page = reader.GetPagesStartingAt(kvp.Key).FirstOrDefault(p => p.State == Page.Status.Reading);
-              if (page!=null)
+              Page page = null;
+              try
               {
-                body(page, reader);
-                reader.Recycle(page);
+                page = reader.GetOnePageAt(kvp.Key, exactPageId: true);
               }
-            }, pair, TaskCreationOptions.LongRunning));
+              catch
+              {
+                if (!skipCorruptPages) throw;
+              }
+
+              if (page != null)
+              {
+                try
+                {
+                  body(page, reader, cancel);
+                }
+                finally
+                {
+                  reader.Recycle(page);
+                }
+              }
+            }, pair));//Task
+          }
 
           Task.WaitAll(tasks.ToArray());
         }
-
-
       }
       finally
       {
         readers.ForEach(r => r.Volume.Dispose());
       }
-
     }
 
 

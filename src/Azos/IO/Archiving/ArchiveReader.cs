@@ -85,6 +85,37 @@ namespace Azos.IO.Archiving
       Interlocked.CompareExchange(ref m_Cached_5, page, null);
     }
 
+
+    /// <summary>
+    /// Tries to read a page at the specified `pageId` which may be an exact value if `exactPageId=true`.
+    /// Returns null on EOF or throws on errors
+    /// </summary>
+    /// <param name="pageId">Page location to find the page at</param>
+    /// <param name="exactPageId">True - to find page exactly at the specified location</param>
+    /// <param name="preallocatedPage">Optionally pre-allocated instance</param>
+    /// <returns>Page or null if eof</returns>
+    public Page GetOnePageAt(long pageId, bool exactPageId, Page preallocatedPage = null)
+    {
+      float emaSize = AveragePageSizeBytes;
+
+      var page = preallocatedPage;
+
+      if (page == null)
+        page = getPageInstance(AveragePageSizeBytes);
+      else
+        page.AdjustDefaultCapacity(AveragePageSizeBytes);
+
+      Volume.ReadPage(pageId, page, exactPageId: exactPageId);
+
+      if (page.State == Page.Status.Reading)
+      {
+        m_AveragePageSizeBytes = (int)((page.Data.Count * EMA_PAGE_SIZE_K) + (m_AveragePageSizeBytes * EMA_PAGE_SIZE_J));
+        return page;
+      }
+
+      return null;
+    }
+
     /// <summary>
     /// Enumerates all pages starting at the specified `pageId`.
     /// This method yields back an enumeration of different page instances which could be used
@@ -120,6 +151,7 @@ namespace Azos.IO.Archiving
           if (skipCorruptPages)
           {
             current++; //re-align to next page header
+            current = IntUtils.Align16(current);
             continue;
           }
           throw;
