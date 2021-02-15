@@ -92,7 +92,7 @@ namespace Azos.Tests.Nub.IO.Archiving
                                                   aIdxCd.Append(new DateTimeBookmark(e.CreateDate, b));
                                                   aIdxNt.Append(new StringBookmark(e.Note, b));
                                                   aIdxAmt.Append(new AmountBookmark(e.Amt, b));
-                                                } 
+                                                }
                                                 ))
         {
           var messages = FakeRow.GenerateMany<MumboJumbo>(1, 1, (ulong)(CNT * .5)-1);
@@ -174,9 +174,11 @@ namespace Azos.Tests.Nub.IO.Archiving
       // Find by GDID (ID)
       foreach (var idx in idxIdReader.All)
       {
+        var data = reader.GetEntriesStartingAt(idx.Bookmark).First(); //Kikabidze!!!!
+        Aver.AreEqual(data.ID, idx.Value);
+
         if (idx.Value == ctlMumbo.ID)
         {
-          var data = reader.GetEntriesStartingAt(idx.Bookmark).FirstOrDefault();
           data.See();
           Aver.AreEqual(ctlMumbo.ID, data.ID);
           gotOne = true;
@@ -419,7 +421,7 @@ namespace Azos.Tests.Nub.IO.Archiving
           break;
         }
       }
-      if (!gotOne) Aver.Fail($"Failed to find ID by {nameof(GdidIdxReader)}");      
+      if (!gotOne) Aver.Fail($"Failed to find ID by {nameof(GdidIdxReader)}");
 
       timeRead.Stop();
       "Did {0:n0} reads in {1:n1} sec at {2:n2} ops/sec\n".SeeArgs(CNT, timeRead.ElapsedSec, CNT / timeRead.ElapsedSec);
@@ -512,7 +514,7 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
       if (!gotOne) Aver.Fail($"Failed to find CorrelationId by {nameof(GuidIdxReader)}");
-      
+
 
       timeRead.Stop();
       "Did {0:n0} reads in {1:n1} sec at {2:n2} ops/sec\n".SeeArgs(CNT, timeRead.ElapsedSec, CNT / timeRead.ElapsedSec);
@@ -609,7 +611,7 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
       if (!gotOne) Aver.Fail($"Failed to find DeviceId by {nameof(LongIdxReader)}");
-      
+
 
       timeRead.Stop();
       "Did {0:n0} reads in {1:n1} sec at {2:n2} ops/sec\n".SeeArgs(CNT, timeRead.ElapsedSec, CNT / timeRead.ElapsedSec);
@@ -800,7 +802,7 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
       if (!gotOne) Aver.Fail($"Failed to find Latitude by {nameof(DoubleIdxReader)}");
-      
+
 
       timeRead.Stop();
       "Did {0:n0} reads in {1:n1} sec at {2:n2} ops/sec\n".SeeArgs(CNT, timeRead.ElapsedSec, CNT / timeRead.ElapsedSec);
@@ -878,7 +880,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var timeRead = Azos.Time.Timeter.StartNew();
 
-      var gotOne = false;       
+      var gotOne = false;
 
       // Find by Decimal (Altitude)
       foreach (var idx in idxAlReader.All)
@@ -893,7 +895,7 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
       if (!gotOne) Aver.Fail($"Failed to find Altitude by {nameof(DecimalIdxReader)}");
-      
+
 
       timeRead.Stop();
       "Did {0:n0} reads in {1:n1} sec at {2:n2} ops/sec\n".SeeArgs(CNT, timeRead.ElapsedSec, CNT / timeRead.ElapsedSec);
@@ -972,7 +974,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var timeRead = Azos.Time.Timeter.StartNew();
 
-      var gotOne = false;      
+      var gotOne = false;
 
       // Find by DateTime (CreateDate)
       foreach (var idx in idxCdReader.All)
@@ -986,7 +988,7 @@ namespace Azos.Tests.Nub.IO.Archiving
           break;
         }
       }
-      if (!gotOne) Aver.Fail($"Failed to find CreateDate by {nameof(DateTimeIdxReader)}");      
+      if (!gotOne) Aver.Fail($"Failed to find CreateDate by {nameof(DateTimeIdxReader)}");
 
       timeRead.Stop();
       "Did {0:n0} reads in {1:n1} sec at {2:n2} ops/sec\n".SeeArgs(CNT, timeRead.ElapsedSec, CNT / timeRead.ElapsedSec);
@@ -1065,7 +1067,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var timeRead = Azos.Time.Timeter.StartNew();
 
       var gotOne = false;
-      
+
       // Find by String (Note)
       foreach (var idx in idxNtReader.All)
       {
