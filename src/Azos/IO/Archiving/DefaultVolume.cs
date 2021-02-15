@@ -173,6 +173,7 @@ namespace Azos.IO.Archiving
     /// </summary>
     public PageInfo ReadPageInfo(long pageId)
     {
+      EnsureObjectNotDisposed();
       pageId.IsTrue(v => v >= 0, "pageId < 0");
 
       //align pageId by 16 for cache lookup
@@ -203,6 +204,7 @@ namespace Azos.IO.Archiving
     /// </summary>
     public IEnumerable<PageInfo> ReadPageInfos(long pageId)
     {
+      EnsureObjectNotDisposed();
       while(true)
       {
         var pi = ReadPageInfo(pageId);
@@ -231,6 +233,7 @@ namespace Azos.IO.Archiving
     /// </returns>
     public long ReadPage(long pageId, Page page, bool exactPageId = false)
     {
+      EnsureObjectNotDisposed();
       pageId.IsTrue(v => v >= 0, "pageId < 0");
       page.NonNull(nameof(page));
 
@@ -279,6 +282,7 @@ namespace Azos.IO.Archiving
     /// </summary>
     public long AppendPage(Page page)
     {
+      EnsureObjectNotDisposed();
       page.NonNull(nameof(page))
           .Ensure(Page.Status.Written);
 
