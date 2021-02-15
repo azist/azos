@@ -125,6 +125,7 @@ namespace Azos.IO.Archiving
     /// <param name="body">Worker body functor</param>
     /// <param name="cancel">Optional cancellation functor which returns null if the processing should stop</param>
     /// <param name="pageCache">Optional page cache which keeps pages in memory (as permitted by hardware)</param>
+    /// <param name="volumeFactory">Optional volume factory method. If not used then the system allocates `DefaultVolume` instance</param>
     /// <param name="skipCorruptPages">False by default. When true skips archive page corruptions</param>
     public static void ParallelProcessVolumeBatchesStartingAt<TReader>(this IEnumerable<Stream> dataSource,
                                                               Security.ICryptoManager crypto,
@@ -133,12 +134,18 @@ namespace Azos.IO.Archiving
                                                               Action<Page, TReader, Func<bool>> body,
                                                               Func<bool> cancel = null,
                                                               IPageCache pageCache = null,
+                                                              Func<Security.ICryptoManager, IPageCache, Stream, IVolume> volumeFactory = null,
                                                               bool skipCorruptPages = false) where TReader : ArchiveReader
     {
       dataSource.NonNull(nameof(dataSource));
       crypto.NonNull(nameof(crypto));
       readerFactory.NonNull(nameof(readerFactory));
       body.NonNull(nameof(body));
+
+      if (volumeFactory == null)
+      {
+        volumeFactory = (_1, _2, vstream) => new DefaultVolume(crypto, pageCache, vstream, ownsStream: false);
+      }
 
       var readers = new List<TReader>();
       try
@@ -147,7 +154,7 @@ namespace Azos.IO.Archiving
         foreach(var stream in dataSource)
         {
           if (stream==null || !stream.CanRead) continue;
-          var volume = new DefaultVolume(crypto, pageCache, stream, false);
+          var volume = volumeFactory(crypto, pageCache, stream);
           var reader = readerFactory(volume);
           readers.Add(reader);
         }

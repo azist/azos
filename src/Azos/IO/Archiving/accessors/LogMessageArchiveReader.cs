@@ -51,7 +51,7 @@ namespace Azos.IO.Archiving
 
         var edata = reader.ReadString();
         if (edata != null)
-        {
+        { //this could be serialized using bix for better performance
           result.ExceptionData = JsonReader.ToDoc<WrappedExceptionData>(edata);
         }
       }
