@@ -166,9 +166,14 @@ namespace Azos.IO.Archiving
     /// </summary>
     public void ResetReadErrorCount() => m_ReadErrorCount = 0;
 
-    //todo: comments
+    /// <summary>
+    /// Reads one `PageInfo` object at the specified pageId.
+    /// If the pageId is not exact then scrolls to the first readable page.
+    /// Returns `!PageInfo.Assigned` for the EOF.
+    /// </summary>
     public PageInfo ReadPageInfo(long pageId)
     {
+      EnsureObjectNotDisposed();
       pageId.IsTrue(v => v >= 0, "pageId < 0");
 
       //align pageId by 16 for cache lookup
@@ -180,11 +185,11 @@ namespace Azos.IO.Archiving
 
       var isCache = m_Cache != null && m_Cache.Enabled;
 
-      if (!isCache || !m_Cache.TryGet(requestedPageId, out info))
+      if (!isCache || !m_Cache.TryGet(new VolumePagePtr(Metadata.Id, requestedPageId), out info))
       {
         lock (m_StreamLock)
         {
-          if (!isCache || !m_Cache.TryGet(requestedPageId, out info))
+          if (!isCache || !m_Cache.TryGet(new VolumePagePtr(Metadata.Id, requestedPageId), out info))
           {
             (pageId, info, len) = seekToNextReadablePageLocation(pageId, false);
           }
@@ -194,8 +199,12 @@ namespace Azos.IO.Archiving
       return info;
     }
 
+    /// <summary>
+    /// Lazily reads sequential `PageInfo` enumeration starting from the specified pageId.
+    /// </summary>
     public IEnumerable<PageInfo> ReadPageInfos(long pageId)
     {
+      EnsureObjectNotDisposed();
       while(true)
       {
         var pi = ReadPageInfo(pageId);
@@ -204,7 +213,6 @@ namespace Azos.IO.Archiving
         pageId = pi.NextPageId;
       }
     }
-
 
     /// <summary>
     /// Fills an existing page instance with archive data performing necessary decompression/decryption
@@ -225,6 +233,7 @@ namespace Azos.IO.Archiving
     /// </returns>
     public long ReadPage(long pageId, Page page, bool exactPageId = false)
     {
+      EnsureObjectNotDisposed();
       pageId.IsTrue(v => v >= 0, "pageId < 0");
       page.NonNull(nameof(page));
 
@@ -241,11 +250,11 @@ namespace Azos.IO.Archiving
       var didFetch = false;
       var isCache = m_Cache!=null && m_Cache.Enabled;
 
-      if (!isCache || !m_Cache.TryGet(requestedPageId, pageData, out info))
+      if (!isCache || !m_Cache.TryGet(new VolumePagePtr(Metadata.Id, requestedPageId), pageData, out info))
       {
         lock (m_StreamLock)
         {
-          if (!isCache || !m_Cache.TryGet(requestedPageId, pageData, out info))
+          if (!isCache || !m_Cache.TryGet(new VolumePagePtr(Metadata.Id, requestedPageId), pageData, out info))
           {
             (pageId, info, len) = seekToNextReadablePageLocation(pageId, exactPageId);
 
@@ -261,7 +270,7 @@ namespace Azos.IO.Archiving
       //this is fine as probability of this is low and the benefit of NOT adding in cache
       //under global stream lock outweighs the possibly of calling a copious put(which is harmless)
       if (didFetch && isCache)
-        m_Cache.Put(requestedPageId, info, new ArraySegment<byte>(pageData.GetBuffer(), 0, (int)pageData.Length));
+        m_Cache.Put(new VolumePagePtr(Metadata.Id, requestedPageId), info, new ArraySegment<byte>(pageData.GetBuffer(), 0, (int)pageData.Length));
 
       page.EndReading(pageId, info.CreateUtc, info.App, info.Host);
       return didFetch ? info.NextPageId : -1;
@@ -273,6 +282,7 @@ namespace Azos.IO.Archiving
     /// </summary>
     public long AppendPage(Page page)
     {
+      EnsureObjectNotDisposed();
       page.NonNull(nameof(page))
           .Ensure(Page.Status.Written);
 
@@ -284,7 +294,7 @@ namespace Azos.IO.Archiving
         writePageHeader(pageId, page);
         writeData(data);
 
-        if (m_Cache!=null && m_Cache.Enabled)
+        if (m_Cache != null && m_Cache.Enabled)
         {
           var info = new PageInfo
           {
@@ -294,7 +304,7 @@ namespace Azos.IO.Archiving
             NextPageId = seekToNewPageLocation()
           };
 
-          m_Cache.Put(pageId, info, page.Data);
+          m_Cache.Put(new VolumePagePtr(Metadata.Id, pageId), info, page.Data);
         }
 
         return pageId;

@@ -35,11 +35,13 @@ namespace Azos.IO.Archiving
 
       //these 2 need to be precomputed for speed
       var sys = Data[CONFIG_SYS_SECTION];
+      Id = sys.Of(CONFIG_ID_ATTR).ValueAsGUID(Guid.Empty);
       IsEncrypted = sys[CONFIG_ENCRYPTION_SECTION].Of(CONFIG_SCHEME_ATTR).Value.IsNotNullOrWhiteSpace();
       IsCompressed = sys[CONFIG_COMPRESSION_SECTION].Of(CONFIG_SCHEME_ATTR).Value.IsNotNullOrWhiteSpace();
     }
 
     public readonly IConfigSectionNode Data;
+    public readonly Guid Id;
     public readonly bool IsEncrypted;
     public readonly bool IsCompressed;
 
@@ -52,7 +54,6 @@ namespace Azos.IO.Archiving
 
     public int VersionMajor => SectionSystem.Of(CONFIG_VERSION_MAJOR_ATTR).ValueAsInt();
     public int VersionMinor => SectionSystem.Of(CONFIG_VERSION_MINOR_ATTR).ValueAsInt();
-    public Guid Id => SectionSystem.Of(CONFIG_ID_ATTR).ValueAsGUID(Guid.Empty);
     public string Label => SectionSystem.Of(CONFIG_LABEL_ATTR).Value;
     public string Description => SectionSystem.Of(CONFIG_DESCRIPTION_ATTR).Value;
     public Atom Channel => SectionSystem.Of(CONFIG_CHANNEL_ATTR).ValueAsAtom(Atom.ZERO);
