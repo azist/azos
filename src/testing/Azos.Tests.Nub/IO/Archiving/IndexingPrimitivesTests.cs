@@ -32,20 +32,21 @@ namespace Azos.Tests.Nub.IO.Archiving
     [Run("compress=null   encrypt=aes1   cnt=10    idxCompress=null   idxEncrypt=aes1   pageLboundKb=8    pageUboundKb=16     idxLboundKb=4     idxUboundKb=8")]
     [Run("compress=null   encrypt=aes1   cnt=100   idxCompress=null   idxEncrypt=aes1   pageLboundKb=64   pageUboundKb=512    idxLboundKb=8     idxUboundKb=64")]
     [Run("compress=null   encrypt=aes1   cnt=250   idxCompress=null   idxEncrypt=aes1   pageLboundKb=512  pageUboundKb=2048   idxLboundKb=128   idxUboundKb=512")]
-    public void Write_Read_From_File(string compress, string encrypt, int CNT, string idxCompress, string idxEncrypt, int pageLboundKb, int pageUboundKb, int idxLboundKb, int idxUboundKb)
+
+    public void Write_Read_Index_Primitives(string compress, string encrypt, int CNT, string idxCompress, string idxEncrypt, int pageLboundKb, int pageUboundKb, int idxLboundKb, int idxUboundKb)
     {
       var ctlMumbo = MumboJumbo.GetControl();
 
-      var msData = new MemoryStream();   
-      var msIdxId =  new MemoryStream(); 
+      var msData = new MemoryStream();
+      var msIdxId =  new MemoryStream();
       var msIdxCid =  new MemoryStream();
       var msIdxDid =  new MemoryStream();
-      var msIdxPn =  new MemoryStream(); 
-      var msIdxLt =  new MemoryStream(); 
-      var msIdxLn =  new MemoryStream(); 
-      var msIdxAl =  new MemoryStream(); 
-      var msIdxCd =  new MemoryStream(); 
-      var msIdxNt =  new MemoryStream(); 
+      var msIdxPn =  new MemoryStream();
+      var msIdxLt =  new MemoryStream();
+      var msIdxLn =  new MemoryStream();
+      var msIdxAl =  new MemoryStream();
+      var msIdxCd =  new MemoryStream();
+      var msIdxNt =  new MemoryStream();
       var msIdxAmt =  new MemoryStream();
 
       var meta = VolumeMetadataBuilder.Make("Primitive Idx")
@@ -130,28 +131,34 @@ namespace Azos.Tests.Nub.IO.Archiving
                                                   aIdxCd.Append(new DateTimeBookmark(e.CreateDate, b));
                                                   aIdxNt.Append(new StringBookmark(e.Note, b));
                                                   aIdxAmt.Append(new AmountBookmark(e.Amt, b));
-                                                }
-                                                ))
+                                                }))
         {
           var messages = FakeRow.GenerateMany<MumboJumbo>(1, 1, (ulong)(CNT * .5) - 1);
           foreach (var m in messages)
           {
+            if (!App.Active) break;
             appender.Append(m);
           }
-          appender.Append(MumboJumbo.GetControl());
+          ///////////////////////////////////////////////
+          appender.Append(MumboJumbo.GetControl()); //we add 1 control message in the middle
+          ///////////////////////////////////////////////
           messages = FakeRow.GenerateMany<MumboJumbo>(1, 1, (ulong)(CNT * .5));
           foreach (var m in messages)
           {
+            if (!App.Active) break;
             appender.Append(m);
           }
         }
       }
+
+      "Wrote {0} items, now reading".SeeArgs(CNT);
 
       var gotOne = false;
 
       // Find by GDID (ID)
       foreach (var idx in idxIdReader.All)
       {
+        if (!App.Active) break;
         var data = reader.GetEntriesStartingAt(idx.Bookmark).First();
         Aver.AreEqual(data.ID, idx.Value);
 
@@ -164,11 +171,16 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
       if (!gotOne) Aver.Fail($"Failed to find ID by {nameof(GdidIdxReader)}");
+      "Finished reading {0}".SeeArgs(nameof(GdidIdxReader));
+
       gotOne = false;
+
+
 
       // Find by Guid (CorrelationId)
       foreach (var idx in idxCidReader.All)
       {
+        if (!App.Active) break;
         var data = reader.GetEntriesStartingAt(idx.Bookmark).First();
         Aver.AreEqual(data.CorrelationId, idx.Value);
 
@@ -181,11 +193,13 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
       if (!gotOne) Aver.Fail($"Failed to find CorrelationId by {nameof(GuidIdxReader)}");
+      "Finished reading {0}".SeeArgs(nameof(GuidIdxReader));
       gotOne = false;
 
       // Find by Long (DeviceId)
       foreach (var idx in idxDidReader.All)
       {
+        if (!App.Active) break;
         var data = reader.GetEntriesStartingAt(idx.Bookmark).First();
         Aver.AreEqual(data.DeviceId, idx.Value);
 
@@ -198,11 +212,13 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
       if (!gotOne) Aver.Fail($"Failed to find DeviceId by {nameof(LongIdxReader)}");
+      "Finished reading {0}".SeeArgs(nameof(LongIdxReader));
       gotOne = false;
 
       // Find by Int (PartNumber)
       foreach (var idx in idxPnReader.All)
       {
+        if (!App.Active) break;
         var data = reader.GetEntriesStartingAt(idx.Bookmark).First();
         Aver.AreEqual(data.PartNumber, idx.Value);
 
@@ -214,12 +230,14 @@ namespace Azos.Tests.Nub.IO.Archiving
           break;
         }
       }
-      if (!gotOne) Aver.Fail($"Failed to find PartNumber by {nameof(LongIdxReader)}");
+      if (!gotOne) Aver.Fail($"Failed to find PartNumber by {nameof(IntIdxReader)}");
+      "Finished reading {0}".SeeArgs(nameof(IntIdxReader));
       gotOne = false;
 
       // Find by Double (Latitude)
       foreach (var idx in idxLtReader.All)
       {
+        if (!App.Active) break;
         var data = reader.GetEntriesStartingAt(idx.Bookmark).First();
         Aver.AreEqual(data.Latitude, idx.Value);
 
@@ -232,11 +250,13 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
       if (!gotOne) Aver.Fail($"Failed to find Latitude by {nameof(DoubleIdxReader)}");
+      "Finished reading {0}".SeeArgs(nameof(DoubleIdxReader));
       gotOne = false;
 
       // Find by Double (Longitude)
       foreach (var idx in idxLnReader.All)
       {
+        if (!App.Active) break;
         var data = reader.GetEntriesStartingAt(idx.Bookmark).First();
         Aver.AreEqual(data.Longitude, idx.Value);
 
@@ -249,11 +269,13 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
       if (!gotOne) Aver.Fail($"Failed to find Longitude by {nameof(DoubleIdxReader)}");
+      "Finished reading {0}".SeeArgs(nameof(DoubleIdxReader));
       gotOne = false;
 
       // Find by Decimal (Altitude)
       foreach (var idx in idxAlReader.All)
       {
+        if (!App.Active) break;
         var data = reader.GetEntriesStartingAt(idx.Bookmark).First();
         Aver.AreEqual(data.Altitude, idx.Value);
 
@@ -266,11 +288,13 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
       if (!gotOne) Aver.Fail($"Failed to find Altitude by {nameof(DecimalIdxReader)}");
+      "Finished reading {0}".SeeArgs(nameof(DecimalIdxReader));
       gotOne = false;
 
       // Find by DateTime (CreateDate)
       foreach (var idx in idxCdReader.All)
       {
+        if (!App.Active) break;
         var data = reader.GetEntriesStartingAt(idx.Bookmark).First();
         Aver.AreEqual(data.CreateDate, idx.Value);
 
@@ -283,11 +307,13 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
       if (!gotOne) Aver.Fail($"Failed to find CreateDate by {nameof(DateTimeIdxReader)}");
+      "Finished reading {0}".SeeArgs(nameof(DateTimeIdxReader));
       gotOne = false;
 
       // Find by String (Note)
       foreach (var idx in idxNtReader.All)
       {
+        if (!App.Active) break;
         var data = reader.GetEntriesStartingAt(idx.Bookmark).First();
         Aver.AreEqual(data.Note, idx.Value);
 
@@ -300,11 +326,13 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
       if (!gotOne) Aver.Fail($"Failed to find Note by {nameof(StringIdxReader)}");
+      "Finished reading {0}".SeeArgs(nameof(StringIdxReader));
       gotOne = false;
 
       // Find by Amount (Amt)
       foreach (var idx in idxAmtReader.All)
       {
+        if (!App.Active) break;
         var data = reader.GetEntriesStartingAt(idx.Bookmark).First();
         Aver.AreEqual(data.Amt, idx.Value);
 
@@ -317,6 +345,7 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
       if (!gotOne) Aver.Fail($"Failed to find Amt by {nameof(AmountIdxReader)}");
+      "Finished reading {0}".SeeArgs(nameof(AmountIdxReader));
       //gotOne = false;
 
 
