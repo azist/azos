@@ -29,11 +29,13 @@ namespace Azos.IO.Archiving
     public PilePageCache(ICache cache) : base(cache.CastTo<ICacheImplementation>().App)
     {
       m_Cache = cache;
+      Enabled = true;
     }
 
     public PilePageCache(IApplicationComponent director, ICache cache) : base(director)
     {
       m_Cache = cache.NonNull(nameof(cache));
+      Enabled = true;
     }
 
     private ICache m_Cache;

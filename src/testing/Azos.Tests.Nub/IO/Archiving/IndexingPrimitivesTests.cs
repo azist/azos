@@ -10,6 +10,7 @@ using System.Linq;
 using Azos.Apps;
 using Azos.Scripting;
 using Azos.IO.Archiving;
+using Azos.Pile;
 
 namespace Azos.Tests.Nub.IO.Archiving
 {
@@ -17,25 +18,45 @@ namespace Azos.Tests.Nub.IO.Archiving
   public class IndexingPrimitivesTests : CryptoTestBase
   {
     // trun Azos.Tests.Nub.dll -r namespaces=*IO.Archiving* methods=IndexingPrimitivesTests*
-    [Run("compress=gzip   encrypt=aes1   cnt=10    idxCompress=null   idxEncrypt=null   pageLboundKb=8    pageUboundKb=16     idxLboundKb=4     idxUboundKb=8")]
-    [Run("compress=gzip   encrypt=aes1   cnt=100   idxCompress=null   idxEncrypt=null   pageLboundKb=64   pageUboundKb=512    idxLboundKb=8     idxUboundKb=64")]
-    [Run("compress=gzip   encrypt=aes1   cnt=250   idxCompress=null   idxEncrypt=null   pageLboundKb=512  pageUboundKb=2048   idxLboundKb=128   idxUboundKb=512")]
+    [Run("usecache=false compress=gzip   encrypt=aes1   cnt=10    idxCompress=null   idxEncrypt=null   pageLboundKb=8    pageUboundKb=16     idxLboundKb=4     idxUboundKb=8")]
+    [Run("usecache=false compress=gzip   encrypt=aes1   cnt=100   idxCompress=null   idxEncrypt=null   pageLboundKb=64   pageUboundKb=512    idxLboundKb=8     idxUboundKb=64")]
+    [Run("usecache=false compress=gzip   encrypt=aes1   cnt=250   idxCompress=null   idxEncrypt=null   pageLboundKb=512  pageUboundKb=2048   idxLboundKb=128   idxUboundKb=512")]
 
-    [Run("compress=null   encrypt=null   cnt=10    idxCompress=gzip   idxEncrypt=aes1   pageLboundKb=8    pageUboundKb=16     idxLboundKb=4     idxUboundKb=8")]
-    [Run("compress=null   encrypt=null   cnt=100   idxCompress=gzip   idxEncrypt=aes1   pageLboundKb=64   pageUboundKb=512    idxLboundKb=8     idxUboundKb=64")]
-    [Run("compress=null   encrypt=null   cnt=250   idxCompress=gzip   idxEncrypt=aes1   pageLboundKb=512  pageUboundKb=2048   idxLboundKb=128   idxUboundKb=512")]
+    [Run("usecache=false compress=null   encrypt=null   cnt=10    idxCompress=gzip   idxEncrypt=aes1   pageLboundKb=8    pageUboundKb=16     idxLboundKb=4     idxUboundKb=8")]
+    [Run("usecache=false compress=null   encrypt=null   cnt=100   idxCompress=gzip   idxEncrypt=aes1   pageLboundKb=64   pageUboundKb=512    idxLboundKb=8     idxUboundKb=64")]
+    [Run("usecache=false compress=null   encrypt=null   cnt=250   idxCompress=gzip   idxEncrypt=aes1   pageLboundKb=512  pageUboundKb=2048   idxLboundKb=128   idxUboundKb=512")]
 
-    [Run("compress=gzip   encrypt=null   cnt=10    idxCompress=gzip   idxEncrypt=null   pageLboundKb=8    pageUboundKb=16     idxLboundKb=4     idxUboundKb=8")]
-    [Run("compress=gzip   encrypt=null   cnt=100   idxCompress=gzip   idxEncrypt=null   pageLboundKb=64   pageUboundKb=512    idxLboundKb=8     idxUboundKb=64")]
-    [Run("compress=gzip   encrypt=null   cnt=250   idxCompress=gzip   idxEncrypt=null   pageLboundKb=512  pageUboundKb=2048   idxLboundKb=128   idxUboundKb=512")]
+    [Run("usecache=false compress=gzip   encrypt=null   cnt=10    idxCompress=gzip   idxEncrypt=null   pageLboundKb=8    pageUboundKb=16     idxLboundKb=4     idxUboundKb=8")]
+    [Run("usecache=false compress=gzip   encrypt=null   cnt=100   idxCompress=gzip   idxEncrypt=null   pageLboundKb=64   pageUboundKb=512    idxLboundKb=8     idxUboundKb=64")]
+    [Run("usecache=false compress=gzip   encrypt=null   cnt=250   idxCompress=gzip   idxEncrypt=null   pageLboundKb=512  pageUboundKb=2048   idxLboundKb=128   idxUboundKb=512")]
 
-    [Run("compress=null   encrypt=aes1   cnt=10    idxCompress=null   idxEncrypt=aes1   pageLboundKb=8    pageUboundKb=16     idxLboundKb=4     idxUboundKb=8")]
-    [Run("compress=null   encrypt=aes1   cnt=100   idxCompress=null   idxEncrypt=aes1   pageLboundKb=64   pageUboundKb=512    idxLboundKb=8     idxUboundKb=64")]
-    [Run("compress=null   encrypt=aes1   cnt=250   idxCompress=null   idxEncrypt=aes1   pageLboundKb=512  pageUboundKb=2048   idxLboundKb=128   idxUboundKb=512")]
+    [Run("usecache=false compress=null   encrypt=aes1   cnt=10    idxCompress=null   idxEncrypt=aes1   pageLboundKb=8    pageUboundKb=16     idxLboundKb=4     idxUboundKb=8")]
+    [Run("usecache=false compress=null   encrypt=aes1   cnt=100   idxCompress=null   idxEncrypt=aes1   pageLboundKb=64   pageUboundKb=512    idxLboundKb=8     idxUboundKb=64")]
+    [Run("usecache=false compress=null   encrypt=aes1   cnt=250   idxCompress=null   idxEncrypt=aes1   pageLboundKb=512  pageUboundKb=2048   idxLboundKb=128   idxUboundKb=512")]
 
-    public void Write_Read_Index_Primitives(string compress, string encrypt, int CNT, string idxCompress, string idxEncrypt, int pageLboundKb, int pageUboundKb, int idxLboundKb, int idxUboundKb)
+
+    [Run("usecache=false compress=gzip   encrypt=null   cnt=10000   idxCompress=gzip   idxEncrypt=aes1   pageLboundKb=4   pageUboundKb=4    idxLboundKb=8     idxUboundKb=8")]
+    [Run("usecache=true compress=gzip   encrypt=null   cnt=10000   idxCompress=gzip   idxEncrypt=aes1   pageLboundKb=4   pageUboundKb=4    idxLboundKb=8     idxUboundKb=8")]
+    public void Write_Read_Index_Primitives(bool usecache, string compress, string encrypt, int CNT, string idxCompress, string idxEncrypt, int pageLboundKb, int pageUboundKb, int idxLboundKb, int idxUboundKb)
     {
       var ctlMumbo = MumboJumbo.GetControl();
+
+      IPileImplementation pile = null;
+      ICacheImplementation cache = null;
+      IPageCache pageCache = null;
+      if (usecache)
+      {
+        pile = new DefaultPile(App);
+        cache = new LocalCache(App)
+        {
+          Pile = pile,
+          DefaultTableOptions = new TableOptions("*") { CollisionMode = CollisionMode.Durable },
+          PileMaxMemoryLimit = 32L * 1024 * 1024 * 1024
+        };
+        pile.Start();
+        cache.Start();
+        pageCache = new PilePageCache(cache);
+      }
 
       var msData = new MemoryStream();
       var msIdxId =  new MemoryStream();
@@ -55,7 +76,7 @@ namespace Azos.Tests.Nub.IO.Archiving
                                 .SetCompressionScheme(compress)
                                 .SetEncryptionScheme(encrypt);
 
-      var volumeData = new DefaultVolume(CryptoMan, meta, msData);
+      var volumeData = new DefaultVolume(CryptoMan, pageCache, meta, msData);
 
       var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
                                       .SetVersion(1, 1)
@@ -152,6 +173,8 @@ namespace Azos.Tests.Nub.IO.Archiving
       }
 
       "Wrote {0} items, now reading".SeeArgs(CNT);
+      if (cache!=null)
+       "Cache has {0} items".SeeArgs(cache.Count);
 
       var gotOne = false;
 
@@ -363,6 +386,10 @@ namespace Azos.Tests.Nub.IO.Archiving
       volumeIdxNt.Dispose();
       volumeIdxAmt.Dispose();
       volumeData.Dispose();
+
+      DisposableObject.DisposeIfDisposableAndNull(ref pageCache);
+      DisposableObject.DisposeIfDisposableAndNull(ref cache);
+      DisposableObject.DisposeIfDisposableAndNull(ref pile);
       "CLOSED all volumes\n".See();
     }
   }
