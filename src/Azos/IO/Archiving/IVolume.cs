@@ -24,10 +24,17 @@ namespace Azos.IO.Archiving
     /// </summary>
     int PageSizeBytes { get; set; }
 
-
+    /// <summary>
+    /// Reads one `PageInfo` object at the specified pageId.
+    /// If the pageId is not exact then scrolls to the first readable page.
+    /// Returns `!PageInfo.Assigned` for the EOF.
+    /// </summary>
     PageInfo ReadPageInfo(long pageId);
 
-    IEnumerable<PageInfo> PageInfos(long pageId);
+    /// <summary>
+    /// Lazily reads sequential `PageInfo` enumeration starting from the specified pageId.
+    /// </summary>
+    IEnumerable<PageInfo> ReadPageInfos(long pageId);
 
     /// <summary>
     /// Fills an existing page instance with archive data performing necessary decompression/decryption
@@ -38,21 +45,23 @@ namespace Azos.IO.Archiving
     /// </summary>
     /// <param name="pageId">
     /// Requested pageId. Note: `page.PageId` will contain an actual `pageId` which may be fast-forwarded
-    /// to the next readable block relative to the requested `pageId`
+    /// to the next readable block relative to the requested `pageId` if `exactPageId` is not set to true.
     /// </param>
     /// <param name="page">Existing page instance to fill with data</param>
+    /// <param name="exactPageId">If true then will read the page exactly from the specified address</param>
     /// <returns>
     /// Returns a positive long value with the next adjacent `pageId` or a negative
-    /// value to indicate the EOF condition.
+    /// value to indicate the EOF condition. Throws on decipher/decompression or if bad page id was supplied when `exactPageId=true`
     /// </returns>
     /// <remarks>
     /// <para>
-    /// If the supplied `pageId` is not pointing to a correct volume memory space (e.g. corrupt file data),
-    /// then the system scrolls to the fist subsequent readable page, so you can compare the `page.PageId` with
+    /// If the supplied `pageId` is not pointing to a correct volume memory space (e.g. corrupt file data), AND
+    /// `exactPageId=true` then the system scrolls to the fist subsequent readable page header, so you can compare the `page.PageId` with
     /// the requested value to detect any volume corruptions (when there are no corruptions both values are the same).
+    /// Throws compression/decipher error if the underlying volume data is corrupted
     /// </para>
     /// </remarks>
-    long ReadPage(long pageId, Page page);
+    long ReadPage(long pageId, Page page, bool exactPageId = false);
 
     /// <summary>
     /// Appends the page at the end of volume. Returns the pageId of the appended page.
@@ -63,61 +72,39 @@ namespace Azos.IO.Archiving
 
 
   /// <summary>
-  /// Provides page information
+  /// Provides archive page header information: (pageId, nextPageId, createUtc, app, host)
   /// </summary>
-  public struct PageInfo
+  public struct PageInfo : IEquatable<PageInfo>
   {
-    public long     PageId;
-    public long     NextPageId;
+    /// <summary>The Exact pageId of the page header</summary>
+    public long  PageId;
+
+    /// <summary>The Exact pageId of the next adjacent page header</summary>
+    public long  NextPageId;
+
+    /// <summary>UTC timestamp of page creation </summary>
     public DateTime CreateUtc;
-    public Atom     App;
-    public string   Host;
 
+    /// <summary>Id of application which created the page</summary>
+    public Atom  App;
+
+    /// <summary>User/Host which created the page. The convention is to use optional user name: 'user@host'</summary>
+    public string  Host;
+
+    /// <summary> True when the structure is assigned (vs having default value)</summary>
     public bool Assigned => PageId > 0;
-  }
 
-  /// <summary>
-  /// Abstracts storing page raw entry stream blocks in memory.
-  /// The service provided is thread-safe by design
-  /// </summary>
-  public interface IPageCache
-  {
-    /// <summary>
-    /// Enables the cache. Disabled cache does not store and does not find anything in it.
-    /// Disabling cache does not lose items which are already stored, they just become "invisible" while cache is disabled
-    /// </summary>
-    bool Enabled { get; set; }
+    public bool Equals(PageInfo other) => this.PageId == other.PageId &&
+                                          this.NextPageId == other.NextPageId &&
+                                          this.CreateUtc == other.CreateUtc &&
+                                          this.App == other.App &&
+                                          this.Host.EqualsOrdSenseCase(other.Host);
+    public override bool Equals(object obj) => obj is PageInfo pi ? this.Equals(pi) : false;
+    public override int GetHashCode() => this.PageId.GetHashCode();
+    public override string ToString() => "@{0:x8}::{1:x8}".Args(PageId, NextPageId);
 
-    /// <summary>
-    /// When set to greater than zero value imposes a time limit on buffer life in cache
-    /// </summary>
-    int LifeTimeSec{ get; set; }
-
-    /// <summary>
-    /// When set to greater than zero imposes a memory limit on the cache
-    /// </summary>
-    long MemoryLimit {  get; set; }
-
-
-    /// <summary>
-    /// Returns true if the cache contains the page without trying to fetch its data
-    /// </summary>
-    bool Contains(long pageId);
-
-    /// <summary>
-    /// Tries to get a page content by pageId
-    /// </summary>
-    bool TryGet(long pageId, MemoryStream pageData, out PageInfo info);
-
-    /// <summary>
-    /// Tries to get a page info only by pageId
-    /// </summary>
-    bool TryGet(long pageId, out PageInfo info);
-
-    /// <summary>
-    /// Puts data in cache
-    /// </summary>
-    void Put(long pageId, PageInfo info, ArraySegment<byte> content);
+    public static bool operator ==(PageInfo lh, PageInfo rh) => lh.Equals(rh);
+    public static bool operator !=(PageInfo lh, PageInfo rh) => !lh.Equals(rh);
   }
 
 }

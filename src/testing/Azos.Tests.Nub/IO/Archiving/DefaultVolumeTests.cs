@@ -8,13 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using System.Threading.Tasks;
 using System.Linq;
 
 using Azos.Apps;
 using Azos.Scripting;
 using Azos.IO.Archiving;
-using Azos.Security;
 
 namespace Azos.Tests.Nub.IO.Archiving
 {
@@ -303,7 +301,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       reader.All.ForEach( (s, i) => Aver.IsTrue(s.EndsWith("---" + i.ToString())));
 
-      var pageCount = reader.Pages(0).Count();
+      var pageCount = reader.GetPagesStartingAt(0).Count();
       Aver.IsTrue(pageCount > 0);
 
       "Before corruption: there are {0:n0} total records in {1:n0} pages".SeeArgs(allCount, pageCount);
@@ -314,10 +312,10 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       "-------------- corrupted {0:n0} bytes of {1:n0} total at {2:n0} position -----------  ".SeeArgs(pgsz*2, ms.Length, midPoint);
 
-      var allCount2 = reader.Entries(new Bookmark(), skipCorruptPages: true).Count();
+      var allCount2 = reader.GetEntriesStartingAt(new Bookmark(), skipCorruptPages: true).Count();
       Aver.IsTrue( allCount > allCount2);
 
-      var pageCount2 = reader.Pages(0, skipCorruptPages: true).Count();
+      var pageCount2 = reader.GetPagesStartingAt(0, skipCorruptPages: true).Count();
       Aver.IsTrue(pageCount > pageCount2);
 
       "After corruption: there are {0:n0} total records in {1:n0} pages".SeeArgs(allCount2, pageCount2);
@@ -385,7 +383,7 @@ namespace Azos.Tests.Nub.IO.Archiving
    //   reader.Pages(0).Select(p => (p.State, p.Entries.Count())).See("PAGES/Entries: ");
 
 
-      var pageCount = reader.Pages(0).Count();
+      var pageCount = reader.GetPagesStartingAt(0).Count();
       "Volume page count is: {0}".SeeArgs(pageCount);
       Aver.AreEqual(pc, pageCount);
 
@@ -439,5 +437,105 @@ namespace Azos.Tests.Nub.IO.Archiving
         }
       }
     }
+
+
+    [Run("count=10    psz=500    strvar=0      remount=false")]
+    [Run("count=10    psz=500    strvar=0      remount=true")]
+    [Run("count=10000 psz=500    strvar=0      remount=false")]
+    [Run("count=10000 psz=500    strvar=0      remount=true")]
+    [Run("count=10000 psz=64000  strvar=0      remount=false")]
+    [Run("count=10000 psz=64000  strvar=0      remount=true")]
+    [Run("count=64000 psz=1      strvar=0      remount=false")]
+    [Run("count=64000 psz=1      strvar=0      remount=true")]
+    [Run("count=64000 psz=1024   strvar=0      remount=false")]
+    [Run("count=64000 psz=1024   strvar=0      remount=true")]
+    [Run("count=64000 psz=3000   strvar=0      remount=false")]
+    [Run("count=64000 psz=3000   strvar=0      remount=true")]
+    [Run("count=64000 psz=700123 strvar=0      remount=false")]
+    [Run("count=64000 psz=700123 strvar=0      remount=true")]
+
+    [Run("count=10000 psz=500 strvar=10    remount=false")]
+    [Run("count=10000 psz=500 strvar=100   remount=false")]
+    [Run("count=10000 psz=500 strvar=256   remount=false")]
+    [Run("count=10000 psz=1000 strvar=10    remount=false")]
+    [Run("count=10000 psz=1000 strvar=100   remount=false")]
+    [Run("count=10000 psz=1000 strvar=256   remount=false")]
+    [Run("count=10000 psz=2000 strvar=10    remount=false")]
+    [Run("count=10000 psz=2000 strvar=100   remount=false")]
+    [Run("count=10000 psz=2000 strvar=256   remount=false")]
+    [Run("count=10000 psz=100123456 strvar=10    remount=false")]
+    [Run("count=10000 psz=100123456 strvar=100   remount=false")]
+    [Run("count=10000 psz=100123456 strvar=256   remount=false")]
+    [Run("count=10000 psz=100123456 strvar=256   remount=true")]
+
+    [Run("count=10000 psz=500 strvar=23000    remount=false")]
+    [Run("count=10000 psz=600 strvar=23000    remount=false")]
+    [Run("count=10000 psz=700 strvar=23000    remount=false")]
+    [Run("count=10000 psz=800 strvar=23000    remount=false")]
+    [Run("count=10000 psz=900 strvar=23000    remount=false")]
+    [Run("count=10000 psz=1000 strvar=23000    remount=false")]
+    [Run("count=10000 psz=1024000 strvar=23000    remount=false")]
+    [Run("count=10000 psz=1024000 strvar=23000    remount=true")]
+    public void PageInfo_Walk(int count, int psz, bool remount, int strvar)
+    {
+      string makestr(int i)
+      {
+        return strvar > 0 ? (new string(' ', i % strvar) + "text-string-" + i.ToString()) : ("text-string-" + i.ToString());
+      }
+
+
+      var ms = new MemoryStream();
+      var meta = VolumeMetadataBuilder.Make("String archive")
+                                      .SetVersion(1, 0)
+                                      .SetDescription("Testing string messages")
+                                      .SetChannel(Atom.Encode("dvop"));
+
+      var volume = new DefaultVolume(CryptoMan, meta, ms, ownsStream: false);
+      volume.PageSizeBytes =  psz;
+      using (var appender = new StringArchiveAppender(volume,
+                                          NOPApplication.Instance.TimeSource,
+                                          NOPApplication.Instance.AppId, "dima@zhaba"))
+      {
+        for (var i = 0; i < count; i++)
+        {
+          appender.Append(makestr(i));
+        }
+      }
+
+      if (remount)
+      {
+        volume.Dispose();
+        volume = new DefaultVolume(CryptoMan, ms, ownsStream: false);
+      }
+
+      var pis = volume.ReadPageInfos(0);
+      "Page infos: {0}".SeeArgs(pis.Count());
+
+      foreach(var pi in pis)
+      {
+        var one = volume.ReadPageInfo(pi.PageId);
+        Aver.AreEqual(pi, one);
+      }
+
+      var total =0;
+      var reader = new StringArchiveReader(volume);
+      foreach (var pi in pis)
+      {
+        var page = reader.GetOnePageAt(pi.PageId, true);
+        foreach(var entry in page.Entries)
+        {
+          if (entry.State== Entry.Status.Valid)
+          {
+            Aver.AreEqual(makestr(total), reader.Materialize(entry));
+            total++;
+          }
+        }
+      }
+
+      Aver.AreEqual(count, total);
+
+      volume.Dispose();
+    }
+
   }
 }

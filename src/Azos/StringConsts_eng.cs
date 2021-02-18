@@ -713,6 +713,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string ARCHIVE_PAGE_DECIPHER_ERROR = "Page data decipher error: {0}";
     public const string ARCHIVE_PAGE_BUFFER_MAX_LENGTH_ERROR = "Page data max buffer length of {0} bytes exceeded";
     public const string ARCHIVE_PAGE_DECOMPRESSION_ERROR = "Page data decompression error: {0}";
+    public const string ARCHIVE_PAGE_EXACT_ID_ERROR = "Archive page could not be found by the exact pageId specified: @{0:x8}";
 
 
     public const string CA_PROCESSOR_EXCEPTION_ERROR =

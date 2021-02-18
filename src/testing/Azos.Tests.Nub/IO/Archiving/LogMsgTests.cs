@@ -117,7 +117,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var reader = new LogMessageArchiveReader(volume);
 
-      var got = reader.Entries(new Bookmark()).ToArray();
+      var got = reader.GetEntriesStartingAt(new Bookmark()).ToArray();
 
       Aver.AreEqual(expected.Length, got.Length);
       for (int i = 0; i < count; i++)

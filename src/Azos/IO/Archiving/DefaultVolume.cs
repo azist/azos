@@ -166,9 +166,14 @@ namespace Azos.IO.Archiving
     /// </summary>
     public void ResetReadErrorCount() => m_ReadErrorCount = 0;
 
-    //todo: comments
+    /// <summary>
+    /// Reads one `PageInfo` object at the specified pageId.
+    /// If the pageId is not exact then scrolls to the first readable page.
+    /// Returns `!PageInfo.Assigned` for the EOF.
+    /// </summary>
     public PageInfo ReadPageInfo(long pageId)
     {
+      EnsureObjectNotDisposed();
       pageId.IsTrue(v => v >= 0, "pageId < 0");
 
       //align pageId by 16 for cache lookup
@@ -180,13 +185,13 @@ namespace Azos.IO.Archiving
 
       var isCache = m_Cache != null && m_Cache.Enabled;
 
-      if (!isCache || !m_Cache.TryGet(requestedPageId, out info))
+      if (!isCache || !m_Cache.TryGet(new VolumePagePtr(Metadata.Id, requestedPageId), out info))
       {
         lock (m_StreamLock)
         {
-          if (!isCache || !m_Cache.TryGet(requestedPageId, out info))
+          if (!isCache || !m_Cache.TryGet(new VolumePagePtr(Metadata.Id, requestedPageId), out info))
           {
-            (pageId, info, len) = seekToNextReadablePageLocation(pageId);
+            (pageId, info, len) = seekToNextReadablePageLocation(pageId, false);
           }
         }
       }
@@ -194,8 +199,12 @@ namespace Azos.IO.Archiving
       return info;
     }
 
-    public IEnumerable<PageInfo> PageInfos(long pageId)
+    /// <summary>
+    /// Lazily reads sequential `PageInfo` enumeration starting from the specified pageId.
+    /// </summary>
+    public IEnumerable<PageInfo> ReadPageInfos(long pageId)
     {
+      EnsureObjectNotDisposed();
       while(true)
       {
         var pi = ReadPageInfo(pageId);
@@ -204,7 +213,6 @@ namespace Azos.IO.Archiving
         pageId = pi.NextPageId;
       }
     }
-
 
     /// <summary>
     /// Fills an existing page instance with archive data performing necessary decompression/decryption
@@ -215,22 +223,25 @@ namespace Azos.IO.Archiving
     /// </summary>
     /// <param name="pageId">
     /// Requested pageId. Note: `page.PageId` will contain an actual `pageId` which may be fast-forwarded
-    /// to the next readable block relative to the requested `pageId`
+    /// to the next readable block relative to the requested `pageId` if `exactPageId` is not set to true.
     /// </param>
     /// <param name="page">Existing page instance to fill with data</param>
+    /// <param name="exactPageId">If true then will read the page exactly from the specified address</param>
     /// <returns>
     /// Returns a positive long value with the next adjacent `pageId` or a negative
-    /// value to indicate the EOF condition.
+    /// value to indicate the EOF condition. Throws on decipher/decompression or if bad page id was supplied when `exactPageId=true`
     /// </returns>
-    public long ReadPage(long pageId, Page page)
+    public long ReadPage(long pageId, Page page, bool exactPageId = false)
     {
+      EnsureObjectNotDisposed();
       pageId.IsTrue(v => v >= 0, "pageId < 0");
       page.NonNull(nameof(page));
 
       var pageData = page.BeginReading(pageId);
 
-      //align pageId by 16 for cache lookup
-      pageId = IntUtils.Align16(pageId);
+      //align pageId by 16 for cache lookup if the pageId is not exact
+      if (!exactPageId) pageId = IntUtils.Align16(pageId);
+
       var requestedPageId = pageId;
 
       PageInfo info;
@@ -239,13 +250,13 @@ namespace Azos.IO.Archiving
       var didFetch = false;
       var isCache = m_Cache!=null && m_Cache.Enabled;
 
-      if (!isCache || !m_Cache.TryGet(requestedPageId, pageData, out info))
+      if (!isCache || !m_Cache.TryGet(new VolumePagePtr(Metadata.Id, requestedPageId), pageData, out info))
       {
         lock (m_StreamLock)
         {
-          if (!isCache || !m_Cache.TryGet(requestedPageId, pageData, out info))
+          if (!isCache || !m_Cache.TryGet(new VolumePagePtr(Metadata.Id, requestedPageId), pageData, out info))
           {
-            (pageId, info, len) = seekToNextReadablePageLocation(pageId);
+            (pageId, info, len) = seekToNextReadablePageLocation(pageId, exactPageId);
 
             didFetch = pageId > 0;//vs EOF
 
@@ -259,7 +270,7 @@ namespace Azos.IO.Archiving
       //this is fine as probability of this is low and the benefit of NOT adding in cache
       //under global stream lock outweighs the possibly of calling a copious put(which is harmless)
       if (didFetch && isCache)
-        m_Cache.Put(requestedPageId, info, new ArraySegment<byte>(pageData.GetBuffer(), 0, (int)pageData.Length));
+        m_Cache.Put(new VolumePagePtr(Metadata.Id, requestedPageId), info, new ArraySegment<byte>(pageData.GetBuffer(), 0, (int)pageData.Length));
 
       page.EndReading(pageId, info.CreateUtc, info.App, info.Host);
       return didFetch ? info.NextPageId : -1;
@@ -271,6 +282,7 @@ namespace Azos.IO.Archiving
     /// </summary>
     public long AppendPage(Page page)
     {
+      EnsureObjectNotDisposed();
       page.NonNull(nameof(page))
           .Ensure(Page.Status.Written);
 
@@ -282,7 +294,7 @@ namespace Azos.IO.Archiving
         writePageHeader(pageId, page);
         writeData(data);
 
-        if (m_Cache!=null && m_Cache.Enabled)
+        if (m_Cache != null && m_Cache.Enabled)
         {
           var info = new PageInfo
           {
@@ -292,7 +304,7 @@ namespace Azos.IO.Archiving
             NextPageId = seekToNewPageLocation()
           };
 
-          m_Cache.Put(pageId, info, page.Data);
+          m_Cache.Put(new VolumePagePtr(Metadata.Id, pageId), info, page.Data);
         }
 
         return pageId;
@@ -361,11 +373,12 @@ namespace Azos.IO.Archiving
     }
 
     //-1 = eof, otherwise it keeps advancing
-    private (long pageId, PageInfo info, int len) seekToNextReadablePageLocation(long pageId)
+    private (long pageId, PageInfo info, int len) seekToNextReadablePageLocation(long pageId, bool exactPageId)
     {
       while(true)
       {
-        pageId = IntUtils.Align16(pageId);
+        if (!exactPageId) pageId = IntUtils.Align16(pageId);
+
         if (pageId >= m_Stream.Length) return (-1, new PageInfo(), -1);//eof
 
         m_Stream.Position = pageId;
@@ -398,6 +411,8 @@ namespace Azos.IO.Archiving
             }
           }
         }
+
+        if (exactPageId) throw new ArchivingException(StringConsts.ARCHIVE_PAGE_EXACT_ID_ERROR.Args(pageId));
 
         pageId = m_Stream.Position;
       }//while

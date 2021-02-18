@@ -14,9 +14,9 @@ namespace Azos.IO.Archiving
     public const byte VOLUME_PAD_ASCII = 0x20;
 
     /// <summary>
-    /// Establishes a minimum page size - 1024 bytes
+    /// Establishes a minimum page size - 512 bytes
     /// </summary>
-    public const int PAGE_MIN_LEN = 1024;
+    public const int PAGE_MIN_LEN = 512;
 
     /// <summary>
     /// Establishes default data page size - 96 KBytes
@@ -32,6 +32,7 @@ namespace Azos.IO.Archiving
     /// Absolute limit on internal page buffer - 200 MBytes
     /// </summary>
     public const int PAGE_MAX_BUFFER_LEN = 200 * 1024 * 1024;//~200 Mb is the maximum page buffer size
+                                                             // PAGE_MAX_LEN + ENTRY_MAX_LEN = 130 Mb + 64 Mb = ~194 Mb
 
     public const byte PAGE_HEADER_1 = (byte)'P';
     public const byte PAGE_HEADER_2 = (byte)'G';
