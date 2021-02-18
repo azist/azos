@@ -24,17 +24,20 @@ namespace Azos.Sky.Chronicle.Server
     public const string CONFIG_STORE_SECTION = "store";
     public const string CONFIG_LOG_STORE_SECTION = "log-store";
     public const string CONFIG_INSTRUMENTATION_STORE_SECTION = "instrumentation-store";
+    public const string CONFIG_LOG_ARCHIVE_SECTION = "log-archive";
 
     public ChronicleServerLogic(IApplication application) : base(application) { }
     public ChronicleServerLogic(IModule parent) : base(parent) { }
 
     protected override void Destructor()
     {
+      DisposeAndNull(ref m_LogArchiveGraph);
       DisposeAndNull(ref m_Log);
       DisposeAndNull(ref m_Instrumentation);
       base.Destructor();
     }
 
+    private ILogImplementation m_LogArchiveGraph;
     private ILogChronicleStoreImplementation m_Log;
     private IInstrumentationChronicleStoreImplementation m_Instrumentation;
 
@@ -47,10 +50,17 @@ namespace Azos.Sky.Chronicle.Server
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
+      DisposeAndNull(ref m_LogArchiveGraph);
       DisposeAndNull(ref m_Log);
       DisposeAndNull(ref m_Instrumentation);
 
       if (node == null) return;
+
+      var nArchive = node[CONFIG_LOG_ARCHIVE_SECTION];
+      if (nArchive.Exists)
+      {
+        m_LogArchiveGraph = FactoryUtils.MakeAndConfigureDirectedComponent<ILogImplementation>(this, nArchive, typeof(LogDaemon));
+      }
 
       var nStore = node[CONFIG_STORE_SECTION];
       if (nStore.Exists)
@@ -73,6 +83,11 @@ namespace Azos.Sky.Chronicle.Server
       m_Log.NonNull($"Configured {nameof(m_Log)}").Start();
       m_Instrumentation.NonNull($"Configured {nameof(m_Instrumentation)}").Start();
 
+      if (m_LogArchiveGraph != null)
+      {
+        if (m_LogArchiveGraph is Daemon d)  d.StartByApplication();
+      }
+
       App.InjectInto(m_Log);
       m_Log.Start();
 
@@ -87,14 +102,24 @@ namespace Azos.Sky.Chronicle.Server
 
     protected override bool DoApplicationBeforeCleanup()
     {
+      if (m_LogArchiveGraph is Daemon d)  d.WaitForCompleteStop();
+
       m_Log.WaitForCompleteStop();
       m_Instrumentation.WaitForCompleteStop();
-
       return base.DoApplicationBeforeCleanup();
     }
 
     public async Task WriteAsync(LogBatch data)
-      => await m_Log.NonNull().WriteAsync(data.NonNull(nameof(data)));
+    {
+      data.NonNull(nameof(data))
+          .Data
+          .NonNull(nameof(data.Data));
+
+      var arch = m_LogArchiveGraph;
+      if (arch != null) data.Data.ForEach( m => arch.Write(m) );
+
+      await m_Log.NonNull().WriteAsync(data);
+    }
 
     public async Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter)
       => await m_Log.NonNull().GetAsync(filter.NonNull(nameof(filter)));
