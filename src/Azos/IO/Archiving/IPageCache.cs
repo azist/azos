@@ -54,7 +54,8 @@ namespace Azos.IO.Archiving
     int LifeTimeSec { get; set; }
 
     /// <summary>
-    /// When set to greater than zero imposes a memory limit on the cache
+    /// When set to greater than zero imposes a memory limit on the cache.
+    /// Some caches measure limits in item count
     /// </summary>
     long MemoryLimit {  get; set; }
 
