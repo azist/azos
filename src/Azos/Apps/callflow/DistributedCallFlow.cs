@@ -9,6 +9,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+
 using Azos.Data;
 using Azos.Serialization.JSON;
 
@@ -18,12 +20,14 @@ namespace Azos.Apps
   /// Models a distributed call flow executed by multiple hosts.
   /// Maintains a list of steps of a distributed call flow, having the first element with index zero
   /// representing the very entry point and all subsequent elements representing a logical call chain - a flow of
-  /// a distributed activity. The steps are similar conceptually to call stack frames
+  /// a distributed activity. The steps are similar conceptually to call stack frames which are created
+  /// by the host/process ports - boundaries such as API controllers, network servers, business facades etc.
   /// </summary>
   public sealed class DistributedCallFlow : ICallFlow, IJsonReadable, IJsonWritable
   {
     /// <summary>
-    /// Represents as step in a distributed call flow
+    /// Represents as step in a distributed call flow.
+    /// Steps are created by the app ports - boundaries of application host/process (e.g. server handler)
     /// </summary>
     public sealed class Step : ICallFlow, IJsonReadable, IJsonWritable
     {
@@ -100,13 +104,14 @@ namespace Azos.Apps
       {
         if (data is JsonDataMap map)
         {
-          Utc = map["utc"].AsDateTime();
+          Utc = map["utc"].AsLong(0).FromMillisecondsSinceUnixEpochStart();
           Session = map["ssn"].AsString();
           App = map["app"].AsAtom();
           AppInstance = map["ainst"].AsGUID(Guid.Empty);
           Host = map["h"].AsString();
           Type = map["t"].AsString();
           ID = map["id"].AsGUID(Guid.Empty);
+          DirectorName = map["dir"].AsString();
           CallerAddress = map["clr.addr"].AsString();
           CallerAgent = map["clr.agnt"].AsString();
           CallerPort = map["clr.port"].AsString();
@@ -123,13 +128,13 @@ namespace Azos.Apps
       {
         var map = new JsonDataMap
         {
-          {"utc", Utc},
+          {"utc", Utc.ToMillisecondsSinceUnixEpochStart()},
           {"ssn", Session},
           {"app", App},
-          {"ainst", AppInstance},
+          {"ainst", AppInstance.ToString("N")},
           {"h", Host},
           {"t", Type},
-          {"id", ID},
+          {"id", ID.ToString("N")},
           {"dir", DirectorName},
           {"clr.addr", CallerAddress},
           {"clr.agnt", CallerAgent},
@@ -149,7 +154,7 @@ namespace Azos.Apps
 
     /// <summary>
     /// Establishes a distributed call flow for this LOGICAL thread (asynchronous chain).
-    /// If the current logical thread is already set with distributed flow then does nothing.
+    /// If the current logical thread is already set with distributed flow then throws exception.
     /// Otherwise, sets the existing code flow step as the first step of the distributed one
     /// </summary>
     public static DistributedCallFlow Start(IApplication app, string description, Guid? guid = null, string directorName = null, string callerAgent = null, string callerPort = null)
@@ -158,27 +163,39 @@ namespace Azos.Apps
 
       var current = ExecutionContext.CallFlow;
 
-      if (current == null)
-      {
-        callerAgent = callerAgent.Default(System.Reflection.Assembly.GetCallingAssembly().GetName().Name);
-        callerPort = callerPort.Default(System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name);
-        current = new CodeCallFlow(guid ?? Guid.NewGuid(), directorName, callerAgent, callerPort);
-      }
-
       var result = current as DistributedCallFlow;
       if (result == null)
       {
         result = new DistributedCallFlow();
         result.m_Description = description;
+
+        if (current == null)
+        {
+          callerAgent = callerAgent.Default(System.Reflection.Assembly.GetCallingAssembly().GetName().Name);
+          callerPort = callerPort.Default(System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name);
+          current = new CodeCallFlow(guid ?? Guid.NewGuid(), directorName, callerAgent, callerPort);
+        }
+
         result.m_List.Add(new Step(app, ExecutionContext.Session, current));
         ExecutionContext.__SetThreadLevelCallContext(result);
       }
+      else throw new AzosException("Distributed flow error: The context is already injected with DistributedCallFlow");
 
       return result;
     }
 
+    public static DistributedCallFlow Continue(IApplication app, string hdrValue, Guid? guid = null, string directorName = null, string callerAgent = null, string callerPort = null)
+    {
+      hdrValue.NonBlank(nameof(hdrValue));
+      JsonDataMap existing;
+      try { existing = (hdrValue.JsonToDataObject() as JsonDataMap).IsTrue(v => v != null && v.Count > 0, nameof(existing)); }
+      catch { throw new AzosException("Bad distributed call flow header"); }
+
+      return Continue(app, existing, guid, directorName, callerAgent, callerPort);
+    }
+
     /// <summary>
-    /// Continues a distributed call flow on this LOGICAL thread (asynchronous chain) from the supplied state (JsonDataMap).
+    /// Continues a distributed call flow on this LOGICAL thread (asynchronous call chain) from the supplied state (JsonDataMap).
     /// If the current logical thread is already set with distributed flow then throws exception.
     /// Otherwise, sets the existing code flow step as the first step of the distributed one
     /// </summary>
@@ -189,18 +206,19 @@ namespace Azos.Apps
 
       var current = ExecutionContext.CallFlow;
 
-      if (current == null)
-      {
-        callerAgent = callerAgent.Default(System.Reflection.Assembly.GetCallingAssembly().GetName().Name);
-        callerPort = callerPort.Default(System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name);
-        current = new CodeCallFlow(guid ?? Guid.NewGuid(), directorName, callerAgent, callerPort);
-      }
-
       var result = current as DistributedCallFlow;
       if (result == null)
       {
         result = new DistributedCallFlow();
+
         result.ReadAsJson(existing, false, null);
+
+        if (current == null)
+        {
+          callerAgent = callerAgent.Default(System.Reflection.Assembly.GetCallingAssembly().GetName().Name);
+          callerPort = callerPort.Default(System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name);
+          current = new CodeCallFlow(guid ?? Guid.NewGuid(), directorName, callerAgent, callerPort);
+        }
         result.m_List.Add(new Step(app, ExecutionContext.Session, current));
         ExecutionContext.__SetThreadLevelCallContext(result);
       }
@@ -209,10 +227,46 @@ namespace Azos.Apps
       return result;
     }
 
+    /// <summary>
+    /// Executes an asynchronous code block in a `DistributedCallFlow` scope.
+    /// The block captures the current call flow at entry and guarantees to revert it back regardless of `body()` call outcome (e.g. if it fails with exception).
+    /// If the current flow is already distributed, then it is continued as-if via a passing through process port/boundary adding a `CodeCallFlow` step
+    /// with the supplied properties.
+    /// If the current flow is not distributed, then a new distributed call flow is started with the existing flow as its first step.
+    /// At the block exit the flow object is restored to the instance captured at the block entrance.
+    /// </summary>
+    public static async Task<TResult> ExecuteBlockAsync<TResult>(IApplication app, Func<DistributedCallFlow, Task<TResult>> body, string description, Guid? guid = null, string directorName = null, string callerAgent = null, string callerPort = null)
+    {
+      app.NonNull(nameof(app));
+      body.NonNull(nameof(app));
+      callerAgent = callerAgent.Default(System.Reflection.Assembly.GetCallingAssembly().GetName().Name);
+
+      var original = ExecutionContext.CallFlow;
+      try
+      {
+        DistributedCallFlow newFlow;
+
+        if (original is DistributedCallFlow dcf)
+        {
+          var hdr = dcf.ToHeaderValue();
+          ExecutionContext.__SetThreadLevelCallContext(null);
+          newFlow = Continue(app, hdr, guid, directorName, callerAgent, callerPort);
+        }
+        else
+        {
+          newFlow = Start(app, description, guid, directorName, callerAgent, callerPort);
+        }
+
+        return await body(newFlow);
+      }
+      finally
+      {
+        ExecutionContext.__SetThreadLevelCallContext(original);
+      }
+    }
+
     private string m_Description;
     private List<Step> m_List = new List<Step>();
-
-
 
     /// <summary>
     /// Provides short description for the whole flow.
