@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.6.2
-set HEADLINE=Archiving
+set VER=1.6.3
+set HEADLINE=Distcallflow and service release
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
