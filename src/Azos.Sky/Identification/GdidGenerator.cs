@@ -540,7 +540,7 @@ namespace Azos.Sky.Identification
 
     private GdidBlock allocateBlock(sequence seq, int blockSize, ulong? vicinity = GDID.COUNTER_MAX)
     {
-      m_BlockWasAllocated = true;
+      m_BlockWasAllocated = true;//crdt latch
 
       if (blockSize<=0)//calculate the most appropriate
       {

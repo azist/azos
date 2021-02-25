@@ -34,7 +34,7 @@ namespace Azos.Apps
       internal Step(IApplication app, ISession session, ICallFlow flow)
       {
         Utc = app.TimeSource.UTCNow;
-        Session = session == null ? "<null>" : "{0}({1})".Args(session.GetType().Name, session.User);
+        Session = session == null ? "<null>" : "{0}({1})".Args(session.GetType().Name, session.User.ToString().TakeFirstChars(32, ".."));
         App = app.AppId;
         AppInstance = app.InstanceId;
         Host = Platform.Computer.HostName;
@@ -107,14 +107,14 @@ namespace Azos.Apps
           Utc = map["utc"].AsLong(0).FromMillisecondsSinceUnixEpochStart();
           Session = map["ssn"].AsString();
           App = map["app"].AsAtom();
-          AppInstance = map["ainst"].AsGUID(Guid.Empty);
+          AppInstance = map["ain"].AsGUID(Guid.Empty);
           Host = map["h"].AsString();
           Type = map["t"].AsString();
           ID = map["id"].AsGUID(Guid.Empty);
           DirectorName = map["dir"].AsString();
-          CallerAddress = map["clr.addr"].AsString();
-          CallerAgent = map["clr.agnt"].AsString();
-          CallerPort = map["clr.port"].AsString();
+          CallerAddress = map["cad"].AsString();
+          CallerAgent = map["cag"].AsString();
+          CallerPort = map["cpr"].AsString();
 
           if (map["items"] is JsonDataMap items)
             m_Items = new ConcurrentDictionary<string, object>(items);
@@ -131,14 +131,14 @@ namespace Azos.Apps
           {"utc", Utc.ToMillisecondsSinceUnixEpochStart()},
           {"ssn", Session},
           {"app", App},
-          {"ainst", AppInstance.ToString("N")},
+          {"ain", AppInstance.ToString("N")},
           {"h", Host},
           {"t", Type},
           {"id", ID.ToString("N")},
           {"dir", DirectorName},
-          {"clr.addr", CallerAddress},
-          {"clr.agnt", CallerAgent},
-          {"clr.port", CallerPort}
+          {"cad", CallerAddress},
+          {"cag", CallerAgent},
+          {"cpr", CallerPort}
         };
 
         var items = m_Items;
@@ -184,6 +184,11 @@ namespace Azos.Apps
       return result;
     }
 
+    /// <summary>
+    /// Continues a distributed call flow on this LOGICAL thread (asynchronous call chain) from the supplied json header state.
+    /// If the current logical thread is already set with distributed flow then throws exception.
+    /// Otherwise, sets the existing code flow step as the first step of the distributed one
+    /// </summary>
     public static DistributedCallFlow Continue(IApplication app, string hdrValue, Guid? guid = null, string directorName = null, string callerAgent = null, string callerPort = null)
     {
       hdrValue.NonBlank(nameof(hdrValue));
