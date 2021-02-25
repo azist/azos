@@ -173,6 +173,8 @@ namespace Azos.Sky.Identification.Server
       //blocking call and throws if can not write to any devices
       protected void WriteToLocations(byte authority, string scope, string seq, _id id)
       {
+        const double WRITE_NORM_WARNING_SEC = 0.753d;//anything longer generates a warning
+
         var guid = Guid.NewGuid();
 
         StringBuilder errors = null;
@@ -181,14 +183,24 @@ namespace Azos.Sky.Identification.Server
         foreach(var location in m_Locations.OrderedValues)
           try
           {
+            var time = Time.Timeter.StartNew();
             location.Write(authority, scope, seq, id);
+            time.Stop();
+
+            if (time.ElapsedSec > WRITE_NORM_WARNING_SEC)
+            {
+              WriteLog(MessageType.Warning,
+                       nameof(WriteToLocations),
+                       "Gdid location {0} writing took {1:n3} sec. which is longer than normal {2:n3} sec.".Args(location, time.ElapsedSec, WRITE_NORM_WARNING_SEC));
+            }
+
             totalFailure = false;
           }
           catch(Exception error)
           {
             if (errors==null) errors = new StringBuilder();
             errors.AppendLine( "Path '{0}'. Exception: {1}".Args(location, error.ToMessageWithType()) );
-            WriteLog(MessageType.CriticalAlert, "WriteToLocations()", location.ToString(), error, guid);
+            WriteLog(MessageType.CriticalAlert, nameof(WriteToLocations), location.ToString(), error, guid);
             Instrumentation.AuthLocationWriteFailureEvent.Happened(App.Instrumentation, location.ToString());//Location-level
           }
 
@@ -196,7 +208,7 @@ namespace Azos.Sky.Identification.Server
         {
           var txt = StringConsts.GDIDAUTH_LOCATION_PERSISTENCE_FAILURE_ERROR + ( errors!=null ? errors.ToString() : "no locations");
 
-          WriteLog(MessageType.CatastrophicError, "WriteToLocations()", txt, null, guid);
+          WriteLog(MessageType.CatastrophicError, nameof(WriteToLocations), txt, null, guid);
 
           Instrumentation.AuthLocationWriteTotalFailureEvent.Happened(App.Instrumentation);//TOTAL-LEVEL(for all locations)
 
@@ -231,7 +243,7 @@ namespace Azos.Sky.Identification.Server
                 if (errors==null) errors = new StringBuilder();
                 var txt = "Location '{0}' had a later sequence value '{1}' than prior location".Args(location, got.Value);
                 errors.AppendLine(txt);
-                WriteLog(MessageType.CriticalAlert, "ReadFromLocations()", txt, null, guid);
+                WriteLog(MessageType.CriticalAlert, nameof(ReadFromLocations), txt, null, guid);
               }
             }
             first = false;
@@ -241,7 +253,7 @@ namespace Azos.Sky.Identification.Server
             if (errors==null) errors = new StringBuilder();
             var txt = "Error at location '{0}': {1}".Args(location, error.ToMessageWithType());
             errors.AppendLine(txt);
-            WriteLog(MessageType.CriticalAlert, "ReadFromLocations()", txt, null, guid);
+            WriteLog(MessageType.CriticalAlert, nameof(ReadFromLocations), txt, null, guid);
             Instrumentation.AuthLocationReadFailureEvent.Happened(App.Instrumentation, location.ToString());//LOCATION-LEVEL
             throw;
           }
@@ -251,7 +263,7 @@ namespace Azos.Sky.Identification.Server
         {
           var txt = StringConsts.GDIDAUTH_LOCATIONS_READ_FAILURE_ERROR + ( errors!=null ? errors.ToString() : "no locations");
 
-          WriteLog(MessageType.CatastrophicError, "ReadFromLocations()", txt, null, guid);
+          WriteLog(MessageType.CatastrophicError, nameof(ReadFromLocations), txt, null, guid);
 
           Instrumentation.AuthLocationReadTotalFailureEvent.Happened(App.Instrumentation);//TOTAL-LEVEL
 

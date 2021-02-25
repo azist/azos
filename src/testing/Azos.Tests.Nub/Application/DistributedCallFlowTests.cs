@@ -41,14 +41,20 @@ namespace Azos.Tests.Nub.Application
 
 
       var flow = DistributedCallFlow.Start(NOPApplication.Instance, "My call flow");
+
+      Aver.AreEqual(start, flow.ID);
+      Aver.AreEqual(1, flow.Count);
+
       var jsonHeader = flow.ToHeaderValue();
       //SEND OVER HTTP -------------------------
       ExecutionContext.__SetThreadLevelCallContext(null);
       //--------------------------------------------------
 
       //---- 2nd host
-      flow = DistributedCallFlow.Continue(NOPApplication.Instance, jsonHeader.JsonToDataObject() as JsonDataMap );
+      flow = DistributedCallFlow.Continue(NOPApplication.Instance, jsonHeader);
 
+      Aver.AreEqual(start, flow.ID);
+      Aver.AreEqual(2, flow.Count);
 
       jsonHeader = flow.ToHeaderValue();
       //SEND OVER HTTP -------------------------
@@ -56,7 +62,10 @@ namespace Azos.Tests.Nub.Application
       //--------------------------------------------------
 
       //---- 3nd host
-      flow = DistributedCallFlow.Continue(NOPApplication.Instance, jsonHeader.JsonToDataObject() as JsonDataMap);
+      flow = DistributedCallFlow.Continue(NOPApplication.Instance, jsonHeader);
+
+      Aver.AreEqual(start, flow.ID);
+      Aver.AreEqual(3, flow.Count);
 
       var json = flow.ToJson(JsonWritingOptions.PrettyPrint);
 
@@ -90,6 +99,8 @@ namespace Azos.Tests.Nub.Application
       //later in flow....
       await DistributedCallFlow.ExecuteBlockAsync(NOPApplication.Instance, (innerFlow) => {
         innerFlow.See();
+
+        innerFlow.ToHeaderValue().See();
 
         Aver.AreSameRef(innerFlow, ExecutionContext.CallFlow);
 

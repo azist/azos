@@ -36,7 +36,7 @@ namespace Azos.Sky.Identification.Server{ public partial class GdidAuthorityServ
 
     public override string ToString()
     {
-      return "{0}('{1}',#{2})".Args(GetType().Name, Name, Order);
+      return "{0}(`{1}`,#{2})".Args(GetType().Name, Name, Order);
     }
   }
 
