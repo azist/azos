@@ -42,6 +42,7 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Reads StringBookmark index entries. The instance is thread safe
   /// </summary>
+  [ContentTypeSupport(StringIdxAppender.CONTENT_TYPE_IDX_STRING)]
   public sealed class StringIdxReader : ArchiveBixReader<StringBookmark>
   {
     public StringIdxReader(IVolume volume) : base(volume){ }
@@ -58,8 +59,11 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Appends StringBookmarks to index. The instance is NOT thread-safe
   /// </summary>
+  [ContentTypeSupport(StringIdxAppender.CONTENT_TYPE_IDX_STRING)]
   public sealed class StringIdxAppender : ArchiveBixAppender<StringBookmark>
   {
+    public const string CONTENT_TYPE_IDX_STRING = "bix/idx/string";
+
     public StringIdxAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<StringBookmark, Bookmark> onPageCommit = null)
      : base(volume, time, app, host, onPageCommit){ }
 
@@ -103,6 +107,7 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Reads GuidBookmark index entries. The instance is thread safe
   /// </summary>
+  [ContentTypeSupport(GuidIdxAppender.CONTENT_TYPE_IDX_GUID)]
   public sealed class GuidIdxReader : ArchiveBixReader<GuidBookmark>
   {
     public GuidIdxReader(IVolume volume) : base(volume) { }
@@ -119,8 +124,11 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Appends GuidBookmarks to index. The instance is NOT thread-safe
   /// </summary>
+  [ContentTypeSupport(GuidIdxAppender.CONTENT_TYPE_IDX_GUID)]
   public sealed class GuidIdxAppender : ArchiveBixAppender<GuidBookmark>
   {
+    public const string CONTENT_TYPE_IDX_GUID = "bix/idx/guid";
+
     public GuidIdxAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<GuidBookmark, Bookmark> onPageCommit = null)
      : base(volume, time, app, host, onPageCommit) { }
 
@@ -165,6 +173,7 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Reads GdidBookmark index entries. The instance is thread safe
   /// </summary>
+  [ContentTypeSupport(GdidIdxAppender.CONTENT_TYPE_IDX_GDID)]
   public sealed class GdidIdxReader : ArchiveBixReader<GdidBookmark>
   {
     public GdidIdxReader(IVolume volume) : base(volume) { }
@@ -181,8 +190,11 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Appends GdidBookmarks to index. The instance is NOT thread-safe
   /// </summary>
+  [ContentTypeSupport(GdidIdxAppender.CONTENT_TYPE_IDX_GDID)]
   public sealed class GdidIdxAppender : ArchiveBixAppender<GdidBookmark>
   {
+    public const string CONTENT_TYPE_IDX_GDID = "bix/idx/gdid";
+
     public GdidIdxAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<GdidBookmark, Bookmark> onPageCommit = null)
      : base(volume, time, app, host, onPageCommit) { }
 
@@ -227,6 +239,7 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Reads DateTimeBookmark index entries. The instance is thread safe
   /// </summary>
+  [ContentTypeSupport(DateTimeIdxAppender.CONTENT_TYPE_IDX_DATETIME)]
   public sealed class DateTimeIdxReader : ArchiveBixReader<DateTimeBookmark>
   {
     public DateTimeIdxReader(IVolume volume) : base(volume) { }
@@ -243,8 +256,11 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Appends DateTimeBookmarks to index. The instance is NOT thread-safe
   /// </summary>
+  [ContentTypeSupport(DateTimeIdxAppender.CONTENT_TYPE_IDX_DATETIME)]
   public sealed class DateTimeIdxAppender : ArchiveBixAppender<DateTimeBookmark>
   {
+    public const string CONTENT_TYPE_IDX_DATETIME = "bix/idx/datetime";
+
     public DateTimeIdxAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<DateTimeBookmark, Bookmark> onPageCommit = null)
      : base(volume, time, app, host, onPageCommit) { }
 
@@ -289,6 +305,7 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Reads LongBookmark index entries. The instance is thread safe
   /// </summary>
+  [ContentTypeSupport(LongIdxAppender.CONTENT_TYPE_IDX_LONG)]
   public sealed class LongIdxReader : ArchiveBixReader<LongBookmark>
   {
     public LongIdxReader(IVolume volume) : base(volume) { }
@@ -305,8 +322,11 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Appends LongBookmarks to index. The instance is NOT thread-safe
   /// </summary>
+  [ContentTypeSupport(LongIdxAppender.CONTENT_TYPE_IDX_LONG)]
   public sealed class LongIdxAppender : ArchiveBixAppender<LongBookmark>
   {
+    public const string CONTENT_TYPE_IDX_LONG = "bix/idx/long";
+
     public LongIdxAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<LongBookmark, Bookmark> onPageCommit = null)
      : base(volume, time, app, host, onPageCommit) { }
 
@@ -351,6 +371,7 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Reads IntBookmark index entries. The instance is thread safe
   /// </summary>
+  [ContentTypeSupport(IntIdxAppender.CONTENT_TYPE_IDX_INT)]
   public sealed class IntIdxReader : ArchiveBixReader<IntBookmark>
   {
     public IntIdxReader(IVolume volume) : base(volume) { }
@@ -367,8 +388,11 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Appends IntBookmarks to index. The instance is NOT thread-safe
   /// </summary>
+  [ContentTypeSupport(IntIdxAppender.CONTENT_TYPE_IDX_INT)]
   public sealed class IntIdxAppender : ArchiveBixAppender<IntBookmark>
   {
+    public const string CONTENT_TYPE_IDX_INT = "bix/idx/int";
+
     public IntIdxAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<IntBookmark, Bookmark> onPageCommit = null)
      : base(volume, time, app, host, onPageCommit) { }
 
@@ -413,6 +437,7 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Reads DoubleBookmark index entries. The instance is thread safe
   /// </summary>
+  [ContentTypeSupport(DoubleIdxAppender.CONTENT_TYPE_IDX_DOUBLE)]
   public sealed class DoubleIdxReader : ArchiveBixReader<DoubleBookmark>
   {
     public DoubleIdxReader(IVolume volume) : base(volume) { }
@@ -429,8 +454,11 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Appends DoubleBookmarks to index. The instance is NOT thread-safe
   /// </summary>
+  [ContentTypeSupport(DoubleIdxAppender.CONTENT_TYPE_IDX_DOUBLE)]
   public sealed class DoubleIdxAppender : ArchiveBixAppender<DoubleBookmark>
   {
+    public const string CONTENT_TYPE_IDX_DOUBLE = "bix/idx/double";
+
     public DoubleIdxAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<DoubleBookmark, Bookmark> onPageCommit = null)
      : base(volume, time, app, host, onPageCommit) { }
 
@@ -475,6 +503,7 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Reads DecimalBookmark index entries. The instance is thread safe
   /// </summary>
+  [ContentTypeSupport(DecimalIdxAppender.CONTENT_TYPE_IDX_DECIMAL)]
   public sealed class DecimalIdxReader : ArchiveBixReader<DecimalBookmark>
   {
     public DecimalIdxReader(IVolume volume) : base(volume) { }
@@ -491,8 +520,11 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Appends DecimalBookmarks to index. The instance is NOT thread-safe
   /// </summary>
+  [ContentTypeSupport(DecimalIdxAppender.CONTENT_TYPE_IDX_DECIMAL)]
   public sealed class DecimalIdxAppender : ArchiveBixAppender<DecimalBookmark>
   {
+    public const string CONTENT_TYPE_IDX_DECIMAL = "bix/idx/decimal";
+
     public DecimalIdxAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<DecimalBookmark, Bookmark> onPageCommit = null)
      : base(volume, time, app, host, onPageCommit) { }
 
@@ -537,6 +569,7 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Reads AmountBookmark index entries. The instance is thread safe
   /// </summary>
+  [ContentTypeSupport(AmountIdxAppender.CONTENT_TYPE_IDX_AMOUNT)]
   public sealed class AmountIdxReader : ArchiveBixReader<AmountBookmark>
   {
     public AmountIdxReader(IVolume volume) : base(volume) { }
@@ -553,8 +586,11 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Appends AmountBookmarks to index. The instance is NOT thread-safe
   /// </summary>
+  [ContentTypeSupport(AmountIdxAppender.CONTENT_TYPE_IDX_AMOUNT)]
   public sealed class AmountIdxAppender : ArchiveBixAppender<AmountBookmark>
   {
+    public const string CONTENT_TYPE_IDX_AMOUNT = "bix/idx/amount";
+
     public AmountIdxAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<AmountBookmark, Bookmark> onPageCommit = null)
      : base(volume, time, app, host, onPageCommit) { }
 

@@ -58,7 +58,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var expected = ascii ? FakeLogMessage.BuildRandomASCIIStringArr(count, min, max) : FakeLogMessage.BuildRandomUnicodeStringArr(count, min, max);
       var ms = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("String archive")
+      var meta = VolumeMetadataBuilder.Make("String archive", StringArchiveAppender.CONTENT_TYPE_STRING)
                                       .SetVersion(1, 0)
                                       .SetDescription("Testing string messages")
                                       .SetChannel(Atom.Encode("dvop"));

@@ -57,6 +57,8 @@ namespace Azos.Tests.Nub.IO.Archiving
         cache.Start();
         pageCache = new PilePageCache(cache);
       }
+try
+{
 
       var msData = new MemoryStream();
       var msIdxId =  new MemoryStream();
@@ -70,7 +72,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var msIdxNt =  new MemoryStream();
       var msIdxAmt =  new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx", "mjumbo")
                                 .SetVersion(1, 1)
                                 .SetDescription("MumboJumbo testing")
                                 .SetCompressionScheme(compress)
@@ -78,7 +80,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var volumeData = new DefaultVolume(CryptoMan, pageCache, meta, msData);
 
-      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta", "index-this-needs to be done by type")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(idxCompress)
@@ -386,11 +388,14 @@ namespace Azos.Tests.Nub.IO.Archiving
       volumeIdxNt.Dispose();
       volumeIdxAmt.Dispose();
       volumeData.Dispose();
-
+}
+finally
+{
       DisposableObject.DisposeIfDisposableAndNull(ref pageCache);
       DisposableObject.DisposeIfDisposableAndNull(ref cache);
       DisposableObject.DisposeIfDisposableAndNull(ref pile);
       "CLOSED all volumes\n".See();
+}
     }
   }
 }

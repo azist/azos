@@ -8,6 +8,11 @@ using System;
 
 namespace Azos.IO.Archiving
 {
+  /// <summary>
+  /// Provides data for raw entry on a page.
+  /// Warning: The Raw array segment delimits page buffer which may be recycled in parallel use-case,
+  /// therefore never retain entries beyond page ownership as their pointed-to raw data gets lost
+  /// </summary>
   public struct Entry
   {
     public enum Status
@@ -23,8 +28,8 @@ namespace Azos.IO.Archiving
 
     public Entry(int address, Status state)
     {
-      Address = address;
       State = state;
+      Address = address;
       Raw = new ArraySegment<byte>();
     }
 

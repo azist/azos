@@ -19,6 +19,11 @@ namespace Azos.IO.Archiving
   public interface IVolume : IDisposable
   {
     /// <summary>
+    /// Volume metadata such as id, label, description, compression/encryption etc..
+    /// </summary>
+    VolumeMetadata Metadata {  get; }
+
+    /// <summary>
     /// Controls page split on writing. Does not affect reading directly as readers try to infer
     /// the average page size while reading through archived data
     /// </summary>

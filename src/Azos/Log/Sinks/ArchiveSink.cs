@@ -51,7 +51,7 @@ namespace Azos.Log.Sinks
 
 
     protected virtual VolumeMetadataBuilder DoBuildMetadata()
-      => VolumeMetadataBuilder.Make(Name)
+      => VolumeMetadataBuilder.Make(Name, LogMessageArchiveAppender.CONTENT_TYPE_LOG)
                               .SetVersion(ArchiveVersionMajor, ArchiveVersionMinor)
                               .SetChannel(ArchiveChannel)
                               .SetCompressionScheme(ArchiveCompressionScheme)

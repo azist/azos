@@ -7,7 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Azos.Serialization.Bix;
+using Azos.Text;
 using Azos.Time;
 
 namespace Azos.IO.Archiving
@@ -25,7 +27,10 @@ namespace Azos.IO.Archiving
     /// </summary>
     public ArchiveAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<TEntry, Bookmark> onPageCommit = null)
     {
-      m_Volume = volume.NonNull(nameof(volume));
+      if (!IsContentTypeCompatible(volume.NonNull(nameof(volume)).Metadata.ContentType))
+        throw new ArchivingException(StringConsts.ARCHIVE_APPENDER_CONTENT_TYPE_ERROR.Args(volume.Metadata.Id, volume.Metadata.ContentType, GetType().DisplayNameWithExpandedGenericArgs()));
+
+      m_Volume = volume;
       m_Time = time.NonNull(nameof(time));
       m_Page = new Page(volume.PageSizeBytes);
       m_OnPageCommit = onPageCommit;//optional
@@ -52,6 +57,18 @@ namespace Azos.IO.Archiving
     public Page    Page           =>  m_Page;
     public Atom    App            =>  m_App;
     public string  Host           =>  m_Host;
+
+
+    /// <summary>
+    /// Returns true if a specified contentType is supported by any of content types by this appender, including
+    /// its logical inheritance chain. The support testing is performed using a match against patterns specified by [ContentTypeSupport].
+    /// For example, a volume may be set to 'bix/string' content type - an archive of strings.
+    /// One could use `JsonArchiveAppender` to add data to this archive because it adds JSON data as strings and is
+    /// compatible with 'bix/string' more general format
+    /// </summary>
+    public bool IsContentTypeCompatible(string contentType)
+      => ContentTypeSupportAttribute.GetSupportedContentTypePatternsFor(GetType())
+                                    .Any( ctp => contentType.MatchPattern(ctp, senseCase: false));
 
     /// <summary>
     /// Appends the entry and immediately returns. This method is asynchronous by design as

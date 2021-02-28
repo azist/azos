@@ -30,14 +30,20 @@ namespace Azos.Tests.Nub.IO.Archiving
       var msData = new FileStream("c:\\azos\\logging-{0}-{1}.lar".Args(compress.Default("none"), encrypt.Default("none")), FileMode.Create);
       var msIdxId = new FileStream("c:\\azos\\logging-{0}-{1}.guid.lix".Args(compress.Default("none"), encrypt.Default("none")), FileMode.Create);
 
-      var meta = VolumeMetadataBuilder.Make("Perf")
-                                      .SetVersion(1, 1)
-                                      .SetDescription("Perf testing")
-                                      .SetCompressionScheme(compress)
-                                      .SetEncryptionScheme(encrypt);
 
-      var volumeData = new DefaultVolume(CryptoMan, meta, msData);
-      var volumeIdxId = new DefaultVolume(CryptoMan, meta, msIdxId);
+      var volumeData = new DefaultVolume(CryptoMan, VolumeMetadataBuilder.Make("Perf", LogMessageArchiveAppender.CONTENT_TYPE_LOG)
+                                       .SetVersion(1, 1)
+                                       .SetDescription("Perf testing")
+                                       .SetCompressionScheme(compress)
+                                       .SetEncryptionScheme(encrypt),
+                                      msData);
+
+      var volumeIdxId = new DefaultVolume(CryptoMan, VolumeMetadataBuilder.Make("Perf", StringIdxAppender.CONTENT_TYPE_IDX_STRING)
+                                       .SetVersion(1, 1)
+                                       .SetDescription("Perf testing")
+                                       .SetCompressionScheme(compress)
+                                       .SetEncryptionScheme(encrypt),
+                                      msIdxId);
 
 
       volumeData.PageSizeBytes = 1024 * 1024;

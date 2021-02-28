@@ -16,6 +16,7 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Reads archives of Log.Message items. The implementation is thread-safe
   /// </summary>
+  [ContentTypeSupport(LogMessageArchiveAppender.CONTENT_TYPE_LOG)]
   public sealed class LogMessageArchiveReader : ArchiveBixReader<Message>
   {
     public LogMessageArchiveReader(IVolume volume) : base(volume){ }
