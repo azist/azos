@@ -416,6 +416,9 @@ namespace Azos.Time
       {
         if (Disposed) return;
 
+        if (EventHandler?.ComponentDirector == this)
+          DisposeIfDisposableAndNull(ref EventHandler);
+
         if (config==null) return;
         ConfigAttribute.Apply(this, config);
 
