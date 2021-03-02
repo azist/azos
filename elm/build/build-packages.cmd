@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.6.5
-set HEADLINE=Chronicle partial gdid generation and fault tolerance
+set VER=1.6.6
+set HEADLINE=Fix 440 and legacy archive appender mount, chronicle partial gdid generation and fault tolerance
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
