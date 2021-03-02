@@ -716,6 +716,12 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string ARCHIVE_PAGE_EXACT_ID_ERROR = "Archive page could not be found by the exact pageId specified: @{0:x8}";
 
 
+    public const string ARCHIVE_APPENDER_CONTENT_TYPE_ERROR =
+      "Volume '{0}' content type `{1}` is not supported by {2}. Either use a different appender or create a volume of different content type";
+
+    public const string ARCHIVE_READER_CONTENT_TYPE_ERROR =
+      "Volume '{0}' content type `{1}` is not supported by {2}. Either use a different reader or create a volume of different content type";
+
     public const string CA_PROCESSOR_EXCEPTION_ERROR =
         "{0} processor {1} error: {2}";
 

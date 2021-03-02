@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Azos.Serialization.Bix;
+using Azos.Text;
 
 namespace Azos.IO.Archiving
 {
@@ -185,7 +186,23 @@ namespace Azos.IO.Archiving
   {
     public ArchiveReader(IVolume volume) : base(volume)
     {
+      var vctp = volume.Metadata.ContentType;
+      if (vctp.IsNotNullOrWhiteSpace())//legacy support: older archives do not have content type and will generate error on read if mismatch happens
+        if (!IsContentTypeCompatible(vctp))
+          throw new ArchivingException(StringConsts.ARCHIVE_READER_CONTENT_TYPE_ERROR.Args(volume.Metadata.Id, volume.Metadata.ContentType, GetType().DisplayNameWithExpandedGenericArgs()));
     }
+
+    /// <summary>
+    /// Returns true if a specified contentType is supported by any of content types by this appender, including
+    /// its logical inheritance chain. The support testing is performed using a match against patterns specified by [ContentTypeSupport].
+    /// For example, a volume may be set to 'bix/string/json' content type - an archive of JSON strings.
+    /// One could use `StringArchiveReader` to read data from this archive because it reads JSON data as strings and is
+    /// compatible with 'bix/string' more general format
+    /// </summary>
+    public bool IsContentTypeCompatible(string contentType)
+      => ContentTypeSupportAttribute.GetSupportedContentTypePatternsFor(GetType())
+                                    .Any(ctp => contentType.MatchPattern(ctp, senseCase: false));
+
 
     /// <summary>
     /// Walks all entries materialized as objects on all pages starting at the supplied bookmark.
@@ -196,6 +213,16 @@ namespace Azos.IO.Archiving
     /// of `ArchiveReader(TEntry)` which avoids possible boxing
     /// </summary>
     public abstract IEnumerable<object> GetEntriesAsObjectsStartingAt(Bookmark start, bool skipCorruptPages = false);
+
+    /// <summary>
+    /// Walks all entries materialized as objects on all pages along with their bookmarks starting at the supplied bookmark.
+    /// Multiple threads can call this method at the same time. You can also use Parallel.ForEach
+    /// having multiple threads process the object instances in parallel, keep in mind that
+    /// object deserialization is still executed on the main partitioner thread.
+    /// Note: this method is supported for polymorphism. For better performance use typed version
+    /// of `ArchiveReader(TEntry)` which avoids possible boxing
+    /// </summary>
+    public abstract IEnumerable<(Bookmark bm, object entry)> GetBookmarkedEntriesAsObjectsStartingAt(Bookmark start, bool skipCorruptPages = false);
 
     /// <summary>
     /// Walks all materialized entries as objects on all pages.
@@ -258,6 +285,43 @@ namespace Azos.IO.Archiving
           foreach (var entry in page.Entries.Where(e => e.State == Entry.Status.Valid && (secondaryPage || e.Address >= start.Address)))
           {
             yield return Materialize(entry);
+          }
+        }
+        finally
+        {
+          Recycle(page);
+        }
+        secondaryPage = true;
+      }
+    }
+
+    /// <summary>
+    /// Walks all entries materialized as objects on all pages along with their bookmarks starting at the supplied bookmark.
+    /// Multiple threads can call this method at the same time. You can also use Parallel.ForEach
+    /// having multiple threads process the object instances in parallel, keep in mind that
+    /// object deserialization is still executed on the main partitioner thread.
+    /// Note: this method is supported for polymorphism. For better performance use typed version
+    /// of `ArchiveReader(TEntry)` which avoids possible boxing
+    /// </summary>
+    public sealed override IEnumerable<(Bookmark bm, object entry)> GetBookmarkedEntriesAsObjectsStartingAt(Bookmark start, bool skipCorruptPages = false)
+      => GetBookmarkedEntriesStartingAt(start, skipCorruptPages).Select( e => (e.bm, (object)e.entry) );
+
+    /// <summary>
+    /// Walks all materialized `TEntry` entries along with their bookmarks on all pages starting at the supplied bookmark.
+    /// Multiple threads can call this method at the same time. You can also use Parallel.ForEach
+    /// having multiple threads process the `TEntry` instances in parallel, keep in mind that
+    /// `TEntry` deserialization is still executed on the main partitioner thread
+    /// </summary>
+    public IEnumerable<(Bookmark bm, TEntry entry)> GetBookmarkedEntriesStartingAt(Bookmark start, bool skipCorruptPages = false)
+    {
+      var secondaryPage = false;
+      foreach (var page in GetPagesStartingAt(start.PageId, skipCorruptPages))
+      {
+        try
+        {
+          foreach (var entry in page.Entries.Where(e => e.State == Entry.Status.Valid && (secondaryPage || e.Address >= start.Address)))
+          {
+            yield return (new Bookmark(page.PageId, entry.Address), Materialize(entry));
           }
         }
         finally

@@ -449,6 +449,7 @@ namespace Azos.Tests.Nub.IO.Archiving
   /// <summary>
   /// An archive appender for use with index primitive tests.
   /// </summary>
+  [ContentTypeSupport("mjumbo")]
   public sealed class MumboJumboArchiveAppender : ArchiveAppender<MumboJumbo>
   {
     public MumboJumboArchiveAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<MumboJumbo, Bookmark> onPageCommit = null)
@@ -491,6 +492,7 @@ namespace Azos.Tests.Nub.IO.Archiving
   /// <summary>
   /// An archive reader for use with index primitive tests.
   /// </summary>
+  [ContentTypeSupport("mjumbo")]
   public sealed class MumboJumboArchiveReader : ArchiveBixReader<MumboJumbo>
   {
     public MumboJumboArchiveReader(IVolume volume) : base(volume) { }

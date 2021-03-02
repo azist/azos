@@ -12,37 +12,44 @@ using System.Threading;
 
 using Azos;
 using Azos.Apps;
+using Azos.Conf;
 using Azos.Scripting;
 using Azos.Time;
 
 namespace Azos.Tests.Integration.Time
 {
-                           public class TeztHandler : IEventHandler
-                           {
-                             public static List<string> s_List = new List<string>();
+  public class TeztHandler : ApplicationComponent, IEventHandler
+  {
+    public static List<string> s_List = new List<string>();
 
-                             public TeztHandler(string name, bool podonok)
-                             {
-                               Name = "{0}.{1}".Args(name, podonok);
-                             }
+    public TeztHandler(IApplicationComponent director) : base(director)
+    {
+    }
 
-                             public readonly string Name;
+    [Config] public string Name{get; set;}
 
-                             public void EventHandlerBody(Event sender)
-                             {
-                                var who = "{0}::{1}".Args(sender.Context, Name);
-                                lock(s_List)
-                                 s_List.Add(who);
-                             }
+    public override string ComponentLogTopic => "time";
 
-                             public void EventStatusChange(Event sender, EventStatus priorStatus)
-                             {
-                             }
+    public void EventHandlerBody(Event sender)
+    {
+      var who = "{0}::{1}".Args(sender.Context, Name);
+      lock(s_List)
+        s_List.Add(who);
+    }
 
-                             public void EventDefinitionChange(Event sender, string parameterName)
-                             {
-                             }
-                           }
+    public void EventStatusChange(Event sender, EventStatus priorStatus)
+    {
+    }
+
+    public void EventDefinitionChange(Event sender, string parameterName)
+    {
+    }
+
+    public void Configure(IConfigSectionNode node)
+    {
+      ConfigAttribute.Apply(this, node);
+    }
+  }
 
 
 
@@ -80,8 +87,8 @@ app
   event-timer
   {
     resolution-ms=150
-    event{ name='A' interval='0:0:1' Context='ItonTV' handler{type='Azos.Tests.Integration.Time.TeztHandler, Azos.Tests.Integration' arg0='Gorin' arg1='true'} }
-    event{ name='B' interval='0:0:3' Context='Nativ'  handler{type='Azos.Tests.Integration.Time.TeztHandler, Azos.Tests.Integration' arg0='Kedmi' arg1='false'} }
+    event{ name='A' interval='0:0:1' Context='ItonTV' handler{type='Azos.Tests.Integration.Time.TeztHandler, Azos.Tests.Integration' name='Gorin'} }
+    event{ name='B' interval='0:0:3' Context='Nativ'  handler{type='Azos.Tests.Integration.Time.TeztHandler, Azos.Tests.Integration' name='Kedmi'} }
   }
 }";
 
@@ -249,8 +256,8 @@ app
 
             Console.WriteLine(string.Join(" , ", lst));
             Aver.AreEqual(14, lst.Count);
-            Aver.AreEqual(10, lst.Count(s=>s=="ItonTV::Gorin.True"));
-            Aver.AreEqual(4, lst.Count(s=>s=="Nativ::Kedmi.False"));
+            Aver.AreEqual(10, lst.Count(s=>s=="ItonTV::Gorin"));
+            Aver.AreEqual(4, lst.Count(s=>s=="Nativ::Kedmi"));
         }
 
 

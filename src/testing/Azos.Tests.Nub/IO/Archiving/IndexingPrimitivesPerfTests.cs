@@ -26,7 +26,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var msData = new MemoryStream();
       var msIdxId = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx", "mjumbo")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
@@ -34,7 +34,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
 
-      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta", GdidIdxAppender.CONTENT_TYPE_IDX_GDID)
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(idxCompress)
@@ -118,7 +118,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var msData = new MemoryStream();
       var msIdxCid = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx", "mjumbo")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
@@ -126,7 +126,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
 
-      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta", GuidIdxAppender.CONTENT_TYPE_IDX_GUID)
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(idxCompress)
@@ -211,7 +211,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var msData = new MemoryStream();
       var msIdxDid = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx", "mjumbo")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
@@ -219,7 +219,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
 
-      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta", LongIdxAppender.CONTENT_TYPE_IDX_LONG)
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(idxCompress)
@@ -305,7 +305,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var msData = new MemoryStream();
       var msIdxPn = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx", "mjumbo")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
@@ -313,7 +313,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
 
-      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta", IntIdxAppender.CONTENT_TYPE_IDX_INT)
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(idxCompress)
@@ -399,7 +399,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var msData = new MemoryStream();
       var msIdxLt = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx", "mjumbo")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
@@ -407,7 +407,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
 
-      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta", DoubleIdxAppender.CONTENT_TYPE_IDX_DOUBLE)
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(idxCompress)
@@ -493,7 +493,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var msData = new MemoryStream();
       var msIdxAl = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx", "mjumbo")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
@@ -501,7 +501,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
 
-      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta", DecimalIdxAppender.CONTENT_TYPE_IDX_DECIMAL)
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(idxCompress)
@@ -586,7 +586,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var msData = new MemoryStream();
       var msIdxCd = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx", "mjumbo")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
@@ -594,7 +594,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
 
-      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta", DateTimeIdxAppender.CONTENT_TYPE_IDX_DATETIME)
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(idxCompress)
@@ -679,7 +679,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var msData = new MemoryStream();
       var msIdxNt = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx", "mjumbo")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
@@ -687,7 +687,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
 
-      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta", StringIdxAppender.CONTENT_TYPE_IDX_STRING)
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(idxCompress)
@@ -772,7 +772,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var msData = new MemoryStream();
       var msIdxAmt = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Primitive Idx")
+      var meta = VolumeMetadataBuilder.Make("Primitive Idx", "mjumbo")
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(compress)
@@ -780,7 +780,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
       var volumeData = new DefaultVolume(CryptoMan, meta, msData);
 
-      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta")
+      var metaIdx = VolumeMetadataBuilder.Make("Primitive Idx Meta", AmountIdxAppender.CONTENT_TYPE_IDX_AMOUNT)
                                       .SetVersion(1, 1)
                                       .SetDescription("MumboJumbo testing")
                                       .SetCompressionScheme(idxCompress)

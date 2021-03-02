@@ -19,14 +19,16 @@ namespace Azos.Tests.Nub.IO.Archiving
   public class LogMsgTests : CryptoTestBase
   {
     [Run("cnt=1")]
+    [Run("cnt=100")]
     [Run("cnt=250")]
     [Run("cnt=1000")]
+    [Run("cnt=3700")]
     public void WriteRead(int cnt)
     {
       ////var ms = new FileStream("c:\\azos\\archive.lar", FileMode.Create);//  new MemoryStream();
       var ms = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Log archive")
+      var meta = VolumeMetadataBuilder.Make("Log archive", LogMessageArchiveAppender.CONTENT_TYPE_LOG)
                                       .SetVersion(1, 0)
                                       .SetDescription("Testing log messages")
                                       .SetChannel(Atom.Encode("dvop"));
@@ -52,8 +54,19 @@ namespace Azos.Tests.Nub.IO.Archiving
       var reader = new LogMessageArchiveReader(volume);
 
       Aver.AreEqual(cnt, reader.All.Count());
+      Aver.AreEqual(cnt, reader.GetEntriesStartingAt(new Bookmark()).Count());
+      Aver.AreEqual(cnt, reader.GetBookmarkedEntriesStartingAt(new Bookmark()).Count());
+      Aver.AreEqual(cnt, reader.GetEntriesAsObjectsStartingAt(new Bookmark()).Count());
+      Aver.AreEqual(cnt, reader.GetBookmarkedEntriesAsObjectsStartingAt(new Bookmark()).Count());
 
       reader.All.ForEach((m, i) => Aver.AreEqual("Message#" + i.ToString(), m.Text));
+
+      reader.GetBookmarkedEntriesStartingAt(new Bookmark()).ForEach( (t, i) =>
+      {
+        var pointed = reader.GetEntriesStartingAt(t.bm).First();
+        Aver.AreEqual("Message#" + i.ToString(), pointed.Text);
+        Aver.AreEqual(t.entry.Text, pointed.Text);
+      });
 
       volume.Dispose();
     }
@@ -91,7 +104,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var expected = FakeLogMessage.BuildRandomArr(count);
       var ms = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("Log archive")
+      var meta = VolumeMetadataBuilder.Make("Log archive", LogMessageArchiveAppender.CONTENT_TYPE_LOG)
                                       .SetVersion(1, 0)
                                       .SetDescription("Testing log messages")
                                       .SetChannel(Atom.Encode("dvop"))

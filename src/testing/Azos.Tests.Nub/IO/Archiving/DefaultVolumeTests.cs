@@ -23,7 +23,7 @@ namespace Azos.Tests.Nub.IO.Archiving
     public void Metadata_Basic()
     {
       var ms = new MemoryStream();
-      var meta = VolumeMetadataBuilder.Make("Volume-1")
+      var meta = VolumeMetadataBuilder.Make("Volume-1", "none")
                                       .SetVersion(123,456)
                                       .SetDescription("My volume");
       var v1 = new DefaultVolume(CryptoMan, meta, ms);
@@ -47,7 +47,7 @@ namespace Azos.Tests.Nub.IO.Archiving
     public void Metadata_AppSection()
     {
       var ms = new MemoryStream();
-      var meta = VolumeMetadataBuilder.Make("V1")
+      var meta = VolumeMetadataBuilder.Make("V1", "none")
                                       .SetApplicationSection(app => { app.AddAttributeNode("a", 1); })
                                       .SetApplicationSection(app => { app.AddAttributeNode("b", -7); })
                                       .SetApplicationSection(app => { app.AddChildNode("sub{ q=true b=-9 }".AsLaconicConfig()); });
@@ -99,7 +99,7 @@ namespace Azos.Tests.Nub.IO.Archiving
     public void Page_Write_Read(string compress, string encrypt, int pad, bool remount)
     {
       var ms = new MemoryStream();
-      var meta = VolumeMetadataBuilder.Make("Volume-1")
+      var meta = VolumeMetadataBuilder.Make("Volume-1", "raw")
                                       .SetCompressionScheme(compress)
                                       .SetEncryptionScheme(encrypt);
 
@@ -189,7 +189,7 @@ namespace Azos.Tests.Nub.IO.Archiving
     public void Page_Write_CorruptPage_Read(int count)
     {
       var ms = new MemoryStream();
-      var meta = VolumeMetadataBuilder.Make("Volume-1");
+      var meta = VolumeMetadataBuilder.Make("Volume-1", "raw");
 
       var v1 = new DefaultVolume(CryptoMan, meta, ms);
 
@@ -273,7 +273,7 @@ namespace Azos.Tests.Nub.IO.Archiving
     public void Corrupt_Volume_Read(string compress, int pgsz, int cnt)
     {
       var ms = new MemoryStream();
-      var meta = VolumeMetadataBuilder.Make("String archive")
+      var meta = VolumeMetadataBuilder.Make("String archive", StringArchiveAppender.CONTENT_TYPE_STRING)
                                       .SetVersion(1, 0)
                                       .SetDescription("Testing string messages")
                                       .SetChannel(Atom.Encode("dvop"))
@@ -353,7 +353,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var expected = Enumerable.Range(0, count).Select(_ => new string(' ', sz)).ToArray();
       var ms = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("String archive")
+      var meta = VolumeMetadataBuilder.Make("String archive", StringArchiveAppender.CONTENT_TYPE_STRING)
                                       .SetVersion(1, 0)
                                       .SetDescription("Testing string messages")
                                       .SetChannel(Atom.Encode("dvop"))
@@ -409,7 +409,7 @@ namespace Azos.Tests.Nub.IO.Archiving
       var expected = Enumerable.Range(0, 10).Select(_ => new string (' ', 15)).ToArray();
       var ms = new MemoryStream();
 
-      var meta = VolumeMetadataBuilder.Make("String archive")
+      var meta = VolumeMetadataBuilder.Make("String archive", StringArchiveAppender.CONTENT_TYPE_STRING)
                                       .SetVersion(1, 0)
                                       .SetDescription("Testing string messages")
                                       .SetChannel(Atom.Encode("dvop"))
@@ -485,7 +485,7 @@ namespace Azos.Tests.Nub.IO.Archiving
 
 
       var ms = new MemoryStream();
-      var meta = VolumeMetadataBuilder.Make("String archive")
+      var meta = VolumeMetadataBuilder.Make("String archive", StringArchiveAppender.CONTENT_TYPE_STRING)
                                       .SetVersion(1, 0)
                                       .SetDescription("Testing string messages")
                                       .SetChannel(Atom.Encode("dvop"));

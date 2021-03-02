@@ -27,6 +27,7 @@ namespace Azos.IO.Archiving
     public const string CONFIG_ENCRYPTION_SECTION = "encryption";
     public const string CONFIG_COMPRESSION_SECTION = "compression";
     public const string CONFIG_APP_SECTION = "app";
+    public const string CONFIG_CONTENT_TYPE_ATTR = "content-type";
 
 
     internal VolumeMetadata(ConfigSectionNode data)
@@ -52,6 +53,7 @@ namespace Azos.IO.Archiving
     public IConfigSectionNode SectionCompression => SectionSystem[CONFIG_COMPRESSION_SECTION];
 
 
+    public string ContentType => SectionSystem.Of(CONFIG_CONTENT_TYPE_ATTR).ValueAsString();
     public int VersionMajor => SectionSystem.Of(CONFIG_VERSION_MAJOR_ATTR).ValueAsInt();
     public int VersionMinor => SectionSystem.Of(CONFIG_VERSION_MINOR_ATTR).ValueAsInt();
     public string Label => SectionSystem.Of(CONFIG_LABEL_ATTR).Value;
@@ -67,15 +69,16 @@ namespace Azos.IO.Archiving
   /// </summary>
   public struct VolumeMetadataBuilder
   {
-    public static VolumeMetadataBuilder Make(string label, string rootName = null)
-      => new VolumeMetadataBuilder(label, rootName);
+    public static VolumeMetadataBuilder Make(string label, string contentType, string rootName = null)
+      => new VolumeMetadataBuilder(label, contentType, rootName);
 
-    private VolumeMetadataBuilder(string label, string rootName)
+    private VolumeMetadataBuilder(string label, string contentType, string rootName)
     {
       Root = Configuration.NewEmptyRoot(rootName.Default(VolumeMetadata.CONFIG_VOLUME_SECTION));
       SectionSystem = Root.AddChildNode(VolumeMetadata.CONFIG_SYS_SECTION);
       SectionSystem.AddAttributeNode(VolumeMetadata.CONFIG_ID_ATTR, Guid.NewGuid());
-      SectionSystem.AddAttributeNode(VolumeMetadata.CONFIG_LABEL_ATTR, label.NonBlankMinMax(1, 1024));
+      SectionSystem.AddAttributeNode(VolumeMetadata.CONFIG_LABEL_ATTR, label.NonBlankMinMax(1, 1024, nameof(label)));
+      SectionSystem.AddAttributeNode(VolumeMetadata.CONFIG_CONTENT_TYPE_ATTR, contentType.NonBlankMinMax(1, 1024, nameof(contentType)));
     }
 
     public readonly ConfigSectionNode Root;
