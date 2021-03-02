@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.6.4
-set HEADLINE=Event hndlrs, archive reader bookmarks
+set VER=1.6.5
+set HEADLINE=Chronicle partial gdid generation and fault tolerance
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

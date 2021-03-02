@@ -71,7 +71,9 @@ namespace Azos.Log
     #region Properties
 
     /// <summary>
-    /// Global distributed ID used by distributed log warehouses. GDID.ZERO for local logging applications
+    /// Global distributed ID used by distributed log warehouses.
+    /// The field is assigned by distributed warehouse implementations such as Sky Chronicle Logic.
+    /// GDID.ZERO is used for local logging applications which do not use distributed ids
     /// </summary>
     [Field, Field(isArow: true, backendName: "gdid")]
     public GDID Gdid
