@@ -16,8 +16,14 @@ using Azos.Time;
 
 namespace Azos.IO.Archiving
 {
+  /// <summary>
+  /// Appends into Azos log archives
+  /// </summary>
+  [ContentTypeSupport(LogMessageArchiveAppender.CONTENT_TYPE_LOG)]
   public sealed class LogMessageArchiveAppender : ArchiveAppender<Message>
   {
+    public const string CONTENT_TYPE_LOG = "bix/azlog";
+
     public LogMessageArchiveAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<Message, Bookmark> onPageCommit = null)
      : base(volume, time, app, host, onPageCommit)
     {
