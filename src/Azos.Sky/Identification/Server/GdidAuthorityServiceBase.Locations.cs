@@ -45,15 +45,19 @@ namespace Azos.Sky.Identification.Server{ public partial class GdidAuthorityServ
   public sealed class DiskPersistenceLocation : PersistenceLocation
   {
     public const string CONFIG_PATH_ATTR = "path";
+    public const string CONFIG_FSYNC_ATTR = "fsync";
 
     public DiskPersistenceLocation(IConfigSectionNode node) : base(node)
     {
       DiskPath  = node.AttrByName(CONFIG_PATH_ATTR).Value;
       if (DiskPath.IsNullOrWhiteSpace())
         throw new GdidException(StringConsts.ARGUMENT_ERROR + "DiskPersistenceLocation(path=null|empty)");
+
+      Fsync = node.AttrByName(CONFIG_FSYNC_ATTR).ValueAsBool(true);
     }
 
     public string DiskPath  { get; private set; }
+    public bool Fsync { get; private set; } = true;
 
     public override string ToString()
     {
@@ -89,11 +93,11 @@ namespace Azos.Sky.Identification.Server{ public partial class GdidAuthorityServ
       if (!Directory.Exists(scopeDir))
         Directory.CreateDirectory(scopeDir);
 
-      using(var fs = new FileStream(fname, FileMode.Create, FileAccess.Write, FileShare.None, 0xff, FileOptions.WriteThrough))
+      using(var fs = new FileStream(fname, FileMode.Create, FileAccess.Write, FileShare.None, 0xff, Fsync ? FileOptions.WriteThrough : FileOptions.None))
       {
         var buf = Encoding.ASCII.GetBytes( data.ToString() );
         fs.Write(buf, 0, buf.Length);
-        fs.Flush(true);
+        fs.Flush(Fsync);
       }
     }
 
