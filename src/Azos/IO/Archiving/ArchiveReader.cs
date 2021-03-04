@@ -189,7 +189,7 @@ namespace Azos.IO.Archiving
       var vctp = volume.Metadata.ContentType;
       if (vctp.IsNotNullOrWhiteSpace())//legacy support: older archives do not have content type and will generate error on read if mismatch happens
         if (!IsContentTypeCompatible(vctp))
-          throw new ArchivingException(StringConsts.ARCHIVE_READER_CONTENT_TYPE_ERROR.Args(volume.Metadata.Id, volume.Metadata.ContentType, GetType().DisplayNameWithExpandedGenericArgs()));
+          throw new ArchivingException(StringConsts.ARCHIVE_READER_CONTENT_TYPE_ERROR.Args(volume.Metadata.Id, vctp, GetType().DisplayNameWithExpandedGenericArgs()));
     }
 
     /// <summary>

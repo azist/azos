@@ -117,9 +117,25 @@ namespace Azos.Client
         }
       }//foreach
 
-      throw new ClientException(StringConsts.HTTP_CLIENT_CALL_FAILED.Args(service.GetType().Name, first.MappedRemoteAddress.TakeLastChars(32, "..."), tries),
+      var toThrow = new ClientException(StringConsts.HTTP_CLIENT_CALL_FAILED.Args(service.GetType().Name, first.MappedRemoteAddress.TakeLastChars(32, "..."), tries),
                                 errors != null ? new AggregateException(errors) :
-                                                 new AggregateException("No inner errors"));//todo LOG etc...
+                                                 new AggregateException("No inner errors"));
+
+      if (service.ComponentEffectiveLogLevel <= Log.MessageType.Error)
+      {
+        service.App.Log.Write(
+          new Log.Message
+          {
+            Topic = service.ComponentLogTopic,
+            Type = Log.MessageType.Error,
+            From = "{0}{1}.{2}".Args(service.ComponentLogFromPrefix, nameof(HttpCallExtensions), nameof(Call)),
+            Text = "Service `{0}` call error: {1}".Args(service.Name, toThrow.ToMessageWithType()),
+            Exception = toThrow,
+            RelatedTo = (Ambient.CurrentCallFlow?.ID) ?? Guid.Empty
+          });
+      }
+
+      throw toThrow;
     }
   }
 }
