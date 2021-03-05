@@ -20,12 +20,9 @@ namespace Azos.Data.Access.MongoDb.Connector.Instrumentation
   /// Closes server connections
   /// </summary>
   [SystemAdministratorPermission(AccessLevel.VIEW_CHANGE)]
-  public sealed class CloseConnections : ExternalCallRequest<MongoClient>
+  public sealed class CloseConnections : ServerCommand
   {
     public CloseConnections(MongoClient mongo) : base(mongo) { }
-
-    [Config("$s|$srv|$svr|$server|$node|$uri|$host")]
-    public string Server { get; set; }
 
     [Config]
     public bool Block { get; set; }

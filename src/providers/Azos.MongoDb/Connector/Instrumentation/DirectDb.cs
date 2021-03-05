@@ -19,12 +19,9 @@ namespace Azos.Data.Access.MongoDb.Connector.Instrumentation
   /// Provides direct Mongo command execution capability
   /// </summary>
   [SystemAdministratorPermission(AccessLevel.ADVANCED)]
-  public sealed class DirectDb : ExternalCallRequest<MongoClient>
+  public sealed class DirectDb : ServerCommand
   {
     public DirectDb(MongoClient mongo) : base(mongo) { }
-
-    [Config("$s|$srv|$svr|$server|$node|$uri|$host")]
-    public string Server { get; set; }
 
     [Config("$d|$db|$data|$database")]
     public string Database { get; set; }
@@ -34,7 +31,40 @@ namespace Azos.Data.Access.MongoDb.Connector.Instrumentation
 
     public override ExternalCallResponse Describe()
     => new ExternalCallResponse(ContentType.TEXT,
-@"Pipes Mongo JSON command directly into database.
+@"
+# Pipes Mongo JSON command directly into database.
+
+Examples:
+
+```
+DirectDb
+{
+  s='mongo://127.0.0.1:27017'
+  d='mydb'
+  cmd='{count: ""patient""}' // count documents
+}
+
+DirectDb
+{
+  srv='mongo://127.0.0.1:27017'
+  db='mydb'
+  cmd='{find: ""doctor"", limit: 3}' //find top 3
+}
+
+DirectDb
+{
+  srv='mongo://127.0.0.1:27017'
+  db='mydb'
+  cmd=$'{createIndexes: ""log"", indexes: [
+    {
+      key: {utc: 1},      //list of document fields
+      name: ""idx_utc"",  //name of index
+      unique: false       //not unique
+    }
+  ]}' //create indexes on collection 'log'
+}
+```
+
 For the list of commands see:
  https://docs.mongodb.com/manual/reference/command/find/
  https://docs.mongodb.com/manual/reference/command/delete/

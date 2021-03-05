@@ -4,9 +4,9 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Conf;
-using Azos.Glue;
 using System.Linq;
+
+using Azos.Glue;
 using Azos.Instrumentation;
 using Azos.Security;
 using Azos.Serialization.JSON;
@@ -19,12 +19,9 @@ namespace Azos.Data.Access.MongoDb.Connector.Instrumentation
   /// Lists server connections
   /// </summary>
   [SystemAdministratorPermission(AccessLevel.VIEW)]
-  public sealed class ListConnections : ExternalCallRequest<MongoClient>
+  public sealed class ListConnections : ServerCommand
   {
     public ListConnections(MongoClient mongo) : base(mongo) { }
-
-    [Config("$s|$srv|$svr|$server|$node|$uri|$host")]
-    public string Server { get; set; }
 
     public override ExternalCallResponse Describe()
     => new ExternalCallResponse(ContentType.TEXT,
