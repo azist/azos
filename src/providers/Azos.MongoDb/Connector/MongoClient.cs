@@ -71,8 +71,10 @@ namespace Azos.Data.Access.MongoDb.Connector
                                           MANAGEMENT_INTERVAL);
 
       m_ExternalCallHandler = new ExternalCallHandler<MongoClient>(App, this, null,
-          typeof(Instrumentation.DirectDb)
-        );
+          typeof(Instrumentation.DirectDb),
+          typeof(Instrumentation.ListConnections),
+          typeof(Instrumentation.CloseConnections)
+      );
     }
 
     protected override void Destructor()

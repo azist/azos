@@ -4,10 +4,9 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System.Linq;
-
 using Azos.Conf;
 using Azos.Glue;
+using System.Linq;
 using Azos.Instrumentation;
 using Azos.Security;
 using Azos.Serialization.JSON;
@@ -17,32 +16,27 @@ using Azos.Web;
 namespace Azos.Data.Access.MongoDb.Connector.Instrumentation
 {
   /// <summary>
-  /// Closes server connections
+  /// Lists server connections
   /// </summary>
-  [SystemAdministratorPermission(AccessLevel.VIEW_CHANGE)]
-  public sealed class CloseConnections : ExternalCallRequest<MongoClient>
+  [SystemAdministratorPermission(AccessLevel.VIEW)]
+  public sealed class ListConnections : ExternalCallRequest<MongoClient>
   {
-    public CloseConnections(MongoClient mongo) : base(mongo) { }
+    public ListConnections(MongoClient mongo) : base(mongo) { }
 
     [Config("$s|$srv|$svr|$server|$node|$uri|$host")]
     public string Server { get; set; }
 
-    [Config]
-    public bool Block { get; set; }
-
     public override ExternalCallResponse Describe()
     => new ExternalCallResponse(ContentType.TEXT,
 @"
-# Closes mongo connections
+# Lists mongo connections
 
-The command tries to close all connections per server node,
-optionally blocking until all connections are closed
+The command lists all connections per server node
 
 ```
-CloseConnections
+ListConnections
 {
   srv='mongo://127.0.0.1:27017'
-  block=false
 }
 ```
 ");
@@ -51,20 +45,15 @@ CloseConnections
     {
       var server = Context[new Node(Server.NonBlank(nameof(Server)))];
 
-      var before = server.ConnectionInfos.ToArray();
-
-      server.CloseAllConnections(Block);
-
-      var after = server.ConnectionInfos.ToArray();
+      var cnns = server.ConnectionInfos
+                       .Select(c => new { id = c.id, busy = c.busy, utcStart = c.sd, utcExpirStart = c.ed })
+                       .ToArray();
 
       var result = new
       {
         node = server.Node,
         appliance = server.Appliance,
-        before = before.Length,
-        after = after.Length,
-        change = after.Length - before.Length,
-        open = after.Select(c => new{ id = c.id, busy = c.busy, utcStart =  c.sd, utcExpirStart = c.ed})
+        connections = cnns
       };
 
       var json = result.ToJson(JsonWritingOptions.PrettyPrintASCII);
