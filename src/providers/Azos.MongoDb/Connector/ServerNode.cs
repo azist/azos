@@ -16,7 +16,7 @@ using System;
 namespace Azos.Data.Access.MongoDb.Connector
 {
   /// <summary>
-  /// Manages connections to the same server
+  /// Manages connections per Mongo Db server
   /// </summary>
   public sealed class ServerNode : ApplicationComponent, INamed
   {
@@ -201,6 +201,19 @@ namespace Azos.Data.Access.MongoDb.Connector
     {
         get { return m_SocketSendTimeout; }
         set { m_SocketSendTimeout = value <=0 ? DEFAULT_SND_TIMEOUT : value;}
+    }
+
+    /// <summary>
+    /// Connection information
+    /// </summary>
+    public IEnumerable<(FID id, bool busy, DateTime sd, DateTime? ed)> ConnectionInfos
+    {
+      get
+      {
+        var conns = m_List;
+        foreach(var c in conns)
+          yield return (c.Id, c.IsAcquired, c.StartDateUTC, c.ExpirationStartUTC);
+      }
     }
 
     /// <summary>

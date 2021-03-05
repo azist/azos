@@ -77,10 +77,10 @@ namespace Azos.Data.Access.MongoDb.Connector
 
     protected override void Destructor()
     {
-      DisposableObject.DisposeAndNull(ref m_ManagementEvent);
+      DisposeAndNull(ref m_ManagementEvent);
 
       foreach(var server in m_Servers)
-        server.Dispose();
+        this.DontLeak(() => server.Dispose());
 
       base.Destructor();
     }
@@ -99,34 +99,28 @@ namespace Azos.Data.Access.MongoDb.Connector
     private ExternalCallHandler<MongoClient> m_ExternalCallHandler;
     #endregion
 
-
     #region Properties
-
     public override string ComponentLogTopic => MongoConsts.MONGO_TOPIC;
+    public string Name => m_Name;
 
-    public string Name{ get{ return m_Name;}}
-
-    [Config]
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
     public bool InstrumentationEnabled { get{ return m_InstrumentationEnabled; } set { m_InstrumentationEnabled = value;} }
 
     /// <summary>
     /// Returns the config root of the client that was set by the last call to Configure()
     /// or App.CONFIG_MONGO_CLIENT_SECTION (which may be non-existent)
     /// </summary>
-    public IConfigSectionNode ConfigRoot
-    {
-      get { return m_ConfigRoot ?? App.ConfigRoot[CONFIG_MONGO_CLIENT_SECTION];}
-    }
+    public IConfigSectionNode ConfigRoot => m_ConfigRoot ?? App.ConfigRoot[CONFIG_MONGO_CLIENT_SECTION];
 
     /// <summary>
     /// Returns all connected servers
     /// </summary>
-    public IRegistry<ServerNode> Servers { get{ return m_Servers;} }
+    public IRegistry<ServerNode> Servers => m_Servers;
 
     /// <summary>
     /// Returns an existing server node or creates a new one.
     /// If the node binding is `appliance://(name)` then delegates the server resolution
-    /// to a optionally named appliance which is a module of type IMongoDbappliance loaded on app chassis
+    /// to a optionally named appliance which is a module of type IMongoDbAppliance loaded on app chassis
     /// </summary>
     public ServerNode this[Glue.Node node]
     {
@@ -151,10 +145,7 @@ namespace Azos.Data.Access.MongoDb.Connector
     /// <summary>
     /// Returns ServerNode for local server on a default port
     /// </summary>
-    public ServerNode DefaultLocalServer
-    {
-      get { return this[Connection.DEFAUL_LOCAL_NODE];}
-    }
+    public ServerNode DefaultLocalServer => this[Connection.DEFAUL_LOCAL_NODE];
 
 
     /// <summary>
@@ -181,34 +172,24 @@ namespace Azos.Data.Access.MongoDb.Connector
       ConfigAttribute.Apply(this, ConfigRoot);
     }
 
-    public override string ToString()
-    {
-      return "Client('{0}')".Args(m_Name);
-    }
+    public override string ToString() => "{0}('{1}')".Args(nameof(MongoClient), m_Name);
 
     #endregion
 
     #region IInstrumentable
-    public IEnumerable<KeyValuePair<string, Type>> ExternalParameters{ get { return ExternalParameterAttribute.GetParameters(this); } }
+    public IEnumerable<KeyValuePair<string, Type>> ExternalParameters => ExternalParameterAttribute.GetParameters(this);
 
     public IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups)
-    {
-      return ExternalParameterAttribute.GetParameters(this, groups);
-    }
+      => ExternalParameterAttribute.GetParameters(this, groups);
 
     public bool ExternalGetParameter(string name, out object value, params string[] groups)
-    {
-        return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
-    }
+      => ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
 
     public bool ExternalSetParameter(string name, object value, params string[] groups)
-    {
-      return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
-    }
+      => ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
     #endregion
 
     #region .pvt
-
     private void managementEventBody()
     {
       foreach(var server in m_Servers)
@@ -216,7 +197,6 @@ namespace Azos.Data.Access.MongoDb.Connector
 
       //todo future: Dump statistics
     }
-
     #endregion
   }
 }
