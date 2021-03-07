@@ -261,27 +261,24 @@ namespace Azos.Data.Access.MongoDb.Connector
     #region Protected/Int
 
 
-    internal Connection AcquireConnection()
+    internal Connection AcquireConnection() => acquireConnection(true);
+    private Connection acquireConnection(bool checkDisposed)
     {
-      return acquireConnection(true);
+      if (checkDisposed) EnsureObjectNotDisposed();
+
+      var result = tryAcquireExistingConnection();
+      if (result != null) return result;
+
+      //open new connection
+      lock(m_NewConnectionSync)
+      {
+        result = tryAcquireExistingConnection();
+        if (result!=null) return result;
+
+        result = openNewConnection();
+        return result;
+      }
     }
-          private Connection acquireConnection(bool checkDisposed)
-          {
-              if (checkDisposed) EnsureObjectNotDisposed();
-
-              var result = tryAcquireExistingConnection();
-              if (result!=null) return result;
-
-              //open new connection
-              lock(m_NewConnectionSync)
-              {
-                result = tryAcquireExistingConnection();
-                if (result!=null) return result;
-
-                result = openNewConnection();
-                return result;
-              }
-          }
 
 
     /// <summary>
@@ -321,28 +318,30 @@ namespace Azos.Data.Access.MongoDb.Connector
     #region .pvt
     private Connection openNewConnection()
     {
-        var result = new Connection( this );
-        lock(m_ListSync)
-        {
-          var lst = new List<Connection>(m_List);
-          lst.Add(result);
-          System.Threading.Thread.MemoryBarrier();
-          m_List = lst;//atomic
-        }
-        return result;
+      var result = new Connection( this );
+
+      lock(m_ListSync)
+      {
+        var lst = new List<Connection>(m_List);
+        lst.Add(result);
+        System.Threading.Thread.MemoryBarrier();
+        m_List = lst;//atomic
+      }
+      return result;
     }
 
 
     internal void closeExistingConnection(Connection cnn)
     {
-      if (!this.Disposed)
-        lock(m_ListSync)
-        {
-          var lst = new List<Connection>(m_List);
-          lst.Remove(cnn);
-          System.Threading.Thread.MemoryBarrier();
-          m_List = lst;//atomic
-        }
+      if (Disposed) return;
+
+      lock(m_ListSync)
+      {
+        var lst = new List<Connection>(m_List);
+        lst.Remove(cnn);
+        System.Threading.Thread.MemoryBarrier();
+        m_List = lst;//atomic
+      }
     }
 
     private Connection tryAcquireExistingConnection()
@@ -408,36 +407,35 @@ namespace Azos.Data.Access.MongoDb.Connector
 
       do
       {
-          lock(m_Cursors)
+        lock(m_Cursors)
+        {
+          for(var i=m_Cursors.Count-1; i>=0 && m_Cursors.Count>0 && toKill.Count<=BATCH; i--)
           {
-            for(var i=m_Cursors.Count-1; i>=0 && m_Cursors.Count>0 && toKill.Count<=BATCH; i--)
+            var cursor = m_Cursors[i];
+            if (killAll || cursor.Disposed)
             {
-              var cursor = m_Cursors[i];
-              if (killAll || cursor.Disposed)
-              {
-                toKill.Add(cursor);
-                m_Cursors.RemoveAt(i);
-              }
+              toKill.Add(cursor);
+              m_Cursors.RemoveAt(i);
             }
           }
+        }
 
-          if (toKill.Count>0)
+        if (toKill.Count>0)
+        {
+          var connection = acquireConnection(false);
+          try
           {
-            var connection = acquireConnection(false);
-            try
-            {
-              var reqId = NextRequestID;
-              connection.KillCursor(reqId, toKill.ToArray());
-            }
-            finally
-            {
-              connection.Release();
-            }
-
-            toKill.Clear();
+            var reqId = NextRequestID;
+            connection.KillCursor(reqId, toKill.ToArray());
           }
-          else break;
+          finally
+          {
+            connection.Release();
+          }
 
+          toKill.Clear();
+        }
+        else break;
       }
       while(killAll);
     }

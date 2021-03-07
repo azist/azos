@@ -33,6 +33,7 @@ namespace Azos.Data.Access.MongoDb.Connector
 
     private const int FREE = 0;
     private const int ACQUIRED = 1;
+    private const int TORN = -1;
 
     private const int DEFAULT_STREAM_SIZE = 32 * 1024;
     #endregion
@@ -44,6 +45,7 @@ namespace Azos.Data.Access.MongoDb.Connector
       m_Id = FID.Generate();
       m_StartDateUTC = server.App.TimeSource.UTCNow;
       connectSocket();
+      Thread.MemoryBarrier();
     }
 
     protected override void Destructor()
@@ -74,7 +76,8 @@ namespace Azos.Data.Access.MongoDb.Connector
     /// </summary>
     public FID Id => m_Id;
     public DateTime StartDateUTC => m_StartDateUTC;
-    public bool IsAcquired => m_Acquired == ACQUIRED;
+    public bool IsAcquired => Thread.VolatileRead(ref m_Acquired) == ACQUIRED;
+    public bool IsTorn => Thread.VolatileRead(ref m_Acquired) == TORN;
     public ServerNode Server => m_Server;
 
     /// <summary>
@@ -90,7 +93,7 @@ namespace Azos.Data.Access.MongoDb.Connector
     /// </summary>
     internal bool TryAcquire()
     {
-      var result = Interlocked.CompareExchange(ref m_Acquired, ACQUIRED, FREE) == FREE;
+      var result = !Disposed  &&  Interlocked.CompareExchange(ref m_Acquired, ACQUIRED, FREE) == FREE;
       Thread.MemoryBarrier();
       return result;
     }
@@ -103,7 +106,8 @@ namespace Azos.Data.Access.MongoDb.Connector
       if (!callFromManager)
         m_ExpirationStartUTC = null;
 
-      Interlocked.Exchange(ref m_Acquired, FREE);
+      var isTorn = Interlocked.Exchange(ref m_Acquired, FREE) == TORN;
+      if (isTorn) Dispose();//torn connection gets disposed
       Thread.MemoryBarrier();
     }
 
@@ -342,38 +346,55 @@ namespace Azos.Data.Access.MongoDb.Connector
     #region .pvt
     private void writeSocket(int total)
     {
-      if (total>=Protocol.BSON_SIZE_LIMIT)
+      if (total >= Protocol.BSON_SIZE_LIMIT)
         throw new MongoDbConnectorProtocolException(StringConsts.PROTO_SOCKET_WRITE_EXCEED_LIMIT_ERROR.Args(total, Protocol.BSON_SIZE_LIMIT));
 
-      ensureSocket();
       try
       {
         m_TcpClient.GetStream().Write(m_BufferStream.GetBuffer(), 0, total);
         //todo inc stats
       }
       catch
-      { //todo inc failure stats
-        disconnectSocket();
+      {
+        disconnectSocket(wasTorn: true);
         throw;
       }
     }
 
     private Stream readSocket()
     {
-      var nets = m_TcpClient.GetStream();
-      var total = BinUtils.ReadInt32(nets);
+      NetworkStream nets = null;
+      int total = 0;
+      try
+      {
+        nets = m_TcpClient.GetStream();
+        total = BinUtils.ReadInt32(nets);
+      }
+      catch
+      {
+        disconnectSocket(wasTorn: true);
+        throw;
+      }
 
-      if (total>=Protocol.BSON_SIZE_LIMIT)
+      if (total >= Protocol.BSON_SIZE_LIMIT)
         throw new MongoDbConnectorProtocolException(StringConsts.PROTO_SOCKET_READ_EXCEED_LIMIT_ERROR.Args(total, Protocol.BSON_SIZE_LIMIT));
 
-      var leftToRead = total - sizeof(Int32);  //the total size includes the 4 bytes
+      try
+      {
+        var leftToRead = total - sizeof(Int32);  //the total size includes the 4 bytes
 
-      m_BufferStream.SetLength(total);
-      var buffer = m_BufferStream.GetBuffer();
-      BinUtils.WriteInt32(buffer, total, 0);
-      socketRead(nets, buffer, sizeof(Int32), leftToRead);
-      m_Received.BindBuffer(buffer, 0, total);
-      return m_Received;
+        m_BufferStream.SetLength(total);
+        var buffer = m_BufferStream.GetBuffer();
+        BinUtils.WriteInt32(buffer, total, 0);
+        socketRead(nets, buffer, sizeof(Int32), leftToRead);
+        m_Received.BindBuffer(buffer, 0, total);
+        return m_Received;
+      }
+      catch
+      {
+        disconnectSocket(wasTorn: true);
+        throw;
+      }
       //todo stats
     }
 
@@ -395,15 +416,8 @@ namespace Azos.Data.Access.MongoDb.Connector
       return (node.Host + ':' + node.Service).ToIPEndPoint(DEFAULT_MONGO_PORT);
     }
 
-    private void ensureSocket()
-    {
-      if (m_TcpClient!=null) return;
-      connectSocket();
-    }
-
     private void connectSocket()
     {
-      disconnectSocket();
       var server = getIPEndPoint();
 
       m_TcpClient = new TcpClient();
@@ -428,11 +442,17 @@ namespace Azos.Data.Access.MongoDb.Connector
       }
     }
 
-    private void disconnectSocket()
+    private void disconnectSocket(bool wasTorn = false)
     {
       if (m_TcpClient==null) return;
       try {  m_TcpClient.Close();  } catch { }
       m_TcpClient = null;
+      if (wasTorn)
+      {
+        //todo inc failure stats
+        Interlocked.Exchange(ref m_Acquired, TORN);
+        Thread.MemoryBarrier();
+      }
     }
     #endregion
 
