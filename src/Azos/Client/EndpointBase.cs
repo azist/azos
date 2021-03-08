@@ -86,8 +86,9 @@ namespace Azos.Client
       m_OfflineTimeStampUtc = null;
     }
 
-    public virtual bool TryResetCircuitBreaker(string statusMessage)
+    public virtual bool TryResetCircuitBreaker(string statusMsg)
     {
+      m_StatusMsg = statusMsg.Default("Reset brkr");
       m_CircuitBreakerTimeStampUtc = null;
       return true;
     }

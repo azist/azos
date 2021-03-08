@@ -27,8 +27,11 @@ namespace Azos.IO.Archiving
     /// </summary>
     public ArchiveAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<TEntry, Bookmark> onPageCommit = null)
     {
-      if (!IsContentTypeCompatible(volume.NonNull(nameof(volume)).Metadata.ContentType))
-        throw new ArchivingException(StringConsts.ARCHIVE_APPENDER_CONTENT_TYPE_ERROR.Args(volume.Metadata.Id, volume.Metadata.ContentType, GetType().DisplayNameWithExpandedGenericArgs()));
+      var vctp = volume.NonNull(nameof(volume)).Metadata.ContentType;
+      if (vctp.IsNotNullOrWhiteSpace())//legacy support: older archives do not have content type and will generate error on read if mismatch happens
+        if (!IsContentTypeCompatible(vctp))
+          throw new ArchivingException(StringConsts.ARCHIVE_APPENDER_CONTENT_TYPE_ERROR.Args(volume.Metadata.Id, vctp, GetType().DisplayNameWithExpandedGenericArgs()));
+
 
       m_Volume = volume;
       m_Time = time.NonNull(nameof(time));

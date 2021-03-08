@@ -150,29 +150,38 @@ namespace Azos.Serialization.JSON
             for (int i = 0; i < data.Length; i++)
             {
                 char c = data[i];
-                if (c>127 && opt.ASCIITarget)
+                if (c > 0x7f && opt.ASCIITarget)
                 {
-                    wri.Write("\\u");
-                    wri.Write(((int)c).ToString("x4"));
-                    continue;
+                  wri.Write("\\u");
+                  wri.Write(((int)c).ToString("x4"));
+                  continue;
                 }
 
                 switch (c)
                 {
-                    case '\\':  { wri.Write(@"\\"); break; }
-                    case '/':   { wri.Write(@"\/"); break; }
-                    case (char)CharCodes.Char0:     { wri.Write(@"\u0000"); break; }
-                    case (char)CharCodes.AlertBell: { wri.Write(@"\u"); ((int)c).ToString("x4"); break; }
-                    case (char)CharCodes.Backspace: { wri.Write(@"\b"); break; }
-                    case (char)CharCodes.Formfeed:  { wri.Write(@"\f"); break; }
-                    case (char)CharCodes.LF:        { wri.Write(@"\n"); break; }
-                    case (char)CharCodes.CR:        { wri.Write(@"\r"); break; }
-                    case (char)CharCodes.Tab:       { wri.Write(@"\t"); break; }
-                    case (char)CharCodes.VerticalQuote: { wri.Write(@"\u"); ((int)c).ToString("x4"); break; }
+                  case '\\':  { wri.Write(@"\\"); break; }
+                  case '/':   { wri.Write(@"\/"); break; }
+                  case (char)CharCodes.Char0:     { wri.Write(@"\u0000"); break; }
+                  case (char)CharCodes.AlertBell: { wri.Write(@"\u"); ((int)c).ToString("x4"); break; }
+                  case (char)CharCodes.Backspace: { wri.Write(@"\b"); break; }
+                  case (char)CharCodes.Formfeed:  { wri.Write(@"\f"); break; }
+                  case (char)CharCodes.LF:        { wri.Write(@"\n"); break; }
+                  case (char)CharCodes.CR:        { wri.Write(@"\r"); break; }
+                  case (char)CharCodes.Tab:       { wri.Write(@"\t"); break; }
 
-                    case '"':  { wri.Write(@"\"""); break; }
+                  case '"':  { wri.Write(@"\"""); break; }
 
-                    default: { wri.Write(c); break;}
+                  default:
+                  {
+                    if (c < 0x20)
+                    {
+                      wri.Write("\\u");
+                      wri.Write(((int)c).ToString("x4"));
+                      break;
+                    }
+                    wri.Write(c);
+                    break;
+                  }
                 }
 
             }//for

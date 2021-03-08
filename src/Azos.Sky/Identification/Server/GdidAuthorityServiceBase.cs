@@ -191,7 +191,13 @@ namespace Azos.Sky.Identification.Server
             {
               WriteLog(MessageType.Warning,
                        nameof(WriteToLocations),
-                       "Gdid location {0} writing took {1:n3} sec. which is longer than normal {2:n3} sec.".Args(location, time.ElapsedSec, WRITE_NORM_WARNING_SEC));
+                       "Gdid location {0} writing (`{1}`/`{2}` = {3}) took {4:n3} sec. which is longer than normal {5:n3} sec.".Args(
+                                    location,
+                                    scope,
+                                    seq,
+                                    id,
+                                    time.ElapsedSec,
+                                    WRITE_NORM_WARNING_SEC));
             }
 
             totalFailure = false;

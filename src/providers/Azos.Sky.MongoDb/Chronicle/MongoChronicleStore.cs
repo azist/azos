@@ -15,8 +15,6 @@ using Azos.Serialization.JSON;
 
 using Azos.Conf;
 using Azos.Data.Access.MongoDb.Connector;
-using Azos.Sky.Identification;
-using Azos.Apps.Injection;
 
 namespace Azos.Sky.Chronicle.Server
 {
@@ -36,8 +34,6 @@ namespace Azos.Sky.Chronicle.Server
 
     public MongoChronicleStore(IApplication application) : base(application) { }
     public MongoChronicleStore(IApplicationComponent parent) : base(parent) { }
-
-    [Inject] IGdidProviderModule m_Gdid;
 
     private Database m_LogDb;
     private Database m_InstrDb;
@@ -91,22 +87,17 @@ namespace Azos.Sky.Chronicle.Server
 
       var toSend = data.NonNull(nameof(data))
                        .Data.NonNull(nameof(data))
-                       .Where(m => m != null);
+                       .Where(m => m != null && !m.Gdid.IsZero);
 
 
       var cLog = m_LogDb[COLLECTION_LOG];
 
       int i = 0;
-      using(var errors = new ErrorLogBatcher(App.Log){Type = MessageType.Critical, From = this.ComponentLogFromPrefix+nameof(WriteAsync), Topic = ComponentLogTopic})
+      using(var errors = new ErrorLogBatcher(App.Log){Type = MessageType.Critical, From = this.ComponentLogFromPrefix + nameof(WriteAsync), Topic = ComponentLogTopic})
       foreach (var batch in toSend.BatchBy(0xf))
       {
         var bsons = batch.Select(msg =>
         {
-          if (msg.Gdid.IsZero)
-            msg.Gdid = m_Gdid.Provider.GenerateOneGdid(scopeName: SysConsts.GDID_NS_CHRONICLES, sequenceName: COLLECTION_LOG);
-
-          msg.InitDefaultFields(App);
-
           return BsonConvert.ToBson(msg);
         });
 

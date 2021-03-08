@@ -9,10 +9,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Azos.Apps;
+using Azos.Apps.Injection;
 using Azos.Conf;
+using Azos.Data;
 using Azos.Log;
 using Azos.Serialization.JSON;
-
+using Azos.Sky.Identification;
 
 namespace Azos.Sky.Chronicle.Server
 {
@@ -21,6 +23,9 @@ namespace Azos.Sky.Chronicle.Server
   /// </summary>
   public sealed class ChronicleServerLogic : ModuleBase, ILogChronicleLogic, IInstrumentationChronicleLogic
   {
+    public const string SEQ_SKY_LOG = "sky_log";
+    public const string SEQ_SKY_INSTR = "sky_ins";
+
     public const string CONFIG_STORE_SECTION = "store";
     public const string CONFIG_LOG_STORE_SECTION = "log-store";
     public const string CONFIG_INSTRUMENTATION_STORE_SECTION = "instrumentation-store";
@@ -36,6 +41,8 @@ namespace Azos.Sky.Chronicle.Server
       DisposeAndNull(ref m_Instrumentation);
       base.Destructor();
     }
+
+    [Inject] IGdidProviderModule m_Gdid;
 
     private ILogImplementation m_LogArchiveGraph;
     private ILogChronicleStoreImplementation m_Log;
@@ -115,10 +122,79 @@ namespace Azos.Sky.Chronicle.Server
           .Data
           .NonNull(nameof(data.Data));
 
-      var arch = m_LogArchiveGraph;
-      if (arch != null) data.Data.ForEach( m => arch.Write(m) );
+      //0 Prepare messages for insertion
+      GDID[] gdids = null;
+      Exception gdidFailure = null;
+      for(int i=0, j=0; i < data.Data.Length; i++)
+      {
+        var msg = data.Data[i];
 
-      await m_Log.NonNull().WriteAsync(data);
+        if (gdidFailure == null)
+        {
+          if (gdids == null || j == gdids.Length)
+          {
+            try
+            {
+              j = 0;
+              gdids = m_Gdid.Provider.TryGenerateManyConsecutiveGdids(scopeName: SysConsts.GDID_NS_CHRONICLES,
+                                                                      sequenceName: SEQ_SKY_LOG,
+                                                                      gdidCount: data.Data.Length - i);
+            }
+            catch(Exception error)
+            {
+              gdidFailure = error;
+            }
+          }
+        }
+
+        if (gdidFailure == null)
+        {
+          //gdid regenerated
+          msg.Gdid = gdids[j++];
+        }
+
+        msg.InitDefaultFields(App);
+      }
+
+      //1 Write to archive graph ASAP
+      Exception archiveFailure = null;
+      try
+      {
+        var arch = m_LogArchiveGraph;
+        if (arch != null) data.Data.ForEach( m => arch.Write(m) );
+      }
+      catch (Exception error)
+      {
+        archiveFailure = error;
+      }
+
+      //2 Write to store
+      Exception storeFailure = null;
+      try
+      {
+        await m_Log.NonNull().WriteAsync(data);
+      }
+      catch (Exception error)
+      {
+        storeFailure = error;
+      }
+
+
+      //catastrophic notification may trigger something like SolarWind/Everbridge et.al. alert
+      if (gdidFailure != null)
+      {
+        WriteLog(MessageType.CatastrophicError, nameof(WriteAsync), "Gdid generation failed: " + gdidFailure.ToMessageWithType(), gdidFailure, Ambient.CurrentCallFlow?.ID);
+      }
+
+      if (archiveFailure != null)
+      {
+        WriteLog(MessageType.CatastrophicError, nameof(WriteAsync), "Archive failed: " + archiveFailure.ToMessageWithType(), archiveFailure, Ambient.CurrentCallFlow?.ID);
+      }
+
+      if (storeFailure != null)
+      {
+        WriteLog(MessageType.CatastrophicError, nameof(WriteAsync), "Store failed: " + storeFailure.ToMessageWithType(), storeFailure, Ambient.CurrentCallFlow?.ID);
+      }
     }
 
     public async Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter)

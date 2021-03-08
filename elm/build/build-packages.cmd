@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.6.4
-set HEADLINE=Event hndlrs, archive reader bookmarks
+set VER=1.6.7
+set HEADLINE=Fix 441 and http client instrumentation
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

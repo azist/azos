@@ -203,20 +203,36 @@ namespace Azos.Client
 
     public override CallErrorClass NotifyCallError(ITransport transport, Exception cause)
     {
-    //delegate this into the Extension, so we can classify things like 500 -> logic error via pattern match on exception etc...
+    //delegate this into the Aspect/Extension, so we can classify things like 500 -> logic error via pattern match on exception etc...
 
-      if (cause==null) return CallErrorClass.MakingCall;
+      var result = CallErrorClass.MakingCall;
 
-      var isCallProblem = cause is HttpRequestException ||
-                          cause is TaskCanceledException; //timeout
-
-      if (isCallProblem)
+      if (cause != null)
       {
-        //mutate circuit breaker state machine
-       // this.m_CircuitBreakerTimeStampUtc = now;//trip
+
+        var isCallProblem = cause is HttpRequestException ||
+                            cause is TaskCanceledException; //timeout
+
+        if (isCallProblem)
+        {
+          //mutate circuit breaker state machine
+         // this.m_CircuitBreakerTimeStampUtc = now;//trip
+        }
+        else result = CallErrorClass.ServiceLogic;
       }
 
-      return isCallProblem ? CallErrorClass.MakingCall : CallErrorClass.ServiceLogic;
+      if (ComponentEffectiveLogLevel <= Log.MessageType.Error)
+      {
+        WriteLog(Log.MessageType.Error, nameof(NotifyCallError),
+                     "HttpEndpoint `{0}` -> `{1}` ({2}) error: {3}".Args(ServiceDescription,
+                                                                       Uri,
+                                                                       result,
+                                                                       (cause?.ToMessageWithType()).Default("<none>")),
+                     error: cause,
+                     related: Ambient.CurrentCallFlow?.ID);
+      }
+
+      return result;
     }
 
     public override void NotifyCallSuccess(ITransport transport)

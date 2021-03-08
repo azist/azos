@@ -147,15 +147,15 @@ namespace Azos.Client
     /// Resets circuit breaker returning true if endpoint circuit was reset.
     /// False is returned if circuit breaker could not be reset (e.g. remote endpoint is still disabled)
     /// </summary>
-    bool TryResetCircuitBreaker(string statusMessage);
+    bool TryResetCircuitBreaker(string statusMsg);
 
     /// <summary>
-    /// Puts endpoint online
+    /// Puts endpoint online enabling the traffic flow through this endpoint
     /// </summary>
     void PutOnline(string statusMsg);
 
     /// <summary>
-    /// Puts endpoint offline
+    /// Puts endpoint offline disabling traffic flow through this endpoint
     /// </summary>
     void PutOffline(string statusMsg);
   }
