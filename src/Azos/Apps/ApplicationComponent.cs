@@ -327,12 +327,12 @@ namespace Azos.Apps
     #endregion
 
     #region .pvt
-      private static Dictionary<ulong, ApplicationComponent> getComponentsOf(IApplication app)
-      {
-        app.NonNull(nameof(app));
-        if (s_Instances.TryGetValue(app, out var result)) return result;
-        return null;
-      }
+    private static Dictionary<ulong, ApplicationComponent> getComponentsOf(IApplication app)
+    {
+      app.NonNull(nameof(app));
+      if (s_Instances.TryGetValue(app, out var result)) return result;
+      return null;
+    }
     #endregion
   }
 
