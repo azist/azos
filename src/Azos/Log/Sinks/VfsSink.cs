@@ -35,6 +35,8 @@ namespace Azos.Log.Sinks
     private FileSystemSessionConnectParams m_FsConnectParams;
     private FileSystemSession m_Session;//no thread safe
 
+    public override int ExpectedShutdownDurationMs => 3570;//since there is VFS involved
+
     protected override void CheckPath(string path)
      => m_Session.EnsureDirectoryPath(path);
 

@@ -186,6 +186,13 @@ namespace Azos.Log
       get{ return false; }
     }
 
+    /// <summary>
+    /// Sum of all sink shutdown durations
+    /// </summary>
+    public override int ExpectedShutdownDurationMs
+      => 1000 + //to terminate thread etc.
+         Sinks.Sum(s => s.ExpectedShutdownDurationMs.AtMinimum(100));//sum of all sinks
+
     #endregion
 
     #region Public
@@ -293,15 +300,31 @@ namespace Azos.Log
       base.DoWaitForCompleteStop();
       // at this point the thread has stopped and we can now stop the sinks
 
+      var iamPrimary = object.ReferenceEquals(App.Log, this);
+
       foreach (var sink in m_Sinks.OrderedValues.Reverse())
       {
-          try
+        try
+        {
+          if (iamPrimary)
           {
             sink.WaitForCompleteStop();
-          } catch
-          {
-#warning REVISE - must not eat exceptions - use Conout?
-          }  // Can't do much here in case of an error
+            continue;
+          }
+
+          var msTimeout = sink.ExpectedShutdownDurationMs;
+          if (msTimeout < 1) msTimeout = App.ExpectedComponentShutdownDurationMs;
+          if (msTimeout < 1) msTimeout = CommonApplicationLogic.DFLT_EXPECTED_COMPONENT_SHUTDOWN_DURATION_MS;
+          TimedCall.Run( _ => sink.WaitForCompleteStop(),
+                          msTimeout,
+                          () => WriteLog(MessageType.WarningExpectation,
+                                        "{0}.{1}".Args(nameof(DoWaitForCompleteStop), sink.Name),
+                                        "Awaiting sink '{0}' is taking longer than expected {1:n} ms".Args(sink.Name, msTimeout)));
+        }
+        catch
+        {
+#warning REVISE - must not eat exceptions - use Conout? use new .core ETW
+        }  // Can't do much here in case of an error
       }
     }
 
