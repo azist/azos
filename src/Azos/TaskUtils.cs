@@ -453,7 +453,7 @@ namespace Azos
     /// The required notification action asynchronously called when the main body is lagging.
     /// All exceptions are handled, so make sure that you handle whatever errors may arise in caller code
     /// </param>
-    /// <param name="cancel">Optional cancel token for </param>
+    /// <param name="cancel">Optional cancel token for body and timeout cancellation</param>
     public static void Run(Action<CancellationToken> body, int msTimeout, Action timeout, CancellationToken? cancel = null)
     {
       body.NonNull(nameof(body));
@@ -488,7 +488,7 @@ namespace Azos
     /// The required notification action asynchronously called when the main body is lagging.
     /// All exceptions are handled, so make sure that you handle whatever errors may arise in caller code
     /// </param>
-    /// <param name="cancel">Optional cancel token for </param>
+    /// <param name="cancel">Optional cancel token for body and timeout cancellation</param>
     public static TResult Run<TResult>(Func<CancellationToken, TResult> body, int msTimeout, Action timeout, CancellationToken? cancel = null)
     {
       body.NonNull(nameof(body));
