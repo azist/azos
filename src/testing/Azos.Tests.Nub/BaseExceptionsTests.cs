@@ -18,7 +18,7 @@ namespace Azos.Tests.Nub
   {
 
     [Run]
-    public void WrappedExceptionData_BSON()
+    public void WrappedExceptionData_JSON()
     {
       try
       {
@@ -27,18 +27,12 @@ namespace Azos.Tests.Nub
       catch(Exception caught)
       {
         var wed = new WrappedExceptionData(caught);
-        var ser = new Azos.Serialization.BSON.BSONSerializer();
 
-        var doc = ser.Serialize(wed);
+        var json = wed.ToJson(JsonWritingOptions.CompactRowsAsMap);
 
-        var wed2 = new WrappedExceptionData();
-        object ctx = null;
-        wed2.DeserializeFromBSON(ser, doc, ref ctx);
+        json.See();
 
-        Console.WriteLine();
-        Console.WriteLine($"BSON:");
-        Console.WriteLine($"-----------------------------");
-        Console.WriteLine(doc.ToJson());
+        var wed2 = JsonReader.ToDoc<WrappedExceptionData>(json);
 
         averWrappedExceptionEquality(wed, wed2);
       }
@@ -74,28 +68,6 @@ namespace Azos.Tests.Nub
     }
 
 
-    [Run]
-    public void WrappedExceptionData_BASE64()
-    {
-      try
-      {
-        throw new AzosException("Oy vei!", new AzosException("Inside")){ Code = 223322, Source = "Karlson" };
-      }
-      catch(Exception caught)
-      {
-        var wed = new WrappedExceptionData(caught);
-        var base64 = wed.ToBase64();
-
-        Console.WriteLine();
-        Console.WriteLine($"Base64 {base64.Length} bytes:");
-        Console.WriteLine($"-----------------------------");
-        Console.WriteLine(base64);
-
-        var wed2 = WrappedExceptionData.FromBase64(base64);
-        averWrappedExceptionEquality(wed, wed2);
-      }
-    }
-
     private void averWrappedExceptionEquality(WrappedExceptionData d1, WrappedExceptionData d2)
     {
       Aver.IsNotNull(d1);
@@ -106,9 +78,10 @@ namespace Azos.Tests.Nub
       Aver.AreEqual(d1.Code, d2.Code);
       Aver.AreEqual(d1.Source, d2.Source);
       Aver.AreEqual(d1.TypeName, d2.TypeName);
-      Aver.AreEqual(d1.ApplicationName, d2.ApplicationName);
+      Aver.AreEqual(d1.AppName, d2.AppName);
+      Aver.AreEqual(d1.AppId, d2.AppId);
       Aver.AreEqual(d1.StackTrace, d2.StackTrace);
-      Aver.AreEqual(d1.WrappedData, d2.WrappedData);
+      Aver.AreEqual(d1.ExternalStatus.ToJson(), d2.ExternalStatus.ToJson());
 
       if (d1.InnerException!=null)
         averWrappedExceptionEquality(d1.InnerException, d2.InnerException);

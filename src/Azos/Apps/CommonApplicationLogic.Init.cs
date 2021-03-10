@@ -93,6 +93,10 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
       Debugging.DefaultDebugAction = Debugging.ReadDefaultDebugActionFromConfig();
       Debugging.TraceDisabled      = Debugging.ReadTraceDisableFromConfig();
 
+      //20200616 DKh
+      Serialization.Bix.Bixer.RegisterFromConfiguration(m_ConfigRoot[Serialization.Bix.Bixer.CONFIG_AZOS_SERIALIZATION_BIX_SECTION]);
+
+
       //the order of root component boot is important:
 
       InitLog();             //1.  must be the first one so others can log

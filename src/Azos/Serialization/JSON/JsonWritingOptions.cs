@@ -72,6 +72,16 @@ namespace Azos.Serialization.JSON
           m_RowsAsMap = true
         };
 
+        private static JsonWritingOptions s_PrettyPrintRowsAsMapASCII = new JsonWritingOptions(isSystem: true)
+        {
+          m_IndentWidth = 2,
+          m_ObjectLineBreak = true,
+          m_MemberLineBreak = true,
+          m_SpaceSymbols = true,
+          m_ASCIITarget = true,
+          m_RowsAsMap = true
+        };
+
 
         /// <summary>
         /// Writes JSON without line breaks between members and no indenting. Suitable for data transmission
@@ -105,6 +115,12 @@ namespace Azos.Serialization.JSON
         /// </summary>
         public static JsonWritingOptions PrettyPrintRowsAsMap => s_PrettyPrintRowsAsMap;
 
+        /// <summary>
+        /// Writes JSON suitable for printing/screen display writing rows as maps(key:values) instead of arrays.
+        /// Character codes 127 are escaped so they are suitable for ASCII transmission
+        /// </summary>
+        public static JsonWritingOptions PrettyPrintRowsAsMapASCII => s_PrettyPrintRowsAsMapASCII;
+
         public JsonWritingOptions(){ }
         internal JsonWritingOptions(bool isSystem) { m_IsSystem = isSystem; }
 
@@ -125,6 +141,7 @@ namespace Azos.Serialization.JSON
           this.RowsetMetadata           = other.RowsetMetadata;
           this.Purpose                  = other.Purpose;
           this.MapSkipNulls             = other.MapSkipNulls;
+          this.MapSortKeys              = other.MapSortKeys;
           this.RowMapTargetName         = other.RowMapTargetName;
         }
 
@@ -145,6 +162,7 @@ namespace Azos.Serialization.JSON
         private bool m_RowsetMetadata;
         private JsonSerializationPurpose m_Purpose;
         private bool   m_MapSkipNulls;
+        private bool   m_MapSortKeys;
         private string m_RowMapTargetName;
 
 
@@ -294,6 +312,16 @@ namespace Azos.Serialization.JSON
         {
           get => m_MapSkipNulls;
           set => m_MapSkipNulls = nonsys(value);
+        }
+
+        /// <summary>
+        /// If true, then sorts keys by name ascending
+        /// </summary>
+        [Config]
+        public bool MapSortKeys
+        {
+          get => m_MapSortKeys;
+          set => m_MapSortKeys = nonsys(value);
         }
 
 

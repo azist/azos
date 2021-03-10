@@ -66,13 +66,35 @@ namespace Azos.Client
     ///  You can use primitive values (such as integers/longs etc.) for sharding, as long as you do not change what value is used for
     ///  `shardKey` parameter, the call routing will remain deterministic
     /// </param>
-    /// <param name="network">The name of the logical network to use for a call, or null to use the default network</param>
+    /// <param name="network">A name of the logical network to use for a call, or null to use the default network</param>
     /// <param name="binding">
     ///   The service binding to use, or null for default.
     ///   Bindings are connection technology/protocols (such as Http(s)/Glue/GRPC etc..) used to make the call
     /// </param>
     /// <returns>Endpoint(s) which should be (re)tried in the order of enumeration</returns>
     IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, object shardKey = null, Atom? network = null, Atom? binding = null);
+
+
+    /// <summary>
+    /// Returns endpoint set for all shards for a specific `remoteAddress/contract/network/binding`
+    /// </summary>
+    /// <param name="remoteAddress">
+    ///   The remote service logical address, such as the regional host name for Sky applications.
+    ///   The system resolves this address to physical address depending on binding and contract on the remote host
+    /// </param>
+    /// <param name="contract">Service contract name</param>
+    /// <param name="network">A name of the logical network to use for a call, or null to use the default network</param>
+    /// <param name="binding">
+    ///   The service binding to use, or null for default.
+    ///   Bindings are connection technology/protocols (such as Http(s)/Glue/GRPC etc..) used to make the call
+    /// </param>
+    /// <returns>
+    /// An enumerable of enumerable of EndpointAssigments.
+    /// A top level enumerable represents shards. Each shard is further represented by an enumerable of endpoint assignments which should be re-tried
+    /// in case of failure in the order of their enumeration.
+    /// Endpoint(s) which should be (re)tried in the order of enumeration
+    /// </returns>
+    IEnumerable<IEnumerable<EndpointAssignment>> GetEndpointsForAllShards(string remoteAddress, string contract, Atom? network = null, Atom? binding = null);
 
     /// <summary>
     /// Gets the physical transport used to make remote calls. Depending on implementation the system

@@ -24,6 +24,13 @@ namespace Azos.Apps
     public const string CONFIG_NS_ATTR = "ns";
 
 
+    internal GuidTypeResolver()
+    {
+      m_Cache1 = new Dictionary<Guid, Type>();
+      m_Cache2 = new Dictionary<Fguid, Type>();
+      System.Threading.Thread.MemoryBarrier();
+    }
+
     public GuidTypeResolver(params Type[] types)
     {
        if (types==null || types.Length==0) throw new AzosException(StringConsts.ARGUMENT_ERROR + "GuidTypeResolver.ctor(types==null|Empty)");
@@ -87,8 +94,32 @@ namespace Azos.Apps
       System.Threading.Thread.MemoryBarrier();
     }
 
-    private Dictionary<Guid, Type> m_Cache1;
-    private Dictionary<Fguid, Type> m_Cache2;
+    private volatile Dictionary<Guid, Type> m_Cache1;
+    private volatile Dictionary<Fguid, Type> m_Cache2;
+
+
+    public void AddTypes(IEnumerable<(Guid id, Type type)> batch, bool throwDups = true)
+    {
+      if (batch==null) return;
+      if (!batch.Any() || batch.All(e => m_Cache1.TryGetValue(e.id, out var _))) return;
+
+      var cache1 = new Dictionary<Guid, Type>(m_Cache1);
+      var cache2 = new Dictionary<Fguid, Type>(m_Cache2);
+      foreach(var pair in batch)
+      {
+        if (throwDups && cache1.TryGetValue(pair.id, out var existing) && pair.type != existing)
+        {
+          throw new AzosException(StringConsts.GUID_TYPE_RESOLVER_DUPLICATE_ATTRIBUTE_ERROR.Args(pair.type.FullName, pair.id, existing.FullName));
+        }
+
+        cache1[pair.id] = pair.type;
+        cache2[pair.id] = pair.type;
+      }
+      System.Threading.Thread.MemoryBarrier();
+      m_Cache1 = cache1;
+      m_Cache2 = cache2;
+      System.Threading.Thread.MemoryBarrier();
+    }
 
 
     /// <summary>

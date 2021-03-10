@@ -204,9 +204,9 @@ namespace Azos.Sky.Tools.ascon
     private static void write(string content)
     {
       if (content == null) return;
-      if (content.StartsWith(Apps.Terminal.AppRemoteTerminal.MARKUP_PRAGMA))
+      if (content.StartsWith(Azos.Apps.Terminal.AppRemoteTerminal.MARKUP_PRAGMA))
       {
-        content = content.Remove(0, Apps.Terminal.AppRemoteTerminal.MARKUP_PRAGMA.Length);
+        content = content.Remove(0, Azos.Apps.Terminal.AppRemoteTerminal.MARKUP_PRAGMA.Length);
         ConsoleUtils.WriteMarkupContent(content);
       }
       else

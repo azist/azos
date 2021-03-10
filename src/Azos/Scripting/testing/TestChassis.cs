@@ -17,9 +17,7 @@ namespace Azos.Scripting
     public const string CONFIG_ASSUMPTIONS_SECTION = "assumptions";
     public const string CONFIG_GLOBAL_NS_ATTR = "global-ns";
 
-#pragma warning disable 0649
     [Inject] IApplication m_App;
-#pragma warning restore 0649
 
     /// <summary>
     /// Application container executing the test

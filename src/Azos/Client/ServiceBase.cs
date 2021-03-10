@@ -105,12 +105,62 @@ namespace Azos.Client
       throw new ClientException(StringConsts.CLIENT_WRONG_TRANSPORT_TYPE_ERROR.Args(Name, transport.GetType().Name)); ;
     }
 
+    /// <summary>
+    /// Returns endpoints which should be re-tried subsequently on failure.
+    /// The endpoints are returned in the sequence which depend on implementation.
+    /// Typically the sequence is based on network routing efficiency and least/loaded resources.
+    /// The optional shardingKey parameter may be passed for multi-sharding scenarios.
+    /// </summary>
+    /// <param name="remoteAddress">
+    ///   The remote service logical address, such as the regional host name for Sky applications.
+    ///   The system resolves this address to physical address depending on binding and contract on the remote host
+    /// </param>
+    /// <param name="contract">Service contract name</param>
+    /// <param name="shardKey">
+    ///  Optional sharding parameter. The system will direct the call to the appropriate shard in the service partition if it is used.
+    ///  You can use primitive values (such as integers/longs etc.) for sharding, as long as you do not change what value is used for
+    ///  `shardKey` parameter, the call routing will remain deterministic
+    /// </param>
+    /// <param name="network">A name of the logical network to use for a call, or null to use the default network</param>
+    /// <param name="binding">
+    ///   The service binding to use, or null for default.
+    ///   Bindings are connection technology/protocols (such as Http(s)/Glue/GRPC etc..) used to make the call
+    /// </param>
+    /// <returns>Endpoint(s) which should be (re)tried in the order of enumeration</returns>
     public IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, object shardKey = null, Atom? network = null, Atom? binding = null)
     {
       if (Disposed) return Enumerable.Empty<EndpointAssignment>();
       return DoGetEndpointsForCall(remoteAddress.NonBlank(nameof(remoteAddress)),
                                    contract.NonBlank(nameof(contract)),
                                    shardKey,
+                                   network ?? DefaultNetwork,
+                                   binding ?? DefaultBinding);
+    }
+
+    /// <summary>
+    /// Returns endpoint set for all shards for a specific `remoteAddress/contract/network/binding`
+    /// </summary>
+    /// <param name="remoteAddress">
+    ///   The remote service logical address, such as the regional host name for Sky applications.
+    ///   The system resolves this address to physical address depending on binding and contract on the remote host
+    /// </param>
+    /// <param name="contract">Service contract name</param>
+    /// <param name="network">A name of the logical network to use for a call, or null to use the default network</param>
+    /// <param name="binding">
+    ///   The service binding to use, or null for default.
+    ///   Bindings are connection technology/protocols (such as Http(s)/Glue/GRPC etc..) used to make the call
+    /// </param>
+    /// <returns>
+    /// An enumerable of enumerable of EndpointAssigments.
+    /// A top level enumerable represents shards. Each shard is further represented by an enumerable of endpoint assignments which should be re-tried
+    /// in case of failure in the order of their enumeration.
+    /// Endpoint(s) which should be (re)tried in the order of enumeration
+    /// </returns>
+    public IEnumerable<IEnumerable<EndpointAssignment>> GetEndpointsForAllShards(string remoteAddress, string contract, Atom? network = null, Atom? binding = null)
+    {
+      if (Disposed) return Enumerable.Empty<IEnumerable<EndpointAssignment>>();
+      return DoGetEndpointsForAllShards(remoteAddress.NonBlank(nameof(remoteAddress)),
+                                   contract.NonBlank(nameof(contract)),
                                    network ?? DefaultNetwork,
                                    binding ?? DefaultBinding);
     }
@@ -123,7 +173,7 @@ namespace Azos.Client
     protected abstract TTransport DoAcquireTransport(EndpointAssignment assignment, bool reserve);
     protected abstract void DoReleaseTransport(TTransport transport);
     protected abstract IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, object shardKey, Atom network, Atom binding);
-
+    protected abstract IEnumerable<IEnumerable<EndpointAssignment>> DoGetEndpointsForAllShards(string remoteAddress, string contract, Atom network, Atom binding);
 
 
 

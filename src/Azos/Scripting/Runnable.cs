@@ -164,13 +164,13 @@ namespace Azos.Scripting
   public interface IRunHook
   {
     /// <summary>
-    /// Invoked before every method invocation in runnable instance. May mutate method call arguments.
-    /// Returns true when Prologue handles the method call and runner should NOT continue method execution and Epilogue calls
+    /// Invoked before every method invocation in a runnable instance. May mutate method call arguments.
+    /// Returns true when Prologue handles the method call and runner should NOT continue with method execution and Epilogue calls
     /// </summary>
     bool Prologue(Runner runner, FID id, MethodInfo method, RunAttribute attr, ref object[] args);
 
     /// <summary>
-    /// Handles the post factum call, return true if exception was handled by this method and should NOT be handled/thrown by runner
+    /// Handles the post-factum method call, return true if exception (if any) was handled by this method and should NOT be handled/thrown by runner
     /// </summary>
     bool Epilogue(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error);
   }
@@ -191,7 +191,7 @@ namespace Azos.Scripting
     }
 
     /// <summary>
-    /// Returns an optional state then fed into corresponding After() call
+    /// Returns an optional state then fed into a corresponding After() call
     /// </summary>
     public abstract object Before(Runner runner, object runnable, FID id, MethodInfo mi, RunAttribute attr, ref object[] args);
 

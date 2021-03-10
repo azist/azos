@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
 using System.Collections.Generic;
 
@@ -13,7 +12,7 @@ using Azos.Serialization.JSON;
 namespace Azos.Data.AST
 {
   /// <summary>
-  /// Controls json serialization of Expression and its derivatives
+  /// Controls Json polymorphic serialization of Expression and its derivatives
   /// </summary>
   public sealed class ExpressionJsonHandlerAttribute : JsonHandlerAttribute
   {

@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using System.Windows.Forms;
 
 using Azos.Data.Access.MongoDb;
@@ -29,7 +25,7 @@ namespace WinFormsTest
 
         m_Bdb.MongoBinPath = @"C:\mongo\4.0\bin";
 
-        m_Bdb.Mongo_directoyperdb = false;
+        m_Bdb.Mongo_directoryperdb = false;
         m_Bdb.Mongo_dbpath = @"c:\data\bundled";
 
         m_Bdb.ComponentLogLevel = Azos.Log.MessageType.Debug;

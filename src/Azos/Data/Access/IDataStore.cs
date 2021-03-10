@@ -41,6 +41,6 @@ namespace Azos.Data.Access
       /// <summary>
       /// Defines log level for data stores
       /// </summary>
-      StoreLogLevel LogLevel { get; set; }
+      StoreLogLevel DataLogLevel { get; set; }
   }
 }

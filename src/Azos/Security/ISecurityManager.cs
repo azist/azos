@@ -32,9 +32,9 @@ namespace Azos.Security
     IPasswordManager PasswordManager { get; }
 
     /// <summary>
-    /// Provides cryptography services, such as message protection etc.
+    /// Provides cryptography services, such as message protection algorithms etc.
     /// </summary>
-    ICryptoManager Cryptography{ get; }
+    ICryptoManager Cryptography { get; }
 
     /// <summary>
     /// Authenticates user by checking the supplied credentials against the
@@ -166,7 +166,7 @@ namespace Azos.Security
     /// Depending on the system descriptor represents an entity that describes user (e.g. User, UserInfo, etc.).
     /// The method only fills the fields specific to user identity
     /// </summary>
-    IConfigSectionNode GetUserLogArchiveDimensions(IIdentityDescriptor identity);
+    string GetUserLogArchiveDimensions(IIdentityDescriptor identity);
 
     /// <summary>
     /// Logs security-related message via security channel

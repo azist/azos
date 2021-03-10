@@ -19,6 +19,7 @@ namespace Azos
 
     public const string CSRF_TOKEN_NAME = "__CSRFToken";
 
+    public const string HTTP_HDR_DEFAULT_CALL_FLOW = "wv-call-flow";
 
     public const string ENVIRONMENT_LOCAL = "local";
     public const string ENVIRONMENT_DEV = "dev";
@@ -46,6 +47,9 @@ namespace Azos
 
     public const string EXT_STATUS_KEY_BATCH = "batch";
 
+    public const string EXT_STATUS_KEY_URI = "uri";
+    public const string EXT_STATUS_KEY_METHOD = "method";
+    public const string EXT_STATUS_KEY_CONTENT = "content";
     public const string EXT_STATUS_KEY_CONTROLLER = "controller";
     public const string EXT_STATUS_KEY_ACTION = "action";
 

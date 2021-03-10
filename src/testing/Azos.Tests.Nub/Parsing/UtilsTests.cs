@@ -96,6 +96,10 @@ namespace Azos.Tests.Nub.Parsing
         public void MatchPattern8()
         {
           Aver.IsTrue( "same AddreZZ".MatchPattern("*") );
+          Aver.IsTrue( "    ".MatchPattern("*") );
+          Aver.IsTrue( " ".MatchPattern("*")    );
+          Aver.IsTrue( "".MatchPattern("*")     );
+          Aver.IsTrue( ((string)null).MatchPattern("*") );
         }
 
         [Run]

@@ -16,8 +16,8 @@ namespace Azos.Serialization.JSON
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
   public abstract class JsonHandlerAttribute : Attribute
   {
-    private static ConstrainedSetLookup<MemberInfo, JsonHandlerAttribute> s_Cache =
-      new ConstrainedSetLookup<MemberInfo, JsonHandlerAttribute>( site => site.GetCustomAttribute<JsonHandlerAttribute>(true) );
+    private static FiniteSetLookup<MemberInfo, JsonHandlerAttribute> s_Cache =
+      new FiniteSetLookup<MemberInfo, JsonHandlerAttribute>( site => site.GetCustomAttribute<JsonHandlerAttribute>(true) );
 
     /// <summary>
     /// Tries to find an attribute decorating the target site

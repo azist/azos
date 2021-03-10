@@ -90,33 +90,6 @@ namespace Azos
     }
 
     /// <summary>
-    /// If there is error, converts its details to JSONDataMap
-    /// </summary>
-    public static Azos.Serialization.JSON.JsonDataMap ToJSONDataMap(this Exception error, bool recurse = true, bool stackTrace = false)
-    {
-      if (error == null) return null;
-      var result = new Azos.Serialization.JSON.JsonDataMap(false);
-
-      result["Type"] = error.GetType().FullName;
-      result["Msg"] = error.Message;
-      result["Data"] = error.Data;
-      result["Src"] = error.Source;
-      if (stackTrace) result["STrace"] = error.StackTrace;
-
-      if (recurse)
-        result["Inner"] = error.InnerException.ToJSONDataMap(recurse);
-      else
-      {
-        result["Inner.Type"] = error.InnerException != null ? error.InnerException.GetType().FullName : null;
-        result["Inner.Msg"] = error.InnerException != null ? error.InnerException.Message : null;
-        if (stackTrace) result["Inner.STrace"] = error.InnerException != null ? error.InnerException.StackTrace : null;
-      }
-
-      return result;
-    }
-
-
-    /// <summary>
     /// Returns full name of the nested type, for example: System.Namespace.Type+Sub -> Type.Sub
     /// </summary>
     public static string FullNestedTypeName(this Type type, bool verbatimPrefix = true)
@@ -324,6 +297,30 @@ namespace Azos
       }
 
       return false;
+    }
+
+    /// <summary>
+    /// Encloses an action in try catch and logs the error if it leaked from action. This method never leaks.
+    /// Returns true if there was no error on action success, or false if error leaked from action and was logged by component.
+    /// The actual logging depends on component log level
+    /// </summary>
+    public static TResult DontLeak<TResult>(this IApplicationComponent cmp, Func<TResult> func, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error)
+    {
+      var ac = (cmp.NonNull(nameof(cmp)) as ApplicationComponent).NonNull("Internal error: not a AC");
+      func.NonNull(nameof(func));
+      try
+      {
+        return func();
+      }
+      catch (Exception error)
+      {
+        if (errorText.IsNullOrWhiteSpace()) errorText = "Error leaked: ";
+        errorText += error.ToMessageWithType();
+
+        ac.WriteLog(errorLogType, errorFrom, errorText, error);
+      }
+
+      return default(TResult);
     }
 
 

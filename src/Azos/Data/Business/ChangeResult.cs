@@ -14,7 +14,7 @@ namespace Azos.Data.Business
   /// <summary>
   /// Describes data change operation result: {ChangeType, AffectedCount, Message, Data}
   /// </summary>
-  public struct ChangeResult : IJsonWritable
+  public struct ChangeResult : IJsonWritable, IJsonReadable
   {
     /// <summary>
     /// Change types: Inserted/Updated/Upserted/Deleted
@@ -41,6 +41,20 @@ namespace Azos.Data.Business
       AffectedCount = affectedCount;
       Message = msg;
       Data = data;
+    }
+
+    /// <summary>
+    /// Describes data change operation result: Inserted/Deleted/etc.., rows affected, extra data etc.
+    /// Creates instance from JsonDataMap dictionary.
+    /// </summary>
+    /// <param name="map">Non-null map with keys: {change, affected, message, data}</param>
+    public ChangeResult(JsonDataMap map)
+    {
+      map.NonNull(nameof(map));
+      Change        = map["change"].AsEnum(ChangeType.Undefined);
+      AffectedCount = map["affected"].AsLong();
+      Message       = map["message"].AsString();
+      Data          = map["data"];
     }
 
     /// <summary> Specifies the change type Insert/Update/Delete etc.. </summary>
@@ -72,5 +86,15 @@ namespace Azos.Data.Business
                    );
     }
 
+    /// <summary>
+    /// Reads ChangeREsult back from JSON
+    /// </summary>
+    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
+    {
+      if (data is JsonDataMap map && map["OK"].AsBool())
+        return (true, new ChangeResult(map));
+
+      return (false, null);
+    }
   }
 }

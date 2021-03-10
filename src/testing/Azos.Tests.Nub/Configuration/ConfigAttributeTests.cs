@@ -10,8 +10,6 @@ using System;
 
 namespace Azos.Tests.Nub.Configuration
 {
-#pragma warning disable 649
-
   [Runnable]
   public class ConfigAttributesTests
   {
@@ -136,5 +134,4 @@ root
     }
 
   }
-#pragma warning restore 649
 }

@@ -42,7 +42,7 @@ namespace Azos.Security
     /// <summary>
     /// Administrators may run administration console, but always bound by their domain
     /// </summary>
-    Administrator = 1000,
+    Administrator = 1_000,
 
     Admin = Administrator,
     Adm = Administrator,
@@ -50,7 +50,7 @@ namespace Azos.Security
     /// <summary>
     /// Cross domain user, all restrictions are lifted, all permission checks pass
     /// </summary>
-    System = 1000000,
+    System = 1_000_000,
     Sys = System,
   }
 

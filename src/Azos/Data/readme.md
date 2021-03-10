@@ -9,6 +9,7 @@ See also:
 - [Advanced Metadata](advanced-meta.md)
 - [Data Validation with Domains](domains.md)
 - [Data Modeling](modeling.md)
+- [Advanced Query APIs with AST (Abstract Syntax Trees)](AST/)
 
 ## Overview
 Azos takes a hybrid approach to data access. It is not a strict ORM or strict CRUD, rather a 

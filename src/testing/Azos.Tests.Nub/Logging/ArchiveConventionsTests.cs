@@ -15,9 +15,6 @@ namespace Azos.Tests.Nub.Logging
   [Runnable]
   public class ArchiveConventionsTests
   {
-
-    //In this test we try to setup our own logger instance manually
-    //injecting memory buffer by code
     [Run]
     public void Test01()
     {
@@ -47,9 +44,23 @@ namespace Azos.Tests.Nub.Logging
 
       Aver.AreObjectsEqual(1, decoded["a"]);
       Aver.AreObjectsEqual(3, decoded["b"]);
-
     }
 
+    [Run]
+    public void Test03()
+    {
+      var encoded1 = ArchiveConventions.EncodeArchiveDimensions(new { a = 1, b = 3 });
+      var encoded2 = ArchiveConventions.EncodeArchiveDimensions(new { b = 3, a = 1, c = (string)null });//notice a different sequence of keys
+      encoded1.See();
+      encoded2.See();
+      Aver.AreEqual(encoded1, encoded2);//however the strings are equal, because keys are sorted and nulls are skipped
 
+      var decoded = ArchiveConventions.DecodeArchiveDimensionsMap(encoded1);
+      Aver.IsNotNull(decoded);
+      Aver.AreEqual(2, decoded.Count);
+
+      Aver.AreObjectsEqual(1, decoded["a"]);
+      Aver.AreObjectsEqual(3, decoded["b"]);
+    }
   }
 }

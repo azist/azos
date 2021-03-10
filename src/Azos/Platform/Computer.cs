@@ -48,6 +48,8 @@ namespace Azos.Platform
 
     static Computer()
     {
+      //20210122 DKh #410
+      _____SetHostName(null);//do this once in .ctor as it is very slow on every get
     }
 
 
@@ -57,19 +59,17 @@ namespace Azos.Platform
     /// Internal framework method which sets the logical name for local host.
     /// Not to be called by developers
     /// </summary>
-    public static void _____SetHostName(string host) => s_HostName = host;
+    public static void _____SetHostName(string host)
+    {
+      s_HostName = host;
+      //20210122 GIT#410 DKh MachineName.get is very slow on .Net 4.7/windows, hence the caching
+      if (s_HostName.IsNullOrWhiteSpace()) s_HostName = Environment.MachineName;
+    }
 
     /// <summary>
     /// Returns this host name. If the specific host name was not set, then local Envirionemnt.MachineName is returned
     /// </summary>
-    public static string HostName
-    {
-      get
-      {
-        var host = s_HostName;
-        return host.IsNullOrWhiteSpace() ? Environment.MachineName : host;
-      }
-    }
+    public static string HostName => s_HostName;
 
 
     /// <summary>

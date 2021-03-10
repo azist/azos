@@ -20,6 +20,7 @@ namespace Azos.Log
     DebugB,
     DebugC,
     DebugD,
+    DebugError,
 
     /// <summary>
     /// Emitted by DataStore implementations
@@ -59,11 +60,6 @@ namespace Azos.Log
     /// Emitted by Glue/Net code
     /// </summary>
     TraceGlue,
-
-    /// <summary>
-    /// Emitted by Erlang code
-    /// </summary>
-    TraceErl,
 
     /// <summary>
     /// Last trace-related message type for use in trace-related max-level config setting

@@ -43,17 +43,6 @@ namespace Azos.Log
 
         }
 
-
-        public void Write(MessageType type, string text, string topic = null, string from = null)
-        {
-
-        }
-
-        public void Write(MessageType type, string text, bool urgent, string topic = null, string from = null)
-        {
-
-        }
-
         public Time.TimeLocation TimeLocation
         {
             get { return App.TimeLocation; }

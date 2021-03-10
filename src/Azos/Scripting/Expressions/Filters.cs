@@ -36,9 +36,9 @@ namespace Azos.Scripting.Expressions
     public const string CONFIG_CASE_ATTR = "case";
     public const string DELIMITER = ";";
 
-    private string[] m_Includes;
-    private string[] m_Excludes;
-    private bool m_SenseCase;
+    protected string[] m_Includes;
+    protected string[] m_Excludes;
+    protected bool m_SenseCase;
 
 
     protected virtual bool SenseCase => m_SenseCase;

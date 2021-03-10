@@ -59,7 +59,7 @@ namespace Azos.Data.Access.Oracle
 
     private bool m_InstrumentationEnabled;
 
-    private ExternalCallHandler<OracleDataStoreBase> m_ExternalCallHandler;
+    protected ExternalCallHandler<OracleDataStoreBase> m_ExternalCallHandler;
     #endregion
 
     #region IInstrumentation
@@ -132,7 +132,7 @@ namespace Azos.Data.Access.Oracle
     }
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_DATA)]
-    public StoreLogLevel LogLevel { get; set;}
+    public StoreLogLevel DataLogLevel { get; set;}
 
     /// <summary>
     /// Provides schema name which is typically prepended to object names during SQL construction, e.g. "MYSCHEMA"."TABLE1"
@@ -234,12 +234,24 @@ namespace Azos.Data.Access.Oracle
       if (ctx!=null && ctx.ConnectString.IsNotNullOrWhiteSpace())
         connectString = ctx.ConnectString;
 
-      var cnn = new OracleConnection(connectString);
+      var effectiveConnectString = TranslateConnectString(connectString);
+
+      var cnn = new OracleConnection(effectiveConnectString);
 
       await cnn.OpenAsync();
 
       return cnn;
     }
+
+    /// <summary>
+    /// Translates the value of ConnectString property or CRUDOperationCallContext into
+    /// an actual ORCL connect string. For example: you can override this method and use
+    /// logical connect string names which will then be translated to the physical ones.
+    /// This can be also done for failover when a mnemonic connection name gets translated
+    /// to the physical servers depending on their online/offline status.
+    /// The default implementation returns the string as-is.
+    /// </summary>
+    protected virtual string TranslateConnectString(string connectString) => connectString;
     #endregion
 
   }

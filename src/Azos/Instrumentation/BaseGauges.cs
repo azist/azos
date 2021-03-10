@@ -8,7 +8,6 @@ using System;
 
 using Azos.Data;
 using Azos.Financial;
-using Azos.Serialization.BSON;
 
 namespace Azos.Instrumentation
 {
@@ -32,9 +31,11 @@ namespace Azos.Instrumentation
     [Field, Field(isArow: true, backendName: "v")]
     public long Value { get { return m_Value; } }
 
-    public override object ValueAsObject { get { return m_Value; } }
+    public override object ValueAsObject => m_Value;
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_UNSPECIFIED; } }
+    public override double? RefValue => m_Value;
+
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_UNSPECIFIED;
 
     [NonSerialized]
     private long m_Sum;
@@ -72,9 +73,11 @@ namespace Azos.Instrumentation
     [Field, Field(isArow: true, backendName: "v")]
     public double Value { get { return m_Value; } }
 
-    public override object ValueAsObject { get { return m_Value; } }
+    public override object ValueAsObject => m_Value;
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_UNSPECIFIED; } }
+    public override double? RefValue => m_Value;
+
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_UNSPECIFIED;
 
     [NonSerialized]
     private double m_Sum;
@@ -113,9 +116,11 @@ namespace Azos.Instrumentation
     [Field, Field(isArow: true, backendName: "v")]
     public decimal Value { get { return m_Value; } }
 
-    public override object ValueAsObject { get { return m_Value; } }
+    public override object ValueAsObject => m_Value;
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_UNSPECIFIED; } }
+    public override double? RefValue => (double)m_Value;
+
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_UNSPECIFIED;
 
     [NonSerialized]
     private decimal m_Sum;
@@ -172,11 +177,13 @@ namespace Azos.Instrumentation
     [Field, Field(isArow: true, backendName: "v")]
     public Amount Value { get { return m_Value; } }
 
-    public override object ValueAsObject { get { return m_Value; } }
+    public override object ValueAsObject => m_Value;
 
-    public override object PlotValue { get { return m_Value.Value; } }
+    public override object PlotValue  => m_Value.Value;
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_MONEY; } }
+    public override double? RefValue => (double)m_Value.Value;
+
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_MONEY;
 
     [NonSerialized]
     private Amount m_Sum;

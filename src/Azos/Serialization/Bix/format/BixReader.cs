@@ -22,6 +22,8 @@ namespace Azos.Serialization.Bix
 
     private readonly Stream m_Stream;
 
+    public bool IsAssigned => m_Stream != null;
+
     #region BYTE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ReadFromStream(byte[] buffer, uint count) => ReadFromStream(buffer, (int)count);

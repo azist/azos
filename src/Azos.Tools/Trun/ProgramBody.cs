@@ -29,7 +29,13 @@ namespace Azos.Tools.Trun
            {
              app.SetConsolePort(LocalConsolePort.Default);
 
-             Console.CancelKeyPress += (_, e) => { app.Stop(); e.Cancel = true;};
+             Console.CancelKeyPress += (_, e) =>
+             {
+               app.Stop();
+               //20210210 DKh stop the inner most app as well, which can be a unit test local app
+               ((IApplicationImplementation)ExecutionContext.Application).Stop();
+               e.Cancel = true;
+             };
 
              System.Environment.ExitCode = run(app);
            }

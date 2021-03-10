@@ -33,7 +33,7 @@ namespace TestBusinessLogic
 
     public override ValidState Validate(ValidState state, string scope = null)
     {
-      m_Log.NonNull(nameof(m_Log)).Write(MessageType.Info, "Validate was called");
+      m_Log.NonNull(nameof(m_Log)).Write( new Message{ Type = MessageType.Info, Text = "Validate was called"});
       return base.Validate(state, scope);
     }
   }

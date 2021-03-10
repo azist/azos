@@ -192,16 +192,16 @@ namespace Azos.Platform
       }
 
 
-                  private static readonly char[] CHAR_DICT = new char[]
-                  {
-                    'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z', //26
-                    'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z', //26  52
-                    '0','1','2','3','4','5','6','7','8','9','-','_', //12 64
-                    'A','Z','T','W','7','3','9', 'q', '-', 'r', 'x', //12 76
-                    'j','z','R'                                      //3  79 (prime)
-                  };
+      private static readonly char[] CHAR_DICT = new char[]
+      {
+        'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z', //26
+        'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z', //26  52
+        '0','1','2','3','4','5','6','7','8','9','-','_', //12 64
+        'A','Z','T','W','7','3','9', 'q', '-', 'r', 'x', //12 76
+        'j','z','R'                                      //3  79 (prime)
+      };
 
-                  private static readonly int CHAR_DICT_LEN = CHAR_DICT.Length;
+      private static readonly int CHAR_DICT_LEN = CHAR_DICT.Length;
 
 
       /// <summary>
@@ -220,7 +220,7 @@ namespace Azos.Platform
         var count = minLength;
         if (maxLength>minLength) count += this.NextScaledRandomInteger(0, maxLength - minLength);
 
-        var result = new StringBuilder();
+        var result = new StringBuilder(count);
 
         for(var i=0; i<count; i++)
           result.Append( CHAR_DICT[ (this.NextRandomInteger & CoreConsts.ABS_HASH_MASK) % CHAR_DICT_LEN ]);

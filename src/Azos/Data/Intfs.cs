@@ -35,8 +35,8 @@ namespace Azos.Data
     /// The target scope under which  the state check is done.
     /// Most implementations do not depend on targets and just ignore the value</param>
     /// <returns>
-    /// True if this instance state represents a required value.
-    /// False when this instance does not have required data for the specified target, for example a struct is in default state
+    /// True if this instance state contains the required value.
+    /// False when this instance does not have required data for the specified target, for example a struct is in a default state
     /// and is effectively not logically assigned
     /// </returns>
     bool CheckRequired(string targetName);
@@ -113,8 +113,6 @@ namespace Azos.Data
     void AfterLoad(string targetName);
   }
 
-
-
   /// <summary>
   /// Supplies caching params
   /// </summary>
@@ -143,5 +141,16 @@ namespace Azos.Data
     /// When true would cache the instance of AbsentData to signify the absence of data in the backend for key
     /// </summary>
     bool CacheAbsentData { get; }
+  }
+
+  /// <summary>
+  /// Denotes entities that have schemas, such as rowsets and data Docs
+  /// </summary>
+  public interface IOfSchema
+  {
+    /// <summary>
+    /// Defines data schema for this instance
+    /// </summary>
+    Schema Schema{  get; }
   }
 }

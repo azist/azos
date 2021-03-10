@@ -36,7 +36,10 @@ app
         name='aes-dflt'  default=true
         type='Azos.Security.HMACAESCryptoMessageAlgorithm, Azos'
         hmac{key='0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3'}
+        hmac{key='8,7,6,5,4,3,2,1,3,9,0,1,2,3,4,5,6,7,8,3,2,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,7,2,3,4,5,6,7,8,9,8,1,2,1'}
         aes{key='0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1'}
+        aes{key='2,3,1,3,4,3,6,7,8,9,1,1,2,3,4,5,6,7,8,9,1,2,2,2,4,4,6,7,8,9,2,0'}
+        aes{key='7,0,1,3,4,3,6,7,8,3,1,3,2,3,4,5,6,7,8,9,1,2,2,2,4,4,6,7,3,9,2,2'}
       }
 
       algorithm
@@ -121,10 +124,11 @@ app
     {
       for(var i=1; i<3*1024; i++)
       {
-        var msg = new {v = new String('a', i)};
+        var msg = new {v = new String('a', i), c = i};
         var pvt = m_App.SecurityManager.PublicProtectAsString(msg);
         var got = m_App.SecurityManager.PublicUnprotectMap(pvt);
         Aver.AreEqual(msg.v, got["v"].AsString());
+        Aver.AreEqual(i, got["c"].AsInt());
       }
     }
 

@@ -10,40 +10,56 @@ using System.Collections.Generic;
 namespace Azos.Data.Access
 {
   /// <summary>
-  /// Represents a buffer-less unidicrectional reader that binds IEnumerable(Doc) and the backend resource
+  /// Represents a buffer-less unidirectional reader that binds IEnumerable(Doc) and the backend resource
   /// (such as SQLReader or other object which is internal to the backend).
   /// The cursor is NOT thread-safe and must be disposed properly by closing all resources associated with it.
-  /// Only one iteration (one call to GetEnumerator) is possible
+  /// Only one iteration (one call to GetEnumerator) is possible by design
   /// </summary>
   public abstract class Cursor : DisposableObject, IEnumerable<Doc>
   {
-    protected class enumerator : IEnumerator<Doc>
+    protected class enumerator : DisposableObject, IEnumerator<Doc>
     {
       internal enumerator(Cursor cursor, IEnumerator<Doc> original)
       {
-        Original = original;
-        Cursor = cursor;
+        m_Cursor = cursor.NonNull(nameof(cursor));
+        m_Original = original.NonNull(nameof(original));
       }
 
-      private readonly IEnumerator<Doc> Original;
-      private readonly Cursor Cursor;
+      private IEnumerator<Doc> m_Original;
+      private Cursor m_Cursor;
 
-      public Doc Current => Original.Current;
-
-      public void Dispose()
+      public Doc Current
       {
-        Original.Dispose();
-        Cursor.Dispose();
+        get
+        {
+          EnsureObjectNotDisposed();
+          return m_Original.Current;
+        }
       }
 
-      object System.Collections.IEnumerator.Current => Original.Current;
+      protected override void Destructor()
+      {
+        DisposeAndNull(ref m_Original);
+        DisposeAndNull(ref m_Cursor);
+      }
 
-      public bool MoveNext() => Original.MoveNext();
-      public void Reset() => Original.Reset();
+      object System.Collections.IEnumerator.Current => this.Current;
+
+      public bool MoveNext()
+      {
+        EnsureObjectNotDisposed();
+        return m_Original.MoveNext();
+      }
+
+      public void Reset()
+      {
+        EnsureObjectNotDisposed();
+        m_Original.Reset();
+      }
     }
 
     /// <summary>
-    /// This method is not inteded to be called by application developers
+    /// This method is not intended to be called by application developers
     /// </summary>
     protected Cursor(IEnumerable<Doc> source)
     {
@@ -77,13 +93,11 @@ namespace Azos.Data.Access
 
   /// <summary>
   /// Represents a cursor that basically does nothing else but
-  /// passes through control to source IEnumerable(Row)
+  /// passes through control to source IEnumerable(Doc)
   /// </summary>
   public sealed class PassthroughCursor : Cursor
   {
-    public PassthroughCursor(IEnumerable<Doc> source) : base(source)
-    {
-    }
+    public PassthroughCursor(IEnumerable<Doc> source) : base(source){ }
   }
 
 }

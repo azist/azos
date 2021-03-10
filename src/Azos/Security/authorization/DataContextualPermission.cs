@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+* Azos (A to Z Application Operating System) Framework
+* The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+* See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Linq;
 
 using Azos.Apps;
@@ -71,7 +77,7 @@ namespace Azos.Security
     /// <param name="session">Non-null session scope under which permission is checked</param>
     /// <param name="dataContextName">String data context name as supplied from session. Non null/blank</param>
     /// <param name="dsRights">Existing rights/ACL node from  permission's ACL</param>
-    /// <param name="access">Permission's rot access grant+ACL</param>
+    /// <param name="access">Permission's root access grant+ACL</param>
     /// <returns>True if action is authorized to be performed</returns>
     protected virtual bool DoCheckDataStoreAccessLevel(IApplication app,
                                                        ISession session,

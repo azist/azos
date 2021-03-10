@@ -193,46 +193,24 @@ namespace Azos.Log
     /// <summary>
     /// Writes log message into log
     /// </summary>
-    public void Write(MessageType type, string text, string topic = null, string from = null)
-    {
-        Write(type, text, false, topic, from);
-    }
-
-    /// <summary>
-    /// Writes log message into log
-    /// </summary>
-    public void Write(MessageType type, string text, bool urgent, string topic = null, string from = null)
-    {
-        Write(new Message
-        {
-            Type = type,
-            Topic = topic,
-            From = from,
-            Text = text
-        }, urgent);
-    }
+    /// <param name="msg">Message to write</param>
+    public void Write(Message msg) => Write(msg, false);
 
     /// <summary>
     /// Writes log message into log
     /// </summary>
     /// <param name="msg">Message to write</param>
-    public void Write(Message msg)
-    {
-        Write(msg, false);
-    }
-
-    /// <summary>
-    /// Writes log message into log
-    /// </summary>
-    /// <param name="msg">Message to write</param>
-    /// <param name="urgent">Indicates that the logging service implementation must
-    /// make an effort to write the message to its destinations urgently</param>
+    /// <param name="urgent">
+    /// Indicates that the logging service implementation must
+    /// make an effort to write the message to its destination sinks urgently
+    /// </param>
     public void Write(Message msg, bool urgent)
     {
         if (Status != DaemonStatus.Active) return;
 
-
         if (msg==null) return;
+
+        msg.InitDefaultFields(App);
 
         if (msg.Type>=MessageType.Emergency) m_LastCatastrophy = msg;
         else
@@ -240,7 +218,7 @@ namespace Azos.Log
         else
         if (msg.Type>=MessageType.Warning) m_LastWarning = msg;
 
-        if (m_InstrumentationEnabled) m_InstrBuffer.Send( msg);
+        if (m_InstrumentationEnabled) m_InstrBuffer.Send(msg);
 
         DoWrite(msg, urgent);
     }
@@ -287,7 +265,7 @@ namespace Azos.Log
       base.DoStart();
 
       if (!SinksAreOptional && m_Sinks.Count == 0)
-        throw new AzosException(StringConsts.LOGSVC_NODESTINATIONS_ERROR);
+        throw new LogException(StringConsts.LOGSVC_NOSINKS_ERROR.Args(Name));
 
       foreach (var sink in m_Sinks.OrderedValues)
         try
@@ -296,7 +274,7 @@ namespace Azos.Log
         }
         catch (Exception error)
         {
-          throw new AzosException(
+          throw new LogException(
                 StringConsts.LOGDAEMON_SINK_START_ERROR.Args(Name, sink.Name, sink.TestOnStart, error.Message),
                 error);
         }
@@ -354,11 +332,11 @@ namespace Azos.Log
           return;
         }
 
-        if (msg==null) return; //i.e. OnPulse()
-
         var failoverName = sink.Failover;
+
         if (string.IsNullOrEmpty(failoverName))
             failoverName = this.DefaultFailover;
+
         if (string.IsNullOrEmpty(failoverName))  return;//nowhere to failover
 
         var failover = m_Sinks[failoverName];
@@ -369,7 +347,10 @@ namespace Azos.Log
 
         try
         {
-          failover.SendRegularAndFailures(msg);
+            if (msg != null) //null on error from OnPulse()
+            {
+              failover.SendRegularAndFailures(msg);
+            }
 
             if (sink.GenerateFailoverMessages || failover.GenerateFailoverMessages)
             {
@@ -379,13 +360,14 @@ namespace Azos.Log
               emsg.Topic = CoreConsts.LOG_TOPIC;
               emsg.Text = string.Format(
                       StringConsts.LOGSVC_FAILOVER_MSG_TEXT,
-                      msg.Guid,
+                      (msg?.Guid.ToString()).Default("--none--"),
                       sink.Name,
                       failover.Name,
                       sink.AverageProcessingTimeMs);
-              emsg.RelatedTo = msg.Guid;
-              emsg.Exception = error;
 
+              if (msg!=null) emsg.RelatedTo = msg.Guid;
+
+              emsg.Exception = error;
 
               failover.SendRegularAndFailures(emsg);
             }

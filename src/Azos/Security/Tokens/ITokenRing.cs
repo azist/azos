@@ -19,7 +19,7 @@ namespace Azos.Security.Tokens
   public interface ITokenRing : IApplicationComponent
   {
     /// <summary>
-    /// Generates new token initializing appropriate fields (e.g. Store token rings need to generate unique ID).
+    /// Generates new token initializing appropriate fields (e.g. Stored token rings need to generate unique ID).
     /// If expiration is not provided, then default expiration is used
     /// </summary>
     TToken GenerateNew<TToken>(int expireInSeconds = 0) where TToken : RingToken;

@@ -7,7 +7,6 @@ using System;
 using System.Linq;
 using System.Text;
 
-using Azos.Apps;
 using Azos.Conf;
 using Azos.Collections;
 
@@ -16,7 +15,7 @@ using Azos.Security;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
-  public class App : Cmdlet
+  public sealed class App : Cmdlet
   {
     private const string VAL = "|<f color=yellow>{0}<f color=gray>\n" ;
 

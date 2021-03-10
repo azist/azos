@@ -9,14 +9,17 @@ using System.Diagnostics;
 
 using Azos.Apps;
 using Azos.Conf;
-using Azos.Instrumentation;
+using System.Linq;
 
 using Azos.Data.Access.MongoDb.Connector;
+using Azos.Instrumentation;
 
 namespace Azos.Data.Access.MongoDb
 {
   /// <summary>
-  /// Provides interface to run local `mongod` instance bundled with the application.
+  /// Provides interface to local `mongod` instance bundled with the application.
+  /// This is an "appliance-mode" deployment where database is not treated as a separate entity
+  /// but as a part of application.
   /// This class is helpful for tasks such as organizing local key-ring buffers and other data storages
   /// in the environments where deployment and configuration of a separate MongoDb instance may not be feasible
   /// </summary>
@@ -128,6 +131,26 @@ namespace Azos.Data.Access.MongoDb
     }
 
     /// <summary>
+    /// Returns a primary ip if multiple are specified.
+    /// The primary is the first entry in ip bind list delimited with comma.
+    /// If none define then returns MONGO_BIND_IP_DFLT (localhost).
+    /// See https://docs.mongodb.com/manual/reference/program/mongod/
+    /// </summary>
+    public string MongoPrimaryBindIp
+    {
+      get
+      {
+        var ips = Mongo_bind_ip;
+        if (ips.IsNullOrWhiteSpace()) return MONGO_BIND_IP_DFLT;
+
+        if (ips.IndexOf(',')<0) return ips;
+
+        var segs = ips.Split(',');
+        return segs.FirstOrDefault(ip => ip.IsNotNullOrWhiteSpace()).Default(MONGO_BIND_IP_DFLT);
+      }
+    }
+
+    /// <summary>
     /// When set suppresses output form database commands, repl activity etc.
     /// See: https://docs.mongodb.com/manual/reference/program/mongod/
     /// </summary>
@@ -146,7 +169,7 @@ namespace Azos.Data.Access.MongoDb
     /// Sets the data directory, if null then uses default locations: /data/db on Linux and macOS, \data\db on Windows
     /// See: https://docs.mongodb.com/manual/reference/program/mongod/
     /// </summary>
-    [Config("$mongo-quiet", Default = true)]
+    [Config("$mongo-dbpath")]
     public string Mongo_dbpath
     {
       get => m_Mongo_dbpath;
@@ -162,7 +185,7 @@ namespace Azos.Data.Access.MongoDb
     /// See: https://docs.mongodb.com/manual/reference/program/mongod/
     /// </summary>
     [Config("$mongo-directoryperdb", Default = true)]
-    public bool Mongo_directoyperdb
+    public bool Mongo_directoryperdb
     {
       get => m_Mongo_directoryperdb;
       set
@@ -171,6 +194,11 @@ namespace Azos.Data.Access.MongoDb
         m_Mongo_directoryperdb = value;
       }
     }
+
+    /// <summary>
+    /// Server node which this instance listens on
+    /// </summary>
+    public Glue.Node ServerNode => new Glue.Node("{0}://{1}:{2}".Args(MongoClient.MONGO_BINDING, MongoPrimaryBindIp, m_Mongo_port));
 
     /// <summary>
     /// Returns MongoDb connect string for the bundled instance. The daemon must be running or exception is thrown
@@ -192,7 +220,7 @@ namespace Azos.Data.Access.MongoDb
 
     protected string GetDatabaseConnectStringUnsafe(string dbName)
     {
-      return "mongo{{server='mongo://{0}:{1}' db='{2}'}}".Args(m_Mongo_bind_ip ?? "localhost", m_Mongo_port, dbName.NonBlank(nameof(dbName)));
+      return "mongo{{server='{0}' db='{1}'}}".Args(ServerNode.ConnectString, dbName.NonBlank(nameof(dbName)));
     }
 
     protected Database GetDatabaseUnsafe(string dbName)
@@ -219,7 +247,12 @@ namespace Azos.Data.Access.MongoDb
         args += " --bind_ip \"{0}\"".Args(m_Mongo_bind_ip);
 
       if (m_Mongo_dbpath.IsNotNullOrWhiteSpace())
+      {
+        //20201205 DKh #378
+        IOUtils.EnsureAccessibleDirectory(m_Mongo_dbpath);
+
         args += " --dbpath \"{0}\"".Args(m_Mongo_dbpath);
+      }
 
       if (m_Mongo_quiet) args += " --quiet";
 

@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 using System;
 using System.Runtime.Serialization;
+using Azos.Serialization.JSON;
 
 namespace Azos.Web
 {
@@ -24,7 +25,7 @@ namespace Azos.Web
   /// Thrown for making web calls to external servers
   /// </summary>
   [Serializable]
-  public class WebCallException : WebException, IHttpStatusProvider
+  public class WebCallException : WebException, IHttpStatusProvider, IExternalStatusProvider
   {
     public const string URI_FLD_NAME = "WCALL-URI";
     public const string METHOD_FLD_NAME = "WCALL-METHOD";
@@ -97,6 +98,22 @@ namespace Azos.Web
       info.AddValue(HTTPDESCR_FLD_NAME, HttpStatusDescription);
       info.AddValue(RESPONSE_FLD_NAME, ErrorResponseContent);
       base.GetObjectData(info, context);
+    }
+
+    public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
+    {
+      var result = this.DefaultBuildErrorStatusProviderMap(includeDump, "web.call");
+      result[CoreConsts.EXT_STATUS_KEY_URI] = Uri;
+      result[CoreConsts.EXT_STATUS_KEY_METHOD] = Method;
+      result[CoreConsts.EXT_STATUS_KEY_HTTP_CODE] = HttpStatusCode;
+      result[CoreConsts.EXT_STATUS_KEY_HTTP_DESCRIPTION] = HttpStatusDescription;
+
+      if (includeDump)
+      {
+        result[CoreConsts.EXT_STATUS_KEY_CONTENT] = ErrorResponseContent;
+      }
+
+      return result;
     }
   }
 }

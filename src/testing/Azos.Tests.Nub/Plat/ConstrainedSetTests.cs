@@ -21,7 +21,7 @@ namespace Azos.Tests.Nub.Plat
     public void SingleThreaded()
     {
       var all = new List<my>();
-      var set = new ConstrainedSetLookup<int, my>( k =>{ var v = new my{ Tag = k }; all.Add(v); return v;} );
+      var set = new FiniteSetLookup<int, my>( k =>{ var v = new my{ Tag = k }; all.Add(v); return v;} );
 
       for(var i=0; i<1000; i++)
       {
@@ -48,7 +48,7 @@ namespace Azos.Tests.Nub.Plat
     public void MultiThreaded()
     {
       var all = new List<my>();
-      var set = new ConstrainedSetLookup<int, my>(k => { var v = new my { Tag = k }; all.Add(v); return v; });
+      var set = new FiniteSetLookup<int, my>(k => { var v = new my { Tag = k }; all.Add(v); return v; });
 
       Parallel.For(0, 1000,  i =>
       {

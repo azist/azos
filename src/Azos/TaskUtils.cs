@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Azos
@@ -17,7 +18,7 @@ namespace Azos
   public static class TaskUtils
   {
     /// <summary>
-    /// Chains task 'first' with 'next' if first is completed, not cancelled and not faulted.
+    /// Chains task 'first' with 'next' if first is completed, not canceled and not faulted.
     /// Returns task that completes when 'next' completes
     /// </summary>
     public static Task OnOk(this Task first, Action next, TaskContinuationOptions options = TaskContinuationOptions.ExecuteSynchronously)
@@ -432,4 +433,84 @@ namespace Azos
     }
 
   }
+
+  /// <summary>
+  /// Facilitates execution of actions/functions with parallel asynchronous timeout notification.
+  /// This is very useful for logging suspicious activities, e.g. a shutdown code block takes
+  /// longer than X to finalize, the timeout is used to report the SLA violation
+  /// </summary>
+  public static class TimedCall
+  {
+    /// <summary>
+    /// Synchronously runs an action along with asynchronous timeout mechanism.
+    /// If the action completes before the timeout expires, then timeout hook is never called.
+    /// If synchronous execution of action takes longer than timeout, then timeout is asynchronously fired,
+    /// but this does not affect the execution of synchronous action body which continues regardless of timeout
+    /// </summary>
+    /// <param name="body">Non null synchronous action taking cancellation token</param>
+    /// <param name="msTimeout">The timeout in ms, must be greater than 0</param>
+    /// <param name="timeout">
+    /// The required notification action asynchronously called when the main body is lagging.
+    /// All exceptions are handled, so make sure that you handle whatever errors may arise in caller code
+    /// </param>
+    /// <param name="cancel">Optional cancel token for body and timeout cancellation</param>
+    public static void Run(Action<CancellationToken> body, int msTimeout, Action timeout, CancellationToken? cancel = null)
+    {
+      body.NonNull(nameof(body));
+      timeout.NonNull(nameof(timeout));
+      msTimeout.IsTrue( a => a > 0, nameof(msTimeout));
+
+      using (var cts = cancel.HasValue ? CancellationTokenSource.CreateLinkedTokenSource(cancel.Value) : new CancellationTokenSource())
+      {
+        Task.Delay(msTimeout, cts.Token)
+            .ContinueWith(d => { try{ if (!d.IsCanceled) timeout(); }catch{ } });
+
+        try
+        {
+          body(cts.Token);
+        }
+        finally
+        {
+          cts.Cancel();
+        }
+      }
+    }
+
+    /// <summary>
+    /// Synchronously runs a func along with asynchronous timeout mechanism.
+    /// If the function completes before the timeout expires, then timeout hook is never called.
+    /// If synchronous execution of function takes longer than timeout, then timeout is asynchronously fired,
+    /// but this does not affect the execution of synchronous body which continues regardless of timeout
+    /// </summary>
+    /// <param name="body">Non null synchronous action taking cancellation token</param>
+    /// <param name="msTimeout">The timeout in ms, must be greater than 0</param>
+    /// <param name="timeout">
+    /// The required notification action asynchronously called when the main body is lagging.
+    /// All exceptions are handled, so make sure that you handle whatever errors may arise in caller code
+    /// </param>
+    /// <param name="cancel">Optional cancel token for body and timeout cancellation</param>
+    public static TResult Run<TResult>(Func<CancellationToken, TResult> body, int msTimeout, Action timeout, CancellationToken? cancel = null)
+    {
+      body.NonNull(nameof(body));
+      timeout.NonNull(nameof(timeout));
+      msTimeout.IsTrue(a => a > 0, nameof(msTimeout));
+
+      using (var cts = cancel.HasValue ? CancellationTokenSource.CreateLinkedTokenSource(cancel.Value) : new CancellationTokenSource())
+      {
+        Task.Delay(msTimeout, cts.Token)
+            .ContinueWith(d => { try { if (!d.IsCanceled) timeout(); } catch { } });
+
+        try
+        {
+          return body(cts.Token);
+        }
+        finally
+        {
+          cts.Cancel();
+        }
+      }
+    }
+
+  }
+
 }

@@ -14,59 +14,42 @@ using Azos.Log;
 namespace Azos.Web.Messaging
 {
   /// <summary>
-  /// Registry of different sinks. Purpose - main sink for message service
+  /// Implements a composite sink which directs message delivery to multiple sinks
   /// </summary>
-  public class CompositeMessageSink : MessageSink
+  public sealed class CompositeMessageSink : MessageSink
   {
     public CompositeMessageSink(MessageDaemon director) : base(director)
     {
     }
 
-    private Registry<MessageSink> m_Sinks;
+    private Registry<MessageSink> m_Sinks = new Registry<MessageSink>();
 
-    #region Properties
 
-    public Registry<MessageSink> Sinks
-    {
-      get { return m_Sinks; }
-      set
-      {
-        CheckDaemonInactive();
-        if (m_Sinks != null && m_Sinks.Any() && m_Sinks.First().ComponentDirector != this.ComponentDirector)
-          throw new WebException(StringConsts.MESSAGE_SINK_IS_NOT_OWNED_ERROR);
-        m_Sinks = value;
-      }
-    }
+    public IRegistry<MessageSink> Sinks => m_Sinks;
 
     public override MsgChannels SupportedChannels
     {
       get
       {
         MsgChannels result = MsgChannels.Unspecified;
-        if (m_Sinks == null || !m_Sinks.Any()) return result;
+
+        //accumulate flags
         foreach (var sink in m_Sinks)
           result = result | SupportedChannels;
+
         return result;
       }
     }
 
     public override IEnumerable<string> SupportedChannelNames
-    {
-      get
-      {
-        return m_Sinks.SelectMany(s => s.SupportedChannelNames).Distinct();
-      }
-    }
+      => m_Sinks.SelectMany(s => s.SupportedChannelNames).Distinct();
 
-    #endregion
-
-    #region Protected
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
 
-      if (m_Sinks == null) m_Sinks = new Registry<MessageSink>();
+      m_Sinks.Clear();
       foreach (var sect in node.Children)
       {
         var sink = FactoryUtils.MakeAndConfigure<MessageSink>(sect, args: new object[] { this.ComponentDirector });
@@ -78,16 +61,15 @@ namespace Azos.Web.Messaging
     {
       try
       {
-        if (m_Sinks == null || !m_Sinks.Any())
+        if (!m_Sinks.Any())
           throw new WebException("Message sink registry is empty");
 
-        foreach (var sink in m_Sinks)
-          sink.Start();
+        m_Sinks.ForEach(s => s.Start());
       }
       catch (Exception error)
       {
         AbortStart();
-        App.Log.Write(MessageType.CatastrophicError, error.ToMessageWithType(), "DoStart() exception", "CompositeMessageSink");
+        WriteLog(MessageType.CatastrophicError, nameof(DoStart), error.ToMessageWithType(), error);
         throw error;
       }
     }
@@ -96,13 +78,11 @@ namespace Azos.Web.Messaging
     {
       try
       {
-        if (m_Sinks == null || !m_Sinks.Any()) return;
-        foreach (var sink in m_Sinks)
-          sink.SignalStop();
+        m_Sinks.ForEach(s => s.SignalStop());
       }
       catch (Exception error)
       {
-        App.Log.Write(MessageType.CatastrophicError, error.ToMessageWithType(), "DoSignalStop() exception", "CompositeMessageSink");
+        WriteLog(MessageType.CatastrophicError, nameof(DoSignalStop), error.ToMessageWithType(), error);
         throw error;
       }
     }
@@ -111,13 +91,11 @@ namespace Azos.Web.Messaging
     {
       try
       {
-        if (m_Sinks == null || !m_Sinks.Any()) return;
-        foreach (var sink in m_Sinks)
-          sink.WaitForCompleteStop();
+        m_Sinks.ForEach(s => s.WaitForCompleteStop());
       }
       catch (Exception error)
       {
-        App.Log.Write(MessageType.CatastrophicError, error.ToMessageWithType(), "DoWaitForCompleteStop() exception", "CompositeMessageSink");
+        WriteLog(MessageType.CatastrophicError, nameof(DoWaitForCompleteStop), error.ToMessageWithType(), error);
         throw error;
       }
     }
@@ -125,6 +103,7 @@ namespace Azos.Web.Messaging
     protected override bool DoSendMsg(Message msg)
     {
       var sent = false;
+
       foreach (var sink in m_Sinks)
       {
         try
@@ -135,13 +114,12 @@ namespace Azos.Web.Messaging
         }
         catch (Exception error)
         {
-          WriteLog(MessageType.Error, nameof(DoSendMsg), "Threw: "+error.ToMessageWithType(), error);
+          WriteLog(MessageType.Error, "{0}.{1}".Args(nameof(DoSendMsg), sink.Name), "Leaked: "+error.ToMessageWithType(), error);
         }
       }
 
       return sent;
     }
 
-    #endregion
   }
 }
