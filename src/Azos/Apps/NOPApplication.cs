@@ -117,6 +117,8 @@ namespace Azos.Apps
 
         public string Description => "NOP Application";
 
+        public int ExpectedComponentShutdownDurationMs => 0;
+
         public string Copyright => "2020 Framework";
 
         public IO.Console.IConsolePort ConsolePort => null;

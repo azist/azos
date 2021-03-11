@@ -10,6 +10,7 @@ using System.Linq;
 using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Instrumentation;
+using Azos.Log;
 
 namespace Azos.Apps
 {
@@ -125,9 +126,23 @@ namespace Azos.Apps
 
     void IModuleImplementation.ApplicationBeforeCleanup()
     {
-      var handled = DoApplicationBeforeCleanup();
+      var msTimeout = this.ExpectedShutdownDurationMs;
+      if (msTimeout < 1) msTimeout = App.ExpectedComponentShutdownDurationMs;
+      if (msTimeout < 1) msTimeout = CommonApplicationLogic.DFLT_EXPECTED_COMPONENT_SHUTDOWN_DURATION_MS;
+
+      var handled =  TimedCall.Run( ct =>  DoApplicationBeforeCleanup(),
+                                    msTimeout,
+                                    () => WriteLog(MessageType.WarningExpectation,
+                                                   nameof(IModuleImplementation.ApplicationBeforeCleanup),
+                                                   "Module '{0}' finalization is taking longer than expected {1:n} ms".Args(Name, msTimeout))
+                                  );
       if (!handled)
-        m_Children.OrderedValues.Reverse().ForEach( c => ((IModuleImplementation)c).ApplicationBeforeCleanup());
+      {
+        m_Children.OrderedValues
+                  .Reverse()
+                  .Cast<IModuleImplementation>()//explicitly def interface
+                  .ForEach( c => c.ApplicationBeforeCleanup() );
+      }
     }
 
     void IConfigurable.Configure(IConfigSectionNode node)
