@@ -116,19 +116,35 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
     {
       if (cmp==null) return;
 
+      var target = cmp;
+      cmp = null;
+
       WriteLog(MessageType.Trace, CLEANUP_FROM, "Finalizing {0}".Args(name));
       try
       {
-        //if (cmp is Daemon daemon) <- needs CS 7.2 due to <T>
-        var daemon = cmp as Daemon;
-        if (daemon!=null)
-        {
-          daemon.WaitForCompleteStop();
-          WriteLog(MessageType.Trace, CLEANUP_FROM, "{0} daemon stopped".Args(name));
-        }
+        var msTimeout = this.ExpectedComponentShutdownDurationMs;
 
-        DisposeAndNull(ref cmp);
-        WriteLog(MessageType.Trace, CLEANUP_FROM, "{0} disposed".Args(name));
+        if (target is IApplicationComponent ac) msTimeout = ac.ExpectedShutdownDurationMs;
+
+        if (msTimeout < 1) msTimeout = DFLT_EXPECTED_COMPONENT_SHUTDOWN_DURATION_MS;
+
+        TimedCall.Run(ct =>
+          {
+            //if (target is Daemon daemon) <- needs CS 7.2 due to <T>
+            var daemon = target as Daemon;
+            if (daemon!=null)
+            {
+              daemon.WaitForCompleteStop();
+              WriteLog(MessageType.Trace, CLEANUP_FROM, "{0} daemon stopped".Args(name));
+            }
+
+            DisposeAndNull(ref target);
+            WriteLog(MessageType.Trace, CLEANUP_FROM, "{0} disposed".Args(name));
+          },
+          msTimeout,
+          () => WriteLog(MessageType.WarningExpectation, CLEANUP_FROM, "Disposal of '{0}' is taking longer than expected {1:n} ms".Args(name, msTimeout))
+        );//TimedCall
+
       }
       catch (Exception error)
       {

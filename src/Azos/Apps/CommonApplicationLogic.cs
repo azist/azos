@@ -41,6 +41,9 @@ namespace Azos.Apps
     public const string CONFIG_ENVIRONMENT_NAME_ATTR = "environment-name";
     public const string CONFIG_PROCESS_INCLUDES = "process-includes";
 
+    public const string CONFIG_EXPECTED_COMPONENT_SHUTDOWN_DURATION_MS = "expected-component-shutdown-duration-ms";
+    public const int    DFLT_EXPECTED_COMPONENT_SHUTDOWN_DURATION_MS = 1_250;
+
     public const string CONFIG_MEMORY_MANAGEMENT_SECTION = "memory-management";
 
     public const string CONFIG_MODULES_SECTION = "modules";
@@ -224,6 +227,14 @@ namespace Azos.Apps
 
     /// <summary>True to force app container set process-wide invariant culture on boot</summary>
     public virtual bool ForceInvariantCulture => m_ConfigRoot.AttrByName(CONFIG_FORCE_INVARIANT_CULTURE_ATTR).ValueAsBool();
+
+    /// <summary>
+    /// Provides a default expected shutdown duration for various constituent components of the application.
+    /// The value is applied to entities which do not specify their own expected shutdown duration
+    /// </summary>
+    public int ExpectedComponentShutdownDurationMs
+      => m_ConfigRoot.AttrByName(CONFIG_EXPECTED_COMPONENT_SHUTDOWN_DURATION_MS)
+                     .ValueAsInt(DFLT_EXPECTED_COMPONENT_SHUTDOWN_DURATION_MS);
 
     /// <summary> Uniquely identifies this application type </summary>
     public Atom AppId => m_AppId;

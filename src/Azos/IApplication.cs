@@ -48,6 +48,13 @@ namespace Azos
      string Description { get; }
 
      /// <summary>
+     /// Provides a default expected shutdown duration for various constituent components of the application.
+     /// The value is applied to entities which do not specify their own expected shutdown duration
+     /// </summary>
+     int ExpectedComponentShutdownDurationMs { get; }
+
+
+     /// <summary>
      /// Returns the ConsolePort used by this application, or null if this application does not have any specific console ports assigned
      /// </summary>
      IO.Console.IConsolePort ConsolePort { get;}

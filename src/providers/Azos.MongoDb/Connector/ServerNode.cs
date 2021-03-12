@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,21 +12,21 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Collections;
 using Azos.Glue;
-using System;
+using Azos.Instrumentation;
 
 namespace Azos.Data.Access.MongoDb.Connector
 {
   /// <summary>
-  /// Manages connections to the same server
+  /// Manages connections per Mongo Db server
   /// </summary>
-  public sealed class ServerNode : ApplicationComponent, INamed
+  public sealed class ServerNode : ApplicationComponent<MongoClient>, INamed, IInstrumentable
   {
     #region CONSTS
 
     public const string CONFIG_SERVER_SECTION = "server";
 
-    public const int DEFAULT_RCV_TIMEOUT = 10000;
-    public const int DEFAULT_SND_TIMEOUT = 10000;
+    public const int DEFAULT_RCV_TIMEOUT = 12_100;
+    public const int DEFAULT_SND_TIMEOUT =  7_530;
 
     public const int DEFAULT_RCV_BUFFER_SIZE    = 128 * 1024;
     public const int DEFAULT_SND_BUFFER_SIZE    = 128 * 1024;
@@ -33,15 +34,14 @@ namespace Azos.Data.Access.MongoDb.Connector
     public const int MIN_IDLE_TIMEOUT_SEC  = 5;
     public const int DEFAULT_IDLE_TIMEOUT_SEC  = 2 * 60;
 
-    public const int MAX_EXISTING_ACQUISITION_TIMEOUT_MS_MIN = 1000;
-    public const int MAX_EXISTING_ACQUISITION_TIMEOUT_MS_MAX = 90 * 1000;
-    public const int MAX_EXISTING_ACQUISITION_TIMEOUT_MS_DEFAULT = 15 * 1000;
+    public const int MAX_EXISTING_ACQUISITION_TIMEOUT_MS_MIN = 573;
+    public const int MAX_EXISTING_ACQUISITION_TIMEOUT_MS_MAX = 90_000;
+    public const int MAX_EXISTING_ACQUISITION_TIMEOUT_MS_DEFAULT = 7530;
     #endregion
 
     #region .ctor
     internal ServerNode(MongoClient client, Node node, Node applianceNode) : base(client)
     {
-      m_Client = client;
       m_Node = node;
       m_ApplianceNode = applianceNode;
 
@@ -59,8 +59,8 @@ namespace Azos.Data.Access.MongoDb.Connector
 
     protected override void Destructor()
     {
-      if (!m_Client.Disposed)
-        m_Client.m_Servers.Unregister( this );
+      if (!Client.Disposed)
+        Client.m_Servers.Unregister( this );
 
       var isLocalApplianceShutdown = !App.Active && m_ApplianceNode.Assigned;
       var eText = isLocalApplianceShutdown ? "Mongo appliance chassis is shutting down: " : "";
@@ -77,7 +77,7 @@ namespace Azos.Data.Access.MongoDb.Connector
 
     #region Fields
     private int m_ID_SEED;
-    private MongoClient m_Client;
+    private bool m_InstrumentationEnabled;
     private Node m_Node;
     private Node m_ApplianceNode;
     private object m_NewConnectionSync = new object();
@@ -101,16 +101,18 @@ namespace Azos.Data.Access.MongoDb.Connector
 
     private int m_SocketReceiveTimeout = DEFAULT_RCV_TIMEOUT;
     private int m_SocketSendTimeout = DEFAULT_SND_TIMEOUT;
-  #endregion
-
+    #endregion
 
     #region Properties
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+    public bool InstrumentationEnabled { get { return m_InstrumentationEnabled; } set { m_InstrumentationEnabled = value; } }
+
     public override string ComponentLogTopic => MongoConsts.MONGO_TOPIC;
 
     /// <summary>
     /// References client that this node is under
     /// </summary>
-    public MongoClient Client{ get{ return m_Client;} }
+    public MongoClient Client => this.ComponentDirector;
 
     public Node Node { get{ return m_Node;} }
 
@@ -135,7 +137,7 @@ namespace Azos.Data.Access.MongoDb.Connector
     /// </summary>
     public IRegistry<Database> Databases { get {return m_Databases;} }
 
-    [Config]
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
     public WriteConcern WriteConcern
     {
         get { return m_WriteConcern; }
@@ -145,7 +147,7 @@ namespace Azos.Data.Access.MongoDb.Connector
     /// <summary>
     /// When greater than zero, imposes a limit on the open connection count
     /// </summary>
-    [Config]
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
     public int MaxConnections
     {
         get { return m_MaxConnections; }
@@ -155,7 +157,7 @@ namespace Azos.Data.Access.MongoDb.Connector
     /// <summary>
     /// Imposes a timeout for system trying to get an existing connection instance per remote address.
     /// </summary>
-    [Config]
+    [Config(Default = MAX_EXISTING_ACQUISITION_TIMEOUT_MS_DEFAULT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
     public int MaxExistingAcquisitionTimeoutMs
     {
         get { return m_MaxExistingAcquisitionTimeoutMs; }
@@ -168,39 +170,52 @@ namespace Azos.Data.Access.MongoDb.Connector
         }
     }
 
-    [Config]
+    [Config(Default = DEFAULT_IDLE_TIMEOUT_SEC), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
     public int IdleConnectionTimeoutSec
     {
         get { return m_IdleConnectionTimeoutSec; }
         set { m_IdleConnectionTimeoutSec = value <MIN_IDLE_TIMEOUT_SEC ? MIN_IDLE_TIMEOUT_SEC : value;}
     }
 
-    [Config]
+    [Config(Default = DEFAULT_RCV_BUFFER_SIZE), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
     public int SocketReceiveBufferSize
     {
         get { return m_SocketReceiveBufferSize; }
         set { m_SocketReceiveBufferSize = value <=0 ? DEFAULT_RCV_BUFFER_SIZE : value;}
     }
 
-    [Config]
+    [Config(Default = DEFAULT_SND_BUFFER_SIZE), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
     public int SocketSendBufferSize
     {
         get { return m_SocketSendBufferSize; }
         set { m_SocketSendBufferSize = value <=0 ? DEFAULT_SND_BUFFER_SIZE : value;}
     }
 
-    [Config]
+    [Config(Default = DEFAULT_RCV_TIMEOUT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
     public int SocketReceiveTimeout
     {
         get { return m_SocketReceiveTimeout; }
         set { m_SocketReceiveTimeout = value <=0 ? DEFAULT_RCV_TIMEOUT : value;}
     }
 
-    [Config]
+    [Config(Default = DEFAULT_SND_TIMEOUT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
     public int SocketSendTimeout
     {
         get { return m_SocketSendTimeout; }
         set { m_SocketSendTimeout = value <=0 ? DEFAULT_SND_TIMEOUT : value;}
+    }
+
+    /// <summary>
+    /// Connection information
+    /// </summary>
+    public IEnumerable<(FID id, bool busy, DateTime sd, DateTime? ed)> ConnectionInfos
+    {
+      get
+      {
+        var conns = m_List;
+        foreach(var c in conns)
+          yield return (c.Id, c.IsAcquired, c.StartDateUTC, c.ExpirationStartUTC);
+      }
     }
 
     /// <summary>
@@ -245,30 +260,40 @@ namespace Azos.Data.Access.MongoDb.Connector
 
     #endregion
 
+    #region IInstrumentable
+    public IEnumerable<KeyValuePair<string, Type>> ExternalParameters => ExternalParameterAttribute.GetParameters(this);
+
+    public IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups)
+      => ExternalParameterAttribute.GetParameters(this, groups);
+
+    public bool ExternalGetParameter(string name, out object value, params string[] groups)
+      => ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
+
+    public bool ExternalSetParameter(string name, object value, params string[] groups)
+      => ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
+    #endregion
+
     #region Protected/Int
 
 
-    internal Connection AcquireConnection()
+    internal Connection AcquireConnection() => acquireConnection(true);
+    private Connection acquireConnection(bool checkDisposed)
     {
-      return acquireConnection(true);
+      if (checkDisposed) EnsureObjectNotDisposed();
+
+      var result = tryAcquireExistingConnection();
+      if (result != null) return result;
+
+      //open new connection
+      lock(m_NewConnectionSync)
+      {
+        result = tryAcquireExistingConnection();
+        if (result!=null) return result;
+
+        result = openNewConnection();
+        return result;
+      }
     }
-          private Connection acquireConnection(bool checkDisposed)
-          {
-              if (checkDisposed) EnsureObjectNotDisposed();
-
-              var result = tryAcquireExistingConnection();
-              if (result!=null) return result;
-
-              //open new connection
-              lock(m_NewConnectionSync)
-              {
-                result = tryAcquireExistingConnection();
-                if (result!=null) return result;
-
-                result = openNewConnection();
-                return result;
-              }
-          }
 
 
     /// <summary>
@@ -308,28 +333,30 @@ namespace Azos.Data.Access.MongoDb.Connector
     #region .pvt
     private Connection openNewConnection()
     {
-        var result = new Connection( this );
-        lock(m_ListSync)
-        {
-          var lst = new List<Connection>(m_List);
-          lst.Add(result);
-          System.Threading.Thread.MemoryBarrier();
-          m_List = lst;//atomic
-        }
-        return result;
+      var result = new Connection( this );
+
+      lock(m_ListSync)
+      {
+        var lst = new List<Connection>(m_List);
+        lst.Add(result);
+        System.Threading.Thread.MemoryBarrier();
+        m_List = lst;//atomic
+      }
+      return result;
     }
 
 
     internal void closeExistingConnection(Connection cnn)
     {
-      if (!this.Disposed)
-        lock(m_ListSync)
-        {
-          var lst = new List<Connection>(m_List);
-          lst.Remove(cnn);
-          System.Threading.Thread.MemoryBarrier();
-          m_List = lst;//atomic
-        }
+      if (Disposed) return;
+
+      lock(m_ListSync)
+      {
+        var lst = new List<Connection>(m_List);
+        lst.Remove(cnn);
+        System.Threading.Thread.MemoryBarrier();
+        m_List = lst;//atomic
+      }
     }
 
     private Connection tryAcquireExistingConnection()
@@ -395,36 +422,35 @@ namespace Azos.Data.Access.MongoDb.Connector
 
       do
       {
-          lock(m_Cursors)
+        lock(m_Cursors)
+        {
+          for(var i=m_Cursors.Count-1; i>=0 && m_Cursors.Count>0 && toKill.Count<=BATCH; i--)
           {
-            for(var i=m_Cursors.Count-1; i>=0 && m_Cursors.Count>0 && toKill.Count<=BATCH; i--)
+            var cursor = m_Cursors[i];
+            if (killAll || cursor.Disposed)
             {
-              var cursor = m_Cursors[i];
-              if (killAll || cursor.Disposed)
-              {
-                toKill.Add(cursor);
-                m_Cursors.RemoveAt(i);
-              }
+              toKill.Add(cursor);
+              m_Cursors.RemoveAt(i);
             }
           }
+        }
 
-          if (toKill.Count>0)
+        if (toKill.Count>0)
+        {
+          var connection = acquireConnection(false);
+          try
           {
-            var connection = acquireConnection(false);
-            try
-            {
-              var reqId = NextRequestID;
-              connection.KillCursor(reqId, toKill.ToArray());
-            }
-            finally
-            {
-              connection.Release();
-            }
-
-            toKill.Clear();
+            var reqId = NextRequestID;
+            connection.KillCursor(reqId, toKill.ToArray());
           }
-          else break;
+          finally
+          {
+            connection.Release();
+          }
 
+          toKill.Clear();
+        }
+        else break;
       }
       while(killAll);
     }

@@ -69,6 +69,6 @@ namespace Azos.Time
     /// Returns double number of seconds
     /// </summary>
     public double ElapsedSec => ElapsedRaw / FREQUENCY_SEC;
-
   }
+
 }

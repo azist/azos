@@ -61,6 +61,11 @@ namespace Azos
      => MinMax(min, value, max);
 
     /// <summary>
+    /// Ensures that an integer value is not below the indicated minimum value
+    /// </summary>
+    public static int AtMinimum(this int value, int min) => value < min ? min : value;
+
+    /// <summary>
     /// Returns argument increased to the nearest number divisible by 8
     /// </summary>
     public static int Align8(int i)

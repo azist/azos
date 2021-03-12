@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.6.7
-set HEADLINE=Fix 441 and http client instrumentation
+set VER=1.7.0
+set HEADLINE=Fix 446,442,443 component shutdown expected timeout, torn mongo connection detection
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

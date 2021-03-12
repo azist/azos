@@ -67,6 +67,8 @@ namespace Azos.Apps
 
         public virtual string Description { get; set;}
 
+        public virtual int ExpectedComponentShutdownDurationMs {get; set;}
+
         public virtual bool IsUnitTest { get; set; }
 
         public virtual string EnvironmentName { get; set; }

@@ -29,6 +29,9 @@ namespace Azos.Log.Sinks
     protected string        m_StreamFileName;
     private bool            m_Recreate;
 
+
+    public override int ExpectedShutdownDurationMs => 1250;//to flush buffers etc.
+
     /// <summary>
     /// The name of the file without path may use {0} for date: {0:yyyyMMdd}-$($name).csv.log
     /// </summary>
