@@ -113,8 +113,10 @@ namespace Azos.Security.MinIdp
       logSecurityMessage(msg);
     }
 
-    public User Authenticate(Credentials credentials) => AuthenticateAsync(credentials).GetAwaiter().GetResult();
-    public virtual async Task<User> AuthenticateAsync(Credentials credentials)
+    public User Authenticate(Credentials credentials, IAuthenticationRequestContext ctx = null)
+      => AuthenticateAsync(credentials, ctx).GetAwaiter().GetResult();
+
+    public virtual async Task<User> AuthenticateAsync(Credentials credentials, IAuthenticationRequestContext ctx = null)
     {
       if (credentials is BearerCredentials bearer)
       {
@@ -125,11 +127,11 @@ namespace Azos.Security.MinIdp
         if (accessToken != null)//if token is valid
         {
           if (SysAuthToken.TryParse(accessToken.SubjectSysAuthToken, out var sysToken))
-            return await AuthenticateAsync(sysToken);
+            return await AuthenticateAsync(sysToken, ctx);
         }
       } else if (credentials is IDPasswordCredentials idpass)
       {
-        var data = await m_Store.GetByIdAsync(Realm, idpass.ID);
+        var data = await m_Store.GetByIdAsync(Realm, idpass.ID, ctx);
         if (data != null)
         {
           var user = TryAuthenticateUser(data, idpass);
@@ -137,7 +139,7 @@ namespace Azos.Security.MinIdp
         }
       } else if (credentials is EntityUriCredentials enturi)
       {
-        var data = await m_Store.GetByUriAsync(Realm, enturi.Uri);
+        var data = await m_Store.GetByUriAsync(Realm, enturi.Uri, ctx);
         if (data != null)
         {
           var user = TryAuthenticateUser(data, enturi);
@@ -150,13 +152,14 @@ namespace Azos.Security.MinIdp
 
 
 
-    public User Authenticate(SysAuthToken token) => AuthenticateAsync(token).GetAwaiter().GetResult();
+    public User Authenticate(SysAuthToken token, IAuthenticationRequestContext ctx = null)
+      => AuthenticateAsync(token, ctx).GetAwaiter().GetResult();
 
-    public virtual async Task<User> AuthenticateAsync(SysAuthToken token)
+    public virtual async Task<User> AuthenticateAsync(SysAuthToken token, IAuthenticationRequestContext ctx = null)
     {
       if (Realm.Value.EqualsOrdSenseCase(token.Realm))
       {
-        var data = await m_Store.GetBySysAsync(Realm, token.Data);
+        var data = await m_Store.GetBySysAsync(Realm, token.Data, ctx);
         if (data!=null)
         {
           var user = TryAuthenticateUser(data);
@@ -168,13 +171,14 @@ namespace Azos.Security.MinIdp
     }
 
 
-    public void Authenticate(User user) => AuthenticateAsync(user).GetAwaiter().GetResult();
+    public void Authenticate(User user, IAuthenticationRequestContext ctx = null)
+      => AuthenticateAsync(user, ctx).GetAwaiter().GetResult();
 
-    public virtual async Task AuthenticateAsync(User user)
+    public virtual async Task AuthenticateAsync(User user, IAuthenticationRequestContext ctx = null)
     {
       if (user == null) return;
       var token = user.AuthToken;
-      var reuser = await AuthenticateAsync(token);
+      var reuser = await AuthenticateAsync(token, ctx);
 
       user.___update_status(reuser.Status, reuser.Name, reuser.Description, reuser.Rights, App.TimeSource.UTCNow);
     }

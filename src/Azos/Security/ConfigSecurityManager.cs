@@ -137,9 +137,9 @@ namespace Azos.Security
                           rights, App.TimeSource.UTCNow);
     }
 
-    public Task<User> AuthenticateAsync(Credentials credentials) => Task.FromResult(Authenticate(credentials));
+    public Task<User> AuthenticateAsync(Credentials credentials, IAuthenticationRequestContext ctx = null) => Task.FromResult(Authenticate(credentials, ctx));
 
-    public User Authenticate(Credentials credentials)
+    public User Authenticate(Credentials credentials, IAuthenticationRequestContext ctx = null)
     {
       if (credentials is BearerCredentials bearer)
       {
@@ -150,7 +150,7 @@ namespace Azos.Security
         if (accessToken!=null)//if token is valid
         {
           if (SysAuthToken.TryParse(accessToken.SubjectSysAuthToken, out var sysToken))
-            return Authenticate(sysToken);
+            return Authenticate(sysToken, ctx);
         }
       }
 
@@ -192,21 +192,21 @@ namespace Azos.Security
       return MakeBadUser(credentials);
     }
 
-    public Task<User> AuthenticateAsync(SysAuthToken token) => Task.FromResult(Authenticate(token));
+    public Task<User> AuthenticateAsync(SysAuthToken token, IAuthenticationRequestContext ctx = null) => Task.FromResult(Authenticate(token, ctx));
 
-    public User Authenticate(SysAuthToken token)
+    public User Authenticate(SysAuthToken token, IAuthenticationRequestContext ctx = null)
     {
       var credentials = authTokenToCred(token);
-      return Authenticate(credentials);
+      return Authenticate(credentials, ctx);
     }
 
-    public Task AuthenticateAsync(User user) { Authenticate(user); return Task.CompletedTask;}
+    public Task AuthenticateAsync(User user, IAuthenticationRequestContext ctx = null) { Authenticate(user, ctx); return Task.CompletedTask;}
 
-    public void Authenticate(User user)
+    public void Authenticate(User user, IAuthenticationRequestContext ctx = null)
     {
       if (user == null) return;
       var token = user.AuthToken;
-      var reuser = Authenticate(token);
+      var reuser = Authenticate(token, ctx);
 
       user.___update_status(reuser.Status, reuser.Name, reuser.Description, reuser.Rights, App.TimeSource.UTCNow);
     }

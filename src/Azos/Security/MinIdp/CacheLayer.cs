@@ -67,7 +67,7 @@ namespace Azos.Security.MinIdp
     public int MaxCacheAgeSec { get; set; } = DEFAULT_CACHE_AGE_SEC;
 
 
-    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
+    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, IAuthenticationRequestContext ctx = null)
     {
       if (!Running) return null;
 
@@ -78,13 +78,13 @@ namespace Azos.Security.MinIdp
         lock(m_DataLock)
           if (m_IdxId.TryGetValue(new realmed(realm, id), out var existing)) return existing.d;
 
-      var data = await m_Store.GetByIdAsync(realm, id);
+      var data = await m_Store.GetByIdAsync(realm, id, ctx);
 
       updateIndexes(realm, data);
       return data;
     }
 
-    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
+    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, IAuthenticationRequestContext ctx = null)
     {
       if (!Running) return null;
 
@@ -94,13 +94,13 @@ namespace Azos.Security.MinIdp
         lock (m_DataLock)
           if (m_IdxSysToken.TryGetValue(new realmed(realm, sysToken), out var existing)) return existing;
 
-      var data = await m_Store.GetBySysAsync(realm, sysToken);
+      var data = await m_Store.GetBySysAsync(realm, sysToken, ctx);
 
       updateIndexes(realm, data);
       return data;
     }
 
-    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
+    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, IAuthenticationRequestContext ctx = null)
     {
       if (!Running) return null;
 
@@ -110,7 +110,7 @@ namespace Azos.Security.MinIdp
         lock (m_DataLock)
           if (m_IdxUri.TryGetValue(new realmed(realm, uri), out var existing)) return existing;
 
-      var data = await m_Store.GetByUriAsync(realm, uri);
+      var data = await m_Store.GetByUriAsync(realm, uri, ctx);
 
       updateIndexes(realm, data);
       return data;
