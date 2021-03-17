@@ -9,7 +9,8 @@ using System;
 namespace Azos.Instrumentation
 {
   /// <summary>
-  /// Represents a base for gauges - events of measurement of some values
+  /// Represents a base for gauges - events of value measurement (e.g. voltage in the wall outlet, vehicle speed, engine rpm etc..).
+  /// The measurements can either be scalar (e.g. one number) or vector (e.g. human blood pressure pair)
   /// </summary>
   public abstract class Gauge : Datum
   {

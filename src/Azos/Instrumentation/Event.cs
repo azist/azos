@@ -8,7 +8,8 @@ using System;
 namespace Azos.Instrumentation
 {
   /// <summary>
-  /// Represents a base for events that happen so instrumentation can calculate event counts and rates of occurence
+  /// Represents a base for events that happen. Events do not have a measurable value of their own, instead instrumentation
+  /// calculates event counts and rates of their occurrence
   /// </summary>
   public abstract class Event : Datum
   {
