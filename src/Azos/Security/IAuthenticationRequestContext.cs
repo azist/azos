@@ -16,36 +16,22 @@ namespace Azos.Security
   /// services may elect to interpret the supplied context object in various ways,
   /// for example: generate sys tokens with longer lifespan for OAuth requestors
   /// </summary>
-  public interface IAuthenticationRequestContext : IDataDoc/*must be easily serializable hence DataDoc*/
+  public abstract class AuthenticationRequestContext : TypedDoc/*must be easily serializable hence DataDoc*/
   {
     /// <summary>
     /// Provides a short description for the Authentication request, e.g. "API OAuth"
     /// </summary>
-    string RequestDescription { get; }
+    [Field]
+    public string RequestDescription { get; set; }
   }
 
 
   /// <summary>
   /// Denotes requests related to OAuth subject (target impersonated user) authentication
   /// </summary>
-  public interface IOAuthSubjectAuthenticationRequestContext : IAuthenticationRequestContext
+  public class OAuthSubjectAuthenticationRequestContext : AuthenticationRequestContext
   {
-    /// <summary>
-    /// When specified, requests specific sysauth token life span length expressed in seconds
-    /// </summary>
-    long? SysAuthTokenValiditySpanSec{ get; }
-  }
-
-  /// <summary>
-  /// Default implementation for IOAuthSubjectAuthenticationRequestContext
-  /// </summary>
-  public class DefaultOAuthSubjectAuthenticationRequestContext : TypedDoc, IOAuthSubjectAuthenticationRequestContext
-  {
-    [Field]
-    public string RequestDescription         { get; set; } = "OAuth";
-
     [Field]
     public long? SysAuthTokenValiditySpanSec { get; set; }
   }
-
 }

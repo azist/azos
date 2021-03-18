@@ -249,7 +249,7 @@ manc
       return JsonReader.ToDoc<MinIdpUserData>(dataMap);
     }
 
-    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, IAuthenticationRequestContext ctx = null)
+    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx = null)
       => await guardedIdpAccess(async (rel) =>
           {
               var response = await m_Server.Call(IdpServerAddress,
@@ -261,7 +261,7 @@ manc
               return processResponse(rel, response);
           });
 
-    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, IAuthenticationRequestContext ctx = null)
+    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx = null)
       => await guardedIdpAccess(async (rel) =>
           {
             var response = await m_Server.Call(IdpServerAddress,
@@ -273,7 +273,7 @@ manc
             return processResponse(rel, response);
           });
 
-    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, IAuthenticationRequestContext ctx = null)
+    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx = null)
       => await guardedIdpAccess(async (rel) =>
           {
             var response = await m_Server.Call(IdpServerAddress,

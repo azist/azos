@@ -41,16 +41,16 @@ namespace Azos.Security
     public IPasswordManager PasswordManager  => m_PasswordManager;
     public ICryptoManager Cryptography => m_Cryptography;
 
-    public User Authenticate(Credentials credentials, IAuthenticationRequestContext ctx = null) => User.Fake;
-    public Task<User> AuthenticateAsync(Credentials credentials, IAuthenticationRequestContext ctx = null) => Task.FromResult(User.Fake);
+    public User Authenticate(Credentials credentials, AuthenticationRequestContext ctx = null) => User.Fake;
+    public Task<User> AuthenticateAsync(Credentials credentials, AuthenticationRequestContext ctx = null) => Task.FromResult(User.Fake);
 
     public void Configure(Conf.IConfigSectionNode node) {}
 
-    public User Authenticate(SysAuthToken token, IAuthenticationRequestContext ctx = null) => User.Fake;
-    public Task<User> AuthenticateAsync(SysAuthToken token, IAuthenticationRequestContext ctx = null) => Task.FromResult(User.Fake);
+    public User Authenticate(SysAuthToken token, AuthenticationRequestContext ctx = null) => User.Fake;
+    public Task<User> AuthenticateAsync(SysAuthToken token, AuthenticationRequestContext ctx = null) => Task.FromResult(User.Fake);
 
-    public void Authenticate(User user, IAuthenticationRequestContext ctx = null) {}
-    public Task AuthenticateAsync(User user, IAuthenticationRequestContext ctx = null) => Task.CompletedTask;
+    public void Authenticate(User user, AuthenticationRequestContext ctx = null) {}
+    public Task AuthenticateAsync(User user, AuthenticationRequestContext ctx = null) => Task.CompletedTask;
 
     public AccessLevel Authorize(User user, Permission permission) => AccessLevel.DeniedFor(user, permission);
     public Task<AccessLevel> AuthorizeAsync(User user, Permission permission) => Task.FromResult(AccessLevel.DeniedFor(user, permission));

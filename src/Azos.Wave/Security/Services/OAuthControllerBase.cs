@@ -154,7 +154,12 @@ namespace Azos.Security.Services
 
       //4. Check user credentials for the subject
       var subjcred = new IDPasswordCredentials(id, pwd);
-      var subject = await App.SecurityManager.AuthenticateAsync(subjcred);
+      var subject = await App.SecurityManager
+                             .AuthenticateAsync(subjcred, new OAuthSubjectAuthenticationRequestContext
+                                                          {
+                                                            RequestDescription = "OAuth",
+                                                            SysAuthTokenValiditySpanSec = 0//TODO!!!!! Add property which also influences tokenring
+                                                          });
       if (!subject.IsAuthenticated)
       {
         await Task.Delay(1000);//this call resulting in error is guaranteed to take at least 1 second to complete, throttling down the hack attempts

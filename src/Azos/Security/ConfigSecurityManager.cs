@@ -137,9 +137,9 @@ namespace Azos.Security
                           rights, App.TimeSource.UTCNow);
     }
 
-    public Task<User> AuthenticateAsync(Credentials credentials, IAuthenticationRequestContext ctx = null) => Task.FromResult(Authenticate(credentials, ctx));
+    public Task<User> AuthenticateAsync(Credentials credentials, AuthenticationRequestContext ctx = null) => Task.FromResult(Authenticate(credentials, ctx));
 
-    public User Authenticate(Credentials credentials, IAuthenticationRequestContext ctx = null)
+    public User Authenticate(Credentials credentials, AuthenticationRequestContext ctx = null)
     {
       if (credentials is BearerCredentials bearer)
       {
@@ -192,17 +192,17 @@ namespace Azos.Security
       return MakeBadUser(credentials);
     }
 
-    public Task<User> AuthenticateAsync(SysAuthToken token, IAuthenticationRequestContext ctx = null) => Task.FromResult(Authenticate(token, ctx));
+    public Task<User> AuthenticateAsync(SysAuthToken token, AuthenticationRequestContext ctx = null) => Task.FromResult(Authenticate(token, ctx));
 
-    public User Authenticate(SysAuthToken token, IAuthenticationRequestContext ctx = null)
+    public User Authenticate(SysAuthToken token, AuthenticationRequestContext ctx = null)
     {
       var credentials = authTokenToCred(token);
       return Authenticate(credentials, ctx);
     }
 
-    public Task AuthenticateAsync(User user, IAuthenticationRequestContext ctx = null) { Authenticate(user, ctx); return Task.CompletedTask;}
+    public Task AuthenticateAsync(User user, AuthenticationRequestContext ctx = null) { Authenticate(user, ctx); return Task.CompletedTask;}
 
-    public void Authenticate(User user, IAuthenticationRequestContext ctx = null)
+    public void Authenticate(User user, AuthenticationRequestContext ctx = null)
     {
       if (user == null) return;
       var token = user.AuthToken;

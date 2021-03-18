@@ -54,7 +54,7 @@ namespace Azos.Security
     /// <returns>
     /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
     /// </returns>
-    User Authenticate(Credentials credentials, IAuthenticationRequestContext ctx = null);
+    User Authenticate(Credentials credentials, AuthenticationRequestContext ctx = null);
 
     /// <summary>
     /// Authenticates user by checking the supplied credentials against the
@@ -74,7 +74,7 @@ namespace Azos.Security
     /// <returns>
     /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
     /// </returns>
-    Task<User> AuthenticateAsync(Credentials credentials, IAuthenticationRequestContext ctx = null);
+    Task<User> AuthenticateAsync(Credentials credentials, AuthenticationRequestContext ctx = null);
 
 
     /// <summary>
@@ -92,7 +92,7 @@ namespace Azos.Security
     /// <returns>
     /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
     /// </returns>
-    User Authenticate(SysAuthToken token, IAuthenticationRequestContext ctx = null);
+    User Authenticate(SysAuthToken token, AuthenticationRequestContext ctx = null);
 
     /// <summary>
     /// Authenticates user by checking the supplied token against the
@@ -109,7 +109,7 @@ namespace Azos.Security
     /// <returns>
     /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
     /// </returns>
-    Task<User> AuthenticateAsync(SysAuthToken token, IAuthenticationRequestContext ctx = null);
+    Task<User> AuthenticateAsync(SysAuthToken token, AuthenticationRequestContext ctx = null);
 
 
     /// <summary>
@@ -125,7 +125,7 @@ namespace Azos.Security
     /// <param name="ctx">
     /// Provides an optional extra data describing the context of this authentication request
     /// </param>
-    void Authenticate(User user, IAuthenticationRequestContext ctx = null);
+    void Authenticate(User user, AuthenticationRequestContext ctx = null);
 
     /// <summary>
     /// Authenticates user by checking the supplied user's token against the
@@ -140,7 +140,7 @@ namespace Azos.Security
     /// <param name="ctx">
     /// Provides an optional extra data describing the context of this authentication request
     /// </param>
-    Task AuthenticateAsync(User user, IAuthenticationRequestContext ctx = null);
+    Task AuthenticateAsync(User user, AuthenticationRequestContext ctx = null);
 
     /// <summary>
     /// Authorizes user by finding appropriate access level to permission by supplied path.

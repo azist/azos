@@ -30,9 +30,9 @@ namespace Azos.Security.MinIdp
     /// </summary>
     ICryptoMessageAlgorithm MessageProtectionAlgorithm { get; }
 
-    Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, IAuthenticationRequestContext ctx);
-    Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, IAuthenticationRequestContext ctx);
-    Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, IAuthenticationRequestContext ctx);
+    Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx);
+    Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx);
+    Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx);
   }
 
 

@@ -75,7 +75,7 @@ namespace Azos.Security.MinIdp
       RequestQueryParameters = new[]{"realm: atom", "id: string", "plain: bool"},
       Methods = new[]{"POST: json body", "GET: query params"})]
     [Action(Name = "byid")]
-    public async Task<object> GetById(Atom realm, string id, bool plain, IAuthenticationRequestContext ctx)
+    public async Task<object> GetById(Atom realm, string id, bool plain, AuthenticationRequestContext ctx)
     {
       var store = Store;
       return secure(store, await store.GetByIdAsync(realm, id, ctx), plain);
@@ -88,7 +88,7 @@ namespace Azos.Security.MinIdp
       RequestQueryParameters = new[] { "realm: atom", "sysToken: string", "plain: bool" },
       Methods = new[] { "POST: json body", "GET: query params" })]
     [Action(Name = "bysys")]
-    public async Task<object> GetBySys(Atom realm, string sysToken, bool plain, IAuthenticationRequestContext ctx)
+    public async Task<object> GetBySys(Atom realm, string sysToken, bool plain, AuthenticationRequestContext ctx)
     {
       var store = Store;
       return secure(store, await store.GetBySysAsync(realm, sysToken, ctx), plain);
@@ -101,7 +101,7 @@ namespace Azos.Security.MinIdp
       RequestQueryParameters = new[] { "realm: atom", "uri: string", "plain: bool" },
       Methods = new[] { "POST: json body", "GET: query params" })]
     [Action(Name = "byuri")]
-    public async Task<object> GetByUri(Atom realm, string uri, bool plain, IAuthenticationRequestContext ctx = null)
+    public async Task<object> GetByUri(Atom realm, string uri, bool plain, AuthenticationRequestContext ctx = null)
     {
       var store = Store;
       return secure(store, await store.GetByUriAsync(realm, uri, ctx), plain);

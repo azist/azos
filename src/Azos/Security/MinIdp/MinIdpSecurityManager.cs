@@ -113,10 +113,10 @@ namespace Azos.Security.MinIdp
       logSecurityMessage(msg);
     }
 
-    public User Authenticate(Credentials credentials, IAuthenticationRequestContext ctx = null)
+    public User Authenticate(Credentials credentials, AuthenticationRequestContext ctx = null)
       => AuthenticateAsync(credentials, ctx).GetAwaiter().GetResult();
 
-    public virtual async Task<User> AuthenticateAsync(Credentials credentials, IAuthenticationRequestContext ctx = null)
+    public virtual async Task<User> AuthenticateAsync(Credentials credentials, AuthenticationRequestContext ctx = null)
     {
       if (credentials is BearerCredentials bearer)
       {
@@ -152,10 +152,10 @@ namespace Azos.Security.MinIdp
 
 
 
-    public User Authenticate(SysAuthToken token, IAuthenticationRequestContext ctx = null)
+    public User Authenticate(SysAuthToken token, AuthenticationRequestContext ctx = null)
       => AuthenticateAsync(token, ctx).GetAwaiter().GetResult();
 
-    public virtual async Task<User> AuthenticateAsync(SysAuthToken token, IAuthenticationRequestContext ctx = null)
+    public virtual async Task<User> AuthenticateAsync(SysAuthToken token, AuthenticationRequestContext ctx = null)
     {
       if (Realm.Value.EqualsOrdSenseCase(token.Realm))
       {
@@ -171,10 +171,10 @@ namespace Azos.Security.MinIdp
     }
 
 
-    public void Authenticate(User user, IAuthenticationRequestContext ctx = null)
+    public void Authenticate(User user, AuthenticationRequestContext ctx = null)
       => AuthenticateAsync(user, ctx).GetAwaiter().GetResult();
 
-    public virtual async Task AuthenticateAsync(User user, IAuthenticationRequestContext ctx = null)
+    public virtual async Task AuthenticateAsync(User user, AuthenticationRequestContext ctx = null)
     {
       if (user == null) return;
       var token = user.AuthToken;

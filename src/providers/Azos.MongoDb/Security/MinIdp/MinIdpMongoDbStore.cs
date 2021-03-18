@@ -164,7 +164,7 @@ namespace Azos.Security.MinIdp
       return data;
     }
 
-    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, IAuthenticationRequestContext ctx = null)
+    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx = null)
     {
       //0. check login, put to lower invariant
       if (id.IsNullOrWhiteSpace()) return null;
@@ -201,7 +201,7 @@ namespace Azos.Security.MinIdp
       //6. Issue new SysAuthToken
       var sysSpanHrs = SysTokenLifespanHours > 0 ? SysTokenLifespanHours : 0.35d;//21 minutes by default
 
-      if (ctx is IOAuthSubjectAuthenticationRequestContext oauth)
+      if (ctx is OAuthSubjectAuthenticationRequestContext oauth)
       {
         var ssec = oauth.SysAuthTokenValiditySpanSec ?? 0;
         if (ssec > 0) sysSpanHrs = ssec / 3_600;
@@ -227,7 +227,7 @@ namespace Azos.Security.MinIdp
                                                                     a.Flags.HasFlag(CryptoMessageAlgorithmFlags.CanUnprotect),
                                                                     "Algo `{0}` !internal !cipher".Args(SysTokenCryptoAlgorithmName));
 
-    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, IAuthenticationRequestContext ctx = null)
+    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx = null)
     {
       //0. Check access token integrity by using message protection API
       // only the server has the key to issue and check the message token.
@@ -270,7 +270,7 @@ namespace Azos.Security.MinIdp
     }
 
 
-    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, IAuthenticationRequestContext ctx = null)
+    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx = null)
     => await GetByIdAsync(realm, uri, ctx);//for MinIdp mongo the URI is the login name for simplicity
 
 

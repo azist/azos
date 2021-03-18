@@ -67,7 +67,7 @@ namespace Azos.Security.MinIdp
     public int MaxCacheAgeSec { get; set; } = DEFAULT_CACHE_AGE_SEC;
 
 
-    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, IAuthenticationRequestContext ctx = null)
+    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx = null)
     {
       if (!Running) return null;
 
@@ -84,7 +84,7 @@ namespace Azos.Security.MinIdp
       return data;
     }
 
-    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, IAuthenticationRequestContext ctx = null)
+    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx = null)
     {
       if (!Running) return null;
 
@@ -100,7 +100,7 @@ namespace Azos.Security.MinIdp
       return data;
     }
 
-    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, IAuthenticationRequestContext ctx = null)
+    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx = null)
     {
       if (!Running) return null;
 
