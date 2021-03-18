@@ -30,7 +30,13 @@ namespace Azos.Security.Services
     /// Imposes a maximum age of roundtrip state which is generated on flow start and checked at user credentials POST.
     /// Value is in seconds
     /// </summary>
-    int MaxAuthorizeRoundtripAgeSec {  get; set;}
+    int MaxAuthorizeRoundtripAgeSec { get; set;}
+
+
+    /// <summary>
+    /// Imposes a maximum lifespan for access tokens. If the value is less or equal to zero, then access token defaults are used (e.g. 10 hrs)
+    /// </summary>
+    int AccessTokenLifespanSec { get; set; }
 
     /// <summary>
     /// Imposes a maximum lifespan for refresh tokens. If the value is less or equal to zero, the refresh tokens are NOT

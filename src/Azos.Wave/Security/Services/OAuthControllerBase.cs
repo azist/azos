@@ -282,7 +282,7 @@ namespace Azos.Security.Services
         return ReturnError("invalid_grant", "Invalid grant", code: 403);//no need for gate, the token just got denied
 
       //5. Issue the API access token for this access code
-      var accessToken = OAuth.TokenRing.GenerateNew<AccessToken>();
+      var accessToken = OAuth.TokenRing.GenerateNew<AccessToken>(OAuth.AccessTokenLifespanSec);
       accessToken.ClientId = clcred.ID;
       accessToken.SubjectSysAuthToken = targetUser.AuthToken.ToString();
 
