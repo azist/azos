@@ -154,9 +154,10 @@ namespace Azos.Security.Services
 
       //4. Check user credentials for the subject
       var subjcred = new IDPasswordCredentials(id, pwd);
-      var oauthCtx = new OAuthSubjectAuthenticationRequestContext
+      var oauthCtx = new AuthenticationRequestContext
       {
-        RequestDescription = "OAuth"
+        Intent = AuthenticationRequestContext.INTENT_OAUTH,
+        Description = "OAuth"
       };
 
       if (OAuth.AccessTokenLifespanSec > 0)

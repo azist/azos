@@ -201,9 +201,9 @@ namespace Azos.Security.MinIdp
       //6. Issue new SysAuthToken
       var sysSpanHrs = SysTokenLifespanHours > 0 ? SysTokenLifespanHours : 0.35d;//21 minutes by default
 
-      if (ctx is OAuthSubjectAuthenticationRequestContext oauth)
+      if (ctx != null && ctx.Intent.EqualsOrdSenseCase(AuthenticationRequestContext.INTENT_OAUTH))
       {
-        var ssec = oauth.SysAuthTokenValiditySpanSec ?? 0;
+        var ssec = ctx.SysAuthTokenValiditySpanSec ?? 0;
         if (ssec > 0) sysSpanHrs = Math.Max(sysSpanHrs, ssec / 3_600d);
       }
 
