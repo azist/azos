@@ -154,12 +154,18 @@ namespace Azos.Security.Services
 
       //4. Check user credentials for the subject
       var subjcred = new IDPasswordCredentials(id, pwd);
-      var subject = await App.SecurityManager
-                             .AuthenticateAsync(subjcred, new OAuthSubjectAuthenticationRequestContext
-                                                          {
-                                                            RequestDescription = "OAuth",
-                                                            SysAuthTokenValiditySpanSec = 0//TODO!!!!! Add property which also influences tokenring
-                                                          });
+      var oauthCtx = new OAuthSubjectAuthenticationRequestContext
+      {
+        RequestDescription = "OAuth"
+      };
+
+      if (OAuth.AccessTokenLifespanSec > 0)
+      {
+        oauthCtx.SysAuthTokenValiditySpanSec = OAuth.AccessTokenLifespanSec + 60;//+1 min for login
+      }
+
+
+      var subject = await App.SecurityManager.AuthenticateAsync(subjcred, oauthCtx);
       if (!subject.IsAuthenticated)
       {
         await Task.Delay(1000);//this call resulting in error is guaranteed to take at least 1 second to complete, throttling down the hack attempts
@@ -177,7 +183,7 @@ namespace Azos.Security.Services
 
       //success ------------------
 
-     // 5. Generate ClientAccessCodeToken
+      // 5. Generate ClientAccessCodeToken
       var acToken = OAuth.TokenRing.GenerateNew<ClientAccessCodeToken>();
       acToken.ClientId = clid;
       acToken.State = flow["st"].AsString();
@@ -277,14 +283,14 @@ namespace Azos.Security.Services
 
       //4. Fetch subject/target user
       var auth = SysAuthToken.Parse(clientToken.SubjectSysAuthToken);
-      var targetUser = await App.SecurityManager.AuthenticateAsync(auth);
-      if (!targetUser.IsAuthenticated)
+      var targetUser = await App.SecurityManager.AuthenticateAsync(auth); //re-authenticate the user using the original token.
+      if (!targetUser.IsAuthenticated)                                    //the returned AuthToken must be logically the same as the one granted on login above
         return ReturnError("invalid_grant", "Invalid grant", code: 403);//no need for gate, the token just got denied
 
       //5. Issue the API access token for this access code
       var accessToken = OAuth.TokenRing.GenerateNew<AccessToken>(OAuth.AccessTokenLifespanSec);
       accessToken.ClientId = clcred.ID;
-      accessToken.SubjectSysAuthToken = targetUser.AuthToken.ToString();
+      accessToken.SubjectSysAuthToken = targetUser.AuthToken.ToString();//pointing to the subject user
 
       var token = await OAuth.TokenRing.PutAsync(accessToken);
 

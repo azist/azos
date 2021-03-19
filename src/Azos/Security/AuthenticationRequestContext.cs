@@ -10,7 +10,7 @@ using Azos.Data;
 namespace Azos.Security
 {
   /// <summary>
-  /// Marker interface for specifying extra information for authentication requests
+  /// Base data for specifying extra information for authentication requests
   /// (not to be confuse with authorization), such as providing extra data regarding
   /// the nature of the authentication operation. The ISecurityManager and its subordinate
   /// services may elect to interpret the supplied context object in various ways,

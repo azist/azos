@@ -25,13 +25,11 @@ namespace Azos.Security.Services
     /// </summary>
     string GateVarInvalidUser { get; set; }
 
-
     /// <summary>
     /// Imposes a maximum age of roundtrip state which is generated on flow start and checked at user credentials POST.
     /// Value is in seconds
     /// </summary>
     int MaxAuthorizeRoundtripAgeSec { get; set;}
-
 
     /// <summary>
     /// Imposes a maximum lifespan for access tokens. If the value is less or equal to zero, then access token defaults are used (e.g. 10 hrs)

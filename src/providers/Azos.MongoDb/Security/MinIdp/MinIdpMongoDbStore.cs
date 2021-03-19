@@ -204,7 +204,7 @@ namespace Azos.Security.MinIdp
       if (ctx is OAuthSubjectAuthenticationRequestContext oauth)
       {
         var ssec = oauth.SysAuthTokenValiditySpanSec ?? 0;
-        if (ssec > 0) sysSpanHrs = ssec / 3_600;
+        if (ssec > 0) sysSpanHrs = Math.Max(sysSpanHrs, ssec / 3_600d);
       }
 
       var sysExpiration = App.TimeSource.UTCNow.AddHours(sysSpanHrs);
