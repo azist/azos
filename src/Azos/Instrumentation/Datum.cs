@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 using Azos.Data;
@@ -33,9 +32,29 @@ namespace Azos.Instrumentation
 
 
     #region .ctor
+
+    /// <summary>
+    /// Initializes datum instance populating Host, StartUtc, App if they are unassigned.
+    /// Calling this method multiple time has the same effect
+    /// </summary>
+    public Datum InitDefaultFields(IApplication app = null)
+    {
+      if (app == null) app = Apps.ExecutionContext.Application;
+
+      if (m_Host.IsNullOrWhiteSpace())
+        m_Host = Platform.Computer.HostName;
+
+      if (m_StartUtc == default(DateTime))
+        m_StartUtc = app.TimeSource.UTCNow;
+
+      if (m_App.IsZero)
+        m_App = app.AppId;
+
+      return this;
+    }
+
     protected Datum()
     {
-      m_StartUtc = Ambient.UTCNow;
     }
 
     protected Datum(string source)
@@ -53,6 +72,8 @@ namespace Azos.Instrumentation
 
     #region Fields
     private GDID m_Gdid;
+    private Atom m_App;
+    private string m_Host;
     private string m_Source;
     private long m_Count;
     private DateTime m_StartUtc;
@@ -89,6 +110,26 @@ namespace Azos.Instrumentation
     {
       get => m_Count == 0 ? m_StartUtc : m_EndUtc;
       protected set => m_EndUtc = value;
+    }
+
+    /// <summary>
+    /// Emitting application
+    /// </summary>
+    [Field, Field(isArow: true, backendName: "app")]
+    public Atom App
+    {
+      get => m_App;
+      protected set => m_App = value;
+    }
+
+    /// <summary>
+    /// Emitting host
+    /// </summary>
+    [Field, Field(isArow: true, backendName: "hst")]
+    public string Host
+    {
+      get => m_Host;
+      protected set => m_Host = value;
     }
 
 
@@ -128,7 +169,7 @@ namespace Azos.Instrumentation
     public bool IsUnspecifiedSource => IsUnspecifiedSourceString(Source);
 
     /// <summary>
-    /// Returns rate of occurrence string
+    /// Returns rate of occurrence string as "2.50/sec."
     /// </summary>
     public string Rate
     {
@@ -177,6 +218,12 @@ namespace Azos.Instrumentation
     /// Provides name for units that value is measured in
     /// </summary>
     public abstract string ValueUnitName { get; }
+
+    /// <summary>
+    /// Extra data is disabled by default
+    /// </summary>
+    public override bool AmorphousDataEnabled => false;
+
     #endregion
 
     #region Public
@@ -204,6 +251,8 @@ namespace Azos.Instrumentation
     /// </summary>
     public Datum Aggregate(IEnumerable<Datum> many)
     {
+      many.NonNull(nameof(many));
+
       var start = DateTime.MaxValue;
       var end = DateTime.MinValue;
       var cnt = 0;
@@ -215,12 +264,14 @@ namespace Azos.Instrumentation
         cnt++;
         if (e.StartUtc < start) start = e.StartUtc;
         if (e.StartUtc > end) end = e.StartUtc;
+
         result.AggregateEvent(e);
       }
 
       result.m_Count = cnt;
       result.m_StartUtc = start;
       result.m_EndUtc = end;
+
       result.SummarizeAggregation();
 
       return result;
@@ -268,6 +319,7 @@ namespace Azos.Instrumentation
       if (def?.Order == 0)
       {
         Serialization.Bix.BixJsonHandler.EmitJsonBixDiscriminator(this, jsonMap);
+        jsonMap["ref"] = this.RefValue;
       }
 
       base.AddJsonSerializerField(def, options, jsonMap, name, value);

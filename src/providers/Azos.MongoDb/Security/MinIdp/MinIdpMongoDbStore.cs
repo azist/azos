@@ -164,7 +164,7 @@ namespace Azos.Security.MinIdp
       return data;
     }
 
-    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
+    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx = null)
     {
       //0. check login, put to lower invariant
       if (id.IsNullOrWhiteSpace()) return null;
@@ -199,7 +199,17 @@ namespace Azos.Security.MinIdp
       if (result == null) return null;
 
       //6. Issue new SysAuthToken
-      var msg = new { id = result.SysId, exp = App.TimeSource.UTCNow.AddHours(SysTokenLifespanHours > 0 ? SysTokenLifespanHours : 0.25d ) };
+      var sysSpanHrs = SysTokenLifespanHours > 0 ? SysTokenLifespanHours : 0.35d;//21 minutes by default
+
+      if (ctx is OAuthSubjectAuthenticationRequestContext oauth)
+      {
+        var ssec = oauth.SysAuthTokenValiditySpanSec ?? 0;
+        if (ssec > 0) sysSpanHrs = Math.Max(sysSpanHrs, ssec / 3_600d);
+      }
+
+      var sysExpiration = App.TimeSource.UTCNow.AddHours(sysSpanHrs);
+
+      var msg = new { id = result.SysId, exp = sysExpiration };
       result.SysTokenData = SysTokenCryptoAlgorithm.ProtectAsString(msg);
 
       return result;
@@ -217,7 +227,7 @@ namespace Azos.Security.MinIdp
                                                                     a.Flags.HasFlag(CryptoMessageAlgorithmFlags.CanUnprotect),
                                                                     "Algo `{0}` !internal !cipher".Args(SysTokenCryptoAlgorithmName));
 
-    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
+    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx = null)
     {
       //0. Check access token integrity by using message protection API
       // only the server has the key to issue and check the message token.
@@ -260,8 +270,8 @@ namespace Azos.Security.MinIdp
     }
 
 
-    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
-    => await GetByIdAsync(realm, uri);//for MinIdp mongo the URI is the login name for simplicity
+    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx = null)
+    => await GetByIdAsync(realm, uri, ctx);//for MinIdp mongo the URI is the login name for simplicity
 
 
     protected override void DoConfigure(IConfigSectionNode node)

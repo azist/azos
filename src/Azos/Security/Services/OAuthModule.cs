@@ -72,6 +72,9 @@ namespace Azos.Security.Services
     }
 
     [Config]
+    public int AccessTokenLifespanSec { get; set; }
+
+    [Config]
     public int RefreshTokenLifespanSec { get; set; }
 
     public bool CheckScope(string scope)

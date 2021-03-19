@@ -213,21 +213,21 @@ namespace Azos.Log
     /// </param>
     public void Write(Message msg, bool urgent)
     {
-        if (Status != DaemonStatus.Active) return;
+      if (Status != DaemonStatus.Active) return;
 
-        if (msg==null) return;
+      if (msg==null) return;
 
-        msg.InitDefaultFields(App);
+      msg.InitDefaultFields(App);
 
-        if (msg.Type>=MessageType.Emergency) m_LastCatastrophy = msg;
-        else
-        if (msg.Type>=MessageType.Error) m_LastError = msg;
-        else
-        if (msg.Type>=MessageType.Warning) m_LastWarning = msg;
+      if (msg.Type>=MessageType.Emergency) m_LastCatastrophy = msg;
+      else
+      if (msg.Type>=MessageType.Error) m_LastError = msg;
+      else
+      if (msg.Type>=MessageType.Warning) m_LastWarning = msg;
 
-        if (m_InstrumentationEnabled) m_InstrBuffer.Send(msg);
+      if (m_InstrumentationEnabled) m_InstrBuffer.Send(msg);
 
-        DoWrite(msg, urgent);
+      DoWrite(msg, urgent);
     }
 
     /// <summary>

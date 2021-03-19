@@ -249,38 +249,38 @@ manc
       return JsonReader.ToDoc<MinIdpUserData>(dataMap);
     }
 
-    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
+    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx = null)
       => await guardedIdpAccess(async (rel) =>
           {
               var response = await m_Server.Call(IdpServerAddress,
                                             nameof(IMinIdpStore),
                                             id,
                                             (tx, c) => tx.Client
-                                                         .PostAndGetJsonMapAsync("byid", new { realm = realm, id = id}));//do NOT del prop names
+                                                         .PostAndGetJsonMapAsync("byid", new { realm = realm, id = id, ctx = ctx }));//do NOT del prop names
 
               return processResponse(rel, response);
           });
 
-    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
+    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx = null)
       => await guardedIdpAccess(async (rel) =>
           {
             var response = await m_Server.Call(IdpServerAddress,
                                           nameof(IMinIdpStore),
                                           sysToken,
                                           (tx, c) => tx.Client
-                                                       .PostAndGetJsonMapAsync("bysys", new { realm = realm, sysToken = sysToken }));//do NOT del prop names
+                                                       .PostAndGetJsonMapAsync("bysys", new { realm = realm, sysToken = sysToken, ctx = ctx }));//do NOT del prop names
 
             return processResponse(rel, response);
           });
 
-    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
+    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx = null)
       => await guardedIdpAccess(async (rel) =>
           {
             var response = await m_Server.Call(IdpServerAddress,
                                           nameof(IMinIdpStore),
                                           uri,
                                           (tx, c) => tx.Client
-                                                       .PostAndGetJsonMapAsync("byuri", new { realm = realm, uri =  uri }));//do NOT del prop names
+                                                       .PostAndGetJsonMapAsync("byuri", new { realm = realm, uri =  uri, ctx = ctx }));//do NOT del prop names
 
             return processResponse(rel, response);
           });

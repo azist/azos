@@ -59,27 +59,27 @@ namespace Azos.Instrumentation
 
         #region Private Fields
 
-            private int m_ProcessingIntervalMS = DEFAULT_INTERVAL_MSEC;
+        private int m_ProcessingIntervalMS = DEFAULT_INTERVAL_MSEC;
 
-            private int m_OSInstrumentationIntervalMS;
+        private int m_OSInstrumentationIntervalMS;
 
-            private bool m_SelfInstrumented;
+        private bool m_SelfInstrumented;
 
-            private Thread m_Thread;
+        private Thread m_Thread;
 
-            private InstrumentationProvider m_Provider;
+        private InstrumentationProvider m_Provider;
 
-            private AutoResetEvent m_Trigger = new AutoResetEvent(false);
+        private AutoResetEvent m_Trigger = new AutoResetEvent(false);
 
-            private TypeBucketedData m_TypeBucketed;
+        private TypeBucketedData m_TypeBucketed;
 
-            private int m_RecordCount;
+        private int m_RecordCount;
 
-            private int m_MaxRecordCount = DEFAULT_MAX_REC_COUNT;
+        private int m_MaxRecordCount = DEFAULT_MAX_REC_COUNT;
 
-            private Datum[] m_ResultBuffer;
-            private int m_ResultBufferIndex = 0;
-            private int m_ResultBufferSize = DEFAULT_RESULT_BUFFER_SIZE;
+        private Datum[] m_ResultBuffer;
+        private int m_ResultBufferIndex = 0;
+        private int m_ResultBufferSize = DEFAULT_RESULT_BUFFER_SIZE;
 
         #endregion
 
@@ -229,6 +229,9 @@ namespace Azos.Instrumentation
             {
               if (Status != DaemonStatus.Active) return;
               if (datum==null) return;
+
+              datum.InitDefaultFields(App);
+
               if (Overflown) return;
 
               var t = datum.GetType();

@@ -48,10 +48,13 @@ namespace Azos.Security
     /// Particular manager implementation may elect to support multiple credential types, i.e.
     /// IdPassword, Twitter, Facebook, OAuth, LegacySystemA/B/C etc.
     /// </param>
+    /// <param name="ctx">
+    /// Provides an optional extra data describing the context of this authentication request
+    /// </param>
     /// <returns>
     /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
     /// </returns>
-    User Authenticate(Credentials credentials);
+    User Authenticate(Credentials credentials, AuthenticationRequestContext ctx = null);
 
     /// <summary>
     /// Authenticates user by checking the supplied credentials against the
@@ -65,10 +68,13 @@ namespace Azos.Security
     /// Particular manager implementation may elect to support multiple credential types, i.e.
     /// IdPassword, Twitter, Facebook, OAuth, LegacySystemA/B/C etc.
     /// </param>
+    /// <param name="ctx">
+    /// Provides an optional extra data describing the context of this authentication request
+    /// </param>
     /// <returns>
     /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
     /// </returns>
-    Task<User> AuthenticateAsync(Credentials credentials);
+    Task<User> AuthenticateAsync(Credentials credentials, AuthenticationRequestContext ctx = null);
 
 
     /// <summary>
@@ -80,10 +86,13 @@ namespace Azos.Security
     ///  Authorize() may re-fetch permissions from store on every call or cache them for the specified interval in memory
     /// </summary>
     /// <param name="token">User authentication token </param>
+    /// <param name="ctx">
+    /// Provides an optional extra data describing the context of this authentication request
+    /// </param>
     /// <returns>
     /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
     /// </returns>
-    User Authenticate(SysAuthToken token);
+    User Authenticate(SysAuthToken token, AuthenticationRequestContext ctx = null);
 
     /// <summary>
     /// Authenticates user by checking the supplied token against the
@@ -94,10 +103,13 @@ namespace Azos.Security
     ///  Authorize() may re-fetch permissions from store on every call or cache them for the specified interval in memory
     /// </summary>
     /// <param name="token">User authentication token </param>
+    /// <param name="ctx">
+    /// Provides an optional extra data describing the context of this authentication request
+    /// </param>
     /// <returns>
     /// User object. Check User.Status for UserStatus.Invalid flag to see if authentication succeeded
     /// </returns>
-    Task<User> AuthenticateAsync(SysAuthToken token);
+    Task<User> AuthenticateAsync(SysAuthToken token, AuthenticationRequestContext ctx = null);
 
 
     /// <summary>
@@ -110,7 +122,10 @@ namespace Azos.Security
     ///  Authorize() may re-fetch permissions from store on every call or cache them for the specified interval in memory
     /// </summary>
     /// <param name="user">User object which is checked and updated</param>
-    void Authenticate(User user);
+    /// <param name="ctx">
+    /// Provides an optional extra data describing the context of this authentication request
+    /// </param>
+    void Authenticate(User user, AuthenticationRequestContext ctx = null);
 
     /// <summary>
     /// Authenticates user by checking the supplied user's token against the
@@ -122,7 +137,10 @@ namespace Azos.Security
     ///  Authorize() may re-fetch permissions from store on every call or cache them for the specified interval in memory
     /// </summary>
     /// <param name="user">User object which is checked and updated</param>
-    Task AuthenticateAsync(User user);
+    /// <param name="ctx">
+    /// Provides an optional extra data describing the context of this authentication request
+    /// </param>
+    Task AuthenticateAsync(User user, AuthenticationRequestContext ctx = null);
 
     /// <summary>
     /// Authorizes user by finding appropriate access level to permission by supplied path.
