@@ -66,7 +66,7 @@ namespace Azos.Data.Access.Oracle
     public async Task<CRUDTransaction> BeginTransactionAsync(IsolationLevel iso = IsolationLevel.ReadCommitted,
                                                              TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
     {
-      var cnn = await GetConnection();
+      var cnn = await GetConnection().ConfigureAwait(false);
       return new OracleCRUDTransaction(this, cnn, iso, behavior);//transaction owns the connection
     }
 
@@ -75,8 +75,8 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<Schema> GetSchemaAsync(Query query)
     {
-      using (var cnn = await GetConnection())
-        return await DoGetSchemaAsync(cnn, null, query);
+      using (var cnn = await GetConnection().ConfigureAwait(false))
+        return await DoGetSchemaAsync(cnn, null, query).ConfigureAwait(false);
     }
 
     public List<RowsetBase> Load(params Query[] queries)
@@ -84,22 +84,22 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<List<RowsetBase>> LoadAsync(params Query[] queries)
     {
-      using (var cnn = await GetConnection())
-        return await DoLoadAsync(cnn, null, queries);
+      using (var cnn = await GetConnection().ConfigureAwait(false))
+        return await DoLoadAsync(cnn, null, queries).ConfigureAwait(false);
     }
 
     public RowsetBase LoadOneRowset(Query query)
      => Load(query).FirstOrDefault();
 
     public async Task<RowsetBase> LoadOneRowsetAsync(Query query)
-     => (await LoadAsync(query)).FirstOrDefault();
+     => (await LoadAsync(query).ConfigureAwait(false)).FirstOrDefault();
 
     public Doc LoadOneDoc(Query query)
      => LoadOneDocAsync(query).GetAwaiter().GetResult();
 
     public async Task<Doc> LoadOneDocAsync(Query query)
     {
-      var rowset = await LoadOneRowsetAsync(query);
+      var rowset = await LoadOneRowsetAsync(query).ConfigureAwait(false);
       return rowset?.FirstOrDefault();
     }
 
@@ -108,8 +108,8 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<Cursor> OpenCursorAsync(Query query)
     {
-      using (var cnn = await GetConnection())
-        return await DoOpenCursorAsync(cnn, null, query);
+      using (var cnn = await GetConnection().ConfigureAwait(false))
+        return await DoOpenCursorAsync(cnn, null, query).ConfigureAwait(false);
     }
 
     public int Save(params RowsetBase[] rowsets)
@@ -117,8 +117,8 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<int> SaveAsync(params RowsetBase[] rowsets)
     {
-      using (var cnn = await GetConnection())
-        return await DoSaveAsync(cnn,  null, rowsets);
+      using (var cnn = await GetConnection().ConfigureAwait(false))
+        return await DoSaveAsync(cnn,  null, rowsets).ConfigureAwait(false);
     }
 
     public int Insert(Doc row, FieldFilterFunc filter = null)
@@ -126,8 +126,8 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<int> InsertAsync(Doc row, FieldFilterFunc filter = null)
     {
-      using (var cnn = await GetConnection())
-        return await DoInsertAsync(cnn,  null, row, filter);
+      using (var cnn = await GetConnection().ConfigureAwait(false))
+        return await DoInsertAsync(cnn,  null, row, filter).ConfigureAwait(false);
     }
 
     public int Upsert(Doc row, FieldFilterFunc filter = null)
@@ -135,8 +135,8 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<int> UpsertAsync(Doc row, FieldFilterFunc filter = null)
     {
-      using (var cnn = await GetConnection())
-        return await DoUpsertAsync(cnn,  null, row, filter);
+      using (var cnn = await GetConnection().ConfigureAwait(false))
+        return await DoUpsertAsync(cnn,  null, row, filter).ConfigureAwait(false);
     }
 
     public int Update(Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
@@ -144,8 +144,8 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<int> UpdateAsync(Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
     {
-      using (var cnn = await GetConnection())
-        return await DoUpdateAsync(cnn,  null, row, key, filter);
+      using (var cnn = await GetConnection().ConfigureAwait(false))
+        return await DoUpdateAsync(cnn,  null, row, key, filter).ConfigureAwait(false);
     }
 
     public int Delete(Doc row, IDataStoreKey key = null)
@@ -153,8 +153,8 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<int> DeleteAsync(Doc row, IDataStoreKey key = null)
     {
-      using (var cnn = await GetConnection())
-        return await DoDeleteAsync(cnn,  null, row, key);
+      using (var cnn = await GetConnection().ConfigureAwait(false))
+        return await DoDeleteAsync(cnn,  null, row, key).ConfigureAwait(false);
     }
 
     public int ExecuteWithoutFetch(params Query[] queries)
@@ -162,8 +162,8 @@ namespace Azos.Data.Access.Oracle
 
     public async Task<int> ExecuteWithoutFetchAsync(params Query[] queries)
     {
-      using (var cnn = await GetConnection())
-        return await DoExecuteWithoutFetchAsync(cnn, null, queries);
+      using (var cnn = await GetConnection().ConfigureAwait(false))
+        return await DoExecuteWithoutFetchAsync(cnn, null, queries).ConfigureAwait(false);
     }
 
     public CRUDQueryHandler MakeScriptQueryHandler(QuerySource querySource)
@@ -191,7 +191,7 @@ namespace Azos.Data.Access.Oracle
       var handler = QueryResolver.Resolve(query);
       try
       {
-        return await handler.GetSchemaAsync( new OracleCRUDQueryExecutionContext(this, cnn, transaction), query);
+        return await handler.GetSchemaAsync( new OracleCRUDQueryExecutionContext(this, cnn, transaction), query).ConfigureAwait(false);
       }
       catch (Exception error)
       {
@@ -216,7 +216,7 @@ namespace Azos.Data.Access.Oracle
         var handler = QueryResolver.Resolve(query);
         try
         {
-          var rowset = await handler.ExecuteAsync( new OracleCRUDQueryExecutionContext(this, cnn, transaction), query, oneDoc);
+          var rowset = await handler.ExecuteAsync( new OracleCRUDQueryExecutionContext(this, cnn, transaction), query, oneDoc).ConfigureAwait(false);
           result.Add(rowset);
         }
         catch (Exception error)
@@ -242,7 +242,7 @@ namespace Azos.Data.Access.Oracle
       var handler = QueryResolver.Resolve(query);
       try
       {
-        return await handler.OpenCursorAsync( context, query);
+        return await handler.OpenCursorAsync( context, query).ConfigureAwait(false);
       }
       catch (Exception error)
       {
@@ -268,7 +268,7 @@ namespace Azos.Data.Access.Oracle
         var handler = QueryResolver.Resolve(query);
         try
         {
-          affected += await handler.ExecuteWithoutFetchAsync(new OracleCRUDQueryExecutionContext(this, cnn, transaction), query);
+          affected += await handler.ExecuteWithoutFetchAsync(new OracleCRUDQueryExecutionContext(this, cnn, transaction), query).ConfigureAwait(false);
         }
         catch (Exception error)
         {

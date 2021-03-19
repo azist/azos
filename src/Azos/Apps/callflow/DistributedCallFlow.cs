@@ -262,7 +262,7 @@ namespace Azos.Apps
           newFlow = Start(app, description, guid, directorName, callerAgent, callerPort);
         }
 
-        return await body(newFlow);
+        return await body(newFlow);//do not .ConfigureAwait(false);
       }
       finally
       {

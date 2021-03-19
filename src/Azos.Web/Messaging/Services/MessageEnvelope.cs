@@ -64,7 +64,7 @@ namespace Azos.Web.Messaging.Services
 
     protected override async Task<SaveResult<ChangeResult>> DoSaveAsync()
     {
-      var mid = await m_MessagingLogic.SendAsync(Content, GetMessageProps());
+      var mid = await m_MessagingLogic.SendAsync(Content, GetMessageProps()).ConfigureAwait(false);
 
       var change = new ChangeResult(ChangeResult.ChangeType.Inserted,
                                     affectedCount: 1,

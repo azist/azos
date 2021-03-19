@@ -78,7 +78,7 @@ namespace Azos.Security.MinIdp
         lock(m_DataLock)
           if (m_IdxId.TryGetValue(new realmed(realm, id), out var existing)) return existing.d;
 
-      var data = await m_Store.GetByIdAsync(realm, id, ctx);
+      var data = await m_Store.GetByIdAsync(realm, id, ctx).ConfigureAwait(false);
 
       updateIndexes(realm, data);
       return data;
@@ -94,7 +94,7 @@ namespace Azos.Security.MinIdp
         lock (m_DataLock)
           if (m_IdxSysToken.TryGetValue(new realmed(realm, sysToken), out var existing)) return existing;
 
-      var data = await m_Store.GetBySysAsync(realm, sysToken, ctx);
+      var data = await m_Store.GetBySysAsync(realm, sysToken, ctx).ConfigureAwait(false);
 
       updateIndexes(realm, data);
       return data;
@@ -110,7 +110,7 @@ namespace Azos.Security.MinIdp
         lock (m_DataLock)
           if (m_IdxUri.TryGetValue(new realmed(realm, uri), out var existing)) return existing;
 
-      var data = await m_Store.GetByUriAsync(realm, uri, ctx);
+      var data = await m_Store.GetByUriAsync(realm, uri, ctx).ConfigureAwait(false);
 
       updateIndexes(realm, data);
       return data;

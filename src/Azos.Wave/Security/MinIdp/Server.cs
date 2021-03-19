@@ -78,7 +78,7 @@ namespace Azos.Security.MinIdp
     public async Task<object> GetById(Atom realm, string id, bool plain, AuthenticationRequestContext ctx)
     {
       var store = Store;
-      return secure(store, await store.GetByIdAsync(realm, id, ctx), plain);
+      return secure(store, await store.GetByIdAsync(realm, id, ctx).ConfigureAwait(false), plain);
     }
 
     [ApiEndpointDoc(
@@ -91,7 +91,7 @@ namespace Azos.Security.MinIdp
     public async Task<object> GetBySys(Atom realm, string sysToken, bool plain, AuthenticationRequestContext ctx)
     {
       var store = Store;
-      return secure(store, await store.GetBySysAsync(realm, sysToken, ctx), plain);
+      return secure(store, await store.GetBySysAsync(realm, sysToken, ctx).ConfigureAwait(false), plain);
     }
 
     [ApiEndpointDoc(
@@ -104,7 +104,7 @@ namespace Azos.Security.MinIdp
     public async Task<object> GetByUri(Atom realm, string uri, bool plain, AuthenticationRequestContext ctx = null)
     {
       var store = Store;
-      return secure(store, await store.GetByUriAsync(realm, uri, ctx), plain);
+      return secure(store, await store.GetByUriAsync(realm, uri, ctx).ConfigureAwait(false), plain);
     }
 
     [ApiEndpointDoc(
