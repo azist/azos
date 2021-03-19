@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Azos.IO.FileSystem
@@ -28,14 +29,24 @@ namespace Azos.IO.FileSystem
       var dir = session[session.FileSystem.GetPathRoot(fullPath)] as FileSystemDirectory;
       if (dir == null) return false;
 
-      foreach (var seg in segments)
+      var toClean = new List<FileSystemSessionItem>{ dir };
+
+      try
       {
-        var sub = dir.GetSubDirectory(seg);
+        foreach (var seg in segments)
+        {
+          var sub = dir.GetSubDirectory(seg);
 
-        if (sub == null)
-          sub = dir.CreateDirectory(seg);
+          if (sub == null)
+            sub = dir.CreateDirectory(seg);
 
-        dir = sub;
+          toClean.Add(sub);
+          dir = sub;
+        }
+      }
+      finally
+      {
+        toClean.ForEach( i => i.Dispose());
       }
 
       return true;

@@ -79,15 +79,17 @@ namespace Azos.Log.Sinks
     private DateTime m_PrevDate;
     protected internal override void DoPulse()
     {
+      const int SCAN_FREQ_SEC = 10;
+
       base.DoPulse();
 
       if (m_Stream==null) return;
 
       var utcNow = DateTime.UtcNow;
-      if ((utcNow - m_PrevDate).TotalSeconds < 10) return;
+      if ((utcNow - m_PrevDate).TotalSeconds < SCAN_FREQ_SEC) return;
       m_PrevDate = utcNow;
 
-      if (m_StreamFileName != GetDestinationFileName())
+      if (m_StreamFileName != GetDestinationFileName().fullPath)
       {
         m_Recreate = true;
         ensureStream();
@@ -122,7 +124,7 @@ namespace Azos.Log.Sinks
     protected virtual string DefaultFileName => DEFAULT_FILENAME;
 
 
-    protected virtual string GetDestinationFileName()
+    protected virtual (string dirPath, string fn, string fullPath) GetDestinationFileName()
     {
       var path = m_Path;
       if (path.IsNotNullOrWhiteSpace())
@@ -154,10 +156,8 @@ namespace Azos.Log.Sinks
         throw new LogException(StringConsts.LOGSVC_FILE_SINK_FILENAME_ERROR.Args(Name, fn, error.ToMessageWithType()), error);
       }
 
-      CheckPath(path);
-
       var result = path.IsNullOrWhiteSpace() ? fn : CombinePaths(path, fn);
-      return result;
+      return (path, fn, result);
     }
 
     /// <summary>
@@ -180,13 +180,16 @@ namespace Azos.Log.Sinks
 
     private void ensureStream()
     {
-      if (m_Stream!=null && !m_Recreate) return;
+      if (m_Stream != null && !m_Recreate) return;
+
       closeStream();
       m_Recreate = false;
-      var fn = GetDestinationFileName();
+      var (dirPath, fn, fullPath) = GetDestinationFileName();
 
-      m_Stream = MakeStream(fn);
-      m_StreamFileName = fn;
+      CheckPath(dirPath);
+
+      m_Stream = MakeStream(fullPath);
+      m_StreamFileName = fullPath;
       DoOpenStream();
     }
 
