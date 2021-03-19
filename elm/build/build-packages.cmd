@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.7.0
-set HEADLINE=Fix 446,442,443 component shutdown expected timeout, torn mongo connection detection
+set VER=1.8.0
+set HEADLINE=Fix 445, configureawait, idp auth context for long term tokens
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
