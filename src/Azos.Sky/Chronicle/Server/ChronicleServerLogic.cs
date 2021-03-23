@@ -123,7 +123,9 @@ namespace Azos.Sky.Chronicle.Server
           .Data
           .NonNull(nameof(data.Data));
 
-      if (data.Data.Any(m => m == null)) data.Data = data.Data.Where(m => m != null).ToArray();
+      //do not realloc if not needed
+      if (data.Data.Any(m => m == null))
+        data.Data = data.Data.Where(m => m != null).ToArray();
 
       data.Data.IsTrue(d => d.Any(), "No data supplied");
 
@@ -133,7 +135,6 @@ namespace Azos.Sky.Chronicle.Server
       for(int i=0, j=0; i < data.Data.Length; i++)
       {
         var msg = data.Data[i];
-        if (msg == null) continue;
 
         if (gdidFailure == null)
         {
