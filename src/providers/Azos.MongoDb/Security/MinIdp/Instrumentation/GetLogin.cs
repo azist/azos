@@ -43,14 +43,16 @@ namespace Azos.Security.MinIdp.Instrumentation
        return crole.FindOne(Query.ID_EQ_String(this.Id));
       });
 
+      if (bson==null) return null;
+
       return new JsonDataMap
       {
-        {nameof(SetLogin.Id),       bson[BsonDataModel._ID].ObjectValue},
-        {nameof(SetLogin.SysId),    bson[BsonDataModel.FLD_SYSID].ObjectValue},
+        {nameof(SetLogin.Id),       bson[BsonDataModel._ID]?.ObjectValue},
+        {nameof(SetLogin.SysId),    bson[BsonDataModel.FLD_SYSID]?.ObjectValue},
         {nameof(SetLogin.Password), "*******"},
-        {"createUtc",               bson[BsonDataModel.FLD_CREATEUTC].ObjectValue},
-        {nameof(SetLogin.StartUtc), bson[BsonDataModel.FLD_STARTUTC].ObjectValue},
-        {nameof(SetLogin.EndUtc),   bson[BsonDataModel.FLD_ENDUTC].ObjectValue},
+        {"createUtc",               bson[BsonDataModel.FLD_CREATEUTC]?.ObjectValue},
+        {nameof(SetLogin.StartUtc), bson[BsonDataModel.FLD_STARTUTC]?.ObjectValue},
+        {nameof(SetLogin.EndUtc),   bson[BsonDataModel.FLD_ENDUTC]?.ObjectValue},
       };
     }
 
