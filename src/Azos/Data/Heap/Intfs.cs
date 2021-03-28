@@ -15,8 +15,8 @@
 
 //  public struct ObjectPtr : IEquatable<ObjectPtr>
 //  {
-//     public object ShardingId;
-//     public GDID Id;
+//    public object ShardingId;
+//    public GDID Id;
 
 //    public bool Equals(ObjectPtr other)
 //    {
@@ -51,13 +51,13 @@
 //  public interface IInstance
 //  {
 //    ISchema Schema { get; }
-//    IRegistry<IArea> Areas{ get; }
+//    IRegistry<IArea> Areas { get; }
 //  }
 
 
 //  public interface IArea
 //  {
-//    IAreaDef Definition {  get; }
+//    IAreaDef Definition { get; }
 
 //    /// <summary>
 //    /// Heap Instance
@@ -69,10 +69,26 @@
 
 //  public interface IHeapCollection<T> where T : HeapObject
 //  {
-//    IArea Area {  get; }
+//    IArea Area { get; }
 
 //    Task<T> GetAsync(ObjectPtr ptr);
 //    Task<SaveResult<T>> SetAsync(T instance);
 //    Task<SaveResult<ObjectVersion>> FreeAsync(ObjectPtr ptr);
 //  }
 //}
+
+
+
+//HeapObject:   TTL
+
+//  ObjectVersion is not needed because area engine may not know how to handle specific replication
+//  needed for every object type, therefore those replication-controlling fields a-la CRDT are really needed
+//  in the data buffer itself.
+
+//  State-based CRDTs are called convergent replicated data types, or CvRDTs. In contrast to CmRDTs, CvRDTs send their full local state
+//  to other replicas, where the states are merged by a function which must be [COMMUTATIVE, ASSOCIATIVE, AND IDEMPOTENT].
+//The merge function provides a join for any pair of replica states, so the set of all states forms a semilattice.The update function must monotonically increase the internal state, according to the same partial order rules as the semilattice.
+
+//http://jtfmumm.com/blog/2015/11/17/crdt-primer-1-defanging-order-theory/
+//https://lars.hupel.info/topics/crdt/07-deletion/
+
