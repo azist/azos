@@ -12,7 +12,7 @@ namespace Azos.Standards.Medical
   /// United States - National Drug Code
   /// </summary>
   [Serializable]
-  public struct UsNdc : IEquatable<UsNdc>, IRequired, IJsonReadable, IJsonWritable, IFormattable
+  public struct UsNdc : IEquatable<UsNdc>, IRequiredCheck, IJsonReadable, IJsonWritable, IFormattable
   {
     public ulong Value;
 

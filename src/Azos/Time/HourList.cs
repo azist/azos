@@ -18,7 +18,7 @@ namespace Azos.Time
   /// Efficiently represents a list of minute-aligned time spans within a day
   /// which is typically used for operation hours/schedules
   /// </summary>
-  public struct HourList : IEquatable<HourList>, IJsonWritable, IJsonReadable, IValidatable, IRequired
+  public struct HourList : IEquatable<HourList>, IJsonWritable, IJsonReadable, IValidatable, IRequiredCheck
   {
     public const int MINUTES_PER_DAY = 24 * 60;
 

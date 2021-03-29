@@ -102,11 +102,10 @@ namespace Azos.Data.Heap
   }
 
 
-  [Heap("med", "doctor", ChannelName = "std")]
+  [Heap("doc", "doc", ChannelName = "std")]  //16 servers 3 locations
   public class Doctor : HeapObject
   {
     [Field] public string NPI{ get; set; }
   }
-
 
 }

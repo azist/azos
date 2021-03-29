@@ -12,7 +12,7 @@ namespace Azos.Standards.Medical
   /// United States - National Provider Identifier
   /// </summary>
   [Serializable]
-  public struct UsNpi : IEquatable<UsNpi>, IRequired, IJsonReadable, IJsonWritable, IFormattable
+  public struct UsNpi : IEquatable<UsNpi>, IRequiredCheck, IJsonReadable, IJsonWritable, IFormattable
   {
     public ulong Value;
 

@@ -17,7 +17,7 @@ namespace Azos.Glue
   /// An example of some 'mytest' binding: 'mytest://adr=1.1.1.1,nic=eth001:job,chat,backup'
   /// </summary>
   [Serializable]
-  public struct Node : Collections.INamed, IEquatable<Node>, IRequired
+  public struct Node : Collections.INamed, IEquatable<Node>, IRequiredCheck
   {
     public const string BINDING_SEPARATOR = "://";
     public const string SERVICE_SEPARATOR = ":";

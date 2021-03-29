@@ -12,7 +12,7 @@
 ////  /// Anatomical Therepeutic Code
 ////  /// </summary>
 ////  [Serializable]
-////  public struct Atc : IEquatable<Atc>, IRequired, IJsonReadable, IJsonWritable, IFormattable
+////  public struct Atc : IEquatable<Atc>, IRequiredCheck, IJsonReadable, IJsonWritable, IFormattable
 ////  {
 ////   // public ulong Value;
 ////   //ATC needs two atoms for a string?

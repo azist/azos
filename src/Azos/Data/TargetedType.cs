@@ -6,7 +6,7 @@ namespace Azos.Data
   /// Represents a tuple of Type with string TargetName which is needed in many cases working with
   /// providers targeted by name
   /// </summary>
-  public struct TargetedType : IEquatable<TargetedType>, IRequired
+  public struct TargetedType : IEquatable<TargetedType>, IRequiredCheck
   {
     public TargetedType(string target, Type type)
     {

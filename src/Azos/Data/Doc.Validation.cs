@@ -335,7 +335,7 @@ namespace Azos.Data
       var missing =
            (value == null) ||
            (value is string strv && strv.IsNullOrWhiteSpace()) || //string null, or whitespace are treated as missing
-           (value is IRequired ireq && !ireq.CheckRequired(targetName));
+           (value is IRequiredCheck ireq && !ireq.CheckRequired(targetName));
 
       if (missing)
       {
@@ -351,6 +351,17 @@ namespace Azos.Data
     protected virtual Exception CheckValueLength(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value, string scope)
     {
       if (atr.MinLength < 1 && atr.MaxLength < 1) return null;
+
+      if (value is ILengthCheck lc)
+      {
+        if (atr.MinLength > 0 && !lc.CheckMinLength(targetName, atr.MinLength))
+          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength));
+
+        if (atr.MaxLength > 0 && !lc.CheckMaxLength(targetName, atr.MaxLength))
+          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength));
+
+        return null;
+      }
 
       var isString = value is string;
       var eobj = value as IEnumerable;

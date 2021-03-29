@@ -258,14 +258,14 @@ namespace Azos.Web
     /// Processes the "wrap" Json protocol with ChangeResult such as: '{OK: true, change: "Inserted", affected: 3, message: "...", data: {...}}'
     /// Throws averment exceptions if OK!=true, no 'data' or 'change' keys are returned
     /// </summary>
-    public static Data.Business.ChangeResult UnwrapChangeResult(this JsonDataMap data)
+    public static ChangeResult UnwrapChangeResult(this JsonDataMap data)
     {
       data.NonNull(nameof(data)).ExpectOK();
 
       Aver.IsTrue(data.ContainsKey("change"), "no ['change'] key");
       Aver.IsTrue(data.ContainsKey("data"), "no ['data'] key");
 
-      return new Data.Business.ChangeResult(data);
+      return new ChangeResult(data);
     }
 
 

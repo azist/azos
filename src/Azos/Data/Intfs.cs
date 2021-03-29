@@ -26,7 +26,7 @@ namespace Azos.Data
   /// You can also implement this on classes, so even if an object instance of implementing class is not null, that object may not represent
   /// a required value per given target(system/use-case).
   /// </summary>
-  public interface IRequired
+  public interface IRequiredCheck
   {
     /// <summary>
     /// Checks required state for the supplied target. Returns true if an instance state has the required value
@@ -42,6 +42,40 @@ namespace Azos.Data
     bool CheckRequired(string targetName);
   }
 
+  /// <summary>
+  /// Implemented by entities that check their state/value length expressed in logical units (e.g. characters), possibly conditionally
+  /// depending on a targetName
+  /// </summary>
+  public interface ILengthCheck
+  {
+    /// <summary>
+    /// Checks instance adherence to logical length limits for the supplied target.
+    /// Returns true if an instance state represents the logically minimum length
+    /// </summary>
+    /// <param name="targetName">The target scope under which  the state check is done.
+    /// Most implementations do not depend on targets and just ignore the value</param>
+    /// <param name="minLength">
+    /// The minimum required length. This method is not called with values less than one
+    /// </param>
+    /// <returns>
+    /// True if this instance state contains a value of at least the minimum required length
+    /// </returns>
+    bool CheckMinLength(string targetName, int minLength);
+
+    /// <summary>
+    /// Checks instance adherence to logical length limits for the supplied target.
+    /// Returns true if an instance state does not exceed the logically maximum length
+    /// </summary>
+    /// <param name="targetName">The target scope under which  the state check is done.
+    /// Most implementations do not depend on targets and just ignore the value</param>
+    /// <param name="maxLength">
+    /// The maximum allowed length. This method is not called with values less than one
+    /// </param>
+    /// <returns>
+    /// True if this instance state contains a value of at most the maximum allowed length
+    /// </returns>
+    bool CheckMaxLength(string targetName, int maxLength);
+  }
 
   /// <summary>
   /// Defines entities that support custom validation logic
