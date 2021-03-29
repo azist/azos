@@ -9,11 +9,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Azos.Serialization.JSON;
+using Azos.Serialization.Bix;
+
 namespace Azos.Data.Heap
 {
   /// <summary>
-  /// Provides the very bas for objects stored in a distributed data heap
+  /// Provides the very base for objects stored in a distributed data heap.
+  /// Heap objects are CvRDT (Convergent Replicated Data Types), their Merge() operation must be: Commutative, Associative, and Idempotent
   /// </summary>
+  [BixJsonHandler]
   public abstract class HeapObject : AmorphousTypedDoc
   {
     public enum State : sbyte
@@ -54,7 +59,7 @@ namespace Azos.Data.Heap
     public Atom Sys_VerNode { get; internal set; }
 
     /// <summary>
-    /// WARNING: Per CRDT definition, this operation must be COMMUTATIVE, ASSOCIATIVE, and IDEMPOTENT.
+    /// WARNING: Per CvRDT definition, this operation must be COMMUTATIVE, ASSOCIATIVE, and IDEMPOTENT.
     /// Failure to comply with these requirements may result in an infinite inter-node rotary traffic pattern.
     /// </summary>
     /// <param name="others"></param>
@@ -82,6 +87,16 @@ namespace Azos.Data.Heap
         if (ver.Sys_VerUtc > result.Sys_VerUtc) result = ver;
       }
       return (false, result);
+    }
+
+    protected override void AddJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, Dictionary<string, object> jsonMap, string name, object value)
+    {
+      if (def?.Order == 0)
+      {
+        BixJsonHandler.EmitJsonBixDiscriminator(this, jsonMap);
+      }
+
+      base.AddJsonSerializerField(def, options, jsonMap, name, value);
     }
 
   }
