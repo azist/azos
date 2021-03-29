@@ -45,7 +45,22 @@ namespace Azos.Data
 
     public IConfigSectionNode Node
     {
-      get => m_Node ?? (m_Node = m_Content.AsJSONConfig(wrapRootName: "r", handling: ConvertErrorHandling.Throw));
+      get
+      {
+        if (m_Node == null)
+        {
+          try
+          {
+            m_Node = m_Content.AsJSONConfig(wrapRootName: "r", handling: ConvertErrorHandling.Throw);
+          }
+          catch(Exception error)
+          {
+            throw new ConfigException("Invalid {0} content: {1}".Args(nameof(ConfigVector), error.ToMessageWithType()), error);
+          }
+        }
+
+        return m_Node;
+      }
       set
       {
         if (object.ReferenceEquals(m_Node, value)) return;
