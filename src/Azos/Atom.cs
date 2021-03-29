@@ -207,13 +207,13 @@ namespace Azos
       get
       {
         if (IsZero) return 0;
-        var m = 0x00FF_0000__0000_0000UL;
+        var m = 0xFF00_0000__0000_0000UL;
         for(var i=8; m > 0; i--)
         {
-          if (ID > m) return i;
+          if (0 != (ID & m)) return i;
           m = m >> 8;
         }
-        return 1;
+        return 0;
       }
     }
 
