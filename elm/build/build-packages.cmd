@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.10.0
-set HEADLINE=Fix 445, configureawait, idp auth context for long term tokens
+set VER=1.11.0
+set HEADLINE=Svc release
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
