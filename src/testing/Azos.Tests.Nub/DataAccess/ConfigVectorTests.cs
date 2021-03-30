@@ -65,6 +65,12 @@ namespace Azos.Tests.Nub.DataAccess
 
       Aver.AreEqual("crap", got.C1.Content);
 
+      var ve = got.Validate() as FieldValidationException;
+      Aver.IsNotNull(ve);
+      Aver.AreEqual("C1", ve.FieldName);
+      Aver.IsTrue(ve.Message.Contains("Invalid"));
+
+
       got.C1.Node.Of("a");
     }
 

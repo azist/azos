@@ -19,7 +19,7 @@ namespace Azos.Data
   /// which is lazily parsed upon first access then cached. This instance is NOT thread safe
   /// and designed for use in data document fields
   /// </summary>
-  public sealed class ConfigVector : IJsonWritable, IJsonReadable, IRequiredCheck, ILengthCheck
+  public sealed class ConfigVector : IJsonWritable, IJsonReadable, IRequiredCheck, ILengthCheck, IValidatable
   {
     public ConfigVector(){ }
     public ConfigVector(string content) => Content = content;
@@ -93,6 +93,22 @@ namespace Azos.Data
     public bool CheckMaxLength(string targetName, int maxLength) => m_Content != null && m_Content.Length <= maxLength;
 
     public override string ToString() => m_Content;
+
+    public ValidState Validate(ValidState state, string scope = null)
+    {
+      if (Content.IsNotNullOrWhiteSpace())
+      {
+        try
+        {
+          var node = Node;
+        }
+        catch(Exception error)
+        {
+          state = new ValidState(state, new FieldValidationException(nameof(ConfigVector), scope.Default("<cfg>"), "Invalid value", error));
+        }
+      }
+      return state;
+    }
 
     public static implicit operator ConfigVector(string v) => new ConfigVector(v);
     public static implicit operator ConfigVector(ConfigSectionNode v) => new ConfigVector(v);
