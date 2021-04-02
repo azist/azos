@@ -37,6 +37,31 @@ namespace Azos.Data.Heap
     IRegistry<IArea> Areas { get; }
   }
 
+
+  /// <summary>
+  /// Represents data heap server node
+  /// </summary>
+  public interface IHeapNode
+  {
+    /// <summary>
+    /// Globally-unique cluster node identifier. The system currently supports up to 64 total nodes with IDs 1 .. 64. All other ids are invalid.
+    /// You can use this value efficiently (fits in CPU register) in vector clocks
+    /// and other structures. Every HeapObject instance gets Sys_VerNode stamp by the server
+    /// </summary>
+    byte NodeId     { get; }
+
+    /// <summary>
+    /// Cluster host name, such as sky regional catalog path e.g. /world/us/east/cle/db/z1/lmed002.h
+    /// </summary>
+    string HostName { get; }
+
+    /// <summary>
+    /// The high precision Universal Time Coordinate(d)
+    /// </summary>
+    DateTime UtcNow { get; }
+  }
+
+
   public interface IArea : INamed
   {
     IHeap Heap { get; }
@@ -84,7 +109,7 @@ namespace Azos.Data.Heap
 
     Task<HeapObject> GetObjectAsync(ObjectPtr ptr);
     Task<SaveResult<HeapObject>> SetAsync(HeapObject instance);
-    Task<SaveResult<ObjectVersion>> FreeAsync(ObjectPtr ptr);
+    Task<SaveResult<ObjectVersion>> DeleteAsync(ObjectPtr ptr);
   }
 
   /// <summary>
@@ -94,7 +119,6 @@ namespace Azos.Data.Heap
   {
     Task<T> GetAsync(ObjectPtr ptr);
     Task<SaveResult<T>> SetAsync(T instance);
-    Task<SaveResult<ObjectVersion>> FreeAsync(ObjectPtr ptr);
   }
 }
 
