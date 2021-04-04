@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 using Azos.Serialization.JSON;
 using Azos.Serialization.Bix;
@@ -36,28 +35,41 @@ namespace Azos.Data.Heap
     public override bool AmorphousDataEnabled => true;
 
 
-    [Field(Description = "A unique id of the object - immutable primary key",
+    [Field(Description = "A unique id of the object - immutable primary key aka 'heap pointer'",
            StoreFlag = StoreFlag.LoadAndStore,
            Key = true)]
-    public GDID Sys_Id{ get; internal set; } //all entities referencing this field should start with "g" e.g. "gUser"
+    public GDID Sys_Id{ get; internal set; } //all entities referencing this field should start with "G_" e.g. "G_User"
 
-
+    /// <summary>
+    /// The sharding Id is used to locate the shard aka 'segment' of the data heap
+    /// </summary>
     public virtual object Sys_ShardingId => Sys_Id;
 
     /// <summary> Override to specify relative processing (e.g. replication) priority </summary>
     public virtual int Sys_Priority => 0;
 
+    /// <summary>
+    /// Version state: Created/Modified/Deleted
+    /// </summary>
     [Field(Description = "Version state: Created/Modified/Deleted",
            StoreFlag = StoreFlag.LoadAndStore)]
     public State Sys_VerState { get; private set; }
 
-    [Field(Description = "Version UTC stamped at the time of set by server node",
+    /// <summary>
+    /// Version UTC stamped at the time of set by the server node.
+    /// This stamp is not changed by replication
+    /// </summary>
+    [Field(Description = "Version UTC stamped at the time of set by the server node." +
+                         " This stamp is not changed by replication",
            StoreFlag = StoreFlag.LoadAndStore)]
     public long Sys_VerUtc { get; private set; }
 
+    /// <summary>
+    /// Version Server Node id - where the change originated on
+    /// </summary>
     [Field(Description = "Version Server Node id - where the change originated on",
            StoreFlag = StoreFlag.LoadAndStore)]
-    public byte Sys_VerNode { get; private set; }
+    public Atom Sys_VerNode { get; private set; }
 
     /// <summary>
     /// Sync UTC stamp is set by server node at the time of device write. The system uses this value only for change log replication.
@@ -75,47 +87,44 @@ namespace Azos.Data.Heap
     public long Sys_SyncUtc { get; internal set; }
 
     /// <summary>
-    /// Sync replication mask where every node 1..64 of a heap cluster is represented by a bit. If bit is set then
-    /// the corresponding node did receive this version.
-    /// </summary>
-    [Field(Description = "Sync replication bit mask where every node 1..64 of a heap cluster is represented by a bit. " +
-                         "If a bit is set to 1 then the corresponding node already has this object version",
-           StoreFlag = StoreFlag.LoadAndStore)]
-    public long Sys_ReplicationSet { get; internal set; }
-
-    /// <summary>
     /// Called by the server node, "seals" the data version by stamping appropriate object attributes.
-    /// The node calls this method when the data is SET(Updated), but NOT when it is synchronized/merged.
+    /// The node calls this method when the data is SET(Updated), but typically NOT when it is synchronized/merged
+    /// unless a merge yields a brand new version of data.
     /// You must always call the base implementation.
     /// </summary>
-    /// <param name="node"></param>
-    /// <param name="collection"></param>
-    /// <param name="newState">new State</param>
+    /// <param name="node">Node where data change takes place</param>
+    /// <param name="collection">Collection where this object is stored</param>
+    /// <param name="newState">The new version state</param>
     /// <remarks>
     /// This is an extension point for any kind of CRDT mechanism, e.g. you can use vector clocks by
     /// storing the appropriate value in your derived type fields and then extend this method to populate the object version
     /// accordingly.
     /// </remarks>
-    protected internal virtual void CrdtSet(IHeapNode node, IHeapCollection collection, State newState)
+    protected internal virtual void Crdt_Set(IHeapNode node, IHeapCollection collection, State newState)
     {
       Sys_VerState = newState;
       Sys_VerUtc = node.UtcNow.ToMillisecondsSinceUnixEpochStart();
       Sys_VerNode = node.NodeId;
-      Sys_ReplicationSet = 0L.SetReplicationNode(node.NodeId);
     }
 
 
     /// <summary>
-    /// Called on the data heap server node, performs CRDT merge operation by
+    /// Called by the data heap server nodes during replication, performs CRDT merge operation by
     /// taking the local state represented by this instance and merging another version(s) which came from other heap nodes.
-    /// The function returns a result of the merge (conflict-free) by definition) which is then used as the most
+    /// The function returns a result of the merge (conflict-free by definition) which is then used as the most
     /// current state instance, or null if this instance already represents the most current instance.
     /// WARNING: Per CvRDT definition, this operation is COMMUTATIVE, ASSOCIATIVE, and IDEMPOTENT.
     /// Failure to comply with these requirements may result in an infinite inter-node rotary traffic pattern.
     /// </summary>
-    /// <param name="others"></param>
-    /// <returns>Object instance which results from merge or null if THIS instance already represents the latest state and no changes are necessary</returns>
-    internal HeapObject CrdtMerge(IHeapNode node, IHeapCollection collection, IEnumerable<HeapObject> others)
+    /// <param name="node">Node where data change takes place</param>
+    /// <param name="collection">Collection where this object is stored</param>
+    /// <param name="others">Other versions got form other nodes</param>
+    /// <returns>
+    /// Object instance which results from merge or null if THIS instance already represents the latest eventual state and no changes are necessary.
+    /// You either return null, or one of "others" OR you can return a brand new object (not this or others), in which case the system treats it a as
+    /// a brand new version performing necessary version stamping via `Crdt_Set()`
+    /// </returns>
+    internal HeapObject Crdt_Merge(IHeapNode node, IHeapCollection collection, IEnumerable<HeapObject> others)
     {
       if (others == null) return null;
       if (!others.Any()) return null;
@@ -124,17 +133,22 @@ namespace Azos.Data.Heap
 
       others.IsTrue(v => v.All(one => one.GetType() == t && one.Sys_Id == this.Sys_Id), "Non empty version for the same Sys_Id");
 
-      return DoCrdtMerge(node, collection, others).IsTrue(r => r == null || r.GetType() == t, "Returned type mismatch");
+      return DoCrdt_Merge(node, collection, others).IsTrue(r => r == null || r.GetType() == t, "Returned type mismatch");
     }
 
     /// <summary>
-    /// The default implementation is LWW (Last Write Wins) based on the accurate global time
+    /// Called on the data heap server nodes during replication, performs CRDT merge operation by
+    /// taking the local state represented by this instance and merging another version(s) which came from other heap nodes.
+    /// The function returns a result of the merge (conflict-free by definition) which is then used as the most
+    /// current state instance, or null if this instance already represents the most current instance.
+    /// WARNING: Per CvRDT definition, this operation is COMMUTATIVE, ASSOCIATIVE, and IDEMPOTENT.
+    /// Failure to comply with these requirements may result in an infinite inter-node rotary traffic pattern.
     /// </summary>
-    /// <param name="node"></param>
-    /// <param name="collection"></param>
-    /// <param name="others"></param>
-    /// <returns></returns>
-    protected virtual HeapObject DoCrdtMerge(IHeapNode node, IHeapCollection collection, IEnumerable<HeapObject> others)
+    /// <param name="node">Node where data change takes place</param>
+    /// <param name="collection">Collection where this object is stored</param>
+    /// <param name="others">Other versions got form other nodes</param>
+    /// <returns>Object instance which results from merge or null if THIS instance already represents the latest eventual state and no changes are necessary</returns>
+    protected virtual HeapObject DoCrdt_Merge(IHeapNode node, IHeapCollection collection, IEnumerable<HeapObject> others)
     {
       var result = this;
       foreach (var ver in others)
@@ -154,6 +168,19 @@ namespace Azos.Data.Heap
       }
 
       base.AddJsonSerializerField(def, options, jsonMap, name, value);
+    }
+
+    public override ValidState ValidateField(ValidState state, Schema.FieldDef fdef, string scope = null)
+    {
+      if (fdef.Name == nameof(Sys_Id))
+      {
+        if (Sys_VerState != State.Undefined && Sys_Id.IsZero)
+        {
+          state = new ValidState(state, new FieldValidationException(this, nameof(Sys_Id), StringConsts.CRUD_FIELD_VALUE_REQUIRED_ERROR));
+          if (state.ShouldStop) return state;
+        }
+      }
+      return base.ValidateField(state, fdef, scope);
     }
 
   }

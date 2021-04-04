@@ -44,11 +44,9 @@ namespace Azos.Data.Heap
   public interface IHeapNode
   {
     /// <summary>
-    /// Globally-unique cluster node identifier. The system currently supports up to 64 total nodes with IDs 1 .. 64. All other ids are invalid.
-    /// You can use this value efficiently (fits in CPU register) in vector clocks
-    /// and other structures. Every HeapObject instance gets Sys_VerNode stamp by the server
+    /// Globally-unique cluster node identifier. Every HeapObject instance gets Sys_VerNode stamp by the server
     /// </summary>
-    byte NodeId     { get; }
+    Atom NodeId     { get; }
 
     /// <summary>
     /// Cluster host name, such as sky regional catalog path e.g. /world/us/east/cle/db/z1/lmed002.h
