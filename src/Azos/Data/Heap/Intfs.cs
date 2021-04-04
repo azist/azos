@@ -75,6 +75,11 @@ namespace Azos.Data.Heap
     IEnumerable<Type> QueryTypes { get; }
 
     /// <summary>
+    /// Returns the data partitioning handler which performs shard routing of heap data
+    /// </summary>
+    Router Sharding { get; }
+
+    /// <summary>
     /// Returns a heap object collection for the specified type
     /// </summary>
     IHeapCollection GetCollection(Type tObject);
@@ -84,7 +89,7 @@ namespace Azos.Data.Heap
     /// </summary>
     IHeapCollection<T> GetCollection<T>() where T : HeapObject;
 
-   // Task<object> ExecuteQueryAsync(AreaQuery query);
+    Task<object> ExecuteQueryAsync(AreaQuery query);
   }
 
   /// <summary>
