@@ -71,33 +71,15 @@ namespace Azos.Data
 
 
     /// <summary>
-    /// Gets sharding ID for string, that is - computes string hash as UInt64 .
+    /// Gets sharding ID for string, that is - computes string hash as UInt64.
+    /// The function IS case-sensitive.
     /// WARNING! Changing this function will render all existing sharding partitioning invalid. Use extreme care!
     /// </summary>
     public static ulong StringToShardingID(string key)
     {
       //WARNING! Never use GetHashCode here as it is platform-dependent, but this function must be 100% deterministic
-      /*
-From Microsoft on MSDN:
-    Best Practices for Using Strings in the .NET Framework
-    Recommendations for String Usage
-    Use the String.ToUpperInvariant method instead of the String.ToLowerInvariant method when you normalize strings for comparison.
-    Why? From Microsoft:
-    Normalize strings to uppercase because there is a small group of characters that when converted to lowercase cannot make a round trip.
-    What is example of such a character that cannot make a round trip?
-
-    Start: Greek Rho Symbol (U+03f1) ϱ
-    Uppercase: Capital Greek Rho (U+03a1) Ρ
-    Lowercase: Small Greek Rho (U+03c1) ρ
-
-    ϱ , Ρ , ρ
-
-    That is why, if your want to do case insensitive comparisons you convert the strings to uppercase, and not lowercase.
-    */
-
 
       if (key == null) return 0;
-      key = key.ToUpperInvariant();
       var sl = key.Length;
       if (sl == 0) return 0;
 
@@ -123,8 +105,7 @@ From Microsoft on MSDN:
     public static ulong ByteArrayToShardingID(byte[] key)
     {
       if (key == null) return 0;
-      var len = key.Length;
-      if (len == 0) return 0;
+      if (key.Length == 0) return 0;
 
       ulong result = 1566083941ul * (ulong)Adler32.ForBytes(key);
       return result;

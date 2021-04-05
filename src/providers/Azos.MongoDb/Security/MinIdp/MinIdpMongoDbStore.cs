@@ -171,7 +171,7 @@ namespace Azos.Security.MinIdp
       id = id.ToLowerInvariant();
 
       //1. Fetch by login ID
-      var login = await fetch(realm, BsonDataModel.COLLECTION_LOGIN, Query.ID_EQ_String(id));
+      var login = await fetch(realm, BsonDataModel.COLLECTION_LOGIN, Query.ID_EQ_String(id)).ConfigureAwait(false);
       if (login == null) return null;
 
       //2. Make subject principal data
@@ -180,14 +180,14 @@ namespace Azos.Security.MinIdp
       if (result.SysId == 0) return null;
 
       //3. Try to fetch user
-      var user = await fetch(realm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(result.SysId));
+      var user = await fetch(realm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(result.SysId)).ConfigureAwait(false);
       if (user == null) return null;
       BsonDataModel.ReadUser(user, result);
 
       //4. Check and fetch role rights
       if (result.Role.IsNotNullOrWhiteSpace())
       {
-        var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
+        var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role)).ConfigureAwait(false);
         if (role == null) return null;
         BsonDataModel.ReadRole(role, result);
       }
@@ -201,9 +201,9 @@ namespace Azos.Security.MinIdp
       //6. Issue new SysAuthToken
       var sysSpanHrs = SysTokenLifespanHours > 0 ? SysTokenLifespanHours : 0.35d;//21 minutes by default
 
-      if (ctx is OAuthSubjectAuthenticationRequestContext oauth)
+      if (ctx != null && ctx.Intent.EqualsOrdSenseCase(AuthenticationRequestContext.INTENT_OAUTH))
       {
-        var ssec = oauth.SysAuthTokenValiditySpanSec ?? 0;
+        var ssec = ctx.SysAuthTokenValiditySpanSec ?? 0;
         if (ssec > 0) sysSpanHrs = Math.Max(sysSpanHrs, ssec / 3_600d);
       }
 
@@ -246,7 +246,7 @@ namespace Azos.Security.MinIdp
       if (expire <= App.TimeSource.UTCNow) return null;//expired
 
       //1. Fetch user record by sysId(ULONG)
-      var user = await fetch(realm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(sysId));
+      var user = await fetch(realm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(sysId)).ConfigureAwait(false);
       if (user == null) return null;
 
       //2. Make subject principal data
@@ -259,7 +259,7 @@ namespace Azos.Security.MinIdp
       //3. Check and fetch role rights
       if (result.Role.IsNotNullOrWhiteSpace())
       {
-        var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role));
+        var role = await fetch(realm, BsonDataModel.COLLECTION_ROLE, Query.ID_EQ_String(result.Role)).ConfigureAwait(false);
         if (role == null) return null;
         BsonDataModel.ReadRole(role, result);
       }
@@ -271,7 +271,7 @@ namespace Azos.Security.MinIdp
 
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx = null)
-    => await GetByIdAsync(realm, uri, ctx);//for MinIdp mongo the URI is the login name for simplicity
+    => await GetByIdAsync(realm, uri, ctx).ConfigureAwait(false);//for MinIdp mongo the URI is the login name for simplicity
 
 
     protected override void DoConfigure(IConfigSectionNode node)

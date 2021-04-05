@@ -110,7 +110,7 @@ namespace Azos
       if (operations==null || query==null)
         throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadDocAsync(ICRUDOperations==null | query==null)");
 
-      var got = await operations.LoadOneDocAsync(query);
+      var got = await operations.LoadOneDocAsync(query).ConfigureAwait(false);
 
       return got as TDoc;
     }
@@ -134,7 +134,7 @@ namespace Azos
       if (operations==null || query==null)
         throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadEnumerableAsync(ICRUDOperations==null | query==null)");
 
-      var got = await operations.LoadOneRowsetAsync(query);
+      var got = await operations.LoadOneRowsetAsync(query).ConfigureAwait(false);
 
       return got.AsEnumerableOf<TDoc>();
     }

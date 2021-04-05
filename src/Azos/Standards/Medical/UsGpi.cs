@@ -12,7 +12,7 @@ namespace Azos.Standards.Medical
   /// United States - GPI Drug Codes
   /// </summary>
   [Serializable]
-  public struct UsGpi : IEquatable<UsGpi>, IRequired, IJsonReadable, IJsonWritable, IFormattable
+  public struct UsGpi : IEquatable<UsGpi>, IRequiredCheck, IJsonReadable, IJsonWritable, IFormattable
   {
     public ulong Value;
 

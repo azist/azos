@@ -65,7 +65,7 @@ namespace Azos.Sky.Chronicle.Server.Web
                     TypeSchemas = new[]{typeof(Message)})]
     [ActionOnPost(Name = "filter"), AcceptsJson]
     [ChroniclePermission(ChronicleAccessLevel.Browse)]
-    public async Task<object> Filter(LogChronicleFilter filter) => await ApplyFilterAsync(filter);
+    public async Task<object> Filter(LogChronicleFilter filter) => await ApplyFilterAsync(filter).ConfigureAwait(false);
 
     [ApiEndpointDoc(Title = "Batch",
                     Uri = "batch",
@@ -77,7 +77,7 @@ namespace Azos.Sky.Chronicle.Server.Web
                     ResponseContent = "Api Change Result")]
     [ActionOnPost(Name = "batch"), AcceptsJson]
     [ChroniclePermission(ChronicleAccessLevel.Emit)]
-    public async Task<object> PostDataBatch(LogBatch batch) => await SaveNewAsync(batch);
+    public async Task<object> PostDataBatch(LogBatch batch) => await SaveNewAsync(batch).ConfigureAwait(false);
   }
 
   [NoCache]
@@ -104,7 +104,7 @@ namespace Azos.Sky.Chronicle.Server.Web
                     TypeSchemas = new[] { typeof(Message) })]
     [ActionOnPost(Name = "filter"), AcceptsJson]
     [ChroniclePermission(ChronicleAccessLevel.Browse)]
-    public async Task<object> Filter(InstrumentationChronicleFilter filter) => await ApplyFilterAsync(filter);
+    public async Task<object> Filter(InstrumentationChronicleFilter filter) => await ApplyFilterAsync(filter).ConfigureAwait(false);
 
     [ApiEndpointDoc(Title = "Batch",
                     Uri = "batch",
@@ -116,6 +116,6 @@ namespace Azos.Sky.Chronicle.Server.Web
                     ResponseContent = "Api Change Result")]
     [ActionOnPost(Name = "batch"), AcceptsJson]
     [ChroniclePermission(ChronicleAccessLevel.Emit)]
-    public async Task<object> PostDataBatch(InstrumentationBatch batch) => await SaveNewAsync(batch);
+    public async Task<object> PostDataBatch(InstrumentationBatch batch) => await SaveNewAsync(batch).ConfigureAwait(false);
   }
 }

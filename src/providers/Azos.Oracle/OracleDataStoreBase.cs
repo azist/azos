@@ -238,7 +238,7 @@ namespace Azos.Data.Access.Oracle
 
       var cnn = new OracleConnection(effectiveConnectString);
 
-      await cnn.OpenAsync();
+      await cnn.OpenAsync().ConfigureAwait(false);
 
       return cnn;
     }

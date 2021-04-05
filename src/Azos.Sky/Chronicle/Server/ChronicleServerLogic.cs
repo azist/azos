@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -122,6 +123,12 @@ namespace Azos.Sky.Chronicle.Server
           .Data
           .NonNull(nameof(data.Data));
 
+      //do not realloc if not needed
+      if (data.Data.Any(m => m == null))
+        data.Data = data.Data.Where(m => m != null).ToArray();
+
+      data.Data.IsTrue(d => d.Any(), "No data supplied");
+
       //0 Prepare messages for insertion
       GDID[] gdids = null;
       Exception gdidFailure = null;
@@ -172,7 +179,7 @@ namespace Azos.Sky.Chronicle.Server
       Exception storeFailure = null;
       try
       {
-        await m_Log.NonNull().WriteAsync(data);
+        await m_Log.NonNull().WriteAsync(data).ConfigureAwait(false);
       }
       catch (Exception error)
       {
@@ -198,13 +205,13 @@ namespace Azos.Sky.Chronicle.Server
     }
 
     public async Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter)
-      => await m_Log.NonNull().GetAsync(filter.NonNull(nameof(filter)));
+      => await m_Log.NonNull().GetAsync(filter.NonNull(nameof(filter))).ConfigureAwait(false);
 
     public async Task WriteAsync(InstrumentationBatch data)
-      => await m_Instrumentation.NonNull().WriteAsync(data.NonNull(nameof(data)));
+      => await m_Instrumentation.NonNull().WriteAsync(data.NonNull(nameof(data))).ConfigureAwait(false);
 
     public async Task<IEnumerable<JsonDataMap>> GetAsync(InstrumentationChronicleFilter filter)
-      => await m_Instrumentation.NonNull().GetAsync(filter.NonNull(nameof(filter)));
+      => await m_Instrumentation.NonNull().GetAsync(filter.NonNull(nameof(filter))).ConfigureAwait(false);
 
   }
 }

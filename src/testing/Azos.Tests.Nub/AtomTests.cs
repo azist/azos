@@ -5,7 +5,8 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using System.Linq;
+using Azos.Data;
 using Azos.Scripting;
 
 namespace Azos.Tests.Nub
@@ -181,5 +182,113 @@ namespace Azos.Tests.Nub
       Aver.IsTrue(Atom.TryEncodeValueOrId("#12337", out x));
       Aver.AreEqual("10", x.Value);
     }
+
+    [Run]
+    public void Test_Length()
+    {
+      Aver.AreEqual(0, new Atom().Length);
+      Aver.AreEqual(0, new Atom(0).Length);
+
+      var x = Atom.Encode("a");
+      Aver.AreEqual(1, x.Length);
+
+      x = Atom.Encode("abc");
+      Aver.AreEqual(3, x.Length);
+
+      x = Atom.Encode("abcdef");
+      Aver.AreEqual(6, x.Length);
+
+      x = Atom.Encode("abc-def");
+      Aver.AreEqual(7, x.Length);
+
+      x = Atom.Encode("abc-def0");
+      Aver.AreEqual(8, x.Length);
+
+      x = new Atom(0xFFFFFFFFFFFFFFFFul);
+      Aver.AreEqual(8, x.Length);
+      Aver.IsFalse(x.IsValid);
+
+      x = new Atom(0xFFul);
+      Aver.AreEqual(1, x.Length);
+      Aver.IsFalse(x.IsValid);
+
+      x = new Atom(0xFF0101ul);
+      Aver.AreEqual(3, x.Length);
+      Aver.IsFalse(x.IsValid);
+    }
+
+    [Run]
+    public void Test_Validation001()
+    {
+      var x = Atom.Encode("abc");
+      var v = new Data.ValidState(null, Data.ValidErrorMode.Batch);
+      v = x.Validate(v);
+
+      Aver.IsFalse(v.HasErrors);
+    }
+
+    [Run]
+    public void Test_Validation002()
+    {
+      var x = new Atom(0xfffffff);
+      var v = new Data.ValidState(null, Data.ValidErrorMode.Batch);
+      v = x.Validate(v);
+
+      Aver.IsTrue(v.HasErrors);
+      v.Error.See();
+    }
+
+    public class Tezt : TypedDoc
+    {
+      [Field]                  public Atom F1{ get; set;}
+      [Field(Required = true)] public Atom F2 { get; set; }
+      [Field(MinLength = 3)]   public Atom F3 { get; set; }
+      [Field(MaxLength = 2)]   public Atom F4 { get; set; }
+    }
+
+    [Run]
+    public void Test_Validation003()
+    {
+      var d = new Tezt
+      {
+        F1 = new Atom(0xfffff),
+        F2 = Atom.Encode("a"),
+        F3 = Atom.Encode("ab"),
+        F4 = Atom.Encode("abcd"),
+      };
+
+      var state = d.Validate(new ValidState(null, ValidErrorMode.Batch));
+      Aver.IsTrue(state.HasErrors);
+
+      var batch = state.Error as ValidationBatchException;
+      Aver.IsNotNull(batch);
+
+      var errors = batch.Batch.OfType<FieldValidationException>();
+
+      errors.See();
+
+      Aver.AreEqual(3, errors.Count());
+
+      Aver.IsTrue(errors.First( e => e.FieldName.EqualsOrdSenseCase("F1") ).ClientMessage.Contains("Invalid"));
+      Aver.IsTrue(errors.First( e => e.FieldName.EqualsOrdSenseCase("F3") ).ClientMessage.Contains("shorter"));
+      Aver.IsTrue(errors.First( e => e.FieldName.EqualsOrdSenseCase("F4") ).ClientMessage.Contains("exceeds"));
+
+      d.F2 = new Atom();
+
+      state = d.Validate(new ValidState(null, ValidErrorMode.Batch));
+      Aver.IsTrue(state.HasErrors);
+
+      batch = state.Error as ValidationBatchException;
+      Aver.IsNotNull(batch);
+
+      errors = batch.Batch.OfType<FieldValidationException>();
+
+      errors.See();
+
+      Aver.AreEqual(4, errors.Count());
+      Aver.IsTrue(errors.First(e => e.FieldName.EqualsOrdSenseCase("F2")).ClientMessage.Contains("required"));
+    }
+
+
   }
 }

@@ -123,15 +123,15 @@ namespace Azos.Security.MinIdp
         var oauth = App.ModuleRoot.TryGet<Services.IOAuthModule>();
         if (oauth == null) return MakeBadUser(credentials);
 
-        var accessToken = await oauth.TokenRing.GetAsync<Tokens.AccessToken>(bearer.Token);
+        var accessToken = await oauth.TokenRing.GetAsync<Tokens.AccessToken>(bearer.Token).ConfigureAwait(false);
         if (accessToken != null)//if token is valid
         {
           if (SysAuthToken.TryParse(accessToken.SubjectSysAuthToken, out var sysToken))
-            return await AuthenticateAsync(sysToken, ctx);
+            return await AuthenticateAsync(sysToken, ctx).ConfigureAwait(false);
         }
       } else if (credentials is IDPasswordCredentials idpass)
       {
-        var data = await m_Store.GetByIdAsync(Realm, idpass.ID, ctx);
+        var data = await m_Store.GetByIdAsync(Realm, idpass.ID, ctx).ConfigureAwait(false);
         if (data != null)
         {
           var user = TryAuthenticateUser(data, idpass);
@@ -139,7 +139,7 @@ namespace Azos.Security.MinIdp
         }
       } else if (credentials is EntityUriCredentials enturi)
       {
-        var data = await m_Store.GetByUriAsync(Realm, enturi.Uri, ctx);
+        var data = await m_Store.GetByUriAsync(Realm, enturi.Uri, ctx).ConfigureAwait(false);
         if (data != null)
         {
           var user = TryAuthenticateUser(data, enturi);
@@ -159,7 +159,7 @@ namespace Azos.Security.MinIdp
     {
       if (Realm.Value.EqualsOrdSenseCase(token.Realm))
       {
-        var data = await m_Store.GetBySysAsync(Realm, token.Data, ctx);
+        var data = await m_Store.GetBySysAsync(Realm, token.Data, ctx).ConfigureAwait(false);
         if (data!=null)
         {
           var user = TryAuthenticateUser(data);
@@ -178,7 +178,7 @@ namespace Azos.Security.MinIdp
     {
       if (user == null) return;
       var token = user.AuthToken;
-      var reuser = await AuthenticateAsync(token, ctx);
+      var reuser = await AuthenticateAsync(token, ctx).ConfigureAwait(false);
 
       user.___update_status(reuser.Status, reuser.Name, reuser.Description, reuser.Rights, App.TimeSource.UTCNow);
     }

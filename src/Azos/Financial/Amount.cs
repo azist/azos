@@ -16,7 +16,7 @@ namespace Azos.Financial
   /// Represents monetary amount with currency ISO atom
   /// </summary>
   [Serializable]
-  public struct Amount : IEquatable<Amount>, IComparable<Amount>, IJsonWritable, IJsonReadable, IRequired
+  public struct Amount : IEquatable<Amount>, IComparable<Amount>, IJsonWritable, IJsonReadable, IRequiredCheck
   {
     private static readonly IFormatProvider INVARIANT = CultureInfo.InvariantCulture;
 

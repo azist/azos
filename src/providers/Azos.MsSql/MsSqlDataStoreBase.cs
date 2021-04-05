@@ -236,7 +236,7 @@ namespace Azos.Data.Access.MsSql
 
       var cnn = new SqlConnection(connectString);
 
-      await cnn.OpenAsync();
+      await cnn.OpenAsync().ConfigureAwait(false);
 
       return cnn;
     }

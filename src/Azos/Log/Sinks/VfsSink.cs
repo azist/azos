@@ -33,7 +33,9 @@ namespace Azos.Log.Sinks
 
     private IFileSystemImplementation m_Fs;
     private FileSystemSessionConnectParams m_FsConnectParams;
-    private FileSystemSession m_Session;//no thread safe
+    private FileSystemSession m_Session;//not thread safe
+
+    private FileSystemFile m_File;//not thread safe
 
     public override int ExpectedShutdownDurationMs => 3570;//since there is VFS involved
 
@@ -44,7 +46,11 @@ namespace Azos.Log.Sinks
      => m_Fs.CombinePaths(p1, p2);
 
     protected override Stream MakeStream(string fileName)
-     => m_Session.OpenOrCreateFile(fileName).FileStream;
+    {
+       DisposeAndNull(ref m_File);
+       m_File = m_Session.OpenOrCreateFile(fileName);
+       return m_File.FileStream;
+    }
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
@@ -71,6 +77,12 @@ namespace Azos.Log.Sinks
 
 
       m_Session = m_Fs.StartSession(m_FsConnectParams);
+    }
+
+    protected override void DoStart()
+    {
+      m_Session.NonNull("Not configured");
+      base.DoStart();
     }
 
   }

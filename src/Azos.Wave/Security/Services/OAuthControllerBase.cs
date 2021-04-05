@@ -84,12 +84,12 @@ namespace Azos.Security.Services
 
       //1. Lookup client app, just by client_id (w/o password)
       var clcred = new EntityUriCredentials(client_id);
-      var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
+      var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred).ConfigureAwait(false);
       if (!cluser.IsAuthenticated) return GateError(new Http401Unauthorized("Unknown client"));//we don't have ACL yet, hence can't check redirect_uri
 
       //2. Check client ACL for allowed redirect URIs
       var redirectPermission = new OAuthClientAppPermission(redirect_uri);//this call comes from front channel, hence we don't check for address
-      var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
+      var uriAllowed = await redirectPermission.CheckAsync(App, cluser).ConfigureAwait(false);
       if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
 
       //3. Generate result, such as JSON or Login Form
@@ -144,19 +144,20 @@ namespace Azos.Security.Services
       //2. Lookup client app, just by client_id (w/o password)
       var clid = flow["id"].AsString();
       var clcred = new EntityUriCredentials(clid);
-      var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
+      var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred).ConfigureAwait(false);
       if (!cluser.IsAuthenticated) return GateError(new Http401Unauthorized("Unknown client"));//we don't have ACL yet, hence can't check redirect_uri
 
       //3. Check client ACL for allowed redirect URIs
       var redirectPermission = new OAuthClientAppPermission(flow["uri"].AsString());//this call comes from front channel, hence we don't check for address
-      var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
+      var uriAllowed = await redirectPermission.CheckAsync(App, cluser).ConfigureAwait(false);
       if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
 
       //4. Check user credentials for the subject
       var subjcred = new IDPasswordCredentials(id, pwd);
-      var oauthCtx = new OAuthSubjectAuthenticationRequestContext
+      var oauthCtx = new AuthenticationRequestContext
       {
-        RequestDescription = "OAuth"
+        Intent = AuthenticationRequestContext.INTENT_OAUTH,
+        Description = "OAuth"
       };
 
       if (OAuth.AccessTokenLifespanSec > 0)
@@ -165,7 +166,7 @@ namespace Azos.Security.Services
       }
 
 
-      var subject = await App.SecurityManager.AuthenticateAsync(subjcred, oauthCtx);
+      var subject = await App.SecurityManager.AuthenticateAsync(subjcred, oauthCtx).ConfigureAwait(false);
       if (!subject.IsAuthenticated)
       {
         await Task.Delay(1000);//this call resulting in error is guaranteed to take at least 1 second to complete, throttling down the hack attempts
@@ -189,7 +190,7 @@ namespace Azos.Security.Services
       acToken.State = flow["st"].AsString();
       acToken.RedirectURI = flow["uri"].AsString();
       acToken.SubjectSysAuthToken = subject.AuthToken.ToString();
-      var accessCode = await OAuth.TokenRing.PutAsync(acToken);
+      var accessCode = await OAuth.TokenRing.PutAsync(acToken).ConfigureAwait(false);
 
       //6. Redirect to URI
       var redirect = new UriQueryBuilder(flow["uri"].AsString())
@@ -250,22 +251,22 @@ namespace Azos.Security.Services
          ) return ReturnError("invalid_request", "Invalid client spec");
 
       //1. Check client/app credentials and get app's permissions
-      var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred);
+      var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred).ConfigureAwait(false);
       if (!cluser.IsAuthenticated) return GateError(ReturnError("invalid_client", "Client denied", code: 401));
 
       //2. Validate the supplied client access code (token), that it exists (was issued and not expired), and it was issued for THIS client
       ClientAccessTokenBase clientToken;
       if (isAccessToken)
       {
-        clientToken = await OAuth.TokenRing.GetAsync<ClientAccessCodeToken>(code);
+        clientToken = await OAuth.TokenRing.GetAsync<ClientAccessCodeToken>(code).ConfigureAwait(false);
 
         //The access token is one-time use only:
         if (clientToken!=null)
-          await OAuth.TokenRing.DeleteAsync(code);
+          await OAuth.TokenRing.DeleteAsync(code).ConfigureAwait(false);
       }
       else//refresh token
       {
-        clientToken = await OAuth.TokenRing.GetAsync<ClientRefreshCodeToken>(refresh_token);
+        clientToken = await OAuth.TokenRing.GetAsync<ClientRefreshCodeToken>(refresh_token).ConfigureAwait(false);
       }
 
       if (clientToken == null)
@@ -278,12 +279,12 @@ namespace Azos.Security.Services
 
       //3. Check that the requested redirect_uri is indeed in the list of permitted URIs for this client
       var redirectPermission = new OAuthClientAppPermission(redirect_uri, WorkContext.EffectiveCallerIPEndPoint.Address.ToString());
-      var uriAllowed = await redirectPermission.CheckAsync(App, cluser);
+      var uriAllowed = await redirectPermission.CheckAsync(App, cluser).ConfigureAwait(false);
       if (!uriAllowed) return GateError(ReturnError("invalid_grant", "Invalid grant", code: 403));
 
       //4. Fetch subject/target user
       var auth = SysAuthToken.Parse(clientToken.SubjectSysAuthToken);
-      var targetUser = await App.SecurityManager.AuthenticateAsync(auth); //re-authenticate the user using the original token.
+      var targetUser = await App.SecurityManager.AuthenticateAsync(auth).ConfigureAwait(false); //re-authenticate the user using the original token.
       if (!targetUser.IsAuthenticated)                                    //the returned AuthToken must be logically the same as the one granted on login above
         return ReturnError("invalid_grant", "Invalid grant", code: 403);//no need for gate, the token just got denied
 
@@ -292,7 +293,7 @@ namespace Azos.Security.Services
       accessToken.ClientId = clcred.ID;
       accessToken.SubjectSysAuthToken = targetUser.AuthToken.ToString();//pointing to the subject user
 
-      var token = await OAuth.TokenRing.PutAsync(accessToken);
+      var token = await OAuth.TokenRing.PutAsync(accessToken).ConfigureAwait(false);
 
       //6. Optionally issue a refresh token
       string refreshToken = null;
@@ -302,7 +303,7 @@ namespace Azos.Security.Services
         var refreshTokenData = OAuth.TokenRing.GenerateNew<ClientRefreshCodeToken>(OAuth.RefreshTokenLifespanSec);
         refreshTokenData.ClientId = clcred.ID;
         refreshTokenData.SubjectSysAuthToken = targetUser.AuthToken.ToString();
-        refreshToken = await OAuth.TokenRing.PutAsync(refreshTokenData);
+        refreshToken = await OAuth.TokenRing.PutAsync(refreshTokenData).ConfigureAwait(false);
       }
 
       // https://openid.net/specs/openid-connect-basic-1_0-28.html#id.token.validation

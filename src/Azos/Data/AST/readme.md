@@ -1,29 +1,31 @@
 ﻿# AST - Abstract Syntax Trees
 
-In the context of `Azos.Data` library, abstract syntax trees represent ad-hoc expressions which are typically passed-in as a part of filter objects to APIs for advanced data queries. 
-The concept is somewhat similar to GraphQL.
+In the context of `Azos.Data` library specifically, abstract syntax trees represent ad-hoc expressions which are typically passed-in as a part of filter objects to APIs for advanced data querying. 
+This concept is somewhat similar to GraphQL: *pass-in what you need*
 
 > **Warning:** Ad-hoc querying ability is an advanced feature which should be carefully designed in your application 
-> and data source as opening your underlying data store (such as SQL) for *any kind of ad-hoc filtering may be a
-> dangerous* and unneeded practice. The fields/columns to search on may not all be indexed. Special care must be taken to 
+> and data source as opening your underlying data store (such as SQL) to *any kind of ad-hoc filtering request may be a
+> dangerous* and unneeded practice. The fields/columns to search-on may not all be indexed. Special care must be taken to 
 > ensure that clients can not bring servers down with complex queries. You should limit search-able column/field lists using Xlat 
 > IndentifierLookup and limit supported tree operator types
 
 An AST expression tree is built of series of nodes, all JSON-serializable. The nodes implement visitor design pattern which 
-accepts the translation context `XlatContext`. Translators take a tree and transform it to another
-form, such as SQL for RDBMS or a different query language (e.g. Mongo Db query graph or even external ws calls).
+accepts the translation context `XlatContext`. Translators take a tree graph as an input and transform it to another
+form, such as SQL for RDBMS or a different query language (e.g. Mongo Db query graph or even external service calls, you can
+also delegate processing to lower-level data stores).
 
-The shape of the tree, its operators and values depend on actual [`Xlat`](xlat.cs) implementation used to translate
+The shape of the tree, its operators and values depend on the actual [`Xlat`](xlat.cs) implementation used to translate
 the AST for a concrete backend. It is possible to re-interpret the same tree for different targets, such as SQL, 
-NoSQL, Graph and other data store types.
+NoSQL, Graph and other data store types (e.g. call other services).
 
-The [`SqlBaseXlat`](SqlBaseXlat.cs) provides base implementation for SQL-related transforms.
+The [`SqlBaseXlat`](SqlBaseXlat.cs) provides the base implementation for SQL-related transforms.
 
 You can override `UnaryOperators`, `BinaryOperators` to customize what operations are supported.
 `IdentifierFilter` is an injectable `Func<IdentifierExpression, bool>` predicate that you can use to accept/reject
-certain identifiers which get submitted in an AST, consequently an **AST translation is secure**.
+certain identifiers which get submitted in an AST, consequently an **AST translation is secure** so long as the
+caller choices are limited by the aforementioned hooks.
 
-An example of forming an AST tree by code:
+An example of forming an AST tree in code:
 ```csharp
   var ast = new BinaryExpression
   {
@@ -115,3 +117,30 @@ public OraSelectBuilder WhereExpressionBlock(WhereClauseType clause, SqlXlatCont
             .WhereBlockEnd();
 ```
 
+
+## Searching Distributed CvRDT Data Heaps with Queries
+
+The framework makes extensive use of `Expression`/AST in `Azos.Data.Heap`
+namespace where expressions are used to represent an ad-hoc tree of conditions
+submitted to query handler.
+
+Queries are represented by `AreaQuery`-derived data documents submitted to
+heap nodes (servers) for execution. A simple inclusion of `Expression` field makes
+those queries very flexible, e.g. the example below declares a query that can pass-through
+(if allowed by the server) pretty much any logical search expression on a named collection:
+
+```csharp
+  //Queries a collection by name applying ad-hoc filter expression
+  public class CollectionQuery : AreaQuery
+  {
+    [Field(Description="Name of collection to query")]
+    public string Collection { get; set; }
+
+    [Field(Description="List of fields to return")]
+    public List<string> Projection { get; set; }
+
+    [Field(Description="An AST representation of filter clause")]
+    public Expression Filter { get; set; } // <--- EXPRESSION TREE
+  }
+
+```

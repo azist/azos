@@ -56,7 +56,7 @@ namespace Azos.Sky.Chronicle
     [InjectModule] ILogChronicle m_Chronicle;
 
     protected async override Task<SaveResult<IEnumerable<Message>>> DoSaveAsync()
-     => new SaveResult<IEnumerable<Message>>(await m_Chronicle.GetAsync(this));
+     => new SaveResult<IEnumerable<Message>>(await m_Chronicle.GetAsync(this).ConfigureAwait(false));
   }
 
 }

@@ -41,7 +41,7 @@ namespace Azos.Web.Messaging.Services.Server
       )]
     [MessagingPermission(MessagingAccessLevel.QueryOwn)]
     [ActionOnPost(Name = "list"), AcceptsJson]
-    public async Task<object> ListMessages(MessageListFilter filter) => await ApplyFilterAsync(filter);
+    public async Task<object> ListMessages(MessageListFilter filter) => await ApplyFilterAsync(filter).ConfigureAwait(false);
 
 
     [ApiEndpointDoc(
@@ -56,7 +56,7 @@ namespace Azos.Web.Messaging.Services.Server
     )]
     [MessagingPermission(MessagingAccessLevel.Send)]
     [ActionOnPost(Name = "send"), AcceptsJson]
-    public async Task<object> SendMessage(MessageEnvelope envelope) => await SaveNewAsync(envelope);
+    public async Task<object> SendMessage(MessageEnvelope envelope) => await SaveNewAsync(envelope).ConfigureAwait(false);
 
 
     [ApiEndpointDoc(
@@ -71,7 +71,7 @@ namespace Azos.Web.Messaging.Services.Server
     )]
     [MessagingPermission(MessagingAccessLevel.QueryOwn)]
     [ActionOnGet(Name = "message"), AcceptsJson]
-    public async Task<object> GetMessage(string msgId) => GetLogicResult(await m_ArchiveLogic.GetMessageAsync(msgId));
+    public async Task<object> GetMessage(string msgId) => GetLogicResult(await m_ArchiveLogic.GetMessageAsync(msgId).ConfigureAwait(false));
 
     [ApiEndpointDoc(
       Uri = "attachment",
@@ -86,7 +86,7 @@ namespace Azos.Web.Messaging.Services.Server
     )]
     [MessagingPermission(MessagingAccessLevel.QueryOwn)]
     [ActionOnGet(Name = "attachment"), AcceptsJson]
-    public async Task<object> GetAttachment(string msgId, int attId) => GetLogicResult(await m_ArchiveLogic.GetMessageAttachmentAsync(msgId, attId));
+    public async Task<object> GetAttachment(string msgId, int attId) => GetLogicResult(await m_ArchiveLogic.GetMessageAttachmentAsync(msgId, attId).ConfigureAwait(false));
 
     [ApiEndpointDoc(
       Uri = "status",
@@ -100,6 +100,6 @@ namespace Azos.Web.Messaging.Services.Server
     )]
     [MessagingPermission(MessagingAccessLevel.QueryOwn)]
     [ActionOnGet(Name = "status"), AcceptsJson]
-    public async Task<object> GetStatusLog(string msgId) => GetLogicResult(await m_ArchiveLogic.GetMessageStatusLogAsync(msgId));
+    public async Task<object> GetStatusLog(string msgId) => GetLogicResult(await m_ArchiveLogic.GetMessageStatusLogAsync(msgId).ConfigureAwait(false));
   }
 }

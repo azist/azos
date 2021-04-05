@@ -14,7 +14,7 @@ namespace Azos.Data
   /// vs `license@car::I9973OD`. The system qualifier is required, but type qualifier is optional, which denotes "default type"
   /// for example: `car::I9973OD` is a valid EntityId pointing to a "car" system "license" type by default
   /// </summary>
-  public struct EntityId : IEquatable<EntityId>, IDistributedStableHashProvider, IJsonReadable, IJsonWritable, IRequired
+  public struct EntityId : IEquatable<EntityId>, IDistributedStableHashProvider, IJsonReadable, IJsonWritable, IRequiredCheck
   {
     public const string TP_PREFIX = "@";
     public const string SYS_PREFIX = "::";

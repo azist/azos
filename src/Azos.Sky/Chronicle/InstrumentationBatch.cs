@@ -28,7 +28,7 @@ namespace Azos.Sky.Chronicle
     protected async override Task<SaveResult<ChangeResult>> DoSaveAsync()
     {
       var t = Timeter.StartNew();
-      await m_Chronicle.WriteAsync(this);
+      await m_Chronicle.WriteAsync(this).ConfigureAwait(false);
       return new SaveResult<ChangeResult>(new ChangeResult(ChangeResult.ChangeType.Inserted, Data.Length, $"Done in {t.ElapsedMs} ms", null));
     }
   }

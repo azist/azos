@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos
@@ -44,7 +45,13 @@ namespace Azos
   /// </para>
   /// </remarks>
   [Serializable]
-  public struct Atom : IEquatable<Atom>, Data.Idgen.IDistributedStableHashProvider, IJsonWritable, IJsonReadable
+  public struct Atom : IEquatable<Atom>,
+                       Data.Idgen.IDistributedStableHashProvider,
+                       IJsonWritable,
+                       IJsonReadable,
+                       IRequiredCheck,
+                       IValidatable,
+                       ILengthCheck
   {
 
     /// <summary>
@@ -193,6 +200,24 @@ namespace Azos
 
 
     /// <summary>
+    /// Returns the character length of Atom
+    /// </summary>
+    public int Length
+    {
+      get
+      {
+        if (IsZero) return 0;
+        var m = 0xFF00_0000__0000_0000UL;
+        for(var i=8; m > 0; i--)
+        {
+          if (0 != (ID & m)) return i;
+          m = m >> 8;
+        }
+        return 0;
+      }
+    }
+
+    /// <summary>
     /// Returns true when the value is either zero or a string of valid Atom characters
     /// </summary>
     public bool IsValid
@@ -307,5 +332,18 @@ namespace Azos
 
       return (false, null);
     }
+
+    public bool CheckRequired(string targetName) => !IsZero;
+
+    public ValidState Validate(ValidState state, string scope = null)
+    {
+      if (!IsValid)
+        state = new ValidState(state, new FieldValidationException(nameof(Atom), scope.Default("<atom>"), "Invalid value"));
+
+      return state;
+    }
+
+    public bool CheckMinLength(string targetName, int minLength) => Length >= minLength;
+    public bool CheckMaxLength(string targetName, int maxLength) => Length <= maxLength;
   }
 }

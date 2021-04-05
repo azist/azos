@@ -299,7 +299,7 @@ namespace Azos.Security
 
       var manager = app.SecurityManager;
 
-      var access = await manager.AuthorizeAsync(user, this);
+      var access = await manager.AuthorizeAsync(user, this).ConfigureAwait(false);
 
       if (!access.IsAssigned) return false;
 

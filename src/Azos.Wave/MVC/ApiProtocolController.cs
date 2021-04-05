@@ -36,7 +36,7 @@ namespace Azos.Wave.Mvc
     protected async Task<object> ApplyFilterAsync<TFilter>(TFilter filter) where TFilter : class, IBusinessFilterModel
     {
       var filtered = await App.InjectInto(filter.NonNull(nameof(filter)))
-                              .SaveReturningObjectAsync();
+                              .SaveReturningObjectAsync().ConfigureAwait(false);
       if (filtered.IsSuccess)
         return new { OK = true, data = filtered.Result };
 
@@ -51,7 +51,7 @@ namespace Azos.Wave.Mvc
     {
       model.NonNull(nameof(model)).FormMode = FormMode.Update;
       var saved = await App.InjectInto(model)
-                           .SaveAsync();
+                           .SaveAsync().ConfigureAwait(false);
 
       if (saved.IsSuccess)
         return saved.Result;
@@ -67,7 +67,7 @@ namespace Azos.Wave.Mvc
     {
       model.NonNull(nameof(model)).FormMode = FormMode.Insert;
       var saved = await App.InjectInto(model)
-                           .SaveAsync();
+                           .SaveAsync().ConfigureAwait(false);
 
       if (saved.IsSuccess)
         return saved.Result;

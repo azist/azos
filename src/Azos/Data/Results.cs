@@ -4,12 +4,13 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
 using System.Collections;
 using System.IO;
 
 using Azos.Serialization.JSON;
 
-namespace Azos.Data.Business
+namespace Azos.Data
 {
   /// <summary>
   /// Describes data change operation result: {ChangeType, AffectedCount, Message, Data}
@@ -96,5 +97,50 @@ namespace Azos.Data.Business
 
       return (false, null);
     }
+  }
+
+
+  /// <summary>
+  /// Struct returned from Form.Save(): it is either an error (IsSuccess==false), or TResult
+  /// </summary>
+  public struct SaveResult<TResult>
+  {
+    /// <summary>
+    /// Creates error result
+    /// </summary>
+    public SaveResult(Exception error)
+    {
+      Error = error;
+      Result = default(TResult);
+    }
+
+    /// <summary>
+    /// Creates successful result
+    /// </summary>
+    public SaveResult(TResult result)
+    {
+      Error = null;
+      Result = result;
+    }
+
+    /// <summary>
+    /// Null on success or Error which prevented successful Save
+    /// </summary>
+    public readonly Exception Error;
+
+    /// <summary>
+    /// Returns the result of the form save, e.g. for filters this returns a resulting rowset
+    /// </summary>
+    public readonly TResult Result;
+
+    /// <summary>
+    /// True if there is no error
+    /// </summary>
+    public bool IsSuccess => Error == null;
+
+    /// <summary>
+    /// Returns SaveResult&lt;object&gt; representation
+    /// </summary>
+    public SaveResult<object> ToObject() => IsSuccess ? new SaveResult<object>(Result) : new SaveResult<object>(Error);
   }
 }

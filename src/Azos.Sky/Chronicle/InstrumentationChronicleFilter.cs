@@ -41,7 +41,7 @@ namespace Azos.Sky.Chronicle
     [Inject] IInstrumentationChronicle m_Chronicle;
 
     protected async override Task<SaveResult<IEnumerable<JsonDataMap>>> DoSaveAsync()
-     => new SaveResult<IEnumerable<JsonDataMap>>(await m_Chronicle.GetAsync(this));
+     => new SaveResult<IEnumerable<JsonDataMap>>(await m_Chronicle.GetAsync(this).ConfigureAwait(false));
   }
 
 }
