@@ -41,9 +41,9 @@ namespace Azos.Data.Heap
     public GDID Sys_Id{ get; internal set; } //all entities referencing this field should start with "G_" e.g. "G_User"
 
     /// <summary>
-    /// The sharding Id is used to locate the shard aka 'segment' of the data heap
+    /// The sharding key is used to locate the shard aka 'segment' of the data heap
     /// </summary>
-    public virtual object Sys_ShardingId => Sys_Id;
+    public virtual ShardKey Sys_ShardKey => new ShardKey(Sys_Id);
 
     /// <summary> Override to specify relative processing (e.g. replication) priority </summary>
     public virtual int Sys_Priority => 0;

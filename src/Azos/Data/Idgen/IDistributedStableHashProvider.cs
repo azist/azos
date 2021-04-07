@@ -11,7 +11,7 @@ namespace Azos.Data.Idgen
   /// Denotes entities that provide ULONG STABLE hash code for use in a distributed (large scale) system.
   /// This is needed primarily for cluster/large datasets to properly compute 64bit sharding addresses and to differentiate
   /// from GetHashCode() that returns 32 bits unstable hash for local object location in hashtables.
-  /// DO not confuse with object.GetHashCode() which is un-suitable for long-term persistence
+  /// DO not confuse with object.GetHashCode() which is un-suitable for long-term persistence routing
   /// </summary>
   public interface IDistributedStableHashProvider
   {
@@ -19,7 +19,7 @@ namespace Azos.Data.Idgen
     /// Provides 64 bit STABLE hash suitable for distributed system application.
     /// This hash may NOT depend on platform/implementation as it is used for storage and
     /// always returns a stable predictable result for the same value regardless of platform.
-    /// Warning! DO NOT CALL object.GetHashCode() as it may not be suitable for storage (e.g. string.GetHashCode() is different in CLR 32 vs 64 bit)
+    /// Warning!!! DO NOT CALL object.GetHashCode() as it may not be suitable for storage (e.g. string.GetHashCode() is different in CLR 32 vs 64 bit)
     /// </summary>
     ulong GetDistributedStableHash();
   }

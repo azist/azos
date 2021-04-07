@@ -4,8 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-using System.Collections.Generic;
-using System.Text;
+using Azos.Data.Idgen;
 
 namespace Azos.Data
 {
@@ -16,7 +15,7 @@ namespace Azos.Data
   /// Use AbsentValue.Instance singleton
   /// </summary>
   [Serializable]
-  public sealed class AbsentValue
+  public sealed class AbsentValue : IDistributedStableHashProvider
   {
     public static readonly AbsentValue Instance = new AbsentValue();
 
@@ -25,5 +24,7 @@ namespace Azos.Data
     public override int GetHashCode()       => 0;
     public override bool Equals(object obj) =>  obj is AbsentValue;
     public override string ToString()       => "[Absent]";
+
+    public ulong GetDistributedStableHash() => 0ul;
   }
 }

@@ -112,7 +112,7 @@ namespace Azos.Data.Heap
 
     Task<HeapObject> GetObjectAsync(ObjectPtr ptr);
     Task<SaveResult<HeapObject>> SetAsync(HeapObject instance);
-    Task<SaveResult<ObjectVersion>> DeleteAsync(ObjectPtr ptr);
+    Task<SaveResult<ChangeResult>> DeleteAsync(ObjectPtr ptr);
   }
 
   /// <summary>
