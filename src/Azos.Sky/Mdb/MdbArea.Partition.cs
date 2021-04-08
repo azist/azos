@@ -221,7 +221,7 @@ namespace Azos.Sky.Mdb
       /// </summary>
       public Shard GetShardForID(object idSharding)
       {
-        ulong subid = ShardingUtils.ObjectToShardingID(idSharding);
+        ulong subid = new ShardKey(idSharding).GetDistributedStableHash();
 
         return Shards[ subid % (ulong)Shards.Length ];
       }

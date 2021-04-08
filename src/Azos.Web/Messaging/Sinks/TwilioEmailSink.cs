@@ -35,7 +35,7 @@ namespace Azos.Web.Messaging.Sinks
 
       var task = m_Twilio.Call(TwilioServiceAddress,
                               nameof(TwilioEmailSink),
-                              msg.Id, //sharding
+                              new ShardKey(msg.Id), //sharding
                               (http, ct) => http.Client.PostAndGetJsonMapAsync("send", tw));
 
       var response = task.GetAwaiter().GetResult();//complete synchronously by design

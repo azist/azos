@@ -254,7 +254,7 @@ manc
           {
               var response = await m_Server.Call(IdpServerAddress,
                                             nameof(IMinIdpStore),
-                                            id,
+                                            new ShardKey(id),
                                             (tx, c) => tx.Client
                                                          .PostAndGetJsonMapAsync("byid", new { realm = realm, id = id, ctx = ctx }))//do NOT del prop names
                                            .ConfigureAwait(false);
@@ -267,7 +267,7 @@ manc
           {
             var response = await m_Server.Call(IdpServerAddress,
                                           nameof(IMinIdpStore),
-                                          sysToken,
+                                          new ShardKey(sysToken),
                                           (tx, c) => tx.Client
                                                        .PostAndGetJsonMapAsync("bysys", new { realm = realm, sysToken = sysToken, ctx = ctx }))//do NOT del prop names
                                          .ConfigureAwait(false);
@@ -280,7 +280,7 @@ manc
           {
             var response = await m_Server.Call(IdpServerAddress,
                                           nameof(IMinIdpStore),
-                                          uri,
+                                          new ShardKey(uri),
                                           (tx, c) => tx.Client
                                                        .PostAndGetJsonMapAsync("byuri", new { realm = realm, uri =  uri, ctx = ctx }))//do NOT del prop names
                                          .ConfigureAwait(false);

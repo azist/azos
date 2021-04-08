@@ -127,7 +127,7 @@ namespace Azos.Client
     ///   Bindings are connection technology/protocols (such as Http(s)/Glue/GRPC etc..) used to make the call
     /// </param>
     /// <returns>Endpoint(s) which should be (re)tried in the order of enumeration</returns>
-    public IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, object shardKey = null, Atom? network = null, Atom? binding = null)
+    public IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, ShardKey shardKey = default(ShardKey), Atom? network = null, Atom? binding = null)
     {
       if (Disposed) return Enumerable.Empty<EndpointAssignment>();
       return DoGetEndpointsForCall(remoteAddress.NonBlank(nameof(remoteAddress)),
@@ -172,7 +172,7 @@ namespace Azos.Client
     protected abstract void EndpointsHaveChanged();
     protected abstract TTransport DoAcquireTransport(EndpointAssignment assignment, bool reserve);
     protected abstract void DoReleaseTransport(TTransport transport);
-    protected abstract IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, object shardKey, Atom network, Atom binding);
+    protected abstract IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, ShardKey shardKey, Atom network, Atom binding);
     protected abstract IEnumerable<IEnumerable<EndpointAssignment>> DoGetEndpointsForAllShards(string remoteAddress, string contract, Atom network, Atom binding);
 
 

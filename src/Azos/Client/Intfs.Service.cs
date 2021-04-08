@@ -72,7 +72,7 @@ namespace Azos.Client
     ///   Bindings are connection technology/protocols (such as Http(s)/Glue/GRPC etc..) used to make the call
     /// </param>
     /// <returns>Endpoint(s) which should be (re)tried in the order of enumeration</returns>
-    IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, object shardKey = null, Atom? network = null, Atom? binding = null);
+    IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, ShardKey shardKey = default(ShardKey), Atom? network = null, Atom? binding = null);
 
 
     /// <summary>
