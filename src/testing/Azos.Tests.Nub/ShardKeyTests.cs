@@ -218,6 +218,24 @@ namespace Azos.Tests.Nub
     //todo: Use the site to check specific hashes for ulongs, strings, byte[] and dates
     //https://md5calc.com/hash/fnv1a64
 
+    [Run] public void FNV1A64_String0a() => Aver.AreEqual(0ul, ShardKey.ForString(null));
+    [Run] public void FNV1A64_String0b() => Aver.AreEqual(0ul, ShardKey.ForString(""));
+    [Run] public void FNV1A64_String1() => Aver.AreEqual(0xaf63dc4c8601ec8cUL, ShardKey.ForString("a"));
+    [Run] public void FNV1A64_String2() => Aver.AreEqual(0x089c4407b545986aUL, ShardKey.ForString("ab"));
+    [Run] public void FNV1A64_String3() => Aver.AreEqual(0xe71fe3190541c5beUL, ShardKey.ForString("ab "));
+    [Run] public void FNV1A64_String4() => Aver.AreEqual(0xc2d3aa17cdf6a148UL, ShardKey.ForString(" ab"));
+    [Run] public void FNV1A64_String5() => Aver.AreEqual(0xd8bff0beeb476aabUL, ShardKey.ForString("Capital"));
+    [Run] public void FNV1A64_String6() => Aver.AreEqual(0xb33b26031858e24bUL, ShardKey.ForString("capital"));
+    [Run] public void FNV1A64_String7() => Aver.AreEqual(0x181ff1a88c7c1e81UL, ShardKey.ForString("very very long string which is much longer than other strings IN this set"));
+    [Run] public void FNV1A64_String8() => Aver.AreEqual(0x37458A3018A18365UL, ShardKey.ForString("久有归天愿"));
 
+    [Run] public void FNV1A64_Bytes0a() => Aver.AreEqual(0ul, ShardKey.ForBytes(null));
+    [Run] public void FNV1A64_Bytes0b() => Aver.AreEqual(0ul, ShardKey.ForBytes(new byte[0]));
+    [Run] public void FNV1A64_Bytes1() => Aver.AreEqual(0xaf63dc4c8601ec8cUL, ShardKey.ForBytes(new byte[]{ (byte)'a' }));
+    [Run] public void FNV1A64_Bytes2() => Aver.AreEqual(0x089c4407b545986aUL, ShardKey.ForBytes(new byte[]{ (byte)'a', (byte)'b' }));
+
+    [Run] public void FNV1A64_Ulong0() => Aver.AreEqual(0ul, ShardKey.ForUlong(0));
+    [Run] public void FNV1A64_Ulong1() => Aver.AreEqual(0x593c2a4dd0080bfdUL, ShardKey.ForUlong(0x3736353433323130));//01234567 string
+    [Run] public void FNV1A64_Ulong2() => Aver.AreEqual(0xb2a5d3eebe6504b5UL, ShardKey.ForUlong(0x3031323334353637));//76543210 string
   }
 }

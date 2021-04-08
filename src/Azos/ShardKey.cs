@@ -146,7 +146,8 @@ namespace Azos
     private const ulong FNV1A_64_OFFSET = 14695981039346656037;
 
     /// <summary>
-    /// Computes a FNV1A64 hash of string content using UTC16 binary encoding. The function IS case-sensitive.
+    /// Computes a FNV1A64 hash of string content using ASCII/1 byte binary encoding: upper 8 of UTF16char bits are XORed with lower 8 bits.
+    /// The function IS case-sensitive.
     /// Zero is returned for null reference for homogeneity with byte[] and ulong
     /// </summary>
     public static ulong ForString(string key)
