@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using System.Collections.Generic;
 using Azos.Data;
 using Azos.Data.Idgen;
 using Azos.Scripting;
@@ -608,5 +608,52 @@ namespace Azos.Tests.Nub
       Aver.AreNotEqual(v1.Hash, v2.Hash);//these are NOT equal as data is different
     }
 
+
+    [Run]
+    public void ShardKey_Gdid_Collision()
+    {
+      var set = new HashSet<ulong>();
+      var dup =0;
+      for(var i=0; i < 1_000_000; i++)
+      {
+        var k = new ShardKey(new GDID(0,(ulong)i));
+        if (!set.Add(k.Hash)) dup++;
+      }
+
+      dup.See();
+      Aver.AreEqual(0, dup);
+    }
+
+    [Run]
+    public void ShardKey_String_Collision()
+    {
+      var set = new HashSet<ulong>();
+      var dup = 0;
+      for (var i = 0; i < 1_000_000; i++)
+      {
+        var k = new ShardKey("some-{0}".Args(i));
+        if (!set.Add(k.Hash)) dup++;
+      }
+
+      dup.See();
+      Aver.AreEqual(0, dup);
+    }
+
+    [Run]
+    public void ShardKey_Bytes_Collision()
+    {
+      var set = new HashSet<ulong>();
+      var dup = 0;
+      for (var i = 0; i < 1_000_000; i++)
+      {
+        var b = new byte[16];
+        b.WriteBEInt32(i);
+        var k = new ShardKey(b);
+        if (!set.Add(k.Hash)) dup++;
+      }
+
+      dup.See();
+      Aver.AreEqual(0, dup);
+    }
   }
 }
