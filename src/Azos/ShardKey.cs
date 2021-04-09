@@ -14,10 +14,11 @@ namespace Azos
 {
   /// <summary>
   /// Provides an efficient representation of a shard key - a variant value used for shard routing.
-  /// This type establishes a formal domain for types of values that can be used for sharding.
-  /// Stores value types in an efficient way using bit union.
+  /// This type establishes a formal domain for supported types of values that can be used for sharding.
+  /// Stores value types in an efficient way using bit union to avoid argument passing extra memory allocations.
   /// The following data types are supported:
-  ///  Gdid, Atom, EntityId, Ulong, Uint, DateTime(UTC), Guid, String, ByteArray, and custom entities implementing IDistributedStableHashProvider.
+  ///  `Gdid`, `Atom`, `EntityId`, `Ulong`, `Uint`, `DateTime`(UTC), `Guid`, `String`, `ByteArray`, and any custom entities
+  ///  implementing <see cref="IDistributedStableHashProvider"/> interface.
   ///  Warning: The returned hash is NOT intended to be used by cryptography, as the computed result
   ///  is not guaranteed to produce cryptographically-safe hash value
   /// </summary>
