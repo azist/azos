@@ -7,6 +7,7 @@
 using System;
 
 using Azos.Data;
+using Azos.Data.Idgen;
 using Azos.Scripting;
 
 namespace Azos.Tests.Nub
@@ -237,5 +238,375 @@ namespace Azos.Tests.Nub
     [Run] public void FNV1A64_Ulong0() => Aver.AreEqual(0ul, ShardKey.ForUlong(0));
     [Run] public void FNV1A64_Ulong1() => Aver.AreEqual(0x593c2a4dd0080bfdUL, ShardKey.ForUlong(0x3736353433323130));//01234567 string
     [Run] public void FNV1A64_Ulong2() => Aver.AreEqual(0xb2a5d3eebe6504b5UL, ShardKey.ForUlong(0x3031323334353637));//76543210 string
+
+
+    [Run]
+    public void ShardKey_Gdid()
+    {
+      var v1 = new ShardKey(new GDID(0, 0, 0));
+      var v2 = new ShardKey(new GDID(0, 0, 0));
+      Aver.IsTrue(ShardKey.Type.Gdid == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueGdid, v2.ValueGdid);
+      Aver.IsTrue(v1 == v2);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v1 = new ShardKey(new GDID(0, 0, 123));
+      v2 = new ShardKey(new GDID(0, 0, 123));
+      Aver.IsTrue(ShardKey.Type.Gdid == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueGdid, v2.ValueGdid);
+      Aver.IsTrue(v1 == v2);
+      Aver.AreEqual(new GDID(0, 0, 123), v1.ValueGdid);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v2 = new ShardKey(new GDID(0, 0, 124));
+      Aver.AreNotEqual(v1, v2);
+      Aver.AreNotEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreNotEqual(v1.Hash, v2.Hash);
+      Aver.AreNotEqual(v1.ValueGdid, v2.ValueGdid);
+      Aver.IsTrue(v1 != v2);
+    }
+
+    [Run]
+    public void ShardKey_Atom()
+    {
+      var v1 = new ShardKey(new Atom());
+      var v2 = new ShardKey(new Atom());
+      Aver.IsTrue(ShardKey.Type.Atom == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueAtom, v2.ValueAtom);
+      Aver.IsTrue(v1 == v2);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v1 = new ShardKey(Atom.Encode("abc1234"));
+      v2 = new ShardKey(Atom.Encode("abc1234"));
+      Aver.IsTrue(ShardKey.Type.Atom == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueAtom, v2.ValueAtom);
+      Aver.IsTrue(v1 == v2);
+      Aver.AreEqual(Atom.Encode("abc1234"), v1.ValueAtom);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v2 = new ShardKey(Atom.Encode("4321abc"));
+      Aver.AreNotEqual(v1, v2);
+      Aver.AreNotEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreNotEqual(v1.Hash, v2.Hash);
+      Aver.AreNotEqual(v1.ValueAtom, v2.ValueAtom);
+      Aver.IsTrue(v1 != v2);
+    }
+
+
+    [Run]
+    public void ShardKey_EntityId()
+    {
+      var v1 = new ShardKey(new EntityId());
+      var v2 = new ShardKey(new EntityId());
+      Aver.IsTrue(ShardKey.Type.EntityId == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueEntityId, v2.ValueEntityId);
+      Aver.IsTrue(v1 == v2);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v1 = new ShardKey(EntityId.Parse("a@b::c"));
+      v2 = new ShardKey(EntityId.Parse("a@b::c"));
+      Aver.IsTrue(ShardKey.Type.EntityId == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueEntityId, v2.ValueEntityId);
+      Aver.IsTrue(v1 == v2);
+      Aver.AreEqual(EntityId.Parse("a@b::c"), v1.ValueEntityId);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v2 = new ShardKey(EntityId.Parse("another@b::c"));
+      Aver.AreNotEqual(v1, v2);
+      Aver.AreNotEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreNotEqual(v1.Hash, v2.Hash);
+      Aver.AreNotEqual(v1.ValueEntityId, v2.ValueEntityId);
+      Aver.IsTrue(v1 != v2);
+    }
+
+    [Run]
+    public void ShardKey_Ulong()
+    {
+      var v1 = new ShardKey(0ul);
+      var v2 = new ShardKey(0ul);
+      Aver.IsTrue(ShardKey.Type.Ulong == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueUlong, v2.ValueUlong);
+      Aver.IsTrue(v1 == v2);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v1 = new ShardKey(1234ul);
+      v2 = new ShardKey(1234ul);
+      Aver.IsTrue(ShardKey.Type.Ulong == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueUlong, v2.ValueUlong);
+      Aver.IsTrue(v1 == v2);
+      Aver.AreEqual(1234ul, v1.ValueUlong);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v2 = new ShardKey(98766554321ul);
+      Aver.AreNotEqual(v1, v2);
+      Aver.AreNotEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreNotEqual(v1.Hash, v2.Hash);
+      Aver.AreNotEqual(v1.ValueUlong, v2.ValueUlong);
+      Aver.IsTrue(v1 != v2);
+    }
+
+    [Run]
+    public void ShardKey_Uint()
+    {
+      var v1 = new ShardKey(0u);
+      var v2 = new ShardKey(0u);
+      Aver.IsTrue(ShardKey.Type.Uint == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueUint, v2.ValueUint);
+      Aver.IsTrue(v1 == v2);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v1 = new ShardKey(1234u);
+      v2 = new ShardKey(1234u);
+      Aver.IsTrue(ShardKey.Type.Uint == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueUint, v2.ValueUint);
+      Aver.IsTrue(v1 == v2);
+      Aver.AreEqual(1234u, v1.ValueUint);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v2 = new ShardKey(87872u);
+      Aver.AreNotEqual(v1, v2);
+      Aver.AreNotEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreNotEqual(v1.Hash, v2.Hash);
+      Aver.AreNotEqual(v1.ValueUint, v2.ValueUint);
+      Aver.IsTrue(v1 != v2);
+    }
+
+    [Run]
+    public void ShardKey_DateTime()
+    {
+      var v1 = new ShardKey(new DateTime(1980, 1, 1, 1, 1, 1, DateTimeKind.Utc));
+      var v2 = new ShardKey(new DateTime(1980, 1, 1, 1, 1, 1, DateTimeKind.Utc));
+      Aver.IsTrue(ShardKey.Type.DateTime == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueDateTime, v2.ValueDateTime);
+      Aver.IsTrue(v1 == v2);
+      Aver.AreEqual(new DateTime(1980, 1, 1, 1, 1, 1, DateTimeKind.Utc), v1.ValueDateTime);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v2 = new ShardKey(new DateTime(1980, 1, 1, 1, 1, 2, DateTimeKind.Utc));
+      Aver.AreNotEqual(v1, v2);
+      Aver.AreNotEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreNotEqual(v1.Hash, v2.Hash);
+      Aver.AreNotEqual(v1.ValueDateTime, v2.ValueDateTime);
+      Aver.IsTrue(v1 != v2);
+    }
+
+    [Run]
+    public void ShardKey_Guid()
+    {
+      var v1 = new ShardKey(Guid.Empty);
+      var v2 = new ShardKey(Guid.Empty);
+      Aver.IsTrue(ShardKey.Type.Guid == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueGuid, v2.ValueGuid);
+      Aver.IsTrue(v1 == v2);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v1 = new ShardKey(Guid.Parse("{F52C9D55-E500-40F4-BF89-39FD6D8D9DC5}"));
+      v2 = new ShardKey(Guid.Parse("{F52C9D55-E500-40F4-BF89-39FD6D8D9DC5}"));
+      Aver.IsTrue(ShardKey.Type.Guid == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueGuid, v2.ValueGuid);
+      Aver.IsTrue(v1 == v2);
+      Aver.AreEqual(Guid.Parse("{F52C9D55-E500-40F4-BF89-39FD6D8D9DC5}"), v1.ValueGuid);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v2 = new ShardKey(Guid.Parse("{F52C9D55-E500-40F4-BF89-39FD6D8D9DCF}"));
+      Aver.AreNotEqual(v1, v2);
+      Aver.AreNotEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreNotEqual(v1.Hash, v2.Hash);
+      Aver.AreNotEqual(v1.ValueGuid, v2.ValueGuid);
+      Aver.IsTrue(v1 != v2);
+    }
+
+    [Run]
+    public void ShardKey_String()
+    {
+      var v1 = new ShardKey((string)null);
+      var v2 = new ShardKey((string)null);
+      Aver.IsTrue(ShardKey.Type.String == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueString, v2.ValueString);
+      Aver.IsTrue(v1 == v2);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v1 = new ShardKey("");
+      v2 = new ShardKey("");
+      Aver.IsTrue(ShardKey.Type.String == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueString, v2.ValueString);
+      Aver.IsTrue(v1 == v2);
+
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v1 = new ShardKey("abcd12");
+      v2 = new ShardKey("abcd12");
+      Aver.IsTrue(ShardKey.Type.String == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.AreEqual(v1.ValueString, v2.ValueString);
+      Aver.IsTrue(v1 == v2);
+      Aver.AreEqual("abcd12", v1.ValueString);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v2 = new ShardKey("acbfegeddregheljg");
+      Aver.AreNotEqual(v1, v2);
+      Aver.AreNotEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreNotEqual(v1.Hash, v2.Hash);
+      Aver.AreNotEqual(v1.ValueString, v2.ValueString);
+      Aver.IsTrue(v1 != v2);
+    }
+
+
+    [Run]
+    public void ShardKey_ByteArray()
+    {
+      var v1 = new ShardKey((byte[])null);
+      var v2 = new ShardKey((byte[])null);
+      Aver.IsTrue(ShardKey.Type.ByteArray == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.IsTrue(v1.ValueByteArray.MemBufferEquals(v2.ValueByteArray));
+      Aver.IsTrue(v1 == v2);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v1 = new ShardKey(new byte[0]);
+      v2 = new ShardKey(new byte[0]);
+      Aver.IsTrue(ShardKey.Type.ByteArray == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.IsTrue(v1.ValueByteArray.MemBufferEquals(v2.ValueByteArray));
+      Aver.IsTrue(v1 == v2);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v1 = new ShardKey(new byte[]{1, 3, 9});
+      v2 = new ShardKey(new byte[]{1, 3, 9});
+      Aver.IsTrue(ShardKey.Type.ByteArray == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.IsTrue(v1.ValueByteArray.MemBufferEquals(v2.ValueByteArray));
+      Aver.IsTrue(v1 == v2);
+
+      Aver.AreEqual(3,  v1.ValueByteArray.Length);
+      Aver.AreEqual(1, v1.ValueByteArray[0]);
+      Aver.AreEqual(3, v1.ValueByteArray[1]);
+      Aver.AreEqual(9, v1.ValueByteArray[2]);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v2 = new ShardKey(new byte[]{1, 3, 9, 11});
+      Aver.AreNotEqual(v1, v2);
+      Aver.AreNotEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreNotEqual(v1.Hash, v2.Hash);
+      Aver.IsFalse(v1.ValueByteArray.MemBufferEquals(v2.ValueByteArray));
+      Aver.IsTrue(v1 != v2);
+    }
+
+
+    public class Cuztom : IDistributedStableHashProvider
+    {
+      public ulong Data{  get; set;}
+      public ulong GetDistributedStableHash() => Data;
+    }
+
+    [Run]
+    public void ShardKey_Object_IDistributedStableHashProvider()
+    {
+      var v1 = new ShardKey((object)null);
+      var v2 = new ShardKey((object)null);
+      Aver.IsTrue(ShardKey.Type.IDistributedStableHashProvider == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.IsTrue(v1.ValueIDistributedStableHashProvider == v2.ValueIDistributedStableHashProvider);
+      Aver.IsTrue(v1 == v2);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      var one = new Cuztom { Data = 123 };
+      v1 = new ShardKey(one);
+      v2 = new ShardKey(one);
+      Aver.IsTrue(ShardKey.Type.IDistributedStableHashProvider == v1.DataType);
+      Aver.AreEqual(v1, v2);
+      Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);
+      Aver.IsTrue(v1.ValueIDistributedStableHashProvider == v2.ValueIDistributedStableHashProvider);
+      Aver.IsTrue(v1 == v2);
+
+      "Value: {0}".SeeArgs(v1);//ToString()
+
+      v2 = new ShardKey(new Cuztom { Data = 123 });//different instance
+      Aver.AreNotEqual(v1, v2);
+      Aver.AreNotEqual(v1.GetHashCode(), v2.GetHashCode());
+      Aver.AreEqual(v1.Hash, v2.Hash);//these are still equal as data is the same!!!
+      Aver.IsFalse(v1.ValueIDistributedStableHashProvider == v2.ValueIDistributedStableHashProvider);
+      Aver.IsTrue(v1 != v2);
+
+      v2 = new ShardKey(new Cuztom { Data = 124 });//different instance and different data
+      Aver.AreNotEqual(v1.Hash, v2.Hash);//these are NOT equal as data is different
+    }
+
   }
 }

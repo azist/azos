@@ -1164,11 +1164,15 @@ namespace Azos
     /// <summary>
     /// Returns true if both buffers contain the same number of the same bytes.
     /// The implementation uses quad-word comparison as much as possible for speed.
-    /// Requires UNSAFE switch
+    /// Requires UNSAFE switch. True if both buffers are null
     /// </summary>
     public static unsafe bool MemBufferEquals(this byte[] buf1, byte[] buf2)
     {
-      if (buf1 == null || buf2 == null) return false;
+      var n1 = buf1 == null;
+      var n2 = buf2 == null;
+
+      if (n1 && n2) return true;
+      if (n1 || n2) return false;
 
       var len = buf1.Length;
       if (len != buf2.Length) return false;
@@ -1283,6 +1287,8 @@ namespace Azos
     /// </summary>
     public static Guid GuidFromNetworkByteOrder(this byte[] buf, int offset = 0)
     {
+      if (buf==null) return Guid.Empty;
+
       var a = ReadBEInt32(buf, ref offset);
       var b = ReadBEShort(buf, ref offset);
       var c = ReadBEShort(buf, ref offset);

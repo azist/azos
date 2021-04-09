@@ -57,7 +57,7 @@ namespace Azos
     { DataType = Type.Uint; Buffer = new GDID(0, key); ObjectValue = null; }
 
     public ShardKey(DateTime key)
-    { DataType = Type.DateTime; Buffer = new GDID(0, (ulong)key.IsTrue( v => v.Kind == DateTimeKind.Utc).ToMillisecondsSinceUnixEpochStart()); ObjectValue = null; }
+    { DataType = Type.DateTime; Buffer = new GDID(0, (ulong)key.IsTrue( v => v.Kind == DateTimeKind.Utc, "UTC timestamp").ToMillisecondsSinceUnixEpochStart()); ObjectValue = null; }
 
     public ShardKey(object key)
     { DataType = Type.IDistributedStableHashProvider; Buffer = new GDID(); ObjectValue = (key==null) ? null : key.CastTo<IDistributedStableHashProvider>(); }
@@ -81,6 +81,30 @@ namespace Azos
     /// </summary>
     public ulong Hash => GetDistributedStableHash();
 
+    public GDID ValueGdid         => OfType(Type.Gdid).Buffer;
+    public Atom ValueAtom         => new Atom(OfType(Type.Atom).Buffer.ID);
+    public EntityId ValueEntityId => EntityId.Parse(OfType(Type.EntityId).ObjectValue as string);
+    public ulong ValueUlong       => OfType(Type.Ulong).Buffer.ID;
+    public uint ValueUint         => (uint)OfType(Type.Uint).Buffer.ID;
+    public DateTime ValueDateTime => OfType(Type.DateTime).Buffer.ID.FromMillisecondsSinceUnixEpochStart();
+    public object ValueIDistributedStableHashProvider => OfType(Type.IDistributedStableHashProvider).ObjectValue;
+    public Guid ValueGuid         => (OfType(Type.Guid).ObjectValue as byte[]).GuidFromNetworkByteOrder();
+    public string ValueString     => OfType(Type.String).ObjectValue as string;
+    public byte[] ValueByteArray  => OfType(Type.ByteArray).ObjectValue as byte[];
+
+    /// <summary>
+    /// Asserts that this instance has data of the specified type or throws
+    /// </summary>
+    public ShardKey OfType(Type tp)
+    {
+      if (DataType != tp)
+      {
+        throw new CallGuardException(nameof(ShardKey), nameof(OfType), "Got {0}(`{1}`) instead of `{2}`".Args(nameof(ShardKey), DataType, tp));
+      }
+
+      return this;
+    }
+
     /// <summary>
     /// Returns a stable hash value derived from the actual value encoded in this instance.
     /// The system adds "avalanche" effect for better bit distribution
@@ -92,7 +116,7 @@ namespace Azos
         case Type.Uninitialized: return 0;
         case Type.Gdid:  return ForUlong(Buffer.GetDistributedStableHash());
         case Type.Atom:  return ForUlong( new Atom(Buffer.ID).GetDistributedStableHash());
-        case Type.EntityId: return EntityId.Parse((string)ObjectValue).GetDistributedStableHash();//EntityId is already distributed
+        case Type.EntityId: return EntityId.Parse(ObjectValue as string).GetDistributedStableHash();//EntityId is already distributed
         case Type.Ulong: return ForUlong(Buffer.ID);
         case Type.Uint:  return ForUlong(Buffer.ID);
         case Type.DateTime: return ForUlong(Buffer.ID);
@@ -125,12 +149,23 @@ namespace Azos
       => $"ShardKey({DataType}, `{(ObjectValue != null ? ObjectValue.ToString() : DataType == Type.Gdid ? Buffer.ToString() : "{0:X8}".Args(Buffer.ID) )}`)";
 
     public override int GetHashCode()
-      => (int)this.DataType ^ this.Buffer.GetHashCode() ^ (ObjectValue==null ? 0 : RuntimeHelpers.GetHashCode(ObjectValue));
+      => (int)this.DataType ^ this.Buffer.GetHashCode() ^ (ObjectValue==null ? 0 :
+                                                           ObjectValue is string str ? (int)ForString(str) :
+                                                           ObjectValue is byte[] ba ? (int)ForBytes(ba) :
+                                                           RuntimeHelpers.GetHashCode(ObjectValue));
 
     public bool Equals(ShardKey other)
       => this.DataType == other.DataType &&
          this.Buffer == other.Buffer &&
-         object.ReferenceEquals(this.ObjectValue, other.ObjectValue);
+         (
+           (object.ReferenceEquals(this.ObjectValue, other.ObjectValue)) ||
+           (this.ObjectValue != null &&
+              (
+                (this.ObjectValue is string str1 && other.ObjectValue is string str2 && str1.EqualsOrdSenseCase(str2)) ||
+                (this.ObjectValue is byte[] buf1 && other.ObjectValue is byte[] buf2 && buf1.MemBufferEquals(buf2))
+              )
+           )
+         ) ;
 
     public override bool Equals(object obj) => obj is ShardKey sk ? this.Equals(sk) : false;
 
