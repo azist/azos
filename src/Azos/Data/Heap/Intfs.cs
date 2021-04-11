@@ -13,18 +13,6 @@ using Azos.Collections;
 
 namespace Azos.Data.Heap
 {
-
-  public struct ObjectPtr : IEquatable<ObjectPtr>
-  {
-    public object ShardingId;
-    public GDID Id;
-
-    public bool Equals(ObjectPtr other)
-    {
-      throw new NotImplementedException();
-    }
-  }
-
   /// <summary>
   /// Represents a globally-distributed replicated heap of eventually consistent instances of CvRDTs
   /// (Convergent Replicated Data Types)
@@ -110,9 +98,9 @@ namespace Azos.Data.Heap
     /// </summary>
     HeapAttribute ObjectTypeDefinition { get; }
 
-    Task<HeapObject> GetObjectAsync(ObjectPtr ptr);
+    Task<HeapObject> GetObjectAsync(ObjectRef obj);
     Task<SaveResult<HeapObject>> SetAsync(HeapObject instance);
-    Task<SaveResult<ChangeResult>> DeleteAsync(ObjectPtr ptr);
+    Task<SaveResult<ChangeResult>> DeleteAsync(ObjectRef obj);
   }
 
   /// <summary>
@@ -120,7 +108,7 @@ namespace Azos.Data.Heap
   /// </summary>
   public interface IHeapCollection<T> : IHeapCollection where T : HeapObject
   {
-    Task<T> GetAsync(ObjectPtr ptr);
+    Task<T> GetAsync(ObjectRef obj);
     Task<SaveResult<T>> SetAsync(T instance);
   }
 }
