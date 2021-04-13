@@ -63,6 +63,7 @@ namespace Azos.Data.Heap
       public Node RendezvousRoute(ShardKey shardKey) //O(n)
       {
         //[W]eighted [R]endezvous [H]ashing Algorithm
+        //https://tools.ietf.org/html/draft-mohanty-bess-weighted-hrw-01
         var keyHash = shardKey.Hash;//the hash is already "avalanched"
 
         Node best = null;
@@ -72,8 +73,7 @@ namespace Azos.Data.Heap
         {
           var hash = node.ShardIdHash ^ keyHash;//both "avalanched"
           double norm = hash / (double)ulong.MaxValue; //0.0 .. 1.0
-          if (norm == 0d) norm = 0.1d;
-          var score = node.ShardWeight / -Math.Log(norm);//logarithm of real number is negative
+          var score = node.ShardWeight / -Math.Log(norm);//logarithm of real number is negative; log (0) = - infinity ; 1 / -log(0) = 0
           if (score > bestScore)
           {
             best = node;

@@ -10,13 +10,20 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Apps;
+using Azos.Conf;
 using Azos.Instrumentation;
 
 namespace Azos.Data.Heap.Implementation
 {
-  public sealed class Area : ApplicationComponent<HeapLogic>, IArea, IInstrumentable
+  public sealed class Area : ApplicationComponent<Heap>, IArea, IInstrumentable
   {
-    internal Area(HeapLogic director) : base(director){ }
+    public const string CONFIG_AREA_SECTION = "area";
+
+    internal Area(Heap director, IConfigSectionNode cfg) : base(director)
+    {
+      //build
+      //check Name for atom compliance
+    }
 
     public IHeap Heap => ComponentDirector;
 
