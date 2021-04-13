@@ -16,7 +16,7 @@ namespace Azos.Data.Heap
   /// Represents a globally-distributed replicated heap of eventually consistent instances of CvRDTs
   /// (Convergent Replicated Data Types)
   /// </summary>
-  public interface IHeap
+  public interface IHeap : IApplicationComponent
   {
     /// <summary>
     /// Registry of areas of the heap. Each area is backed by a storage engine

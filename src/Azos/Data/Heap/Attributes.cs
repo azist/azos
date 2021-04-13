@@ -25,13 +25,13 @@ namespace Azos.Data.Heap
     public Atom Area{ get; private set;}
     public Atom Collection { get; private set; }
 
-    public Atom Channel { get; private set; }
+    //public Atom Channel { get; private set; }
 
-    public string ChannelName
-    {
-      get => Channel.Value;
-      set => Channel = Atom.Encode(value.NonBlank(nameof(ChannelName)));
-    }
+    //public string ChannelName
+    //{
+    //  get => Channel.Value;
+    //  set => Channel = Atom.Encode(value.NonBlank(nameof(ChannelName)));
+    //}
 
   }
 }
