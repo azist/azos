@@ -243,8 +243,8 @@ namespace Azos.Data
     /// Override to perform custom validations,
     /// i.e. TypeDocs may directly access properties and write some validation type-safe code.
     /// The method is not expected to throw exception in case of failed business logic validation, rather return exception instance because
-    ///  throwing exception really hampers validation performance when many docs/rows need to be validated.
-    /// The thrown exception indicates an unexpected condition/a bug in the validation logic itself.
+    ///  throwing exception really impedes validation performance when many docs/rows need to be validated.
+    /// A thrown exception indicates an unexpected condition/a bug in the validation logic itself.
     /// </summary>
     /// <param name="state">The <see cref="ValidState"/> that gets passed in and returned</param>
     /// <param name="scope">
@@ -268,7 +268,7 @@ namespace Azos.Data
     /// Validates document field using Schema.FieldDef settings.
     /// This method is invoked by base Validate() implementation.
     /// The method is not expected to throw exception in case of failed validation, rather return exception instance because
-    ///  throwing exception really hampers validation performance when many rows need to be validated
+    ///  throwing exception really impedes validation performance when many document instances need to be validated
     /// </summary>
     public virtual ValidState ValidateField(ValidState state, Schema.FieldDef fdef, string scope = null)
     {

@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Collections;
@@ -17,14 +16,21 @@ namespace Azos.Data.Heap
   /// Represents a globally-distributed replicated heap of eventually consistent instances of CvRDTs
   /// (Convergent Replicated Data Types)
   /// </summary>
-  public interface IHeap : IModule
+  public interface IHeap
   {
     /// <summary>
-    /// Registry of areas of the heap
+    /// Registry of areas of the heap. Each area is backed by a storage engine
+    /// and has its own partitioning(sharding) rules
     /// </summary>
     IRegistry<IArea> Areas { get; }
   }
 
+  /// <summary>
+  /// Denotes IHeap implementation logic module
+  /// </summary>
+  public interface IHeapLogic : IHeap , IModule
+  {
+  }
 
   /// <summary>
   /// Represents data heap server node
@@ -37,7 +43,7 @@ namespace Azos.Data.Heap
     Atom NodeId     { get; }
 
     /// <summary>
-    /// Cluster host name, such as sky regional catalog path e.g. /world/us/east/cle/db/z1/lmed002.h
+    /// Cluster host name, such as sky regional catalog path e.g. `/world/us/east/cle/db/z1/lmed002.h`
     /// </summary>
     string HostName { get; }
 
@@ -47,9 +53,16 @@ namespace Azos.Data.Heap
     DateTime UtcNow { get; }
   }
 
-
+  /// <summary>
+  /// Defines a logical division/area/namespace of the data heap.
+  /// Each area has its own data partition rules (sharding) where requests are routed into.
+  /// On the server, an area is backed by a storage engine (e.g. Mongo Db)
+  /// </summary>
   public interface IArea : INamed
   {
+    /// <summary>
+    /// Directing heap
+    /// </summary>
     IHeap Heap { get; }
 
     /// <summary>
@@ -68,15 +81,20 @@ namespace Azos.Data.Heap
     Router Sharding { get; }
 
     /// <summary>
-    /// Returns a heap object collection for the specified type
+    /// Returns a heap collection for the specified object type
     /// </summary>
     IHeapCollection GetCollection(Type tObject);
 
     /// <summary>
-    /// Returns a heap object collection of the specified type
+    /// Returns a heap collection for the specified object type
     /// </summary>
     IHeapCollection<T> GetCollection<T>() where T : HeapObject;
 
+    /// <summary>
+    /// Executes a query in this area
+    /// </summary>
+    /// <param name="query">Query object to execute</param>
+    /// <returns>Returns result of polymorphic type (e.g. an enumerable of data documents) </returns>
     Task<object> ExecuteQueryAsync(AreaQuery query);
   }
 
@@ -98,8 +116,15 @@ namespace Azos.Data.Heap
     /// </summary>
     HeapAttribute ObjectTypeDefinition { get; }
 
+    /// <summary>
+    /// Gets object of the corresponding collection type by its direct reference
+    /// </summary>
     Task<HeapObject> GetObjectAsync(ObjectRef obj);
-    Task<SaveResult<HeapObject>> SetAsync(HeapObject instance);
+
+    /// <summary>
+    /// Saves object into the corresponding collection type
+    /// </summary>
+    Task<SaveResult<ChangeResult>> SetObjectAsync(HeapObject instance);
     Task<SaveResult<ChangeResult>> DeleteAsync(ObjectRef obj);
   }
 
@@ -108,8 +133,15 @@ namespace Azos.Data.Heap
   /// </summary>
   public interface IHeapCollection<T> : IHeapCollection where T : HeapObject
   {
+    /// <summary>
+    /// Gets object of type T by its direct reference
+    /// </summary>
     Task<T> GetAsync(ObjectRef obj);
-    Task<SaveResult<T>> SetAsync(T instance);
+
+    /// <summary>
+    /// Saves object into the corresponding collection type
+    /// </summary>
+    Task<SaveResult<ChangeResult>> SetAsync(T instance);
   }
 }
 

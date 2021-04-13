@@ -45,22 +45,27 @@ namespace Azos.Data.Heap
     /// </summary>
     public virtual ShardKey Sys_ShardKey => new ShardKey(Sys_Id);
 
-    /// <summary> Override to specify relative processing (e.g. replication) priority </summary>
+    /// <summary>
+    /// Override to specify relative processing (e.g. replication) priority dependent on the instance.
+    /// The higher the number - the more priority is given. The default is ZERO = normal priority.
+    /// You can boost priority for objects which contain data for important/frequently used items
+    /// such as celebrity profiles etc.
+    /// </summary>
     public virtual int Sys_Priority => 0;
 
     /// <summary>
-    /// Version state: Created/Modified/Deleted
+    /// Latest version state: Created/Modified/Deleted
     /// </summary>
     [Field(Description = "Version state: Created/Modified/Deleted",
            StoreFlag = StoreFlag.LoadAndStore)]
     public State Sys_VerState { get; private set; }
 
     /// <summary>
-    /// Version UTC stamped at the time of set by the server node.
-    /// This stamp is not changed by replication
+    /// Latest version UTC stamped at the time of set on origin server node.
+    /// This stamp is not changed by replication unless merge yields yet another version
     /// </summary>
     [Field(Description = "Version UTC stamped at the time of set by the server node." +
-                         " This stamp is not changed by replication",
+                         " This stamp is not changed by replication unless merge yields yet another version",
            StoreFlag = StoreFlag.LoadAndStore)]
     public long Sys_VerUtc { get; private set; }
 
@@ -77,7 +82,7 @@ namespace Azos.Data.Heap
     /// point in time which is used by other nodes for data gossip/replication.
     /// Every time data is written into device (e.g. a database) this value gets updated. Other heap nodes keep track
     /// of this value per source (node:collection) to keep track of how far along the remote change log they got.
-    /// The value does not need to be precise as it is used only as a monotonic time counter per node (Unix milliseconds).
+    /// The value does not need to be precise as it is used only as a monotonic time counter per node expressed in Unix milliseconds
     /// </summary>
     [Field(Description = "Sync UTC stamp is set by server node at the time of device write." +
                          "The system uses this value for change log replication. " +
@@ -90,7 +95,7 @@ namespace Azos.Data.Heap
     /// Called by the server node, "seals" the data version by stamping appropriate object attributes.
     /// The node calls this method when the data is SET(Updated), but typically NOT when it is synchronized/merged
     /// unless a merge yields a brand new version of data.
-    /// You must always call the base implementation.
+    /// You must always call the base implementation
     /// </summary>
     /// <param name="node">Node where data change takes place</param>
     /// <param name="collection">Collection where this object is stored</param>
@@ -106,7 +111,6 @@ namespace Azos.Data.Heap
       Sys_VerUtc = node.UtcNow.ToMillisecondsSinceUnixEpochStart();
       Sys_VerNode = node.NodeId;
     }
-
 
     /// <summary>
     /// Called by the data heap server nodes during replication, performs CRDT merge operation by
