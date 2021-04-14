@@ -17,14 +17,17 @@ namespace Azos.Data.Heap
   /// A system may support a queries that take <see cref="AST.Expression"/> which
   /// is a similar concept to GraphQL where a query "shapes" data.
   /// </summary>
-  [BixJsonHandler]
+
+  //todo: Need area:collection resolver
+  //[BixJsonHandler]
   public abstract class AreaQuery : TypedDoc
   {
     protected override void AddJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, Dictionary<string, object> jsonMap, string name, object value)
     {
       if (def?.Order == 0)
       {
-        BixJsonHandler.EmitJsonBixDiscriminator(this, jsonMap);
+        //todo: Need area:collection resolver
+        //  BixJsonHandler.EmitJsonBixDiscriminator(this, jsonMap);
       }
 
       base.AddJsonSerializerField(def, options, jsonMap, name, value);

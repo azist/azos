@@ -19,7 +19,7 @@ namespace Azos.Data.Heap.Implementation
 
     public HeapAttribute ObjectTypeDefinition => throw new NotImplementedException();
 
-    public Task<SaveResult<ChangeResult>> DeleteAsync(ObjectRef obj)
+    public Task<SaveResult<ChangeResult>> DeleteAsync(ObjectRef obj, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid))
     {
       throw new NotImplementedException();
     }
@@ -29,7 +29,7 @@ namespace Azos.Data.Heap.Implementation
       throw new NotImplementedException();
     }
 
-    public Task<SaveResult<ChangeResult>> SetObjectAsync(HeapObject instance)
+    public Task<SaveResult<ChangeResult>> SetObjectAsync(HeapObject instance, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid))
     {
       throw new NotImplementedException();
     }
@@ -42,7 +42,7 @@ namespace Azos.Data.Heap.Implementation
       throw new NotImplementedException();
     }
 
-    public Task<SaveResult<ChangeResult>> SetAsync(T instance)
+    public Task<SaveResult<ChangeResult>> SetAsync(T instance, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid))
     {
       throw new NotImplementedException();
     }

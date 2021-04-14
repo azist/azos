@@ -148,7 +148,7 @@ namespace Azos.Data
   }
 
   /// <summary>
-  /// Supplies caching params
+  /// Supplies caching parameters
   /// </summary>
   public interface ICacheParams
   {

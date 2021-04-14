@@ -108,19 +108,21 @@ namespace Azos.Data
     /// <summary>
     /// Creates error result
     /// </summary>
-    public SaveResult(Exception error)
+    public SaveResult(Exception error, Guid idempotencyToken = default(Guid))
     {
       Error = error;
       Result = default(TResult);
+      IdempotencyToken = idempotencyToken;
     }
 
     /// <summary>
     /// Creates successful result
     /// </summary>
-    public SaveResult(TResult result)
+    public SaveResult(TResult result, Guid idempotencyToken = default(Guid))
     {
       Error = null;
       Result = result;
+      IdempotencyToken = idempotencyToken;
     }
 
     /// <summary>
@@ -132,6 +134,13 @@ namespace Azos.Data
     /// Returns the result of the form save, e.g. for filters this returns a resulting rowset
     /// </summary>
     public readonly TResult Result;
+
+    /// <summary>
+    /// Optional idempotency token issued by the server. Guid.Empty is used when no token was issued.
+    /// You can use the returned token to retry the seemingly failed server operation which may already have succeeded
+    /// on the server in which case the token will ensure that the secondary re-executions are not going to happen
+    /// </summary>
+    public readonly Guid IdempotencyToken;
 
     /// <summary>
     /// True if there is no error

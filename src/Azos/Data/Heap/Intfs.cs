@@ -98,6 +98,21 @@ namespace Azos.Data.Heap
     Task<object> ExecuteQueryAsync(AreaQuery query);
   }
 
+  [Flags]
+  public enum WriteFlags
+  {
+    None = 0,
+
+    /// <summary> Write one more copy into the mirrors/backup locations. This increases safety in case of immediate node loss at the expense of time </summary>
+    Backup = 1,
+
+    /// <summary> Do not wait for operation to complete, e.g. post mutation to queue and return ASAP </summary>
+    Async = 1 << 30,
+
+    /// <summary> Flush write to disk if possible </summary>
+    Flush = 1 << 31
+  }
+
   /// <summary>
   /// Provides functionality for working with collections of HeapObject-derivatives of the specified type
   /// </summary>
@@ -124,8 +139,8 @@ namespace Azos.Data.Heap
     /// <summary>
     /// Saves object into the corresponding collection type
     /// </summary>
-    Task<SaveResult<ChangeResult>> SetObjectAsync(HeapObject instance);
-    Task<SaveResult<ChangeResult>> DeleteAsync(ObjectRef obj);
+    Task<SaveResult<ChangeResult>> SetObjectAsync(HeapObject instance, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid));
+    Task<SaveResult<ChangeResult>> DeleteAsync(ObjectRef obj, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid));
   }
 
   /// <summary>
@@ -141,7 +156,7 @@ namespace Azos.Data.Heap
     /// <summary>
     /// Saves object into the corresponding collection type
     /// </summary>
-    Task<SaveResult<ChangeResult>> SetAsync(T instance);
+    Task<SaveResult<ChangeResult>> SetAsync(T instance, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid));
   }
 }
 
