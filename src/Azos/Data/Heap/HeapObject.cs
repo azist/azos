@@ -17,8 +17,7 @@ namespace Azos.Data.Heap
   /// Provides the very base for objects stored in a distributed data heap.
   /// Heap objects are CvRDT (Convergent Replicated Data Types), their Merge() operation must be: Commutative, Associative, and Idempotent
   /// </summary>
-  //todo: Need area:collection resolver
-  //[BixJsonHandler]
+  [BixJsonHandler]
   public abstract class HeapObject : AmorphousTypedDoc
   {
     /// <summary> Defines Sys_VerState values </summary>
@@ -169,7 +168,7 @@ namespace Azos.Data.Heap
     {
       if (def?.Order == 0)
       {
-        //todo: write AREA and COLLECTION taken from attribute
+        BixJsonHandler.EmitJsonBixDiscriminator(this, jsonMap);
       }
 
       base.AddJsonSerializerField(def, options, jsonMap, name, value);
