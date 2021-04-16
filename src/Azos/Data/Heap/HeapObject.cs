@@ -105,7 +105,7 @@ namespace Azos.Data.Heap
     /// storing the appropriate value in your derived type fields and then extend this method to populate the object version
     /// accordingly.
     /// </remarks>
-    protected internal virtual void Crdt_Set(IHeapNode node, IHeapCollection collection, State newState)
+    protected internal virtual void Crdt_Set(IServerNode node, IHeapCollection collection, State newState)
     {
       Sys_VerState = newState;
       Sys_VerUtc = node.UtcNow.ToMillisecondsSinceUnixEpochStart();
@@ -128,7 +128,7 @@ namespace Azos.Data.Heap
     /// You either return null, or one of "others" OR you can return a brand new object (not this or others), in which case the system treats it a as
     /// a brand new version performing necessary version stamping via `Crdt_Set()`
     /// </returns>
-    internal HeapObject Crdt_Merge(IHeapNode node, IHeapCollection collection, IEnumerable<HeapObject> others)
+    internal HeapObject Crdt_Merge(IServerNode node, IHeapCollection collection, IEnumerable<HeapObject> others)
     {
       if (others == null) return null;
       if (!others.Any()) return null;
@@ -152,7 +152,7 @@ namespace Azos.Data.Heap
     /// <param name="collection">Collection where this object is stored</param>
     /// <param name="others">Other versions got form other nodes</param>
     /// <returns>Object instance which results from merge or null if THIS instance already represents the latest eventual state and no changes are necessary</returns>
-    protected virtual HeapObject DoCrdt_Merge(IHeapNode node, IHeapCollection collection, IEnumerable<HeapObject> others)
+    protected virtual HeapObject DoCrdt_Merge(IServerNode node, IHeapCollection collection, IEnumerable<HeapObject> others)
     {
       var result = this;
       foreach (var ver in others)

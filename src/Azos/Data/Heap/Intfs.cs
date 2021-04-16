@@ -35,7 +35,7 @@ namespace Azos.Data.Heap
   /// <summary>
   /// Represents data heap server node
   /// </summary>
-  public interface IHeapNode
+  public interface IServerNode
   {
     /// <summary>
     /// Globally-unique cluster node identifier. Every HeapObject instance gets Sys_VerNode stamp by the server
@@ -51,12 +51,23 @@ namespace Azos.Data.Heap
     /// The high precision Universal Time Coordinate(d)
     /// </summary>
     DateTime UtcNow { get; }
+
+    /// <summary>
+    /// Returns the data partitioning handler which performs shard routing of heap data
+    /// </summary>
+    Router Sharding { get; }
+
+    //todo: Storage backend - each node may have its own storage engine, e.g. we can have a node which is used only as backup/archive
+    //so it does no take writes or queries, but only replicates data to a file-based log locally
+    //this should probably go to more detailed server interface
   }
 
   /// <summary>
   /// Defines a logical division/area/namespace of the data heap.
-  /// Each area has its own data partition rules (sharding) where requests are routed into.
-  /// On the server, an area is backed by a storage engine (e.g. Mongo Db)
+  /// Each area has its own set of nodes which service it.
+  /// All nodes must be EVENTUALLY deployed same assemblies.
+  /// The replication is paused until all nodes run assemblies with the same BUILD-INFO,
+  /// otherwise the data may not eventually converge
   /// </summary>
   public interface IArea : INamed
   {
@@ -75,10 +86,10 @@ namespace Azos.Data.Heap
     /// </summary>
     IEnumerable<Type> QueryTypes { get; }
 
-    /// <summary>
-    /// Returns the data partitioning handler which performs shard routing of heap data
-    /// </summary>
-    Router Sharding { get; }
+    //Ordered by proximity? Primary/secondary etc...
+    //IEnumerable<INode> Nodes{ get; }
+    //And then Get Collection and Exec query go into INode?
+
 
     /// <summary>
     /// Returns a heap collection for the specified object type
