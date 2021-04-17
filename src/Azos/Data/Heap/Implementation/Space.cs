@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Azos.Data.Heap.Implementation
 {
-  public abstract class HeapCollection : IHeapCollection
+  public abstract class Space : ISpace
   {
     public IArea Area => throw new NotImplementedException();
 
@@ -35,7 +35,7 @@ namespace Azos.Data.Heap.Implementation
     }
   }
 
-  public sealed class HeapCollection<T> : HeapCollection, IHeapCollection<T> where T : HeapObject
+  public sealed class Space<T> : Space, ISpace<T> where T : HeapObject
   {
     public Task<T> GetAsync(ObjectRef obj, INode node = null)
     {

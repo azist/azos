@@ -98,14 +98,14 @@ namespace Azos.Data.Heap
     /// You must always call the base implementation
     /// </summary>
     /// <param name="node">Node where data change takes place</param>
-    /// <param name="collection">Collection where this object is stored</param>
+    /// <param name="space">Space where this object is stored</param>
     /// <param name="newState">The new version state</param>
     /// <remarks>
     /// This is an extension point for any kind of CRDT mechanism, e.g. you can use vector clocks by
     /// storing the appropriate value in your derived type fields and then extend this method to populate the object version
     /// accordingly.
     /// </remarks>
-    protected internal virtual void Crdt_Set(IServerNode node, IHeapCollection collection, State newState)
+    protected internal virtual void Crdt_Set(IServerNode node, ISpace space, State newState)
     {
       Sys_VerState = newState;
       Sys_VerUtc = node.UtcNow.ToMillisecondsSinceUnixEpochStart();
@@ -121,14 +121,14 @@ namespace Azos.Data.Heap
     /// Failure to comply with these requirements may result in an infinite inter-node rotary traffic pattern.
     /// </summary>
     /// <param name="node">Node where data change takes place</param>
-    /// <param name="collection">Collection where this object is stored</param>
+    /// <param name="space">Space where this object is stored</param>
     /// <param name="others">Other versions got form other nodes</param>
     /// <returns>
     /// Object instance which results from merge or null if THIS instance already represents the latest eventual state and no changes are necessary.
     /// You either return null, or one of "others" OR you can return a brand new object (not this or others), in which case the system treats it a as
     /// a brand new version performing necessary version stamping via `Crdt_Set()`
     /// </returns>
-    internal HeapObject Crdt_Merge(IServerNode node, IHeapCollection collection, IEnumerable<HeapObject> others)
+    internal HeapObject Crdt_Merge(IServerNode node, ISpace space, IEnumerable<HeapObject> others)
     {
       if (others == null) return null;
       if (!others.Any()) return null;
@@ -137,7 +137,7 @@ namespace Azos.Data.Heap
 
       others.IsTrue(v => v.All(one => one.GetType() == t && one.Sys_Id == this.Sys_Id), "Non empty version for the same Sys_Id");
 
-      return DoCrdt_Merge(node, collection, others).IsTrue(r => r == null || r.GetType() == t, "Returned type mismatch");
+      return DoCrdt_Merge(node, space, others).IsTrue(r => r == null || r.GetType() == t, "Returned type mismatch");
     }
 
     /// <summary>
@@ -149,10 +149,10 @@ namespace Azos.Data.Heap
     /// Failure to comply with these requirements may result in an infinite inter-node rotary traffic pattern.
     /// </summary>
     /// <param name="node">Node where data change takes place</param>
-    /// <param name="collection">Collection where this object is stored</param>
+    /// <param name="space">Space where this object is stored</param>
     /// <param name="others">Other versions got form other nodes</param>
     /// <returns>Object instance which results from merge or null if THIS instance already represents the latest eventual state and no changes are necessary</returns>
-    protected virtual HeapObject DoCrdt_Merge(IServerNode node, IHeapCollection collection, IEnumerable<HeapObject> others)
+    protected virtual HeapObject DoCrdt_Merge(IServerNode node, ISpace space, IEnumerable<HeapObject> others)
     {
       var result = this;
       foreach (var ver in others)

@@ -66,12 +66,12 @@ namespace Azos.Data.Heap.Implementation
       throw new NotImplementedException();
     }
 
-    public IHeapCollection GetCollection(Type tObject)
+    public ISpace GetSpace(Type tObject)
     {
       throw new NotImplementedException();
     }
 
-    public IHeapCollection<T> GetCollection<T>() where T : HeapObject
+    public ISpace<T> GetSpace<T>() where T : HeapObject
     {
       throw new NotImplementedException();
     }
