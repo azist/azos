@@ -19,17 +19,17 @@ namespace Azos.Data.Heap.Implementation
 
     public HeapAttribute ObjectTypeDefinition => throw new NotImplementedException();
 
-    public Task<SaveResult<ChangeResult>> DeleteAsync(ObjectRef obj, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid))
+    public Task<SaveResult<ChangeResult>> DeleteAsync(ObjectRef obj, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid), INode node = null)
     {
       throw new NotImplementedException();
     }
 
-    public Task<HeapObject> GetObjectAsync(ObjectRef obj)
+    public Task<HeapObject> GetObjectAsync(ObjectRef obj, INode node = null)
     {
       throw new NotImplementedException();
     }
 
-    public Task<SaveResult<ChangeResult>> SetObjectAsync(HeapObject instance, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid))
+    public Task<SaveResult<ChangeResult>> SetObjectAsync(HeapObject instance, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid), INode node = null)
     {
       throw new NotImplementedException();
     }
@@ -37,12 +37,12 @@ namespace Azos.Data.Heap.Implementation
 
   public sealed class HeapCollection<T> : HeapCollection, IHeapCollection<T> where T : HeapObject
   {
-    public Task<T> GetAsync(ObjectRef obj)
+    public Task<T> GetAsync(ObjectRef obj, INode node = null)
     {
       throw new NotImplementedException();
     }
 
-    public Task<SaveResult<ChangeResult>> SetAsync(T instance, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid))
+    public Task<SaveResult<ChangeResult>> SetAsync(T instance, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid), INode node = null)
     {
       throw new NotImplementedException();
     }

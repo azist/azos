@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Apps;
+using Azos.Client;
 using Azos.Conf;
 using Azos.Instrumentation;
 
@@ -27,6 +28,9 @@ namespace Azos.Data.Heap.Implementation
 
     public IHeap Heap => ComponentDirector;
 
+
+    public IService ServiceClient => throw new NotImplementedException();
+
     public IEnumerable<Type> ObjectTypes => throw new NotImplementedException();
 
     public IEnumerable<Type> QueryTypes => throw new NotImplementedException();
@@ -40,6 +44,7 @@ namespace Azos.Data.Heap.Implementation
     public bool InstrumentationEnabled { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     public IEnumerable<KeyValuePair<string, Type>> ExternalParameters => throw new NotImplementedException();
+
 
     public Task<object> ExecuteQueryAsync(AreaQuery query)
     {

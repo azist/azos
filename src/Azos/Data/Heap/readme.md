@@ -62,3 +62,34 @@ The following table describes chief heap traits:
   * Physical node replacement: add/remove nodes; the nodes catch-up from others automatically
 
 
+- Heap is made of areas
+- Area defines types of objects and queries
+- Same software needs to be installed on replicated-from machines, until it is replication is paused
+- Nodes use pull replication via "Pull uplink"
+- Each Node belongs only to ONE area (possible to run multiple nodes on same computer)
+- Each node eventually has all of the data as others (except for data perimeter policy)
+- Each Node has its own storage engine
+- Each Node has its own sharding
+- A node may be replicate-only backup copy with archive storage engine (captures all changes)
+
+
+## Features
+
+### Optional TTL
+
+////HeapObject:   ITTL
+make optional interface
+
+
+## Notes
+
+ObjectVersion is not needed because area engine may not know how to handle specific replication
+needed for every object type, therefore those replication-controlling fields a-la CRDT are really needed
+in the data buffer itself.
+
+State-based CRDTs are called convergent replicated data types, or CvRDTs. In contrast to CmRDTs, CvRDTs send their full local state
+to other replicas, where the states are merged by a function which must be[COMMUTATIVE, ASSOCIATIVE, AND IDEMPOTENT].
+The merge function provides a join for any pair of replica states, so the set of all states forms a semilattice.The update function must monotonically increase the internal state, according to the same partial order rules as the semilattice.
+
+http://jtfmumm.com/blog/2015/11/17/crdt-primer-1-defanging-order-theory/
+https://lars.hupel.info/topics/crdt/07-deletion/

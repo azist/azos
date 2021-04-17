@@ -33,6 +33,28 @@ namespace Azos.Data.Heap
   }
 
   /// <summary>
+  /// Represents a heap node
+  /// </summary>
+  public interface INode
+  {
+    /// <summary>
+    /// Globally-unique cluster node identifier. Every HeapObject instance gets Sys_VerNode stamp by the server
+    /// </summary>
+    Atom NodeId { get; }
+
+    /// <summary>
+    /// Cluster host name, such as sky regional catalog path e.g. `/world/us/east/cle/db/z1/lmed002.h`
+    /// </summary>
+    string HostName { get; }
+
+    /// <summary>
+    /// Node client
+    /// </summary>
+    string ServiceAddress {  get;}
+    string ServiceContract { get; }
+  }
+
+  /// <summary>
   /// Represents data heap server node
   /// </summary>
   public interface IServerNode
@@ -90,6 +112,11 @@ namespace Azos.Data.Heap
     //IEnumerable<INode> Nodes{ get; }
     //And then Get Collection and Exec query go into INode?
 
+    /// <summary>
+    /// Client used to connect to service
+    /// </summary>
+    Client.IService ServiceClient {  get; }
+
 
     /// <summary>
     /// Returns a heap collection for the specified object type
@@ -109,26 +136,14 @@ namespace Azos.Data.Heap
     Task<object> ExecuteQueryAsync(AreaQuery query);
   }
 
-  [Flags]
-  public enum WriteFlags
-  {
-    None = 0,
-
-    /// <summary> Write one more copy into the mirrors/backup locations. This increases safety in case of immediate node loss at the expense of time </summary>
-    Backup = 1,
-
-    /// <summary> Do not wait for operation to complete, e.g. post mutation to queue and return ASAP </summary>
-    Async = 1 << 30,
-
-    /// <summary> Flush write to disk if possible </summary>
-    Flush = 1 << 31
-  }
-
   /// <summary>
   /// Provides functionality for working with collections of HeapObject-derivatives of the specified type
   /// </summary>
   public interface IHeapCollection
   {
+    /// <summary>
+    /// Area of the heap
+    /// </summary>
     IArea Area { get; }
 
     /// <summary>
@@ -145,13 +160,13 @@ namespace Azos.Data.Heap
     /// <summary>
     /// Gets object of the corresponding collection type by its direct reference
     /// </summary>
-    Task<HeapObject> GetObjectAsync(ObjectRef obj);
+    Task<HeapObject> GetObjectAsync(ObjectRef obj, INode node = null);
 
     /// <summary>
     /// Saves object into the corresponding collection type
     /// </summary>
-    Task<SaveResult<ChangeResult>> SetObjectAsync(HeapObject instance, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid));
-    Task<SaveResult<ChangeResult>> DeleteAsync(ObjectRef obj, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid));
+    Task<SaveResult<ChangeResult>> SetObjectAsync(HeapObject instance, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid), INode node = null);
+    Task<SaveResult<ChangeResult>> DeleteAsync(ObjectRef obj, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid), INode node = null);
   }
 
   /// <summary>
@@ -162,27 +177,16 @@ namespace Azos.Data.Heap
     /// <summary>
     /// Gets object of type T by its direct reference
     /// </summary>
-    Task<T> GetAsync(ObjectRef obj);
+    Task<T> GetAsync(ObjectRef obj, INode node = null);
 
     /// <summary>
     /// Saves object into the corresponding collection type
     /// </summary>
-    Task<SaveResult<ChangeResult>> SetAsync(T instance, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid));
+    Task<SaveResult<ChangeResult>> SetAsync(T instance, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid), INode node = null);
   }
 }
 
 
 
-////HeapObject:   TTL
 
-////  ObjectVersion is not needed because area engine may not know how to handle specific replication
-////  needed for every object type, therefore those replication-controlling fields a-la CRDT are really needed
-////  in the data buffer itself.
-
-////  State-based CRDTs are called convergent replicated data types, or CvRDTs. In contrast to CmRDTs, CvRDTs send their full local state
-////  to other replicas, where the states are merged by a function which must be[COMMUTATIVE, ASSOCIATIVE, AND IDEMPOTENT].
-////The merge function provides a join for any pair of replica states, so the set of all states forms a semilattice.The update function must monotonically increase the internal state, according to the same partial order rules as the semilattice.
-
-////http://jtfmumm.com/blog/2015/11/17/crdt-primer-1-defanging-order-theory/
-////https://lars.hupel.info/topics/crdt/07-deletion/
 
