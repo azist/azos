@@ -18,7 +18,7 @@ namespace Azos.Data.Heap
   /// the same object types share the same features (via their declaration type) it makes sense to co-locate those objects in the same
   /// n-dimensional feature space
   /// </summary>
-  public interface ISpace
+  public interface ISpace : INamed
   {
     /// <summary>
     /// Area of the heap

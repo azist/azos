@@ -14,7 +14,7 @@ namespace Azos.Data.Heap
 {
   /// <summary>
   /// Represents a heap node logical process. Heap clients connect to heap nodes to get data using queries or direct object references,
-  /// mutate data using via Set() or Delete(). Internally nodes host storage engines and perform inter-node replication and CRDT-style
+  /// mutate data using Set() or Delete(). Internally nodes host storage engines and perform inter-node replication and CRDT-style
   /// conflict resolution.
   /// A heap node services one and only one area.
   /// </summary>

@@ -19,6 +19,8 @@ namespace Azos.Data.Heap.Implementation
 
     public HeapAttribute ObjectTypeDefinition => throw new NotImplementedException();
 
+    public string Name => throw new NotImplementedException();
+
     public Task<SaveResult<ChangeResult>> DeleteAsync(ObjectRef obj, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid), INode node = null)
     {
       throw new NotImplementedException();

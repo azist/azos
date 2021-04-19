@@ -17,7 +17,8 @@ namespace Azos.Data.Heap
     None = 0,
 
     /// <summary>
-    /// Write one more copy into the mirrors/backup locations. This increases safety in case of immediate node loss at the expense of time
+    /// Write one more copy into the mirrors/backup locations. This increases safety in case of
+    /// the immediate node loss at the expense of extra time spent
     /// </summary>
     Backup = 1,
 

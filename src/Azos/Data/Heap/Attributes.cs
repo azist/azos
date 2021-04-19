@@ -16,14 +16,15 @@ namespace Azos.Data.Heap
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   public sealed class HeapAttribute : Attribute
   {
-    public HeapAttribute(string area, string collection)
+    public HeapAttribute(string area, string space)
     {
-      Area = Atom.Encode(area.NonBlank(nameof(area)));
-      Collection = Atom.Encode(area.NonBlank(nameof(collection)));
+      Area = area.NonBlank(nameof(area));
+      Space = space.NonBlank(nameof(space));
     }
 
-    public Atom Area{ get; private set;}
-    public Atom Collection { get; private set; }
+    //todo:  constrain identifiers to character only or 0..9, -, _, min length 3, max length 32
+    public string Area{ get; private set;}
+    public string Space{ get; private set; }
 
     //public Atom Channel { get; private set; }
 
