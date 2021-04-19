@@ -37,6 +37,10 @@ namespace Azos.Data.Access.MongoDb.Connector.Instrumentation
 Examples:
 
 ```
+//1 - Full manc command to get rec count from sky chronicle:
+$ manc{sid=XXX call{  directdb{ s='mongo://localhost:27017' d='sky_chron'  cmd='{count: ""sky_log""}'}  }}
+
+//2 - Get record count
 DirectDb
 {
   s='mongo://127.0.0.1:27017'
@@ -44,6 +48,7 @@ DirectDb
   cmd='{count: ""patient""}' // count documents
 }
 
+//3 - Find a few records
 DirectDb
 {
   srv='mongo://127.0.0.1:27017'
@@ -51,6 +56,7 @@ DirectDb
   cmd='{find: ""doctor"", limit: 3}' //find top 3
 }
 
+//4 - Create indexes on collection 'log'
 DirectDb
 {
   srv='mongo://127.0.0.1:27017'
@@ -61,7 +67,7 @@ DirectDb
       name: ""idx_utc"",  //name of index
       unique: false       //not unique
     }
-  ]}' //create indexes on collection 'log'
+  ]}'
 }
 ```
 

@@ -78,7 +78,7 @@ namespace Azos.Sky.Kdb { public sealed partial class DefaultKdbStore {
     /// </summary>
     public Shard GetShardForKey(byte[] key)
     {
-      ulong subid = ShardingUtils.ObjectToShardingID(key);
+      ulong subid = new ShardKey(key).Hash;
 
       return Shards[ subid % (ulong)Shards.Length ];
     }

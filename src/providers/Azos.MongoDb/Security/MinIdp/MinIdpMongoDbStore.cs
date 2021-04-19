@@ -139,14 +139,14 @@ namespace Azos.Security.MinIdp
     internal TResult Access<TResult>(Func<IMongoDbTransport, TResult> body)
      => m_Mongo.CallSync(m_RemoteAddress,  //the driver is by-design synchronous as of today
                                  nameof(IMinIdpStore),
-                                 null,
+                                 new ShardKey(0),
                                  (tx, c) => body(tx)
                         );
 
     private Task<BSONDocument> fetch(Atom realm, string collection, Query query)
      => Task.FromResult(m_Mongo.CallSync(m_RemoteAddress,  //the driver is by-design synchronous as of today
                                  nameof(IMinIdpStore),
-                                 null,
+                                 new ShardKey(0),
                                  (tx, c) => tx.Db[BsonDataModel.GetCollectionName(realm, collection)].FindOne(query)
                         ));
 

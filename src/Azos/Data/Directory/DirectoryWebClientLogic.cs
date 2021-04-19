@@ -77,7 +77,7 @@ namespace Azos.Data.Directory
 
       var response = await m_Server.Call(DirectoryServiceAddress,
                                          nameof(IDirectory),
-                                         id,
+                                         new ShardKey(id),
                                         (http, ct) => http.Client.PostAndGetJsonMapAsync("one", new { id, touch }));
 
       var map = response.UnwrapPayloadMap();
@@ -92,7 +92,7 @@ namespace Azos.Data.Directory
 
       var response = await m_Server.Call(DirectoryServiceAddress,
                                          nameof(IDirectory),
-                                         item.Id,
+                                         new ShardKey(item.Id),
                                         (http, ct) => http.Client.PostAndGetJsonMapAsync("item", item));
       return response.UnwrapChangeResult();
     }
@@ -105,7 +105,7 @@ namespace Azos.Data.Directory
 
       var response = await m_Server.Call(DirectoryServiceAddress,
                                          nameof(IDirectory),
-                                         batch[0],
+                                         new ShardKey(batch[0]),
                                         (http, ct) => http.Client.PostAndGetJsonMapAsync("touch", new{ batch } ));
 
       return response.UnwrapChangeResult();
@@ -117,7 +117,7 @@ namespace Azos.Data.Directory
 
       var response = await m_Server.Call(DirectoryServiceAddress,
                                          nameof(IDirectory),
-                                         id,
+                                         new ShardKey(id),
                                         (http, ct) => http.Client.DeleteAndGetJsonMapAsync("item", new { id }));
 
       return response.UnwrapChangeResult();
@@ -130,7 +130,7 @@ namespace Azos.Data.Directory
 
       var response = await m_Server.Call(DirectoryServiceAddress,
                                          nameof(IDirectory),
-                                         entity,
+                                         new ShardKey(entity),
                                         (http, ct) => http.Client.PostAndGetJsonMapAsync("query", new { queryExpression }));
 
       var result = response.UnwrapPayloadArray()

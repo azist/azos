@@ -181,7 +181,7 @@ namespace Azos.Sky.Coordination
 
       if (shardingKey == null) shardingKey = App.Random.NextRandomInteger;
 
-      var idx = (uint)ShardingUtils.ObjectToShardingID(shardingKey) % hosts.Length;
+      var idx = (uint)(new ShardKey(shardingKey).GetDistributedStableHash()) % hosts.Length;
 
       var idx1 = -1L;
       for (var c = 0; c < hosts.Length; c++)

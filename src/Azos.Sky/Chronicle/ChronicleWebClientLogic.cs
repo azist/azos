@@ -82,7 +82,7 @@ namespace Azos.Sky.Chronicle
     {
       var response = await m_Server.Call(LogServiceAddress,
                                           nameof(ILogChronicle),
-                                          0,
+                                          new ShardKey(DateTime.UtcNow),
                                           (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", data)).ConfigureAwait(false);
       response.UnwrapChangeResult();
     }
@@ -124,7 +124,7 @@ namespace Azos.Sky.Chronicle
     {
       var response = await m_Server.Call(LogServiceAddress,
                                           nameof(ILogChronicle),
-                                          0,
+                                          new ShardKey(0u),
                                           (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", filter)).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()
@@ -138,7 +138,7 @@ namespace Azos.Sky.Chronicle
     {
       var response = await m_Server.Call(InstrumentationServiceAddress,
                                          nameof(IInstrumentationChronicle),
-                                         0,
+                                         new ShardKey(DateTime.UtcNow),
                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", data)).ConfigureAwait(false);
       response.UnwrapChangeResult();
     }
@@ -147,7 +147,7 @@ namespace Azos.Sky.Chronicle
     {
       var response = await m_Server.Call(InstrumentationServiceAddress,
                                            nameof(IInstrumentationChronicle),
-                                           0,
+                                           new ShardKey(0u),
                                            (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", filter)).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()

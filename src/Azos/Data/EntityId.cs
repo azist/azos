@@ -67,7 +67,7 @@ namespace Azos.Data
 
     public ulong GetDistributedStableHash() => (System.GetDistributedStableHash() << 32) ^
                                                 Type.GetDistributedStableHash() ^
-                                                ShardingUtils.StringToShardingID(Address);
+                                                ShardKey.ForString(Address);
 
     public override bool Equals(object obj) => obj is EntityId other ? this.Equals(other) : false;
 

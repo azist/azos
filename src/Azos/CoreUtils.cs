@@ -277,7 +277,7 @@ namespace Azos
     /// <summary>
     /// Encloses an action in try catch and logs the error if it leaked from action. This method never leaks.
     /// Returns true if there was no error on action success, or false if error leaked from action and was logged by component.
-    /// The actual logging depends on component log level
+    /// The actual logging depends on the component log level
     /// </summary>
     public static bool DontLeak(this IApplicationComponent cmp, Action action, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error)
     {
@@ -302,7 +302,7 @@ namespace Azos
     /// <summary>
     /// Encloses an action in try catch and logs the error if it leaked from action. This method never leaks.
     /// Returns true if there was no error on action success, or false if error leaked from action and was logged by component.
-    /// The actual logging depends on component log level
+    /// The actual logging depends on the component log level
     /// </summary>
     public static TResult DontLeak<TResult>(this IApplicationComponent cmp, Func<TResult> func, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error)
     {

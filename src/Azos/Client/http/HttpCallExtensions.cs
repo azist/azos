@@ -35,7 +35,7 @@ namespace Azos.Client
     public static async Task<TResult> Call<TResult>(this IHttpService service,
                                                     string remoteAddress,
                                                     string contract,
-                                                    object shardKey,
+                                                    ShardKey shardKey,
                                                     Func<IHttpTransport, CancellationToken?, Task<TResult>> body,
                                                     CancellationToken? cancellation = null,
                                                     Atom? network = null,

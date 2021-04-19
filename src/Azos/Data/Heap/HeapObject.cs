@@ -41,26 +41,31 @@ namespace Azos.Data.Heap
     public GDID Sys_Id{ get; internal set; } //all entities referencing this field should start with "G_" e.g. "G_User"
 
     /// <summary>
-    /// The sharding Id is used to locate the shard aka 'segment' of the data heap
+    /// The sharding key is used to locate the shard aka 'segment' of the data heap
     /// </summary>
-    public virtual object Sys_ShardingId => Sys_Id;
+    public virtual ShardKey Sys_ShardKey => new ShardKey(Sys_Id);
 
-    /// <summary> Override to specify relative processing (e.g. replication) priority </summary>
+    /// <summary>
+    /// Override to specify relative processing (e.g. replication) priority dependent on the instance.
+    /// The higher the number - the more priority is given. The default is ZERO = normal priority.
+    /// You can boost priority for objects which contain data for important/frequently used items
+    /// such as celebrity profiles etc.
+    /// </summary>
     public virtual int Sys_Priority => 0;
 
     /// <summary>
-    /// Version state: Created/Modified/Deleted
+    /// Latest version state: Created/Modified/Deleted
     /// </summary>
     [Field(Description = "Version state: Created/Modified/Deleted",
            StoreFlag = StoreFlag.LoadAndStore)]
     public State Sys_VerState { get; private set; }
 
     /// <summary>
-    /// Version UTC stamped at the time of set by the server node.
-    /// This stamp is not changed by replication
+    /// Latest version UTC stamped at the time of set on origin server node.
+    /// This stamp is not changed by replication unless merge yields yet another version
     /// </summary>
     [Field(Description = "Version UTC stamped at the time of set by the server node." +
-                         " This stamp is not changed by replication",
+                         " This stamp is not changed by replication unless merge yields yet another version",
            StoreFlag = StoreFlag.LoadAndStore)]
     public long Sys_VerUtc { get; private set; }
 
@@ -77,7 +82,7 @@ namespace Azos.Data.Heap
     /// point in time which is used by other nodes for data gossip/replication.
     /// Every time data is written into device (e.g. a database) this value gets updated. Other heap nodes keep track
     /// of this value per source (node:collection) to keep track of how far along the remote change log they got.
-    /// The value does not need to be precise as it is used only as a monotonic time counter per node (Unix milliseconds).
+    /// The value does not need to be precise as it is used only as a monotonic time counter per node expressed in Unix milliseconds
     /// </summary>
     [Field(Description = "Sync UTC stamp is set by server node at the time of device write." +
                          "The system uses this value for change log replication. " +
@@ -90,23 +95,22 @@ namespace Azos.Data.Heap
     /// Called by the server node, "seals" the data version by stamping appropriate object attributes.
     /// The node calls this method when the data is SET(Updated), but typically NOT when it is synchronized/merged
     /// unless a merge yields a brand new version of data.
-    /// You must always call the base implementation.
+    /// You must always call the base implementation
     /// </summary>
     /// <param name="node">Node where data change takes place</param>
-    /// <param name="collection">Collection where this object is stored</param>
+    /// <param name="space">Space where this object is stored</param>
     /// <param name="newState">The new version state</param>
     /// <remarks>
     /// This is an extension point for any kind of CRDT mechanism, e.g. you can use vector clocks by
     /// storing the appropriate value in your derived type fields and then extend this method to populate the object version
     /// accordingly.
     /// </remarks>
-    protected internal virtual void Crdt_Set(IHeapNode node, IHeapCollection collection, State newState)
+    protected internal virtual void Crdt_Set(IServerNode node, ISpace space, State newState)
     {
       Sys_VerState = newState;
       Sys_VerUtc = node.UtcNow.ToMillisecondsSinceUnixEpochStart();
       Sys_VerNode = node.NodeId;
     }
-
 
     /// <summary>
     /// Called by the data heap server nodes during replication, performs CRDT merge operation by
@@ -117,14 +121,14 @@ namespace Azos.Data.Heap
     /// Failure to comply with these requirements may result in an infinite inter-node rotary traffic pattern.
     /// </summary>
     /// <param name="node">Node where data change takes place</param>
-    /// <param name="collection">Collection where this object is stored</param>
+    /// <param name="space">Space where this object is stored</param>
     /// <param name="others">Other versions got form other nodes</param>
     /// <returns>
     /// Object instance which results from merge or null if THIS instance already represents the latest eventual state and no changes are necessary.
     /// You either return null, or one of "others" OR you can return a brand new object (not this or others), in which case the system treats it a as
     /// a brand new version performing necessary version stamping via `Crdt_Set()`
     /// </returns>
-    internal HeapObject Crdt_Merge(IHeapNode node, IHeapCollection collection, IEnumerable<HeapObject> others)
+    internal HeapObject Crdt_Merge(IServerNode node, ISpace space, IEnumerable<HeapObject> others)
     {
       if (others == null) return null;
       if (!others.Any()) return null;
@@ -133,7 +137,7 @@ namespace Azos.Data.Heap
 
       others.IsTrue(v => v.All(one => one.GetType() == t && one.Sys_Id == this.Sys_Id), "Non empty version for the same Sys_Id");
 
-      return DoCrdt_Merge(node, collection, others).IsTrue(r => r == null || r.GetType() == t, "Returned type mismatch");
+      return DoCrdt_Merge(node, space, others).IsTrue(r => r == null || r.GetType() == t, "Returned type mismatch");
     }
 
     /// <summary>
@@ -145,10 +149,10 @@ namespace Azos.Data.Heap
     /// Failure to comply with these requirements may result in an infinite inter-node rotary traffic pattern.
     /// </summary>
     /// <param name="node">Node where data change takes place</param>
-    /// <param name="collection">Collection where this object is stored</param>
+    /// <param name="space">Space where this object is stored</param>
     /// <param name="others">Other versions got form other nodes</param>
     /// <returns>Object instance which results from merge or null if THIS instance already represents the latest eventual state and no changes are necessary</returns>
-    protected virtual HeapObject DoCrdt_Merge(IHeapNode node, IHeapCollection collection, IEnumerable<HeapObject> others)
+    protected virtual HeapObject DoCrdt_Merge(IServerNode node, ISpace space, IEnumerable<HeapObject> others)
     {
       var result = this;
       foreach (var ver in others)
@@ -186,7 +190,7 @@ namespace Azos.Data.Heap
   }
 
 
-  [Heap("doc", "doc", ChannelName = "std")]  //16 servers 3 locations
+  [Heap(area: "doc", collection: "doc")]//, ChannelName = "std")]  //16 servers 3 locations
   public class Doctor : HeapObject
   {
     [Field] public string NPI{ get; set; }

@@ -8,6 +8,11 @@ using System;
 
 namespace Azos.Data.Heap
 {
+  /// <summary>
+  /// Assigns (AREA, COLLECTION) tuple to HeapObjects. The attribute must be set to bind
+  /// a CLI type to collection within data heap area.
+  /// You can only bind no more than one CLR object type to a named collection at a time.
+  /// </summary>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   public sealed class HeapAttribute : Attribute
   {
@@ -20,13 +25,13 @@ namespace Azos.Data.Heap
     public Atom Area{ get; private set;}
     public Atom Collection { get; private set; }
 
-    public Atom Channel {  get; private set;}
+    //public Atom Channel { get; private set; }
 
-    public string ChannelName
-    {
-      get => Channel.Value;
-      set => Channel = Atom.Encode(value.NonBlank(nameof(ChannelName)));
-    }
+    //public string ChannelName
+    //{
+    //  get => Channel.Value;
+    //  set => Channel = Atom.Encode(value.NonBlank(nameof(ChannelName)));
+    //}
 
   }
 }
