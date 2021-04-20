@@ -10,6 +10,9 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
+using Azos.CodeAnalysis.JSON;
+using Azos.CodeAnalysis.Laconfig;
+using Azos.CodeAnalysis.XML;
 using Azos.Apps.Injection;
 using Azos.Serialization.JSON;
 
@@ -23,30 +26,30 @@ namespace Azos.Conf
   {
     #region CONSTS
 
-    public const  string  DEFAULT_CONFIG_INCLUDE_PRAGMA = "_include";
+    public const string DEFAULT_CONFIG_INCLUDE_PRAGMA = "_include";
 
-    public const  string  CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION = "provider";
+    public const string CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION = "provider";
 
-    public const  string  CONFIG_INCLUDE_PRAGMA_FS_SECTION = "fs";
-    public const  string  CONFIG_INCLUDE_PRAGMA_SESSION_SECTION = "session";
-    public const  string  CONFIG_INCLUDE_PRAGMA_FILE_ATTR = "file";
-    public const  string  CONFIG_INCLUDE_PRAGMA_REQUIRED_ATTR = "required";
-    public const  string  CONFIG_INCLUDE_PRAGMA_COPY_ATTR = "copy";
+    public const string CONFIG_INCLUDE_PRAGMA_FS_SECTION = "fs";
+    public const string CONFIG_INCLUDE_PRAGMA_SESSION_SECTION = "session";
+    public const string CONFIG_INCLUDE_PRAGMA_FILE_ATTR = "file";
+    public const string CONFIG_INCLUDE_PRAGMA_REQUIRED_ATTR = "required";
+    public const string CONFIG_INCLUDE_PRAGMA_COPY_ATTR = "copy";
 
-    public const  string  DEFAULT_VAR_ESCAPE = "$(###)";
-    public const  string  DEFAULT_VAR_START = "$(";
-    public const  string  DEFAULT_VAR_END = ")";
-    public const  string  DEFAULT_VAR_PATH_MOD = "@";
-    public const  string  DEFAULT_VAR_ENV_MOD = "~";
+    public const string DEFAULT_VAR_ESCAPE = "$(###)";
+    public const string DEFAULT_VAR_START = "$(";
+    public const string DEFAULT_VAR_END = ")";
+    public const string DEFAULT_VAR_PATH_MOD = "@";
+    public const string DEFAULT_VAR_ENV_MOD = "~";
 
-    public const  string  DEFAULT_VAR_MACRO_START = "::";
+    public const string DEFAULT_VAR_MACRO_START = "::";
 
-    public const  string  DEFAULT_VAR_ENV_APP_PREFIX = "App.";
+    public const string DEFAULT_VAR_ENV_APP_PREFIX = "App.";
 
-    public const  string  CONFIG_NAME_ATTR = "name";
-    public const  string  CONFIG_ORDER_ATTR = "order";
+    public const string CONFIG_NAME_ATTR = "name";
+    public const string CONFIG_ORDER_ATTR = "order";
 
-    public const  string  CONFIG_LACONIC_FORMAT = "laconf";
+    public const string CONFIG_LACONIC_FORMAT = "laconf";
 
     #endregion
 
@@ -70,9 +73,9 @@ namespace Azos.Conf
     {
       get
       {
-        return Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions
-                                        .Concat(Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions)
-                                        .Concat(Azos.CodeAnalysis.JSON.JsonLanguage.Instance.FileExtensions);
+        return LaconfigLanguage.Instance.FileExtensions
+                                        .Concat(XMLLanguage.Instance.FileExtensions)
+                                        .Concat(JsonLanguage.Instance.FileExtensions);
       }
     }
 
@@ -81,23 +84,23 @@ namespace Azos.Conf
     /// </summary>
     public static Configuration ProviderLoadFromFile(string fileName)
     {
-        var ext = Path.GetExtension(fileName).ToLower();
+      var ext = Path.GetExtension(fileName).ToLower();
 
-        if (ext.StartsWith(".")) ext=ext.Remove(0, 1);
+      if (ext.StartsWith(".")) ext = ext.Remove(0, 1);
 
-        //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
-        //in future Aum conversion replace with Dictionary<format, configType> lookup
+      //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
+      //in future Aum conversion replace with Dictionary<format, configType> lookup
 
-        if (Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
-          return new LaconicConfiguration(fileName);
+      if (LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase)))
+        return new LaconicConfiguration(fileName);
 
-        if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
-          return new XMLConfiguration(fileName);
+      if (XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase)))
+        return new XMLConfiguration(fileName);
 
-        if (Azos.CodeAnalysis.JSON.JsonLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
-          return new JSONConfiguration(fileName);
+      if (JsonLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase)))
+        return new JSONConfiguration(fileName);
 
-        throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_LOAD_FILE_ERROR + fileName);
+      throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_LOAD_FILE_ERROR + fileName);
     }
 
     /// <summary>
@@ -113,20 +116,19 @@ namespace Azos.Conf
     /// </example>
     public static Configuration ProviderLoadFromAnySupportedFormatFile(string fileName)
     {
-        if (fileName.IsNotNullOrWhiteSpace())
+      if (fileName.IsNotNullOrWhiteSpace())
+      {
+        if (fileName.EndsWith(".")) fileName = fileName.Remove(fileName.Length - 1);
+
+        foreach (var fmt in AllSupportedFormats)
         {
-          if (fileName.EndsWith(".")) fileName=fileName.Remove(fileName.Length-1);
-
-          foreach(var fmt in AllSupportedFormats)
-          {
-            var fn =  "{0}.{1}".Args(fileName, fmt);
-            if (File.Exists(fn)) return ProviderLoadFromFile(fn);
-          }
+          var fn = "{0}.{1}".Args(fileName, fmt);
+          if (File.Exists(fn)) return ProviderLoadFromFile(fn);
         }
+      }
 
-        throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_LOAD_FILE_ERROR + fileName);
+      throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_LOAD_FILE_ERROR + fileName);
     }
-
 
     /// <summary>
     /// Loads the supplied string content in the specified format, which may be format name like "xml" or "laconfig" with or without extension period
@@ -142,13 +144,13 @@ namespace Azos.Conf
         //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
         //in future Aum conversion replace with Dictionary<format, configType> lookup
 
-        if (Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
+        if (LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
           return LaconicConfiguration.CreateFromString(content);
 
-        if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
+        if (XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
           return XMLConfiguration.CreateFromXML(content);
 
-        if (Azos.CodeAnalysis.JSON.JsonLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
+        if (JsonLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)))
           return JSONConfiguration.CreateFromJson(content);
 
         if (fallbackFormat.IsNotNullOrWhiteSpace())
@@ -163,11 +165,11 @@ namespace Azos.Conf
     /// </summary>
     public static bool IsSupportedFormat(string format)
     {
-      if (format.StartsWith(".")) format=format.Remove(0, 1);
+      if (format.StartsWith(".")) format = format.Remove(0, 1);
 
-      return Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)) ||
-              Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)) ||
-              Azos.CodeAnalysis.JSON.JsonLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase));
+      return LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)) ||
+              XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase)) ||
+              JsonLanguage.Instance.FileExtensions.Any(e => string.Equals(e, format, StringComparison.InvariantCultureIgnoreCase));
     }
 
     /// <summary>
@@ -175,28 +177,24 @@ namespace Azos.Conf
     /// </summary>
     public static FileConfiguration MakeProviderForFile(string fileName)
     {
-        var ext = Path.GetExtension(fileName).ToLower();
+      var ext = Path.GetExtension(fileName).ToLower();
 
-        if (ext.StartsWith(".")) ext=ext.Remove(0, 1);
+      if (ext.StartsWith(".")) ext = ext.Remove(0, 1);
 
-        //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
-        //in future Azos conversion replace with Dictionary<format, configType> lookup
+      //since C# does not support first-class types, these if statements below must handle what AllSupportedFormat returns
+      //in future Azos conversion replace with Dictionary<format, configType> lookup
 
-        if (Azos.CodeAnalysis.Laconfig.LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
-          return new LaconicConfiguration();
+      if (LaconfigLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase)))
+        return new LaconicConfiguration();
 
-        if (Azos.CodeAnalysis.XML.XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
-          return new XMLConfiguration();
+      if (XMLLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase)))
+        return new XMLConfiguration();
 
-        if (Azos.CodeAnalysis.JSON.JsonLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase) ))
-          return new JSONConfiguration();
+      if (JsonLanguage.Instance.FileExtensions.Any(e => string.Equals(e, ext, StringComparison.InvariantCultureIgnoreCase)))
+        return new JSONConfiguration();
 
-        throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_HANDLE_FILE_ERROR + fileName);
+      throw new ConfigException(StringConsts.CONFIG_NO_PROVIDER_HANDLE_FILE_ERROR + fileName);
     }
-
-    
-
-
 
     /// <summary>
     /// Gets/sets global Environment variable resolver that is used by all configurations in this process instance
@@ -208,10 +206,11 @@ namespace Azos.Conf
     /// when type is not specified
     /// </summary>
     public static Type ProcesswideConfigNodeProviderType;
+
     #endregion
 
-
     #region .ctor
+
     protected Configuration()
     {
       m_EmptySectionNode = new ConfigSectionNode(this, null);
@@ -222,6 +221,7 @@ namespace Azos.Conf
 
       m_Root = m_EmptySectionNode;
     }
+
     #endregion
 
     #region Private/Protected Fields
@@ -245,12 +245,13 @@ namespace Azos.Conf
 
     private string m_Variable_ESCAPE = DEFAULT_VAR_ESCAPE;
     private string m_Variable_START = DEFAULT_VAR_START;
-    private string m_Variable_END   = DEFAULT_VAR_END;
+    private string m_Variable_END = DEFAULT_VAR_END;
     private string m_Variable_PATH_MOD = DEFAULT_VAR_PATH_MOD;
-    private string m_Variable_ENV_MOD  = DEFAULT_VAR_ENV_MOD;
+    private string m_Variable_ENV_MOD = DEFAULT_VAR_ENV_MOD;
 
     private string m_Variable_MACRO_START = DEFAULT_VAR_MACRO_START;
     private string m_Variable_ENV_APP_PREFIX = DEFAULT_VAR_ENV_APP_PREFIX;
+
     #endregion
 
     #region Public properties
@@ -261,10 +262,9 @@ namespace Azos.Conf
     /// </summary>
     public IApplication Application
     {
-      get => m_Application ?? Azos.Apps.ExecutionContext.Application;
+      get => m_Application ?? Apps.ExecutionContext.Application;
       set => m_Application = value;
     }
-
 
     /// <summary>
     /// Accesses root section configuration node
@@ -280,7 +280,6 @@ namespace Azos.Conf
       }
     }
 
-
     /// <summary>
     /// Determines whether exception is thrown when configuration node name contains
     /// inappropriate chars for particular configuration type. For example,
@@ -290,16 +289,14 @@ namespace Azos.Conf
     /// </summary>
     public bool StrictNames
     {
-      get { return m_StrictNames;}
-      set {m_StrictNames = value; }
+      get { return m_StrictNames; }
+      set { m_StrictNames = value; }
     }
-
 
     /// <summary>
     /// Indicates whether configuration is read-only
     /// </summary>
     public abstract bool IsReadOnly { get; }
-
 
     /// <summary>
     /// References variable resolver. If this property is not set then default Windows environment var resolver is used
@@ -318,7 +315,6 @@ namespace Azos.Conf
       get { return m_MacroRunner; }
       set { m_MacroRunner = value; }
     }
-
 
     /// <summary>
     /// Gets/sets an object passed by the framework into MacroRunner.Run() method.
@@ -348,16 +344,14 @@ namespace Azos.Conf
       get { return m_EmptyAttrNode; }
     }
 
-
     /// <summary>
     /// Variable escape tag
     /// </summary>
     public string Variable_ESCAPE
     {
       get { return m_Variable_ESCAPE ?? DEFAULT_VAR_ESCAPE; }
-      set { m_Variable_ESCAPE = value;}
+      set { m_Variable_ESCAPE = value; }
     }
-
 
     /// <summary>
     /// Variable start tag
@@ -365,7 +359,7 @@ namespace Azos.Conf
     public string Variable_START
     {
       get { return m_Variable_START ?? DEFAULT_VAR_START; }
-      set { m_Variable_START = value;}
+      set { m_Variable_START = value; }
     }
 
     /// <summary>
@@ -374,7 +368,7 @@ namespace Azos.Conf
     public string Variable_END
     {
       get { return m_Variable_END ?? DEFAULT_VAR_END; }
-      set { m_Variable_END = value;}
+      set { m_Variable_END = value; }
     }
 
     /// <summary>
@@ -383,7 +377,7 @@ namespace Azos.Conf
     public string Variable_PATH_MOD
     {
       get { return m_Variable_PATH_MOD ?? DEFAULT_VAR_PATH_MOD; }
-      set { m_Variable_PATH_MOD = value;}
+      set { m_Variable_PATH_MOD = value; }
     }
 
     /// <summary>
@@ -392,7 +386,7 @@ namespace Azos.Conf
     public string Variable_ENV_MOD
     {
       get { return m_Variable_ENV_MOD ?? DEFAULT_VAR_ENV_MOD; }
-      set { m_Variable_ENV_MOD = value;}
+      set { m_Variable_ENV_MOD = value; }
     }
 
     /// <summary>
@@ -405,7 +399,6 @@ namespace Azos.Conf
       set { m_Variable_ENV_APP_PREFIX = value; }
     }
 
-
     /// <summary>
     /// Variable get clause modifier
     /// </summary>
@@ -413,7 +406,6 @@ namespace Azos.Conf
     {
       get { return m_Variable_MACRO_START ?? DEFAULT_VAR_MACRO_START; }
     }
-
 
     /// <summary>
     /// Primarily used for debugging - returns the content of the configuration as text in the pretty-printed Laconic format
@@ -426,11 +418,11 @@ namespace Azos.Conf
         {
           return "Configuration Type: {0}\n-----------------------------------------------------\n{1}".Args(
                             this.GetType().FullName,
-                            ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint)
+                            ToLaconicString(LaconfigWritingOptions.PrettyPrint)
                             );
         }
         else
-          return "Configuration Type: {0} <empty>".Args( this.GetType().FullName);
+          return "Configuration Type: {0} <empty>".Args(this.GetType().FullName);
       }
     }
 
@@ -439,221 +431,214 @@ namespace Azos.Conf
     #region Public
 
 
-        /// <summary>
-        /// Creates new configuration - creates new configuration root with optional name parameter
-        /// </summary>
-        public void Create(string name = "configuration")
-        {
-          m_Root = new ConfigSectionNode(this, null, name, null);
-        }
+    /// <summary>
+    /// Creates new configuration - creates new configuration root with optional name parameter
+    /// </summary>
+    public void Create(string name = "configuration")
+    {
+      m_Root = new ConfigSectionNode(this, null, name, null);
+    }
 
-        /// <summary>
-        /// Creates new configuration from ordered merge result of two other nodes - base and override which can be from different configurations
-        /// </summary>
-        /// <param name="baseNode">A base node that data is defaulted from</param>
-        /// <param name="overrideNode">A node that contains overrides/additions of/to data from base node</param>
-        /// <param name="rules">Rules to use or default rules will be used in null is passed</param>
-        public void CreateFromMerge(ConfigSectionNode baseNode, ConfigSectionNode overrideNode, NodeOverrideRules rules = null)
-        {
-          m_Root = new ConfigSectionNode(this, null, baseNode);
-          m_Root.OverrideBy(overrideNode, rules);
-        }
+    /// <summary>
+    /// Creates new configuration from ordered merge result of two other nodes - base and override which can be from different configurations
+    /// </summary>
+    /// <param name="baseNode">A base node that data is defaulted from</param>
+    /// <param name="overrideNode">A node that contains overrides/additions of/to data from base node</param>
+    /// <param name="rules">Rules to use or default rules will be used in null is passed</param>
+    public void CreateFromMerge(ConfigSectionNode baseNode, ConfigSectionNode overrideNode, NodeOverrideRules rules = null)
+    {
+      m_Root = new ConfigSectionNode(this, null, baseNode);
+      m_Root.OverrideBy(overrideNode, rules);
+    }
 
-        /// <summary>
-        /// Creates new configuration from other node, which may belong to a different configuration instance
-        /// </summary>
-        /// <param name="otherNode">A base node that data is defaulted from</param>
-        public void CreateFromNode(IConfigSectionNode otherNode)
-        {
-          m_Root = new ConfigSectionNode(this, null, otherNode);
-        }
+    /// <summary>
+    /// Creates new configuration from other node, which may belong to a different configuration instance
+    /// </summary>
+    /// <param name="otherNode">A base node that data is defaulted from</param>
+    public void CreateFromNode(IConfigSectionNode otherNode)
+    {
+      m_Root = new ConfigSectionNode(this, null, otherNode);
+    }
 
+    /// <summary>
+    /// Erases all config data
+    /// </summary>
+    public void Destroy()
+    {
+      m_Root = null;
+    }
 
-        /// <summary>
-        /// Erases all config data
-        /// </summary>
-        public void Destroy()
-        {
-          m_Root = null;
-        }
+    /// <summary>
+    /// Re-reads configuration from source
+    /// </summary>
+    public virtual void Refresh()
+    {
 
+    }
 
-        /// <summary>
-        /// Re-reads configuration from source
-        /// </summary>
-        public virtual void Refresh()
-        {
+    /// <summary>
+    /// Saves configuration to source
+    /// </summary>
+    public virtual void Save()
+    {
+      if (m_Root != null)
+        m_Root.ResetModified();
+    }
 
-        }
+    /// <summary>
+    /// Checks node name for aptitude for particular configuration type.
+    /// For example, XML configuration does not allow nodes with spaces or separator chars.
+    /// When StrictNames is set to true and value is not appropriate then exception is thrown
+    /// </summary>
+    public string CheckAndAdjustNodeName(string name)
+    {
+      name = name ?? string.Empty;
 
-        /// <summary>
-        /// Saves configuration to source
-        /// </summary>
-        public virtual void Save()
-        {
-          if (m_Root != null)
-            m_Root.ResetModified();
-        }
+      var result = AdjustNodeName(name);
 
-        /// <summary>
-        /// Checks node name for aptitude for particular configuration type.
-        /// For example, XML configuration does not allow nodes with spaces or separator chars.
-        /// When StrictNames is set to true and value is not appropriate then exception is thrown
-        /// </summary>
-        public string CheckAndAdjustNodeName(string name)
-        {
-          name = name ?? string.Empty;
+      if (m_StrictNames)
+        if (!string.Equals(name, result, StringComparison.OrdinalIgnoreCase))
+          throw new ConfigException(string.Format(StringConsts.CONFIGURATION_NODE_NAME_ERROR, name));
 
-          var result = AdjustNodeName(name);
+      return result;
+    }
 
-          if (m_StrictNames)
-           if (!string.Equals(name, result, StringComparison.OrdinalIgnoreCase))
-            throw new ConfigException(string.Format(StringConsts.CONFIGURATION_NODE_NAME_ERROR, name));
+    /// <summary>
+    /// Resolves variable name into its value. If the variable names starts from Variable_ENV_APP_PREFIX,
+    /// then the variable gets resolved via Application.ResolveEnvironmentVariable(name), otherwise
+    /// the system will try passed resolver, then this conf instance resolver, then process-wide resolver, then OS resolver
+    /// </summary>
+    public string ResolveEnvironmentVar(string name, IEnvironmentVariableResolver resolver = null)
+    {
+      string value;
 
-          return result;
-        }
+      var appPrefix = this.Variable_ENV_APP_PREFIX;
+      if (name.StartsWith(appPrefix))
+      {
+        var appVarName = name.Substring(appPrefix.Length);
+        Application.ResolveNamedVar(appVarName, out value);
+        return value;
+      }
 
-        /// <summary>
-        /// Resolves variable name into its value. If the variable names starts from Variable_ENV_APP_PREFIX,
-        /// then the variable gets resolved via Application.ResolveEnvironmentVariable(name), otherwise
-        /// the system will try passed resolver, then this conf instance resolver, then process-wide resolver, then OS resolver
-        /// </summary>
-        public string ResolveEnvironmentVar(string name, IEnvironmentVariableResolver resolver = null)
-        {
-          string value;
+      if (resolver != null && resolver.ResolveEnvironmentVariable(name, out value)) return value;
 
-          var appPrefix = this.Variable_ENV_APP_PREFIX;
-          if (name.StartsWith(appPrefix))
-          {
-            var appVarName = name.Substring(appPrefix.Length);
-            Application.ResolveNamedVar(appVarName, out value);
-            return value;
-          }
+      resolver = m_EnvironmentVarResolver;
+      if (resolver != null && resolver.ResolveEnvironmentVariable(name, out value)) return value;
 
-          if (resolver != null && resolver.ResolveEnvironmentVariable(name, out value)) return value;
+      resolver = ProcesswideEnvironmentVarResolver;
+      if (resolver != null && resolver.ResolveEnvironmentVariable(name, out value)) return value;
 
-          resolver = m_EnvironmentVarResolver;
-          if (resolver != null && resolver.ResolveEnvironmentVariable(name, out value)) return value;
+      resolver = OSEnvironmentVariableResolver.Instance;
+      if (resolver != null && resolver.ResolveEnvironmentVariable(name, out value)) return value;
+      return string.Empty;
+    }
 
-          resolver = ProcesswideEnvironmentVarResolver;
-          if (resolver != null && resolver.ResolveEnvironmentVariable(name, out value)) return value;
+    /// <summary>
+    /// Runs macro and returns its value
+    /// </summary>
+    public string RunMacro(IConfigSectionNode node, string inputValue, string macroName, IConfigSectionNode macroParams, IMacroRunner runner = null, object context = null)
+    {
+      if (context == null) context = m_MacroRunnerContext;
 
-          resolver = OSEnvironmentVariableResolver.Instance;
-          if (resolver != null && resolver.ResolveEnvironmentVariable(name, out value)) return value;
-          return string.Empty;
-        }
+      if (runner != null)
+        return runner.Run(node, inputValue, macroName, macroParams, context);
 
+      if (m_MacroRunner != null)
+        return m_MacroRunner.Run(node, inputValue, macroName, macroParams, context);
 
-        /// <summary>
-        /// Runs macro and returns its value
-        /// </summary>
-        public string RunMacro(IConfigSectionNode node, string inputValue, string macroName, IConfigSectionNode macroParams, IMacroRunner runner = null, object context = null)
-        {
-          if (context==null) context = m_MacroRunnerContext;
+      return DefaultMacroRunner.Instance.Run(node, inputValue, macroName, macroParams, context);
+    }
 
-          if (runner!=null)
-           return runner.Run(node, inputValue, macroName, macroParams, context);
+    /// <summary>
+    /// Creates a deep copy of this configuration into new instance of T
+    /// </summary>
+    public Configuration Clone<T>() where T : Configuration, new()
+    {
+      return Clone(new T());
+    }
 
-          if (m_MacroRunner != null)
-            return m_MacroRunner.Run(node, inputValue, macroName, macroParams, context);
+    /// <summary>
+    /// Creates a deep copy of this configuration into newInstance which was allocated externally
+    /// </summary>
+    public Configuration Clone(Configuration newInstance)
+    {
+      var result = newInstance;
+      result.m_Root = new ConfigSectionNode(result, null, this.m_Root);
 
+      newInstance.StrictNames = this.StrictNames;
 
-          return DefaultMacroRunner.Instance.Run(node, inputValue, macroName, macroParams, context);
-        }
+      return result;
+    }
 
+    /// <summary>
+    /// Implements IClonable by returning new MemoryConfiguration clone
+    /// </summary>
+    public object Clone()
+    {
+      return Clone<MemoryConfiguration>();
+    }
 
+    /// <summary>
+    /// Completely replaces this node with another node tree, positioning the new tree in the place of local node.
+    /// Existing node is deleted after this operation completes, in its place child nodes from other node are inserted
+    /// preserving their existing order. Attributes of other node get merged into parent of existing node
+    /// </summary>
+    public void Include(ConfigSectionNode existing, ConfigSectionNode other)
+    {
+      if (!Root.Exists) return;
 
-        /// <summary>
-        /// Creates a deep copy of this configuration into new instance of T
-        /// </summary>
-        public Configuration Clone<T>() where T : Configuration, new()
-        {
-          return Clone(new T());
-        }
+      if (IsReadOnly)
+        throw new ConfigException(StringConsts.CONFIGURATION_READONLY_ERROR);
 
-        /// <summary>
-        /// Creates a deep copy of this configuration into newInstance which was allocated externally
-        /// </summary>
-        public Configuration Clone(Configuration newInstance)
-        {
-          var result = newInstance;
-          result.m_Root = new ConfigSectionNode(result, null, this.m_Root);
+      if (existing == null || other == null)
+        throw new ConfigException(StringConsts.ARGUMENT_ERROR + "Configuration.Include(null|null)");
 
-          newInstance.StrictNames = this.StrictNames;
+      if (existing.Configuration != this)
+        throw new ConfigException(StringConsts.CONFIGURATION_NODE_DOES_NOT_BELONG_TO_THIS_CONFIGURATION_ERROR.Args(existing.RootPath));
 
-          return result;
-        }
+      if (other.Configuration == this)
+        throw new ConfigException(StringConsts.CONFIGURATION_NODE_MUST_NOT_BELONG_TO_THIS_CONFIGURATION_ERROR.Args(other.RootPath));
 
-        /// <summary>
-        /// Implements IClonable by returning new MemoryConfiguration clone
-        /// </summary>
-        public object Clone()
-        {
-          return Clone<MemoryConfiguration>();
-        }
+      if (existing == Root)
+        throw new ConfigException(StringConsts.CONFIGURATION_CAN_NOT_INCLUDE_INSTEAD_OF_ROOT_ERROR.Args(other.RootPath));
 
+      existing.include(other);
+    }
 
-        /// <summary>
-        /// Completely replaces this node with another node tree, positioning the new tree in the place of local node.
-        /// Existing node is deleted after this operation completes, in its place child nodes from other node are inserted
-        /// preserving their existing order. Attributes of other node get merged into parent of existing node
-        /// </summary>
-        public void Include(ConfigSectionNode existing, ConfigSectionNode other)
-        {
-             if (!Root.Exists) return;
+    /// <summary>
+    /// Serializes configuration tree into Laconic format and returns it as a string
+    /// </summary>
+    public string ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null)
+    {
+      return LaconfigWriter.Write(this, options);
+    }
 
-             if (IsReadOnly)
-                throw new ConfigException(StringConsts.CONFIGURATION_READONLY_ERROR);
+    /// <summary>
+    /// Serializes configuration tree into Laconic format and writes it into stream
+    /// </summary>
+    public void ToLaconicStream(Stream stream, Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null, Encoding encoding = null)
+    {
+      LaconfigWriter.Write(this, stream, options, encoding);
+    }
 
-             if (existing==null || other==null)
-                throw new ConfigException(StringConsts.ARGUMENT_ERROR + "Configuration.Include(null|null)");
+    /// <summary>
+    /// Serializes configuration tree into Laconic format and writes it into a file
+    /// </summary>
+    public void ToLaconicFile(string filename, Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null, Encoding encoding = null)
+    {
+      using (var fs = new FileStream(filename, FileMode.Create))
+        LaconfigWriter.Write(this, fs, options, encoding);
+    }
 
-             if (existing.Configuration!=this)
-                throw new ConfigException(StringConsts.CONFIGURATION_NODE_DOES_NOT_BELONG_TO_THIS_CONFIGURATION_ERROR.Args(existing.RootPath));
+    /// <summary>
+    /// Returns this config as JSON data map suitable for making JSONConfiguration
+    /// </summary>
+    public JsonDataMap ToConfigurationJSONDataMap()
+    {
+      if (m_Root == null) return new JsonDataMap(false);
 
-             if (other.Configuration==this)
-                throw new ConfigException(StringConsts.CONFIGURATION_NODE_MUST_NOT_BELONG_TO_THIS_CONFIGURATION_ERROR.Args(other.RootPath));
-
-             if (existing == Root)
-                throw new ConfigException(StringConsts.CONFIGURATION_CAN_NOT_INCLUDE_INSTEAD_OF_ROOT_ERROR.Args(other.RootPath));
-
-             existing.include(other);
-        }
-
-        /// <summary>
-        /// Serializes configuration tree into Laconic format and returns it as a string
-        /// </summary>
-        public string ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null)
-        {
-           return Azos.CodeAnalysis.Laconfig.LaconfigWriter.Write(this, options);
-        }
-
-        /// <summary>
-        /// Serializes configuration tree into Laconic format and writes it into stream
-        /// </summary>
-        public void ToLaconicStream(Stream stream, Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null, Encoding encoding = null)
-        {
-          Azos.CodeAnalysis.Laconfig.LaconfigWriter.Write(this, stream, options, encoding );
-        }
-
-        /// <summary>
-        /// Serializes configuration tree into Laconic format and writes it into a file
-        /// </summary>
-        public void ToLaconicFile(string filename, Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null, Encoding encoding = null)
-        {
-           using(var fs = new FileStream(filename, FileMode.Create))
-             Azos.CodeAnalysis.Laconfig.LaconfigWriter.Write(this, fs, options, encoding);
-        }
-
-        /// <summary>
-        /// Returns this config as JSON data map suitable for making JSONConfiguration
-        /// </summary>
-        public JsonDataMap ToConfigurationJSONDataMap()
-        {
-          if (m_Root==null) return new JsonDataMap(false);
-
-          return m_Root.ToConfigurationJSONDataMap();
-        }
+      return m_Root.ToConfigurationJSONDataMap();
+    }
 
     #endregion
 
@@ -683,7 +668,7 @@ namespace Azos.Conf
         }
         catch
         {
-         //swallow so the data goes as unconsumed instead of exception
+          //swallow so the data goes as unconsumed instead of exception
         }
       }
 
@@ -691,6 +676,5 @@ namespace Azos.Conf
     }
 
     #endregion
-
   }
 }
