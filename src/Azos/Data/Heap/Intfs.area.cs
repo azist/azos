@@ -32,7 +32,7 @@ namespace Azos.Data.Heap
     IEnumerable<Type> ObjectTypes{ get; }
 
     /// <summary>
-    /// Returns an enumerable of all types AreaQuery-derived types supported by this heap area instance
+    /// Returns an enumerable of all types HeapQuery-derived types supported by this heap area instance
     /// </summary>
     IEnumerable<Type> QueryTypes { get; }
 
@@ -67,8 +67,10 @@ namespace Azos.Data.Heap
     /// Executes a query in this area
     /// </summary>
     /// <param name="query">Query object to execute</param>
+    /// <param name="idempotencyToken"></param>
+    /// <param name="node"></param>
     /// <returns>Returns result of polymorphic type (e.g. an enumerable of data documents) </returns>
-    Task<object> ExecuteQueryAsync(AreaQuery query);
+    Task<SaveResult<object>> ExecuteAsync(HeapQuery query, Guid idempotencyToken = default(Guid), INode node = null);
   }
 
 }

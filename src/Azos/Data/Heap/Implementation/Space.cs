@@ -17,7 +17,7 @@ namespace Azos.Data.Heap.Implementation
 
     public Type ObjectType => throw new NotImplementedException();
 
-    public HeapAttribute ObjectTypeDefinition => throw new NotImplementedException();
+    public HeapSpaceAttribute SpaceDefinition => throw new NotImplementedException();
 
     public string Name => throw new NotImplementedException();
 

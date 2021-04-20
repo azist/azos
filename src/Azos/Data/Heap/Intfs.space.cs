@@ -34,7 +34,7 @@ namespace Azos.Data.Heap
     /// Returns the definition of the object type - its [HeapAttribute]instance
     /// which defines the binding of the CLI type to the logical heap area/collection
     /// </summary>
-    HeapAttribute ObjectTypeDefinition { get; }
+    HeapSpaceAttribute SpaceDefinition { get; }
 
     /// <summary>
     /// Gets object of the corresponding collection type by its direct reference

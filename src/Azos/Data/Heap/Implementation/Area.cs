@@ -49,7 +49,7 @@ namespace Azos.Data.Heap.Implementation
 
     public INodeSelector NodeSelector => throw new NotImplementedException();
 
-    public Task<object> ExecuteQueryAsync(AreaQuery query)
+    public Task<SaveResult<object>> ExecuteAsync(HeapQuery query, Guid idempotencyToken = default(Guid), INode node = null)
     {
       throw new NotImplementedException();
     }
