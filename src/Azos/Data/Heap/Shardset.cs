@@ -69,10 +69,10 @@ namespace Azos.Data.Heap
         Node best = null;
         double bestScore = double.MinValue;
 
-        foreach(var node in m_Set)
+        foreach(var node in m_Set) // O(n)
         {
           var hash = node.ShardIdHash ^ keyHash;//both "avalanched"
-          double norm = hash / (double)ulong.MaxValue; //0.0 .. 1.0
+          double norm = hash / (double)ulong.MaxValue; //[0.0 .. 1.0]
           var score = node.ShardWeight / -Math.Log(norm);//logarithm of real number is negative; log (0) = - infinity ; 1 / -log(0) = 0
           if (score > bestScore)
           {

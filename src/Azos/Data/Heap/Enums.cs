@@ -17,7 +17,8 @@ namespace Azos.Data.Heap
     None = 0,
 
     /// <summary>
-    /// Write one more copy into the mirrors/backup locations. This increases safety in case of immediate node loss at the expense of time
+    /// Write one more copy into the mirrors/backup locations. This increases safety in case of
+    /// the immediate node loss at the expense of extra time spent
     /// </summary>
     Backup = 1,
 
@@ -31,4 +32,40 @@ namespace Azos.Data.Heap
     /// </summary>
     Flush = 1 << 31
   }
+
+  /// <summary>
+  /// Defines flags describing general node capabilities
+  /// </summary>
+  [Flags]
+  public enum NodeFlags
+  {
+    None = 0,
+
+    /// <summary>
+    /// Can not get by direct reference, e.g. if the storage engine is a file-based event log
+    /// </summary>
+    NoGet = 1 << 0,
+
+    /// <summary>
+    /// Can not execute query, e.g. if the storage engine is a file-based event log
+    /// </summary>
+    NoQuery = 1 << 1,
+
+    /// <summary>
+    /// Can not be written object changes to (no Set() or Delete())
+    /// </summary>
+    Readonly = 1 << 2,
+
+    /// <summary>
+    /// The node does not auto-sync from others
+    /// </summary>
+    NoSyncPull = 1 << 16,
+
+    /// <summary>
+    /// Others do not sync from this node
+    /// </summary>
+    NoSyncSource = 1 << 17
+  }
+
+
 }
