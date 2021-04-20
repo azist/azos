@@ -15,10 +15,14 @@ namespace Azos.Conf
   {
     private static ConfigNodeEqualityComparer s_Instance = new ConfigNodeEqualityComparer();
 
+    /// <summary>
+    /// The ConfigNodeEqualityComparer Instance property
+    /// </summary>
     public static ConfigNodeEqualityComparer Instance => s_Instance;
 
     private ConfigNodeEqualityComparer() { }
 
+    /// <inheritdoc/>
     public override bool Equals(IConfigNode x, IConfigNode y)
     {
       if (x == null && y == null) return true;
@@ -31,11 +35,9 @@ namespace Azos.Conf
 
       if (!x.VerbatimValue.EqualsOrdSenseCase(y.VerbatimValue)) return false;
 
-      var snodex = x as IConfigSectionNode;
-      if (snodex != null)
+      if (x is IConfigSectionNode snodex)
       {
-        var snodey = y as IConfigSectionNode;
-        if (snodey == null) return false;
+        if (!(y is IConfigSectionNode snodey)) return false;
 
         if (snodex.ChildCount != snodey.ChildCount) return false;
         if (snodex.AttrCount != snodey.AttrCount) return false;
@@ -59,6 +61,7 @@ namespace Azos.Conf
       return true;
     }
 
+    /// <inheritdoc/>
     public override int GetHashCode(IConfigNode node)
     {
       if (node == null || !node.Exists) return 0;

@@ -55,7 +55,6 @@ namespace Azos.Conf
 
     #endregion
 
-
     #region .ctor
 
     /// <summary>
@@ -64,7 +63,6 @@ namespace Azos.Conf
     public CommandArgsConfiguration(string[] args) : this(args, Platform.Computer.OSFamily != Platform.OSFamily.Windows)
     {
     }
-
 
     /// <summary>
     /// Creates an instance of the new configuration parsed from command line arguments
@@ -100,7 +98,6 @@ namespace Azos.Conf
     /// When true, disregards '/' as an argument delimiter
     /// </summary>
     public bool InhibitSlashArg => m_InhibitSlashArg;
-
 
     /// <summary>
     /// Returns arguments array that this configuration was parsed from
@@ -166,7 +163,6 @@ namespace Azos.Conf
 
       m_Root.ResetModified();
     }
-
 
     #endregion
   }
