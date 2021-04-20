@@ -18,8 +18,8 @@ namespace Azos.Data.Heap
   {
     public HeapAttribute(string area, string space)
     {
-      Area = area.NonBlank(nameof(area));
-      Space = space.NonBlank(nameof(space));
+      Area = area.CheckId(nameof(area));
+      Space = space.CheckId(nameof(space));
     }
 
     //todo:  constrain identifiers to character only or 0..9, -, _, min length 3, max length 32

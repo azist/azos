@@ -45,6 +45,9 @@ namespace Azos.Data.Heap.Implementation
 
     public IEnumerable<KeyValuePair<string, Type>> ExternalParameters => throw new NotImplementedException();
 
+    public IEnumerable<INode> Nodes => throw new NotImplementedException();
+
+    public INodeSelector NodeSelector => throw new NotImplementedException();
 
     public Task<object> ExecuteQueryAsync(AreaQuery query)
     {

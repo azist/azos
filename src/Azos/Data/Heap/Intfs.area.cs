@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Azos.Apps;
+
 using Azos.Collections;
 
 namespace Azos.Data.Heap
@@ -22,7 +22,7 @@ namespace Azos.Data.Heap
   public interface IArea : INamed
   {
     /// <summary>
-    /// Directing heap
+    /// Directing heap which owns the area
     /// </summary>
     IHeap Heap { get; }
 
@@ -36,9 +36,16 @@ namespace Azos.Data.Heap
     /// </summary>
     IEnumerable<Type> QueryTypes { get; }
 
-    //Ordered by proximity? Primary/secondary etc...
-    //IEnumerable<INode> Nodes{ get; }
-    //And then Get Collection and Exec query go into INode?
+    /// <summary>
+    /// Returns an unordered set of <see cref="INode"/> instances
+    /// </summary>
+    IEnumerable<INode> Nodes{ get; }
+
+    /// <summary>
+    /// Selects a node for the caller as determined by its settings.
+    /// The system uses this handler to dispatch node calls to the best matching nodes
+    /// </summary>
+    INodeSelector NodeSelector { get; }
 
     /// <summary>
     /// Client used to connect to service
