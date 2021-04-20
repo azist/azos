@@ -143,9 +143,14 @@ namespace Azos.Data
     public readonly Guid IdempotencyToken;
 
     /// <summary>
-    /// True if there is no error
+    /// True if there is no error - a success
     /// </summary>
     public bool IsSuccess => Error == null;
+
+    /// <summary>
+    /// True if there is error - not success
+    /// </summary>
+    public bool IsError => !IsSuccess;
 
     /// <summary>
     /// Returns SaveResult&lt;object&gt; representation

@@ -105,7 +105,7 @@ $ dotnet trun.dll MyTests.dll -r categories=hub,draw
 # but not i/o tests
 $ dotnet trun.dll MyTests.dll -r categories=hub,draw,~io
 
-# hub category, namespace "Serialization", any method by for the ones called "_Fail"
+# hub category, namespace "Serialization", any method but for the ones called "_Fail"
 $ dotnet trun.dll MyTests.dll -r categories=hub namespaces=*Serialization* methods=~*_Fail
 ```
 

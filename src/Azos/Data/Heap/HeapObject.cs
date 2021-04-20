@@ -190,10 +190,16 @@ namespace Azos.Data.Heap
   }
 
 
-  [Heap(area: "doc", collection: "doc")]//, ChannelName = "std")]  //16 servers 3 locations
+  [HeapSpace(area: "clinical", space: "doc")]//, ChannelName = "std")]  //16 servers 3 locations
   public class Doctor : HeapObject
   {
     [Field] public string NPI{ get; set; }
+  }
+
+  [HeapProc(area: "clinical", name: "doctor.getList")]
+  public class DoctorListByNpi : HeapQuery
+  {
+    [Field] public string Npi { get; set; }
   }
 
 }

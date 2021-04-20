@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Azos.Apps;
+
 using Azos.Collections;
 
 namespace Azos.Data.Heap
@@ -22,7 +22,7 @@ namespace Azos.Data.Heap
   public interface IArea : INamed
   {
     /// <summary>
-    /// Directing heap
+    /// Directing heap which owns the area
     /// </summary>
     IHeap Heap { get; }
 
@@ -32,13 +32,20 @@ namespace Azos.Data.Heap
     IEnumerable<Type> ObjectTypes{ get; }
 
     /// <summary>
-    /// Returns an enumerable of all types AreaQuery-derived types supported by this heap area instance
+    /// Returns an enumerable of all types HeapQuery-derived types supported by this heap area instance
     /// </summary>
     IEnumerable<Type> QueryTypes { get; }
 
-    //Ordered by proximity? Primary/secondary etc...
-    //IEnumerable<INode> Nodes{ get; }
-    //And then Get Collection and Exec query go into INode?
+    /// <summary>
+    /// Returns an unordered set of <see cref="INode"/> instances
+    /// </summary>
+    IEnumerable<INode> Nodes{ get; }
+
+    /// <summary>
+    /// Selects a node for the caller as determined by its settings.
+    /// The system uses this handler to dispatch node calls to the best matching nodes
+    /// </summary>
+    INodeSelector NodeSelector { get; }
 
     /// <summary>
     /// Client used to connect to service
@@ -60,8 +67,10 @@ namespace Azos.Data.Heap
     /// Executes a query in this area
     /// </summary>
     /// <param name="query">Query object to execute</param>
+    /// <param name="idempotencyToken"></param>
+    /// <param name="node"></param>
     /// <returns>Returns result of polymorphic type (e.g. an enumerable of data documents) </returns>
-    Task<object> ExecuteQueryAsync(AreaQuery query);
+    Task<SaveResult<object>> ExecuteAsync(HeapQuery query, Guid idempotencyToken = default(Guid), INode node = null);
   }
 
 }

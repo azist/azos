@@ -45,8 +45,11 @@ namespace Azos.Data.Heap.Implementation
 
     public IEnumerable<KeyValuePair<string, Type>> ExternalParameters => throw new NotImplementedException();
 
+    public IEnumerable<INode> Nodes => throw new NotImplementedException();
 
-    public Task<object> ExecuteQueryAsync(AreaQuery query)
+    public INodeSelector NodeSelector => throw new NotImplementedException();
+
+    public Task<SaveResult<object>> ExecuteAsync(HeapQuery query, Guid idempotencyToken = default(Guid), INode node = null)
     {
       throw new NotImplementedException();
     }
