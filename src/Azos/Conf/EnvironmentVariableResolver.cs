@@ -49,13 +49,17 @@ namespace Azos.Conf
     }
   }
 
-
+  /// <summary>
+  /// Provides a sealed invariant culture case insensitive
+  /// <![CDATA[Dictionary<string,string>]]> collection for Vars backing object
+  /// </summary>
   public sealed class VarsDictionary : Dictionary<string, string>
   {
     public VarsDictionary() : base(StringComparer.InvariantCultureIgnoreCase) {}
     public VarsDictionary(IDictionary<string, string> other) : base(other, StringComparer.InvariantCultureIgnoreCase) { }
     private VarsDictionary(SerializationInfo info, StreamingContext context) : base(info, context) {}
   }
+
 
   /// <summary>
   /// Allows for simple ad-hoc environment var passing to configuration

@@ -114,7 +114,6 @@ namespace Azos.Conf
       }
     }
 
-
     /// <summary>
     /// Invokes a constructor for a type supplying the .ctor with the specified args:
     ///  node{type="NS.Type, Assembly" arg0=1 arg1=true....}
@@ -169,7 +168,6 @@ namespace Azos.Conf
       }
     }
 
-
     #endregion
 
 
@@ -216,7 +214,6 @@ namespace Azos.Conf
         throw tie.InnerException;
       }
 
-
       return result;
     }
 
@@ -250,7 +247,6 @@ namespace Azos.Conf
         }
         scope = scope.Parent;
       }//while
-
 
       return null;//not found anywhere
     }
