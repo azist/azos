@@ -138,6 +138,7 @@ namespace Azos.Conf
       var data = JsonReader.DeserializeDataObject(content, caseSensitiveMaps: false) as JsonDataMap;
       read(data);
     }
+
     private void read(JsonDataMap data)
     {
       if (data == null || data.Count == 0 || data.Count > 1)

@@ -76,12 +76,18 @@ namespace Azos.Conf
     private object m_Sync = new object();
     private volatile VarsDictionary m_Data;
 
+    /// <summary>
+    /// Tries to resolve the named variable (true if exists) and sets the out value if found
+    /// </summary>
     public bool ResolveEnvironmentVariable(string name, out string value)
     {
       if (m_Data.TryGetValue(name, out value)) return true;
       return false;
     }
 
+    /// <summary>
+    /// Returns the item by named key value
+    /// </summary>
     public string this[string name]
     {
       get
@@ -105,6 +111,9 @@ namespace Azos.Conf
       }
     }
 
+    /// <summary>
+    /// Removes the item by named key value
+    /// </summary>
     public bool Remove(string key)
     {
       lock (m_Sync)
@@ -116,8 +125,14 @@ namespace Azos.Conf
       }
     }
 
+    /// <summary>
+    /// Clears all items in the collection
+    /// </summary>
     public void Clear() { m_Data = new VarsDictionary(); }
 
+    /// <summary>
+    /// Returns an enumerator that iterates through a collection.
+    /// </summary>
     public IEnumerator<KeyValuePair<string, string>> GetEnumerator() { return m_Data.GetEnumerator(); }
     IEnumerator IEnumerable.GetEnumerator() { return this.GetEnumerator(); }
   }

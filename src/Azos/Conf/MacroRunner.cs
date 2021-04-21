@@ -89,6 +89,9 @@ namespace Azos.Conf
 
     #endregion
 
+    /// <summary>
+    /// Virtual method to run the named Macro using the provided input section node, input string, params section node, and context object
+    /// </summary>
     public virtual string Run(IConfigSectionNode node, string inputValue, string macroName, IConfigSectionNode macroParams, object context = null)
     {
 

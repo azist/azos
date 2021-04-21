@@ -85,6 +85,9 @@ namespace Azos.Conf
 
     #region .ctor
 
+    /// <summary>
+    /// Creates an instance of a node override rules object
+    /// </summary>
     public NodeOverrideRules() { }
 
     #endregion
