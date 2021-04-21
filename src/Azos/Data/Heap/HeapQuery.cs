@@ -38,4 +38,8 @@ namespace Azos.Data.Heap
     }
   }
 
+  /// <summary>
+  /// HeapQuery yielding `TResult` as the result
+  /// </summary>
+  public abstract class HeapQuery<TResult> : HeapQuery {  }
 }

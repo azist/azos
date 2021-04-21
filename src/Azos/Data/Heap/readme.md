@@ -19,6 +19,29 @@ gradual transparent data schema change as it is virtually unaffected by object c
 The Heap uses REST Api to communicate from any language which supports JSON `{map} / [array] / scalar` types (any language).
 The Heap support BIX(biz info exchange) format natively via corresponding content type header `application/bix`.
 
+```csharp
+  [Inject] IHeap m_Heap;
+  ...
+  var clinical = m_Heap.Areas["clinical"];
+  ...
+
+  var query = new DoctorList
+  {
+    Npi = "123343" //National provider Id
+  };
+  var list = await m_Heap.ExecuteAsync(query);
+  list.First().LastName....
+  ...
+  var docs = clinical.GetSpace<Doctor>();
+
+  var doctor = await docs.GetAsync(new ObjectRef(gDoctor));// "0:7:12901"
+  
+  doctor.Npi = "1234567";
+  doctor.Phone = "(555) 123-4567";
+
+  await docs.SetAsync(doctor);
+  ...
+```
 
 The following table describes chief heap traits:
 

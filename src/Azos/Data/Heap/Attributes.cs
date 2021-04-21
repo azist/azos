@@ -8,21 +8,39 @@ using System;
 
 namespace Azos.Data.Heap
 {
+
+  public abstract class HeapAttribute : Attribute
+  {
+    private static Platform.FiniteSetLookup<Type, HeapAttribute> s_Cache = new Platform.FiniteSetLookup<Type, HeapAttribute>( t => null);
+
+    public static T Lookup<T>(Type t) => s_Cache[t.NonNull(nameof(t))].CastTo<T>();
+
+
+    public HeapAttribute(string area)
+    {
+      Area = area.CheckId(nameof(area));
+    }
+
+    public string Area { get; private set; }
+  }
+
+
   /// <summary>
   /// Assigns (AREA, SPACE) tuple to HeapObjects. The attribute must be set to bind
   /// a CLI type to space/collection within data heap area.
   /// You can only bind no more than one CLR object type to a named collection space at a time.
   /// </summary>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-  public sealed class HeapSpaceAttribute : Attribute
+  public sealed class HeapSpaceAttribute : HeapAttribute
   {
-    public HeapSpaceAttribute(string area, string space)
+    public HeapSpaceAttribute(string area, string space) : base(area)
     {
-      Area = area.CheckId(nameof(area));
       Space = space.CheckId(nameof(space));
     }
 
-    public string Area{ get; private set;}
+    /// <summary>
+    /// Name of data space (feature space)
+    /// </summary>
     public string Space{ get; private set; }
 
     //public Atom Channel { get; private set; }
@@ -36,29 +54,21 @@ namespace Azos.Data.Heap
   }
 
   /// <summary>
-  /// Assigns (AREA, SPACE) tuple to HeapObjects. The attribute must be set to bind
-  /// a CLI type to space/collection within data heap area.
-  /// You can only bind no more than one CLR object type to a named collection space at a time.
+  /// Assigns (AREA, Name) tuple to heap procedure. The attribute must be set to bind
+  /// a CLI type to procedure by name within the data heap area.
+  /// You can only bind no more than one heap procedure to query type
   /// </summary>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-  public sealed class HeapProcAttribute : Attribute
+  public sealed class HeapProcAttribute : HeapAttribute
   {
-    public HeapProcAttribute(string area, string name)
+    public HeapProcAttribute(string area, string name) : base(area)
     {
-      Area = area.CheckId(nameof(area));
       Name = name.NonBlank(nameof(name));
     }
 
-    public string Area { get; private set; }
+    /// <summary>
+    /// Name of heap procedure/handler
+    /// </summary>
     public string Name { get; private set; }
-
-    //public Atom Channel { get; private set; }
-
-    //public string ChannelName
-    //{
-    //  get => Channel.Value;
-    //  set => Channel = Atom.Encode(value.NonBlank(nameof(ChannelName)));
-    //}
-
   }
 }

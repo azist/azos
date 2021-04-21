@@ -131,7 +131,9 @@ namespace Azos.Data
     public readonly Exception Error;
 
     /// <summary>
-    /// Returns the result of the form save, e.g. for filters this returns a resulting rowset
+    /// Returns the result of the form save, e.g. for filters this returns a resulting rowset.
+    /// accessing this field does not throw exception if one is set.
+    /// Use <see cref="GetResult"/> to return a valid result or throw
     /// </summary>
     public readonly TResult Result;
 
@@ -153,8 +155,13 @@ namespace Azos.Data
     public bool IsError => !IsSuccess;
 
     /// <summary>
-    /// Returns SaveResult&lt;object&gt; representation
+    /// Returns a SaveResult&lt;object&gt; representation
     /// </summary>
     public SaveResult<object> ToObject() => IsSuccess ? new SaveResult<object>(Result) : new SaveResult<object>(Error);
+
+    /// <summary>
+    /// If result is successful then returns it, otherwise throws an error
+    /// </summary>
+    public TResult GetResult() => IsSuccess ? Result : throw Error;
   }
 }

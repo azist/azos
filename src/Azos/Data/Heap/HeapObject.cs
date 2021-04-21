@@ -197,8 +197,14 @@ namespace Azos.Data.Heap
   }
 
   [HeapProc(area: "clinical", name: "doctor.getList")]
-  public class DoctorListByNpi : HeapQuery
+  public class DoctorListByNpi : HeapQuery//<DoctorInfo><List<int>>
   {
+    //public static async void A()
+    //{
+    //  IHeap heap = null;
+    //  var lst = await heap.ExecAsync( new DoctorListByNpi{});
+    //}
+
     [Field] public string Npi { get; set; }
   }
 
