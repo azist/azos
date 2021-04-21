@@ -5,18 +5,32 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Reflection;
 
 namespace Azos.Data.Heap
 {
 
   public abstract class HeapAttribute : Attribute
   {
-    private static Platform.FiniteSetLookup<Type, HeapAttribute> s_Cache = new Platform.FiniteSetLookup<Type, HeapAttribute>( t => null);
+    private static Platform.FiniteSetLookup<Type, HeapAttribute> s_Cache = new Platform.FiniteSetLookup<Type, HeapAttribute>(t => t.GetCustomAttribute<HeapAttribute>(false));
 
-    public static T Lookup<T>(Type t) => s_Cache[t.NonNull(nameof(t))].CastTo<T>();
+    public static T Lookup<T>(Type t) where T : HeapAttribute
+    {
+      var attr =  s_Cache[t.NonNull(nameof(t))];
+      var result = attr as T;
+      if (result == null)
+      {
+        var site = $"{nameof(HeapAttribute)}.{nameof(Lookup)}";
+        var td = typeof(T).DisplayNameWithExpandedGenericArgs();
+        throw new CallGuardException(site,
+                                     td,
+                                     "{0}: `{1}` is not decorated with `[{2}]`".Args(site, t.DisplayNameWithExpandedGenericArgs(), td));
+      }
+      return result;
+    }
 
 
-    public HeapAttribute(string area)
+    protected HeapAttribute(string area)
     {
       Area = area.CheckId(nameof(area));
     }

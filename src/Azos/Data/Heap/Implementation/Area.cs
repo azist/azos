@@ -35,8 +35,6 @@ namespace Azos.Data.Heap.Implementation
 
     public IEnumerable<Type> QueryTypes => throw new NotImplementedException();
 
-    public Router Sharding => throw new NotImplementedException();
-
     public string Name => throw new NotImplementedException();
 
     public override string ComponentLogTopic => throw new NotImplementedException();
