@@ -16,10 +16,14 @@ namespace Azos.Data.Heap
   public interface IHeap : IApplicationComponent
   {
     /// <summary>
-    /// Registry of areas of the heap. Each area is backed by a storage engine
-    /// and has its own partitioning(sharding) rules
+    /// Gets area by name or throws
     /// </summary>
-    IRegistry<IArea> Areas { get; }
+    IArea this[string name] { get; }
+
+    /// <summary>
+    /// Gets all areas
+    /// </summary>
+    IRegistry<IArea> Areas {  get; }
   }
 
   /// <summary>

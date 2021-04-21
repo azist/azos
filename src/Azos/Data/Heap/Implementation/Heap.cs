@@ -39,6 +39,8 @@ namespace Azos.Data.Heap.Implementation
 
     public IRegistry<IArea> Areas => m_Areas;
 
+    public IArea this[string name] => Areas[name].NonNull(nameof(name));
+
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
