@@ -49,18 +49,15 @@ namespace Azos.Conf
 
     #region Properties
 
-    public string FileName
-    {
-      get { return m_FileName; }
-    }
+    /// <summary>
+    /// Gets the underlying file name for this configuration
+    /// </summary>
+    public string FileName => m_FileName;
 
     /// <summary>
     /// Indicates whether configuration is readonly or may be modified and saved
     /// </summary>
-    public override bool IsReadOnly
-    {
-      get { return m_IsReadOnly; }
-    }
+    public override bool IsReadOnly => m_IsReadOnly;
 
     #endregion
 
@@ -77,6 +74,9 @@ namespace Azos.Conf
         m_Root.ResetModified();
     }
 
+    /// <summary>
+    /// Sets the file-based configuration read only state to True or False
+    /// </summary>
     public void SetReadOnly(bool val)
     {
       m_IsReadOnly = val;

@@ -88,49 +88,224 @@ namespace Azos.Conf
     /// </summary>
     string RootPath { get; }
 
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as string
+    /// </summary>
     string ValueAsString(string dflt = null, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as a byte[]
+    /// </summary>
     byte[] ValueAsByteArray(byte[] dflt = null, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as int[]
+    /// </summary>
     int[] ValueAsIntArray(int[] dflt = null, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as long[]
+    /// </summary>
     long[] ValueAsLongArray(long[] dflt = null, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as float[]
+    /// </summary>
     float[] ValueAsFloatArray(float[] dflt = null, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as double[]
+    /// </summary>
     double[] ValueAsDoubleArray(double[] dflt = null, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as decimal[]
+    /// </summary>
     decimal[] ValueAsDecimalArray(decimal[] dflt = null, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as short
+    /// </summary>
     short ValueAsShort(short dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as short?
+    /// </summary>
     short? ValueAsNullableShort(short? dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as ushort
+    /// </summary>
     ushort ValueAsUShort(ushort dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as ushort?
+    /// </summary>
     ushort? ValueAsNullableUShort(ushort? dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as byte
+    /// </summary>
     byte ValueAsByte(byte dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as byte?
+    /// </summary>
     byte? ValueAsNullableByte(byte? dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as sbyte
+    /// </summary>
     sbyte ValueAsSByte(sbyte dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as sbyte?
+    /// </summary>
     sbyte? ValueAsNullableSByte(sbyte? dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as int
+    /// </summary>
     int ValueAsInt(int dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as int?
+    /// </summary>
     int? ValueAsNullableInt(int? dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as uint
+    /// </summary>
     uint ValueAsUInt(uint dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as uint?
+    /// </summary>
     uint? ValueAsNullableUInt(uint? dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as long
+    /// </summary>
     long ValueAsLong(long dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as long?
+    /// </summary>
     long? ValueAsNullableLong(long? dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as ulong
+    /// </summary>
     ulong ValueAsULong(ulong dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as ulong?
+    /// </summary>
     ulong? ValueAsNullableULong(ulong? dflt = 0, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as double
+    /// </summary>
     double ValueAsDouble(double dflt = 0d, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as double?
+    /// </summary>
     double? ValueAsNullableDouble(double? dflt = 0d, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as float
+    /// </summary>
     float ValueAsFloat(float dflt = 0f, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as float?
+    /// </summary>
     float? ValueAsNullableFloat(float? dflt = 0f, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as decimal
+    /// </summary>
     decimal ValueAsDecimal(decimal dflt = 0m, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as decimal?
+    /// </summary>
     decimal? ValueAsNullableDecimal(decimal? dflt = 0m, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as bool
+    /// </summary>
     bool ValueAsBool(bool dflt = false, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as  bool?
+    /// </summary>
     bool? ValueAsNullableBool(bool? dflt = false, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as Guid
+    /// </summary>
     Guid ValueAsGUID(Guid dflt, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as Guid?
+    /// </summary>
     Guid? ValueAsNullableGUID(Guid? dflt = null, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as GDID
+    /// </summary>
     GDID ValueAsGDID(GDID dflt, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as GDID?
+    /// </summary>
     GDID? ValueAsNullableGDID(GDID? dflt = null, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as DateTime
+    /// </summary>
     DateTime ValueAsDateTime(DateTime dflt, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as DateTime?
+    /// </summary>
     DateTime? ValueAsNullableDateTime(DateTime? dflt = null, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as TimeSpan
+    /// </summary>
     TimeSpan ValueAsTimeSpan(TimeSpan dflt, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as TimeSpan?
+    /// </summary>
     TimeSpan? ValueAsNullableTimeSpan(TimeSpan? dflt = null, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as TEnum
+    /// </summary>
     TEnum ValueAsEnum<TEnum>(TEnum dflt = default(TEnum), bool verbatim = false) where TEnum : struct;
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as TEnum?
+    /// </summary>
     TEnum? ValueAsNullableEnum<TEnum>(TEnum? dflt = null, bool verbatim = false) where TEnum : struct;
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as Atom
+    /// </summary>
     Atom ValueAsAtom(Atom dflt, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as Atom?
+    /// </summary>
     Atom? ValueAsNullableAtom(Atom? dflt = null, bool verbatim = false);
+
+    /// <summary>
+    /// Returns the value (or verbatim value if specified) or the specified default value as Uri
+    /// </summary>
     Uri ValueAsUri(Uri dflt, bool verbatim = false);
 
     /// <summary>

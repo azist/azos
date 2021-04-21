@@ -98,10 +98,7 @@ namespace Azos.Conf
     }
 
     /// <inheritdoc/>
-    public override void Refresh()
-    {
-      readFromFile();
-    }
+    public override void Refresh() => readFromFile();
 
     /// <inheritdoc/>
     public override void Save()

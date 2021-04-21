@@ -89,9 +89,14 @@ namespace Azos.Conf
 
     #endregion
 
-
+    /// <summary>
+    /// Creates a new Behavior
+    /// </summary>
     protected Behavior() { }
 
+    /// <summary>
+    /// Creates a new Behavior with a specified order value
+    /// </summary>
     protected Behavior(int order)
     {
       m_Order = order;

@@ -141,6 +141,7 @@ namespace Azos.Conf
 
     #region Public
 
+    /// <inheritdoc/>
     public override string ToString()
     {
       return "[{0}] by {1}@{2}:{3} on {4} UTC".Args(BuildSeed, User, Computer, OS, DateStampUTC);

@@ -27,11 +27,18 @@ namespace Azos.Conf
 
     private ConfigNode() { }
 
+    /// <summary>
+    /// Creates new configuration node
+    /// </summary>
     protected ConfigNode(Configuration conf, ConfigSectionNode parent)
     {
       m_Configuration = conf;
       m_Parent = parent;
     }
+
+    /// <summary>
+    /// Creates new configuration node with a specific name and value
+    /// </summary>
     protected ConfigNode(Configuration conf, ConfigSectionNode parent, string name, string value)
     {
       m_Configuration = conf;
@@ -205,269 +212,316 @@ namespace Azos.Conf
       m_Modified = false;
     }
 
+    /// <summary>
+    /// Deletes this section from its parent
+    /// </summary>
     public abstract void Delete();
 
 
     #region Value Accessors
 
+    /// <inheritdoc/>
     public string ValueAsString(string dflt = null, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsStringWhenNullOrEmpty(dflt);
     }
 
+    /// <inheritdoc/>
     public byte[] ValueAsByteArray(byte[] dflt = null, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsByteArray(dflt);
     }
 
+    /// <inheritdoc/>
     public int[] ValueAsIntArray(int[] dflt = null, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsIntArray(dflt);
     }
 
+    /// <inheritdoc/>
     public long[] ValueAsLongArray(long[] dflt = null, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsLongArray(dflt);
     }
 
+    /// <inheritdoc/>
     public float[] ValueAsFloatArray(float[] dflt = null, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsFloatArray(dflt);
     }
 
+    /// <inheritdoc/>
     public double[] ValueAsDoubleArray(double[] dflt = null, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsDoubleArray(dflt);
     }
 
+    /// <inheritdoc/>
     public decimal[] ValueAsDecimalArray(decimal[] dflt = null, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsDecimalArray(dflt);
     }
 
+    /// <inheritdoc/>
     public short ValueAsShort(short dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsShort(dflt);
     }
 
+    /// <inheritdoc/>
     public short? ValueAsNullableShort(short? dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableShort(dflt);
     }
 
+    /// <inheritdoc/>
     public ushort ValueAsUShort(ushort dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsUShort(dflt);
     }
 
+    /// <inheritdoc/>
     public ushort? ValueAsNullableUShort(ushort? dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableUShort(dflt);
     }
 
+    /// <inheritdoc/>
     public byte ValueAsByte(byte dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsByte(dflt);
     }
 
+    /// <inheritdoc/>
     public byte? ValueAsNullableByte(byte? dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableByte(dflt);
     }
 
+    /// <inheritdoc/>
     public sbyte ValueAsSByte(sbyte dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsSByte(dflt);
     }
 
+    /// <inheritdoc/>
     public sbyte? ValueAsNullableSByte(sbyte? dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableSByte(dflt);
     }
 
+    /// <inheritdoc/>
     public int ValueAsInt(int dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsInt(dflt);
     }
 
+    /// <inheritdoc/>
     public int? ValueAsNullableInt(int? dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableInt(dflt);
     }
 
+    /// <inheritdoc/>
     public uint ValueAsUInt(uint dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsUInt(dflt);
     }
 
+    /// <inheritdoc/>
     public uint? ValueAsNullableUInt(uint? dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableUInt(dflt);
     }
 
+    /// <inheritdoc/>
     public long ValueAsLong(long dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsLong(dflt);
     }
 
+    /// <inheritdoc/>
     public long? ValueAsNullableLong(long? dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableLong(dflt);
     }
 
+    /// <inheritdoc/>
     public ulong ValueAsULong(ulong dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsULong(dflt);
     }
 
+    /// <inheritdoc/>
     public ulong? ValueAsNullableULong(ulong? dflt = 0, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableULong(dflt);
     }
 
+    /// <inheritdoc/>
     public double ValueAsDouble(double dflt = 0d, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsDouble(dflt);
     }
 
+    /// <inheritdoc/>
     public double? ValueAsNullableDouble(double? dflt = 0d, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableDouble(dflt);
     }
 
+    /// <inheritdoc/>
     public float ValueAsFloat(float dflt = 0f, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsFloat(dflt);
     }
 
+    /// <inheritdoc/>
     public float? ValueAsNullableFloat(float? dflt = 0f, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableFloat(dflt);
     }
 
+    /// <inheritdoc/>
     public decimal ValueAsDecimal(decimal dflt = 0m, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsDecimal(dflt);
     }
 
+    /// <inheritdoc/>
     public decimal? ValueAsNullableDecimal(decimal? dflt = 0m, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableDecimal(dflt);
     }
 
+    /// <inheritdoc/>
     public bool ValueAsBool(bool dflt = false, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsBool(dflt);
     }
 
+    /// <inheritdoc/>
     public bool? ValueAsNullableBool(bool? dflt = false, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableBool(dflt);
     }
 
+    /// <inheritdoc/>
     public Guid ValueAsGUID(Guid dflt, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsGUID(dflt);
     }
 
+    /// <inheritdoc/>
     public Guid? ValueAsNullableGUID(Guid? dflt = null, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableGUID(dflt);
     }
 
+    /// <inheritdoc/>
     public GDID ValueAsGDID(GDID dflt, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsGDID(dflt);
     }
 
+    /// <inheritdoc/>
     public GDID? ValueAsNullableGDID(GDID? dflt = null, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableGDID(dflt);
     }
 
+    /// <inheritdoc/>
     public DateTime ValueAsDateTime(DateTime dflt, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsDateTime(dflt);
     }
 
+    /// <inheritdoc/>
     public DateTime? ValueAsNullableDateTime(DateTime? dflt = null, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableDateTime(dflt);
     }
 
+    /// <inheritdoc/>
     public TimeSpan ValueAsTimeSpan(TimeSpan dflt, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsTimeSpan(dflt);
     }
 
+    /// <inheritdoc/>
     public TimeSpan? ValueAsNullableTimeSpan(TimeSpan? dflt = null, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableTimeSpan(dflt);
     }
 
+    /// <inheritdoc/>
     public TEnum ValueAsEnum<TEnum>(TEnum dflt = default(TEnum), bool verbatim = false) where TEnum : struct
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsEnum(dflt);
     }
 
+    /// <inheritdoc/>
     public TEnum? ValueAsNullableEnum<TEnum>(TEnum? dflt = null, bool verbatim = false) where TEnum : struct
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableEnum(dflt);
     }
 
+    /// <inheritdoc/>
     public Atom ValueAsAtom(Atom dflt, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsAtom(dflt);
     }
 
+    /// <inheritdoc/>
     public Atom? ValueAsNullableAtom(Atom? dflt = null, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
       return val.AsNullableAtom(dflt);
     }
 
+    /// <inheritdoc/>
     public Uri ValueAsUri(Uri dflt, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;
@@ -511,6 +565,7 @@ namespace Azos.Conf
       return Name.EqualsIgnoreCase(other);
     }
 
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format("{0}=\"{1}\" {2}", m_Name, m_Value != null ? m_Value : string.Empty, m_Modified ? "(modified)" : string.Empty);
@@ -541,12 +596,14 @@ namespace Azos.Conf
   {
     #region .ctor
 
+    /// <inheritdoc/>
     internal ConfigSectionNode(Configuration conf, ConfigSectionNode parent)
       : base(conf, parent)
     {
 
     }
 
+    /// <inheritdoc/>
     internal ConfigSectionNode(Configuration conf, ConfigSectionNode parent, string name, string value)
       : base(conf, parent, name, value)
     {
@@ -578,9 +635,11 @@ namespace Azos.Conf
       }
 
     }
+
     #endregion
 
     #region Private Fields
+
     internal ConfigSectionNodeList m_Children = new ConfigSectionNodeList();
     internal ConfigAttrNodeList m_Attributes = new ConfigAttrNodeList();
 
@@ -594,6 +653,7 @@ namespace Azos.Conf
     /// Internal field used for attaching temporary script state. do not use
     /// </summary>
     internal bool m_Script_Bool_Condition_Result;
+
     #endregion
 
 
@@ -776,11 +836,17 @@ namespace Azos.Conf
       }
     }
 
+    /// <summary>
+    /// Adds a new child section node to this node
+    /// </summary>
     public ConfigSectionNode AddChildNode(string name)
     {
       return AddChildNode(name, null);
     }
 
+    /// <summary>
+    /// Adds a new child section node to this node
+    /// </summary>
     public ConfigSectionNode AddChildNode(string name, object value)
     {
       return AddChildNode(name, value == null ? null : value.ToString());
@@ -984,11 +1050,20 @@ namespace Azos.Conf
       m_Modified = true;
     }
 
+    /// <summary>
+    /// Adds a new attribute node by string with a null value
+    /// </summary>
     public ConfigAttrNode AddAttributeNode(string name) => AddAttributeNode(name, null);
 
+    /// <summary>
+    /// Adds a new attribute node by string name and object value
+    /// </summary>
     public ConfigAttrNode AddAttributeNode(string name, object value)
       => AddAttributeNode(name, value == null ? null : value.ToString());
 
+    /// <summary>
+    /// Adds a new attribute node by string name and string value
+    /// </summary>
     public ConfigAttrNode AddAttributeNode(string name, string value)
     {
       checkCanModify();
@@ -1005,6 +1080,9 @@ namespace Azos.Conf
     IConfigAttrNode IConfigSectionNode.AttrByName(string name, bool autoCreate)
       => AttrByName(name, autoCreate);
 
+    /// <summary>
+    /// Returns attribute node by its name or empty attribute if real attribute with such index does not exist
+    /// </summary>
     public ConfigAttrNode AttrByName(string name, bool autoCreate = false)
     {
       ConfigAttrNode result;
@@ -1386,6 +1464,9 @@ namespace Azos.Conf
       return map;
     }
 
+    /// <summary>
+    /// Recursively builds up the supplied JsonDataMap from the specified ConfigSectionNode
+    /// </summary>
     private static void buildSectionMap(ConfigSectionNode node, JsonDataMap map)
     {
       foreach (var attr in node.Attributes)

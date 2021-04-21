@@ -167,6 +167,9 @@ namespace Azos.Conf
       }
     }
 
+    /// <summary>
+    /// Applies config values to fields/properties using the provided configuration section node
+    /// </summary>
     public virtual void Configure(IConfigSectionNode node)
     {
       ConfigAttribute.Apply(this, node);
@@ -177,6 +180,9 @@ namespace Azos.Conf
 
     #region Protected
 
+    /// <summary>
+    /// Executes the source configuration script against the target (StopWatch is passed along to track timout adherence)
+    /// </summary>
     protected virtual void DoNode(Stopwatch sw, ConfigSectionNode source, ConfigSectionNode target)
     {
       if (source == null || !source.Exists) return;
@@ -228,12 +234,18 @@ namespace Azos.Conf
       }
     }
 
+    /// <summary>
+    /// Executes a BLOCK statement configuration script against the target (StopWatch is passed along to track timout adherence)
+    /// </summary>
     protected virtual void DoBLOCK(Stopwatch sw, ConfigSectionNode blockStatement, ConfigSectionNode target)
     {
       InitStatement(blockStatement);
       DoNode(sw, blockStatement, target);
     }
 
+    /// <summary>
+    /// Executes an IF statement configuration script against the target (StopWatch is passed along to track timout adherence)
+    /// </summary>
     protected virtual void DoIF(Stopwatch sw, ConfigSectionNode ifStatement, ConfigSectionNode target)
     {
       InitStatement(ifStatement);
@@ -244,6 +256,9 @@ namespace Azos.Conf
       DoNode(sw, ifStatement, target);
     }
 
+    /// <summary>
+    /// Executes an ELSE statement configuration script against the target (StopWatch is passed along to track timout adherence)
+    /// </summary>
     protected virtual void DoELSE(Stopwatch sw, ConfigSectionNode elseStatement, ConfigSectionNode priorStatement, ConfigSectionNode target)
     {
 
@@ -258,6 +273,9 @@ namespace Azos.Conf
       DoNode(sw, elseStatement, target);
     }
 
+    /// <summary>
+    /// Executes a LOOP statement configuration script against the target (StopWatch is passed along to track timout adherence)
+    /// </summary>
     protected virtual void DoLOOP(Stopwatch sw, ConfigSectionNode loopStatement, ConfigSectionNode target)
     {
       InitStatement(loopStatement);
@@ -271,6 +289,9 @@ namespace Azos.Conf
       }
     }
 
+    /// <summary>
+    /// Executes a SET statement configuration script (StopWatch is passed along to track timout adherence)
+    /// </summary>
     protected virtual void DoSET(Stopwatch sw, ConfigSectionNode setStatement)
     {
       InitStatement(setStatement);
@@ -287,6 +308,9 @@ namespace Azos.Conf
       target.Value = to;
     }
 
+    /// <summary>
+    /// Executes a CALL statement configuration script against the target (StopWatch is passed along to track timout adherence)
+    /// </summary>
     protected virtual void DoCALL(Stopwatch sw, ConfigSectionNode callStatement, ConfigSectionNode target)
     {
       InitStatement(callStatement);
@@ -299,11 +323,17 @@ namespace Azos.Conf
       DoNode(sw, callTarget, target);
     }
 
+    /// <summary>
+    /// Sets the state of the configuration script to initialized
+    /// </summary>
     protected virtual void InitStatement(ConfigSectionNode statement)
     {
       statement.m_Script_Statement = true;
     }
 
+    /// <summary>
+    /// Virtual method used by the configuration script during IF and LOOP condition evaluations
+    /// </summary>
     protected virtual bool EvaluateBooleanConditionExpression(ConfigSectionNode exprContainer)
     {
       string expression = CoreConsts.UNKNOWN;
@@ -331,6 +361,9 @@ namespace Azos.Conf
 
     }
 
+    /// <summary>
+    /// Virtual method used in SET configuration script processing
+    /// </summary>
     protected virtual string EvaluateAnyExpression(ConfigSectionNode exprContainer, string expression)
     {
       try
@@ -348,6 +381,11 @@ namespace Azos.Conf
 
     }
 
+    /// <summary>
+    /// Virtual method using in DO configuration script processing.
+    /// If evaluate is "false" then each attribute is cloned by the Value
+    /// else if "true" then each attribute is cloned by the VerbatimValue
+    /// </summary>
     protected virtual void CloneAttributes(ConfigSectionNode from, ConfigSectionNode to, bool evaluate = false)
     {
       if (evaluate)
