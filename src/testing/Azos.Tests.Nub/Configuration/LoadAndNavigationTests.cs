@@ -17,18 +17,18 @@ namespace Azos.Tests.Nub.Configuration
     public void Memory_Create_Modify()
     {
       var cfg = new MemoryConfiguration();
-      Aver.IsFalse( cfg.Root.Exists, "root does not exist on newly create conf" );
-      Aver.IsFalse( cfg.IsReadOnly, "newly created config is not read only" );
+      Aver.IsFalse(cfg.Root.Exists, "root does not exist on newly create conf");
+      Aver.IsFalse(cfg.IsReadOnly, "newly created config is not read only");
 
       cfg.Create("meduza");
-      Aver.IsTrue( cfg.Root.Exists , "root.Exists after create");
+      Aver.IsTrue(cfg.Root.Exists, "root.Exists after create");
       Aver.AreEqual("meduza", cfg.Root.Name, "root name is set per create");
 
-      Aver.IsNull( cfg.Root.Value , "empty node value is null" );
+      Aver.IsNull(cfg.Root.Value, "empty node value is null");
       cfg.Root.Value = "abc";
       Aver.AreEqual("abc", cfg.Root.Value, "value not is gotten");
 
-      Aver.IsTrue( cfg.Root.Modified, "root is modified after value set");
+      Aver.IsTrue(cfg.Root.Modified, "root is modified after value set");
       cfg.Root.ResetModified();
       Aver.IsFalse(cfg.Root.Modified, "root is not modified after resetModified()");
     }
@@ -85,20 +85,18 @@ b=2
  }
 }".AsLaconicConfig();
 
-//Console.WriteLine(cfg.ToLaconicString());
-
       Aver.AreEqual("root", cfg.Name);
       Aver.IsTrue(cfg["sub-1"].Exists);
       Aver.IsFalse(cfg["absent"].Exists);
-      Aver.IsTrue(cfg["absent","sub-1"].Exists);
+      Aver.IsTrue(cfg["absent", "sub-1"].Exists);
       Aver.AreEqual("sub-1", cfg["sub-1"].Name);
-      Aver.AreEqual("sub-1", cfg["pizza","absent","sub-1"].Name);
+      Aver.AreEqual("sub-1", cfg["pizza", "absent", "sub-1"].Name);
       Aver.AreEqual("sub-1", cfg["pizza", "sub-1", "absent"].Name);
 
       Aver.AreEqual("sub-1-1", cfg["pizza", "sub-1", "absent"]["none", "sub-1-1"].Name);
 
       Aver.IsFalse(cfg.Navigate("/absent").Exists);
-      Aver.Throws<ConfigException>( ()=> cfg.Navigate("!/absent") );//! denotes requires path
+      Aver.Throws<ConfigException>(() => cfg.Navigate("!/absent"));//! denotes requires path
       Aver.IsTrue(cfg.Navigate("/").Exists);
       Aver.AreEqual("root", cfg.Navigate("/").Name);
 
@@ -163,7 +161,7 @@ b=2
       Aver.AreEqual("1001", cfg.AttrByName("v2").Value);
       Aver.AreEqual("kuku", cfg.AttrByName("v3").Value);
 
-      Aver.Throws<ConfigException>( () => { var hang = cfg.AttrByName("v4").Value; } );
+      Aver.Throws<ConfigException>(() => { var hang = cfg.AttrByName("v4").Value; });
       Aver.AreEqual("$($v44)", cfg.AttrByName("v4").VerbatimValue);//does not throw
 
       Aver.AreEqual("kuku", cfg.AttrByName("v5").Value);

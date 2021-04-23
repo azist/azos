@@ -290,14 +290,14 @@ root
           try
           {
             var v2 = attr.Value;//exception
-              }
+          }
           catch (Exception error)
           {
             Aver.IsTrue(error.Message.Contains("recursive vars"));
           }
 
-              //after exception, stack should cleanup and work again as expected
-              Aver.AreEqual("val1", conf.Root["vars"]["var1"].Value);
+          //after exception, stack should cleanup and work again as expected
+          Aver.AreEqual("val1", conf.Root["vars"]["var1"].Value);
         });
     }
 

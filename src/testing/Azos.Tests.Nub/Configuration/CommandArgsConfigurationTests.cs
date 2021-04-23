@@ -49,7 +49,7 @@ namespace Azos.Tests.Nub.Configuration
     [Run]
     public void Case2()
     {
-      var args = new[] {"exe", "1", "2", "3" , "-h", "ok=yes"};
+      var args = new[] { "exe", "1", "2", "3", "-h", "ok=yes" };
       var cfg = new CAC(args).Root;
 
       Aver.AreEqual(4, cfg.AttrCount);

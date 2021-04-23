@@ -5,9 +5,6 @@
 </FILE_LICENSE>*/
 
 
-using System;
-
-using Azos.Conf;
 using Azos.Data;
 using Azos.Scripting;
 
@@ -50,7 +47,7 @@ app=3
       Aver.AreEqual(123, cfg["a"].AttrByName("v").ValueAsInt());
 
       var json = cfg.ToJSONString();
-      Console.WriteLine(json);
+      json.See();
 
       cfg = json.AsJSONConfig(handling: ConvertErrorHandling.Throw);
       Aver.AreEqual(3, cfg.ValueAsInt());
@@ -82,7 +79,7 @@ app=3
       Aver.AreEqual(123, cfg["a"].AttrByName("v").ValueAsInt());
 
       var json = cfg.ToJSONString();
-      Console.WriteLine(json);
+      json.See();
 
       cfg = json.AsJSONConfig(handling: ConvertErrorHandling.Throw);
       Aver.AreEqual(3, cfg.ValueAsInt());
@@ -132,7 +129,7 @@ app=3
       Aver.AreEqual(3, cfg.ValueAsInt());
       Aver.AreEqual(1, cfg.AttrByName("a").ValueAsInt());
       Aver.AreEqual(1, cfg.AttrByIndex(0).ValueAsInt());
-      Aver.IsTrue( cfg.AttrByIndex(1).Exists);
+      Aver.IsTrue(cfg.AttrByIndex(1).Exists);
       Aver.AreEqual(null, cfg.AttrByIndex(1).Value);
       Aver.AreEqual(123, cfg["a"].AttrByName("v").ValueAsInt());
     }
