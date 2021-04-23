@@ -1464,9 +1464,7 @@ namespace Azos.Conf
       return map;
     }
 
-    /// <summary>
-    /// Recursively builds up the supplied JsonDataMap from the specified ConfigSectionNode
-    /// </summary>
+    // Recursively builds up the supplied JsonDataMap from the specified ConfigSectionNode
     private static void buildSectionMap(ConfigSectionNode node, JsonDataMap map)
     {
       foreach (var attr in node.Attributes)
