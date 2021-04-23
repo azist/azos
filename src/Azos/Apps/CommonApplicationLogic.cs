@@ -98,18 +98,12 @@ namespace Azos.Apps
 
       if (cmdLineArgs!=null && cmdLineArgs.Length>0)
       {
-        var acfg = new CommandArgsConfiguration(cmdLineArgs)
-        {
-          Application = this
-        };
+        var acfg = new CommandArgsConfiguration(cmdLineArgs) { Application = this };
         m_CommandArgs = acfg.Root;
       }
       else
       {
-        var acfg = new MemoryConfiguration
-        {
-          Application = this
-        };
+        var acfg = new MemoryConfiguration { Application = this };
         m_CommandArgs = acfg.Root;
       }
 

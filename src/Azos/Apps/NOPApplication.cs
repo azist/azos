@@ -100,7 +100,6 @@ namespace Azos.Apps
 
     #region IApplication Members
 
-
     public bool IsUnitTest => false;
 
     public string EnvironmentName => string.Empty;
@@ -165,70 +164,44 @@ namespace Azos.Apps
     public DateTime LocalizedTime => TimeSource.Now;
 
     public DateTime UniversalTimeToLocalizedTime(DateTime utc)
-    {
-      return TimeSource.UniversalTimeToLocalizedTime(utc);
-    }
+      => TimeSource.UniversalTimeToLocalizedTime(utc);
 
     public DateTime LocalizedTimeToUniversalTime(DateTime local)
-    {
-      return TimeSource.LocalizedTimeToUniversalTime(local);
-    }
+      => TimeSource.LocalizedTimeToUniversalTime(local);
 
     public ISession MakeNewSessionInstance(Guid sessionID, Security.User user = null)
-    {
-      return NOPSession.Instance;
-    }
+      => NOPSession.Instance;
 
     public bool RegisterConfigSettings(IConfigSettings settings)
-    {
-      return false;
-    }
+      => false;
 
     public bool UnregisterConfigSettings(IConfigSettings settings)
-    {
-      return false;
-    }
+      => false;
 
-    public void NotifyAllConfigSettingsAboutChange()
-    {
-
-    }
+    public void NotifyAllConfigSettingsAboutChange() { }
 
     public bool RegisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable)
-    {
-      return false;
-    }
+      => false;
 
     public bool UnregisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable)
-    {
-      return false;
-    }
+    => false;
 
-    public void Stop()
-    {
-
-    }
+    public void Stop() { }
 
     /// <summary>
     /// Returns a component by SID or null
     /// </summary>
     public IApplicationComponent GetComponentBySID(ulong sid)
-    {
-      return ApplicationComponent.GetAppComponentBySID(this, sid);
-    }
+      => ApplicationComponent.GetAppComponentBySID(this, sid);
 
     /// <summary>
     /// Returns an existing application component instance by its ComponentCommonName or null. The search is case-insensitive
     /// </summary>
     public IApplicationComponent GetComponentByCommonName(string name)
-    {
-      return ApplicationComponent.GetAppComponentByCommonName(this, name);
-    }
+      => ApplicationComponent.GetAppComponentByCommonName(this, name);
 
     public bool ResolveNamedVar(string name, out string value)
-    {
-      return DefaultAppVarResolver.ResolveNamedVar(this, name, out value);
-    }
+      => DefaultAppVarResolver.ResolveNamedVar(this, name, out value);
 
     public void SetConsolePort(IO.Console.IConsolePort port) { }
 
