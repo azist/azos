@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,58 +24,67 @@ namespace Azos.Data.Heap.Implementation
     internal Area(Heap director, IConfigSectionNode cfg) : base(director)
     {
       //build
-      //check Name for atom compliance
+      //check Name for Domains.id compliance
     }
 
-    public IHeap Heap => ComponentDirector;
+    protected override void Destructor()
+    {
+      base.Destructor();
+    }
+
+    private string m_Name;
+    private IServiceImplementation m_ServiceClient;
+    private List<INode> m_Nodes;
+    private INodeSelector m_NodeSelector;
+    private Dictionary<Type, ISpace> m_Spaces;
 
 
-    public IService ServiceClient => throw new NotImplementedException();
+    public string Name => m_Name;
+    public IHeap  Heap => ComponentDirector;
+    public override string ComponentLogTopic => CoreConsts.DATA_TOPIC;
+    public IService ServiceClient => m_ServiceClient;
 
     public IEnumerable<Type> ObjectTypes => throw new NotImplementedException();
-
     public IEnumerable<Type> QueryTypes => throw new NotImplementedException();
 
-    public string Name => throw new NotImplementedException();
+    public IEnumerable<INode> Nodes => m_Nodes;
+    public INodeSelector NodeSelector => m_NodeSelector;
 
-    public override string ComponentLogTopic => throw new NotImplementedException();
 
-    public bool InstrumentationEnabled { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public ISpace GetSpace(Type tObject)
+     => m_Spaces.TryGetValue(tObject.IsOfType<HeapObject>(nameof(tObject)), out var space)
+                   ? space
+                   : throw $"GetSpace(`{tObject.GetType().DisplayNameWithExpandedGenericArgs()})`".IsNotFound();
 
-    public IEnumerable<KeyValuePair<string, Type>> ExternalParameters => throw new NotImplementedException();
-
-    public IEnumerable<INode> Nodes => throw new NotImplementedException();
-
-    public INodeSelector NodeSelector => throw new NotImplementedException();
+    public ISpace<T> GetSpace<T>() where T : HeapObject
+     => m_Spaces.TryGetValue(typeof(T), out var space)
+                   ? space.CastTo<ISpace<T>>()
+                   : throw $"GetSpace(`{typeof(T).GetType().DisplayNameWithExpandedGenericArgs()})`".IsNotFound();
 
     public Task<SaveResult<object>> ExecuteAsync(HeapQuery query, Guid idempotencyToken = default(Guid), INode node = null)
     {
-      throw new NotImplementedException();
+      query.NonNull(nameof(query));
+      if (node==null) node = NodeSelector.ForLocal.First();
+
+      //...
+      return null;
     }
+
+
+    #region Instrumentation
+    public bool InstrumentationEnabled {get; set;}
+
+    public IEnumerable<KeyValuePair<string, Type>> ExternalParameters => ExternalParameterAttribute.GetParameters(this);
 
     public bool ExternalGetParameter(string name, out object value, params string[] groups)
-    {
-      throw new NotImplementedException();
-    }
+     => ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
 
     public IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups)
-    {
-      throw new NotImplementedException();
-    }
+     => ExternalParameterAttribute.GetParameters(this, groups);
 
     public bool ExternalSetParameter(string name, object value, params string[] groups)
-    {
-      throw new NotImplementedException();
-    }
+     =>  ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
+    #endregion
 
-    public ISpace GetSpace(Type tObject)
-    {
-      throw new NotImplementedException();
-    }
-
-    public ISpace<T> GetSpace<T>() where T : HeapObject
-    {
-      throw new NotImplementedException();
-    }
   }
 }

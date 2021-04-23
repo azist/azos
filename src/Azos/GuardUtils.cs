@@ -131,6 +131,23 @@ namespace Azos
     internal static string callSiteOf(string file, int line, string member)
     => "{2}@{0}:{1}".Args(file.IsNotNullOrWhiteSpace() ? System.IO.Path.GetFileName(file) : CoreConsts.UNKNOWN, line, member);
 
+
+    /// <summary>
+    /// Create a CallGuard exception instance for a not found clause. You may throw it on your own (e.g. in a ternary conditional expression)
+    /// </summary>
+    public static CallGuardException IsNotFound(this string name,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null)
+    {
+      var callSite = callSiteOf(callFile, callLine, callMember);
+      return new CallGuardException(callSite,
+                                    name,
+                                    StringConsts.GUARDED_CLAUSE_NOT_FOUND_ERROR
+                                                .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+    }
+
+
     /// <summary>
     /// Ensures that a value is not null
     /// </summary>

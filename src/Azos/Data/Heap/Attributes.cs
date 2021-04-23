@@ -9,11 +9,17 @@ using System.Reflection;
 
 namespace Azos.Data.Heap
 {
-
+  /// <summary>
+  /// Base for heap-related attributes
+  /// </summary>
   public abstract class HeapAttribute : Attribute
   {
-    private static Platform.FiniteSetLookup<Type, HeapAttribute> s_Cache = new Platform.FiniteSetLookup<Type, HeapAttribute>(t => t.GetCustomAttribute<HeapAttribute>(false));
+    private static Platform.FiniteSetLookup<Type, HeapAttribute> s_Cache =
+       new Platform.FiniteSetLookup<Type, HeapAttribute>(t => t.GetCustomAttribute<HeapAttribute>(false));
 
+    /// <summary>
+    /// Lookup a subtype of HeapAttribute on a type in an efficient way. Throws if such attribute decoration is not declared
+    /// </summary>
     public static T Lookup<T>(Type t) where T : HeapAttribute
     {
       var attr =  s_Cache[t.NonNull(nameof(t))];
@@ -53,7 +59,7 @@ namespace Azos.Data.Heap
     }
 
     /// <summary>
-    /// Name of data space (feature space)
+    /// Name of data space (feature space) bound to the decorated HeapObject type
     /// </summary>
     public string Space{ get; private set; }
 
@@ -81,7 +87,7 @@ namespace Azos.Data.Heap
     }
 
     /// <summary>
-    /// Name of heap procedure/handler
+    /// Name of heap procedure/handler on the server
     /// </summary>
     public string Name { get; private set; }
   }
