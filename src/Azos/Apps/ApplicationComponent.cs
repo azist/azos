@@ -4,11 +4,12 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Conf;
-using Azos.Instrumentation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using Azos.Conf;
+using Azos.Instrumentation;
 
 namespace Azos.Apps
 {
@@ -46,19 +47,16 @@ namespace Azos.Apps
     /// </summary>
     string ComponentCommonName { get; }
 
-
     /// <summary>
     /// Sets the log level for this component, if not defined then the component logger uses the director/log level
     /// via the ComponentEffectiveLogLevel property
     /// </summary>
     Log.MessageType? ComponentLogLevel { get; set; }
 
-
     /// <summary>
     /// Determines the effective log level for this component, taking it from director if it is not defined on this level
     /// </summary>
     Azos.Log.MessageType ComponentEffectiveLogLevel { get; }
-
 
     /// <summary>
     /// Returns  value for "Topic" log message field
@@ -206,7 +204,6 @@ namespace Azos.Apps
       }
     }
 
-
     /// <summary>
     /// References application that this component services
     /// </summary>
@@ -216,7 +213,6 @@ namespace Azos.Apps
     /// Returns process/instance unique app component system id
     /// </summary>
     public ulong ComponentSID => m_ComponentSID;
-
 
     /// <summary>
     /// Returns local computer time of component start (not from application container time)
@@ -250,12 +246,7 @@ namespace Azos.Apps
     /// Determines the effective log level for this component, taking it from director if it is not defined on this level
     /// </summary>
     public virtual Log.MessageType ComponentEffectiveLogLevel
-    {
-      get
-      {
-        return ComponentLogLevel ?? ComponentDirector?.ComponentEffectiveLogLevel ?? Log.MessageType.Info;
-      }
-    }
+      => ComponentLogLevel ?? ComponentDirector?.ComponentEffectiveLogLevel ?? Log.MessageType.Info;
 
     /// <summary>
     /// Returns  value for "Topic" log message field.
@@ -268,7 +259,6 @@ namespace Azos.Apps
     /// as the default uses class name concatenated with instance SID
     /// </summary>
     public virtual string ComponentLogFromPrefix => "{0}@{1}.".Args(GetType().DisplayNameWithExpandedGenericArgs(), m_ComponentSID);
-
 
     /// <summary>
     ///Returns an expected shutdown/deallocation/stop time duration expressed in ms.

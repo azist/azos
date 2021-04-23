@@ -1,6 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -28,18 +32,18 @@ namespace Azos.Tests.Nub.Application
     public async Task AmbientSessionContextFlow(int it, int delay)
     {
       var session = new BaseSession(Guid.NewGuid(), 0);
-      var user = new User(new IDPasswordCredentials("a","b"), new SysAuthToken(), "User1", Rights.None);
+      var user = new User(new IDPasswordCredentials("a", "b"), new SysAuthToken(), "User1", Rights.None);
       session.DataContextName = "abcd";
       session.User = user;
       ExecutionContext.__SetThreadLevelSessionContext(session);
 
       checkAmbientSession("User1");
 
-      for(var i = 0; i < it; i++)
+      for (var i = 0; i < it; i++)
       {
         await Task.Delay(delay)//note: Task.Yield() yields on the same thread if there is no load
-                  .ContinueWith( a =>  TaskUtils.LoadAllCoresFor(delay))
-                  .ContinueWith( a => checkAmbientSession("User1"));
+                  .ContinueWith(a => TaskUtils.LoadAllCoresFor(delay))
+                  .ContinueWith(a => checkAmbientSession("User1"));
       }
 
       //---------- switch user in-place --------------------

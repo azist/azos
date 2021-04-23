@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +38,6 @@ namespace Azos.Apps
     /// Creates a module under a parent module, such as HubModule
     /// </summary>
     protected ModuleBase(IModule parent) : base(parent) { }
-
 
     protected override void Destructor()
     {
@@ -76,7 +76,6 @@ namespace Azos.Apps
     public virtual bool InstrumentationEnabled { get; set; }
 
     public abstract bool IsHardcodedModule{ get; }
-
 
     public virtual TModule Get<TModule>(Func<TModule, bool> filter = null) where TModule : class, IModule
     {
@@ -211,7 +210,6 @@ namespace Azos.Apps
       return ExternalParameterAttribute.GetParameters(this);
     }
 
-
     protected virtual bool DoExternalGetParameter(string name, out object value, params string[] groups)
     {
       return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
@@ -226,8 +224,6 @@ namespace Azos.Apps
     {
       return ExternalParameterAttribute.GetParameters(this, groups);
     }
-
-
 
     /// <summary>
     /// Override to perform custom DI, the default implementation injects content into all child modules.

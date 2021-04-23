@@ -255,7 +255,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsTrue(error.InnerException.Message.Contains("Cyclical"));
         return;
       }
-      Aver.Fail("Did not get expected exception");
+      Aver.Fail(Constants.ERR_NOT_THROWN);
     }
 
     [Run]
@@ -272,7 +272,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsTrue(error.InnerException.Message.Contains("no matching"));
         return;
       }
-      Aver.Fail("Did not get expected exception");
+      Aver.Fail(Constants.ERR_NOT_THROWN);
     }
 
 

@@ -27,7 +27,7 @@ namespace Azos.Tests.Nub
           try
           {
             "app".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
-            Aver.Fail("No exception");
+            Aver.Fail(Constants.ERR_NOT_THROWN);
           }
           catch(Exception e) when (!(e is AvermentException))
           {
@@ -45,7 +45,7 @@ namespace Azos.Tests.Nub
           try
           {
             "bad".AsJSONConfig(handling: ConvertErrorHandling.Throw);
-            Aver.Fail("No exception");
+            Aver.Fail(Constants.ERR_NOT_THROWN);
           }
           catch (Exception e) when (!(e is AvermentException))
           {
@@ -557,7 +557,7 @@ namespace Azos.Tests.Nub
             try
             {
               "3rewtfef:4:5".AsGDID(new GDID(2,3,4), handling: ConvertErrorHandling.Throw);
-              Aver.Fail("No execpetion");
+              Aver.Fail(Constants.ERR_NOT_THROWN);
             }
             catch
             {
@@ -602,7 +602,7 @@ namespace Azos.Tests.Nub
             try
             {
               "3rewtfef:4:5".AsGDIDSymbol(link.AsGDIDSymbol, handling: ConvertErrorHandling.Throw);
-              Aver.Fail("No excepetion");
+              Aver.Fail(Constants.ERR_NOT_THROWN);
             }
             catch
             {

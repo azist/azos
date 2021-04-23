@@ -4,9 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System.Collections.Generic;
-
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Scripting;
@@ -55,7 +52,7 @@ namespace Azos.Tests.Nub.Application
     [Run]
     public void Test_ModuleInjectionAndOrdering()
     {
-      using( var app = new AzosApplication(null, BASE_CONF))
+      using (var app = new AzosApplication(null, BASE_CONF))
       {
         Aver.AreEqual(6, app.ModuleRoot.ChildModules.Count);
 
@@ -102,11 +99,11 @@ namespace Azos.Tests.Nub.Application
         logic = app.ModuleRoot.TryGet<IMyLogic>("s1");
         Aver.IsNull(logic);
 
-        Aver.Throws<AzosException>(() => app.ModuleRoot.Get<IMyLogic>("s1") );
+        Aver.Throws<AzosException>(() => app.ModuleRoot.Get<IMyLogic>("s1"));
 
         var svc = app.ModuleRoot.TryGet<IMyService>("s1");
         Aver.IsNotNull(svc);
-        Aver.IsTrue( svc is MyServiceA);
+        Aver.IsTrue(svc is MyServiceA);
 
         svc = app.ModuleRoot.TryGet<IMyService>("s2");
         Aver.IsNotNull(svc);
@@ -140,7 +137,7 @@ namespace Azos.Tests.Nub.Application
       public override bool IsHardcodedModule => false;
       public override string ComponentLogTopic => "testing";
 
-      [Config]public int Key {  get; set; }
+      [Config] public int Key { get; set; }
     }
 
     public class MyModuleB : ModuleBase, IMyLogic
@@ -168,7 +165,6 @@ namespace Azos.Tests.Nub.Application
       public override bool IsHardcodedModule => false;
       public override string ComponentLogTopic => "testing";
     }
-
 
   }
 }

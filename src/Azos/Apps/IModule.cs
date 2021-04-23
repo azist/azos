@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 
 namespace Azos.Apps
@@ -27,7 +28,6 @@ namespace Azos.Apps
     /// Enumerates an ordered collection of child modules and provides access by name
     /// </summary>
     Collections.IOrderedRegistry<IModule> ChildModules { get; }
-
 
     /// <summary>
     /// Gets a child module of the specified TModule type optionally applying a filter.

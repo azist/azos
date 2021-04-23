@@ -253,7 +253,7 @@ namespace Azos.Tests.Nub.BaseCollections
         Conout.WriteLine("Expected and got: " + error.ToMessageWithType());
         return;
       }
-      Aver.Fail("No expected exception");
+      Aver.Fail(Constants.ERR_NOT_THROWN);
     }
 
   }

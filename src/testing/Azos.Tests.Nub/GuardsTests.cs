@@ -33,7 +33,7 @@ namespace Azos.Tests.Nub
       try
       {
         x.NonNull();
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch(CallGuardException error)
       {
@@ -44,7 +44,7 @@ namespace Azos.Tests.Nub
       try
       {
         x.NonNull(nameof(x));
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch (CallGuardException error)
       {
@@ -94,7 +94,7 @@ namespace Azos.Tests.Nub
       try
       {
         x.IsOfType<Exception>();
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch (CallGuardException error)
       {
@@ -151,7 +151,7 @@ namespace Azos.Tests.Nub
       try
       {
         x.NonBlank();
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch (CallGuardException error)
       {
@@ -162,7 +162,7 @@ namespace Azos.Tests.Nub
       try
       {
         x.NonBlank(nameof(x));
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch (CallGuardException error)
       {
@@ -191,7 +191,7 @@ namespace Azos.Tests.Nub
       try
       {
         x.NonBlankMax(2, nameof(x));
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch (CallGuardException error)
       {
@@ -219,7 +219,7 @@ namespace Azos.Tests.Nub
       try
       {
         x.NonBlankMin(22, nameof(x));
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch (CallGuardException error)
       {
@@ -248,7 +248,7 @@ namespace Azos.Tests.Nub
       try
       {
         x.NonBlankMinMax(48, 64, nameof(x));
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch (CallGuardException error)
       {

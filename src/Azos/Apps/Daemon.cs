@@ -127,7 +127,6 @@ namespace Azos.Apps
       get { return UniversalTimeToLocalizedTime(App.TimeSource.UTCNow); }
     }
 
-
     #endregion
 
     #region Public
@@ -193,7 +192,6 @@ namespace Azos.Apps
           }
     }
 
-
     /// <summary>
     /// Non-blocking call that returns true when the daemon instance has completely stopped after SignalStop()
     /// </summary>
@@ -237,7 +235,6 @@ namespace Azos.Apps
           m_Status = DaemonStatus.Inactive;
       }
     }
-
 
     /// <summary>
     /// Accepts a visit of a manager entity - this call is useful for periodic updates of daemon status,
@@ -350,7 +347,6 @@ namespace Azos.Apps
     {
     }
 
-
     /// <summary>
     /// Provides implementation that configures daemon from configuration node (and possibly it's sub-nodes)
     /// </summary>
@@ -367,7 +363,6 @@ namespace Azos.Apps
         if (m_Status!=DaemonStatus.Active && m_Status!=DaemonStatus.Starting)
         throw new AzosException(StringConsts.DAEMON_INVALID_STATE + Name);
     }
-
 
     /// <summary>
     /// Checks that daemon is not active and returns the passed variable throwing otherwise. Used for one line property setters

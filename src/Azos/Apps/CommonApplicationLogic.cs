@@ -98,14 +98,12 @@ namespace Azos.Apps
 
       if (cmdLineArgs!=null && cmdLineArgs.Length>0)
       {
-        var acfg = new CommandArgsConfiguration(cmdLineArgs);
-        acfg.Application = this;
+        var acfg = new CommandArgsConfiguration(cmdLineArgs) { Application = this };
         m_CommandArgs = acfg.Root;
       }
       else
       {
-        var acfg = new MemoryConfiguration();
-        acfg.Application = this;
+        var acfg = new MemoryConfiguration { Application = this };
         m_CommandArgs = acfg.Root;
       }
 
@@ -356,7 +354,6 @@ namespace Azos.Apps
         }
     }
 
-
     /// <summary>
     /// Makes BaseSession instance
     /// </summary>
@@ -367,7 +364,6 @@ namespace Azos.Apps
 
         return result;
     }
-
 
     /// <summary>
     /// Registers an instance of IConfigSettings with application container to receive a call when
@@ -405,7 +401,6 @@ namespace Azos.Apps
         NotifyAllConfigSettingsAboutChange(m_ConfigRoot);
     }
 
-
     /// <summary>
     /// Registers an instance of IApplicationFinishNotifiable with application container to receive a call when
     ///  underlying application instance will finish its life cycle
@@ -435,7 +430,6 @@ namespace Azos.Apps
         lock(m_FinishNotifiables)
           return m_FinishNotifiables.Remove(notifiable);
     }
-
 
     /// <summary>
     /// Returns a component by SID or null
@@ -539,7 +533,6 @@ namespace Azos.Apps
       return conf;
     }
 
-
     protected IEnumerable<IApplicationStarter> GetStarters()
     {
       var snodes = m_ConfigRoot[CONFIG_STARTERS_SECTION].Children.Where(n=>n.IsSameName(CONFIG_STARTER_SECTION));
@@ -573,7 +566,6 @@ namespace Azos.Apps
         }
         return string.Empty;
     }
-
 
     /// <summary>
     /// Forces notification of all registered IConfigSettings-implementers about configuration change
