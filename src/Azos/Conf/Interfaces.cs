@@ -89,222 +89,354 @@ namespace Azos.Conf
     string RootPath { get; }
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as string
+    /// Returns node value as string performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     string ValueAsString(string dflt = null, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as a byte[]
+    /// Returns node value as byte[] performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     byte[] ValueAsByteArray(byte[] dflt = null, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as int[]
+    /// Returns node value as int[] performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     int[] ValueAsIntArray(int[] dflt = null, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as long[]
+    /// Returns node value as long[] performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     long[] ValueAsLongArray(long[] dflt = null, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as float[]
+    /// Returns node value as float[] performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     float[] ValueAsFloatArray(float[] dflt = null, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as double[]
+    /// Returns node value as double[] performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     double[] ValueAsDoubleArray(double[] dflt = null, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as decimal[]
+    /// Returns node value as decimal[] performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     decimal[] ValueAsDecimalArray(decimal[] dflt = null, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as short
+    /// Returns node value as short performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     short ValueAsShort(short dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as short?
+    /// Returns node value as short? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     short? ValueAsNullableShort(short? dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as ushort
+    /// Returns node value as ushort performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     ushort ValueAsUShort(ushort dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as ushort?
+    /// Returns node value as ushort? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     ushort? ValueAsNullableUShort(ushort? dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as byte
+    /// Returns node value as byte performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     byte ValueAsByte(byte dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as byte?
+    /// Returns node value as byte? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     byte? ValueAsNullableByte(byte? dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as sbyte
+    /// Returns node value as sbyte performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     sbyte ValueAsSByte(sbyte dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as sbyte?
+    /// Returns node value as sbyte? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     sbyte? ValueAsNullableSByte(sbyte? dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as int
+    /// Returns node value as int performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     int ValueAsInt(int dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as int?
+    /// Returns node value as int? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     int? ValueAsNullableInt(int? dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as uint
+    /// Returns node value as uint performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     uint ValueAsUInt(uint dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as uint?
+    /// Returns node value as uint? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     uint? ValueAsNullableUInt(uint? dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as long
+    /// Returns node value as long performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     long ValueAsLong(long dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as long?
+    /// Returns node value as long? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     long? ValueAsNullableLong(long? dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as ulong
+    /// Returns node value as ulong performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     ulong ValueAsULong(ulong dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as ulong?
+    /// Returns node value as ulong? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     ulong? ValueAsNullableULong(ulong? dflt = 0, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as double
+    /// Returns node value as double performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     double ValueAsDouble(double dflt = 0d, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as double?
+    /// Returns node value as double? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     double? ValueAsNullableDouble(double? dflt = 0d, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as float
+    /// Returns node value as float performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     float ValueAsFloat(float dflt = 0f, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as float?
+    /// Returns node value as float? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     float? ValueAsNullableFloat(float? dflt = 0f, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as decimal
+    /// Returns node value as decimal performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     decimal ValueAsDecimal(decimal dflt = 0m, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as decimal?
+    /// Returns node value as decimal? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     decimal? ValueAsNullableDecimal(decimal? dflt = 0m, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as bool
+    /// Returns node value as bool performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     bool ValueAsBool(bool dflt = false, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as  bool?
+    /// Returns node value as bool? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     bool? ValueAsNullableBool(bool? dflt = false, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as Guid
+    /// Returns node value as Guid performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     Guid ValueAsGUID(Guid dflt, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as Guid?
+    /// Returns node value as Guid? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     Guid? ValueAsNullableGUID(Guid? dflt = null, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as GDID
+    /// Returns node value as GDID performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     GDID ValueAsGDID(GDID dflt, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as GDID?
+    /// Returns node value as GDID? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     GDID? ValueAsNullableGDID(GDID? dflt = null, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as DateTime
+    /// Returns node value as DateTime performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     DateTime ValueAsDateTime(DateTime dflt, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as DateTime?
+    /// Returns node value as DateTime? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     DateTime? ValueAsNullableDateTime(DateTime? dflt = null, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as TimeSpan
+    /// Returns node value as TimeSpan performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     TimeSpan ValueAsTimeSpan(TimeSpan dflt, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as TimeSpan?
+    /// Returns node value as TimeSpan? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     TimeSpan? ValueAsNullableTimeSpan(TimeSpan? dflt = null, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as TEnum
+    /// Returns node value as TEnum performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     TEnum ValueAsEnum<TEnum>(TEnum dflt = default(TEnum), bool verbatim = false) where TEnum : struct;
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as TEnum?
+    /// Returns node value as TEnum? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     TEnum? ValueAsNullableEnum<TEnum>(TEnum? dflt = null, bool verbatim = false) where TEnum : struct;
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as Atom
+    /// Returns node value as Atom performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     Atom ValueAsAtom(Atom dflt, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as Atom?
-    /// </summary>
+    /// Returns node value as Atom? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
+    /// </summary>>
     Atom? ValueAsNullableAtom(Atom? dflt = null, bool verbatim = false);
 
     /// <summary>
-    /// Returns the value (or verbatim value if specified) or the specified default value as Uri
+    /// Returns node value as Uri performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
     Uri ValueAsUri(Uri dflt, bool verbatim = false);
 
