@@ -88,7 +88,6 @@ namespace Azos.Apps
       }
     }
 
-
     /// <summary>
     /// Framework internal app bootstrapping method.
     /// Sets root application context

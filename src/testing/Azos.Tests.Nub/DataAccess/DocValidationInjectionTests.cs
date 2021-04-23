@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 
 using Azos.Apps;
@@ -145,7 +144,7 @@ namespace Azos.Tests.Nub.DataAccess
           Aver.IsTrue( fve.Message.Contains("list"));
         }
         else
-          Aver.Fail("Not a FVExcp");
+          Aver.Fail(Constants.ERR_NOT_FVEXCP);
 
 
         doc.S1 = "key";
@@ -182,7 +181,7 @@ namespace Azos.Tests.Nub.DataAccess
           Aver.IsTrue(fve.Message.Contains("list"));
         }
         else
-          Aver.Fail("Not a FVExcp");
+          Aver.Fail(Constants.ERR_NOT_FVEXCP);
 
 
         doc.D2.S1 = "key";
@@ -221,7 +220,7 @@ namespace Azos.Tests.Nub.DataAccess
           Aver.IsTrue(fve.Message.Contains("min"));
         }
         else
-          Aver.Fail("Not a FVExcp");
+          Aver.Fail(Constants.ERR_NOT_FVEXCP);
 
 
         doc.IMin= 5000;
@@ -247,7 +246,7 @@ namespace Azos.Tests.Nub.DataAccess
           Aver.IsTrue(fve.Message.Contains("list"));
         }
         else
-          Aver.Fail("Not a FVExcp");
+          Aver.Fail(Constants.ERR_NOT_FVEXCP);
 
 
         doc.DArray[0].D1.S1="key";
@@ -301,7 +300,7 @@ namespace Azos.Tests.Nub.DataAccess
           Aver.IsTrue(fve.Message.Contains("min"));
         }
         else
-          Aver.Fail("Not a FVExcp");
+          Aver.Fail(Constants.ERR_NOT_FVEXCP);
 
 
         doc.IMin = 5000;
@@ -327,7 +326,7 @@ namespace Azos.Tests.Nub.DataAccess
           Aver.IsTrue(fve.Message.Contains("list"));
         }
         else
-          Aver.Fail("Not a FVExcp");
+          Aver.Fail(Constants.ERR_NOT_FVEXCP);
 
 
         ((DocCompositeField)doc.DList[0]).D1.S1 = "key";
@@ -381,7 +380,7 @@ namespace Azos.Tests.Nub.DataAccess
           Aver.IsTrue(fve.Message.Contains("min"));
         }
         else
-          Aver.Fail("Not a FVExcp");
+          Aver.Fail(Constants.ERR_NOT_FVEXCP);
 
 
         doc.IMin = 5000;
@@ -408,7 +407,7 @@ namespace Azos.Tests.Nub.DataAccess
           Aver.IsTrue(fve.Message.Contains("list"));
         }
         else
-          Aver.Fail("Not a FVExcp");
+          Aver.Fail(Constants.ERR_NOT_FVEXCP);
 
 
         doc.DDict["a"].D1.S1 = "key";

@@ -11,7 +11,6 @@ using System.Linq;
 
 using Azos.Apps.Injection;
 using Azos.Apps.Volatile;
-
 using Azos.Log;
 using Azos.Instrumentation;
 using Azos.Conf;
@@ -111,7 +110,6 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
       InitDependencyInjector();//10.  custom dep injector last
 
 
-
       //After all inits apply the behavior top the root
       try
       {
@@ -165,7 +163,6 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
                  "  -> Component: {0}  '{1}'  '{2}' ".Args(cmp.ComponentSID, cmp.GetType().FullName, cmp.ComponentCommonName),
                  related: related);
     }
-
 
     //Must be called first to boot log before all other components
     protected virtual void InitLog()
@@ -247,7 +244,6 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
       }
     }
 
-
     protected virtual void InitEventTimer()
     {
       var node = m_ConfigRoot[CONFIG_EVENT_TIMER_SECTION];
@@ -315,7 +311,6 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
         throw new AzosException(msg, error);
       }
     }
-
 
     protected virtual void InitDataStore()
     {

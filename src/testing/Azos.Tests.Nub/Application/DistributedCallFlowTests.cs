@@ -4,13 +4,11 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+
 using Azos.Apps;
-using Azos.Conf;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
 
@@ -87,7 +85,6 @@ namespace Azos.Tests.Nub.Application
       Aver.AreEqual(start, flow.ID);
       Aver.AreEqual("my-entrypoint-A", flow.CallerPort);
     }
-
 
     [Run]
     public async Task Test003_ExecuteBlockAsync()

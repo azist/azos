@@ -484,7 +484,7 @@ namespace Azos.Tests.Nub.Configuration
       try
       {
         var crash = conf.AttrByName("b").Value;
-        Aver.Fail("We should have received an exception about config var limit");
+        Aver.Fail(Constants.ERR_NOT_THROWN); // We should have received an exception about config var limit
       }
       catch (ConfigException error)
       {

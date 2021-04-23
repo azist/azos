@@ -4,13 +4,11 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System;
-
 using Azos.Apps;
 using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Scripting;
+using Azos.Tests.Nub;
 
 namespace Azos.Tests.Nub.Application
 {
@@ -71,7 +69,7 @@ namespace Azos.Tests.Nub.Application
           return;
         }
 
-        Aver.Fail("Expected exception was not thrown");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
     }
 
@@ -103,7 +101,7 @@ namespace Azos.Tests.Nub.Application
           return;
         }
 
-        Aver.Fail("Expected exception was not thrown"); //because NeedsBoth requires A and B
+        Aver.Fail(Constants.ERR_NOT_THROWN); //because NeedsBoth requires A and B
       }
     }
 

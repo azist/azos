@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -69,7 +70,6 @@ namespace Azos.Apps
     {
       this.ForEach( s => { if (s is IDisposable d) d.Dispose(); } );
     }
-
 
     private object m_Lock = new object();
     private volatile Dictionary<Type, object> m_Instances = new Dictionary<Type, object>();

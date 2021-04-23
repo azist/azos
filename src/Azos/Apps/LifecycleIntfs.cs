@@ -8,32 +8,31 @@
 namespace Azos.Apps
 {
 #warning Replace with modules, no need for this anymore
+  /// <summary>
+  /// Represents an entity that performs work on application start.
+  /// This entity must be either invoked directly or declared in config file under "starters" section
+  /// </summary>
+  public interface IApplicationStarter : Conf.IConfigurable, Collections.INamed
+  {
     /// <summary>
-    /// Represents an entity that performs work on application start.
-    /// This entity must be either invoked directly or declared in config file under "starters" section
+    /// Indicates whether an exception that leaks from starter method invocation should break the application start,
+    ///  or just get logged
     /// </summary>
-    public interface IApplicationStarter : Conf.IConfigurable, Collections.INamed
-    {
-        /// <summary>
-        /// Indicates whether an exception that leaks from starter method invocation should break the application start,
-        ///  or just get logged
-        /// </summary>
-        bool ApplicationStartBreakOnException { get; }
+    bool ApplicationStartBreakOnException { get; }
 
-        void ApplicationStartBeforeInit(IApplication application);
+    void ApplicationStartBeforeInit(IApplication application);
 
-        void ApplicationStartAfterInit(IApplication application);
-    }
-
+    void ApplicationStartAfterInit(IApplication application);
+  }
 
 #warning Needs review, is this needed anymore?
-    /// <summary>
-    /// Represents an entity that can get notified about application finish
-    /// </summary>
-    public interface IApplicationFinishNotifiable : Collections.INamed
-    {
-        void ApplicationFinishBeforeCleanup(IApplication application);
-        void ApplicationFinishAfterCleanup(IApplication application);
-    }
+  /// <summary>
+  /// Represents an entity that can get notified about application finish
+  /// </summary>
+  public interface IApplicationFinishNotifiable : Collections.INamed
+  {
+    void ApplicationFinishBeforeCleanup(IApplication application);
+    void ApplicationFinishAfterCleanup(IApplication application);
+  }
 
 }

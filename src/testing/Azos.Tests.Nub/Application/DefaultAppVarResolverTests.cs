@@ -4,9 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
-using System.Collections.Generic;
 
 using Azos.Apps;
 using Azos.Data;
@@ -70,7 +68,6 @@ namespace Azos.Tests.Nub.Application
       Aver.IsFalse(DefaultAppVarResolver.ResolveNamedVar(NOPApplication.Instance, "dsfsadfsadfsa", out got));
       Aver.AreEqual("", got);
     }
-
 
     [Run]
     public void Test_Counter()
