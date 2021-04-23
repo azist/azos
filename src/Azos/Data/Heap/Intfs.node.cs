@@ -79,12 +79,12 @@ namespace Azos.Data.Heap
   /// <summary>
   /// Represents data heap server node
   /// </summary>
-  public interface IServerNode
+  public interface IServerNodeContext
   {
     /// <summary>
-    /// Globally-unique cluster node identifier. Every HeapObject instance gets Sys_VerNode stamp by the server
+    /// Logical node
     /// </summary>
-    Atom NodeId     { get; }
+    INode Node     { get; }
 
     /// <summary>
     /// Cluster host name, such as sky regional catalog path e.g. `/world/us/east/cle/db/z1/lmed002.h`
@@ -96,10 +96,10 @@ namespace Azos.Data.Heap
     /// </summary>
     DateTime UtcNow { get; }
 
-    /// <summary>
-    /// Returns the data partitioning handler which performs shard routing of heap data
-    /// </summary>
-    Router Sharding { get; }
+    ///// <summary>
+    ///// Returns the data partitioning handler which performs shard routing of heap data
+    ///// </summary>
+    //Router Sharding { get; }
 
     //todo: Storage backend - each node may have its own storage engine, e.g. we can have a node which is used only as backup/archive
     //so it does no take writes or queries, but only replicates data to a file-based log locally

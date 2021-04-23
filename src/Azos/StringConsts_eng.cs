@@ -441,6 +441,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string GUARDED_ACTION_SCOPE_ERROR =
         "Guarded action {0} threw: {1}";
 
+    public const string GUARDED_CLAUSE_NOT_FOUND_ERROR =
+        "Guarded method '{0}' item '{1}' is not found";
+
     public const string GUARDED_CLAUSE_MAY_NOT_BE_NULL_ERROR =
         "Guarded method '{0}' clause '{1}' may not be null";
 

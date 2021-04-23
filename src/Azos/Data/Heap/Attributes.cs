@@ -5,18 +5,38 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Reflection;
 
 namespace Azos.Data.Heap
 {
-
+  /// <summary>
+  /// Base for heap-related attributes
+  /// </summary>
   public abstract class HeapAttribute : Attribute
   {
-    private static Platform.FiniteSetLookup<Type, HeapAttribute> s_Cache = new Platform.FiniteSetLookup<Type, HeapAttribute>( t => null);
+    private static Platform.FiniteSetLookup<Type, HeapAttribute> s_Cache =
+       new Platform.FiniteSetLookup<Type, HeapAttribute>(t => t.GetCustomAttribute<HeapAttribute>(false));
 
-    public static T Lookup<T>(Type t) => s_Cache[t.NonNull(nameof(t))].CastTo<T>();
+    /// <summary>
+    /// Lookup a subtype of HeapAttribute on a type in an efficient way. Throws if such attribute decoration is not declared
+    /// </summary>
+    public static T Lookup<T>(Type t) where T : HeapAttribute
+    {
+      var attr =  s_Cache[t.NonNull(nameof(t))];
+      var result = attr as T;
+      if (result == null)
+      {
+        var site = $"{nameof(HeapAttribute)}.{nameof(Lookup)}";
+        var td = typeof(T).DisplayNameWithExpandedGenericArgs();
+        throw new CallGuardException(site,
+                                     td,
+                                     "{0}: `{1}` is not decorated with `[{2}]`".Args(site, t.DisplayNameWithExpandedGenericArgs(), td));
+      }
+      return result;
+    }
 
 
-    public HeapAttribute(string area)
+    protected HeapAttribute(string area)
     {
       Area = area.CheckId(nameof(area));
     }
@@ -39,7 +59,7 @@ namespace Azos.Data.Heap
     }
 
     /// <summary>
-    /// Name of data space (feature space)
+    /// Name of data space (feature space) bound to the decorated HeapObject type
     /// </summary>
     public string Space{ get; private set; }
 
@@ -67,7 +87,7 @@ namespace Azos.Data.Heap
     }
 
     /// <summary>
-    /// Name of heap procedure/handler
+    /// Name of heap procedure/handler on the server
     /// </summary>
     public string Name { get; private set; }
   }

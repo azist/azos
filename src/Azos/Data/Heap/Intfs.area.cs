@@ -52,7 +52,6 @@ namespace Azos.Data.Heap
     /// </summary>
     Client.IService ServiceClient {  get; }
 
-
     /// <summary>
     /// Returns a heap space for the specified object type
     /// </summary>
