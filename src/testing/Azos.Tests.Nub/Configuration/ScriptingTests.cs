@@ -4,17 +4,14 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Linq;
-
 using Azos.Conf;
 using Azos.Scripting;
 
 namespace Azos.Tests.Nub.Configuration
 {
-    [Runnable]
-    public class ScriptingTests
-    {
+  [Runnable]
+  public class ScriptingTests
+  {
 
     const string src1 =
 @"
@@ -61,8 +58,8 @@ root
 }//root
 ";
 
- const string expected1=
-@"root
+    const string expected1 =
+   @"root
 {
   a=12
   b=true
@@ -142,23 +139,23 @@ root
 
 
 
-        [Run]
-        public void VarsLoopIfElseCall()
-        {
-          var src = Azos.Conf.LaconicConfiguration.CreateFromString(src1);
-          var result = new Azos.Conf.LaconicConfiguration();
+    [Run]
+    public void VarsLoopIfElseCall()
+    {
+      var src = Azos.Conf.LaconicConfiguration.CreateFromString(src1);
+      var result = new Azos.Conf.LaconicConfiguration();
 
-          new ScriptRunner().Execute(src, result);
+      new ScriptRunner().Execute(src, result);
 
-          var got =  result.SaveToString();
-          Console.WriteLine( got );
-          Aver.AreEqual(expected1.ToWindowsLines(), got.ToWindowsLines());
-        }
+      var got = result.SaveToString();
+      got.See();
+      Aver.AreEqual(expected1.ToWindowsLines(), got.ToWindowsLines());
+    }
 
-        [Run]
-        public void ExprEval1_TernaryIf()
-        {
-          var src = Azos.Conf.LaconicConfiguration.CreateFromString(
+    [Run]
+    public void ExprEval1_TernaryIf()
+    {
+      var src = Azos.Conf.LaconicConfiguration.CreateFromString(
 @"
 root
 {
@@ -176,21 +173,21 @@ root
    }
 }
 ");
-          var result = new Azos.Conf.LaconicConfiguration();
+      var result = new Azos.Conf.LaconicConfiguration();
 
-          new ScriptRunner().Execute(src, result);
+      new ScriptRunner().Execute(src, result);
 
-          var got =  result.SaveToString();
-          Console.WriteLine( got );
+      var got = result.SaveToString();
+      got.See();
 
-          Aver.AreEqual(115, result.Root["RESULT"].ValueAsInt());
-        }
+      Aver.AreEqual(115, result.Root["RESULT"].ValueAsInt());
+    }
 
 
-        [Run]
-        public void ExprEval1_TernaryIfWithMixingTypes()
-        {
-          var src = Azos.Conf.LaconicConfiguration.CreateFromString(
+    [Run]
+    public void ExprEval1_TernaryIfWithMixingTypes()
+    {
+      var src = Azos.Conf.LaconicConfiguration.CreateFromString(
 @"
 root
 {
@@ -208,55 +205,55 @@ root
    }
 }
 ");
-          var result = new Azos.Conf.LaconicConfiguration();
+      var result = new Azos.Conf.LaconicConfiguration();
 
-          new ScriptRunner().Execute(src, result);
+      new ScriptRunner().Execute(src, result);
 
-          var got =  result.SaveToString();
-          Console.WriteLine( got );
+      var got = result.SaveToString();
+      got.See();
 
-          Aver.AreEqual("275.4kozel", result.Root["RESULT"].Value);
-        }
+      Aver.AreEqual("275.4kozel", result.Root["RESULT"].Value);
+    }
 
 
 
-        [Run]
-        [Aver.Throws(typeof(ConfigException), Message="which does not exist")]
-        public void Error_SetVarDoesNotExist()
-        {
-          var src = Azos.Conf.LaconicConfiguration.CreateFromString(
+    [Run]
+    [Aver.Throws(typeof(ConfigException), Message = "which does not exist")]
+    public void Error_SetVarDoesNotExist()
+    {
+      var src = Azos.Conf.LaconicConfiguration.CreateFromString(
 @"
 root
 {
        _set{ path=/NONE to=5+5 }
 }
 ");
-          var result = new Azos.Conf.LaconicConfiguration();
+      var result = new Azos.Conf.LaconicConfiguration();
 
-          new ScriptRunner().Execute(src, result);
-        }
+      new ScriptRunner().Execute(src, result);
+    }
 
-        [Run]
-        [Aver.Throws(typeof(ConfigException), Message="is not after IF")]
-        public void Error_ELSEWithoutIF()
-        {
-          var src = Azos.Conf.LaconicConfiguration.CreateFromString(
+    [Run]
+    [Aver.Throws(typeof(ConfigException), Message = "is not after IF")]
+    public void Error_ELSEWithoutIF()
+    {
+      var src = Azos.Conf.LaconicConfiguration.CreateFromString(
 @"
 root
 {
        _else{  }
 }
 ");
-          var result = new Azos.Conf.LaconicConfiguration();
+      var result = new Azos.Conf.LaconicConfiguration();
 
-          new ScriptRunner().Execute(src, result);
-        }
+      new ScriptRunner().Execute(src, result);
+    }
 
-        [Run]
-        [Aver.Throws(typeof(ConfigException), Message="is not after IF")]
-        public void Error_ELSEWithoutIF2()
-        {
-          var src = Azos.Conf.LaconicConfiguration.CreateFromString(
+    [Run]
+    [Aver.Throws(typeof(ConfigException), Message = "is not after IF")]
+    public void Error_ELSEWithoutIF2()
+    {
+      var src = Azos.Conf.LaconicConfiguration.CreateFromString(
 @"
 root
 {
@@ -265,35 +262,35 @@ root
        _else{  }
 }
 ");
-          var result = new Azos.Conf.LaconicConfiguration();
+      var result = new Azos.Conf.LaconicConfiguration();
 
-          new ScriptRunner().Execute(src, result);
-        }
+      new ScriptRunner().Execute(src, result);
+    }
 
 
-        [Run]
-        [Aver.Throws(typeof(ConfigException), Message="exceeded allowed timeout")]
-        public void Error_Timeout()
-        {
-          var src = Azos.Conf.LaconicConfiguration.CreateFromString(
+    [Run]
+    [Aver.Throws(typeof(ConfigException), Message = "exceeded allowed timeout")]
+    public void Error_Timeout()
+    {
+      var src = Azos.Conf.LaconicConfiguration.CreateFromString(
 @"
 root
 {
        _loop=true {}
 }
 ");
-          var result = new Azos.Conf.LaconicConfiguration();
+      var result = new Azos.Conf.LaconicConfiguration();
 
-          new ScriptRunner().Execute(src, result);
-        }
-
-
+      new ScriptRunner().Execute(src, result);
+    }
 
 
-        [Run]
-        public void SectionNameWithVar()
-        {
-          var src = Azos.Conf.LaconicConfiguration.CreateFromString(
+
+
+    [Run]
+    public void SectionNameWithVar()
+    {
+      var src = Azos.Conf.LaconicConfiguration.CreateFromString(
 @"
 root
 {
@@ -305,21 +302,21 @@ root
        }
 }
 ");
-          var result = new Azos.Conf.LaconicConfiguration();
+      var result = new Azos.Conf.LaconicConfiguration();
 
-          new ScriptRunner().Execute(src, result);
+      new ScriptRunner().Execute(src, result);
 
-          var got =  result.SaveToString();
-          Console.WriteLine( got );
+      var got = result.SaveToString();
+      got.See();
 
-          Aver.AreEqual("section_0", result.Root[0].Name);
-          Aver.AreEqual("section_9", result.Root[9].Name);
-          Aver.IsFalse( result.Root[10].Exists);
+      Aver.AreEqual("section_0", result.Root[0].Name);
+      Aver.AreEqual("section_9", result.Root[9].Name);
+      Aver.IsFalse(result.Root[10].Exists);
 
-        }
+    }
 
 
-const string rschema=@"
+    const string rschema = @"
 schema{
     PK_COLUMN=counter
     table=patient
@@ -349,8 +346,8 @@ schema{
 
 }";
 
-const string rschemaExpected=
-@"schema
+    const string rschemaExpected =
+    @"schema
 {
   PK_COLUMN=counter
   table=patient
@@ -414,24 +411,24 @@ const string rschemaExpected=
 }";
 
 
-        [Run]
-        public void RSchema()
-        {
-          var src = Azos.Conf.LaconicConfiguration.CreateFromString( rschema );
-          var result = new Azos.Conf.LaconicConfiguration();
+    [Run]
+    public void RSchema()
+    {
+      var src = Azos.Conf.LaconicConfiguration.CreateFromString(rschema);
+      var result = new Azos.Conf.LaconicConfiguration();
 
-          new ScriptRunner().Execute(src, result);
+      new ScriptRunner().Execute(src, result);
 
-          var got =  result.SaveToString();
-          Console.WriteLine( got );
-          Aver.AreEqual(rschemaExpected.ToWindowsLines(), got.ToWindowsLines());
-        }
+      var got = result.SaveToString();
+      got.See();
+      Aver.AreEqual(rschemaExpected.ToWindowsLines(), got.ToWindowsLines());
+    }
 
 
-        [Run]
-        public void LoopWithRealArithmetic()
-        {
-          var src = Azos.Conf.LaconicConfiguration.CreateFromString(
+    [Run]
+    public void LoopWithRealArithmetic()
+    {
+      var src = Azos.Conf.LaconicConfiguration.CreateFromString(
 @"
 root
 {
@@ -443,25 +440,25 @@ root
        }
 }
 ");
-          var result = new Azos.Conf.LaconicConfiguration();
+      var result = new Azos.Conf.LaconicConfiguration();
 
-          new ScriptRunner().Execute(src, result);
+      new ScriptRunner().Execute(src, result);
 
-          var got =  result.SaveToString();
-          Console.WriteLine( got );
+      var got = result.SaveToString();
+      got.See();
 
-          Aver.AreEqual("section_0", result.Root[0].Name);
-          Aver.AreEqual("section_0.2", result.Root[1].Name);
-          Aver.AreEqual("section_0.4", result.Root[2].Name);
-          Aver.AreEqual("section_0.6", result.Root[3].Name);
-          Aver.AreEqual("section_0.8", result.Root[4].Name);
-          Aver.AreEqual("section_1", result.Root[5].Name);
-          Aver.AreEqual("section_1.2", result.Root[6].Name);
-          Aver.IsFalse( result.Root[7].Exists);
-
-        }
-
+      Aver.AreEqual("section_0", result.Root[0].Name);
+      Aver.AreEqual("section_0.2", result.Root[1].Name);
+      Aver.AreEqual("section_0.4", result.Root[2].Name);
+      Aver.AreEqual("section_0.6", result.Root[3].Name);
+      Aver.AreEqual("section_0.8", result.Root[4].Name);
+      Aver.AreEqual("section_1", result.Root[5].Name);
+      Aver.AreEqual("section_1.2", result.Root[6].Name);
+      Aver.IsFalse(result.Root[7].Exists);
 
     }
+
+
+  }
 
 }

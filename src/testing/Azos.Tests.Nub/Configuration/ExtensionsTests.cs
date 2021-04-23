@@ -1,7 +1,11 @@
-﻿using Azos.Scripting;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+
+using Azos.Scripting;
 
 namespace Azos.Tests.Nub.Configuration
 {
@@ -86,7 +90,7 @@ namespace Azos.Tests.Nub.Configuration
       Aver.AreEqual("-1", cfg.ValOf("a", "z"));
       Aver.AreEqual("-2", cfg.ValOf("b", "z"));
       Aver.AreEqual("-2", cfg.ValOf("z", "b"));
-      Aver.AreEqual(null, cfg.ValOf("z","_"));
+      Aver.AreEqual(null, cfg.ValOf("z", "_"));
     }
 
     [Run]

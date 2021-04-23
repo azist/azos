@@ -86,7 +86,8 @@ namespace Azos.Conf
     }
 
     /// <summary>
-    /// Returns the item by named key value
+    /// Gets the value by key (returns null if not found)
+    /// or Sets the value (adds or updates if already existing)
     /// </summary>
     public string this[string name]
     {
@@ -102,8 +103,7 @@ namespace Azos.Conf
         {
           var data = new VarsDictionary(m_Data);
 
-          string existing;
-          if (data.TryGetValue(name, out existing)) data[name] = value;
+          if (data.TryGetValue(name, out string existing)) data[name] = value;
           else data.Add(name, value);
 
           m_Data = data;
@@ -126,7 +126,7 @@ namespace Azos.Conf
     }
 
     /// <summary>
-    /// Clears all items in the collection
+    /// Clears all environment variables from the resolution scope
     /// </summary>
     public void Clear() { m_Data = new VarsDictionary(); }
 
