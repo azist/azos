@@ -50,7 +50,7 @@ namespace Azos.Data.Heap
     /// <summary>
     /// Client used to connect to service
     /// </summary>
-    Client.IService ServiceClient {  get; }
+    Client.IHttpService ServiceClient {  get; }
 
     /// <summary>
     /// Returns a heap space for the specified object type
