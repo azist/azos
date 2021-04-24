@@ -41,6 +41,10 @@ namespace Azos.Data.Heap
       Area = area.CheckId(nameof(area));
     }
 
+    /// <summary>
+    /// Area Id. The value has to comply with Heap Id requirement: ASCII-only number or digit with either dash or underscore separators.
+    /// The Ids are case-insensitive but their case is preserved as-is
+    /// </summary>
     public string Area { get; private set; }
   }
 
@@ -59,7 +63,9 @@ namespace Azos.Data.Heap
     }
 
     /// <summary>
-    /// Name of data space (feature space) bound to the decorated HeapObject type
+    /// Name of data space (feature space) bound to the decorated HeapObject type.
+    /// The value has to comply with Heap Id requirement: ASCII-only number or digit with either dash or underscore separators.
+    /// The Ids are case-insensitive but their case is preserved as-is
     /// </summary>
     public string Space{ get; private set; }
 
@@ -87,7 +93,8 @@ namespace Azos.Data.Heap
     }
 
     /// <summary>
-    /// Name of heap procedure/handler on the server
+    /// Name of heap procedure/handler on the server.
+    /// The name is not case-sensitive within heap
     /// </summary>
     public string Name { get; private set; }
   }

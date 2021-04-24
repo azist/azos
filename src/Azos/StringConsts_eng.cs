@@ -1141,5 +1141,15 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string STRAT_BINDING_MATCH_ERROR =
       "Strategy binding error: contract `{0}` failed to match context `{1}`. Revise assembly bindings and strategy traits/pattern matching decorations";
 
+    public const string DATA_HEAP_AREA_BINDING_ERROR =
+      "The area binding of `{0}` does not correspond to the area `{1}` being configured. \n" +
+      "Same area object declarations must not mix other area objects in their namespaces. \n" +
+      "Carefully revise declarations - if you incorrectly change mapping for exiting heap area/spaces the system may experience data loss";
+
+    public const string DATA_HEAP_SPACE_BINDING_ERROR =
+      "Area `{0}` space `{1}` is already used by `{2}` however `{3}` tries to bind to the same space as well. \n" +
+      "There can only be one object type bound to a unique space id within an area. \n" +
+      "Carefully revise declarations - if you incorrectly change mapping for exiting heap area/spaces the system may experience data loss";
+
   }
 }
