@@ -4,8 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Linq;
+
 using Azos.Data;
 using Azos.Scripting;
 
@@ -114,9 +114,9 @@ namespace Azos.Tests.Nub
     public void VarLength()
     {
       var x = Atom.Encode("a");
-      Console.WriteLine(x.ToString());
+      x.ToString().See();
       var y = Atom.Encode("ab");
-      Console.WriteLine(y.ToString());
+      y.ToString().See();
 
       Aver.AreEqual(0x61ul, x.ID);
       Aver.AreEqual(0x6261ul, y.ID);

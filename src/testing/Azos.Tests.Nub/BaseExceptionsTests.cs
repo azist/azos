@@ -8,7 +8,6 @@ using System;
 using System.IO;
 
 using Azos.Scripting;
-
 using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Nub
@@ -56,10 +55,9 @@ namespace Azos.Tests.Nub
           ms.Position = 0;
 
           var bin = ms.ToArray();
-          Console.WriteLine();
-          Console.WriteLine($"Bin {bin.Length} bytes:");
-          Console.WriteLine($"-----------------------------");
-          Console.WriteLine(bin.ToDumpString(DumpFormat.Hex));
+          $"\r\nBin {bin.Length} bytes:".See();
+          $"-----------------------------".See();
+          bin.ToDumpString(DumpFormat.Hex).See();
 
           var wed2 = ser.Deserialize(ms) as WrappedExceptionData;
           averWrappedExceptionEquality(wed, wed2);

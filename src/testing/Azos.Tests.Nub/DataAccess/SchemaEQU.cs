@@ -4,12 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Data;
 using Azos.Scripting;
@@ -17,82 +13,74 @@ using Azos.Serialization.Slim;
 
 namespace Azos.Tests.Nub.DataAccess
 {
-    [Runnable]
-    public class SchemaEQU
+  [Runnable]
+  public class SchemaEQU
+  {
+    [Run]
+    public void TypedRows()
     {
+      var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
 
-        [Run]
-        public void TypedRows()
-        {
-            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
+      tbl.Insert(new Person
+      {
+        ID = "POP1",
+        FirstName = "Oleg",
+        LastName = "Popov-1",
+        DOB = new DateTime(1953, 12, 10),
+        YearsInSpace = 12
+      });
 
+      var ser = new SlimSerializer();
+      using (var ms = new MemoryStream())
+      {
+        ser.Serialize(ms, tbl);
 
-             tbl.Insert( new Person{
-                                    ID = "POP1",
-                                    FirstName = "Oleg",
-                                    LastName = "Popov-1",
-                                    DOB = new DateTime(1953, 12, 10),
-                                    YearsInSpace = 12
-                                   });
+        ms.Position = 0;
 
-            var ser = new SlimSerializer();
-            using(var ms = new MemoryStream())
-            {
-                ser.Serialize(ms, tbl);
+        var tbl2 = ser.Deserialize(ms) as Table;
 
-                ms.Position = 0;
+        Aver.IsNotNull(tbl2);
+        Aver.IsFalse(object.ReferenceEquals(tbl, tbl2));
 
-                var tbl2 = ser.Deserialize(ms) as Table;
+        Aver.IsFalse(object.ReferenceEquals(tbl.Schema, tbl2.Schema));
 
-                Aver.IsNotNull( tbl2 );
-                Aver.IsFalse( object.ReferenceEquals(tbl ,tbl2) );
-
-                Aver.IsFalse( object.ReferenceEquals(tbl.Schema ,tbl2.Schema) );
-
-
-                Aver.IsTrue( tbl.Schema.IsEquivalentTo(tbl2.Schema));
-            }
-        }
-
-
-        [Run]
-        public void DynamicRows()
-        {
-            var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
-
-
-                var row = new DynamicDoc( tbl.Schema );
-
-                row["ID"] = "POP1";
-                row["FirstName"] = "Oleg";
-                row["LastName"] = "Popov-1";
-                row["DOB"] = new DateTime(1953, 12, 10);
-                row["YearsInSpace"] = 12;
-
-                tbl.Insert( row );
-
-
-            var ser = new SlimSerializer();
-            using(var ms = new MemoryStream())
-            {
-                ser.Serialize(ms, tbl);
-
-                ms.Position = 0;
-
-                var tbl2 = ser.Deserialize(ms) as Table;
-
-                Aver.IsNotNull( tbl2 );
-                Aver.IsFalse( object.ReferenceEquals(tbl ,tbl2) );
-
-                Aver.IsFalse( object.ReferenceEquals(tbl.Schema ,tbl2.Schema) );
-
-                Aver.IsTrue( tbl.Schema.IsEquivalentTo(tbl2.Schema));
-            }
-        }
-
-
-
-
-
+        Aver.IsTrue(tbl.Schema.IsEquivalentTo(tbl2.Schema));
+      }
     }
+
+
+    [Run]
+    public void DynamicRows()
+    {
+      var tbl = new Table(Schema.GetForTypedDoc(typeof(Person)));
+
+      var row = new DynamicDoc(tbl.Schema);
+
+      row["ID"] = "POP1";
+      row["FirstName"] = "Oleg";
+      row["LastName"] = "Popov-1";
+      row["DOB"] = new DateTime(1953, 12, 10);
+      row["YearsInSpace"] = 12;
+
+      tbl.Insert(row);
+
+      var ser = new SlimSerializer();
+      using (var ms = new MemoryStream())
+      {
+        ser.Serialize(ms, tbl);
+
+        ms.Position = 0;
+
+        var tbl2 = ser.Deserialize(ms) as Table;
+
+        Aver.IsNotNull(tbl2);
+        Aver.IsFalse(object.ReferenceEquals(tbl, tbl2));
+
+        Aver.IsFalse(object.ReferenceEquals(tbl.Schema, tbl2.Schema));
+
+        Aver.IsTrue(tbl.Schema.IsEquivalentTo(tbl2.Schema));
+      }
+    }
+
+  }
 }

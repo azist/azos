@@ -4,11 +4,9 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Text;
 
 using Azos.Scripting;
-
 using Azos.CodeAnalysis;
 using Azos.CodeAnalysis.Source;
 using Azos.CodeAnalysis.Laconfig;
@@ -18,300 +16,292 @@ namespace Azos.Tests.Nub.CodeAnalysis
   [Runnable]
   public class LJSParserTests
   {
-      [Run]
-      public void Case_1()
-      {
-         var src = "div=divRoot{ }";
+    [Run]
+    public void Case_1()
+    {
+      var src = "div=divRoot{ }";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.AreEqual("divRoot", root.TranspilerPragma);
-        Aver.AreEqual(0, root.Children.Length);
-      }
+      Aver.AreEqual("div", root.Name);
+      Aver.AreEqual("divRoot", root.TranspilerPragma);
+      Aver.AreEqual(0, root.Children.Length);
+    }
 
-      [Run]
-      public void Case_2()
-      {
-         var src = "div=divRoot{ span1=s1{} span2{} }";
+    [Run]
+    public void Case_2()
+    {
+      var src = "div=divRoot{ span1=s1{} span2{} }";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.AreEqual("divRoot", root.TranspilerPragma);
-        Aver.AreEqual(2, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.AreEqual("divRoot", root.TranspilerPragma);
+      Aver.AreEqual(2, root.Children.Length);
 
+      Aver.AreEqual("span1", root.Children[0].Name);
+      Aver.IsTrue(root.Children[0] is LJSSectionNode);
+      Aver.AreEqual("s1", ((LJSSectionNode)root.Children[0]).TranspilerPragma);
+      Aver.AreEqual(0, ((LJSSectionNode)root.Children[0]).Children.Length);
 
-        Aver.AreEqual("span1", root.Children[0].Name);
-        Aver.IsTrue(root.Children[0] is LJSSectionNode);
-        Aver.AreEqual("s1", ((LJSSectionNode)root.Children[0]).TranspilerPragma);
-        Aver.AreEqual(0, ((LJSSectionNode)root.Children[0]).Children.Length);
+      Aver.AreEqual("span2", root.Children[1].Name);
+      Aver.IsTrue(root.Children[1] is LJSSectionNode);
+      Aver.IsNull(((LJSSectionNode)root.Children[1]).TranspilerPragma);
+      Aver.AreEqual(0, ((LJSSectionNode)root.Children[1]).Children.Length);
+    }
 
-        Aver.AreEqual("span2", root.Children[1].Name);
-        Aver.IsTrue(root.Children[1] is LJSSectionNode);
-        Aver.IsNull( ((LJSSectionNode)root.Children[1]).TranspilerPragma);
-        Aver.AreEqual(0, ((LJSSectionNode)root.Children[1]).Children.Length);
-      }
+    [Run]
+    public void Case_3()
+    {
+      var src = "div=divRoot{ span1=s1{} span2{ a{} b{} c{}} }";
 
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-      [Run]
-      public void Case_3()
-      {
-         var src = "div=divRoot{ span1=s1{} span2{ a{} b{} c{}} }";
+      parser.Parse();
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var root = parser.ResultContext.ResultObject.Root;
 
-        parser.Parse();
+      dump(root);
 
-        var root = parser.ResultContext.ResultObject.Root;
+      Aver.AreEqual("div", root.Name);
+      Aver.AreEqual("divRoot", root.TranspilerPragma);
+      Aver.AreEqual(2, root.Children.Length);
 
-        dump(root);
+      Aver.AreEqual("span1", root.Children[0].Name);
+      Aver.IsTrue(root.Children[0] is LJSSectionNode);
+      Aver.AreEqual("s1", ((LJSSectionNode)root.Children[0]).TranspilerPragma);
+      Aver.AreEqual(0, ((LJSSectionNode)root.Children[0]).Children.Length);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.AreEqual("divRoot", root.TranspilerPragma);
-        Aver.AreEqual(2, root.Children.Length);
+      Aver.AreEqual("span2", root.Children[1].Name);
+      Aver.IsTrue(root.Children[1] is LJSSectionNode);
+      Aver.IsNull(((LJSSectionNode)root.Children[1]).TranspilerPragma);
+      Aver.AreEqual(3, ((LJSSectionNode)root.Children[1]).Children.Length);
 
+      Aver.AreEqual("a", ((LJSSectionNode)root.Children[1]).Children[0].Name);
+      Aver.AreEqual("b", ((LJSSectionNode)root.Children[1]).Children[1].Name);
+      Aver.AreEqual("c", ((LJSSectionNode)root.Children[1]).Children[2].Name);
+    }
 
-        Aver.AreEqual("span1", root.Children[0].Name);
-        Aver.IsTrue(root.Children[0] is LJSSectionNode);
-        Aver.AreEqual("s1", ((LJSSectionNode)root.Children[0]).TranspilerPragma);
-        Aver.AreEqual(0, ((LJSSectionNode)root.Children[0]).Children.Length);
+    [Run]
+    public void Case_4()
+    {
+      var src = "div{  }";
 
-        Aver.AreEqual("span2", root.Children[1].Name);
-        Aver.IsTrue(root.Children[1] is LJSSectionNode);
-        Aver.IsNull( ((LJSSectionNode)root.Children[1]).TranspilerPragma);
-        Aver.AreEqual(3, ((LJSSectionNode)root.Children[1]).Children.Length);
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        Aver.AreEqual("a", ((LJSSectionNode)root.Children[1]).Children[0].Name);
-        Aver.AreEqual("b", ((LJSSectionNode)root.Children[1]).Children[1].Name);
-        Aver.AreEqual("c", ((LJSSectionNode)root.Children[1]).Children[2].Name);
+      parser.Parse();
 
-      }
+      var root = parser.ResultContext.ResultObject.Root;
 
+      dump(root);
 
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(0, root.Children.Length);
+    }
 
+    [Run]
+    public void Case_5()
+    {
+      var src = "'div'{  }";
 
-      [Run]
-      public void Case_4()
-      {
-         var src = "div{  }";
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      parser.Parse();
 
-        parser.Parse();
+      var root = parser.ResultContext.ResultObject.Root;
 
-        var root = parser.ResultContext.ResultObject.Root;
+      dump(root);
 
-        dump(root);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(0, root.Children.Length);
+    }
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(0, root.Children.Length);
-      }
+    [Run]
+    public void Case_6()
+    {
+      var src = "div{ atr=val  }";
 
-      [Run]
-      public void Case_5()
-      {
-         var src = "'div'{  }";
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      parser.Parse();
 
-        parser.Parse();
+      var root = parser.ResultContext.ResultObject.Root;
 
-        var root = parser.ResultContext.ResultObject.Root;
+      dump(root);
 
-        dump(root);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(1, root.Children.Length);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(0, root.Children.Length);
-      }
+      Aver.IsTrue(root.Children[0] is LJSAttributeNode);
+      Aver.AreEqual("atr", ((LJSAttributeNode)root.Children[0]).Name);
+      Aver.AreEqual("val", ((LJSAttributeNode)root.Children[0]).Value);
+    }
 
-      [Run]
-      public void Case_6()
-      {
-         var src = "div{ atr=val  }";
+    [Run]
+    public void Case_7()
+    {
+      var src = "div{ atr=val sub{ }  }";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(1, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(2, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSAttributeNode );
-        Aver.AreEqual("atr", ((LJSAttributeNode)root.Children[0]).Name);
-        Aver.AreEqual("val", ((LJSAttributeNode)root.Children[0]).Value);
-      }
+      Aver.IsTrue(root.Children[0] is LJSAttributeNode);
+      Aver.AreEqual("atr", ((LJSAttributeNode)root.Children[0]).Name);
+      Aver.AreEqual("val", ((LJSAttributeNode)root.Children[0]).Value);
 
-      [Run]
-      public void Case_7()
-      {
-         var src = "div{ atr=val sub{ }  }";
+      Aver.IsTrue(root.Children[1] is LJSSectionNode);
+      Aver.AreEqual("sub", ((LJSSectionNode)root.Children[1]).Name);
+      Aver.AreEqual(0, ((LJSSectionNode)root.Children[1]).Children.Length);
+    }
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+    [Run]
+    public void Case_8()
+    {
+      var src = "div{ \"string content\" }";
 
-        parser.Parse();
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        var root = parser.ResultContext.ResultObject.Root;
+      parser.Parse();
 
-        dump(root);
+      var root = parser.ResultContext.ResultObject.Root;
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(2, root.Children.Length);
+      dump(root);
 
-        Aver.IsTrue( root.Children[0] is LJSAttributeNode );
-        Aver.AreEqual("atr", ((LJSAttributeNode)root.Children[0]).Name);
-        Aver.AreEqual("val", ((LJSAttributeNode)root.Children[0]).Value);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(1, root.Children.Length);
 
-        Aver.IsTrue( root.Children[1] is LJSSectionNode );
-        Aver.AreEqual("sub", ((LJSSectionNode)root.Children[1]).Name);
-        Aver.AreEqual(0, ((LJSSectionNode)root.Children[1]).Children.Length);
-      }
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("string content", ((LJSContentNode)root.Children[0]).Content);
+    }
 
+    [Run]
+    public void Case_9()
+    {
+      var src = "div{ string content }";
 
-      [Run]
-      public void Case_8()
-      {
-         var src = "div{ \"string content\" }";
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      parser.Parse();
 
-        parser.Parse();
+      var root = parser.ResultContext.ResultObject.Root;
 
-        var root = parser.ResultContext.ResultObject.Root;
+      dump(root);
 
-        dump(root);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(1, root.Children.Length);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(1, root.Children.Length);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("string content", ((LJSContentNode)root.Children[0]).Content);
+    }
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("string content", ((LJSContentNode)root.Children[0]).Content);
-      }
+    [Run]
+    public void Case_10()
+    {
+      var src = "div{ string \"content\" }";
 
-      [Run]
-      public void Case_9()
-      {
-         var src = "div{ string content }";
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      parser.Parse();
 
-        parser.Parse();
+      var root = parser.ResultContext.ResultObject.Root;
 
-        var root = parser.ResultContext.ResultObject.Root;
+      dump(root);
 
-        dump(root);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(1, root.Children.Length);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(1, root.Children.Length);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("string content", ((LJSContentNode)root.Children[0]).Content);
+    }
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("string content", ((LJSContentNode)root.Children[0]).Content);
-      }
+    [Run]
+    public void Case_11()
+    {
+      var src = "div{ string \"content\" subsection{} another text}";
 
-      [Run]
-      public void Case_10()
-      {
-         var src = "div{ string \"content\" }";
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      parser.Parse();
 
-        parser.Parse();
+      var root = parser.ResultContext.ResultObject.Root;
 
-        var root = parser.ResultContext.ResultObject.Root;
+      dump(root);
 
-        dump(root);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(3, root.Children.Length);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(1, root.Children.Length);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("string content", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("string content", ((LJSContentNode)root.Children[0]).Content);
-      }
+      Aver.IsTrue(root.Children[1] is LJSSectionNode);
+      Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
 
-      [Run]
-      public void Case_11()
-      {
-        var src = "div{ string \"content\" subsection{} another text}";
+      Aver.IsTrue(root.Children[2] is LJSContentNode);
+      Aver.AreEqual("another text", ((LJSContentNode)root.Children[2]).Content);
+    }
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
-
-        parser.Parse();
-
-        var root = parser.ResultContext.ResultObject.Root;
-
-        dump(root);
-
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(3, root.Children.Length);
-
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("string content", ((LJSContentNode)root.Children[0]).Content);
-
-        Aver.IsTrue( root.Children[1] is LJSSectionNode );
-        Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
-
-        Aver.IsTrue( root.Children[2] is LJSContentNode );
-        Aver.AreEqual("another text", ((LJSContentNode)root.Children[2]).Content);
-      }
-
-      [Run]
-      public void Case_11_1()
-      {
-         var src = @"div{ 
+    [Run]
+    public void Case_11_1()
+    {
+      var src = @"div{ 
            string ""content""
            subsection{}
            another text}";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(3, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(3, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("string content", ((LJSContentNode)root.Children[0]).Content);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("string content", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[1] is LJSSectionNode );
-        Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
+      Aver.IsTrue(root.Children[1] is LJSSectionNode);
+      Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
 
-        Aver.IsTrue( root.Children[2] is LJSContentNode );
-        Aver.AreEqual("another text", ((LJSContentNode)root.Children[2]).Content);
-      }
+      Aver.IsTrue(root.Children[2] is LJSContentNode);
+      Aver.AreEqual("another text", ((LJSContentNode)root.Children[2]).Content);
+    }
 
-      [Run]
-      public void Case_12()
-      {
-         var src =
+    [Run]
+    public void Case_12()
+    {
+      var src =
 @"
   div{
    string ""con = 2 - 3 tent""
@@ -320,33 +310,32 @@ namespace Azos.Tests.Nub.CodeAnalysis
   }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(3, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(3, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("string con = 2 - 3 tent", ((LJSContentNode)root.Children[0]).Content);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("string con = 2 - 3 tent", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[1] is LJSSectionNode );
-        Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
+      Aver.IsTrue(root.Children[1] is LJSSectionNode);
+      Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
 
-        Aver.IsTrue( root.Children[2] is LJSContentNode );
-        Aver.AreEqual("here is another text about the writer of", ((LJSContentNode)root.Children[2]).Content);
-      }
+      Aver.IsTrue(root.Children[2] is LJSContentNode);
+      Aver.AreEqual("here is another text about the writer of", ((LJSContentNode)root.Children[2]).Content);
+    }
 
-
-      [Run]
-      public void Case_13()
-      {
-         var src =
+    [Run]
+    public void Case_13()
+    {
+      var src =
 @"
   div{
    string ""con = 2 - 3 tent""
@@ -357,33 +346,32 @@ namespace Azos.Tests.Nub.CodeAnalysis
   }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(3, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(3, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("string con = 2 - 3 tent", ((LJSContentNode)root.Children[0]).Content);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("string con = 2 - 3 tent", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[1] is LJSSectionNode );
-        Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
+      Aver.IsTrue(root.Children[1] is LJSSectionNode);
+      Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
 
-        Aver.IsTrue( root.Children[2] is LJSContentNode );
-        Aver.AreEqual("here is another text about the writer of 'Odesskie Mansy' and other stuff", ((LJSContentNode)root.Children[2]).Content);
-      }
+      Aver.IsTrue(root.Children[2] is LJSContentNode);
+      Aver.AreEqual("here is another text about the writer of 'Odesskie Mansy' and other stuff", ((LJSContentNode)root.Children[2]).Content);
+    }
 
-
-      [Run]
-      public void Case_14()
-      {
-         var src =
+    [Run]
+    public void Case_14()
+    {
+      var src =
 @"
   div{
    string ""con = 2 - 3 tent""
@@ -397,38 +385,37 @@ line 3""
   }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(3, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(3, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("string con = 2 - 3 tent", ((LJSContentNode)root.Children[0]).Content);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("string con = 2 - 3 tent", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[1] is LJSSectionNode );
-        Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
-        Aver.AreEqual(1, ((LJSSectionNode)root.Children[1]).Children.Length);
-        Aver.IsTrue(((LJSSectionNode)root.Children[1]).Children[0] is LJSContentNode);
-        Aver.AreEqual(@"we shall see verbatim strings with many lines
+      Aver.IsTrue(root.Children[1] is LJSSectionNode);
+      Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
+      Aver.AreEqual(1, ((LJSSectionNode)root.Children[1]).Children.Length);
+      Aver.IsTrue(((LJSSectionNode)root.Children[1]).Children[0] is LJSContentNode);
+      Aver.AreEqual(@"we shall see verbatim strings with many lines
 line 2
 line 3", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Children[0]).Content);
 
-        Aver.IsTrue( root.Children[2] is LJSContentNode );
-        Aver.AreEqual("here is another text about the writer of 'Odesskie Mansy' and other stuff", ((LJSContentNode)root.Children[2]).Content);
-      }
+      Aver.IsTrue(root.Children[2] is LJSContentNode);
+      Aver.AreEqual("here is another text about the writer of 'Odesskie Mansy' and other stuff", ((LJSContentNode)root.Children[2]).Content);
+    }
 
-
-      [Run]
-      public void Case_15()
-      {
-         var src =
+    [Run]
+    public void Case_15()
+    {
+      var src =
 @"
   div{
    string ""con = 2 - 3 tent""
@@ -443,38 +430,37 @@ line 3 ending //more comments
   }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(3, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(3, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("string con = 2 - 3 tent", ((LJSContentNode)root.Children[0]).Content);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("string con = 2 - 3 tent", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[1] is LJSSectionNode );
-        Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
-        Aver.AreEqual(1, ((LJSSectionNode)root.Children[1]).Children.Length);
-        Aver.IsTrue(((LJSSectionNode)root.Children[1]).Children[0] is LJSContentNode);
-        Aver.AreEqual(@"we shall see verbatim strings with many lines
+      Aver.IsTrue(root.Children[1] is LJSSectionNode);
+      Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
+      Aver.AreEqual(1, ((LJSSectionNode)root.Children[1]).Children.Length);
+      Aver.IsTrue(((LJSSectionNode)root.Children[1]).Children[0] is LJSContentNode);
+      Aver.AreEqual(@"we shall see verbatim strings with many lines
 line 2
 line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Children[0]).Content);
 
-        Aver.IsTrue( root.Children[2] is LJSContentNode );
-        Aver.AreEqual("here is another text about the writer of 'Odesskie Mansy' and other stuff", ((LJSContentNode)root.Children[2]).Content);
-      }
+      Aver.IsTrue(root.Children[2] is LJSContentNode);
+      Aver.AreEqual("here is another text about the writer of 'Odesskie Mansy' and other stuff", ((LJSContentNode)root.Children[2]).Content);
+    }
 
-
-      [Run]
-      public void Case_16()
-      {
-         var src =
+    [Run]
+    public void Case_16()
+    {
+      var src =
 @"
   div{
   # script 1.1
@@ -486,32 +472,32 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
   }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(3, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(3, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSScriptNode );
-        Aver.AreEqual(" script 1.1\n script 1.2", ((LJSScriptNode)root.Children[0]).Script);
+      Aver.IsTrue(root.Children[0] is LJSScriptNode);
+      Aver.AreEqual(" script 1.1\n script 1.2", ((LJSScriptNode)root.Children[0]).Script);
 
-        Aver.IsTrue( root.Children[1] is LJSSectionNode );
-        Aver.AreEqual("span", ((LJSSectionNode)root.Children[1]).Name);
+      Aver.IsTrue(root.Children[1] is LJSSectionNode);
+      Aver.AreEqual("span", ((LJSSectionNode)root.Children[1]).Name);
 
-        Aver.IsTrue( root.Children[2] is LJSScriptNode );
-        Aver.AreEqual(" script 2\n   script 3\nscript # 4 // script comment", ((LJSScriptNode)root.Children[2]).Script);
-      }
+      Aver.IsTrue(root.Children[2] is LJSScriptNode);
+      Aver.AreEqual(" script 2\n   script 3\nscript # 4 // script comment", ((LJSScriptNode)root.Children[2]).Script);
+    }
 
-      [Run]
-      public void Case_17()
-      {
-         var src =
+    [Run]
+    public void Case_17()
+    {
+      var src =
 @"
   div{
   text content
@@ -519,29 +505,29 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
  }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(2, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(2, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("text content", ((LJSContentNode)root.Children[0]).Content);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("text content", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[1] is LJSScriptNode );
-        Aver.AreEqual(" script content", ((LJSScriptNode)root.Children[1]).Script);
-      }
+      Aver.IsTrue(root.Children[1] is LJSScriptNode);
+      Aver.AreEqual(" script content", ((LJSScriptNode)root.Children[1]).Script);
+    }
 
-      [Run]
-      public void Case_17_1()
-      {
-         var src =
+    [Run]
+    public void Case_17_1()
+    {
+      var src =
 @"
   div=id{
   text content
@@ -549,29 +535,29 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
  }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.AreEqual("id", root.TranspilerPragma);
-        Aver.AreEqual(2, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.AreEqual("id", root.TranspilerPragma);
+      Aver.AreEqual(2, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("text content", ((LJSContentNode)root.Children[0]).Content);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("text content", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[1] is LJSScriptNode );
-        Aver.AreEqual(" script content", ((LJSScriptNode)root.Children[1]).Script);
-      }
+      Aver.IsTrue(root.Children[1] is LJSScriptNode);
+      Aver.AreEqual(" script content", ((LJSScriptNode)root.Children[1]).Script);
+    }
 
-      [Run]
-      public void Case_18()
-      {
-         var src =
+    [Run]
+    public void Case_18()
+    {
+      var src =
 @"
   div=id{
   text content
@@ -580,32 +566,32 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
  }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.AreEqual("id", root.TranspilerPragma);
-        Aver.AreEqual(3, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.AreEqual("id", root.TranspilerPragma);
+      Aver.AreEqual(3, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("text content", ((LJSContentNode)root.Children[0]).Content);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("text content", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[1] is LJSScriptNode );
-        Aver.AreEqual(" script content", ((LJSScriptNode)root.Children[1]).Script);
+      Aver.IsTrue(root.Children[1] is LJSScriptNode);
+      Aver.AreEqual(" script content", ((LJSScriptNode)root.Children[1]).Script);
 
-        Aver.IsTrue( root.Children[2] is LJSSectionNode );
-        Aver.AreEqual("sect", ((LJSSectionNode)root.Children[2]).Name);
-      }
+      Aver.IsTrue(root.Children[2] is LJSSectionNode);
+      Aver.AreEqual("sect", ((LJSSectionNode)root.Children[2]).Name);
+    }
 
-      [Run]
-      public void Case_19()
-      {
-         var src =
+    [Run]
+    public void Case_19()
+    {
+      var src =
 @"
   div=id{
   text content
@@ -615,33 +601,33 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
  }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.AreEqual("id", root.TranspilerPragma);
-        Aver.AreEqual(3, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.AreEqual("id", root.TranspilerPragma);
+      Aver.AreEqual(3, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("text content", ((LJSContentNode)root.Children[0]).Content);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("text content", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[1] is LJSScriptNode );
-        Aver.AreEqual(" script content\n and more", ((LJSScriptNode)root.Children[1]).Script);
+      Aver.IsTrue(root.Children[1] is LJSScriptNode);
+      Aver.AreEqual(" script content\n and more", ((LJSScriptNode)root.Children[1]).Script);
 
-        Aver.IsTrue( root.Children[2] is LJSSectionNode );
-        Aver.AreEqual("sect", ((LJSSectionNode)root.Children[2]).Name);
-      }
+      Aver.IsTrue(root.Children[2] is LJSSectionNode);
+      Aver.AreEqual("sect", ((LJSSectionNode)root.Children[2]).Name);
+    }
 
 
-      [Run]
-      public void Case_20()
-      {
-         var src =
+    [Run]
+    public void Case_20()
+    {
+      var src =
 @"
   div=id{
   text content
@@ -651,32 +637,32 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
  }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.AreEqual("id", root.TranspilerPragma);
-        Aver.AreEqual(3, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.AreEqual("id", root.TranspilerPragma);
+      Aver.AreEqual(3, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("text content", ((LJSContentNode)root.Children[0]).Content);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("text content", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[1] is LJSScriptNode );
-        Aver.AreEqual(" script content //comment\n and more", ((LJSScriptNode)root.Children[1]).Script);
+      Aver.IsTrue(root.Children[1] is LJSScriptNode);
+      Aver.AreEqual(" script content //comment\n and more", ((LJSScriptNode)root.Children[1]).Script);
 
-        Aver.IsTrue( root.Children[2] is LJSSectionNode );
-        Aver.AreEqual("sect", ((LJSSectionNode)root.Children[2]).Name);
-      }
+      Aver.IsTrue(root.Children[2] is LJSSectionNode);
+      Aver.AreEqual("sect", ((LJSSectionNode)root.Children[2]).Name);
+    }
 
-      [Run]
-      public void Case_21()
-      {
-         var src =
+    [Run]
+    public void Case_21()
+    {
+      var src =
 @"
   div=id{
   text content
@@ -687,37 +673,35 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
  }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.AreEqual("id", root.TranspilerPragma);
-        Aver.AreEqual(4, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.AreEqual("id", root.TranspilerPragma);
+      Aver.AreEqual(4, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("text content", ((LJSContentNode)root.Children[0]).Content);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("text content", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[1] is LJSScriptNode );
-        Aver.AreEqual(" script content //comment\n and more", ((LJSScriptNode)root.Children[1]).Script);
+      Aver.IsTrue(root.Children[1] is LJSScriptNode);
+      Aver.AreEqual(" script content //comment\n and more", ((LJSScriptNode)root.Children[1]).Script);
 
-        Aver.IsTrue( root.Children[2] is LJSContentNode );
-        Aver.AreEqual("more text", ((LJSContentNode)root.Children[2]).Content);
+      Aver.IsTrue(root.Children[2] is LJSContentNode);
+      Aver.AreEqual("more text", ((LJSContentNode)root.Children[2]).Content);
 
-        Aver.IsTrue( root.Children[3] is LJSSectionNode );
-        Aver.AreEqual("sect", ((LJSSectionNode)root.Children[3]).Name);
-      }
+      Aver.IsTrue(root.Children[3] is LJSSectionNode);
+      Aver.AreEqual("sect", ((LJSSectionNode)root.Children[3]).Name);
+    }
 
-
-
-      [Run]
-      public void Case_22()
-      {
-         var src =
+    [Run]
+    public void Case_22()
+    {
+      var src =
 @"
   div=id{
   text content
@@ -728,69 +712,67 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
  }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.AreEqual("id", root.TranspilerPragma);
-        Aver.AreEqual(4, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.AreEqual("id", root.TranspilerPragma);
+      Aver.AreEqual(4, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("text content", ((LJSContentNode)root.Children[0]).Content);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("text content", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[1] is LJSScriptNode );
-        Aver.AreEqual(" script content(){ //comment\n and more }", ((LJSScriptNode)root.Children[1]).Script);
+      Aver.IsTrue(root.Children[1] is LJSScriptNode);
+      Aver.AreEqual(" script content(){ //comment\n and more }", ((LJSScriptNode)root.Children[1]).Script);
 
-        Aver.IsTrue( root.Children[2] is LJSContentNode );
-        Aver.AreEqual("more text", ((LJSContentNode)root.Children[2]).Content);
+      Aver.IsTrue(root.Children[2] is LJSContentNode);
+      Aver.AreEqual("more text", ((LJSContentNode)root.Children[2]).Content);
 
-        Aver.IsTrue( root.Children[3] is LJSSectionNode );
-        Aver.AreEqual("sect", ((LJSSectionNode)root.Children[3]).Name);
+      Aver.IsTrue(root.Children[3] is LJSSectionNode);
+      Aver.AreEqual("sect", ((LJSSectionNode)root.Children[3]).Name);
 
-        Aver.AreEqual(2, ((LJSSectionNode)root.Children[3]).Children.Length);
-        Aver.IsTrue( ((LJSSectionNode)root.Children[3]).Children[0] is LJSAttributeNode );
-        Aver.AreEqual("atr1", ((LJSAttributeNode)((LJSSectionNode)root.Children[3]).Children[0]).Name);
-        Aver.AreEqual("val1", ((LJSAttributeNode)((LJSSectionNode)root.Children[3]).Children[0]).Value);
+      Aver.AreEqual(2, ((LJSSectionNode)root.Children[3]).Children.Length);
+      Aver.IsTrue(((LJSSectionNode)root.Children[3]).Children[0] is LJSAttributeNode);
+      Aver.AreEqual("atr1", ((LJSAttributeNode)((LJSSectionNode)root.Children[3]).Children[0]).Name);
+      Aver.AreEqual("val1", ((LJSAttributeNode)((LJSSectionNode)root.Children[3]).Children[0]).Value);
 
-        Aver.IsTrue( ((LJSSectionNode)root.Children[3]).Children[1] is LJSContentNode );
-        Aver.AreEqual("content text and more", ((LJSContentNode)((LJSSectionNode)root.Children[3]).Children[1]).Content);
-      }
+      Aver.IsTrue(((LJSSectionNode)root.Children[3]).Children[1] is LJSContentNode);
+      Aver.AreEqual("content text and more", ((LJSContentNode)((LJSSectionNode)root.Children[3]).Children[1]).Content);
+    }
 
+    [Run]
+    public void Case_23()
+    {
+      var src = "div{ single subsection{} }";
 
-      [Run]
-      public void Case_23()
-      {
-        var src = "div{ single subsection{} }";
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      parser.Parse();
 
-        parser.Parse();
+      var root = parser.ResultContext.ResultObject.Root;
 
-        var root = parser.ResultContext.ResultObject.Root;
+      dump(root);
 
-        dump(root);
+      Aver.AreEqual("div", root.Name);
+      Aver.AreEqual(2, root.Children.Length);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.AreEqual(2, root.Children.Length);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("single", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("single", ((LJSContentNode)root.Children[0]).Content);
+      Aver.IsTrue(root.Children[1] is LJSSectionNode);
+      Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
 
-        Aver.IsTrue( root.Children[1] is LJSSectionNode );
-        Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
+    }
 
-      }
-
-
-      [Run]
-      public void Case_30()
-      {
-         var src =
+    [Run]
+    public void Case_30()
+    {
+      var src =
 @"
   div{
    string ""con = 2 - 3 tent""
@@ -800,45 +782,38 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
   }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.IsNull(root.TranspilerPragma);
-        Aver.AreEqual(5, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.IsNull(root.TranspilerPragma);
+      Aver.AreEqual(5, root.Children.Length);
 
-        Aver.IsTrue( root.Children[0] is LJSContentNode );
-        Aver.AreEqual("string con = 2 - 3 tent", ((LJSContentNode)root.Children[0]).Content);
+      Aver.IsTrue(root.Children[0] is LJSContentNode);
+      Aver.AreEqual("string con = 2 - 3 tent", ((LJSContentNode)root.Children[0]).Content);
 
-        Aver.IsTrue( root.Children[1] is LJSSectionNode );
-        Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
+      Aver.IsTrue(root.Children[1] is LJSSectionNode);
+      Aver.AreEqual("subsection", ((LJSSectionNode)root.Children[1]).Name);
 
-        Aver.IsTrue( root.Children[2] is LJSContentNode );
-        Aver.AreEqual("here is another text about the writer of", ((LJSContentNode)root.Children[2]).Content);
+      Aver.IsTrue(root.Children[2] is LJSContentNode);
+      Aver.AreEqual("here is another text about the writer of", ((LJSContentNode)root.Children[2]).Content);
 
-        Aver.IsTrue( root.Children[3] is LJSSectionNode );
-        Aver.AreEqual("span1", ((LJSSectionNode)root.Children[3]).Name);
+      Aver.IsTrue(root.Children[3] is LJSSectionNode);
+      Aver.AreEqual("span1", ((LJSSectionNode)root.Children[3]).Name);
 
-        Aver.IsTrue( root.Children[4] is LJSSectionNode );
-        Aver.AreEqual("span2", ((LJSSectionNode)root.Children[4]).Name);
-      }
+      Aver.IsTrue(root.Children[4] is LJSSectionNode);
+      Aver.AreEqual("span2", ((LJSSectionNode)root.Children[4]).Name);
+    }
 
-
-
-
-
-
-
-
-      [Run]
-      public void UseCase_1()
-      {
-         var src =
+    [Run]
+    public void UseCase_1()
+    {
+      var src =
 @"
   div=divRoot{
    For all of these items you can hit delete:
@@ -850,41 +825,40 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
   }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.AreEqual("divRoot", root.TranspilerPragma);
-        Aver.AreEqual(7, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.AreEqual("divRoot", root.TranspilerPragma);
+      Aver.AreEqual(7, root.Children.Length);
 
-        Aver.AreEqual("For all of these items you can hit delete:", ((LJSContentNode)root.Children[0]).Content);
-        Aver.AreEqual(" for(let elm in data){//loop\n   let d = mapData(elm);", ((LJSScriptNode)root.Children[1]).Script);
-        Aver.AreEqual("Name:", ((LJSContentNode)root.Children[2]).Content);
-        Aver.AreEqual("span", ((LJSSectionNode)root.Children[3]).Name);
-                      Aver.AreEqual(2, ((LJSSectionNode)root.Children[3]).Children.Length);
-                      Aver.AreEqual("class", ((LJSAttributeNode)((LJSSectionNode)root.Children[3]).Children[0]).Name);
-                      Aver.AreEqual("name", ((LJSAttributeNode)((LJSSectionNode)root.Children[3]).Children[0]).Value);
-                      Aver.AreEqual("?d.Name", ((LJSContentNode)((LJSSectionNode)root.Children[3]).Children[1]).Content);
+      Aver.AreEqual("For all of these items you can hit delete:", ((LJSContentNode)root.Children[0]).Content);
+      Aver.AreEqual(" for(let elm in data){//loop\n   let d = mapData(elm);", ((LJSScriptNode)root.Children[1]).Script);
+      Aver.AreEqual("Name:", ((LJSContentNode)root.Children[2]).Content);
+      Aver.AreEqual("span", ((LJSSectionNode)root.Children[3]).Name);
+      Aver.AreEqual(2, ((LJSSectionNode)root.Children[3]).Children.Length);
+      Aver.AreEqual("class", ((LJSAttributeNode)((LJSSectionNode)root.Children[3]).Children[0]).Name);
+      Aver.AreEqual("name", ((LJSAttributeNode)((LJSSectionNode)root.Children[3]).Children[0]).Value);
+      Aver.AreEqual("?d.Name", ((LJSContentNode)((LJSSectionNode)root.Children[3]).Children[1]).Content);
 
-        Aver.AreEqual("Description:", ((LJSContentNode)root.Children[4]).Content);
-        Aver.AreEqual("span", ((LJSSectionNode)root.Children[5]).Name);
-                      Aver.AreEqual(2, ((LJSSectionNode)root.Children[5]).Children.Length);
-                      Aver.AreEqual("class", ((LJSAttributeNode)((LJSSectionNode)root.Children[5]).Children[0]).Name);
-                      Aver.AreEqual("descr strong", ((LJSAttributeNode)((LJSSectionNode)root.Children[5]).Children[0]).Value);
-                      Aver.AreEqual("?d.Description", ((LJSContentNode)((LJSSectionNode)root.Children[5]).Children[1]).Content);
-        Aver.AreEqual(" }", ((LJSScriptNode)root.Children[6]).Script);
+      Aver.AreEqual("Description:", ((LJSContentNode)root.Children[4]).Content);
+      Aver.AreEqual("span", ((LJSSectionNode)root.Children[5]).Name);
+      Aver.AreEqual(2, ((LJSSectionNode)root.Children[5]).Children.Length);
+      Aver.AreEqual("class", ((LJSAttributeNode)((LJSSectionNode)root.Children[5]).Children[0]).Name);
+      Aver.AreEqual("descr strong", ((LJSAttributeNode)((LJSSectionNode)root.Children[5]).Children[0]).Value);
+      Aver.AreEqual("?d.Description", ((LJSContentNode)((LJSSectionNode)root.Children[5]).Children[1]).Content);
+      Aver.AreEqual(" }", ((LJSScriptNode)root.Children[6]).Script);
+    }
 
-      }
-
-      [Run]
-      public void UseCase_2()
-      {
-         var src =
+    [Run]
+    public void UseCase_2()
+    {
+      var src =
 @"
   div=divRoot{
    For all of these items
@@ -906,43 +880,40 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
   }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.AreEqual("divRoot", root.TranspilerPragma);
-        Aver.AreEqual(7, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.AreEqual("divRoot", root.TranspilerPragma);
+      Aver.AreEqual(7, root.Children.Length);
 
-        Aver.AreEqual("For all of these items you can hit delete:", ((LJSContentNode)root.Children[0]).Content);
-        Aver.AreEqual(" for(let elm in data){//loop\n   let d = mapData(elm);", ((LJSScriptNode)root.Children[1]).Script);
-        Aver.AreEqual("Name:", ((LJSContentNode)root.Children[2]).Content);
-        Aver.AreEqual("span", ((LJSSectionNode)root.Children[3]).Name);
-                      Aver.AreEqual(2, ((LJSSectionNode)root.Children[3]).Children.Length);
-                      Aver.AreEqual("class", ((LJSAttributeNode)((LJSSectionNode)root.Children[3]).Children[0]).Name);
-                      Aver.AreEqual("name", ((LJSAttributeNode)((LJSSectionNode)root.Children[3]).Children[0]).Value);
-                      Aver.AreEqual("?d.Name", ((LJSContentNode)((LJSSectionNode)root.Children[3]).Children[1]).Content);
+      Aver.AreEqual("For all of these items you can hit delete:", ((LJSContentNode)root.Children[0]).Content);
+      Aver.AreEqual(" for(let elm in data){//loop\n   let d = mapData(elm);", ((LJSScriptNode)root.Children[1]).Script);
+      Aver.AreEqual("Name:", ((LJSContentNode)root.Children[2]).Content);
+      Aver.AreEqual("span", ((LJSSectionNode)root.Children[3]).Name);
+      Aver.AreEqual(2, ((LJSSectionNode)root.Children[3]).Children.Length);
+      Aver.AreEqual("class", ((LJSAttributeNode)((LJSSectionNode)root.Children[3]).Children[0]).Name);
+      Aver.AreEqual("name", ((LJSAttributeNode)((LJSSectionNode)root.Children[3]).Children[0]).Value);
+      Aver.AreEqual("?d.Name", ((LJSContentNode)((LJSSectionNode)root.Children[3]).Children[1]).Content);
 
-        Aver.AreEqual("Description:", ((LJSContentNode)root.Children[4]).Content);
-        Aver.AreEqual("span", ((LJSSectionNode)root.Children[5]).Name);
-                      Aver.AreEqual(2, ((LJSSectionNode)root.Children[5]).Children.Length);
-                      Aver.AreEqual("class", ((LJSAttributeNode)((LJSSectionNode)root.Children[5]).Children[0]).Name);
-                      Aver.AreEqual("descr strong", ((LJSAttributeNode)((LJSSectionNode)root.Children[5]).Children[0]).Value);
-                      Aver.AreEqual("?d.Description", ((LJSContentNode)((LJSSectionNode)root.Children[5]).Children[1]).Content);
-        Aver.AreEqual(" }", ((LJSScriptNode)root.Children[6]).Script);
+      Aver.AreEqual("Description:", ((LJSContentNode)root.Children[4]).Content);
+      Aver.AreEqual("span", ((LJSSectionNode)root.Children[5]).Name);
+      Aver.AreEqual(2, ((LJSSectionNode)root.Children[5]).Children.Length);
+      Aver.AreEqual("class", ((LJSAttributeNode)((LJSSectionNode)root.Children[5]).Children[0]).Name);
+      Aver.AreEqual("descr strong", ((LJSAttributeNode)((LJSSectionNode)root.Children[5]).Children[0]).Value);
+      Aver.AreEqual("?d.Description", ((LJSContentNode)((LJSSectionNode)root.Children[5]).Children[1]).Content);
+      Aver.AreEqual(" }", ((LJSScriptNode)root.Children[6]).Script);
+    }
 
-      }
-
-
-
-      [Run]
-      public void UseCase_3()
-      {
-         var src =
+    [Run]
+    public void UseCase_3()
+    {
+      var src =
 @"
   //Single line
   /* multi
@@ -962,64 +933,57 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
   }
  ";
 
-        var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();
+      parser.Parse();
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
 
-        Aver.AreEqual("div", root.Name);
-        Aver.AreEqual("divRoot", root.TranspilerPragma);
-        Aver.AreEqual(5, root.Children.Length);
+      Aver.AreEqual("div", root.Name);
+      Aver.AreEqual("divRoot", root.TranspilerPragma);
+      Aver.AreEqual(5, root.Children.Length);
 
-        Aver.AreEqual("a", ((LJSAttributeNode)root.Children[0]).Name);
-        Aver.AreEqual("1", ((LJSAttributeNode)root.Children[0]).Value);
+      Aver.AreEqual("a", ((LJSAttributeNode)root.Children[0]).Name);
+      Aver.AreEqual("1", ((LJSAttributeNode)root.Children[0]).Value);
 
-        Aver.AreEqual("b", ((LJSAttributeNode)root.Children[1]).Name);
-        Aver.AreEqual("2", ((LJSAttributeNode)root.Children[1]).Value);
+      Aver.AreEqual("b", ((LJSAttributeNode)root.Children[1]).Name);
+      Aver.AreEqual("2", ((LJSAttributeNode)root.Children[1]).Value);
 
-        Aver.AreEqual("c", ((LJSAttributeNode)root.Children[2]).Name);
-        Aver.AreEqual("3", ((LJSAttributeNode)root.Children[2]).Value);
+      Aver.AreEqual("c", ((LJSAttributeNode)root.Children[2]).Name);
+      Aver.AreEqual("3", ((LJSAttributeNode)root.Children[2]).Value);
 
-        Aver.AreEqual(" js() //hs comment", ((LJSScriptNode)root.Children[3]).Script);
+      Aver.AreEqual(" js() //hs comment", ((LJSScriptNode)root.Children[3]).Script);
 
-        Aver.AreEqual("div", ((LJSSectionNode)root.Children[4]).Name);
-        Aver.AreEqual("ggg", ((LJSSectionNode)root.Children[4]).TranspilerPragma);
+      Aver.AreEqual("div", ((LJSSectionNode)root.Children[4]).Name);
+      Aver.AreEqual("ggg", ((LJSSectionNode)root.Children[4]).TranspilerPragma);
 
-                    var div =  (LJSSectionNode)((LJSSectionNode)root.Children[4]).Children[0];
-                    Aver.AreEqual("div", div.Name);
-                    Aver.AreEqual(2, div.Children.Length);
-                    Aver.AreEqual("span", ((LJSSectionNode)div.Children[0]).Name);
-                    Aver.AreEqual("span", ((LJSSectionNode)div.Children[1]).Name);
+      var div = (LJSSectionNode)((LJSSectionNode)root.Children[4]).Children[0];
+      Aver.AreEqual("div", div.Name);
+      Aver.AreEqual(2, div.Children.Length);
+      Aver.AreEqual("span", ((LJSSectionNode)div.Children[0]).Name);
+      Aver.AreEqual("span", ((LJSSectionNode)div.Children[1]).Name);
 
-                    Aver.AreEqual("good",    ((LJSContentNode)((LJSSectionNode)div.Children[0]).Children[0]).Content);
-                    Aver.AreEqual("content", ((LJSContentNode)((LJSSectionNode)div.Children[1]).Children[0]).Content);
+      Aver.AreEqual("good", ((LJSContentNode)((LJSSectionNode)div.Children[0]).Children[0]).Content);
+      Aver.AreEqual("content", ((LJSContentNode)((LJSSectionNode)div.Children[1]).Children[0]).Content);
 
+      Aver.AreEqual("e", ((LJSAttributeNode)((LJSSectionNode)root.Children[4]).Children[1]).Name);
+      Aver.AreEqual("4", ((LJSAttributeNode)((LJSSectionNode)root.Children[4]).Children[1]).Value);
 
+      Aver.AreEqual("f", ((LJSAttributeNode)((LJSSectionNode)root.Children[4]).Children[2]).Name);
+      Aver.AreEqual("this{ } =  = is atr value", ((LJSAttributeNode)((LJSSectionNode)root.Children[4]).Children[2]).Value);
+    }
 
+    private void dump(LJSSectionNode root)
+    {
+      "\r\nTree Dump:".See();
+      var sb = new StringBuilder();
+      root.Print(sb, 0);
+      sb.ToString().See();
 
-
-                    Aver.AreEqual("e", ((LJSAttributeNode)((LJSSectionNode)root.Children[4]).Children[1]).Name);
-                    Aver.AreEqual("4", ((LJSAttributeNode)((LJSSectionNode)root.Children[4]).Children[1]).Value);
-
-                    Aver.AreEqual("f", ((LJSAttributeNode)((LJSSectionNode)root.Children[4]).Children[2]).Name);
-                    Aver.AreEqual("this{ } =  = is atr value", ((LJSAttributeNode)((LJSSectionNode)root.Children[4]).Children[2]).Value);
-      }
-
-
-
-      private void dump(LJSSectionNode root)
-      {
-        Console.WriteLine();
-        Console.WriteLine("Tree Dump:");
-        var sb = new StringBuilder();
-        root.Print(sb, 0);
-        Console.WriteLine(sb.ToString());
-
-        Console.WriteLine("    ... tree dump ended ...");
-      }
+      "    ... tree dump ended ...".See();
+    }
 
     [Run]
     public void Baseline()//this is the document that we started LJS format design from
@@ -1062,17 +1026,14 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
     }
     ";
 
-      var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
-        parser.Parse();  //no exceptions
+      parser.Parse();  //no exceptions
 
-        var root = parser.ResultContext.ResultObject.Root;
+      var root = parser.ResultContext.ResultObject.Root;
 
-        dump(root);
+      dump(root);
     }
-
-
-
 
     [Run]
     [Aver.Throws(typeof(CodeProcessorException), "ePrematureEOF")]
@@ -1080,7 +1041,7 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
     {
       var src = "";
 
-      var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
       parser.Parse();
     }
@@ -1091,7 +1052,7 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
     {
       var src = "{";
 
-      var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
       parser.Parse();
     }
@@ -1102,7 +1063,7 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
     {
       var src = "kjkjkj";
 
-      var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
       parser.Parse();
     }
@@ -1113,7 +1074,7 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
     {
       var src = "#kjkjkj";
 
-      var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
       parser.Parse();
     }
@@ -1124,7 +1085,7 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
     {
       var src = "root{";
 
-      var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
       parser.Parse();
     }
@@ -1135,7 +1096,7 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
     {
       var src = "root{ jkjklj ljlk jlkjl kjl kj klj lkj ";
 
-      var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
       parser.Parse();
     }
@@ -1146,7 +1107,7 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
     {
       var src = "root{ } } ";
 
-      var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
       parser.Parse();
     }
@@ -1157,7 +1118,7 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
     {
       var src = "root{ a= }";
 
-      var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
       parser.Parse();
     }
@@ -1168,7 +1129,7 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
     {
       var src = "root{ a= = = = = = { } }";
 
-      var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
       parser.Parse();
     }
@@ -1179,11 +1140,10 @@ line 3 line 3 ending", ((LJSContentNode)((LJSSectionNode)root.Children[1]).Child
     {
       var src = " test text blah ";
 
-      var parser = new LJSParser(  new LaconfigLexer( new StringSource(src) )  );
+      var parser = new LJSParser(new LaconfigLexer(new StringSource(src)));
 
       parser.Parse();
     }
-
 
   }
 }

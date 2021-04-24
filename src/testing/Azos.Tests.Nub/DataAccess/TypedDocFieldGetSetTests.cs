@@ -5,7 +5,6 @@
 </FILE_LICENSE>*/
 
 using Azos.Scripting;
-
 using Azos.Data;
 using Azos.Time;
 
@@ -82,15 +81,14 @@ namespace Azos.Tests.Nub.DataAccess
       var sut = new Typed();
       sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["Gdid1"], null);
       Aver.AreEqual(GDID.ZERO, sut.Gdid1);
-      sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["Gdid1"], new GDID(1,1));
-      Aver.AreEqual(new GDID(1,1), sut.Gdid1);
+      sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["Gdid1"], new GDID(1, 1));
+      Aver.AreEqual(new GDID(1, 1), sut.Gdid1);
       sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["Gdid1"], null);
       Aver.AreEqual(GDID.ZERO, sut.Gdid1);
       sut["Gdid1"] = null;
       Aver.AreEqual(GDID.ZERO, sut.Gdid1);
       sut["Gdid1"] = new GDID(1, 234);
-      Aver.AreEqual(new GDID(1,234), sut.Gdid1);
-
+      Aver.AreEqual(new GDID(1, 234), sut.Gdid1);
       sut["Gdid1"] = 1237890;
       Aver.AreEqual(new GDID(0, 1237890), sut.Gdid1);
     }
@@ -109,7 +107,6 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual(null, sut.Gdid2);
       sut["Gdid2"] = new GDID(1, 1234);
       Aver.AreEqual(new GDID(1, 1234), sut.Gdid2);
-
       sut["Gdid2"] = 7890;
       Aver.AreEqual(new GDID(0, 7890), sut.Gdid2);
     }
@@ -120,7 +117,7 @@ namespace Azos.Tests.Nub.DataAccess
     {
       var sut = new Typed();
       sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["MyEnum1"], null);
-      Aver.IsTrue( MyEnum.A == sut.MyEnum1);
+      Aver.IsTrue(MyEnum.A == sut.MyEnum1);
       sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["MyEnum1"], MyEnum.C);
       Aver.IsTrue(MyEnum.C == sut.MyEnum1);
       sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["MyEnum1"], null);
@@ -147,14 +144,13 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsTrue(MyEnum.B == sut.MyEnum2);
     }
 
-
     [Run]
     public void IntArray1()
     {
       var sut = new Typed();
       sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["IntArray1"], null);
       Aver.IsNull(sut.IntArray1);
-      sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["IntArray1"], new int[]{1,2,3});
+      sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["IntArray1"], new int[] { 1, 2, 3 });
       Aver.AreArraysEquivalent(new int[] { 1, 2, 3 }, sut.IntArray1);
       sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["IntArray1"], null);
       Aver.IsNull(sut.IntArray1);
@@ -176,10 +172,9 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsNull(sut.IntArray2);
       sut["IntArray2"] = null;
       Aver.IsNull(sut.IntArray2);
-      sut["IntArray2"] = new int?[] { 2, 1, 2, null, null, -5};
+      sut["IntArray2"] = new int?[] { 2, 1, 2, null, null, -5 };
       Aver.AreArraysEquivalent(new int?[] { 2, 1, 2, null, null, -5 }, sut.IntArray2);
     }
-
 
     [Run]
     public void Typed1()
@@ -187,7 +182,7 @@ namespace Azos.Tests.Nub.DataAccess
       var sut = new Typed();
       sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["Typed1"], null);
       Aver.IsNull(sut.Typed1);
-      sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["Typed1"], new Typed{String1="abc"});
+      sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["Typed1"], new Typed { String1 = "abc" });
       Aver.AreEqual("abc", sut.Typed1.String1);
       sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["Typed1"], null);
       Aver.IsNull(sut.Typed1);
@@ -203,13 +198,13 @@ namespace Azos.Tests.Nub.DataAccess
       var sut = new Typed();
       sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["TypedArray1"], null);
       Aver.IsNull(sut.Typed1);
-      sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["TypedArray1"], new []{new Typed { String1 = "abc111" }});
+      sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["TypedArray1"], new[] { new Typed { String1 = "abc111" } });
       Aver.AreEqual("abc111", sut.TypedArray1[0].String1);
       sut.SetFieldValue(Schema.GetForTypedDoc<Typed>()["TypedArray1"], null);
       Aver.IsNull(sut.TypedArray1);
       sut["TypedArray1"] = null;
       Aver.IsNull(sut.TypedArray1);
-      sut["TypedArray1"] = new[]{new Typed { String1 = "def321" }};
+      sut["TypedArray1"] = new[] { new Typed { String1 = "def321" } };
       Aver.AreEqual("def321", sut.TypedArray1[0].String1);
     }
 
@@ -222,7 +217,7 @@ namespace Azos.Tests.Nub.DataAccess
       var fd = sut.Schema["String1"];
 
       var time = Timeter.StartNew();
-      for(var i=0; i<CNT; i++)
+      for (var i = 0; i < CNT; i++)
       {
         sut.SetFieldValue(fd, null);
         sut.SetFieldValue(fd, "abc");
@@ -263,16 +258,18 @@ namespace Azos.Tests.Nub.DataAccess
       "Speed: {0:n0} ops/sec".SeeArgs(CNT / time.ElapsedSec);
     }
 
-    public enum MyEnum{ A = 0, B, C}
+
+    public enum MyEnum { A = 0, B, C }
+
 
     public class Typed : TypedDoc
     {
-      [Field] public string String1{ get; set;}
+      [Field] public string String1 { get; set; }
       [Field] public int Int1 { get; set; }
       [Field] public int? Int2 { get; set; }
 
       private int m_Int3;  //uses getter and setter methods
-      [Field] public int Int3 { get { return m_Int3 - 3;} set {m_Int3 = value + 3;} }
+      [Field] public int Int3 { get { return m_Int3 - 3; } set { m_Int3 = value + 3; } }
 
       [Field] public MyEnum MyEnum1 { get; set; }
       [Field] public MyEnum? MyEnum2 { get; set; }
@@ -283,8 +280,8 @@ namespace Azos.Tests.Nub.DataAccess
       [Field] public int[] IntArray1 { get; set; }
       [Field] public int?[] IntArray2 { get; set; }
 
-      [Field] public Typed Typed1 {get; set; }
-      [Field] public Typed[] TypedArray1 {get; set; }
+      [Field] public Typed Typed1 { get; set; }
+      [Field] public Typed[] TypedArray1 { get; set; }
     }
 
   }

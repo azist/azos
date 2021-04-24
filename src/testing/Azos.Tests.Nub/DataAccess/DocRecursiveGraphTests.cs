@@ -15,9 +15,9 @@ namespace Azos.Tests.Nub.DataAccess
     [Run]
     public void NoRecursion()
     {
-      using(var app = new AzosApplication(null, null))
+      using (var app = new AzosApplication(null, null))
       {
-        var family = new Family{ People = new List<Person>{ new Person{ Family = null, PersonName = "Alex"} } };
+        var family = new Family { People = new List<Person> { new Person { Family = null, PersonName = "Alex" } } };
         app.InjectInto(family);//no errors
         var ve = family.Validate();//no errors
         Aver.IsNull(ve);
@@ -39,11 +39,11 @@ namespace Azos.Tests.Nub.DataAccess
       {
         var family = new Family();
         family.People = new List<Person>();//via transitive list
-        family.People.Add( new Person
-         {
-           Family = family,
-           PersonName = "Alex"
-         }
+        family.People.Add(new Person
+        {
+          Family = family,
+          PersonName = "Alex"
+        }
         );
         app.InjectInto(family);//still no errors
         var ve = family.Validate();//still no errors
@@ -113,8 +113,6 @@ namespace Azos.Tests.Nub.DataAccess
         family2.People = new List<Person>();//via transitive list
         family2.People.Add(man1);//again the same instance
 
-
-
         app.InjectInto(family1);//still no errors
         var ve = family1.Validate();//still no errors
 
@@ -162,14 +160,13 @@ namespace Azos.Tests.Nub.DataAccess
         DI_COUNT++;
         return base.DoInjectApplication(injector);
       }
-
     }
 
     public class Family : BAZE
     {
       [Inject] internal ILog m_Log;
       [Field] public Family Another { get; set; }
-      [Field] public List<Person> People{ get; set;}
+      [Field] public List<Person> People { get; set; }
     }
 
     public class Person : BAZE

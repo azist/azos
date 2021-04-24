@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 using Azos.Data;
 using Azos.Scripting;
@@ -68,7 +67,6 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsTrue(fve.Message.Contains("length of 5"));
     }
 
-
     [Run]
     public void Test02_Batch()
     {
@@ -88,7 +86,6 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsNotNull(fve);
       Aver.IsTrue(fve.Message.Contains("length of 5"));
     }
-
 
     [Run]
     public void Test03_Batch()
@@ -115,7 +112,6 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsNotNull(batch.Batch);
       Aver.AreEqual(7, batch.Batch.Count);
     }
-
 
     [Run]
     public void ValidationBatchException_Concat_01()
@@ -239,6 +235,7 @@ namespace Azos.Tests.Nub.DataAccess
       [Field(required: true, minLength: 2, valueList: "01:fire;02:police")] public string S2 { get; set; }
       [Field(required: true, min: 10, max: 20)] public int? I1 { get; set; }
     }
+
 
     public class Doc2 : TypedDoc
     {

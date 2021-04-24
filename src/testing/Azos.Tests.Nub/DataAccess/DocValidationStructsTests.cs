@@ -4,8 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-
 using Azos.Data;
 using Azos.Financial;
 using Azos.Pile;
@@ -22,9 +20,9 @@ namespace Azos.Tests.Nub.DataAccess
       var doc = new GdidDoc
       {
         NGdidNotRequired = null,
-        NGdidRequired = new GDID(1,2),
+        NGdidRequired = new GDID(1, 2),
         GdidNotRequired = GDID.ZERO,
-        GdidRequired = new GDID(3,4)
+        GdidRequired = new GDID(3, 4)
       };
 
       var ve = doc.Validate();
@@ -40,7 +38,7 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsNotNull(ve);
       ve.See("doc.NGdidRequired = null:\n");
 
-      doc.NGdidRequired = new GDID(9,10);
+      doc.NGdidRequired = new GDID(9, 10);
       ve = doc.Validate();
       Aver.IsNull(ve);
 
@@ -53,11 +51,11 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsNotNull(ve);
       ve.See("doc.GdidRequired = GDID.ZERO:\n");
 
-      doc.GdidRequired = new GDID(5,7);
+      doc.GdidRequired = new GDID(5, 7);
       ve = doc.Validate();
       Aver.IsNull(ve);
 
-      doc.GdidNotRequired = new GDID(100,100);
+      doc.GdidNotRequired = new GDID(100, 100);
       ve = doc.Validate();
       Aver.IsNull(ve);
 
@@ -65,7 +63,6 @@ namespace Azos.Tests.Nub.DataAccess
       ve = doc.Validate();
       Aver.IsNull(ve);
     }
-
 
     [Run]
     public void Test_Amount()
@@ -123,7 +120,7 @@ namespace Azos.Tests.Nub.DataAccess
       var doc = new PPDoc
       {
         NPointer = null,
-        Pointer = new PilePointer(1,3)
+        Pointer = new PilePointer(1, 3)
       };
 
       var ve = doc.Validate();
@@ -138,7 +135,7 @@ namespace Azos.Tests.Nub.DataAccess
       ve = doc.Validate();
       Aver.IsNull(ve);
 
-      doc.NPointer = new PilePointer(1,1,1);
+      doc.NPointer = new PilePointer(1, 1, 1);
       ve = doc.Validate();
       Aver.IsNull(ve);
 
@@ -147,6 +144,7 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsNotNull(ve);
       ve.See("doc.Pointer = PilePointer.Invalid:\n");
     }
+
 
     public class GdidDoc : TypedDoc
     {
@@ -158,8 +156,9 @@ namespace Azos.Tests.Nub.DataAccess
       [Field(required: false)]
       public GDID GdidNotRequired { get; set; }
       [Field(required: true)]
-      public GDID GdidRequired{ get; set;}
+      public GDID GdidRequired { get; set; }
     }
+
 
     public class AmountDoc : TypedDoc
     {
@@ -174,10 +173,11 @@ namespace Azos.Tests.Nub.DataAccess
       public Amount AmountRequired { get; set; }
     }
 
+
     public class PPDoc : TypedDoc
     {
       [Field]
-      public PilePointer?  NPointer{  get; set;}
+      public PilePointer? NPointer { get; set; }
 
       [Field]
       public PilePointer Pointer { get; set; }
