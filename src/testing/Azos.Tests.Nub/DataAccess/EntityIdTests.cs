@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
 using Azos.Data;
-using Azos.Data.Business;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
 
@@ -65,13 +67,13 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual(v6.GetHashCode(), v7.GetHashCode());
       Aver.AreNotEqual(v7.GetHashCode(), v8.GetHashCode());
 
-      Aver.AreEqual   (v1.GetDistributedStableHash(), v5.GetDistributedStableHash());
-      Aver.AreEqual   (v5.GetDistributedStableHash(), v1.GetDistributedStableHash());
+      Aver.AreEqual(v1.GetDistributedStableHash(), v5.GetDistributedStableHash());
+      Aver.AreEqual(v5.GetDistributedStableHash(), v1.GetDistributedStableHash());
       Aver.AreNotEqual(v1.GetDistributedStableHash(), v2.GetDistributedStableHash());
       Aver.AreNotEqual(v1.GetDistributedStableHash(), v3.GetDistributedStableHash());
       Aver.AreNotEqual(v1.GetDistributedStableHash(), v4.GetDistributedStableHash());
       Aver.AreNotEqual(v4.GetDistributedStableHash(), v5.GetDistributedStableHash());
-      Aver.AreEqual   (v6.GetDistributedStableHash(), v7.GetDistributedStableHash());
+      Aver.AreEqual(v6.GetDistributedStableHash(), v7.GetDistributedStableHash());
       Aver.AreNotEqual(v7.GetDistributedStableHash(), v8.GetDistributedStableHash());
     }
 
@@ -206,25 +208,25 @@ namespace Azos.Tests.Nub.DataAccess
     public void JSON01()
     {
       var v = EntityId.Parse("abc@def::12:15:178");
-      var obj = new {a =  v};
+      var obj = new { a = v };
       var json = obj.ToJson();
       json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
-      var got = EntityId.Parse( map["a"].ToString() );
+      var got = EntityId.Parse(map["a"].ToString());
 
       Aver.AreEqual(v, got);
     }
 
     public class Doc1 : TypedDoc
     {
-      [Field] public EntityId V1{  get; set;}
+      [Field] public EntityId V1 { get; set; }
       [Field] public EntityId? V2 { get; set; }
     }
 
     [Run]
     public void JSON02()
     {
-      var d1 = new  Doc1{ V1 = EntityId.Parse("abc@def::12:15:178") };
+      var d1 = new Doc1 { V1 = EntityId.Parse("abc@def::12:15:178") };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       json.See();
       var got = JsonReader.ToDoc<Doc1>(json);
@@ -259,5 +261,6 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual("abc@def::456", got.V1.Address);
       Aver.AreEqual(":::", got.V2.Value.Address);
     }
+
   }
 }

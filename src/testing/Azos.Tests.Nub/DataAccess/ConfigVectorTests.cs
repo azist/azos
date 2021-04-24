@@ -4,9 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Scripting;
@@ -74,7 +71,6 @@ namespace Azos.Tests.Nub.DataAccess
       got.C1.Node.Of("a");
     }
 
-
     [Run]
     public void Test_Long()
     {
@@ -126,7 +122,6 @@ namespace Azos.Tests.Nub.DataAccess
 
       got.See();
     }
-
 
   }
 }

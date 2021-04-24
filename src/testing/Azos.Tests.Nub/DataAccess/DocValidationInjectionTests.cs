@@ -4,9 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Collections.Generic;
-
 
 using Azos.Apps;
 using Azos.Apps.Injection;
@@ -29,7 +27,6 @@ namespace Azos.Tests.Nub.DataAccess
       public override string ComponentLogTopic => "testing";
     }
 
-
     static readonly ConfigSectionNode BASE_CONF = @"
     app{
       modules
@@ -38,7 +35,6 @@ namespace Azos.Tests.Nub.DataAccess
       }
     }
     ".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
-
 
     public class DocDirectField : TypedDoc
     {
@@ -59,7 +55,6 @@ namespace Azos.Tests.Nub.DataAccess
     {
       [Inject] ISpecialModule m_Module;
 
-
       [Field] public int? I1 { get; set; }
       [Field] public DocDirectField D1 { get; set; }
       [Field] public DocDirectField D2 { get; set; }
@@ -75,7 +70,6 @@ namespace Azos.Tests.Nub.DataAccess
     {
       [Inject] ISpecialModule m_Module;
 
-
       [Field(min: 100)] public int? IMin { get; set; }
       [Field] public DocCompositeField[] DArray { get; set; }
 
@@ -90,7 +84,6 @@ namespace Azos.Tests.Nub.DataAccess
     {
       [Inject] ISpecialModule m_Module;
 
-
       [Field(min: 100)] public int? IMin { get; set; }
       [Field] public List<object> DList { get; set; }
 
@@ -101,11 +94,9 @@ namespace Azos.Tests.Nub.DataAccess
       }
     }
 
-
     public class DocDict : TypedDoc
     {
       [Inject] ISpecialModule m_Module;
-
 
       [Field(min: 100)] public int? IMin { get; set; }
       [Field] public Dictionary<string, DocCompositeField> DDict { get; set; }
@@ -140,7 +131,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsNotNull(ve);
         if (ve is FieldValidationException fve)
         {
-          Console.WriteLine(fve.Message);
+          fve.Message.See();
           Aver.IsTrue( fve.Message.Contains("list"));
         }
         else
@@ -152,6 +143,8 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsNull(ve);
       }
     }
+
+    //==================================================================================================
 
     [Run]
     public void Test_DocCompositeField_1()
@@ -177,7 +170,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsNotNull(ve);
         if (ve is FieldValidationException fve)
         {
-          Console.WriteLine(fve.Message);
+          fve.Message.See();
           Aver.IsTrue(fve.Message.Contains("list"));
         }
         else
@@ -190,6 +183,7 @@ namespace Azos.Tests.Nub.DataAccess
       }
     }
 
+    //==================================================================================================
 
     [Run]
     public void Test_DocArray_1()
@@ -216,7 +210,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsNotNull(ve);
         if (ve is FieldValidationException fve)
         {
-          Console.WriteLine(fve.Message);
+          fve.Message.See();
           Aver.IsTrue(fve.Message.Contains("min"));
         }
         else
@@ -242,7 +236,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsNotNull(ve);
         if (ve is FieldValidationException fve)
         {
-          Console.WriteLine(fve.Message);
+          fve.Message.See();
           Aver.IsTrue(fve.Message.Contains("list"));
         }
         else
@@ -254,7 +248,6 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsNull(ve);
       }
     }
-
 
     [Run]
     public void Test_DocArray_4()
@@ -268,8 +261,7 @@ namespace Azos.Tests.Nub.DataAccess
       }
     }
 
-
-
+    //==================================================================================================
 
     [Run]
     public void Test_DocList_1()
@@ -296,7 +288,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsNotNull(ve);
         if (ve is FieldValidationException fve)
         {
-          Console.WriteLine(fve.Message);
+          fve.Message.See();
           Aver.IsTrue(fve.Message.Contains("min"));
         }
         else
@@ -322,7 +314,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsNotNull(ve);
         if (ve is FieldValidationException fve)
         {
-          Console.WriteLine(fve.Message);
+          fve.Message.See();
           Aver.IsTrue(fve.Message.Contains("list"));
         }
         else
@@ -334,7 +326,6 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsNull(ve);
       }
     }
-
 
     [Run]
     public void Test_DocList_4()
@@ -348,8 +339,7 @@ namespace Azos.Tests.Nub.DataAccess
       }
     }
 
-
-
+    //==================================================================================================
 
     [Run]
     public void Test_DocDict_1()
@@ -376,7 +366,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsNotNull(ve);
         if (ve is FieldValidationException fve)
         {
-          Console.WriteLine(fve.Message);
+          fve.Message.See();
           Aver.IsTrue(fve.Message.Contains("min"));
         }
         else
@@ -403,7 +393,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsNotNull(ve);
         if (ve is FieldValidationException fve)
         {
-          Console.WriteLine(fve.Message);
+          fve.Message.See();
           Aver.IsTrue(fve.Message.Contains("list"));
         }
         else

@@ -250,8 +250,8 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsNull(doc.Validate());
       doc.Field2 = "di";
       Aver.IsNull(doc.Validate());
-
     }
+
 
     public class Doc1 : TypedDoc
     {
