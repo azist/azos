@@ -31,7 +31,7 @@ namespace Azos.Conf
     /// <summary>
     /// Creates an instance of BuildInformation class for framework
     /// </summary>
-    private BuildInformation() : this(null) { }
+    private BuildInformation() : this((Assembly)null) { }
 
 
     /// <summary>
