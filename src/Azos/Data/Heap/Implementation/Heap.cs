@@ -58,7 +58,16 @@ namespace Azos.Data.Heap.Implementation
     protected override bool DoApplicationAfterInit()
     {
       (m_Areas.Count > 0).IsTrue("Areas.Count > 0");
+
+      m_Areas.OfType<Daemon>().ForEach(ad => ad.Start() );
+
       return base.DoApplicationAfterInit();
+    }
+
+    protected override bool DoApplicationBeforeCleanup()
+    {
+      m_Areas.OfType<Daemon>().ForEach(ad => this.DontLeak(() => ad.WaitForCompleteStop()));
+      return base.DoApplicationBeforeCleanup();
     }
   }
 }
