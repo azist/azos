@@ -17,7 +17,9 @@ namespace Azos.Data.Heap
   /// A system may support a queries that take <see cref="AST.Expression"/> which
   /// is a similar concept to GraphQL where a query "shapes" data.
   /// Queries are mapped to server-side processor/handler via [HeapProc] attribute.
-  /// A concrete query type maps to one and only one handler per area
+  /// A concrete query type maps to one and only one handler per area, however
+  /// the reverse is not true: the same server procedure/handler may handle different query types
+  /// mapped to the same proc name, thus allowing for server procedure/handler argument polymorphism
   /// </summary>
   [BixJsonHandler]
   public abstract class HeapQuery : AmorphousTypedDoc

@@ -23,8 +23,9 @@ namespace Azos.Data.Heap.Implementation
 
     internal Area(Heap director, IConfigSectionNode cfg) : base(director)
     {
-      //build
-      //check Name for Domains.id compliance
+      cfg.NonEmpty(nameof(cfg));
+      m_Schema = new TypeSchema(this, cfg[TypeSchema.CONFIG_SCHEMA_SECTION]);
+      //todo: build...
     }
 
     protected override void Destructor()
@@ -34,6 +35,7 @@ namespace Azos.Data.Heap.Implementation
 
     private string m_Name;
     private IHttpService m_ServiceClient;
+    private TypeSchema m_Schema;
     private List<INode> m_Nodes;
     private INodeSelector m_NodeSelector;
     private Dictionary<Type, ISpace> m_Spaces;
@@ -44,8 +46,7 @@ namespace Azos.Data.Heap.Implementation
     public override string ComponentLogTopic => CoreConsts.DATA_TOPIC;
     public IHttpService ServiceClient => m_ServiceClient;
 
-    public IEnumerable<Type> ObjectTypes => throw new NotImplementedException();
-    public IEnumerable<Type> QueryTypes => throw new NotImplementedException();
+    public ITypeSchema Schema => m_Schema;
 
     public IEnumerable<INode> Nodes => m_Nodes;
     public INodeSelector NodeSelector => m_NodeSelector;

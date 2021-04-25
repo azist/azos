@@ -89,7 +89,7 @@ namespace Azos.Data.Heap
   {
     public HeapProcAttribute(string area, string name) : base(area)
     {
-      Name = name.NonBlank(nameof(name));
+      Name = name.NonBlank(nameof(name)).Trim();
     }
 
     /// <summary>

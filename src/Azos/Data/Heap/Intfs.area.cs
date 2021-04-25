@@ -9,9 +9,63 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Azos.Collections;
+using Azos.Conf;
 
 namespace Azos.Data.Heap
 {
+  /// <summary>
+  /// Provides information about objects participating in heap area functionality.
+  /// Type schema is a set of types used for representing heap objects and heap queries.
+  /// Resolves names to types.
+  /// Schema detects version of assemblies where types are declared. The version is used to
+  /// coordinate between nodes which run the same versions of data objects thus enabling their CRDT convergence.
+  /// The nodes which run different versions are not replicated with until the same type schema version
+  /// gets installed on all nodes in the cluster ensuring eventual consistency backed by the same code.
+  /// ATTENTION: All nodes of data heap must be installed THE SAME assemblies built on the same machine, otherwise
+  /// the schema versions will be different and replication will not happen
+  /// </summary>
+  public interface ITypeSchema
+  {
+    /// <summary>
+    /// An area which this schema is for
+    /// </summary>
+    IArea Area { get; }
+
+    /// <summary>
+    /// Provides version digest - a hash value derived from all assemblies participating in a type schema.
+    /// The system uses this value to coordinate versions of ITypeSchema instances deployed on every node in cluster.
+    /// ATTENTION: All nodes must be deployed the same set of assembly binaries built on the same machine (so their BuildInfo are identical)
+    /// otherwise the heap data will not auto replicate
+    /// </summary>
+    ulong Version { get; }
+
+    /// <summary>
+    /// A list of (assemblyFQN:BuildInfo) tuples. The Version is derived from this enumerable
+    /// </summary>
+    IEnumerable<KeyValuePair<string, BuildInformation>> Assemblies { get; }
+
+    /// <summary>
+    /// All declared HeapObject-derived types decorated with [HeapSpace]
+    /// </summary>
+    IEnumerable<Type> ObjectTypes { get; }
+
+    /// <summary>
+    /// All declared HeapQuery-derived types decorated with [HeapProc]
+    /// </summary>
+    IEnumerable<Type> QueryTypes { get; }
+
+    /// <summary>
+    /// Maps space within area to HeapObject-derived type. Throws if not found
+    /// </summary>
+    Type MapObjectSpace(string space);
+
+    /// <summary>
+    /// Maps proc name within area to HeapQuery-derived types.
+    /// Multiple query objects may be mapped to the same proc. Throws if not found
+    /// </summary>
+    IEnumerable<Type> MapQueryProc(string proc);
+  }
+
   /// <summary>
   /// Defines a logical division/area/namespace of the data heap.
   /// Each area has its own set of nodes which service it.
@@ -27,19 +81,14 @@ namespace Azos.Data.Heap
     IHeap Heap { get; }
 
     /// <summary>
-    /// Returns an enumerable of all types HeapObjects-derived types supported by this heap area instance
+    /// Returns type definition for this area
     /// </summary>
-    IEnumerable<Type> ObjectTypes{ get; }
-
-    /// <summary>
-    /// Returns an enumerable of all types HeapQuery-derived types supported by this heap area instance
-    /// </summary>
-    IEnumerable<Type> QueryTypes { get; }
+    ITypeSchema Schema { get; }
 
     /// <summary>
     /// Returns an unordered set of <see cref="INode"/> instances
     /// </summary>
-    IEnumerable<INode> Nodes{ get; }
+    IEnumerable<INode> Nodes { get; }
 
     /// <summary>
     /// Selects a node for the caller as determined by its settings.

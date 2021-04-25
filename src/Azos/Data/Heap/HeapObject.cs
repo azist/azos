@@ -202,7 +202,7 @@ namespace Azos.Data.Heap
     //public static async void A()
     //{
     //  IHeap heap = null;
-    //  var lst = await heap.ExecAsync( new DoctorListByNpi{});
+    //  var lst = await heap.ExecAsync(new DoctorListByNpi { });
     //}
 
     [Field] public string Npi { get; set; }

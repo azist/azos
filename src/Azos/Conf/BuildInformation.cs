@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.IO;
 using System.Globalization;
+using Azos.Data;
 
 namespace Azos.Conf
 {
@@ -17,14 +18,11 @@ namespace Azos.Conf
   /// Retrieves build information encapsulated into a module in the form of an embedded resource
   /// </summary>
   [Serializable]
-  public class BuildInformation
+  public sealed class BuildInformation
   {
     #region  CONSTS
-
     public const string FRAMEWORK_BUILD_INFO_PATH = "Azos." + BUILD_INFO_RESOURCE;
-
     public const string BUILD_INFO_RESOURCE = "BUILD_INFO.txt";
-
     #endregion
 
 
@@ -67,6 +65,14 @@ namespace Azos.Conf
       }
     }
 
+    /// <summary>
+    /// Allocates object from textual content
+    /// </summary>
+    public BuildInformation(string content)
+    {
+      m_Content = content.NonBlank(nameof(content));
+      loadContent();
+    }
 
     #endregion
 
@@ -75,6 +81,7 @@ namespace Azos.Conf
 
     private static BuildInformation m_ForFramework;
 
+    private string m_Content;
     private string m_AssemblyName;
     private int m_BuildSeed;
     private string m_Computer;
@@ -103,7 +110,12 @@ namespace Azos.Conf
     }
 
     /// <summary>
-    /// Rertuns assembly name that this information was obtained from
+    /// Returns full content of the build information object as string
+    /// </summary>
+    public string Content => m_Content;
+
+    /// <summary>
+    /// Returns assembly name that this information was obtained from
     /// </summary>
     public string AssemblyName => m_AssemblyName;
 
@@ -156,32 +168,39 @@ namespace Azos.Conf
     {
       m_AssemblyName = asmb.FullName;
 
-      List<string> lines = new List<string>();
+      using(var stream = asmb.GetManifestResourceStream(path))
+        using(var reader = new StreamReader(stream))
+          m_Content = reader.ReadToEnd();
 
-      using (Stream strm = asmb.GetManifestResourceStream(path))
-      using (StreamReader reader = new StreamReader(strm))
-        while (!reader.EndOfStream)
-          lines.Add(reader.ReadLine());
+      loadContent();
+    }
 
-      m_BuildSeed = int.Parse(val(lines[0]));
-      m_Computer = val(lines[1]).Trim();
-      m_User = val(lines[2]).Trim();
-      m_OS = val(lines[3]).Trim();
-      m_OSVer = val(lines[4]).Trim();
-      m_DateStampUTC = DateTime.Parse(val(lines[5]), null, DateTimeStyles.RoundtripKind);
+    private void loadContent()
+    {
+      try
+      {
+        var lines = m_Content.SplitLines();
+        var i = -1;
+        if (++i == lines.Length) return; m_BuildSeed    =  val(lines[i]).AsInt(0);
+        if (++i == lines.Length) return; m_Computer     =  val(lines[i]);
+        if (++i == lines.Length) return; m_User         =  val(lines[i]);
+        if (++i == lines.Length) return; m_OS           =  val(lines[i]);
+        if (++i == lines.Length) return; m_OSVer        =  val(lines[i]);
+        if (++i == lines.Length) return; m_DateStampUTC =  val(lines[i]).AsDateTime(DateTime.MinValue, DateTimeStyles.AssumeUniversal);
+      }
+      catch(Exception error)
+      {
+        throw new ConfigException("Bad build info content: {0}".Args(error.ToMessageWithType()), error);
+      }
     }
 
     private string val(string line)
     {
       if (string.IsNullOrEmpty(line)) return string.Empty;
-
       int i = line.IndexOf('=');
-
-      if (i < 0) return line;
-
-      return line.Substring(i + 1);
+      if (i < 0) return line.Trim();
+      return line.Substring(i + 1).Trim();
     }
-
     #endregion
   }
 }
