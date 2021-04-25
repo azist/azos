@@ -34,7 +34,33 @@ namespace Azos.Data.Heap
     IEnumerable<INode> RelativeTo(string hostName);
   }
 
+  /// <summary>
+  /// Provides node status information
+  /// </summary>
+  public interface INodeStatusInfo
+  {
+    /// <summary>
+    /// Utc timestamp as of which the status was determined
+    /// </summary>
+    DateTime AsOfUtc { get; }
 
+    /// <summary>
+    /// Returns the version of type schema deployed on the node.
+    /// If this value does not correspond to local value then auto-replication is paused until
+    /// the values match
+    /// </summary>
+    ulong SchemaVersion { get; }
+
+    /// <summary>
+    /// Node status
+    /// </summary>
+    NodeStatus Status {  get; }
+
+    /// <summary>
+    /// Terse description of status(if any)
+    /// </summary>
+    string Description {  get; }
+  }
 
   /// <summary>
   /// Represents a heap node logical process. Heap clients connect to heap nodes to get data
@@ -57,6 +83,16 @@ namespace Azos.Data.Heap
     /// Globally-unique cluster node identifier. Every HeapObject instance gets Sys_VerNode stamp by the server
     /// </summary>
     Atom NodeId { get; }
+
+    /// <summary>
+    /// Returns the latest/current status of the node
+    /// </summary>
+    INodeStatusInfo CurrentStatus {  get; }
+
+    /// <summary>
+    /// Returns node status history which is typically used for admin purposes
+    /// </summary>
+    IEnumerable<INodeStatusInfo> StatusHistory {  get; }
 
     /// <summary>
     /// Node properties like whether a node supports data changes or a read-only node

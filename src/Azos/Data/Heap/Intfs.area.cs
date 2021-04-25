@@ -19,9 +19,9 @@ namespace Azos.Data.Heap
   /// Resolves names to types.
   /// Schema detects version of assemblies where types are declared. The version is used to
   /// coordinate between nodes which run the same versions of data objects thus enabling their CRDT convergence.
-  /// The nodes which run different versions are not replicated with until the same type schema version
+  /// The nodes which run different versions are not replicated-from until the same type schema version
   /// gets installed on all nodes in the cluster ensuring eventual consistency backed by the same code.
-  /// ATTENTION: All nodes of data heap must be installed THE SAME assemblies built on the same machine, otherwise
+  /// ATTENTION: All nodes of data heap must be installed THE SAME assembly binaries built on the same machine, otherwise
   /// the schema versions will be different and replication will not happen
   /// </summary>
   public interface ITypeSchema
@@ -32,8 +32,8 @@ namespace Azos.Data.Heap
     IArea Area { get; }
 
     /// <summary>
-    /// Provides version digest - a hash value derived from all assemblies participating in a type schema.
-    /// The system uses this value to coordinate versions of ITypeSchema instances deployed on every node in cluster.
+    /// Provides the version digest - a hash value derived from all assemblies participating in this type schema.
+    /// The system uses this value to coordinate versions of ITypeSchema instances deployed on every node in the cluster.
     /// ATTENTION: All nodes must be deployed the same set of assembly binaries built on the same machine (so their BuildInfo are identical)
     /// otherwise the heap data will not auto replicate
     /// </summary>
@@ -69,7 +69,7 @@ namespace Azos.Data.Heap
   /// <summary>
   /// Defines a logical division/area/namespace of the data heap.
   /// Each area has its own set of nodes which service it.
-  /// All nodes must be EVENTUALLY deployed same assemblies.
+  /// All nodes must be EVENTUALLY deployed the same assemblies.
   /// The replication is paused until all nodes run assemblies with the same BUILD-INFO,
   /// otherwise the data may not eventually converge
   /// </summary>
