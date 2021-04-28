@@ -68,4 +68,31 @@ namespace Azos.Data.Heap
   }
 
 
+  /// <summary>
+  /// Node status: Online/Offline/Failed as observed from the calling peer
+  /// </summary>
+  public enum NodeStatus
+  {
+    /// <summary>
+    /// The connection with the node has not been established yet
+    /// </summary>
+    Undefined = 0,
+
+    /// <summary>
+    /// Node is connected and functioning as expected
+    /// </summary>
+    Online,
+
+    /// <summary>
+    /// Node is offline/inactive due to planned maintenance or inactivated manually
+    /// </summary>
+    Offline,
+
+    /// <summary>
+    /// Communication failure - does not respond as expected or does not respond at all.
+    /// This does not mean necessarily that node is down, it may be having network issues
+    /// </summary>
+    Failure
+  }
+
 }

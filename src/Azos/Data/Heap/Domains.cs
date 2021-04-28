@@ -30,6 +30,8 @@ namespace Azos.Data.Heap
     /// <summary>
     /// Valid Data Heap Identifiers are between 3 to 32 characters in length, having only these characters: [A..Z|a..z|0..9|_|-].
     /// The '-' and '_' are not allowed as the very first or the very last characters.
+    /// The Ids are case-insensitive within heap but their case is preserved as-is for storage engines which may be either
+    /// case sensitive or insensitive
     /// </summary>
     /// <remarks>
     /// The enforcement of Latin-only characters is needed to ensure compatibility with various storage engines
