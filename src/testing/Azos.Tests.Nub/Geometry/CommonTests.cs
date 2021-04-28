@@ -30,7 +30,6 @@ namespace Azos.Tests.Nub.Geometry
       Aver.AreObjectsEqual(dir1, dir3);
     }
 
-
     [Run]
     public void Distance()
     {
@@ -252,7 +251,7 @@ namespace Azos.Tests.Nub.Geometry
       var points = VectorUtils.VectorizeBalloon(rect, target, lagSweep);
 
       foreach (var p in points)
-        Console.WriteLine(p.ToString());
+        p.ToString().See();
 
       Aver.AreEqual(7, points.Length);
 

@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using Azos.Data;
 using Azos.Scripting;
 using Azos.Security;
@@ -114,24 +113,22 @@ namespace Azos.Tests.Nub.Security
       Aver.IsTrue(new SysAuthToken("a", "b") != new SysAuthToken("a", "bbbb"));
     }
 
-
     [Run]
     public void Bin()
     {
       var bin = new byte[]{1,2,3,4,5};
       var t = new SysAuthToken("sys", bin);
-      Console.WriteLine(t);
+      t.See();
       var bin2 = t.BinData;
       Aver.IsTrue(bin.MemBufferEquals(bin2));
     }
-
 
     [Run]
     public void JsonSer()
     {
       var d = new {a = 199, t = new SysAuthToken("sys","1234")};
       var json = d.ToJson();
-      Console.WriteLine(json);
+      json.See();
 
       var got = json.JsonToDataObject() as JsonDataMap;
       Aver.IsNotNull(got);
@@ -139,6 +136,7 @@ namespace Azos.Tests.Nub.Security
       Aver.AreEqual(199, got["a"].AsInt());
       Aver.AreEqual("sys::1234", got["t"].AsString());
     }
+
 
     public class Data : TypedDoc
     {
@@ -151,14 +149,13 @@ namespace Azos.Tests.Nub.Security
     {
       var d = new Data{ Token = new SysAuthToken("sys", "1234") };
       var json = d.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
 
       var map = json.JsonToDataObject() as JsonDataMap;
       var got = JsonReader.ToDoc<Data>(map);
 
       Aver.AreEqual(d.Token, got.Token);
     }
-
 
   }
 }

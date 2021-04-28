@@ -4,8 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -133,7 +131,7 @@ aaa"",""
           Aver.IsTrue(value.IsNullOrWhiteSpace() || value.Contains("aaa"));
           count++;
         }
-        Console.WriteLine(count);
+        count.See();
       }
       foreach (var row in csv.ParseCSV(skipHeader: true, columns: 3, skipIfMore: true, addIfLess: true))
       {
@@ -143,7 +141,7 @@ aaa"",""
           Aver.IsTrue(value.IsNullOrWhiteSpace() || value.Contains("aaa"));
           count++;
         }
-        Console.WriteLine(count);
+        count.See();
       }
       foreach (var row in csv.ParseCSV(columns: 3, skipIfMore: true, addIfLess: true))
       {
@@ -153,8 +151,9 @@ aaa"",""
           Aver.IsTrue(value.IsNullOrWhiteSpace() || value.Contains("aaa"));
           count++;
         }
-        Console.WriteLine(count);
+        count.See();
       }
     }
+
   }
 }

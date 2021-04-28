@@ -59,7 +59,6 @@ namespace Azos.Tests.Nub.Security
       Aver.IsFalse(HashedPassword.AreStringsEqualInLengthConstantTime(null,""));
     }
 
-
     [Run("a='' b='' eq=true")]
     [Run("a='1' b='1' eq=true")]
     [Run("a='1,2,3' b='1,2,3' eq=true")]
@@ -127,7 +126,7 @@ namespace Azos.Tests.Nub.Security
       swSlow.Stop();
 
       Aver.IsTrue(swEquals.ElapsedMilliseconds < swSlow.ElapsedMilliseconds);
-      Console.WriteLine("string.Equals: {0}  Slow: {1}".Args(swEquals.ElapsedMilliseconds, swSlow.ElapsedMilliseconds));
+      "string.Equals: {0}  Slow: {1}".SeeArgs(swEquals.ElapsedMilliseconds, swSlow.ElapsedMilliseconds);
     }
 
   }

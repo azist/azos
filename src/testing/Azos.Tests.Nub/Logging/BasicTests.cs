@@ -4,8 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System;
 using System.Linq;
 using System.Threading;
 
@@ -38,7 +36,7 @@ namespace Azos.Tests.Nub.Logging
 
         using(var sink = new MemoryBufferSink(logger))
         {
-          Console.WriteLine(sink.Name);
+          sink.Name.See();
           Aver.IsTrue(sink.Name.StartsWith("MemoryBufferSink."));//anonymous sinks get their name from their:   'type.fid'
 
           logger.Start();//now it can start
@@ -119,7 +117,6 @@ log
       }
     }
 
-
     //In this test we try to setup our own logger instance manually
     //injecting memory buffer from config vector
     [Run]
@@ -182,7 +179,6 @@ log
         Aver.AreEqual("And now error", s1.Buffered.Skip(2).FirstOrDefault().Text);
       }
     }
-
 
   }
 }

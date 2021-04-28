@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
-
 using Azos.Data;
 using Azos.Financial;
 using Azos.IO;
@@ -21,18 +20,18 @@ using Azos.Pile;
 
 namespace Azos.Tests.Nub.Serialization
 {
-    [Runnable]
-    public class ARowAllTypesTests : IRunnableHook
+  [Runnable]
+  public class ARowAllTypesTests : IRunnableHook
+  {
+    void IRunnableHook.Prologue(Runner runner, FID id)
     {
-      void IRunnableHook.Prologue(Runner runner, FID id)
-      {
-        ArowSerializer.RegisterTypeSerializationCores( Assembly.GetExecutingAssembly() );
-      }
+      ArowSerializer.RegisterTypeSerializationCores(Assembly.GetExecutingAssembly());
+    }
 
-      bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error) => false;
+    bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error) => false;
 
-      private static readonly AllArowTypesRow[] CASES = new []
-      {
+    private static readonly AllArowTypesRow[] CASES = new[]
+    {
         new AllArowTypesRow(),
         new AllArowTypesRow(){Bool1=true, Bool2=null},
         new AllArowTypesRow(){Bool1=false, Bool2=true},
@@ -57,7 +56,6 @@ namespace Azos.Tests.Nub.Serialization
         new AllArowTypesRow(){Double1=3423.455d, Double2=56456.989d},
         new AllArowTypesRow(){Double1=324.234d, Double2=23423d, Double3=new double[]{0,0,234.23d}},
         new AllArowTypesRow(){Double1=123.12d, Double2=33.34d, Double4=new List<double>{1d,3d,90.34d,23.2d}},
-
 
         new AllArowTypesRow(){Decimal1=12.3m, Decimal2=null},
         new AllArowTypesRow(){Decimal1=3423.455m, Decimal2=56456.989m},
@@ -89,7 +87,6 @@ namespace Azos.Tests.Nub.Serialization
         new AllArowTypesRow(){UShort1=34,  UShort2=23, UShort3=new ushort[]{0,0,1,2,3,4,5,6,7,8,9,23}},
         new AllArowTypesRow(){UShort1=76,  UShort2=32, UShort4=new List<ushort>{9,9,23,43,3,323,65535}},
 
-
         new AllArowTypesRow(){Int1=123,Int2=null},
         new AllArowTypesRow(){Int1=2,  Int2=23},
         new AllArowTypesRow(){Int1=34, Int2=23, Int3=new int[]{0,0,-1,2,3,4,5,6,7,8,9,23}},
@@ -99,7 +96,6 @@ namespace Azos.Tests.Nub.Serialization
         new AllArowTypesRow(){UInt1=2,  UInt2=23},
         new AllArowTypesRow(){UInt1=34, UInt2=23, UInt3=new uint[]{0,0,1,2,3,4,5,6,7,8,9,23}},
         new AllArowTypesRow(){UInt1=76, UInt2=32, UInt4=new List<uint>{9,9,23,43,3,323,65535}},
-
 
         new AllArowTypesRow(){Long1=123,Long2=null},
         new AllArowTypesRow(){Long1=2,  Long2=23},
@@ -126,18 +122,15 @@ namespace Azos.Tests.Nub.Serialization
         new AllArowTypesRow(){Guid1= Guid.NewGuid(),  Guid2=Guid.NewGuid(), Guid3=new Guid[]{Guid.NewGuid(),Guid.NewGuid()}},
         new AllArowTypesRow(){Guid1= Guid.NewGuid(),  Guid2=Guid.NewGuid(), Guid4=new List<Guid>{Guid.NewGuid(),Guid.NewGuid(),Guid.NewGuid()}},
 
-
         new AllArowTypesRow(){GDID1= new GDID(32,2335532),  GDID2=null},
         new AllArowTypesRow(){GDID1= new GDID(32,2323432),  GDID2= new GDID(32,2323432)},
         new AllArowTypesRow(){GDID1= new GDID(32,2233432),  GDID2= new GDID(32,2233432), GDID3=new GDID[]{new GDID(32,232), new GDID(2, 876)}},
         new AllArowTypesRow(){GDID1= new GDID(32,2323352),  GDID2= new GDID(32,2323352), GDID4=new List<GDID>{new GDID(3652,232),new GDID(432,232),new GDID(312,232)}},
 
-
         new AllArowTypesRow(){Fid1= FID.Generate(),  Fid2=null},
         new AllArowTypesRow(){Fid1= FID.Generate(),  Fid2=FID.Generate()},
         new AllArowTypesRow(){Fid1= FID.Generate(),  Fid2=FID.Generate(), Fid3=new FID[]{FID.Generate(),FID.Generate()}},
         new AllArowTypesRow(){Fid1= FID.Generate(),  Fid2=FID.Generate(), Fid4=new List<FID>{FID.Generate(),FID.Generate(),FID.Generate()}},
-
 
         new AllArowTypesRow(){PilePointer1= new PilePointer(32,26335532),  PilePointer2=null},
         new AllArowTypesRow(){PilePointer1= new PilePointer(32,278323432),  PilePointer2= new PilePointer(32,23223432)},
@@ -188,120 +181,112 @@ namespace Azos.Tests.Nub.Serialization
 
       };
 
+    [Run]
+    public void Test_AllFieldsEqual()
+    {
+      var r1 = new AllArowTypesRow { Bool3 = new bool[] { true, false, true } };
+      var r2 = new AllArowTypesRow { Bool3 = new bool[] { true, false } };
+      Aver.IsFalse(r1.AllFieldsEqual(r2));
 
-      [Run]
-      public void Test_AllFieldsEqual()
+      r1 = new AllArowTypesRow { Bool3 = new bool[] { true, false } };
+      r2 = new AllArowTypesRow { Bool3 = new bool[] { true, false, true } };
+      Aver.IsFalse(r1.AllFieldsEqual(r2));
+
+      r1 = new AllArowTypesRow { Bool4 = new List<bool> { true, false, true } };
+      r2 = new AllArowTypesRow { Bool4 = new List<bool> { false } };
+      Aver.IsFalse(r1.AllFieldsEqual(r2));
+
+      r1 = new AllArowTypesRow { Bool4 = new List<bool> { true } };
+      r2 = new AllArowTypesRow { Bool4 = new List<bool> { false } };
+      Aver.IsFalse(r1.AllFieldsEqual(r2));
+
+      r1 = new AllArowTypesRow { Bool4 = new List<bool> { true } };
+      r2 = new AllArowTypesRow { Bool4 = new List<bool> { true } };
+      Aver.IsTrue(r1.AllFieldsEqual(r2));
+    }
+
+    [Run]
+    public void OneByOne()
+    {
+      var writer = SlimFormat.Instance.GetWritingStreamer();
+      var reader = SlimFormat.Instance.GetReadingStreamer();
+      var fail = "";
+      using (var ms = new MemoryStream())
       {
-        var r1 = new AllArowTypesRow{ Bool3=new bool[]{true, false, true}};
-        var r2 = new AllArowTypesRow{ Bool3=new bool[]{true, false}};
-        Aver.IsFalse( r1.AllFieldsEqual(r2) );
-
-        r1 = new AllArowTypesRow{ Bool3=new bool[]{true, false}};
-        r2 = new AllArowTypesRow{ Bool3=new bool[]{true, false, true}};
-        Aver.IsFalse( r1.AllFieldsEqual(r2) );
-
-        r1 = new AllArowTypesRow{ Bool4=new List<bool>{true, false, true}};
-        r2 = new AllArowTypesRow{ Bool4=new List<bool>{false}};
-        Aver.IsFalse( r1.AllFieldsEqual(r2) );
-
-        r1 = new AllArowTypesRow{ Bool4=new List<bool>{true}};
-        r2 = new AllArowTypesRow{ Bool4=new List<bool>{false}};
-        Aver.IsFalse( r1.AllFieldsEqual(r2) );
-
-        r1 = new AllArowTypesRow{ Bool4=new List<bool>{true}};
-        r2 = new AllArowTypesRow{ Bool4=new List<bool>{true}};
-        Aver.IsTrue( r1.AllFieldsEqual(r2) );
-      }
-
-
-      [Run]
-      public void OneByOne()
-      {
-        var writer = SlimFormat.Instance.GetWritingStreamer();
-        var reader = SlimFormat.Instance.GetReadingStreamer();
-        var fail = "";
-        using(var ms = new MemoryStream())
+        for (var i = 0; i < CASES.Length; i++)
         {
-          for(var i=0; i<CASES.Length; i++)
-          {
-            var row1 = CASES[i];
+          var row1 = CASES[i];
 
-            Console.WriteLine("Test #{0}".Args(i));
-            Console.WriteLine("--------------------------------------------------");
-            Console.WriteLine(row1.ToJson());
+          "Test #{0}".SeeArgs(i);
+          "--------------------------------------------------".See();
+          row1.ToJson().See();
 
+          ms.Position = 0;
 
-            ms.Position = 0;
-
-            writer.BindStream(ms);
-            ArowSerializer.Serialize(row1, writer);
-            writer.UnbindStream();
-
-            ms.Position = 0;
-
-            var row2 = new AllArowTypesRow();
-            reader.BindStream(ms);
-            ArowSerializer.Deserialize(row2, reader);
-            reader.UnbindStream();
-
-            if (!row1.AllFieldsEqual( row2 ))
-            {
-              Console.WriteLine(row2.ToJson());
-              Console.WriteLine("FAIL");
-              fail =  "The test case #{0} has failed.\nJSON:\n{1}".Args(i, row1.ToJson());
-            }
-            else
-              Console.WriteLine("PASS");
-
-            Console.WriteLine();
-          }
-          if (fail.IsNotNullOrWhiteSpace())
-            Aver.Fail(fail);
-        }
-      }
-
-
-      [Run]
-      public void OneAfterAnother()
-      {
-        var writer = SlimFormat.Instance.GetWritingStreamer();
-        var reader = SlimFormat.Instance.GetReadingStreamer();
-        var fail = "";
-        using(var ms = new MemoryStream())
-        {
           writer.BindStream(ms);
-          for(var i=0; i<CASES.Length; i++)
-          {
-            var row1 = CASES[i];
-            ArowSerializer.Serialize(row1, writer);
-          }
+          ArowSerializer.Serialize(row1, writer);
           writer.UnbindStream();
 
           ms.Position = 0;
+
+          var row2 = new AllArowTypesRow();
           reader.BindStream(ms);
-          for(var i=0; i<CASES.Length; i++)
-          {
-            var row1 = CASES[i];
-            var row2 = new AllArowTypesRow();
-            ArowSerializer.Deserialize(row2, reader);
-
-            if (!row1.AllFieldsEqual( row2 ))
-            {
-              Console.WriteLine(row2.ToJson());
-              Console.WriteLine("FAIL");
-              fail =  "The test case #{0} has failed.\nJSON:\n{1}".Args(i, row1.ToJson());
-            }
-            else
-              Console.WriteLine("PASS");
-
-            Console.WriteLine();
-          }
+          ArowSerializer.Deserialize(row2, reader);
           reader.UnbindStream();
-          if (fail.IsNotNullOrWhiteSpace())
-            Aver.Fail(fail);
+
+          if (!row1.AllFieldsEqual(row2))
+          {
+            row2.ToJson().See();
+            "FAIL".See();
+            fail = "The test case #{0} has failed.\nJSON:\n{1}".Args(i, row1.ToJson());
+          }
+          else
+            "PASS".See();
+
         }
+        if (fail.IsNotNullOrWhiteSpace())
+          Aver.Fail(fail);
       }
-
-
     }
+
+    [Run]
+    public void OneAfterAnother()
+    {
+      var writer = SlimFormat.Instance.GetWritingStreamer();
+      var reader = SlimFormat.Instance.GetReadingStreamer();
+      var fail = "";
+      using (var ms = new MemoryStream())
+      {
+        writer.BindStream(ms);
+        for (var i = 0; i < CASES.Length; i++)
+        {
+          var row1 = CASES[i];
+          ArowSerializer.Serialize(row1, writer);
+        }
+        writer.UnbindStream();
+
+        ms.Position = 0;
+        reader.BindStream(ms);
+        for (var i = 0; i < CASES.Length; i++)
+        {
+          var row1 = CASES[i];
+          var row2 = new AllArowTypesRow();
+          ArowSerializer.Deserialize(row2, reader);
+
+          if (!row1.AllFieldsEqual(row2))
+          {
+            row2.ToJson().See();
+            "FAIL".See();
+            fail = "The test case #{0} has failed.\nJSON:\n{1}".Args(i, row1.ToJson());
+          }
+          else
+            "PASS".See();
+        }
+        reader.UnbindStream();
+        if (fail.IsNotNullOrWhiteSpace())
+          Aver.Fail(fail);
+      }
+    }
+
+  }
 }

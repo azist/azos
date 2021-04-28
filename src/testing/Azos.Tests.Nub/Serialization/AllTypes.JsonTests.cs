@@ -20,29 +20,29 @@ namespace Azos.Tests.Nub.Serialization
 {
 
 
-//////#warning FInish after JSOn -> doc refactoring
-//////  /// <summary>
-//////  /// Covers all primitive and intrinsic types
-//////  /// </summary>
-//////  [Runnable]
-//////  public class AllTypesDocJsonTests : AmorphousTypedDoc
-//////  {
-//////    [Run]
-//////    public void Json()
-//////    {
-//////      var d1 = new AllTypesDoc();
-//////      d1.Populate();
+  //////#warning FInish after JSOn -> doc refactoring
+  //////  /// <summary>
+  //////  /// Covers all primitive and intrinsic types
+  //////  /// </summary>
+  //////  [Runnable]
+  //////  public class AllTypesDocJsonTests : AmorphousTypedDoc
+  //////  {
+  //////    [Run]
+  //////    public void Json()
+  //////    {
+  //////      var d1 = new AllTypesDoc();
+  //////      d1.Populate();
 
-//////      var jsonString = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-//////      Console.WriteLine(jsonString);
-//////      // System.IO.File.WriteAllText("c:\\azos\\jzon.txt", jsonString);
-//////      var jsonMap = jsonString.JsonToDataObject() as JsonDataMap;
+  //////      var jsonString = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
+  //////      jsonString.See();
+  //////      // System.IO.File.WriteAllText("c:\\azos\\jzon.txt", jsonString);
+  //////      var jsonMap = jsonString.JsonToDataObject() as JsonDataMap;
 
 
-//////      var d2 = new AllTypesDoc();
-//////      JsonReader.ToDoc(d2, jsonMap);
+  //////      var d2 = new AllTypesDoc();
+  //////      JsonReader.ToDoc(d2, jsonMap);
 
-//////      d1.AverEquality(d2);
-//////    }
-//////  }
+  //////      d1.AverEquality(d2);
+  //////    }
+  //////  }
 }

@@ -164,7 +164,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
            JsonTokenType.tBraceClose, JsonTokenType.tEOF};
 
       //lxr.AnalyzeAll();
-      //Console.Write(lxr.ToString());
+      //lxr.ToString().See();
       Aver.IsTrue(lxr.Select(t => t.Type).SequenceEqual(expected));
     }
 
