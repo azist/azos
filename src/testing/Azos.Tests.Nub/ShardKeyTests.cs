@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+
 using Azos.Data;
 using Azos.Data.Idgen;
 using Azos.Scripting;
@@ -103,7 +104,6 @@ namespace Azos.Tests.Nub
       Aver.IsTrue(new ShardKey(v).GetHashCode() == h.GetHashCode());
     }
 
-
     [Run]
     public void GDID_001()
     {
@@ -140,7 +140,6 @@ namespace Azos.Tests.Nub
       Aver.AreEqual(new ShardKey(new GDID(2, 1, 123)), new ShardKey(new GDID(2, 1, 123)));
     }
 
-
     [Run]
     public void GUID_001()
     {
@@ -161,7 +160,6 @@ namespace Azos.Tests.Nub
       var guid2 = Guid.NewGuid();
       Aver.AreNotEqual(new ShardKey(guid1).Hash, new ShardKey(guid2).Hash);
     }
-
 
     [Run]
     public void uINT_001()
@@ -214,7 +212,6 @@ namespace Azos.Tests.Nub
       Aver.AreEqual(new ShardKey(ulong.MinValue), new ShardKey(ulong.MinValue));
       Aver.AreEqual(new ShardKey(ulong.MaxValue), new ShardKey(ulong.MaxValue));
     }
-
 
     //todo: Use the site to check specific hashes for ulongs, strings, byte[] and dates
     //https://md5calc.com/hash/fnv1a64
@@ -307,7 +304,6 @@ namespace Azos.Tests.Nub
       Aver.AreNotEqual(v1.ValueAtom, v2.ValueAtom);
       Aver.IsTrue(v1 != v2);
     }
-
 
     [Run]
     public void ShardKey_EntityId()
@@ -514,7 +510,6 @@ namespace Azos.Tests.Nub
       Aver.IsTrue(v1 != v2);
     }
 
-
     [Run]
     public void ShardKey_ByteArray()
     {
@@ -571,6 +566,7 @@ namespace Azos.Tests.Nub
       public ulong GetDistributedStableHash() => Data;
     }
 
+
     [Run]
     public void ShardKey_Object_IDistributedStableHashProvider()
     {
@@ -607,7 +603,6 @@ namespace Azos.Tests.Nub
       v2 = new ShardKey(new Cuztom { Data = 124 });//different instance and different data
       Aver.AreNotEqual(v1.Hash, v2.Hash);//these are NOT equal as data is different
     }
-
 
     [Run]
     public void ShardKey_Gdid_Collision()

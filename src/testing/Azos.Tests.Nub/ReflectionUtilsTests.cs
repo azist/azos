@@ -69,7 +69,7 @@ namespace Azos.Tests.Nub
     public void ToDescription()
     {
       var d = GetType().GetMethod("method1").ToDescription();
-      Console.WriteLine(d);
+      d.See();
       Aver.AreEqual("Azos.Tests.Nub.ReflectionUtilsTests{Method 'method1'}", d);
     }
 

@@ -4,115 +4,111 @@
 * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 using Azos.Scripting;
 using static Azos.Aver.ThrowsAttribute;
 
 namespace Azos.Tests.Nub
 {
-
   [Runnable]
   public class MiscUtilsTest
   {
     [Run]
     public void ReadWriteBEShortTestStream()
     {
-        var ms = new MemoryStream();
-        ms.WriteBEShort(789);
-        Aver.AreEqual(2, ms.Position);
-        Aver.IsTrue((new byte[] { 0x03, 0x15 }).MemBufferEquals(ms.ToArray()));
+      var ms = new MemoryStream();
+      ms.WriteBEShort(789);
+      Aver.AreEqual(2, ms.Position);
+      Aver.IsTrue((new byte[] { 0x03, 0x15 }).MemBufferEquals(ms.ToArray()));
 
-        ms.Position = 0;
-        Aver.AreEqual(789, ms.ReadBEShort());
+      ms.Position = 0;
+      Aver.AreEqual(789, ms.ReadBEShort());
     }
 
     [Run]
     public void ReadWriteLEShortTestStream()
     {
-        var ms = new MemoryStream();
-        ms.WriteLEShort(789);
-        Aver.AreEqual(2, ms.Position);
-        Aver.IsTrue((new byte[] { 21, 3 }).MemBufferEquals(ms.ToArray()));
+      var ms = new MemoryStream();
+      ms.WriteLEShort(789);
+      Aver.AreEqual(2, ms.Position);
+      Aver.IsTrue((new byte[] { 21, 3 }).MemBufferEquals(ms.ToArray()));
 
-        ms.Position = 0;
-        Aver.AreEqual(789, ms.ReadLEShort());
+      ms.Position = 0;
+      Aver.AreEqual(789, ms.ReadLEShort());
 
-        ms.Position = 0;
-        ms.WriteLEUShort(789);
-        Aver.AreEqual(2, ms.Position);
-        Aver.IsTrue((new byte[] { 21, 3 }).MemBufferEquals(ms.ToArray()));
-        ms.Position = 0;
-        Aver.AreEqual(789, ms.ReadLEUShort());
+      ms.Position = 0;
+      ms.WriteLEUShort(789);
+      Aver.AreEqual(2, ms.Position);
+      Aver.IsTrue((new byte[] { 21, 3 }).MemBufferEquals(ms.ToArray()));
+      ms.Position = 0;
+      Aver.AreEqual(789, ms.ReadLEUShort());
     }
 
     [Run]
     public void ReadWriteBEShortTestArray()
     {
-        var buf = new byte[2];
-        buf.WriteBEShort(0, 789);
-        Aver.IsTrue((new byte[] { 0x03, 0x15 }).MemBufferEquals(buf));
+      var buf = new byte[2];
+      buf.WriteBEShort(0, 789);
+      Aver.IsTrue((new byte[] { 0x03, 0x15 }).MemBufferEquals(buf));
 
-        var idx = 0;
-        Aver.AreEqual(789, buf.ReadBEShort(ref idx));
-        Aver.AreEqual(2, idx);
+      var idx = 0;
+      Aver.AreEqual(789, buf.ReadBEShort(ref idx));
+      Aver.AreEqual(2, idx);
     }
 
     [Run]
     public void ReadWriteLEShortTestArray()
     {
-        var buf = new byte[2];
-        buf.WriteLEShort(0, 770);
-        Aver.IsTrue((new byte[] { 2, 3 }).MemBufferEquals(buf));
+      var buf = new byte[2];
+      buf.WriteLEShort(0, 770);
+      Aver.IsTrue((new byte[] { 2, 3 }).MemBufferEquals(buf));
 
-        var idx = 0;
-        Aver.AreEqual(770, buf.ReadLEShort(ref idx));
-        Aver.AreEqual(2, idx);
+      var idx = 0;
+      Aver.AreEqual(770, buf.ReadLEShort(ref idx));
+      Aver.AreEqual(2, idx);
     }
 
     [Run]
     public void ReadWriteBEInt32TestStream()
     {
-        var ms = new MemoryStream();
-        ms.WriteBEInt32(16909060);
-        Aver.AreEqual(4, ms.Position);
-        Aver.IsTrue((new byte[] { 1, 2, 3, 4 }).MemBufferEquals(ms.ToArray()));
+      var ms = new MemoryStream();
+      ms.WriteBEInt32(16909060);
+      Aver.AreEqual(4, ms.Position);
+      Aver.IsTrue((new byte[] { 1, 2, 3, 4 }).MemBufferEquals(ms.ToArray()));
 
-        ms.Position = 0;
-        Aver.AreEqual(16909060, ms.ReadBEInt32());
+      ms.Position = 0;
+      Aver.AreEqual(16909060, ms.ReadBEInt32());
     }
 
     [Run]
     public void ReadWriteLEInt32TestStream()
     {
-        var ms = new MemoryStream();
-        ms.WriteLEInt32(16909060);
-        Aver.AreEqual(4, ms.Position);
-        Aver.IsTrue((new byte[] { 4, 3, 2, 1 }).MemBufferEquals(ms.ToArray()));
+      var ms = new MemoryStream();
+      ms.WriteLEInt32(16909060);
+      Aver.AreEqual(4, ms.Position);
+      Aver.IsTrue((new byte[] { 4, 3, 2, 1 }).MemBufferEquals(ms.ToArray()));
 
-        ms.Position = 0;
-        Aver.AreEqual(16909060, ms.ReadLEInt32());
+      ms.Position = 0;
+      Aver.AreEqual(16909060, ms.ReadLEInt32());
     }
 
     [Run]
     public void ReadWriteBEInt32TestArray()
     {
-        var buf = new byte[4];
-        buf.WriteBEInt32(16909060);
+      var buf = new byte[4];
+      buf.WriteBEInt32(16909060);
 
-        Aver.IsTrue((new byte[] { 1, 2, 3, 4 }).MemBufferEquals(buf));
+      Aver.IsTrue((new byte[] { 1, 2, 3, 4 }).MemBufferEquals(buf));
 
-        Aver.AreEqual(16909060, buf.ReadBEInt32());
+      Aver.AreEqual(16909060, buf.ReadBEInt32());
 
-        var idx = 0;
-        Aver.AreEqual(16909060, buf.ReadBEInt32(ref idx));
-        Aver.AreEqual(4,idx);
+      var idx = 0;
+      Aver.AreEqual(16909060, buf.ReadBEInt32(ref idx));
+      Aver.AreEqual(4, idx);
     }
-
 
     [Run]
     public unsafe void ReadWriteBEInt32TestBuffer()
@@ -125,59 +121,58 @@ namespace Azos.Tests.Nub
       Aver.AreEqual(4, idx);
     }
 
-
     [Run]
     public void ReadWriteLEInt32TestArray()
     {
-        var buf = new byte[4];
-        buf.WriteLEInt32(67305985);
+      var buf = new byte[4];
+      buf.WriteLEInt32(67305985);
 
-        Aver.IsTrue((new byte[] { 1, 2, 3, 4 }).MemBufferEquals(buf));
+      Aver.IsTrue((new byte[] { 1, 2, 3, 4 }).MemBufferEquals(buf));
 
-        Aver.AreEqual(67305985, buf.ReadLEInt32());
+      Aver.AreEqual(67305985, buf.ReadLEInt32());
 
-        var idx = 0;
-        Aver.AreEqual(67305985, buf.ReadLEInt32(ref idx));
-        Aver.AreEqual(4, idx);
+      var idx = 0;
+      Aver.AreEqual(67305985, buf.ReadLEInt32(ref idx));
+      Aver.AreEqual(4, idx);
     }
 
     [Run]
     public void ReadWriteBEInt64TestStream()
     {
-        var ms = new MemoryStream();
-        ms.WriteBEUInt64(0xFACACA07EBEDDAFE);
-        Aver.AreEqual(8, ms.Position);
-        Aver.IsTrue((new byte[] { 0xFA, 0xCA, 0xCA, 0x07, 0xEB, 0xED, 0xDA, 0xFE }).MemBufferEquals(ms.ToArray()));
+      var ms = new MemoryStream();
+      ms.WriteBEUInt64(0xFACACA07EBEDDAFE);
+      Aver.AreEqual(8, ms.Position);
+      Aver.IsTrue((new byte[] { 0xFA, 0xCA, 0xCA, 0x07, 0xEB, 0xED, 0xDA, 0xFE }).MemBufferEquals(ms.ToArray()));
 
-        ms.Position = 0;
-        Aver.AreEqual(0xFACACA07EBEDDAFE, ms.ReadBEUInt64());
-        ms.Position = 0;
-        Aver.AreEqual(0xFEDAEDEB07CACAFA, ms.ReadLEUInt64());
+      ms.Position = 0;
+      Aver.AreEqual(0xFACACA07EBEDDAFE, ms.ReadBEUInt64());
+      ms.Position = 0;
+      Aver.AreEqual(0xFEDAEDEB07CACAFA, ms.ReadLEUInt64());
     }
 
     [Run]
     public void ReadWriteLEInt64TestStream()
     {
-        var ms = new MemoryStream();
-        ms.WriteLEUInt64(0xFACACA07EBEDDAFE);
-        Aver.AreEqual(8, ms.Position);
-        Aver.IsTrue((new byte[] { 0xFE, 0xDA, 0xED, 0xEB, 0x07, 0xCA, 0xCA, 0xFA }).MemBufferEquals(ms.ToArray()));
+      var ms = new MemoryStream();
+      ms.WriteLEUInt64(0xFACACA07EBEDDAFE);
+      Aver.AreEqual(8, ms.Position);
+      Aver.IsTrue((new byte[] { 0xFE, 0xDA, 0xED, 0xEB, 0x07, 0xCA, 0xCA, 0xFA }).MemBufferEquals(ms.ToArray()));
 
-        ms.Position = 0;
-        Aver.AreEqual(0xFACACA07EBEDDAFE, ms.ReadLEUInt64());
+      ms.Position = 0;
+      Aver.AreEqual(0xFACACA07EBEDDAFE, ms.ReadLEUInt64());
     }
 
     [Run]
     public void ReadWriteBEInt64TestArray()
     {
-        var buf = new byte[8];
-        buf.WriteBEUInt64(0xFACACA07EBEDDAFE);
+      var buf = new byte[8];
+      buf.WriteBEUInt64(0xFACACA07EBEDDAFE);
 
-        Aver.IsTrue((new byte[] { 0xFA, 0xCA, 0xCA, 0x07, 0xEB, 0xED, 0xDA, 0xFE }).MemBufferEquals(buf));
-        Aver.AreEqual(0xFACACA07EBEDDAFE, buf.ReadBEUInt64());
-        var idx = 0;
-        Aver.AreEqual(0xFACACA07EBEDDAFE, buf.ReadBEUInt64(ref idx));
-        Aver.AreEqual(8,idx);
+      Aver.IsTrue((new byte[] { 0xFA, 0xCA, 0xCA, 0x07, 0xEB, 0xED, 0xDA, 0xFE }).MemBufferEquals(buf));
+      Aver.AreEqual(0xFACACA07EBEDDAFE, buf.ReadBEUInt64());
+      var idx = 0;
+      Aver.AreEqual(0xFACACA07EBEDDAFE, buf.ReadBEUInt64(ref idx));
+      Aver.AreEqual(8, idx);
     }
 
     [Run]
@@ -194,341 +189,328 @@ namespace Azos.Tests.Nub
     [Run]
     public void ReadWriteLEInt64TestArray()
     {
-        var buf = new byte[8];
-        buf.WriteLEUInt64(72057615580070401);
+      var buf = new byte[8];
+      buf.WriteLEUInt64(72057615580070401);
 
-        Aver.IsTrue((new byte[] { 1, 2, 3, 4, 5, 0, 0, 1 }).MemBufferEquals(buf));
-        Aver.IsTrue(72057615580070401 == buf.ReadLEUInt64());
-        var idx = 0;
-        Aver.IsTrue(72057615580070401 == buf.ReadLEUInt64(ref idx));
-        Aver.AreEqual(8,idx);
+      Aver.IsTrue((new byte[] { 1, 2, 3, 4, 5, 0, 0, 1 }).MemBufferEquals(buf));
+      Aver.IsTrue(72057615580070401 == buf.ReadLEUInt64());
+      var idx = 0;
+      Aver.IsTrue(72057615580070401 == buf.ReadLEUInt64(ref idx));
+      Aver.AreEqual(8, idx);
     }
-
 
     [Run]
     public void StringLines()
     {
-        var txt =
+      var txt =
 @"A,b,
 c,d,e
 f
 ";
-        Aver.AreEqual("A,b,", txt.ReadLine());
+      Aver.AreEqual("A,b,", txt.ReadLine());
 
-        var lines = txt.SplitLines();
+      var lines = txt.SplitLines();
 
-        Aver.AreEqual(4, lines.Length);
-        Aver.AreEqual("A,b,", lines[0]);
-        Aver.AreEqual("c,d,e", lines[1]);
-        Aver.AreEqual("f", lines[2]);
-        Aver.AreEqual("", lines[3]);
+      Aver.AreEqual(4, lines.Length);
+      Aver.AreEqual("A,b,", lines[0]);
+      Aver.AreEqual("c,d,e", lines[1]);
+      Aver.AreEqual("f", lines[2]);
+      Aver.AreEqual("", lines[3]);
     }
 
 
     [Run]
     public void Type_FullNameWithExpandedGenericArgs1()
     {
-        var t = typeof(List<string>);
+      var t = typeof(List<string>);
 
-        Aver.AreEqual("System.Collections.Generic.List<System.String>", t.FullNameWithExpandedGenericArgs(false));
-        Aver.AreEqual("@System.@Collections.@Generic.@List<@System.@String>", t.FullNameWithExpandedGenericArgs(true));
-        Aver.AreEqual("@System.@Collections.@Generic.@List<@System.@String>", t.FullNameWithExpandedGenericArgs());
+      Aver.AreEqual("System.Collections.Generic.List<System.String>", t.FullNameWithExpandedGenericArgs(false));
+      Aver.AreEqual("@System.@Collections.@Generic.@List<@System.@String>", t.FullNameWithExpandedGenericArgs(true));
+      Aver.AreEqual("@System.@Collections.@Generic.@List<@System.@String>", t.FullNameWithExpandedGenericArgs());
     }
 
     [Run]
     public void Type_FullNameWithExpandedGenericArgs2()
     {
-        var t = typeof(int?);
+      var t = typeof(int?);
 
-        Aver.AreEqual("System.Nullable<System.Int32>", t.FullNameWithExpandedGenericArgs(false));
-        Aver.AreEqual("@System.@Nullable<@System.@Int32>", t.FullNameWithExpandedGenericArgs(true));
-        Aver.AreEqual("@System.@Nullable<@System.@Int32>", t.FullNameWithExpandedGenericArgs());
+      Aver.AreEqual("System.Nullable<System.Int32>", t.FullNameWithExpandedGenericArgs(false));
+      Aver.AreEqual("@System.@Nullable<@System.@Int32>", t.FullNameWithExpandedGenericArgs(true));
+      Aver.AreEqual("@System.@Nullable<@System.@Int32>", t.FullNameWithExpandedGenericArgs());
     }
 
     [Run]
     public void Type_FullNameWithExpandedGenericArgs3()
     {
-        var t = typeof(Dictionary<DateTime?,List<bool?>>);
-        Aver.AreEqual("System.Collections.Generic.Dictionary<System.Nullable<System.DateTime>, System.Collections.Generic.List<System.Nullable<System.Boolean>>>", t.FullNameWithExpandedGenericArgs(false));
-        Aver.AreEqual("@System.@Collections.@Generic.@Dictionary<@System.@Nullable<@System.@DateTime>, @System.@Collections.@Generic.@List<@System.@Nullable<@System.@Boolean>>>", t.FullNameWithExpandedGenericArgs(true));
-        Aver.AreEqual("@System.@Collections.@Generic.@Dictionary<@System.@Nullable<@System.@DateTime>, @System.@Collections.@Generic.@List<@System.@Nullable<@System.@Boolean>>>", t.FullNameWithExpandedGenericArgs());
+      var t = typeof(Dictionary<DateTime?, List<bool?>>);
+      Aver.AreEqual("System.Collections.Generic.Dictionary<System.Nullable<System.DateTime>, System.Collections.Generic.List<System.Nullable<System.Boolean>>>", t.FullNameWithExpandedGenericArgs(false));
+      Aver.AreEqual("@System.@Collections.@Generic.@Dictionary<@System.@Nullable<@System.@DateTime>, @System.@Collections.@Generic.@List<@System.@Nullable<@System.@Boolean>>>", t.FullNameWithExpandedGenericArgs(true));
+      Aver.AreEqual("@System.@Collections.@Generic.@Dictionary<@System.@Nullable<@System.@DateTime>, @System.@Collections.@Generic.@List<@System.@Nullable<@System.@Boolean>>>", t.FullNameWithExpandedGenericArgs());
     }
 
     [Run]
     public void Type_FullNameWithExpandedGenericArgs4()
     {
-        var t = typeof(DateTime);
-        Aver.AreEqual("System.DateTime", t.FullNameWithExpandedGenericArgs(false));
-        Aver.AreEqual("@System.@DateTime", t.FullNameWithExpandedGenericArgs(true));
-        Aver.AreEqual("@System.@DateTime", t.FullNameWithExpandedGenericArgs());
+      var t = typeof(DateTime);
+      Aver.AreEqual("System.DateTime", t.FullNameWithExpandedGenericArgs(false));
+      Aver.AreEqual("@System.@DateTime", t.FullNameWithExpandedGenericArgs(true));
+      Aver.AreEqual("@System.@DateTime", t.FullNameWithExpandedGenericArgs());
     }
+
 
     internal class ClazzA
     {
-      public struct StructB{}
-      public class ClB{}
+      public struct StructB { }
+      public class ClB { }
     }
 
 
     [Run]
     public void Type_FullNameWithExpandedGenericArgs5()
     {
-        Aver.AreEqual("Azos.Tests.Nub.MiscUtilsTest.ClazzA.StructB", typeof(ClazzA.StructB).FullNameWithExpandedGenericArgs(false));
-        Aver.AreEqual("@Azos.@Tests.@Nub.@MiscUtilsTest.@ClazzA.@StructB", typeof(ClazzA.StructB).FullNameWithExpandedGenericArgs(true));
+      Aver.AreEqual("Azos.Tests.Nub.MiscUtilsTest.ClazzA.StructB", typeof(ClazzA.StructB).FullNameWithExpandedGenericArgs(false));
+      Aver.AreEqual("@Azos.@Tests.@Nub.@MiscUtilsTest.@ClazzA.@StructB", typeof(ClazzA.StructB).FullNameWithExpandedGenericArgs(true));
 
-        Aver.AreEqual("Azos.Tests.Nub.MiscUtilsTest.ClazzA.ClB", typeof(ClazzA.ClB).FullNameWithExpandedGenericArgs(false));
-        Aver.AreEqual("@Azos.@Tests.@Nub.@MiscUtilsTest.@ClazzA.@ClB", typeof(ClazzA.ClB).FullNameWithExpandedGenericArgs(true));
+      Aver.AreEqual("Azos.Tests.Nub.MiscUtilsTest.ClazzA.ClB", typeof(ClazzA.ClB).FullNameWithExpandedGenericArgs(false));
+      Aver.AreEqual("@Azos.@Tests.@Nub.@MiscUtilsTest.@ClazzA.@ClB", typeof(ClazzA.ClB).FullNameWithExpandedGenericArgs(true));
     }
 
     [Run]
     public void Type_FullNestedTypeName()
     {
-        Aver.AreEqual("MiscUtilsTest", typeof(MiscUtilsTest).FullNestedTypeName(false));
-        Aver.AreEqual("@MiscUtilsTest", typeof(MiscUtilsTest).FullNestedTypeName(true));
-        Aver.AreEqual("MiscUtilsTest.ClazzA", typeof(ClazzA).FullNestedTypeName(false));
-        Aver.AreEqual("@MiscUtilsTest.@ClazzA", typeof(ClazzA).FullNestedTypeName(true));
-        Aver.AreEqual("MiscUtilsTest.ClazzA.StructB", typeof(ClazzA.StructB).FullNestedTypeName(false));
-        Aver.AreEqual("@MiscUtilsTest.@ClazzA.@StructB", typeof(ClazzA.StructB).FullNestedTypeName(true));
+      Aver.AreEqual("MiscUtilsTest", typeof(MiscUtilsTest).FullNestedTypeName(false));
+      Aver.AreEqual("@MiscUtilsTest", typeof(MiscUtilsTest).FullNestedTypeName(true));
+      Aver.AreEqual("MiscUtilsTest.ClazzA", typeof(ClazzA).FullNestedTypeName(false));
+      Aver.AreEqual("@MiscUtilsTest.@ClazzA", typeof(ClazzA).FullNestedTypeName(true));
+      Aver.AreEqual("MiscUtilsTest.ClazzA.StructB", typeof(ClazzA.StructB).FullNestedTypeName(false));
+      Aver.AreEqual("@MiscUtilsTest.@ClazzA.@StructB", typeof(ClazzA.StructB).FullNestedTypeName(true));
     }
-
-
-
 
     [Run]
     public void Type_DisplayNameWithExpandedGenericArgs1()
     {
-        var t = typeof(List<string>);
+      var t = typeof(List<string>);
 
-        Aver.AreEqual("List<String>", t.DisplayNameWithExpandedGenericArgs());
+      Aver.AreEqual("List<String>", t.DisplayNameWithExpandedGenericArgs());
     }
 
     [Run]
     public void Type_DisplayNameWithExpandedGenericArgs2()
     {
-        var t = typeof(List<Dictionary<string, List<DateTime?>>>);
+      var t = typeof(List<Dictionary<string, List<DateTime?>>>);
 
-        Aver.AreEqual("List<Dictionary<String, List<Nullable<DateTime>>>>", t.DisplayNameWithExpandedGenericArgs());
+      Aver.AreEqual("List<Dictionary<String, List<Nullable<DateTime>>>>", t.DisplayNameWithExpandedGenericArgs());
     }
 
     [Run]
     public void Burmatographize1()
     {
-        Aver.AreEqual("aDmi", "Dima".Burmatographize());
-        Aver.AreEqual("aDmi", "Dima".Burmatographize(false));
-        Aver.AreEqual("Daim", "Dima".Burmatographize(true));
+      Aver.AreEqual("aDmi", "Dima".Burmatographize());
+      Aver.AreEqual("aDmi", "Dima".Burmatographize(false));
+      Aver.AreEqual("Daim", "Dima".Burmatographize(true));
     }
 
     [Run]
     public void Burmatographize2()
     {
-        Aver.AreEqual("mDi", "Dim".Burmatographize());
-        Aver.AreEqual("mDi", "Dim".Burmatographize(false));
-        Aver.AreEqual("Dmi", "Dim".Burmatographize(true));
-
+      Aver.AreEqual("mDi", "Dim".Burmatographize());
+      Aver.AreEqual("mDi", "Dim".Burmatographize(false));
+      Aver.AreEqual("Dmi", "Dim".Burmatographize(true));
     }
 
-      [Run]
+    [Run]
     public void Burmatographize3()
     {
-        Aver.AreEqual("iD", "Di".Burmatographize());
-        Aver.AreEqual("iD", "Di".Burmatographize(false));
-        Aver.AreEqual("Di", "Di".Burmatographize(true));
-
-    }
-
-
-      [Run]
-    public void Burmatographize4()
-    {
-        Aver.AreEqual("D", "D".Burmatographize());
-        Aver.AreEqual("D", "D".Burmatographize(false));
-        Aver.AreEqual("D", "D".Burmatographize(true));
-
-    }
-
-      [Run]
-    public void Burmatographize5()
-    {
-        var b = "Some.Assembly.Namespace1234.MyClassName".Burmatographize();
-        Console.WriteLine(b);
-        Aver.AreEqual("eSmoamNes.sAaslsCeymMb.l4y3.2N1aemceasp", b);
+      Aver.AreEqual("iD", "Di".Burmatographize());
+      Aver.AreEqual("iD", "Di".Burmatographize(false));
+      Aver.AreEqual("Di", "Di".Burmatographize(true));
     }
 
 
     [Run]
+    public void Burmatographize4()
+    {
+      Aver.AreEqual("D", "D".Burmatographize());
+      Aver.AreEqual("D", "D".Burmatographize(false));
+      Aver.AreEqual("D", "D".Burmatographize(true));
+    }
+
+    [Run]
+    public void Burmatographize5()
+    {
+      var b = "Some.Assembly.Namespace1234.MyClassName".Burmatographize();
+      b.See();
+      Aver.AreEqual("eSmoamNes.sAaslsCeymMb.l4y3.2N1aemceasp", b);
+    }
+
+    [Run]
     public void ArgsTpl1()
     {
-        var s = "My first name is {@FirstName@} and last name is {@LastName@}"
-                .ArgsTpl(new{FirstName="Alex", LastName="Borisov"});
-        Console.WriteLine(s);
-        Aver.AreEqual("My first name is Alex and last name is Borisov", s);
+      var s = "My first name is {@FirstName@} and last name is {@LastName@}"
+              .ArgsTpl(new { FirstName = "Alex", LastName = "Borisov" });
+      s.See();
+      Aver.AreEqual("My first name is Alex and last name is Borisov", s);
     }
 
     [Run]
     public void ArgsTpl2()
     {
-        var s = "My name is {@Name@} and i make {@Salary@,10} an hour"
-                .ArgsTpl(new{Name="Someone", Salary=125});
-        Console.WriteLine(s);
-        Aver.AreEqual("My name is Someone and i make        125 an hour", s);
+      var s = "My name is {@Name@} and i make {@Salary@,10} an hour"
+              .ArgsTpl(new { Name = "Someone", Salary = 125 });
+      s.See();
+      Aver.AreEqual("My name is Someone and i make        125 an hour", s);
     }
-
 
     [Run]
     public void MemBufferEquals_1()
     {
-      var b1 = new byte[]{0,1,2,3,4,5,6,7,8,9,0,1};
-      var b2 = new byte[]{0,1,2,3,4,5,6,7,8,9,0,1};
+      var b1 = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1 };
+      var b2 = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1 };
 
-      Aver.IsTrue( b1.MemBufferEquals( b2 ));
+      Aver.IsTrue(b1.MemBufferEquals(b2));
     }
 
     [Run]
     public void MemBufferEquals_2()
     {
-      var b1 = new byte[]{0,1,2,3,4,5,6,7,8,9,0,1};
-      var b2 = new byte[]{0,1,2,3,4,5,6,7,8,9,2,1};
+      var b1 = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1 };
+      var b2 = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 2, 1 };
 
-      Aver.IsFalse( b1.MemBufferEquals( b2 ));
+      Aver.IsFalse(b1.MemBufferEquals(b2));
     }
 
     [Run]
     public void MemBufferEquals_3()
     {
-      var b1 = new byte[]{0,1,2,3,4,5,6,7,8,9,0,1};
-      var b2 = new byte[]{0,1,2,3,4,5,6,7,8,9,0,1,1};
+      var b1 = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1 };
+      var b2 = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 1 };
 
-      Aver.IsFalse( b1.MemBufferEquals( b2 ));
+      Aver.IsFalse(b1.MemBufferEquals(b2));
     }
 
     [Run]
     public void MemBufferEquals_4()
     {
-      var b1 = new byte[]{};
-      var b2 = new byte[]{};
+      var b1 = new byte[] { };
+      var b2 = new byte[] { };
 
-      Aver.IsTrue( b1.MemBufferEquals( b2 ));
+      Aver.IsTrue(b1.MemBufferEquals(b2));
     }
 
     [Run]
     public void MemBufferEquals_5()
     {
-      var b1 = new byte[]{};
+      var b1 = new byte[] { };
       byte[] b2 = null;
 
-      Aver.IsFalse( b1.MemBufferEquals( b2 ));
+      Aver.IsFalse(b1.MemBufferEquals(b2));
     }
 
     [Run]
     public void MemBufferEquals_6()
     {
-      var b1 = new byte[]{0};
-      var b2 = new byte[]{0};
+      var b1 = new byte[] { 0 };
+      var b2 = new byte[] { 0 };
 
-      Aver.IsTrue( b1.MemBufferEquals( b2 ));
+      Aver.IsTrue(b1.MemBufferEquals(b2));
 
-      b1 = new byte[]{0,1};
-      b2 = new byte[]{0,1};
+      b1 = new byte[] { 0, 1 };
+      b2 = new byte[] { 0, 1 };
 
-      Aver.IsTrue( b1.MemBufferEquals( b2 ));
+      Aver.IsTrue(b1.MemBufferEquals(b2));
 
-      b1 = new byte[]{0,1,88};
-      b2 = new byte[]{0,1,88};
+      b1 = new byte[] { 0, 1, 88 };
+      b2 = new byte[] { 0, 1, 88 };
 
-      Aver.IsTrue( b1.MemBufferEquals( b2 ));
+      Aver.IsTrue(b1.MemBufferEquals(b2));
 
-      b1 = new byte[]{0,1,88,99};
-      b2 = new byte[]{0,1,88,99};
+      b1 = new byte[] { 0, 1, 88, 99 };
+      b2 = new byte[] { 0, 1, 88, 99 };
 
-      Aver.IsTrue( b1.MemBufferEquals( b2 ));
+      Aver.IsTrue(b1.MemBufferEquals(b2));
 
-      b1 = new byte[]{0,1,88,99,22};
-      b2 = new byte[]{0,1,88,99,22};
+      b1 = new byte[] { 0, 1, 88, 99, 22 };
+      b2 = new byte[] { 0, 1, 88, 99, 22 };
 
-      Aver.IsTrue( b1.MemBufferEquals( b2 ));
+      Aver.IsTrue(b1.MemBufferEquals(b2));
 
-      b1 = new byte[]{0,1,88,99,22,3};
-      b2 = new byte[]{0,1,88,99,22,3};
+      b1 = new byte[] { 0, 1, 88, 99, 22, 3 };
+      b2 = new byte[] { 0, 1, 88, 99, 22, 3 };
 
-      Aver.IsTrue( b1.MemBufferEquals( b2 ));
+      Aver.IsTrue(b1.MemBufferEquals(b2));
 
-      b1 = new byte[]{0,1,88,99,22,3,0};
-      b2 = new byte[]{0,1,88,99,22,3,0};
+      b1 = new byte[] { 0, 1, 88, 99, 22, 3, 0 };
+      b2 = new byte[] { 0, 1, 88, 99, 22, 3, 0 };
 
-      Aver.IsTrue( b1.MemBufferEquals( b2 ));
+      Aver.IsTrue(b1.MemBufferEquals(b2));
 
-      b1 = new byte[]{0,1,88,99,22,3,0,44};
-      b2 = new byte[]{0,1,88,99,22,3,0,44};
+      b1 = new byte[] { 0, 1, 88, 99, 22, 3, 0, 44 };
+      b2 = new byte[] { 0, 1, 88, 99, 22, 3, 0, 44 };
 
-      Aver.IsTrue( b1.MemBufferEquals( b2 ));
+      Aver.IsTrue(b1.MemBufferEquals(b2));
 
-      b1 = new byte[]{0,1,88,99,22,3,0,44,122};
-      b2 = new byte[]{0,1,88,99,22,3,0,44,122};
+      b1 = new byte[] { 0, 1, 88, 99, 22, 3, 0, 44, 122 };
+      b2 = new byte[] { 0, 1, 88, 99, 22, 3, 0, 44, 122 };
 
-      Aver.IsTrue( b1.MemBufferEquals( b2 ));
+      Aver.IsTrue(b1.MemBufferEquals(b2));
 
-      b1 = new byte[]{0,1,88,99,22,3,0,44,122,121};
-      b2 = new byte[]{0,1,88,99,22,3,0,44,122,121};
+      b1 = new byte[] { 0, 1, 88, 99, 22, 3, 0, 44, 122, 121 };
+      b2 = new byte[] { 0, 1, 88, 99, 22, 3, 0, 44, 122, 121 };
 
-      Aver.IsTrue( b1.MemBufferEquals( b2 ));
+      Aver.IsTrue(b1.MemBufferEquals(b2));
 
-      b1 = new byte[]{0,1,88,99,22,3,0,44,122,121,7};
-      b2 = new byte[]{0,1,88,99,22,3,0,44,122,121,7};
+      b1 = new byte[] { 0, 1, 88, 99, 22, 3, 0, 44, 122, 121, 7 };
+      b2 = new byte[] { 0, 1, 88, 99, 22, 3, 0, 44, 122, 121, 7 };
 
-      Aver.IsTrue( b1.MemBufferEquals( b2 ));
+      Aver.IsTrue(b1.MemBufferEquals(b2));
     }
-
 
     [Run]
     public void MemBufferEquals_Benchmark()
     {
       const int CNT = 10000000;
 
-      var b1 = new byte[]{0,1,2,3,4,5,6,7,8,9,0,1,123,2,3,45,89,3,23,143,124,44,1,7,89,32,44,33,112};
-      var b2 = new byte[]{0,1,2,3,4,5,6,7,8,9,0,1,123,2,3,45,89,3,23,143,124,44,1,7,89,32,44,33,112};
+      var b1 = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 123, 2, 3, 45, 89, 3, 23, 143, 124, 44, 1, 7, 89, 32, 44, 33, 112 };
+      var b2 = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 123, 2, 3, 45, 89, 3, 23, 143, 124, 44, 1, 7, 89, 32, 44, 33, 112 };
 
 
       var sw = System.Diagnostics.Stopwatch.StartNew();
-      for(var i = 0; i<CNT; i++)
-        Aver.IsTrue( b1.MemBufferEquals(b2) );
+      for (var i = 0; i < CNT; i++)
+        Aver.IsTrue(b1.MemBufferEquals(b2));
 
       sw.Stop();
 
-      Console.WriteLine("Fast Compared {0} in {1}ms at {2} ops/sec", CNT, sw.ElapsedMilliseconds, CNT / (sw.ElapsedMilliseconds / 1000d));
+      "Fast Compared {0} in {1}ms at {2} ops/sec".SeeArgs(CNT, sw.ElapsedMilliseconds, CNT / (sw.ElapsedMilliseconds / 1000d));
 
       sw = System.Diagnostics.Stopwatch.StartNew();
-      for(var i = 0; i<CNT; i++)
-        Aver.IsTrue( compareSlow(b1, b2) );
+      for (var i = 0; i < CNT; i++)
+        Aver.IsTrue(compareSlow(b1, b2));
       sw.Stop();
 
-      Console.WriteLine("Slow Compared {0} in {1}ms at {2} ops/sec", CNT, sw.ElapsedMilliseconds, CNT / (sw.ElapsedMilliseconds / 1000d));
-
+      "Slow Compared {0} in {1}ms at {2} ops/sec".SeeArgs(CNT, sw.ElapsedMilliseconds, CNT / (sw.ElapsedMilliseconds / 1000d));
     }
 
+    private bool compareSlow(byte[] b1, byte[] b2)
+    {
+      if (b1.Length != b2.Length) return false;
+      for (var i = 0; i < b1.Length; i++)
+        if (b1[i] != b2[i]) return false;
 
-          private bool compareSlow(byte[] b1, byte[] b2)
-          {
-            if (b1.Length != b2.Length) return false;
-            for(var i=0; i<b1.Length; i++)
-            if (b1[i] != b2[i]) return false;
-
-            return true;
-          }
-
-
+      return true;
+    }
 
     [Run]
     public void URI_Join()
     {
-      Aver.AreEqual("static/site/content",  WebUtils.JoinPathSegs("static","site","content"));
-      Aver.AreEqual("static/site/content",  WebUtils.JoinPathSegs(" static","  site  "," content"));
-      Aver.AreEqual("static/site/content",  WebUtils.JoinPathSegs(" static"," \\ site  "," // content"));
-      Aver.AreEqual("static/site/content",  WebUtils.JoinPathSegs(" static/","//site  "," // content"));
-      Aver.AreEqual("static/site/content",  WebUtils.JoinPathSegs(" static/","/","/site","// content"));
-      Aver.AreEqual("/static/site/content", WebUtils.JoinPathSegs("/static/","/","/site","// content"));
-      Aver.AreEqual("/static/site/content", WebUtils.JoinPathSegs("      /static/","site","\\content"));
-      Aver.AreEqual("/static/site/content", WebUtils.JoinPathSegs(" ", null, "      /static/","site","\\content"));
-      Aver.AreEqual("static/site/content",  WebUtils.JoinPathSegs("static", null, "site","", "", "\\content"));
+      Aver.AreEqual("static/site/content", WebUtils.JoinPathSegs("static", "site", "content"));
+      Aver.AreEqual("static/site/content", WebUtils.JoinPathSegs(" static", "  site  ", " content"));
+      Aver.AreEqual("static/site/content", WebUtils.JoinPathSegs(" static", " \\ site  ", " // content"));
+      Aver.AreEqual("static/site/content", WebUtils.JoinPathSegs(" static/", "//site  ", " // content"));
+      Aver.AreEqual("static/site/content", WebUtils.JoinPathSegs(" static/", "/", "/site", "// content"));
+      Aver.AreEqual("/static/site/content", WebUtils.JoinPathSegs("/static/", "/", "/site", "// content"));
+      Aver.AreEqual("/static/site/content", WebUtils.JoinPathSegs("      /static/", "site", "\\content"));
+      Aver.AreEqual("/static/site/content", WebUtils.JoinPathSegs(" ", null, "      /static/", "site", "\\content"));
+      Aver.AreEqual("static/site/content", WebUtils.JoinPathSegs("static", null, "site", "", "", "\\content"));
     }
 
     [Run]
@@ -699,7 +681,7 @@ f
     public void EscapeURIStringWithPlus()
     {
       var goodURL = "https://shippo-delivery-east.s3.amazonaws.com/fff5ec643c2c44539e5a26940d29e917.pdf?Signature=UUd8Pyuki6EDp8RJ/JtEIcSm524=&Expires=1505468405&AWSAccessKeyId=AKIAJGLCC5MYLLWIG42A";
-      var badURL  = "https://shippo-delivery-east.s3.amazonaws.com/6dcf1e56f4fe49b892716393de92dd7e.pdf?Signature=/4iTy32xguuMX7Eba+5qc8TFCbs=&Expires=1505468476&AWSAccessKeyId=AKIAJGLCC5MYLLWIG42A";
+      var badURL = "https://shippo-delivery-east.s3.amazonaws.com/6dcf1e56f4fe49b892716393de92dd7e.pdf?Signature=/4iTy32xguuMX7Eba+5qc8TFCbs=&Expires=1505468476&AWSAccessKeyId=AKIAJGLCC5MYLLWIG42A";
 
       var escapedGoodURL = goodURL.EscapeURIStringWithPlus();
       var escapedBadURL = badURL.EscapeURIStringWithPlus();
@@ -719,21 +701,21 @@ f
     public void PackISO3CodeToInt()
     {
       var p = IOUtils.PackISO3CodeToInt("abc");
-      Aver.AreEqual(0,   (p & 0xff000000));
+      Aver.AreEqual(0, (p & 0xff000000));
       Aver.AreEqual('C', (p & 0x00ff0000) >> 16);
       Aver.AreEqual('B', (p & 0x0000ff00) >> 8);
       Aver.AreEqual('A', (p & 0x000000ff) >> 0);
 
       p = IOUtils.PackISO3CodeToInt("us");
-      Aver.AreEqual(0,   (p & 0xff000000));
-      Aver.AreEqual(0,   (p & 0x00ff0000));
+      Aver.AreEqual(0, (p & 0xff000000));
+      Aver.AreEqual(0, (p & 0x00ff0000));
       Aver.AreEqual('S', (p & 0x0000ff00) >> 8);
       Aver.AreEqual('U', (p & 0x000000ff) >> 0);
 
       p = IOUtils.PackISO3CodeToInt("z");
-      Aver.AreEqual(0,   (p & 0xff000000));
-      Aver.AreEqual(0,   (p & 0x00ff0000));
-      Aver.AreEqual(0,   (p & 0x0000ff00));
+      Aver.AreEqual(0, (p & 0xff000000));
+      Aver.AreEqual(0, (p & 0x00ff0000));
+      Aver.AreEqual(0, (p & 0x0000ff00));
       Aver.AreEqual('Z', (p & 0x000000ff) >> 0);
     }
 
@@ -761,7 +743,7 @@ f
     public void UnpackISO3CodeFromInt()
     {
       var p = 0;
-      Aver.IsNull( IOUtils.UnpackISO3CodeFromInt(p) );
+      Aver.IsNull(IOUtils.UnpackISO3CodeFromInt(p));
 
       p = IOUtils.PackISO3CodeToInt("abc");
       Aver.AreEqual("ABC", IOUtils.UnpackISO3CodeFromInt(p), StringComparison.Ordinal);
@@ -838,21 +820,20 @@ f
     [Run]
     public void IsValidXMLName()
     {
-      Aver.IsFalse( ((string)null).IsValidXMLName() );
-      Aver.IsFalse( "".IsValidXMLName() );
-      Aver.IsFalse( "<".IsValidXMLName() );
-      Aver.IsFalse( ">".IsValidXMLName() );
+      Aver.IsFalse(((string)null).IsValidXMLName());
+      Aver.IsFalse("".IsValidXMLName());
+      Aver.IsFalse("<".IsValidXMLName());
+      Aver.IsFalse(">".IsValidXMLName());
 
-      Aver.IsFalse( "2a".IsValidXMLName() );
-      Aver.IsTrue( "a2".IsValidXMLName() );
+      Aver.IsFalse("2a".IsValidXMLName());
+      Aver.IsTrue("a2".IsValidXMLName());
 
-      Aver.IsTrue( "a".IsValidXMLName() );
-      Aver.IsTrue( "b".IsValidXMLName() );
+      Aver.IsTrue("a".IsValidXMLName());
+      Aver.IsTrue("b".IsValidXMLName());
 
-      Aver.IsTrue( "a-b".IsValidXMLName() );
-      Aver.IsTrue( "a_b".IsValidXMLName() );
+      Aver.IsTrue("a-b".IsValidXMLName());
+      Aver.IsTrue("a_b".IsValidXMLName());
     }
-
 
   }
 }

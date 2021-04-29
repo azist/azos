@@ -48,7 +48,6 @@ namespace Azos.Tests.Nub.DataAccess
       }
     }
 
-
     [Run]
     public void DynamicRows()
     {

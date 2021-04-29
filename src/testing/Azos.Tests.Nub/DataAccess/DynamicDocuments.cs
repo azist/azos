@@ -15,7 +15,6 @@ namespace Azos.Tests.Nub.DataAccess
   [Runnable]
   public class DynamicDocuments
   {
-
     [Run]
     public void BuildUsingTypedSchema()
     {

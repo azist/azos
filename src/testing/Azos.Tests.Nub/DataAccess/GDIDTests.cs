@@ -218,7 +218,6 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual(gdid, gdid2);
     }
 
-
     [Run]
     public void GDID_RangeComparer()
     {

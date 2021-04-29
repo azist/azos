@@ -65,5 +65,6 @@ namespace Azos.Tests.Nub.Logging
         Aver.IsTrue(logOp.Log is LogDaemon d2 && d2.Status == DaemonStatus.Active);
       }
     }
+
   }
 }

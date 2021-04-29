@@ -67,9 +67,7 @@ Assets: 3673456.18
       time.Stop();
 
       "Did {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(cnt, time.ElapsedSec, cnt / time.ElapsedSec);
-
     }
-
 
 
     public class TypicalPerson : AmorphousTypedDoc
@@ -97,7 +95,6 @@ Assets: 3673456.18
       [Field] public decimal? Income { get; set; }
       [Field] public decimal? Assets { get; set; }
     }
-
 
     public class Family : AmorphousTypedDoc
     {

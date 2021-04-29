@@ -26,16 +26,15 @@ namespace Azos.Tests.Nub.Time
     [Run]
     public void Basic_Closed()
     {
-      var x = new DateRange(new DateTime(1980,1,1), new DateTime(1990,1,1));
+      var x = new DateRange(new DateTime(1980, 1, 1), new DateTime(1990, 1, 1));
 
-      Aver.IsTrue( DateTimeKind.Unspecified == x.Kind );
+      Aver.IsTrue(DateTimeKind.Unspecified == x.Kind);
       Aver.IsFalse(x.IsUnassigned);
       Aver.IsFalse(x.IsOpen);
       Aver.IsTrue(x.IsClosed);
 
       Aver.IsTrue(x.ClosedSpan.HasValue);
       Aver.AreEqual(10, (int)x.ClosedSpan.Value.TotalDays / 365);
-
     }
 
     [Run]
@@ -72,7 +71,6 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual(1980, x.Start.Value.Year);
     }
 
-
     [Run]
     public void Contains()
     {
@@ -93,7 +91,6 @@ namespace Azos.Tests.Nub.Time
       Aver.IsTrue(x.Contains(new DateTime(1985, 03, 27)));
       Aver.IsTrue(x.Contains(new DateTime(1989, 08, 15)));
     }
-
 
     [Run]
     public void Intersect_1()
@@ -219,7 +216,6 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual(y.End, z.Value.End);
     }
 
-
     [Run]
     public void Equals()
     {
@@ -228,7 +224,7 @@ namespace Azos.Tests.Nub.Time
 
       Aver.AreEqual(x, y);
       Aver.AreEqual(x.GetHashCode(), y.GetHashCode());
-      Aver.IsTrue( x == y);
+      Aver.IsTrue(x == y);
     }
 
     [Run]
@@ -269,7 +265,7 @@ namespace Azos.Tests.Nub.Time
     {
       var x = new DateRange(new DateTime(1800, 11, 12), new DateTime(1900, 11, 12, 23, 18, 17));
 
-      Console.WriteLine(x.ToString());
+      x.ToString().See();
 
       Aver.AreEqual("[11/12/1800 12:00 AM - 11/12/1900 11:18 PM]", x.ToString("MM/dd/yyyy hh:mm tt", System.Globalization.CultureInfo.InvariantCulture));
     }
@@ -279,7 +275,7 @@ namespace Azos.Tests.Nub.Time
     {
       var x = new DateRange(new DateTime(1800, 1, 1), new DateTime(1900, 1, 1, 3, 18, 7));
 
-      Console.WriteLine(x.ToJson());
+      x.ToJson().See();
 
       var got = x.ToJson().JsonToDataObject() as JsonDataMap;
       Aver.IsNotNull(got);
@@ -293,7 +289,7 @@ namespace Azos.Tests.Nub.Time
     {
       var x = new DateRange(new DateTime(1800, 1, 1, 0, 0, 0, DateTimeKind.Utc), new DateTime(1900, 1, 1, 3, 18, 7, DateTimeKind.Utc));
 
-      Console.WriteLine(x.ToJson());
+      x.ToJson().See();
 
       var got = x.ToJson().JsonToDataObject() as JsonDataMap;
       Aver.IsNotNull(got);
@@ -302,8 +298,7 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual(x.End, got["end"].AsDateTime().ToUniversalTime());
     }
 
-
-    [Run, Aver.Throws(typeof(ValidationException), Message="unassigned")]
+    [Run, Aver.Throws(typeof(ValidationException), Message = "unassigned")]
     public void Error_1()
     {
       var x = new DateRange(null, null);
@@ -313,7 +308,7 @@ namespace Azos.Tests.Nub.Time
     [Run, Aver.Throws(typeof(ValidationException), Message = "kinds")]
     public void Error_2()
     {
-      var x = new DateRange(new DateTime(1800, 1, 1 ,1,1,1,DateTimeKind.Local), new DateTime(1800, 1, 1, 1, 1, 1, DateTimeKind.Utc));
+      var x = new DateRange(new DateTime(1800, 1, 1, 1, 1, 1, DateTimeKind.Local), new DateTime(1800, 1, 1, 1, 1, 1, DateTimeKind.Utc));
       throw x.Validate(new ValidState(null, ValidErrorMode.Single)).Error;
     }
 
@@ -334,20 +329,21 @@ namespace Azos.Tests.Nub.Time
       public DateTime LocalizedTime => DateTime.Now;
 
       public DateTime LocalizedTimeToUniversalTime(DateTime local)
-      => DateTime.SpecifyKind( local - TimeLocation.UTCOffset, DateTimeKind.Utc);
+      => DateTime.SpecifyKind(local - TimeLocation.UTCOffset, DateTimeKind.Utc);
 
       public DateTime UniversalTimeToLocalizedTime(DateTime utc)
-       => DateTime.SpecifyKind( utc + TimeLocation.UTCOffset, DateTimeKind.Local);
+       => DateTime.SpecifyKind(utc + TimeLocation.UTCOffset, DateTimeKind.Local);
     }
+
 
     [Run]
     public void Extensions_MakeLocalDateRange_1()
     {
       var moon = new moonStation();
 
-      var x = moon.MakeLocalDateRange(new DateTime(1980,1,1, 13,0,0,DateTimeKind.Local), new DateTime(1980, 1, 1, 14, 0, 0, DateTimeKind.Local));
+      var x = moon.MakeLocalDateRange(new DateTime(1980, 1, 1, 13, 0, 0, DateTimeKind.Local), new DateTime(1980, 1, 1, 14, 0, 0, DateTimeKind.Local));
 
-      Aver.IsTrue(x.Kind==DateTimeKind.Local);
+      Aver.IsTrue(x.Kind == DateTimeKind.Local);
       Aver.AreEqual(13, x.Start.Value.Hour);
       Aver.AreEqual(14, x.End.Value.Hour);
     }
@@ -376,7 +372,6 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual(8, x.Start.Value.Hour); //moon is 5 hrs behind UTC
       Aver.AreEqual(10, x.End.Value.Hour);
     }
-
 
     [Run]
     public void Extensions_MakeUtcDateRange_1()

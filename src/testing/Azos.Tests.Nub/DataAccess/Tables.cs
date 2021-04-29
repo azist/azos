@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using Azos.Scripting;
 using Azos.Data;
 
-
 namespace Azos.Tests.Nub.DataAccess
 {
   [Runnable]

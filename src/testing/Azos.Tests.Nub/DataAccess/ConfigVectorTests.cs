@@ -22,6 +22,7 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual(2, v.Node.Of("b").ValueAsInt());
     }
 
+
     public class Tezt : TypedDoc
     {
       [Field(required: true)]
@@ -30,6 +31,7 @@ namespace Azos.Tests.Nub.DataAccess
       [Field(maxLength: 32)]
       public ConfigVector C2 { get; set; }
     }
+
 
     [Run]
     public void Test_Roundtrip()
@@ -66,7 +68,6 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsNotNull(ve);
       Aver.AreEqual("C1", ve.FieldName);
       Aver.IsTrue(ve.Message.Contains("Invalid"));
-
 
       got.C1.Node.Of("a");
     }

@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
 
 using Azos.Scripting;
@@ -37,7 +36,7 @@ namespace Azos.Tests.Nub
       }
       catch(CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
         Aver.IsTrue(  error.Message.Contains("'<unknown>' may not be null") );
       }
 
@@ -48,11 +47,10 @@ namespace Azos.Tests.Nub
       }
       catch (CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
         Aver.IsTrue(error.Message.Contains("'x' may not be null"));
       }
     }
-
 
     [Run]
     public void Nullable_NonNull()
@@ -64,7 +62,6 @@ namespace Azos.Tests.Nub
       x = null;
       Aver.Throws<CallGuardException>(() => x.NonNull());
     }
-
 
     [Run]
     public void IsOfType()
@@ -98,7 +95,7 @@ namespace Azos.Tests.Nub
       }
       catch (CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
         Aver.IsTrue(error.Message.Contains("must be of 'Exception' type"));
       }
     }
@@ -129,8 +126,6 @@ namespace Azos.Tests.Nub
       Aver.Throws<CallGuardException>(() => x.ValueIsOfType(typeof(GuardTests)));
     }
 
-
-
     [Run]
     public void NonBlank()
     {
@@ -141,7 +136,6 @@ namespace Azos.Tests.Nub
       x = null;
       Aver.Throws<CallGuardException>(() => x.NonBlank());
     }
-
 
     [Run]
     public void NonBlank_2()
@@ -155,7 +149,7 @@ namespace Azos.Tests.Nub
       }
       catch (CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
         Aver.IsTrue(error.Message.Contains("'<unknown>' may not be null or blank"));
       }
 
@@ -166,7 +160,7 @@ namespace Azos.Tests.Nub
       }
       catch (CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
         Aver.IsTrue(error.Message.Contains("'x' may not be null or blank"));
       }
     }
@@ -195,7 +189,7 @@ namespace Azos.Tests.Nub
       }
       catch (CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
       }
     }
 
@@ -223,7 +217,7 @@ namespace Azos.Tests.Nub
       }
       catch (CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
       }
     }
 
@@ -252,7 +246,7 @@ namespace Azos.Tests.Nub
       }
       catch (CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
       }
     }
 

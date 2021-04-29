@@ -4,11 +4,10 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
 using System.Drawing;
-using Azos.Scripting;
 
+using Azos.Scripting;
 using Azos.Geometry;
 
 namespace Azos.Tests.Nub.Geometry
@@ -29,7 +28,6 @@ namespace Azos.Tests.Nub.Geometry
       Aver.AreObjectsNotEqual(dir1, dir2);
       Aver.AreObjectsEqual(dir1, dir3);
     }
-
 
     [Run]
     public void Distance()
@@ -252,7 +250,7 @@ namespace Azos.Tests.Nub.Geometry
       var points = VectorUtils.VectorizeBalloon(rect, target, lagSweep);
 
       foreach (var p in points)
-        Console.WriteLine(p.ToString());
+        p.ToString().See();
 
       Aver.AreEqual(7, points.Length);
 

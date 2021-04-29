@@ -15,7 +15,6 @@ namespace Azos.Tests.Nub.DataAccess
   [Runnable]
   public class FieldAttrTargetInheritTests
   {
-
     public class BasicDoc : TypedDoc
     {
       [Field(description: "Common description")]

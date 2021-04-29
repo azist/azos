@@ -4,9 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System;
 using System.Reflection;
+
 using Azos.Conf;
 using Azos.Scripting;
 
@@ -15,7 +14,6 @@ namespace Azos.Tests.Nub
   [Runnable]
   public class CustomMetadataTests_ClassAttributes_MetadataProvider
   {
-
     [CustomMetadata(typeof(CarMetadataProvider))]
     public class Car { }
     public class CarMetadataProvider : CustomMetadataProvider
@@ -125,7 +123,6 @@ namespace Azos.Tests.Nub
     }
 
 
-
     [Run]
     public void Car_1()
     {
@@ -221,7 +218,6 @@ namespace Azos.Tests.Nub
       Aver.AreEqual("Toyota motors", data.AttrByName("description").Value);
       Aver.AreEqual("jap", data.Navigate("origin/$country").Value);
     }
-
 
     [Run]
     public void EuropeanCar_1()

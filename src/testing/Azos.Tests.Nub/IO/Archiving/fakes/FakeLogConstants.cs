@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 namespace Azos.Tests.Nub.IO.Archiving
 {
 	/// <summary>
@@ -17,7 +16,6 @@ namespace Azos.Tests.Nub.IO.Archiving
     public static readonly Atom FAKE_APP_TZT = Atom.Encode("fake");
 
     public static readonly Atom FAKE_CHANNEL_OPLOG = Atom.Encode("oplog");
-
 
     public const string FAKE_LOG_XML_REQ = @"
 <?xml version=""1.0"" encoding=""UTF-8""?>

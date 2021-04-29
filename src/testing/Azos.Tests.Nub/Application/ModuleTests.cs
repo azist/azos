@@ -128,7 +128,10 @@ namespace Azos.Tests.Nub.Application
 
 
     interface IMyLogic : IModule { int Key { get; set; } }
+
+
     interface IMyService : IModule { }
+
 
     public class MyModuleA : ModuleBase, IMyLogic
     {
@@ -140,6 +143,7 @@ namespace Azos.Tests.Nub.Application
       [Config] public int Key { get; set; }
     }
 
+
     public class MyModuleB : ModuleBase, IMyLogic
     {
       public MyModuleB(IApplication app) : base(app) { }
@@ -150,6 +154,7 @@ namespace Azos.Tests.Nub.Application
       [Config] public int Key { get; set; }
     }
 
+
     public class MyServiceA : ModuleBase, IMyService
     {
       public MyServiceA(IApplication app) : base(app) { }
@@ -157,6 +162,7 @@ namespace Azos.Tests.Nub.Application
       public override bool IsHardcodedModule => false;
       public override string ComponentLogTopic => "testing";
     }
+
 
     public class MyServiceB : ModuleBase, IMyService
     {

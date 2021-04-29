@@ -57,20 +57,24 @@ namespace Azos.Tests.Nub.Application
       }
     }
 
+
     interface IMyStratContext : IStrategyContext
     {
       string Value{ get; set;}
     }
+
 
     public class MyStartContext : IMyStratContext
     {
       public string Value{ get; set;}
     }
 
+
     interface IMyStrat1 : IStrategy<IMyStratContext>
     {
       string Something();
     }
+
 
     interface IMyStrat2 : IStrategy<IMyStratContext>
     {
@@ -85,6 +89,7 @@ namespace Azos.Tests.Nub.Application
         return "{0}.{1}".Args(GetType().Name, Context.Value);
       }
     }
+
 
     class MyStrat2Impl : Strategy<IMyStratContext>, IMyStrat2
     {

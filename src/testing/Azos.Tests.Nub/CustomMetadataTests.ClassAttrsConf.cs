@@ -43,7 +43,6 @@ namespace Azos.Tests.Nub
     public class BMW : EuropeanCar { }
 
 
-
     [Run]
     public void Car_1()
     {
@@ -139,7 +138,6 @@ namespace Azos.Tests.Nub
       Aver.AreEqual("Toyota motors", data.AttrByName("description").Value);
       Aver.AreEqual("jap", data.Navigate("origin/$country").Value);
     }
-
 
     [Run]
     public void EuropeanCar_1()

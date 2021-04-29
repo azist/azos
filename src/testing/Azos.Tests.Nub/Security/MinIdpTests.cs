@@ -6,7 +6,6 @@
 
 using System;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -66,7 +65,6 @@ namespace Azos.Tests.Nub.Security
     }
 
 
-
     private static string confR1 =
       @"
 app
@@ -109,7 +107,6 @@ app
 }
 ";
     private AzosApplication m_App;
-
 
     public bool Prologue(Runner runner, FID id, MethodInfo method, RunAttribute attr, ref object[] args)
     {
@@ -189,7 +186,6 @@ app
       Aver.IsTrue(user.Status == UserStatus.User);
       Aver.AreEqual(name, user.Name);
     }
-
 
   }
 }

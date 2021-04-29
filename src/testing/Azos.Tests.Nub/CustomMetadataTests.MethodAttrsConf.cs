@@ -4,9 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System;
-
 using Azos.Scripting;
 
 namespace Azos.Tests.Nub
@@ -14,11 +11,10 @@ namespace Azos.Tests.Nub
   [Runnable]
   public class CustomMetadataTests_MethodAttributes_Conf
   {
-
     public class Car
     {
       [CustomMetadata("a=123 b=789 score=100 description='Generic car' origin{_override=all country=world} z=0")]
-      public virtual void Draw() {  }
+      public virtual void Draw() { }
     }
 
     public class AmericanCar : Car
@@ -41,7 +37,7 @@ namespace Azos.Tests.Nub
 
     public class JapaneseCar : Car
     {
-     [CustomMetadata("score=110 description='Cars built in Japan' origin{_override=stop country=jap} z=1")]
+      [CustomMetadata("score=110 description='Cars built in Japan' origin{_override=stop country=jap} z=1")]
       public override void Draw() { }
     }
 
@@ -60,7 +56,7 @@ namespace Azos.Tests.Nub
     //no attribute
     public class EuropeanCar : Car
     {
-     //nothing to override
+      //nothing to override
     }
 
     public class BMW : EuropeanCar
@@ -68,7 +64,6 @@ namespace Azos.Tests.Nub
       [CustomMetadata("description='Bavarian Motor Works' z=190")]
       public override void Draw() { }
     }
-
 
 
     [Run]
@@ -166,7 +161,6 @@ namespace Azos.Tests.Nub
       Aver.AreEqual("Toyota motors", data.AttrByName("description").Value);
       Aver.AreEqual("jap", data.Navigate("origin/$country").Value);
     }
-
 
     [Run]
     public void EuropeanCar_1()

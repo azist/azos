@@ -1,4 +1,9 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
 using System.Diagnostics;
 
 using Azos.Scripting;
@@ -207,7 +212,6 @@ namespace Azos.Tests.Nub.Pile
       Aver.IsFalse(v1 == v2);
       Aver.IsFalse(v1.Equals(v2));
     }
-
 
     [Run]
     public void ToString_Length()

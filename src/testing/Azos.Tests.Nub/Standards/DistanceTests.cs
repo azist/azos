@@ -4,8 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-
 using Azos.Scripting;
 using Azos.Serialization.JSON;
 using Azos.Standards;
@@ -102,7 +100,6 @@ namespace Azos.Tests.Nub.Standards
       Aver.AreEqual(d1.ToString(), "3.25 mm");
     }
 
-
     [Run]
     public void CompareTo()
     {
@@ -116,7 +113,7 @@ namespace Azos.Tests.Nub.Standards
     {
       var data = new { dist = new Distance(3.25m, Distance.UnitType.Mm) };
       var json = data.ToJson();
-      Console.WriteLine(json);
+      json.See();
       Aver.AreEqual(@"{""dist"":{""unit"":""mm"",""value"":3.25}}", json);
     }
 
