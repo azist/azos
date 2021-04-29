@@ -4,8 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System;
 using System.Collections.Generic;
 
 using Azos.Scripting;
@@ -85,7 +83,6 @@ namespace Azos.Tests.Nub
       Aver.AreEqual("", "".ToDumpString());
     }
 
-
     [Run]
     public void ToDumpString_1()
     {
@@ -123,12 +120,11 @@ namespace Azos.Tests.Nub
 "Я могу есть стекло, оно мне не вредит.".ToDumpString().ToLinuxLines());
     }
 
-
     [Run]
     public void DiffStrings_1()
     {
       var diff = "abcd".DiffStrings("abcd");
-      Console.WriteLine( diff );
+      diff.See();
       Aver.IsTrue( diff.Contains("Identical"));
     }
 
@@ -136,7 +132,7 @@ namespace Azos.Tests.Nub
     public void DiffStrings_2()
     {
       var diff = "abcde".DiffStrings("abcd");
-      Console.WriteLine(diff);
+      diff.See();
       Aver.IsTrue(diff.Contains("A is longer than B by 1 chars"));
     }
 
@@ -144,38 +140,38 @@ namespace Azos.Tests.Nub
     public void DiffStrings_3()
     {
       var diff = "abcd".DiffStrings("abcde");
-      Console.WriteLine(diff);
+      diff.See();
       Aver.IsTrue(diff.Contains("B is longer than A by 1 chars"));
     }
 
     [Run]
     public void DiffStrings_4()
     {
-      Console.WriteLine("abcd\nef".DiffStrings("ab\n\rcdef"));
+     "abcd\nef".DiffStrings("ab\n\rcdef").See();
     }
 
     [Run]
     public void DiffStrings_5()
     {
-      Console.WriteLine("ab8-0er7t-98e7wr-9t87ew-98r7t-98e7wrtcd\nef".DiffStrings("ab\n\r3453485rcdef", 5));
+      "ab8-0er7t-98e7wr-9t87ew-98r7t-98e7wrtcd\nef".DiffStrings("ab\n\r3453485rcdef", 5).See();
     }
 
     [Run]
     public void DiffStrings_6()
     {
-      Console.WriteLine("abc".DiffStrings(null));
+      "abc".DiffStrings(null).See();
     }
 
     [Run]
     public void DiffStrings_7()
     {
-      Console.WriteLine(((string)null).DiffStrings("abc"));
+      ((string)null).DiffStrings("abc").See();
     }
 
     [Run]
     public void DiffStrings_8()
     {
-      Console.WriteLine(((string)null).DiffStrings((string)null));
+      ((string)null).DiffStrings((string)null).See();
     }
 
     [Run]
@@ -197,7 +193,6 @@ namespace Azos.Tests.Nub
       Aver.AreEqual("key", got.Key);
       Aver.AreEqual("value", got.Value);
     }
-
 
     [Run]
     public void SplitKVP_2()

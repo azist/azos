@@ -4,16 +4,11 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using Azos.Scripting;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Web;
+using Azos.Scripting;
 using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Nub.Web
@@ -24,7 +19,7 @@ namespace Azos.Tests.Nub.Web
     [Run]
     public void DefaultMappings_JustMount()
     {
-      using(var app = new AzosApplication(null, null))
+      using (var app = new AzosApplication(null, null))
       {
         var maps = app.GetContentTypeMappings();
         Aver.IsNotNull(maps);
@@ -39,7 +34,7 @@ namespace Azos.Tests.Nub.Web
         var maps = app.GetContentTypeMappings();
         Aver.IsNotNull(maps);
 
-        Aver.IsNull( maps["cracks-pacs-facs"] );
+        Aver.IsNull(maps["cracks-pacs-facs"]);
 
         var map = maps.MapFileExtension("cracks-pacs-facs");
         Aver.IsNotNull(map);
@@ -72,7 +67,7 @@ namespace Azos.Tests.Nub.Web
         Aver.IsNotNull(map.Metadata);
         Aver.IsFalse(map.Metadata.Exists);
 
-        Console.WriteLine(map.ToJson());
+        map.ToJson().See();
       }
     }
 
@@ -112,7 +107,7 @@ namespace Azos.Tests.Nub.Web
         Aver.IsNotNull(map.Metadata);
         Aver.IsFalse(map.Metadata.Exists);
 
-        Console.WriteLine(map.ToJson());
+        map.ToJson().See();
       }
     }
 
@@ -158,10 +153,9 @@ namespace Azos.Tests.Nub.Web
         Aver.IsNotNull(map.Metadata);
         Aver.IsFalse(map.Metadata.Exists);
 
-        Console.WriteLine(map.ToJson());
+        map.ToJson().See();
       }
     }
-
 
     [Run]
     public void Override_png()
@@ -202,7 +196,7 @@ app
 
         Aver.AreEqual("My custom description", map.Name["eng"].Description);
 
-        Console.WriteLine(map.ToJson());
+        map.ToJson().See();
       }
     }
 
@@ -259,10 +253,9 @@ app
         Aver.AreEqual("Man1", map.Metadata.Navigate("/actors/[0]/$name").Value);
         Aver.AreEqual("Man2", map.Metadata.Navigate("/actors/[1]/$name").Value);
 
-        Console.WriteLine(map.ToJson());
+        map.ToJson().See();
       }
     }
-
 
     [Run]
     public void ManyToMany()
@@ -322,7 +315,6 @@ app
         Aver.AreEqual(2, mappings.Length);
         Aver.AreSameRef(map1, mappings[0]);
         Aver.AreSameRef(map3, mappings[1]);
-
       }
     }
 

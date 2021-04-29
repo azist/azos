@@ -6,11 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 
 using Azos.Scripting;
-
 using Azos.Conf;
 using Azos.Serialization.JSON;
 using Azos.Collections;
@@ -26,13 +24,12 @@ namespace Azos.Tests.Nub.Serialization
   [Runnable]
   public class JSONToDocExtendedTests
   {
-
     public struct CustomStructType : IJsonWritable, IJsonReadable
     {
       public CustomStructType(string text)
       {
         Text = text;
-        Length = text==null? 0: text.Length;
+        Length = text == null ? 0 : text.Length;
       }
 
       public string Text;
@@ -40,10 +37,10 @@ namespace Azos.Tests.Nub.Serialization
 
       public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
       {
-        if (data==null) return (false, this);
+        if (data == null) return (false, this);
 
         var str = data as string;
-        if (str==null) str = data.ToString();
+        if (str == null) str = data.ToString();
 
         Text = str;
         Length = str.Length;
@@ -56,11 +53,13 @@ namespace Azos.Tests.Nub.Serialization
       }
     }
 
+
     public class CustomDoc1 : TypedDoc
     {
-      [Field] public string ID{ get;set;}
-      [Field] public CustomStructType Data{ get;set;}
+      [Field] public string ID { get; set; }
+      [Field] public CustomStructType Data { get; set; }
     }
+
 
     public class CustomDoc2 : TypedDoc
     {
@@ -68,11 +67,13 @@ namespace Azos.Tests.Nub.Serialization
       [Field] public CustomStructType? Data { get; set; }
     }
 
+
     public class CustomDoc3 : TypedDoc
     {
       [Field] public string ID { get; set; }
       [Field] public CustomStructType[] Data { get; set; }
     }
+
 
     public class CustomDoc4 : TypedDoc
     {
@@ -84,10 +85,10 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void CustomWritableReadable_1()
     {
-      var d1 = new CustomDoc1{ ID = "meduza1", Data =  new CustomStructType("Custom string 1") };
+      var d1 = new CustomDoc1 { ID = "meduza1", Data = new CustomStructType("Custom string 1") };
 
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var jsonMap = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new CustomDoc1();
@@ -104,7 +105,7 @@ namespace Azos.Tests.Nub.Serialization
       var d1 = new CustomDoc2 { ID = "meduza2", Data = new CustomStructType("Custom string 2") };
 
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var jsonMap = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new CustomDoc2();
@@ -118,10 +119,10 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void CustomWritableReadable_3()
     {
-      var d1 = new CustomDoc3 { ID = "meduza3", Data = new CustomStructType[]{ new CustomStructType("Custom string 3"), new CustomStructType("Gold for toad") } };
+      var d1 = new CustomDoc3 { ID = "meduza3", Data = new CustomStructType[] { new CustomStructType("Custom string 3"), new CustomStructType("Gold for toad") } };
 
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var jsonMap = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new CustomDoc3();
@@ -138,7 +139,7 @@ namespace Azos.Tests.Nub.Serialization
       var d1 = new CustomDoc4 { ID = "meduza4", Data = new List<CustomStructType> { new CustomStructType("Custom string 4") } };
 
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var jsonMap = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new CustomDoc4();
@@ -150,56 +151,53 @@ namespace Azos.Tests.Nub.Serialization
     }
 
 
+    public enum MetalType { Gold, Silver, Platinum, Ferrum }
 
-    public enum MetalType{ Gold, Silver, Platinum, Ferrum}
 
     public class WithVariousStructsDoc : TypedDoc
     {
-      [Field] public GDID       Gdid{ get;set;}
+      [Field] public GDID Gdid { get; set; }
       [Field] public GDIDSymbol GdidSymbol { get; set; }
-      [Field] public Guid       Guid { get; set; }
-      [Field] public Atom       Atom { get; set; }
-      [Field] public TimeSpan   Timespan { get; set; }
-      [Field] public DateTime   DateTime { get; set; }
-      [Field] public NLSMap     Nls { get; set; }
-      [Field] public DateRange  DateRange { get; set; }
-      [Field] public Amount     Amount { get; set; }
-      [Field] public FID        Fid { get; set; }
-      [Field] public MetalType  Metal { get; set; }
+      [Field] public Guid Guid { get; set; }
+      [Field] public Atom Atom { get; set; }
+      [Field] public TimeSpan Timespan { get; set; }
+      [Field] public DateTime DateTime { get; set; }
+      [Field] public NLSMap Nls { get; set; }
+      [Field] public DateRange DateRange { get; set; }
+      [Field] public Amount Amount { get; set; }
+      [Field] public FID Fid { get; set; }
+      [Field] public MetalType Metal { get; set; }
       [Field] public PilePointer PilePtr { get; set; }
-      [Field] public LatLng     LatLng {  get; set; }
-      [Field] public Distance   Distance { get; set; }
-      [Field] public Weight     Weight { get; set; }
+      [Field] public LatLng LatLng { get; set; }
+      [Field] public Distance Distance { get; set; }
+      [Field] public Weight Weight { get; set; }
       [Field] public Azos.Conf.Configuration Config { get; set; }
       [Field] public IConfigSectionNode ConfigNodeIntf { get; set; }
       [Field] public ConfigSectionNode ConfigNode { get; set; }
-
     }
+
 
     public class WithVariousNullableStructsDoc : TypedDoc
     {
-      [Field] public GDID?       Gdid        { get; set; }
-      [Field] public GDIDSymbol? GdidSymbol  { get; set; }
-      [Field] public Guid?       Guid        { get; set; }
-      [Field] public Atom?       Atom        { get; set; }
-      [Field] public TimeSpan?   Timespan    { get; set; }
-      [Field] public DateTime?   DateTime    { get; set; }
-      [Field] public NLSMap?     Nls         { get; set; }
-      [Field] public DateRange?  DateRange   { get; set; }
-      [Field] public Amount?     Amount      { get; set; }
-      [Field] public FID?        Fid         { get; set; }
-      [Field] public MetalType?  Metal       { get; set; }
-      [Field] public PilePointer? PilePtr    { get; set; }
-      [Field] public LatLng?     LatLng { get; set; }
-      [Field] public Distance?   Distance { get; set; }
-      [Field] public Weight?     Weight { get; set; }
-
-      [Field] public StringMap   StringMap   { get; set; }
-
-      [Field] public GDID[]   GdidArray   { get; set; }
+      [Field] public GDID? Gdid { get; set; }
+      [Field] public GDIDSymbol? GdidSymbol { get; set; }
+      [Field] public Guid? Guid { get; set; }
+      [Field] public Atom? Atom { get; set; }
+      [Field] public TimeSpan? Timespan { get; set; }
+      [Field] public DateTime? DateTime { get; set; }
+      [Field] public NLSMap? Nls { get; set; }
+      [Field] public DateRange? DateRange { get; set; }
+      [Field] public Amount? Amount { get; set; }
+      [Field] public FID? Fid { get; set; }
+      [Field] public MetalType? Metal { get; set; }
+      [Field] public PilePointer? PilePtr { get; set; }
+      [Field] public LatLng? LatLng { get; set; }
+      [Field] public Distance? Distance { get; set; }
+      [Field] public Weight? Weight { get; set; }
+      [Field] public StringMap StringMap { get; set; }
+      [Field] public GDID[] GdidArray { get; set; }
       [Field] public string[] StringArray { get; set; }
-      [Field] public char[]   CharArray   { get; set; }
-
+      [Field] public char[] CharArray { get; set; }
       [Field] public WithVariousNullableStructsDoc Inner { get; set; }
       [Field] public WithVariousNullableStructsDoc[] InnerArray { get; set; }
       [Field] public List<WithVariousNullableStructsDoc> InnerList { get; set; }
@@ -216,9 +214,9 @@ namespace Azos.Tests.Nub.Serialization
         Guid = Guid.NewGuid(),
         Atom = new Atom(),
         Timespan = TimeSpan.FromSeconds(123),
-        DateTime = new DateTime(1980, 2, 3, 0,0,0, DateTimeKind.Utc),
+        DateTime = new DateTime(1980, 2, 3, 0, 0, 0, DateTimeKind.Utc),
         Nls = new NLSMap("{eng: {n: 'a', d: 'b'}}"),
-        DateRange = new DateRange(new DateTime(1980, 2, 2,0,0,0,DateTimeKind.Utc), new DateTime(1990, 3, 3, 0,0,0, DateTimeKind.Utc)),
+        DateRange = new DateRange(new DateTime(1980, 2, 2, 0, 0, 0, DateTimeKind.Utc), new DateTime(1990, 3, 3, 0, 0, 0, DateTimeKind.Utc)),
         Amount = new Amount("usd", 34.78m),
         Fid = new FID(1234),
         Metal = MetalType.Platinum,
@@ -231,7 +229,7 @@ namespace Azos.Tests.Nub.Serialization
         ConfigNode = "root=3{a=5 b=6 sub='hahaha!'{ z=true }}".AsLaconicConfig(handling: ConvertErrorHandling.Throw)
       };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousStructsDoc();
@@ -247,7 +245,7 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual(d1.DateRange, d2.DateRange);
       Aver.AreEqual(d1.Amount, d2.Amount);
       Aver.AreEqual(d1.Fid, d2.Fid);
-      Aver.IsTrue( d1.Metal == d2.Metal );
+      Aver.IsTrue(d1.Metal == d2.Metal);
       Aver.AreEqual(d1.PilePtr, d2.PilePtr);
       Aver.AreEqual(d1.LatLng, d2.LatLng);
 
@@ -259,13 +257,12 @@ namespace Azos.Tests.Nub.Serialization
       Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(d1.ConfigNode, d2.ConfigNode));
     }
 
-
     [Run]
     public void Test_WithVariousNullableStructsDoc_GDID()
     {
-      var d1 = new WithVariousNullableStructsDoc{ Gdid = new GDID(1,2,3)   };
+      var d1 = new WithVariousNullableStructsDoc { Gdid = new GDID(1, 2, 3) };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -279,7 +276,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new WithVariousNullableStructsDoc { GdidSymbol = new GDIDSymbol(new GDID(1, 2, 3), "abrkadabra") };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -293,7 +290,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new WithVariousNullableStructsDoc { Guid = Guid.NewGuid() };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -307,7 +304,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new WithVariousNullableStructsDoc { Atom = Atom.Encode("mus-ic_0") };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -322,7 +319,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new WithVariousNullableStructsDoc { Timespan = TimeSpan.FromSeconds(123) };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -334,9 +331,9 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Test_WithVariousNullableStructsDoc_DateTime()
     {
-      var d1 = new WithVariousNullableStructsDoc { DateTime = new DateTime(1980, 2, 3,0,0,0, DateTimeKind.Utc) };
+      var d1 = new WithVariousNullableStructsDoc { DateTime = new DateTime(1980, 2, 3, 0, 0, 0, DateTimeKind.Utc) };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -350,7 +347,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new WithVariousNullableStructsDoc { Nls = new NLSMap("{eng: {n: 'a', d: 'b'}}") };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -362,9 +359,9 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Test_WithVariousNullableStructsDoc_DateRange()
     {
-      var d1 = new WithVariousNullableStructsDoc { DateRange = new DateRange(new DateTime(1980, 2,2,0,0,0,DateTimeKind.Utc), new DateTime(1990,3,3,0,0,0,DateTimeKind.Utc)) };
+      var d1 = new WithVariousNullableStructsDoc { DateRange = new DateRange(new DateTime(1980, 2, 2, 0, 0, 0, DateTimeKind.Utc), new DateTime(1990, 3, 3, 0, 0, 0, DateTimeKind.Utc)) };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -378,7 +375,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new WithVariousNullableStructsDoc { Amount = new Amount("usd", 34.78m) };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -392,7 +389,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new WithVariousNullableStructsDoc { Fid = new FID(5678) };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -406,13 +403,13 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new WithVariousNullableStructsDoc { Metal = MetalType.Ferrum };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
       JsonReader.ToDoc(d2, map);
 
-      Aver.IsTrue( d1.Metal == d2.Metal );
+      Aver.IsTrue(d1.Metal == d2.Metal);
     }
 
     [Run]
@@ -420,7 +417,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new WithVariousNullableStructsDoc { PilePtr = new PilePointer(1, 23, 4567) };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -434,7 +431,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new WithVariousNullableStructsDoc { LatLng = new LatLng(1.0d, 2.0d, "arctic") };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -448,7 +445,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new WithVariousNullableStructsDoc { Distance = new Distance(120m, Distance.UnitType.Yd) };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -462,7 +459,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var d1 = new WithVariousNullableStructsDoc { Weight = new Weight(120m, Weight.UnitType.Lb) };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -471,13 +468,12 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual(d1.Weight, d2.Weight);
     }
 
-
     [Run]
     public void Test_WithVariousNullableStructsDoc_StringMap()
     {
-      var d1 = new WithVariousNullableStructsDoc { StringMap = new StringMap{ {"a","a value"} } };
+      var d1 = new WithVariousNullableStructsDoc { StringMap = new StringMap { { "a", "a value" } } };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -489,9 +485,9 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Test_WithVariousNullableStructsDoc_GdidArray()
     {
-      var d1 = new WithVariousNullableStructsDoc { GdidArray = new GDID[] { new GDID(1,2,3), new GDID(2,3,4) } };
+      var d1 = new WithVariousNullableStructsDoc { GdidArray = new GDID[] { new GDID(1, 2, 3), new GDID(2, 3, 4) } };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -503,9 +499,9 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Test_WithVariousNullableStructsDoc_StringArray()
     {
-      var d1 = new WithVariousNullableStructsDoc { StringArray = new string[]{"German", null, "English"} };
+      var d1 = new WithVariousNullableStructsDoc { StringArray = new string[] { "German", null, "English" } };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -514,13 +510,12 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreArraysEquivalent(d1.StringArray, d2.StringArray);
     }
 
-
     [Run]
     public void Test_WithVariousNullableStructsDoc_CharArray()
     {
-      var d1 = new WithVariousNullableStructsDoc { CharArray = new char[]{'a', '2', ' '} };
+      var d1 = new WithVariousNullableStructsDoc { CharArray = new char[] { 'a', '2', ' ' } };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -538,12 +533,12 @@ namespace Azos.Tests.Nub.Serialization
         {
           Inner = new WithVariousNullableStructsDoc
           {
-            Gdid = new GDID(2,3,4)
+            Gdid = new GDID(2, 3, 4)
           }
         }
       };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -551,7 +546,7 @@ namespace Azos.Tests.Nub.Serialization
 
       Aver.IsNotNull(d2.Inner);
       Aver.IsNotNull(d2.Inner.Inner);
-      Aver.AreEqual(new GDID(2,3,4), d2.Inner.Inner.Gdid);
+      Aver.AreEqual(new GDID(2, 3, 4), d2.Inner.Inner.Gdid);
     }
 
     [Run]
@@ -568,7 +563,7 @@ namespace Azos.Tests.Nub.Serialization
         }
       };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -601,7 +596,7 @@ namespace Azos.Tests.Nub.Serialization
         }
       };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
-      Console.WriteLine(json);
+      json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
 
       var d2 = new WithVariousNullableStructsDoc();
@@ -619,7 +614,6 @@ namespace Azos.Tests.Nub.Serialization
       Aver.IsNotNull(d2.InnerList[3]);
       Aver.AreEqual("Kulibin", d2.InnerList[3].Atom.Value.Value);
     }
-
 
   }//class
 }//namespace
