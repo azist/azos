@@ -221,7 +221,7 @@ namespace Azos.Tests.Nub.Serialization
       dob.LastName = "Rachmaninoff";
       dob["Middle Name"] = "V";
 
-      var json = JW.Write(dob);
+      string json = JW.Write(dob);
 
       json.See();
 
@@ -237,7 +237,7 @@ namespace Azos.Tests.Nub.Serialization
       dob.LastName = "Kutz";
       dob.Autos = new List<string> { "Buick", "Chevy", "Mazda", "Oka" };
 
-      var json = JW.Write(dob);
+      string json = JW.Write(dob);
 
       json.See();
 
