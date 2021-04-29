@@ -4,14 +4,10 @@
 * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 using Azos.Scripting;
-using static Azos.Aver.ThrowsAttribute;
 
 namespace Azos.Tests.Nub
 {
@@ -33,7 +29,6 @@ namespace Azos.Tests.Nub
 
       Aver.AreEqual("Sat, 12 Jul 1980 14:45:32 GMT", WebUtils.DateTimeToHTTPLastModifiedHeaderDateTime(d));
     }
-
 
     [Run]
     public void URI_Join()

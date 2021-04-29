@@ -13,16 +13,16 @@ namespace Azos.Tests.Nub.BaseCollections
   {
     public class MyItem
     {
-      public string Name{ get; set;}
+      public string Name { get; set; }
     }
 
 
     [Run]
     public void BasicQueueFunctions()
     {
-      var sut = new CappedQueue<MyItem>(i => i==null ? 0 : i.Name==null ? 0 : i.Name.Length);
+      var sut = new CappedQueue<MyItem>(i => i == null ? 0 : i.Name == null ? 0 : i.Name.Length);
 
-      Aver.IsTrue( sut.TryEnqueue(new MyItem{  Name="Cat" }) );
+      Aver.IsTrue(sut.TryEnqueue(new MyItem { Name = "Cat" }));
       Aver.AreEqual(1, sut.Count);
       Aver.IsTrue(sut.TryEnqueue(new MyItem { Name = "Dog" }));
       Aver.AreEqual(2, sut.Count);
@@ -34,10 +34,10 @@ namespace Azos.Tests.Nub.BaseCollections
       Aver.AreEqual(4, ((IEnumerable<MyItem>)sut).Count());
 
       Aver.AreEqual(4, sut.EnqueuedCount);
-      Aver.AreEqual(3+3+4, sut.EnqueuedSize);
+      Aver.AreEqual(3 + 3 + 4, sut.EnqueuedSize);
 
       //1st time
-      Aver.IsTrue( sut.TryPeek(out var got) );
+      Aver.IsTrue(sut.TryPeek(out var got));
       Aver.IsNotNull(got);
       Aver.AreEqual("Cat", got.Name);
 
@@ -89,9 +89,10 @@ namespace Azos.Tests.Nub.BaseCollections
     [Run]
     public void SetCountLimit_DefaultHandling()
     {
-      var sut = new CappedQueue<MyItem>(i => i == null ? 0 : i.Name == null ? 0 : i.Name.Length);
-
-      sut.CountLimit = 3;
+      var sut = new CappedQueue<MyItem>(i => i == null ? 0 : i.Name == null ? 0 : i.Name.Length)
+      {
+        CountLimit = 3
+      };
 
       Aver.IsTrue(sut.TryEnqueue(new MyItem { Name = "Cat" }));
       Aver.AreEqual(1, sut.Count);
@@ -105,10 +106,9 @@ namespace Azos.Tests.Nub.BaseCollections
       Aver.IsTrue(sut.TryEnqueue(new MyItem { Name = "Rabbit" }));
       Aver.AreEqual(3, sut.Count);
 
-
       //1st is Dog because Cat was removed
       Aver.AreEqual(3, sut.EnqueuedCount);
-      Aver.AreEqual(3+6, sut.EnqueuedSize);
+      Aver.AreEqual(3 + 6, sut.EnqueuedSize);
 
       Aver.IsTrue(sut.TryDequeue(out var got));
       Aver.IsNotNull(got);
@@ -134,10 +134,11 @@ namespace Azos.Tests.Nub.BaseCollections
     [Run]
     public void SetCountLimit_DiscardOld()
     {
-      var sut = new CappedQueue<MyItem>(i => i == null ? 0 : i.Name == null ? 0 : i.Name.Length);
-
-      sut.CountLimit = 3;
-      sut.Handling = QueueLimitHandling.DiscardOld;
+      var sut = new CappedQueue<MyItem>(i => i == null ? 0 : i.Name == null ? 0 : i.Name.Length)
+      {
+        CountLimit = 3,
+        Handling = QueueLimitHandling.DiscardOld
+      };
 
       Aver.IsTrue(sut.TryEnqueue(new MyItem { Name = "Cat" }));
       Aver.AreEqual(1, sut.Count);
@@ -150,7 +151,6 @@ namespace Azos.Tests.Nub.BaseCollections
 
       Aver.IsTrue(sut.TryEnqueue(new MyItem { Name = "Rabbit" }));
       Aver.AreEqual(3, sut.Count);
-
 
       //1st is Dog because Cat was removed
       Aver.AreEqual(3, sut.EnqueuedCount);
@@ -180,10 +180,11 @@ namespace Azos.Tests.Nub.BaseCollections
     [Run]
     public void SetCountLimit_DiscardNew()
     {
-      var sut = new CappedQueue<MyItem>(i => i == null ? 0 : i.Name == null ? 0 : i.Name.Length);
-
-      sut.CountLimit = 3;
-      sut.Handling = QueueLimitHandling.DiscardNew;
+      var sut = new CappedQueue<MyItem>(i => i == null ? 0 : i.Name == null ? 0 : i.Name.Length)
+      {
+        CountLimit = 3,
+        Handling = QueueLimitHandling.DiscardNew
+      };
 
       Aver.IsTrue(sut.TryEnqueue(new MyItem { Name = "Cat" }));
       Aver.AreEqual(1, sut.Count);
@@ -197,7 +198,6 @@ namespace Azos.Tests.Nub.BaseCollections
       //Rabbit will not fit - return FALSE
       Aver.IsFalse(sut.TryEnqueue(new MyItem { Name = "Rabbit" }));
       Aver.AreEqual(3, sut.Count);
-
 
       //1st is Dog because Cat was removed
       Aver.AreEqual(3, sut.EnqueuedCount);
@@ -228,10 +228,11 @@ namespace Azos.Tests.Nub.BaseCollections
     [Run]
     public void SetCountLimit_Throw()
     {
-      var sut = new CappedQueue<MyItem>(i => i == null ? 0 : i.Name == null ? 0 : i.Name.Length);
-
-      sut.CountLimit = 3;
-      sut.Handling = QueueLimitHandling.Throw;
+      var sut = new CappedQueue<MyItem>(i => i == null ? 0 : i.Name == null ? 0 : i.Name.Length)
+      {
+        CountLimit = 3,
+        Handling = QueueLimitHandling.Throw
+      };
 
       Aver.IsTrue(sut.TryEnqueue(new MyItem { Name = "Cat" }));
       Aver.AreEqual(1, sut.Count);
@@ -247,7 +248,7 @@ namespace Azos.Tests.Nub.BaseCollections
         //Rabbit will not fit - will throw
         Aver.IsFalse(sut.TryEnqueue(new MyItem { Name = "Rabbit" }));
       }
-      catch(AzosException error)
+      catch (AzosException error)
       {
         Aver.IsTrue(error.Message.Contains("limit is reached"));
         Conout.WriteLine("Expected and got: " + error.ToMessageWithType());

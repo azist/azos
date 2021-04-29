@@ -4,11 +4,10 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
 using System.Drawing;
-using Azos.Scripting;
 
+using Azos.Scripting;
 using Azos.Geometry;
 
 namespace Azos.Tests.Nub.Geometry

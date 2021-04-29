@@ -47,7 +47,6 @@ namespace Azos.Tests.Nub.Standards
       Aver.AreEqual(o, Overpunch.FromLong(v));
     }
 
-
     [Run]
     public void ToLong_DefaultNull()
     {
@@ -72,7 +71,6 @@ namespace Azos.Tests.Nub.Standards
       }
     }
 
-
     [Run]
     public void ToLong_DefaultOnError()
     {
@@ -85,8 +83,6 @@ namespace Azos.Tests.Nub.Standards
     {
       Overpunch.ToLong("zgyug", -5, Data.ConvertErrorHandling.Throw);
     }
-
-
 
     [Run(" v=-1021   o='102J'  ")]
     [Run(" v=-1021   o='102j'  ")]
@@ -164,7 +160,6 @@ namespace Azos.Tests.Nub.Standards
       Aver.AreEqual(-5.17M, Overpunch.ToDecimal("zgyug", dflt: -5.17M, handling: Data.ConvertErrorHandling.ReturnDefault));
     }
 
-
     [Run]
     public void FromToDecimal_Cycle()
     {
@@ -183,7 +178,6 @@ namespace Azos.Tests.Nub.Standards
       Aver.AreEqual(null, Overpunch.FromDecimal(null));
       Aver.AreEqual("{", Overpunch.FromDecimal(0));
     }
-
 
     [Run]
     public void ToDecimal_DefaultOnError_Scaled()

@@ -4,14 +4,10 @@
 * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 using Azos.Scripting;
-using static Azos.Aver.ThrowsAttribute;
 
 namespace Azos.Tests.Nub
 {
@@ -19,17 +15,17 @@ namespace Azos.Tests.Nub
   [Runnable]
   public class CollectionUtilsTest
   {
-      private class Tezt
-      {
-        public int A;
-        public string B;
-        public double C;
-      }
+    private class Tezt
+    {
+      public int A;
+      public string B;
+      public double C;
+    }
 
     [Run]
     public void FirstMin()
     {
-      var data = new []{ new Tezt{A=0, B="Car", C=12.1d},
+      var data = new[]{ new Tezt{A=0, B="Car", C=12.1d},
                           new Tezt{A=2, B="Tzar", C=-21.7d},
                           new Tezt{A=-3, B="Zuma", C=10000d},
                         };
@@ -61,7 +57,7 @@ namespace Azos.Tests.Nub
     [Run]
     public void FirstMax()
     {
-      var data = new []{ new Tezt{A=0, B="Car", C=12.1d},
+      var data = new[]{ new Tezt{A=0, B="Car", C=12.1d},
                           new Tezt{A=2, B="Tzar", C=-21.7d},
                           new Tezt{A=-3, B="Zuma", C=10000d},
                         };
@@ -92,23 +88,23 @@ namespace Azos.Tests.Nub
     [Run]
     public void FirstOrAnyOrDefault()
     {
-      var data = new []{ new Tezt{A=0, B="Car", C=12.1d},
+      var data = new[]{ new Tezt{A=0, B="Car", C=12.1d},
                           new Tezt{A=2, B="Tzar", C=-21.7d},
                           new Tezt{A=-3, B="Zuma", C=10000d},
                         };
 
-      var m = data.FirstOrAnyOrDefault(elm => elm.B=="Tzar");
+      var m = data.FirstOrAnyOrDefault(elm => elm.B == "Tzar");
       Aver.AreEqual(2, m.A);
 
-      m = data.FirstOrAnyOrDefault(elm => elm.B=="Sidor");
+      m = data.FirstOrAnyOrDefault(elm => elm.B == "Sidor");
       Aver.AreEqual(0, m.A);
 
       data = null;
-      m = data.FirstOrAnyOrDefault(elm => elm.B=="Sidor");
+      m = data.FirstOrAnyOrDefault(elm => elm.B == "Sidor");
       Aver.IsNull(m);
 
       data = new Tezt[0];
-      m = data.FirstOrAnyOrDefault(elm => elm.B=="Sidor");
+      m = data.FirstOrAnyOrDefault(elm => elm.B == "Sidor");
       Aver.IsNull(m);
     }
 
@@ -133,7 +129,7 @@ namespace Azos.Tests.Nub
     [Run]
     public void AppendToNewArray_2()
     {
-      var existing = new int[]{1,2,3};
+      var existing = new int[] { 1, 2, 3 };
       var got = existing.AppendToNew();
       Aver.IsNotNull(got);
       Aver.AreNotSameRef(existing, got);
@@ -157,7 +153,7 @@ namespace Azos.Tests.Nub
     public void AppendToNewArray_4()
     {
       var existing = new int[] { 1, 2, 3 };
-      var got = existing.AppendToNew(new int[]{-90, -1});
+      var got = existing.AppendToNew(new int[] { -90, -1 });
       Aver.IsNotNull(got);
       Aver.AreNotSameRef(existing, got);
       Aver.AreEqual(5, got.Length);
@@ -167,8 +163,6 @@ namespace Azos.Tests.Nub
       Aver.AreEqual(-90, got[3]);
       Aver.AreEqual(-1, got[4]);
     }
-
-
 
     [Run]
     public void ConcatArray_0()
@@ -192,7 +186,7 @@ namespace Azos.Tests.Nub
     [Run]
     public void ConcatArray_3()
     {
-      var got = 2.ConcatArray(3,-1,90);
+      var got = 2.ConcatArray(3, -1, 90);
       Aver.IsNotNull(got);
       Aver.AreEqual(4, got.Length);
       Aver.AreEqual(2, got[0]);
@@ -201,12 +195,11 @@ namespace Azos.Tests.Nub
       Aver.AreEqual(90, got[3]);
     }
 
-
     [Run]
     public void SkipLastTest_1()
     {
-        var seq = Enumerable.Range(1, 5);
-        Aver.AreEqual("1,2,3,4", string.Join(",", seq.SkipLast().ToArray()));
+      var seq = Enumerable.Range(1, 5);
+      Aver.AreEqual("1,2,3,4", string.Join(",", seq.SkipLast().ToArray()));
     }
 
     [Run]
@@ -264,18 +257,17 @@ namespace Azos.Tests.Nub
     [Run]
     public void BatchByTests_1()
     {
-      var seq = 1.ToEnumerable(3,5,9,10,20,30,40,50).BatchBy(2).ToArray();
+      var seq = 1.ToEnumerable(3, 5, 9, 10, 20, 30, 40, 50).BatchBy(2).ToArray();
 
       Aver.AreEqual(5, seq.Length);
 
-      Aver.AreArraysEquivalent(new[]{ 1,3,5,9,10,20,30,40,50}, seq.SelectMany(e => e).ToArray());
+      Aver.AreArraysEquivalent(new[] { 1, 3, 5, 9, 10, 20, 30, 40, 50 }, seq.SelectMany(e => e).ToArray());
 
-      Aver.AreArraysEquivalent(new[] { 1, 3 },   seq[0].ToArray());
-      Aver.AreArraysEquivalent(new[] { 5, 9 },   seq[1].ToArray());
+      Aver.AreArraysEquivalent(new[] { 1, 3 }, seq[0].ToArray());
+      Aver.AreArraysEquivalent(new[] { 5, 9 }, seq[1].ToArray());
       Aver.AreArraysEquivalent(new[] { 10, 20 }, seq[2].ToArray());
-      Aver.AreArraysEquivalent(new[] { 30, 40},  seq[3].ToArray());
-      Aver.AreArraysEquivalent(new[] { 50 },     seq[4].ToArray());
-
+      Aver.AreArraysEquivalent(new[] { 30, 40 }, seq[3].ToArray());
+      Aver.AreArraysEquivalent(new[] { 50 }, seq[4].ToArray());
     }
 
     [Run]
@@ -285,15 +277,13 @@ namespace Azos.Tests.Nub
 
       Aver.AreEqual(4, seq.Length);
 
-      Aver.AreArraysEquivalent(new[] { 1, 3, 5, 9, 10, 20, 30, 40}, seq.SelectMany(e => e).ToArray());
+      Aver.AreArraysEquivalent(new[] { 1, 3, 5, 9, 10, 20, 30, 40 }, seq.SelectMany(e => e).ToArray());
 
       Aver.AreArraysEquivalent(new[] { 1, 3 }, seq[0].ToArray());
       Aver.AreArraysEquivalent(new[] { 5, 9 }, seq[1].ToArray());
       Aver.AreArraysEquivalent(new[] { 10, 20 }, seq[2].ToArray());
       Aver.AreArraysEquivalent(new[] { 30, 40 }, seq[3].ToArray());
-
     }
-
 
   }
 }

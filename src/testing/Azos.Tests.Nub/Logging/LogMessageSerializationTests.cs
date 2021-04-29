@@ -20,7 +20,6 @@ namespace Azos.Tests.Nub.Logging
   [Runnable]
   public class LogMessageSerializationTests : IRunHook
   {
-
     public bool Prologue(Runner runner, FID id, MethodInfo method, RunAttribute attr, ref object[] args)
     {
       ArowSerializer.RegisterTypeSerializationCores(Assembly.GetCallingAssembly());
@@ -29,7 +28,6 @@ namespace Azos.Tests.Nub.Logging
 
     public bool Epilogue(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error)
      => false;
-
 
     [Run]
     public void Test_Arow()
@@ -159,5 +157,6 @@ namespace Azos.Tests.Nub.Logging
         throw new AzosException("Was thrown: " + e.ToMessageWithType(), e);
       }
     }
+
   }
 }

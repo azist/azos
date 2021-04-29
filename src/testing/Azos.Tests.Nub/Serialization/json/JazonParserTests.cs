@@ -4,12 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using System.Linq;
-
 using Azos.Scripting;
 using Azos.Serialization.JSON;
 using Azos.CodeAnalysis.Source;
@@ -30,7 +24,6 @@ namespace Azos.Tests.Nub.Serialization
       var got = JazonParser.Parse(src, true);
 
       got.See();
-
     }
 
     [Run]
@@ -42,7 +35,6 @@ namespace Azos.Tests.Nub.Serialization
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(ulong.MaxValue, got["v"]);
-
     }
 
     [Run]
@@ -54,7 +46,6 @@ namespace Azos.Tests.Nub.Serialization
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(long.MinValue, got["v"]);
-
     }
 
     [Run]
@@ -66,7 +57,6 @@ namespace Azos.Tests.Nub.Serialization
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(long.MaxValue, got["v"]);
-
     }
 
     [Run]
@@ -78,7 +68,6 @@ namespace Azos.Tests.Nub.Serialization
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(long.MaxValue, got["v"]);
-
     }
 
     [Run]
@@ -101,7 +90,6 @@ namespace Azos.Tests.Nub.Serialization
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(int.MaxValue, got["v"]);
-
     }
 
     [Run]
@@ -113,7 +101,6 @@ namespace Azos.Tests.Nub.Serialization
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(int.MaxValue, got["v"]);
-
     }
 
     [Run]
@@ -226,7 +213,6 @@ namespace Azos.Tests.Nub.Serialization
       var got = JazonParser.Parse(src, true) as JsonDataMap;
     }
 
-
     [Run]
     public void Depth_1()
     {
@@ -278,7 +264,6 @@ namespace Azos.Tests.Nub.Serialization
       var src = new StringSource(json);
       var got = JazonParser.Parse(src, true, 1) as JsonDataMap;
     }
-
 
     [Run]
     public void Depth_6()
@@ -424,8 +409,6 @@ namespace Azos.Tests.Nub.Serialization
       var got = JazonParser.Parse(src, true) as JsonDataMap;
     }
 
-
-
     [Run]
     public void Object_1()
     {
@@ -476,7 +459,6 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreObjectsEqual(-12, (got["list"] as JsonDataArray)[1]);
       Aver.AreObjectsEqual(-345e3d, (got["list"] as JsonDataArray)[2]);
       Aver.AreObjectsEqual(null, (got["list"] as JsonDataArray)[3]);
-
     }
 
 

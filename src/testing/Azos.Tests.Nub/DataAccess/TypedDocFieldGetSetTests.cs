@@ -111,7 +111,6 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual(new GDID(0, 7890), sut.Gdid2);
     }
 
-
     [Run]
     public void MyEnum1()
     {

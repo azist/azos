@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
@@ -49,7 +48,6 @@ namespace Azos.Tests.Nub.Security
       b = "2" + Ambient.Random.NextRandomWebSafeString(cnt-1);
       Aver.IsFalse(HashedPassword.AreStringsEqualInLengthConstantTime(a, b));
     }
-
 
     [Run]
     public void Strings_Null()

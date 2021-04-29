@@ -18,35 +18,35 @@ namespace Azos.Tests.Nub.Serialization
   [Runnable]
   public class CSVWriterTests : IRunnableHook
   {
-   private readonly string m_Header =
-"SimpleStr,IntValue,FloatValue,DateValue,Multiline,Nullable,Quotes,Apostr,Comma\r\n";
+    private readonly string m_Header =
+ "SimpleStr,IntValue,FloatValue,DateValue,Multiline,Nullable,Quotes,Apostr,Comma\r\n";
 
-   private readonly string m_FilteredHeader =
-"SimpleStr,IntValue\r\n";
+    private readonly string m_FilteredHeader =
+ "SimpleStr,IntValue\r\n";
 
-   private readonly string m_Data =
-"Doctor Aibolit,66,19.66,12/31/1966 19:08:59,\"Avva\r\nChichi\",,\"\"\"Barm\"\"alei\"\"\",Mc'Farlen,\"1,2,3\"\r\n";
+    private readonly string m_Data =
+ "Doctor Aibolit,66,19.66,12/31/1966 19:08:59,\"Avva\r\nChichi\",,\"\"\"Barm\"\"alei\"\"\",Mc'Farlen,\"1,2,3\"\r\n";
 
-   private readonly string m_FilteredData =
-"Doctor Aibolit,66\r\n";
+    private readonly string m_FilteredData =
+ "Doctor Aibolit,66\r\n";
 
     private TeztRow m_Row;
 
     void IRunnableHook.Prologue(Runner runner, FID id)
     {
       m_Row = new TeztRow
-              {
-                SimpleStr = "Doctor Aibolit",
-                IntValue = 66,
-                FloatValue = 19.66f,
-                DateValue = new DateTime(1966, 12, 31, 19, 8, 59),
-                NonUIValue = "nothing",
-                Multiline = "Avva\r\nChichi",
-                Nullable = null,
-                Quotes = "\"Barm\"alei\"",
-                Apostr = "Mc'Farlen",
-                Comma = "1,2,3"
-              };
+      {
+        SimpleStr = "Doctor Aibolit",
+        IntValue = 66,
+        FloatValue = 19.66f,
+        DateValue = new DateTime(1966, 12, 31, 19, 8, 59),
+        NonUIValue = "nothing",
+        Multiline = "Avva\r\nChichi",
+        Nullable = null,
+        Quotes = "\"Barm\"alei\"",
+        Apostr = "Mc'Farlen",
+        Comma = "1,2,3"
+      };
     }
 
     bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error) => false;
@@ -63,7 +63,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Row_TabDelimeter()
     {
-      var res = CSVWriter.Write(m_Row, new CSVWritingOptions {FieldDelimiter='\t'});
+      var res = CSVWriter.Write(m_Row, new CSVWritingOptions { FieldDelimiter = '\t' });
       var str =
 "SimpleStr\tIntValue\tFloatValue\tDateValue\tMultiline\tNullable\tQuotes\tApostr\tComma\r\n" +
 "Doctor Aibolit\t66\t19.66\t12/31/1966 19:08:59\t\"Avva\r\nChichi\"\t\t\"\"\"Barm\"\"alei\"\"\"\tMc'Farlen\t1,2,3\r\n";
@@ -73,7 +73,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Row_CustomNull()
     {
-      var res = CSVWriter.Write(m_Row, new CSVWritingOptions {NullValue="\0"});
+      var res = CSVWriter.Write(m_Row, new CSVWritingOptions { NullValue = "\0" });
       var d =
 "Doctor Aibolit,66,19.66,12/31/1966 19:08:59,\"Avva\r\nChichi\",\0,\"\"\"Barm\"\"alei\"\"\",Mc'Farlen,\"1,2,3\"\r\n";
       Aver.AreEqual(m_Header + d, res);
@@ -82,7 +82,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Row_AllFields()
     {
-      var res = CSVWriter.Write(m_Row,  CSVWritingOptions.AllFields);
+      var res = CSVWriter.Write(m_Row, CSVWritingOptions.AllFields);
       var h =
 "SimpleStr,IntValue,FloatValue,DateValue,NonUIValue,Multiline,Nullable,Quotes,Apostr,Comma\r\n";
       var d =
@@ -179,11 +179,11 @@ namespace Azos.Tests.Nub.Serialization
     public void Row_AllNonWritable()
     {
       var row = new NonWritable
-                {
-                  FieldA = "A",
-                  FieldB = "B",
-                  FieldC = "C"
-                };
+      {
+        FieldA = "A",
+        FieldB = "B",
+        FieldC = "C"
+      };
 
       var res = CSVWriter.Write(row);
       Aver.IsTrue(res == string.Empty);
@@ -195,22 +195,22 @@ namespace Azos.Tests.Nub.Serialization
 
     private class TeztRow : TypedDoc
     {
-      [Field] public string   SimpleStr  { get; set; }
-      [Field] public int      IntValue   { get; set; }
-      [Field] public float    FloatValue { get; set; }
-      [Field] public DateTime DateValue  { get; set; }
-      [Field(nonUI:true)]
-              public string   NonUIValue { get; set; }
-      [Field] public string   Multiline  { get; set; }
-      [Field] public string   Nullable   { get; set; }
-      [Field] public string   Quotes     { get; set; }
-      [Field] public string   Apostr     { get; set; }
-      [Field] public string   Comma      { get; set; }
+      [Field] public string SimpleStr { get; set; }
+      [Field] public int IntValue { get; set; }
+      [Field] public float FloatValue { get; set; }
+      [Field] public DateTime DateValue { get; set; }
+      [Field(nonUI: true)]
+      public string NonUIValue { get; set; }
+      [Field] public string Multiline { get; set; }
+      [Field] public string Nullable { get; set; }
+      [Field] public string Quotes { get; set; }
+      [Field] public string Apostr { get; set; }
+      [Field] public string Comma { get; set; }
     }
 
     private class NonWritable : TypedDoc
     {
-      [Field(nonUI:true)] public string FieldA { get; set; }
+      [Field(nonUI: true)] public string FieldA { get; set; }
       [Field(storeFlag: StoreFlag.None)] public string FieldB { get; set; }
       [Field(storeFlag: StoreFlag.OnlyLoad)] public string FieldC { get; set; }
     }

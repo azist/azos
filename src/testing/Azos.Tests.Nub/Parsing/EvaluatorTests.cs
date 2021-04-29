@@ -112,7 +112,6 @@ namespace Azos.Tests.Nub.Parsing
         Aver.AreEqual("less:no",  e.Evaluate((ident)=>ident=="x"?x:ident=="y"?y:ident));
     }
 
-
   }
 }
 

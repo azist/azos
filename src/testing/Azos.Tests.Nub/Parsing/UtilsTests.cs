@@ -4,8 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-
 using Azos.Scripting;
 using Azos.Text;
 
@@ -62,6 +60,7 @@ namespace Azos.Tests.Nub.Parsing
       Aver.IsTrue("some address".MatchPattern("some*"));
       Aver.IsFalse("sone address ".MatchPattern("some*"));
     }
+
     [Run]
     public void MatchPattern4()
     {
@@ -688,5 +687,6 @@ namespace Azos.Tests.Nub.Parsing
         Aver.IsFalse(DataEntryUtils.CheckTelephone(bad[i]));
       }
     }
+
   }
 }

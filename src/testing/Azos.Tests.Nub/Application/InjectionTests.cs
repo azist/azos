@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System.IO;
 using System.Collections.Generic;
 
@@ -134,6 +133,7 @@ namespace Azos.Tests.Nub.Application
 
     interface IMyModule : IModule { }
 
+
     public class MyModule : ModuleBase, IMyModule
     {
       public MyModule(IApplication app) : base(app) { }
@@ -141,6 +141,8 @@ namespace Azos.Tests.Nub.Application
       public override bool IsHardcodedModule => false;
       public override string ComponentLogTopic => "testing";
     }
+
+
     public class InjectionTarget_Root
     {
       [Inject] IApplication m_App;//<--- private field
@@ -184,6 +186,7 @@ namespace Azos.Tests.Nub.Application
       }
     }
 
+
     public class InjectionTarget_Modules : InjectionTarget_Root
     {
       [Inject] IMyModule m_MyModule1;
@@ -199,6 +202,7 @@ namespace Azos.Tests.Nub.Application
       }
     }
 
+
     public class InjectionTarget_Singleton : InjectionTarget_Modules
     {
       [InjectSingleton] Dictionary<string, string> m_MySingleton1;
@@ -211,6 +215,7 @@ namespace Azos.Tests.Nub.Application
         Aver.AreSameRef(dict, m_MySingleton2);
       }
     }
+
 
     public class InjectionTarget_AppInjection_True : InjectionTarget_Root, IApplicationInjection
     {

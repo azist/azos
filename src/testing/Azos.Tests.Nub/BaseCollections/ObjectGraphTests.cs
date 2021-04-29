@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azos.Collections;
@@ -18,11 +17,12 @@ namespace Azos.Tests.Nub.BaseCollections
     [Run]
     public void Test1()
     {
-      var got =  ObjectGraph.Scope("A", this, (i, g) => {
+      var got = ObjectGraph.Scope("A", this, (i, g) =>
+      {
         Aver.AreEqual(0, g.CallDepth);
         Aver.IsFalse(g.Visited(i));
         Aver.IsTrue(g.InFlow(i));
-        Aver.IsTrue(g.Current==i);
+        Aver.IsTrue(g.Current == i);
         return 123;
       });
 
@@ -34,7 +34,8 @@ namespace Azos.Tests.Nub.BaseCollections
     public void Test2()
     {
       var list = new List<int>();
-      var got = ObjectGraph.Scope("A", this, list, (i, g, lst) => {
+      var got = ObjectGraph.Scope("A", this, list, (i, g, lst) =>
+      {
         Aver.AreEqual(0, g.CallDepth);
         Aver.IsFalse(g.Visited(i));
         Aver.IsTrue(g.InFlow(i));
@@ -48,12 +49,13 @@ namespace Azos.Tests.Nub.BaseCollections
       Aver.AreEqual(123, got.result);
       Aver.AreEqual(123, list.Count);
       list.See();
-      list.ForEach((v, idx) => Aver.AreEqual(v, idx+1));
+      list.ForEach((v, idx) => Aver.AreEqual(v, idx + 1));
     }
 
     private int body(List<int> list)
     {
-      var got = ObjectGraph.Scope("A", new object(), list, (i, g, lst) => {
+      var got = ObjectGraph.Scope("A", new object(), list, (i, g, lst) =>
+      {
         list.Add(g.CallDepth);
         Aver.AreEqual(list.Count, g.CallDepth);
         Aver.IsTrue(g.Visited(this));
@@ -62,7 +64,7 @@ namespace Azos.Tests.Nub.BaseCollections
         Aver.IsTrue(g.InFlow(this));
         Aver.IsTrue(g.Current == i);
 
-        return list.Count==123 ? 123 : body(list);
+        return list.Count == 123 ? 123 : body(list);
       });
 
       Aver.IsTrue(got.OK);
@@ -72,9 +74,11 @@ namespace Azos.Tests.Nub.BaseCollections
     [Run]
     public void Test3()
     {
-      Parallel.For(0, 50_000, _ => {
+      Parallel.For(0, 50_000, _ =>
+      {
         var list = new List<int>();
-        var got = ObjectGraph.Scope("A", this, list, (i, g, lst) => {
+        var got = ObjectGraph.Scope("A", this, list, (i, g, lst) =>
+        {
           Aver.AreEqual(0, g.CallDepth);
           Aver.IsFalse(g.Visited(i));
           Aver.IsTrue(g.InFlow(i));
@@ -101,19 +105,21 @@ namespace Azos.Tests.Nub.BaseCollections
 
       public string Visit()
       {
-        var state = ObjectGraph.Scope("name", this, (s, graph) => {
+        var state = ObjectGraph.Scope("name", this, (s, graph) =>
+        {
           Visits++;
           var result = "{0}(".Args(Tag);
-          if (Left!=null) result = result + Left.Visit(); else result = result + "null";
-          if (Right!=null) result = result + "," + Right.Visit(); else result = result + ",null";
-          return result+")";
+          if (Left != null) result = result + Left.Visit(); else result = result + "null";
+          if (Right != null) result = result + "," + Right.Visit(); else result = result + ",null";
+          return result + ")";
         });
         return state.OK ? state.result : "CYCLE";
       }
 
       public string VisitOnce()
       {
-        var state = ObjectGraph.Scope("name", this, (s, graph) => {
+        var state = ObjectGraph.Scope("name", this, (s, graph) =>
+        {
           Visits++;
           var result = "{0}(".Args(Tag);
           if (Left != null)
@@ -138,7 +144,6 @@ namespace Azos.Tests.Nub.BaseCollections
         });
         return state.OK ? state.result : "CYCLE";
       }
-
     }
 
     [Run]
@@ -146,11 +151,11 @@ namespace Azos.Tests.Nub.BaseCollections
     {
       var root = new Node()
       {
-        Tag= "root",
+        Tag = "root",
         Left = new Node()
         {
           Tag = "A",
-          Left = new Node(){ Tag = "A-A"},
+          Left = new Node() { Tag = "A-A" },
           Right = new Node() { Tag = "A-B" },
         },
         Right = new Node()
@@ -165,7 +170,6 @@ namespace Azos.Tests.Nub.BaseCollections
           Right = new Node() { Tag = "B-B" },
         }
       };
-
 
       var got = root.Visit();
       got.See();
@@ -200,7 +204,6 @@ namespace Azos.Tests.Nub.BaseCollections
 
       root.Right.Right.Left = root.Right;//circular reference
 
-
       var got = root.Visit();
       got.See();
       Aver.AreEqual("root(A(A-A(null,null),A-B(null,null)),B(B-A(B-A-A(null,null),B-A-B(null,null)),B-B(CYCLE,null)))", got);
@@ -233,7 +236,6 @@ namespace Azos.Tests.Nub.BaseCollections
       };
 
       root.Right.Right.Left = root.Left.Left;//re-use of the other branch
-
 
       var got = root.Visit();
       got.See();

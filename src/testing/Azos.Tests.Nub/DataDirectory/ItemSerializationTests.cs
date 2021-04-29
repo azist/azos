@@ -48,7 +48,6 @@ namespace Azos.Tests.Nub.DataDirectory
       Aver.IsNotNull(got.Props);
       Aver.AreEqual("marx", got.Props["wv-leader"].AsString());
       Aver.IsTrue(ItemStatus.Created == got.VersionStatus);
-
     }
 
     [Run]

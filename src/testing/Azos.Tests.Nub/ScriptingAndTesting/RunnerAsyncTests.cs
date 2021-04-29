@@ -105,12 +105,14 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
       Aver.IsTrue(log.AttrByName("good").ValueAsBool(false));
     }
 
+
     public class Person : IConfigurable
     {
       [Config] public string Name { get; set; }
       [Config] public int Age { get; set; }
       public void Configure(IConfigSectionNode node) => ConfigAttribute.Apply(this, node);
     }
+
 
     [Run("case1", "a{ expectName='aaa' expectAge=-125 person{ name='aaa' age=-125}}")]
     [Run("case2", "expectName='kozel' expectAge=125 person{ name='kozel' age=125}")]

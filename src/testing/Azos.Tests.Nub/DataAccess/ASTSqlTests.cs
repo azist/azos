@@ -38,7 +38,6 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual("Kozlovich", ctx.Parameters.First().Value.AsString());
     }
 
-
     [Run]
     public void SimpleBinaryWithUnary()
     {

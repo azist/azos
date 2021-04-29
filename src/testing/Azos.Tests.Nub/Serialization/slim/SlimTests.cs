@@ -206,7 +206,6 @@ namespace Azos.Tests.Nub.Serialization
 
         var map2 = deser as Azos.Serialization.JSON.JsonDataMap;
 
-
         Aver.AreEqual("1", map2["flag"].AsString());
         Aver.AreEqual("22", map2["FLAG"].AsString());
         Aver.AreEqual("Xitro", map2["MEMBER"].AsString());

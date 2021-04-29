@@ -14,7 +14,6 @@ namespace Azos.Tests.Nub.Security
   [Runnable]
   public class SysAuthTokenTests
   {
-
     [Run]
     public void Assigned()
     {

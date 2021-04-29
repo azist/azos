@@ -4,9 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System;
-
 using Azos.Log;
 using Azos.Scripting;
 
@@ -30,7 +27,6 @@ namespace Azos.Tests.Nub.Logging
       got = ArchiveConventions.DecodeArchiveDimensionsMap("not a content produced by convention");
       Aver.IsNull(got);
     }
-
 
     [Run]
     public void Test02()

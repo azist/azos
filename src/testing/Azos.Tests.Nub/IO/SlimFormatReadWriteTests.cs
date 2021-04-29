@@ -1376,7 +1376,6 @@ namespace Azos.Tests.Nub.IO
       }
     }
 
-
     [Run]
     public void PilePointer()
     {
@@ -1420,7 +1419,6 @@ namespace Azos.Tests.Nub.IO
         Aver.AreEqual(pp, r.ReadPilePointer());
       }
     }
-
 
     [Run]
     public void NLSMap()
