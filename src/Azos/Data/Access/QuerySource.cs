@@ -7,7 +7,6 @@
 using System;
 using System.Text;
 
-
 namespace Azos.Data.Access
 {
   /// <summary>
