@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Apps;
 using System;
 using System.Collections.Generic;
 
@@ -13,7 +14,7 @@ namespace Azos.Data.Heap
   /// Selects the suiting nodes relative to the specified host (such as local host)
   /// ordered by their relevance (such as proximity, network congestion etc.)
   /// </summary>
-  public interface INodeSelector
+  public interface INodeSelector : IApplicationComponent
   {
     /// <summary>
     /// Area of the heap which defines nodes

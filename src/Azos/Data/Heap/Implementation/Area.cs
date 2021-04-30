@@ -20,11 +20,14 @@ namespace Azos.Data.Heap.Implementation
   public sealed class Area : ApplicationComponent<Heap>, IArea, IInstrumentable
   {
     public const string CONFIG_AREA_SECTION = "area";
+    public const string CONFIG_NODE_SELECTOR_SECTION = "node-selector";
 
     internal Area(Heap director, IConfigSectionNode cfg) : base(director)
     {
       cfg.NonEmpty(nameof(cfg));
       m_Schema = new TypeSchema(this, cfg[TypeSchema.CONFIG_SCHEMA_SECTION]);
+      var cfgSelector = cfg[CONFIG_NODE_SELECTOR_SECTION];
+      m_NodeSelector = FactoryUtils.MakeDirectedComponent<INodeSelector>(this, cfgSelector, typeof(DefaultNodeSelector), new object[]{cfgSelector});
       //todo: build...
     }
 

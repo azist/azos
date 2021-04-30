@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
 
@@ -73,7 +73,7 @@ namespace Azos.Data.Heap
   /// The replication is paused until all nodes run assemblies with the same BUILD-INFO,
   /// otherwise the data may not eventually converge
   /// </summary>
-  public interface IArea : INamed
+  public interface IArea : INamed, IApplicationComponent
   {
     /// <summary>
     /// Directing heap which owns the area
