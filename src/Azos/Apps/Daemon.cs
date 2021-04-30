@@ -21,7 +21,9 @@ namespace Azos.Apps
   public abstract class Daemon : ApplicationComponent, IDaemon, ILocalizedTimeProvider
   {
     #region CONSTS
+
     public const string CONFIG_NAME_ATTR = "name";
+
     #endregion
 
     #region .ctor
@@ -40,6 +42,7 @@ namespace Azos.Apps
 
       base.Destructor();
     }
+
     #endregion
 
     #region Private Fields
@@ -64,17 +67,12 @@ namespace Azos.Apps
     /// Default implementation checks whether it is decorated with ApplicationDontAutoStartDaemonAttribute
     /// </summary>
     public virtual bool ApplicationDontAutoStartDaemon
-    {
-      get{ return Attribute.IsDefined(GetType(), typeof(ApplicationDontAutoStartDaemonAttribute));}
-    }
+      => Attribute.IsDefined(GetType(), typeof(ApplicationDontAutoStartDaemonAttribute));
 
     /// <summary>
     /// Current daemon operational status: Inactive, Running etc...
     /// </summary>
-    public DaemonStatus Status
-    {
-        get { return m_Status; }
-    }
+    public DaemonStatus Status => m_Status;
 
     /// <summary>
     /// Provides short textual service description which is typically used by hosting apps
@@ -122,10 +120,7 @@ namespace Azos.Apps
     /// <summary>
     /// Returns current time localized per TimeLocation
     /// </summary>
-    public DateTime LocalizedTime
-    {
-      get { return UniversalTimeToLocalizedTime(App.TimeSource.UTCNow); }
-    }
+    public DateTime LocalizedTime => UniversalTimeToLocalizedTime(App.TimeSource.UTCNow);
 
     #endregion
 
@@ -294,9 +289,7 @@ namespace Azos.Apps
     }
 
     public override string ToString()
-    {
-      return "Daemon {0}('{1}' @{2})".Args(GetType().DisplayNameWithExpandedGenericArgs(), Name, ComponentSID);
-    }
+      => "Daemon {0}('{1}' @{2})".Args(GetType().DisplayNameWithExpandedGenericArgs(), Name, ComponentSID);
 
     #endregion
 
@@ -336,9 +329,7 @@ namespace Azos.Apps
     /// Provides implementation for checking whether the daemon has completely stopped
     /// </summary>
     protected virtual bool DoCheckForCompleteStop()
-    {
-        return m_Status == DaemonStatus.Inactive;
-    }
+      => m_Status == DaemonStatus.Inactive;
 
     /// <summary>
     /// Provides implementation for a blocking call that returns only after a complete daemon stop
@@ -400,6 +391,7 @@ namespace Azos.Apps
     {
 
     }
+
     #endregion
   }
 

@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +29,7 @@ namespace Azos.Apps
   public abstract partial class CommonApplicationLogic : DisposableObject, IApplicationImplementation
   {
     #region CONSTS
+
     public const string CONFIG_SWITCH = "config";
 
     public const string CONFIG_NAME_ATTR = "name";
@@ -42,7 +42,7 @@ namespace Azos.Apps
     public const string CONFIG_PROCESS_INCLUDES = "process-includes";
 
     public const string CONFIG_EXPECTED_COMPONENT_SHUTDOWN_DURATION_MS = "expected-component-shutdown-duration-ms";
-    public const int    DFLT_EXPECTED_COMPONENT_SHUTDOWN_DURATION_MS = 1_250;
+    public const int DFLT_EXPECTED_COMPONENT_SHUTDOWN_DURATION_MS = 1_250;
 
     public const string CONFIG_MEMORY_MANAGEMENT_SECTION = "memory-management";
 
@@ -62,9 +62,9 @@ namespace Azos.Apps
     public const string CONFIG_DEPENDENCY_INJECTOR_SECTION = "dependency-injector";
     public const string CONFIG_SECURITY_SECTION = "security";
 
-
     public const string CONFIG_PATH_ATTR = "path";
     public const string CONFIG_ENABLED_ATTR = "enabled";
+
     #endregion
 
     #region .ctor/.dctor
@@ -90,13 +90,13 @@ namespace Azos.Apps
     //this is a method because of C# inability to control ctor chaining sequence
     //this is framework internal code, developers do not call
     protected void Constructor(bool allowNesting,
-                               string [] cmdLineArgs,
+                               string[] cmdLineArgs,
                                ConfigSectionNode rootConfig,
                                IApplicationDependencyInjectorImplementation defaultDI = null)
     {
       m_AllowNesting = allowNesting;
 
-      if (cmdLineArgs!=null && cmdLineArgs.Length>0)
+      if (cmdLineArgs != null && cmdLineArgs.Length > 0)
       {
         var acfg = new CommandArgsConfiguration(cmdLineArgs) { Application = this };
         m_CommandArgs = acfg.Root;
@@ -107,7 +107,7 @@ namespace Azos.Apps
         m_CommandArgs = acfg.Root;
       }
 
-      m_ConfigRoot  = rootConfig ?? GetConfiguration().Root;
+      m_ConfigRoot = rootConfig ?? GetConfiguration().Root;
       m_Singletons = new ApplicationSingletonManager();
       m_NOPApplicationSingletonManager = new NOPApplicationSingletonManager();
       m_DefaultDependencyInjector = defaultDI ?? new ApplicationDependencyInjector(this);
@@ -144,8 +144,8 @@ namespace Azos.Apps
 
       base.Destructor();
     }
-    #endregion
 
+    #endregion
 
     #region Fields
 
@@ -203,6 +203,7 @@ namespace Azos.Apps
 
     protected IEventTimerImplementation m_EventTimer;
     protected IEventTimerImplementation m_NOPEventTimer;
+
     #endregion
 
 
@@ -273,28 +274,27 @@ namespace Azos.Apps
     /// </summary>
     public void Stop() => m_Stopping = true;
 
-
-    public IConfigSectionNode ConfigRoot          => m_ConfigRoot;
-    public IConfigSectionNode CommandArgs         => m_CommandArgs;
+    public IConfigSectionNode ConfigRoot => m_ConfigRoot;
+    public IConfigSectionNode CommandArgs => m_CommandArgs;
     public IApplicationSingletonManager Singletons => m_Singletons ?? m_NOPApplicationSingletonManager;
     public IApplicationDependencyInjector DependencyInjector => m_DependencyInjector ?? m_DefaultDependencyInjector;
-    public ILog                Log                => m_Log             ??  m_NOPLog;
-    public IInstrumentation    Instrumentation    => m_Instrumentation ??  m_NOPInstrumentation;
-    public IDataStore          DataStore          => m_DataStore       ??  m_NOPDataStore;
-    public IObjectStore        ObjectStore        => m_ObjectStore     ??  m_NOPObjectStore;
-    public IGlue               Glue               => m_Glue            ??  m_NOPGlue;
-    public ISecurityManager    SecurityManager    => m_SecurityManager ??  m_NOPSecurityManager;
-    public ITimeSource         TimeSource         => m_TimeSource      ??  m_DefaultTimeSource;
-    public IEventTimer         EventTimer         => m_EventTimer      ??  m_NOPEventTimer;
-    public IModule             ModuleRoot         => m_Module          ??  m_NOPModule;
+    public ILog Log => m_Log ?? m_NOPLog;
+    public IInstrumentation Instrumentation => m_Instrumentation ?? m_NOPInstrumentation;
+    public IDataStore DataStore => m_DataStore ?? m_NOPDataStore;
+    public IObjectStore ObjectStore => m_ObjectStore ?? m_NOPObjectStore;
+    public IGlue Glue => m_Glue ?? m_NOPGlue;
+    public ISecurityManager SecurityManager => m_SecurityManager ?? m_NOPSecurityManager;
+    public ITimeSource TimeSource => m_TimeSource ?? m_DefaultTimeSource;
+    public IEventTimer EventTimer => m_EventTimer ?? m_NOPEventTimer;
+    public IModule ModuleRoot => m_Module ?? m_NOPModule;
 
     /// <summary>
     /// Returns time location of this LocalizedTimeProvider implementation
     /// </summary>
     public TimeLocation TimeLocation
     {
-        get { return m_TimeLocation ?? TimeLocation.Parent;}
-        set { m_TimeLocation = value; }
+      get { return m_TimeLocation ?? TimeLocation.Parent; }
+      set { m_TimeLocation = value; }
     }
 
     /// <summary>Returns current time localized per TimeLocation</summary>
@@ -308,7 +308,6 @@ namespace Azos.Apps
 
     #endregion
 
-
     #region Public
 
     /// <summary>
@@ -321,18 +320,18 @@ namespace Azos.Apps
     /// </summary>
     public DateTime UniversalTimeToLocalizedTime(DateTime utc)
     {
-        if (utc.Kind!=DateTimeKind.Utc)
-          throw new TimeException(StringConsts.ARGUMENT_ERROR+GetType().Name+".UniversalTimeToLocalizedTime(utc.Kind!=UTC)");
+      if (utc.Kind != DateTimeKind.Utc)
+        throw new TimeException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".UniversalTimeToLocalizedTime(utc.Kind!=UTC)");
 
-        var loc = TimeLocation;
-        if (!loc.UseParentSetting)
-        {
-            return DateTime.SpecifyKind(utc + loc.UTCOffset, DateTimeKind.Local);
-        }
-        else
-        {
-            return TimeSource.UniversalTimeToLocalizedTime(utc);
-        }
+      var loc = TimeLocation;
+      if (!loc.UseParentSetting)
+      {
+        return DateTime.SpecifyKind(utc + loc.UTCOffset, DateTimeKind.Local);
+      }
+      else
+      {
+        return TimeSource.UniversalTimeToLocalizedTime(utc);
+      }
     }
 
     /// <summary>
@@ -340,18 +339,18 @@ namespace Azos.Apps
     /// </summary>
     public DateTime LocalizedTimeToUniversalTime(DateTime local)
     {
-        if (local.Kind!=DateTimeKind.Local)
-          throw new TimeException(StringConsts.ARGUMENT_ERROR+GetType().Name+".LocalizedTimeToUniversalTime(utc.Kind!=Local)");
+      if (local.Kind != DateTimeKind.Local)
+        throw new TimeException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".LocalizedTimeToUniversalTime(utc.Kind!=Local)");
 
-        var loc = TimeLocation;
-        if (!loc.UseParentSetting)
-        {
-            return DateTime.SpecifyKind(local - loc.UTCOffset, DateTimeKind.Utc);
-        }
-        else
-        {
-            return TimeSource.LocalizedTimeToUniversalTime(local);
-        }
+      var loc = TimeLocation;
+      if (!loc.UseParentSetting)
+      {
+        return DateTime.SpecifyKind(local - loc.UTCOffset, DateTimeKind.Utc);
+      }
+      else
+      {
+        return TimeSource.LocalizedTimeToUniversalTime(local);
+      }
     }
 
     /// <summary>
@@ -359,10 +358,10 @@ namespace Azos.Apps
     /// </summary>
     public virtual ISession MakeNewSessionInstance(Guid sessionID, Security.User user = null)
     {
-        var result = new BaseSession(sessionID, Random.NextRandomUnsignedLong);
-        result.User = user;
+      var result = new BaseSession(sessionID, Random.NextRandomUnsignedLong);
+      result.User = user;
 
-        return result;
+      return result;
     }
 
     /// <summary>
@@ -372,14 +371,14 @@ namespace Azos.Apps
     /// <returns>True if settings instance was not found and was added</returns>
     public bool RegisterConfigSettings(IConfigSettings settings)
     {
-        if (m_ShutdownStarted || settings==null) return false;
-        lock(m_ConfigSettings)
-          if (!m_ConfigSettings.Contains(settings, Collections.ReferenceEqualityComparer<IConfigSettings>.Instance))
-          {
-              m_ConfigSettings.Add(settings);
-              return true;
-          }
-        return false;
+      if (m_ShutdownStarted || settings == null) return false;
+      lock (m_ConfigSettings)
+        if (!m_ConfigSettings.Contains(settings, Collections.ReferenceEqualityComparer<IConfigSettings>.Instance))
+        {
+          m_ConfigSettings.Add(settings);
+          return true;
+        }
+      return false;
     }
 
     /// <summary>
@@ -388,9 +387,9 @@ namespace Azos.Apps
     /// <returns>True if settings instance was found and removed</returns>
     public bool UnregisterConfigSettings(IConfigSettings settings)
     {
-        if (m_ShutdownStarted || settings==null) return false;
-        lock(m_ConfigSettings)
-          return m_ConfigSettings.Remove(settings);
+      if (m_ShutdownStarted || settings == null) return false;
+      lock (m_ConfigSettings)
+        return m_ConfigSettings.Remove(settings);
     }
 
     /// <summary>
@@ -398,7 +397,7 @@ namespace Azos.Apps
     /// </summary>
     public void NotifyAllConfigSettingsAboutChange()
     {
-        NotifyAllConfigSettingsAboutChange(m_ConfigRoot);
+      NotifyAllConfigSettingsAboutChange(m_ConfigRoot);
     }
 
     /// <summary>
@@ -408,15 +407,15 @@ namespace Azos.Apps
     /// <returns>True if notifiable instance was not found and was added</returns>
     public bool RegisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable)
     {
-        if (m_ShutdownStarted || notifiable==null) return false;
+      if (m_ShutdownStarted || notifiable == null) return false;
 
-        lock(m_FinishNotifiables)
-          if (!m_FinishNotifiables.Contains(notifiable, Collections.ReferenceEqualityComparer<IApplicationFinishNotifiable>.Instance))
-          {
-              m_FinishNotifiables.Add(notifiable);
-              return true;
-          }
-        return false;
+      lock (m_FinishNotifiables)
+        if (!m_FinishNotifiables.Contains(notifiable, Collections.ReferenceEqualityComparer<IApplicationFinishNotifiable>.Instance))
+        {
+          m_FinishNotifiables.Add(notifiable);
+          return true;
+        }
+      return false;
     }
 
     /// <summary>
@@ -425,10 +424,10 @@ namespace Azos.Apps
     /// <returns>True if notifiable instance was found and removed</returns>
     public bool UnregisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable)
     {
-        if (m_ShutdownStarted || notifiable==null) return false;
+      if (m_ShutdownStarted || notifiable == null) return false;
 
-        lock(m_FinishNotifiables)
-          return m_FinishNotifiables.Remove(notifiable);
+      lock (m_FinishNotifiables)
+        return m_FinishNotifiables.Remove(notifiable);
     }
 
     /// <summary>
@@ -436,7 +435,7 @@ namespace Azos.Apps
     /// </summary>
     public IApplicationComponent GetComponentBySID(ulong sid)
     {
-        return ApplicationComponent.GetAppComponentBySID(this, sid);
+      return ApplicationComponent.GetAppComponentBySID(this, sid);
     }
 
     /// <summary>
@@ -458,7 +457,6 @@ namespace Azos.Apps
 
     #endregion
 
-
     #region Protected
 
     [Config] private bool m_LogCallerFileLines;
@@ -467,25 +465,25 @@ namespace Azos.Apps
                             string from,
                             string msgText,
                             Exception error = null,
-                            [CallerFilePath]string file = "",
-                            [CallerLineNumber]int line = 0,
+                            [CallerFilePath] string file = "",
+                            [CallerLineNumber] int line = 0,
                             object pars = null,
                             Guid? related = null)
     {
       var log = m_Log;
-      if (log==null) return Guid.Empty;
+      if (log == null) return Guid.Empty;
 
       var msg = new Message
-                 {
-                    Topic = CoreConsts.APPLICATION_TOPIC,
-                    Type = type,
-                    From = from,
-                    Text = msgText,
-                    Exception = error,
-                 };
+      {
+        Topic = CoreConsts.APPLICATION_TOPIC,
+        Type = type,
+        From = from,
+        Text = msgText,
+        Exception = error,
+      };
 
       if (m_LogCallerFileLines)
-        msg.SetParamsAsObject( Message.FormatCallerParams(pars, file, line) );
+        msg.SetParamsAsObject(Message.FormatCallerParams(pars, file, line));
 
       if (related.HasValue) msg.RelatedTo = related.Value;
 
@@ -509,7 +507,6 @@ namespace Azos.Apps
         configFile = GetDefaultConfigFileName();
         confWasSpecified = false;
       }
-
 
       Configuration conf;
 
@@ -535,11 +532,11 @@ namespace Azos.Apps
 
     protected IEnumerable<IApplicationStarter> GetStarters()
     {
-      var snodes = m_ConfigRoot[CONFIG_STARTERS_SECTION].Children.Where(n=>n.IsSameName(CONFIG_STARTER_SECTION));
-      foreach(var snode in snodes)
+      var snodes = m_ConfigRoot[CONFIG_STARTERS_SECTION].Children.Where(n => n.IsSameName(CONFIG_STARTER_SECTION));
+      foreach (var snode in snodes)
       {
-          var starter = FactoryUtils.MakeAndConfigure<IApplicationStarter>(snode);
-          yield return starter;
+        var starter = FactoryUtils.MakeAndConfigure<IApplicationStarter>(snode);
+        yield return starter;
       }
     }
 
@@ -549,22 +546,22 @@ namespace Azos.Apps
     /// <returns>File name that exists or empty string</returns>
     protected string GetDefaultConfigFileName()
     {
-        var exeName = System.Reflection.Assembly.GetEntryAssembly().Location;
-        var exeNameWoExt = Path.Combine(Path.GetDirectoryName(exeName), Path.GetFileNameWithoutExtension(exeName));
-//Console.WriteLine("EXENAME:" +exeName);
-//Console.WriteLine("EXENAME wo extension:" +exeNameWoExt);
-        var extensions = Configuration.AllSupportedFormats.Select(fmt => '.'+fmt);
-        foreach(var ext in extensions)
-        {
-            var configFile = exeName + ext;
-//Console.WriteLine("Probing:" +configFile);
-            if (File.Exists(configFile)) return configFile;
-            configFile = exeNameWoExt + ext;
-//Console.WriteLine("Probing:" +configFile);
-            if (File.Exists(configFile)) return configFile;
+      var exeName = System.Reflection.Assembly.GetEntryAssembly().Location;
+      var exeNameWoExt = Path.Combine(Path.GetDirectoryName(exeName), Path.GetFileNameWithoutExtension(exeName));
+      //Console.WriteLine("EXENAME:" +exeName);
+      //Console.WriteLine("EXENAME wo extension:" +exeNameWoExt);
+      var extensions = Configuration.AllSupportedFormats.Select(fmt => '.' + fmt);
+      foreach (var ext in extensions)
+      {
+        var configFile = exeName + ext;
+        //Console.WriteLine("Probing:" +configFile);
+        if (File.Exists(configFile)) return configFile;
+        configFile = exeNameWoExt + ext;
+        //Console.WriteLine("Probing:" +configFile);
+        if (File.Exists(configFile)) return configFile;
 
-        }
-        return string.Empty;
+      }
+      return string.Empty;
     }
 
     /// <summary>
@@ -572,10 +569,10 @@ namespace Azos.Apps
     /// </summary>
     protected void NotifyAllConfigSettingsAboutChange(IConfigSectionNode node)
     {
-        node = node ?? m_ConfigRoot;
+      node = node ?? m_ConfigRoot;
 
-        lock(m_ConfigSettings)
-          foreach(var s in m_ConfigSettings) s.ConfigChanged(this, node);
+      lock (m_ConfigSettings)
+        foreach (var s in m_ConfigSettings) s.ConfigChanged(this, node);
     }
 
     #endregion

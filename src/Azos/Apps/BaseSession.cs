@@ -31,6 +31,7 @@ namespace Azos.Apps
     }
 
     #region Fields
+
     private Guid m_ID;
     private ulong m_IDSecret;
 
@@ -46,16 +47,15 @@ namespace Azos.Apps
     [NonSerialized]
     internal bool m_IsJustLoggedIn;
 
-
     private DateTime? m_LastLoginUTC;
     private SessionLoginType m_LastLoginType;
     private User m_User;
-
 
     [NonSerialized]
     private object m_ItemsLock = new object();
 
     private volatile ConcurrentDictionary<object, object> m_Items;
+
     #endregion
 
     #region Properties

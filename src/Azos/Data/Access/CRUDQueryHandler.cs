@@ -13,7 +13,6 @@ namespace Azos.Data.Access
   /// </summary>
   public abstract class CRUDQueryHandler : Collections.INamed
   {
-
     protected CRUDQueryHandler(ICRUDDataStore store, string name)
     {
       if (store == null)
@@ -36,12 +35,12 @@ namespace Azos.Data.Access
     /// <summary>
     /// Returns query name that this handler handles
     /// </summary>
-    public string Name { get { return m_Name; } }
+    public string Name => m_Name;
 
     /// <summary>
     /// Store instance that handler is under
     /// </summary>
-    public ICRUDDataStore Store { get { return m_Store; } }
+    public ICRUDDataStore Store => m_Store;
 
     /// <summary>
     /// Executes query without fetching any data but schema. The implementation may be called by multiple threads and must be safe
@@ -86,6 +85,7 @@ namespace Azos.Data.Access
     public abstract Task<int> ExecuteWithoutFetchAsync(ICRUDQueryExecutionContext context, Query query);
   }
 
+
   /// <summary>
   /// Represents an entity that can execute a query. The implementation may be called by multiple threads and must be safe
   /// </summary>
@@ -97,6 +97,6 @@ namespace Azos.Data.Access
     /// <summary>
     /// Store instance that handler is under
     /// </summary>
-    public new TStore Store { get { return (TStore)base.Store; } }
+    public new TStore Store => (TStore)base.Store;
   }
 }

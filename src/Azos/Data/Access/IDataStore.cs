@@ -5,9 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Apps;
 using Azos.Conf;
@@ -20,16 +17,16 @@ namespace Azos.Data.Access
   /// </summary>
   public interface IDataStore : IApplicationComponent
   {
-      /// <summary>
-      /// Returns the name of the underlying store technology, example: "ORACLE", "MongoDB" etc.
-      /// This property is used by some metadata-based validation logic which is target-dependent
-      /// </summary>
-      string TargetName{ get; }
+    /// <summary>
+    /// Returns the name of the underlying store technology, example: "ORACLE", "MongoDB" etc.
+    /// This property is used by some metadata-based validation logic which is target-dependent
+    /// </summary>
+    string TargetName { get; }
 
-      /// <summary>
-      /// Tests connectivity/operation and throws an exception if connection could not be established
-      /// </summary>
-      void TestConnection();
+    /// <summary>
+    /// Tests connectivity/operation and throws an exception if connection could not be established
+    /// </summary>
+    void TestConnection();
   }
 
 
@@ -38,9 +35,9 @@ namespace Azos.Data.Access
   /// </summary>
   public interface IDataStoreImplementation : IDataStore, IDisposable, IConfigurable, IInstrumentable
   {
-      /// <summary>
-      /// Defines log level for data stores
-      /// </summary>
-      StoreLogLevel DataLogLevel { get; set; }
+    /// <summary>
+    /// Defines log level for data stores
+    /// </summary>
+    StoreLogLevel DataLogLevel { get; set; }
   }
 }

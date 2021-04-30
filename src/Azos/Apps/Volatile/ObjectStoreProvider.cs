@@ -6,9 +6,6 @@
 
 using System.Collections.Generic;
 
-using Azos.Log;
-using Azos.Conf;
-
 namespace Azos.Apps.Volatile
 {
   /// <summary>
@@ -21,8 +18,11 @@ namespace Azos.Apps.Volatile
     }
 
     public abstract IEnumerable<ObjectStoreEntry> LoadAll();
+
     public abstract void Write(ObjectStoreEntry entry);
+
     public abstract void Delete(ObjectStoreEntry entry);
+
     public override string ComponentLogTopic => CoreConsts.OBJSTORE_TOPIC;
   }
 }

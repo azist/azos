@@ -79,7 +79,6 @@ namespace Azos.Apps
   }
 
 
-
   /// <summary>
   /// An abstraction of a disposable application component - major implementation/functionality part of any app.
   /// Components logically subdivide application chassis so their instances may be discovered
@@ -91,6 +90,7 @@ namespace Azos.Apps
   public abstract class ApplicationComponent : DisposableObject, IApplicationComponent
   {
     #region .ctor
+
     protected ApplicationComponent(IApplication application) : this(application, null)
     {
     }
@@ -142,10 +142,10 @@ namespace Azos.Apps
       }
     }
 
-
     #endregion
 
     #region Private Fields
+
     private static ulong s_SIDSeed;
     private static Dictionary<IApplication, Dictionary<ulong, ApplicationComponent>> s_Instances = new Dictionary<IApplication, Dictionary<ulong, ApplicationComponent>>();
 
@@ -153,9 +153,11 @@ namespace Azos.Apps
     private readonly DateTime m_ComponentStartTime;
     private readonly ulong m_ComponentSID;
     private IApplicationComponent m_ComponentDirector;
+
     #endregion
 
     #region Properties
+
     /// <summary>
     /// Returns a thread-safe enumerable( a snapshot) of all known component instances
     /// </summary>
@@ -179,7 +181,6 @@ namespace Azos.Apps
         if (dict == null) return null;
         if (dict.TryGetValue(sid, out var result)) return result;
       }
-
       return null;
     }
 
@@ -325,20 +326,22 @@ namespace Azos.Apps
     }
 
     public override string ToString()
-    {
-      return "Component {0}(@{1}, '{2}')".Args(GetType().DisplayNameWithExpandedGenericArgs(), m_ComponentSID, ComponentCommonName ?? CoreConsts.NULL_STRING);
-    }
+      => "Component {0}(@{1}, '{2}')".Args(GetType().DisplayNameWithExpandedGenericArgs(), m_ComponentSID, ComponentCommonName ?? CoreConsts.NULL_STRING);
+
     #endregion
 
     #region .pvt
+
     private static Dictionary<ulong, ApplicationComponent> getComponentsOf(IApplication app)
     {
       app.NonNull(nameof(app));
       if (s_Instances.TryGetValue(app, out var result)) return result;
       return null;
     }
+
     #endregion
   }
+
 
   /// <summary>
   /// Represents app component with typed ComponentDirector property

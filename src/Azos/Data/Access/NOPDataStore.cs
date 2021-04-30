@@ -20,12 +20,15 @@ namespace Azos.Data.Access
     public NOPDataStore(IApplication app) : base(app){}
 
     public override string ComponentLogTopic => CoreConsts.DATA_TOPIC;
+
     public string TargetName => TargetedAttribute.ANY_TARGET;
 
-
     public bool InstrumentationEnabled{ get{return false;} set{}}
-    public IEnumerable<KeyValuePair<string, Type>> ExternalParameters{ get{ return null;}}
+
+    public IEnumerable<KeyValuePair<string, Type>> ExternalParameters => null;
+
     public IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups){ return null;}
+
     public bool ExternalGetParameter(string name, out object value, params string[] groups)
     {
       value = null;
@@ -36,7 +39,6 @@ namespace Azos.Data.Access
     {
       return false;
     }
-
 
     public StoreLogLevel DataLogLevel { get; set;}
 

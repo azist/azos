@@ -58,7 +58,6 @@ namespace Azos.Apps
   }
 
 
-
   /// <summary>
   /// Implements a disposable IApplicationSingletonManager
   /// </summary>
@@ -137,12 +136,14 @@ namespace Azos.Apps
   public sealed class NOPApplicationSingletonManager : DisposableObject, IApplicationSingletonManager
   {
     public T Get<T>() where T : class => null;
+
     public (T instance, bool created) GetOrCreate<T>(Func<T> factory) where T : class => (null, false);
+
     public bool Remove<T>() where T : class => false;
 
     public IEnumerator<object> GetEnumerator() => Enumerable.Empty<object>().GetEnumerator();
+
     IEnumerator IEnumerable.GetEnumerator() => Enumerable.Empty<object>().GetEnumerator();
   }
-
 
 }

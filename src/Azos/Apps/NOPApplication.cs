@@ -73,12 +73,10 @@ namespace Azos.Apps
       base.Destructor();
     }
 
-
     /// <summary>
     /// Returns a singleton instance of the NOPApplication
     /// </summary>
     public static IApplication Instance => s_Instance;
-
 
     protected Guid m_InstanceID = Guid.NewGuid();
     protected DateTime m_StartTime;
@@ -96,7 +94,6 @@ namespace Azos.Apps
     protected IModule m_Module;
     protected ITimeSource m_TimeSource;
     protected IEventTimer m_EventTimer;
-
 
     #region IApplication Members
 
@@ -150,11 +147,17 @@ namespace Azos.Apps
     public IConfigSectionNode CommandArgs => m_CommandArgsConfiguration.Root;
 
     public IDataStore DataStore => m_DataStore;
+
     public IObjectStore ObjectStore => m_ObjectStore;
+
     public IGlue Glue => m_Glue;
+
     public ISecurityManager SecurityManager => m_SecurityManager;
+
     public IModule ModuleRoot => m_Module;
+
     public ITimeSource TimeSource => m_TimeSource;
+
     public IEventTimer EventTimer => m_EventTimer;
 
     public Platform.RandomGenerator Random => Platform.RandomGenerator.Instance;

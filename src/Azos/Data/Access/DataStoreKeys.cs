@@ -11,7 +11,6 @@ using System.Runtime.Serialization;
 
 namespace Azos.Data.Access
 {
-
   /// <summary>
   /// Marker for keys which uniquely identify entities in a store
   /// </summary>
@@ -37,6 +36,7 @@ namespace Azos.Data.Access
     public bool Equals(CounterDataStoreKey other)=> this.Counter == other.Counter;
 
     public static bool operator ==(CounterDataStoreKey a, CounterDataStoreKey b) =>  a.Equals(b);
+
     public static bool operator !=(CounterDataStoreKey a, CounterDataStoreKey b) => !a.Equals(b);
   }
 
@@ -83,8 +83,4 @@ namespace Azos.Data.Access
       return s.ToString();
     }
   }
-
-
-
-
 }
