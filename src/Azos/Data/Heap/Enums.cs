@@ -89,6 +89,12 @@ namespace Azos.Data.Heap
     Offline,
 
     /// <summary>
+    /// The node is online but has a different schema definition, e.g. this prevents
+    /// sync from this node
+    /// </summary>
+    SchemaMismatch,
+
+    /// <summary>
     /// Communication failure - does not respond as expected or does not respond at all.
     /// This does not mean necessarily that node is down, it may be having network issues
     /// </summary>
