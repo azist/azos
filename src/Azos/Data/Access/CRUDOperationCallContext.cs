@@ -24,12 +24,7 @@ namespace Azos.Data.Access
     /// Returns the current set CRUDOperationCallContext or null
     /// </summary>
     public static CRUDOperationCallContext Current
-    {
-      get
-      {
-        return ats_Instances.Value!=null && ats_Instances.Value.Count>0 ? ats_Instances.Value.Peek() : null;
-      }
-    }
+      => ats_Instances.Value != null && ats_Instances.Value.Count > 0 ? ats_Instances.Value.Peek() : null;
 
     public CRUDOperationCallContext()
     {
@@ -51,10 +46,8 @@ namespace Azos.Data.Access
           return;
         }
       }
-
       throw new DataAccessException(StringConsts.CRUD_OPERATION_CALL_CONTEXT_SCOPE_MISMATCH_ERROR);
     }
-
 
     /// <summary>
     /// Used to override store's default database connection string

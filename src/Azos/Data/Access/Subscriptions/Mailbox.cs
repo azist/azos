@@ -13,7 +13,6 @@ using Azos.Instrumentation;
 
 namespace Azos.Data.Access.Subscriptions
 {
-
   /// <summary>
   /// Represents a microsecond interval since UNIX epoch start.
   /// This struct is used to tag incoming subscription data, so upon re-subscription
@@ -21,44 +20,40 @@ namespace Azos.Data.Access.Subscriptions
   /// </summary>
   public struct DataTimeStamp
   {
-      public DataTimeStamp(long microseconds)
-      {
-        this.Microseconds = microseconds;
-      }
+    public DataTimeStamp(long microseconds)
+    {
+      Microseconds = microseconds;
+    }
 
-      public readonly long Microseconds;
+    public readonly long Microseconds;
 
-      public DateTime TimeStampUTC
-      {
-        get{ return Microseconds.FromMicrosecondsSinceUnixEpochStart();}
-      }
+    public DateTime TimeStampUTC => Microseconds.FromMicrosecondsSinceUnixEpochStart();
   }
+
 
   /// <summary>
   /// Describes row modification
   /// </summary>
   public struct CRUDSubscriptionEvent
   {
-      /// <summary>
-      /// Describes what kind of modification was done
-      /// </summary>
-      public enum EventType { RowInsert, RowUpsert, RowUpdate, RowDelete, TableCreate, TableClear, TableDrop }
+    /// <summary>
+    /// Describes what kind of modification was done
+    /// </summary>
+    public enum EventType { RowInsert, RowUpsert, RowUpdate, RowDelete, TableCreate, TableClear, TableDrop }
 
-      public CRUDSubscriptionEvent(EventType type, Schema schema, Doc doc, DataTimeStamp version)
-      {
-          Type = type;
-          Schema = schema;
-          Doc = doc;
-          Version = version;
-      }
+    public CRUDSubscriptionEvent(EventType type, Schema schema, Doc doc, DataTimeStamp version)
+    {
+      Type = type;
+      Schema = schema;
+      Doc = doc;
+      Version = version;
+    }
 
-      public readonly EventType Type;
-      public readonly Schema Schema;
-      public readonly Doc Doc;
-      public readonly DataTimeStamp Version;
+    public readonly EventType Type;
+    public readonly Schema Schema;
+    public readonly Doc Doc;
+    public readonly DataTimeStamp Version;
   }
-
-
 
 
   /// <summary>
@@ -66,148 +61,152 @@ namespace Azos.Data.Access.Subscriptions
   /// </summary>
   public delegate void SubscriptionReceiptEventHandler(Subscription subscription, Mailbox recipient, CRUDSubscriptionEvent data, Exception error);
 
+
   /// <summary>
   /// Represents CRUD row data recipient
   /// </summary>
   public class Mailbox : SubscriptionAppComponent, INamed
   {
     #region .ctor
-      protected internal Mailbox(ICRUDSubscriptionStoreImplementation store, string name) : base(store)
-      {
-        m_Store = store;
-        m_Name = name.IsNullOrWhiteSpace() ? Guid.NewGuid().ToString() : name;
 
-        var reg = m_Store.Mailboxes as Registry<Mailbox>;
-        Mailbox existing;
-        if (!reg.RegisterOrReplace(this, out existing))
-         existing.Dispose();
-      }
+    protected internal Mailbox(ICRUDSubscriptionStoreImplementation store, string name) : base(store)
+    {
+      m_Store = store;
+      m_Name = name.IsNullOrWhiteSpace() ? Guid.NewGuid().ToString() : name;
 
-      protected override void Destructor()
-      {
-        if (m_Store!=null)
-          ((Registry<Mailbox>)m_Store.Mailboxes).Unregister(this);
+      var reg = m_Store.Mailboxes as Registry<Mailbox>;
+      if (!reg.RegisterOrReplace(this, out Mailbox existing))
+        existing.Dispose();
+    }
 
-        foreach(var subscription in m_Subscriptions)
-          subscription.Dispose();
+    protected override void Destructor()
+    {
+      if (m_Store != null)
+        ((Registry<Mailbox>)m_Store.Mailboxes).Unregister(this);
 
-        m_Subscriptions.Clear();
+      foreach (var subscription in m_Subscriptions)
+        subscription.Dispose();
 
-        base.Destructor();
-      }
+      m_Subscriptions.Clear();
+
+      base.Destructor();
+    }
+
     #endregion
 
     #region Fields
-      private ICRUDSubscriptionStoreImplementation m_Store;
-      private string  m_Name;
 
-      private Registry<Subscription> m_Subscriptions = new Registry<Subscription>();
+    private ICRUDSubscriptionStoreImplementation m_Store;
 
-      private LinkedList<CRUDSubscriptionEvent> m_Buffer = new LinkedList<CRUDSubscriptionEvent>();
-      private int m_BufferCapacity;
+    private string m_Name;
+
+    private Registry<Subscription> m_Subscriptions = new Registry<Subscription>();
+
+    private LinkedList<CRUDSubscriptionEvent> m_Buffer = new LinkedList<CRUDSubscriptionEvent>();
+
+    private int m_BufferCapacity;
+
     #endregion
 
     #region Events/Props
-      public event SubscriptionReceiptEventHandler Receipt;
 
-      public ICRUDSubscriptionStore Store{ get{ return m_Store;}}
-      public string  Name { get { return m_Name; } }
+    public event SubscriptionReceiptEventHandler Receipt;
 
-      public IRegistry<Subscription> Subscriptions{ get{ return m_Subscriptions;}}
+    public ICRUDSubscriptionStore Store => m_Store;
 
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
-      public int BufferCapacity
+    public string Name => m_Name;
+
+    public IRegistry<Subscription> Subscriptions => m_Subscriptions;
+
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
+    public int BufferCapacity
+    {
+      get { return m_BufferCapacity; }
+      set { m_BufferCapacity = value; }
+    }
+
+    /// <summary>
+    /// Returns all buffered data in chronological order
+    /// </summary>
+    public CRUDSubscriptionEvent[] Buffered
+    {
+      get
       {
-        get{ return m_BufferCapacity; }
-        set{ m_BufferCapacity = value; }
+        lock (m_Buffer)
+          return m_Buffer.ToArray();
       }
+    }
 
-      /// <summary>
-      /// Returns all buffered data in chronological order
-      /// </summary>
-      public CRUDSubscriptionEvent[] Buffered
-      {
-        get
-        {
-          lock(m_Buffer)
-            return m_Buffer.ToArray();
-        }
-      }
-
-      /// <summary>
-      /// Returns how much is currently buffered
-      /// </summary>
-      public int BufferedCount
-      {
-        get{ lock(m_Buffer) return m_Buffer.Count; }
-      }
+    /// <summary>
+    /// Returns how much is currently buffered
+    /// </summary>
+    public int BufferedCount
+    {
+      get { lock (m_Buffer) return m_Buffer.Count; }
+    }
 
     #endregion
 
     #region Public
 
+    /// <summary>
+    /// Delivers data to the mailbox. This method is called by subscription
+    /// </summary>
+    public bool Deliver(Subscription subscription, CRUDSubscriptionEvent data)
+    {
+      if (subscription.Store != this.Store) return false;
 
-      /// <summary>
-      /// Delivers data to the mailbox. This method is called by subscription
-      /// </summary>
-      public bool Deliver(Subscription subscription, CRUDSubscriptionEvent data)
-      {
-        if (subscription.Store!=this.Store) return false;
+      var cap = m_BufferCapacity;
+      if (cap > 0)
+        lock (m_Buffer)
+        {
+          m_Buffer.AddLast(data);
+          if (m_Buffer.Count > cap)
+            m_Buffer.RemoveFirst();
+        }
 
-        var cap = m_BufferCapacity;
-        if (cap>0)
-          lock(m_Buffer)
-          {
-            m_Buffer.AddLast(data);
-            if (m_Buffer.Count>cap)
-              m_Buffer.RemoveFirst();
-          }
+      OnReceipt(subscription, data, null);
+      return true;
+    }
 
-        OnReceipt(subscription, data, null);
+    public bool DeliverError(Subscription subscription, Exception error)
+    {
+      if (subscription.Store != this.Store) return false;
 
-        return true;
-      }
+      OnReceipt(subscription, default(CRUDSubscriptionEvent), error);
 
-      public bool DeliverError(Subscription subscription, Exception error)
-      {
-        if (subscription.Store!=this.Store) return false;
-
-        OnReceipt(subscription, default(CRUDSubscriptionEvent), error);
-
-        return true;
-      }
+      return true;
+    }
 
     #endregion
 
     #region Protected
 
-      /// <summary>
-      /// Tries to take the specified number of samples in chronological order
-      /// </summary>
-      public List<CRUDSubscriptionEvent> FetchBuffered(int count, bool keep = false)
-      {
-       var result = new List<CRUDSubscriptionEvent>();
+    /// <summary>
+    /// Tries to take the specified number of samples in chronological order
+    /// </summary>
+    public List<CRUDSubscriptionEvent> FetchBuffered(int count, bool keep = false)
+    {
+      var result = new List<CRUDSubscriptionEvent>();
 
-       if (count<=0) return result;
+      if (count <= 0) return result;
 
-       lock(m_Buffer)
-        for(var i=0; i<count; i++)
+      lock (m_Buffer)
+        for (var i = 0; i < count; i++)
         {
           var first = m_Buffer.First;
-          if (first==null) break;
+          if (first == null) break;
           result.Add(first.Value);
           if (keep) continue;
           m_Buffer.RemoveFirst();
         }
 
-        return result;
-      }
+      return result;
+    }
 
-      protected virtual void OnReceipt(Subscription subscription, CRUDSubscriptionEvent data, Exception error)
-      {
-        if (Receipt!=null)
-          Receipt(subscription, this, data, error);
-      }
+    protected virtual void OnReceipt(Subscription subscription, CRUDSubscriptionEvent data, Exception error)
+    => Receipt?.Invoke(subscription, this, data, error);
+
     #endregion
   }
 
