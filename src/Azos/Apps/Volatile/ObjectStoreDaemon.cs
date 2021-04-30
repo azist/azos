@@ -15,7 +15,6 @@ using Azos.Instrumentation;
 
 namespace Azos.Apps.Volatile
 {
-
   /// <summary>
   /// Implements service that stores object in proccess's memory, asynchronously saving objects to external non-volatile storage
   /// upon change and synchronously saving objects upon service stop. This service is useful for scenarios like ASP.NET
@@ -29,150 +28,140 @@ namespace Azos.Apps.Volatile
   {
     #region CONSTS
 
-        public const int DEFAULT_OBJECT_LEFESPAN_MS = 1 * //hr;
-                                                      60 * //min
-                                                      60 * //sec
-                                                      1000; //msec
+    public const int DEFAULT_OBJECT_LEFESPAN_MS = 1 * //hr;
+                                                  60 * //min
+                                                  60 * //sec
+                                                  1000; //msec
 
-        public const int MIN_OBJECT_LIFESPAN_MS = 1000;
+    public const int MIN_OBJECT_LIFESPAN_MS = 1000;
 
-        public const string CONFIG_GUID_ATTR = "guid";
+    public const string CONFIG_GUID_ATTR = "guid";
 
-        public const string CONFIG_BUCKET_COUNT_ATTR = "bucket-count";
-        public const int DEFAULT_BUCKET_COUNT = 1024;
-        public const int MAX_BUCKET_COUNT = 0xffff;
+    public const string CONFIG_BUCKET_COUNT_ATTR = "bucket-count";
+    public const int DEFAULT_BUCKET_COUNT = 1024;
+    public const int MAX_BUCKET_COUNT = 0xffff;
 
-        public const string CONFIG_PROVIDER_SECT = "provider";
-        public const string CONFIG_OBJECT_LIFE_SPAN_MS_ATTR = "object-life-span-ms";
+    public const string CONFIG_PROVIDER_SECT = "provider";
+    public const string CONFIG_OBJECT_LIFE_SPAN_MS_ATTR = "object-life-span-ms";
 
-        public const int MUST_ACQUIRE_INTERVAL_MS = 3000;
+    public const int MUST_ACQUIRE_INTERVAL_MS = 3000;
+
     #endregion
-
 
     #region .ctor
 
-      /// <summary>
-      /// Creates instance of the store service
-      /// </summary>
-      public ObjectStoreDaemon(IApplication app) : base(app)
-      {
-      }
+    /// <summary>
+    /// Creates instance of the store service
+    /// </summary>
+    public ObjectStoreDaemon(IApplication app) : base(app)
+    {
+    }
 
-
-      /// <summary>
-      /// Creates instance of the store service
-      /// </summary>
-      public ObjectStoreDaemon(IApplicationComponent director) : base(director)
-      {
-      }
+    /// <summary>
+    /// Creates instance of the store service
+    /// </summary>
+    public ObjectStoreDaemon(IApplicationComponent director) : base(director)
+    {
+    }
 
     #endregion
-
 
     #region Private Fields
 
-        private int m_ObjectLifeSpanMS = DEFAULT_OBJECT_LEFESPAN_MS;
+    private int m_ObjectLifeSpanMS = DEFAULT_OBJECT_LEFESPAN_MS;
 
+    private Guid m_StoreGUID = Guid.NewGuid();
 
-        private Guid m_StoreGUID = Guid.NewGuid();
+    private ObjectStoreProvider m_Provider;
 
-        private ObjectStoreProvider m_Provider;
+    private Thread m_Thread;
+    private AutoResetEvent m_Trigger = new AutoResetEvent(false);
 
+    private int m_BucketCount = DEFAULT_BUCKET_COUNT;
+    private List<Bucket> m_Buckets;
 
-        private Thread m_Thread;
-        private AutoResetEvent m_Trigger = new AutoResetEvent(false);
-
-        private int m_BucketCount = DEFAULT_BUCKET_COUNT;
-        private List<Bucket> m_Buckets;
-
-        private bool m_InstrumentationEnabled;
+    private bool m_InstrumentationEnabled;
 
     #endregion
-
 
     #region Properties
 
-        public override string ComponentCommonName { get { return "objstore"; }}
+    public override string ComponentCommonName => "objstore";
 
-        public override string ComponentLogTopic => CoreConsts.OBJSTORE_TOPIC;
+    public override string ComponentLogTopic => CoreConsts.OBJSTORE_TOPIC;
 
+    /// <summary>
+    /// Returns unique identifier that identifies this particular store.
+    /// This ID is used to load store's state from external medium upon start-up.
+    /// One may think of this ID as of a "pointer/handle" that survives physical object destroy/create cycle
+    /// </summary>
+    public Guid StoreGUID
+    {
+      get { return m_StoreGUID; }
 
-        /// <summary>
-        /// Returns unique identifier that identifies this particular store.
-        /// This ID is used to load store's state from external medium upon start-up.
-        /// One may think of this ID as of a "pointer/handle" that survives physical object destroy/create cycle
-        /// </summary>
-        public Guid StoreGUID
-        {
-          get { return m_StoreGUID; }
+      set
+      {
+        CheckDaemonInactive();
+        m_StoreGUID = value;
+      }
+    }
 
-          set
-          {
-            CheckDaemonInactive();
-            m_StoreGUID = value;
-          }
-        }
+    /// <summary>
+    /// Implements IInstrumentable
+    /// </summary>
+    [Config(Default = false)]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_OBJSTORE, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+    public override bool InstrumentationEnabled
+    {
+      get { return m_InstrumentationEnabled; }
+      set { m_InstrumentationEnabled = value; }
+    }
 
-        /// <summary>
-        /// Implements IInstrumentable
-        /// </summary>
-        [Config(Default=false)]
-        [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_OBJSTORE, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-        public override bool InstrumentationEnabled
-        {
-          get { return m_InstrumentationEnabled;}
-          set { m_InstrumentationEnabled = value;}
-        }
+    /// <summary>
+    /// Specifies how many buckets objects are kept in. Increasing this number improves thread concurrency
+    /// </summary>
+    public int BucketCount
+    {
+      get { return m_BucketCount; }
+      set
+      {
+        CheckDaemonInactive();
+        if (value < 1) value = 1;
+        if (value > MAX_BUCKET_COUNT) value = MAX_BUCKET_COUNT;
+        m_BucketCount = value;
+      }
+    }
 
-        /// <summary>
-        /// Specifies how many buckets objects are kept in. Increasing this number improves thread concurrency
-        /// </summary>
-        public int BucketCount
-        {
-          get { return m_BucketCount;}
-          set
-          {
-            CheckDaemonInactive();
-            if (value<1) value = 1;
-            if (value>MAX_BUCKET_COUNT) value = MAX_BUCKET_COUNT;
-            m_BucketCount = value;
-          }
-        }
+    /// <summary>
+    /// Specifies how long objects live without being touched before becoming evicted from the list
+    /// </summary>
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_OBJSTORE)]
+    public int ObjectLifeSpanMS
+    {
+      get { return m_ObjectLifeSpanMS; }
+      set
+      {
+        if (value < MIN_OBJECT_LIFESPAN_MS) value = MIN_OBJECT_LIFESPAN_MS;
+        m_ObjectLifeSpanMS = value;
+      }
+    }
 
-
-        /// <summary>
-        /// Specifies how long objects live without being touched before becoming evicted from the list
-        /// </summary>
-        [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_OBJSTORE)]
-        public int ObjectLifeSpanMS
-        {
-          get { return m_ObjectLifeSpanMS; }
-          set
-          {
-            if (value < MIN_OBJECT_LIFESPAN_MS) value = MIN_OBJECT_LIFESPAN_MS;
-            m_ObjectLifeSpanMS = value;
-          }
-        }
-
-        /// <summary>
-        /// References provider that persists objects
-        /// </summary>
-        public ObjectStoreProvider Provider
-        {
-          get { return m_Provider; }
-          set
-          {
-            CheckDaemonInactive();
-            m_Provider = value;
-          }
-        }
+    /// <summary>
+    /// References provider that persists objects
+    /// </summary>
+    public ObjectStoreProvider Provider
+    {
+      get { return m_Provider; }
+      set
+      {
+        CheckDaemonInactive();
+        m_Provider = value;
+      }
+    }
 
     #endregion
 
-
     #region Public
-
-
 
     /// <summary>
     /// Retrieves an object reference from the store identified by the "key" or returns null if such object does not exist.
@@ -193,12 +182,10 @@ namespace Azos.Apps.Volatile
       {
         if (entry.Status == ObjectStoreEntryStatus.Deleted) return null;
         if (touch)
-           entry.LastTime = App.LocalizedTime;
+          entry.LastTime = App.LocalizedTime;
         return entry.Value;
       }
     }
-
-
 
     /// <summary>
     /// Retrieves an object reference from the store identified by the "key" or returns null if such object does not exist.
@@ -246,15 +233,14 @@ namespace Azos.Apps.Volatile
       {
         if (entry.Status == ObjectStoreEntryStatus.Deleted) return false;
 
-        if (entry.CheckoutCount>0)
-           entry.CheckoutCount--;
+        if (entry.CheckoutCount > 0)
+          entry.CheckoutCount--;
 
-        if (entry.CheckoutCount==0)
+        if (entry.CheckoutCount == 0)
           entry.Status = ObjectStoreEntryStatus.Normal;
         return true;
       }
     }
-
 
     /// <summary>
     /// Puts an object reference "value" into store identified by the "key".
@@ -264,7 +250,7 @@ namespace Azos.Apps.Volatile
     {
       if (Status != DaemonStatus.Active) return;
 
-      if (value==null)
+      if (value == null)
       {
         Delete(key);
         return;
@@ -296,17 +282,16 @@ namespace Azos.Apps.Volatile
         {
           if (entry.Status == ObjectStoreEntryStatus.Deleted) return;
 
-          if (entry.CheckoutCount>0)
-           entry.CheckoutCount--;
+          if (entry.CheckoutCount > 0)
+            entry.CheckoutCount--;
 
-          if (entry.CheckoutCount==0)
+          if (entry.CheckoutCount == 0)
             entry.Status = ObjectStoreEntryStatus.ChekedIn;
 
           entry.LastTime = App.LocalizedTime;
           entry.MsTimeout = msTimeout;
           entry.Value = value;
         }
-
     }
 
     /// <summary>
@@ -317,7 +302,7 @@ namespace Azos.Apps.Volatile
     {
       if (Status != DaemonStatus.Active) return;
 
-      if (value==null)
+      if (value == null)
       {
         Delete(oldKey);
         return;
@@ -330,7 +315,7 @@ namespace Azos.Apps.Volatile
       lock (bucket)
         if (!bucket.TryGetValue(oldKey, out entry)) entry = null;
 
-      if (entry!=null)
+      if (entry != null)
         lock (entry)
         {
           entry.Value = null;
@@ -340,7 +325,6 @@ namespace Azos.Apps.Volatile
 
       CheckIn(newKey, value, msTimeout);
     }
-
 
     /// <summary>
     /// Puts an object back into store identified by the "key".
@@ -359,24 +343,23 @@ namespace Azos.Apps.Volatile
         if (!bucket.TryGetValue(key, out entry))
           return false;
 
-        lock (entry)
-        {
-          if (entry.Status == ObjectStoreEntryStatus.Deleted) return false;
+      lock (entry)
+      {
+        if (entry.Status == ObjectStoreEntryStatus.Deleted) return false;
 
-          if (entry.CheckoutCount>0)
-          {
-           entry.CheckoutCount--;
-           if (entry.CheckoutCount==0)
+        if (entry.CheckoutCount > 0)
+        {
+          entry.CheckoutCount--;
+          if (entry.CheckoutCount == 0)
             entry.Status = ObjectStoreEntryStatus.ChekedIn;
 
-          }
-          entry.LastTime = App.LocalizedTime;
-          entry.MsTimeout = msTimeout;
         }
+        entry.LastTime = App.LocalizedTime;
+        entry.MsTimeout = msTimeout;
+      }
 
       return true;
     }
-
 
     /// <summary>
     /// Deletes object identified by key. Returns true when object was found and marked for deletion
@@ -385,9 +368,7 @@ namespace Azos.Apps.Volatile
     {
       if (Status != DaemonStatus.Active) return false;
 
-
       var bucket = getBucket(key);
-
 
       ObjectStoreEntry entry = null;
 
@@ -400,45 +381,39 @@ namespace Azos.Apps.Volatile
         entry.Status = ObjectStoreEntryStatus.Deleted;
         entry.LastTime = App.LocalizedTime;
       }
-
-
       return true;
     }
 
     #endregion
 
-
     #region Protected
 
-        protected override void DoConfigure(IConfigSectionNode node)
-        {
-          try
-          {
-            base.DoConfigure(node);
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      try
+      {
+        base.DoConfigure(node);
 
-            var sguid = node.AttrByName(CONFIG_GUID_ATTR).ValueAsString();
-            if (!string.IsNullOrEmpty(sguid))
-              StoreGUID = new Guid(sguid);
+        var sguid = node.AttrByName(CONFIG_GUID_ATTR).ValueAsString();
+        if (!string.IsNullOrEmpty(sguid))
+          StoreGUID = new Guid(sguid);
 
+        m_Provider = FactoryUtils.MakeAndConfigure<ObjectStoreProvider>(node[CONFIG_PROVIDER_SECT],
+                                                                        typeof(FileObjectStoreProvider),
+                                                                        new[] { this });
 
-            m_Provider = FactoryUtils.MakeAndConfigure<ObjectStoreProvider>(node[CONFIG_PROVIDER_SECT],
-                                                                            typeof(FileObjectStoreProvider),
-                                                                            new []{ this });
+        if (m_Provider == null)
+          throw new AzosException("Provider is null");
 
-            if (m_Provider == null)
-              throw new AzosException("Provider is null");
+        ObjectLifeSpanMS = node.AttrByName(CONFIG_OBJECT_LIFE_SPAN_MS_ATTR).ValueAsInt(DEFAULT_OBJECT_LEFESPAN_MS);
 
-            ObjectLifeSpanMS = node.AttrByName(CONFIG_OBJECT_LIFE_SPAN_MS_ATTR).ValueAsInt(DEFAULT_OBJECT_LEFESPAN_MS);
-
-            BucketCount = node.AttrByName(CONFIG_BUCKET_COUNT_ATTR).ValueAsInt(DEFAULT_BUCKET_COUNT);
-
-          }
-          catch (Exception error)
-          {
-            throw new AzosException(StringConsts.OBJSTORESVC_PROVIDER_CONFIG_ERROR + error.Message, error);
-          }
-        }
-
+        BucketCount = node.AttrByName(CONFIG_BUCKET_COUNT_ATTR).ValueAsInt(DEFAULT_BUCKET_COUNT);
+      }
+      catch (Exception error)
+      {
+        throw new AzosException(StringConsts.OBJSTORESVC_PROVIDER_CONFIG_ERROR + error.Message, error);
+      }
+    }
 
     protected override void DoStart()
     {
@@ -446,7 +421,6 @@ namespace Azos.Apps.Volatile
 
       try
       {
-
         //pre-flight checks
         if (m_Provider == null)
           throw new AzosException(StringConsts.DAEMON_INVALID_STATE + "ObjectStoreService.DoStart(Provider=null)");
@@ -454,8 +428,8 @@ namespace Azos.Apps.Volatile
         m_Provider.Start();
 
         m_Buckets = new List<Bucket>(m_BucketCount);
-        for(var i=0;i<m_BucketCount; i++)
-         m_Buckets.Add(new Bucket());
+        for (var i = 0; i < m_BucketCount; i++)
+          m_Buckets.Add(new Bucket());
 
         base.DoStart();
 
@@ -476,7 +450,7 @@ namespace Azos.Apps.Volatile
 
           cnt++;
         }
-        WriteLog(MessageType.Trace, nameof(DoStart), "Have loaded {0} objects in {1} ".Args(cnt, clock.Elapsed ));
+        WriteLog(MessageType.Trace, nameof(DoStart), "Have loaded {0} objects in {1} ".Args(cnt, clock.Elapsed));
 
 
         m_Thread = new Thread(threadSpin);
@@ -547,149 +521,141 @@ namespace Azos.Apps.Volatile
       WriteLog(MessageType.Trace, nameof(DoWaitForCompleteStop), "Exiting");
     }
 
-
     #endregion
-
 
     #region .pvt
 
+    private Bucket getBucket(Guid key)
+    {
+      var idx = (key.GetHashCode() & CoreConsts.ABS_HASH_MASK) % m_BucketCount;
+      return m_Buckets[idx];
+    }
 
-        private Bucket getBucket(Guid key)
+    private void threadSpin()
+    {
+      try
+      {
+        while (Running)
         {
-          var idx = (key.GetHashCode() & CoreConsts.ABS_HASH_MASK) % m_BucketCount;
-          return m_Buckets[idx];
-        }
+          visit(false);   //todo need to make sure that this visit() never leaks anything otherwise thread may crash the whole service
+          m_Trigger.WaitOne(200);
+        }//while
 
-        private void threadSpin()
+        visit(true);
+      }
+      catch (Exception e)
+      {
+        WriteLog(MessageType.Emergency, nameof(threadSpin), "Leaked exception: " + e.ToMessageWithType(), e);
+      }
+
+      WriteLog(MessageType.Trace, nameof(threadSpin), "Exiting");
+    }
+
+    public void visit(bool stopping)
+    {
+      var now = App.LocalizedTime;
+      for (var i = 0; i < m_BucketCount; i++)
+      {
+        var bucket = m_Buckets[i];
+        if (stopping || bucket.LastAcquire.AddMilliseconds(MUST_ACQUIRE_INTERVAL_MS) < now)
+          lock (bucket) write(bucket);
+        else
+          if (Monitor.TryEnter(bucket))
         {
           try
           {
-              while (Running)
-              {
-                visit(false);   //todo need to make sure that this visit() never leaks anything otherwise thread may crash the whole service
-                m_Trigger.WaitOne(200);
-              }//while
-
-              visit(true);
+            write(bucket);
           }
-          catch(Exception e)
+          finally
           {
-              WriteLog(MessageType.Emergency, nameof(threadSpin),"Leaked exception: " + e.ToMessageWithType(), e);
+            Monitor.Exit(bucket);
           }
-
-          WriteLog(MessageType.Trace, nameof(threadSpin), "Exiting");
         }
+      }//for
+    }
 
+    private void write(Bucket bucket)  //bucket is locked already
+    {
+      var now = App.LocalizedTime;
 
-        public void visit(bool stopping)
+      var removed = new Lazy<List<Guid>>(false);
+
+      foreach (var pair in bucket)
+      {
+        var entry = pair.Value;
+
+        lock (entry)
         {
-          var now = App.LocalizedTime;
-          for(var i=0; i< m_BucketCount; i++)
+          //evict expired object and delete evicted or marked for deletion
+          if (
+              (
+               (entry.Status == ObjectStoreEntryStatus.Normal ||
+                entry.Status == ObjectStoreEntryStatus.ChekedIn     //checked-in but not written yet
+               )
+                &&
+               entry.LastTime.AddMilliseconds((entry.MsTimeout > 0) ? entry.MsTimeout : m_ObjectLifeSpanMS) < now
+              ) ||
+              (entry.Status == ObjectStoreEntryStatus.Deleted)
+             )
           {
-            var bucket = m_Buckets[i];
-            if (stopping || bucket.LastAcquire.AddMilliseconds(MUST_ACQUIRE_INTERVAL_MS)<now)
-              lock(bucket) write(bucket);
-            else
-              if (Monitor.TryEnter(bucket))
+            var wasWritten = entry.Status == ObjectStoreEntryStatus.Normal || entry.Status == ObjectStoreEntryStatus.Deleted;
+            entry.Status = ObjectStoreEntryStatus.Deleted;//needed for Normal objects that have just expired
+
+            removed.Value.Add(entry.Key);
+
+            if (wasWritten)
+            { //delete form disk only if it was already written(normal)
+              try
               {
-                try
-                {
-                  write(bucket);
-                }
-                finally
-                {
-                  Monitor.Exit(bucket);
-                }
+                m_Provider.Delete(entry);
               }
-          }//for
-        }
+              catch (Exception error)
+              {
+                WriteLog(MessageType.CatastrophicError, nameof(write), "Provider error in .Delete(entry): " + error.ToMessageWithType(), error);
+              }
+            }
 
-
-        private void write(Bucket bucket)  //bucket is locked already
-        {
-          var now = App.LocalizedTime;
-
-          var removed = new Lazy<List<Guid>>(false);
-
-          foreach (var pair in bucket)
-          {
-            var entry = pair.Value;
-
-            lock(entry)
+            try
             {
-                //evict expired object and delete evicted or marked for deletion
-                if (
-                    (
-                     (entry.Status == ObjectStoreEntryStatus.Normal  ||
-                      entry.Status == ObjectStoreEntryStatus.ChekedIn     //checked-in but not written yet
-                     )
-                      &&
-                     entry.LastTime.AddMilliseconds( (entry.MsTimeout > 0) ? entry.MsTimeout : m_ObjectLifeSpanMS ) < now
-                    ) ||
-                    (entry.Status == ObjectStoreEntryStatus.Deleted)
-                   )
-                {
-                  var wasWritten = entry.Status == ObjectStoreEntryStatus.Normal || entry.Status == ObjectStoreEntryStatus.Deleted;
-                  entry.Status = ObjectStoreEntryStatus.Deleted;//needed for Normal objects that have just expired
+              if (entry.Value != null && entry.Value is IDisposable)
+                ((IDisposable)entry.Value).Dispose();
+            }
+            catch (Exception error)
+            {
+              WriteLog(MessageType.Error, nameof(write), "Exception from evicted object IDisposable.Dispose(): " + error.ToMessageWithType(), error);
+            }
 
-                  removed.Value.Add(entry.Key);
-
-                  if (wasWritten)
-                  { //delete form disk only if it was already written(normal)
-                    try
-                    {
-                      m_Provider.Delete(entry);
-                    }
-                    catch (Exception error)
-                    {
-                      WriteLog(MessageType.CatastrophicError, nameof(write), "Provider error in .Delete(entry): " + error.ToMessageWithType(), error);
-                    }
-                  }
-
-                  try
-                  {
-                    if (entry.Value!=null && entry.Value is IDisposable)
-                      ((IDisposable)entry.Value).Dispose();
-                  }
-                  catch (Exception error)
-                  {
-                    WriteLog(MessageType.Error, nameof(write), "Exception from evicted object IDisposable.Dispose(): " + error.ToMessageWithType(), error);
-                  }
-
-                  continue;
-                }
-
-                if (entry.Status == ObjectStoreEntryStatus.ChekedIn)
-                {
-
-                  try
-                  {
-                    m_Provider.Write(entry);
-                  }
-                  catch (Exception error)
-                  {
-                    WriteLog(MessageType.CatastrophicError, nameof(write),  "Provider error in .Write(entry): " + error.ToMessageWithType(), error);
-                  }
-
-                  entry.Status = ObjectStoreEntryStatus.Normal;
-                }
-
-            }//lock entry
-          }//for
-
-
-          if (removed.IsValueCreated)
-          {
-            foreach(var key in removed.Value)
-              bucket.Remove(key);
-
-            WriteLog(MessageType.Trace, nameof(write), "Removed {0} objects".Args(removed.Value.Count));
+            continue;
           }
 
-          bucket.LastAcquire = App.LocalizedTime;
-        }
+          if (entry.Status == ObjectStoreEntryStatus.ChekedIn)
+          {
+            try
+            {
+              m_Provider.Write(entry);
+            }
+            catch (Exception error)
+            {
+              WriteLog(MessageType.CatastrophicError, nameof(write), "Provider error in .Write(entry): " + error.ToMessageWithType(), error);
+            }
+
+            entry.Status = ObjectStoreEntryStatus.Normal;
+          }
+
+        }//lock entry
+      }//for
+
+      if (removed.IsValueCreated)
+      {
+        foreach (var key in removed.Value)
+          bucket.Remove(key);
+
+        WriteLog(MessageType.Trace, nameof(write), "Removed {0} objects".Args(removed.Value.Count));
+      }
+
+      bucket.LastAcquire = App.LocalizedTime;
+    }
 
     #endregion
-
   }
 }

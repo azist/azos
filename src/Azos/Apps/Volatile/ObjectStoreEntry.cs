@@ -9,7 +9,6 @@ using System.Collections.Generic;
 
 namespace Azos.Apps.Volatile
 {
-
   /// <summary>
   /// Represents status of ObjectStoreEntry
   /// </summary>
@@ -25,22 +24,16 @@ namespace Azos.Apps.Volatile
     public DateTime LastTime;
 
     public Guid Key;
+
     public object Value;
 
     public int CheckoutCount;
 
     public int MsTimeout;
 
+    public override string ToString() => Key.ToString();
 
-    public override string ToString()
-    {
-      return Key.ToString();
-    }
-
-    public override int GetHashCode()
-    {
-      return Key.GetHashCode();
-    }
+    public override int GetHashCode() => Key.GetHashCode();
 
     public override bool Equals(object obj)
     {
@@ -50,7 +43,6 @@ namespace Azos.Apps.Volatile
 
       return Key.Equals(o.Key);
     }
-
   }
 
   internal class Bucket : Dictionary<Guid, ObjectStoreEntry>

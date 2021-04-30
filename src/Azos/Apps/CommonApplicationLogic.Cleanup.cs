@@ -14,7 +14,6 @@ namespace Azos.Apps
 {
   partial class CommonApplicationLogic
   {
-
     protected virtual void CleanupApplication()
     {
       var exceptions = new List<Exception>();

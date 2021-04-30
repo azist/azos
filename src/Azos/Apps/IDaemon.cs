@@ -10,7 +10,6 @@ using Azos.Conf;
 
 namespace Azos.Apps
 {
-
   /// <summary>
   /// Stipulates service control phase statuses like: Active/Inactive etc...
   /// </summary>

@@ -29,7 +29,6 @@ namespace Azos.Apps
     /// </summary>
     public static NOPSession Instance => s_Instance;
 
-
     public Guid ID => s_ID;
 
     public ulong IDSecret => 0;
@@ -54,9 +53,7 @@ namespace Azos.Apps
 
     public Atom LanguageISOCode => CoreConsts.ISOA_LANG_ENGLISH;
 
-
     public string DataContextName { get => null; set { } }
-
 
     public IDictionary<object, object> Items => new Dictionary<object, object>();
 

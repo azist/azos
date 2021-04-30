@@ -47,7 +47,6 @@ namespace Azos.Apps
       value = "";
       if (name.IsNullOrWhiteSpace()) return false;
 
-
       if (name.EqualsOrdIgnoreCase(HOST))
       {
         value = Azos.Platform.Computer.HostName;
