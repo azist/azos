@@ -189,6 +189,33 @@ namespace Azos
       return value;
     }
 
+
+    /// <summary>
+    /// Ensures that a value is not null and that it has not been already disposed if it is a DisposableObject-derivative.
+    /// This method is useful to conditionally check various interfaces which do not have `IDisposable` lineage, however
+    /// their implementors may derive from `DisposableObject`
+    /// </summary>
+    public static T NonDisposed<T>(this T obj,
+                               string name = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null) where T : class
+    {
+      if (obj != null)
+      {
+        var dsp = obj as DisposableObject;
+        if (dsp == null) return obj;//not a DisposableObject derivative
+        if (!dsp.Disposed) return obj;//still active
+      }
+
+      var callSite = callSiteOf(callFile, callLine, callMember);
+      throw new CallGuardException(callSite,
+                                name,
+                                (obj == null ? StringConsts.GUARDED_CLAUSE_MAY_NOT_BE_NULL_ERROR
+                                             : StringConsts.GUARDED_CLAUSE_MAY_NOT_BE_DISPOSED_ERROR)
+                                  .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+    }
+
     /// <summary>
     /// Ensures that a type value is not null and is of the specified type or one of its subtypes
     /// </summary>

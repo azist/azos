@@ -25,14 +25,24 @@ namespace Azos.Data.Heap.Implementation
     internal Area(Heap director, IConfigSectionNode cfg) : base(director)
     {
       cfg.NonEmpty(nameof(cfg));
+
+      //1. Build Schema
       m_Schema = new TypeSchema(this, cfg[TypeSchema.CONFIG_SCHEMA_SECTION]);
+
+      //2. Build Selector
       var cfgSelector = cfg[CONFIG_NODE_SELECTOR_SECTION];
       m_NodeSelector = FactoryUtils.MakeDirectedComponent<INodeSelector>(this, cfgSelector, typeof(DefaultNodeSelector), new object[]{cfgSelector});
-      //todo: build...
+
+      //3. Build Service Client
+      //buildServiceClient();;
+
+      //4. Build Spaces
+      //buildSpaces();
     }
 
     protected override void Destructor()
     {
+      DisposeIfDisposableAndNull(ref m_ServiceClient);
       base.Destructor();
     }
 
@@ -47,7 +57,8 @@ namespace Azos.Data.Heap.Implementation
     public string Name => m_Name;
     public IHeap  Heap => ComponentDirector;
     public override string ComponentLogTopic => CoreConsts.DATA_TOPIC;
-    public IHttpService ServiceClient => m_ServiceClient;
+
+    public IHttpService ServiceClient => m_ServiceClient.NonDisposed();
 
     public ITypeSchema Schema => m_Schema;
 

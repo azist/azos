@@ -1,4 +1,4 @@
-# Azos - A to Z Sky Operating System
+# Azos - A to Z Business Operating System
 
 <img src="/elm/design/logo/azos.png" alt="Logo" >
 

@@ -12,7 +12,7 @@ namespace Azos
 #pragma warning disable CA1063
 
   /// <summary>
-  /// Advanced use, provides extra information about object being disposed
+  /// Advanced use, provides extra information about an object being disposed
   /// </summary>
   public interface IDisposableLifecycle : IDisposable
   {
@@ -33,7 +33,8 @@ namespace Azos
 
 
   /// <summary>
-  /// General-purpose base class for objects that need to be disposed
+  /// General-purpose base class for objects that need to be disposed.
+  /// The .Dispose() pattern is implemented in a thread-safe way
   /// </summary>
   [Serializable]
   public abstract class DisposableObject : IDisposableLifecycle
@@ -51,7 +52,7 @@ namespace Azos
     {
       var original = obj;
       var was = Interlocked.CompareExchange(ref obj, null, original);
-      if (was==null || !object.ReferenceEquals(was, original)) return false;
+      if (was == null || !object.ReferenceEquals(was, original)) return false;
 
       was.Dispose();
       return true;
@@ -84,7 +85,7 @@ namespace Azos
       if (STATE_ALIVE == Interlocked.CompareExchange(ref m_DisposeState, STATE_DISPOSED_FINALIZER, STATE_ALIVE))
       {
         //Disposable objects should be disposed by user code and this finalizer call should never happen
-        //if it does happen, it indicates a possible memory leak
+        //If it does happen, it indicates a possible memory leak
         Apps.ExecutionContext.__TrackMemoryLeak(this.GetType());
         Destructor();
       }
@@ -93,7 +94,7 @@ namespace Azos
     #endregion
 
     #region Private Fields
-    private int m_DisposeState;
+    private int m_DisposeState;//the state is serializable: one could serialize a disposed object
     #endregion
 
     #region Properties
@@ -114,16 +115,16 @@ namespace Azos
     #region Public/Protected
 
     /// <summary>
-    /// Override this method to do actual destructor work.
+    /// Override this method to perform the actual destructor work.
     /// Destructor should not throw exceptions - must handle internally/use logging
     /// </summary>
     /// <remarks>
     /// This method is called as the result of both the deterministic .Dispose() call by user code
-    /// and non-deterministic system finalizer invocations. The typical MS .Dispose(bool) pattern is not used on purpose because
-    /// all object implementing Disposable() must be deallocated ONLY via a call to Dispose() and
+    /// and non-deterministic system finalizer invocations. The typical MS `.Dispose(bool)` pattern is not used on purpose because
+    /// all object implementing `IDisposable` must be deallocated ONLY via a call to `Dispose()` and
     /// invocation of system finalizer is considered to be a memory leak in Azos.
     /// You could check the <seealso cref="IDisposableLifecycle.DisposedByFinalizer"/> property,
-    /// however this is considered to be a special case such as reporting of memory leaks using instrumentation/gauges.
+    /// however this is considered to be a special case such as reporting of memory leaks using instrumentation/gauges
     /// </remarks>
     protected virtual void Destructor()
     {
@@ -161,7 +162,6 @@ namespace Azos
     }
     #endregion
   }
-
 
 
   /// <summary>

@@ -560,15 +560,17 @@ namespace Azos.Apps.Volatile
         if (stopping || bucket.LastAcquire.AddMilliseconds(MUST_ACQUIRE_INTERVAL_MS) < now)
           lock (bucket) write(bucket);
         else
-          if (Monitor.TryEnter(bucket))
         {
-          try
+          if (Monitor.TryEnter(bucket))
           {
-            write(bucket);
-          }
-          finally
-          {
-            Monitor.Exit(bucket);
+            try
+            {
+              write(bucket);
+            }
+            finally
+            {
+              Monitor.Exit(bucket);
+            }
           }
         }
       }//for

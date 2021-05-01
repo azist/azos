@@ -22,6 +22,7 @@ namespace Azos.Apps
       {
         string name = CoreConsts.UNKNOWN;
         foreach (var notifiable in m_FinishNotifiables)
+        {
           try
           {
             name = notifiable.Name ?? notifiable.GetType().FullName;
@@ -33,6 +34,7 @@ namespace Azos.Apps
             exceptions.Add(error);
             WriteLog(MessageType.Error, "CleanupApplication()", error.Message);
           }
+        }
       }
 
       try
@@ -49,6 +51,7 @@ namespace Azos.Apps
       {
         string name = CoreConsts.UNKNOWN;
         foreach (var notifiable in m_FinishNotifiables)
+        { 
           try
           {
             name = notifiable.Name ?? notifiable.GetType().FullName;
@@ -60,6 +63,7 @@ namespace Azos.Apps
             exceptions.Add(error);
             //log not available at this point
           }
+        }
       }
 
       if (exceptions.Count > 0)

@@ -447,14 +447,17 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string GUARDED_CLAUSE_MAY_NOT_BE_NULL_ERROR =
         "Guarded method '{0}' clause '{1}' may not be null";
 
+    public const string GUARDED_CLAUSE_MAY_NOT_BE_DISPOSED_ERROR =
+        "Guarded method '{0}' clause '{1}' is already disposed";
+
     public const string GUARDED_CLAUSE_OFTYPE_ERROR =
-         "Guarded method '{0}' type clause '{1}' may not be null and must be of '{2}' type or its descendants";
+        "Guarded method '{0}' type clause '{1}' may not be null and must be of '{2}' type or its descendants";
 
     public const string GUARDED_CLAUSE_VALUEOFTYPE_ERROR =
-         "Guarded method '{0}' clause value '{1}' may not be null and must be of '{2}' type or its descendants";
+        "Guarded method '{0}' clause value '{1}' may not be null and must be of '{2}' type or its descendants";
 
     public const string GUARDED_CLAUSE_TYPECAST_ERROR =
-         "Guarded method '{0}' clause '{1}' may not be type cast to '{2}'";
+        "Guarded method '{0}' clause '{1}' may not be type cast to '{2}'";
 
     public const string GUARDED_CONFIG_NODE_CLAUSE_MAY_NOT_BE_EMPTY_ERROR =
         "Guarded method '{0}' config node clause '{1}' may not be null or empty";
