@@ -34,6 +34,7 @@ namespace Azos.Apps
       string name = CoreConsts.UNKNOWN;
       bool breakOnError = true;
       foreach (var starter in starters)
+      {
         try
         {
           breakOnError = starter.ApplicationStartBreakOnException;
@@ -47,6 +48,7 @@ namespace Azos.Apps
           exceptions.Add(error);
           //log not available at this point
         }
+      }
 
       ExecutionContext.__BindApplication(this);
       DoInitApplication(); //<----------------------------------------------
@@ -55,6 +57,7 @@ namespace Azos.Apps
       name = CoreConsts.UNKNOWN;
       breakOnError = true;
       foreach (var starter in starters)
+      {
         try
         {
           breakOnError = starter.ApplicationStartBreakOnException;
@@ -67,6 +70,7 @@ namespace Azos.Apps
           WriteLog(MessageType.CatastrophicError, "InitApplication().After", error.ToMessageWithType(), error);
           if (breakOnError) throw error;
         }
+      }
 
       if (exceptions.Count > 0)
         foreach (var exception in exceptions)
