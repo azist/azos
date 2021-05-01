@@ -25,9 +25,8 @@ namespace Azos.Data
     [Serializable]
     public sealed class FieldDef : INamed, IOrdered, ISerializable, IJsonWritable
     {
-
       public FieldDef(string name, Type type, FieldAttribute attr)
-       => ctor(name, 0, type, new[]{attr}, null);
+       => ctor(name, 0, type, new[] { attr }, null);
 
       public FieldDef(string name, Type type, IEnumerable<FieldAttribute> attrs)
        => ctor(name, 0, type, attrs, null);
@@ -35,16 +34,16 @@ namespace Azos.Data
       public FieldDef(string name, Type type, Access.QuerySource.ColumnDef columnDef)
       {
         FieldAttribute attr;
-        if (columnDef!=null)
-            attr =  new FieldAttribute(targetName: TargetedAttribute.ANY_TARGET,
-                                      storeFlag: columnDef.StoreFlag,
-                                      required: columnDef.Required,
-                                      visible: columnDef.Visible,
-                                      key: columnDef.Key,
-                                      backendName: columnDef.BackendName,
-                                      description: columnDef.Description);
+        if (columnDef != null)
+          attr = new FieldAttribute(targetName: TargetedAttribute.ANY_TARGET,
+                                    storeFlag: columnDef.StoreFlag,
+                                    required: columnDef.Required,
+                                    visible: columnDef.Visible,
+                                    key: columnDef.Key,
+                                    backendName: columnDef.BackendName,
+                                    description: columnDef.Description);
         else
-            attr =  new FieldAttribute(targetName: TargetedAttribute.ANY_TARGET);
+          attr = new FieldAttribute(targetName: TargetedAttribute.ANY_TARGET);
 
         var attrs = new FieldAttribute[1] { attr };
         ctor(name, 0, type, attrs, null);
@@ -55,8 +54,8 @@ namespace Azos.Data
 
       private void ctor(string name, int order, Type type, IEnumerable<FieldAttribute> attrs, PropertyInfo memberInfo = null)
       {
-        if (name.IsNullOrWhiteSpace() || type==null || attrs==null)
-            throw new DataException(StringConsts.ARGUMENT_ERROR + "FieldDef.ctor(..null..)");
+        if (name.IsNullOrWhiteSpace() || type == null || attrs == null)
+          throw new DataException(StringConsts.ARGUMENT_ERROR + "FieldDef.ctor(..null..)");
 
         m_Name = name;
         m_Order = order;
@@ -64,18 +63,18 @@ namespace Azos.Data
         m_Attrs = new List<FieldAttribute>(attrs);
         m_TargetAttrsCache = new FiniteSetLookup<string, FieldAttribute>(findFieldAttributeFor, StringComparer.InvariantCultureIgnoreCase);
 
-        if (m_Attrs.Count<1)
+        if (m_Attrs.Count < 1)
           throw new DataException(StringConsts.CRUD_FIELDDEF_ATTR_MISSING_ERROR.Args(name));
 
         //add ANY_TARGET attribute
         if (!m_Attrs.Any(a => a.TargetName == TargetedAttribute.ANY_TARGET))
         {
-          var isAnyKey = m_Attrs.Any( a => a.Key );
+          var isAnyKey = m_Attrs.Any(a => a.Key);
           var ata = new FieldAttribute(FieldAttribute.ANY_TARGET, key: isAnyKey);
-          m_Attrs.Add( ata );
+          m_Attrs.Add(ata);
         }
 
-        m_Attrs.ForEach( a => a.Seal() );
+        m_Attrs.ForEach(a => a.Seal());
 
         //Set and compiler setter
         if (memberInfo != null)
@@ -85,9 +84,9 @@ namespace Azos.Data
         }
 
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            m_NonNullableType = type.GetGenericArguments()[0];
+          m_NonNullableType = type.GetGenericArguments()[0];
         else
-            m_NonNullableType = type;
+          m_NonNullableType = type;
 
         m_AnyTargetKey = this[null].Key;
       }
@@ -96,7 +95,7 @@ namespace Azos.Data
       private static Action<TypedDoc, object> makeSetterLambda(PropertyInfo pi)
       {
         var self = Expression.Parameter(typeof(object), "self");
-        var val  = Expression.Parameter(typeof(object), "val");
+        var val = Expression.Parameter(typeof(object), "val");
         var prop = Expression.Property(Expression.TypeAs(self, pi.DeclaringType), pi);
 
         Expression set;
@@ -107,7 +106,7 @@ namespace Azos.Data
                  Expression.Assign(prop, Expression.Unbox(val, pi.PropertyType)));
         }
         else
-         set = Expression.Assign(prop, Expression.Convert(val, pi.PropertyType));
+          set = Expression.Assign(prop, Expression.Convert(val, pi.PropertyType));
 
         return Expression.Lambda<Action<TypedDoc, object>>(set, self, val).Compile();//System.Runtime.CompilerServices.DebugInfoGenerator.CreatePdbGenerator());
       }
@@ -116,23 +115,23 @@ namespace Azos.Data
       {
         m_Name = info.GetString("nm");
         m_Order = info.GetInt32("o");
-        m_Type = Type.GetType( info.GetString("t"), true);
-        m_NonNullableType = Type.GetType( info.GetString("nnt"), true);
+        m_Type = Type.GetType(info.GetString("t"), true);
+        m_NonNullableType = Type.GetType(info.GetString("nnt"), true);
         m_Attrs = info.GetValue("attrs", typeof(List<FieldAttribute>)) as List<FieldAttribute>;
         m_AnyTargetKey = info.GetBoolean("atk");
         m_TargetAttrsCache = new FiniteSetLookup<string, FieldAttribute>(findFieldAttributeFor, StringComparer.InvariantCultureIgnoreCase);
 
         var mtp = info.GetString("mtp");
-        if (mtp!=null)
+        if (mtp != null)
         {
-            var tp = Type.GetType( mtp, true);
+          var tp = Type.GetType(mtp, true);
 
-            var mn = info.GetString("mn");
-            if (mn!=null)
-            {
-                m_MemberInfo = tp.GetProperty(mn);
-                m_MemberSet = makeSetterLambda(m_MemberInfo);
-            }
+          var mn = info.GetString("mn");
+          if (mn != null)
+          {
+            m_MemberInfo = tp.GetProperty(mn);
+            m_MemberSet = makeSetterLambda(m_MemberInfo);
+          }
         }
       }
 
@@ -145,18 +144,17 @@ namespace Azos.Data
         info.AddValue("attrs", m_Attrs);
         info.AddValue("atk", m_AnyTargetKey);
 
-        if (m_MemberInfo==null)
+        if (m_MemberInfo == null)
         {
-            info.AddValue("mtp", null);
-            info.AddValue("mn", null);
+          info.AddValue("mtp", null);
+          info.AddValue("mn", null);
         }
         else
         {
-            info.AddValue("mtp", m_MemberInfo.DeclaringType.AssemblyQualifiedName);
-            info.AddValue("mn", m_MemberInfo.Name);
+          info.AddValue("mtp", m_MemberInfo.DeclaringType.AssemblyQualifiedName);
+          info.AddValue("mn", m_MemberInfo.Name);
         }
       }
-
 
       private string m_Name;
       internal int m_Order;
@@ -170,44 +168,44 @@ namespace Azos.Data
       /// <summary>
       /// Returns the name of the field
       /// </summary>
-      public string                        Name  { get { return m_Name;}}
+      public string Name => m_Name;
 
       /// <summary>
       /// Returns the field type
       /// </summary>
-      public Type                          Type  { get { return m_Type;}}
+      public Type Type => m_Type;
 
       /// <summary>
       /// For nullable value types returns the field type regardless of nullability, it is the type argument of Nullable struct;
       /// For reference types returns the same type as Type property
       /// </summary>
-      public Type                          NonNullableType  { get { return m_NonNullableType;}}
+      public Type NonNullableType => m_NonNullableType;
 
       /// <summary>
       /// Returns field attributes
       /// </summary>
-      public IEnumerable<FieldAttribute>   Attrs { get { return m_Attrs;}}
+      public IEnumerable<FieldAttribute> Attrs => m_Attrs;
 
       /// <summary>
       /// Gets absolute field order index in a data document/row of data
       /// </summary>
-      public int                           Order { get {return m_Order;} }
+      public int Order => m_Order;
 
       /// <summary>
       /// For TypedRow-descendants returns a PropertyInfo object for the underlying property
       /// </summary>
-      public PropertyInfo                  MemberInfo { get {return m_MemberInfo;} }
+      public PropertyInfo MemberInfo => m_MemberInfo;
 
       /// <summary>
       /// Returns true when this field is attributed as being a key field in an attribute that targets ANY_TARGET
       /// </summary>
-      public bool                          AnyTargetKey { get {return m_AnyTargetKey;} }
+      public bool AnyTargetKey => m_AnyTargetKey;
 
 
       /// <summary>
       /// Returns true when this field is attributed as being a visible in any of the targeted attribute
       /// </summary>
-      public bool AnyVisible { get { return m_Attrs.Any(a=>a.Visible);} }
+      public bool AnyVisible => m_Attrs.Any(a => a.Visible);
 
 
       /// <summary>
@@ -218,7 +216,7 @@ namespace Azos.Data
         get
         {
           var attr = this[null];
-          var result = attr!=null ? attr.Description : "";
+          var result = attr != null ? attr.Description : "";
 
           if (result.IsNullOrWhiteSpace())
             result = Azos.Text.Utils.ParseFieldNameToDescription(Name, true);
@@ -226,7 +224,6 @@ namespace Azos.Data
           return result;
         }
       }
-
 
       /// <summary>
       /// Sets direct property value using pre-compiled code. This method is much faster than reflection (8-10x times).
@@ -242,21 +239,16 @@ namespace Azos.Data
         var sv = fieldValue.AsString();
         if (sv.IsNullOrWhiteSpace()) return string.Empty;
         var atr = this[target];
-        if (atr==null) return fieldValue.AsString(string.Empty);
+        if (atr == null) return fieldValue.AsString(string.Empty);
         var vl = atr.ParseValueList(caseSensitiveKeys);
 
         return vl[sv].AsString(string.Empty);
       }
 
-
       /// <summary>
       /// Returns true when at least one attribute was marked as NonUI - meaning that this field must not be serialized-to/deserialized-from client UI
       /// </summary>
-      public bool  NonUI
-      {
-        get { return m_Attrs.Any(a=>a.NonUI);}
-      }
-
+      public bool NonUI => m_Attrs.Any(a => a.NonUI);
 
       private Azos.Platform.FiniteSetLookup<string, FieldAttribute> m_TargetAttrsCache;
       private FieldAttribute findFieldAttributeFor(string target)
@@ -292,11 +284,7 @@ namespace Azos.Data
       /// <summary>
       /// Returns the name of the field in backend that was possibly overridden for a particular target
       /// </summary>
-      public string GetBackendNameForTarget(string targetName)
-      {
-          FieldAttribute attr;
-          return GetBackendNameForTarget(targetName, out attr);
-      }
+      public string GetBackendNameForTarget(string targetName) => GetBackendNameForTarget(targetName, out _);
 
       /// <summary>
       /// Returns the name of the field in backend that was possibly overridden for a particular target
@@ -304,55 +292,49 @@ namespace Azos.Data
       /// </summary>
       public string GetBackendNameForTarget(string targetName, out FieldAttribute attr)
       {
-          var result = m_Name;
-          var fattr = this[targetName];
-          attr = fattr;
-          if (fattr!=null)
-          {
-            if (fattr.BackendName.IsNotNullOrWhiteSpace()) result = fattr.BackendName;
-          }
-          return result;
+        var result = m_Name;
+        var fattr = this[targetName];
+        attr = fattr;
+        if (fattr != null)
+        {
+          if (fattr.BackendName.IsNotNullOrWhiteSpace()) result = fattr.BackendName;
+        }
+        return result;
       }
 
       public override string ToString()
-      {
-          return "FieldDef(Name: '{0}', Type: '{1}', Order: {2})".Args(m_Name, m_Type.FullName, m_Order);
-      }
+        => "FieldDef(Name: '{0}', Type: '{1}', Order: {2})".Args(m_Name, m_Type.FullName, m_Order);
 
-      public override int GetHashCode()
-      {
-          return m_Name.GetHashCodeOrdIgnoreCase() ^ m_Order;
-      }
+      public override int GetHashCode() => m_Name.GetHashCodeOrdIgnoreCase() ^ m_Order;
 
       public override bool Equals(object obj)
       {
-          var other = obj as FieldDef;
-          if (other==null) return false;
-          return
-              this.m_Name.EqualsOrdIgnoreCase(other.m_Name) &&
-              this.m_Order==other.m_Order &&
-              this.m_Type == other.m_Type &&
-              this.m_Attrs.SequenceEqual(other.m_Attrs);
+        var other = obj as FieldDef;
+        if (other == null) return false;
+        return
+            m_Name.EqualsOrdIgnoreCase(other.m_Name) &&
+            m_Order == other.m_Order &&
+            m_Type == other.m_Type &&
+            m_Attrs.SequenceEqual(other.m_Attrs);
       }
-
 
       /// <summary>
       /// Writes fielddef as JSON. Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
       /// </summary>
       void IJsonWritable.WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options)
       {
-          var attr = this[null];
+        var attr = this[null];
 
-          if (attr != null && attr.NonUI)
-          {
-            wri.Write("{}");
-            return;//nothing to write for NONUI
-          }
+        if (attr != null && attr.NonUI)
+        {
+          wri.Write("{}");
+          return;//nothing to write for NONUI
+        }
 
-          bool typeIsNullable;
-          string tp = JSONMappings.MapCLRTypeToJSON(m_Type, out typeIsNullable);
+        bool typeIsNullable;
+        string tp = JSONMappings.MapCLRTypeToJSON(m_Type, out typeIsNullable);
 
-          var map = new Dictionary<string, object>
+        var map = new Dictionary<string, object>
           {
             {"Name",  m_Name},
             {"Order", m_Order},
@@ -360,46 +342,43 @@ namespace Azos.Data
             {"Nullable", typeIsNullable}
           };
 
-          //20190322 DKh inner schema
-          if (typeof(Doc).IsAssignableFrom(this.NonNullableType))
+        //20190322 DKh inner schema
+        if (typeof(Doc).IsAssignableFrom(NonNullableType))
+        {
+          map["IsDataDoc"] = true;
+          map["IsAmorphous"] = typeof(IAmorphousData).IsAssignableFrom(NonNullableType);
+          map["IsForm"] = typeof(Form).IsAssignableFrom(NonNullableType);
+
+          if (typeof(TypedDoc).IsAssignableFrom(NonNullableType))
           {
-            map["IsDataDoc"] = true;
-            map["IsAmorphous"] = typeof(IAmorphousData).IsAssignableFrom(this.NonNullableType);
-            map["IsForm"] = typeof(Form).IsAssignableFrom(this.NonNullableType);
-
-            if (typeof(TypedDoc).IsAssignableFrom(this.NonNullableType))
-            {
-              var innerSchema = Schema.GetForTypedDoc(this.NonNullableType);
-              if (innerSchema.Any(fd => typeof(TypedDoc).IsAssignableFrom(fd.Type)))
-                map["DataDocSchema"] = "@complex";
-              else
-                map["DataDocSchema"] = innerSchema;
-            }
+            var innerSchema = Schema.GetForTypedDoc(NonNullableType);
+            if (innerSchema.Any(fd => typeof(TypedDoc).IsAssignableFrom(fd.Type)))
+              map["DataDocSchema"] = "@complex";
+            else
+              map["DataDocSchema"] = innerSchema;
           }
+        }
 
-          if (attr!=null)
-          {
-              map.Add("IsKey", attr.Key);
-              map.Add("IsRequired", attr.Required);
-              map.Add("Visible", attr.Visible);
-              if (attr.Default!=null)map.Add("Default", attr.Default);
-              if (attr.CharCase!=CharCase.AsIs) map.Add("CharCase", attr.CharCase);
-              if (attr.Kind!=DataKind.Text) map.Add("Kind", attr.Kind);
-              if (attr.MinLength!=0) map.Add("MinLen", attr.MinLength);
-              if (attr.MaxLength!=0) map.Add("MaxLen", attr.MaxLength);
-              if (attr.Min!=null) map.Add("Min", attr.Min);
-              if (attr.Max!=null) map.Add("Max", attr.Max);
-              if (attr.ValueList!=null) map.Add("ValueList", attr.ValueList);
-              if (attr.Description!=null)map.Add("Description", attr.Description);
-              //metadata content is in the internal format and not dumped
-          }
+        if (attr != null)
+        {
+          map.Add("IsKey", attr.Key);
+          map.Add("IsRequired", attr.Required);
+          map.Add("Visible", attr.Visible);
+          if (attr.Default != null) map.Add("Default", attr.Default);
+          if (attr.CharCase != CharCase.AsIs) map.Add("CharCase", attr.CharCase);
+          if (attr.Kind != DataKind.Text) map.Add("Kind", attr.Kind);
+          if (attr.MinLength != 0) map.Add("MinLen", attr.MinLength);
+          if (attr.MaxLength != 0) map.Add("MaxLen", attr.MaxLength);
+          if (attr.Min != null) map.Add("Min", attr.Min);
+          if (attr.Max != null) map.Add("Max", attr.Max);
+          if (attr.ValueList != null) map.Add("ValueList", attr.ValueList);
+          if (attr.Description != null) map.Add("Description", attr.Description);
+          //metadata content is in the internal format and not dumped
+        }
 
-          JsonWriter.WriteMap(wri, map, nestingLevel, options);
+        JsonWriter.WriteMap(wri, map, nestingLevel, options);
       }
-
-
     }
-
 
   }
 }

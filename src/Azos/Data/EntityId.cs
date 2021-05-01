@@ -1,4 +1,10 @@
-﻿using Azos.Data.Idgen;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using Azos.Data.Idgen;
 using Azos.Serialization.JSON;
 
 using System;
@@ -48,7 +54,6 @@ namespace Azos.Data
     /// </summary>
     public readonly string Address;
 
-
     /// <summary>
     /// True if the EntityId value is assigned
     /// </summary>
@@ -69,12 +74,12 @@ namespace Azos.Data
                                                 Type.GetDistributedStableHash() ^
                                                 ShardKey.ForString(Address);
 
-    public override bool Equals(object obj) => obj is EntityId other ? this.Equals(other) : false;
+    public override bool Equals(object obj) => obj is EntityId other ? Equals(other) : false;
 
     public bool Equals(EntityId other)
-      => this.Type == other.Type &&
-         this.System == other.System &&
-         this.Address.EqualsOrdSenseCase(other.Address);
+      => Type == other.Type &&
+         System == other.System &&
+         Address.EqualsOrdSenseCase(other.Address);
 
     public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
@@ -88,7 +93,6 @@ namespace Azos.Data
 
     public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
      => JsonWriter.EncodeString(wri, AsString, options);
-
 
     public static EntityId Parse(string val)
     {

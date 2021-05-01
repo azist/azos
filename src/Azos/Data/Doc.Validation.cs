@@ -4,10 +4,11 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Collections;
 using System;
 using System.Collections;
 using System.Linq;
+
+using Azos.Collections;
 
 namespace Azos.Data
 {
@@ -37,6 +38,7 @@ namespace Azos.Data
     /// </summary>
     Batch = 2
   }
+
 
   /// <summary>
   /// Encapsulates validation state passed around between `Validate(state)` calls.
@@ -329,7 +331,6 @@ namespace Azos.Data
       return state;
     }
 
-
     protected virtual (bool hasValue, Exception error) CheckValueRequired(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value, string scope)
     {
       var missing =
@@ -425,7 +426,6 @@ namespace Azos.Data
     }
 
     protected string GetInnerScope(Schema.FieldDef fdef, string scope) => scope.IsNullOrWhiteSpace() ? fdef.Name : scope + "." + fdef.Name;
-
 
     private static ValidState validateIValidatable(Doc self, ObjectGraph graph, IValidatable validatable, ValidState state, string scope)
     => !graph.Visited(validatable) ? validatable.Validate(state, scope) : state;
@@ -524,7 +524,6 @@ namespace Azos.Data
 
       return null;
     }
-
 
     protected virtual Exception CheckValueMinMax(string targetName, Schema.FieldDef fdef, FieldAttribute atr, object value, string scope)
     {

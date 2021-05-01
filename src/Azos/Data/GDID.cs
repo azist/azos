@@ -45,7 +45,6 @@ namespace Azos.Data
     public const UInt64 AUTHORITY_MASK = 0xf000000000000000;
     public const UInt64 COUNTER_MASK   = 0x0fffffffffffffff;//0x 0f  ff  ff  ff  ff  ff  ff  ff
                                                             //    1   2   3   4   5   6   7   8
-
     /// <summary>
     /// Provides maximum value for counter segment
     /// </summary>
@@ -60,7 +59,6 @@ namespace Azos.Data
     /// Zero GDID constant which is equivalent to an uninitialized structure with zero era and zero authority and zero counter
     /// </summary>
     public static readonly GDID ZERO = new GDID(0, 0ul);
-
 
     public GDID(UInt32 era, UInt64 id)
     {
@@ -137,7 +135,6 @@ namespace Azos.Data
       buff.WriteBEUInt32(startIndex, Era);
       buff.WriteBEUInt64(startIndex + 4, ID);
     }
-
 
     /// <summary>
     /// True is this instance is invalid/Zero - represents 0:0:0
@@ -244,7 +241,6 @@ namespace Azos.Data
       return -1;
     }
 
-
     public static bool TryParse(string str, out GDID? gdid)
     {
       GDID parsed;
@@ -282,7 +278,6 @@ namespace Azos.Data
         sau = str.Substring(i1+1, i2-i1-1);
 
         sctr = str.Substring(i2+1);
-
 
         const NumberStyles ISTYLES = NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
 
@@ -402,7 +397,6 @@ namespace Azos.Data
 
     private GDIDRangeComparer() {}
 
-
     public int Compare(GDID x, GDID y)
     {
       var result = x.Era.CompareTo(y.Era);
@@ -410,6 +404,5 @@ namespace Azos.Data
       return x.Counter.CompareTo(y.Counter);//Authority is disregarded
     }
   }
-
 
 }

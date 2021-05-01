@@ -21,10 +21,10 @@ namespace Azos.Data
   /// </summary>
   public enum StoreFlag
   {
-     LoadAndStore = 0,
-     OnlyLoad,
-     OnlyStore,
-     None
+    LoadAndStore = 0,
+    OnlyLoad,
+    OnlyStore,
+    None
   }
 
   /// <summary>
@@ -109,7 +109,6 @@ namespace Azos.Data
     /// Address postal code
     /// </summary>
     AddresPostalCode,
-
 
     Search,
 

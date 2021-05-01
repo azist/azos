@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 
 namespace Azos.Data
 {
@@ -23,14 +29,16 @@ namespace Azos.Data
     public bool CheckRequired(string targetName) => IsAssigned;
 
     public bool Equals(TargetedType other)
-     => this.Type == other.Type && this.TargetName.EqualsOrdSenseCase(other.TargetName);
+     => Type == other.Type && TargetName.EqualsOrdSenseCase(other.TargetName);
 
     public override int GetHashCode() => Type.GetHashCode();
-    public override bool Equals(object obj) => obj is TargetedType ttp ? this.Equals(ttp) : false;
+
+    public override bool Equals(object obj) => obj is TargetedType ttp && Equals(ttp);
 
     public override string ToString() => $"{TargetName}::{Type?.FullName}";
 
     public static bool operator ==(TargetedType left, TargetedType right) =>  left.Equals(right);
+
     public static bool operator !=(TargetedType left, TargetedType right) => !left.Equals(right);
   }
 }

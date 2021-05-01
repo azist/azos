@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,10 +12,8 @@ using Azos.Apps;
 using Azos.Client;
 using Azos.Conf;
 using Azos.Data.AST;
-using Azos.Data.Business;
 using Azos.Serialization.JSON;
 using Azos.Web;
-
 
 namespace Azos.Data.Directory
 {
@@ -38,17 +35,15 @@ namespace Azos.Data.Directory
 
     private HttpService m_Server;
 
-
     public override bool IsHardcodedModule => false;
-    public override string ComponentLogTopic => CoreConsts.DATA_TOPIC;
 
+    public override string ComponentLogTopic => CoreConsts.DATA_TOPIC;
 
     /// <summary>
     /// Logical service address of Directory server
     /// </summary>
     [Config]
     public string DirectoryServiceAddress{  get; set; }
-
 
     protected override void DoConfigure(IConfigSectionNode node)
     {

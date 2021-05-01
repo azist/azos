@@ -54,25 +54,24 @@ namespace Azos.Data.Idgen
   {
     public ConsecutiveUniqueSequenceIds(ulong startInclusive, int count)
     {
-      this.StartInclusive = startInclusive;
-      this.Count = count;
+      StartInclusive = startInclusive;
+      Count = count;
     }
 
     public readonly ulong StartInclusive;
     public readonly int Count;
   }
 
+
   /// <summary>
   /// Represents an entity that provides unique identifiers via named sequences
   /// </summary>
   public interface IUniqueSequenceProvider : Collections.INamed
   {
-
     /// <summary>
     /// Returns the list of all scope names in the instance
     /// </summary>
     IEnumerable<string> SequenceScopeNames { get; }
-
 
     /// <summary>
     /// Returns sequence information enumerable for all sequences in the named scope
@@ -121,6 +120,7 @@ namespace Azos.Data.Idgen
                                                                         bool noLWM = false);
   }
 
+
   /// <summary>
   /// Represents an entity that provides unique Global Distributed IDs (GDIDs) via named sequences.
   /// Note: GDID.Zero is never returned as it indicates the absence of a value
@@ -147,7 +147,6 @@ namespace Azos.Data.Idgen
                                       int blockSize = 0,
                                       ulong? vicinity = GDID.COUNTER_MAX,
                                       bool noLWM = false);
-
 
     /// <summary>
     /// Tries to generate many consecutive Globally-Unique distributed ID (GDID) from the same authority for the supplied sequence name.

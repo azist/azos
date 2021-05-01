@@ -7,9 +7,7 @@
 using System;
 using System.Text;
 
-
 using Azos.Conf;
-using Azos.Platform;
 using Azos.Serialization.JSON;
 
 namespace Azos.Data
@@ -126,7 +124,6 @@ namespace Azos.Data
       m_ValueList = null;
     }
 
-
     /// <summary>
     /// Decorates data document fields, providing metadata for targeted Schema.FiedDef objects.
     /// This .ctor clones the field as a whole from another TypedDocument type. This constructor is typically used
@@ -227,7 +224,6 @@ namespace Azos.Data
           m_IsArow           = isArow       == null? protoAttr.IsArow        : (bool)isArow;
 
 
-
           if (metadata.IsNullOrWhiteSpace())
             MetadataContent = protoAttr.MetadataContent;
           else
@@ -254,7 +250,6 @@ namespace Azos.Data
       }
     }
 
-
     /// <summary>
     /// When set, points to a Typed-Doc derivative that is used as a full clone
     /// </summary>
@@ -265,7 +260,6 @@ namespace Azos.Data
     /// from another
     /// </summary>
     public string DeriveFromTargetName { get; private set; }
-
 
     private StoreFlag m_StoreFlag;
     /// <summary>
@@ -279,7 +273,6 @@ namespace Azos.Data
     /// </summary>
     public string BackendName { get => m_BackendName; set => m_BackendName = AssignState(value); }
 
-
     private string m_BackendType;
     /// <summary>
     /// Provides an overridden type for this field in backend,
@@ -287,13 +280,11 @@ namespace Azos.Data
     /// </summary>
     public string BackendType { get => m_BackendType; set => m_BackendType = AssignState(value); }
 
-
     private bool m_Key;
     /// <summary>
     /// Determines whether this field is a part of the primary key
     /// </summary>
     public bool Key { get => m_Key; set => m_Key = AssignState(value); }
-
 
     private DataKind m_Kind;
     /// <summary>
@@ -301,20 +292,17 @@ namespace Azos.Data
     /// </summary>
     public DataKind Kind { get => m_Kind; set => m_Kind = AssignState(value); }
 
-
     private bool m_Required;
     /// <summary>
     /// Determines whether the field must have data
     /// </summary>
     public bool Required { get => m_Required; set => m_Required = AssignState(value); }
 
-
     private bool m_Visible;
     /// <summary>
     /// Determines whether the field is shown to user (e.g. as a grid column)
     /// </summary>
     public bool Visible { get => m_Visible; set => m_Visible = AssignState(value); }
-
 
     private string m_ValueList;
     /// <summary>
@@ -361,14 +349,12 @@ namespace Azos.Data
       }
     }
 
-
     public const char VALUE_LIST_SEPARATOR_1 = ',';
     public const char VALUE_LIST_SEPARATOR_2 = ';';
     public const char VALUE_LIST_ALT_KEY_SEPARATOR = '|';
 
     private static readonly char[] VALUE_LIST_SEPARATORS = new[]{ VALUE_LIST_SEPARATOR_1 , VALUE_LIST_SEPARATOR_2 };
     private static readonly char[] VALUE_LIST_ALT_KEY_SEPARATORS = new[] { VALUE_LIST_ALT_KEY_SEPARATOR };
-
 
     /// <summary>
     /// Returns a string parsed into key values as:  'val1: descr1, val2: desc2...'
@@ -430,14 +416,11 @@ namespace Azos.Data
       return sb.ToString();
     }
 
-
-
     private object m_Min;
     /// <summary>
     /// Provides low-bound validation check
     /// </summary>
     public object Min { get => m_Min; set => m_Min = AssignState(value); }
-
 
     private object m_Max;
     /// <summary>
@@ -445,13 +428,11 @@ namespace Azos.Data
     /// </summary>
     public object Max { get => m_Max; set => m_Max = AssignState(value); }
 
-
     private object m_Default;
     /// <summary>
     /// Provides default value
     /// </summary>
     public object Default { get => m_Default; set => m_Default = AssignState(value); }
-
 
     private int m_MinLength;
     /// <summary>
@@ -459,13 +440,11 @@ namespace Azos.Data
     /// </summary>
     public int MinLength { get => m_MinLength; set => m_MinLength = AssignState(value); }
 
-
     private int m_MaxLength;
     /// <summary>
     /// Imposes a limit on maximum amount of characters in a textual field
     /// </summary>
     public int MaxLength { get => m_MaxLength; set => m_MaxLength = AssignState(value); }
-
 
     private CharCase m_CharCase;
     /// <summary>
@@ -473,13 +452,11 @@ namespace Azos.Data
     /// </summary>
     public CharCase CharCase { get => m_CharCase; set => m_CharCase = AssignState(value); }
 
-
     private string m_FormatRegExp;
     /// <summary>
     /// Regular expression used for field format validation if set
     /// </summary>
     public string FormatRegExp { get => m_FormatRegExp; set => m_FormatRegExp = AssignState(value); }
-
 
     private string m_FormatDescription;
     /// <summary>
@@ -487,13 +464,11 @@ namespace Azos.Data
     /// </summary>
     public string FormatDescription { get => m_FormatDescription; set => m_FormatDescription = AssignState(value); }
 
-
     private string m_DisplayFormat;
     /// <summary>
     /// Display format string or null
     /// </summary>
     public string DisplayFormat { get => m_DisplayFormat; set => m_DisplayFormat = AssignState(value); }
-
 
     private bool m_NonUI;
     /// <summary>
@@ -502,14 +477,12 @@ namespace Azos.Data
     /// </summary>
     public bool NonUI { get => m_NonUI; set => m_NonUI = AssignState(value); }
 
-
     private bool m_IsArow;
     /// <summary>
     /// True if this field definition is used by Arow serializer. This used here for convenience not to repeat voluminous field attributes for
     /// Arow serialization as field def already contains all data see Azos.Serialization.Arow
     /// </summary>
     public bool IsArow { get => m_IsArow; set => m_IsArow = AssignState(value); }
-
 
     public override int GetHashCode() => base.GetHashCode() ^ (int)Kind ^ (int)StoreFlag ^ (Required ? 0b10101010 : 0b01010101);
 
@@ -521,44 +494,44 @@ namespace Azos.Data
       if (!base.Equals(other)) return false; //target metadataContent description
 
       var equ =
-          this.StoreFlag   == other.StoreFlag &&
-          this.BackendName.EqualsOrdSenseCase(other.BackendName) &&
-          this.BackendType.EqualsOrdSenseCase(other.BackendType) &&
-          this.Key         == other.Key &&
-          this.Kind        == other.Kind &&
-          this.Required    == other.Required &&
-          this.Visible     == other.Visible &&
+          StoreFlag   == other.StoreFlag &&
+          BackendName.EqualsOrdSenseCase(other.BackendName) &&
+          BackendType.EqualsOrdSenseCase(other.BackendType) &&
+          Key         == other.Key &&
+          Kind        == other.Kind &&
+          Required    == other.Required &&
+          Visible     == other.Visible &&
 
           (
-            (this.Min==null && other.Min==null) ||
-            (this.Min!=null && other.Min!=null && this.Min.Equals(other.Min))
+            (Min==null && other.Min==null) ||
+            (Min!=null && other.Min!=null && Min.Equals(other.Min))
           ) &&
 
           (
-            (this.Max==null && other.Max==null) ||
-            (this.Max!=null && other.Max!=null && this.Max.Equals(other.Max))
+            (Max==null && other.Max==null) ||
+            (Max!=null && other.Max!=null && Max.Equals(other.Max))
           ) &&
 
           (
-            (this.Default==null && other.Default==null) ||
-            (this.Default!=null && other.Default!=null && this.Default.Equals(other.Default))
+            (Default==null && other.Default==null) ||
+            (Default!=null && other.Default!=null && Default.Equals(other.Default))
           ) &&
 
-          this.MinLength   == other.MinLength &&
-          this.MaxLength   == other.MaxLength &&
-          this.CharCase    == other.CharCase &&
-          this.ValueList.EqualsOrdSenseCase(other.ValueList) &&
-          this.NonUI == other.NonUI &&
-          this.FormatRegExp.EqualsOrdSenseCase(other.FormatRegExp) &&
-          this.FormatDescription.EqualsOrdSenseCase(other.FormatDescription)&&
-          this.DisplayFormat.EqualsOrdSenseCase(other.DisplayFormat) &&
-          this.IsArow == other.IsArow &&
+          MinLength   == other.MinLength &&
+          MaxLength   == other.MaxLength &&
+          CharCase    == other.CharCase &&
+          ValueList.EqualsOrdSenseCase(other.ValueList) &&
+          NonUI == other.NonUI &&
+          FormatRegExp.EqualsOrdSenseCase(other.FormatRegExp) &&
+          FormatDescription.EqualsOrdSenseCase(other.FormatDescription)&&
+          DisplayFormat.EqualsOrdSenseCase(other.DisplayFormat) &&
+          IsArow == other.IsArow &&
           (
               (!m_CacheValueListPresetInCtor)||
-              (this.m_CacheValueList_Sensitive==null && other.m_CacheValueList_Sensitive==null) ||
+              (m_CacheValueList_Sensitive==null && other.m_CacheValueList_Sensitive==null) ||
               (
-                this.m_CacheValueList_Sensitive!=null && other.m_CacheValueList_Sensitive!=null &&
-                object.ReferenceEquals(this.m_CacheValueList_Sensitive, other.m_CacheValueList_Sensitive)
+                m_CacheValueList_Sensitive!=null && other.m_CacheValueList_Sensitive!=null &&
+                object.ReferenceEquals(m_CacheValueList_Sensitive, other.m_CacheValueList_Sensitive)
               )
           );
 
@@ -571,13 +544,13 @@ namespace Azos.Data
 
       base.ExpandResourceReferencesRelativeTo(tDoc, entity);
 
-      this.FormatDescription = ExpandOneResourceReferences(tDoc, entity, "format-description", this.FormatDescription);
+      FormatDescription = ExpandOneResourceReferences(tDoc, entity, "format-description", FormatDescription);
 
       if (!m_CacheValueListPresetInCtor)
       {
-        this.ValueList = ExpandOneResourceReferences(tDoc, entity, "value-list", this.ValueList);
-        this.m_CacheValueList_Insensitive = null;
-        this.m_CacheValueList_Sensitive = null;
+        ValueList = ExpandOneResourceReferences(tDoc, entity, "value-list", ValueList);
+        m_CacheValueList_Insensitive = null;
+        m_CacheValueList_Sensitive = null;
       }
     }
 

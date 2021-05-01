@@ -28,7 +28,6 @@ namespace Azos.Data
     /// </summary>
     public string Name { get => m_Name ?? string.Empty; set => m_Name = AssignState(value);}
 
-
     private bool m_Immutable;
     /// <summary>
     /// Indicates whether the data represented by the decorated instance can only be created (and possibly deleted) but can not change(no update).
@@ -36,7 +35,6 @@ namespace Azos.Data
     /// that could be found is valid and is the latest
     /// </summary>
     public bool Immutable { get => m_Immutable; set => m_Immutable = AssignState(value); }
-
 
     public override int GetHashCode() => base.GetHashCode() ^ Name.GetHashCodeSenseCase();
 
@@ -50,6 +48,5 @@ namespace Azos.Data
 
     public override string ToString() => $"Schema(`{Name}`)";
   }
-
 
 }

@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 namespace Azos.Data.Business
 {
   /// <summary>
@@ -25,6 +24,5 @@ namespace Azos.Data.Business
   public interface IBusinessLogic : Apps.IModule
   {
   }
-
 
 }
