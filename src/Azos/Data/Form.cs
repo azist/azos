@@ -6,11 +6,11 @@
 
 using System;
 using System.Threading.Tasks;
+
 using Azos.Serialization.JSON;
 
 namespace Azos.Data
 {
-
   /// <summary>
   /// Denotes form modes: unspecified | insert | update | delete
   /// </summary>
@@ -28,9 +28,7 @@ namespace Azos.Data
       public const string JSON_ROUNDTRIP_PROPERTY = "__Roundtrip";
       public const string JSON_TYPE_PROPERTY = "__FormType";
 
-
       protected Form() {}
-
 
       /// <summary>
       /// Gets/sets form mode - unspecified|insert|edit. This field may be queried by validate and save, i.e. Validate may perform extra cross checks on Insert - i.e. check whether
@@ -42,7 +40,6 @@ namespace Azos.Data
       /// Gets/sets CSRF token
       /// </summary>
       public string CSRFToken;
-
 
       private JsonDataMap m_RoundtripBag;
 
@@ -90,13 +87,11 @@ namespace Azos.Data
       /// </summary>
       public abstract Task<SaveResult<object>> SaveReturningObjectAsync();
 
-
       /// <summary>
       /// Override to supply target name used for validation
       /// </summary>
       public abstract string DataStoreTargetName { get; }
   }
-
 
 
   /// <summary>
@@ -149,7 +144,6 @@ namespace Azos.Data
     /// <param name="state">Validation state instance which you can disregard by returning a new ValidState without an error</param>
     protected virtual ValidState DoAfterValidateOnSave(ValidState state) => state;
 
-
     /// <summary>
     /// Override to perform post-successful-validate pre-save step on Save().
     /// This override is typically used to generate a unique ID for inserts (as determined by FormMode)
@@ -157,7 +151,6 @@ namespace Azos.Data
     /// This method is NOT called if validation finds errors in prior steps of Save() flow
     /// </summary>
     protected virtual void DoBeforeSave() { }
-
 
     /// <summary>
     /// Override to save model into data store. Return "predictable" exception (such as key violation) as a value instead of throwing.
@@ -167,5 +160,4 @@ namespace Azos.Data
     protected abstract Task<SaveResult<TSaveResult>> DoSaveAsync();
 
   }
-
 }

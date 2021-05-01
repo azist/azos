@@ -3,12 +3,11 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
+
 using System.Collections.Generic;
 
 namespace Azos.Data
 {
-
   /// <summary>
   /// Provides filter predicate for CRUD operations. Return true to include the specified field
   /// </summary>
@@ -41,6 +40,7 @@ namespace Azos.Data
     /// </returns>
     bool CheckRequired(string targetName);
   }
+
 
   /// <summary>
   /// Implemented by entities that check their state/value length expressed in logical units (e.g. characters), possibly conditionally
@@ -77,6 +77,7 @@ namespace Azos.Data
     bool CheckMaxLength(string targetName, int maxLength);
   }
 
+
   /// <summary>
   /// Defines entities that support custom validation logic
   /// </summary>
@@ -102,6 +103,7 @@ namespace Azos.Data
     /// </remarks>
     ValidState Validate(ValidState state, string scope = null);
   }
+
 
   /// <summary>
   /// Denotes an entity, which is typically a row-derivative, that has extra data fields that are not
@@ -147,6 +149,7 @@ namespace Azos.Data
     void AfterLoad(string targetName);
   }
 
+
   /// <summary>
   /// Supplies caching parameters
   /// </summary>
@@ -176,6 +179,7 @@ namespace Azos.Data
     /// </summary>
     bool CacheAbsentData { get; }
   }
+
 
   /// <summary>
   /// Denotes entities that have schemas, such as rowsets and data Docs

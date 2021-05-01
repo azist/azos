@@ -25,7 +25,6 @@ namespace Azos.Data
     public ConfigVector(string content) => Content = content;
     public ConfigVector(IConfigSectionNode node) => Node = node;
 
-
     private string m_Content;
     private IConfigSectionNode m_Node;
 

@@ -95,6 +95,7 @@ namespace Azos.Data.Business
   {
   }
 
+
   /// <summary>
   /// Provides models which represent a fragment of other models, typically Persisted models.
   /// The fragments usually do not get saved on their own but they may in some cases
@@ -105,7 +106,6 @@ namespace Azos.Data.Business
   public abstract class FragmentModel : AmorphousTypedDoc, IBusinessFragmentModel
   {
   }
-
 
 
   /// <summary>
@@ -135,6 +135,5 @@ namespace Azos.Data.Business
   public abstract class TransientModel : AmorphousTypedDoc, IBusinessTransientModel
   {
   }
-
 
 }

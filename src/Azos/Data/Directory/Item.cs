@@ -51,7 +51,6 @@ namespace Azos.Data.Directory
       }
     }
 
-
     /// <summary>
     /// .ctor for ser speedup
     /// </summary>
@@ -77,6 +76,7 @@ namespace Azos.Data.Directory
     }
 
     #region Fields
+
     private GDID m_Gdid;
     private EntityId m_Id;
     private DateTime m_VersionUtc;
@@ -84,8 +84,8 @@ namespace Azos.Data.Directory
     private DateTime? m_AbsoluteExpirationUtc;
     private DateTime m_LastUseUtc;
     private string m_Data;
-    #endregion
 
+    #endregion
 
     #region Props
 
@@ -111,7 +111,6 @@ namespace Azos.Data.Directory
     /// <summary>The status of this item: Created/Updated/Deleted </summary>
     public ItemStatus VersionStatus => m_VersionStatus;
 
-
     /// <summary>
     /// Optional future point in time when item expires (disappears). Expressed as a UTC timestamp
     /// </summary>
@@ -126,7 +125,6 @@ namespace Azos.Data.Directory
         m_AbsoluteExpirationUtc = value;
       }
     }
-
 
     /// <summary>
     /// The UTC timestamp of the last use, such as Create/Update/Get(touch=true) or Touch(id). This is used for optional SlidingExpirationMinutes

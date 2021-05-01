@@ -1,7 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Reflection;
-using System.Text;
 
 using Azos.Conf;
 
@@ -16,7 +20,7 @@ namespace Azos.Data
     {
       var schema = instance as Schema;//is a sealed class by design
 
-      if (schema==null) return null;
+      if (schema == null) return null;
 
       var ndoc = dataRoot.AddChildNode("schema");
 
@@ -54,7 +58,7 @@ namespace Azos.Data
           var targetName = context.GetSchemaDataTargetName(schema, doc);
           field(targetName, def, context, nfld, doc);
         }
-        catch(Exception error)
+        catch (Exception error)
         {
           var err = new CustomMetadataException(StringConsts.METADATA_GENERATION_SCHEMA_FIELD_ERROR.Args(schema.Name, def.Name, error.ToMessageWithType()), error);
           nfld.AddAttributeNode("--ERROR--", StringConsts.METADATA_GENERATION_SCHEMA_FIELD_ERROR.Args(schema.Name, def.Name, "<logged>"));
@@ -69,9 +73,9 @@ namespace Azos.Data
     {
       var fname = def.GetBackendNameForTarget(targetName, out var fatr);
 
-      if (fatr==null) return;
+      if (fatr == null) return;
 
-      if (context.DetailLevel> MetadataDetailLevel.Public)
+      if (context.DetailLevel > MetadataDetailLevel.Public)
       {
         data.AddAttributeNode("prop-name", def.Name);
         data.AddAttributeNode("prop-type", def.Type.AssemblyQualifiedName);
@@ -125,12 +129,12 @@ namespace Azos.Data
       if (fatr.MinLength > 0 || fatr.MaxLength > 0) data.AddAttributeNode("max-len", fatr.MaxLength);
 
       //add values from field attribute .ValueList property
-      var nvlist = new Lazy<ConfigSectionNode>(()=> data.AddChildNode("value-list"));
+      var nvlist = new Lazy<ConfigSectionNode>(() => data.AddChildNode("value-list"));
       if (fatr.HasValueList)
-        fatr.ParseValueList().ForEach(item=> nvlist.Value.AddAttributeNode(item.Key, item.Value));
+        fatr.ParseValueList().ForEach(item => nvlist.Value.AddAttributeNode(item.Key, item.Value));
 
       //if doc!=null call doc.GetClientFieldValueList on the instance to get values from Database lookups etc...
-      if (doc!=null)
+      if (doc != null)
       {
         var lookup = doc.GetDynamicFieldValueList(def, targetName, Atom.ZERO);
         if (lookup != null)//non-null blank lookup is treated as blank lookup overshadowing the hard-coded choices from .ValueList
@@ -138,7 +142,7 @@ namespace Azos.Data
           if (nvlist.IsValueCreated)
             nvlist.Value.DeleteAllAttributes();
 
-          lookup.ForEach( item => nvlist.Value.AddAttributeNode(item.Key, item.Value));
+          lookup.ForEach(item => nvlist.Value.AddAttributeNode(item.Key, item.Value));
         }
       }
 

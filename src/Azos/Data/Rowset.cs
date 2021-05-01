@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Azos.Data
 {
@@ -21,6 +20,7 @@ namespace Azos.Data
   public class Rowset : RowsetBase
   {
     #region .ctor
+
     /// <summary>
     /// Creates an empty rowset
     /// </summary>
@@ -29,7 +29,6 @@ namespace Azos.Data
       m_List = new List<Doc>();
       m_SortFieldList = new List<string>();
     }
-
 
     /// <summary>
     /// Creates a shallow copy from another rowset, optionally applying a filter
@@ -43,7 +42,6 @@ namespace Azos.Data
 
       m_SortFieldList = new List<string>();
     }
-
 
     #endregion
 
@@ -62,7 +60,7 @@ namespace Azos.Data
     /// </summary>
     public string SortDefinition
     {
-      get { return m_SortDefinition ?? string.Empty; }
+      get => m_SortDefinition ?? string.Empty;
       set
       {
         if (m_SortDefinition != value)
@@ -83,9 +81,7 @@ namespace Azos.Data
       }
     }
 
-
     #endregion
-
 
     #region IComparer<Row> Members
 
@@ -133,7 +129,6 @@ namespace Azos.Data
     }
 
     #endregion
-
 
     #region Protected
 

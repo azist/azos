@@ -139,7 +139,6 @@ namespace Azos.Data
       return result;
     }
 
-
     /// <summary>
     /// Asynchronously fetches an item through cache - if the item exists and satisfies the `ICacheParams` (and optional `fFilter` functor) then it is
     /// immediately (synchronously) returned to the caller. Otherwise, calls the `fFetch` async functor to perform the actual fetch of a value by key,
@@ -205,7 +204,6 @@ namespace Azos.Data
 
       return result;
     }
-
 
     /// <summary>
     /// Deletes an item from cache and underlying store by calling the supplied functor
