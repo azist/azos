@@ -17,7 +17,7 @@ namespace Azos.Data.Heap.Implementation
   /// <summary>
   /// Type registry which mounts and checks types: HeapObjects and HeapQueries
   /// </summary>
-  internal class TypeSchema : ITypeSchema
+  internal sealed class TypeSchema : ITypeSchema
   {
     public const string CONFIG_SCHEMA_SECTION = "schema";
 

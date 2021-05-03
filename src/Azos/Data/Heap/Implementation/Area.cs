@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -21,6 +20,7 @@ namespace Azos.Data.Heap.Implementation
   {
     public const string CONFIG_AREA_SECTION = "area";
     public const string CONFIG_NODE_SELECTOR_SECTION = "node-selector";
+    public const string CONFIG_SERVICE_CLIENT_SECTION = "service-client";
 
     internal Area(Heap director, IConfigSectionNode cfg) : base(director)
     {
@@ -34,10 +34,17 @@ namespace Azos.Data.Heap.Implementation
       m_NodeSelector = FactoryUtils.MakeDirectedComponent<INodeSelector>(this, cfgSelector, typeof(DefaultNodeSelector), new object[]{cfgSelector});
 
       //3. Build Service Client
-      //buildServiceClient();;
+      var cfgClient = cfg[CONFIG_SERVICE_CLIENT_SECTION];
+      m_ServiceClient = FactoryUtils.MakeDirectedComponent<IHttpService>(this, cfgClient, typeof(HttpService), new object[]{cfgClient});
 
       //4. Build Spaces
-      //buildSpaces();
+      m_Spaces = new Dictionary<Type, ISpace>();
+      foreach(var tObject in m_Schema.ObjectTypes)
+      {
+        var tSpace = typeof(Space<>).MakeGenericType(tObject);
+        var space = Activator.CreateInstance(tSpace).CastTo<ISpace>("space .ctor");
+        m_Spaces.Add(tSpace, space);
+      }
     }
 
     protected override void Destructor()
@@ -81,6 +88,10 @@ namespace Azos.Data.Heap.Implementation
       query.NonNull(nameof(query));
       if (node==null) node = NodeSelector.ForLocal.First();
 
+      //todo... implement using most appropriate node
+      // get node
+      // node has address which now can be used for Http call
+      // call ServiceClient.Call(....)
       //...
       return null;
     }
