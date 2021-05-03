@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,16 +20,15 @@ namespace Azos.Collections
   /// </summary>
   public sealed class CappedSet<T> : ApplicationComponent, IEnumerable<KeyValuePair<T, DateTime>>
   {
-    private const int BUCKET_COUNT = 251;
-    private const int VISIT_GRANULARITY_MS = 5000;
-    private const int MUST_LOCK_BUCKET_SEC = 179;
-
     private class bucket : Dictionary<T, DateTime>
     {
        public bucket(IEqualityComparer<T> comparer) : base(comparer){}
        public DateTime m_LastLock;
        public int m_ApproximateCount;
     }
+
+
+    #region .ctor
 
     public CappedSet(IApplication app, IEqualityComparer<T> comparer = null) : base(app) => ctor(comparer);
     public CappedSet(IApplicationComponent director, IEqualityComparer<T> comparer = null) : base(director) => ctor(comparer);
@@ -38,18 +38,27 @@ namespace Azos.Collections
       m_Comparer = comparer ?? EqualityComparer<T>.Default;
       m_Data = new bucket[BUCKET_COUNT];
 
-      for(var i=0; i<m_Data.Length; i++)
+      for (var i = 0; i < m_Data.Length; i++)
         m_Data[i] = new bucket(m_Comparer);
 
-      Task.Delay(VISIT_GRANULARITY_MS).ContinueWith( _ => visit() );
+      Task.Delay(VISIT_GRANULARITY_MS).ContinueWith(_ => visit());
     }
 
+    #endregion
 
+    #region Fields
+
+    private const int BUCKET_COUNT = 251;
+    private const int VISIT_GRANULARITY_MS = 5000;
+    private const int MUST_LOCK_BUCKET_SEC = 179;
     private IEqualityComparer<T> m_Comparer;
     private int m_SizeLimit;
     private int m_TimeLimitSec;
     private bucket[] m_Data;
 
+    #endregion
+
+    #region Properties
 
     public override string ComponentLogTopic => CoreConsts.COLLECTIONS_TOPIC;
 
@@ -60,8 +69,8 @@ namespace Azos.Collections
     /// </summary>
     public int SizeLimit
     {
-       get { return m_SizeLimit;}
-       set { m_SizeLimit = value > 0 ? value : 0;}
+      get { return m_SizeLimit; }
+      set { m_SizeLimit = value > 0 ? value : 0; }
     }
 
     /// <summary>
@@ -70,17 +79,18 @@ namespace Azos.Collections
     /// </summary>
     public int TimeLimitSec
     {
-       get { return m_TimeLimitSec;}
-       set { m_TimeLimitSec = value > 0 ? value : 0;}
+      get => m_TimeLimitSec;
+      set => m_TimeLimitSec = value > 0 ? value : 0;
     }
 
     /// <summary>
     /// Returns the number of members in the set
     /// </summary>
-    public int Count
-    {
-      get{ return m_Data.Sum( (b) => { lock(b) return b.Count;} ); }
-    }
+    public int Count => m_Data.Sum((b) => { lock (b) return b.Count; });
+
+    #endregion
+
+    #region Public
 
     /// <summary>
     /// Atomic operation which tries to include a member in the set. Returns true if member was included.
@@ -88,7 +98,7 @@ namespace Azos.Collections
     public bool Put(T item)
     {
       var data = getBucket(item);
-      lock(data)
+      lock (data)
       {
         if (data.ContainsKey(item)) return false;
         data.Add(item, App.TimeSource.UTCNow);
@@ -96,14 +106,13 @@ namespace Azos.Collections
       }
     }
 
-
     /// <summary>
     /// Atomic operation which tries to get a member data returning true if it was found
     /// </summary>
     public bool Get(T item, out DateTime createDate)
     {
       var data = getBucket(item);
-      lock(data)
+      lock (data)
         return data.TryGetValue(item, out createDate);
     }
 
@@ -113,7 +122,7 @@ namespace Azos.Collections
     public bool Contains(T item)
     {
       var data = getBucket(item);
-      lock(data)
+      lock (data)
         return data.ContainsKey(item);
     }
 
@@ -123,7 +132,7 @@ namespace Azos.Collections
     public bool Remove(T item)
     {
       var data = getBucket(item);
-      lock(data)
+      lock (data)
         return data.Remove(item);
     }
 
@@ -132,20 +141,16 @@ namespace Azos.Collections
     /// </summary>
     public void Clear()
     {
-      foreach( var d in m_Data)
-        lock(d) d.Clear();
+      foreach (var d in m_Data)
+        lock (d) d.Clear();
     }
 
-
-    public IEnumerator<KeyValuePair<T, DateTime>> GetEnumerator()
-    {
-      return all.GetEnumerator();
-    }
+    public IEnumerator<KeyValuePair<T, DateTime>> GetEnumerator() => all.GetEnumerator();
 
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-    {
-      return all.GetEnumerator();
-    }
+      => all.GetEnumerator();
+
+    #endregion
 
     #region .pvt
 
@@ -165,7 +170,6 @@ namespace Azos.Collections
         }
       }
     }
-
 
     private bucket getBucket(T item)
     {
@@ -192,7 +196,6 @@ namespace Azos.Collections
               .ContinueWith( _ => visit() );
       }
     }
-
 
     private void visitCore()
     {
