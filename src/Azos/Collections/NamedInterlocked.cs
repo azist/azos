@@ -30,27 +30,23 @@ namespace Azos.Collections
       public slot(string name) { Name = name; }
 
       public string Name { get; }
+
       public long Long;
     }
+
 
     private Registry<slot> m_Data = new Registry<slot>();
 
     /// <summary>
     /// Returns the current number of named slots in the instance
     /// </summary>
-    public int Count
-    {
-      get { return m_Data.Count;}
-    }
+    public int Count => m_Data.Count;
 
 
     /// <summary>
     /// Enumerates all slot names. This operation is thread-safe, and returns a snapshot of the instance taken at the time of the first call
     /// </summary>
-    public IEnumerable<string> AllNames
-    {
-      get { return m_Data.Names; }
-    }
+    public IEnumerable<string> AllNames => m_Data.Names;
 
     /// <summary>
     /// Enumerates all named integers. This operation is thread-safe, and returns a snapshot of the instance taken at the time of the first call.
@@ -95,14 +91,10 @@ namespace Azos.Collections
       }
     }
 
-
     /// <summary>
     /// Deletes all state for all slots
     /// </summary>
-    public void Clear()
-    {
-      m_Data.Clear();
-    }
+    public void Clear() => m_Data.Clear();
 
     /// <summary>
     /// Deletes all state for the named slot returning true if the slot was found and removed
