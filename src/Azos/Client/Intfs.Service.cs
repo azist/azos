@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
 
 using Azos.Apps;
 using Azos.Collections;
@@ -73,7 +72,6 @@ namespace Azos.Client
     /// </param>
     /// <returns>Endpoint(s) which should be (re)tried in the order of enumeration</returns>
     IEnumerable<EndpointAssignment> GetEndpointsForCall(string remoteAddress, string contract, ShardKey shardKey = default(ShardKey), Atom? network = null, Atom? binding = null);
-
 
     /// <summary>
     /// Returns endpoint set for all shards for a specific `remoteAddress/contract/network/binding`

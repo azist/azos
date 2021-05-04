@@ -4,12 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-
-using Azos.Conf;
 
 namespace Azos.CodeAnalysis.Laconfig
 {
@@ -18,31 +13,27 @@ namespace Azos.CodeAnalysis.Laconfig
   /// </summary>
   public sealed partial class LJSParser : Parser<LaconfigLexer>
   {
-
-    public LJSParser(LaconfigLexer input,  MessageList messages = null, bool throwErrors = false) :
+    public LJSParser(LaconfigLexer input, MessageList messages = null, bool throwErrors = false) :
         this(new LJSData(), input, messages, throwErrors)
     {
     }
 
-
-    public LJSParser(LJSData context, LaconfigLexer input,  MessageList messages = null, bool throwErrors = false) :
-        base(context, new LaconfigLexer[]{ input }, messages, throwErrors)
+    public LJSParser(LJSData context, LaconfigLexer input, MessageList messages = null, bool throwErrors = false) :
+        base(context, new LaconfigLexer[] { input }, messages, throwErrors)
     {
-        m_Lexer = Input.First();
+      m_Lexer = Input.First();
     }
 
     private LaconfigLexer m_Lexer;
 
-    public LaconfigLexer Lexer         { get { return m_Lexer;} }
-    public LJSData       ResultContext { get{ return Context as LJSData;} }
+    public LaconfigLexer Lexer => m_Lexer;
 
-    public override Language Language  { get { return LJSLanguage.Instance; } }
+    public LJSData ResultContext => Context as LJSData;
+
+    public override Language Language => LJSLanguage.Instance;
 
     public override string MessageCodeToString(int code)
-    {
-      return ((LaconfigMsgCode)code).ToString();
-    }
-
+    => ((LaconfigMsgCode)code).ToString();
 
     protected override void DoParse()
     {
@@ -52,13 +43,14 @@ namespace Azos.CodeAnalysis.Laconfig
 
         tokens = Lexer.GetEnumerator();
         fetchPrimary();
-        doRoot( tree );
+        doRoot(tree);
 
       }
-      catch(abortException)
+      catch (abortException)
       {
 
       }
     }
+
   }
 }

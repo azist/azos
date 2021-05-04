@@ -3,9 +3,6 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Azos.CodeAnalysis.Transpilation
 {
@@ -14,8 +11,8 @@ namespace Azos.CodeAnalysis.Transpilation
   /// </summary>
   public abstract class Transpiler<TParser> : CommonCodeProcessor, ITranspiler where TParser : IParser
   {
-    protected Transpiler(IAnalysisContext context, TParser parser,  MessageList messages = null, bool throwErrors = false)
-             : base( context,  messages, throwErrors)
+    protected Transpiler(IAnalysisContext context, TParser parser, MessageList messages = null, bool throwErrors = false)
+             : base(context, messages, throwErrors)
     {
       m_Parser = parser;
     }
@@ -24,13 +21,12 @@ namespace Azos.CodeAnalysis.Transpilation
     private TParser m_Parser;
 
     public IParser SourceParser => m_Parser;
-    public TParser Parser       => m_Parser;
-
+    public TParser Parser => m_Parser;
 
     /// <summary>
     /// Indicates whether Transpile() already happened
     /// </summary>
-    public bool HasTranspiled { get {return m_HasTranspiled;} }
+    public bool HasTranspiled { get { return m_HasTranspiled; } }
 
     /// <summary>
     /// Performs transpilation if it has not been performed yet
@@ -39,18 +35,18 @@ namespace Azos.CodeAnalysis.Transpilation
     {
       try
       {
-          DoTranspile();
+        DoTranspile();
       }
       finally
       {
-          m_HasTranspiled = true;
+        m_HasTranspiled = true;
       }
     }
-
 
     /// <summary>
     /// Override to perform actual transpilation
     /// </summary>
     protected abstract void DoTranspile();
+
   }
 }

@@ -7,10 +7,8 @@
 using System;
 using System.Net.Http;
 
-
 namespace Azos.Client
 {
-
   //https://docs.microsoft.com/en-us/aspnet/core/fundamentals/http-requests?view=aspnetcore-3.0#consumption-patterns
   //Handle transient faults
   //Faults typically occur when external HTTP calls are transient.AddTransientHttpErrorPolicy allows a policy to be defined to handle transient errors. Policies configured with AddTransientHttpErrorPolicy handle the following responses:
@@ -30,7 +28,9 @@ namespace Azos.Client
     protected readonly EndpointAssignment m_Assignment;
 
     public EndpointAssignment Assignment => m_Assignment;
+
     public HttpEndpoint Endpoint => Assignment.Endpoint as HttpEndpoint;
+
     public HttpClient Client => Endpoint.Client;
 
   }

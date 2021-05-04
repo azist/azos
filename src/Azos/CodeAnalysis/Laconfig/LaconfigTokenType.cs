@@ -4,11 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace Azos.CodeAnalysis.Laconfig
 {
   /// <summary>
@@ -17,29 +12,25 @@ namespace Azos.CodeAnalysis.Laconfig
   public enum LaconfigTokenType
   {
     tUnknown = 0,
-        NONLANG_START,
-            tBOF,
-            tEOF,
-            tDirective,
-        NONLANG_END,
+      NONLANG_START,
+          tBOF,
+          tEOF,
+          tDirective,
+      NONLANG_END,
 
-            tComment,
+          tComment,
 
-        SYMBOLS_START,
-            tBraceOpen,
-            tBraceClose,
+      SYMBOLS_START,
+          tBraceOpen,
+          tBraceClose,
+      SYMBOLS_END,
 
+          tEQ,
+          tIdentifier,
 
-        SYMBOLS_END,
-
-            tEQ,
-            tIdentifier,
-
-        LITERALS_START,
-
-            tStringLiteral,
-            tNull,
-
-        LITERALS_END
+      LITERALS_START,
+          tStringLiteral,
+          tNull,
+      LITERALS_END
   }
 }

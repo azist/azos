@@ -4,10 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Azos.CodeAnalysis.JSON
 {
   /// <summary>
@@ -15,23 +11,15 @@ namespace Azos.CodeAnalysis.JSON
   /// </summary>
   public static class JsonIdentifiers
   {
-
-
     /// <summary>
     /// Checks whether supplied char is suitable for a part of JSON identifier
     /// </summary>
-    public static bool ValidateChar(char c)
-    {
-      return Char.IsLetter(c) || (c == '_');
-    }
+    public static bool ValidateChar(char c) => char.IsLetter(c) || (c == '_');
 
     /// <summary>
     /// Checks to see whether supplied char is a digit
     /// </summary>
-    public static bool ValidateDigit(char c)
-    {
-      return (c >= '0' && c <= '9');
-    }
+    public static bool ValidateDigit(char c) => (c >= '0' && c <= '9');
 
     /// <summary>
     /// Checks whether supplied string is a valid JSON grammar identifier

@@ -5,36 +5,32 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Azos.CodeAnalysis.JSON
 {
+  /// <summary>
+  /// Base class for JSON pattern matching
+  /// </summary>
+  [AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = true)]
+  public abstract class JsonPatternMatchAttribute : Attribute
+  {
     /// <summary>
-    /// Base class for JSON pattern matching
+    /// Checks all pattern match attributes against specified member info until first match found
     /// </summary>
-    [AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited=true)]
-    public abstract class JsonPatternMatchAttribute : Attribute
+    public static bool Check(MemberInfo info, JsonLexer content)
     {
+      var attrs = info.GetCustomAttributes(typeof(JsonPatternMatchAttribute), true).Cast<JsonPatternMatchAttribute>();
+      foreach (var attr in attrs)
+        if (attr.Match(content)) return true;
 
-        /// <summary>
-        /// Checks all pattern match attributes against specified member info until first match found
-        /// </summary>
-        public static bool Check(MemberInfo info, JsonLexer content)
-        {
-            var attrs = info.GetCustomAttributes(typeof(JsonPatternMatchAttribute), true).Cast<JsonPatternMatchAttribute>();
-            foreach(var attr in attrs)
-                if (attr.Match(content)) return true;
-
-            return false;
-        }
-
-
-        /// <summary>
-        /// Override to perform actual pattern matching, i.e. the one that uses FSM
-        /// </summary>
-        public abstract bool Match(JsonLexer content);
+      return false;
     }
+
+    /// <summary>
+    /// Override to perform actual pattern matching, i.e. the one that uses FSM
+    /// </summary>
+    public abstract bool Match(JsonLexer content);
+  }
 }

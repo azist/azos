@@ -14,45 +14,45 @@ namespace Azos.CodeAnalysis.JSON
   public enum JsonTokenType
   {
     tUnknown = 0,
-        NONLANG_START,
-            tBOF,
-            tEOF,
-            tDirective,
-        NONLANG_END,
+      NONLANG_START,
+          tBOF,
+          tEOF,
+          tDirective,
+      NONLANG_END,
 
-            tComment,
+          tComment,
 
-        SYMBOLS_START,
-            tComma,
+      SYMBOLS_START,
+          tComma,
 
-            tBraceOpen,
-            tBraceClose,
+          tBraceOpen,
+          tBraceClose,
 
-            tSqBracketOpen,
-            tSqBracketClose,
-            tDot,
-        SYMBOLS_END,
+          tSqBracketOpen,
+          tSqBracketClose,
+          tDot,
+      SYMBOLS_END,
 
-            tIdentifier,
+          tIdentifier,
 
-            tPlus,
-            tMinus,
-            tColon,
+          tPlus,
+          tMinus,
+          tColon,
 
 
-        LITERALS_START,
-            NUMLITERALS_START,
-                tIntLiteral,
-                tLongIntLiteral,
-                tDoubleLiteral,
-            NUMLITERALS_END,
+      LITERALS_START,
+          NUMLITERALS_START,
+              tIntLiteral,
+              tLongIntLiteral,
+              tDoubleLiteral,
+          NUMLITERALS_END,
 
-                tStringLiteral,
+              tStringLiteral,
 
-                tTrue,
-                tFalse,
+              tTrue,
+              tFalse,
 
-                tNull,
-        LITERALS_END
+              tNull,
+      LITERALS_END
   }
 }

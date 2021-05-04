@@ -22,6 +22,7 @@ namespace Azos.CodeAnalysis
     protected CodeAnalysisException(SerializationInfo info, StreamingContext context) : base(info, context) { }
   }
 
+
   /// <summary>
   /// Thrown by code processors such as lexers, parsers ,  semantic analyzers, compilers etc...
   /// </summary>
@@ -55,6 +56,7 @@ namespace Azos.CodeAnalysis
     }
   }
 
+
   [Serializable]
   public class StringEscapeErrorException : CodeAnalysisException
   {
@@ -76,5 +78,6 @@ namespace Azos.CodeAnalysis
       info.AddValue(ERRORED_ESCAPE_FLD_NAME, ErroredEscape);
       base.GetObjectData(info, context);
     }
+
   }
 }

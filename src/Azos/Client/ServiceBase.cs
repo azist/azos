@@ -56,26 +56,33 @@ namespace Azos.Client
 
     [Config]
     private string m_Name;
+
     protected List<TEndpoint> m_Endpoints = new List<TEndpoint>();
+
     protected bool m_InstrumentationEnabled;
+
     private OrderedRegistry<IAspect> m_Aspects = new OrderedRegistry<IAspect>(caseSensitive: false);
 
     [Config] protected Atom m_DefaultNetwork;
+
     [Config] protected Atom m_DefaultBinding;
+
     [Config] protected int m_DefaultTimeoutMs;
 
-
     public string Name => m_Name;
-    public override string ComponentLogTopic => CoreConsts.CLIENT_TOPIC;
 
+    public override string ComponentLogTopic => CoreConsts.CLIENT_TOPIC;
 
     public IEnumerable<IEndpoint> Endpoints => m_Endpoints.Cast<IEndpoint>();
 
     IOrderedRegistry<IAspect> IService.Aspects => m_Aspects;
+
     public OrderedRegistry<IAspect> Aspects => m_Aspects;
 
     public virtual Atom DefaultNetwork   => m_DefaultNetwork;
+
     public virtual Atom DefaultBinding   => m_DefaultBinding;
+
     public virtual int    DefaultTimeoutMs => m_DefaultTimeoutMs;
 
     public ITransportImplementation AcquireTransport(EndpointAssignment assignment, bool reserve)
@@ -170,15 +177,16 @@ namespace Azos.Client
     /// The overrides are typically used to clear cached values
     /// </summary>
     protected abstract void EndpointsHaveChanged();
+
     protected abstract TTransport DoAcquireTransport(EndpointAssignment assignment, bool reserve);
+
     protected abstract void DoReleaseTransport(TTransport transport);
+
     protected abstract IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, ShardKey shardKey, Atom network, Atom binding);
+
     protected abstract IEnumerable<IEnumerable<EndpointAssignment>> DoGetEndpointsForAllShards(string remoteAddress, string contract, Atom network, Atom binding);
 
-
-
     #region IInstrumentation
-
 
     [Config(Default = false)]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
@@ -187,31 +195,25 @@ namespace Azos.Client
     /// <summary>
     /// Returns named parameters that can be used to control this component
     /// </summary>
-    public IEnumerable<KeyValuePair<string, Type>> ExternalParameters { get { return ExternalParameterAttribute.GetParameters(this); } }
+    public IEnumerable<KeyValuePair<string, Type>> ExternalParameters => ExternalParameterAttribute.GetParameters(this);
 
     /// <summary>
     /// Returns named parameters that can be used to control this component
     /// </summary>
     public IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups)
-    {
-      return ExternalParameterAttribute.GetParameters(this, groups);
-    }
+      => ExternalParameterAttribute.GetParameters(this, groups);
 
     /// <summary>
     /// Gets external parameter value returning true if parameter was found
     /// </summary>
     public bool ExternalGetParameter(string name, out object value, params string[] groups)
-    {
-      return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
-    }
+      => ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
 
     /// <summary>
     /// Sets external parameter value returning true if parameter was found and set
     /// </summary>
     public bool ExternalSetParameter(string name, object value, params string[] groups)
-    {
-      return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
-    }
+      => ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
 
     #endregion
   }

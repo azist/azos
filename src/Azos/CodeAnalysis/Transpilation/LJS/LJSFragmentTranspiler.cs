@@ -3,11 +3,9 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
-using System.Collections.Generic;
+
 using System.Text;
 
-using Azos.Conf;
 using Azos.CodeAnalysis.Laconfig;
 
 namespace Azos.CodeAnalysis.Transpilation.LJS
@@ -17,18 +15,16 @@ namespace Azos.CodeAnalysis.Transpilation.LJS
   /// </summary>
   public class LJSFragmentTranspiler : Transpiler<LJSParser>
   {
-    public LJSFragmentTranspiler(LJSUnitTranspilationContext context, LJSParser parser,  MessageList messages = null, bool throwErrors = false)
+    public LJSFragmentTranspiler(LJSUnitTranspilationContext context, LJSParser parser, MessageList messages = null, bool throwErrors = false)
              : base(context, parser, messages, throwErrors)
     {
     }
 
     public override Language Language => Parser.Language;
+
     public LJSUnitTranspilationContext UnitContext => (LJSUnitTranspilationContext)base.Context;
 
-    public override string MessageCodeToString(int code)
-    {
-      return Parser.MessageCodeToString(code);
-    }
+    public override string MessageCodeToString(int code) => Parser.MessageCodeToString(code);
 
     protected override void DoTranspile()
     {
@@ -57,7 +53,7 @@ namespace Azos.CodeAnalysis.Transpilation.LJS
       {
         var id = DoEmitSectionNode(output, indentLevel, idParent, nSection);
         //indentLevel++;
-        foreach(var child in nSection.Children)
+        foreach (var child in nSection.Children)
           DoTranspileNode(output, indentLevel, id, child);
       }
       else if (node is LJSAttributeNode nAttr)
@@ -73,18 +69,18 @@ namespace Azos.CodeAnalysis.Transpilation.LJS
         DoEmitScriptNode(output, indentLevel, idParent, nScript);
       }
       else
-       EmitMessage(MessageType.Error,
-                   -1,//todo Give proper error code
-                   new Source.SourceCodeRef(UnitContext.UnitName),
-                   token: node.StartToken,
-                   text: "LJSNode type is unsupported: {0}".Args(node.GetType().DisplayNameWithExpandedGenericArgs()));
+        EmitMessage(MessageType.Error,
+                    -1,//todo Give proper error code
+                    new Source.SourceCodeRef(UnitContext.UnitName),
+                    token: node.StartToken,
+                    text: "LJSNode type is unsupported: {0}".Args(node.GetType().DisplayNameWithExpandedGenericArgs()));
 
       output.AppendLine();
     }
 
     protected virtual void DoPad(StringBuilder output, int indentLevel)
     {
-      for(var i=0; i<indentLevel*UnitContext.IndentWidth; i++) output.Append(' ');
+      for (var i = 0; i < indentLevel * UnitContext.IndentWidth; i++) output.Append(' ');
     }
 
     protected virtual string DoEvaluateExpression(string source)
@@ -95,11 +91,10 @@ namespace Azos.CodeAnalysis.Transpilation.LJS
 
       if (source.StartsWith("??")) return source.Substring(1).EscapeJSLiteral();//escape ?? -> ?
 
-      if (source[0]=='?')return source.Substring(1);
+      if (source[0] == '?') return source.Substring(1);
 
       return "'{0}'".Args(source.EscapeJSLiteral());
     }
-
 
     protected virtual string DoEmitScriptNode(StringBuilder output, int indentLevel, string idParent, LJSScriptNode node)
     {
@@ -154,5 +149,6 @@ namespace Azos.CodeAnalysis.Transpilation.LJS
       }
       return sid;
     }
+
   }
 }

@@ -6,63 +6,51 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
-using Azos.CodeAnalysis;
 using Azos.CodeAnalysis.Source;
 
 namespace Azos.CodeAnalysis.CSharp
 {
-    /// <summary>
-    /// Performs lexical analysis on source supplied in C# syntax.
-    /// This class supports lazy analysis that happens gradually as result tokens are consumed through IEnumerable interface.
-    /// </summary>
-    public sealed class CSLexer : Lexer<CSToken>
+  /// <summary>
+  /// Performs lexical analysis on source supplied in C# syntax.
+  /// This class supports lazy analysis that happens gradually as result tokens are consumed through IEnumerable interface.
+  /// </summary>
+  public sealed class CSLexer : Lexer<CSToken>
+  {
+    public CSLexer(ISourceText source, MessageList messages = null, bool throwErrors = false) : base(source, messages, throwErrors)
     {
-        public CSLexer(ISourceText source, MessageList messages = null, bool throwErrors = false) : base( source, messages, throwErrors)
-        {
-             m_FSM = new FSM(this);
-        }
+      m_FSM = new FSM(this);
+    }
 
-        public CSLexer(IAnalysisContext context, SourceCodeRef srcRef, ISourceText source, MessageList messages = null, bool throwErrors = false) :
-            base(context, srcRef, source, messages, throwErrors)
-        {
-             m_FSM = new FSM(this);
-        }
+    public CSLexer(IAnalysisContext context, SourceCodeRef srcRef, ISourceText source, MessageList messages = null, bool throwErrors = false) :
+        base(context, srcRef, source, messages, throwErrors)
+    {
+      m_FSM = new FSM(this);
+    }
 
-        public override Language Language
-        {
-            get { return CSLanguage.Instance;}
-        }
+    public override Language Language
+      => CSLanguage.Instance;
 
-        public override string MessageCodeToString(int code)
-        {
-            return ((CSMsgCode)code).ToString();
-        }
+    public override string MessageCodeToString(int code)
+      => ((CSMsgCode)code).ToString();
 
+    private FSM m_FSM;
+    private IEnumerator<bool> m_Work;
 
+    protected override bool DoLexingChunk()
+    {
+      if (m_AllAnalyzed) return true;
 
-        private FSM m_FSM;
-        private IEnumerator<bool> m_Work;
+      if (m_Work == null)
+      {
+        m_Work = m_FSM.Run().GetEnumerator();
+      }
 
-        protected override bool DoLexingChunk()
-        {
-            if (m_AllAnalyzed) return true;
+      return !m_Work.MoveNext();
+    }
 
-            if (m_Work==null)
-            {
-              m_Work = m_FSM.Run().GetEnumerator();
-            }
-
-            return !m_Work.MoveNext();
-        }
-
-
-//===========================================================================================================================================
-
-
-
+    //===========================================================================================================================================
 
 
     private class FSM
@@ -75,13 +63,12 @@ namespace Azos.CodeAnalysis.CSharp
         srcRef = lexer.SourceCodeReference;
       }
 
-
       private readonly CSLexer lexer;
       private readonly ISourceText source;
       private readonly TokenList<CSToken> tokens;
       private readonly SourceCodeRef srcRef;
 
-//      string newln = System.Environment.NewLine;
+      // string newln = System.Environment.NewLine;
 
       char chr, nchr;
       bool isCommentBlock;
@@ -111,10 +98,7 @@ namespace Azos.CodeAnalysis.CSharp
       }
 
       private SourcePosition srcPos()
-      {
-        return new SourcePosition(posLine, posCol, posChar);
-      }
-
+        => new SourcePosition(posLine, posCol, posChar);
 
       //this is done on purpose do NOT use Char.isSymbol in .NET
       //we can control what WE consider symbols
@@ -134,8 +118,6 @@ namespace Azos.CodeAnalysis.CSharp
         buffer.Append(c);
         tagEndPos = srcPos();
       }
-
-
 
       public IEnumerable<bool> Run()
       {
@@ -164,10 +146,8 @@ namespace Azos.CodeAnalysis.CSharp
               yield break;//cant move on
             }
 
-
             if ((isString && isVerbatim) || (isCommentBlock))
               bufferAdd(chr);
-
 
             if (chr == '\n')
             {
@@ -176,8 +156,8 @@ namespace Azos.CodeAnalysis.CSharp
                 flush();
                 if (isCommentLine)
                 {
-                   isCommentLine = false;
-                   isDirective = false;
+                  isCommentLine = false;
+                  isDirective = false;
                 }
                 freshLine = true;
               }
@@ -190,36 +170,35 @@ namespace Azos.CodeAnalysis.CSharp
 
           #endregion
 
-
           if (isString)
           {
             #region Inside String
 
-            if (isVerbatim  || (chr!='\\') || (nchr!='\\'))//take care of 'c:\\dir\\';
+            if (isVerbatim || (chr != '\\') || (nchr != '\\'))//take care of 'c:\\dir\\';
             {
 
-                //turn off strings
-                if (
-                     ((isVerbatim) && (chr == stringEnding) && (nchr == stringEnding)) ||
-                     ((!isVerbatim) && (chr == '\\') && (nchr == stringEnding))
-                    )
-                {
-                  //Verbatim: eat one extra:   @"string ""test"" syntax" == string "test" syntax
-                  //Regular: eat "\" escape:    "string \"test\" syntax" == string "test" syntax
-                  moveNext();
+              //turn off strings
+              if (
+                   ((isVerbatim) && (chr == stringEnding) && (nchr == stringEnding)) ||
+                   ((!isVerbatim) && (chr == '\\') && (nchr == stringEnding))
+                  )
+              {
+                //Verbatim: eat one extra:   @"string ""test"" syntax" == string "test" syntax
+                //Regular: eat "\" escape:    "string \"test\" syntax" == string "test" syntax
+                moveNext();
 
-                  if (source.EOF)
-                  {
-                    lexer.EmitMessage(MessageType.Error, (int)CSMsgCode.eUnterminatedString, srcPos());
-                    yield break;//stop further processing, as string did not terminate but EOF reached
-                  }
-                }
-                else if (chr == stringEnding)
+                if (source.EOF)
                 {
-                  flush();
-                  isString = false;
-                  continue; // eat terminating string char
+                  lexer.EmitMessage(MessageType.Error, (int)CSMsgCode.eUnterminatedString, srcPos());
+                  yield break;//stop further processing, as string did not terminate but EOF reached
                 }
+              }
+              else if (chr == stringEnding)
+              {
+                flush();
+                isString = false;
+                continue; // eat terminating string char
+              }
             }
             else//take care of 'c:\\dir\\'
             {
@@ -298,7 +277,6 @@ namespace Azos.CodeAnalysis.CSharp
                   continue; //eat it
                 }
 
-
                 if (
                     (chr == ';') ||
                     (chr == '{') ||
@@ -311,32 +289,30 @@ namespace Azos.CodeAnalysis.CSharp
                     (chr == ':') ||
                     ((chr == '.') && (!CSIdentifiers.ValidateDigit(nchr)))
                    )
-                 {
-                   flush();
-                   bufferAdd(chr);
-                   flush();
-                   continue;
-                 }
+                {
+                  flush();
+                  bufferAdd(chr);
+                  flush();
+                  continue;
+                }
 
-         //Scientific numbers like:   2e+30, 45E-10
-         if ( buffer.Length>0 &&
-              CSIdentifiers.ValidateDigit(buffer[0])&&
-              (chr=='e' || chr=='E') &&
-              (nchr=='+' || nchr=='-')
-             )
-         {
-            bufferAdd(chr); //e
-            moveNext();
-            bufferAdd(chr); //+ or -
-            moveNext();
-            bufferAdd(chr); // add digit after + or -
-            continue;
-         }
-
-
+                //Scientific numbers like:   2e+30, 45E-10
+                if (buffer.Length > 0 &&
+                     CSIdentifiers.ValidateDigit(buffer[0]) &&
+                     (chr == 'e' || chr == 'E') &&
+                     (nchr == '+' || nchr == '-')
+                    )
+                {
+                  bufferAdd(chr); //e
+                  moveNext();
+                  bufferAdd(chr); //+ or -
+                  moveNext();
+                  bufferAdd(chr); // add digit after + or -
+                  continue;
+                }
 
                 //for operators like -- /= += etc...
-                if ( (buffer.Length > 0) && (isSymbol(chr) != isSymbol(buffer[0])) )
+                if ((buffer.Length > 0) && (isSymbol(chr) != isSymbol(buffer[0])))
                 {
                   flush();
                 }
@@ -367,18 +343,16 @@ namespace Azos.CodeAnalysis.CSharp
           freshLine = false;
 
           //yield the batch of new tokens
-          if (tokens.Count>prevTokenCount+YIELD_BATCH)
+          if (tokens.Count > prevTokenCount + YIELD_BATCH)
           {
-                prevTokenCount = tokens.Count;
-                yield return true;
+            prevTokenCount = tokens.Count;
+            yield return true;
           }
         }//while
         //=======================================================================================================================
         #endregion
 
-
         flush(); //flush any remains
-
 
         #region Post-walk check
         if (tokens.Count < 2)
@@ -402,8 +376,6 @@ namespace Azos.CodeAnalysis.CSharp
         yield break;
       }//Run
 
-
-
       private void flush()
       {
         if (
@@ -423,7 +395,6 @@ namespace Azos.CodeAnalysis.CSharp
         if (isString)
         {
           type = CSTokenType.tStringLiteral;
-
 
           if (!isVerbatim)
           {
@@ -460,32 +431,29 @@ namespace Azos.CodeAnalysis.CSharp
 
           if (value == null)  //not number
           {
-                    type = CSKeywords.Resolve(text);
+            type = CSKeywords.Resolve(text);
 
-                    if (type == CSTokenType.tIdentifier)
-                    {
-                      if (text.StartsWith("@"))
-                      {
-                         text = text.Remove(0, 1); //take care of verbatim names like: @class, @void, @var etc..
-                         tagStartPos = new SourcePosition(tagStartPos.LineNumber, tagStartPos.ColNumber+1, tagStartPos.CharNumber+1);
-                      }
+            if (type == CSTokenType.tIdentifier)
+            {
+              if (text.StartsWith("@"))
+              {
+                text = text.Remove(0, 1); //take care of verbatim names like: @class, @void, @var etc..
+                tagStartPos = new SourcePosition(tagStartPos.LineNumber, tagStartPos.ColNumber + 1, tagStartPos.CharNumber + 1);
+              }
 
-                      if (!CSIdentifiers.Validate(text))
-                      {
-                        lexer.EmitMessage(MessageType.Error, (int)CSMsgCode.eInvalidIdentifier, tagStartPos, null, text);
-                        return;
-                      }
-                    }
+              if (!CSIdentifiers.Validate(text))
+              {
+                lexer.EmitMessage(MessageType.Error, (int)CSMsgCode.eInvalidIdentifier, tagStartPos, null, text);
+                return;
+              }
+            }
           }//not a number
         }//not a comment
 
-
-        if (type==CSTokenType.tStringLiteral) value = text;
+        if (type == CSTokenType.tStringLiteral) value = text;
 
         tokens.Add(new CSToken(lexer, type, tagStartPos, tagEndPos, text, value));
-
       }
-
 
     }//FSM
 
