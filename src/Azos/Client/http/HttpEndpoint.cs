@@ -98,7 +98,6 @@ namespace Azos.Client
     [Config]
     public string AuthHeader { get; internal set; }
 
-
     /// <summary>
     /// When set to true, attaches Authorization header with `SysToken` scheme and sysAuthToken content, overriding
     /// the AuthHeader value (if any)
@@ -111,7 +110,6 @@ namespace Azos.Client
     /// </summary>
     [Config]
     public string AuthImpersonateHeader { get; internal set; }
-
 
     [Config(Default = true)]
     public bool AcceptJson { get; internal set; } = true;
@@ -242,5 +240,4 @@ namespace Azos.Client
     }
 
   }
-
 }

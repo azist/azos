@@ -6,67 +6,60 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 using Azos.CodeAnalysis.Source;
 
 namespace Azos.CodeAnalysis.Laconfig
 {
-    /// <summary>
-    /// Performs lexical analysis on source supplied in Laconfig syntax.
-    /// This class supports lazy analysis that happens gradually as result tokens are consumed through IEnumerable interface.
-    /// </summary>
-    public sealed class LaconfigLexer : Lexer<LaconfigToken>
+  /// <summary>
+  /// Performs lexical analysis on source supplied in Laconfig syntax.
+  /// This class supports lazy analysis that happens gradually as result tokens are consumed through IEnumerable interface.
+  /// </summary>
+  public sealed class LaconfigLexer : Lexer<LaconfigToken>
+  {
+    public LaconfigLexer(IAnalysisContext context, ISourceText source, MessageList messages = null, bool throwErrors = false) :
+         base(context, source, messages, throwErrors)
     {
-       public LaconfigLexer(IAnalysisContext context, ISourceText source, MessageList messages = null, bool throwErrors = false) :
-            base( context, source, messages, throwErrors)
-        {
-             m_FSM = new FSM(this);
-        }
+      m_FSM = new FSM(this);
+    }
 
-        public LaconfigLexer(ISourceText source, MessageList messages = null, bool throwErrors = false) :
-            base( source, messages, throwErrors)
-        {
-             m_FSM = new FSM(this);
-        }
+    public LaconfigLexer(ISourceText source, MessageList messages = null, bool throwErrors = false) :
+        base(source, messages, throwErrors)
+    {
+      m_FSM = new FSM(this);
+    }
 
-        public LaconfigLexer(IAnalysisContext context, SourceCodeRef srcRef, ISourceText source, MessageList messages = null, bool throwErrors = false) :
-            base(context, srcRef, source, messages, throwErrors)
-        {
-             m_FSM = new FSM(this);
-        }
+    public LaconfigLexer(IAnalysisContext context, SourceCodeRef srcRef, ISourceText source, MessageList messages = null, bool throwErrors = false) :
+        base(context, srcRef, source, messages, throwErrors)
+    {
+      m_FSM = new FSM(this);
+    }
 
-        public override Language Language
-        {
-            get { return LaconfigLanguage.Instance;}
-        }
+    public override Language Language
+    {
+      get { return LaconfigLanguage.Instance; }
+    }
 
-        public override string MessageCodeToString(int code)
-        {
-            return ((LaconfigMsgCode)code).ToString();
-        }
+    public override string MessageCodeToString(int code)
+    {
+      return ((LaconfigMsgCode)code).ToString();
+    }
 
+    private FSM m_FSM;
+    private IEnumerator<bool> m_Work;
 
+    protected override bool DoLexingChunk()
+    {
+      if (m_AllAnalyzed) return true;
 
-        private FSM m_FSM;
-        private IEnumerator<bool> m_Work;
+      if (m_Work == null)
+      {
+        m_Work = m_FSM.Run().GetEnumerator();
+      }
 
-        protected override bool DoLexingChunk()
-        {
-            if (m_AllAnalyzed) return true;
-
-            if (m_Work==null)
-            {
-              m_Work = m_FSM.Run().GetEnumerator();
-            }
-
-            return !m_Work.MoveNext();
-        }
-
-
-
-
+      return !m_Work.MoveNext();
+    }
 
 
     private class FSM
@@ -103,8 +96,6 @@ namespace Azos.CodeAnalysis.Laconfig
 
       StringBuilder buffer = new StringBuilder();
 
-
-
       private void moveNext()
       {
         posChar++;
@@ -118,15 +109,12 @@ namespace Azos.CodeAnalysis.Laconfig
         return new SourcePosition(posLine, posCol, posChar);
       }
 
-
       private void bufferAdd(char c)
       {
         if (buffer.Length == 0) tagStartPos = srcPos();
         buffer.Append(c);
         tagEndPos = srcPos();
       }
-
-
 
       public IEnumerable<bool> Run()
       {
@@ -183,42 +171,41 @@ namespace Azos.CodeAnalysis.Laconfig
 
           #endregion
 
-
           if (isString)
           {
             #region Inside String
 
             if (isVerbatim || (chr != '\\') || (nchr != '\\'))//take care of 'c:\\dir\\';
             {
-                  //turn off strings
-                  if (
-                       ((isVerbatim) && (chr == stringEnding) && (nchr == stringEnding)) ||
-                       ((!isVerbatim) && (chr == '\\') && (nchr == stringEnding))
-                      )
-                  {
-                    //Verbatim: eat one extra:   $"string ""test"" syntax" == string "test" syntax
-                    //Regular: eat "\" escape:    "string \"test\" syntax" == string "test" syntax
-                    moveNext();
-
-                    if (source.EOF)
-                    {
-                      lexer.EmitMessage(MessageType.Error, (int)LaconfigMsgCode.eUnterminatedString, srcPos());
-                      yield break;//stop further processing, as string did not terminate but EOF reached
-                    }
-                  }
-                  else if (chr == stringEnding)
-                  {
-                    flush();
-                    isString = false;
-                    continue; // eat terminating string char
-                  }
-
-              }
-              else//take care of 'c:\\dir\\'
+              //turn off strings
+              if (
+                   ((isVerbatim) && (chr == stringEnding) && (nchr == stringEnding)) ||
+                   ((!isVerbatim) && (chr == '\\') && (nchr == stringEnding))
+                  )
               {
-                bufferAdd(chr); //preserve  \
+                //Verbatim: eat one extra:   $"string ""test"" syntax" == string "test" syntax
+                //Regular: eat "\" escape:    "string \"test\" syntax" == string "test" syntax
                 moveNext();
+
+                if (source.EOF)
+                {
+                  lexer.EmitMessage(MessageType.Error, (int)LaconfigMsgCode.eUnterminatedString, srcPos());
+                  yield break;//stop further processing, as string did not terminate but EOF reached
+                }
               }
+              else if (chr == stringEnding)
+              {
+                flush();
+                isString = false;
+                continue; // eat terminating string char
+              }
+
+            }
+            else//take care of 'c:\\dir\\'
+            {
+              bufferAdd(chr); //preserve  \
+              moveNext();
+            }
             #endregion
           }//in string
           else
@@ -298,12 +285,12 @@ namespace Azos.CodeAnalysis.Laconfig
                     (chr == '}') ||
                     (chr == '=')
                    )
-                 {
-                   flush();
-                   bufferAdd(chr);
-                   flush();
-                   continue;
-                 }
+                {
+                  flush();
+                  bufferAdd(chr);
+                  flush();
+                  continue;
+                }
 
                 #endregion
 
@@ -331,10 +318,10 @@ namespace Azos.CodeAnalysis.Laconfig
           freshLine = false;
 
           //yield the batch of new tokens
-          if (tokens.Count>prevTokenCount+YIELD_BATCH)
+          if (tokens.Count > prevTokenCount + YIELD_BATCH)
           {
-                prevTokenCount = tokens.Count;
-                yield return true;
+            prevTokenCount = tokens.Count;
+            yield return true;
           }
 
         }//while
@@ -345,30 +332,28 @@ namespace Azos.CodeAnalysis.Laconfig
         flush(); //flush any remains
 
         #region Post-walk check
-            if (tokens.Count < 2)
-               lexer.EmitMessage(MessageType.Error, (int)LaconfigMsgCode.ePrematureEOF, srcPos());
+        if (tokens.Count < 2)
+          lexer.EmitMessage(MessageType.Error, (int)LaconfigMsgCode.ePrematureEOF, srcPos());
 
 
-            if (isCommentBlock)
-               lexer.EmitMessage(MessageType.Error, (int)LaconfigMsgCode.eUnterminatedComment, srcPos());
+        if (isCommentBlock)
+          lexer.EmitMessage(MessageType.Error, (int)LaconfigMsgCode.eUnterminatedComment, srcPos());
 
 
-            if (isString)
-               lexer.EmitMessage(MessageType.Error, (int)LaconfigMsgCode.eUnterminatedString, srcPos());
+        if (isString)
+          lexer.EmitMessage(MessageType.Error, (int)LaconfigMsgCode.eUnterminatedString, srcPos());
 
 
         #endregion
 
-            tokens.Add(new LaconfigToken(lexer,
-                                   LaconfigTokenType.tEOF,
-                                   new SourcePosition(posLine, posCol, posChar),
-                                   new SourcePosition(posLine, posCol, posChar),
-                                   String.Empty));
+        tokens.Add(new LaconfigToken(lexer,
+                               LaconfigTokenType.tEOF,
+                               new SourcePosition(posLine, posCol, posChar),
+                               new SourcePosition(posLine, posCol, posChar),
+                               String.Empty));
         yield return true;
         yield break;
       }//Run
-
-
 
       private void flush()
       {
@@ -388,7 +373,6 @@ namespace Azos.CodeAnalysis.Laconfig
         if (isString)
         {
           type = LaconfigTokenType.tStringLiteral;
-
 
           if (!isVerbatim)
           {
@@ -414,7 +398,7 @@ namespace Azos.CodeAnalysis.Laconfig
         else
         {
 
-            type = LaconfigKeywords.Resolve(text);
+          type = LaconfigKeywords.Resolve(text);
 
         }//not comment
 
@@ -425,15 +409,6 @@ namespace Azos.CodeAnalysis.Laconfig
 
     }//FSM
 
-
-
-
-
-
-
-
-
-
-    }//Laconfig Lexer
+  }//Laconfig Lexer
 }
 

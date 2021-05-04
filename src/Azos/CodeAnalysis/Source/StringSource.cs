@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Collections.Generic;
 
 namespace Azos.CodeAnalysis.Source
@@ -20,7 +19,6 @@ namespace Azos.CodeAnalysis.Source
     private int m_Length;
     private int m_Position;
 
-
     public StringSource(string source, Language language = null, string name = null)
     {
       m_Language = language;
@@ -29,19 +27,15 @@ namespace Azos.CodeAnalysis.Source
       m_Name = name;
     }
 
-
     #region ISourceText Members
 
     public void Reset() => m_Position = 0;
 
-    public bool EOF
-    {
-      get => m_Position >= m_Length;
-    }
+    public bool EOF => m_Position >= m_Length;
 
     public char ReadChar() => m_Position >= m_Length ? (char)0 : m_Source[m_Position++];
-    public char PeekChar() => m_Position >= m_Length ? (char)0 : m_Source[m_Position];
 
+    public char PeekChar() => m_Position >= m_Length ? (char)0 : m_Source[m_Position];
 
     public Language Language => m_Language ?? UnspecifiedLanguage.Instance;
 
@@ -49,11 +43,7 @@ namespace Azos.CodeAnalysis.Source
     /// Provides a handy way to name an otherwise-anonymous string source code,
     /// This property is like a "file name" only data is kept in a string
     /// </summary>
-    public string Name
-    {
-      get { return m_Name ?? string.Empty;}
-    }
-
+    public string Name => m_Name ?? string.Empty;
 
     #endregion
   }

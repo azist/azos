@@ -20,12 +20,14 @@ namespace Azos.Client
     EndpointAssignment Assignment { get; }
   }
 
+
   /// <summary>
   /// Transport implementation
   /// </summary>
   public interface ITransportImplementation : ITransport, IDisposable
   {
   }
+
 
   /// <summary>
   /// Transport implementation for use with TrasportPool
