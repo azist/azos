@@ -14,6 +14,9 @@ namespace Azos.Data.Heap
   /// </summary>
   public static class Extensions
   {
+    /// <summary>
+    /// Returns a typed space for objects of the specified type
+    /// </summary>
     public static ISpace<T> GetSpace<T>(this IHeap heap) where T : HeapObject
     {
        var atr = HeapAttribute.Lookup<HeapSpaceAttribute>(typeof(T));
@@ -41,14 +44,14 @@ namespace Azos.Data.Heap
       => await heap.GetSpace<T>().DeleteAsync(obj, flags, idempotencyToken, node);
 
 
-    public static async Task<SaveResult<object>> ExecResultAsync(this IHeap heap, HeapQuery query, Guid idempotencyToken = default(Guid), INode node = null)
+    public static async Task<SaveResult<object>> ExecResultAsync(this IHeap heap, HeapRequest query, Guid idempotencyToken = default(Guid), INode node = null)
     {
       var atr = HeapAttribute.Lookup<HeapProcAttribute>(query.NonNull(nameof(query)).GetType());
       var area = heap.NonNull(nameof(heap))[atr.Area];
       return await area.ExecuteAsync(query, idempotencyToken, node);
     }
 
-    public static async Task<T> ExecAsync<T>(this IHeap heap, HeapQuery<T> query, Guid idempotencyToken = default(Guid), INode node = null)
+    public static async Task<T> ExecAsync<T>(this IHeap heap, HeapRequest<T> query, Guid idempotencyToken = default(Guid), INode node = null)
       => (await ExecResultAsync(heap, query, idempotencyToken, node)).GetResult().CastTo<T>();
   }
 }

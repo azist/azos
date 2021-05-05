@@ -196,8 +196,9 @@ namespace Azos.Data.Heap
     [Field] public string NPI{ get; set; }
   }
 
+  //todo: Query -> -->HeapRequest<--
   [HeapProc(area: "clinical", name: "doctor.getList")]
-  public class DoctorListByNpi : HeapQuery//<DoctorInfo><List<int>>
+  public class DoctorListByNpi : HeapRequest//<DoctorInfo><List<int>>
   {
     //public static async void A()
     //{

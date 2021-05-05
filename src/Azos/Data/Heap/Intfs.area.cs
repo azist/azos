@@ -63,7 +63,7 @@ namespace Azos.Data.Heap
     /// Maps proc name within area to HeapQuery-derived types.
     /// Multiple query objects may be mapped to the same proc. Throws if not found
     /// </summary>
-    IEnumerable<Type> MapQueryProc(string proc);
+    IEnumerable<Type> MapRequestProc(string proc);
   }
 
   /// <summary>
@@ -112,13 +112,13 @@ namespace Azos.Data.Heap
     ISpace<T> GetSpace<T>() where T : HeapObject;
 
     /// <summary>
-    /// Executes a query in this area
+    /// Executes a request in this area
     /// </summary>
-    /// <param name="query">Query object to execute</param>
-    /// <param name="idempotencyToken"></param>
-    /// <param name="node"></param>
+    /// <param name="request">Request object to execute</param>
+    /// <param name="idempotencyToken">Operation idempotency token used for mutating requests</param>
+    /// <param name="node">Optional node which the request is sent, if null then the default node is used</param>
     /// <returns>Returns result of polymorphic type (e.g. an enumerable of data documents) </returns>
-    Task<SaveResult<object>> ExecuteAsync(HeapQuery query, Guid idempotencyToken = default(Guid), INode node = null);
+    Task<SaveResult<object>> ExecuteAsync(HeapRequest request, Guid idempotencyToken = default(Guid), INode node = null);
   }
 
 }

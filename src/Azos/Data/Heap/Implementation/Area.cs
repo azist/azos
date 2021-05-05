@@ -83,9 +83,9 @@ namespace Azos.Data.Heap.Implementation
                    ? space.CastTo<ISpace<T>>()
                    : throw $"GetSpace(`{typeof(T).GetType().DisplayNameWithExpandedGenericArgs()})`".IsNotFound();
 
-    public Task<SaveResult<object>> ExecuteAsync(HeapQuery query, Guid idempotencyToken = default(Guid), INode node = null)
+    public Task<SaveResult<object>> ExecuteAsync(HeapRequest request, Guid idempotencyToken = default(Guid), INode node = null)
     {
-      query.NonNull(nameof(query));
+      request.NonNull(nameof(request));
       if (node==null) node = NodeSelector.ForLocal.First();
 
       //todo... implement using most appropriate node
