@@ -88,7 +88,7 @@ namespace Azos.Data
     }
 
     /// <summary>
-    /// Reads ChangeREsult back from JSON
+    /// Reads ChangeResult back from JSON
     /// </summary>
     public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
@@ -138,9 +138,10 @@ namespace Azos.Data
     public readonly TResult Result;
 
     /// <summary>
-    /// Optional idempotency token issued by the server. Guid.Empty is used when no token was issued.
+    /// Optional idempotency token issued by the server/processing entity. Guid.Empty is used when no token was issued.
     /// You can use the returned token to retry the seemingly failed server operation which may already have succeeded
-    /// on the server in which case the token will ensure that the secondary re-executions are not going to happen
+    /// on the server in which case the token will ensure that the secondary re-executions are not going to affect server state
+    /// beyond the very first change
     /// </summary>
     public readonly Guid IdempotencyToken;
 

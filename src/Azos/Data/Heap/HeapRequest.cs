@@ -11,18 +11,18 @@ using Azos.Serialization.JSON;
 namespace Azos.Data.Heap
 {
   /// <summary>
-  /// Provides a base for writing commands sent into heap area.
-  /// A Query is a data document having its type represent an action akin to "stored procedure"
+  /// Provides a base for writing command requests sent into heap area (e.g. data queries).
+  /// A Request is a data document having its type represent an action akin to "stored procedure"
   /// and its fields represent query/request parameters.
-  /// A system may support a queries that take <see cref="AST.Expression"/> which
+  /// A system may support a requests that take <see cref="AST.Expression"/> which
   /// is a similar concept to GraphQL where a query "shapes" data.
-  /// Queries are mapped to server-side processor/handler via [HeapProc] attribute.
-  /// A concrete query type maps to one and only one handler per area, however
-  /// the reverse is not true: the same server procedure/handler may handle different query types
+  /// Requests are eventually mapped to server-side processor/handler via [HeapProc] attribute.
+  /// A concrete request type maps to one and only one handler per area, however
+  /// the reverse is not true: the same server procedure/handler may handle different requests types
   /// mapped to the same proc name, thus allowing for server procedure/handler argument polymorphism
   /// </summary>
   [BixJsonHandler]
-  public abstract class HeapQuery : AmorphousTypedDoc
+  public abstract class HeapRequest : AmorphousTypedDoc
   {
     /// <summary>
     /// Heap queries support amorphous data to implement gradual query schema changes
@@ -41,7 +41,7 @@ namespace Azos.Data.Heap
   }
 
   /// <summary>
-  /// HeapQuery yielding `TResult` as the result
+  /// HeapReuqest yielding `TResponse` as the resulting response
   /// </summary>
-  public abstract class HeapQuery<TResult> : HeapQuery {  }
+  public abstract class HeapRequest<TResponse> : HeapRequest {  }
 }

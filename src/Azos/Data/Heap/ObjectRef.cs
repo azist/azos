@@ -12,7 +12,8 @@ namespace Azos.Data.Heap
   /// References an object instance on a data heap. It is a tuple of (ShardKey, GDID).
   /// Each distinct data heap object (an entity) has one and only one distinct/unique reference <see cref="GDID"/> Id.
   /// The Id is what defines object identity (a primary key) per object type.
-  /// The ShardKey provides shard/partition routing information to locate objects
+  /// The ShardKey provides shard/partition routing information to locate objects.
+  /// The concept is similar to `(void*)` in C-like languages
   /// </summary>
   public struct ObjectRef : IEquatable<ObjectRef>
   {

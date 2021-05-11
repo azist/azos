@@ -84,7 +84,7 @@ namespace Azos.Data.Heap.Implementation
 
       var qtypes = all.Where(t => t.IsPublic &&
                                   !t.IsAbstract &&
-                                  typeof(HeapQuery).IsAssignableFrom(t) &&
+                                  typeof(HeapRequest).IsAssignableFrom(t) &&
                                   Attribute.IsDefined(t, typeof(HeapProcAttribute), false) &&
                                   t.Namespace.MatchPattern(nsPattern, senseCase: true));
 
@@ -161,7 +161,7 @@ namespace Azos.Data.Heap.Implementation
     public Type MapObjectSpace(string space) => m_ObjectTypes.TryGetValue(space.NonBlank(nameof(space)), out var t) ? t : throw $"Space `{space}`".IsNotFound();
 
     ///<inheritdoc/>
-    public IEnumerable<Type> MapQueryProc(string proc) => m_QueryTypes.TryGetValue(proc.NonBlank(nameof(proc)), out var t) ? t : throw $"Proc `{proc}`".IsNotFound();
+    public IEnumerable<Type> MapRequestProc(string proc) => m_QueryTypes.TryGetValue(proc.NonBlank(nameof(proc)), out var t) ? t : throw $"Proc `{proc}`".IsNotFound();
 
   }
 }
