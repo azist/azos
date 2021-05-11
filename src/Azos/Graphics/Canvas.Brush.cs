@@ -4,9 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 
 using Azos.Platform.Abstraction.Graphics;

@@ -4,12 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using System.IO;
-
 
 using Azos.Platform.Abstraction;
 using Azos.Platform.Abstraction.Graphics;
@@ -23,7 +19,6 @@ namespace Azos.Graphics
   /// </summary>
   public sealed class Image : DisposableObject
   {
-
     public const int DEFAULT_RESOLUTION_PPI = 72;
 
     /// <summary>Creates a new image instance from a named image file</summary>
@@ -59,7 +54,6 @@ namespace Azos.Graphics
                                                                     new Size(xDPI, yDPI),
                                                                     pixFormat));
 
-
     /// <summary>Creates a new image instance of the specified properties</summary>
     public static Image Of(Size size) => new Image(PlatformAbstractionLayer.Graphics.CreateImage(
                                                                     size,
@@ -77,8 +71,6 @@ namespace Azos.Graphics
 
     /// <summary>Creates a new image instance of the specified properties</summary>
     public static Image Of(Size size, Size resolution, ImagePixelFormat format) => new Image(PlatformAbstractionLayer.Graphics.CreateImage(size, resolution, format));
-
-
 
     public Image(IPALImage handle) { m_Handle = handle; }
 
@@ -108,14 +100,16 @@ namespace Azos.Graphics
     public ImagePixelFormat PixelFormat { get {  EnsureObjectNotDisposed(); return m_Handle.PixelFormat; } }
 
     public Size Size { get{  EnsureObjectNotDisposed(); return m_Handle.GetSize(); } }
+
     public int Width  => Size.Width;
+
     public int Height => Size.Height;
 
     public Rectangle Dimensions => new Rectangle(Point.Empty, Size);
 
     public int XResolution { get{  EnsureObjectNotDisposed(); return m_Handle.GetXResolution(); } }
-    public int YResolution { get{  EnsureObjectNotDisposed(); return m_Handle.GetYResolution(); } }
 
+    public int YResolution { get{  EnsureObjectNotDisposed(); return m_Handle.GetYResolution(); } }
 
     public void SetResolution(int xDPI, int yDPI)
     {
@@ -130,6 +124,7 @@ namespace Azos.Graphics
     }
 
     public Color GetPixel(int x, int y) => GetPixel(new Point(x, y));
+
     public Color GetPixel(Point p)
     {
       EnsureObjectNotDisposed();
@@ -137,6 +132,7 @@ namespace Azos.Graphics
     }
 
     public Color GetPixel(float x, float y) => GetPixel(new PointF(x, y));
+
     public Color GetPixel(PointF p)
     {
       EnsureObjectNotDisposed();
@@ -144,6 +140,7 @@ namespace Azos.Graphics
     }
 
     public void SetPixel(int x, int y, Color color) => SetPixel(new Point(x, y), color);
+
     public void SetPixel(Point p, Color color)
     {
       EnsureObjectNotDisposed();
@@ -151,6 +148,7 @@ namespace Azos.Graphics
     }
 
     public void SetPixel(float x, float y, Color color) => SetPixel(new PointF(x, y), color);
+
     public void SetPixel(PointF p, Color color)
     {
       EnsureObjectNotDisposed();
@@ -158,6 +156,7 @@ namespace Azos.Graphics
     }
 
     public Image ResizeTo(int newWidth, int newHeight, InterpolationMode interpolation = InterpolationMode.Default) => ResizeTo(new Size(newWidth, newHeight), interpolation);
+
     public Image ResizeTo(Size newSize, InterpolationMode interpolation = InterpolationMode.Default)
     {
       if (newSize.Width==0 || newSize.Height==0)
@@ -170,10 +169,8 @@ namespace Azos.Graphics
         canvas.Interpolation = interpolation;
         canvas.DrawImage(this, result.Dimensions);
       }
-
       return result;
     }
-
 
     /// <summary>
     /// Saves image to the named file
