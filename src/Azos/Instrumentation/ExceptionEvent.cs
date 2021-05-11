@@ -56,7 +56,7 @@ namespace Azos.Instrumentation
 
     private string m_ExceptionType;
 
-    public string ExceptionType { get { return m_ExceptionType; } }
+    public string ExceptionType => m_ExceptionType;
 
     [NonSerialized]
     private Dictionary<string, int> m_Errors;
@@ -87,6 +87,7 @@ namespace Azos.Instrumentation
       m_ExceptionType = sb.ToString();
     }
 
-    public override string ToString() { return base.ToString() + " " + (m_ExceptionType ?? string.Empty); }
+    public override string ToString() => base.ToString() + " " + (m_ExceptionType ?? string.Empty);
+
   }
 }
