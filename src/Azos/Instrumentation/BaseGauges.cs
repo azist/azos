@@ -140,6 +140,7 @@ namespace Azos.Instrumentation
     }
   }
 
+
   /// <summary>
   /// Represents a general-purpose financial Amount measurement datum
   /// </summary>
@@ -179,7 +180,7 @@ namespace Azos.Instrumentation
 
     public override object ValueAsObject => m_Value;
 
-    public override object PlotValue  => m_Value.Value;
+    public override object PlotValue => m_Value.Value;
 
     public override double? RefValue => (double)m_Value.Value;
 

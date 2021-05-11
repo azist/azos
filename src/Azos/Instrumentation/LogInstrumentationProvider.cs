@@ -13,7 +13,9 @@ namespace Azos.Instrumentation
   public class LogInstrumentationProvider : InstrumentationProvider
   {
     #region .ctor
+
     public LogInstrumentationProvider(InstrumentationDaemon director) : base(director) { }
+
     #endregion
 
     protected internal override void Write(Datum aggregatedDatum, object batchContext, object typeContext) { App.Log.Write(toMsg(aggregatedDatum)); }

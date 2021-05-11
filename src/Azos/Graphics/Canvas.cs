@@ -4,9 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 
 using Azos.Platform.Abstraction;
@@ -26,10 +23,9 @@ namespace Azos.Graphics
     /// mandate that all graphics handles belong to the particular canvas instance and get invalidated when that instance
     /// gets releases via Dispose()
     /// </summary>
-    public static bool OwnsAssets =>  PlatformAbstractionLayer.Graphics.CanvasOwnsAssets;
+    public static bool OwnsAssets => PlatformAbstractionLayer.Graphics.CanvasOwnsAssets;
 
-
-    internal Canvas(IPALCanvas handle){ m_Handle = handle;}
+    internal Canvas(IPALCanvas handle) { m_Handle = handle; }
 
     protected override void Destructor()
     {
@@ -45,13 +41,13 @@ namespace Azos.Graphics
     /// </summary>
     public InterpolationMode Interpolation
     {
-      get { EnsureObjectNotDisposed(); return m_Handle.Interpolation;  }
+      get { EnsureObjectNotDisposed(); return m_Handle.Interpolation; }
       set { EnsureObjectNotDisposed(); m_Handle.Interpolation = value; }
     }
 
-
     /// <summary>Draws image of the original size at the specified location </summary>
     public void DrawImageUnscaled(Image image, int x, int y) => DrawImageUnscaled(image, new Point(x, y));
+
     /// <summary>Draws image of the original size at the specified location </summary>
     public void DrawImageUnscaled(Image image, Point p)
     {
@@ -61,6 +57,7 @@ namespace Azos.Graphics
 
     /// <summary>Draws image of the original size at the specified location </summary>
     public void DrawImageUnscaled(Image image, float x, float y) => DrawImageUnscaled(image, new PointF(x, y));
+
     /// <summary>Draws image of the original size at the specified location </summary>
     public void DrawImageUnscaled(Image image, PointF p)
     {
@@ -68,14 +65,15 @@ namespace Azos.Graphics
       m_Handle.DrawImageUnscaled(image.Handle, p);
     }
 
-                  private void checkDrawImage(Image image)
-                  {
-                    if (image==null)
-                      throw new GraphicsException(StringConsts.ARGUMENT_ERROR+"{0}.{1}(image=null)".Args(nameof(Canvas), nameof(DrawImage)));
-                    EnsureObjectNotDisposed();
-                  }
+    private void checkDrawImage(Image image)
+    {
+      if (image == null)
+        throw new GraphicsException(StringConsts.ARGUMENT_ERROR + "{0}.{1}(image=null)".Args(nameof(Canvas), nameof(DrawImage)));
+      EnsureObjectNotDisposed();
+    }
 
     public void DrawImage(Image image, int x, int y, int w, int h) => DrawImage(image, new Rectangle(x, y, w, h));
+
     public void DrawImage(Image image, Rectangle rect)
     {
       checkDrawImage(image);
@@ -83,6 +81,7 @@ namespace Azos.Graphics
     }
 
     public void DrawImage(Image image, float x, float y, float w, float h) => DrawImage(image, new RectangleF(x, y, w, h));
+
     public void DrawImage(Image image, RectangleF rect)
     {
       checkDrawImage(image);
@@ -107,15 +106,17 @@ namespace Azos.Graphics
       m_Handle.Clear(color);
     }
 
-                  private void checkFillRectangle(Brush brush)
-                  {
-                    if (brush==null)
-                    throw new GraphicsException(StringConsts.ARGUMENT_ERROR+"{0}.{1}(brush=null)".Args(nameof(Canvas), nameof(FillRectangle)));
-                    EnsureObjectNotDisposed();
-                  }
+    private void checkFillRectangle(Brush brush)
+    {
+      if (brush == null)
+        throw new GraphicsException(StringConsts.ARGUMENT_ERROR + "{0}.{1}(brush=null)".Args(nameof(Canvas), nameof(FillRectangle)));
+      EnsureObjectNotDisposed();
+    }
 
     public void FillRectangle(Canvas.Brush brush, int x, int y, int w, int h) => FillRectangle(brush, new Rectangle(x, y, w, h));
+
     public void FillRectangle(Canvas.Brush brush, Point p, Size s) => FillRectangle(brush, new Rectangle(p, s));
+
     public void FillRectangle(Canvas.Brush brush, Rectangle rect)
     {
       checkFillRectangle(brush);
@@ -123,23 +124,24 @@ namespace Azos.Graphics
     }
 
     public void FillRectangle(Canvas.Brush brush, float x, float y, float w, float h) => FillRectangle(brush, new RectangleF(x, y, w, h));
+
     public void FillRectangle(Canvas.Brush brush, PointF p, SizeF s) => FillRectangle(brush, new RectangleF(p, s));
+
     public void FillRectangle(Canvas.Brush brush, RectangleF rect)
     {
       checkFillRectangle(brush);
       m_Handle.FillRectangle(brush.Handle, rect);
     }
 
-
-                  private void checkDrawRectangle(Pen pen)
-                  {
-                    if (pen==null)
-                    throw new GraphicsException(StringConsts.ARGUMENT_ERROR+"{0}.{1}(pen=null)".Args(nameof(Canvas), nameof(DrawRectangle)));
-                    EnsureObjectNotDisposed();
-                  }
-
+    private void checkDrawRectangle(Pen pen)
+    {
+      if (pen == null)
+        throw new GraphicsException(StringConsts.ARGUMENT_ERROR + "{0}.{1}(pen=null)".Args(nameof(Canvas), nameof(DrawRectangle)));
+      EnsureObjectNotDisposed();
+    }
 
     public void DrawRectangle(Canvas.Pen pen, int x, int y, int w, int h) => DrawRectangle(pen, new Rectangle(x, y, w, h));
+
     public void DrawRectangle(Canvas.Pen pen, Rectangle rect)
     {
       checkDrawRectangle(pen);
@@ -147,22 +149,22 @@ namespace Azos.Graphics
     }
 
     public void DrawRectangle(Canvas.Pen pen, float x, float y, float w, float h) => DrawRectangle(pen, new RectangleF(x, y, w, h));
+
     public void DrawRectangle(Canvas.Pen pen, RectangleF rect)
     {
       checkDrawRectangle(pen);
       m_Handle.DrawRectangle(pen.Handle, rect);
     }
 
-
-                  private void checkDrawLine(Pen pen)
-                  {
-                    if (pen==null)
-                      throw new GraphicsException(StringConsts.ARGUMENT_ERROR+"{0}.{1}(pen=null)".Args(nameof(Canvas), nameof(DrawLine)));
-                    EnsureObjectNotDisposed();
-                  }
-
+    private void checkDrawLine(Pen pen)
+    {
+      if (pen == null)
+        throw new GraphicsException(StringConsts.ARGUMENT_ERROR + "{0}.{1}(pen=null)".Args(nameof(Canvas), nameof(DrawLine)));
+      EnsureObjectNotDisposed();
+    }
 
     public void DrawLine(Canvas.Pen pen, int x1, int y1, int x2, int y2) => DrawLine(pen, new Point(x1, y1), new Point(x2, y2));
+
     public void DrawLine(Canvas.Pen pen, Point p1, Point p2)
     {
       checkDrawLine(pen);
@@ -170,19 +172,22 @@ namespace Azos.Graphics
     }
 
     public void DrawLine(Canvas.Pen pen, float x1, float y1, float x2, float y2) => DrawLine(pen, new PointF(x1, y1), new PointF(x2, y2));
+
     public void DrawLine(Canvas.Pen pen, PointF p1, PointF p2)
     {
       checkDrawLine(pen);
       m_Handle.DrawLine(pen.Handle, p1, p2);
     }
-                  private void checkDrawEllipse(Pen pen)
-                  {
-                    if (pen==null)
-                      throw new GraphicsException(StringConsts.ARGUMENT_ERROR+"{0}.{1}(pen=null)".Args(nameof(Canvas), nameof(DrawEllipse)));
-                    EnsureObjectNotDisposed();
-                  }
+
+    private void checkDrawEllipse(Pen pen)
+    {
+      if (pen == null)
+        throw new GraphicsException(StringConsts.ARGUMENT_ERROR + "{0}.{1}(pen=null)".Args(nameof(Canvas), nameof(DrawEllipse)));
+      EnsureObjectNotDisposed();
+    }
 
     public void DrawEllipse(Canvas.Pen pen, int x, int y, int w, int h) => DrawEllipse(pen, new Rectangle(x, y, w, h));
+
     public void DrawEllipse(Canvas.Pen pen, Rectangle rect)
     {
       checkDrawEllipse(pen);
@@ -190,33 +195,33 @@ namespace Azos.Graphics
     }
 
     public void DrawEllipse(Canvas.Pen pen, float x, float y, float w, float h) => DrawEllipse(pen, new RectangleF(x, y, w, h));
+
     public void DrawEllipse(Canvas.Pen pen, RectangleF rect)
     {
       checkDrawEllipse(pen);
       m_Handle.DrawEllipse(pen.Handle, rect);
     }
 
-
     /// <summary>
     /// Measures the size of text rendered in the font within the optional bounds
     /// </summary>
     public SizeF MeasureString(Canvas.Font font, string text, SizeF? bounds)
     {
-      if (font==null || text==null)
-       throw new GraphicsException(StringConsts.ARGUMENT_ERROR+"{0}.{1}(font=null)".Args(nameof(Canvas), nameof(MeasureString)));
+      if (font == null || text == null)
+        throw new GraphicsException(StringConsts.ARGUMENT_ERROR + "{0}.{1}(font=null)".Args(nameof(Canvas), nameof(MeasureString)));
       EnsureObjectNotDisposed();
       return m_Handle.MeasureString(font.Handle, text, bounds);
     }
 
     public void DrawString(Canvas.Font font, Canvas.Brush brush, string text, float x, float y) => DrawString(font, brush, text, new PointF(x, y));
+
     public void DrawString(Canvas.Font font, Canvas.Brush brush, string text, PointF p)
     {
-      if (font==null || brush==null || text==null)
-       throw new GraphicsException(StringConsts.ARGUMENT_ERROR+"{0}.{1}(font|brush|text=null)".Args(nameof(Canvas), nameof(DrawString)));
+      if (font == null || brush == null || text == null)
+        throw new GraphicsException(StringConsts.ARGUMENT_ERROR + "{0}.{1}(font|brush|text=null)".Args(nameof(Canvas), nameof(DrawString)));
       EnsureObjectNotDisposed();
       m_Handle.DrawString(font.Handle, brush.Handle, text, p);
     }
-
 
     public Pen CreatePen(Color color, float width, PenDashStyle style)
     {
@@ -238,7 +243,6 @@ namespace Azos.Graphics
       var font = m_Handle.CreateFont(name, size, style, unit);
       return new Canvas.Font(font);
     }
-
 
   }
 }

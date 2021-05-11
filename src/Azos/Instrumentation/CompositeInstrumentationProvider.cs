@@ -19,14 +19,19 @@ namespace Azos.Instrumentation
   public class CompositeInstrumentationProvider : InstrumentationProvider
   {
     #region .ctor
+
     public CompositeInstrumentationProvider(InstrumentationDaemon director) : base(director) { }
+
     #endregion
 
     #region Fields
+
     private List<InstrumentationProvider> m_Providers = new List<InstrumentationProvider>();
+
     #endregion
 
     #region Properties
+
     /// <summary>
     /// Returns destinations that this destination wraps. This call is thread safe
     /// </summary>
@@ -34,9 +39,11 @@ namespace Azos.Instrumentation
     {
       get { lock (m_Providers) return m_Providers.ToList(); }
     }
+
     #endregion
 
     #region Public
+
     public void RegisterProvider(InstrumentationProvider provider)
     {
       lock (m_Providers)
@@ -53,9 +60,11 @@ namespace Azos.Instrumentation
         return m_Providers.Remove(provider);
       }
     }
+
     #endregion
 
     #region Protected
+
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
@@ -148,6 +157,8 @@ namespace Azos.Instrumentation
             ComponentDirector.WriteLog(MessageType.Error, GetType().Name + ".Write", error.ToMessageWithType(), error);
           }
     }
+
     #endregion
+
   }
 }

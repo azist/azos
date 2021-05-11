@@ -22,14 +22,10 @@ namespace Azos.Instrumentation
   public abstract class Datum : AmorphousTypedDoc, Log.IArchiveLoggable
   {
     #region CONST
+
     public const string UNSPECIFIED_SOURCE = "*";
+
     #endregion
-
-    /// <summary>
-    /// True if a The string null/blank or *
-    /// </summary>
-    public static bool IsUnspecifiedSourceString(string src) => src.IsNullOrWhiteSpace() || src.EqualsOrdSenseCase(UNSPECIFIED_SOURCE);
-
 
     #region .ctor
 
@@ -132,7 +128,6 @@ namespace Azos.Instrumentation
       protected set => m_Host = value;
     }
 
-
     /// <summary>
     /// Indicates whether this instance represents a rollup/aggregation of multiple events
     /// </summary>
@@ -187,7 +182,6 @@ namespace Azos.Instrumentation
       }
     }
 
-
     /// <summary>
     /// Returns description for data that this datum represents. Base implementation returns full type name of this instance
     /// </summary>
@@ -227,12 +221,18 @@ namespace Azos.Instrumentation
     #endregion
 
     #region Public
+
     private static FiniteSetLookup<Type, IEnumerable<Type>> s_ViewGroupInterfaces = new FiniteSetLookup<Type, IEnumerable<Type>>( tp =>{
       var result = tp.GetInterfaces()
                      .Where(i => Attribute.IsDefined(i, typeof(InstrumentViewGroup)))
                      .ToArray();
       return result;
     });
+
+    /// <summary>
+    /// True if a The string null/blank or *
+    /// </summary>
+    public static bool IsUnspecifiedSourceString(string src) => src.IsNullOrWhiteSpace() || src.EqualsOrdSenseCase(UNSPECIFIED_SOURCE);
 
     /// <summary>
     /// Returns Datum classification interfaces marked with InstrumentViewGroup attribute. The implementation is cached for efficiency
@@ -277,7 +277,6 @@ namespace Azos.Instrumentation
       return result;
     }
 
-
     /// <summary>
     /// Override to set a new source value which is less-specific than existing source.
     /// ReductionLevel specifies how much detail should be lost. The function is idempotent, that is - calling more than once with the same arg does not
@@ -306,13 +305,14 @@ namespace Azos.Instrumentation
       else
         return "[{0}] {1} {2} Value: {3} {4}".Args(t, Source, Count, ValueAsObject, ValueUnitName);
     }
+
     #endregion
 
     #region Protected
+
     protected abstract Datum MakeAggregateInstance();
     protected virtual void AggregateEvent(Datum dat) { }
     protected virtual void SummarizeAggregation() { }
-
 
     protected override void AddJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, Dictionary<string, object> jsonMap, string name, object value)
     {
@@ -326,5 +326,6 @@ namespace Azos.Instrumentation
     }
 
     #endregion
+
   }
 }

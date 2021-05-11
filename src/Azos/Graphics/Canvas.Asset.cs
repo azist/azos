@@ -4,11 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Drawing;
-
 using Azos.Platform.Abstraction.Graphics;
 
 namespace Azos.Graphics
@@ -38,9 +33,9 @@ namespace Azos.Graphics
       private THandle m_Handle;
 
       public THandle Handle { get { EnsureObjectNotDisposed();  return m_Handle;} }
+
       public override IPALCanvasAsset AssetHandle => Handle;
     }
-
 
   }
 }

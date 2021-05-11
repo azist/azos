@@ -5,8 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Azos.Graphics
 {
@@ -24,6 +22,7 @@ namespace Azos.Graphics
 
     public abstract string WebContentType { get;}
   }
+
 
   /// <summary>
   /// Represents Bitmap image format
@@ -45,6 +44,7 @@ namespace Azos.Graphics
     public override string WebContentType { get => "image/bmp"; }
   }
 
+
   /// <summary>
   /// Represents Png image format
   /// </summary>
@@ -53,7 +53,6 @@ namespace Azos.Graphics
     public static readonly PngImageFormat Monochrome = new PngImageFormat(2);
 
     public static readonly PngImageFormat Standard = new PngImageFormat();
-
 
     public PngImageFormat() : base(Int32.MaxValue) //create full resolution
     {
@@ -67,12 +66,14 @@ namespace Azos.Graphics
     public override string WebContentType { get => "image/png"; }
   }
 
+
   /// <summary>
   /// Represents Gif image format
   /// </summary>
   public sealed class GifImageFormat : ImageFormat
   {
     public static readonly GifImageFormat Monochrome = new GifImageFormat(2);
+
     public static readonly GifImageFormat Standard = new GifImageFormat();
 
     public GifImageFormat() : base(0xff)
@@ -110,5 +111,6 @@ namespace Azos.Graphics
     public readonly int Quality;
 
     public override string WebContentType { get => "image/jpeg"; }
+
   }
 }
