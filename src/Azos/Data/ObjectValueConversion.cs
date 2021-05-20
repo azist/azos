@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using System.Globalization;
 using Azos.Conf;
 
 namespace Azos.Data
@@ -23,12 +23,14 @@ namespace Azos.Data
     public const string RADIX_BIN = "0b";
     public const string RADIX_HEX = "0x";
 
+    private static readonly CultureInfo INVARIANT = CultureInfo.InvariantCulture;
+
     public static string AsString(this object val, string dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
     {
       try
       {
         if (val == null) return dflt;
-        return Convert.ToString(val);
+        return Convert.ToString(val, INVARIANT);
       }
       catch
       {
@@ -43,7 +45,7 @@ namespace Azos.Data
       {
         if (val == null) throw new AzosException("arg = null");
 
-        var result = Convert.ToString(val);
+        var result = Convert.ToString(val, INVARIANT);
 
         if (result.IsNullOrWhiteSpace())
           throw new AzosException("result = null|empty");
@@ -154,7 +156,7 @@ namespace Azos.Data
           var sval = (string)val;
           return (sval.Length > 0) ? sval[0] : (char)0;
         }
-        return Convert.ToChar(val);
+        return Convert.ToChar(val, INVARIANT);
       }
       catch
       {
@@ -173,7 +175,7 @@ namespace Azos.Data
           var sval = (string)val;
           return (sval.Length > 0) ? sval[0] : (char)0;
         }
-        return Convert.ToChar(val);
+        return Convert.ToChar(val, INVARIANT);
       }
       catch
       {
@@ -193,7 +195,7 @@ namespace Azos.Data
           if (sval.StartsWith(RADIX_BIN, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToByte(sval.Substring(2), 2);
           if (sval.StartsWith(RADIX_HEX, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToByte(sval.Substring(2), 16);
         }
-        return Convert.ToByte(val);
+        return Convert.ToByte(val, INVARIANT);
       }
       catch
       {
@@ -213,7 +215,7 @@ namespace Azos.Data
           if (sval.StartsWith(RADIX_BIN, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToByte(sval.Substring(2), 2);
           if (sval.StartsWith(RADIX_HEX, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToByte(sval.Substring(2), 16);
         }
-        return Convert.ToByte(val);
+        return Convert.ToByte(val, INVARIANT);
       }
       catch
       {
@@ -227,7 +229,7 @@ namespace Azos.Data
       try
       {
         if (val == null) return dflt;
-        return Convert.ToSByte(val);
+        return Convert.ToSByte(val, INVARIANT);
       }
       catch
       {
@@ -241,7 +243,7 @@ namespace Azos.Data
       try
       {
         if (val == null) return null;
-        return Convert.ToSByte(val);
+        return Convert.ToSByte(val, INVARIANT);
       }
       catch
       {
@@ -261,7 +263,7 @@ namespace Azos.Data
           if (sval.StartsWith(RADIX_BIN, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToInt16(sval.Substring(2), 2);
           if (sval.StartsWith(RADIX_HEX, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToInt16(sval.Substring(2), 16);
         }
-        return Convert.ToInt16(val);
+        return Convert.ToInt16(val, INVARIANT);
       }
       catch
       {
@@ -281,7 +283,7 @@ namespace Azos.Data
           if (sval.StartsWith(RADIX_BIN, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToInt16(sval.Substring(2), 2);
           if (sval.StartsWith(RADIX_HEX, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToInt16(sval.Substring(2), 16);
         }
-        return Convert.ToInt16(val);
+        return Convert.ToInt16(val, INVARIANT);
       }
       catch
       {
@@ -301,7 +303,7 @@ namespace Azos.Data
           if (sval.StartsWith(RADIX_BIN, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToUInt16(sval.Substring(2), 2);
           if (sval.StartsWith(RADIX_HEX, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToUInt16(sval.Substring(2), 16);
         }
-        return Convert.ToUInt16(val);
+        return Convert.ToUInt16(val, INVARIANT);
       }
       catch
       {
@@ -321,7 +323,7 @@ namespace Azos.Data
           if (sval.StartsWith(RADIX_BIN, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToUInt16(sval.Substring(2), 2);
           if (sval.StartsWith(RADIX_HEX, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToUInt16(sval.Substring(2), 16);
         }
-        return Convert.ToUInt16(val);
+        return Convert.ToUInt16(val, INVARIANT);
       }
       catch
       {
@@ -342,7 +344,7 @@ namespace Azos.Data
           if (sval.StartsWith(RADIX_HEX, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToInt32(sval.Substring(2), 16);
         }
         if (val is uint) return (int)(uint)val;
-        return Convert.ToInt32(val);
+        return Convert.ToInt32(val, INVARIANT);
       }
       catch
       {
@@ -363,7 +365,7 @@ namespace Azos.Data
           if (sval.StartsWith(RADIX_HEX, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToInt32(sval.Substring(2), 16);
         }
         if (val is uint) return (int)(uint)val;
-        return Convert.ToInt32(val);
+        return Convert.ToInt32(val, INVARIANT);
       }
       catch
       {
@@ -384,7 +386,7 @@ namespace Azos.Data
           if (sval.StartsWith(RADIX_HEX, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToUInt32(sval.Substring(2), 16);
         }
         if (val is int) return (uint)(int)val;
-        return Convert.ToUInt32(val);
+        return Convert.ToUInt32(val, INVARIANT);
       }
       catch
       {
@@ -405,7 +407,7 @@ namespace Azos.Data
           if (sval.StartsWith(RADIX_HEX, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToUInt32(sval.Substring(2), 16);
         }
         if (val is int) return (uint)(int)val;
-        return Convert.ToUInt32(val);
+        return Convert.ToUInt32(val, INVARIANT);
       }
       catch
       {
@@ -426,7 +428,7 @@ namespace Azos.Data
           if (sval.StartsWith(RADIX_HEX, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToInt64(sval.Substring(2), 16);
         }
         if (val is ulong) return (long)(ulong)val;
-        return Convert.ToInt64(val);
+        return Convert.ToInt64(val, INVARIANT);
       }
       catch
       {
@@ -447,7 +449,7 @@ namespace Azos.Data
           if (sval.StartsWith(RADIX_HEX, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToInt64(sval.Substring(2), 16);
         }
         if (val is ulong) return (long)(ulong)val;
-        return Convert.ToInt64(val);
+        return Convert.ToInt64(val, INVARIANT);
       }
       catch
       {
@@ -468,7 +470,7 @@ namespace Azos.Data
           if (sval.StartsWith(RADIX_HEX, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToUInt64(sval.Substring(2), 16);
         }
         if (val is long) return (ulong)(long)val;
-        return Convert.ToUInt64(val);
+        return Convert.ToUInt64(val, INVARIANT);
       }
       catch
       {
@@ -489,7 +491,7 @@ namespace Azos.Data
           if (sval.StartsWith(RADIX_HEX, StringComparison.InvariantCultureIgnoreCase)) return Convert.ToUInt64(sval.Substring(2), 16);
         }
         if (val is long) return (ulong)(long)val;
-        return Convert.ToUInt64(val);
+        return Convert.ToUInt64(val, INVARIANT);
       }
       catch
       {
@@ -503,7 +505,7 @@ namespace Azos.Data
       try
       {
         if (val == null) return dflt;
-        return Convert.ToDouble(val);
+        return Convert.ToDouble(val, INVARIANT);
       }
       catch
       {
@@ -517,7 +519,7 @@ namespace Azos.Data
       try
       {
         if (val == null) return null;
-        return Convert.ToDouble(val);
+        return Convert.ToDouble(val, INVARIANT);
       }
       catch
       {
@@ -531,7 +533,7 @@ namespace Azos.Data
       try
       {
         if (val == null) return dflt;
-        return (float)Convert.ToDouble(val);
+        return (float)Convert.ToDouble(val, INVARIANT);
       }
       catch
       {
@@ -545,7 +547,7 @@ namespace Azos.Data
       try
       {
         if (val == null) return null;
-        return (float)Convert.ToDouble(val);
+        return (float)Convert.ToDouble(val, INVARIANT);
       }
       catch
       {
@@ -559,7 +561,7 @@ namespace Azos.Data
       try
       {
         if (val == null) return dflt;
-        return Convert.ToDecimal(val);
+        return Convert.ToDecimal(val, INVARIANT);
       }
       catch
       {
@@ -573,7 +575,7 @@ namespace Azos.Data
       try
       {
         if (val == null) return null;
-        return Convert.ToDecimal(val);
+        return Convert.ToDecimal(val, INVARIANT);
       }
       catch
       {
@@ -628,7 +630,7 @@ namespace Azos.Data
         else if (val is TimeSpan) { if (((TimeSpan)val).Ticks != 0) return true; }
         else if (val is DateTime) { if (((DateTime)val).Ticks != 0) return true; }
 
-        return Convert.ToBoolean(val);
+        return Convert.ToBoolean(val, INVARIANT);
       }
       catch
       {
@@ -722,7 +724,7 @@ namespace Azos.Data
       if (val is float _float) { return ((long)_float).FromSecondsSinceUnixEpochStart(); }
       if (val is decimal _decimal) { return ((long)_decimal).FromSecondsSinceUnixEpochStart(); }
 
-      return Convert.ToDateTime(val);
+      return Convert.ToDateTime(val, INVARIANT);
     }
 
     public static DateTime AsDateTime(this object val,
@@ -781,7 +783,7 @@ namespace Azos.Data
       if (val is ulong ulval) { return new GDID(0, ulval); }
       if (val is byte[] bval) { return new GDID(bval); }
 
-      return new GDID(0, Convert.ToUInt64(val));
+      return new GDID(0, Convert.ToUInt64(val, INVARIANT));
     }
 
     public static GDID AsGDID(this object val, GDID dflt, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
@@ -842,7 +844,7 @@ namespace Azos.Data
         var buf = (byte[])val;
         return new GDIDSymbol(new GDID(buf), buf.ToDumpString(DumpFormat.Hex));
       }
-      return new GDIDSymbol(new GDID(0, Convert.ToUInt64(val)), val.ToString());
+      return new GDIDSymbol(new GDID(0, Convert.ToUInt64(val, INVARIANT)), val.ToString());
     }
 
     public static GDIDSymbol AsGDIDSymbol(this object val, GDIDSymbol dflt, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
@@ -901,7 +903,7 @@ namespace Azos.Data
           if (TimeSpan.TryParse(sval, out tsval)) return tsval;
         }
 
-        var ticks = Convert.ToInt64(val);
+        var ticks = Convert.ToInt64(val, INVARIANT);
 
         return new TimeSpan(ticks);
       }
@@ -940,7 +942,7 @@ namespace Azos.Data
           return (TEnum)Enum.Parse(typeof(TEnum), sval, true);
         }
 
-        val = Convert.ToInt32(val);
+        val = Convert.ToInt32(val, INVARIANT);
         return (TEnum)val;
       }
       catch
@@ -1001,7 +1003,7 @@ namespace Azos.Data
         if (Atom.TryEncodeValueOrId(str, out var atom)) return atom;
       }
 
-      return new Atom(Convert.ToUInt64(val));
+      return new Atom(Convert.ToUInt64(val, INVARIANT));
     }
 
     public static Atom AsAtom(this object val, Atom dflt, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
