@@ -1139,17 +1139,23 @@ namespace Azos.Conf
     ///  '$' for attribute name,
     ///  [int] for access to subsection or attribute by index,
     ///  section[value] for access using value comparison of named section,
-    ///  section[attr=value] for access using value of sections named attr
-    /// Multiple paths may be coalesced  using '|' or ';'
+    ///  section[attr=value] for access using value of sections named `attr`
+    ///
+    /// Multiple paths may be coalesced  using '|' or ';', having each segment optionally start with either:
+    ///  '&' - require node verbatim value (such as variable reference) to be non null/empty
+    ///  '#' - require node evaluated value (such as eventually pointed-to value) to be non null/empty
+    /// Example:  &/$atr1|&/$atr2    #/$atr1|#/$atr2
     /// </param>
     /// <example>
     ///     Navigate("/vars/[3]"); Navigate("/tables/table[resident]"); Navigate("/vars/var1/$[2]");  Navigate("/tables/table[name=patient]");
+    ///     Navigate("&$atr1; &$atr2"); Navigate("#$atr1; #$atr2");
     /// </example>
     /// <remarks>
     ///   /table[patient]    -   get first section named "table" with value "patient"
     ///   /[3]               -   get 4th child section from the root
     ///   /table/$[2]        -   get 3rd attribute of first section named "table"
-    ///   /table[short-name=pat] -  get first section named "table" having attribute named "short-name" equal "pat"
+    ///   /table[short-name=pat] -  get first section named "table" having attribute named "short-name" equal to "pat"
+    ///   #/$atr1;#/$atr2        - get attribute `atr1` if it exists and its evaluated value not null and not empty otherwise `atr2`
     /// </remarks>
     public ConfigNode Navigate(string path)
     {
@@ -1158,12 +1164,44 @@ namespace Azos.Conf
 
       try
       {
+        //Path coalescing logic
         var segments = path.Split(';', '|');
         for (var i = 0; i < segments.Length; i++)
         {
+          var seg = segments[i];
+          var needNodeVerbatimValue = false;//by default, a node existence is sufficient
+          var needNodeEvaluatedValue = false;//by default, a node existence is sufficient
+          if (seg.Length>1)
+          {
+            if (seg[0]=='&')
+            {
+              needNodeVerbatimValue = true;//need node with verbatim value, not just node
+              seg = seg.Substring(1);
+            } else if (seg[0] == '#')
+            {
+              needNodeEvaluatedValue = true;//need node with evaluated non-blank value, not just node
+              seg = seg.Substring(1);
+            }
+          }
+
           bool required;
-          var node = doNavigate(segments[i], out required);
-          if (node.Exists) return node;
+          var node = doNavigate(seg, out required);
+
+          if (!node.Exists) continue;
+
+          if (needNodeVerbatimValue)
+          {
+            if (node.VerbatimValue.IsNotNullOrWhiteSpace()) return node;
+            continue;
+          }
+
+          if (needNodeEvaluatedValue)
+          {
+            if (node.EvaluatedValue.IsNotNullOrWhiteSpace()) return node;
+            continue;
+          }
+
+          return node;
         }
 
         return m_Configuration.EmptySection;

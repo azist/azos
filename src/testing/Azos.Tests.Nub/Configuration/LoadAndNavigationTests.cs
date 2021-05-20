@@ -131,6 +131,34 @@ b=2
       Aver.AreEqual("2", cfg.Navigate("/sub-1/sub-1-1/a/../ .. /../$b").Value);//../$attribute
     }
 
+
+    [Run]
+    public void Laconic_Navigation_Coalescing()
+    {
+      var cfg =
+@"root
+{
+  a=123
+  b=234
+  c=null
+  d=$($c)
+  e=$($q;&$c;#$d;$a)
+}".AsLaconicConfig();
+
+      Aver.AreEqual("123", cfg.Navigate("$a").Value);
+      Aver.AreEqual("234", cfg.Navigate("$b").Value);
+      Aver.IsTrue(cfg.Navigate("$c").Value.IsNullOrEmpty());
+      Aver.IsTrue(cfg.Navigate("$d").Value.IsNullOrEmpty());
+      Aver.AreEqual("123", cfg.Navigate("$e").Value);
+
+      Aver.IsTrue(cfg.Navigate("&$d;$b").Value.IsNullOrEmpty());
+      Aver.AreEqual("234", cfg.Navigate("#$d;$b").Value);
+
+      Aver.AreEqual("123", cfg.Navigate("#$d ; /a/b/c/d ;/z/f/g/h/j/k; $a").Value);
+    }
+
+
+
     [Run]
     public void Laconic_Vars()
     {
