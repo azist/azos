@@ -38,7 +38,7 @@ namespace Azos.Apps
       return result;
     }
 
-    public static int consoleMainBody(string[] args)
+    private static int consoleMainBody(string[] args)
     {
       Console.CancelKeyPress += (_, e) => {
           var app = s_Application;//capture
