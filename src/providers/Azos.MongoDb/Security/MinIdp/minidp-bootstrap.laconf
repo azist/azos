@@ -1,0 +1,104 @@
+﻿//Paste this template into text editor, create necessary roles/permissions/users
+//then execute in remote console.
+//IMPORTANT: if you run the script via a "lower" environment (not an IDP server), then component
+//management command will apply it to ALL nodes in cluster
+manc
+{
+  name=minidp
+  call
+  {
+    exec
+    {
+//===============================================================
+
+//Set Vars
+realm=api
+start-utc="1/1/2000 12:00" //UTC
+end-utc="1/1/2100 12:00" //UTC
+
+//Create roles
+setrole
+{
+  realm=$(../$realm)
+  id="super"
+
+  rights
+  {
+     Azos
+     {
+       Security
+       {
+         Idp{level=999}
+       }
+
+       Sky{Security{Permissions{
+         Chronicle{ Chronicle{level=999} }
+       }}}
+     }//azos
+
+     //ADD Your app permissions here
+  }//rights
+}//setrole
+
+//another setrole{} e.g. for service access accounts
+
+//Create Users and logins
+
+setuser
+{
+  id=1000
+  realm=$(../$realm)
+  StartUtc=$(../$start-utc)
+  EndUtc=$(../$end-utc)
+  name="My root"
+  status=System //SYSTEM does not need role
+  Description="My Root user"
+  Note="This is just a template"
+}
+
+setlogin
+{
+  SysId=1000
+  realm=$(../$realm)
+  StartUtc=$(../$start-utc)
+  EndUtc=$(../$end-utc)
+  id="root1"
+  Password='{"alg":"NOP","fam":"Text","h":"dGhlamFrZQ=="}'  // plain: thejake using NOP algorithm (just as an example)
+}
+
+//----------------
+
+setuser
+{
+  id=25000
+  realm=$(../$realm)
+  StartUtc=$(../$start-utc)
+  EndUtc=$(../$end-utc)
+  name="User 1"
+  status=User
+  Role="super"
+  Description="User 1 from X"
+  Note="This is just a template"
+}
+
+setlogin
+{
+  SysId=25000
+  realm=$(../$realm)
+  StartUtc=$(../$start-utc)
+  EndUtc=$(../$end-utc)
+  id="usr1"
+  Password='{"alg":"NOP","fam":"Text","h":"dGhlamFrZQ=="}'  // plain: thejake using NOP algorithm (just as an example)
+}
+
+
+
+
+
+
+
+
+//===============================================================
+    }//exec
+  }//call
+}//manc
