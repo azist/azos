@@ -23,6 +23,7 @@ namespace Azos.Tests.Nub.Configuration
    vEnum1=B
    vInt1=123
    vInt2=-123
+   vInt3=-567000
    vDouble=-123.8002341
    vDecimal=123000456.1233
    vHex=0xABAB
@@ -63,6 +64,7 @@ name
       [Config] public TztEnum venum1 { get; set; }
       [Config] public int vint1 { get; set; }
       [Config] public int vint2 { get; set; }
+      [Config] public int vint3 { get; set; }
       [Config] public double vdouble { get; set; }
       [Config] public decimal vdecimal { get; set; }
       [Config("$vHex")] public uint hex_v1 { get; set; }
@@ -114,6 +116,7 @@ name
       Aver.IsTrue(TztEnum.B == obj.venum1);
       Aver.AreEqual(123, obj.vint1);
       Aver.AreEqual(-123, obj.vint2);
+      Aver.AreEqual(-567_000, obj.vint3);
       Aver.AreEqual(-123.8002341d, obj.vdouble);
       Aver.AreEqual(123000456.1233m, obj.vdecimal);
 

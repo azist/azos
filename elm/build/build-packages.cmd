@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.11.0
-set HEADLINE=Svc release
+set VER=1.19.5
+set HEADLINE=Cfg nav coalescing etc
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
