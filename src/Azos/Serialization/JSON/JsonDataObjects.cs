@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Runtime.Serialization;
 
 using Azos.Conf;
 
@@ -94,14 +95,33 @@ namespace Azos.Serialization.JSON
       CaseSensitive = true;
     }
 
-    public JsonDataMap(bool caseSensitive) : base(caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase )//StringComparer.InvariantCulture : StringComparer.InvariantCultureIgnoreCase)
+    public JsonDataMap(bool caseSensitive) : base(caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase)
     {
       CaseSensitive = caseSensitive;
     }
 
-    protected JsonDataMap(System.Runtime.Serialization.SerializationInfo info,
-                          System.Runtime.Serialization.StreamingContext context) : base(info, context)
+    protected JsonDataMap(SerializationInfo info,
+                          StreamingContext context) : base(info.NonNull(nameof(info)).GetBoolean("csense") ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase)
     {
+      CaseSensitive = Comparer == StringComparer.Ordinal;
+      var data = info.GetValue("d", typeof(KeyValuePair<string, object>[])) as KeyValuePair<string, object>[];
+      for(var i=0; i<data.Length; i++)
+      {
+        var kvp = data[i];
+        this.Add(kvp.Key, kvp.Value);
+      }
+    }
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.AddValue("csense", CaseSensitive);
+      var data = new KeyValuePair<string, object> [this.Count];
+      var i = 0;
+      foreach(var kvp in this)
+      {
+        data[i++] = kvp;
+      }
+      info.AddValue("d", data);
     }
 
 
