@@ -250,7 +250,8 @@ namespace Azos.Data
       /// </summary>
       public bool NonUI => m_Attrs.Any(a => a.NonUI);
 
-      private Azos.Platform.FiniteSetLookup<string, FieldAttribute> m_TargetAttrsCache;
+      /*implicitly non-serialized as this is ISerializable */
+      private FiniteSetLookup<string, FieldAttribute> m_TargetAttrsCache;
       private FieldAttribute findFieldAttributeFor(string target)
       {
         FieldAttribute result = null;

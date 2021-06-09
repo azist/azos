@@ -35,6 +35,10 @@ namespace Azos.Data
 
     private bool m_Sealed;
     private bool m_PropAssignmentTracking;
+
+    //20210609 DKh Bug Fix #220: Slim Serialization in .Core
+    //Hashset is only needed at attribute chain derivation and is not needed for serialization
+    [NonSerialized]//<---fix
     private HashSet<string> m_AssignedPropNames;
 
     /// <summary>
