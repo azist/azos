@@ -30,12 +30,12 @@ namespace Azos.Data
     }
 
     /// <summary>
-    /// Developers do not call, lazily injects the statr of this object,
+    /// Developers do not call, lazily injects the state of this object,
     /// this is needed for speed and other optimizations
     /// </summary>
     internal void __ctor(Schema schema)
     {
-      m_Schema = schema;
+      m_Schema = schema.NonNull(nameof(schema));
       m_Data = new object[schema.FieldCount];
     }
 

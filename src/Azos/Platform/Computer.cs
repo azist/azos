@@ -141,7 +141,7 @@ namespace Azos.Platform
     private static string s_UniqueNetworkSignature;
 
     /// <summary>
-    /// Returns network signature for this machine which is unique in the eclosing network segment (MAC-based)
+    /// Returns network signature for this machine which is unique in the enclosing network segment (MAC-based)
     /// </summary>
     public static string UniqueNetworkSignature
     {

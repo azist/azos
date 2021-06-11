@@ -244,7 +244,7 @@ namespace Azos.Security.Services
                                                      : IDPasswordCredentials.FromBasicAuth(WorkContext.Request.Headers[WebConsts.HTTP_HDR_AUTHORIZATION]);
 
       if (
-          clcred==null ||
+          clcred == null ||
           clcred.ID.IsNullOrWhiteSpace() ||
           (isAccessToken && code.IsNullOrWhiteSpace()) ||
           (isRefreshToken && refresh_token.IsNullOrWhiteSpace())
@@ -261,7 +261,7 @@ namespace Azos.Security.Services
         clientToken = await OAuth.TokenRing.GetAsync<ClientAccessCodeToken>(code).ConfigureAwait(false);
 
         //The access token is one-time use only:
-        if (clientToken!=null)
+        if (clientToken != null)
           await OAuth.TokenRing.DeleteAsync(code).ConfigureAwait(false);
       }
       else//refresh token

@@ -148,7 +148,7 @@ namespace Azos.Data
     /// </summary>
     protected RowsetBase(Schema schema)
     {
-      m_Schema = schema;
+      m_Schema = schema.NonNull(nameof(schema));
       m_InstanceGUID = Guid.NewGuid();
     }
 
@@ -160,6 +160,7 @@ namespace Azos.Data
     protected Schema m_Schema;
     protected internal List<Doc> m_List;
     protected internal List<DocChange> m_Changes;
+
 
     private JsonDynamicObject m_DataContext;
 
