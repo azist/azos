@@ -5,60 +5,60 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
+
+using MySql.Data.MySqlClient;
 
 using Azos.Conf;
 
 namespace Azos.Data.AST
 {
   /// <summary>
-  /// Defines SqlTranslation for ORACLE database
+  /// Defines SqlTranslation for MySql database
   /// </summary>
-  public class OracleXlat : SqlBaseXlat
+  public class MySqlXlat : SqlBaseXlat
   {
-    public OracleXlat(string name = null) : base(name) { }
-    public OracleXlat(IConfigSectionNode conf) : base(conf) { }
+    public MySqlXlat(string name = null) : base(name) { }
+    public MySqlXlat(IConfigSectionNode conf) : base(conf) { }
 
     /// <summary>
-    /// Translates root AST expression for ORACLE RDBMS
+    /// Translates root AST expression for MySql RDBMS
     /// </summary>
     public override SqlXlatContext TranslateInContext(Expression expression)
     {
-      var result = new OracleXlatContext(this);
+      var result = new MySqlXlatContext(this);
       expression.Accept(result);
       return result;
     }
   }
 
   /// <summary>
-  /// Defines Xlat context specific to ORACLE RDBMS
+  /// Defines Xlat context specific to MySql RDBMS
   /// </summary>
-  public class OracleXlatContext : SqlXlatContext
+  public class MySqlXlatContext : SqlXlatContext
   {
-    public OracleXlatContext(OracleXlat xlat) : base(xlat)
+    public MySqlXlatContext(MySqlXlat xlat) : base(xlat)
     {
     }
 
     private int m_ParamCount;
 
     /// <summary>
-    /// Oracle parameters start with `:`
+    /// MySql parameters start with `?`
     /// </summary>
     protected override string ParameterOpenSpan => ":";
 
     /// <summary>
-    /// Override to provide custom name for ORACLE parameter prefix, the default is `ORAXLATP_`
+    /// Override to provide custom name for MySql parameter prefix, the default is `MYSQLXLATP_`
     /// </summary>
-    protected virtual string ParameterNamePrefix => "ORAXLATP_";
+    protected virtual string ParameterNamePrefix => "MYSQLXLATP_";
 
     /// <summary>
-    /// Creates ORA specific parameter
+    /// Creates MySql specific parameter
     /// </summary>
     protected override IDataParameter MakeAndAssignParameter(ValueExpression value)
     {
-      var p = new Oracle.ManagedDataAccess.Client.OracleParameter($"{ParameterNamePrefix}{m_ParamCount++}", value.Value);
+      var p = new MySqlParameter($"{ParameterNamePrefix}{m_ParamCount++}", value.Value);
       return p;
     }
   }
