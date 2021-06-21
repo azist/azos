@@ -10,6 +10,9 @@ using MySql.Data.MySqlClient;
 
 namespace Azos.Data.Access.MySql
 {
+  /// <summary>
+  /// Implements MySqlCursor
+  /// </summary>
   public sealed class MySqlCursor : Cursor
   {
     internal MySqlCursor(MySqlCRUDQueryExecutionContext context,

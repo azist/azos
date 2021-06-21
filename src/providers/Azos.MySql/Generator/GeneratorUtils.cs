@@ -81,32 +81,32 @@ namespace Azos.Data.Access.MySql
 
     public static void LogCommand(MySQLDataStoreBase store, string from, MySqlCommand cmd, Exception error)
     {
-        if (store.DataLogLevel==StoreLogLevel.None) return;
+      if (store.DataLogLevel==StoreLogLevel.None) return;
 
-        MessageType mt = store.DataLogLevel==StoreLogLevel.Debug ? MessageType.DebugSQL : MessageType.TraceSQL;
+      MessageType mt = store.DataLogLevel==StoreLogLevel.Debug ? MessageType.DebugSQL : MessageType.TraceSQL;
 
-        var descr = new StringBuilder(512);
-        descr.Append("Transaction: ");
-        if (cmd.Transaction==null)
-            descr.AppendLine("null");
-        else
-            descr.AppendLine(cmd.Transaction.IsolationLevel.ToString());
-        foreach(var p in cmd.Parameters.Cast<MySqlParameter>())
-        {
-            descr.AppendFormat("Parameter {0} = {1}", p.ParameterName, p.Value!=null?p.Value.ToString():"null");
-        }
+      var descr = new StringBuilder(512);
+      descr.Append("Transaction: ");
+      if (cmd.Transaction==null)
+          descr.AppendLine("null");
+      else
+          descr.AppendLine(cmd.Transaction.IsolationLevel.ToString());
+      foreach(var p in cmd.Parameters.Cast<MySqlParameter>())
+      {
+          descr.AppendFormat("Parameter {0} = {1}", p.ParameterName, p.Value!=null?p.Value.ToString():"null");
+      }
 
-        var msg = new Message
-        {
-            Type = mt,
-            From = from,
-            Topic = MySqlConsts.MYSQL_TOPIC,
-            Exception = error,
-            Text = cmd.CommandText,
-            Parameters = descr.ToString()
-        };
+      var msg = new Message
+      {
+          Type = mt,
+          From = from,
+          Topic = MySqlConsts.MYSQL_TOPIC,
+          Exception = error,
+          Text = cmd.CommandText,
+          Parameters = descr.ToString()
+      };
 
-        store.App.Log.Write( msg );
+      store.App.Log.Write( msg );
     }
 
 

@@ -12,71 +12,73 @@ using MySql.Data.MySqlClient;
 
 namespace Azos.Data.Access.MySql
 {
-
+  /// <summary>
+  /// Generates CRUD SQL statements
+  /// </summary>
   internal static class CRUDGenerator
   {
 
-      public static int CRUDInsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
+    public static int CRUDInsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
+    {
+      try
       {
-        try
-        {
-            return crudInsert(store, cnn, trans, doc, filter);
-        }
-        catch(Exception error)
-        {
-           throw new MySqlDataAccessException(
-                          StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("insert", error.ToMessageWithType(), error),
-                          error,
-                          KeyViolationKind.Unspecified,
-                          KeyViolationName(error));
-        }
+          return crudInsert(store, cnn, trans, doc, filter);
       }
-
-      public static int CRUDUpdate(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
+      catch(Exception error)
       {
-        try
-        {
-            return crudUpdate(store, cnn, trans, doc, key, filter);
-        }
-        catch(Exception error)
-        {
-           throw new MySqlDataAccessException(
-                         StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("update",
-                         error.ToMessageWithType(), error),
-                         error,
-                         KeyViolationKind.Unspecified,
-                         KeyViolationName(error)
-                         );
-        }
-      }
-
-      public static int CRUDUpsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
-      {
-        try
-        {
-            return crudUpsert(store, cnn, trans, doc, filter);
-        }
-        catch(Exception error)
-        {
-           throw new MySqlDataAccessException(
-                        StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("upsert", error.ToMessageWithType(), error),
+          throw new MySqlDataAccessException(
+                        StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("insert", error.ToMessageWithType(), error),
                         error,
                         KeyViolationKind.Unspecified,
                         KeyViolationName(error));
-        }
       }
+    }
 
-      public static int CRUDDelete(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key)
+    public static int CRUDUpdate(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
+    {
+      try
       {
-        try
-        {
-            return crudDelete(store, cnn, trans, doc, key);
-        }
-        catch(Exception error)
-        {
-           throw new MySqlDataAccessException(StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("delete", error.ToMessageWithType(), error), error);
-        }
+          return crudUpdate(store, cnn, trans, doc, key, filter);
       }
+      catch(Exception error)
+      {
+          throw new MySqlDataAccessException(
+                        StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("update",
+                        error.ToMessageWithType(), error),
+                        error,
+                        KeyViolationKind.Unspecified,
+                        KeyViolationName(error)
+                        );
+      }
+    }
+
+    public static int CRUDUpsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
+    {
+      try
+      {
+          return crudUpsert(store, cnn, trans, doc, filter);
+      }
+      catch(Exception error)
+      {
+          throw new MySqlDataAccessException(
+                      StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("upsert", error.ToMessageWithType(), error),
+                      error,
+                      KeyViolationKind.Unspecified,
+                      KeyViolationName(error));
+      }
+    }
+
+    public static int CRUDDelete(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key)
+    {
+      try
+      {
+          return crudDelete(store, cnn, trans, doc, key);
+      }
+      catch(Exception error)
+      {
+          throw new MySqlDataAccessException(StringConsts.CRUD_STATEMENT_EXECUTION_ERROR.Args("delete", error.ToMessageWithType(), error), error);
+      }
+    }
 
 
    #region .pvt impl.
@@ -136,20 +138,20 @@ namespace Azos.Data.Access.MySql
 
         if ( fvalue != null)
         {
-                var pname = string.Format("?VAL{0}", vpidx);
+          var pname = string.Format("?VAL{0}", vpidx);
 
-                values.AppendFormat(" {0},", pname);
+          values.AppendFormat(" {0},", pname);
 
-                var par = new MySqlParameter();
-                par.ParameterName = pname;
-                par.Value = fvalue;
-                vparams.Add(par);
+          var par = new MySqlParameter();
+          par.ParameterName = pname;
+          par.Value = fvalue;
+          vparams.Add(par);
 
-                vpidx++;
+          vpidx++;
         }
         else
         {
-                values.Append(" NULL,");
+          values.Append(" NULL,");
         }
       }//foreach
 
@@ -174,14 +176,14 @@ namespace Azos.Data.Access.MySql
         ConvertParameters(store, cmd.Parameters);
         try
         {
-            var affected = cmd.ExecuteNonQuery();
-            GeneratorUtils.LogCommand(store, "insert-ok", cmd, null);
-            return affected;
+          var affected = cmd.ExecuteNonQuery();
+          GeneratorUtils.LogCommand(store, "insert-ok", cmd, null);
+          return affected;
         }
         catch(Exception error)
         {
-            GeneratorUtils.LogCommand(store, "insert-error", cmd, error);
-            throw;
+          GeneratorUtils.LogCommand(store, "insert-error", cmd, error);
+          throw;
         }
       }//using command
     }
@@ -219,20 +221,20 @@ namespace Azos.Data.Access.MySql
 
         if ( fvalue != null)
         {
-                var pname = string.Format("?VAL{0}", vpidx);
+            var pname = string.Format("?VAL{0}", vpidx);
 
-                values.AppendFormat(" `{0}` = {1},", fname, pname);
+            values.AppendFormat(" `{0}` = {1},", fname, pname);
 
-                var par = new MySqlParameter();
-                par.ParameterName = pname;
-                par.Value = fvalue;
-                vparams.Add(par);
+            var par = new MySqlParameter();
+            par.ParameterName = pname;
+            par.Value = fvalue;
+            vparams.Add(par);
 
-                vpidx++;
+            vpidx++;
         }
         else
         {
-                values.AppendFormat(" `{0}` = NULL,", fname);
+            values.AppendFormat(" `{0}` = NULL,", fname);
         }
       }//foreach
 
@@ -312,24 +314,24 @@ namespace Azos.Data.Access.MySql
 
         if ( fvalue != null)
         {
-                var pname = string.Format("?VAL{0}", vpidx);
+            var pname = string.Format("?VAL{0}", vpidx);
 
-                values.AppendFormat(" {0},", pname);
+            values.AppendFormat(" {0},", pname);
 
-                if (!fattr.Key)
-                    upserts.AppendFormat(" `{0}` = {1},", fname, pname);
+            if (!fattr.Key)
+                upserts.AppendFormat(" `{0}` = {1},", fname, pname);
 
-                var par = new MySqlParameter();
-                par.ParameterName = pname;
-                par.Value = fvalue;
-                vparams.Add(par);
+            var par = new MySqlParameter();
+            par.ParameterName = pname;
+            par.Value = fvalue;
+            vparams.Add(par);
 
-                vpidx++;
+            vpidx++;
         }
         else
         {
-                values.Append(" NULL,");
-                upserts.AppendFormat(" `{0}` = NULL,", fname);
+            values.Append(" NULL,");
+            upserts.AppendFormat(" `{0}` = NULL,", fname);
         }
       }//foreach
 
@@ -357,14 +359,14 @@ namespace Azos.Data.Access.MySql
 
         try
         {
-            var affected = cmd.ExecuteNonQuery();
-            GeneratorUtils.LogCommand(store, "upsert-ok", cmd, null);
-            return affected;
+          var affected = cmd.ExecuteNonQuery();
+          GeneratorUtils.LogCommand(store, "upsert-ok", cmd, null);
+          return affected;
         }
         catch(Exception error)
         {
-            GeneratorUtils.LogCommand(store, "upsert-error", cmd, error);
-            throw;
+          GeneratorUtils.LogCommand(store, "upsert-error", cmd, error);
+          throw;
         }
       }//using command
     }
@@ -397,14 +399,14 @@ namespace Azos.Data.Access.MySql
 
         try
         {
-            var affected = cmd.ExecuteNonQuery();
-            GeneratorUtils.LogCommand(store, "delete-ok", cmd, null);
-            return affected;
+          var affected = cmd.ExecuteNonQuery();
+          GeneratorUtils.LogCommand(store, "delete-ok", cmd, null);
+          return affected;
         }
         catch(Exception error)
         {
-            GeneratorUtils.LogCommand(store, "delete-error", cmd, error);
-            throw;
+          GeneratorUtils.LogCommand(store, "delete-error", cmd, error);
+          throw;
         }
 
 

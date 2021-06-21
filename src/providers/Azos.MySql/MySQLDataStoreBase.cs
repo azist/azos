@@ -21,113 +21,105 @@ namespace Azos.Data.Access.MySql
   public abstract class MySQLDataStoreBase : ApplicationComponent, IDataStoreImplementation
   {
     #region CONSTS
-
-      public const string STR_FOR_TRUE = "T";
-      public const string STR_FOR_FALSE = "F";
-
-
+    public const string STR_FOR_TRUE = "T";
+    public const string STR_FOR_FALSE = "F";
     #endregion
 
 
     #region .ctor/.dctor
+    protected MySQLDataStoreBase(IApplication app) : base(app)
+    {
+    }
 
-      protected MySQLDataStoreBase(IApplication app) : base(app)
-      {
-      }
-
-      protected MySQLDataStoreBase(IApplicationComponent director) : base(director)
-      {
-      }
-
+    protected MySQLDataStoreBase(IApplicationComponent director) : base(director)
+    {
+    }
     #endregion
 
 
     #region Private Fields
+    private string m_ConnectString;
 
-      private string m_ConnectString;
+    private string m_TargetName;
 
-      private string m_TargetName;
+    private bool m_StringBool = true;
 
-      private bool m_StringBool = true;
+    private string m_StringForTrue = STR_FOR_TRUE;
+    private string m_StringForFalse = STR_FOR_FALSE;
 
-      private string m_StringForTrue = STR_FOR_TRUE;
-      private string m_StringForFalse = STR_FOR_FALSE;
+    private bool m_FullGDIDS = true;
 
-      private bool m_FullGDIDS = true;
+    private DateTimeKind m_DateTimeKind = DateTimeKind.Utc;
 
-      private DateTimeKind m_DateTimeKind = DateTimeKind.Utc;
-
-      private bool m_InstrumentationEnabled;
+    private bool m_InstrumentationEnabled;
     #endregion
 
     #region IInstrumentation
+    public string Name { get{return GetType().FullName;}}
 
-      public string Name { get{return GetType().FullName;}}
+    [Config(Default=false)]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+    public bool InstrumentationEnabled{ get{return m_InstrumentationEnabled;} set{m_InstrumentationEnabled = value;}}
 
-      [Config(Default=false)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-      public bool InstrumentationEnabled{ get{return m_InstrumentationEnabled;} set{m_InstrumentationEnabled = value;}}
+    /// <summary>
+    /// Returns named parameters that can be used to control this component
+    /// </summary>
+    public IEnumerable<KeyValuePair<string, Type>> ExternalParameters{ get { return ExternalParameterAttribute.GetParameters(this); } }
 
-      /// <summary>
-      /// Returns named parameters that can be used to control this component
-      /// </summary>
-      public IEnumerable<KeyValuePair<string, Type>> ExternalParameters{ get { return ExternalParameterAttribute.GetParameters(this); } }
+    /// <summary>
+    /// Returns named parameters that can be used to control this component
+    /// </summary>
+    public IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups)
+    {
+      return ExternalParameterAttribute.GetParameters(this, groups);
+    }
 
-      /// <summary>
-      /// Returns named parameters that can be used to control this component
-      /// </summary>
-      public IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups)
-      {
-        return ExternalParameterAttribute.GetParameters(this, groups);
-      }
+    /// <summary>
+    /// Gets external parameter value returning true if parameter was found
+    /// </summary>
+    public bool ExternalGetParameter(string name, out object value, params string[] groups)
+    {
+        return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
+    }
 
-      /// <summary>
-      /// Gets external parameter value returning true if parameter was found
-      /// </summary>
-      public bool ExternalGetParameter(string name, out object value, params string[] groups)
-      {
-          return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
-      }
-
-      /// <summary>
-      /// Sets external parameter value returning true if parameter was found and set
-      /// </summary>
-      public bool ExternalSetParameter(string name, object value, params string[] groups)
-      {
-        return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
-      }
-
+    /// <summary>
+    /// Sets external parameter value returning true if parameter was found and set
+    /// </summary>
+    public bool ExternalSetParameter(string name, object value, params string[] groups)
+    {
+      return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
+    }
     #endregion
 
     #region Properties
 
-      public override string ComponentLogTopic => MySqlConsts.MYSQL_TOPIC;
+    public override string ComponentLogTopic => MySqlConsts.MYSQL_TOPIC;
 
-      /// <summary>
-      /// Get/Sets MySql database connection string
-      /// </summary>
-      [Config]
-      public string ConnectString
+    /// <summary>
+    /// Get/Sets MySql database connection string
+    /// </summary>
+    [Config]
+    public string ConnectString
+    {
+      get
       {
-        get
-        {
-           return m_ConnectString ?? string.Empty;
-        }
-        set
-        {
-           m_ConnectString = value;
-        }
+          return m_ConnectString ?? string.Empty;
       }
-
-      [Config]
-      public StoreLogLevel DataLogLevel { get; set;}
-
-      [Config]
-      public string TargetName
+      set
       {
-        get{ return m_TargetName.IsNullOrWhiteSpace() ? "MySQL" : m_TargetName;}
-        set{ m_TargetName = value;}
+          m_ConnectString = value;
       }
+    }
+
+    [Config]
+    public StoreLogLevel DataLogLevel { get; set;}
+
+    [Config]
+    public string TargetName
+    {
+      get{ return m_TargetName.IsNullOrWhiteSpace() ? "MySQL" : m_TargetName;}
+      set{ m_TargetName = value;}
+    }
 
     /// <summary>
     /// When true commits boolean values as StringForTrue/StringForFalse instead of bool values. True by default
@@ -148,59 +140,50 @@ namespace Azos.Data.Access.MySql
     #endregion
 
     #region Public
-      public void TestConnection()
+    public void TestConnection()
+    {
+      try
       {
-        try
+        using (var cnn = GetConnection())
         {
-          using (var cnn = GetConnection())
-          {
-            var cmd = cnn.CreateCommand();
-            cmd.CommandType = System.Data.CommandType.Text;
-            cmd.CommandText = "SELECT 1+1 from DUAL";
-            if (cmd.ExecuteScalar().ToString() != "2")
-              throw new MySqlDataAccessException(StringConsts.SQL_STATEMENT_FAILED_ERROR);
-          }
-        }
-        catch (Exception error)
-        {
-          throw new MySqlDataAccessException(string.Format(StringConsts.CONNECTION_TEST_FAILED_ERROR, error.Message), error);
+          var cmd = cnn.CreateCommand();
+          cmd.CommandType = System.Data.CommandType.Text;
+          cmd.CommandText = "SELECT 1+1 from DUAL";
+          if (cmd.ExecuteScalar().ToString() != "2")
+            throw new MySqlDataAccessException(StringConsts.SQL_STATEMENT_FAILED_ERROR);
         }
       }
-
+      catch (Exception error)
+      {
+        throw new MySqlDataAccessException(string.Format(StringConsts.CONNECTION_TEST_FAILED_ERROR, error.Message), error);
+      }
+    }
     #endregion
 
-
-
     #region IConfigurable Members
-
-      public virtual void Configure(IConfigSectionNode node)
-      {
-       ConfigAttribute.Apply(this, node);
-      }
-
+    public virtual void Configure(IConfigSectionNode node)
+    {
+      ConfigAttribute.Apply(this, node);
+    }
     #endregion
 
     #region Protected
+    /// <summary>
+    /// Allocates MySQL connection
+    /// </summary>
+    protected MySqlConnection GetConnection()
+    {
+      var connectString = this.ConnectString;
 
-      /// <summary>
-      /// Allocates MySQL connection
-      /// </summary>
-      protected MySqlConnection GetConnection()
-      {
-        var connectString = this.ConnectString;
+      //Try to override from the context
+      var ctx = CRUDOperationCallContext.Current;
+      if (ctx!=null && ctx.ConnectString.IsNotNullOrWhiteSpace())
+        connectString = ctx.ConnectString;
 
-        //Try to override from the context
-        var ctx = CRUDOperationCallContext.Current;
-        if (ctx!=null && ctx.ConnectString.IsNotNullOrWhiteSpace())
-          connectString = ctx.ConnectString;
-
-        var cnn = new MySqlConnection(connectString);
-        cnn.Open();
-        return cnn;
-      }
-
+      var cnn = new MySqlConnection(connectString);
+      cnn.Open();
+      return cnn;
+    }
     #endregion
-
-
   }
 }

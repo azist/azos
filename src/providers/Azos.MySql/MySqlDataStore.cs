@@ -48,9 +48,7 @@ namespace Azos.Data.Access.MySql
     #endregion
 
     #region Fields
-
     private QueryResolver m_QueryResolver;
-
     #endregion
 
     #region ICRUDDataStore
@@ -437,11 +435,11 @@ namespace Azos.Data.Access.MySql
 
     #region .pvt
 
-        private void checkReadOnly(Schema schema, string operation)
-        {
-            if (schema.ReadOnly)
-                throw new MySqlDataAccessException(StringConsts.CRUD_READONLY_SCHEMA_ERROR.Args(schema.Name, operation));
-        }
+    private void checkReadOnly(Schema schema, string operation)
+    {
+        if (schema.ReadOnly)
+            throw new MySqlDataAccessException(StringConsts.CRUD_READONLY_SCHEMA_ERROR.Args(schema.Name, operation));
+    }
 
 
     #endregion
