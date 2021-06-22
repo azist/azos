@@ -79,7 +79,7 @@ namespace Azos.Data.Access.MySql
       return nvk.ContainsKey(fieldName);
     }
 
-    public static void LogCommand(MySQLDataStoreBase store, string from, MySqlCommand cmd, Exception error)
+    public static void LogCommand(MySqlDataStoreBase store, string from, MySqlCommand cmd, Exception error)
     {
       if (store.DataLogLevel==StoreLogLevel.None) return;
 

@@ -18,7 +18,7 @@ namespace Azos.Data.Access.MySql
   public sealed class MySqlCRUDTransaction : CRUDTransaction
   {
     #region .ctor/.dctor
-    internal MySqlCRUDTransaction(MySqlDataStore store, MySqlConnection cnn, IsolationLevel iso, TransactionDisposeBehavior disposeBehavior) : base (store, disposeBehavior)
+    internal MySqlCRUDTransaction(MySqlCrudDataStoreBase store, MySqlConnection cnn, IsolationLevel iso, TransactionDisposeBehavior disposeBehavior) : base (store, disposeBehavior)
     {
         m_Connection = cnn;
         m_Transaction = cnn.BeginTransaction(iso);
@@ -37,7 +37,7 @@ namespace Azos.Data.Access.MySql
     #endregion
 
     #region Properties
-    internal MySqlDataStore Store => m_Store.CastTo<MySqlDataStore>();
+    internal MySqlCrudDataStoreBase Store => m_Store.CastTo<MySqlCrudDataStoreBase>();
 
     /// <summary>
     /// Returns the underlying MySQL connection that this transaction works through
@@ -52,58 +52,58 @@ namespace Azos.Data.Access.MySql
 
 
     protected override Schema DoGetSchema(Query query)
-      => Store.DoGetSchema(m_Connection, m_Transaction, query);
+      => Store.DoGetSchemaAsync(m_Connection, m_Transaction, query).GetAwaiter().GetResult();
 
-    protected override Task<Schema> DoGetSchemaAsync(Query query)
-      => TaskUtils.AsCompletedTask( () => this.DoGetSchema(query) );
+    protected override async Task<Schema> DoGetSchemaAsync(Query query)
+      => await Store.DoGetSchemaAsync(m_Connection, m_Transaction, query).ConfigureAwait(false);
 
     protected override List<RowsetBase> DoLoad(bool oneDoc, params Query[] queries)
-      => Store.DoLoad(m_Connection, m_Transaction, queries, oneDoc);
+      => Store.DoLoadAsync(m_Connection, m_Transaction, queries, oneDoc).GetAwaiter().GetResult();
 
-    protected override Task<List<RowsetBase>> DoLoadAsync(bool oneDoc, params Query[] queries)
-      => TaskUtils.AsCompletedTask( () => this.DoLoad(oneDoc, queries) );
+    protected override async Task<List<RowsetBase>> DoLoadAsync(bool oneDoc, params Query[] queries)
+      => await Store.DoLoadAsync(m_Connection, m_Transaction, queries, oneDoc).ConfigureAwait(false);
 
     protected override Cursor DoOpenCursor(Query query)
-      => Store.DoOpenCursor(m_Connection, m_Transaction, query);
+      => Store.DoOpenCursorAsync(m_Connection, m_Transaction, query).GetAwaiter().GetResult();
 
-    protected override Task<Cursor> DoOpenCursorAsync(Query query)
-      => TaskUtils.AsCompletedTask( () => this.DoOpenCursor(query) );
+    protected override async Task<Cursor> DoOpenCursorAsync(Query query)
+      => await Store.DoOpenCursorAsync(m_Connection, m_Transaction, query).ConfigureAwait(false);
 
     protected override int DoExecuteWithoutFetch(params Query[] queries)
-      => Store.DoExecuteWithoutFetch(m_Connection, m_Transaction, queries);
+      => Store.DoExecuteWithoutFetchAsync(m_Connection, m_Transaction, queries).GetAwaiter().GetResult();
 
-    protected override Task<int> DoExecuteWithoutFetchAsync(params Query[] queries)
-      => TaskUtils.AsCompletedTask( () => this.DoExecuteWithoutFetch(queries) );
+    protected override async Task<int> DoExecuteWithoutFetchAsync(params Query[] queries)
+      => await Store.DoExecuteWithoutFetchAsync(m_Connection, m_Transaction, queries).ConfigureAwait(false);
 
     protected override int DoSave(params RowsetBase[] rowsets)
-      => Store.DoSave(m_Connection, m_Transaction, rowsets);
+      => Store.DoSaveAsync(m_Connection, m_Transaction, rowsets).GetAwaiter().GetResult();
 
-    protected override Task<int> DoSaveAsync(params RowsetBase[] rowsets)
-      => TaskUtils.AsCompletedTask( () => this.DoSave(rowsets) );
+    protected override async Task<int> DoSaveAsync(params RowsetBase[] rowsets)
+      => await Store.DoSaveAsync(m_Connection, m_Transaction, rowsets).ConfigureAwait(false);
 
     protected override int DoInsert(Doc doc, FieldFilterFunc filter = null)
-      => Store.DoInsert(m_Connection, m_Transaction, doc, filter);
+      => Store.DoInsertAsync(m_Connection, m_Transaction, doc, filter).GetAwaiter().GetResult();
 
-    protected override Task<int> DoInsertAsync(Doc doc, FieldFilterFunc filter = null)
-      => TaskUtils.AsCompletedTask( () => this.DoInsert(doc, filter) );
+    protected override async Task<int> DoInsertAsync(Doc doc, FieldFilterFunc filter = null)
+      => await Store.DoInsertAsync(m_Connection, m_Transaction, doc, filter).ConfigureAwait(false);
 
     protected override int DoUpsert(Doc doc, FieldFilterFunc filter = null)
-      => Store.DoUpsert(m_Connection, m_Transaction, doc, filter);
+      => Store.DoUpsertAsync(m_Connection, m_Transaction, doc, filter).GetAwaiter().GetResult();
 
-    protected override Task<int> DoUpsertAsync(Doc doc, FieldFilterFunc filter = null)
-      => TaskUtils.AsCompletedTask( () => this.DoUpsert(doc, filter) );
+    protected override async Task<int> DoUpsertAsync(Doc doc, FieldFilterFunc filter = null)
+      => await Store.DoUpsertAsync(m_Connection, m_Transaction, doc, filter).ConfigureAwait(false);
 
     protected override int DoUpdate(Doc doc, IDataStoreKey key, FieldFilterFunc filter = null)
-      => Store.DoUpdate(m_Connection, m_Transaction, doc, key, filter);
+      => Store.DoUpdateAsync(m_Connection, m_Transaction, doc, key, filter).GetAwaiter().GetResult();
 
-    protected override Task<int> DoUpdateAsync(Doc doc, IDataStoreKey key, FieldFilterFunc filter = null)
-      => TaskUtils.AsCompletedTask( () => this.DoUpdate(doc, key, filter) );
+    protected override async Task<int> DoUpdateAsync(Doc doc, IDataStoreKey key, FieldFilterFunc filter = null)
+      => await Store.DoUpdateAsync(m_Connection, m_Transaction, doc, key, filter).ConfigureAwait(false);
 
     protected override int DoDelete(Doc doc, IDataStoreKey key)
-      => Store.DoDelete(m_Connection, m_Transaction, doc, key);
+      => Store.DoDeleteAsync(m_Connection, m_Transaction, doc, key).GetAwaiter().GetResult();
 
-    protected override Task<int> DoDeleteAsync(Doc doc, IDataStoreKey key)
-      => TaskUtils.AsCompletedTask( () => this.DoDelete(doc, key) );
+    protected override async Task<int> DoDeleteAsync(Doc doc, IDataStoreKey key)
+      => await Store.DoDeleteAsync(m_Connection, m_Transaction, doc, key).ConfigureAwait(false);
 
     protected override void DoCommit() =>  m_Transaction.Commit();
     protected override void DoRollback() => m_Transaction.Rollback();

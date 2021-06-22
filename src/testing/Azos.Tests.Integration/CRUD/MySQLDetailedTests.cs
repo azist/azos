@@ -741,9 +741,9 @@ CREATE TABLE `tbl_employee` (
 
     #region .pvt
 
-    private MySqlDataStore makeDataStore()
+    private MySqlCanonicalDataStore makeDataStore()
     {
-      var datastore = new MySqlDataStore(NOPApplication.Instance, m_ConnectionString);
+      var datastore = new MySqlCanonicalDataStore(NOPApplication.Instance, m_ConnectionString);
       datastore.QueryResolver.ScriptAssembly = "Azos.Tests.Integration";
       return datastore;
     }

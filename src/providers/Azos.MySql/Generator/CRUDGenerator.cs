@@ -6,23 +6,25 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 using MySql.Data.MySqlClient;
 
 namespace Azos.Data.Access.MySql
 {
   /// <summary>
-  /// Generates CRUD SQL statements
+  /// Generates CRUD SQL statements for MySql
   /// </summary>
   internal static class CRUDGenerator
   {
 
-    public static int CRUDInsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
+    public static async Task<int> CRUDInsert(MySqlDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       try
       {
-          return crudInsert(store, cnn, trans, doc, filter);
+          return await crudInsert(store, cnn, trans, doc, filter);
       }
       catch(Exception error)
       {
@@ -34,11 +36,11 @@ namespace Azos.Data.Access.MySql
       }
     }
 
-    public static int CRUDUpdate(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
+    public static async Task<int> CRUDUpdate(MySqlDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
     {
       try
       {
-          return crudUpdate(store, cnn, trans, doc, key, filter);
+          return await crudUpdate(store, cnn, trans, doc, key, filter);
       }
       catch(Exception error)
       {
@@ -52,11 +54,11 @@ namespace Azos.Data.Access.MySql
       }
     }
 
-    public static int CRUDUpsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
+    public static async Task<int> CRUDUpsert(MySqlDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       try
       {
-          return crudUpsert(store, cnn, trans, doc, filter);
+          return await crudUpsert(store, cnn, trans, doc, filter);
       }
       catch(Exception error)
       {
@@ -68,11 +70,11 @@ namespace Azos.Data.Access.MySql
       }
     }
 
-    public static int CRUDDelete(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key)
+    public static async Task<int> CRUDDelete(MySqlDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key)
     {
       try
       {
-          return crudDelete(store, cnn, trans, doc, key);
+          return await crudDelete(store, cnn, trans, doc, key);
       }
       catch(Exception error)
       {
@@ -81,7 +83,7 @@ namespace Azos.Data.Access.MySql
     }
 
 
-   #region .pvt impl.
+    #region .pvt impl.
 
     internal static string KeyViolationName(Exception error)
     {
@@ -92,7 +94,7 @@ namespace Azos.Data.Access.MySql
       if (i<0) return null;
       var j = msg.IndexOf("for key", StringComparison.InvariantCultureIgnoreCase);
       if (j>i && j<msg.Length)
-       return msg.Substring(j);
+        return msg.Substring(j);
       return null;
     }
 
@@ -110,7 +112,7 @@ namespace Azos.Data.Access.MySql
     }
 
 
-    private static int crudInsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
+    private static async Task<int> crudInsert(MySqlDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var cnames = new StringBuilder();
@@ -124,19 +126,19 @@ namespace Azos.Data.Access.MySql
 
         if (fattr.StoreFlag != StoreFlag.LoadAndStore && fattr.StoreFlag != StoreFlag.OnlyStore) continue;
 
-        if (filter!=null)//20160210 Dkh+SPol
+        if (filter!=null)
         {
           if (!filter(doc, null, fld)) continue;
         }
 
-        var fname = fld.GetBackendNameForTarget(target);
+        var fname = store.AdjustObjectNameCasing( fld.GetBackendNameForTarget(target) );
 
-        var fvalue = getFieldValue(doc, fld.Order, store);
+        var converted = getDbFieldValue(doc, fld, fattr, store);
 
 
         cnames.AppendFormat(" `{0}`,", fname);
 
-        if ( fvalue != null)
+        if ( converted.value != null)
         {
           var pname = string.Format("?VAL{0}", vpidx);
 
@@ -144,7 +146,8 @@ namespace Azos.Data.Access.MySql
 
           var par = new MySqlParameter();
           par.ParameterName = pname;
-          par.Value = fvalue;
+          par.Value = converted.value;
+          if (converted.dbType.HasValue) par.MySqlDbType = converted.dbType.Value;
           vparams.Add(par);
 
           vpidx++;
@@ -164,19 +167,19 @@ namespace Azos.Data.Access.MySql
         return 0;//nothing to do
 
 
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing(getTableName(doc.Schema, target));
 
-      using(var cmd = cnn.CreateCommand())
+      using (var cmd = cnn.CreateCommand())
       {
         var sql = "INSERT INTO `{0}` ({1}) VALUES ({2})".Args( tableName, cnames, values);
 
         cmd.Transaction = trans;
         cmd.CommandText = sql;
         cmd.Parameters.AddRange(vparams.ToArray());
-        ConvertParameters(store, cmd.Parameters);
+        //ConvertParameters(store, cmd.Parameters);
         try
         {
-          var affected = cmd.ExecuteNonQuery();
+          var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
           GeneratorUtils.LogCommand(store, "insert-ok", cmd, null);
           return affected;
         }
@@ -191,7 +194,7 @@ namespace Azos.Data.Access.MySql
 
 
 
-    private static int crudUpdate(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
+    private static async Task<int> crudUpdate(MySqlDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var values = new StringBuilder();
@@ -210,31 +213,32 @@ namespace Azos.Data.Access.MySql
 
         if (fattr.StoreFlag != StoreFlag.LoadAndStore && fattr.StoreFlag != StoreFlag.OnlyStore) continue;
 
-        if (filter!=null)//20160210 Dkh+SPol
+        if (filter!=null)
         {
           if (!filter(doc, key, fld)) continue;
         }
 
 
-        var fvalue = getFieldValue(doc, fld.Order, store);
+        var converted = getDbFieldValue(doc, fld, fattr, store);
 
 
-        if ( fvalue != null)
+        if ( converted.value != null)
         {
-            var pname = string.Format("?VAL{0}", vpidx);
+          var pname = string.Format("?VAL{0}", vpidx);
 
-            values.AppendFormat(" `{0}` = {1},", fname, pname);
+          values.AppendFormat(" `{0}` = {1},", fname, pname);
 
-            var par = new MySqlParameter();
-            par.ParameterName = pname;
-            par.Value = fvalue;
-            vparams.Add(par);
+          var par = new MySqlParameter();
+          par.ParameterName = pname;
+          par.Value = converted.value;
+          if (converted.dbType.HasValue) par.MySqlDbType = converted.dbType.Value;
+          vparams.Add(par);
 
-            vpidx++;
+          vpidx++;
         }
         else
         {
-            values.AppendFormat(" `{0}` = NULL,", fname);
+          values.AppendFormat(" `{0}` = NULL,", fname);
         }
       }//foreach
 
@@ -246,9 +250,9 @@ namespace Azos.Data.Access.MySql
         return 0;//nothing to do
 
 
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing(getTableName(doc.Schema, target));
 
-      using(var cmd = cnn.CreateCommand())
+      using (var cmd = cnn.CreateCommand())
       {
         var sql = string.Empty;
 
@@ -267,11 +271,11 @@ namespace Azos.Data.Access.MySql
         cmd.Transaction = trans;
         cmd.CommandText = sql;
         cmd.Parameters.AddRange(vparams.ToArray());
-        ConvertParameters(store, cmd.Parameters);
+        //ConvertParameters(store, cmd.Parameters);
 
         try
         {
-            var affected = cmd.ExecuteNonQuery();
+            var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             GeneratorUtils.LogCommand(store, "update-ok", cmd, null);
             return affected;
         }
@@ -284,7 +288,7 @@ namespace Azos.Data.Access.MySql
     }
 
 
-    private static int crudUpsert(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
+    private static async Task<int> crudUpsert(MySqlDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       var target = store.TargetName;
       var cnames = new StringBuilder();
@@ -300,33 +304,36 @@ namespace Azos.Data.Access.MySql
         if (fattr.StoreFlag != StoreFlag.LoadAndStore && fattr.StoreFlag != StoreFlag.OnlyStore) continue;
 
 
-        if (filter!=null)//20160210 Dkh+SPol
+        if (filter!=null)
         {
           if (!filter(doc, null, fld)) continue;
         }
 
         var fname = fld.GetBackendNameForTarget(target);
 
-        var fvalue = getFieldValue(doc, fld.Order, store);
+        fname = store.AdjustObjectNameCasing(fname);
+
+        var converted = getDbFieldValue(doc, fld, fattr, store);
 
 
         cnames.AppendFormat(" `{0}`,", fname);
 
-        if ( fvalue != null)
+        if ( converted.value != null)
         {
-            var pname = string.Format("?VAL{0}", vpidx);
+          var pname = string.Format("?VAL{0}", vpidx);
 
-            values.AppendFormat(" {0},", pname);
+          values.AppendFormat(" {0},", pname);
 
-            if (!fattr.Key)
-                upserts.AppendFormat(" `{0}` = {1},", fname, pname);
+          if (!fattr.Key)
+              upserts.AppendFormat(" `{0}` = {1},", fname, pname);
 
-            var par = new MySqlParameter();
-            par.ParameterName = pname;
-            par.Value = fvalue;
-            vparams.Add(par);
+          var par = new MySqlParameter();
+          par.ParameterName = pname;
+          par.Value = converted.value;
+          if (converted.dbType.HasValue) par.MySqlDbType = converted.dbType.Value;
+          vparams.Add(par);
 
-            vpidx++;
+          vpidx++;
         }
         else
         {
@@ -345,9 +352,9 @@ namespace Azos.Data.Access.MySql
         return 0;//nothing to do
 
 
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing(getTableName(doc.Schema, target));
 
-      using(var cmd = cnn.CreateCommand())
+      using (var cmd = cnn.CreateCommand())
       {
         var sql =
         @"INSERT INTO `{0}` ({1}) VALUES ({2}) ON DUPLICATE KEY UPDATE {3}".Args( tableName, cnames, values, upserts);
@@ -355,11 +362,11 @@ namespace Azos.Data.Access.MySql
         cmd.Transaction = trans;
         cmd.CommandText = sql;
         cmd.Parameters.AddRange(vparams.ToArray());
-        ConvertParameters(store, cmd.Parameters);
+        //ConvertParameters(store, cmd.Parameters);
 
         try
         {
-          var affected = cmd.ExecuteNonQuery();
+          var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
           GeneratorUtils.LogCommand(store, "upsert-ok", cmd, null);
           return affected;
         }
@@ -375,10 +382,10 @@ namespace Azos.Data.Access.MySql
 
 
 
-    private static int crudDelete(MySQLDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key)
+    private static async Task<int> crudDelete(MySqlDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, IDataStoreKey key)
     {
       var target = store.TargetName;
-      string tableName = getTableName(doc.Schema, target);
+      string tableName = store.AdjustObjectNameCasing(getTableName(doc.Schema, target));
 
       using (var cmd = cnn.CreateCommand())
       {
@@ -399,7 +406,7 @@ namespace Azos.Data.Access.MySql
 
         try
         {
-          var affected = cmd.ExecuteNonQuery();
+          var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
           GeneratorUtils.LogCommand(store, "delete-ok", cmd, null);
           return affected;
         }
@@ -408,30 +415,29 @@ namespace Azos.Data.Access.MySql
           GeneratorUtils.LogCommand(store, "delete-error", cmd, error);
           throw;
         }
-
-
       }//using command
     }
 
-    private static object getFieldValue(Doc doc, int order, MySQLDataStoreBase store)
+    private static (object value, MySqlDbType? dbType) getDbFieldValue(Doc doc, Schema.FieldDef fld, FieldAttribute fattr, MySqlDataStoreBase store)
     {
-      var result = doc[order];
-
-      MySqlDbType? convertedDbType;
-      return CLRValueToDB(store, result, out convertedDbType);
+      var result = doc.GetFieldValue(fld);
+      return CLRValueToDB(store, result, fattr.BackendType);
     }
 
-    internal static object CLRValueToDB(MySQLDataStoreBase store, object value, out MySqlDbType? convertedDbType)
+    internal static (object value, MySqlDbType? dbType) CLRValueToDB(MySqlDataStoreBase store, object value, string explicitDbType)
     {
-      convertedDbType = null;
+      MySqlDbType? convertedDbType = null;
 
-      if (value==null) return null;
+      if (explicitDbType.IsNotNullOrWhiteSpace())
+        convertedDbType = explicitDbType.AsNullableEnum<MySqlDbType>();
+
+      if (value==null) return (null, convertedDbType);
 
       if (value is GDID)
       {
         if (((GDID)value).IsZero)
         {
-          return null;
+          return (null, convertedDbType);
         }
 
         if(store.FullGDIDS)
@@ -455,22 +461,29 @@ namespace Azos.Data.Access.MySql
         }
       }
 
-      return value;
+      return (value, convertedDbType);
     }
 
-    internal static void ConvertParameters(MySQLDataStoreBase store, MySqlParameterCollection pars)
+    internal static void ConvertParameters(MySqlDataStoreBase store, MySqlParameterCollection pars)
     {
-      if (pars==null) return;
-      for(var i=0; i<pars.Count; i++)
+      if (pars == null) return;
+      for (var i = 0; i < pars.Count; i++)
       {
         var par = pars[i];
-        MySqlDbType? convertedDbType;
-        par.Value = CLRValueToDB(store, par.Value, out convertedDbType);
-        if (convertedDbType.HasValue)
-         par.MySqlDbType = convertedDbType.Value;
+        var converted = CLRValueToDB(store, par.Value, null);
+        par.Value = converted.value;
+        if (converted.dbType.HasValue)
+          par.MySqlDbType = converted.dbType.Value;
       }
     }
 
+    //used for provider dev
+    internal static void dbg(MySqlCommand cmd)
+    {
+      Console.WriteLine(cmd.CommandText);
+      foreach (var p in cmd.Parameters.Cast<MySqlParameter>())
+        Console.WriteLine("{0}: OrclDbTyp.{1} = ({2}){3}".Args(p.ParameterName, p.MySqlDbType, p.Value.GetType().FullName, p.Value));
+    }
 
     #endregion
 

@@ -310,7 +310,7 @@ namespace Azos.Data.Access.Oracle
         if (fattr.StoreFlag != StoreFlag.LoadAndStore && fattr.StoreFlag != StoreFlag.OnlyStore) continue;
 
 
-        if (filter!=null)//20160210 Dkh+SPol
+        if (filter!=null)
         {
           if (!filter(doc, null, fld)) continue;
         }
@@ -335,7 +335,7 @@ namespace Azos.Data.Access.Oracle
 
                 var par = new OracleParameter();
                 par.ParameterName = pname;
-                par.Value = converted;
+                par.Value = converted.value;
                 if (converted.dbType.HasValue) par.OracleDbType = converted.dbType.Value;
                 vparams.Add(par);
 

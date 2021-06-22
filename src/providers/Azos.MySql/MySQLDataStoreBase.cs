@@ -6,19 +6,21 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Data.Modeling;
 using Azos.Instrumentation;
+using Azos.Security;
 using MySql.Data.MySqlClient;
 
 
 namespace Azos.Data.Access.MySql
 {
   /// <summary>
-  /// Implements MySQL store base functionality
+  /// Implements MySql store base functionality
   /// </summary>
-  public abstract class MySQLDataStoreBase : ApplicationComponent, IDataStoreImplementation
+  public abstract class MySqlDataStoreBase : ApplicationComponent, IDataStoreImplementation, IExternallyCallable
   {
     #region CONSTS
     public const string STR_FOR_TRUE = "T";
@@ -27,20 +29,24 @@ namespace Azos.Data.Access.MySql
 
 
     #region .ctor/.dctor
-    protected MySQLDataStoreBase(IApplication app) : base(app)
-    {
-    }
+    protected MySqlDataStoreBase(IApplication app) : base(app) => ctor();
+    protected MySqlDataStoreBase(IApplicationComponent director) : base(director) => ctor();
 
-    protected MySQLDataStoreBase(IApplicationComponent director) : base(director)
+    private void ctor()
     {
+      m_ExternalCallHandler = new ExternalCallHandler<MySqlDataStoreBase>(App, this, null,
+        typeof(Instrumentation.DirectSql)
+      );
     }
     #endregion
 
 
     #region Private Fields
     private string m_ConnectString;
-
     private string m_TargetName;
+    private string m_Name;
+
+    private NameCaseSensitivity m_CaseSensitivity = NameCaseSensitivity.ToUpper;
 
     private bool m_StringBool = true;
 
@@ -52,11 +58,11 @@ namespace Azos.Data.Access.MySql
     private DateTimeKind m_DateTimeKind = DateTimeKind.Utc;
 
     private bool m_InstrumentationEnabled;
+
+    protected ExternalCallHandler<MySqlDataStoreBase> m_ExternalCallHandler;
     #endregion
 
     #region IInstrumentation
-    public string Name { get{return GetType().FullName;}}
-
     [Config(Default=false)]
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
     public bool InstrumentationEnabled{ get{return m_InstrumentationEnabled;} set{m_InstrumentationEnabled = value;}}
@@ -89,36 +95,68 @@ namespace Azos.Data.Access.MySql
     {
       return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
     }
+
+    /// <summary>
+    /// Returns a handler which processes external administration calls, such as the ones originating from
+    /// the application terminal
+    /// </summary>
+    public virtual IExternalCallHandler GetExternalCallHandler() => m_ExternalCallHandler;
     #endregion
 
     #region Properties
+
+    [Config]
+    public string Name
+    {
+      get => m_Name.IsNotNullOrWhiteSpace() ? m_Name : GetType().FullName;
+      set => m_Name = value;
+    }
+
 
     public override string ComponentLogTopic => MySqlConsts.MYSQL_TOPIC;
 
     /// <summary>
     /// Get/Sets MySql database connection string
     /// </summary>
-    [Config]
+    [SystemAdministratorPermission(AccessLevel.ADVANCED)]
+    [Config, ExternalParameter(nameof(ConnectString), ExternalParameterSecurityCheck.OnGetSet, CoreConsts.EXT_PARAM_GROUP_DATA)]
     public string ConnectString
     {
       get
       {
-          return m_ConnectString ?? string.Empty;
+        return m_ConnectString ?? string.Empty;
       }
       set
       {
-          m_ConnectString = value;
+        m_ConnectString = value;
       }
     }
 
     [Config]
     public StoreLogLevel DataLogLevel { get; set;}
 
+    /// <summary>
+    /// Provides schema name which is typically prepended to object names during SQL construction, e.g. "MYSCHEMA"."TABLE1"
+    /// </summary>
     [Config]
-    public string TargetName
+    public string SchemaName { get; set; }
+
+    [SystemAdministratorPermission(AccessLevel.ADVANCED)]
+    [Config, ExternalParameter(nameof(TargetName), ExternalParameterSecurityCheck.OnSet, CoreConsts.EXT_PARAM_GROUP_DATA)]
+    public virtual string TargetName
     {
-      get{ return m_TargetName.IsNullOrWhiteSpace() ? "MySQL" : m_TargetName;}
-      set{ m_TargetName = value;}
+      get { return m_TargetName.IsNullOrWhiteSpace() ? "MySql" : m_TargetName; }
+      set { m_TargetName = value; }
+    }
+
+    /// <summary>
+    /// Controls identifies case name sensitivity
+    /// </summary>
+    [Config]
+    public NameCaseSensitivity CaseSensitivity
+    {
+      get => m_CaseSensitivity;
+      set => m_CaseSensitivity = value;
     }
 
     /// <summary>
@@ -144,7 +182,7 @@ namespace Azos.Data.Access.MySql
     {
       try
       {
-        using (var cnn = GetConnection())
+        using (var cnn = GetConnection().GetAwaiter().GetResult())
         {
           var cmd = cnn.CreateCommand();
           cmd.CommandType = System.Data.CommandType.Text;
@@ -155,7 +193,7 @@ namespace Azos.Data.Access.MySql
       }
       catch (Exception error)
       {
-        throw new MySqlDataAccessException(string.Format(StringConsts.CONNECTION_TEST_FAILED_ERROR, error.Message), error);
+        throw new MySqlDataAccessException(StringConsts.CONNECTION_TEST_FAILED_ERROR.Args(error.Message), error);
       }
     }
     #endregion
@@ -169,21 +207,51 @@ namespace Azos.Data.Access.MySql
 
     #region Protected
     /// <summary>
-    /// Allocates MySQL connection
+    /// Converts the case of identifier based on CaseSensitivity property
     /// </summary>
-    protected MySqlConnection GetConnection()
+    internal string AdjustObjectNameCasing(string name)
+    {
+      switch (CaseSensitivity)
+      {
+        case NameCaseSensitivity.ToLower: return name.ToLowerInvariant();
+        case NameCaseSensitivity.ToUpper: return name.ToUpperInvariant();
+        default: return name;
+      }
+    }
+
+
+    /// <summary>
+    /// Allocates MySql connection. Override to do custom connection setup, such as `ALTER SESSION` etc...
+    /// </summary>
+    public virtual async Task<MySqlConnection> GetConnection()
     {
       var connectString = this.ConnectString;
 
       //Try to override from the context
       var ctx = CRUDOperationCallContext.Current;
-      if (ctx!=null && ctx.ConnectString.IsNotNullOrWhiteSpace())
+      if (ctx != null && ctx.ConnectString.IsNotNullOrWhiteSpace())
+      {
         connectString = ctx.ConnectString;
+      }
 
-      var cnn = new MySqlConnection(connectString);
-      cnn.Open();
+      var effectiveConnectString = TranslateConnectString(connectString);
+
+      var cnn = new MySqlConnection(effectiveConnectString);
+
+      await cnn.OpenAsync().ConfigureAwait(false); //<---- OPEN
+
       return cnn;
     }
+
+    /// <summary>
+    /// Translates the value of ConnectString property or CRUDOperationCallContext into
+    /// an actual MySql connect string. For example: you can override this method and use
+    /// logical connect string names which will then be translated to the physical ones.
+    /// This can be also done for failover when a mnemonic connection name gets translated
+    /// to the physical servers depending on their online/offline status.
+    /// The default implementation returns the string as-is.
+    /// </summary>
+    protected virtual string TranslateConnectString(string connectString) => connectString;
     #endregion
   }
 }

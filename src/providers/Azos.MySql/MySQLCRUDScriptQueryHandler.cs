@@ -17,10 +17,10 @@ namespace Azos.Data.Access.MySql
   /// <summary>
   /// Executes MySql CRUD script-based queries
   /// </summary>
-  public sealed class MySqlCRUDScriptQueryHandler : CRUDQueryHandler<MySqlDataStore>
+  public sealed class MySqlCRUDScriptQueryHandler : CRUDQueryHandler<MySqlCrudDataStoreBase>
   {
     #region .ctor
-    public MySqlCRUDScriptQueryHandler(MySqlDataStore store, QuerySource source) : base(store, source) { }
+    public MySqlCRUDScriptQueryHandler(MySqlCrudDataStoreBase store, QuerySource source) : base(store, source) { }
     #endregion
 
     #region ICRUDQueryHandler

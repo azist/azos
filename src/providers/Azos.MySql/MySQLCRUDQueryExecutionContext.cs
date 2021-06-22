@@ -13,11 +13,11 @@ namespace Azos.Data.Access.MySql
   /// </summary>
   public struct MySqlCRUDQueryExecutionContext : ICRUDQueryExecutionContext
   {
-    public readonly MySQLDataStoreBase  DataStore;
+    public readonly MySqlDataStoreBase  DataStore;
     public readonly MySqlConnection  Connection;
     public readonly MySqlTransaction Transaction;
 
-    public MySqlCRUDQueryExecutionContext(MySQLDataStoreBase  store, MySqlConnection cnn, MySqlTransaction trans)
+    public MySqlCRUDQueryExecutionContext(MySqlDataStoreBase  store, MySqlConnection cnn, MySqlTransaction trans)
     {
         DataStore = store;
         Connection = cnn;
@@ -26,15 +26,15 @@ namespace Azos.Data.Access.MySql
 
 
     /// <summary>
-    /// Based on store settings, converts CLR value to MySQL-acceptable value, i.e. GDID -> BYTE[].
+    /// Based on store settings, converts CLR value to MySql-acceptable value, i.e. GDID -> BYTE[].
     /// </summary>
-    public object CLRValueToDB(MySQLDataStoreBase store, object value, out MySqlDbType? convertedDbType)
+    public (object value, MySqlDbType? dbType) CLRValueToDB(object value, string explicitDbType)
     {
-      return CRUDGenerator.CLRValueToDB(DataStore, value, out convertedDbType);
+      return CRUDGenerator.CLRValueToDB(DataStore, value, explicitDbType);
     }
 
     /// <summary>
-    /// Based on store settings, converts query parameters into MySQL-acceptable values, i.e. GDID -> BYTe[].
+    /// Based on store settings, converts query parameters into MySQL-acceptable values, i.e. GDID -> BYTE[].
     /// This function is not idempotent
     /// </summary>
     public void ConvertParameters(MySqlParameterCollection pars)

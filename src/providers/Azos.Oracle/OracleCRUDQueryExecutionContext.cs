@@ -34,7 +34,7 @@ namespace Azos.Data.Access.Oracle
        }
 
        /// <summary>
-       /// Based on store settings, converts query parameters into MySQL-acceptable values, i.e. GDID -> BYTe[].
+       /// Based on store settings, converts query parameters into MySQL-acceptable values, i.e. GDID -> BYTE[].
        /// This function is not idempotent
        /// </summary>
        public void ConvertParameters(OracleParameterCollection pars)

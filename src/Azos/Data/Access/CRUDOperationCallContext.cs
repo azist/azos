@@ -28,7 +28,7 @@ namespace Azos.Data.Access
 
     public CRUDOperationCallContext()
     {
-      if (ats_Instances.Value==null)
+      if (ats_Instances.Value == null)
           ats_Instances.Value = new Stack<CRUDOperationCallContext>();
 
       ats_Instances.Value.Push(this);
@@ -36,12 +36,14 @@ namespace Azos.Data.Access
 
     protected override void Destructor()
     {
-      if (ats_Instances.Value.Count>0)
+      if (ats_Instances.Value.Count > 0)
       {
-        if (ats_Instances.Value.Pop()==this)
+        if (ats_Instances.Value.Pop() == this)
         {
           if (ats_Instances.Value.Count == 0)
+          {
             ats_Instances.Value = null;
+          }
 
           return;
         }
@@ -52,12 +54,12 @@ namespace Azos.Data.Access
     /// <summary>
     /// Used to override store's default database connection string
     /// </summary>
-    public string ConnectString{ get; set;}
+    public string ConnectString{ get; set; }
 
     /// <summary>
     /// Used to override store's default database name - used by some stores, others take db name from the connect string
     /// </summary>
-    public string DatabaseName{ get; set;}
+    public string DatabaseName{ get; set; }
   }
 
 }
