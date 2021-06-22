@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -238,10 +239,12 @@ namespace Azos.Tests.Nub
     //this test emulates different physical originating call contexts
     [Run("capture=true")]
     [Run("capture=false")]
+    [Run("capture=true")]
+    [Run("capture=false")]
     public void AsyncFlowMutableParallelThreads(bool capture)
     {
       var list = new List<Thread>();
-      for(var i=0; i<System.Environment.ProcessorCount*2; i++)
+      for(var i=0; i<System.Environment.ProcessorCount * 2; i++)
       {
         var t = new Thread(threadBody);
         t.IsBackground = false;
@@ -259,29 +262,40 @@ namespace Azos.Tests.Nub
       var capture = (bool)ptrCapture;
       while(!m_Signal) Thread.SpinWait(100);
 
+      var self = "THREAD-{0}".Args(Guid.NewGuid());//create thread-specific value
+
+      var data = new directData { Tag = self };
+      ats_MutableParallel.Value = data;
+
+      Aver.AreEqual(self, ats_MutableParallel.Value.Tag);//still equal self
       var task = m1mutate(capture);
-      task.GetAwaiter().GetResult();
+      var innerCahngedValue = task.GetAwaiter().GetResult();//this triggers all sorts of processing, async chain etc..
+
+      //but changes from below are propagated here
+      Aver.AreNotEqual(self, ats_MutableParallel.Value.Tag);
+      Aver.AreEqual(innerCahngedValue, ats_MutableParallel.Value.Tag);
     }
 
-    private async Task m1mutate(bool capture)//every flow roots in its own PHYSICAL thread, and it still maintains proper call flow
+    private async Task<string> m1mutate(bool capture)//every flow roots in its own PHYSICAL thread, and it still maintains proper call flow
     {
-      var d1 = Ambient.Random.NextRandomWebSafeString();
-      var d2 = Ambient.Random.NextRandomWebSafeString();
+      var d1 = Guid.NewGuid().ToString();
+      var d2 = Guid.NewGuid().ToString();
 
       for(var i=0; i<100; i++)
       {
-        var data = new directData { Tag = d1 };
+        var data = new directData { Tag = d1 }; //set D1
         ats_MutableParallel.Value = data;
 
         await Task.Yield();
-        Aver.AreEqual(d1, ats_MutableParallel.Value.Tag);
+        Aver.AreEqual(d1, ats_MutableParallel.Value.Tag);//still D1
 
-        await m2mutate(d2, capture).ConfigureAwait(capture);
-
+        await m2mutate(d2, capture).ConfigureAwait(capture); //D2 is set from under another async
         await Task.Yield();
-        //        Thread.CurrentThread.ManagedThreadId.See();
+
         Aver.AreEqual(d2, ats_MutableParallel.Value.Tag);  //<-- get the value mutated in inner parts of the flow
       }
+
+      return d2;//return LAST value set = D2
     }
 
     private async Task m2mutate(string v, bool capture)
