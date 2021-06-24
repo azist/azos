@@ -570,8 +570,8 @@ namespace Azos.Tests.Nub
     [Run]
     public void ShardKey_Object_IDistributedStableHashProvider()
     {
-      var v1 = new ShardKey((object)null);
-      var v2 = new ShardKey((object)null);
+      var v1 = new ShardKey((IDistributedStableHashProvider)null);
+      var v2 = new ShardKey((IDistributedStableHashProvider)null);
       Aver.IsTrue(ShardKey.Type.IDistributedStableHashProvider == v1.DataType);
       Aver.AreEqual(v1, v2);
       Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());

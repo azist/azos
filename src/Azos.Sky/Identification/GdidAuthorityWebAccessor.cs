@@ -39,7 +39,7 @@ namespace Azos.Sky.Identification
     public override string ComponentLogTopic => CoreConsts.TOPIC_ID_GEN;
 
     private HttpService m_Server;
-    private int m_Shard;
+    private uint m_Shard;
 
     /// <summary>
     /// Logical authority service address

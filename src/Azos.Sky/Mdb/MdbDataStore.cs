@@ -174,7 +174,7 @@ namespace Azos.Sky.Mdb
     /// Returns CRUDOperations facade connected to the appropriate shard within the central area as
     /// determined by the shardingID
     /// </summary>
-    public CRUDOperations CentralOperationsFor(object shardingID)
+    public CRUDOperations CentralOperationsFor(ShardKey shardingID)
     {
       CheckDaemonActive();
       return m_CentralArea.ShardedOperationsFor(shardingID);

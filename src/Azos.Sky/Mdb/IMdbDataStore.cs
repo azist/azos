@@ -42,6 +42,6 @@ namespace Azos.Sky.Mdb
     /// Returns CRUDOperations facade connected to the appropriate shard within the central area as
     /// determined by the the shardingID
     /// </summary>
-    CRUDOperations CentralOperationsFor(object shardingID);
+    CRUDOperations CentralOperationsFor(ShardKey shardingID);
   }
 }

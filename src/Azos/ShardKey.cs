@@ -60,8 +60,8 @@ namespace Azos
     public ShardKey(DateTime key)
     { DataType = Type.DateTime; Buffer = new GDID(0, (ulong)key.IsTrue( v => v.Kind == DateTimeKind.Utc, "UTC timestamp").ToMillisecondsSinceUnixEpochStart()); ObjectValue = null; }
 
-    public ShardKey(object key)
-    { DataType = Type.IDistributedStableHashProvider; Buffer = new GDID(); ObjectValue = (key==null) ? null : key.CastTo<IDistributedStableHashProvider>(); }
+    public ShardKey(IDistributedStableHashProvider key)
+    { DataType = Type.IDistributedStableHashProvider; Buffer = new GDID(); ObjectValue = key; }
 
     public ShardKey(Guid guid)
     { DataType = Type.Guid; Buffer = new GDID(); ObjectValue = guid.ToNetworkByteOrder(); }
@@ -77,6 +77,12 @@ namespace Azos
     public readonly GDID Buffer;
     public readonly object ObjectValue;
 
+
+    /// <summary>
+    /// True if structure is initialized/was assigned
+    /// </summary>
+    public bool Assigned => DataType != Type.Uninitialized;
+
     /// <summary>
     /// Alias to .GetDistributedStableHash()
     /// </summary>
@@ -88,7 +94,7 @@ namespace Azos
     public ulong ValueUlong       => OfType(Type.Ulong).Buffer.ID;
     public uint ValueUint         => (uint)OfType(Type.Uint).Buffer.ID;
     public DateTime ValueDateTime => OfType(Type.DateTime).Buffer.ID.FromMillisecondsSinceUnixEpochStart();
-    public object ValueIDistributedStableHashProvider => OfType(Type.IDistributedStableHashProvider).ObjectValue;
+    public IDistributedStableHashProvider ValueIDistributedStableHashProvider => OfType(Type.IDistributedStableHashProvider).ObjectValue as IDistributedStableHashProvider;
     public Guid ValueGuid         => (OfType(Type.Guid).ObjectValue as byte[]).GuidFromNetworkByteOrder();
     public string ValueString     => OfType(Type.String).ObjectValue as string;
     public byte[] ValueByteArray  => OfType(Type.ByteArray).ObjectValue as byte[];
