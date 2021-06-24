@@ -12,7 +12,8 @@ using Azos.Conf;
 using Azos.Data.Modeling;
 using Azos.Instrumentation;
 using Azos.Security;
-using MySql.Data.MySqlClient;
+
+using MySqlConnector;
 
 
 namespace Azos.Data.Access.MySql

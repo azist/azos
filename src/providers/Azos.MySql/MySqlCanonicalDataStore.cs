@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
 
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace Azos.Data.Access.MySql
 {

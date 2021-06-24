@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace Azos.Data.Access.MySql
 {
@@ -19,7 +19,6 @@ namespace Azos.Data.Access.MySql
   /// </summary>
   internal static class CRUDGenerator
   {
-
     public static async Task<int> CRUDInsert(MySqlDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {
       try

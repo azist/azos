@@ -298,36 +298,35 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-        public static void ASYNC_InsertInTransaction_Commit_TypedRow(ICRUDDataStore store)
+    public static async Task ASYNC_InsertInTransaction_Commit_TypedRow(ICRUDDataStore store)
+    {
+        var transaction = store.BeginTransactionAsync().Result;
+
+        var tasks = new List<Task>();
+        for(var i=0; i<25; i++)
         {
-            var transaction = store.BeginTransactionAsync().Result;
-
-            var tasks = new List<Task>();
-            for(var i=0; i<25; i++)
-            {
-                tasks.Add(
-                  transaction.InsertAsync( new Patient
-                                 {
-                                   SSN = "999-88-9012",
-                                   First_Name = "Jack",
-                                   Last_Name = "Kozloff"+i,
-                                   DOB = new DateTime(1980, 1, 12)
-                                 }));
-            }
-
-            Task.WaitAll(tasks.ToArray());
-
-
-            var task = store.LoadAsync( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } );
-
-            Aver.AreEqual(0, task.Result[0].Count);
-
-            transaction.Commit();
-
-            task = store.LoadAsync( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } );
-
-            Aver.AreEqual(25, task.Result[0].Count);
+          await transaction.InsertAsync( new Patient
+                          {
+                            SSN = "999-88-9012",
+                            First_Name = "Jack",
+                            Last_Name = "Kozloff"+i,
+                            DOB = new DateTime(1980, 1, 12)
+                          });
         }
+
+        Task.WaitAll(tasks.ToArray());
+
+
+        var got = await store.LoadAsync( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } );
+
+        Aver.AreEqual(0, got[0].Count);
+
+        transaction.Commit();
+
+        got = await store.LoadAsync( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff%") } );
+
+        Aver.AreEqual(25, got[0].Count);
+    }
 
 
 
@@ -391,17 +390,17 @@ namespace Azos.Tests.Integration.CRUD
             Aver.AreObjectsEqual("Gagarin", result[0]["Last_Name"]);
         }
 
-        public static void ASYNC_InsertThenUpdate_TypedRow(ICRUDDataStore store)
+        public static async Task ASYNC_InsertThenUpdate_TypedRow(ICRUDDataStore store)
         {
             for(var i=0; i<10; i++)
             {
-                store.InsertAsync( new Patient
+                await store.InsertAsync( new Patient
                                {
                                  SSN = i.ToString(),
                                  First_Name = "Jack",
                                  Last_Name = "Kozloff_"+i,
                                  DOB = new DateTime(1980, 1, 12)
-                               }).Wait();
+                               });
             }
 
 
@@ -412,7 +411,7 @@ namespace Azos.Tests.Integration.CRUD
             Aver.AreEqual("5", row.SSN.Trim());
 
             row.Last_Name = "Gagarin";
-            store.UpdateAsync( row ).Wait();
+            await store.UpdateAsync( row );
 
             result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
             Aver.AreEqual(0, result.Count);
@@ -454,17 +453,17 @@ namespace Azos.Tests.Integration.CRUD
 
         }
 
-        public static void ASYNC_InsertThenDelete_TypedRow(ICRUDDataStore store)
+        public static async Task ASYNC_InsertThenDelete_TypedRow(ICRUDDataStore store)
         {
             for(var i=0; i<10; i++)
             {
-                store.InsertAsync( new Patient
+                await store.InsertAsync( new Patient
                                {
                                  SSN = i.ToString(),
                                  First_Name = "Jack",
                                  Last_Name = "Kozloff_"+i,
                                  DOB = new DateTime(1980, 1, 12)
-                               }).Wait();
+                               });
             }
 
 
@@ -474,7 +473,7 @@ namespace Azos.Tests.Integration.CRUD
             var row = result[0] as Patient;
             Aver.AreEqual("5", row.SSN.Trim());
 
-            store.DeleteAsync( row ).Wait();
+            await store.DeleteAsync( row );
 
             result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
             Aver.AreEqual(0, result.Count);
@@ -536,17 +535,17 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-        public static void ASYNC_InsertThenUpsert_TypedRow(ICRUDDataStore store)
+        public static async Task ASYNC_InsertThenUpsert_TypedRow(ICRUDDataStore store)
         {
             for(var i=0; i<10; i++)
             {
-                store.InsertAsync( new Patient
+                await store.InsertAsync( new Patient
                                {
                                  SSN = i.ToString(),
                                  First_Name = "Jack",
                                  Last_Name = "Kozloff_"+i,
                                  DOB = new DateTime(1980, 1, 12)
-                               }).Wait();
+                               });
             }
 
 
@@ -558,7 +557,7 @@ namespace Azos.Tests.Integration.CRUD
             Aver.AreEqual(null, row.Phone);
 
             row.Phone = "22-94-92";
-            store.UpsertAsync( row ).Wait();
+            await store.UpsertAsync( row );
 
             result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff_5") } )[0];
             Aver.AreEqual(1, result.Count);
@@ -575,7 +574,7 @@ namespace Azos.Tests.Integration.CRUD
                                  DOB = new DateTime(1871, 4, 20)
                                };
 
-            store.UpsertAsync(row).Wait();
+            await store.UpsertAsync(row);
 
             result = store.Load( new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%") } )[0];
             Aver.AreEqual(11, result.Count);
@@ -627,9 +626,9 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-        public static void ASYNC_GetSchemaAndTestVariousTypes(ICRUDDataStore store)
+        public static async Task ASYNC_GetSchemaAndTestVariousTypes(ICRUDDataStore store)
         {
-            var schema = store.GetSchemaAsync(new Query("CRUD.Queries.Types.Load")).Result;
+            var schema = await store.GetSchemaAsync(new Query("CRUD.Queries.Types.Load"));
 
             var row = new DynamicDoc(schema);
             row["GDID"] = new GDID(0, 145);
@@ -964,7 +963,7 @@ namespace Azos.Tests.Integration.CRUD
 
         }
 
-        public static void Populate_ASYNC_OpenCursor(ICRUDDataStore store)
+        public static async Task Populate_ASYNC_OpenCursor(ICRUDDataStore store)
         {
             const int CNT = 1000;
 
@@ -978,8 +977,6 @@ namespace Azos.Tests.Integration.CRUD
               store.Insert( patient );
             }
 
-
-
             var query = new Query<TupleData>("CRUD.Queries.Tuple.LoadAll");
             var result = store.LoadOneRowset( query );
 
@@ -988,20 +985,14 @@ namespace Azos.Tests.Integration.CRUD
             Aver.AreObjectsEqual(0, result[0]["COUNTER"].AsInt());
             Aver.AreObjectsEqual(CNT-1, result[result.Count-1]["COUNTER"].AsInt());
 
-            var task = store.OpenCursorAsync( query )
-                              .ContinueWith( antecedent =>
-                                {
-                                    var cursor = antecedent.Result;;
-                                    Aver.IsFalse( cursor.Disposed );
-                                    var cnt = 0;
-                                    foreach(var row in cursor.AsEnumerableOf<TupleData>())
-                                    cnt++;
+            var cursor = await store.OpenCursorAsync( query );
 
-                                    Aver.AreEqual(CNT, cnt);
-                                    Aver.IsTrue( cursor.Disposed );//foreach must have closed the cursor
-                                });
-            task.Wait();
+            Aver.IsFalse( cursor.Disposed );
+            var cnt = 0;
+            foreach(var row in cursor.AsEnumerableOf<TupleData>()) cnt++;
 
+            Aver.AreEqual(CNT, cnt);
+            Aver.IsTrue( cursor.Disposed );//foreach must have closed the cursor
         }
 
 

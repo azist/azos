@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 
 using Azos.Log;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace Azos.Data.Access.MySql
 {

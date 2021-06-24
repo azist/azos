@@ -7,7 +7,7 @@
 using System;
 using System.Data;
 
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 using Azos.Conf;
 

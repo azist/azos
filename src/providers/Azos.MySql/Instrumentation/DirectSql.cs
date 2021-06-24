@@ -12,7 +12,7 @@ using Azos.Serialization.JSON;
 using Azos.Web;
 using Azos.Security;
 
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace Azos.Data.Access.MySql.Instrumentation
 {

@@ -14,7 +14,7 @@ using Azos.Data;
 using Azos.Data.Access.MySql;
 using Azos.Scripting;
 
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace Azos.Tests.Integration.CRUD
 {
@@ -156,14 +156,17 @@ namespace Azos.Tests.Integration.CRUD
         }
 
         [Run]
-        public void ManualDS_ASYNC_InsertInTransaction_Commit_TypedRow()
+        public async Task ManualDS_ASYNC_InsertInTransaction_Commit_TypedRow()
         {
-            using(var store = new MySqlCanonicalDataStore(NOPApplication.Instance, getConnectString()))
-            {
-                store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
-                clearAllTables();
-                TestLogic.ASYNC_InsertInTransaction_Commit_TypedRow( store );
-            }
+          // 06/23/2021 D
+          //https://mysqlconnector.net/troubleshooting/connection-reuse/
+
+          using (var store = new MySqlCanonicalDataStore(NOPApplication.Instance, getConnectString()))
+          {
+              store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
+              clearAllTables();
+              await TestLogic.ASYNC_InsertInTransaction_Commit_TypedRow( store );
+          }
         }
 
         [Run]
@@ -189,13 +192,13 @@ namespace Azos.Tests.Integration.CRUD
         }
 
         [Run]
-        public void ManualDS_ASYNC_InsertThenUpdate_TypedRow()
+        public async Task ManualDS_ASYNC_InsertThenUpdate_TypedRow()
         {
             using(var store = new MySqlCanonicalDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
-                TestLogic.ASYNC_InsertThenUpdate_TypedRow( store );
+                await TestLogic.ASYNC_InsertThenUpdate_TypedRow( store );
             }
         }
 
@@ -212,13 +215,13 @@ namespace Azos.Tests.Integration.CRUD
         }
 
         [Run]
-        public void ManualDS_ASYNC_InsertThenDelete_TypedRow()
+        public async Task ManualDS_ASYNC_InsertThenDelete_TypedRow()
         {
             using(var store = new MySqlCanonicalDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
-                TestLogic.ASYNC_InsertThenDelete_TypedRow( store );
+                await TestLogic.ASYNC_InsertThenDelete_TypedRow( store );
             }
         }
 
@@ -234,13 +237,13 @@ namespace Azos.Tests.Integration.CRUD
         }
 
         [Run]
-        public void ManualDS_ASYNC_InsertThenUpsert_TypedRow()
+        public async Task ManualDS_ASYNC_InsertThenUpsert_TypedRow()
         {
             using(var store = new MySqlCanonicalDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
-                TestLogic.ASYNC_InsertThenUpsert_TypedRow( store );
+                await TestLogic.ASYNC_InsertThenUpsert_TypedRow( store );
             }
         }
 
@@ -258,7 +261,7 @@ namespace Azos.Tests.Integration.CRUD
         }
 
         [Run]
-        public void ManualDS_ASYNC_GetSchemaAndTestVariousTypes()
+        public async Task ManualDS_ASYNC_GetSchemaAndTestVariousTypes()
         {
             using(var store = new MySqlCanonicalDataStore(NOPApplication.Instance, getConnectString()))
             {
@@ -266,7 +269,7 @@ namespace Azos.Tests.Integration.CRUD
                 store.FullGDIDS = false;
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
-                TestLogic.ASYNC_GetSchemaAndTestVariousTypes( store );
+                await TestLogic.ASYNC_GetSchemaAndTestVariousTypes( store );
             }
         }
 
@@ -379,13 +382,13 @@ namespace Azos.Tests.Integration.CRUD
         }
 
         [Run]
-        public void ManualDS_ASYNC_Populate_OpenCursor()
+        public async Task ManualDS_ASYNC_Populate_OpenCursor()
         {
             using (var store = new MySqlCanonicalDataStore(NOPApplication.Instance, getConnectString()))
             {
                 store.QueryResolver.ScriptAssembly = SCRIPT_ASM;
                 clearAllTables();
-                TestLogic.Populate_ASYNC_OpenCursor(store);
+                await TestLogic.Populate_ASYNC_OpenCursor(store);
                 clearAllTables();
             }
         }
