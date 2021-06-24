@@ -17,6 +17,16 @@ namespace Azos.Tests.Nub
   public class ShardKeyTests
   {
     [Run]
+    public void AssignedUnassigned()
+    {
+      Aver.IsFalse(new ShardKey().Assigned);
+      Aver.IsTrue(new ShardKey((string)null).Assigned);
+      Aver.IsTrue(new ShardKey(1ul).Assigned);
+      Aver.IsTrue(new ShardKey(GDID.ZERO).Assigned);//even if it is ZERO, it is still assigned a value
+    }
+
+
+    [Run]
     public void String_001()
     {
       Aver.AreEqual(0ul, ShardKey.ForString(null));
@@ -572,6 +582,9 @@ namespace Azos.Tests.Nub
     {
       var v1 = new ShardKey((IDistributedStableHashProvider)null);
       var v2 = new ShardKey((IDistributedStableHashProvider)null);
+
+      Aver.IsTrue(v1.Assigned);
+
       Aver.IsTrue(ShardKey.Type.IDistributedStableHashProvider == v1.DataType);
       Aver.AreEqual(v1, v2);
       Aver.AreEqual(v1.GetHashCode(), v2.GetHashCode());

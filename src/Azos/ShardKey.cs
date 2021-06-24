@@ -19,7 +19,7 @@ namespace Azos
   /// The following data types are supported:
   ///  `Gdid`, `Atom`, `EntityId`, `Ulong`, `Uint`, `DateTime`(UTC), `Guid`, `String`, `ByteArray`, and any custom entities
   ///  implementing <see cref="IDistributedStableHashProvider"/> interface.
-  ///  Warning: The returned hash is NOT intended to be used by cryptography, as the computed result
+  ///  Warning: The returned hash is NOT intended to be used for cryptographic purposes, as the computed result
   ///  is not guaranteed to produce cryptographically-safe hash value
   /// </summary>
   /// <remarks>
