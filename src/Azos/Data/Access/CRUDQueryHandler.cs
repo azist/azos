@@ -15,12 +15,8 @@ namespace Azos.Data.Access
   {
     protected CRUDQueryHandler(ICRUDDataStore store, string name)
     {
-      if (store == null)
-        throw new DataAccessException(StringConsts.ARGUMENT_ERROR + "CRUDQueryHandler.ctor(store == null)");
-      if (name.IsNullOrWhiteSpace())
-        throw new DataAccessException(StringConsts.ARGUMENT_ERROR + "CRUDQueryHandler.ctor(name.IsNullOrWhiteSpace())");
-      m_Store = store;
-      m_Name = name;
+      m_Store = store.NonNull(nameof(store));
+      m_Name = name.NonBlank(nameof(name));
     }
 
     protected CRUDQueryHandler(ICRUDDataStore store, QuerySource source) : this(store, source.NonNull(nameof(source)).Name)

@@ -270,7 +270,7 @@ namespace Azos.Data.Access.MySql
         cmd.Transaction = trans;
         cmd.CommandText = sql;
         cmd.Parameters.AddRange(vparams.ToArray());
-        //ConvertParameters(store, cmd.Parameters);
+        ConvertParameters(store, cmd.Parameters);
 
         try
         {
@@ -361,7 +361,7 @@ namespace Azos.Data.Access.MySql
         cmd.Transaction = trans;
         cmd.CommandText = sql;
         cmd.Parameters.AddRange(vparams.ToArray());
-        //ConvertParameters(store, cmd.Parameters);
+        ConvertParameters(store, cmd.Parameters);
 
         try
         {
@@ -449,9 +449,9 @@ namespace Azos.Data.Access.MySql
           value = (object)((GDID)value).ID;
           convertedDbType = MySqlDbType.Int64;
         }
+
       }
-      else
-      if (value is bool)
+      else if (value is bool)
       {
         if (store.StringBool)
         {

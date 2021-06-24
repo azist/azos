@@ -25,6 +25,9 @@ namespace Azos.Data.Access.MySql
 
     #region ICRUDQueryHandler
     public override Schema GetSchema(ICRUDQueryExecutionContext context, Query query)
+      => GetSchemaAsync(context, query).GetAwaiter().GetResult();
+
+    public override async Task<Schema> GetSchemaAsync(ICRUDQueryExecutionContext context, Query query)
     {
       var ctx = (MySqlCRUDQueryExecutionContext)context;
       var target = ctx.DataStore.TargetName;
@@ -41,7 +44,7 @@ namespace Azos.Data.Access.MySql
 
         try
         {
-            reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly);
+            reader = await cmd.ExecuteReaderAsync(CommandBehavior.SchemaOnly).ConfigureAwait(false);
             GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-ok", cmd, null);
         }
         catch(Exception error)
@@ -60,13 +63,10 @@ namespace Azos.Data.Access.MySql
     }
 
 
-    public override Task<Schema> GetSchemaAsync(ICRUDQueryExecutionContext context, Query query)
-    {
-      return TaskUtils.AsCompletedTask( () => this.GetSchema(context, query));
-    }
-
-
     public override RowsetBase Execute(ICRUDQueryExecutionContext context, Query query, bool oneDoc = false)
+      => ExecuteAsync(context, query, oneDoc).GetAwaiter().GetResult();
+
+    public override async Task<RowsetBase> ExecuteAsync(ICRUDQueryExecutionContext context, Query query, bool oneDoc = false)
     {
       var ctx = (MySqlCRUDQueryExecutionContext)context;
       var target = ctx.DataStore.TargetName;
@@ -84,7 +84,9 @@ namespace Azos.Data.Access.MySql
 
         try
         {
-            reader = oneDoc ? cmd.ExecuteReader(CommandBehavior.SingleRow) : cmd.ExecuteReader();
+            reader = oneDoc ? await cmd.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(false) :
+                              await cmd.ExecuteReaderAsync().ConfigureAwait(false);
+
             GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-ok", cmd, null);
         }
         catch(Exception error)
@@ -94,17 +96,14 @@ namespace Azos.Data.Access.MySql
         }
 
         using (reader)
-          return PopulateRowset(ctx, reader, target, query, Source, oneDoc);
+          return await PopulateRowset(ctx, reader, target, query, Source, oneDoc);
       }//using command
     }
 
-    public override Task<RowsetBase> ExecuteAsync(ICRUDQueryExecutionContext context, Query query, bool oneDoc = false)
-    {
-      return TaskUtils.AsCompletedTask( () => this.Execute(context, query, oneDoc));
-    }
-
-
     public override Cursor OpenCursor(ICRUDQueryExecutionContext context, Query query)
+     => OpenCursorAsync(context, query).GetAwaiter().GetResult();
+
+    public override async Task<Cursor> OpenCursorAsync(ICRUDQueryExecutionContext context, Query query)
     {
       var ctx = (MySqlCRUDQueryExecutionContext)context;
       var target = ctx.DataStore.TargetName;
@@ -124,7 +123,7 @@ namespace Azos.Data.Access.MySql
 
         try
         {
-            reader = cmd.ExecuteReader();
+            reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
             GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-ok", cmd, null);
         }
         catch(Exception error)
@@ -144,6 +143,7 @@ namespace Azos.Data.Access.MySql
       }
 
       var enumerable = execEnumerable(ctx, cmd, reader, schema, toLoad, query);
+
       return new MySqlCursor( ctx, cmd, reader, enumerable );
     }
 
@@ -158,42 +158,35 @@ namespace Azos.Data.Access.MySql
         }
     }
 
-    public override Task<Cursor> OpenCursorAsync(ICRUDQueryExecutionContext context, Query query)
-    {
-      return TaskUtils.AsCompletedTask( () => this.OpenCursor(context, query));
-    }
-
 
     public override int ExecuteWithoutFetch(ICRUDQueryExecutionContext context, Query query)
+      => ExecuteWithoutFetchAsync(context, query).GetAwaiter().GetResult();
+
+    public override async Task<int> ExecuteWithoutFetchAsync(ICRUDQueryExecutionContext context, Query query)
     {
         var ctx = (MySqlCRUDQueryExecutionContext)context;
 
         using (var cmd = ctx.Connection.CreateCommand())
         {
 
-            cmd.CommandText =  Source.StatementSource;
+          cmd.CommandText =  Source.StatementSource;
 
-            PopulateParameters(cmd, query);
+          PopulateParameters(cmd, query);
 
-            cmd.Transaction = ctx.Transaction;
+          cmd.Transaction = ctx.Transaction;
 
-            try
-            {
-                var affected = cmd.ExecuteNonQuery();
-                GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-ok", cmd, null);
-                return affected;
-            }
-            catch(Exception error)
-            {
-                GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-error", cmd, error);
-                throw;
-            }
+          try
+          {
+            var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+            GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-ok", cmd, null);
+            return affected;
+          }
+          catch(Exception error)
+          {
+            GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-error", cmd, error);
+            throw;
+          }
         }//using command
-    }
-
-    public override Task<int> ExecuteWithoutFetchAsync(ICRUDQueryExecutionContext context, Query query)
-    {
-        return TaskUtils.AsCompletedTask( () => this.ExecuteWithoutFetch(context, query));
     }
 
     #endregion
@@ -203,14 +196,15 @@ namespace Azos.Data.Access.MySql
     /// <summary>
     /// Reads data from reader into rowset. the reader is NOT disposed
     /// </summary>
-    public static Rowset PopulateRowset(MySqlCRUDQueryExecutionContext context, MySqlDataReader reader, string target, Query query, QuerySource qSource, bool oneDoc)
+    public static async Task<Rowset> PopulateRowset(MySqlCRUDQueryExecutionContext context, MySqlDataReader reader, string target, Query query, QuerySource qSource, bool oneDoc)
     {
       Schema.FieldDef[] toLoad;
       Schema schema = GetSchemaForQuery(target, query, reader, qSource, out toLoad);
       var store= context.DataStore;
 
       var result = new Rowset(schema);
-      while(reader.Read())
+
+      while( await reader.ReadAsync().ConfigureAwait(false) )
       {
         var row = PopulateDoc(context, query.ResultDocType, schema, toLoad, reader);
 
