@@ -774,7 +774,7 @@ namespace Azos.Tests.Integration.CRUD
             Aver.AreEqual(patient.Address1, persisted.Address1);
             Aver.AreEqual(patient.Address2, persisted.Address2);
             Aver.AreEqual(patient.Amount, persisted.Amount);
-            Aver.AreEqual(patient.Doctor_Phone, persisted.Doctor_Phone.Trim());
+            Aver.AreEqual(patient.Doctor_Phone, persisted.Doctor_Phone);
             Aver.AreEqual(patient.Phone, persisted.Phone.Trim());
             Aver.AreEqual(patient.DOB, persisted.DOB);
             Aver.AreEqual(patient.Note, persisted.Note);
@@ -804,7 +804,7 @@ namespace Azos.Tests.Integration.CRUD
             Aver.AreEqual(persisted.Address1, updated.Address1);
             Aver.AreEqual(persisted.Address2, updated.Address2);
             Aver.AreEqual(persisted.Amount, updated.Amount);
-            Aver.AreEqual(persisted.Doctor_Phone, updated.Doctor_Phone.Trim());
+            Aver.AreEqual(persisted.Doctor_Phone, updated.Doctor_Phone);
             Aver.AreEqual(persisted.Phone, updated.Phone.Trim());
             Aver.AreEqual(persisted.DOB, updated.DOB);
             Aver.AreEqual(persisted.Note, updated.Note);
@@ -835,7 +835,7 @@ namespace Azos.Tests.Integration.CRUD
             Aver.AreEqual(persisted.Address1, updated.Address1);
             Aver.AreEqual(persisted.Address2, updated.Address2);
             Aver.AreEqual(persisted.Amount, updated.Amount);
-            Aver.AreEqual(persisted.Doctor_Phone, updated.Doctor_Phone.Trim());
+            Aver.AreEqual(persisted.Doctor_Phone, updated.Doctor_Phone);
             Aver.AreEqual(persisted.Phone, updated.Phone.Trim());
             Aver.AreEqual(persisted.DOB, updated.DOB);
             Aver.AreEqual(persisted.Note, updated.Note);

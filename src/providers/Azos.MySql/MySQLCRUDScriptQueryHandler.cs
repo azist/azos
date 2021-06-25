@@ -150,12 +150,16 @@ namespace Azos.Data.Access.MySql
     private IEnumerable<Doc> execEnumerable(MySqlCRUDQueryExecutionContext ctx, MySqlCommand cmd, MySqlDataReader reader, Schema schema, Schema.FieldDef[] toLoad, Query query)
     {
       using(cmd)
+      {
         using(reader)
-        while(reader.Read())
         {
-          var row = PopulateDoc(ctx, query.ResultDocType, schema, toLoad, reader);
-          yield return row;
+          while (reader.Read())
+          {
+            var row = PopulateDoc(ctx, query.ResultDocType, schema, toLoad, reader);
+            yield return row;
+          }
         }
+      }
     }
 
 

@@ -107,7 +107,7 @@ namespace Azos.Data.Access.MySql
 
     public async Task<Cursor> OpenCursorAsync(Query query)
     {
-      using (var cnn = await GetConnection().ConfigureAwait(false))
+      /*using (*/var cnn = await GetConnection().ConfigureAwait(false);//)
         return await DoOpenCursorAsync(cnn, null, query).ConfigureAwait(false);
     }
 
