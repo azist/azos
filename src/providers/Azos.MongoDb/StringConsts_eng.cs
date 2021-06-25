@@ -12,6 +12,9 @@ namespace Azos.Data.Access.MongoDb
     public const string ARGUMENT_ERROR =
             "Argument error: ";
 
+    public const string BAD_BINDING_ERROR =
+        "Bad binding specification: `{0}`. The binding should either be `{1}` or `{2}` ";
+
     public const string OP_NOT_SUPPORTED_ERROR =
         "Operation '{0}' is not supported by the {1}";
 
