@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.19.5
-set HEADLINE=Cfg nav coalescing etc
+set VER=1.19.9
+set HEADLINE=Svc release fixes, wip MySql
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
