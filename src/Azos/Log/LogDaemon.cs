@@ -109,9 +109,9 @@ namespace Azos.Log
     protected override void DoWrite(Message msg, bool urgent)
     {
       m_Queue.Enqueue(msg);
-      int n = Interlocked.Increment(ref m_QueuedCount);
+      Interlocked.Increment(ref m_QueuedCount);
 
-      if (urgent && n == 1) m_Wakeup.Set();
+      if (urgent) m_Wakeup.Set();
     }
 
     protected override void DoStart()

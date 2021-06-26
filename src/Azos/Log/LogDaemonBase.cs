@@ -213,19 +213,23 @@ namespace Azos.Log
     /// </param>
     public void Write(Message msg, bool urgent)
     {
-      if (Status != DaemonStatus.Active) return;
-
       if (msg==null) return;
+
+      if (Status != DaemonStatus.Active) return;
 
       msg.InitDefaultFields(App);
 
-      if (msg.Type>=MessageType.Emergency) m_LastCatastrophy = msg;
+      if (msg.Type >= MessageType.Emergency) m_LastCatastrophy = msg;
       else
-      if (msg.Type>=MessageType.Error) m_LastError = msg;
+      if (msg.Type >= MessageType.Error) m_LastError = msg;
       else
-      if (msg.Type>=MessageType.Warning) m_LastWarning = msg;
+      if (msg.Type >= MessageType.Warning) m_LastWarning = msg;
 
-      if (m_InstrumentationEnabled) m_InstrBuffer.Send(msg);
+      if (m_InstrumentationEnabled)
+      {
+        lock(m_InstrBuffer)
+          m_InstrBuffer.Send(msg);
+      }
 
       DoWrite(msg, urgent);
     }
@@ -235,7 +239,10 @@ namespace Azos.Log
     /// </summary>
     public IEnumerable<Message> GetInstrumentationBuffer(bool asc)
     {
-      return asc ? m_InstrBuffer.BufferedTimeAscending : m_InstrBuffer.BufferedTimeDescending;
+      var buff = m_InstrBuffer;
+      if (buff == null) return Enumerable.Empty<Message>();
+
+      return asc ? buff.BufferedTimeAscending : buff.BufferedTimeDescending;
     }
 
     #endregion
@@ -275,6 +282,7 @@ namespace Azos.Log
         throw new LogException(StringConsts.LOGSVC_NOSINKS_ERROR.Args(Name));
 
       foreach (var sink in m_Sinks.OrderedValues)
+      {
         try
         {
           sink.Start();
@@ -285,6 +293,9 @@ namespace Azos.Log
                 StringConsts.LOGDAEMON_SINK_START_ERROR.Args(Name, sink.Name, sink.TestOnStart, error.Message),
                 error);
         }
+      }
+
+      m_InstrBuffer.Start();
     }
 
     protected override void DoSignalStop()
@@ -326,6 +337,8 @@ namespace Azos.Log
 #warning REVISE - must not eat exceptions - use Conout? use new .core ETW
         }  // Can't do much here in case of an error
       }
+
+      m_InstrBuffer.WaitForCompleteStop();
     }
 
     protected void Pulse()

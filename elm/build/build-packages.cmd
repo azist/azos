@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.19.9
-set HEADLINE=Svc release fixes, wip MySql
+set VER=1.19.10
+set HEADLINE=Log sink refactoring/flood filter fix
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
