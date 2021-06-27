@@ -599,7 +599,7 @@ namespace Azos.Tests.Integration.CRUD
             row["STRING_NAME"] = "Some user 1";
             row["CHAR_NAME"] = "Some user 2";
             row["BOOL_CHAR"] = 'T';
-            row["BOOL_BOOL"] = 'T';
+            row["BOOL_BOOL"] = true;
 
             row["AMOUNT"] = 145670.23m;
 
@@ -636,7 +636,7 @@ namespace Azos.Tests.Integration.CRUD
             row["STRING_NAME"] = "Some user 1";
             row["CHAR_NAME"] = "Some user 2";
             row["BOOL_CHAR"] = 'T';
-            row["BOOL_BOOL"] = 'T';
+            row["BOOL_BOOL"] = true;
 
             row["AMOUNT"] = 145670.23m;
 
@@ -644,7 +644,7 @@ namespace Azos.Tests.Integration.CRUD
 
             store.Insert( row );
 
-            var row2 = store.LoadOneDoc(new Query("CRUD.Queries.Types.Load", new GDID(0, 145)));
+            var row2 = await store.LoadOneDocAsync(new Query("CRUD.Queries.Types.Load", new GDID(0, 145)));
 
             Aver.IsNotNull(row2);
             Aver.AreObjectsEqual(145, row2["GDID"].AsInt());
@@ -658,8 +658,6 @@ namespace Azos.Tests.Integration.CRUD
             Aver.AreObjectsEqual(145670.23m, row2["Amount"].AsDecimal());
 
             Aver.AreEqual(1980, row2["DOB"].AsDateTime().Year);
-
-
         }
 
 
