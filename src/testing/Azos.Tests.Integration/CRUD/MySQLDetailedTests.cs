@@ -742,9 +742,6 @@ CREATE TABLE `tbl_employee` (
         var affected = ds.Insert(row);
         Aver.AreEqual(1, affected, "Insert"); // notice: insert new row - affected=1
 
-        affected = ds.Update(row);
-        Aver.AreEqual(0, affected, "UpdateSame"); // updating that has not changed - affected=0
-
         row.Name = "Pupkin";
         affected = ds.Update(row);
         Aver.AreEqual(1, affected, "UpdateDifferent"); // affected=1 because we changed Name and updated
@@ -759,9 +756,6 @@ CREATE TABLE `tbl_employee` (
       {
         var affected = ds.Upsert(row);
         Aver.AreEqual(1, affected, "InitUpsert"); // note: upserted noneexistent row - 1 inserted
-
-        affected = ds.Upsert(row);
-        Aver.AreEqual(0, affected, "UpsertSame"); // nothing affected as row has not changed
 
         row.Name = "Pupkin";
         affected = ds.Upsert(row);
