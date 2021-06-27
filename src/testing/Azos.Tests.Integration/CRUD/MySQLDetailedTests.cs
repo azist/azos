@@ -91,7 +91,7 @@ CREATE TABLE `tbl_employee` (
       {
         ds.Insert(row);
 
-        var qry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Ivanov") };
+        var qry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov") };
         var result = ds.LoadEnumerable(qry).ToArray();
         Aver.AreEqual(1, result.Length);
 
@@ -112,14 +112,14 @@ CREATE TABLE `tbl_employee` (
         ds.Insert(row);
 
         // update amount to 110.99M
-        var qry = new Query("CRUD.Patient.UpdateAmount")
+        var qry = new Query("CRUD.Queries.Patient.UpdateAmount")
         {
           new Query.Param("pAmount", 110.99M),
           new Query.Param("pSSN", row.SSN)
         };
         ds.ExecuteWithoutFetch(qry);
 
-        var loadQry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Ivanov") };
+        var loadQry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov") };
         var result = ds.LoadDoc(loadQry);
 
         Aver.IsTrue(result is Patient);
@@ -153,7 +153,7 @@ CREATE TABLE `tbl_employee` (
       {
         ds.Insert(row1);
 
-        var loadQry = new Query<Doctor>("CRUD.Doctor.List") { new Query.Param("pSSN", "%") };
+        var loadQry = new Query<Doctor>("CRUD.Queries.Doctor.List") { new Query.Param("pSSN", "%") };
         var result1 = ds.LoadOneRowset(loadQry).ToList();
 
         Aver.AreEqual(1, result1.Count);
@@ -219,7 +219,7 @@ CREATE TABLE `tbl_employee` (
           ds.Insert(row);
         }
 
-        var qry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Ivanov%") };
+        var qry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov%") };
         var result = ds.LoadEnumerable(qry).OrderBy(p => p.COUNTER);
         Aver.IsTrue(patients.Select(p => p.Last_Name).SequenceEqual(result.Select(r => r.Last_Name)));
       }
@@ -260,6 +260,7 @@ CREATE TABLE `tbl_employee` (
     {
       var doctor = new Doctor
       {
+        COUNTER = 1234,
         First_Name = "Nikolai",
         Last_Name = "Petrovich",
         DOB = new DateTime(1970, 3, 8),
@@ -287,10 +288,12 @@ CREATE TABLE `tbl_employee` (
 
         Aver.AreEqual(2, result.Length);
         Aver.AreEqual(doc.COUNTER, result[0].C_DOCTOR);
+        Aver.AreEqual(1234, result[0].C_DOCTOR);
         Aver.AreEqual(doctor.NPI, result[0].Doctor_ID);
         Aver.AreEqual(doctor.Phone, result[0].Doctor_Phone);
         Aver.IsNull(result[0].Marker);
-        Aver.AreEqual(0, result[1].C_DOCTOR);
+
+        Aver.AreEqual(null, result[1].C_DOCTOR);
         Aver.IsNull(result[1].Doctor_ID);
         Aver.IsNull(result[1].Doctor_Phone);
       }
@@ -334,7 +337,7 @@ CREATE TABLE `tbl_employee` (
         ds.Insert(patient1);
         ds.Insert(patient2);
 
-        var qry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Tokugava") };
+        var qry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Tokugava") };
 
         using (var cursor = ds.OpenCursor(qry))
         {
@@ -363,7 +366,7 @@ CREATE TABLE `tbl_employee` (
           ds.Insert(row);
           Thread.Sleep(Ambient.Random.NextScaledRandomInteger(1000, 3000));
 
-          var qry = new Query("CRUD.Patient.UpdateAmount")
+          var qry = new Query("CRUD.Queries.Patient.UpdateAmount")
           {
             new Query.Param("pAmount", 100M + i),
             new Query.Param("pSSN", row.SSN)
@@ -371,7 +374,7 @@ CREATE TABLE `tbl_employee` (
           ds.ExecuteWithoutFetch(qry);
           Thread.Sleep(Ambient.Random.NextScaledRandomInteger(1000, 3000));
 
-          var listQry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString())};
+          var listQry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString())};
           var result = ds.LoadDoc(listQry);
 
           Aver.AreEqual(row.Last_Name, result.Last_Name);
@@ -392,14 +395,14 @@ CREATE TABLE `tbl_employee` (
         {
           ds.Insert(row);
 
-          var qry = new Query("CRUD.Patient.UpdateAmount")
+          var qry = new Query("CRUD.Queries.Patient.UpdateAmount")
           {
             new Query.Param("pAmount", 100M + i),
             new Query.Param("pSSN", row.SSN)
           };
           ds.ExecuteWithoutFetch(qry);
 
-          var listQry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString())};
+          var listQry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString())};
           var result = ds.LoadDoc(listQry);
 
           Aver.AreEqual(row.Last_Name, result.Last_Name);
