@@ -151,7 +151,7 @@ namespace Azos.Apps
 
     private Atom m_AppId;
     private Guid m_InstanceId = Guid.NewGuid();
-    protected DateTime m_StartTime;
+    protected DateTime m_StartTime = DateTime.UtcNow;//Fix #494
     private IO.Console.IConsolePort m_ConsolePort;
 
     private string m_Name;
