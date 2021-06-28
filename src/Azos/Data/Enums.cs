@@ -28,6 +28,16 @@ namespace Azos.Data
   }
 
   /// <summary>
+  /// Specifies SQL Where clause types: AND|OR
+  /// </summary>
+  public enum WhereClauseType { And, Or }
+
+  /// <summary>
+  /// Specifies SQL ASC|DESC sorting direction
+  /// </summary>
+  public enum OrderClauseType { Asc, Desc }
+
+  /// <summary>
   /// Types of char casing
   /// </summary>
   public enum CharCase

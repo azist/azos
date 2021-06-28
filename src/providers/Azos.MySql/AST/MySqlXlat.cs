@@ -46,7 +46,17 @@ namespace Azos.Data.AST
     /// <summary>
     /// MySql parameters start with `?`
     /// </summary>
-    protected override string ParameterOpenSpan => ":";
+    protected override string ParameterOpenSpan => "?";
+
+    /// <summary>
+    /// MySql does not have parameter close span
+    /// </summary>
+    protected override string ParameterCloseSpan => string.Empty;
+
+    /// <summary>
+    /// MySql uses `` for quotes
+    /// </summary>
+    protected override char IdentifierQuote => '`';
 
     /// <summary>
     /// Override to provide custom name for MySql parameter prefix, the default is `MYSQLXLATP_`
