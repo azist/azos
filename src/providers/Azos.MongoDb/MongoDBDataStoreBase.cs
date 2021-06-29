@@ -43,12 +43,13 @@ namespace Azos.Data.Access.MongoDb
 
 
     #region Private Fields
+    private string m_ConnectString;
+    private string m_DatabaseName;
 
-      private string m_ConnectString;
-      private string m_DatabaseName;
+    private int m_DefaultTimeoutMs;
 
-      private string m_TargetName;
-      private bool m_InstrumentationEnabled;
+    private string m_TargetName;
+    private bool m_InstrumentationEnabled;
     #endregion
 
 
@@ -95,10 +96,21 @@ namespace Azos.Data.Access.MongoDb
 
       public override string ComponentLogTopic => MongoConsts.MONGO_TOPIC;
 
-      /// <summary>
-      /// Get/Sets MongoDB database connection string
-      /// </summary>
-      [Config("$connect-string")]
+    /// <summary>
+    /// Provides default timeout imposed on execution of commands/calls. Expressed in milliseconds.
+    /// A value less or equal to zero indicates no timeout
+    /// </summary>
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
+    public int DefaultTimeoutMs
+    {
+      get => m_DefaultTimeoutMs;
+      set => m_DefaultTimeoutMs = value.KeepBetween(0, (15 * 60) * 1000);
+    }
+
+    /// <summary>
+    /// Get/Sets MongoDB database connection string
+    /// </summary>
+    [Config("$connect-string")]
       public string ConnectString
       {
         get

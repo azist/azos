@@ -47,6 +47,8 @@ namespace Azos.Data.Access.MySql
     private string m_TargetName;
     private string m_Name;
 
+    private int m_DefaultTimeoutMs;
+
     private NameCaseSensitivity m_CaseSensitivity = NameCaseSensitivity.ToUpper;
 
     private bool m_StringBool = true;
@@ -115,6 +117,19 @@ namespace Azos.Data.Access.MySql
 
 
     public override string ComponentLogTopic => MySqlConsts.MYSQL_TOPIC;
+
+
+    /// <summary>
+    /// Provides default timeout imposed on execution of commands/calls. Expressed in milliseconds.
+    /// A value less or equal to zero indicates no timeout
+    /// </summary>
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
+    public int DefaultTimeoutMs
+    {
+      get => m_DefaultTimeoutMs;
+      set => m_DefaultTimeoutMs = value.KeepBetween(0, (15 * 60) * 1000);
+    }
+
 
     /// <summary>
     /// Get/Sets MySql database connection string

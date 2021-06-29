@@ -17,6 +17,9 @@ namespace Azos.Data.Access
   /// </summary>
   public abstract class CrudQueryHandler : Collections.INamed
   {
+    /// <summary> Imposes hard limit on maximum number of fetched documents </summary>
+    public const int MAX_DOC_COUNT = 8000;
+
     protected CrudQueryHandler(ICrudDataStore store, string name)
     {
       m_Store = store.NonNull(nameof(store));
@@ -36,6 +39,18 @@ namespace Azos.Data.Access
     /// Returns query name that this handler handles
     /// </summary>
     public string Name => m_Name;
+
+    /// <summary>
+    /// Override to use command-specific property value. The default implementation gets timeout from the store
+    /// </summary>
+    protected virtual int CommandTimeoutMs => Store.DefaultTimeoutMs;
+
+    /// <summary>
+    /// Imposes hard limit on maximum number of fetched documents.
+    /// WARNING! This should be overridden only in special cases when you need to return more documents for the specific purpose.
+    /// Keep this value default for all other cases 99.9%
+    /// </summary>
+    protected virtual int MaxDocCount => MAX_DOC_COUNT;
 
     /// <summary>
     /// Store instance that handler is under

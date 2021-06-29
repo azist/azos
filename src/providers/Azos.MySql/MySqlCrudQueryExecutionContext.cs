@@ -14,8 +14,8 @@ namespace Azos.Data.Access.MySql
   public struct MySqlCrudQueryExecutionContext : ICrudQueryExecutionContext
   {
     public readonly MySqlDataStoreBase  DataStore;
-    public readonly MySqlConnection  Connection;
-    public readonly MySqlTransaction Transaction;
+    public readonly MySqlConnection     Connection;
+    public readonly MySqlTransaction    Transaction;
 
     public MySqlCrudQueryExecutionContext(MySqlDataStoreBase  store, MySqlConnection cnn, MySqlTransaction trans)
     {

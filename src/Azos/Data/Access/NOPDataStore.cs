@@ -49,5 +49,7 @@ namespace Azos.Data.Access
     public void Configure(IConfigSectionNode node)
     {
     }
+
+    public int DefaultTimeoutMs { get; set; }
   }
 }
