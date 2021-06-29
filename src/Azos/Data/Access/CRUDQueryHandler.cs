@@ -118,6 +118,7 @@ namespace Azos.Data.Access
     public const string AST_REFLECTION_QUERY_PARAM = "_____AST_REFLECTION_QUERY_PARAM";
 
     public InstrumentedCrudQueryHandler(TStore store, string name) : base(store, name) { }
+    public InstrumentedCrudQueryHandler(TStore store, QuerySource source) : base(store, source) { }
 
     protected IInstrumentation Instruments => Store.App.Instrumentation;
     protected bool Instrumented => Instruments.Enabled && ((Store as IInstrumentable)?.InstrumentationEnabled ?? false);

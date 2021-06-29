@@ -17,7 +17,7 @@ namespace Azos.Data.Access.MySql
   /// <summary>
   /// Executes MySql CRUD script-based queries
   /// </summary>
-  public sealed class MySqlCRUDScriptQueryHandler : CRUDQueryHandler<MySqlCrudDataStoreBase>
+  public sealed class MySqlCRUDScriptQueryHandler : InstrumentedCrudQueryHandler<MySqlCrudDataStoreBase, MySqlCRUDQueryExecutionContext>
   {
     #region .ctor
     public MySqlCRUDScriptQueryHandler(MySqlCrudDataStoreBase store, QuerySource source) : base(store, source) { }
@@ -27,29 +27,28 @@ namespace Azos.Data.Access.MySql
     public override Schema GetSchema(ICRUDQueryExecutionContext context, Query query)
       => GetSchemaAsync(context, query).GetAwaiter().GetResult();
 
-    public override async Task<Schema> GetSchemaAsync(ICRUDQueryExecutionContext context, Query query)
+    public override async Task<Schema> GetQuerySchemaAsync(MySqlCRUDQueryExecutionContext context, Query query)
     {
-      var ctx = (MySqlCRUDQueryExecutionContext)context;
-      var target = ctx.DataStore.TargetName;
+      var target = context.DataStore.TargetName;
 
-      using (var cmd = ctx.Connection.CreateCommand())
+      using (var cmd = context.Connection.CreateCommand())
       {
         cmd.CommandText =  Source.StatementSource;
 
         PopulateParameters(cmd, query);
 
-        cmd.Transaction = ctx.Transaction;
+        cmd.Transaction = context.Transaction;
 
         MySqlDataReader reader = null;
 
         try
         {
             reader = await cmd.ExecuteReaderAsync(CommandBehavior.SchemaOnly).ConfigureAwait(false);
-            GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-ok", cmd, null);
+            GeneratorUtils.LogCommand(context.DataStore, "queryhandler-ok", cmd, null);
         }
         catch(Exception error)
         {
-            GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-error", cmd, error);
+            GeneratorUtils.LogCommand(context.DataStore, "queryhandler-error", cmd, error);
             throw;
         }
 
@@ -62,23 +61,18 @@ namespace Azos.Data.Access.MySql
       }//using command
     }
 
-
-    public override RowsetBase Execute(ICRUDQueryExecutionContext context, Query query, bool oneDoc = false)
-      => ExecuteAsync(context, query, oneDoc).GetAwaiter().GetResult();
-
-    public override async Task<RowsetBase> ExecuteAsync(ICRUDQueryExecutionContext context, Query query, bool oneDoc = false)
+    public override async Task<RowsetBase> ExecuteAsync(MySqlCRUDQueryExecutionContext context, Query query, bool oneDoc = false)
     {
-      var ctx = (MySqlCRUDQueryExecutionContext)context;
-      var target = ctx.DataStore.TargetName;
+      var target = context.DataStore.TargetName;
 
-      using (var cmd = ctx.Connection.CreateCommand())
+      using (var cmd = context.Connection.CreateCommand())
       {
 
         cmd.CommandText =  Source.StatementSource;
 
         PopulateParameters(cmd, query);
 
-        cmd.Transaction = ctx.Transaction;
+        cmd.Transaction = context.Transaction;
 
         MySqlDataReader reader = null;
 
@@ -87,31 +81,29 @@ namespace Azos.Data.Access.MySql
             reader = oneDoc ? await cmd.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(false) :
                               await cmd.ExecuteReaderAsync().ConfigureAwait(false);
 
-            GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-ok", cmd, null);
+            GeneratorUtils.LogCommand(context.DataStore, "queryhandler-ok", cmd, null);
         }
         catch(Exception error)
         {
-            GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-error", cmd, error);
+            GeneratorUtils.LogCommand(context.DataStore, "queryhandler-error", cmd, error);
             throw;
         }
 
         using (reader)
-          return await PopulateRowset(ctx, reader, target, query, Source, oneDoc);
+        {
+          return await PopulateRowset(context, reader, target, query, Source, oneDoc);
+        }
       }//using command
     }
 
-    public override Cursor OpenCursor(ICRUDQueryExecutionContext context, Query query)
-     => OpenCursorAsync(context, query).GetAwaiter().GetResult();
-
-    public override async Task<Cursor> OpenCursorAsync(ICRUDQueryExecutionContext context, Query query)
+    public override async Task<Cursor> OpenCursorAsync(MySqlCRUDQueryExecutionContext context, Query query)
     {
-      var ctx = (MySqlCRUDQueryExecutionContext)context;
-      var target = ctx.DataStore.TargetName;
+      var target = context.DataStore.TargetName;
 
       Schema.FieldDef[] toLoad;
       Schema schema = null;
       MySqlDataReader reader = null;
-      var cmd = ctx.Connection.CreateCommand();
+      var cmd = context.Connection.CreateCommand();
       try
       {
 
@@ -119,16 +111,16 @@ namespace Azos.Data.Access.MySql
 
         PopulateParameters(cmd, query);
 
-        cmd.Transaction = ctx.Transaction;
+        cmd.Transaction = context.Transaction;
 
         try
         {
             reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
-            GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-ok", cmd, null);
+            GeneratorUtils.LogCommand(context.DataStore, "queryhandler-ok", cmd, null);
         }
         catch(Exception error)
         {
-            GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-error", cmd, error);
+            GeneratorUtils.LogCommand(context.DataStore, "queryhandler-error", cmd, error);
             throw;
         }
 
@@ -142,9 +134,9 @@ namespace Azos.Data.Access.MySql
         throw;
       }
 
-      var enumerable = execEnumerable(ctx, cmd, reader, schema, toLoad, query);
+      var enumerable = execEnumerable(context, cmd, reader, schema, toLoad, query);
 
-      return new MySqlCursor( ctx, cmd, reader, enumerable );
+      return new MySqlCursor(context, cmd, reader, enumerable );
     }
 
     private IEnumerable<Doc> execEnumerable(MySqlCRUDQueryExecutionContext ctx, MySqlCommand cmd, MySqlDataReader reader, Schema schema, Schema.FieldDef[] toLoad, Query query)
@@ -163,34 +155,29 @@ namespace Azos.Data.Access.MySql
     }
 
 
-    public override int ExecuteWithoutFetch(ICRUDQueryExecutionContext context, Query query)
-      => ExecuteWithoutFetchAsync(context, query).GetAwaiter().GetResult();
-
-    public override async Task<int> ExecuteWithoutFetchAsync(ICRUDQueryExecutionContext context, Query query)
+    public override async Task<int> ExecuteWithoutFetchAsync(MySqlCRUDQueryExecutionContext context, Query query)
     {
-        var ctx = (MySqlCRUDQueryExecutionContext)context;
+      using (var cmd = context.Connection.CreateCommand())
+      {
 
-        using (var cmd = ctx.Connection.CreateCommand())
+        cmd.CommandText =  Source.StatementSource;
+
+        PopulateParameters(cmd, query);
+
+        cmd.Transaction = context.Transaction;
+
+        try
         {
-
-          cmd.CommandText =  Source.StatementSource;
-
-          PopulateParameters(cmd, query);
-
-          cmd.Transaction = ctx.Transaction;
-
-          try
-          {
-            var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-            GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-ok", cmd, null);
-            return affected;
-          }
-          catch(Exception error)
-          {
-            GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-error", cmd, error);
-            throw;
-          }
-        }//using command
+          var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+          GeneratorUtils.LogCommand(context.DataStore, "queryhandler-ok", cmd, null);
+          return affected;
+        }
+        catch(Exception error)
+        {
+          GeneratorUtils.LogCommand(context.DataStore, "queryhandler-error", cmd, error);
+          throw;
+        }
+      }//using command
     }
 
     #endregion
