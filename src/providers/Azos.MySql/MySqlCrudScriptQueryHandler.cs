@@ -17,7 +17,7 @@ namespace Azos.Data.Access.MySql
   /// <summary>
   /// Executes MySql CRUD script-based queries
   /// </summary>
-  public sealed class MySqlCrudScriptQueryHandler : InstrumentedCrudQueryHandler<MySqlCrudDataStoreBase, MySqlCrudQueryExecutionContext>
+  public sealed class MySqlCrudScriptQueryHandler : MySqlCrudQueryHandler
   {
     #region .ctor
     public MySqlCrudScriptQueryHandler(MySqlCrudDataStoreBase store, QuerySource source) : base(store, source) { }
@@ -91,7 +91,7 @@ namespace Azos.Data.Access.MySql
 
         using (reader)
         {
-          return await PopulateRowset(context, reader, target, query, Source, oneDoc);
+          return await DoPopulateRowsetAsync(context, reader, target, query, Source, oneDoc);
         }
       }//using command
     }
@@ -147,7 +147,7 @@ namespace Azos.Data.Access.MySql
         {
           while (reader.Read())
           {
-            var row = PopulateDoc(ctx, query.ResultDocType, schema, toLoad, reader);
+            var row = DoPopulateDoc(ctx, query.ResultDocType, schema, toLoad, reader);
             yield return row;
           }
         }
@@ -181,155 +181,5 @@ namespace Azos.Data.Access.MySql
     }
 
     #endregion
-
-    #region Static Helpers
-
-    /// <summary>
-    /// Reads data from reader into rowset. the reader is NOT disposed
-    /// </summary>
-    public static async Task<Rowset> PopulateRowset(MySqlCrudQueryExecutionContext context, MySqlDataReader reader, string target, Query query, QuerySource qSource, bool oneDoc)
-    {
-      Schema.FieldDef[] toLoad;
-      Schema schema = GetSchemaForQuery(target, query, reader, qSource, out toLoad);
-      var store= context.DataStore;
-
-      var result = new Rowset(schema);
-
-      while( await reader.ReadAsync().ConfigureAwait(false) )
-      {
-        var row = PopulateDoc(context, query.ResultDocType, schema, toLoad, reader);
-
-        result.Add( row );
-        if (oneDoc) break;
-      }
-
-      return result;
-    }
-
-    /// <summary>
-    /// Reads data from reader into rowset. the reader is NOT disposed
-    /// </summary>
-    public static Doc PopulateDoc(MySqlCrudQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, MySqlDataReader reader)
-    {
-      var store= context.DataStore;
-      var row = Doc.MakeDoc(schema, tDoc);
-
-      for (int i = 0; i < reader.FieldCount; i++)
-      {
-        var fdef = toLoad[i];
-        if (fdef==null) continue;
-
-        var val = reader.GetValue(i);
-
-        if (val==null || val is DBNull)
-        {
-          row[fdef.Order] = null;
-          continue;
-        }
-
-        if (fdef.NonNullableType == typeof(bool))
-        {
-          if (store.StringBool)
-          {
-            var bval = (val is bool) ? (bool)val : val.ToString().EqualsIgnoreCase(store.StringForTrue);
-            row[fdef.Order] = bval;
-          }
-          else
-            row[fdef.Order] = val.AsNullableBool();
-        }
-        else if (fdef.NonNullableType == typeof(DateTime))
-        {
-          var dtVal = val.AsNullableDateTime();
-          row[fdef.Order] = dtVal.HasValue ? DateTime.SpecifyKind(dtVal.Value, store.DateTimeKind) : (DateTime?)null;
-        }
-        else
-          row[fdef.Order] = val;
-      }
-
-      return row;
-    }
-
-    /// <summary>
-    /// Populates MySqlCommand with parameters from CRUD Query object
-    /// Note: this code was purposely made provider specific because other providers may treat some nuances differently
-    /// </summary>
-    public void PopulateParameters(MySqlCommand cmd, Query query)
-    {
-        foreach(var par in query.Where(p => p.HasValue))
-        cmd.Parameters.AddWithValue(par.Name, par.Value);
-
-        if (query.StoreKey!=null)
-        {
-        var where = GeneratorUtils.KeyToWhere(query.StoreKey, cmd.Parameters);
-        cmd.CommandText += "\n WHERE \n {0}".Args( where );
-        }
-
-        CrudGenerator.ConvertParameters(Store, cmd.Parameters);
-    }
-
-    /// <summary>
-    /// Gets CRUD schema from MySqlReader per particular QuerySource.
-    /// If source is null then all columns from reader are copied.
-    /// Note: this code was purposely made provider specific because other providers may treat some nuances differently
-    /// </summary>
-    public static Schema GetSchemaFromReader(string name, QuerySource source, MySqlDataReader reader)
-    {
-        var table = name;
-        var fdefs = new List<Schema.FieldDef>();
-
-        for (int i = 0; i < reader.FieldCount; i++)
-        {
-            var fname = reader.GetName(i);
-            var ftype = reader.GetFieldType(i);
-
-            var def = new Schema.FieldDef(fname, ftype, source!=null ? ( source.HasPragma ? source.ColumnDefs[fname] : null) : null);
-            fdefs.Add( def );
-        }
-
-        if (source!=null)
-        if (source.HasPragma && source.ModifyTarget.IsNotNullOrWhiteSpace()) table = source.ModifyTarget;
-
-        if (table.IsNullOrWhiteSpace()) table = Guid.NewGuid().ToString();
-
-        return new Schema(table, source!=null ? source.ReadOnly : true,  fdefs);
-    }
-
-    /// <summary>
-    /// Gets schema from reader taking Query.ResultDocType in consideration
-    /// </summary>
-    public static Schema GetSchemaForQuery(string target, Query query, MySqlDataReader reader, QuerySource qSource, out Schema.FieldDef[] toLoad)
-    {
-      Schema schema;
-      var rtp = query.ResultDocType;
-
-      if (rtp != null && typeof(TypedDoc).IsAssignableFrom(rtp))
-        schema = Schema.GetForTypedDoc(query.ResultDocType);
-      else
-        schema = GetSchemaFromReader(query.Name, qSource, reader);
-
-      //determine what fields to load
-      toLoad = new Schema.FieldDef[reader.FieldCount];
-      for (int i = 0; i < reader.FieldCount; i++)
-      {
-        var name = reader.GetName(i);
-        var fdef = schema[name];
-        // 2017-09-08 EIbr + DKh fixed binding by backend name bug
-        //var fdef = schema.GetFieldDefByBackendName(target, name);
-
-        //todo A gde GetBackendNameFor target?
-        if (fdef==null) continue;
-
-        var attr =  fdef[target];
-        if (attr!=null)
-        {
-          if (attr.StoreFlag!=StoreFlag.LoadAndStore && attr.StoreFlag!=StoreFlag.OnlyLoad) continue;
-        }
-        toLoad[i] = fdef;
-      }
-
-      return schema;
-    }
-
-   #endregion
   }
 }

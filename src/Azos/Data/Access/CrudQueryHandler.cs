@@ -46,6 +46,15 @@ namespace Azos.Data.Access
     protected virtual int CommandTimeoutMs => Store.DefaultTimeoutMs;
 
     /// <summary>
+    /// Returns command timeout in integer seconds. This can not be overridden, override CommandTimeoutMs instead
+    /// which has millisecond resolution
+    /// </summary>
+    /// <remarks>
+    /// For historical reasons MSFT has a bad implementation of CommandTimeout always expressed in seconds
+    /// </remarks>
+    protected int CommandTimeoutSec => CommandTimeoutMs / 1000;
+
+    /// <summary>
     /// Imposes hard limit on maximum number of fetched documents.
     /// WARNING! This should be overridden only in special cases when you need to return more documents for the specific purpose.
     /// Keep this value default for all other cases 99.9%
