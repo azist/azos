@@ -110,6 +110,12 @@ namespace Azos.Data.Access.MySql
       return tableName;
     }
 
+    private static int timeoutSec(MySqlDataStoreBase store)
+    {
+      var t = store.DefaultTimeoutMs;
+      if (t <= 0) return 0;
+      return t / 1000;
+    }
 
     private static async Task<int> crudInsert(MySqlDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {
@@ -174,6 +180,7 @@ namespace Azos.Data.Access.MySql
 
         cmd.Transaction = trans;
         cmd.CommandText = sql;
+        cmd.CommandTimeout = timeoutSec(store);
         cmd.Parameters.AddRange(vparams.ToArray());
         //ConvertParameters(store, cmd.Parameters);
         try
@@ -269,6 +276,7 @@ namespace Azos.Data.Access.MySql
 
         cmd.Transaction = trans;
         cmd.CommandText = sql;
+        cmd.CommandTimeout = timeoutSec(store);
         cmd.Parameters.AddRange(vparams.ToArray());
         ConvertParameters(store, cmd.Parameters);
 
@@ -360,6 +368,7 @@ namespace Azos.Data.Access.MySql
 
         cmd.Transaction = trans;
         cmd.CommandText = sql;
+        cmd.CommandTimeout = timeoutSec(store);
         cmd.Parameters.AddRange(vparams.ToArray());
         ConvertParameters(store, cmd.Parameters);
 
@@ -401,6 +410,7 @@ namespace Azos.Data.Access.MySql
         else
             cmd.CommandText = string.Format("DELETE T1 FROM `{0}` T1", tableName);
 
+        cmd.CommandTimeout = timeoutSec(store);
         ConvertParameters(store, cmd.Parameters);
 
         try
@@ -477,15 +487,13 @@ namespace Azos.Data.Access.MySql
     }
 
     //used for provider dev
-    internal static void dbg(MySqlCommand cmd)
-    {
-      Console.WriteLine(cmd.CommandText);
-      foreach (var p in cmd.Parameters.Cast<MySqlParameter>())
-        Console.WriteLine("{0}: OrclDbTyp.{1} = ({2}){3}".Args(p.ParameterName, p.MySqlDbType, p.Value.GetType().FullName, p.Value));
-    }
+    //////internal static void dbg(MySqlCommand cmd)
+    //////{
+    //////  Console.WriteLine(cmd.CommandText);
+    //////  foreach (var p in cmd.Parameters.Cast<MySqlParameter>())
+    //////    Console.WriteLine("{0}: OrclDbTyp.{1} = ({2}){3}".Args(p.ParameterName, p.MySqlDbType, p.Value.GetType().FullName, p.Value));
+    //////}
 
     #endregion
-
-
   }
 }
