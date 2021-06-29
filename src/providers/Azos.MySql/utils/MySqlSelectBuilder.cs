@@ -21,7 +21,7 @@ namespace Azos.Data.Access.MySql
   /// <summary>
   /// Provides shorthand extensions for building dynamic SQL for MySql
   /// </summary>
-  public static class MySqlBuilderHelpers
+  public static class MySqlBuilderExtensions
   {
     /// <summary>
     /// Build Sql command and parameters from the shorthand fluent syntax

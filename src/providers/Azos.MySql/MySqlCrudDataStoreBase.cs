@@ -66,7 +66,7 @@ namespace Azos.Data.Access.MySql
                                                              TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
     {
       var cnn = await GetConnection().ConfigureAwait(false);
-      return new MySqlCRUDTransaction(this, cnn, iso, behavior);//transaction owns the connection
+      return new MySqlCrudTransaction(this, cnn, iso, behavior);//transaction owns the connection
     }
 
     public Schema GetSchema(Query query)

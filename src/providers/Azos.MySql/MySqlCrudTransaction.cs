@@ -15,10 +15,10 @@ namespace Azos.Data.Access.MySql
   /// <summary>
   /// Represents MySQL CRUD transaction
   /// </summary>
-  public sealed class MySqlCRUDTransaction : CRUDTransaction
+  public sealed class MySqlCrudTransaction : CRUDTransaction
   {
     #region .ctor/.dctor
-    internal MySqlCRUDTransaction(MySqlCrudDataStoreBase store, MySqlConnection cnn, IsolationLevel iso, TransactionDisposeBehavior disposeBehavior) : base (store, disposeBehavior)
+    internal MySqlCrudTransaction(MySqlCrudDataStoreBase store, MySqlConnection cnn, IsolationLevel iso, TransactionDisposeBehavior disposeBehavior) : base (store, disposeBehavior)
     {
         m_Connection = cnn;
         m_Transaction = cnn.BeginTransaction(iso);
