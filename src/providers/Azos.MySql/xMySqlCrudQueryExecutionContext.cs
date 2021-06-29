@@ -11,13 +11,13 @@ namespace Azos.Data.Access.MySql
   /// <summary>
   /// Provides query execution environment in MySql context
   /// </summary>
-  public struct MySqlCRUDQueryExecutionContext : ICRUDQueryExecutionContext
+  public struct MySqlCrudQueryExecutionContext : ICRUDQueryExecutionContext
   {
     public readonly MySqlDataStoreBase  DataStore;
     public readonly MySqlConnection  Connection;
     public readonly MySqlTransaction Transaction;
 
-    public MySqlCRUDQueryExecutionContext(MySqlDataStoreBase  store, MySqlConnection cnn, MySqlTransaction trans)
+    public MySqlCrudQueryExecutionContext(MySqlDataStoreBase  store, MySqlConnection cnn, MySqlTransaction trans)
     {
         DataStore = store;
         Connection = cnn;
@@ -30,7 +30,7 @@ namespace Azos.Data.Access.MySql
     /// </summary>
     public (object value, MySqlDbType? dbType) CLRValueToDB(object value, string explicitDbType)
     {
-      return CRUDGenerator.CLRValueToDB(DataStore, value, explicitDbType);
+      return CrudGenerator.CLRValueToDB(DataStore, value, explicitDbType);
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ namespace Azos.Data.Access.MySql
     /// </summary>
     public void ConvertParameters(MySqlParameterCollection pars)
     {
-      CRUDGenerator.ConvertParameters(DataStore, pars);
+      CrudGenerator.ConvertParameters(DataStore, pars);
     }
   }
 }

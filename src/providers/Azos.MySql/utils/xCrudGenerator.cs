@@ -17,7 +17,7 @@ namespace Azos.Data.Access.MySql
   /// <summary>
   /// Generates CRUD SQL statements for MySql
   /// </summary>
-  internal static class CRUDGenerator
+  internal static class CrudGenerator
   {
     public static async Task<int> CRUDInsert(MySqlDataStoreBase store, MySqlConnection cnn, MySqlTransaction trans, Doc doc, FieldFilterFunc filter)
     {

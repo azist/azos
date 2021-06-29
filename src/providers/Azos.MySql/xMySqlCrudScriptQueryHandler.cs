@@ -17,17 +17,17 @@ namespace Azos.Data.Access.MySql
   /// <summary>
   /// Executes MySql CRUD script-based queries
   /// </summary>
-  public sealed class MySqlCRUDScriptQueryHandler : InstrumentedCrudQueryHandler<MySqlCrudDataStoreBase, MySqlCRUDQueryExecutionContext>
+  public sealed class MySqlCrudScriptQueryHandler : InstrumentedCrudQueryHandler<MySqlCrudDataStoreBase, MySqlCrudQueryExecutionContext>
   {
     #region .ctor
-    public MySqlCRUDScriptQueryHandler(MySqlCrudDataStoreBase store, QuerySource source) : base(store, source) { }
+    public MySqlCrudScriptQueryHandler(MySqlCrudDataStoreBase store, QuerySource source) : base(store, source) { }
     #endregion
 
     #region ICRUDQueryHandler
     public override Schema GetSchema(ICRUDQueryExecutionContext context, Query query)
       => GetSchemaAsync(context, query).GetAwaiter().GetResult();
 
-    public override async Task<Schema> GetQuerySchemaAsync(MySqlCRUDQueryExecutionContext context, Query query)
+    public override async Task<Schema> GetQuerySchemaAsync(MySqlCrudQueryExecutionContext context, Query query)
     {
       var target = context.DataStore.TargetName;
 
@@ -61,7 +61,7 @@ namespace Azos.Data.Access.MySql
       }//using command
     }
 
-    public override async Task<RowsetBase> ExecuteAsync(MySqlCRUDQueryExecutionContext context, Query query, bool oneDoc = false)
+    public override async Task<RowsetBase> ExecuteAsync(MySqlCrudQueryExecutionContext context, Query query, bool oneDoc = false)
     {
       var target = context.DataStore.TargetName;
 
@@ -96,7 +96,7 @@ namespace Azos.Data.Access.MySql
       }//using command
     }
 
-    public override async Task<Cursor> OpenCursorAsync(MySqlCRUDQueryExecutionContext context, Query query)
+    public override async Task<Cursor> OpenCursorAsync(MySqlCrudQueryExecutionContext context, Query query)
     {
       var target = context.DataStore.TargetName;
 
@@ -139,7 +139,7 @@ namespace Azos.Data.Access.MySql
       return new MySqlCursor(context, cmd, reader, enumerable );
     }
 
-    private IEnumerable<Doc> execEnumerable(MySqlCRUDQueryExecutionContext ctx, MySqlCommand cmd, MySqlDataReader reader, Schema schema, Schema.FieldDef[] toLoad, Query query)
+    private IEnumerable<Doc> execEnumerable(MySqlCrudQueryExecutionContext ctx, MySqlCommand cmd, MySqlDataReader reader, Schema schema, Schema.FieldDef[] toLoad, Query query)
     {
       using(cmd)
       {
@@ -155,7 +155,7 @@ namespace Azos.Data.Access.MySql
     }
 
 
-    public override async Task<int> ExecuteWithoutFetchAsync(MySqlCRUDQueryExecutionContext context, Query query)
+    public override async Task<int> ExecuteWithoutFetchAsync(MySqlCrudQueryExecutionContext context, Query query)
     {
       using (var cmd = context.Connection.CreateCommand())
       {
@@ -187,7 +187,7 @@ namespace Azos.Data.Access.MySql
     /// <summary>
     /// Reads data from reader into rowset. the reader is NOT disposed
     /// </summary>
-    public static async Task<Rowset> PopulateRowset(MySqlCRUDQueryExecutionContext context, MySqlDataReader reader, string target, Query query, QuerySource qSource, bool oneDoc)
+    public static async Task<Rowset> PopulateRowset(MySqlCrudQueryExecutionContext context, MySqlDataReader reader, string target, Query query, QuerySource qSource, bool oneDoc)
     {
       Schema.FieldDef[] toLoad;
       Schema schema = GetSchemaForQuery(target, query, reader, qSource, out toLoad);
@@ -209,7 +209,7 @@ namespace Azos.Data.Access.MySql
     /// <summary>
     /// Reads data from reader into rowset. the reader is NOT disposed
     /// </summary>
-    public static Doc PopulateDoc(MySqlCRUDQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, MySqlDataReader reader)
+    public static Doc PopulateDoc(MySqlCrudQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, MySqlDataReader reader)
     {
       var store= context.DataStore;
       var row = Doc.MakeDoc(schema, tDoc);
@@ -264,7 +264,7 @@ namespace Azos.Data.Access.MySql
         cmd.CommandText += "\n WHERE \n {0}".Args( where );
         }
 
-        CRUDGenerator.ConvertParameters(Store, cmd.Parameters);
+        CrudGenerator.ConvertParameters(Store, cmd.Parameters);
     }
 
     /// <summary>

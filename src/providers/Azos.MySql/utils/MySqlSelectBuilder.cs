@@ -49,7 +49,7 @@ namespace Azos.Data.Access.MySql
     ///    builder.Having("T1.SCORE > ?SCORE", new MySqlParameter("SCORE", 12_000));
     ///});
     /// </remarks>
-    public static MySqlCommand BuildSelect(this MySqlCRUDQueryExecutionContext ctx,
+    public static MySqlCommand BuildSelect(this MySqlCrudQueryExecutionContext ctx,
                                            MySqlCommand command,
                                            Action<MySqlSelectBuilder> body)
     {
@@ -89,7 +89,7 @@ namespace Azos.Data.Access.MySql
     ///    builder.Having("T1.SCORE > ?SCORE", new MySqlParameter("SCORE", 12_000));
     ///});
     /// </remarks>
-    public static MySqlCommand BuildSelect(this MySqlCRUDQueryExecutionContext ctx,
+    public static MySqlCommand BuildSelect(this MySqlCrudQueryExecutionContext ctx,
                                            MySqlCommand command,
                                            IBusinessFilterModel filter,
                                            Action<MySqlSelectBuilder> body)

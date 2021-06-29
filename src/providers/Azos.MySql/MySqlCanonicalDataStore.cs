@@ -65,7 +65,7 @@ namespace Azos.Data.Access.MySql
     protected internal async override Task<int> DoInsertAsync(MySqlConnection cnn, MySqlTransaction transaction, Doc row, FieldFilterFunc filter = null)
     {
       CheckReadOnly(row.Schema, "insert");
-      return await CRUDGenerator.CRUDInsert(this, cnn, transaction, row, filter).ConfigureAwait(false);
+      return await CrudGenerator.CRUDInsert(this, cnn, transaction, row, filter).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ namespace Azos.Data.Access.MySql
     protected internal async override Task<int> DoUpsertAsync(MySqlConnection cnn, MySqlTransaction transaction, Doc row, FieldFilterFunc filter = null)
     {
       CheckReadOnly(row.Schema, "upsert");
-      return await CRUDGenerator.CRUDUpsert(this, cnn, transaction, row, filter).ConfigureAwait(false);
+      return await CrudGenerator.CRUDUpsert(this, cnn, transaction, row, filter).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -83,7 +83,7 @@ namespace Azos.Data.Access.MySql
     protected internal async override Task<int> DoUpdateAsync(MySqlConnection cnn, MySqlTransaction transaction, Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
     {
       CheckReadOnly(row.Schema, "update");
-      return await CRUDGenerator.CRUDUpdate(this, cnn, transaction, row, key, filter).ConfigureAwait(false);
+      return await CrudGenerator.CRUDUpdate(this, cnn, transaction, row, key, filter).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ namespace Azos.Data.Access.MySql
     protected internal async override Task<int> DoDeleteAsync(MySqlConnection cnn, MySqlTransaction transaction, Doc row, IDataStoreKey key = null)
     {
       CheckReadOnly(row.Schema, "delete");
-      return await CRUDGenerator.CRUDDelete(this, cnn, transaction, row, key).ConfigureAwait(false);
+      return await CrudGenerator.CRUDDelete(this, cnn, transaction, row, key).ConfigureAwait(false);
     }
     #endregion
   }

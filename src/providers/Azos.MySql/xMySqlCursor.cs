@@ -15,7 +15,7 @@ namespace Azos.Data.Access.MySql
   /// </summary>
   public sealed class MySqlCursor : Cursor
   {
-    internal MySqlCursor(MySqlCRUDQueryExecutionContext context,
+    internal MySqlCursor(MySqlCrudQueryExecutionContext context,
                          MySqlCommand command,
                          MySqlDataReader reader,
                          IEnumerable<Doc> source) : base(source)
@@ -36,7 +36,7 @@ namespace Azos.Data.Access.MySql
         m_Context.Connection.Dispose();
     }
 
-    private MySqlCRUDQueryExecutionContext m_Context;
+    private MySqlCrudQueryExecutionContext m_Context;
     private MySqlCommand m_Command;
     private MySqlDataReader m_Reader;
   }

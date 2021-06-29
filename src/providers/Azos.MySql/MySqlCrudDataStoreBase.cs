@@ -166,7 +166,7 @@ namespace Azos.Data.Access.MySql
     }
 
     public CRUDQueryHandler MakeScriptQueryHandler(QuerySource querySource)
-     => new MySqlCRUDScriptQueryHandler(this, querySource);
+     => new MySqlCrudScriptQueryHandler(this, querySource);
 
     public ICRUDQueryResolver QueryResolver => m_QueryResolver;
 
@@ -190,7 +190,7 @@ namespace Azos.Data.Access.MySql
       var handler = QueryResolver.Resolve(query);
       try
       {
-        return await handler.GetSchemaAsync( new MySqlCRUDQueryExecutionContext(this, cnn, transaction), query).ConfigureAwait(false);
+        return await handler.GetSchemaAsync( new MySqlCrudQueryExecutionContext(this, cnn, transaction), query).ConfigureAwait(false);
       }
       catch (Exception error)
       {
@@ -198,7 +198,7 @@ namespace Azos.Data.Access.MySql
                         StringConsts.GET_SCHEMA_ERROR + error.ToMessageWithType(),
                         error,
                         KeyViolationKind.Unspecified,
-                        CRUDGenerator.KeyViolationName(error));
+                        CrudGenerator.KeyViolationName(error));
       }
     }
 
@@ -215,7 +215,7 @@ namespace Azos.Data.Access.MySql
         var handler = QueryResolver.Resolve(query);
         try
         {
-          var rowset = await handler.ExecuteAsync( new MySqlCRUDQueryExecutionContext(this, cnn, transaction), query, oneDoc).ConfigureAwait(false);
+          var rowset = await handler.ExecuteAsync( new MySqlCrudQueryExecutionContext(this, cnn, transaction), query, oneDoc).ConfigureAwait(false);
           result.Add(rowset);
         }
         catch (Exception error)
@@ -224,7 +224,7 @@ namespace Azos.Data.Access.MySql
                           StringConsts.LOAD_ERROR + error.ToMessageWithType(),
                           error,
                           KeyViolationKind.Unspecified,
-                          CRUDGenerator.KeyViolationName(error));
+                          CrudGenerator.KeyViolationName(error));
         }
       }
 
@@ -237,7 +237,7 @@ namespace Azos.Data.Access.MySql
     /// </summary>
     protected internal async virtual Task<Cursor> DoOpenCursorAsync(MySqlConnection cnn, MySqlTransaction transaction, Query query)
     {
-      var context = new MySqlCRUDQueryExecutionContext(this, cnn, transaction);
+      var context = new MySqlCrudQueryExecutionContext(this, cnn, transaction);
       var handler = QueryResolver.Resolve(query);
       try
       {
@@ -249,7 +249,7 @@ namespace Azos.Data.Access.MySql
                         StringConsts.OPEN_CURSOR_ERROR + error.ToMessageWithType(),
                         error,
                         KeyViolationKind.Unspecified,
-                        CRUDGenerator.KeyViolationName(error));
+                        CrudGenerator.KeyViolationName(error));
       }
     }
 
@@ -267,7 +267,7 @@ namespace Azos.Data.Access.MySql
         var handler = QueryResolver.Resolve(query);
         try
         {
-          affected += await handler.ExecuteWithoutFetchAsync(new MySqlCRUDQueryExecutionContext(this, cnn, transaction), query).ConfigureAwait(false);
+          affected += await handler.ExecuteWithoutFetchAsync(new MySqlCrudQueryExecutionContext(this, cnn, transaction), query).ConfigureAwait(false);
         }
         catch (Exception error)
         {
@@ -275,7 +275,7 @@ namespace Azos.Data.Access.MySql
                           StringConsts.EXECUTE_WITHOUT_FETCH_ERROR + error.ToMessageWithType(),
                           error,
                           KeyViolationKind.Unspecified,
-                          CRUDGenerator.KeyViolationName(error));
+                          CrudGenerator.KeyViolationName(error));
         }
       }
 
