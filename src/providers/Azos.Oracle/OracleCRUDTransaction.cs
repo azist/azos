@@ -15,7 +15,7 @@ namespace Azos.Data.Access.Oracle
   /// <summary>
   /// Represents MySQL CRUD transaction
   /// </summary>
-  public sealed class OracleCRUDTransaction : CRUDTransaction
+  public sealed class OracleCRUDTransaction : CrudTransaction
   {
     #region .ctor/.dctor
     internal OracleCRUDTransaction(OracleCRUDDataStoreBase store, OracleConnection cnn, IsolationLevel iso, TransactionDisposeBehavior disposeBehavior) : base (store, disposeBehavior)

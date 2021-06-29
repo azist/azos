@@ -24,7 +24,7 @@ namespace Azos.Data.Access.MySql
     #endregion
 
     #region ICRUDQueryHandler
-    public override Schema GetSchema(ICRUDQueryExecutionContext context, Query query)
+    public override Schema GetSchema(ICrudQueryExecutionContext context, Query query)
       => GetSchemaAsync(context, query).GetAwaiter().GetResult();
 
     public override async Task<Schema> GetQuerySchemaAsync(MySqlCrudQueryExecutionContext context, Query query)

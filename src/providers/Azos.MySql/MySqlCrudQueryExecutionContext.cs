@@ -11,7 +11,7 @@ namespace Azos.Data.Access.MySql
   /// <summary>
   /// Provides query execution environment in MySql context
   /// </summary>
-  public struct MySqlCrudQueryExecutionContext : ICRUDQueryExecutionContext
+  public struct MySqlCrudQueryExecutionContext : ICrudQueryExecutionContext
   {
     public readonly MySqlDataStoreBase  DataStore;
     public readonly MySqlConnection  Connection;

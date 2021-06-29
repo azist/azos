@@ -16,20 +16,20 @@ namespace Azos.Data.Access
   /// This class is used to pass some out-of-band information to CRUD operations without changing the caller interface,
   /// i.e. to swap database connection string
   /// </summary>
-  public class CRUDOperationCallContext : DisposableObject
+  public class CrudOperationCallContext : DisposableObject
   {
-    private static AsyncLocal<Stack<CRUDOperationCallContext>> ats_Instances = new AsyncLocal<Stack<CRUDOperationCallContext>>();
+    private static AsyncLocal<Stack<CrudOperationCallContext>> ats_Instances = new AsyncLocal<Stack<CrudOperationCallContext>>();
 
     /// <summary>
     /// Returns the current set CRUDOperationCallContext or null
     /// </summary>
-    public static CRUDOperationCallContext Current
+    public static CrudOperationCallContext Current
       => ats_Instances.Value != null && ats_Instances.Value.Count > 0 ? ats_Instances.Value.Peek() : null;
 
-    public CRUDOperationCallContext()
+    public CrudOperationCallContext()
     {
       if (ats_Instances.Value == null)
-          ats_Instances.Value = new Stack<CRUDOperationCallContext>();
+          ats_Instances.Value = new Stack<CrudOperationCallContext>();
 
       ats_Instances.Value.Push(this);
     }

@@ -184,7 +184,7 @@ namespace Azos.Data.Access.MongoDb
         var dbn = m_DatabaseName;
 
         //Try to override from the context
-        var ctx = CRUDOperationCallContext.Current;
+        var ctx = CrudOperationCallContext.Current;
         if (ctx!=null)
         {
           if (ctx.ConnectString.IsNotNullOrWhiteSpace()) cstring = ctx.ConnectString;

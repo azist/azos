@@ -16,7 +16,7 @@ namespace Azos.Data.Access
   /// <summary>
   /// Denotes types of CRUD stores
   /// </summary>
-  public enum CRUDDataStoreType
+  public enum CrudDataStoreType
   {
     Relational,
     Document,
@@ -28,7 +28,7 @@ namespace Azos.Data.Access
   /// <summary>
   /// Describes an entity that performs single (not in transaction/batch)CRUD operations
   /// </summary>
-  public interface ICRUDOperations
+  public interface ICrudOperations
   {
     /// <summary>
     /// Returns true when backend supports true asynchronous operations, such as the ones that do not create extra threads/empty tasks
@@ -73,7 +73,7 @@ namespace Azos.Data.Access
   /// <summary>
   /// Describes an entity that performs single (not in transaction/batch)CRUD operations
   /// </summary>
-  public interface ICRUDTransactionOperations
+  public interface ICrudTransactionOperations
   {
     /// <summary>
     /// Returns true when backend supports transactions. Even if false returned, CRUDDatastore supports CRUDTransaction return from BeginTransaction()
@@ -85,20 +85,20 @@ namespace Azos.Data.Access
     /// Returns a transaction object for backend. Even if backend does not support transactions internally, CRUDTransactions save changes
     ///  into the store on commit only
     /// </summary>
-    CRUDTransaction BeginTransaction(IsolationLevel iso = IsolationLevel.ReadCommitted, TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose);
+    CrudTransaction BeginTransaction(IsolationLevel iso = IsolationLevel.ReadCommitted, TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose);
 
     /// <summary>
     /// Returns a transaction object for backend. Even if backend does not support transactions internally, CRUDTransactions save changes
     ///  into the store on commit only
     /// </summary>
-    Task<CRUDTransaction> BeginTransactionAsync(IsolationLevel iso = IsolationLevel.ReadCommitted, TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose);
+    Task<CrudTransaction> BeginTransactionAsync(IsolationLevel iso = IsolationLevel.ReadCommitted, TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose);
   }
 
 
   /// <summary>
   /// Represents a DataStore that supports CRUD operations
   /// </summary>
-  public interface ICRUDDataStore : IDataStore, ICRUDOperations, ICRUDTransactionOperations, IApplicationComponent
+  public interface ICrudDataStore : IDataStore, ICrudOperations, ICrudTransactionOperations, IApplicationComponent
   {
     /// <summary>
     /// Returns default script file suffix, which some providers may use to locate script files
@@ -110,36 +110,36 @@ namespace Azos.Data.Access
     /// <summary>
     /// Provides classification for the underlying store
     /// </summary>
-    CRUDDataStoreType StoreType { get; }
+    CrudDataStoreType StoreType { get; }
 
     /// <summary>
     /// Resolver that turns query into handler
     /// </summary>
-    ICRUDQueryResolver QueryResolver { get; }
+    ICrudQueryResolver QueryResolver { get; }
   }
 
 
-  public interface ICRUDDataStoreImplementation : ICRUDDataStore, IDataStoreImplementation
+  public interface ICrudDataStoreImplementation : ICrudDataStore, IDataStoreImplementation
   {
-    CRUDQueryHandler MakeScriptQueryHandler(QuerySource querySource);
+    CrudQueryHandler MakeScriptQueryHandler(QuerySource querySource);
   }
 
 
   /// <summary>
   /// Represents a class that resolves Query into suitable handler that can execute it
   /// </summary>
-  public interface ICRUDQueryResolver : IApplicationComponent, IConfigurable
+  public interface ICrudQueryResolver : IApplicationComponent, IConfigurable
   {
     /// <summary>
     /// Retrieves a handler for supplied query. The implementation must be thread-safe
     /// </summary>
-    CRUDQueryHandler Resolve(Query query);
+    CrudQueryHandler Resolve(Query query);
 
     string ScriptAssembly { get; set; }
 
     IList<string> HandlerLocations { get; }
 
-    Collections.IRegistry<CRUDQueryHandler> Handlers { get; }
+    Collections.IRegistry<CrudQueryHandler> Handlers { get; }
 
     /// <summary>
     /// Registers handler location.
@@ -159,7 +159,7 @@ namespace Azos.Data.Access
   /// Represents a context (such as Sql Server connection + transaction scope, or Hadoop connect string etc.) for query execution.
   /// This is a marker interface implemented by particular providers
   /// </summary>
-  public interface ICRUDQueryExecutionContext
+  public interface ICrudQueryExecutionContext
   {
   }
 

@@ -23,7 +23,7 @@ namespace Azos.Data.Access.MySql
   /// for general-purposes cases due to inconsistent/unpredictable use of data types in a non-uniform schema designs.
   /// Contrast this class with <seealso cref="MySqlCanonicalDataStore"/>
   /// </summary>
-  public abstract class MySqlCrudDataStoreBase : MySqlDataStoreBase, ICRUDDataStoreImplementation
+  public abstract class MySqlCrudDataStoreBase : MySqlDataStoreBase, ICrudDataStoreImplementation
   {
     #region CONSTS
     public const string SCRIPT_FILE_SUFFIX = ".mys.sql";
@@ -56,13 +56,13 @@ namespace Azos.Data.Access.MySql
     public bool SupportsTransactions   => true;
     public bool SupportsTrueAsynchrony => true;
     public string ScriptFileSuffix     => SCRIPT_FILE_SUFFIX;
-    public CRUDDataStoreType StoreType => CRUDDataStoreType.Relational;
+    public CrudDataStoreType StoreType => CrudDataStoreType.Relational;
 
-    public CRUDTransaction BeginTransaction(IsolationLevel iso = IsolationLevel.ReadCommitted,
+    public CrudTransaction BeginTransaction(IsolationLevel iso = IsolationLevel.ReadCommitted,
                                             TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
      => BeginTransactionAsync(iso, behavior).GetAwaiter().GetResult();
 
-    public async Task<CRUDTransaction> BeginTransactionAsync(IsolationLevel iso = IsolationLevel.ReadCommitted,
+    public async Task<CrudTransaction> BeginTransactionAsync(IsolationLevel iso = IsolationLevel.ReadCommitted,
                                                              TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
     {
       var cnn = await GetConnection().ConfigureAwait(false);
@@ -165,10 +165,10 @@ namespace Azos.Data.Access.MySql
         return await DoExecuteWithoutFetchAsync(cnn, null, queries).ConfigureAwait(false);
     }
 
-    public CRUDQueryHandler MakeScriptQueryHandler(QuerySource querySource)
+    public CrudQueryHandler MakeScriptQueryHandler(QuerySource querySource)
      => new MySqlCrudScriptQueryHandler(this, querySource);
 
-    public ICRUDQueryResolver QueryResolver => m_QueryResolver;
+    public ICrudQueryResolver QueryResolver => m_QueryResolver;
 
     #endregion
 

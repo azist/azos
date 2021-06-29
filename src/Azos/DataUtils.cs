@@ -94,7 +94,7 @@ namespace Azos
     /// <summary>
     /// Loads one document cast per Query(T) or null
     /// </summary>
-    public static TDoc LoadDoc<TDoc>(this ICRUDOperations operations, Query<TDoc> query) where TDoc : Doc
+    public static TDoc LoadDoc<TDoc>(this ICrudOperations operations, Query<TDoc> query) where TDoc : Doc
     {
       if (operations==null || query==null)
         throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadDoc(ICRUDOperations==null | query==null)");
@@ -105,7 +105,7 @@ namespace Azos
     /// <summary>
     /// Async version - loads one doc cast per Query(T) or null
     /// </summary>
-    public static async Task<TDoc> LoadDocAsync<TDoc>(this ICRUDOperations operations, Query<TDoc> query) where TDoc : Doc
+    public static async Task<TDoc> LoadDocAsync<TDoc>(this ICrudOperations operations, Query<TDoc> query) where TDoc : Doc
     {
       if (operations==null || query==null)
         throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadDocAsync(ICRUDOperations==null | query==null)");
@@ -118,7 +118,7 @@ namespace Azos
     /// <summary>
     /// Loads docset with docs cast per Query(T) or empty enum
     /// </summary>
-    public static IEnumerable<TDoc> LoadEnumerable<TDoc>(this ICRUDOperations operations, Query<TDoc> query) where TDoc : Doc
+    public static IEnumerable<TDoc> LoadEnumerable<TDoc>(this ICrudOperations operations, Query<TDoc> query) where TDoc : Doc
     {
       if (operations==null || query==null)
         throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadEnumerable(ICRUDOperations==null | query==null)");
@@ -129,7 +129,7 @@ namespace Azos
     /// <summary>
     /// Async version - loads docset with rows cast per Query(T) or empty enum
     /// </summary>
-    public static async Task<IEnumerable<TDoc>> LoadEnumerableAsync<TDoc>(this ICRUDOperations operations, Query<TDoc> query) where TDoc : Doc
+    public static async Task<IEnumerable<TDoc>> LoadEnumerableAsync<TDoc>(this ICrudOperations operations, Query<TDoc> query) where TDoc : Doc
     {
       if (operations==null || query==null)
         throw new AzosException(StringConsts.ARGUMENT_ERROR+"LoadEnumerableAsync(ICRUDOperations==null | query==null)");

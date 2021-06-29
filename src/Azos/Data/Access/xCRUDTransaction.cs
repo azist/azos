@@ -34,12 +34,12 @@ namespace Azos.Data.Access
   /// <summary>
   /// Represents an abstract base for CRUDTransactions that perform particular backend CRUD work in overriden classes
   /// </summary>
-  public abstract class CRUDTransaction : DisposableObject, ICRUDOperations
+  public abstract class CrudTransaction : DisposableObject, ICrudOperations
   {
     #region .ctor/.dctor
 
-    protected CRUDTransaction(
-          ICRUDDataStoreImplementation store,
+    protected CrudTransaction(
+          ICrudDataStoreImplementation store,
           TransactionDisposeBehavior disposeBehavior = TransactionDisposeBehavior.CommitOnDispose)
     {
       m_Store = store;
@@ -62,7 +62,7 @@ namespace Azos.Data.Access
 
     #region Fields
 
-    protected ICRUDDataStoreImplementation m_Store;
+    protected ICrudDataStoreImplementation m_Store;
     private TransactionStatus m_Status;
     private TransactionDisposeBehavior m_DisposeBahavior;
 
@@ -73,7 +73,7 @@ namespace Azos.Data.Access
     /// <summary>
     /// References the store instance that started this transaction
     /// </summary>
-    public ICRUDDataStore DataStore => m_Store;
+    public ICrudDataStore DataStore => m_Store;
 
     /// <summary>
     /// Returns current transaction status

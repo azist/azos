@@ -18,7 +18,7 @@ namespace Azos.Tests.Integration.CRUD
 {
     internal static class TestLogic
     {
-        public static void ExecuteCustomCommandHandler(ICRUDDataStore store)
+        public static void ExecuteCustomCommandHandler(ICrudDataStore store)
         {
           var query = new Query("CustomTestCommandHandler") { new Query.Param("Msg", "we are on the moon!") };
           var result = store.Load(query);
@@ -33,7 +33,7 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-        public static void QueryInsertQuery(ICRUDDataStore store)
+        public static void QueryInsertQuery(ICrudDataStore store)
         {
             var query = new Query("CRUD.Queries.Patient.List") { new Query.Param("LN", "%loff") };
             var result = store.Load( query );
@@ -64,7 +64,7 @@ namespace Azos.Tests.Integration.CRUD
 
         }
 
-        public static void ASYNC_QueryInsertQuery(ICRUDDataStore store)
+        public static void ASYNC_QueryInsertQuery(ICrudDataStore store)
         {
             var query = new Query("CRUD.Queries.Patient.List") { new Query.Param("LN", "%loff") };
             var task = store.LoadAsync( query );
@@ -95,7 +95,7 @@ namespace Azos.Tests.Integration.CRUD
 
         }
 
-        public static void QueryInsertQuery_TypedRow(ICRUDDataStore store)
+        public static void QueryInsertQuery_TypedRow(ICrudDataStore store)
         {
             var query = new Query("CRUD.Queries.Patient.List", typeof(Patient) ) { new Query.Param("LN", "%loff") };
             var result = store.Load( query );
@@ -127,7 +127,7 @@ namespace Azos.Tests.Integration.CRUD
 
         }
 
-        public static void QueryInsertQuery_TypedRowDerived(ICRUDDataStore store)
+        public static void QueryInsertQuery_TypedRowDerived(ICrudDataStore store)
         {
             var query = new Query("CRUD.Queries.Patient.List", typeof(SuperPatient) ) { new Query.Param("LN", "%loff") };
             var result = store.Load( query );
@@ -161,7 +161,7 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-        public static void QueryInsertQuery_DynamicRow(ICRUDDataStore store)
+        public static void QueryInsertQuery_DynamicRow(ICrudDataStore store)
         {
             var query = new Query<DynamicDoc>("CRUD.Queries.Patient.List") { new Query.Param("LN", "%ruman") };
             var result = store.Load( query );
@@ -191,7 +191,7 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-        public static void InsertManyUsingLogChanges_TypedRow(ICRUDDataStore store)
+        public static void InsertManyUsingLogChanges_TypedRow(ICrudDataStore store)
         {
             var rowset = new Rowset( Schema.GetForTypedDoc(typeof(Patient)));
             rowset.LogChanges = true;
@@ -229,7 +229,7 @@ namespace Azos.Tests.Integration.CRUD
             Aver.AreEqual(327, result.Count);
         }
 
-        public static void ASYNC_InsertManyUsingLogChanges_TypedRow(ICRUDDataStore store)
+        public static void ASYNC_InsertManyUsingLogChanges_TypedRow(ICrudDataStore store)
         {
             var rowset = new Rowset( Schema.GetForTypedDoc(typeof(Patient)));
             rowset.LogChanges = true;
@@ -270,7 +270,7 @@ namespace Azos.Tests.Integration.CRUD
 
 
 
-        public static void InsertInTransaction_Commit_TypedRow(ICRUDDataStore store)
+        public static void InsertInTransaction_Commit_TypedRow(ICrudDataStore store)
         {
             var transaction = store.BeginTransaction();
 
@@ -298,7 +298,7 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-    public static async Task ASYNC_InsertInTransaction_Commit_TypedRow(ICRUDDataStore store)
+    public static async Task ASYNC_InsertInTransaction_Commit_TypedRow(ICrudDataStore store)
     {
         var transaction = store.BeginTransactionAsync().Result;
 
@@ -330,7 +330,7 @@ namespace Azos.Tests.Integration.CRUD
 
 
 
-        public static void InsertInTransaction_Rollback_TypedRow(ICRUDDataStore store)
+        public static void InsertInTransaction_Rollback_TypedRow(ICrudDataStore store)
         {
             var transaction = store.BeginTransaction();
 
@@ -358,7 +358,7 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-        public static void InsertThenUpdate_TypedRow(ICRUDDataStore store)
+        public static void InsertThenUpdate_TypedRow(ICrudDataStore store)
         {
             for(var i=0; i<10; i++)
             {
@@ -390,7 +390,7 @@ namespace Azos.Tests.Integration.CRUD
             Aver.AreObjectsEqual("Gagarin", result[0]["Last_Name"]);
         }
 
-        public static async Task ASYNC_InsertThenUpdate_TypedRow(ICRUDDataStore store)
+        public static async Task ASYNC_InsertThenUpdate_TypedRow(ICrudDataStore store)
         {
             for(var i=0; i<10; i++)
             {
@@ -424,7 +424,7 @@ namespace Azos.Tests.Integration.CRUD
 
 
 
-        public static void InsertThenDelete_TypedRow(ICRUDDataStore store)
+        public static void InsertThenDelete_TypedRow(ICrudDataStore store)
         {
             for(var i=0; i<10; i++)
             {
@@ -453,7 +453,7 @@ namespace Azos.Tests.Integration.CRUD
 
         }
 
-        public static async Task ASYNC_InsertThenDelete_TypedRow(ICRUDDataStore store)
+        public static async Task ASYNC_InsertThenDelete_TypedRow(ICrudDataStore store)
         {
             for(var i=0; i<10; i++)
             {
@@ -484,7 +484,7 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-        public static void InsertThenUpsert_TypedRow(ICRUDDataStore store)
+        public static void InsertThenUpsert_TypedRow(ICrudDataStore store)
         {
             for(var i=0; i<10; i++)
             {
@@ -535,7 +535,7 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-        public static async Task ASYNC_InsertThenUpsert_TypedRow(ICRUDDataStore store)
+        public static async Task ASYNC_InsertThenUpsert_TypedRow(ICrudDataStore store)
         {
             for(var i=0; i<10; i++)
             {
@@ -589,7 +589,7 @@ namespace Azos.Tests.Integration.CRUD
 
 
 
-        public static void GetSchemaAndTestVariousTypes(ICRUDDataStore store)
+        public static void GetSchemaAndTestVariousTypes(ICrudDataStore store)
         {
             var schema = store.GetSchema(new Query("CRUD.Queries.Types.Load"));
 
@@ -626,7 +626,7 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-        public static async Task ASYNC_GetSchemaAndTestVariousTypes(ICRUDDataStore store)
+        public static async Task ASYNC_GetSchemaAndTestVariousTypes(ICrudDataStore store)
         {
             var schema = await store.GetSchemaAsync(new Query("CRUD.Queries.Types.Load"));
 
@@ -661,7 +661,7 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-        public static void TypedRowTestVariousTypes(ICRUDDataStore store)
+        public static void TypedRowTestVariousTypes(ICrudDataStore store)
         {
 
             var row = new Types();
@@ -712,7 +712,7 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-        public static void TypedRowTest_FullGDID(ICRUDDataStore store)
+        public static void TypedRowTest_FullGDID(ICrudDataStore store)
         {
 
             var row = new FullGDID();
@@ -731,7 +731,7 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-        public static void GetSchemaAndTestFullGDID(ICRUDDataStore store)
+        public static void GetSchemaAndTestFullGDID(ICrudDataStore store)
         {
             var schema = store.GetSchema(new Query("CRUD.Queries.FullGDID.Load"));
 
@@ -756,7 +756,7 @@ namespace Azos.Tests.Integration.CRUD
             Aver.AreObjectsEqual("DA DA DA!", row2["String_Name"]);
         }
 
-        public static void InsertWithPredicate(ICRUDDataStore store)
+        public static void InsertWithPredicate(ICrudDataStore store)
         {
             var patient = TestLogic.GetDefaultPatient();
             var affected = store.Insert(patient, (r, k, f) => f.Name != "State" && f.Name != "Zip");
@@ -781,7 +781,7 @@ namespace Azos.Tests.Integration.CRUD
             Aver.IsNull(persisted.Zip);
         }
 
-        public static void UpdateWithPredicate(ICRUDDataStore store)
+        public static void UpdateWithPredicate(ICrudDataStore store)
         {
             var patient = TestLogic.GetDefaultPatient();
             var affected = store.Insert(patient);
@@ -812,7 +812,7 @@ namespace Azos.Tests.Integration.CRUD
             Aver.AreEqual(patient.Zip, updated.Zip);
         }
 
-        public static void UpsertWithPredicate(ICRUDDataStore store)
+        public static void UpsertWithPredicate(ICrudDataStore store)
         {
             var patient = TestLogic.GetDefaultPatient();
             var affected = store.Insert(patient);
@@ -844,7 +844,7 @@ namespace Azos.Tests.Integration.CRUD
         }
 
 
-        public static void Populate_OpenCursor(ICRUDDataStore store)
+        public static void Populate_OpenCursor(ICrudDataStore store)
         {
             const int CNT = 1000;
 
@@ -961,7 +961,7 @@ namespace Azos.Tests.Integration.CRUD
 
         }
 
-        public static async Task Populate_ASYNC_OpenCursor(ICRUDDataStore store)
+        public static async Task Populate_ASYNC_OpenCursor(ICrudDataStore store)
         {
             const int CNT = 1000;
 

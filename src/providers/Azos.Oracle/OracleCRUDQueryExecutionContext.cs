@@ -11,7 +11,7 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     /// Provides query execution environment in Oracle context
     /// </summary>
-    public struct OracleCRUDQueryExecutionContext : ICRUDQueryExecutionContext
+    public struct OracleCRUDQueryExecutionContext : ICrudQueryExecutionContext
     {
        public readonly OracleDataStoreBase  DataStore;
        public readonly OracleConnection  Connection;

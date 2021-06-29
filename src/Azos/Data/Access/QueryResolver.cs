@@ -20,7 +20,7 @@ namespace Azos.Data.Access
   /// Resolves Query objects into query handlers. Query names are case-insensitive.
   /// This class is thread-safe
   /// </summary>
-  public sealed class QueryResolver : ApplicationComponent<ICRUDDataStoreImplementation>, ICRUDQueryResolver, IConfigurable
+  public sealed class QueryResolver : ApplicationComponent<ICrudDataStoreImplementation>, ICrudQueryResolver, IConfigurable
   {
     #region CONSTS
 
@@ -33,7 +33,7 @@ namespace Azos.Data.Access
 
     #region .ctor
 
-    public QueryResolver(ICRUDDataStoreImplementation director) : base(director)
+    public QueryResolver(ICrudDataStoreImplementation director) : base(director)
     {
     }
 
@@ -45,7 +45,7 @@ namespace Azos.Data.Access
 
     private string m_ScriptAssembly;
     private List<string> m_Locations = new List<string>();
-    private Collections.Registry<CRUDQueryHandler> m_Handlers = new Collections.Registry<CRUDQueryHandler>();
+    private Collections.Registry<CrudQueryHandler> m_Handlers = new Collections.Registry<CrudQueryHandler>();
 
     #endregion
 
@@ -71,7 +71,7 @@ namespace Azos.Data.Access
       get { return m_Locations; }
     }
 
-    public Collections.IRegistry<CRUDQueryHandler> Handlers
+    public Collections.IRegistry<CrudQueryHandler> Handlers
     {
       get { return m_Handlers; }
     }
@@ -100,7 +100,7 @@ namespace Azos.Data.Access
       return m_Locations.RemoveAll((s) => s.EqualsIgnoreCase(location)) > 0;
     }
 
-    public CRUDQueryHandler Resolve(Query query)
+    public CrudQueryHandler Resolve(Query query)
     {
       m_Started = true;
       var name = query.Name;
@@ -151,7 +151,7 @@ namespace Azos.Data.Access
         throw new DataAccessException(StringConsts.CRUD_QUERY_RESOLVER_ALREADY_STARTED_ERROR);
     }
 
-    private CRUDQueryHandler searchForType(string name)
+    private CrudQueryHandler searchForType(string name)
     {
       foreach (var loc in m_Locations)
       {
@@ -168,16 +168,16 @@ namespace Azos.Data.Access
         var t = Type.GetType(tname, false, true);
         if (t != null)
         {
-          if (typeof(CRUDQueryHandler).IsAssignableFrom(t))
+          if (typeof(CrudQueryHandler).IsAssignableFrom(t))
           {
-            return Activator.CreateInstance(t, ComponentDirector, name) as CRUDQueryHandler;
+            return Activator.CreateInstance(t, ComponentDirector, name) as CrudQueryHandler;
           }
         }
       }
       return null;
     }
 
-    private CRUDQueryHandler searchForScript(string name)
+    private CrudQueryHandler searchForScript(string name)
     {
       var asm = Assembly.Load(m_ScriptAssembly);
       var asmname = asm.FullName;

@@ -229,7 +229,7 @@ namespace Azos.Data.Access.MySql
       var connectString = this.ConnectString;
 
       //Try to override from the context
-      var ctx = CRUDOperationCallContext.Current;
+      var ctx = CrudOperationCallContext.Current;
       if (ctx != null && ctx.ConnectString.IsNotNullOrWhiteSpace())
       {
         connectString = ctx.ConnectString;

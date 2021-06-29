@@ -19,7 +19,7 @@ namespace Azos.Data.Access.MongoDb
   /// Implements MongoDB general data store that supports CRUD operations.
   /// This class IS thread-safe load/save/delete operations
   /// </summary>
-  public class MongoDbDataStore : MongoDbDataStoreBase, ICRUDDataStoreImplementation
+  public class MongoDbDataStore : MongoDbDataStoreBase, ICrudDataStoreImplementation
   {
     #region CONSTS
         public const string SCRIPT_FILE_SUFFIX = ".mon.json";
@@ -87,13 +87,13 @@ namespace Azos.Data.Access.MongoDb
 
 
 
-        public virtual CRUDTransaction BeginTransaction(IsolationLevel iso = IsolationLevel.ReadCommitted,
+        public virtual CrudTransaction BeginTransaction(IsolationLevel iso = IsolationLevel.ReadCommitted,
                                                 TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
         {
             throw new MongoDbDataAccessException(StringConsts.OP_NOT_SUPPORTED_ERROR.Args("BeginTransaction", GetType().Name));
         }
 
-        public virtual Task<CRUDTransaction> BeginTransactionAsync(IsolationLevel iso = IsolationLevel.ReadCommitted,
+        public virtual Task<CrudTransaction> BeginTransactionAsync(IsolationLevel iso = IsolationLevel.ReadCommitted,
                                                            TransactionDisposeBehavior behavior = TransactionDisposeBehavior.CommitOnDispose)
         {
             throw new MongoDbDataAccessException(StringConsts.OP_NOT_SUPPORTED_ERROR.Args("BeginTransactionAsync", GetType().Name));
@@ -114,9 +114,9 @@ namespace Azos.Data.Access.MongoDb
             get { return SCRIPT_FILE_SUFFIX;}
         }
 
-        public virtual CRUDDataStoreType StoreType
+        public virtual CrudDataStoreType StoreType
         {
-            get { return CRUDDataStoreType.Document; }
+            get { return CrudDataStoreType.Document; }
         }
 
 
@@ -300,13 +300,13 @@ namespace Azos.Data.Access.MongoDb
         }
 
 
-        public CRUDQueryHandler MakeScriptQueryHandler(QuerySource querySource)
+        public CrudQueryHandler MakeScriptQueryHandler(QuerySource querySource)
         {
             return new MongoDbCRUDScriptQueryHandler(this, querySource);
         }
 
 
-        public ICRUDQueryResolver QueryResolver
+        public ICrudQueryResolver QueryResolver
         {
             get { return m_QueryResolver; }
         }
