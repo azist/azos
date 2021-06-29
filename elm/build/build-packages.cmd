@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.19.10
-set HEADLINE=Log sink refactoring/flood filter fix
+set VER=1.19.11
+set HEADLINE=MySql refactoring and DataContext intro
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
