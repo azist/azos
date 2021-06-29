@@ -144,30 +144,52 @@ namespace Azos.Data.Access
     public InstrumentedCrudQueryHandler(TStore store, string name) : base(store, name) { }
     public InstrumentedCrudQueryHandler(TStore store, QuerySource source) : base(store, source) { }
 
+    /// <summary>
+    /// Shortcut to app instrumentation
+    /// </summary>
     protected IInstrumentation Instruments => Store.App.Instrumentation;
+
+    /// <summary>
+    /// True if both app chassis and owner data store are instrumentation-enabled
+    /// </summary>
     protected bool Instrumented => Instruments.Enabled && ((Store as IInstrumentable)?.InstrumentationEnabled ?? false);
 
+    /// <summary>
+    /// Profiles a synchronous call body with DataQueryLatency gauge
+    /// </summary>
     protected T Profile<T>(Func<T> body)
     {
-      var sw = Timeter.StartNew();
-      var result = body();
-      if (Instrumented)
+      Timeter? sw = null;
+      if (Instrumented) sw = Timeter.StartNew();
+
+      var result = body.NonNull(nameof(body))();
+
+      if (sw.HasValue)
       {
-        var el = sw.ElapsedMs;
+        var el = sw.Value.ElapsedMs;
         Instrumentation.DataQueryLatency.Emit(Instruments, Store.TargetName, GetType().Name, el);
       }
+
       return result;
     }
 
+    /// <summary>
+    /// Profiles an asynchronous call body with DataQueryLatency gauge
+    /// </summary>
     protected async Task<T> ProfileAsync<T>(Func<Task<T>> body)
     {
-      var sw = Timeter.StartNew();
-      var result = await body();
-      if (Instrumented)
+      Timeter? sw = null;
+      if (Instrumented) sw = Timeter.StartNew();
+
+      var result = await body.NonNull(nameof(body))()
+                             .ConfigureAwait(false);
+
+      if (sw.HasValue)
       {
-        var el = sw.ElapsedMs;
+        var el = sw.Value.ElapsedMs;
         Instrumentation.DataQueryLatency.Emit(Instruments, Store.TargetName, GetType().Name, el);
       }
+
       return result;
     }
 
