@@ -55,8 +55,8 @@ namespace Azos.Data
         var nfld = ndoc.AddChildNode("field");
         try
         {
-          var targetName = context.GetSchemaDataTargetName(schema, doc);
-          field(targetName, def, context, nfld, doc);
+          var targeted = context.GetSchemaDataTargetName(schema, doc);
+          field(targeted.name, targeted.useFieldNames, def, context, nfld, doc);
         }
         catch (Exception error)
         {
@@ -69,14 +69,17 @@ namespace Azos.Data
       return ndoc;
     }
 
-    private void field(string targetName, Schema.FieldDef def, IMetadataGenerator context, ConfigSectionNode data, TypedDoc doc)
+    private void field(string targetName, bool useTargetedFieldNames, Schema.FieldDef def, IMetadataGenerator context, ConfigSectionNode data, TypedDoc doc)
     {
-      var fname = def.GetBackendNameForTarget(targetName, out var fatr);
+      var backendName = def.GetBackendNameForTarget(targetName, out var fatr);
+
+      var fname = useTargetedFieldNames ? backendName : def.Name;
 
       if (fatr == null) return;
 
       if (context.DetailLevel > MetadataDetailLevel.Public)
       {
+        data.AddAttributeNode("backend-name", backendName);
         data.AddAttributeNode("prop-name", def.Name);
         data.AddAttributeNode("prop-type", def.Type.AssemblyQualifiedName);
         data.AddAttributeNode("non-ui", fatr.NonUI);
