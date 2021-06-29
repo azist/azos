@@ -34,6 +34,7 @@ namespace Azos.Data.Access.MySql
       using (var cmd = context.Connection.CreateCommand())
       {
         cmd.CommandText =  Source.StatementSource;
+        cmd.CommandTimeout = CommandTimeoutSec;
 
         PopulateParameters(cmd, query);
 
@@ -67,8 +68,8 @@ namespace Azos.Data.Access.MySql
 
       using (var cmd = context.Connection.CreateCommand())
       {
-
         cmd.CommandText =  Source.StatementSource;
+        cmd.CommandTimeout = CommandTimeoutSec;
 
         PopulateParameters(cmd, query);
 
@@ -106,8 +107,8 @@ namespace Azos.Data.Access.MySql
       var cmd = context.Connection.CreateCommand();
       try
       {
-
         cmd.CommandText =  Source.StatementSource;
+        cmd.CommandTimeout = CommandTimeoutSec;
 
         PopulateParameters(cmd, query);
 
@@ -159,8 +160,8 @@ namespace Azos.Data.Access.MySql
     {
       using (var cmd = context.Connection.CreateCommand())
       {
-
         cmd.CommandText =  Source.StatementSource;
+        cmd.CommandTimeout = CommandTimeoutSec;
 
         PopulateParameters(cmd, query);
 

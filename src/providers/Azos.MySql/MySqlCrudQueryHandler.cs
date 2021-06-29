@@ -180,8 +180,8 @@ namespace Azos.Data.Access.MySql
   }
 
   /// <summary>
-  /// Facilitates creation of code-based queries with typed first parameter, such as a complex
-  /// filter object.
+  /// Facilitates creation of code-based query handlers with typed first parameter, such as a complex
+  /// filter object. The SQLs and parameters are constructed in overridden `DoBuildCommandAndParameters` method
   /// </summary>
   /// <typeparam name="TQueryParameters">Type of query first parameter, such as a complex filter object</typeparam>
   public abstract class MySqlCrudQueryHandler<TQueryParameters> : MySqlCrudQueryHandler
