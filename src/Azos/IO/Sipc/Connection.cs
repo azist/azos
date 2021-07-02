@@ -18,7 +18,7 @@ namespace Azos.IO.Sipc
   public enum ConnectionState
   {
     /// <summary>
-    /// The communication channel was not torn (yet) but the ping messages are not coming
+    /// The communication channel was not torn (yet) but the ping messages are not coming from the other side
     /// </summary>
     Limbo = -2,
 
@@ -46,22 +46,22 @@ namespace Azos.IO.Sipc
   public abstract class Connection : INamed
   {
 
-    protected Connection(TcpClient client)
+    protected Connection(string name, TcpClient client)
     {
       m_Client = client.NonNull(nameof(client));
       m_State = ConnectionState.OK;
-      m_Name = Guid.NewGuid().ToString();
-      m_StartUtc = DateTime.UtcNow;
+      m_Name = name.NonBlank(nameof(name));
+      m_StartUtc = m_LastReceiveUtc = m_LastSendUtc = DateTime.UtcNow;
     }
 
     /// <summary>
-    /// Called on server to re-link the connection with a new socket
+    /// Called to re-link the connection with a new socket
     /// </summary>
     internal void Reconnect(TcpClient client)
     {
       m_Client = client.NonNull(nameof(client));
       m_State = ConnectionState.OK;
-      m_LastReceiveUtc = DateTime.UtcNow;
+      m_LastReceiveUtc = m_LastSendUtc = DateTime.UtcNow;
     }
 
     private object m_Lock = new object();
@@ -73,30 +73,48 @@ namespace Azos.IO.Sipc
     private DateTime m_LastSendUtc;
 
 
-    public string Name          => m_Name;
-    public TcpClient Client     => m_Client;
-    public DateTime StartUtc    => m_StartUtc;
-    public DateTime LastReceive => m_LastReceiveUtc;
-    public DateTime LastSend    => m_LastSendUtc;
+    public string Name           => m_Name;
+    public TcpClient Client      => m_Client;
+    public ConnectionState State => m_State;
+    public DateTime StartUtc     => m_StartUtc;
+    public DateTime LastReceive  => m_LastReceiveUtc;
+    public DateTime LastSend     => m_LastSendUtc;
 
+
+    internal void PutInLimbo()
+    {
+      m_State = ConnectionState.Limbo;
+    }
 
     //called by a single thread at a time, does not leak
     internal string TryReceive()
     {
-      if (Client.Available <= 0) return null;
-
-      if (m_State != ConnectionState.OK && m_State != ConnectionState.Limbo) return null;//failed to get
       try
       {
-        var result = Protocol.Receive(Client);
-        m_State = ConnectionState.OK;
-        m_LastReceiveUtc = DateTime.UtcNow;
-        return result;
+        if (Client.Available <= 0) return null;
       }
       catch
       {
         m_State = ConnectionState.Torn;
         return null;
+      }
+
+      lock (m_Lock)
+      {
+        if (m_State != ConnectionState.OK && m_State != ConnectionState.Limbo) return null;//failed to receive
+
+        try
+        {
+          var result = Protocol.Receive(Client);
+          m_State = ConnectionState.OK;
+          m_LastReceiveUtc = DateTime.UtcNow;
+          return result;
+        }
+        catch
+        {
+          m_State = ConnectionState.Torn;
+          return null;
+        }
       }
     }
 
@@ -112,9 +130,11 @@ namespace Azos.IO.Sipc
       lock(m_Lock)
       {
         if (m_State != ConnectionState.OK && m_State != ConnectionState.Limbo) return false;//failed to send
+
         try
         {
           Protocol.Send(Client, command);
+          m_State = ConnectionState.OK;
           m_LastSendUtc = DateTime.UtcNow;
           return true;
         }

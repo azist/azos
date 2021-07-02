@@ -21,13 +21,19 @@ namespace Azos.IO.Sipc
     public const int LISTENER_PORT_MAX = 49_150;
 
 
-    public const int RECEIVE_TIMEOUT_MS = 5000;
-    public const int SEND_TIMEOUT_MS = 5000;
+    public const int RECEIVE_TIMEOUT_MS = 2000;
+    public const int SEND_TIMEOUT_MS = 2000;
 
     public const int RECEIVE_BUFFER_SIZE = 8 * 1024;
     public const int SEND_BUFFER_SIZE = 8 * 1024;
 
     public const int MAX_BYTE_SZ = 1 * 1024 * 1024;
+
+    public const int PING_INTERVAL_MS = 2500;
+    public const int LIMBO_TIMEOUT_MS = PING_INTERVAL_MS * 4;//if more than 4 ping interval passes, connection is in limbo
+
+    public const string CMD_PING = "ping";
+    public const string CMD_STOP = "stop";
 
 
     public static int GuardPort(this int port, string name)
@@ -80,19 +86,6 @@ namespace Azos.IO.Sipc
         using(var reader = new StreamReader(ms, Encoding.UTF8))
           return reader.ReadToEnd();
       }
-    }
-
-    //return connection id/name
-    public static string ReceiveHandshake(TcpClient client)
-    {
-      const int GUID_SZ = 16;
-
-      var nets = client.NonNull(nameof(client)).GetStream();
-
-      var buf = new byte[GUID_SZ];
-      socketRead(nets, buf, 0, GUID_SZ);
-
-      return buf.GuidFromNetworkByteOrder().ToString();
     }
 
     private static void socketRead(NetworkStream nets, byte[] buffer, int offset, int total)

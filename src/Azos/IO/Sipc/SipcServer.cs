@@ -156,7 +156,7 @@ namespace Azos.IO.Sipc
 
     private void threadBody()
     {
-      const int GRANULARITY_MS = 357;
+      const int GRANULARITY_MS = 250;
 
       while(true)
       {
@@ -176,9 +176,10 @@ namespace Azos.IO.Sipc
           DoHandleError(error, true);
         }
 
-        foreach(var one in m_Connections)
+        var now = DateTime.UtcNow;
+        foreach (var one in m_Connections)
         {
-          readAndHandleSafe(one);
+          visitOneSafe(one, now);
         }
 
         m_Signal.WaitOne(GRANULARITY_MS);
@@ -196,9 +197,9 @@ namespace Azos.IO.Sipc
       string name;
       try
       {
-        //upon connection to server, client sends a GUID which identifies the running instance
+        //upon connection to server, client sends a name(GUID) which identifies the running instance
         //client generates the guid on its startup only once per instance
-        name = Protocol.ReceiveHandshake(client);
+        name = Protocol.Receive(client);
       }
       catch(Exception error)
       {
@@ -212,7 +213,25 @@ namespace Azos.IO.Sipc
       return connection;
     }
 
-    private void readAndHandleSafe(Connection connection)
+    private void visitOneSafe(Connection conn, DateTime now)
+    {
+      var state = conn.State;
+      if (state == ConnectionState.OK && ((now - conn.LastReceive).TotalMilliseconds > Protocol.LIMBO_TIMEOUT_MS))
+      {
+        conn.PutInLimbo();
+        return;
+      }
+
+      tryReadAndHandleSafe(conn);
+
+      //ping
+      if ((now - conn.LastSend).TotalMilliseconds > Protocol.PING_INTERVAL_MS)
+      {
+        conn.Send(Protocol.CMD_PING);
+      }
+    }
+
+    private void tryReadAndHandleSafe(Connection connection)
     {
       //read socket if nothing then return;
       string command = connection.TryReceive();
